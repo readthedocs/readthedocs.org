@@ -52,12 +52,12 @@ textarea, input { display: block; padding: 5px; background: #fff; border: 1px so
 input[type="text"], input[type="password"] { width: 250px; height: 20px; margin-bottom: 5px; }
 select { display: block; max-height: 300px; width: 250px; margin-bottom: 10px; font: 16/20px "inconsolata-1", "inconsolata-2", 'bitstream vera sans mono', 'andale mono', 'lucida console', monospace; }
 textarea { width: 435px; height: 150px; }
-input[type="submit"], input[type="button"], button { font: 16px/20px "ff-meta-web-pro-1", "ff-meta-web-pro-2", Arial, "Helvetica Neue", sans-serif; color: #666; font-weight: bold; padding: 5px 10px; border: none; background: #e6e6e6 url(../images/gradient.png) repeat-x bottom left; margin: 10px 5px 20px 0; text-shadow: 0 1px 0 rgba(255, 255, 255, 1); }
+input[type="submit"], input[type="button"], button { font-family: "ff-meta-web-pro-1", "ff-meta-web-pro-2", Arial, "Helvetica Neue", sans-serif; color: #666; font-weight: bold; padding: 4px 10px; border: none; background: #e6e6e6 url(../images/gradient.png) repeat-x bottom left; margin: 10px 5px 20px 0; text-shadow: 0 1px 0 rgba(255, 255, 255, 1); border: 1px solid #bfbfbf; }
 input[type="submit"]:hover, input[type="button"]:hover, button:hover { background: #8ECC4C url(../images/gradient.png) repeat-x bottom left; color: #fff; text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5); }
 fieldset { border: 1px solid #bfbfbf; padding: 15px; -moz-border-radius: 3px; -webkit-border-radius: 3px; margin-bottom: 15px; }
 input[type="hidden"] { display: none; }
 input[type="checkbox"], input[type="radio"] { display: inline; }
-label { display: block; margin-bottom: 3px; }
+label { display: block; margin-bottom: 4px; font-weight: bold; }
 
 
 /* header */
@@ -102,6 +102,17 @@ label { display: block; margin-bottom: 3px; }
 #project_editing_toolbar { background: #E8ECEF; padding: 80px 0; }
 #project_editing_toolbar ul { background: #D1D9DF;  }
 #project_editing_toolbar ul li { display: block; float: left; padding: 15px 20px; background: #D1D9DF; }
+
+
+/* pagination */
+
+.pagination { float: left; background: #e6e6e6; padding: 8px; -moz-border-radius: 5px; webkit-border-radius: 5px; border-radius: 5px; }
+.pagination a, .pagination span { background: #fff; display: block; color: #444; text-decoration: none; float: left; padding: 5px 10px; border: 1px solid #bfbfbf; border-right: none; }
+.pagination a.disabled, .pagination span.disabled, 
+.pagination a.disabled:hover, .pagination span.disabled:hover { color: #999; background: #fff; }
+.pagination a:hover { background: url("../images/gradient-light.png") repeat-x scroll left bottom #f6f6f6; }
+.pagination .next { border-right: 1px solid #bfbfbf; }
+.pagination .current.page, .pagination .current.page:hover { color: #444; background: url("../images/gradient-light.png") repeat-x scroll left bottom #d9d9d9; }
 
 
 /* utils */

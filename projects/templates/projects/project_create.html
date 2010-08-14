@@ -2,6 +2,10 @@
 
 {% block title %}Create a new project{% endblock %}
 
+{% block content-header %}
+      <h2>Create a New Project</h2>
+{% endblock %}
+
 {% block content %}
   <form method="post" action=".">{% csrf_token %}
     {{ form.as_p }}

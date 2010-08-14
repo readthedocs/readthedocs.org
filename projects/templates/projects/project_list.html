@@ -1,10 +1,15 @@
 {% extends "projects/base_project.html" %}
 
+{% load pagination_tags %}
+
 {% block title %}Projects{% endblock %}
 
 {% block nav-browse %}class="active"{% endblock %}
 
 {% block content %}
+          
+          {% autopaginate project_list 2 %}
+        
           <!-- BEGIN projects list -->
           <div class="module">
             <div class="module-wrapper">
@@ -24,4 +29,7 @@
             </div>
           </div>
           <!-- END projects list -->
+
+          {% paginate %}
+
 {% endblock %}
