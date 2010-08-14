@@ -1,0 +1,11 @@
+{% extends "projects/base_project.html" %}
+
+{% block title %}Popular tags{% endblock %}
+
+{% block content %}
+  <ul>
+  {% for tag in tag_list %}
+    <li><a href="{% url project_tag_detail tag.slug %}">{{ tag.name }}</a></li>
+  {% endfor %}
+  </ul>
+{% endblock %}
