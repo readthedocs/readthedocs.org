@@ -6,6 +6,9 @@ from celery.decorators import task
 from projects.models import Project
 from projects.utils import get_project_path, find_file
 
+#ghetto_hack = re.compile(r'^(?P<key>\s*) = \s*u?[\'\"](?P<value>.*)[\'\"]$')
+ghetto_hack = re.compile(r'(?P<key>.*)\s*=\s*u?[\'\"](?P<value>.*)[\'\"]')
+
 @task
 def update_docs(slug, type='git'):
     project = Project.objects.get(slug=slug)
@@ -42,6 +45,13 @@ def build_docs(path):
         make_dir = matches[0].replace('/conf.py', '')
         os.chdir(make_dir)
         #Hack this for now...
-        from .conf import copyright, project, version, release, html_theme 
-        print release, html_theme
-        #lines = open('conf.py').readlines()
+        #from .conf import copyright, project, version, release, html_theme 
+        #print release, html_theme
+        lines = open('conf.py').readlines()
+        for line in lines:
+            for we_care in 'copyright,project,version,release,html_theme'.split(','):
+                if we_care in line:
+                    match = ghetto_hack.search(line)
+                    if match:
+                        print we_care
+                        print match.group(2)
