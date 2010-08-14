@@ -80,6 +80,15 @@ class Project(models.Model):
         conf_py = file(os.path.join(self.conf.path, 'conf.py'), 'w')
         conf_py.write(self.get_rendered_conf())
         conf_py.close()
+    
+    def get_rendered_index(self):
+        return render_to_string('projects/index.rst.html', {'project': self})
+    
+    def write_index(self):
+        if not self.is_imported:
+            fh = open(os.path.join(self.conf.path, 'index.rst'), 'w')
+            fh.write(self.get_rendered_index())
+            fh.close()
 
     @property
     def is_imported(self):
@@ -164,6 +173,14 @@ class File(models.Model):
     def revert_to(self, revision_number):
         revision = self.revisions.get(revision_number=revision_number)
         revision.apply()
+    
+    def get_rendered(self):
+        return render_to_string('projects/doc_file.rst.html', {'file': self})
+    
+    def write_to_disk(self):
+        fh = open(os.path.join(self.project.conf.path, '%s.rst' % self.slug), 'w')
+        fh.write(self.get_rendered())
+        fh.close()
 
 
 class FileRevision(models.Model):

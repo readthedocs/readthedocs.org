@@ -80,8 +80,18 @@ def update_created_docs(project):
     path = self.user_doc_path
 
     doc_root = os.path.join(path, project.slug, 'docs')
+    
+    if not os.path.exists(doc_root)
+        os.makedirs(doc_root)
+    
+    project.conf.path = doc_root
+    project.conf.save()
+    
+    project.write_index()
 
-    # TODO: write files
+    # TODO: make this more flexible
+    for file in project.files.all():
+        file.write_to_disk()
 
 
 def build_docs(project):
