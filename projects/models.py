@@ -48,3 +48,8 @@ class File(models.Model):
 
     def __unicode__(self):
         return '%s: %s' % (self.project.name, self.heading) 
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super(File, self).save(*args, **kwargs)

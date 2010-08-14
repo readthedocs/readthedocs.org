@@ -88,6 +88,7 @@ def file_add(request, project_slug):
 
     if request.method == 'POST':
         if form.is_valid():
+            form.instance.project = project
             file = form.save()
             project_edit = reverse('projects_edit', args=[project.slug])
             return HttpResponseRedirect(project_edit)
