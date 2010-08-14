@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 
@@ -49,6 +50,11 @@ data = """
 
 class Basic(TestCase):
     fixtures=['eric', 'test_data']
+    def setUp(self):
+        settings.CELERY_ALWAYS_EAGER = True
+
+    def tearDown(self):
+        settings.CELERY_ALWAYS_EAGER = False
 
     def test_github(self):
         resp = self.client.post('/github', {'payload': data}) 
