@@ -10,7 +10,7 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-SITE_ROOT = os.path.dirname(os.path.realpath(__file__))
+SITE_ROOT = '/'.join(os.path.dirname(__file__).split('/')[0:-1])
 
 MEDIA_ROOT = '%s/media/' % (SITE_ROOT)
 MEDIA_URL = '/media/'
