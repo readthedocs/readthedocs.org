@@ -19,12 +19,13 @@ class CreateProjectForm(forms.ModelForm):
 
         # create a couple sample files
         for i, (sample_file, template) in enumerate(constants.SAMPLE_FILES):
-            File.objects.create(
+            file = File.objects.create(
                 project=project,
                 heading=sample_file,
                 content=render_to_string(template, {'project': project}),
                 ordering=i+1,
             )
+            file.create_revision(old_content='', comment='')
         return project
 
 
@@ -68,7 +69,7 @@ class FileForm(forms.ModelForm):
             self.cleaned_data.get('revision_comment', '')
         )
 
-        update_docs.delay(file_obj.project)
+        update_docs.delay(file_obj.project.pk)
 
 
 class ConfForm(forms.ModelForm):

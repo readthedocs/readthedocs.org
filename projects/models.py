@@ -131,7 +131,7 @@ class File(models.Model):
     ordering = models.PositiveSmallIntegerField(default=1)
 
     class Meta:
-        ordering = ('denormalized_path', 'ordering',)
+        ordering = ('denormalized_path',)
 
     def __unicode__(self):
         return '%s: %s' % (self.project.name, self.heading)
@@ -141,9 +141,9 @@ class File(models.Model):
             self.slug = slugify(self.heading)
 
         if self.parent:
-            path = '%s%s/' % (self.parent.denormalized_path, self.parent.slug)
+            path = '%s/%s' % (self.parent.denormalized_path, self.slug)
         else:
-            path = ''
+            path = self.slug
 
         self.denormalized_path = path
 
@@ -182,8 +182,8 @@ class File(models.Model):
     def filename(self):
         return os.path.join(
             self.project.conf.path,
-            self.denormalized_path,
-            '%s.rst' % self.slug
+            self.project.slug,
+            '%s.rst' % self.denormalized_path
         )
     
     def get_rendered(self):

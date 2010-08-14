@@ -11,6 +11,10 @@ urlpatterns = patterns('',
         'core.views.serve_docs',
         name='projects_detail'
     ),
+    url(r'render_header/',
+        'core.views.render_header',
+        name='render_header'
+    ),
     url(r'^projects/', include('projects.urls.public')),
     (r'^admin/', include(admin.site.urls)),
     (r'^github', 'core.views.github_build'),

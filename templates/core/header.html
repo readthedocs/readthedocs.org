@@ -1,0 +1,34 @@
+    <!-- BEGIN header-->
+    <div id="header">
+
+        <!-- BEGIN header title-->
+        <div class="header-title">
+          <h1>Read the Docs</h1>
+        </div>
+        <!-- END header title -->
+
+
+        <!-- BEGIN global search -->
+        <div class="header-search">
+            <form action="{% url search %}">
+                <input type="text" name="q" value="{{ term }}" placeholder="Search docs">
+            <input type="submit" value="Go">
+          </form>
+        </div>
+        <!-- END global search -->
+
+        <!-- BEGIN header nav -->
+        <div class="header-nav">
+          <ul>
+            <li {% block nav-browse %}{% endblock %}>
+              <a href="{% url projects_list %}">Browse</a>
+            </li>
+            <li {% block nav-dashboard %}{% endblock %}>
+              {% if user.is_authenticated %}<a href="{% url projects_dashboard %}">Dashboard</a>{% else %}<a href="{% url auth_login %}">Log in</a>{% endif %}
+            </li>
+          </ul>
+        </div>
+        <!-- END header nav -->
+
+    </div>
+    <!-- END header-->
