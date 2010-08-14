@@ -24,7 +24,6 @@ def project_index(request, username=None, tag=None):
         request,
         queryset=queryset,
         extra_context={'person': user, 'tag': tag},
-        paginate_by=20,
         page=int(request.GET.get('page', 1)),
         template_object_name='project',
     )
@@ -47,7 +46,6 @@ def tag_index(request):
     return object_list(
         request,
         queryset=tag_qs,
-        paginate_by=20,
         page=int(request.GET.get('page', 1)),
         template_object_name='tag',
         template_name='projects/tag_list.html',
