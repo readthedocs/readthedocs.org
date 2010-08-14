@@ -10,7 +10,8 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-SITE_ROOT = os.path.dirname(os.path.realpath(__file__))
+SITE_ROOT = os.path.dirname(os.path.realpath(__file__ + '/..'))
+DOCROOT = os.path.join(SITE_ROOT, 'doc_root')
 
 MEDIA_ROOT = '%s/media/' % (SITE_ROOT)
 MEDIA_URL = '/media/'
@@ -84,4 +85,3 @@ INSTALLED_APPS = (
 CARROT_BACKEND = "ghettoq.taproot.Database"
 CELERY_ALWAYS_EAGER = True
 
-DOCROOT = os.path.join(SITE_ROOT, '../doc_root')

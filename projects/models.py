@@ -72,7 +72,7 @@ class Project(models.Model):
 
     @property
     def template_dir(self):
-        return os.path.join(settings.DOCROOT, '_template')
+        return os.path.join(settings.SITE_ROOT, 'templates', 'sphinx')
 
     def get_rendered_conf(self):
         return render_to_string('projects/conf.py.html', {'project': self})
