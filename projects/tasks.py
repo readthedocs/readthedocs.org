@@ -14,33 +14,51 @@ import fnmatch
 ghetto_hack = re.compile(r'(?P<key>.*)\s*=\s*u?[\'\"](?P<value>.*)[\'\"]')
 
 @task
-def update_docs(pk, type='git'):
+def update_docs(pk):
+    project = Project.objects.get(pk=pk)
+    if project.is_imported:
+        update_imported_docs(project)
+    else:
+        updated_created_docs(project)
+
+    # kick off a build
+    build_docs(project)
+
+
+def update_imported_docs(project):
     """
     A Celery task that updates the documentation for a project.
     """
-    project = Project.objects.get(pk=pk)
     path = project.user_doc_path
     if not os.path.exists(path):
         os.makedirs(path)
     os.chdir(path)
     if os.path.exists(os.path.join(path, project.slug)):
         os.chdir(project.slug)
-        if type is 'git':
-            command = 'git fetch && git reset --hard origin/master'
-        else:
+        if project.repo_type is 'hg':
             command = 'hg update -C -r . '
+        else:
+            command = 'git fetch && git reset --hard origin/master'
         print command
         run(command)
     else:
         repo = project.repo
-        if type is 'git':
+        if project.repo_type is 'hg':
+            command = 'hg clone %s %s' % (repo, project.slug)
+        else:
             repo.replace('.git', '')
             command = 'git clone %s.git %s' % (repo, project.slug)
-        else:
-            command = 'hg clone %s %s' % (repo, project.slug)
         print command
         run(command)
-    build_docs(project)
+
+
+def update_created_docs(project):
+    # grab the root path for the generated docs to live at
+    path = self.user_doc_path
+
+    doc_root = os.path.join(path, project.slug, 'docs')
+
+    # TODO: write files
 
 
 def build_docs(project):
