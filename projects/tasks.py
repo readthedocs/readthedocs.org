@@ -34,32 +34,26 @@ def update_docs(slug, type='git'):
     build_docs(path, project=project)
 
 
-def build_docs(path, project=None):
+def build_docs(project):
     """
     A helper function for the celery task to do the actual doc building.
     """
-    os.chdir(path)
-    matches = find_file('Makefile')
-    if len(matches) == 1:
-        make_dir = matches[0].replace('/Makefile', '')
-        os.chdir(make_dir)
-        os.system('make html')
+    make_dir = project.find('Makefile')[0].replace('/Makefile', '')
+    os.chdir(make_dir)
+    os.system('make html')
 
-    matches = find_file('conf.py')
-    if len(matches) == 1:
-        make_dir = matches[0].replace('/conf.py', '')
-        os.chdir(make_dir)
-        lines = open('conf.py').readlines()
-        data = {}
-        for line in lines:
-            for we_care in ['copyright', 'project', 'version', 'release', 'html_theme']:
-                if we_care in line:
-                    match = ghetto_hack.search(line)
-                    if match:
-                        data[match.group(1).strip()] = match.group(2).strip()
-        conf = Conf.objects.get_or_create(project=project)[0]
-        conf.copyright = data['copyright']
-        conf.version = data['version']
-        conf.theme = data['html_theme']
-        conf.path = os.getcwd()
-        conf.save()
+    conf_dir = project.find('conf.py')[0].replace('/conf.py', '')
+    os.chdir(conf_dir)
+    lines = open('conf.py').readlines()
+    data = {}
+    for line in lines:
+        for we_care in ['copyright', 'project', 'version', 'release', 'html_theme']:
+            match = ghetto_hack.search(line)
+            if match:
+                data[match.group(1).strip()] = match.group(2).strip()
+    conf = Conf.objects.get_or_create(project=project)[0]
+    conf.copyright = data['copyright']
+    conf.version = data['version']
+    conf.theme = data['html_theme']
+    conf.path = os.getcwd()
+    conf.save()

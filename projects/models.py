@@ -11,6 +11,7 @@ from projects.constants import DEFAULT_THEME_CHOICES, THEME_DEFAULT
 from taggit.managers import TaggableManager
 
 import os
+import fnmatch
 
 
 class Project(models.Model):
@@ -39,8 +40,6 @@ class Project(models.Model):
         return os.path.join(settings.DOCROOT, self.user.username, self.slug)
     user_doc_path = property(memoize(user_doc_path, {}, 1))
 
-    #@property
-    #@memoize({}, 1)
     def full_html_path(self):
         doc_base = os.path.join(self.user_doc_path, self.slug)
         for possible_path in ['docs', 'doc']:
@@ -49,6 +48,15 @@ class Project(models.Model):
                     return os.path.join(doc_base, '%s/%s/html' % (possible_path, pos_build))
 
     full_html_path = property(memoize(full_html_path, {}, 1))
+
+    def find(self, file):
+        matches = []
+        for root, dirnames, filenames in os.walk(self.user_doc_path):
+          for filename in fnmatch.filter(filenames, file):
+              matches.append(os.path.join(root, filename))
+        print "finding %s" % file
+        return matches
+    find = memoize(find, {}, 2)
 
 
     def save(self, *args, **kwargs):
@@ -64,6 +72,11 @@ class Project(models.Model):
 
     def get_rendered_conf(self):
         return render_to_string('projects/conf.py.html', {'project': self})
+
+    def write_conf(self):
+        conf_py = file(os.path.join(self.primary_conf.path, 'conf.py'), 'w')
+        conf_py.write(self.get_rendered_conf())
+        conf_py.close()
 
 
 class Conf(models.Model):
