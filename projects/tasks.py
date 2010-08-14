@@ -14,7 +14,7 @@ def update_docs(slug, type='git'):
     if os.path.exists(os.path.join(path, project.slug)):
         os.chdir(project.slug)
         if type is 'git':
-            command = 'git reset --hard origin/master'
+            command = 'git fetch && git reset --hard origin/master'
             print command
             os.system(command)
     else:
