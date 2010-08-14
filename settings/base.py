@@ -23,20 +23,9 @@ CACHE_MIDDLEWARE_SECONDS = 60
 FORCE_WWW = True
 LOGIN_REDIRECT_URL = '/'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'docs',
-        'USER': 'postgres',                      # Not used with sqlite3.
-        'PASSWORD': '',
-        'HOST': 'golem',
-        'PORT': '',
-    }
-}
-
 if DEBUG:
     CACHE_BACKEND = 'dummy://'
-    DATABASES['default']['HOST'] = 'localhost'
+    #DATABASES['default']['HOST'] = 'localhost'
 
 TIME_ZONE = 'America/Chicago'
 LANGUAGE_CODE = 'en-us'
@@ -79,7 +68,8 @@ INSTALLED_APPS = (
     'pagination',
     'profiles',
     'registration',
-    'south',
+    'celery',
+    'ghettoq',
 
     # our apps
     'projects',
