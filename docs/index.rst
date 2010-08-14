@@ -6,6 +6,10 @@
 Welcome to Read The Docs's documentation!
 =========================================
 
+We are dogfooding like a mofo.
+
+This is going to be an awesome project.
+
 Contents:
 
 .. toctree::

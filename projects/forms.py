@@ -12,3 +12,4 @@ class ProjectForm(forms.ModelForm):
 class FileForm(forms.ModelForm):
     class Meta:
         model = File
+        exclude = ('project', 'slug')
