@@ -91,4 +91,5 @@ def update_docs_pull():
         try:
             build_docs(project)
         except Exception, e:
+            update_docs(pk=project.pk)
             print e
