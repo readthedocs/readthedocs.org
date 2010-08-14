@@ -12,6 +12,7 @@ class Project(models.Model):
     description = models.TextField(blank=True)
     github_repo = models.CharField(max_length=100, blank=True)
     github_login = models.CharField(max_length=100, blank=True)
+    docs_directory = models.CharField(max_length=255, blank=True)
     pub_date = models.DateTimeField(auto_now_add=True)
     modified_date = models.DateTimeField(auto_now=True)
 

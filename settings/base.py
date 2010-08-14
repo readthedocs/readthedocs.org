@@ -70,6 +70,7 @@ INSTALLED_APPS = (
     'registration',
     'djcelery',
     'ghettoq',
+    'south',
 
     # our apps
     'projects',
