@@ -24,4 +24,4 @@ def serve_docs(request, username, project_slug, filename):
     if not filename:
         filename = "index.html"
     filename = filename.rstrip('/')
-    return serve(request, filename, proj.full_doc_path())
+    return serve(request, filename, proj.full_doc_path)

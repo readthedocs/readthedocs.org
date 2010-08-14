@@ -39,6 +39,8 @@ class Project(models.Model):
     def path(self):
         return os.path.join(settings.DOCROOT, self.user.username, self.slug)
 
+    #@property
+    #@memoize({}, 1)
     def full_doc_path(self):
         doc_base = os.path.join(self.path, self.slug)
         for possible_path in ['docs', 'doc']:
@@ -46,7 +48,7 @@ class Project(models.Model):
                 if os.path.exists(os.path.join(doc_base, '%s/%s/html' % (possible_path, pos_build))):
                     return os.path.join(doc_base, '%s/%s/html' % (possible_path, pos_build))
 
-    full_doc_path = memoize(full_doc_path, {}, 1)
+    full_doc_path = property(memoize(full_doc_path, {}, 1))
 
 
     def save(self, *args, **kwargs):
