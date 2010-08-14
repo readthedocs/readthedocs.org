@@ -72,7 +72,13 @@ INSTALLED_APPS = (
     'django.contrib.markup',
     'django.contrib.sessions',
     'django.contrib.sites',
+
+    # third party apps
     'pagination',
+    'profiles',
+    'registration',
     'south',
+
+    # our apps
     'projects',
 )
