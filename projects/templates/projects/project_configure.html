@@ -1,6 +1,8 @@
-{% extends "projects/base_project.html" %}
+{% extends "projects/base_project_editing.html" %}
 
 {% block title %}Configure {{ project.name }}{% endblock %}
+
+{% block content-header %}<h2>Edit Configuration</h2>{% endblock %}
 
 {% block content %}
   <form method="post" action=".">{% csrf_token %}

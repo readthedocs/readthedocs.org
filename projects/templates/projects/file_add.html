@@ -2,6 +2,8 @@
 
 {% block title %}Add a file{% endblock %}
 
+{% block content-header %}<h2>Add a file</h2>{% endblock %}
+
 {% block content %}
   <form method="post" action=".">{% csrf_token %}
     {{ form.as_p }}

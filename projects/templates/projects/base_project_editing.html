@@ -6,10 +6,21 @@
     <!-- BEGIN project ediitng toobar -->
     <div id="project_editing_toolbar">
       <div class="wrapper">
-        <ul>
-          <li><a href="{% url projects_dashboard %}">My Projects</a></li>
-          <li><a href="#">{{ project }}</a></li>
-        </ul>
+
+        <div class="editing-dash-nav">
+          <ul>
+            <li><a href="{% url projects_dashboard %}">My Projects</a></li>
+            <li><a href="#">{{ project }}</a></li>
+          </ul>
+        </div>
+
+        <div class="editing-options">
+          <ul>
+            <li><a href="{% url projects_configure project.slug %}">Edit Conf</a></li>
+            <li><a href="{% url projects_file_add project.slug %}">Add New Page</a></li>
+          </ul>
+        </div>
+
       </div>
     </div>
     <!-- END content ediitng toobar -->
