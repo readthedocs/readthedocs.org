@@ -1,0 +1,10 @@
+{% extends "projects/base_project.html" %}
+
+{% block title %}Add a file{% endblock %}
+
+{% block content %}
+  <form method="post" action=".">{% csrf_token %}
+    {{ form.as_p }}
+    <p><input type="submit" value="Add file" /></p>
+  </form>
+{% endblock %}

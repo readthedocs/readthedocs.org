@@ -21,4 +21,16 @@ urlpatterns = patterns('projects.views.private',
         'project_delete',
         name='projects_delete'
     ),
+    url(r'^(?P<project_slug>[-\w]+)/add/$',
+        'file_add',
+        name='projects_file_add'
+    ),
+    url(r'^(?P<project_slug>[-\w]+)/(?P<file_id>\d+)/edit/$',
+        'file_edit',
+        name='projects_file_edit'
+    ),
+    url(r'^(?P<project_slug>[-\w]+)/(?P<file_id>\d+)/delete/$',
+        'file_delete',
+        name='projects_file_delete'
+    ),
 )
