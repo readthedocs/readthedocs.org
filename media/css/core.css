@@ -70,15 +70,15 @@ label { display: block; margin-bottom: 4px; font-weight: bold; }
   /* header search */
   .header-search { position: absolute; top: 10px; left: 230px; }
   .header-search input { padding: 0 5px; margin: 0; height: 25px; font-size: 14px; float: left; -moz-border-radius: 0; -webkit-border-radius: 0; border: none; }
-  .header-search input[type="text"] { }
-  .header-search input[type="submit"] {  }
+  .header-search input[type="text"] { -moz-border-radius-topleft: 3px; -moz-border-radius-bottomleft: 3px; -webkit-border-top-left-radius: 3px; -webkit-border-bottom-left-radius: 3px; }
+  .header-search input[type="submit"] { -moz-border-radius-topright: 3px; -moz-border-radius-bottomright: 3px; -webkit-border-top-right-radius: 3px; -webkit-border-bottom-right-radius: 3px; padding: 0 12px; }
 
   /* header nav */
   .header-nav { position: absolute; top: 0; right: 10px; }
   .header-nav ul li { float: left; }
-  .header-nav ul li a { display: block; text-decoration: none; background: #697983; padding: 15px; color: #fff; }
-  .header-nav ul li a:hover { background: #8CA1AF; }
-  .header-nav ul li.active a, .header-nav ul li.active a:hover { background: #BAC7CF; }
+  .header-nav ul li a { display: block; text-decoration: none; background: url(../images/gradient.png) bottom left repeat-x #697983; padding: 15px; color: #fff; }
+  .header-nav ul li a:hover { background-color: #8CA1AF; }
+  .header-nav ul li.active a, .header-nav ul li.active a:hover { background-color: #BAC7CF; }
 
 
 /* content */
