@@ -1,5 +1,35 @@
 [
     {
+        "pk": 4, 
+        "model": "projects.project", 
+        "fields": {
+            "modified_date": "2010-08-14 08:00:49", 
+            "github_login": "", 
+            "description": "", 
+            "docs_directory": "", 
+            "github_repo": "http://github.com/bitprophet/fabric", 
+            "user": 1, 
+            "pub_date": "2010-08-14 08:00:49", 
+            "slug": "fabric", 
+            "name": "Fabric"
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "projects.project", 
+        "fields": {
+            "modified_date": "2010-08-14 05:59:29", 
+            "github_login": "", 
+            "description": "", 
+            "docs_directory": "", 
+            "github_repo": "http://github.com/django/django", 
+            "user": 1, 
+            "pub_date": "2010-08-14 05:59:29", 
+            "slug": "django", 
+            "name": "Django"
+        }
+    }, 
+    {
         "pk": 2, 
         "model": "projects.project", 
         "fields": {

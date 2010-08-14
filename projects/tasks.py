@@ -49,8 +49,8 @@ def build_docs(project):
                 data[match.group(1).strip()] = match.group(2).strip()
     conf = Conf.objects.get_or_create(project=project)[0]
     conf.copyright = data['copyright']
-    conf.version = data['version']
-    conf.theme = data['html_theme']
+    conf.version = data.get('version', 0.1)
+    conf.theme = data.get('html_theme', 'default')
     conf.path = os.getcwd()
     conf.save()
 
