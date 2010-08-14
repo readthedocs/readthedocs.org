@@ -14,6 +14,7 @@ ol,ul{list-style:none}
 hr { height: 1px; border: 0; border: none; width: 100%; background: #bfbfbf; color: #bfbfbf; margin: 15px 0; padding: 0; }
 *:focus { outline: none; }
 
+
 /* general layout */
 
 body { position: relative; text-align: center; z-index: 0; background: #fafafa; }
@@ -63,7 +64,7 @@ label { display: block; margin-bottom: 3px; }
 #header { height: 50px; background: #465158; overflow: hidden; }
 
   /* header title */
-  .header-title h1 { font-size: 20px; padding: 5px 0; color: #fff; }
+  .header-title h1 { font-size: 20px; padding: 5px 20px; color: #fff; }
 
   /* header search */
   .header-search { position: absolute; top: 10px; left: 230px; }
@@ -77,6 +78,22 @@ label { display: block; margin-bottom: 3px; }
   .header-nav ul li a { display: block; text-decoration: none; background: #697983; padding: 15px; color: #fff; }
   .header-nav ul li a:hover { background: #8CA1AF; }
   .header-nav ul li.active a, .header-nav ul li.active a:hover { background: #BAC7CF; }
+
+
+/* content */
+
+#content { margin-top: 80px; }
+
+
+/* module */
+
+.module { background: #E6E6E6; margin-bottom: 20px; }
+.module-wrapper { padding: 10px; }
+.module-header { padding: 0 10px; }
+.module-list { background: #fff; border: 1px solid #bfbfbf; border-bottom: none; }
+.module-list a { text-decoration: none; display: block; }
+.module-list .module-item { border-bottom: 1px solid #bfbfbf; padding: 10px; }
+
 
 
 /* project editing */

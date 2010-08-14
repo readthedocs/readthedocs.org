@@ -17,7 +17,7 @@
               <div class="module-list">
                 <ul>
                   {% for project in project_list %}
-                    <li><a href="{% url projects_manage project.slug %}">{{ project.name }}</a></li>
+                    <li class="module-item"><a href="{% url projects_manage project.slug %}">{{ project.name }}</a></li>
                   {% endfor %}
                 </ul>
               </div>
@@ -31,7 +31,9 @@
           <div class="module">
             <div class="module-wrapper">
 
-              <a href="{% url projects_create %}">Creat New Documentation</a>
+              <div class="module-list">
+                <a class="module-item" href="{% url projects_create %}">Creat New Documentation</a>
+              </div>
 
             </div>
           </div>
@@ -42,7 +44,9 @@
           <div class="module">
             <div class="module-wrapper">
 
-              <a href="{% url projects_import %}">Import Documentation</a>
+              <div class="module-list">
+                <a class="module-item" href="{% url projects_import %}">Import Documentation</a>
+              </div>
 
             </div>
           </div>
