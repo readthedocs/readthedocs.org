@@ -72,6 +72,7 @@ INSTALLED_APPS = (
     'ghettoq',
     'taggit',
     'south',
+    'taggit',
 
     # our apps
     'projects',
