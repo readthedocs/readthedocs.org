@@ -1,4 +1,4 @@
-from base import *
+from .base import *
 import os.path
 
 
