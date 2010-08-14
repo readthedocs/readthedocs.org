@@ -89,6 +89,11 @@ class Conf(models.Model):
     def __unicode__(self):
         return '%s config, v. %s' % (self.project.name, self.version)
 
+    @property
+    def version(self):
+        # TODO: hook into project versioning to retrieve latest ver
+        return ''
+
 
 class File(models.Model):
     project = models.ForeignKey(Project, related_name='files')
