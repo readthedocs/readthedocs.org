@@ -49,7 +49,7 @@
         <div class="header-nav">
           <ul>
             <li {% block nav-browse %}{% endblock %}>
-              <a href="#">Browse</a>
+              <a href="{% url projects_list %}">Browse</a>
             </li>
             <li {% block nav-dashboard %}{% endblock %}>
               {% if user.is_authenticated %}<a href="{% url projects_dashboard %}">Dashboard</a>{% else %}<a href="{% url auth_login %}">Log in</a>{% endif %}
