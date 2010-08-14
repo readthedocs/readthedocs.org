@@ -2,3 +2,8 @@ Versioning
 Simple bugfix editing
 Diffing
 Serving docs from a tag/commit
+
+Canonical names for directory struct
+$VENV/$DOCROOT/user/project/$CHECKOUT/docs/$CONFDIR
+
+Imported field on Conf
