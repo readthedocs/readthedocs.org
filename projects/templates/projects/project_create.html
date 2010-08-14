@@ -3,7 +3,7 @@
 {% block title %}Create a new project{% endblock %}
 
 {% block content %}
-  <form method="post" action=".">
+  <form method="post" action=".">{% csrf_token %}
     {{ form.as_p }}
     <p><input type="submit" value="Create" /></p>
   </form>
