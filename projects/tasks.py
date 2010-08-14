@@ -4,7 +4,7 @@ from celery.decorators import task
 from projects.models import Project
 from projects.utils import get_project_path, find_file
 
-#@task
+@task
 def update_docs(slug, type='git'):
     project = Project.objects.get(slug=slug)
     path = get_project_path(project)
