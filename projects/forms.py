@@ -3,6 +3,18 @@ from django import forms
 from projects.models import Project, File, Conf
 
 
+class CreateProjectForm(forms.ModelForm):
+    class Meta:
+        model = Project
+        exclude = ('user', 'slug', 'repo', 'docs_directory',)
+
+
+class ImportProjectForm(forms.ModelForm):
+    class Meta:
+        model = Project
+        exclude = ('user', 'slug', 'version',)
+
+
 class ProjectForm(forms.ModelForm):
     class Meta:
         model = Project

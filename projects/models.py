@@ -81,6 +81,10 @@ class Project(models.Model):
         conf_py.write(self.get_rendered_conf())
         conf_py.close()
 
+    @property
+    def is_imported(self):
+        return bool(self.repo)
+
 
 class Conf(models.Model):
     project = models.OneToOneField(Project, related_name='conf')

@@ -8,7 +8,7 @@ from django.shortcuts import get_object_or_404, render_to_response, redirect
 from django.template import RequestContext
 from django.views.generic.list_detail import object_list
 
-from projects.forms import FileForm, ProjectForm, ConfForm
+from projects.forms import FileForm, CreateProjectForm, ImportProjectForm, ConfForm
 from projects.models import Project
 
 
@@ -58,7 +58,7 @@ def project_create(request):
     """
     A form for creating a brand new project?
     """
-    form = ProjectForm(request.POST or None)
+    form = CreateProjectForm(request.POST or None)
     
     if request.method == 'POST' and form.is_valid():
         form.instance.user = request.user
@@ -76,7 +76,12 @@ def project_create(request):
 def project_edit(request, project_slug):
     project = get_object_or_404(request.user.projects.all(), slug=project_slug)
 
-    form = ProjectForm(instance=project, data=request.POST or None)
+    if project.is_imported:
+        form_class = ImportProjectForm
+    else:
+        form_class = CreateProjectForm
+
+    form = form_class(instance=project, data=request.POST or None)
 
     if request.method == 'POST' and form.is_valid():
         form.save()
@@ -109,7 +114,19 @@ def project_import(request):
     """
     I guess a form here for configuring your import?
     """
-    pass
+    form = ImportProjectForm(request.POST or None)
+    
+    if request.method == 'POST' and form.is_valid():
+        form.instance.user = request.user
+        project = form.save()
+        project_manage = reverse('projects_manage', args=[project.slug])
+        return HttpResponseRedirect(project_manage)
+
+    return render_to_response(
+        'projects/project_import.html',
+        {'form': form},
+        context_instance=RequestContext(request)
+    )
 
 @login_required
 def file_add(request, project_slug):
