@@ -27,19 +27,18 @@ def update_docs(slug, type='git'):
         os.chdir(project.slug)
         if type is 'git':
             command = 'git fetch && git reset --hard origin/master'
-            print command
-            run(command)
         else:
-            command = 'git fetch && git reset --hard origin/master'
+            command = 'hg pull'
+        print command
+        run(command)
     else:
+        repo = project.repo
         if type is 'git':
-            repo = project.repo
             repo.replace('.git', '')
             command = 'git clone %s.git %s' % (repo, project.slug)
-            print command
         else:
             command = 'hg clone %s %s' % (repo, project.slug)
-            print command
+        print command
         run(command)
     build_docs(project)
 
@@ -66,8 +65,10 @@ def build_docs(project):
     project.write_conf()
 
     try:
-        make_dir = project.find('Makefile')[0].replace('/Makefile', '')
+        makes = [makefile for makefile in project.find('Makefile') if 'doc' in makefile]
+        make_dir = makes[0].replace('/Makefile', '')
         os.chdir(make_dir)
+        print make_dir
         os.system('make html')
     except IndexError:
         os.chdir(conf_dir)
