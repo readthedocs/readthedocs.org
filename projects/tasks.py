@@ -1,6 +1,6 @@
 from celery.decorators import task
-from celery.task.schedules import crontab  
-from celery.decorators import periodic_task  
+from celery.task.schedules import crontab
+from celery.decorators import periodic_task
 
 from projects.models import Project, Conf
 from projects.utils import  find_file, run
@@ -60,12 +60,17 @@ def build_docs(project):
 
     project.write_conf()
 
-    make_dir = project.find('Makefile')[0].replace('/Makefile', '')
-    os.chdir(make_dir)
-    os.system('make html')
+    try:
+        make_dir = project.find('Makefile')[0].replace('/Makefile', '')
+        os.chdir(make_dir)
+        os.system('make html')
+    except IndexError:
+        os.chdir(conf_dir)
+        os.system('sphinx-build -b html . _build')
 
-#@periodic_task(run_every=crontab(hour="*", minute="*/30", day_of_week="*"))  
-@periodic_task(run_every=crontab(hour="*", minute="*", day_of_week="*"))  
+
+#@periodic_task(run_every=crontab(hour="*", minute="*/30", day_of_week="*"))
+@periodic_task(run_every=crontab(hour="*", minute="*", day_of_week="*"))
 def update_docs_pull():
     for project in Project.objects.all():
         print "Building %s" % project
@@ -73,4 +78,3 @@ def update_docs_pull():
             build_docs(project)
         except Exception, e:
             print e
-
