@@ -20,3 +20,12 @@ SAMPLE_FILES = (
     ('Installation', 'projects/samples/installation.rst.html'),
     ('Getting started', 'projects/samples/getting_started.rst.html'),
 )
+
+SCRAPE_CONF_SETTINGS = [
+    'copyright',
+    'project',
+    'version',
+    'release',
+    'source_suffix',
+    'html_theme',
+]

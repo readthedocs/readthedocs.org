@@ -12,6 +12,7 @@ from projects.utils import diff, dmp
 from taggit.managers import TaggableManager
 
 import os
+import re
 import fnmatch
 
 
@@ -35,7 +36,7 @@ class Project(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        return reverse('projects_detail', args=[self.user.username, self.slug])
+        return reverse('projects_detail', args=[self.user.username, self.slug, ''])
 
     def user_doc_path(self):
         return os.path.join(settings.DOCROOT, self.user.username, self.slug)
@@ -80,6 +81,15 @@ class Project(models.Model):
         conf_py = file(os.path.join(self.conf.path, 'conf.py'), 'w')
         conf_py.write(self.get_rendered_conf())
         conf_py.close()
+    
+    def get_rendered_index(self):
+        return render_to_string('projects/index.rst.html', {'project': self})
+    
+    def write_index(self):
+        if not self.is_imported:
+            fh = open(os.path.join(self.conf.path, 'index.rst'), 'w')
+            fh.write(self.get_rendered_index())
+            fh.close()
 
     @property
     def is_imported(self):
@@ -118,7 +128,7 @@ class File(models.Model):
     ordering = models.PositiveSmallIntegerField(default=1)
 
     class Meta:
-        ordering = ('ordering', 'denormalized_path',)
+        ordering = ('denormalized_path', 'ordering',)
 
     def __unicode__(self):
         return '%s: %s' % (self.project.name, self.heading)
@@ -128,9 +138,9 @@ class File(models.Model):
             self.slug = slugify(self.heading)
 
         if self.parent:
-            path = '%s%s/' % (self.parent.denormalized_path, self.slug)
+            path = '%s/' % self.parent.denormalized_path
         else:
-            path = '%s/' % (self.slug)
+            path = '/'
 
         self.denormalized_path = path
 
@@ -164,6 +174,21 @@ class File(models.Model):
     def revert_to(self, revision_number):
         revision = self.revisions.get(revision_number=revision_number)
         revision.apply()
+    
+    @property
+    def filename(self):
+        return os.path.join(
+            self.project.conf.path,
+            '%s%s.rst' % (self.denormalized_path, self.slug)
+        )
+    
+    def get_rendered(self):
+        return render_to_string('projects/doc_file.rst.html', {'file': self})
+    
+    def write_to_disk(self):
+        fh = open(self.filename, 'w')
+        fh.write(self.get_rendered())
+        fh.close()
 
 
 class FileRevision(models.Model):
