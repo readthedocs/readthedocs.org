@@ -17,7 +17,6 @@ def project_dashboard(request):
     return object_list(
         request,
         queryset=request.user.projects.all(),
-        paginate_by=20,
         page=int(request.GET.get('page', 1)),
         template_object_name='project',
         template_name='projects/project_dashboard.html',
@@ -30,7 +29,6 @@ def project_manage(request, project_slug):
         request,
         queryset=project.files.all(),
         extra_context={'project': project},
-        paginate_by=50,
         page=int(request.GET.get('page', 1)),
         template_object_name='file',
         template_name='projects/project_manage.html',
@@ -206,7 +204,6 @@ def file_history(request, project_slug, file_id):
         request,
         queryset=file.revisions.all(),
         extra_context={'project': project, 'file': file},
-        paginate_by=50,
         page=int(request.GET.get('page', 1)),
         template_object_name='revision',
         template_name='projects/file_history.html',
