@@ -1,6 +1,6 @@
 from celery.decorators import task
 from projects.models import Project, Conf
-from projects.utils import get_project_path, find_file, run
+from projects.utils import  find_file, run
 
 import os
 import re
@@ -16,7 +16,7 @@ def update_docs(slug, type='git'):
     A Celery task that updates the documentation for a project.
     """
     project = Project.objects.get(slug=slug)
-    path = get_project_path(project)
+    path = project.path
     if not os.path.exists(path):
         os.makedirs(path)
     os.chdir(path)

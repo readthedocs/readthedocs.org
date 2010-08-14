@@ -50,6 +50,7 @@ data = """
 
 class Basic(TestCase):
     fixtures=['eric', 'test_data']
+
     def setUp(self):
         settings.CELERY_ALWAYS_EAGER = True
 
@@ -58,5 +59,4 @@ class Basic(TestCase):
 
     def test_github(self):
         resp = self.client.post('/github', {'payload': data}) 
-
 

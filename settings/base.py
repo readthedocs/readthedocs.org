@@ -82,6 +82,6 @@ INSTALLED_APPS = (
 
 
 CARROT_BACKEND = "ghettoq.taproot.Database"
-#CELERY_ALWAYS_EAGER = True
+CELERY_ALWAYS_EAGER = True
 
 DOCROOT = os.path.join(SITE_ROOT, '../doc_root')

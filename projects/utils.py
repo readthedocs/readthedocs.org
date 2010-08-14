@@ -3,9 +3,6 @@ import fnmatch
 from django.conf import settings
 import commands
 
-def get_project_path(project):
-    return os.path.join(settings.DOCROOT, project.user.username, project.slug)
-
 def find_file(file):
     matches = []
     for root, dirnames, filenames in os.walk('.'):
@@ -22,4 +19,3 @@ def run(command):
     ret = p.returncode
     return (ret, out, err)
     """
-

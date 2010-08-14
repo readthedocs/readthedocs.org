@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.conf import settings
 from django.db import models
 from django.template.defaultfilters import slugify
 from django.template.loader import render_to_string
@@ -31,6 +32,10 @@ class Project(models.Model):
     def get_absolute_url(self):
         return reverse('project_detail', args=[self.user.username, self.slug])
 
+    @property
+    def path(project):
+        return os.path.join(settings.DOCROOT, self.user.username, self.slug)
+
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)
@@ -56,7 +61,7 @@ class Conf(models.Model):
 
     def __unicode__(self):
         return '%s config, v. %s' % (self.project.name, self.version)
-    
+
     def save(self, *args, **kwargs):
         if self.primary_conf:
             self.project.confs.update(primary_conf=False)
@@ -76,8 +81,8 @@ class File(models.Model):
         ordering = ('ordering', 'denormalized_path',)
 
     def __unicode__(self):
-        return '%s: %s' % (self.project.name, self.heading) 
-    
+        return '%s: %s' % (self.project.name, self.heading)
+
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.heading)

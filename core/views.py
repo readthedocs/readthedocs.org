@@ -8,7 +8,7 @@ import os
 
 from projects.models import Project
 from projects.tasks import update_docs
-from projects.utils import get_project_path, find_file
+from projects.utils import find_file
 
 
 @csrf_view_exempt
@@ -23,7 +23,7 @@ def github_build(request):
 def serve_docs(request, username, project_slug, filename):
     proj = Project.objects.get(slug=project_slug, user__username=username)
     project = proj.slug
-    path = get_project_path(proj)
+    path = project.path
     if not filename:
         filename = "index.html"
     filename = filename.rstrip('/')

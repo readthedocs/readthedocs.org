@@ -1,9 +1,12 @@
 import sys, os
 
+from django.conf import settings
+TEMPLATE_DIR = os.path.join(settings.DOCROOT, '_template')
+
 extensions = []
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = [TEMPLATE_DIR, '_templates']
 
 # The suffix of source filenames.
 source_suffix = '.rst'
