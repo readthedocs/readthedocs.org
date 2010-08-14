@@ -1,0 +1,11 @@
+{% extends "projects/base_project.html" %}
+
+{% block title %}Project Dashboard{% endblock %}
+
+{% block content %}
+  <ul>
+    {% for project in project_list %}
+      <li><a href="{% url projects_edit project.slug %}">{{ project.name }}</a></li>
+    {% endfor %}
+  </ul>
+{% endblock %}

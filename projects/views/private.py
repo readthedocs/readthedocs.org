@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render_to_response, redirect
 from django.template import RequestContext
@@ -17,6 +18,7 @@ def project_dashboard(request):
         paginate_by=20,
         page=int(request.GET.get('page', 1)),
         template_object_name='project',
+        template_name='projects/project_dashboard.html',
     )
 
 @login_required
@@ -30,7 +32,7 @@ def project_create(request):
         if form.is_valid():
             form.instance.user = request.user
             project = form.save()
-            project_edit = reverse('project_edit', args=[project.slug])
+            project_edit = reverse('projects_edit', args=[project.slug])
             return HttpResponseRedirect(project_edit)
 
     return render_to_response(
@@ -47,7 +49,7 @@ def project_edit(request, project_slug):
 
     if request.method == 'POST' and form.is_valid():
         form.save()
-        project_dashboard = reverse('project_dashboard')
+        project_dashboard = reverse('projects_dashboard')
         return HttpResponseRedirect(project_dashboard)
 
     return render_to_response(
@@ -62,7 +64,7 @@ def project_delete(request, project_slug):
 
     if request.method == 'POST':
         project.delete()
-        project_dashboard = reverse('project_dashboard')
+        project_dashboard = reverse('projects_dashboard')
         return HttpResponseRedirect(project_dashboard)
 
     return render_to_response(
