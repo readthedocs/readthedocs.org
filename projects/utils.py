@@ -29,3 +29,11 @@ def diff(txt1, txt2):
     """Create a 'diff' from txt1 to txt2."""
     patch = dmp.patch_make(txt1, txt2)
     return dmp.patch_toText(patch)
+
+def safe_write(filename, contents):
+    dirname = os.path.dirname(filename)
+    if not os.path.exists(dirname):
+        os.makedirs(dirname)
+    fh = open(filename, 'w')
+    fh.write(contents)
+    fh.close()

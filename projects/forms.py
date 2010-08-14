@@ -49,7 +49,7 @@ class ProjectForm(forms.ModelForm):
 
 
 class FileForm(forms.ModelForm):
-    revision_comment = forms.CharField(max_length=255)
+    revision_comment = forms.CharField(max_length=255, required=False)
     
     class Meta:
         model = File

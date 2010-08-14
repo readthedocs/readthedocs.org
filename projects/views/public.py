@@ -50,3 +50,15 @@ def tag_index(request):
         template_object_name='tag',
         template_name='projects/tag_list.html',
     )
+
+def search(request):
+    term = request.GET['q']
+    queryset = Project.objects.filter(name__icontains=term)
+    
+    return object_list(
+        request,
+        queryset=queryset,
+        template_object_name='term',
+        extra_context={'term': term},
+        template_name='projects/search.html',
+    )

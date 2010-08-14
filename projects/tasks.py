@@ -17,6 +17,11 @@ ghetto_hack = re.compile(r'(?P<key>.*)\s*=\s*u?[\'\"](?P<value>.*)[\'\"]')
 @task
 def update_docs(pk):
     project = Project.objects.get(pk=pk)
+
+    path = project.user_doc_path
+    if not os.path.exists(path):
+        os.makedirs(path)
+
     if project.is_imported:
         update_imported_docs(project)
         scrape_conf_file(project)
@@ -31,9 +36,6 @@ def update_imported_docs(project):
     """
     A Celery task that updates the documentation for a project.
     """
-    path = project.user_doc_path
-    if not os.path.exists(path):
-        os.makedirs(path)
     os.chdir(path)
     if os.path.exists(os.path.join(path, project.slug)):
         os.chdir(project.slug)
@@ -97,7 +99,7 @@ def build_docs(project):
     """
     A helper function for the celery task to do the actual doc building.
     """
-    project.write_conf()
+    project.conf.write_to_disk()
 
     try:
         makes = [makefile for makefile in project.find('Makefile') if 'doc' in makefile]

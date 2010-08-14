@@ -1,0 +1,36 @@
+
+{% extends "projects/base_project.html" %}
+
+{% load pagination_tags %}
+
+{% block title %}Search results for {{ term }} {% endblock %}
+
+{% block nav-browse %}class="active"{% endblock %}
+
+{% block content %}
+
+          {% autopaginate term_list 15 %}
+
+          <!-- BEGIN projects list -->
+          <div class="module">
+            <div class="module-wrapper">
+
+              <div class="module-header">
+                  <h2>Search results for {{ term }}</h2>
+              </div>
+
+              <div class="module-list">
+                <ul>
+                  {% for project in term_list %}
+                    <li class="module-item"><a href="{{ project.get_absolute_url }}">{{ project.name }}</a></li>
+                  {% endfor %}
+                </ul>
+              </div>
+
+            </div>
+          </div>
+          <!-- END projects list -->
+
+          {% paginate %}
+
+{% endblock %}
