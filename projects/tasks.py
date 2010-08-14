@@ -21,7 +21,7 @@ def update_docs(pk):
         update_imported_docs(project)
         scrape_conf_file(project)
     else:
-        updated_created_docs(project)
+        update_created_docs(project)
 
     # kick off a build
     build_docs(project)
@@ -77,7 +77,7 @@ def scrape_conf_file(project):
 
 def update_created_docs(project):
     # grab the root path for the generated docs to live at
-    path = self.user_doc_path
+    path = project.user_doc_path
 
     doc_root = os.path.join(path, project.slug, 'docs')
 
@@ -89,7 +89,6 @@ def update_created_docs(project):
 
     project.write_index()
 
-    # TODO: make this more flexible
     for file in project.files.all():
         file.write_to_disk()
 

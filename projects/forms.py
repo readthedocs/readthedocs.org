@@ -68,6 +68,8 @@ class FileForm(forms.ModelForm):
             self.cleaned_data.get('revision_comment', '')
         )
 
+        update_docs.delay(file_obj.project)
+
 
 class ConfForm(forms.ModelForm):
     class Meta:

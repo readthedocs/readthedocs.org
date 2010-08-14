@@ -111,8 +111,8 @@ class Conf(models.Model):
     copyright = models.CharField(max_length=255, blank=True)
     theme = models.CharField(max_length=20, choices=DEFAULT_THEME_CHOICES,
                              default=THEME_DEFAULT)
-    path = models.CharField(max_length=255, editable=False, null=True)
-    suffix = models.CharField(max_length=10, editable=False, null=True)
+    path = models.CharField(max_length=255, editable=False)
+    suffix = models.CharField(max_length=10, editable=False, default='rst')
 
     def __unicode__(self):
         return '%s config, v. %s' % (self.project.name, self.project.version)
@@ -138,9 +138,9 @@ class File(models.Model):
             self.slug = slugify(self.heading)
 
         if self.parent:
-            path = '%s/' % self.parent.denormalized_path
+            path = '%s%s/' % (self.parent.denormalized_path, self.parent.slug)
         else:
-            path = '/'
+            path = ''
 
         self.denormalized_path = path
 
@@ -179,7 +179,8 @@ class File(models.Model):
     def filename(self):
         return os.path.join(
             self.project.conf.path,
-            '%s%s.rst' % (self.denormalized_path, self.slug)
+            self.denormalized_path,
+            '%s.rst' % self.slug
         )
     
     def get_rendered(self):
