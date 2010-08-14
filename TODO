@@ -7,3 +7,12 @@ Canonical names for directory struct
 $VENV/$DOCROOT/user/project/$CHECKOUT/docs/$CONFDIR
 
 Imported field on Conf
+
+Creating docs:
+* dynamically build docs based only on models
+* figure out how the hell to do TOC
+* preload project w/ "installation", "getting started"
+* any ajax shiz we need to make the editor work / preview, etc
+* how versioning fits into this -> probably diffs stored in json
+* history etc
+* django.contrib.comments for your projects or modeled out 'doc requests'?

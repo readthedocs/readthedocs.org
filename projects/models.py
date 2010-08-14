@@ -34,7 +34,7 @@ class Project(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        return reverse('project_detail', args=[self.user.username, self.slug])
+        return reverse('projects_detail', args=[self.user.username, self.slug])
 
     def user_doc_path(self):
         return os.path.join(settings.DOCROOT, self.user.username, self.slug)
@@ -72,7 +72,7 @@ class Project(models.Model):
 
     @property
     def template_dir(self):
-        return os.path.join(settings.DOCROOT, '_template')
+        return os.path.join(settings.SITE_ROOT, 'templates', 'sphinx')
 
     def get_rendered_conf(self):
         return render_to_string('projects/conf.py.html', {'project': self})
