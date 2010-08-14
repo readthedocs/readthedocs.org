@@ -21,7 +21,7 @@ def update_docs(pk):
         update_imported_docs(project)
         scrape_conf_file(project)
     else:
-        updated_created_docs(project)
+        update_created_docs(project)
 
     # kick off a build
     build_docs(project)
