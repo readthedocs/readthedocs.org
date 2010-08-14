@@ -62,7 +62,7 @@ label { display: block; margin-bottom: 4px; font-weight: bold; }
 
 /* header */
 
-#header { height: 50px; background: #465158; overflow: hidden; text-align: left; }
+#header { height: 50px; min-width: 780px; background: #465158; overflow: hidden; text-align: left; border-bottom: 1px solid #ccc; }
 
   /* header title */
   .header-title h1 { font-size: 20px; padding: 5px 20px; color: #fff; }
@@ -134,5 +134,6 @@ label { display: block; margin-bottom: 4px; font-weight: bold; }
 .last { margin-right: 0; padding-right: 0; }
 .top { margin-top: 0; padding-top: 0; }
 .bottom { margin-bottom: 0; padding-bottom: 0; }
+.empty { padding: 30px; background: #E6E6E6; -moz-border-radius: 5px; -webkit-border-radius: 5px; border-radius: 5px; }
 .clearfix:after, .wrapper:after { content: "\0020"; display: block; height: 0; clear: both; visibility: hidden; overflow: hidden; }
 .clearfix, .wrapper { display: block; }
