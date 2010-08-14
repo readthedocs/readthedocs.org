@@ -2,6 +2,8 @@
 
 {% block title %}Import an existing project{% endblock %}
 
+{% block content-header %}<h1>Import an existing project</h1>{% endblock %}
+
 {% block content %}
   <form method="post" action=".">{% csrf_token %}
     {{ form.as_p }}
