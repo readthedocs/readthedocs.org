@@ -85,3 +85,8 @@ INSTALLED_APPS = (
 CARROT_BACKEND = "ghettoq.taproot.Database"
 CELERY_ALWAYS_EAGER = True
 
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'golem'
+EMAIL_HOST_USER = 'no-reply@readthedocs.com'
+EMAIL_PORT = 25
+

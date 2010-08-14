@@ -85,6 +85,16 @@ class Project(models.Model):
     def is_imported(self):
         return bool(self.repo)
 
+    @property
+    def repo_type(self):
+        if self.is_imported:
+            if re.match('(https?://|git://)github', self.repo):
+                return 'git'
+            elif self.repo.startswith('http://bitbucket'):
+                return 'hg'
+            elif self.repo.endswith('git'):
+                return 'git'
+
 
 class Conf(models.Model):
     project = models.OneToOneField(Project, related_name='conf')
