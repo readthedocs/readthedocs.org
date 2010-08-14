@@ -1,7 +1,9 @@
 from django.conf import settings
-from django.views.static import serve
 from django.http import HttpResponse
+from django.shortcuts import render_to_response
+from django.template import RequestContext
 from django.views.decorators.csrf import csrf_view_exempt
+from django.views.static import serve
 
 import json
 
@@ -25,3 +27,7 @@ def serve_docs(request, username, project_slug, filename):
         filename = "index.html"
     filename = filename.rstrip('/')
     return serve(request, filename, proj.full_html_path)
+
+def render_header(request):
+    return render_to_response('core/header.html', {},
+                context_instance=RequestContext(request))
