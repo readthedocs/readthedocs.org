@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from django.views.generic.list_detail import object_list, object_detail
 
-from project.models import Project
+from projects.models import Project
 
 
 def project_index(request, username=None):
