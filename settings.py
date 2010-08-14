@@ -44,6 +44,8 @@ USE_I18N = True
 SITE_ID = 1
 SECRET_KEY = 'asciidick'
 
+ACCOUNT_ACTIVATION_DAYS = 7
+
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.load_template_source',
     'django.template.loaders.app_directories.load_template_source',
