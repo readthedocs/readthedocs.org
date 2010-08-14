@@ -8,7 +8,7 @@ from django.shortcuts import get_object_or_404, render_to_response, redirect
 from django.template import RequestContext
 from django.views.generic.list_detail import object_list
 
-from projects.forms import FileForm, ProjectForm
+from projects.forms import FileForm, ProjectForm, ConfForm
 from projects.models import Project
 
 
@@ -37,18 +37,34 @@ def project_manage(request, project_slug):
     )
 
 @login_required
+def project_configure(request, project_slug):
+    project = get_object_or_404(request.user.projects.all(), slug=project_slug)
+
+    form = ConfForm(instance=project.conf, data=request.POST or None)
+
+    if request.method == 'POST' and form.is_valid():
+        conf = form.save()
+        manage = reverse('projects_manage', args=[project.slug])
+        return HttpResponseRedirect(manage)
+
+    return render_to_response(
+        'projects/project_configure.html',
+        {'project': project, 'conf': project.conf, 'form': form},
+        context_instance=RequestContext(request)
+    )
+
+@login_required
 def project_create(request):
     """
     A form for creating a brand new project?
     """
     form = ProjectForm(request.POST or None)
     
-    if request.method == 'POST':
-        if form.is_valid():
-            form.instance.user = request.user
-            project = form.save()
-            project_manage = reverse('projects_manage', args=[project.slug])
-            return HttpResponseRedirect(project_manage)
+    if request.method == 'POST' and form.is_valid():
+        form.instance.user = request.user
+        project = form.save()
+        project_manage = reverse('projects_manage', args=[project.slug])
+        return HttpResponseRedirect(project_manage)
 
     return render_to_response(
         'projects/project_create.html',
@@ -101,12 +117,11 @@ def file_add(request, project_slug):
 
     form = FileForm(request.POST or None)
 
-    if request.method == 'POST':
-        if form.is_valid():
-            form.instance.project = project
-            file = form.save()
-            project_manage = reverse('projects_manage', args=[project.slug])
-            return HttpResponseRedirect(project_manage)
+    if request.method == 'POST' and form.is_valid():
+        form.instance.project = project
+        file = form.save()
+        project_manage = reverse('projects_manage', args=[project.slug])
+        return HttpResponseRedirect(project_manage)
 
     return render_to_response(
         'projects/file_add.html',
@@ -121,11 +136,10 @@ def file_edit(request, project_slug, file_id):
 
     form = FileForm(instance=file, data=request.POST or None)
 
-    if request.method == 'POST':
-        if form.is_valid():
-            form.save()
-            project_manage = reverse('projects_manage', args=[project.slug])
-            return HttpResponseRedirect(project_manage)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        project_manage = reverse('projects_manage', args=[project.slug])
+        return HttpResponseRedirect(project_manage)
 
     return render_to_response(
         'projects/file_edit.html',

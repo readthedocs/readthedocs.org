@@ -1,6 +1,6 @@
 from django import forms
 
-from projects.models import Project, File
+from projects.models import Project, File, Conf
 
 
 class ProjectForm(forms.ModelForm):
@@ -28,3 +28,9 @@ class FileForm(forms.ModelForm):
             old_content,
             self.cleaned_data.get('revision_comment', '')
         )
+
+
+class ConfForm(forms.ModelForm):
+    class Meta:
+        model = Conf
+        exclude = ('project',)

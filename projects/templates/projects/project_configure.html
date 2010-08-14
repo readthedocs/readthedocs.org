@@ -1,0 +1,10 @@
+{% extends "projects/base_project.html" %}
+
+{% block title %}Configure {{ project.name }}{% endblock %}
+
+{% block content %}
+  <form method="post" action=".">{% csrf_token %}
+    {{ form.as_p }}
+    <p><input type="submit" value="Save Configuration" /></p>
+  </form>
+{% endblock %}
