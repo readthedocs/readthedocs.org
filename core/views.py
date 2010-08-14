@@ -28,11 +28,8 @@ def serve_docs(request, username, project_slug, filename="index.html"):
 
     doc_base = os.path.join(path, project)
     for possible_path in ['docs', 'doc']:
-        if os.path.exists( os.path.join(doc_base, '%s/build/html' % possible_path)):
-            final_path = os.path.join(doc_base, '%s/build/html' % possible_path) 
-        elif os.path.exists( os.path.join(doc_base, '%s/_build/html' % possible_path)):
-            final_path = os.path.join(doc_base, '%s/_build/html' % possible_path) 
-        elif os.path.exists( os.path.join(doc_base, '%s/.build/html' % possible_path)):
-            final_path = os.path.join(doc_base, '%s/.build/html' % possible_path) 
-    return serve(request, filename, final_path)
+        for pos_build in ['build', '_build', '.build']:
+            if os.path.exists(os.path.join(doc_base, '%s/%s/html' % (possible_path, pos_build))):
+                final_path = os.path.join(doc_base, '%s/%s/html' % (possible_path, pos_build))
+                return serve(request, filename, final_path)
 
