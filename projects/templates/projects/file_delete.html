@@ -1,6 +1,6 @@
 {% extends "projects/base_project.html" %}
 
-{% block title %}Delete {{ project.name }}?{% endblock %}
+{% block title %}Delete {{ file.heading }}?{% endblock %}
 
 {% block content %}
   <form method="post" action=".">{% csrf_token %}

@@ -22,6 +22,19 @@ def project_dashboard(request):
     )
 
 @login_required
+def project_manage(request, project_slug):
+    project = get_object_or_404(request.user.projects.all(), slug=project_slug)
+    return object_list(
+        request,
+        queryset=project.files.all(),
+        extra_context={'project': project},
+        paginate_by=50,
+        page=int(request.GET.get('page', 1)),
+        template_object_name='file',
+        template_name='projects/project_manage.html',
+    )
+
+@login_required
 def project_create(request):
     """
     A form for creating a brand new project?
@@ -115,5 +128,21 @@ def file_edit(request, project_slug, file_id):
     return render_to_response(
         'projects/file_edit.html',
         {'form': form, 'project': project},
+        context_instance=RequestContext(request)
+    )
+
+@login_required
+def file_delete(request, project_slug, file_id):
+    project = get_object_or_404(request.user.projects.all(), slug=project_slug)
+    file = get_object_or_404(project.files.all(), id=file_id)
+
+    if request.method == 'POST':
+        file.delete()
+        project_edit = reverse('projects_edit', args=[project.slug])
+        return HttpResponseRedirect(project_edit)
+
+    return render_to_response(
+        'projects/file_delete.html',
+        {'project': project},
         context_instance=RequestContext(request)
     )

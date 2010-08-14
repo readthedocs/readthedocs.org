@@ -36,7 +36,7 @@ class Project(models.Model):
 
 class File(models.Model):
     project = models.ForeignKey(Project, related_name='files')
-    parent = models.ForeignKey('self', null=True, blank=True)
+    parent = models.ForeignKey('self', null=True, blank=True, related_name='children')
     heading = models.CharField(max_length=255)
     slug = models.SlugField()
     content = models.TextField()
@@ -52,4 +52,19 @@ class File(models.Model):
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.heading)
+
+        if self.parent:
+            path = '%s%s/' % (self.parent.denormalized_path, self.slug)
+        else:
+            path = '%s/' % (self.slug)
+
+        self.denormalized_path = path
+
         super(File, self).save(*args, **kwargs)
+
+        if self.children:
+            def update_children(children):
+                for child in children:
+                    child.save()
+                    update_children(child.children.all())
+            update_children(self.children.all())
