@@ -3,6 +3,8 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.template.defaultfilters import slugify
 
+from projects.constants import DEFAULT_THEME_CHOICES, THEME_DEFAULT
+
 from taggit.managers import TaggableManager
 
 
@@ -32,6 +34,29 @@ class Project(models.Model):
         if not self.slug:
             self.slug = slugify(self.name)
         super(Project, self).save(*args, **kwargs)
+        if not self.confs:
+            conf = Conf.objects.create(project=self)
+
+    @property
+    def primary_conf(self):
+        return self.confs.get(primary_conf=True)
+
+
+class Conf(models.Model):
+    project = models.ForeignKey(Project, related_name='confs')
+    copyright = models.CharField(max_length=255, blank=True)
+    version = models.CharField(max_length=20, blank=True)
+    theme = models.CharField(max_length=20, choices=DEFAULT_THEME_CHOICES,
+                             default=THEME_DEFAULT)
+    primary_conf = models.BooleanField(default=True)
+
+    def __unicode__(self):
+        return '%s config, v. %s' % (self.project.name, self.version)
+    
+    def save(self, *args, **kwargs):
+        if self.primary_conf:
+            self.project.confs.update(primary_conf=False)
+        super(Conf, self).save(*args, **kwargs)
 
 
 class File(models.Model):
