@@ -48,7 +48,7 @@ data = """
 """
 
 class Basic(TestCase):
-    fixtures=['test_data']
+    fixtures=['eric', 'test_data']
 
     def test_github(self):
         resp = self.client.post('/github', {'payload': data}) 
