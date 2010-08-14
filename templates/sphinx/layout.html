@@ -6,40 +6,5 @@
 {% endblock %}
 
 {% block relbar1 %}
-    <!-- BEGIN header-->
-    <div id="header">
-      <div class="wrapper">
-
-        <!-- BEGIN header title-->
-        <div class="header-title">
-          <h1>Read the Docs</h1>
-        </div>
-        <!-- END header title -->
-
-
-        <!-- BEGIN global search -->
-        <div class="header-search">
-          <form>
-            <input type="text" name="q" placeholder="Search docs">
-            <input type="submit" value="Go">
-          </form>
-        </div>
-        <!-- END global search -->
-
-        <!-- BEGIN header nav -->
-        <div class="header-nav">
-          <ul>
-            <li>
-              <a href="/projects/">Browse</a>
-            </li>
-            <li>
-              <a href="/accounts/login/">Log in</a>
-            </li>
-          </ul>
-        </div>
-        <!-- END header nav -->
-
-      </div>
-    </div>
-{{ super() }}
+<!--# include virtual="/render_header/" -->
 {% endblock %}
