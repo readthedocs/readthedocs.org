@@ -1,0 +1,7 @@
+An awesome documentation hosting site.
+
+In order to get it running::
+    virtualenv doc_site
+    cd doc_site
+    pip install -r pip_requirements.txt
+    ./manage.py runserver
