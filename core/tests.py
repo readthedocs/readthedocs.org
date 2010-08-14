@@ -4,6 +4,7 @@ from django.core.urlresolvers import reverse
 
 import json
 
+from projects.models import Conf
 
 data = """
 {
@@ -59,4 +60,8 @@ class Basic(TestCase):
 
     def test_github(self):
         resp = self.client.post('/github', {'payload': data}) 
+        self.assertEqual(Conf.objects.count(), 1)
+        conf = Conf.objects.all()[0]
+        self.assertEqual(conf.theme, 'default')
+        self.assertTrue(conf.path is not None)
 
