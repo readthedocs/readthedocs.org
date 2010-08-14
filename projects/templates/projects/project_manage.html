@@ -5,7 +5,7 @@
 {% block content %}
   <ul>
     {% for file in file_list %}
-      <li><a href="{% url file_edit project.slug file.id %}">{{ file.heading }}</a></li>
+      <li><a href="{% url projects_file_edit project.slug file.id %}">{{ file.heading }}</a></li>
     {% endfor %}
   </ul>
 {% endblock %}

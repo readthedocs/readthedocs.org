@@ -45,8 +45,8 @@ def project_create(request):
         if form.is_valid():
             form.instance.user = request.user
             project = form.save()
-            project_edit = reverse('projects_edit', args=[project.slug])
-            return HttpResponseRedirect(project_edit)
+            project_manage = reverse('projects_manage', args=[project.slug])
+            return HttpResponseRedirect(project_manage)
 
     return render_to_response(
         'projects/project_create.html',
@@ -103,8 +103,8 @@ def file_add(request, project_slug):
         if form.is_valid():
             form.instance.project = project
             file = form.save()
-            project_edit = reverse('projects_edit', args=[project.slug])
-            return HttpResponseRedirect(project_edit)
+            project_manage = reverse('projects_manage', args=[project.slug])
+            return HttpResponseRedirect(project_manage)
 
     return render_to_response(
         'projects/file_add.html',

@@ -5,7 +5,7 @@
 {% block content %}
   <ul>
     {% for project in project_list %}
-      <li><a href="{% url projects_edit project.slug %}">{{ project.name }}</a></li>
+      <li><a href="{% url projects_manage project.slug %}">{{ project.name }}</a></li>
     {% endfor %}
   </ul>
 {% endblock %}
