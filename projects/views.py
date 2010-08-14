@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, render_to_response, redirect
 from django.template import RequestContext
 from django.views.generic.list_detail import object_list, object_detail
@@ -39,23 +40,6 @@ def project_detail(request, username, project_slug):
     )
 
 @login_required
-def project_edit(request, username, project_slug):
-    user = get_object_or_404(User, username=username)
-    project = get_object_or_404(user.projects.all(), slug=project_slug)
-
-    form = ProjectForm(instance=project, data=request.POST or None)
-
-    if request.method == 'POST' and form.is_valid():
-        form.save()
-        return redirect(project)
-
-    return render_to_response(
-        'projects/project_edit.html',
-        {'form': form, 'project': project},
-        context_instance=RequestContext(request)
-    )
-
-@login_required
 def project_create(request):
     """
     A form for creating a brand new project?
@@ -71,6 +55,45 @@ def project_create(request):
     return render_to_response(
         'projects/project_create.html',
         {'form': form},
+        context_instance=RequestContext(request)
+    )
+
+@login_required
+def project_edit(request, username, project_slug):
+    user = get_object_or_404(User, username=username)
+    if request.user != user:
+        return HttpResponseForbidden()
+
+    project = get_object_or_404(user.projects.all(), slug=project_slug)
+
+    form = ProjectForm(instance=project, data=request.POST or None)
+
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        return redirect(project)
+
+    return render_to_response(
+        'projects/project_edit.html',
+        {'form': form, 'project': project},
+        context_instance=RequestContext(request)
+    )
+
+@login_required
+def project_delete(request, username, project_slug):
+    user = get_object_or_404(User, username=username)
+    if request.user != user:
+        return HttpResponseForbidden()
+
+    project = get_object_or_404(user.projects.all(), slug=project_slug)
+
+    if request.method == 'POST':
+        project.delete()
+        user_projects = reverse('project_user_list', args=[user.username])
+        return HttpResponseRedirect(user_projects)
+
+    return render_to_response(
+        'projects/project_delete.html',
+        {'project': project},
         context_instance=RequestContext(request)
     )
 
