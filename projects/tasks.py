@@ -1,4 +1,6 @@
 import os
+import re
+import glob
 import fnmatch
 from celery.decorators import task
 from projects.models import Project
@@ -34,3 +36,12 @@ def build_docs(path):
         make_dir = matches[0].replace('/Makefile', '')
         os.chdir(make_dir)
         os.system('make html')
+
+    matches = find_file('conf.py')
+    if len(matches) == 1:
+        make_dir = matches[0].replace('/conf.py', '')
+        os.chdir(make_dir)
+        #Hack this for now...
+        from .conf import copyright, project, version, release, html_theme 
+        print release, html_theme
+        #lines = open('conf.py').readlines()
