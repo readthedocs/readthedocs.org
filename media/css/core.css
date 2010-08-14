@@ -25,7 +25,7 @@ body { position: relative; text-align: center; z-index: 0; background: #fafafa; 
 
 body { font: 16px/20px "ff-meta-web-pro-1","ff-meta-web-pro-2", Arial, "Helvetica Neue", sans-serif; color: #444; }
 h1, h2, h3, h4, h5, h6 { color: #222; font-weight: bold; }
-h1 { font-size: 30px; line-height: 34px; margin-bottom: 15px; }
+h1 { font-size: 30px; line-height: 34px; margin-bottom: 30px; }
 h2 { font-size: 20px; line-height: 24px; margin-bottom: 10px; }
 h3, h4, h5, h6 { font-size: 16px; line-height: 20px; margin-bottom: 10px; }
 .aside, .quiet { color: #999; }

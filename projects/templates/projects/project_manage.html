@@ -2,6 +2,8 @@
 
 {% block title %}Manage {{ project.name }}{% endblock %}
 
+{% block content-header %}<h1>Project Files</h1>{% endblock %}
+
 {% block content %}
   <ul>
     {% for file in file_list %}
