@@ -50,6 +50,7 @@ class ProjectForm(forms.ModelForm):
 
 
 class FileForm(forms.ModelForm):
+    content = forms.CharField(widget=forms.Textarea(attrs={'class': 'editor'}))
     revision_comment = forms.CharField(max_length=255, required=False)
     
     class Meta:
