@@ -10,6 +10,8 @@ We are dogfooding like a mofo.
 
 This is going to be an awesome project.
 
+http://www.youtube.com/watch?v=stn_XCo_dyg
+
 Contents:
 
 .. toctree::
