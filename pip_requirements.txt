@@ -8,3 +8,5 @@ sphinx
 -e hg+http://bitbucket.org/andrewgodwin/south/#egg=south
 -e git+http://github.com/alex/django-taggit.git#egg=taggit
 -e git+http://github.com/ericflo/django-pagination.git#egg=pagination
+-e hg+http://bitbucket.org/ubernostrum/django-profiles/#egg=profiles
+-e hg+http://bitbucket.org/ubernostrum/django-registration/#egg=registration
