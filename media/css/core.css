@@ -26,7 +26,7 @@ body { position: relative; text-align: center; z-index: 0; background: #fafafa; 
 body { font: 16px/20px "ff-meta-web-pro-1","ff-meta-web-pro-2", Arial, "Helvetica Neue", sans-serif; color: #444; }
 h1, h2, h3, h4, h5, h6 { color: #222; font-weight: bold; }
 h1 { font-size: 30px; line-height: 34px; margin-bottom: 15px; }
-h2 { font-size: 24px; line-height: 28px; margin-bottom: 12px; }
+h2 { font-size: 20px; line-height: 24px; margin-bottom: 10px; }
 h3, h4, h5, h6 { font-size: 16px; line-height: 20px; margin-bottom: 10px; }
 .aside, .quiet { color: #999; }
 .error, .errorlist li { color: #EB3800; margin-bottom: 15px; }
@@ -35,7 +35,8 @@ a:hover { color: #111; }
 table { margin-bottom: 15px; }
 p { margin-bottom: 15px; }
 pre { margin: 15px 0; white-space: pre; }
-pre, code, tt { font: 16/20px "inconsolata-1", "inconsolata-2", 'bitstream vera sans mono', 'andale mono', 'lucida console', monospace; line-height: 20px; }
+pre, code, tt { font-family: "inconsolata-1", "inconsolata-2", 'bitstream vera sans mono', 'andale mono', 'lucida console', monospace; line-height: 20px; }
+textarea, input { font-family: "inconsolata-1", "inconsolata-2", 'bitstream vera sans mono', 'andale mono', 'lucida console', monospace; font-size: 16px; line-height: 20px; }
 
 
 /* tables */
@@ -47,7 +48,7 @@ thead { background: #f2f2f2; }
 
 /* forms */
 
-textarea, input { font: 16/20px "inconsolata-1", "inconsolata-2", 'bitstream vera sans mono', 'andale mono', 'lucida console', monospace; line-height: 20px; display: block; padding: 3px; background: #fff; border: 1px solid #BFBFBF; -moz-border-radius: 3px; -webkit-border-radius: 3px; }
+textarea, input { display: block; padding: 5px; background: #fff; border: 1px solid #BFBFBF; -moz-border-radius: 3px; -webkit-border-radius: 3px; }
 input[type="text"], input[type="password"] { width: 250px; height: 20px; margin-bottom: 5px; }
 select { display: block; max-height: 300px; width: 250px; margin-bottom: 10px; font: 16/20px "inconsolata-1", "inconsolata-2", 'bitstream vera sans mono', 'andale mono', 'lucida console', monospace; }
 textarea { width: 435px; height: 150px; }
@@ -88,13 +89,12 @@ label { display: block; margin-bottom: 3px; }
 /* module */
 
 .module { background: #E6E6E6; margin-bottom: 20px; -moz-border-radius: 5px; -webkit-border-radius: 5px; border-radius: 5px; }
-.module-wrapper { padding: 10px; }
+.module-wrapper { padding: 8px; }
 .module-header { padding: 0 10px; }
 .module-list { background: #fff; border: 1px solid #bfbfbf; border-bottom: none; }
 .module-item a { text-decoration: none; display: block; border-bottom: 1px solid #bfbfbf; padding: 10px; }
-.module-list a:hover { background: #eee; }
+.module-list a:hover { background: #f3f3f3 url(../images/gradient-light.png) bottom left repeat-x; }
 .module-list .module-item.call a { padding: 30px; text-align: center; }
-
 
 
 /* project editing */
