@@ -127,7 +127,7 @@ class File(models.Model):
     ordering = models.PositiveSmallIntegerField(default=1)
 
     class Meta:
-        ordering = ('ordering', 'denormalized_path',)
+        ordering = ('denormalized_path', 'order',)
 
     def __unicode__(self):
         return '%s: %s' % (self.project.name, self.heading)
@@ -137,9 +137,9 @@ class File(models.Model):
             self.slug = slugify(self.heading)
 
         if self.parent:
-            path = '%s%s/' % (self.parent.denormalized_path, self.slug)
+            path = '%s/' % self.parent.denormalized_path
         else:
-            path = '%s/' % (self.slug)
+            path = '/'
 
         self.denormalized_path = path
 
@@ -174,11 +174,18 @@ class File(models.Model):
         revision = self.revisions.get(revision_number=revision_number)
         revision.apply()
     
+    @property
+    def filename(self):
+        return os.path.join(
+            self.project.conf.path,
+            '%s%s.rst' % (self.denormalized_path, self.slug)
+        )
+    
     def get_rendered(self):
         return render_to_string('projects/doc_file.rst.html', {'file': self})
     
     def write_to_disk(self):
-        fh = open(os.path.join(self.project.conf.path, '%s.rst' % self.slug), 'w')
+        fh = open(self.filename, 'w')
         fh.write(self.get_rendered())
         fh.close()
 
