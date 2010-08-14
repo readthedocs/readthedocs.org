@@ -2,15 +2,16 @@
 
 /* reset */
 
-html, body, div, span, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, code, del, dfn, em, img, q, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, dialog, figure, footer, header, hgroup, nav, section {margin:0;padding:0;border:0;font-weight:inherit;font-style:inherit;font-size:100%;font-family:inherit;vertical-align:baseline;}
-article, aside, dialog, figure, footer, header, hgroup, nav, section {display:block;}
-body {line-height:1.5;}
-table {border-collapse:separate;border-spacing:0;}
-caption, th, td {text-align:left;font-weight:normal;}
-table, td, th {vertical-align:middle;}
+html, body, div, span, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, code, del, dfn, em, img, q, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, dialog, figure, footer, header, hgroup, nav, section { margin: 0; padding: 0; border: 0; font-weight: inherit; font-style: inherit; font-size: 100%; font-family: inherit; vertical-align: baseline; }
+article, aside, dialog, figure, footer, header, hgroup, nav, section { display: block !important; }
+table { border-collapse: separate; border-spacing: 0; vertical-align: top; }
+caption, th, td { text-align: left; font-weight: normal; }
+table, td, th { border-spacing: 0; width: 100%; }
 blockquote:before, blockquote:after, q:before, q:after {content:"";}
 blockquote, q {quotes:"" "";}
 a img {border:none;}
+ol,ul{list-style:none}
+hr { height: 1px; border: 0; border: none; width: 100%; background: #bfbfbf; color: #bfbfbf; margin: 15px 0; padding: 0; }
 
 
 /* general layout */
@@ -21,7 +22,7 @@ body { position: relative; text-align: center; z-index: 0; background: #fafafa; 
 
 /* typography */
 
-h1, h2, h3, h4, h5, h6 { color: #222; font-weight: normal; }
+h1, h2, h3, h4, h5, h6 { color: #222; font-weight: bold; }
 h1 { font-size: 30px; line-height: 34px; margin-bottom: 15px; }
 h2 { font-size: 24px; line-height: 28px; margin-bottom: 12px; }
 h3, h4, h5, h6 { font-size: 16px; line-height: 20px; margin-bottom: 10px; }
@@ -32,7 +33,10 @@ a:hover { color: #111; }
 table { margin-bottom: 15px; }
 p { margin-bottom: 15px; }
 pre { margin: 15px 0; white-space: pre; }
-pre, code, tt { font-family: 'bitstream vera sans mono', 'andale mono', 'lucida console', monospace; line-height: 20px; }
+
+  /* font families */
+  textarea, input, select, pre, code, tt { font-family: "inconsolata-1", "inconsolata-2", 'bitstream vera sans mono', 'andale mono', 'lucida console', monospace; line-height: 20px; }
+  body, input, input[type="submit"]  { line-height: 1; font: 16px/20px "ff-meta-web-pro-1","ff-meta-web-pro-2", Arial, "Helvetica Neue", sans-serif; color: #444; }
 
 
 /* tables */
@@ -54,6 +58,26 @@ fieldset { border: 1px solid #bfbfbf; padding: 15px; -moz-border-radius: 3px; -w
 input[type="hidden"] { display: none; }
 input[type="checkbox"], input[type="radio"] { display: inline; }
 label { margin-bottom: 3px; }
+
+
+/* header */
+
+#header { height: 50px; background: #eee; overflow: hidden; }
+
+  /* header title */
+  .header-title h1 { font-size: 20px; padding: 5px 0; }
+
+  /* header search */
+  .header-search { position: absolute; top: 10px; left: 300px; }
+  .header-search input { padding: 0 5px; height: 25px; font-size: 14px; float: left; -moz-border-radius: 0; -webkit-border-radius: 0; border: 1px solid #bfbfbf; }
+  .header-search input[type="text"] { font-size: 14px; }
+  .header-search input[type="submit"] { font-size: 14px; border-left: 0; }
+
+  /* header nav */
+  .header-nav { position: absolute; top: 0; right: 0; }
+  .header-nav ul li { float: left; }
+  .header-nav ul li a { display: block; text-decoration: none; background: #ddd; padding: 15px; }
+  .header-nav ul li a:hover { background: #ccc; }
 
 
 /* utils */

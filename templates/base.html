@@ -13,15 +13,60 @@
   <link rel="stylesheet" href="{{ MEDIA_URL }}css/core.css">
 
   <!-- js -->
-  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+    
+    <!-- jquery -->
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+
+    <!-- typekit -->
+    <script type="text/javascript" src="http://use.typekit.com/xgl8ypn.js"></script>
+    <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
 
 </head>
 
 <body>
-  <div class="wrapper">
+
+    <!-- BEGIN header-->
+    <div id="header">
+      <div class="wrapper">
+
+        <!-- BEGIN header title-->
+        <div class="header-title">
+          <h1>Read the Docs</h1>
+        </div>
+        <!-- END header title -->
+
+
+        <!-- BEGIN global search -->
+        <div class="header-search">
+          <form>
+            <input type="text" name="q" placeholder="Search docs">
+            <input type="submit" value="Go">
+          </form>
+        </div>
+        <!-- END global search -->
+
+        <!-- BEGIN header nav -->
+        <div class="header-nav">
+          <ul>
+            <li><a href="#">Browse</a></li>
+            <li>
+              {% if user.is_authenticated %}<a href="{% url projects_dashboard %}">Dashboard</a></li>{% else %}<a href="{% url auth_login %}">Log in</a>{% endif %}
+            </li>
+          </ul>
+        </div>
+        <!-- END header nav -->
+
+      </div>
+    </div>
+    <!-- END header-->
+
+    <!-- BEGIN content-->
+    <div id="content">
     {% block content %}
     {% endblock %}
-  </div>
+    </div>
+    <!-- END content-->
+
 </body>
 
 </html>
