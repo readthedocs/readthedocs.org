@@ -1,6 +1,7 @@
 from django import forms
 
 from projects.models import Project, File, Conf
+from projects.tasks import update_docs
 
 
 class CreateProjectForm(forms.ModelForm):
@@ -13,6 +14,14 @@ class ImportProjectForm(forms.ModelForm):
     class Meta:
         model = Project
         exclude = ('user', 'slug', 'version',)
+
+    def save(self, *args, **kwargs):
+        # save the project
+        project = super(ImportProjectForm, self).save(*args, **kwargs)
+
+        # kick off the celery job
+        update_docs.delay(pk=project.pk)
+        return project
 
 
 class ProjectForm(forms.ModelForm):

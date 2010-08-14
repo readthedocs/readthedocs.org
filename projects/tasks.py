@@ -14,11 +14,11 @@ import fnmatch
 ghetto_hack = re.compile(r'(?P<key>.*)\s*=\s*u?[\'\"](?P<value>.*)[\'\"]')
 
 @task
-def update_docs(slug, type='git'):
+def update_docs(pk, type='git'):
     """
     A Celery task that updates the documentation for a project.
     """
-    project = Project.objects.get(slug=slug)
+    project = Project.objects.get(pk=pk)
     path = project.user_doc_path
     if not os.path.exists(path):
         os.makedirs(path)
@@ -88,4 +88,5 @@ def update_docs_pull():
         try:
             build_docs(project)
         except Exception, e:
+            update_docs(pk=project.pk)
             print e
