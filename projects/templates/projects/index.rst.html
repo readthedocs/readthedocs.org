@@ -6,7 +6,8 @@
 Contents:
 
 .. toctree::
-   :maxdepth: 2
-   :glob:
    
-   {{ project.slug }}/*
+   {% load projects_tags %}
+   {% for file in project|annotated_tree %}
+     {{ file.denormalized_path }}
+   {% endfor %}
