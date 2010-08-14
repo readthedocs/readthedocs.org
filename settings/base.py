@@ -68,7 +68,7 @@ INSTALLED_APPS = (
     'pagination',
     'profiles',
     'registration',
-    'celery',
+    'djcelery',
     'ghettoq',
 
     # our apps
