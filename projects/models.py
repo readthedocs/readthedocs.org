@@ -12,6 +12,7 @@ from projects.utils import diff, dmp
 from taggit.managers import TaggableManager
 
 import os
+import re
 import fnmatch
 
 
