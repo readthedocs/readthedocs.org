@@ -1,6 +1,7 @@
 from django.conf.urls.defaults import *
 
 from django.contrib import admin
+from django.conf import settings
 admin.autodiscover()
 
 urlpatterns = patterns('',
@@ -14,3 +15,12 @@ urlpatterns = patterns('',
     (r'^admin/', include(admin.site.urls)),
     (r'^github', 'core.views.github_build'),
 )
+
+if settings.DEBUG:
+    urlpatterns += patterns('',
+        url(
+            regex  = '^%s/(?P<path>.*)$' % settings.MEDIA_URL.strip('/'),
+            view   = 'django.views.static.serve',
+            kwargs = {'document_root': settings.MEDIA_ROOT},
+        )
+    )
