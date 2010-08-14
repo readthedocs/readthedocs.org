@@ -74,3 +74,6 @@ INSTALLED_APPS = (
     # our apps
     'projects',
 )
+
+
+DOCROOT = os.path.join(SITE_ROOT, '../doc_root')
