@@ -112,7 +112,7 @@ class Conf(models.Model):
     theme = models.CharField(max_length=20, choices=DEFAULT_THEME_CHOICES,
                              default=THEME_DEFAULT)
     path = models.CharField(max_length=255, editable=False)
-    suffix = models.CharField(max_length=10, editable=False, default='rst')
+    suffix = models.CharField(max_length=10, editable=False, default='.rst')
 
     def __unicode__(self):
         return '%s config, v. %s' % (self.project.name, self.project.version)
