@@ -63,12 +63,8 @@ class Project(models.Model):
         if not self.slug:
             self.slug = slugify(self.name)
         super(Project, self).save(*args, **kwargs)
-        if not self.confs.count():
-            conf = Conf.objects.create(project=self)
-
-    @property
-    def primary_conf(self):
-        return self.confs.get(primary_conf=True)
+        if not self.conf:
+            Conf.objects.create(project=self)
 
     @property
     def template_dir(self):
@@ -78,27 +74,20 @@ class Project(models.Model):
         return render_to_string('projects/conf.py.html', {'project': self})
 
     def write_conf(self):
-        conf_py = file(os.path.join(self.primary_conf.path, 'conf.py'), 'w')
+        conf_py = file(os.path.join(self.conf.path, 'conf.py'), 'w')
         conf_py.write(self.get_rendered_conf())
         conf_py.close()
 
 
 class Conf(models.Model):
-    project = models.ForeignKey(Project, related_name='confs')
+    project = models.OneToOneField(Project, related_name='conf')
     copyright = models.CharField(max_length=255, blank=True)
-    version = models.CharField(max_length=20, blank=True)
     theme = models.CharField(max_length=20, choices=DEFAULT_THEME_CHOICES,
                              default=THEME_DEFAULT)
-    primary_conf = models.BooleanField(default=True)
     path = models.CharField(max_length=255, editable=False, null=True)
 
     def __unicode__(self):
         return '%s config, v. %s' % (self.project.name, self.version)
-
-    def save(self, *args, **kwargs):
-        if self.primary_conf:
-            self.project.confs.update(primary_conf=False)
-        super(Conf, self).save(*args, **kwargs)
 
 
 class File(models.Model):
