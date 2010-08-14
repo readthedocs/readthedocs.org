@@ -182,7 +182,6 @@ class File(models.Model):
     def filename(self):
         return os.path.join(
             self.project.conf.path,
-            self.project.slug,
             '%s.rst' % self.denormalized_path
         )
     
