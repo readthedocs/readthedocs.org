@@ -95,7 +95,7 @@ class Conf(models.Model):
     suffix = models.CharField(max_length=10, editable=False, null=True)
 
     def __unicode__(self):
-        return '%s config, v. %s' % (self.project.name, self.version)
+        return '%s config, v. %s' % (self.project.name, self.project.version)
 
 
 class File(models.Model):
