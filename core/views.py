@@ -20,10 +20,12 @@ def github_build(request):
     update_docs.delay(slug=project.slug)
     return HttpResponse('Build Started')
 
-def serve_docs(request, username, project_slug, filename="index.html"):
+def serve_docs(request, username, project_slug, filename):
     proj = Project.objects.get(slug=project_slug, user__username=username)
     project = proj.slug
     path = get_project_path(proj)
+    if not filename:
+        filename = "index.html"
     filename = filename.rstrip('/')
 
     doc_base = os.path.join(path, project)
