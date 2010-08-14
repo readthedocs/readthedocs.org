@@ -54,7 +54,6 @@ def build_docs(project):
                 data[match.group(1).strip()] = match.group(2).strip()
     conf = Conf.objects.get_or_create(project=project)[0]
     conf.copyright = data['copyright']
-    conf.version = data.get('version', 0.1)
     conf.theme = data.get('html_theme', 'default')
     conf.path = os.getcwd()
     conf.save()
@@ -70,5 +69,8 @@ def build_docs(project):
 def update_docs_pull():
     for project in Project.objects.all():
         print "Building %s" % project
-        build_docs(project)
+        try:
+            build_docs(project)
+        except Exception, e:
+            print e
 
