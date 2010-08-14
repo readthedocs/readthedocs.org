@@ -1,0 +1,10 @@
+django==1.2.1
+docutils
+psycopg2
+python-memcached
+simplejson
+gunicorn
+sphinx
+-e hg+http://bitbucket.org/andrewgodwin/south/#egg=south
+-e git+http://github.com/alex/django-taggit.git#egg=taggit
+-e git+http://github.com/ericflo/django-pagination.git#egg=pagination
