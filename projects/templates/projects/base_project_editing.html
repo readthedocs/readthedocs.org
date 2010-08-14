@@ -1,0 +1,14 @@
+{% extends "projects/base_project.html" %}
+
+{% block project_editing %}
+    <!-- BEGIN project ediitng toobar -->
+    <div id="project_editing_toolbar">
+      <div class="wrapper">
+        <ul>
+          <li><a href="{% url projects_dashboard %}">My Projects</a></li>
+          <li><a href="#">{{ project }}</a></li>
+        </ul>
+      </div>
+    </div>
+    <!-- END content ediitng toobar -->
+{% endblock %}

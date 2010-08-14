@@ -60,10 +60,15 @@
     </div>
     <!-- END header-->
 
+    {% block project_editing %}
+    {% endblock %}
+
     <!-- BEGIN content-->
     <div id="content">
-    {% block content %}
-    {% endblock %}
+      <div class="wrapper">
+      {% block content %}
+      {% endblock %}
+      </div>
     </div>
     <!-- END content-->
 

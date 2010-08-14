@@ -2,7 +2,7 @@
 
 /* reset */
 
-html, body, div, span, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, code, del, dfn, em, img, q, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, dialog, figure, footer, header, hgroup, nav, section { margin: 0; padding: 0; border: 0; font-weight: inherit; font-style: inherit; font-size: 100%; font-family: inherit; vertical-align: baseline; }
+html, body, div, span, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, code, del, dfn, em, img, q, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, dialog, figure, footer, header, hgroup, nav, section { margin: 0; padding: 0; border: 0; font-size: 100%; vertical-align: baseline; }
 article, aside, dialog, figure, footer, header, hgroup, nav, section { display: block !important; }
 table { border-collapse: separate; border-spacing: 0; vertical-align: top; }
 caption, th, td { text-align: left; font-weight: normal; }
@@ -12,12 +12,12 @@ blockquote, q {quotes:"" "";}
 a img {border:none;}
 ol,ul{list-style:none}
 hr { height: 1px; border: 0; border: none; width: 100%; background: #bfbfbf; color: #bfbfbf; margin: 15px 0; padding: 0; }
-
+*:focus { outline: none; }
 
 /* general layout */
 
 body { position: relative; text-align: center; z-index: 0; background: #fafafa; }
-.wrapper { position: relative; text-align: left; margin: 0 auto; padding: 0 10px; width: 900px; }
+.wrapper { position: relative; text-align: left; margin: 0 auto; padding: 0 10px; width: 780px; }
 
 
 /* typography */
@@ -35,8 +35,8 @@ p { margin-bottom: 15px; }
 pre { margin: 15px 0; white-space: pre; }
 
   /* font families */
-  textarea, input, select, pre, code, tt { font-family: "inconsolata-1", "inconsolata-2", 'bitstream vera sans mono', 'andale mono', 'lucida console', monospace; line-height: 20px; }
-  body, input, input[type="submit"]  { line-height: 1; font: 16px/20px "ff-meta-web-pro-1","ff-meta-web-pro-2", Arial, "Helvetica Neue", sans-serif; color: #444; }
+  textarea, input, select, pre, code, tt { font: 16/20px "inconsolata-1", "inconsolata-2", 'bitstream vera sans mono', 'andale mono', 'lucida console', monospace; line-height: 20px; }
+  body, input[type="submit"] { font: 16px/20px "ff-meta-web-pro-1","ff-meta-web-pro-2", Arial, "Helvetica Neue", sans-serif; color: #444; }
 
 
 /* tables */
@@ -48,36 +48,44 @@ thead { background: #f2f2f2; }
 
 /* forms */
 
-textarea, input { padding: 3px; background: #fff; border: 1px solid #BFBFBF; -moz-border-radius: 3px; -webkit-border-radius: 3px; }
+textarea, input { display: block; padding: 3px; background: #fff; border: 1px solid #BFBFBF; -moz-border-radius: 3px; -webkit-border-radius: 3px; }
 input[type="text"], input[type="password"] { width: 250px; height: 20px; margin-bottom: 5px; }
-select { max-height: 300px; width: 250px; margin-bottom: 10px; }
+select { display: block; max-height: 300px; width: 250px; margin-bottom: 10px; }
 textarea { width: 435px; height: 150px; }
 input[type="submit"], input[type="button"], button { padding: 5px 10px; border: none; background: #bfbfbf; margin: 0 5px 20px 0; }
 input[type="submit"]:hover, input[type="button"]:hover, button:hover { background: #ddd; }
 fieldset { border: 1px solid #bfbfbf; padding: 15px; -moz-border-radius: 3px; -webkit-border-radius: 3px; margin-bottom: 15px; }
 input[type="hidden"] { display: none; }
 input[type="checkbox"], input[type="radio"] { display: inline; }
-label { margin-bottom: 3px; }
+label { display: block; margin-bottom: 3px; }
 
 
 /* header */
 
-#header { height: 50px; background: #eee; overflow: hidden; }
+#header { height: 50px; background: #465158; overflow: hidden; }
 
   /* header title */
-  .header-title h1 { font-size: 20px; padding: 5px 0; }
+  .header-title h1 { font-size: 20px; padding: 5px 0; color: #fff; }
 
   /* header search */
-  .header-search { position: absolute; top: 10px; left: 300px; }
-  .header-search input { padding: 0 5px; height: 25px; font-size: 14px; float: left; -moz-border-radius: 0; -webkit-border-radius: 0; border: 1px solid #bfbfbf; }
-  .header-search input[type="text"] { font-size: 14px; }
-  .header-search input[type="submit"] { font-size: 14px; border-left: 0; }
+  .header-search { position: absolute; top: 10px; left: 230px; }
+  .header-search input { padding: 0 5px; height: 25px; font-size: 14px; float: left; -moz-border-radius: 0; -webkit-border-radius: 0; border: none; }
+  .header-search input[type="text"] { }
+  .header-search input[type="submit"] {  }
 
   /* header nav */
   .header-nav { position: absolute; top: 0; right: 0; }
   .header-nav ul li { float: left; }
-  .header-nav ul li a { display: block; text-decoration: none; background: #ddd; padding: 15px; }
-  .header-nav ul li a:hover { background: #ccc; }
+  .header-nav ul li a { display: block; text-decoration: none; background: #697983; padding: 15px; color: #fff; }
+  .header-nav ul li a:hover { background: #8CA1AF; }
+  .header-nav ul li.active, .header-nav ul li.active a:hover { background: #BAC7CF; }
+
+
+/* project editing */
+
+#project_editing_toolbar { background: #E8ECEF; padding: 80px 0; }
+#project_editing_toolbar ul { background: #D1D9DF;  }
+#project_editing_toolbar ul li { display: block; float: left; padding: 15px 20px; background: #D1D9DF; }
 
 
 /* utils */
@@ -90,4 +98,5 @@ label { margin-bottom: 3px; }
 .last { margin-right: 0; padding-right: 0; }
 .top { margin-top: 0; padding-top: 0; }
 .bottom { margin-bottom: 0; padding-bottom: 0; }
-
+.clearfix:after, .wrapper:after { content: "\0020"; display: block; height: 0; clear: both; visibility: hidden; overflow: hidden; }
+.clearfix, .wrapper { display: block; }
