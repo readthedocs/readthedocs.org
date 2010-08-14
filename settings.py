@@ -57,7 +57,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
 )
 
-ROOT_URLCONF = 'docs.urls'
+ROOT_URLCONF = 'urls'
 
 TEMPLATE_DIRS = (
     '%s/templates/' % (SITE_ROOT),
@@ -74,4 +74,5 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'pagination',
     'south',
+    'projects',
 )
