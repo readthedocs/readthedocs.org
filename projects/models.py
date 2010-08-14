@@ -21,10 +21,10 @@ class Project(models.Model):
     slug = models.SlugField()
     description = models.TextField(blank=True)
     repo = models.CharField(max_length=100, blank=True)
-    login = models.CharField(max_length=100, blank=True)
     docs_directory = models.CharField(max_length=255, blank=True)
     pub_date = models.DateTimeField(auto_now_add=True)
     modified_date = models.DateTimeField(auto_now=True)
+    version = models.CharField(max_length=20, help_text='project version these docs apply to, i.e. 1.0a')
 
     tags = TaggableManager()
 
@@ -91,11 +91,6 @@ class Conf(models.Model):
 
     def __unicode__(self):
         return '%s config, v. %s' % (self.project.name, self.version)
-
-    @property
-    def version(self):
-        # TODO: hook into project versioning to retrieve latest ver
-        return ''
 
 
 class File(models.Model):

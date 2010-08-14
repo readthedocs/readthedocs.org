@@ -62,6 +62,9 @@ def build_docs(project):
     conf.path = os.getcwd()
     conf.save()
 
+    project.version = data.get('version', '0.1.0')
+    project.save()
+
     project.write_conf()
 
     try:
