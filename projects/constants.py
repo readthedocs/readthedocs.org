@@ -15,3 +15,8 @@ DEFAULT_THEME_CHOICES = (
     (THEME_NATURE, 'Nature'),
     (THEME_HAIKU, 'Haiku'),
 )
+
+SAMPLE_FILES = (
+    ('Installation', 'projects/samples/installation.rst.html'),
+    ('Getting started', 'projects/samples/getting_started.rst.html'),
+)
