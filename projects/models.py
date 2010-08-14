@@ -70,6 +70,10 @@ class Project(models.Model):
     def primary_conf(self):
         return self.confs.get(primary_conf=True)
 
+    @property
+    def template_dir(self):
+        return os.path.join(settings.DOCROOT, '_template')
+
     def get_rendered_conf(self):
         return render_to_string('projects/conf.py.html', {'project': self})
 

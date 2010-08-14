@@ -31,17 +31,13 @@ def update_docs(slug, type='git'):
             command = 'git clone %s.git %s' % (project.github_repo, project.slug)
             print command
             run(command)
-    build_docs(path, project=project)
+    build_docs(project)
 
 
 def build_docs(project):
     """
     A helper function for the celery task to do the actual doc building.
     """
-    make_dir = project.find('Makefile')[0].replace('/Makefile', '')
-    os.chdir(make_dir)
-    os.system('make html')
-
     conf_dir = project.find('conf.py')[0].replace('/conf.py', '')
     os.chdir(conf_dir)
     lines = open('conf.py').readlines()
@@ -57,3 +53,9 @@ def build_docs(project):
     conf.theme = data['html_theme']
     conf.path = os.getcwd()
     conf.save()
+
+    project.write_conf()
+
+    make_dir = project.find('Makefile')[0].replace('/Makefile', '')
+    os.chdir(make_dir)
+    os.system('make html')
