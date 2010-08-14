@@ -37,8 +37,8 @@
 
         <!-- BEGIN global search -->
         <div class="header-search">
-          <form>
-            <input type="text" name="q" placeholder="Search docs">
+            <form action="{% url search %}">
+                <input type="text" name="q" value="{{ term }}" placeholder="Search docs">
             <input type="submit" value="Go">
           </form>
         </div>
