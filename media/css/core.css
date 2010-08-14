@@ -87,12 +87,13 @@ label { display: block; margin-bottom: 3px; }
 
 /* module */
 
-.module { background: #E6E6E6; margin-bottom: 20px; }
+.module { background: #E6E6E6; margin-bottom: 20px; -moz-border-radius: 5px; -webkit-border-radius: 5px; border-radius: 5px; }
 .module-wrapper { padding: 10px; }
 .module-header { padding: 0 10px; }
 .module-list { background: #fff; border: 1px solid #bfbfbf; border-bottom: none; }
-.module-list a { text-decoration: none; display: block; }
-.module-list .module-item { border-bottom: 1px solid #bfbfbf; padding: 10px; }
+.module-item a { text-decoration: none; display: block; border-bottom: 1px solid #bfbfbf; padding: 10px; }
+.module-list a:hover { background: #eee; }
+.module-list .module-item.call a { padding: 30px; text-align: center; }
 
 
 
