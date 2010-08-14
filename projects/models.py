@@ -4,10 +4,13 @@ from django.conf import settings
 from django.db import models
 from django.template.defaultfilters import slugify
 from django.template.loader import render_to_string
+from django.utils.functional import memoize
 
 from projects.constants import DEFAULT_THEME_CHOICES, THEME_DEFAULT
 
 from taggit.managers import TaggableManager
+
+import os
 
 
 class Project(models.Model):
@@ -33,8 +36,18 @@ class Project(models.Model):
         return reverse('project_detail', args=[self.user.username, self.slug])
 
     @property
-    def path(project):
+    def path(self):
         return os.path.join(settings.DOCROOT, self.user.username, self.slug)
+
+    def full_doc_path(self):
+        doc_base = os.path.join(self.path, self.slug)
+        for possible_path in ['docs', 'doc']:
+            for pos_build in ['build', '_build', '.build']:
+                if os.path.exists(os.path.join(doc_base, '%s/%s/html' % (possible_path, pos_build))):
+                    return os.path.join(doc_base, '%s/%s/html' % (possible_path, pos_build))
+
+    full_doc_path = memoize(full_doc_path, {}, 1)
+
 
     def save(self, *args, **kwargs):
         if not self.slug:
