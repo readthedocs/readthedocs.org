@@ -9,7 +9,7 @@ from django.template import RequestContext
 from django.views.generic.list_detail import object_list
 
 from projects.forms import FileForm, CreateProjectForm, ImportProjectForm, ConfForm
-from projects.models import Project
+from projects.models import Project, File
 
 
 @login_required
@@ -129,8 +129,9 @@ def project_import(request):
 @login_required
 def file_add(request, project_slug):
     project = get_object_or_404(request.user.projects.all(), slug=project_slug)
+    file = File(project=project)
 
-    form = FileForm(request.POST or None)
+    form = FileForm(instance=file, data=request.POST or None)
 
     if request.method == 'POST' and form.is_valid():
         form.instance.project = project
