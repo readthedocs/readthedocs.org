@@ -2,6 +2,7 @@ from celery.decorators import task
 from celery.task.schedules import crontab
 from celery.decorators import periodic_task
 
+from projects.constants import SCRAPE_CONF_SETTINGS
 from projects.models import Project, Conf
 from projects.utils import  find_file, run
 
@@ -18,6 +19,7 @@ def update_docs(pk):
     project = Project.objects.get(pk=pk)
     if project.is_imported:
         update_imported_docs(project)
+        scrape_conf_file(project)
     else:
         updated_created_docs(project)
 
@@ -52,26 +54,13 @@ def update_imported_docs(project):
         run(command)
 
 
-def update_created_docs(project):
-    # grab the root path for the generated docs to live at
-    path = self.user_doc_path
-
-    doc_root = os.path.join(path, project.slug, 'docs')
-
-    # TODO: write files
-
-
-def build_docs(project):
-    """
-    A helper function for the celery task to do the actual doc building.
-    """
+def scrape_conf_file(project):
     conf_dir = project.find('conf.py')[0].replace('/conf.py', '')
     os.chdir(conf_dir)
     lines = open('conf.py').readlines()
     data = {}
     for line in lines:
-        for we_care in ['copyright', 'project', 'version', 'release',
-                        'source_suffix', 'html_theme']:
+        for we_care in SCRAPE_CONF_SETTINGS:
             match = ghetto_hack.search(line)
             if match:
                 data[match.group(1).strip()] = match.group(2).strip()
@@ -85,6 +74,30 @@ def build_docs(project):
     project.version = data.get('version', '0.1.0')
     project.save()
 
+
+def update_created_docs(project):
+    # grab the root path for the generated docs to live at
+    path = self.user_doc_path
+
+    doc_root = os.path.join(path, project.slug, 'docs')
+    
+    if not os.path.exists(doc_root)
+        os.makedirs(doc_root)
+    
+    project.conf.path = doc_root
+    project.conf.save()
+    
+    project.write_index()
+
+    # TODO: make this more flexible
+    for file in project.files.all():
+        file.write_to_disk()
+
+
+def build_docs(project):
+    """
+    A helper function for the celery task to do the actual doc building.
+    """
     project.write_conf()
 
     try:
@@ -94,7 +107,7 @@ def build_docs(project):
         print make_dir
         os.system('make html')
     except IndexError:
-        os.chdir(conf_dir)
+        os.chdir(project.conf.path)
         os.system('sphinx-build -b html . _build')
 
 
