@@ -16,7 +16,7 @@ def update_docs(slug, type='git'):
     A Celery task that updates the documentation for a project.
     """
     project = Project.objects.get(slug=slug)
-    path = project.path
+    path = project.user_doc_path
     if not os.path.exists(path):
         os.makedirs(path)
     os.chdir(path)
@@ -49,11 +49,8 @@ def build_docs(path, project=None):
     if len(matches) == 1:
         make_dir = matches[0].replace('/conf.py', '')
         os.chdir(make_dir)
-        #Hack this for now...
-        #from .conf import copyright, project, version, release, html_theme 
-        #print release, html_theme
         lines = open('conf.py').readlines()
-        data = {} 
+        data = {}
         for line in lines:
             for we_care in ['copyright', 'project', 'version', 'release', 'html_theme']:
                 if we_care in line:
@@ -64,5 +61,5 @@ def build_docs(path, project=None):
         conf.copyright = data['copyright']
         conf.version = data['version']
         conf.theme = data['html_theme']
+        conf.path = os.getcwd()
         conf.save()
-
