@@ -7,7 +7,7 @@ from django.template.loader import render_to_string
 from django.utils.functional import memoize
 
 from projects.constants import DEFAULT_THEME_CHOICES, THEME_DEFAULT
-from projects.utils import diff, dmp
+from projects.utils import diff, dmp, safe_write
 
 from taggit.managers import TaggableManager
 
@@ -74,22 +74,15 @@ class Project(models.Model):
     def template_dir(self):
         return os.path.join(settings.SITE_ROOT, 'templates', 'sphinx')
 
-    def get_rendered_conf(self):
-        return render_to_string('projects/conf.py.html', {'project': self})
+    def get_index_filename(self):
+        return os.path.join(self.conf.path, 'index.rst')
 
-    def write_conf(self):
-        conf_py = file(os.path.join(self.conf.path, 'conf.py'), 'w')
-        conf_py.write(self.get_rendered_conf())
-        conf_py.close()
-    
     def get_rendered_index(self):
         return render_to_string('projects/index.rst.html', {'project': self})
     
     def write_index(self):
         if not self.is_imported:
-            fh = open(os.path.join(self.conf.path, 'index.rst'), 'w')
-            fh.write(self.get_rendered_index())
-            fh.close()
+            safe_write(self.get_index_filename(), self.get_rendered_index())
 
     @property
     def is_imported(self):
@@ -116,6 +109,16 @@ class Conf(models.Model):
 
     def __unicode__(self):
         return '%s config, v. %s' % (self.project.name, self.project.version)
+
+    @property
+    def filename(self):
+        return os.path.join(self.path, 'conf.py')
+
+    def get_rendered_conf(self):
+        return render_to_string('projects/conf.py.html', {'project': self.project})
+
+    def write_to_disk(self):
+        safe_write(self.filename, self.get_rendered_conf())
 
 
 class File(models.Model):
@@ -187,9 +190,7 @@ class File(models.Model):
         return render_to_string('projects/doc_file.rst.html', {'file': self})
     
     def write_to_disk(self):
-        fh = open(self.filename, 'w')
-        fh.write(self.get_rendered())
-        fh.close()
+        safe_write(self.filename, self.get_rendered())
 
 
 class FileRevision(models.Model):
