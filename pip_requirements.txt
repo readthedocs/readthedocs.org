@@ -9,6 +9,7 @@ celery
 django-celery
 ghettoq
 importlib
+django-extensions
 -e hg+http://bitbucket.org/andrewgodwin/south/#egg=south
 -e git+http://github.com/alex/django-taggit.git#egg=taggit
 -e git+http://github.com/ericflo/django-pagination.git#egg=pagination
