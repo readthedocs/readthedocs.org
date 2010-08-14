@@ -5,6 +5,14 @@ urlpatterns = patterns('projects.views',
         'project_index',
         name='projects_list'
     ),
+    url(r'^create/$',
+        'project_create',
+        name='projects_create'
+    ),
+    url(r'^import/$',
+        'project_import',
+        name='projects_import'
+    ),
     url(r'^(?P<username>\w+)/$',
         'project_index',
         name='projects_user_list'

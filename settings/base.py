@@ -71,6 +71,7 @@ INSTALLED_APPS = (
     'djcelery',
     'ghettoq',
     'taggit',
+    'south',
 
     # our apps
     'projects',

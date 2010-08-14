@@ -4,7 +4,7 @@ from projects.models import Project, File
 
 
 class ProjectAdmin(admin.ModelAdmin):
-    pass
+    prepopulated_fields = {'slug': ('name',)}
 
 
 class FileAdmin(admin.ModelAdmin):
