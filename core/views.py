@@ -15,7 +15,7 @@ def github_build(request):
     obj = json.loads(request.POST['payload'])
     name = obj['repository']['name']
     url = obj['repository']['url']
-    project = Project.objects.get(github_repo=url)
+    project = Project.objects.get(repo=url)
     update_docs.delay(slug=project.slug)
     return HttpResponse('Build Started')
 

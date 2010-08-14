@@ -20,8 +20,8 @@ class Project(models.Model):
     name = models.CharField(max_length=255)
     slug = models.SlugField()
     description = models.TextField(blank=True)
-    github_repo = models.CharField(max_length=100, blank=True)
-    github_login = models.CharField(max_length=100, blank=True)
+    repo = models.CharField(max_length=100, blank=True)
+    login = models.CharField(max_length=100, blank=True)
     docs_directory = models.CharField(max_length=255, blank=True)
     pub_date = models.DateTimeField(auto_now_add=True)
     modified_date = models.DateTimeField(auto_now=True)
@@ -132,25 +132,25 @@ class File(models.Model):
                     child.save()
                     update_children(child.children.all())
             update_children(self.children.all())
-    
+
     def create_revision(self, old_content, comment):
         FileRevision.objects.create(
             file=self,
             comment=comment,
             diff=diff(self.content, old_content)
         )
-    
+
     @property
     def current_revision(self):
         return self.revisions.filter(is_reverted=False)[0]
-    
+
     def get_html_diff(self, rev_from, rev_to):
         rev_from = self.revisions.get(revision_number=rev_from)
         rev_to = self.revisions.get(revision_number=rev_to)
-        
+
         diffs = dmp.diff_main(rev_from.diff, rev_to.diff)
         return dmp.diff_prettyHtml(diffs)
- 
+
     def revert_to(self, revision_number):
         revision = self.revisions.get(revision_number=revision_number)
         revision.apply()
@@ -177,31 +177,31 @@ class FileRevision(models.Model):
         """
         after = self.file.revisions.filter(revision__gt=self.revision_number)
         content = self.file.content
-        
+
         for revision in after:
             patch = dmp.patch_fromText(revision.diff)
             content = dmp.patch_apply(patch, content)[0]
-        
+
         return content
-    
+
     def apply(self):
         original_content = self.file.content
-        
+
         # store the old content on the file
         self.file.content = self.get_file_content()
         self.file.save()
-        
+
         # mark reverted changesets
         reverted_qs = self.file.revisions.filter(revision__gt=self.revision)
         reverted_qs.update(is_reverted=True)
-        
+
         # create a new revision
         FileRevision.objects.create(
             file=self.file,
             comment='Reverted to #%s' % self.revision,
             diff=diff(self.file.content, original_content)
         )
- 
+
     def save(self, *args, **kwargs):
         if not self.pk:
             try:

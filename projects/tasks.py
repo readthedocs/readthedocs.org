@@ -29,13 +29,18 @@ def update_docs(slug, type='git'):
             command = 'git fetch && git reset --hard origin/master'
             print command
             run(command)
+        else:
+            command = 'git fetch && git reset --hard origin/master'
     else:
         if type is 'git':
-            repo = project.github_repo
+            repo = project.repo
             repo.replace('.git', '')
             command = 'git clone %s.git %s' % (repo, project.slug)
             print command
-            run(command)
+        else:
+            command = 'hg clone %s %s' % (repo, project.slug)
+            print command
+        run(command)
     build_docs(project)
 
 
