@@ -108,7 +108,7 @@ def build_docs(project):
         os.system('make html')
     except IndexError:
         os.chdir(project.conf.path)
-        os.system('sphinx-build -b html . _build')
+        os.system('sphinx-build -b html . _build/html')
 
 
 #@periodic_task(run_every=crontab(hour="*", minute="*/30", day_of_week="*"))
