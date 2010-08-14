@@ -35,20 +35,20 @@ class Project(models.Model):
     def get_absolute_url(self):
         return reverse('project_detail', args=[self.user.username, self.slug])
 
-    @property
-    def path(self):
+    def user_doc_path(self):
         return os.path.join(settings.DOCROOT, self.user.username, self.slug)
+    user_doc_path = property(memoize(user_doc_path, {}, 1))
 
     #@property
     #@memoize({}, 1)
-    def full_doc_path(self):
-        doc_base = os.path.join(self.path, self.slug)
+    def full_html_path(self):
+        doc_base = os.path.join(self.user_doc_path, self.slug)
         for possible_path in ['docs', 'doc']:
             for pos_build in ['build', '_build', '.build']:
                 if os.path.exists(os.path.join(doc_base, '%s/%s/html' % (possible_path, pos_build))):
                     return os.path.join(doc_base, '%s/%s/html' % (possible_path, pos_build))
 
-    full_doc_path = property(memoize(full_doc_path, {}, 1))
+    full_html_path = property(memoize(full_html_path, {}, 1))
 
 
     def save(self, *args, **kwargs):
