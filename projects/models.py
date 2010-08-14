@@ -88,6 +88,7 @@ class Conf(models.Model):
     theme = models.CharField(max_length=20, choices=DEFAULT_THEME_CHOICES,
                              default=THEME_DEFAULT)
     path = models.CharField(max_length=255, editable=False, null=True)
+    suffix = models.CharField(max_length=10, editable=False, null=True)
 
     def __unicode__(self):
         return '%s config, v. %s' % (self.project.name, self.version)

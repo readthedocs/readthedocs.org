@@ -28,7 +28,7 @@ def update_docs(slug, type='git'):
         if type is 'git':
             command = 'git fetch && git reset --hard origin/master'
         else:
-            command = 'hg pull'
+            command = 'hg update -C -r . '
         print command
         run(command)
     else:
@@ -52,13 +52,15 @@ def build_docs(project):
     lines = open('conf.py').readlines()
     data = {}
     for line in lines:
-        for we_care in ['copyright', 'project', 'version', 'release', 'html_theme']:
+        for we_care in ['copyright', 'project', 'version', 'release',
+                        'source_suffix', 'html_theme']:
             match = ghetto_hack.search(line)
             if match:
                 data[match.group(1).strip()] = match.group(2).strip()
     conf = Conf.objects.get_or_create(project=project)[0]
     conf.copyright = data['copyright']
     conf.theme = data.get('html_theme', 'default')
+    conf.suffix = data.get('source_suffix', '.rst')
     conf.path = os.getcwd()
     conf.save()
 
