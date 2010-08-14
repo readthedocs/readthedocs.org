@@ -77,7 +77,7 @@ def scrape_conf_file(project):
 
 def update_created_docs(project):
     # grab the root path for the generated docs to live at
-    path = self.user_doc_path
+    path = project.user_doc_path
 
     doc_root = os.path.join(path, project.slug, 'docs')
 

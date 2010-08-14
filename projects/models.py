@@ -138,9 +138,9 @@ class File(models.Model):
             self.slug = slugify(self.heading)
 
         if self.parent:
-            path = '%s/' % self.parent.denormalized_path
+            path = '%s%s/' % (self.parent.denormalized_path, self.parent.slug)
         else:
-            path = '/'
+            path = ''
 
         self.denormalized_path = path
 
@@ -179,7 +179,8 @@ class File(models.Model):
     def filename(self):
         return os.path.join(
             self.project.conf.path,
-            '%s%s.rst' % (self.denormalized_path, self.slug)
+            self.denormalized_path,
+            '%s.rst' % self.slug
         )
     
     def get_rendered(self):
