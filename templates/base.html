@@ -7,7 +7,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 
   <!-- title -->
-  <title>Read the Docs</title>
+  <title>{% block title %}{% endblock %} | Read the Docs</title>
 
   <!-- css -->
   <link rel="stylesheet" href="{{ MEDIA_URL }}css/core.css">
@@ -48,9 +48,11 @@
         <!-- BEGIN header nav -->
         <div class="header-nav">
           <ul>
-            <li><a href="#">Browse</a></li>
-            <li>
-              {% if user.is_authenticated %}<a href="{% url projects_dashboard %}">Dashboard</a></li>{% else %}<a href="{% url auth_login %}">Log in</a>{% endif %}
+            <li {% block nav-browse %}{% endblock %}>
+              <a href="#">Browse</a>
+            </li>
+            <li {% block nav-dashboard %}{% endblock %}>
+              {% if user.is_authenticated %}<a href="{% url projects_dashboard %}">Dashboard</a>{% else %}<a href="{% url auth_login %}">Log in</a>{% endif %}
             </li>
           </ul>
         </div>
@@ -66,8 +68,13 @@
     <!-- BEGIN content-->
     <div id="content">
       <div class="wrapper">
-      {% block content %}
-      {% endblock %}
+        
+        {% block content-header %}
+        {% endblock %}
+
+        {% block content %}
+        {% endblock %}
+
       </div>
     </div>
     <!-- END content-->

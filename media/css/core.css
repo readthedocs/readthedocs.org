@@ -22,6 +22,7 @@ body { position: relative; text-align: center; z-index: 0; background: #fafafa; 
 
 /* typography */
 
+body { font: 16px/20px "ff-meta-web-pro-1","ff-meta-web-pro-2", Arial, "Helvetica Neue", sans-serif; color: #444; }
 h1, h2, h3, h4, h5, h6 { color: #222; font-weight: bold; }
 h1 { font-size: 30px; line-height: 34px; margin-bottom: 15px; }
 h2 { font-size: 24px; line-height: 28px; margin-bottom: 12px; }
@@ -33,10 +34,7 @@ a:hover { color: #111; }
 table { margin-bottom: 15px; }
 p { margin-bottom: 15px; }
 pre { margin: 15px 0; white-space: pre; }
-
-  /* font families */
-  textarea, input, select, pre, code, tt { font: 16/20px "inconsolata-1", "inconsolata-2", 'bitstream vera sans mono', 'andale mono', 'lucida console', monospace; line-height: 20px; }
-  body, input[type="submit"] { font: 16px/20px "ff-meta-web-pro-1","ff-meta-web-pro-2", Arial, "Helvetica Neue", sans-serif; color: #444; }
+pre, code, tt { font: 16/20px "inconsolata-1", "inconsolata-2", 'bitstream vera sans mono', 'andale mono', 'lucida console', monospace; line-height: 20px; }
 
 
 /* tables */
@@ -48,11 +46,11 @@ thead { background: #f2f2f2; }
 
 /* forms */
 
-textarea, input { display: block; padding: 3px; background: #fff; border: 1px solid #BFBFBF; -moz-border-radius: 3px; -webkit-border-radius: 3px; }
+textarea, input { font: 16/20px "inconsolata-1", "inconsolata-2", 'bitstream vera sans mono', 'andale mono', 'lucida console', monospace; line-height: 20px; display: block; padding: 3px; background: #fff; border: 1px solid #BFBFBF; -moz-border-radius: 3px; -webkit-border-radius: 3px; }
 input[type="text"], input[type="password"] { width: 250px; height: 20px; margin-bottom: 5px; }
-select { display: block; max-height: 300px; width: 250px; margin-bottom: 10px; }
+select { display: block; max-height: 300px; width: 250px; margin-bottom: 10px; font: 16/20px "inconsolata-1", "inconsolata-2", 'bitstream vera sans mono', 'andale mono', 'lucida console', monospace; }
 textarea { width: 435px; height: 150px; }
-input[type="submit"], input[type="button"], button { padding: 5px 10px; border: none; background: #bfbfbf; margin: 0 5px 20px 0; }
+input[type="submit"], input[type="button"], button { font: 16px/20px "ff-meta-web-pro-1", "ff-meta-web-pro-2", Arial, "Helvetica Neue", sans-serif; color: #444; padding: 5px 10px; border: none; background: #bfbfbf; margin: 0 5px 20px 0; }
 input[type="submit"]:hover, input[type="button"]:hover, button:hover { background: #ddd; }
 fieldset { border: 1px solid #bfbfbf; padding: 15px; -moz-border-radius: 3px; -webkit-border-radius: 3px; margin-bottom: 15px; }
 input[type="hidden"] { display: none; }
@@ -74,11 +72,11 @@ label { display: block; margin-bottom: 3px; }
   .header-search input[type="submit"] {  }
 
   /* header nav */
-  .header-nav { position: absolute; top: 0; right: 0; }
+  .header-nav { position: absolute; top: 0; right: 10px; }
   .header-nav ul li { float: left; }
   .header-nav ul li a { display: block; text-decoration: none; background: #697983; padding: 15px; color: #fff; }
   .header-nav ul li a:hover { background: #8CA1AF; }
-  .header-nav ul li.active, .header-nav ul li.active a:hover { background: #BAC7CF; }
+  .header-nav ul li.active a, .header-nav ul li.active a:hover { background: #BAC7CF; }
 
 
 /* project editing */

@@ -2,10 +2,50 @@
 
 {% block title %}Project Dashboard{% endblock %}
 
+{% block nav-dashboard %}class="active"{% endblock %}
+
 {% block content %}
-  <ul>
-    {% for project in project_list %}
-      <li><a href="{% url projects_manage project.slug %}">{{ project.name }}</a></li>
-    {% endfor %}
-  </ul>
+
+          <!-- BEGIN your projects list -->
+          <div class="module">
+            <div class="module-wrapper">
+
+              <div class="module-header">
+                <h2>My Projects</h2>
+              </div>
+
+              <div class="module-list">
+                <ul>
+                  {% for project in project_list %}
+                    <li><a href="{% url projects_manage project.slug %}">{{ project.name }}</a></li>
+                  {% endfor %}
+                </ul>
+              </div>
+
+            </div>
+          </div>
+          <!-- END your projects list -->
+
+
+          <!-- BEGIN create new project -->
+          <div class="module">
+            <div class="module-wrapper">
+
+              <a href="{% url projects_create %}">Creat New Documentation</a>
+
+            </div>
+          </div>
+          <!-- END create new project -->
+
+
+          <!-- BEGIN import project -->
+          <div class="module">
+            <div class="module-wrapper">
+
+              <a href="{% url projects_import %}">Import Documentation</a>
+
+            </div>
+          </div>
+          <!-- END import project -->
+
 {% endblock %}
