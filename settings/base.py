@@ -70,10 +70,15 @@ INSTALLED_APPS = (
     'registration',
     'djcelery',
     'ghettoq',
+    'taggit',
 
     # our apps
     'projects',
+    'core',
 )
 
+
+CARROT_BACKEND = "ghettoq.taproot.Database"
+CELERY_ALWAYS_EAGER = True
 
 DOCROOT = os.path.join(SITE_ROOT, '../doc_root')
