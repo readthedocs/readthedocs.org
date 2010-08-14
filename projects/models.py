@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.template.defaultfilters import slugify
+from django.template.loader import render_to_string
 
 from projects.constants import DEFAULT_THEME_CHOICES, THEME_DEFAULT
 
@@ -34,12 +35,15 @@ class Project(models.Model):
         if not self.slug:
             self.slug = slugify(self.name)
         super(Project, self).save(*args, **kwargs)
-        if not self.confs:
+        if not self.confs.count():
             conf = Conf.objects.create(project=self)
 
     @property
     def primary_conf(self):
         return self.confs.get(primary_conf=True)
+
+    def get_rendered_conf(self):
+        return render_to_string('projects/conf.py.html', {'project': self})
 
 
 class Conf(models.Model):
