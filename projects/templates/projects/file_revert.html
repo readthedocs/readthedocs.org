@@ -1,0 +1,9 @@
+{% extends "projects/base_project.html" %}
+
+{% block title %}Revert {{ file.heading }} to revision {{ revision.revision_number }}?{% endblock %}
+
+{% block content %}
+  <form method="post" action=".">{% csrf_token %}
+    <p><input type="submit" value="Revert" /></p>
+  </form>
+{% endblock %}

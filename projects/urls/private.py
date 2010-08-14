@@ -33,6 +33,18 @@ urlpatterns = patterns('projects.views.private',
         'file_edit',
         name='projects_file_edit'
     ),
+    url(r'^(?P<project_slug>[-\w]+)/(?P<file_id>\d+)/history/$',
+        'file_history',
+        name='projects_file_history'
+    ),
+    url(r'^(?P<project_slug>[-\w]+)/(?P<file_id>\d+)/revert/(?P<revision_id>\d+)/$',
+        'file_revert',
+        name='projects_file_revert'
+    ),
+    url(r'^(?P<project_slug>[-\w]+)/(?P<file_id>\d+)/diff/(?P<from_id>\d+)/(?P<to_id>\d+)/$',
+        'file_diff',
+        name='projects_file_diff'
+    ),
     url(r'^(?P<project_slug>[-\w]+)/(?P<file_id>\d+)/delete/$',
         'file_delete',
         name='projects_file_delete'

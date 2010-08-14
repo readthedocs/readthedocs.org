@@ -1,7 +1,9 @@
+import simplejson
+
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, render_to_response, redirect
 from django.template import RequestContext
 from django.views.generic.list_detail import object_list
@@ -115,15 +117,15 @@ def file_add(request, project_slug):
 @login_required
 def file_edit(request, project_slug, file_id):
     project = get_object_or_404(request.user.projects.all(), slug=project_slug)
-    file = get_object_or_404(project.files.all(), id=file_id)
+    file = get_object_or_404(project.files.all(), pk=file_id)
 
     form = FileForm(instance=file, data=request.POST or None)
 
     if request.method == 'POST':
         if form.is_valid():
             form.save()
-            project_edit = reverse('projects_edit', args=[project.slug])
-            return HttpResponseRedirect(project_edit)
+            project_manage = reverse('projects_manage', args=[project.slug])
+            return HttpResponseRedirect(project_manage)
 
     return render_to_response(
         'projects/file_edit.html',
@@ -134,15 +136,62 @@ def file_edit(request, project_slug, file_id):
 @login_required
 def file_delete(request, project_slug, file_id):
     project = get_object_or_404(request.user.projects.all(), slug=project_slug)
-    file = get_object_or_404(project.files.all(), id=file_id)
+    file = get_object_or_404(project.files.all(), pk=file_id)
 
     if request.method == 'POST':
         file.delete()
-        project_edit = reverse('projects_edit', args=[project.slug])
-        return HttpResponseRedirect(project_edit)
+        project_manage = reverse('projects_manage', args=[project.slug])
+        return HttpResponseRedirect(project_manage)
 
     return render_to_response(
         'projects/file_delete.html',
         {'project': project},
         context_instance=RequestContext(request)
     )
+
+@login_required
+def file_revert(request, project_slug, file_id, revision_id):
+    project = get_object_or_404(request.user.projects.all(), slug=project_slug)
+    file = get_object_or_404(project.files.all(), pk=file_id)
+    revision = get_object_or_404(file.revisions.all(), pk=revision_id)
+    
+    if request.method == 'POST':
+        revision.apply()
+        history = reverse('projects_file_history', args=[project.slug, file.pk])
+        return HttpResponseRedirect(history)
+    
+    return render_to_response(
+        'projects/file_revert.html',
+        {'project': project, 'file': file, 'revision': revision},
+        context_instance=RequestContext(request)
+    )
+
+@login_required
+def file_history(request, project_slug, file_id):
+    project = get_object_or_404(request.user.projects.all(), slug=project_slug)
+    file = get_object_or_404(project.files.all(), pk=file_id)
+    
+    return object_list(
+        request,
+        queryset=file.revisions.all(),
+        extra_context={'project': project, 'file': file},
+        paginate_by=50,
+        page=int(request.GET.get('page', 1)),
+        template_object_name='revision',
+        template_name='projects/file_history.html',
+    )
+
+@login_required
+def file_diff(request, project_slug, file_id, from_id, to_id):
+    project = get_object_or_404(request.user.projects.all(), slug=project_slug)
+    file = get_object_or_404(project.files.all(), pk=file_id)
+    
+    # grab the requested revisions
+    from_rev = get_object_or_404(file.revisions.all(), pk=from_id)
+    to_rev = get_object_or_404(file.revisions.all(), pk=to_id)
+    
+    # generate a pretty html diff
+    diff = file.get_html_diff(from_rev.revision_number, to_rev.revision_number)
+    
+    # return it assuming json
+    return HttpResponse(simplejson.dumps({'diff': diff}), mimetype='text/javascript')
