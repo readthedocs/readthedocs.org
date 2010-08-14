@@ -128,7 +128,7 @@ class File(models.Model):
     ordering = models.PositiveSmallIntegerField(default=1)
 
     class Meta:
-        ordering = ('denormalized_path', 'order',)
+        ordering = ('denormalized_path', 'ordering',)
 
     def __unicode__(self):
         return '%s: %s' % (self.project.name, self.heading)
