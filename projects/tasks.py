@@ -3,7 +3,7 @@ import re
 import glob
 import fnmatch
 from celery.decorators import task
-from projects.models import Project
+from projects.models import Project, Conf
 from projects.utils import get_project_path, find_file
 
 #ghetto_hack = re.compile(r'^(?P<key>\s*) = \s*u?[\'\"](?P<value>.*)[\'\"]$')
@@ -29,10 +29,10 @@ def update_docs(slug, type='git'):
             os.system(command)
         elif type is 'hg':
             os.system('hg clone ')
-    build_docs(path)
+    build_docs(path, project=project)
 
 
-def build_docs(path):
+def build_docs(path, project=None):
     os.chdir(path)
     matches = find_file('Makefile')
     if len(matches) == 1:
@@ -48,10 +48,16 @@ def build_docs(path):
         #from .conf import copyright, project, version, release, html_theme 
         #print release, html_theme
         lines = open('conf.py').readlines()
+        data = {} 
         for line in lines:
-            for we_care in 'copyright,project,version,release,html_theme'.split(','):
+            for we_care in ['copyright', 'project', 'version', 'release', 'html_theme']:
                 if we_care in line:
                     match = ghetto_hack.search(line)
                     if match:
-                        print we_care
-                        print match.group(2)
+                        data[match.group(1).strip()] = match.group(2).strip()
+        conf = Conf.objects.get_or_create(project=project)[0]
+        conf.copyright = data['copyright']
+        conf.version = data['version']
+        conf.theme = data['html_theme']
+        conf.save()
+
