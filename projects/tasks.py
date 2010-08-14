@@ -1,4 +1,7 @@
 from celery.decorators import task
+from celery.task.schedules import crontab
+from celery.decorators import periodic_task
+
 from projects.models import Project, Conf
 from projects.utils import  find_file, run
 
@@ -28,7 +31,9 @@ def update_docs(slug, type='git'):
             run(command)
     else:
         if type is 'git':
-            command = 'git clone %s.git %s' % (project.github_repo, project.slug)
+            repo = project.github_repo
+            repo.replace('.git', '')
+            command = 'git clone %s.git %s' % (repo, project.slug)
             print command
             run(command)
     build_docs(project)
@@ -49,13 +54,27 @@ def build_docs(project):
                 data[match.group(1).strip()] = match.group(2).strip()
     conf = Conf.objects.get_or_create(project=project)[0]
     conf.copyright = data['copyright']
-    conf.version = data.get('version', 0.1)
     conf.theme = data.get('html_theme', 'default')
     conf.path = os.getcwd()
     conf.save()
 
     project.write_conf()
 
-    make_dir = project.find('Makefile')[0].replace('/Makefile', '')
-    os.chdir(make_dir)
-    os.system('make html')
+    try:
+        make_dir = project.find('Makefile')[0].replace('/Makefile', '')
+        os.chdir(make_dir)
+        os.system('make html')
+    except IndexError:
+        os.chdir(conf_dir)
+        os.system('sphinx-build -b html . _build')
+
+
+#@periodic_task(run_every=crontab(hour="*", minute="*/30", day_of_week="*"))
+@periodic_task(run_every=crontab(hour="*", minute="*", day_of_week="*"))
+def update_docs_pull():
+    for project in Project.objects.all():
+        print "Building %s" % project
+        try:
+            build_docs(project)
+        except Exception, e:
+            print e
