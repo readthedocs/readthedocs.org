@@ -51,5 +51,5 @@ class File(models.Model):
     
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.name)
+            self.slug = slugify(self.heading)
         super(File, self).save(*args, **kwargs)
