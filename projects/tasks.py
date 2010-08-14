@@ -89,7 +89,6 @@ def update_created_docs(project):
 
     project.write_index()
 
-    # TODO: make this more flexible
     for file in project.files.all():
         file.write_to_disk()
 
