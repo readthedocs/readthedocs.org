@@ -1,4 +1,7 @@
 from celery.decorators import task
+from celery.task.schedules import crontab  
+from celery.decorators import periodic_task  
+
 from projects.models import Project, Conf
 from projects.utils import  find_file, run
 
@@ -59,3 +62,11 @@ def build_docs(project):
     make_dir = project.find('Makefile')[0].replace('/Makefile', '')
     os.chdir(make_dir)
     os.system('make html')
+
+#@periodic_task(run_every=crontab(hour="*", minute="*/30", day_of_week="*"))  
+@periodic_task(run_every=crontab(hour="*", minute="*", day_of_week="*"))  
+def update_docs_pull():
+    for project in Project.objects.all():
+        print "Building %s" % project
+        build_docs(project)
+
