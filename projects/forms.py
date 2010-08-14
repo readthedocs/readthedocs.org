@@ -55,6 +55,13 @@ class FileForm(forms.ModelForm):
     class Meta:
         model = File
         exclude = ('project', 'slug')
+
+    def __init__(self, instance=None, *args, **kwargs):
+        file_qs = instance.project.files.all()
+        if instance.pk:
+            file_qs = file_qs.exclude(pk=instance.pk)
+        self.base_fields['parent'].queryset = file_qs
+        super(FileForm, self).__init__(instance=instance, *args, **kwargs)
     
     def save(self, *args, **kwargs):
         # grab the old content before saving
