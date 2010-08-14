@@ -4,6 +4,8 @@
 
 {% block content-header %}<h2>Edit Configuration</h2>{% endblock %}
 
+{% block editing-option-conf %}class="active"{% endblock %}
+
 {% block content %}
   <form method="post" action=".">{% csrf_token %}
     {{ form.as_p }}

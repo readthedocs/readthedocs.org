@@ -9,15 +9,16 @@
 
         <div class="editing-dash-nav">
           <ul>
-            <li><a href="{% url projects_dashboard %}">My Projects</a></li>
+            <li class="parent"><a href="{% url projects_dashboard %}">My Projects</a></li>
             <li><a href="#">{{ project }}</a></li>
           </ul>
         </div>
 
         <div class="editing-options">
           <ul>
-            <li><a href="{% url projects_configure project.slug %}">Edit Conf</a></li>
-            <li><a href="{% url projects_file_add project.slug %}">Add New Page</a></li>
+            <li {% block editing-option-conf %}{% endblock %}><a href="{% url projects_configure project.slug %}">Edit Conf</a></li>
+            <li {% block editing-option-new-page %}{% endblock %}><a href="{% url projects_file_add project.slug %}">Add New Page</a></li>
+            <li {% block editing-option-view %}{% endblock %}><a href="{{ project.get_absolute_url }}">View Docs</a></li>
           </ul>
         </div>
 

@@ -103,11 +103,14 @@ label { display: block; margin-bottom: 4px; font-weight: bold; }
 
   /* editing dashboard toolbar */
   #project_editing_toolbar .editing-dash-nav ul { background: #D1D9DF; }
-  #project_editing_toolbar .editing-dash-nav ul li { display: block; float: left; padding: 15px 20px; background: #D1D9DF; }
+  #project_editing_toolbar .editing-dash-nav ul li { display: block; float: left; background: #D1D9DF; }
+  #project_editing_toolbar .editing-dash-nav ul li a { display: block; float: left; padding: 15px; }
+  #project_editing_toolbar .editing-dash-nav ul li.parent { background-color: #8CA1AF; }
 
   /* editing options */
   #project_editing_toolbar .editing-options ul { background: #D1D9DF; float: right; }
   #project_editing_toolbar .editing-options ul li { display: block; float: left; padding: 15px 10px; background: #D1D9DF; }
+  #project_editing_toolbar .editing-options ul li.active { background-color: #8CA1AF; }
 
 
 /* pagination */

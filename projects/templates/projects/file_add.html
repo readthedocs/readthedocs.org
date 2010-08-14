@@ -4,6 +4,8 @@
 
 {% block content-header %}<h2>Add a file</h2>{% endblock %}
 
+{% block editing-option-new-page %}class="active"{% endblock %}
+
 {% block content %}
   <form method="post" action=".">{% csrf_token %}
     {{ form.as_p }}
