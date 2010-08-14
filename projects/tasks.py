@@ -31,7 +31,9 @@ def update_docs(slug, type='git'):
             run(command)
     else:
         if type is 'git':
-            command = 'git clone %s.git %s' % (project.github_repo, project.slug)
+            repo = project.github_repo
+            repo.relace('.git', '')
+            command = 'git clone %s.git %s' % (repo, project.slug)
             print command
             run(command)
     build_docs(project)
