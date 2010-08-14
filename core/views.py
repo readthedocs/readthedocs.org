@@ -6,6 +6,7 @@ from django.views.decorators.csrf import csrf_view_exempt
 from django.views.static import serve
 
 import json
+import os
 
 from projects.models import Project
 from projects.tasks import update_docs
@@ -26,6 +27,8 @@ def serve_docs(request, username, project_slug, filename):
     if not filename:
         filename = "index.html"
     filename = filename.rstrip('/')
+    if not os.path.exists(os.path.join(proj.full_html_path, filename)):
+            return HttpResponse("These docs haven't been built yet :(")
     return serve(request, filename, proj.full_html_path)
 
 def render_header(request):
