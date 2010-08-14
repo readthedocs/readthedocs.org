@@ -107,7 +107,7 @@ label { display: block; margin-bottom: 4px; font-weight: bold; }
 /* pagination */
 
 .pagination { float: left; background: #e6e6e6; padding: 8px; -moz-border-radius: 5px; webkit-border-radius: 5px; border-radius: 5px; }
-.pagination a, .pagination span { background: #fff; display: block; color: #444; text-decoration: none; float: left; padding: 5px 10px; border: 1px solid #bfbfbf; border-right: none; }
+.pagination a, .pagination span { background: #fff; display: block; color: #444; text-decoration: none; float: left; padding: 8px 10px; border: 1px solid #bfbfbf; border-right: none; }
 .pagination a.disabled, .pagination span.disabled, 
 .pagination a.disabled:hover, .pagination span.disabled:hover { color: #999; background: #fff; }
 .pagination a:hover { background: url("../images/gradient-light.png") repeat-x scroll left bottom #f6f6f6; }
