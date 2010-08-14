@@ -1,16 +1,20 @@
+from celery.decorators import task
+from projects.models import Project, Conf
+from projects.utils import get_project_path, find_file, run
+
 import os
 import re
 import glob
 import fnmatch
-from celery.decorators import task
-from projects.models import Project, Conf
-from projects.utils import get_project_path, find_file
 
-#ghetto_hack = re.compile(r'^(?P<key>\s*) = \s*u?[\'\"](?P<value>.*)[\'\"]$')
+
 ghetto_hack = re.compile(r'(?P<key>.*)\s*=\s*u?[\'\"](?P<value>.*)[\'\"]')
 
 @task
 def update_docs(slug, type='git'):
+    """
+    A Celery task that updates the documentation for a project.
+    """
     project = Project.objects.get(slug=slug)
     path = get_project_path(project)
     if not os.path.exists(path):
@@ -21,18 +25,19 @@ def update_docs(slug, type='git'):
         if type is 'git':
             command = 'git fetch && git reset --hard origin/master'
             print command
-            os.system(command)
+            run(command)
     else:
         if type is 'git':
             command = 'git clone %s.git %s' % (project.github_repo, project.slug)
             print command
-            os.system(command)
-        elif type is 'hg':
-            os.system('hg clone ')
+            run(command)
     build_docs(path, project=project)
 
 
 def build_docs(path, project=None):
+    """
+    A helper function for the celery task to do the actual doc building.
+    """
     os.chdir(path)
     matches = find_file('Makefile')
     if len(matches) == 1:
