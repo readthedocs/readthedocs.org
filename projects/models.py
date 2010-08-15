@@ -38,6 +38,9 @@ class Project(models.Model):
     def get_absolute_url(self):
         return reverse('projects_detail', args=[self.user.username, self.slug])
 
+    def get_docs_url(self):
+        return reverse('docs_detail', args=[self.user.username, self.slug, ''])
+
     def user_doc_path(self):
         return os.path.join(settings.DOCROOT, self.user.username, self.slug)
     user_doc_path = property(memoize(user_doc_path, {}, 1))
