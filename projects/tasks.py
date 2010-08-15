@@ -51,7 +51,7 @@ def update_imported_docs(project):
         if project.repo_type is 'hg':
             command = 'hg clone %s %s' % (repo, project.slug)
         else:
-            repo.replace('.git', '')
+            repo = repo.replace('.git', '')
             command = 'git clone %s.git %s' % (repo, project.slug)
         print command
         run(command)
