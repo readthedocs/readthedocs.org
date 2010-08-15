@@ -60,6 +60,25 @@
           </div>
           <!-- END projects list -->
 
+          <!-- BEGIN marks list -->
+          <div class="module">
+            <div class="module-wrapper">
+
+              <div class="module-header">
+                <h2>Recent Bookmarks</h2>
+              </div>
+
+              <div class="module-list">
+                <ul>
+                  {% include "core/bookmark_list_detailed.html" %}
+                </ul>
+              </div>
+
+            </div>
+          </div>
+          <!-- END marks list -->
+
+
           {% paginate %}
 
 {% endblock %}
