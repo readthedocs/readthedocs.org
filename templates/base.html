@@ -12,6 +12,7 @@
   <!-- css -->
   <link rel="stylesheet" href="{{ MEDIA_URL }}css/core.css">
   <link rel="stylesheet" href="{{ MEDIA_URL }}css/header.css">
+  {% block extra_links %}{% endblock %}
 
   <!-- js -->
     
@@ -22,6 +23,8 @@
     <!-- typekit -->
     <script type="text/javascript" src="http://use.typekit.com/xgl8ypn.js"></script>
     <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+    
+    {% block extra_scripts %}{% endblock %}
 
 </head>
 
