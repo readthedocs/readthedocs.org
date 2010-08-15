@@ -14,5 +14,15 @@
 
           </div>
         </div>
+        <script type="text/javascript">
+          $('.wide-search-bar #id_site_search').autocomplete({
+            source: '{% url search_autocomplete %}',
+            minLength: 2,
+            open: function(event, ui) { 
+              ac_top = $('.ui-autocomplete').css('top'); 
+              $('.ui-autocomplete').css({'width': '534px', 'top': ac_top + 10 }); 
+            }
+          });   
+        </script>
         <!-- BEGIN wide search bar -->
 
