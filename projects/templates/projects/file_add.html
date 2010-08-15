@@ -1,21 +1,19 @@
 {% extends "projects/base_project_editing.html" %}
 
 {% block extra_links %}
-  <link rel="stylesheet" type="text/css" href="/media/js/markitup/skins/simple/style.css" />
-  <link rel="stylesheet" type="text/css" href="/media/css/editor.css" />
+  <link rel="stylesheet" type="text/css" href="/media/lib/markitup/skins/simple/style.css" />
+  <link rel="stylesheet" type="text/css" href="/media/lib/markitup/sets/sphinx/editor.css" />
 {% endblock %}
 
 {% block extra_scripts %}
-  <script type="text/javascript" src="/media/js/markitup/jquery.markitup.pack.js"></script>
-  <script type="text/javascript" src="/media/js/editor.js"></script>
+  <script type="text/javascript" src="/media/lib/markitup/jquery.markitup.pack.js"></script>
+  <script type="text/javascript" src="/media/lib/markitup/sets/sphinx/editor.js"></script>
   <script type="text/javascript">
     $(document).ready(function() {
       $("#id_content").markItUp(SphinxDocsSettings); // .markItUp(mySettings);
     });
   </script>
-
 {% endblock %}
-
 
 {% block title %}Add a file{% endblock %}
 
