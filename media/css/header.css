@@ -8,6 +8,7 @@ body { padding-top: 50px; }
 
   /* header title */
   .rtfd-header-title h1 { font-size: 20px; padding: 5px 20px; color: #fff; }
+  .rtfd-header-title h1 a { color: #fff; text-decoration: none; }
 
   /* header search */
   .rtfd-header-search { position: absolute; top: 10px; left: 230px; }
