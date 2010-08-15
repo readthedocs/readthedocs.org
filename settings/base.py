@@ -22,9 +22,7 @@ CACHE_KEY_PREFIX = 'docs'
 CACHE_MIDDLEWARE_SECONDS = 60
 
 LOGIN_REDIRECT_URL = '/dashboard/'
-
-FORCE_WWW = True
-LOGIN_REDIRECT_URL = '/'
+FORCE_WWW = False
 
 if DEBUG:
     CACHE_BACKEND = 'dummy://'
