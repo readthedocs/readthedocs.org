@@ -15,6 +15,13 @@
       <li>No tags</li>
     {% endfor %}
   </ul>
+
+  <h3>Latest Revisions</h3>
+  <ul>
+    {% for revision in project.get_latest_revisions|slice:":5" %}
+      <li>{{ revision }} {{ revision.created_date|timesince }} ago</li>
+    {% endfor %}
+  </ul>
   
   <h3>Projects by {{ project.user.username }}</h3>
   <ul>

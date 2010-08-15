@@ -101,6 +101,10 @@ class Project(models.Model):
             elif self.repo.endswith('git'):
                 return 'git'
 
+    def get_latest_revisions(self):
+        revision_qs = FileRevision.objects.filter(file__project=self)
+        return revision_qs.order_by('-created_date')
+
 
 class Conf(models.Model):
     project = models.OneToOneField(Project, related_name='conf')
@@ -199,6 +203,7 @@ class FileRevision(models.Model):
     file = models.ForeignKey(File, related_name='revisions')
     comment = models.TextField(blank=True)
     diff = models.TextField(blank=True)
+    created_date = models.DateTimeField(auto_now_add=True)
 
     revision_number = models.IntegerField()
     is_reverted = models.BooleanField(default=False)
@@ -207,7 +212,7 @@ class FileRevision(models.Model):
         ordering = ('-revision_number',)
 
     def __unicode__(self):
-        return '%s #%s' % (self.file.heading, self.revision_number)
+        return self.comment or '%s #%s' % (self.file.heading, self.revision_number)
 
     def get_file_content(self):
         """
