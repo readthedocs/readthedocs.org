@@ -123,6 +123,13 @@ label { display: block; margin-bottom: 4px; font-weight: bold; }
   /* text editor */
   .editor { width: 500px; height: 600px; }
 
+  /* file tree */
+  li.depth-1 { padding-left: 0px; }
+  li.depth-2 { padding-left: 20px; }
+  li.depth-3 { padding-left: 40px; }
+  li.depth-4 { padding-left: 60px; }
+  li.depth-5 { padding-left: 80px; }
+
 
 /* pagination */
 
