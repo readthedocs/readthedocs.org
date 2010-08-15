@@ -100,9 +100,23 @@ label { display: block; margin-bottom: 4px; font-weight: bold; }
 .module-wrapper { padding: 8px; }
 .module-header { padding: 0 10px; }
 .module-list { background: #fff; border: 1px solid #bfbfbf; border-bottom: none; }
-.module-item a { text-decoration: none; display: block; border-bottom: 1px solid #bfbfbf; padding: 10px; }
-.module-list a:hover { background: #f3f3f3 url(../images/gradient-light.png) bottom left repeat-x; }
-.module-list .module-item.call a { padding: 30px; text-align: center; }
+.module-item { border-bottom: 1px solid #bfbfbf; padding: 10px; }
+
+  /* module title */
+  /*
+  .module-item .module-item-title { font-family: "Helvetica Neue", Arial, Helvetica, sans-serif; font-weight: bold; font-size: 16px; text-decoration: none; display: block; }
+  .module-item a.module-item-title:hover { text-decoration: underline; }
+  */
+
+  /* for links that span the column */
+  .module-item.col-span { border-bottom: 1px solid #bfbfbf; padding: 0; }
+  .module-item.col-span a { text-decoration: none; display: block; padding: 10px; }
+  .module-item.col-span a:hover { background: #f3f3f3 url(../images/gradient-light.png) bottom left repeat-x; }
+
+  /* call out */
+  .module-list .module-item.call { padding: 0; }
+  .module-list .module-item.call a { display: block; padding: 30px; text-align: center; text-decoration: none; font-family: "Helvetica Neue", Arial, Helvetica, sans-serif; font-weight: bold; font-size: 18px; }
+  .module-list .module-item.call a:hover { background: #f3f3f3 url(../images/gradient-light.png) bottom left repeat-x; background-color: #8ECC4C; color: #fff; text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5); border-color: #8ECC4C; }
 
 
 /* project bar */
@@ -167,6 +181,7 @@ label { display: block; margin-bottom: 4px; font-weight: bold; }
 .hide { display: none; }
 .left { float: left; }
 .right { float: right; }
+.quiet { color: #999; }
 .first { margin-left: 0; padding-left: 0; }
 .last { margin-right: 0; padding-right: 0; }
 .top { margin-top: 0; padding-top: 0; }

@@ -1,0 +1,7 @@
+
+                    {% for project in project_list %}
+                      <li class="module-item col-span">
+                        <a class="module-item-title" href="{{ project.get_absolute_url }}">{{ project.name }}</a>
+                      </li>
+                    {% endfor %}
+

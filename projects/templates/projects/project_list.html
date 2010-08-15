@@ -19,11 +19,13 @@
               </div>
 
               <div class="module-list">
-                <ul>
-                  {% for project in project_list %}
-                    <li class="module-item"><a href="{{ project.get_absolute_url }}">{{ project.name }}</a></li>
-                  {% endfor %}
-                </ul>
+                <div class="module-list-wrapper">
+
+                  <ul>
+                    {% include "core/project_list_detailed.html" %}
+                  </ul>
+
+                </div>
               </div>
 
             </div>
