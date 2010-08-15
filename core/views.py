@@ -32,8 +32,14 @@ def github_build(request):
     obj = json.loads(request.POST['payload'])
     name = obj['repository']['name']
     url = obj['repository']['url']
-    project = Project.objects.get(repo=url)
+    ghetto_url = url.replace('http://', '')
+    project = Project.objects.filter(repo__contains=ghetto_url)[0]
     update_docs.delay(pk=project.pk)
+    return HttpResponse('Build Started')
+
+@csrf_view_exempt
+def generic_build(request, pk):
+    update_docs.delay(pk=pk)
     return HttpResponse('Build Started')
 
 def serve_docs(request, username, project_slug, filename):
@@ -41,13 +47,13 @@ def serve_docs(request, username, project_slug, filename):
     if not filename:
         filename = "index.html"
     filename = filename.rstrip('/')
-    if not os.path.exists(os.path.join(proj.full_html_path, filename)):
-            return HttpResponse("These docs haven't been built yet :(")
     if 'html' in filename:
         pageview, created = PageView.objects.get_or_create(project=proj, url=filename)
         if not created:
             pageview.count = F('count') + 1
             pageview.save()
+        if not os.path.exists(os.path.join(proj.full_html_path, filename)):
+            return HttpResponse("These docs haven't been built yet :(")
     return serve(request, filename, proj.full_html_path)
 
 def render_header(request):
@@ -65,7 +71,7 @@ def render_header(request):
             )
         except Project.DoesNotExist:
             pass
-    context = { 'project': project, 
+    context = { 'project': project,
             'do_bookmarking': True
             }
 

@@ -27,7 +27,7 @@ class Project(models.Model):
     project_url = models.URLField(blank=True, help_text='the project\'s homepage')
     pub_date = models.DateTimeField(auto_now_add=True)
     modified_date = models.DateTimeField(auto_now=True)
-    version = models.CharField(max_length=20,
+    version = models.CharField(max_length=100, blank=True,
         help_text='project version these docs apply to, i.e. 1.0a')
     copyright = models.CharField(max_length=255, blank=True,
         help_text='project copyright information')
@@ -126,7 +126,7 @@ class Project(models.Model):
     
     def get_top_level_files(self):
         return self.files.filter(parent__isnull=True).order_by('ordering')
-    
+
     @property
     def conf_filename(self):
         return os.path.join(self.path, 'conf.py')
