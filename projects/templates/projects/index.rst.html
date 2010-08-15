@@ -1,5 +1,4 @@
-{{ project.name|safe }} v{{ project.version }}
-==================================
+{% load projects_tags %}{{ project.name|safe|headline }}
 
 {{ project.description|safe }}
 

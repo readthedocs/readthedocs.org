@@ -1,4 +1,3 @@
-{{ file.heading|safe }}
-=======================
+{% load projects_tags %}{{ file.heading|safe|headline }}
 
 {{ file.content|safe }}
