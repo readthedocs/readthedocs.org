@@ -21,6 +21,8 @@ CACHE_BACKEND = 'memcached://localhost:11211/'
 CACHE_KEY_PREFIX = 'docs'
 CACHE_MIDDLEWARE_SECONDS = 60
 
+LOGIN_REDIRECT_URL = '/dashboard/'
+
 FORCE_WWW = True
 LOGIN_REDIRECT_URL = '/'
 

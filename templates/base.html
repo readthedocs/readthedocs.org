@@ -26,10 +26,9 @@
 
 <body class="{% block body_class %}{% endblock %}">
 
-    {% include "core/header.html" %}
+    {% block header-wrapper %}{% include "core/header.html" %}{% endblock %}
 
-    {% block project_editing %}
-    {% endblock %}
+    {% block project_editing %}{% endblock %}
 
     <!-- BEGIN content-->
     <div id="content">

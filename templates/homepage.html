@@ -3,11 +3,16 @@
 
 {% block title %}Home{% endblock %}
 
+{% block body_class %}home{% endblock %}
+
 {% block nav-browse %}class="active"{% endblock %}
+
+{% block header-wrapper %}{% include "core/home-header.html" %}{% endblock %}
 
 {% block content %}
 
           {% include "core/widesearchbar.html" %}
+
           {% autopaginate project_list 15 %}
 
           <!-- BEGIN projects list -->
