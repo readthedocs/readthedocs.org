@@ -8,6 +8,7 @@ from projects.utils import  find_file, run
 
 from builds.models import Build
 
+import decimal
 import os
 import re
 import glob
@@ -52,10 +53,11 @@ def update_imported_docs(project):
     if os.path.exists(os.path.join(path, project.slug)):
         os.chdir(project.slug)
         if project.repo_type is 'hg':
-            command = 'hg update -C -r . '
+            run('hg update -C -r . ')
+
         else:
-            command = 'git fetch && git reset --hard origin/master'
-        run(command)
+            run('git fetch')
+            run('git reset --hard origin/master')
     else:
         repo = project.repo
         if project.repo_type is 'hg':
@@ -83,7 +85,11 @@ def scrape_conf_file(project):
     conf.path = os.getcwd()
     conf.save()
 
-    project.version = data.get('version', '0.1.0')
+    try:
+        project.version = decimal.Decimal(data.get('version', '0.1.0'))
+    except decimal.InvalidOperation:
+        project.version = ''
+
     project.save()
 
 
