@@ -1,0 +1,274 @@
+[
+    {
+        "pk": 1, 
+        "model": "projects.project", 
+        "fields": {
+            "modified_date": "2010-08-15 14:36:46", 
+            "description": "", 
+            "docs_directory": "", 
+            "project_url": "", 
+            "repo": "http://github.com/beetletweezers/tweezers", 
+            "version": "0.1", 
+            "user": 1, 
+            "pub_date": "2010-08-14 01:37:58", 
+            "slug": "read-the-docs", 
+            "name": "Read The Docs"
+        }
+    }, 
+    {
+        "pk": 13, 
+        "model": "projects.project", 
+        "fields": {
+            "modified_date": "2010-08-15 13:25:40", 
+            "description": "WOOOOOOOO", 
+            "docs_directory": "", 
+            "project_url": "", 
+            "repo": "", 
+            "version": "1.8====D", 
+            "user": 1, 
+            "pub_date": "2010-08-14 23:16:57", 
+            "slug": "test-local-docs", 
+            "name": "Test Local Docs"
+        }
+    }, 
+    {
+        "pk": 22, 
+        "model": "projects.project", 
+        "fields": {
+            "modified_date": "2010-08-15 13:18:23", 
+            "description": "", 
+            "docs_directory": "", 
+            "project_url": "", 
+            "repo": "http://github.com/alex/django-taggit", 
+            "version": "0.8", 
+            "user": 1, 
+            "pub_date": "2010-08-15 13:04:19", 
+            "slug": "taggit", 
+            "name": "Taggit"
+        }
+    }, 
+    {
+        "pk": 6, 
+        "model": "projects.project", 
+        "fields": {
+            "modified_date": "2010-08-15 13:18:23", 
+            "description": "", 
+            "docs_directory": "", 
+            "project_url": "", 
+            "repo": "http://github.com/jezdez/pip", 
+            "version": "", 
+            "user": 1, 
+            "pub_date": "2010-08-14 11:08:12", 
+            "slug": "pip", 
+            "name": "Pip"
+        }
+    }, 
+    {
+        "pk": 10, 
+        "model": "projects.project", 
+        "fields": {
+            "modified_date": "2010-08-15 13:18:22", 
+            "description": "Awesome forms!", 
+            "docs_directory": "", 
+            "project_url": "", 
+            "repo": "http://github.com/pydanny/django-uni-form", 
+            "version": "0.7", 
+            "user": 1, 
+            "pub_date": "2010-08-14 13:34:59", 
+            "slug": "django-uni-form", 
+            "name": "Django Uni Form"
+        }
+    }, 
+    {
+        "pk": 9, 
+        "model": "projects.project", 
+        "fields": {
+            "modified_date": "2010-08-15 13:18:21", 
+            "description": "OMG API!", 
+            "docs_directory": "", 
+            "project_url": "", 
+            "repo": "http://github.com/codysoyland/django-tastypie", 
+            "version": "0.8.2", 
+            "user": 1, 
+            "pub_date": "2010-08-14 13:16:35", 
+            "slug": "tastypie", 
+            "name": "Tastypie"
+        }
+    }, 
+    {
+        "pk": 8, 
+        "model": "projects.project", 
+        "fields": {
+            "modified_date": "2010-08-15 13:18:20", 
+            "description": "ZOMG HE'S COMING?!", 
+            "docs_directory": "", 
+            "project_url": "", 
+            "repo": "http://github.com/ericholscher/django-kong", 
+            "version": "0.1", 
+            "user": 1, 
+            "pub_date": "2010-08-14 13:01:57", 
+            "slug": "kong", 
+            "name": "Kong"
+        }
+    }, 
+    {
+        "pk": 7, 
+        "model": "projects.project", 
+        "fields": {
+            "modified_date": "2010-08-15 13:18:20", 
+            "description": "", 
+            "docs_directory": "", 
+            "project_url": "", 
+            "repo": "http://github.com/worldcompany/djangoembed", 
+            "version": "", 
+            "user": 1, 
+            "pub_date": "2010-08-14 11:30:33", 
+            "slug": "djangoembed", 
+            "name": "Djangoembed"
+        }
+    }, 
+    {
+        "pk": 5, 
+        "model": "projects.project", 
+        "fields": {
+            "modified_date": "2010-08-15 13:18:19", 
+            "description": "", 
+            "docs_directory": "", 
+            "project_url": "", 
+            "repo": "http://github.com/dmishe/django-south", 
+            "version": "0.7", 
+            "user": 1, 
+            "pub_date": "2010-08-14 10:59:47", 
+            "slug": "south", 
+            "name": "South"
+        }
+    }, 
+    {
+        "pk": 4, 
+        "model": "projects.project", 
+        "fields": {
+            "modified_date": "2010-08-15 13:18:19", 
+            "description": "", 
+            "docs_directory": "", 
+            "project_url": "", 
+            "repo": "http://github.com/bitprophet/fabric", 
+            "version": "0.1.0", 
+            "user": 1, 
+            "pub_date": "2010-08-14 08:00:49", 
+            "slug": "fabric", 
+            "name": "Fabric"
+        }
+    }, 
+    {
+        "pk": 14, 
+        "model": "projects.project", 
+        "fields": {
+            "modified_date": "2010-08-15 13:18:18", 
+            "description": "", 
+            "docs_directory": "", 
+            "project_url": "", 
+            "repo": "http://github.com/coleifer/cue.git", 
+            "version": "0.1.0", 
+            "user": 1, 
+            "pub_date": "2010-08-14 23:19:49", 
+            "slug": "cue", 
+            "name": "Cue"
+        }
+    }, 
+    {
+        "pk": 16, 
+        "model": "projects.project", 
+        "fields": {
+            "modified_date": "2010-08-15 13:18:17", 
+            "description": "Awesome", 
+            "docs_directory": "", 
+            "project_url": "", 
+            "repo": "http://github.com/pinax/pinax", 
+            "version": "0.9", 
+            "user": 1, 
+            "pub_date": "2010-08-15 00:12:14", 
+            "slug": "pinax", 
+            "name": "Pinax"
+        }
+    }, 
+    {
+        "pk": 18, 
+        "model": "projects.project", 
+        "fields": {
+            "modified_date": "2010-08-15 13:18:16", 
+            "description": "", 
+            "docs_directory": "", 
+            "project_url": "", 
+            "repo": "http://bitbucket.org/ubernostrum/django-registration", 
+            "version": "0.8", 
+            "user": 1, 
+            "pub_date": "2010-08-15 01:13:37", 
+            "slug": "django-registration", 
+            "name": "Django Registration"
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "projects.project", 
+        "fields": {
+            "modified_date": "2010-08-15 13:18:16", 
+            "description": "", 
+            "docs_directory": "", 
+            "project_url": "", 
+            "repo": "http://github.com/ericholscher/django-test-utils", 
+            "version": "0.2", 
+            "user": 1, 
+            "pub_date": "2010-08-14 02:16:35", 
+            "slug": "django-test-utils", 
+            "name": "Django Test Utils"
+        }
+    }, 
+    {
+        "pk": 15, 
+        "model": "projects.project", 
+        "fields": {
+            "modified_date": "2010-08-15 13:18:15", 
+            "description": "", 
+            "docs_directory": "", 
+            "project_url": "", 
+            "repo": "http://bitbucket.org/tarek/distutils2", 
+            "version": "1.0a1", 
+            "user": 1, 
+            "pub_date": "2010-08-14 23:57:05", 
+            "slug": "distutils2", 
+            "name": "Distutils2"
+        }
+    }, 
+    {
+        "pk": 17, 
+        "model": "projects.project", 
+        "fields": {
+            "modified_date": "2010-08-15 13:18:14", 
+            "description": "Awesome docs", 
+            "docs_directory": "", 
+            "project_url": "", 
+            "repo": "http://github.com/toastdriven/django-haystack", 
+            "version": "1.1.0", 
+            "user": 1, 
+            "pub_date": "2010-08-15 01:11:22", 
+            "slug": "haystack", 
+            "name": "Haystack"
+        }
+    }, 
+    {
+        "pk": 19, 
+        "model": "projects.project", 
+        "fields": {
+            "modified_date": "2010-08-15 13:18:13", 
+            "description": "ZOMG?!", 
+            "docs_directory": "", 
+            "project_url": "", 
+            "repo": "http://bitbucket.org/mitsuhiko/jinja2-main", 
+            "version": "2.0", 
+            "user": 1, 
+            "pub_date": "2010-08-15 02:13:11", 
+            "slug": "jinja", 
+            "name": "Jinja"
+        }
+    }
+]

@@ -1,12 +1,11 @@
-{% load projects_tags %}{{ project.name|safe|headline }}
+{% load projects_tags %}{{ project.name|safe|heading }}
 
 {{ project.description|safe }}
 
 Contents:
 
 .. toctree::
-   
-   {% load projects_tags %}
+
    {% for file in project|annotated_tree %}
-     {{ file.denormalized_path }}
+   {{ file.denormalized_path }}
    {% endfor %}

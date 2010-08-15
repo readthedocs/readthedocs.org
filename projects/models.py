@@ -179,6 +179,10 @@ class File(models.Model):
             update_children(self.children.all())
         #Update modified time on project.
         self.project.save()
+    
+    @property
+    def depth(self):
+        return len(self.denormalized_path.split('/'))
 
     def create_revision(self, old_content, comment):
         FileRevision.objects.create(

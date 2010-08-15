@@ -1,5 +1,7 @@
 from django import template
 
+from projects.constants import HEADING_MARKUP
+
 register = template.Library()
 
 @register.filter
@@ -9,9 +11,9 @@ def top_level_files(project):
 @register.filter
 def annotated_tree(project, max_depth=99):
     annotated = []
+    
     def walk_tree(qs, depth=1):
         for obj in qs:
-            obj.depth = depth
             annotated.append(obj)
             if depth < max_depth:
                 walk_tree(obj.children.order_by('ordering'), depth+1)
@@ -19,5 +21,14 @@ def annotated_tree(project, max_depth=99):
     return annotated
 
 @register.filter
-def headline(headline_string):
-    return '%s\n%s' % (headline_string, '=' * len(headline_string))
+def file_heading(file_obj):
+    underline = '='
+    for depth, markup in HEADING_MARKUP:
+        if file_obj.depth == depth:
+            underline = markup
+            break
+    return heading(file_obj.heading, underline)
+
+@register.filter
+def heading(heading_string, underline='='):
+    return '%s\n%s' % (heading_string, underline * len(heading_string))
