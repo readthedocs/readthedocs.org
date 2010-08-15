@@ -78,12 +78,10 @@ def scrape_conf_file(project):
             match = ghetto_hack.search(line)
             if match:
                 data[match.group(1).strip()] = match.group(2).strip()
-    conf = Conf.objects.get_or_create(project=project)[0]
-    conf.copyright = data['copyright']
-    conf.theme = data.get('html_theme', 'default')
-    conf.suffix = data.get('source_suffix', '.rst')
-    conf.path = os.getcwd()
-    conf.save()
+    project.copyright = data['copyright']
+    project.theme = data.get('html_theme', 'default')
+    project.suffix = data.get('source_suffix', '.rst')
+    project.path = os.getcwd()
 
     try:
         project.version = decimal.Decimal(data.get('version', '0.1.0'))
