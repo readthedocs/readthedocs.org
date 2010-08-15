@@ -10,7 +10,7 @@
 
         <!-- BEGIN global search -->
         <div class="rtfd-header-search">
-          <form action="{% url search %}">
+          <form action="{% url search %}" method="GET">
             <input type="text" name="q" value="{{ term }}" id="id_site_search" placeholder="Search docs">
             <input type="submit" value="Go">
           </form>

@@ -74,9 +74,13 @@
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
 
-  $('#id_site_search').autocomplete({
+  $('.rtfd-header-search input:text').autocomplete({
     source: '{% url search_autocomplete %}',
     minLength: 2,
+    open: function(event, ui) { 
+      ac_top = $('.ui-autocomplete').css('top'); 
+      $('.ui-autocomplete').css({'width': '233px', 'top': ac_top + 10 }); 
+    }
   });
 
 </script>

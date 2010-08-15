@@ -132,6 +132,13 @@ label { display: block; margin-bottom: 4px; font-weight: bold; }
 .pagination .current.page, .pagination .current.page:hover { color: #444; background: url("../images/gradient-light.png") repeat-x scroll left bottom #d9d9d9; }
 
 
+/* autocomplete */
+
+.ui-autocomplete { background: #fff; text-align: left; border: 1px solid #bfbfbf; }
+.ui-state-hover { background: #eee; }
+.ui-menu-item a { display: block; padding: 3px 10px; }
+
+
 /* footer */
 
 #footer { margin: 100px 0; color: #aaa; }
