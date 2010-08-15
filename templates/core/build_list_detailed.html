@@ -1,9 +1,9 @@
-
 {% for build in build_list %}
   <li class="module-item">
-    <a class="module-item-title" href="{{ build.get_absolute_url }}">{{ build.project.name }}</a>
+    <a class="module-item-title" href="{{ build.project.get_absolute_url }}">{{ build.project.name }}</a>
     <a href="{% url projects_user_list build.project.user.username %}" class="quiet">({{ build.project.user }})</a>
     <span class="quiet">{% if build.project.version %}version {{ build.project.version }} -{% endif %} {{ build.date|date:"j F, Y" }}</span>
+    <strong class="success">{{ build.success|yesno:"Passed,Failed" }}</strong>
   </li>
 {% endfor %}
 

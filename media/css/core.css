@@ -121,6 +121,9 @@ label { display: block; margin-bottom: 4px; font-weight: bold; }
   .module-list .module-item.call a { display: block; padding: 30px; text-align: center; text-decoration: none; font-family: "Helvetica Neue", Arial, Helvetica, sans-serif; font-weight: bold; font-size: 18px; }
   .module-list .module-item.call a:hover { background: #f3f3f3 url(../images/gradient-light.png) bottom left repeat-x; background-color: #8ECC4C; color: #fff; text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5); border-color: #8ECC4C; }
 
+  /* Success Model Item */
+  .module-item .success { float: right ; }
+
 
 /* project bar */
 
