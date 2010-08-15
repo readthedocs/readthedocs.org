@@ -9,4 +9,8 @@ urlpatterns = patterns('bookmarks.views',
         'bookmark_add',
         name='bookmarks_add'
     ),
+    url(r'^remove/(?P<url>.*)/$',
+        'bookmark_remove',
+        name='bookmarks_remove'
+    ),
 )
