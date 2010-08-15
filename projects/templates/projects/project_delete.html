@@ -2,12 +2,12 @@
 
 {% block title %}Delete {{ project.name }}?{% endblock %}
 
-{% block content-header %}<h1>Delete {{ project.name }}?</h1>{% endblock %}
+{% block content-header %}<h1>Delete "{{ project.name }}"?</h1>{% endblock %}
 
 {% block content %}
-  <h2>You sure? O_o</h2>
+  <p>You sure? O_o</p>
 
   <form method="post" action=".">{% csrf_token %}
-    <input type="submit" value="Delete forever" />
+    <input type="submit" value="Delete forever">
   </form>
 {% endblock %}
