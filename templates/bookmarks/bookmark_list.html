@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% load pagination_tags %}
+
+{% block title %}Bookmarks{% endblock %}
+
+{% block nav-browse %}class="active"{% endblock %}
+
+{% block content %}
+
+          {% autopaginate bookmark_list 15 %}
+
+          <!-- BEGIN builds list -->
+          <div class="module">
+            <div class="module-wrapper">
+
+              <div class="module-header">
+                <h2>Recent Bookmarks</h2>
+              </div>
+
+              <div class="module-list">
+                <div class="module-list-wrapper">
+
+                  <ul>
+                    {% include "core/bookmark_list_detailed.html" %}
+                  </ul>
+
+                </div>
+              </div>
+
+            </div>
+          </div>
+          <!-- END builds list -->
+
+          {% paginate %}
+
+{% endblock %}
