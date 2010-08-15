@@ -8,6 +8,7 @@ from django.views.static import serve
 
 import json
 import os
+import re
 
 from projects.models import Project
 from projects.tasks import update_docs
@@ -47,5 +48,20 @@ def serve_docs(request, username, project_slug, filename):
     return serve(request, filename, proj.full_html_path)
 
 def render_header(request):
-    return render_to_response('core/header.html', {},
+    # try to deconstruct the request url to find the user and project
+    project = None
+
+    path_info = request.META['PATH_INFO']
+    path_match = re.match('/projects/([-\w]+)/([-\w]+)/', path_info)
+    if path_match:
+        user, project_slug = path_match.groups()
+        try:
+            project = Project.objects.get(
+                user__username=user,
+                slug=project_slug
+            )
+        except Project.DoesNotExist:
+            pass
+
+    return render_to_response('core/header.html', {'project': project},
                 context_instance=RequestContext(request))
