@@ -3,6 +3,9 @@
 {% block title %}Edit {{ file.heading }}{% endblock %}
 
 {% block content %}
+  <div id="legend" style="float: right; width: 200px;">
+    {% include "projects/legend.html" %}
+  </div>
   <form method="post" action=".">{% csrf_token %}
     {{ form.as_p }}
     <p><input type="submit" value="Save changes" /></p>
