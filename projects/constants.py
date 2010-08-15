@@ -29,3 +29,10 @@ SCRAPE_CONF_SETTINGS = [
     'source_suffix',
     'html_theme',
 ]
+
+HEADING_MARKUP = (
+    (1, '='),
+    (2, '-'),
+    (3, '^'),
+    (4, '"'),
+)
