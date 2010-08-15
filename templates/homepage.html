@@ -31,9 +31,7 @@
 
               <div class="module-list">
                 <ul>
-                  {% for project in project_list %}
-                    <li class="module-item"><a href="{{ project.get_absolute_url }}">{{ project.name }}</a></li>
-                  {% endfor %}
+                  {% include "core/project_list_detailed.html" %}
                 </ul>
               </div>
 
@@ -53,7 +51,7 @@
               <div class="module-list">
                 <ul>
                   {% for pageview in updated_list %}
-                  <li class="module-item"><a href="{% url docs_detail pageview.project.user.username pageview.project.slug pageview.url %}">{{ pageview.project.name }} - {{ pageview.url }}</a></li>
+                  <li class="module-item col-span"><a href="{% url docs_detail pageview.project.user.username pageview.project.slug pageview.url %}">{{ pageview.project.name }} - {{ pageview.url }}</a></li>
                   {% endfor %}
                 </ul>
               </div>
