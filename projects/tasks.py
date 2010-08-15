@@ -15,7 +15,7 @@ import glob
 import fnmatch
 
 
-ghetto_hack = re.compile(r'(?P<key>.*)\s*=\s*u?[\'\"](?P<value>.*)[\'\"]')
+ghetto_hack = re.compile(r'(?P<key>.*)\s*=\s*u?\[?[\'\"](?P<value>.*)[\'\"]\]?')
 
 @task
 def update_docs(pk):
@@ -43,6 +43,7 @@ def update_docs(pk):
             print "Build OK"
         else:
             print "Build ERROR"
+            print err
     else:
         print "Build Unchanged"
 
@@ -56,8 +57,8 @@ def update_imported_docs(project):
             run('hg update -C -r . ')
 
         else:
-            run('git fetch --git-dir=.git')
-            run('git reset --hard origin/master --git-dir=.git')
+            print run('git --git-dir=.git fetch')
+            run('git --git-dir=.git reset --hard origin/master')
     else:
         repo = project.repo
         if project.repo_type is 'hg':
@@ -74,13 +75,13 @@ def scrape_conf_file(project):
     lines = open('conf.py').readlines()
     data = {}
     for line in lines:
-        for we_care in SCRAPE_CONF_SETTINGS:
-            match = ghetto_hack.search(line)
-            if match:
-                data[match.group(1).strip()] = match.group(2).strip()
+        match = ghetto_hack.search(line)
+        if match:
+            data[match.group(1).strip()] = match.group(2).strip()
     project.copyright = data['copyright']
     project.theme = data.get('html_theme', 'default')
     project.suffix = data.get('source_suffix', '.rst')
+    #project.extensions = data.get('extensions', '').replace('"', "'")
     project.path = os.getcwd()
 
     try:

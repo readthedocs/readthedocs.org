@@ -35,6 +35,7 @@ class Project(models.Model):
         default=THEME_DEFAULT)
     path = models.CharField(max_length=255, editable=False)
     suffix = models.CharField(max_length=10, editable=False, default='.rst')
+    extensions = models.CharField(max_length=255, editable=False, default='')
 
     tags = TaggableManager()
 
