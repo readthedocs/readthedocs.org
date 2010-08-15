@@ -6,10 +6,19 @@
 
 {% block content-header %}<h1>Project Files</h1>{% endblock %}
 
+{% block editing-option-manage %} class="active"{% endblock %}
+
 {% block content %}
+
+  <a class="call-out" href="{% url projects_file_add project.slug %}">Add New Page</a>
+
   <ul>
     {% for file in project|annotated_tree %}
-      <li class="depth-{{ file.depth }}"><a href="{% url projects_file_edit project.slug file.id %}">{{ file.heading }}</a></li>
+      <li class="depth-{{ file.depth }}">
+        <a href="{% url projects_file_edit project.slug file.id %}">{{ file.heading }}</a>
+        <a class="quiet" href="{% url projects_file_delete project.slug file.id %}">(delete)</a>
+      </li>
     {% endfor %}
   </ul>
+
 {% endblock %}

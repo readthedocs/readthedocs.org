@@ -18,7 +18,13 @@
               <div class="module-list">
                 <ul>
                   {% for project in project_list %}
-                    <li class="module-item"><a href="{% url projects_manage project.slug %}">{{ project.name }}</a></li>
+                    <li class="module-item col-span">
+                      <a href="{% url projects_manage project.slug %}">{{ project.name }}</a>
+                      <ul class="module-item-menu">
+                        <li><a href="{% url projects_delete project.slug %}">Delete</a></li>
+                        <li><a href="{% url docs_detail project.user.username project.slug "index.html" %}">View Docs</a></li>
+                      </ul>
+                    </li>
                   {% endfor %}
                 </ul>
               </div>
