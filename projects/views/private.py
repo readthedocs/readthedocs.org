@@ -1,8 +1,10 @@
 import simplejson
+import os
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.conf import settings
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, render_to_response, redirect
 from django.template import RequestContext
@@ -58,7 +60,7 @@ def project_create(request):
     A form for creating a brand new project?
     """
     form = CreateProjectForm(request.POST or None)
-    
+
     if request.method == 'POST' and form.is_valid():
         form.instance.user = request.user
         project = form.save()
@@ -114,7 +116,7 @@ def project_import(request):
     I guess a form here for configuring your import?
     """
     form = ImportProjectForm(request.POST or None)
-    
+
     if request.method == 'POST' and form.is_valid():
         form.instance.user = request.user
         project = form.save()
@@ -184,14 +186,14 @@ def file_delete(request, project_slug, file_id):
 def file_history(request, project_slug, file_id):
     project = get_object_or_404(request.user.projects.all(), slug=project_slug)
     file = get_object_or_404(project.files.all(), pk=file_id)
-    
+
     form = FileRevisionForm(file, request.POST or None)
-    
+
     if request.method == 'POST' and form.is_valid():
         form.cleaned_data['revision'].apply()
         history = reverse('projects_file_history', args=[project.slug, file.pk])
         return HttpResponseRedirect(history)
-    
+
     return object_list(
         request,
         queryset=file.revisions.all(),
@@ -205,19 +207,29 @@ def file_history(request, project_slug, file_id):
 def file_diff(request, project_slug, file_id, from_id, to_id):
     project = get_object_or_404(request.user.projects.all(), slug=project_slug)
     file = get_object_or_404(project.files.all(), pk=file_id)
-    
+
     # grab the requested revisions
     from_rev = get_object_or_404(file.revisions.all(), pk=from_id)
     to_rev = get_object_or_404(file.revisions.all(), pk=to_id)
-    
+
     # generate a pretty html diff
     diff = file.get_html_diff(from_rev.revision_number, to_rev.revision_number)
     contents = linebreaks(to_rev.get_file_content())
-    
+
     payload = {
         'diff': diff,
         'contents': contents
     }
-    
+
     # return it assuming json
     return HttpResponse(simplejson.dumps(payload), mimetype='text/javascript')
+
+@login_required
+def export(request, pk):
+    project = Project.objects.get(pk=pk)
+    os.chdir(project.user_doc_path)
+    dir_path = os.path.join(settings.MEDIA_ROOT, 'export', project.user.username)
+    file_path = os.path.join(dir_path, '%s.zip' % project.slug)
+    os.makedirs(dir_path)
+    os.system('zip -r %s *' % file_path)
+    return HttpResponseRedirect(os.path.join(settings.MEDIA_URL, 'export', project.user.username, '%s.zip' % project.slug))
