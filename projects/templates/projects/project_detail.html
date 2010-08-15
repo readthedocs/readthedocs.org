@@ -24,6 +24,11 @@
 {% endblock %}
 
 {% block content %}
+
+  {% if project.project_url %}
+  <a href="{{ project.project_url }}" rel="nofollow,noindex">Project Homepage</a>
+  {% endif %}
+
   <h3>Tags</h3>
   <ul>
     {% for tag in project.tags.all %}
