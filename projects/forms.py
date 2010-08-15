@@ -82,12 +82,21 @@ class FileForm(forms.ModelForm):
         )
 
         update_docs.delay(file_obj.project.pk)
+        
+        return file_obj
 
 
 class ConfForm(forms.ModelForm):
     class Meta:
         model = Conf
         exclude = ('project',)
+    
+    def save(self, *args, **kwargs):
+        conf_obj = super(ConfForm, self).save(*args, **kwargs)
+        
+        update_docs.delay(conf_obj.project.pk)
+        
+        return conf_obj
 
 
 class FileRevisionForm(forms.Form):
