@@ -79,20 +79,18 @@ label { display: block; margin-bottom: 4px; font-weight: bold; }
 /* project editing */
 
 #project_editing_toolbar { background: #E8ECEF; padding: 80px 0; }
+#project_editing_toolbar a { font-family: "Helvetica Neue", Arial, Helvetica, sans-serif; font-weight: bold; font-size: 14px; text-decoration: none; }
 
   /* editing dashboard toolbar */
-  #project_editing_toolbar .editing-dash-nav ul { background: #D1D9DF; }
-  #project_editing_toolbar .editing-dash-nav ul li { display: block; float: left; background: #D1D9DF; }
-  #project_editing_toolbar .editing-dash-nav ul li a { display: block; float: left; padding: 15px; }
-  #project_editing_toolbar .editing-dash-nav ul li.parent { background-color: #8CA1AF; }
+  #project_editing_toolbar .project-title { float: left; font-family: "Helvetica Neue", Arial, Helvetica, sans-serif; font-weight: bold; font-size: 24px; padding: 15px 0; }
 
   /* editing options */
   #project_editing_toolbar .editing-options ul { background: #D1D9DF; float: right; }
-  #project_editing_toolbar .editing-options ul li { display: block; float: left; padding: 15px 10px; background: #D1D9DF; }
+  #project_editing_toolbar .editing-options ul li { display: block; float: left; padding: 10px; background: #D1D9DF; }
   #project_editing_toolbar .editing-options ul li.active { background-color: #8CA1AF; }
 
   /* text editor */
-  .editor { width: 300px; height: 500px; }
+  .editor { width: 500px; height: 600px; }
 
 
 /* pagination */
