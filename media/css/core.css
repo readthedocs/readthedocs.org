@@ -48,7 +48,8 @@ thead { background: #f2f2f2; }
 
 /* forms */
 
-textarea, input { display: block; padding: 5px; background: #fff; border: 1px solid #BFBFBF; -moz-border-radius: 3px; -webkit-border-radius: 3px; }
+form p { color: #999; }
+textarea, input { display: block; padding: 5px; color: #444;  background: #fff; border: 1px solid #BFBFBF; -moz-border-radius: 3px; -webkit-border-radius: 3px; }
 input[type="text"], input[type="password"] { width: 250px; height: 20px; margin-bottom: 5px; }
 select { display: block; max-height: 300px; width: 250px; margin-bottom: 10px; font: 16/20px "inconsolata-1", "inconsolata-2", 'bitstream vera sans mono', 'andale mono', 'lucida console', monospace; }
 textarea { width: 435px; height: 150px; }
@@ -57,7 +58,7 @@ input[type="submit"]:hover, input[type="button"]:hover, button:hover { backgroun
 fieldset { border: 1px solid #bfbfbf; padding: 15px; -moz-border-radius: 3px; -webkit-border-radius: 3px; margin-bottom: 15px; }
 input[type="hidden"] { display: none; }
 input[type="checkbox"], input[type="radio"] { display: inline; }
-label { display: block; margin-bottom: 4px; font-weight: bold; }
+label { display: block; margin-bottom: 4px; font-weight: bold; color: #444; }
 
 
 /* content */
