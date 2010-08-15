@@ -15,11 +15,11 @@ SphinxDocsSettings = {
         }},
         {separator:'---------------' },
         //{name:'Picture', key:"P", replaceWith:'![[![Alternative text]!]]([![Url:!:http://]!] "[![Title]!]")'},
-        {name:'Internal Link', className: 'btnInternalLink', key:"L", openWith:':ref:`', closeWith:'`', placeHolder:'my-reference-label' },
-        {name:'External Link', className: 'btnLink', key:"E", openWith:'`', closeWith:'<[![Url:!:http://]!]>`_', placeHolder:'Your text to link here...' },
+        {name:'Internal Link', className: 'btnInternalLink', key:"L", openWith:':doc:`', closeWith:' <[![Heading:!:]!]>`', placeHolder:'Your text to link here...' },
+        {name:'External Link', className: 'btnLink', key:"E", openWith:'`', closeWith:' <[![Url:!:http://]!]>`_', placeHolder:'Your text to link here...' },
         {separator:'---------------'},    
         {name:'Quotes', className: 'btnQuotes', openWith:'\t'},
-        {name:'Code Block / Code', className: 'btnCode', openWith:'(!(\t|!|`)!)', closeWith:'(!(`)!)'},
+        {name:'Code Block / Code', className: 'btnCode', openWith:'\n.. code-block:: python\n\t', closeWith:'\n', placeHolder:'Code here...'},
         //{separator:'---------------'},
         //{name:'Preview', call:'preview', className:"preview"}
     ]
