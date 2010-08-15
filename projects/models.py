@@ -69,8 +69,6 @@ class Project(models.Model):
             conf = self.conf
         except Conf.DoesNotExist:
             Conf.objects.create(project=self)
-        from projects import tasks
-        tasks.update_docs.delay(self.pk)
 
     @property
     def template_dir(self):
