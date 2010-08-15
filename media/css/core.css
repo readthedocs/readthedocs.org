@@ -63,6 +63,7 @@ label { display: block; margin-bottom: 4px; font-weight: bold; }
 /* content */
 
 #content { padding-top: 80px; }
+#content ul { margin-bottom: 20px; }
 
 
 /* home */
@@ -95,6 +96,7 @@ label { display: block; margin-bottom: 4px; font-weight: bold; }
 /* module */
 
 .module { background: #E6E6E6; margin-bottom: 20px; -moz-border-radius: 5px; -webkit-border-radius: 5px; border-radius: 5px; }
+#content .module ul { margin-bottom: 0; }
 .module-wrapper { padding: 8px; }
 .module-header { padding: 0 10px; }
 .module-list { background: #fff; border: 1px solid #bfbfbf; border-bottom: none; }
@@ -105,17 +107,18 @@ label { display: block; margin-bottom: 4px; font-weight: bold; }
 
 /* project editing */
 
-#project_editing_toolbar { background: #E8ECEF; padding: 80px 0; }
+#project_editing_toolbar { background: #E8ECEF; padding: 60px 0; }
 #project_editing_toolbar a { text-decoration: none; }
 
   /* editing dashboard toolbar */
   #project_editing_toolbar .project-title { float: left; font-family: "Helvetica Neue", Arial, Helvetica, sans-serif; font-weight: bold; font-size: 24px; padding: 15px 0; }
 
   /* editing options */
-  #project_editing_toolbar .editing-options ul { background: #D1D9DF; float: right; }
-  #project_editing_toolbar .editing-options ul li { float: left; background: #D1D9DF; display: block; }
-  #project_editing_toolbar .editing-options ul li.active { background-color: #8CA1AF; }
-  #project_editing_toolbar .editing-options a { display: block; padding: 10px; font-family: "Helvetica Neue", Arial, Helvetica, sans-serif; font-weight: bold; font-size: 14px; text-decoration: none; }
+  #project_editing_toolbar .editing-options ul { float: right; }
+  #project_editing_toolbar .editing-options ul li { float: left; display: block; margin-left: 10px; }
+  #project_editing_toolbar .editing-options ul li.active a { background-color: #465158; }
+  #project_editing_toolbar .editing-options a { display: block; padding: 10px; font-family: "Helvetica Neue", Arial, Helvetica, sans-serif; font-weight: bold; font-size: 14px; text-decoration: none; color: #fff; background: #8CA1AF; -moz-border-radius: 3px; -webkit-border-radius: 3px; }
+  #project_editing_toolbar .editing-options a:hover { background-color: #;  }
 
   /* text editor */
   .editor { width: 500px; height: 600px; }
