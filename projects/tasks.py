@@ -36,6 +36,7 @@ def update_imported_docs(project):
     """
     A Celery task that updates the documentation for a project.
     """
+    path = project.user_doc_path
     os.chdir(path)
     if os.path.exists(os.path.join(path, project.slug)):
         os.chdir(project.slug)
