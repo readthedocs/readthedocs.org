@@ -12,6 +12,11 @@
   <a href="{{ project.project_url }}" rel="nofollow,noindex">Project Homepage</a>
   {% endif %}
 
+  <h3>Last Built</h3>
+  <p>
+  {{ project.modified_date|date:"F j, P" }}
+  </p>
+
   <h3>Tags</h3>
   <p>
     {% for tag in project.tags.all %}
