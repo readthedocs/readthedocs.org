@@ -1,59 +1,25 @@
 {% extends "base.html" %}
 
-{% block title %}{{ build.name }}{% endblock %}
-
-{% block build_editing %}
-    <!-- BEGIN build bar -->
-    <div id="build_bar">
-      <div class="wrapper">
-
-        <div class="build-title">
-          <h2>{{ build }}</h2>
-          <a href="{% url builds_user_list build.user.username %}" class="quiet">({{ build.user }})</a>
-          <span class="quiet">{% if build.version %}version {{ build.version }} -{% endif %} {{ build.modified_date|date:"j F, Y" }}</span>
-        </div>
-
-        <div class="editing-options">
-          <ul>
-            <li {% block editing-option-view %}{% endblock %}><a href="{{ build.get_docs_url }}">View Docs</a></li>
-          </ul>
-        </div>
-      </div>
-    </div>
-    <!-- END build bar -->
-{% endblock %}
+{% block title %}{{ build.project.name }}{% endblock %}
 
 {% block content %}
 
-  {% if build.build_url %}
-  <a href="{{ build.build_url }}" rel="nofollow,noindex">Project Homepage</a>
-  {% endif %}
 
-  <h3>Tags</h3>
-  <ul>
-    {% for tag in build.tags.all %}
-      <li><a href="{% url builds_tag_detail tag.slug %}">{{ tag.name }}</a></li>
-    {% empty %}
-      <li>No tags</li>
-    {% endfor %}
-  </ul>
+<p>
+Built: {{ build.date|date:"j F, Y" }}
+</p>
 
-  <h3>Latest Revisions</h3>
-  <ul>
-    {% for revision in build.get_latest_revisions|slice:":5" %}
-      <li>{{ revision }} {{ revision.created_date|timesince }} ago</li>
-    {% endfor %}
-  </ul>
-  
-  <h3>Projects by {{ build.user.username }}</h3>
-  <ul>
-    {% for user_build in user.builds.all %}
-      {% if build.pk != user_build.pk %}
-        <li><a href="{{ user_build.get_absolute_url }}">{{ user_build.name }}</a></li>
-      {% endif %}
-    {% endfor %}
-    {% if user.builds.all|length == 1 %}
-      <li>No other builds by {{ build.user.username }}</li>
-    {% endif %}
-  </ul>
+<p>
+Outcome: {{ build.success|yesno:"Passed,Failed" }}
+</p>
+
+<p>
+<h3>Output</h3> <pre>{{ build.output }}</pre>
+</p>
+
+
+{% if build.error %}
+Error: <pre>{{ build.error }}</pre>
+{% endif %}
+
 {% endblock %}

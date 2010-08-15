@@ -31,7 +31,7 @@ def build_list(request, username=None, tag=None):
 
 def build_detail(request, username, project_slug, pk):
     user = get_object_or_404(User, username=username)
-    queryset = user.projects.all()
+    queryset = Build.objects.all()
 
     return object_detail(
         request,
