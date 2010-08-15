@@ -7,7 +7,13 @@
 
 {% block nav-browse %}class="active"{% endblock %}
 
-{% block header-wrapper %}{% include "core/home-header.html" %}{% endblock %}
+{% block header-wrapper %}
+{% if request.user.is_authenticated %}
+    {% include "core/header.html" %}
+{% else %}
+    {% include "core/home-header.html" %}
+{% endif %}
+{% endblock %}
 
 {% block content %}
 
