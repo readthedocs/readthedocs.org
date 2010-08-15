@@ -35,5 +35,5 @@ def safe_write(filename, contents):
     if not os.path.exists(dirname):
         os.makedirs(dirname)
     fh = open(filename, 'w')
-    fh.write(contents)
+    fh.write(contents.encode('utf-8', 'ignore'))
     fh.close()
