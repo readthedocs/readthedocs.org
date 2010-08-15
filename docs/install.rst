@@ -18,3 +18,6 @@ Installing RTD is pretty simple. Here is a step by step plan on how to do it.
     ./manage.py update_repos
     #Have another beer
     ./manage.py runserver
+
+
+Now you should be seeing a page with the list of projects that you can click around on. I recommend logging in to see more of the sites functionality, and to create or edit more repos.
