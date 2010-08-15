@@ -1,0 +1,36 @@
+.markItUp .btnHeading a {
+	background-image:url(images/h1.png);
+}
+.markItUp .btnSubheading a {
+	background-image:url(images/h2.png);
+}
+.markItUp .btnSubsubheading a {
+	background-image:url(images/h3.png);
+}
+
+.markItUp .btnBold a {
+	background-image:url(images/bold.png); 
+}
+.markItUp .btnItalic a {
+	background-image:url(images/italic.png);
+}
+
+.markItUp .btnBulletedList a {
+	background-image:url(images/list-bullet.png);
+}
+.markItUp .btnNumberedList a {
+	background-image:url(images/list-numeric.png);
+}
+
+.markItUp .btnInternalLink a {
+	background-image:url(images/book_link.png);
+}
+.markItUp .btnLink a {
+	background-image:url(images/link_go.png);
+}
+.markItUp .btnQuotes a {
+	background-image:url(images/quotes.png);
+}
+.markItUp .btnCode a {
+	background-image:url(images/code.png);
+}
