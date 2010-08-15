@@ -17,6 +17,7 @@
     
     <!-- jquery -->
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.4/jquery-ui.min.js"></script>
 
     <!-- typekit -->
     <script type="text/javascript" src="http://use.typekit.com/xgl8ypn.js"></script>
@@ -70,6 +71,11 @@
     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
+
+  $('#id_site_search').autocomplete({
+    source: '{% url search_autocomplete %}',
+    minLength: 2,
+  });
 
 </script>
 

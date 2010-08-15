@@ -1,4 +1,7 @@
+import simplejson
+
 from django.contrib.auth.models import User
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.views.generic.list_detail import object_list, object_detail
 
@@ -62,3 +65,12 @@ def search(request):
         extra_context={'term': term},
         template_name='projects/search.html',
     )
+
+def search_autocomplete(request):
+    term = request.GET['term']
+    queryset = Project.objects.filter(name__icontains=term)[:20]
+
+    project_names = queryset.values_list('name', flat=True)
+    json_response = simplejson.dumps(list(project_names))
+
+    return HttpResponse(json_response, mimetype='text/javascript')
