@@ -33,6 +33,9 @@ class ImportProjectForm(forms.ModelForm):
     class Meta:
         model = Project
         exclude = ('user', 'slug', 'version',)
+    
+    def clean_repo(self):
+        return self.cleaned_data.get('repo', '').strip()
 
     def save(self, *args, **kwargs):
         # save the project
