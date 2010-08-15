@@ -65,6 +65,17 @@ label { display: block; margin-bottom: 4px; font-weight: bold; }
 #content { padding-top: 80px; }
 
 
+/* wide search bar */
+
+.wide-search-bar { width: 100%; margin-bottom: 20px; -moz-border-radius: 5px; -webkit-border-radius: 5px; background: #e6e6e6; }
+.wide-search-bar-wrapper { padding: 8px; }
+.wide-search-bar input { margin: 0; height: 25px; padding: 10px; -moz-border-radius: 0; -webkit-border-radius: 0; }
+.wide-search-bar .text-input-wrapper { width: 70%; float: left; }
+.wide-search-bar input[type="text"] { -moz-border-radius-topleft: 3px; -moz-border-radius-bottomleft: 3px; -webkit-border-top-left-radius: 3px; -webkit-border-bottom-left-radius: 3px; width: 100%; }
+.wide-search-bar .submit-input-wrapper { width: 30%; float: left; }
+.wide-search-bar input[type="submit"] { -moz-border-radius-topright: 3px; -moz-border-radius-bottomright: 3px; -webkit-border-top-right-radius: 3px; -webkit-border-bottom-right-radius: 3px; height: 47px; width: 100%; text-align: center; }
+
+
 /* module */
 
 .module { background: #E6E6E6; margin-bottom: 20px; -moz-border-radius: 5px; -webkit-border-radius: 5px; border-radius: 5px; }

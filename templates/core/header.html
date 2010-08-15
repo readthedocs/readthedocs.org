@@ -1,3 +1,4 @@
+
     <!-- BEGIN header-->
     <div id="rtfd-header">
 
@@ -7,11 +8,10 @@
         </div>
         <!-- END header title -->
 
-
         <!-- BEGIN global search -->
         <div class="rtfd-header-search">
-            <form action="{% url search %}">
-                <input type="text" name="q" value="{{ term }}" placeholder="Search docs">
+          <form action="{% url search %}">
+            <input type="text" name="q" value="{{ term }}" placeholder="Search docs">
             <input type="submit" value="Go">
           </form>
         </div>
