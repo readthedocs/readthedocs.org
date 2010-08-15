@@ -20,12 +20,14 @@
         <!-- BEGIN header nav -->
         <div class="rtfd-header-nav">
           <ul>
-            <li {% block nav-browse %}{% endblock %}>
-              <a href="{% url projects_list %}">Browse</a>
-            </li>
-            <li {% block nav-dashboard %}{% endblock %}>
-              {% if user.is_authenticated %}<a href="{% url projects_dashboard %}">Dashboard</a>{% else %}<a href="{% url auth_login %}">Log in</a>{% endif %}
-            </li>
+
+            {% if user.is_authenticated %}
+              <li {% block nav-dashboard %}{% endblock %}><a href="{% url projects_dashboard %}">Dashboard</a></li>
+              <li><a href="{% url auth_logout %}">Log Out</a></li>
+            {% else %}
+              <li><a href="{% url auth_login %}">Log in</a></li>
+            {% endif %}
+
           </ul>
         </div>
         <!-- END header nav -->
