@@ -177,6 +177,8 @@ class File(models.Model):
                     child.save()
                     update_children(child.children.all())
             update_children(self.children.all())
+        #Update modified time on project.
+        self.project.save()
 
     def create_revision(self, old_content, comment):
         FileRevision.objects.create(
