@@ -14,6 +14,7 @@ urlpatterns = patterns('',
 
     url(r'^$', 'core.views.homepage'),
     url(r'^projects/', include('projects.urls.public')),
+    url(r'^builds/', include('builds.urls')),
     (r'^admin/', include(admin.site.urls)),
     (r'^github', 'core.views.github_build'),
 )

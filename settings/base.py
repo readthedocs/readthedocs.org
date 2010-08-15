@@ -90,6 +90,7 @@ INSTALLED_APPS = (
     # our apps
     'projects',
     'core',
+    'builds',
     'watching',
 )
 

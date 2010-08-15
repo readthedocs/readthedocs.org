@@ -6,6 +6,8 @@ from projects.constants import SCRAPE_CONF_SETTINGS
 from projects.models import Project, Conf
 from projects.utils import  find_file, run
 
+from builds.models import Build
+
 import os
 import re
 import glob
@@ -34,6 +36,7 @@ def update_docs(pk):
 
     # kick off a build
     (ret, out, err) = build_docs(project)
+    Build.objects.create(project=project, success=ret==0, output=out, error=err)
     if ret == 0:
         print "Build OK"
     else:
