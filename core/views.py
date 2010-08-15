@@ -32,8 +32,14 @@ def github_build(request):
     obj = json.loads(request.POST['payload'])
     name = obj['repository']['name']
     url = obj['repository']['url']
-    project = Project.objects.get(repo=url)
+    ghetto_url = url.replace('http://', '')
+    project = Project.objects.filter(repo__contains=ghetto_url)[0]
     update_docs.delay(pk=project.pk)
+    return HttpResponse('Build Started')
+
+@csrf_view_exempt
+def generic_build(request, pk):
+    update_docs.delay(pk=pk)
     return HttpResponse('Build Started')
 
 def serve_docs(request, username, project_slug, filename):
@@ -65,7 +71,7 @@ def render_header(request):
             )
         except Project.DoesNotExist:
             pass
-    context = { 'project': project, 
+    context = { 'project': project,
             'do_bookmarking': True
             }
 

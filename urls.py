@@ -19,6 +19,9 @@ urlpatterns = patterns('',
 
     (r'^admin/', include(admin.site.urls)),
     (r'^github', 'core.views.github_build'),
+    (r'^github/', 'core.views.github_build'),
+    (r'^build/(?P<pk>\d+)/', 'core.views.generic_build'),
+    (r'^build/(?P<pk>\d+)', 'core.views.generic_build'),
 
     url(r'^render_header/',
         'core.views.render_header',
