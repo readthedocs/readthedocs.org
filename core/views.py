@@ -41,13 +41,13 @@ def serve_docs(request, username, project_slug, filename):
     if not filename:
         filename = "index.html"
     filename = filename.rstrip('/')
-    if not os.path.exists(os.path.join(proj.full_html_path, filename)):
-            return HttpResponse("These docs haven't been built yet :(")
     if 'html' in filename:
         pageview, created = PageView.objects.get_or_create(project=proj, url=filename)
         if not created:
             pageview.count = F('count') + 1
             pageview.save()
+        if not os.path.exists(os.path.join(proj.full_html_path, filename)):
+            return HttpResponse("These docs haven't been built yet :(")
     return serve(request, filename, proj.full_html_path)
 
 def render_header(request):

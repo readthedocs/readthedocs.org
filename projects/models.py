@@ -26,7 +26,7 @@ class Project(models.Model):
     project_url = models.URLField(blank=True, help_text='the project\'s homepage')
     pub_date = models.DateTimeField(auto_now_add=True)
     modified_date = models.DateTimeField(auto_now=True)
-    version = models.CharField(max_length=20, help_text='project version these docs apply to, i.e. 1.0a')
+    version = models.CharField(max_length=100, help_text='project version these docs apply to, i.e. 1.0a')
 
     tags = TaggableManager()
 
@@ -127,7 +127,7 @@ class Project(models.Model):
 class Conf(models.Model):
     project = models.OneToOneField(Project, related_name='conf')
     copyright = models.CharField(max_length=255, blank=True)
-    theme = models.CharField(max_length=20, choices=DEFAULT_THEME_CHOICES,
+    theme = models.CharField(max_length=100, choices=DEFAULT_THEME_CHOICES,
                              default=THEME_DEFAULT)
     path = models.CharField(max_length=255, editable=False)
     suffix = models.CharField(max_length=10, editable=False, default='.rst')
