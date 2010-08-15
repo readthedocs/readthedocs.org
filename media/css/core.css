@@ -129,7 +129,9 @@ label { display: block; margin-bottom: 4px; font-weight: bold; }
 
 /* footer */
 
-#footer { margin: 60px 0 80px; color: #bfbfbf; }
+#footer { margin: 60px 0 80px; color: #ccc; }
+#footer a { color: #ccc; }
+#footer a:hover { color: #999; }
 
 
 /* utils */
