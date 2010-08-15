@@ -16,7 +16,11 @@ ghetto_hack = re.compile(r'(?P<key>.*)\s*=\s*u?[\'\"](?P<value>.*)[\'\"]')
 
 @task
 def update_docs(pk):
+    """
+    A Celery task that updates the documentation for a project.
+    """
     project = Project.objects.get(pk=pk)
+
 
     path = project.user_doc_path
     if not os.path.exists(path):
@@ -29,13 +33,14 @@ def update_docs(pk):
         update_created_docs(project)
 
     # kick off a build
-    build_docs(project)
+    (ret, out, err) = build_docs(project)
+    if ret == 0:
+        print "Build OK"
+    else:
+        print "Build ERROR"
 
 
 def update_imported_docs(project):
-    """
-    A Celery task that updates the documentation for a project.
-    """
     path = project.user_doc_path
     os.chdir(path)
     if os.path.exists(os.path.join(path, project.slug)):
@@ -44,7 +49,6 @@ def update_imported_docs(project):
             command = 'hg update -C -r . '
         else:
             command = 'git fetch && git reset --hard origin/master'
-        print command
         run(command)
     else:
         repo = project.repo
@@ -53,7 +57,6 @@ def update_imported_docs(project):
         else:
             repo = repo.replace('.git', '')
             command = 'git clone %s.git %s' % (repo, project.slug)
-        print command
         run(command)
 
 
@@ -106,11 +109,11 @@ def build_docs(project):
         makes = [makefile for makefile in project.find('Makefile') if 'doc' in makefile]
         make_dir = makes[0].replace('/Makefile', '')
         os.chdir(make_dir)
-        print make_dir
-        os.system('make html')
+        (ret, out, err) = run('make html')
     except IndexError:
         os.chdir(project.conf.path)
-        os.system('sphinx-build -b html . _build/html')
+        (ret, out, err) = run('sphinx-build -b html . _build/html')
+    return (ret, out, err)
 
 
 #@periodic_task(run_every=crontab(hour="*", minute="*/30", day_of_week="*"))
@@ -118,8 +121,4 @@ def build_docs(project):
 def update_docs_pull():
     for project in Project.objects.all():
         print "Building %s" % project
-        try:
-            build_docs(project)
-        except Exception, e:
-            update_docs(pk=project.pk)
-            print e
+        update_docs(pk=project.pk)

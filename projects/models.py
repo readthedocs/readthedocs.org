@@ -42,13 +42,13 @@ class Project(models.Model):
     def get_docs_url(self):
         return reverse('docs_detail', args=[self.user.username, self.slug, ''])
 
-    def get_doc_root(self): 
-        return os.path.join( 
+    def get_doc_root(self):
+        return os.path.join(
             settings.DOCROOT,   # the root of the user builds .../user_build
-            self.user.username, # docs are stored using the username as the 
-            self.slug,          # docs are organized by project 
-            self.slug,          # code is checked out here 
-            self.docs_directory # this is the directory where the docs live 
+            self.user.username, # docs are stored using the username as the
+            self.slug,          # docs are organized by project
+            self.slug,          # code is checked out here
+            self.docs_directory # this is the directory where the docs live
         )
 
     def user_doc_path(self):
@@ -75,7 +75,6 @@ class Project(models.Model):
         for root, dirnames, filenames in os.walk(self.full_doc_path):
           for filename in fnmatch.filter(filenames, file):
               matches.append(os.path.join(root, filename))
-        print "finding %s" % file
         return matches
 
     find = memoize(find, {}, 2)
