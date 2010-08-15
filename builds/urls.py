@@ -5,8 +5,20 @@ urlpatterns = patterns('builds.views',
         'build_list',
         name='builds_list'
     ),
-    url(r'^(?P<username>\w+)/(?P<project_slug>[-\w]+)/(?P<pk>\d+)$',
+    url(r'^(?P<username>\w+)/(?P<project_slug>[-\w]+)/(?P<pk>\d+)/$',
         'build_detail',
         name='builds_detail'
+    ),
+    url(r'^(?P<username>\w+)/(?P<project_slug>[-\w]+)/$',
+        'build_list',
+        name='builds_project_list'
+    ),
+    url(r'^tag/(?P<tag>\w+)/$',
+        'build_list',
+        name='builds_tag_list'
+    ),
+    url(r'^(?P<username>\w+)/$',
+        'build_list',
+        name='builds_user_list'
     ),
 )
