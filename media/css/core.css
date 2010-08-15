@@ -131,15 +131,15 @@ label { display: block; margin-bottom: 4px; font-weight: bold; }
 #project_bar a { text-decoration: none; }
 
   /* editing dashboard toolbar */
-  #project_bar .project-title { float: left; font-family: "Helvetica Neue", Arial, Helvetica, sans-serif; font-weight: bold; padding: 5px 0 0 0; }
+  #project_bar .project-title { font-family: "Helvetica Neue", Arial, Helvetica, sans-serif; font-weight: bold; padding: 0 0 20px 0; }
   #project_bar .project-title h2 { font-size: 24px; }
 
-  /* editing options */
-  #project_bar .editing-options ul { float: right; }
-  #project_bar .editing-options ul li { float: left; display: block; margin-left: 10px; }
-  #project_bar .editing-options ul li.active a { background-color: #465158; }
-  #project_bar .editing-options a { display: block; padding: 6px 10px 4px; font-family: "Helvetica Neue", Arial, Helvetica, sans-serif; font-weight: bold; font-size: 14px; height: 18px; line-height: 18px; text-decoration: none; color: #fff; background: #8CA1AF; -moz-border-radius: 3px; -webkit-border-radius: 3px; }
-  #project_bar .editing-options a:hover { background-color: #465158;  }
+  /* options */
+  #project_bar .options ul {  }
+  #project_bar .options ul li { float: left; display: block; margin-right: 10px; }
+  #project_bar .options ul li.active a { background-color: #465158; }
+  #project_bar .options a { display: block; padding: 6px 10px 4px; font-family: "Helvetica Neue", Arial, Helvetica, sans-serif; font-weight: bold; font-size: 14px; height: 18px; line-height: 18px; text-decoration: none; color: #fff; background: #8CA1AF url(../images/gradient-light.png) bottom left repeat-x; -moz-border-radius: 3px; -webkit-border-radius: 3px; text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3); }
+  #project_bar .options a:hover { background-color: #465158;  }
 
   /* text editor */
   .editor { width: 500px; height: 600px; }
@@ -150,6 +150,11 @@ label { display: block; margin-bottom: 4px; font-weight: bold; }
   li.depth-3 { padding-left: 40px; }
   li.depth-4 { padding-left: 60px; }
   li.depth-5 { padding-left: 80px; }
+  li.depth-6 { padding-left: 100px; }
+  li.depth-7 { padding-left: 120px; }
+  li.depth-8 { padding-left: 140px; }
+  li.depth-9 { padding-left: 160px; }
+  li.depth-10 { padding-left: 180px; }
 
 
 /* pagination */
@@ -172,7 +177,7 @@ label { display: block; margin-bottom: 4px; font-weight: bold; }
 
 /* call out */
 
-.call-out { display: block; float: right; padding: 6px 10px 4px; font-family: "Helvetica Neue", Arial, Helvetica, sans-serif; font-weight: bold; font-size: 14px; height: 18px; line-height: 18px; text-decoration: none; color: #fff; background: #8CA1AF; -moz-border-radius: 3px; -webkit-border-radius: 3px; }
+.call-out { display: block; float: right; padding: 6px 10px 4px; font-family: "Helvetica Neue", Arial, Helvetica, sans-serif; font-weight: bold; font-size: 14px; height: 18px; line-height: 18px; text-decoration: none; color: #fff; background: #8CA1AF url(../images/gradient-light.png) bottom left repeat-x; -moz-border-radius: 3px; -webkit-border-radius: 3px; text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3); }
 .call-out:hover { color: #fff; background-color: #465158; }
 
 
@@ -190,6 +195,7 @@ label { display: block; margin-bottom: 4px; font-weight: bold; }
 .left { float: left; }
 .right { float: right; }
 .quiet { color: #999; }
+.help_text { color: #999; }
 .first { margin-left: 0; padding-left: 0; }
 .last { margin-right: 0; padding-right: 0; }
 .top { margin-top: 0; padding-top: 0; }
