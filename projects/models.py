@@ -69,6 +69,8 @@ class Project(models.Model):
             conf = self.conf
         except Conf.DoesNotExist:
             Conf.objects.create(project=self)
+        from projects import tasks
+        tasks.update_docs.delay(self.pk)
 
     @property
     def template_dir(self):
@@ -79,7 +81,7 @@ class Project(models.Model):
 
     def get_rendered_index(self):
         return render_to_string('projects/index.rst.html', {'project': self})
-    
+
     def write_index(self):
         if not self.is_imported:
             safe_write(self.get_index_filename(), self.get_rendered_index())
@@ -177,17 +179,17 @@ class File(models.Model):
     def revert_to(self, revision_number):
         revision = self.revisions.get(revision_number=revision_number)
         revision.apply()
-    
+
     @property
     def filename(self):
         return os.path.join(
             self.project.conf.path,
             '%s.rst' % self.denormalized_path
         )
-    
+
     def get_rendered(self):
         return render_to_string('projects/doc_file.rst.html', {'file': self})
-    
+
     def write_to_disk(self):
         safe_write(self.filename, self.get_rendered())
 
