@@ -105,20 +105,20 @@ label { display: block; margin-bottom: 4px; font-weight: bold; }
 .module-list .module-item.call a { padding: 30px; text-align: center; }
 
 
-/* project editing */
+/* project bar */
 
-#project_editing_toolbar { background: #E8ECEF; padding: 60px 0; }
-#project_editing_toolbar a { text-decoration: none; }
+#project_bar { background: #E8ECEF; padding: 60px 0; }
+#project_bar a { text-decoration: none; }
 
   /* editing dashboard toolbar */
-  #project_editing_toolbar .project-title { float: left; font-family: "Helvetica Neue", Arial, Helvetica, sans-serif; font-weight: bold; font-size: 24px; padding: 15px 0; }
+  #project_bar .project-title { float: left; font-family: "Helvetica Neue", Arial, Helvetica, sans-serif; font-weight: bold; font-size: 24px; padding: 15px 0; }
 
   /* editing options */
-  #project_editing_toolbar .editing-options ul { float: right; }
-  #project_editing_toolbar .editing-options ul li { float: left; display: block; margin-left: 10px; }
-  #project_editing_toolbar .editing-options ul li.active a { background-color: #465158; }
-  #project_editing_toolbar .editing-options a { display: block; padding: 10px; font-family: "Helvetica Neue", Arial, Helvetica, sans-serif; font-weight: bold; font-size: 14px; text-decoration: none; color: #fff; background: #8CA1AF; -moz-border-radius: 3px; -webkit-border-radius: 3px; }
-  #project_editing_toolbar .editing-options a:hover { background-color: #;  }
+  #project_bar .editing-options ul { float: right; }
+  #project_bar .editing-options ul li { float: left; display: block; margin-left: 10px; }
+  #project_bar .editing-options ul li.active a { background-color: #465158; }
+  #project_bar .editing-options a { display: block; padding: 10px; font-family: "Helvetica Neue", Arial, Helvetica, sans-serif; font-weight: bold; font-size: 14px; text-decoration: none; color: #fff; background: #8CA1AF; -moz-border-radius: 3px; -webkit-border-radius: 3px; }
+  #project_bar .editing-options a:hover { background-color: #;  }
 
   /* text editor */
   .editor { width: 500px; height: 600px; }
