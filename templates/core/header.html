@@ -17,11 +17,13 @@
         </div>
         <!-- END global search -->
 
-        <!-- BEGIN header nav -->
+        {% if do_bookmarking %}
+        <!-- BEGIN bookmark -->
         <div class="rtfd-header-bookmark">
-          <a class="rtfd-header-bookmark-icon">Bookmark this URL</a>
+          <a href="{% url bookmarks_add request.META.PATH_INFO %}" class="rtfd-header-bookmark-icon">Bookmark this URL</a>
         </div>
-        <!-- END global search -->
+        <!-- END bookmark -->
+        {% endif %}
 
         <!-- BEGIN header nav -->
         <div class="rtfd-header-nav">
