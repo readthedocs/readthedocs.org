@@ -56,7 +56,7 @@ class Project(models.Model):
         doc_path = self.full_doc_path
         for pos_build in ['build', '_build', '.build']:
             if os.path.exists(os.path.join(doc_path, '%s/html' % pos_build)):
-                return os.path.join(doc_base, '%s/html' % pos_build)
+                return os.path.join(doc_path, '%s/html' % pos_build)
 
     full_html_path = property(memoize(full_html_path, {}, 1))
 
