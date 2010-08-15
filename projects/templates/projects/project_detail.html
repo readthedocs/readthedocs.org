@@ -19,7 +19,11 @@
 {% block content %}
   <p>version {{ project.version }}, by {{ project.user.username }}</p>
   
-  <p><a href="{{ project.get_docs_url }}">View docs</a></p>
+  <p><a href="{{ project.get_docs_url }}">View docs</a>
+    {% if project.project_url %}
+      | <a href="{{ project.project_url }}" rel="nofollow,noindex">Project Homepage</a>
+    {% endif %}
+  </p>
   
   <h3>Tags</h3>
   <ul>
