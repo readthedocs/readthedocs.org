@@ -22,11 +22,10 @@
 {% block editing-option-manage %}class="active"{% endblock %}
 
 {% block content %}
-  {% comment %}
-  <div id="legend" style="float: right; width: 200px;">
-    {% include "projects/legend.html" %}
-  </div>
-  {% endcomment %}
+  {% if file.revisions|length != 1 %}
+    <a class="call-out" href="{% url projects_file_history project.slug file.pk %}">Revision History</a>
+  {% endif %}
+  
   <form method="post" action=".">{% csrf_token %}
     {{ form.as_p }}
     <p><input type="submit" value="Save changes" /></p>

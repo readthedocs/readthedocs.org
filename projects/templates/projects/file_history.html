@@ -1,18 +1,44 @@
-{% extends "projects/base_project.html" %}
+{% extends "projects/base_project_editing.html" %}
+
+{% block extra_links %}
+  <link rel="stylesheet" type="text/css" href="/media/lib/markitup/skins/simple/style.css" />
+  <link rel="stylesheet" type="text/css" href="/media/lib/markitup/sets/sphinx/editor.css" />
+{% endblock %}
+
+{% block extra_scripts %}
+  <script type="text/javascript" src="/media/lib/markitup/jquery.markitup.pack.js"></script>
+  <script type="text/javascript" src="/media/lib/markitup/sets/sphinx/editor.js"></script>
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $("#id_content").markItUp(SphinxDocsSettings); // .markItUp(mySettings);
+    });
+  </script>
+{% endblock %}
 
 {% block title %}{{ file.heading }} History{% endblock %}
 
-{% block content %}
-  <form method="post" action="{% url projects_file_history project.slug file.pk %}">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <p><input type="submit" value="Revert to" id="revert" /></p>
-  </form>
+{% block content-header %}<h1>Revision History</h1>{% endblock %}
 
-  <div id="original" style="float: left; width: 50%; height: 400px; overflow: auto;">
-    {{ file.content|linebreaks }}
+{% block editing-option-manage %}class="active"{% endblock %}
+
+{% block content %}
+  <div class="content-panel original">
+    <h3 class="panel-text">Current</h3>
+    <div>{{ file.content|linebreaks }}</div>
   </div>
-  <div id="diff" style="float: left; width: 50%; height: 400px; overflow: auto;">
+  <div class="content-panel">
+    <form method="post" action=".">
+      <h3 class="panel-text" id="revision_display">
+        <select class="revision-select" id="id_revision" name="revision">
+          {% for option in form.revision.field.choices %}
+            <option value="{{ option.0 }}">{{ option.1|truncatewords:5 }}</option>
+          {% endfor %}
+        </select>
+        <input type="submit" value="Revert to" class="revision-revert" />
+      </h3>
+    </form>
+    <div id="diff">
+    </div>
   </div>
   <div style="clear:both; height: 1px; overflow: hidden;"></div>
 

@@ -182,6 +182,15 @@ label { display: block; margin-bottom: 4px; font-weight: bold; color: #444; }
 .call-out:hover { color: #fff; background-color: #465158; }
 
 
+/* history page */
+
+.content-panel { float: left; width: 45%; height: 400px; padding: 10px; overflow: auto; }
+.content-panel .original { border-right: 1px solid #ccc; }
+.content-panel h3.panel-text { border-bottom: 6px solid #ccc; height: 32px; }
+.content-panel select.revision-select { display: inline; max-width: 250px; }
+.content-panel input[type="submit"].revision-revert { display: inline; margin: 0 0 0 5px; padding: 0px 3px; font-size: .75em; }
+
+
 /* footer */
 
 #footer { margin: 100px 0; color: #aaa; }
