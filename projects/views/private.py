@@ -6,9 +6,10 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, render_to_response, redirect
 from django.template import RequestContext
+from django.template.defaultfilters import linebreaks
 from django.views.generic.list_detail import object_list
 
-from projects.forms import FileForm, CreateProjectForm, ImportProjectForm, ConfForm
+from projects.forms import FileForm, CreateProjectForm, ImportProjectForm, ConfForm, FileRevisionForm
 from projects.models import Project, File
 
 
@@ -180,31 +181,21 @@ def file_delete(request, project_slug, file_id):
     )
 
 @login_required
-def file_revert(request, project_slug, file_id, revision_id):
-    project = get_object_or_404(request.user.projects.all(), slug=project_slug)
-    file = get_object_or_404(project.files.all(), pk=file_id)
-    revision = get_object_or_404(file.revisions.all(), pk=revision_id)
-    
-    if request.method == 'POST':
-        revision.apply()
-        history = reverse('projects_file_history', args=[project.slug, file.pk])
-        return HttpResponseRedirect(history)
-    
-    return render_to_response(
-        'projects/file_revert.html',
-        {'project': project, 'file': file, 'revision': revision},
-        context_instance=RequestContext(request)
-    )
-
-@login_required
 def file_history(request, project_slug, file_id):
     project = get_object_or_404(request.user.projects.all(), slug=project_slug)
     file = get_object_or_404(project.files.all(), pk=file_id)
     
+    form = FileRevisionForm(file, request.POST or None)
+    
+    if request.method == 'POST' and form.is_valid():
+        form.cleaned_data['revision'].apply()
+        history = reverse('projects_file_history', args=[project.slug, file.pk])
+        return HttpResponseRedirect(history)
+    
     return object_list(
         request,
         queryset=file.revisions.all(),
-        extra_context={'project': project, 'file': file},
+        extra_context={'project': project, 'file': file, 'form': form},
         page=int(request.GET.get('page', 1)),
         template_object_name='revision',
         template_name='projects/file_history.html',
@@ -221,6 +212,12 @@ def file_diff(request, project_slug, file_id, from_id, to_id):
     
     # generate a pretty html diff
     diff = file.get_html_diff(from_rev.revision_number, to_rev.revision_number)
+    contents = linebreaks(to_rev.get_file_content())
+    
+    payload = {
+        'diff': diff,
+        'contents': contents
+    }
     
     # return it assuming json
-    return HttpResponse(simplejson.dumps({'diff': diff}), mimetype='text/javascript')
+    return HttpResponse(simplejson.dumps(payload), mimetype='text/javascript')

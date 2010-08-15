@@ -211,7 +211,7 @@ class FileRevision(models.Model):
         Apply the series of diffs after this revision in reverse order,
         bringing the content back to the state it was in this revision
         """
-        after = self.file.revisions.filter(revision__gt=self.revision_number)
+        after = self.file.revisions.filter(revision_number__gt=self.revision_number)
         content = self.file.content
 
         for revision in after:
@@ -228,20 +228,21 @@ class FileRevision(models.Model):
         self.file.save()
 
         # mark reverted changesets
-        reverted_qs = self.file.revisions.filter(revision__gt=self.revision)
+        reverted_qs = self.file.revisions.filter(revision_number__gt=self.revision_number)
         reverted_qs.update(is_reverted=True)
 
         # create a new revision
         FileRevision.objects.create(
             file=self.file,
-            comment='Reverted to #%s' % self.revision,
+            comment='Reverted to #%s' % self.revision_number,
             diff=diff(self.file.content, original_content)
         )
 
     def save(self, *args, **kwargs):
         if not self.pk:
-            try:
-                self.revision_number = self.file.current_revision.revision_number + 1
-            except IndexError:
+            max_rev = self.file.revisions.aggregate(max=models.Max('revision_number'))
+            if max_rev['max'] is None:
                 self.revision_number = 1
+            else:
+                self.revision_number = max_rev['max'] + 1
         super(FileRevision, self).save(*args, **kwargs)

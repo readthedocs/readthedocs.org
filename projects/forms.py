@@ -84,3 +84,12 @@ class ConfForm(forms.ModelForm):
     class Meta:
         model = Conf
         exclude = ('project',)
+
+
+class FileRevisionForm(forms.Form):
+    revision = forms.ModelChoiceField(queryset=None)
+    
+    def __init__(self, file, *args, **kwargs):
+        revision_qs = file.revisions.exclude(pk=file.current_revision.pk)
+        self.base_fields['revision'].queryset = revision_qs
+        super(FileRevisionForm, self).__init__(*args, **kwargs)
