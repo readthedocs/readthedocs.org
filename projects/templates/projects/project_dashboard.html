@@ -7,6 +7,7 @@
 {% block content %}
 
           <!-- BEGIN your projects list -->
+          {% if project_list %}
           <div class="module">
             <div class="module-wrapper">
 
@@ -24,6 +25,9 @@
 
             </div>
           </div>
+          {% else %}
+          <p class="empty">You don't have a single project.  Go make one!</p>
+          {% endif %}
           <!-- END your projects list -->
 
 
