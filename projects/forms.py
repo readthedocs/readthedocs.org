@@ -33,6 +33,9 @@ class ImportProjectForm(forms.ModelForm):
     class Meta:
         model = Project
         exclude = ('user', 'slug', 'version',)
+    
+    def clean_repo(self):
+        return self.cleaned_data.get('repo', '').strip()
 
     def save(self, *args, **kwargs):
         # save the project
@@ -50,7 +53,8 @@ class ProjectForm(forms.ModelForm):
 
 
 class FileForm(forms.ModelForm):
-    content = forms.CharField(widget=forms.Textarea(attrs={'class': 'editor'}))
+    content = forms.CharField(widget=forms.Textarea(attrs={'class': 'editor'}),
+        help_text='<small><a href="http://sphinx.pocoo.org/rest.html">reStructuredText Primer</a></small>')
     revision_comment = forms.CharField(max_length=255, required=False)
     
     class Meta:

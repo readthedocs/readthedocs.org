@@ -164,7 +164,7 @@ def file_edit(request, project_slug, file_id):
 
     return render_to_response(
         'projects/file_edit.html',
-        {'form': form, 'project': project},
+        {'form': form, 'project': project, 'file': file},
         context_instance=RequestContext(request)
     )
 
@@ -195,7 +195,7 @@ def file_history(request, project_slug, file_id):
         form.cleaned_data['revision'].apply()
         history = reverse('projects_file_history', args=[project.slug, file.pk])
         return HttpResponseRedirect(history)
-
+    
     return object_list(
         request,
         queryset=file.revisions.all(),
@@ -220,7 +220,8 @@ def file_diff(request, project_slug, file_id, from_id, to_id):
 
     payload = {
         'diff': diff,
-        'contents': contents
+        'contents': contents,
+        'display': str(to_rev),
     }
 
     # return it assuming json
