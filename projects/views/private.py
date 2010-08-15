@@ -180,7 +180,7 @@ def file_delete(request, project_slug, file_id):
 
     return render_to_response(
         'projects/file_delete.html',
-        {'project': project},
+        {'project': project, 'file': file},
         context_instance=RequestContext(request)
     )
 
