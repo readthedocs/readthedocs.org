@@ -18,6 +18,11 @@ body { padding-top: 50px; }
   .rtfd-header-search input[type="submit"] { font-family: "ff-meta-web-pro-1", "ff-meta-web-pro-2", Arial, "Helvetica Neue", sans-serif; -moz-border-radius-topright: 3px; -moz-border-radius-bottomright: 3px; -webkit-border-top-right-radius: 3px; -webkit-border-bottom-right-radius: 3px; padding: 0 12px; background: #e6e6e6 url(../images/gradient.png) repeat-x bottom left; font-weight: bold; color: #666; }
   .rtfd-header-search input[type="submit"]:hover { text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5); background-color: #8ECC4C; color: #fff; }
 
+  /* bookmarking */
+  .rtfd-header-bookmark { position: absolute; top: 10px; left: 560px; }
+  .rtfd-header-bookmark-icon { display: block; text-indent: -99999em; height: 25px; width: 25px; background: url(../images/bookmark-icon-default.png) 50% 50% no-repeat #697983; -moz-border-radius: 3px; -webkit-border-radius: 3px; }
+  .rtfd-header-bookmark-icon:hover { background-image: url(../images/bookmark-icon-hover.png);  }
+
   /* header nav */
   .rtfd-header-nav { position: absolute; top: 0; right: 10px; }
   .rtfd-header-nav ul li { float: left; }
