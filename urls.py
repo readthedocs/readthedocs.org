@@ -7,9 +7,9 @@ admin.autodiscover()
 urlpatterns = patterns('',
     url(r'^accounts/', include('registration.backends.default.urls')),
     url(r'^dashboard/', include('projects.urls.private')),
-    url(r'^projects/(?P<username>\w+)/(?P<project_slug>[-\w]+)/(?P<filename>.*)$',
+    url(r'^projects/(?P<username>\w+)/(?P<project_slug>[-\w]+)/docs/(?P<filename>.*)$',
         'core.views.serve_docs',
-        name='projects_detail'
+        name='docs_detail'
     ),
     url(r'render_header/',
         'core.views.render_header',

@@ -1,6 +1,6 @@
 from django.conf.urls.defaults import *
 
-urlpatterns = patterns('projects.views.public',
+urlpatterns = patterns('watching.views',
     url(r'^$',
         'project_index',
         name='projects_list'
@@ -17,7 +17,7 @@ urlpatterns = patterns('projects.views.public',
         'project_index',
         name='project_tag_detail',
     ),
-    url(r'^(?P<username>\w+)/(?P<project_slug>[-\w]+)/$',
+    url(r'^projects/(?P<username>\w+)/(?P<project_slug>[-\w]+)/$',
         'project_detail',
         name='projects_detail'
     ),

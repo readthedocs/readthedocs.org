@@ -11,6 +11,7 @@
 
   <!-- css -->
   <link rel="stylesheet" href="{{ MEDIA_URL }}css/core.css">
+  <link rel="stylesheet" href="{{ MEDIA_URL }}css/header.css">
 
   <!-- js -->
     
@@ -42,6 +43,20 @@
       </div>
     </div>
     <!-- END content-->
+
+    <!-- BEGIN footer-->
+    <div id="footer">
+      <div class="wrapper">
+        
+        <hr>
+
+        {% block footer-content %}
+        2010.  Created by <a href="http://ericholscher.com/">Eric Holscher</a>, <a href="http://charlesleifer.com/">Charles Leifer</a>, and <a href="http://bobbygrace.info/">Bobby Grace</a> for the 2010 <a href="http://djangodash.com/">Django Dash</a>.
+        {% endblock %}
+
+      </div>
+    </div>
+    <!-- END footer-->
 
 </body>
 

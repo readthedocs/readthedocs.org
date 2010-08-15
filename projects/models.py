@@ -36,7 +36,7 @@ class Project(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        return reverse('projects_detail', args=[self.user.username, self.slug, ''])
+        return reverse('projects_detail', args=[self.user.username, self.slug])
 
     def user_doc_path(self):
         return os.path.join(settings.DOCROOT, self.user.username, self.slug)
@@ -182,7 +182,6 @@ class File(models.Model):
     def filename(self):
         return os.path.join(
             self.project.conf.path,
-            self.project.slug,
             '%s.rst' % self.denormalized_path
         )
     
