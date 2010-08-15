@@ -8,7 +8,6 @@ from django.utils.functional import memoize
 
 from projects.constants import DEFAULT_THEME_CHOICES, THEME_DEFAULT
 from projects.utils import diff, dmp, safe_write
-from projects import tasks
 
 from taggit.managers import TaggableManager
 
@@ -70,6 +69,7 @@ class Project(models.Model):
             conf = self.conf
         except Conf.DoesNotExist:
             Conf.objects.create(project=self)
+        from projects import tasks
         tasks.update_docs.delay(self.pk)
 
     @property
