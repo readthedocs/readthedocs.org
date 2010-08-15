@@ -1,0 +1,25 @@
+
+    <!-- BEGIN project bar -->
+    <div id="project_bar">
+      <div class="wrapper">
+
+        <div class="project-title">
+          <h2>{{ project }}</h2>
+          <a href="{% url projects_user_list project.user.username %}" class="quiet">({{ project.user }})</a>
+          <span class="quiet">{% if project.version %}version {{ project.version }} -{% endif %} {{ project.modified_date|date:"j F, Y" }}</span>
+        </div>
+
+        <div class="options">
+          <ul>
+            {% if request.user == project.user %}
+            <li {% block editing-option-manage %}{% endblock %}><a href="{% url projects_manage project.slug %}">Manage Files</a></li>
+            <li {% block editing-option-conf %}{% endblock %}><a href="{% url projects_configure project.slug %}">Edit Conf</a></li>
+            {% endif %}
+            <li {% block editing-option-builds %}{% endblock %}><a href="{% url builds_list %}">Builds</a></li>
+            <li {% block editing-option-view %}{% endblock %}><a href="{{ project.get_docs_url }}">View Docs</a></li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+    <!-- END project bar -->

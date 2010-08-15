@@ -3,23 +3,5 @@
 {% block nav-dashboard %} class="active"{% endblock %}
 
 {% block project_editing %}
-    <!-- BEGIN project bar -->
-    <div id="project_bar">
-      <div class="wrapper">
-
-        <div class="project-title">
-          <h2>{{ project }}</h2>
-        </div>
-
-        <div class="editing-options">
-          <ul>
-            <li {% block editing-option-manage %}{% endblock %}><a href="{% url projects_manage project.slug %}">Manage Files</a></li>
-            <li {% block editing-option-conf %}{% endblock %}><a href="{% url projects_configure project.slug %}">Edit Conf</a></li>
-            <li {% block editing-option-view %}{% endblock %}><a href="{{ project.get_docs_url }}">View Docs</a></li>
-          </ul>
-        </div>
-
-      </div>
-    </div>
-    <!-- END project bar -->
+      {% include "core/project_bar.html" %}
 {% endblock %}

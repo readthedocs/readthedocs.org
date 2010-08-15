@@ -3,24 +3,7 @@
 {% block title %}{{ project.name }}{% endblock %}
 
 {% block project_editing %}
-    <!-- BEGIN project bar -->
-    <div id="project_bar">
-      <div class="wrapper">
-
-        <div class="project-title">
-          <h2>{{ project }}</h2>
-          <a href="{% url projects_user_list project.user.username %}" class="quiet">({{ project.user }})</a>
-          <span class="quiet">{% if project.version %}version {{ project.version }} -{% endif %} {{ project.modified_date|date:"j F, Y" }}</span>
-        </div>
-
-        <div class="editing-options">
-          <ul>
-            <li {% block editing-option-view %}{% endblock %}><a href="{{ project.get_docs_url }}">View Docs</a></li>
-          </ul>
-        </div>
-      </div>
-    </div>
-    <!-- END project bar -->
+      {% include "core/project_bar.html" %}
 {% endblock %}
 
 {% block content %}
