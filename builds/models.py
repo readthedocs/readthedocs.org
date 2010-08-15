@@ -20,7 +20,7 @@ class Build(models.Model):
 
     @models.permalink
     def get_absolute_url(self):
-        return ('build_detail', [self.project.user.username, self.project.slug, self.pk])
+        return ('builds_detail', [self.project.user.username, self.project.slug, self.pk])
 
 
 
