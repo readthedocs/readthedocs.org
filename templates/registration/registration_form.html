@@ -1,0 +1,18 @@
+{% extends "registration/base_registration.html" %}
+
+
+{% block title %}Register for an account{% endblock %}
+{% block body_class %}{{ block.super }} registration_form{% endblock %}
+
+
+{% block content-header %}
+  <h1>Register for an account</h1>
+{% endblock %}
+
+
+{% block content %}
+  <form action="." method="post">{% csrf_token %}
+    {{ form.as_p }}
+    <p class="submit"><input type="submit" value="Submit"></p>
+  </form>
+{% endblock %}

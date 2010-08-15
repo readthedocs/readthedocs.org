@@ -1,0 +1,15 @@
+{% extends "registration/base_registration.html" %}
+
+
+{% block title %}Account activation error{% endblock %}
+{% block body_class %}{{ block.super }} registration_activate{% endblock %}
+
+
+{% block content-header %}
+  <h1>Account activation error</h1>
+{% endblock %}
+
+
+{% block content %}
+  <p>The activation key "{{ activation_key }}" is invalid and cannot be used to activate this account.</p>
+{% endblock %}

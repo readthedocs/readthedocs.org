@@ -24,7 +24,8 @@
 
 </head>
 
-<body>
+<body class="{% block body_class %}{% endblock %}">
+
     {% include "core/header.html" %}
 
     {% block project_editing %}
