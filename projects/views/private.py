@@ -13,7 +13,7 @@ from django.template.defaultfilters import linebreaks
 from django.template.loader import render_to_string
 from django.views.generic.list_detail import object_list
 
-from projects.forms import FileForm, CreateProjectForm, ImportProjectForm, ConfForm, FileRevisionForm
+from projects.forms import FileForm, CreateProjectForm, ImportProjectForm, FileRevisionForm
 from projects.models import Project, File
 
 
@@ -37,23 +37,6 @@ def project_manage(request, project_slug):
         page=int(request.GET.get('page', 1)),
         template_object_name='file',
         template_name='projects/project_manage.html',
-    )
-
-@login_required
-def project_configure(request, project_slug):
-    project = get_object_or_404(request.user.projects.all(), slug=project_slug)
-
-    form = ConfForm(instance=project.conf, data=request.POST or None)
-
-    if request.method == 'POST' and form.is_valid():
-        conf = form.save()
-        manage = reverse('projects_manage', args=[project.slug])
-        return HttpResponseRedirect(manage)
-
-    return render_to_response(
-        'projects/project_configure.html',
-        {'project': project, 'conf': project.conf, 'form': form},
-        context_instance=RequestContext(request)
     )
 
 @login_required

@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
 
-from projects.models import Project, Conf
+from projects.models import Project
 
 class Bookmark(models.Model):
     project = models.ForeignKey(Project, related_name='bookmarks', null=True)

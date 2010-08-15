@@ -21,10 +21,6 @@ urlpatterns = patterns('projects.views.private',
         'project_manage',
         name='projects_manage'
     ),
-    url(r'^(?P<project_slug>[-\w]+)/configure/$',
-        'project_configure',
-        name='projects_configure'
-    ),
     url(r'^(?P<project_slug>[-\w]+)/edit/$',
         'project_edit',
         name='projects_edit'

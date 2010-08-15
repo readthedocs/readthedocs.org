@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 
 from taggit.managers import TaggableManager
 
-from projects.models import Project, Conf
+from projects.models import Project
 
 class Build(models.Model):
     project = models.ForeignKey(Project, related_name='builds')

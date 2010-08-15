@@ -4,7 +4,7 @@ from django import forms
 from django.template.loader import render_to_string
 
 from projects import constants
-from projects.models import Project, File, Conf
+from projects.models import Project, File
 from projects.tasks import update_docs
 
 
@@ -26,13 +26,14 @@ class CreateProjectForm(forms.ModelForm):
                 ordering=i+1,
             )
             file.create_revision(old_content='', comment='')
+        
         return project
 
 
 class ImportProjectForm(forms.ModelForm):
     class Meta:
         model = Project
-        exclude = ('user', 'slug', 'version',)
+        exclude = ('user', 'slug', 'version', 'copyright',)
     
     def clean_repo(self):
         return self.cleaned_data.get('repo', '').strip()
@@ -44,12 +45,6 @@ class ImportProjectForm(forms.ModelForm):
         # kick off the celery job
         update_docs.delay(pk=project.pk)
         return project
-
-
-class ProjectForm(forms.ModelForm):
-    class Meta:
-        model = Project
-        exclude = ('user', 'slug')
 
 
 class FileForm(forms.ModelForm):
@@ -84,19 +79,6 @@ class FileForm(forms.ModelForm):
         update_docs.delay(file_obj.project.pk)
         
         return file_obj
-
-
-class ConfForm(forms.ModelForm):
-    class Meta:
-        model = Conf
-        exclude = ('project',)
-    
-    def save(self, *args, **kwargs):
-        conf_obj = super(ConfForm, self).save(*args, **kwargs)
-        
-        update_docs.delay(conf_obj.project.pk)
-        
-        return conf_obj
 
 
 class FileRevisionForm(forms.Form):

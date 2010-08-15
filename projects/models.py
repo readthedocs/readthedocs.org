@@ -20,13 +20,21 @@ class Project(models.Model):
     user = models.ForeignKey(User, related_name='projects')
     name = models.CharField(max_length=255)
     slug = models.SlugField()
-    description = models.TextField(blank=True)
+    description = models.TextField(blank=True,
+        help_text='restructuredtext description of the project')
     repo = models.CharField(max_length=100, blank=True)
     docs_directory = models.CharField(max_length=255, blank=True)
     project_url = models.URLField(blank=True, help_text='the project\'s homepage')
     pub_date = models.DateTimeField(auto_now_add=True)
     modified_date = models.DateTimeField(auto_now=True)
-    version = models.CharField(max_length=20, help_text='project version these docs apply to, i.e. 1.0a')
+    version = models.CharField(max_length=20,
+        help_text='project version these docs apply to, i.e. 1.0a')
+    copyright = models.CharField(max_length=255, blank=True,
+        help_text='project copyright information')
+    theme = models.CharField(max_length=20, choices=DEFAULT_THEME_CHOICES,
+        default=THEME_DEFAULT)
+    path = models.CharField(max_length=255, editable=False)
+    suffix = models.CharField(max_length=10, editable=False, default='.rst')
 
     tags = TaggableManager()
 
@@ -83,17 +91,13 @@ class Project(models.Model):
         if not self.slug:
             self.slug = slugify(self.name)
         super(Project, self).save(*args, **kwargs)
-        try:
-            conf = self.conf
-        except Conf.DoesNotExist:
-            Conf.objects.create(project=self)
 
     @property
     def template_dir(self):
         return os.path.join(settings.SITE_ROOT, 'templates', 'sphinx')
 
     def get_index_filename(self):
-        return os.path.join(self.conf.path, 'index.rst')
+        return os.path.join(self.path, 'index.rst')
 
     def get_rendered_index(self):
         return render_to_string('projects/index.rst.html', {'project': self})
@@ -122,28 +126,16 @@ class Project(models.Model):
     
     def get_top_level_files(self):
         return self.files.filter(parent__isnull=True).order_by('ordering')
-
-
-class Conf(models.Model):
-    project = models.OneToOneField(Project, related_name='conf')
-    copyright = models.CharField(max_length=255, blank=True)
-    theme = models.CharField(max_length=20, choices=DEFAULT_THEME_CHOICES,
-                             default=THEME_DEFAULT)
-    path = models.CharField(max_length=255, editable=False)
-    suffix = models.CharField(max_length=10, editable=False, default='.rst')
-
-    def __unicode__(self):
-        return '%s config, v. %s' % (self.project.name, self.project.version)
-
+    
     @property
-    def filename(self):
+    def conf_filename(self):
         return os.path.join(self.path, 'conf.py')
 
     def get_rendered_conf(self):
-        return render_to_string('projects/conf.py.html', {'project': self.project})
+        return render_to_string('projects/conf.py.html', {'project': self})
 
     def write_to_disk(self):
-        safe_write(self.filename, self.get_rendered_conf())
+        safe_write(self.conf_filename, self.get_rendered_conf())
 
 
 class File(models.Model):
@@ -212,7 +204,7 @@ class File(models.Model):
     @property
     def filename(self):
         return os.path.join(
-            self.project.conf.path,
+            self.project.path,
             '%s.rst' % self.denormalized_path
         )
 

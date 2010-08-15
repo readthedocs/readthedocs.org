@@ -3,7 +3,7 @@ from celery.task.schedules import crontab
 from celery.decorators import periodic_task
 
 from projects.constants import SCRAPE_CONF_SETTINGS
-from projects.models import Project, Conf
+from projects.models import Project
 from projects.utils import  find_file, run
 
 from builds.models import Build
@@ -102,8 +102,8 @@ def update_created_docs(project):
     if not os.path.exists(doc_root):
         os.makedirs(doc_root)
 
-    project.conf.path = doc_root
-    project.conf.save()
+    project.path = doc_root
+    project.save()
 
     project.write_index()
 
@@ -115,7 +115,7 @@ def build_docs(project):
     """
     A helper function for the celery task to do the actual doc building.
     """
-    project.conf.write_to_disk()
+    project.write_to_disk()
 
     try:
         makes = [makefile for makefile in project.find('Makefile') if 'doc' in makefile]
@@ -123,7 +123,7 @@ def build_docs(project):
         os.chdir(make_dir)
         (ret, out, err) = run('make html')
     except IndexError:
-        os.chdir(project.conf.path)
+        os.chdir(project.path)
         (ret, out, err) = run('sphinx-build -b html . _build/html')
     return (ret, out, err)
 
