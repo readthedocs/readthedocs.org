@@ -36,11 +36,14 @@ def update_docs(pk):
 
     # kick off a build
     (ret, out, err) = build_docs(project)
-    Build.objects.create(project=project, success=ret==0, output=out, error=err)
-    if ret == 0:
-        print "Build OK"
+    if not 'no targets are out of date.' in out:
+        Build.objects.create(project=project, success=ret==0, output=out, error=err)
+        if ret == 0:
+            print "Build OK"
+        else:
+            print "Build ERROR"
     else:
-        print "Build ERROR"
+        print "Build Unchanged"
 
 
 def update_imported_docs(project):
