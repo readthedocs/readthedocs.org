@@ -14,13 +14,16 @@ from projects.models import Project
 from projects.tasks import update_docs
 from projects.utils import find_file
 from watching.models import PageView
+from bookmarks.models import Bookmark
 
 
 def homepage(request):
     projs = Project.objects.all()[:5]
     updated = PageView.objects.all()[:5]
+    marks = Bookmark.objects.all()[:5]
     return render_to_response('homepage.html',
                               {'project_list': projs,
+                               'bookmark_list': marks,
                                'updated_list': updated},
                 context_instance=RequestContext(request))
 
