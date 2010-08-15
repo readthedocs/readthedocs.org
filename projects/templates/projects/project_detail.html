@@ -17,7 +17,7 @@
     {% for tag in project.tags.all %}
       <a href="{% url projects_tag_detail tag.slug %}">{{ tag.name }}</a>{% if forloop.last %}{% else %}, {% endif %}
     {% empty %}
-      <li>No tags</li>
+      <span>No tags</span>
     {% endfor %}
   </p>
 
