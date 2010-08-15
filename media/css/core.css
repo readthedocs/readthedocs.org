@@ -103,10 +103,8 @@ label { display: block; margin-bottom: 4px; font-weight: bold; }
 .module-item { border-bottom: 1px solid #bfbfbf; padding: 10px; }
 
   /* module title */
-  /*
-  .module-item .module-item-title { font-family: "Helvetica Neue", Arial, Helvetica, sans-serif; font-weight: bold; font-size: 16px; text-decoration: none; display: block; }
+  .module-item .module-item-title { font-family: "Helvetica Neue", Arial, Helvetica, sans-serif; font-weight: bold; font-size: 16px; text-decoration: none; }
   .module-item a.module-item-title:hover { text-decoration: underline; }
-  */
 
   /* for links that span the column */
   .module-item.col-span { border-bottom: 1px solid #bfbfbf; padding: 0; }
@@ -125,7 +123,8 @@ label { display: block; margin-bottom: 4px; font-weight: bold; }
 #project_bar a { text-decoration: none; }
 
   /* editing dashboard toolbar */
-  #project_bar .project-title { float: left; font-family: "Helvetica Neue", Arial, Helvetica, sans-serif; font-weight: bold; font-size: 24px; padding: 15px 0; }
+  #project_bar .project-title { float: left; font-family: "Helvetica Neue", Arial, Helvetica, sans-serif; font-weight: bold; padding: 15px 0; }
+  #project_bar .project-title h2 { font-size: 24px; }
 
   /* editing options */
   #project_bar .editing-options ul { float: right; }
