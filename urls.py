@@ -10,6 +10,10 @@ urlpatterns = patterns('',
     url(r'^builds/', include('builds.urls')),
     url(r'^bookmarks/', include('bookmarks.urls')),
     url(r'^accounts/', include('registration.backends.default.urls')),
+    url(r'^dashboard/bookmarks/',
+        'bookmarks.views.user_bookmark_list',
+        name='user_bookmarks'
+    ),
     url(r'^dashboard/', include('projects.urls.private')),
 
 
