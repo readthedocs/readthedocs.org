@@ -85,7 +85,7 @@ INSTALLED_APPS = (
     'south',
     'taggit',
     'django_extensions',
-    'basic.flagging',
+    #'basic.flagging',
 
     # our apps
     'projects',

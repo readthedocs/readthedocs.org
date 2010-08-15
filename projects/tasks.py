@@ -36,6 +36,7 @@ def update_imported_docs(project):
     """
     A Celery task that updates the documentation for a project.
     """
+    path = project.user_doc_path
     os.chdir(path)
     if os.path.exists(os.path.join(path, project.slug)):
         os.chdir(project.slug)
@@ -50,7 +51,7 @@ def update_imported_docs(project):
         if project.repo_type is 'hg':
             command = 'hg clone %s %s' % (repo, project.slug)
         else:
-            repo.replace('.git', '')
+            repo = repo.replace('.git', '')
             command = 'git clone %s.git %s' % (repo, project.slug)
         print command
         run(command)

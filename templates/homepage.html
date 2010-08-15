@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load pagination_tags %}
+
+{% block title %}Home{% endblock %}
+
+{% block nav-browse %}class="active"{% endblock %}
+
+{% block content %}
+
+          {% autopaginate project_list 15 %}
+
+          <!-- BEGIN projects list -->
+          <div class="module">
+            <div class="module-wrapper">
+
+              <div class="module-header">
+                <h2>Recently Updated</h2>
+              </div>
+
+              <div class="module-list">
+                <ul>
+                  {% for project in project_list %}
+                    <li class="module-item"><a href="{{ project.get_absolute_url }}">{{ project.name }}</a></li>
+                  {% endfor %}
+                </ul>
+              </div>
+
+              <br>
+
+              <div class="module-header">
+                <h2>Most Viewed</h2>
+              </div>
+
+              <div class="module-list">
+                <ul>
+                  {% for pageview in updated_list %}
+                  <li class="module-item"><a href="{% url docs_detail pageview.project.user.username pageview.project.slug pageview.url %}">{{ pageview.project.name }} - {{ pageview.url }}</a></li>
+                  {% endfor %}
+                </ul>
+              </div>
+
+            </div>
+          </div>
+          <!-- END projects list -->
+
+          {% paginate %}
+
+{% endblock %}

@@ -16,7 +16,7 @@ urlpatterns = patterns('',
         name='render_header'
     ),
 
-    url(r'^$', 'projects.views.public.project_index'),
+    url(r'^$', 'core.views.homepage'),
     url(r'^projects/', include('projects.urls.public')),
     (r'^admin/', include(admin.site.urls)),
     (r'^github', 'core.views.github_build'),

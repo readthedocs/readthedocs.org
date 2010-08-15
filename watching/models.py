@@ -6,6 +6,8 @@ class PageView(models.Model):
     url = models.CharField(max_length=255)
     count = models.IntegerField(default=1)
 
+    class Meta:
+        ordering = ('-count',)
 
     def __unicode__(self):
         return u"Page views for %s's url %s" % (self.project, self.url)
