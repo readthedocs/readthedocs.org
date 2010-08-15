@@ -11,7 +11,7 @@
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.4/jquery-ui.min.js"></script>
     <script type="text/javascript">
       $('.rtfd-header-search input:text').autocomplete({
-        source: '{% url search_autocomplete %}',
+        source: '/projects/search/autocomplete/',
         minLength: 2,
         open: function(event, ui) { 
           ac_top = $('.ui-autocomplete').css('top'); 
