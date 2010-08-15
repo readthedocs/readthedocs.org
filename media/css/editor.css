@@ -1,0 +1,36 @@
+.markItUp .btnHeading a {
+	background-image:url(/media/images/editor/h1.png);
+}
+.markItUp .btnSubheading a {
+	background-image:url(/media/images/editor/h2.png);
+}
+.markItUp .btnSubsubheading a {
+	background-image:url(/media/images/editor/h3.png);
+}
+
+.markItUp .btnBold a {
+	background-image:url(/media/images/editor/bold.png); 
+}
+.markItUp .btnItalic a {
+	background-image:url(/media/images/editor/italic.png);
+}
+
+.markItUp .btnBulletedList a {
+	background-image:url(/media/images/editor/list-bullet.png);
+}
+.markItUp .btnNumberedList a {
+	background-image:url(/media/images/editor/list-numeric.png);
+}
+
+.markItUp .btnInternalLink a {
+	background-image:url(/media/images/editor/book_link.png);
+}
+.markItUp .btnLink a {
+	background-image:url(/media/images/editor/link_go.png);
+}
+.markItUp .btnQuotes a {
+	background-image:url(/media/images/editor/quotes.png);
+}
+.markItUp .btnCode a {
+	background-image:url(/media/images/editor/code.png);
+}

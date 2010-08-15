@@ -1,11 +1,29 @@
 {% extends "projects/base_project_editing.html" %}
 
+{% block extra_links %}
+  <link rel="stylesheet" type="text/css" href="/media/js/markitup/skins/simple/style.css" />
+  <link rel="stylesheet" type="text/css" href="/media/css/editor.css" />
+{% endblock %}
+
+{% block extra_scripts %}
+  <script type="text/javascript" src="/media/js/markitup/jquery.markitup.pack.js"></script>
+  <script type="text/javascript" src="/media/js/editor.js"></script>
+  <script type="text/javascript" >
+    $(document).ready(function() {
+      $("#id_content").markItUp(SphinxDocsSettings); // .markItUp(mySettings);
+    });
+  </script>
+
+{% endblock %}
+
 {% block title %}Edit {{ file.heading }}{% endblock %}
 
 {% block content %}
+  {% comment %}
   <div id="legend" style="float: right; width: 200px;">
     {% include "projects/legend.html" %}
   </div>
+  {% endcomment %}
   <form method="post" action=".">{% csrf_token %}
     {{ form.as_p }}
     <p><input type="submit" value="Save changes" /></p>
