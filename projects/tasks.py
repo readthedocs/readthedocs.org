@@ -57,7 +57,7 @@ def update_imported_docs(project):
             run('hg update -C -r . ')
 
         else:
-            print run('git --git-dir=.git fetch')
+            run('git --git-dir=.git fetch')
             run('git --git-dir=.git reset --hard origin/master')
     else:
         repo = project.repo
