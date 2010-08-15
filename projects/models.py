@@ -41,6 +41,15 @@ class Project(models.Model):
     def get_docs_url(self):
         return reverse('docs_detail', args=[self.user.username, self.slug, ''])
 
+    def get_doc_root(self): 
+        return os.path.join( 
+            settings.DOCROOT,   # the root of the user builds .../user_build
+            self.user.username, # docs are stored using the username as the 
+            self.slug,          # docs are organized by project 
+            self.slug,          # code is checked out here 
+            self.docs_directory # this is the directory where the docs live 
+        )
+
     def user_doc_path(self):
         return os.path.join(settings.DOCROOT, self.user.username, self.slug)
     user_doc_path = property(memoize(user_doc_path, {}, 1))
