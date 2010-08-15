@@ -3,12 +3,14 @@ import os
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.contrib.markup.templatetags.markup import restructuredtext
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, render_to_response, redirect
 from django.template import RequestContext
 from django.template.defaultfilters import linebreaks
+from django.template.loader import render_to_string
 from django.views.generic.list_detail import object_list
 
 from projects.forms import FileForm, CreateProjectForm, ImportProjectForm, ConfForm, FileRevisionForm
@@ -222,6 +224,18 @@ def file_diff(request, project_slug, file_id, from_id, to_id):
     }
 
     # return it assuming json
+    return HttpResponse(simplejson.dumps(payload), mimetype='text/javascript')
+
+@login_required
+def file_preview(request):
+    f = File(
+        heading=request.POST['heading'],
+        content=request.POST['content'],
+    )
+    rendered_base = render_to_string('projects/doc_file.rst.html', {'file': f})
+    rendered = restructuredtext(rendered_base)
+    
+    json_response = simplejson.dumps({'payload': rendered})
     return HttpResponse(simplejson.dumps(payload), mimetype='text/javascript')
 
 @login_required
