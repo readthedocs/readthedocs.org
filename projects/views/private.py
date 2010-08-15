@@ -230,6 +230,10 @@ def export(request, project_slug):
     os.chdir(project.user_doc_path)
     dir_path = os.path.join(settings.MEDIA_ROOT, 'export', project.user.username)
     file_path = os.path.join(dir_path, '%s.zip' % project.slug)
-    os.makedirs(dir_path)
+    try:
+        os.makedirs(dir_path)
+    except OSError:
+        #Directory already exists
+        pass
     os.system('zip -r %s *' % file_path)
     return HttpResponseRedirect(os.path.join(settings.MEDIA_URL, 'export', project.user.username, '%s.zip' % project.slug))
