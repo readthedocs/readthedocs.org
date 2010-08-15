@@ -14,12 +14,12 @@ Outcome: {{ build.success|yesno:"Passed,Failed" }}
 </p>
 
 <p>
-<h3>Output</h3> <pre>{{ build.output }}</pre>
+<h3>Output</h3> <pre class="build-output">{{ build.output }}</pre>
 </p>
 
 
 {% if build.error %}
-Error: <pre>{{ build.error }}</pre>
+<h3>Error</h3> <pre class="build-error">{{ build.error }}</pre>
 {% endif %}
 
 {% endblock %}
