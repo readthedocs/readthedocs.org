@@ -60,30 +60,9 @@ input[type="checkbox"], input[type="radio"] { display: inline; }
 label { display: block; margin-bottom: 4px; font-weight: bold; }
 
 
-/* header */
-
-#rtfd-header { height: 50px; min-width: 780px; background: #465158; overflow: hidden; text-align: left; border-bottom: 1px solid #ccc; }
-
-  /* header title */
-  .rtfd-header-title h1 { font-size: 20px; padding: 5px 20px; color: #fff; }
-
-  /* header search */
-  .rtfd-header-search { position: absolute; top: 10px; left: 230px; }
-  .rtfd-header-search input { padding: 0 5px; margin: 0; height: 25px; font-size: 14px; float: left; -moz-border-radius: 0; -webkit-border-radius: 0; border: none; }
-  .rtfd-header-search input[type="text"] { -moz-border-radius-topleft: 3px; -moz-border-radius-bottomleft: 3px; -webkit-border-top-left-radius: 3px; -webkit-border-bottom-left-radius: 3px; }
-  .rtfd-header-search input[type="submit"] { -moz-border-radius-topright: 3px; -moz-border-radius-bottomright: 3px; -webkit-border-top-right-radius: 3px; -webkit-border-bottom-right-radius: 3px; padding: 0 12px; }
-
-  /* header nav */
-  .rtfd-header-nav { position: absolute; top: 0; right: 10px; }
-  .rtfd-header-nav ul li { float: left; }
-  .rtfd-header-nav ul li a { display: block; text-decoration: none; background: url(../images/gradient.png) bottom left repeat-x #697983; padding: 15px; color: #fff; }
-  .rtfd-header-nav ul li a:hover { background-color: #8CA1AF; }
-  .rtfd-header-nav ul li.active a, .header-nav ul li.active a:hover { background-color: #BAC7CF; }
-
-
 /* content */
 
-#content { margin-top: 80px; }
+#content { padding-top: 80px; }
 
 
 /* module */
@@ -129,9 +108,9 @@ label { display: block; margin-bottom: 4px; font-weight: bold; }
 
 /* footer */
 
-#footer { margin: 60px 0 80px; color: #ccc; }
-#footer a { color: #ccc; }
-#footer a:hover { color: #999; }
+#footer { margin: 100px 0; color: #aaa; }
+#footer a { color: #aaa; }
+#footer a:hover { color: #666; }
 
 
 /* utils */
