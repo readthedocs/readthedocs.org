@@ -1,7 +1,24 @@
 {% extends "!layout.html" %}
 
 {% block extrahead %}
+    <!-- rtfd header style -->
     <link rel="stylesheet" href="/media/css/header.css">
+    <!-- typekit -->
+    <script type="text/javascript" src="http://use.typekit.com/xgl8ypn.js"></script>
+    <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+    <!-- jquery -->
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.4/jquery-ui.min.js"></script>
+    <script type="text/javascript">
+      $('.rtfd-header-search input:text').autocomplete({
+        source: '{% url search_autocomplete %}',
+        minLength: 2,
+        open: function(event, ui) { 
+          ac_top = $('.ui-autocomplete').css('top'); 
+          $('.ui-autocomplete').css({'width': '233px', 'top': ac_top + 10 }); 
+        }
+      });
+    </script>
     {{ super() }}
 {% endblock %}
 

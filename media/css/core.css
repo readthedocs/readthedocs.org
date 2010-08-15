@@ -149,6 +149,11 @@ label { display: block; margin-bottom: 4px; font-weight: bold; }
 .ui-menu-item a { display: block; padding: 3px 10px; }
 
 
+/* call out */
+
+.callout { background: url(../images/gradient.png) bottom left repeat-x #697983; padding: 10px 20px; }
+
+
 /* footer */
 
 #footer { margin: 100px 0; color: #aaa; }
