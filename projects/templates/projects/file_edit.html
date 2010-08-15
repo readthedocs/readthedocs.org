@@ -22,7 +22,7 @@
 {% block editing-option-manage %}class="active"{% endblock %}
 
 {% block content %}
-  {% if file.revisions|length != 1 %}
+  {% if file.revisions.count != 1 %}
     <a class="call-out" href="{% url projects_file_history project.slug file.pk %}">Revision History</a>
   {% endif %}
   
