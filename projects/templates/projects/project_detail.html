@@ -30,13 +30,13 @@
   {% endif %}
 
   <h3>Tags</h3>
-  <ul>
+  <p>
     {% for tag in project.tags.all %}
-      <li><a href="{% url projects_tag_detail tag.slug %}">{{ tag.name }}</a></li>
+      <a href="{% url projects_tag_detail tag.slug %}">{{ tag.name }}</a>{% if forloop.last %}{% else %}, {% endif %}
     {% empty %}
       <li>No tags</li>
     {% endfor %}
-  </ul>
+  </p>
 
   <h3>Latest Revisions</h3>
   <ul>
@@ -44,16 +44,5 @@
       <li>{{ revision }} {{ revision.created_date|timesince }} ago</li>
     {% endfor %}
   </ul>
-  
-  <h3>Projects by {{ project.user.username }}</h3>
-  <ul>
-    {% for user_project in user.projects.all %}
-      {% if project.pk != user_project.pk %}
-        <li><a href="{{ user_project.get_absolute_url }}">{{ user_project.name }}</a></li>
-      {% endif %}
-    {% endfor %}
-    {% if user.projects.all|length == 1 %}
-      <li>No other projects by {{ project.user.username }}</li>
-    {% endif %}
-  </ul>
+
 {% endblock %}
