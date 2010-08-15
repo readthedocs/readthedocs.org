@@ -72,7 +72,8 @@ def render_header(request):
         except Project.DoesNotExist:
             pass
     context = { 'project': project,
-            'do_bookmarking': True
+            'do_bookmarking': True,
+            'janky_render': True,
             }
 
     if request.user.is_authenticated():
