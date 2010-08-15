@@ -2,8 +2,13 @@
 
 {% block title %}Delete {{ file.heading }}?{% endblock %}
 
+{% block content-header %}<h1>Delete {{ file.heading|default:"file" }}?</h1>{% endblock %}
+
+{% block editing-option-manage %}class="active"{% endblock %}
+
 {% block content %}
+  <p>You sure? O_o</p>
   <form method="post" action=".">{% csrf_token %}
-    <input type="submit" value="Delete" />
+    <input type="submit" value="I don't ever want to see '{{ file.heading|default:"file" }}' again">
   </form>
 {% endblock %}

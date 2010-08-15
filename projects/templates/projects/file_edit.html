@@ -18,6 +18,10 @@
 
 {% block title %}Edit {{ file.heading }}{% endblock %}
 
+{% block content-header %}<h1>Edit {{ file.heading|default:"file" }}?</h1>{% endblock %}
+
+{% block editing-option-manage %}class="active"{% endblock %}
+
 {% block content %}
   {% comment %}
   <div id="legend" style="float: right; width: 200px;">
