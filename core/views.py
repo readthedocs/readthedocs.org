@@ -65,6 +65,15 @@ def render_header(request):
             )
         except Project.DoesNotExist:
             pass
+    context = { 'project': project, 
+            'do_bookmarking': True
+            }
 
-    return render_to_response('core/header.html', {'project': project},
+    if request.user.is_authenticated():
+        try:
+            mark = Bookmark.objects.get(user=request.user, url=path_info)
+            context['has_bookmark'] = True
+        except Bookmark.DoesNotExist:
+            pass
+    return render_to_response('core/header.html', context,
                 context_instance=RequestContext(request))
