@@ -73,7 +73,7 @@ def render_header(request):
             pass
     context = { 'project': project,
             'do_bookmarking': True,
-            'janky_render': True,
+            'include_render': True,
             }
 
     if request.user.is_authenticated():
