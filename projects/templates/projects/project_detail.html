@@ -3,5 +3,28 @@
 {% block title %}{{ project.name }}{% endblock %}
 
 {% block content %}
-  <h1>should be docs for {{ project.name }}</h1>
+  <p>version {{ project.version }}, by {{ project.user.username }}</p>
+  
+  <p><a href="{% url docs_detail project.user.username project.slug "" %}">View docs</a></p>
+  
+  <h3>Tags</h3>
+  <ul>
+    {% for tag in project.tags.all %}
+      <li><a href="{% url projects_tag_detail tag.slug %}">{{ tag.name }}</a></li>
+    {% empty %}
+      <li>No tags</li>
+    {% endfor %}
+  </ul>
+  
+  <h3>Projects by {{ project.user.username }}</h3>
+  <ul>
+    {% for user_project in user.projects.all %}
+      {% if project.pk != user_project.pk %}
+        <li><a href="{{ user_project.get_absolute_url }}">{{ user_project.name }}</a></li>
+      {% endif %}
+    {% endfor %}
+    {% if user.projects.all|length == 1 %}
+      <li>No other projects by {{ project.user.username }}</li>
+    {% endif %}
+  </ul>
 {% endblock %}
