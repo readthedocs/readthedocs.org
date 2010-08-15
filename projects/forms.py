@@ -1,6 +1,7 @@
 import os
 
 from django import forms
+from django.template.defaultfilters import slugify
 from django.template.loader import render_to_string
 
 from projects import constants
@@ -8,7 +9,18 @@ from projects.models import Project, File
 from projects.tasks import update_docs
 
 
-class CreateProjectForm(forms.ModelForm):
+class ProjectForm(forms.ModelForm):
+    def clean_name(self):
+        name = self.cleaned_data.get('name', '')
+        if not self.instance.pk:
+            potential_slug = slugify(name)
+            if Project.objects.filter(slug=potential_slug).count():
+                raise forms.ValidationError('A project with that name exists already!')
+        
+        return name
+
+
+class CreateProjectForm(ProjectForm):
     class Meta:
         model = Project
         exclude = ('user', 'slug', 'repo', 'docs_directory',)
@@ -27,10 +39,13 @@ class CreateProjectForm(forms.ModelForm):
             )
             file.create_revision(old_content='', comment='')
         
+        # kick off the celery job
+        update_docs.delay(pk=project.pk)
+        
         return project
 
 
-class ImportProjectForm(forms.ModelForm):
+class ImportProjectForm(ProjectForm):
     class Meta:
         model = Project
         exclude = ('user', 'slug', 'version', 'copyright',)
@@ -44,6 +59,7 @@ class ImportProjectForm(forms.ModelForm):
 
         # kick off the celery job
         update_docs.delay(pk=project.pk)
+        
         return project
 
 

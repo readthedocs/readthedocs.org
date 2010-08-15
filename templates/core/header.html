@@ -32,7 +32,7 @@
         <div class="rtfd-header-nav">
           <ul>
             {% if project %}
-              <li><a href="{{ project.get_absolute_url }}">Overview</a></li>
+              <li><a href="{{ project.get_absolute_url }}">{{ project.name }} Overview</a></li>
             {% endif %}
             {% if request.user.is_authenticated %}
               <li {% block nav-dashboard %}{% endblock %}><a href="{% url projects_dashboard %}">Dashboard</a></li>
