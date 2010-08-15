@@ -6,6 +6,6 @@ Contents:
 
 .. toctree::
 
-   {% for file in project|annotated_tree %}
+   {% for file in project.get_top_level_files|annotated_tree:1 %}
    {{ file.denormalized_path }}
    {% endfor %}

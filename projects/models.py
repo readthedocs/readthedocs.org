@@ -119,6 +119,9 @@ class Project(models.Model):
     def get_latest_revisions(self):
         revision_qs = FileRevision.objects.filter(file__project=self)
         return revision_qs.order_by('-created_date')
+    
+    def get_top_level_files(self):
+        return self.files.filter(parent__isnull=True).order_by('ordering')
 
 
 class Conf(models.Model):

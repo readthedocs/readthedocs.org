@@ -1,3 +1,9 @@
 {% load projects_tags %}{{ file|file_heading|safe }}
 
 {{ file.content|safe }}
+
+.. toctree::
+
+   {% for file in file.children.all|annotated_tree:1 %}
+   {{ file.denormalized_path }}
+   {% endfor %}

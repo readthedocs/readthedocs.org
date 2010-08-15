@@ -9,7 +9,7 @@ def top_level_files(project):
     return project.files.filter(parent__isnull=True)
 
 @register.filter
-def annotated_tree(project, max_depth=99):
+def annotated_tree(queryset, max_depth=99):
     annotated = []
     
     def walk_tree(qs, depth=1):
@@ -17,7 +17,8 @@ def annotated_tree(project, max_depth=99):
             annotated.append(obj)
             if depth < max_depth:
                 walk_tree(obj.children.order_by('ordering'), depth+1)
-    walk_tree(project.files.filter(parent__isnull=True).order_by('ordering'))
+    
+    walk_tree(queryset.order_by('ordering'))
     return annotated
 
 @register.filter

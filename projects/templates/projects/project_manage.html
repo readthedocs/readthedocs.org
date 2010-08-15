@@ -13,7 +13,7 @@
   <a class="call-out" href="{% url projects_file_add project.slug %}">Add New Page</a>
 
   <ul>
-    {% for file in project|annotated_tree %}
+    {% for file in project.get_top_level_files|annotated_tree %}
       <li class="depth-{{ file.depth }}">
         <a href="{% url projects_file_edit project.slug file.id %}">{{ file.heading }}</a>
         <a class="quiet" href="{% url projects_file_delete project.slug file.id %}">(delete)</a>
