@@ -7,7 +7,7 @@ body { padding-top: 50px; }
 #rtfd-header ul { margin: 0; padding: 0; list-style: none; } 
 
   /* header title */
-  .rtfd-header-title h1 { font-size: 20px; padding: 5px 20px; color: #fff; }
+  .rtfd-header-title h1 { position: absolute; top: 15px; left: 15px; margin: 0; font-size: 20px; color: #fff; }
   .rtfd-header-title h1 a { color: #fff; text-decoration: none; }
 
   /* header search */
