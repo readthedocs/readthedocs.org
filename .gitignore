@@ -3,5 +3,5 @@
 *.db
 doc_root
 user_builds
-local_settings
+settings/local_settings.py
 _build
