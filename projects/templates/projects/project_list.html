@@ -2,12 +2,15 @@
 
 {% load pagination_tags %}
 
-{% block title %}Projects{% endblock %}
+{% block title %}Projects {% if person %}by {{ person.username }}{% endif %}{% if tag %}tagged with "{{ tag.name }}"{% endif %}{% endblock %}
 
 {% block nav-browse %}class="active"{% endblock %}
 
-{% block content %}
+{% block content-header %}
+    <h1>Projects {% if person %}by {{ person.username }}{% endif %}{% if tag %}tagged with "{{ tag.name }}"{% endif %}</h1>
+{% endblock %}
 
+{% block content %}
           {% autopaginate project_list 15 %}
 
           <!-- BEGIN projects list -->
