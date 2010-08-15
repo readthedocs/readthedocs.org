@@ -1,6 +1,7 @@
-import commands
+import subprocess
 import os
 import fnmatch
+import traceback
 
 from django.conf import settings
 
@@ -14,14 +15,24 @@ def find_file(file):
     return matches
 
 def run(command):
-    os.system(command)
-    """
-    return commands.get_output(command)
-    p = subprocess.Popen(command, cwd=os.getcwd(), shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    out, err = p.communicate()
-    ret = p.returncode
+    environment = os.environ.copy()
+    cwd = os.getcwd()
+    command_list = [cmd for cmd in command.split(' ')]
+    try:
+        p = subprocess.Popen(command_list, shell=False, cwd=cwd,
+                             stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                             env=environment)
+
+        out, err = p.communicate()
+        ret = p.returncode
+    except:
+        out = ''
+        err = traceback.format_exc()
+        ret = -1
+        print "fail!"
+
     return (ret, out, err)
-    """
+
 
 dmp = diff_match_patch()
 
