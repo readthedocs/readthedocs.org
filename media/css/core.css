@@ -36,7 +36,7 @@ table { margin-bottom: 15px; }
 p { margin-bottom: 15px; }
 pre { margin: 15px 0; white-space: pre; overflow: scroll; }
 pre, code, tt { font-family: "inconsolata-1", "inconsolata-2", 'bitstream vera sans mono', 'andale mono', 'lucida console', monospace; line-height: 20px; }
-textarea, input { font-family: "inconsolata-1", "inconsolata-2", 'bitstream vera sans mono', 'andale mono', 'lucida console', monospace; font-size: 16px; line-height: 20px; }
+textarea, input, select { font-family: "inconsolata-1", "inconsolata-2", 'bitstream vera sans mono', 'andale mono', 'lucida console', monospace; font-size: 16px; line-height: 20px; }
 
 
 /* tables */
@@ -49,7 +49,7 @@ thead { background: #f2f2f2; }
 /* forms */
 
 form p { color: #999; }
-textarea, input { display: block; padding: 5px; color: #444;  background: #fff; border: 1px solid #BFBFBF; -moz-border-radius: 3px; -webkit-border-radius: 3px; }
+textarea, input, select { display: block; padding: 5px; color: #444;  background: #fff; border: 1px solid #BFBFBF; -moz-border-radius: 3px; -webkit-border-radius: 3px; }
 input[type="text"], input[type="password"] { width: 250px; height: 20px; margin-bottom: 5px; }
 select { display: block; max-height: 300px; width: 250px; margin-bottom: 10px; font: 16/20px "inconsolata-1", "inconsolata-2", 'bitstream vera sans mono', 'andale mono', 'lucida console', monospace; }
 textarea { width: 435px; height: 150px; }
