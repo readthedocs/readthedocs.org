@@ -22,9 +22,7 @@ CACHE_KEY_PREFIX = 'docs'
 CACHE_MIDDLEWARE_SECONDS = 60
 
 LOGIN_REDIRECT_URL = '/dashboard/'
-
-FORCE_WWW = True
-LOGIN_REDIRECT_URL = '/'
+FORCE_WWW = False
 
 if DEBUG:
     CACHE_BACKEND = 'dummy://'
@@ -98,8 +96,3 @@ INSTALLED_APPS = (
 
 CARROT_BACKEND = "ghettoq.taproot.Database"
 CELERY_ALWAYS_EAGER = True
-
-EMAIL_USE_TLS = True
-EMAIL_HOST = 'golem'
-EMAIL_HOST_USER = 'no-reply@readthedocs.com'
-EMAIL_PORT = 25

@@ -225,8 +225,8 @@ def file_diff(request, project_slug, file_id, from_id, to_id):
     return HttpResponse(simplejson.dumps(payload), mimetype='text/javascript')
 
 @login_required
-def export(request, pk):
-    project = Project.objects.get(pk=pk)
+def export(request, project_slug):
+    project = Project.objects.get(user=request.user, slug=project_slug)
     os.chdir(project.user_doc_path)
     dir_path = os.path.join(settings.MEDIA_ROOT, 'export', project.user.username)
     file_path = os.path.join(dir_path, '%s.zip' % project.slug)

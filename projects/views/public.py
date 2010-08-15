@@ -1,7 +1,7 @@
 import simplejson
 
 from django.contrib.auth.models import User
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.views.generic.list_detail import object_list, object_detail
 
@@ -57,6 +57,8 @@ def tag_index(request):
 def search(request):
     term = request.GET['q']
     queryset = Project.objects.filter(name__icontains=term)
+    if queryset.count() == 1:
+        return HttpResponseRedirect(queryset[0].get_absolute_url())
     
     return object_list(
         request,

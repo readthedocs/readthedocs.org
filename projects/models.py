@@ -38,6 +38,9 @@ class Project(models.Model):
     def get_absolute_url(self):
         return reverse('projects_detail', args=[self.user.username, self.slug])
 
+    def get_docs_url(self):
+        return reverse('docs_detail', args=[self.user.username, self.slug, ''])
+
     def user_doc_path(self):
         return os.path.join(settings.DOCROOT, self.user.username, self.slug)
     user_doc_path = property(memoize(user_doc_path, {}, 1))
@@ -97,6 +100,10 @@ class Project(models.Model):
                 return 'hg'
             elif self.repo.endswith('git'):
                 return 'git'
+
+    def get_latest_revisions(self):
+        revision_qs = FileRevision.objects.filter(file__project=self)
+        return revision_qs.order_by('-created_date')
 
 
 class Conf(models.Model):
@@ -196,6 +203,7 @@ class FileRevision(models.Model):
     file = models.ForeignKey(File, related_name='revisions')
     comment = models.TextField(blank=True)
     diff = models.TextField(blank=True)
+    created_date = models.DateTimeField(auto_now_add=True)
 
     revision_number = models.IntegerField()
     is_reverted = models.BooleanField(default=False)
@@ -204,7 +212,7 @@ class FileRevision(models.Model):
         ordering = ('-revision_number',)
 
     def __unicode__(self):
-        return '%s #%s' % (self.file.heading, self.revision_number)
+        return self.comment or '%s #%s' % (self.file.heading, self.revision_number)
 
     def get_file_content(self):
         """

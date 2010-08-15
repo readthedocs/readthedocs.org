@@ -13,7 +13,7 @@ urlpatterns = patterns('projects.views.private',
         'project_import',
         name='projects_import'
     ),
-    url(r'^export/(?P<pk>\d+)/$',
+    url(r'^export/(?P<project_slug>[-\w]+)/$',
         'export',
         name='projects_export'
     ),
