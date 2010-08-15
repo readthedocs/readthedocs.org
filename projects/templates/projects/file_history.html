@@ -3,19 +3,18 @@
 {% block title %}{{ file.heading }} History{% endblock %}
 
 {% block content %}
-  <div id="original" style="float: left; width: 50%; height: 400px; overflow: auto;">
-    {{ file.content|linebreaks }}
-  </div>
-  <div id="diff" style="float: left; width: 50%; height: 400px; overflow: auto;">
-  </div>
-  
-  <div style="clear:both; height: 1px; overflow: hidden;"></div>
-  
   <form method="post" action="{% url projects_file_history project.slug file.pk %}">
     {% csrf_token %}
     {{ form.as_p }}
     <p><input type="submit" value="Revert to" id="revert" /></p>
   </form>
+
+  <div id="original" style="float: left; width: 50%; height: 400px; overflow: auto;">
+    {{ file.content|linebreaks }}
+  </div>
+  <div id="diff" style="float: left; width: 50%; height: 400px; overflow: auto;">
+  </div>
+  <div style="clear:both; height: 1px; overflow: hidden;"></div>
 
   <script type="text/javascript">
     $(function() {
