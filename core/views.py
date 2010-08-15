@@ -15,6 +15,14 @@ from projects.utils import find_file
 from watching.models import PageView
 
 
+def homepage(request):
+    projs = Project.objects.all()[:5]
+    updated = PageView.objects.all()[:5]
+    return render_to_response('homepage.html',
+                              {'project_list': projs,
+                               'updated_list': updated},
+                context_instance=RequestContext(request))
+
 @csrf_view_exempt
 def github_build(request):
     obj = json.loads(request.POST['payload'])
