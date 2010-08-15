@@ -91,6 +91,7 @@ INSTALLED_APPS = (
     'projects',
     'core',
     'builds',
+    'bookmarks',
     'watching',
 )
 
