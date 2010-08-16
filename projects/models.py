@@ -64,6 +64,9 @@ class Project(models.Model):
         return reverse('docs_detail', args=[self.user.username, self.slug, ''])
 
     def get_doc_root(self):
+        """
+        Return a user specified doc url.
+        """
         return os.path.join(
             settings.DOCROOT,   # the root of the user builds .../user_build
             self.user.username, # docs are stored using the username as the
@@ -79,6 +82,9 @@ class Project(models.Model):
 
     @property
     def full_doc_path(self):
+        """
+        The path to the documentation root in the project.
+        """
         doc_base = os.path.join(self.user_doc_path, self.slug)
         for possible_path in ['docs', 'doc']:
             if os.path.exists(os.path.join(doc_base, '%s' % possible_path)):
@@ -89,6 +95,9 @@ class Project(models.Model):
 
     @property
     def full_html_path(self):
+        """
+        The path to the build html docs in the project.
+        """
         doc_path = self.full_doc_path
         for pos_build in ['build', '_build', '.build']:
             if os.path.exists(os.path.join(doc_path, '%s/html' % pos_build)):
@@ -97,6 +106,9 @@ class Project(models.Model):
     #full_html_path = property(memoize(full_html_path, {}, 1))
 
     def find(self, file):
+        """
+        A balla API to find files inside of a projects dir.
+        """
         matches = []
         for root, dirnames, filenames in os.walk(self.full_doc_path):
           for filename in fnmatch.filter(filenames, file):
