@@ -1,3 +1,5 @@
+import simplejson
+
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
@@ -21,8 +23,21 @@ def user_bookmark_list(request):
 
 @login_required
 def bookmark_add(request, url):
-    bookmark = Bookmark.objects.create(user=request.user, url=url)
-    return HttpResponse('OK', )
+    bookmark, _ = Bookmark.objects.get_or_create(user=request.user, url=url)
+    
+    payload = simplejson.dumps({'added': True})
+    
+    return HttpResponse(payload, mimetype='text/javascript')
 
-
-
+@login_required
+def bookmark_remove(request, url):
+    try:
+        bookmark = Bookmark.objects.get(user=request.user, url=url)
+    except Bookmark.DoesNotExist:
+        pass
+    else:
+        bookmark.delete()
+    
+    payload = simplejson.dumps({'removed': True})
+    
+    return HttpResponse(payload, mimetype='text/javascript')

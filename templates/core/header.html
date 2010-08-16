@@ -43,9 +43,35 @@
         {% if do_bookmarking %}
         <!-- BEGIN bookmark -->
         <div class="rtfd-header-bookmark">
-            {% if has_bookmark %} Check {% endif %}
-            <a href="{% url bookmarks_add request.META.PATH_INFO %}" class="rtfd-header-bookmark-icon {% if has_bookmark %}active{% endif %}">Bookmark this URL</a>
+          {% if has_bookmark %}
+            <a href="{% url bookmarks_remove request.META.PATH_INFO %}" class="rtfd-header-bookmark-icon active">Remove bookmark</a>
+          {% else %}
+            <a href="{% url bookmarks_add request.META.PATH_INFO %}" class="rtfd-header-bookmark-icon">Bookmark this URL</a>
+          {% endif %}
         </div>
+        <script type="text/javascript">
+          $(function() {
+            $('.rtfd-header-bookmark-icon').click(function(e) {
+              e.preventDefault();
+              link = $(this);
+              add_url = '{% url bookmarks_add request.META.PATH_INFO %}';
+              remove_url = '{% url bookmarks_remove request.META.PATH_INFO %}';
+              $.ajax({
+                url: link.attr('href'),
+                dataType: 'json',
+                success: function(data) {
+                  if (data['added']) {
+                    link.addClass('active');
+                    link.attr('href', remove_url);
+                  } else {
+                    link.removeClass('active');
+                    link.attr('href', add_url);
+                  }
+                }
+              });
+            });
+          });
+        </script>
         <!-- END bookmark -->
         {% endif %}
 

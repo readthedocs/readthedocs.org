@@ -28,6 +28,7 @@ SCRAPE_CONF_SETTINGS = [
     'release',
     'source_suffix',
     'html_theme',
+    'extensions',
 ]
 
 HEADING_MARKUP = (
