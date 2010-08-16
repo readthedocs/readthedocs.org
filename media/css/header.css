@@ -33,3 +33,10 @@ body { padding-top: 50px; }
   .rtfd-header-nav ul li.active a, .header-nav ul li.active a:hover { background-color: #BAC7CF; }
   .rtfd-header-nav .overview-link a { padding: 4px 10px; margin: 11px; -moz-border-radius: 3px; -webkit-border-radius: 3px; }
 
+
+/* autocomplete */
+
+.ui-autocomplete { background: #fff; text-align: left; border: 1px solid #bfbfbf; }
+.ui-state-hover { background: #eee; }
+.ui-menu-item a { display: block; padding: 3px 10px; }
+

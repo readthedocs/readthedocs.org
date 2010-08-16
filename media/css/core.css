@@ -70,7 +70,6 @@ label { display: block; margin-bottom: 4px; font-weight: bold; color: #444; }
 /* home */
 
 .home { padding-top: 0; }
-.home .wide-search-bar { padding-top: 0; }
 #home-header { position: relative; background: #465158; padding: 80px 0; color: #fff; }
 
   /* title */
@@ -171,13 +170,6 @@ label { display: block; margin-bottom: 4px; font-weight: bold; color: #444; }
 .pagination a:hover { background: url("../images/gradient-light.png") repeat-x scroll left bottom #f6f6f6; }
 .pagination .next { border-right: 1px solid #bfbfbf; }
 .pagination .current.page, .pagination .current.page:hover { color: #444; background: url("../images/gradient-light.png") repeat-x scroll left bottom #d9d9d9; }
-
-
-/* autocomplete */
-
-.ui-autocomplete { background: #fff; text-align: left; border: 1px solid #bfbfbf; }
-.ui-state-hover { background: #eee; }
-.ui-menu-item a { display: block; padding: 3px 10px; }
 
 
 /* call out */
