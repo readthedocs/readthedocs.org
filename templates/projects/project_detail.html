@@ -12,6 +12,13 @@
   <a href="{{ project.project_url }}" rel="nofollow,noindex">Project Homepage</a>
   {% endif %}
 
+  {% if project.description %}
+  <h3>Description</h3>
+  <p>
+    {{ project.description }}
+  </p>
+  {% endif %}
+
   <h3>Last Built</h3>
   <p>
   {{ project.modified_date|date:"F j, P" }}
