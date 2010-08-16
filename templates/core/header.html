@@ -33,7 +33,7 @@
         {% if request.META.PATH_INFO != '/' %}
         <div class="rtfd-header-search">
           <form action="{% url search %}" method="GET">
-            <input type="text" name="q" value="{{ term }}" id="id_site_search" placeholder="Search docs">
+            <input type="text" name="q" value="{{ term }}" id="id_site_search" placeholder="Search projects">
             <input type="submit" value="Go">
           </form>
         </div>
