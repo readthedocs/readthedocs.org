@@ -2,24 +2,19 @@
 
 {% block title %}{{ build.project.name }}{% endblock %}
 
+{% block content-header %}<h1>Build for {{ build.project.name }}</h1>{% endblock %}
+
 {% block content %}
+  <p>Built: {{ build.date|date:"j F, Y" }}</p>
 
+  <p>Outcome: {{ build.success|yesno:"Passed,Failed" }}</p>
 
-<p>
-Built: {{ build.date|date:"j F, Y" }}
-</p>
+  <h3>Output</h3>
+  <pre class="build-output">{{ build.output }}</pre>
 
-<p>
-Outcome: {{ build.success|yesno:"Passed,Failed" }}
-</p>
-
-<p>
-<h3>Output</h3> <pre class="build-output">{{ build.output }}</pre>
-</p>
-
-
-{% if build.error %}
-<h3>Error</h3> <pre class="build-error">{{ build.error }}</pre>
-{% endif %}
+  {% if build.error %}
+  <h3>Error</h3> 
+  <pre class="build-error">{{ build.error }}</pre>
+  {% endif %}
 
 {% endblock %}
