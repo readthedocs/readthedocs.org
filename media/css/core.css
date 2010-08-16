@@ -100,7 +100,9 @@ label { display: block; margin-bottom: 4px; font-weight: bold; color: #444; }
 #content .module ul { margin-bottom: 0; }
 .module-wrapper { padding: 8px; }
 .module-header { padding: 0 10px; }
+.module-header small { padding: 0 10px; font-size: .7em;  }
 .module-list { background: #fff; border: 1px solid #bfbfbf; border-bottom: none; }
+.module-list .count { float: right; font-size: .9em; color: #aaa; }
 .module-item { position: relative; border-bottom: 1px solid #bfbfbf; padding: 10px; }
 
   /* module title */
