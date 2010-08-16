@@ -26,18 +26,21 @@ class CreateProjectForm(ProjectForm):
         exclude = ('user', 'slug', 'repo', 'docs_directory',)
 
     def save(self, *args, **kwargs):
+        created = self.instance.pk is None
+        
         # save the project
         project = super(CreateProjectForm, self).save(*args, **kwargs)
-
-        # create a couple sample files
-        for i, (sample_file, template) in enumerate(constants.SAMPLE_FILES):
-            file = File.objects.create(
-                project=project,
-                heading=sample_file,
-                content=render_to_string(template, {'project': project}),
-                ordering=i+1,
-            )
-            file.create_revision(old_content='', comment='')
+        
+        if created:
+            # create a couple sample files
+            for i, (sample_file, template) in enumerate(constants.SAMPLE_FILES):
+                file = File.objects.create(
+                    project=project,
+                    heading=sample_file,
+                    content=render_to_string(template, {'project': project}),
+                    ordering=i+1,
+                )
+                file.create_revision(old_content='', comment='')
         
         # kick off the celery job
         update_docs.delay(pk=project.pk)
