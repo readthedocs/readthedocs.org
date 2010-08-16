@@ -55,7 +55,7 @@ def project_create(request):
         form.instance.user = request.user
         project = form.save()
         project_manage = reverse('projects_manage', args=[project.slug])
-        return HttpResponseRedirect(project_manage)
+        return HttpResponseRedirect(project_manage + '?created')
 
     return render_to_response(
         'projects/project_create.html',
