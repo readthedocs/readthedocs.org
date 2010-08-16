@@ -15,10 +15,18 @@ class Migration(SchemaMigration):
             ('name', self.gf('django.db.models.fields.CharField')(max_length=255)),
             ('slug', self.gf('django.db.models.fields.SlugField')(max_length=50, db_index=True)),
             ('description', self.gf('django.db.models.fields.TextField')(blank=True)),
-            ('github_repo', self.gf('django.db.models.fields.CharField')(max_length=100, blank=True)),
-            ('github_login', self.gf('django.db.models.fields.CharField')(max_length=100, blank=True)),
+            ('repo', self.gf('django.db.models.fields.CharField')(max_length=100, blank=True)),
+            ('docs_directory', self.gf('django.db.models.fields.CharField')(max_length=255, blank=True)),
+            ('project_url', self.gf('django.db.models.fields.URLField')(max_length=200, blank=True)),
             ('pub_date', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
             ('modified_date', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
+            ('version', self.gf('django.db.models.fields.CharField')(max_length=100, blank=True)),
+            ('copyright', self.gf('django.db.models.fields.CharField')(max_length=255, blank=True)),
+            ('theme', self.gf('django.db.models.fields.CharField')(default='default', max_length=20)),
+            ('path', self.gf('django.db.models.fields.CharField')(max_length=255)),
+            ('suffix', self.gf('django.db.models.fields.CharField')(default='.rst', max_length=10)),
+            ('extensions', self.gf('django.db.models.fields.CharField')(default='', max_length=255)),
+            ('status', self.gf('django.db.models.fields.PositiveSmallIntegerField')(default=1)),
         ))
         db.send_create_signal('projects', ['Project'])
 
@@ -26,14 +34,27 @@ class Migration(SchemaMigration):
         db.create_table('projects_file', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('project', self.gf('django.db.models.fields.related.ForeignKey')(related_name='files', to=orm['projects.Project'])),
-            ('parent', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['projects.File'], null=True, blank=True)),
+            ('parent', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='children', null=True, to=orm['projects.File'])),
             ('heading', self.gf('django.db.models.fields.CharField')(max_length=255)),
             ('slug', self.gf('django.db.models.fields.SlugField')(max_length=50, db_index=True)),
             ('content', self.gf('django.db.models.fields.TextField')()),
             ('denormalized_path', self.gf('django.db.models.fields.CharField')(max_length=255)),
             ('ordering', self.gf('django.db.models.fields.PositiveSmallIntegerField')(default=1)),
+            ('status', self.gf('django.db.models.fields.PositiveSmallIntegerField')(default=1)),
         ))
         db.send_create_signal('projects', ['File'])
+
+        # Adding model 'FileRevision'
+        db.create_table('projects_filerevision', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('file', self.gf('django.db.models.fields.related.ForeignKey')(related_name='revisions', to=orm['projects.File'])),
+            ('comment', self.gf('django.db.models.fields.TextField')(blank=True)),
+            ('diff', self.gf('django.db.models.fields.TextField')(blank=True)),
+            ('created_date', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
+            ('revision_number', self.gf('django.db.models.fields.IntegerField')()),
+            ('is_reverted', self.gf('django.db.models.fields.BooleanField')(default=False)),
+        ))
+        db.send_create_signal('projects', ['FileRevision'])
 
 
     def backwards(self, orm):
@@ -43,6 +64,9 @@ class Migration(SchemaMigration):
 
         # Deleting model 'File'
         db.delete_table('projects_file')
+
+        # Deleting model 'FileRevision'
+        db.delete_table('projects_filerevision')
 
 
     models = {
@@ -83,27 +107,46 @@ class Migration(SchemaMigration):
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
         'projects.file': {
-            'Meta': {'ordering': "('ordering', 'denormalized_path')", 'object_name': 'File'},
+            'Meta': {'ordering': "('denormalized_path',)", 'object_name': 'File'},
             'content': ('django.db.models.fields.TextField', [], {}),
             'denormalized_path': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'heading': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'ordering': ('django.db.models.fields.PositiveSmallIntegerField', [], {'default': '1'}),
-            'parent': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['projects.File']", 'null': 'True', 'blank': 'True'}),
+            'parent': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'children'", 'null': 'True', 'to': "orm['projects.File']"}),
             'project': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'files'", 'to': "orm['projects.Project']"}),
-            'slug': ('django.db.models.fields.SlugField', [], {'max_length': '50', 'db_index': 'True'})
+            'slug': ('django.db.models.fields.SlugField', [], {'max_length': '50', 'db_index': 'True'}),
+            'status': ('django.db.models.fields.PositiveSmallIntegerField', [], {'default': '1'})
+        },
+        'projects.filerevision': {
+            'Meta': {'ordering': "('-revision_number',)", 'object_name': 'FileRevision'},
+            'comment': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
+            'created_date': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'diff': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
+            'file': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'revisions'", 'to': "orm['projects.File']"}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'is_reverted': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'revision_number': ('django.db.models.fields.IntegerField', [], {})
         },
         'projects.project': {
             'Meta': {'ordering': "('-modified_date', 'name')", 'object_name': 'Project'},
+            'copyright': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
             'description': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
-            'github_login': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
-            'github_repo': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
+            'docs_directory': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'extensions': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '255'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'modified_date': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'path': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'project_url': ('django.db.models.fields.URLField', [], {'max_length': '200', 'blank': 'True'}),
             'pub_date': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'repo': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
             'slug': ('django.db.models.fields.SlugField', [], {'max_length': '50', 'db_index': 'True'}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'projects'", 'to': "orm['auth.User']"})
+            'status': ('django.db.models.fields.PositiveSmallIntegerField', [], {'default': '1'}),
+            'suffix': ('django.db.models.fields.CharField', [], {'default': "'.rst'", 'max_length': '10'}),
+            'theme': ('django.db.models.fields.CharField', [], {'default': "'default'", 'max_length': '20'}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'projects'", 'to': "orm['auth.User']"}),
+            'version': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'})
         }
     }
 
