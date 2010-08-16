@@ -29,7 +29,7 @@ class Project(models.Model):
     description = models.TextField(blank=True,
         help_text='restructuredtext description of the project')
     repo = models.CharField(max_length=100, blank=True,
-            help_text='URL for your code. Ex. http://github.com/ericholscher/django-kong.git')
+            help_text='URL for your code (hg or git). Ex. http://github.com/ericholscher/django-kong.git')
     docs_directory = models.CharField(max_length=255, blank=True)
     project_url = models.URLField(blank=True, help_text='the project\'s homepage')
     pub_date = models.DateTimeField(auto_now_add=True)
