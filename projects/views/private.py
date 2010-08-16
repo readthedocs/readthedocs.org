@@ -16,14 +16,18 @@ from django.views.generic.list_detail import object_list
 from projects.forms import FileForm, CreateProjectForm, ImportProjectForm, FileRevisionForm
 from projects.models import Project, File
 
+from bookmarks.models import Bookmark
+
 
 @login_required
 def project_dashboard(request):
+    marks = Bookmark.objects.filter(user=request.user)[:5]
     return object_list(
         request,
         queryset=request.user.projects.all(),
         page=int(request.GET.get('page', 1)),
         template_object_name='project',
+        extra_context={'bookmark_list': marks },
         template_name='projects/project_dashboard.html',
     )
 

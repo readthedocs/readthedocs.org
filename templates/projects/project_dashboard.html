@@ -37,6 +37,25 @@
           <!-- END your projects list -->
 
 
+          <!-- BEGIN marks list -->
+          <div class="module">
+            <div class="module-wrapper">
+              <div class="module-header">
+                  <h2>Recently Bookmarked Docs <small><a href="{% url user_bookmarks %}">(All Bookmarks)</a></small></h2>
+              </div>
+
+              <div class="module-list">
+                <ul>
+                  {% include "core/bookmark_list_detailed.html" %}
+                </ul>
+              </div>
+
+            </div>
+          </div>
+          <!-- END marks list -->
+
+
+
           <!-- BEGIN create new project -->
           <div class="module">
             <div class="module-wrapper">
