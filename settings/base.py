@@ -78,7 +78,6 @@ INSTALLED_APPS = (
 
     # third party apps
     'pagination',
-    'profiles',
     'registration',
     'djcelery',
     'ghettoq',
