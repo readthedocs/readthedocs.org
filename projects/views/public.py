@@ -10,7 +10,7 @@ from projects.models import Project
 from taggit.models import Tag, TaggedItem
 
 def project_index(request, username=None, tag=None):
-    queryset = Project.objects.all()
+    queryset = Project.objects.live()
     if username:
         user = get_object_or_404(User, username=username)
         queryset = queryset.filter(user=user)
@@ -33,7 +33,7 @@ def project_index(request, username=None, tag=None):
 
 def project_detail(request, username, project_slug):
     user = get_object_or_404(User, username=username)
-    queryset = user.projects.all()
+    queryset = user.projects.live()
     
     return object_detail(
         request,
@@ -56,7 +56,7 @@ def tag_index(request):
 
 def search(request):
     term = request.GET['q']
-    queryset = Project.objects.filter(name__icontains=term)
+    queryset = Project.objects.live(name__icontains=term)
     if queryset.count() == 1:
         return HttpResponseRedirect(queryset[0].get_absolute_url())
     
@@ -70,7 +70,7 @@ def search(request):
 
 def search_autocomplete(request):
     term = request.GET['term']
-    queryset = Project.objects.filter(name__icontains=term)[:20]
+    queryset = Project.objects.live(name__icontains=term)[:20]
 
     project_names = queryset.values_list('name', flat=True)
     json_response = simplejson.dumps(list(project_names))

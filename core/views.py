@@ -18,7 +18,7 @@ from bookmarks.models import Bookmark
 
 
 def homepage(request):
-    projs = Project.objects.all()[:5]
+    projs = Project.objects.live()[:5]
     updated = PageView.objects.all()[:5]
     marks = Bookmark.objects.all()[:5]
     return render_to_response('homepage.html',
@@ -48,12 +48,16 @@ def serve_docs(request, username, project_slug, filename):
         filename = "index.html"
     filename = filename.rstrip('/')
     if 'html' in filename:
+        try:
+            proj.full_html_path
+        except AttributeError:
+            return render_to_response('404.html', {'project': proj},
+                    context_instance=RequestContext(request))
+
         pageview, created = PageView.objects.get_or_create(project=proj, url=filename)
         if not created:
             pageview.count = F('count') + 1
             pageview.save()
-        if not os.path.exists(os.path.join(proj.full_html_path, filename)):
-            return HttpResponse("These docs haven't been built yet :(")
     return serve(request, filename, proj.full_html_path)
 
 def render_header(request):

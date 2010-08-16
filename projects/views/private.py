@@ -13,6 +13,7 @@ from django.template.defaultfilters import linebreaks
 from django.template.loader import render_to_string
 from django.views.generic.list_detail import object_list
 
+from projects import constants
 from projects.forms import FileForm, CreateProjectForm, ImportProjectForm, FileRevisionForm
 from projects.models import Project, File
 
@@ -24,7 +25,7 @@ def project_dashboard(request):
     marks = Bookmark.objects.filter(user=request.user)[:5]
     return object_list(
         request,
-        queryset=request.user.projects.all(),
+        queryset=request.user.projects.live(),
         page=int(request.GET.get('page', 1)),
         template_object_name='project',
         extra_context={'bookmark_list': marks },
@@ -33,10 +34,10 @@ def project_dashboard(request):
 
 @login_required
 def project_manage(request, project_slug):
-    project = get_object_or_404(request.user.projects.all(), slug=project_slug)
+    project = get_object_or_404(request.user.projects.live(), slug=project_slug)
     return object_list(
         request,
-        queryset=project.files.all(),
+        queryset=project.files.live(),
         extra_context={'project': project},
         page=int(request.GET.get('page', 1)),
         template_object_name='file',
@@ -64,7 +65,7 @@ def project_create(request):
 
 @login_required
 def project_edit(request, project_slug):
-    project = get_object_or_404(request.user.projects.all(), slug=project_slug)
+    project = get_object_or_404(request.user.projects.live(), slug=project_slug)
 
     if project.is_imported:
         form_class = ImportProjectForm
@@ -86,10 +87,11 @@ def project_edit(request, project_slug):
 
 @login_required
 def project_delete(request, project_slug):
-    project = get_object_or_404(request.user.projects.all(), slug=project_slug)
+    project = get_object_or_404(request.user.projects.live(), slug=project_slug)
 
     if request.method == 'POST':
-        project.delete()
+        project.status = constants.DELETED_STATUS
+        project.save()
         project_dashboard = reverse('projects_dashboard')
         return HttpResponseRedirect(project_dashboard)
 
@@ -120,7 +122,7 @@ def project_import(request):
 
 @login_required
 def file_add(request, project_slug):
-    project = get_object_or_404(request.user.projects.all(), slug=project_slug)
+    project = get_object_or_404(request.user.projects.live(), slug=project_slug)
     file = File(project=project)
 
     form = FileForm(instance=file, data=request.POST or None)
@@ -139,8 +141,8 @@ def file_add(request, project_slug):
 
 @login_required
 def file_edit(request, project_slug, file_id):
-    project = get_object_or_404(request.user.projects.all(), slug=project_slug)
-    file = get_object_or_404(project.files.all(), pk=file_id)
+    project = get_object_or_404(request.user.projects.live(), slug=project_slug)
+    file = get_object_or_404(project.files.live(), pk=file_id)
 
     form = FileForm(instance=file, data=request.POST or None)
 
@@ -157,11 +159,12 @@ def file_edit(request, project_slug, file_id):
 
 @login_required
 def file_delete(request, project_slug, file_id):
-    project = get_object_or_404(request.user.projects.all(), slug=project_slug)
-    file = get_object_or_404(project.files.all(), pk=file_id)
+    project = get_object_or_404(request.user.projects.live(), slug=project_slug)
+    file = get_object_or_404(project.files.live(), pk=file_id)
 
     if request.method == 'POST':
-        file.delete()
+        file.status = constants.DELETED_STATUS
+        file.save()
         project_manage = reverse('projects_manage', args=[project.slug])
         return HttpResponseRedirect(project_manage)
 
@@ -173,8 +176,8 @@ def file_delete(request, project_slug, file_id):
 
 @login_required
 def file_history(request, project_slug, file_id):
-    project = get_object_or_404(request.user.projects.all(), slug=project_slug)
-    file = get_object_or_404(project.files.all(), pk=file_id)
+    project = get_object_or_404(request.user.projects.live(), slug=project_slug)
+    file = get_object_or_404(project.files.live(), pk=file_id)
 
     form = FileRevisionForm(file, request.POST or None)
 
@@ -194,8 +197,8 @@ def file_history(request, project_slug, file_id):
 
 @login_required
 def file_diff(request, project_slug, file_id, from_id, to_id):
-    project = get_object_or_404(request.user.projects.all(), slug=project_slug)
-    file = get_object_or_404(project.files.all(), pk=file_id)
+    project = get_object_or_404(request.user.projects.live(), slug=project_slug)
+    file = get_object_or_404(project.files.live(), pk=file_id)
 
     # grab the requested revisions
     from_rev = get_object_or_404(file.revisions.all(), pk=from_id)
@@ -228,7 +231,7 @@ def file_preview(request):
 
 @login_required
 def export(request, project_slug):
-    project = Project.objects.get(user=request.user, slug=project_slug)
+    project = Project.objects.live().get(user=request.user, slug=project_slug)
     os.chdir(project.user_doc_path)
     dir_path = os.path.join(settings.MEDIA_ROOT, 'export', project.user.username)
     file_path = os.path.join(dir_path, '%s.zip' % project.slug)
