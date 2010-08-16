@@ -18,8 +18,6 @@ urlpatterns = patterns('',
         name='user_bookmarks'
     ),
     url(r'^dashboard/', include('projects.urls.private')),
-
-
     (r'^admin/', include(admin.site.urls)),
     url(r'^github', 'core.views.github_build', name='github_build'),
     url(r'^build/(?P<pk>\d+)', 'core.views.generic_build', name='generic_build'),

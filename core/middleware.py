@@ -1,4 +1,5 @@
 #http://joshuajonah.ca/blog/2010/06/18/poor-mans-esi-nginx-ssis-and-django/
+
 import re
 from django.core.urlresolvers import get_urlconf, get_resolver, Resolver404
 
