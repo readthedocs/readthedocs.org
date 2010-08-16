@@ -61,7 +61,7 @@
         {% endif %}
         <!-- END global search -->
 
-        {% if do_bookmarking %}
+        {% if do_bookmarking and request.user.is_authenticated %}
         <!-- BEGIN bookmark -->
         <div class="rtfd-header-bookmark">
           {% if has_bookmark %}

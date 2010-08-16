@@ -1,5 +1,6 @@
 
 body { padding-top: 50px; }
+#rtfd-header *:focus { outline: none; }
 
 /* header */
 
