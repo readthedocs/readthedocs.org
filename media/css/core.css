@@ -194,6 +194,11 @@ label { display: block; margin-bottom: 4px; font-weight: bold; color: #444; }
 .content-panel input[type="submit"].revision-revert { display: inline; margin: 0 0 0 5px; padding: 0px 3px; font-size: .75em; }
 
 
+/* notification box */
+
+.notification { padding: 80px 0 30px; background: #e6e6e6; }
+
+
 /* footer */
 
 #footer { margin: 100px 0; color: #aaa; }
