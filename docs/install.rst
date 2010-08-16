@@ -28,7 +28,7 @@ What's available
 ----------------
 
 After registering with the site (or creating yourself a superuser account),
-you will be able to log in and view the `dashboard <http://readthedocs.org/dashboard/`_
+you will be able to log in and view the `dashboard <http://readthedocs.org/dashboard/>`_
 
 From the dashboard you can either create new documentation, or import your existing
 docs provided that they are in a git or mercurial repo.
