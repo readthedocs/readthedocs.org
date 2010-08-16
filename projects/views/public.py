@@ -10,6 +10,10 @@ from projects.models import Project
 from taggit.models import Tag, TaggedItem
 
 def project_index(request, username=None, tag=None):
+    """
+    The list of projects, which will optionally filter by user or tag,
+    in which case a 'person' or 'tag' will be added to the context
+    """
     queryset = Project.objects.live()
     if username:
         user = get_object_or_404(User, username=username)
@@ -32,6 +36,9 @@ def project_index(request, username=None, tag=None):
     )
 
 def project_detail(request, username, project_slug):
+    """
+    A detail view for a project with various dataz
+    """
     user = get_object_or_404(User, username=username)
     queryset = user.projects.live()
     
@@ -45,6 +52,9 @@ def project_detail(request, username, project_slug):
     )
 
 def tag_index(request):
+    """
+    List of all tags by most common
+    """
     tag_qs = Project.tags.most_common()
     return object_list(
         request,
@@ -55,6 +65,9 @@ def tag_index(request):
     )
 
 def search(request):
+    """
+    our ghetto site search.  see roadmap.
+    """
     term = request.GET['q']
     queryset = Project.objects.live(name__icontains=term)
     if queryset.count() == 1:
@@ -69,6 +82,9 @@ def search(request):
     )
 
 def search_autocomplete(request):
+    """
+    return a json list of project names
+    """
     term = request.GET['term']
     queryset = Project.objects.live(name__icontains=term)[:20]
 
