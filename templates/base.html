@@ -32,12 +32,6 @@
 
     {% block header-wrapper %}{% include "core/header.html" %}{% endblock %}
 
-    {% if request.GET.docs_not_built %}
-      <div class="notifications">
-        <p>You docs are currently being built.  It may take a moment for them to appear.</p>
-        <p>Read the Docs thanks you for your continued patience.</p>
-      </div>
-    {% endif %}
 
     {% block project_editing %}{% endblock %}
 
@@ -45,7 +39,12 @@
     <div id="content">
       <div class="wrapper">
 
-
+        {% if request.GET.docs_not_built %}
+          <div class="notification">
+            <p>You docs are currently being built.  It may take a moment for them to appear.</p>
+            <p>Read the Docs thanks you for your continued patience.</p>
+          </div>
+        {% endif %}
 
         {% block content-header %}
         {% endblock %}
