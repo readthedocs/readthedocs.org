@@ -8,7 +8,7 @@ body { padding-top: 50px; }
 
   /* header title */
   .rtfd-header-title { position: relative; }
-  .rtfd-header-title h1 { position: absolute; top: 0; left: 0; margin: 15px; font-size: 20px; line-height: 20px; color: #fff; }
+  .rtfd-header-title h1 { position: absolute; top: 0; left: 0; margin: 15px; padding: 0; font-size: 20px; line-height: 20px; color: #fff; }
   .rtfd-header-title h1 a { color: #fff; text-decoration: none; font-family: "ff-meta-web-pro-1", "ff-meta-web-pro-2", Arial, "Helvetica Neue", sans-serif; }
 
   /* header search */
