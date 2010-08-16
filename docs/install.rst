@@ -14,6 +14,7 @@ Installing RTD is pretty simple. Here is a step by step plan on how to do it.
     pip install -r pip_requirements.txt
     #Have a beer
     ./manage.py syncdb
+    ./manage.py loaddata test_data
     #Make sure you create a user here
     ./manage.py migrate
     ./manage.py update_repos
