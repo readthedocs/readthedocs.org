@@ -22,6 +22,10 @@ from bookmarks.models import Bookmark
 
 @login_required
 def project_dashboard(request):
+    """
+    A dashboard!  If you aint know what that means you aint need to.
+    Essentially we show you an overview of your content.
+    """
     marks = Bookmark.objects.filter(user=request.user)[:5]
     return object_list(
         request,
@@ -34,6 +38,11 @@ def project_dashboard(request):
 
 @login_required
 def project_manage(request, project_slug):
+    """
+    The management view for a project, where you will have links to edit
+    the projects' configuration, edit the files associated with that
+    project, etc.
+    """
     project = get_object_or_404(request.user.projects.live(), slug=project_slug)
     return object_list(
         request,
@@ -47,7 +56,8 @@ def project_manage(request, project_slug):
 @login_required
 def project_create(request):
     """
-    A form for creating a brand new project?
+    The view for creating a new project where the docs will be hosted
+    as objects and edited through the site
     """
     form = CreateProjectForm(request.POST or None)
 
@@ -65,6 +75,10 @@ def project_create(request):
 
 @login_required
 def project_edit(request, project_slug):
+    """
+    Edit an existing project - depending on what type of project is being
+    edited (created or imported) a different form will be displayed
+    """
     project = get_object_or_404(request.user.projects.live(), slug=project_slug)
 
     if project.is_imported:
@@ -87,6 +101,10 @@ def project_edit(request, project_slug):
 
 @login_required
 def project_delete(request, project_slug):
+    """
+    Make a project as deleted on POST, otherwise show a form asking for
+    confirmation of delete.
+    """
     project = get_object_or_404(request.user.projects.live(), slug=project_slug)
 
     if request.method == 'POST':
@@ -104,7 +122,7 @@ def project_delete(request, project_slug):
 @login_required
 def project_import(request):
     """
-    I guess a form here for configuring your import?
+    Import docs from an repo
     """
     form = ImportProjectForm(request.POST or None)
 
@@ -122,6 +140,9 @@ def project_import(request):
 
 @login_required
 def file_add(request, project_slug):
+    """
+    Add a file to a project, redirecting on success to the projects mgmt page
+    """
     project = get_object_or_404(request.user.projects.live(), slug=project_slug)
     file = File(project=project)
 
@@ -141,6 +162,9 @@ def file_add(request, project_slug):
 
 @login_required
 def file_edit(request, project_slug, file_id):
+    """
+    Edit an existing file
+    """
     project = get_object_or_404(request.user.projects.live(), slug=project_slug)
     file = get_object_or_404(project.files.live(), pk=file_id)
 
@@ -159,6 +183,9 @@ def file_edit(request, project_slug, file_id):
 
 @login_required
 def file_delete(request, project_slug, file_id):
+    """
+    Mark a given file as deleted on POST, otherwise ask for confirmation
+    """
     project = get_object_or_404(request.user.projects.live(), slug=project_slug)
     file = get_object_or_404(project.files.live(), pk=file_id)
 
@@ -176,6 +203,10 @@ def file_delete(request, project_slug, file_id):
 
 @login_required
 def file_history(request, project_slug, file_id):
+    """
+    A view that provides diffing from current to any revision, and when
+    posted to allows you to revert
+    """
     project = get_object_or_404(request.user.projects.live(), slug=project_slug)
     file = get_object_or_404(project.files.live(), pk=file_id)
 
@@ -197,6 +228,9 @@ def file_history(request, project_slug, file_id):
 
 @login_required
 def file_diff(request, project_slug, file_id, from_id, to_id):
+    """
+    Return the contents of a given revision.
+    """
     project = get_object_or_404(request.user.projects.live(), slug=project_slug)
     file = get_object_or_404(project.files.live(), pk=file_id)
 
@@ -219,6 +253,9 @@ def file_diff(request, project_slug, file_id, from_id, to_id):
 
 @login_required
 def file_preview(request):
+    """
+    Live preview of restructuredtext payload - currently not wired up
+    """
     f = File(
         heading=request.POST['heading'],
         content=request.POST['content'],
@@ -231,6 +268,9 @@ def file_preview(request):
 
 @login_required
 def export(request, project_slug):
+    """
+    Export a projects' docs as a .zip file, including the .rst source
+    """
     project = Project.objects.live().get(user=request.user, slug=project_slug)
     os.chdir(project.user_doc_path)
     dir_path = os.path.join(settings.MEDIA_ROOT, 'export', project.user.username)
