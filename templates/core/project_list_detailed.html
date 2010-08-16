@@ -8,5 +8,7 @@
                         <li><a href="{% url docs_detail project.user.username project.slug "index.html" %}">View Docs</a></li>
                       </ul>
                       </li>
+                    {% empty %}
+                      <li>No projects found</li>
                     {% endfor %}
 

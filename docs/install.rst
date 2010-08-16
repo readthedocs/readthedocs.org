@@ -14,6 +14,7 @@ Installing RTD is pretty simple. Here is a step by step plan on how to do it.
     pip install -r pip_requirements.txt
     #Have a beer
     ./manage.py syncdb
+    ./manage.py loaddata test_data
     #Make sure you create a user here
     ./manage.py migrate
     ./manage.py update_repos
@@ -53,3 +54,11 @@ docs you've already built.  Simply provide us with the clone url to your repo,
 we'll pull your code, extract your docs, and build them!  We make available
 a post-commit webhook that can be configured to update the docs on our site
 whenever you commit to your repo, effectively letting you 'set it and forget it'.
+
+Caveats
+-------
+
+We are auto-importing and generating conf.py files, so projects with special
+extensions, themes, or templates won't work correctly. This is because of the
+possible of code execution within the python files. We are planing to support
+popular themes and white list projects that we trust to have these abilities. 
