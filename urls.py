@@ -4,6 +4,8 @@ from django.contrib import admin
 from django.conf import settings
 admin.autodiscover()
 
+handler500 = 'core.views.server_error'
+
 urlpatterns = patterns('',
     url(r'^$', 'core.views.homepage'),
     url(r'^projects/', include('projects.urls.public')),

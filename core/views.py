@@ -88,3 +88,9 @@ def render_header(request):
             pass
     return render_to_response('core/header.html', context,
                 context_instance=RequestContext(request))
+
+def server_error(request, template_name='500.html'):
+    return render_to_response(template_name,
+        context_instance = RequestContext(request)
+    )
+

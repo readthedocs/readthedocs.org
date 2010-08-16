@@ -1,7 +1,5 @@
 An awesome documentation hosting site.
 
-In order to get it running::
-    virtualenv doc_site
-    cd doc_site
-    pip install -r pip_requirements.txt
-    ./manage.py runserver
+Installation and usage documentation is available online:
+
+http://readthedocs.org/projects/eric/read-the-docs/docs/index.html
