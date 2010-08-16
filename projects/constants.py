@@ -37,3 +37,11 @@ HEADING_MARKUP = (
     (3, '^'),
     (4, '"'),
 )
+
+STATUS_LIVE = 1
+STATUS_DELETED = 99
+
+STATUS_CHOICES = (
+    (STATUS_LIVE, 'Live'),
+    (STATUS_DELETED, 'Deleted'),
+)

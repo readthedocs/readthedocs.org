@@ -6,7 +6,7 @@ from django.template.defaultfilters import slugify
 from django.template.loader import render_to_string
 from django.utils.functional import memoize
 
-from projects.constants import DEFAULT_THEME_CHOICES, THEME_DEFAULT
+from projects import constants
 from projects.utils import diff, dmp, safe_write
 
 from taggit.managers import TaggableManager
@@ -32,12 +32,14 @@ class Project(models.Model):
         help_text='project version these docs apply to, i.e. 1.0a')
     copyright = models.CharField(max_length=255, blank=True,
         help_text='project copyright information')
-    theme = models.CharField(max_length=20, choices=DEFAULT_THEME_CHOICES,
-        default=THEME_DEFAULT,
+    theme = models.CharField(max_length=20,
+        choices=constants.DEFAULT_THEME_CHOICES, default=constants.THEME_DEFAULT,
         help_text='<a href="http://sphinx.pocoo.org/theming.html#builtin-themes" target="_blank">Examples</a>')
     path = models.CharField(max_length=255, editable=False)
     suffix = models.CharField(max_length=10, editable=False, default='.rst')
     extensions = models.CharField(max_length=255, editable=False, default='')
+    status = models.PositiveSmallIntegerField(choices=constants.STATUS_CHOICES,
+        default=constants.STATUS_LIVE, editable=False)
 
     tags = TaggableManager()
 
@@ -149,6 +151,8 @@ class File(models.Model):
     content = models.TextField()
     denormalized_path = models.CharField(max_length=255, editable=False)
     ordering = models.PositiveSmallIntegerField(default=1)
+    status = models.PositiveSmallIntegerField(choices=constants.STATUS_CHOICES,
+        default=constants.STATUS_LIVE, editable=False)
 
     class Meta:
         ordering = ('denormalized_path',)
