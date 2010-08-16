@@ -2,6 +2,7 @@ Installation
 =============
 
 Installing RTD is pretty simple. Here is a step by step plan on how to do it.
+::
 
     virtualenv rtd
     cd rtd
