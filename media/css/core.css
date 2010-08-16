@@ -34,7 +34,7 @@ a { color: #444; }
 a:hover { color: #111; }
 table { margin-bottom: 15px; }
 p { margin-bottom: 15px; }
-pre { margin: 15px 0; white-space: pre; overflow: scroll; }
+pre { margin: 15px 0; white-space: pre; overflow: auto; }
 pre, code, tt { font-family: "inconsolata-1", "inconsolata-2", 'bitstream vera sans mono', 'andale mono', 'lucida console', monospace; line-height: 20px; }
 textarea, input, select { font-family: "inconsolata-1", "inconsolata-2", 'bitstream vera sans mono', 'andale mono', 'lucida console', monospace; font-size: 16px; line-height: 20px; }
 
