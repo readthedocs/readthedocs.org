@@ -79,8 +79,8 @@ def scrape_conf_file(project):
             data[match.group(1).strip()] = match.group(2).strip()
     project.copyright = data['copyright']
     project.theme = data.get('html_theme', 'default')
-    if project.theme not in [x[0] for x in DEFAULT_THEME_CHOICES]:
-        project.theme = 'default'
+    #if project.theme not in [x[0] for x in DEFAULT_THEME_CHOICES]:
+        #project.theme = 'default'
     project.suffix = data.get('source_suffix', '.rst')
     #project.extensions = data.get('extensions', '').replace('"', "'")
     project.path = os.getcwd()
