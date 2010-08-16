@@ -14,7 +14,7 @@ class ProjectForm(forms.ModelForm):
         name = self.cleaned_data.get('name', '')
         if not self.instance.pk:
             potential_slug = slugify(name)
-            if Project.objects.filter(slug=potential_slug).count():
+            if Project.objects.live(slug=potential_slug).count():
                 raise forms.ValidationError('A project with that name exists already!')
         
         return name
