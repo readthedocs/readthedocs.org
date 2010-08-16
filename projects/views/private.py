@@ -76,7 +76,7 @@ def project_edit(request, project_slug):
 
     if request.method == 'POST' and form.is_valid():
         form.save()
-        project_dashboard = reverse('projects_dashboard')
+        project_dashboard = reverse('projects_manage', args=[project.slug])
         return HttpResponseRedirect(project_dashboard)
 
     return render_to_response(
