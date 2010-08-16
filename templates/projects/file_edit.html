@@ -17,7 +17,7 @@
 
 {% block title %}Edit {{ file.heading }}{% endblock %}
 
-{% block content-header %}<h1>Edit {{ file.heading|default:"file" }}?</h1>{% endblock %}
+{% block content-header %}<h1>Edit {{ file.heading|default:"file" }}</h1>{% endblock %}
 
 {% block editing-option-manage %}class="active"{% endblock %}
 
@@ -28,6 +28,6 @@
   
   <form method="post" action=".">{% csrf_token %}
     {{ form.as_p }}
-    <p><input type="submit" value="Save changes" /></p>
+    <p><input type="submit" value="Looks good! (Save)"></p>
   </form>
 {% endblock %}
