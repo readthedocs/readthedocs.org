@@ -51,7 +51,7 @@ def serve_docs(request, username, project_slug, filename):
         try:
             proj.full_html_path
         except AttributeError:
-                return render_to_response('404.html',
+            return render_to_response('404.html', {'project': proj},
                     context_instance=RequestContext(request))
 
         pageview, created = PageView.objects.get_or_create(project=proj, url=filename)
