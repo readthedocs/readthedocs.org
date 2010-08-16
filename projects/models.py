@@ -72,10 +72,12 @@ class Project(models.Model):
             self.docs_directory # this is the directory where the docs live
         )
 
+    @property
     def user_doc_path(self):
         return os.path.join(settings.DOCROOT, self.user.username, self.slug)
     #user_doc_path = property(memoize(user_doc_path, {}, 1))
 
+    @property
     def full_doc_path(self):
         doc_base = os.path.join(self.user_doc_path, self.slug)
         for possible_path in ['docs', 'doc']:
@@ -83,6 +85,7 @@ class Project(models.Model):
                 return os.path.join(doc_base, '%s' % possible_path)
     #full_doc_path = property(memoize(full_doc_path, {}, 1))
 
+    @property
     def full_html_path(self):
         doc_path = self.full_doc_path
         for pos_build in ['build', '_build', '.build']:
