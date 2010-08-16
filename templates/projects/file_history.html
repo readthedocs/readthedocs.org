@@ -27,7 +27,7 @@
     <div>{{ file.content|linebreaks }}</div>
   </div>
   <div class="content-panel">
-    <form method="post" action=".">
+    <form method="post" action=".">{% csrf_token %}
       <h3 class="panel-text" id="revision_display">
         <select class="revision-select" id="id_revision" name="revision">
           {% for option in form.revision.field.choices %}
