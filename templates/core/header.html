@@ -17,6 +17,29 @@
         }
       });
     </script>
+    <script type="text/javascript">
+      $(function() {
+        $('.rtfd-header-bookmark-icon').click(function(e) {
+          e.preventDefault();
+          link = $(this);
+          add_url = '{% url bookmarks_add request.META.PATH_INFO %}';
+          remove_url = '{% url bookmarks_remove request.META.PATH_INFO %}';
+          $.ajax({
+            url: link.attr('href'),
+            dataType: 'json',
+            success: function(data) {
+              if (data['added']) {
+                link.addClass('active');
+                link.attr('href', remove_url);
+              } else {
+                link.removeClass('active');
+                link.attr('href', add_url);
+              }
+            }
+          });
+        });
+      });
+    </script>
 {% endif %}
 
     <!-- BEGIN header-->
@@ -48,29 +71,6 @@
             <a href="{% url bookmarks_add request.META.PATH_INFO %}" class="rtfd-header-bookmark-icon">Bookmark this URL</a>
           {% endif %}
         </div>
-        <script type="text/javascript">
-          $(function() {
-            $('.rtfd-header-bookmark-icon').click(function(e) {
-              e.preventDefault();
-              link = $(this);
-              add_url = '{% url bookmarks_add request.META.PATH_INFO %}';
-              remove_url = '{% url bookmarks_remove request.META.PATH_INFO %}';
-              $.ajax({
-                url: link.attr('href'),
-                dataType: 'json',
-                success: function(data) {
-                  if (data['added']) {
-                    link.addClass('active');
-                    link.attr('href', remove_url);
-                  } else {
-                    link.removeClass('active');
-                    link.attr('href', add_url);
-                  }
-                }
-              });
-            });
-          });
-        </script>
         <!-- END bookmark -->
         {% endif %}
 
