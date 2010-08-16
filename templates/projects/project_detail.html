@@ -1,5 +1,7 @@
 {% extends "projects/base_project.html" %}
 
+{% load markup %}
+
 {% block title %}{{ project.name }}{% endblock %}
 
 {% block project_editing %}
@@ -12,7 +14,7 @@
   {% if project.description %}
   <h3>Description</h3>
   <p>
-    {{ project.description }}
+    {{ project.description|restructuredtext }}
   </p>
   {% endif %}
 
