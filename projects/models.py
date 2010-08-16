@@ -32,7 +32,8 @@ class Project(models.Model):
     copyright = models.CharField(max_length=255, blank=True,
         help_text='project copyright information')
     theme = models.CharField(max_length=20, choices=DEFAULT_THEME_CHOICES,
-        default=THEME_DEFAULT)
+        default=THEME_DEFAULT,
+        help_text='<a href="http://sphinx.pocoo.org/theming.html#builtin-themes" target="_blank">Examples</a>')
     path = models.CharField(max_length=255, editable=False)
     suffix = models.CharField(max_length=10, editable=False, default='.rst')
     extensions = models.CharField(max_length=255, editable=False, default='')

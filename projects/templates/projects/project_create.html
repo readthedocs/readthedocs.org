@@ -1,5 +1,20 @@
 {% extends "projects/base_project.html" %}
 
+{% block extra_links %}
+  <link rel="stylesheet" type="text/css" href="/media/lib/markitup/skins/simple/style.css" />
+  <link rel="stylesheet" type="text/css" href="/media/lib/markitup/sets/sphinx/editor.css" />
+{% endblock %}
+
+{% block extra_scripts %}
+  <script type="text/javascript" src="/media/lib/markitup/jquery.markitup.pack.js"></script>
+  <script type="text/javascript" src="/media/lib/markitup/sets/sphinx/editor.js"></script>
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $("#id_description").markItUp(SphinxDocsSettings); // .markItUp(mySettings);
+    });
+  </script>
+{% endblock %}
+
 {% block title %}Create a new project{% endblock %}
 
 {% block content-header %}
