@@ -24,4 +24,5 @@ class NginxSSIMiddleware(object):
                     pass
             return match.group('path')[1:]
         response.content = re.sub(include_tag, get_tag_response, response.content)
+        response['Content-Length'] = len(response.content)
         return response
