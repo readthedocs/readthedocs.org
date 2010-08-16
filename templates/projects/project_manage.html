@@ -10,7 +10,7 @@
 
 {% block content %}
 
-  {% if project.is_imported %}
+  {% if not project.is_imported %}
   <a class="call-out" href="{% url projects_file_add project.slug %}">Add New Page</a>
 
   <ul>
