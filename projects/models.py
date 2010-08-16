@@ -16,6 +16,12 @@ import re
 import fnmatch
 
 
+class ProjectManager(models.Manager):
+    def live(self, *args, **kwargs):
+        base_qs = self.filter(status=constants.LIVE_STATUS)
+        return base_qs.filter(*args, **kwargs)
+
+
 class Project(models.Model):
     user = models.ForeignKey(User, related_name='projects')
     name = models.CharField(max_length=255)
@@ -39,9 +45,11 @@ class Project(models.Model):
     suffix = models.CharField(max_length=10, editable=False, default='.rst')
     extensions = models.CharField(max_length=255, editable=False, default='')
     status = models.PositiveSmallIntegerField(choices=constants.STATUS_CHOICES,
-        default=constants.STATUS_LIVE, editable=False)
+        default=constants.LIVE_STATUS)
 
     tags = TaggableManager()
+
+    objects = ProjectManager()
 
     class Meta:
         ordering = ('-modified_date', 'name')
@@ -126,11 +134,12 @@ class Project(models.Model):
                 return 'git'
 
     def get_latest_revisions(self):
-        revision_qs = FileRevision.objects.filter(file__project=self)
+        revision_qs = FileRevision.objects.filter(file__project=self,
+            file__status=constants.LIVE_STATUS)
         return revision_qs.order_by('-created_date')
     
     def get_top_level_files(self):
-        return self.files.filter(parent__isnull=True).order_by('ordering')
+        return self.files.live(parent__isnull=True).order_by('ordering')
 
     @property
     def conf_filename(self):
@@ -143,6 +152,12 @@ class Project(models.Model):
         safe_write(self.conf_filename, self.get_rendered_conf())
 
 
+class FileManager(models.Manager):
+    def live(self, *args, **kwargs):
+        base_qs = self.filter(status=constants.LIVE_STATUS)
+        return base_qs.filter(*args, **kwargs)
+
+
 class File(models.Model):
     project = models.ForeignKey(Project, related_name='files')
     parent = models.ForeignKey('self', null=True, blank=True, related_name='children')
@@ -152,7 +167,9 @@ class File(models.Model):
     denormalized_path = models.CharField(max_length=255, editable=False)
     ordering = models.PositiveSmallIntegerField(default=1)
     status = models.PositiveSmallIntegerField(choices=constants.STATUS_CHOICES,
-        default=constants.STATUS_LIVE, editable=False)
+        default=constants.LIVE_STATUS)
+
+    objects = FileManager()
 
     class Meta:
         ordering = ('denormalized_path',)

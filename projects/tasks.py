@@ -22,8 +22,7 @@ def update_docs(pk):
     """
     A Celery task that updates the documentation for a project.
     """
-    project = Project.objects.get(pk=pk)
-
+    project = Project.objects.live().get(pk=pk)
 
     path = project.user_doc_path
     if not os.path.exists(path):
@@ -130,6 +129,6 @@ def build_docs(project):
 #@periodic_task(run_every=crontab(hour="*", minute="*/30", day_of_week="*"))
 @periodic_task(run_every=crontab(hour="*", minute="*", day_of_week="*"))
 def update_docs_pull():
-    for project in Project.objects.all():
+    for project in Project.objects.live():
         print "Building %s" % project
         update_docs(pk=project.pk)
