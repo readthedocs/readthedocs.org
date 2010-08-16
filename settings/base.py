@@ -99,3 +99,5 @@ INSTALLED_APPS = (
 
 CARROT_BACKEND = "ghettoq.taproot.Database"
 CELERY_ALWAYS_EAGER = True
+DEFAULT_FROM_EMAIL = "no-reply@readthedocs.org"
+

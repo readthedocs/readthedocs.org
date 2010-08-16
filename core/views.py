@@ -118,3 +118,12 @@ def server_error(request, template_name='500.html'):
         context_instance = RequestContext(request)
     )
 
+
+def server_error_404(request, template_name='404.html'):
+    """
+    A simple 500 handler so we get media
+    """
+    return render_to_response(template_name,
+        context_instance = RequestContext(request)
+    )
+

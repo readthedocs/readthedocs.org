@@ -5,6 +5,7 @@ from django.conf import settings
 admin.autodiscover()
 
 handler500 = 'core.views.server_error'
+handler404 = 'core.views.server_error_404'
 
 urlpatterns = patterns('',
     url(r'^$', 'core.views.homepage'),
