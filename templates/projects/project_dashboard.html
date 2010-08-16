@@ -54,7 +54,19 @@
           </div>
           <!-- END marks list -->
 
+          <!-- BEGIN import project -->
+          <div class="module">
+            <div class="module-wrapper">
 
+              <div class="module-list">
+                <ul>
+                  <li class="module-item call"><a href="{% url projects_import %}">Import Documentation</a></li>
+                </ul>
+              </div>
+
+            </div>
+          </div>
+          <!-- END import project -->
 
           <!-- BEGIN create new project -->
           <div class="module">
@@ -69,20 +81,5 @@
             </div>
           </div>
           <!-- END create new project -->
-
-
-          <!-- BEGIN import project -->
-          <div class="module">
-            <div class="module-wrapper">
-
-              <div class="module-list">
-                <ul>
-                  <li class="module-item call"><a href="{% url projects_import %}">Import Documentation</a></li>
-                </ul>
-              </div>
-
-            </div>
-          </div>
-          <!-- END import project -->
 
 {% endblock %}
