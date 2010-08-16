@@ -29,6 +29,9 @@ def homepage(request):
 
 @csrf_view_exempt
 def github_build(request):
+    """
+    A post-commit hook for github.
+    """
     obj = json.loads(request.POST['payload'])
     name = obj['repository']['name']
     url = obj['repository']['url']
@@ -43,6 +46,15 @@ def generic_build(request, pk):
     return HttpResponse('Build Started')
 
 def serve_docs(request, username, project_slug, filename):
+    """
+    The way that we're serving the documentation.
+
+    This is coming out of Django so that we can do simple page counting, and
+    because later we can use Django auth to protect views. 
+
+    This could probably be refactored to serve out of nginx if we have more
+    time.
+    """
     proj = Project.objects.get(slug=project_slug, user__username=username)
     if not filename:
         filename = "index.html"
@@ -61,6 +73,15 @@ def serve_docs(request, username, project_slug, filename):
     return serve(request, filename, proj.full_html_path)
 
 def render_header(request):
+    """
+    This is the ESI backend that renders on top of the sphinx documentation
+    that we serve.
+
+    This needs to be Django instead of rendered into the Sphinx Document
+    because we need to know who the user is and if they are authenticated and
+    such. Later we will provide more "Owner Tools" for users.
+    """
+
     # try to deconstruct the request url to find the user and project
     project = None
 
@@ -90,6 +111,9 @@ def render_header(request):
                 context_instance=RequestContext(request))
 
 def server_error(request, template_name='500.html'):
+    """
+    A simple 500 handler so we get media
+    """
     return render_to_response(template_name,
         context_instance = RequestContext(request)
     )
