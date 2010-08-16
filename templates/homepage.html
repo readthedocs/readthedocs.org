@@ -26,7 +26,7 @@
             <div class="module-wrapper">
 
               <div class="module-header">
-                <h2>Recently Updated</h2>
+                  <h2>Recently Updated Projects<small class="small_head"> <a href="{% url projects_list %}">(All Projects)</a></small></h2>
               </div>
 
               <div class="module-list">
@@ -45,14 +45,14 @@
             <div class="module-wrapper">
 
               <div class="module-header">
-                <h2>Most Viewed</h2>
+                  <h2>Most Viewed Pages <small><a href="{% url pageviews_list %}">(All Views)</a></small></h2>
               </div>
 
               <div class="module-list">
                 <ul>
-                  {% for pageview in updated_list %}
-                  <li class="module-item col-span"><a href="{% url docs_detail pageview.project.user.username pageview.project.slug pageview.url %}">{{ pageview.project.name }} - {{ pageview.url }}</a></li>
-                  {% endfor %}
+                  {% with updated_list as pageview_list %}
+                      {% include "core/pageview_list_detailed.html" %}
+                  {% endwith %}
                 </ul>
               </div>
 
@@ -65,7 +65,7 @@
             <div class="module-wrapper">
 
               <div class="module-header">
-                <h2>Recent Bookmarks</h2>
+                  <h2>Recently Bookmarked Docs <small><a href="{% url bookmarks_list %}">(All Bookmarks)</a></small></h2>
               </div>
 
               <div class="module-list">

@@ -3,7 +3,7 @@
                       <li class="module-item">
                         <a class="module-item-title" href="{{ project.get_absolute_url }}">{{ project.name }}</a>
                         <a href="{% url projects_user_list project.user.username %}" class="quiet">({{ project.user }})</a>
-                        <span class="quiet">{% if project.version %}version {{ project.version }} -{% endif %} {{ project.modified_date|date:"j F, Y" }}</span>
+                        <span class="quiet">{% if project.version %}version {{ project.version }} -{% endif %} {{ project.modified_date|date:"j F, P" }}</span>
                       <ul class="module-item-menu">
                         <li><a href="{% url docs_detail project.user.username project.slug "index.html" %}">View Docs</a></li>
                       </ul>
