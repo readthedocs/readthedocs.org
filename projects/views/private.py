@@ -55,7 +55,7 @@ def project_create(request):
         form.instance.user = request.user
         project = form.save()
         project_manage = reverse('projects_manage', args=[project.slug])
-        return HttpResponseRedirect(project_manage)
+        return HttpResponseRedirect(project_manage + '?docs_not_built')
 
     return render_to_response(
         'projects/project_create.html',
@@ -76,7 +76,7 @@ def project_edit(request, project_slug):
 
     if request.method == 'POST' and form.is_valid():
         form.save()
-        project_dashboard = reverse('projects_dashboard')
+        project_dashboard = reverse('projects_manage', args=[project.slug])
         return HttpResponseRedirect(project_dashboard)
 
     return render_to_response(
@@ -112,7 +112,7 @@ def project_import(request):
         form.instance.user = request.user
         project = form.save()
         project_manage = reverse('projects_manage', args=[project.slug])
-        return HttpResponseRedirect(project_manage)
+        return HttpResponseRedirect(project_manage + '?docs_not_built')
 
     return render_to_response(
         'projects/project_import.html',

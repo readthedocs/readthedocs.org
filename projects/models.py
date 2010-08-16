@@ -28,7 +28,7 @@ class Project(models.Model):
     slug = models.SlugField()
     description = models.TextField(blank=True,
         help_text='restructuredtext description of the project')
-    repo = models.CharField(max_length=100, blank=True, 
+    repo = models.CharField(max_length=100, blank=True,
             help_text='URL for your code. Ex. http://github.com/ericholscher/django-kong.git')
     docs_directory = models.CharField(max_length=255, blank=True)
     project_url = models.URLField(blank=True, help_text='the project\'s homepage')
@@ -83,6 +83,8 @@ class Project(models.Model):
         for possible_path in ['docs', 'doc']:
             if os.path.exists(os.path.join(doc_base, '%s' % possible_path)):
                 return os.path.join(doc_base, '%s' % possible_path)
+        #No docs directory, assume a full docs checkout
+        return doc_base
     #full_doc_path = property(memoize(full_doc_path, {}, 1))
 
     @property
@@ -140,7 +142,7 @@ class Project(models.Model):
         revision_qs = FileRevision.objects.filter(file__project=self,
             file__status=constants.LIVE_STATUS)
         return revision_qs.order_by('-created_date')
-    
+
     def get_top_level_files(self):
         return self.files.live(parent__isnull=True).order_by('ordering')
 
@@ -201,7 +203,7 @@ class File(models.Model):
             update_children(self.children.all())
         #Update modified time on project.
         self.project.save()
-    
+
     @property
     def depth(self):
         return len(self.denormalized_path.split('/'))

@@ -9,8 +9,8 @@ THEME_HAIKU = 'haiku'
 DEFAULT_THEME_CHOICES = (
     (THEME_DEFAULT, 'Default'),
     (THEME_SPHINX, 'Sphinx Docs'),
-    (THEME_SCROLLS, 'Scrolls'),
-    (THEME_AGOGO, 'Agogo'),
+    #(THEME_SCROLLS, 'Scrolls'),
+    #(THEME_AGOGO, 'Agogo'),
     (THEME_TRADITIONAL, 'Traditional'),
     (THEME_NATURE, 'Nature'),
     (THEME_HAIKU, 'Haiku'),
