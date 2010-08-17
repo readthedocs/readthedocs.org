@@ -4,7 +4,11 @@
 
 {% block title %}Manage {{ project.name }}{% endblock %}
 
-{% block content-header %}<h1>Project Files</h1>{% endblock %}
+{% block content-header %}
+{% if not project.is_imported %}
+<h1>Project Files</h1>
+{% endif %}
+{% endblock %}
 
 {% block editing-option-manage %} class="active"{% endblock %}
 
@@ -21,6 +25,8 @@
       </li>
     {% endfor %}
   </ul>
+  {% else %}
+      {% include "core/project_details.html" %}
   {% endif %}
 
 {% endblock %}

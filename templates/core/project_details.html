@@ -1,0 +1,37 @@
+{% load markup %}
+  {% if project.description %}
+  <h3>Description</h3>
+  <p>
+    {{ project.description|restructuredtext }}
+  </p>
+  {% endif %}
+
+  <h3>Last Built</h3>
+  <p>
+  {{ project.modified_date|date:"F j, P" }}
+  </p>
+
+  {% if project.tags.count %}
+  <h3>Tags</h3>
+  <p>
+    {% for tag in project.tags.all %}
+      <a href="{% url projects_tag_detail tag.slug %}">{{ tag.name }}</a>{% if forloop.last %}{% else %}, {% endif %}
+    {% empty %}
+      <span>No tags</span>
+    {% endfor %}
+  </p>
+  {% endif %}
+
+  <h3>Latest Revisions</h3>
+  <ul>
+    {% for revision in project.get_latest_revisions|slice:":5" %}
+      <li>{{ revision }} {{ revision.created_date|timesince }} ago</li>
+    {% endfor %}
+  </ul>
+
+  {% ifequal request.user project.user %}
+  <h3>Post Commit Hook</h3>
+  <p>
+      http://readthedocs.org{% url generic_build project.pk %}
+  </p>
+  {% endifequal %}
