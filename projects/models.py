@@ -48,6 +48,7 @@ class Project(models.Model):
     status = models.PositiveSmallIntegerField(choices=constants.STATUS_CHOICES,
         default=constants.LIVE_STATUS)
     whitelisted = models.BooleanField()
+    skip = models.BooleanField()
 
     tags = TaggableManager()
 
