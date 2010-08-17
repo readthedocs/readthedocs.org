@@ -17,7 +17,7 @@ Why readthedocs.org?
 --------------------
 
 Our aim is to make it easy for open source developers to host their projects'
-documentation!
+documentation!  I hope you like it.
 
 
 Contents:
