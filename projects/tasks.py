@@ -54,17 +54,20 @@ def update_imported_docs(project):
         os.chdir(project.slug)
         if project.repo_type is 'hg':
             run('hg update -C -r . ')
-
-        else:
+        elif project.repo_type is 'git':
             run('git --git-dir=.git fetch')
             run('git --git-dir=.git reset --hard origin/master')
+        else:
+            run('svn up')
     else:
         repo = project.repo
         if project.repo_type is 'hg':
             command = 'hg clone %s %s' % (repo, project.slug)
-        else:
+        elif project.repo_type is 'git':
             repo = repo.replace('.git', '')
             command = 'git clone --depth=1 %s.git %s' % (repo, project.slug)
+        else:
+            command = 'svn checkout %s %s' % (repo, project.slug)
         run(command)
 
 
