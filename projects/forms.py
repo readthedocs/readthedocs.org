@@ -23,7 +23,7 @@ class ProjectForm(forms.ModelForm):
 class CreateProjectForm(ProjectForm):
     class Meta:
         model = Project
-        exclude = ('whitelisted', 'user', 'slug', 'repo', 'docs_directory', 'status')
+        exclude = ('skip', 'whitelisted', 'user', 'slug', 'repo', 'docs_directory', 'status')
 
     def save(self, *args, **kwargs):
         created = self.instance.pk is None
@@ -51,7 +51,7 @@ class CreateProjectForm(ProjectForm):
 class ImportProjectForm(ProjectForm):
     class Meta:
         model = Project
-        exclude = ('whitelisted', 'theme', 'docs_directory', 'user', 'slug', 'version', 'copyright', 'status')
+        exclude = ('skip', 'whitelisted', 'theme', 'docs_directory', 'user', 'slug', 'version', 'copyright', 'status')
     
     def clean_repo(self):
         return self.cleaned_data.get('repo', '').strip()
