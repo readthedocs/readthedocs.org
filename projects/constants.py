@@ -45,3 +45,9 @@ STATUS_CHOICES = (
     (LIVE_STATUS, 'Live'),
     (DELETED_STATUS, 'Deleted'),
 )
+
+REPO_CHOICES = (
+    ('git', 'Git'),
+    ('svn', 'Subversion'),
+    ('hg', 'Mercurial'),
+)
