@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% load pagination_tags %}
 
 {% block title %}Home{% endblock %}
 
@@ -18,27 +17,6 @@
 {% block content %}
 
           {% include "core/widesearchbar.html" %}
-
-          {% autopaginate project_list 15 %}
-
-          <!-- BEGIN projects list -->
-          <div class="module">
-            <div class="module-wrapper">
-
-              <div class="module-header">
-                  <h2>Recently Updated Projects<small class="small_head"> <a href="{% url projects_list %}">(All Projects)</a></small></h2>
-              </div>
-
-              <div class="module-list">
-                <ul>
-                  {% include "core/project_list_detailed.html" %}
-                </ul>
-              </div>
-
-            </div>
-          </div>
-          <!-- END projects list -->
-
 
           <!-- BEGIN projects list -->
           <div class="module">
@@ -60,6 +38,25 @@
           </div>
           <!-- END projects list -->
 
+          <!-- BEGIN projects list -->
+          <div class="module">
+            <div class="module-wrapper">
+
+              <div class="module-header">
+                  <h2>Recently Updated Projects<small class="small_head"> <a href="{% url projects_list %}">(All Projects)</a></small></h2>
+              </div>
+
+              <div class="module-list">
+                <ul>
+                  {% include "core/project_list_detailed.html" %}
+                </ul>
+              </div>
+
+            </div>
+          </div>
+          <!-- END projects list -->
+
+
           <!-- BEGIN marks list -->
           <div class="module">
             <div class="module-wrapper">
@@ -77,8 +74,5 @@
             </div>
           </div>
           <!-- END marks list -->
-
-
-          {% paginate %}
 
 {% endblock %}
