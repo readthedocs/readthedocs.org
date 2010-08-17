@@ -30,6 +30,7 @@ class Project(models.Model):
         help_text='restructuredtext description of the project')
     repo = models.CharField(max_length=100, blank=True,
             help_text='URL for your code (hg or git). Ex. http://github.com/ericholscher/django-kong.git')
+    repo_type = models.CharField(max_length=10, choices=constants.REPO_CHOICES, default='git')
     docs_directory = models.CharField(max_length=255, blank=True)
     project_url = models.URLField(blank=True, help_text='the project\'s homepage')
     pub_date = models.DateTimeField(auto_now_add=True)
@@ -144,16 +145,6 @@ class Project(models.Model):
     @property
     def is_imported(self):
         return bool(self.repo)
-
-    @property
-    def repo_type(self):
-        if self.is_imported:
-            if re.match('(https?://|git://)github', self.repo):
-                return 'git'
-            elif self.repo.startswith('http://bitbucket'):
-                return 'hg'
-            elif self.repo.endswith('git'):
-                return 'git'
 
     def get_latest_revisions(self):
         revision_qs = FileRevision.objects.filter(file__project=self,
