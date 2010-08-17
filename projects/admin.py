@@ -5,7 +5,9 @@ from projects.models import Project, File
 
 class ProjectAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
-    list_display = ('name', 'repo_type', 'theme', 'status', 'whitelisted')
+    list_display = ('name', 'repo', 'repo_type', 'theme', 'status', 'whitelisted')
+    search_fields = ('name', 'repo')
+    list_filter = ('repo_type', 'whitelisted', 'status')
 
 
 class FileAdmin(admin.ModelAdmin):
