@@ -102,6 +102,11 @@ class Project(models.Model):
         for pos_build in ['build', '_build', '.build']:
             if os.path.exists(os.path.join(doc_path, '%s/html' % pos_build)):
                 return os.path.join(doc_path, '%s/html' % pos_build)
+        #No standard path? Hack one.
+        for pos_build in ['index.html']:
+            matches = self.find(pos_build)
+            if len(matches) > 0:
+                return os.path.dirname(matches[0])
 
     #full_html_path = property(memoize(full_html_path, {}, 1))
 
