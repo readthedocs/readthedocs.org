@@ -47,6 +47,7 @@ class Project(models.Model):
     extensions = models.CharField(max_length=255, editable=False, default='')
     status = models.PositiveSmallIntegerField(choices=constants.STATUS_CHOICES,
         default=constants.LIVE_STATUS)
+    whitelisted = models.BooleanField()
 
     tags = TaggableManager()
 

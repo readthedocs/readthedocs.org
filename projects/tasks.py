@@ -52,18 +52,18 @@ def update_imported_docs(project):
     os.chdir(path)
     if os.path.exists(os.path.join(path, project.slug)):
         os.chdir(project.slug)
-        if project.repo_type is 'hg':
+        if project.repo_type == 'hg':
             run('hg update -C -r . ')
-        elif project.repo_type is 'git':
+        elif project.repo_type == 'git':
             run('git --git-dir=.git fetch')
             run('git --git-dir=.git reset --hard origin/master')
         else:
             run('svn up')
     else:
         repo = project.repo
-        if project.repo_type is 'hg':
+        if project.repo_type == 'hg':
             command = 'hg clone %s %s' % (repo, project.slug)
-        elif project.repo_type is 'git':
+        elif project.repo_type == 'git':
             repo = repo.replace('.git', '')
             command = 'git clone --depth=1 %s.git %s' % (repo, project.slug)
         else:
@@ -118,7 +118,8 @@ def build_docs(project):
     """
     A helper function for the celery task to do the actual doc building.
     """
-    project.write_to_disk()
+    if not project.whitelisted:
+        project.write_to_disk()
 
     try:
         makes = [makefile for makefile in project.find('Makefile') if 'doc' in makefile]
