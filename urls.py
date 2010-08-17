@@ -25,6 +25,8 @@ urlpatterns = patterns('',
     url(r'^build/(?P<pk>\d+)', 'core.views.generic_build', name='generic_build'),
     url(r'^build/(?P<pk>\d+)/', 'core.views.generic_build', name='generic_build'),
 
+    url(r'^random', 'core.views.random_page', name='random_page'),
+
     url(r'^render_header/',
         'core.views.render_header',
         name='render_header'

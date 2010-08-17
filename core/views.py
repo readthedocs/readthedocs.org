@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.db.models import F
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_view_exempt
@@ -26,6 +26,9 @@ def homepage(request):
                                'bookmark_list': marks,
                                'updated_list': updated},
                 context_instance=RequestContext(request))
+
+def random_page(request):
+    return HttpResponseRedirect(PageView.objects.order_by('?')[0].get_absolute_url())
 
 @csrf_view_exempt
 def github_build(request):

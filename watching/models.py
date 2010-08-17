@@ -11,3 +11,10 @@ class PageView(models.Model):
 
     def __unicode__(self):
         return u"Page views for %s's url %s" % (self.project, self.url)
+
+    def get_absolute_url(self):
+        return self.url
+
+    @models.permalink
+    def get_absolute_url(self):
+        return ('docs_detail', [self.project.user.username, self.project.slug, self.url])
