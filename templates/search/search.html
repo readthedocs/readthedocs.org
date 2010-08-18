@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load highlight %}
 
 {% block content %}
     <h2>Search</h2>
@@ -20,6 +21,7 @@
             {% for result in page.object_list %}
                 <p>
                     <a href="{{ result.object.get_absolute_url }}">{{ result.project }} - {{ result.name }}</a>
+                    {% highlight result.text with query %}
                 </p>
             {% empty %}
                 <p>No results found.</p>

@@ -71,7 +71,7 @@ def update_imported_docs(project):
         else:
             command = 'svn checkout %s %s' % (repo, project.slug)
         run(command)
-    fileify.delay(project_slug=project.slug)
+    fileify(project_slug=project.slug)
 
 
 def scrape_conf_file(project):
@@ -145,18 +145,17 @@ def update_docs_pull():
 @task
 def fileify(project_slug):
     project = Project.objects.get(slug=project_slug)
-    path = project.full_doc_path
+    path = project.find('conf.py')[0].replace('/conf.py', '')
     for root, dirnames, filenames in os.walk(path):
         for filename in filenames:
             if fnmatch.fnmatch(filename, '*.rst') or fnmatch.filter(filename, '*.txt'):
                 to_read = os.path.join(root, filename)
                 content = open(to_read, 'r').read()
-                dirpath =  os.path.join(root.replace(path, ''), filename).replace('.rst','.html').replace('.txt', '.html')
+                dirpath =  os.path.join(root.replace(path, ''),
+                                        filename).replace('.rst','.html').replace('.txt', '.html').lstrip('/')
                 file, new = ImportedFile.objects.get_or_create(project=project,
                                             path=dirpath,
                                             name=filename)
                 if content != file.content:
                     file.content = content
                     file.save()
-
-
