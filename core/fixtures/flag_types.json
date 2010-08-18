@@ -1,0 +1,29 @@
+[
+  {
+    "pk": 1, 
+    "model": "flagging.flagtype", 
+    "fields": {
+      "description": "This item is inappropriate to the purpose of the site", 
+      "slug": "inappropriate", 
+      "title": "Inappropriate"
+    }
+  }, 
+  {
+    "pk": 2, 
+    "model": "flagging.flagtype", 
+    "fields": {
+      "description": "This item is spam", 
+      "slug": "spam", 
+      "title": "Spam"
+    }
+  }, 
+  {
+    "pk": 3, 
+    "model": "flagging.flagtype", 
+    "fields": {
+      "description": "These docs are a duplicate of other, official docs, on the site", 
+      "slug": "duplicate", 
+      "title": "Duplicate"
+    }
+  }
+]
