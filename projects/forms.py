@@ -23,7 +23,8 @@ class ProjectForm(forms.ModelForm):
 class CreateProjectForm(ProjectForm):
     class Meta:
         model = Project
-        exclude = ('skip', 'whitelisted', 'user', 'slug', 'repo', 'docs_directory', 'status')
+        exclude = ('skip', 'whitelisted', 'user', 'slug', 'repo',
+                   'docs_directory', 'status', 'repo_type')
 
     def save(self, *args, **kwargs):
         created = self.instance.pk is None
