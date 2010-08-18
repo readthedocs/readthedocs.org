@@ -50,6 +50,8 @@ class CreateProjectForm(ProjectForm):
 
 
 class ImportProjectForm(ProjectForm):
+    repo = forms.CharField(required=True,
+        help_text='URL for your code (hg or git). Ex. http://github.com/ericholscher/django-kong.git')
     class Meta:
         model = Project
         exclude = ('skip', 'whitelisted', 'theme', 'docs_directory', 'user', 'slug', 'version', 'copyright', 'status')
