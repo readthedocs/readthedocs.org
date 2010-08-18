@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from projects.models import Project, File
+from projects.models import Project, File, ImportedFile
 
 
 class ProjectAdmin(admin.ModelAdmin):
@@ -16,3 +16,4 @@ class FileAdmin(admin.ModelAdmin):
 
 admin.site.register(Project, ProjectAdmin)
 admin.site.register(File, FileAdmin)
+admin.site.register(ImportedFile)

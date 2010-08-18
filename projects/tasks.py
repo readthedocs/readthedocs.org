@@ -3,7 +3,7 @@ from celery.task.schedules import crontab
 from celery.decorators import periodic_task
 
 from projects.constants import SCRAPE_CONF_SETTINGS, DEFAULT_THEME_CHOICES
-from projects.models import Project
+from projects.models import Project, ImportedFile
 from projects.utils import  find_file, run
 
 from builds.models import Build
@@ -71,6 +71,7 @@ def update_imported_docs(project):
         else:
             command = 'svn checkout %s %s' % (repo, project.slug)
         run(command)
+    fileify.delay(project_slug=project.slug)
 
 
 def scrape_conf_file(project):
@@ -134,9 +135,28 @@ def build_docs(project):
     return (ret, out, err)
 
 
-#@periodic_task(run_every=crontab(hour="*", minute="*/30", day_of_week="*"))
-@periodic_task(run_every=crontab(hour="*", minute="*", day_of_week="*"))
+@periodic_task(run_every=crontab(hour="*", minute="*/30", day_of_week="*"))
+#@periodic_task(run_every=crontab(hour="*", minute="*", day_of_week="*"))
 def update_docs_pull():
     for project in Project.objects.live():
         print "Building %s" % project
         update_docs(pk=project.pk)
+
+@task
+def fileify(project_slug):
+    project = Project.objects.get(slug=project_slug)
+    path = project.full_doc_path
+    for root, dirnames, filenames in os.walk(path):
+        for filename in filenames:
+            if fnmatch.fnmatch(filename, '*.rst') or fnmatch.filter(filename, '*.txt'):
+                to_read = os.path.join(root, filename)
+                content = open(to_read, 'r').read()
+                dirpath =  os.path.join(root.replace(path, ''), filename).replace('.rst','.html').replace('.txt', '.html')
+                file, new = ImportedFile.objects.get_or_create(project=project,
+                                            path=dirpath,
+                                            name=filename)
+                if content != file.content:
+                    file.content = content
+                    file.save()
+
+

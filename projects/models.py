@@ -259,6 +259,10 @@ class File(models.Model):
     def write_to_disk(self):
         safe_write(self.filename, self.get_rendered())
 
+    @models.permalink
+    def get_absolute_url(self):
+        return ('docs_detail', [self.project.user.username, self.project.slug, self.denormalized_path + '.html'])
+
 
 class FileRevision(models.Model):
     file = models.ForeignKey(File, related_name='revisions')
@@ -315,3 +319,18 @@ class FileRevision(models.Model):
             else:
                 self.revision_number = max_rev['max'] + 1
         super(FileRevision, self).save(*args, **kwargs)
+
+
+class ImportedFile(models.Model):
+    project = models.ForeignKey(Project, related_name='imported_files')
+    name = models.CharField(max_length=255)
+    slug = models.SlugField()
+    path = models.CharField(max_length=255)
+    content = models.TextField()
+
+    @models.permalink
+    def get_absolute_url(self):
+        return ('docs_detail', [self.project.user.username, self.project.slug, self.path])
+
+    def __unicode__(self):
+        return '%s: %s' % (self.name, self.project)

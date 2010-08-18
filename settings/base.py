@@ -86,6 +86,7 @@ INSTALLED_APPS = (
     'taggit',
     'django_extensions',
     'basic.flagging',
+    'haystack',
 
     # our apps
     'projects',
@@ -99,3 +100,7 @@ INSTALLED_APPS = (
 CARROT_BACKEND = "ghettoq.taproot.Database"
 CELERY_ALWAYS_EAGER = True
 DEFAULT_FROM_EMAIL = "no-reply@readthedocs.org"
+
+HAYSTACK_SITECONF = 'core.search_sites'
+HAYSTACK_SEARCH_ENGINE = 'whoosh'
+HAYSTACK_WHOOSH_PATH = os.path.join(SITE_ROOT, 'whooshindex.db')
