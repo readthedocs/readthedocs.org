@@ -165,6 +165,12 @@ class Project(models.Model):
 
     def write_to_disk(self):
         safe_write(self.conf_filename, self.get_rendered_conf())
+    
+    def get_latest_build(self):
+        try:
+            return self.builds.all()[0]
+        except IndexError:
+            return None
 
 
 class FileManager(models.Manager):
