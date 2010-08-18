@@ -70,6 +70,9 @@ def serve_docs(request, username, project_slug, filename):
     if 'html' in filename:
         try:
             proj.full_html_path
+            if not os.path.exists(os.path.join(proj.full_html_path, filename)):
+                return render_to_response('404.html', {'project': proj},
+                        context_instance=RequestContext(request))
         except AttributeError:
             return render_to_response('404.html', {'project': proj},
                     context_instance=RequestContext(request))
