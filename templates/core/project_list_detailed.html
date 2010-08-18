@@ -5,7 +5,11 @@
                         <a href="{% url projects_user_list project.user.username %}" class="quiet">({{ project.user }})</a>
                         <span class="quiet">{% if project.version %}version {{ project.version }} -{% endif %} {{ project.modified_date|date:"j F, P" }}</span>
                       <ul class="module-item-menu">
-                        <li><a href="{% url docs_detail project.user.username project.slug "index.html" %}">View Docs</a></li>
+                        {% if project.get_latest_build.success %}
+                          <li><a href="{% url docs_detail project.user.username project.slug "index.html" %}">View Docs</a></li>
+                        {% else %}
+                          <li><a href="{% url builds_project_list project.user.username project.slug %}">No Docs</a></li>
+                        {% endif %}
                       </ul>
                       </li>
                     {% empty %}

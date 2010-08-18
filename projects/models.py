@@ -55,7 +55,7 @@ class Project(models.Model):
     objects = ProjectManager()
 
     class Meta:
-        ordering = ('-modified_date', 'name')
+        ordering = ('slug',)
 
     def __unicode__(self):
         return self.name

@@ -7,5 +7,7 @@
       <li><a class="" href="{{ build.get_absolute_url }}">{{ build.success|yesno:"Passed,Failed" }}</a></li>
     </ul>
   </li>
+{% empty %}
+  <li>No builds - repo may be misconfigured</li>
 {% endfor %}
 
