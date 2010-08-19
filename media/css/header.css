@@ -6,6 +6,7 @@ body { padding-top: 50px; }
 
 #rtfd-header { position: absolute; top: 0; left: 0; width: 100%; font: 16px/20px "ff-meta-web-pro-1", "ff-meta-web-pro-2", Arial, "Helvetica Neue", sans-serif; height: 50px; min-width: 780px; background: #465158; overflow: hidden; text-align: left; }
 #rtfd-header ul { margin: 0; padding: 0; list-style: none; } 
+#rtfd-header ul li { margin: 0; padding: 0; list-style: none; } 
 
   /* header title */
   .rtfd-header-title { position: relative; background: url(../images/logo.png) top left no-repeat #465158; height: 50px; margin: 0; padding: 0; overflow: hidden; height: 50px; width: 180px; }
