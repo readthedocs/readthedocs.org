@@ -1,0 +1,1 @@
+sed -i 's|#*\s*templates_path = \[|templates_path = \["/home/docs/sites/readthedocs.com/checkouts/tweezers/templates/sphinx",|' $1
