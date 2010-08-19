@@ -121,10 +121,10 @@ def build_docs(project):
     """
     A helper function for the celery task to do the actual doc building.
     """
-    if not project.whitelisted:
-        project.write_to_disk()
-    else:
+    if project.whitelisted:
         os.system('sedify %s' % project.conf_filename)
+    else:
+        project.write_to_disk()
 
     try:
         makes = [makefile for makefile in project.find('Makefile') if 'doc' in makefile]
