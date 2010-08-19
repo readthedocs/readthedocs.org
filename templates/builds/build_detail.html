@@ -1,11 +1,11 @@
-{% extends "base.html" %}
+{% extends "projects/base_project_editing.html" %}
 
 {% block title %}{{ build.project.name }}{% endblock %}
 
 {% block content-header %}<h1>Build for {{ build.project.name }}</h1>{% endblock %}
 
 {% block content %}
-  <p>Built: {{ build.date|date:"j F, Y" }}</p>
+  <p>Built: {{ build.date|date:"N j, Y. P" }}</p>
 
   <p>Outcome: {{ build.success|yesno:"Passed,Failed" }}</p>
 

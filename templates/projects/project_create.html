@@ -22,11 +22,11 @@
 {% endblock %}
 
 {% block content %}
-  <p class="help_text">
-  <b>If you've got a project on a public repository, you can add the docs to Read the Docs via our <a class="" href="{% url projects_import %}">import tool</a>.</b>
-  </p>
-  <form method="post" action=".">{% csrf_token %}
-    {{ form.as_p }}
-    <p><input type="submit" value="Create" /></p>
-  </form>
+      <p class="help_text">
+        If you've got a project on a public repository, you can add the docs to Read the Docs via our <a class="" href="{% url projects_import %}">import tool</a>.
+      </p>
+      <form method="post" action=".">{% csrf_token %}
+        {{ form.as_p }}
+        <p><input type="submit" value="Create" /></p>
+      </form>
 {% endblock %}

@@ -28,10 +28,10 @@ body { padding-top: 50px; }
   /* header nav */
   .rtfd-header-nav { position: absolute; top: 0; right: 10px; }
   .rtfd-header-nav ul li { float: left; }
-  .rtfd-header-nav ul li a { font-family: "Helvetica Neue", Arial, Helvetica, sans-serif; font-size: 14px; font-weight: bold; display: block; text-decoration: none; background: url(../images/gradient.png) bottom left repeat-x #697983; padding: 15px; color: #fff; text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5); }
+  .rtfd-header-nav ul li a { font-size: 14px; font-weight: bold; display: block; text-decoration: none; background: url(../images/gradient.png) bottom left repeat-x #697983; padding: 15px; color: #fff; text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5); }
   .rtfd-header-nav ul li a:hover { background-color: #8CA1AF; }
   .rtfd-header-nav ul li.active a, .header-nav ul li.active a:hover { background-color: #BAC7CF; }
-  .rtfd-header-nav .overview-link a { padding: 4px 10px; margin: 11px; -moz-border-radius: 3px; -webkit-border-radius: 3px; }
+  .rtfd-header-nav .overview-link a { padding: 4px 10px; margin: 10px 15px; line-height: 20px; height: 22px; -moz-border-radius: 3px; -webkit-border-radius: 3px; }
 
 
 /* autocomplete */
