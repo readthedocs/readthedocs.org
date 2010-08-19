@@ -1,10 +1,8 @@
-{% extends "base.html" %}
+{% extends "projects/base_project_editing.html" %}
 
 {% load pagination_tags %}
 
 {% block title %}Builds{% endblock %}
-
-{% block nav-browse %}class="active"{% endblock %}
 
 {% block content %}
 
@@ -15,16 +13,14 @@
             <div class="module-wrapper">
 
               <div class="module-header">
-                <h2>Recent Builds</h2>
+                <h3>Recent Builds</h3>
               </div>
 
               <div class="module-list">
                 <div class="module-list-wrapper">
-
                   <ul>
                     {% include "core/build_list_detailed.html" %}
                   </ul>
-
                 </div>
               </div>
 

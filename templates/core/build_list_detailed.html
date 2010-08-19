@@ -1,13 +1,11 @@
-{% for build in build_list %}
-  <li class="module-item">
-    <a class="module-item-title" href="{{ build.project.get_absolute_url }}">{{ build.project.name }}</a>
-    <a href="{% url projects_user_list build.project.user.username %}" class="quiet">({{ build.project.user }})</a>
-    <span class="quiet">{% if build.project.version %}version {{ build.project.version }} -{% endif %} {{ build.date|date:"F j, P" }}</span>
-    <ul class="module-item-menu">
-      <li><a class="" href="{{ build.get_absolute_url }}">{{ build.success|yesno:"Passed,Failed" }}</a></li>
-    </ul>
-  </li>
-{% empty %}
-  <li>No builds - repo may be misconfigured</li>
-{% endfor %}
+
+          {% for build in build_list %}
+            <li class="module-item col-span">
+              <a href="{{ build.get_absolute_url }}">{{ build.success|yesno:"Passed,Failed" }}
+                <span class="quiet">{% if build.project.version %}version {{ build.project.version }} -{% endif %} {{ build.date|date:"N j, Y. P" }}</span>
+              </a>
+            </li>
+          {% empty %}
+            <li class="module-item quiet">No projects found</li>
+          {% endfor %}
 
