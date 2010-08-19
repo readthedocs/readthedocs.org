@@ -123,6 +123,8 @@ def build_docs(project):
     """
     if not project.whitelisted:
         project.write_to_disk()
+    else:
+        os.system('sedify %s' % project.conf_filename)
 
     try:
         makes = [makefile for makefile in project.find('Makefile') if 'doc' in makefile]
