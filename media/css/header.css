@@ -8,12 +8,12 @@ body { padding-top: 50px; }
 #rtfd-header ul { margin: 0; padding: 0; list-style: none; } 
 
   /* header title */
-  .rtfd-header-title { position: relative; }
-  .rtfd-header-title h1 { position: absolute; top: 0; left: 0; margin: 15px; padding: 0; font-size: 20px; line-height: 20px; color: #fff; }
-  .rtfd-header-title h1 a { color: #fff; text-decoration: none; font-family: "ff-meta-web-pro-1", "ff-meta-web-pro-2", Arial, "Helvetica Neue", sans-serif; }
+  .rtfd-header-title { position: relative; background: url(../images/logo.png) top left no-repeat #465158; height: 50px; margin: 0; padding: 0; overflow: hidden; height: 50px; width: 180px; }
+  .rtfd-header-title h1 { position: absolute; top: 0; left: 0; margin: 0; padding: 0; font-size: 20px; line-height: 20px; color: #fff; text-indent: -9999em; }
+  .rtfd-header-title h1 a { display: block; color: #fff; text-decoration: none; height: 50px; width: 180px; }
 
   /* header search */
-  .rtfd-header-search { position: absolute; top: 10px; left: 185px; width: 300px; }
+  .rtfd-header-search { position: absolute; top: 12px; left: 190px; width: 300px; }
   .rtfd-header-search input { padding: 0 5px; margin: 0; height: 25px; font-size: 14px; float: left; -moz-border-radius: 0; -webkit-border-radius: 0; border: none; }
   .rtfd-header-search input[type="text"] { -moz-border-radius-topleft: 3px; -moz-border-radius-bottomleft: 3px; -webkit-border-top-left-radius: 3px; -webkit-border-bottom-left-radius: 3px; width: 225px; }
   .rtfd-header-search input[type="submit"] { font-family: "ff-meta-web-pro-1", "ff-meta-web-pro-2", Arial, "Helvetica Neue", sans-serif; -moz-border-radius-topright: 3px; -moz-border-radius-bottomright: 3px; -webkit-border-top-right-radius: 3px; -webkit-border-bottom-right-radius: 3px; padding: 0 12px; background: #e6e6e6 url(../images/gradient.png) repeat-x bottom left; font-weight: bold; color: #666; }
