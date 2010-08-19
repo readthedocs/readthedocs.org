@@ -164,6 +164,10 @@ label { display: block; margin-bottom: 4px; font-weight: bold; color: #444; }
   li.depth-8 { padding-left: 140px; }
   li.depth-9 { padding-left: 160px; }
   li.depth-10 { padding-left: 180px; }
+  
+p.build-success { font-size: .8em; color: #080; }
+p.build-failure { font-size: .8em; color: #D00; }
+p.build-missing { font-size: .8em; color: #aa5; }
 
 
 /* pagination */
