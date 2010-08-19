@@ -3,7 +3,7 @@
 
 {% block title %}Home{% endblock %}
 
-{% block body_class %}home{% endblock %}
+{% block body_class %}home {% if not request.user.is_authenticated %}splash{% endif %}{% endblock %}
 
 {% block nav-browse %}class="active"{% endblock %}
 
