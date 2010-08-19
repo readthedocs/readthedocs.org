@@ -32,6 +32,7 @@ body { padding-top: 50px; }
   .rtfd-header-nav ul li a:hover { background-color: #8CA1AF; }
   .rtfd-header-nav ul li.active a, .header-nav ul li.active a:hover { background-color: #BAC7CF; }
   .rtfd-header-nav .overview-link a { padding: 4px 10px; margin: 10px 15px; line-height: 20px; height: 22px; -moz-border-radius: 3px; -webkit-border-radius: 3px; }
+  #rtfd-header + div  { position:relative; }
 
 
 /* autocomplete */
