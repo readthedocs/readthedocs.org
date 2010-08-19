@@ -1,11 +1,14 @@
 
         <!-- BEGIN wide search bar -->
+        <h3>Find a project</h3>
+
         <div class="wide-search-bar">
           <div class="wide-search-bar-wrapper clearfix">
+            
 
             <form action="{% url search %}" method="GET">
               <div class="text-input-wrapper">
-                <input type="text" name="q" value="{{ term }}" id="id_site_search" placeholder="Search projects">
+                <input type="text" name="q" value="{{ term }}" id="id_site_search">
               </div>
               <div class="submit-input-wrapper">
                 <input type="submit" value="Let's do this.">
