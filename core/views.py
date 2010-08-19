@@ -18,9 +18,9 @@ from bookmarks.models import Bookmark
 
 
 def homepage(request):
-    projs = Project.objects.live().order_by('-modified_date', 'name')[:5]
-    updated = PageView.objects.all()[:5]
-    marks = Bookmark.objects.all()[:5]
+    projs = Project.objects.live().order_by('-modified_date', 'name')[:10]
+    updated = PageView.objects.all()[:10]
+    marks = Bookmark.objects.all()[:10]
     return render_to_response('homepage.html',
                               {'project_list': projs,
                                'bookmark_list': marks,
