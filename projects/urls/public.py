@@ -25,7 +25,7 @@ urlpatterns = patterns('projects.views.public',
         'project_detail',
         name='projects_detail'
     ),
-    url(r'^slug/(?P<project_slug>[-\w]+)/(?P<filename>.*)',
+    url(r'^slug/(?P<project_slug>[-\w]+)/(?P<filename>.*)$',
         'slug_detail',
         name='slug_detail'
     ),

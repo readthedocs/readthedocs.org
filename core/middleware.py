@@ -2,6 +2,7 @@
 
 import re
 from django.core.urlresolvers import get_urlconf, get_resolver, Resolver404
+from projects.views.public import slug_detail
 
 class NginxSSIMiddleware(object):
     '''
@@ -27,3 +28,14 @@ class NginxSSIMiddleware(object):
         response.content = re.sub(include_tag, get_tag_response, response.content)
         response['Content-Length'] = len(response.content)
         return response
+
+class SubdomainMiddleware(object):
+    def process_request(self, request):
+        domain_parts = request.get_host().split('.')
+        if (len(domain_parts) > 2):
+            subdomain = domain_parts[0]
+            if (subdomain.lower() == 'www'):
+                subdomain = None
+            else:
+                return slug_detail(request, subdomain, request.path.lstrip('/'))
+
