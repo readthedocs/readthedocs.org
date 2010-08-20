@@ -1,4 +1,5 @@
 import os
+import djcelery
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
