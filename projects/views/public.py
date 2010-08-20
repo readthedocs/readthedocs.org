@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404
 from django.views.generic.list_detail import object_list, object_detail
 
 from projects.models import Project
+from core.views import serve_docs
 
 from taggit.models import Tag, TaggedItem
 
@@ -35,6 +36,15 @@ def project_index(request, username=None, tag=None):
         template_object_name='project',
     )
 
+def slug_detail(request, project_slug, filename):
+    """
+    A detail view for a project with various dataz
+    """
+    if not filename:
+        filename = "index.html"
+    project = Project.objects.get(slug=project_slug)
+    return serve_docs(request=request, username=project.user.username, project_slug=project_slug, filename=filename)
+    
 def project_detail(request, username, project_slug):
     """
     A detail view for a project with various dataz
