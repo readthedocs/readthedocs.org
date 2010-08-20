@@ -18,7 +18,7 @@ import fnmatch
 ghetto_hack = re.compile(r'(?P<key>.*)\s*=\s*u?\[?[\'\"](?P<value>.*)[\'\"]\]?')
 
 @task
-def update_docs(pk):
+def update_docs(pk, record=True):
     """
     A Celery task that updates the documentation for a project.
     """
@@ -39,7 +39,8 @@ def update_docs(pk):
     # kick off a build
     (ret, out, err) = build_docs(project)
     if not 'no targets are out of date.' in out:
-        Build.objects.create(project=project, success=ret==0, output=out, error=err)
+        if record:
+            Build.objects.create(project=project, success=ret==0, output=out, error=err)
         if ret == 0:
             print "Build OK"
         else:
@@ -142,4 +143,4 @@ def build_docs(project):
 def update_docs_pull():
     for project in Project.objects.live():
         print "Building %s" % project
-        update_docs(pk=project.pk)
+        update_docs(pk=project.pk, record=False)
