@@ -1,21 +1,24 @@
-#http://joshuajonah.ca/blog/2010/06/18/poor-mans-esi-nginx-ssis-and-django/
-
 import re
+from dns import resolver
+
+from django.core.cache import cache
 from django.core.urlresolvers import get_urlconf, get_resolver, Resolver404
+
 from projects.views.public import slug_detail
 
+#http://joshuajonah.ca/blog/2010/06/18/poor-mans-esi-nginx-ssis-and-django/
 class NginxSSIMiddleware(object):
     '''
-    Emulates Nginx SSI module for when a page is rendered from Python. SSI include tags are 
-    cached for serving directly from Nginx, but if the page is being built for the first time, 
+    Emulates Nginx SSI module for when a page is rendered from Python. SSI include tags are
+    cached for serving directly from Nginx, but if the page is being built for the first time,
     we just serve these directly from Python without having to make another request.
-    
+
     Takes a response object and returns the response with Nginx SSI tags resolved.
     '''
     def process_response(self, request, response):
         include_tag = r'<!--#[\s.]+include[\s.]+virtual=["\'](?P<path>.+)["\'][\s.]+-->'
-        resolver = get_resolver(get_urlconf())
-        patterns = resolver._get_url_patterns()
+        res = get_resolver(get_urlconf())
+        patterns = res._get_url_patterns()
         def get_tag_response(match):
             for pattern in patterns:
                 try:
@@ -41,12 +44,15 @@ class SubdomainMiddleware(object):
                 return slug_detail(request, subdomain, request.path.lstrip('/'))
         if 'readthedocs' not in host:
             try:
-                import adns
-                c = adns.init()
-                domain = c.synchronous(host, adns.rr.CNAME)[3][0]
-                slug = domain.split('.')[0]
+                slug = cache.get(host)
+                if not slug:
+                    from dns import resolver
+                    answer = [ans for ans in resolver.query(host, 'CNAME')][0]
+                    domain = answer.target.to_unicode()
+                    slug = domain.split('.')[0]
+                    cache.set(host, slug, 60*60)
                 return slug_detail(request, slug, request.path.lstrip('/'))
-            except (IndexError, ImportError):
+            except:
+                #Except any error here, because we never want to blow up in this step.
                 return None
         return None
-
