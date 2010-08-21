@@ -38,7 +38,7 @@ class SubdomainMiddleware(object):
         domain_parts = host.split('.')
         if (len(domain_parts) > 2):
             subdomain = domain_parts[0]
-            if not (subdomain.lower() == 'www') and domain_parts[1] == 'readthedocs.org':
+            if not (subdomain.lower() == 'www') and 'readthedocs' in host:
                 return slug_detail(request, subdomain, request.path.lstrip('/'))
         if 'readthedocs' not in host:
             c = adns.init()
