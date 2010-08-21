@@ -33,9 +33,6 @@ class SubdomainMiddleware(object):
     def process_request(self, request):
         domain_parts = request.get_host().split('.')
         if (len(domain_parts) > 2):
-            subdomain = domain_parts[0]
-            if (subdomain.lower() == 'www'):
-                subdomain = None
-            else:
-                return slug_detail(request, subdomain, request.path.lstrip('/'))
+            if not (domain_parts[0].lower() == 'www'):
+                return slug_detail(request, domain_parts[0], request.path.lstrip('/'))
 
