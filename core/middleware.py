@@ -41,9 +41,12 @@ class SubdomainMiddleware(object):
             if not (subdomain.lower() == 'www') and 'readthedocs' in host:
                 return slug_detail(request, subdomain, request.path.lstrip('/'))
         if 'readthedocs' not in host:
-            c = adns.init()
-            domain = c.synchronous(host, adns.rr.CNAME)[3][0]
-            slug = domain.split('.')[0]
-            return slug_detail(request, slug, request.path.lstrip('/'))
+            try:
+                c = adns.init()
+                domain = c.synchronous(host, adns.rr.CNAME)[3][0]
+                slug = domain.split('.')[0]
+                return slug_detail(request, slug, request.path.lstrip('/'))
+            except IndexError:
+                return None
         return None
 
