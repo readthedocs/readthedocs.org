@@ -9,3 +9,5 @@ DATABASES = {
                     'NAME': os.path.join(SITE_ROOT, 'dev.db'),
                 }
 }
+
+SESSION_COOKIE_DOMAIN = None

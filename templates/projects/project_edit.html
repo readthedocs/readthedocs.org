@@ -24,6 +24,9 @@
 {% block content %}
   <form method="post" action=".">{% csrf_token %}
     {{ form.as_p }}
-    <p><input type="submit" value="Submit"></p>
+    <p>
+      <input style="display: inline;" type="submit" value="Submit">
+      or <a href="{% url projects_delete project.slug %}">delete</a>
+    </p>
   </form>
 {% endblock %}

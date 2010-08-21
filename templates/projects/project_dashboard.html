@@ -23,7 +23,10 @@
                       <li class="module-item col-span">
                         <a href="{% url projects_manage project.slug %}">{{ project.name }}</a>
                         <ul class="module-item-menu">
-                          <li><a href="{% url projects_delete project.slug %}">Delete</a></li>
+                          {% if not project.is_imported %}
+                            <li><a href="{% url projects_manage project.slug %}">Manage Files</a></li>
+                          {% endif %}
+                          <li><a href="{% url projects_edit project.slug %}">Edit</a></li>
                           <li><a href="{% url docs_detail project.user.username project.slug "index.html" %}">View Docs</a></li>
                         </ul>
                       </li>
