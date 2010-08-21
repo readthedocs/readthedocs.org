@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.db.models import F
+from django.db.models import F, Max
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
@@ -18,7 +18,7 @@ from bookmarks.models import Bookmark
 
 
 def homepage(request):
-    projs = Project.objects.live().order_by('-modified_date', 'name')[:10]
+    projs = Project.objects.filter(builds__isnull=False).annotate(max_date=Max('builds__date')).order_by('-max_date')[:10]
     updated = PageView.objects.all()[:10]
     marks = Bookmark.objects.all()[:10]
     return render_to_response('homepage.html',
