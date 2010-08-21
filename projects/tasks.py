@@ -56,7 +56,8 @@ def update_imported_docs(project):
     if os.path.exists(os.path.join(path, project.slug)):
         os.chdir(project.slug)
         if project.repo_type == 'hg':
-            run('hg pull -u')
+            run('hg fetch')
+            run('hg update -C .')
         elif project.repo_type == 'git':
             run('git --git-dir=.git fetch')
             run('git --git-dir=.git reset --hard origin/master')
