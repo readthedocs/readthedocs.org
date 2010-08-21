@@ -40,6 +40,7 @@ class SubdomainMiddleware(object):
         domain_parts = host.split('.')
         if (len(domain_parts) > 2):
             subdomain = domain_parts[0]
+            request.slug = subdomain
             if not (subdomain.lower() == 'www') and 'readthedocs' in host:
                 return slug_detail(request, subdomain, request.path.lstrip('/'))
         if 'readthedocs' not in host:
@@ -51,6 +52,7 @@ class SubdomainMiddleware(object):
                     domain = answer.target.to_unicode()
                     slug = domain.split('.')[0]
                     cache.set(host, slug, 60*60)
+                request.slug = slug
                 return slug_detail(request, slug, request.path.lstrip('/'))
             except:
                 #Except any error here, because we never want to blow up in this step.
