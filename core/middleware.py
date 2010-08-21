@@ -1,7 +1,6 @@
 #http://joshuajonah.ca/blog/2010/06/18/poor-mans-esi-nginx-ssis-and-django/
 
 import re
-import adns
 from django.core.urlresolvers import get_urlconf, get_resolver, Resolver404
 from projects.views.public import slug_detail
 
@@ -42,11 +41,12 @@ class SubdomainMiddleware(object):
                 return slug_detail(request, subdomain, request.path.lstrip('/'))
         if 'readthedocs' not in host:
             try:
+                import adns
                 c = adns.init()
                 domain = c.synchronous(host, adns.rr.CNAME)[3][0]
                 slug = domain.split('.')[0]
                 return slug_detail(request, slug, request.path.lstrip('/'))
-            except IndexError:
+            except (IndexError, ImportError):
                 return None
         return None
 
