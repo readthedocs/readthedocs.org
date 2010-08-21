@@ -1,6 +1,7 @@
 #http://joshuajonah.ca/blog/2010/06/18/poor-mans-esi-nginx-ssis-and-django/
 
 import re
+import adns
 from django.core.urlresolvers import get_urlconf, get_resolver, Resolver404
 from projects.views.public import slug_detail
 
@@ -31,8 +32,18 @@ class NginxSSIMiddleware(object):
 
 class SubdomainMiddleware(object):
     def process_request(self, request):
-        domain_parts = request.get_host().split('.')
+        host = request.get_host()
+        if ':' in host:
+            host = host.split(':')[0]
+        domain_parts = host.split('.')
         if (len(domain_parts) > 2):
-            if not (domain_parts[0].lower() == 'www'):
-                return slug_detail(request, domain_parts[0], request.path.lstrip('/'))
+            subdomain = domain_parts[0]
+            if not (subdomain.lower() == 'www') and domain_parts[1] == 'readthedocs.org':
+                return slug_detail(request, subdomain, request.path.lstrip('/'))
+        if 'readthedocs' not in host:
+            c = adns.init()
+            domain = c.synchronous(host, adns.rr.CNAME)[3][0]
+            slug = domain.split('.')[0]
+            return slug_detail(request, slug, request.path.lstrip('/'))
+        return None
 
