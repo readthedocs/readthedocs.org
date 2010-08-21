@@ -81,13 +81,13 @@
         <div class="rtfd-header-nav">
           <ul>
             {% if project %}
-              <li class="overview-link"><a href="{{ project.get_absolute_url }}">{{ project.name }} Overview</a></li>
+              <li class="overview-link"><a href="http://readthedocs.org{{ project.get_absolute_url }}">{{ project.name }} Overview</a></li>
             {% endif %}
             {% if request.user.is_authenticated %}
               <li {% block nav-dashboard %}{% endblock %}><a href="{% url projects_dashboard %}">Dashboard</a></li>
-              <li><a href="{% url auth_logout %}">Log Out</a></li>
+              <li><a href="http://readthedocs.org{% url auth_logout %}">Log Out</a></li>
             {% else %}
-              <li><a href="{% url auth_login %}">Log in</a></li>
+              <li><a href="http://readthedocs.org{% url auth_login %}">Log in</a></li>
             {% endif %}
 
           </ul>
