@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.db.models import F, Max
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_view_exempt
 from django.views.static import serve
@@ -63,7 +63,7 @@ def serve_docs(request, username, project_slug, filename):
     This could probably be refactored to serve out of nginx if we have more
     time.
     """
-    proj = Project.objects.get(slug=project_slug, user__username=username)
+    proj = get_object_or_404(slug=project_slug, user__username=username)
     if not filename:
         filename = "index.html"
     filename = filename.rstrip('/')
