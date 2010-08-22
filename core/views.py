@@ -63,7 +63,7 @@ def serve_docs(request, username, project_slug, filename):
     This could probably be refactored to serve out of nginx if we have more
     time.
     """
-    proj = get_object_or_404(slug=project_slug, user__username=username)
+    proj = get_object_or_404(Project, slug=project_slug, user__username=username)
     if not filename:
         filename = "index.html"
     filename = filename.rstrip('/')
