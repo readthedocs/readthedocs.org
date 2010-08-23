@@ -50,11 +50,11 @@ thead { background: #f2f2f2; }
 /* forms */
 
 form p { color: #999; }
-textarea, input, select { display: block; padding: 5px; color: #444;  background: #fff; border: 1px solid #BFBFBF; -moz-border-radius: 3px; -webkit-border-radius: 3px; }
+textarea, input, button, select { display: block; padding: 5px; color: #444;  background: #fff; border: 1px solid #BFBFBF; -moz-border-radius: 3px; -webkit-border-radius: 3px; }
 input[type="text"], input[type="password"] { width: 250px; height: 20px; margin-bottom: 5px; }
 select { display: block; max-height: 300px; width: 250px; margin-bottom: 10px; font: 16/20px "inconsolata-1", "inconsolata-2", 'bitstream vera sans mono', 'andale mono', 'lucida console', monospace; }
 textarea { width: 435px; height: 150px; }
-input[type="submit"], input[type="button"], button { font-family: "ff-meta-web-pro-1", "ff-meta-web-pro-2", Arial, "Helvetica Neue", sans-serif; color: #666; font-weight: bold; padding: 5px 10px; border: none; background: #e6e6e6 url(../images/gradient.png) repeat-x bottom left; margin: 30px 5px 20px 0; text-shadow: 0 1px 0 rgba(255, 255, 255, 1); border: 1px solid #bfbfbf; }
+input[type="submit"], input[type="button"], button { font-family: "ff-meta-web-pro-1", "ff-meta-web-pro-2", Arial, "Helvetica Neue", sans-serif; color: #666; font-weight: bold; padding: 5px 10px; border: none; background: #e6e6e6 url(../images/gradient.png) repeat-x bottom left; margin: 30px 5px 20px 0; text-shadow: 0 1px 0 rgba(255, 255, 255, 1); border: 1px solid #bfbfbf; display: block; text-decoration: none; }
 input[type="submit"]:hover, input[type="button"]:hover, button:hover { background-color: #8ECC4C; color: #fff; text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5); border-color: #8ECC4C; }
 fieldset { border: 1px solid #bfbfbf; padding: 15px; -moz-border-radius: 3px; -webkit-border-radius: 3px; margin-bottom: 15px; }
 input[type="hidden"] { display: none; }
@@ -79,7 +79,7 @@ label { display: block; margin-bottom: 4px; font-weight: bold; color: #444; }
 
   /* title */
   .home-header-links { position: absolute; top: 0; right: 10px; }
-  .home-header-links a { float: left; display: block; font-family: "ff-meta-web-pro-1", "ff-meta-web-pro-2", Arial, "Helvetica Neue", sans-serif; color: #666; font-weight: bold; padding: 10px 20px; border: none; background: #e6e6e6 url(../images/gradient.png) repeat-x bottom left; text-shadow: 0 1px 0 rgba(255, 255, 255, 1); border: 1px solid #bfbfbf; text-decoration: none; -moz-border-radius: 3px; -webkit-border-radius: 3px; margin-left: 10px; }
+  .home-header-links a { float: left; display: block; font-family: "ff-meta-web-pro-1", "ff-meta-web-pro-2", Arial, "Helvetica Neue", sans-serif; color: #666; font-weight: bold; padding: 10px 20px; border: none; background: #e6e6e6 url(../images/gradient.png) repeat-x bottom left; text-shadow: 0 1px 0 rgba(255, 255, 255, 1); border: 1px solid #bfbfbf; text-decoration: none; -moz-border-radius: 3px; -webkit-border-radius: 3px; margin-left: 20px; }
 
   .home-header-links a:hover { background-color: #8ECC4C; color: #fff; text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5); border-color: #8ECC4C; }
 

@@ -6,10 +6,18 @@
 
 
 {% block content-header %}
-  <h1>Registration closed</h1>
+  <h1>Eh... Registration closed.</h1>
 {% endblock %}
 
 
 {% block content %}
-  <p>Please try <a href="{% url registration_register %}">registering again</a>.</p>
+  <p>
+    You registered a long time ago.
+    We aren't sure if you are a robot or if 
+    something got lost or what.
+    Please try <a href="{% url registration_register %}">registering again</a>.
+  </p>
+  <p class="quiet">
+    We hope that isn't too inconvenient.
+  </p>
 {% endblock %}
