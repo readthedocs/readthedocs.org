@@ -10,7 +10,7 @@ body { padding-top: 50px; }
 
   /* header title */
   .rtfd-header-title { position: relative; background: url(../images/logo.png) top left no-repeat #465158; height: 50px; margin: 0; padding: 0; overflow: hidden; height: 50px; width: 180px; }
-  .rtfd-header-title h1 { position: absolute; top: 0; left: 0; margin: 0; padding: 0; font-size: 20px; line-height: 20px; color: #fff; text-indent: -9999em; }
+  .rtfd-header-title h1 { position: absolute; top: 0; left: 0; margin: 0; padding: 0; font-size: 20px; line-height: 20px; color: #fff; text-indent: -9999em; background:none; }
   .rtfd-header-title h1 a { display: block; color: #fff; text-decoration: none; height: 50px; width: 180px; }
 
   /* header search */
