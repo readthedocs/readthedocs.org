@@ -138,8 +138,7 @@ def build_docs(project):
     return (ret, out, err)
 
 
-#@periodic_task(run_every=crontab(hour="*", minute="*/30", day_of_week="*"))
-@periodic_task(run_every=crontab(hour="*", minute="*", day_of_week="*"))
+@periodic_task(run_every=crontab(hour="*", minute="10", day_of_week="*"))
 def update_docs_pull():
     for project in Project.objects.live():
         print "Building %s" % project
