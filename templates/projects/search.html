@@ -21,11 +21,13 @@
               </div>
 
               <div class="module-list">
-                <ul>
-                  {% for project in term_list %}
-                    <li class="module-item"><a href="{{ project.get_absolute_url }}">{{ project.name }}</a></li>
-                  {% endfor %}
-                </ul>
+                <div class="module-list-wrapper">
+                  <ul>
+                    {% for project in term_list %}
+                      <li class="module-item col-span"><a href="{{ project.get_absolute_url }}">{{ project.name }}</a></li>
+                    {% endfor %}
+                  </ul>
+                </div>
               </div>
 
             </div>
