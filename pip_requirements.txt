@@ -1,4 +1,5 @@
 django==1.2.1
+whoosh==0.3.18
 docutils
 psycopg2
 python-memcached
@@ -12,7 +13,6 @@ importlib
 django-extensions
 dnspython
 django-haystack
-whoosh
 -e git+http://github.com/nathanborror/django-basic-apps.git#egg=basic
 -e hg+http://bitbucket.org/andrewgodwin/south/#egg=south
 -e git+http://github.com/alex/django-taggit.git#egg=taggit
