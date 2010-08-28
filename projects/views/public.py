@@ -78,8 +78,8 @@ def search(request):
     """
     our ghetto site search.  see roadmap.
     """
-    if 'term' in request.GET:
-        term = request.GET['term']
+    if 'q' in request.GET:
+        term = request.GET['q']
     else:
         raise Http404
     queryset = Project.objects.live(name__icontains=term)
