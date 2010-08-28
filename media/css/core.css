@@ -74,12 +74,12 @@ label { display: block; margin-bottom: 4px; font-weight: bold; color: #444; }
 #home-header { position: absolute; top: 0; left: 0; width: 100%; background: #465158; padding: 80px 0; color: #fff; }
 
   /* title */
-  .home-header-title { padding: 5px 0 5px 80px; background: url(../images/home-logo.png) 0 50% no-repeat; }
+  .home-header-title { padding: 15px 0 5px 80px; background: url(../images/home-logo.png) 0 50% no-repeat; }
   .home-header-title h1 { color: #fff; padding: 0; margin: 0;  }
   .home-header-title a { color: #fff; }
 
   /* title */
-  .home-header-links { position: absolute; top: 0; right: 10px; }
+  .home-header-links { position: absolute; top: 22px; right: 10px; }
   .home-header-links a { float: left; display: block; font-family: "ff-meta-web-pro-1", "ff-meta-web-pro-2", Arial, "Helvetica Neue", sans-serif; color: #666; font-weight: bold; padding: 10px 20px; border: none; background: #e6e6e6 url(../images/gradient.png) repeat-x bottom left; text-shadow: 0 1px 0 rgba(255, 255, 255, 1); border: 1px solid #bfbfbf; text-decoration: none; -moz-border-radius: 3px; -webkit-border-radius: 3px; margin-left: 20px; }
 
   .home-header-links a:hover { background-color: #8ECC4C; color: #fff; text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5); border-color: #8ECC4C; }
