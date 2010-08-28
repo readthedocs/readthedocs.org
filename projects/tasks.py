@@ -142,20 +142,14 @@ def build_docs(project):
 @task
 def fileify(project_slug):
     project = Project.objects.get(slug=project_slug)
-    path = project.find('conf.py')[0].replace('/conf.py', '')
+    path = project.full_html_path
     for root, dirnames, filenames in os.walk(path):
         for filename in filenames:
-            if fnmatch.fnmatch(filename, '*.rst') or fnmatch.filter(filename, '*.txt'):
-                to_read = os.path.join(root, filename)
-                content = open(to_read, 'r').read()
-                dirpath =  os.path.join(root.replace(path, ''),
-                                        filename).replace('.rst','.html').replace('.txt', '.html').lstrip('/')
+            if fnmatch.fnmatch(filename, '*.html'):
+                dirpath =  os.path.join(root.replace(path, '').lstrip('/'), filename.lstrip('/'))
                 file, new = ImportedFile.objects.get_or_create(project=project,
                                             path=dirpath,
                                             name=filename)
-                if content != file.content:
-                    file.content = content
-                    file.save()
 @periodic_task(run_every=crontab(hour="*", minute="10", day_of_week="*"))
 def update_docs_pull():
     for project in Project.objects.live():

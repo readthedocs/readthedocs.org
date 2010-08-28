@@ -326,7 +326,7 @@ class ImportedFile(models.Model):
     name = models.CharField(max_length=255)
     slug = models.SlugField()
     path = models.CharField(max_length=255)
-    content = models.TextField()
+    md5 = models.CharField(max_length=255)
 
     @models.permalink
     def get_absolute_url(self):
