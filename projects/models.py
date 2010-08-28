@@ -18,7 +18,7 @@ import fnmatch
 
 class ProjectManager(models.Manager):
     def live(self, *args, **kwargs):
-        base_qs = self.filter(status=constants.LIVE_STATUS)
+        base_qs = self.filter(status=constants.LIVE_STATUS, skip=False)
         return base_qs.filter(*args, **kwargs)
 
 
