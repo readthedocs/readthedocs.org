@@ -27,3 +27,6 @@ def reload():
 def restart():
     "Restart (or just start) the server"
     run("~/run_gunicorn.sh")
+
+def migrate(project):
+    run('django-admin.py migrate %s' % project)
