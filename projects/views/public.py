@@ -78,8 +78,9 @@ def search(request):
     """
     our ghetto site search.  see roadmap.
     """
-    term = request.GET['q']
-    if not term:
+    if 'term' in request.GET:
+        term = request.GET['term']
+    else:
         raise Http404
     queryset = Project.objects.live(name__icontains=term)
     if queryset.count() == 1:
@@ -97,7 +98,10 @@ def search_autocomplete(request):
     """
     return a json list of project names
     """
-    term = request.GET['term']
+    if 'term' in request.GET:
+        term = request.GET['term']
+    else:
+        raise Http404
     queryset = Project.objects.live(name__icontains=term)[:20]
 
     project_names = queryset.values_list('name', flat=True)
