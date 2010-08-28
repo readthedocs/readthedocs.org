@@ -14,6 +14,5 @@
   <form action="." method="post" class="login_form">{% csrf_token %}
     {{ form.as_p }}
     <p class="submit"><input type="submit" name="submit" value="Log in"></p>
-    <input type="hidden" name="next" value="{% if next %}{{ next }}{% else %}/{% endif %}">
   </form>
 {% endblock %}
