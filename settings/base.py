@@ -89,7 +89,7 @@ INSTALLED_APPS = (
     'taggit',
     'django_extensions',
     'basic.flagging',
-    'haystack',
+    #'haystack',
 
     # our apps
     'projects',
