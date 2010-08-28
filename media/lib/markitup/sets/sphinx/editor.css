@@ -34,3 +34,7 @@
 .markItUp .btnCode a {
 	background-image:url(images/code.png);
 }
+
+.markItUp .btnIndent a {
+    background-image:url(images/indent.png);
+}

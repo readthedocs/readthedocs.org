@@ -57,7 +57,12 @@ class ImportProjectForm(ProjectForm):
         exclude = ('skip', 'whitelisted', 'theme', 'docs_directory', 'user', 'slug', 'version', 'copyright', 'status')
     
     def clean_repo(self):
-        return self.cleaned_data.get('repo', '').strip()
+        repo = self.cleaned_data.get('repo', '').strip()
+        if '&&' in repo or '|' in repo:
+            raise forms.ValidationError('Invalid character in repo name')
+        elif '@' in repo:
+            raise forms.ValidationError('It looks like you entered a private repo - please use the public (http:// or git://) clone url')
+        return repo
 
     def save(self, *args, **kwargs):
         # save the project

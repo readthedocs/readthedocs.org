@@ -11,5 +11,11 @@
 
 
 {% block content %}
-  <p>The activation key "{{ activation_key }}" is invalid and cannot be used to activate this account.</p>
+  <p>
+    The activation key "{{ activation_key }}" is invalid and cannot be used to activate this account.
+    Did you really think activation key "{{ activation_key }}" was going to work?!
+  </p>
+  <p>
+    We're not sure how you got that key, but would you mind registering again <a href="{% url registration_register %}">here</a>?  
+  </p>
 {% endblock %}

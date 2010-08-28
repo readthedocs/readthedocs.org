@@ -1,4 +1,6 @@
 import os
+import djcelery
+djcelery.setup_loader()
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -49,6 +51,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'pagination.middleware.PaginationMiddleware',
     'core.middleware.NginxSSIMiddleware',
+    'core.middleware.SubdomainMiddleware',
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
 )
 
@@ -100,6 +103,7 @@ INSTALLED_APPS = (
 CARROT_BACKEND = "ghettoq.taproot.Database"
 CELERY_ALWAYS_EAGER = True
 DEFAULT_FROM_EMAIL = "no-reply@readthedocs.org"
+SESSION_COOKIE_DOMAIN = '.readthedocs.org'
 
 HAYSTACK_SITECONF = 'core.search_sites'
 HAYSTACK_SEARCH_ENGINE = 'whoosh'

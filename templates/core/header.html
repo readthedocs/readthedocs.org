@@ -18,6 +18,7 @@
           }
         });
         
+        {% comment %}
         $('.rtfd-header-bookmark-icon').click(function(e) {
           e.preventDefault();
           link = $(this);
@@ -37,6 +38,7 @@
             }
           });
         });
+        {% endcomment %}
       });
     </script>
 {% endif %}
@@ -46,23 +48,23 @@
 
         <!-- BEGIN header title-->
         <div class="rtfd-header-title">
-          <h1><a href="/">Read the Docs</a></h1>
+          <h1><a href="http://readthedocs.org/">Read the Docs</a></h1>
         </div>
         <!-- END header title -->
 
         <!-- BEGIN global search -->
-        {% if request.META.PATH_INFO != '/' %}
         <div class="rtfd-header-search">
-          <form action="{% url search %}" method="GET">
+          <form action="http://readthedocs.org{% url search %}" method="GET">
             <input type="text" name="q" value="{{ term }}" id="id_site_search" placeholder="Search projects">
             <input type="submit" value="Go">
           </form>
         </div>
-        {% endif %}
         <!-- END global search -->
 
+        {% comment %}
         {% if do_bookmarking and request.user.is_authenticated %}
         <!-- BEGIN bookmark -->
+        {% if request.META.PATH_INFO != '/' %}
         <div class="rtfd-header-bookmark">
           {% if has_bookmark %}
             <a href="{% url bookmarks_remove request.META.PATH_INFO %}" class="rtfd-header-bookmark-icon active">Remove bookmark</a>
@@ -70,20 +72,22 @@
             <a href="{% url bookmarks_add request.META.PATH_INFO %}" class="rtfd-header-bookmark-icon">Bookmark this URL</a>
           {% endif %}
         </div>
+        {% endif %}
         <!-- END bookmark -->
         {% endif %}
+        {% endcomment %}
 
         <!-- BEGIN header nav -->
         <div class="rtfd-header-nav">
           <ul>
             {% if project %}
-              <li class="overview-link"><a href="{{ project.get_absolute_url }}">{{ project.name }} Overview</a></li>
+              <li class="overview-link"><a href="http://readthedocs.org{{ project.get_absolute_url }}">{{ project.name }} Overview</a></li>
             {% endif %}
             {% if request.user.is_authenticated %}
               <li {% block nav-dashboard %}{% endblock %}><a href="{% url projects_dashboard %}">Dashboard</a></li>
-              <li><a href="{% url auth_logout %}">Log Out</a></li>
+              <li><a href="http://readthedocs.org{% url auth_logout %}">Log Out</a></li>
             {% else %}
-              <li><a href="{% url auth_login %}">Log in</a></li>
+              <li><a href="http://readthedocs.org{% url auth_login %}">Log in</a></li>
             {% endif %}
 
           </ul>

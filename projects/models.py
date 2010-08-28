@@ -55,7 +55,7 @@ class Project(models.Model):
     objects = ProjectManager()
 
     class Meta:
-        ordering = ('-modified_date', 'name')
+        ordering = ('slug',)
 
     def __unicode__(self):
         return self.name
@@ -89,7 +89,7 @@ class Project(models.Model):
         The path to the documentation root in the project.
         """
         doc_base = os.path.join(self.user_doc_path, self.slug)
-        for possible_path in ['docs', 'doc']:
+        for possible_path in ['docs', 'doc', 'Doc']:
             if os.path.exists(os.path.join(doc_base, '%s' % possible_path)):
                 return os.path.join(doc_base, '%s' % possible_path)
         #No docs directory, assume a full docs checkout

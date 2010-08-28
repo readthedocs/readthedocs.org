@@ -39,10 +39,16 @@ def build_detail(request, username, project_slug, pk):
     user = get_object_or_404(User, username=username)
     queryset = Build.objects.all()
 
+    if project_slug and username:
+        project = Project.objects.get(user=user, slug=project_slug)
+        queryset = queryset.filter(project=project)
+    else:
+        project = None
+
     return object_detail(
         request,
         queryset=queryset,
         object_id=pk,
-        extra_context={'user': user},
+        extra_context={'user': user, 'project': project },
         template_object_name='build',
     )

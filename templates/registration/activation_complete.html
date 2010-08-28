@@ -6,10 +6,11 @@
 
 
 {% block content-header %}
-  <h1>Account activation complete</h1>
+  <h1>Account activation complete, woo!</h1>
 {% endblock %}
 
 
 {% block content %}
-  <p>Congratulations, your account has been activated.</p>
+  <p>Your account has been activated. ^_^</p>
+  <p>Log in with the username and password you just created, <a href="{% url auth_login %}">here</a>.</p>
 {% endblock %}

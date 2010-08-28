@@ -4,7 +4,7 @@
       <div class="wrapper">
 
         <div class="project-title">
-          <h2>{{ project }}</h2>
+          <h1>{{ project }}</h1>
           <a href="{% url projects_user_list project.user.username %}" class="quiet">({{ project.user }})</a>
           <span class="quiet">{% if project.version %}version {{ project.version }} {% endif %}</span>
         </div>
@@ -24,8 +24,10 @@
             {% if project.project_url %}
               <li><a href="{{ project.project_url }}" rel="nofollow,noindex">Project Homepage</a></li>
             {% endif %}
+
           </ul>
         </div>
+        
         {% if project.get_latest_build %}
           {% if not project.get_latest_build.success %}
             <p class="build-failure">Build failed (<a href="{% url builds_project_list project.user.username project.slug %}">why</a>)</p>
@@ -33,6 +35,7 @@
         {% else %}
           <p class="build-missing">We currently have no builds for this project!{% if request.user == project.user %} <a href="{% url projects_edit project.slug %}">Is the repo correct?</a>{% endif %}</p>
         {% endif %}
+
       </div>
     </div>
     <!-- END project bar -->

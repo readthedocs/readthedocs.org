@@ -18,10 +18,18 @@ SphinxDocsSettings = {
         {name:'Internal Link', className: 'btnInternalLink', key:"L", openWith:':doc:`', closeWith:' <[![Heading:!:]!]>`', placeHolder:'Your text to link here...' },
         {name:'External Link', className: 'btnLink', key:"E", openWith:'`', closeWith:' <[![Url:!:http://]!]>`_', placeHolder:'Your text to link here...' },
         {separator:'---------------'},    
-        {name:'Quotes', className: 'btnQuotes', openWith:'\t'},
-        {name:'Code Block / Code', className: 'btnCode', openWith:'\n.. code-block:: python\n\t', closeWith:'\n', placeHolder:'Code here...'},
-        //{separator:'---------------'},
-        //{name:'Preview', call:'preview', className:"preview"}
+        {name:'Quotes', className: 'btnQuotes', placeHolder: 'block quote text here...', replaceWith:function(markItUp) {
+            return miu.indentText(markItUp);
+        }},
+        {name:'Code Block / Code', className: 'btnCode', placeHolder:'Code here...', replaceWith:function(markItUp) {
+            directive = '\n.. code-block:: python\n\n';
+            indented = miu.indentText(markItUp);
+            return directive + indented;
+        }},
+        {separator:'---------------'},
+        {name:'Indent', className:"btnIndent", replaceWith:function(markItUp) {
+            return miu.indentText(markItUp);
+        }}
     ]
 }
 
@@ -34,5 +42,13 @@ miu = {
             heading += char;
         }
         return '\n'+heading+'\n';
+    },
+    indentText: function(markItUp) {
+        text_block = markItUp.selection || markItUp.placeHolder;
+        indented = '';
+        $.each(text_block.split('\n'), function(idx, text) {
+            indented += '    ' + text + '\n';
+        });
+        return indented;
     }
 }

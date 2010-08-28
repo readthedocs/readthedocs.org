@@ -12,21 +12,28 @@
             <div class="module-wrapper">
 
               <div class="module-header">
-                <h2>My Projects</h2>
+                <h3>My Projects</h3>
               </div>
 
               <div class="module-list">
-                <ul>
-                  {% for project in project_list %}
-                    <li class="module-item col-span">
-                      <a href="{% url projects_manage project.slug %}">{{ project.name }}</a>
-                      <ul class="module-item-menu">
-                        <li><a href="{% url projects_delete project.slug %}">Delete</a></li>
-                        <li><a href="{% url docs_detail project.user.username project.slug "index.html" %}">View Docs</a></li>
-                      </ul>
-                    </li>
-                  {% endfor %}
-                </ul>
+                <div class="module-list-wrapper">
+
+                  <ul>
+                    {% for project in project_list %}
+                      <li class="module-item col-span">
+                        <a href="{% url projects_manage project.slug %}">{{ project.name }}</a>
+                        <ul class="module-item-menu">
+                          {% if not project.is_imported %}
+                            <li><a href="{% url projects_manage project.slug %}">Manage Files</a></li>
+                          {% endif %}
+                          <li><a href="{% url projects_edit project.slug %}">Edit</a></li>
+                          <li><a href="{% url docs_detail project.user.username project.slug "index.html" %}">View Docs</a></li>
+                        </ul>
+                      </li>
+                    {% endfor %}
+                  </ul>
+
+                </div>
               </div>
 
             </div>
@@ -36,32 +43,39 @@
           {% endif %}
           <!-- END your projects list -->
 
-
+          {% comment %}
+          {% if bookmark_list %} 
           <!-- BEGIN marks list -->
           <div class="module">
             <div class="module-wrapper">
               <div class="module-header">
-                  <h2>Recently Bookmarked Docs <small><a href="{% url user_bookmarks %}">(All Bookmarks)</a></small></h2>
+                <h3>Recently Bookmarked Docs <span class="small_head"><a href="{% url user_bookmarks %}">(All My Bookmarks)</a></span></h3>
               </div>
 
               <div class="module-list">
-                <ul>
-                  {% include "core/bookmark_list_detailed.html" %}
-                </ul>
+                <div class="module-list-wrapper">
+                  <ul>
+                    {% include "core/bookmark_list_detailed.html" %}
+                  </ul>
+                </div>
               </div>
 
             </div>
           </div>
           <!-- END marks list -->
+          {% endif %}
+          {% endcomment %}
 
           <!-- BEGIN import project -->
           <div class="module">
             <div class="module-wrapper">
 
               <div class="module-list">
-                <ul>
-                  <li class="module-item call"><a href="{% url projects_import %}">Import Documentation</a></li>
-                </ul>
+                <div class="module-list-wrapper">
+                  <ul>
+                    <li class="module-item call"><a href="{% url projects_import %}">Import Documentation</a></li>
+                  </ul>
+                </div>
               </div>
 
             </div>
@@ -73,9 +87,11 @@
             <div class="module-wrapper">
 
               <div class="module-list">
-                <ul>
-                  <li class="module-item call"><a href="{% url projects_create %}">Create New Documentation</a></li>
-                </ul>
+                <div class="module-list-wrapper">
+                  <ul>
+                    <li class="module-item call"><a href="{% url projects_create %}">Create New Documentation</a></li>
+                  </ul>
+                </div>
               </div>
 
             </div>

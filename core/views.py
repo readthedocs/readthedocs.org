@@ -1,7 +1,7 @@
 from django.conf import settings
-from django.db.models import F
+from django.db.models import F, Max
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_view_exempt
 from django.views.static import serve
@@ -18,9 +18,9 @@ from bookmarks.models import Bookmark
 
 
 def homepage(request):
-    projs = Project.objects.live()[:5]
-    updated = PageView.objects.all()[:5]
-    marks = Bookmark.objects.all()[:5]
+    projs = Project.objects.filter(builds__isnull=False).annotate(max_date=Max('builds__date')).order_by('-max_date')[:10]
+    updated = PageView.objects.all()[:10]
+    marks = Bookmark.objects.all()[:10]
     return render_to_response('homepage.html',
                               {'project_list': projs,
                                'bookmark_list': marks,
@@ -63,7 +63,7 @@ def serve_docs(request, username, project_slug, filename):
     This could probably be refactored to serve out of nginx if we have more
     time.
     """
-    proj = Project.objects.get(slug=project_slug, user__username=username)
+    proj = get_object_or_404(Project, slug=project_slug, user__username=username)
     if not filename:
         filename = "index.html"
     filename = filename.rstrip('/')

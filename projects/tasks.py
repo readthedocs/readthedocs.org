@@ -18,7 +18,7 @@ import fnmatch
 ghetto_hack = re.compile(r'(?P<key>.*)\s*=\s*u?\[?[\'\"](?P<value>.*)[\'\"]\]?')
 
 @task
-def update_docs(pk):
+def update_docs(pk, record=True):
     """
     A Celery task that updates the documentation for a project.
     """
@@ -39,7 +39,8 @@ def update_docs(pk):
     # kick off a build
     (ret, out, err) = build_docs(project)
     if not 'no targets are out of date.' in out:
-        Build.objects.create(project=project, success=ret==0, output=out, error=err)
+        if record:
+            Build.objects.create(project=project, success=ret==0, output=out, error=err)
         if ret == 0:
             print "Build OK"
         else:
@@ -55,7 +56,8 @@ def update_imported_docs(project):
     if os.path.exists(os.path.join(path, project.slug)):
         os.chdir(project.slug)
         if project.repo_type == 'hg':
-            run('hg update -C -r . ')
+            run('hg fetch')
+            run('hg update -C .')
         elif project.repo_type == 'git':
             run('git --git-dir=.git fetch')
             run('git --git-dir=.git reset --hard origin/master')
@@ -121,7 +123,9 @@ def build_docs(project):
     """
     A helper function for the celery task to do the actual doc building.
     """
-    if not project.whitelisted:
+    if project.whitelisted:
+        os.system('sedify %s' % project.conf_filename)
+    else:
         project.write_to_disk()
 
     try:
@@ -134,13 +138,6 @@ def build_docs(project):
         (ret, out, err) = run('sphinx-build -b html . _build/html')
     return (ret, out, err)
 
-
-@periodic_task(run_every=crontab(hour="*", minute="*/30", day_of_week="*"))
-#@periodic_task(run_every=crontab(hour="*", minute="*", day_of_week="*"))
-def update_docs_pull():
-    for project in Project.objects.live():
-        print "Building %s" % project
-        update_docs(pk=project.pk)
 
 @task
 def fileify(project_slug):
@@ -159,3 +156,8 @@ def fileify(project_slug):
                 if content != file.content:
                     file.content = content
                     file.save()
+@periodic_task(run_every=crontab(hour="*", minute="10", day_of_week="*"))
+def update_docs_pull():
+    for project in Project.objects.live():
+        print "Building %s" % project
+        update_docs(pk=project.pk, record=False)
