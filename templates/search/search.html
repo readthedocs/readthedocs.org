@@ -2,21 +2,21 @@
 {% load highlight %}
 
 {% block content %}
-    <h2>Search</h2>
-
-    <form method="get" action=".">
-        <table>
-            {{ form.as_table }}
-            <tr>
-                <td>&nbsp;</td>
-                <td>
-                    <input type="submit" value="Search">
-                </td>
-            </tr>
-        </table>
-
+        <div class="wide-search-bar">
+          <div class="wide-search-bar-wrapper clearfix">
+            <form action="." method="GET">
+              <div class="text-input-wrapper">
+                <input type="text" name="q" value="{{ query }}" id="id_site_search">
+              </div>
+                <input type="hidden" name="models" value="projects.importedfile" />
+              <div class="submit-input-wrapper">
+                <input type="submit" value="Search.">
+              </div>
+            </form>
+          </div>
+        </div>
         {% if query %}
-            <h3>Results</h3>
+        <h3>Results for {{ query }}</h3>
 
             {% for result in page.object_list %}
                 <p>
