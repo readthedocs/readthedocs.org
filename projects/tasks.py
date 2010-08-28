@@ -143,13 +143,14 @@ def build_docs(project):
 def fileify(project_slug):
     project = Project.objects.get(slug=project_slug)
     path = project.full_html_path
-    for root, dirnames, filenames in os.walk(path):
-        for filename in filenames:
-            if fnmatch.fnmatch(filename, '*.html'):
-                dirpath =  os.path.join(root.replace(path, '').lstrip('/'), filename.lstrip('/'))
-                file, new = ImportedFile.objects.get_or_create(project=project,
-                                            path=dirpath,
-                                            name=filename)
+    if path:
+        for root, dirnames, filenames in os.walk(path):
+            for filename in filenames:
+                if fnmatch.fnmatch(filename, '*.html'):
+                    dirpath =  os.path.join(root.replace(path, '').lstrip('/'), filename.lstrip('/'))
+                    file, new = ImportedFile.objects.get_or_create(project=project,
+                                                path=dirpath,
+                                                name=filename)
 @periodic_task(run_every=crontab(hour="*", minute="10", day_of_week="*"))
 def update_docs_pull():
     for project in Project.objects.live():
