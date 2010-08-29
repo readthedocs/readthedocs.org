@@ -50,4 +50,6 @@ REPO_CHOICES = (
     ('git', 'Git'),
     ('svn', 'Subversion'),
     ('hg', 'Mercurial'),
+    ('bzr', 'Bazaar'),
 )
+
