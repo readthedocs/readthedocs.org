@@ -31,8 +31,13 @@ def update_docs(pk, record=True):
         os.makedirs(path)
 
     if project.is_imported:
-        update_imported_docs(project)
-        scrape_conf_file(project)
+        try:
+            update_imported_docs(project)
+        except (RuntimeError, NotImplementedError):
+            print("Error updating imported docs, skipping build.")
+            return
+        else:
+            scrape_conf_file(project)
     else:
         update_created_docs(project)
 
@@ -53,6 +58,11 @@ def update_docs(pk, record=True):
 def update_imported_docs(project):
     path = project.user_doc_path
     os.chdir(path)
+
+    # TODO: Could probably use some better error handling here, in
+    # case one of the below commands fails for any reason
+
+    # If project directory already exists, do an update/fetch/merge
     if os.path.exists(os.path.join(path, project.slug)):
         os.chdir(project.slug)
         if project.repo_type == 'hg':
@@ -61,8 +71,14 @@ def update_imported_docs(project):
         elif project.repo_type == 'git':
             run('git --git-dir=.git fetch')
             run('git --git-dir=.git reset --hard origin/master')
-        else:
+        elif project.repo_type == 'svn':
             run('svn up')
+        elif project.repo_type == 'bzr':
+            run('bzr merge')
+        else:
+            raise NotImplementedError("Repo type '%s' unknown" % project.repo_type)
+
+    # Project directory doesn't exist, so do a clone/checkout/branch
     else:
         repo = project.repo
         if project.repo_type == 'hg':
@@ -70,14 +86,30 @@ def update_imported_docs(project):
         elif project.repo_type == 'git':
             repo = repo.replace('.git', '')
             command = 'git clone --depth=1 %s.git %s' % (repo, project.slug)
-        else:
+        elif project.repo_type == 'svn':
             command = 'svn checkout %s %s' % (repo, project.slug)
-        run(command)
+        elif project.repo_type == 'bzr':
+            command = 'bzr branch %s %s' % (repo, project.slug)
+        else:
+            raise NotImplementedError("Repo type '%s' unknown" % project.repo_type)
+        # Run the command and raise an exception on error
+        status, out, err = run(command)
+        if status != 0:
+            raise RuntimeError("Failed to get code from repository: '%s'" % repo)
+
+
     fileify(project_slug=project.slug)
 
 
 def scrape_conf_file(project):
-    conf_dir = project.find('conf.py')[0].replace('/conf.py', '')
+    try:
+        conf_dir = project.find('conf.py')[0]
+    except IndexError:
+        print("Could not find conf.py in %s" % project)
+        return
+    else:
+        conf_dir = conf_dir.replace('/conf.py', '')
+
     os.chdir(conf_dir)
     lines = open('conf.py').readlines()
     data = {}
