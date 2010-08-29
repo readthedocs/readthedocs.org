@@ -6,7 +6,8 @@
 
 {% block content %}
   <p class="help_text">
-    Only use this if you have Sphinx docs in a  public repository, you can create new docs via our <a class="" href="{% url projects_create %}">import tool</a>.
+    Use this if you already have Sphinx docs in a public repository. If not,
+    <a class="" href="{% url projects_create %}">create a new project</a>.
   </p>
 
   <form method="post" action=".">{% csrf_token %}
