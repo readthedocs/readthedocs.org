@@ -72,9 +72,11 @@ def update_imported_docs(project):
             run('git --git-dir=.git fetch')
             run('git --git-dir=.git reset --hard origin/master')
         elif project.repo_type == 'svn':
+            run('svn revert')
             run('svn up')
         elif project.repo_type == 'bzr':
-            run('bzr merge')
+            run('bzr revert')
+            run('bzr up')
         else:
             raise NotImplementedError("Repo type '%s' unknown" % project.repo_type)
 
@@ -89,7 +91,7 @@ def update_imported_docs(project):
         elif project.repo_type == 'svn':
             command = 'svn checkout %s %s' % (repo, project.slug)
         elif project.repo_type == 'bzr':
-            command = 'bzr branch %s %s' % (repo, project.slug)
+            command = 'bzr checkout %s %s' % (repo, project.slug)
         else:
             raise NotImplementedError("Repo type '%s' unknown" % project.repo_type)
         # Run the command and raise an exception on error
