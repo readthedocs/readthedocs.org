@@ -1,17 +1,12 @@
 django==1.2.1
-whoosh==0.3.18
 docutils
-psycopg2
-python-memcached
 simplejson
-gunicorn
 sphinx
 celery
 django-celery
 ghettoq
 importlib
 django-extensions
-dnspython
 django-haystack
 -e git+http://github.com/nathanborror/django-basic-apps.git#egg=basic
 -e hg+http://bitbucket.org/andrewgodwin/south/#egg=south
