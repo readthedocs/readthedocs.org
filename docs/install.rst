@@ -2,27 +2,56 @@ Installation
 =============
 
 Installing RTD is pretty simple. Here is a step by step plan on how to do it.
-::
+
+First, obtain Python_ and virtualenv_ if you do not already have them. Using a
+virtual environment will make the installation easier, and will help to avoid
+clutter in your system-wide libraries. You will also need Git_ in order to
+clone the repository.
+
+.. _Python: http://www.python.org/
+.. _virtualenv: http://pypi.python.org/pypi/virtualenv
+.. _Git: http://git-scm.com/
+
+Once you have these, create a virtual environment somewhere on your disk, then
+activate it::
 
     virtualenv rtd
     cd rtd
-    . bin/activate
+    source bin/activate
+
+Create a folder in here, and clone the repository::
+
     mkdir checkouts
     cd checkouts
-    git clone http://github.com/beetletweezers/tweezers.git
-    cd tweezers
+    git clone http://github.com/rtfd/readthedocs.org.git
+
+Next, install the dependencies using ``pip`` (included with virtualenv_)::
+
+    cd readthedocs.org
     pip install -r pip_requirements.txt
-    #Have a beer
+
+This may take a while, so go grab a beverage. When it's done, build your
+database::
+
     ./manage.py syncdb
-    ./manage.py loaddata test_data
-    #Make sure you create a user here
+
+This will prompt you to create a superuser account for Django. Do that. Then::
+
     ./manage.py migrate
+
+If you like, you can load up some test projects::
+
+    ./manage.py loaddata test_data
     ./manage.py update_repos
-    #Have another beer
+
+Or you can skip it and start with a fresh, empty site. Finally, you're ready to
+start the webserver::
+
     ./manage.py runserver
 
-
-Now you should be seeing a page with the list of projects that you can click around on. I recommend logging in to see more of the sites functionality, and to create or edit more repos.
+Visit http://127.0.0.1:8000/ in your browser to see how it looks; you can use
+the admin interface via http://127.0.0.1:8000/admin (logging in with the
+superuser account you just created).
 
 
 What's available
@@ -61,4 +90,4 @@ Caveats
 We are auto-importing and generating conf.py files, so projects with special
 extensions, themes, or templates won't work correctly. This is because of the
 possible of code execution within the python files. We are planing to support
-popular themes and white list projects that we trust to have these abilities. 
+popular themes and white list projects that we trust to have these abilities.
