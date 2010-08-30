@@ -1,0 +1,6 @@
+-r pip_requirements.txt
+psycopg2
+gunicorn
+whoosh==0.3.18
+python-memcached
+dnspython

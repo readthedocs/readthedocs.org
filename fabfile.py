@@ -11,7 +11,7 @@ env.rundir = '/home/docs/sites/readthedocs.com/run'
 
 def update_requirements():
     "Update requirements in the virtualenv."
-    run("%s/bin/pip install -r %s/pip_requirements.txt" % (env.virtualenv, env.code_dir))
+    run("%s/bin/pip install -r %s/deploy_requirements.txt" % (env.virtualenv, env.code_dir))
 
 def push():
     "Push new code, but don't restart/reload."

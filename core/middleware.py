@@ -1,5 +1,4 @@
 import re
-from dns import resolver
 
 from django.core.cache import cache
 from django.core.urlresolvers import get_urlconf, get_resolver, Resolver404
