@@ -2,6 +2,7 @@ import subprocess
 import os
 import fnmatch
 import traceback
+import re
 
 from django.conf import settings
 
@@ -48,3 +49,30 @@ def safe_write(filename, contents):
     fh = open(filename, 'w')
     fh.write(contents.encode('utf-8', 'ignore'))
     fh.close()
+
+def sanitize_conf(conf_filename):
+    """Modify the given ``conf.py`` file from a whitelisted project. For now,
+    this just adds the RTD template directory to ``templates_path``.
+    """
+    # The template directory for RTD
+    # FIXME: Pull this from the site configuration
+    template_dir = '/home/docs/sites/readthedocs.com/checkouts/tweezers/templates/sphinx'
+
+    # Expression to match the templates_path line
+    # FIXME: This could fail if the statement spans multiple lines
+    # (but will work as long as the first line has the opening '[')
+    templates_re = re.compile('(#*\s*templates_path\s*=\s*\[)(.*)')
+
+    # Get all lines from the conf.py file
+    lines = open(conf_filename).readlines()
+
+    # Write all lines back out, making any necessary modifications
+    outfile = open(conf_filename, 'w')
+    for line in lines:
+        match = templates_re.match(line)
+        if match:
+            left, right = match.groups()
+            line = left + "'%s', " % template_dir + right
+        outfile.write(line)
+    outfile.close()
+

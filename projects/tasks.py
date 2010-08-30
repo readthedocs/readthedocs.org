@@ -4,7 +4,7 @@ from celery.decorators import periodic_task
 
 from projects.constants import SCRAPE_CONF_SETTINGS, DEFAULT_THEME_CHOICES
 from projects.models import Project, ImportedFile
-from projects.utils import  find_file, run
+from projects.utils import  find_file, run, sanitize_conf
 
 from builds.models import Build
 
@@ -156,7 +156,7 @@ def build_docs(project):
     A helper function for the celery task to do the actual doc building.
     """
     if project.whitelisted:
-        os.system('sedify %s' % project.conf_filename)
+        sanitize_conf(project.conf_filename)
     else:
         project.write_to_disk()
 
