@@ -15,22 +15,38 @@ def find_file(file):
           matches.append(os.path.join(root, filename))
     return matches
 
-def run(command):
+def run(*commands):
+    """
+    Run one or more commands, and return ``(status, out, err)``.
+    If more than one command is given, then this is equivalent to
+    chaining them together with ``&&``; if all commands succeed, then
+    ``(status, out, err)`` will represent the last successful command.
+    If one command failed, then ``(status, out, err)`` will represent
+    the failed command.
+    """
     environment = os.environ.copy()
     cwd = os.getcwd()
-    command_list = [cmd for cmd in command.split(' ')]
-    try:
-        p = subprocess.Popen(command_list, shell=False, cwd=cwd,
-                             stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                             env=environment)
+    if not commands:
+        raise ValueError("run() requires one or more command-line strings")
 
-        out, err = p.communicate()
-        ret = p.returncode
-    except:
-        out = ''
-        err = traceback.format_exc()
-        ret = -1
-        print "fail!"
+    for command in commands:
+        print("Running: '%s'" % command)
+        try:
+            p = subprocess.Popen(command.split(), shell=False, cwd=cwd,
+                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                 env=environment)
+
+            out, err = p.communicate()
+            ret = p.returncode
+        except:
+            out = ''
+            err = traceback.format_exc()
+            ret = -1
+            print "fail!"
+
+        # If returncode is nonzero, bail out
+        if ret != 0:
+            break
 
     return (ret, out, err)
 

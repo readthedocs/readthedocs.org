@@ -17,6 +17,10 @@ import fnmatch
 
 ghetto_hack = re.compile(r'(?P<key>.*)\s*=\s*u?\[?[\'\"](?P<value>.*)[\'\"]\]?')
 
+class ProjectImportError (Exception):
+    """Failure to import a project from a repository."""
+    pass
+
 @task
 def update_docs(pk, record=True):
     """
@@ -33,8 +37,8 @@ def update_docs(pk, record=True):
     if project.is_imported:
         try:
             update_imported_docs(project)
-        except (RuntimeError, NotImplementedError):
-            print("Error updating imported docs, skipping build.")
+        except ProjectImportError, err:
+            print("Error importing project: %s. Skipping build." % err)
             return
         else:
             scrape_conf_file(project)
@@ -56,49 +60,60 @@ def update_docs(pk, record=True):
 
 
 def update_imported_docs(project):
+    """
+    Check out or update the given project's repository.
+    """
     path = project.user_doc_path
     os.chdir(path)
+    repo = project.repo
 
-    # TODO: Could probably use some better error handling here, in
-    # case one of the below commands fails for any reason
+    # Commands to be run to checkout/update
+    cmds = []
 
     # If project directory already exists, do an update/fetch/merge
     if os.path.exists(os.path.join(path, project.slug)):
         os.chdir(project.slug)
         if project.repo_type == 'hg':
-            run('hg fetch')
-            run('hg update -C .')
+            cmds.append('hg fetch')
+            cmds.append('hg update -C .')
+
         elif project.repo_type == 'git':
-            run('git --git-dir=.git fetch')
-            run('git --git-dir=.git reset --hard origin/master')
+            cmds.append('git --git-dir=.git fetch')
+            cmds.append('git --git-dir=.git reset --hard origin/master')
+
         elif project.repo_type == 'svn':
-            run('svn revert')
-            run('svn up')
+            cmds.append('svn revert')
+            cmds.append('svn up')
+
         elif project.repo_type == 'bzr':
-            run('bzr revert')
-            run('bzr up')
+            cmds.append('bzr revert')
+            cmds.append('bzr up')
+
         else:
-            raise NotImplementedError("Repo type '%s' unknown" % project.repo_type)
+            raise ProjectImportError("Repo type '%s' unknown" % project.repo_type)
 
     # Project directory doesn't exist, so do a clone/checkout/branch
     else:
-        repo = project.repo
         if project.repo_type == 'hg':
-            command = 'hg clone %s %s' % (repo, project.slug)
+            cmds.append('hg clone %s %s' % (repo, project.slug))
+
         elif project.repo_type == 'git':
             repo = repo.replace('.git', '')
-            command = 'git clone --depth=1 %s.git %s' % (repo, project.slug)
-        elif project.repo_type == 'svn':
-            command = 'svn checkout %s %s' % (repo, project.slug)
-        elif project.repo_type == 'bzr':
-            command = 'bzr checkout %s %s' % (repo, project.slug)
-        else:
-            raise NotImplementedError("Repo type '%s' unknown" % project.repo_type)
-        # Run the command and raise an exception on error
-        status, out, err = run(command)
-        if status != 0:
-            raise RuntimeError("Failed to get code from repository: '%s'" % repo)
+            cmds.append('git clone --depth=1 %s.git %s' % (repo, project.slug))
 
+        elif project.repo_type == 'svn':
+            cmds.append('svn checkout %s %s' % (repo, project.slug))
+
+        elif project.repo_type == 'bzr':
+            cmds.append('bzr checkout %s %s' % (repo, project.slug))
+
+        else:
+            raise ProjectImportError("Repo type '%s' unknown" % project.repo_type)
+
+    # Run the command(s) and raise an exception on error
+    status, out, err = run(*cmds)
+    if status != 0:
+        raise ProjectImportError("Failed to get code from repo: '%s'" % repo)
 
     fileify(project_slug=project.slug)
 
