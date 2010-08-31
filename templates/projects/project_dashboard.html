@@ -41,7 +41,7 @@
             </div>
           </div>
           {% else %}
-          <p class="empty">You don't have a single project.  Go make one!</p>
+          <p class="empty">You don't have any projects.  You can <a href="{% url projects_create %}">create new docs</a> on the site, or <a href="{% url projects_import %}">import docs</a> from a public repo.</p>
           {% endif %}
           <!-- END your projects list -->
 
