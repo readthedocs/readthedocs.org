@@ -141,11 +141,11 @@ label { display: block; margin-bottom: 4px; font-weight: bold; color: #444; }
 #project_bar a { text-decoration: none; }
 
   /* editing dashboard toolbar */
-  #project_bar .project-title { padding: 0 0 20px 0; }
+  #project_bar .project-title { padding: 0; }
   #project_bar .project-title h1 { margin: 0 0 5px; padding: 0; }
 
   /* options */
-  #project_bar .options ul {  }
+  #project_bar .options { padding: 20px 0 0 0;  }
   #project_bar .options ul li { float: left; display: block; margin-right: 10px; }
   #project_bar .options ul li.active a { background-color: #465158; }
   #project_bar .options a { display: block; padding: 6px 10px 4px; font-weight: bold; font-size: 14px; height: 20px; line-height: 17px; text-decoration: none; color: #fff; background: #8CA1AF url(../images/gradient-light.png) bottom left repeat-x; -moz-border-radius: 3px; -webkit-border-radius: 3px; text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3); }
@@ -166,9 +166,23 @@ label { display: block; margin-bottom: 4px; font-weight: bold; color: #444; }
   li.depth-9 { padding-left: 160px; }
   li.depth-10 { padding-left: 180px; }
   
-p.build-success { font-size: .8em; color: #080; }
-p.build-failure { font-size: .8em; color: #D00; }
-p.build-missing { font-size: .8em; color: #aa5; }
+p.build-success { font-size: .8em; color: #108830; margin: 0 0 3px; }
+p.build-failure { font-size: .8em; color: #dc1020; margin: 0 0 3px; }
+p.build-missing { font-size: .8em; color: #9d9a55; margin: 0 0 3px; }
+
+
+/* dashboard bar */
+
+#dashboard_bar { background: #E8ECEF; padding: 10px 0; }
+#dashboard_bar ul { display: block; float: left; margin-right: 10px; }
+#dashboard_bar ul li { display: block; float: left; }
+#dashboard_bar ul li a { padding: 5px 10px; border: 1px solid #BAC7CF; border-right: none; background: url(../images/gradient-light.png) bottom left repeat-x #fff; text-decoration: none; display: block; }
+#dashboard_bar ul li.first a { -moz-border-radius-topleft: 5px; -moz-border-radius-bottomleft: 5px; -webkit-border-top-left-radius: 5px; -webkit-border-bottom-left-radius: 5px; }
+#dashboard_bar ul li.last a { border-right: 1px solid #BAC7CF; -moz-border-radius-bottomright: 5px; -moz-border-radius-topright: 5px; -webkit-border-bottom-right-radius: 5px; -webkit-border-top-right-radius: 5px; }
+
+  /* states */
+  #dashboard_bar ul li a:hover { background-color: #D1D9DF; color: #444; }
+  #dashboard_bar ul li.active a { background-color: #BAC7CF; }
 
 
 /* pagination */

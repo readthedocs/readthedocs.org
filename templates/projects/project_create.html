@@ -1,9 +1,11 @@
-{% extends "projects/base_project.html" %}
+{% extends "dashboard/base_dashboard.html" %}
 
 {% block extra_links %}
   <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}lib/markitup/skins/simple/style.css" />
   <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}lib/markitup/sets/sphinx/editor.css" />
 {% endblock %}
+
+{% block dash-nav-create %}active{% endblock %}
 
 {% block extra_scripts %}
   <script type="text/javascript" src="{{ MEDIA_URL }}lib/markitup/jquery.markitup.pack.js"></script>
