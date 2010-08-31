@@ -55,8 +55,7 @@ def sanitize_conf(conf_filename):
     this just adds the RTD template directory to ``templates_path``.
     """
     # The template directory for RTD
-    # FIXME: Pull this from the site configuration
-    template_dir = '/home/docs/sites/readthedocs.com/checkouts/tweezers/templates/sphinx'
+    template_dir = '%s/templates/sphinx' % settings.SITE_ROOT
 
     # Expression to match the templates_path line
     # FIXME: This could fail if the statement spans multiple lines
@@ -66,6 +65,7 @@ def sanitize_conf(conf_filename):
     # Get all lines from the conf.py file
     lines = open(conf_filename).readlines()
 
+    lines_matched = 0
     # Write all lines back out, making any necessary modifications
     outfile = open(conf_filename, 'w')
     for line in lines:
@@ -73,6 +73,7 @@ def sanitize_conf(conf_filename):
         if match:
             left, right = match.groups()
             line = left + "'%s', " % template_dir + right
+            lines_matched += 1
         outfile.write(line)
     outfile.close()
-
+    return lines_matched
