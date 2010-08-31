@@ -1,8 +1,10 @@
-{% extends "projects/base_project.html" %}
+{% extends "dashboard/base_dashboard.html" %}
 
 {% block title %}Project Dashboard{% endblock %}
 
 {% block nav-dashboard %}class="active"{% endblock %}
+
+{% block dash-nav-projects %}active{% endblock %}
 
 {% block content %}
 
@@ -66,36 +68,5 @@
           {% endif %}
           {% endcomment %}
 
-          <!-- BEGIN import project -->
-          <div class="module">
-            <div class="module-wrapper">
-
-              <div class="module-list">
-                <div class="module-list-wrapper">
-                  <ul>
-                    <li class="module-item call"><a href="{% url projects_import %}">Import Documentation</a></li>
-                  </ul>
-                </div>
-              </div>
-
-            </div>
-          </div>
-          <!-- END import project -->
-
-          <!-- BEGIN create new project -->
-          <div class="module">
-            <div class="module-wrapper">
-
-              <div class="module-list">
-                <div class="module-list-wrapper">
-                  <ul>
-                    <li class="module-item call"><a href="{% url projects_create %}">Create New Documentation</a></li>
-                  </ul>
-                </div>
-              </div>
-
-            </div>
-          </div>
-          <!-- END create new project -->
 
 {% endblock %}
