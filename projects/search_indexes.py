@@ -1,5 +1,7 @@
 import datetime
 import os
+import codecs
+
 from haystack.indexes import *
 from haystack import site
 from projects.models import File, ImportedFile
@@ -23,7 +25,7 @@ class ImportedFileIndex(SearchIndex):
     def prepare_text(self, obj):
         full_path = obj.project.full_html_path
         to_read = os.path.join(full_path, obj.path.lstrip('/'))
-        content = open(to_read, 'r').read()
+        content = codecs.open(to_read, encoding="utf-8", mode='r').read()
         return content
 
 site.register(File, FileIndex)
