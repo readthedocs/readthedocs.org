@@ -35,12 +35,20 @@
                 <ul>
                   {% for result in page.object_list %}
                     <li class="module-item">
+                    {% ifequal result.model_name 'project' %}
                       <p>
+                        Project:
+                        <a href="{{ result.object.get_absolute_url }}">{{ result.title }} - {{ result.author }}</a>
+                      </p>
+                      {% else %}
+                      <p>
+                        File:
                         <a href="{{ result.object.get_absolute_url }}?highlight={{ query }}">{{ result.project }} - {{ result.title }}</a>
                       </p>
                       <p>
                         {% highlight result.text with query %}
                       </p>
+                      {% endifequal %}
                     </li>
                   {% empty %}
                     <li class="module-item"><span class="quiet">No results found. Bummer.</span></li>
