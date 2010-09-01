@@ -28,5 +28,8 @@ class ImportedFileIndex(SearchIndex):
         content = codecs.open(to_read, encoding="utf-8", mode='r').read()
         return content
 
+    def get_queryset(self):
+        return ImportedFile.objects.filter(project__status=constants.LIVE_STATUS)
+
 site.register(File, FileIndex)
 site.register(ImportedFile, ImportedFileIndex)
