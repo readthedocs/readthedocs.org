@@ -36,12 +36,12 @@
                   {% for result in page.object_list %}
                     <li class="module-item">
                     {% ifequal result.model_name 'project' %}
-                      <p>
+                      <p class="module-item-title">
                         Project:
                         <a href="{{ result.object.get_absolute_url }}">{{ result.title }} - {{ result.author }}</a>
                       </p>
                       {% else %}
-                      <p>
+                      <p class="module-item-title">
                         File:
                         <a href="{{ result.object.get_absolute_url }}?highlight={{ query }}">{{ result.project }} - {{ result.title }}</a>
                       </p>
@@ -72,9 +72,9 @@
             {% endif %}
 
             {% if page.has_next %}
-              <a href="?q={{ query }}&amp;page={{ page.next_page_number }}">Next &raquo;</a>
+              <a class="next" href="?q={{ query }}&amp;page={{ page.next_page_number }}">Next &raquo;</a>
             {% else %}
-              <span class="disabled">Next &raquo;</span>
+              <span class="next disabled">Next &raquo;</span>
             {% endif %}
           </div>
           <!-- END search pagination -->

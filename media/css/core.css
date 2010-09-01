@@ -232,6 +232,7 @@ p.build-missing { font-size: .8em; color: #9d9a55; margin: 0 0 3px; }
 .right { float: right; }
 .quiet { color: #999; }
 .help_text { color: #999; }
+.highlighted { background-color: #ee9; padding: 0 1px; margin: 0 1px; -moz-border-radius: 3px; -webkit-border-radius: 3px; }
 .first { margin-left: 0; padding-left: 0; }
 .last { margin-right: 0; padding-right: 0; }
 .top { margin-top: 0; padding-top: 0; }
