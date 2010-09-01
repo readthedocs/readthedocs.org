@@ -18,6 +18,16 @@
             <li class="last {% block dash-nav-import %}{% endblock %}"><a href="{% url projects_import %}">Import</a></li>
           </ul>
 
+          <ul>
+              <li class="first last {% block dash-nav-profile %}{% endblock %}">
+              {% if request.user.get_profile %}
+              <a href="{% url profiles_profile_edit %}">Edit Profile</a></li>
+              {% else %}
+              <a href="{% url profiles_profile_create %}">Create Profile</a></li>
+              {% endif %}
+
+          </ul>
+
       </div>
     </div>
     <!-- END dashboard bar -->
