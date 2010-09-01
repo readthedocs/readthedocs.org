@@ -1,0 +1,14 @@
+{% extends "profiles/base_profile.html" %}
+
+{% block title %}User profiles{% endblock %}
+
+{% block content-header %}
+  <h1>User profiles</h1>
+{% endblock %}
+
+{% block content %}
+  {% for profile in object_list %}
+    <a href="{% url profiles_profile_detail profile.user %}">{{ profile }}</a>
+  {% endfor %}
+{% endblock %}
+

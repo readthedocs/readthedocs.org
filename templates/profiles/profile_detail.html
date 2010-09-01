@@ -1,0 +1,20 @@
+{% extends "profiles/base_profile.html" %}
+
+{% block title %}{{ user }}'s profile{% endblock %}
+
+{% block content-header %}
+  <h1>{{ user }}'s profile</h1>
+{% endblock %}
+
+{% block content %}
+  <h3>Homepage</h3>
+  {% if profile.homepage %}
+    <p><a href="{{ profile.homepage }}">{{ profile.homepage }}</a></p>
+  {% else %}
+    <p>Unknown</p>
+  {% endif %}
+
+  <h3>Whitelisted?</h3>
+  <p>{{ profile.whitelisted }}</p>
+{% endblock %}
+

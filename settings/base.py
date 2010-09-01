@@ -90,6 +90,7 @@ INSTALLED_APPS = (
     'django_extensions',
     'basic.flagging',
     'haystack',
+    'profiles',
 
     # our apps
     'projects',
@@ -109,3 +110,6 @@ HAYSTACK_SITECONF = 'core.search_sites'
 HAYSTACK_SEARCH_ENGINE = 'solr'
 #HAYSTACK_WHOOSH_PATH = os.path.join(SITE_ROOT, 'whooshindex.db')
 HAYSTACK_SOLR_URL = 'http://loki:8983/solr'
+
+AUTH_PROFILE_MODULE = "core.UserProfile"
+
