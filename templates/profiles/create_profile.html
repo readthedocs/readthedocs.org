@@ -1,0 +1,15 @@
+{% extends "profiles/base_profile.html" %}
+
+{% block title %}Create your profile{% endblock %}
+
+{% block content-header %}
+  <h1>Create your profile</h1>
+{% endblock %}
+
+{% block content %}
+  <form method="POST" action=".">{% csrf_token %}
+    {{ form }}
+    <input type="submit" name="submit" value="Create it!" id="submit"/>
+  </form>
+{% endblock %}
+
