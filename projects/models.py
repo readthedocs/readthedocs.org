@@ -47,7 +47,6 @@ class Project(models.Model):
     extensions = models.CharField(max_length=255, editable=False, default='')
     status = models.PositiveSmallIntegerField(choices=constants.STATUS_CHOICES,
         default=constants.LIVE_STATUS)
-    whitelisted = models.BooleanField()
     skip = models.BooleanField()
 
     tags = TaggableManager()
@@ -165,7 +164,7 @@ class Project(models.Model):
 
     def write_to_disk(self):
         safe_write(self.conf_filename, self.get_rendered_conf())
-    
+
     def get_latest_build(self):
         try:
             return self.builds.all()[0]

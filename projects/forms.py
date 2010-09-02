@@ -16,22 +16,22 @@ class ProjectForm(forms.ModelForm):
             potential_slug = slugify(name)
             if Project.objects.filter(slug=potential_slug).count():
                 raise forms.ValidationError('A project with that name exists already!')
-        
+
         return name
 
 
 class CreateProjectForm(ProjectForm):
     class Meta:
         model = Project
-        exclude = ('skip', 'whitelisted', 'user', 'slug', 'repo',
+        exclude = ('skip', 'user', 'slug', 'repo',
                    'docs_directory', 'status', 'repo_type')
 
     def save(self, *args, **kwargs):
         created = self.instance.pk is None
-        
+
         # save the project
         project = super(CreateProjectForm, self).save(*args, **kwargs)
-        
+
         if created:
             # create a couple sample files
             for i, (sample_file, template) in enumerate(constants.SAMPLE_FILES):
@@ -42,10 +42,10 @@ class CreateProjectForm(ProjectForm):
                     ordering=i+1,
                 )
                 file.create_revision(old_content='', comment='')
-        
+
         # kick off the celery job
         update_docs.delay(pk=project.pk)
-        
+
         return project
 
 
@@ -54,8 +54,8 @@ class ImportProjectForm(ProjectForm):
         help_text='URL for your code (hg or git). Ex. http://github.com/ericholscher/django-kong.git')
     class Meta:
         model = Project
-        exclude = ('skip', 'whitelisted', 'theme', 'docs_directory', 'user', 'slug', 'version', 'copyright', 'status')
-    
+        exclude = ('skip', 'theme', 'docs_directory', 'user', 'slug', 'version', 'copyright', 'status')
+
     def clean_repo(self):
         repo = self.cleaned_data.get('repo', '').strip()
         if '&&' in repo or '|' in repo:
@@ -70,7 +70,7 @@ class ImportProjectForm(ProjectForm):
 
         # kick off the celery job
         update_docs.delay(pk=project.pk)
-        
+
         return project
 
 
@@ -78,7 +78,7 @@ class FileForm(forms.ModelForm):
     content = forms.CharField(widget=forms.Textarea(attrs={'class': 'editor'}),
         help_text='<small><a href="http://sphinx.pocoo.org/rest.html">reStructuredText Primer</a></small>')
     revision_comment = forms.CharField(max_length=255, required=False)
-    
+
     class Meta:
         model = File
         exclude = ('project', 'slug', 'status')
@@ -89,14 +89,14 @@ class FileForm(forms.ModelForm):
             file_qs = file_qs.exclude(pk=instance.pk)
         self.base_fields['parent'].queryset = file_qs
         super(FileForm, self).__init__(instance=instance, *args, **kwargs)
-    
+
     def save(self, *args, **kwargs):
         # grab the old content before saving
         old_content = self.initial.get('content', '')
-        
+
         # save the file object
         file_obj = super(FileForm, self).save(*args, **kwargs)
-        
+
         # create a new revision from the old content -> new
         file_obj.create_revision(
             old_content,
@@ -104,13 +104,13 @@ class FileForm(forms.ModelForm):
         )
 
         update_docs.delay(file_obj.project.pk)
-        
+
         return file_obj
 
 
 class FileRevisionForm(forms.Form):
     revision = forms.ModelChoiceField(queryset=None)
-    
+
     def __init__(self, file, *args, **kwargs):
         revision_qs = file.revisions.exclude(pk=file.current_revision.pk)
         self.base_fields['revision'].queryset = revision_qs
