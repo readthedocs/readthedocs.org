@@ -9,6 +9,7 @@
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.4/jquery-ui.min.js"></script>
     <script type="text/javascript">
       $(function() {
+        /*
         $('.rtfd-header-search input:text').autocomplete({
           source: '/projects/search/autocomplete/',
           minLength: 2,
@@ -17,6 +18,7 @@
             $('.ui-autocomplete').css({'width': '233px', 'top': ac_top + 10 }); 
           }
         });
+        */
         
         {% comment %}
         $('.rtfd-header-bookmark-icon').click(function(e) {
@@ -54,7 +56,7 @@
 
         <!-- BEGIN global search -->
         <div class="rtfd-header-search">
-          <form action="http://readthedocs.org{% url search %}" method="GET">
+          <form action="http://readthedocs.org{% url haystack_search %}" method="GET">
             <input type="text" name="q" value="{{ term }}" id="id_site_search" placeholder="Search projects">
             <input type="submit" value="Go">
           </form>
