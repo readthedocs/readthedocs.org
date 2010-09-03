@@ -1,3 +1,6 @@
+"""Django admin interface for `~builds.models.Build` and related models.
+"""
+
 from django.contrib import admin
 from builds.models import Build
 

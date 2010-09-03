@@ -1,3 +1,6 @@
+"""Utility functions used by projects.
+"""
+
 import subprocess
 import os
 import fnmatch
@@ -8,12 +11,17 @@ from django.conf import settings
 
 from projects.libs.diff_match_patch import diff_match_patch
 
+
 def find_file(file):
+    """Find matching filenames in the current directory and its subdirectories,
+    and return a list of matching filenames.
+    """
     matches = []
     for root, dirnames, filenames in os.walk('.'):
       for filename in fnmatch.filter(filenames, file):
           matches.append(os.path.join(root, filename))
     return matches
+
 
 def run(*commands):
     """
@@ -58,13 +66,19 @@ def diff(txt1, txt2):
     patch = dmp.patch_make(txt1, txt2)
     return dmp.patch_toText(patch)
 
+
 def safe_write(filename, contents):
+    """Write ``contents`` to the given ``filename``. If the filename's
+    directory does not exist, it is created. Contents are written as UTF-8,
+    ignoring any characters that cannot be encoded as UTF-8.
+    """
     dirname = os.path.dirname(filename)
     if not os.path.exists(dirname):
         os.makedirs(dirname)
     fh = open(filename, 'w')
     fh.write(contents.encode('utf-8', 'ignore'))
     fh.close()
+
 
 def sanitize_conf(conf_filename):
     """Modify the given ``conf.py`` file from a whitelisted project. For now,
@@ -93,3 +107,4 @@ def sanitize_conf(conf_filename):
         outfile.write(line)
     outfile.close()
     return lines_matched
+

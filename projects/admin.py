@@ -1,3 +1,7 @@
+"""Django administration interface for `~projects.models.Project`
+and related models.
+"""
+
 from django.contrib import admin
 
 from projects.models import Project, File, ImportedFile
