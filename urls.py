@@ -2,6 +2,7 @@ from django.conf.urls.defaults import *
 
 from django.contrib import admin
 from django.conf import settings
+from core.forms import UserProfileForm
 admin.autodiscover()
 
 handler500 = 'core.views.server_error'
@@ -31,6 +32,13 @@ urlpatterns = patterns('',
         'core.views.render_header',
         name='render_header'
     ),
+    url(r'^profiles/create/', 'profiles.views.create_profile', 
+        {'form_class': UserProfileForm},
+       name='profiles_profile_create'),
+    url(r'^profiles/edit/', 'profiles.views.edit_profile', 
+        {'form_class': UserProfileForm},
+       name='profiles_profile_edit'),
+    url(r'^profiles/', include('profiles.urls')),
 )
 
 if settings.DEBUG:
