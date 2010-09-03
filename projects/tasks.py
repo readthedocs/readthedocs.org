@@ -1,3 +1,7 @@
+"""Tasks related to projects, including fetching repository code, cleaning
+``conf.py`` files, and rebuilding documentation.
+"""
+
 from celery.decorators import task
 from celery.task.schedules import crontab
 from celery.decorators import periodic_task
@@ -20,6 +24,7 @@ ghetto_hack = re.compile(r'(?P<key>.*)\s*=\s*u?\[?[\'\"](?P<value>.*)[\'\"]\]?')
 class ProjectImportError (Exception):
     """Failure to import a project from a repository."""
     pass
+
 
 @task
 def update_docs(pk, record=True):
@@ -119,6 +124,9 @@ def update_imported_docs(project):
 
 
 def scrape_conf_file(project):
+    """Locate the given project's ``conf.py`` file and extract important
+    settings, including copyright, theme, source suffix and version.
+    """
     try:
         conf_dir = project.find('conf.py')[0]
     except IndexError:
@@ -200,8 +208,11 @@ def fileify(project_slug):
                     file, new = ImportedFile.objects.get_or_create(project=project,
                                                 path=dirpath,
                                                 name=filename)
+
+
 @periodic_task(run_every=crontab(hour="*", minute="10", day_of_week="*"))
 def update_docs_pull():
     for project in Project.objects.live():
         print "Building %s" % project
         update_docs(pk=project.pk, record=False)
+

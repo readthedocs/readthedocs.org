@@ -31,3 +31,14 @@
 .. automodule:: core.views
     :members:
 
+
+:mod:`core.management.commands`
+----------------------------------
+This is where custom ``manage.py`` commands are defined.
+
+.. automodule:: core.management.commands.build_files
+    :members:
+
+.. automodule:: core.management.commands.update_repos
+    :members:
+

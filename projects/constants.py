@@ -1,3 +1,7 @@
+"""Default values and other various configuration for projects,
+including available theme names and repository types.
+"""
+
 THEME_DEFAULT = 'default'
 THEME_SPHINX = 'sphinxdoc'
 THEME_SCROLLS = 'scrolls'

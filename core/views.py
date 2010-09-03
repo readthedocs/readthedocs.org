@@ -1,3 +1,7 @@
+"""Core views, including the main homepage, post-commit build hook,
+documentation and header rendering, and server errors.
+"""
+
 from django.conf import settings
 from django.db.models import F, Max
 from django.http import HttpResponse, HttpResponseRedirect
@@ -58,7 +62,7 @@ def serve_docs(request, username, project_slug, filename):
     The way that we're serving the documentation.
 
     This is coming out of Django so that we can do simple page counting, and
-    because later we can use Django auth to protect views. 
+    because later we can use Django auth to protect views.
 
     This could probably be refactored to serve out of nginx if we have more
     time.

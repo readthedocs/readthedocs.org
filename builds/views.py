@@ -9,6 +9,8 @@ from projects.models import Project
 from taggit.models import Tag
 
 def build_list(request, username=None, project_slug=None, tag=None):
+    """Show a list of builds.
+    """
     queryset = Build.objects.all()
     if username:
         user = get_object_or_404(User, username=username)
@@ -35,7 +37,10 @@ def build_list(request, username=None, project_slug=None, tag=None):
         template_object_name='build',
     )
 
+
 def build_detail(request, username, project_slug, pk):
+    """Show the details of a particular build.
+    """
     user = get_object_or_404(User, username=username)
     queryset = Build.objects.all()
 
@@ -52,3 +57,4 @@ def build_detail(request, username, project_slug, pk):
         extra_context={'user': user, 'project': project },
         template_object_name='build',
     )
+

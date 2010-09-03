@@ -36,3 +36,16 @@
 .. automodule:: projects.utils
     :members:
 
+:mod:`projects.views`
+----------------------------------
+
+:mod:`projects.views.public`
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. automodule:: projects.views.public
+    :members:
+
+:mod:`projects.views.private`
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. automodule:: projects.views.private
+    :members:
+
