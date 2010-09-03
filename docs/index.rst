@@ -7,7 +7,7 @@ Welcome to Read The Docs's
 ==========================
 
 This is a site devoted to the hosting of documentation for the open source
-community. It currently supports sphinx documentation, written in 
+community. It currently supports sphinx documentation, written in
 `reStructuredText format <http://sphinx.pocoo.org/rest.html>`_.  We can pull
 your existing docs if they're hosted on GitHub or Bitbucket, or you can
 create documentation using our reSt editor.
@@ -23,7 +23,10 @@ documentation!  I hope you like it.
 Contents:
 
 .. toctree::
-   :maxdepth: 2
-   :glob:
+    :maxdepth: 2
 
-   *
+    install
+    support
+    webhooks
+    api/index
+

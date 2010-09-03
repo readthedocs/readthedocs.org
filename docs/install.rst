@@ -87,7 +87,8 @@ whenever you commit to your repo, effectively letting you 'set it and forget it'
 Caveats
 -------
 
-We are auto-importing and generating conf.py files, so projects with special
+We are auto-importing and generating ``conf.py`` files, so projects with special
 extensions, themes, or templates won't work correctly. This is because of the
-possible of code execution within the python files. We are planing to support
-popular themes and white list projects that we trust to have these abilities.
+possibility of code execution within the python files. We are planning to support
+popular themes and white list users that we trust to have these abilities.
+
