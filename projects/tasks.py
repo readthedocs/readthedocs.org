@@ -21,13 +21,15 @@ import fnmatch
 
 ghetto_hack = re.compile(r'(?P<key>.*)\s*=\s*u?\[?[\'\"](?P<value>.*)[\'\"]\]?')
 
+latex_re = re.compile('the LaTeX files are in (.*)\.')
+
 class ProjectImportError (Exception):
     """Failure to import a project from a repository."""
     pass
 
 
 @task
-def update_docs(pk, record=True):
+def update_docs(pk, record=True, pdf=False):
     """
     A Celery task that updates the documentation for a project.
     """
@@ -51,7 +53,7 @@ def update_docs(pk, record=True):
         update_created_docs(project)
 
     # kick off a build
-    (ret, out, err) = build_docs(project)
+    (ret, out, err) = build_docs(project, pdf)
     if not 'no targets are out of date.' in out:
         if record:
             Build.objects.create(project=project, success=ret==0, output=out, error=err)
@@ -176,7 +178,7 @@ def update_created_docs(project):
         file.write_to_disk()
 
 
-def build_docs(project):
+def build_docs(project, pdf):
     """
     A helper function for the celery task to do the actual doc building.
     """
@@ -193,11 +195,21 @@ def build_docs(project):
         makes = [makefile for makefile in project.find('Makefile') if 'doc' in makefile]
         make_dir = makes[0].replace('/Makefile', '')
         os.chdir(make_dir)
-        (ret, out, err) = run('make html')
+        html_results = run('make html')
+        if pdf:
+            latex_results = run('make latex')
+            match = latex_re.search(latex_results[1])
+            if match:
+                latex_dir = match.group(1).strip()
+                os.chdir(latex_dir)
+                pdf_results = run('make')
+                print pdf_results
+                pdf = glob.glob('*.pdf')[0]
+                print pdf
     except IndexError:
         os.chdir(project.path)
-        (ret, out, err) = run('sphinx-build -b html . _build/html')
-    return (ret, out, err)
+        html_results = run('sphinx-build -b html . _build/html')
+    return html_results
 
 
 @task
@@ -219,4 +231,3 @@ def update_docs_pull():
     for project in Project.objects.live():
         print "Building %s" % project
         update_docs(pk=project.pk, record=False)
-
