@@ -23,6 +23,7 @@
             {% if request.user == project.user %}
               {% if not project.is_imported %}
                 <li {% block editing-option-manage %}{% endblock %}><a href="{% url projects_manage project.slug %}">Manage Files</a></li>
+                <li {% block editing-option-export %}{% endblock %}><a href="{% url projects_export project.slug %}">Export Zip</a></li>
               {% endif %}
               <li {% block editing-option-edit-proj %}{% endblock %}><a href="{% url projects_edit project.slug %}">Edit Project</a></li>
             {% endif %}
@@ -41,7 +42,7 @@
 
           </ul>
         </div>
-        
+
 
       </div>
     </div>
