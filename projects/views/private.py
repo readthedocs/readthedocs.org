@@ -1,5 +1,6 @@
 import simplejson
 import os
+import zipfile
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -274,11 +275,20 @@ def export(request, project_slug):
     project = Project.objects.live().get(user=request.user, slug=project_slug)
     os.chdir(project.user_doc_path)
     dir_path = os.path.join(settings.MEDIA_ROOT, 'export', project.user.username)
-    file_path = os.path.join(dir_path, '%s.zip' % project.slug)
+    zip_filename = '%s.zip' % project.slug
+    file_path = os.path.join(dir_path, zip_filename)
     try:
         os.makedirs(dir_path)
     except OSError:
         #Directory already exists
         pass
-    os.system('zip -r %s *' % file_path)
-    return HttpResponseRedirect(os.path.join(settings.MEDIA_URL, 'export', project.user.username, '%s.zip' % project.slug))
+
+    # Create a <slug>.zip file containing all files in file_path
+    archive = zipfile.ZipFile(zip_filename, 'w')
+    for root, subfolders, files in os.walk(file_path):
+        for file in files:
+            archive.write(os.path.join(root, file))
+    archive.close()
+
+    return HttpResponseRedirect(os.path.join(settings.MEDIA_URL, 'export', project.user.username, zip_filename))
+
