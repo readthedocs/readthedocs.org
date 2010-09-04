@@ -2,6 +2,8 @@
 ``conf.py`` files, and rebuilding documentation.
 """
 
+from django.conf import settings
+
 from celery.decorators import task
 from celery.task.schedules import crontab
 from celery.decorators import periodic_task
@@ -9,7 +11,6 @@ from celery.decorators import periodic_task
 from projects.constants import SCRAPE_CONF_SETTINGS, DEFAULT_THEME_CHOICES
 from projects.models import Project, ImportedFile
 from projects.utils import  find_file, run, sanitize_conf
-
 from builds.models import Build
 
 import decimal
@@ -203,9 +204,8 @@ def build_docs(project, pdf):
                 latex_dir = match.group(1).strip()
                 os.chdir(latex_dir)
                 pdf_results = run('make')
-                print pdf_results
                 pdf = glob.glob('*.pdf')[0]
-                print pdf
+                #run('ln -s %s %s' % (os.path.join(os.getcwd(), pdf), settings.MEDIA_ROOT))
     except IndexError:
         os.chdir(project.path)
         html_results = run('sphinx-build -b html . _build/html')

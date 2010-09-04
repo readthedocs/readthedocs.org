@@ -83,6 +83,10 @@ class Project(models.Model):
     #user_doc_path = property(memoize(user_doc_path, {}, 1))
 
     @property
+    def full_pdf_path(self):
+        return self.find('*.pdf')[0]
+
+    @property
     def full_doc_path(self):
         """
         The path to the documentation root in the project.
