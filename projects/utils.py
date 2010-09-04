@@ -81,8 +81,8 @@ def safe_write(filename, contents):
 
 
 def sanitize_conf(conf_filename):
-    """Modify the given ``conf.py`` file from a whitelisted project. For now,
-    this just adds the RTD template directory to ``templates_path``.
+    """Modify the given ``conf.py`` file from a whitelisted user's project.
+    For now, this just adds the RTD template directory to ``templates_path``.
     """
     # The template directory for RTD
     template_dir = '%s/templates/sphinx' % settings.SITE_ROOT

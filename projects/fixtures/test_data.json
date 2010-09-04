@@ -176,22 +176,6 @@
         }
     }, 
     {
-        "pk": 18, 
-        "model": "projects.project", 
-        "fields": {
-            "modified_date": "2010-08-15 13:18:16", 
-            "description": "", 
-            "docs_directory": "", 
-            "project_url": "", 
-            "repo": "http://bitbucket.org/ubernostrum/django-registration", 
-            "version": "0.8", 
-            "user": 1, 
-            "pub_date": "2010-08-15 01:13:37", 
-            "slug": "django-registration", 
-            "name": "Django Registration"
-        }
-    }, 
-    {
         "pk": 2, 
         "model": "projects.project", 
         "fields": {
@@ -208,22 +192,6 @@
         }
     }, 
     {
-        "pk": 15, 
-        "model": "projects.project", 
-        "fields": {
-            "modified_date": "2010-08-15 13:18:15", 
-            "description": "", 
-            "docs_directory": "", 
-            "project_url": "", 
-            "repo": "http://bitbucket.org/tarek/distutils2", 
-            "version": "1.0a1", 
-            "user": 1, 
-            "pub_date": "2010-08-14 23:57:05", 
-            "slug": "distutils2", 
-            "name": "Distutils2"
-        }
-    }, 
-    {
         "pk": 17, 
         "model": "projects.project", 
         "fields": {
@@ -237,22 +205,6 @@
             "pub_date": "2010-08-15 01:11:22", 
             "slug": "haystack", 
             "name": "Haystack"
-        }
-    }, 
-    {
-        "pk": 19, 
-        "model": "projects.project", 
-        "fields": {
-            "modified_date": "2010-08-15 13:18:13", 
-            "description": "ZOMG?!", 
-            "docs_directory": "", 
-            "project_url": "", 
-            "repo": "http://bitbucket.org/mitsuhiko/jinja2-main", 
-            "version": "2.0", 
-            "user": 1, 
-            "pub_date": "2010-08-15 02:13:11", 
-            "slug": "jinja", 
-            "name": "Jinja"
         }
     }
 ]

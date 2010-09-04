@@ -11,3 +11,5 @@ DATABASES = {
 }
 
 SESSION_COOKIE_DOMAIN = None
+HAYSTACK_SOLR_URL = 'http://localhost:8983/solr'
+

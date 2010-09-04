@@ -32,7 +32,12 @@ urlpatterns = patterns('',
         'core.views.render_header',
         name='render_header'
     ),
-    url(r'^profiles/edit', 'profiles.views.edit_profile', {'form_class': UserProfileForm}),
+    url(r'^profiles/create/', 'profiles.views.create_profile',
+        {'form_class': UserProfileForm},
+       name='profiles_profile_create'),
+    url(r'^profiles/edit/', 'profiles.views.edit_profile',
+        {'form_class': UserProfileForm},
+       name='profiles_profile_edit'),
     url(r'^profiles/', include('profiles.urls')),
 )
 

@@ -1,9 +1,22 @@
 import datetime
 import os
+import codecs
+
 from haystack.indexes import *
 from haystack import site
-from projects.models import File, ImportedFile
+from projects.models import File, ImportedFile, Project
 from projects import constants
+
+class ProjectIndex(SearchIndex):
+    text = CharField(document=True, use_template=True)
+    author = CharField(model_attr='user')
+    title = CharField(model_attr='name')
+    description = CharField(model_attr='description')
+    repo_type = CharField(model_attr='repo_type')
+
+    def get_queryset(self):
+        return Project.objects.filter(status=constants.LIVE_STATUS)
+
 
 class FileIndex(SearchIndex):
     text = CharField(document=True, use_template=True)
@@ -23,8 +36,9 @@ class ImportedFileIndex(SearchIndex):
     def prepare_text(self, obj):
         full_path = obj.project.full_html_path
         to_read = os.path.join(full_path, obj.path.lstrip('/'))
-        content = open(to_read, 'r').read()
+        content = codecs.open(to_read, encoding="utf-8", mode='r').read()
         return content
 
 site.register(File, FileIndex)
 site.register(ImportedFile, ImportedFileIndex)
+site.register(Project, ProjectIndex)

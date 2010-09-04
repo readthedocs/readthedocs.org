@@ -180,7 +180,7 @@ def build_docs(project):
     """
     A helper function for the celery task to do the actual doc building.
     """
-    if project.whitelisted:
+    if project.user.get_profile().whitelisted:
         sanitize_conf(project.conf_filename)
     else:
         project.write_to_disk()

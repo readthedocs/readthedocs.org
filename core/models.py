@@ -4,7 +4,11 @@ from django.contrib.auth.models import User
 class UserProfile (models.Model):
     """Additional information about a User.
     """
+<<<<<<< HEAD
     user = models.ForeignKey(User, unique=True)
+=======
+    user = models.ForeignKey(User, unique=True, related_name='profile')
+>>>>>>> FETCH_HEAD
     whitelisted = models.BooleanField()
     homepage = models.CharField(max_length=100)
 
