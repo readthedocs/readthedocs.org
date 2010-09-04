@@ -7,14 +7,24 @@
 {% endblock %}
 
 {% block content %}
-  <h3>Homepage</h3>
-  {% if profile.homepage %}
-    <p><a href="{{ profile.homepage }}">{{ profile.homepage }}</a></p>
-  {% else %}
-    <p>Unknown</p>
-  {% endif %}
+  <dl>
+    {% if profile.user.first_name or profile.user.last_name %}
+      <dt>Name</dt>
+      <dd>{{ profile.user.first_name }} {{ profile.user.last_name }}</dd>
+    {% endif %}
 
-  <h3>Whitelisted?</h3>
-  <p>{{ profile.whitelisted }}</p>
+    {% if profile.user.email %}
+      <dt>Email</dt>
+      <dd>{{ profile.user.email }}</dd>
+    {% endif %}
+
+    {% if profile.homepage %}
+      <dt>Homepage</dt>
+      <dd><a href="{{ profile.homepage }}">{{ profile.homepage }}</a></dd>
+    {% endif %}
+
+    <dt>Whitelisted?</dt>
+    <dd>{{ profile.whitelisted }}</dd>
+  </dl>
 {% endblock %}
 
