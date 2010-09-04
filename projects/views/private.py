@@ -107,9 +107,9 @@ def project_delete(request, project_slug):
     """
     project = get_object_or_404(request.user.projects.live(), slug=project_slug)
 
+    # Delete the project and everything related to it
     if request.method == 'POST':
-        project.status = constants.DELETED_STATUS
-        project.save()
+        project.delete()
         project_dashboard = reverse('projects_dashboard')
         return HttpResponseRedirect(project_dashboard)
 
@@ -216,7 +216,7 @@ def file_history(request, project_slug, file_id):
         form.cleaned_data['revision'].apply()
         history = reverse('projects_file_history', args=[project.slug, file.pk])
         return HttpResponseRedirect(history)
-    
+
     return object_list(
         request,
         queryset=file.revisions.all(),
@@ -262,7 +262,7 @@ def file_preview(request):
     )
     rendered_base = render_to_string('projects/doc_file.rst.html', {'file': f})
     rendered = restructuredtext(rendered_base)
-    
+
     json_response = simplejson.dumps({'payload': rendered})
     return HttpResponse(simplejson.dumps(payload), mimetype='text/javascript')
 
