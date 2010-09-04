@@ -6,7 +6,7 @@ class UserProfile (models.Model):
     """
     user = models.ForeignKey(User, unique=True, related_name='profile')
     whitelisted = models.BooleanField()
-    homepage = models.CharField(max_length=100)
+    homepage = models.CharField(max_length=100, blank=True)
 
     def get_absolute_url(self):
         return ('profiles_profile_detail', (), {'username': self.user.username})
