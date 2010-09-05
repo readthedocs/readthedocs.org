@@ -1,5 +1,6 @@
 import simplejson
 import os
+import shutil
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -107,8 +108,10 @@ def project_delete(request, project_slug):
     """
     project = get_object_or_404(request.user.projects.live(), slug=project_slug)
 
-    # Delete the project and everything related to it
     if request.method == 'POST':
+        # Remove the repository checkout
+        shutil.rmtree(project.user_doc_path)
+        # Delete the project and everything related to it
         project.delete()
         project_dashboard = reverse('projects_dashboard')
         return HttpResponseRedirect(project_dashboard)
