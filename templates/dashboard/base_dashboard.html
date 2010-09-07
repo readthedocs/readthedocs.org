@@ -19,13 +19,13 @@
           </ul>
 
           <ul>
-              <li class="first last {% block dash-nav-profile %}{% endblock %}">
+            <li class="first last {% block dash-nav-profile %}{% endblock %}">
               {% if request.user.get_profile %}
-              <a href="{% url profiles_profile_edit %}">Edit Profile</a></li>
+              <a href="{% url profiles_profile_edit %}">Edit Profile</a>
               {% else %}
-              <a href="{% url profiles_profile_create %}">Create Profile</a></li>
+              <a href="{% url profiles_profile_create %}">Create Profile</a>
               {% endif %}
-
+            </li>
           </ul>
 
       </div>
