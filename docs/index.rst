@@ -14,14 +14,18 @@ We support Svn, Bzr, Git, and Hg repositories, which will be auto-updated with
 post commit hooks for your documentation.
 
 
+The code is hosted on github at http://github.com/rtfd/readthedocs.org and is
+fully open source. We hope you choose to help us on the project!
+
+
 Why readthedocs.org?
 --------------------
 
 Our aim is to make it easy for open source developers to host their projects'
 documentation!  I hope you like it.
 
-
-Contents:
+Contents
+========
 
 .. toctree::
     :maxdepth: 2
