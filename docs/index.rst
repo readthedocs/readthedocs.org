@@ -8,9 +8,10 @@ Welcome to Read The Docs's
 
 This is a site devoted to the hosting of documentation for the open source
 community. It currently supports sphinx documentation, written in
-`reStructuredText format <http://sphinx.pocoo.org/rest.html>`_.  We can pull
-your existing docs if they're hosted on GitHub or Bitbucket, or you can
-create documentation using our reSt editor.
+`reStructuredText format <http://sphinx.pocoo.org/rest.html>`_.
+
+We support Svn, Bzr, Git, and Hg repositories, which will be auto-updated with
+post commit hooks for your documentation.
 
 
 Why readthedocs.org?
