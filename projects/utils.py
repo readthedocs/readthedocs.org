@@ -6,6 +6,7 @@ import os
 import fnmatch
 import traceback
 import re
+import ast, _ast
 
 from django.conf import settings
 
@@ -107,4 +108,52 @@ def sanitize_conf(conf_filename):
         outfile.write(line)
     outfile.close()
     return lines_matched
+
+
+class ConfVisitor (ast.NodeVisitor):
+    """An AST node visitor that captures safe-to-evaluate expressions in
+    a ``conf.py`` file, or any other Python file containing assignment
+    statements that include only literal-valued expressions.
+    """
+    def __init__(self):
+        """Create a ConfVisitor.
+        """
+        ast.NodeVisitor.__init__(self)
+        self.settings = {}
+
+    def visit_Assign(self, expr):
+        """When an assignment statement is found, try to safely evaluate a
+        literal on the right hand side. If successful, keep the expression
+        as a safe-to-execute line.
+        """
+        # Get the first target of the assignment statement
+        target = expr.targets[0]
+        # Only allow assignment to simple variable names,
+        # not tuples or other expressions
+        if not isinstance(target, _ast.Name):
+            return
+        # Try to evaluate a literal expression on the right hand side
+        # (consisting of bools, strings, lists, tuples, or dicts)
+        try:
+            value = ast.literal_eval(expr.value)
+        # Problem evaluating literal--do nothing
+        except ValueError:
+            return
+        # Evaluation successful--this is a safe expression
+        else:
+            self.settings[target.id] = value
+
+
+def conf_settings(conf_filename):
+    """Read the given ``conf.py`` file, and return a dictionary of
+    ``{setting: value}`` for all safe-to-execute lines found within.
+    """
+    conf_visitor = ConfVisitor()
+    # Read the abstract syntax tree from the file
+    root = ast.parse(open(conf_filename).read())
+    # Visit each node
+    for node in root.body:
+        conf_visitor.visit(node)
+    # Return the lines that are safe
+    return conf_visitor.settings
 

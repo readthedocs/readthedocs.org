@@ -7,7 +7,7 @@ from django.template.loader import render_to_string
 from django.utils.functional import memoize
 
 from projects import constants
-from projects.utils import diff, dmp, safe_write
+from projects.utils import diff, dmp, safe_write, conf_settings
 
 from taggit.managers import TaggableManager
 
@@ -170,6 +170,41 @@ class Project(models.Model):
             return self.builds.all()[0]
         except IndexError:
             return None
+
+    @property
+    def conf_settings(self):
+        """Return a list of all ``(name, repr(value))`` settings for this
+        project's conf.py. If this project is imported, any safe-to-execute
+        settings from its original conf.py are merged in.
+        """
+        # Default configuration settings
+        conf = {
+            'extensions': [],
+            'templates_path': ['templates', '_templates', '.templates'],
+            'source_suffix': self.suffix,
+            'master_doc': 'index',
+            'project':  self.name,
+            'copyright': self.copyright,
+            'version': self.version,
+            'release': self.version,
+            'exclude_patterns': ['_build'],
+            'pygments_style': 'sphinx',
+            'html_theme': self.theme,
+            'html_theme_path': ['.', '_theme', '.theme'],
+            'html_static_path': ['_static'],
+            'file_insertion_enabled': False,
+        }
+        # If the project is imported, merge any conf.py settings
+        # from the original
+        if self.is_imported:
+            conf.update(conf_settings(self.conf_filename))
+
+        # Ensure the template_dir is always included in templates_path
+        conf['templates_path'].insert(0, self.template_dir)
+
+        # Convert all values using 'repr', so they can be rendered by
+        # the conf.py template.
+        return [(name, repr(value)) for name, value in conf.items()]
 
 
 class FileManager(models.Manager):

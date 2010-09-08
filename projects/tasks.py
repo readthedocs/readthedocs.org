@@ -181,11 +181,15 @@ def build_docs(project):
     A helper function for the celery task to do the actual doc building.
     """
     try:
+        # If user has a profile and is whitelisted,
+        # allow full evaluation of their project's conf.py
         profile = project.user.get_profile()
         if profile.whitelisted:
             sanitize_conf(project.conf_filename)
+        # Otherwise, just write the safe-to-evaluate version
         else:
             project.write_to_disk()
+    # If there are any problems, write the safe-to-evaluate version
     except:
         project.write_to_disk()
 
