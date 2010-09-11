@@ -90,7 +90,7 @@ def sanitize_conf(conf_filename):
     # Expression to match the templates_path line
     # FIXME: This could fail if the statement spans multiple lines
     # (but will work as long as the first line has the opening '[')
-    templates_re = re.compile('(#*\s*templates_path\s*=\s*\[)(.*)')
+    templates_re = re.compile('(\s*templates_path\s*=\s*\[)(.*)')
 
     # Get all lines from the conf.py file
     lines = open(conf_filename).readlines()
