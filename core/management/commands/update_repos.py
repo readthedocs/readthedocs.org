@@ -20,7 +20,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         make_pdf = options['pdf']
         if not len(args):
-            tasks.update_docs_pull()
+            tasks.update_docs_pull(pdf=make_pdf)
         else:
             for slug in args:
                 p = Project.objects.get(slug=slug)
