@@ -19,12 +19,15 @@
           </ul>
 
           <ul>
-            <li class="first last {% block dash-nav-profile %}{% endblock %}">
+            <li class="first {% block dash-nav-profile %}{% endblock %}">
               {% if request.user.get_profile %}
               <a href="{% url profiles_profile_edit %}">Edit Profile</a>
               {% else %}
               <a href="{% url profiles_profile_create %}">Create Profile</a>
               {% endif %}
+            </li>
+            <li class="last {% block dash-nav-change-pw %}{% endblock %}">
+              <a href="{% url admin:password_change %}">Change Password</a>
             </li>
           </ul>
 
