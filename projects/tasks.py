@@ -21,7 +21,6 @@ import re
 import glob
 import fnmatch
 
-
 ghetto_hack = re.compile(r'(?P<key>.*)\s*=\s*u?\[?[\'\"](?P<value>.*)[\'\"]\]?')
 
 latex_re = re.compile('the LaTeX files are in (.*)\.')
@@ -37,6 +36,7 @@ def update_docs(pk, record=True, pdf=False):
     A Celery task that updates the documentation for a project.
     """
     project = Project.objects.live().get(pk=pk)
+    print "Building %s" % project
     if project.skip:
         return
 
