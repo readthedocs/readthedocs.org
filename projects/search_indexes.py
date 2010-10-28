@@ -36,7 +36,11 @@ class ImportedFileIndex(SearchIndex):
     def prepare_text(self, obj):
         full_path = obj.project.full_html_path
         to_read = os.path.join(full_path, obj.path.lstrip('/'))
-        content = codecs.open(to_read, encoding="utf-8", mode='r').read()
+        try:
+            content = codecs.open(to_read, encoding="utf-8", mode='r').read()
+        except IOError:
+            print "%s not found" % full_path
+            #obj.delete()
         return content
 
     def get_queryset(self):
