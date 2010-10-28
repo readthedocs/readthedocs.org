@@ -83,7 +83,6 @@ def update_imported_docs(project):
         os.chdir(project.slug)
         if project.repo_type == 'hg':
             cmds.append('hg pull')
-            cmds.append('hg merge')
             cmds.append('hg update -C .')
 
         elif project.repo_type == 'git':
