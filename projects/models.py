@@ -161,7 +161,9 @@ class Project(models.Model):
 
     @property
     def conf_filename(self):
-        return os.path.join(self.path, 'conf.py')
+        if self.path:
+            return os.path.join(self.path, 'conf.py')
+        raise IOError
 
     def get_rendered_conf(self):
         return render_to_string('projects/conf.py.html', {'project': self})

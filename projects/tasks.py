@@ -3,6 +3,8 @@
 """
 
 from django.conf import settings
+from django.contrib.auth.models import SiteProfileNotAvailable
+from django.core.exceptions import ObjectDoesNotExist
 
 from celery.decorators import task
 from celery.task.schedules import crontab
@@ -187,10 +189,13 @@ def build_docs(project, pdf):
         profile = project.user.get_profile()
         if profile.whitelisted:
             sanitize_conf(project.conf_filename)
-        else:
+    except (SiteProfileNotAvailable, ObjectDoesNotExist):
+        try:
             project.write_to_disk()
-    except:
-        project.write_to_disk()
+        except IOError:
+            print "Conf file not found. Error writing to disk."
+            return ('','',-1)
+
 
     try:
         makes = [makefile for makefile in project.find('Makefile') if 'doc' in makefile]
