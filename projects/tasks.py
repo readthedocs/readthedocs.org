@@ -194,7 +194,7 @@ def build_docs(project, pdf):
     except (OSError, SiteProfileNotAvailable, ObjectDoesNotExist):
         try:
             project.write_to_disk()
-        except IOError:
+        except (OSError, IOError):
             print "Conf file not found. Error writing to disk."
             return ('','',-1)
 
