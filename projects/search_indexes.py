@@ -38,10 +38,10 @@ class ImportedFileIndex(SearchIndex):
         to_read = os.path.join(full_path, obj.path.lstrip('/'))
         try:
             content = codecs.open(to_read, encoding="utf-8", mode='r').read()
+            return content
         except IOError:
             print "%s not found" % full_path
             #obj.delete()
-        return content
 
     def get_queryset(self):
         return ImportedFile.objects.filter(project__status=constants.LIVE_STATUS)
