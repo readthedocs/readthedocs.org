@@ -92,7 +92,7 @@ def update_imported_docs(project):
             cmds.append('git --git-dir=.git reset --hard origin/master')
 
         elif project.repo_type == 'svn':
-            cmds.append('svn revert')
+            cmds.append('svn revert .')
             cmds.append('svn up')
 
         elif project.repo_type == 'bzr':
