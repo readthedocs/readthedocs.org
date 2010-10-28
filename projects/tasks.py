@@ -145,7 +145,7 @@ def scrape_conf_file(project):
         match = ghetto_hack.search(line)
         if match:
             data[match.group(1).strip()] = match.group(2).strip()
-    project.copyright = data['copyright']
+    project.copyright = data.get('copyright', 'Unknown')
     project.theme = data.get('html_theme', 'default')
     #if project.theme not in [x[0] for x in DEFAULT_THEME_CHOICES]:
         #project.theme = 'default'
