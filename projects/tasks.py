@@ -191,7 +191,7 @@ def build_docs(project, pdf):
         profile = project.user.get_profile()
         if profile.whitelisted:
             sanitize_conf(project.conf_filename)
-    except (SiteProfileNotAvailable, ObjectDoesNotExist):
+    except (OSError, SiteProfileNotAvailable, ObjectDoesNotExist):
         try:
             project.write_to_disk()
         except IOError:
