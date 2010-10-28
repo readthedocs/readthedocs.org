@@ -212,7 +212,10 @@ def build_docs(project, pdf):
                 os.chdir(latex_dir)
                 pdf_results = run('make')
                 pdf = glob.glob('*.pdf')[0]
-                #run('ln -s %s %s' % (os.path.join(os.getcwd(), pdf), settings.MEDIA_ROOT))
+                run('ln -s %s %s/%s.pdf' % (os.path.join(os.getcwd(), pdf), 
+                                            settings.MEDIA_ROOT,
+                                            project.slug
+                                           ))
     except IndexError:
         os.chdir(project.path)
         html_results = run('sphinx-build -b html . _build/html')
