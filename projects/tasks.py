@@ -36,10 +36,10 @@ def update_docs(pk, record=True, pdf=False):
     A Celery task that updates the documentation for a project.
     """
     project = Project.objects.live().get(pk=pk)
-    print "Building %s" % project
     if project.skip:
+        print "Skipping %s" % project
         return
-
+    print "Building %s" % project
     path = project.user_doc_path
     if not os.path.exists(path):
         os.makedirs(path)
