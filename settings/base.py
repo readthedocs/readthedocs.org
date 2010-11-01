@@ -103,7 +103,7 @@ INSTALLED_APPS = (
 
 CARROT_BACKEND = "ghettoq.taproot.Database"
 CELERY_ALWAYS_EAGER = True
-CELERYD_TASK_TIME_LIMIT = 240
+CELERYD_TASK_TIME_LIMIT = 60*10 #10 minutes
 
 
 DEFAULT_FROM_EMAIL = "no-reply@readthedocs.org"
