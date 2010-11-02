@@ -6,7 +6,7 @@ from django.contrib import admin
 from core.models import UserProfile
 
 class UserProfileAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('user', 'whitelisted', 'homepage')
 
 admin.site.register(UserProfile, UserProfileAdmin)
 
