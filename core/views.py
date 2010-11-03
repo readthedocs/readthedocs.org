@@ -43,7 +43,7 @@ def github_build(request):
         obj = json.loads(request.POST['payload'])
         name = obj['repository']['name']
         url = obj['repository']['url']
-        ghetto_url = url.replace('http://', '')
+        ghetto_url = url.replace('http://', '').replace('https://', '')
         project = Project.objects.filter(repo__contains=ghetto_url)[0]
         update_docs.delay(pk=project.pk)
         return HttpResponse('Build Started')
