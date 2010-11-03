@@ -41,16 +41,16 @@ def github_build(request):
     A post-commit hook for github.
     """
     if request.method == 'POST':
+        obj = json.loads(request.POST['payload'])
+        name = obj['repository']['name']
+        url = obj['repository']['url']
+        ghetto_url = url.replace('http://', '').replace('https://', '')
         try:
-            obj = json.loads(request.POST['payload'])
-            name = obj['repository']['name']
-            url = obj['repository']['url']
-            ghetto_url = url.replace('http://', '').replace('https://', '')
             project = Project.objects.filter(repo__contains=ghetto_url)[0]
             update_docs.delay(pk=project.pk)
             return HttpResponse('Build Started')
         except:
-            mail_admins('Build Failure', '%s failed to build via github' % project)
+            mail_admins('Build Failure', '%s failed to build via github' % name)
             return HttpResponse('Build Failed')
     else:
         return render_to_response('github.html', {},
