@@ -63,8 +63,7 @@ class Project(models.Model):
         return reverse('projects_detail', args=[self.user.username, self.slug])
 
     def get_docs_url(self):
-        return '%s.readthedocs.org' % self.slug
-        #return reverse('docs_detail', args=[self.user.username, self.slug, ''])
+        return reverse('docs_detail', args=[self.user.username, self.slug, ''])
 
     def get_doc_root(self):
         """
