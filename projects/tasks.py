@@ -241,7 +241,7 @@ def fileify(project_slug):
                                                 name=filename)
 
 
-@periodic_task(run_every=crontab(hour="*", minute="10", day_of_week="*"))
+@periodic_task(run_every=crontab(hour="2", minute="10", day_of_week="*"))
 def update_docs_pull(pdf=False):
     for project in Project.objects.live():
         update_docs(pk=project.pk, record=False, pdf=pdf)
