@@ -108,7 +108,7 @@ def update_imported_docs(project):
             cmds.append('hg clone %s %s' % (repo, project.slug))
 
         elif project.repo_type == 'git':
-            repo = repo.replace('.git', '')
+            repo = repo.replace('.git', '').strip('/')
             cmds.append('git clone --depth=1 %s.git %s' % (repo, project.slug))
 
         elif project.repo_type == 'svn':
