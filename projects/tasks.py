@@ -186,7 +186,7 @@ def build_docs(project, pdf):
     A helper function for the celery task to do the actual doc building.
     """
     if not project.path:
-        return ('','',-1)
+        return ('','Conf file not found.',-1)
     try:
         profile = project.user.get_profile()
         if profile.whitelisted:
@@ -201,7 +201,7 @@ def build_docs(project, pdf):
             project.write_to_disk()
         except (OSError, IOError):
             print "Conf file not found. Error writing to disk."
-            return ('','',-1)
+            return ('','Conf file not found. Error writing to disk.',-1)
 
 
     try:
