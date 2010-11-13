@@ -7,6 +7,10 @@
   </p>
 {% endif %}
 
+<h3>Short URL</h3>
+<p><a href="http://{{ project.slug}}.readthedocs.org">{{ project.slug }}.readthedocs.org</a></p>
+
+
 <h3>Last Built</h3>
 <p>{{ project.modified_date|date:"N j, Y. P" }}</p>
 
