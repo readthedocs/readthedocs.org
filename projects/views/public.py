@@ -25,7 +25,7 @@ def project_index(request, username=None, tag=None):
 
     if tag:
         tag = get_object_or_404(Tag, slug=tag)
-        queryset = queryset.filter(tags__in=[tag.slug])
+        queryset = queryset.filter(tags__name__in=[tag.slug])
     else:
         tag = None
 
