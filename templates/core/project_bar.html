@@ -20,6 +20,10 @@
           {% endif %}
 
           <ul>
+            {% if project.get_latest_build.success %}
+              <li {% block editing-option-view %}{% endblock %}><a href="{{ project.get_docs_url }}">View Docs</a></li>
+            {% endif %}
+
             {% if request.user == project.user %}
               {% if not project.is_imported %}
                 <li {% block editing-option-manage %}{% endblock %}><a href="{% url projects_manage project.slug %}">Manage Files</a></li>
@@ -31,17 +35,13 @@
               <li {% block editing-option-builds %}{% endblock %}><a href="{% url builds_project_list project.user.username project.slug %}">Builds</a></li>
             {% endif %}
 
-            {% if project.get_latest_build.success %}
-              <li {% block editing-option-view %}{% endblock %}><a href="{{ project.get_docs_url }}">View Docs</a></li>
-            {% endif %}
-
             {% if project.project_url %}
               <li><a href="{{ project.project_url }}" rel="nofollow,noindex">Project Homepage</a></li>
             {% endif %}
 
           </ul>
         </div>
-        
+
 
       </div>
     </div>
