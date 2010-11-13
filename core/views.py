@@ -2,6 +2,7 @@
 documentation and header rendering, and server errors.
 """
 
+from django.core.mail import mail_admins
 from django.conf import settings
 from django.db.models import F, Max
 from django.http import HttpResponse, HttpResponseRedirect
@@ -43,10 +44,14 @@ def github_build(request):
         obj = json.loads(request.POST['payload'])
         name = obj['repository']['name']
         url = obj['repository']['url']
-        ghetto_url = url.replace('http://', '')
-        project = Project.objects.filter(repo__contains=ghetto_url)[0]
-        update_docs.delay(pk=project.pk)
-        return HttpResponse('Build Started')
+        ghetto_url = url.replace('http://', '').replace('https://', '')
+        try:
+            project = Project.objects.filter(repo__contains=ghetto_url)[0]
+            update_docs.delay(pk=project.pk)
+            return HttpResponse('Build Started')
+        except:
+            mail_admins('Build Failure', '%s failed to build via github' % name)
+            return HttpResponse('Build Failed')
     else:
         return render_to_response('github.html', {},
                 context_instance=RequestContext(request))

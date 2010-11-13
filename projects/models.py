@@ -83,6 +83,10 @@ class Project(models.Model):
     #user_doc_path = property(memoize(user_doc_path, {}, 1))
 
     @property
+    def full_pdf_path(self):
+        return self.find('*.pdf')[0]
+
+    @property
     def full_doc_path(self):
         """
         The path to the documentation root in the project.
@@ -157,7 +161,9 @@ class Project(models.Model):
 
     @property
     def conf_filename(self):
-        return os.path.join(self.path, 'conf.py')
+        if self.path:
+            return os.path.join(self.path, 'conf.py')
+        raise IOError
 
     def get_rendered_conf(self):
         return render_to_string('projects/conf.py.html', {'project': self})

@@ -3,11 +3,11 @@ from fabric.api import *
 from fabric.contrib import files, console
 
 env.runtime = 'production'
-env.hosts = ['readthedocs.org']
+env.hosts = ['chimera.ericholscher.com']
 env.user = 'docs'
-env.code_dir = '/home/docs/sites/readthedocs.com/checkouts/tweezers'
-env.virtualenv = '/home/docs/sites/readthedocs.com'
-env.rundir = '/home/docs/sites/readthedocs.com/run'
+env.code_dir = '/home/docs/sites/readthedocs.org/checkouts/readthedocs.org'
+env.virtualenv = '/home/docs/sites/readthedocs.org'
+env.rundir = '/home/docs/sites/readthedocs.org/run'
 
 def update_requirements():
     "Update requirements in the virtualenv."
@@ -26,7 +26,8 @@ def reload():
 
 def restart():
     "Restart (or just start) the server"
-    run("~/run_gunicorn.sh")
+    env.user = "root"
+    run("restart readthedocs-gunicorn")
 
 def migrate(project):
     run('django-admin.py migrate %s' % project)

@@ -33,6 +33,10 @@ urlpatterns = patterns('projects.views.public',
         'project_index',
         name='projects_user_list'
     ),
+    url(r'^(?P<username>\w+)/(?P<project_slug>[-\w]+)/pdf/$',
+        'project_pdf',
+        name='projects_pdf'
+    ),
 )
 
 urlpatterns += patterns('',

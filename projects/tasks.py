@@ -2,6 +2,10 @@
 ``conf.py`` files, and rebuilding documentation.
 """
 
+from django.conf import settings
+from django.contrib.auth.models import SiteProfileNotAvailable
+from django.core.exceptions import ObjectDoesNotExist
+
 from celery.decorators import task
 from celery.task.schedules import crontab
 from celery.decorators import periodic_task
@@ -9,7 +13,6 @@ from celery.decorators import periodic_task
 from projects.constants import SCRAPE_CONF_SETTINGS, DEFAULT_THEME_CHOICES
 from projects.models import Project, ImportedFile
 from projects.utils import  find_file, run, sanitize_conf
-
 from builds.models import Build
 
 import decimal
@@ -18,8 +21,9 @@ import re
 import glob
 import fnmatch
 
-
 ghetto_hack = re.compile(r'(?P<key>.*)\s*=\s*u?\[?[\'\"](?P<value>.*)[\'\"]\]?')
+
+latex_re = re.compile('the LaTeX files are in (.*)\.')
 
 class ProjectImportError (Exception):
     """Failure to import a project from a repository."""
@@ -27,14 +31,15 @@ class ProjectImportError (Exception):
 
 
 @task
-def update_docs(pk, record=True):
+def update_docs(pk, record=True, pdf=False):
     """
     A Celery task that updates the documentation for a project.
     """
     project = Project.objects.live().get(pk=pk)
     if project.skip:
+        print "Skipping %s" % project
         return
-
+    print "Building %s" % project
     path = project.user_doc_path
     if not os.path.exists(path):
         os.makedirs(path)
@@ -51,7 +56,7 @@ def update_docs(pk, record=True):
         update_created_docs(project)
 
     # kick off a build
-    (ret, out, err) = build_docs(project)
+    (ret, out, err) = build_docs(project, pdf)
     if not 'no targets are out of date.' in out:
         if record:
             Build.objects.create(project=project, success=ret==0, output=out, error=err)
@@ -79,7 +84,7 @@ def update_imported_docs(project):
     if os.path.exists(os.path.join(path, project.slug)):
         os.chdir(project.slug)
         if project.repo_type == 'hg':
-            cmds.append('hg fetch')
+            cmds.append('hg pull')
             cmds.append('hg update -C .')
 
         elif project.repo_type == 'git':
@@ -87,8 +92,8 @@ def update_imported_docs(project):
             cmds.append('git --git-dir=.git reset --hard origin/master')
 
         elif project.repo_type == 'svn':
-            cmds.append('svn revert')
-            cmds.append('svn up')
+            cmds.append('svn revert .')
+            cmds.append('svn up --accept theirs-full')
 
         elif project.repo_type == 'bzr':
             cmds.append('bzr revert')
@@ -103,7 +108,7 @@ def update_imported_docs(project):
             cmds.append('hg clone %s %s' % (repo, project.slug))
 
         elif project.repo_type == 'git':
-            repo = repo.replace('.git', '')
+            repo = repo.replace('.git', '').strip('/')
             cmds.append('git clone --depth=1 %s.git %s' % (repo, project.slug))
 
         elif project.repo_type == 'svn':
@@ -142,7 +147,7 @@ def scrape_conf_file(project):
         match = ghetto_hack.search(line)
         if match:
             data[match.group(1).strip()] = match.group(2).strip()
-    project.copyright = data['copyright']
+    project.copyright = data.get('copyright', 'Unknown')
     project.theme = data.get('html_theme', 'default')
     #if project.theme not in [x[0] for x in DEFAULT_THEME_CHOICES]:
         #project.theme = 'default'
@@ -176,32 +181,53 @@ def update_created_docs(project):
         file.write_to_disk()
 
 
-def build_docs(project):
+def build_docs(project, pdf):
     """
     A helper function for the celery task to do the actual doc building.
     """
+    if not project.path:
+        return ('','Conf file not found.',-1)
     try:
         # If user has a profile and is whitelisted,
         # allow full evaluation of their project's conf.py
         profile = project.user.get_profile()
         if profile.whitelisted:
+            print "Project whitelisted"
             sanitize_conf(project.conf_filename)
         # Otherwise, just write the safe-to-evaluate version
         else:
+            print "Writing conf to disk"
             project.write_to_disk()
-    # If there are any problems, write the safe-to-evaluate version
-    except:
-        project.write_to_disk()
+    except (OSError, SiteProfileNotAvailable, ObjectDoesNotExist):
+        try:
+            print "Writing conf to disk"
+            project.write_to_disk()
+        except (OSError, IOError):
+            print "Conf file not found. Error writing to disk."
+            return ('','Conf file not found. Error writing to disk.',-1)
+
 
     try:
         makes = [makefile for makefile in project.find('Makefile') if 'doc' in makefile]
         make_dir = makes[0].replace('/Makefile', '')
         os.chdir(make_dir)
-        (ret, out, err) = run('make html')
+        html_results = run('make html')
+        if pdf:
+            latex_results = run('make latex')
+            match = latex_re.search(latex_results[1])
+            if match:
+                latex_dir = match.group(1).strip()
+                os.chdir(latex_dir)
+                pdf_results = run('make')
+                pdf = glob.glob('*.pdf')[0]
+                run('ln -s %s %s/%s.pdf' % (os.path.join(os.getcwd(), pdf),
+                                            settings.MEDIA_ROOT,
+                                            project.slug
+                                           ))
     except IndexError:
         os.chdir(project.path)
-        (ret, out, err) = run('sphinx-build -b html . _build/html')
-    return (ret, out, err)
+        html_results = run('sphinx-build -b html . _build/html')
+    return html_results
 
 
 @task
@@ -218,9 +244,7 @@ def fileify(project_slug):
                                                 name=filename)
 
 
-@periodic_task(run_every=crontab(hour="*", minute="10", day_of_week="*"))
-def update_docs_pull():
+@periodic_task(run_every=crontab(hour="2", minute="10", day_of_week="*"))
+def update_docs_pull(pdf=False):
     for project in Project.objects.live():
-        print "Building %s" % project
-        update_docs(pk=project.pk, record=False)
-
+        update_docs(pk=project.pk, record=False, pdf=pdf)

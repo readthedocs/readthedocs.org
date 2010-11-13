@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404
 from django.views.generic.list_detail import object_list, object_detail
+from django.views.static import serve
 
 from projects.models import Project
 from core.views import serve_docs
@@ -24,7 +25,7 @@ def project_index(request, username=None, tag=None):
 
     if tag:
         tag = get_object_or_404(Tag, slug=tag)
-        queryset = queryset.filter(tags__in=[tag.slug])
+        queryset = queryset.filter(tags__name__in=[tag.slug])
     else:
         tag = None
 
@@ -108,3 +109,9 @@ def search_autocomplete(request):
     json_response = simplejson.dumps(list(project_names))
 
     return HttpResponse(json_response, mimetype='text/javascript')
+
+def project_pdf(request, username, project_slug):
+    project = get_object_or_404(Project, slug=project_slug)
+    pdf = project.full_pdf_path.replace(project.full_doc_path, '')
+    base = project.full_doc_path
+    return serve(request, pdf, base)

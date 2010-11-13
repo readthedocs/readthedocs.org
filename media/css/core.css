@@ -30,7 +30,8 @@ h2 { font-size: 24px; line-height: 28px; margin-bottom: 10px; }
 h3 { font-size: 20px; line-height: 24px; margin-bottom: 10px; }
 h4, h5, h6 { font-size: 16px; line-height: 20px; margin-bottom: 10px; }
 .aside, .quiet { font-weight: normal; color: #999; }
-.error, .errorlist li { color: #EB3800; margin-bottom: 15px; }
+.error, .errornote, .errorlist li { color: #EB3800; }
+.errornote { margin-bottom: 15px; }
 a { color: #444; }
 a:hover { color: #111; }
 table { margin-bottom: 15px; }

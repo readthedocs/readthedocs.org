@@ -2,11 +2,12 @@ Versioning
 Simple bugfix editing
 Diffing
 Serving docs from a tag/commit
+Import all a users projects from a URL
+Import all projects from Pypi
+Add API for djangopackages.com integration (and more)
 
 Canonical names for directory struct
 $VENV/$DOCROOT/user/project/$CHECKOUT/docs/$CONFDIR
-
-Imported field on Conf
 
 Creating docs:
 * dynamically build docs based only on models
