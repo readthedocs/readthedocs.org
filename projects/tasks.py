@@ -93,7 +93,7 @@ def update_imported_docs(project):
 
         elif project.repo_type == 'svn':
             cmds.append('svn revert .')
-            cmds.append('svn up')
+            cmds.append('svn up --accept theirs-full')
 
         elif project.repo_type == 'bzr':
             cmds.append('bzr revert')
@@ -217,7 +217,7 @@ def build_docs(project, pdf):
                 os.chdir(latex_dir)
                 pdf_results = run('make')
                 pdf = glob.glob('*.pdf')[0]
-                run('ln -s %s %s/%s.pdf' % (os.path.join(os.getcwd(), pdf), 
+                run('ln -s %s %s/%s.pdf' % (os.path.join(os.getcwd(), pdf),
                                             settings.MEDIA_ROOT,
                                             project.slug
                                            ))
