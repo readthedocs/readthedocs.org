@@ -209,6 +209,8 @@ def build_docs(project, pdf):
         make_dir = makes[0].replace('/Makefile', '')
         os.chdir(make_dir)
         html_results = run('make html')
+        if html_results[0] != 0:
+            raise OSError
         if pdf:
             latex_results = run('make latex')
             match = latex_re.search(latex_results[1])
@@ -221,7 +223,7 @@ def build_docs(project, pdf):
                                             settings.MEDIA_ROOT,
                                             project.slug
                                            ))
-    except IndexError:
+    except (IndexError, OSError):
         os.chdir(project.path)
         html_results = run('sphinx-build -b html . _build/html')
     return html_results
