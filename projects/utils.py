@@ -102,11 +102,10 @@ def sanitize_conf(conf_filename):
         match = templates_re.match(line)
         if match:
             left, right = match.groups()
-            line = left + "'%s', " % template_dir + right
+            line = left + "'%s', " % template_dir + right + "\n"
             lines_matched += 1
         outfile.write(line)
     if not lines_matched:
         outfile.write('templates_path = ["%s"]' % template_dir)
     outfile.close()
     return lines_matched
-
