@@ -116,10 +116,11 @@ def render_header(request):
             )
         except Project.DoesNotExist:
             pass
+
     context = { 'project': project,
-            'do_bookmarking': True,
-            'include_render': True,
-            }
+                'do_bookmarking': True,
+                'include_render': True,
+                }
 
     if request.user.is_authenticated():
         try:
@@ -146,4 +147,3 @@ def server_error_404(request, template_name='404.html'):
     return render_to_response(template_name,
         context_instance = RequestContext(request)
     )
-

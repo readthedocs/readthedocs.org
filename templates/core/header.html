@@ -13,13 +13,13 @@
         $('.rtfd-header-search input:text').autocomplete({
           source: '/projects/search/autocomplete/',
           minLength: 2,
-          open: function(event, ui) { 
-            ac_top = $('.ui-autocomplete').css('top'); 
-            $('.ui-autocomplete').css({'width': '233px', 'top': ac_top + 10 }); 
+          open: function(event, ui) {
+            ac_top = $('.ui-autocomplete').css('top');
+            $('.ui-autocomplete').css({'width': '233px', 'top': ac_top + 10 });
           }
         });
         */
-        
+
         {% comment %}
         $('.rtfd-header-bookmark-icon').click(function(e) {
           e.preventDefault();
