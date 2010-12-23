@@ -1,4 +1,4 @@
-django==1.2.1
+django==1.2.4
 docutils
 simplejson
 sphinx
