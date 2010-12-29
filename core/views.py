@@ -61,8 +61,9 @@ def github_build(request):
 def generic_build(request, pk):
     project = Project.objects.get(pk=pk)
     context = {'built': False, 'project': project}
+    #This should be in the post, but for now it's always built for backwards compat
+    update_docs.delay(pk=pk)
     if request.method == 'POST':
-        update_docs.delay(pk=pk)
         context['built'] = True
     return render_to_response('post_commit.html', context,
             context_instance=RequestContext(request))
