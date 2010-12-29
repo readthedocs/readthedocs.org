@@ -60,7 +60,8 @@ def github_build(request):
 @csrf_view_exempt
 def generic_build(request, pk):
     update_docs.delay(pk=pk)
-    return HttpResponse('Build Started')
+    return render_to_response('github.html', {},
+            context_instance=RequestContext(request))
 
 def serve_docs(request, username, project_slug, filename):
     """
