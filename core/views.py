@@ -53,14 +53,18 @@ def github_build(request):
             mail_admins('Build Failure', '%s failed to build via github' % name)
             return HttpResponse('Build Failed')
     else:
-        return render_to_response('github.html', {},
+        return render_to_response('post_commit.html', {},
                 context_instance=RequestContext(request))
 
 
 @csrf_view_exempt
 def generic_build(request, pk):
-    update_docs.delay(pk=pk)
-    return render_to_response('github.html', {},
+    project = Project.objects.get(pk=pk)
+    context = {'built': False, 'project': project}
+    if request.method == 'POST':
+        update_docs.delay(pk=pk)
+        context['built'] = True
+    return render_to_response('post_commit.html', context,
             context_instance=RequestContext(request))
 
 def serve_docs(request, username, project_slug, filename):
