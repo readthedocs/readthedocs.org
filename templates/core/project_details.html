@@ -41,7 +41,12 @@
 
 {% if request.user == project.user %}
   <h3>Post Commit Hook</h3>
-  <p>http://readthedocs.org{% url generic_build project.pk %}</p>
+    <p>http://readthedocs.org{% url generic_build project.pk %}</p>
 {% else %}
   {% include "projects/includes/flagging.html" %}
 {% endif %}
+
+
+<form method="post" action="{% url generic_build project.pk %}">
+<li {% block editing-option-build-project %}{% endblock %}><input type="submit" value="Build Project"></li>
+</form>
