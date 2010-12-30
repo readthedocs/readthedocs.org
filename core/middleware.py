@@ -42,7 +42,7 @@ class SubdomainMiddleware(object):
             request.slug = subdomain
             if not (subdomain.lower() == 'www') and 'readthedocs' in host:
                 return slug_detail(request, subdomain, request.path.lstrip('/'))
-        if 'readthedocs' not in host and 'localhost' not in host:
+        if 'readthedocs' not in host:
             try:
                 slug = cache.get(host)
                 if not slug:
