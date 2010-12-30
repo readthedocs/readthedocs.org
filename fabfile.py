@@ -19,11 +19,6 @@ def push():
     with cd(env.code_dir):
         run('git pull origin master')
 
-def reload():
-    "Reload the server."
-    with cd(env.code_dir):
-        run("kill -HUP `cat %s/gunicorn.pid`" % env.rundir)
-
 def restart():
     "Restart (or just start) the server"
     env.user = "root"
