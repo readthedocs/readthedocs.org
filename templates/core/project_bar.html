@@ -20,7 +20,7 @@
           {% endif %}
 
           <ul>
-            {% if project.get_latest_build.success %}
+            {% if project.has_good_build %}
               <li {% block editing-option-view %}{% endblock %}><a href="{{ project.get_docs_url }}">View Docs</a></li>
             {% endif %}
 

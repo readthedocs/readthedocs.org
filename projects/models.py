@@ -59,6 +59,11 @@ class Project(models.Model):
     def __unicode__(self):
         return self.name
 
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super(Project, self).save(*args, **kwargs)
+
     def get_absolute_url(self):
         return reverse('projects_detail', args=[self.user.username, self.slug])
 
@@ -114,7 +119,23 @@ class Project(models.Model):
             if len(matches) > 0:
                 return os.path.dirname(matches[0])
 
-    #full_html_path = property(memoize(full_html_path, {}, 1))
+    @property
+    def template_dir(self):
+        return os.path.join(settings.SITE_ROOT, 'templates', 'sphinx')
+
+    @property
+    def is_imported(self):
+        return bool(self.repo)
+
+    @property
+    def conf_filename(self):
+        if self.path:
+            return os.path.join(self.path, 'conf.py')
+        raise IOError
+
+    @property
+    def has_good_build(self):
+        return any([build.success for build in self.builds.all()])
 
     def find(self, file):
         """
@@ -128,15 +149,6 @@ class Project(models.Model):
 
     find = memoize(find, {}, 2)
 
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.name)
-        super(Project, self).save(*args, **kwargs)
-
-    @property
-    def template_dir(self):
-        return os.path.join(settings.SITE_ROOT, 'templates', 'sphinx')
-
     def get_index_filename(self):
         return os.path.join(self.path, 'index.rst')
 
@@ -147,10 +159,6 @@ class Project(models.Model):
         if not self.is_imported:
             safe_write(self.get_index_filename(), self.get_rendered_index())
 
-    @property
-    def is_imported(self):
-        return bool(self.repo)
-
     def get_latest_revisions(self):
         revision_qs = FileRevision.objects.filter(file__project=self,
             file__status=constants.LIVE_STATUS)
@@ -159,11 +167,6 @@ class Project(models.Model):
     def get_top_level_files(self):
         return self.files.live(parent__isnull=True).order_by('ordering')
 
-    @property
-    def conf_filename(self):
-        if self.path:
-            return os.path.join(self.path, 'conf.py')
-        raise IOError
 
     def get_rendered_conf(self):
         return render_to_string('projects/conf.py.html', {'project': self})
@@ -176,6 +179,7 @@ class Project(models.Model):
             return self.builds.all()[0]
         except IndexError:
             return None
+
 
 
 class FileManager(models.Manager):
