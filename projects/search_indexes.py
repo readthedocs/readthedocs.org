@@ -34,9 +34,9 @@ class ImportedFileIndex(SearchIndex):
     title = CharField(model_attr='name')
 
     def prepare_text(self, obj):
-        full_path = obj.project.full_html_path
-        to_read = os.path.join(full_path, obj.path.lstrip('/'))
         try:
+            full_path = obj.project.full_html_path
+            to_read = os.path.join(full_path, obj.path.lstrip('/'))
             content = codecs.open(to_read, encoding="utf-8", mode='r').read()
             return content
         except IOError:
