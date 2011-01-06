@@ -39,7 +39,7 @@ class ImportedFileIndex(SearchIndex):
             to_read = os.path.join(full_path, obj.path.lstrip('/'))
             content = codecs.open(to_read, encoding="utf-8", mode='r').read()
             return content
-        except IOError:
+        except (AttributeError, IOError):
             print "%s not found" % full_path
             #obj.delete()
 
