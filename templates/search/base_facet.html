@@ -36,7 +36,7 @@
         <ul>
           {% for result in page.object_list %}
             <li class="module-item">
-            {% ifequal result.model_name 'author' %}
+            {% if facets.fields.project %}
               <p class="module-item-title">
                 Project:
                 <a href="{{ result.object.get_absolute_url }}">{{ result.title }} - {{ result.author }}</a>
