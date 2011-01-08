@@ -11,6 +11,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from projects.exceptions import ProjectImportError
 from projects.models import Project, ImportedFile
 from projects.utils import run, sanitize_conf
+from vcs_support.base import get_backend
 import decimal
 import fnmatch
 import glob
@@ -67,56 +68,15 @@ def update_imported_docs(project):
     Check out or update the given project's repository.
     """
     path = project.user_doc_path
-    os.chdir(path)
     repo = project.repo
-
-    # Commands to be run to checkout/update
-    cmds = []
-
-    # If project directory already exists, do an update/fetch/merge
-    if os.path.exists(os.path.join(path, project.slug)):
-        os.chdir(project.slug)
-        if project.repo_type == 'hg':
-            cmds.append('hg pull')
-            cmds.append('hg update -C .')
-
-        elif project.repo_type == 'git':
-            cmds.append('git --git-dir=.git fetch')
-            cmds.append('git --git-dir=.git reset --hard origin/master')
-
-        elif project.repo_type == 'svn':
-            cmds.append('svn revert --recursive .')
-            cmds.append('svn up --accept theirs-full')
-
-        elif project.repo_type == 'bzr':
-            cmds.append('bzr revert')
-            cmds.append('bzr up')
-
-        else:
-            raise ProjectImportError("Repo type '%s' unknown" % project.repo_type)
-
-    # Project directory doesn't exist, so do a clone/checkout/branch
-    else:
-        if project.repo_type == 'hg':
-            cmds.append('hg clone %s %s' % (repo, project.slug))
-
-        elif project.repo_type == 'git':
-            repo = repo.replace('.git', '').strip('/')
-            cmds.append('git clone --depth=1 %s.git %s' % (repo, project.slug))
-
-        elif project.repo_type == 'svn':
-            cmds.append('svn checkout %s %s' % (repo, project.slug))
-
-        elif project.repo_type == 'bzr':
-            cmds.append('bzr checkout %s %s' % (repo, project.slug))
-
-        else:
-            raise ProjectImportError("Repo type '%s' unknown" % project.repo_type)
-
-    # Run the command(s) and raise an exception on error
-    status, out, err = run(*cmds)
-    if status != 0:
-        raise ProjectImportError("Failed to get code from repo: '%s'" % repo)
+    backend = get_backend(project.repo_type)
+    if not backend:
+        raise ProjectImportError("Repo type '%s' unknown" % project.repo_type)
+    working_dir = os.path.join(project.user_doc_path, project.slug)
+    if not os.path.exists(working_dir):
+        os.mkdir(working_dir)
+    repo = backend(project.repo, working_dir)
+    repo.update()
 
     fileify(project_slug=project.slug)
 
