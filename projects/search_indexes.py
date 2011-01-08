@@ -20,8 +20,8 @@ class ProjectIndex(SearchIndex):
 
 class FileIndex(SearchIndex):
     text = CharField(document=True, use_template=True)
-    author = CharField(model_attr='project__user')
-    project = CharField(model_attr='project__name')
+    author = CharField(model_attr='project__user', faceted=True)
+    project = CharField(model_attr='project__name', faceted=True)
     title = CharField(model_attr='heading')
 
     def get_queryset(self):
