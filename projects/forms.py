@@ -1,12 +1,13 @@
-import os
-
 from django import forms
+from django.conf import settings
 from django.template.defaultfilters import slugify
 from django.template.loader import render_to_string
-
 from projects import constants
 from projects.models import Project, File
 from projects.tasks import update_docs
+import os
+
+
 
 
 class ProjectForm(forms.ModelForm):
@@ -116,3 +117,50 @@ class FileRevisionForm(forms.Form):
         revision_qs = file.revisions.exclude(pk=file.current_revision.pk)
         self.base_fields['revision'].queryset = revision_qs
         super(FileRevisionForm, self).__init__(*args, **kwargs)
+
+
+class DualCheckboxWidget(forms.CheckboxInput):
+    def __init__(self, built, attrs=None, check_test=bool):
+        super(DualCheckboxWidget, self).__init__(attrs)
+        self.built = built
+
+    def render(self, name, value, attrs=None):
+        checkbox = super(DualCheckboxWidget, self).render(name, value, attrs)
+        icon = self.render_icon()
+        return u'%s%s' % (checkbox, icon)
+    
+    def render_icon(self):
+        context = {
+            'MEDIA_URL': settings.MEDIA_URL,
+            'built': self.built
+        }
+        return render_to_string('projects/includes/icon_built.html')
+
+
+class BaseVersionsForm(forms.Form):
+    def save(self):
+        versions = self.project.versions.all()
+        for version in versions:
+            self.save_version(version)
+        
+    def save_version(self, version):
+        new_value = self.cleaned_data.get('versions-%s' % version.slug, None)
+        if new_value is None or new_value == version.active:
+            return
+        version.active = new_value
+        version.save()
+        # TODO: Fire a celery task to actually build this!
+        
+
+def build_versions_form(project):
+    attrs = {
+        'project': project,
+    }
+    for version in project.versions.all():
+        field_name = 'version-%s' % version.slug
+        attrs[field_name] = forms.BooleanField(
+            label=version.verbose_name,
+            widget=DualCheckboxWidget(version.built),
+            initial=version.active,
+        )
+    return type('VersionsForm', (BaseVersionsForm,), attrs)

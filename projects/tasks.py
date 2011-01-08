@@ -2,7 +2,7 @@
 ``conf.py`` files, and rebuilding documentation.
 """
 
-from builds.models import Build
+from builds.models import Build, Version
 from celery.decorators import periodic_task, task
 from celery.task.schedules import crontab
 from django.conf import settings
@@ -10,7 +10,7 @@ from django.contrib.auth.models import SiteProfileNotAvailable
 from django.core.exceptions import ObjectDoesNotExist
 from projects.exceptions import ProjectImportError
 from projects.models import Project, ImportedFile
-from projects.utils import run, sanitize_conf
+from projects.utils import run, sanitize_conf, slugify_uniquely
 from vcs_support.base import get_backend
 import decimal
 import fnmatch
@@ -67,18 +67,32 @@ def update_imported_docs(project):
     """
     Check out or update the given project's repository.
     """
-    path = project.user_doc_path
-    repo = project.repo
     backend = get_backend(project.repo_type)
     if not backend:
         raise ProjectImportError("Repo type '%s' unknown" % project.repo_type)
     working_dir = os.path.join(project.user_doc_path, project.slug)
     if not os.path.exists(working_dir):
         os.mkdir(working_dir)
-    repo = backend(project.repo, working_dir)
-    repo.update()
+    vcs_repo = backend(project.repo, working_dir)
+    vcs_repo.update()
 
     fileify(project_slug=project.slug)
+    
+    # check tags/version
+    if not vcs_repo.supports_tags:
+        return
+    tags = vcs_repo.get_tags()
+    old_tags = Version.objects.filter(project=project).value_list('identifier', flat=True)
+    for tag in tags:
+        if tag.identifier in old_tags:
+            continue
+        slug = slugify_uniquely(Version, tag.verbose_name, 'slug', 255, project=project)
+        Version.objects.create(
+            project=project,
+            slug=slug,
+            identifier=tag.identifier,
+            verbose_name=tag.verbose_name
+        )
 
 
 def scrape_conf_file(project):
@@ -180,6 +194,12 @@ def build_docs(project, pdf):
         os.chdir(project.path)
         html_results = run('sphinx-build -b html . _build/html')
     return html_results
+
+
+def build_versioned_docs(project, tag):
+    """
+    Builds the docs for a specific tag (version)
+    """
 
 
 @task

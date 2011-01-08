@@ -1,8 +1,4 @@
 from django.db import models
-from django.contrib.auth.models import User
-
-from taggit.managers import TaggableManager
-
 from projects.models import Project
 
 class Build(models.Model):
@@ -23,4 +19,17 @@ class Build(models.Model):
         return ('builds_detail', [self.project.user.username, self.project.slug, self.pk])
 
 
+class Version(models.Model):
+    project = models.ForeignKey(Project, related_name='versions')
+    identifier = models.CharField(max_length=255) # used by the vcs backend
+    verbose_name = models.CharField(max_length=255)
+    slug = models.SlugField(max_length=255)
+    active = models.BooleanField(default=False)
+    built = models.BooleanField(default=False)
+    
+    class Meta:
+        unique_together = [('project', 'slug'), ('project', 'identifier')]
+        ordering = ['-verbose_name']
 
+    def __unicode__(self):
+        return u"Version %s of %s (%s)" % (self.verbose_name, self.project, self.pk)
