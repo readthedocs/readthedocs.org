@@ -6,14 +6,16 @@
         <!-- BEGIN header title-->
         <div class="home-header-title">
           <h1>Read the Docs</h1>
-          <p>A place to create, host, and browse Sphinx docs.</p>
+          <p class="tagline">Create, host, and browse documentation.</p>
         </div>
         <!-- END header title -->
 
         <!-- BEGIN header links-->
         <div class="home-header-links">
-          <a href="{% url auth_login %}">Log in</a>
-          <a href="{% url registration_register %}">Register</a>
+          <a class="reg" href="{% url registration_register %}">Sign up</a>
+          <div class="login-box">
+            <p>or <a class="login" href="{% url auth_login %}">Log in</a></p>
+          </div>
         </div>
         <!-- END header links -->
 
