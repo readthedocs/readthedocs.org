@@ -1,8 +1,6 @@
-from builds.models import Version
 from django.core.management.base import BaseCommand
 from optparse import make_option
 from projects import tasks
-from projects.tasks import update_docs
 
 
 
@@ -20,5 +18,10 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         make_pdf = options['pdf']
-        for version in Version.objects.filter(active=True, built=False):
-            update_docs(version.project_id, pdf=make_pdf, record=False, version_pk=version.pk)
+        if not len(args):
+            tasks.update_docs_pull(pdf=make_pdf)
+        else:
+            for slug in args:
+                p = Project.objects.get(slug=slug)
+                print "Building %s" % p
+                tasks.update_docs(p.pk, pdf=make_pdf)
