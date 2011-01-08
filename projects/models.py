@@ -145,10 +145,9 @@ class Project(models.Model):
         """
         matches = []
         for root, dirnames, filenames in os.walk(self.full_doc_path):
-          for filename in fnmatch.filter(filenames, file):
-              matches.append(os.path.join(root, filename))
+            for filename in fnmatch.filter(filenames, file):
+                matches.append(os.path.join(root, filename))
         return matches
-
     find = memoize(find, {}, 2)
 
     def get_index_filename(self):
