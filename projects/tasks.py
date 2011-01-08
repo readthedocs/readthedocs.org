@@ -2,32 +2,25 @@
 ``conf.py`` files, and rebuilding documentation.
 """
 
+from builds.models import Build
+from celery.decorators import periodic_task, task
+from celery.task.schedules import crontab
 from django.conf import settings
 from django.contrib.auth.models import SiteProfileNotAvailable
 from django.core.exceptions import ObjectDoesNotExist
-
-from celery.decorators import task
-from celery.task.schedules import crontab
-from celery.decorators import periodic_task
-
-from projects.constants import SCRAPE_CONF_SETTINGS, DEFAULT_THEME_CHOICES
+from projects.exceptions import ProjectImportError
 from projects.models import Project, ImportedFile
-from projects.utils import  find_file, run, sanitize_conf
-from builds.models import Build
-
+from projects.utils import run, sanitize_conf
 import decimal
+import fnmatch
+import glob
 import os
 import re
-import glob
-import fnmatch
+
 
 ghetto_hack = re.compile(r'(?P<key>.*)\s*=\s*u?\[?[\'\"](?P<value>.*)[\'\"]\]?')
 
 latex_re = re.compile('the LaTeX files are in (.*)\.')
-
-class ProjectImportError (Exception):
-    """Failure to import a project from a repository."""
-    pass
 
 
 @task
