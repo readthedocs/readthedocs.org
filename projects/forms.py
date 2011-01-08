@@ -23,8 +23,8 @@ class ProjectForm(forms.ModelForm):
 class CreateProjectForm(ProjectForm):
     class Meta:
         model = Project
-        exclude = ('skip', 'user', 'slug', 'repo',
-                   'docs_directory', 'status', 'repo_type')
+        exclude = ('skip', 'user', 'slug', 'repo', 'featured',
+                   'docs_directory', 'status', 'repo_type',)
 
     def save(self, *args, **kwargs):
         created = self.instance.pk is None
@@ -54,7 +54,8 @@ class ImportProjectForm(ProjectForm):
         help_text='URL for your code (hg or git). Ex. http://github.com/ericholscher/django-kong.git')
     class Meta:
         model = Project
-        exclude = ('skip', 'theme', 'docs_directory', 'user', 'slug', 'version', 'copyright', 'status')
+        exclude = ('skip', 'theme', 'docs_directory', 'user', 'slug', 'version',
+                   'copyright', 'status', 'featured',)
 
     def clean_repo(self):
         repo = self.cleaned_data.get('repo', '').strip()
