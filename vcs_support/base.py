@@ -74,9 +74,12 @@ class BaseVCS(object):
     def _run_command(self, *bits):
         process = subprocess.Popen(bits, stdout=subprocess.PIPE,
             stderr=subprocess.PIPE, cwd=self.working_dir, shell=False,
-            env=os.environ.copy())
+            env=self.get_env())
         stdout, stderr = process.communicate()
         return (process.returncode, stdout, stderr)
+    
+    def get_env(self):
+        return os.environ.copy()
 
 
 def get_backend(repo_type):

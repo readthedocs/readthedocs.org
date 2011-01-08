@@ -1,5 +1,6 @@
 from projects.exceptions import ProjectImportError
 from vcs_support.base import BaseVCS, VCSTag
+import os
 
 
 class Backend(BaseVCS):
@@ -67,3 +68,8 @@ class Backend(BaseVCS):
         if not identifier:
             identifier = 'master'
         self._run_command('git', 'checkout', identifier)
+        
+    def get_env(self):
+        env = super(Backend, self).get_env()
+        env['GIT_DIR'] = os.path.join(self.working_dir, '.git')
+        return env
