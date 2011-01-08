@@ -144,7 +144,7 @@ class BaseVersionsForm(forms.Form):
             self.save_version(version)
         
     def save_version(self, version):
-        new_value = self.cleaned_data.get('versions-%s' % version.slug, None)
+        new_value = self.cleaned_data.get('version-%s' % version.slug, None)
         if new_value is None or new_value == version.active:
             return
         version.active = new_value
@@ -162,5 +162,6 @@ def build_versions_form(project):
             label=version.verbose_name,
             widget=DualCheckboxWidget(version.built),
             initial=version.active,
+            required=False,
         )
     return type('VersionsForm', (BaseVersionsForm,), attrs)
