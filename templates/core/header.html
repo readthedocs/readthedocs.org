@@ -51,7 +51,11 @@
 
         <!-- BEGIN header title-->
         <div class="rtfd-header-title">
-          <h1><a href="http://readthedocs.org/">Read the Docs</a></h1>
+            {% if request.cname %}
+            <h1><a href="/">Read the Docs</a></h1>
+            {% else %}
+            <h1><a href="http://readthedocs.org/">Read the Docs</a></h1>
+            {% endif %}
         </div>
         <!-- END header title -->
 
