@@ -40,7 +40,7 @@
             {% endif %}
             
             {% if project.is_imported and request.user == project.user %}
-              <li><a href="{% url projects_versions project.project_url %}" rel="nofollow,noindex">Versions</a></li>
+              <li><a href="{% url projects_versions project.slug %}" rel="nofollow,noindex">Versions</a></li>
             {% endif %}
 
           </ul>
