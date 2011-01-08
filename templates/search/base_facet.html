@@ -4,38 +4,22 @@
 {% block title %} Search: {{ query }} {% endblock %}
 
 {% block content %}
-<form method="get" action=".">
-    <table>
-        <tbody>
-            {{ form.as_table }}
-            <tr>
-                <td>&nbsp;</td>
-                <td><input type="submit" value="Search"></td>
-            </tr>
-        </tbody>
-    </table>
-</form>
+        <!-- BEGIN search form -->
+        <div class="wide-search-bar">
+          <div class="wide-search-bar-wrapper clearfix">
+            <form action="." method="GET">
+              <div class="text-input-wrapper">
+                <input type="text" name="q" value="{{ query }}" id="id_site_search">
+              </div>
+              <div class="submit-input-wrapper">
+                <input type="submit" value="Go crazy.">
+              </div>
+            </form>
+          </div>
+        </div>
+        <!-- END search form -->
 
-{% if query %}
-    <!-- Begin faceting. -->
-    <h2>By Author</h2>
-
-    <div>
-        <dl>
-            {% if facets.fields.project %}
-                <dt>Author</dt>
-                {# Provide only the top 5 projects #}
-                {% for project in facets.fields.project|slice:":10" %}
-                    <dd><a href="{{ request.get_full_path }}&amp;selected_facets=project:{{ project.0|urlencode }}">{{ project.0 }}</a> ({{ project.1 }})</dd>
-                {% endfor %}
-            {% else %}
-                <p>No project facets.</p>
-            {% endif %}
-        </dl>
-    </div>
-    <!-- End faceting -->
-{% endif %}
-
+{% block faceting %}{% endblock %}
 
 {% if query %}
 <!-- BEGIN search results -->
@@ -52,7 +36,7 @@
         <ul>
           {% for result in page.object_list %}
             <li class="module-item">
-            {% ifequal result.model_name 'project' %}
+            {% ifequal result.model_name 'author' %}
               <p class="module-item-title">
                 Project:
                 <a href="{{ result.object.get_absolute_url }}">{{ result.title }} - {{ result.author }}</a>
@@ -60,7 +44,7 @@
               {% else %}
               <p class="module-item-title">
                 File:
-                <a href="{{ result.object.get_absolute_url }}?highlight={{ query }}">{{ result.project }} - {{ result.title }}</a>
+                <a href="{{ result.object.get_absolute_url }}?highlight={{ query }}">{{ result.author }} - {{ result.title }}</a>
               </p>
               <p>
                 {% highlight result.text with query %}
