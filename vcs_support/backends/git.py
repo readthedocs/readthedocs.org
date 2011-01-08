@@ -1,5 +1,5 @@
 from projects.exceptions import ProjectImportError
-from vcs_support.backends.base import BaseVCS, VCSTag
+from vcs_support.base import BaseVCS, VCSTag
 
 
 class Backend(BaseVCS):
