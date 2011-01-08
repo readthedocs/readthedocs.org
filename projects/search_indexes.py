@@ -27,10 +27,11 @@ class FileIndex(SearchIndex):
     def get_queryset(self):
         return File.objects.filter(project__status=constants.LIVE_STATUS)
 
+#Should prob make a common subclass for this and FileIndex
 class ImportedFileIndex(SearchIndex):
     text = CharField(document=True)
-    author = CharField(model_attr='project__user')
-    project = CharField(model_attr='project__name')
+    author = CharField(model_attr='project__user', faceted=True)
+    project = CharField(model_attr='project__name', faceted=True)
     title = CharField(model_attr='name')
 
     def prepare_text(self, obj):
