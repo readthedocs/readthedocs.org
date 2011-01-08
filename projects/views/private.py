@@ -103,6 +103,32 @@ def project_edit(request, project_slug):
     )
 
 @login_required
+def projects_versions(request, project_slug):
+    """
+    Shows the available versions and lets the user choose which ones he would
+    like to have built.
+    """
+    project = get_object_or_404(request.user.projects.live(), slug=project_slug)
+
+    if not project.is_imported:
+        raise Http404
+
+    form_class = build_versions_form(project)
+
+    form = form_class(data=request.POST or None)
+
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        project_dashboard = reverse('projects_manage', args=[project.slug])
+        return HttpResponseRedirect(project_dashboard)
+
+    return render_to_response(
+        'projects/project_versions.html',
+        {'form': form, 'project': project},
+        context_instance=RequestContext(request)
+    )
+
+@login_required
 def project_delete(request, project_slug):
     """
     Make a project as deleted on POST, otherwise show a form asking for
@@ -295,29 +321,3 @@ def export(request, project_slug):
     archive.close()
 
     return HttpResponseRedirect(os.path.join(settings.MEDIA_URL, 'export', project.user.username, zip_filename))
-
-@login_required
-def versions(request, project_slug):
-    """
-    Shows the available versions and lets the user choose which ones he would
-    like to have built.
-    """
-    project = get_object_or_404(request.user.projects.live(), slug=project_slug)
-
-    if not project.is_imported:
-        raise Http404
-
-    form_class = build_versions_form(project)
-
-    form = form_class(data=request.POST or None)
-
-    if request.method == 'POST' and form.is_valid():
-        form.save()
-        project_dashboard = reverse('projects_manage', args=[project.slug])
-        return HttpResponseRedirect(project_dashboard)
-
-    return render_to_response(
-        'projects/project_versions.html',
-        {'form': form, 'project': project},
-        context_instance=RequestContext(request)
-    )
