@@ -1,6 +1,8 @@
 from django.utils.importlib import import_module
 import os
 import subprocess
+
+
 class VCSTag(object):
     """
     Represents a Tag in a VCS.
@@ -20,6 +22,9 @@ class VCSTag(object):
         
     def __exit__(self):
         self.repository.checkout()
+        
+    def __repr__(self):
+        return "<VCSTag: %s:%s" % (self.repository.repo_url, self.verbose_name)
 
 
 class BaseVCS(object):
@@ -71,7 +76,7 @@ class BaseVCS(object):
             stderr=subprocess.PIPE, cwd=self.working_dir, shell=False,
             env=os.environ.copy())
         stdout, stderr = process.communicate()
-        return (process.retcode, stdout, stderr)
+        return (process.returncode, stdout, stderr)
 
 
 def get_backend(repo_type):
