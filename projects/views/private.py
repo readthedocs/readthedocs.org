@@ -103,7 +103,7 @@ def project_edit(request, project_slug):
     )
 
 @login_required
-def projects_versions(request, project_slug):
+def project_versions(request, project_slug):
     """
     Shows the available versions and lets the user choose which ones he would
     like to have built.
