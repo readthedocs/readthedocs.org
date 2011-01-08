@@ -149,7 +149,7 @@ class BaseVersionsForm(forms.Form):
             return
         version.active = new_value
         version.save()
-        # TODO: Fire a celery task to actually build this!
+        update_docs.delay(self.project.pk, record=False, version_pk=version.pk)
         
 
 def build_versions_form(project):

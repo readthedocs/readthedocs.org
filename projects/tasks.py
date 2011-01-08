@@ -25,7 +25,7 @@ latex_re = re.compile('the LaTeX files are in (.*)\.')
 
 
 @task
-def update_docs(pk, record=True, pdf=False):
+def update_docs(pk, record=True, pdf=False, version_pk=None):
     """
     A Celery task that updates the documentation for a project.
     """
@@ -33,6 +33,10 @@ def update_docs(pk, record=True, pdf=False):
     if project.skip:
         print "Skipping %s" % project
         return
+    if version_pk:
+        version = Version.objects.get(pk=version_pk)
+    else:
+        version = None
     print "Building %s" % project
     path = project.user_doc_path
     if not os.path.exists(path):
@@ -40,7 +44,7 @@ def update_docs(pk, record=True, pdf=False):
 
     if project.is_imported:
         try:
-            update_imported_docs(project)
+            update_imported_docs(project, version)
         except ProjectImportError, err:
             print("Error importing project: %s. Skipping build." % err)
             return
@@ -56,6 +60,7 @@ def update_docs(pk, record=True, pdf=False):
             Build.objects.create(project=project, success=ret==0, output=out, error=err)
         if ret == 0:
             print "Build OK"
+            move_docs(project, version)
         else:
             print "Build ERROR"
             print err
@@ -63,7 +68,7 @@ def update_docs(pk, record=True, pdf=False):
         print "Build Unchanged"
 
 
-def update_imported_docs(project):
+def update_imported_docs(project, version):
     """
     Check out or update the given project's repository.
     """
@@ -74,25 +79,27 @@ def update_imported_docs(project):
     if not os.path.exists(working_dir):
         os.mkdir(working_dir)
     vcs_repo = backend(project.repo, working_dir)
-    vcs_repo.update()
-
-    fileify(project_slug=project.slug)
+    if version:
+        vcs_repo.checkout(version.identifier)
+    else:
+        vcs_repo.update()
+        
+        # check tags/version
+        if vcs_repo.supports_tags:
+            tags = vcs_repo.get_tags()
+            old_tags = Version.objects.filter(project=project).value_list('identifier', flat=True)
+            for tag in tags:
+                if tag.identifier in old_tags:
+                    continue
+                slug = slugify_uniquely(Version, tag.verbose_name, 'slug', 255, project=project)
+                Version.objects.create(
+                    project=project,
+                    slug=slug,
+                    identifier=tag.identifier,
+                    verbose_name=tag.verbose_name
+                )
     
-    # check tags/version
-    if not vcs_repo.supports_tags:
-        return
-    tags = vcs_repo.get_tags()
-    old_tags = Version.objects.filter(project=project).value_list('identifier', flat=True)
-    for tag in tags:
-        if tag.identifier in old_tags:
-            continue
-        slug = slugify_uniquely(Version, tag.verbose_name, 'slug', 255, project=project)
-        Version.objects.create(
-            project=project,
-            slug=slug,
-            identifier=tag.identifier,
-            verbose_name=tag.verbose_name
-        )
+    fileify(project_slug=project.slug)
 
 
 def scrape_conf_file(project):
@@ -195,12 +202,8 @@ def build_docs(project, pdf):
         html_results = run('sphinx-build -b html . _build/html')
     return html_results
 
-
-def build_versioned_docs(project, tag):
-    """
-    Builds the docs for a specific tag (version)
-    """
-
+def move_docs(project, version):
+    pass
 
 @task
 def fileify(project_slug):
