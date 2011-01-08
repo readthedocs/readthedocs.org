@@ -87,7 +87,7 @@ def update_imported_docs(project, version):
         # check tags/version
         if vcs_repo.supports_tags:
             tags = vcs_repo.get_tags()
-            old_tags = Version.objects.filter(project=project).value_list('identifier', flat=True)
+            old_tags = Version.objects.filter(project=project).values_list('identifier', flat=True)
             for tag in tags:
                 if tag.identifier in old_tags:
                     continue

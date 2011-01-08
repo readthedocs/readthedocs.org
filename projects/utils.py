@@ -111,7 +111,7 @@ def sanitize_conf(conf_filename):
     outfile.close()
     return lines_matched
 
-def slugify_uniquely(self, model, initial, field, max_length, **filters):
+def slugify_uniquely(model, initial, field, max_length, **filters):
     slug = slugify(initial)[:max_length]
     current = slug
     index = 0
