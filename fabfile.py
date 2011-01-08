@@ -19,6 +19,11 @@ def push():
     with cd(env.code_dir):
         run('git pull origin master')
 
+def pull():
+    "Pull new code"
+    with cd(env.code_dir):
+        run('git pull origin master')
+
 def restart():
     "Restart (or just start) the server"
     env.user = "root"
