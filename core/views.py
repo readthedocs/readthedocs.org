@@ -24,11 +24,11 @@ from bookmarks.models import Bookmark
 
 def homepage(request):
     projs = Project.objects.filter(builds__isnull=False).annotate(max_date=Max('builds__date')).order_by('-max_date')[:10]
+    featured = Project.objects.filter(featured=True)
     updated = PageView.objects.all()[:10]
-    marks = Bookmark.objects.all()[:10]
     return render_to_response('homepage.html',
                               {'project_list': projs,
-                               'bookmark_list': marks,
+                               'featured_list': featured,
                                'updated_list': updated},
                 context_instance=RequestContext(request))
 
