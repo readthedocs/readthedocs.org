@@ -1,4 +1,4 @@
-from projects.tasks import ProjectImportError
+from projects.exceptions import ProjectImportError
 from vcs_support.backends.base import BaseVCS, VCSTag
 
 
@@ -15,15 +15,21 @@ class Backend(BaseVCS):
     def _pull(self):
         retcode = self._run_command('git', 'fetch')[0]
         if retcode != 0:
-            raise ProjectImportError("Failed to get code from '%s' (git fetch)" % self.repo_url)
+            raise ProjectImportError(
+                "Failed to get code from '%s' (git fetch): %s" % (self.repo_url, retcode)
+            )
         retcode = self._run_command('git', 'reset', '--hard', 'origin/master')[0]
         if retcode != 0:
-            raise ProjectImportError("Failed to get code from '%s' (git reset)" % self.repo_url)
+            raise ProjectImportError(
+                "Failed to get code from '%s' (git reset): %s" % (self.repo_url, retcode)
+            )
         
     def _clone(self):
-        retcode = self._run_command('git', 'clone', '--quite', self.repo_url, '.')[0]
+        retcode = self._run_command('git', 'clone', '--quiet', self.repo_url, '.')[0]
         if retcode != 0:
-            raise ProjectImportError("Failed to get code from '%s' (git clone)" % self.repo_url)
+            raise ProjectImportError(
+                "Failed to get code from '%s' (git clone): %s" % (self.repo_url, retcode)
+            )
     
     def get_tags(self):
         retcode, stdout = self._run_command('git', 'show-ref', '--tags')[:2]
@@ -53,6 +59,9 @@ class Backend(BaseVCS):
             clean_name = self._get_clean_tag_name(name)
             vcs_tags.append(VCSTag(self, commit_hash, clean_name))
         return vcs_tags
+    
+    def _get_clean_tag_name(self, name):
+        return name.split('/', 2)[2]
     
     def checkout(self, identifier=None):
         if not identifier:
