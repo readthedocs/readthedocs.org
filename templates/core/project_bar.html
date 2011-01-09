@@ -4,7 +4,7 @@
       <div class="wrapper">
 
         <div class="project-title">
-          <h1>{{ project }}</h1>
+          <h1><a href="{% url projects_detail project.user project.slug %}">{{ project }}</a></h1>
           <a href="{% url projects_user_list project.user.username %}" class="quiet">({{ project.user }})</a>
           {% if project.version %}<span class="quiet">version {{ project.version }} </span>{% endif %}
         </div>
