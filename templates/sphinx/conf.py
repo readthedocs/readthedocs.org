@@ -14,7 +14,7 @@ pygments_style = 'sphinx'
 html_theme = '{{ project.theme }}'
 html_theme_path = ['.', '_theme', '.theme']
 html_static_path = ['_static']
-htmlhelp_basename = 'ReadTheDocsdoc'
+htmlhelp_basename = '{{ project.slug }}'
 file_insertion_enabled = False
 latex_documents = [
   ('index', '{{ project.slug }}.tex', u'{{ project.name }} Documentation',
