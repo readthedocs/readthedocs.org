@@ -65,7 +65,7 @@
     {% endif %}
 
     {% if page.has_next %}
-      <a class="next" href="?{{ request.get_full_path }}&amp;page={{ page.next_page_number }}">Next &raquo;</a>
+      <a class="next" href="{{ request.get_full_path }}&amp;page={{ page.next_page_number }}">Next &raquo;</a>
     {% else %}
       <span class="next disabled">Next &raquo;</span>
     {% endif %}
