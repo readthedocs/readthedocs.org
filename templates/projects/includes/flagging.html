@@ -1,8 +1,7 @@
 {% load flagging %}
 
 {% if request.user.is_authenticated %}
-  <hr>
-  <p>
+  <p class="quiet">
     Flag this project as (
     {% if not project|flagged_with:"inappropriate" %}<a href="{{ project|flag_url:"inappropriate" }}?next={{ request.META.PATH_INFO }}">Inappropriate</a> |{% endif %}
     {% if not project|flagged_with:"spam" %}<a href="{{ project|flag_url:"spam" }}?next={{ request.META.PATH_INFO }}">Spam</a> |{% endif %}

@@ -8,11 +8,11 @@
 {% endif %}
 
 {% if project.get_latest_build.success %}
-<h3>Short URLs</h3>
-<p>
-    <a href="http://{{ project.slug}}.readthedocs.org">{{ project.slug }}.readthedocs.org</a><br>
-    <a href="http://{{ project.slug}}.rtfd.org">{{ project.slug }}.rtfd.org</a>
-</p>
+  <h3>Short URLs</h3>
+  <p>
+      <a href="http://{{ project.slug}}.readthedocs.org">{{ project.slug }}.readthedocs.org</a><br>
+      <a href="http://{{ project.slug}}.rtfd.org">{{ project.slug }}.rtfd.org</a>
+  </p>
 {% endif %}
 
 
@@ -20,36 +20,25 @@
 <p>{{ project.modified_date|date:"N j, Y. P" }}</p>
 
 {% if project.tags.count %}
-<h3>Tags</h3>
-<p>
-  {% for tag in project.tags.all %}
-    <a href="{% url projects_tag_detail tag.slug %}">{{ tag.name }}</a>{% if forloop.last %}{% else %}, {% endif %}
-  {% empty %}
-    <span class="quiet">No tags</span>
-  {% endfor %}
-</p>
+  <h3>Tags</h3>
+  <p>
+    {% for tag in project.tags.all %}
+      <a href="{% url projects_tag_detail tag.slug %}">{{ tag.name }}</a>{% if forloop.last %}{% else %}, {% endif %}
+    {% empty %}
+      <span class="quiet">No tags</span>
+    {% endfor %}
+  </p>
 {% endif %}
 
 {% if project.active_versions.count %}
-<h3> Versions </h3>
+  <h3> Versions </h3>
 
-{% for version in project.active_versions.all %}
-    <p><a href="{{ version.get_absolute_url }}">{{ version }}</a></p>
-{% endfor %}
+  {% for version in project.active_versions.all %}
+      <p><a href="{{ version.get_absolute_url }}">{{ version }}</a></p>
+  {% endfor %}
 
 {% endif %}
 
-
-<form method="post" action="{% url generic_build project.pk %}">
-<input type="submit" value="Build Project">
-</form>
-
-{% if request.user == project.user %}
-  <h3>Post Commit Hook</h3>
-    <p>http://readthedocs.org{% url generic_build project.pk %}</p>
-{% else %}
-  {% include "projects/includes/flagging.html" %}
-{% endif %}
 
 <h3>Latest Revisions</h3>
 <ul>
@@ -59,3 +48,16 @@
     <li class="quiet">No revisions</li>
   {% endfor %}
 </ul>
+
+
+<form method="post" action="{% url generic_build project.pk %}">
+  <input type="submit" value="Build Project">
+</form>
+
+
+{% if request.user == project.user %}
+  <h3>Post Commit Hook</h3>
+    <p>http://readthedocs.org{% url generic_build project.pk %}</p>
+{% else %}
+  {% include "projects/includes/flagging.html" %}
+{% endif %}
