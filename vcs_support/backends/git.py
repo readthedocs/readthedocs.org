@@ -25,6 +25,12 @@ class GithubContributionBackend(BaseContributionBackend, BaseGIT):
         super(GithubContributionBackend, self).__init__(*args, **kwargs)
         self.gh = Github(username=GITHUB_USERNAME, api_token=GITHUB_TOKEN)
         
+    def _run_command(self, *args):
+        print args
+        ret = super(GithubContributionBackend, self)._run_command(*args)
+        print ret
+        return ret
+        
     @classmethod
     def accepts(cls, url):
         return url.startswith(GITHUB_URLS) and GITHUB_OKAY
@@ -145,7 +151,7 @@ class GithubContributionBackend(BaseContributionBackend, BaseGIT):
         push a local branch to the RTD remote
         """
         print 'pushing %s to remote %s' % (identifier, self._get_remote_name())
-        print self._run_command('git', 'push', 'rtd', identifier)
+        self._run_command('git', 'push', 'rtd', identifier)
         
     def _has_fork(self):
         return self._gh_reponame() in [r.name for r in self.gh.repos.list(GITHUB_USERNAME)]

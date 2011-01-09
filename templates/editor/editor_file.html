@@ -1,0 +1,29 @@
+{% extends "projects/base_project.html" %}
+
+{% block extra_links %}
+  <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}lib/markitup/skins/simple/style.css" />
+  <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}lib/markitup/sets/sphinx/editor.css" />
+{% endblock %}
+
+{% block extra_scripts %}
+  <script type="text/javascript" src="{{ MEDIA_URL }}lib/markitup/jquery.markitup.pack.js"></script>
+  <script type="text/javascript" src="{{ MEDIA_URL }}lib/markitup/sets/sphinx/editor.js"></script>
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $("#id_body").markItUp(SphinxDocsSettings); // .markItUp(mySettings);
+    });
+  </script>
+{% endblock %}
+
+{% block title %}Edit {{ filename }}{% endblock %}
+
+{% block content-header %}<h1>Edit {{ filename }}</h1>{% endblock %}
+
+{% block editing-option-manage %}class="active"{% endblock %}
+
+{% block content %}  
+  <form method="post" action=".">{% csrf_token %}
+    {{ form.as_p }}
+    <p><input type="submit" value="Submit"><a class="button" href="{% url editor_push project.slug %}">Send pull request</a></p>
+  </form>
+{% endblock %}

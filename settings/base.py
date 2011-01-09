@@ -98,6 +98,7 @@ INSTALLED_APPS = (
     'builds',
     'bookmarks',
     'watching',
+    'editor',
 )
 
 
