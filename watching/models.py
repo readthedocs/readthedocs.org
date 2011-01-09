@@ -17,4 +17,4 @@ class PageView(models.Model):
 
     @models.permalink
     def get_absolute_url(self):
-        return ('docs_detail', [self.project.user.username, self.project.slug, self.url])
+        return ('docs_detail', [self.project.slug, 'latest', self.url])

@@ -69,7 +69,7 @@ def generic_build(request, pk):
         context['built'] = True
     return render_to_response('post_commit.html', context,
             context_instance=RequestContext(request))
-    
+
 
 def legacy_serve_docs(request, username, project_slug, filename):
     url = reverse(serve_docs, kwargs={
