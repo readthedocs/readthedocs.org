@@ -2,36 +2,31 @@
 ``conf.py`` files, and rebuilding documentation.
 """
 
+from builds.models import Build, Version
+from celery.decorators import periodic_task, task
+from celery.task.schedules import crontab
 from django.conf import settings
 from django.contrib.auth.models import SiteProfileNotAvailable
 from django.core.exceptions import ObjectDoesNotExist
-
-from celery.decorators import task
-from celery.task.schedules import crontab
-from celery.decorators import periodic_task
-
-from projects.constants import SCRAPE_CONF_SETTINGS, DEFAULT_THEME_CHOICES
+from projects.exceptions import ProjectImportError
 from projects.models import Project, ImportedFile
-from projects.utils import  find_file, run, sanitize_conf
-from builds.models import Build
-
+from projects.utils import run, sanitize_conf, slugify_uniquely
+from vcs_support.base import get_backend
 import decimal
+import fnmatch
+import glob
 import os
 import re
-import glob
-import fnmatch
+import shutil
+
 
 ghetto_hack = re.compile(r'(?P<key>.*)\s*=\s*u?\[?[\'\"](?P<value>.*)[\'\"]\]?')
 
 latex_re = re.compile('the LaTeX files are in (.*)\.')
 
-class ProjectImportError (Exception):
-    """Failure to import a project from a repository."""
-    pass
-
 
 @task
-def update_docs(pk, record=True, pdf=False):
+def update_docs(pk, record=True, pdf=False, version_pk=None):
     """
     A Celery task that updates the documentation for a project.
     """
@@ -39,6 +34,10 @@ def update_docs(pk, record=True, pdf=False):
     if project.skip:
         print "Skipping %s" % project
         return
+    if version_pk:
+        version = Version.objects.get(pk=version_pk)
+    else:
+        version = None
     print "Building %s" % project
     path = project.user_doc_path
     if not os.path.exists(path):
@@ -46,7 +45,7 @@ def update_docs(pk, record=True, pdf=False):
 
     if project.is_imported:
         try:
-            update_imported_docs(project)
+            update_imported_docs(project, version)
         except ProjectImportError, err:
             print("Error importing project: %s. Skipping build." % err)
             return
@@ -62,6 +61,10 @@ def update_docs(pk, record=True, pdf=False):
             Build.objects.create(project=project, success=ret==0, output=out, error=err)
         if ret == 0:
             print "Build OK"
+            if version:
+                version.built = True
+                version.save()
+            move_docs(project, version)
         else:
             print "Build ERROR"
             print err
@@ -69,61 +72,38 @@ def update_docs(pk, record=True, pdf=False):
         print "Build Unchanged"
 
 
-def update_imported_docs(project):
+def update_imported_docs(project, version):
     """
     Check out or update the given project's repository.
     """
-    path = project.user_doc_path
-    os.chdir(path)
-    repo = project.repo
-
-    # Commands to be run to checkout/update
-    cmds = []
-
-    # If project directory already exists, do an update/fetch/merge
-    if os.path.exists(os.path.join(path, project.slug)):
-        os.chdir(project.slug)
-        if project.repo_type == 'hg':
-            cmds.append('hg pull')
-            cmds.append('hg update -C .')
-
-        elif project.repo_type == 'git':
-            cmds.append('git --git-dir=.git fetch')
-            cmds.append('git --git-dir=.git reset --hard origin/master')
-
-        elif project.repo_type == 'svn':
-            cmds.append('svn revert --recursive .')
-            cmds.append('svn up --accept theirs-full')
-
-        elif project.repo_type == 'bzr':
-            cmds.append('bzr revert')
-            cmds.append('bzr up')
-
-        else:
-            raise ProjectImportError("Repo type '%s' unknown" % project.repo_type)
-
-    # Project directory doesn't exist, so do a clone/checkout/branch
+    backend = get_backend(project.repo_type)
+    if not backend:
+        raise ProjectImportError("Repo type '%s' unknown" % project.repo_type)
+    working_dir = os.path.join(project.user_doc_path, project.slug)
+    if not os.path.exists(working_dir):
+        os.mkdir(working_dir)
+    vcs_repo = backend(project.repo, working_dir)
+    if version:
+        print 'Checking out version %s' % version.identifier
+        vcs_repo.checkout(version.identifier)
     else:
-        if project.repo_type == 'hg':
-            cmds.append('hg clone %s %s' % (repo, project.slug))
+        print 'Updating to latest revision'
+        vcs_repo.update()
 
-        elif project.repo_type == 'git':
-            repo = repo.replace('.git', '').strip('/')
-            cmds.append('git clone --depth=1 %s.git %s' % (repo, project.slug))
-
-        elif project.repo_type == 'svn':
-            cmds.append('svn checkout %s %s' % (repo, project.slug))
-
-        elif project.repo_type == 'bzr':
-            cmds.append('bzr checkout %s %s' % (repo, project.slug))
-
-        else:
-            raise ProjectImportError("Repo type '%s' unknown" % project.repo_type)
-
-    # Run the command(s) and raise an exception on error
-    status, out, err = run(*cmds)
-    if status != 0:
-        raise ProjectImportError("Failed to get code from repo: '%s'" % repo)
+        # check tags/version
+        if vcs_repo.supports_tags:
+            tags = vcs_repo.get_tags()
+            old_tags = Version.objects.filter(project=project).values_list('identifier', flat=True)
+            for tag in tags:
+                if tag.identifier in old_tags:
+                    continue
+                slug = slugify_uniquely(Version, tag.verbose_name, 'slug', 255, project=project)
+                Version.objects.create(
+                    project=project,
+                    slug=slug,
+                    identifier=tag.identifier,
+                    verbose_name=tag.verbose_name
+                )
 
     fileify(project_slug=project.slug)
 
@@ -228,11 +208,19 @@ def build_docs(project, pdf):
         html_results = run('sphinx-build -b html . _build/html')
     return html_results
 
+def move_docs(project, version):
+    version_slug = 'latest'
+    if version:
+        version_slug = version.slug
+    target = os.path.join(project.rtd_build_path, version_slug)
+    if os.path.exists(target):
+        shutil.rmtree(target)
+    shutil.copytree(project.full_build_path, target)
 
 @task
 def fileify(project_slug):
     project = Project.objects.get(slug=project_slug)
-    path = project.full_html_path
+    path = project.full_build_path
     if path:
         for root, dirnames, filenames in os.walk(path):
             for filename in filenames:
@@ -244,6 +232,6 @@ def fileify(project_slug):
 
 
 @periodic_task(run_every=crontab(hour="2", minute="10", day_of_week="*"))
-def update_docs_pull(pdf=False):
+def update_docs_pull(record=False, pdf=False):
     for project in Project.objects.live():
-        update_docs(pk=project.pk, record=False, pdf=pdf)
+        update_docs(pk=project.pk, record=record, pdf=pdf)

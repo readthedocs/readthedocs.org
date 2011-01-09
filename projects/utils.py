@@ -1,15 +1,15 @@
 """Utility functions used by projects.
 """
 
-import subprocess
-import os
-import fnmatch
-import traceback
-import re
-
 from django.conf import settings
-
 from projects.libs.diff_match_patch import diff_match_patch
+import fnmatch
+import os
+import re
+import subprocess
+import traceback
+
+
 
 
 HTML_CONTEXT = """
@@ -28,8 +28,8 @@ def find_file(file):
     """
     matches = []
     for root, dirnames, filenames in os.walk('.'):
-      for filename in fnmatch.filter(filenames, file):
-          matches.append(os.path.join(root, filename))
+        for filename in fnmatch.filter(filenames, file):
+            matches.append(os.path.join(root, filename))
     return matches
 
 
@@ -121,3 +121,19 @@ def sanitize_conf(project):
     outfile.write(HTML_CONTEXT % project.sponsored)
     outfile.close()
     return lines_matched
+
+CUSTOM_SLUG_RE = re.compile(r'[^-._\w]+$')
+
+def _custom_slugify(data):
+    return CUSTOM_SLUG_RE.sub('', data)
+
+def slugify_uniquely(model, initial, field, max_length, **filters):
+    slug = _custom_slugify(initial)[:max_length]
+    current = slug
+    index = 0
+    base_qs = model.objects.filter(**filters)
+    while base_qs.filter(**{field: current}).exists():
+        suffix = '-%s' % index
+        current = '%s%s'  % (slug[:-len(suffix)], suffix)
+        index += 1
+    return current

@@ -2,24 +2,26 @@
 documentation and header rendering, and server errors.
 """
 
-from django.core.mail import mail_admins
+from bookmarks.models import Bookmark
 from django.conf import settings
+from django.core.mail import mail_admins
+from django.core.urlresolvers import reverse
 from django.db.models import F, Max
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, \
+    HttpResponsePermanentRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_view_exempt
 from django.views.static import serve
-
-import json
-import os
-import re
-
 from projects.models import Project
 from projects.tasks import update_docs
 from projects.utils import find_file
 from watching.models import PageView
-from bookmarks.models import Bookmark
+import json
+import os
+import re
+
+
 
 
 def homepage(request):
@@ -68,7 +70,17 @@ def generic_build(request, pk):
     return render_to_response('post_commit.html', context,
             context_instance=RequestContext(request))
 
-def serve_docs(request, username, project_slug, filename):
+
+def legacy_serve_docs(request, username, project_slug, filename):
+    url = reverse(serve_docs, kwargs={
+        'project_slug': project_slug,
+        'version_slug': 'latest',
+        'filename': filename
+    })
+    return HttpResponsePermanentRedirect(url)
+
+
+def serve_docs(request, project_slug, version_slug, filename):
     """
     The way that we're serving the documentation.
 
@@ -78,14 +90,21 @@ def serve_docs(request, username, project_slug, filename):
     This could probably be refactored to serve out of nginx if we have more
     time.
     """
-    proj = get_object_or_404(Project, slug=project_slug, user__username=username)
+    if version_slug is None:
+        url = reverse(serve_docs, kwargs={
+            'project_slug': project_slug,
+            'version_slug': 'latest',
+            'filename': filename
+        })
+        return HttpResponsePermanentRedirect(url)
+    proj = get_object_or_404(Project, slug=project_slug)
     if not filename:
         filename = "index.html"
     filename = filename.rstrip('/')
+    basepath = os.path.join(proj.rtd_build_path, version_slug)
     if 'html' in filename:
         try:
-            proj.full_html_path
-            if not os.path.exists(os.path.join(proj.full_html_path, filename)):
+            if not os.path.exists(os.path.join(basepath, filename)):
                 return render_to_response('404.html', {'project': proj},
                         context_instance=RequestContext(request))
         except AttributeError:
@@ -96,7 +115,7 @@ def serve_docs(request, username, project_slug, filename):
         if not created:
             pageview.count = F('count') + 1
             pageview.save()
-    return serve(request, filename, proj.full_html_path)
+    return serve(request, filename, basepath)
 
 def render_header(request):
     """

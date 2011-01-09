@@ -70,7 +70,11 @@ class Project(models.Model):
         return reverse('projects_detail', args=[self.user.username, self.slug])
 
     def get_docs_url(self):
-        return reverse('docs_detail', args=[self.user.username, self.slug, ''])
+        return reverse('docs_detail', kwargs={
+            'project_slug': self.slug,
+            'version_slug': 'latest',
+            'filename': '',
+        })
 
     def get_doc_root(self):
         """
@@ -107,7 +111,7 @@ class Project(models.Model):
     #full_doc_path = property(memoize(full_doc_path, {}, 1))
 
     @property
-    def full_html_path(self):
+    def full_build_path(self):
         """
         The path to the build html docs in the project.
         """
@@ -120,6 +124,13 @@ class Project(models.Model):
             matches = self.find(pos_build)
             if len(matches) > 0:
                 return os.path.dirname(matches[0])
+
+    @property
+    def rtd_build_path(self):
+        """
+        The path to the build html docs in the project.
+        """
+        return os.path.join(self.user_doc_path, 'rtd-builds')
 
     @property
     def template_dir(self):
@@ -149,10 +160,9 @@ class Project(models.Model):
         """
         matches = []
         for root, dirnames, filenames in os.walk(self.full_doc_path):
-          for filename in fnmatch.filter(filenames, file):
-              matches.append(os.path.join(root, filename))
+            for filename in fnmatch.filter(filenames, file):
+                matches.append(os.path.join(root, filename))
         return matches
-
     find = memoize(find, {}, 2)
 
     def get_index_filename(self):
@@ -186,6 +196,9 @@ class Project(models.Model):
             return self.builds.all()[0]
         except IndexError:
             return None
+
+    def active_versions(self):
+        return self.versions.filter(built=True, active=True)
 
 
 class FileManager(models.Manager):

@@ -2,9 +2,14 @@
 and related models.
 """
 
+from builds.models import Version
 from django.contrib import admin
-
 from projects.models import Project, File, ImportedFile
+
+
+
+class VersionInline(admin.TabularInline):
+    model = Version
 
 
 class ProjectAdmin(admin.ModelAdmin):
@@ -12,6 +17,7 @@ class ProjectAdmin(admin.ModelAdmin):
     list_display = ('name', 'repo', 'repo_type', 'theme', 'status')
     search_fields = ('name', 'repo')
     list_filter = ('repo_type', 'status')
+    inlines = [VersionInline]
 
 
 class FileAdmin(admin.ModelAdmin):
