@@ -1,4 +1,4 @@
-from django.utils import simplejson
+from django.conf import settings
 from github2.client import Github
 from projects.exceptions import ProjectImportError
 from vcs_support.base import BaseVCS, VCSTag, BaseContributionBackend
@@ -8,8 +8,9 @@ import urllib
 import urllib2
 
 GITHUB_URLS = ('git://github.com', 'https://github.com')
-GITHUB_TOKEN = '' # TODO!!!
-GITHUB_USERNAME = '' # TODO!!!
+GITHUB_TOKEN = getattr(settings, 'GITHUB_TOKEN', None)
+GITHUB_USERNAME = getattr(settings, 'GITHUB_USERNAME', None)
+GITHUB_OKAY = GITHUB_TOKEN and GITHUB_USERNAME
 
 
 class BaseGIT(object):
@@ -26,7 +27,7 @@ class GithubContributionBackend(BaseContributionBackend, BaseGIT):
         
     @classmethod
     def accepts(cls, url):
-        return url.startswith(GITHUB_URLS)
+        return url.startswith(GITHUB_URLS) and GITHUB_OKAY
     
     def _get_branch_identifier(self, user):
         identifier = 'rtd-%s' % user.username
@@ -78,6 +79,7 @@ class GithubContributionBackend(BaseContributionBackend, BaseGIT):
         have to do it manually using urllib2 :(
         """
         identifier = self._get_branch_identifier(user)
+        print 'pushing branch %s in %s' % (identifier, self._gh_name())
         # first push the branch to the rtd-account on github.
         self._check_remote()
         self._push_remote(identifier)
@@ -90,23 +92,27 @@ class GithubContributionBackend(BaseContributionBackend, BaseGIT):
         
     def _pull_request(self, identifier, title, comment):
         """
-$ curl -d "pull[base]=master" -d "pull[head]=smparkes:synchrony" \
-  -d "pull[title]=..." -d "pull[body]=..." \
-  https://github.com/api/v2/json/pulls/technoweenie/faraday
+        Open an actual pull request
         """
-        request = urllib2.Request('https://github.com/api/v2/json/pulls/%s' % self._gh_name())
+        print 'pull request %s:%s to %s (%s/%s)' % (GITHUB_USERNAME, identifier, self._gh_name(), title, comment)
+        url = 'https://github.com/api/v2/json/pulls/%s' % self._gh_name()
+        print url
+        request = urllib2.Request(url)
         auth = base64.encodestring('%s/token:%s' % (GITHUB_USERNAME, GITHUB_TOKEN))[:-1]
         request.add_header("Authorization", 'Basic %s' % auth)
-        data = {'pull': {
-                'base': 'master',
-                'head': '%s:%s' % (GITHUB_USERNAME, identifier),
-                'title': title,
-                'body': comment,
-            }
+        data = {
+            'base': 'master',
+            'head': '%s:%s' % (GITHUB_USERNAME, identifier),
+            'title': title,
+            'body': comment,
         }
-        postdata = urllib.urlencode(data)
+        pull_request_data = [("pull[%s]" % k, v) for k, v in data.items()]
+        postdata = urllib.urlencode(pull_request_data)
+        print 'postdata:'
+        print postdata
         handler = urllib2.urlopen(request, postdata)
-        handler.read()
+        print handler.headers.dict
+        print handler.read()
     
     def _gh_name(self):
         user, repo = self.repo_url.split('/')[-2:]
@@ -119,25 +125,34 @@ $ curl -d "pull[base]=master" -d "pull[head]=smparkes:synchrony" \
         """
         Check if the RTD remote is available in this repository, if not, add it.
         """
+        print 'checking remote'
         if not self._has_fork():
+            print 'no fork available'
             self._fork()
+        else:
+            print 'fork found'
         if 'rtd' not in self._run_command('git', 'remote')[1]:
+            print 'rtd remote not yet specified'
             self._run_command('git', 'remote', 'add', 'rtd', self._get_remote_name())
+        else:
+            print 'rtd remote found'
             
     def _get_remote_name(self):
-        return 'https://gitub.com/%s/%s.git' % (GITHUB_USERNAME, self._gh_reponame())
+        return 'git@github.com:%s/%s.git' % (GITHUB_USERNAME, self._gh_reponame())
     
     def _push_remote(self, identifier):
         """
         push a local branch to the RTD remote
         """
-        self._run_command('git', 'push', 'rtd', identifier)
+        print 'pushing %s to remote %s' % (identifier, self._get_remote_name())
+        print self._run_command('git', 'push', 'rtd', identifier)
         
     def _has_fork(self):
-        return self._gh_reponame() in [r.name for r in self.gh.repos.show(GITHUB_USERNAME)]
+        return self._gh_reponame() in [r.name for r in self.gh.repos.list(GITHUB_USERNAME)]
     
     def _fork(self):
-        self.gh.repos.fork(self._gh_name())
+        print 'forking %s to %s' % (self._gh_name(), GITHUB_USERNAME)
+        print self.gh.repos.fork(self._gh_name())
         
 
 class Backend(BaseVCS, BaseGIT):
