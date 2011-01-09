@@ -44,7 +44,7 @@ def slug_detail(request, project_slug, filename):
     if not filename:
         filename = "index.html"
     project = get_object_or_404(Project, slug=project_slug)
-    return serve_docs(request=request, username=project.user.username, project_slug=project_slug, filename=filename)
+    return serve_docs(request=request, project_slug=project_slug, version_slug='latest', filename=filename)
     
 def project_detail(request, username, project_slug):
     """
