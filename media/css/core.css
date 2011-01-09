@@ -83,10 +83,8 @@ label { display: block; margin-bottom: 4px; font-weight: bold; color: #444; }
 
   /* title */
   .home-header-links { position: absolute; top: 22px; right: 10px; width: 180px; }
-
-  .home-header-links a.reg { color: #fff; display: block; padding: 10px 20px; background: #7C8F99 url(../images/gradient-light.png) bottom left repeat-x; border-bottom: 1px solid #465158;  font-weight: bold; text-shadow: 0px 1px 0 rgba(0, 0, 0, 0.7); text-decoration: none; border-radius: 3px; -moz-border-radius: 3px; -webkit-border-radius: 3px; margin-bottom: 10px; text-align: center; }
-  .home-header-links a.reg:hover { background-color: #8CA1AF; }
-
+  .home-header-links a.reg { color: #fff; display: block; padding: 10px 20px; background: #7C8F99 url(../images/gradient-light.png) bottom left repeat-x; font-weight: bold; text-shadow: 0px 1px 0 rgba(0, 0, 0, 0.7); text-decoration: none; border-radius: 3px; -moz-border-radius: 3px; -webkit-border-radius: 3px; margin-bottom: 10px; text-align: center; box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2); -moz-box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2); -webkit-box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2); }
+  .home-header-links a.reg:hover { background-color: #8CA1AF; box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2); -moz-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2); -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2); }
   .home-header-links .login-box { text-align: center; }
   .home-header-links .login-box p { margin-bottom: 0; color: #BCC1C3; }
   .home-header-links .login { font-weight: bold; color: #e3e3e3; text-shadow: 0px 1px 0 rgba(0, 0, 0, 0.5); }
