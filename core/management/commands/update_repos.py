@@ -1,8 +1,7 @@
 from django.core.management.base import BaseCommand
 from optparse import make_option
 from projects import tasks
-
-
+from projects.models import Project
 
 class Command(BaseCommand):
     """Custom management command to rebuild documentation for all projects on
