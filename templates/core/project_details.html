@@ -39,6 +39,11 @@
 
 {% endif %}
 
+
+<form method="post" action="{% url generic_build project.pk %}">
+<input type="submit" value="Build Project">
+</form>
+
 {% if request.user == project.user %}
   <h3>Post Commit Hook</h3>
     <p>http://readthedocs.org{% url generic_build project.pk %}</p>
@@ -54,8 +59,3 @@
     <li class="quiet">No revisions</li>
   {% endfor %}
 </ul>
-
-
-<form method="post" action="{% url generic_build project.pk %}">
-<input type="submit" value="Build Project">
-</form>
