@@ -22,7 +22,7 @@ urlpatterns = patterns('',
         'core.views.serve_docs',
         name='docs_detail'
     ),
-    url(r'^docs/(?P<project_slug>[-\w]+)/(?P<version_slug>[-\w]+?)/(?P<filename>.*)$',
+    url(r'^docs/(?P<project_slug>[-\w]+)/(?P<version_slug>[-._\w]+?)/(?P<filename>.*)$',
         'core.views.serve_docs',
         name='docs_detail'
     ),
