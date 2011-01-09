@@ -1,4 +1,6 @@
 from django.contrib.auth.decorators import login_required
+from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template.context import RequestContext
 from editor.forms import FileForm, PullRequestForm
@@ -97,6 +99,7 @@ def editor_push(request, project_slug):
             title = form.cleaned_data['title']
             comment = form.cleaned_data['comment']
             contributor.push_branch(request.user, title, comment)
+            return HttpResponseRedirect(reverse(editor_pick, args=(project.slug,)))
     else:
         form = PullRequestForm()
     ctx = RequestContext(request)
