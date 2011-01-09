@@ -6,7 +6,7 @@
     <span class="quiet">{% if project.version %}version {{ project.version }}{% endif %}</span>
     <ul class="module-item-menu">
       {% if project.get_latest_build.success %}
-        <li><a href="{{ project.get_docs_url }}}">View Docs</a></li>
+        <li><a href="{{ project.get_docs_url }}">View Docs</a></li>
       {% else %}
         <li><a href="{% url builds_project_list project.user.username project.slug %}">No Docs</a></li>
       {% endif %}

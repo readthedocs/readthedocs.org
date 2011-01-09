@@ -98,12 +98,15 @@ def update_imported_docs(project, version):
                 if tag.identifier in old_tags:
                     continue
                 slug = slugify_uniquely(Version, tag.verbose_name, 'slug', 255, project=project)
-                Version.objects.create(
-                    project=project,
-                    slug=slug,
-                    identifier=tag.identifier,
-                    verbose_name=tag.verbose_name
-                )
+                try:
+                    Version.objects.create(
+                        project=project,
+                        slug=slug,
+                        identifier=tag.identifier,
+                        verbose_name=tag.verbose_name
+                    )
+                except Exception, e:
+                    print "Failed to create version: %s" % e
 
     fileify(project_slug=project.slug)
 
