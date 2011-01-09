@@ -29,7 +29,7 @@
                             <li><a href="{% url projects_manage project.slug %}">Manage Files</a></li>
                           {% endif %}
                           <li><a href="{% url projects_edit project.slug %}">Edit</a></li>
-                          <li><a href="{{ project.get_docs_url }}}">View Docs</a></li>
+                          <li><a href="{{ project.get_docs_url }}">View Docs</a></li>
                         </ul>
                       </li>
                     {% endfor %}
