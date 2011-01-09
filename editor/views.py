@@ -54,9 +54,6 @@ def editor_file(request, project_slug, filename):
     if not filename:
         filename = "index.html"
     filename = filename.rstrip('/')
-    basepath = os.path.join(project.rtd_build_path, 'latest')
-    if not os.path.exists(os.path.join(basepath, filename)):
-        return _project_404(request, project)
     repo_file = _replace_ext(_get_rel_filepath(project, filename), project.suffix)
     backend = get_backend(project.repo_type)
     if not backend:
@@ -69,6 +66,9 @@ def editor_file(request, project_slug, filename):
     contributor = vcs_repo.get_contribution_backend()
     if not contributor:
         return _project_404(request, project)
+    current_data = contributor.get_branch_file(request.user, repo_file)
+    if not current_data:
+        return _project_404(request, project)
     if request.method == 'POST':
         form = FileForm(request.POST)
         if form.is_valid():
@@ -77,7 +77,7 @@ def editor_file(request, project_slug, filename):
             contributor.set_branch_file(request.user, repo_file, body, comment)
     else:
         initial = {
-            'body': contributor.get_branch_file(request.user, repo_file)
+            'body': current_data
         }
         form = FileForm(initial=initial)
     ctx = RequestContext(request)
