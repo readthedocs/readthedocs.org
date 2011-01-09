@@ -104,6 +104,11 @@ label { display: block; margin-bottom: 4px; font-weight: bold; color: #444; }
 .wide-search-bar input[type="submit"] { border-top-right-radius: 3px; border-bottom-right-radius: 3px; -moz-border-radius-topright: 3px; -moz-border-radius-bottomright: 3px; -webkit-border-top-right-radius: 3px; -webkit-border-bottom-right-radius: 3px; height: 47px; width: 100%; text-align: center; }
 
 
+/* search */
+
+.filter { margin-bottom: 40px; }
+
+
 /* module */
 
 .module { margin-bottom: 60px;  }
