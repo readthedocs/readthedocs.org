@@ -2,7 +2,6 @@
 """
 
 from django.conf import settings
-from django.template.defaultfilters import slugify
 from projects.libs.diff_match_patch import diff_match_patch
 import fnmatch
 import os
@@ -123,13 +122,13 @@ def sanitize_conf(project):
     outfile.close()
     return lines_matched
 
-CUSTOM_SLUG_RE = re.compile('(\.|_)')
+CUSTOM_SLUG_RE = re.compile(r'[^-._\w]+$')
 
 def _custom_slugify(data):
-    return CUSTOM_SLUG_RE.sub('-', data)
+    return CUSTOM_SLUG_RE.sub('', data)
 
 def slugify_uniquely(model, initial, field, max_length, **filters):
-    slug = slugify(_custom_slugify(initial))[:max_length]
+    slug = _custom_slugify(initial)[:max_length]
     current = slug
     index = 0
     base_qs = model.objects.filter(**filters)

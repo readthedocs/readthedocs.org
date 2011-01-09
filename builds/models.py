@@ -24,7 +24,7 @@ class Version(models.Model):
     project = models.ForeignKey(Project, related_name='versions')
     identifier = models.CharField(max_length=255) # used by the vcs backend
     verbose_name = models.CharField(max_length=255)
-    slug = models.SlugField(max_length=255)
+    slug = models.CharField(max_length=255)
     active = models.BooleanField(default=False)
     built = models.BooleanField(default=False)
     
