@@ -70,7 +70,11 @@ class Project(models.Model):
         return reverse('projects_detail', args=[self.user.username, self.slug])
 
     def get_docs_url(self):
-        return reverse('docs_detail', args=[self.user.username, self.slug, ''])
+        return reverse('docs_detail', kwargs={
+            'project_slug': self.slug,
+            'version_slug': 'latest',
+            'filename': '',
+        })
 
     def get_doc_root(self):
         """

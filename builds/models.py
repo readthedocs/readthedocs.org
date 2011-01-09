@@ -1,3 +1,4 @@
+from django.core.urlresolvers import reverse
 from django.db import models
 from projects.models import Project
 
@@ -33,3 +34,12 @@ class Version(models.Model):
 
     def __unicode__(self):
         return u"Version %s of %s (%s)" % (self.verbose_name, self.project, self.pk)
+    
+    def get_absolute_url(self):
+        if not self.built:
+            return ''
+        return reverse('docs_detail', kwargs={
+            'project_slug': self.project.slug,
+            'version_slug': self.slug,
+            'filename': ''
+        })

@@ -120,9 +120,9 @@ class FileRevisionForm(forms.Form):
 
 
 class DualCheckboxWidget(forms.CheckboxInput):
-    def __init__(self, built, attrs=None, check_test=bool):
+    def __init__(self, version, attrs=None, check_test=bool):
         super(DualCheckboxWidget, self).__init__(attrs, check_test)
-        self.built = built
+        self.version = version
 
     def render(self, name, value, attrs=None):
         checkbox = super(DualCheckboxWidget, self).render(name, value, attrs)
@@ -132,7 +132,8 @@ class DualCheckboxWidget(forms.CheckboxInput):
     def render_icon(self):
         context = {
             'MEDIA_URL': settings.MEDIA_URL,
-            'built': self.built
+            'built': self.version.built,
+            'url': self.version.get_absolute_url()
         }
         return render_to_string('projects/includes/icon_built.html', context)
 
@@ -160,7 +161,7 @@ def build_versions_form(project):
         field_name = 'version-%s' % version.slug
         attrs[field_name] = forms.BooleanField(
             label=version.verbose_name,
-            widget=DualCheckboxWidget(version.built),
+            widget=DualCheckboxWidget(version),
             initial=version.active,
             required=False,
         )
