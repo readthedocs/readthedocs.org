@@ -18,6 +18,7 @@ if 'html_context' in locals():
     html_context.update({'badge_revsys': should_badge})
 else:
     html_context = {
+        'slug': '%s',
         'badge_revsys': should_badge
     }
 """
@@ -118,7 +119,7 @@ def sanitize_conf(project):
         outfile.write(line)
     if not lines_matched:
         outfile.write('templates_path = ["%s"]' % template_dir)
-    outfile.write(HTML_CONTEXT % project.sponsored)
+    outfile.write(HTML_CONTEXT % (project.sponsored, project.slug))
     outfile.close()
     return lines_matched
 
