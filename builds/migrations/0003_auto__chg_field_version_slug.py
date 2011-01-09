@@ -11,14 +11,8 @@ class Migration(SchemaMigration):
         # Changing field 'Version.slug'
         db.alter_column('builds_version', 'slug', self.gf('django.db.models.fields.CharField')(max_length=255))
 
-        # Removing index on 'Version', fields ['slug']
-        db.delete_index('builds_version', ['slug'])
-
 
     def backwards(self, orm):
-        
-        # Adding index on 'Version', fields ['slug']
-        db.create_index('builds_version', ['slug'])
 
         # Changing field 'Version.slug'
         db.alter_column('builds_version', 'slug', self.gf('django.db.models.fields.SlugField')(max_length=255))
