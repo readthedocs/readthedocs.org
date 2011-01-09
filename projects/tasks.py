@@ -207,8 +207,7 @@ def build_docs(project, pdf):
                 latex_dir = match.group(1).strip()
                 os.chdir(latex_dir)
                 pdf_results = run('make')
-                pdf = project.slug
-                run('ln -sf %s %s/%s.pdf' % (os.path.join(os.getcwd(), pdf),
+                run('ln -sf %s.pdf %s/%s.pdf' % (os.path.join(os.getcwd(), project.slug),
                                             settings.MEDIA_ROOT,
                                             project.slug
                                            ))
