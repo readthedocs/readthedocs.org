@@ -2,7 +2,7 @@ from projects.exceptions import ProjectImportError
 from vcs_support.base import BaseVCS, VCSTag
 
 class Backend(BaseVCS):
-    supports_tags = False
+    supports_tags = True
     
     def update(self):
         retcode = self._run_command('bzr', 'status')[0]
