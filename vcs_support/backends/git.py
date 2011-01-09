@@ -1,6 +1,7 @@
 from projects.exceptions import ProjectImportError
 from vcs_support.backends.github import GithubContributionBackend
 from vcs_support.base import BaseVCS, VCSTag
+from vcs_support.utils import locked_repo_method
 import os
         
 
@@ -8,13 +9,14 @@ class Backend(BaseVCS):
     supports_tags = True
     contribution_backends = [GithubContributionBackend]
     
+    @locked_repo_method
     def update(self):
         retcode = self._run_command('git', 'status')[0]
         if retcode == 0:
             self._pull()
         else:
             self._clone()
-            
+    
     def _pull(self):
         retcode = self._run_command('git', 'fetch')[0]
         if retcode != 0:
@@ -26,7 +28,7 @@ class Backend(BaseVCS):
             raise ProjectImportError(
                 "Failed to get code from '%s' (git reset): %s" % (self.repo_url, retcode)
             )
-        
+    
     def _clone(self):
         retcode = self._run_command('git', 'clone', '--quiet', self.repo_url, '.')[0]
         if retcode != 0:
@@ -66,6 +68,7 @@ class Backend(BaseVCS):
     def _get_clean_tag_name(self, name):
         return name.split('/', 2)[2]
     
+    @locked_repo_method
     def checkout(self, identifier=None):
         if not identifier:
             identifier = 'master'

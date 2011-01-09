@@ -5,17 +5,17 @@
 from builds.models import Build, Version
 from celery.decorators import periodic_task, task
 from celery.task.schedules import crontab
-from django.db import transaction
 from django.conf import settings
 from django.contrib.auth.models import SiteProfileNotAvailable
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import transaction
 from projects.exceptions import ProjectImportError
 from projects.models import Project, ImportedFile
 from projects.utils import run, sanitize_conf, slugify_uniquely
 from vcs_support.base import get_backend
+from vcs_support.utils import Lock
 import decimal
 import fnmatch
-import glob
 import os
 import re
 import shutil
@@ -44,33 +44,35 @@ def update_docs(pk, record=True, pdf=False, version_pk=None):
     if not os.path.exists(path):
         os.makedirs(path)
 
-    if project.is_imported:
-        try:
-            update_imported_docs(project, version)
-        except ProjectImportError, err:
-            print("Error importing project: %s. Skipping build." % err)
-            return
+    working_dir = os.path.join(project.user_doc_path, project.slug)
+    with Lock(working_dir, 30):
+        if project.is_imported:
+            try:
+                update_imported_docs(project, version)
+            except ProjectImportError, err:
+                print("Error importing project: %s. Skipping build." % err)
+                return
+            else:
+                scrape_conf_file(project)
         else:
-            scrape_conf_file(project)
-    else:
-        update_created_docs(project)
-
-    # kick off a build
-    (ret, out, err) = build_docs(project, pdf)
-    if not 'no targets are out of date.' in out:
-        if record:
-            Build.objects.create(project=project, success=ret==0, output=out, error=err)
-        if ret == 0:
-            print "Build OK"
-            if version:
-                version.built = True
-                version.save()
-            move_docs(project, version)
+            update_created_docs(project)
+    
+        # kick off a build
+        (ret, out, err) = build_docs(project, pdf)
+        if not 'no targets are out of date.' in out:
+            if record:
+                Build.objects.create(project=project, success=ret==0, output=out, error=err)
+            if ret == 0:
+                print "Build OK"
+                if version:
+                    version.built = True
+                    version.save()
+                move_docs(project, version)
+            else:
+                print "Build ERROR"
+                print err
         else:
-            print "Build ERROR"
-            print err
-    else:
-        print "Build Unchanged"
+            print "Build Unchanged"
 
 
 def update_imported_docs(project, version):

@@ -1,5 +1,6 @@
 from projects.exceptions import ProjectImportError
 from vcs_support.base import BaseVCS, VCSTag
+from vcs_support.utils import locked_repo_method
 
 
 class Backend(BaseVCS):
@@ -13,7 +14,7 @@ class Backend(BaseVCS):
             self.supports_tags = True
             self.base_url = self.repo_url[:-7]
             
-    
+    @locked_repo_method
     def update(self):
         # For some reason `svn status` gives me retcode 0 in non-svn directories
         # that's why I use `svn info` here.
@@ -22,7 +23,7 @@ class Backend(BaseVCS):
             self._up()
         else:
             self._co()
-            
+    
     def _up(self):
         retcode = self._run_command('svn', 'revert', '--recursive', '.')[0]
         if retcode != 0:
@@ -34,7 +35,7 @@ class Backend(BaseVCS):
             raise ProjectImportError(
                 "Failed to get code from '%s' (svn up): %s" % (self.repo_url, retcode)
             )
-        
+
     def _co(self):
         retcode = self._run_command('svn', 'checkout', '--quiet', self.repo_url, '.')[0]
         if retcode != 0:
@@ -67,6 +68,7 @@ class Backend(BaseVCS):
             vcs_tags.append(VCSTag(self, '/tags/%s/' % name, name))
         return vcs_tags
     
+    @locked_repo_method
     def checkout(self, identifier=None):
         if not identifier:
             identifier = '/trunk/'

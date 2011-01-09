@@ -1,6 +1,7 @@
 from django.conf import settings
 from github2.client import Github
 from vcs_support.base import BaseContributionBackend
+from vcs_support.utils import locked_repo_method
 import base64
 import os
 import urllib
@@ -48,6 +49,7 @@ class GithubContributionBackend(BaseContributionBackend):
         identifier = self._get_branch_identifier(user)
         return self._run_command('git', 'show', '%s:%s' % (identifier, filename))[1]
     
+    @locked_repo_method
     def set_branch_file(self, user, filename, contents, comment=''):
         """
         git checkout branch
