@@ -114,11 +114,16 @@ class GithubContributionBackend(BaseContributionBackend):
         print handler.read()
     
     def _gh_name(self):
-        user, repo = self.repo_url.split('/')[-2:]
-        return '%s/%s' % (user, repo[:-4])
+        return '%s/%s' % (self._gh_user(), self._gh_reponame())
+
+    def _gh_user(self):
+        return self.repo_url.split('/')[-2]
     
     def _gh_reponame(self):
-        return self.repo_url.split('/')[-1][:-4]
+        name = self.repo_url.split('/')[-1]
+        if name.endswith('.git'):
+            return name[:-4]
+        return name
         
     def _check_remote(self):
         """
