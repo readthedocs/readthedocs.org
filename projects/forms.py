@@ -150,7 +150,8 @@ class BaseVersionsForm(forms.Form):
             return
         version.active = new_value
         version.save()
-        update_docs.delay(self.project.pk, record=False, version_pk=version.pk)
+        if version.active and not version.built:
+            update_docs.delay(self.project.pk, record=False, version_pk=version.pk)
         
 
 def build_versions_form(project):
