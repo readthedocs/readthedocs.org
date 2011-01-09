@@ -51,14 +51,15 @@ thead { background: #f2f2f2; }
 /* forms */
 
 form p { color: #999; }
-textarea, input, button, select { display: block; padding: 5px; color: #444; background-color: #fff; border: 1px solid #BFBFBF; border-radius: 3px; -moz-border-radius: 3px; -webkit-border-radius: 3px; }
-textarea, input { box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset; -moz-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset; -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset; }
+textarea, input, button, .button, select { display: block; padding: 5px; color: #444; background-color: #fff; border: 1px solid #BFBFBF; border-radius: 3px; -moz-border-radius: 3px; -webkit-border-radius: 3px; }
+textarea, input, .button { box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset; -moz-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset; -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset; }
 input[type="text"], input[type="password"] { width: 250px; height: 20px; margin-bottom: 5px; background: #fff; }
 select { display: block; max-height: 300px; width: 250px; margin-bottom: 10px; font: 16/20px "inconsolata-1", "inconsolata-2", 'bitstream vera sans mono', 'andale mono', 'lucida console', monospace; }
 textarea { background: #fff; width: 435px; height: 150px; }
-input[type="submit"], input[type="button"], button { font-family: "ff-meta-web-pro-1", "ff-meta-web-pro-2", Arial, "Helvetica Neue", sans-serif; color: #666; font-weight: bold; padding: 8px 15px; border: none; background: #e6e6e6 url(../images/gradient.png) repeat-x bottom left; margin: 30px 5px 20px 0; text-shadow: 0 1px 0 rgba(255, 255, 255, 1); border: 1px solid #bfbfbf; display: block; text-decoration: none; box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset; -moz-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset; -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset; }
-input[type="submit"]:hover, input[type="button"]:hover, button:hover { background-color: #8ECC4C; color: #fff; text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5); border-color: #6B9939; border-bottom-color: #50732B; }
-input[type="submit"]:active, input[type="button"]:active, button:active { box-shadow: none; -moz-box-shadow: none; -webkit-box-shadow: none; }
+input[type="submit"], input[type="button"], button, .button { font-family: "ff-meta-web-pro-1", "ff-meta-web-pro-2", Arial, "Helvetica Neue", sans-serif; color: #666; font-weight: bold; padding: 8px 15px; border: none; background: #e6e6e6 url(../images/gradient.png) repeat-x bottom left; margin: 30px 5px 20px 0; text-shadow: 0 1px 0 rgba(255, 255, 255, 1); border: 1px solid #bfbfbf; display: block; text-decoration: none; box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset; -moz-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset; -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset; }
+.button { padding: 6px 10px; float: left; cursor: pointer; }
+input[type="submit"]:hover, input[type="button"]:hover, button:hover, .button:hover { background-color: #8ECC4C; color: #fff; text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5); border-color: #6B9939; border-bottom-color: #50732B; }
+input[type="submit"]:active, input[type="button"]:active, button:active, .buttonn:active { box-shadow: none; -moz-box-shadow: none; -webkit-box-shadow: none; }
 fieldset { border: 1px solid #bfbfbf; padding: 15px; border-radius: 3px; -moz-border-radius: 3px; -webkit-border-radius: 3px; margin-bottom: 15px; }
 input[type="hidden"] { display: none; }
 input[type="checkbox"], input[type="radio"] { display: inline; }
