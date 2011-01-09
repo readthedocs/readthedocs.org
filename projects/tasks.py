@@ -207,10 +207,14 @@ def build_docs(project, pdf):
                 latex_dir = match.group(1).strip()
                 os.chdir(latex_dir)
                 pdf_results = run('make')
-                run('ln -sf %s.pdf %s/%s.pdf' % (os.path.join(os.getcwd(), project.slug),
+                if pdf_results[0] == 0:
+                    run('ln -sf %s.pdf %s/%s.pdf' % (os.path.join(os.getcwd(), project.slug),
                                             settings.MEDIA_ROOT,
                                             project.slug
                                            ))
+                #else:
+                    #project.skip_sphinx = True
+                    #project.save()
     except (IndexError, OSError):
         os.chdir(project.path)
         html_results = run('sphinx-build -b html . _build/html')
