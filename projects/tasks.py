@@ -5,6 +5,7 @@
 from builds.models import Build, Version
 from celery.decorators import periodic_task, task
 from celery.task.schedules import crontab
+from django.db import transaction
 from django.conf import settings
 from django.contrib.auth.models import SiteProfileNotAvailable
 from django.core.exceptions import ObjectDoesNotExist
@@ -100,7 +101,7 @@ def update_imported_docs(project, version):
                         continue
                     slug = slugify_uniquely(Version, tag.verbose_name, 'slug', 255, project=project)
                     try:
-                        Version.objects.create(
+                        Version.objects.get_or_create(
                             project=project,
                             slug=slug,
                             identifier=tag.identifier,
@@ -108,6 +109,7 @@ def update_imported_docs(project, version):
                         )
                     except Exception, e:
                         print "Failed to create version: %s" % e
+                        transaction.rollback()
         except ValueError, e:
             print "Error getting tags: %s" % e
 
