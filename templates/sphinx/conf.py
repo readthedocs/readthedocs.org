@@ -17,14 +17,9 @@ html_static_path = ['_static']
 htmlhelp_basename = 'ReadTheDocsdoc'
 file_insertion_enabled = False
 latex_documents = [
-  ('index', 'ReadTheDocs.tex', u'Read The Docs Documentation',
-   u'Eric Holscher, Charlie Leifer, Bobby Grace', 'manual'),
+  ('index', '{{ project.slug }}.tex', u'{{ project.name }} Documentation',
+   u'{{ project.copyright }}', 'manual'),
 ]
-man_pages = [
-    ('index', 'readthedocs', u'Read The Docs Documentation',
-     [u'Eric Holscher, Charlie Leifer, Bobby Grace'], 1)
-]
-
 html_context = {
   'slug': '{{ project.slug }}',
   'badge': {{ badge|yesno:"True,False" }}
