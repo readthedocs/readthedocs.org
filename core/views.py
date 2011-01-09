@@ -85,7 +85,6 @@ def serve_docs(request, project_slug, version_slug, filename):
     basepath = os.path.join(proj.rtd_build_path, version_slug)
     if 'html' in filename:
         try:
-            proj.full_html_path
             if not os.path.exists(os.path.join(basepath, filename)):
                 return render_to_response('404.html', {'project': proj},
                         context_instance=RequestContext(request))
