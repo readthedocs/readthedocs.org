@@ -123,8 +123,13 @@ def sanitize_conf(project):
     outfile.close()
     return lines_matched
 
+CUSTOM_SLUG_RE = re.compile('(\.|_)')
+
+def _custom_slugify(data):
+    return CUSTOM_SLUG_RE.sub('-', data)
+
 def slugify_uniquely(model, initial, field, max_length, **filters):
-    slug = slugify(initial)[:max_length]
+    slug = slugify(_custom_slugify(initial))[:max_length]
     current = slug
     index = 0
     base_qs = model.objects.filter(**filters)

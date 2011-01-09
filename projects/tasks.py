@@ -17,6 +17,7 @@ import fnmatch
 import glob
 import os
 import re
+import shutil
 
 
 ghetto_hack = re.compile(r'(?P<key>.*)\s*=\s*u?\[?[\'\"](?P<value>.*)[\'\"]\]?')
@@ -208,12 +209,18 @@ def build_docs(project, pdf):
     return html_results
 
 def move_docs(project, version):
-    pass
+    version_slug = 'latest'
+    if version:
+        version_slug = version.slug
+    target = os.path.join(project.rtd_build_path, version_slug)
+    if os.path.exists(target):
+        shutil.rmtree(target)
+    shutil.copytree(project.full_build_path, target)
 
 @task
 def fileify(project_slug):
     project = Project.objects.get(slug=project_slug)
-    path = project.full_html_path
+    path = project.full_build_path
     if path:
         for root, dirnames, filenames in os.walk(path):
             for filename in filenames:

@@ -107,7 +107,7 @@ class Project(models.Model):
     #full_doc_path = property(memoize(full_doc_path, {}, 1))
 
     @property
-    def full_html_path(self):
+    def full_build_path(self):
         """
         The path to the build html docs in the project.
         """
@@ -120,6 +120,13 @@ class Project(models.Model):
             matches = self.find(pos_build)
             if len(matches) > 0:
                 return os.path.dirname(matches[0])
+    
+    @property
+    def rtd_build_path(self):
+        """
+        The path to the build html docs in the project.
+        """
+        return os.path.join(self.user_doc_path, 'rtd-builds')
 
     @property
     def template_dir(self):

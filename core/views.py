@@ -68,7 +68,7 @@ def generic_build(request, pk):
     return render_to_response('post_commit.html', context,
             context_instance=RequestContext(request))
 
-def serve_docs(request, username, project_slug, filename):
+def serve_docs(request, project_slug, version_slug, filename):
     """
     The way that we're serving the documentation.
 
@@ -78,14 +78,15 @@ def serve_docs(request, username, project_slug, filename):
     This could probably be refactored to serve out of nginx if we have more
     time.
     """
-    proj = get_object_or_404(Project, slug=project_slug, user__username=username)
+    proj = get_object_or_404(Project, slug=project_slug)
     if not filename:
         filename = "index.html"
     filename = filename.rstrip('/')
+    basepath = os.path.join(proj.rtd_build_path, version_slug)
     if 'html' in filename:
         try:
             proj.full_html_path
-            if not os.path.exists(os.path.join(proj.full_html_path, filename)):
+            if not os.path.exists(os.path.join(basepath, filename)):
                 return render_to_response('404.html', {'project': proj},
                         context_instance=RequestContext(request))
         except AttributeError:
@@ -96,7 +97,7 @@ def serve_docs(request, username, project_slug, filename):
         if not created:
             pageview.count = F('count') + 1
             pageview.save()
-    return serve(request, filename, proj.full_html_path)
+    return serve(request, filename, basepath)
 
 def render_header(request):
     """

@@ -38,10 +38,3 @@ urlpatterns = patterns('projects.views.public',
         name='projects_pdf'
     ),
 )
-
-urlpatterns += patterns('',
-    url(r'^(?P<username>\w+)/(?P<project_slug>[-\w]+)/docs/(?P<filename>.*)$',
-        'core.views.serve_docs',
-        name='docs_detail'
-    ),
-)

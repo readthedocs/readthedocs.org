@@ -18,6 +18,19 @@ handler404 = 'core.views.server_error_404'
 
 urlpatterns = patterns('',
     url(r'^$', 'core.views.homepage'),
+    url(r'^docs/(?P<project_slug>[-\w]+)/(?P<version_slug>latest)/(?P<filename>.*)$',
+        'core.views.serve_docs',
+        name='docs_detail'
+    ),
+    url(r'^docs/(?P<project_slug>[-\w]+)/(?P<version_slug>[-\w]+?)/(?P<filename>.*)$',
+        'core.views.serve_docs',
+        name='docs_detail'
+    ),
+    url(r'^docs/(?P<project_slug>[-\w]+)/(?P<filename>.*)$',
+        'core.views.serve_docs',
+        {'version_slug': 'latest'},
+        name='docs_detail'
+    ),
     url(r'^projects/', include('projects.urls.public')),
     url(r'^builds/', include('builds.urls')),
     url(r'^bookmarks/', include('bookmarks.urls')),
