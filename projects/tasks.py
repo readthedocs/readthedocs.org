@@ -11,7 +11,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from projects.exceptions import ProjectImportError
 from projects.models import Project, ImportedFile
 from projects.utils import run, sanitize_conf, slugify_uniquely
-from sphinx.application import Sphinx
 from vcs_support.base import get_backend
 import decimal
 import fnmatch
@@ -19,10 +18,6 @@ import glob
 import os
 import re
 import shutil
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from StringIO import StringIO
 
 
 ghetto_hack = re.compile(r'(?P<key>.*)\s*=\s*u?\[?[\'\"](?P<value>.*)[\'\"]\]?')
@@ -60,7 +55,7 @@ def update_docs(pk, record=True, pdf=False, version_pk=None):
         update_created_docs(project)
 
     # kick off a build
-    (ret, out, err) = build_docs(project, version, pdf)
+    (ret, out, err) = build_docs(project, pdf)
     if not 'no targets are out of date.' in out:
         if record:
             Build.objects.create(project=project, success=ret==0, output=out, error=err)
@@ -166,7 +161,7 @@ def update_created_docs(project):
         file.write_to_disk()
 
 
-def build_docs(project, version, pdf):
+def build_docs(project, pdf):
     """
     A helper function for the celery task to do the actual doc building.
     """
@@ -192,7 +187,10 @@ def build_docs(project, version, pdf):
     try:
         makes = [makefile for makefile in project.find('Makefile') if 'doc' in makefile]
         make_dir = makes[0].replace('/Makefile', '')
-        (ret, out, err) = make_html_docs(make_dir, project, version)
+        os.chdir(make_dir)
+        html_results = run('make html')
+        if html_results[0] != 0:
+            raise OSError
         if pdf:
             latex_results = run('make latex')
             match = latex_re.search(latex_results[1])
@@ -206,34 +204,9 @@ def build_docs(project, version, pdf):
                                             project.slug
                                            ))
     except (IndexError, OSError):
-        pass
-    if ret != 0:
         os.chdir(project.path)
-        (ret, out, err) = run('sphinx-build -b html . _build/html')
-        move_docs(project, version)
-    return (ret, out, err)
-
-def make_html_docs(docs_dir, project, version):
-    version_slug = 'latest'
-    if version:
-        version_slug = version.slug
-    out_dir = os.path.join(project.rtd_build_path, version_slug)
-    sio = StringIO()
-    app = Sphinx(
-        docs_dir,
-        docs_dir,
-        out_dir,
-        out_dir,
-        "html",
-        status=sio
-    )
-    try:
-        app.build()
-    except:
-        sio.seek(0)
-        return (255, '', sio.read())
-    sio.seek(0)
-    return (0, sio.read(), '')
+        html_results = run('sphinx-build -b html . _build/html')
+    return html_results
 
 def move_docs(project, version):
     version_slug = 'latest'
