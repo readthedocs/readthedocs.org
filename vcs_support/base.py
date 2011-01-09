@@ -17,12 +17,6 @@ class VCSTag(object):
         self.identifier = identifier
         self.verbose_name = verbose_name
         
-    def __enter__(self):
-        self.repository.checkout(self.identifier)
-        
-    def __exit__(self):
-        self.repository.checkout()
-        
     def __repr__(self):
         return "<VCSTag: %s:%s" % (self.repository.repo_url, self.verbose_name)
 
