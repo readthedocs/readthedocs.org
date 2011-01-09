@@ -28,6 +28,16 @@ def _replace_ext(filename, newext):
 @login_required
 def editor_pick(request, project_slug):
     project = get_object_or_404(Project, slug=project_slug)
+    backend = get_backend(project.repo_type)
+    if not backend:
+        return _project_404(request, project)
+    working_dir = os.path.join(project.user_doc_path, project.slug)
+    if not os.path.exists(working_dir):
+        os.mkdir(working_dir)
+    vcs_repo = backend(project.repo, working_dir)
+    contributor = vcs_repo.get_contribution_backend()
+    if not contributor:
+        return _project_404(request, project)
     filepaths = [os.path.relpath(fp, project.full_doc_path) for fp in project.find('*%s' % project.suffix)]
     files = [(filepath, _replace_ext(filepath, '.html')) for filepath in filepaths]
     ctx = RequestContext(request)
