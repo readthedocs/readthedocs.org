@@ -7,7 +7,7 @@ import urllib
 import urllib2
 
 
-GITHUB_URLS = ('git://github.com', 'https://github.com')
+GITHUB_URLS = ('git://github.com', 'https://github.com', 'http://github.com')
 GITHUB_TOKEN = getattr(settings, 'GITHUB_TOKEN', None)
 GITHUB_USERNAME = getattr(settings, 'GITHUB_USERNAME', None)
 GITHUB_OKAY = GITHUB_TOKEN and GITHUB_USERNAME
