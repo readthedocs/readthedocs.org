@@ -112,7 +112,7 @@ SESSION_COOKIE_DOMAIN = '.readthedocs.org'
 HAYSTACK_SITECONF = 'core.search_sites'
 HAYSTACK_SEARCH_ENGINE = 'solr'
 #HAYSTACK_WHOOSH_PATH = os.path.join(SITE_ROOT, 'whooshindex.db')
-HAYSTACK_SOLR_URL = 'http://loki:8983/solr'
+HAYSTACK_SOLR_URL = 'http://odin:8983/solr'
 
 AUTH_PROFILE_MODULE = "core.UserProfile"
 

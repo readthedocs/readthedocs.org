@@ -47,7 +47,7 @@ class Project(models.Model):
     extensions = models.CharField(max_length=255, editable=False, default='')
     status = models.PositiveSmallIntegerField(choices=constants.STATUS_CHOICES,
         default=constants.LIVE_STATUS)
-   
+
     featured = models.BooleanField()
     skip = models.BooleanField()
 
@@ -139,6 +139,10 @@ class Project(models.Model):
     def has_good_build(self):
         return any([build.success for build in self.builds.all()])
 
+    @property
+    def sponsored(self):
+        return False
+
     def find(self, file):
         """
         A balla API to find files inside of a projects dir.
@@ -170,7 +174,8 @@ class Project(models.Model):
 
 
     def get_rendered_conf(self):
-        return render_to_string('projects/conf.py.html', {'project': self})
+        return render_to_string('sphinx/conf.py', {'project': self,
+                                                   'badge': self.sponsored})
 
     def write_to_disk(self):
         safe_write(self.conf_filename, self.get_rendered_conf())
@@ -180,7 +185,6 @@ class Project(models.Model):
             return self.builds.all()[0]
         except IndexError:
             return None
-
 
 
 class FileManager(models.Manager):

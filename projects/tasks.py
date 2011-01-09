@@ -170,7 +170,7 @@ def build_docs(project, pdf):
         profile = project.user.get_profile()
         if profile.whitelisted:
             print "Project whitelisted"
-            sanitize_conf(project.conf_filename)
+            sanitize_conf(project)
         else:
             print "Writing conf to disk"
             project.write_to_disk()

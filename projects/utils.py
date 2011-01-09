@@ -13,6 +13,16 @@ import traceback
 
 
 
+HTML_CONTEXT = """
+should_badge = %s
+if 'html_context' in locals():
+    html_context.update({'badge_revsys': should_badge})
+else:
+    html_context = {
+        'badge_revsys': should_badge
+    }
+"""
+
 def find_file(file):
     """Find matching filenames in the current directory and its subdirectories,
     and return a list of matching filenames.
@@ -81,10 +91,11 @@ def safe_write(filename, contents):
     fh.close()
 
 
-def sanitize_conf(conf_filename):
+def sanitize_conf(project):
     """Modify the given ``conf.py`` file from a whitelisted user's project.
     For now, this just adds the RTD template directory to ``templates_path``.
     """
+    conf_filename = project.conf_filename
     # The template directory for RTD
     template_dir = '%s/templates/sphinx' % settings.SITE_ROOT
 
@@ -108,6 +119,7 @@ def sanitize_conf(conf_filename):
         outfile.write(line)
     if not lines_matched:
         outfile.write('templates_path = ["%s"]' % template_dir)
+    outfile.write(HTML_CONTEXT % project.sponsored)
     outfile.close()
     return lines_matched
 
