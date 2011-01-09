@@ -30,6 +30,22 @@
 </p>
 {% endif %}
 
+{% if project.active_versions.count %}
+<h3> Versions </h3>
+
+{% for version in project.active_versions.all %}
+    <p><a href="{{ version.get_absolute_url }}">{{ version }}</a></p>
+{% endfor %}
+
+{% endif %}
+
+{% if request.user == project.user %}
+  <h3>Post Commit Hook</h3>
+    <p>http://readthedocs.org{% url generic_build project.pk %}</p>
+{% else %}
+  {% include "projects/includes/flagging.html" %}
+{% endif %}
+
 <h3>Latest Revisions</h3>
 <ul>
   {% for revision in project.get_latest_revisions|slice:":5" %}
@@ -38,13 +54,6 @@
     <li class="quiet">No revisions</li>
   {% endfor %}
 </ul>
-
-{% if request.user == project.user %}
-  <h3>Post Commit Hook</h3>
-    <p>http://readthedocs.org{% url generic_build project.pk %}</p>
-{% else %}
-  {% include "projects/includes/flagging.html" %}
-{% endif %}
 
 
 <form method="post" action="{% url generic_build project.pk %}">

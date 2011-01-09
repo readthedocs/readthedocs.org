@@ -124,7 +124,7 @@ class Project(models.Model):
             matches = self.find(pos_build)
             if len(matches) > 0:
                 return os.path.dirname(matches[0])
-    
+
     @property
     def rtd_build_path(self):
         """
@@ -196,6 +196,9 @@ class Project(models.Model):
             return self.builds.all()[0]
         except IndexError:
             return None
+
+    def active_versions(self):
+        return self.versions.filter(built=True, active=True)
 
 
 class FileManager(models.Manager):
