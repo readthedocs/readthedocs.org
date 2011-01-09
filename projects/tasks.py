@@ -5,13 +5,12 @@
 from builds.models import Build, Version
 from celery.decorators import periodic_task, task
 from celery.task.schedules import crontab
+from doc_builder import loading as builder_loading
 from django.db import transaction
 from django.conf import settings
-from django.contrib.auth.models import SiteProfileNotAvailable
-from django.core.exceptions import ObjectDoesNotExist
 from projects.exceptions import ProjectImportError
 from projects.models import Project, ImportedFile
-from projects.utils import run, sanitize_conf, slugify_uniquely
+from projects.utils import run, slugify_uniquely
 from vcs_support.base import get_backend
 import decimal
 import fnmatch
@@ -20,11 +19,7 @@ import os
 import re
 import shutil
 
-
 ghetto_hack = re.compile(r'(?P<key>.*)\s*=\s*u?\[?[\'\"](?P<value>.*)[\'\"]\]?')
-
-latex_re = re.compile('the LaTeX files are in (.*)\.')
-
 
 @task
 def update_docs(pk, record=True, pdf=False, version_pk=None):
@@ -57,7 +52,7 @@ def update_docs(pk, record=True, pdf=False, version_pk=None):
 
     # kick off a build
     (ret, out, err) = build_docs(project, pdf)
-    if not 'no targets are out of date.' in out:
+    if 'no targets are out of date.' not in out:
         if record:
             Build.objects.create(project=project, success=ret==0, output=out, error=err)
         if ret == 0:
@@ -176,49 +171,14 @@ def build_docs(project, pdf):
     """
     if not project.path:
         return ('','Conf file not found.',-1)
-    try:
-        profile = project.user.get_profile()
-        if profile.whitelisted:
-            print "Project whitelisted"
-            sanitize_conf(project)
-        else:
-            print "Writing conf to disk"
-            project.write_to_disk()
-    except (OSError, SiteProfileNotAvailable, ObjectDoesNotExist):
-        try:
-            print "Writing conf to disk"
-            project.write_to_disk()
-        except (OSError, IOError):
-            print "Conf file not found. Error writing to disk."
-            return ('','Conf file not found. Error writing to disk.',-1)
 
-
-    try:
-        makes = [makefile for makefile in project.find('Makefile') if 'doc' in makefile]
-        make_dir = makes[0].replace('/Makefile', '')
-        os.chdir(make_dir)
-        html_results = run('make html')
-        if html_results[0] != 0:
-            raise OSError
-        if pdf:
-            latex_results = run('make latex')
-            match = latex_re.search(latex_results[1])
-            if match:
-                latex_dir = match.group(1).strip()
-                os.chdir(latex_dir)
-                pdf_results = run('make')
-                if pdf_results[0] == 0:
-                    run('ln -sf %s.pdf %s/%s.pdf' % (os.path.join(os.getcwd(), project.slug),
-                                            settings.MEDIA_ROOT,
-                                            project.slug
-                                           ))
-                #else:
-                    #project.skip_sphinx = True
-                    #project.save()
-    except (IndexError, OSError):
-        os.chdir(project.path)
-        html_results = run('sphinx-build -b html . _build/html')
-    return html_results
+    html_builder = builder_loading.get('html')()
+    html_builder.clean(project)
+    html_output = html_builder.build(project)
+    if pdf:
+        pdf_builder = builder_loading.get('pdf')()
+        pdf_builder.build(project)
+    return html_output
 
 def move_docs(project, version):
     version_slug = 'latest'

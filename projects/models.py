@@ -94,10 +94,6 @@ class Project(models.Model):
     #user_doc_path = property(memoize(user_doc_path, {}, 1))
 
     @property
-    def full_pdf_path(self):
-        return self.find('*.pdf')[0]
-
-    @property
     def full_doc_path(self):
         """
         The path to the documentation root in the project.
@@ -182,14 +178,6 @@ class Project(models.Model):
 
     def get_top_level_files(self):
         return self.files.live(parent__isnull=True).order_by('ordering')
-
-
-    def get_rendered_conf(self):
-        return render_to_string('sphinx/conf.py', {'project': self,
-                                                   'badge': self.sponsored})
-
-    def write_to_disk(self):
-        safe_write(self.conf_filename, self.get_rendered_conf())
 
     def get_latest_build(self):
         try:

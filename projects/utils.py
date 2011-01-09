@@ -10,19 +10,6 @@ import subprocess
 import traceback
 
 
-
-
-HTML_CONTEXT = """
-should_badge = %s
-if 'html_context' in locals():
-    html_context.update({'badge_revsys': should_badge})
-else:
-    html_context = {
-        'slug': '%s',
-        'badge_revsys': should_badge
-    }
-"""
-
 def find_file(file):
     """Find matching filenames in the current directory and its subdirectories,
     and return a list of matching filenames.
@@ -90,38 +77,6 @@ def safe_write(filename, contents):
     fh.write(contents.encode('utf-8', 'ignore'))
     fh.close()
 
-
-def sanitize_conf(project):
-    """Modify the given ``conf.py`` file from a whitelisted user's project.
-    For now, this just adds the RTD template directory to ``templates_path``.
-    """
-    conf_filename = project.conf_filename
-    # The template directory for RTD
-    template_dir = '%s/templates/sphinx' % settings.SITE_ROOT
-
-    # Expression to match the templates_path line
-    # FIXME: This could fail if the statement spans multiple lines
-    # (but will work as long as the first line has the opening '[')
-    templates_re = re.compile('(\s*templates_path\s*=\s*\[)(.*)')
-
-    # Get all lines from the conf.py file
-    lines = open(conf_filename).readlines()
-
-    lines_matched = 0
-    # Write all lines back out, making any necessary modifications
-    outfile = open(conf_filename, 'w')
-    for line in lines:
-        match = templates_re.match(line)
-        if match:
-            left, right = match.groups()
-            line = left + "'%s', " % template_dir + right + "\n"
-            lines_matched += 1
-        outfile.write(line)
-    if not lines_matched:
-        outfile.write('templates_path = ["%s"]' % template_dir)
-    outfile.write(HTML_CONTEXT % (project.sponsored, project.slug))
-    outfile.close()
-    return lines_matched
 
 CUSTOM_SLUG_RE = re.compile(r'[^-._\w]+$')
 
