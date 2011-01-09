@@ -2,24 +2,26 @@
 documentation and header rendering, and server errors.
 """
 
-from django.core.mail import mail_admins
+from bookmarks.models import Bookmark
 from django.conf import settings
+from django.core.mail import mail_admins
+from django.core.urlresolvers import reverse
 from django.db.models import F, Max
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, \
+    HttpResponsePermanentRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_view_exempt
 from django.views.static import serve
-
-import json
-import os
-import re
-
 from projects.models import Project
 from projects.tasks import update_docs
 from projects.utils import find_file
 from watching.models import PageView
-from bookmarks.models import Bookmark
+import json
+import os
+import re
+
+
 
 
 def homepage(request):
@@ -78,6 +80,13 @@ def serve_docs(request, project_slug, version_slug, filename):
     This could probably be refactored to serve out of nginx if we have more
     time.
     """
+    if version_slug is None:
+        url = reverse(serve_docs, kwargs={
+            'project_slug': project_slug,
+            'version_slug': 'latest',
+            'filename': filename
+        })
+        return HttpResponsePermanentRedirect(url)
     proj = get_object_or_404(Project, slug=project_slug)
     if not filename:
         filename = "index.html"

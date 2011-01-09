@@ -28,7 +28,7 @@ urlpatterns = patterns('',
     ),
     url(r'^docs/(?P<project_slug>[-\w]+)/(?P<filename>.*)$',
         'core.views.serve_docs',
-        {'version_slug': 'latest'},
+        {'version_slug': None},
         name='docs_detail'
     ),
     url(r'^projects/', include('projects.urls.public')),
