@@ -89,7 +89,7 @@ def update_imported_docs(project, version):
     else:
         print 'Updating to latest revision'
         vcs_repo.update()
-        
+
         # check tags/version
         if vcs_repo.supports_tags:
             tags = vcs_repo.get_tags()
@@ -104,7 +104,7 @@ def update_imported_docs(project, version):
                     identifier=tag.identifier,
                     verbose_name=tag.verbose_name
                 )
-    
+
     fileify(project_slug=project.slug)
 
 
@@ -232,6 +232,6 @@ def fileify(project_slug):
 
 
 @periodic_task(run_every=crontab(hour="2", minute="10", day_of_week="*"))
-def update_docs_pull(pdf=False):
+def update_docs_pull(record=False, pdf=False):
     for project in Project.objects.live():
-        update_docs(pk=project.pk, record=False, pdf=pdf)
+        update_docs(pk=project.pk, record=record, pdf=pdf)

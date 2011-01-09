@@ -13,12 +13,18 @@ class Command(BaseCommand):
             dest='pdf',
             default=False,
             help='Make a pdf'),
+        make_option('-r',
+            action='store_true',
+            dest='record',
+            default=False,
+            help='Make a Build')
         )
 
     def handle(self, *args, **options):
         make_pdf = options['pdf']
+        record = options['record']
         if not len(args):
-            tasks.update_docs_pull(pdf=make_pdf)
+            tasks.update_docs_pull(pdf=make_pdf, record=record)
         else:
             for slug in args:
                 p = Project.objects.get(slug=slug)
