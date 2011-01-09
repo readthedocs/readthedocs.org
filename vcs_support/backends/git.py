@@ -1,10 +1,148 @@
+from django.utils import simplejson
+from github2.client import Github
 from projects.exceptions import ProjectImportError
-from vcs_support.base import BaseVCS, VCSTag
+from vcs_support.base import BaseVCS, VCSTag, BaseContributionBackend
+import base64
 import os
+import urllib
+import urllib2
+
+GITHUB_URLS = ('git://github.com', 'https://github.com')
+GITHUB_TOKEN = '' # TODO!!!
+GITHUB_USERNAME = '' # TODO!!!
 
 
-class Backend(BaseVCS):
+class BaseGIT(object):
+    def get_env(self):
+        env = super(Backend, self).get_env()
+        env['GIT_DIR'] = os.path.join(self.working_dir, '.git')
+        return env
+
+
+class GithubContributionBackend(BaseContributionBackend, BaseGIT):
+    def __init__(self, *args, **kwargs):
+        super(GithubContributionBackend, self).__init__(*args, **kwargs)
+        self.gh = Github(username=GITHUB_USERNAME, api_token=GITHUB_TOKEN)
+        
+    @classmethod
+    def accepts(cls, url):
+        return url.startswith(GITHUB_URLS)
+    
+    def _get_branch_identifier(self, user):
+        identifier = 'rtd-%s' % user.username
+        if self._branch_exists(identifier):
+            return identifier
+        self._create_branch(identifier)
+        return identifier
+    
+    def _branch_exists(self, identifier):
+        return identifier in self._run_command('git', 'branch')[1]
+    
+    def _create_branch(self, identifier):
+        self._run_command('git', 'branch', '--track', identifier, 'master')
+    
+    def get_branch_file(self, user, filename):
+        """
+        git show branch:file
+        """
+        identifier = self._get_branch_identifier(user)
+        return self._run_command('git', 'show', '%s:%s' % (identifier, filename))[1]
+    
+    def set_branch_file(self, user, filename, contents, comment=''):
+        """
+        git checkout branch
+        git commit --author "Name Surname <email@address.com>" -m comment
+        git checkout master
+        """
+        identifier = self._get_branch_identifier(user)
+        self._run_command('git', 'checkout', identifier)
+        with self._open_file(filename, 'wb') as fobj:
+            fobj.write(contents)
+        self._run_command('git', 'add', filename)
+        if not comment:
+            comment = 'no comment'
+        if user.first_name and user.last_name:
+            name = '%s %s' % (user.first_name, user.last_name)
+        else:
+            name = user.username
+        email = user.email
+        author = '%s <%s>' % (name, email)
+        self._run_command('git', 'commit', '-m', comment, '--author', author)
+        self._run_command('git', 'checkout', 'master')
+    
+    def push_branch(self, user, title='', comment=''):
+        """
+        Pushes a branch upstream.
+        
+        Since the python github API libraries don't support pull requests, we'll
+        have to do it manually using urllib2 :(
+        """
+        identifier = self._get_branch_identifier(user)
+        # first push the branch to the rtd-account on github.
+        self._check_remote()
+        self._push_remote(identifier)
+        # now make the pull request.
+        if not title:
+            title = 'Documentation changes from readthedocs.org'
+        if not comment:
+            comment = 'These changes have been done on readthedocs.org'
+        self._pull_request(identifier, title, comment)
+        
+    def _pull_request(self, identifier, title, comment):
+        """
+$ curl -d "pull[base]=master" -d "pull[head]=smparkes:synchrony" \
+  -d "pull[title]=..." -d "pull[body]=..." \
+  https://github.com/api/v2/json/pulls/technoweenie/faraday
+        """
+        request = urllib2.Request('https://github.com/api/v2/json/pulls/%s' % self._gh_name())
+        auth = base64.encodestring('%s/token:%s' % (GITHUB_USERNAME, GITHUB_TOKEN))[:-1]
+        request.add_header("Authorization", 'Basic %s' % auth)
+        data = {'pull': {
+                'base': 'master',
+                'head': '%s:%s' % (GITHUB_USERNAME, identifier),
+                'title': title,
+                'body': comment,
+            }
+        }
+        postdata = urllib.urlencode(data)
+        handler = urllib2.urlopen(request, postdata)
+        handler.read()
+    
+    def _gh_name(self):
+        user, repo = self.repo_url.split('/')[-2:]
+        return '%s/%s' % (user, repo[:-4])
+    
+    def _gh_reponame(self):
+        return self.repo_url.split('/')[-1][:-4]
+        
+    def _check_remote(self):
+        """
+        Check if the RTD remote is available in this repository, if not, add it.
+        """
+        if not self._has_fork():
+            self._fork()
+        if 'rtd' not in self._run_command('git', 'remote')[1]:
+            self._run_command('git', 'remote', 'add', 'rtd', self._get_remote_name())
+            
+    def _get_remote_name(self):
+        return 'https://gitub.com/%s/%s.git' % (GITHUB_USERNAME, self._gh_reponame())
+    
+    def _push_remote(self, identifier):
+        """
+        push a local branch to the RTD remote
+        """
+        self._run_command('git', 'push', 'rtd', identifier)
+        
+    def _has_fork(self):
+        return self._gh_reponame() in [r.name for r in self.gh.repos.show(GITHUB_USERNAME)]
+    
+    def _fork(self):
+        self.gh.repos.fork(self._gh_name())
+        
+
+class Backend(BaseVCS, BaseGIT):
     supports_tags = True
+    contribution_backends = [GithubContributionBackend]
     
     def update(self):
         retcode = self._run_command('git', 'status')[0]
@@ -68,8 +206,3 @@ class Backend(BaseVCS):
         if not identifier:
             identifier = 'master'
         self._run_command('git', 'reset', '--hard', identifier)
-        
-    def get_env(self):
-        env = super(Backend, self).get_env()
-        env['GIT_DIR'] = os.path.join(self.working_dir, '.git')
-        return env
