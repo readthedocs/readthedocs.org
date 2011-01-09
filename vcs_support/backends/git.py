@@ -67,7 +67,7 @@ class Backend(BaseVCS):
     def checkout(self, identifier=None):
         if not identifier:
             identifier = 'master'
-        self._run_command('git', 'checkout', identifier)
+        self._run_command('git', 'reset', '--hard', identifier)
         
     def get_env(self):
         env = super(Backend, self).get_env()

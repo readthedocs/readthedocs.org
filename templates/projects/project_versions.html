@@ -7,6 +7,9 @@
 {% block content-header %}<h1>Edit project versions</h1>{% endblock %}
 
 {% block content %}
+  <p>
+    Choose which versions you would like to publish besides the latest revision.
+  </p>
   <form method="post" action=".">{% csrf_token %}
     {{ form.as_p }}
     <p>

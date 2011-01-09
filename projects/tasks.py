@@ -60,6 +60,9 @@ def update_docs(pk, record=True, pdf=False, version_pk=None):
             Build.objects.create(project=project, success=ret==0, output=out, error=err)
         if ret == 0:
             print "Build OK"
+            if version:
+                version.built = True
+                version.save()
             move_docs(project, version)
         else:
             print "Build ERROR"
@@ -80,8 +83,10 @@ def update_imported_docs(project, version):
         os.mkdir(working_dir)
     vcs_repo = backend(project.repo, working_dir)
     if version:
+        print 'Checking out version %s' % version.identifier
         vcs_repo.checkout(version.identifier)
     else:
+        print 'Updating to latest revision'
         vcs_repo.update()
         
         # check tags/version

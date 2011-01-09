@@ -121,7 +121,7 @@ class FileRevisionForm(forms.Form):
 
 class DualCheckboxWidget(forms.CheckboxInput):
     def __init__(self, built, attrs=None, check_test=bool):
-        super(DualCheckboxWidget, self).__init__(attrs)
+        super(DualCheckboxWidget, self).__init__(attrs, check_test)
         self.built = built
 
     def render(self, name, value, attrs=None):
@@ -134,7 +134,7 @@ class DualCheckboxWidget(forms.CheckboxInput):
             'MEDIA_URL': settings.MEDIA_URL,
             'built': self.built
         }
-        return render_to_string('projects/includes/icon_built.html')
+        return render_to_string('projects/includes/icon_built.html', context)
 
 
 class BaseVersionsForm(forms.Form):
