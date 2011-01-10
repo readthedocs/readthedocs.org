@@ -182,7 +182,7 @@ def build_docs(project, pdf):
     html_builder = builder_loading.get('html')()
     html_builder.clean(project)
     html_output = html_builder.build(project)
-    if pdf:
+    if pdf or project.build_pdf:
         pdf_builder = builder_loading.get('pdf')()
         pdf_builder.build(project)
     return html_output

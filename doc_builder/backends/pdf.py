@@ -20,11 +20,20 @@ class Builder(BaseBuilder):
             pdf_results = run('make')
             #Check the return code was good before symlinking
             if pdf_results[0] == 0:
-                run('ln -sf %s.pdf %s/%s.pdf' % (os.path.join(os.getcwd(), project.slug),
-                                        settings.MEDIA_ROOT,
-                                        project.slug
-                                       ))
+                from_path = os.path.join(os.getcwd(),
+                                         "%s.pdf" % project.slug)
+                to_path = os.path.join(settings.MEDIA_ROOT,
+                                       'pdf',
+                                       project.slug,
+                                       'latest')
+                os.makedirs(to_path)
+                to_file = os.path.join(to_path, '%s.pdf' % project.slug)
+                if os.path.exists(to_file):
+                    run('ln -sf %s %s' % (from_path, to_file))
+                else:
+                    print "File doesn't exist, not symlinking."
             else:
                 print "PDF Building failed. Moving on."
-                #project.skip_sphinx = True
-                #project.save()
+                if project.build_pdf:
+                    project.build_pdf = False
+                    project.save()
