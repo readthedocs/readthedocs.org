@@ -19,7 +19,7 @@ class Lock(object):
     """
     
     def __init__(self, slug, timeout=5, polling_interval=0.1):
-        self.slug = slug
+        self.name = slug
         self.fpath = os.path.join(LOCK_ROOT, self.name)
         self.timeout = timeout
         self.polling_interval = polling_interval
