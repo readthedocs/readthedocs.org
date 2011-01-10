@@ -34,7 +34,9 @@
   <h3> Versions </h3>
 
   {% for version in project.active_versions.all %}
-      <p><a href="{{ version.get_absolute_url }}">{{ version }}</a></p>
+  <ul>
+      <li><p><a href="{{ version.get_absolute_url }}">{{ version.slug }}</a></p></li>
+  </ul>
   {% endfor %}
 
 {% endif %}
