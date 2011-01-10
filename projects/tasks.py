@@ -28,6 +28,9 @@ def update_docs(pk, record=True, pdf=False, version_pk=None):
     ###
     # Handle passed in arguments
     ###
+    if not project.path:
+        print "No conf.py. Exiting."
+        return
     project = Project.objects.live().get(pk=pk)
     if version_pk:
         version = Version.objects.get(pk=version_pk)
@@ -115,10 +118,7 @@ def scrape_conf_file(project):
     """Locate the given project's ``conf.py`` file and extract important
     settings, including copyright, theme, source suffix and version.
     """
-    conf_dir = project.conf_filename.replace('/conf.py', '')
-
-    os.chdir(conf_dir)
-    lines = open('conf.py').readlines()
+    lines = open(project.conf_filename).readlines()
     data = {}
     for line in lines:
         match = ghetto_hack.search(line)
