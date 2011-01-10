@@ -18,7 +18,6 @@ class Builder(BaseBuilder):
         if version:
             version_slug = version.slug
         os.chdir(project.conf_filename.rstrip('conf.py'))
-        #latex_results = run('make latex')
         latex_results = run('sphinx-build -b latex '
                             '-d _build/doctrees   . _build/latex')
         if latex_results[0] == 0:
@@ -26,9 +25,7 @@ class Builder(BaseBuilder):
             tex_globs = glob('*.tex')
             if tex_globs:
                 tex_file = tex_globs[0]
-            #pdf_results = run('make')
             pdf_results = run('pdflatex -interaction=nonstopmode %s' % tex_file)
-            #Check the return code was good before symlinking
             pdf_match = pdf_re.search(pdf_results[1])
             if pdf_match:
                 from_file = os.path.join(os.getcwd(),
@@ -44,11 +41,9 @@ class Builder(BaseBuilder):
                     run('mv -f %s %s' % (from_file, to_file))
                 else:
                     print "File doesn't exist, not symlinking."
-            else:
-                print "PDF Building failed. Moving on."
-                if project.build_pdf:
-                    project.build_pdf = False
-                    project.save()
-        else:
-            print os.getcwd()
-            print latex_results
+            return True
+        print "PDF Building failed. Moving on."
+        if project.build_pdf:
+            project.build_pdf = False
+            project.save()
+        return False
