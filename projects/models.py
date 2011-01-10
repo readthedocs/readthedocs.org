@@ -76,11 +76,12 @@ class Project(models.Model):
         })
 
     def get_pdf_url(self, version_slug='latest'):
-        to_path = os.path.join(settings.MEDIA_URL,
+        path = os.path.join(settings.MEDIA_URL,
                                 'pdf',
                                 self.slug,
                                 version_slug,
                                 '%s.pdf' % self.slug)
+        return path
 
     @property
     def user_doc_path(self):
