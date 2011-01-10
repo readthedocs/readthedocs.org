@@ -76,7 +76,7 @@ class Builder(BaseBuilder):
         except (OSError, SiteProfileNotAvailable, ObjectDoesNotExist):
             try:
                 print "Writing conf to disk"
-                project.write_to_disk()
+                self._sanitize(project)
             except (OSError, IOError):
                 print "Conf file not found. Error writing to disk."
                 return ('','Conf file not found. Error writing to disk.',-1)
