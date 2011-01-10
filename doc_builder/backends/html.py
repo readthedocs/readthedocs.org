@@ -59,6 +59,7 @@ class Builder(BaseBuilder):
     def _sanitize(self, project):
         conf_template =  render_to_string('sphinx/conf.py',
                                           {'project': project,
+                                           'template_dir': template_dir,
                                             'badge': project.sponsored
                                             })
         safe_write(project.conf_filename, conf_template)

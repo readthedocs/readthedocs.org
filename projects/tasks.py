@@ -31,9 +31,6 @@ def update_docs(pk, record=True, pdf=False, version_pk=None):
     # Handle passed in arguments
     ###
     project = Project.objects.live().get(pk=pk)
-    if project.skip:
-        print "Skipping %s" % project
-        return
     if version_pk:
         version = Version.objects.get(pk=version_pk)
     else:

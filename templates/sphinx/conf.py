@@ -2,7 +2,7 @@
 
 import sys, os
 extensions = []
-templates_path = ['{{ project.template_dir }}', 'templates', '_templates', '.templates']
+templates_path = ['{{ template_dir }}', 'templates', '_templates', '.templates']
 source_suffix = '{{ project.suffix }}'
 master_doc = 'index'
 project = u'{{ project.name }}'

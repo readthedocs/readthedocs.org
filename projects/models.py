@@ -18,7 +18,7 @@ import fnmatch
 
 class ProjectManager(models.Manager):
     def live(self, *args, **kwargs):
-        base_qs = self.filter(status=constants.LIVE_STATUS, skip=False)
+        base_qs = self.filter(skip=False)
         return base_qs.filter(*args, **kwargs)
 
 
@@ -45,11 +45,10 @@ class Project(models.Model):
     path = models.CharField(max_length=255, editable=False)
     suffix = models.CharField(max_length=10, editable=False, default='.rst')
     extensions = models.CharField(max_length=255, editable=False, default='')
-    status = models.PositiveSmallIntegerField(choices=constants.STATUS_CHOICES,
-        default=constants.LIVE_STATUS)
 
     featured = models.BooleanField()
     skip = models.BooleanField()
+    build_pdf = models.BooleanField()
 
     tags = TaggableManager()
 
@@ -127,22 +126,22 @@ class Project(models.Model):
         return os.path.join(self.user_doc_path, 'rtd-builds')
 
     @property
-    def template_dir(self):
-        return os.path.join(settings.SITE_ROOT, 'templates', 'sphinx')
-
-    @property
-    def is_imported(self):
-        return bool(self.repo)
-
-    @property
     def conf_filename(self):
         if self.path:
             return os.path.join(self.path, 'conf.py')
         raise IOError
 
     @property
+    def is_imported(self):
+        return bool(self.repo)
+
+    @property
     def has_good_build(self):
         return any([build.success for build in self.builds.all()])
+
+    @property
+    def has_versions(self):
+        return self.versions.exists()
 
     @property
     def sponsored(self):
@@ -159,6 +158,21 @@ class Project(models.Model):
         return matches
     find = memoize(find, {}, 2)
 
+    def get_latest_build(self):
+        try:
+            return self.builds.all()[0]
+        except IndexError:
+            return None
+
+    def active_versions(self):
+        return self.versions.filter(built=True, active=True)
+
+    #File Building stuff.
+
+    #Not sure if this is used
+    def get_top_level_files(self):
+        return self.files.live(parent__isnull=True).order_by('ordering')
+
     def get_index_filename(self):
         return os.path.join(self.path, 'index.rst')
 
@@ -173,18 +187,6 @@ class Project(models.Model):
         revision_qs = FileRevision.objects.filter(file__project=self,
             file__status=constants.LIVE_STATUS)
         return revision_qs.order_by('-created_date')
-
-    def get_top_level_files(self):
-        return self.files.live(parent__isnull=True).order_by('ordering')
-
-    def get_latest_build(self):
-        try:
-            return self.builds.all()[0]
-        except IndexError:
-            return None
-
-    def active_versions(self):
-        return self.versions.filter(built=True, active=True)
 
 
 class FileManager(models.Manager):

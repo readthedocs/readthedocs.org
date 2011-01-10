@@ -38,8 +38,8 @@
             {% if project.project_url %}
               <li><a href="{{ project.project_url }}" rel="nofollow,noindex">Project Homepage</a></li>
             {% endif %}
-            
-            {% if project.is_imported and request.user == project.user %}
+
+            {% if project.has_versions and request.user == project.user %}
               <li><a href="{% url projects_versions project.slug %}" rel="nofollow,noindex">Versions</a></li>
             {% endif %}
 
