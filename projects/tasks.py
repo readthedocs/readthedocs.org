@@ -56,12 +56,10 @@ def update_docs(pk, record=True, pdf=False, version_pk=None):
     ###
     # Kick off a build and record results if necessary
     ###
-    (ret, out, err) = build_docs(project, pdf, version)
+    (ret, out, err) = build_docs(project, version, pdf, record)
     if 'no targets are out of date.' in out:
         print "Build Unchanged"
     else:
-        if record:
-            Build.objects.create(project=project, success=ret==0, output=out, error=err)
         if ret == 0:
             print "Build OK"
         else:
@@ -117,13 +115,7 @@ def scrape_conf_file(project):
     """Locate the given project's ``conf.py`` file and extract important
     settings, including copyright, theme, source suffix and version.
     """
-    try:
-        conf_dir = project.find('conf.py')[0]
-    except IndexError:
-        print("Could not find conf.py in %s" % project)
-        return
-    else:
-        conf_dir = conf_dir.replace('/conf.py', '')
+    conf_dir = project.conf_filename.replace('/conf.py', '')
 
     os.chdir(conf_dir)
     lines = open('conf.py').readlines()
@@ -134,14 +126,11 @@ def scrape_conf_file(project):
             data[match.group(1).strip()] = match.group(2).strip()
     project.copyright = data.get('copyright', 'Unknown')
     project.theme = data.get('html_theme', 'default')
-    #if project.theme not in [x[0] for x in DEFAULT_THEME_CHOICES]:
-        #project.theme = 'default'
     project.suffix = data.get('source_suffix', '.rst')
-    #project.extensions = data.get('extensions', '').replace('"', "'")
     project.path = os.getcwd()
 
     try:
-        project.version = decimal.Decimal(data.get('version', '0.1.0'))
+        project.version = decimal.Decimal(data.get('version'))
     except decimal.InvalidOperation:
         project.version = ''
 
@@ -166,7 +155,7 @@ def update_created_docs(project):
         file.write_to_disk()
 
 
-def build_docs(project, pdf, version=None):
+def build_docs(project, version, pdf, record):
     """
     A helper function for the celery task to do the actual doc building.
     """
@@ -176,11 +165,16 @@ def build_docs(project, pdf, version=None):
     html_builder = builder_loading.get('html')()
     html_builder.clean(project)
     html_output = html_builder.build(project, version)
-    if html_output[0] == 0:
+    successful = (html_output[0] == 0)
+    if record:
+        Build.objects.create(project=project, success=successful,
+                             output=html_output[1], error=html_output[2])
+    if successful:
         move_docs(project, version)
         if version:
             version.built = True
             version.save()
+
     if pdf or project.build_pdf:
         pdf_builder = builder_loading.get('pdf')()
         pdf_builder.build(project, version)
@@ -195,7 +189,6 @@ def move_docs(project, version):
         shutil.rmtree(target)
     shutil.copytree(project.full_build_path, target)
 
-@task
 def fileify(project_slug):
     project = Project.objects.get(slug=project_slug)
     path = project.full_build_path
