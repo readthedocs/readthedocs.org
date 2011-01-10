@@ -7,14 +7,12 @@ from celery.decorators import periodic_task, task
 from celery.task.schedules import crontab
 from doc_builder import loading as builder_loading
 from django.db import transaction
-from django.conf import settings
 from projects.exceptions import ProjectImportError
 from projects.models import Project, ImportedFile
-from projects.utils import run, slugify_uniquely
+from projects.utils import slugify_uniquely
 from vcs_support.base import get_backend
 import decimal
 import fnmatch
-import glob
 import os
 import re
 import shutil

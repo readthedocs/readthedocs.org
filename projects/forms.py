@@ -5,9 +5,6 @@ from django.template.loader import render_to_string
 from projects import constants
 from projects.models import Project, File
 from projects.tasks import update_docs
-import os
-
-
 
 
 class ProjectForm(forms.ModelForm):
@@ -128,7 +125,7 @@ class DualCheckboxWidget(forms.CheckboxInput):
         checkbox = super(DualCheckboxWidget, self).render(name, value, attrs)
         icon = self.render_icon()
         return u'%s%s' % (checkbox, icon)
-    
+
     def render_icon(self):
         context = {
             'MEDIA_URL': settings.MEDIA_URL,
@@ -143,7 +140,7 @@ class BaseVersionsForm(forms.Form):
         versions = self.project.versions.all()
         for version in versions:
             self.save_version(version)
-        
+
     def save_version(self, version):
         new_value = self.cleaned_data.get('version-%s' % version.slug, None)
         if new_value is None or new_value == version.active:
@@ -152,7 +149,7 @@ class BaseVersionsForm(forms.Form):
         version.save()
         if version.active and not version.built:
             update_docs.delay(self.project.pk, record=False, version_pk=version.pk)
-        
+
 
 def build_versions_form(project):
     attrs = {

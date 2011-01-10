@@ -3,7 +3,6 @@ documentation and header rendering, and server errors.
 """
 
 from bookmarks.models import Bookmark
-from django.conf import settings
 from django.core.mail import mail_admins
 from django.core.urlresolvers import reverse
 from django.db.models import F, Max
@@ -15,7 +14,6 @@ from django.views.decorators.csrf import csrf_view_exempt
 from django.views.static import serve
 from projects.models import Project
 from projects.tasks import update_docs
-from projects.utils import find_file
 from watching.models import PageView
 import json
 import os
@@ -147,12 +145,6 @@ def render_header(request):
                 'include_render': True,
                 }
 
-    if request.user.is_authenticated():
-        try:
-            mark = Bookmark.objects.get(user=request.user, url=path_info)
-            context['has_bookmark'] = True
-        except Bookmark.DoesNotExist:
-            pass
     return render_to_response('core/header.html', context,
                 context_instance=RequestContext(request))
 

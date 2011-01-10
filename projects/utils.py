@@ -1,7 +1,6 @@
 """Utility functions used by projects.
 """
 
-from django.conf import settings
 from projects.libs.diff_match_patch import diff_match_patch
 import fnmatch
 import os

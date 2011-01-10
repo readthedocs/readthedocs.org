@@ -1,6 +1,4 @@
-import datetime
 from fabric.api import *
-from fabric.contrib import files, console
 
 env.runtime = 'production'
 env.hosts = ['chimera.ericholscher.com']
