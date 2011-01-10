@@ -27,5 +27,11 @@ def restart():
     env.user = "root"
     run("restart readthedocs-gunicorn")
 
+def celery():
+    "Restart (or just start) the server"
+    env.user = "root"
+    run("restart readthedocs-celery")
+
+
 def migrate(project):
     run('django-admin.py migrate %s' % project)
