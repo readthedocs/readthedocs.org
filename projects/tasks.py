@@ -196,13 +196,16 @@ def build_docs(project, version, pdf, record, touch):
     return html_output
 
 def move_docs(project, version):
-    version_slug = 'latest'
-    if version:
-        version_slug = version.slug
-    target = os.path.join(project.rtd_build_path, version_slug)
-    if os.path.exists(target):
-        shutil.rmtree(target)
-    shutil.copytree(project.full_build_path, target)
+    if project.full_build_path:
+        version_slug = 'latest'
+        if version:
+            version_slug = version.slug
+        target = os.path.join(project.rtd_build_path, version_slug)
+        if os.path.exists(target):
+            shutil.rmtree(target)
+        shutil.copytree(project.full_build_path, target)
+    else:
+        print "Not moving docs, because the build dir is unknown."
 
 def fileify(project_slug):
     project = Project.objects.get(slug=project_slug)
