@@ -64,10 +64,6 @@ def update_docs(pk, record=True, pdf=False, version_pk=None):
             Build.objects.create(project=project, success=ret==0, output=out, error=err)
         if ret == 0:
             print "Build OK"
-            if version:
-                version.built = True
-                version.save()
-            move_docs(project, version)
         else:
             print "Build ERROR"
             print err
@@ -180,6 +176,11 @@ def build_docs(project, pdf, version=None):
     html_builder = builder_loading.get('html')()
     html_builder.clean(project)
     html_output = html_builder.build(project, version)
+    if html_output[0] == 0:
+        move_docs(project, version)
+        if version:
+            version.built = True
+            version.save()
     if pdf or project.build_pdf:
         pdf_builder = builder_loading.get('pdf')()
         pdf_builder.build(project, version)
