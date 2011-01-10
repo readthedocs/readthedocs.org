@@ -131,7 +131,7 @@ def scrape_conf_file(project):
 
     try:
         project.version = decimal.Decimal(data.get('version'))
-    except decimal.InvalidOperation:
+    except (TypeError, decimal.InvalidOperation):
         project.version = ''
 
     project.save()
