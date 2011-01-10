@@ -141,7 +141,7 @@ class Project(models.Model):
 
     @property
     def has_pdf(self, version_slug='latest'):
-        return os.path.exists(self.get_pdf_url(version_slug))
+        return os.path.exists(self.get_pdf_path(version_slug))
 
     @property
     def sponsored(self):
@@ -166,6 +166,15 @@ class Project(models.Model):
 
     def active_versions(self):
         return self.versions.filter(built=True, active=True)
+
+    def get_pdf_path(self, version_slug='latest'):
+        path = os.path.join(settings.MEDIA_ROOT,
+                                'pdf',
+                                self.slug,
+                                version_slug,
+                                '%s.pdf' % self.slug)
+        return path
+
 
     #File Building stuff.
 
