@@ -7,6 +7,7 @@ from doc_builder.base import BaseBuilder
 from projects.utils import run
 
 latex_re = re.compile('the LaTeX files are in (.*)\.')
+pdf_re = re.compile('Output written on (.*?)')
 
 class Builder(BaseBuilder):
 
@@ -19,15 +20,17 @@ class Builder(BaseBuilder):
             os.chdir(latex_dir)
             pdf_results = run('make')
             #Check the return code was good before symlinking
-            if pdf_results[0] == 0:
+            pdf_match = pdf_re.search(pdf_results[1])
+            if pdf_match:
                 from_path = os.path.join(os.getcwd(),
                                          "%s.pdf" % project.slug)
                 to_path = os.path.join(settings.MEDIA_ROOT,
                                        'pdf',
                                        project.slug,
                                        'latest')
-                os.makedirs(to_path)
-                to_file = os.path.join(to_path, '%s.pdf' % project.slug)
+                if not os.path.exists(to_path):
+                    os.makedirs(to_path)
+                to_file = os.path.join(to_path, pdf_match.group(1).strip())
                 if os.path.exists(to_file):
                     run('ln -sf %s %s' % (from_path, to_file))
                 else:
