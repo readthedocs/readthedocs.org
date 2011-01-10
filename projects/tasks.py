@@ -118,7 +118,19 @@ def scrape_conf_file(project):
     """Locate the given project's ``conf.py`` file and extract important
     settings, including copyright, theme, source suffix and version.
     """
-    lines = open(project.conf_filename).readlines()
+
+    #This is where we actually find the conf.py, so we can't use
+    #the value from the project :)
+    try:
+        conf_dir = project.find('conf.py')[0]
+    except IndexError:
+        print("Could not find conf.py in %s" % project)
+        return
+    else:
+        conf_dir = conf_dir.replace('/conf.py', '')
+
+    os.chdir(conf_dir)
+    lines = open('conf.py').readlines()
     data = {}
     for line in lines:
         match = ghetto_hack.search(line)
