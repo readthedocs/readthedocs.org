@@ -26,6 +26,10 @@ def update_docs(pk, record=True, pdf=False, version_pk=None):
     """
     A Celery task that updates the documentation for a project.
     """
+
+    ###
+    # Handle passed in arguments
+    ###
     project = Project.objects.live().get(pk=pk)
     if project.skip:
         print "Skipping %s" % project
@@ -39,6 +43,9 @@ def update_docs(pk, record=True, pdf=False, version_pk=None):
     if not os.path.exists(path):
         os.makedirs(path)
 
+    ###
+    # Handle filesystem updating
+    ###
     if project.is_imported:
         try:
             update_imported_docs(project, version)
@@ -46,13 +53,18 @@ def update_docs(pk, record=True, pdf=False, version_pk=None):
             print("Error importing project: %s. Skipping build." % err)
             return
         else:
+            #Run on a successful run of update_imported_docs
             scrape_conf_file(project)
     else:
         update_created_docs(project)
 
-    # kick off a build
+    ###
+    # Kick off a build and record results if necessary
+    ###
     (ret, out, err) = build_docs(project, pdf)
-    if 'no targets are out of date.' not in out:
+    if 'no targets are out of date.' in out:
+        print "Build Unchanged"
+    else:
         if record:
             Build.objects.create(project=project, success=ret==0, output=out, error=err)
         if ret == 0:
@@ -64,8 +76,6 @@ def update_docs(pk, record=True, pdf=False, version_pk=None):
         else:
             print "Build ERROR"
             print err
-    else:
-        print "Build Unchanged"
 
 
 def update_imported_docs(project, version):
@@ -197,7 +207,8 @@ def fileify(project_slug):
         for root, dirnames, filenames in os.walk(path):
             for filename in filenames:
                 if fnmatch.fnmatch(filename, '*.html'):
-                    dirpath =  os.path.join(root.replace(path, '').lstrip('/'), filename.lstrip('/'))
+                    dirpath =  os.path.join(root.replace(path, '').lstrip('/'),
+                                            filename.lstrip('/'))
                     file, new = ImportedFile.objects.get_or_create(project=project,
                                                 path=dirpath,
                                                 name=filename)

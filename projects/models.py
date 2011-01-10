@@ -91,7 +91,6 @@ class Project(models.Model):
     @property
     def user_doc_path(self):
         return os.path.join(settings.DOCROOT, self.user.username, self.slug)
-    #user_doc_path = property(memoize(user_doc_path, {}, 1))
 
     @property
     def full_doc_path(self):
@@ -104,7 +103,6 @@ class Project(models.Model):
                 return os.path.join(doc_base, '%s' % possible_path)
         #No docs directory, assume a full docs checkout
         return doc_base
-    #full_doc_path = property(memoize(full_doc_path, {}, 1))
 
     @property
     def full_build_path(self):
