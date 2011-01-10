@@ -28,10 +28,10 @@ def update_docs(pk, record=True, pdf=False, version_pk=None):
     ###
     # Handle passed in arguments
     ###
+    project = Project.objects.live().get(pk=pk)
     if not project.path:
         print "No conf.py. Exiting."
         return
-    project = Project.objects.live().get(pk=pk)
     if version_pk:
         version = Version.objects.get(pk=version_pk)
     else:
