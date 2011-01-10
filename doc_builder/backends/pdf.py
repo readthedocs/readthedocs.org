@@ -25,6 +25,8 @@ class Builder(BaseBuilder):
             tex_globs = glob('*.tex')
             if tex_globs:
                 tex_file = tex_globs[0]
+            else:
+                return False
             pdf_results = run('pdflatex -interaction=nonstopmode %s' % tex_file)
             pdf_match = pdf_re.search(pdf_results[1])
             if pdf_match:
