@@ -20,7 +20,7 @@ import shutil
 ghetto_hack = re.compile(r'(?P<key>.*)\s*=\s*u?\[?[\'\"](?P<value>.*)[\'\"]\]?')
 
 @task
-def update_docs(pk, record=True, pdf=False, version_pk=None):
+def update_docs(pk, record=True, pdf=False, version_pk=None, touch=False):
     """
     A Celery task that updates the documentation for a project.
     """
@@ -59,7 +59,7 @@ def update_docs(pk, record=True, pdf=False, version_pk=None):
     ###
     # Kick off a build and record results if necessary
     ###
-    (ret, out, err) = build_docs(project, version, pdf, record)
+    (ret, out, err) = build_docs(project, version, pdf, record, touch)
     if 'no targets are out of date.' in out:
         print "Build Unchanged"
     else:
@@ -167,7 +167,7 @@ def update_created_docs(project):
         file.write_to_disk()
 
 
-def build_docs(project, version, pdf, record):
+def build_docs(project, version, pdf, record, touch):
     """
     A helper function for the celery task to do the actual doc building.
     """
@@ -175,6 +175,9 @@ def build_docs(project, version, pdf, record):
         return ('','Conf file not found.',-1)
 
     html_builder = builder_loading.get('html')()
+    if touch:
+        html_builder.touch(project)
+
     html_builder.clean(project)
     html_output = html_builder.build(project, version)
     successful = (html_output[0] == 0)
@@ -216,6 +219,6 @@ def fileify(project_slug):
 
 
 @periodic_task(run_every=crontab(hour="2", minute="10", day_of_week="*"))
-def update_docs_pull(record=False, pdf=False):
+def update_docs_pull(record=False, pdf=False, touch=False):
     for project in Project.objects.live():
-        update_docs(pk=project.pk, record=record, pdf=pdf)
+        update_docs(pk=project.pk, record=record, pdf=pdf, touch=touch)

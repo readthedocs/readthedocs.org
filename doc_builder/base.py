@@ -24,8 +24,10 @@ class BaseBuilder(object):
             results = run(backup_command)
         return results
 
-    def reset(self, project):
-        raise NotImplementedError
+    def touch(self, project):
+        print "Touching files"
+        os.chdir(project.full_doc_path)
+        os.system('touch * && touch */*')
 
     def clean(self, project):
         raise NotImplementedError
