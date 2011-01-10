@@ -77,24 +77,22 @@ def update_imported_docs(project, version):
     """
     Check out or update the given project's repository.
     """
-    backend = get_backend(project.repo_type)
-    if not backend:
+    if not project.vcs_repo:
         raise ProjectImportError("Repo type '%s' unknown" % project.repo_type)
     working_dir = os.path.join(project.user_doc_path, project.slug)
     if not os.path.exists(working_dir):
         os.mkdir(working_dir)
-    vcs_repo = backend(project.repo, working_dir)
     if version:
         print 'Checking out version %s' % version.identifier
-        vcs_repo.checkout(version.identifier)
+        project.vcs_repo.checkout(version.identifier)
     else:
         print 'Updating to latest revision'
-        vcs_repo.update()
+        project.vcs_repo.update()
 
         # check tags/version
         try:
-            if vcs_repo.supports_tags:
-                tags = vcs_repo.get_tags()
+            if project.vcs_repo.supports_tags:
+                tags = project.vcs_repo.get_tags()
                 old_tags = Version.objects.filter(project=project).values_list('identifier', flat=True)
                 for tag in tags:
                     if tag.identifier in old_tags:

@@ -162,16 +162,26 @@ class Project(models.Model):
     
     @property
     def vcs_repo(self):
+        if hasattr(self, '_vcs_repo'):
+            return self._vcs_repo
         backend = get_backend(self.repo_type)
         if not backend:
-            return None
-        return backend(self.repo, self.working_dir)
+            repo = None
+        else:
+            repo = backend(self.repo, self.working_dir)
+        self._vcs_repo = repo
+        return repo
     
     @property
     def contribution_backend(self):
+        if hasattr(self, '_contribution_backend'):
+            return self._contribution_backend
         if not self.vcs_repo:
-            return None
-        return self.vcs_repo.get_contribution_backend()
+            cb = None
+        else:
+            cb = self.vcs_repo.get_contribution_backend()
+        self._contribution_backend = cb
+        return cb
     
     def repo_lock(self, timeout=5, polling_interval=0.2):
         return Lock(self.slug, timeout, polling_interval)
