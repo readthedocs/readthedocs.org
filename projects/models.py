@@ -68,12 +68,19 @@ class Project(models.Model):
     def get_absolute_url(self):
         return reverse('projects_detail', args=[self.user.username, self.slug])
 
-    def get_docs_url(self):
+    def get_docs_url(self, version_slug='latest'):
         return reverse('docs_detail', kwargs={
             'project_slug': self.slug,
-            'version_slug': 'latest',
+            'version_slug': version_slug,
             'filename': '',
         })
+
+    def get_pdf_url(self, version_slug='latest'):
+        to_path = os.path.join(settings.MEDIA_ROOT,
+                                'pdf',
+                                self.slug,
+                                version_slug,
+                                '%s.pdf' % self.slug)
 
     @property
     def user_doc_path(self):
