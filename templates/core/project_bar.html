@@ -43,7 +43,7 @@
               <li><a href="{% url projects_versions project.slug %}" rel="nofollow,noindex">Versions</a></li>
             {% endif %}
 
-            {% if project.build_pdf %}
+            {% if project.build_pdf and project.has_pdf %}
               <li><a href="{{ project.get_pdf_url }}" rel="nofollow,noindex">Download PDF</a></li>
             {% endif %}
 

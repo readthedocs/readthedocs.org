@@ -140,6 +140,10 @@ class Project(models.Model):
         return self.versions.exists()
 
     @property
+    def has_pdf(self, version_slug='latest'):
+        return os.path.exists(self.get_pdf_url(version_slug))
+
+    @property
     def sponsored(self):
         return False
 
