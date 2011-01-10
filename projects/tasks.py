@@ -58,7 +58,7 @@ def update_docs(pk, record=True, pdf=False, version_pk=None):
     ###
     # Kick off a build and record results if necessary
     ###
-    (ret, out, err) = build_docs(project, pdf)
+    (ret, out, err) = build_docs(project, pdf, version)
     if 'no targets are out of date.' in out:
         print "Build Unchanged"
     else:
@@ -172,7 +172,7 @@ def update_created_docs(project):
         file.write_to_disk()
 
 
-def build_docs(project, pdf):
+def build_docs(project, pdf, version=None):
     """
     A helper function for the celery task to do the actual doc building.
     """
@@ -181,10 +181,10 @@ def build_docs(project, pdf):
 
     html_builder = builder_loading.get('html')()
     html_builder.clean(project)
-    html_output = html_builder.build(project)
+    html_output = html_builder.build(project, version)
     if pdf or project.build_pdf:
         pdf_builder = builder_loading.get('pdf')()
-        pdf_builder.build(project)
+        pdf_builder.build(project, version)
     return html_output
 
 def move_docs(project, version):

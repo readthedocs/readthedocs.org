@@ -1,5 +1,4 @@
 import re
-import os
 
 from django.template.loader import render_to_string
 from django.contrib.auth.models import SiteProfileNotAvailable
@@ -7,7 +6,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 
 from doc_builder.base import BaseBuilder
-from projects.utils import diff, dmp, safe_write, run
+from projects.utils import safe_write
 
 
 HTML_CONTEXT = """
@@ -21,6 +20,8 @@ else:
     }
 """
 
+TEMPLATE_DIR = '%s/templates/sphinx' % settings.SITE_ROOT
+
 
 class Builder(BaseBuilder):
 
@@ -30,7 +31,6 @@ class Builder(BaseBuilder):
         """
         conf_filename = project.conf_filename
         # The template directory for RTD
-        template_dir = '%s/templates/sphinx' % settings.SITE_ROOT
 
         # Expression to match the templates_path line
         # FIXME: This could fail if the statement spans multiple lines
@@ -47,11 +47,11 @@ class Builder(BaseBuilder):
             match = templates_re.match(line)
             if match:
                 left, right = match.groups()
-                line = left + "'%s', " % template_dir + right + "\n"
+                line = left + "'%s', " % TEMPLATE_DIR + right + "\n"
                 lines_matched += 1
             outfile.write(line)
         if not lines_matched:
-            outfile.write('templates_path = ["%s"]' % template_dir)
+            outfile.write('templates_path = ["%s"]' % TEMPLATE_DIR)
         outfile.write(HTML_CONTEXT % (project.sponsored, project.slug))
         outfile.close()
         return lines_matched
@@ -59,7 +59,7 @@ class Builder(BaseBuilder):
     def _sanitize(self, project):
         conf_template =  render_to_string('sphinx/conf.py',
                                           {'project': project,
-                                           'template_dir': template_dir,
+                                           'template_dir': TEMPLATE_DIR,
                                             'badge': project.sponsored
                                             })
         safe_write(project.conf_filename, conf_template)
@@ -82,7 +82,7 @@ class Builder(BaseBuilder):
                 print "Conf file not found. Error writing to disk."
                 return ('','Conf file not found. Error writing to disk.',-1)
 
-    def build(self, project):
+    def build(self, project, version):
         build_results = self.run_make_command(project,
                                               'make html',
                                               'sphinx-build -b html . _build/html')

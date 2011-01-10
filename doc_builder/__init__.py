@@ -60,13 +60,12 @@ class BaseReg(object):
             self.register(format, self.DEFAULT[format], reg)
             for format in getattr(settings, '%s_MODULES' % self.name):
                 dic = getattr(settings, '%s_MODULES' % self.name)
-                register(format, dic[format], reg)
+                self.register(format, dic[format], reg)
         self._myreg = reg
         self.autodiscover()
 
     def autodiscover(self):
         if self.AUTO_IMPORT:
-            from django.db.models.loading import get_apps, get_models
             path = importlib.import_module(self.AUTO_IMPORT).__path__[0]
             for app in glob.glob(os.path.join(path, '*.py')):
                 try:

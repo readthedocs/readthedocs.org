@@ -12,7 +12,10 @@ pdf_re = re.compile('Output written on (.+) \(')
 
 class Builder(BaseBuilder):
 
-    def build(self, project):
+    def build(self, project, version):
+        version_slug = 'latest'
+        if version:
+            version_slug = version.slug
         self._cd_makefile(project)
         latex_results = run('make latex')
         match = latex_re.search(latex_results[1])
@@ -28,7 +31,7 @@ class Builder(BaseBuilder):
                 to_path = os.path.join(settings.MEDIA_ROOT,
                                        'pdf',
                                        project.slug,
-                                       'latest')
+                                       version_slug)
                 if not os.path.exists(to_path):
                     os.makedirs(to_path)
                 to_file = os.path.join(to_path, '%s.pdf' % project.slug)

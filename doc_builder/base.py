@@ -1,7 +1,5 @@
 import os
 
-from django.utils.importlib import import_module
-
 from projects.utils import run
 
 
@@ -32,5 +30,5 @@ class BaseBuilder(object):
     def clean(self, project):
         raise NotImplementedError
 
-    def build(self, project):
+    def build(self, project, version):
         raise NotImplementedError
