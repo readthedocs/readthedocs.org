@@ -2,7 +2,6 @@
 documentation and header rendering, and server errors.
 """
 
-from bookmarks.models import Bookmark
 from django.core.mail import mail_admins
 from django.core.urlresolvers import reverse
 from django.db.models import F, Max

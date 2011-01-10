@@ -1,11 +1,10 @@
 from bookmarks.models import Bookmark
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
 from django.contrib.markup.templatetags.markup import restructuredtext
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponse, Http404
-from django.shortcuts import get_object_or_404, render_to_response, redirect
+from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
 from django.template.defaultfilters import linebreaks
 from django.template.loader import render_to_string
