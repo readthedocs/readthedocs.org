@@ -62,6 +62,8 @@ def editor_file(request, project_slug, filename):
                 project.contribution_backend.set_branch_file(
                     branch, repo_file, body, comment
                 )
+            url = reverse(editor_pick, args=(project.slug,))
+            return HttpResponseRedirect(url)
     else:
         initial = {
             'body': current_data

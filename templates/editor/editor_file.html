@@ -22,7 +22,7 @@
 {% block editing-option-manage %}class="active"{% endblock %}
 
 {% block content %}  
-  <form method="post" action=".">{% csrf_token %}
+  <form method="post" action="{{ request.path }}">{% csrf_token %}
     {{ form.as_p }}
     <p><input type="submit" value="Submit"><a class="button" href="{% url editor_push project.slug %}">Send pull request</a></p>
   </form>
