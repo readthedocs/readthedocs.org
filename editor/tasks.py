@@ -2,7 +2,7 @@
 ``conf.py`` files, and rebuilding documentation.
 """
 
-from builds.models import Branch
+from editor.models import Branch
 from celery.decorators import task
 
 
