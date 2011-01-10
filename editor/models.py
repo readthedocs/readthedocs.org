@@ -13,6 +13,9 @@ class Branch(models.Model):
     user = models.ForeignKey('auth.User')
     project = models.ForeignKey('projects.Project')
     active = models.BooleanField(default=True)
+    pushed = models.BooleanField(default=False)
+    title = models.TextField(default='')
+    comment = models.TextField(default='')
     
     objects = BranchManager()
     

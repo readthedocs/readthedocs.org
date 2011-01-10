@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404, render_to_response
 from django.template.context import RequestContext
 from editor.forms import FileForm, PullRequestForm
 from editor.models import Branch
+from editor.tasks import push_branch
 from projects.models import Project
 import os
 
@@ -86,10 +87,11 @@ def editor_push(request, project_slug):
         if form.is_valid():
             title = form.cleaned_data['title']
             comment = form.cleaned_data['comment']
-            with project.repo_lock(5):
-                project.contribution_backend.push_branch(branch, title, comment)
             branch.active = False
+            branch.comment = comment
+            branch.title = title
             branch.save()
+            push_branch.delay(pk=branch.pk)
             return HttpResponseRedirect(reverse(editor_pick, args=(project.slug,)))
     else:
         form = PullRequestForm()

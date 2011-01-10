@@ -12,7 +12,6 @@ from django.db import transaction
 from projects.exceptions import ProjectImportError
 from projects.models import Project, ImportedFile
 from projects.utils import run, sanitize_conf, slugify_uniquely
-from vcs_support.base import get_backend
 import decimal
 import fnmatch
 import os
