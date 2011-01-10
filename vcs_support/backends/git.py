@@ -1,18 +1,21 @@
 from projects.exceptions import ProjectImportError
+from vcs_support.backends.github import GithubContributionBackend
 from vcs_support.base import BaseVCS, VCSTag
 import os
-
+        
 
 class Backend(BaseVCS):
     supports_tags = True
+    contribution_backends = [GithubContributionBackend]
     
     def update(self):
+        super(Backend, self).update()
         retcode = self._run_command('git', 'status')[0]
         if retcode == 0:
             self._pull()
         else:
             self._clone()
-            
+    
     def _pull(self):
         retcode = self._run_command('git', 'fetch')[0]
         if retcode != 0:
@@ -24,7 +27,7 @@ class Backend(BaseVCS):
             raise ProjectImportError(
                 "Failed to get code from '%s' (git reset): %s" % (self.repo_url, retcode)
             )
-        
+    
     def _clone(self):
         retcode = self._run_command('git', 'clone', '--quiet', self.repo_url, '.')[0]
         if retcode != 0:
@@ -65,6 +68,7 @@ class Backend(BaseVCS):
         return name.split('/', 2)[2]
     
     def checkout(self, identifier=None):
+        super(Backend, self).checkout()
         if not identifier:
             identifier = 'master'
         self._run_command('git', 'reset', '--hard', identifier)

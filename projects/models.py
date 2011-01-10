@@ -1,19 +1,19 @@
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from django.conf import settings
 from django.db import models
 from django.template.defaultfilters import slugify
 from django.template.loader import render_to_string
 from django.utils.functional import memoize
-
 from projects import constants
 from projects.utils import diff, dmp, safe_write
-
 from taggit.managers import TaggableManager
-
+from vcs_support.base import get_backend
+from vcs_support.utils import Lock
+import fnmatch
 import os
 import fnmatch
-
+import re
 
 class ProjectManager(models.Manager):
     def live(self, *args, **kwargs):
@@ -146,6 +146,36 @@ class Project(models.Model):
     @property
     def sponsored(self):
         return False
+    
+    @property
+    def working_dir(self):
+        return os.path.join(self.user_doc_path, self.slug)
+    
+    @property
+    def vcs_repo(self):
+        if hasattr(self, '_vcs_repo'):
+            return self._vcs_repo
+        backend = get_backend(self.repo_type)
+        if not backend:
+            repo = None
+        else:
+            repo = backend(self.repo, self.working_dir)
+        self._vcs_repo = repo
+        return repo
+    
+    @property
+    def contribution_backend(self):
+        if hasattr(self, '_contribution_backend'):
+            return self._contribution_backend
+        if not self.vcs_repo:
+            cb = None
+        else:
+            cb = self.vcs_repo.get_contribution_backend()
+        self._contribution_backend = cb
+        return cb
+    
+    def repo_lock(self, timeout=5, polling_interval=0.2):
+        return Lock(self.slug, timeout, polling_interval)
 
     def find(self, file):
         """

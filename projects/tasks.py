@@ -8,9 +8,15 @@ from celery.task.schedules import crontab
 from doc_builder import loading as builder_loading
 from django.db import transaction
 from projects.exceptions import ProjectImportError
-from projects.models import Project, ImportedFile
 from projects.utils import slugify_uniquely
 from vcs_support.base import get_backend
+from django.conf import settings
+from django.contrib.auth.models import SiteProfileNotAvailable
+from django.core.exceptions import ObjectDoesNotExist
+from django.db import transaction
+from projects.exceptions import ProjectImportError
+from projects.models import Project, ImportedFile
+from projects.utils import run, slugify_uniquely
 import decimal
 import fnmatch
 import os
@@ -38,57 +44,53 @@ def update_docs(pk, record=True, pdf=False, version_pk=None, touch=False):
     if not os.path.exists(path):
         os.makedirs(path)
 
-    ###
-    # Handle filesystem updating
-    ###
-    if project.is_imported:
-        try:
-            update_imported_docs(project, version)
-        except ProjectImportError, err:
-            print("Error importing project: %s. Skipping build." % err)
-            return
+    with project.repo_lock(30):
+        if project.is_imported:
+            try:
+                update_imported_docs(project, version)
+            except ProjectImportError, err:
+                print("Error importing project: %s. Skipping build." % err)
+                return
+            else:
+                scrape_conf_file(project)
         else:
-            #Run on a successful run of update_imported_docs
-            scrape_conf_file(project)
-    else:
-        update_created_docs(project)
-
-    ###
-    # Kick off a build and record results if necessary
-    ###
-    (ret, out, err) = build_docs(project, version, pdf, record, touch)
-    if 'no targets are out of date.' in out:
-        print "Build Unchanged"
-    else:
-        if ret == 0:
-            print "Build OK"
+            update_created_docs(project)
+    
+        # kick off a build
+        (ret, out, err) = build_docs(project, version, pdf, record, touch)
+        if not 'no targets are out of date.' in out:
+            if record:
+                Build.objects.create(project=project, success=ret==0, output=out, error=err)
+            if ret == 0:
+                print "Build OK"
+                if version:
+                    version.built = True
+                    version.save()
+                move_docs(project, version)
+            else:
+                print "Build ERROR"
+                print err
         else:
-            print "Build ERROR"
-            print err
+            print "Build Unchanged"
 
 
 def update_imported_docs(project, version):
     """
     Check out or update the given project's repository.
     """
-    backend = get_backend(project.repo_type)
-    if not backend:
+    if not project.vcs_repo:
         raise ProjectImportError("Repo type '%s' unknown" % project.repo_type)
-    working_dir = os.path.join(project.user_doc_path, project.slug)
-    if not os.path.exists(working_dir):
-        os.mkdir(working_dir)
-    vcs_repo = backend(project.repo, working_dir)
     if version:
         print 'Checking out version %s' % version.identifier
-        vcs_repo.checkout(version.identifier)
+        project.vcs_repo.checkout(version.identifier)
     else:
         print 'Updating to latest revision'
-        vcs_repo.update()
+        project.vcs_repo.update()
 
         # check tags/version
         try:
-            if vcs_repo.supports_tags:
-                tags = vcs_repo.get_tags()
+            if project.vcs_repo.supports_tags:
+                tags = project.vcs_repo.get_tags()
                 old_tags = Version.objects.filter(project=project).values_list('identifier', flat=True)
                 for tag in tags:
                     if tag.identifier in old_tags:

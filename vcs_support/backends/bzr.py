@@ -5,12 +5,13 @@ class Backend(BaseVCS):
     supports_tags = True
     
     def update(self):
+        super(Backend, self).update()
         retcode = self._run_command('bzr', 'status')[0]
         if retcode == 0:
             self._up()
         else:
             self._checkout()
-            
+    
     def _up(self):
         retcode = self._run_command('bzr', 'revert')[0]
         if retcode != 0:
@@ -22,7 +23,7 @@ class Backend(BaseVCS):
             raise ProjectImportError(
                 "Failed to get code from '%s' (bzr up): %s" % (self.repo_url, retcode)
             )
-        
+    
     def _checkout(self):
         retcode = self._run_command('bzr', 'checkout', self.repo_url, '.')[0]
         if retcode != 0:
@@ -55,6 +56,7 @@ class Backend(BaseVCS):
         return vcs_tags
     
     def checkout(self, identifier=None):
+        super(Backend, self).checkout()
         if not identifier:
             self._up()
         else:

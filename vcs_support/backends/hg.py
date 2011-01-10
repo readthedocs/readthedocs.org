@@ -6,12 +6,13 @@ class Backend(BaseVCS):
     supports_tags = True
     
     def update(self):
+        super(Backend, self).update()
         retcode = self._run_command('hg', 'status')[0]
         if retcode == 0:
             self._pull()
         else:
             self._clone()
-            
+    
     def _pull(self):
         retcode = self._run_command('hg', 'pull')[0]
         if retcode != 0:
@@ -23,7 +24,7 @@ class Backend(BaseVCS):
             raise ProjectImportError(
                 "Failed to get code from '%s' (hg update): %s" % (self.repo_url, retcode)
             )
-        
+    
     def _clone(self):
         retcode = self._run_command('hg', 'clone', self.repo_url, '.')[0]
         if retcode != 0:
@@ -59,6 +60,7 @@ class Backend(BaseVCS):
         return vcs_tags
     
     def checkout(self, identifier=None):
+        super(Backend, self).checkout()
         if not identifier:
             identifier = 'tip'
         self._run_command('hg', 'update', identifier)

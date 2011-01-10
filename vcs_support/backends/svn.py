@@ -13,8 +13,8 @@ class Backend(BaseVCS):
             self.supports_tags = True
             self.base_url = self.repo_url[:-7]
             
-    
     def update(self):
+        super(Backend, self).update()
         # For some reason `svn status` gives me retcode 0 in non-svn directories
         # that's why I use `svn info` here.
         retcode = self._run_command('svn', 'info')[0]
@@ -22,7 +22,7 @@ class Backend(BaseVCS):
             self._up()
         else:
             self._co()
-            
+    
     def _up(self):
         retcode = self._run_command('svn', 'revert', '--recursive', '.')[0]
         if retcode != 0:
@@ -34,7 +34,7 @@ class Backend(BaseVCS):
             raise ProjectImportError(
                 "Failed to get code from '%s' (svn up): %s" % (self.repo_url, retcode)
             )
-        
+
     def _co(self):
         retcode = self._run_command('svn', 'checkout', '--quiet', self.repo_url, '.')[0]
         if retcode != 0:
@@ -68,6 +68,7 @@ class Backend(BaseVCS):
         return vcs_tags
     
     def checkout(self, identifier=None):
+        super(Backend, self).checkout()
         if not identifier:
             identifier = '/trunk/'
         self._run_command('svn', 'switch', '%s%s' % (self.base_url, identifier))
