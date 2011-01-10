@@ -14,6 +14,7 @@ class Backend(BaseVCS):
             self.base_url = self.repo_url[:-7]
             
     def update(self):
+        super(Backend, self).update()
         # For some reason `svn status` gives me retcode 0 in non-svn directories
         # that's why I use `svn info` here.
         retcode = self._run_command('svn', 'info')[0]
@@ -67,6 +68,7 @@ class Backend(BaseVCS):
         return vcs_tags
     
     def checkout(self, identifier=None):
+        super(Backend, self).checkout()
         if not identifier:
             identifier = '/trunk/'
         self._run_command('svn', 'switch', '%s%s' % (self.base_url, identifier))

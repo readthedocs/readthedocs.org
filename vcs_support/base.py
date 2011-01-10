@@ -48,12 +48,16 @@ class BaseVCS(BaseCLI):
         self.repo_url = repo_url
         self.working_dir = working_dir
         
+    def _check_working_dir(self):
+        if not os.path.exists(self.working_dir):
+            os.mkdir(self.working_dir)
+        
     def update(self):
         """
         If self.working_dir is already a valid local copy of the repository,
         update the repository, else create a new local copy of the repository.
         """
-        raise NotImplementedError
+        self._check_working_dir()
     
     #===========================================================================
     # Tag related methods 
@@ -75,7 +79,7 @@ class BaseVCS(BaseCLI):
         The type and format of identifier may change from VCS to VCS, so each
         backend is responsible to understand it's identifiers. 
         """
-        raise NotImplementedError
+        self._check_working_dir()
     
     #===========================================================================
     # Contribution related methods
@@ -112,19 +116,19 @@ class BaseContributionBackend(BaseCLI):
         """
         return False
     
-    def get_branch_file(self, user, filename):
+    def get_branch_file(self, branch, filename):
         """
         Returns the contents of a file as it is in the specified branch.
         """
         raise NotImplementedError
     
-    def set_branch_file(self, user, filename, contents, comment=''):
+    def set_branch_file(self, branch, filename, contents, comment=''):
         """
         Saves the file in the specified branch.
         """
         raise NotImplementedError
     
-    def push_branch(self, user, title='', comment=''):
+    def push_branch(self, branch, title='', comment=''):
         """
         Pushes a branch upstream.
         """

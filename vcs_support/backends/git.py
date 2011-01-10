@@ -9,6 +9,7 @@ class Backend(BaseVCS):
     contribution_backends = [GithubContributionBackend]
     
     def update(self):
+        super(Backend, self).update()
         retcode = self._run_command('git', 'status')[0]
         if retcode == 0:
             self._pull()
@@ -67,6 +68,7 @@ class Backend(BaseVCS):
         return name.split('/', 2)[2]
     
     def checkout(self, identifier=None):
+        super(Backend, self).checkout()
         if not identifier:
             identifier = 'master'
         self._run_command('git', 'reset', '--hard', identifier)

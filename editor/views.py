@@ -4,9 +4,8 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template.context import RequestContext
 from editor.forms import FileForm, PullRequestForm
+from editor.models import Branch
 from projects.models import Project
-from projects.tasks import scrape_conf_file
-from vcs_support.base import get_backend
 import os
 
 def _project_404(request, project):
@@ -28,15 +27,7 @@ def _replace_ext(filename, newext):
 @login_required
 def editor_pick(request, project_slug):
     project = get_object_or_404(Project, slug=project_slug)
-    backend = get_backend(project.repo_type)
-    if not backend:
-        return _project_404(request, project)
-    working_dir = os.path.join(project.user_doc_path, project.slug)
-    if not os.path.exists(working_dir):
-        os.mkdir(working_dir)
-    vcs_repo = backend(project.repo, working_dir)
-    contributor = vcs_repo.get_contribution_backend()
-    if not contributor:
+    if not project.contribution_backend:
         return _project_404(request, project)
     filepaths = [os.path.relpath(fp, project.full_doc_path) for fp in project.find('*%s' % project.suffix)]
     files = [(filepath, _replace_ext(filepath, '.html')) for filepath in filepaths]
@@ -55,18 +46,10 @@ def editor_file(request, project_slug, filename):
         filename = "index.html"
     filename = filename.rstrip('/')
     repo_file = _replace_ext(_get_rel_filepath(project, filename), project.suffix)
-    backend = get_backend(project.repo_type)
-    if not backend:
+    if not project.contribution_backend:
         return _project_404(request, project)
-    working_dir = os.path.join(project.user_doc_path, project.slug)
-    if not os.path.exists(working_dir):
-        os.mkdir(working_dir)
-    vcs_repo = backend(project.repo, working_dir)
-    vcs_repo.update()
-    contributor = vcs_repo.get_contribution_backend()
-    if not contributor:
-        return _project_404(request, project)
-    current_data = contributor.get_branch_file(request.user, repo_file)
+    branch = Branch.objects.get_branch(request.user, project)
+    current_data = project.contribution_backend.get_branch_file(branch, repo_file)
     if not current_data:
         return _project_404(request, project)
     if request.method == 'POST':
@@ -74,7 +57,10 @@ def editor_file(request, project_slug, filename):
         if form.is_valid():
             body = form.cleaned_data['body']
             comment = form.cleaned_data['comment']
-            contributor.set_branch_file(request.user, repo_file, body, comment)
+            with project.repo_lock(5):
+                project.contribution_backend.set_branch_file(
+                    branch, repo_file, body, comment
+                )
     else:
         initial = {
             'body': current_data
@@ -92,23 +78,18 @@ def editor_push(request, project_slug):
     Push changes upstream
     """
     project = get_object_or_404(Project, slug=project_slug)
-    backend = get_backend(project.repo_type)
-    if not backend:
+    if not project.contribution_backend:
         return _project_404(request, project)
-    working_dir = os.path.join(project.user_doc_path, project.slug)
-    if not os.path.exists(working_dir):
-        os.mkdir(working_dir)
-    vcs_repo = backend(project.repo, working_dir)
-    vcs_repo.update()
-    contributor = vcs_repo.get_contribution_backend()
-    if not contributor:
-        return _project_404(request, project)
+    branch = Branch.objects.get_branch(request.user, project)
     if request.method == 'POST':
         form = PullRequestForm(request.POST)
         if form.is_valid():
             title = form.cleaned_data['title']
             comment = form.cleaned_data['comment']
-            contributor.push_branch(request.user, title, comment)
+            with project.repo_lock(5):
+                project.contribution_backend.push_branch(branch, title, comment)
+            branch.active = False
+            branch.save()
             return HttpResponseRedirect(reverse(editor_pick, args=(project.slug,)))
     else:
         form = PullRequestForm()

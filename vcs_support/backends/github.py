@@ -28,8 +28,8 @@ class GithubContributionBackend(BaseContributionBackend):
     def accepts(cls, url):
         return url.startswith(GITHUB_URLS) and GITHUB_OKAY
     
-    def _get_branch_identifier(self, user):
-        identifier = 'rtd-%s' % user.username
+    def _get_branch_identifier(self, branch):
+        identifier = 'rtd-%s-%s' % (branch.username, branch.pk)
         if self._branch_exists(identifier):
             return identifier
         self._create_branch(identifier)
@@ -39,45 +39,46 @@ class GithubContributionBackend(BaseContributionBackend):
         return identifier in self._run_command('git', 'branch')[1]
     
     def _create_branch(self, identifier):
+        self.repo.update()
         self._run_command('git', 'branch', '--track', identifier, 'master')
     
-    def get_branch_file(self, user, filename):
+    def get_branch_file(self, branch, filename):
         """
         git show branch:file
         """
-        identifier = self._get_branch_identifier(user)
+        identifier = self._get_branch_identifier(branch)
         return self._run_command('git', 'show', '%s:%s' % (identifier, filename))[1]
     
-    def set_branch_file(self, user, filename, contents, comment=''):
+    def set_branch_file(self, branch, filename, contents, comment=''):
         """
         git checkout branch
         git commit --author "Name Surname <email@address.com>" -m comment
         git checkout master
         """
-        identifier = self._get_branch_identifier(user)
+        identifier = self._get_branch_identifier(branch)
         self._run_command('git', 'checkout', identifier)
         with self._open_file(filename, 'wb') as fobj:
             fobj.write(contents)
         self._run_command('git', 'add', filename)
         if not comment:
             comment = 'no comment'
-        if user.first_name and user.last_name:
-            name = '%s %s' % (user.first_name, user.last_name)
+        if branch.user.first_name and branch.user.last_name:
+            name = '%s %s' % (branch.user.first_name, branch.user.last_name)
         else:
-            name = user.username
-        email = user.email
+            name = branch.user.username
+        email = branch.user.email
         author = '%s <%s>' % (name, email)
         self._run_command('git', 'commit', '-m', comment, '--author', author)
         self._run_command('git', 'checkout', 'master')
     
-    def push_branch(self, user, title='', comment=''):
+    def push_branch(self, branch, title='', comment=''):
         """
         Pushes a branch upstream.
         
         Since the python github API libraries don't support pull requests, we'll
         have to do it manually using urllib2 :(
         """
-        identifier = self._get_branch_identifier(user)
+        identifier = self._get_branch_identifier(branch)
         print 'pushing branch %s in %s' % (identifier, self._gh_name())
         # first push the branch to the rtd-account on github.
         self._check_remote()

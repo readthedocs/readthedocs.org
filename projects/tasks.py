@@ -79,9 +79,6 @@ def update_imported_docs(project, version):
     """
     if not project.vcs_repo:
         raise ProjectImportError("Repo type '%s' unknown" % project.repo_type)
-    working_dir = os.path.join(project.user_doc_path, project.slug)
-    if not os.path.exists(working_dir):
-        os.mkdir(working_dir)
     if version:
         print 'Checking out version %s' % version.identifier
         project.vcs_repo.checkout(version.identifier)

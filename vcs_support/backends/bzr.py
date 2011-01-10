@@ -5,6 +5,7 @@ class Backend(BaseVCS):
     supports_tags = True
     
     def update(self):
+        super(Backend, self).update()
         retcode = self._run_command('bzr', 'status')[0]
         if retcode == 0:
             self._up()
@@ -55,6 +56,7 @@ class Backend(BaseVCS):
         return vcs_tags
     
     def checkout(self, identifier=None):
+        super(Backend, self).checkout()
         if not identifier:
             self._up()
         else:
