@@ -23,6 +23,11 @@ class ProjectManager(models.Manager):
 
 
 class Project(models.Model):
+    #Auto fields
+    pub_date = models.DateTimeField(auto_now_add=True)
+    modified_date = models.DateTimeField(auto_now=True)
+
+    #Generally from conf.py
     user = models.ForeignKey(User, related_name='projects')
     name = models.CharField(max_length=255)
     slug = models.SlugField()
@@ -31,10 +36,7 @@ class Project(models.Model):
     repo = models.CharField(max_length=100, blank=True,
             help_text='URL for your code (hg or git). Ex. http://github.com/ericholscher/django-kong.git')
     repo_type = models.CharField(max_length=10, choices=constants.REPO_CHOICES, default='git')
-    docs_directory = models.CharField(max_length=255, blank=True)
     project_url = models.URLField(blank=True, help_text='the project\'s homepage')
-    pub_date = models.DateTimeField(auto_now_add=True)
-    modified_date = models.DateTimeField(auto_now=True)
     version = models.CharField(max_length=100, blank=True,
         help_text='project version these docs apply to, i.e. 1.0a')
     copyright = models.CharField(max_length=255, blank=True,
@@ -42,16 +44,15 @@ class Project(models.Model):
     theme = models.CharField(max_length=20,
         choices=constants.DEFAULT_THEME_CHOICES, default=constants.THEME_DEFAULT,
         help_text='<a href="http://sphinx.pocoo.org/theming.html#builtin-themes" target="_blank">Examples</a>')
-    path = models.CharField(max_length=255, editable=False)
     suffix = models.CharField(max_length=10, editable=False, default='.rst')
-    extensions = models.CharField(max_length=255, editable=False, default='')
 
+    #Other model data.
+    path = models.CharField(max_length=255, editable=False)
     featured = models.BooleanField()
     skip = models.BooleanField()
     build_pdf = models.BooleanField()
 
     tags = TaggableManager()
-
     objects = ProjectManager()
 
     class Meta:
@@ -74,18 +75,6 @@ class Project(models.Model):
             'version_slug': 'latest',
             'filename': '',
         })
-
-    def get_doc_root(self):
-        """
-        Return a user specified doc url.
-        """
-        return os.path.join(
-            settings.DOCROOT,   # the root of the user builds .../user_build
-            self.user.username, # docs are stored using the username as the
-            self.slug,          # docs are organized by project
-            self.slug,          # code is checked out here
-            self.docs_directory # this is the directory where the docs live
-        )
 
     @property
     def user_doc_path(self):
