@@ -30,9 +30,6 @@ def update_docs(pk, record=True, pdf=False, version_pk=None, touch=False):
     ###
     project = Project.objects.live().get(pk=pk)
     print "Building %s" % project
-    if not project.path:
-        print "No conf.py. Exiting."
-        return
     if version_pk:
         version = Version.objects.get(pk=version_pk)
     else:
