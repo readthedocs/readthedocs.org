@@ -1,12 +1,10 @@
 from projects.exceptions import ProjectImportError
 from vcs_support.base import BaseVCS, VCSTag
-from vcs_support.utils import locked_repo_method
 
 
 class Backend(BaseVCS):
     supports_tags = True
     
-    @locked_repo_method
     def update(self):
         retcode = self._run_command('hg', 'status')[0]
         if retcode == 0:
@@ -60,7 +58,6 @@ class Backend(BaseVCS):
             vcs_tags.append(VCSTag(self, commit_hash, clean_name))
         return vcs_tags
     
-    @locked_repo_method
     def checkout(self, identifier=None):
         if not identifier:
             identifier = 'tip'

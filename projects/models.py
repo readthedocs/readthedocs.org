@@ -1,19 +1,21 @@
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from django.conf import settings
 from django.db import models
 from django.template.defaultfilters import slugify
 from django.template.loader import render_to_string
 from django.utils.functional import memoize
-
 from projects import constants
 from projects.utils import diff, dmp, safe_write
-
 from taggit.managers import TaggableManager
-
+from vcs_support.base import get_backend
+from vcs_support.utils import Lock
+import fnmatch
 import os
 import re
-import fnmatch
+
+
+
 
 
 class ProjectManager(models.Manager):
@@ -153,6 +155,26 @@ class Project(models.Model):
     @property
     def sponsored(self):
         return False
+    
+    @property
+    def working_dir(self):
+        return os.path.join(self.user_doc_path, self.slug)
+    
+    @property
+    def vcs_repo(self):
+        backend = get_backend(self.repo_type)
+        if not backend:
+            return None
+        return backend(self.repo, self.working_dir)
+    
+    @property
+    def contribution_backend(self):
+        if not self.vcs_repo:
+            return None
+        return self.vcs_repo.get_contribution_backend()
+    
+    def repo_lock(self, timeout=5, polling_interval=0.2):
+        return Lock(self.slug, timeout, polling_interval)
 
     def find(self, file):
         """

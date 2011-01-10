@@ -13,7 +13,6 @@ from projects.exceptions import ProjectImportError
 from projects.models import Project, ImportedFile
 from projects.utils import run, sanitize_conf, slugify_uniquely
 from vcs_support.base import get_backend
-from vcs_support.utils import Lock
 import decimal
 import fnmatch
 import os
@@ -44,8 +43,7 @@ def update_docs(pk, record=True, pdf=False, version_pk=None):
     if not os.path.exists(path):
         os.makedirs(path)
 
-    working_dir = os.path.join(project.user_doc_path, project.slug)
-    with Lock(working_dir, 30):
+    with project.repo_lock(30):
         if project.is_imported:
             try:
                 update_imported_docs(project, version)
