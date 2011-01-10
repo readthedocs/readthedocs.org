@@ -1,3 +1,4 @@
+from glob import glob
 import re
 import os
 
@@ -17,12 +18,16 @@ class Builder(BaseBuilder):
         if version:
             version_slug = version.slug
         self._cd_makefile(project)
-        latex_results = run('make latex')
+        #latex_results = run('make latex')
+        latex_results = run('sphinx-build -b latex '
+                            '-d _build/doctrees   . _build/latex')
         match = latex_re.search(latex_results[1])
         if match:
             latex_dir = match.group(1).strip()
             os.chdir(latex_dir)
-            pdf_results = run('make')
+            tex_file = glob.glob('*.tex')[0]
+            #pdf_results = run('make')
+            pdf_results = run('pdflatex -interaction=nonstopmode %s' % tex_file)
             #Check the return code was good before symlinking
             pdf_match = pdf_re.search(pdf_results[1])
             if pdf_match:
