@@ -17,15 +17,13 @@ class Builder(BaseBuilder):
         version_slug = 'latest'
         if version:
             version_slug = version.slug
-        self._cd_makefile(project)
+        os.chdir(project.conf_filename.rstrip('conf.py'))
         #latex_results = run('make latex')
         latex_results = run('sphinx-build -b latex '
                             '-d _build/doctrees   . _build/latex')
-        match = latex_re.search(latex_results[1])
-        if match:
-            latex_dir = match.group(1).strip()
-            os.chdir(latex_dir)
-            tex_file = glob.glob('*.tex')[0]
+        if latex_results[0] == 0:
+            os.chdir('_build/latex')
+            tex_file = glob('*.tex')[0]
             #pdf_results = run('make')
             pdf_results = run('pdflatex -interaction=nonstopmode %s' % tex_file)
             #Check the return code was good before symlinking
@@ -49,3 +47,6 @@ class Builder(BaseBuilder):
                 if project.build_pdf:
                     project.build_pdf = False
                     project.save()
+	else:
+	    print os.getcwd()
+	    print latex_results
