@@ -3,7 +3,7 @@
   <li class="module-item">
     <a class="module-item-title" href="{{ project.get_absolute_url }}">{{ project.name }}</a>
     <a href="{% url projects_user_list project.user.username %}" class="quiet">({{ project.user }})</a>
-    <span class="quiet">{% if project.version %}version {{ project.version }} -{% endif %} {{ project.get_latest_build.date|timesince }} ago</span>
+    <span class="quiet">{{ project.get_latest_build.date|timesince }} ago</span>
     <ul class="module-item-menu">
       {% if project.has_good_build %}
         <li><a href="{{ project.get_docs_url }}">View Docs</a></li>
