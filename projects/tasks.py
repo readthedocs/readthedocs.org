@@ -29,6 +29,7 @@ def update_docs(pk, record=True, pdf=False, version_pk=None, touch=False):
     # Handle passed in arguments
     ###
     project = Project.objects.live().get(pk=pk)
+    print "Building %s" % project
     if not project.path:
         print "No conf.py. Exiting."
         return
@@ -36,7 +37,6 @@ def update_docs(pk, record=True, pdf=False, version_pk=None, touch=False):
         version = Version.objects.get(pk=version_pk)
     else:
         version = None
-    print "Building %s" % project
     path = project.user_doc_path
     if not os.path.exists(path):
         os.makedirs(path)
