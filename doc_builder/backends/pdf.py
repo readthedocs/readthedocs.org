@@ -23,7 +23,9 @@ class Builder(BaseBuilder):
                             '-d _build/doctrees   . _build/latex')
         if latex_results[0] == 0:
             os.chdir('_build/latex')
-            tex_file = glob('*.tex')[0]
+            tex_globs = glob('*.tex')
+            if tex_globs:
+                tex_file = tex_globs[0]
             #pdf_results = run('make')
             pdf_results = run('pdflatex -interaction=nonstopmode %s' % tex_file)
             #Check the return code was good before symlinking
@@ -47,6 +49,6 @@ class Builder(BaseBuilder):
                 if project.build_pdf:
                     project.build_pdf = False
                     project.save()
-	else:
-	    print os.getcwd()
-	    print latex_results
+        else:
+            print os.getcwd()
+            print latex_results
