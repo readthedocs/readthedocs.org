@@ -29,7 +29,7 @@ class GithubContributionBackend(BaseContributionBackend):
         return url.startswith(GITHUB_URLS) and GITHUB_OKAY
     
     def _get_branch_identifier(self, branch):
-        identifier = 'rtd-%s-%s' % (branch.username, branch.pk)
+        identifier = 'rtd-%s-%s' % (branch.user.username, branch.pk)
         if self._branch_exists(identifier):
             return identifier
         self._create_branch(identifier)
