@@ -6,3 +6,4 @@ user_builds
 settings/local_settings.py
 _build
 media/export
+locks/*
