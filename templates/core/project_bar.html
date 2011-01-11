@@ -4,7 +4,7 @@
       <div class="wrapper">
 
         <div class="project-title">
-          <h1>{{ project }}</h1>
+          <h1><a href="{% url projects_detail project.user project.slug %}">{{ project }}</a></h1>
           <a href="{% url projects_user_list project.user.username %}" class="quiet">({{ project.user }})</a>
           {% if project.version %}<span class="quiet">version {{ project.version }} </span>{% endif %}
         </div>
@@ -20,7 +20,7 @@
           {% endif %}
 
           <ul>
-            {% if project.get_latest_build.success %}
+            {% if project.has_good_build %}
               <li {% block editing-option-view %}{% endblock %}><a href="{{ project.get_docs_url }}">View Docs</a></li>
             {% endif %}
 
@@ -38,6 +38,14 @@
 
             {% if project.project_url %}
               <li><a href="{{ project.project_url }}" rel="nofollow,noindex">Project Homepage</a></li>
+            {% endif %}
+
+            {% if project.has_versions and request.user == project.user %}
+              <li><a href="{% url projects_versions project.slug %}" rel="nofollow,noindex">Versions</a></li>
+            {% endif %}
+
+            {% if project.build_pdf and project.has_pdf %}
+              <li><a href="{{ project.get_pdf_url }}" rel="nofollow,noindex">Download PDF</a></li>
             {% endif %}
 
           </ul>

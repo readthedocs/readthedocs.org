@@ -19,6 +19,28 @@
 
           {% include "core/widesearchbar.html" %}
 
+          {% if featured_list %}
+          <!-- BEGIN projects list -->
+          <div class="module">
+            <div class="module-wrapper">
+
+              <div class="module-header">
+                <h3>Featured Projects</h3>
+              </div>
+
+              <div class="module-list">
+                <div class="module-list-wrapper">
+                  <ul>
+                    {% include "core/project_list_featured.html" %}
+                  </ul>
+                </div>
+              </div>
+
+            </div>
+          </div>
+          <!-- END projects list -->
+          {% endif %}
+
           <!-- BEGIN projects list -->
           <div class="module">
             <div class="module-wrapper">

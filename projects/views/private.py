@@ -1,25 +1,25 @@
-import simplejson
-import os
-import zipfile
-import shutil
-
+from bookmarks.models import Bookmark
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
 from django.contrib.markup.templatetags.markup import restructuredtext
 from django.core.urlresolvers import reverse
-from django.conf import settings
-from django.http import HttpResponseRedirect, HttpResponse
-from django.shortcuts import get_object_or_404, render_to_response, redirect
+from django.http import HttpResponseRedirect, HttpResponse, Http404
+from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
 from django.template.defaultfilters import linebreaks
 from django.template.loader import render_to_string
 from django.views.generic.list_detail import object_list
-
 from projects import constants
-from projects.forms import FileForm, CreateProjectForm, ImportProjectForm, FileRevisionForm
+from projects.forms import FileForm, CreateProjectForm, ImportProjectForm, \
+    FileRevisionForm, build_versions_form
 from projects.models import Project, File
+import os
+import shutil
+import simplejson
+import zipfile
 
-from bookmarks.models import Bookmark
+
+
 
 
 @login_required
@@ -97,6 +97,32 @@ def project_edit(request, project_slug):
 
     return render_to_response(
         'projects/project_edit.html',
+        {'form': form, 'project': project},
+        context_instance=RequestContext(request)
+    )
+
+@login_required
+def project_versions(request, project_slug):
+    """
+    Shows the available versions and lets the user choose which ones he would
+    like to have built.
+    """
+    project = get_object_or_404(request.user.projects.live(), slug=project_slug)
+
+    if not project.is_imported:
+        raise Http404
+
+    form_class = build_versions_form(project)
+
+    form = form_class(data=request.POST or None)
+
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        project_dashboard = reverse('projects_manage', args=[project.slug])
+        return HttpResponseRedirect(project_dashboard)
+
+    return render_to_response(
+        'projects/project_versions.html',
         {'form': form, 'project': project},
         context_instance=RequestContext(request)
     )
@@ -268,7 +294,7 @@ def file_preview(request):
     rendered = restructuredtext(rendered_base)
 
     json_response = simplejson.dumps({'payload': rendered})
-    return HttpResponse(simplejson.dumps(payload), mimetype='text/javascript')
+    return HttpResponse(json_response, mimetype='text/javascript')
 
 @login_required
 def export(request, project_slug):
@@ -294,4 +320,3 @@ def export(request, project_slug):
     archive.close()
 
     return HttpResponseRedirect(os.path.join(settings.MEDIA_URL, 'export', project.user.username, zip_filename))
-

@@ -3,32 +3,31 @@ documentation and header rendering, and server errors.
 """
 
 from django.core.mail import mail_admins
-from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.db.models import F, Max
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, \
+    HttpResponsePermanentRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_view_exempt
 from django.views.static import serve
-
+from projects.models import Project
+from projects.tasks import update_docs
+from watching.models import PageView
 import json
 import os
 import re
 
-from projects.models import Project
-from projects.tasks import update_docs
-from projects.utils import find_file
-from watching.models import PageView
-from bookmarks.models import Bookmark
+
 
 
 def homepage(request):
     projs = Project.objects.filter(builds__isnull=False).annotate(max_date=Max('builds__date')).order_by('-max_date')[:10]
+    featured = Project.objects.filter(featured=True)
     updated = PageView.objects.all()[:10]
-    marks = Bookmark.objects.all()[:10]
     return render_to_response('homepage.html',
                               {'project_list': projs,
-                               'bookmark_list': marks,
+                               'featured_list': featured,
                                'updated_list': updated},
                 context_instance=RequestContext(request))
 
@@ -53,16 +52,32 @@ def github_build(request):
             mail_admins('Build Failure', '%s failed to build via github' % name)
             return HttpResponse('Build Failed')
     else:
-        return render_to_response('github.html', {},
+        return render_to_response('post_commit.html', {},
                 context_instance=RequestContext(request))
 
 
 @csrf_view_exempt
 def generic_build(request, pk):
+    project = Project.objects.get(pk=pk)
+    context = {'built': False, 'project': project}
+    #This should be in the post, but for now it's always built for backwards compat
     update_docs.delay(pk=pk)
-    return HttpResponse('Build Started')
+    if request.method == 'POST':
+        context['built'] = True
+    return render_to_response('post_commit.html', context,
+            context_instance=RequestContext(request))
 
-def serve_docs(request, username, project_slug, filename):
+
+def legacy_serve_docs(request, username, project_slug, filename):
+    url = reverse(serve_docs, kwargs={
+        'project_slug': project_slug,
+        'version_slug': 'latest',
+        'filename': filename
+    })
+    return HttpResponsePermanentRedirect(url)
+
+
+def serve_docs(request, project_slug, version_slug, filename):
     """
     The way that we're serving the documentation.
 
@@ -72,14 +87,21 @@ def serve_docs(request, username, project_slug, filename):
     This could probably be refactored to serve out of nginx if we have more
     time.
     """
-    proj = get_object_or_404(Project, slug=project_slug, user__username=username)
+    if version_slug is None:
+        url = reverse(serve_docs, kwargs={
+            'project_slug': project_slug,
+            'version_slug': 'latest',
+            'filename': filename
+        })
+        return HttpResponsePermanentRedirect(url)
+    proj = get_object_or_404(Project, slug=project_slug)
     if not filename:
         filename = "index.html"
     filename = filename.rstrip('/')
+    basepath = os.path.join(proj.rtd_build_path, version_slug)
     if 'html' in filename:
         try:
-            proj.full_html_path
-            if not os.path.exists(os.path.join(proj.full_html_path, filename)):
+            if not os.path.exists(os.path.join(basepath, filename)):
                 return render_to_response('404.html', {'project': proj},
                         context_instance=RequestContext(request))
         except AttributeError:
@@ -90,7 +112,7 @@ def serve_docs(request, username, project_slug, filename):
         if not created:
             pageview.count = F('count') + 1
             pageview.save()
-    return serve(request, filename, proj.full_html_path)
+    return serve(request, filename, basepath)
 
 def render_header(request):
     """
@@ -116,17 +138,12 @@ def render_header(request):
             )
         except Project.DoesNotExist:
             pass
-    context = { 'project': project,
-            'do_bookmarking': True,
-            'include_render': True,
-            }
 
-    if request.user.is_authenticated():
-        try:
-            mark = Bookmark.objects.get(user=request.user, url=path_info)
-            context['has_bookmark'] = True
-        except Bookmark.DoesNotExist:
-            pass
+    context = { 'project': project,
+                'do_bookmarking': True,
+                'include_render': True,
+                }
+
     return render_to_response('core/header.html', context,
                 context_instance=RequestContext(request))
 
@@ -146,4 +163,3 @@ def server_error_404(request, template_name='404.html'):
     return render_to_response(template_name,
         context_instance = RequestContext(request)
     )
-

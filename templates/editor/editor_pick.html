@@ -1,0 +1,15 @@
+{% extends "projects/base_project.html" %}
+
+{% block title %}Pick a file to edit{% endblock %}
+
+{% block content-header %}<h1>Pick a file to edit</h1>{% endblock %}
+
+{% block editing-option-manage %}class="active"{% endblock %}
+
+{% block content %}  
+{% for rstname, htmlname in files %}
+  <li class="module-item col-span">
+    <a class="module-item-title" href="{% url editor_file project.slug htmlname %}">{{ rstname }}</a>
+  </li>
+{% endfor %}
+{% endblock %}

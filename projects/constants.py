@@ -56,4 +56,3 @@ REPO_CHOICES = (
     ('hg', 'Mercurial'),
     ('bzr', 'Bazaar'),
 )
-

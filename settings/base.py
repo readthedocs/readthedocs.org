@@ -98,12 +98,13 @@ INSTALLED_APPS = (
     'builds',
     'bookmarks',
     'watching',
+    'editor',
 )
 
 
 CARROT_BACKEND = "ghettoq.taproot.Database"
 CELERY_ALWAYS_EAGER = True
-CELERYD_TASK_TIME_LIMIT = 60*10 #10 minutes
+CELERYD_TASK_TIME_LIMIT = 60*15 #15 minutes
 
 
 DEFAULT_FROM_EMAIL = "no-reply@readthedocs.org"
@@ -112,7 +113,6 @@ SESSION_COOKIE_DOMAIN = '.readthedocs.org'
 HAYSTACK_SITECONF = 'core.search_sites'
 HAYSTACK_SEARCH_ENGINE = 'solr'
 #HAYSTACK_WHOOSH_PATH = os.path.join(SITE_ROOT, 'whooshindex.db')
-HAYSTACK_SOLR_URL = 'http://loki:8983/solr'
+HAYSTACK_SOLR_URL = 'http://odin:8983/solr'
 
 AUTH_PROFILE_MODULE = "core.UserProfile"
-

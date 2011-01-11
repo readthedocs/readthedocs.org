@@ -1,6 +1,4 @@
-import datetime
 from fabric.api import *
-from fabric.contrib import files, console
 
 env.runtime = 'production'
 env.hosts = ['chimera.ericholscher.com']
@@ -19,15 +17,21 @@ def push():
     with cd(env.code_dir):
         run('git pull origin master')
 
-def reload():
-    "Reload the server."
+def pull():
+    "Pull new code"
     with cd(env.code_dir):
-        run("kill -HUP `cat %s/gunicorn.pid`" % env.rundir)
+        run('git pull origin master')
 
 def restart():
     "Restart (or just start) the server"
     env.user = "root"
     run("restart readthedocs-gunicorn")
+
+def celery():
+    "Restart (or just start) the server"
+    env.user = "root"
+    run("restart readthedocs-celery")
+
 
 def migrate(project):
     run('django-admin.py migrate %s' % project)

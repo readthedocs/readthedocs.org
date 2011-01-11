@@ -1,0 +1,16 @@
+
+{% for project in featured_list %}
+  <li class="module-item">
+    <a class="module-item-title" href="{{ project.get_absolute_url }}">{{ project.name }}</a>
+    <a href="{% url projects_user_list project.user.username %}" class="quiet">({{ project.user }})</a>
+    <ul class="module-item-menu">
+      {% if project.get_latest_build.success %}
+        <li><a href="{{ project.get_docs_url }}">View Docs</a></li>
+      {% else %}
+        <li><a href="{% url builds_project_list project.user.username project.slug %}">No Docs</a></li>
+      {% endif %}
+    </ul>
+  </li>
+{% empty %}
+  <li class="module-item quiet">No projects found</li>
+{% endfor %}

@@ -1,7 +1,7 @@
 
 {% for pageview in pageview_list %}
   <li class="module-item col-span">
-    <a href="{% url docs_detail pageview.project.user.username pageview.project.slug pageview.url %}">
+    <a href="{{ pageview.get_absolute_url }}">
       {{ pageview.project.name }} - {{ pageview.url }}
       <span class="count">
         {{ pageview.count }} views
@@ -9,4 +9,3 @@
     </a>
   </li>
 {% endfor %}
-

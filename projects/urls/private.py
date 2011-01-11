@@ -25,6 +25,10 @@ urlpatterns = patterns('projects.views.private',
         'project_edit',
         name='projects_edit'
     ),
+    url(r'^(?P<project_slug>[-\w]+)/versions/$',
+        'project_versions',
+        name='projects_versions'
+    ),
     url(r'^(?P<project_slug>[-\w]+)/delete/$',
         'project_delete',
         name='projects_delete'

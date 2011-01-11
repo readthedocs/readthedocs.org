@@ -1,0 +1,14 @@
+{% extends "projects/base_project.html" %}
+
+{% block title %}Send pull request to {{ project }}{% endblock %}
+
+{% block content-header %}<h1>Send pull request to {{ project }}</h1>{% endblock %}
+
+{% block editing-option-manage %}class="active"{% endblock %}
+
+{% block content %}  
+  <form method="post" action=".">{% csrf_token %}
+    {{ form.as_p }}
+    <p><input type="submit" value="Send"></p>
+  </form>
+{% endblock %}

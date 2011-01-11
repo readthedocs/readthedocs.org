@@ -9,7 +9,7 @@ from django.views.static import serve
 from projects.models import Project
 from core.views import serve_docs
 
-from taggit.models import Tag, TaggedItem
+from taggit.models import Tag
 
 def project_index(request, username=None, tag=None):
     """
@@ -43,16 +43,15 @@ def slug_detail(request, project_slug, filename):
     """
     if not filename:
         filename = "index.html"
-    project = get_object_or_404(Project, slug=project_slug)
-    return serve_docs(request=request, username=project.user.username, project_slug=project_slug, filename=filename)
-    
+    return serve_docs(request=request, project_slug=project_slug, version_slug='latest', filename=filename)
+
 def project_detail(request, username, project_slug):
     """
     A detail view for a project with various dataz
     """
     user = get_object_or_404(User, username=username)
     queryset = user.projects.live()
-    
+
     return object_detail(
         request,
         queryset=queryset,
@@ -86,7 +85,7 @@ def search(request):
     queryset = Project.objects.live(name__icontains=term)
     if queryset.count() == 1:
         return HttpResponseRedirect(queryset[0].get_absolute_url())
-    
+
     return object_list(
         request,
         queryset=queryset,

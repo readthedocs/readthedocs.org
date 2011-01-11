@@ -47,10 +47,15 @@
 
     <!-- BEGIN header-->
     <div id="rtfd-header">
+      <div class="wrapper">
 
         <!-- BEGIN header title-->
         <div class="rtfd-header-title">
-          <h1><a href="http://readthedocs.org/">Read the Docs</a></h1>
+            {% if request.cname %}
+            <h1><a href="/">Read the Docs</a></h1>
+            {% else %}
+            <h1><a href="http://readthedocs.org/">Read the Docs</a></h1>
+            {% endif %}
         </div>
         <!-- END header title -->
 
@@ -82,9 +87,6 @@
         <!-- BEGIN header nav -->
         <div class="rtfd-header-nav">
           <ul>
-            {% if project %}
-              <li class="overview-link"><a href="http://readthedocs.org{{ project.get_absolute_url }}">{{ project.name }} Overview</a></li>
-            {% endif %}
             {% if request.user.is_authenticated %}
               <li {% block nav-dashboard %}{% endblock %}><a href="{% url projects_dashboard %}">Dashboard</a></li>
               <li><a href="http://readthedocs.org{% url auth_logout %}">Log Out</a></li>
@@ -96,5 +98,6 @@
         </div>
         <!-- END header nav -->
 
+      </div>
     </div>
     <!-- END header-->

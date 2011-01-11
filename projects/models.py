@@ -1,28 +1,32 @@
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from django.conf import settings
 from django.db import models
 from django.template.defaultfilters import slugify
 from django.template.loader import render_to_string
 from django.utils.functional import memoize
-
 from projects import constants
-from projects.utils import diff, dmp, safe_write, conf_settings
-
+from projects.utils import diff, dmp, safe_write
 from taggit.managers import TaggableManager
-
-import os
-import re
+from vcs_support.base import get_backend
+from vcs_support.utils import Lock
 import fnmatch
-
+import os
+import fnmatch
+import re
 
 class ProjectManager(models.Manager):
     def live(self, *args, **kwargs):
-        base_qs = self.filter(status=constants.LIVE_STATUS, skip=False)
+        base_qs = self.filter(skip=False)
         return base_qs.filter(*args, **kwargs)
 
 
 class Project(models.Model):
+    #Auto fields
+    pub_date = models.DateTimeField(auto_now_add=True)
+    modified_date = models.DateTimeField(auto_now=True)
+
+    #Generally from conf.py
     user = models.ForeignKey(User, related_name='projects')
     name = models.CharField(max_length=255)
     slug = models.SlugField()
@@ -31,10 +35,7 @@ class Project(models.Model):
     repo = models.CharField(max_length=100, blank=True,
             help_text='URL for your code (hg or git). Ex. http://github.com/ericholscher/django-kong.git')
     repo_type = models.CharField(max_length=10, choices=constants.REPO_CHOICES, default='git')
-    docs_directory = models.CharField(max_length=255, blank=True)
     project_url = models.URLField(blank=True, help_text='the project\'s homepage')
-    pub_date = models.DateTimeField(auto_now_add=True)
-    modified_date = models.DateTimeField(auto_now=True)
     version = models.CharField(max_length=100, blank=True,
         help_text='project version these docs apply to, i.e. 1.0a')
     copyright = models.CharField(max_length=255, blank=True,
@@ -42,15 +43,15 @@ class Project(models.Model):
     theme = models.CharField(max_length=20,
         choices=constants.DEFAULT_THEME_CHOICES, default=constants.THEME_DEFAULT,
         help_text='<a href="http://sphinx.pocoo.org/theming.html#builtin-themes" target="_blank">Examples</a>')
-    path = models.CharField(max_length=255, editable=False)
     suffix = models.CharField(max_length=10, editable=False, default='.rst')
-    extensions = models.CharField(max_length=255, editable=False, default='')
-    status = models.PositiveSmallIntegerField(choices=constants.STATUS_CHOICES,
-        default=constants.LIVE_STATUS)
+
+    #Other model data.
+    path = models.CharField(max_length=255, editable=False)
+    featured = models.BooleanField()
     skip = models.BooleanField()
+    build_pdf = models.BooleanField()
 
     tags = TaggableManager()
-
     objects = ProjectManager()
 
     class Meta:
@@ -59,32 +60,32 @@ class Project(models.Model):
     def __unicode__(self):
         return self.name
 
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super(Project, self).save(*args, **kwargs)
+
     def get_absolute_url(self):
         return reverse('projects_detail', args=[self.user.username, self.slug])
 
-    def get_docs_url(self):
-        return reverse('docs_detail', args=[self.user.username, self.slug, ''])
+    def get_docs_url(self, version_slug='latest'):
+        return reverse('docs_detail', kwargs={
+            'project_slug': self.slug,
+            'version_slug': version_slug,
+            'filename': '',
+        })
 
-    def get_doc_root(self):
-        """
-        Return a user specified doc url.
-        """
-        return os.path.join(
-            settings.DOCROOT,   # the root of the user builds .../user_build
-            self.user.username, # docs are stored using the username as the
-            self.slug,          # docs are organized by project
-            self.slug,          # code is checked out here
-            self.docs_directory # this is the directory where the docs live
-        )
+    def get_pdf_url(self, version_slug='latest'):
+        path = os.path.join(settings.MEDIA_URL,
+                                'pdf',
+                                self.slug,
+                                version_slug,
+                                '%s.pdf' % self.slug)
+        return path
 
     @property
     def user_doc_path(self):
         return os.path.join(settings.DOCROOT, self.user.username, self.slug)
-    #user_doc_path = property(memoize(user_doc_path, {}, 1))
-
-    @property
-    def full_pdf_path(self):
-        return self.find('*.pdf')[0]
 
     @property
     def full_doc_path(self):
@@ -97,10 +98,9 @@ class Project(models.Model):
                 return os.path.join(doc_base, '%s' % possible_path)
         #No docs directory, assume a full docs checkout
         return doc_base
-    #full_doc_path = property(memoize(full_doc_path, {}, 1))
 
     @property
-    def full_html_path(self):
+    def full_build_path(self):
         """
         The path to the build html docs in the project.
         """
@@ -114,7 +114,68 @@ class Project(models.Model):
             if len(matches) > 0:
                 return os.path.dirname(matches[0])
 
-    #full_html_path = property(memoize(full_html_path, {}, 1))
+    @property
+    def rtd_build_path(self):
+        """
+        The path to the build html docs in the project.
+        """
+        return os.path.join(self.user_doc_path, 'rtd-builds')
+
+    @property
+    def conf_filename(self):
+        if self.path:
+            return os.path.join(self.path, 'conf.py')
+        raise IOError
+
+    @property
+    def is_imported(self):
+        return bool(self.repo)
+
+    @property
+    def has_good_build(self):
+        return any([build.success for build in self.builds.all()])
+
+    @property
+    def has_versions(self):
+        return self.versions.exists()
+
+    @property
+    def has_pdf(self, version_slug='latest'):
+        return os.path.exists(self.get_pdf_path(version_slug))
+
+    @property
+    def sponsored(self):
+        return False
+
+    @property
+    def working_dir(self):
+        return os.path.join(self.user_doc_path, self.slug)
+
+    @property
+    def vcs_repo(self):
+        if hasattr(self, '_vcs_repo'):
+            return self._vcs_repo
+        backend = get_backend(self.repo_type)
+        if not backend:
+            repo = None
+        else:
+            repo = backend(self.repo, self.working_dir)
+        self._vcs_repo = repo
+        return repo
+
+    @property
+    def contribution_backend(self):
+        if hasattr(self, '_contribution_backend'):
+            return self._contribution_backend
+        if not self.vcs_repo:
+            cb = None
+        else:
+            cb = self.vcs_repo.get_contribution_backend()
+        self._contribution_backend = cb
+        return cb
+
+    def repo_lock(self, timeout=5, polling_interval=0.2):
+        return Lock(self.slug, timeout, polling_interval)
 
     def find(self, file):
         """
@@ -122,20 +183,34 @@ class Project(models.Model):
         """
         matches = []
         for root, dirnames, filenames in os.walk(self.full_doc_path):
-          for filename in fnmatch.filter(filenames, file):
-              matches.append(os.path.join(root, filename))
+            for filename in fnmatch.filter(filenames, file):
+                matches.append(os.path.join(root, filename))
         return matches
-
     find = memoize(find, {}, 2)
 
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.name)
-        super(Project, self).save(*args, **kwargs)
+    def get_latest_build(self):
+        try:
+            return self.builds.all()[0]
+        except IndexError:
+            return None
 
-    @property
-    def template_dir(self):
-        return os.path.join(settings.SITE_ROOT, 'templates', 'sphinx')
+    def active_versions(self):
+        return self.versions.filter(built=True, active=True)
+
+    def get_pdf_path(self, version_slug='latest'):
+        path = os.path.join(settings.MEDIA_ROOT,
+                                'pdf',
+                                self.slug,
+                                version_slug,
+                                '%s.pdf' % self.slug)
+        return path
+
+
+    #File Building stuff.
+
+    #Not sure if this is used
+    def get_top_level_files(self):
+        return self.files.live(parent__isnull=True).order_by('ordering')
 
     def get_index_filename(self):
         return os.path.join(self.path, 'index.rst')
@@ -147,70 +222,10 @@ class Project(models.Model):
         if not self.is_imported:
             safe_write(self.get_index_filename(), self.get_rendered_index())
 
-    @property
-    def is_imported(self):
-        return bool(self.repo)
-
     def get_latest_revisions(self):
         revision_qs = FileRevision.objects.filter(file__project=self,
             file__status=constants.LIVE_STATUS)
         return revision_qs.order_by('-created_date')
-
-    def get_top_level_files(self):
-        return self.files.live(parent__isnull=True).order_by('ordering')
-
-    @property
-    def conf_filename(self):
-        if self.path:
-            return os.path.join(self.path, 'conf.py')
-        raise IOError
-
-    def get_rendered_conf(self):
-        return render_to_string('projects/conf.py.html', {'project': self})
-
-    def write_to_disk(self):
-        safe_write(self.conf_filename, self.get_rendered_conf())
-
-    def get_latest_build(self):
-        try:
-            return self.builds.all()[0]
-        except IndexError:
-            return None
-
-    @property
-    def conf_settings(self):
-        """Return a list of all ``(name, repr(value))`` settings for this
-        project's conf.py. If this project is imported, any safe-to-execute
-        settings from its original conf.py are merged in.
-        """
-        # Default configuration settings
-        conf = {
-            'extensions': [],
-            'templates_path': ['templates', '_templates', '.templates'],
-            'source_suffix': self.suffix,
-            'master_doc': 'index',
-            'project':  self.name,
-            'copyright': self.copyright,
-            'version': self.version,
-            'release': self.version,
-            'exclude_patterns': ['_build'],
-            'pygments_style': 'sphinx',
-            'html_theme': self.theme,
-            'html_theme_path': ['.', '_theme', '.theme'],
-            'html_static_path': ['_static'],
-            'file_insertion_enabled': False,
-        }
-        # If the project is imported, merge any conf.py settings
-        # from the original
-        if self.is_imported:
-            conf.update(conf_settings(self.conf_filename))
-
-        # Ensure the template_dir is always included in templates_path
-        conf['templates_path'].insert(0, self.template_dir)
-
-        # Convert all values using 'repr', so they can be rendered by
-        # the conf.py template.
-        return [(name, repr(value)) for name, value in conf.items()]
 
 
 class FileManager(models.Manager):

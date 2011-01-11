@@ -1,4 +1,3 @@
-import datetime
 import os
 import codecs
 
@@ -20,26 +19,27 @@ class ProjectIndex(SearchIndex):
 
 class FileIndex(SearchIndex):
     text = CharField(document=True, use_template=True)
-    author = CharField(model_attr='project__user')
-    project = CharField(model_attr='project__name')
+    author = CharField(model_attr='project__user', faceted=True)
+    project = CharField(model_attr='project__name', faceted=True)
     title = CharField(model_attr='heading')
 
     def get_queryset(self):
         return File.objects.filter(project__status=constants.LIVE_STATUS)
 
+#Should prob make a common subclass for this and FileIndex
 class ImportedFileIndex(SearchIndex):
     text = CharField(document=True)
-    author = CharField(model_attr='project__user')
-    project = CharField(model_attr='project__name')
+    author = CharField(model_attr='project__user', faceted=True)
+    project = CharField(model_attr='project__name', faceted=True)
     title = CharField(model_attr='name')
 
     def prepare_text(self, obj):
-        full_path = obj.project.full_html_path
-        to_read = os.path.join(full_path, obj.path.lstrip('/'))
         try:
+            full_path = obj.project.full_html_path
+            to_read = os.path.join(full_path, obj.path.lstrip('/'))
             content = codecs.open(to_read, encoding="utf-8", mode='r').read()
             return content
-        except IOError:
+        except (AttributeError, IOError):
             print "%s not found" % full_path
             #obj.delete()
 

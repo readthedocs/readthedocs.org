@@ -1,16 +1,12 @@
 """Utility functions used by projects.
 """
 
-import subprocess
-import os
-import fnmatch
-import traceback
-import re
-import ast, _ast
-
-from django.conf import settings
-
 from projects.libs.diff_match_patch import diff_match_patch
+import fnmatch
+import os
+import re
+import subprocess
+import traceback
 
 
 def find_file(file):
@@ -19,8 +15,8 @@ def find_file(file):
     """
     matches = []
     for root, dirnames, filenames in os.walk('.'):
-      for filename in fnmatch.filter(filenames, file):
-          matches.append(os.path.join(root, filename))
+        for filename in fnmatch.filter(filenames, file):
+            matches.append(os.path.join(root, filename))
     return matches
 
 
@@ -81,81 +77,18 @@ def safe_write(filename, contents):
     fh.close()
 
 
-def sanitize_conf(conf_filename):
-    """Modify the given ``conf.py`` file from a whitelisted user's project.
-    For now, this just adds the RTD template directory to ``templates_path``.
-    """
-    # The template directory for RTD
-    template_dir = '%s/templates/sphinx' % settings.SITE_ROOT
+CUSTOM_SLUG_RE = re.compile(r'[^-._\w]+$')
 
-    # Expression to match the templates_path line
-    # FIXME: This could fail if the statement spans multiple lines
-    # (but will work as long as the first line has the opening '[')
-    templates_re = re.compile('(\s*templates_path\s*=\s*\[)(.*)')
+def _custom_slugify(data):
+    return CUSTOM_SLUG_RE.sub('', data)
 
-    # Get all lines from the conf.py file
-    lines = open(conf_filename).readlines()
-
-    lines_matched = 0
-    # Write all lines back out, making any necessary modifications
-    outfile = open(conf_filename, 'w')
-    for line in lines:
-        match = templates_re.match(line)
-        if match:
-            left, right = match.groups()
-            line = left + "'%s', " % template_dir + right
-            lines_matched += 1
-        outfile.write(line)
-    if not lines_matched:
-        outfile.write('templates_path = ["%s"]' % template_dir)
-    outfile.close()
-    return lines_matched
-
-
-class ConfVisitor (ast.NodeVisitor):
-    """An AST node visitor that captures safe-to-evaluate expressions in
-    a ``conf.py`` file, or any other Python file containing assignment
-    statements that include only literal-valued expressions.
-    """
-    def __init__(self):
-        """Create a ConfVisitor.
-        """
-        ast.NodeVisitor.__init__(self)
-        self.settings = {}
-
-    def visit_Assign(self, expr):
-        """When an assignment statement is found, try to safely evaluate a
-        literal on the right hand side. If successful, keep the expression
-        as a safe-to-execute line.
-        """
-        # Get the first target of the assignment statement
-        target = expr.targets[0]
-        # Only allow assignment to simple variable names,
-        # not tuples or other expressions
-        if not isinstance(target, _ast.Name):
-            return
-        # Try to evaluate a literal expression on the right hand side
-        # (consisting of bools, strings, lists, tuples, or dicts)
-        try:
-            value = ast.literal_eval(expr.value)
-        # Problem evaluating literal--do nothing
-        except ValueError:
-            return
-        # Evaluation successful--this is a safe expression
-        else:
-            self.settings[target.id] = value
-
-
-def conf_settings(conf_filename):
-    """Read the given ``conf.py`` file, and return a dictionary of
-    ``{setting: value}`` for all safe-to-execute lines found within.
-    """
-    conf_visitor = ConfVisitor()
-    # Read the abstract syntax tree from the file
-    root = ast.parse(open(conf_filename).read())
-    # Visit each node
-    for node in root.body:
-        conf_visitor.visit(node)
-    # Return the lines that are safe
-    return conf_visitor.settings
-
+def slugify_uniquely(model, initial, field, max_length, **filters):
+    slug = _custom_slugify(initial)[:max_length]
+    current = slug
+    index = 0
+    base_qs = model.objects.filter(**filters)
+    while base_qs.filter(**{field: current}).exists():
+        suffix = '-%s' % index
+        current = '%s%s'  % (slug[:-len(suffix)], suffix)
+        index += 1
+    return current

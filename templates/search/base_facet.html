@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load highlight %}
+
+{% block title %} Search: {{ query }} {% endblock %}
+
+{% block content %}
+        <!-- BEGIN search form -->
+        <div class="wide-search-bar">
+          <div class="wide-search-bar-wrapper clearfix">
+            <form action="." method="GET">
+              <div class="text-input-wrapper">
+                <input type="text" name="q" value="{{ query }}" id="id_site_search">
+              </div>
+              <div class="submit-input-wrapper">
+                <input type="submit" value="Go crazy.">
+              </div>
+            </form>
+          </div>
+        </div>
+        <!-- END search form -->
+
+{% block faceting %}{% endblock %}
+
+{% if query %}
+<!-- BEGIN search results -->
+<div class="module">
+  <div class="module-wrapper">
+
+    <div class="module-header">
+      <h3>Results for {{ query }}</h3>
+    </div>
+
+    <div class="module-list">
+      <div class="module-list-wrapper">
+
+        <ul>
+          {% for result in page.object_list %}
+            <li class="module-item">
+              <p class="module-item-title">
+                <a href="{{ result.object.get_absolute_url }}?highlight={{ query }}">{{ result.project }} - {{ result.title }}</a>
+              </p>
+              <p>
+                {% highlight result.text with query %}
+              </p>
+            </li>
+          {% empty %}
+            <li class="module-item"><span class="quiet">No results found. Bummer.</span></li>
+          {% endfor %}
+        </ul>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+<!-- END search results -->
+
+  {% if page.has_previous or page.has_next %}
+  <!-- BEGIN search pagination -->
+  <div class="pagination">
+    {% if page.has_previous %}
+      <a href="{{ request.get_full_path }}&amp;page={{ page.previous_page_number }}">&laquo; Previous</a>
+    {% else %}
+      <span class="disabled">&laquo; Previous</span>
+    {% endif %}
+
+    {% if page.has_next %}
+      <a class="next" href="{{ request.get_full_path }}&amp;page={{ page.next_page_number }}">Next &raquo;</a>
+    {% else %}
+      <span class="next disabled">Next &raquo;</span>
+    {% endif %}
+  </div>
+  <!-- END search pagination -->
+  {% endif %}
+
+{% else %}
+  {# Show some example queries to run, maybe query syntax, something else? #}
+{% endif %}
+
+
+{% endblock %}

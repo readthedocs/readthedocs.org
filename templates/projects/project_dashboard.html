@@ -29,7 +29,7 @@
                             <li><a href="{% url projects_manage project.slug %}">Manage Files</a></li>
                           {% endif %}
                           <li><a href="{% url projects_edit project.slug %}">Edit</a></li>
-                          <li><a href="{% url docs_detail project.user.username project.slug "index.html" %}">View Docs</a></li>
+                          <li><a href="{{ project.get_docs_url }}">View Docs</a></li>
                         </ul>
                       </li>
                     {% endfor %}
@@ -41,12 +41,13 @@
             </div>
           </div>
           {% else %}
-          <p class="empty">You don't have any projects.  You can <a href="{% url projects_create %}">create new docs</a> on the site, or <a href="{% url projects_import %}">import docs</a> from a public repo.</p>
+          <p class="empty">You don't have any projects.  You can <a href="{% url projects_create %}">create new docs</a> on the site, or <a href="{% url projects_import %}">import docs</a> from a public repo. <br>
+           Check out the <a href="http://readthedocs.org/docs/read-the-docs/latest/getting_started.html#import-docs">Getting Started</a> documentation for information about how to get going.</p>
           {% endif %}
           <!-- END your projects list -->
 
           {% comment %}
-          {% if bookmark_list %} 
+          {% if bookmark_list %}
           <!-- BEGIN marks list -->
           <div class="module">
             <div class="module-wrapper">

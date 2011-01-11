@@ -1,9 +1,7 @@
-import os
-
 from django import forms
+from django.conf import settings
 from django.template.defaultfilters import slugify
 from django.template.loader import render_to_string
-
 from projects import constants
 from projects.models import Project, File
 from projects.tasks import update_docs
@@ -23,8 +21,8 @@ class ProjectForm(forms.ModelForm):
 class CreateProjectForm(ProjectForm):
     class Meta:
         model = Project
-        exclude = ('skip', 'user', 'slug', 'repo',
-                   'docs_directory', 'status', 'repo_type')
+        exclude = ('skip', 'user', 'slug', 'repo', 'featured',
+                   'docs_directory', 'status', 'repo_type',)
 
     def save(self, *args, **kwargs):
         created = self.instance.pk is None
@@ -54,7 +52,8 @@ class ImportProjectForm(ProjectForm):
         help_text='URL for your code (hg or git). Ex. http://github.com/ericholscher/django-kong.git')
     class Meta:
         model = Project
-        exclude = ('skip', 'theme', 'docs_directory', 'user', 'slug', 'version', 'copyright', 'status')
+        exclude = ('skip', 'theme', 'docs_directory', 'user', 'slug', 'version',
+                   'copyright', 'status', 'featured',)
 
     def clean_repo(self):
         repo = self.cleaned_data.get('repo', '').strip()
@@ -115,3 +114,53 @@ class FileRevisionForm(forms.Form):
         revision_qs = file.revisions.exclude(pk=file.current_revision.pk)
         self.base_fields['revision'].queryset = revision_qs
         super(FileRevisionForm, self).__init__(*args, **kwargs)
+
+
+class DualCheckboxWidget(forms.CheckboxInput):
+    def __init__(self, version, attrs=None, check_test=bool):
+        super(DualCheckboxWidget, self).__init__(attrs, check_test)
+        self.version = version
+
+    def render(self, name, value, attrs=None):
+        checkbox = super(DualCheckboxWidget, self).render(name, value, attrs)
+        icon = self.render_icon()
+        return u'%s%s' % (checkbox, icon)
+
+    def render_icon(self):
+        context = {
+            'MEDIA_URL': settings.MEDIA_URL,
+            'built': self.version.built,
+            'url': self.version.get_absolute_url()
+        }
+        return render_to_string('projects/includes/icon_built.html', context)
+
+
+class BaseVersionsForm(forms.Form):
+    def save(self):
+        versions = self.project.versions.all()
+        for version in versions:
+            self.save_version(version)
+
+    def save_version(self, version):
+        new_value = self.cleaned_data.get('version-%s' % version.slug, None)
+        if new_value is None or new_value == version.active:
+            return
+        version.active = new_value
+        version.save()
+        if version.active and not version.built:
+            update_docs.delay(self.project.pk, record=False, version_pk=version.pk)
+
+
+def build_versions_form(project):
+    attrs = {
+        'project': project,
+    }
+    for version in project.versions.all():
+        field_name = 'version-%s' % version.slug
+        attrs[field_name] = forms.BooleanField(
+            label=version.verbose_name,
+            widget=DualCheckboxWidget(version),
+            initial=version.active,
+            required=False,
+        )
+    return type('VersionsForm', (BaseVersionsForm,), attrs)
