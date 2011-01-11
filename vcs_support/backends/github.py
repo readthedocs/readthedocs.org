@@ -89,6 +89,7 @@ class GithubContributionBackend(BaseContributionBackend):
         if not comment:
             comment = 'These changes have been done on readthedocs.org'
         self._pull_request(identifier, title, comment)
+        self._run_command('git', 'branch', '-D', identifier)
         
     def _pull_request(self, identifier, title, comment):
         """
