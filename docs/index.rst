@@ -3,26 +3,23 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Read The Docs's
-==========================
+Welcome to Read The Docs
+========================
 
-This is a site devoted to the hosting of documentation for the open source
-community. It currently supports sphinx documentation, written in
-`reStructuredText format <http://sphinx.pocoo.org/rest.html>`_.
+`Read the Docs`_ hosts documentation for the open source community.
+It supports Sphinx_ docs written with reStructuredText_, and can pull
+from your Subversion_, Bazaar_, Git_, and Mercurial_ repositories.
+The code is open source, and `available on github`_.
 
-We support Svn, Bzr, Git, and Hg repositories, which will be auto-updated with
-post commit hooks for your documentation.
+.. _Read the docs: http://readthedocs.org/
+.. _Sphinx: http://sphinx.pocoo.org/
+.. _reStructuredText: http://sphinx.pocoo.org/rest.html
+.. _Subversion: http://subversion.tigris.org/
+.. _Bazaar: http://bazaar.canonical.com/
+.. _Git: http://git-scm.com/
+.. _Mercurial: http://mercurial.selenic.com/
+.. _available on github: http://github.com/rtfd/readthedocs.org
 
-
-The code is hosted on github at http://github.com/rtfd/readthedocs.org and is
-fully open source. We hope you choose to help us on the project!
-
-
-Why readthedocs.org?
---------------------
-
-Our aim is to make it easy for open source developers to host their projects'
-documentation!  I hope you like it.
 
 Contents
 ========
@@ -30,8 +27,10 @@ Contents
 .. toctree::
     :maxdepth: 2
 
-    install
-    support
+    getting_started
     webhooks
+    support
+    install
     api/index
+
 
