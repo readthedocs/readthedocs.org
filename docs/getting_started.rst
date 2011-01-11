@@ -63,4 +63,4 @@ If you want to keep your code updated as you commit, configure your code reposit
 .. _log in: http://readthedocs.org/accounts/login
 .. _dashboard: http://readthedocs.org/dashboard
 .. _Import: http://readthedocs.org/dashboard/import
-.. _Post Commit Hooks: http://readthedocs.org/d
+.. _Post Commit Hooks: http://readthedocs.org/docs/read-the-docs/latest/webhooks.html 
