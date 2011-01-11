@@ -55,18 +55,12 @@ def update_docs(pk, record=True, pdf=False, version_pk=None, touch=False):
                 scrape_conf_file(project)
         else:
             update_created_docs(project)
-    
+
         # kick off a build
         (ret, out, err) = build_docs(project, version, pdf, record, touch)
         if not 'no targets are out of date.' in out:
-            if record:
-                Build.objects.create(project=project, success=ret==0, output=out, error=err)
             if ret == 0:
                 print "Build OK"
-                if version:
-                    version.built = True
-                    version.save()
-                move_docs(project, version)
             else:
                 print "Build ERROR"
                 print err
@@ -180,18 +174,19 @@ def build_docs(project, version, pdf, record, touch):
     html_builder.clean(project)
     html_output = html_builder.build(project, version)
     successful = (html_output[0] == 0)
-    if record:
-        Build.objects.create(project=project, success=successful,
-                             output=html_output[1], error=html_output[2])
-    if successful:
-        move_docs(project, version)
-        if version:
-            version.built = True
-            version.save()
+    if not 'no targets are out of date.' in html_output[1]:
+        if record:
+                Build.objects.create(project=project, success=successful,
+                                 output=html_output[1], error=html_output[2])
+        if successful:
+            move_docs(project, version)
+            if version:
+                version.built = True
+                version.save()
 
-    if pdf or project.build_pdf:
-        pdf_builder = builder_loading.get('pdf')()
-        pdf_builder.build(project, version)
+        if pdf or project.build_pdf:
+            pdf_builder = builder_loading.get('pdf')()
+            pdf_builder.build(project, version)
     return html_output
 
 def move_docs(project, version):
