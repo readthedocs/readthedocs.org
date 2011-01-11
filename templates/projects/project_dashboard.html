@@ -28,6 +28,9 @@
                           {% if not project.is_imported %}
                             <li><a href="{% url projects_manage project.slug %}">Manage Files</a></li>
                           {% endif %}
+                          {% if project.has_versions %}
+                            <li><a href="{% url projects_versions project.slug %}" rel="nofollow,noindex">Versions</a></li>
+                        {% endif %}
                           <li><a href="{% url projects_edit project.slug %}">Edit</a></li>
                           <li><a href="{{ project.get_docs_url }}">View Docs</a></li>
                         </ul>
