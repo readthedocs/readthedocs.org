@@ -13,18 +13,11 @@ class ProjectIndex(SearchIndex):
     description = CharField(model_attr='description')
     repo_type = CharField(model_attr='repo_type')
 
-    def get_queryset(self):
-        return Project.objects.all()
-
-
 class FileIndex(SearchIndex):
     text = CharField(document=True, use_template=True)
     author = CharField(model_attr='project__user', faceted=True)
     project = CharField(model_attr='project__name', faceted=True)
     title = CharField(model_attr='heading')
-
-    def get_queryset(self):
-        return File.objects.filter(project__status=constants.LIVE_STATUS)
 
 #Should prob make a common subclass for this and FileIndex
 class ImportedFileIndex(SearchIndex):
@@ -42,9 +35,6 @@ class ImportedFileIndex(SearchIndex):
         except (AttributeError, IOError):
             print "%s not found" % full_path
             #obj.delete()
-
-    def get_queryset(self):
-        return ImportedFile.objects.filter(project__status=constants.LIVE_STATUS)
 
 site.register(File, FileIndex)
 site.register(ImportedFile, ImportedFileIndex)
