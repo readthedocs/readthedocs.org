@@ -14,7 +14,7 @@ class ProjectIndex(SearchIndex):
     repo_type = CharField(model_attr='repo_type')
 
     def get_queryset(self):
-        return Project.objects.filter(status=constants.LIVE_STATUS)
+        return Project.objects.all()
 
 
 class FileIndex(SearchIndex):
