@@ -104,7 +104,7 @@ class Project(models.Model):
         """
         The path to the build html docs in the project.
         """
-        doc_path = self.full_doc_path
+        doc_path = self.full_build_path
         for pos_build in ['build', '_build', '.build']:
             if os.path.exists(os.path.join(doc_path, '%s/html' % pos_build)):
                 return os.path.join(doc_path, '%s/html' % pos_build)
@@ -146,11 +146,11 @@ class Project(models.Model):
     @property
     def sponsored(self):
         return False
-    
+
     @property
     def working_dir(self):
         return os.path.join(self.user_doc_path, self.slug)
-    
+
     @property
     def vcs_repo(self):
         if hasattr(self, '_vcs_repo'):
@@ -162,7 +162,7 @@ class Project(models.Model):
             repo = backend(self.repo, self.working_dir)
         self._vcs_repo = repo
         return repo
-    
+
     @property
     def contribution_backend(self):
         if hasattr(self, '_contribution_backend'):
@@ -173,7 +173,7 @@ class Project(models.Model):
             cb = self.vcs_repo.get_contribution_backend()
         self._contribution_backend = cb
         return cb
-    
+
     def repo_lock(self, timeout=5, polling_interval=0.2):
         return Lock(self.slug, timeout, polling_interval)
 
