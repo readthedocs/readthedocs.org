@@ -62,12 +62,8 @@ class GithubContributionBackend(BaseContributionBackend):
         self._run_command('git', 'add', filename)
         if not comment:
             comment = 'no comment'
-        if branch.user.first_name and branch.user.last_name:
-            name = '%s %s' % (branch.user.first_name, branch.user.last_name)
-        else:
-            name = branch.user.username
-        email = branch.user.email
-        author = '%s <%s>' % (name, email)
+        name, email = branch.user.get_profile().get_contribution_details()
+        author = u"%s <%s>" % (name, email)
         self._run_command('git', 'commit', '-m', comment, '--author', author)
         self._run_command('git', 'checkout', 'master')
     
