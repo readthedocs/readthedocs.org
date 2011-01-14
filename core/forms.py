@@ -27,9 +27,7 @@ class UserProfileForm(ModelForm):
         profile = super(UserProfileForm, self).save(*args, **kwargs)
         if kwargs.get('commit', True):
             user = profile.user
-        else:
-            user = request.user
-        user.first_name = first_name
-        user.last_name = last_name
-        user.save()
+            user.first_name = first_name
+            user.last_name = last_name
+            user.save()
         return profile
