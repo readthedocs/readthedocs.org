@@ -153,5 +153,4 @@ def subdomain_handler(request, subdomain, filename):
                                         (version,
                                          '/'.join(split_filename[1:])))
 
-    filename = filename.lstrip('/en/').lstrip('/latest/').lstrip('/en/')
     return HttpResponseRedirect('/en/latest/%s' % filename)
