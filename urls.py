@@ -18,13 +18,21 @@ handler404 = 'core.views.server_error_404'
 
 urlpatterns = patterns('',
     url(r'^$', 'core.views.homepage'),
-    url(r'^docs/(?P<project_slug>[-\w]+)/(?P<version_slug>[-._\w]+?)/(?P<filename>.*)$',
+    url(r'^docs/(?P<project_slug>[-\w]+)/(?P<lang_slug>en)/(?P<version_slug>[-._\w]+?)/(?P<filename>.*)$',
         'core.views.serve_docs',
         name='docs_detail'
     ),
+    #This is for redirecting to the latest.
+    url(r'^docs/(?P<project_slug>[-\w]+)/(?P<version_slug>[-._\w]+?)/(?P<filename>.*)$',
+        'core.views.serve_docs',
+        {'lang_slug': None},
+        name='docs_detail'
+    ),
+    #This is for redirecting to the latest.
     url(r'^docs/(?P<project_slug>[-\w]+)/(?P<filename>.*)$',
         'core.views.serve_docs',
-        {'version_slug': None},
+        {'version_slug': None,
+        'lang_slug': None},
         name='docs_detail'
     ),
     url(r'^docs/', include('projects.urls.public')),
@@ -54,9 +62,7 @@ urlpatterns = patterns('',
     url(r'^dashboard/', include('projects.urls.private')),
     url(r'^github', 'core.views.github_build', name='github_build'),
     url(r'^build/(?P<pk>\d+)', 'core.views.generic_build', name='generic_build'),
-
     url(r'^random/', 'core.views.random_page', name='random_page'),
-
     url(r'^render_header/',
         'core.views.render_header',
         name='render_header'

@@ -50,7 +50,6 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'pagination.middleware.PaginationMiddleware',
-    'core.middleware.NginxSSIMiddleware',
     'core.middleware.SubdomainMiddleware',
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
 )

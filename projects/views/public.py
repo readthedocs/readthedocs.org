@@ -41,9 +41,18 @@ def slug_detail(request, project_slug, filename):
     """
     A detail view for a project with various dataz
     """
+    version_slug = 'latest'
     if not filename:
         filename = "index.html"
-    return serve_docs(request=request, project_slug=project_slug, version_slug='latest', filename=filename)
+    split_filename = filename.split('/')
+    if len(split_filename) > 1:
+        version = split_filename[1]
+        proj = get_object_or_404(Project, slug=project_slug)
+        valid_version = proj.versions.filter(slug=version).count()
+        if valid_version:
+            version_slug = version
+            filename = '/'.join(split_filename[1:])
+    return serve_docs(request=request, project_slug=project_slug, version_slug=version, filename=filename)
 
 def project_detail(request, username, project_slug):
     """
@@ -109,8 +118,40 @@ def search_autocomplete(request):
 
     return HttpResponse(json_response, mimetype='text/javascript')
 
-def project_pdf(request, username, project_slug):
-    project = get_object_or_404(Project, slug=project_slug)
-    pdf = project.full_pdf_path.replace(project.full_doc_path, '')
-    base = project.full_doc_path
-    return serve(request, pdf, base)
+
+
+def subdomain_handler(request, subdomain, filename):
+    """
+    This provides the fall-back routing for subdomain requests.
+
+    This was made primarily to redirect old subdomain's to their version'd brothers.
+    """
+    if not filename:
+        filename = "index.html"
+    split_filename = filename.split('/')
+    #A correct URL, with a language and version.
+    if len(split_filename) > 2:
+        language = split_filename[0]
+        version = split_filename[1]
+        proj = get_object_or_404(Project, slug=subdomain)
+        valid_version = proj.versions.filter(slug=version).count()
+        #Hard code this for now.
+        if valid_version or version == 'latest' and language == 'en':
+            version_slug = version
+            filename = '/'.join(split_filename[2:])
+            return serve_docs(request=request,
+                              project_slug=subdomain,
+                              lang_slug='en',
+                              version_slug=version_slug,
+                              filename=filename)
+    elif len(split_filename) == 2:
+        version = split_filename[0]
+        proj = get_object_or_404(Project, slug=subdomain)
+        valid_version = proj.versions.filter(slug=version).count()
+        if valid_version:
+            return HttpResponseRedirect('/en/%s/%s' %
+                                        (version,
+                                         '/'.join(split_filename[1:])))
+
+    filename = filename.lstrip('/en/').lstrip('/latest/').lstrip('/en/')
+    return HttpResponseRedirect('/en/latest/%s' % filename)

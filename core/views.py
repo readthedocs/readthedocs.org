@@ -72,12 +72,13 @@ def legacy_serve_docs(request, username, project_slug, filename):
     url = reverse(serve_docs, kwargs={
         'project_slug': project_slug,
         'version_slug': 'latest',
+        'lang_slug': 'en',
         'filename': filename
     })
     return HttpResponsePermanentRedirect(url)
 
 
-def serve_docs(request, project_slug, version_slug, filename):
+def serve_docs(request, project_slug, lang_slug, version_slug, filename):
     """
     The way that we're serving the documentation.
 
@@ -87,16 +88,36 @@ def serve_docs(request, project_slug, version_slug, filename):
     This could probably be refactored to serve out of nginx if we have more
     time.
     """
+    # A bunch of janky redirect logic. This should be the last time.
+    if not filename:
+        filename = "index.html"
     if version_slug is None:
         url = reverse(serve_docs, kwargs={
             'project_slug': project_slug,
             'version_slug': 'latest',
+            'lang_slug': 'en',
+            'filename': filename
+        })
+        return HttpResponsePermanentRedirect(url)
+    if lang_slug is None:
+        url = reverse(serve_docs, kwargs={
+            'project_slug': project_slug,
+            'version_slug': version_slug if version_slug != 'en' else 'latest',
+            'lang_slug': 'en',
             'filename': filename
         })
         return HttpResponsePermanentRedirect(url)
     proj = get_object_or_404(Project, slug=project_slug)
-    if not filename:
-        filename = "index.html"
+    valid_version = proj.versions.filter(slug=version_slug).count()
+    if not valid_version and version_slug != 'latest' and version_slug != 'en':
+        url = reverse(serve_docs, kwargs={
+            'project_slug': project_slug,
+            'version_slug': 'latest',
+            'lang_slug': 'en',
+            #Filename was part of the version that we caught.
+            'filename': os.path.join(version_slug, filename)
+        })
+        return HttpResponsePermanentRedirect(url)
     filename = filename.rstrip('/')
     basepath = os.path.join(proj.rtd_build_path, version_slug)
     if 'html' in filename:
