@@ -316,7 +316,7 @@ class File(models.Model):
 
     @models.permalink
     def get_absolute_url(self):
-        return ('docs_detail', [self.project.user.username, self.project.slug, 'en', 'latest', self.denormalized_path + '.html'])
+        return ('docs_detail', [self.project.slug, 'en', 'latest', self.denormalized_path + '.html'])
 
 
 class FileRevision(models.Model):
@@ -385,7 +385,7 @@ class ImportedFile(models.Model):
 
     @models.permalink
     def get_absolute_url(self):
-        return ('docs_detail', [self.project.user.username, self.project.slug, 'en', 'latest', self.path])
+        return ('docs_detail', [self.project.slug, 'en', 'latest', self.path])
 
     def __unicode__(self):
         return '%s: %s' % (self.name, self.project)
