@@ -8,6 +8,8 @@ ghettoq
 importlib
 django-extensions
 django-haystack
+django-tastypie
+mimeparse
 django-profiles
 mercurial
 bzr

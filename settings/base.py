@@ -90,6 +90,7 @@ INSTALLED_APPS = (
     'basic.flagging',
     'haystack',
     'profiles',
+    'tastypie',
 
     # our apps
     'projects',
@@ -98,6 +99,7 @@ INSTALLED_APPS = (
     'bookmarks',
     'watching',
     'editor',
+    'rtd_tests',
 )
 
 
@@ -115,3 +117,4 @@ HAYSTACK_SEARCH_ENGINE = 'solr'
 HAYSTACK_SOLR_URL = 'http://odin:8983/solr'
 
 AUTH_PROFILE_MODULE = "core.UserProfile"
+SOUTH_TESTS_MIGRATE = False

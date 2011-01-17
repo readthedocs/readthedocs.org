@@ -6,8 +6,15 @@ from django.conf import settings
 from haystack.forms import FacetedSearchForm
 from haystack.query import SearchQuerySet
 from haystack.views import FacetedSearchView
+from tastypie.api import Api
 
+from api.base import ProjectResource, UserResource, BuildResource
 from core.forms import UserProfileForm
+
+v1_api = Api(api_name='v1')
+v1_api.register(BuildResource())
+v1_api.register(UserResource())
+v1_api.register(ProjectResource())
 
 admin.autodiscover()
 author_sqs = SearchQuerySet().facet('author')
@@ -74,6 +81,7 @@ urlpatterns = patterns('',
         {'form_class': UserProfileForm},
        name='profiles_profile_edit'),
     url(r'^profiles/', include('profiles.urls')),
+    url(r'^api/', include(v1_api.urls)),
 )
 
 if settings.DEBUG:
