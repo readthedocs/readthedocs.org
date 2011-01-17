@@ -145,6 +145,13 @@ class Project(models.Model):
 
     @property
     def sponsored(self):
+        non_django_projects = ['fabric', 'easy-thumbnails',
+                               'python-storymarket', 'virtualenv',
+                               'virtualenvwrapper', 'varnish',
+                               'pip']
+        if self.slug in non_django_projects \
+        or self.slug.startswith('django'):
+            return True
         return False
 
     @property
