@@ -1,27 +1,28 @@
 """Tasks related to projects, including fetching repository code, cleaning
 ``conf.py`` files, and rebuilding documentation.
 """
-
-from builds.models import Build, Version
-from celery.decorators import periodic_task, task
-from celery.task.schedules import crontab
-from doc_builder import loading as builder_loading
-from django.db import transaction
-from projects.exceptions import ProjectImportError
-from projects.utils import slugify_uniquely
-from vcs_support.base import get_backend
-from django.conf import settings
-from django.contrib.auth.models import SiteProfileNotAvailable
-from django.core.exceptions import ObjectDoesNotExist
-from django.db import transaction
-from projects.exceptions import ProjectImportError
-from projects.models import Project, ImportedFile
-from projects.utils import run, slugify_uniquely
 import decimal
 import fnmatch
 import os
 import re
 import shutil
+
+from celery.decorators import periodic_task, task
+from celery.task.schedules import crontab
+from django.db import transaction
+from django.conf import settings
+from django.contrib.auth.models import SiteProfileNotAvailable
+from django.core.exceptions import ObjectDoesNotExist
+
+from builds.models import Build, Version
+from doc_builder import loading as builder_loading
+from projects.exceptions import ProjectImportError
+from projects.utils import slugify_uniquely
+from projects.exceptions import ProjectImportError
+from projects.models import Project, ImportedFile
+from projects.utils import run, slugify_uniquely
+from tastyapi import client
+from vcs_support.base import get_backend
 
 ghetto_hack = re.compile(r'(?P<key>.*)\s*=\s*u?\[?[\'\"](?P<value>.*)[\'\"]\]?')
 
@@ -66,6 +67,9 @@ def update_docs(pk, record=True, pdf=False, version_pk=None, touch=False):
                 print err
         else:
             print "Build Unchanged"
+    result = client.import_project(project)
+    if result:
+        print "Project imported from Django Packages!"
 
 
 def update_imported_docs(project, version):

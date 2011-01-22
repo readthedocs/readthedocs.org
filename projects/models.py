@@ -50,6 +50,7 @@ class Project(models.Model):
     featured = models.BooleanField()
     skip = models.BooleanField()
     build_pdf = models.BooleanField()
+    django_packages_url = models.CharField(max_length=255, blank=True)
 
     tags = TaggableManager()
     objects = ProjectManager()

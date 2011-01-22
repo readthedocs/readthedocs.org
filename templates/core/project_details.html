@@ -15,6 +15,10 @@
   </p>
 {% endif %}
 
+{% if project.django_packages_url %}
+<h3>Django Packages</h3>
+<p> This project has more information available about it on <a href="{{ project.django_packages_url }}">Django Packages!</a></p>
+{% endif %}
 
 <h3>Last Built</h3>
 <p>{{ project.modified_date|date:"N j, Y. P" }}</p>
