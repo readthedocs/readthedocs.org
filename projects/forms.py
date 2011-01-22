@@ -22,7 +22,7 @@ class CreateProjectForm(ProjectForm):
     class Meta:
         model = Project
         exclude = ('skip', 'user', 'slug', 'repo', 'featured',
-                   'docs_directory', 'status', 'repo_type',)
+                   'docs_directory', 'status', 'repo_type', 'default_version',)
 
     def save(self, *args, **kwargs):
         created = self.instance.pk is None
@@ -53,7 +53,7 @@ class ImportProjectForm(ProjectForm):
     class Meta:
         model = Project
         exclude = ('skip', 'theme', 'docs_directory', 'user', 'slug', 'version',
-                   'copyright', 'status', 'featured',)
+                   'copyright', 'status', 'featured', 'default_version',)
 
     def clean_repo(self):
         repo = self.cleaned_data.get('repo', '').strip()
@@ -140,6 +140,10 @@ class BaseVersionsForm(forms.Form):
         versions = self.project.versions.all()
         for version in versions:
             self.save_version(version)
+        default_version = self.cleaned_data.get('default-version', None)
+        if default_version:
+            self.project.default_version = default_version
+            self.project.save()
 
     def save_version(self, version):
         new_value = self.cleaned_data.get('version-%s' % version.slug, None)
@@ -155,7 +159,17 @@ def build_versions_form(project):
     attrs = {
         'project': project,
     }
-    for version in project.versions.all():
+    versions_qs = project.versions.all()
+    active = versions_qs.filter(active=True, built=True)
+    if active.exists():
+        choices = [('latest', 'latest')]
+        choices += [(version.slug, version.verbose_name) for version in active]
+        attrs['default-version'] = forms.ChoiceField(
+            label="Choose the default version for this project",
+            choices=choices,
+            initial=project.get_default_version(),
+        )
+    for version in versions_qs:
         field_name = 'version-%s' % version.slug
         attrs[field_name] = forms.BooleanField(
             label=version.verbose_name,

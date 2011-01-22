@@ -69,9 +69,11 @@ def generic_build(request, pk):
 
 
 def legacy_serve_docs(request, username, project_slug, filename):
+    proj = get_object_or_404(Project, slug=project_slug)
+    default_version = proj.get_default_version()
     url = reverse(serve_docs, kwargs={
         'project_slug': project_slug,
-        'version_slug': 'latest',
+        'version_slug': default_version,
         'filename': filename
     })
     return HttpResponsePermanentRedirect(url)
@@ -88,12 +90,14 @@ def serve_docs(request, project_slug, version_slug, filename):
     time.
     """
     if version_slug is None:
+        proj = get_object_or_404(Project, slug=project_slug)
+        default_version = proj.get_default_version()
         url = reverse(serve_docs, kwargs={
             'project_slug': project_slug,
-            'version_slug': 'latest',
+            'version_slug': default_version,
             'filename': filename
         })
-        return HttpResponsePermanentRedirect(url)
+        return HttpResponseRedirect(url)
     proj = get_object_or_404(Project, slug=project_slug)
     if not filename:
         filename = "index.html"
