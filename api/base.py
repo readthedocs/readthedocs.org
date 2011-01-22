@@ -12,11 +12,7 @@ from builds.models import Build
 from projects.models import Project
 
 
-class BaseResource(ModelResource):
-    def determine_format(self, *args, **kwargs):
-        return "application/json"
-
-class EnhancedModelResource(BaseResource):
+class EnhancedModelResource(ModelResource):
     def obj_get_list(self, request=None, **kwargs):
         """
         A ORM-specific implementation of ``obj_get_list``.
@@ -38,7 +34,7 @@ class EnhancedModelResource(BaseResource):
             raise NotFound("Invalid resource lookup data provided (mismatched type).")
 
 
-class UserResource(BaseResource):
+class UserResource(ModelResource):
     class Meta:
         allowed_methods = ['get']
         queryset = User.objects.all()
@@ -50,7 +46,7 @@ class UserResource(BaseResource):
         ]
 
 
-class ProjectResource(BaseResource):
+class ProjectResource(ModelResource):
     user = fields.ForeignKey(UserResource, 'user')
 
     class Meta:
