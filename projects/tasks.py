@@ -75,7 +75,7 @@ def update_imported_docs(project, version):
     if not project.vcs_repo:
         raise ProjectImportError("Repo type '%s' unknown" % project.repo_type)
     if version:
-        print 'Checking out version %s' % version.identifier
+        print 'Checking out version %s: %s' % (version.slug, version.identifier)
         project.vcs_repo.checkout(version.identifier)
     else:
         print 'Updating to latest revision'
