@@ -1,4 +1,7 @@
 from django.contrib.auth.models import User
+from django.conf.urls.defaults import url
+from django.core.urlresolvers import reverse
+from tastypie.bundle import Bundle
 from tastypie.resources import ModelResource
 from tastypie import fields
 from tastypie.authentication import BasicAuthentication
@@ -9,41 +12,67 @@ from builds.models import Build
 from projects.models import Project
 
 
-class UserResource(ModelResource):
+class BaseResource(ModelResource):
+    def determine_format(self, *args, **kwargs):
+        return "application/json"
+
+class EnhancedModelResource(BaseResource):
+    def obj_get_list(self, request=None, **kwargs):
+        """
+        A ORM-specific implementation of ``obj_get_list``.
+
+        Takes an optional ``request`` object, whose ``GET`` dictionary can be
+        used to narrow the query.
+        """
+        filters = None
+
+        if hasattr(request, 'GET'):
+            filters = request.GET
+
+        applicable_filters = self.build_filters(filters=filters)
+        applicable_filters.update(kwargs)
+
+        try:
+            return self.get_object_list(request).filter(**applicable_filters)
+        except ValueError, e:
+            raise NotFound("Invalid resource lookup data provided (mismatched type).")
+
+
+class UserResource(BaseResource):
     class Meta:
-        #authentication = BasicAuthentication()
-        #authorization = DjangoAuthorization()
-        #allowed_methods = ['get', 'post', 'put']
         allowed_methods = ['get']
         queryset = User.objects.all()
-        fields = ['username', 'first_name',
-                  'last_name', 'last_login',
-                  'id']
-        filtering = {
-            "username": ('exact', 'startswith'),
-        }
+        fields = ['username', 'first_name', 'last_name', 'last_login', 'id']
+
+    def override_urls(self):
+        return [
+            url(r"^(?P<resource_name>%s)/(?P<username>[\w\d_.-]+)/$" % self._meta.resource_name, self.wrap_view('dispatch_detail'), name="api_dispatch_detail"),
+        ]
 
 
-class ProjectResource(ModelResource):
+class ProjectResource(BaseResource):
     user = fields.ForeignKey(UserResource, 'user')
 
     class Meta:
-        #authentication = BasicAuthentication()
-        #authorization = DjangoAuthorization()
+        include_absolute_url = True
         allowed_methods = ['get']
         queryset = Project.objects.all()
-        filtering = {
-            "slug": ('exact', 'startswith'),
-        }
         excludes = ['build_pdf', 'path', 'skip', 'featured']
 
+    def override_urls(self):
+        return [
+            url(r"^(?P<resource_name>%s)/(?P<slug>[\w-]+)/$" % self._meta.resource_name, self.wrap_view('dispatch_detail'), name="api_dispatch_detail"),
+        ]
 
-class BuildResource(ModelResource):
+
+class BuildResource(EnhancedModelResource):
     project = fields.ForeignKey(ProjectResource, 'project')
 
     class Meta:
         allowed_methods = ['get']
         queryset = Build.objects.all()
-        filtering = {
-            "project": ALL,
-        }
+
+    def override_urls(self):
+        return [
+            url(r"^(?P<resource_name>%s)/(?P<project__slug>[a-z-]+)/$" % self._meta.resource_name, self.wrap_view('dispatch_list'), name="api_list_detail"),
+        ]
