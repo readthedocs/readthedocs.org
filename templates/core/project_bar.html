@@ -13,7 +13,7 @@
 
           {% if project.get_latest_build %}
             {% if not project.get_latest_build.success %}
-              <p class="build-failure">Build failed (<a href="{% url builds_project_list project.user.username project.slug %}">why</a>)</p>
+              <p class="build-failure">Build failed (<a href="{{ project.get_builds_url }}">why</a>)</p>
             {% endif %}
           {% else %}
             <p class="build-missing">There are no builds for this project.{% if request.user == project.user %} <a href="{% url projects_edit project.slug %}">Is the repo correct?</a>{% endif %}</p>
@@ -32,7 +32,7 @@
             {% endif %}
 
             {% if project.get_latest_build %}
-              <li {% block editing-option-builds %}{% endblock %}><a href="{% url builds_project_list project.user.username project.slug %}">Builds</a></li>
+              <li {% block editing-option-builds %}{% endblock %}><a href="{{ project.get_builds_url }}">Builds</a></li>
             {% endif %}
 
             {% if project.project_url %}

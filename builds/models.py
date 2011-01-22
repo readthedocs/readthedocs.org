@@ -10,14 +10,14 @@ class Version(models.Model):
     slug = models.CharField(max_length=255)
     active = models.BooleanField(default=False)
     built = models.BooleanField(default=False)
-    
+
     class Meta:
         unique_together = [('project', 'slug'), ('project', 'identifier')]
         ordering = ['-verbose_name']
 
     def __unicode__(self):
         return u"Version %s of %s (%s)" % (self.verbose_name, self.project, self.pk)
-    
+
     def get_absolute_url(self):
         if not self.built:
             return ''
@@ -43,4 +43,4 @@ class Build(models.Model):
 
     @models.permalink
     def get_absolute_url(self):
-        return ('builds_detail', [self.project.user.username, self.project.slug, self.pk])
+        return ('builds_detail', [self.project.slug, self.pk])

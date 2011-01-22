@@ -8,7 +8,7 @@
       {% if project.has_good_build %}
         <li><a href="{{ project.get_docs_url }}">View Docs</a></li>
       {% else %}
-        <li><a href="{% url builds_project_list project.user.username project.slug %}">No Docs</a></li>
+        <li><a href="{{ project.get_builds_url }}">No Docs</a></li>
       {% endif %}
     </ul>
   </li>

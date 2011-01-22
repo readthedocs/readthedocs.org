@@ -75,6 +75,11 @@ class Project(models.Model):
             'filename': '',
         })
 
+    def get_builds_url(self):
+        return reverse('builds_project_list', kwargs={
+            'project_slug': self.slug,
+        })
+
     def get_pdf_url(self, version_slug='latest'):
         path = os.path.join(settings.MEDIA_URL,
                                 'pdf',
