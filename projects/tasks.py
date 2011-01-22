@@ -176,8 +176,13 @@ def build_docs(project, version, pdf, record, touch):
     successful = (html_output[0] == 0)
     if not 'no targets are out of date.' in html_output[1]:
         if record:
-                Build.objects.create(project=project, success=successful,
-                                 output=html_output[1], error=html_output[2])
+            Build.objects.create(
+                project=project,
+                success=successful,
+                output=html_output[1],
+                error=html_output[2],
+                version=version
+            )
         if successful:
             move_docs(project, version)
             if version:
