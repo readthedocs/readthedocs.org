@@ -153,4 +153,5 @@ def subdomain_handler(request, subdomain, filename):
                                         (version,
                                          '/'.join(split_filename[1:])))
 
-    return HttpResponseRedirect('/en/latest/%s' % filename)
+    default_version = proj.get_default_verison()
+    return HttpResponseRedirect('/en/%s/%s' % (default_version, filename))
