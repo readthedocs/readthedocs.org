@@ -7,13 +7,17 @@
 {% block content %}
   <p>Built: {{ build.date|date:"N j, Y. P" }}</p>
 
-  <p>Outcome: {{ build.success|yesno:"Passed,Failed" }}</p>
+  <p>Outcome: <b>{{ build.success|yesno:"Passed,Failed" }}</b></p>
 
-  <h3>Output</h3>
+  {% if build.version %}
+  <p>Version: <b>{{ build.version.slug }}</b></p>
+  {% endif %}
+
+  <h3>Standard Output</h3>
   <pre class="build-output">{{ build.output }}</pre>
 
   {% if build.error %}
-  <h3>Error</h3> 
+  <h3>Standard Error</h3> 
   <pre class="build-error">{{ build.error }}</pre>
   {% endif %}
 
