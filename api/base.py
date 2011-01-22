@@ -11,9 +11,10 @@ from projects.models import Project
 
 class UserResource(ModelResource):
     class Meta:
-        authentication = BasicAuthentication()
-        authorization = DjangoAuthorization()
-        allowed_methods = ['get', 'post', 'put']
+        #authentication = BasicAuthentication()
+        #authorization = DjangoAuthorization()
+        #allowed_methods = ['get', 'post', 'put']
+        allowed_methods = ['get']
         queryset = User.objects.all()
         fields = ['username', 'first_name',
                   'last_name', 'last_login',
@@ -27,9 +28,9 @@ class ProjectResource(ModelResource):
     user = fields.ForeignKey(UserResource, 'user')
 
     class Meta:
-        authentication = BasicAuthentication()
-        authorization = DjangoAuthorization()
-        allowed_methods = ['get', 'post', 'put']
+        #authentication = BasicAuthentication()
+        #authorization = DjangoAuthorization()
+        allowed_methods = ['get']
         queryset = Project.objects.all()
         filtering = {
             "slug": ('exact', 'startswith'),
