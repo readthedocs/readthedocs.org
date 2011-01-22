@@ -69,9 +69,11 @@ def generic_build(request, pk):
 
 
 def legacy_serve_docs(request, username, project_slug, filename):
+    proj = get_object_or_404(Project, slug=project_slug)
+    default_version = proj.get_default_version()
     url = reverse(serve_docs, kwargs={
         'project_slug': project_slug,
-        'version_slug': 'latest',
+        'version_slug': default_version,
         'lang_slug': 'en',
         'filename': filename
     })
@@ -92,9 +94,11 @@ def serve_docs(request, project_slug, lang_slug, version_slug, filename):
     if not filename:
         filename = "index.html"
     if version_slug is None:
+        proj = get_object_or_404(Project, slug=project_slug)
+        default_version = proj.get_default_version()
         url = reverse(serve_docs, kwargs={
             'project_slug': project_slug,
-            'version_slug': 'latest',
+            'version_slug': default_version
             'lang_slug': 'en',
             'filename': filename
         })
@@ -102,17 +106,18 @@ def serve_docs(request, project_slug, lang_slug, version_slug, filename):
     if lang_slug is None:
         url = reverse(serve_docs, kwargs={
             'project_slug': project_slug,
-            'version_slug': version_slug if version_slug != 'en' else 'latest',
+            'version_slug': version_slug if version_slug != 'en' else default_version,
             'lang_slug': 'en',
             'filename': filename
         })
-        return HttpResponsePermanentRedirect(url)
+        return HttpResponseRedirect(url)
     proj = get_object_or_404(Project, slug=project_slug)
     valid_version = proj.versions.filter(slug=version_slug).count()
+    default_version = proj.get_default_version()
     if not valid_version and version_slug != 'latest' and version_slug != 'en':
         url = reverse(serve_docs, kwargs={
             'project_slug': project_slug,
-            'version_slug': 'latest',
+            'version_slug': default_version',
             'lang_slug': 'en',
             #Filename was part of the version that we caught.
             'filename': os.path.join(version_slug, filename)
