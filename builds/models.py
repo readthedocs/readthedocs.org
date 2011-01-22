@@ -2,23 +2,6 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from projects.models import Project
 
-class Build(models.Model):
-    project = models.ForeignKey(Project, related_name='builds')
-    date = models.DateTimeField(auto_now_add=True)
-    success = models.BooleanField()
-    output = models.TextField()
-    error = models.TextField()
-
-    class Meta:
-        ordering = ['-date']
-
-    def __unicode__(self):
-        return u"Build %s for %s (%s)" % (self.project, self.project.user, self.pk)
-
-    @models.permalink
-    def get_absolute_url(self):
-        return ('builds_detail', [self.project.user.username, self.project.slug, self.pk])
-
 
 class Version(models.Model):
     project = models.ForeignKey(Project, related_name='versions')
@@ -43,3 +26,21 @@ class Version(models.Model):
             'version_slug': self.slug,
             'filename': ''
         })
+
+class Build(models.Model):
+    project = models.ForeignKey(Project, related_name='builds')
+    date = models.DateTimeField(auto_now_add=True)
+    success = models.BooleanField()
+    output = models.TextField()
+    error = models.TextField()
+    version = models.ForeignKey(Version, null=True, related_name='builds')
+
+    class Meta:
+        ordering = ['-date']
+
+    def __unicode__(self):
+        return u"Build %s for %s (%s)" % (self.project, self.project.user, self.pk)
+
+    @models.permalink
+    def get_absolute_url(self):
+        return ('builds_detail', [self.project.user.username, self.project.slug, self.pk])
