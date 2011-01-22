@@ -98,7 +98,7 @@ def serve_docs(request, project_slug, lang_slug, version_slug, filename):
         default_version = proj.get_default_version()
         url = reverse(serve_docs, kwargs={
             'project_slug': project_slug,
-            'version_slug': default_version
+            'version_slug': default_version,
             'lang_slug': 'en',
             'filename': filename
         })
@@ -117,7 +117,7 @@ def serve_docs(request, project_slug, lang_slug, version_slug, filename):
     if not valid_version and version_slug != 'latest' and version_slug != 'en':
         url = reverse(serve_docs, kwargs={
             'project_slug': project_slug,
-            'version_slug': default_version',
+            'version_slug': default_version,
             'lang_slug': 'en',
             #Filename was part of the version that we caught.
             'filename': os.path.join(version_slug, filename)

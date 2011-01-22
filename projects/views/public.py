@@ -130,10 +130,10 @@ def subdomain_handler(request, subdomain, filename):
         filename = "index.html"
     split_filename = filename.split('/')
     #A correct URL, with a language and version.
+    proj = get_object_or_404(Project, slug=subdomain)
     if len(split_filename) > 2:
         language = split_filename[0]
         version = split_filename[1]
-        proj = get_object_or_404(Project, slug=subdomain)
         valid_version = proj.versions.filter(slug=version).count()
         #Hard code this for now.
         if valid_version or version == 'latest' and language == 'en':
@@ -146,12 +146,11 @@ def subdomain_handler(request, subdomain, filename):
                               filename=filename)
     elif len(split_filename) == 2:
         version = split_filename[0]
-        proj = get_object_or_404(Project, slug=subdomain)
         valid_version = proj.versions.filter(slug=version).count()
         if valid_version:
             return HttpResponseRedirect('/en/%s/%s' %
                                         (version,
                                          '/'.join(split_filename[1:])))
 
-    default_version = proj.get_default_verison()
+    default_version = proj.get_default_version()
     return HttpResponseRedirect('/en/%s/%s' % (default_version, filename))
