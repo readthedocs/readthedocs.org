@@ -32,6 +32,8 @@ def celery():
     env.user = "root"
     run("restart readthedocs-celery")
 
-
-def migrate(project):
-    run('django-admin.py migrate %s' % project)
+def migrate(project=None):
+    if project:
+        run('django-admin.py migrate %s' % project)
+    else:
+        run('django-admin.py migrate')
