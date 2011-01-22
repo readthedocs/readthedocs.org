@@ -33,7 +33,7 @@ class Build(models.Model):
     success = models.BooleanField()
     output = models.TextField()
     error = models.TextField()
-    version = models.OneToOneField(Version, null=True, related_name='build')
+    version = models.ForeignKey(Version, null=True, related_name='builds')
 
     class Meta:
         ordering = ['-date']
