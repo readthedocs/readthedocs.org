@@ -68,7 +68,7 @@ class Project(models.Model):
         super(Project, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse('projects_detail', args=[self.user.username, self.slug])
+        return reverse('projects_detail', args=[self.slug])
 
     def get_docs_url(self, version_slug=None):
         version = version_slug or self.get_default_version()
@@ -234,11 +234,11 @@ class Project(models.Model):
         revision_qs = FileRevision.objects.filter(file__project=self,
             file__status=constants.LIVE_STATUS)
         return revision_qs.order_by('-created_date')
-    
+
     def get_default_version(self):
         """
         Get the default version (slug).
-        
+
         Returns self.default_version if the version with that slug actually
         exists (is built and published). Otherwise returns 'latest'.
         """

@@ -2,7 +2,7 @@
 {% for project in project_list %}
   <li class="module-item">
     <a class="module-item-title" href="{{ project.get_absolute_url }}">{{ project.name }}</a>
-    <a href="{% url projects_user_list project.user.username %}" class="quiet">({{ project.user }})</a>
+    <a href="{{ project.user.get_absolute_url }}" class="quiet">({{ project.user }})</a>
     <span class="quiet">{{ project.get_latest_build.date|timesince }} ago</span>
     <ul class="module-item-menu">
       {% if project.has_good_build %}

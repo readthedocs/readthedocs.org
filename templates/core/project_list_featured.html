@@ -2,7 +2,7 @@
 {% for project in featured_list %}
   <li class="module-item">
     <a class="module-item-title" href="{{ project.get_absolute_url }}">{{ project.name }}</a>
-    <a href="{% url projects_user_list project.user.username %}" class="quiet">({{ project.user }})</a>
+    <a href="{{ project.user.get_absolute_url }}" class="quiet">({{ project.user }})</a>
     <ul class="module-item-menu">
       {% if project.get_latest_build.success %}
         <li><a href="{{ project.get_docs_url }}">View Docs</a></li>

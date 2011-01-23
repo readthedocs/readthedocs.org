@@ -118,3 +118,7 @@ HAYSTACK_SOLR_URL = 'http://odin:8983/solr'
 
 AUTH_PROFILE_MODULE = "core.UserProfile"
 SOUTH_TESTS_MIGRATE = False
+
+ABSOLUTE_URL_OVERRIDES = {
+    'auth.user': lambda o: "/profiles/%s/" % o.username
+}

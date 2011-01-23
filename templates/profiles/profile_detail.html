@@ -1,9 +1,9 @@
-{% extends "profiles/base_profile.html" %}
+{% extends "base.html" %}
 
 {% block title %}{{ user }}'s profile{% endblock %}
 
 {% block content-header %}
-  <h1>{{ user }}'s profile</h1>
+  <h1>{{ profile.user }}'s profile</h1>
 {% endblock %}
 
 {% block content %}
@@ -11,4 +11,27 @@
   <h3>Homepage</h3>
     <p><a href="{{ profile.homepage }}">{{ profile.homepage }}</a></p>
   {% endif %}
+
+    <h3>Projects {% if person %}by {{ person.username }}{% endif %}{% if tag %}tagged with "{{ tag.name }}"{% endif %}</h3>
+
+    {% with profile.user.projects.live as project_list %}
+          <!-- BEGIN projects list -->
+          <div class="module">
+            <div class="module-wrapper">
+
+              <div class="module-list">
+                <div class="module-list-wrapper">
+
+                  <ul>
+                    {% include "core/project_list_detailed.html" %}
+                  </ul>
+
+                </div>
+              </div>
+
+            </div>
+          </div>
+          <!-- END projects list -->
+    {% endwith %}
+
 {% endblock %}

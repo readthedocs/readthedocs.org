@@ -1,7 +1,9 @@
 import simplejson
 
 from django.contrib.auth.models import User
-from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.core.urlresolvers import reverse
+from django.http import (HttpResponse, HttpResponseRedirect,
+                         Http404, HttpResponsePermanentRedirect)
 from django.shortcuts import get_object_or_404
 from django.views.generic.list_detail import object_list, object_detail
 from django.views.static import serve
@@ -54,21 +56,34 @@ def slug_detail(request, project_slug, filename):
             filename = '/'.join(split_filename[1:])
     return serve_docs(request=request, project_slug=project_slug, version_slug=version, filename=filename)
 
-def project_detail(request, username, project_slug):
+def project_detail(request, project_slug):
     """
     A detail view for a project with various dataz
     """
-    user = get_object_or_404(User, username=username)
-    queryset = user.projects.live()
-
+    queryset = Project.objects.live()
+    projects = Project.objects.filter(slug=project_slug)
+    if not projects.count():
+        #Handle old User URLs if possible.
+        #/projects/<user>/ used to be the user list, moved to
+        #/profiles/<user>/ and made projects top-level.
+        users = User.objects.filter(username=project_slug)
+        if users.count():
+            return HttpResponseRedirect(users[0].get_absolute_url())
     return object_detail(
         request,
         queryset=queryset,
         slug_field='slug',
         slug=project_slug,
-        extra_context={'user': user},
         template_object_name='project',
     )
+
+def legacy_project_detail(request, username, project_slug):
+    queryset = Project.objects.live()
+    return HttpResponsePermanentRedirect(reverse(
+        project_detail, kwargs = {
+            'project_slug': project_slug,
+        }
+    ))
 
 def tag_index(request):
     """
