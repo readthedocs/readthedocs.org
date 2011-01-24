@@ -1,15 +1,21 @@
 from django.contrib.auth.models import User
 from django.conf.urls.defaults import url
-from django.core.urlresolvers import reverse
-from tastypie.bundle import Bundle
 from tastypie.resources import ModelResource
 from tastypie import fields
 from tastypie.authentication import BasicAuthentication
-from tastypie.authorization import DjangoAuthorization, Authorization
-from tastypie.constants import ALL, ALL_WITH_RELATIONS
+from tastypie.authorization import Authorization
+from tastypie.exceptions import NotFound
+from tastypie.http import HttpCreated
+from tastypie.utils import dict_strip_unicode_keys
 
 from builds.models import Build
 from projects.models import Project
+
+class PostAuthentication(BasicAuthentication):
+    def is_authenticated(self, request, **kwargs):
+        if request.method == "GET":
+            return True
+        return super(PostAuthentication, self).is_authenticated(request, **kwargs)
 
 
 class EnhancedModelResource(ModelResource):
@@ -51,9 +57,30 @@ class ProjectResource(ModelResource):
 
     class Meta:
         include_absolute_url = True
-        allowed_methods = ['get']
+        allowed_methods = ['get', 'post']
         queryset = Project.objects.all()
+        authentication = PostAuthentication()
+        authorization = Authorization()
         excludes = ['build_pdf', 'path', 'skip', 'featured']
+
+    def post_list(self, request, **kwargs):
+        """
+        Creates a new resource/object with the provided data.
+
+        Calls ``obj_create`` with the provided data and returns a response
+        with the new resource's location.
+
+        If a new resource is created, return ``HttpCreated`` (201 Created).
+        """
+        deserialized = self.deserialize(request, request.raw_post_data, format=request.META.get('CONTENT_TYPE', 'application/json'))
+
+        # Force this in an ugly way, at least should do "reverse"
+        deserialized["user"] = "/api/v1/user/%s/" % request.user.id
+        bundle = self.build_bundle(data=dict_strip_unicode_keys(deserialized))
+        self.is_valid(bundle, request)
+        updated_bundle = self.obj_create(bundle, request=request)
+        return HttpCreated(location=self.get_resource_uri(updated_bundle))
+
 
     def override_urls(self):
         return [
@@ -65,7 +92,7 @@ class BuildResource(EnhancedModelResource):
     project = fields.ForeignKey(ProjectResource, 'project')
 
     class Meta:
-        allowed_methods = ['get']
+        allowed_methods = ['get', 'post']
         queryset = Build.objects.all()
 
     def override_urls(self):
