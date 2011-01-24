@@ -55,6 +55,23 @@ def github_build(request):
         return render_to_response('post_commit.html', {},
                 context_instance=RequestContext(request))
 
+@csrf_view_exempt
+def bitbucket_build(request):
+    if request.method == 'POST':
+        obj = json.loads(request.POST['payload'])
+        rep = obj['repository']
+        name = rep['name']
+        url = "%s%s" % ("bitbucket.org",  rep['absolute_url'])
+        try:
+            project = Project.objects.filter(repo__contains=url)[0]
+            update_docs.delay(pk=project.pk)
+            return HttpResponse('Build Started')
+        except:
+            mail_admins('Build Failure', '%s failed to build via github' % name)
+            return HttpResponse('Build Failed')
+    else:
+        return render_to_response('post_commit.html', {},
+                context_instance=RequestContext(request))
 
 @csrf_view_exempt
 def generic_build(request, pk):
