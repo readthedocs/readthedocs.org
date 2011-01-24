@@ -13,6 +13,10 @@ urlpatterns = patterns('projects.views.private',
         'project_import',
         name='projects_import'
     ),
+    url(r'^upload_html/(?P<project_slug>[-\w]+)/$',
+        'upload_html',
+        name='projects_upload_html'
+    ),
     url(r'^export/(?P<project_slug>[-\w]+)/$',
         'export',
         name='projects_export'

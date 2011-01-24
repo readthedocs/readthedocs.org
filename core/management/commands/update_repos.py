@@ -43,7 +43,7 @@ class Command(BaseCommand):
         if not len(args):
             if versions:
                 print "Updating all versions"
-                for version in Version.objects.filter(active=True):
+                for version in Version.objects.filter(active=True, uploaded=False):
                     tasks.update_docs(version.project_id, pdf=make_pdf, record=False, version_pk=version.pk)
             else:
                 print "Updating all docs"
@@ -52,7 +52,7 @@ class Command(BaseCommand):
             for slug in args:
                 if versions:
                     print "Updating all versions for %s" % slug
-                    for version in Version.objects.filter(project__slug=slug, active=True):
+                    for version in Version.objects.filter(project__slug=slug, active=True, uploaded=False):
                         tasks.update_docs(version.project_id, pdf=make_pdf, record=False, version_pk=version.pk)
                 else:
                     p = Project.objects.get(slug=slug)

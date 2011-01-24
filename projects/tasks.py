@@ -228,3 +228,13 @@ def fileify(project_slug):
 def update_docs_pull(record=False, pdf=False, touch=False):
     for project in Project.objects.live():
         update_docs(pk=project.pk, record=record, pdf=pdf, touch=touch)
+
+
+@task
+def unzip_files(dest_file, html_path):
+    if not os.path.exists(html_path):
+        os.makedirs(html_path)
+    else:
+        shutil.rmtree(html_path)
+        os.makedirs(html_path)
+    run('unzip -of %s -d %s' % (dest_file, html_path))

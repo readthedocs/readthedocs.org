@@ -210,7 +210,7 @@ class Project(models.Model):
             return None
 
     def active_versions(self):
-        return self.versions.filter(built=True, active=True)
+        return self.versions.filter(built=True, active=True) | self.versions.filter(active=True, uploaded=True)
 
     def get_pdf_path(self, version_slug='latest'):
         path = os.path.join(settings.MEDIA_ROOT,
