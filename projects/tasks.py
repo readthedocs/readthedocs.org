@@ -187,15 +187,15 @@ def build_docs(project, version, pdf, record, touch):
                 error=html_output[2],
                 version=version
             )
-        if successful:
-            move_docs(project, version)
-            if version:
-                version.built = True
-                version.save()
 
         if pdf or project.build_pdf:
             pdf_builder = builder_loading.get('pdf')()
             pdf_builder.build(project, version)
+    if successful:
+        move_docs(project, version)
+        if version:
+            version.built = True
+            version.save()
     return html_output
 
 def move_docs(project, version):
