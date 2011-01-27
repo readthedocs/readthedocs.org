@@ -108,7 +108,6 @@ def serve_docs(request, project_slug, lang_slug, version_slug, filename):
     time.
     """
     # A bunch of janky redirect logic. This should be the last time.
-    request.serving_docs = True
     proj = get_object_or_404(Project, slug=project_slug)
     default_version = proj.get_default_version()
     if not filename:
@@ -129,7 +128,8 @@ def serve_docs(request, project_slug, lang_slug, version_slug, filename):
             'filename': filename
         })
         return HttpResponseRedirect(url)
-    valid_version = proj.versions.filter(slug=version_slug).count()
+    version = proj.versions.filter(slug=version_slug)
+    valid_version = version.count()
     if not valid_version and version_slug != 'latest' and version_slug != 'en':
         url = reverse(serve_docs, kwargs={
             'project_slug': project_slug,
@@ -139,6 +139,8 @@ def serve_docs(request, project_slug, lang_slug, version_slug, filename):
             'filename': os.path.join(version_slug, filename)
         })
         return HttpResponsePermanentRedirect(url)
+    elif valid_version:
+        request.add_badge = version[0].uploaded
     filename = filename.rstrip('/')
     basepath = os.path.join(proj.rtd_build_path, version_slug)
     if 'html' in filename:
