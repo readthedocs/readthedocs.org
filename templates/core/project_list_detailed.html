@@ -6,6 +6,11 @@
     <span class="quiet">{{ project.get_latest_build.date|timesince }} ago</span>
     <ul class="module-item-menu">
       {% if project.has_good_build %}
+        <span class="hidden-child" style="display: none;">
+            {% for version in project.active_versions %}
+                <li><a href="{{ version.get_absolute_url }}">{{ version.slug }}</a></li>
+            {% endfor %}
+        </span>
         <li><a href="{{ project.get_docs_url }}">View Docs</a></li>
       {% else %}
         <li><a href="{{ project.get_builds_url }}">No Docs</a></li>
