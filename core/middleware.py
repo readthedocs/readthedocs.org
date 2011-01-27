@@ -82,11 +82,10 @@ class SubdomainMiddleware(object):
         #Try and make this match as little as possible.
         if response.status_code == 200:
             if getattr(request, 'add_badge', False):
-                if response.content.find('Read the Docs') == -1:
-                    response.content = replace_insensitive(
-                        smart_unicode(response.content),
-                        "</body>",
-                        smart_unicode(OUR_CODE + "</body>"))
+                response.content = replace_insensitive(
+                    smart_unicode(response.content),
+                    "</body>",
+                    smart_unicode(OUR_CODE + "</body>"))
             if response.get('Content-Length', None):
                 response['Content-Length'] = len(response.content)
         return response
