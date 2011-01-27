@@ -6,7 +6,7 @@
     <ul class="module-item-menu">
       {% if project.get_latest_build.success %}
         <span class="hidden-child" style="display: none;">
-            {% for version in project.active_versions %}
+            {% for version in project.active_versions reversed %}
                 <li><a href="{{ version.get_absolute_url }}">{{ version.slug }}</a></li>
             {% endfor %}
         </span>
