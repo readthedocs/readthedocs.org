@@ -53,7 +53,7 @@ class Project(models.Model):
     build_pdf = models.BooleanField()
     django_packages_url = models.CharField(max_length=255, blank=True)
 
-    tags = TaggableManager()
+    tags = TaggableManager(blank=True)
     objects = ProjectManager()
 
     class Meta:
