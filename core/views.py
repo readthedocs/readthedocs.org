@@ -108,6 +108,7 @@ def serve_docs(request, project_slug, lang_slug, version_slug, filename):
     time.
     """
     # A bunch of janky redirect logic. This should be the last time.
+    request.serving_docs = True
     proj = get_object_or_404(Project, slug=project_slug)
     default_version = proj.get_default_version()
     if not filename:
