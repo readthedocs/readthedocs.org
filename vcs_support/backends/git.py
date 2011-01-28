@@ -7,6 +7,7 @@ import os
 class Backend(BaseVCS):
     supports_tags = True
     contribution_backends = [GithubContributionBackend]
+    fallback_branch = 'master' # default branch
 
     def update(self):
         super(Backend, self).update()
@@ -15,6 +16,7 @@ class Backend(BaseVCS):
             self._pull()
         else:
             self._clone()
+        self._reset()
 
     def _pull(self):
         retcode = self._run_command('git', 'fetch')[0]
@@ -22,7 +24,12 @@ class Backend(BaseVCS):
             raise ProjectImportError(
                 "Failed to get code from '%s' (git fetch): %s" % (self.repo_url, retcode)
             )
-        retcode = self._run_command('git', 'reset', '--hard', 'origin/master')[0]
+            
+    def _reset(self):
+        branch = self.fallback_branch
+        if self.project.default_branch:
+            branch = self.project.default_branch
+        retcode = self._run_command('git', 'reset', '--hard', 'origin/%s' % branch)[0]
         if retcode != 0:
             raise ProjectImportError(
                 "Failed to get code from '%s' (git reset): %s" % (self.repo_url, retcode)
@@ -70,7 +77,9 @@ class Backend(BaseVCS):
     def checkout(self, identifier=None):
         super(Backend, self).checkout()
         if not identifier:
-            identifier = 'master'
+            identifier = self.fallback_branch
+            if self.project.default_branch:
+                identifier = self.project.default_branch
         self._run_command('git', 'reset', '--hard', identifier)
 
     def get_env(self):

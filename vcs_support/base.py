@@ -44,9 +44,10 @@ class BaseVCS(BaseCLI):
     # General methods
     #===========================================================================
     
-    def __init__(self, repo_url, working_dir):
-        self.repo_url = repo_url
-        self.working_dir = working_dir
+    def __init__(self, project):
+        self.project = project
+        self.repo_url = project.repo_url
+        self.working_dir = project.working_dir
         
     def _check_working_dir(self):
         if not os.path.exists(self.working_dir):

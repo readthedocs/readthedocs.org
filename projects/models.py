@@ -45,6 +45,9 @@ class Project(models.Model):
         help_text='<a href="http://sphinx.pocoo.org/theming.html#builtin-themes" target="_blank">Examples</a>')
     suffix = models.CharField(max_length=10, editable=False, default='.rst')
     default_version = models.CharField(max_length=255, default='latest')
+    # In default_branch, None means the backend should choose the appropraite branch. Eg 'master' for git
+    default_branch = models.CharField(max_length=255, default=None, null=True,
+        blank=True, help_text='Leave empty to use the default value for your VCS or if your VCS does not support branches.')
 
     #Other model data.
     path = models.CharField(max_length=255, editable=False)
@@ -174,7 +177,7 @@ class Project(models.Model):
         if not backend:
             repo = None
         else:
-            repo = backend(self.repo, self.working_dir)
+            repo = backend(self)
         self._vcs_repo = repo
         return repo
 
