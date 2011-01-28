@@ -56,7 +56,7 @@ class SubdomainMiddleware(object):
             if not (subdomain.lower() == 'www') and 'readthedocs' in host:
                 request.subdomain = True
                 return subdomain_handler(request, subdomain, request.path.lstrip('/'))
-        if 'readthedocs' not in host \
+        if 'readthedocs.org' not in host \
             and 'localhost' not in host \
             and 'testserver' not in host:
             request.cname = True
