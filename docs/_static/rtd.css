@@ -18,6 +18,7 @@
  *
  * white hover: #d1d9df;
  * medium blue hover: #697983;
+ * green highlight: #8ecc4c
  */
 
 @import url("basic.css");
@@ -32,10 +33,11 @@ body {
                  'Verdana', sans-serif;
     font-size: 14px;
     */
-    letter-spacing: -0.01em;
+    /*letter-spacing: -0.01em;*/
     line-height: 150%;
     text-align: center;
     color: black;
+    background-color: #eee;
     padding: 0;
 
     margin: 0;
@@ -43,20 +45,13 @@ body {
 }
 
 div.document {
-    background-color: white;
     text-align: left;
-    background-image: url(contents.png);
-    background-repeat: repeat-x;
-}
-
-div.documentwrapper {
-    float: left;
 }
 
 div.bodywrapper {
-    /* margin: 0 240px 0 0; */
-    margin: 0 0 0 230px;
-    border-right: 1px solid #ccc;
+    background-color: #ffffff;
+    margin: 0 0 0 240px;
+    border-left: 1px solid #ccc;
 }
 
 div.body {
@@ -79,6 +74,7 @@ div.related ul li {
     float: left;
     display: block;
     color: transparent; /* Hide the >> and | characters */
+    font-size: 0.8em;
 }
 
 div.related ul li.right {
@@ -93,18 +89,34 @@ div.related ul li a {
     color: #ffffff;
     padding: 5px 10px;
     background-color: #8ca1af;
+    border: 1px solid #8ca1af;
     text-shadow: 0 1px rgba(0, 0, 0, 0.5);
-    -moz-border-radius: 3px 3px 3px 3px;
+    border-radius: 3px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
     -moz-box-shadow: 0 1px 1px #465158;
 }
 div.related ul li a tt {
-    color: #ffffff;
+    background: inherit !important;
+    color: inherit !important;
 }
 
 div.related ul li a:hover {
-    background: #697983;
+    background-color: #8ecc4c;
+    border-bottom-color: #50732b;
+    border-left-color: #6b9939;
+    border-right-color: #6b9939;
+    border-top-color: #b0e090;
+    color: #ffffff;
     text-decoration: none;
 }
+/*
+div.related ul li a tt:hover {
+    background: inherit !important;
+    color: inherit !important;
+    border: inherit !important;
+}
+*/
 
 /* These aren't too useful, since the related bar
  * contains both left- and right-floated items */
@@ -116,24 +128,27 @@ div.sphinxsidebarwrapper {
 }
 
 div.sphinxsidebar {
-    float: left;
     margin: 0;
     padding: 0 1em;
     width: 210px;
+    float: left;
     font-size: 1em;
-    margin-left: -100%;
     text-align: left;
 }
 
 div.sphinxsidebar h3, div.sphinxsidebar h4 {
-    margin: 1.2em 0 0.5em 0;
+    margin: 1.2em 0 0.3em 0;
     font-size: 1em;
-    padding: 0.2em 0 0.2em 0.6em;
-    color: #444444;
-    border: 1px solid #444444;
-    background-color: #d1d9df;
-    text-shadow: 0 1px rgba(255, 255, 255, 0.5);
-    -moz-border-radius: 3px 3px 3px 3px;
+    padding: 0;
+    color: #222222;
+    font-family: "ff-meta-web-pro-1", "ff-meta-web-pro-2", "Arial", "Helvetica Neue", sans-serif;
+    /*
+    border: 1px solid #cccccc;
+    background-color: #ffffff;
+    border-radius: 3px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    */
     /* -moz-box-shadow: 0 1px 1px #465158; */
 }
 
@@ -141,10 +156,9 @@ div.sphinxsidebar h3 a {
     color: #444444;
 }
 
-div.sphinxsidebar ul {
-    padding-left: 1.5em;
-    margin-top: 7px;
-    padding: 0;
+div.sphinxsidebar ul,
+div.sphinxsidebar p {
+    padding-left: 1em;
     line-height: 130%;
 }
 
@@ -173,22 +187,45 @@ p {
 }
 
 a {
-    color: #70a0b0;
+    /* color: #355f7c; */
+    color: #444;
     text-decoration: none;
+    border-bottom: 1px solid #ccc;
 }
 
 a:hover {
-    color: #5080d0;
-    text-decoration: underline;
+    color: #111111;
+    text-decoration: none;
+    border-bottom: 1px solid #111111;
 }
 
+/*
 a tt {
-    border: 0;
-    color: #70a0b0;
+    color: #444;
+    text-decoration: none;
+    border-bottom: 1px solid #ccc;
 }
 
 a tt:hover {
-    color: #5080d0;
+    color: #111111;
+    text-decoration: none;
+    border-bottom: 1px solid #111111;
+}
+*/
+
+/* Permalink anchor */
+a.headerlink {
+    color: #ccc !important;
+    font-size: 1em;
+    margin-left: 6px;
+    padding: 0 4px 0 4px;
+    text-decoration: none !important;
+    border: none;
+}
+
+a.headerlink:hover {
+    color: #c60f0f !important;
+    border: none;
 }
 
 
@@ -232,18 +269,6 @@ h5 a.anchor:hover, h6 a.anchor:hover {
     background-color: #eee;
 }
 
-a.headerlink {
-    color: #d1d9df !important;
-    font-size: 1em;
-    margin-left: 6px;
-    padding: 0 4px 0 4px;
-    text-decoration: none !important;
-}
-
-a.headerlink:hover {
-    color: #c60f0f !important;
-}
-
 cite, code, tt {
     font-family: 'Consolas', 'Deja Vu Sans Mono',
                  'Bitstream Vera Sans Mono', monospace;
@@ -253,12 +278,17 @@ cite, code, tt {
 
 tt {
     background-color: #f2f2f2;
-    border-bottom: 1px solid #ddd;
+    /* border-bottom: 1px solid #ddd; */
     color: #333;
 }
 
 tt.descname, tt.descclassname, tt.xref {
     border: 0;
+}
+
+hr {
+    border: 1px solid #abc;
+    margin: 2em;
 }
 
 pre {
@@ -269,8 +299,11 @@ pre {
     line-height: 120%;
     padding: 0.5em;
     border: 1px solid #ccc;
-    background-color: #f8f8f8;
-    -moz-border-radius: 5px 5px 5px 5px;
+    /* background-color: #f8f8f8; */
+    background-color: #f0f4f8;
+    border-radius: 6px;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
 }
 
 pre a {
@@ -368,3 +401,45 @@ div.viewcode-block:target {
 dl {
     margin: 1em 0 2.5em 0;
 }
+
+/* Highlight when you click an internal link */
+dt:target, .highlight {
+    background: #ffe080;
+}
+
+/* Search text box and "Go" button */
+input,
+div.sphinxsidebar input {
+    border: 1px solid #444;
+    border-radius: 3px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    float: left;
+}
+
+input[type="text"] {
+    padding: 2px;
+    width: 150px;
+}
+
+input[type="submit"] {
+    color: #444;
+    background-color: #ddd;
+    padding: 2px 6px;
+    font-weight: bold;
+}
+
+input[type="submit"]:hover {
+    color: #ffffff;
+    background-color: #8ecc4c;
+    border-bottom-color: #50732b;
+    border-left-color: #6b9939;
+    border-right-color: #6b9939;
+    border-top-color: #b0e090;
+}
+
+div.sphinxsidebar p.searchtip {
+    clear: both;
+    padding: 0.2em 0;
+}
+
