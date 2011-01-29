@@ -219,3 +219,5 @@ man_pages = [
     ('index', 'readthedocs', u'Read The Docs Documentation',
      [u'Eric Holscher, Charlie Leifer, Bobby Grace'], 1)
 ]
+
+html_style = 'rtd.css'
