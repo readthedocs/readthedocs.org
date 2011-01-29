@@ -261,11 +261,6 @@ tt.descname, tt.descclassname, tt.xref {
     border: 0;
 }
 
-hr {
-    border: 1px solid #abc;
-    margin: 2em;
-}
-
 pre {
     font-family: 'Consolas', 'Deja Vu Sans Mono',
                  'Bitstream Vera Sans Mono', monospace;
