@@ -17,11 +17,11 @@ if 'templates_path' in locals():
 else:
     templates_path = ['{{ template_path }}', 'templates', '_templates', '.templates']
 
-#Add RTD Static Path.
+#Add RTD Static Path. Add to the end because it overwrites previous files.
 if 'html_static_path' in locals():
-    html_static_path.insert(0, '{{ static_path }}')
+    html_static_path.append('{{ static_path }}')
 else:
-    html_static_path = ['{{ static_path }}', '_static']
+    html_static_path = ['_static', '{{ static_path }}']
 
 #Add RTD CSS File only if they aren't overriding it already
 using_rtd_theme = False
