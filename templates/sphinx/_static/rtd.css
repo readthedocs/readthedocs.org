@@ -92,14 +92,10 @@ div.related ul li a {
     color: #ffffff;
     padding: 5px 10px;
     border: none;
+    border-radius: 3px;
 }
 
 div.related ul li.right a {
-    font-weight: bold;
-    margin: 6px 0 6px 0;
-    line-height: 1.75em;
-    color: #ffffff;
-    padding: 5px 10px;
     background-color: #8ca1af;
     border: 1px solid #8ca1af;
     text-shadow: 0 1px rgba(0, 0, 0, 0.5);
