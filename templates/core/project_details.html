@@ -21,7 +21,12 @@
 {% endif %}
 
 <h3>Last Built</h3>
-<p>{{ project.modified_date|date:"N j, Y. P" }}</p>
+<p>{{ project.modified_date|timesince }} ago</p>
+
+{% if project.repo %}
+<h3>Repository</h3>
+<p>{{ project.repo }}</p>
+{% endif %}
 
 {% if project.tags.count %}
   <h3>Tags</h3>

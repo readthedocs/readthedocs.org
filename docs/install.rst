@@ -30,11 +30,6 @@ Next, install the dependencies using ``pip`` (included with virtualenv_)::
     cd readthedocs.org
     pip install -r pip_requirements.txt
 
-Then create local_settings.py and define your DATABASES
-
-    touch settings/local_settings.py
-    # Edit this in your editor
-
 This may take a while, so go grab a beverage. When it's done, build your
 database::
 
@@ -42,11 +37,6 @@ database::
 
 This will prompt you to create a superuser account for Django. Do that. Then::
 
-    # migrate will fail on the first data migration, 0008 was a data migration on an old model
-    # this will run the first 7 then fail.
-    ./manage.py migrate projects
-    ./manage.py migrate projects 0008 --fake
-    # now it will pass
     ./manage.py migrate
 
 If you like, you can load up some test projects::
@@ -101,4 +91,3 @@ We are auto-importing and generating ``conf.py`` files, so projects with special
 extensions, themes, or templates won't work correctly. This is because of the
 possibility of code execution within the python files. We are planning to support
 popular themes and white list users that we trust to have these abilities.
-

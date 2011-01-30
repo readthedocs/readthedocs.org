@@ -19,8 +19,6 @@ import os
 import re
 
 
-
-
 def homepage(request):
     projs = Project.objects.select_related().filter(builds__isnull=False).annotate(max_date=Max('builds__date')).order_by('-max_date')[:10]
     featured = Project.objects.select_related().filter(featured=True)
@@ -46,7 +44,7 @@ def github_build(request):
         ghetto_url = url.replace('http://', '').replace('https://', '')
         try:
             project = Project.objects.filter(repo__contains=ghetto_url)[0]
-            update_docs.delay(pk=project.pk)
+            update_docs.delay(pk=project.pk, touch=True)
             return HttpResponse('Build Started')
         except:
             mail_admins('Build Failure', '%s failed to build via github' % name)
@@ -64,7 +62,7 @@ def bitbucket_build(request):
         url = "%s%s" % ("bitbucket.org",  rep['absolute_url'])
         try:
             project = Project.objects.filter(repo__contains=url)[0]
-            update_docs.delay(pk=project.pk)
+            update_docs.delay(pk=project.pk, touch=True)
             return HttpResponse('Build Started')
         except:
             mail_admins('Build Failure', '%s failed to build via github' % name)
@@ -78,7 +76,7 @@ def generic_build(request, pk):
     project = Project.objects.get(pk=pk)
     context = {'built': False, 'project': project}
     #This should be in the post, but for now it's always built for backwards compat
-    update_docs.delay(pk=pk)
+    update_docs.delay(pk=pk, touch=True)
     if request.method == 'POST':
         context['built'] = True
     return render_to_response('post_commit.html', context,
