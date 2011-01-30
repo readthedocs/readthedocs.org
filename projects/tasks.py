@@ -4,6 +4,7 @@
 import decimal
 import fnmatch
 import os
+import getpass
 import re
 import shutil
 
@@ -204,11 +205,23 @@ def move_docs(project, version):
         if version:
             version_slug = version.slug
         target = os.path.join(project.rtd_build_path, version_slug)
-        if os.path.exists(target):
-            shutil.rmtree(target)
-        shutil.copytree(project.full_build_path, target)
+        if getattr(settings, "MULTIPLE_APP_SERVERS", None):
+           rsync_to_app_servers(project.full_build_path, target)
+        else:
+            if os.path.exists(target):
+                shutil.rmtree(target)
+            shutil.copytree(project.full_build_path, target)
     else:
         print "Not moving docs, because the build dir is unknown."
+
+def rsync_to_app_servers(full_build_path, target):
+    #You should be checking for this above.
+    servers = settings.MULTIPLE_APP_SERVERS
+    for server in servers:
+        ret = run('rsync --delete -av %s/ %s@%s:%s' % (full_build_path, getpass.getuser(), server, target))
+        if ret[0] != 0:
+            print "RSYNC ERROR: out: %s err: %s" % (ret[1], ret[2])
+
 
 def fileify(project_slug):
     project = Project.objects.get(slug=project_slug)
