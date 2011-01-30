@@ -21,7 +21,7 @@
 {% endif %}
 
 <h3>Last Built</h3>
-<p>{{ project.modified_date|timesince }}</p>
+<p>{{ project.modified_date|timesince }} ago</p>
 
 {% if project.tags.count %}
   <h3>Tags</h3>
