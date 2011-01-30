@@ -37,7 +37,7 @@ body {
     line-height: 150%;
     text-align: center;
     color: black;
-    background-color: #eee;
+    background-color: #465158;
     padding: 0;
 
     margin: 0;
@@ -124,6 +124,7 @@ div.related ul li:first-child a { }
 div.related ul li:last-child a { }
 
 div.documentwrapper {
+    background-color: #EEEEEE;
     float: left;
     width: 100%;
 }
