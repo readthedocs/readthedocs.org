@@ -12,6 +12,8 @@ class Migration(DataMigration):
 
     def forwards(self, orm):
         "Whitelist any user who has whitelisted projects."
+        pass
+        """
         for project in Project.objects.all():
             if project.whitelisted:
                 # If user doesn't have a profile, create one
@@ -22,10 +24,13 @@ class Migration(DataMigration):
                 # Whitelist the user's profile
                 profile.whitelisted = True
                 profile.save()
+        """
 
 
     def backwards(self, orm):
         "Whitelist all projects owned by whitelisted users."
+        pass
+        """
         for project in Project.objects.all():
             # If user doesn't have a profile, skip
             # (assume they are not whitelisted)
@@ -38,6 +43,7 @@ class Migration(DataMigration):
                 if profile.whitelisted:
                     project.whitelisted = True
                     project.save()
+        """
 
 
     models = {
