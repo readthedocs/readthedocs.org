@@ -26,7 +26,7 @@ else:
 #Add RTD CSS File only if they aren't overriding it already
 using_rtd_theme = False
 if 'html_theme' in locals():
-    if html_theme in ['sphinxdoc', 'default']:
+    if html_theme in ['sphinxdoc']:
         if not 'html_style' in locals():
             html_style = 'rtd.css'
             html_theme = 'default'
