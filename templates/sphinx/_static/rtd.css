@@ -46,6 +46,7 @@ body {
 
 div.document {
     text-align: left;
+    background-color: #EEEEEE;
 }
 
 div.bodywrapper {
@@ -126,11 +127,11 @@ div.related ul li:last-child a { }
 div.documentwrapper {
     float: left;
     width: 100%;
+    background-color: #EEEEEE;
 }
 
 div.sphinxsidebarwrapper {
     padding: 0;
-    background-color: #EEEEEE;
 }
 
 div.sphinxsidebar {
@@ -143,6 +144,7 @@ div.sphinxsidebar {
     width: 210px;
     font-size: 1em;
     text-align: left;
+    background-color: #EEEEEE;
 }
 
 div.sphinxsidebar h3, div.sphinxsidebar h4 {
