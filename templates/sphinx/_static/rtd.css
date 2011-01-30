@@ -123,13 +123,19 @@ div.related ul li a tt:hover {
 div.related ul li:first-child a { }
 div.related ul li:last-child a { }
 
+div.documentwrapper {
+    float: left;
+    width: 100%;
+}
+
 div.sphinxsidebarwrapper {
     padding: 0;
 }
 
 div.sphinxsidebar {
     margin: 0;
-    position: absolute;
+    margin-left: -100%;
+    float: left;
     top: 3em;
     left: 0;
     padding: 0 1em;
