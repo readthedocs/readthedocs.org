@@ -1,9 +1,11 @@
 /*
- * sphinxdoc.css_t
+ * rtd.css
  * ~~~~~~~~~~~~~~~
  *
  * Sphinx stylesheet -- sphinxdoc theme.  Originally created by
  * Armin Ronacher for Werkzeug.
+ *
+ * Customized for ReadTheDocs by Eric Pierce & Eric Holscher
  *
  * :copyright: Copyright 2007-2010 by the Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
@@ -19,6 +21,7 @@
  * white hover: #d1d9df;
  * medium blue hover: #697983;
  * green highlight: #8ecc4c
+ * light blue (project bar): #e8ecef
  */
 
 @import url("basic.css");
@@ -27,13 +30,6 @@
 
 body {
     font: 16px/24px "ff-meta-web-pro-1","ff-meta-web-pro-2",Arial,"Helvetica Neue",sans-serif;
-
-    /*
-    font-family: 'Lucida Grande', 'Lucida Sans Unicode', 'Geneva',
-                 'Verdana', sans-serif;
-    font-size: 14px;
-    */
-    /*letter-spacing: -0.01em;*/
     line-height: 150%;
     text-align: center;
     color: black;
@@ -46,13 +42,12 @@ body {
 
 div.document {
     text-align: left;
-    background-color: #EEEEEE;
+    background-color: #e8ecef;
 }
 
 div.bodywrapper {
     background-color: #ffffff;
     margin: 0 0 0 240px;
-    border-left: 1px solid #ccc;
 }
 
 div.body {
@@ -74,13 +69,14 @@ div.related ul li {
     padding: 8px 0;
     float: left;
     display: block;
-    color: transparent; /* Hide the >> and | characters */
+    color: white; /* For the >> separators */
     font-size: 0.8em;
 }
 
 div.related ul li.right {
     float: right;
     margin-right: 5px;
+    color: transparent; /* Hide the | separators */
 }
 
 div.related ul li a {
@@ -96,13 +92,11 @@ div.related ul li a {
 }
 
 div.related ul li.right a {
-    background-color: #8ca1af;
-    border: 1px solid #8ca1af;
+    background-color: #697983;
     text-shadow: 0 1px rgba(0, 0, 0, 0.5);
     border-radius: 3px;
     -webkit-border-radius: 3px;
     -moz-border-radius: 3px;
-    -moz-box-shadow: 0 1px 1px #465158;
 }
 
 div.related ul li a tt {
@@ -111,21 +105,10 @@ div.related ul li a tt {
 }
 
 div.related ul li a:hover {
-    background-color: #8ecc4c;
-    border-bottom-color: #50732b;
-    border-left-color: #6b9939;
-    border-right-color: #6b9939;
-    border-top-color: #b0e090;
+    background-color: #8ca1af;
     color: #ffffff;
     text-decoration: none;
 }
-/*
-div.related ul li a tt:hover {
-    background: inherit !important;
-    color: inherit !important;
-    border: inherit !important;
-}
-*/
 
 /* These aren't too useful, since the related bar
  * contains both left- and right-floated items */
@@ -135,7 +118,7 @@ div.related ul li:last-child a { }
 div.documentwrapper {
     float: left;
     width: 100%;
-    background-color: #EEEEEE;
+    background-color: #e8ecef;
 }
 
 div.sphinxsidebarwrapper {
@@ -152,7 +135,16 @@ div.sphinxsidebar {
     width: 210px;
     font-size: 1em;
     text-align: left;
-    background-color: #EEEEEE;
+    background-color: #e8ecef;
+    overflow: hidden; /* Prevent long items from overlapping the main content */
+}
+
+div.sphinxsidebar:hover {
+    overflow: visible; /* Make the long items visible again */
+}
+
+div.sphinxsidebar a {
+    background: #e8ecef; /* In case links overlap main content */
 }
 
 div.sphinxsidebar h3, div.sphinxsidebar h4 {
@@ -161,14 +153,6 @@ div.sphinxsidebar h3, div.sphinxsidebar h4 {
     padding: 0;
     color: #222222;
     font-family: "ff-meta-web-pro-1", "ff-meta-web-pro-2", "Arial", "Helvetica Neue", sans-serif;
-    /*
-    border: 1px solid #cccccc;
-    background-color: #ffffff;
-    border-radius: 3px;
-    -webkit-border-radius: 3px;
-    -moz-border-radius: 3px;
-    */
-    /* -moz-box-shadow: 0 1px 1px #465158; */
 }
 
 div.sphinxsidebar h3 a {
@@ -179,10 +163,7 @@ div.sphinxsidebar ul,
 div.sphinxsidebar p {
     padding-left: 1em;
     line-height: 130%;
-}
-
-div.sphinxsidebar ul ul {
-    margin-left: 20px;
+    background-color: #e8ecef;
 }
 
 div.footer {
@@ -213,7 +194,6 @@ p {
 }
 
 a {
-    /* color: #355f7c; */
     color: #444;
     text-decoration: none;
     border-bottom: 1px solid #ccc;
@@ -224,20 +204,6 @@ a:hover {
     text-decoration: none;
     border-bottom: 1px solid #111111;
 }
-
-/*
-a tt {
-    color: #444;
-    text-decoration: none;
-    border-bottom: 1px solid #ccc;
-}
-
-a tt:hover {
-    color: #111111;
-    text-decoration: none;
-    border-bottom: 1px solid #111111;
-}
-*/
 
 /* Permalink anchor */
 a.headerlink {
@@ -304,7 +270,6 @@ cite, code, tt {
 
 tt {
     background-color: #f2f2f2;
-    /* border-bottom: 1px solid #ddd; */
     color: #333;
 }
 
@@ -325,8 +290,7 @@ pre {
     line-height: 120%;
     padding: 0.5em;
     border: 1px solid #ccc;
-    /* background-color: #f8f8f8; */
-    background-color: #f0f4f8;
+    background-color: #eee;
     border-radius: 6px;
     -webkit-border-radius: 6px;
     -moz-border-radius: 6px;
@@ -469,7 +433,7 @@ input[type="submit"] {
     margin: 0;
     height: 20px;
     color: #444;
-    background-color: #eee;
+    background-color: #e8ecef;
     padding: 0 6px;
     font-weight: bold;
     border-top-right-radius: 3px;
@@ -492,4 +456,6 @@ input[type="submit"]:hover {
 div.sphinxsidebar p.searchtip {
     clear: both;
     padding: 0.5em 0 0 0;
+    background: #ddd;
 }
+
