@@ -84,6 +84,17 @@ div.related ul li.right {
 }
 
 div.related ul li a {
+    order: none;
+    background-color: inherit;
+    font-weight: bold;
+    margin: 6px 0 6px 0;
+    line-height: 1.75em;
+    color: #ffffff;
+    padding: 5px 10px;
+    border: none;
+}
+
+div.related ul li.right a {
     font-weight: bold;
     margin: 6px 0 6px 0;
     line-height: 1.75em;
@@ -97,6 +108,7 @@ div.related ul li a {
     -moz-border-radius: 3px;
     -moz-box-shadow: 0 1px 1px #465158;
 }
+
 div.related ul li a tt {
     background: inherit !important;
     color: inherit !important;
