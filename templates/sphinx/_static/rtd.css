@@ -124,13 +124,13 @@ div.related ul li:first-child a { }
 div.related ul li:last-child a { }
 
 div.documentwrapper {
-    background-color: #EEEEEE;
     float: left;
     width: 100%;
 }
 
 div.sphinxsidebarwrapper {
     padding: 0;
+    background-color: #EEEEEE;
 }
 
 div.sphinxsidebar {
