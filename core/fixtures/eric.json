@@ -1,19 +1,37 @@
 [
     {
-        "pk": 1, 
-        "model": "auth.user", 
+        "pk": 1,
+        "model": "auth.user",
         "fields": {
-            "username": "eric", 
-            "first_name": "", 
-            "last_name": "", 
-            "is_active": true, 
-            "is_superuser": true, 
-            "is_staff": true, 
-            "last_login": "2010-08-14 01:51:05", 
-            "groups": [], 
-            "user_permissions": [], 
-            "password": "sha1$035cb$156ad6cb44332fb4f24bcb634142a67435be0b37", 
-            "email": "e@e.co", 
+            "username": "eric",
+            "first_name": "",
+            "last_name": "",
+            "is_active": true,
+            "is_superuser": true,
+            "is_staff": true,
+            "last_login": "2010-08-14 01:51:05",
+            "groups": [],
+            "user_permissions": [],
+            "password": "sha1$035cb$156ad6cb44332fb4f24bcb634142a67435be0b37",
+            "email": "e@e.co",
+            "date_joined": "2010-08-14 01:50:58"
+        }
+    },
+    {
+        "pk": 2,
+        "model": "auth.user",
+        "fields": {
+            "username": "tester",
+            "first_name": "Testy",
+            "last_name": "Testerson",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": true,
+            "last_login": "2010-08-14 01:51:05",
+            "groups": [],
+            "user_permissions": [],
+            "password": "sha1$035cb$156ad6cb44332fb4f24bcb634142a67435be0b37",
+            "email": "e@etest.co",
             "date_joined": "2010-08-14 01:50:58"
         }
     }

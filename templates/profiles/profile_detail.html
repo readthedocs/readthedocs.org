@@ -1,30 +1,37 @@
-{% extends "profiles/base_profile.html" %}
+{% extends "base.html" %}
 
 {% block title %}{{ user }}'s profile{% endblock %}
 
 {% block content-header %}
-  <h1>{{ user }}'s profile</h1>
+  <h1>{{ profile.user }}'s profile</h1>
 {% endblock %}
 
 {% block content %}
-  <dl>
-    {% if profile.user.first_name or profile.user.last_name %}
-      <dt>Name</dt>
-      <dd>{{ profile.user.first_name }} {{ profile.user.last_name }}</dd>
-    {% endif %}
+  {% if profile.homepage %}
+  <h3>Homepage</h3>
+    <p><a href="{{ profile.homepage }}">{{ profile.homepage }}</a></p>
+  {% endif %}
 
-    {% if profile.user.email %}
-      <dt>Email</dt>
-      <dd>{{ profile.user.email }}</dd>
-    {% endif %}
+    <h3>Projects {% if person %}by {{ person.username }}{% endif %}{% if tag %}tagged with "{{ tag.name }}"{% endif %}</h3>
 
-    {% if profile.homepage %}
-      <dt>Homepage</dt>
-      <dd><a href="{{ profile.homepage }}">{{ profile.homepage }}</a></dd>
-    {% endif %}
+    {% with profile.user.projects.live as project_list %}
+          <!-- BEGIN projects list -->
+          <div class="module">
+            <div class="module-wrapper">
 
-    <dt>Whitelisted?</dt>
-    <dd>{{ profile.whitelisted }}</dd>
-  </dl>
+              <div class="module-list">
+                <div class="module-list-wrapper">
+
+                  <ul>
+                    {% include "core/project_list_detailed.html" %}
+                  </ul>
+
+                </div>
+              </div>
+
+            </div>
+          </div>
+          <!-- END projects list -->
+    {% endwith %}
+
 {% endblock %}
-

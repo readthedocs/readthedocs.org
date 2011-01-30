@@ -1,27 +1,28 @@
 """Tasks related to projects, including fetching repository code, cleaning
 ``conf.py`` files, and rebuilding documentation.
 """
-
-from builds.models import Build, Version
-from celery.decorators import periodic_task, task
-from celery.task.schedules import crontab
-from doc_builder import loading as builder_loading
-from django.db import transaction
-from projects.exceptions import ProjectImportError
-from projects.utils import slugify_uniquely
-from vcs_support.base import get_backend
-from django.conf import settings
-from django.contrib.auth.models import SiteProfileNotAvailable
-from django.core.exceptions import ObjectDoesNotExist
-from django.db import transaction
-from projects.exceptions import ProjectImportError
-from projects.models import Project, ImportedFile
-from projects.utils import run, slugify_uniquely
 import decimal
 import fnmatch
 import os
 import re
 import shutil
+
+from celery.decorators import periodic_task, task
+from celery.task.schedules import crontab
+from django.db import transaction
+from django.conf import settings
+from django.contrib.auth.models import SiteProfileNotAvailable
+from django.core.exceptions import ObjectDoesNotExist
+
+from builds.models import Build, Version
+from doc_builder import loading as builder_loading
+from projects.exceptions import ProjectImportError
+from projects.utils import slugify_uniquely
+from projects.exceptions import ProjectImportError
+from projects.models import Project, ImportedFile
+from projects.utils import run, slugify_uniquely
+from tastyapi import client
+from vcs_support.base import get_backend
 
 ghetto_hack = re.compile(r'(?P<key>.*)\s*=\s*u?\[?[\'\"](?P<value>.*)[\'\"]\]?')
 
@@ -66,6 +67,9 @@ def update_docs(pk, record=True, pdf=False, version_pk=None, touch=False):
                 print err
         else:
             print "Build Unchanged"
+    result = client.import_project(project)
+    if result:
+        print "Project imported from Django Packages!"
 
 
 def update_imported_docs(project, version):
@@ -75,7 +79,7 @@ def update_imported_docs(project, version):
     if not project.vcs_repo:
         raise ProjectImportError("Repo type '%s' unknown" % project.repo_type)
     if version:
-        print 'Checking out version %s' % version.identifier
+        print 'Checking out version %s: %s' % (version.slug, version.identifier)
         project.vcs_repo.checkout(version.identifier)
     else:
         print 'Updating to latest revision'
@@ -176,17 +180,22 @@ def build_docs(project, version, pdf, record, touch):
     successful = (html_output[0] == 0)
     if not 'no targets are out of date.' in html_output[1]:
         if record:
-                Build.objects.create(project=project, success=successful,
-                                 output=html_output[1], error=html_output[2])
-        if successful:
-            move_docs(project, version)
-            if version:
-                version.built = True
-                version.save()
+            Build.objects.create(
+                project=project,
+                success=successful,
+                output=html_output[1],
+                error=html_output[2],
+                version=version
+            )
 
         if pdf or project.build_pdf:
             pdf_builder = builder_loading.get('pdf')()
             pdf_builder.build(project, version)
+    if successful:
+        move_docs(project, version)
+        if version:
+            version.built = True
+            version.save()
     return html_output
 
 def move_docs(project, version):
@@ -219,3 +228,13 @@ def fileify(project_slug):
 def update_docs_pull(record=False, pdf=False, touch=False):
     for project in Project.objects.live():
         update_docs(pk=project.pk, record=record, pdf=pdf, touch=touch)
+
+
+@task
+def unzip_files(dest_file, html_path):
+    if not os.path.exists(html_path):
+        os.makedirs(html_path)
+    else:
+        shutil.rmtree(html_path)
+        os.makedirs(html_path)
+    run('unzip -of %s -d %s' % (dest_file, html_path))

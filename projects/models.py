@@ -44,14 +44,16 @@ class Project(models.Model):
         choices=constants.DEFAULT_THEME_CHOICES, default=constants.THEME_DEFAULT,
         help_text='<a href="http://sphinx.pocoo.org/theming.html#builtin-themes" target="_blank">Examples</a>')
     suffix = models.CharField(max_length=10, editable=False, default='.rst')
+    default_version = models.CharField(max_length=255, default='latest')
 
     #Other model data.
     path = models.CharField(max_length=255, editable=False)
     featured = models.BooleanField()
     skip = models.BooleanField()
     build_pdf = models.BooleanField()
+    django_packages_url = models.CharField(max_length=255, blank=True)
 
-    tags = TaggableManager()
+    tags = TaggableManager(blank=True)
     objects = ProjectManager()
 
     class Meta:
@@ -66,13 +68,19 @@ class Project(models.Model):
         super(Project, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse('projects_detail', args=[self.user.username, self.slug])
+        return reverse('projects_detail', args=[self.slug])
 
-    def get_docs_url(self, version_slug='latest'):
+    def get_docs_url(self, version_slug=None):
+        version = version_slug or self.get_default_version()
         return reverse('docs_detail', kwargs={
             'project_slug': self.slug,
-            'version_slug': version_slug,
+            'version_slug': version,
             'filename': '',
+        })
+
+    def get_builds_url(self):
+        return reverse('builds_project_list', kwargs={
+            'project_slug': self.slug,
         })
 
     def get_pdf_url(self, version_slug='latest'):
@@ -145,6 +153,13 @@ class Project(models.Model):
 
     @property
     def sponsored(self):
+        non_django_projects = ['fabric', 'easy-thumbnails',
+                               'python-storymarket', 'virtualenv',
+                               'virtualenvwrapper', 'varnish',
+                               'pip']
+        if self.slug in non_django_projects \
+        or self.slug.startswith('django'):
+            return True
         return False
 
     @property
@@ -195,7 +210,7 @@ class Project(models.Model):
             return None
 
     def active_versions(self):
-        return self.versions.filter(built=True, active=True)
+        return self.versions.filter(built=True, active=True) | self.versions.filter(active=True, uploaded=True)
 
     def get_pdf_path(self, version_slug='latest'):
         path = os.path.join(settings.MEDIA_ROOT,
@@ -226,6 +241,26 @@ class Project(models.Model):
         revision_qs = FileRevision.objects.filter(file__project=self,
             file__status=constants.LIVE_STATUS)
         return revision_qs.order_by('-created_date')
+
+    def get_default_version(self):
+        """
+        Get the default version (slug).
+
+        Returns self.default_version if the version with that slug actually
+        exists (is built and published). Otherwise returns 'latest'.
+        """
+        # latest is a special case where we don't have to check if it exists
+        if self.default_version == 'latest':
+            return self.default_version
+        # check if the default_version exists
+        version_qs = self.versions.filter(
+            slug=self.default_version,
+            active=True,
+            built=True
+        )
+        if version_qs.exists():
+            return self.default_version
+        return 'latest'
 
 
 class FileManager(models.Manager):
@@ -316,7 +351,7 @@ class File(models.Model):
 
     @models.permalink
     def get_absolute_url(self):
-        return ('docs_detail', [self.project.user.username, self.project.slug, self.denormalized_path + '.html'])
+        return ('docs_detail', [self.project.slug, 'en', 'latest', self.denormalized_path + '.html'])
 
 
 class FileRevision(models.Model):
@@ -385,7 +420,7 @@ class ImportedFile(models.Model):
 
     @models.permalink
     def get_absolute_url(self):
-        return ('docs_detail', [self.project.user.username, self.project.slug, self.path])
+        return ('docs_detail', [self.project.slug, 'en', 'latest', self.path])
 
     def __unicode__(self):
         return '%s: %s' % (self.name, self.project)

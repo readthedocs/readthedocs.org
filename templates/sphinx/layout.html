@@ -2,7 +2,10 @@
 
 {% block footer %}
 {{ super() }}
-<hr> <!-- End original user content -->
+ <!-- End original user content -->
+{% if not using_theme %}
+<hr>
+{% endif %}
 <script type="text/javascript">
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-17997319-1']);
@@ -19,14 +22,18 @@
 .badge { position: fixed; display: block; bottom: 5px; height: 40px; text-indent: -9999em; border-radius: 3px; -moz-border-radius: 3px; -webkit-border-radius: 3px; box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2), 0 1px 0 rgba(255, 255, 255, 0.2) inset; -moz-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2), 0 1px 0 rgba(255, 255, 255, 0.2) inset; -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2), 0 1px 0 rgba(255, 255, 255, 0.2) inset; }
 .badge.rtd { background: #257597 url(http://media.readthedocs.org/images/badge-rtd.png) top left no-repeat; border: 1px solid #282E32; width: 160px; right: 5px; }
 .badge.revsys { background: #465158 url(http://media.readthedocs.org/images/badge-revsys.png) top left no-repeat; border: 1px solid #1C5871; width: 290px; right: 173px; }
-.badge.revsys-sm { background: #465158 url(http://media.readthedocs.org/images/badge-revsys-sm.png) top left no-repeat; border: 1px solid #1C5871; width: 205px; right: 173px; }
-.badge.revsys-inline { position: inherit; margin-left: auto; margin-right: auto; margin-bottom: 5px; background: #465158 url(http://media.readthedocs.org/images/badge-revsys-sm.png) top left no-repeat; border: 1px solid #1C5871; width: 205px; right: 173px; }
+.badge.revsys-inline-sponsored { position: inherit; margin-left: auto; margin-right: 175px; margin-bottom: 5px; background: #465158 url(http://media.readthedocs.org/images/badge-revsys.png) top left no-repeat; border: 1px solid #1C5871; width: 290px; right: 173px; }
+.badge.revsys-inline { position: inherit; margin-left: auto; margin-right: 175px; margin-bottom: 5px; background: #465158 url(http://media.readthedocs.org/images/badge-revsys-sm.png) top left no-repeat; border: 1px solid #1C5871; width: 205px; right: 173px; }
+{% if using_theme %}
+.rtd_doc_footer { background-color: #465158;}
+{% endif %}
 </style>
-
-<a href="http://readthedocs.org?fromdocs={{ slug }}" class="badge rtd">Brought to you by Read the Docs</a>
-{% if badge %}
-<a href="http://www.revsys.com?ref=rtd" class="badge revsys-sm"> Sponsored by RevSys - Didn't find your answer here? Maybe Revolustion Systems can help!</a>
+<div class="rtd_doc_footer">
+<a href="http://readthedocs.org/projects/{{ slug }}/?fromdocs={{ slug }}" class="badge rtd">Brought to you by Read the Docs</a>
+{% if badge_revsys %}
+<a href="http://www.revsys.com?ref=rtd&project={{ slug }}" class="badge revsys-inline-sponsored"> Sponsored by RevSys - Didn't find your answer here? Maybe Revolustion Systems can help!</a>
 {% else %}
 <a href="http://www.revsys.com?ref=rtd&project={{ slug }}" class="badge revsys-inline"> Read the Docs is sponsored by Revsys</a>
+</div>
 {% endif %}
 {% endblock %}

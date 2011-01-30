@@ -1,4 +1,10 @@
-from bookmarks.models import Bookmark
+import os
+import shutil
+import simplejson
+import zipfile
+
+from django import forms
+from django.forms.util import ErrorList
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.markup.templatetags.markup import restructuredtext
@@ -9,14 +15,14 @@ from django.template import RequestContext
 from django.template.defaultfilters import linebreaks
 from django.template.loader import render_to_string
 from django.views.generic.list_detail import object_list
+
+from bookmarks.models import Bookmark
 from projects import constants
-from projects.forms import FileForm, CreateProjectForm, ImportProjectForm, \
-    FileRevisionForm, build_versions_form
+from projects.forms import (FileForm, CreateProjectForm,
+                            ImportProjectForm, FileRevisionForm,
+                            build_versions_form, build_upload_html_form)
 from projects.models import Project, File
-import os
-import shutil
-import simplejson
-import zipfile
+from projects.tasks import unzip_files
 
 
 
@@ -320,3 +326,41 @@ def export(request, project_slug):
     archive.close()
 
     return HttpResponseRedirect(os.path.join(settings.MEDIA_URL, 'export', project.user.username, zip_filename))
+
+
+def upload_html(request, project_slug):
+    proj = get_object_or_404(Project.objects.all(), slug=project_slug)
+    FormClass = build_upload_html_form(proj)
+    if request.method == 'POST':
+        form = FormClass(request.POST, request.FILES, request=request)
+        if form.is_valid():
+            file = request.FILES['content']
+            version_slug = form.cleaned_data['version']
+            version = proj.versions.get(slug=version_slug)
+            #Copy file
+            dest_dir = os.path.join(settings.UPLOAD_ROOT, proj.slug)
+            if not os.path.exists(dest_dir):
+                os.makedirs(dest_dir)
+            dest_file = os.path.join(dest_dir, file.name)
+            destination = open(dest_file, 'wb+')
+            for chunk in file.chunks():
+                destination.write(chunk)
+            destination.close()
+
+            #Mark version active.
+            version.active = True
+            version.uploaded = True
+            version.built = False
+            version.save()
+
+            #Extract file into the correct place.
+            html_path = os.path.join(proj.rtd_build_path, version.slug)
+            unzip_files.delay(dest_file, html_path)
+            return HttpResponseRedirect(proj.get_absolute_url())
+    else:
+        form = FormClass(request=request)
+    return render_to_response(
+        'projects/upload_html.html',
+        {'form': form, 'project': proj},
+        context_instance=RequestContext(request)
+    )

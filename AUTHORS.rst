@@ -8,3 +8,5 @@ Awesome Contributors
 ====================
 Eric Pierce
 Chris Dickinson
+Jonas Obrist
+Issac Kelly

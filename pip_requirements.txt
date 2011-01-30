@@ -8,12 +8,15 @@ ghettoq
 importlib
 django-extensions
 django-haystack
+mimeparse
 django-profiles
 mercurial
 bzr
 github2
+httplib2
 -e git+http://github.com/nathanborror/django-basic-apps.git#egg=basic
 -e hg+http://bitbucket.org/andrewgodwin/south/#egg=south
 -e git+http://github.com/alex/django-taggit.git#egg=taggit
 -e git+http://github.com/ericflo/django-pagination.git#egg=pagination
 -e git+http://github.com/nathanborror/django-registration.git#egg=django-registration
+-e git+https://github.com/toastdriven/django-tastypie.git#egg=tastypie

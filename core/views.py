@@ -22,9 +22,9 @@ import re
 
 
 def homepage(request):
-    projs = Project.objects.filter(builds__isnull=False).annotate(max_date=Max('builds__date')).order_by('-max_date')[:10]
-    featured = Project.objects.filter(featured=True)
-    updated = PageView.objects.all()[:10]
+    projs = Project.objects.select_related().filter(builds__isnull=False).annotate(max_date=Max('builds__date')).order_by('-max_date')[:10]
+    featured = Project.objects.select_related().filter(featured=True)
+    updated = PageView.objects.select_related().all()[:10]
     return render_to_response('homepage.html',
                               {'project_list': projs,
                                'featured_list': featured,
@@ -55,6 +55,23 @@ def github_build(request):
         return render_to_response('post_commit.html', {},
                 context_instance=RequestContext(request))
 
+@csrf_view_exempt
+def bitbucket_build(request):
+    if request.method == 'POST':
+        obj = json.loads(request.POST['payload'])
+        rep = obj['repository']
+        name = rep['name']
+        url = "%s%s" % ("bitbucket.org",  rep['absolute_url'])
+        try:
+            project = Project.objects.filter(repo__contains=url)[0]
+            update_docs.delay(pk=project.pk)
+            return HttpResponse('Build Started')
+        except:
+            mail_admins('Build Failure', '%s failed to build via github' % name)
+            return HttpResponse('Build Failed')
+    else:
+        return render_to_response('post_commit.html', {},
+                context_instance=RequestContext(request))
 
 @csrf_view_exempt
 def generic_build(request, pk):
@@ -69,15 +86,18 @@ def generic_build(request, pk):
 
 
 def legacy_serve_docs(request, username, project_slug, filename):
+    proj = get_object_or_404(Project, slug=project_slug)
+    default_version = proj.get_default_version()
     url = reverse(serve_docs, kwargs={
         'project_slug': project_slug,
-        'version_slug': 'latest',
+        'version_slug': default_version,
+        'lang_slug': 'en',
         'filename': filename
     })
     return HttpResponsePermanentRedirect(url)
 
 
-def serve_docs(request, project_slug, version_slug, filename):
+def serve_docs(request, project_slug, lang_slug, version_slug, filename):
     """
     The way that we're serving the documentation.
 
@@ -87,16 +107,40 @@ def serve_docs(request, project_slug, version_slug, filename):
     This could probably be refactored to serve out of nginx if we have more
     time.
     """
+    # A bunch of janky redirect logic. This should be the last time.
+    proj = get_object_or_404(Project, slug=project_slug)
+    default_version = proj.get_default_version()
+    if not filename:
+        filename = "index.html"
     if version_slug is None:
         url = reverse(serve_docs, kwargs={
             'project_slug': project_slug,
-            'version_slug': 'latest',
+            'version_slug': default_version,
+            'lang_slug': 'en',
             'filename': filename
         })
         return HttpResponsePermanentRedirect(url)
-    proj = get_object_or_404(Project, slug=project_slug)
-    if not filename:
-        filename = "index.html"
+    if lang_slug is None:
+        url = reverse(serve_docs, kwargs={
+            'project_slug': project_slug,
+            'version_slug': version_slug if version_slug != 'en' else default_version,
+            'lang_slug': 'en',
+            'filename': filename
+        })
+        return HttpResponseRedirect(url)
+    version = proj.versions.filter(slug=version_slug)
+    valid_version = version.count()
+    if not valid_version and version_slug != 'latest' and version_slug != 'en':
+        url = reverse(serve_docs, kwargs={
+            'project_slug': project_slug,
+            'version_slug': default_version,
+            'lang_slug': 'en',
+            #Filename was part of the version that we caught.
+            'filename': os.path.join(version_slug, filename)
+        })
+        return HttpResponsePermanentRedirect(url)
+    elif valid_version:
+        request.add_badge = version[0].uploaded
     filename = filename.rstrip('/')
     basepath = os.path.join(proj.rtd_build_path, version_slug)
     if 'html' in filename:

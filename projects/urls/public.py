@@ -21,21 +21,17 @@ urlpatterns = patterns('projects.views.public',
         'project_index',
         name='projects_tag_detail',
     ),
-    url(r'^(?P<username>\w+)/(?P<project_slug>[-\w]+)/$',
+    url(r'^(?P<project_slug>[-\w]+)/$',
         'project_detail',
         name='projects_detail'
     ),
-    url(r'^slug/(?P<project_slug>[-\w]+)/(?P<filename>.*)$',
-        'slug_detail',
-        name='slug_detail'
+    url(r'^(?P<username>\w+)/(?P<project_slug>[-\w]+)/$',
+        'legacy_project_detail',
+        name='legacy_projects_detail'
     ),
     url(r'^(?P<username>\w+)/$',
         'project_index',
         name='projects_user_list'
-    ),
-    url(r'^(?P<username>\w+)/(?P<project_slug>[-\w]+)/pdf/$',
-        'project_pdf',
-        name='projects_pdf'
     ),
 )
 

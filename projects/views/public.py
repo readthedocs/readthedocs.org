@@ -1,7 +1,9 @@
 import simplejson
 
 from django.contrib.auth.models import User
-from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.core.urlresolvers import reverse
+from django.http import (HttpResponse, HttpResponseRedirect,
+                         Http404, HttpResponsePermanentRedirect)
 from django.shortcuts import get_object_or_404
 from django.views.generic.list_detail import object_list, object_detail
 from django.views.static import serve
@@ -41,25 +43,47 @@ def slug_detail(request, project_slug, filename):
     """
     A detail view for a project with various dataz
     """
+    version_slug = 'latest'
     if not filename:
         filename = "index.html"
-    return serve_docs(request=request, project_slug=project_slug, version_slug='latest', filename=filename)
+    split_filename = filename.split('/')
+    if len(split_filename) > 1:
+        version = split_filename[1]
+        proj = get_object_or_404(Project, slug=project_slug)
+        valid_version = proj.versions.filter(slug=version).count()
+        if valid_version:
+            version_slug = version
+            filename = '/'.join(split_filename[1:])
+    return serve_docs(request=request, project_slug=project_slug, version_slug=version, filename=filename)
 
-def project_detail(request, username, project_slug):
+def project_detail(request, project_slug):
     """
     A detail view for a project with various dataz
     """
-    user = get_object_or_404(User, username=username)
-    queryset = user.projects.live()
-
+    queryset = Project.objects.live()
+    projects = Project.objects.filter(slug=project_slug)
+    if not projects.count():
+        #Handle old User URLs if possible.
+        #/projects/<user>/ used to be the user list, moved to
+        #/profiles/<user>/ and made projects top-level.
+        users = User.objects.filter(username=project_slug)
+        if users.count():
+            return HttpResponseRedirect(users[0].get_absolute_url())
     return object_detail(
         request,
         queryset=queryset,
         slug_field='slug',
         slug=project_slug,
-        extra_context={'user': user},
         template_object_name='project',
     )
+
+def legacy_project_detail(request, username, project_slug):
+    queryset = Project.objects.live()
+    return HttpResponsePermanentRedirect(reverse(
+        project_detail, kwargs = {
+            'project_slug': project_slug,
+        }
+    ))
 
 def tag_index(request):
     """
@@ -109,8 +133,39 @@ def search_autocomplete(request):
 
     return HttpResponse(json_response, mimetype='text/javascript')
 
-def project_pdf(request, username, project_slug):
-    project = get_object_or_404(Project, slug=project_slug)
-    pdf = project.full_pdf_path.replace(project.full_doc_path, '')
-    base = project.full_doc_path
-    return serve(request, pdf, base)
+
+
+def subdomain_handler(request, subdomain, filename):
+    """
+    This provides the fall-back routing for subdomain requests.
+
+    This was made primarily to redirect old subdomain's to their version'd brothers.
+    """
+    if not filename:
+        filename = "index.html"
+    split_filename = filename.split('/')
+    #A correct URL, with a language and version.
+    proj = get_object_or_404(Project, slug=subdomain)
+    if len(split_filename) > 2:
+        language = split_filename[0]
+        version = split_filename[1]
+        valid_version = proj.versions.filter(slug=version).count()
+        #Hard code this for now.
+        if valid_version or version == 'latest' and language == 'en':
+            version_slug = version
+            filename = '/'.join(split_filename[2:])
+            return serve_docs(request=request,
+                              project_slug=subdomain,
+                              lang_slug='en',
+                              version_slug=version_slug,
+                              filename=filename)
+    elif len(split_filename) == 2:
+        version = split_filename[0]
+        valid_version = proj.versions.filter(slug=version).count()
+        if valid_version:
+            return HttpResponseRedirect('/en/%s/%s' %
+                                        (version,
+                                         '/'.join(split_filename[1:])))
+
+    default_version = proj.get_default_version()
+    return HttpResponseRedirect('/en/%s/%s' % (default_version, filename))

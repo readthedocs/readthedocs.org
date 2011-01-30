@@ -29,8 +29,7 @@ Contents
 
     getting_started
     webhooks
+    alternate_domains
     support
     install
     api/index
-
-

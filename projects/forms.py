@@ -22,7 +22,7 @@ class CreateProjectForm(ProjectForm):
     class Meta:
         model = Project
         exclude = ('skip', 'user', 'slug', 'repo', 'featured',
-                   'docs_directory', 'status', 'repo_type',)
+                   'docs_directory', 'status', 'repo_type', 'default_version',)
 
     def save(self, *args, **kwargs):
         created = self.instance.pk is None
@@ -53,7 +53,7 @@ class ImportProjectForm(ProjectForm):
     class Meta:
         model = Project
         exclude = ('skip', 'theme', 'docs_directory', 'user', 'slug', 'version',
-                   'copyright', 'status', 'featured',)
+                   'copyright', 'status', 'featured', 'default_version',)
 
     def clean_repo(self):
         repo = self.cleaned_data.get('repo', '').strip()
@@ -130,6 +130,7 @@ class DualCheckboxWidget(forms.CheckboxInput):
         context = {
             'MEDIA_URL': settings.MEDIA_URL,
             'built': self.version.built,
+            'uploaded': self.version.uploaded,
             'url': self.version.get_absolute_url()
         }
         return render_to_string('projects/includes/icon_built.html', context)
@@ -140,6 +141,10 @@ class BaseVersionsForm(forms.Form):
         versions = self.project.versions.all()
         for version in versions:
             self.save_version(version)
+        default_version = self.cleaned_data.get('default-version', None)
+        if default_version:
+            self.project.default_version = default_version
+            self.project.save()
 
     def save_version(self, version):
         new_value = self.cleaned_data.get('version-%s' % version.slug, None)
@@ -147,15 +152,25 @@ class BaseVersionsForm(forms.Form):
             return
         version.active = new_value
         version.save()
-        if version.active and not version.built:
-            update_docs.delay(self.project.pk, record=False, version_pk=version.pk)
+        if version.active and not version.built and not version.uploaded:
+            update_docs.delay(self.project.pk, record=True, version_pk=version.pk)
 
 
 def build_versions_form(project):
     attrs = {
         'project': project,
     }
-    for version in project.versions.all():
+    versions_qs = project.versions.all()
+    active = versions_qs.filter(active=True, built=True)
+    if active.exists():
+        choices = [('latest', 'latest')]
+        choices += [(version.slug, version.verbose_name) for version in active]
+        attrs['default-version'] = forms.ChoiceField(
+            label="Choose the default version for this project",
+            choices=choices,
+            initial=project.get_default_version(),
+        )
+    for version in versions_qs:
         field_name = 'version-%s' % version.slug
         attrs[field_name] = forms.BooleanField(
             label=version.verbose_name,
@@ -164,3 +179,40 @@ def build_versions_form(project):
             required=False,
         )
     return type('VersionsForm', (BaseVersionsForm,), attrs)
+
+
+class BaseUploadHTMLForm(forms.Form):
+    content = forms.FileField(label="Zip file of HTML")
+    overwrite = forms.BooleanField(required=False, label="Overwrite existing HTML?")
+
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request', None)
+        super(BaseUploadHTMLForm, self).__init__(*args, **kwargs)
+
+    def clean(self):
+        version_slug = self.cleaned_data['version']
+        file = self.request.FILES['content']
+        version = self.project.versions.get(slug=version_slug)
+
+        #Validation
+        if version.active and not self.cleaned_data.get('overwrite', False):
+            raise forms.ValidationError("That version is already active!")
+        if not file.name.endswith('zip'):
+            raise forms.ValidationError("Must upload a zip file.")
+
+        return self.cleaned_data
+
+
+def build_upload_html_form(project):
+    attrs = {
+        'project': project,
+    }
+    active = project.versions.all()
+    if active.exists():
+        choices = []
+        choices += [(version.slug, version.verbose_name) for version in active]
+        attrs['version'] = forms.ChoiceField(
+            label="Version of the project you are uploading HTML for",
+            choices=choices,
+        )
+    return type('UploadHTMLForm', (BaseUploadHTMLForm,), attrs)

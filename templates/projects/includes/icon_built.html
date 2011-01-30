@@ -2,6 +2,12 @@
     <a href="{{ url }}">(Built)</a>
     {#<img src="{{ MEDIA_URL }}images/icon-built.png" alt="built" />#}
 {% else %}
-    (Not built)
-    {#<img src="{{ MEDIA_URL }}images/icon-not-built.png" alt="not built" />#}
+    {% if uploaded %}
+        <a href="{{ url }}">(Uploaded)</a>
+        {#<img src="{{ MEDIA_URL }}images/icon-not-built.png" alt="not built" />#}
+    {% else %}
+        (Not built)
+        {#<img src="{{ MEDIA_URL }}images/icon-not-built.png" alt="not built" />#}
+
+    {% endif %}
 {% endif %}

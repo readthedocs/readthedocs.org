@@ -14,6 +14,7 @@ MANAGERS = ADMINS
 
 SITE_ROOT = '/'.join(os.path.dirname(__file__).split('/')[0:-1])
 DOCROOT = os.path.join(SITE_ROOT, 'user_builds')
+UPLOAD_ROOT = os.path.join(SITE_ROOT, 'user_uploads')
 
 MEDIA_ROOT = '%s/media/' % (SITE_ROOT)
 MEDIA_URL = '/media/'
@@ -50,7 +51,6 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'pagination.middleware.PaginationMiddleware',
-    'core.middleware.NginxSSIMiddleware',
     'core.middleware.SubdomainMiddleware',
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
 )
@@ -91,6 +91,7 @@ INSTALLED_APPS = (
     'basic.flagging',
     'haystack',
     'profiles',
+    'tastypie',
 
     # our apps
     'projects',
@@ -99,6 +100,7 @@ INSTALLED_APPS = (
     'bookmarks',
     'watching',
     'editor',
+    'rtd_tests',
 )
 
 
@@ -116,3 +118,8 @@ HAYSTACK_SEARCH_ENGINE = 'solr'
 HAYSTACK_SOLR_URL = 'http://odin:8983/solr'
 
 AUTH_PROFILE_MODULE = "core.UserProfile"
+SOUTH_TESTS_MIGRATE = False
+
+ABSOLUTE_URL_OVERRIDES = {
+    'auth.user': lambda o: "/profiles/%s/" % o.username
+}

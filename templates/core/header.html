@@ -51,17 +51,13 @@
 
         <!-- BEGIN header title-->
         <div class="rtfd-header-title">
-            {% if request.cname %}
             <h1><a href="/">Read the Docs</a></h1>
-            {% else %}
-            <h1><a href="http://readthedocs.org/">Read the Docs</a></h1>
-            {% endif %}
         </div>
         <!-- END header title -->
 
         <!-- BEGIN global search -->
         <div class="rtfd-header-search">
-          <form action="http://readthedocs.org{% url haystack_search %}" method="GET">
+          <form action="{% url haystack_search %}" method="GET">
             <input type="text" name="q" value="{{ term }}" id="id_site_search" placeholder="Search projects">
             <input type="submit" value="Go">
           </form>
@@ -89,9 +85,9 @@
           <ul>
             {% if request.user.is_authenticated %}
               <li {% block nav-dashboard %}{% endblock %}><a href="{% url projects_dashboard %}">Dashboard</a></li>
-              <li><a href="http://readthedocs.org{% url auth_logout %}">Log Out</a></li>
+              <li><a href="{% url auth_logout %}">Log Out</a></li>
             {% else %}
-              <li><a href="http://readthedocs.org{% url auth_login %}">Log in</a></li>
+              <li><a href="{% url auth_login %}">Log in</a></li>
             {% endif %}
 
           </ul>

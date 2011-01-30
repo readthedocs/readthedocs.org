@@ -7,6 +7,10 @@
 {% block content-header %}<h1>Edit project versions</h1>{% endblock %}
 
 {% block content %}
+  <p class="help_text">
+    If you are having trouble building older versions of your Documentation, then you can <a href="{% url projects_upload_html project.slug %}">Upload a Zip file of HTML</a> instead. This is to support versions that may not build anymore with current Sphinx, or to support plugins and extensions that we may not have on our server.
+  </p>
+
   <p>
     Choose which versions you would like to publish besides the latest revision.
   </p>

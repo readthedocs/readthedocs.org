@@ -55,11 +55,12 @@ Add an optional homepage URL and some keywords, then click "Create".
 Within a few minutes your code will automatically be fetched from your public
 repository, and the documentation will be built.
 
+If you want to keep your code updated as you commit, configure your code repository to hit our `Post Commit Hooks`_. Otherwise your project will get rebuilt nightly.
+
 .. _Sphinx: http://sphinx.pocoo.org/
 .. _reStructuredText: http://sphinx.pocoo.org/rest.html
 .. _Sign up: http://readthedocs.org/accounts/register
 .. _log in: http://readthedocs.org/accounts/login
 .. _dashboard: http://readthedocs.org/dashboard
 .. _Import: http://readthedocs.org/dashboard/import
-
-
+.. _Post Commit Hooks: http://readthedocs.org/docs/read-the-docs/latest/webhooks.html 
