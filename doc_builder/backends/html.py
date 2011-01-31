@@ -36,6 +36,9 @@ if 'html_theme' in locals():
 #Add sponsorship and project information to the template context.
 context = {
     'using_theme': using_rtd_theme,
+    'versions': {
+    {% for version in verisons %}"{{ version.slug }}": "{{ version.get_absolute_url }}",{% endfor %}
+    },
     'slug': '{{ project.slug }}',
     'badge_revsys': {{ project.sponsored }}
 }
@@ -59,6 +62,7 @@ class Builder(BaseBuilder):
         outfile = open(project.conf_filename, 'a')
         outfile.write("\n")
         rtd_ctx = Context({
+            'verisons': project.active_versions(),
             'project': project,
             'static_path': STATIC_DIR,
             'template_path': TEMPLATE_DIR,
@@ -74,6 +78,7 @@ class Builder(BaseBuilder):
                                             'badge': project.sponsored
                                             })
         rtd_ctx = Context({
+            'verisons': project.active_versions(),
             'project': project,
             'static_path': STATIC_DIR,
             'template_path': TEMPLATE_DIR,
