@@ -218,7 +218,7 @@ def rsync_to_app_servers(full_build_path, target):
     #You should be checking for this above.
     servers = settings.MULTIPLE_APP_SERVERS
     for server in servers:
-        ret = run('rsync --delete -av %s/ %s@%s:%s' % (full_build_path, getpass.getuser(), server, target))
+        ret = run('rsync -av --delete %s/ %s@%s:%s' % (full_build_path, getpass.getuser(), server, target))
         if ret[0] != 0:
             print "RSYNC ERROR: out: %s err: %s" % (ret[1], ret[2])
 
