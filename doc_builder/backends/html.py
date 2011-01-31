@@ -36,9 +36,9 @@ if 'html_theme' in locals():
 #Add sponsorship and project information to the template context.
 context = {
     'using_theme': using_rtd_theme,
-    'versions': {
-    {% for version in verisons %}"{{ version.slug }}": "{{ version.get_absolute_url }}",{% endfor %}
-    },
+    'versions': [{% for version in verisons %}
+    ("{{ version.slug }}", "{{ version.get_absolute_url }}"),{% endfor %}
+    ],
     'slug': '{{ project.slug }}',
     'badge_revsys': {{ project.sponsored }}
 }
