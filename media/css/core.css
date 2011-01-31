@@ -46,7 +46,7 @@ textarea, input, select { font-family: "inconsolata-1", "inconsolata-2", 'bitstr
 table, td, th { vertical-align: top; border-top: 1px solid #bfbfbf; border-left: 1px solid #bfbfbf; }
 td, th { padding: 5px; border-right: 1px solid #bfbfbf; border-bottom: 1px solid #bfbfbf; }
 thead { background: #f2f2f2; }
- 
+
 
 /* forms */
 
@@ -91,7 +91,7 @@ label { display: block; margin-bottom: 4px; font-weight: bold; color: #444; }
   /* header nav */
   .rtfd-header-nav { position: absolute; top: 0; right: 10px; }
   .rtfd-header-nav ul li { float: left; }
-  .rtfd-header-nav ul li a { font-size: 14px; font-weight: bold; display: block; text-decoration: none; padding: 4px 10px; margin: 10px 0 0 10px; color: #fff; text-shadow: 0 1px 0px rgba(0, 0, 0, 0.5); background: #7C8F99 url(../images/gradient-light.png) bottom left repeat-x; -moz-border-radius: 3px; -webkit-border-radius: 3px; box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2); -moz-box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2); -webkit-box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2); }
+  .rtfd-header-nav ul li a { font-size: 14px; font-weight: bold; display: block; text-decoration: none; padding: 4px 10px; margin: 10px 0 0 10px; color: #fff; text-shadow: 0 1px 0px rgba(0, 0, 0, 0.5); background: #7C8F99 url(../images/gradient-light.png) bottom left repeat-x; border-radius: 3px; -moz-border-radius: 3px; -webkit-border-radius: 3px; box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2); -moz-box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2); -webkit-box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2); }
   .rtfd-header-nav ul li a:hover { background-color: #8CA1AF; box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2); -moz-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2); -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2); }
   .rtfd-header-nav ul li.active a, .header-nav ul li.active a:hover { background-color: #BAC7CF; }
 
@@ -202,7 +202,7 @@ label { display: block; margin-bottom: 4px; font-weight: bold; color: #444; }
   li.depth-8 { padding-left: 140px; }
   li.depth-9 { padding-left: 160px; }
   li.depth-10 { padding-left: 180px; }
-  
+
 p.build-success { font-size: .8em; color: #108830; margin: 0 0 3px; }
 p.build-failure { font-size: .8em; color: #dc1020; margin: 0 0 3px; }
 p.build-missing { font-size: .8em; color: #9d9a55; margin: 0 0 3px; }
@@ -226,7 +226,7 @@ p.build-missing { font-size: .8em; color: #9d9a55; margin: 0 0 3px; }
 
 .pagination { float: left; background: #e6e6e6; padding: 8px; border-radius: 5px; -moz-border-radius: 5px; webkit-border-radius: 5px; }
 .pagination a, .pagination span { background: #fff; display: block; color: #444; text-decoration: none; float: left; padding: 8px 10px; border: 1px solid #bfbfbf; border-right: none; }
-.pagination a.disabled, .pagination span.disabled, 
+.pagination a.disabled, .pagination span.disabled,
 .pagination a.disabled:hover, .pagination span.disabled:hover { color: #999; background: #fff; }
 .pagination a:hover { background: url("../images/gradient-light.png") repeat-x scroll left bottom #f6f6f6; }
 .pagination .next { border-right: 1px solid #bfbfbf; }
