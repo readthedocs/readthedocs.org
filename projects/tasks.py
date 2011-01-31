@@ -206,7 +206,7 @@ def move_docs(project, version):
             version_slug = version.slug
         target = os.path.join(project.rtd_build_path, version_slug)
         if getattr(settings, "MULTIPLE_APP_SERVERS", None):
-           rsync_to_app_servers(project.full_build_path, target)
+           copy_to_app_servers(project.full_build_path, target)
         else:
             if os.path.exists(target):
                 shutil.rmtree(target)
@@ -214,13 +214,13 @@ def move_docs(project, version):
     else:
         print "Not moving docs, because the build dir is unknown."
 
-def rsync_to_app_servers(full_build_path, target):
+def copy_to_app_servers(full_build_path, target):
     #You should be checking for this above.
     servers = settings.MULTIPLE_APP_SERVERS
     for server in servers:
-        ret = run('rsync --delete -av %s/ %s@%s:%s' % (full_build_path, getpass.getuser(), server, target))
+        ret = run('scp -r %s/* %s@%s:%s' % (full_build_path, getpass.getuser(), server, target))
         if ret[0] != 0:
-            print "RSYNC ERROR: out: %s err: %s" % (ret[1], ret[2])
+            print "COPY ERROR: out: %s err: %s" % (ret[1], ret[2])
 
 
 def fileify(project_slug):
