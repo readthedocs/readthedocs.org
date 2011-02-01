@@ -151,6 +151,10 @@ div.sphinxsidebar:hover {
 
 div.sphinxsidebar a {
     background: #e8ecef; /* In case links overlap main content */
+    padding-right: 5px;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
 }
 
 div.sphinxsidebar h3, div.sphinxsidebar h4 {
@@ -174,8 +178,14 @@ div.sphinxsidebar p {
 }
 
 div.sphinxsidebar ul ul {
-    list-style-type: circle;
-    margin-left: 1em;
+    list-style-type: none;
+    margin-left: 1.5em;
+    padding: 0;
+    white-space: nowrap;
+}
+
+div.sphinxsidebar ul li {
+    white-space: nowrap;
 }
 
 div.footer {
@@ -212,17 +222,22 @@ a {
     border-bottom: 1px solid #ccc;
 }
 
-/* Links in sidebar and TOC trees have no underline */
-div.sphinxsidebar a,
-div.toctree-wrapper a {
+/* Links in sidebar, TOC, index trees and tables have no underline */
+.sphinxsidebar a,
+.toctree-wrapper a,
+.indextable a,
+#indices-and-tables a {
     color: #444;
-    border-bottom: 1px solid transparent;
+    text-decoration: none;
+    border-bottom: none;
 }
 
 /* All links get an underline-effect when hovered */
 a:hover,
 div.sphinxsidebar a:hover,
-div.toctree-wrapper a:hover {
+div.toctree-wrapper a:hover,
+.indextable a:hover,
+#indices-and-tables a:hover {
     color: #111;
     text-decoration: none;
     border-bottom: 1px solid #111;
@@ -252,7 +267,7 @@ h1 {
 }
 
 h2 {
-    margin: 1.3em 0 0.2em 0;
+    margin: 2em 0 0.2em 0;
     font-size: 1.35em;
     padding: 0;
 }
@@ -349,6 +364,8 @@ table td, table th {
     padding: 0.2em 0.5em 0.2em 0.5em;
 }
 
+/* TODO: Admonitions and warnings need better colors */
+
 div.admonition, div.warning {
     font-size: 0.9em;
     margin: 1em 0 1em 0;
@@ -435,15 +452,15 @@ dt:target, .highlight {
 }
 input,
 div.sphinxsidebar input {
-    border: none;
+    border: 1px solid #999;
     float: left;
 }
 
 input[type="text"] {
     margin: 0;
-    padding: 0;
+    padding: 0 3px;
     height: 20px;
-    width: 150px;
+    width: 144px;
     border-top-left-radius: 3px;
     border-bottom-left-radius: 3px;
     -webkit-border-top-left-radius: 3px;
@@ -453,11 +470,11 @@ input[type="text"] {
 }
 
 input[type="submit"] {
-    margin: 0;
-    height: 20px;
+    margin: 0 0 0 -1px;
+    height: 22px;
     color: #444;
     background-color: #e8ecef;
-    padding: 0 6px;
+    padding: 1px 4px;
     font-weight: bold;
     border-top-right-radius: 3px;
     border-bottom-right-radius: 3px;
@@ -470,10 +487,12 @@ input[type="submit"] {
 input[type="submit"]:hover {
     color: #ffffff;
     background-color: #8ecc4c;
+    /*
     border-bottom-color: #50732b;
     border-left-color: #6b9939;
     border-right-color: #6b9939;
     border-top-color: #b0e090;
+    */
 }
 
 div.sphinxsidebar p.searchtip {
