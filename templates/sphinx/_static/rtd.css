@@ -142,19 +142,13 @@ div.sphinxsidebar {
     font-size: 1em;
     text-align: left;
     background-color: #e8ecef;
-    overflow: hidden; /* Prevent long items from overlapping the main content */
 }
 
 div.sphinxsidebar:hover {
-    overflow: visible; /* Make the long items visible again */
 }
 
 div.sphinxsidebar a {
     background: #e8ecef; /* In case links overlap main content */
-    padding-right: 5px;
-    border-radius: 5px;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
 }
 
 div.sphinxsidebar h3, div.sphinxsidebar h4 {
@@ -177,11 +171,19 @@ div.sphinxsidebar p {
     background-color: #e8ecef;
 }
 
+/* Sidebar TOC scrolls horizontally, so all
+ * list items can be displayed without wrapping */
+div.sphinxsidebar ul {
+    overflow-x: auto;
+    padding-bottom: 1em;
+}
+
 div.sphinxsidebar ul ul {
     list-style-type: none;
     margin-left: 1.5em;
     padding: 0;
     white-space: nowrap;
+    overflow: visible;
 }
 
 div.sphinxsidebar ul li {
