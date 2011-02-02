@@ -149,6 +149,16 @@ div.sphinxsidebar:hover {
 
 div.sphinxsidebar a {
     background: #e8ecef; /* In case links overlap main content */
+    border-radius: 3px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border: 1px solid transparent; /* To prevent things jumping around on hover */
+    padding: 0 5px;
+}
+div.sphinxsidebar a:hover {
+    color: #111;
+    text-decoration: none;
+    border: 1px solid #111;
 }
 
 div.sphinxsidebar h3, div.sphinxsidebar h4 {
@@ -174,7 +184,7 @@ div.sphinxsidebar p {
 /* Sidebar TOC scrolls horizontally, so all
  * list items can be displayed without wrapping */
 div.sphinxsidebar ul {
-    overflow-x: auto;
+    /* overflow-x: auto; */
     padding-bottom: 1em;
 }
 
@@ -188,6 +198,11 @@ div.sphinxsidebar ul ul {
 
 div.sphinxsidebar ul li {
     white-space: nowrap;
+    overflow: hidden;
+    padding: 1px 0;
+}
+div.sphinxsidebar ul li:hover {
+    overflow: visible;
 }
 
 div.footer {
@@ -236,7 +251,6 @@ a {
 
 /* All links get an underline-effect when hovered */
 a:hover,
-div.sphinxsidebar a:hover,
 div.toctree-wrapper a:hover,
 .indextable a:hover,
 #indices-and-tables a:hover {
