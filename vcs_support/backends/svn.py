@@ -1,5 +1,5 @@
 from projects.exceptions import ProjectImportError
-from vcs_support.base import BaseVCS, VCSTag
+from vcs_support.base import BaseVCS, VCSVersion
 
 
 class Backend(BaseVCS):
@@ -64,7 +64,7 @@ class Backend(BaseVCS):
         raw_tags = [line.rstrip('/') for line in data.strip('\n').split('\n')]
         vcs_tags = []
         for name in raw_tags:
-            vcs_tags.append(VCSTag(self, '/tags/%s/' % name, name))
+            vcs_tags.append(VCSVersion(self, '/tags/%s/' % name, name))
         return vcs_tags
     
     def checkout(self, identifier=None):

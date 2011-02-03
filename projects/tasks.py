@@ -45,29 +45,35 @@ def update_docs(pk, record=True, pdf=False, version_pk=None, touch=False):
     path = project.user_doc_path
     if not os.path.exists(path):
         os.makedirs(path)
-
-    with project.repo_lock(30):
-        if project.is_imported:
-            try:
-                update_imported_docs(project, version)
-            except ProjectImportError, err:
-                print("Error importing project: %s. Skipping build." % err)
-                return
+        
+    if version:
+        versions = [version]
+    else:
+        versions = [None] + list(Version.objects.filter(active=True))
+        
+    for version in versions:
+        with project.repo_lock(30):
+            if project.is_imported:
+                try:
+                    update_imported_docs(project, version)
+                except ProjectImportError, err:
+                    print("Error importing project: %s. Skipping build." % err)
+                    return
+                else:
+                    scrape_conf_file(project)
             else:
-                scrape_conf_file(project)
-        else:
-            update_created_docs(project)
-
-        # kick off a build
-        (ret, out, err) = build_docs(project, version, pdf, record, touch)
-        if not 'no targets are out of date.' in out:
-            if ret == 0:
-                print "Build OK"
+                update_created_docs(project)
+    
+            # kick off a build
+            (ret, out, err) = build_docs(project, version, pdf, record, touch)
+            if not 'no targets are out of date.' in out:
+                if ret == 0:
+                    print "Build OK"
+                else:
+                    print "Build ERROR"
+                    print err
             else:
-                print "Build ERROR"
-                print err
-        else:
-            print "Build Unchanged"
+                print "Build Unchanged"
     result = client.import_project(project)
     if result:
         print "Project imported from Django Packages!"
@@ -89,6 +95,7 @@ def update_imported_docs(project, version):
         # check tags/version
         try:
             if project.vcs_repo.supports_tags:
+                transaction.enter_transaction_management(True)
                 tags = project.vcs_repo.get_tags()
                 old_tags = Version.objects.filter(project=project).values_list('identifier', flat=True)
                 for tag in tags:
@@ -103,8 +110,28 @@ def update_imported_docs(project, version):
                             verbose_name=tag.verbose_name
                         )
                     except Exception, e:
-                        print "Failed to create version: %s" % e
+                        print "Failed to create version (tag): %s" % e
                         transaction.rollback()
+                transaction.leave_transaction_management()
+            if project.vcs_repo.supports_branches:
+                transaction.enter_transaction_management(True)
+                branches = project.vcs_repo.get_branches()
+                old_branches = Version.objects.filter(project=project).values_list('identifier', flat=True)
+                for branch in branches:
+                    if branch.identifier in old_branches:
+                        continue
+                    slug = slugify_uniquely(Version, branch.verbose_name, 'slug', 255, project=project)
+                    try:
+                        Version.objects.get_or_create(
+                            project=project,
+                            slug=slug,
+                            identifier=branch.identifier,
+                            verbose_name=branch.verbose_name
+                        )
+                    except Exception, e:
+                        print "Failed to create version (branch): %s" % e
+                        transaction.rollback()
+                transaction.leave_transaction_management()
         except ValueError, e:
             print "Error getting tags: %s" % e
 
@@ -206,7 +233,7 @@ def move_docs(project, version):
             version_slug = version.slug
         target = os.path.join(project.rtd_build_path, version_slug)
         if getattr(settings, "MULTIPLE_APP_SERVERS", None):
-           copy_to_app_servers(project.full_build_path, target)
+            copy_to_app_servers(project.full_build_path, target)
         else:
             if os.path.exists(target):
                 shutil.rmtree(target)

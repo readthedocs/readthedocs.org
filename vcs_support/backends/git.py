@@ -1,11 +1,12 @@
 from projects.exceptions import ProjectImportError
 from vcs_support.backends.github import GithubContributionBackend
-from vcs_support.base import BaseVCS, VCSTag
+from vcs_support.base import BaseVCS, VCSVersion
 import os
 
 
 class Backend(BaseVCS):
     supports_tags = True
+    supports_branches = True
     contribution_backends = [GithubContributionBackend]
     fallback_branch = 'master' # default branch
 
@@ -68,7 +69,7 @@ class Backend(BaseVCS):
         vcs_tags = []
         for commit_hash, name in raw_tags:
             clean_name = self._get_clean_tag_name(name)
-            vcs_tags.append(VCSTag(self, commit_hash, clean_name))
+            vcs_tags.append(VCSVersion(self, commit_hash, clean_name))
         return vcs_tags
     
     def get_branches(self):
@@ -99,11 +100,13 @@ class Backend(BaseVCS):
         raw_branches = [bit[2:] for bit in stdout.split('\n') if bit.strip()]
         clean_branches = []
         for branch in raw_branches:
+            if branch == self.fallback_branch:
+                continue
             if branch.startswith('remotes/'):
                 if branch.startswith('remotes/origin/'):
-                    clean_branches.append(branch[15:])
+                    clean_branches.append(VCSVersion(self, branch[15:], branch))
             else:
-                clean_branches.append(branch)
+                clean_branches.append(VCSVersion(self, branch, branch))
         return clean_branches
 
     def _get_clean_tag_name(self, name):

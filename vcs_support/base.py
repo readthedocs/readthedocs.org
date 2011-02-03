@@ -3,9 +3,9 @@ import os
 import subprocess
 
 
-class VCSTag(object):
+class VCSVersion(object):
     """
-    Represents a Tag in a VCS.
+    Represents a Version (tag or branch) in a VCS.
     
     This class should only be instantiated in BaseVCS subclasses.
     
@@ -18,7 +18,7 @@ class VCSTag(object):
         self.verbose_name = verbose_name
         
     def __repr__(self):
-        return "<VCSTag: %s:%s" % (self.repository.repo_url, self.verbose_name)
+        return "<VCSVersion: %s:%s" % (self.repository.repo_url, self.verbose_name)
     
     
 class BaseCLI(object):
@@ -38,6 +38,7 @@ class BaseCLI(object):
 
 class BaseVCS(BaseCLI):
     supports_tags = False # Whether this VCS supports tags or not.
+    supports_branches = False # Whether this VCS supports branches or not.
     contribution_backends = []
     
     #===========================================================================
@@ -45,8 +46,8 @@ class BaseVCS(BaseCLI):
     #===========================================================================
     
     def __init__(self, project):
-        self.project = project
-        self.repo_url = project.repo_url
+        self.project =  project
+        self.repo_url = project.repo
         self.working_dir = project.working_dir
         
     def _check_working_dir(self):
@@ -61,13 +62,20 @@ class BaseVCS(BaseCLI):
         self._check_working_dir()
     
     #===========================================================================
-    # Tag related methods 
-    # These methods only apply if supports_tags = True
+    # Tag / Branch related methods 
+    # These methods only apply if supports_tags = True and/or
+    # support_branches = True
     #===========================================================================
     
     def get_tags(self):
         """
-        Returns a list of VCSTag objects. See VCSTag for more information.
+        Returns a list of VCSVersion objects. See VCSVersion for more information.
+        """
+        raise NotImplementedError
+    
+    def get_branches(self):
+        """
+        Returns a list of VCSVersion objects. See VCSVersion for more information.
         """
         raise NotImplementedError
     

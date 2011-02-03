@@ -1,5 +1,5 @@
 from projects.exceptions import ProjectImportError
-from vcs_support.base import BaseVCS, VCSTag
+from vcs_support.base import BaseVCS, VCSVersion
 
 
 class Backend(BaseVCS):
@@ -56,7 +56,7 @@ class Backend(BaseVCS):
             if clean_name == 'tip':
                 continue
             commit_hash = commit.split(':')[1]
-            vcs_tags.append(VCSTag(self, commit_hash, clean_name))
+            vcs_tags.append(VCSVersion(self, commit_hash, clean_name))
         return vcs_tags
     
     def checkout(self, identifier=None):
