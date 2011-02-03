@@ -70,6 +70,41 @@ class Backend(BaseVCS):
             clean_name = self._get_clean_tag_name(name)
             vcs_tags.append(VCSTag(self, commit_hash, clean_name))
         return vcs_tags
+    
+    def get_branches(self):
+        retcode, stdout = self._run_command('git', 'branch')[:2]
+        # error (or no tags found)
+        if retcode != 0:
+            return []
+        return self._parse_branches(stdout)
+    
+    def _parse_branches(self, data):
+        """
+        Parse output of git branch -a, eg:
+              develop
+              master
+            * release/2.0.0
+              rtd-jonas
+              remotes/origin/2.0.X
+              remotes/origin/HEAD -> origin/master
+              remotes/origin/develop
+              remotes/origin/master
+              remotes/origin/release/2.0.0
+              remotes/origin/release/2.1.0
+        """
+        retcode, stdout = self._run_command('git', 'branch')[:2]
+        # error (or no tags found)
+        if retcode != 0:
+            return []
+        raw_branches = [bit[2:] for bit in stdout.split('\n') if bit.strip()]
+        clean_branches = []
+        for branch in raw_branches:
+            if branch.startswith('remotes/'):
+                if branch.startswith('remotes/origin/'):
+                    clean_branches.append(branch[15:])
+            else:
+                clean_branches.append(branch)
+        return clean_branches
 
     def _get_clean_tag_name(self, name):
         return name.split('/', 2)[2]
