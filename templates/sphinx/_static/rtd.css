@@ -26,7 +26,7 @@
 
 @import url("basic.css");
 
-/* -- page layout ----------------------------------------------------------- */
+/* PAGE LAYOUT -------------------------------------------------------------- */
 
 body {
     font: 16px/24px "ff-meta-web-pro-1","ff-meta-web-pro-2",Arial,"Helvetica Neue",sans-serif;
@@ -35,7 +35,6 @@ body {
     color: black;
     background-color: #465158;
     padding: 0;
-
     margin: 0;
     min-width: 740px;
 }
@@ -47,12 +46,14 @@ div.document {
 
 div.bodywrapper {
     background-color: #ffffff;
-    margin: 0 0 0 240px;
+    margin: 0 0 0 250px;
 }
 
 div.body {
     margin: 0;
     padding: 0.5em 20px 20px 20px;
+    border-left: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
 }
 
 div.related {
@@ -60,183 +61,33 @@ div.related {
     background-color: #465158;
 }
 
-div.related ul {
-    height: 41px;
-}
-
-div.related ul li {
-    margin: 0;
-    padding: 8px 0;
-    float: left;
-    display: block;
-    color: white; /* For the >> separators */
-    font-size: 0.8em;
-}
-
-div.related ul li.right {
-    float: right;
-    margin-right: 5px;
-    color: transparent; /* Hide the | separators */
-}
-
-div.related ul li a {
-    order: none;
-    background-color: inherit;
-    font-weight: bold;
-    margin: 6px 0 6px 0;
-    line-height: 1.75em;
-    color: #ffffff;
-    padding: 5px 10px;
-    border: none;
-    border-radius: 3px;
-}
-
-div.related ul li.right a {
-    background-color: #697983;
-    text-shadow: 0 1px rgba(0, 0, 0, 0.5);
-    border-radius: 3px;
-    -webkit-border-radius: 3px;
-    -moz-border-radius: 3px;
-}
-
-div.related ul li a tt {
-    background: inherit !important;
-    color: inherit !important;
-}
-
-div.related ul li a:hover {
-    background-color: #8ca1af;
-    color: #ffffff;
-    text-decoration: none;
-}
-
-/* These aren't too useful, since the related bar
- * contains both left- and right-floated items */
-div.related ul li:first-child a { }
-div.related ul li:last-child a { }
-
 div.documentwrapper {
     float: left;
     width: 100%;
     background-color: #e8ecef;
 }
 
-div.sphinxsidebarwrapper {
-    padding: 0;
-}
 
-div.sphinxsidebar {
-    margin: 0;
-    margin-left: -100%;
-    float: left;
-    top: 3em;
-    left: 0;
-    padding: 0 1em;
-    width: 210px;
-    font-size: 1em;
-    text-align: left;
-    background-color: #e8ecef;
-    overflow: hidden; /* Prevent long items from overlapping the main content */
-}
-
-div.sphinxsidebar:hover {
-    overflow: visible; /* Make the long items visible again */
-}
-
-div.sphinxsidebar a {
-    background: #e8ecef; /* In case links overlap main content */
-}
-
-div.sphinxsidebar h3, div.sphinxsidebar h4 {
-    margin: 1.2em 0 0.3em 0;
-    font-size: 1em;
-    padding: 0;
-    color: #222222;
-    font-family: "ff-meta-web-pro-1", "ff-meta-web-pro-2", "Arial", "Helvetica Neue", sans-serif;
-}
-
-div.sphinxsidebar h3 a {
-    color: #444444;
-}
-
-div.sphinxsidebar ul,
-div.sphinxsidebar p {
-    padding-left: 1em;
-    line-height: 130%;
-    background-color: #e8ecef;
-}
-
-div.footer {
-    background-color: #465158;
-    color: #eeeeee;
-    padding: 0 2em 2em 2em;
-    clear: both;
-    font-size: 0.8em;
-    text-align: center;
-}
-
-div.footer a {
-    color: #86989B;
-    text-decoration: none;
-    border: none;
-}
-
-div.footer a:hover {
-    color: #a6b8bb;
-    text-decoration: underline;
-    border: none;
-}
-
-/* -- body styles ----------------------------------------------------------- */
-
-p {
-    margin: 0.8em 0 0.5em 0;
-}
-
-a {
-    color: #444;
-    text-decoration: none;
-    border-bottom: 1px solid #ccc;
-}
-
-a:hover {
-    color: #111111;
-    text-decoration: none;
-    border-bottom: 1px solid #111111;
-}
-
-/* Permalink anchor */
-a.headerlink {
-    color: #ccc !important;
-    font-size: 1em;
-    margin-left: 6px;
-    padding: 0 4px 0 4px;
-    text-decoration: none !important;
-    border: none;
-}
-
-a.headerlink:hover {
-    color: #c60f0f !important;
-    border: none;
-}
-
+/* HEADINGS --------------------------------------------------------------- */
 
 h1 {
     margin: 0;
     padding: 0.7em 0 0.3em 0;
     font-size: 1.5em;
-    color: #11557C;
+    color: #111;
 }
 
 h2 {
-    margin: 1.3em 0 0.2em 0;
+    margin: 2em 0 0.2em 0;
     font-size: 1.35em;
     padding: 0;
+    color: #465158;
 }
 
 h3 {
     margin: 1em 0 -0.3em 0;
     font-size: 1.2em;
+    color: #6c818f;
 }
 
 div.body h1 a, div.body h2 a, div.body h3 a, div.body h4 a, div.body h5 a, div.body h6 a {
@@ -261,6 +112,279 @@ h5 a.anchor:hover, h6 a.anchor:hover {
     background-color: #eee;
 }
 
+
+/* LINKS ------------------------------------------------------------------ */
+
+/* Normal links get a pseudo-underline */
+a {
+    color: #444;
+    text-decoration: none;
+    border-bottom: 1px solid #ccc;
+}
+
+/* Links in sidebar, TOC, index trees and tables have no underline */
+.sphinxsidebar a,
+.toctree-wrapper a,
+.indextable a,
+#indices-and-tables a {
+    color: #444;
+    text-decoration: none;
+    border-bottom: none;
+}
+
+/* Most links get an underline-effect when hovered */
+a:hover,
+div.toctree-wrapper a:hover,
+.indextable a:hover,
+#indices-and-tables a:hover {
+    color: #111;
+    text-decoration: none;
+    border-bottom: 1px solid #111;
+}
+
+/* Footer links */
+div.footer a {
+    color: #86989B;
+    text-decoration: none;
+    border: none;
+}
+div.footer a:hover {
+    color: #a6b8bb;
+    text-decoration: underline;
+    border: none;
+}
+
+/* Permalink anchor (subtle grey with a red hover) */
+a.headerlink {
+    color: #ccc !important;
+    font-size: 1em;
+    margin-left: 6px;
+    padding: 0 4px 0 4px;
+    text-decoration: none !important;
+    border: none;
+}
+a.headerlink:hover {
+    color: #c60f0f !important;
+    border: none;
+}
+
+
+/* NAVIGATION BAR --------------------------------------------------------- */
+
+div.related ul {
+    height: 41px;
+}
+
+div.related ul li {
+    margin: 0;
+    padding: 8px 0;
+    float: left;
+    display: block;
+    color: white; /* For the >> separators */
+    font-size: 0.8em;
+}
+
+div.related ul li.right {
+    float: right;
+    margin-right: 5px;
+    color: transparent; /* Hide the | separators */
+}
+
+/* "Breadcrumb" links in nav bar */
+div.related ul li a {
+    order: none;
+    background-color: inherit;
+    font-weight: bold;
+    margin: 6px 0 6px 4px;
+    line-height: 1.75em;
+    color: #ffffff;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 3px;
+}
+/* previous / next / modules / index links look more like buttons */
+div.related ul li.right a {
+    margin: 6px 0 6px 0;
+    background-color: #697983;
+    text-shadow: 0 1px rgba(0, 0, 0, 0.5);
+    border-radius: 3px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+}
+/* All navbar links light up as buttons when hovered */
+div.related ul li a:hover {
+    background-color: #8ca1af;
+    color: #ffffff;
+    text-decoration: none;
+    border-radius: 3px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+}
+/* Take extra precautions for tt within links */
+a tt,
+div.related ul li a tt {
+    background: inherit !important;
+    color: inherit !important;
+}
+
+
+/* SIDEBAR ---------------------------------------------------------------- */
+
+div.sphinxsidebarwrapper {
+    padding: 0;
+}
+
+div.sphinxsidebar {
+    margin: 0;
+    margin-left: -100%;
+    float: left;
+    top: 3em;
+    left: 0;
+    padding: 0 15px;
+    width: 220px;
+    font-size: 1em;
+    text-align: left;
+    background-color: #e8ecef;
+}
+
+div.sphinxsidebar h3, div.sphinxsidebar h4 {
+    margin: 1.2em 0 0.3em 0;
+    font-size: 1em;
+    padding: 0;
+    color: #222222;
+    font-family: "ff-meta-web-pro-1", "ff-meta-web-pro-2", "Arial", "Helvetica Neue", sans-serif;
+}
+
+div.sphinxsidebar h3 a {
+    color: #444444;
+}
+
+div.sphinxsidebar ul,
+div.sphinxsidebar p {
+    margin-top: 0;
+    padding-left: 0;
+    line-height: 130%;
+    background-color: #e8ecef;
+}
+
+/* No bullets for nested lists, but a little extra indentation */
+div.sphinxsidebar ul ul {
+    list-style-type: none;
+    margin-left: 1.5em;
+    padding: 0;
+}
+
+/* A little top/bottom padding to prevent adjacent links' borders
+ * from overlapping each other */
+div.sphinxsidebar ul li {
+    padding: 1px 0;
+}
+
+/* A little left-padding to make these align with the ULs */
+div.sphinxsidebar p.topless {
+    padding-left: 0 0 0 1em;
+}
+
+/* Make these into hidden one-liners */
+div.sphinxsidebar ul li,
+div.sphinxsidebar p.topless {
+    white-space: nowrap;
+    overflow: hidden;
+}
+/* ...which become visible when hovered */
+div.sphinxsidebar ul li:hover,
+div.sphinxsidebar p.topless:hover {
+    overflow: visible;
+}
+
+/* Search text box and "Go" button */
+#searchbox {
+    margin-top: 2em;
+    margin-bottom: 1em;
+    background: #ddd;
+    padding: 0.5em;
+    border-radius: 6px;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+}
+#searchbox h3 {
+    margin-top: 0;
+}
+
+/* Make search box and button abut and have a border */
+input,
+div.sphinxsidebar input {
+    border: 1px solid #999;
+    float: left;
+}
+
+/* Search textbox */
+input[type="text"] {
+    margin: 0;
+    padding: 0 3px;
+    height: 20px;
+    width: 144px;
+    border-top-left-radius: 3px;
+    border-bottom-left-radius: 3px;
+    -moz-border-radius-topleft: 3px;
+    -moz-border-radius-bottomleft: 3px;
+    -webkit-border-top-left-radius: 3px;
+    -webkit-border-bottom-left-radius: 3px;
+}
+/* Search button */
+input[type="submit"] {
+    margin: 0 0 0 -1px; /* -1px prevents a double-border with textbox */
+    height: 22px;
+    color: #444;
+    background-color: #e8ecef;
+    padding: 1px 4px;
+    font-weight: bold;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+    -moz-border-radius-topright: 3px;
+    -moz-border-radius-bottomright: 3px;
+    -webkit-border-top-right-radius: 3px;
+    -webkit-border-bottom-right-radius: 3px;
+}
+input[type="submit"]:hover {
+    color: #ffffff;
+    background-color: #8ecc4c;
+}
+
+div.sphinxsidebar p.searchtip {
+    clear: both;
+    padding: 0.5em 0 0 0;
+    background: #ddd;
+    color: #666;
+    font-size: 0.9em;
+}
+
+/* Sidebar links are unusual */
+div.sphinxsidebar li a,
+div.sphinxsidebar p a {
+    background: #e8ecef; /* In case links overlap main content */
+    border-radius: 3px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border: 1px solid transparent; /* To prevent things jumping around on hover */
+    padding: 0 5px 0 5px;
+}
+div.sphinxsidebar li a:hover,
+div.sphinxsidebar p a:hover {
+    color: #111;
+    text-decoration: none;
+    border: 1px solid #888;
+}
+
+/* Tweak any link appearing in a heading */
+div.sphinxsidebar h3 a {
+}
+
+
+
+
+/* OTHER STUFF ------------------------------------------------------------ */
+
 cite, code, tt {
     font-family: 'Consolas', 'Deja Vu Sans Mono',
                  'Bitstream Vera Sans Mono', monospace;
@@ -270,7 +394,7 @@ cite, code, tt {
 
 tt {
     background-color: #f2f2f2;
-    color: #333;
+    color: #444;
 }
 
 tt.descname, tt.descclassname, tt.xref {
@@ -285,6 +409,7 @@ hr {
 pre {
     font-family: 'Consolas', 'Deja Vu Sans Mono',
                  'Bitstream Vera Sans Mono', monospace;
+    margin: 1em 2em;
     font-size: 0.95em;
     letter-spacing: 0.015em;
     line-height: 120%;
@@ -292,8 +417,8 @@ pre {
     border: 1px solid #ccc;
     background-color: #eee;
     border-radius: 6px;
-    -webkit-border-radius: 6px;
     -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
 }
 
 pre a {
@@ -326,47 +451,65 @@ table td, table th {
     padding: 0.2em 0.5em 0.2em 0.5em;
 }
 
+
+/* ADMONITIONS AND WARNINGS ------------------------------------------------- */
+
+/* Shared by admonitions and warnings */
 div.admonition, div.warning {
     font-size: 0.9em;
-    margin: 1em 0 1em 0;
-    border: 1px solid #86989B;
-    background-color: #f7f7f7;
+    margin: 2em;
     padding: 0;
+    /*
+    border-radius: 6px;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    */
 }
-
 div.admonition p, div.warning p {
     margin: 0.5em 1em 0.5em 1em;
     padding: 0;
 }
-
 div.admonition pre, div.warning pre {
     margin: 0.4em 1em 0.4em 1em;
 }
-
 div.admonition p.admonition-title,
 div.warning p.admonition-title {
     margin: 0;
     padding: 0.1em 0 0.1em 0.5em;
     color: white;
-    border-bottom: 1px solid #86989B;
     font-weight: bold;
-    background-color: #AFC1C4;
+    font-size: 1.1em;
+    text-shadow: 0 1px rgba(0, 0, 0, 0.5);
 }
-
-div.warning {
-    border: 1px solid #940000;
-}
-
-div.warning p.admonition-title {
-    background-color: #CF0000;
-    border-bottom-color: #940000;
-}
-
 div.admonition ul, div.admonition ol,
 div.warning ul, div.warning ol {
     margin: 0.1em 0.5em 0.5em 3em;
     padding: 0;
 }
+
+
+/* Admonitions only */
+div.admonition {
+    border: 1px solid #609060;
+    background-color: #e9ffe9;
+}
+div.admonition p.admonition-title {
+    background-color: #70A070;
+    border-bottom: 1px solid #609060;
+}
+
+
+/* Warnings only */
+div.warning {
+    border: 1px solid #900000;
+    background-color: #ffe9e9;
+}
+div.warning p.admonition-title {
+    background-color: #b04040;
+    border-bottom: 1px solid #900000;
+}
+
+
 
 div.versioninfo {
     margin: 1em 0 0 0;
@@ -392,70 +535,32 @@ dl {
     margin: 1em 0 2.5em 0;
 }
 
-/* Highlight when you click an internal link */
-dt:target, .highlight {
+/* Highlight target when you click an internal link */
+dt:target {
+    background: #ffe080;
+}
+/* Don't highlight whole divs */
+div.highlight {
+    background: transparent;
+}
+/* But do highlight spans (so search results can be highlighted) */
+span.highlight {
     background: #ffe080;
 }
 
-/* Search text box and "Go" button */
-#searchbox {
-    margin-top: 2em;
-    margin-bottom: 1em;
-    background: #ddd;
-    padding: 0.5em;
-    border-radius: 6px;
-    -moz-border-radius: 6px;
-    -webkit-border-radius: 6px;
-}
-#searchbox h3 {
-    margin-top: 0;
-}
-input,
-div.sphinxsidebar input {
-    border: none;
-    float: left;
-}
-
-input[type="text"] {
-    margin: 0;
-    padding: 0;
-    height: 20px;
-    width: 150px;
-    border-top-left-radius: 3px;
-    border-bottom-left-radius: 3px;
-    -webkit-border-top-left-radius: 3px;
-    -webkit-border-bottom-left-radius: 3px;
-    -moz-border-radius-topleft: 3px;
-    -moz-border-radius-bottomleft: 3px;
-}
-
-input[type="submit"] {
-    margin: 0;
-    height: 20px;
-    color: #444;
-    background-color: #e8ecef;
-    padding: 0 6px;
-    font-weight: bold;
-    border-top-right-radius: 3px;
-    border-bottom-right-radius: 3px;
-    -webkit-border-top-right-radius: 3px;
-    -webkit-border-bottom-right-radius: 3px;
-    -moz-border-radius-topright: 3px;
-    -moz-border-radius-bottomright: 3px;
-}
-
-input[type="submit"]:hover {
-    color: #ffffff;
-    background-color: #8ecc4c;
-    border-bottom-color: #50732b;
-    border-left-color: #6b9939;
-    border-right-color: #6b9939;
-    border-top-color: #b0e090;
-}
-
-div.sphinxsidebar p.searchtip {
+div.footer {
+    background-color: #465158;
+    color: #eeeeee;
+    padding: 0 2em 2em 2em;
     clear: both;
-    padding: 0.5em 0 0 0;
-    background: #ddd;
+    font-size: 0.8em;
+    text-align: center;
 }
 
+p {
+    margin: 0.8em 0 0.5em 0;
+}
+
+.section p img {
+    margin: 1em 2em;
+}
