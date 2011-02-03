@@ -11,17 +11,11 @@ class Migration(SchemaMigration):
         # Adding field 'Project.default_branch'
         db.add_column('projects_project', 'default_branch', self.gf('django.db.models.fields.CharField')(default=None, max_length=255, null=True, blank=True), keep_default=False)
 
-        # Adding field 'Project.django_packages_url'
-        db.add_column('projects_project', 'django_packages_url', self.gf('django.db.models.fields.CharField')(default='', max_length=255, blank=True), keep_default=False)
-
 
     def backwards(self, orm):
         
         # Deleting field 'Project.default_branch'
         db.delete_column('projects_project', 'default_branch')
-
-        # Deleting field 'Project.django_packages_url'
-        db.delete_column('projects_project', 'django_packages_url')
 
 
     models = {
