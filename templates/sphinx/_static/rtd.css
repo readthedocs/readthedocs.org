@@ -46,7 +46,7 @@ div.document {
 
 div.bodywrapper {
     background-color: #ffffff;
-    margin: 0 0 0 240px;
+    margin: 0 0 0 250px;
 }
 
 div.body {
@@ -74,18 +74,20 @@ h1 {
     margin: 0;
     padding: 0.7em 0 0.3em 0;
     font-size: 1.5em;
-    color: #11557C;
+    color: #111;
 }
 
 h2 {
     margin: 2em 0 0.2em 0;
     font-size: 1.35em;
     padding: 0;
+    color: #465158;
 }
 
 h3 {
     margin: 1em 0 -0.3em 0;
     font-size: 1.2em;
+    color: #6c818f;
 }
 
 div.body h1 a, div.body h2 a, div.body h3 a, div.body h4 a, div.body h5 a, div.body h6 a {
@@ -239,7 +241,7 @@ div.sphinxsidebar {
     top: 3em;
     left: 0;
     padding: 0 15px;
-    width: 210px;
+    width: 220px;
     font-size: 1em;
     text-align: left;
     background-color: #e8ecef;
@@ -260,15 +262,9 @@ div.sphinxsidebar h3 a {
 div.sphinxsidebar ul,
 div.sphinxsidebar p {
     margin-top: 0;
-    padding-left: 1em;
+    padding-left: 0;
     line-height: 130%;
     background-color: #e8ecef;
-}
-
-/* Sidebar TOC scrolls horizontally, so all
- * list items can be displayed without wrapping */
-div.sphinxsidebar ul {
-    padding-bottom: 1em;
 }
 
 /* No bullets for nested lists, but a little extra indentation */
@@ -330,10 +326,10 @@ input[type="text"] {
     width: 144px;
     border-top-left-radius: 3px;
     border-bottom-left-radius: 3px;
-    -webkit-border-top-left-radius: 3px;
-    -webkit-border-bottom-left-radius: 3px;
     -moz-border-radius-topleft: 3px;
     -moz-border-radius-bottomleft: 3px;
+    -webkit-border-top-left-radius: 3px;
+    -webkit-border-bottom-left-radius: 3px;
 }
 /* Search button */
 input[type="submit"] {
@@ -345,10 +341,10 @@ input[type="submit"] {
     font-weight: bold;
     border-top-right-radius: 3px;
     border-bottom-right-radius: 3px;
-    -webkit-border-top-right-radius: 3px;
-    -webkit-border-bottom-right-radius: 3px;
     -moz-border-radius-topright: 3px;
     -moz-border-radius-bottomright: 3px;
+    -webkit-border-top-right-radius: 3px;
+    -webkit-border-bottom-right-radius: 3px;
 }
 input[type="submit"]:hover {
     color: #ffffff;
@@ -364,19 +360,26 @@ div.sphinxsidebar p.searchtip {
 }
 
 /* Sidebar links are unusual */
-div.sphinxsidebar a {
+div.sphinxsidebar li a,
+div.sphinxsidebar p a {
     background: #e8ecef; /* In case links overlap main content */
     border-radius: 3px;
     -moz-border-radius: 3px;
     -webkit-border-radius: 3px;
     border: 1px solid transparent; /* To prevent things jumping around on hover */
-    padding: 0 5px 0 0;
+    padding: 0 5px 0 5px;
 }
-div.sphinxsidebar a:hover {
+div.sphinxsidebar li a:hover,
+div.sphinxsidebar p a:hover {
     color: #111;
     text-decoration: none;
     border: 1px solid #888;
 }
+
+/* Tweak any link appearing in a heading */
+div.sphinxsidebar h3 a {
+}
+
 
 
 
@@ -406,6 +409,7 @@ hr {
 pre {
     font-family: 'Consolas', 'Deja Vu Sans Mono',
                  'Bitstream Vera Sans Mono', monospace;
+    margin: 1em 2em;
     font-size: 0.95em;
     letter-spacing: 0.015em;
     line-height: 120%;
@@ -413,8 +417,8 @@ pre {
     border: 1px solid #ccc;
     background-color: #eee;
     border-radius: 6px;
-    -webkit-border-radius: 6px;
     -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
 }
 
 pre a {
@@ -447,49 +451,65 @@ table td, table th {
     padding: 0.2em 0.5em 0.2em 0.5em;
 }
 
-/* TODO: Admonitions and warnings need better colors */
 
+/* ADMONITIONS AND WARNINGS ------------------------------------------------- */
+
+/* Shared by admonitions and warnings */
 div.admonition, div.warning {
     font-size: 0.9em;
-    margin: 1em 0 1em 0;
-    border: 1px solid #86989B;
-    background-color: #f7f7f7;
+    margin: 2em;
     padding: 0;
+    /*
+    border-radius: 6px;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    */
 }
-
 div.admonition p, div.warning p {
     margin: 0.5em 1em 0.5em 1em;
     padding: 0;
 }
-
 div.admonition pre, div.warning pre {
     margin: 0.4em 1em 0.4em 1em;
 }
-
 div.admonition p.admonition-title,
 div.warning p.admonition-title {
     margin: 0;
     padding: 0.1em 0 0.1em 0.5em;
     color: white;
-    border-bottom: 1px solid #86989B;
     font-weight: bold;
-    background-color: #AFC1C4;
+    font-size: 1.1em;
+    text-shadow: 0 1px rgba(0, 0, 0, 0.5);
 }
-
-div.warning {
-    border: 1px solid #940000;
-}
-
-div.warning p.admonition-title {
-    background-color: #CF0000;
-    border-bottom-color: #940000;
-}
-
 div.admonition ul, div.admonition ol,
 div.warning ul, div.warning ol {
     margin: 0.1em 0.5em 0.5em 3em;
     padding: 0;
 }
+
+
+/* Admonitions only */
+div.admonition {
+    border: 1px solid #609060;
+    background-color: #e9ffe9;
+}
+div.admonition p.admonition-title {
+    background-color: #70A070;
+    border-bottom: 1px solid #609060;
+}
+
+
+/* Warnings only */
+div.warning {
+    border: 1px solid #900000;
+    background-color: #ffe9e9;
+}
+div.warning p.admonition-title {
+    background-color: #b04040;
+    border-bottom: 1px solid #900000;
+}
+
+
 
 div.versioninfo {
     margin: 1em 0 0 0;
@@ -515,8 +535,16 @@ dl {
     margin: 1em 0 2.5em 0;
 }
 
-/* Highlight when you click an internal link */
-dt:target, .highlight {
+/* Highlight target when you click an internal link */
+dt:target {
+    background: #ffe080;
+}
+/* Don't highlight whole divs */
+div.highlight {
+    background: transparent;
+}
+/* But do highlight spans (so search results can be highlighted) */
+span.highlight {
     background: #ffe080;
 }
 
@@ -533,4 +561,6 @@ p {
     margin: 0.8em 0 0.5em 0;
 }
 
-
+.section p img {
+    margin: 1em 2em;
+}
