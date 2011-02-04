@@ -45,12 +45,12 @@ def update_docs(pk, record=True, pdf=False, version_pk=None, touch=False):
     path = project.user_doc_path
     if not os.path.exists(path):
         os.makedirs(path)
-        
+
     if version:
         versions = [version]
     else:
-        versions = [None] + list(Version.objects.filter(active=True))
-        
+        versions = [None] + list(project.versions.filter(active=True, uploaded=False))
+
     for version in versions:
         with project.repo_lock(30):
             if project.is_imported:
@@ -63,7 +63,7 @@ def update_docs(pk, record=True, pdf=False, version_pk=None, touch=False):
                     scrape_conf_file(project)
             else:
                 update_created_docs(project)
-    
+
             # kick off a build
             (ret, out, err) = build_docs(project, version, pdf, record, touch)
             if not 'no targets are out of date.' in out:
@@ -92,48 +92,50 @@ def update_imported_docs(project, version):
         print 'Updating to latest revision'
         project.vcs_repo.update()
 
-        # check tags/version
-        try:
-            if project.vcs_repo.supports_tags:
-                transaction.enter_transaction_management(True)
-                tags = project.vcs_repo.get_tags()
-                old_tags = Version.objects.filter(project=project).values_list('identifier', flat=True)
-                for tag in tags:
-                    if tag.identifier in old_tags:
-                        continue
-                    slug = slugify_uniquely(Version, tag.verbose_name, 'slug', 255, project=project)
-                    try:
-                        Version.objects.get_or_create(
-                            project=project,
-                            slug=slug,
-                            identifier=tag.identifier,
-                            verbose_name=tag.verbose_name
-                        )
-                    except Exception, e:
-                        print "Failed to create version (tag): %s" % e
-                        transaction.rollback()
-                transaction.leave_transaction_management()
-            if project.vcs_repo.supports_branches:
-                transaction.enter_transaction_management(True)
-                branches = project.vcs_repo.get_branches()
-                old_branches = Version.objects.filter(project=project).values_list('identifier', flat=True)
-                for branch in branches:
-                    if branch.identifier in old_branches:
-                        continue
-                    slug = slugify_uniquely(Version, branch.verbose_name, 'slug', 255, project=project)
-                    try:
-                        Version.objects.get_or_create(
-                            project=project,
-                            slug=slug,
-                            identifier=branch.identifier,
-                            verbose_name=branch.verbose_name
-                        )
-                    except Exception, e:
-                        print "Failed to create version (branch): %s" % e
-                        transaction.rollback()
-                transaction.leave_transaction_management()
-        except ValueError, e:
-            print "Error getting tags: %s" % e
+    # check tags/version
+    try:
+        if project.vcs_repo.supports_tags:
+            transaction.enter_transaction_management(True)
+            tags = project.vcs_repo.get_tags()
+            old_tags = Version.objects.filter(project=project).values_list('identifier', flat=True)
+            for tag in tags:
+                if tag.identifier in old_tags:
+                    continue
+                slug = slugify_uniquely(Version, tag.verbose_name, 'slug', 255, project=project)
+                try:
+                    Version.objects.get_or_create(
+                        project=project,
+                        slug=slug,
+                        identifier=tag.identifier,
+                        verbose_name=tag.verbose_name
+                    )
+                except Exception, e:
+                    print "Failed to create version (tag): %s" % e
+                    transaction.rollback()
+            transaction.leave_transaction_management()
+        if project.vcs_repo.supports_branches:
+            transaction.enter_transaction_management(True)
+            branches = project.vcs_repo.get_branches()
+            old_branches = Version.objects.filter(project=project).values_list('identifier', flat=True)
+            for branch in branches:
+                if branch.identifier in old_branches:
+                    continue
+                slug = slugify_uniquely(Version, branch.verbose_name, 'slug', 255, project=project)
+                try:
+                    Version.objects.get_or_create(
+                        project=project,
+                        slug=slug,
+                        identifier=branch.identifier,
+                        verbose_name=branch.verbose_name
+                    )
+                except Exception, e:
+                    print "Failed to create version (branch): %s" % e
+                    transaction.rollback()
+            transaction.leave_transaction_management()
+            #Kill deleted branches
+            Version.objects.filter(project=project).exclude(identifier__in=old_branches).delete()
+    except ValueError, e:
+        print "Error getting tags: %s" % e
 
 
     fileify(project_slug=project.slug)

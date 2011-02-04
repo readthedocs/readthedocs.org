@@ -25,7 +25,7 @@ class Backend(BaseVCS):
             raise ProjectImportError(
                 "Failed to get code from '%s' (git fetch): %s" % (self.repo_url, retcode)
             )
-            
+
     def _reset(self):
         branch = self.fallback_branch
         if self.project.default_branch:
@@ -71,14 +71,14 @@ class Backend(BaseVCS):
             clean_name = self._get_clean_tag_name(name)
             vcs_tags.append(VCSVersion(self, commit_hash, clean_name))
         return vcs_tags
-    
+
     def get_branches(self):
-        retcode, stdout = self._run_command('git', 'branch')[:2]
+        retcode, stdout = self._run_command('git', 'branch', '-a')[:2]
         # error (or no tags found)
         if retcode != 0:
             return []
         return self._parse_branches(stdout)
-    
+
     def _parse_branches(self, data):
         """
         Parse output of git branch -a, eg:
@@ -93,18 +93,18 @@ class Backend(BaseVCS):
               remotes/origin/release/2.0.0
               remotes/origin/release/2.1.0
         """
-        retcode, stdout = self._run_command('git', 'branch')[:2]
-        # error (or no tags found)
-        if retcode != 0:
-            return []
-        raw_branches = [bit[2:] for bit in stdout.split('\n') if bit.strip()]
+        raw_branches = [bit[2:] for bit in data.split('\n') if bit.strip()]
         clean_branches = []
         for branch in raw_branches:
             if branch == self.fallback_branch:
                 continue
             if branch.startswith('remotes/'):
                 if branch.startswith('remotes/origin/'):
-                    clean_branches.append(VCSVersion(self, branch[15:], branch))
+                    real_branch = branch.split(' ')[0]
+                    slug = real_branch[15:].replace('/', '-')
+                    if slug in ['HEAD', self.fallback_branch]:
+                        continue
+                    clean_branches.append(VCSVersion(self, real_branch, slug))
             else:
                 clean_branches.append(VCSVersion(self, branch, branch))
         return clean_branches
