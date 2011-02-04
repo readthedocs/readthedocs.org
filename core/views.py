@@ -127,12 +127,12 @@ def serve_docs(request, project_slug, lang_slug, version_slug, filename):
         })
         return HttpResponseRedirect(url)
     version = proj.versions.filter(slug=version_slug)
-    aliases = proj.aliases.filter(slug=version_slug)
+    aliases = proj.aliases.filter(from_slug=version_slug)
     valid_version = version.count() + aliases.count()
     if aliases.count():
         url = reverse(serve_docs, kwargs={
             'project_slug': project_slug,
-            'version_slug': aliases[0].redirect_to.slug,
+            'version_slug': aliases[0].to_slug,
             'lang_slug': 'en',
             'filename': filename
         })
