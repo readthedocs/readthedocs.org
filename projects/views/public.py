@@ -149,8 +149,8 @@ def subdomain_handler(request, subdomain, filename):
     if len(split_filename) > 2:
         language = split_filename[0]
         version = split_filename[1]
-        other_aliases = proj.aliases.filter(from_slug=version).count()
-        if other_aliases:
+        other_aliases = proj.aliases.filter(from_slug=version)
+        if other_aliases.count():
             return HttpResponseRedirect('/en/%s/%s' %
                                         (other_aliases[0].to_slug,
                                          '/'.join(split_filename[1:])))
@@ -168,7 +168,7 @@ def subdomain_handler(request, subdomain, filename):
     elif len(split_filename) == 2:
         version = split_filename[0]
         other_aliases = proj.aliases.filter(from_slug=version)
-        if other_aliases:
+        if other_aliases.count():
             return HttpResponseRedirect('/en/%s/%s' %
                                         (other_aliases[0].to_slug,
                                          '/'.join(split_filename[1:])))
