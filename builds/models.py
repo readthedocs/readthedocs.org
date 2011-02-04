@@ -28,6 +28,14 @@ class Version(models.Model):
             'filename': ''
         })
 
+
+
+class VersionAlias(models.Model):
+    project = models.ForeignKey(Project, related_name='aliases')
+    slug = models.TextField(max_length=255)
+    redirect_to = models.ForeignKey(Version, related_name='aliases')
+
+
 class Build(models.Model):
     project = models.ForeignKey(Project, related_name='builds')
     date = models.DateTimeField(auto_now_add=True)

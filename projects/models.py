@@ -5,11 +5,13 @@ from django.db import models
 from django.template.defaultfilters import slugify
 from django.template.loader import render_to_string
 from django.utils.functional import memoize
+
 from projects import constants
 from projects.utils import diff, dmp, safe_write
 from taggit.managers import TaggableManager
 from vcs_support.base import get_backend
 from vcs_support.utils import Lock
+
 import fnmatch
 import os
 import fnmatch

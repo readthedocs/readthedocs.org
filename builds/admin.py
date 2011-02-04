@@ -2,9 +2,10 @@
 """
 
 from django.contrib import admin
-from builds.models import Build
+from builds.models import Build, VersionAlias
 
 class BuildAdmin(admin.ModelAdmin):
     list_display = ('project', 'date', 'success')
 
 admin.site.register(Build, BuildAdmin)
+admin.site.register(VersionAlias)
