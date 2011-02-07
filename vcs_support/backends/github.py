@@ -40,7 +40,10 @@ class GithubContributionBackend(BaseContributionBackend):
     
     def _create_branch(self, identifier):
         self.repo.update()
-        self._run_command('git', 'branch', '--track', identifier, 'master')
+        branch = self.fallback_branch
+        if self.project.default_branch:
+            branch = self.project.default_branch
+        self._run_command('git', 'branch', '--track', identifier, branch)
     
     def get_branch_file(self, branch, filename):
         """
@@ -65,7 +68,10 @@ class GithubContributionBackend(BaseContributionBackend):
         name, email = branch.user.get_profile().get_contribution_details()
         author = u"%s <%s>" % (name, email)
         self._run_command('git', 'commit', '-m', comment, '--author', author)
-        self._run_command('git', 'checkout', 'master')
+        branch = self.fallback_branch
+        if self.project.default_branch:
+            branch = self.project.default_branch
+        self._run_command('git', 'checkout', branch)
     
     def push_branch(self, branch, title='', comment=''):
         """
@@ -97,8 +103,11 @@ class GithubContributionBackend(BaseContributionBackend):
         request = urllib2.Request(url)
         auth = base64.encodestring('%s/token:%s' % (GITHUB_USERNAME, GITHUB_TOKEN))[:-1]
         request.add_header("Authorization", 'Basic %s' % auth)
+        branch = self.fallback_branch
+        if self.project.default_branch:
+            branch = self.project.default_branch
         data = {
-            'base': 'master',
+            'base': branch,
             'head': '%s:%s' % (GITHUB_USERNAME, identifier),
             'title': title,
             'body': comment,
