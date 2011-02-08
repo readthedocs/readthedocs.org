@@ -149,9 +149,15 @@ def subdomain_handler(request, subdomain, filename):
     if len(split_filename) > 2:
         language = split_filename[0]
         version = split_filename[1]
-        valid_version = proj.versions.filter(slug=version).count()
+        other_aliases = proj.aliases.filter(from_slug=version)
+        if other_aliases.count():
+            return HttpResponseRedirect('/en/%s/%s' %
+                                        (other_aliases[0].to_slug,
+                                         '/'.join(split_filename[1:])))
+
+        other_projects = proj.versions.filter(slug=version).count()
         #Hard code this for now.
-        if valid_version or version == 'latest' and language == 'en':
+        if other_projects or version == 'latest' and language == 'en':
             version_slug = version
             filename = '/'.join(split_filename[2:])
             return serve_docs(request=request,
@@ -161,7 +167,13 @@ def subdomain_handler(request, subdomain, filename):
                               filename=filename)
     elif len(split_filename) == 2:
         version = split_filename[0]
-        valid_version = proj.versions.filter(slug=version).count()
+        other_aliases = proj.aliases.filter(from_slug=version)
+        if other_aliases.count():
+            return HttpResponseRedirect('/en/%s/%s' %
+                                        (other_aliases[0].to_slug,
+                                         '/'.join(split_filename[1:])))
+
+        valid_version = proj.versions.filter(slug=version)
         if valid_version:
             return HttpResponseRedirect('/en/%s/%s' %
                                         (version,

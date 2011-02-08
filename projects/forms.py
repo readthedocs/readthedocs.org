@@ -52,8 +52,7 @@ class ImportProjectForm(ProjectForm):
         help_text='URL for your code (hg or git). Ex. http://github.com/ericholscher/django-kong.git')
     class Meta:
         model = Project
-        exclude = ('skip', 'theme', 'docs_directory', 'user', 'slug', 'version',
-                   'copyright', 'status', 'featured', 'default_version',)
+        fields = ('name', 'description', 'repo', 'repo_type', 'project_url', 'tags', 'default_branch')
 
     def clean_repo(self):
         repo = self.cleaned_data.get('repo', '').strip()

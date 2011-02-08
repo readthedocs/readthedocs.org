@@ -1,5 +1,5 @@
 from projects.exceptions import ProjectImportError
-from vcs_support.base import BaseVCS, VCSTag
+from vcs_support.base import BaseVCS, VCSVersion
 
 class Backend(BaseVCS):
     supports_tags = True
@@ -52,7 +52,7 @@ class Backend(BaseVCS):
         vcs_tags = []
         for name, commit in raw_tags:
             clean_name = name.strip(' ')
-            vcs_tags.append(VCSTag(self, commit, clean_name))
+            vcs_tags.append(VCSVersion(self, commit, clean_name))
         return vcs_tags
     
     def checkout(self, identifier=None):

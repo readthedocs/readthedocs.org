@@ -28,6 +28,16 @@ class Version(models.Model):
             'filename': ''
         })
 
+
+
+class VersionAlias(models.Model):
+    project = models.ForeignKey(Project, related_name='aliases')
+    from_slug = models.CharField(max_length=255, default='')
+    to_slug = models.CharField(max_length=255, default='')
+
+    def __unicode__(self):
+        return "Alias for %s: %s -> %s" % (self.project, self.from_slug, self.to_slug)
+
 class Build(models.Model):
     project = models.ForeignKey(Project, related_name='builds')
     date = models.DateTimeField(auto_now_add=True)

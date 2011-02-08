@@ -1,12 +1,14 @@
 from projects.exceptions import ProjectImportError
 from vcs_support.backends.github import GithubContributionBackend
-from vcs_support.base import BaseVCS, VCSTag
+from vcs_support.base import BaseVCS, VCSVersion
 import os
 
 
 class Backend(BaseVCS):
     supports_tags = True
+    supports_branches = True
     contribution_backends = [GithubContributionBackend]
+    fallback_branch = 'master' # default branch
 
     def update(self):
         super(Backend, self).update()
@@ -15,6 +17,7 @@ class Backend(BaseVCS):
             self._pull()
         else:
             self._clone()
+        self._reset()
 
     def _pull(self):
         retcode = self._run_command('git', 'fetch')[0]
@@ -22,7 +25,12 @@ class Backend(BaseVCS):
             raise ProjectImportError(
                 "Failed to get code from '%s' (git fetch): %s" % (self.repo_url, retcode)
             )
-        retcode = self._run_command('git', 'reset', '--hard', 'origin/master')[0]
+
+    def _reset(self):
+        branch = self.fallback_branch
+        if self.project.default_branch:
+            branch = self.project.default_branch
+        retcode = self._run_command('git', 'reset', '--hard', 'origin/%s' % branch)[0]
         if retcode != 0:
             raise ProjectImportError(
                 "Failed to get code from '%s' (git reset): %s" % (self.repo_url, retcode)
@@ -61,8 +69,45 @@ class Backend(BaseVCS):
         vcs_tags = []
         for commit_hash, name in raw_tags:
             clean_name = self._get_clean_tag_name(name)
-            vcs_tags.append(VCSTag(self, commit_hash, clean_name))
+            vcs_tags.append(VCSVersion(self, commit_hash, clean_name))
         return vcs_tags
+
+    def get_branches(self):
+        retcode, stdout = self._run_command('git', 'branch', '-a')[:2]
+        # error (or no tags found)
+        if retcode != 0:
+            return []
+        return self._parse_branches(stdout)
+
+    def _parse_branches(self, data):
+        """
+        Parse output of git branch -a, eg:
+              develop
+              master
+            * release/2.0.0
+              rtd-jonas
+              remotes/origin/2.0.X
+              remotes/origin/HEAD -> origin/master
+              remotes/origin/develop
+              remotes/origin/master
+              remotes/origin/release/2.0.0
+              remotes/origin/release/2.1.0
+        """
+        raw_branches = [bit[2:] for bit in data.split('\n') if bit.strip()]
+        clean_branches = []
+        for branch in raw_branches:
+            if branch == self.fallback_branch:
+                continue
+            if branch.startswith('remotes/'):
+                if branch.startswith('remotes/origin/'):
+                    real_branch = branch.split(' ')[0]
+                    slug = real_branch[15:].replace('/', '-')
+                    if slug in ['HEAD', self.fallback_branch]:
+                        continue
+                    clean_branches.append(VCSVersion(self, real_branch, slug))
+            else:
+                clean_branches.append(VCSVersion(self, branch, branch))
+        return clean_branches
 
     def _get_clean_tag_name(self, name):
         return name.split('/', 2)[2]
@@ -70,7 +115,9 @@ class Backend(BaseVCS):
     def checkout(self, identifier=None):
         super(Backend, self).checkout()
         if not identifier:
-            identifier = 'master'
+            identifier = self.fallback_branch
+            if self.project.default_branch:
+                identifier = self.project.default_branch
         self._run_command('git', 'reset', '--hard', identifier)
 
     def get_env(self):
