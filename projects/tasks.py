@@ -49,7 +49,7 @@ def update_docs(pk, record=True, pdf=False, version_pk=None, touch=False):
     if version:
         versions = [version]
     else:
-        versions = [None] + list(project.versions.filter(active=True, uploaded=False))
+        versions = [None]# + list(project.versions.filter(active=True, uploaded=False))
 
     for version in versions:
         with project.repo_lock(30):
