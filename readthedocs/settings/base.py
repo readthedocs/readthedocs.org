@@ -12,7 +12,7 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-SITE_ROOT = '/'.join(os.path.dirname(__file__).split('/')[0:-1])
+SITE_ROOT = '/'.join(os.path.dirname(__file__).split('/')[0:-2])
 DOCROOT = os.path.join(SITE_ROOT, 'user_builds')
 UPLOAD_ROOT = os.path.join(SITE_ROOT, 'user_uploads')
 
@@ -58,7 +58,7 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'urls'
 
 TEMPLATE_DIRS = (
-    '%s/templates/' % (SITE_ROOT),
+    '%s/readthedocs/templates/' % (SITE_ROOT),
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
