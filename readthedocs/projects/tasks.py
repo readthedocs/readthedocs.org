@@ -28,7 +28,7 @@ from vcs_support.base import get_backend
 ghetto_hack = re.compile(r'(?P<key>.*)\s*=\s*u?\[?[\'\"](?P<value>.*)[\'\"]\]?')
 
 @task
-def update_docs(pk, record=True, pdf=False, version_pk=None, touch=False):
+def update_docs(pk, record=True, pdf=True, version_pk=None, touch=False):
     """
     A Celery task that updates the documentation for a project.
     """
@@ -91,6 +91,20 @@ def update_imported_docs(project, version):
     else:
         print 'Updating to latest revision'
         project.vcs_repo.update()
+
+    if version:
+        version_slug = version.slug
+    else:
+        version_slug = 'latest'
+    #Do Virtualenv bits:
+    if project.use_virtualenv:
+        run('virtualenv --no-site-packages %s' % project.venv_path(version=version_slug))
+        run('%s install sphinx sphinxcontrib-issuetracker' % project.venv_bin(version=version_slug,
+                                                      bin='pip'))
+
+        os.chdir(project.user_checkout_path)
+        run('%s setup.py install' % project.venv_bin(version=version_slug,
+                                                          bin='python'))
 
     # check tags/version
     try:
@@ -218,7 +232,7 @@ def build_docs(project, version, pdf, record, touch):
                 version=version
             )
 
-        if pdf or project.build_pdf:
+        if pdf:
             pdf_builder = builder_loading.get('pdf')()
             pdf_builder.build(project, version)
     if successful:

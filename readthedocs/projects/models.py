@@ -55,7 +55,7 @@ class Project(models.Model):
     path = models.CharField(max_length=255, editable=False)
     featured = models.BooleanField()
     skip = models.BooleanField()
-    build_pdf = models.BooleanField()
+    use_virtualenv = models.BooleanField()
     django_packages_url = models.CharField(max_length=255, blank=True)
 
     tags = TaggableManager(blank=True)
@@ -99,6 +99,16 @@ class Project(models.Model):
     @property
     def user_doc_path(self):
         return os.path.join(settings.DOCROOT, self.user.username, self.slug)
+
+    @property
+    def user_checkout_path(self):
+        return os.path.join(self.user_doc_path, self.slug)
+
+    def venv_path(self, version='latest'):
+        return os.path.join(self.user_doc_path, 'envs', version)
+
+    def venv_bin(self, version='latest', bin='python'):
+        return os.path.join(self.venv_path(version), 'bin', bin)
 
     @property
     def full_doc_path(self):
@@ -196,6 +206,17 @@ class Project(models.Model):
 
     def repo_lock(self, timeout=5, polling_interval=0.2):
         return Lock(self.slug, timeout, polling_interval)
+
+    def full_find(self, file):
+        """
+        A balla API to find files inside of a projects dir.
+        """
+        matches = []
+        for root, dirnames, filenames in os.walk(self.user_checkout_path):
+            for filename in fnmatch.filter(filenames, file):
+                matches.append(os.path.join(root, filename))
+        return matches
+    full_find = memoize(full_find, {}, 2)
 
     def find(self, file):
         """

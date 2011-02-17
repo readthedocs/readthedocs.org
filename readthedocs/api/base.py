@@ -61,7 +61,7 @@ class ProjectResource(ModelResource):
         queryset = Project.objects.all()
         authentication = PostAuthentication()
         authorization = Authorization()
-        excludes = ['build_pdf', 'path', 'skip', 'featured']
+        excludes = ['use_virtualenv', 'path', 'skip', 'featured']
 
     def post_list(self, request, **kwargs):
         """

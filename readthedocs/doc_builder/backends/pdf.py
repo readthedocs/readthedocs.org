@@ -18,8 +18,12 @@ class Builder(BaseBuilder):
         if version:
             version_slug = version.slug
         os.chdir(project.conf_filename.rstrip('conf.py'))
-        latex_results = run('sphinx-build -b latex '
+        if project.use_virtualenv:
+            latex_results = run('%s -b latex -d _build/doctrees   . _build/latex' % project.venv_bin('sphinx-build'))
+        else:
+            latex_results = run('sphinx-build -b latex '
                             '-d _build/doctrees   . _build/latex')
+
         if latex_results[0] == 0:
             os.chdir('_build/latex')
             tex_globs = glob('*.tex')
@@ -45,7 +49,4 @@ class Builder(BaseBuilder):
                     print "File doesn't exist, not symlinking."
             return True
         print "PDF Building failed. Moving on."
-        if project.build_pdf:
-            project.build_pdf = False
-            project.save()
         return False

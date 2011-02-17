@@ -106,7 +106,20 @@ class Builder(BaseBuilder):
                 return ('','Conf file not found. Error writing to disk.',-1)
 
     def build(self, project, version):
-        build_results = self.run_make_command(project,
+        if not version:
+            version_slug = 'latest'
+        else:
+            version_slug = version.slug
+        if project.use_virtualenv:
+            build_command = '%s -b html . _build/html' % project.venv_bin(version=version_slug, bin='sphinx-build')
+            build_results = self.run_make_command(project,
+                                                 build_command,
+                                                 'make html')
+            print "Build results:"
+            print build_results
+        else:
+            build_command = "sphinx-build -b html . _build/html"
+            build_results = self.run_make_command(project,
                                               'make html',
-                                              'sphinx-build -b html . _build/html')
+                                              build_command)
         return build_results
