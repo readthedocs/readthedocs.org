@@ -48,7 +48,7 @@ else:
     html_context = context
 """
 
-TEMPLATE_DIR = '%s/templates/sphinx' % settings.SITE_ROOT
+TEMPLATE_DIR = '%s/readthedocs/templates/sphinx' % settings.SITE_ROOT
 STATIC_DIR = '%s/_static' % TEMPLATE_DIR
 
 
