@@ -14,6 +14,8 @@ GITHUB_OKAY = GITHUB_TOKEN and GITHUB_USERNAME
 
 
 class GithubContributionBackend(BaseContributionBackend):
+    fallback_branch = 'master'
+    
     def __init__(self, *args, **kwargs):
         super(GithubContributionBackend, self).__init__(*args, **kwargs)
         self.gh = Github(username=GITHUB_USERNAME, api_token=GITHUB_TOKEN)

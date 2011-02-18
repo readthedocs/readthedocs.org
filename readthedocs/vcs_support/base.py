@@ -114,6 +114,7 @@ class BaseContributionBackend(BaseCLI):
     """
     def __init__(self, repo):
         self.repo = repo
+        self.project = repo.project
         self.repo_url = repo.repo_url
         self.working_dir = repo.working_dir
         
