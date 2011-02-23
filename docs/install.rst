@@ -33,6 +33,7 @@ Next, install the dependencies using ``pip`` (included with virtualenv_)::
 This may take a while, so go grab a beverage. When it's done, build your
 database::
 
+    cd readthedocs
     ./manage.py syncdb
 
 This will prompt you to create a superuser account for Django. Do that. Then::
