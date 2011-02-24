@@ -115,8 +115,6 @@ class Builder(BaseBuilder):
             build_results = self.run_make_command(project,
                                                  build_command,
                                                  'make html')
-            print "Build results:"
-            print build_results
         else:
             build_command = "sphinx-build -b html . _build/html"
             build_results = self.run_make_command(project,
