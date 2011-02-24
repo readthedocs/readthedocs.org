@@ -174,7 +174,8 @@ class Project(models.Model):
                                'pip']
         if self.slug in non_django_projects \
         or self.slug.startswith('django'):
-            return True
+            #return True
+            return False
         return False
 
     @property
