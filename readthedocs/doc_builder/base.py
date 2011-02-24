@@ -15,12 +15,12 @@ class BaseBuilder(object):
 
     def run_make_command(self, project, command, backup_command):
         try:
-            self._cd_makefile(project)
+            os.chdir(project.path)
             results = run(command)
             if results[0] != 0:
                 raise OSError
         except (IndexError, OSError):
-            os.chdir(project.path)
+            self._cd_makefile(project)
             results = run(backup_command)
         return results
 

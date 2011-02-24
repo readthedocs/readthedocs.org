@@ -118,6 +118,6 @@ class Builder(BaseBuilder):
         else:
             build_command = "sphinx-build -b html . _build/html"
             build_results = self.run_make_command(project,
-                                              'make html',
-                                              build_command)
+                                              build_command,
+                                              'make html')
         return build_results
