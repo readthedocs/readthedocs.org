@@ -99,12 +99,12 @@ def update_imported_docs(project, version):
     #Do Virtualenv bits:
     if project.use_virtualenv:
         run('virtualenv --no-site-packages %s' % project.venv_path(version=version_slug))
-        run('%s install -U sphinx' % project.venv_bin(version=version_slug,
+        run('%s install sphinx' % project.venv_bin(version=version_slug,
                                                       bin='pip'))
         if project.slug == 'celery':
-            run('%s install -U docutils' % project.venv_bin(version=version_slug,
+            run('%s install docutils' % project.venv_bin(version=version_slug,
                                                           bin='pip'))
-            run('%s install -U sphinxcontrib-issuetracker' % project.venv_bin(version=version_slug,
+            run('%s install sphinxcontrib-issuetracker' % project.venv_bin(version=version_slug,
                                                           bin='pip'))
 
         os.chdir(project.user_checkout_path)
