@@ -15,7 +15,7 @@ class BaseBuilder(object):
     def _cd_makefile(self, project):
         dir = self._find_makefile(project)
         if dir:
-            os.chdir()
+            os.chdir(dir)
 
     def run_make_command(self, project, command, backup_command):
         try:
