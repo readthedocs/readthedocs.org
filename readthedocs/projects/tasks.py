@@ -99,7 +99,7 @@ def update_imported_docs(project, version):
     #Do Virtualenv bits:
     if project.use_virtualenv:
         run('virtualenv --no-site-packages %s' % project.venv_path(version=version_slug))
-        run('%s install sphinx sphinxcontrib-issuetracker' % project.venv_bin(version=version_slug,
+        run('%s install -U sphinx sphinxcontrib-issuetracker' % project.venv_bin(version=version_slug,
                                                       bin='pip'))
 
         os.chdir(project.user_checkout_path)
