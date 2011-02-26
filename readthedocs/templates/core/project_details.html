@@ -67,6 +67,29 @@
     <p>http://readthedocs.org{% url generic_build project.pk %}</p>
 {% endif %}
 
+
+{% if pageview_list %}
+<!-- BEGIN projects list -->
+<div class="module">
+  <div class="module-wrapper">
+
+    <div class="module-header">
+      <h3>Most viewed pages for this project<span class="small_head"></span></h3>
+    </div>
+
+    <div class="module-list">
+      <div class="module-list-wrapper">
+        <ul>
+        {% include "core/pageview_list_detailed.html" %}
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</div>
+<!-- END projects list -->
+{% endif %}
+
 <form method="post" action="{% url generic_build project.pk %}">
   <input type="submit" value="Build Project">
 </form>
