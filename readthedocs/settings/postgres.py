@@ -11,6 +11,10 @@ DATABASES = {
     }
 }
 
+HAYSTACK_SEARCH_ENGINE = 'solr'
+HAYSTACK_SOLR_URL = 'http://odin:8983/solr'
+
+
 try:
     from local_settings import *
 except:
