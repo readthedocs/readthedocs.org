@@ -113,6 +113,8 @@ DEFAULT_FROM_EMAIL = "no-reply@readthedocs.org"
 SESSION_COOKIE_DOMAIN = '.readthedocs.org'
 
 HAYSTACK_SITECONF = 'core.search_sites'
+HAYSTACK_SEARCH_ENGINE = 'simple'
+
 
 AUTH_PROFILE_MODULE = "core.UserProfile"
 SOUTH_TESTS_MIGRATE = False
