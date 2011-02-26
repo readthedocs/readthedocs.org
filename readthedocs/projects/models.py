@@ -50,6 +50,8 @@ class Project(models.Model):
     # In default_branch, None means the backend should choose the appropraite branch. Eg 'master' for git
     default_branch = models.CharField(max_length=255, default=None, null=True,
         blank=True, help_text='Leave empty to use the default value for your VCS or if your VCS does not support branches.')
+    requirements_file = models.CharField(max_length=255, default=None, null=True, blank=True, help_text='A requirements file needed to build your documentation. Path from the root of your project.')
+
 
     #Other model data.
     path = models.CharField(max_length=255, editable=False)
