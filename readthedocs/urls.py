@@ -83,6 +83,8 @@ urlpatterns = patterns('',
        name='profiles_profile_edit'),
     url(r'^profiles/', include('profiles.urls')),
     url(r'^api/', include(v1_api.urls)),
+    url(r'^sentry/', include('sentry.urls')),
+
 )
 
 if settings.DEBUG:
