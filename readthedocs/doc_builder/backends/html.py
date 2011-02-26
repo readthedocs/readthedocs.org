@@ -1,4 +1,5 @@
 import re
+import os
 
 from django.template.loader import render_to_string
 from django.template import Template, Context
@@ -7,7 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 
 from doc_builder.base import BaseBuilder
-from projects.utils import safe_write
+from projects.utils import safe_write, run
 
 
 RTD_CONF_ADDITIONS = """
@@ -110,14 +111,10 @@ class Builder(BaseBuilder):
             version_slug = 'latest'
         else:
             version_slug = version.slug
+        os.chdir(project.path)
         if project.use_virtualenv:
             build_command = '%s -b html . _build/html' % project.venv_bin(version=version_slug, bin='sphinx-build')
-            build_results = self.run_make_command(project,
-                                                 build_command,
-                                                 'make html')
         else:
             build_command = "sphinx-build -b html . _build/html"
-            build_results = self.run_make_command(project,
-                                              build_command,
-                                              'make html')
+        build_results = run(build_command)
         return build_results
