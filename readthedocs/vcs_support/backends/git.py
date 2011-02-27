@@ -17,6 +17,7 @@ class Backend(BaseVCS):
             self._pull()
         else:
             self._clone()
+        self._run_command('git', 'submodule', 'update', '--init')
         self._reset()
 
     def _pull(self):
