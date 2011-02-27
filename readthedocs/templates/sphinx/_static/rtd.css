@@ -29,14 +29,12 @@
 /* PAGE LAYOUT -------------------------------------------------------------- */
 
 body {
-    font: 16px/24px "ff-meta-web-pro-1","ff-meta-web-pro-2",Arial,"Helvetica Neue",sans-serif;
-    line-height: 150%;
+    font: 100%/1.5 "ff-meta-web-pro-1","ff-meta-web-pro-2",Arial,"Helvetica Neue",sans-serif; 
     text-align: center;
     color: black;
     background-color: #465158;
     padding: 0;
     margin: 0;
-    min-width: 740px;
 }
 
 div.document {
@@ -46,14 +44,16 @@ div.document {
 
 div.bodywrapper {
     background-color: #ffffff;
-    margin: 0 0 0 250px;
+    border-left: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    margin: 0 0 0 16em;
 }
 
 div.body {
     margin: 0;
-    padding: 0.5em 20px 20px 20px;
-    border-left: 1px solid #ccc;
-    border-bottom: 1px solid #ccc;
+    padding: 0.5em 1.3em;
+    max-width: 45em;
+    min-width: 20em;
 }
 
 div.related {
@@ -172,7 +172,7 @@ a.headerlink:hover {
 /* NAVIGATION BAR --------------------------------------------------------- */
 
 div.related ul {
-    height: 41px;
+    height: 2.5em;
 }
 
 div.related ul li {
@@ -204,7 +204,7 @@ div.related ul li a {
 }
 /* previous / next / modules / index links look more like buttons */
 div.related ul li.right a {
-    margin: 6px 0 6px 0;
+    margin: 0.375em 0;
     background-color: #697983;
     text-shadow: 0 1px rgba(0, 0, 0, 0.5);
     border-radius: 3px;
@@ -240,11 +240,15 @@ div.sphinxsidebar {
     float: left;
     top: 3em;
     left: 0;
-    padding: 0 15px;
-    width: 220px;
+    padding: 0 1em;
+    width: 14em;
     font-size: 1em;
     text-align: left;
     background-color: #e8ecef;
+}
+
+div.sphinxsidebar img {
+    max-width: 12em;
 }
 
 div.sphinxsidebar h3, div.sphinxsidebar h4 {
@@ -563,4 +567,45 @@ p {
 
 .section p img {
     margin: 1em 2em;
+}
+
+
+/* MOBILE LAYOUT -------------------------------------------------------------- */
+
+@media screen and (max-width: 600px) {
+    div.body {
+        min-width: 0;
+    }
+
+    div.bodywrapper {
+        margin: 0 0 0 0;
+    }
+
+    div.sphinxsidebar {
+        float: none;
+        margin: 0;
+        width: auto;
+    }
+
+    div.documentwrapper {
+        float: none;
+    }
+
+    .footer_popout .badge {
+        position: static;
+    }
+
+    .bodywrapper img {
+        max-width: 100%;
+    }
+
+    pre {
+        font-size: 0.7em;
+        margin-left: 0;
+        margin-right: 0;
+        overflow: auto;
+        word-wrap: break-word;
+        white-space: pre-wrap;
+    }
+
 }
