@@ -1,5 +1,6 @@
 import re
 
+from django.conf import settings
 from django.core.cache import cache
 from django.core.urlresolvers import get_urlconf, get_resolver, Resolver404
 from django.http import Http404
@@ -74,7 +75,8 @@ class SubdomainMiddleware(object):
                                          request.path.lstrip('/'))
             except:
                 #Some crazy person is CNAMEing to us. 404.
-                raise Http404('Invalid Host Name.')
+                if not settings.DEBUG:
+                    raise Http404('Invalid Host Name.')
         #Normal request.
         return None
 
