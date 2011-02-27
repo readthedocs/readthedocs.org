@@ -296,4 +296,4 @@ def unzip_files(dest_file, html_path):
     else:
         shutil.rmtree(html_path)
         os.makedirs(html_path)
-    run('unzip -of %s -d %s' % (dest_file, html_path))
+    run('unzip -o %s -d %s' % (dest_file, html_path))
