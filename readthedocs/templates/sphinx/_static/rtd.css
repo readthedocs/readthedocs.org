@@ -52,7 +52,7 @@ div.bodywrapper {
 div.body {
     margin: 0;
     padding: 0.5em 1.3em;
-    max-width: 45em;
+    max-width: 55em;
     min-width: 20em;
 }
 
@@ -74,7 +74,9 @@ h1 {
     margin: 0;
     padding: 0.7em 0 0.3em 0;
     font-size: 1.5em;
+    line-height: 1.15;
     color: #111;
+    clear: both;
 }
 
 h2 {
@@ -155,16 +157,16 @@ div.footer a:hover {
 }
 
 /* Permalink anchor (subtle grey with a red hover) */
-a.headerlink {
-    color: #ccc !important;
+div.body a.headerlink {
+    color: #ccc;
     font-size: 1em;
     margin-left: 6px;
     padding: 0 4px 0 4px;
-    text-decoration: none !important;
+    text-decoration: none;
     border: none;
 }
-a.headerlink:hover {
-    color: #c60f0f !important;
+div.body a.headerlink:hover {
+    color: #c60f0f;
     border: none;
 }
 
@@ -177,7 +179,7 @@ div.related ul {
 
 div.related ul li {
     margin: 0;
-    padding: 8px 0;
+    padding: 0.65em 0;
     float: left;
     display: block;
     color: white; /* For the >> separators */
@@ -198,7 +200,7 @@ div.related ul li a {
     margin: 6px 0 6px 4px;
     line-height: 1.75em;
     color: #ffffff;
-    padding: 5px 10px;
+    padding: 0.4em 0.8em;
     border: none;
     border-radius: 3px;
 }
@@ -410,7 +412,7 @@ hr {
     margin: 2em;
 }
 
-pre {
+pre, #_fontwidthtest {
     font-family: 'Consolas', 'Deja Vu Sans Mono',
                  'Bitstream Vera Sans Mono', monospace;
     margin: 1em 2em;
@@ -573,8 +575,79 @@ p {
 /* MOBILE LAYOUT -------------------------------------------------------------- */
 
 @media screen and (max-width: 600px) {
+    
+    h1, h2, h3, h4, h5 {
+        position: relative;
+    }
+
+    div.bodywrapper a.headerlink, #indices-and-tables h1 a {
+        color: #e6e6e6;
+        font-size: 80%;
+        float: right;
+        line-height: 1.8;
+        position: absolute;
+        right: 0;
+        visibility: inherit;
+    }
+
+    div.bodywrapper h1 a.headerlink, #indices-and-tables h1 a {
+        line-height: 1.5;
+    }
+
+    pre {
+        font-size: 0.7em;
+        overflow: auto;
+        word-wrap: break-word;
+        white-space: pre-wrap;
+    }
+
+    div.related ul {
+        height: 2.5em;
+        padding: 0;
+        text-align: left;
+    }
+
+    div.related ul li {
+        clear: both;
+        color: #465158;
+        padding: 0.2em 0;
+    }
+
+    div.related ul li:last-child {
+        border-bottom: 1px dotted #8ca1af;
+        padding-bottom: 0.4em;
+        margin-bottom: 1em;
+        width: 100%;
+    }
+
+    div.related ul li a {
+        color: #465158;
+        padding-right: 0;
+    }
+
+    div.related ul li a:hover {
+        background: inherit;
+        color: inherit;
+    }
+
+    div.related ul li.right {
+        clear: none;
+        padding: 0.65em 0;
+        margin-bottom: 0.5em;
+    }
+
+    div.related ul li.right a {
+        color: #fff;
+        padding-right: 0.8em;
+    }
+
+    div.related ul li.right a:hover {
+        background-color: #8ca1af;
+    }
+
     div.body {
         min-width: 0;
+        word-wrap: break-word;
     }
 
     div.bodywrapper {
@@ -587,25 +660,52 @@ p {
         width: auto;
     }
 
+    div.sphinxsidebar p.searchtip {
+        background: inherit;
+        margin-bottom: 1em;
+    }
+
+    .bodywrapper img {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        max-width: 100%;
+    }
+
     div.documentwrapper {
         float: none;
     }
 
-    .footer_popout .badge {
+    div.admonition, div.warning, pre, blockquote {
+        margin-left: 0em;
+        margin-right: 0em;
+    }
+
+    #searchbox {
+        background: transparent;
+    }
+
+    .related:not(:first-child) li {
+        display: none;
+    }
+
+    .related:not(:first-child) li.right {
+        display: block;
+    }
+
+    div.footer {
+        padding: 1em;
+    }
+
+    .rtd_doc_footer .badge {
+        float: none;
+        margin: 1em auto;
         position: static;
     }
 
-    .bodywrapper img {
-        max-width: 100%;
-    }
-
-    pre {
-        font-size: 0.7em;
-        margin-left: 0;
-        margin-right: 0;
-        overflow: auto;
-        word-wrap: break-word;
-        white-space: pre-wrap;
+    .rtd_doc_footer .badge.revsys-inline {
+        margin-right: auto;
+        margin-bottom: 2em;
     }
 
 }
