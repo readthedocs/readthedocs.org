@@ -82,7 +82,7 @@ class SubdomainMiddleware(object):
 
     def process_response(self, request, response):
         #Try and make this match as little as possible.
-        if response.status_code == 200:
+        if response.status_code == 200 and '_static' not in request.path:
             if getattr(request, 'add_badge', False):
                 response.content = replace_insensitive(
                     smart_unicode(response.content),
