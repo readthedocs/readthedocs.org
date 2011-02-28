@@ -84,7 +84,6 @@ INSTALLED_APPS = (
     'pagination',
     'registration',
     'djcelery',
-    'ghettoq',
     'taggit',
     'south',
     'taggit',
