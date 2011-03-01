@@ -97,8 +97,6 @@ class Backend(BaseVCS):
         raw_branches = [bit[2:] for bit in data.split('\n') if bit.strip()]
         clean_branches = []
         for branch in raw_branches:
-            if branch == self.fallback_branch:
-                continue
             if branch.startswith('remotes/'):
                 if branch.startswith('remotes/origin/'):
                     real_branch = branch.split(' ')[0]

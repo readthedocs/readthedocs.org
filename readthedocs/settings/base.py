@@ -84,7 +84,6 @@ INSTALLED_APPS = (
     'pagination',
     'registration',
     'djcelery',
-    'ghettoq',
     'taggit',
     'south',
     'taggit',
@@ -110,7 +109,7 @@ INSTALLED_APPS = (
 
 CARROT_BACKEND = "ghettoq.taproot.Database"
 CELERY_ALWAYS_EAGER = True
-CELERYD_TASK_TIME_LIMIT = 60*15 #15 minutes
+CELERYD_TASK_TIME_LIMIT = 60*60 #60 minutes
 
 
 DEFAULT_FROM_EMAIL = "no-reply@readthedocs.org"

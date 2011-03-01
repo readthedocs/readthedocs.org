@@ -51,7 +51,10 @@ class SubdomainMiddleware(object):
         if ':' in host:
             host = host.split(':')[0]
         domain_parts = host.split('.')
-        if (len(domain_parts) > 2):
+        #Google was finding crazy www.blah.readthedocs.org domains.
+        if len(domain_parts) > 3:
+            raise Http404
+        if len(domain_parts) == 3:
             subdomain = domain_parts[0]
             request.slug = subdomain
             if not (subdomain.lower() == 'www') and 'readthedocs.org' in host:
@@ -82,7 +85,7 @@ class SubdomainMiddleware(object):
 
     def process_response(self, request, response):
         #Try and make this match as little as possible.
-        if response.status_code == 200:
+        if response.status_code == 200 and '_static' not in request.path and '_images' not in request.path:
             if getattr(request, 'add_badge', False):
                 response.content = replace_insensitive(
                     smart_unicode(response.content),

@@ -19,7 +19,7 @@ class Builder(BaseBuilder):
             version_slug = version.slug
         os.chdir(project.conf_filename.rstrip('conf.py'))
         if project.use_virtualenv:
-            latex_results = run('%s -b latex -d _build/doctrees   . _build/latex' % project.venv_bin('sphinx-build'))
+            latex_results = run('%s -b latex -d _build/doctrees   . _build/latex' % project.venv_bin(version=version_slug, bin='sphinx-build'))
         else:
             latex_results = run('sphinx-build -b latex '
                             '-d _build/doctrees   . _build/latex')
