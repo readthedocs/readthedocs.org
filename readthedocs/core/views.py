@@ -73,6 +73,8 @@ def bitbucket_build(request):
 
 @csrf_view_exempt
 def generic_build(request, pk):
+    if request.GET.get('all_versions', False):
+        build_all=True
     project = Project.objects.get(pk=pk)
     context = {'built': False, 'project': project}
     #This should be in the post, but for now it's always built for backwards compat
