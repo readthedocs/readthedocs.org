@@ -166,7 +166,9 @@ def subdomain_handler(request, subdomain, filename):
         if not other_projects:
             other_projects = proj.versions.filter(slug=language).count()
             if other_projects:
-                version = language
+                return HttpResponseRedirect('/en/%s/%s' %
+                                            (language,
+                                             '/'.join(split_filename[1:])))
         #Hard code this for now.
         if other_projects or version == 'latest' and language == 'en':
             version_slug = version
