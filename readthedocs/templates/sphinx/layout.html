@@ -8,6 +8,7 @@
 
 {% block sidebarlogo %}
 {{ super() }}
+{% if using_theme %}
 {% if versions %}
     <h3>Project Versions</h3>
     <ul id="sidebar_versions">
@@ -15,6 +16,7 @@
   <li><a href="http://readthedocs.org{{ url }}">{{ slug }}</a></li>
 {% endfor %}{{ super() }}
     </ul>
+{% endif %}
 {% endif %}
 {% endblock %}
 

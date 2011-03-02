@@ -7,6 +7,18 @@
   </p>
 {% endif %}
 
+{% if project.active_versions.count %}
+  <h3> Versions </h3>
+
+  {% for version in project.active_versions.all %}
+  <ul>
+      <li><a href="{{ version.get_absolute_url }}">{{ version.slug }}</a></li>
+  </ul>
+  {% endfor %}
+
+{% endif %}
+
+
 {% if project.get_latest_build.success %}
   <h3>Short URLs</h3>
   <p>
@@ -37,17 +49,6 @@
       <span class="quiet">No tags</span>
     {% endfor %}
   </p>
-{% endif %}
-
-{% if project.active_versions.count %}
-  <h3> Versions </h3>
-
-  {% for version in project.active_versions.all %}
-  <ul>
-      <li><a href="{{ version.get_absolute_url }}">{{ version.slug }}</a></li>
-  </ul>
-  {% endfor %}
-
 {% endif %}
 
 
