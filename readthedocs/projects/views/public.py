@@ -163,6 +163,10 @@ def subdomain_handler(request, subdomain, filename):
                                          '/'.join(split_filename[1:])))
 
         other_projects = proj.versions.filter(slug=version).count()
+        if not other_projects:
+            other_projects = proj.versions.filter(slug=language).count()
+            if other_projects:
+                version = language
         #Hard code this for now.
         if other_projects or version == 'latest' and language == 'en':
             version_slug = version
