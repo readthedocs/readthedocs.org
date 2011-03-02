@@ -21,4 +21,4 @@ django-sentry
 -e git+http://github.com/ericflo/django-pagination.git#egg=pagination
 -e git+http://github.com/nathanborror/django-registration.git#egg=django-registration
 -e git+https://github.com/toastdriven/django-tastypie.git#egg=tastypie
-http://www.djangoproject.com/download/1.3-beta-1/tarball/
+django==1.2.5
