@@ -171,6 +171,8 @@ def subdomain_handler(request, subdomain, filename):
                               lang_slug='en',
                               version_slug=version_slug,
                               filename=filename)
+        else:
+            raise Http404('No version matching query')
     elif len(split_filename) == 2:
         version = split_filename[0]
         other_aliases = proj.aliases.filter(from_slug=version)
