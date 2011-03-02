@@ -7,7 +7,6 @@ import os
 import re
 import subprocess
 import traceback
-from distutils2.version import NormalizedVersion, suggest_normalized_version
 
 
 def find_file(file):
@@ -93,14 +92,3 @@ def slugify_uniquely(model, initial, field, max_length, **filters):
         current = '%s%s'  % (slug[:-len(suffix)], suffix)
         index += 1
     return current
-
-def mkversion(version_obj):
-    return NormalizedVersion(suggest_normalized_version(version_obj.slug))
-
-def highest_version(version_list):
-    highest = [version_list[0], mkversion(version_list[0])]
-    for version in version_list:
-        ver = mkversion(version)
-        if ver > highest[1]:
-            highest = [version, ver]
-    return highest

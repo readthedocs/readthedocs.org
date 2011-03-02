@@ -8,9 +8,8 @@ from django.shortcuts import get_object_or_404
 from django.views.generic.list_detail import object_list, object_detail
 from django.views.static import serve
 
-from core.views import serve_docs
 from projects.models import Project
-from projects.utils import highest_version
+from core.views import serve_docs
 from watching.models import PageView
 
 
@@ -178,10 +177,8 @@ def subdomain_handler(request, subdomain, filename):
         version = split_filename[0]
         other_aliases = proj.aliases.filter(from_slug=version)
         if other_aliases.count():
-            if other_aliases[0].largest:
-                highest_ver = highest_version(proj.versions.filter(slug__contains=version, active=True))
             return HttpResponseRedirect('/en/%s/%s' %
-                                        (highest_ver[0].slug,
+                                        (other_aliases[0].to_slug,
                                          '/'.join(split_filename[1:])))
 
         valid_version = proj.versions.filter(slug=version)
