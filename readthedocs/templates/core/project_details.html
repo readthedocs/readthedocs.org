@@ -10,11 +10,11 @@
 {% if project.active_versions.count %}
   <h3> Versions </h3>
 
+  <p>
   {% for version in project.active_versions.all %}
-  <ul>
-      <li><a href="{{ version.get_absolute_url }}">{{ version.slug }}</a></li>
-  </ul>
+      <a href="{{ version.get_absolute_url }}">{{ version.slug }}</a><br>
   {% endfor %}
+  </p>
 
 {% endif %}
 
