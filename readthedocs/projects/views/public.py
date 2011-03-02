@@ -180,8 +180,11 @@ def subdomain_handler(request, subdomain, filename):
         if other_aliases.count():
             if other_aliases[0].largest:
                 highest_ver = highest_version(proj.versions.filter(slug__contains=version, active=True))
+                version_slug = highest_ver[0].slug
+            else:
+                version_slug = other_aliases[0].to_slug
             return HttpResponseRedirect('/en/%s/%s' %
-                                        (highest_ver[0].slug,
+                                        (version_slug,
                                          '/'.join(split_filename[1:])))
 
         valid_version = proj.versions.filter(slug=version)
