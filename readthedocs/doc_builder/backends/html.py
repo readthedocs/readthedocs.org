@@ -105,8 +105,6 @@ class Builder(BaseBuilder):
             except (OSError, IOError):
                 print "Conf file not found. Error writing to disk."
                 return ('','Conf file not found. Error writing to disk.',-1)
-        os.chdir(project.path)
-        run('rm -rf _build')
 
     def build(self, project, version):
         if not version:
