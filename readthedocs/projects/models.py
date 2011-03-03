@@ -4,7 +4,6 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.template.defaultfilters import slugify
 from django.template.loader import render_to_string
-from django.utils.functional import memoize
 
 from projects import constants
 from projects.utils import diff, dmp, safe_write
@@ -223,7 +222,6 @@ class Project(models.Model):
             for filename in fnmatch.filter(filenames, file):
                 matches.append(os.path.join(root, filename))
         return matches
-    full_find = memoize(full_find, {}, 2)
 
     def find(self, file):
         """
@@ -234,7 +232,6 @@ class Project(models.Model):
             for filename in fnmatch.filter(filenames, file):
                 matches.append(os.path.join(root, filename))
         return matches
-    find = memoize(find, {}, 2)
 
     def get_latest_build(self):
         try:
