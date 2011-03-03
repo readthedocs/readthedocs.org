@@ -25,6 +25,18 @@ urlpatterns = patterns('projects.views.private',
         'project_manage',
         name='projects_manage'
     ),
+    url(r'^(?P<project_slug>[-\w]+)/alias/(?P<id>\d+)/',
+        'edit_alias',
+        name='projects_alias_edit'
+    ),
+    url(r'^(?P<project_slug>[-\w]+)/alias/$',
+        'edit_alias',
+        name='projects_alias_create'
+    ),
+    url(r'^(?P<project_slug>[-\w]+)/alias/list/$',
+        'list_alias',
+        name='projects_alias_list'
+    ),
     url(r'^(?P<project_slug>[-\w]+)/edit/$',
         'project_edit',
         name='projects_edit'

@@ -1,0 +1,37 @@
+{% extends "projects/base_project.html" %}
+
+{% load pagination_tags %}
+
+{% block title %}Aliases {% endblock %}
+
+{% block nav-browse %}class="active"{% endblock %}
+
+{% block content-header %}
+Aliases
+{% endblock %}
+
+{% block content %}
+          <!-- BEGIN projects list -->
+          <div class="module">
+            <div class="module-wrapper">
+
+              <div class="module-header">
+                <h3>Browse projects</h3>
+              </div>
+
+              <div class="module-list">
+                <div class="module-list-wrapper">
+
+                  <ul>
+{% for alias in alias_list %}
+<a href="{% url projects_alias_edit alias.project.slug alias.pk  %}">{{ alias }}</a>
+{% endfor %}
+                  </ul>
+
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+{% endblock %}

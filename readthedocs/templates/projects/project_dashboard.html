@@ -31,6 +31,9 @@
                           {% if project.has_versions %}
                             <li><a href="{% url projects_versions project.slug %}" rel="nofollow,noindex">Versions</a></li>
                         {% endif %}
+                          {% if project.has_aliases %}
+                            <li><a href="{% url projects_alias_list project.slug %}" rel="nofollow,noindex">Aliases</a></li>
+                        {% endif %}
                           <li><a href="{% url projects_edit project.slug %}">Edit</a></li>
                           <li><a href="{{ project.get_docs_url }}">View Docs</a></li>
                         </ul>

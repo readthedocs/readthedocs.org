@@ -17,6 +17,8 @@ from django.template.loader import render_to_string
 from django.views.generic.list_detail import object_list
 
 from bookmarks.models import Bookmark
+from builds.forms import AliasForm
+from builds.models import VersionAlias
 from projects import constants
 from projects.forms import (FileForm, CreateProjectForm,
                             ImportProjectForm, FileRevisionForm,
@@ -363,4 +365,40 @@ def upload_html(request, project_slug):
         'projects/upload_html.html',
         {'form': form, 'project': proj},
         context_instance=RequestContext(request)
+    )
+
+@login_required
+def edit_alias(request, project_slug, id=None):
+    """
+    The view for creating a new project where the docs will be hosted
+    as objects and edited through the site
+    """
+    proj = get_object_or_404(Project.objects.all(), slug=project_slug)
+    if id:
+        alias = proj.aliases.get(pk=id)
+        form = AliasForm(instance=alias, data=request.POST or None)
+    else:
+        form = AliasForm(request.POST or None)
+
+    if request.method == 'POST' and form.is_valid():
+        alias = form.save()
+        return HttpResponseRedirect(alias.project.get_absolute_url())
+    return render_to_response(
+        'projects/alias_edit.html',
+        {'form': form},
+        context_instance=RequestContext(request)
+    )
+
+@login_required
+def list_alias(request, project_slug):
+    """
+    The view for creating a new project where the docs will be hosted
+    as objects and edited through the site
+    """
+    proj = get_object_or_404(Project.objects.all(), slug=project_slug)
+    return object_list(
+        request,
+        queryset=proj.aliases.all(),
+        template_object_name='alias',
+        template_name='projects/alias_list.html',
     )

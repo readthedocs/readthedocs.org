@@ -1,0 +1,17 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Project Alias{% endblock %}
+
+{% block content-header %}
+      <h1>Project Alias</h1>
+{% endblock %}
+
+{% block content %}
+      <p class="help_text">
+        Add an alias for a project version.
+      </p>
+      <form method="post" action=".">{% csrf_token %}
+        {{ form.as_p }}
+        <p><input type="submit" value="Create" /></p>
+      </form>
+{% endblock %}
