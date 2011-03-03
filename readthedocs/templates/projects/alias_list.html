@@ -24,7 +24,7 @@ Aliases
 
                   <ul>
 {% for alias in alias_list %}
-<a href="{% url projects_alias_edit alias.project.slug alias.pk  %}">{{ alias }}</a>
+<li><a href="{% url projects_alias_edit alias.project.slug alias.pk  %}">{{ alias }}</a></li>
 {% endfor %}
                   </ul>
 
