@@ -166,7 +166,14 @@ def serve_docs(request, project_slug, lang_slug, version_slug, filename):
         if not created:
             pageview.count = F('count') + 1
             pageview.save()
-    return serve(request, filename, basepath)
+    response = serve(request, filename, basepath)
+    response['X-Accel-Redirect'] = os.path.join('/user_builds',
+                                                 proj.user.username,
+                                                 proj.slug,
+                                                 'rtd-builds',
+                                                 version_slug,
+                                                 filename)
+    return response
 
 def render_header(request):
     """
