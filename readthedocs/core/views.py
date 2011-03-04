@@ -4,6 +4,7 @@ documentation and header rendering, and server errors.
 
 from django.core.mail import mail_admins
 from django.core.urlresolvers import reverse
+from django.conf import settings
 from django.db.models import F, Max
 from django.http import HttpResponse, HttpResponseRedirect, \
     HttpResponsePermanentRedirect
@@ -11,10 +12,13 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_view_exempt
 from django.views.static import serve
+
 from projects.models import Project
 from projects.tasks import update_docs
 from watching.models import PageView
+
 import json
+import mimetypes
 import os
 import re
 
@@ -166,14 +170,22 @@ def serve_docs(request, project_slug, lang_slug, version_slug, filename):
         if not created:
             pageview.count = F('count') + 1
             pageview.save()
-    response = serve(request, filename, basepath)
-    response['X-Accel-Redirect'] = os.path.join('/user_builds',
-                                                 proj.user.username,
-                                                 proj.slug,
-                                                 'rtd-builds',
-                                                 version_slug,
-                                                 filename)
-    return response
+    if not settings.DEBUG:
+        fullpath = os.path.join(basepath, filename)
+        mimetype, encoding = mimetypes.guess_type(fullpath)
+        mimetype = mimetype or 'application/octet-stream'
+        response = HttpResponse(mimetype=mimetype)
+        if encoding:
+            response["Content-Encoding"] = encoding
+        response['X-Accel-Redirect'] = os.path.join('/user_builds',
+                                                     proj.user.username,
+                                                     proj.slug,
+                                                     'rtd-builds',
+                                                     version_slug,
+                                                     filename)
+        return response
+    else:
+        return serve(request, filename, basepath)
 
 def render_header(request):
     """
