@@ -721,4 +721,23 @@ p {
         margin-bottom: 2em;
     }
 
+    table.indextable {
+        display: block;
+        width: auto; 
+    }
+
+    .indextable tr {
+        display: block;
+    }
+
+    .indextable td {
+        display: block;
+        padding: 0;
+        width: auto;
+    }
+
+    .indextable td dt {
+        margin: 1em 0;
+    }
+
 }
