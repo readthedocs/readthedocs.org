@@ -160,7 +160,7 @@ def build_versions_form(project):
         'project': project,
     }
     versions_qs = project.versions.all()
-    active = versions_qs.filter(active=True, built=True)
+    active = versions_qs.filter(active=True)
     if active.exists():
         choices = [('latest', 'latest')]
         choices += [(version.slug, version.verbose_name) for version in active]
