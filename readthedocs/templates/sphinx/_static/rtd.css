@@ -580,13 +580,17 @@ p {
         position: relative;
     }
 
+    ul {
+        padding-left: 1.75em;
+    }
+
     div.bodywrapper a.headerlink, #indices-and-tables h1 a {
         color: #e6e6e6;
         font-size: 80%;
         float: right;
         line-height: 1.8;
         position: absolute;
-        right: 0;
+        right: -0.7em;
         visibility: inherit;
     }
 
@@ -666,6 +670,10 @@ p {
         margin-bottom: 1em;
     }
 
+    div.sphinxsidebar ul li, div.sphinxsidebar p.topless {
+        white-space: normal;
+    }
+
     .bodywrapper img {
         display: block;
         margin-left: auto;
@@ -680,6 +688,10 @@ p {
     div.admonition, div.warning, pre, blockquote {
         margin-left: 0em;
         margin-right: 0em;
+    }
+
+    .body p img {
+        margin: 0;
     }
 
     #searchbox {
@@ -707,6 +719,25 @@ p {
     .rtd_doc_footer .badge.revsys-inline {
         margin-right: auto;
         margin-bottom: 2em;
+    }
+
+    table.indextable {
+        display: block;
+        width: auto; 
+    }
+
+    .indextable tr {
+        display: block;
+    }
+
+    .indextable td {
+        display: block;
+        padding: 0;
+        width: auto;
+    }
+
+    .indextable td dt {
+        margin: 1em 0;
     }
 
 }
