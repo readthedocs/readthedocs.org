@@ -13,10 +13,14 @@
   <p>
   {% for version in project.active_versions.all %}
       <div style="float: left; margin-right: 5px;" class="version_right">
+        {% if not version.uploaded %}
         <form method="post" action="{% url generic_build project.pk %}">
             <input type="hidden" name="version_slug" value="{{version.slug}}">
             <input style="border: none; padding: 2px;" type="image" value="submit" src="{{ MEDIA_URL}}images/build.png" height="15"  alt="SUBMIT!" name="image">
         </form>
+        {% else %}
+        <input style="visibility: hidden; border: none; padding: 2px;" type="image" value="submit" src="{{ MEDIA_URL}}images/build.png" height="15"  alt="SUBMIT!" name="image">
+        {% endif %}
       </div>
       <div style="float: left;" class="version_left">
       <a href="{{ version.get_absolute_url }}">{{ version.slug }}</a>
