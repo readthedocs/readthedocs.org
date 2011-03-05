@@ -113,7 +113,7 @@ CELERYD_TASK_TIME_LIMIT = 60*60 #60 minutes
 
 
 DEFAULT_FROM_EMAIL = "no-reply@readthedocs.org"
-SESSION_COOKIE_DOMAIN = '.readthedocs.org'
+SESSION_COOKIE_DOMAIN = 'readthedocs.org'
 
 HAYSTACK_SITECONF = 'core.search_sites'
 HAYSTACK_SEARCH_ENGINE = 'simple'
