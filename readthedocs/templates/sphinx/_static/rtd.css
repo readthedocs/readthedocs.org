@@ -580,6 +580,10 @@ p {
         position: relative;
     }
 
+    ul {
+        padding-left: 1.75em;
+    }
+
     div.bodywrapper a.headerlink, #indices-and-tables h1 a {
         color: #e6e6e6;
         font-size: 80%;
@@ -664,6 +668,10 @@ p {
     div.sphinxsidebar p.searchtip {
         background: inherit;
         margin-bottom: 1em;
+    }
+
+    div.sphinxsidebar ul li, div.sphinxsidebar p.topless {
+        white-space: normal;
     }
 
     .bodywrapper img {
