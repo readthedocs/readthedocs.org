@@ -77,14 +77,16 @@ def bitbucket_build(request):
 
 @csrf_view_exempt
 def generic_build(request, pk):
-    if request.GET.get('all_versions', False):
-        build_all=True
     project = Project.objects.get(pk=pk)
     context = {'built': False, 'project': project}
-    #This should be in the post, but for now it's always built for backwards compat
-    update_docs.delay(pk=pk, touch=True)
     if request.method == 'POST':
         context['built'] = True
+        slug = request.POST.get('version_slug', None)
+        if slug:
+            version = project.versions.get(slug=slug)
+            update_docs.delay(pk=pk, version_pk=version.pk, touch=True)
+        else:
+            update_docs.delay(pk=pk, touch=True)
     return render_to_response('post_commit.html', context,
             context_instance=RequestContext(request))
 

@@ -28,10 +28,9 @@ class Command(BaseCommand):
             help='Touch the files'
             ),
         make_option('-V',
-            action='store_true',
-            dest='versions',
-            default=False,
-            help='Build all versions'
+            dest='version',
+            default=None,
+            help='Build a version, or all versions'
             )
         )
 
@@ -39,22 +38,44 @@ class Command(BaseCommand):
         make_pdf = options['pdf']
         record = options['record']
         touch = options['touch']
-        versions = options['versions']
-        if not len(args):
-            if versions:
-                print "Updating all versions"
-                for version in Version.objects.filter(active=True, uploaded=False):
-                    tasks.update_docs(version.project_id, pdf=make_pdf, record=False, version_pk=version.pk)
-            else:
-                print "Updating all docs"
-                tasks.update_docs_pull(pdf=make_pdf, record=record, touch=touch)
-        else:
+        version = options['version']
+        if len(args):
             for slug in args:
-                if versions:
+                if version and version != "all":
+                    print "Updating version %s for %s" % (version, slug)
+                    for version in Version.objects.filter(project__slug=slug,
+                                                          active=True,
+                                                          uploaded=False,
+                                                          slug=version):
+                        tasks.update_docs(version.project_id,
+                                          pdf=make_pdf,
+                                          record=False,
+                                          version_pk=version.pk)
+                elif version == "all":
                     print "Updating all versions for %s" % slug
-                    for version in Version.objects.filter(project__slug=slug, active=True, uploaded=False):
-                        tasks.update_docs(version.project_id, pdf=make_pdf, record=False, version_pk=version.pk)
+                    for version in Version.objects.filter(project__slug=slug,
+                                                          active=True,
+                                                          uploaded=False):
+                        tasks.update_docs(pk=version.project_id,
+                                          pdf=make_pdf,
+                                          record=False,
+                                          version_pk=version.pk)
                 else:
                     p = Project.objects.get(slug=slug)
                     print "Building %s" % p
-                    tasks.update_docs(p.pk, pdf=make_pdf, touch=touch)
+                    tasks.update_docs(pk=p.pk, pdf=make_pdf, touch=touch)
+        else:
+            if version == "all":
+                print "Updating all versions"
+                for version in Version.objects.filter(active=True,
+                                                      uploaded=False):
+                    tasks.update_docs(pk=version.project_id,
+                                      pdf=make_pdf,
+                                      record=record,
+                                      touch=touch,
+                                      version_pk=version.pk)
+            else:
+                print "Updating all docs"
+                tasks.update_docs_pull(pdf=make_pdf,
+                                       record=record,
+                                       touch=touch)
