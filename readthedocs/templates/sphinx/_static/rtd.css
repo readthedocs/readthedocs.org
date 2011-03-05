@@ -682,6 +682,10 @@ p {
         margin-right: 0em;
     }
 
+    .body p img {
+        margin: 0;
+    }
+
     #searchbox {
         background: transparent;
     }
