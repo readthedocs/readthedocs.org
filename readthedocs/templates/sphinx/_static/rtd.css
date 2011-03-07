@@ -665,6 +665,18 @@ p {
         width: auto;
     }
 
+    div.sphinxsidebar input[type="text"] {
+        height: 2em;
+        line-height: 2em;
+        width: 70%;
+    }
+
+    div.sphinxsidebar input[type="submit"] {
+        height: 2em;
+        margin-left: 0.5em;
+        width: 20%;
+    }
+
     div.sphinxsidebar p.searchtip {
         background: inherit;
         margin-bottom: 1em;
@@ -733,11 +745,22 @@ p {
     .indextable td {
         display: block;
         padding: 0;
-        width: auto;
+        width: auto !important;
     }
 
     .indextable td dt {
         margin: 1em 0;
+    }
+
+    ul.search {
+        margin-left: 0.25em;
+    }
+
+    ul.search li div.context {
+        font-size: 90%;
+        line-height: 1.1;
+        margin-bottom: 1;
+        margin-left: 0;
     }
 
 }
