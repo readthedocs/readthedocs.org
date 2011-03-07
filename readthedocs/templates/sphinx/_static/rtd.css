@@ -733,7 +733,7 @@ p {
     .indextable td {
         display: block;
         padding: 0;
-        width: auto;
+        width: auto !important;
     }
 
     .indextable td dt {
