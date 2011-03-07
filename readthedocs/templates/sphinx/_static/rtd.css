@@ -740,4 +740,15 @@ p {
         margin: 1em 0;
     }
 
+    ul.search {
+        margin-left: 0.25em;
+    }
+
+    ul.search li div.context {
+        font-size: 90%;
+        line-height: 1.1;
+        margin-bottom: 1;
+        margin-left: 0;
+    }
+
 }
