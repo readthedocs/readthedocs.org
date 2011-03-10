@@ -50,6 +50,9 @@ class Project(models.Model):
     default_branch = models.CharField(max_length=255, default=None, null=True,
         blank=True, help_text='Leave empty to use the default value for your VCS or if your VCS does not support branches.')
     requirements_file = models.CharField(max_length=255, default=None, null=True, blank=True, help_text='A requirements file needed to build your documentation. Path from the root of your project.')
+    documentation_type = models.CharField(max_length=20,
+        choices=constants.DOCUMENTATION_CHOICES, default='sphinx',
+        help_text='Type of documentation you are building.')
 
 
     #Other model data.
