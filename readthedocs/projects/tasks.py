@@ -39,17 +39,13 @@ def update_docs(pk, record=True, pdf=True, version_pk=None, touch=False):
     project = Project.objects.live().get(pk=pk)
     print "Building %s" % project
     if version_pk:
-        version = Version.objects.get(pk=version_pk)
+        versions = [Version.objects.get(pk=version_pk)]
     else:
-        version = None
+        versions = [None]# + list(project.versions.filter(active=True, uploaded=False))
     path = project.user_doc_path
     if not os.path.exists(path):
         os.makedirs(path)
 
-    if version:
-        versions = [version]
-    else:
-        versions = [None]# + list(project.versions.filter(active=True, uploaded=False))
 
     for version in versions:
         with project.repo_lock(30):
@@ -60,6 +56,7 @@ def update_docs(pk, record=True, pdf=True, version_pk=None, touch=False):
                     print("Error importing project: %s. Skipping build." % err)
                     return
                 else:
+                    #This is where we save project.path, where conf.py lives
                     scrape_conf_file(project)
             else:
                 update_created_docs(project)
@@ -88,16 +85,14 @@ def update_imported_docs(project, version):
     if version:
         print 'Checking out version %s: %s' % (version.slug, version.identifier)
         project.vcs_repo.checkout(version.identifier)
+        version_slug = version.slug
     else:
         print 'Updating to latest revision'
         project.vcs_repo.update()
-
-    if version:
-        version_slug = version.slug
-    else:
         version_slug = 'latest'
+
     #Do Virtualenv bits:
-    if project.use_virtualenv:
+    if project.use_virtualenv and project.whitelisted:
         run('virtualenv --no-site-packages %s' % project.venv_path(version=version_slug))
         run('%s install sphinx' % project.venv_bin(version=version_slug,
                                                       bin='pip'))
@@ -162,7 +157,6 @@ def scrape_conf_file(project):
     """Locate the given project's ``conf.py`` file and extract important
     settings, including copyright, theme, source suffix and version.
     """
-
     #This is where we actually find the conf.py, so we can't use
     #the value from the project :)
     try:
@@ -221,7 +215,6 @@ def build_docs(project, version, pdf, record, touch):
     html_builder = builder_loading.get('html')()
     if touch:
         html_builder.touch(project)
-
     html_builder.clean(project)
     html_output = html_builder.build(project, version)
     successful = (html_output[0] == 0)

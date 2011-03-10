@@ -32,7 +32,7 @@ class Project(models.Model):
     name = models.CharField(max_length=255)
     slug = models.SlugField()
     description = models.TextField(blank=True,
-        help_text='restructuredtext description of the project')
+        help_text='reStructuredText description of the project')
     repo = models.CharField(max_length=100, blank=True,
             help_text='URL for your code (hg or git). Ex. http://github.com/ericholscher/django-kong.git')
     repo_type = models.CharField(max_length=10, choices=constants.REPO_CHOICES, default='git')
@@ -53,10 +53,11 @@ class Project(models.Model):
 
 
     #Other model data.
-    path = models.CharField(max_length=255, editable=False)
+    path = models.CharField(help_text="The directory where conf.py lives",
+                            max_length=255, editable=False)
     featured = models.BooleanField()
     skip = models.BooleanField()
-    use_virtualenv = models.BooleanField()
+    use_virtualenv = models.BooleanField(help_text="Install your project inside a virtualenv using setup.py install")
     django_packages_url = models.CharField(max_length=255, blank=True)
 
     tags = TaggableManager(blank=True)
@@ -97,6 +98,15 @@ class Project(models.Model):
                                 '%s.pdf' % self.slug)
         return path
 
+    def get_pdf_path(self, version_slug='latest'):
+        path = os.path.join(settings.MEDIA_ROOT,
+                                'pdf',
+                                self.slug,
+                                version_slug,
+                                '%s.pdf' % self.slug)
+        return path
+
+
     @property
     def user_doc_path(self):
         return os.path.join(settings.DOCROOT, self.user.username, self.slug)
@@ -128,15 +138,7 @@ class Project(models.Model):
         """
         The path to the build html docs in the project.
         """
-        doc_path = self.full_doc_path
-        for pos_build in ['_build', 'build', '.build']:
-            if os.path.exists(os.path.join(doc_path, '%s/html' % pos_build)):
-                return os.path.join(doc_path, '%s/html' % pos_build)
-        #No standard path? Hack one.
-        for pos_build in ['index.html']:
-            matches = self.find(pos_build)
-            if len(matches) > 0:
-                return os.path.dirname(matches[0])
+        return os.path.join(self.path, "_build", "html")
 
     @property
     def rtd_build_path(self):
@@ -213,16 +215,6 @@ class Project(models.Model):
     def repo_lock(self, timeout=5, polling_interval=0.2):
         return Lock(self.slug, timeout, polling_interval)
 
-    def full_find(self, file):
-        """
-        A balla API to find files inside of a projects dir.
-        """
-        matches = []
-        for root, dirnames, filenames in os.walk(self.user_checkout_path):
-            for filename in fnmatch.filter(filenames, file):
-                matches.append(os.path.join(root, filename))
-        return matches
-
     def find(self, file):
         """
         A balla API to find files inside of a projects dir.
@@ -241,14 +233,6 @@ class Project(models.Model):
 
     def active_versions(self):
         return self.versions.filter(built=True, active=True) | self.versions.filter(active=True, uploaded=True)
-
-    def get_pdf_path(self, version_slug='latest'):
-        path = os.path.join(settings.MEDIA_ROOT,
-                                'pdf',
-                                self.slug,
-                                version_slug,
-                                '%s.pdf' % self.slug)
-        return path
 
 
     #File Building stuff.

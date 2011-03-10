@@ -52,7 +52,6 @@ else:
 TEMPLATE_DIR = '%s/readthedocs/templates/sphinx' % settings.SITE_ROOT
 STATIC_DIR = '%s/_static' % TEMPLATE_DIR
 
-
 class Builder(BaseBuilder):
 
     def _whitelisted(self, project):
@@ -88,7 +87,6 @@ class Builder(BaseBuilder):
         conf_template = conf_template + "\n" + rtd_string
         safe_write(project.conf_filename, conf_template)
 
-
     def clean(self, project):
         try:
             profile = project.user.get_profile()
@@ -100,7 +98,7 @@ class Builder(BaseBuilder):
                 self._sanitize(project)
         except (OSError, SiteProfileNotAvailable, ObjectDoesNotExist):
             try:
-                print "Writing conf to disk"
+                print "Writing conf to disk on error."
                 self._sanitize(project)
             except (OSError, IOError):
                 print "Conf file not found. Error writing to disk."
@@ -112,7 +110,7 @@ class Builder(BaseBuilder):
         else:
             version_slug = version.slug
         os.chdir(project.path)
-        if project.use_virtualenv:
+        if project.use_virtualenv and project.whitelisted:
             build_command = '%s -b html . _build/html' % project.venv_bin(version=version_slug, bin='sphinx-build')
         else:
             build_command = "sphinx-build -b html . _build/html"
