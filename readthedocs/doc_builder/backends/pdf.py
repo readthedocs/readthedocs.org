@@ -13,13 +13,11 @@ pdf_re = re.compile('Output written on (.+) \(')
 
 class Builder(BaseBuilder):
 
-    def build(self, project, version):
-        version_slug = 'latest'
-        if version:
-            version_slug = version.slug
-        os.chdir(project.conf_filename.rstrip('conf.py'))
-        if project.use_virtualenv:
-            latex_results = run('%s -b latex -d _build/doctrees   . _build/latex' % project.venv_bin(version=version_slug, bin='sphinx-build'))
+    def build(self, version):
+        project = version.project
+        os.chdir(project.conf_dir(version.slug))
+        if project.use_virtualenv and project.whitelisted:
+            latex_results = run('%s -b latex -d _build/doctrees   . _build/latex' % project.venv_bin(version=version.slug, bin='sphinx-build'))
         else:
             latex_results = run('sphinx-build -b latex '
                             '-d _build/doctrees   . _build/latex')
@@ -39,7 +37,7 @@ class Builder(BaseBuilder):
                 to_path = os.path.join(settings.MEDIA_ROOT,
                                        'pdf',
                                        project.slug,
-                                       version_slug)
+                                       version.slug)
                 if not os.path.exists(to_path):
                     os.makedirs(to_path)
                 to_file = os.path.join(to_path, '%s.pdf' % project.slug)

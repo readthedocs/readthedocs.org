@@ -15,7 +15,7 @@ class Testmaker(TestCase):
         self.assertEqual(r.status_code, 200)
         r = self.client.get('/dashboard/create/', {})
         self.assertEqual(r.status_code, 200)
-        r = self.client.post('/dashboard/create/', {'django_packages_url': '', 'name': 'New Proj', 'copyright': 'Eric Holscher', 'tags': '', 'default_branch': '', 'project_url': 'http://example.com', 'theme': 'default', 'version': '1.0', 'csrfmiddlewaretoken': '34af7c8a5ba84b84564403a280d9a9be', 'description': 'Awesome New Project', })
+        r = self.client.post('/dashboard/create/', {'django_packages_url': '', 'name': 'New Proj', 'copyright': 'Eric Holscher', 'tags': '', 'default_branch': '', 'project_url': 'http://example.com', 'theme': 'default', 'version': '1.0', 'description': 'Awesome New Project', })
         self.assertEqual(r.status_code, 302)
         self.assertEqual(r._headers['location'][1], 'http://testserver/dashboard/new-proj/')
         r = self.client.get('/dashboard/new-proj/', {})

@@ -13,7 +13,7 @@ class Version(models.Model):
     uploaded = models.BooleanField(default=False)
 
     class Meta:
-        unique_together = [('project', 'slug'), ('project', 'identifier')]
+        unique_together = [('project', 'slug')]
         ordering = ['-verbose_name']
 
     def __unicode__(self):

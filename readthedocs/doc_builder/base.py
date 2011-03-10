@@ -5,13 +5,13 @@ from projects.utils import run
 
 class BaseBuilder(object):
 
-    def touch(self, project):
+    def touch(self, version):
         print "Touching files"
-        os.chdir(project.full_doc_path)
+        os.chdir(version.project.conf_dir(version.slug))
         os.system('touch * && touch */*')
 
-    def clean(self, project):
+    def clean(self, version):
         raise NotImplementedError
 
-    def build(self, project, version):
+    def build(self, version):
         raise NotImplementedError

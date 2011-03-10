@@ -29,8 +29,8 @@ class BaseCLI(object):
         process = subprocess.Popen(bits, stdout=subprocess.PIPE,
             stderr=subprocess.PIPE, cwd=self.working_dir, shell=False,
             env=self.get_env())
+        print "VCS[%s]: %s" % (self.working_dir, ' '.join(bits))
         stdout, stderr = process.communicate()
-        print "VCS: %s" % ' '.join(bits)
         return (process.returncode, stdout, stderr)
 
     def get_env(self):
@@ -46,14 +46,14 @@ class BaseVCS(BaseCLI):
     # General methods
     #===========================================================================
 
-    def __init__(self, project):
+    def __init__(self, project, version):
         self.project =  project
         self.repo_url = project.repo
-        self.working_dir = project.working_dir
+        self.working_dir = project.checkout_path(version)
 
     def _check_working_dir(self):
         if not os.path.exists(self.working_dir):
-            os.mkdir(self.working_dir)
+            os.makedirs(self.working_dir)
 
     def update(self):
         """
