@@ -110,7 +110,7 @@ class Builder(BaseBuilder):
         else:
             version_slug = version.slug
         os.chdir(project.path)
-        if project.use_virtualenv and project.whitelisted:
+        if project.use_virtualenv and project.user.get_profile().whitelisted:
             build_command = '%s -b html . _build/html' % project.venv_bin(version=version_slug, bin='sphinx-build')
         else:
             build_command = "sphinx-build -b html . _build/html"
