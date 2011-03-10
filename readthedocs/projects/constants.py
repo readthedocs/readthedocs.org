@@ -10,6 +10,12 @@ THEME_TRADITIONAL = 'traditional'
 THEME_NATURE = 'nature'
 THEME_HAIKU = 'haiku'
 
+DOCUMENTATION_CHOICES = (
+    ('sphinx', 'Sphinx'),
+    ('sphinx_epydoc', 'Sphinx and Epydoc'),
+    ('rdoc', 'Rdoc'),
+)
+
 DEFAULT_THEME_CHOICES = (
     (THEME_DEFAULT, 'Default'),
     (THEME_SPHINX, 'Sphinx Docs'),
