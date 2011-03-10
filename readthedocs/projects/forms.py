@@ -8,6 +8,8 @@ from projects.tasks import update_docs
 
 
 class ProjectForm(forms.ModelForm):
+    required_css_class = "required"
+
     def clean_name(self):
         name = self.cleaned_data.get('name', '')
         if not self.instance.pk:
@@ -52,7 +54,7 @@ class ImportProjectForm(ProjectForm):
         help_text='URL for your code (hg or git). Ex. http://github.com/ericholscher/django-kong.git')
     class Meta:
         model = Project
-        fields = ('name', 'description', 'repo', 'repo_type', 'project_url', 'tags', 'default_branch')
+        fields = ('name', 'repo', 'repo_type', 'description', 'project_url', 'tags', 'default_branch', 'use_virtualenv', 'requirements_file')
 
     def clean_repo(self):
         repo = self.cleaned_data.get('repo', '').strip()
