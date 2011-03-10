@@ -51,6 +51,8 @@ thead { background: #f2f2f2; }
 /* forms */
 
 form p { color: #999; }
+form p label { font-weight: normal; }
+form p.required label { font-weight: bold; }
 textarea, input, button, .button, select { display: block; padding: 5px; color: #444; background-color: #fff; border: 1px solid #BFBFBF; border-radius: 3px; -moz-border-radius: 3px; -webkit-border-radius: 3px; }
 textarea, input, .button { box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset; -moz-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset; -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset; }
 input[type="text"], input[type="password"] { width: 250px; height: 20px; margin-bottom: 5px; background: #fff; }
