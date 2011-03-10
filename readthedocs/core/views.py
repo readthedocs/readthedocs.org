@@ -158,7 +158,7 @@ def serve_docs(request, project_slug, lang_slug, version_slug, filename):
     elif valid_version:
         request.add_badge = version[0].uploaded
     filename = filename.rstrip('/')
-    basepath = os.path.join(proj.rtd_build_path, version_slug)
+    basepath = proj.rtd_build_path(version_slug)
     if 'html' in filename:
         try:
             if not os.path.exists(os.path.join(basepath, filename)):

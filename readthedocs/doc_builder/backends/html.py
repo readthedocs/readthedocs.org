@@ -54,12 +54,17 @@ STATIC_DIR = '%s/_static' % TEMPLATE_DIR
 
 class Builder(BaseBuilder):
 
-    def _whitelisted(self, project):
+    def _whitelisted(self, version):
         """Modify the given ``conf.py`` file from a whitelisted user's project.
         For now, this just adds the RTD template directory to ``templates_path``.
         """
+        project = version.project
         #Open file for appending.
-        outfile = open(project.conf_filename, 'a')
+        try:
+            outfile = open(project.conf_file(version.slug), 'a')
+        except IndexError:
+            print "Nothing to white list, no conf.py"
+            return
         outfile.write("\n")
         rtd_ctx = Context({
             'verisons': project.active_versions(),
@@ -71,7 +76,8 @@ class Builder(BaseBuilder):
         outfile.write(rtd_string)
         outfile.close()
 
-    def _sanitize(self, project):
+    def _sanitize(self, version):
+        project = version.project
         conf_template =  render_to_string('sphinx/conf.py',
                                           {'project': project,
                                            'template_dir': TEMPLATE_DIR,
@@ -85,33 +91,29 @@ class Builder(BaseBuilder):
         })
         rtd_string = Template(RTD_CONF_ADDITIONS).render(rtd_ctx)
         conf_template = conf_template + "\n" + rtd_string
-        safe_write(project.conf_filename, conf_template)
+        safe_write(project.conf_file(version.slug), conf_template)
 
-    def clean(self, project):
+    def clean(self, version):
         try:
-            profile = project.user.get_profile()
-            if profile.whitelisted:
+            if version.project.whitelisted:
                 print "Project whitelisted"
-                self._whitelisted(project)
+                self._whitelisted(version)
             else:
                 print "Writing conf to disk"
-                self._sanitize(project)
+                self._sanitize(version)
         except (OSError, SiteProfileNotAvailable, ObjectDoesNotExist):
             try:
                 print "Writing conf to disk on error."
-                self._sanitize(project)
+                self._sanitize(version)
             except (OSError, IOError):
                 print "Conf file not found. Error writing to disk."
                 return ('','Conf file not found. Error writing to disk.',-1)
 
-    def build(self, project, version):
-        if not version:
-            version_slug = 'latest'
-        else:
-            version_slug = version.slug
-        os.chdir(project.path)
-        if project.use_virtualenv and project.user.get_profile().whitelisted:
-            build_command = '%s -b html . _build/html' % project.venv_bin(version=version_slug, bin='sphinx-build')
+    def build(self, version):
+        project = version.project
+        os.chdir(version.project.conf_dir(version.slug))
+        if project.use_virtualenv and project.whitelisted:
+            build_command = '%s -b html . _build/html' % project.venv_bin(version=version.slug, bin='sphinx-build')
         else:
             build_command = "sphinx-build -b html . _build/html"
         build_results = run(build_command)

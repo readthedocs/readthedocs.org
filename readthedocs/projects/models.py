@@ -48,7 +48,7 @@ class Project(models.Model):
     default_version = models.CharField(max_length=255, default='latest')
     # In default_branch, None means the backend should choose the appropraite branch. Eg 'master' for git
     default_branch = models.CharField(max_length=255, default=None, null=True,
-        blank=True, help_text='Leave empty to use the default value for your VCS or if your VCS does not support branches.')
+        blank=True, help_text='What branch "latest" points to. Leave empty to use the default value for your VCS (eg. trunk or master).')
     requirements_file = models.CharField(max_length=255, default=None, null=True, blank=True, help_text='A requirements file needed to build your documentation. Path from the root of your project.')
     documentation_type = models.CharField(max_length=20,
         choices=constants.DOCUMENTATION_CHOICES, default='sphinx',
@@ -110,51 +110,57 @@ class Project(models.Model):
         return path
 
 
-    @property
-    def user_doc_path(self):
-        return os.path.join(settings.DOCROOT, self.user.username, self.slug)
+    #Doc PATH:
+    #MEDIA_ROOT/slug/checkouts/version/<repo>
 
     @property
-    def user_checkout_path(self):
-        return os.path.join(self.user_doc_path, self.slug)
+    def doc_path(self):
+        return os.path.join(settings.DOCROOT, self.slug)
+
+    def checkout_path(self, version='latest'):
+        return os.path.join(self.doc_path, 'checkouts', version)
 
     def venv_path(self, version='latest'):
-        return os.path.join(self.user_doc_path, 'envs', version)
+        return os.path.join(self.doc_path, 'envs', version)
 
     def venv_bin(self, version='latest', bin='python'):
         return os.path.join(self.venv_path(version), 'bin', bin)
 
-    @property
-    def full_doc_path(self):
+    def full_doc_path(self, version='latest'):
         """
         The path to the documentation root in the project.
         """
-        doc_base = os.path.join(self.user_doc_path, self.slug)
+        doc_base = self.checkout_path(version)
         for possible_path in ['docs', 'doc', 'Doc']:
             if os.path.exists(os.path.join(doc_base, '%s' % possible_path)):
                 return os.path.join(doc_base, '%s' % possible_path)
-        #No docs directory, assume a full docs checkout
+        #No docs directory, docs are at top-level.
         return doc_base
 
-    @property
-    def full_build_path(self):
+    def full_build_path(self, version='latest'):
         """
         The path to the build html docs in the project.
         """
-        return os.path.join(self.path, "_build", "html")
+        return os.path.join(self.full_doc_path(version), "_build", "html")
 
-    @property
-    def rtd_build_path(self):
+    def rtd_build_path(self, version="latest"):
         """
         The path to the build html docs in the project.
         """
-        return os.path.join(self.user_doc_path, 'rtd-builds')
+        return os.path.join(self.doc_path, 'rtd-builds', version)
 
-    @property
-    def conf_filename(self):
-        if self.path:
-            return os.path.join(self.path, 'conf.py')
-        raise IOError
+    def conf_file(self, version='latest'):
+        try:
+            conf_file = self.find('conf.py', version)[0]
+            return conf_file
+        except IndexError:
+            print("Could not find conf.py in %s" % self)
+            return ''
+
+    def conf_dir(self, version='latest'):
+        conf_file = self.conf_file(version)
+        if conf_file:
+            return conf_file.replace('/conf.py', '')
 
     @property
     def is_imported(self):
@@ -178,30 +184,17 @@ class Project(models.Model):
 
     @property
     def sponsored(self):
-        non_django_projects = ['fabric', 'easy-thumbnails',
-                               'python-storymarket', 'virtualenv',
-                               'virtualenvwrapper', 'varnish',
-                               'pip']
-        if self.slug in non_django_projects \
-        or self.slug.startswith('django'):
-            #return True
-            return False
         return False
 
-    @property
-    def working_dir(self):
-        return os.path.join(self.user_doc_path, self.slug)
-
-    @property
-    def vcs_repo(self):
-        if hasattr(self, '_vcs_repo'):
-            return self._vcs_repo
+    def vcs_repo(self, version='latest'):
+        #if hasattr(self, '_vcs_repo'):
+            #return self._vcs_repo
         backend = get_backend(self.repo_type)
         if not backend:
             repo = None
         else:
-            repo = backend(self)
-        self._vcs_repo = repo
+            repo = backend(self, version)
+        #self._vcs_repo = repo
         return repo
 
     @property
@@ -218,12 +211,12 @@ class Project(models.Model):
     def repo_lock(self, timeout=5, polling_interval=0.2):
         return Lock(self.slug, timeout, polling_interval)
 
-    def find(self, file):
+    def find(self, file, version):
         """
         A balla API to find files inside of a projects dir.
         """
         matches = []
-        for root, dirnames, filenames in os.walk(self.full_doc_path):
+        for root, dirnames, filenames in os.walk(self.full_doc_path(version)):
             for filename in fnmatch.filter(filenames, file):
                 matches.append(os.path.join(root, filename))
         return matches
@@ -236,6 +229,10 @@ class Project(models.Model):
 
     def active_versions(self):
         return self.versions.filter(built=True, active=True) | self.versions.filter(active=True, uploaded=True)
+
+    @property
+    def whitelisted(self):
+        return self.user.get_profile().whitelisted
 
 
     #File Building stuff.

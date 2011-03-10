@@ -4,6 +4,7 @@ from vcs_support.base import BaseVCS, VCSVersion
 
 class Backend(BaseVCS):
     supports_tags = False
+    fallback_branch = '/trunk/'
 
     def __init__(self, project):
         super(Backend, self).__init__(project)

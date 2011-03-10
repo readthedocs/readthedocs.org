@@ -3,7 +3,8 @@ from vcs_support.base import BaseVCS, VCSVersion
 
 class Backend(BaseVCS):
     supports_tags = True
-    
+    fallback_branch = ''
+
     def update(self):
         super(Backend, self).update()
         retcode = self._run_command('bzr', 'status')[0]
@@ -11,7 +12,7 @@ class Backend(BaseVCS):
             self._up()
         else:
             self._checkout()
-    
+
     def _up(self):
         retcode = self._run_command('bzr', 'revert')[0]
         if retcode != 0:
@@ -23,7 +24,7 @@ class Backend(BaseVCS):
             raise ProjectImportError(
                 "Failed to get code from '%s' (bzr up): %s" % (self.repo_url, retcode)
             )
-    
+
     def _checkout(self):
         retcode = self._run_command('bzr', 'checkout', self.repo_url, '.')[0]
         if retcode != 0:
@@ -37,11 +38,11 @@ class Backend(BaseVCS):
         if retcode != 0:
             return []
         return self._parse_tags(stdout)
-    
+
     def _parse_tags(self, data):
         """
         Parses output of show-ref --tags, eg:
-        
+
             0.1.0                171
             0.1.1                173
             0.1.2                174
@@ -54,7 +55,7 @@ class Backend(BaseVCS):
             clean_name = name.strip(' ')
             vcs_tags.append(VCSVersion(self, commit, clean_name))
         return vcs_tags
-    
+
     def checkout(self, identifier=None):
         super(Backend, self).checkout()
         if not identifier:

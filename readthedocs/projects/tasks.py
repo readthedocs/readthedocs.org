@@ -41,13 +41,17 @@ def update_docs(pk, record=True, pdf=True, version_pk=None, touch=False):
     if version_pk:
         versions = [Version.objects.get(pk=version_pk)]
     else:
-        versions = [None]# + list(project.versions.filter(active=True, uploaded=False))
-    path = project.user_doc_path
-    if not os.path.exists(path):
-        os.makedirs(path)
-
+        branch = project.default_branch or project.vcs_repo().fallback_branch
+        versions = [Version.objects.get_or_create(project=project,
+                            identifier=branch,
+                            slug='latest',
+                            verbose_name='latest')[0]]# + list(project.versions.filter(active=True, uploaded=False))
 
     for version in versions:
+        #Make Dirs
+        path = project.doc_path
+        if not os.path.exists(path):
+            os.makedirs(path)
         with project.repo_lock(30):
             if project.is_imported:
                 try:
@@ -57,7 +61,7 @@ def update_docs(pk, record=True, pdf=True, version_pk=None, touch=False):
                     return
                 else:
                     #This is where we save project.path, where conf.py lives
-                    scrape_conf_file(project)
+                    scrape_conf_file(version)
             else:
                 update_created_docs(project)
 
@@ -71,44 +75,49 @@ def update_docs(pk, record=True, pdf=True, version_pk=None, touch=False):
                     print err
             else:
                 print "Build Unchanged"
-    result = client.import_project(project)
-    if result:
-        print "Project imported from Django Packages!"
+    try:
+        result = client.import_project(project)
+        if result:
+            print "Project imported from Django Packages!"
+    except:
+        print "Importing from Django Packages Errored."
 
 
 def update_imported_docs(project, version):
     """
     Check out or update the given project's repository.
     """
-    if not project.vcs_repo:
+    if not project.vcs_repo():
         raise ProjectImportError("Repo type '%s' unknown" % project.repo_type)
     if version:
         print 'Checking out version %s: %s' % (version.slug, version.identifier)
-        project.vcs_repo.checkout(version.identifier)
         version_slug = version.slug
+        version_repo = project.vcs_repo(version_slug)
+        version_repo.checkout(version.identifier)
     else:
         print 'Updating to latest revision'
-        project.vcs_repo.update()
         version_slug = 'latest'
+        version_repo = project.vcs_repo(version_slug)
+        version_repo.update()
 
     #Do Virtualenv bits:
-    if project.use_virtualenv and project.user.get_profile().whitelisted:
+    if project.use_virtualenv and project.whitelisted:
         run('virtualenv --no-site-packages %s' % project.venv_path(version=version_slug))
         run('%s install sphinx' % project.venv_bin(version=version_slug,
                                                       bin='pip'))
         if project.requirements_file:
-            os.chdir(project.user_checkout_path)
+            os.chdir(project.checkout_path(version_slug))
             run('%s install -r %s' % (project.venv_bin(version=version_slug, bin='pip'),
                                     project.requirements_file))
-        os.chdir(project.user_checkout_path)
+        os.chdir(project.checkout_path(version_slug))
         run('%s setup.py install' % project.venv_bin(version=version_slug,
                                                           bin='python'))
 
     # check tags/version
     try:
-        if project.vcs_repo.supports_tags:
+        if version_repo.supports_tags:
             transaction.enter_transaction_management(True)
-            tags = project.vcs_repo.get_tags()
+            tags = version_repo.get_tags()
             old_tags = Version.objects.filter(project=project).values_list('identifier', flat=True)
             for tag in tags:
                 if tag.identifier in old_tags:
@@ -125,9 +134,9 @@ def update_imported_docs(project, version):
                     print "Failed to create version (tag): %s" % e
                     transaction.rollback()
             transaction.leave_transaction_management()
-        if project.vcs_repo.supports_branches:
+        if version_repo.supports_branches:
             transaction.enter_transaction_management(True)
-            branches = project.vcs_repo.get_branches()
+            branches = version_repo.get_branches()
             old_branches = Version.objects.filter(project=project).values_list('identifier', flat=True)
             for branch in branches:
                 if branch.identifier in old_branches:
@@ -150,22 +159,23 @@ def update_imported_docs(project, version):
         print "Error getting tags: %s" % e
 
 
-    fileify(project_slug=project.slug)
+    fileify(version)
 
 
-def scrape_conf_file(project):
+def scrape_conf_file(version):
     """Locate the given project's ``conf.py`` file and extract important
     settings, including copyright, theme, source suffix and version.
     """
     #This is where we actually find the conf.py, so we can't use
     #the value from the project :)
+    project = version.project
     try:
-        conf_dir = project.find('conf.py')[0]
+        conf_file = project.conf_file(version.slug)
     except IndexError:
         print("Could not find conf.py in %s" % project)
         return
     else:
-        conf_dir = conf_dir.replace('/conf.py', '')
+        conf_dir = conf_file.replace('/conf.py', '')
 
     os.chdir(conf_dir)
     lines = open('conf.py').readlines()
@@ -189,7 +199,7 @@ def scrape_conf_file(project):
 
 def update_created_docs(project):
     # grab the root path for the generated docs to live at
-    path = project.user_doc_path
+    path = project.doc_path
 
     doc_root = os.path.join(path, project.slug, 'docs')
 
@@ -209,14 +219,14 @@ def build_docs(project, version, pdf, record, touch):
     """
     A helper function for the celery task to do the actual doc building.
     """
-    if not project.path:
+    if not project.conf_file(version.slug):
         return ('','Conf file not found.',-1)
 
     html_builder = builder_loading.get('html')()
     if touch:
-        html_builder.touch(project)
-    html_builder.clean(project)
-    html_output = html_builder.build(project, version)
+        html_builder.touch(version)
+    html_builder.clean(version)
+    html_output = html_builder.build(version)
     successful = (html_output[0] == 0)
     if not 'no targets are out of date.' in html_output[1]:
         if record:
@@ -230,10 +240,11 @@ def build_docs(project, version, pdf, record, touch):
 
         if pdf:
             pdf_builder = builder_loading.get('pdf')()
-            pdf_builder.build(project, version)
+            pdf_builder.build(version)
     if successful:
         move_docs(project, version)
         if version:
+            version.active = True
             version.built = True
             version.save()
     return html_output
@@ -243,13 +254,13 @@ def move_docs(project, version):
         version_slug = 'latest'
         if version:
             version_slug = version.slug
-        target = os.path.join(project.rtd_build_path, version_slug)
+        target = project.rtd_build_path(version_slug)
         if getattr(settings, "MULTIPLE_APP_SERVERS", None):
             copy_to_app_servers(project.full_build_path, target)
         else:
             if os.path.exists(target):
                 shutil.rmtree(target)
-            shutil.copytree(project.full_build_path, target)
+            shutil.copytree(project.full_build_path(version_slug), target)
     else:
         print "Not moving docs, because the build dir is unknown."
 
@@ -262,9 +273,9 @@ def copy_to_app_servers(full_build_path, target):
             print "COPY ERROR: out: %s err: %s" % (ret[1], ret[2])
 
 
-def fileify(project_slug):
-    project = Project.objects.get(slug=project_slug)
-    path = project.full_build_path
+def fileify(version):
+    project = version.project
+    path = project.full_build_path(version.slug)
     if path:
         for root, dirnames, filenames in os.walk(path):
             for filename in filenames:
