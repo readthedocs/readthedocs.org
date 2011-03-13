@@ -10,4 +10,9 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         for user in User.objects.filter(profile__whitelisted=False):
             print "Whitelisting %s" % user
-            UserProfile.objects.create(user=user, whitelisted=True)
+            try:
+                profile = user.get_profile()
+                profile.whitelisted = True
+                profile.save()
+            except:
+                UserProfile.objects.get_or_create(user=user, whitelisted=True)
