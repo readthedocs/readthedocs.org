@@ -15,7 +15,7 @@ def _project_404(request, project):
     return render_to_response('404.html', ctx)
 
 def _get_rel_filepath(project, filename):
-    doc_base = os.path.join(project.user_doc_path, project.slug)
+    doc_base = os.path.join(project.doc_path, project.slug)
     abs_doc_root = project.full_doc_path
     rel = os.path.relpath(abs_doc_root, doc_base)
     if rel == '.':
@@ -74,7 +74,7 @@ def editor_file(request, project_slug, filename):
     ctx['filename'] = repo_file
     ctx['project'] = project
     return render_to_response('editor/editor_file.html', ctx)
-    
+
 @login_required
 def editor_push(request, project_slug):
     """

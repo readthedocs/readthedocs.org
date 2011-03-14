@@ -145,7 +145,7 @@ def project_delete(request, project_slug):
 
     if request.method == 'POST':
         # Remove the repository checkout
-        shutil.rmtree(project.user_doc_path)
+        shutil.rmtree(project.doc_path)
         # Delete the project and everything related to it
         project.delete()
         project_dashboard = reverse('projects_dashboard')
@@ -310,7 +310,7 @@ def export(request, project_slug):
     Export a projects' docs as a .zip file, including the .rst source
     """
     project = Project.objects.live().get(user=request.user, slug=project_slug)
-    os.chdir(project.user_doc_path)
+    os.chdir(project.doc_path)
     dir_path = os.path.join(settings.MEDIA_ROOT, 'export', project.user.username)
     zip_filename = '%s.zip' % project.slug
     file_path = os.path.join(dir_path, zip_filename)
