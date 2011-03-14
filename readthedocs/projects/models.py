@@ -141,7 +141,7 @@ class Project(models.Model):
         """
         The path to the build html docs in the project.
         """
-        return os.path.join(self.full_doc_path(version), "_build", "html")
+        return os.path.join(self.conf_dir(version), "_build", "html")
 
     def rtd_build_path(self, version="latest"):
         """
@@ -151,7 +151,7 @@ class Project(models.Model):
 
     def conf_file(self, version='latest'):
         try:
-            conf_file = self.find('conf.py', version)[0]
+            conf_file = self.full_find('conf.py', version)[0]
             return conf_file
         except IndexError:
             print("Could not find conf.py in %s" % self)
@@ -220,6 +220,17 @@ class Project(models.Model):
             for filename in fnmatch.filter(filenames, file):
                 matches.append(os.path.join(root, filename))
         return matches
+
+    def full_find(self, file, version):
+        """
+        A balla API to find files inside of a projects dir.
+        """
+        matches = []
+        for root, dirnames, filenames in os.walk(self.checkout_path(version)):
+            for filename in fnmatch.filter(filenames, file):
+                matches.append(os.path.join(root, filename))
+        return matches
+
 
     def get_latest_build(self):
         try:
