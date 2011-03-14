@@ -155,7 +155,7 @@ class Project(models.Model):
             return files[0]
         elif len(files) > 1:
             for file in files:
-                if file.find('doc') != -1:
+                if file.find('doc', 70) != -1:
                     return file
         else:
             print("Could not find conf.py in %s" % self)
