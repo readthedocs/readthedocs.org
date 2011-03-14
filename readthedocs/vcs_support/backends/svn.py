@@ -7,7 +7,7 @@ class Backend(BaseVCS):
     fallback_branch = '/trunk/'
 
     def __init__(self, project, version):
-        super(Backend, self).__init__(project)
+        super(Backend, self).__init__(project, version)
         if self.repo_url[-1] != '/':
             self.repo_url += '/'
         if self.repo_url.endswith('/trunk/'):
