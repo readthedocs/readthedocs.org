@@ -71,6 +71,8 @@ class Backend(BaseVCS):
 
     def checkout(self, identifier=None):
         super(Backend, self).checkout()
-        if not identifier:
-            identifier = '/trunk/'
-        self._run_command('svn', 'switch', '%s%s' % (self.repo_url, identifier))
+        retcode = self._run_command('svn', 'info')[0]
+        if retcode == 0:
+            self._up()
+        else:
+            self._co()
