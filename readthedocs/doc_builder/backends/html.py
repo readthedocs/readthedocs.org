@@ -33,6 +33,11 @@ if 'html_theme' in locals():
             html_theme = 'default'
             html_theme_options = {}
             using_rtd_theme = True
+else:
+    html_style = 'rtd.css'
+    html_theme = 'default'
+    html_theme_options = {}
+    using_rtd_theme = True
 
 #Add sponsorship and project information to the template context.
 context = {
