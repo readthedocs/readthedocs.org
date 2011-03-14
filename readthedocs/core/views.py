@@ -180,7 +180,6 @@ def serve_docs(request, project_slug, lang_slug, version_slug, filename):
         if encoding:
             response["Content-Encoding"] = encoding
         response['X-Accel-Redirect'] = os.path.join('/user_builds',
-                                                     proj.user.username,
                                                      proj.slug,
                                                      'rtd-builds',
                                                      version_slug,
