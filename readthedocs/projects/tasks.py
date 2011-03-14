@@ -61,7 +61,9 @@ def update_docs(pk, record=True, pdf=True, version_pk=None, touch=False):
                     return
                 else:
                     #This is where we save project.path, where conf.py lives
-                    scrape_conf_file(version)
+                    scraped = scrape_conf_file(version)
+                    if scared == -1:
+                        return
             else:
                 update_created_docs(project)
 
@@ -157,6 +159,7 @@ def update_imported_docs(project, version):
             Version.objects.filter(project=project).exclude(identifier__in=old_branches).delete()
     except ValueError, e:
         print "Error getting tags: %s" % e
+        return
 
 
     fileify(version)
@@ -173,7 +176,7 @@ def scrape_conf_file(version):
         conf_file = project.conf_file(version.slug)
     except IndexError:
         print("Could not find conf.py in %s" % project)
-        return
+        return -1
     else:
         conf_dir = conf_file.replace('/conf.py', '')
 
