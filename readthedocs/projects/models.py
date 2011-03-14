@@ -150,10 +150,14 @@ class Project(models.Model):
         return os.path.join(self.doc_path, 'rtd-builds', version)
 
     def conf_file(self, version='latest'):
-        try:
-            conf_file = self.full_find('conf.py', version)[0]
-            return conf_file
-        except IndexError:
+        files = self.full_find('conf.py', version)
+        if len(files) == 1:
+            return files[0]
+        elif len(files) > 1:
+            for file in files:
+                if file.find('doc') != -1:
+                    return file
+        else:
             print("Could not find conf.py in %s" % self)
             return ''
 
