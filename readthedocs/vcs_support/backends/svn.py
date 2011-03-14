@@ -9,6 +9,7 @@ class Backend(BaseVCS):
     def __init__(self, project, version):
         super(Backend, self).__init__(project, version)
         if self.repo_url[-1] != '/':
+            self.base_url = self.repo_url
             self.repo_url += '/'
         if self.repo_url.endswith('/trunk/'):
             self.supports_tags = True
@@ -72,4 +73,4 @@ class Backend(BaseVCS):
         super(Backend, self).checkout()
         if not identifier:
             identifier = '/trunk/'
-        self._run_command('svn', 'switch', '%s%s' % (self.base_url, identifier))
+        self._run_command('svn', 'switch', '%s%s' % (self.repo_url, identifier))
