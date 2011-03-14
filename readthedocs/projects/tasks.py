@@ -54,6 +54,10 @@ def update_docs(pk, record=True, pdf=True, version_pk=None, touch=False):
             os.makedirs(path)
         with project.repo_lock(30):
             if project.is_imported:
+                #Break early without a conf file.
+                if not project.conf_file(version.slug):
+                    print "Conf File Missing. Skipping."
+                    return
                 try:
                     update_imported_docs(project, version)
                 except ProjectImportError, err:
@@ -61,9 +65,7 @@ def update_docs(pk, record=True, pdf=True, version_pk=None, touch=False):
                     return
                 else:
                     #This is where we save project.path, where conf.py lives
-                    scraped = scrape_conf_file(version)
-                    if scraped == -1:
-                        return
+                    scrape_conf_file(version)
             else:
                 update_created_docs(project)
 
