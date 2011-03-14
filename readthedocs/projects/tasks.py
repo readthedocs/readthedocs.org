@@ -62,7 +62,7 @@ def update_docs(pk, record=True, pdf=True, version_pk=None, touch=False):
                 else:
                     #This is where we save project.path, where conf.py lives
                     scraped = scrape_conf_file(version)
-                    if scared == -1:
+                    if scraped == -1:
                         return
             else:
                 update_created_docs(project)
