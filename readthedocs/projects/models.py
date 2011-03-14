@@ -280,8 +280,7 @@ class Project(models.Model):
         # check if the default_version exists
         version_qs = self.versions.filter(
             slug=self.default_version,
-            active=True,
-            built=True
+            active=True
         )
         if version_qs.exists():
             return self.default_version
