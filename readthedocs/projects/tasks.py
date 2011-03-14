@@ -297,7 +297,10 @@ def fileify(version):
 @periodic_task(run_every=crontab(hour="2", minute="10", day_of_week="*"))
 def update_docs_pull(record=False, pdf=False, touch=False):
     for project in Project.objects.live():
-        update_docs(pk=project.pk, record=record, pdf=pdf, touch=touch)
+	try:
+            update_docs(pk=project.pk, record=record, pdf=pdf, touch=touch)
+	except:
+	    print "failed"
 
 
 @task
