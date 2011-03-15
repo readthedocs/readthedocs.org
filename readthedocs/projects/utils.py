@@ -105,9 +105,10 @@ def highest_version(version_list):
     highest = [version_list[0], mkversion(version_list[0])]
     for version in version_list:
         ver = mkversion(version)
-        if highest[1]:
-            if ver > highest[1]:
-                highest = [version, ver]
+        if highest[1] and ver:
+            #If there's a highest, and no version, we don't need to set anything
+                if ver > highest[1]:
+                    highest = [version, ver]
         elif ver:
             highest = [version, ver]
         else:

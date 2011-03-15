@@ -106,18 +106,27 @@ class BuildResource(EnhancedModelResource):
             url(r"^(?P<resource_name>%s)/(?P<project__slug>[a-z-]+)/$" % self._meta.resource_name, self.wrap_view('dispatch_list'), name="api_list_detail"),
         ]
 
-class VersionResource(ModelResource):
+class VersionResource(EnhancedModelResource):
 
     class Meta:
         queryset = Version.objects.all()
 
     def version_compare(self, request, **kwargs):
         project = get_object_or_404(Project, slug=kwargs['project_slug'])
-        highest = highest_version(project.versions.filter(active=True))
-        return self.create_response(request, highest)
+        filter = kwargs.get('filter', None)
+        if filter:
+            highest = highest_version(project.versions.filter(slug__contains=filter))
+        else:
+            highest = highest_version(project.versions.all())
+        ret_val = {
+            'project': highest[0],
+            'version': highest[1],
+            'slug': highest[0].slug,
+        }
+        return self.create_response(request, ret_val)
 
     def override_urls(self):
         return [
-            url(r"^(?P<resource_name>%s)/(?P<project__slug>[a-z-]+)/$" % self._meta.resource_name, self.wrap_view('dispatch_list'), name="version_compare"),
+            url(r"^(?P<resource_name>%s)/(?P<project_slug>[a-z-]+)/highest/(?P<filter>.+)/$" % self._meta.resource_name, self.wrap_view('version_compare'), name="version_compare"),
             url(r"^(?P<resource_name>%s)/(?P<project_slug>[a-z-]+)/highest/$" % self._meta.resource_name, self.wrap_view('version_compare'), name="version_compare"),
         ]
