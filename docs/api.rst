@@ -49,6 +49,6 @@ Filtered Highest Version
 
 URL
 ~~~
-http://readthedocs.org/api/v1/version/pip/highest/0.9/?format=json
+http://readthedocs.org/api/v1/version/pip/highest/0.8/?format=json
 
-The filter expression at the end (0.9), will have the version numbers filtered against.
+The filter expression at the end (0.8), will have the version numbers filtered against.
