@@ -32,4 +32,5 @@ Contents
     alternate_domains
     support
     install
+    api
     api/index
