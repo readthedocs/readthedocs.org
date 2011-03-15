@@ -117,11 +117,13 @@ class VersionResource(EnhancedModelResource):
         if filter:
             highest = highest_version(project.versions.filter(slug__contains=filter, active=True))
         else:
-            highest = highest_version(project.versions.(active=True))
+            highest = highest_version(project.versions.filter(active=True))
         ret_val = {
             'project': highest[0],
             'version': highest[1],
         }
+        if highest[0]:
+            ret_val['url'] = highest[0].get_absolute_url()
         return self.create_response(request, ret_val)
 
     def override_urls(self):
