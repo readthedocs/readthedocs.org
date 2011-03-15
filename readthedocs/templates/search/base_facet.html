@@ -34,18 +34,7 @@
       <div class="module-list-wrapper">
 
         <ul>
-          {% for result in page.object_list %}
-            <li class="module-item">
-              <p class="module-item-title">
-                <a href="{{ result.object.get_absolute_url }}?highlight={{ query }}">{{ result.project }} - {{ result.title }}</a>
-              </p>
-              <p>
-                {% highlight result.text with query %}
-              </p>
-            </li>
-          {% empty %}
-            <li class="module-item"><span class="quiet">No results found. Bummer.</span></li>
-          {% endfor %}
+			{% include 'search/base_search.html' %}
         </ul>
 
       </div>
