@@ -95,12 +95,19 @@ def slugify_uniquely(model, initial, field, max_length, **filters):
     return current
 
 def mkversion(version_obj):
-    return NormalizedVersion(suggest_normalized_version(version_obj.slug))
+    try:
+        ver =  NormalizedVersion(suggest_normalized_version(version_obj.slug))
+        return ver
+    except TypeError:
+        return None
 
 def highest_version(version_list):
     highest = [version_list[0], mkversion(version_list[0])]
     for version in version_list:
         ver = mkversion(version)
-        if ver > highest[1]:
+        if highest[1] and ver:
+            if ver > highest[1]:
+                highest = [version, ver]
+        else:
             highest = [version, ver]
     return highest

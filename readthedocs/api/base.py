@@ -1,5 +1,10 @@
 from django.contrib.auth.models import User
 from django.conf.urls.defaults import url
+from django.shortcuts import get_object_or_404
+from django.http import HttpResponse
+
+
+
 from tastypie.resources import ModelResource
 from tastypie import fields
 from tastypie.authentication import BasicAuthentication
@@ -8,8 +13,9 @@ from tastypie.exceptions import NotFound
 from tastypie.http import HttpCreated
 from tastypie.utils import dict_strip_unicode_keys
 
-from builds.models import Build
+from builds.models import Build, Version
 from projects.models import Project
+from projects.utils import highest_version
 
 class PostAuthentication(BasicAuthentication):
     def is_authenticated(self, request, **kwargs):
@@ -98,4 +104,20 @@ class BuildResource(EnhancedModelResource):
     def override_urls(self):
         return [
             url(r"^(?P<resource_name>%s)/(?P<project__slug>[a-z-]+)/$" % self._meta.resource_name, self.wrap_view('dispatch_list'), name="api_list_detail"),
+        ]
+
+class VersionResource(ModelResource):
+
+    class Meta:
+        queryset = Version.objects.all()
+
+    def version_compare(self, request, **kwargs):
+        project = get_object_or_404(Project, slug=kwargs['project_slug'])
+        highest = highest_version(project.versions.all())
+        return self.create_response(request, highest)
+
+    def override_urls(self):
+        return [
+            url(r"^(?P<resource_name>%s)/(?P<project__slug>[a-z-]+)/$" % self._meta.resource_name, self.wrap_view('dispatch_list'), name="version_compare"),
+            url(r"^(?P<resource_name>%s)/(?P<project_slug>[a-z-]+)/highest/$" % self._meta.resource_name, self.wrap_view('version_compare'), name="version_compare"),
         ]
