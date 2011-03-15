@@ -115,9 +115,9 @@ class VersionResource(EnhancedModelResource):
         project = get_object_or_404(Project, slug=kwargs['project_slug'])
         filter = kwargs.get('filter', None)
         if filter:
-            highest = highest_version(project.versions.filter(slug__contains=filter))
+            highest = highest_version(project.versions.filter(slug__contains=filter, active=True))
         else:
-            highest = highest_version(project.versions.all())
+            highest = highest_version(project.versions.(active=True))
         ret_val = {
             'project': highest[0],
             'version': highest[1],

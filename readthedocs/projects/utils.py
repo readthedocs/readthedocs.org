@@ -102,7 +102,7 @@ def mkversion(version_obj):
         return None
 
 def highest_version(version_list):
-    highest = [version_list[0], mkversion(version_list[0])]
+    highest = [None, None]
     for version in version_list:
         ver = mkversion(version)
         if not ver:
