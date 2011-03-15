@@ -108,7 +108,7 @@ def highest_version(version_list):
         if highest[1]:
             if ver > highest[1]:
                 highest = [version, ver]
-        elif not ver:
+        elif ver:
             highest = [version, ver]
         else:
             highest = [None, None]
