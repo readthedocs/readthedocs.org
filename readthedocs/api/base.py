@@ -103,7 +103,7 @@ class BuildResource(EnhancedModelResource):
 
     def override_urls(self):
         return [
-            url(r"^(?P<resource_name>%s)/(?P<project__slug>[a-z-]+)/$" % self._meta.resource_name, self.wrap_view('dispatch_list'), name="api_list_detail"),
+            url(r"^(?P<resource_name>%s)/(?P<project__slug>[a-z-]+)/$" % self._meta.resource_name, self.wrap_view('dispatch_list'), name="build_list_detail"),
         ]
 
 class VersionResource(EnhancedModelResource):
@@ -130,4 +130,5 @@ class VersionResource(EnhancedModelResource):
         return [
             url(r"^(?P<resource_name>%s)/(?P<project_slug>[a-z-]+)/highest/(?P<filter>.+)/$" % self._meta.resource_name, self.wrap_view('version_compare'), name="version_compare"),
             url(r"^(?P<resource_name>%s)/(?P<project_slug>[a-z-]+)/highest/$" % self._meta.resource_name, self.wrap_view('version_compare'), name="version_compare"),
+            url(r"^(?P<resource_name>%s)/(?P<project__slug>[a-z-]+)/$" % self._meta.resource_name, self.wrap_view('dispatch_list'), name="api_version_list"),
         ]
