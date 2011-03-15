@@ -13,7 +13,7 @@ CNAME Support
 
 If you have your own domain, you can still host with us. If you point a CNAME record in your database to the subdomain for your project, it should magically serve your latest documentation on the custom domain. Using pip as another example, http://www.pip-installer.org resolves, but is hosted on our infrastructure.
 
-As an example, fabric's dig record looks like this:
+As an example, fabric's dig record looks like this::
 
     -> dig docs.fabfile.org
     ...
