@@ -113,7 +113,7 @@ class VersionResource(ModelResource):
 
     def version_compare(self, request, **kwargs):
         project = get_object_or_404(Project, slug=kwargs['project_slug'])
-        highest = highest_version(project.versions.all())
+        highest = highest_version(project.versions.filter(active=True))
         return self.create_response(request, highest)
 
     def override_urls(self):
