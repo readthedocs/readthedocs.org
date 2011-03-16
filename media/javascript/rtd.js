@@ -2,7 +2,23 @@
  {
     ShowActionOnOver();
     guessRepo();
+    checkVersion();
  });
+
+warning = '<div class="admonition note"> <p class="first admonition-title">Note</p> <p class="last"> You are not using the most up to date version of the library. '
+
+ function checkVersion() {
+    $.ajax({
+     type: 'GET',
+     url: "/api/v1/version/" + doc_slug + "/highest/",
+     success: function(data, textStatus, request) {
+      if (!data.is_highest) {
+         $("div.body").prepend(warning + "<a href='http://readthedocs.org" + data.url + "'>" + data.version + "</a> is the version you want. </p></div>")
+      }
+     },
+     dataType: 'json'
+    });
+ }
 
  function ShowActionOnOver()
  {

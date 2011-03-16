@@ -42,6 +42,8 @@ else:
 #Add sponsorship and project information to the template context.
 context = {
     'using_theme': using_rtd_theme,
+    'current_version': "{{ current_version.slug }}",
+    'MEDIA_URL': "{{ settings.MEDIA_URL }}",
     'versions': [{% for version in verisons %}
     ("{{ version.slug }}", "{{ version.get_absolute_url }}"),{% endfor %}
     ],
@@ -73,7 +75,9 @@ class Builder(BaseBuilder):
         outfile.write("\n")
         rtd_ctx = Context({
             'verisons': project.active_versions(),
+            'current_version': version,
             'project': project,
+            'settings': settings,
             'static_path': STATIC_DIR,
             'template_path': TEMPLATE_DIR,
         })
@@ -90,7 +94,9 @@ class Builder(BaseBuilder):
                                             })
         rtd_ctx = Context({
             'verisons': project.active_versions(),
+            'current_version': version,
             'project': project,
+            'settings': settings,
             'static_path': STATIC_DIR,
             'template_path': TEMPLATE_DIR,
         })

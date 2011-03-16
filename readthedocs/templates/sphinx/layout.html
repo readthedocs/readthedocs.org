@@ -4,7 +4,13 @@
 {{ super() }}
 {% if using_theme %}
   <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;"/>
+
 {% endif %}
+  <script type="text/javascript">
+    var doc_version = "{{ current_version }}";
+    var doc_slug = "{{ slug }}";
+  </script>
+  <script type="text/javascript" src="{{ MEDIA_URL }}javascript/rtd.js"></script>
 {% endblock %}
 
 {% block sidebarlogo %}
@@ -15,7 +21,7 @@
     <ul id="sidebar_versions">
 {% for slug, url in versions %}
   <li><a href="http://readthedocs.org{{ url }}">{{ slug }}</a></li>
-{% endfor %}{{ super() }}
+{% endfor %}
     </ul>
 {% endif %}
 {% endif %}
