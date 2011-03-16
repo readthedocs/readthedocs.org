@@ -126,7 +126,10 @@ class VersionResource(EnhancedModelResource):
                 ver_obj = project.versions.get(slug=base)
                 base_ver = mkversion(ver_obj)
                 if base_ver:
-                    ret_val['is_highest'] = base_ver >= highest[1]
+                    if base == "latest":
+                        ret_val['is_highest'] = True
+                    else:
+                        ret_val['is_highest'] = base_ver >= highest[1]
                 else:
                     ret_val['is_highest'] = False
             except Version.DoesNotExist:
