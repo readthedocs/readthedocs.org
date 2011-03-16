@@ -23,8 +23,7 @@ class ProjectForm(forms.ModelForm):
 class CreateProjectForm(ProjectForm):
     class Meta:
         model = Project
-        exclude = ('skip', 'user', 'slug', 'repo', 'featured',
-                   'docs_directory', 'status', 'repo_type', 'default_version',)
+        fields = ('name', 'description', 'theme', 'tags')
 
     def save(self, *args, **kwargs):
         created = self.instance.pk is None
@@ -51,7 +50,8 @@ class CreateProjectForm(ProjectForm):
 
 class ImportProjectForm(ProjectForm):
     repo = forms.CharField(required=True,
-        help_text='URL for your code (hg or git). Ex. http://github.com/ericholscher/django-kong.git')
+            help_text='URL for your code (hg or git). Ex. http://github.com/ericholscher/django-kong.git')
+   
     class Meta:
         model = Project
         fields = ('name', 'repo', 'repo_type', 'description', 'project_url', 'tags', 'default_branch')

@@ -155,6 +155,7 @@ class Project(models.Model):
             return files[0]
         elif len(files) > 1:
             for file in files:
+                #This is only valid in prod.
                 if file.find('doc', 70) != -1:
                     return file
         else:
