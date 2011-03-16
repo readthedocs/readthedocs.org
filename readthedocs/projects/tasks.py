@@ -257,17 +257,14 @@ def build_docs(project, version, pdf, record, touch):
     return html_output
 
 def move_docs(project, version):
-    if project.full_build_path:
-        version_slug = 'latest'
-        if version:
-            version_slug = version.slug
-        target = project.rtd_build_path(version_slug)
+    if project.full_build_path(version):
+        target = project.rtd_build_path(version.slug)
         if getattr(settings, "MULTIPLE_APP_SERVERS", None):
             copy_to_app_servers(project.full_build_path, target)
         else:
             if os.path.exists(target):
                 shutil.rmtree(target)
-            shutil.copytree(project.full_build_path(version_slug), target)
+            shutil.copytree(project.full_build_path(version.slug), target)
     else:
         print "Not moving docs, because the build dir is unknown."
 

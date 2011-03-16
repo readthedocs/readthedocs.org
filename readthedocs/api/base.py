@@ -15,7 +15,7 @@ from tastypie.utils import dict_strip_unicode_keys
 
 from builds.models import Build, Version
 from projects.models import Project
-from projects.utils import highest_version
+from projects.utils import highest_version, mkversion
 
 class PostAuthentication(BasicAuthentication):
     def is_authenticated(self, request, **kwargs):
@@ -113,22 +113,29 @@ class VersionResource(EnhancedModelResource):
 
     def version_compare(self, request, **kwargs):
         project = get_object_or_404(Project, slug=kwargs['project_slug'])
-        filter = kwargs.get('filter', None)
-        if filter:
-            highest = highest_version(project.versions.filter(slug__contains=filter, active=True))
-        else:
-            highest = highest_version(project.versions.filter(active=True))
+        highest = highest_version(project.versions.filter(active=True))
+        base = kwargs.get('base', None)
         ret_val = {
             'project': highest[0],
             'version': highest[1],
         }
         if highest[0]:
             ret_val['url'] = highest[0].get_absolute_url()
+        if base:
+            try:
+                ver_obj = project.versions.get(slug=base)
+                base_ver = mkversion(ver_obj)
+                if base_ver:
+                    ret_val['is_highest'] = base_ver >= highest[1]
+                else:
+                    ret_val['is_highest'] = False
+            except Version.DoesNotExist:
+                ret_val['is_highest'] = False
         return self.create_response(request, ret_val)
 
     def override_urls(self):
         return [
-            url(r"^(?P<resource_name>%s)/(?P<project_slug>[a-z-]+)/highest/(?P<filter>.+)/$" % self._meta.resource_name, self.wrap_view('version_compare'), name="version_compare"),
+            url(r"^(?P<resource_name>%s)/(?P<project_slug>[a-z-]+)/highest/(?P<base>.+)/$" % self._meta.resource_name, self.wrap_view('version_compare'), name="version_compare"),
             url(r"^(?P<resource_name>%s)/(?P<project_slug>[a-z-]+)/highest/$" % self._meta.resource_name, self.wrap_view('version_compare'), name="version_compare"),
             url(r"^(?P<resource_name>%s)/(?P<project__slug>[a-z-]+)/$" % self._meta.resource_name, self.wrap_view('dispatch_list'), name="api_version_list"),
         ]

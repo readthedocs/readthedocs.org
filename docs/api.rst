@@ -1,8 +1,10 @@
 Read the Docs Public API
 =========================
 
-We have a limited public API that is available for you to get data out of the site. This page will only show a few of the basic parts, please file a ticket or ping us on IRC if you have feature requests.
+We have a limited public API that is available for you to get data out of the site. This page will only
+show a few of the basic parts, please file a ticket or ping us on IRC if you have feature requests.
 
+This document covers the read-only API provided. We have plans to create a read/write API, so that you can easily automate interactions with your project.
 
 In all of these examples, replace `pip` with your own project.
 
@@ -44,11 +46,11 @@ URL
 ~~~
 http://readthedocs.org/api/v1/version/pip/highest/?format=json
 
-Filtered Highest Version
---------------------------
+Compare Highest Version
+-----------------------
 
 URL
 ~~~
 http://readthedocs.org/api/v1/version/pip/highest/0.8/?format=json
 
-The filter expression at the end (0.8), will have the version numbers filtered against.
+This will allow you to compare whether a certain version is the highest version of a specific project. The above query should return a `'is_highest': false` in the returned dictionary.
