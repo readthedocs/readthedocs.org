@@ -257,10 +257,10 @@ def build_docs(project, version, pdf, record, touch):
     return html_output
 
 def move_docs(project, version):
-    if project.full_build_path(version):
+    if project.full_build_path(version.slug):
         target = project.rtd_build_path(version.slug)
         if getattr(settings, "MULTIPLE_APP_SERVERS", None):
-            copy_to_app_servers(project.full_build_path, target)
+            copy_to_app_servers(project.full_build_path(version.slug), target)
         else:
             if os.path.exists(target):
                 shutil.rmtree(target)
