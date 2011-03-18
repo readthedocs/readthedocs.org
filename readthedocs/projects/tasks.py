@@ -291,7 +291,7 @@ def fileify(version):
                                                 name=filename)
 
 
-@periodic_task(run_every=crontab(hour="2", minute="10", day_of_week="*"))
+#@periodic_task(run_every=crontab(hour="2", minute="10", day_of_week="*"))
 def update_docs_pull(record=False, pdf=False, touch=False):
     for project in Project.objects.live():
         try:
