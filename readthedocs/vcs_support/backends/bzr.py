@@ -58,6 +58,7 @@ class Backend(BaseVCS):
 
     def checkout(self, identifier=None):
         super(Backend, self).checkout()
+        self.update()
         if not identifier:
             self._up()
         else:
