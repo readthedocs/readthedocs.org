@@ -272,6 +272,7 @@ def copy_to_app_servers(full_build_path, target):
     #You should be checking for this above.
     servers = settings.MULTIPLE_APP_SERVERS
     for server in servers:
+        os.system("ssh %s@%s mkdir -p %s" % (getpass.getuser(), server, target))
         ret = os.system("rsync -e 'ssh -T' -av --delete %s/ %s@%s:%s" % (full_build_path, getpass.getuser(), server, target))
         if ret != 0:
             print "COPY ERROR: out: %s err: %s" % (ret[1], ret[2])

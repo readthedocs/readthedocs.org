@@ -8,8 +8,8 @@ from projects.models import Project
 class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
-        for user in User.objects.filter(profile__whitelisted=False):
-            print "Whitelisting %s" % user
+        for user in User.objects.all():
+            print "Acting on %s" % user
             try:
                 profile = user.get_profile()
                 profile.whitelisted = True
