@@ -66,6 +66,6 @@ class Backend(BaseVCS):
             identifier = 'tip'
         retcode = self._run_command('hg', 'status')[0]
         if retcode == 0:
-            self._run_command('hg', 'update', identifier)
+            self._run_command('hg', 'update', '-C', identifier)
         else:
             self._clone()
