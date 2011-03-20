@@ -6,6 +6,7 @@ from django.conf import settings
 
 from doc_builder.base import BaseBuilder
 from projects.utils import run
+from projects.tasks import copy_to_app_servers
 
 latex_re = re.compile('the LaTeX files are in (.*)\.')
 pdf_re = re.compile('Output written on (.+) \(')
@@ -42,7 +43,10 @@ class Builder(BaseBuilder):
                     os.makedirs(to_path)
                 to_file = os.path.join(to_path, '%s.pdf' % project.slug)
                 if os.path.exists(from_file):
-                    run('mv -f %s %s' % (from_file, to_file))
+                    if getattr(settings, "MULTIPLE_APP_SERVERS", None):
+                        copy_to_app_servers(from_file, to_file)
+                    else:
+                        run('mv -f %s %s' % (from_file, to_file))
                 else:
                     print "File doesn't exist, not symlinking."
             return True
