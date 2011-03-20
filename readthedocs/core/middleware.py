@@ -73,6 +73,8 @@ class SubdomainMiddleware(object):
                     domain = answer.target.to_unicode()
                     slug = domain.split('.')[0]
                     cache.set(host, slug, 60*60)
+                    #Cache the slug <-> host mapping as well.
+                    cache.set(slug, host, 60*60)
                 request.slug = slug
                 return subdomain_handler(request,
                                          slug,
