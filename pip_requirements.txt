@@ -3,7 +3,7 @@ simplejson
 sphinx
 celery
 django-celery
-ghettoq
+django-kombu
 importlib
 django-extensions
 django-haystack

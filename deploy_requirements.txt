@@ -4,3 +4,4 @@ psycopg2
 pysolr
 python-memcached
 dnspython
+redis
