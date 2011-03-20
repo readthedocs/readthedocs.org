@@ -116,7 +116,7 @@ def update_imported_docs(project, version):
             run('%s install -r %s' % (project.venv_bin(version=version_slug, bin='pip'),
                                     project.requirements_file))
         os.chdir(project.checkout_path(version_slug))
-        run('%s setup.py install' % project.venv_bin(version=version_slug,
+        run('%s setup.py install --force' % project.venv_bin(version=version_slug,
                                                           bin='python'))
 
     # check tags/version
