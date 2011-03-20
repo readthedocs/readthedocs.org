@@ -248,7 +248,11 @@ class Project(models.Model):
 
     @property
     def whitelisted(self):
-        return self.user.get_profile().whitelisted
+        try:
+            return self.user.get_profile().whitelisted
+        except:
+            #Bare except so we don't have to import user.models.UserProfile
+            return False
 
 
     #File Building stuff.
