@@ -44,7 +44,7 @@ class Builder(BaseBuilder):
                 to_file = os.path.join(to_path, '%s.pdf' % project.slug)
                 if os.path.exists(from_file):
                     if getattr(settings, "MULTIPLE_APP_SERVERS", None):
-                        copy_to_app_servers(from_file, to_file)
+                        copy_to_app_servers('/'.join(from_file.split('/')[0:-1]), '/'.join(to_file.split('/')[0:-1]))
                     else:
                         run('mv -f %s %s' % (from_file, to_file))
                 else:
