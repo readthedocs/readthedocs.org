@@ -52,10 +52,10 @@ class SubdomainMiddleware(object):
             host = host.split(':')[0]
         domain_parts = host.split('.')
         #Google was finding crazy www.blah.readthedocs.org domains.
-        if len(domain_parts) > 3:
+        if len(domain_parts) > 3 and domain_parts[1] != 'cdn':
             if not settings.DEBUG:
                 raise Http404('Invalid hostname')
-        if len(domain_parts) == 3:
+        if len(domain_parts) == 3 or domain_parts[1] != 'cdn':
             subdomain = domain_parts[0]
             request.slug = subdomain
             if not (subdomain.lower() == 'www') and 'readthedocs.org' in host:
