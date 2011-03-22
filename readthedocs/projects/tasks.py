@@ -309,3 +309,4 @@ def unzip_files(dest_file, html_path):
         shutil.rmtree(html_path)
         os.makedirs(html_path)
     run('unzip -o %s -d %s' % (dest_file, html_path))
+    copy_to_app_servers(html_path, html_path)
