@@ -357,7 +357,7 @@ def upload_html(request, project_slug):
 
             #Extract file into the correct place.
             html_path = proj.rtd_build_path(version.slug)
-            unzip_files.delay(dest_file, html_path)
+            unzip_files(dest_file, html_path)
             return HttpResponseRedirect(proj.get_absolute_url())
     else:
         form = FormClass(request=request)
