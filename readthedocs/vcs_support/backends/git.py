@@ -21,7 +21,7 @@ class Backend(BaseVCS):
         self._reset()
 
     def _pull(self):
-        retcode = self._run_command('git', '--git-dir=.git', 'fetch')[0]
+        retcode = self._run_command('git', '--git-dir=.git', 'fetch' '-t')[0]
         if retcode != 0:
             raise ProjectImportError(
                 "Failed to get code from '%s' (git fetch): %s" % (self.repo_url, retcode)
