@@ -30,7 +30,7 @@ class Project(models.Model):
     #Generally from conf.py
     user = models.ForeignKey(User, related_name='projects')
     name = models.CharField(max_length=255)
-    slug = models.SlugField()
+    slug = models.SlugField(max_length=255)
     description = models.TextField(blank=True,
         help_text='reStructuredText description of the project')
     repo = models.CharField(max_length=100, blank=True,
