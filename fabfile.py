@@ -38,6 +38,73 @@ def pull():
     with cd(env.code_dir):
         run('git pull origin master')
 
+def _aws_wrapper(f, *args, **kwargs):
+    "get AWS credentials if not defined"
+    #these are normally defined in ~/.fabricrc
+    @hosts('run_once') #so fab doesn't go crazy 
+    def wrapped(*args, **kwargs):
+        from boto.cloudfront.exception import CloudFrontServerError
+        from boto.cloudfront import CloudFrontConnection
+        c = CloudFrontConnection(env.aws_access_key_id, 
+                                 env.aws_secret_access_key)
+        if not hasattr(env, 'aws_access_key_id'):
+            prompt('AWS Access Key ID: ', key='aws_access_key_id')
+        if not hasattr(env, 'aws_secret_access_key'):
+            prompt('AWS Secret Access Key: ', key='aws_secret_access_key')
+        try:
+            return f(c, *args, **kwargs)
+        except CloudFrontServerError as e:
+            print "Error: \n", e.error_message
+    return wrapped
+
+@_aws_wrapper
+def to_cdn(c, slug):
+    "Create a new Distribution object on CloudFront"
+    from boto.cloudfront import CloudFrontConnection
+    from boto.cloudfront.origin import CustomOrigin
+
+    c = CloudFrontConnection(env.aws_access_key_id, 
+                             env.aws_secret_access_key)
+    d = c.create_distribution(
+        origin=CustomOrigin(slug + '.cdn.readthedocs.org',
+                            origin_protocol_policy='http-only'),
+        enabled=True, 
+        comment='Slug: ' + slug,
+        cnames=[slug + '.readthedocs.org']
+        )
+    print "Created: " + d.domain_name + " for " + slug
+    list_cdn()
+
+@_aws_wrapper
+def list_cdn(c):
+    "List Distributions on CloudFront"
+    distributions = c.get_all_distributions()
+    for d in distributions:
+        print "%3s %4s %40s %30s" % ('Ena' if d.enabled else 'Dis', 
+                                     d.status[:4], d.origin.dns_name, 
+                                     d.domain_name)
+
+@_aws_wrapper
+def disable_cdn(c, *args):
+    "Sets a Distribution entry to disabled. Required before deletion."
+    distributions = c.get_all_distributions()
+    for distro in distributions:
+        dist_slug = distro.origin.dns_name.split('.')[0]
+        if dist_slug in args:
+            print "Disabling:", dist_slug
+            #this is broken as of boto 2.0b4.
+            #fix is to comment out lines 347-352 in cloudfront/distribution.py
+            distro.get_distribution().disable()
+
+@_aws_wrapper
+def delete_cdn(c):
+    "Deletes all Distributions in the 'Disabled' state."
+    distributions = c.get_all_distributions()
+    for distro in distributions:
+        if not distro.enabled and distro.status=="Deployed":
+            print "Deleting", distro.origin.dns_name
+            distro.get_distribution().delete()
+
 def full_deploy():
     push()
     update_requirements()
