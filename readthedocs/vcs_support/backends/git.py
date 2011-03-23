@@ -12,17 +12,17 @@ class Backend(BaseVCS):
 
     def update(self):
         super(Backend, self).update()
-        retcode = self._run_command('git', '--git-dir=.git', 'status')[0]
+        retcode = self._run_command('git', 'status')[0]
         if retcode == 0:
             self._pull()
         else:
             self._clone()
-        self._run_command('git', '--git-dir=.git', 'submodule', 'update', '--init')
+        self._run_command('git', 'submodule', 'update', '--init')
         self._reset()
 
     def _pull(self):
-        retcode = self._run_command('git', '--git-dir=.git', 'fetch')[0]
-        retcode = self._run_command('git', '--git-dir=.git', 'fetch', '-t')[0]
+        retcode = self._run_command('git', 'fetch')[0]
+        retcode = self._run_command('git', 'fetch', '-t')[0]
         if retcode != 0:
             raise ProjectImportError(
                 "Failed to get code from '%s' (git fetch): %s" % (self.repo_url, retcode)
@@ -32,7 +32,7 @@ class Backend(BaseVCS):
         branch = self.fallback_branch
         if self.project.default_branch:
             branch = self.project.default_branch
-        retcode = self._run_command('git', '--git-dir=.git', 'reset', '--hard', 'origin/%s' % branch)[0]
+        retcode = self._run_command('git', 'reset', '--hard', 'origin/%s' % branch)[0]
         if retcode != 0:
             raise ProjectImportError(
                 "Failed to get code from '%s' (git reset): %s" % (self.repo_url, retcode)
@@ -46,7 +46,7 @@ class Backend(BaseVCS):
             )
 
     def get_tags(self):
-        retcode, stdout = self._run_command('git', '--git-dir=.git', 'show-ref', '--tags')[:2]
+        retcode, stdout = self._run_command('git', 'show-ref', '--tags')[:2]
         # error (or no tags found)
         if retcode != 0:
             return []
@@ -75,7 +75,7 @@ class Backend(BaseVCS):
         return vcs_tags
 
     def get_branches(self):
-        retcode, stdout = self._run_command('git', '--git-dir=.git', 'branch', '-a')[:2]
+        retcode, stdout = self._run_command('git', 'branch', '-a')[:2]
         # error (or no tags found)
         if retcode != 0:
             return []
@@ -119,7 +119,7 @@ class Backend(BaseVCS):
             identifier = self.fallback_branch
             if self.project.default_branch:
                 identifier = self.project.default_branch
-        self._run_command('git', '--git-dir=.git', 'reset', '--hard', identifier)
+        self._run_command('git', 'reset', '--hard', identifier)
 
     def get_env(self):
         env = super(Backend, self).get_env()
