@@ -164,8 +164,7 @@ def build_versions_form(project):
     versions_qs = project.versions.all()
     active = versions_qs.filter(active=True)
     if active.exists():
-        choices = [('latest', 'latest')]
-        choices += [(version.slug, version.verbose_name) for version in active]
+        choices = [(version.slug, version.verbose_name) for version in active]
         attrs['default-version'] = forms.ChoiceField(
             label="Choose the default version for this project",
             choices=choices,
