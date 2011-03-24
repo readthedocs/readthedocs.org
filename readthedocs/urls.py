@@ -10,6 +10,7 @@ from tastypie.api import Api
 
 from api.base import ProjectResource, UserResource, BuildResource, VersionResource
 from core.forms import UserProfileForm
+from projects.feeds import LatestProjectsFeed
 
 v1_api = Api(api_name='v1')
 v1_api.register(BuildResource())
@@ -85,7 +86,9 @@ urlpatterns = patterns('',
     url(r'^profiles/', include('profiles.urls')),
     url(r'^api/', include(v1_api.urls)),
     url(r'^sentry/', include('sentry.urls')),
-
+    url(r'^feeds/latest/$',
+        LatestProjectsFeed(),
+        name="latest_feed"),
 )
 
 if settings.DEBUG:

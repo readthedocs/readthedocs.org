@@ -1,14 +1,10 @@
 from django.conf.urls.defaults import *
-from projects.feeds import LatestProjectsFeed
 
 urlpatterns = patterns('projects.views.public',
     url(r'^$',
         'project_index',
         name='projects_list'
     ),
-    url(r'^feed/latest/$',
-        LatestProjectsFeed(),
-        name="latest_feed"),
     url(r'^tags/$',
         'tag_index',
         name='projects_tag_list',
