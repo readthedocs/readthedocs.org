@@ -16,3 +16,17 @@ class LatestProjectsFeed(Feed):
 
     def item_description(self, item):
         return item.description
+
+class NewProjectsFeed(Feed):
+    title = "Newest documentation"
+    link = "http://readthedocs.org"
+    description = "Recently created documentation on Read the Docs"
+
+    def items(self):
+        return Project.objects.all().order_by('-pk')[:10]
+
+    def item_title(self, item):
+        return item.name
+
+    def item_description(self, item):
+        return item.description
