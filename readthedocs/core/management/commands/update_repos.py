@@ -44,8 +44,6 @@ class Command(BaseCommand):
                 if version and version != "all":
                     print "Updating version %s for %s" % (version, slug)
                     for version in Version.objects.filter(project__slug=slug,
-                                                          active=True,
-                                                          uploaded=False,
                                                           slug=version):
                         tasks.update_docs(version.project_id,
                                           pdf=make_pdf,
