@@ -1,7 +1,7 @@
 from fabric.api import *
 
 env.runtime = 'production'
-env.hosts = ['chimera.ericholscher.com']
+env.hosts = ['chimera.ericholscher.com', 'kirin.ericholscher.com', 'ladon.ericholscher.com']
 env.user = 'docs'
 env.code_dir = '/home/docs/sites/readthedocs.org/checkouts/readthedocs.org'
 env.virtualenv = '/home/docs/sites/readthedocs.org'
@@ -23,11 +23,13 @@ def migrate(project=None):
     else:
         run('django-admin.py migrate')
 
+@hosts(['chimera.ericholscher.com', 'ladon.ericholscher.com'])
 def restart():
     "Restart (or just start) the server"
     env.user = "root"
     run("restart readthedocs-gunicorn")
 
+@hosts(['kirin.ericholscher.com'])
 def celery():
     "Restart (or just start) the server"
     env.user = "root"

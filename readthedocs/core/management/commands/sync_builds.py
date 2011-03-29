@@ -29,6 +29,7 @@ class Command(BaseCommand):
             print "Updating all versions"
             for version in Version.objects.filter(active=True):
                 try:
+                    print "Syncing %s" % version
                     path = version.project.rtd_build_path(version.slug)
                     tasks.copy_to_app_servers(path, path)
                 except Exception, e:
