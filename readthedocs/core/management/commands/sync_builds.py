@@ -20,23 +20,16 @@ class Command(BaseCommand):
         version = options['version']
         if len(args):
             for slug in args:
-                if version and version != "all":
-                    print "Updating version %s for %s" % (version, slug)
-                    for version in Version.objects.filter(project__slug=slug,
-                                                          slug=version):
-                        tasks.move_docs(version.project, version)
-                elif version == "all":
-                    print "Updating all versions for %s" % slug
-                    for version in Version.objects.filter(project__slug=slug,
-                                                          active=True,
-                                                          uploaded=False):
-                        tasks.move_docs(version.project, version)
-                else:
-                    print "Updating latest version"
-                    p = Project.objects.get(slug=slug)
-                    v = p.versions.get(slug='latest')
-                    tasks.move_docs(p, v)
+                print "Updating all versions for %s" % slug
+                for version in Version.objects.filter(project__slug=slug,
+                                                      active=True):
+                    path = version.project.rtd_build_path(version.slug)
+                    tasks.copy_to_app_servers(path, path)
         else:
             print "Updating all versions"
-            for version in Version.objects.all():
-                tasks.move_docs(version.project, version)
+            for version in Version.objects.filter(active=True):
+                try:
+                    path = version.project.rtd_build_path(version.slug)
+                    tasks.copy_to_app_servers(path, path)
+                except Exception, e:
+                    print "Error: %s" % e
