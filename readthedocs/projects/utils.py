@@ -124,18 +124,21 @@ def purge_version(version, mainsite=False, subdomain=False, cname=""):
         for server in varnish_servers:
             if subdomain:
                 #Send a request to the Server, to purge the URL of the Host.
-                headers = {'Host': "%s.readthedocs.org" % version.project.slug}
+                host = "%s.readthedocs.org" % version.project.slug
+                headers = {'Host': host}
                 url = "/en/%s/*" % version.slug
                 to_purge = "http://%s%s" % (server, url)
+                print "Purging %s on %s" % (url, host)
                 ret = Http.request(to_purge, method="PURGE", headers=headers)
             if mainsite:
                 headers = {'Host': "readthedocs.org"}
                 url = "/docs/%s/en/%s/*" % (version.project.slug, version.slug)
                 to_purge = "http://%s%s" % (server, url)
+                print "Purging %s on readthedocs.org" % url
                 ret = Http.request(to_purge, method="PURGE", headers=headers)
             if cname:
                 headers = {'Host': cname}
                 url = "/en/%s/*" % version.slug
                 to_purge = "http://%s%s" % (server, url)
+                print "Purging %s on %s" % (url, cname)
                 ret = Http.request(to_purge, method="PURGE", headers=headers)
-
