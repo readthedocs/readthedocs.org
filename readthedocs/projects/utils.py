@@ -1,13 +1,16 @@
 """Utility functions used by projects.
 """
-
-from projects.libs.diff_match_patch import diff_match_patch
 import fnmatch
 import os
 import re
 import subprocess
 import traceback
+
 from distutils2.version import NormalizedVersion, suggest_normalized_version
+from django.conf import settings
+from httplib2 import Http
+from projects.libs.diff_match_patch import diff_match_patch
+
 
 
 def find_file(file):
@@ -114,3 +117,25 @@ def highest_version(version_list):
         else:
             highest = [version, ver]
     return highest
+
+def purge_version(version, mainsite=False, subdomain=False, cname=""):
+    varnish_servers = getattr(settings, 'VARNISH_SERVER', None)
+    if varnish_servers:
+        for server in varnish_servers:
+            if subdomain:
+                #Send a request to the Server, to purge the URL of the Host.
+                headers = {'Host': "%s.readthedocs.org" % version.project.slug}
+                url = "/en/%s/*" % version.slug
+                to_purge = "http://%s%s" % (server, url)
+                ret = Http.request(to_purge, method="PURGE", headers=headers)
+            if mainsite:
+                headers = {'Host': "readthedocs.org"}
+                url = "/docs/%s/en/%s/*" % (version.project.slug, version.slug)
+                to_purge = "http://%s%s" % (server, url)
+                ret = Http.request(to_purge, method="PURGE", headers=headers)
+            if cname:
+                headers = {'Host': cname}
+                url = "/en/%s/*" % version.slug
+                to_purge = "http://%s%s" % (server, url)
+                ret = Http.request(to_purge, method="PURGE", headers=headers)
+

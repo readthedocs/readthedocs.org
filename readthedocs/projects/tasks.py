@@ -18,7 +18,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from builds.models import Build, Version
 from doc_builder import loading as builder_loading
 from projects.exceptions import ProjectImportError
-from projects.utils import slugify_uniquely
+from projects.utils import slugify_uniquely, purge_version
 from projects.exceptions import ProjectImportError
 from projects.models import Project, ImportedFile
 from projects.utils import run, slugify_uniquely
@@ -71,6 +71,8 @@ def update_docs(pk, record=True, pdf=True, version_pk=None, touch=False):
             if not 'no targets are out of date.' in out:
                 if ret == 0:
                     print "Build OK"
+                    purge_version(version, subdomain=True, mainsite=True)
+                    print "Purged %s" % version
                 else:
                     print "Build ERROR"
                     print err
@@ -208,7 +210,7 @@ def update_created_docs(project):
     # grab the root path for the generated docs to live at
     path = project.doc_path
 
-    doc_root = os.path.join(path, project.slug, 'docs')
+    doc_root = os.path.join(path, 'checkouts', 'latest', 'docs')
 
     if not os.path.exists(doc_root):
         os.makedirs(doc_root)
