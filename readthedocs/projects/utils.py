@@ -119,7 +119,7 @@ def highest_version(version_list):
     return highest
 
 def purge_version(version, mainsite=False, subdomain=False, cname=""):
-    varnish_servers = getattr(settings, 'VARNISH_SERVER', None)
+    varnish_servers = getattr(settings, 'VARNISH_SERVERS', None)
     h = Http()
     if varnish_servers:
         for server in varnish_servers:

@@ -24,13 +24,24 @@ The code is open source, and `available on github`_.
 Contents
 ========
 
+Site Documentation
+------------------
+
 .. toctree::
     :maxdepth: 2
 
+    support
     getting_started
     webhooks
     alternate_domains
-    support
+
+
+Developer Documentation
+-----------------------
+.. toctree::
+    :maxdepth: 2
+
     install
+    settings
     api
     api/index

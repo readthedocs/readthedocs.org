@@ -14,7 +14,6 @@ DATABASES = {
 DEBUG = False
 TEMPLATE_DEBUG = False
 CELERY_ALWAYS_EAGER = False
-VARNISH_SERVER = ['asgard']
 
 MEDIA_URL = 'http://media.readthedocs.org/'
 ADMIN_MEDIA_PREFIX = MEDIA_URL + 'admin/'
