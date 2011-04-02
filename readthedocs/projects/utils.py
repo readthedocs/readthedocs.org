@@ -120,6 +120,7 @@ def highest_version(version_list):
 
 def purge_version(version, mainsite=False, subdomain=False, cname=""):
     varnish_servers = getattr(settings, 'VARNISH_SERVER', None)
+    h = Http()
     if varnish_servers:
         for server in varnish_servers:
             if subdomain:
@@ -129,16 +130,16 @@ def purge_version(version, mainsite=False, subdomain=False, cname=""):
                 url = "/en/%s/*" % version.slug
                 to_purge = "http://%s%s" % (server, url)
                 print "Purging %s on %s" % (url, host)
-                ret = Http.request(to_purge, method="PURGE", headers=headers)
+                ret = h.request(to_purge, method="PURGE", headers=headers)
             if mainsite:
                 headers = {'Host': "readthedocs.org"}
                 url = "/docs/%s/en/%s/*" % (version.project.slug, version.slug)
                 to_purge = "http://%s%s" % (server, url)
                 print "Purging %s on readthedocs.org" % url
-                ret = Http.request(to_purge, method="PURGE", headers=headers)
+                ret = h.request(to_purge, method="PURGE", headers=headers)
             if cname:
                 headers = {'Host': cname}
                 url = "/en/%s/*" % version.slug
                 to_purge = "http://%s%s" % (server, url)
                 print "Purging %s on %s" % (url, cname)
-                ret = Http.request(to_purge, method="PURGE", headers=headers)
+                ret = h.request(to_purge, method="PURGE", headers=headers)
