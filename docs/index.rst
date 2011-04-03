@@ -21,9 +21,9 @@ Site Documentation
 .. toctree::
     :maxdepth: 2
 
-    support
     getting_started
     features
+    support
     webhooks
     alternate_domains
 
