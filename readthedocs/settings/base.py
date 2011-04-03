@@ -26,7 +26,7 @@ CACHE_MIDDLEWARE_SECONDS = 60
 
 LOGIN_REDIRECT_URL = '/dashboard/'
 FORCE_WWW = False
-APPEND_SLASH = False
+#APPEND_SLASH = False
 
 TIME_ZONE = 'America/Chicago'
 LANGUAGE_CODE = 'en-us'
