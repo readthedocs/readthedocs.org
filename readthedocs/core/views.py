@@ -127,9 +127,12 @@ def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
         response = HttpResponse(mimetype=mimetype)
         if encoding:
             response["Content-Encoding"] = encoding
-        response['X-Accel-Redirect'] = os.path.join(
-                                        proj.rtd_build_path(version_slug),
-                                        filename)
+            response['X-Accel-Redirect'] = os.path.join('/user_builds',
+                                             proj.slug,
+                                             'rtd-builds',
+                                             version_slug,
+                                             filename)
+
         return response
     else:
         return serve(request, filename, basepath)
