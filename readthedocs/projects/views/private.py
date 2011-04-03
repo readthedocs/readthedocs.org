@@ -145,7 +145,7 @@ def project_delete(request, project_slug):
 
     if request.method == 'POST':
         # Remove the repository checkout
-        shutil.rmtree(project.doc_path)
+        shutil.rmtree(project.doc_path, ignore_errors=True)
         # Delete the project and everything related to it
         project.delete()
         project_dashboard = reverse('projects_dashboard')
