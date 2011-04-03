@@ -107,71 +107,15 @@ def legacy_serve_docs(request, username, project_slug, filename):
     return HttpResponsePermanentRedirect(url)
 
 
-def serve_docs(request, project_slug, lang_slug, version_slug, filename):
-    """
-    The way that we're serving the documentation.
-
-    This is coming out of Django so that we can do simple page counting, and
-    because later we can use Django auth to protect views.
-
-    This could probably be refactored to serve out of nginx if we have more
-    time.
-    """
-    # A bunch of janky redirect logic. This should be the last time.
+def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
+    if not project_slug:
+        project_slug = request.slug
     proj = get_object_or_404(Project, slug=project_slug)
-    default_version = proj.get_default_version()
     if not filename:
         filename = "index.html"
-    if version_slug is None:
-        url = reverse(serve_docs, kwargs={
-            'project_slug': project_slug,
-            'version_slug': default_version,
-            'lang_slug': 'en',
-            'filename': filename
-        })
-        return HttpResponsePermanentRedirect(url)
-    if lang_slug is None:
-        url = reverse(serve_docs, kwargs={
-            'project_slug': project_slug,
-            'version_slug': version_slug if version_slug != 'en' else default_version,
-            'lang_slug': 'en',
-            'filename': filename
-        })
-        return HttpResponseRedirect(url)
-    version = proj.versions.filter(slug=version_slug)
-    aliases = proj.aliases.filter(from_slug=version_slug)
-    valid_version = version.count() + aliases.count()
-    if aliases.count():
-        url = reverse(serve_docs, kwargs={
-            'project_slug': project_slug,
-            'version_slug': aliases[0].to_slug,
-            'lang_slug': 'en',
-            'filename': filename
-        })
-        return HttpResponsePermanentRedirect(url)
-
-    if not valid_version and version_slug != 'latest' and version_slug != 'en':
-        url = reverse(serve_docs, kwargs={
-            'project_slug': project_slug,
-            'version_slug': default_version,
-            'lang_slug': 'en',
-            #Filename was part of the version that we caught.
-            'filename': os.path.join(version_slug, filename)
-        })
-        return HttpResponsePermanentRedirect(url)
-    elif valid_version:
-        request.add_badge = version[0].uploaded
     filename = filename.rstrip('/')
     basepath = proj.rtd_build_path(version_slug)
-    if 'html' in filename:
-        try:
-            if not os.path.exists(os.path.join(basepath, filename)):
-                return render_to_response('404.html', {'project': proj},
-                        context_instance=RequestContext(request))
-        except AttributeError:
-            return render_to_response('404.html', {'project': proj},
-                    context_instance=RequestContext(request))
-
+    if filename.endswith('html'):
         pageview, created = PageView.objects.get_or_create(project=proj, url=filename)
         if not created:
             pageview.count = F('count') + 1
@@ -183,11 +127,9 @@ def serve_docs(request, project_slug, lang_slug, version_slug, filename):
         response = HttpResponse(mimetype=mimetype)
         if encoding:
             response["Content-Encoding"] = encoding
-        response['X-Accel-Redirect'] = os.path.join('/user_builds',
-                                                     proj.slug,
-                                                     'rtd-builds',
-                                                     version_slug,
-                                                     filename)
+        response['X-Accel-Redirect'] = os.path.join(
+                                        proj.rtd_build_path(version_slug),
+                                        filename)
         return response
     else:
         return serve(request, filename, basepath)

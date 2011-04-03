@@ -82,7 +82,6 @@ class SubdomainMiddleware(object):
                     redis_conn.sadd("rtd_slug:v1:%s" % slug, host)
 
                 request.slug = slug
-                #return subdomain_handler(request, slug, request.path.lstrip('/'))
                 request.project = slug
                 request.urlconf = 'core.subdomain_urls'
             except:

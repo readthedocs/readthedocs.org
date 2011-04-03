@@ -142,18 +142,47 @@ def search_autocomplete(request):
 
 
 
-def subdomain_handler(request, lang_slug='en', version_slug=None, filename=''):
+def subdomain_handler(request, lang_slug=None, version_slug=None, filename=''):
     """
     This provides the fall-back routing for subdomain requests.
 
     This was made primarily to redirect old subdomain's to their version'd brothers.
     """
+    if not filename:
+        filename = "index.html"
     project = get_object_or_404(Project, slug=request.project)
-    other_aliases = project.aliases.filter(from_slug=version_slug)
-    if other_aliases.count():
-        return HttpResponseRedirect('/en/%s/%s' %
-                                    (other_aliases[0].to_slug,
-                                     filename))
+    if version_slug is None:
+        #Handle / on subdomain.
+        default_version = project.get_default_version()
+        url = reverse(serve_docs, kwargs={
+            'version_slug': default_version,
+            'lang_slug': 'en',
+            'filename': filename
+        })
+        return HttpResponsePermanentRedirect(url)
+    if lang_slug is None:
+        #Handle /version/ on subdomain.
+        aliases = project.aliases.filter(from_slug=version_slug)
+        #Handle Aliases.
+        if aliases.count():
+            if aliases[0].largest:
+                highest_ver = highest_version(project.versions.filter(slug__contains=version_slug, active=True))
+                version_slug = highest_ver[0].slug
+            else:
+                version_slug = aliases[0].to_slug
+            url = reverse(serve_docs, kwargs={
+                'version_slug': version_slug,
+                'lang_slug': 'en',
+                'filename': filename
+            })
+        else:
+            url = reverse(serve_docs, kwargs={
+                'version_slug': version_slug,
+                'lang_slug': 'en',
+                'filename': filename
+            })
+        return HttpResponsePermanentRedirect(url)
+
     return serve_docs(request=request,
                       project_slug=project.slug,
                       lang_slug=lang_slug,
