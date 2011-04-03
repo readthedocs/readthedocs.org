@@ -1,6 +1,6 @@
 from django.conf.urls.defaults import url, patterns, include
 
-from urls import urlpatterns as patterns
+from urls import urlpatterns as main_patterns
 
 urlpatterns = patterns('',
     url(r'^(?P<lang_slug>\w{2})/(?P<version_slug>[\w.-]+)/(?P<filename>.+)$',
@@ -16,9 +16,7 @@ urlpatterns = patterns('',
         'projects.views.public.subdomain_handler',
         name='version_subdomain_handler'
     ),
-    url(r'^search/', include('haystack.urls')),
-    url(r'^accounts/', include('registration.backends.default.urls')),
-    url(r'^$', 'projects.views.public.subdomain_handler')
+    url(r'^$', 'projects.views.public.subdomain_handler'),
 )
 
-urlpatterns += patterns
+urlpatterns += main_patterns
