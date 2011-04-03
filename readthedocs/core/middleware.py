@@ -6,6 +6,9 @@ from django.core.urlresolvers import get_urlconf, get_resolver, Resolver404
 from django.http import Http404
 from django.utils.encoding import smart_unicode
 
+import redis
+
+
 from projects.views.public import slug_detail, subdomain_handler
 
 #Thanks to debug-toolbar for the response-replacing code.
@@ -66,6 +69,7 @@ class SubdomainMiddleware(object):
             and 'testserver' not in host:
             request.cname = True
             try:
+                redis_conn = redis.Redis(**settings.REDIS)
                 slug = cache.get(host)
                 if not slug:
                     from dns import resolver
@@ -73,8 +77,8 @@ class SubdomainMiddleware(object):
                     domain = answer.target.to_unicode()
                     slug = domain.split('.')[0]
                     cache.set(host, slug, 60*60)
-                    #Cache the slug <-> host mapping as well.
-                    cache.set(slug, host, 60*60)
+                    #Cache the slug -> host mapping permanently.
+                    redis_conn.sadd("rtd_slug:v1:%s" % slug, host)
                 request.slug = slug
                 return subdomain_handler(request,
                                          slug,
