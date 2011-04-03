@@ -23,6 +23,7 @@ Site Documentation
 
     support
     getting_started
+    features
     webhooks
     alternate_domains
 
