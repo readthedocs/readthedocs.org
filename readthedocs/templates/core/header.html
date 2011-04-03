@@ -89,20 +89,11 @@
         <!-- BEGIN header nav -->
         <div class="rtfd-header-nav">
           <ul>
-            {% if not request.slug %}
-                {% if request.user.is_authenticated %}
-                  <li {% block nav-dashboard %}{% endblock %}><a href="{% url projects_dashboard %}">Dashboard</a></li>
-                  <li><a href="{% url auth_logout %}">Log Out</a></li>
-                {% else %}
-                  <li><a href="{% url auth_login %}">Log in</a></li>
-                {% endif %}
+            {% if request.user.is_authenticated %}
+              <li {% block nav-dashboard %}{% endblock %}><a href="http://readthedocs.org/dashboard/">Dashboard</a></li>
+              <li><a href="http://readthedocs.org/accounts/logout">Log Out</a></li>
             {% else %}
-                {% if request.user.is_authenticated %}
-                  <li {% block nav-dashboard %}{% endblock %}><a href="http://readthedocs.org/dashboard/">Dashboard</a></li>
-                  <li><a href="http://readthedocs.org/accounts/logout">Log Out</a></li>
-                {% else %}
-                  <li><a href="http://readthedocs.org/accounts/login">Log in</a></li>
-                {% endif %}
+              <li><a href="http://readthedocs.org/accounts/login">Log in</a></li>
             {% endif %}
 
 
