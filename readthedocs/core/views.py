@@ -12,6 +12,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_view_exempt
 from django.views.static import serve
+from django.views.decorators.cache import cache_page
 
 from projects.models import Project
 from projects.tasks import update_docs
@@ -23,6 +24,7 @@ import os
 import re
 
 
+@cache_page(30)
 def homepage(request):
     projs = Project.objects.filter(builds__isnull=False).annotate(max_date=Max('builds__date')).order_by('-max_date')[:10]
     featured = Project.objects.filter(featured=True)
@@ -187,39 +189,6 @@ def serve_docs(request, project_slug, lang_slug, version_slug, filename):
         return response
     else:
         return serve(request, filename, basepath)
-
-def render_header(request):
-    """
-    This is the ESI backend that renders on top of the sphinx documentation
-    that we serve.
-
-    This needs to be Django instead of rendered into the Sphinx Document
-    because we need to know who the user is and if they are authenticated and
-    such. Later we will provide more "Owner Tools" for users.
-    """
-
-    # try to deconstruct the request url to find the user and project
-    project = None
-
-    path_info = request.META['PATH_INFO']
-    path_match = re.match('/projects/([-\w]+)/([-\w]+)/', path_info)
-    if path_match:
-        user, project_slug = path_match.groups()
-        try:
-            project = Project.objects.get(
-                user__username=user,
-                slug=project_slug
-            )
-        except Project.DoesNotExist:
-            pass
-
-    context = { 'project': project,
-                'do_bookmarking': True,
-                'include_render': True,
-                }
-
-    return render_to_response('core/header.html', context,
-                context_instance=RequestContext(request))
 
 def server_error(request, template_name='500.html'):
     """
