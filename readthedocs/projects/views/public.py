@@ -159,7 +159,7 @@ def subdomain_handler(request, lang_slug=None, version_slug=None, filename=''):
             'lang_slug': 'en',
             'filename': filename
         })
-        return HttpResponsePermanentRedirect(url)
+        return HttpResponseRedirect(url)
     if version_slug and lang_slug is None:
         #Handle /version/ on subdomain.
         aliases = project.aliases.filter(from_slug=version_slug)
@@ -181,7 +181,7 @@ def subdomain_handler(request, lang_slug=None, version_slug=None, filename=''):
                 'lang_slug': 'en',
                 'filename': filename
             })
-        return HttpResponsePermanentRedirect(url)
+        return HttpResponseRedirect(url)
     return serve_docs(request=request,
                       project_slug=project.slug,
                       lang_slug=lang_slug,

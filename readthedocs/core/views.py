@@ -111,6 +111,15 @@ def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
     if not project_slug:
         project_slug = request.slug
     proj = get_object_or_404(Project, slug=project_slug)
+    if not version_slug:
+        version_slug = proj.get_default_version()
+        url = reverse(serve_docs, kwargs={
+            'project_slug': project_slug,
+            'version_slug': version_slug,
+            'lang_slug': 'en',
+            'filename': filename
+        })
+        return HttpResponseRedirect(url)
     if not filename:
         filename = "index.html"
     filename = filename.rstrip('/')
