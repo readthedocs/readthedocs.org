@@ -26,10 +26,7 @@ CACHE_MIDDLEWARE_SECONDS = 60
 
 LOGIN_REDIRECT_URL = '/dashboard/'
 FORCE_WWW = False
-
-if DEBUG:
-    CACHE_BACKEND = 'dummy://'
-    #DATABASES['default']['HOST'] = 'localhost'
+APPEND_SLASH = False
 
 TIME_ZONE = 'America/Chicago'
 LANGUAGE_CODE = 'en-us'
@@ -129,3 +126,4 @@ ABSOLUTE_URL_OVERRIDES = {
 }
 
 INTERNAL_IPS = ('127.0.0.1',)
+

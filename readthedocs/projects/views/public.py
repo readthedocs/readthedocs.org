@@ -150,7 +150,7 @@ def subdomain_handler(request, lang_slug=None, version_slug=None, filename=''):
     """
     if not filename:
         filename = "index.html"
-    project = get_object_or_404(Project, slug=request.project)
+    project = get_object_or_404(Project, slug=request.slug)
     if version_slug is None:
         #Handle / on subdomain.
         default_version = project.get_default_version()
@@ -160,7 +160,7 @@ def subdomain_handler(request, lang_slug=None, version_slug=None, filename=''):
             'filename': filename
         })
         return HttpResponsePermanentRedirect(url)
-    if lang_slug is None:
+    if version_slug and lang_slug is None:
         #Handle /version/ on subdomain.
         aliases = project.aliases.filter(from_slug=version_slug)
         #Handle Aliases.
@@ -182,7 +182,6 @@ def subdomain_handler(request, lang_slug=None, version_slug=None, filename=''):
                 'filename': filename
             })
         return HttpResponsePermanentRedirect(url)
-
     return serve_docs(request=request,
                       project_slug=project.slug,
                       lang_slug=lang_slug,

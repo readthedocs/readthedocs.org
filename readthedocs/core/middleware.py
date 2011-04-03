@@ -60,10 +60,9 @@ class SubdomainMiddleware(object):
                 raise Http404('Invalid hostname')
         if len(domain_parts) == 3:
             subdomain = domain_parts[0]
-            request.slug = subdomain
             if not (subdomain.lower() == 'www') and 'readthedocs.org' in host:
                 request.subdomain = True
-                request.project = subdomain
+                request.slug = subdomain
                 request.urlconf = 'core.subdomain_urls'
         if 'readthedocs.org' not in host \
             and 'localhost' not in host \
@@ -82,7 +81,6 @@ class SubdomainMiddleware(object):
                     redis_conn.sadd("rtd_slug:v1:%s" % slug, host)
 
                 request.slug = slug
-                request.project = slug
                 request.urlconf = 'core.subdomain_urls'
             except:
                 #Some crazy person is CNAMEing to us. 404.
