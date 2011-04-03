@@ -14,6 +14,8 @@ urlpatterns = patterns('',
         'projects.views.public.subdomain_handler',
         name='version_subdomain_handler'
     ),
+    url(r'^search/', include('haystack.urls')),
+    url(r'^accounts/', include('registration.backends.default.urls')),
     url(r'^$', 'projects.views.public.subdomain_handler')
 )
 
