@@ -1,0 +1,7 @@
+127.0.0.1     localhost localhost.localdomain
+
+67.207.139.9  odin
+
+<% @all_servers.each_pair do |name, ips| -%>
+<%= ips[0] %> <%= ips[1] %> <%= name %>
+<% end -%>
