@@ -4,6 +4,7 @@ documentation and header rendering, and server errors.
 
 from django.core.mail import mail_admins
 from django.core.urlresolvers import reverse
+from django.core.cache import cache
 from django.conf import settings
 from django.db.models import F, Max
 from django.http import HttpResponse, HttpResponseRedirect, \
@@ -12,7 +13,6 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_view_exempt
 from django.views.static import serve
-from django.views.decorators.cache import cache_page
 
 from projects.models import Project
 from projects.tasks import update_docs
@@ -24,9 +24,11 @@ import os
 import re
 
 
-@cache_page(30)
 def homepage(request):
-    projs = Project.objects.filter(builds__isnull=False).annotate(max_date=Max('builds__date')).order_by('-max_date')[:10]
+    latest_projects = cache.get('latest_projects', None)
+    if not latest_projects:
+        projs = Project.objects.filter(builds__isnull=False).annotate(max_date=Max('builds__date')).order_by('-max_date')[:10]
+        cache.set('latest_projects', list(projs))
     featured = Project.objects.filter(featured=True)
     updated = PageView.objects.all()[:10]
     return render_to_response('homepage.html',
