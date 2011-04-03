@@ -9,6 +9,13 @@ Auto-updating
 
 The :doc:`webhooks` page talks about the different way you can ping RTD to let us know your project has been updated. We have official support for Github, and anywhere else we have a generic post-commit hook that allows you to POST to a URL to get your documentation built.
 
+Heavily Cached
+--------------
+
+We run Varnish in front of RTD, so a lot of the docs you look at will be served out of memory. This is really great for the "Look up and link" that happens a lot on IRC channels. The person who looks up the link will cache the page, and the person they link it to will get it served really quickly.
+
+We also bust caches on all documentation on the RTD domain (not CNAMEs, yet) when you build your docs, so you shouldn't have problems with stale caches.
+
 Versions
 --------
 
