@@ -69,9 +69,9 @@ class SubdomainMiddleware(object):
             and 'testserver' not in host:
             request.cname = True
             try:
-                redis_conn = redis.Redis(**settings.REDIS)
                 slug = cache.get(host)
                 if not slug:
+                    redis_conn = redis.Redis(**settings.REDIS)
                     from dns import resolver
                     answer = [ans for ans in resolver.query(host, 'CNAME')][0]
                     domain = answer.target.to_unicode()
@@ -79,7 +79,6 @@ class SubdomainMiddleware(object):
                     cache.set(host, slug, 60*60)
                     #Cache the slug -> host mapping permanently.
                     redis_conn.sadd("rtd_slug:v1:%s" % slug, host)
-
                 request.slug = slug
                 request.urlconf = 'core.subdomain_urls'
             except:
