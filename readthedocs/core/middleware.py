@@ -63,7 +63,8 @@ class SubdomainMiddleware(object):
             request.slug = subdomain
             if not (subdomain.lower() == 'www') and 'readthedocs.org' in host:
                 request.subdomain = True
-                return subdomain_handler(request, subdomain, request.path.lstrip('/'))
+                request.project = subdomain
+                request.urlconf = 'core.subdomain_urls'
         if 'readthedocs.org' not in host \
             and 'localhost' not in host \
             and 'testserver' not in host:
@@ -79,10 +80,11 @@ class SubdomainMiddleware(object):
                     cache.set(host, slug, 60*60)
                     #Cache the slug -> host mapping permanently.
                     redis_conn.sadd("rtd_slug:v1:%s" % slug, host)
+
                 request.slug = slug
-                return subdomain_handler(request,
-                                         slug,
-                                         request.path.lstrip('/'))
+                #return subdomain_handler(request, slug, request.path.lstrip('/'))
+                request.project = slug
+                request.urlconf = 'core.subdomain_urls'
             except:
                 #Some crazy person is CNAMEing to us. 404.
                 if not settings.DEBUG:

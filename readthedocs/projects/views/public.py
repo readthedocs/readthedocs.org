@@ -142,62 +142,20 @@ def search_autocomplete(request):
 
 
 
-def subdomain_handler(request, subdomain, filename):
+def subdomain_handler(request, lang_slug='en', version_slug=None, filename=''):
     """
     This provides the fall-back routing for subdomain requests.
 
     This was made primarily to redirect old subdomain's to their version'd brothers.
     """
-    if not filename:
-        filename = "index.html"
-    split_filename = filename.split('/')
-    #A correct URL, with a language and version.
-    proj = get_object_or_404(Project, slug=subdomain)
-    if len(split_filename) > 2:
-        language = split_filename[0]
-        version = split_filename[1]
-        other_aliases = proj.aliases.filter(from_slug=version)
-        if other_aliases.count():
-            return HttpResponseRedirect('/en/%s/%s' %
-                                        (other_aliases[0].to_slug,
-                                         '/'.join(split_filename[1:])))
-
-        other_projects = proj.versions.filter(slug=version).count()
-        if not other_projects:
-            other_projects = proj.versions.filter(slug=language).count()
-            if other_projects:
-                return HttpResponseRedirect('/en/%s/%s' %
-                                            (language,
-                                             '/'.join(split_filename[1:])))
-        #Hard code this for now.
-        if other_projects or version == 'latest' and language == 'en':
-            version_slug = version
-            filename = '/'.join(split_filename[2:])
-            return serve_docs(request=request,
-                              project_slug=subdomain,
-                              lang_slug='en',
-                              version_slug=version_slug,
-                              filename=filename)
-        else:
-            raise Http404('No version matching query')
-    elif len(split_filename) == 2:
-        version = split_filename[0]
-        other_aliases = proj.aliases.filter(from_slug=version)
-        if other_aliases.count():
-            if other_aliases[0].largest:
-                highest_ver = highest_version(proj.versions.filter(slug__contains=version, active=True))
-                version_slug = highest_ver[0].slug
-            else:
-                version_slug = other_aliases[0].to_slug
-            return HttpResponseRedirect('/en/%s/%s' %
-                                        (version_slug,
-                                         '/'.join(split_filename[1:])))
-
-        valid_version = proj.versions.filter(slug=version)
-        if valid_version:
-            return HttpResponseRedirect('/en/%s/%s' %
-                                        (version,
-                                         '/'.join(split_filename[1:])))
-
-    default_version = proj.get_default_version()
-    return HttpResponseRedirect('/en/%s/%s' % (default_version, filename))
+    project = get_object_or_404(Project, slug=request.project)
+    other_aliases = project.aliases.filter(from_slug=version_slug)
+    if other_aliases.count():
+        return HttpResponseRedirect('/en/%s/%s' %
+                                    (other_aliases[0].to_slug,
+                                     filename))
+    return serve_docs(request=request,
+                      project_slug=project.slug,
+                      lang_slug=lang_slug,
+                      version_slug=version_slug,
+                      filename=filename)
