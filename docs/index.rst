@@ -34,5 +34,6 @@ Developer Documentation
 
     install
     settings
+    tests
     api
     api/index
