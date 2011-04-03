@@ -1,5 +1,7 @@
 from django.conf.urls.defaults import url, patterns, include
 
+from urls import urlpatterns as patterns
+
 urlpatterns = patterns('',
     url(r'^(?P<lang_slug>\w{2})/(?P<version_slug>[\w.-]+)/(?P<filename>.+)$',
         'core.views.serve_docs',
@@ -19,3 +21,4 @@ urlpatterns = patterns('',
     url(r'^$', 'projects.views.public.subdomain_handler')
 )
 
+urlpatterns += patterns
