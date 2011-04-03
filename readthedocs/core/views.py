@@ -27,12 +27,12 @@ import re
 def homepage(request):
     latest_projects = cache.get('latest_projects', None)
     if not latest_projects:
-        projs = Project.objects.filter(builds__isnull=False).annotate(max_date=Max('builds__date')).order_by('-max_date')[:10]
-        cache.set('latest_projects', list(projs))
+        latest_projects = Project.objects.filter(builds__isnull=False).annotate(max_date=Max('builds__date')).order_by('-max_date')[:10]
+        cache.set('latest_projects', list(latest_projects))
     featured = Project.objects.filter(featured=True)
     updated = PageView.objects.all()[:10]
     return render_to_response('homepage.html',
-                              {'project_list': projs,
+                              {'project_list': latest_projects,
                                'featured_list': featured,
                                'updated_list': updated},
                 context_instance=RequestContext(request))
