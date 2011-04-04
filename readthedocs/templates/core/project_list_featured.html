@@ -4,16 +4,12 @@
     <a class="module-item-title" href="{{ project.get_absolute_url }}">{{ project.name }}</a>
     <a href="{{ project.user.get_absolute_url }}" class="quiet">({{ project.user }})</a>
     <ul class="module-item-menu">
-      {% if project.get_latest_build.success %}
-        <span class="hidden-child" style="display: none;">
-            {% for version in project.active_versions reversed %}
-                <li><a href="{{ version.get_absolute_url }}">{{ version.slug }}</a></li>
-            {% endfor %}
-        </span>
-        <li><a href="{{ project.get_docs_url }}">View Docs</a></li>
-      {% else %}
-        <li><a href="{{ project.get_builds.url }}">No Docs</a></li>
-      {% endif %}
+    <span class="hidden-child" style="display: none;">
+        {% for version in project.active_versions reversed %}
+            <li><a href="{{ version.get_absolute_url }}">{{ version.slug }}</a></li>
+        {% endfor %}
+    </span>
+    <li><a href="{{ project.get_docs_url }}">View Docs</a></li>
     </ul>
   </li>
 {% empty %}
