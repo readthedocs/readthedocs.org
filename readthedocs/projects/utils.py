@@ -141,7 +141,7 @@ def purge_version(version, mainsite=False, subdomain=False, cname=False):
                 ret = h.request(to_purge, method="PURGE", headers=headers)
             if cname:
                 redis_conn = redis.Redis(**settings.REDIS)
-                for cnamed in redis_conn.smembers('rtd_slug:v1:%s' % slug):
+                for cnamed in redis_conn.smembers('rtd_slug:v1:%s' % version.project.slug):
                     headers = {'Host': cnamed}
                     url = "/en/%s/*" % version.slug
                     to_purge = "http://%s%s" % (server, url)
