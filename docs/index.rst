@@ -18,9 +18,6 @@ The code is open source, and `available on github`_.
 The documentation for the site is organized into two different sections below. One is for users of readthedocs.org, that is the first section. The next section is for users of the code that powers the site. All of the RTD code is open source, so you can run your own instance. Presumably in an internal install inside your company, or something.
 
 
-Contents
-========
-
 Site Documentation
 ------------------
 
