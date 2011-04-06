@@ -9,6 +9,8 @@ import traceback
 from distutils2.version import NormalizedVersion, suggest_normalized_version
 from django.conf import settings
 from httplib2 import Http
+import redis
+
 from projects.libs.diff_match_patch import diff_match_patch
 
 
@@ -118,7 +120,7 @@ def highest_version(version_list):
             highest = [version, ver]
     return highest
 
-def purge_version(version, mainsite=False, subdomain=False, cname=""):
+def purge_version(version, mainsite=False, subdomain=False, cname=False):
     varnish_servers = getattr(settings, 'VARNISH_SERVERS', None)
     h = Http()
     if varnish_servers:
@@ -138,8 +140,10 @@ def purge_version(version, mainsite=False, subdomain=False, cname=""):
                 print "Purging %s on readthedocs.org" % url
                 ret = h.request(to_purge, method="PURGE", headers=headers)
             if cname:
-                headers = {'Host': cname}
-                url = "/en/%s/*" % version.slug
-                to_purge = "http://%s%s" % (server, url)
-                print "Purging %s on %s" % (url, cname)
-                ret = h.request(to_purge, method="PURGE", headers=headers)
+                redis_conn = redis.Redis(**settings.REDIS)
+                for cnamed in redis_conn.smembers('rtd_slug:v1:%s' % slug):
+                    headers = {'Host': cnamed}
+                    url = "/en/%s/*" % version.slug
+                    to_purge = "http://%s%s" % (server, url)
+                    print "Purging %s on %s" % (url, cnamed)
+                    ret = h.request(to_purge, method="PURGE", headers=headers)
