@@ -71,7 +71,7 @@ def update_docs(pk, record=True, pdf=True, version_pk=None, touch=False):
             if not 'no targets are out of date.' in out:
                 if ret == 0:
                     print "Build OK"
-                    purge_version(version, subdomain=True, mainsite=True)
+                    purge_version(version, subdomain=True, mainsite=True, cname=True)
                     print "Purged %s" % version
                 else:
                     print "Build ERROR"
