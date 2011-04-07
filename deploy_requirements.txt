@@ -1,6 +1,6 @@
 -r pip_requirements.txt
 psycopg2
--e git://github.com/benoitc/gunicorn.git#egg=gunicorn
+gunicorn
 pysolr
 python-memcached
 dnspython
