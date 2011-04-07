@@ -114,11 +114,13 @@ class Backend(BaseVCS):
 
     def checkout(self, identifier=None):
         super(Backend, self).checkout()
-        self.update()
+        self._pull()
         if not identifier:
             identifier = self.fallback_branch
             if self.project.default_branch:
                 identifier = self.project.default_branch
+        #Checkout the correct identifier for this branch.
+        self._run_command('git', 'reset', '--hard', identifier)
 
     def get_env(self):
         env = super(Backend, self).get_env()
