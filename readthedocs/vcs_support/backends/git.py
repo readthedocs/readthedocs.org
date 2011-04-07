@@ -119,7 +119,6 @@ class Backend(BaseVCS):
             identifier = self.fallback_branch
             if self.project.default_branch:
                 identifier = self.project.default_branch
-        self._run_command('git', 'reset', '--hard', identifier)
 
     def get_env(self):
         env = super(Backend, self).get_env()
