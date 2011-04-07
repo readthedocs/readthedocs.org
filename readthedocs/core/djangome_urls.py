@@ -7,6 +7,10 @@ from urls import urlpatterns as main_patterns
 ALL_VERSIONS_RE = '(?P<version>.+)'
 
 urlpatterns = patterns('',
+    url('^$',
+        'djangome.views.redirect_home',
+        {'version': 'latest'},
+    ),
     url('^(?P<term>[\w\-\.]+)$',
         'djangome.views.redirect_to_term',
         {'version': 'latest'},

@@ -24,6 +24,9 @@ class RedirectForm(forms.Form):
             raise forms.ValidationError('Please enter a valid URL on %s' % self._domain)
         return self.cleaned_data['url']
 
+def redirect_home(request, version):
+    return http.HttpResponseRedirect('http://%s.readthedocs.org' % request.slug)
+
 def redirect_to_term(request, version, term):
     # Check for an admin oneoff first.
     oneoff_redirect = find_oneoff_redirect(version, term)
