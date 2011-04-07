@@ -24,6 +24,7 @@ class Version(models.Model):
             return ''
         return reverse('docs_detail', kwargs={
             'project_slug': self.project.slug,
+            'lang_slug': 'en',
             'version_slug': self.slug,
             'filename': ''
         })

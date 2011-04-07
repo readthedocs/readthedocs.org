@@ -85,6 +85,7 @@ class Project(models.Model):
         version = version_slug or self.get_default_version()
         return reverse('docs_detail', kwargs={
             'project_slug': self.slug,
+            'lang_slug': 'en',
             'version_slug': version,
             'filename': '',
         })
