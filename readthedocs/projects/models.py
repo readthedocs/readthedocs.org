@@ -7,6 +7,7 @@ from django.template.loader import render_to_string
 
 from projects import constants
 from projects.utils import diff, dmp, safe_write
+from projects.utils import highest_version as _highest
 from taggit.managers import TaggableManager
 from vcs_support.base import get_backend
 from vcs_support.utils import Lock
@@ -166,6 +167,10 @@ class Project(models.Model):
         conf_file = self.conf_file(version)
         if conf_file:
             return conf_file.replace('/conf.py', '')
+
+    @property
+    def highest_version(self):
+       return _highest(self.versions.filter(active=True))
 
     @property
     def is_imported(self):

@@ -21,7 +21,7 @@ from projects.exceptions import ProjectImportError
 from projects.utils import slugify_uniquely, purge_version
 from projects.exceptions import ProjectImportError
 from projects.models import Project, ImportedFile
-from projects.utils import run, slugify_uniquely
+from projects.utils import run, slugify_uniquely, mkversion
 from tastyapi import client
 from vcs_support.base import get_backend
 
@@ -132,12 +132,18 @@ def update_imported_docs(project, version):
                     continue
                 slug = slugify_uniquely(Version, tag.verbose_name, 'slug', 255, project=project)
                 try:
-                    Version.objects.get_or_create(
+                    ver, created = Version.objects.get_or_create(
                         project=project,
                         slug=slug,
                         identifier=tag.identifier,
                         verbose_name=tag.verbose_name
                     )
+                    print "New tag found: %s" % ver
+                    highest = project.highest_version[1]
+                    ver_obj = mkversion(ver)
+                    if highest and ver_obj and ver_obj > highest:
+                        print "Highest verison known, building docs"
+                        update_docs.delay(ver.project.pk, version_pk=ver.pk)
                 except Exception, e:
                     print "Failed to create version (tag): %s" % e
                     transaction.rollback()
@@ -157,6 +163,7 @@ def update_imported_docs(project, version):
                         identifier=branch.identifier,
                         verbose_name=branch.verbose_name
                     )
+                    print "New branch found: %s" % ver
                 except Exception, e:
                     print "Failed to create version (branch): %s" % e
                     transaction.rollback()
