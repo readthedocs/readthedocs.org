@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Choose a redirect for "{{ djangome_term }}"{% endblock %}
+
+{% block content %}
+    <h3> Choose a redirect for <kbd>{{ djangome_term }}</kbd></h3>
+  {% load url from future %}
+  {% if winners %}
+    <ul class="winners">
+      {% for choice in winners  %}
+        <li><a href="?url={{ choice|urlencode }}">{{ choice }}</a></li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+  {% if losers %}
+    <ul class="losers">
+      {% for choice in losers %}
+        <li><a href="?url={{ choice|urlencode }}">{{ choice }}</a></li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+  <form action="{% url "redirect_to_term" version=version term=djangome_term %}" method="get">
+    {% if form.errors %}<p class="err">{{ form.url.errors.as_text }}</p>{% endif %}
+    <p>
+      {{ form.url.label_tag }}
+      {{ form.url }}
+      <input type="submit" value="Save &amp; go &rarr;">
+    </p>
+  </form>
+{% endblock %}

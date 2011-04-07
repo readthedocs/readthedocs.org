@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}One-offs{% endblock %}
+
+{% block content %}
+  {% load url from future %}
+  <table>
+    <thead>
+      <tr>
+        <th>Version</th>
+        <th>Term</th>
+        <th>Target</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for version, term, target in oneoffs %}
+        <tr>
+          <td><code>{{ version|default:"-" }}</code></td>
+          <td><code>{{ term }}</code></td>
+          <td><a href="{{ target }}">{{ target }}</a></td>
+          <td>
+            <form action="{% url "manage_oneoffs" %}" method="post" accept-charset="utf-8">
+              <input type="hidden" name="version" value="{{ version|default:"" }}">
+              <input type="hidden" name="term" value="{{ term }}">
+              <input type="hidden" name="target" value="{{ target }}">
+              <input type="submit" name="action" value="kill">
+            </form>
+          </td>
+        </tr>
+      {% endfor %}
+        <form action="{% url "manage_oneoffs" %}" method="post" accept-charset="utf-8">
+          <tr>
+            <td><input type="text" name="version" value="" id="version"></td>
+            <td><input type="text" name="term" value="" id="term"></td>
+            <td><input type="text" name="target" value="" id="target"></td>
+            <td><input type="submit" name="action" value="add"></td>
+          </tr>
+        </form>
+    </tbody>
+  </table>
+{% endblock %}

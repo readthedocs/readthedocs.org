@@ -64,6 +64,11 @@ class SubdomainMiddleware(object):
                 request.subdomain = True
                 request.slug = subdomain
                 request.urlconf = 'core.subdomain_urls'
+        if len(domain_parts) == 3:
+            subdomain = domain_parts[0]
+            if not (subdomain.lower() == 'www') and 'rtfd.org' in host:
+                request.slug = subdomain
+                request.urlconf = 'core.djangome_urls'
         if 'readthedocs.org' not in host \
             and 'localhost' not in host \
             and 'testserver' not in host:

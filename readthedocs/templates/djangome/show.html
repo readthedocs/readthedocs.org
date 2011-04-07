@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Statistics for "{{ term }}"{% endblock %}
+{% block pagetitle %}Statistics for <kbd>{{ term }}</kbd>:{% endblock %}
+
+{% block content %}
+  {% load url from future %}
+  <table>
+    <thead>
+      <tr>
+        <th>URL</th>
+        <th>Clicks</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for score, url in urls %}
+        <tr>
+          <td>{{ url }}</td>
+          <td>
+            {{ score }}
+            {% if can_edit %}
+              <form action="{% url "redirect_to_term" version=version term=term %}" method="get">
+                <input type="hidden" name="url" value="{{ url }}">
+                <input type="hidden" name="return_to" value="{% url "show_term" version=version term=term %}">
+                <input type="submit" name="incr" value="++">
+              </form>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+      {% if can_edit %}
+        <form action="{% url "redirect_to_term" version=version term=term %}" method="get">
+          <tr>
+            <td>
+              <input type="text" name="url" value="http://docs.djangoproject.com/" size="120">
+              <input type="hidden" name="return_to" value="{% url "show_term" version=version term=term %}">
+            </td>
+            <td><input type="submit" value="Add"></td>
+          </tr>
+        </form>
+      {% endif %}
+    </tbody>
+  </table>
+{% endblock %}
