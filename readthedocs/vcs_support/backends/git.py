@@ -114,7 +114,8 @@ class Backend(BaseVCS):
 
     def checkout(self, identifier=None):
         super(Backend, self).checkout()
-        self._pull()
+        #Run update so that we can pull new versions.
+        self.update()
         if not identifier:
             identifier = self.fallback_branch
             if self.project.default_branch:
