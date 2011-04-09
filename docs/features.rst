@@ -51,3 +51,19 @@ Alternate Domains
 -----------------
 
 We provide support for CNAMEs, Subdomains, and a shorturl for your project as well. This is outlined in the :doc:`alternate_domains` section.
+
+Intersphinx Support
+-------------------
+
+All projects built on Read the Docs support :mod:`Intersphinx <sphinx:sphinx.ext.intersphinx>`. If you view source of this page you can see it in action. The configuration looks something like this::
+
+    intersphinx_mapping = {
+      'python': ('http://python.readthedocs.org/en/latest/', None),
+      'django': ('http://django.readthedocs.org/en/latest/', None),
+      'sphinx': ('http://sphinx.readthedocs.org/en/latest/', None),
+        }
+
+Then usage is pretty similar. You reference something using normal sphinx syntax, but can use the namespace of the project you want to reference, like so::
+
+    :mod:`Intersphinx <sphinx.ext.intersphinx>`
+    :mod:`Intersphinx <sphinx:sphinx.ext.intersphinx>`
