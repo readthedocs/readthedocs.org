@@ -18,6 +18,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         for version in Version.objects.filter(slug="latest"):
             path = version.project.rtd_build_path(version.slug)
+            if not path:
+                print "ERR: %s has no path" % version
+                continue
             app = DictObj()
             app.srcdir = path
             inv = fetch_inventory(app, app.srcdir, 'objects.inv')
