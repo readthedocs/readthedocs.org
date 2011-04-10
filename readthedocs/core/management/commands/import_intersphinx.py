@@ -43,10 +43,9 @@ class Command(BaseCommand):
                         latest = url.find(find_str)
                         url = url[latest + len(find_str) + 1:]
                         url = "http://%s.readthedocs.org/en/latest/%s" % (version.project.slug, url)
+                        self.save_term(version, term, url, title)
                         if '.' in term:
                             self.save_term(version, term.split('.')[-1], url, title)
-                        else:
-                            self.save_term(version, term, url, title)
                     except: #Yes, I'm an evil person.
                         print "*** Failed updating %s" % term
 
