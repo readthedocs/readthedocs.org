@@ -42,15 +42,21 @@ class Command(BaseCommand):
                         find_str = "rtd-builds/latest"
                         latest = url.find(find_str)
                         url = url[latest + len(find_str) + 1:]
-                        self.save_term(version, term, url, title)
+                        url = "http://%s.readthedocs.org/en/latest/%s" % (version.project.slug, url)
                         if '.' in term:
                             self.save_term(version, term.split('.')[-1], url, title)
+                        else:
+                            self.save_term(version, term, url, title)
                     except: #Yes, I'm an evil person.
                         print "*** Failed updating %s" % term
 
 
     def save_term(self, version, term, url, title):
         print "Inserting %s: %s" % (term, url)
-        r.sadd('redirects:v2:%s:%s' % (version, term), url)
-        r.setnx('redirects:v2:%s:%s:%s' % (version, term, url), 1)
-        r.set('redirects:v2:titles:%s' % (url,), title)
+        lang = "en"
+        project_slug = version.project.slug
+        version_slug = version.slug
+        r.sadd('redirects:v3:%s:%s:%s:%s' % (lang, project_slug,
+                                             version_slug, term), url)
+        r.setnx('redirects:v3:%s:%s:%s:%s:%s' % (lang, project_slug,
+                                                 version_slug, term, url), 1)

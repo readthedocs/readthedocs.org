@@ -28,13 +28,10 @@ def redirect_home(request, version):
     return http.HttpResponseRedirect('http://%s.readthedocs.org' % request.slug)
 
 def redirect_to_term(request, version, term):
-    # Check for an admin oneoff first.
-    oneoff_redirect = find_oneoff_redirect(version, term)
-    if oneoff_redirect:
-        return oneoff_redirect
-
     form = RedirectForm(request.GET or None)
 
+    project = request.slug
+    lang = "en"
     # If we're explicitly choosing a new URL for this term, just go ahead and
     # do that. This could also insert new URLs, so do a brief sanity check to
     # make sure this service can't be used for spam.
@@ -42,11 +39,11 @@ def redirect_to_term(request, version, term):
         if form.is_valid():
             # Make sure the new URL is in the set of URLs and increment its score.
             url = form.cleaned_data['url']
-            r.sadd('redirects:v2:%s:%s' % (version, term), url)
-            r.incr('redirects:v2:%s:%s:%s' % (version, term, url))
+            r.sadd('redirects:v3:%s:%s:%s:%s' % (lang, project, version, term), url)
+            r.incr('redirects:v3:%s:%s:%s:%s:%s' % (lang, project, version, term, url))
             return redirect(request.GET.get('return_to', url))
 
-    urls = get_urls(version, term)
+    urls = get_urls(lang, project, version, term)
     if urls:
         scoregroups = group_urls(urls)
 
@@ -57,7 +54,7 @@ def redirect_to_term(request, version, term):
         # then issue it.
         if len(winners) == 1:
             url = winners[0]
-            r.incr('redirects:v2:%s:%s:%s' % (version, term, url))
+            r.incr('redirects:v3:%s:%s:%s:%s:%s' % (lang, project, version, term, url))
             return redirect(url)
 
         # Otherwise we need to display a list of all choices. We'll present this into
@@ -85,78 +82,7 @@ def show_term(request, version, term):
         'can_edit': request.COOKIES.get('sekrit') == settings.SECRET_KEY,
     })
 
-@csrf_view_exempt
-def manage_oneoffs(request):
-    """
-    Manage the hard-coded one-offs. Admins only.
-    """
-    if request.COOKIES.get('sekrit') != settings.SECRET_KEY:
-        return http.HttpResponseNotAllowed()
-
-    if request.method == 'POST':
-        if 'action' in request.POST:
-            try:
-                action, version, term, target = (request.POST['action'],
-                                                 request.POST['version'],
-                                                 request.POST['term'],
-                                                 request.POST['target'])
-            except KeyError:
-                return redirect(manage_oneoffs)
-            if action == 'add':
-                add_oneoff(version, term, target)
-            elif action == 'kill':
-                kill_oneoff(version, term)
-        return redirect(manage_oneoffs)
-
-    keys = r.keys('redirects:v2:oneoffs:*')
-    targets = r.mget(keys) if keys else []
-
-    oneoffs = []
-    for (k, target) in zip(keys, targets):
-        k = k.replace('redirects:v2:oneoffs:', '')
-        if ':' in k:
-            version, term = k.split(':')
-        else:
-            version, term = None, k
-        oneoffs.append((version, term, target))
-
-    return render(request, 'djangome/oneoffs.html', {
-        'oneoffs': oneoffs,
-    })
-
-def find_oneoff_redirect(version, term):
-    """
-    Find a one-off redirect for the given version/term.
-
-    Returns an HttpResponseRedirect if the redirect was found, None otherwise.
-
-    Increments a count of the found term if successful.
-    """
-    oneoff_keys = ['redirects:v2:oneoffs:%s' % term,
-                   'redirects:v2:oneoffs:%s:%s' % (version, term)]
-    oneoff_redirects = r.mget(oneoff_keys)
-    for k, target in zip(oneoff_keys, oneoff_redirects):
-        if target:
-            r.incr('redirects:v2:%s:%s:%s' % (version, term, target))
-            return redirect(target)
-    return None
-
-def add_oneoff(version, term, target):
-    if version:
-        k = 'redirects:v2:oneoffs:%s:%s' % (version, term)
-    else:
-        k = 'redirects:v2:oneoffs:%s' % term
-    r.set(k, target)
-
-def kill_oneoff(version, term):
-    if version:
-        k = 'redirects:v2:oneoffs:%s:%s' % (version, term)
-    else:
-        k = 'redirects:v2:oneoffs:%s' % term
-    print "kill", k
-    r.delete(k)
-
-def get_urls(version, term):
+def get_urls(lang, project, version, term):
     """
     Gets the set of URLs for <term> in <version>.
 
@@ -165,9 +91,12 @@ def get_urls(version, term):
     # Sort the set of URLs in redirects:v1:term by the scores (clicks) in
     # redirects:v1:term:url, then get each score along with each URL.
     # This returns a list [score, url, score, url, ...]
-    urls = r.sort('redirects:v2:%s:%s' % (version, term),
-                  by   = 'redirects:v2:%s:%s:*' % (version, term),
-                  get  = ('redirects:v2:%s:%s:*' % (version, term), '#'),
+    urls = r.sort('redirects:v3:%s:%s:%s:%s' % (lang, project,
+                                                version, term),
+                  by   = 'redirects:v3:%s:%s:%s:%s:*' % (lang, project,
+                                                         version, term),
+                  get  = ('redirects:v3:%s:%s:%s:%s:*' % (lang, project,
+                                                          version, term), '#'),
                   desc = True)
 
     # Convert that to a list of tuples [(score, url), (score, url), ...]
