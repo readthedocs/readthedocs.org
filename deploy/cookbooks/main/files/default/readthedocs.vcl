@@ -21,6 +21,7 @@ director doubleteam round-robin {
 acl purge {
         "localhost";
         "192.0.2.14";
+	"10.177.72.204";
 }
 
 sub vcl_recv {
@@ -53,9 +54,12 @@ sub vcl_recv {
 }
 
 sub vcl_fetch {
-  set beresp.ttl = 2m;
+  set beresp.ttl = 1m;
   set req.grace = 5m;
   if (req.http.host != "readthedocs.org") {
-    set beresp.ttl = 10m;
+    set beresp.ttl = 7d;
+  }
+  if (req.http.host ~ "(.+).rtfd.org") {
+    set beresp.ttl = 10s;
   }
 }

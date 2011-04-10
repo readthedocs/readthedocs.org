@@ -62,5 +62,4 @@ script "Install Requirements" do
   code <<-EOH
   /home/docs/sites/readthedocs.org/bin/pip install -r /home/docs/sites/readthedocs.org/checkouts/readthedocs.org/deploy_requirements.txt
   EOH
-  not_if { true }
 end

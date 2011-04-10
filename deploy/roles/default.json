@@ -13,14 +13,14 @@
       "pip_python_packages": {"virtualenv": "1.5.1", "mercurial": "1.7"},
       "users": {
         "docs": {
-          "id": 1001,
+          "id": 1005,
           "full_name": "Docs User",
           "key": "redacted"
         }
       },
       "groups": {
         "docs": {
-          "gid": 201,
+          "gid": 205,
           "members": ["docs"]
         }
       }
