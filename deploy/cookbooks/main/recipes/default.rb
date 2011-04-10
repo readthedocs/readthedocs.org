@@ -6,6 +6,10 @@
 # Just base packages required by the whole system here, please. Dependencies
 # for other recipes should live int hose recipes.
 
+execute "Update repos" do
+    command "apt-get update"
+end
+
 node[:base_packages].each do |pkg|
     package pkg do
         :upgrade
