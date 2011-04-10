@@ -55,7 +55,7 @@ We provide support for CNAMEs, Subdomains, and a shorturl for your project as we
 Intersphinx Support
 -------------------
 
-All projects built on Read the Docs support :mod:`Intersphinx <sphinx:sphinx.ext.intersphinx>`. If you view source of this page you can see it in action. The configuration looks something like this::
+We host intersphinx catalogs for all projects built on Read the Docs. For more info on this support, read the Sphinx docs on  :mod:`Intersphinx <sphinx:sphinx.ext.intersphinx>`. Your configuration should look something like this::
 
     intersphinx_mapping = {
       'python': ('http://python.readthedocs.org/en/latest/', None),
@@ -63,7 +63,11 @@ All projects built on Read the Docs support :mod:`Intersphinx <sphinx:sphinx.ext
       'sphinx': ('http://sphinx.readthedocs.org/en/latest/', None),
         }
 
-Then usage is pretty similar. You reference something using normal sphinx syntax, but can use the namespace of the project you want to reference, like so::
+Then usage is pretty similar. You reference something using normal sphinx syntax, but can use the namespace of the project you want to reference, like so:
+
+.. code-block:: rest 
 
     :mod:`Intersphinx <sphinx.ext.intersphinx>`
     :mod:`Intersphinx <sphinx:sphinx.ext.intersphinx>`
+
+This will create a link to the official Sphinx documentation for intersphinx.
