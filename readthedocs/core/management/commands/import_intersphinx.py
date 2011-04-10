@@ -27,6 +27,7 @@ class Command(BaseCommand):
                 inv = fetch_inventory(app, app.srcdir, 'objects.inv')
             except TypeError:
                 print "Failed to fetch inventory for %s" % version
+                continue
             # I'm entirelty not sure this is even close to correct.
             # There's a lot of info I'm throwing away here; revisit later?
             for keytype in inv:
