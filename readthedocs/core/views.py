@@ -37,7 +37,9 @@ def homepage(request):
                                'updated_list': updated},
                 context_instance=RequestContext(request))
 
-def random_page(request):
+def random_page(request, project=None):
+    if project:
+        return HttpResponseRedirect(PageView.objects.filter(project__slug=project).order_by('?')[0].get_absolute_url())
     return HttpResponseRedirect(PageView.objects.order_by('?')[0].get_absolute_url())
 
 @csrf_view_exempt
