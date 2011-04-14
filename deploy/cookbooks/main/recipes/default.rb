@@ -6,7 +6,7 @@
 # Just base packages required by the whole system here, please. Dependencies
 # for other recipes should live int hose recipes.
 
-execute "Update repos" do
+execute "Update apt repos" do
     command "apt-get update"
 end
 
@@ -26,12 +26,9 @@ end
 # Then creates a group for each group defined in the JSON.
 
 
-if node.attribute?("all_servers")
-  template "/etc/hosts" do
-    source "hosts"
-    mode 644
-    variables :all_servers => node[:all_servers] || {}
-  end
+template "/etc/hosts" do
+  source "hosts"
+  mode 644
 end
 
 node[:users].each_pair do |username, info|

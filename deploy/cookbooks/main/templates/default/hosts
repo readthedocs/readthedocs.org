@@ -1,7 +1,7 @@
-127.0.0.1     localhost localhost.localdomain golem
+127.0.0.1     localhost localhost.localdomain
 
-67.207.139.9  odin
-
-<% @all_servers.each_pair do |name, ips| -%>
-<%= ips[0] %> <%= ips[1] %> <%= name %>
+<% if @node.attribute?(:all_servers) %>
+<% @node.all_servers.each_pair do |name, ip| -%>
+<%= ip %> <%= name %>
+<% end -%>
 <% end -%>
