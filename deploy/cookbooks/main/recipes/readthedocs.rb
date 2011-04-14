@@ -55,11 +55,17 @@ git "/home/docs/sites/readthedocs.org/checkouts/readthedocs.org" do
   action :sync
 end
 
+execute "This next part installs all the requirements. It will take a while." do
+    command "echo 'wee'"
+end
+
 script "Install Requirements" do
   interpreter "bash"
   user "docs"
   group "docs"
   code <<-EOH
   /home/docs/sites/readthedocs.org/bin/pip install -r /home/docs/sites/readthedocs.org/checkouts/readthedocs.org/deploy_requirements.txt
+  touch /tmp/pip_ran
   EOH
+  creates "/tmp/pip_ran"
 end

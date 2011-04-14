@@ -7,6 +7,7 @@ script "Install Nginx" do
     apt-get update
     apt-get install nginx
   EOH
+  ignore_failure true
   not_if "nginx -V |grep 0.8"
 end
 
