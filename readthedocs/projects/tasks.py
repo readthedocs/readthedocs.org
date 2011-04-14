@@ -21,7 +21,7 @@ from projects.exceptions import ProjectImportError
 from projects.utils import slugify_uniquely, purge_version
 from projects.exceptions import ProjectImportError
 from projects.models import Project, ImportedFile
-from projects.utils import run, slugify_uniquely, mkversion
+from projects.utils import run, slugify_uniquely, mkversion, safe_write
 from tastyapi import client
 from vcs_support.base import get_backend
 
@@ -224,6 +224,8 @@ def update_created_docs(project):
 
     project.path = doc_root
     project.save()
+    #Touch a conf.py
+    safe_write(os.path.join(project.path, 'conf.py'), '')
 
     project.write_index()
 
