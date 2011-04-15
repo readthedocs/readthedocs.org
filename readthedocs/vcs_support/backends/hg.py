@@ -70,3 +70,4 @@ class Backend(BaseVCS):
             self._run_command('hg', 'update', '-C', identifier)
         else:
             self._clone()
+            self._run_command('hg', 'update', '-C', identifier)
