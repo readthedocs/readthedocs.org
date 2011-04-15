@@ -38,6 +38,10 @@ class BaseCLI(object):
 
 
 class BaseVCS(BaseCLI):
+    """
+    Base for VCS Classes.
+    Built on top of the BaseCLI.
+    """
     supports_tags = False # Whether this VCS supports tags or not.
     supports_branches = False # Whether this VCS supports branches or not.
     contribution_backends = []

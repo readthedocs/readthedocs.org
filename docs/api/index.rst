@@ -11,4 +11,4 @@ code.
     core
     projects
     watching
-
+    vcs_support
