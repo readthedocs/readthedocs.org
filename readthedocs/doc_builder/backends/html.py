@@ -106,7 +106,7 @@ class Builder(BaseBuilder):
 
     def clean(self, version):
         try:
-            if version.project.whitelisted:
+            if version.project.whitelisted and not version.project.is_imported:
                 print "Project whitelisted"
                 self._whitelisted(version)
             else:
