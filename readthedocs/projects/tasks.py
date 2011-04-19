@@ -14,11 +14,13 @@ from django.db import transaction
 from django.conf import settings
 from django.contrib.auth.models import SiteProfileNotAvailable
 from django.core.exceptions import ObjectDoesNotExist
+from sphinx.ext.intersphinx import fetch_inventory
+import redis
 
 from builds.models import Build, Version
 from doc_builder import loading as builder_loading
 from projects.exceptions import ProjectImportError
-from projects.utils import slugify_uniquely, purge_version
+from projects.utils import slugify_uniquely, purge_version, DictObj
 from projects.exceptions import ProjectImportError
 from projects.models import Project, ImportedFile
 from projects.utils import run, slugify_uniquely, mkversion, safe_write
@@ -72,6 +74,7 @@ def update_docs(pk, record=True, pdf=True, version_pk=None, touch=False):
                 if ret == 0:
                     print "Build OK"
                     purge_version(version, subdomain=True, mainsite=True, cname=True)
+                    update_intersphinx(version.pk)
                     print "Purged %s" % version
                 else:
                     print "Build ERROR"
@@ -84,6 +87,7 @@ def update_docs(pk, record=True, pdf=True, version_pk=None, touch=False):
             print "Project imported from Django Packages!"
     except:
         print "Importing from Django Packages Errored."
+
 
 
 def update_imported_docs(project, version):
@@ -323,3 +327,49 @@ def unzip_files(dest_file, html_path):
         os.makedirs(html_path)
     run('unzip -o %s -d %s' % (dest_file, html_path))
     copy_to_app_servers(html_path, html_path)
+
+@task
+def update_intersphinx(version_pk):
+    version = Version.objects.get(pk=version_pk)
+    path = version.project.rtd_build_path(version.slug)
+    if not path:
+        print "ERR: %s has no path" % version
+        return None
+    app = DictObj()
+    app.srcdir = path
+    try:
+        inv = fetch_inventory(app, app.srcdir, 'objects.inv')
+    except TypeError:
+        print "Failed to fetch inventory for %s" % version
+        return None
+    # I'm entirelty not sure this is even close to correct.
+    # There's a lot of info I'm throwing away here; revisit later?
+    for keytype in inv:
+        for term in inv[keytype]:
+            try:
+                _, _, url, title = inv[keytype][term]
+                if not title or title == '-':
+                    if '#' in url:
+                        title = url.rsplit('#')[-1]
+                    else:
+                        title = url
+                find_str = "rtd-builds/latest"
+                latest = url.find(find_str)
+                url = url[latest + len(find_str) + 1:]
+                url = "http://%s.readthedocs.org/en/latest/%s" % (version.project.slug, url)
+                save_term(version, term, url, title)
+                if '.' in term:
+                    save_term(version, term.split('.')[-1], url, title)
+            except Exception, e: #Yes, I'm an evil person.
+                print "*** Failed updating %s: %s" % (term, e)
+
+def save_term(version, term, url, title):
+    redis_obj = redis.Redis(**settings.REDIS)
+    print "Inserting %s: %s" % (term, url)
+    lang = "en"
+    project_slug = version.project.slug
+    version_slug = version.slug
+    redis_obj.sadd('redirects:v3:%s:%s:%s:%s' % (lang, project_slug,
+                                         version_slug, term), url)
+    redis_obj.setnx('redirects:v3:%s:%s:%s:%s:%s' % (lang, project_slug,
+                                             version_slug, term, url), 1)
