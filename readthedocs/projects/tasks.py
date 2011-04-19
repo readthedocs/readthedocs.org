@@ -202,6 +202,8 @@ def scrape_conf_file(version):
             data[match.group(1).strip()] = match.group(2).strip()
     project.copyright = data.get('copyright', 'Unknown')
     project.theme = data.get('html_theme', 'default')
+    if len(project.theme) > 20:
+        project.theme = 'default'
     project.suffix = data.get('source_suffix', '.rst')
     project.path = os.getcwd()
 
