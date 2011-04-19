@@ -59,7 +59,7 @@ def run(*commands):
         if ret != 0:
             break
 
-    return (ret, out, err)
+    return SystemCommand(ret, out, err)
 
 
 dmp = diff_match_patch()
@@ -147,3 +147,24 @@ def purge_version(version, mainsite=False, subdomain=False, cname=False):
                     to_purge = "http://%s%s" % (server, url)
                     print "Purging %s on %s" % (url, cnamed)
                     ret = h.request(to_purge, method="PURGE", headers=headers)
+
+class DictObj(object):
+    def __getattr__(self, attr):
+        return self.__dict__.get(attr)
+
+class SystemCommand(object):
+
+    def __init__(self, retcode, stdout, stderr):
+        self.retcode = retcode
+        self.stdout = stdout
+        self.stderr = stderr
+
+    def __getitem__(self, key):
+        if str(key) == "0":
+            return self.retcode
+        elif str(key) == "1":
+            return self.stdout
+        elif str(key) == "2":
+            return self.stderr
+        else:
+            raise IndexError
