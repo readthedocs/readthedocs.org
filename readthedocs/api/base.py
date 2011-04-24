@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
 
 from haystack.query import SearchQuerySet
+from haystack.utils import Highlighter
 from tastypie.resources import ModelResource
 from tastypie import fields
 from tastypie.authentication import BasicAuthentication
@@ -23,7 +24,8 @@ def _do_search(self, request, model):
         self.throttle_check(request)
 
         # Do the query.
-        sqs = SearchQuerySet().models(model).auto_query(request.GET.get('q', ''))
+        query = request.GET.get('q', '')
+        sqs = SearchQuerySet().models(model).auto_query(query)
         paginator = Paginator(sqs, 20)
 
         try:
@@ -34,8 +36,11 @@ def _do_search(self, request, model):
         objects = []
 
         for result in page.object_list:
+            import ipdb; ipdb.set_trace()
+            highlighter = Highlighter(query)
+            text = highlighter.highlight(result.text)
             bundle = self.full_dehydrate(result.object)
-            bundle.data['summary'] = result.summary
+            bundle.data['text'] = text
             objects.append(bundle)
 
         object_list = {
