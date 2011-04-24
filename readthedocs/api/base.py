@@ -175,6 +175,7 @@ class VersionResource(EnhancedModelResource):
         ]
 
 class FileResource(EnhancedModelResource):
+    project = fields.ForeignKey(ProjectResource, 'project')
 
     class Meta:
         allowed_methods = ['get']
