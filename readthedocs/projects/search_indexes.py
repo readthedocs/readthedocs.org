@@ -1,6 +1,10 @@
+# -*- coding: utf-8-*-
+
 import os
 import codecs
+import BeautifulSoup
 
+from django.utils.html import strip_tags
 from haystack.indexes import *
 from haystack import site
 from projects.models import File, ImportedFile, Project
@@ -31,7 +35,9 @@ class ImportedFileIndex(SearchIndex):
             full_path = obj.project.full_build_path()
             to_read = os.path.join(full_path, obj.path.lstrip('/'))
             content = codecs.open(to_read, encoding="utf-8", mode='r').read()
-            return content
+            bs = BeautifulSoup.BeautifulSoup(content)
+            soup = bs.find("div", {"class": "document"})
+            return strip_tags(soup).replace(u'¶', '')
         except (AttributeError, IOError):
             if 'full_path' in locals():
                 print "%s not found" % full_path

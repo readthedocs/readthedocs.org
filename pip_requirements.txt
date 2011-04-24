@@ -17,6 +17,7 @@ distutils2
 django-sentry
 Unipath
 django
+BeautifulSoup
 -e git+http://github.com/nathanborror/django-basic-apps.git#egg=basic
 -e hg+http://bitbucket.org/andrewgodwin/south/#egg=south
 -e git+http://github.com/alex/django-taggit.git#egg=taggit
