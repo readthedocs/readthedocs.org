@@ -116,7 +116,7 @@ class ProjectResource(ModelResource):
         return HttpCreated(location=self.get_resource_uri(updated_bundle))
 
     def get_search(self, request, **kwargs):
-        _do_search(self, request, Project)
+        return _do_search(self, request, Project)
 
     def override_urls(self):
         return [
@@ -187,4 +187,4 @@ class FileResource(EnhancedModelResource):
         ]
 
     def get_search(self, request, **kwargs):
-        _do_search(self, request, ImportedFile)
+        return _do_search(self, request, ImportedFile)
