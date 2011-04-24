@@ -36,7 +36,6 @@ def _do_search(self, request, model):
         objects = []
 
         for result in page.object_list:
-            import ipdb; ipdb.set_trace()
             highlighter = Highlighter(query)
             text = highlighter.highlight(result.text)
             bundle = self.full_dehydrate(result.object)
