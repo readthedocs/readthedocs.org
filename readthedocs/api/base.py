@@ -33,7 +33,6 @@ def _do_search(self, request, model):
 
         objects = []
 
-        print page.object_list
         for result in page.object_list:
             bundle = self.full_dehydrate(result.object)
             objects.append(bundle)
