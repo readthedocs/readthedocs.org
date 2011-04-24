@@ -8,7 +8,7 @@ from haystack.query import SearchQuerySet
 from haystack.views import FacetedSearchView
 from tastypie.api import Api
 
-from api.base import ProjectResource, UserResource, BuildResource, VersionResource
+from api.base import ProjectResource, UserResource, BuildResource, VersionResource, FileResource
 from core.forms import UserProfileForm
 from projects.feeds import LatestProjectsFeed, NewProjectsFeed
 
@@ -17,6 +17,7 @@ v1_api.register(BuildResource())
 v1_api.register(UserResource())
 v1_api.register(ProjectResource())
 v1_api.register(VersionResource())
+v1_api.register(FileResource())
 
 admin.autodiscover()
 author_sqs = SearchQuerySet().facet('author')
