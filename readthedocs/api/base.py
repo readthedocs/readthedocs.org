@@ -180,6 +180,8 @@ class FileResource(EnhancedModelResource):
     class Meta:
         allowed_methods = ['get']
         queryset = ImportedFile.objects.all()
+        excludes = ['md5', 'slug']
+        include_absolute_url = True
 
     def override_urls(self):
         return [
