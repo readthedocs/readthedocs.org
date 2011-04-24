@@ -1,17 +1,17 @@
+from django.core.paginator import Paginator, InvalidPage
 from django.contrib.auth.models import User
 from django.conf.urls.defaults import url
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
 
-
-
+from haystack.query import SearchQuerySet
 from tastypie.resources import ModelResource
 from tastypie import fields
 from tastypie.authentication import BasicAuthentication
 from tastypie.authorization import Authorization
 from tastypie.exceptions import NotFound
 from tastypie.http import HttpCreated
-from tastypie.utils import dict_strip_unicode_keys
+from tastypie.utils import dict_strip_unicode_keys, trailing_slash
 
 from builds.models import Build, Version
 from projects.models import Project
@@ -87,10 +87,40 @@ class ProjectResource(ModelResource):
         updated_bundle = self.obj_create(bundle, request=request)
         return HttpCreated(location=self.get_resource_uri(updated_bundle))
 
+    def get_search(self, request, **kwargs):
+        self.method_check(request, allowed=['get'])
+        self.is_authenticated(request)
+        self.throttle_check(request)
+
+        # Do the query.
+        sqs = SearchQuerySet().models(Project).auto_query(request.GET.get('q', ''))
+        paginator = Paginator(sqs, 20)
+
+        try:
+            page = paginator.page(int(request.GET.get('page', 1)))
+        except InvalidPage:
+            raise Http404("Sorry, no results on that page.")
+
+        objects = []
+
+        for result in page.object_list:
+            if getattr(result, 'modified_date'):
+                bundle = self.full_dehydrate(result.object)
+                objects.append(bundle)
+
+        object_list = {
+            'objects': objects,
+        }
+
+        self.log_throttled_access(request)
+        return self.create_response(request, object_list)
+
 
     def override_urls(self):
         return [
+            url(r"^(?P<resource_name>%s)/search%s$" % (self._meta.resource_name, trailing_slash()), self.wrap_view('get_search'), name="api_get_search"),
             url(r"^(?P<resource_name>%s)/(?P<slug>[a-z-]+)/$" % self._meta.resource_name, self.wrap_view('dispatch_detail'), name="api_dispatch_detail"),
+
         ]
 
 
