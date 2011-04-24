@@ -35,7 +35,7 @@ def _do_search(self, request, model):
 
         for result in page.object_list:
             bundle = self.full_dehydrate(result.object)
-            bundle.data['text'] = result.text
+            bundle.data['summary'] = result.summary
             objects.append(bundle)
 
         object_list = {
