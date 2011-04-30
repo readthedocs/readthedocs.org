@@ -75,7 +75,7 @@ def bitbucket_build(request):
             update_docs.delay(pk=project.pk, touch=True)
             return HttpResponse('Build Started')
         except:
-            mail_admins('Build Failure', '%s failed to build via github' % name)
+            mail_admins('Build Failure', '%s failed to build via bitbucket' % name)
             return HttpResponse('Build Failed')
     else:
         return render_to_response('post_commit.html', {},
@@ -93,6 +93,7 @@ def generic_build(request, pk):
             update_docs.delay(pk=pk, version_pk=version.pk, touch=True)
         else:
             update_docs.delay(pk=pk, touch=True)
+        return HttpResponse('Build Started')
     return render_to_response('post_commit.html', context,
             context_instance=RequestContext(request))
 

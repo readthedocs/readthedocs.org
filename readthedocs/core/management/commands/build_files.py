@@ -8,11 +8,9 @@ class Command(BaseCommand):
         if not len(args):
             for p in Project.objects.all():
                 print "Indexing %s" % p
-                tasks.fileify(p.slug)
+                tasks.fileify(p)
         else:
             for slug in args:
                 p = Project.objects.get(slug=slug)
                 print "Indexing %s" % p
-                tasks.fileify(p.slug)
-
-
+                tasks.fileify(p)

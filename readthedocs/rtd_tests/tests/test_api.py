@@ -9,8 +9,7 @@ class BasicTests(TestCase):
         """
         Test that a superuser can use the API
         """
-        post_data = {"user": "/api/v1/user/1/",
-                     "name": "awesome-project",
+        post_data = {"name": "awesome-project",
                      "repo": "https://github.com/ericholscher/django-kong.git"
                      }
         resp = self.client.post('/api/v1/project/',
