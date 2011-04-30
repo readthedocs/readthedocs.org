@@ -47,6 +47,7 @@ def update_docs(pk, record=True, pdf=True, version_pk=None, touch=False):
         latest = Version.objects.filter(project=project, slug='latest')
         if len(latest):
             #Handle changing of latest's branch
+            latest = latest[0]
             if not latest.identifier == branch:
                 latest.identifier = branch
                 latest.save()
