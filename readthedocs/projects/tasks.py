@@ -44,10 +44,18 @@ def update_docs(pk, record=True, pdf=True, version_pk=None, touch=False):
         versions = [Version.objects.get(pk=version_pk)]
     else:
         branch = project.default_branch or project.vcs_repo().fallback_branch
-        versions = [Version.objects.get_or_create(project=project,
+        latest = Version.objects.filter(project=project, slug='latest')
+        if len(latest):
+            #Handle changing of latest's branch
+            if not latest.identifier == branch:
+                latest.identifier = branch
+                latest.save()
+            versions = [latest]
+        else:
+            versions = [Version.objects.create(project=project,
                             identifier=branch,
                             slug='latest',
-                            verbose_name='latest')[0]]# + list(project.versions.filter(active=True, uploaded=False))
+                            verbose_name='latest')]
 
     for version in versions:
         #Make Dirs
