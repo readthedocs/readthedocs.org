@@ -62,4 +62,4 @@ class Backend(BaseVCS):
         if not identifier:
             self._up()
         else:
-            self._run_command('hg', 'update', '-r', identifier)
+            self._run_command('bzr', 'switch', identifier)
