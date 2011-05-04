@@ -1,11 +1,23 @@
 backend chimera {
     .host = "10.177.72.204";
     .port = "8000";
+    .probe = {
+        .request =
+            "OPTIONS * HTTP/1.1"
+            "Host: readthedocs.org"
+            "Connection: close";
+    }
 }
 
 backend ladon {
     .host = "10.177.73.65";
     .port = "8000";
+    .probe = {
+        .request =
+            "OPTIONS * HTTP/1.1"
+            "Host: readthedocs.org"
+            "Connection: close";
+    }
 }
 
 director doubleteam round-robin {
