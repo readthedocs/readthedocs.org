@@ -1,7 +1,7 @@
 import simplejson
 
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, NoReverseMatch
 from django.http import (HttpResponse, HttpResponseRedirect,
                          Http404, HttpResponsePermanentRedirect)
 from django.shortcuts import get_object_or_404
@@ -176,11 +176,14 @@ def subdomain_handler(request, lang_slug=None, version_slug=None, filename=''):
                 'filename': filename
             })
         else:
-            url = reverse(serve_docs, kwargs={
-                'version_slug': version_slug,
-                'lang_slug': 'en',
-                'filename': filename
-            })
+            try:
+                url = reverse(serve_docs, kwargs={
+                    'version_slug': version_slug,
+                    'lang_slug': 'en',
+                    'filename': filename
+                })
+            except NoReverseMatch:
+                raise Http404
         return HttpResponseRedirect(url)
     return serve_docs(request=request,
                       project_slug=project.slug,
