@@ -154,6 +154,8 @@ class BaseContributionBackend(BaseCLI):
 
 
 def get_backend(repo_type):
+    if repo_type == 'bzr':
+        repo_type = 'launchpad'
     try:
         module = import_module('vcs_support.backends.%s' % repo_type)
     except ImportError:
