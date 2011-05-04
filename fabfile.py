@@ -29,7 +29,8 @@ def restart():
     env.user = "root"
     run("restart readthedocs-gunicorn")
 
-@hosts(['chimera.ericholscher.com'])
+#@hosts(['chimera.ericholscher.com'])
+@hosts(['kirin.ericholscher.com'])
 def celery():
     "Restart (or just start) the server"
     env.user = "root"
