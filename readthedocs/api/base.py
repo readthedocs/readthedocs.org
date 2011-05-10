@@ -6,13 +6,15 @@ from django.http import HttpResponse
 
 from haystack.query import SearchQuerySet
 from haystack.utils import Highlighter
-from tastypie.resources import ModelResource
 from tastypie import fields
 from tastypie.authentication import BasicAuthentication
 from tastypie.authorization import Authorization
+from tastypie.constants import ALL, ALL_WITH_RELATIONS
+from tastypie.resources import ModelResource
 from tastypie.exceptions import NotFound
 from tastypie.http import HttpCreated
 from tastypie.utils import dict_strip_unicode_keys, trailing_slash
+
 
 from builds.models import Build, Version
 from projects.models import Project, ImportedFile
@@ -83,6 +85,9 @@ class UserResource(ModelResource):
         allowed_methods = ['get']
         queryset = User.objects.all()
         fields = ['username', 'first_name', 'last_name', 'last_login', 'id']
+        filtering = {
+            'username': 'exact',
+        }
 
     def override_urls(self):
         return [
@@ -100,6 +105,9 @@ class ProjectResource(ModelResource):
         authentication = PostAuthentication()
         authorization = Authorization()
         excludes = ['use_virtualenv', 'path', 'skip', 'featured']
+        filtering = {
+            "user": ALL_WITH_RELATIONS,
+        }
 
     def post_list(self, request, **kwargs):
         """
