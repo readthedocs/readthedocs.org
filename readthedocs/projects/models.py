@@ -152,12 +152,13 @@ class Project(models.Model):
         return os.path.join(self.doc_path, 'rtd-builds', version)
 
     def conf_file(self, version='latest'):
-        files = self.full_find('conf.py', version)
+        files = self.find('conf.py', version)
+        if not files:
+            files = self.full_find('conf.py', version)
         if len(files) == 1:
             return files[0]
         elif len(files) > 1:
             for file in files:
-                #This is only valid in prod.
                 if file.find('doc', 70) != -1:
                     return file
         else:
