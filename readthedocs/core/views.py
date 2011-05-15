@@ -8,7 +8,7 @@ from django.core.cache import cache
 from django.conf import settings
 from django.db.models import F, Max
 from django.http import HttpResponse, HttpResponseRedirect, \
-    HttpResponsePermanentRedirect
+    HttpResponsePermanentRedirect, Http404
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_view_exempt
@@ -139,11 +139,14 @@ def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
         response = HttpResponse(mimetype=mimetype)
         if encoding:
             response["Content-Encoding"] = encoding
-        response['X-Accel-Redirect'] = os.path.join('/user_builds',
-                                         proj.slug,
-                                         'rtd-builds',
-                                         version_slug,
-                                         filename)
+        try:
+            response['X-Accel-Redirect'] = os.path.join('/user_builds',
+                                             proj.slug,
+                                             'rtd-builds',
+                                             version_slug,
+                                             filename)
+        except UnicodeEncodeError:
+            raise Http404
 
         return response
     else:
