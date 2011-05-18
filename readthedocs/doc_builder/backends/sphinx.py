@@ -48,7 +48,8 @@ context = {
     ("{{ version.slug }}", "{{ version.get_absolute_url }}"),{% endfor %}
     ],
     'slug': '{{ project.slug }}',
-    'badge_revsys': {{ project.sponsored }}
+    'badge_revsys': {{ project.sponsored }},
+    'analytics_code': '{{ project.analytics_code }}',
 }
 if 'html_context' in locals():
     html_context.update(context)
@@ -63,7 +64,6 @@ class Builder(BaseBuilder):
 
     def _whitelisted(self, version):
         """Modify the given ``conf.py`` file from a whitelisted user's project.
-        For now, this just adds the RTD template directory to ``templates_path``.
         """
         project = version.project
         #Open file for appending.

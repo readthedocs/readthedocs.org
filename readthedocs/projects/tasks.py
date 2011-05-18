@@ -255,7 +255,7 @@ def build_docs(project, version, pdf, record, touch):
     if not project.conf_file(version.slug):
         return ('','Conf file not found.',-1)
 
-    html_builder = builder_loading.get('html')()
+    html_builder = builder_loading.get(project.documentation_type)()
     if touch:
         html_builder.touch(version)
     html_builder.clean(version)
@@ -272,7 +272,7 @@ def build_docs(project, version, pdf, record, touch):
             )
 
         if pdf:
-            pdf_builder = builder_loading.get('pdf')()
+            pdf_builder = builder_loading.get('sphinx_pdf')()
             pdf_builder.build(version)
     if successful:
         move_docs(project, version)

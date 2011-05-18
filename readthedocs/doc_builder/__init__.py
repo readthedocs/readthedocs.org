@@ -71,7 +71,7 @@ class BaseReg(object):
                 try:
                     app = app.split('.py')[0]
                     app = app.split('/')[-1]
-                    if '_' not in app:
+                    if not app.startswith('_'):
                         mod = '%s.%s' % (self.AUTO_IMPORT, app)
                         self.register(app, mod)
                 except ImportError, e:

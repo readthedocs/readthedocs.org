@@ -11,9 +11,9 @@ THEME_NATURE = 'nature'
 THEME_HAIKU = 'haiku'
 
 DOCUMENTATION_CHOICES = (
-    ('sphinx', 'Sphinx'),
-    ('sphinx_epydoc', 'Sphinx and Epydoc'),
-    ('rdoc', 'Rdoc'),
+    ('sphinx', 'Sphinx Html'),
+    ('sphinx_htmldir', 'Sphinx HtmlDir'),
+    #('rdoc', 'Rdoc'),
 )
 
 DEFAULT_THEME_CHOICES = (
