@@ -30,6 +30,11 @@ from vcs_support.base import get_backend
 ghetto_hack = re.compile(r'(?P<key>.*)\s*=\s*u?\[?[\'\"](?P<value>.*)[\'\"]\]?')
 
 @task
+def remove_dir(path):
+    print "Removing %s" % path
+    shutil.rmtree(path)
+
+@task
 def update_docs(pk, record=True, pdf=True, version_pk=None, touch=False):
     """
     A Celery task that updates the documentation for a project.

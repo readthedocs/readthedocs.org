@@ -14,7 +14,6 @@ from vcs_support.utils import Lock
 
 import fnmatch
 import os
-import fnmatch
 import re
 
 class ProjectManager(models.Manager):
@@ -75,6 +74,13 @@ class Project(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
+        if hasattr(self, 'pk'):
+            previous_obj = self.__class__.objects.get(pk=self.pk)
+            if previous_obj.repo != self.repo:
+                #Needed to not have an import loop on Project
+                from projects import tasks
+                #This needs to run on the build machine.
+                tasks.remove_dir.delay(os.path.join(self.doc_path, 'checkouts'))
         if not self.slug:
             self.slug = slugify(self.name)
         super(Project, self).save(*args, **kwargs)
