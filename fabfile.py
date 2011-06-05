@@ -1,4 +1,5 @@
 from fabric.api import *
+from fabric.decorators import runs_once
 
 env.runtime = 'production'
 env.hosts = ['chimera.ericholscher.com', 'kirin.ericholscher.com', 'ladon.ericholscher.com']
@@ -29,8 +30,8 @@ def restart():
     env.user = "root"
     run("restart readthedocs-gunicorn")
 
-#@hosts(['chimera.ericholscher.com'])
-@hosts(['kirin.ericholscher.com'])
+@hosts(['chimera.ericholscher.com'])
+#@hosts(['kirin.ericholscher.com'])
 def celery():
     "Restart (or just start) the server"
     env.user = "root"
@@ -40,6 +41,10 @@ def pull():
     "Pull new code"
     with cd(env.code_dir):
         run('git pull origin master')
+
+@runs_once
+def spider():
+    local('patu.py -d1 readthedocs.org')
 
 def _aws_wrapper(f, *args, **kwargs):
     "get AWS credentials if not defined"
@@ -108,6 +113,8 @@ def delete_cdn(c):
             print "Deleting", distro.origin.dns_name
             distro.get_distribution().delete()
 
+
+@hosts(['chimera.ericholscher.com'])
 def full_deploy():
     push()
     update_requirements()
