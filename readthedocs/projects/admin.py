@@ -14,9 +14,10 @@ class VersionInline(admin.TabularInline):
 
 class ProjectAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
-    list_display = ('name', 'repo', 'repo_type', 'theme')
-    search_fields = ('name', 'repo')
+    list_display = ('name', 'repo', 'repo_type', 'featured', 'theme')
     list_filter = ('repo_type',)
+    list_editable = ('featured',)
+    search_fields = ('name', 'repo')
     inlines = [VersionInline]
 
 
