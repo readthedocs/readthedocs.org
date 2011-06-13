@@ -34,9 +34,11 @@ class Backend(BaseVCS):
             branch = self.project.default_branch
         retcode = self._run_command('git', 'reset', '--hard', 'origin/%s' % branch)[0]
         if retcode != 0:
-            raise ProjectImportError(
-                "Failed to get code from '%s' (git reset): %s" % (self.repo_url, retcode)
-            )
+            print "Failed to get code from '%s' (git reset): %s" % (self.repo_url, retcode)
+            print "Going on because this might not be horrible."
+            #raise ProjectImportError(
+                #"Failed to get code from '%s' (git reset): %s" % (self.repo_url, retcode)
+            #)
 
     def _clone(self):
         retcode = self._run_command('git', 'clone', '--quiet', '%s.git' % self.repo_url.replace('.git', ''), '.')[0]
