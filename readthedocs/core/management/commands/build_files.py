@@ -5,7 +5,7 @@ from builds.models import Version
 
 class Command(BaseCommand):
     def handle(self, *args, **kwargs):
-        ImportedFile.objects.delete()
+        ImportedFile.objects.all().delete()
         if not len(args):
             for v in Version.objects.filter(slug='latest'):
                 print "Indexing %s" % v
