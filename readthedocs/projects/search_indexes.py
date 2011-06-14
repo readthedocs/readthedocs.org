@@ -38,9 +38,9 @@ class ImportedFileIndex(SearchIndex):
             bs = BeautifulSoup.BeautifulSoup(content)
             soup = bs.find("div", {"class": "document"})
             return strip_tags(soup).replace(u'¶', '')
-        except (AttributeError, IOError):
+        except (AttributeError, IOError) as e:
             if 'full_path' in locals():
-                print "%s not found" % full_path
+                print "%s not found: %s " % (full_path, e)
             #obj.delete()
 
 site.register(File, FileIndex)
