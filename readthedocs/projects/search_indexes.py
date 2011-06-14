@@ -32,7 +32,7 @@ class ImportedFileIndex(SearchIndex):
 
     def prepare_text(self, obj):
         try:
-            full_path = obj.project.full_build_path()
+            full_path = obj.project.rtd_build_path()
             to_read = os.path.join(full_path, obj.path.lstrip('/'))
             content = codecs.open(to_read, encoding="utf-8", mode='r').read()
             bs = BeautifulSoup.BeautifulSoup(content)
