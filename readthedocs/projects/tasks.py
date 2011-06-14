@@ -311,7 +311,7 @@ def copy_to_app_servers(full_build_path, target):
 
 def fileify(version):
     project = version.project
-    path = project.full_build_path(version.slug)
+    path = project.rtd_build_path(version.slug)
     if path:
         for root, dirnames, filenames in os.walk(path):
             for filename in filenames:
