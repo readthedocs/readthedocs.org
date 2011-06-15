@@ -50,6 +50,8 @@ def replace_insensitive(string, target, replacement):
 
 class SubdomainMiddleware(object):
     def process_request(self, request):
+        if settings.DEBUG:
+            return None
         host = request.get_host()
         if ':' in host:
             host = host.split(':')[0]

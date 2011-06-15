@@ -125,7 +125,10 @@ def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
         return HttpResponseRedirect(url)
     if not filename:
         filename = "index.html"
-    filename = filename.rstrip('/')
+    elif proj.documentation_type == 'sphinx_htmldir':
+        filename += "index.html"
+    else:
+        filename = filename.rstrip('/')
     basepath = proj.rtd_build_path(version_slug)
     if filename.endswith('html'):
         pageview, created = PageView.objects.get_or_create(project=proj, url=filename)

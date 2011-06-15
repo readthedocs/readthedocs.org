@@ -15,7 +15,7 @@ class LatestProjectsFeed(Feed):
         return item.name
 
     def item_description(self, item):
-        return item.description
+        return item.get_latest_build()
 
 class NewProjectsFeed(Feed):
     title = "Newest documentation"
@@ -29,4 +29,4 @@ class NewProjectsFeed(Feed):
         return item.name
 
     def item_description(self, item):
-        return item.description
+        return item.get_latest_build()
