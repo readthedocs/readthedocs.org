@@ -52,18 +52,14 @@
         <!-- BEGIN header title-->
         <div class="rtfd-header-title">
             <h1>
-                {% if request.slug %}
-                <a href="http://readthedocs.org">Read the Docs</a>
-                {% else %}
-                <a href="/">Read the Docs</a>
-                {% endif %}
+                <a href="{% url core.views.homepage %}">Read the Docs</a>
             </h1>
         </div>
         <!-- END header title -->
 
         <!-- BEGIN global search -->
         <div class="rtfd-header-search">
-          <form action="http://readthedocs.org/search/" method="GET">
+          <form action="{% url haystack_search %}" method="GET">
             <input type="text" name="q" value="{{ term }}" id="id_site_search">
             <input type="submit" value="Go">
           </form>
@@ -90,10 +86,10 @@
         <div class="rtfd-header-nav">
           <ul>
             {% if request.user.is_authenticated %}
-              <li {% block nav-dashboard %}{% endblock %}><a href="http://readthedocs.org/dashboard/">Dashboard</a></li>
-              <li><a href="http://readthedocs.org/accounts/logout">Log Out</a></li>
+              <li {% block nav-dashboard %}{% endblock %}><a href="{% url projects_dashboard %}">Dashboard</a></li>
+              <li><a href="{% url auth_logout %}">Log Out</a></li>
             {% else %}
-              <li><a href="http://readthedocs.org/accounts/login">Log in</a></li>
+              <li><a href="{% url auth_login %}">Log in</a></li>
             {% endif %}
 
 
