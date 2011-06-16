@@ -221,6 +221,6 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'readthedocs', u'Read The Docs Documentation',
+    ('index', 'read-the-docs', u'Read The Docs Documentation',
      [u'Eric Holscher, Charlie Leifer, Bobby Grace'], 1)
 ]
