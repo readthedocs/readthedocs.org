@@ -47,6 +47,9 @@
               <li><a href="{{ project.get_pdf_url }}" rel="nofollow,noindex">Download PDF</a></li>
             {% endif %}
 
+            {% if project.has_manpage %}
+              <li><a href="{{ project.get_manpage_url }}" rel="nofollow,noindex">Manpage</a></li>
+            {% endif %}
           </ul>
         </div>
 
