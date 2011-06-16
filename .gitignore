@@ -6,5 +6,7 @@ user_uploads
 user_builds
 local_settings.py
 _build
+media/pdf
 media/export
 locks/*
+readthedocs/rtd_tests/tests/builds
