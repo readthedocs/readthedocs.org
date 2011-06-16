@@ -118,6 +118,21 @@ class Project(models.Model):
                                 '%s.pdf' % self.slug)
         return path
 
+    def get_manpage_url(self, version_slug='latest'):
+        path = os.path.join(settings.MEDIA_URL,
+                                'man',
+                                self.slug,
+                                version_slug,
+                                '%s.1' % self.slug)
+        return path
+
+    def get_manpage_path(self, version_slug='latest'):
+        path = os.path.join(settings.MEDIA_ROOT,
+                                'man',
+                                self.slug,
+                                version_slug,
+                                '%s.1' % self.slug)
+        return path
 
     #Doc PATH:
     #MEDIA_ROOT/slug/checkouts/version/<repo>
@@ -200,6 +215,10 @@ class Project(models.Model):
     @property
     def has_pdf(self, version_slug='latest'):
         return os.path.exists(self.get_pdf_path(version_slug))
+
+    @property
+    def has_manpage(self, version_slug='latest'):
+        return os.path.exists(self.get_manpage_path(version_slug))
 
     @property
     def sponsored(self):

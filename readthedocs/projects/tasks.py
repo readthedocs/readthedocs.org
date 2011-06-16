@@ -35,7 +35,7 @@ def remove_dir(path):
     shutil.rmtree(path)
 
 @task
-def update_docs(pk, record=True, pdf=True, version_pk=None, touch=False):
+def update_docs(pk, record=True, pdf=True, man=True, version_pk=None, touch=False):
     """
     A Celery task that updates the documentation for a project.
     """
@@ -83,7 +83,7 @@ def update_docs(pk, record=True, pdf=True, version_pk=None, touch=False):
                 update_created_docs(project)
 
             # kick off a build
-            (ret, out, err) = build_docs(project, version, pdf, record, touch)
+            (ret, out, err) = build_docs(project, version, pdf, man, record, touch)
             if not 'no targets are out of date.' in out:
                 if ret == 0:
                     print "Build OK"
@@ -253,7 +253,7 @@ def update_created_docs(project):
         file.write_to_disk()
 
 
-def build_docs(project, version, pdf, record, touch):
+def build_docs(project, version, pdf, man, record, touch):
     """
     A helper function for the celery task to do the actual doc building.
     """
@@ -279,6 +279,9 @@ def build_docs(project, version, pdf, record, touch):
         if pdf:
             pdf_builder = builder_loading.get('sphinx_pdf')()
             pdf_builder.build(version)
+        if man:
+            man_builder = builder_loading.get('sphinx_man')()
+            man_builder.build(version)
     if successful:
         move_docs(project, version)
         if version:
@@ -324,10 +327,10 @@ def fileify(version):
 
 
 #@periodic_task(run_every=crontab(hour="2", minute="10", day_of_week="*"))
-def update_docs_pull(record=False, pdf=False, touch=False):
+def update_docs_pull(record=False, pdf=False, man=False, touch=False):
     for project in Project.objects.live():
         try:
-            update_docs(pk=project.pk, record=record, pdf=pdf, touch=touch)
+            update_docs(pk=project.pk, record=record, pdf=pdf, man=man, touch=touch)
         except:
             print "failed"
 
