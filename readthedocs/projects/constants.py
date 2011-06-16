@@ -13,6 +13,7 @@ THEME_HAIKU = 'haiku'
 DOCUMENTATION_CHOICES = (
     ('sphinx', 'Sphinx Html'),
     ('sphinx_htmldir', 'Sphinx HtmlDir'),
+    ('sphinx_man', 'Sphinx Man'),
     #('rdoc', 'Rdoc'),
 )
 

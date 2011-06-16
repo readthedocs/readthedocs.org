@@ -31,7 +31,15 @@ class Testmaker(TestCase):
         self.assertEqual(r.status_code, 200)
         r = self.client.get('/dashboard/import/', {})
         self.assertEqual(r.status_code, 200)
-        r = self.client.post('/dashboard/import/', {'repo_type': 'git', 'name': 'Django Kong', 'tags': 'big, fucking, monkey', 'default_branch': '', 'project_url': 'http://django-kong.rtfd.org', 'repo': 'https://github.com/ericholscher/django-kong', 'csrfmiddlewaretoken': '34af7c8a5ba84b84564403a280d9a9be', 'description': 'OOHHH AH AH AH KONG SMASH', })
+        r = self.client.post(
+            '/dashboard/import/',
+            {'repo_type': 'git', 'name': 'Django Kong',
+             'tags': 'big, fucking, monkey', 'default_branch': '',
+             'project_url': 'http://django-kong.rtfd.org',
+             'repo': 'https://github.com/ericholscher/django-kong',
+             'csrfmiddlewaretoken': '34af7c8a5ba84b84564403a280d9a9be',
+             'description': 'OOHHH AH AH AH KONG SMASH',
+             'documentation_type': 'sphinx'})
         self.assertEqual(r.status_code, 302)
         r = self.client.get('/dashboard/django-kong/', {'docs_not_built': 'True', })
         self.assertEqual(r.status_code, 200)
