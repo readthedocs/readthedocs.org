@@ -1,5 +1,7 @@
+import csv
 import os
-from os.path import join as pjoin
+from os.path import exists, join as pjoin
+from StringIO import StringIO
 
 from projects.exceptions import ProjectImportError
 from projects.tasks import remove_dir
@@ -14,13 +16,12 @@ class Backend(BaseVCS):
     fallback_branch = 'master' # default branch
 
     def _check_working_dir(self):
-        code, out, err = self.run(
-            'git', 'config', '-f',
-            pjoin(self.working_dir, '.git/config'),
-            '--get', 'remote.origin.url')
-
-        if out.strip() != self.repo_url:
-            remove_dir(self.working_dir)
+        if exists(self.working_dir):
+            code, out, err = self.run('git', 'config', '-f',
+                                      pjoin(self.working_dir, '.git/config'),
+                                      '--get', 'remote.origin.url')
+            if out.strip() != self.repo_url:
+                remove_dir(self.working_dir)
         super(Backend, self)._check_working_dir()
 
     def update(self):
@@ -35,7 +36,7 @@ class Backend(BaseVCS):
 
     def _pull(self):
         code, out, err = self.run('git', 'fetch')
-        code, out, err = self.run('git', 'fetch', '-t')
+        code, out, err = self.run('git',  'fetch', '-t')
         if code != 0:
             raise ProjectImportError(
                 "Failed to get code from '%s' (git fetch): %s" % (
@@ -57,6 +58,7 @@ class Backend(BaseVCS):
             #)
 
     def _clone(self):
+        from pdb import set_trace; set_trace()
         code, out, err = self.run('git', 'clone', '--quiet',
                                   '%s.git' % self.repo_url.replace('.git', ''),
                                   '.')
@@ -67,7 +69,7 @@ class Backend(BaseVCS):
             )
 
     def get_tags(self):
-        retcode, stdout = self('git', 'show-ref', '--tags')[:2]
+        retcode, stdout = self('show-ref', '--tags')[:2]
         # error (or no tags found)
         if retcode != 0:
             return []
@@ -88,7 +90,7 @@ class Backend(BaseVCS):
         hash as identifier.
         """
         # parse the lines into a list of tuples (commit-hash, tag ref name)
-        raw_tags = [line.split(' ', 1) for line in data.strip('\n').split('\n')]
+        raw_tags = csv.reader(StringIO(data), delimiter=' ')
         vcs_tags = []
         for commit_hash, name in raw_tags:
             clean_name = self._get_clean_tag_name(name)
@@ -96,7 +98,7 @@ class Backend(BaseVCS):
         return vcs_tags
 
     def get_branches(self):
-        retcode, stdout = self('git', 'branch', '-a')[:2]
+        retcode, stdout = self('branch', '-a')[:2]
         # error (or no tags found)
         if retcode != 0:
             return []
@@ -116,7 +118,7 @@ class Backend(BaseVCS):
               remotes/origin/release/2.0.0
               remotes/origin/release/2.1.0
         """
-        raw_branches = [bit[2:] for bit in data.split('\n') if bit.strip()]
+        raw_branches = csv.reader(StringIO(data), delimiter=' ')
         clean_branches = []
         for branch in raw_branches:
             if branch.startswith('remotes/origin/'):
@@ -143,7 +145,8 @@ class Backend(BaseVCS):
         #Checkout the correct identifier for this branch.
         self.run('git', 'reset', '--hard', identifier)
 
-    def get_env(self):
+    @property
+    def env(self):
         env = super(Backend, self).env
         env['GIT_DIR'] = os.path.join(self.working_dir, '.git')
         return env

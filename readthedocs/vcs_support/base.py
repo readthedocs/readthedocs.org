@@ -29,15 +29,15 @@ class BaseCLI(object):
     def __call__(self, *args):
         return self.run(args)
 
-    def run(self, *bits):
+    def run(self, *args):
         """
         :param bits: list of command and args. See `subprocess` docs
         """
-        process = subprocess.Popen(bits, stdout=subprocess.PIPE,
+        process = subprocess.Popen(args, stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE,
                                    cwd=self.working_dir, shell=False,
                                    env=self.env)
-        print "VCS[%s]: %s" % (self.working_dir, ' '.join(bits))
+        print "VCS[%s]: %s" % (self.working_dir, ' '.join(args))
         stdout, stderr = process.communicate()
         return (process.returncode, stdout, stderr)
 

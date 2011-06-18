@@ -112,6 +112,7 @@ def update_imported_docs(project, version):
         raise ProjectImportError("Repo type '%s' unknown" % project.repo_type)
     if version:
         print 'Checking out version %s: %s' % (version.slug, version.identifier)
+        from pdb import set_trace; set_trace()
         version_slug = version.slug
         version_repo = project.vcs_repo(version_slug)
         version_repo.checkout(version.identifier)
