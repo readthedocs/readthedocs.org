@@ -38,6 +38,7 @@ Developer Documentation
     :maxdepth: 2
 
     install
+    architecture
     settings
     tests
     api
