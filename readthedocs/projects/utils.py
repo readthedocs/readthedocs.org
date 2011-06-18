@@ -36,6 +36,7 @@ def run(*commands):
     the failed command.
     """
     environment = os.environ.copy()
+    environment['READTHEDOCS'] = 'True'
     cwd = os.getcwd()
     if not commands:
         raise ValueError("run() requires one or more command-line strings")
