@@ -1,6 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.http import HttpResponseRedirect
 
 from projects.models import Project
 
@@ -19,4 +18,3 @@ class Bookmark(models.Model):
 
     def get_absolute_url(self):
         return self.url
-

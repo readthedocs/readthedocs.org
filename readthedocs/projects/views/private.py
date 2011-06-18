@@ -3,8 +3,6 @@ import shutil
 import simplejson
 import zipfile
 
-from django import forms
-from django.forms.util import ErrorList
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.markup.templatetags.markup import restructuredtext
@@ -18,7 +16,6 @@ from django.views.generic.list_detail import object_list
 
 from bookmarks.models import Bookmark
 from builds.forms import AliasForm
-from builds.models import VersionAlias
 from projects import constants
 from projects.forms import (FileForm, CreateProjectForm,
                             ImportProjectForm, FileRevisionForm,

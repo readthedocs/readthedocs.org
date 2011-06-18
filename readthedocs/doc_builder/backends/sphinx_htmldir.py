@@ -1,6 +1,6 @@
 import os
 from doc_builder.backends.sphinx import Builder as HtmlBuilder
-from projects.utils import safe_write, run
+from projects.utils import run
 
 class Builder(HtmlBuilder):
 

@@ -2,8 +2,6 @@ from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 
 from core.models import UserProfile
-from projects import tasks
-from projects.models import Project
 
 class Command(BaseCommand):
 

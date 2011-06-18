@@ -8,24 +8,19 @@ import getpass
 import re
 import shutil
 
-from celery.decorators import periodic_task, task
-from celery.task.schedules import crontab
+from celery.decorators import task
 from django.db import transaction
 from django.conf import settings
-from django.contrib.auth.models import SiteProfileNotAvailable
-from django.core.exceptions import ObjectDoesNotExist
 from sphinx.ext.intersphinx import fetch_inventory
 import redis
 
 from builds.models import Build, Version
 from doc_builder import loading as builder_loading
-from projects.exceptions import ProjectImportError
 from projects.utils import slugify_uniquely, purge_version, DictObj
+from projects.utils import run,  mkversion, safe_write
 from projects.exceptions import ProjectImportError
 from projects.models import Project, ImportedFile
-from projects.utils import run, slugify_uniquely, mkversion, safe_write
 from tastyapi import client
-from vcs_support.base import get_backend
 
 ghetto_hack = re.compile(r'(?P<key>.*)\s*=\s*u?\[?[\'\"](?P<value>.*)[\'\"]\]?')
 

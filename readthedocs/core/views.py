@@ -21,7 +21,6 @@ from watching.models import PageView
 import json
 import mimetypes
 import os
-import re
 
 
 def homepage(request):
