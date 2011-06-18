@@ -27,7 +27,10 @@ def _do_search(self, request, model):
 
         # Do the query.
         query = request.GET.get('q', '')
+        facet = request.GET.get('facet', '')
         sqs = SearchQuerySet().models(model).auto_query(query)
+        if facet:
+            sqs = sqs.facet(facet)
         paginator = Paginator(sqs, 20)
 
         try:
@@ -107,6 +110,7 @@ class ProjectResource(ModelResource):
         excludes = ['use_virtualenv', 'path', 'skip', 'featured']
         filtering = {
             "user": ALL_WITH_RELATIONS,
+            "slug": ALL_WITH_RELATIONS,
         }
 
     def post_list(self, request, **kwargs):
