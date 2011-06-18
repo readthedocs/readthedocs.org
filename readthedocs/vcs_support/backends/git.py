@@ -14,7 +14,7 @@ class Backend(BaseVCS):
     fallback_branch = 'master' # default branch
 
     def _check_working_dir(self):
-        code, out, err = self._run_command(
+        code, out, err = self.run(
             'git', 'config', '-f',
             pjoin(self.working_dir, '.git/config'),
             '--get', 'remote.origin.url')
@@ -25,43 +25,49 @@ class Backend(BaseVCS):
 
     def update(self):
         super(Backend, self).update()
-        retcode = self._run_command('git', 'status')[0]
-        if retcode == 0:
+        code, out, err = self.run('git', 'status')
+        if code == 0:
             self._pull()
         else:
             self._clone()
-        self._run_command('git', 'submodule', 'update', '--init')
+        self.run('git', 'submodule', 'update', '--init')
         self._reset()
 
     def _pull(self):
-        retcode = self._run_command('git', 'fetch')[0]
-        retcode = self._run_command('git', 'fetch', '-t')[0]
-        if retcode != 0:
+        code, out, err = self.run('git', 'fetch')
+        code, out, err = self.run('git', 'fetch', '-t')
+        if code != 0:
             raise ProjectImportError(
-                "Failed to get code from '%s' (git fetch): %s" % (self.repo_url, retcode)
+                "Failed to get code from '%s' (git fetch): %s" % (
+                    self.repo_url, code)
             )
 
     def _reset(self):
         branch = self.fallback_branch
         if self.project.default_branch:
             branch = self.project.default_branch
-        retcode = self._run_command('git', 'reset', '--hard', 'origin/%s' % branch)[0]
-        if retcode != 0:
-            print "Failed to get code from '%s' (git reset): %s" % (self.repo_url, retcode)
+        code, out, err = self.run('git', 'reset', '--hard',
+                                  'origin/%s' % branch)
+        if code != 0:
+            print "Failed to get code from '%s' (git reset): %s" % (
+                self.repo_url, code)
             print "Going on because this might not be horrible."
             #raise ProjectImportError(
                 #"Failed to get code from '%s' (git reset): %s" % (self.repo_url, retcode)
             #)
 
     def _clone(self):
-        retcode = self._run_command('git', 'clone', '--quiet', '%s.git' % self.repo_url.replace('.git', ''), '.')[0]
-        if retcode != 0:
+        code, out, err = self.run('git', 'clone', '--quiet',
+                                  '%s.git' % self.repo_url.replace('.git', ''),
+                                  '.')
+        if code != 0:
             raise ProjectImportError(
-                "Failed to get code from '%s' (git clone): %s" % (self.repo_url, retcode)
+                "Failed to get code from '%s' (git clone): %s" % (
+                    self.repo_url, code)
             )
 
     def get_tags(self):
-        retcode, stdout = self._run_command('git', 'show-ref', '--tags')[:2]
+        retcode, stdout = self('git', 'show-ref', '--tags')[:2]
         # error (or no tags found)
         if retcode != 0:
             return []
@@ -90,7 +96,7 @@ class Backend(BaseVCS):
         return vcs_tags
 
     def get_branches(self):
-        retcode, stdout = self._run_command('git', 'branch', '-a')[:2]
+        retcode, stdout = self('git', 'branch', '-a')[:2]
         # error (or no tags found)
         if retcode != 0:
             return []
@@ -113,13 +119,12 @@ class Backend(BaseVCS):
         raw_branches = [bit[2:] for bit in data.split('\n') if bit.strip()]
         clean_branches = []
         for branch in raw_branches:
-            if branch.startswith('remotes/'):
-                if branch.startswith('remotes/origin/'):
-                    real_branch = branch.split(' ')[0]
-                    slug = real_branch[15:].replace('/', '-')
-                    if slug in ['HEAD', self.fallback_branch]:
-                        continue
-                    clean_branches.append(VCSVersion(self, real_branch, slug))
+            if branch.startswith('remotes/origin/'):
+                real_branch = branch.split(' ')[0]
+                slug = real_branch[15:].replace('/', '-')
+                if slug in ['HEAD', self.fallback_branch]:
+                    continue
+                clean_branches.append(VCSVersion(self, real_branch, slug))
             else:
                 clean_branches.append(VCSVersion(self, branch, branch))
         return clean_branches
@@ -136,9 +141,9 @@ class Backend(BaseVCS):
             if self.project.default_branch:
                 identifier = self.project.default_branch
         #Checkout the correct identifier for this branch.
-        self._run_command('git', 'reset', '--hard', identifier)
+        self.run('git', 'reset', '--hard', identifier)
 
     def get_env(self):
-        env = super(Backend, self).get_env()
+        env = super(Backend, self).env
         env['GIT_DIR'] = os.path.join(self.working_dir, '.git')
         return env
