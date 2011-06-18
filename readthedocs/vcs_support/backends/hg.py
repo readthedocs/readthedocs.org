@@ -1,10 +1,19 @@
 from projects.exceptions import ProjectImportError
+from projects.tasks import remove_dir
 from vcs_support.base import BaseVCS, VCSVersion
 
 
 class Backend(BaseVCS):
     supports_tags = True
     fallback_branch = 'default'
+
+    def _check_working_dir(self):
+        code, out, err = self._run_command(
+            'hg', 'paths', 'default')
+
+        if out.strip() != self.repo_url:
+            remove_dir(self.working_dir)
+        super(Backend, self)._check_working_dir()
 
     def update(self):
         super(Backend, self).update()
