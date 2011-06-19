@@ -67,6 +67,8 @@ class Builder(BaseBuilder):
         """
         project = version.project
         #Open file for appending.
+        outfile = open(project.conf_file(version.slug), 'a')
+        outfile.write("\n")
         rtd_ctx = Context({
                 'verisons': project.active_versions(),
                 'current_version': version,
@@ -76,7 +78,7 @@ class Builder(BaseBuilder):
                 'template_path': TEMPLATE_DIR,
                 })
         rtd_string = Template(RTD_CONF_ADDITIONS).render(rtd_ctx)
-        safe_write(project.conf_file(version.slug), rtd_string)
+        outfile.write(rtd_string)
 
     def _sanitize(self, version):
         project = version.project
