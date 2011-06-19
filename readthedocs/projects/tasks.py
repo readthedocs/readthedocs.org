@@ -323,6 +323,7 @@ def move_docs(project, version):
         print "Not moving docs, because the build dir is unknown."
 
 def copy_to_app_servers(full_build_path, target, mkdir=True):
+    print "Copying %s to %s" % (full_build_path, target)
     for server in settings.MULTIPLE_APP_SERVERS:
         os.system("ssh %s@%s mkdir -p %s" % (getpass.getuser(), server, target))
         ret = os.system("rsync -e 'ssh -T' -av --delete %s/ %s@%s:%s" % (full_build_path, getpass.getuser(), server, target))
@@ -330,6 +331,7 @@ def copy_to_app_servers(full_build_path, target, mkdir=True):
             print "COPY ERROR: out: %s err: %s" % (ret[1], ret[2])
 
 def copy_file_to_app_servers(from_file, to_file):
+    print "Copying %s to %s" % (from_file, to_file)
     to_path = '/'.join(to_file.split('/')[0:-1])
     for server in settings.MULTIPLE_APP_SERVERS:
         os.system("ssh %s@%s mkdir -p %s" % (getpass.getuser(), server, to_path))
