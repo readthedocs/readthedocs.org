@@ -8,5 +8,9 @@ local_settings.py
 _build
 media/pdf
 media/export
+media/man
+media/epub
+xml_output
 locks/*
 readthedocs/rtd_tests/tests/builds
+deploy/.vagrant
