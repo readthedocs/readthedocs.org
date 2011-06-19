@@ -41,8 +41,6 @@ class Testmaker(TestCase):
              'description': 'OOHHH AH AH AH KONG SMASH',
              'documentation_type': 'sphinx'})
         self.assertEqual(r.status_code, 302)
-        r = self.client.get('/dashboard/django-kong/', {'docs_not_built': 'True', })
-        self.assertEqual(r.status_code, 200)
         r = self.client.get('/docs/django-kong/latest/', {})
         self.assertEqual(r.status_code, 302)
         r = self.client.get('/docs/django-kong/en/latest/index.html', {})
@@ -50,8 +48,6 @@ class Testmaker(TestCase):
         r = self.client.get('/dashboard/django-kong/versions/', {})
         self.assertEqual(r.status_code, 200)
         r = self.client.post('/dashboard/django-kong/versions/', {'csrfmiddlewaretoken': '34af7c8a5ba84b84564403a280d9a9be', 'version-0.9': 'on', })
-        r = self.client.get('/dashboard/django-kong/', {})
-        self.assertEqual(r.status_code, 200)
         r = self.client.get('/docs/django-kong/0.9/', {})
         self.assertEqual(r.status_code, 302)
         r = self.client.get('/docs/django-kong/en/0.9/index.html', {})
