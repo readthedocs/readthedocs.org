@@ -4,7 +4,7 @@ import os
 
 from django.conf import settings
 
-from doc_builder.base import BaseBuilder
+from doc_builder.base import BaseBuilder, restoring_chdir
 from projects.utils import run
 from projects.tasks import copy_to_app_servers
 
@@ -14,6 +14,7 @@ pdf_re = re.compile('Output written on (.+) \(')
 
 class Builder(BaseBuilder):
 
+    @restoring_chdir
     def build(self, version):
         project = version.project
         os.chdir(project.conf_dir(version.slug))
