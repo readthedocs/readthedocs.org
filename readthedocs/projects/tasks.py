@@ -291,7 +291,7 @@ def build_docs(project, version, pdf, man, record, touch):
                 error=html_output[2],
                 version=version
             )
-
+        #XXX:dc: all builds should have their output checked
         if pdf:
             pdf_builder = builder_loading.get('sphinx_pdf')()
             pdf_builder.build(version)

@@ -23,7 +23,7 @@ class TestBuilding(RTDTestCase):
             name="Test Project",
             repo_type="git",
             #Our top-level checkout
-            repo=repo
+            repo=repo,
         )
 
     def tearDown(self):
