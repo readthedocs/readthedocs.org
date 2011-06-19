@@ -40,6 +40,7 @@ class VersionAlias(models.Model):
     def __unicode__(self):
         return "Alias for %s: %s -> %s" % (self.project, self.from_slug, self.to_slug)
 
+
 class Build(models.Model):
     project = models.ForeignKey(Project, related_name='builds')
     date = models.DateTimeField(auto_now_add=True)
@@ -50,9 +51,12 @@ class Build(models.Model):
 
     class Meta:
         ordering = ['-date']
+        get_latest_by = 'date'
 
     def __unicode__(self):
-        return u"Build %s for %s (%s)" % (self.project, self.project.user, self.pk)
+        return u"Build %s for %s (%s)" % (self.project,
+                                          self.project.user,
+                                          self.pk)
 
     @models.permalink
     def get_absolute_url(self):

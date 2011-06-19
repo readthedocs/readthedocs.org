@@ -6,7 +6,7 @@ from django.contrib.auth.models import SiteProfileNotAvailable
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 
-from doc_builder.base import BaseBuilder
+from doc_builder.base import BaseBuilder, restoring_chdir
 from projects.utils import safe_write, run
 
 
@@ -59,6 +59,7 @@ else:
 TEMPLATE_DIR = '%s/readthedocs/templates/sphinx' % settings.SITE_ROOT
 STATIC_DIR = '%s/_static' % TEMPLATE_DIR
 
+
 class Builder(BaseBuilder):
 
     def _whitelisted(self, version):
@@ -66,31 +67,24 @@ class Builder(BaseBuilder):
         """
         project = version.project
         #Open file for appending.
-        try:
-            outfile = open(project.conf_file(version.slug), 'a')
-        except IndexError:
-            print "Nothing to white list, no conf.py"
-            return
-        outfile.write("\n")
         rtd_ctx = Context({
-            'verisons': project.active_versions(),
-            'current_version': version,
-            'project': project,
-            'settings': settings,
-            'static_path': STATIC_DIR,
-            'template_path': TEMPLATE_DIR,
-        })
+                'verisons': project.active_versions(),
+                'current_version': version,
+                'project': project,
+                'settings': settings,
+                'static_path': STATIC_DIR,
+                'template_path': TEMPLATE_DIR,
+                })
         rtd_string = Template(RTD_CONF_ADDITIONS).render(rtd_ctx)
-        outfile.write(rtd_string)
-        outfile.close()
+        safe_write(project.conf_file(version.slug), rtd_string)
 
     def _sanitize(self, version):
         project = version.project
-        conf_template =  render_to_string('sphinx/conf.py.conf',
-                                          {'project': project,
-                                           'template_dir': TEMPLATE_DIR,
-                                            'badge': project.sponsored
-                                            })
+        conf_template = render_to_string('sphinx/conf.py.conf',
+                                         {'project': project,
+                                          'template_dir': TEMPLATE_DIR,
+                                          'badge': project.sponsored
+                                          })
         rtd_ctx = Context({
             'verisons': project.active_versions(),
             'current_version': version,
@@ -117,13 +111,15 @@ class Builder(BaseBuilder):
                 self._sanitize(version)
             except (OSError, IOError):
                 print "Conf file not found. Error writing to disk."
-                return ('','Conf file not found. Error writing to disk.',-1)
+                return ('', 'Conf file not found. Error writing to disk.', -1)
 
+    @restoring_chdir
     def build(self, version):
         project = version.project
-        os.chdir(version.project.conf_dir(version.slug))
+        os.chdir(project.conf_dir(version.slug))
         if project.use_virtualenv and project.whitelisted:
-            build_command = '%s -b html . _build/html' % project.venv_bin(version=version.slug, bin='sphinx-build')
+            build_command = '%s -b html . _build/html' % project.venv_bin(
+                version=version.slug, bin='sphinx-build')
         else:
             build_command = "sphinx-build -b html . _build/html"
         build_results = run(build_command)
