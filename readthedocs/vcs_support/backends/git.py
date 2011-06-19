@@ -1,10 +1,7 @@
-import os
-from os.path import join as pjoin
-
 from projects.exceptions import ProjectImportError
-from projects.tasks import remove_dir
 from vcs_support.backends.github import GithubContributionBackend
 from vcs_support.base import BaseVCS, VCSVersion
+import os
 
 
 class Backend(BaseVCS):
@@ -12,16 +9,6 @@ class Backend(BaseVCS):
     supports_branches = True
     contribution_backends = [GithubContributionBackend]
     fallback_branch = 'master' # default branch
-
-    def _check_working_dir(self):
-        code, out, err = self._run_command(
-            'git', 'config', '-f',
-            pjoin(self.working_dir, '.git/config'),
-            '--get', 'remote.origin.url')
-
-        if out.strip() != self.repo_url:
-            remove_dir(self.working_dir)
-        super(Backend, self)._check_working_dir()
 
     def update(self):
         super(Backend, self).update()
