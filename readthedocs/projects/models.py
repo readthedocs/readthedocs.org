@@ -2,6 +2,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db import models
+from django.core.exceptions import ObjectDoesNotExist
 from django.template.defaultfilters import slugify
 from django.template.loader import render_to_string
 
@@ -9,6 +10,7 @@ from projects import constants
 from projects.utils import diff, dmp, safe_write
 from projects.utils import highest_version as _highest
 from taggit.managers import TaggableManager
+
 from vcs_support.base import get_backend
 from vcs_support.utils import Lock
 
@@ -282,8 +284,7 @@ class Project(models.Model):
     def whitelisted(self):
         try:
             return self.user.get_profile().whitelisted
-        except:
-            #Bare except so we don't have to import user.models.UserProfile
+        except ObjectDoesNotExist:
             return False
 
 

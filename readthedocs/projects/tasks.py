@@ -138,7 +138,7 @@ def update_imported_docs(project, version):
                 cmd='virtualenv',
                 path=project.venv_path(version=version_slug)))
         run('{cmd} install sphinx'.format(
-            project.venv_bin(version=version_slug, bin='pip')))
+                cmd=project.venv_bin(version=version_slug, bin='pip')))
 
         if project.requirements_file:
             os.chdir(project.checkout_path(version_slug))
@@ -274,7 +274,7 @@ def build_docs(project, version, pdf, man, record, touch):
     A helper function for the celery task to do the actual doc building.
     """
     if not project.conf_file(version.slug):
-        return ('','Conf file not found.',-1)
+        return ('', 'Conf file not found.', -1)
 
     html_builder = builder_loading.get(project.documentation_type)()
     if touch:
@@ -361,6 +361,7 @@ def unzip_files(dest_file, html_path):
     run('unzip -o %s -d %s' % (dest_file, html_path))
     copy_to_app_servers(html_path, html_path)
 
+
 @task
 def update_intersphinx(version_pk):
     version = Version.objects.get(pk=version_pk)
@@ -395,6 +396,7 @@ def update_intersphinx(version_pk):
                     save_term(version, term.split('.')[-1], url, title)
             except Exception, e: #Yes, I'm an evil person.
                 print "*** Failed updating %s: %s" % (term, e)
+
 
 def save_term(version, term, url, title):
     redis_obj = redis.Redis(**settings.REDIS)

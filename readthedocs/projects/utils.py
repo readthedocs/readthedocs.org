@@ -14,7 +14,6 @@ import redis
 from projects.libs.diff_match_patch import diff_match_patch
 
 
-
 def find_file(file):
     """Find matching filenames in the current directory and its subdirectories,
     and return a list of matching filenames.
@@ -60,7 +59,7 @@ def run(*commands):
         if ret != 0:
             break
 
-    return SystemCommand(ret, out, err)
+    return (ret, out, err)
 
 
 dmp = diff_match_patch()
@@ -79,9 +78,9 @@ def safe_write(filename, contents):
     dirname = os.path.dirname(filename)
     if not os.path.exists(dirname):
         os.makedirs(dirname)
-    fh = open(filename, 'w')
-    fh.write(contents.encode('utf-8', 'ignore'))
-    fh.close()
+    with open(filename, 'w') as fh:
+        fh.write(contents.encode('utf-8', 'ignore'))
+        fh.close()
 
 
 CUSTOM_SLUG_RE = re.compile(r'[^-._\w]+$')
@@ -153,20 +152,3 @@ def purge_version(version, mainsite=False, subdomain=False, cname=False):
 class DictObj(object):
     def __getattr__(self, attr):
         return self.__dict__.get(attr)
-
-class SystemCommand(object):
-
-    def __init__(self, retcode, stdout, stderr):
-        self.retcode = retcode
-        self.stdout = stdout
-        self.stderr = stderr
-
-    def __getitem__(self, key):
-        if str(key) == "0":
-            return self.retcode
-        elif str(key) == "1":
-            return self.stdout
-        elif str(key) == "2":
-            return self.stderr
-        else:
-            raise IndexError
