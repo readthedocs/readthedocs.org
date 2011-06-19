@@ -121,3 +121,7 @@ def full_deploy():
     migrate()
     restart()
     celery()
+
+@hosts(['chimera.ericholscher.com'])
+def uptime():
+    run('uptime')
