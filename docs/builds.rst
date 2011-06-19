@@ -17,11 +17,8 @@ Changing behavior for Read the Docs
 When RTD builds your project, it sets the ``READTHEDOCS`` environment variable to the string `True`. So within your Sphinx's conf.py file, you can vary the behavior based on this. For example::
 
     import os
-    on_rtd = os.environ['READTHEDOCS'] == 'True'
+    on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
     if on_rtd:
         html_theme = 'default'
     else:
         html_theme = 'nature'
-
-
-
