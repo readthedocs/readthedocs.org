@@ -4,6 +4,7 @@ import shutil
 from django.conf import settings
 from django.test import TestCase
 
+
 class RTDTestCase(TestCase):
     def setUp(self):
         self.cwd = os.path.dirname(__file__)
