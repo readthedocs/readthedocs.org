@@ -7,33 +7,34 @@ class Backend(BaseVCS):
 
     def update(self):
         super(Backend, self).update()
-        retcode = self._run_command('bzr', 'status')[0]
+        retcode = self.run('bzr', 'status')[0]
         if retcode == 0:
             self._up()
         else:
             self._checkout()
 
     def _up(self):
-        retcode = self._run_command('bzr', 'revert')[0]
+        retcode = self.run('bzr', 'revert')[0]
         if retcode != 0:
             raise ProjectImportError(
                 "Failed to get code from '%s' (bzr revert): %s" % (self.repo_url, retcode)
             )
-        retcode = self._run_command('bzr', 'up')[0]
+        retcode = self.run('bzr', 'up')[0]
         if retcode != 0:
             raise ProjectImportError(
                 "Failed to get code from '%s' (bzr up): %s" % (self.repo_url, retcode)
             )
 
     def _checkout(self):
-        retcode = self._run_command('bzr', 'checkout', self.repo_url, '.')[0]
+        retcode = self.run('bzr', 'checkout', self.repo_url, '.')[0]
         if retcode != 0:
             raise ProjectImportError(
                 "Failed to get code from '%s' (bzr checkout): %s" % (self.repo_url, retcode)
             )
 
-    def get_tags(self):
-        retcode, stdout = self._run_command('bzr', 'tags')[:2]
+    @property
+    def tags(self):
+        retcode, stdout = self.run('bzr', 'tags')[:2]
         # error (or no tags found)
         if retcode != 0:
             return []
@@ -62,4 +63,4 @@ class Backend(BaseVCS):
         if not identifier:
             self._up()
         else:
-            self._run_command('bzr', 'switch', identifier)
+            self.run('bzr', 'switch', identifier)

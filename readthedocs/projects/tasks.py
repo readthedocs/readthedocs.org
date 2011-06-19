@@ -11,23 +11,33 @@ import shutil
 from celery.decorators import task
 from django.db import transaction
 from django.conf import settings
-from sphinx.ext.intersphinx import fetch_inventory
 import redis
+from sphinx.ext.intersphinx import fetch_inventory
+
 
 from builds.models import Build, Version
 from doc_builder import loading as builder_loading
-from projects.utils import slugify_uniquely, purge_version, DictObj
-from projects.utils import run,  mkversion, safe_write
 from projects.exceptions import ProjectImportError
-from projects.models import Project, ImportedFile
+from projects.models import ImportedFile, Project
+from projects.utils import (
+    DictObj,
+    mkversion,
+    purge_version,
+    run,
+    safe_write,
+    slugify_uniquely,
+    )
 from tastyapi import client
 
-ghetto_hack = re.compile(r'(?P<key>.*)\s*=\s*u?\[?[\'\"](?P<value>.*)[\'\"]\]?')
+ghetto_hack = re.compile(
+    r'(?P<key>.*)\s*=\s*u?\[?[\'\"](?P<value>.*)[\'\"]\]?')
+
 
 @task
 def remove_dir(path):
     print "Removing %s" % path
     shutil.rmtree(path)
+
 
 @task
 def update_docs(pk, record=True, pdf=True, man=True, version_pk=None, touch=False):
@@ -54,9 +64,9 @@ def update_docs(pk, record=True, pdf=True, man=True, version_pk=None, touch=Fals
             versions = [latest]
         else:
             versions = [Version.objects.create(project=project,
-                            identifier=branch,
-                            slug='latest',
-                            verbose_name='latest')]
+                                               identifier=branch,
+                                               slug='latest',
+                                               verbose_name='latest')]
 
     for version in versions:
         #Make Dirs
@@ -66,23 +76,23 @@ def update_docs(pk, record=True, pdf=True, man=True, version_pk=None, touch=Fals
         with project.repo_lock(30):
             if project.is_imported:
                 try:
-                    confpy = update_imported_docs(project, version)
+                    update_imported_docs(project, version)
                 except ProjectImportError, err:
                     print("Error importing project: %s. Skipping build." % err)
-                    return
-                else:
-                    if confpy == -1:
-                        return -1
-                    scrape_conf_file(version)
+                    return False
+
+                scrape_conf_file(version)
             else:
                 update_created_docs(project)
 
             # kick off a build
-            (ret, out, err) = build_docs(project, version, pdf, man, record, touch)
+            (ret, out, err) = build_docs(project, version, pdf,
+                                         man, record, touch)
             if not 'no targets are out of date.' in out:
                 if ret == 0:
                     print "Build OK"
-                    purge_version(version, subdomain=True, mainsite=True, cname=True)
+                    purge_version(version, subdomain=True,
+                                  mainsite=True, cname=True)
                     update_intersphinx(version.pk)
                     print "Purged %s" % version
                 else:
@@ -98,15 +108,17 @@ def update_docs(pk, record=True, pdf=True, man=True, version_pk=None, touch=Fals
         print "Importing from Django Packages Errored."
 
 
-
 def update_imported_docs(project, version):
     """
     Check out or update the given project's repository.
     """
     if not project.vcs_repo():
-        raise ProjectImportError("Repo type '%s' unknown" % project.repo_type)
+        raise ProjectImportError("Repo type '{repo_type}' unknown".format(
+                repo_type=project.repo_type))
+
     if version:
-        print 'Checking out version %s: %s' % (version.slug, version.identifier)
+        print 'Checking out version {slug}: {identifier}'.format(
+            slug=version.slug, identifier=version.identifier)
         version_slug = version.slug
         version_repo = project.vcs_repo(version_slug)
         version_repo.checkout(version.identifier)
@@ -118,32 +130,38 @@ def update_imported_docs(project, version):
 
     #Break early without a conf file.
     if not project.conf_file(version.slug):
-        print "Conf File Missing. Skipping."
-        return -1
+        raise ProjectImportError("Conf File Missing. Skipping.")
 
     #Do Virtualenv bits:
     if project.use_virtualenv and project.whitelisted:
-        run('virtualenv --no-site-packages %s' % project.venv_path(version=version_slug))
-        run('%s install sphinx' % project.venv_bin(version=version_slug,
-                                                      bin='pip'))
+        run('{cmd} --no-site-packages {path}'.format(
+                cmd='virtualenv',
+                path=project.venv_path(version=version_slug)))
+        run('{cmd} install sphinx'.format(
+                cmd=project.venv_bin(version=version_slug, bin='pip')))
+
         if project.requirements_file:
             os.chdir(project.checkout_path(version_slug))
-            run('%s install -r %s' % (project.venv_bin(version=version_slug, bin='pip'),
-                                    project.requirements_file))
+            run('{cmd} install -r {requirements}'.format(
+                    cmd=project.venv_bin(version=version_slug, bin='pip'),
+                    requirements=project.requirements_file))
         os.chdir(project.checkout_path(version_slug))
-        run('%s setup.py install --force' % project.venv_bin(version=version_slug,
-                                                          bin='python'))
+        run('{cmd} setup.py install --force'.format(
+                cmd=project.venv_bin(version=version_slug, bin='python')))
 
     # check tags/version
+    #XXX:dc: what in this block raises the values error?
     try:
         if version_repo.supports_tags:
             transaction.enter_transaction_management(True)
-            tags = version_repo.get_tags()
-            old_tags = Version.objects.filter(project=project).values_list('identifier', flat=True)
+            tags = version_repo.tags
+            old_tags = Version.objects.filter(
+                project=project).values_list('identifier', flat=True)
             for tag in tags:
                 if tag.identifier in old_tags:
                     continue
-                slug = slugify_uniquely(Version, tag.verbose_name, 'slug', 255, project=project)
+                slug = slugify_uniquely(Version, tag.verbose_name,
+                                        'slug', 255, project=project)
                 try:
                     ver, created = Version.objects.get_or_create(
                         project=project,
@@ -163,14 +181,16 @@ def update_imported_docs(project, version):
             transaction.leave_transaction_management()
         if version_repo.supports_branches:
             transaction.enter_transaction_management(True)
-            branches = version_repo.get_branches()
-            old_branches = Version.objects.filter(project=project).values_list('identifier', flat=True)
+            branches = version_repo.branches
+            old_branches = Version.objects.filter(
+                project=project).values_list('identifier', flat=True)
             for branch in branches:
                 if branch.identifier in old_branches:
                     continue
-                slug = slugify_uniquely(Version, branch.verbose_name, 'slug', 255, project=project)
+                slug = slugify_uniquely(Version, branch.verbose_name,
+                                        'slug', 255, project=project)
                 try:
-                    Version.objects.get_or_create(
+                    ver, created = Version.objects.get_or_create(
                         project=project,
                         slug=slug,
                         identifier=branch.identifier,
@@ -182,10 +202,11 @@ def update_imported_docs(project, version):
                     transaction.rollback()
             transaction.leave_transaction_management()
             #Kill deleted branches
-            Version.objects.filter(project=project).exclude(identifier__in=old_branches).delete()
+            Version.objects.filter(
+                project=project).exclude(identifier__in=old_branches).delete()
     except ValueError, e:
         print "Error getting tags: %s" % e
-        return
+        return False
 
 
     fileify(version)
@@ -253,7 +274,7 @@ def build_docs(project, version, pdf, man, record, touch):
     A helper function for the celery task to do the actual doc building.
     """
     if not project.conf_file(version.slug):
-        return ('','Conf file not found.',-1)
+        return ('', 'Conf file not found.', -1)
 
     html_builder = builder_loading.get(project.documentation_type)()
     if touch:
@@ -270,7 +291,7 @@ def build_docs(project, version, pdf, man, record, touch):
                 error=html_output[2],
                 version=version
             )
-
+        #XXX:dc: all builds should have their output checked
         if pdf:
             pdf_builder = builder_loading.get('sphinx_pdf')()
             pdf_builder.build(version)
@@ -340,6 +361,7 @@ def unzip_files(dest_file, html_path):
     run('unzip -o %s -d %s' % (dest_file, html_path))
     copy_to_app_servers(html_path, html_path)
 
+
 @task
 def update_intersphinx(version_pk):
     version = Version.objects.get(pk=version_pk)
@@ -374,6 +396,7 @@ def update_intersphinx(version_pk):
                     save_term(version, term.split('.')[-1], url, title)
             except Exception, e: #Yes, I'm an evil person.
                 print "*** Failed updating %s: %s" % (term, e)
+
 
 def save_term(version, term, url, title):
     redis_obj = redis.Redis(**settings.REDIS)

@@ -2,6 +2,7 @@ import os
 
 from django.conf import settings
 
+from doc_builder.base import restoring_chdir
 from doc_builder.backends.sphinx import Builder as ManpageBuilder
 from projects.tasks import copy_to_app_servers
 from projects.utils import run
@@ -9,6 +10,7 @@ from projects.utils import run
 
 class Builder(ManpageBuilder):
 
+    @restoring_chdir
     def build(self, version):
         project = version.project
         os.chdir(version.project.conf_dir(version.slug))
@@ -38,6 +40,7 @@ class Builder(ManpageBuilder):
                     run('mv -f %s %s' % (from_file, to_file))
             else:
                 print "File doesn't exist, not symlinking."
+                return False
             return True
         else:
             return False

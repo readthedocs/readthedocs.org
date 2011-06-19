@@ -18,22 +18,31 @@ class VCSVersion(object):
         self.verbose_name = verbose_name
 
     def __repr__(self):
-        return "<VCSVersion: %s:%s" % (self.repository.repo_url, self.verbose_name)
+        return "<VCSVersion: %s:%s" % (self.repository.repo_url,
+                                       self.verbose_name)
 
 
 class BaseCLI(object):
     """
     Helper class for CLI-heavy classes.
     """
-    def _run_command(self, *bits):
-        process = subprocess.Popen(bits, stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE, cwd=self.working_dir, shell=False,
-            env=self.get_env())
-        print "VCS[%s]: %s" % (self.working_dir, ' '.join(bits))
+    def __call__(self, *args):
+        return self.run(args)
+
+    def run(self, *args):
+        """
+        :param bits: list of command and args. See `subprocess` docs
+        """
+        process = subprocess.Popen(args, stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE,
+                                   cwd=self.working_dir, shell=False,
+                                   env=self.env)
+        print "VCS[%s]: %s" % (self.working_dir, ' '.join(args))
         stdout, stderr = process.communicate()
         return (process.returncode, stdout, stderr)
 
-    def get_env(self):
+    @property
+    def env(self):
         return os.environ.copy()
 
 
@@ -51,7 +60,7 @@ class BaseVCS(BaseCLI):
     #===========================================================================
 
     def __init__(self, project, version):
-        self.project =  project
+        self.project = project
         self.repo_url = project.repo
         self.working_dir = project.checkout_path(version)
 
@@ -72,13 +81,15 @@ class BaseVCS(BaseCLI):
     # support_branches = True
     #===========================================================================
 
-    def get_tags(self):
+    @property
+    def tags(self):
         """
         Returns a list of VCSVersion objects. See VCSVersion for more information.
         """
         raise NotImplementedError
 
-    def get_branches(self):
+    @property
+    def branches(self):
         """
         Returns a list of VCSVersion objects. See VCSVersion for more information.
         """
