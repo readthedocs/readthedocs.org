@@ -5,7 +5,7 @@ import subprocess
 from tempfile import mkdtemp
 
 def check_output(l, env):
-    output = subprocess.Popen(['ls', '-l'], stdout=subprocess.PIPE, env=env).communicate()[0]
+    output = subprocess.Popen(l, stdout=subprocess.PIPE, env=env).communicate()[0]
 
 def make_test_git():
     directory = mkdtemp()
