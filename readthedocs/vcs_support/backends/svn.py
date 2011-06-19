@@ -19,33 +19,33 @@ class Backend(BaseVCS):
         super(Backend, self).update()
         # For some reason `svn status` gives me retcode 0 in non-svn directories
         # that's why I use `svn info` here.
-        retcode = self._run_command('svn', 'info')[0]
+        retcode = self.run('svn', 'info')[0]
         if retcode == 0:
             self._up()
         else:
             self._co()
 
     def _up(self):
-        retcode = self._run_command('svn', 'revert', '--recursive', '.')[0]
+        retcode = self.run('svn', 'revert', '--recursive', '.')[0]
         if retcode != 0:
             raise ProjectImportError(
                 "Failed to get code from '%s' (svn revert): %s" % (self.repo_url, retcode)
             )
-        retcode = self._run_command('svn', 'up', '--accept', 'theirs-full')[0]
+        retcode = self.run('svn', 'up', '--accept', 'theirs-full')[0]
         if retcode != 0:
             raise ProjectImportError(
                 "Failed to get code from '%s' (svn up): %s" % (self.repo_url, retcode)
             )
 
     def _co(self):
-        retcode = self._run_command('svn', 'checkout', '--quiet', self.repo_url, '.')[0]
+        retcode = self.run('svn', 'checkout', '--quiet', self.repo_url, '.')[0]
         if retcode != 0:
             raise ProjectImportError(
                 "Failed to get code from '%s' (svn checkout): %s" % (self.repo_url, retcode)
             )
 
     def get_tags(self):
-        retcode, stdout = self._run_command('svn', 'list', '%s/tags/' % self.base_url)[:2]
+        retcode, stdout = self.run('svn', 'list', '%s/tags/' % self.base_url)[:2]
         # error (or no tags found)
         if retcode != 0:
             return []
@@ -71,7 +71,7 @@ class Backend(BaseVCS):
 
     def checkout(self, identifier=None):
         super(Backend, self).checkout()
-        retcode = self._run_command('svn', 'info')[0]
+        retcode = self.run('svn', 'info')[0]
         if retcode == 0:
             self._up()
         else:
