@@ -1,7 +1,6 @@
 from django.forms import ModelForm
 from django.forms.fields import CharField
 from models import UserProfile
-from django.contrib.auth.models import User
 
 class UserProfileForm(ModelForm):
     first_name = CharField(label='First name', required=False)

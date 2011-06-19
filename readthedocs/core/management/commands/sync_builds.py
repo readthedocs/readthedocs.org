@@ -1,7 +1,6 @@
 from django.core.management.base import BaseCommand
 from optparse import make_option
 from projects import tasks
-from projects.models import Project
 from builds.models import Version
 
 class Command(BaseCommand):

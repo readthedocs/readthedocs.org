@@ -1,4 +1,3 @@
-import re
 import os
 
 from django.template.loader import render_to_string

@@ -1,12 +1,10 @@
 import simplejson
 
-from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.views.generic.list_detail import object_list
 
 from bookmarks.models import Bookmark
-from projects.models import Project
 
 def bookmark_list(request, queryset=Bookmark.objects.all()):
     return object_list(
@@ -47,4 +45,3 @@ def bookmark_remove(request, url):
     payload = simplejson.dumps({'removed': True})
 
     return HttpResponse(payload, mimetype='text/javascript')
-

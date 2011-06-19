@@ -1,15 +1,9 @@
-import re
-
 from django.conf import settings
 from django.core.cache import cache
-from django.core.urlresolvers import get_urlconf, get_resolver, Resolver404
 from django.http import Http404
 from django.utils.encoding import smart_unicode
 
 import redis
-
-
-from projects.views.public import slug_detail, subdomain_handler
 
 #Thanks to debug-toolbar for the response-replacing code.
 _HTML_TYPES = ('text/html', 'application/xhtml+xml')

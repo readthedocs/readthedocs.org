@@ -14,7 +14,6 @@ from vcs_support.utils import Lock
 
 import fnmatch
 import os
-import re
 
 class ProjectManager(models.Manager):
     def live(self, *args, **kwargs):

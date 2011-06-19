@@ -36,6 +36,7 @@ def run(*commands):
     the failed command.
     """
     environment = os.environ.copy()
+    environment['READTHEDOCS'] = 'True'
     cwd = os.getcwd()
     if not commands:
         raise ValueError("run() requires one or more command-line strings")
@@ -147,6 +148,7 @@ def purge_version(version, mainsite=False, subdomain=False, cname=False):
                     to_purge = "http://%s%s" % (server, url)
                     print "Purging %s on %s" % (url, cnamed)
                     ret = h.request(to_purge, method="PURGE", headers=headers)
+                    print ret
 
 class DictObj(object):
     def __getattr__(self, attr):

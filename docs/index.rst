@@ -25,6 +25,7 @@ Site Documentation
     :maxdepth: 2
 
     getting_started
+    builds
     features
     support
     webhooks
@@ -37,6 +38,7 @@ Developer Documentation
     :maxdepth: 2
 
     install
+    architecture
     settings
     tests
     api

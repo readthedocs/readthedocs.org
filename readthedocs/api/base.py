@@ -2,14 +2,14 @@ from django.core.paginator import Paginator, InvalidPage
 from django.contrib.auth.models import User
 from django.conf.urls.defaults import url
 from django.shortcuts import get_object_or_404
-from django.http import HttpResponse
+from django.http import Http404
 
 from haystack.query import SearchQuerySet
 from haystack.utils import Highlighter
 from tastypie import fields
 from tastypie.authentication import BasicAuthentication
 from tastypie.authorization import Authorization
-from tastypie.constants import ALL, ALL_WITH_RELATIONS
+from tastypie.constants import ALL_WITH_RELATIONS
 from tastypie.resources import ModelResource
 from tastypie.exceptions import NotFound
 from tastypie.http import HttpCreated
@@ -27,7 +27,10 @@ def _do_search(self, request, model):
 
         # Do the query.
         query = request.GET.get('q', '')
+        facet = request.GET.get('facet', '')
         sqs = SearchQuerySet().models(model).auto_query(query)
+        if facet:
+            sqs = sqs.facet(facet)
         paginator = Paginator(sqs, 20)
 
         try:
@@ -77,7 +80,7 @@ class EnhancedModelResource(ModelResource):
         try:
             return self.get_object_list(request).filter(**applicable_filters)
         except ValueError, e:
-            raise NotFound("Invalid resource lookup data provided (mismatched type).")
+            raise NotFound("Invalid resource lookup data provided (mismatched type).: %s" % e)
 
 
 class UserResource(ModelResource):
@@ -107,6 +110,7 @@ class ProjectResource(ModelResource):
         excludes = ['use_virtualenv', 'path', 'skip', 'featured']
         filtering = {
             "user": ALL_WITH_RELATIONS,
+            "slug": ALL_WITH_RELATIONS,
         }
 
     def post_list(self, request, **kwargs):

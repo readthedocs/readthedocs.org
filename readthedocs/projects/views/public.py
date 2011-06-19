@@ -6,7 +6,6 @@ from django.http import (HttpResponse, HttpResponseRedirect,
                          Http404, HttpResponsePermanentRedirect)
 from django.shortcuts import get_object_or_404
 from django.views.generic.list_detail import object_list, object_detail
-from django.views.static import serve
 
 from core.views import serve_docs
 from projects.models import Project
@@ -85,7 +84,6 @@ def project_detail(request, project_slug):
     )
 
 def legacy_project_detail(request, username, project_slug):
-    queryset = Project.objects.live()
     return HttpResponsePermanentRedirect(reverse(
         project_detail, kwargs = {
             'project_slug': project_slug,

@@ -8,7 +8,6 @@ from django.utils.html import strip_tags
 from haystack.indexes import *
 from haystack import site
 from projects.models import File, ImportedFile, Project
-from projects import constants
 
 class ProjectIndex(SearchIndex):
     text = CharField(document=True, use_template=True)

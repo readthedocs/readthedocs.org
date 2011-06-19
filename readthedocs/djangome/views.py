@@ -8,7 +8,6 @@ from django import http
 from django.conf import settings
 from django.shortcuts import render
 from django.shortcuts import redirect
-from django.views.decorators.csrf import csrf_view_exempt
 
 r = redis.Redis(**settings.REDIS)
 
