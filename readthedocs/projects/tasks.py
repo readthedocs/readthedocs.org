@@ -40,7 +40,7 @@ def remove_dir(path):
 
 
 @task
-def update_docs(pk, record=True, pdf=True, man=True, version_pk=None, touch=False):
+def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None, touch=False):
     """
     A Celery task that updates the documentation for a project.
     """
@@ -86,8 +86,9 @@ def update_docs(pk, record=True, pdf=True, man=True, version_pk=None, touch=Fals
                 update_created_docs(project)
 
             # kick off a build
-            (ret, out, err) = build_docs(project, version, pdf,
-                                         man, record, touch)
+            (ret, out, err) = build_docs(project=project, version=version,
+                                         pdf=pdf, man=man, epub=epub,
+                                         record=record, touch=touch)
             if not 'no targets are out of date.' in out:
                 if ret == 0:
                     print "Build OK"
@@ -269,7 +270,7 @@ def update_created_docs(project):
         file.write_to_disk()
 
 
-def build_docs(project, version, pdf, man, record, touch):
+def build_docs(project, version, pdf, man, epub, record, touch):
     """
     A helper function for the celery task to do the actual doc building.
     """
@@ -297,6 +298,9 @@ def build_docs(project, version, pdf, man, record, touch):
             pdf_builder.build(version)
         if man:
             man_builder = builder_loading.get('sphinx_man')()
+            man_builder.build(version)
+        if epub:
+            man_builder = builder_loading.get('sphinx_epub')()
             man_builder.build(version)
     if successful:
         move_docs(project, version)

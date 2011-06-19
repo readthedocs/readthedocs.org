@@ -50,6 +50,10 @@
             {% if project.has_manpage %}
               <li><a href="{{ project.get_manpage_url }}" rel="nofollow,noindex">Manpage</a></li>
             {% endif %}
+
+            {% if project.has_epub %}
+              <li><a href="{{ project.get_epub_url }}" rel="nofollow,noindex">Epub</a></li>
+            {% endif %}
           </ul>
         </div>
 
