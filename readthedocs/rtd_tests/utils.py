@@ -18,6 +18,6 @@ def make_test_git():
     chdir(directory)
     print check_output(['git', 'init'] + [directory], env=env)
     print check_output(['git', 'add', '.'], env=env)
-    print check_output(['git', 'ci', '-m"init"'], env=env)
+    print check_output(['git', 'commit', '-m"init"'], env=env)
     chdir(path)
     return directory
