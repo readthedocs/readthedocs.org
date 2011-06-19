@@ -28,8 +28,7 @@ class Builder(ManpageBuilder):
                                    version.slug)
             if not os.path.exists(to_path):
                 os.makedirs(to_path)
-            from_file = os.path.join(os.getcwd(),
-                                     "%s" % ('%s.1' % project.slug))
+            from_file = os.path.join(os.getcwd(), "*.1")
             to_file = os.path.join(to_path, '%s.1' % project.slug)
             if os.path.exists(from_file):
                 if getattr(settings, "MULTIPLE_APP_SERVERS", None):
