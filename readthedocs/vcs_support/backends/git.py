@@ -58,10 +58,8 @@ class Backend(BaseVCS):
             #)
 
     def _clone(self):
-        from pdb import set_trace; set_trace()
         code, out, err = self.run('git', 'clone', '--quiet',
-                                  '%s.git' % self.repo_url.replace('.git', ''),
-                                  '.')
+                                  self.repo_url, '.')
         if code != 0:
             raise ProjectImportError(
                 "Failed to get code from '%s' (git clone): %s" % (
@@ -69,7 +67,7 @@ class Backend(BaseVCS):
             )
 
     def get_tags(self):
-        retcode, stdout = self('show-ref', '--tags')[:2]
+        retcode, stdout, err = self.run('git', 'show-ref', '--tags')
         # error (or no tags found)
         if retcode != 0:
             return []
@@ -90,15 +88,17 @@ class Backend(BaseVCS):
         hash as identifier.
         """
         # parse the lines into a list of tuples (commit-hash, tag ref name)
+
         raw_tags = csv.reader(StringIO(data), delimiter=' ')
         vcs_tags = []
+
         for commit_hash, name in raw_tags:
-            clean_name = self._get_clean_tag_name(name)
+            clean_name = name.split('/')[-1]
             vcs_tags.append(VCSVersion(self, commit_hash, clean_name))
         return vcs_tags
 
     def get_branches(self):
-        retcode, stdout = self('branch', '-a')[:2]
+        retcode, stdout, err = self.run('git', 'branch', '-a')
         # error (or no tags found)
         if retcode != 0:
             return []
@@ -121,6 +121,7 @@ class Backend(BaseVCS):
         raw_branches = csv.reader(StringIO(data), delimiter=' ')
         clean_branches = []
         for branch in raw_branches:
+            branch = branch[-1]
             if branch.startswith('remotes/origin/'):
                 real_branch = branch.split(' ')[0]
                 slug = real_branch[15:].replace('/', '-')
@@ -130,9 +131,6 @@ class Backend(BaseVCS):
             else:
                 clean_branches.append(VCSVersion(self, branch, branch))
         return clean_branches
-
-    def _get_clean_tag_name(self, name):
-        return name.split('/', 2)[2]
 
     def checkout(self, identifier=None):
         super(Backend, self).checkout()

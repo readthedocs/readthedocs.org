@@ -3,7 +3,7 @@ import json
 import os
 from os.path import join as pjoin
 import shutil
-from subprocess import check_call
+from subprocess import check_output
 from tempfile import gettempdir, mkdtemp
 
 from django.conf import settings
@@ -23,9 +23,12 @@ class TestBuilding(RTDTestCase):
         sample = os.path.abspath(pjoin(path, 'rtd_tests/fixtures/sample_git'))
         directory = pjoin(directory, 'sample_git')
         shutil.copytree(sample, directory)
-        check_call(['git', 'init'] + [directory])
-        check_call(['git', 'add', '.'])
-        check_call(['git', 'ci', '-m"init"'])
+        env = os.environ.copy()
+        env['GIT_DIR'] = pjoin(directory, '.git')
+        os.chdir(directory)
+        print check_output(['git', 'init'] + [directory], env=env)
+        print check_output(['git', 'add', '.'], env=env)
+        print check_output(['git', 'ci', '-m"init"'], env=env)
         return directory
 
     def setUp(self):
