@@ -81,13 +81,15 @@ class BaseVCS(BaseCLI):
     # support_branches = True
     #===========================================================================
 
-    def get_tags(self):
+    @property
+    def tags(self):
         """
         Returns a list of VCSVersion objects. See VCSVersion for more information.
         """
         raise NotImplementedError
 
-    def get_branches(self):
+    @property
+    def branches(self):
         """
         Returns a list of VCSVersion objects. See VCSVersion for more information.
         """

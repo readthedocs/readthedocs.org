@@ -36,7 +36,8 @@ class Backend(BaseVCS):
                 "Failed to get code from '%s' (hg clone): %s" % (self.repo_url, retcode)
             )
 
-    def get_tags(self):
+    @property
+    def tags(self):
         retcode, stdout = self.run('hg', 'tags')[:2]
         # error (or no tags found)
         if retcode != 0:

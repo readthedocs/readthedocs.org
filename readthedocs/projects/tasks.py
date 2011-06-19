@@ -154,7 +154,7 @@ def update_imported_docs(project, version):
     try:
         if version_repo.supports_tags:
             transaction.enter_transaction_management(True)
-            tags = version_repo.get_tags()
+            tags = version_repo.tags
             old_tags = Version.objects.filter(
                 project=project).values_list('identifier', flat=True)
             for tag in tags:
@@ -181,7 +181,7 @@ def update_imported_docs(project, version):
             transaction.leave_transaction_management()
         if version_repo.supports_branches:
             transaction.enter_transaction_management(True)
-            branches = version_repo.get_branches()
+            branches = version_repo.branches
             old_branches = Version.objects.filter(
                 project=project).values_list('identifier', flat=True)
             for branch in branches:

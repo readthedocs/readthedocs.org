@@ -44,7 +44,8 @@ class Backend(BaseVCS):
                 "Failed to get code from '%s' (svn checkout): %s" % (self.repo_url, retcode)
             )
 
-    def get_tags(self):
+    @property
+    def tags(self):
         retcode, stdout = self.run('svn', 'list', '%s/tags/' % self.base_url)[:2]
         # error (or no tags found)
         if retcode != 0:

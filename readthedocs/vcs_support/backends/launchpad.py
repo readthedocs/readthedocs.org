@@ -8,7 +8,8 @@ class Backend(bzr.Backend):
     _launchpad = None
     _lp_project = None
 
-    def get_branches(self):
+    @property
+    def branches(self):
         branches = []
         proj = self._get_project()
 

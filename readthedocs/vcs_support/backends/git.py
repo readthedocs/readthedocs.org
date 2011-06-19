@@ -55,7 +55,8 @@ class Backend(BaseVCS):
                     self.repo_url, code)
             )
 
-    def get_tags(self):
+    @property
+    def tags(self):
         retcode, stdout, err = self.run('git', 'show-ref', '--tags')
         # error (or no tags found)
         if retcode != 0:
@@ -86,7 +87,8 @@ class Backend(BaseVCS):
             vcs_tags.append(VCSVersion(self, commit_hash, clean_name))
         return vcs_tags
 
-    def get_branches(self):
+    @property
+    def branches(self):
         retcode, stdout, err = self.run('git', 'branch', '-a')
         # error (or no tags found)
         if retcode != 0:
