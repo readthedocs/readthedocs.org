@@ -6,7 +6,8 @@ from django.conf import settings
 
 from doc_builder.base import BaseBuilder, restoring_chdir
 from projects.utils import run
-from projects.tasks import copy_to_app_servers
+from projects.tasks import copy_file_to_app_servers
+
 
 latex_re = re.compile('the LaTeX files are in (.*)\.')
 pdf_re = re.compile('Output written on (.+) \(')

@@ -4,7 +4,7 @@ from django.conf import settings
 
 from doc_builder.base import restoring_chdir
 from doc_builder.backends.sphinx import Builder as ManpageBuilder
-from projects.tasks import copy_to_app_servers
+from projects.tasks import copy_file_to_app_servers
 from projects.utils import run
 
 
