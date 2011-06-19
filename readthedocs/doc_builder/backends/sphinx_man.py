@@ -26,17 +26,14 @@ class Builder(ManpageBuilder):
                                    'man',
                                    project.slug,
                                    version.slug)
-            if not os.path.exists(to_path):
-                os.makedirs(to_path)
             from_file = os.path.join(os.getcwd(), "*.1")
             to_file = os.path.join(to_path, '%s.1' % project.slug)
             if getattr(settings, "MULTIPLE_APP_SERVERS", None):
-                copy_to_app_servers('/'.join(
-                        from_file.split('/')[0:-1]),
-                                    '/'.join(to_file.split('/')[0:-1]))
+                copy_file_to_app_servers(from_file, to_file)
             else:
+                if not os.path.exists(to_path):
+                    os.makedirs(to_path)
                 run('mv -f %s %s' % (from_file, to_file))
-            return True
         else:
             print "Build error on man page"
-            return False
+        return build_results

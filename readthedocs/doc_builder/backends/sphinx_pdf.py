@@ -35,17 +35,17 @@ class Builder(BaseBuilder):
             pdf_match = pdf_re.search(pdf_results[1])
             if pdf_match:
                 to_path = os.path.join(settings.MEDIA_ROOT,
-                                       'pdf',
-                                       project.slug,
-                                       version.slug)
-                if not os.path.exists(to_path):
-                    os.makedirs(to_path)
+                       'pdf',
+                       project.slug,
+                       version.slug)
                 from_file = os.path.join(os.getcwd(), "*.pdf")
                 to_file = os.path.join(to_path, '%s.pdf' % project.slug)
                 if getattr(settings, "MULTIPLE_APP_SERVERS", None):
-                    copy_to_app_servers('/'.join(from_file.split('/')[0:-1]), '/'.join(to_file.split('/')[0:-1]))
+                    copy_file_to_app_servers(from_file, to_file)
                 else:
+                    if not os.path.exists(to_path):
+                        os.makedirs(to_path)
                     run('mv -f %s %s' % (from_file, to_file))
-                return True
-        print "PDF Building failed. Moving on."
-        return False
+        else:
+            print "PDF Building failed. Moving on."
+        return latex_results
