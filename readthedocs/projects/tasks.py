@@ -91,14 +91,13 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
                                          record=record, touch=touch)
             if not 'no targets are out of date.' in out:
                 if ret == 0:
-                    print "Build OK"
+                    print "HTML Build OK"
                     purge_version(version, subdomain=True,
                                   mainsite=True, cname=True)
                     update_intersphinx(version.pk)
                     print "Purged %s" % version
                 else:
-                    print "Build ERROR"
-                    print err
+                    print "HTML Build ERROR"
             else:
                 print "Build Unchanged"
     try:
