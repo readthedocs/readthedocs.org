@@ -411,7 +411,7 @@ def update_intersphinx(version_pk):
 
 def save_term(version, term, url, title):
     redis_obj = redis.Redis(**settings.REDIS)
-    print "Inserting %s: %s" % (term, url)
+    #print "Inserting %s: %s" % (term, url)
     lang = "en"
     project_slug = version.project.slug
     version_slug = version.slug
