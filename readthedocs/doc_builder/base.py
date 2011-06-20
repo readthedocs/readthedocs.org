@@ -1,7 +1,9 @@
+from functools import wraps
 import os
 
 
 def restoring_chdir(fn):
+    @wraps(fn)
     def decorator(*args, **kw):
         try:
             path = os.getcwd()
