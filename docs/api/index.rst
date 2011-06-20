@@ -8,6 +8,7 @@ code.
 
     bookmarks
     builds
+    doc_builder
     core
     projects
     watching

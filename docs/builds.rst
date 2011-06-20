@@ -22,3 +22,8 @@ When RTD builds your project, it sets the ``READTHEDOCS`` environment variable t
         html_theme = 'default'
     else:
         html_theme = 'nature'
+
+Writing your own builder
+========================
+
+The documentation build system in RTD is made plugable, so that you can build out your own backend. If you have a documentation format that isn't currently supported, you can add support by contributing a backend.
