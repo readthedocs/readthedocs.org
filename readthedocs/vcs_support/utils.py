@@ -1,29 +1,24 @@
-from django.conf import settings
 import os
 import time
 import traceback
 
-LOCK_ROOT = os.path.join(settings.SITE_ROOT, 'locks')
-if not os.path.exists(LOCK_ROOT):
-    os.mkdir(LOCK_ROOT)
-        
 
 class Lock(object):
     """
     A simple file based lock with timeout
-    
+
     On entering the context, it will try to aquire the lock. If timeout passes,
     it just gets the lock anyway.
-    
+
     If we're in the same thread as the one holding this lock, ignore the lock.
     """
-    
-    def __init__(self, slug, timeout=5, polling_interval=0.1):
-        self.name = slug
-        self.fpath = os.path.join(LOCK_ROOT, self.name)
+
+    def __init__(self, project, timeout=5, polling_interval=0.1):
+        self.name = project.slug
+        self.fpath = os.path.join(project.doc_path, 'rtdlock')
         self.timeout = timeout
         self.polling_interval = polling_interval
-        
+
     def __enter__(self):
         start = time.time()
         while os.path.exists(self.fpath):
@@ -38,9 +33,9 @@ class Lock(object):
                 "Lock (%s): Still locked after %.2f seconds, waiting for a max "
                 "of %.2f seconds" % (self.name, timesince, self.timeout)
             )
-        print "Lock (%s): Lock aquired" % self.name
         open(self.fpath, 'w').close()
-        
+        print "Lock (%s): Lock aquired" % self.name
+
     def __exit__(self, exc, value, tb):
         try:
             print "Lock (%s): Releasing" % self.name

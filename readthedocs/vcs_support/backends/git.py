@@ -2,9 +2,9 @@ import csv
 import os
 from os.path import exists, join as pjoin
 from StringIO import StringIO
+from shutil import rmtree
 
 from projects.exceptions import ProjectImportError
-from projects.tasks import remove_dir
 from vcs_support.backends.github import GithubContributionBackend
 from vcs_support.base import BaseVCS, VCSVersion
 
@@ -21,7 +21,7 @@ class Backend(BaseVCS):
                                       pjoin(self.working_dir, '.git/config'),
                                       '--get', 'remote.origin.url')
             if out.strip() != self.repo_url:
-                remove_dir(self.working_dir)
+                rmtree(self.working_dir)
         super(Backend, self)._check_working_dir()
 
     def update(self):
