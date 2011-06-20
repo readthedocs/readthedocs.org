@@ -15,26 +15,26 @@ class Backend(BaseVCS):
     contribution_backends = [GithubContributionBackend]
     fallback_branch = 'master' # default branch
 
-    def _check_working_dir(self):
+    def check_working_dir(self):
         if exists(self.working_dir):
             code, out, err = self.run('git', 'config', '-f',
                                       pjoin(self.working_dir, '.git/config'),
                                       '--get', 'remote.origin.url')
             if out.strip() != self.repo_url:
                 rmtree(self.working_dir)
-        super(Backend, self)._check_working_dir()
+        super(Backend, self).check_working_dir()
 
     def update(self):
         super(Backend, self).update()
         code, out, err = self.run('git', 'status')
         if code == 0:
-            self._pull()
+            self.pull()
         else:
-            self._clone()
+            self.clone()
         self.run('git', 'submodule', 'update', '--init')
-        self._reset()
+        self.reset()
 
-    def _pull(self):
+    def pull(self):
         code, out, err = self.run('git', 'fetch')
         code, out, err = self.run('git',  'fetch', '-t')
         if code != 0:
@@ -43,7 +43,7 @@ class Backend(BaseVCS):
                     self.repo_url, code)
             )
 
-    def _reset(self):
+    def reset(self):
         branch = self.fallback_branch
         if self.project.default_branch:
             branch = self.project.default_branch
@@ -57,7 +57,7 @@ class Backend(BaseVCS):
                 #"Failed to get code from '%s' (git reset): %s" % (self.repo_url, retcode)
             #)
 
-    def _clone(self):
+    def clone(self):
         code, out, err = self.run('git', 'clone', '--quiet',
                                   self.repo_url, '.')
         if code != 0:
@@ -72,9 +72,9 @@ class Backend(BaseVCS):
         # error (or no tags found)
         if retcode != 0:
             return []
-        return self._parse_tags(stdout)
+        return self.parse_tags(stdout)
 
-    def _parse_tags(self, data):
+    def parse_tags(self, data):
         """
         Parses output of show-ref --tags, eg:
 
@@ -104,9 +104,9 @@ class Backend(BaseVCS):
         # error (or no tags found)
         if retcode != 0:
             return []
-        return self._parse_branches(stdout)
+        return self.parse_branches(stdout)
 
-    def _parse_branches(self, data):
+    def parse_branches(self, data):
         """
         Parse output of git branch -a, eg:
               develop
