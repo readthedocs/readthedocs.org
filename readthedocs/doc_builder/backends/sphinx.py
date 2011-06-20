@@ -64,6 +64,11 @@ STATIC_DIR = '%s/_static' % TEMPLATE_DIR
 
 
 class Builder(BaseBuilder):
+    """
+    The parent for most sphinx builders.
+
+    Also handles the default sphinx output of html.
+    """
 
     def _whitelisted(self, version):
         """Modify the given ``conf.py`` file from a whitelisted user's project.
@@ -128,6 +133,8 @@ class Builder(BaseBuilder):
         else:
             build_command = "sphinx-build -b html . _build/html"
         build_results = run(build_command)
+        if 'no targets are out of date.' in build_results[1]:
+            self._changed = False
         return build_results
 
     def move(self, version):

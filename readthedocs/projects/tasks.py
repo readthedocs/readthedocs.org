@@ -302,8 +302,7 @@ def build_docs(project, version, pdf, man, epub, record, force):
             version.active = True
             version.built = True
             version.save()
-    #XXX:eh: Need to un-sphinxify this
-    if not 'no targets are out of date.' in html_output[1]:
+    if html_builder.changed:
         if record:
             Build.objects.create(
                 project=project,

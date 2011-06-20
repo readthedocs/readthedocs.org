@@ -18,6 +18,8 @@ class BaseBuilder(object):
     The Base for all Builders. Defines the API for subclasses.
     """
 
+    _changed = True
+
     @restoring_chdir
     def force(self, version):
         """
@@ -52,3 +54,14 @@ class BaseBuilder(object):
         as well as a multi-server environment.
         """
         raise NotImplementedError
+
+    @property
+    def changed(self):
+        """
+        Says whether the documentation has changed, and requires further action.
+
+        This is mainly used to short-circuit more expensive builds of other output formats if the project docs didn't change on an update.
+
+        Defaults to `True`
+        """
+        return self._changed

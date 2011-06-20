@@ -20,6 +20,8 @@ class Builder(HtmlBuilder):
         else:
             build_command = "sphinx-build -b dirhtml . _build/html"
         build_results = run(build_command)
+        if 'no targets are out of date.' in build_results[1]:
+            self._changed = False
         return build_results
 
     def move(self, version):
