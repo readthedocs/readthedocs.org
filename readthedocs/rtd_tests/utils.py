@@ -1,9 +1,11 @@
 from os import chdir, environ, getcwd
 from os.path import abspath, join as pjoin
 from shutil import copytree
-from subprocess import check_output
+import subprocess
 from tempfile import mkdtemp
 
+def check_output(l, env):
+    output = subprocess.Popen(l, stdout=subprocess.PIPE, env=env).communicate()[0]
 
 def make_test_git():
     directory = mkdtemp()
@@ -16,6 +18,6 @@ def make_test_git():
     chdir(directory)
     print check_output(['git', 'init'] + [directory], env=env)
     print check_output(['git', 'add', '.'], env=env)
-    print check_output(['git', 'ci', '-m"init"'], env=env)
+    print check_output(['git', 'commit', '-m"init"'], env=env)
     chdir(path)
     return directory

@@ -23,7 +23,7 @@ class Command(BaseCommand):
             ),
         make_option('-t',
             action='store_true',
-            dest='touch',
+            dest='force',
             default=False,
             help='Touch the files'
             ),
@@ -37,7 +37,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         make_pdf = options['pdf']
         record = options['record']
-        touch = options['touch']
+        force = options['force']
         version = options['version']
         if len(args):
             for slug in args:
@@ -61,7 +61,7 @@ class Command(BaseCommand):
                 else:
                     p = Project.objects.get(slug=slug)
                     print "Building %s" % p
-                    tasks.update_docs(pk=p.pk, pdf=make_pdf, touch=touch)
+                    tasks.update_docs(pk=p.pk, pdf=make_pdf, force=force)
         else:
             if version == "all":
                 print "Updating all versions"
@@ -70,10 +70,10 @@ class Command(BaseCommand):
                     tasks.update_docs(pk=version.project_id,
                                       pdf=make_pdf,
                                       record=record,
-                                      touch=touch,
+                                      force=force,
                                       version_pk=version.pk)
             else:
                 print "Updating all docs"
                 tasks.update_docs_pull(pdf=make_pdf,
                                        record=record,
-                                       touch=touch)
+                                       force=force)

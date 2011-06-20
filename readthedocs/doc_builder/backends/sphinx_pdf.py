@@ -6,7 +6,8 @@ from django.conf import settings
 
 from doc_builder.base import BaseBuilder, restoring_chdir
 from projects.utils import run
-from projects.tasks import copy_to_app_servers
+from projects.tasks import copy_file_to_app_servers
+
 
 latex_re = re.compile('the LaTeX files are in (.*)\.')
 pdf_re = re.compile('Output written on (.+) \(')
@@ -34,22 +35,18 @@ class Builder(BaseBuilder):
             pdf_results = run('pdflatex -interaction=nonstopmode %s' % tex_file)
             pdf_match = pdf_re.search(pdf_results[1])
             if pdf_match:
-                from_file = os.path.join(os.getcwd(),
-                                         "%s" % pdf_match.group(1).strip())
                 to_path = os.path.join(settings.MEDIA_ROOT,
-                                       'pdf',
-                                       project.slug,
-                                       version.slug)
-                if not os.path.exists(to_path):
-                    os.makedirs(to_path)
+                       'pdf',
+                       project.slug,
+                       version.slug)
+                from_file = os.path.join(os.getcwd(), "*.pdf")
                 to_file = os.path.join(to_path, '%s.pdf' % project.slug)
-                if os.path.exists(from_file):
-                    if getattr(settings, "MULTIPLE_APP_SERVERS", None):
-                        copy_to_app_servers('/'.join(from_file.split('/')[0:-1]), '/'.join(to_file.split('/')[0:-1]))
-                    else:
-                        run('mv -f %s %s' % (from_file, to_file))
+                if getattr(settings, "MULTIPLE_APP_SERVERS", None):
+                    copy_file_to_app_servers(from_file, to_file)
                 else:
-                    print "File doesn't exist, not symlinking."
-            return True
-        print "PDF Building failed. Moving on."
-        return False
+                    if not os.path.exists(to_path):
+                        os.makedirs(to_path)
+                    run('mv -f %s %s' % (from_file, to_file))
+        else:
+            print "PDF Building failed. Moving on."
+        return latex_results

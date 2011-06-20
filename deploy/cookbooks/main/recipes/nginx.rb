@@ -4,9 +4,8 @@ script "Install Nginx" do
     echo "deb http://ppa.launchpad.net/nginx/stable/ubuntu lucid main" > /etc/apt/sources.list.d/nginx.list
     apt-key adv --keyserver keyserver.ubuntu.com --recv-keys C300EE8C
     apt-get update
-    apt-get install nginx
+    yes yes | apt-get install nginx
   EOH
-  ignore_failure true
   not_if "nginx -V |grep 1.0"
 end
 

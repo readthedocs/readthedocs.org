@@ -121,6 +121,22 @@ class Project(models.Model):
                                 '%s.pdf' % self.slug)
         return path
 
+    def get_epub_url(self, version_slug='latest'):
+        path = os.path.join(settings.MEDIA_URL,
+                                'epub',
+                                self.slug,
+                                version_slug,
+                                '%s.epub' % self.slug)
+        return path
+
+    def get_epub_path(self, version_slug='latest'):
+        path = os.path.join(settings.MEDIA_ROOT,
+                                'epub',
+                                self.slug,
+                                version_slug,
+                                '%s.epub' % self.slug)
+        return path
+
     def get_manpage_url(self, version_slug='latest'):
         path = os.path.join(settings.MEDIA_URL,
                                 'man',
@@ -222,6 +238,10 @@ class Project(models.Model):
     @property
     def has_manpage(self, version_slug='latest'):
         return os.path.exists(self.get_manpage_path(version_slug))
+
+    @property
+    def has_epub(self, version_slug='latest'):
+        return os.path.exists(self.get_epub_path(version_slug))
 
     @property
     def sponsored(self):

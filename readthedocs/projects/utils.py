@@ -53,11 +53,7 @@ def run(*commands):
             out = ''
             err = traceback.format_exc()
             ret = -1
-            print "fail!"
-
-        # If returncode is nonzero, bail out
-        if ret != 0:
-            break
+            print "Command failed: %s" % err
 
     return (ret, out, err)
 

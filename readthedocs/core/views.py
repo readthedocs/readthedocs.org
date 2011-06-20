@@ -53,7 +53,7 @@ def github_build(request):
         ghetto_url = url.replace('http://', '').replace('https://', '')
         try:
             project = Project.objects.filter(repo__contains=ghetto_url)[0]
-            update_docs.delay(pk=project.pk, touch=True)
+            update_docs.delay(pk=project.pk, force=True)
             return HttpResponse('Build Started')
         except:
             mail_admins('Build Failure', '%s failed to build via github' % name)
@@ -71,7 +71,7 @@ def bitbucket_build(request):
         url = "%s%s" % ("bitbucket.org",  rep['absolute_url'])
         try:
             project = Project.objects.filter(repo__contains=url)[0]
-            update_docs.delay(pk=project.pk, touch=True)
+            update_docs.delay(pk=project.pk, force=True)
             return HttpResponse('Build Started')
         except:
             mail_admins('Build Failure', '%s failed to build via bitbucket' % name)
@@ -89,9 +89,9 @@ def generic_build(request, pk):
         slug = request.POST.get('version_slug', None)
         if slug:
             version = project.versions.get(slug=slug)
-            update_docs.delay(pk=pk, version_pk=version.pk, touch=True)
+            update_docs.delay(pk=pk, version_pk=version.pk, force=True)
         else:
-            update_docs.delay(pk=pk, touch=True)
+            update_docs.delay(pk=pk, force=True)
         return HttpResponse('Build Started')
     return render_to_response('post_commit.html', context,
             context_instance=RequestContext(request))
@@ -113,7 +113,7 @@ def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
     if not project_slug:
         project_slug = request.slug
     proj = get_object_or_404(Project, slug=project_slug)
-    if not version_slug:
+    if not version_slug or not lang_slug:
         version_slug = proj.get_default_version()
         url = reverse(serve_docs, kwargs={
             'project_slug': project_slug,

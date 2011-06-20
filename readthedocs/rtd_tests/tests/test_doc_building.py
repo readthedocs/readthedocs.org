@@ -16,6 +16,7 @@ class TestBuilding(RTDTestCase):
 
     def setUp(self):
         repo = make_test_git()
+        self.repo = repo
         super(TestBuilding, self).setUp()
         self.eric = User.objects.get(username='eric')
         self.project = Project.objects.create(
@@ -27,8 +28,7 @@ class TestBuilding(RTDTestCase):
         )
 
     def tearDown(self):
-        directory = gettempdir()
-        shutil.rmtree(directory)
+        shutil.rmtree(self.repo)
         super(TestBuilding, self).tearDown()
 
     def test_default_project_build(self):

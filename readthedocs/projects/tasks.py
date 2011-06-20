@@ -35,14 +35,24 @@ ghetto_hack = re.compile(
 
 @task
 def remove_dir(path):
+    """
+    Remove a directory on the build/celery server.
+    
+    This is mainly a wrapper around shutil.rmtree so that app servers
+    can kill things on the build server.
+    """
     print "Removing %s" % path
     shutil.rmtree(path)
 
 
 @task
-def update_docs(pk, record=True, pdf=True, man=True, version_pk=None, touch=False):
+def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None, force=False):
     """
-    A Celery task that updates the documentation for a project.
+    The main entry point for updating documentation.
+
+    It handles all of the logic around whether a project is imported or we created it.
+    Then it will build the html docs and other requested parts.
+    It also handles clearing the varnish cache.
     """
 
     ###
@@ -86,18 +96,18 @@ def update_docs(pk, record=True, pdf=True, man=True, version_pk=None, touch=Fals
                 update_created_docs(project)
 
             # kick off a build
-            (ret, out, err) = build_docs(project, version, pdf,
-                                         man, record, touch)
+            (ret, out, err) = build_docs(project=project, version=version,
+                                         pdf=pdf, man=man, epub=epub,
+                                         record=record, force=force)
             if not 'no targets are out of date.' in out:
                 if ret == 0:
-                    print "Build OK"
+                    print "HTML Build OK"
                     purge_version(version, subdomain=True,
                                   mainsite=True, cname=True)
                     update_intersphinx(version.pk)
                     print "Purged %s" % version
                 else:
-                    print "Build ERROR"
-                    print err
+                    print "HTML Build ERROR"
             else:
                 print "Build Unchanged"
     try:
@@ -213,7 +223,8 @@ def update_imported_docs(project, version):
 
 
 def scrape_conf_file(version):
-    """Locate the given project's ``conf.py`` file and extract important
+    """
+    Locate the given project's ``conf.py`` file and extract important
     settings, including copyright, theme, source suffix and version.
     """
     #This is where we actually find the conf.py, so we can't use
@@ -250,6 +261,9 @@ def scrape_conf_file(version):
 
 
 def update_created_docs(project):
+    """
+    Handle generating the docs for projects hosted on RTD.
+    """
     # grab the root path for the generated docs to live at
     path = project.doc_path
 
@@ -269,16 +283,16 @@ def update_created_docs(project):
         file.write_to_disk()
 
 
-def build_docs(project, version, pdf, man, record, touch):
+def build_docs(project, version, pdf, man, epub, record, force):
     """
-    A helper function for the celery task to do the actual doc building.
+    This handles the actual building of the documentation and DB records
     """
     if not project.conf_file(version.slug):
         return ('', 'Conf file not found.', -1)
 
     html_builder = builder_loading.get(project.documentation_type)()
-    if touch:
-        html_builder.touch(version)
+    if force:
+        html_builder.force(version)
     html_builder.clean(version)
     html_output = html_builder.build(version)
     successful = (html_output[0] == 0)
@@ -298,6 +312,9 @@ def build_docs(project, version, pdf, man, record, touch):
         if man:
             man_builder = builder_loading.get('sphinx_man')()
             man_builder.build(version)
+        if epub:
+            man_builder = builder_loading.get('sphinx_epub')()
+            man_builder.build(version)
     if successful:
         move_docs(project, version)
         if version:
@@ -307,6 +324,7 @@ def build_docs(project, version, pdf, man, record, touch):
     return html_output
 
 def move_docs(project, version):
+    #XXX:eh: This should be moved into the sphinx builder.
     if project.full_build_path(version.slug):
         target = project.rtd_build_path(version.slug)
         if getattr(settings, "MULTIPLE_APP_SERVERS", None):
@@ -318,17 +336,37 @@ def move_docs(project, version):
     else:
         print "Not moving docs, because the build dir is unknown."
 
-def copy_to_app_servers(full_build_path, target):
-    #You should be checking for this above.
-    servers = settings.MULTIPLE_APP_SERVERS
-    for server in servers:
+def copy_to_app_servers(full_build_path, target, mkdir=True):
+    """
+    A helper to copy a directory across app servers
+    """
+    print "Copying %s to %s" % (full_build_path, target)
+    for server in settings.MULTIPLE_APP_SERVERS:
         os.system("ssh %s@%s mkdir -p %s" % (getpass.getuser(), server, target))
         ret = os.system("rsync -e 'ssh -T' -av --delete %s/ %s@%s:%s" % (full_build_path, getpass.getuser(), server, target))
         if ret != 0:
-            print "COPY ERROR: out: %s err: %s" % (ret[1], ret[2])
+            print "COPY ERROR to app servers."
+
+def copy_file_to_app_servers(from_file, to_file):
+    """
+    A helper to copy a single file across app servers
+    """
+    print "Copying %s to %s" % (from_file, to_file)
+    to_path = '/'.join(to_file.split('/')[0:-1])
+    for server in settings.MULTIPLE_APP_SERVERS:
+        os.system("ssh %s@%s mkdir -p %s" % (getpass.getuser(), server, to_path))
+        ret = os.system("rsync -e 'ssh -T' -av --delete %s %s@%s:%s" % (from_file, getpass.getuser(), server, to_file))
+        if ret != 0:
+            print "COPY ERROR to app servers."
 
 
 def fileify(version):
+    """
+    Create ImportedFile objects for all of a version's files.
+
+    This is a prereq for indexing the docs for search.
+    """
+
     project = version.project
     path = project.rtd_build_path(version.slug)
     if path:
@@ -343,10 +381,15 @@ def fileify(version):
 
 
 #@periodic_task(run_every=crontab(hour="2", minute="10", day_of_week="*"))
-def update_docs_pull(record=False, pdf=False, man=False, touch=False):
+def update_docs_pull(record=False, pdf=False, man=False, force=False):
+    """
+    A high-level interface that will update all of the projects.
+
+    This is mainly used from a cronjob or management command.
+    """
     for project in Project.objects.live():
         try:
-            update_docs(pk=project.pk, record=record, pdf=pdf, man=man, touch=touch)
+            update_docs(pk=project.pk, record=record, pdf=pdf, man=man, force=force)
         except:
             print "failed"
 
@@ -400,7 +443,7 @@ def update_intersphinx(version_pk):
 
 def save_term(version, term, url, title):
     redis_obj = redis.Redis(**settings.REDIS)
-    print "Inserting %s: %s" % (term, url)
+    #print "Inserting %s: %s" % (term, url)
     lang = "en"
     project_slug = version.project.slug
     version_slug = version.slug
