@@ -24,6 +24,16 @@ When RTD builds your project, it sets the ``READTHEDOCS`` environment variable t
         html_theme = 'nature'
 
 Writing your own builder
-========================
+------------------------
 
 The documentation build system in RTD is made plugable, so that you can build out your own backend. If you have a documentation format that isn't currently supported, you can add support by contributing a backend.
+
+The :doc:`api/doc_builder` API explains the higher level parts of the API that you need to implement. A basic run goes something like this::
+
+    backend = get_backend(project.documentation_type)
+    if force:
+        backend.force(version)
+    backend.clean(version)
+    backend.build(version)
+    if success:
+        backend.move(version)
