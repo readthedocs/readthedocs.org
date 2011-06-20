@@ -8,5 +8,9 @@
 
 :mod:`doc_builder.backends`
 ----------------------------------
-.. automodule:: doc_builder.backends
+
+
+:mod:`doc_builder.backends.sphinx`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. automodule:: doc_builder.backends.sphinx
     :members:

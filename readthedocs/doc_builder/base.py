@@ -1,6 +1,6 @@
 from functools import wraps
 import os
-
+from functools import wraps
 
 def restoring_chdir(fn):
     @wraps(fn)
@@ -52,3 +52,14 @@ class BaseBuilder(object):
         as well as a multi-server environment.
         """
         raise NotImplementedError
+
+    @property
+    def changed(self):
+        """
+        Says whether the documentation has changed, and requires further action.
+
+        This is mainly used to short-circuit more expensive builds of other output formats if the project docs didn't change on an update.
+
+        Defaults to `True`
+        """
+        return getattr(self, '_changed', True)
