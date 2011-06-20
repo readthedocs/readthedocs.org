@@ -1,4 +1,3 @@
-from django.utils.importlib import import_module
 import os
 import subprocess
 
@@ -162,13 +161,3 @@ class BaseContributionBackend(BaseCLI):
 
     def _open_file(self, filename, mode='r'):
         return open(os.path.join(self.repo.working_dir, filename), mode)
-
-
-def get_backend(repo_type):
-    if repo_type == 'bzr':
-        repo_type = 'launchpad'
-    try:
-        module = import_module('vcs_support.backends.%s' % repo_type)
-    except ImportError:
-        return None
-    return getattr(module, 'Backend', None)

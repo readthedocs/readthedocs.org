@@ -1,6 +1,7 @@
 from projects.exceptions import ProjectImportError
 from vcs_support.base import BaseVCS, VCSVersion
 
+
 class Backend(BaseVCS):
     supports_tags = True
     fallback_branch = ''

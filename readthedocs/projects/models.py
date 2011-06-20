@@ -1,3 +1,6 @@
+import fnmatch
+import os
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
@@ -11,11 +14,9 @@ from projects.utils import diff, dmp, safe_write
 from projects.utils import highest_version as _highest
 from taggit.managers import TaggableManager
 
-from vcs_support.base import get_backend
+from vcs_support.backends import backend_cls
 from vcs_support.utils import Lock
 
-import fnmatch
-import os
 
 class ProjectManager(models.Manager):
     def live(self, *args, **kwargs):
@@ -56,13 +57,14 @@ class Project(models.Model):
         help_text='Type of documentation you are building.')
     analytics_code = models.CharField(max_length=50, null=True, blank=True, help_text="Google Analytics Tracking Code. This may slow down your page loads.")
 
-
     #Other model data.
     path = models.CharField(help_text="The directory where conf.py lives",
                             max_length=255, editable=False)
     featured = models.BooleanField()
     skip = models.BooleanField()
-    use_virtualenv = models.BooleanField(help_text="Install your project inside a virtualenv using setup.py install")
+    use_virtualenv = models.BooleanField(
+        help_text="Install your project inside a virtualenv using "
+        "setup.py install")
     django_packages_url = models.CharField(max_length=255, blank=True)
 
     tags = TaggableManager(blank=True)
@@ -211,7 +213,7 @@ class Project(models.Model):
 
     @property
     def highest_version(self):
-       return _highest(self.versions.filter(active=True))
+        return _highest(self.versions.filter(active=True))
 
     @property
     def is_imported(self):
@@ -248,7 +250,7 @@ class Project(models.Model):
     def vcs_repo(self, version='latest'):
         #if hasattr(self, '_vcs_repo'):
             #return self._vcs_repo
-        backend = get_backend(self.repo_type)
+        backend = backend_cls.get(self.repo_type)
         if not backend:
             repo = None
         else:
@@ -268,7 +270,7 @@ class Project(models.Model):
         return cb
 
     def repo_lock(self, timeout=5, polling_interval=0.2):
-        return Lock(self.slug, timeout, polling_interval)
+        return Lock(self, timeout, polling_interval)
 
     def find(self, file, version):
         """
@@ -290,7 +292,6 @@ class Project(models.Model):
                 matches.append(os.path.join(root, filename))
         return matches
 
-
     def get_latest_build(self):
         try:
             return self.builds.all()[0]
@@ -298,18 +299,18 @@ class Project(models.Model):
             return None
 
     def active_versions(self):
-        return self.versions.filter(built=True, active=True) | self.versions.filter(active=True, uploaded=True)
+        return (self.versions.filter(built=True, active=True) |
+                self.versions.filter(active=True, uploaded=True))
 
     @property
     def whitelisted(self):
         try:
             return self.user.get_profile().whitelisted
         except ObjectDoesNotExist:
+            #Bare except so we don't have to import user.models.UserProfile
             return False
 
-
     #File Building stuff.
-
     #Not sure if this is used
     def get_top_level_files(self):
         return self.files.live(parent__isnull=True).order_by('ordering')
@@ -357,7 +358,8 @@ class FileManager(models.Manager):
 
 class File(models.Model):
     project = models.ForeignKey(Project, related_name='files')
-    parent = models.ForeignKey('self', null=True, blank=True, related_name='children')
+    parent = models.ForeignKey('self', null=True, blank=True,
+                               related_name='children')
     heading = models.CharField(max_length=255)
     slug = models.SlugField()
     content = models.TextField()
@@ -437,7 +439,8 @@ class File(models.Model):
 
     @models.permalink
     def get_absolute_url(self):
-        return ('docs_detail', [self.project.slug, 'en', 'latest', self.denormalized_path + '.html'])
+        return ('docs_detail', [self.project.slug, 'en', 'latest',
+                                self.denormalized_path + '.html'])
 
 
 class FileRevision(models.Model):
@@ -453,14 +456,16 @@ class FileRevision(models.Model):
         ordering = ('-revision_number',)
 
     def __unicode__(self):
-        return self.comment or '%s #%s' % (self.file.heading, self.revision_number)
+        return self.comment or '%s #%s' % (self.file.heading,
+                                           self.revision_number)
 
     def get_file_content(self):
         """
         Apply the series of diffs after this revision in reverse order,
         bringing the content back to the state it was in this revision
         """
-        after = self.file.revisions.filter(revision_number__gt=self.revision_number)
+        after = self.file.revisions.filter(
+            revision_number__gt=self.revision_number)
         content = self.file.content
 
         for revision in after:
@@ -477,7 +482,8 @@ class FileRevision(models.Model):
         self.file.save()
 
         # mark reverted changesets
-        reverted_qs = self.file.revisions.filter(revision_number__gt=self.revision_number)
+        reverted_qs = self.file.revisions.filter(
+            revision_number__gt=self.revision_number)
         reverted_qs.update(is_reverted=True)
 
         # create a new revision
@@ -489,7 +495,8 @@ class FileRevision(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.pk:
-            max_rev = self.file.revisions.aggregate(max=models.Max('revision_number'))
+            max_rev = self.file.revisions.aggregate(
+                max=models.Max('revision_number'))
             if max_rev['max'] is None:
                 self.revision_number = 1
             else:
