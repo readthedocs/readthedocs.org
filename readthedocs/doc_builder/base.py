@@ -18,8 +18,6 @@ class BaseBuilder(object):
     The Base for all Builders. Defines the API for subclasses.
     """
 
-    _changed = True
-
     @restoring_chdir
     def force(self, version):
         """
@@ -64,4 +62,4 @@ class BaseBuilder(object):
 
         Defaults to `True`
         """
-        return self._changed
+        return getattr(self, '_changed', True)
