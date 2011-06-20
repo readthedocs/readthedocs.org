@@ -37,7 +37,7 @@ ghetto_hack = re.compile(
 def remove_dir(path):
     """
     Remove a directory on the build/celery server.
-    
+
     This is mainly a wrapper around shutil.rmtree so that app servers
     can kill things on the build server.
     """
@@ -296,6 +296,13 @@ def build_docs(project, version, pdf, man, epub, record, force):
     html_builder.clean(version)
     html_output = html_builder.build(version)
     successful = (html_output[0] == 0)
+    if successful:
+        html_builder.move(version)
+        if version:
+            version.active = True
+            version.built = True
+            version.save()
+    #XXX:eh: Need to un-sphinxify this
     if not 'no targets are out of date.' in html_output[1]:
         if record:
             Build.objects.create(
@@ -309,32 +316,18 @@ def build_docs(project, version, pdf, man, epub, record, force):
         if pdf:
             pdf_builder = builder_loading.get('sphinx_pdf')()
             pdf_builder.build(version)
+            #PDF Builder is oddly 2-steped, and stateful for now
+            #pdf_builder.move(version)
         if man:
             man_builder = builder_loading.get('sphinx_man')()
             man_builder.build(version)
+            man_builder.move(version)
         if epub:
             man_builder = builder_loading.get('sphinx_epub')()
             man_builder.build(version)
-    if successful:
-        move_docs(project, version)
-        if version:
-            version.active = True
-            version.built = True
-            version.save()
+            man_builder.move(version)
     return html_output
 
-def move_docs(project, version):
-    #XXX:eh: This should be moved into the sphinx builder.
-    if project.full_build_path(version.slug):
-        target = project.rtd_build_path(version.slug)
-        if getattr(settings, "MULTIPLE_APP_SERVERS", None):
-            copy_to_app_servers(project.full_build_path(version.slug), target)
-        else:
-            if os.path.exists(target):
-                shutil.rmtree(target)
-            shutil.copytree(project.full_build_path(version.slug), target)
-    else:
-        print "Not moving docs, because the build dir is unknown."
 
 def copy_to_app_servers(full_build_path, target, mkdir=True):
     """

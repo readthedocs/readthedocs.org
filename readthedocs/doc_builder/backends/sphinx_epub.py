@@ -20,20 +20,21 @@ class Builder(HtmlBuilder):
         else:
             build_command = "sphinx-build -b epub . _build/epub"
         build_results = run(build_command)
-        if build_results[0] == 0:
-            os.chdir('_build/epub')
-            to_path = os.path.join(settings.MEDIA_ROOT,
-                                   'epub',
-                                   project.slug,
-                                   version.slug)
-            from_file = os.path.join(os.getcwd(), "*.epub")
-            to_file = os.path.join(to_path, "%s.epub" % project.slug)
-            if getattr(settings, "MULTIPLE_APP_SERVERS", None):
-                copy_file_to_app_servers(from_file, to_file)
-            else:
-                if not os.path.exists(to_path):
-                    os.makedirs(to_path)
-                run('mv -f %s %s' % (from_file, to_file))
-        else:
-            print "Not copying epub file because of error"
         return build_results
+
+    def move(self, version):
+        project = version.project
+        outputted_path = os.path.join(project.conf_dir(version.slug),
+                                    '_build', 'epub')
+        to_path = os.path.join(settings.MEDIA_ROOT,
+                               'epub',
+                               project.slug,
+                               version.slug)
+        from_file = os.path.join(outputted_path, "*.epub")
+        to_file = os.path.join(to_path, "%s.epub" % project.slug)
+        if getattr(settings, "MULTIPLE_APP_SERVERS", None):
+            copy_file_to_app_servers(from_file, to_file)
+        else:
+            if not os.path.exists(to_path):
+                os.makedirs(to_path)
+            run('mv -f %s %s' % (from_file, to_file))

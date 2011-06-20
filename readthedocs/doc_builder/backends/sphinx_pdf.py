@@ -50,3 +50,9 @@ class Builder(BaseBuilder):
         else:
             print "PDF Building failed. Moving on."
         return latex_results
+
+
+    def move(self, version):
+        #This needs to be thought about more because of all the state above.
+        #We could just shove the filename on the instance or something.
+        return True

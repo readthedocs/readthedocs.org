@@ -1,4 +1,5 @@
 import os
+import shutil
 
 from django.template.loader import render_to_string
 from django.template import Template, Context
@@ -8,6 +9,8 @@ from django.conf import settings
 
 from doc_builder.base import BaseBuilder, restoring_chdir
 from projects.utils import safe_write, run
+from projects.tasks import copy_to_app_servers
+
 
 
 RTD_CONF_ADDITIONS = """
@@ -126,3 +129,18 @@ class Builder(BaseBuilder):
             build_command = "sphinx-build -b html . _build/html"
         build_results = run(build_command)
         return build_results
+
+    def move(self, version):
+        project = version.project
+        if project.full_build_path(version.slug):
+            target = project.rtd_build_path(version.slug)
+            if getattr(settings, "MULTIPLE_APP_SERVERS", None):
+                print "Copying docs to remote server."
+                copy_to_app_servers(project.full_build_path(version.slug), target)
+            else:
+                if os.path.exists(target):
+                    shutil.rmtree(target)
+                print "Copying docs on the local filesystem"
+                shutil.copytree(project.full_build_path(version.slug), target)
+        else:
+            print "Not moving docs, because the build dir is unknown."
