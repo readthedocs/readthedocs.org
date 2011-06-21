@@ -322,9 +322,9 @@ def build_docs(project, version, pdf, man, epub, record, force):
             man_builder.build(version)
             man_builder.move(version)
         if epub:
-            man_builder = builder_loading.get('sphinx_epub')()
-            man_builder.build(version)
-            man_builder.move(version)
+            epub_builder = builder_loading.get('sphinx_epub')()
+            epub_builder.build(version)
+            epub_builder.move(version)
     return html_output
 
 

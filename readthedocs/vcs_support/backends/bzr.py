@@ -1,3 +1,6 @@
+import csv
+from StringIO import StringIO
+
 from projects.exceptions import ProjectImportError
 from vcs_support.base import BaseVCS, VCSVersion
 
@@ -10,11 +13,11 @@ class Backend(BaseVCS):
         super(Backend, self).update()
         retcode = self.run('bzr', 'status')[0]
         if retcode == 0:
-            self._up()
+            self.up()
         else:
-            self._checkout()
+            self.clone()
 
-    def _up(self):
+    def up(self):
         retcode = self.run('bzr', 'revert')[0]
         if retcode != 0:
             raise ProjectImportError(
@@ -26,7 +29,7 @@ class Backend(BaseVCS):
                 "Failed to get code from '%s' (bzr up): %s" % (self.repo_url, retcode)
             )
 
-    def _checkout(self):
+    def clone(self):
         retcode = self.run('bzr', 'checkout', self.repo_url, '.')[0]
         if retcode != 0:
             raise ProjectImportError(
@@ -39,9 +42,9 @@ class Backend(BaseVCS):
         # error (or no tags found)
         if retcode != 0:
             return []
-        return self._parse_tags(stdout)
+        return self.parse_tags(stdout)
 
-    def _parse_tags(self, data):
+    def parse_tags(self, data):
         """
         Parses output of show-ref --tags, eg:
 
@@ -51,17 +54,16 @@ class Backend(BaseVCS):
             0.2.0-pre-alpha      177
         """
         # parse the lines into a list of tuples (commit-hash, tag ref name)
-        raw_tags = [line.rsplit(' ', 1) for line in data.strip('\n').split('\n')]
+        raw_tags = csv.reaader(StringIO(data), delimiter=' ')
         vcs_tags = []
         for name, commit in raw_tags:
-            clean_name = name.strip(' ')
-            vcs_tags.append(VCSVersion(self, commit, clean_name))
+            vcs_tags.append(VCSVersion(self, commit, name))
         return vcs_tags
 
     def checkout(self, identifier=None):
         super(Backend, self).checkout()
         self.update()
         if not identifier:
-            self._up()
+            self.up()
         else:
             self.run('bzr', 'switch', identifier)

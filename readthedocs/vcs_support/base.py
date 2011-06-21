@@ -1,4 +1,5 @@
 import os
+from os.path import basename
 import subprocess
 
 
@@ -25,6 +26,8 @@ class BaseCLI(object):
     """
     Helper class for CLI-heavy classes.
     """
+    log_tmpl = 'VCS[{ident}]: {args}'
+
     def __call__(self, *args):
         return self.run(args)
 
@@ -36,8 +39,11 @@ class BaseCLI(object):
                                    stderr=subprocess.PIPE,
                                    cwd=self.working_dir, shell=False,
                                    env=self.env)
-        print "VCS[%s]: %s" % (self.working_dir, ' '.join(args))
+        print self.log_tmpl.format(ident=basename(self.working_dir),
+                                   args=' '.join(args))
         stdout, stderr = process.communicate()
+        print self.log_tmpl.format(ident=basename(self.working_dir),
+                                   args=stdout)
         return (process.returncode, stdout, stderr)
 
     @property
@@ -63,7 +69,7 @@ class BaseVCS(BaseCLI):
         self.repo_url = project.repo
         self.working_dir = project.checkout_path(version)
 
-    def _check_working_dir(self):
+    def check_working_dir(self):
         if not os.path.exists(self.working_dir):
             os.makedirs(self.working_dir)
 
@@ -72,7 +78,7 @@ class BaseVCS(BaseCLI):
         If self.working_dir is already a valid local copy of the repository,
         update the repository, else create a new local copy of the repository.
         """
-        self._check_working_dir()
+        self.check_working_dir()
 
     #===========================================================================
     # Tag / Branch related methods
@@ -103,7 +109,7 @@ class BaseVCS(BaseCLI):
         The type and format of identifier may change from VCS to VCS, so each
         backend is responsible to understand it's identifiers.
         """
-        self._check_working_dir()
+        self.check_working_dir()
 
     #===========================================================================
     # Contribution related methods

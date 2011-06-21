@@ -13,11 +13,11 @@ class Backend(BaseVCS):
         super(Backend, self).update()
         retcode = self.run('hg', 'status')[0]
         if retcode == 0:
-            self._pull()
+            self.pull()
         else:
-            self._clone()
+            self.clone()
 
-    def _pull(self):
+    def pull(self):
         retcode = self.run('hg', 'pull')[0]
         if retcode != 0:
             raise ProjectImportError(
@@ -29,7 +29,7 @@ class Backend(BaseVCS):
                 "Failed to get code from '%s' (hg update): %s" % (self.repo_url, retcode)
             )
 
-    def _clone(self):
+    def clone(self):
         retcode = self.run('hg', 'clone', self.repo_url, '.')[0]
         if retcode != 0:
             raise ProjectImportError(
@@ -42,9 +42,9 @@ class Backend(BaseVCS):
         # error (or no tags found)
         if retcode != 0:
             return []
-        return self._parse_tags(stdout)
+        return self.parse_tags(stdout)
 
-    def _parse_tags(self, data):
+    def parse_tags(self, data):
         """
         Parses output of show-ref --tags, eg:
 
