@@ -14,6 +14,7 @@ from projects.utils import diff, dmp, safe_write
 from projects.utils import highest_version as _highest
 from taggit.managers import TaggableManager
 
+from vcs_support.base import VCSProject
 from vcs_support.backends import backend_cls
 from vcs_support.utils import Lock
 
@@ -254,7 +255,11 @@ class Project(models.Model):
         if not backend:
             repo = None
         else:
-            repo = backend(self, version)
+            proj = VCSProject(self.name,
+                              self.default_branch,
+                              self.checkout_path(version),
+                              self.repo)
+            repo = backend(proj, version)
         #self._vcs_repo = repo
         return repo
 

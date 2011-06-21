@@ -37,6 +37,29 @@ class Backend(BaseVCS):
             )
 
     @property
+    def branches(self):
+        retcode, stdout = self.run('hg', 'branches')[:2]
+        # error (or no tags found)
+        if retcode != 0:
+            return []
+        return self.parse_branches(stdout)
+
+    def parse_branches(self, data):
+        """
+        stable                     13575:8e94a1b4e9a4
+        default                    13572:1bb2a56a9d73
+        """
+        raw_branches = csv.reader(StringIO(data), delimiter=' ')
+        clean_branches = []
+        for branch in raw_branches:
+            branch = filter(lambda f: f != '', branch)
+            if branch == []:
+                continue
+            name, rev = branch
+            clean_branches.append(VCSVersion(self, name, name))
+        return clean_branches
+
+    @property
     def tags(self):
         retcode, stdout = self.run('hg', 'tags')[:2]
         # error (or no tags found)
@@ -56,7 +79,11 @@ class Backend(BaseVCS):
         # parse the lines into a list of tuples (commit-hash, tag ref name)
         raw_tags = csv.reader(StringIO(data), delimiter=' ')
         vcs_tags = []
-        for name, commit in raw_tags:
+        for row in raw_tags:
+            row = filter(lambda f: f != '', row)
+            if row == []:
+                continue
+            name, commit = row
             if name == 'tip':
                 continue
             revision, commit_hash = commit.split(':')
@@ -72,5 +99,5 @@ class Backend(BaseVCS):
             self.run('hg', 'pull')
             self.run('hg', 'update', '-C', identifier)
         else:
-            self._clone()
+            self.clone()
             self.run('hg', 'update', '-C', identifier)
