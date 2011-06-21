@@ -45,8 +45,8 @@ class Backend(BaseVCS):
 
     def reset(self):
         branch = self.fallback_branch
-        if self.project.default_branch:
-            branch = self.project.default_branch
+        if self.default_branch:
+            branch = self.default_branch
         code, out, err = self.run('git', 'reset', '--hard',
                                   'origin/%s' % branch)
         if code != 0:
@@ -89,11 +89,13 @@ class Backend(BaseVCS):
         hash as identifier.
         """
         # parse the lines into a list of tuples (commit-hash, tag ref name)
-
         raw_tags = csv.reader(StringIO(data), delimiter=' ')
         vcs_tags = []
-
-        for commit_hash, name in raw_tags:
+        for row in raw_tags:
+            row = filter(lambda f: f != '', row)
+            if row == []:
+                continue
+            commit_hash, name = row
             clean_name = name.split('/')[-1]
             vcs_tags.append(VCSVersion(self, commit_hash, clean_name))
         return vcs_tags
@@ -120,9 +122,10 @@ class Backend(BaseVCS):
               remotes/origin/release/2.0.0
               remotes/origin/release/2.1.0
         """
-        raw_branches = csv.reader(StringIO(data), delimiter=' ')
         clean_branches = []
+        raw_branches = csv.reader(StringIO(data), delimiter=' ')
         for branch in raw_branches:
+            branch = filter(lambda f: f != '', branch)
             branch = branch[-1]
             if branch.startswith('remotes/origin/'):
                 real_branch = branch.split(' ')[0]
@@ -140,8 +143,8 @@ class Backend(BaseVCS):
         self.update()
         if not identifier:
             identifier = self.fallback_branch
-            if self.project.default_branch:
-                identifier = self.project.default_branch
+            if self.default_branch:
+                identifier = self.default_branch
         #Checkout the correct identifier for this branch.
         self.run('git', 'reset', '--hard', identifier)
 

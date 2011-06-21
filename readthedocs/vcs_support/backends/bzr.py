@@ -54,7 +54,7 @@ class Backend(BaseVCS):
             0.2.0-pre-alpha      177
         """
         # parse the lines into a list of tuples (commit-hash, tag ref name)
-        raw_tags = csv.reaader(StringIO(data), delimiter=' ')
+        raw_tags = csv.reader(StringIO(data), delimiter=' ')
         vcs_tags = []
         for name, commit in raw_tags:
             vcs_tags.append(VCSVersion(self, commit, name))

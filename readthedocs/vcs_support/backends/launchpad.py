@@ -22,12 +22,12 @@ class Backend(bzr.Backend):
     def get_project(self):
         if self.lp_project is None:
             lp = self.get_launchpad()
-            self.lp_project = lp.projects[self.project.slug] # Probably need to improve this
+            self.lp_project = lp.projects[self.slug] # Probably need to improve this
         return self.lp_project
 
     def get_launchpad(self):
         if self.launchpad is None:
-            client_id = 'rtfd-client-%s' % self.project.name
+            client_id = 'rtfd-client-%s' % self.repo.name
             self.launchpad = Launchpad.login_anonymously(
                 client_id, 'production')
         return self.launchpad

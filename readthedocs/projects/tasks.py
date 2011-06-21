@@ -17,6 +17,7 @@ from sphinx.ext.intersphinx import fetch_inventory
 
 from builds.models import Build, Version
 from doc_builder import loading as builder_loading
+from doc_builder.base import restoring_chdir
 from projects.exceptions import ProjectImportError
 from projects.models import ImportedFile, Project
 from projects.utils import (
@@ -46,6 +47,7 @@ def remove_dir(path):
 
 
 @task
+@restoring_chdir
 def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None, force=False):
     """
     The main entry point for updating documentation.
@@ -116,6 +118,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
             print "Project imported from Django Packages!"
     except:
         print "Importing from Django Packages Errored."
+
 
 
 def update_imported_docs(project, version):

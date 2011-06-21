@@ -1,6 +1,9 @@
+from collections import namedtuple
 import os
 from os.path import basename
 import subprocess
+
+from django.template.defaultfilters import slugify
 
 
 class VCSVersion(object):
@@ -20,6 +23,12 @@ class VCSVersion(object):
     def __repr__(self):
         return "<VCSVersion: %s:%s" % (self.repository.repo_url,
                                        self.verbose_name)
+
+
+class VCSProject(namedtuple("VCSProject",
+                         "name default_branch working_dir repo_url")):
+    """Transient object to encapsulate a projects stuff"""
+    pass
 
 
 class BaseCLI(object):
@@ -65,9 +74,10 @@ class BaseVCS(BaseCLI):
     #===========================================================================
 
     def __init__(self, project, version):
-        self.project = project
-        self.repo_url = project.repo
-        self.working_dir = project.checkout_path(version)
+        self.default_branch = project.default_branch
+        self.name = project.name
+        self.repo_url = project.repo_url
+        self.working_dir = project.working_dir
 
     def check_working_dir(self):
         if not os.path.exists(self.working_dir):
@@ -135,7 +145,8 @@ class BaseContributionBackend(BaseCLI):
     """
     def __init__(self, repo):
         self.repo = repo
-        self.project = repo.project
+        self.slug = slugify(repo.name)
+        self.default_branch = repo.default_branch
         self.repo_url = repo.repo_url
         self.working_dir = repo.working_dir
 
