@@ -30,7 +30,7 @@ Site Documentation
     support
     webhooks
     alternate_domains
-
+    talks
 
 Developer Documentation
 -----------------------
