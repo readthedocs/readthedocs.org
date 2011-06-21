@@ -1,3 +1,6 @@
+import csv
+from StringIO import StringIO
+
 from projects.exceptions import ProjectImportError
 from vcs_support.base import BaseVCS, VCSVersion
 
@@ -21,11 +24,11 @@ class Backend(BaseVCS):
         # that's why I use `svn info` here.
         retcode = self.run('svn', 'info')[0]
         if retcode == 0:
-            self._up()
+            self.up()
         else:
-            self._co()
+            self.co()
 
-    def _up(self):
+    def up(self):
         retcode = self.run('svn', 'revert', '--recursive', '.')[0]
         if retcode != 0:
             raise ProjectImportError(
@@ -37,7 +40,7 @@ class Backend(BaseVCS):
                 "Failed to get code from '%s' (svn up): %s" % (self.repo_url, retcode)
             )
 
-    def _co(self):
+    def co(self):
         retcode = self.run('svn', 'checkout', '--quiet', self.repo_url, '.')[0]
         if retcode != 0:
             raise ProjectImportError(
@@ -50,9 +53,9 @@ class Backend(BaseVCS):
         # error (or no tags found)
         if retcode != 0:
             return []
-        return self._parse_tags(stdout)
+        return self.parse_tags(stdout)
 
-    def _parse_tags(self, data):
+    def parse_tags(self, data):
         """
         Parses output of svn list, eg:
 
@@ -64,9 +67,10 @@ class Backend(BaseVCS):
             release-1.5/
         """
         # parse the lines into a list of tuples (commit-hash, tag ref name)
-        raw_tags = [line.rstrip('/') for line in data.strip('\n').split('\n')]
+
+        raw_tags = csv.reader(StringIO(data), delimiter='/')
         vcs_tags = []
-        for name in raw_tags:
+        for name, in raw_tags:
             vcs_tags.append(VCSVersion(self, '/tags/%s/' % name, name))
         return vcs_tags
 
@@ -74,6 +78,6 @@ class Backend(BaseVCS):
         super(Backend, self).checkout()
         retcode = self.run('svn', 'info')[0]
         if retcode == 0:
-            self._up()
+            self.up()
         else:
-            self._co()
+            self.co()

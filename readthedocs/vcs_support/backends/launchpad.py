@@ -5,27 +5,29 @@ from vcs_support.backends import bzr
 
 class Backend(bzr.Backend):
     supports_branches = True
-    _launchpad = None
-    _lp_project = None
+    launchpad = None
+    lp_project = None
 
     @property
     def branches(self):
         branches = []
-        proj = self._get_project()
+        proj = self.get_project()
 
         for series in proj.series:
-            branches.append( VCSVersion(self, series.branch.bzr_identity, series.name) )
+            branches.append(
+                VCSVersion(self, series.branch.bzr_identity, series.name))
 
         return branches
 
-    def _get_project(self):
-        if self._lp_project is None:
-            lp = self._get_launchpad()
-            self._lp_project = lp.projects[self.project.slug] # Probably need to improve this
-        return self._lp_project
+    def get_project(self):
+        if self.lp_project is None:
+            lp = self.get_launchpad()
+            self.lp_project = lp.projects[self.project.slug] # Probably need to improve this
+        return self.lp_project
 
-    def _get_launchpad(self):
-        if self._launchpad is None:
+    def get_launchpad(self):
+        if self.launchpad is None:
             client_id = 'rtfd-client-%s' % self.project.name
-            self._launchpad = Launchpad.login_anonymously(client_id, 'production')
-        return self._launchpad
+            self.launchpad = Launchpad.login_anonymously(
+                client_id, 'production')
+        return self.launchpad

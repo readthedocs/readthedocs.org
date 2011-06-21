@@ -42,7 +42,7 @@ class TestBackend(RTDTestCase):
                         'remotes/origin/release/2.0.0',
                         'remotes/origin/release/2.1.0']
         given_ids = [x.identifier for x in
-                     self.project.vcs_repo()._parse_branches(data)]
+                     self.project.vcs_repo().parse_branches(data)]
         assert expected_ids == given_ids
 
     def test_git_checkout(self):
