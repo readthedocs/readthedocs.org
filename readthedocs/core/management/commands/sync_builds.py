@@ -13,6 +13,12 @@ class Command(BaseCommand):
             default=None,
             help='Build a version, or all versions'
             ),
+        make_option('-c',
+            action='store_true',
+            dest='checkout',
+            default=False,
+            help='sync checkouts'
+            ),
         )
 
     def handle(self, *args, **options):
@@ -29,7 +35,10 @@ class Command(BaseCommand):
             for version in Version.objects.filter(active=True):
                 try:
                     print "Syncing %s" % version
-                    path = version.project.rtd_build_path(version.slug)
+                    if options['checkout']:
+                        path = version.project.checkout_path(version.slug)
+                    else:
+                        path = version.project.rtd_build_path(version.slug)
                     tasks.copy_to_app_servers(path, path)
                 except Exception, e:
                     print "Error: %s" % e
