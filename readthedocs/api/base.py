@@ -166,6 +166,7 @@ class VersionResource(EnhancedModelResource):
         ret_val = {
             'project': highest[0],
             'version': highest[1],
+            'is_highest': True,
         }
         if highest[0]:
             ret_val['url'] = highest[0].get_absolute_url()
