@@ -7,6 +7,7 @@ from vcs_support.base import BaseVCS, VCSVersion
 
 class Backend(BaseVCS):
     supports_tags = True
+    supports_branches = True
     fallback_branch = 'default'
 
     def update(self):
