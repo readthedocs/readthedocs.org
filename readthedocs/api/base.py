@@ -180,8 +180,8 @@ class VersionResource(EnhancedModelResource):
                         ret_val['is_highest'] = base_ver >= highest[1]
                 else:
                     ret_val['is_highest'] = False
-            except Version.DoesNotExist:
-                ret_val['is_highest'] = False
+            except (Version.DoesNotExist, TypeError) as e:
+                ret_val['is_highest'] = True
         return self.create_response(request, ret_val)
 
     def override_urls(self):
