@@ -166,11 +166,11 @@ class VersionResource(EnhancedModelResource):
         ret_val = {
             'project': highest[0],
             'version': highest[1],
-            'slug': highest[0].slug,
             'is_highest': True,
         }
         if highest[0]:
             ret_val['url'] = highest[0].get_absolute_url()
+            ret_val['slug'] =  highest[0].slug,
         if base and base != 'latest':
             try:
                 ver_obj = project.versions.get(slug=base)
