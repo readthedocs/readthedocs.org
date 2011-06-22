@@ -47,7 +47,8 @@ def remove_dir(path):
 
 
 @task
-def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None, force=False):
+@restoring_chdir
+def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None, force=False, **kwargs):
     """
     The main entry point for updating documentation.
 
