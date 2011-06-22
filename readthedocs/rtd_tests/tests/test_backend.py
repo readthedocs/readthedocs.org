@@ -28,20 +28,16 @@ class TestGitBackend(RTDTestCase):
         develop
         master
         release/2.0.0
-        rtd-jonas
         remotes/origin/2.0.X
         remotes/origin/HEAD -> origin/master
-        remotes/origin/develop
         remotes/origin/master
-        remotes/origin/release/2.0.0
-        remotes/origin/release/2.1.0"""
+        remotes/origin/release/2.0.0"""
 
-        expected_ids = ['develop', 'master', 'release/2.0.0',
-                        'rtd-jonas', 'remotes/origin/2.0.X',
-                        'origin/master', 'remotes/origin/develop',
-                        'remotes/origin/release/2.0.0',
-                        'remotes/origin/release/2.1.0']
-        given_ids = [x.identifier for x in
+        expected_ids = [('develop', 'develop'), ('master', 'master'),
+                        ('release/2.0.0', 'release-2.0.0'),
+                        ('remotes/origin/2.0.X', '2.0.X'),
+                        ('remotes/origin/release/2.0.0', 'release-2.0.0')]
+        given_ids = [(x.identifier, x.verbose_name) for x in
                      self.project.vcs_repo().parse_branches(data)]
         assert expected_ids == given_ids
 

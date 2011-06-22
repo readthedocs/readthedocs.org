@@ -125,16 +125,16 @@ class Backend(BaseVCS):
         clean_branches = []
         raw_branches = csv.reader(StringIO(data), delimiter=' ')
         for branch in raw_branches:
-            branch = filter(lambda f: f != '', branch)
-            branch = branch[-1]
+            branch = filter(lambda f: f != '' and f != '*', branch)
+            branch = branch[0]
             if branch.startswith('remotes/origin/'):
-                real_branch = branch.split(' ')[0]
-                slug = real_branch[15:].replace('/', '-')
+                slug = branch[15:].replace('/', '-')
                 if slug in ['HEAD', self.fallback_branch]:
                     continue
-                clean_branches.append(VCSVersion(self, real_branch, slug))
+                clean_branches.append(VCSVersion(self, branch, slug))
             else:
-                clean_branches.append(VCSVersion(self, branch, branch))
+                slug = branch.replace('/', '-')
+                clean_branches.append(VCSVersion(self, branch, slug))
         return clean_branches
 
     def checkout(self, identifier=None):
