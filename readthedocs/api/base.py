@@ -166,6 +166,7 @@ class VersionResource(EnhancedModelResource):
         ret_val = {
             'project': highest[0],
             'version': highest[1],
+            'slug': highest[0].slug,
             'is_highest': True,
         }
         if highest[0]:

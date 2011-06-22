@@ -13,7 +13,7 @@ warning = '<div class="admonition note"> <p class="first admonition-title">Note<
      url: "/api/v1/version/" + doc_slug + "/highest/" + doc_version + "/",
      success: function(data, textStatus, request) {
       if (!data.is_highest) {
-         $("div.body").prepend(warning + "<a href='http://readthedocs.org" + data.url + window.location.pathname + "'>" + data.version + "</a> is the newest version. </p></div>")
+         $("div.body").prepend(warning + "<a href='http://readthedocs.org" + window.location.pathname.replace(doc_version, data.slug)  + "'>" + data.version + "</a> is the newest version. </p></div>")
       }
      },
      dataType: 'json'
