@@ -2,8 +2,8 @@ from django.test import TestCase
 import json
 import base64
 
-class BasicTests(TestCase):
-    fixtures = ['eric.json']
+class APITests(TestCase):
+    fixtures = ['eric.json', 'test_data.json']
 
     def test_make_project(self):
         """
@@ -19,8 +19,8 @@ class BasicTests(TestCase):
                                 )
         self.assertEqual(resp.status_code, 201)
         self.assertEqual(resp['location'],
-                         'http://testserver/api/v1/project/1/')
-        resp = self.client.get('/api/v1/project/1/',
+                         'http://testserver/api/v1/project/23/')
+        resp = self.client.get('/api/v1/project/23/',
                                data={'format': 'json'},
                                 HTTP_AUTHORIZATION='Basic %s' % base64.b64encode('eric:test')
                               )
@@ -74,3 +74,27 @@ class BasicTests(TestCase):
                          data={"format": "json"}
                          )
         self.assertEqual(resp.status_code, 200)
+
+    def test_not_highest(self):
+        resp = self.client.get("http://testserver/api/v1/version/read-the-docs/highest/0.2.1/",
+                         data={"format": "json"}
+                         )
+        self.assertEqual(resp.status_code, 200)
+        obj = json.loads(resp.content)
+        self.assertEqual(obj['is_highest'], False)
+
+    def test_latest_version_highest(self):
+        resp = self.client.get("http://testserver/api/v1/version/read-the-docs/highest/latest/",
+                         data={"format": "json"}
+                         )
+        self.assertEqual(resp.status_code, 200)
+        obj = json.loads(resp.content)
+        self.assertEqual(obj['is_highest'], True)
+
+    def test_real_highest(self):
+        resp = self.client.get("http://testserver/api/v1/version/read-the-docs/highest/0.2.2/",
+                         data={"format": "json"}
+                         )
+        self.assertEqual(resp.status_code, 200)
+        obj = json.loads(resp.content)
+        self.assertEqual(obj['is_highest'], True)

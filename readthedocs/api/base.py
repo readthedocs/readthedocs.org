@@ -166,22 +166,21 @@ class VersionResource(EnhancedModelResource):
         ret_val = {
             'project': highest[0],
             'version': highest[1],
+            'is_highest': True,
         }
         if highest[0]:
             ret_val['url'] = highest[0].get_absolute_url()
-        if base:
+            ret_val['slug'] =  highest[0].slug,
+        if base and base != 'latest':
             try:
                 ver_obj = project.versions.get(slug=base)
                 base_ver = mkversion(ver_obj)
                 if base_ver:
-                    if base == "latest":
-                        ret_val['is_highest'] = True
-                    else:
-                        ret_val['is_highest'] = base_ver >= highest[1]
+                    ret_val['is_highest'] = base_ver >= highest[1]
                 else:
                     ret_val['is_highest'] = False
-            except Version.DoesNotExist:
-                ret_val['is_highest'] = False
+            except (Version.DoesNotExist, TypeError) as e:
+                ret_val['is_highest'] = True
         return self.create_response(request, ret_val)
 
     def override_urls(self):
