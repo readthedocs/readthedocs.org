@@ -119,6 +119,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
     except:
         print "Importing from Django Packages Errored."
 
+    return True
 
 
 def update_imported_docs(project, version):
