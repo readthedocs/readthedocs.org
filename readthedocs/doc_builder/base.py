@@ -1,8 +1,9 @@
 from functools import wraps
 import os
-from functools import wraps
+
 
 def restoring_chdir(fn):
+    #XXX:dc: This would be better off in a neutral module
     @wraps(fn)
     def decorator(*args, **kw):
         try:
@@ -16,18 +17,31 @@ def restoring_chdir(fn):
 class BaseBuilder(object):
     """
     The Base for all Builders. Defines the API for subclasses.
+    All workflow steps need to return true, otherwise it is assumed something
+    went wrong and the Builder will stop
     """
 
+    workflow = ['clean', 'build', 'move']
+
+    def __init__(self, version):
+        self.version = version
+
+    def run(self):
+        for step in self.workflow:
+            fn = getattr(self, step)
+            result = fn()
+            assert result
+
     @restoring_chdir
-    def force(self, version):
+    def force(self):
         """
         An optional step to force a build even when nothing has changed.
         """
         print "Forcing a build by touching files"
-        os.chdir(version.project.conf_dir(version.slug))
+        os.chdir(self.version.project.conf_dir(self.version.slug))
         os.system('touch * && touch */*')
 
-    def clean(self, version):
+    def clean(self):
         """
         Clean up the version so it's ready for usage.
 
@@ -38,13 +52,13 @@ class BaseBuilder(object):
         """
         raise NotImplementedError
 
-    def build(self, version):
+    def build(self):
         """
         Do the actual building of the documentation.
         """
         raise NotImplementedError
 
-    def move(self, version):
+    def move(self):
         """
         Move the documentation from it's generated place to its final home.
 
@@ -58,8 +72,10 @@ class BaseBuilder(object):
         """
         Says whether the documentation has changed, and requires further action.
 
-        This is mainly used to short-circuit more expensive builds of other output formats if the project docs didn't change on an update.
+        This is mainly used to short-circuit more expensive builds of other
+        output formats if the project docs didn't change on an update.
+        Subclasses are recommended to override for more efficient builds.
 
         Defaults to `True`
         """
-        return getattr(self, '_changed', True)
+        return True

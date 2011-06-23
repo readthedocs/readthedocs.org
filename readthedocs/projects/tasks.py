@@ -4,7 +4,6 @@
 import decimal
 import fnmatch
 import os
-import getpass
 import re
 import shutil
 
@@ -29,6 +28,7 @@ from projects.utils import (
     slugify_uniquely,
     )
 from tastyapi import client
+from core.utils import copy_to_app_servers
 
 ghetto_hack = re.compile(
     r'(?P<key>.*)\s*=\s*u?\[?[\'\"](?P<value>.*)[\'\"]\]?')
@@ -63,55 +63,47 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
     project = Project.objects.live().get(pk=pk)
     print "Building %s" % project
     if version_pk:
-        versions = [Version.objects.get(pk=version_pk)]
+        version = [Version.objects.get(pk=version_pk)]
     else:
         branch = project.default_branch or project.vcs_repo().fallback_branch
-        latest = Version.objects.filter(project=project, slug='latest')
-        if len(latest):
-            #Handle changing of latest's branch
-            latest = latest[0]
-            if not latest.identifier == branch:
-                latest.identifier = branch
-                latest.save()
-            versions = [latest]
+        version, created = Version.objects.get_or_create(
+            project=project, slug='latest')
+        if version.identifier != branch:
+            version.identifier = branch
+            version.save()
+
+    #Make Dirs
+    path = project.doc_path
+    if not os.path.exists(path):
+        os.makedirs(path)
+    with project.repo_lock(30):
+        if project.is_imported:
+            try:
+                update_imported_docs(project, version)
+            except ProjectImportError, err:
+                print("Error importing project: %s. Skipping build." % err)
+                return False
+
+            scrape_conf_file(version)
         else:
-            versions = [Version.objects.create(project=project,
-                                               identifier=branch,
-                                               slug='latest',
-                                               verbose_name='latest')]
+            update_created_docs(project)
 
-    for version in versions:
-        #Make Dirs
-        path = project.doc_path
-        if not os.path.exists(path):
-            os.makedirs(path)
-        with project.repo_lock(30):
-            if project.is_imported:
-                try:
-                    update_imported_docs(project, version)
-                except ProjectImportError, err:
-                    print("Error importing project: %s. Skipping build." % err)
-                    return False
-
-                scrape_conf_file(version)
+        # kick off a build
+        (ret, out, err) = build_docs(project=project, version=version,
+                                     pdf=pdf, man=man, epub=epub,
+                                     record=record, force=force)
+        if not 'no targets are out of date.' in out:
+            if ret == 0:
+                print "HTML Build OK"
+                purge_version(version, subdomain=True,
+                              mainsite=True, cname=True)
+                update_intersphinx(version.pk)
+                print "Purged %s" % version
             else:
-                update_created_docs(project)
+                print "HTML Build ERROR"
+        else:
+            print "Build Unchanged"
 
-            # kick off a build
-            (ret, out, err) = build_docs(project=project, version=version,
-                                         pdf=pdf, man=man, epub=epub,
-                                         record=record, force=force)
-            if not 'no targets are out of date.' in out:
-                if ret == 0:
-                    print "HTML Build OK"
-                    purge_version(version, subdomain=True,
-                                  mainsite=True, cname=True)
-                    update_intersphinx(version.pk)
-                    print "Purged %s" % version
-                else:
-                    print "HTML Build ERROR"
-            else:
-                print "Build Unchanged"
     try:
         result = client.import_project(project)
         if result:
@@ -222,7 +214,6 @@ def update_imported_docs(project, version):
         print "Error getting tags: %s" % e
         return False
 
-
     fileify(version)
 
 
@@ -294,14 +285,14 @@ def build_docs(project, version, pdf, man, epub, record, force):
     if not project.conf_file(version.slug):
         return ('', 'Conf file not found.', -1)
 
-    html_builder = builder_loading.get(project.documentation_type)()
+    html_builder = builder_loading.get(project.documentation_type)(version)
     if force:
-        html_builder.force(version)
-    html_builder.clean(version)
-    html_output = html_builder.build(version)
+        html_builder.force()
+    html_builder.clean()
+    html_output = html_builder.build()
     successful = (html_output[0] == 0)
     if successful:
-        html_builder.move(version)
+        html_builder.move()
         if version:
             version.active = True
             version.built = True
@@ -317,43 +308,19 @@ def build_docs(project, version, pdf, man, epub, record, force):
             )
         #XXX:dc: all builds should have their output checked
         if pdf:
-            pdf_builder = builder_loading.get('sphinx_pdf')()
-            pdf_builder.build(version)
+            pdf_builder = builder_loading.get('sphinx_pdf')(version)
+            pdf_builder.build()
             #PDF Builder is oddly 2-steped, and stateful for now
             #pdf_builder.move(version)
         if man:
-            man_builder = builder_loading.get('sphinx_man')()
-            man_builder.build(version)
-            man_builder.move(version)
+            man_builder = builder_loading.get('sphinx_man')(version)
+            man_builder.build()
+            man_builder.move()
         if epub:
-            epub_builder = builder_loading.get('sphinx_epub')()
-            epub_builder.build(version)
-            epub_builder.move(version)
+            epub_builder = builder_loading.get('sphinx_epub')(version)
+            epub_builder.build()
+            epub_builder.move()
     return html_output
-
-
-def copy_to_app_servers(full_build_path, target, mkdir=True):
-    """
-    A helper to copy a directory across app servers
-    """
-    print "Copying %s to %s" % (full_build_path, target)
-    for server in settings.MULTIPLE_APP_SERVERS:
-        os.system("ssh %s@%s mkdir -p %s" % (getpass.getuser(), server, target))
-        ret = os.system("rsync -e 'ssh -T' -av --delete %s/ %s@%s:%s" % (full_build_path, getpass.getuser(), server, target))
-        if ret != 0:
-            print "COPY ERROR to app servers."
-
-def copy_file_to_app_servers(from_file, to_file):
-    """
-    A helper to copy a single file across app servers
-    """
-    print "Copying %s to %s" % (from_file, to_file)
-    to_path = '/'.join(to_file.split('/')[0:-1])
-    for server in settings.MULTIPLE_APP_SERVERS:
-        os.system("ssh %s@%s mkdir -p %s" % (getpass.getuser(), server, to_path))
-        ret = os.system("rsync -e 'ssh -T' -av --delete %s %s@%s:%s" % (from_file, getpass.getuser(), server, to_file))
-        if ret != 0:
-            print "COPY ERROR to app servers."
 
 
 def fileify(version):
@@ -362,18 +329,18 @@ def fileify(version):
 
     This is a prereq for indexing the docs for search.
     """
-
     project = version.project
     path = project.rtd_build_path(version.slug)
     if path:
         for root, dirnames, filenames in os.walk(path):
             for filename in filenames:
                 if fnmatch.fnmatch(filename, '*.html'):
-                    dirpath =  os.path.join(root.replace(path, '').lstrip('/'),
+                    dirpath = os.path.join(root.replace(path, '').lstrip('/'),
                                             filename.lstrip('/'))
-                    file, new = ImportedFile.objects.get_or_create(project=project,
-                                                path=dirpath,
-                                                name=filename)
+                    file, new = ImportedFile.objects.get_or_create(
+                        project=project,
+                        path=dirpath,
+                        name=filename)
 
 
 #@periodic_task(run_every=crontab(hour="2", minute="10", day_of_week="*"))
@@ -385,7 +352,8 @@ def update_docs_pull(record=False, pdf=False, man=False, force=False):
     """
     for project in Project.objects.live():
         try:
-            update_docs(pk=project.pk, record=record, pdf=pdf, man=man, force=force)
+            update_docs(
+                pk=project.pk, record=record, pdf=pdf, man=man, force=force)
         except:
             print "failed"
 
@@ -429,7 +397,8 @@ def update_intersphinx(version_pk):
                 find_str = "rtd-builds/latest"
                 latest = url.find(find_str)
                 url = url[latest + len(find_str) + 1:]
-                url = "http://%s.readthedocs.org/en/latest/%s" % (version.project.slug, url)
+                url = "http://%s.readthedocs.org/en/latest/%s" % (
+                    version.project.slug, url)
                 save_term(version, term, url, title)
                 if '.' in term:
                     save_term(version, term.split('.')[-1], url, title)
