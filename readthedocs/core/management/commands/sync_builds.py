@@ -1,7 +1,8 @@
 from django.core.management.base import BaseCommand
 from optparse import make_option
-from projects import tasks
 from builds.models import Version
+from core.utils import copy_to_app_servers
+
 
 class Command(BaseCommand):
     """Custom management command to rebuild documentation for all projects on
@@ -29,7 +30,7 @@ class Command(BaseCommand):
                 for version in Version.objects.filter(project__slug=slug,
                                                       active=True):
                     path = version.project.rtd_build_path(version.slug)
-                    tasks.copy_to_app_servers(path, path)
+                    copy_to_app_servers(path, path)
         else:
             print "Updating all versions"
             for version in Version.objects.filter(active=True):
@@ -39,6 +40,6 @@ class Command(BaseCommand):
                         path = version.project.checkout_path(version.slug)
                     else:
                         path = version.project.rtd_build_path(version.slug)
-                    tasks.copy_to_app_servers(path, path)
+                    copy_to_app_servers(path, path)
                 except Exception, e:
                     print "Error: %s" % e

@@ -9,8 +9,7 @@ from django.conf import settings
 
 from doc_builder.base import BaseBuilder, restoring_chdir
 from projects.utils import safe_write, run
-from projects.tasks import copy_to_app_servers
-
+from core.utils import copy_to_app_servers
 
 
 RTD_CONF_ADDITIONS = """
@@ -70,16 +69,16 @@ class Builder(BaseBuilder):
     Also handles the default sphinx output of html.
     """
 
-    def _whitelisted(self, version):
+    def _whitelisted(self):
         """Modify the given ``conf.py`` file from a whitelisted user's project.
         """
-        project = version.project
+        project = self.version.project
         #Open file for appending.
-        outfile = open(project.conf_file(version.slug), 'a')
+        outfile = open(project.conf_file(self.version.slug), 'a')
         outfile.write("\n")
         rtd_ctx = Context({
                 'verisons': project.active_versions(),
-                'current_version': version,
+                'current_version': self.version,
                 'project': project,
                 'settings': settings,
                 'static_path': STATIC_DIR,
@@ -88,8 +87,8 @@ class Builder(BaseBuilder):
         rtd_string = Template(RTD_CONF_ADDITIONS).render(rtd_ctx)
         outfile.write(rtd_string)
 
-    def _sanitize(self, version):
-        project = version.project
+    def _sanitize(self):
+        project = self.version.project
         conf_template = render_to_string('sphinx/conf.py.conf',
                                          {'project': project,
                                           'template_dir': TEMPLATE_DIR,
@@ -97,7 +96,7 @@ class Builder(BaseBuilder):
                                           })
         rtd_ctx = Context({
             'verisons': project.active_versions(),
-            'current_version': version,
+            'current_version': self.version,
             'project': project,
             'settings': settings,
             'static_path': STATIC_DIR,
@@ -105,31 +104,31 @@ class Builder(BaseBuilder):
         })
         rtd_string = Template(RTD_CONF_ADDITIONS).render(rtd_ctx)
         conf_template = conf_template + "\n" + rtd_string
-        safe_write(project.conf_file(version.slug), conf_template)
+        safe_write(project.conf_file(self.version.slug), conf_template)
 
-    def clean(self, version):
+    def clean(self):
         try:
-            if version.project.whitelisted and version.project.is_imported:
+            if self.version.project.whitelisted and self.version.project.is_imported:
                 print "Project whitelisted"
-                self._whitelisted(version)
+                self._whitelisted()
             else:
                 print "Writing conf to disk"
-                self._sanitize(version)
+                self._sanitize()
         except (OSError, SiteProfileNotAvailable, ObjectDoesNotExist):
             try:
                 print "Writing conf to disk on error."
-                self._sanitize(version)
+                self._sanitize()
             except (OSError, IOError):
                 print "Conf file not found. Error writing to disk."
                 return ('', 'Conf file not found. Error writing to disk.', -1)
 
     @restoring_chdir
-    def build(self, version):
-        project = version.project
-        os.chdir(project.conf_dir(version.slug))
+    def build(self):
+        project = self.version.project
+        os.chdir(project.conf_dir(self.version.slug))
         if project.use_virtualenv and project.whitelisted:
             build_command = '%s -b html . _build/html' % project.venv_bin(
-                version=version.slug, bin='sphinx-build')
+                version=self.version.slug, bin='sphinx-build')
         else:
             build_command = "sphinx-build -b html . _build/html"
         build_results = run(build_command)
@@ -137,17 +136,17 @@ class Builder(BaseBuilder):
             self._changed = False
         return build_results
 
-    def move(self, version):
-        project = version.project
-        if project.full_build_path(version.slug):
-            target = project.rtd_build_path(version.slug)
+    def move(self):
+        project = self.version.project
+        if project.full_build_path(self.version.slug):
+            target = project.rtd_build_path(self.version.slug)
             if getattr(settings, "MULTIPLE_APP_SERVERS", None):
                 print "Copying docs to remote server."
-                copy_to_app_servers(project.full_build_path(version.slug), target)
+                copy_to_app_servers(project.full_build_path(self.version.slug), target)
             else:
                 if os.path.exists(target):
                     shutil.rmtree(target)
                 print "Copying docs on the local filesystem"
-                shutil.copytree(project.full_build_path(version.slug), target)
+                shutil.copytree(project.full_build_path(self.version.slug), target)
         else:
             print "Not moving docs, because the build dir is unknown."

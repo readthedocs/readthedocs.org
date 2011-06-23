@@ -6,7 +6,7 @@ from django.conf import settings
 
 from doc_builder.base import BaseBuilder, restoring_chdir
 from projects.utils import run
-from projects.tasks import copy_file_to_app_servers
+from core.utils import copy_file_to_app_servers
 
 
 latex_re = re.compile('the LaTeX files are in (.*)\.')
@@ -16,11 +16,12 @@ pdf_re = re.compile('Output written on (.+) \(')
 class Builder(BaseBuilder):
 
     @restoring_chdir
-    def build(self, version):
-        project = version.project
-        os.chdir(project.conf_dir(version.slug))
+    def build(self):
+        project = self.version.project
+        os.chdir(project.conf_dir(self.version.slug))
         if project.use_virtualenv and project.whitelisted:
-            latex_results = run('%s -b latex -d _build/doctrees   . _build/latex' % project.venv_bin(version=version.slug, bin='sphinx-build'))
+            latex_results = run('%s -b latex -d _build/doctrees   . _build/latex' %
+                                project.venv_bin(version=self.version.slug, bin='sphinx-build'))
         else:
             latex_results = run('sphinx-build -b latex '
                             '-d _build/doctrees   . _build/latex')
@@ -38,7 +39,7 @@ class Builder(BaseBuilder):
                 to_path = os.path.join(settings.MEDIA_ROOT,
                        'pdf',
                        project.slug,
-                       version.slug)
+                       self.version.slug)
                 from_file = os.path.join(os.getcwd(), "*.pdf")
                 to_file = os.path.join(to_path, '%s.pdf' % project.slug)
                 if getattr(settings, "MULTIPLE_APP_SERVERS", None):
@@ -52,7 +53,7 @@ class Builder(BaseBuilder):
         return latex_results
 
 
-    def move(self, version):
+    def move(self):
         #This needs to be thought about more because of all the state above.
         #We could just shove the filename on the instance or something.
         return True
