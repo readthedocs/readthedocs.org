@@ -63,55 +63,47 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
     project = Project.objects.live().get(pk=pk)
     print "Building %s" % project
     if version_pk:
-        versions = [Version.objects.get(pk=version_pk)]
+        version = [Version.objects.get(pk=version_pk)]
     else:
         branch = project.default_branch or project.vcs_repo().fallback_branch
-        latest = Version.objects.filter(project=project, slug='latest')
-        if len(latest):
-            #Handle changing of latest's branch
-            latest = latest[0]
-            if not latest.identifier == branch:
-                latest.identifier = branch
-                latest.save()
-            versions = [latest]
+        version, created = Version.objects.get_or_create(
+            project=project, slug='latest')
+        if version.identifier != branch:
+            version.identifier = branch
+            version.save()
+
+    #Make Dirs
+    path = project.doc_path
+    if not os.path.exists(path):
+        os.makedirs(path)
+    with project.repo_lock(30):
+        if project.is_imported:
+            try:
+                update_imported_docs(project, version)
+            except ProjectImportError, err:
+                print("Error importing project: %s. Skipping build." % err)
+                return False
+
+            scrape_conf_file(version)
         else:
-            versions = [Version.objects.create(project=project,
-                                               identifier=branch,
-                                               slug='latest',
-                                               verbose_name='latest')]
+            update_created_docs(project)
 
-    for version in versions:
-        #Make Dirs
-        path = project.doc_path
-        if not os.path.exists(path):
-            os.makedirs(path)
-        with project.repo_lock(30):
-            if project.is_imported:
-                try:
-                    update_imported_docs(project, version)
-                except ProjectImportError, err:
-                    print("Error importing project: %s. Skipping build." % err)
-                    return False
-
-                scrape_conf_file(version)
+        # kick off a build
+        (ret, out, err) = build_docs(project=project, version=version,
+                                     pdf=pdf, man=man, epub=epub,
+                                     record=record, force=force)
+        if not 'no targets are out of date.' in out:
+            if ret == 0:
+                print "HTML Build OK"
+                purge_version(version, subdomain=True,
+                              mainsite=True, cname=True)
+                update_intersphinx(version.pk)
+                print "Purged %s" % version
             else:
-                update_created_docs(project)
+                print "HTML Build ERROR"
+        else:
+            print "Build Unchanged"
 
-            # kick off a build
-            (ret, out, err) = build_docs(project=project, version=version,
-                                         pdf=pdf, man=man, epub=epub,
-                                         record=record, force=force)
-            if not 'no targets are out of date.' in out:
-                if ret == 0:
-                    print "HTML Build OK"
-                    purge_version(version, subdomain=True,
-                                  mainsite=True, cname=True)
-                    update_intersphinx(version.pk)
-                    print "Purged %s" % version
-                else:
-                    print "HTML Build ERROR"
-            else:
-                print "Build Unchanged"
     try:
         result = client.import_project(project)
         if result:
