@@ -4,7 +4,6 @@
 import decimal
 import fnmatch
 import os
-import getpass
 import re
 import shutil
 
@@ -223,7 +222,6 @@ def update_imported_docs(project, version):
         print "Error getting tags: %s" % e
         return False
 
-
     fileify(version)
 
 
@@ -339,18 +337,18 @@ def fileify(version):
 
     This is a prereq for indexing the docs for search.
     """
-
     project = version.project
     path = project.rtd_build_path(version.slug)
     if path:
         for root, dirnames, filenames in os.walk(path):
             for filename in filenames:
                 if fnmatch.fnmatch(filename, '*.html'):
-                    dirpath =  os.path.join(root.replace(path, '').lstrip('/'),
+                    dirpath = os.path.join(root.replace(path, '').lstrip('/'),
                                             filename.lstrip('/'))
-                    file, new = ImportedFile.objects.get_or_create(project=project,
-                                                path=dirpath,
-                                                name=filename)
+                    file, new = ImportedFile.objects.get_or_create(
+                        project=project,
+                        path=dirpath,
+                        name=filename)
 
 
 #@periodic_task(run_every=crontab(hour="2", minute="10", day_of_week="*"))
@@ -362,7 +360,8 @@ def update_docs_pull(record=False, pdf=False, man=False, force=False):
     """
     for project in Project.objects.live():
         try:
-            update_docs(pk=project.pk, record=record, pdf=pdf, man=man, force=force)
+            update_docs(
+                pk=project.pk, record=record, pdf=pdf, man=man, force=force)
         except:
             print "failed"
 
@@ -406,7 +405,8 @@ def update_intersphinx(version_pk):
                 find_str = "rtd-builds/latest"
                 latest = url.find(find_str)
                 url = url[latest + len(find_str) + 1:]
-                url = "http://%s.readthedocs.org/en/latest/%s" % (version.project.slug, url)
+                url = "http://%s.readthedocs.org/en/latest/%s" % (
+                    version.project.slug, url)
                 save_term(version, term, url, title)
                 if '.' in term:
                     save_term(version, term.split('.')[-1], url, title)
