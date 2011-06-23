@@ -29,6 +29,7 @@ from projects.utils import (
     slugify_uniquely,
     )
 from tastyapi import client
+from core.utils import copy_to_app_servers
 
 ghetto_hack = re.compile(
     r'(?P<key>.*)\s*=\s*u?\[?[\'\"](?P<value>.*)[\'\"]\]?')
@@ -294,14 +295,14 @@ def build_docs(project, version, pdf, man, epub, record, force):
     if not project.conf_file(version.slug):
         return ('', 'Conf file not found.', -1)
 
-    html_builder = builder_loading.get(project.documentation_type)()
+    html_builder = builder_loading.get(project.documentation_type)(version)
     if force:
-        html_builder.force(version)
-    html_builder.clean(version)
-    html_output = html_builder.build(version)
+        html_builder.force()
+    html_builder.clean()
+    html_output = html_builder.build()
     successful = (html_output[0] == 0)
     if successful:
-        html_builder.move(version)
+        html_builder.move()
         if version:
             version.active = True
             version.built = True
@@ -317,43 +318,19 @@ def build_docs(project, version, pdf, man, epub, record, force):
             )
         #XXX:dc: all builds should have their output checked
         if pdf:
-            pdf_builder = builder_loading.get('sphinx_pdf')()
-            pdf_builder.build(version)
+            pdf_builder = builder_loading.get('sphinx_pdf')(version)
+            pdf_builder.build()
             #PDF Builder is oddly 2-steped, and stateful for now
             #pdf_builder.move(version)
         if man:
-            man_builder = builder_loading.get('sphinx_man')()
-            man_builder.build(version)
-            man_builder.move(version)
+            man_builder = builder_loading.get('sphinx_man')(version)
+            man_builder.build()
+            man_builder.move()
         if epub:
-            epub_builder = builder_loading.get('sphinx_epub')()
-            epub_builder.build(version)
-            epub_builder.move(version)
+            epub_builder = builder_loading.get('sphinx_epub')(version)
+            epub_builder.build()
+            epub_builder.move()
     return html_output
-
-
-def copy_to_app_servers(full_build_path, target, mkdir=True):
-    """
-    A helper to copy a directory across app servers
-    """
-    print "Copying %s to %s" % (full_build_path, target)
-    for server in settings.MULTIPLE_APP_SERVERS:
-        os.system("ssh %s@%s mkdir -p %s" % (getpass.getuser(), server, target))
-        ret = os.system("rsync -e 'ssh -T' -av --delete %s/ %s@%s:%s" % (full_build_path, getpass.getuser(), server, target))
-        if ret != 0:
-            print "COPY ERROR to app servers."
-
-def copy_file_to_app_servers(from_file, to_file):
-    """
-    A helper to copy a single file across app servers
-    """
-    print "Copying %s to %s" % (from_file, to_file)
-    to_path = '/'.join(to_file.split('/')[0:-1])
-    for server in settings.MULTIPLE_APP_SERVERS:
-        os.system("ssh %s@%s mkdir -p %s" % (getpass.getuser(), server, to_path))
-        ret = os.system("rsync -e 'ssh -T' -av --delete %s %s@%s:%s" % (from_file, getpass.getuser(), server, to_file))
-        if ret != 0:
-            print "COPY ERROR to app servers."
 
 
 def fileify(version):

@@ -2,7 +2,7 @@ import os
 from doc_builder.base import restoring_chdir
 from doc_builder.backends.sphinx import Builder as HtmlBuilder
 from projects.utils import run
-from projects.tasks import copy_file_to_app_servers
+from core.utils import copy_file_to_app_servers
 
 
 from django.conf import settings
@@ -11,25 +11,25 @@ from django.conf import settings
 class Builder(HtmlBuilder):
 
     @restoring_chdir
-    def build(self, version):
-        project = version.project
-        os.chdir(project.conf_dir(version.slug))
+    def build(self):
+        project = self.version.project
+        os.chdir(project.conf_dir(self.version.slug))
         if project.use_virtualenv and project.whitelisted:
             build_command = '%s -b epub . _build/epub' % project.venv_bin(
-                version=version.slug, bin='sphinx-build')
+                version=self.version.slug, bin='sphinx-build')
         else:
             build_command = "sphinx-build -b epub . _build/epub"
         build_results = run(build_command)
         return build_results
 
-    def move(self, version):
-        project = version.project
-        outputted_path = os.path.join(project.conf_dir(version.slug),
+    def move(self):
+        project = self.version.project
+        outputted_path = os.path.join(project.conf_dir(self.version.slug),
                                     '_build', 'epub')
         to_path = os.path.join(settings.MEDIA_ROOT,
                                'epub',
                                project.slug,
-                               version.slug)
+                               self.version.slug)
         from_file = os.path.join(outputted_path, "*.epub")
         to_file = os.path.join(to_path, "%s.epub" % project.slug)
         if getattr(settings, "MULTIPLE_APP_SERVERS", None):
