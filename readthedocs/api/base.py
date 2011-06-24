@@ -176,9 +176,12 @@ class VersionResource(EnhancedModelResource):
                 ver_obj = project.versions.get(slug=base)
                 base_ver = mkversion(ver_obj)
                 if base_ver:
+                    #This is only place where is_highest can get set.
+                    #All error cases will be set to True, for non-
+                    #standard versions.
                     ret_val['is_highest'] = base_ver >= highest[1]
                 else:
-                    ret_val['is_highest'] = False
+                    ret_val['is_highest'] = True
             except (Version.DoesNotExist, TypeError) as e:
                 ret_val['is_highest'] = True
         return self.create_response(request, ret_val)
