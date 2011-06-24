@@ -7,10 +7,6 @@
 {% block content-header %}<h1>Import an existing project</h1>{% endblock %}
 
 {% block content %}
-  <p class="help_text">
-    Use this if you already have Sphinx docs in a public repository. If not,
-    <a class="" href="{% url projects_create %}">create a new project</a>.
-  </p>
   {% if not request.user.get_profile.whitelisted %}
   <p class="help_text"><b>Note:</b> If you are using custom extensions in your sphinx documentation, it will not work. Your project must be whitelisted, so that it can execute arbitrary code. Please <a href="mailto:readthedocs@readthedocs.org">email us</a> if you need this capability.</p>
   {% endif %}
