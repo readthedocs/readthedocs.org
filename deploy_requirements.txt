@@ -4,5 +4,4 @@ gunicorn
 pysolr
 python-memcached
 dnspython
-redis
 launchpadlib
