@@ -2,7 +2,7 @@ from fabric.api import *
 from fabric.decorators import runs_once
 
 env.runtime = 'production'
-env.hosts = ['chimera.ericholscher.com', 'kirin.ericholscher.com', 'ladon.ericholscher.com']
+env.hosts = ['chimera.ericholscher.com', 'ladon.ericholscher.com', 'mozbuild.ericholscher.com']
 env.user = 'docs'
 env.code_dir = '/home/docs/sites/readthedocs.org/checkouts/readthedocs.org'
 env.virtualenv = '/home/docs/sites/readthedocs.org'
@@ -30,7 +30,7 @@ def restart():
     env.user = "root"
     run("restart readthedocs-gunicorn")
 
-@hosts(['chimera.ericholscher.com'])
+@hosts(['mozbuild.ericholscher.com'])
 #@hosts(['kirin.ericholscher.com'])
 def celery():
     "Restart (or just start) the server"
