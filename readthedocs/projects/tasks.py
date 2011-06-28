@@ -63,7 +63,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
     project = Project.objects.live().get(pk=pk)
     print "Building %s" % project
     if version_pk:
-        version = [Version.objects.get(pk=version_pk)]
+        version = Version.objects.get(pk=version_pk)
     else:
         branch = project.default_branch or project.vcs_repo().fallback_branch
         version, created = Version.objects.get_or_create(
