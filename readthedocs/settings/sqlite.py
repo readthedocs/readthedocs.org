@@ -21,7 +21,7 @@ SESSION_COOKIE_DOMAIN = None
 HAYSTACK_SOLR_URL = 'http://localhost:8983/solr'
 CACHE_BACKEND = 'dummy://'
 
-#TEST_RUNNER = 'xmlrunner.extra.djangotestrunner.XMLTestRunner'
+TEST_RUNNER = 'xmlrunner.extra.djangotestrunner.XMLTestRunner'
 TEST_OUTPUT_VERBOSE = True
 TEST_OUTPUT_DESCRIPTIONS = True
 TEST_OUTPUT_DIR = os.path.join(SITE_ROOT, 'xml_output')
