@@ -10,3 +10,6 @@ Eric Pierce
 Chris Dickinson
 Jonas Obrist
 Issac Kelly
+Dan Colish
+Jacob Kaplan-Moss
+Daniel Greenfeld
