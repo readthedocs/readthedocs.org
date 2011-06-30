@@ -135,7 +135,7 @@ def purge_version(version, mainsite=False, subdomain=False, cname=False):
                 to_purge = "http://%s%s" % (server, url)
                 print "Purging %s on readthedocs.org" % url
                 ret = h.request(to_purge, method="PURGE", headers=headers)
-                root_url = "/"
+                root_url = "/docs/%s/" % version.project.slug
                 to_purge = "http://%s%s" % (server, root_url)
                 print "Purging %s on readthedocs.org" % root_url
                 ret2 = h.request(to_purge, method="PURGE", headers=headers)
