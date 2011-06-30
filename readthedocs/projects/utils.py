@@ -136,7 +136,8 @@ def purge_version(version, mainsite=False, subdomain=False, cname=False):
                 print "Purging %s on readthedocs.org" % url
                 ret = h.request(to_purge, method="PURGE", headers=headers)
                 root_url = "/"
-                to_purge = "http://%s%s" % (server, url)
+                to_purge = "http://%s%s" % (server, root_url)
+                print "Purging %s on readthedocs.org" % root_url
                 ret2 = h.request(to_purge, method="PURGE", headers=headers)
             if cname:
                 redis_conn = redis.Redis(**settings.REDIS)
@@ -147,9 +148,9 @@ def purge_version(version, mainsite=False, subdomain=False, cname=False):
                     print "Purging %s on %s" % (url, cnamed)
                     ret = h.request(to_purge, method="PURGE", headers=headers)
                     root_url = "/"
-                    to_purge = "http://%s%s" % (server, url)
+                    to_purge = "http://%s%s" % (server, root_url)
+                    print "Purging %s on %s" % (root_url, cnamed)
                     ret2 = h.request(to_purge, method="PURGE", headers=headers)
-                    print ret
 
 class DictObj(object):
     def __getattr__(self, attr):
