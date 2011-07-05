@@ -415,7 +415,7 @@ hr {
 pre, #_fontwidthtest {
     font-family: 'Consolas', 'Deja Vu Sans Mono',
                  'Bitstream Vera Sans Mono', monospace;
-    margin: 1em 2em;
+    margin: 1em 0em;
     font-size: 0.95em;
     letter-spacing: 0.015em;
     line-height: 120%;
