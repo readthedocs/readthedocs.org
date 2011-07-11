@@ -23,11 +23,12 @@ class Backend(BaseVCS):
             raise ProjectImportError(
                 "Failed to get code from '%s' (bzr revert): %s" % (self.repo_url, retcode)
             )
-        retcode = self.run('bzr', 'up')[0]
-        if retcode != 0:
+        up_output = self.run('bzr', 'up')
+        if up_output[0] != 0:
             raise ProjectImportError(
                 "Failed to get code from '%s' (bzr up): %s" % (self.repo_url, retcode)
             )
+        return up_output
 
     def clone(self):
         retcode = self.run('bzr', 'checkout', self.repo_url, '.')[0]
@@ -64,6 +65,6 @@ class Backend(BaseVCS):
         super(Backend, self).checkout()
         self.update()
         if not identifier:
-            self.up()
+            return self.up()
         else:
-            self.run('bzr', 'switch', identifier)
+            return self.run('bzr', 'switch', identifier)

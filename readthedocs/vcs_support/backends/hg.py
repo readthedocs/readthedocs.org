@@ -14,28 +14,30 @@ class Backend(BaseVCS):
         super(Backend, self).update()
         retcode = self.run('hg', 'status')[0]
         if retcode == 0:
-            self.pull()
+            return self.pull()
         else:
-            self.clone()
+            return self.clone()
 
     def pull(self):
-        retcode = self.run('hg', 'pull')[0]
-        if retcode != 0:
+        pull_output = self.run('hg', 'pull')
+        if output[0] != 0:
             raise ProjectImportError(
                 "Failed to get code from '%s' (hg pull): %s" % (self.repo_url, retcode)
             )
-        retcode = self.run('hg', 'update', '-C')[0]
-        if retcode != 0:
+        update_output = self.run('hg', 'update', '-C')[0]
+        if update_output[0] != 0:
             raise ProjectImportError(
                 "Failed to get code from '%s' (hg update): %s" % (self.repo_url, retcode)
             )
+        return update_output
 
     def clone(self):
-        retcode = self.run('hg', 'clone', self.repo_url, '.')[0]
-        if retcode != 0:
+        output = self.run('hg', 'clone', self.repo_url, '.')
+        if output[0] != 0:
             raise ProjectImportError(
                 "Failed to get code from '%s' (hg clone): %s" % (self.repo_url, retcode)
             )
+        return output
 
     @property
     def branches(self):
@@ -98,7 +100,7 @@ class Backend(BaseVCS):
         retcode = self.run('hg', 'status')[0]
         if retcode == 0:
             self.run('hg', 'pull')
-            self.run('hg', 'update', '-C', identifier)
+            return self.run('hg', 'update', '-C', identifier)
         else:
             self.clone()
-            self.run('hg', 'update', '-C', identifier)
+            return self.run('hg', 'update', '-C', identifier)

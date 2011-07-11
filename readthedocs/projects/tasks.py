@@ -60,6 +60,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
     ###
     # Handle passed in arguments
     ###
+    update_output = kwargs.get('update_output', {})
     project = Project.objects.live().get(pk=pk)
     print "Building %s" % project
     if version_pk:
@@ -79,7 +80,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
     with project.repo_lock(30):
         if project.is_imported:
             try:
-                update_imported_docs(project, version)
+                update_output = update_imported_docs(project, version)
             except ProjectImportError, err:
                 print("Error importing project: %s. Skipping build." % err)
                 return False
@@ -91,7 +92,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
         # kick off a build
         (ret, out, err) = build_docs(project=project, version=version,
                                      pdf=pdf, man=man, epub=epub,
-                                     record=record, force=force)
+                                     record=record, force=force, update_output=update_output)
         if not 'no targets are out of date.' in out:
             if ret == 0:
                 print "HTML Build OK"
@@ -118,6 +119,7 @@ def update_imported_docs(project, version):
     """
     Check out or update the given project's repository.
     """
+    update_docs_output = {}
     if not project.vcs_repo():
         raise ProjectImportError("Repo type '{repo_type}' unknown".format(
                 repo_type=project.repo_type))
@@ -127,12 +129,12 @@ def update_imported_docs(project, version):
             slug=version.slug, identifier=version.identifier)
         version_slug = version.slug
         version_repo = project.vcs_repo(version_slug)
-        version_repo.checkout(version.identifier)
+        update_docs_output['checkout'] = version_repo.checkout(version.identifier)
     else:
         print 'Updating to latest revision'
         version_slug = 'latest'
         version_repo = project.vcs_repo(version_slug)
-        version_repo.update()
+        update_docs_output['checkout'] = version_repo.update()
 
     #Break early without a conf file.
     if not project.conf_file(version.slug):
@@ -140,19 +142,19 @@ def update_imported_docs(project, version):
 
     #Do Virtualenv bits:
     if project.use_virtualenv and project.whitelisted:
-        run('{cmd} --no-site-packages {path}'.format(
+        update_docs_output['venv'] = run('{cmd} --no-site-packages {path}'.format(
                 cmd='virtualenv',
                 path=project.venv_path(version=version_slug)))
-        run('{cmd} install sphinx'.format(
+        update_docs_output['sphinx'] = run('{cmd} install sphinx'.format(
                 cmd=project.venv_bin(version=version_slug, bin='pip')))
 
         if project.requirements_file:
             os.chdir(project.checkout_path(version_slug))
-            run('{cmd} install -r {requirements}'.format(
+            update_docs_output['requirements'] = run('{cmd} install -r {requirements}'.format(
                     cmd=project.venv_bin(version=version_slug, bin='pip'),
                     requirements=project.requirements_file))
         os.chdir(project.checkout_path(version_slug))
-        run('{cmd} setup.py install --force'.format(
+        update_docs_output['install'] = run('{cmd} setup.py install --force'.format(
                 cmd=project.venv_bin(version=version_slug, bin='python')))
 
     # check tags/version
@@ -176,7 +178,7 @@ def update_imported_docs(project, version):
                         verbose_name=tag.verbose_name
                     )
                     print "New tag found: %s" % ver
-                    highest = project.highest_version[1]
+                    highest = project.highest_version['version']
                     ver_obj = mkversion(ver)
                     if highest and ver_obj and ver_obj > highest:
                         print "Highest verison known, building docs"
@@ -212,9 +214,9 @@ def update_imported_docs(project, version):
                 project=project).exclude(identifier__in=old_branches).delete()
     except ValueError, e:
         print "Error getting tags: %s" % e
-        return False
 
     fileify(version)
+    return update_docs_output
 
 
 def scrape_conf_file(version):
@@ -278,7 +280,7 @@ def update_created_docs(project):
         file.write_to_disk()
 
 
-def build_docs(project, version, pdf, man, epub, record, force):
+def build_docs(project, version, pdf, man, epub, record, force, update_output={}):
     """
     This handles the actual building of the documentation and DB records
     """
@@ -299,9 +301,17 @@ def build_docs(project, version, pdf, man, epub, record, force):
             version.save()
     if html_builder.changed:
         if record:
+            output_data = error_data = ''
+            for key in ['checkout', 'venv', 'sphinx', 'requirements', 'install']:
+                data = update_output.get(key, None)
+                if data:
+                    output_data += data[1]
+                    error_data += data[2]
             Build.objects.create(
                 project=project,
                 success=successful,
+                setup=output_data,
+                setup_error=error_data,
                 output=html_output[1],
                 error=html_output[2],
                 version=version

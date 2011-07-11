@@ -32,7 +32,7 @@ class Backend(BaseVCS):
         else:
             self.clone()
         self.run('git', 'submodule', 'update', '--init')
-        self.reset()
+        return self.reset()
 
     def pull(self):
         code, out, err = self.run('git', 'fetch')
@@ -47,15 +47,16 @@ class Backend(BaseVCS):
         branch = self.fallback_branch
         if self.default_branch:
             branch = self.default_branch
-        code, out, err = self.run('git', 'reset', '--hard',
+        reset_output = self.run('git', 'reset', '--hard',
                                   'origin/%s' % branch)
-        if code != 0:
+        if reset_output[0] != 0:
             print "Failed to get code from '%s' (git reset): %s" % (
                 self.repo_url, code)
             print "Going on because this might not be horrible."
             #raise ProjectImportError(
                 #"Failed to get code from '%s' (git reset): %s" % (self.repo_url, retcode)
             #)
+        return reset_output
 
     def clone(self):
         code, out, err = self.run('git', 'clone', '--quiet',
@@ -146,7 +147,7 @@ class Backend(BaseVCS):
             if self.default_branch:
                 identifier = self.default_branch
         #Checkout the correct identifier for this branch.
-        self.run('git', 'reset', '--hard', identifier)
+        return self.run('git', 'reset', '--hard', identifier)
 
     @property
     def env(self):

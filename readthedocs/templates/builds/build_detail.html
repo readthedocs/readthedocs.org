@@ -13,12 +13,22 @@
   <p>Version: <b>{{ build.version.slug }}</b></p>
   {% endif %}
 
-  <h3>Standard Output</h3>
+  <h3>Sphinx Standard Output</h3>
   <pre class="build-output">{{ build.output }}</pre>
 
   {% if build.error %}
-  <h3>Standard Error</h3> 
+  <h3>Sphinx Standard Error</h3>
   <pre class="build-error">{{ build.error }}</pre>
+  {% endif %}
+
+  {% if build.setup %}
+  <h3>Setup Output</h3>
+  <pre class="build-output">{{ build.setup }}</pre>
+  {% endif %}
+
+  {% if build.setup_error %}
+  <h3>Environment Standard Error</h3>
+  <pre class="build-error">{{ build.setup_error }}</pre>
   {% endif %}
 
 {% endblock %}

@@ -45,6 +45,8 @@ class Build(models.Model):
     project = models.ForeignKey(Project, related_name='builds')
     date = models.DateTimeField(auto_now_add=True)
     success = models.BooleanField()
+    setup = models.TextField(null=True, blank=True)
+    setup_error = models.TextField(null=True, blank=True)
     output = models.TextField()
     error = models.TextField()
     version = models.ForeignKey(Version, null=True, related_name='builds')
