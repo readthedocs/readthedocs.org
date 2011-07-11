@@ -37,7 +37,7 @@ class Project(models.Model):
     description = models.TextField(blank=True,
         help_text='reStructuredText description of the project')
     repo = models.CharField(max_length=100, blank=True,
-            help_text='URL for your code (hg or git). Ex. http://github.com/ericholscher/django-kong.git')
+            help_text='Checkout URL for your code (hg, git, etc.). Ex. http://github.com/ericholscher/django-kong.git')
     repo_type = models.CharField(max_length=10, choices=constants.REPO_CHOICES, default='git')
     project_url = models.URLField(blank=True, help_text='the project\'s homepage')
     version = models.CharField(max_length=100, blank=True,
