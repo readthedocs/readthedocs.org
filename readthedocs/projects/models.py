@@ -35,15 +35,15 @@ class Project(models.Model):
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255, unique=True)
     description = models.TextField(blank=True,
-        help_text='reStructuredText description of the project')
+        help_text='The reStructuredText description of the project')
     repo = models.CharField(max_length=100, blank=True,
             help_text='Checkout URL for your code (hg, git, etc.). Ex. http://github.com/ericholscher/django-kong.git')
     repo_type = models.CharField(max_length=10, choices=constants.REPO_CHOICES, default='git')
-    project_url = models.URLField(blank=True, help_text='the project\'s homepage')
+    project_url = models.URLField(blank=True, help_text='The project\'s homepage')
     version = models.CharField(max_length=100, blank=True,
-        help_text='project version these docs apply to, i.e. 1.0a')
+        help_text='Project version these docs apply to, i.e. 1.0a')
     copyright = models.CharField(max_length=255, blank=True,
-        help_text='project copyright information')
+        help_text='Project copyright information')
     theme = models.CharField(max_length=20,
         choices=constants.DEFAULT_THEME_CHOICES, default=constants.THEME_DEFAULT,
         help_text='<a href="http://sphinx.pocoo.org/theming.html#builtin-themes" target="_blank">Examples</a>')
@@ -52,7 +52,7 @@ class Project(models.Model):
     # In default_branch, None means the backend should choose the appropraite branch. Eg 'master' for git
     default_branch = models.CharField(max_length=255, default=None, null=True,
         blank=True, help_text='What branch "latest" points to. Leave empty to use the default value for your VCS (eg. trunk or master).')
-    requirements_file = models.CharField(max_length=255, default=None, null=True, blank=True, help_text='Required Virtualenv. A pip requirements file needed to build your documentation. Path from the root of your project.')
+    requirements_file = models.CharField(max_length=255, default=None, null=True, blank=True, help_text='Requires Virtualenv. A pip requirements file needed to build your documentation. Path from the root of your project.')
     documentation_type = models.CharField(max_length=20,
         choices=constants.DOCUMENTATION_CHOICES, default='sphinx',
         help_text='Type of documentation you are building.')
