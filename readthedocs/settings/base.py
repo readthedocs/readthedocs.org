@@ -54,6 +54,7 @@ MIDDLEWARE_CLASSES = (
     'core.middleware.SubdomainMiddleware',
     'sentry.client.middleware.Sentry404CatchMiddleware',
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
 )
 
 ROOT_URLCONF = 'urls'

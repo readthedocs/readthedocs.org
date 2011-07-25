@@ -1,5 +1,7 @@
 {% extends "projects/base_project_editing.html" %}
 
+{% load i18n %}
+
 {% load pagination_tags %}
 
 {% block title %}Builds{% endblock %}
@@ -13,7 +15,7 @@
             <div class="module-wrapper">
 
               <div class="module-header">
-                <h3>Recent Builds</h3>
+                <h3>{% trans "Recent Builds" %}</h3>
               </div>
 
               <div class="module-list">

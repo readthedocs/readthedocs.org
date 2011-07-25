@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 
-{% block title %}Build Started {% endblock %}
+{% load i18n %}
+
+{% block title %}{% trans "Build Started" %} {% endblock %}
 
 {% block content %}
 
@@ -8,7 +10,7 @@
 {{ project }} is now building.<br><br>
 Check it out <a href="{{ project.get_absolute_url }}">over here</a>
 {% else %}
-This is a post-commit hook. Set it up in your project admin to POST here, for us to update your doc changes automatically.
+{% trans "This is a post-commit hook. Set it up in your project admin to POST here, for us to update your doc changes automatically." %}
 {% endif %}
 
 {% endblock %}

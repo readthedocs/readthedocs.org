@@ -1,13 +1,15 @@
 {% extends "base.html" %}
 
+{% load i18n %}
+
 {% block title %}
-Maze Found
+{% trans "Maze Found" %}
 {% endblock %}
 
 {% block content %}
 <pre>
 
-        \          SORRY            /
+        \          {% trans "SORRY" %}            /
          \                         /
           \    This page does     /
            ]   not exist yet.    [    ,'|

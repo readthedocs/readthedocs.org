@@ -1,7 +1,9 @@
 {% extends "base.html" %}
+
+{% load i18n %}
 {% load pagination_tags %}
 
-{% block title %}Home{% endblock %}
+{% block title %}{% trans "Home" %}{% endblock %}
 
 {% block body_class %}home {% if not request.user.is_authenticated %}splash{% endif %}{% endblock %}
 
@@ -22,14 +24,14 @@
             <div class="module-wrapper">
 
               <div class="module-header">
-                <h3>What is this place?</h3>
+                <h3>{% trans "What is this place?" %}</h3>
                 <p>
                   Read the Docs hosts documentation, making it fully searchable and easy to find.
                   You can import your docs using any major version control system, including Mercurial, Git, Subversion, and Bazaar.  
                   It also supports webhooks so your docs get built when you commit code.
                   There's also support for versioning so you can build docs from tagged versions of your code in your repository.
                   You can even create docs on the site.
-                  It's free and simple.  Read <a href="http://readthedocs.org/docs/read-the-docs/latest/getting_started.html">Getting Started</a> and find out how to host your docs on Read the Docs!
+                  It's free and simple.  Read <a href="http://readthedocs.org/docs/read-the-docs/latest/getting_started.html">{% trans "Getting Started" %}</a> and find out how to host your docs on Read the Docs!
                 <p>
               </div>
 
@@ -45,7 +47,7 @@
             <div class="module-wrapper">
 
               <div class="module-header">
-                <h3>Featured Projects</h3>
+                <h3>{% trans "Featured Projects" %}</h3>
               </div>
 
               <div class="module-list">
@@ -66,7 +68,7 @@
             <div class="module-wrapper">
 
               <div class="module-header">
-                <h3>Recently Updated Projects <span class="small_head"><a href="{% url projects_list %}">(All Projects)</a></span></h3>
+                <h3>{% trans "Recently Updated Projects" %} <span class="small_head"><a href="{% url projects_list %}">{% trans "(All Projects)" %}</a></span></h3>
               </div>
 
               <div class="module-list">
@@ -87,7 +89,7 @@
             <div class="module-wrapper">
 
               <div class="module-header">
-                <h3>Most Viewed Pages <span class="small_head"><a href="{% url pageviews_list %}">(All Views)</a></span></h3>
+                <h3>{% trans "Most Viewed Pages" %} <span class="small_head"><a href="{% url pageviews_list %}">{% trans "(All Views)" %}</a></span></h3>
               </div>
 
               <div class="module-list">
@@ -111,7 +113,7 @@
             <div class="module-wrapper">
 
               <div class="module-header">
-                <h3>Recently Bookmarked Docs <span class="small_head"><a href="{% url bookmarks_list %}">(All Bookmarks)</a></span></h3>
+                <h3>{% trans "Recently Bookmarked Docs" %} <span class="small_head"><a href="{% url bookmarks_list %}">{% trans "(All Bookmarks)" %}</a></span></h3>
               </div>
 
               <div class="module-list">

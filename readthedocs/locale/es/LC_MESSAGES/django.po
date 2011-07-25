@@ -1,0 +1,343 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2011 readthedocs
+# This file is distributed under the same license as the readthedocs package.
+# Leonardo J. Caballero G. <leonardocaballero@gmail.com>, 2011.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: readthedocs\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2011-07-25 13:00-0430\n"
+"PO-Revision-Date: 2011-07-25 12:52-0400\n"
+"Last-Translator: Leonardo J. Caballero G. <leonardocaballero@gmail.com>\n"
+"Language-Team: Plataforma colaborativa Canaima <plataforma-"
+"colaborativa@canaima.softwarelibre.gob.ve>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+
+#: templates/404.html:6
+msgid "Maze Found"
+msgstr ""
+
+#: templates/404.html:12
+msgid "SORRY"
+msgstr "LO SENTIMOS"
+
+#: templates/500.html:5
+msgid "Server Error"
+msgstr ""
+
+#: templates/500.html:7
+msgid "Something's wrong"
+msgstr ""
+
+#: templates/500.html:18
+msgid "Fail.  Check back in a bit!"
+msgstr ""
+
+#: templates/base.html:13
+msgid "Read the Docs"
+msgstr ""
+
+#: templates/base.html:50
+msgid ""
+"You docs are currently being built.  It may take a moment for them to appear."
+msgstr ""
+
+#: templates/base.html:51
+msgid "Read the Docs thanks you for your continued patience."
+msgstr ""
+
+#: templates/base.html:72
+msgid "Created by"
+msgstr "Creado por"
+
+#: templates/base.html:72 templates/base.html.py:74
+msgid "and"
+msgstr "y"
+
+#: templates/base.html:72
+msgid "for the"
+msgstr ""
+
+#: templates/base.html:74
+msgid "Sponsored by"
+msgstr ""
+
+#: templates/homepage.html:6
+#: templates/registration/password_reset_complete.html:6
+#: templates/registration/password_reset_confirm.html:6
+#: templates/registration/password_reset_done.html:6
+#: templates/registration/password_reset_form.html:7
+msgid "Home"
+msgstr "Inicio"
+
+#: templates/homepage.html:27
+msgid "What is this place?"
+msgstr ""
+
+#: templates/homepage.html:34
+msgid "Getting Started"
+msgstr ""
+
+#: templates/homepage.html:50
+msgid "Featured Projects"
+msgstr ""
+
+#: templates/homepage.html:71
+msgid "Recently Updated Projects"
+msgstr ""
+
+#: templates/homepage.html:71
+msgid "(All Projects)"
+msgstr "(Todos los Proyectos)"
+
+#: templates/homepage.html:92
+msgid "Most Viewed Pages"
+msgstr ""
+
+#: templates/homepage.html:92
+msgid "(All Views)"
+msgstr "(Todas las Vistas)"
+
+#: templates/post_commit.html:5
+msgid "Build Started"
+msgstr ""
+
+#: templates/post_commit.html:13
+msgid ""
+"This is a post-commit hook. Set it up in your project admin to POST here, "
+"for us to update your doc changes automatically."
+msgstr ""
+
+#: templates/bookmarks/bookmark_list.html:7
+msgid "Bookmarks"
+msgstr ""
+
+#: templates/bookmarks/bookmark_list.html:20
+msgid "Recent Bookmarks"
+msgstr ""
+
+#: templates/builds/build_detail.html:7
+msgid "Build for"
+msgstr ""
+
+#: templates/builds/build_detail.html:10
+msgid "Built:"
+msgstr ""
+
+#: templates/builds/build_detail.html:12
+msgid "Outcome:"
+msgstr ""
+
+#: templates/builds/build_detail.html:15
+msgid "Version:"
+msgstr ""
+
+#: templates/builds/build_detail.html:18
+msgid "Sphinx Standard Output"
+msgstr ""
+
+#: templates/builds/build_detail.html:22
+msgid "Sphinx Standard Error"
+msgstr ""
+
+#: templates/builds/build_detail.html:27
+msgid "Setup Output"
+msgstr ""
+
+#: templates/builds/build_detail.html:32
+msgid "Environment Standard Error"
+msgstr ""
+
+#: templates/builds/build_list.html:18
+msgid "Recent Builds"
+msgstr ""
+
+#: templates/builds/tag_list.html:5
+msgid "Popular tags"
+msgstr ""
+
+#: templates/dashboard/base_dashboard.html:12
+msgid "Projects"
+msgstr ""
+
+#: templates/dashboard/base_dashboard.html:20
+msgid "Create"
+msgstr ""
+
+#: templates/dashboard/base_dashboard.html:21
+msgid "Import"
+msgstr ""
+
+#: templates/dashboard/base_dashboard.html:27
+msgid "Edit Profile"
+msgstr ""
+
+#: templates/dashboard/base_dashboard.html:29
+msgid "Create Profile"
+msgstr ""
+
+#: templates/dashboard/base_dashboard.html:33
+msgid "Change Password"
+msgstr ""
+
+#: templates/pagination/pagination.html:5
+#: templates/pagination/pagination.html:7
+msgid "previous"
+msgstr ""
+
+#: templates/pagination/pagination.html:21
+#: templates/pagination/pagination.html:23
+msgid "next"
+msgstr ""
+
+#: templates/registration/password_change_done.html:4
+#: templates/registration/password_change_done.html:10
+msgid "Password change successful"
+msgstr ""
+
+#: templates/registration/password_change_done.html:12
+msgid "Your password was changed."
+msgstr ""
+
+#: templates/registration/password_change_form.html:4
+#: templates/registration/password_change_form.html:20
+msgid "Password change"
+msgstr ""
+
+#: templates/registration/password_change_form.html:16
+msgid "Please correct the error below."
+msgid_plural "Please correct the errors below."
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/registration/password_change_form.html:22
+msgid ""
+"Please enter your old password, for security's sake, and then enter your new "
+"password twice so we can verify you typed it in correctly."
+msgstr ""
+
+#: templates/registration/password_change_form.html:26
+msgid "Old password"
+msgstr ""
+
+#: templates/registration/password_change_form.html:31
+msgid "New password"
+msgstr ""
+
+#: templates/registration/password_change_form.html:36
+msgid "Password (again)"
+msgstr ""
+
+#: templates/registration/password_change_form.html:40
+#: templates/registration/password_reset_confirm.html:23
+msgid "Change my password"
+msgstr ""
+
+#: templates/registration/password_reset_complete.html:6
+#: templates/registration/password_reset_confirm.html:8
+#: templates/registration/password_reset_done.html:6
+#: templates/registration/password_reset_form.html:7
+#: templates/registration/password_reset_form.html:9
+#: templates/registration/password_reset_form.html:13
+msgid "Password reset"
+msgstr ""
+
+#: templates/registration/password_reset_complete.html:8
+#: templates/registration/password_reset_complete.html:12
+msgid "Password reset complete"
+msgstr ""
+
+#: templates/registration/password_reset_complete.html:14
+msgid "Your password has been set.  You may go ahead and log in now."
+msgstr ""
+
+#: templates/registration/password_reset_complete.html:16
+msgid "Log in"
+msgstr ""
+
+#: templates/registration/password_reset_confirm.html:6
+msgid "Password reset confirmation"
+msgstr ""
+
+#: templates/registration/password_reset_confirm.html:14
+msgid "Enter new password"
+msgstr ""
+
+#: templates/registration/password_reset_confirm.html:16
+msgid ""
+"Please enter your new password twice so we can verify you typed it in "
+"correctly."
+msgstr ""
+
+#: templates/registration/password_reset_confirm.html:20
+msgid "New password:"
+msgstr ""
+
+#: templates/registration/password_reset_confirm.html:22
+msgid "Confirm password:"
+msgstr ""
+
+#: templates/registration/password_reset_confirm.html:28
+msgid "Password reset unsuccessful"
+msgstr ""
+
+#: templates/registration/password_reset_confirm.html:30
+msgid ""
+"The password reset link was invalid, possibly because it has already been "
+"used.  Please request a new password reset."
+msgstr ""
+
+#: templates/registration/password_reset_done.html:8
+#: templates/registration/password_reset_done.html:12
+msgid "Password reset successful"
+msgstr ""
+
+#: templates/registration/password_reset_done.html:14
+msgid ""
+"We've e-mailed you instructions for setting your password to the e-mail "
+"address you submitted. You should be receiving it shortly."
+msgstr ""
+
+#: templates/registration/password_reset_email.html:2
+msgid "You're receiving this e-mail because you requested a password reset"
+msgstr ""
+
+#: templates/registration/password_reset_email.html:3
+#, python-format
+msgid "for your user account at %(site_name)s"
+msgstr ""
+
+#: templates/registration/password_reset_email.html:5
+msgid "Please go to the following page and choose a new password:"
+msgstr ""
+
+#: templates/registration/password_reset_email.html:9
+msgid "Your username, in case you've forgotten:"
+msgstr ""
+
+#: templates/registration/password_reset_email.html:11
+msgid "Thanks for using our site!"
+msgstr ""
+
+#: templates/registration/password_reset_email.html:13
+#, python-format
+msgid "The %(site_name)s team"
+msgstr ""
+
+#: templates/registration/password_reset_form.html:15
+msgid ""
+"Forgotten your password? Enter your e-mail address below, and we'll e-mail "
+"instructions for setting a new one."
+msgstr ""
+
+#: templates/registration/password_reset_form.html:19
+msgid "E-mail address:"
+msgstr ""
+
+#: templates/registration/password_reset_form.html:19
+msgid "Reset my password"
+msgstr ""
