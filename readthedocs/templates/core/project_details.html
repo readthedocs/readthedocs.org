@@ -31,7 +31,6 @@
 
 {% endif %}
 
-
 {% if project.get_latest_build.success %}
   <h3>Short URLs</h3>
   <p>
@@ -79,6 +78,11 @@
 {% if request.user == project.user %}
   <h3>Post Commit Hook</h3>
     <p>http://readthedocs.org{% url generic_build project.pk %}</p>
+
+<form method="post" action="{% url generic_build project.pk %}">
+  <input type="submit" value="Build latest version">
+</form>
+
 {% endif %}
 
 
