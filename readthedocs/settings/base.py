@@ -52,7 +52,6 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'pagination.middleware.PaginationMiddleware',
     'core.middleware.SubdomainMiddleware',
-    'sentry.client.middleware.Sentry404CatchMiddleware',
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
 )
 
@@ -91,7 +90,6 @@ INSTALLED_APPS = (
     'haystack',
     'profiles',
     'tastypie',
-    'sentry',
     'paging',
     'indexer',
 
