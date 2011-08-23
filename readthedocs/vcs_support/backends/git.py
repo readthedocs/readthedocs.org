@@ -147,7 +147,7 @@ class Backend(BaseVCS):
             if self.default_branch:
                 identifier = self.default_branch
         #Checkout the correct identifier for this branch.
-        return self.run('git', 'reset', '--hard', identifier)
+        return self.run('git', 'reset', '--hard', identifier, '--')
 
     @property
     def env(self):
