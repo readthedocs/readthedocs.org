@@ -7,9 +7,8 @@
     <div class="filter">
         <dl>
             {% if facets.fields.project %}
-                <dt>Project</dt>
                 {# Provide only the top 5 projects #}
-                {% for project in facets.fields.project|slice:":5" %}
+                {% for project in facets.fields.project|slice:":10" %}
                     {% if project.1 != 0 %}
                     <dd><a href="{{ request.get_full_path }}&amp;selected_facets=project:{{ project.0|urlencode }}">{{ project.0 }}</a> ({{ project.1 }})</dd>
                     {% endif %}
