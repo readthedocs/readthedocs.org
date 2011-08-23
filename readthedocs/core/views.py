@@ -135,6 +135,13 @@ def legacy_serve_docs(request, username, project_slug, filename):
     })
     return HttpResponsePermanentRedirect(url)
 
+def subproject_serve_docs(request, project_slug, lang_slug, version_slug, filename):
+    #parent_project = request.slug
+    #subproject = Project.objects.filter(slug==project_slug)
+    #if parent_project.subprojects=subproject:
+    return serve_docs(request, lang_slug, version_slug, filename, project_slug)
+    #else
+    #   raise Http404("Subproject does not exist")
 
 def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
     if not project_slug:
