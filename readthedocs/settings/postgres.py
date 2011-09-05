@@ -6,7 +6,7 @@ DATABASES = {
         'NAME': 'docs',
         'USER': 'postgres',                      # Not used with sqlite3.
         'PASSWORD': '',
-        'HOST': 'golem',
+        'HOST': '10.177.73.97',
         'PORT': '',
     }
 }
