@@ -16,7 +16,7 @@ httplib2
 distutils2
 Unipath
 django
-BeautifulSoup
+BeautifulSoup==3.2.0
 unittest-xml-reporting
 redis
 -e git+http://github.com/nathanborror/django-basic-apps.git#egg=basic
