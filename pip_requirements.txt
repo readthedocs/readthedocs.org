@@ -5,7 +5,6 @@ celery
 django-celery
 django-kombu
 celery-haystack
-importlib
 django-extensions
 django-haystack
 mimeparse
