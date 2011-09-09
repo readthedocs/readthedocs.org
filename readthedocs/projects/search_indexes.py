@@ -9,21 +9,23 @@ from haystack.indexes import *
 from haystack import site
 from projects.models import File, ImportedFile, Project
 
-class ProjectIndex(SearchIndex):
+from celery_haystack.indexes import CelerySearchIndex
+
+class ProjectIndex(CelerySearchIndex):
     text = CharField(document=True, use_template=True)
     author = CharField(model_attr='user')
     title = CharField(model_attr='name')
     description = CharField(model_attr='description')
     repo_type = CharField(model_attr='repo_type')
 
-class FileIndex(SearchIndex):
+class FileIndex(CelerySearchIndex):
     text = CharField(document=True, use_template=True)
     author = CharField(model_attr='project__user', faceted=True)
     project = CharField(model_attr='project__name', faceted=True)
     title = CharField(model_attr='heading')
 
 #Should prob make a common subclass for this and FileIndex
-class ImportedFileIndex(SearchIndex):
+class ImportedFileIndex(CelerySearchIndex):
     text = CharField(document=True)
     author = CharField(model_attr='project__user', faceted=True)
     project = CharField(model_attr='project__name', faceted=True)

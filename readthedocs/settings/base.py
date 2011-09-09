@@ -90,6 +90,7 @@ INSTALLED_APPS = (
     'haystack',
     'profiles',
     'tastypie',
+    'celery_haystack',
 
     # our apps
     'projects',
@@ -102,7 +103,7 @@ INSTALLED_APPS = (
 )
 
 
-CARROT_BACKEND = "ghettoq.taproot.Database"
+#CARROT_BACKEND = "ghettoq.taproot.Database"
 CELERY_ALWAYS_EAGER = True
 CELERYD_TASK_TIME_LIMIT = 60*60 #60 minutes
 
