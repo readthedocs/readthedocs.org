@@ -90,8 +90,6 @@ INSTALLED_APPS = (
     'haystack',
     'profiles',
     'tastypie',
-    'paging',
-    'indexer',
 
     # our apps
     'projects',
