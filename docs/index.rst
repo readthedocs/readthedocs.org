@@ -25,6 +25,7 @@ Site Documentation
     :maxdepth: 2
 
     getting_started
+    faq
     builds
     features
     support
