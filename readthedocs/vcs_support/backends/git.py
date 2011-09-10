@@ -47,16 +47,16 @@ class Backend(BaseVCS):
         branch = self.fallback_branch
         if self.default_branch:
             branch = self.default_branch
-        reset_output = self.run('git', 'reset', '--hard',
+        code, out, err = self.run('git', 'reset', '--hard',
                                   'origin/%s' % branch)
-        if reset_output[0] != 0:
+        if code != 0:
             print "Failed to get code from '%s' (git reset): %s" % (
                 self.repo_url, code)
             print "Going on because this might not be horrible."
             #raise ProjectImportError(
                 #"Failed to get code from '%s' (git reset): %s" % (self.repo_url, retcode)
             #)
-        return reset_output
+        return [code, out, err]
 
     def clone(self):
         code, out, err = self.run('git', 'clone', '--quiet',
