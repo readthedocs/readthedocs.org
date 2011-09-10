@@ -69,8 +69,8 @@ def project_create(request):
     form = CreateProjectForm(request.POST or None)
 
     if request.method == 'POST' and form.is_valid():
-        form.instance.user = request.user
         project = form.save()
+        form.instance.users.add(request.user)
         project_manage = reverse('projects_manage', args=[project.slug])
         return HttpResponseRedirect(project_manage)
 
@@ -162,8 +162,8 @@ def project_import(request):
     form = ImportProjectForm(request.POST or None)
 
     if request.method == 'POST' and form.is_valid():
-        form.instance.user = request.user
         project = form.save()
+        form.instance.users.add(request.user)
         project_manage = reverse('projects_manage', args=[project.slug])
         return HttpResponseRedirect(project_manage + '?docs_not_built=True')
 
@@ -306,9 +306,9 @@ def export(request, project_slug):
     """
     Export a projects' docs as a .zip file, including the .rst source
     """
-    project = Project.objects.live().get(user=request.user, slug=project_slug)
+    project = Project.objects.live().get(users=request.user, slug=project_slug)
     os.chdir(project.doc_path)
-    dir_path = os.path.join(settings.MEDIA_ROOT, 'export', project.user.username)
+    dir_path = os.path.join(settings.MEDIA_ROOT, 'export', project_slug)
     zip_filename = '%s.zip' % project.slug
     file_path = os.path.join(dir_path, zip_filename)
     try:
@@ -324,7 +324,7 @@ def export(request, project_slug):
             archive.write(os.path.join(root, file))
     archive.close()
 
-    return HttpResponseRedirect(os.path.join(settings.MEDIA_URL, 'export', project.user.username, zip_filename))
+    return HttpResponseRedirect(os.path.join(settings.MEDIA_URL, 'export', project_slug, zip_filename))
 
 
 def upload_html(request, project_slug):

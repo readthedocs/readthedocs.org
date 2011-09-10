@@ -31,7 +31,7 @@ class Project(models.Model):
     modified_date = models.DateTimeField(auto_now=True)
 
     #Generally from conf.py
-    user = models.ForeignKey(User, related_name='projects')
+    users = models.ManyToManyField(User, related_name='projects')
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255, unique=True)
     description = models.TextField(blank=True,
@@ -310,7 +310,7 @@ class Project(models.Model):
     @property
     def whitelisted(self):
         try:
-            return self.user.get_profile().whitelisted
+            return all([user.get_profile().whitelisted for user in self.users.all()])
         except ObjectDoesNotExist:
             #Bare except so we don't have to import user.models.UserProfile
             return False
