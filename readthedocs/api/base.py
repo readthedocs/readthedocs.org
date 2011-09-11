@@ -99,7 +99,7 @@ class UserResource(ModelResource):
 
 
 class ProjectResource(ModelResource):
-    user = fields.ForeignKey(UserResource, 'user')
+    users = fields.ToManyField(UserResource, 'users')
 
     class Meta:
         include_absolute_url = True

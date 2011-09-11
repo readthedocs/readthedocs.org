@@ -9,6 +9,7 @@ class Migration(SchemaMigration):
 
     def forwards(self, orm):
         
+        db.alter_column('projects_project', 'user_id', models.ForeignKey(orm['auth.User'], null=True, blank=True))
         # Adding M2M table for field users on 'Project'
         db.create_table('projects_project_users', (
             ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
@@ -116,6 +117,7 @@ class Migration(SchemaMigration):
             'suffix': ('django.db.models.fields.CharField', [], {'default': "'.rst'", 'max_length': '10'}),
             'theme': ('django.db.models.fields.CharField', [], {'default': "'default'", 'max_length': '20'}),
             'use_virtualenv': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'projects'", 'to': "orm['auth.User']"}),
             'users': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'projects'", 'symmetrical': 'False', 'to': "orm['auth.User']"}),
             'version': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'})
         },
