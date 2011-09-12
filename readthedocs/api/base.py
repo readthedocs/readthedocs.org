@@ -125,7 +125,7 @@ class ProjectResource(ModelResource):
         deserialized = self.deserialize(request, request.raw_post_data, format=request.META.get('CONTENT_TYPE', 'application/json'))
 
         # Force this in an ugly way, at least should do "reverse"
-        deserialized["user"] = "/api/v1/user/%s/" % request.user.id
+        deserialized["users"] = ["/api/v1/user/%s/" % request.user.id,]
         bundle = self.build_bundle(data=dict_strip_unicode_keys(deserialized))
         self.is_valid(bundle, request)
         updated_bundle = self.obj_create(bundle, request=request)

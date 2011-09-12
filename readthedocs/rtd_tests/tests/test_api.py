@@ -49,7 +49,7 @@ class APITests(TestCase):
         Test that you can't create a project for another user
         """
         # represents dishonest data input, authentication happens for user 2
-        post_data = {"user": "/api/v1/user/1/",
+        post_data = {"users": ["/api/v1/user/1/",],
                      "name": "awesome-project-2",
                      "repo": "https://github.com/ericholscher/django-bob.git"
                      }
@@ -63,7 +63,7 @@ class APITests(TestCase):
                                data={'format':'json'},
                                HTTP_AUTHORIZATION='Basic %s' % base64.b64encode('tester:test')
                                )
-        self.assertEqual("/api/v1/user/2/", json.loads(resp.content)["user"])
+        self.assertEqual(["/api/v1/user/2/",], json.loads(resp.content)["users"])
 
     def test_ensure_get_unauth(self):
         """
