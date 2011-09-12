@@ -95,12 +95,11 @@
   <h3>Post Commit Hook</h3>
     <p>http://readthedocs.org{% url generic_build project.pk %}</p>
 
+{% endif %}
+
 <form method="post" action="{% url generic_build project.pk %}">
   <input type="submit" value="Build latest version">
 </form>
-
-{% endif %}
-
 
 {% if pageview_list %}
 <!-- BEGIN projects list -->
