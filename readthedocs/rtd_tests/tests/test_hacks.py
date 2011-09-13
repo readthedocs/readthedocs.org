@@ -5,7 +5,6 @@ class TestHacks(TestCase):
     fixtures = ['eric.json', 'test_data.json']
 
     def setUp(self):
-        import ipdb; ipdb.set_trace()
         hacks.patch_meta_path()
 
     def tearDown(self):
