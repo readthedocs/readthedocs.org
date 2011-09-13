@@ -57,7 +57,7 @@ class Build(models.Model):
 
     def __unicode__(self):
         return u"Build %s for %s (%s)" % (self.project,
-                                          self.project.user,
+                                          ' '.join(self.project.users.all().values_list('username', flat=True)),
                                           self.pk)
 
     @models.permalink
