@@ -91,7 +91,7 @@
 </ul>
 {% endif %}
 
-{% if request.user == project.user %}
+{% if request.user in project.users.all %}
   <h3>Post Commit Hook</h3>
     <p>http://readthedocs.org{% url generic_build project.pk %}</p>
 
@@ -123,6 +123,6 @@
 <!-- END projects list -->
 {% endif %}
 
-{% if request.user != project.user %}
+{% if request.user not in project.users.all %}
   {% include "projects/includes/flagging.html" %}
 {% endif %}
