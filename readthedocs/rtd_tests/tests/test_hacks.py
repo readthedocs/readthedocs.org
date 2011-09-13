@@ -1,5 +1,5 @@
 from django.test import TestCase
-from readthedocs.core import hacks
+from core import hacks
 
 class TestHacks(TestCase):
     fixtures = ['eric.json', 'test_data.json']
