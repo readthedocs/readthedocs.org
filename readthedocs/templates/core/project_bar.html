@@ -5,9 +5,11 @@
 
         <div class="project-title">
           <h1><a href="{{ project.get_absolute_url }}">{{ project }}</a></h1>
-          {% for user in project.users.all %}	
-          <a href="{{ user.get_absolute_url }}" class="quiet">({{ user }})</a>
+          (
+          {% for user in project.users.all %}
+          <a href="{{ user.get_absolute_url }}" class="quiet">{{ user }}</a>{% if not forloop.last %}, {% endif %}
           {% endfor %}
+          )
           {% if project.version %}<span class="quiet">version {{ project.version }} </span>{% endif %}
         </div>
 
