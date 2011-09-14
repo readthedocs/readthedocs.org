@@ -62,9 +62,11 @@ class PostCommitTest(TestCase):
             }
 
 
-    def test_github_post_commit_hook(self):
+    def test_github_post_commit_hook_knows_the_repo_url(self):
         """
-        Test the basic github post commit hook.
+        Test the github post commit hook so only the main repo (or at
+        least the one specified in the project) is the only one that
+        triggers builds.
         """
         r = self.client.post('/github/', {'payload': json.dumps(self.payload)})
         self.assertEqual(r.status_code, 200)
@@ -72,3 +74,18 @@ class PostCommitTest(TestCase):
         r = self.client.post('/github/', {'payload': json.dumps(self.payload)})
         self.assertEqual(r.status_code, 404)
 
+    def test_github_post_commit_hook_builds_branch_docs_if_it_should(self):
+        """
+        Test the github post commit hook to see if it will only build
+        versions that are set to be built if the branch they refer to
+        is updated. Otherwise it is no op.
+        """
+        r = self.client.post('/github/', {'payload': json.dumps(self.payload)})
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.content, 'Build Started: master')
+        r = self.client.post('/github/', {'payload': json.dumps(self.payload)})
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.content, 'Build Started: accepted_branch')
+        r = self.client.post('/github/', {'payload': json.dumps(self.payload)})
+        self.assertEqual(r.status_code, 404)
+        self.assertEqual(r.content, 'Not Building: unaccepted_branch')
