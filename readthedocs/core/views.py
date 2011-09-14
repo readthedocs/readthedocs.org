@@ -8,7 +8,7 @@ from django.core.cache import cache
 from django.conf import settings
 from django.db.models import F, Max
 from django.http import HttpResponse, HttpResponseRedirect, \
-    HttpResponsePermanentRedirect, Http404
+    HttpResponsePermanentRedirect, Http404, HttpResponseNotFound
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_view_exempt
@@ -56,7 +56,7 @@ def github_build(request):
             return HttpResponse('Build Started')
         except Exception, e:
             mail_admins('Build Failure', '%s failed to build via github.\n\n%s' % (name, e))
-            return HttpResponse('Build Failed')
+            return HttpResponseNotFound('Build Failed')
     else:
         return render_to_response('post_commit.html', {},
                 context_instance=RequestContext(request))
