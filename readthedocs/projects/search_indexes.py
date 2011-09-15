@@ -13,23 +13,32 @@ from celery_haystack.indexes import CelerySearchIndex
 
 class ProjectIndex(CelerySearchIndex):
     text = CharField(document=True, use_template=True)
-    author = CharField(model_attr='user')
+    author = CharField()
     title = CharField(model_attr='name')
     description = CharField(model_attr='description')
     repo_type = CharField(model_attr='repo_type')
 
+    def prepare_author(self, obj):
+        return obj.users.all()[0]
+
 class FileIndex(CelerySearchIndex):
     text = CharField(document=True, use_template=True)
-    author = CharField(model_attr='project__user', faceted=True)
+    author = CharField(faceted=True)
     project = CharField(model_attr='project__name', faceted=True)
     title = CharField(model_attr='heading')
+
+    def prepare_author(self, obj):
+        return obj.project.users.all()[0]
 
 #Should prob make a common subclass for this and FileIndex
 class ImportedFileIndex(CelerySearchIndex):
     text = CharField(document=True)
-    author = CharField(model_attr='project__user', faceted=True)
+    author = CharField(faceted=True)
     project = CharField(model_attr='project__name', faceted=True)
     title = CharField(model_attr='name')
+
+    def prepare_author(self, obj):
+        return obj.project.users.all()[0]
 
     def prepare_text(self, obj):
         try:

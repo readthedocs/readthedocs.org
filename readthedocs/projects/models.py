@@ -39,7 +39,7 @@ class Project(models.Model):
     repo = models.CharField(max_length=100, blank=True,
             help_text='Checkout URL for your code (hg, git, etc.). Ex. http://github.com/ericholscher/django-kong.git')
     repo_type = models.CharField(max_length=10, choices=constants.REPO_CHOICES, default='git')
-    project_url = models.URLField(blank=True, help_text='The project\'s homepage')
+    project_url = models.URLField(blank=True, help_text='The project\'s homepage', verify_exists=False)
     version = models.CharField(max_length=100, blank=True,
         help_text='Project version these docs apply to, i.e. 1.0a')
     copyright = models.CharField(max_length=255, blank=True,
