@@ -307,6 +307,14 @@ class Project(models.Model):
         return (self.versions.filter(built=True, active=True) |
                 self.versions.filter(active=True, uploaded=True))
 
+    def version_from_branch_name(self, branch):
+        try:
+            return (self.versions.filter(identifier=branch) |
+                    self.versions.filter(identifier='remotes/origin/%s'%branch))[0]
+        except IndexError:
+            return None
+
+
     @property
     def whitelisted(self):
         try:

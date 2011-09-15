@@ -8,7 +8,7 @@ class PostCommitTest(TestCase):
         self.client.login(username='eric', password='test')
         self.payload = {
             "after": "5ad757394b926e5637ffeafe340f952ef48bd270",
-            "base_ref": "refs/heads/post_commit_hook_tests",
+            "base_ref": "refs/heads/master",
             "before": "5b4e453dc913b08642b1d4fb10ed23c9d6e5b129",
             "commits": [
                 {
@@ -83,9 +83,7 @@ class PostCommitTest(TestCase):
         r = self.client.post('/github/', {'payload': json.dumps(self.payload)})
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r.content, 'Build Started: master')
-        r = self.client.post('/github/', {'payload': json.dumps(self.payload)})
-        self.assertEqual(r.status_code, 200)
-        self.assertEqual(r.content, 'Build Started: accepted_branch')
+        self.payload['ref'] = 'refs/heads/subprojects'
         r = self.client.post('/github/', {'payload': json.dumps(self.payload)})
         self.assertEqual(r.status_code, 404)
-        self.assertEqual(r.content, 'Not Building: unaccepted_branch')
+        self.assertEqual(r.content, 'Not Building: subprojects')

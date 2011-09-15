@@ -204,6 +204,19 @@
         }
     },
     {
+        "pk": 3,
+        "model": "builds.version",
+        "fields": {
+            "uploaded": false,
+            "built": true,
+            "project": 1,
+            "active": true,
+            "identifier": "master",
+            "verbose_name": "latest",
+            "slug": "latest"
+        }
+    },
+    {
         "pk": 2,
         "model": "builds.version",
         "fields": {
