@@ -51,13 +51,19 @@ def github_build(request):
         url = obj['repository']['url']
         ghetto_url = url.replace('http://', '').replace('https://', '')
         branch = obj['ref'].replace('refs/heads/', '')
+        version_pk = None
         try:
             project = Project.objects.filter(repo__contains=ghetto_url)[0]
             version = project.version_from_branch_name(branch)
-            if version and version in project.active_versions():
-                update_docs.delay(pk=project.pk, force=True, version_pk=version.pk)
-                return HttpResponse('Build Started: %s' % branch)
-            return HttpResponseNotFound('Not Building: %s' % branch)
+            if version:
+                if version in project.versions.exclude(active=True):
+                    return HttpResponseNotFound('Not Building: %s' % branch)
+                else:
+                    version_pk = version.pk
+            else:
+                branch = 'latest'
+            update_docs(pk=project.pk, version_pk=version_pk, force=True)
+            return HttpResponse('Build Started: %s' % branch)
         except Exception, e:
             mail_admins('Build Failure', '%s failed to build via github.\n\n%s' % (name, e))
             return HttpResponseNotFound('Build Failed')

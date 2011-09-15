@@ -204,6 +204,19 @@
         }
     },
     {
+        "pk": 4,
+        "model": "builds.version",
+        "fields": {
+            "uploaded": false,
+            "built": true,
+            "project": 1,
+            "active": false,
+            "identifier": "not_ok",
+            "verbose_name": "not_ok",
+            "slug": "not_ok"
+        }
+    },
+    {
         "pk": 3,
         "model": "builds.version",
         "fields": {

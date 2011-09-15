@@ -83,7 +83,11 @@ class PostCommitTest(TestCase):
         r = self.client.post('/github/', {'payload': json.dumps(self.payload)})
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r.content, 'Build Started: master')
-        self.payload['ref'] = 'refs/heads/subprojects'
+        self.payload['ref'] = 'refs/heads/not_ok'
         r = self.client.post('/github/', {'payload': json.dumps(self.payload)})
         self.assertEqual(r.status_code, 404)
-        self.assertEqual(r.content, 'Not Building: subprojects')
+        self.assertEqual(r.content, 'Not Building: not_ok')
+        self.payload['ref'] = 'refs/heads/unknown'
+        r = self.client.post('/github/', {'payload': json.dumps(self.payload)})
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.content, 'Build Started: latest')
