@@ -45,7 +45,7 @@ context = {
     'using_theme': using_rtd_theme,
     'current_version': "{{ current_version.slug }}",
     'MEDIA_URL': "{{ settings.MEDIA_URL }}",
-    'versions': [{% for version in verisons %}
+    'versions': [{% for version in versions %}
     ("{{ version.slug }}", "{{ version.get_absolute_url }}"),{% endfor %}
     ],
     'slug': '{{ project.slug }}',
@@ -78,7 +78,7 @@ class Builder(BaseBuilder):
         outfile = open(project.conf_file(self.version.slug), 'a')
         outfile.write("\n")
         rtd_ctx = Context({
-                'verisons': project.active_versions(),
+                'versions': project.active_versions(),
                 'current_version': self.version,
                 'project': project,
                 'settings': settings,
@@ -96,7 +96,7 @@ class Builder(BaseBuilder):
                                           'badge': project.sponsored
                                           })
         rtd_ctx = Context({
-            'verisons': project.active_versions(),
+            'versions': project.active_versions(),
             'current_version': self.version,
             'project': project,
             'settings': settings,
