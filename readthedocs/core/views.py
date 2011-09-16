@@ -62,6 +62,7 @@ def github_build(request):
                     version_pk = version.pk
             else:
                 branch = 'latest'
+            #version_pk being None means it will use "latest"
             update_docs(pk=project.pk, version_pk=version_pk, force=True)
             return HttpResponse('Build Started: %s' % branch)
         except Exception, e:
