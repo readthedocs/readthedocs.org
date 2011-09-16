@@ -21,6 +21,9 @@ from watching.models import PageView
 import json
 import mimetypes
 import os
+import logging
+
+log = logging.getLogger(__name__)
 
 
 def homepage(request):
@@ -28,6 +31,7 @@ def homepage(request):
     latest_projects = Project.objects.order_by('-modified_date')[:10]
     featured = Project.objects.filter(featured=True)
     #updated = PageView.objects.all()[:10]
+
     return render_to_response('homepage.html',
                               {'project_list': latest_projects,
                                'featured_list': featured,
@@ -51,18 +55,21 @@ def github_build(request):
         url = obj['repository']['url']
         ghetto_url = url.replace('http://', '').replace('https://', '')
         branch = obj['ref'].replace('refs/heads/', '')
+        log.info("(Github Build) %s:%s" % (ghetto_url, branch))
         version_pk = None
         try:
             project = Project.objects.filter(repo__contains=ghetto_url)[0]
             version = project.version_from_branch_name(branch)
             if version:
                 if version in project.versions.exclude(active=True):
+                    log.info("(Github Build) Not building %s" % version.slug)
                     return HttpResponseNotFound('Not Building: %s' % branch)
                 else:
                     version_pk = version.pk
             else:
                 branch = 'latest'
             #version_pk being None means it will use "latest"
+            log.info("(Github Build) Building %s:%s" % (project.slug, version.slug))
             update_docs(pk=project.pk, version_pk=version_pk, force=True)
             return HttpResponse('Build Started: %s' % branch)
         except Exception, e:
