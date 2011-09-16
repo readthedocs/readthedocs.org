@@ -8,7 +8,7 @@ from django.core.cache import cache
 from django.conf import settings
 from django.db.models import F, Max
 from django.http import HttpResponse, HttpResponseRedirect, \
-    HttpResponsePermanentRedirect, Http404
+    HttpResponsePermanentRedirect, Http404, HttpResponseNotFound
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_view_exempt
@@ -50,13 +50,23 @@ def github_build(request):
         name = obj['repository']['name']
         url = obj['repository']['url']
         ghetto_url = url.replace('http://', '').replace('https://', '')
+        branch = obj['ref'].replace('refs/heads/', '')
+        version_pk = None
         try:
             project = Project.objects.filter(repo__contains=ghetto_url)[0]
-            update_docs.delay(pk=project.pk, force=True)
-            return HttpResponse('Build Started')
+            version = project.version_from_branch_name(branch)
+            if version:
+                if version in project.versions.exclude(active=True):
+                    return HttpResponseNotFound('Not Building: %s' % branch)
+                else:
+                    version_pk = version.pk
+            else:
+                branch = 'latest'
+            update_docs(pk=project.pk, version_pk=version_pk, force=True)
+            return HttpResponse('Build Started: %s' % branch)
         except Exception, e:
             mail_admins('Build Failure', '%s failed to build via github.\n\n%s' % (name, e))
-            return HttpResponse('Build Failed')
+            return HttpResponseNotFound('Build Failed')
     else:
         return render_to_response('post_commit.html', {},
                 context_instance=RequestContext(request))
