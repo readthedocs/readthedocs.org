@@ -1,6 +1,8 @@
 from django.test import TestCase
 import json
 
+from projects.models import Project
+
 class PostCommitTest(TestCase):
     fixtures = ["eric", "test_data"]
 
@@ -91,3 +93,21 @@ class PostCommitTest(TestCase):
         r = self.client.post('/github/', {'payload': json.dumps(self.payload)})
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r.content, 'Build Started: latest')
+
+
+    def test_github_post_commit_knows_default_branches(self):
+        """
+        Test the github post commit hook so that the default branch
+        will be respected and built as the latest version.
+        """
+        rtd = Project.objects.get(slug='read-the-docs')
+        old_default = rtd.default_branch
+        rtd.default_branch = 'master'
+        rtd.save()
+
+        r = self.client.post('/github/', {'payload': json.dumps(self.payload)})
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.content, 'Build Started: latest')
+
+        rtd.default_branch = old_default
+        rtd.save()

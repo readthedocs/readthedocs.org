@@ -48,8 +48,8 @@ class Project(models.Model):
         choices=constants.DEFAULT_THEME_CHOICES, default=constants.THEME_DEFAULT,
         help_text='<a href="http://sphinx.pocoo.org/theming.html#builtin-themes" target="_blank">Examples</a>')
     suffix = models.CharField(max_length=10, editable=False, default='.rst')
-    default_version = models.CharField(max_length=255, default='latest')
-    # In default_branch, None means the backend should choose the appropraite branch. Eg 'master' for git
+    default_version = models.CharField(max_length=255, default='latest', help_text='The version of your project that / redirects to')
+    # In default_branch, None max_lengtheans the backend should choose the appropraite branch. Eg 'master' for git
     default_branch = models.CharField(max_length=255, default=None, null=True,
         blank=True, help_text='What branch "latest" points to. Leave empty to use the default value for your VCS (eg. trunk or master).')
     requirements_file = models.CharField(max_length=255, default=None, null=True, blank=True, help_text='Requires Virtualenv. A pip requirements file needed to build your documentation. Path from the root of your project.')

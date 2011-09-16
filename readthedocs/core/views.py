@@ -57,21 +57,32 @@ def github_build(request):
         branch = obj['ref'].replace('refs/heads/', '')
         log.info("(Github Build) %s:%s" % (ghetto_url, branch))
         version_pk = None
+        version_slug = branch
         try:
             project = Project.objects.filter(repo__contains=ghetto_url)[0]
             version = project.version_from_branch_name(branch)
             if version:
-                if version in project.versions.exclude(active=True):
+                default = project.default_branch or project.vcs_repo().fallback_branch
+                if branch == default:
+                    #Shortcircuit versions that are default
+                    #These will build at "latest", and thus won't be active
+                    version = project.versions.get(slug='latest')
+                    version_pk = version.pk
+                    version_slug = version.slug
+                    log.info("(Github Build) Building %s:%s" % (project.slug, version.slug))
+                elif version in project.versions.exclude(active=True):
                     log.info("(Github Build) Not building %s" % version.slug)
                     return HttpResponseNotFound('Not Building: %s' % branch)
                 else:
                     version_pk = version.pk
+                    version_slug = version.slug
+                    log.info("(Github Build) Building %s:%s" % (project.slug, version.slug))
             else:
                 branch = 'latest'
+                log.info("(Github Build) Building %s:latest" % project.slug)
             #version_pk being None means it will use "latest"
-            log.info("(Github Build) Building %s:%s" % (project.slug, version.slug))
             update_docs(pk=project.pk, version_pk=version_pk, force=True)
-            return HttpResponse('Build Started: %s' % branch)
+            return HttpResponse('Build Started: %s' % version_slug)
         except Exception, e:
             mail_admins('Build Failure', '%s failed to build via github.\n\n%s' % (name, e))
             return HttpResponseNotFound('Build Failed')
