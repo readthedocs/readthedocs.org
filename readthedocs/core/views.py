@@ -78,6 +78,7 @@ def github_build(request):
                     version_slug = version.slug
                     log.info("(Github Build) Building %s:%s" % (project.slug, version.slug))
             else:
+                version_slug = 'latest'
                 branch = 'latest'
                 log.info("(Github Build) Building %s:latest" % project.slug)
             #version_pk being None means it will use "latest"

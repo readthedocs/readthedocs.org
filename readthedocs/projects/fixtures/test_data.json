@@ -230,6 +230,19 @@
         }
     },
     {
+        "pk": 8,
+        "model": "builds.version",
+        "fields": {
+            "uploaded": false,
+            "built": true,
+            "project": 1,
+            "active": true,
+            "identifier": "awesome",
+            "verbose_name": "awesome",
+            "slug": "awesome"
+        }
+    },
+    {
         "pk": 2,
         "model": "builds.version",
         "fields": {

@@ -2,11 +2,20 @@ from django.test import TestCase
 import json
 
 from projects.models import Project
+from projects import tasks
 
 class PostCommitTest(TestCase):
     fixtures = ["eric", "test_data"]
 
+    def tearDown(self):
+        tasks.update_docs = self.old_bd
+
     def setUp(self):
+        self.old_bd = tasks.update_docs
+        def mock(*args, **kwargs):
+            print "Mocking for great profit and speed."
+        tasks.update_docs = mock
+
         self.client.login(username='eric', password='test')
         self.payload = {
             "after": "5ad757394b926e5637ffeafe340f952ef48bd270",
@@ -38,7 +47,7 @@ class PostCommitTest(TestCase):
             "pusher": {
                 "name": "none"
                 },
-            "ref": "refs/heads/master",
+            "ref": "refs/heads/awesome",
             "repository": {
                 "created_at": "2011/09/09 14:20:13 -0700",
                 "description": "source code to readthedocs.org",
@@ -84,7 +93,7 @@ class PostCommitTest(TestCase):
         """
         r = self.client.post('/github/', {'payload': json.dumps(self.payload)})
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r.content, 'Build Started: master')
+        self.assertEqual(r.content, 'Build Started: awesome')
         self.payload['ref'] = 'refs/heads/not_ok'
         r = self.client.post('/github/', {'payload': json.dumps(self.payload)})
         self.assertEqual(r.status_code, 404)
@@ -104,6 +113,7 @@ class PostCommitTest(TestCase):
         old_default = rtd.default_branch
         rtd.default_branch = 'master'
         rtd.save()
+        self.payload['ref'] = 'refs/heads/master'
 
         r = self.client.post('/github/', {'payload': json.dumps(self.payload)})
         self.assertEqual(r.status_code, 200)
