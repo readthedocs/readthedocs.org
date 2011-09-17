@@ -20,7 +20,6 @@ v1_api.register(VersionResource())
 v1_api.register(FileResource())
 
 admin.autodiscover()
-author_sqs = SearchQuerySet().facet('author')
 project_sqs = SearchQuerySet().facet('project')
 
 handler500 = 'core.views.server_error'

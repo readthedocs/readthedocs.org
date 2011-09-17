@@ -23,7 +23,7 @@ class ProjectIndex(CelerySearchIndex):
 
 class FileIndex(CelerySearchIndex):
     text = CharField(document=True, use_template=True)
-    author = CharField(faceted=True)
+    author = CharField()
     project = CharField(model_attr='project__name', faceted=True)
     title = CharField(model_attr='heading')
 
@@ -33,7 +33,7 @@ class FileIndex(CelerySearchIndex):
 #Should prob make a common subclass for this and FileIndex
 class ImportedFileIndex(CelerySearchIndex):
     text = CharField(document=True)
-    author = CharField(faceted=True)
+    author = CharField()
     project = CharField(model_attr='project__name', faceted=True)
     title = CharField(model_attr='name')
 
@@ -41,6 +41,11 @@ class ImportedFileIndex(CelerySearchIndex):
         return obj.project.users.all()[0]
 
     def prepare_text(self, obj):
+        """
+        Prepare the text of the html file.
+        This only works on machines that have the html
+        files for the projects checked out.
+        """
         try:
             full_path = obj.project.rtd_build_path()
             to_read = os.path.join(full_path, obj.path.lstrip('/'))
