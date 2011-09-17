@@ -46,7 +46,6 @@ urlpatterns = patterns('',
         name='docs_detail'
     ),
     url(r'^docs/', include('projects.urls.public')),
-    url(r'^docs-edit/', include('editor.urls')),
     url(r'^projects/', include('projects.urls.public')),
     url(r'^builds/', include('builds.urls')),
     url(r'^bookmarks/', include('bookmarks.urls')),
