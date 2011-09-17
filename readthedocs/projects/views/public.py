@@ -10,7 +10,6 @@ from django.views.generic.list_detail import object_list, object_detail
 from core.views import serve_docs
 from projects.models import Project
 from projects.utils import highest_version
-from watching.models import PageView
 
 
 from taggit.models import Tag
@@ -64,7 +63,6 @@ def project_detail(request, project_slug):
     """
     queryset = Project.objects.live()
     projects = Project.objects.filter(slug=project_slug)
-    #updated = PageView.objects.filter(project__slug=project_slug)[:10]
     if not projects.count():
         #Handle old User URLs if possible.
         #/projects/<user>/ used to be the user list, moved to
@@ -78,9 +76,6 @@ def project_detail(request, project_slug):
         slug_field='slug',
         slug=project_slug,
         template_object_name='project',
-        #extra_context = {
-            #'pageview_list': updated
-        #}
     )
 
 def legacy_project_detail(request, username, project_slug):

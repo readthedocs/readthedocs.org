@@ -97,7 +97,6 @@ INSTALLED_APPS = (
     'core',
     'builds',
     'bookmarks',
-    'watching',
     'editor',
     'rtd_tests',
 )
