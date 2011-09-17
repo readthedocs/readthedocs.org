@@ -69,12 +69,10 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.request"
 )
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.admin',
-    'django.contrib.comments',
     'django.contrib.contenttypes',
-    'django.contrib.flatpages',
     'django.contrib.markup',
     'django.contrib.sessions',
     'django.contrib.sites',
@@ -82,22 +80,26 @@ INSTALLED_APPS = (
     # third party apps
     'pagination',
     'registration',
-    'djcelery',
+    'profiles',
     'taggit',
     'south',
-    'django_extensions',
     'basic.flagging',
-    'haystack',
-    'profiles',
-    'tastypie',
+    'djcelery',
     'celery_haystack',
+
+    #daniellindsleyrocksdahouse
+    'haystack',
+    'tastypie',
 
     # our apps
     'projects',
     'builds',
     'core',
     'rtd_tests',
-)
+]
+
+if DEBUG:
+    INSTALLED_APPS.append('django_extensions')
 
 
 #CARROT_BACKEND = "ghettoq.taproot.Database"
