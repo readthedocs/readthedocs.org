@@ -1,5 +1,4 @@
 from django.conf.urls.defaults import url, patterns, include
-
 from django.contrib import admin
 from django.conf import settings
 
@@ -20,6 +19,7 @@ v1_api.register(VersionResource())
 v1_api.register(FileResource())
 
 admin.autodiscover()
+
 project_sqs = SearchQuerySet().facet('project')
 
 handler500 = 'core.views.server_error'
@@ -44,10 +44,10 @@ urlpatterns = patterns('',
         'lang_slug': None},
         name='docs_detail'
     ),
+    #WTF are these both here?
     url(r'^docs/', include('projects.urls.public')),
     url(r'^projects/', include('projects.urls.public')),
     url(r'^builds/', include('builds.urls')),
-    url(r'^bookmarks/', include('bookmarks.urls')),
     url(r'^flagging/', include('basic.flagging.urls')),
     url(r'^accounts/', include('registration.backends.default.urls')),
     url(r'^search/project/',
@@ -57,10 +57,6 @@ urlpatterns = patterns('',
         name='haystack_project'),
     url(r'^search/', include('haystack.urls')),
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^dashboard/bookmarks/',
-        'bookmarks.views.user_bookmark_list',
-        name='user_bookmarks'
-    ),
     url(r'^dashboard/', include('projects.urls.private')),
     url(r'^github', 'core.views.github_build', name='github_build'),
     url(r'^bitbucket', 'core.views.bitbucket_build', name='bitbucket_build'),

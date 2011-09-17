@@ -14,7 +14,6 @@ from django.template.defaultfilters import linebreaks
 from django.template.loader import render_to_string
 from django.views.generic.list_detail import object_list
 
-from bookmarks.models import Bookmark
 from builds.forms import AliasForm
 from projects import constants
 from projects.forms import (FileForm, CreateProjectForm,
@@ -33,13 +32,11 @@ def project_dashboard(request):
     A dashboard!  If you aint know what that means you aint need to.
     Essentially we show you an overview of your content.
     """
-    marks = Bookmark.objects.filter(user=request.user)[:5]
     return object_list(
         request,
         queryset=request.user.projects.live(),
         page=int(request.GET.get('page', 1)),
         template_object_name='project',
-        extra_context={'bookmark_list': marks },
         template_name='projects/project_dashboard.html',
     )
 
