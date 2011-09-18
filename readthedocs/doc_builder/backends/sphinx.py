@@ -13,6 +13,7 @@ from core.utils import copy_to_app_servers
 
 
 RTD_CONF_ADDITIONS = """
+{% load projects_tags %}
 #Add RTD Template Path.
 if 'templates_path' in locals():
     templates_path.insert(0, '{{ template_path }}')
@@ -45,7 +46,7 @@ context = {
     'using_theme': using_rtd_theme,
     'current_version': "{{ current_version.slug }}",
     'MEDIA_URL': "{{ settings.MEDIA_URL }}",
-    'versions': [{% for version in versions %}
+    'versions': [{% for version in versions|sort_version_aware %}
     ("{{ version.slug }}", "{{ version.get_absolute_url }}"),{% endfor %}
     ],
     'slug': '{{ project.slug }}',
