@@ -4,7 +4,9 @@ Frequently Asked Questions
 My project isn't building with autodoc
 --------------------------------------
 
-To keep our servers more secure, we white list accounts to allow them to execute code on our servers. If you need autodoc or other custom conf.py code execution options, feel free to Contact Us either in IRC at #readthedocs, or by email at eric@ericholscher.com.
+First, you should check out the Builds tab of your project. That records all of the build attempts that RTD has made to build your project. If you look at your build page, and you see problems with import errors, it's likely that you aren't whitelisted. Virtualenv and pip options won't work without being whitelisted.
+
+If you need autodoc or other custom options, feel free to Contact Us either in IRC at #readthedocs, or by email at eric@ericholscher.com.
 
 
 How do I change behavior for Read the Docs
