@@ -167,5 +167,9 @@ LOGGING = {
             'handlers': ['console', 'logfile'],
             'level': 'DEBUG',
         },
+        'api': {
+            'handlers': ['console', 'logfile'],
+            'level': 'DEBUG',
+        },
     }
 }
