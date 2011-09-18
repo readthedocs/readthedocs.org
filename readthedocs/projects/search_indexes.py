@@ -1,15 +1,19 @@
 # -*- coding: utf-8-*-
 
-import os
 import codecs
-import BeautifulSoup
+import os
 
 from django.utils.html import strip_tags
-from haystack.indexes import *
+
 from haystack import site
-from projects.models import File, ImportedFile, Project
+from haystack.indexes import *
 
 from celery_haystack.indexes import CelerySearchIndex
+
+from pyquery import PyQuery
+
+from projects.models import File, ImportedFile, Project
+
 
 class ProjectIndex(CelerySearchIndex):
     text = CharField(document=True, use_template=True)
@@ -46,17 +50,11 @@ class ImportedFileIndex(CelerySearchIndex):
         This only works on machines that have the html
         files for the projects checked out.
         """
-        try:
-            full_path = obj.project.rtd_build_path()
-            to_read = os.path.join(full_path, obj.path.lstrip('/'))
-            content = codecs.open(to_read, encoding="utf-8", mode='r').read()
-            bs = BeautifulSoup.BeautifulSoup(content)
-            soup = bs.find("div", {"class": "document"})
-            return strip_tags(soup).replace(u'¶', '')
-        except (AttributeError, IOError) as e:
-            if 'full_path' in locals():
-                print "%s not found: %s " % (full_path, e)
-            #obj.delete()
+        full_path = obj.project.rtd_build_path()
+        file_path = os.path.join(full_path, obj.path.lstrip('/'))
+        with codecs.open(file_path, encoding='utf-8', mode='r') as f:
+            content = f.read()
+        return strip_tags(PyQuery(content)("div.document").html()).replace(u'¶', '')
 
 site.register(File, FileIndex)
 site.register(ImportedFile, ImportedFileIndex)
