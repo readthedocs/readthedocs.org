@@ -1,17 +1,19 @@
+# -*- coding: utf-8-*-
+
 Primary Authors
 ===============
-Charlie Leifer
-Eric Holscher
-Bobby Grace
+* Charlie Leifer
+* Eric Holscher
+* Bobby Grace
 
 Awesome Contributors
 ====================
-Eric Pierce
-Chris Dickinson
-Jonas Obrist
-Issac Kelly
-Dan Colish
-Jacob Kaplan-Moss
-Daniel Greenfeld
-Chris McDonald
-Daniel Gra–a
+* Eric Pierce
+* Chris Dickinson
+* Jonas Obrist
+* Issac Kelly
+* Dan Colish
+* Jacob Kaplan-Moss
+* Daniel Greenfeld
+* Chris McDonald
+* Daniel Graña
