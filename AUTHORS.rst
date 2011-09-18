@@ -1,5 +1,3 @@
-# -*- coding: utf-8-*-
-
 Primary Authors
 ===============
 * Charlie Leifer
