@@ -94,7 +94,8 @@ def bitbucket_build(request):
         obj = json.loads(request.POST['payload'])
         rep = obj['repository']
         name = rep['name']
-        url = "%s%s" % ("bitbucket.org",  rep['absolute_url'])
+        url = "%s%s" % ("bitbucket.org",  rep['absolute_url'].rstrip('/'))
+        log.info("(Bitbucket Build) %s" % (url))
         try:
             project = Project.objects.filter(repo__contains=url)[0]
             update_docs.delay(pk=project.pk, force=True)
