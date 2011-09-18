@@ -1,6 +1,9 @@
 The build process
 =================
 
+.. Keeping this for backwards compat
+
+
 Changing behavior for Read the Docs
 -----------------------------------
 

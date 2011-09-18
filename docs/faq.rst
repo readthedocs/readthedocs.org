@@ -7,6 +7,18 @@ My project isn't building with autodoc
 To keep our servers more secure, we white list accounts to allow them to execute code on our servers. If you need autodoc or other custom conf.py code execution options, feel free to Contact Us either in IRC at #readthedocs, or by email at eric@ericholscher.com.
 
 
+How do I change behavior for Read the Docs
+-------------------------------------------
+
+When RTD builds your project, it sets the `READTHEDOCS` environment variable to the string `True`. So within your Sphinx's conf.py file, you can vary the behavior based on this. For example::
+
+    import os
+    on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
+    if on_rtd:
+        html_theme = 'default'
+    else:
+        html_theme = 'nature'
+
 I get import errors on librarires that depend on C modules
 ----------------------------------------------------------
 
