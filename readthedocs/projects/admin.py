@@ -19,6 +19,7 @@ class ProjectAdmin(admin.ModelAdmin):
     list_editable = ('featured',)
     search_fields = ('name', 'repo')
     inlines = [VersionInline]
+    raw_id_fields = ('users',)
 
 
 class FileAdmin(admin.ModelAdmin):
