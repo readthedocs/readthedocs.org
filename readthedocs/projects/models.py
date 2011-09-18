@@ -222,7 +222,7 @@ class Project(models.Model):
 
     @property
     def has_good_build(self):
-        return any([build.success for build in self.builds.all()])
+        return self.builds.filter(success=True).count()
 
     @property
     def has_versions(self):
