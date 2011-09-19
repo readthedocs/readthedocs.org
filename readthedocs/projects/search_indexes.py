@@ -61,7 +61,11 @@ class ImportedFileIndex(CelerySearchIndex):
             log.info('Unable to index file: %s, error :%s' % (file_path, e))
             return
         log.debug('Indexing %s' % obj.slug)
-        to_index = strip_tags(PyQuery(content)("div.document").html()).replace(u'¶', '')
+        try:
+            to_index = strip_tags(PyQuery(content)("div.document").html()).replace(u'¶', '')
+        except ValueError:
+            #Pyquery returns ValueError if div.document doesn't exist.
+            return
         return to_index
 
 site.register(File, FileIndex)
