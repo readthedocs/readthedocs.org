@@ -57,8 +57,9 @@ class ImportedFileIndex(CelerySearchIndex):
         try:
             with codecs.open(file_path, encoding='utf-8', mode='r') as f:
                 content = f.read()
-        except (AttributeError, IOError) as e:
-            log.info('Unable to index file: %s' % file_path)
+        except IOError as e:
+            log.info('Unable to index file: %s, error :%s' % (file_path, e))
+            return
         log.debug('Indexing %s' % obj.slug)
         to_index = strip_tags(PyQuery(content)("div.document").html()).replace(u'¶', '')
         return to_index

@@ -15,3 +15,4 @@ Awesome Contributors
 * Daniel Greenfeld
 * Chris McDonald
 * Daniel Graña
+* Alex Gaynor
