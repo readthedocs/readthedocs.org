@@ -1,4 +1,4 @@
-Primary Authors
+Original Authors
 ===============
 * Charlie Leifer
 * Eric Holscher
