@@ -12,7 +12,17 @@ Awesome Contributors
 * Issac Kelly
 * Dan Colish
 * Jacob Kaplan-Moss
+* Paul McMillan
 * Daniel Greenfeld
 * Chris McDonald
 * Daniel Graña
 * Alex Gaynor
+* Richard Boulton
+* Mark Sandstrom
+* Thomas Purchas
+* Dustin J. Mitchell
+* Michael Kurze
+* Dag Odenhall
+* Jacob Burch
+
+For a list of all the contributions: https://github.com/rtfd/readthedocs.org/contributors
