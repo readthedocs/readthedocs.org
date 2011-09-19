@@ -16,7 +16,6 @@ httplib2
 distutils2
 Unipath
 django
-BeautifulSoup==3.2.0
 unittest-xml-reporting
 redis
 pyquery==1.0

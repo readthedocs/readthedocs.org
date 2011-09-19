@@ -14,6 +14,8 @@ from pyquery import PyQuery
 
 from projects.models import File, ImportedFile, Project
 
+import logging
+log = logging.getLogger(__name__)
 
 class ProjectIndex(CelerySearchIndex):
     text = CharField(document=True, use_template=True)
@@ -54,7 +56,9 @@ class ImportedFileIndex(CelerySearchIndex):
         file_path = os.path.join(full_path, obj.path.lstrip('/'))
         with codecs.open(file_path, encoding='utf-8', mode='r') as f:
             content = f.read()
-        return strip_tags(PyQuery(content)("div.document").html()).replace(u'¶', '')
+        log.debug('Indexing %s' % obj.slug)
+        to_index = strip_tags(PyQuery(content)("div.document").html()).replace(u'¶', '')
+        return to_index
 
 site.register(File, FileIndex)
 site.register(ImportedFile, ImportedFileIndex)
