@@ -116,11 +116,15 @@ def delete_cdn(c):
 
 
 def full_deploy():
-    push()
-    update_requirements()
-    migrate()
-    restart()
-    celery()
+    #HACK
+    #Call this again at the top-level so the hosts decorator
+    #effects the hosts it runs against for each command.
+    run('fab push update_requirements migrate restart celery')
+    #push()
+    #update_requirements()
+    #migrate()
+    #restart()
+    #celery()
 
 @hosts(['chimera.ericholscher.com'])
 def uptime():
