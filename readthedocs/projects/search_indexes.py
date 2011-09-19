@@ -10,8 +10,6 @@ from haystack.indexes import *
 
 from celery_haystack.indexes import CelerySearchIndex
 
-from pyquery import PyQuery
-
 from projects.models import File, ImportedFile, Project
 
 import logging
@@ -52,6 +50,8 @@ class ImportedFileIndex(CelerySearchIndex):
         This only works on machines that have the html
         files for the projects checked out.
         """
+        #Import this here to hopefully fix tests for now.
+        from pyquery import PyQuery
         full_path = obj.project.rtd_build_path()
         file_path = os.path.join(full_path, obj.path.lstrip('/'))
         try:
