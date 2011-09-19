@@ -39,6 +39,7 @@ Developer Documentation
     :maxdepth: 2
 
     install
+    contribute
     architecture
     settings
     tests
