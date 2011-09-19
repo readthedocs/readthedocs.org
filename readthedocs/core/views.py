@@ -100,9 +100,9 @@ def bitbucket_build(request):
             project = Project.objects.filter(repo__contains=url)[0]
             update_docs.delay(pk=project.pk, force=True)
             return HttpResponse('Build Started')
-        except:
-            mail_admins('Build Failure', '%s failed to build via bitbucket' % name)
-            return HttpResponse('Build Failed')
+        except Exception, e:
+            mail_admins('Build Failure', '%s failed to build via github.\n\n%s' % (name, e))
+            return HttpResponseNotFound('Build Failed')
     else:
         return render_to_response('post_commit.html', {},
                 context_instance=RequestContext(request))
