@@ -12,7 +12,8 @@ def push():
     "Push new code, but don't restart/reload."
     local('git push origin master')
     with cd(env.code_dir):
-        run('git pull origin master')
+        run('git fetch')
+        run('git reset --hard origin/master')
 
 def update_requirements():
     "Update requirements in the virtualenv."
@@ -129,3 +130,7 @@ def full_deploy():
 @hosts(['chimera.ericholscher.com'])
 def uptime():
     run('uptime')
+
+@hosts(['chimera.ericholscher.com'])
+def update_index():
+    run('django-admin.py update_index')
