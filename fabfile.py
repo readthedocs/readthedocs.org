@@ -18,6 +18,7 @@ def update_requirements():
     "Update requirements in the virtualenv."
     run("%s/bin/pip install -r %s/deploy_requirements.txt" % (env.virtualenv, env.code_dir))
 
+@hosts(['chimera.ericholscher.com'])
 def migrate(project=None):
     if project:
         run('django-admin.py migrate %s' % project)
@@ -49,11 +50,11 @@ def spider():
 def _aws_wrapper(f, *args, **kwargs):
     "get AWS credentials if not defined"
     #these are normally defined in ~/.fabricrc
-    @hosts('run_once') #so fab doesn't go crazy 
+    @hosts('run_once') #so fab doesn't go crazy
     def wrapped(*args, **kwargs):
         from boto.cloudfront.exception import CloudFrontServerError
         from boto.cloudfront import CloudFrontConnection
-        c = CloudFrontConnection(env.aws_access_key_id, 
+        c = CloudFrontConnection(env.aws_access_key_id,
                                  env.aws_secret_access_key)
         if not hasattr(env, 'aws_access_key_id'):
             prompt('AWS Access Key ID: ', key='aws_access_key_id')
@@ -71,12 +72,12 @@ def to_cdn(c, slug):
     from boto.cloudfront import CloudFrontConnection
     from boto.cloudfront.origin import CustomOrigin
 
-    c = CloudFrontConnection(env.aws_access_key_id, 
+    c = CloudFrontConnection(env.aws_access_key_id,
                              env.aws_secret_access_key)
     d = c.create_distribution(
         origin=CustomOrigin(slug + '.cdn.readthedocs.org',
                             origin_protocol_policy='http-only'),
-        enabled=True, 
+        enabled=True,
         comment='Slug: ' + slug,
         cnames=[slug + '.readthedocs.org']
         )
@@ -88,8 +89,8 @@ def list_cdn(c):
     "List Distributions on CloudFront"
     distributions = c.get_all_distributions()
     for d in distributions:
-        print "%3s %4s %40s %30s" % ('Ena' if d.enabled else 'Dis', 
-                                     d.status[:4], d.origin.dns_name, 
+        print "%3s %4s %40s %30s" % ('Ena' if d.enabled else 'Dis',
+                                     d.status[:4], d.origin.dns_name,
                                      d.domain_name)
 
 @_aws_wrapper
@@ -114,7 +115,6 @@ def delete_cdn(c):
             distro.get_distribution().delete()
 
 
-@hosts(['chimera.ericholscher.com'])
 def full_deploy():
     push()
     update_requirements()
