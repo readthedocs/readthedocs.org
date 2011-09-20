@@ -79,7 +79,7 @@ def github_build(request):
                 branch = 'latest'
                 log.info("(Github Build) Building %s:latest" % project.slug)
             #version_pk being None means it will use "latest"
-            update_docs(pk=project.pk, version_pk=version_pk, force=True)
+            update_docs.delay(pk=project.pk, version_pk=version_pk, force=True)
             return HttpResponse('Build Started: %s' % version_slug)
         except Exception, e:
             mail_admins('Build Failure', '%s failed to build via github.\n\n%s' % (name, e))
