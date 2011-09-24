@@ -143,8 +143,20 @@ LOGGING = {
             'class':'logging.handlers.RotatingFileHandler',
             'filename': SITE_ROOT + "/rtd.log",
             'maxBytes': 50000,
-            'backupCount': 2,
+            'backupCount': 1000,
             'formatter': 'standard',
+        },
+        'errorlog': {
+            'level':'DEBUG',
+            'class':'logging.handlers.RotatingFileHandler',
+            'filename': SITE_ROOT + "/rtd.log",
+            'maxBytes': 50000,
+            'backupCount': 1000,
+            'formatter': 'standard',
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler',
         },
         'console':{
             'level':'INFO',
@@ -154,13 +166,18 @@ LOGGING = {
     },
     'loggers': {
         'django': {
-            'handlers':['console'],
+            'handlers':['console', 'errorlog'],
             'propagate': True,
             'level':'WARN',
         },
         'django.db.backends': {
-            'handlers': ['console'],
+            'handlers': ['logfile'],
             'level': 'DEBUG',
+            'propagate': False,
+        },
+        'django.request': {
+            'handlers': ['mail_admins'],
+            'level': 'ERROR',
             'propagate': False,
         },
         'core': {
