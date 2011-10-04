@@ -151,7 +151,8 @@ def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
         return HttpResponseRedirect(url)
     if not filename:
         filename = "index.html"
-    elif proj.documentation_type == 'sphinx_htmldir' and "_static" not in filename and "html" not in filename and not "inv" in filename:
+    #This is required because we're forming the filenames outselves instead of letting the web server do it.
+    elif proj.documentation_type == 'sphinx_htmldir' and "_static" not in filename and "_images" not in filename and "html" not in filename and not "inv" in filename:
         filename += "index.html"
     else:
         filename = filename.rstrip('/')
