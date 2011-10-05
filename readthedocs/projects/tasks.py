@@ -444,6 +444,5 @@ def symlink_cname(version):
         symlink = version.project.rtd_cname_path(cname)
         #Chop off the version from the end.
         build_dir = '/'.join(build_dir.split('/')[:-1])
-        symlink = '/'.join(symlink.split('/')[:-1])
         run_on_app_servers('mkdir -p %s' % '/'.join(symlink.split('/')[:-1]))
         run_on_app_servers('ln -nsf %s %s' % (build_dir, symlink))
