@@ -435,8 +435,15 @@ def save_term(version, term, url, title):
 def symlink_cname(version):
     build_dir = version.project.rtd_build_path(version.slug)
     redis_conn = redis.Redis(**settings.REDIS)
-    for cname in redis_conn.smembers('rtd_slug:v1:%s' % version.project.slug):
+    try:
+        cnames = redis_conn.smembers('rtd_slug:v1:%s' % version.project.slug)
+    except redis.ConnectionError:
+        return
+    for cname in cnames:
         print "Symlinking %s" % cname
         symlink = version.project.rtd_cname_path(cname)
+        #Chop off the version from the end.
+        build_dir = '/'.join(build_dir.split('/')[:-1])
+        symlink = '/'.join(symlink.split('/')[:-1])
         run_on_app_servers('mkdir -p %s' % '/'.join(symlink.split('/')[:-1]))
         run_on_app_servers('ln -nsf %s %s' % (build_dir, symlink))
