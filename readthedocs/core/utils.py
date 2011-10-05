@@ -28,3 +28,20 @@ def copy_file_to_app_servers(from_file, to_file):
         ret = os.system("rsync -e 'ssh -T' -av --delete %s %s@%s:%s" % (from_file, getpass.getuser(), server, to_file))
         if ret != 0:
             print "COPY ERROR to app servers."
+
+
+def run_on_app_servers(command):
+    """
+    A helper to copy a single file across app servers
+    """
+    print "Running %s on app servers" % command
+    ret_val = 0
+    if getattr(settings, "MULTIPLE_APP_SERVERS", None):
+        for server in settings.MULTIPLE_APP_SERVERS:
+            ret = os.system("ssh %s@%s %s" % (getpass.getuser(), server, command))
+            if ret != 0:
+                ret_val = ret
+        return ret_val
+    else:
+        ret = os.system(command)
+        return ret

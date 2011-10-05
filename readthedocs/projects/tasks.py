@@ -28,7 +28,7 @@ from projects.utils import (
     slugify_uniquely,
     )
 from tastyapi import client
-from core.utils import copy_to_app_servers
+from core.utils import copy_to_app_servers, run_on_app_servers
 
 ghetto_hack = re.compile(
     r'(?P<key>.*)\s*=\s*u?\[?[\'\"](?P<value>.*)[\'\"]\]?')
@@ -101,6 +101,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
                 print "HTML Build OK"
                 purge_version(version, subdomain=True,
                               mainsite=True, cname=True)
+                symlink_cname(version)
                 update_intersphinx(version.pk)
                 print "Purged %s" % version
             else:
@@ -429,3 +430,13 @@ def save_term(version, term, url, title):
                                          version_slug, term), url)
     redis_obj.setnx('redirects:v3:%s:%s:%s:%s:%s' % (lang, project_slug,
                                              version_slug, term, url), 1)
+
+
+def symlink_cname(version):
+    build_dir = version.project.rtd_build_path(version.slug)
+    redis_conn = redis.Redis(**settings.REDIS)
+    for cname in redis_conn.smembers('rtd_slug:v1:%s' % version.project.slug):
+        print "Symlinking %s" % cname
+        symlink = version.project.rtd_cname_path(cname)
+        run_on_app_servers('mkdir -p %s' % '/'.join(symlink.split('/')[:-1]))
+        run_on_app_servers('ln -nsf %s %s' % (build_dir, symlink))

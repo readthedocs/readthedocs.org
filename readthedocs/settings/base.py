@@ -15,6 +15,7 @@ MANAGERS = ADMINS
 SITE_ROOT = '/'.join(os.path.dirname(__file__).split('/')[0:-2])
 DOCROOT = os.path.join(SITE_ROOT, 'user_builds')
 UPLOAD_ROOT = os.path.join(SITE_ROOT, 'user_uploads')
+CNAME_ROOT = os.path.join(SITE_ROOT, 'cnames')
 
 MEDIA_ROOT = '%s/media/' % (SITE_ROOT)
 MEDIA_URL = '/media/'

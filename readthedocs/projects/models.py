@@ -193,6 +193,12 @@ class Project(models.Model):
         """
         return os.path.join(self.doc_path, 'rtd-builds', version)
 
+    def rtd_cname_path(self, cname):
+        """
+        The path to the build html docs in the project.
+        """
+        return os.path.join(settings.CNAME_ROOT, cname)
+
     def conf_file(self, version='latest'):
         files = self.find('conf.py', version)
         if not files:
