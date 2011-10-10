@@ -24,6 +24,12 @@ class ProjectManager(models.Manager):
         base_qs = self.filter(skip=False)
         return base_qs.filter(*args, **kwargs)
 
+class ProjectRelationship(models.Model):
+    parent = models.ForeignKey('Project', related_name='subprojects')
+    child = models.ForeignKey('Project', related_name='superprojects')
+
+    def __unicode__(self):
+        return "%s -> %s" % (self.parent, self.child)
 
 class Project(models.Model):
     #Auto fields
@@ -67,6 +73,9 @@ class Project(models.Model):
         help_text="Install your project inside a virtualenv using "
         "setup.py install")
     django_packages_url = models.CharField(max_length=255, blank=True)
+
+    #Subprojects
+    related_projects = models.ManyToManyField('self', blank=True, null=True, symmetrical=False, through=ProjectRelationship)
 
     tags = TaggableManager(blank=True)
     objects = ProjectManager()

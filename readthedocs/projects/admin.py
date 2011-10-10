@@ -4,9 +4,11 @@ and related models.
 
 from builds.models import Version
 from django.contrib import admin
-from projects.models import Project, File, ImportedFile
+from projects.models import Project, File, ImportedFile, ProjectRelationship
 
-
+class ProjectRelationshipInline(admin.TabularInline):
+    model = ProjectRelationship
+    fk_name = 'parent'
 
 class VersionInline(admin.TabularInline):
     model = Version
@@ -18,7 +20,7 @@ class ProjectAdmin(admin.ModelAdmin):
     list_filter = ('repo_type', 'featured')
     list_editable = ('featured',)
     search_fields = ('name', 'repo')
-    inlines = [VersionInline]
+    inlines = [ProjectRelationshipInline, VersionInline]
     raw_id_fields = ('users',)
 
 
