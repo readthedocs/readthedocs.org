@@ -141,6 +141,7 @@ def subproject_serve_docs(request, project_slug, lang_slug, version_slug, filena
     if subproject_qs.exists():
         return serve_docs(request, lang_slug, version_slug, filename, project_slug)
     else:
+        log.info('Subproject lookup failed: %s:%s' % (project_slug, parent_slug))
         raise Http404("Subproject does not exist")
 
 def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
@@ -164,6 +165,7 @@ def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
     else:
         filename = filename.rstrip('/')
     basepath = proj.rtd_build_path(version_slug)
+    log.info('Serving %s for %s' % (filename, proj))
     if not settings.DEBUG:
         fullpath = os.path.join(basepath, filename)
         mimetype, encoding = mimetypes.guess_type(fullpath)
