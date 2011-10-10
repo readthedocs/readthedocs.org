@@ -4,6 +4,12 @@ Original Authors
 * Eric Holscher
 * Bobby Grace
 
+Opeartions Team
+===============
+
+* Eric Holscher
+* Chris McDonald
+
 Awesome Contributors
 ====================
 * Eric Pierce
