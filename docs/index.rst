@@ -45,3 +45,10 @@ Developer Documentation
     tests
     api
     api/index
+
+Operations Documentation
+------------------------
+.. toctree::
+    :maxdepth: 2
+
+    rtfd
