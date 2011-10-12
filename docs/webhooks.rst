@@ -11,7 +11,7 @@ updated within seconds is an awesome feeling.
 Github
 ---------
 
-If your project is hosted on Bitbucket, you can easily add a hook that will rebuild
+If your project is hosted on Github, you can easily add a hook that will rebuild
 your docs whenever you push updates:
 
 * Go to the "admin" page for your project
@@ -23,7 +23,7 @@ your docs whenever you push updates:
 Bitbucket
 ------
 
-If your project is hosted on Github, you can easily add a hook that will rebuild
+If your project is hosted on Bitbucket, you can easily add a hook that will rebuild
 your docs whenever you push updates:
 
 * Go to the "admin" page for your project
