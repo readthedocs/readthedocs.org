@@ -46,3 +46,8 @@ You can mock out the imports for these modules in your conf.py with the followin
         sys.modules[mod_name] = Mock()
 
 Of course, replacing `MOCK_MODULES` with the modules that you want to mock out.
+
+Where do I need to put my docs for RTD to find it?
+--------------------------------------------------
+
+Read the Docs will crawl your project looking for a ``conf.py``. Where it finds the ``conf.py``, it will run ``sphinx-build`` in that directory. So as long as you only have one set of sphinx documentation in your project, it should Just Work.
