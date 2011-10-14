@@ -59,6 +59,21 @@
 <p> This project has more information available about it on <a href="{{ project.django_packages_url }}">Django Packages!</a></p>
 {% endif %}
 
+{% comment %}
+{% if project.subprojects.count %}
+  <h3>Sub Projects</h3>
+  <p>
+    {% for project in project.subprojects.all %}
+        <li><a href="{{ project.get_docs_url }}">{{ project.child }}</a></li>
+    {% empty %}
+      <span class="quiet">No tags</span>
+    {% endfor %}
+  </p>
+{% endif %}
+
+{% endcomment %}
+
+
 <h3>Last Built</h3>
 <p>{{ project.modified_date|timesince }} ago</p>
 
@@ -94,7 +109,6 @@
 {% if request.user in project.users.all %}
   <h3>Post Commit Hook</h3>
     <p>http://readthedocs.org{% url generic_build project.pk %}</p>
-
 {% endif %}
 
 <form method="post" action="{% url generic_build project.pk %}">
