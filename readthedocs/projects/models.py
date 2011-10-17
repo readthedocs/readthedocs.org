@@ -33,7 +33,7 @@ class ProjectRelationship(models.Model):
 
     #HACK
     def get_absolute_url(self):
-        return "http://%s.readthedocs.org/docs/%s/en/latest/" % (self.parent.slug, self.child.slug)
+        return "http://%s.readthedocs.org/projects/%s/en/latest/" % (self.parent.slug, self.child.slug)
 
 class Project(models.Model):
     #Auto fields
