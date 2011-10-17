@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-  
+
   <!-- meta -->
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <link rel="icon" type="image/png" href="{{ MEDIA_URL }}images/favicon.png">
@@ -15,7 +15,7 @@
   {% block extra_links %}{% endblock %}
 
   <!-- js -->
-    
+
     <!-- jquery -->
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.4/jquery-ui.min.js"></script>
@@ -23,7 +23,7 @@
     <!-- typekit -->
     <script type="text/javascript" src="http://use.typekit.com/xgl8ypn.js"></script>
     <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
-    
+
 
     <script type="text/javascript" src="{{ MEDIA_URL }}javascript/rtd.js"></script>
 
@@ -63,13 +63,13 @@
     <!-- BEGIN footer-->
     <div id="footer">
       <div class="wrapper">
-        
+
         <hr>
 
         {% block footer-content %}
-        <p>2010.  Created by <a href="http://ericholscher.com/">Eric Holscher</a>, <a href="http://charlesleifer.com/">Charles Leifer</a>, and <a href="http://bobbygrace.info/">Bobby Grace</a> for the 2010 <a href="http://djangodash.com/">Django Dash</a>. 
+        <p>2010.  Created by <a href="http://ericholscher.com/">Eric Holscher</a>, <a href="http://charlesleifer.com/">Charles Leifer</a>, and <a href="http://bobbygrace.info/">Bobby Grace</a> for the 2010 <a href="http://djangodash.com/">Django Dash</a>.
 
-        <a href="http://github.com/rtfd/readthedocs.org">Github</a> | <a href="http://read-the-docs.readthedocs.org">Docs</a>. Sponsored by <a href="http://revsys.com">RevSys</a>, <a href="http://www.python.org/psf/">The Python Software Foundation</a>, and <a href="http://blog.mozilla.com/webdev/">Mozilla Web Dev</a>.</p> 
+        <a href="http://github.com/rtfd/readthedocs.org">Github</a> | <a href="http://read-the-docs.readthedocs.org">Docs</a>. Sponsored by <a href="http://revsys.com">RevSys</a>, <a href="http://www.python.org/psf/">The Python Software Foundation</a>, and <a href="http://blog.mozilla.com/webdev/">Mozilla Web Dev</a>.</p>
         {% endblock %}
 
       </div>
@@ -94,11 +94,13 @@
   $('.rtfd-header-search input:text').autocomplete({
     source: '{% url search_autocomplete %}',
     minLength: 2,
-    open: function(event, ui) { 
-      ac_top = $('.ui-autocomplete').css('top'); 
-      $('.ui-autocomplete').css({'width': '233px', 'top': ac_top + 10 }); 
+    open: function(event, ui) {
+      ac_top = $('.ui-autocomplete').css('top');
+      $('.ui-autocomplete').css({'width': '233px', 'top': ac_top + 10 });
     }
   });
+
+  {% block footerjs %}{% endblock %}
 
 </script>
 <!-- END google analytics -->

@@ -18,7 +18,8 @@ from builds.forms import AliasForm
 from projects import constants
 from projects.forms import (FileForm, CreateProjectForm,
                             ImportProjectForm, FileRevisionForm,
-                            build_versions_form, build_upload_html_form)
+                            build_versions_form, build_upload_html_form,
+                            SubprojectForm)
 from projects.models import Project, File
 from projects.tasks import unzip_files
 
@@ -363,10 +364,6 @@ def upload_html(request, project_slug):
 
 @login_required
 def edit_alias(request, project_slug, id=None):
-    """
-    The view for creating a new project where the docs will be hosted
-    as objects and edited through the site
-    """
     proj = get_object_or_404(Project.objects.all(), slug=project_slug)
     if id:
         alias = proj.aliases.get(pk=id)
@@ -385,14 +382,32 @@ def edit_alias(request, project_slug, id=None):
 
 @login_required
 def list_alias(request, project_slug):
-    """
-    The view for creating a new project where the docs will be hosted
-    as objects and edited through the site
-    """
     proj = get_object_or_404(Project.objects.all(), slug=project_slug)
     return object_list(
         request,
         queryset=proj.aliases.all(),
         template_object_name='alias',
         template_name='projects/alias_list.html',
+    )
+
+@login_required
+def project_subprojects(request, project_slug):
+    project = get_object_or_404(request.user.projects.live(), slug=project_slug)
+
+    if not project.is_imported:
+        raise Http404
+
+    form = SubprojectForm(data=request.POST or None, parent=project)
+
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        project_dashboard = reverse('projects_manage', args=[project.slug])
+        return HttpResponseRedirect(project_dashboard)
+
+    subprojects = project.subprojects.all()
+
+    return render_to_response(
+        'projects/project_subprojects.html',
+        {'form': form, 'project': project, 'subprojects': subprojects},
+        context_instance=RequestContext(request)
     )

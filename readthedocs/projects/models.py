@@ -31,6 +31,10 @@ class ProjectRelationship(models.Model):
     def __unicode__(self):
         return "%s -> %s" % (self.parent, self.child)
 
+    #HACK
+    def get_absolute_url(self):
+        return "http://%s.readthedocs.org/docs/%s/en/latest/" % (self.parent.slug, self.child.slug)
+
 class Project(models.Model):
     #Auto fields
     pub_date = models.DateTimeField(auto_now_add=True)
@@ -376,6 +380,19 @@ class Project(models.Model):
         if version_qs.exists():
             return self.default_version
         return 'latest'
+
+    def add_subproject(self, child):
+        subproject, created = ProjectRelationship.objects.get_or_create(
+            parent=self,
+            child=child,
+            )
+        return subproject
+
+    def remove_subproject(self, child):
+        ProjectRelationship.objects.filter(
+            parent=self,
+            child=child).delete()
+        return
 
 
 class FileManager(models.Manager):

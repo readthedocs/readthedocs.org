@@ -34,6 +34,11 @@
                           {% if project.has_aliases %}
                             <li><a href="{% url projects_alias_list project.slug %}" rel="nofollow,noindex">Aliases</a></li>
                         {% endif %}
+                       
+                            {% comment %}
+                          <li><a href="{% url projects_subprojects project.slug %}">Subprojects</a></li>
+                            {% endcomment %}
+
                           <li><a href="{% url projects_edit project.slug %}">Edit</a></li>
                           <li><a href="{{ project.get_docs_url }}">View Docs</a></li>
                         </ul>
