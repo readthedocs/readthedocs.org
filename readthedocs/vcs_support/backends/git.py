@@ -59,7 +59,7 @@ class Backend(BaseVCS):
         return [code, out, err]
 
     def clone(self):
-        code, out, err = self.run('git', 'clone', '--quiet',
+        code, out, err = self.run('git', 'clone', '--recursive', '--quiet',
                                   self.repo_url, '.')
         if code != 0:
             raise ProjectImportError(
