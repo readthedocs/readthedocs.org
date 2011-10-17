@@ -32,7 +32,7 @@
               {% if not project.is_imported %}
                 <li {% block editing-option-manage %}{% endblock %}><a href="{% url projects_manage project.slug %}">Manage Files</a></li>
               {% endif %}
-              <li {% block editing-option-edit-proj %}{% endblock %}><a href="{% url projects_edit project.slug %}">Edit Project</a></li>
+              <li {% block editing-option-edit-proj %}{% endblock %}><a href="{% url projects_edit project.slug %}">Edit </a></li>
               <li><a href="{% url projects_subprojects project.slug %}">Subprojects</a></li>
             {% endif %}
 
@@ -41,7 +41,7 @@
             {% endif %}
 
             {% if project.project_url %}
-              <li><a href="{{ project.project_url }}" rel="nofollow,noindex">Project Homepage</a></li>
+              <li><a href="{{ project.project_url }}" rel="nofollow,noindex">Homepage</a></li>
             {% endif %}
 
             {% if project.has_versions and request.user in project.users.all %}
