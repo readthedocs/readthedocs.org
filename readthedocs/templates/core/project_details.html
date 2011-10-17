@@ -62,13 +62,11 @@
 
 {% if project.subprojects.exists %}
   <h3>Sub Projects</h3>
-  <p>
+    <ul>
     {% for rel in project.subprojects.all %}
         <li><a href="{{ rel.get_absolute_url }}">{{ rel.child }}</a></li>
-    {% empty %}
-      <span class="quiet">No tags</span>
     {% endfor %}
-  </p>
+    </ul>
 {% endif %}
 
 
