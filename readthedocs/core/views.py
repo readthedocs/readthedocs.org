@@ -135,7 +135,7 @@ def legacy_serve_docs(request, username, project_slug, filename):
     })
     return HttpResponsePermanentRedirect(url)
 
-def subproject_serve_docs(request, project_slug, lang_slug, version_slug, filename):
+def subproject_serve_docs(request, project_slug, lang_slug, version_slug, filename=''):
     parent_slug = request.slug
     subproject_qs = ProjectRelationship.objects.filter(parent__slug=parent_slug, child__slug=project_slug)
     if subproject_qs.exists():
