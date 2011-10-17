@@ -394,9 +394,6 @@ def list_alias(request, project_slug):
 def project_subprojects(request, project_slug):
     project = get_object_or_404(request.user.projects.live(), slug=project_slug)
 
-    if not project.is_imported:
-        raise Http404
-
     form = SubprojectForm(data=request.POST or None, parent=project)
 
     if request.method == 'POST' and form.is_valid():
@@ -411,3 +408,13 @@ def project_subprojects(request, project_slug):
         {'form': form, 'project': project, 'subprojects': subprojects},
         context_instance=RequestContext(request)
     )
+
+@login_required
+def project_subprojects_delete(request, project_slug, child_slug):
+    parent = get_object_or_404(request.user.projects.live(), slug=project_slug)
+    child = get_object_or_404(Project.objects.all(), slug=child_slug)
+
+    parent.remove_subproject(child)
+
+    project_dashboard = reverse('projects_manage', args=[parent.slug])
+    return HttpResponseRedirect(project_dashboard)
