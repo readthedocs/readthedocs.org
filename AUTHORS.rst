@@ -21,7 +21,7 @@ Awesome Contributors
 * Paul McMillan
 * Daniel Greenfeld
 * Chris McDonald
-* Daniel Graña
+* Daniel Graï¿½a
 * Alex Gaynor
 * Richard Boulton
 * Mark Sandstrom
@@ -30,5 +30,6 @@ Awesome Contributors
 * Michael Kurze
 * Dag Odenhall
 * Jacob Burch
+* Daniel Greenfeld
 
 For a list of all the contributions: https://github.com/rtfd/readthedocs.org/contributors
