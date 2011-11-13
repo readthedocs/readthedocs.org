@@ -1,22 +1,24 @@
 {% extends "!layout.html" %}
 
-{% set script_files = [] %}
+#Strip out the default script files we provide, but keep some, like mathjax.
+{% set script_files = script_files[3:] %}
 
 {% block htmltitle %}
 {{ super() }}
+<!-- RTD <head> -->
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
 <script type="text/javascript" src="{{ MEDIA_URL }}javascript/underscore.js"></script>
 <script type="text/javascript" src="{{ MEDIA_URL }}javascript/doctools.js"></script>
 <script type="text/javascript" src="{{ MEDIA_URL }}javascript/searchtools.js"></script>
 {% if using_theme %}
   <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;"/>
-
 {% endif %}
   <script type="text/javascript">
     var doc_version = "{{ current_version }}";
     var doc_slug = "{{ slug }}";
   </script>
   <script type="text/javascript" src="{{ MEDIA_URL }}javascript/rtd.js"></script>
+<!-- end RTD <head> -->
 {% endblock %}
 
 {% block sidebarlogo %}
