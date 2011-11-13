@@ -115,7 +115,7 @@ class ProjectResource(ModelResource):
         authorization = Authorization()
         excludes = ['use_virtualenv', 'path', 'skip', 'featured']
         filtering = {
-            "user": ALL_WITH_RELATIONS,
+            "users": ALL_WITH_RELATIONS,
             "slug": ALL_WITH_RELATIONS,
         }
 
