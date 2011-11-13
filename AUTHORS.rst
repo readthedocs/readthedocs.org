@@ -21,7 +21,7 @@ Awesome Contributors
 * Paul McMillan
 * Daniel Greenfeld
 * Chris McDonald
-* Daniel Gra�a
+* Daniel Graña
 * Alex Gaynor
 * Richard Boulton
 * Mark Sandstrom
