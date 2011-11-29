@@ -97,4 +97,5 @@ correctly.  We are planning to support popular themes in future.
 
 For projects which need to be able to run code in conf.py, there is a white list
 for users that we trust to have these abilities.  To get on the white list, ask
-on IRC.
+on IRC (#readthedocs on `Freenode (chat.freenode.net)
+<http://webchat.freenode.net>`_).

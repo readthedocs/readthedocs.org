@@ -8,7 +8,7 @@ First, you should check out the Builds tab of your project. That records all of 
 
 You can check whether your account is whitelisted by going to your profile page. That is located at http://readthedocs.org/profiles/YOUR_USERNAME/.
 
-If you need autodoc or other custom options, feel free to Contact Us either in IRC at #readthedocs, or by emailing the mailling list.
+If you need autodoc or other custom options, feel free to Contact Us either in IRC at #readthedocs on Freenode (`http://chat.freenode.net <http://webchat.freenode.net>`_), or by emailing the mailling list.
 
 Mailing list archives are available at http://librelist.com/browser/readthedocs/. To join, send an email to readthedocs@librelist.com, that will allow you to join, then send another mail with the content to post to the list.
 
