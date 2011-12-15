@@ -6,6 +6,7 @@ import fnmatch
 import os
 import re
 import shutil
+import json
 
 from celery.decorators import task
 from django.db import transaction
