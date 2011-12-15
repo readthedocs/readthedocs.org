@@ -103,6 +103,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
                               mainsite=True, cname=True)
                 symlink_cname(version)
                 update_intersphinx(version.pk)
+                send_notifications(version)
                 print "Purged %s" % version
             else:
                 print "HTML Build ERROR"
@@ -446,3 +447,18 @@ def symlink_cname(version):
         symlink = version.project.rtd_cname_path(cname)
         run_on_app_servers('mkdir -p %s' % '/'.join(symlink.split('/')[:-1]))
         run_on_app_servers('ln -nsf %s %s' % (build_dir, symlink))
+
+
+def send_notifications(version):
+    message = "Build of %s successful" % version
+    redis_obj = redis.Redis(**settings.REDIS)
+    IRC = settings.get('IRC_CHANNEL', '#readthedocs')
+    redis_obj.publish('out',
+                    json.dumps({
+                    'version': 1,
+                    'type': 'privmsg',
+                    'data': {
+                        'to': IRC,
+                        'message': message,
+                        }
+                    }))
