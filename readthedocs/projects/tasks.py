@@ -452,7 +452,7 @@ def symlink_cname(version):
 def send_notifications(version):
     message = "Build of %s successful" % version
     redis_obj = redis.Redis(**settings.REDIS)
-    IRC = settings.get('IRC_CHANNEL', '#readthedocs')
+    IRC = getattr(settings, 'IRC_CHANNEL', '#readthedocs')
     redis_obj.publish('out',
                     json.dumps({
                     'version': 1,
