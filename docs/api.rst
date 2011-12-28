@@ -5,8 +5,42 @@ We have a limited public API that is available for you to get data out of the si
 
 This document covers the read-only API provided. We have plans to create a read/write API, so that you can easily automate interactions with your project.
 
-In all of these examples, replace `pip` with your own project.
+A basic API client using slumber
+================================
 
+You can use `Slumber <http://slumber.in/>`_ to build basic API wrappers in python. Here is a simple example of using slumber to interact with the RTD API::
+
+    import slumber
+    import json
+
+    show_objs = True
+    api = slumber.API(base_url='http://readthedocs.org/api/v1/')
+
+    val = api.project.get(slug='pip')
+    #val = api.project('pip').get()
+
+    #val = api.build.get(pk=49252)
+    #val = api.build.get(project__slug='read-the-docs')
+
+    #val = api.user.get(username='eric')
+
+    #val = api.version('pip').get()
+    #val = api.version('pip').get(slug='1.0.1')
+
+    #val = api.version('pip').highest.get()
+    #val = api.version('pip').highest('0.8').get()
+
+    if show_objs:
+        for obj in val['objects']:
+            print json.dumps(obj, indent=4)
+    else:
+        print json.dumps(val, indent=4)
+
+
+API Examples
+============
+
+In all of these examples, replace `pip` with your own project.
 
 Project Details
 ---------------
