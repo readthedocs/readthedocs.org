@@ -100,6 +100,8 @@ class Project(models.Model):
                 #tasks.remove_dir.delay(os.path.join(self.doc_path, 'checkouts'))
         if not self.slug:
             self.slug = slugify(self.name)
+            if self.slug == '':
+                raise Exception("Model must have slug")
         super(Project, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
