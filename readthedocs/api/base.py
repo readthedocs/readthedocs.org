@@ -154,6 +154,9 @@ class BuildResource(EnhancedModelResource):
     class Meta:
         allowed_methods = ['get', 'post']
         queryset = Build.objects.all()
+        filtering = {
+            "project": ALL_WITH_RELATIONS,
+        }
 
     def override_urls(self):
         return [
