@@ -167,6 +167,9 @@ class VersionResource(EnhancedModelResource):
 
     class Meta:
         queryset = Version.objects.all()
+        filtering = {
+            "project": ALL_WITH_RELATIONS,
+        }
 
     def version_compare(self, request, **kwargs):
         project = get_object_or_404(Project, slug=kwargs['project_slug'])
