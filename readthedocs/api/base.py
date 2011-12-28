@@ -156,6 +156,7 @@ class BuildResource(EnhancedModelResource):
         queryset = Build.objects.all()
         filtering = {
             "project": ALL_WITH_RELATIONS,
+            "slug": ALL_WITH_RELATIONS,
         }
 
     def override_urls(self):
@@ -164,11 +165,13 @@ class BuildResource(EnhancedModelResource):
         ]
 
 class VersionResource(EnhancedModelResource):
+    project = fields.ForeignKey(ProjectResource, 'project')
 
     class Meta:
         queryset = Version.objects.all()
         filtering = {
             "project": ALL_WITH_RELATIONS,
+            "slug": ALL_WITH_RELATIONS,
         }
 
     def version_compare(self, request, **kwargs):
