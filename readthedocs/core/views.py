@@ -82,7 +82,7 @@ def github_build(request):
             update_docs.delay(pk=project.pk, version_pk=version_pk, force=True)
             return HttpResponse('Build Started: %s' % version_slug)
         except Exception, e:
-            mail_admins('Build Failure', '%s failed to build via github.\n\n%s' % (name, e))
+            log.error("(Github Build) Failed: %s:%s" % (name, e))
             return HttpResponseNotFound('Build Failed')
     else:
         return render_to_response('post_commit.html', {},
@@ -101,7 +101,7 @@ def bitbucket_build(request):
             update_docs.delay(pk=project.pk, force=True)
             return HttpResponse('Build Started')
         except Exception, e:
-            mail_admins('Build Failure', '%s failed to build via github.\n\n%s' % (name, e))
+            log.error("(Github Build) Failed: %s:%s" % (name, e))
             return HttpResponseNotFound('Build Failed')
     else:
         return render_to_response('post_commit.html', {},
