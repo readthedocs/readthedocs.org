@@ -71,6 +71,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
         version, created = Version.objects.get_or_create(
             project=project, slug='latest')
         #Lots of course correction.
+        to_save = False
         if not version.verbose_name:
             version.verbose_name = 'latest'
             to_save = True
