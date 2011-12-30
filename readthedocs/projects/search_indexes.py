@@ -8,14 +8,14 @@ from django.utils.html import strip_tags
 from haystack import site
 from haystack.indexes import *
 
-from celery_haystack.indexes import CelerySearchIndex
+#from celery_haystack.indexes import CelerySearchIndex
 
 from projects.models import File, ImportedFile, Project
 
 import logging
 log = logging.getLogger(__name__)
 
-class ProjectIndex(CelerySearchIndex):
+class ProjectIndex(SearchIndex):
     text = CharField(document=True, use_template=True)
     author = CharField()
     title = CharField(model_attr='name')
@@ -25,7 +25,7 @@ class ProjectIndex(CelerySearchIndex):
     def prepare_author(self, obj):
         return obj.users.all()[0]
 
-class FileIndex(CelerySearchIndex):
+class FileIndex(SearchIndex):
     text = CharField(document=True, use_template=True)
     author = CharField()
     project = CharField(model_attr='project__name', faceted=True)
@@ -35,7 +35,7 @@ class FileIndex(CelerySearchIndex):
         return obj.project.users.all()[0]
 
 #Should prob make a common subclass for this and FileIndex
-class ImportedFileIndex(CelerySearchIndex):
+class ImportedFileIndex(SearchIndex):
     text = CharField(document=True)
     author = CharField()
     project = CharField(model_attr='project__name', faceted=True)
