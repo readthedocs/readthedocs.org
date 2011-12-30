@@ -388,7 +388,7 @@ def unzip_files(dest_file, html_path):
 @task
 def update_intersphinx(version_pk):
     version = Version.objects.get(pk=version_pk)
-    path = version.project.rtd_build_path(version.slug)
+    path = version.project.find('objects.inv', version.slug)
     if not path:
         print "ERR: %s has no path" % version
         return None
