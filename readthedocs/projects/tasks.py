@@ -395,14 +395,15 @@ def unzip_files(dest_file, html_path):
 @task
 def update_intersphinx(version_pk):
     version = Version.objects.get(pk=version_pk)
-    path = version.project.find('objects.inv', version.slug)[0]
+    object_file = version.project.find('objects.inv', version.slug)[0]
+    path = version.project.rtd_build_path(version.slug)
     if not path:
         print "ERR: %s has no path" % version
         return None
     app = DictObj()
     app.srcdir = path
     try:
-        inv = fetch_inventory(app, app.srcdir, 'objects.inv')
+        inv = fetch_inventory(app, path, object_file)
     except TypeError:
         print "Failed to fetch inventory for %s" % version
         return None
