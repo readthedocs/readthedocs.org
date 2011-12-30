@@ -70,11 +70,17 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
         branch = project.default_branch or project.vcs_repo().fallback_branch
         version, created = Version.objects.get_or_create(
             project=project, slug='latest')
+        #Lots of course correction.
+        if not version.verbose_name:
+            version.verbose_name = 'latest'
+            to_save = True
         if not version.active:
             version.active = True
-            version.save()
+            to_save = True
         if version.identifier != branch:
             version.identifier = branch
+            to_save = True
+        if to_save:
             version.save()
 
     #Make Dirs

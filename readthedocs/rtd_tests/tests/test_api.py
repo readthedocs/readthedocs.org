@@ -2,6 +2,37 @@ from django.test import TestCase
 import json
 import base64
 
+class APIBuildTests(TestCase):
+    fixtures = ['eric.json', 'test_data.json']
+
+    def test_make_build(self):
+        """
+        Test that a superuser can use the API
+        """
+        post_data = {"project": "/api/v1/project/1/",
+                     "version": "/api/v1/version/1/",
+                     "success": True,
+                     "output": "Test Output",
+                     "error": "Test Error",
+             }
+        resp = self.client.post('/api/v1/build/',
+                                data=json.dumps(post_data),
+                                content_type='application/json',
+                                HTTP_AUTHORIZATION='Basic %s' % base64.b64encode('eric:test')
+                                )
+        self.assertEqual(resp.status_code, 201)
+        self.assertEqual(resp['location'],
+                         'http://testserver/api/v1/build/0/')
+        resp = self.client.get('/api/v1/build/0/',
+                               data={'format': 'json'},
+                                HTTP_AUTHORIZATION='Basic %s' % base64.b64encode('eric:test')
+                              )
+        self.assertEqual(resp.status_code, 200)
+        obj = json.loads(resp.content)
+        self.assertEqual(obj['output'], 'Test Output')
+
+
+
 class APITests(TestCase):
     fixtures = ['eric.json', 'test_data.json']
 
