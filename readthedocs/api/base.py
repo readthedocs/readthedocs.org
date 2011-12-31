@@ -231,12 +231,15 @@ class FileResource(EnhancedModelResource):
         self.throttle_check(request)
 
         query = request.GET.get('q', '')
-        urls = r.sort('redirects:v3:%s:*:%s:%s' % (lang, version, term),
-                      by   = 'redirects:v3:%s:*:%s:%s:*' % (lang, version, term),
-                      get  = ('redirects:v3:%s:*:%s:%s:*' % (lang, version, term), '#'),
-                      desc = True)[1::2]
+        urls_and_scores = get_urls(query, 'latest')
+
+        objects = []
+
+        for score, url in urls_and_scores:
+            objects.append(url)
+
         object_list = {
-            'objects': urls
+            'objects': objects,
         }
 
         self.log_throttled_access(request)
