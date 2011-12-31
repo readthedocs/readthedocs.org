@@ -109,7 +109,7 @@ class ProjectResource(ModelResource):
 
     class Meta:
         include_absolute_url = True
-        allowed_methods = ['get', 'post']
+        allowed_methods = ['get', 'post', 'put']
         queryset = Project.objects.all()
         authentication = PostAuthentication()
         authorization = Authorization()
