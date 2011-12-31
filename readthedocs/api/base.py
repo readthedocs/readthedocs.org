@@ -33,7 +33,7 @@ def _do_search(self, request, model):
     sqs = SearchQuerySet().models(model).load_all().auto_query(request.GET.get('q', ''))
     paginator = Paginator(sqs, 20)
 
-    log.info('Serving search for %s:%s' % (query, facet))
+    #log.info('Serving search for %s:%s' % (query, facet))
 
     try:
         page = paginator.page(int(request.GET.get('page', 1)))
