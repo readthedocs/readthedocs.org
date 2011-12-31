@@ -4,6 +4,7 @@ djcelery.setup_loader()
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+TASTYPIE_FULL_DEBUG = True
 
 ADMINS = (
     ('Charlie Leifer', 'coleifer@gmail.com'),
@@ -189,3 +190,5 @@ LOGGING = {
         },
     }
 }
+
+
