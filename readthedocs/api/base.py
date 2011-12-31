@@ -30,7 +30,7 @@ def _do_search(self, request, model):
     self.throttle_check(request)
 
     # Do the query.
-    sqs = SearchQuerySet().models(Note).load_all().auto_query(request.GET.get('q', ''))
+    sqs = SearchQuerySet().models(model).load_all().auto_query(request.GET.get('q', ''))
     paginator = Paginator(sqs, 20)
 
     log.info('Serving search for %s:%s' % (query, facet))
