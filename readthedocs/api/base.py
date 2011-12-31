@@ -234,8 +234,17 @@ class FileResource(EnhancedModelResource):
         #-2 because http:
         urls = [''.join(data.split(':')[6:]) for data in redis_data if 'http://' in data]
 
+        paginator = Paginator(urls, 20)
+
+        try:
+            page = paginator.page(int(request.GET.get('page', 1)))
+        except InvalidPage:
+            raise Http404("Sorry, no results on that page.")
+
+        objects = [result for result in page.object_list]
+
         object_list = {
-            'objects': urls,
+            'objects': objects,
         }
 
         self.log_throttled_access(request)
