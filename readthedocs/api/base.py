@@ -45,6 +45,7 @@ def _do_search(self, request, model):
         if result:
             highlighter = Highlighter(query)
             text = highlighter.highlight(result.text)
+            bundle = self.build_bundle(obj=result.object, request=request)
             bundle = self.full_dehydrate(result.object)
             bundle.data['text'] = text
             objects.append(bundle)
