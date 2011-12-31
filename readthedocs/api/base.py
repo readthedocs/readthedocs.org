@@ -42,18 +42,11 @@ def _do_search(self, request, model):
 
     for result in page.object_list:
         if result:
-            bundle = self.build_bundle(obj=result.object, request=request)
-            bundle = self.full_dehydrate(bundle)
+            highlighter = Highlighter(query)
+            text = highlighter.highlight(result.text)
+            bundle = self.full_dehydrate(result.object)
+            bundle.data['text'] = text
             objects.append(bundle)
-
-    """
-    for result in page.object_list:
-        highlighter = Highlighter(query)
-        text = highlighter.highlight(result.text)
-        bundle = self.full_dehydrate(result.object)
-        bundle.data['text'] = text
-        objects.append(bundle)
-    """
 
     object_list = {
         'objects': objects,
