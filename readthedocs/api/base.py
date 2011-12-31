@@ -16,10 +16,12 @@ from tastypie.resources import ModelResource
 from tastypie.exceptions import NotFound
 from tastypie.http import HttpCreated
 from tastypie.utils import dict_strip_unicode_keys, trailing_slash
+import redis
 
 from builds.models import Build, Version
 from projects.models import Project, ImportedFile
 from projects.utils import highest_version, mkversion
+from djangome.views import get_urls
 
 log = logging.getLogger(__name__)
 
@@ -217,7 +219,28 @@ class FileResource(EnhancedModelResource):
     def override_urls(self):
         return [
             url(r"^(?P<resource_name>%s)/search%s$" % (self._meta.resource_name, trailing_slash()), self.wrap_view('get_search'), name="api_get_search"),
+            url(r"^(?P<resource_name>%s)/anchor%s$" % (self._meta.resource_name, trailing_slash()), self.wrap_view('get_anchor'), name="api_get_anchor"),
         ]
 
     def get_search(self, request, **kwargs):
         return _do_search(self, request, ImportedFile)
+
+    def get_anchor(self, request, **kwargs):
+        self.method_check(request, allowed=['get'])
+        self.is_authenticated(request)
+        self.throttle_check(request)
+
+        query = request.GET.get('q', '')
+        urls_and_scores = get_urls(query, 'latest')
+
+        objects = []
+
+        for score, url in urls_and_scores:
+            objects.append(url)
+
+        object_list = {
+            'objects': objects,
+        }
+
+        self.log_throttled_access(request)
+        return self.create_response(request, object_list)
