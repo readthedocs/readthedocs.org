@@ -39,6 +39,8 @@ You can use `Slumber <http://slumber.in/>`_ to build basic API wrappers in pytho
 Example of adding a user to a project
 --------------------------------------
 
+::
+
     import slumber
 
     USERNAME = 'eric'
