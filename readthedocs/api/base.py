@@ -16,12 +16,11 @@ from tastypie.resources import ModelResource
 from tastypie.exceptions import NotFound
 from tastypie.http import HttpCreated
 from tastypie.utils import dict_strip_unicode_keys, trailing_slash
-import redis
 
 from builds.models import Build, Version
 from projects.models import Project, ImportedFile
 from projects.utils import highest_version, mkversion
-from djangome.views import get_urls
+from djangome import views as djangome
 
 log = logging.getLogger(__name__)
 
@@ -231,15 +230,12 @@ class FileResource(EnhancedModelResource):
         self.throttle_check(request)
 
         query = request.GET.get('q', '')
-        urls_and_scores = get_urls(query, 'latest')
-
-        objects = []
-
-        for score, url in urls_and_scores:
-            objects.append(url)
+        redis_data = djangome.r.keys("*redirects:v3*%s*" % query)
+        #-2 because http:
+        urls = [''.join(data.split(':')[6:]) for data in redis_data if 'http://' in data]
 
         object_list = {
-            'objects': objects,
+            'objects': urls,
         }
 
         self.log_throttled_access(request)
