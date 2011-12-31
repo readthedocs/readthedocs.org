@@ -30,11 +30,7 @@ def _do_search(self, request, model):
     self.throttle_check(request)
 
     # Do the query.
-    query = request.GET.get('q', '')
-    facet = request.GET.get('facet', '')
-    sqs = SearchQuerySet().models(model).auto_query(query)
-    if facet:
-        sqs = sqs.facet(facet)
+    sqs = SearchQuerySet().models(Note).load_all().auto_query(request.GET.get('q', ''))
     paginator = Paginator(sqs, 20)
 
     log.info('Serving search for %s:%s' % (query, facet))
@@ -47,11 +43,18 @@ def _do_search(self, request, model):
     objects = []
 
     for result in page.object_list:
+        bundle = self.build_bundle(obj=result.object, request=request)
+        bundle = self.full_dehydrate(bundle)
+        objects.append(bundle)
+
+    """
+    for result in page.object_list:
         highlighter = Highlighter(query)
         text = highlighter.highlight(result.text)
         bundle = self.full_dehydrate(result.object)
         bundle.data['text'] = text
         objects.append(bundle)
+    """
 
     object_list = {
         'objects': objects,
