@@ -5,6 +5,8 @@ We have a limited public API that is available for you to get data out of the si
 
 This document covers the read-only API provided. We have plans to create a read/write API, so that you can easily automate interactions with your project.
 
+The API is written in Tastypie, which provides a nice ability to browse the API from your browser. If you go to http://readthedocs.org/api/v1/?format=json and just poke around, you should be able to figure out what is going on.
+
 A basic API client using slumber
 ================================
 
