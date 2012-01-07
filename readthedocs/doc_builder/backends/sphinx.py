@@ -51,7 +51,7 @@ context = {
     ("{{ version.slug }}", "{{ version.get_absolute_url }}"),{% endfor %}
     ],
     'slug': '{{ project.slug }}',
-    'name': '{{ project.name }}',
+    'name': u'{{ project.name }}',
     'badge_revsys': {{ project.sponsored }},
     'analytics_code': '{{ project.analytics_code }}',
 }
