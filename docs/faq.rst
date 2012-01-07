@@ -38,8 +38,12 @@ You can mock out the imports for these modules in your conf.py with the followin
         def __init__(self, *args, **kwargs):
             pass
 
-        def __getattr__(self, name):
+        def __call__(self, *args, **kwargs):
             return Mock()
+
+        @classmethod
+        def __getattr__(self, name):
+            return Mock() if name not in ('__file__', '__path__') else '/dev/null'
 
     MOCK_MODULES = ['pygtk', 'gtk', 'gobject', 'argparse']
     for mod_name in MOCK_MODULES:
