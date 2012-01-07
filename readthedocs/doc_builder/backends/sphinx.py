@@ -1,5 +1,6 @@
 import os
 import shutil
+import codecs
 
 from django.template.loader import render_to_string
 from django.template import Template, Context
@@ -76,7 +77,7 @@ class Builder(BaseBuilder):
         """
         project = self.version.project
         #Open file for appending.
-        outfile = open(project.conf_file(self.version.slug), 'a')
+        outfile = codecs.open(project.conf_file(self.version.slug), encoding='utf-8', mode='a')
         outfile.write("\n")
         rtd_ctx = Context({
                 'versions': project.active_versions(),
