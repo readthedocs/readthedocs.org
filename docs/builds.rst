@@ -23,6 +23,7 @@ The build server does have a select number of C libraries installed, because the
 
     * libevent
     * Latex
+    * dvipng
     * graphviz
     * libxslt1.1
     * libxml2-dev
