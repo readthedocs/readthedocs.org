@@ -24,11 +24,6 @@ warning = '<div class="admonition note"> <p class="first admonition-title">Note<
 
  function getVersions() {
     $('#version_menu').empty()
-    current_url = window.location.pathname.toString();
-    current = current_url.split('/en/')[1]
-    postfix = current.split('/')
-    postfix.shift()
-    current_url = postfix.join('/')
     $.ajax({
      type: 'GET',
      //This has to be hard coded for CNAMEs, subdomains.
@@ -37,7 +32,8 @@ warning = '<div class="admonition note"> <p class="first admonition-title">Note<
      success: function(data, textStatus, request) {
         for (key in data['objects']) {
             obj = data['objects'][key]
-            $("#version_menu").append('<li><a href="http://readthedocs.org/docs/' + doc_slug + '/en/' + obj['slug'] + '/' + current_url + '">' + obj['slug'] + '</a></li>')
+            current_url = window.location.pathname.replace(doc_version, obj.slug)
+            $("#version_menu").append('<li><a href="' + current_url + '">' + obj.slug + '</a></li>')
           }
      },
      dataType: 'jsonp'
