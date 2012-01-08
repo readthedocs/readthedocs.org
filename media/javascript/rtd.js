@@ -3,6 +3,7 @@
     ShowActionOnOver();
     guessRepo();
     checkVersion();
+    getVersions();
  });
 
 warning = '<div class="admonition note"> <p class="first admonition-title">Note</p> <p class="last"> You are not using the most up to date version of the library. '
@@ -11,12 +12,35 @@ warning = '<div class="admonition note"> <p class="first admonition-title">Note<
     $.ajax({
      type: 'GET',
      url: "http://readthedocs.org/api/v1/version/" + doc_slug + "/highest/" + doc_version + "/",
+     //url: "/api/v1/version/" + doc_slug + "/highest/" + doc_version + "/",
      success: function(data, textStatus, request) {
       if (!data.is_highest) {
          $("div.body").prepend(warning + "<a href='http://readthedocs.org" + window.location.pathname.replace(doc_version, data.slug)  + "'>" + data.version + "</a> is the newest version. </p></div>")
       }
      },
-     dataType: 'json'
+     dataType: 'jsonp'
+    });
+ }
+
+ function getVersions() {
+    $('#version_menu').empty()
+    current_url = window.location.pathname.toString();
+    current = current_url.split('/en/')[1]
+    postfix = current.split('/')
+    postfix.shift()
+    current_url = postfix.join('/')
+    $.ajax({
+     type: 'GET',
+     //This has to be hard coded for CNAMEs, subdomains.
+     url: "http://readthedocs.org/api/v1/version/" + doc_slug + "/?active=True",
+     //url: "/api/v1/version/" + doc_slug + "/?active=True",
+     success: function(data, textStatus, request) {
+        for (key in data['objects']) {
+            obj = data['objects'][key]
+            $("#version_menu").append('<li><a href="http://readthedocs.org/docs/read-the-docs/en/' + obj['slug'] + '/' + current_url + '">' + obj['slug'] + '</a></li>')
+          }
+     },
+     dataType: 'jsonp'
     });
  }
 
@@ -63,3 +87,4 @@ function guessRepo() {
       }
   )
 }
+
