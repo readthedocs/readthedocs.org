@@ -164,7 +164,7 @@ class BuildResource(EnhancedModelResource):
         ]
 
 class VersionResource(EnhancedModelResource):
-    project = fields.ForeignKey(ProjectResource, 'project')
+    project = fields.ForeignKey(ProjectResource, 'project', full_dehydrate=True)
 
     class Meta:
         queryset = Version.objects.all()
