@@ -11,7 +11,7 @@ from haystack.utils import Highlighter
 from tastypie import fields
 from tastypie.authentication import BasicAuthentication
 from tastypie.authorization import Authorization
-from tastypie.constants import ALL_WITH_RELATIONS
+from tastypie.constants import ALL_WITH_RELATIONS, ALL
 from tastypie.resources import ModelResource
 from tastypie.exceptions import NotFound
 from tastypie.http import HttpCreated
@@ -171,6 +171,7 @@ class VersionResource(EnhancedModelResource):
         filtering = {
             "project": ALL_WITH_RELATIONS,
             "slug": ALL_WITH_RELATIONS,
+            "active": ALL,
         }
 
     def version_compare(self, request, **kwargs):
