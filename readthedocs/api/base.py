@@ -20,6 +20,7 @@ from tastypie.utils import dict_strip_unicode_keys, trailing_slash
 from builds.models import Build, Version
 from projects.models import Project, ImportedFile
 from projects.utils import highest_version, mkversion
+from projects import tasks
 from djangome import views as djangome
 
 log = logging.getLogger(__name__)
@@ -199,11 +200,19 @@ class VersionResource(EnhancedModelResource):
                 ret_val['is_highest'] = True
         return self.create_response(request, ret_val)
 
+    def build_version(self, request, **kwargs):
+        project = get_object_or_404(Project, slug=kwargs['project_slug'])
+        version = kwargs.get('version_slug', 'latest')
+        version_obj = project.versions.get(slug=version)
+        tasks.update_docs.delay(pk=project.pk, version_pk=version_obj.pk)
+        return self.create_response(request, {'building': True})
+
     def override_urls(self):
         return [
             url(r"^(?P<resource_name>%s)/(?P<project_slug>[a-z-]+)/highest/(?P<base>.+)/$" % self._meta.resource_name, self.wrap_view('version_compare'), name="version_compare"),
             url(r"^(?P<resource_name>%s)/(?P<project_slug>[a-z-]+)/highest/$" % self._meta.resource_name, self.wrap_view('version_compare'), name="version_compare"),
             url(r"^(?P<resource_name>%s)/(?P<project__slug>[a-z-]+)/$" % self._meta.resource_name, self.wrap_view('dispatch_list'), name="api_version_list"),
+            url(r"^(?P<resource_name>%s)/(?P<project_slug>[a-z-]+)/(?P<version_slug>[a-z-]+)/build$" % self._meta.resource_name, self.wrap_view('build_version'), name="api_version_build_slug"),
         ]
 
 class FileResource(EnhancedModelResource):
