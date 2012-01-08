@@ -37,7 +37,7 @@ warning = '<div class="admonition note"> <p class="first admonition-title">Note<
      success: function(data, textStatus, request) {
         for (key in data['objects']) {
             obj = data['objects'][key]
-            $("#version_menu").append('<li><a href="http://readthedocs.org/docs/read-the-docs/en/' + obj['slug'] + '/' + current_url + '">' + obj['slug'] + '</a></li>')
+            $("#version_menu").append('<li><a href="http://readthedocs.org/docs/' + doc_slug + '/en/' + obj['slug'] + '/' + current_url + '">' + obj['slug'] + '</a></li>')
           }
      },
      dataType: 'jsonp'
