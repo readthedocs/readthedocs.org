@@ -23,13 +23,13 @@ warning = '<div class="admonition note"> <p class="first admonition-title">Note<
  }
 
  function getVersions() {
-    $('#version_menu').empty()
     $.ajax({
      type: 'GET',
      //This has to be hard coded for CNAMEs, subdomains.
      url: "http://readthedocs.org/api/v1/version/" + doc_slug + "/?active=True",
      //url: "/api/v1/version/" + doc_slug + "/?active=True",
      success: function(data, textStatus, request) {
+        $('#version_menu').empty()
         for (key in data['objects']) {
             obj = data['objects'][key]
             current_url = window.location.pathname.replace(doc_version, obj.slug)
