@@ -1,12 +1,13 @@
 {% extends "projects/base_project_editing.html" %}
+{% load i18n %}
 
 {% load projects_tags %}
 
-{% block title %}Manage {{ project.name }}{% endblock %}
+{% block title %}{% trans "Manage" %} {{ project.name }}{% endblock %}
 
 {% block content-header %}
 {% if not project.is_imported %}
-<h1>Project Files</h1>
+<h1>{% trans "Project Files" %}</h1>
 {% endif %}
 {% endblock %}
 
@@ -15,13 +16,13 @@
 {% block content %}
 
   {% if not project.is_imported %}
-  <a class="call-out" href="{% url projects_file_add project.slug %}">Add New File</a>
+  <a class="call-out" href="{% url projects_file_add project.slug %}">{% trans "Add New File" %}</a>
 
   <ul>
     {% for file in project.get_top_level_files|annotated_tree %}
       <li class="depth-{{ file.depth }}">
         <a href="{% url projects_file_edit project.slug file.id %}">{{ file.heading }}</a>
-        <a class="quiet" href="{% url projects_file_delete project.slug file.id %}">(delete)</a>
+        <a class="quiet" href="{% url projects_file_delete project.slug file.id %}">{% trans "(delete)" %}</a>
       </li>
     {% endfor %}
   </ul>

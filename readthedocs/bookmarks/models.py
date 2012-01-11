@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils.translation import ugettext_lazy as _
 
 from projects.models import Project
 
@@ -14,7 +15,7 @@ class Bookmark(models.Model):
         ordering = ['-date']
 
     def __unicode__(self):
-        return u"Bookmark %s for %s (%s)" % (self.url, self.user)
+        return _(u"Bookmark")'+' %s '+'_(u"for")'+' %s '+'(%s) % (self.url, self.user)
 
     def get_absolute_url(self):
         return self.url

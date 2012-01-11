@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils.translation import ugettext_lazy as _
 
 STANDARD_EMAIL = "anonymous@readthedocs.org"
 
@@ -9,7 +10,7 @@ class UserProfile (models.Model):
     user = models.ForeignKey(User, unique=True, related_name='profile')
     whitelisted = models.BooleanField()
     homepage = models.CharField(max_length=100, blank=True)
-    allow_email = models.BooleanField(help_text='Show your email on VCS contributions.', default=True)
+    allow_email = models.BooleanField(help_text=_('Show your email on VCS contributions.'), default=True)
 
     def get_absolute_url(self):
         return ('profiles_profile_detail', (), {'username': self.user.username})

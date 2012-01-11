@@ -1,5 +1,6 @@
 from builds.models import Version
 from django.core.management.base import BaseCommand
+from django.utils.translation import ugettext_lazy as _
 from optparse import make_option
 from projects.tasks import update_docs
 
@@ -14,8 +15,9 @@ class Command(BaseCommand):
             action='store_true',
             dest='pdf',
             default=False,
-            help='Make a pdf'),
-        )
+            help=_('Make a pdf')
+        ),
+    )
 
     def handle(self, *args, **options):
         make_pdf = options['pdf']

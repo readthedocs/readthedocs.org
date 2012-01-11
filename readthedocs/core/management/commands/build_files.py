@@ -1,4 +1,5 @@
 from django.core.management.base import BaseCommand
+from django.utils.translation import ugettext_lazy as _
 from projects import tasks
 from projects.models import Project, ImportedFile
 from builds.models import Version
@@ -8,7 +9,7 @@ class Command(BaseCommand):
         ImportedFile.objects.all().delete()
         if not len(args):
             for v in Version.objects.filter(slug='latest'):
-                print "Indexing %s" % v
+                print _("Indexing %s") % v
                 try:
 		    tasks.fileify(v)
 		except:
@@ -16,5 +17,5 @@ class Command(BaseCommand):
         else:
             for slug in args:
                 p = Project.objects.get(slug=slug)
-                print "Indexing %s" % p
+                print _("Indexing %s") % p
                 tasks.fileify(p)

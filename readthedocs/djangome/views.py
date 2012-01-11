@@ -8,6 +8,7 @@ from django import http
 from django.conf import settings
 from django.shortcuts import render
 from django.shortcuts import redirect
+from django.utils.translation import ugettext_lazy as _
 
 r = redis.Redis(**settings.REDIS)
 
@@ -20,7 +21,7 @@ class RedirectForm(forms.Form):
     def clean_url(self):
         url = urlparse.urlparse(self.cleaned_data['url'])
         if self._domain not in url.netloc:
-            raise forms.ValidationError('Please enter a valid URL on %s' % self._domain)
+            raise forms.ValidationError(_('Please enter a valid URL on %s') % self._domain)
         return self.cleaned_data['url']
 
 def redirect_home(request, version):

@@ -1,15 +1,16 @@
 {% extends "base.html" %}
+{% load i18n %}
 
-{% block title %}One-offs{% endblock %}
+{% block title %}{% trans "One-offs" %}{% endblock %}
 
 {% block content %}
   {% load url from future %}
   <table>
     <thead>
       <tr>
-        <th>Version</th>
-        <th>Term</th>
-        <th>Target</th>
+        <th>{% trans "Version" %}</th>
+        <th>{% trans "Term" %}</th>
+        <th>{% trans "Target" %}</th>
       </tr>
     </thead>
     <tbody>
@@ -23,7 +24,7 @@
               <input type="hidden" name="version" value="{{ version|default:"" }}">
               <input type="hidden" name="term" value="{{ term }}">
               <input type="hidden" name="target" value="{{ target }}">
-              <input type="submit" name="action" value="kill">
+              <input type="submit" name="action" value="{% trans "kill" %}">
             </form>
           </td>
         </tr>
@@ -33,7 +34,7 @@
             <td><input type="text" name="version" value="" id="version"></td>
             <td><input type="text" name="term" value="" id="term"></td>
             <td><input type="text" name="target" value="" id="target"></td>
-            <td><input type="submit" name="action" value="add"></td>
+            <td><input type="submit" name="action" value="{% trans "add" %}"></td>
           </tr>
         </form>
     </tbody>

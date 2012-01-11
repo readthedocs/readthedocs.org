@@ -1,10 +1,11 @@
 from django.forms import ModelForm
 from django.forms.fields import CharField
+from django.utils.translation import ugettext_lazy as _
 from models import UserProfile
 
 class UserProfileForm(ModelForm):
-    first_name = CharField(label='First name', required=False)
-    last_name = CharField(label='Last name', required=False)
+    first_name = CharField(label=_('First name'), required=False)
+    last_name = CharField(label=_('Last name'), required=False)
 
     class Meta:
         model = UserProfile

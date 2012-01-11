@@ -1,4 +1,5 @@
 {% extends "dashboard/base_dashboard.html" %}
+{% load i18n %}
 
 {% block title %}Project Dashboard{% endblock %}
 
@@ -14,7 +15,7 @@
             <div class="module-wrapper">
 
               <div class="module-header">
-                <h3>My Projects</h3>
+                <h3>{% trans "My Projects" %}</h3>
               </div>
 
               <div class="module-list">
@@ -26,16 +27,16 @@
                         <a href="{% url projects_manage project.slug %}">{{ project.name }}</a>
                         <ul class="module-item-menu">
                           {% if not project.is_imported %}
-                            <li><a href="{% url projects_manage project.slug %}">Manage Files</a></li>
+                            <li><a href="{% url projects_manage project.slug %}">{% trans "Manage Files" %}</a></li>
                           {% endif %}
                           {% if project.has_versions %}
-                            <li><a href="{% url projects_versions project.slug %}" rel="nofollow,noindex">Versions</a></li>
+                            <li><a href="{% url projects_versions project.slug %}" rel="nofollow,noindex">{% trans "Versions" %}</a></li>
                         {% endif %}
                           {% if project.has_aliases %}
-                            <li><a href="{% url projects_alias_list project.slug %}" rel="nofollow,noindex">Aliases</a></li>
+                            <li><a href="{% url projects_alias_list project.slug %}" rel="nofollow,noindex">{% trans "Aliases" %}</a></li>
                         {% endif %}
-                          <li><a href="{% url projects_edit project.slug %}">Edit</a></li>
-                          <li><a href="{{ project.get_docs_url }}">View Docs</a></li>
+                          <li><a href="{% url projects_edit project.slug %}">{% trans "Edit" %}</a></li>
+                          <li><a href="{{ project.get_docs_url }}">{% trans "View Docs" %}</a></li>
                         </ul>
                       </li>
                     {% endfor %}
@@ -47,8 +48,8 @@
             </div>
           </div>
           {% else %}
-          <p class="empty">You don't have any projects.  You can <a href="{% url projects_create %}">create new docs</a> on the site, or <a href="{% url projects_import %}">import docs</a> from a public repo. <br>
-           Check out the <a href="http://readthedocs.org/docs/read-the-docs/latest/getting_started.html">Getting Started</a> documentation for information about how to get going.</p>
+          <p class="empty">{% trans "You don't have any projects.  You can" %} <a href="{% url projects_create %}">{% trans "create new docs" %}</a> {% trans "on the site, or" %} <a href="{% url projects_import %}">{% trans "import docs" %}</a> {% trans "from a public repo" %}. <br>
+           {% trans "Check out the" %} <a href="http://readthedocs.org/docs/read-the-docs/latest/getting_started.html">{% trans "Getting Started" %}</a> {% trans "documentation for information about how to get going" %}.</p>
           {% endif %}
           <!-- END your projects list -->
 
@@ -58,7 +59,7 @@
           <div class="module">
             <div class="module-wrapper">
               <div class="module-header">
-                <h3>Recently Bookmarked Docs <span class="small_head"><a href="{% url user_bookmarks %}">(All My Bookmarks)</a></span></h3>
+                <h3>{% trans "Recently Bookmarked Docs" %} <span class="small_head"><a href="{% url user_bookmarks %}">{% trans "(All My Bookmarks)" %}</a></span></h3>
               </div>
 
               <div class="module-list">

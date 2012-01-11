@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.conf.urls.defaults import url
 from django.shortcuts import get_object_or_404
 from django.http import Http404
+from django.utils.translation import ugettext_lazy as _
 
 from haystack.query import SearchQuerySet
 from haystack.utils import Highlighter
@@ -36,7 +37,7 @@ def _do_search(self, request, model):
         try:
             page = paginator.page(int(request.GET.get('page', 1)))
         except InvalidPage:
-            raise Http404("Sorry, no results on that page.")
+            raise Http404(_("Sorry, no results on that page."))
 
         objects = []
 
@@ -80,7 +81,7 @@ class EnhancedModelResource(ModelResource):
         try:
             return self.get_object_list(request).filter(**applicable_filters)
         except ValueError, e:
-            raise NotFound("Invalid resource lookup data provided (mismatched type).: %s" % e)
+            raise NotFound(_("Invalid resource lookup data provided (mismatched type).: %s") % e)
 
 
 class UserResource(ModelResource):
