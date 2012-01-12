@@ -1,8 +1,10 @@
+{% load i18n %}
+
 {% extends 'search/base_facet.html' %}
 {% block faceting %}
 {% if query %}
     <!-- Begin faceting. -->
-    <h2>By Project</h2>
+    <h2>{% trans "By Project" %}</h2>
 
     <div class="filter">
         <dl>
@@ -14,7 +16,7 @@
                     {% endif %}
                 {% endfor %}
             {% else %}
-                <p>No project facets.</p>
+                <p>{% trans "No project facets." %}</p>
             {% endif %}
         </dl>
     </div>

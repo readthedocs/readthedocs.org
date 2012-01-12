@@ -2,16 +2,16 @@
 
 <dl>
   <dt>{% trans "External Links" %}</dt>
-  <dd>`Link text &lt;http://example.com/&gt;`_</dd>
+  <dd>`{% trans "Link text" %} &lt;http://example.com/&gt;`_</dd>
 
   <dt>{% trans "Internal Links" %}</dt>
   <dd>:doc:`heading`</dd>
 
   <dt><strong>{% trans "Bold" %}</strong></dt>
-  <dd>**text to bold**</dd>
+  <dd>**{% trans "text to bold" %}**</dd>
 
   <dt><em>{% trans "Emphasized" %}</em></dt>
-  <dd>*text to emphasize*</em></dd>
+  <dd>*{% trans "text to emphasize" %}*</em></dd>
 
   <dt>{% trans "Lists" %}</dt>
   <dd>
@@ -27,8 +27,8 @@
 
   <dt>{% trans "Source Code" %}</dt>
   <dd><strong>::</strong>
-    <p>e.g. Check out this code::</p>
-    <pre>    actual code indented</pre>
+    <p>{% trans "e.g. Check out this code" %}::</p>
+    <pre>    {% trans "actual code indented" %}</pre>
   </dd>
 </dl>
-<p><a href="http://sphinx.pocoo.org/rest.html">reStructuredText Primer</a></p>
+<p><a href="http://sphinx.pocoo.org/rest.html">{% trans "reStructuredText Primer" %}</a></p>

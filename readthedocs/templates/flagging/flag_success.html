@@ -1,17 +1,19 @@
+{% load i18n %}
+
 {% extends "flagging/base_flagging.html" %}
 
 
-{% block title %}Flagging successful{% endblock %}
+{% block title %}{% trans "Flagging successful" %}{% endblock %}
 {% block body_class %}{{ block.super }} flag_success{% endblock %}
 
 
 {% block content_title %}
-  <h2>Flagging successful</h2>
+  <h2>{% trans "Flagging successful" %}</h2>
 {% endblock %}
 
 
 {% block content %}
-  <p>You have successfully flagged "{{ object }}" as "{{ flag_type.title }}"</p>
+  <p>{% trans "You have successfully flagged" %} "{{ object }}" {% trans "as" %} "{{ flag_type.title }}"</p>
   
-  <p>Thank you for contributing to the quality of this site!</p>
+  <p>{% trans "Thank you for contributing to the quality of this site!" %}</p>
 {% endblock %}

@@ -1,3 +1,5 @@
+{% load i18n %}
+
 {% extends 'base.html' %}
 {% load highlight %}
 
@@ -12,7 +14,7 @@
                 <input type="text" name="q" value="{{ query }}" id="id_site_search">
               </div>
               <div class="submit-input-wrapper">
-                <input type="submit" value="Go crazy.">
+                <input type="submit" value="{% trans "Go crazy." %}">
               </div>
             </form>
           </div>
@@ -26,7 +28,7 @@
   <div class="module-wrapper">
 
     <div class="module-header">
-      <h3>Results for {{ query }}</h3>
+      <h3>{% trans "Results for" %} {{ query }}</h3>
     </div>
 
     <div class="module-list">
@@ -49,15 +51,15 @@
   <!-- BEGIN search pagination -->
   <div class="pagination">
     {% if page.has_previous %}
-      <a href="{{ request.get_full_path }}&amp;page={{ page.previous_page_number }}">&laquo; Previous</a>
+      <a href="{{ request.get_full_path }}&amp;page={{ page.previous_page_number }}">&laquo; {% trans "Previous" %}</a>
     {% else %}
-      <span class="disabled">&laquo; Previous</span>
+      <span class="disabled">&laquo; {% trans "Previous" %}</span>
     {% endif %}
 
     {% if page.has_next %}
       <a class="next" href="{{ request.get_full_path }}&amp;page={{ page.next_page_number }}">Next &raquo;</a>
     {% else %}
-      <span class="next disabled">Next &raquo;</span>
+      <span class="next disabled">{% trans "Next" %} &raquo;</span>
     {% endif %}
   </div>
   <!-- END search pagination -->

@@ -1,23 +1,25 @@
+{% load i18n %}
+
 {% extends "registration/base_registration.html" %}
 
 
-{% block title %}Registration closed{% endblock %}
+{% block title %}{% trans "Registration closed" %}{% endblock %}
 {% block body_class %}{{ block.super }} registration_closed{% endblock %}
 
 
 {% block content-header %}
-  <h1>Eh... Registration closed.</h1>
+  <h1>{% trans "Eh... Registration closed." %}</h1>
 {% endblock %}
 
 
 {% block content %}
   <p>
-    You registered a long time ago.
+    {% trans "You registered a long time ago.
     We aren't sure if you are a robot or if 
-    something got lost or what.
-    Please try <a href="{% url registration_register %}">registering again</a>.
+    something got lost or what." %}
+    {% trans "Please try" %} <a href="{% url registration_register %}">{% trans "registering again" %}</a>.
   </p>
   <p class="quiet">
-    We hope that isn't too inconvenient.
+    {% trans "We hope that isn't too inconvenient." %}
   </p>
 {% endblock %}

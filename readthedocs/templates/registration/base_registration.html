@@ -1,5 +1,7 @@
+{% load i18n %}
+
 {% extends "base.html" %}
 
-{% block title %}Registration{% endblock %}
-{% block body_class %}{{ block.super }} registration{% endblock %}
+{% block title %}{% trans "Registration" %}{% endblock %}
+{% block body_class %}{{ block.super }} {% trans "registration" %}{% endblock %}
 

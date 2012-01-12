@@ -1,17 +1,19 @@
+{% load i18n %}
+
 {% extends "profiles/base_profile.html" %}
 
-{% block title %}Edit your profile{% endblock %}
+{% block title %}{% trans "Edit your profile" %}{% endblock %}
 
 {% block dash-nav-profile %}active{% endblock %}
 
 {% block content-header %}
-  <h1>Edit your profile</h1>
+  <h1>{% trans "Edit your profile" %}</h1>
 {% endblock %}
 
 {% block content %}
   <form method="POST" action=".">{% csrf_token %}
     {{ form }}
-    <input type="submit" name="submit" value="OK, save it!" id="submit"/>
+    <input type="submit" name="submit" value="{% trans "OK, save it!" %}" id="submit"/>
   </form>
 {% endblock %}
 

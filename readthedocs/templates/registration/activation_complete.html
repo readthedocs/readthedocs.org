@@ -1,16 +1,18 @@
+{% load i18n %}
+
 {% extends "registration/base_registration.html" %}
 
 
-{% block title %}Account activation complete{% endblock %}
+{% block title %}{% trans "Account activation complete" %}{% endblock %}
 {% block body_class %}{{ block.super }} registration_activation_complete{% endblock %}
 
 
 {% block content-header %}
-  <h1>Account activation complete, woo!</h1>
+  <h1>{% trans "Account activation complete, woo!" %}</h1>
 {% endblock %}
 
 
 {% block content %}
-  <p>Your account has been activated. ^_^</p>
-  <p>Log in with the username and password you just created, <a href="{% url auth_login %}">here</a>.</p>
+  <p>{% trans "Your account has been activated." %} ^_^</p>
+  <p>{% trans "Log in with the username and password you just created," %} <a href="{% url auth_login %}">{% trans "here" %}</a>.</p>
 {% endblock %}

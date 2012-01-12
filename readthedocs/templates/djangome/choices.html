@@ -4,7 +4,7 @@
 {% block title %}{% trans "Choose a redirect for" %} "{{ djangome_term }}"{% endblock %}
 
 {% block content %}
-    <h3> {% trans "Choose a redirect for" %} <kbd>{{ djangome_term }} on <a href="http://{{ request.slug }}.readthedocs.org">{{ request.slug }}.readthedocs.org</a></kbd></h3>
+    <h3> {% trans "Choose a redirect for" %} <kbd>{{ djangome_term }} {% trans "on" %} <a href="http://{{ request.slug }}.readthedocs.org">{{ request.slug }}.readthedocs.org</a></kbd></h3>
   {% load url from future %}
   {% if winners %}
     <ul class="winners">

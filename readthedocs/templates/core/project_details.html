@@ -1,7 +1,9 @@
+{% load i18n %}
+
 {% load markup %}
 
 {% if project.description %}
-  <h3>Description</h3>
+  <h3>{% trans "Description" %}</h3>
   <p>
     {{ project.description|restructuredtext }}
   </p>
@@ -9,13 +11,13 @@
 
 
 <!-- BEGIN search bar -->
-<h3>Search this project</h3>
+<h3>{% trans "Search this project" %}</h3>
 
 <div>
     <form action="{% url haystack_project %}" method="GET">
         <input type="text" name="q" value="" id="id_site_search">
         <input type="hidden" name="selected_facets" value="project:{{ project.name }}">
-        <!-- <input type="submit" value="Go"> -->
+        <!-- <input type="submit" value="{% trans "Go" %}"> -->
     </form>
 </div>
 <br>
@@ -23,7 +25,7 @@
 
 
 {% if project.active_versions.count %}
-  <h3> Versions </h3>
+  <h3> {% trans "Versions" %} </h3>
 
   <p>
   {% for version in project.active_versions.all %}
@@ -31,10 +33,10 @@
         {% if not version.uploaded %}
         <form method="post" action="{% url generic_build project.pk %}">
             <input type="hidden" name="version_slug" value="{{version.slug}}">
-            <input style="border: none; padding: 2px;" type="image" value="submit" src="{{ MEDIA_URL}}images/build.png" height="15"  alt="Build!" title="Build Version" name="image">
+            <input style="border: none; padding: 2px;" type="image" value="submit" src="{{ MEDIA_URL}}images/build.png" height="15"  alt="{% trans "Build!" %}" title="{% trans "Build Version" %}" name="image">
         </form>
         {% else %}
-        <input style="visibility: hidden; border: none; padding: 2px;" type="image" value="submit" src="{{ MEDIA_URL}}images/build.png" height="15"  alt="Build!" name="image">
+        <input style="visibility: hidden; border: none; padding: 2px;" type="image" value="submit" src="{{ MEDIA_URL}}images/build.png" height="15"  alt="{% trans "Build!" %}" name="image">
         {% endif %}
       </div>
       <div style="float: left;" class="version_left">
@@ -48,7 +50,7 @@
 
 
 {% if project.get_latest_build.success %}
-  <h3>Short URLs</h3>
+  <h3>{% trans "Short URLs" %}Short URLs</h3>
   <p>
       <a href="http://{{ project.slug}}.readthedocs.org">{{ project.slug }}.readthedocs.org</a><br>
       <a href="http://{{ project.slug}}.rtfd.org">{{ project.slug }}.rtfd.org</a>
@@ -56,8 +58,8 @@
 {% endif %}
 
 {% if project.django_packages_url %}
-<h3>Django Packages</h3>
-<p> This project has more information available about it on <a href="{{ project.django_packages_url }}">Django Packages!</a></p>
+<h3>{% trans "Django Packages" %}</h3>
+<p> {% trans "This project has more information available about it on" %} <a href="{{ project.django_packages_url }}">{% trans "Django Packages!" %}</a></p>
 {% endif %}
 
 {% if project.subprojects.exists %}
@@ -70,45 +72,45 @@
 {% endif %}
 
 
-<h3>Last Built</h3>
+<h3>{% trans "Last Built" %}</h3>
 <p>{{ project.modified_date|timesince }} ago</p>
 
 
 {% if project.repo %}
-<h3>Repository</h3>
+<h3>{% trans "Repository" %}</h3>
 <p>{{ project.repo }}</p>
 {% endif %}
 
 {% if project.tags.count %}
-  <h3>Tags</h3>
+  <h3>{% trans "Tags" %}</h3>
   <p>
     {% for tag in project.tags.all %}
       <a href="{% url projects_tag_detail tag.slug %}">{{ tag.name }}</a>{% if forloop.last %}{% else %}, {% endif %}
     {% empty %}
-      <span class="quiet">No tags</span>
+      <span class="quiet">{% trans "No tags" %}</span>
     {% endfor %}
   </p>
 {% endif %}
 
 
 {% if project.get_latest_revisions.count %}
-<h3>Latest Revisions</h3>
+<h3>{% trans "Latest Revisions" %}</h3>
 <ul>
   {% for revision in project.get_latest_revisions|slice:":5" %}
-    <li>{{ revision }} {{ revision.created_date|timesince }} ago</li>
+    <li>{{ revision }} {{ revision.created_date|timesince }} {% trans "ago" %}</li>
   {% empty %}
-    <li class="quiet">No revisions</li>
+    <li class="quiet">{% trans "No revisions" %}</li>
   {% endfor %}
 </ul>
 {% endif %}
 
 {% if request.user in project.users.all %}
-  <h3>Post Commit Hook</h3>
+  <h3>{% trans "Post Commit Hook" %}</h3>
     <p>http://readthedocs.org{% url generic_build project.pk %}</p>
 {% endif %}
 
 <form method="post" action="{% url generic_build project.pk %}">
-  <input type="submit" value="Build latest version">
+  <input type="submit" value="{% trans "Build latest version" %}">
 </form>
 
 {% if pageview_list %}
@@ -117,7 +119,7 @@
   <div class="module-wrapper">
 
     <div class="module-header">
-      <h3>Most viewed pages for this project<span class="small_head"></span></h3>
+      <h3>{% trans "Most viewed pages for this project" %}<span class="small_head"></span></h3>
     </div>
 
     <div class="module-list">

@@ -1,25 +1,27 @@
+{% load i18n %}
+
 {% extends "flagging/base_flagging.html" %}
 
 
-{% block title %}Confirm flagging{% endblock %}
+{% block title %}{% trans "Confirm flagging" %}{% endblock %}
 {% block body_class %}{{ block.super }} flag_confirm{% endblock %}
 
 
 {% block content_title %}
-  <h2>Confirm flagging</h2>
+  <h2>{% trans "Confirm flagging" %}</h2>
 {% endblock %}
 
 
 {% block content %}
   {% load flagging %}
-  <h3>What you are saying:</h3>
+  <h3>{% trans "What you are saying:" %}</h3>
   <p>{{ flag_type.description }}</p>
   
   <form action="{{ object|flag_url:flag_type.slug }}{% if next %}?next={{ next }}{% endif %}" method="post">{% csrf_token %}
-    <p>Are you sure you want to flag "{{ object }}" as "{{ flag_type.title }}"?</p>
+    <p>{% trans "Are you sure you want to flag" %} "{{ object }}" {% trans "as" %} "{{ flag_type.title }}"?</p>
     <p class="submit">
-      <button type="submit">Yes, this is {{ flag_type.title }}</button>
-      <a href="{{ next }}">cancel</a>
+      <button type="submit">{% trans "Yes, this is" %} {{ flag_type.title }}</button>
+      <a href="{{ next }}">{% trans "cancel" %}</a>
     </p>
   </form>
 {% endblock %}

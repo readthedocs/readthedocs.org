@@ -1,8 +1,10 @@
+{% load i18n %}
+
 {% extends "base.html" %}
 
 {% load pagination_tags %}
 
-{% block title %}Views{% endblock %}
+{% block title %}{% trans "Views" %}{% endblock %}
 
 {% block nav-browse %}class="active"{% endblock %}
 
@@ -15,7 +17,7 @@
             <div class="module-wrapper">
 
               <div class="module-header">
-                <h2>Most Viewed</h2>
+                <h2>{% trans "Most Viewed" %}</h2>
               </div>
 
               <div class="module-list">
