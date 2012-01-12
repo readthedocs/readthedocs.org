@@ -4,13 +4,13 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse, NoReverseMatch
 from django.http import (HttpResponse, HttpResponseRedirect,
                          Http404, HttpResponsePermanentRedirect)
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render_to_response
+from django.template import RequestContext
 from django.views.generic.list_detail import object_list, object_detail
 
 from core.views import serve_docs
 from projects.models import Project
 from projects.utils import highest_version
-from watching.models import PageView
 
 
 from taggit.models import Tag
@@ -62,25 +62,13 @@ def project_detail(request, project_slug):
     """
     A detail view for a project with various dataz
     """
-    queryset = Project.objects.live()
-    projects = Project.objects.filter(slug=project_slug)
-    updated = PageView.objects.filter(project__slug=project_slug)[:10]
-    if not projects.count():
-        #Handle old User URLs if possible.
-        #/projects/<user>/ used to be the user list, moved to
-        #/profiles/<user>/ and made projects top-level.
-        users = User.objects.filter(username=project_slug)
-        if users.count():
-            return HttpResponseRedirect(users[0].get_absolute_url())
-    return object_detail(
-        request,
-        queryset=queryset,
-        slug_field='slug',
-        slug=project_slug,
-        template_object_name='project',
-        extra_context = {
-            'pageview_list': updated
-        }
+    project = get_object_or_404(Project, slug=project_slug)
+    return render_to_response(
+        'projects/project_detail.html',
+        {
+            'project': project,
+        },
+        context_instance=RequestContext(request),
     )
 
 def legacy_project_detail(request, username, project_slug):

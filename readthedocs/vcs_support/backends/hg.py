@@ -35,7 +35,7 @@ class Backend(BaseVCS):
         output = self.run('hg', 'clone', self.repo_url, '.')
         if output[0] != 0:
             raise ProjectImportError(
-                "Failed to get code from '%s' (hg clone): %s" % (self.repo_url, retcode)
+                "Failed to get code from '%s' (hg clone): %s" % (self.repo_url, output[0])
             )
         return output
 

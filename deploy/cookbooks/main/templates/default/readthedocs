@@ -11,6 +11,7 @@ server {
 }
 
 server {
+    index index.html index.htm;
     listen 80;
     listen 8000 default;
     server_name  readthedocs.org;
@@ -40,6 +41,11 @@ server {
         add_header X-Served Nginx;
         add_header X-Deity <%= node.hostname %>;
     }
+
+    location  ~* /docs/(?P<project>.+)/en/(?P<version>.+) {
+        rewrite .* http://readthedocs.org/docs/$project/en/$version/;
+    }
+
 
     location / {
         proxy_pass http://127.0.0.1:8888;
@@ -90,7 +96,7 @@ server {
         add_header X-Deity <%= node.hostname %>;
     }
     location / {
-	rewrite (.*) http://$domain.readthedocs.org/en/latest/?redir;
+	rewrite (.*) http://$domain.readthedocs.org/en/latest/;
     }
     location @fallback {
         proxy_pass http://127.0.0.1:8888;
@@ -104,7 +110,7 @@ server {
 
 server {
     listen 8000;
-    server_name rtfd.org sphinxdocs.com www.readthedocs.com readthedocs.com www.readthedocs.org djangowoodies.com;
+    server_name sphinxdocs.com www.readthedocs.com readthedocs.com www.readthedocs.org djangowoodies.com;
     rewrite ^(.*) http://readthedocs.org$1;
 }
 

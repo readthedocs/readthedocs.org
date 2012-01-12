@@ -1,2 +1,1 @@
 {{ object.description }}
-{{ object.name }}

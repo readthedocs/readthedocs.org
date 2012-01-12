@@ -7,6 +7,21 @@
   </p>
 {% endif %}
 
+
+<!-- BEGIN search bar -->
+<h3>Search this project</h3>
+
+<div>
+    <form action="{% url haystack_project %}" method="GET">
+        <input type="text" name="q" value="" id="id_site_search">
+        <input type="hidden" name="selected_facets" value="project:{{ project.name }}">
+        <!-- <input type="submit" value="Go"> -->
+    </form>
+</div>
+<br>
+<!-- BEGIN search bar -->
+
+
 {% if project.active_versions.count %}
   <h3> Versions </h3>
 
@@ -28,8 +43,8 @@
       <div style="clear: both;"></div>
   {% endfor %}
   </p>
-
 {% endif %}
+
 
 
 {% if project.get_latest_build.success %}
@@ -45,8 +60,19 @@
 <p> This project has more information available about it on <a href="{{ project.django_packages_url }}">Django Packages!</a></p>
 {% endif %}
 
+{% if project.subprojects.exists %}
+  <h3>Sub Projects</h3>
+    <ul>
+    {% for rel in project.subprojects.all %}
+        <li><a href="{{ rel.get_absolute_url }}">{{ rel.child }}</a></li>
+    {% endfor %}
+    </ul>
+{% endif %}
+
+
 <h3>Last Built</h3>
 <p>{{ project.modified_date|timesince }} ago</p>
+
 
 {% if project.repo %}
 <h3>Repository</h3>
@@ -76,11 +102,14 @@
 </ul>
 {% endif %}
 
-{% if request.user == project.user %}
+{% if request.user in project.users.all %}
   <h3>Post Commit Hook</h3>
     <p>http://readthedocs.org{% url generic_build project.pk %}</p>
 {% endif %}
 
+<form method="post" action="{% url generic_build project.pk %}">
+  <input type="submit" value="Build latest version">
+</form>
 
 {% if pageview_list %}
 <!-- BEGIN projects list -->
@@ -104,6 +133,6 @@
 <!-- END projects list -->
 {% endif %}
 
-{% if request.user != project.user %}
+{% if request.user not in project.users.all %}
   {% include "projects/includes/flagging.html" %}
 {% endif %}

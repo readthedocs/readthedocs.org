@@ -36,6 +36,10 @@ def run(*commands):
     """
     environment = os.environ.copy()
     environment['READTHEDOCS'] = 'True'
+    if environment.has_key('DJANGO_SETTINGS_MODULE'):
+        del environment['DJANGO_SETTINGS_MODULE']
+    if environment.has_key('PYTHONPATH'):
+        del environment['PYTHONPATH']
     cwd = os.getcwd()
     if not commands:
         raise ValueError("run() requires one or more command-line strings")

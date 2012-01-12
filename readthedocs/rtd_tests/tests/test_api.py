@@ -2,6 +2,37 @@ from django.test import TestCase
 import json
 import base64
 
+class APIBuildTests(TestCase):
+    fixtures = ['eric.json', 'test_data.json']
+
+    def test_make_build(self):
+        """
+        Test that a superuser can use the API
+        """
+        post_data = {"project": "/api/v1/project/1/",
+                     "version": "/api/v1/version/1/",
+                     "success": True,
+                     "output": "Test Output",
+                     "error": "Test Error",
+             }
+        resp = self.client.post('/api/v1/build/',
+                                data=json.dumps(post_data),
+                                content_type='application/json',
+                                HTTP_AUTHORIZATION='Basic %s' % base64.b64encode('eric:test')
+                                )
+        self.assertEqual(resp.status_code, 201)
+        self.assertEqual(resp['location'],
+                         'http://testserver/api/v1/build/0/')
+        resp = self.client.get('/api/v1/build/0/',
+                               data={'format': 'json'},
+                                HTTP_AUTHORIZATION='Basic %s' % base64.b64encode('eric:test')
+                              )
+        self.assertEqual(resp.status_code, 200)
+        obj = json.loads(resp.content)
+        self.assertEqual(obj['output'], 'Test Output')
+
+
+
 class APITests(TestCase):
     fixtures = ['eric.json', 'test_data.json']
 
@@ -49,7 +80,7 @@ class APITests(TestCase):
         Test that you can't create a project for another user
         """
         # represents dishonest data input, authentication happens for user 2
-        post_data = {"user": "/api/v1/user/1/",
+        post_data = {"users": ["/api/v1/user/1/",],
                      "name": "awesome-project-2",
                      "repo": "https://github.com/ericholscher/django-bob.git"
                      }
@@ -63,7 +94,7 @@ class APITests(TestCase):
                                data={'format':'json'},
                                HTTP_AUTHORIZATION='Basic %s' % base64.b64encode('tester:test')
                                )
-        self.assertEqual("/api/v1/user/2/", json.loads(resp.content)["user"])
+        self.assertEqual(["/api/v1/user/2/",], json.loads(resp.content)["users"])
 
     def test_ensure_get_unauth(self):
         """

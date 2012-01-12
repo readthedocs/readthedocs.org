@@ -4,7 +4,7 @@ sphinx
 celery
 django-celery
 django-kombu
-importlib
+celery-haystack
 django-extensions
 django-haystack
 mimeparse
@@ -14,10 +14,8 @@ bzr
 github2
 httplib2
 distutils2
-django-sentry
 Unipath
 django
-BeautifulSoup
 unittest-xml-reporting
 redis
 -e git+http://github.com/nathanborror/django-basic-apps.git#egg=basic
@@ -26,3 +24,4 @@ redis
 -e git+http://github.com/ericflo/django-pagination.git#egg=pagination
 -e git+http://github.com/nathanborror/django-registration.git#egg=django-registration
 -e git+https://github.com/toastdriven/django-tastypie.git#egg=tastypie
+

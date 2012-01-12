@@ -1,3 +1,5 @@
+import logging
+
 from django.core.paginator import Paginator, InvalidPage
 from django.contrib.auth.models import User
 from django.conf.urls.defaults import url
@@ -10,50 +12,53 @@ from haystack.utils import Highlighter
 from tastypie import fields
 from tastypie.authentication import BasicAuthentication
 from tastypie.authorization import Authorization
-from tastypie.constants import ALL_WITH_RELATIONS
+from tastypie.constants import ALL_WITH_RELATIONS, ALL
 from tastypie.resources import ModelResource
 from tastypie.exceptions import NotFound
 from tastypie.http import HttpCreated
 from tastypie.utils import dict_strip_unicode_keys, trailing_slash
 
-
 from builds.models import Build, Version
 from projects.models import Project, ImportedFile
 from projects.utils import highest_version, mkversion
+from projects import tasks
+from djangome import views as djangome
+
+log = logging.getLogger(__name__)
 
 def _do_search(self, request, model):
-        self.method_check(request, allowed=['get'])
-        self.is_authenticated(request)
-        self.throttle_check(request)
 
-        # Do the query.
-        query = request.GET.get('q', '')
-        facet = request.GET.get('facet', '')
-        sqs = SearchQuerySet().models(model).auto_query(query)
-        if facet:
-            sqs = sqs.facet(facet)
-        paginator = Paginator(sqs, 20)
+    self.method_check(request, allowed=['get'])
+    self.is_authenticated(request)
+    self.throttle_check(request)
 
-        try:
-            page = paginator.page(int(request.GET.get('page', 1)))
-        except InvalidPage:
-            raise Http404(_("Sorry, no results on that page."))
+    # Do the query.
+    query = request.GET.get('q', '')
+    sqs = SearchQuerySet().models(model).load_all().auto_query(query)
+    paginator = Paginator(sqs, 20)
 
-        objects = []
+    try:
+        page = paginator.page(int(request.GET.get('page', 1)))
+    except InvalidPage:
+        raise Http404(_("Sorry, no results on that page."))
 
-        for result in page.object_list:
+    objects = []
+
+    for result in page.object_list:
+        if result:
             highlighter = Highlighter(query)
             text = highlighter.highlight(result.text)
-            bundle = self.full_dehydrate(result.object)
+            bundle = self.build_bundle(obj=result.object, request=request)
+            bundle = self.full_dehydrate(bundle)
             bundle.data['text'] = text
             objects.append(bundle)
 
-        object_list = {
-            'objects': objects,
-        }
+    object_list = {
+        'objects': objects,
+    }
 
-        self.log_throttled_access(request)
-        return self.create_response(request, object_list)
+    self.log_throttled_access(request)
+    return self.create_response(request, object_list)
 
 class PostAuthentication(BasicAuthentication):
     def is_authenticated(self, request, **kwargs):
@@ -100,17 +105,17 @@ class UserResource(ModelResource):
 
 
 class ProjectResource(ModelResource):
-    user = fields.ForeignKey(UserResource, 'user')
+    users = fields.ToManyField(UserResource, 'users')
 
     class Meta:
         include_absolute_url = True
-        allowed_methods = ['get', 'post']
+        allowed_methods = ['get', 'post', 'put']
         queryset = Project.objects.all()
         authentication = PostAuthentication()
         authorization = Authorization()
         excludes = ['use_virtualenv', 'path', 'skip', 'featured']
         filtering = {
-            "user": ALL_WITH_RELATIONS,
+            "users": ALL_WITH_RELATIONS,
             "slug": ALL_WITH_RELATIONS,
         }
 
@@ -126,7 +131,7 @@ class ProjectResource(ModelResource):
         deserialized = self.deserialize(request, request.raw_post_data, format=request.META.get('CONTENT_TYPE', 'application/json'))
 
         # Force this in an ugly way, at least should do "reverse"
-        deserialized["user"] = "/api/v1/user/%s/" % request.user.id
+        deserialized["users"] = ["/api/v1/user/%s/" % request.user.id,]
         bundle = self.build_bundle(data=dict_strip_unicode_keys(deserialized))
         self.is_valid(bundle, request)
         updated_bundle = self.obj_create(bundle, request=request)
@@ -149,6 +154,10 @@ class BuildResource(EnhancedModelResource):
     class Meta:
         allowed_methods = ['get', 'post']
         queryset = Build.objects.all()
+        filtering = {
+            "project": ALL_WITH_RELATIONS,
+            "slug": ALL_WITH_RELATIONS,
+        }
 
     def override_urls(self):
         return [
@@ -156,9 +165,15 @@ class BuildResource(EnhancedModelResource):
         ]
 
 class VersionResource(EnhancedModelResource):
+    project = fields.ForeignKey(ProjectResource, 'project', full=True)
 
     class Meta:
         queryset = Version.objects.all()
+        filtering = {
+            "project": ALL_WITH_RELATIONS,
+            "slug": ALL_WITH_RELATIONS,
+            "active": ALL,
+        }
 
     def version_compare(self, request, **kwargs):
         project = get_object_or_404(Project, slug=kwargs['project_slug'])
@@ -187,11 +202,19 @@ class VersionResource(EnhancedModelResource):
                 ret_val['is_highest'] = True
         return self.create_response(request, ret_val)
 
+    def build_version(self, request, **kwargs):
+        project = get_object_or_404(Project, slug=kwargs['project_slug'])
+        version = kwargs.get('version_slug', 'latest')
+        version_obj = project.versions.get(slug=version)
+        tasks.update_docs.delay(pk=project.pk, version_pk=version_obj.pk)
+        return self.create_response(request, {'building': True})
+
     def override_urls(self):
         return [
             url(r"^(?P<resource_name>%s)/(?P<project_slug>[a-z-]+)/highest/(?P<base>.+)/$" % self._meta.resource_name, self.wrap_view('version_compare'), name="version_compare"),
             url(r"^(?P<resource_name>%s)/(?P<project_slug>[a-z-]+)/highest/$" % self._meta.resource_name, self.wrap_view('version_compare'), name="version_compare"),
             url(r"^(?P<resource_name>%s)/(?P<project__slug>[a-z-]+)/$" % self._meta.resource_name, self.wrap_view('dispatch_list'), name="api_version_list"),
+            url(r"^(?P<resource_name>%s)/(?P<project_slug>[a-z-]+)/(?P<version_slug>[a-z-]+)/build$" % self._meta.resource_name, self.wrap_view('build_version'), name="api_version_build_slug"),
         ]
 
 class FileResource(EnhancedModelResource):
@@ -206,7 +229,34 @@ class FileResource(EnhancedModelResource):
     def override_urls(self):
         return [
             url(r"^(?P<resource_name>%s)/search%s$" % (self._meta.resource_name, trailing_slash()), self.wrap_view('get_search'), name="api_get_search"),
+            url(r"^(?P<resource_name>%s)/anchor%s$" % (self._meta.resource_name, trailing_slash()), self.wrap_view('get_anchor'), name="api_get_anchor"),
         ]
 
     def get_search(self, request, **kwargs):
         return _do_search(self, request, ImportedFile)
+
+    def get_anchor(self, request, **kwargs):
+        self.method_check(request, allowed=['get'])
+        self.is_authenticated(request)
+        self.throttle_check(request)
+
+        query = request.GET.get('q', '')
+        redis_data = djangome.r.keys("*redirects:v3*%s*" % query)
+        #-2 because http:
+        urls = [''.join(data.split(':')[6:]) for data in redis_data if 'http://' in data]
+
+        """
+        paginator = Paginator(urls, 20)
+
+        try:
+            page = paginator.page(int(request.GET.get('page', 1)))
+        except InvalidPage:
+            raise Http404("Sorry, no results on that page.")
+
+        objects = [result for result in page.object_list]
+        object_list = { 'objects': objects, }
+        """
+        object_list = { 'objects': urls }
+
+        self.log_throttled_access(request)
+        return self.create_response(request, object_list)

@@ -1,6 +1,9 @@
 The build process
 =================
 
+.. Keeping this for backwards compat
+
+
 Changing behavior for Read the Docs
 -----------------------------------
 
@@ -12,6 +15,18 @@ When RTD builds your project, it sets the ``READTHEDOCS`` environment variable t
         html_theme = 'default'
     else:
         html_theme = 'nature'
+
+Packages installed in the build environment
+-------------------------------------------
+
+The build server does have a select number of C libraries installed, because they are used across a wide array of python projects. We can't install every C library out there, but we try and support the major ones. We currently have the following libraries installed:
+
+    * libevent
+    * Latex
+    * dvipng
+    * graphviz
+    * libxslt1.1
+    * libxml2-dev
 
 Understanding what's going on
 -----------------------------

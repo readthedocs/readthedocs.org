@@ -35,6 +35,11 @@
                           {% if project.has_aliases %}
                             <li><a href="{% url projects_alias_list project.slug %}" rel="nofollow,noindex">{% trans "Aliases" %}</a></li>
                         {% endif %}
+                       
+                            {% comment %}
+                          <li><a href="{% url projects_subprojects project.slug %}">{% trans "Subprojects" %}</a></li>
+                            {% endcomment %}
+
                           <li><a href="{% url projects_edit project.slug %}">{% trans "Edit" %}</a></li>
                           <li><a href="{{ project.get_docs_url }}">{% trans "View Docs" %}</a></li>
                         </ul>
@@ -48,7 +53,7 @@
             </div>
           </div>
           {% else %}
-          <p class="empty">{% trans "You don't have any projects.  You can" %} <a href="{% url projects_create %}">{% trans "create new docs" %}</a> {% trans "on the site, or" %} <a href="{% url projects_import %}">{% trans "import docs" %}</a> {% trans "from a public repo" %}. <br>
+          <p class="empty">{% trans "You don't have any projects.  You should" %} <a href="{% url projects_import %}">{% trans "create new docs" %}</a> {% trans "on the site" %}.<br>
            {% trans "Check out the" %} <a href="http://readthedocs.org/docs/read-the-docs/latest/getting_started.html">{% trans "Getting Started" %}</a> {% trans "documentation for information about how to get going" %}.</p>
           {% endif %}
           <!-- END your projects list -->

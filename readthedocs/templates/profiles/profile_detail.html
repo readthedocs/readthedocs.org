@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ user }}'s profile{% endblock %}
+{% block title %}{{ profile.user }}'s profile{% endblock %}
 
 {% block content-header %}
   <h1>{{ profile.user }}'s profile</h1>
@@ -11,6 +11,14 @@
   <h3>Homepage</h3>
     <p><a href="{{ profile.homepage }}">{{ profile.homepage }}</a></p>
   {% endif %}
+
+    {% if request.user == profile.user %}
+
+    <p>
+    Whitelisted: {{ profile.whitelisted|yesno:"Yes,No" }}
+    </p>
+
+    {% endif %}
 
     <h3>Projects {% if person %}by {{ person.username }}{% endif %}{% if tag %}tagged with "{{ tag.name }}"{% endif %}</h3>
 

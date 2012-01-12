@@ -10,7 +10,7 @@ class LatestProjectsFeed(Feed):
     description = _("Recently updated documentation on Read the Docs")
 
     def items(self):
-        return Project.objects.filter(builds__isnull=False).annotate(max_date=Max('builds__date')).order_by('-max_date')[:10]
+        return Project.objects.order_by('-modified_date')[:10]
 
     def item_title(self, item):
         return item.name

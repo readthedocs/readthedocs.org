@@ -4,6 +4,7 @@
 doc_root
 user_uploads
 user_builds
+cnames
 local_settings.py
 _build
 media/pdf
@@ -14,3 +15,4 @@ xml_output
 locks/*
 readthedocs/rtd_tests/tests/builds
 deploy/.vagrant
+rtd.log*

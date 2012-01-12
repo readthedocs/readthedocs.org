@@ -8,38 +8,38 @@ from django.core.cache import cache
 from django.conf import settings
 from django.db.models import F, Max
 from django.http import HttpResponse, HttpResponseRedirect, \
-    HttpResponsePermanentRedirect, Http404
+    HttpResponsePermanentRedirect, Http404, HttpResponseNotFound
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_view_exempt
 from django.views.static import serve
 
-from projects.models import Project
+from projects.models import Project, ImportedFile, ProjectRelationship
 from projects.tasks import update_docs
-from watching.models import PageView
 
 import json
 import mimetypes
 import os
+import logging
 
+log = logging.getLogger(__name__)
 
 def homepage(request):
-    latest_projects = cache.get('latest_projects', None)
-    if not latest_projects:
-        latest_projects = Project.objects.filter(builds__isnull=False).annotate(max_date=Max('builds__date')).order_by('-max_date')[:10]
-        cache.set('latest_projects', list(latest_projects), 30)
+    #latest_projects = Project.objects.filter(builds__isnull=False).annotate(max_date=Max('builds__date')).order_by('-max_date')[:10]
+    latest_projects = Project.objects.order_by('-modified_date')[:10]
     featured = Project.objects.filter(featured=True)
-    updated = PageView.objects.all()[:10]
+
     return render_to_response('homepage.html',
                               {'project_list': latest_projects,
                                'featured_list': featured,
-                               'updated_list': updated},
+                               #'updated_list': updated
+                               },
                 context_instance=RequestContext(request))
 
 def random_page(request, project=None):
     if project:
-        return HttpResponseRedirect(PageView.objects.filter(project__slug=project).order_by('?')[0].get_absolute_url())
-    return HttpResponseRedirect(PageView.objects.order_by('?')[0].get_absolute_url())
+        return HttpResponseRedirect(ImportedFile.objects.filter(project__slug=project).order_by('?')[0].get_absolute_url())
+    return HttpResponseRedirect(ImportedFile.objects.order_by('?')[0].get_absolute_url())
 
 @csrf_view_exempt
 def github_build(request):
@@ -51,13 +51,39 @@ def github_build(request):
         name = obj['repository']['name']
         url = obj['repository']['url']
         ghetto_url = url.replace('http://', '').replace('https://', '')
+        branch = obj['ref'].replace('refs/heads/', '')
+        log.info("(Github Build) %s:%s" % (ghetto_url, branch))
+        version_pk = None
+        version_slug = branch
         try:
             project = Project.objects.filter(repo__contains=ghetto_url)[0]
-            update_docs.delay(pk=project.pk, force=True)
-            return HttpResponse('Build Started')
+            version = project.version_from_branch_name(branch)
+            if version:
+                default = project.default_branch or project.vcs_repo().fallback_branch
+                if branch == default:
+                    #Shortcircuit versions that are default
+                    #These will build at "latest", and thus won't be active
+                    version = project.versions.get(slug='latest')
+                    version_pk = version.pk
+                    version_slug = version.slug
+                    log.info("(Github Build) Building %s:%s" % (project.slug, version.slug))
+                elif version in project.versions.exclude(active=True):
+                    log.info("(Github Build) Not building %s" % version.slug)
+                    return HttpResponseNotFound('Not Building: %s' % branch)
+                else:
+                    version_pk = version.pk
+                    version_slug = version.slug
+                    log.info("(Github Build) Building %s:%s" % (project.slug, version.slug))
+            else:
+                version_slug = 'latest'
+                branch = 'latest'
+                log.info("(Github Build) Building %s:latest" % project.slug)
+            #version_pk being None means it will use "latest"
+            update_docs.delay(pk=project.pk, version_pk=version_pk, force=True)
+            return HttpResponse('Build Started: %s' % version_slug)
         except Exception, e:
-            mail_admins('Build Failure', '%s failed to build via github.\n\n%s' % (name, e))
-            return HttpResponse('Build Failed')
+            log.error("(Github Build) Failed: %s:%s" % (name, e))
+            return HttpResponseNotFound('Build Failed')
     else:
         return render_to_response('post_commit.html', {},
                 context_instance=RequestContext(request))
@@ -68,14 +94,15 @@ def bitbucket_build(request):
         obj = json.loads(request.POST['payload'])
         rep = obj['repository']
         name = rep['name']
-        url = "%s%s" % ("bitbucket.org",  rep['absolute_url'])
+        url = "%s%s" % ("bitbucket.org",  rep['absolute_url'].rstrip('/'))
+        log.info("(Bitbucket Build) %s" % (url))
         try:
             project = Project.objects.filter(repo__contains=url)[0]
             update_docs.delay(pk=project.pk, force=True)
             return HttpResponse('Build Started')
-        except:
-            mail_admins('Build Failure', '%s failed to build via bitbucket' % name)
-            return HttpResponse('Build Failed')
+        except Exception, e:
+            log.error("(Github Build) Failed: %s:%s" % (name, e))
+            return HttpResponseNotFound('Build Failed')
     else:
         return render_to_response('post_commit.html', {},
                 context_instance=RequestContext(request))
@@ -108,6 +135,14 @@ def legacy_serve_docs(request, username, project_slug, filename):
     })
     return HttpResponsePermanentRedirect(url)
 
+def subproject_serve_docs(request, project_slug, lang_slug, version_slug, filename=''):
+    parent_slug = request.slug
+    subproject_qs = ProjectRelationship.objects.filter(parent__slug=parent_slug, child__slug=project_slug)
+    if subproject_qs.exists():
+        return serve_docs(request, lang_slug, version_slug, filename, project_slug)
+    else:
+        log.info('Subproject lookup failed: %s:%s' % (project_slug, parent_slug))
+        raise Http404("Subproject does not exist")
 
 def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
     if not project_slug:
@@ -124,16 +159,13 @@ def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
         return HttpResponseRedirect(url)
     if not filename:
         filename = "index.html"
-    elif proj.documentation_type == 'sphinx_htmldir' and "_static" not in filename and "html" not in filename and not "inv" in filename:
+    #This is required because we're forming the filenames outselves instead of letting the web server do it.
+    elif proj.documentation_type == 'sphinx_htmldir' and "_static" not in filename and "_images" not in filename and "html" not in filename and not "inv" in filename:
         filename += "index.html"
     else:
         filename = filename.rstrip('/')
     basepath = proj.rtd_build_path(version_slug)
-    if filename.endswith('html'):
-        pageview, created = PageView.objects.get_or_create(project=proj, url=filename)
-        if not created:
-            pageview.count = F('count') + 1
-            pageview.save()
+    log.info('Serving %s for %s' % (filename, proj))
     if not settings.DEBUG:
         fullpath = os.path.join(basepath, filename)
         mimetype, encoding = mimetypes.guess_type(fullpath)

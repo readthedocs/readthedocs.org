@@ -4,6 +4,7 @@ djcelery.setup_loader()
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+TASTYPIE_FULL_DEBUG = True
 
 ADMINS = (
     ('Charlie Leifer', 'coleifer@gmail.com'),
@@ -15,6 +16,7 @@ MANAGERS = ADMINS
 SITE_ROOT = '/'.join(os.path.dirname(__file__).split('/')[0:-2])
 DOCROOT = os.path.join(SITE_ROOT, 'user_builds')
 UPLOAD_ROOT = os.path.join(SITE_ROOT, 'user_uploads')
+CNAME_ROOT = os.path.join(SITE_ROOT, 'cnames')
 
 MEDIA_ROOT = '%s/media/' % (SITE_ROOT)
 MEDIA_URL = '/media/'
@@ -38,10 +40,8 @@ ACCOUNT_ACTIVATION_DAYS = 7
 
 
 TEMPLATE_LOADERS = (
-    ('django.template.loaders.cached.Loader', (
-        'django.template.loaders.filesystem.Loader',
-        'django.template.loaders.app_directories.Loader',
-    )),
+    'django.template.loaders.filesystem.Loader',
+    'django.template.loaders.app_directories.Loader',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -52,9 +52,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'pagination.middleware.PaginationMiddleware',
     'core.middleware.SubdomainMiddleware',
-    'sentry.client.middleware.Sentry404CatchMiddleware',
-    'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
-    'django.middleware.locale.LocaleMiddleware',
+    #'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
 )
 
 ROOT_URLCONF = 'urls'
@@ -71,12 +69,10 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.request"
 )
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.admin',
-    'django.contrib.comments',
     'django.contrib.contenttypes',
-    'django.contrib.flatpages',
     'django.contrib.markup',
     'django.contrib.sessions',
     'django.contrib.sites',
@@ -84,30 +80,29 @@ INSTALLED_APPS = (
     # third party apps
     'pagination',
     'registration',
-    'djcelery',
+    'profiles',
     'taggit',
     'south',
-    'django_extensions',
     'basic.flagging',
+    'djcelery',
+    'celery_haystack',
+
+    #daniellindsleyrocksdahouse
     'haystack',
-    'profiles',
     'tastypie',
-    'sentry',
-    'paging',
-    'indexer',
 
     # our apps
     'projects',
-    'core',
     'builds',
-    'bookmarks',
-    'watching',
-    'editor',
+    'core',
     'rtd_tests',
-)
+]
+
+if DEBUG:
+    INSTALLED_APPS.append('django_extensions')
 
 
-CARROT_BACKEND = "ghettoq.taproot.Database"
+#CARROT_BACKEND = "ghettoq.taproot.Database"
 CELERY_ALWAYS_EAGER = True
 CELERYD_TASK_TIME_LIMIT = 60*60 #60 minutes
 
@@ -127,4 +122,73 @@ ABSOLUTE_URL_OVERRIDES = {
 }
 
 INTERNAL_IPS = ('127.0.0.1',)
+
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,
+    'formatters': {
+        'standard': {
+            'format' : "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
+            'datefmt' : "%d/%b/%Y %H:%M:%S"
+        },
+    },
+    'handlers': {
+        'null': {
+            'level':'DEBUG',
+            'class':'django.utils.log.NullHandler',
+        },
+        'logfile': {
+            'level':'DEBUG',
+            'class':'logging.handlers.RotatingFileHandler',
+            'filename': SITE_ROOT + "/rtd.log",
+            'maxBytes': 50000,
+            'backupCount': 1000,
+            'formatter': 'standard',
+        },
+        'errorlog': {
+            'level':'DEBUG',
+            'class':'logging.handlers.RotatingFileHandler',
+            'filename': SITE_ROOT + "/rtd.log",
+            'maxBytes': 50000,
+            'backupCount': 1000,
+            'formatter': 'standard',
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler',
+        },
+        'console':{
+            'level':'INFO',
+            'class':'logging.StreamHandler',
+            'formatter': 'standard'
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers':['console', 'errorlog'],
+            'propagate': True,
+            'level':'WARN',
+        },
+        'django.db.backends': {
+            'handlers': ['logfile'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+        'django.request': {
+            'handlers': ['mail_admins'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        'core': {
+            'handlers': ['console', 'logfile'],
+            'level': 'DEBUG',
+        },
+        'api': {
+            'handlers': ['console', 'logfile'],
+            'level': 'DEBUG',
+        },
+    }
+}
+
 

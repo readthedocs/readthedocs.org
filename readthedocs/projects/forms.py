@@ -55,7 +55,7 @@ class ImportProjectForm(ProjectForm):
 
     class Meta:
         model = Project
-        fields = ('name', 'repo', 'repo_type', 'description', 'project_url', 'tags', 'default_branch', 'use_virtualenv', 'requirements_file', 'documentation_type')
+        fields = ('name', 'repo', 'repo_type', 'description', 'project_url', 'tags', 'default_branch', 'use_virtualenv', 'requirements_file', 'analytics_code', 'documentation_type')
 
     def clean_repo(self):
         repo = self.cleaned_data.get('repo', '').strip()
@@ -217,3 +217,23 @@ def build_upload_html_form(project):
             choices=choices,
         )
     return type('UploadHTMLForm', (BaseUploadHTMLForm,), attrs)
+
+
+class SubprojectForm(forms.Form):
+    subproject = forms.CharField()
+
+    def __init__(self, *args, **kwargs):
+        self.parent = kwargs.pop('parent', None)
+        super(SubprojectForm, self).__init__(*args, **kwargs)
+
+    def clean_subproject(self):
+        subproject_name = self.cleaned_data['subproject']
+        subproject_qs = Project.objects.filter(name=subproject_name)
+        if not subproject_qs.exists():
+            raise forms.ValidationError("Project %s does not exist" % subproject_name)
+        self.subproject = subproject_qs[0]
+        return subproject_name
+
+    def save(self):
+        relationship = self.parent.add_subproject(self.subproject)
+        return relationship

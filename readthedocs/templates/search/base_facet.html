@@ -19,7 +19,6 @@
         </div>
         <!-- END search form -->
 
-{% block faceting %}{% endblock %}
 
 {% if query %}
 <!-- BEGIN search results -->
@@ -43,6 +42,8 @@
   </div>
 </div>
 <!-- END search results -->
+
+{% block faceting %}{% endblock %}
 
   {% if page.has_previous or page.has_next %}
   <!-- BEGIN search pagination -->

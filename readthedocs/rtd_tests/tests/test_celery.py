@@ -21,12 +21,12 @@ class TestCeleryBuilding(RTDTestCase):
         super(TestCeleryBuilding, self).setUp()
         self.eric = User.objects.get(username='eric')
         self.project = Project.objects.create(
-            user=self.eric,
             name="Test Project",
             repo_type="git",
             #Our top-level checkout
             repo=repo,
         )
+        self.project.users.add(self.eric)
 
     def tearDown(self):
         shutil.rmtree(self.repo)

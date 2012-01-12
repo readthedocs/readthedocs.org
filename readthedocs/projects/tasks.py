@@ -6,6 +6,7 @@ import fnmatch
 import os
 import re
 import shutil
+import json
 
 from celery.decorators import task
 from django.db import transaction
@@ -28,7 +29,7 @@ from projects.utils import (
     slugify_uniquely,
     )
 from tastyapi import client
-from core.utils import copy_to_app_servers
+from core.utils import copy_to_app_servers, run_on_app_servers
 
 ghetto_hack = re.compile(
     r'(?P<key>.*)\s*=\s*u?\[?[\'\"](?P<value>.*)[\'\"]\]?')
@@ -69,8 +70,18 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
         branch = project.default_branch or project.vcs_repo().fallback_branch
         version, created = Version.objects.get_or_create(
             project=project, slug='latest')
+        #Lots of course correction.
+        to_save = False
+        if not version.verbose_name:
+            version.verbose_name = 'latest'
+            to_save = True
+        if not version.active:
+            version.active = True
+            to_save = True
         if version.identifier != branch:
             version.identifier = branch
+            to_save = True
+        if to_save:
             version.save()
 
     #Make Dirs
@@ -98,7 +109,9 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
                 print "HTML Build OK"
                 purge_version(version, subdomain=True,
                               mainsite=True, cname=True)
+                symlink_cname(version)
                 update_intersphinx(version.pk)
+                send_notifications(version)
                 print "Purged %s" % version
             else:
                 print "HTML Build ERROR"
@@ -145,7 +158,7 @@ def update_imported_docs(project, version):
         update_docs_output['venv'] = run('{cmd} --no-site-packages {path}'.format(
                 cmd='virtualenv',
                 path=project.venv_path(version=version_slug)))
-        update_docs_output['sphinx'] = run('{cmd} install sphinx'.format(
+        update_docs_output['sphinx'] = run('{cmd} install -U sphinx'.format(
                 cmd=project.venv_bin(version=version_slug, bin='pip')))
 
         if project.requirements_file:
@@ -382,6 +395,7 @@ def unzip_files(dest_file, html_path):
 @task
 def update_intersphinx(version_pk):
     version = Version.objects.get(pk=version_pk)
+    object_file = version.project.find('objects.inv', version.slug)[0]
     path = version.project.rtd_build_path(version.slug)
     if not path:
         print "ERR: %s has no path" % version
@@ -389,7 +403,7 @@ def update_intersphinx(version_pk):
     app = DictObj()
     app.srcdir = path
     try:
-        inv = fetch_inventory(app, app.srcdir, 'objects.inv')
+        inv = fetch_inventory(app, path, object_file)
     except TypeError:
         print "Failed to fetch inventory for %s" % version
         return None
@@ -426,3 +440,34 @@ def save_term(version, term, url, title):
                                          version_slug, term), url)
     redis_obj.setnx('redirects:v3:%s:%s:%s:%s:%s' % (lang, project_slug,
                                              version_slug, term, url), 1)
+
+
+def symlink_cname(version):
+    build_dir = version.project.rtd_build_path(version.slug)
+    #Chop off the version from the end.
+    build_dir = '/'.join(build_dir.split('/')[:-1])
+    redis_conn = redis.Redis(**settings.REDIS)
+    try:
+        cnames = redis_conn.smembers('rtd_slug:v1:%s' % version.project.slug)
+    except redis.ConnectionError:
+        return
+    for cname in cnames:
+        print "Symlinking %s" % cname
+        symlink = version.project.rtd_cname_path(cname)
+        run_on_app_servers('mkdir -p %s' % '/'.join(symlink.split('/')[:-1]))
+        run_on_app_servers('ln -nsf %s %s' % (build_dir, symlink))
+
+
+def send_notifications(version):
+    message = "Build of %s successful" % version
+    redis_obj = redis.Redis(**settings.REDIS)
+    IRC = getattr(settings, 'IRC_CHANNEL', '#readthedocs')
+    redis_obj.publish('out',
+                    json.dumps({
+                    'version': 1,
+                    'type': 'privmsg',
+                    'data': {
+                        'to': IRC,
+                        'message': message,
+                        }
+                    }))

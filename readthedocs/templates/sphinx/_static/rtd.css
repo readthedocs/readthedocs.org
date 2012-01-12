@@ -587,6 +587,11 @@ p {
     margin: 0.8em 0 0.5em 0;
 }
 
+.section p img.math {
+    margin: 0;
+}
+
+
 .section p img {
     margin: 1em 2em;
 }

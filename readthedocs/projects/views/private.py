@@ -14,12 +14,12 @@ from django.template.defaultfilters import linebreaks
 from django.template.loader import render_to_string
 from django.views.generic.list_detail import object_list
 
-from bookmarks.models import Bookmark
 from builds.forms import AliasForm
 from projects import constants
 from projects.forms import (FileForm, CreateProjectForm,
                             ImportProjectForm, FileRevisionForm,
-                            build_versions_form, build_upload_html_form)
+                            build_versions_form, build_upload_html_form,
+                            SubprojectForm)
 from projects.models import Project, File
 from projects.tasks import unzip_files
 
@@ -33,13 +33,11 @@ def project_dashboard(request):
     A dashboard!  If you aint know what that means you aint need to.
     Essentially we show you an overview of your content.
     """
-    marks = Bookmark.objects.filter(user=request.user)[:5]
     return object_list(
         request,
         queryset=request.user.projects.live(),
         page=int(request.GET.get('page', 1)),
         template_object_name='project',
-        extra_context={'bookmark_list': marks },
         template_name='projects/project_dashboard.html',
     )
 
@@ -69,8 +67,8 @@ def project_create(request):
     form = CreateProjectForm(request.POST or None)
 
     if request.method == 'POST' and form.is_valid():
-        form.instance.user = request.user
         project = form.save()
+        form.instance.users.add(request.user)
         project_manage = reverse('projects_manage', args=[project.slug])
         return HttpResponseRedirect(project_manage)
 
@@ -162,8 +160,8 @@ def project_import(request):
     form = ImportProjectForm(request.POST or None)
 
     if request.method == 'POST' and form.is_valid():
-        form.instance.user = request.user
         project = form.save()
+        form.instance.users.add(request.user)
         project_manage = reverse('projects_manage', args=[project.slug])
         return HttpResponseRedirect(project_manage + '?docs_not_built=True')
 
@@ -306,9 +304,9 @@ def export(request, project_slug):
     """
     Export a projects' docs as a .zip file, including the .rst source
     """
-    project = Project.objects.live().get(user=request.user, slug=project_slug)
+    project = Project.objects.live().get(users=request.user, slug=project_slug)
     os.chdir(project.doc_path)
-    dir_path = os.path.join(settings.MEDIA_ROOT, 'export', project.user.username)
+    dir_path = os.path.join(settings.MEDIA_ROOT, 'export', project_slug)
     zip_filename = '%s.zip' % project.slug
     file_path = os.path.join(dir_path, zip_filename)
     try:
@@ -324,7 +322,7 @@ def export(request, project_slug):
             archive.write(os.path.join(root, file))
     archive.close()
 
-    return HttpResponseRedirect(os.path.join(settings.MEDIA_URL, 'export', project.user.username, zip_filename))
+    return HttpResponseRedirect(os.path.join(settings.MEDIA_URL, 'export', project_slug, zip_filename))
 
 
 def upload_html(request, project_slug):
@@ -366,10 +364,6 @@ def upload_html(request, project_slug):
 
 @login_required
 def edit_alias(request, project_slug, id=None):
-    """
-    The view for creating a new project where the docs will be hosted
-    as objects and edited through the site
-    """
     proj = get_object_or_404(Project.objects.all(), slug=project_slug)
     if id:
         alias = proj.aliases.get(pk=id)
@@ -388,10 +382,6 @@ def edit_alias(request, project_slug, id=None):
 
 @login_required
 def list_alias(request, project_slug):
-    """
-    The view for creating a new project where the docs will be hosted
-    as objects and edited through the site
-    """
     proj = get_object_or_404(Project.objects.all(), slug=project_slug)
     return object_list(
         request,
@@ -399,3 +389,32 @@ def list_alias(request, project_slug):
         template_object_name='alias',
         template_name='projects/alias_list.html',
     )
+
+@login_required
+def project_subprojects(request, project_slug):
+    project = get_object_or_404(request.user.projects.live(), slug=project_slug)
+
+    form = SubprojectForm(data=request.POST or None, parent=project)
+
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        project_dashboard = reverse('projects_manage', args=[project.slug])
+        return HttpResponseRedirect(project_dashboard)
+
+    subprojects = project.subprojects.all()
+
+    return render_to_response(
+        'projects/project_subprojects.html',
+        {'form': form, 'project': project, 'subprojects': subprojects},
+        context_instance=RequestContext(request)
+    )
+
+@login_required
+def project_subprojects_delete(request, project_slug, child_slug):
+    parent = get_object_or_404(request.user.projects.live(), slug=project_slug)
+    child = get_object_or_404(Project.objects.all(), slug=child_slug)
+
+    parent.remove_subproject(child)
+
+    project_dashboard = reverse('projects_manage', args=[parent.slug])
+    return HttpResponseRedirect(project_dashboard)

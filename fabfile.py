@@ -2,7 +2,7 @@ from fabric.api import *
 from fabric.decorators import runs_once
 
 env.runtime = 'production'
-env.hosts = ['chimera.ericholscher.com', 'ladon.ericholscher.com', 'mozbuild.ericholscher.com']
+env.hosts = ['chimera.ericholscher.com', 'ladon.ericholscher.com', 'build.ericholscher.com']
 env.user = 'docs'
 env.code_dir = '/home/docs/sites/readthedocs.org/checkouts/readthedocs.org'
 env.virtualenv = '/home/docs/sites/readthedocs.org'
@@ -12,12 +12,14 @@ def push():
     "Push new code, but don't restart/reload."
     local('git push origin master')
     with cd(env.code_dir):
-        run('git pull origin master')
+        run('git fetch')
+        run('git reset --hard origin/master')
 
 def update_requirements():
     "Update requirements in the virtualenv."
     run("%s/bin/pip install -r %s/deploy_requirements.txt" % (env.virtualenv, env.code_dir))
 
+@hosts(['chimera.ericholscher.com'])
 def migrate(project=None):
     if project:
         run('django-admin.py migrate %s' % project)
@@ -30,7 +32,7 @@ def restart():
     env.user = "root"
     run("restart readthedocs-gunicorn")
 
-@hosts(['mozbuild.ericholscher.com'])
+@hosts(['build.ericholscher.com'])
 #@hosts(['kirin.ericholscher.com'])
 def celery():
     "Restart (or just start) the server"
@@ -49,11 +51,11 @@ def spider():
 def _aws_wrapper(f, *args, **kwargs):
     "get AWS credentials if not defined"
     #these are normally defined in ~/.fabricrc
-    @hosts('run_once') #so fab doesn't go crazy 
+    @hosts('run_once') #so fab doesn't go crazy
     def wrapped(*args, **kwargs):
         from boto.cloudfront.exception import CloudFrontServerError
         from boto.cloudfront import CloudFrontConnection
-        c = CloudFrontConnection(env.aws_access_key_id, 
+        c = CloudFrontConnection(env.aws_access_key_id,
                                  env.aws_secret_access_key)
         if not hasattr(env, 'aws_access_key_id'):
             prompt('AWS Access Key ID: ', key='aws_access_key_id')
@@ -71,12 +73,12 @@ def to_cdn(c, slug):
     from boto.cloudfront import CloudFrontConnection
     from boto.cloudfront.origin import CustomOrigin
 
-    c = CloudFrontConnection(env.aws_access_key_id, 
+    c = CloudFrontConnection(env.aws_access_key_id,
                              env.aws_secret_access_key)
     d = c.create_distribution(
         origin=CustomOrigin(slug + '.cdn.readthedocs.org',
                             origin_protocol_policy='http-only'),
-        enabled=True, 
+        enabled=True,
         comment='Slug: ' + slug,
         cnames=[slug + '.readthedocs.org']
         )
@@ -88,8 +90,8 @@ def list_cdn(c):
     "List Distributions on CloudFront"
     distributions = c.get_all_distributions()
     for d in distributions:
-        print "%3s %4s %40s %30s" % ('Ena' if d.enabled else 'Dis', 
-                                     d.status[:4], d.origin.dns_name, 
+        print "%3s %4s %40s %30s" % ('Ena' if d.enabled else 'Dis',
+                                     d.status[:4], d.origin.dns_name,
                                      d.domain_name)
 
 @_aws_wrapper
@@ -114,14 +116,21 @@ def delete_cdn(c):
             distro.get_distribution().delete()
 
 
-@hosts(['chimera.ericholscher.com'])
 def full_deploy():
-    push()
-    update_requirements()
-    migrate()
-    restart()
-    celery()
+    #HACK
+    #Call this again at the top-level so the hosts decorator
+    #effects the hosts it runs against for each command.
+    run('fab push update_requirements migrate restart celery')
+    #push()
+    #update_requirements()
+    #migrate()
+    #restart()
+    #celery()
 
 @hosts(['chimera.ericholscher.com'])
 def uptime():
     run('uptime')
+
+@hosts(['chimera.ericholscher.com'])
+def update_index():
+    run('django-admin.py update_index')

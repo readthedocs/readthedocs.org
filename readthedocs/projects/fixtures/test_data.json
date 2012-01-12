@@ -8,7 +8,9 @@
             "project_url": "",
             "repo": "http://github.com/rtfd/readthedocs.org",
             "version": "0.1",
-            "user": 1,
+            "users": [
+		1
+	    ],
             "pub_date": "2010-08-14 01:37:58",
             "slug": "read-the-docs",
             "name": "Read The Docs"
@@ -23,7 +25,9 @@
             "project_url": "",
             "repo": "http://github.com/alex/django-taggit",
             "version": "0.8",
-            "user": 1,
+            "users": [
+		1
+	    ],
             "pub_date": "2010-08-15 13:04:19",
             "slug": "taggit",
             "name": "Taggit"
@@ -38,7 +42,9 @@
             "project_url": "",
             "repo": "http://github.com/jezdez/pip",
             "version": "",
-            "user": 1,
+            "users": [
+		1
+	    ],
             "pub_date": "2010-08-14 11:08:12",
             "slug": "pip",
             "name": "Pip"
@@ -53,7 +59,9 @@
             "project_url": "",
             "repo": "http://github.com/pydanny/django-uni-form",
             "version": "0.7",
-            "user": 1,
+            "users": [
+		1
+	    ],
             "pub_date": "2010-08-14 13:34:59",
             "slug": "django-uni-form",
             "name": "Django Uni Form"
@@ -68,7 +76,9 @@
             "project_url": "",
             "repo": "http://github.com/codysoyland/django-tastypie",
             "version": "0.8.2",
-            "user": 1,
+            "users": [
+		1
+	    ],
             "pub_date": "2010-08-14 13:16:35",
             "slug": "tastypie",
             "name": "Tastypie"
@@ -83,7 +93,9 @@
             "project_url": "",
             "repo": "http://github.com/ericholscher/django-kong",
             "version": "0.1",
-            "user": 1,
+            "users": [
+		1
+	    ],
             "pub_date": "2010-08-14 13:01:57",
             "slug": "kong",
             "name": "Kong"
@@ -98,7 +110,9 @@
             "project_url": "",
             "repo": "http://github.com/worldcompany/djangoembed",
             "version": "",
-            "user": 1,
+            "users": [
+		1
+	    ],
             "pub_date": "2010-08-14 11:30:33",
             "slug": "djangoembed",
             "name": "Djangoembed"
@@ -113,7 +127,9 @@
             "project_url": "",
             "repo": "http://github.com/dmishe/django-south",
             "version": "0.7",
-            "user": 1,
+            "users": [
+		1
+	    ],
             "pub_date": "2010-08-14 10:59:47",
             "slug": "south",
             "name": "South"
@@ -128,7 +144,9 @@
             "project_url": "",
             "repo": "http://github.com/bitprophet/fabric",
             "version": "0.1.0",
-            "user": 1,
+            "users": [
+		1
+	    ],
             "pub_date": "2010-08-14 08:00:49",
             "slug": "fabric",
             "name": "Fabric"
@@ -143,7 +161,9 @@
             "project_url": "",
             "repo": "http://github.com/coleifer/cue.git",
             "version": "0.1.0",
-            "user": 1,
+            "users": [
+		1
+	    ],
             "pub_date": "2010-08-14 23:19:49",
             "slug": "cue",
             "name": "Cue"
@@ -158,7 +178,9 @@
             "project_url": "",
             "repo": "http://github.com/pinax/pinax",
             "version": "0.9",
-            "user": 1,
+            "users": [
+		1
+	    ],
             "pub_date": "2010-08-15 00:12:14",
             "slug": "pinax",
             "name": "Pinax"
@@ -173,10 +195,51 @@
             "project_url": "",
             "repo": "http://github.com/ericholscher/django-test-utils",
             "version": "0.2",
-            "user": 1,
+            "users": [
+		1
+	    ],
             "pub_date": "2010-08-14 02:16:35",
             "slug": "django-test-utils",
             "name": "Django Test Utils"
+        }
+    },
+    {
+        "pk": 4,
+        "model": "builds.version",
+        "fields": {
+            "uploaded": false,
+            "built": true,
+            "project": 1,
+            "active": false,
+            "identifier": "not_ok",
+            "verbose_name": "not_ok",
+            "slug": "not_ok"
+        }
+    },
+    {
+        "pk": 3,
+        "model": "builds.version",
+        "fields": {
+            "uploaded": false,
+            "built": true,
+            "project": 1,
+            "active": true,
+            "identifier": "master",
+            "verbose_name": "latest",
+            "slug": "latest"
+        }
+    },
+    {
+        "pk": 8,
+        "model": "builds.version",
+        "fields": {
+            "uploaded": false,
+            "built": true,
+            "project": 1,
+            "active": true,
+            "identifier": "awesome",
+            "verbose_name": "awesome",
+            "slug": "awesome"
         }
     },
     {
@@ -215,7 +278,9 @@
             "project_url": "",
             "repo": "http://github.com/toastdriven/django-haystack",
             "version": "1.1.0",
-            "user": 1,
+            "users": [
+		1
+	    ],
             "pub_date": "2010-08-15 01:11:22",
             "slug": "haystack",
             "name": "Haystack"

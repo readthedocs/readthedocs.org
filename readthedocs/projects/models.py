@@ -25,6 +25,16 @@ class ProjectManager(models.Manager):
         base_qs = self.filter(skip=False)
         return base_qs.filter(*args, **kwargs)
 
+class ProjectRelationship(models.Model):
+    parent = models.ForeignKey('Project', related_name='subprojects')
+    child = models.ForeignKey('Project', related_name='superprojects')
+
+    def __unicode__(self):
+        return "%s -> %s" % (self.parent, self.child)
+
+    #HACK
+    def get_absolute_url(self):
+        return "http://%s.readthedocs.org/projects/%s/en/latest/" % (self.parent.slug, self.child.slug)
 
 class Project(models.Model):
     #Auto fields
@@ -32,7 +42,7 @@ class Project(models.Model):
     modified_date = models.DateTimeField(auto_now=True)
 
     #Generally from conf.py
-    user = models.ForeignKey(User, related_name='projects')
+    users = models.ManyToManyField(User, related_name='projects')
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255, unique=True)
     description = models.TextField(blank=True,
@@ -40,7 +50,7 @@ class Project(models.Model):
     repo = models.CharField(max_length=100, blank=True,
             help_text=_('Checkout URL for your code (hg, git, etc.). Ex. http://github.com/ericholscher/django-kong.git'))
     repo_type = models.CharField(max_length=10, choices=constants.REPO_CHOICES, default='git')
-    project_url = models.URLField(blank=True, help_text=_('The project\'s homepage'))
+    project_url = models.URLField(blank=True, help_text=_('The project\'s homepage'), verify_exists=False)
     version = models.CharField(max_length=100, blank=True,
         help_text=_('Project version these docs apply to, i.e. 1.0a'))
     copyright = models.CharField(max_length=255, blank=True,
@@ -49,8 +59,8 @@ class Project(models.Model):
         choices=constants.DEFAULT_THEME_CHOICES, default=constants.THEME_DEFAULT,
         help_text='<a href="http://sphinx.pocoo.org/theming.html#builtin-themes" target="_blank">_(Examples)</a>')
     suffix = models.CharField(max_length=10, editable=False, default='.rst')
-    default_version = models.CharField(max_length=255, default='latest')
-    # In default_branch, None means the backend should choose the appropraite branch. Eg 'master' for git
+    default_version = models.CharField(max_length=255, default='latest', help_text=_('The version of your project that / redirects to'))
+    # In default_branch, None max_lengtheans the backend should choose the appropraite branch. Eg 'master' for git
     default_branch = models.CharField(max_length=255, default=None, null=True,
         blank=True, help_text=_('What branch "latest" points to. Leave empty to use the default value for your VCS (eg. trunk or master).'))
     requirements_file = models.CharField(max_length=255, default=None, null=True, blank=True, help_text=_('Requires Virtualenv. A pip requirements file needed to build your documentation. Path from the root of your project.'))
@@ -67,6 +77,9 @@ class Project(models.Model):
     use_virtualenv = models.BooleanField(
         help_text=_("Install your project inside a virtualenv using setup.py install"))
     django_packages_url = models.CharField(max_length=255, blank=True)
+
+    #Subprojects
+    related_projects = models.ManyToManyField('self', blank=True, null=True, symmetrical=False, through=ProjectRelationship)
 
     tags = TaggableManager(blank=True)
     objects = ProjectManager()
@@ -87,6 +100,8 @@ class Project(models.Model):
                 #tasks.remove_dir.delay(os.path.join(self.doc_path, 'checkouts'))
         if not self.slug:
             self.slug = slugify(self.name)
+            if self.slug == '':
+                raise Exception("Model must have slug")
         super(Project, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
@@ -193,6 +208,12 @@ class Project(models.Model):
         """
         return os.path.join(self.doc_path, 'rtd-builds', version)
 
+    def rtd_cname_path(self, cname):
+        """
+        The path to the build html docs in the project.
+        """
+        return os.path.join(settings.CNAME_ROOT, cname)
+
     def conf_file(self, version='latest'):
         files = self.find('conf.py', version)
         if not files:
@@ -222,7 +243,7 @@ class Project(models.Model):
 
     @property
     def has_good_build(self):
-        return any([build.success for build in self.builds.all()])
+        return self.builds.filter(success=True).exists()
 
     @property
     def has_versions(self):
@@ -307,10 +328,18 @@ class Project(models.Model):
         return (self.versions.filter(built=True, active=True) |
                 self.versions.filter(active=True, uploaded=True))
 
+    def version_from_branch_name(self, branch):
+        try:
+            return (self.versions.filter(identifier=branch) |
+                    self.versions.filter(identifier='remotes/origin/%s'%branch))[0]
+        except IndexError:
+            return None
+
+
     @property
     def whitelisted(self):
         try:
-            return self.user.get_profile().whitelisted
+            return all([user.get_profile().whitelisted for user in self.users.all()])
         except ObjectDoesNotExist:
             #Bare except so we don't have to import user.models.UserProfile
             return False
@@ -353,6 +382,19 @@ class Project(models.Model):
         if version_qs.exists():
             return self.default_version
         return 'latest'
+
+    def add_subproject(self, child):
+        subproject, created = ProjectRelationship.objects.get_or_create(
+            parent=self,
+            child=child,
+            )
+        return subproject
+
+    def remove_subproject(self, child):
+        ProjectRelationship.objects.filter(
+            parent=self,
+            child=child).delete()
+        return
 
 
 class FileManager(models.Manager):
