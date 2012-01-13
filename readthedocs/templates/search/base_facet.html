@@ -28,7 +28,7 @@
   <div class="module-wrapper">
 
     <div class="module-header">
-      <h3>{% trans "Results for" %} {{ query }}</h3>
+      <h3>{% blocktrans %}Results for {{ query }}{% endblocktrans %}</h3>
     </div>
 
     <div class="module-list">
@@ -57,7 +57,7 @@
     {% endif %}
 
     {% if page.has_next %}
-      <a class="next" href="{{ request.get_full_path }}&amp;page={{ page.next_page_number }}">Next &raquo;</a>
+      <a class="next" href="{{ request.get_full_path }}&amp;page={{ page.next_page_number }}">{% trans "Next" %} &raquo;</a>
     {% else %}
       <span class="next disabled">{% trans "Next" %} &raquo;</span>
     {% endif %}

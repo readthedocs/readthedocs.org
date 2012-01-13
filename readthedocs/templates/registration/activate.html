@@ -14,8 +14,8 @@
 
 {% block content %}
   <p>
-    {% trans "The activation key" %} "{{ activation_key }}" {% trans "is invalid and cannot be used to activate this account." %}
-    {% trans "Did you really think activation key" %} "{{ activation_key }}" {% trans "was going to work?!" %}
+    {% blocktrans %}The activation key "{{ activation_key }}" is invalid and cannot be used to activate this account.{% endblocktrans %}
+    {% blocktrans %}Did you really think activation key "{{ activation_key }}" was going to work?!{% endblocktrans %}
   </p>
   <p>
     {% trans "We're not sure how you got that key, but would you mind registering again" %} <a href="{% url registration_register %}">{% trans "here" %}</a>?  

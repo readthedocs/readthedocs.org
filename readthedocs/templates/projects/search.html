@@ -4,7 +4,7 @@
 
 {% load pagination_tags %}
 
-{% block title %}{% trans "Search results for" %} {{ term }} {% endblock %}
+{% block title %}{% blocktrans %}Search results for {{ term }}{% endblocktrans %} {% endblock %}
 
 {% block nav-browse %}class="active"{% endblock %}
 
@@ -18,7 +18,7 @@
             <div class="module-wrapper">
 
               <div class="module-header">
-                  <h2>{% trans "Search results for" %} {{ term }}</h2>
+                  <h2>{% blocktrans %}Search results for {{ term }}{% endblocktrans %}</h2>
               </div>
 
               <div class="module-list">

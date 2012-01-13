@@ -5,7 +5,7 @@
 
 http://{{ site.domain }}{% url registration_activate activation_key %}
 
-{% trans "This page will expire in" %} {{ expiration_days }} {% trans "day" %}{{ expiration_days|pluralize }}.
+{% blocktrans %}This page will expire in {{ expiration_days }} day{{ expiration_days|pluralize }}.{% endblocktrans %}
 
 ***
 

@@ -13,7 +13,7 @@
 
 
 {% block content %}
-  <p>{% trans "You have successfully flagged" %} "{{ object }}" {% trans "as" %} "{{ flag_type.title }}"</p>
+  <p>{% blocktrans %}You have successfully flagged "{{ object }}" as "{{ flag_type.title }}"{% endblocktrans %}</p>
   
   <p>{% trans "Thank you for contributing to the quality of this site!" %}</p>
 {% endblock %}

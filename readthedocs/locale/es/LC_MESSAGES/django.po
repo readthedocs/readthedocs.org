@@ -1,4 +1,4 @@
-# SOME DESCRIPTIVE TITLE.
+# Read the Docs Spanish translation.
 # Copyright (C) 2011 readthedocs
 # This file is distributed under the same license as the readthedocs package.
 # Leonardo J. Caballero G. <leonardocaballero@gmail.com>, 2011.
@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-01-12 16:04-0430\n"
-"PO-Revision-Date: 2012-01-12 17:04-0400\n"
+"POT-Creation-Date: 2012-01-13 11:02-0430\n"
+"PO-Revision-Date: 2012-01-13 14:18-0400\n"
 "Last-Translator: Leonardo J. Caballero G. <leonardocaballero@gmail.com>\n"
 "Language-Team: Plataforma colaborativa Canaima <plataforma-colaborativa@canaima.softwarelibre.gob.ve>\n"
 "MIME-Version: 1.0\n"
@@ -201,7 +201,7 @@ msgstr "Carácter no válido en el nombre del repositorio)"
 
 #: projects/forms.py:65
 msgid "It looks like you entered a private repo - please use the public (http:// or git://) clone url"
-msgstr "Al parecer usted ingreso un repositorio privado - por favor, utilice la dirección URL clon público  (http:// or git://) "
+msgstr "Al parecer usted ingreso un repositorio privado - por favor, utilice la dirección URL clon público  (http:// or git://)"
 
 #: projects/forms.py:170
 msgid "Choose the default version for this project"
@@ -271,6 +271,14 @@ msgstr "Código de Google Analytics Tracking. Esto puede ralentizar la carga de 
 msgid "Install your project inside a virtualenv using setup.py install"
 msgstr "Instalar su proyecto dentro de un virtualenv usando setup.py install"
 
+#: settings/base.py:36
+msgid "English"
+msgstr "Ingles"
+
+#: settings/base.py:38
+msgid "Spanish"
+msgstr "Español"
+
 #: templates/404.html:6
 msgid "Maze Found"
 msgstr "Laberinto encontrado"
@@ -333,6 +341,14 @@ msgstr "Inicio"
 #: templates/homepage.html:28
 msgid "What is this place?"
 msgstr "What is this place?"
+
+#: templates/homepage.html:30
+msgid ""
+"Read the Docs hosts documentation, making it fully searchable and easy to find.\n"
+"                  You can import your docs using any major version control system, including Mercurial, Git, Subversion, and Bazaar."
+msgstr ""
+"Read the Docs hospeda documentación, por lo que es totalmente accesible y fácil de encontrar.\n"
+"                  Puede importar sus documentos utilizando cualquier sistema de control de versiones más usados, incluyendo MMercurial, Git, Subversion, y Bazaar."
 
 #: templates/homepage.html:32
 msgid "We support"
@@ -426,8 +442,9 @@ msgid "Recent Bookmarks"
 msgstr "Favoritos recientes"
 
 #: templates/builds/build_detail.html:7
-msgid "Build for"
-msgstr "Construcción para"
+#, python-format
+msgid "Build for %(build.project.name)s"
+msgstr "Construcción para %(build.project.name)s"
 
 #: templates/builds/build_detail.html:10
 msgid "Built:"
@@ -473,7 +490,6 @@ msgstr "versión"
 
 #: templates/core/build_list_detailed.html:6
 #: templates/core/project_details.html:100
-#: templates/core/project_list_detailed.html:11
 msgid "ago"
 msgstr "hace"
 
@@ -665,6 +681,11 @@ msgstr "Las revisiones más recientes construidas"
 msgid "Most viewed pages for this project"
 msgstr "Las páginas más vistas de este proyecto"
 
+#: templates/core/project_list_detailed.html:11
+#, python-format
+msgid "%(project.modified_date|timesince)s ago"
+msgstr "hace %(project.modified_date|timesince)s"
+
 #: templates/core/project_list_detailed.html:21
 msgid "No Docs"
 msgstr "Sin Documentos"
@@ -792,13 +813,9 @@ msgid "What you are saying:"
 msgstr "Lo que usted dice:"
 
 #: templates/flagging/flag_confirm.html:21
-msgid "Are you sure you want to flag"
-msgstr "Está seguro que desea marcar"
-
-#: templates/flagging/flag_confirm.html:21
-#: templates/flagging/flag_success.html:16
-msgid "as"
-msgstr "como"
+#, python-format
+msgid "Are you sure you want to flag \"%(object)s\" as \"%(flag_type.title)s\"?"
+msgstr "¿Está seguro que desea marcar \"%(object)s\" como \"%(flag_type.title)s\"?"
 
 #: templates/flagging/flag_confirm.html:23
 msgid "Yes, this is"
@@ -814,20 +831,21 @@ msgid "Flagging successful"
 msgstr "Marcado fue éxito"
 
 #: templates/flagging/flag_success.html:16
-msgid "You have successfully flagged"
-msgstr "Usted ha marcado con éxito"
+#, python-format
+msgid "You have successfully flagged \"%(object)s\" as \"%(flag_type.title)s\""
+msgstr "Usted ha marcado con éxito \"%(object)s\" como \"%(flag_type.title)s\""
 
 #: templates/flagging/flag_success.html:18
 msgid "Thank you for contributing to the quality of this site!"
 msgstr "¡Gracias por contribuir a la calidad de este sitio!"
 
-#: templates/pagination/pagination.html:5
-#: templates/pagination/pagination.html:7
+#: templates/pagination/pagination.html:6
+#: templates/pagination/pagination.html:8
 msgid "previous"
 msgstr "anterior"
 
-#: templates/pagination/pagination.html:21
-#: templates/pagination/pagination.html:23
+#: templates/pagination/pagination.html:22
+#: templates/pagination/pagination.html:24
 msgid "next"
 msgstr "próximo"
 
@@ -911,12 +929,9 @@ msgid "You sure?"
 msgstr "¿Esta seguro?"
 
 #: templates/projects/file_delete.html:13
-msgid "I don't ever want to see"
-msgstr "Yo no quiero volver a ver"
-
-#: templates/projects/file_delete.html:13
-msgid "again"
-msgstr "otra ves"
+#, python-format
+msgid "I don't ever want to see '%(file.heading|default:\"file\")s' again"
+msgstr "Yo no quiero volver a ver '%(file.heading|default:\"file\")s' otra ves"
 
 #: templates/projects/file_edit.html:27
 #: templates/projects/file_history.html:6
@@ -940,13 +955,13 @@ msgid "Revert to"
 msgstr "Revertir a"
 
 #: templates/projects/file_revert.html:4
+#, python-format
+msgid "Revert %(file.heading)s to revision %(revision.revision_number)s?"
+msgstr "Revertir %(file.heading)s a la revisión %(revision.revision_number)s?"
+
 #: templates/projects/file_revert.html:8
 msgid "Revert"
 msgstr "Revertir"
-
-#: templates/projects/file_revert.html:4
-msgid "to revision"
-msgstr "Para revisión"
 
 #: templates/projects/legend.html:4
 msgid "External Links"
@@ -1000,9 +1015,8 @@ msgid "actual code indented"
 msgstr "código actual identado"
 
 #: templates/projects/legend.html:34
-#, fuzzy
 msgid "reStructuredText Primer"
-msgstr "La descripción reStructuredText del proyecto"
+msgstr "Manual de reStructuredText"
 
 #: templates/projects/project_configure.html:4
 msgid "Configure"
@@ -1158,8 +1172,9 @@ msgstr "Elegir las versiones que le gustaría publicar, además de la última re
 
 #: templates/projects/search.html:7
 #: templates/projects/search.html.py:21
-msgid "Search results for"
-msgstr "Resultados de la búsqueda para"
+#, python-format
+msgid "Search results for %(term)s"
+msgstr "Resultados de la búsqueda para %(term)s"
 
 #: templates/projects/search.html:38
 msgid "Huh?"
@@ -1227,20 +1242,14 @@ msgid "Account activation error"
 msgstr "Error de activación de cuenta"
 
 #: templates/registration/activate.html:17
-msgid "The activation key"
-msgstr "La activación ed la key"
-
-#: templates/registration/activate.html:17
-msgid "is invalid and cannot be used to activate this account."
-msgstr "es válido y no puede ser utilizado para activar la cuenta."
+#, python-format
+msgid "The activation key \"%(activation_key)s\" is invalid and cannot be used to activate this account."
+msgstr "La clave de activación \"%(activation_key)s\" es inválido y no puede ser utilizado para activar la cuenta."
 
 #: templates/registration/activate.html:18
-msgid "Did you really think activation key"
-msgstr "¿De verdad cree la clave de activación"
-
-#: templates/registration/activate.html:18
-msgid "was going to work?!"
-msgstr ""
+#, python-format
+msgid "Did you really think activation key \"%(activation_key)s\" was going to work?!"
+msgstr "¿De verdad cree la clave de activación \"%(activation_key)s\" funciona?"
 
 #: templates/registration/activate.html:21
 msgid "We're not sure how you got that key, but would you mind registering again"
@@ -1438,14 +1447,23 @@ msgstr "Registro cerrado"
 msgid "Eh... Registration closed."
 msgstr "Eh ... registro cerrado."
 
+#: templates/registration/registration_closed.html:17
+msgid ""
+" You registered a long time ago.\n"
+"    We aren't sure if you are a robot or if \n"
+"    something got lost or what."
+msgstr ""
+" Usted se registró hace mucho tiempo.\n"
+"    No estamos seguros si es un robot, o si \n"
+"    hay algo que se perdió o qué paso."
+
 #: templates/registration/registration_closed.html:20
 msgid "Please try"
 msgstr "Por favor, inténtelo"
 
 #: templates/registration/registration_closed.html:20
-#, fuzzy
 msgid "registering again"
-msgstr "registering again"
+msgstr "registrando otra ves"
 
 #: templates/registration/registration_closed.html:23
 msgid "We hope that isn't too inconvenient."
@@ -1453,13 +1471,20 @@ msgstr "Esperamos que esto no sea mucho inconveniente."
 
 #: templates/registration/registration_complete.html:6
 #: templates/registration/registration_complete.html:11
-#, fuzzy
 msgid "Registration complete"
-msgstr "completar el registro"
+msgstr "Registro completo"
 
 #: templates/registration/registration_complete.html:16
 msgid "Now activate your account."
 msgstr "Ahora activar tu cuenta."
+
+#: templates/registration/registration_complete.html:18
+msgid ""
+"We will be sending you an email with an activation link.\n"
+"    Visit the link to verify this account."
+msgstr ""
+"Nosotros le enviaremos un correo electrónico con un enlace de activación.\n"
+"    Visite el enlace para verificar esta cuenta."
 
 #: templates/registration/registration_complete.html:22
 msgid "Check your email.  We'll wait."
@@ -1481,8 +1506,9 @@ msgstr "Volverse loco."
 
 #: templates/search/base_facet.html:31
 #: templates/search/search.html:31
-msgid "Results for"
-msgstr "Resultados para"
+#, python-format
+msgid "Results for %(query)s"
+msgstr "Resultados para %(query)s"
 
 #: templates/search/base_facet.html:54
 #: templates/search/base_facet.html:56
@@ -1491,6 +1517,7 @@ msgstr "Resultados para"
 msgid "Previous"
 msgstr "Anterior"
 
+#: templates/search/base_facet.html:60
 #: templates/search/base_facet.html:62
 #: templates/search/search.html:58
 #: templates/search/search.html.py:60

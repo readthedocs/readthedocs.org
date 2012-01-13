@@ -10,6 +10,6 @@
 {% block content %}
   <p>{% trans "You sure?" %} O_o</p>
   <form method="post" action=".">{% csrf_token %}
-    <input type="submit" value="{% trans "I don't ever want to see" %} '{{ file.heading|default:"file" }}' {% trans "again" %}" />
+    <input type="submit" value="{% blocktrans %}I don't ever want to see '{{ file.heading|default:"file" }}' again{% endblocktrans %}" />
   </form>
 {% endblock %}
