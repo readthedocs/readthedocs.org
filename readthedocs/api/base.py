@@ -153,6 +153,8 @@ class BuildResource(EnhancedModelResource):
     class Meta:
         allowed_methods = ['get', 'post']
         queryset = Build.objects.all()
+        authentication = PostAuthentication()
+        authorization = Authorization()
         filtering = {
             "project": ALL_WITH_RELATIONS,
             "slug": ALL_WITH_RELATIONS,
