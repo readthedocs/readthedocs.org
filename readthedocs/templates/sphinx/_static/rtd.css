@@ -253,7 +253,9 @@ div.sphinxsidebar img {
     max-width: 12em;
 }
 
-div.sphinxsidebar h3, div.sphinxsidebar h4 {
+div.sphinxsidebar h3,
+div.sphinxsidebar h4,
+div.sphinxsidebar p.logo {
     margin: 1.2em 0 0.3em 0;
     font-size: 1em;
     padding: 0;
