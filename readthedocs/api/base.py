@@ -149,6 +149,7 @@ class ProjectResource(ModelResource):
 
 class BuildResource(EnhancedModelResource):
     project = fields.ForeignKey(ProjectResource, 'project')
+    version = fields.ForeignKey(VersionResource, 'version')
 
     class Meta:
         allowed_methods = ['get', 'post']
