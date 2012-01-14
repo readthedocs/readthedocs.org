@@ -376,7 +376,10 @@ def build_docs(project, build, version, pdf, man, epub, record, force, update_ou
             build.output = html_output[1]
             build.error = html_output[2]
             build.state = 'finished'
+            build.project='/api/v1/project/%s/" % project.pk
+            build.version='/api/v1/version/%s/" % version.pk
             build.save()
+            ))
         if pdf:
             pdf_builder = builder_loading.get('sphinx_pdf')(version)
             latex_results, pdf_results = pdf_builder.build()
