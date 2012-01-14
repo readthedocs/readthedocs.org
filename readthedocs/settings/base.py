@@ -85,7 +85,7 @@ INSTALLED_APPS = [
     'south',
     'basic.flagging',
     'djcelery',
-    'celery_haystack',
+    #'celery_haystack',
 
     #daniellindsleyrocksdahouse
     'haystack',
