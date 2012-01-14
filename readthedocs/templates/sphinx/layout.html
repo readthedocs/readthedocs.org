@@ -31,6 +31,7 @@
   <li><a href="http://readthedocs.org{{ url }}">{{ slug }}</a></li>
 {% endfor %}
     </ul>
+{% endif %}
 <div id="searchbox" style="">
   <h3>RTD Search</h3>
     <form class="search" action="http://readthedocs.org/search/project/" method="get">
@@ -42,7 +43,6 @@
         Full-text doc search.
     </p>
 </div>
-{% endif %}
 {% endif %}
 {% endblock %}
 
