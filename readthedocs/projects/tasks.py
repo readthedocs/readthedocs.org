@@ -29,6 +29,7 @@ from projects.utils import (
     slugify_uniquely,
     )
 from tastyapi import client as tastyapi_client
+from tastyapi import api
 from core.utils import copy_to_app_servers, run_on_app_servers
 
 ghetto_hack = re.compile(
@@ -62,12 +63,29 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
     # Handle passed in arguments
     ###
     update_output = kwargs.get('update_output', {})
-    project = Project.objects.live().get(pk=pk)
+    project_data = api.project(pk).get()
+    del project_data['users']
+    del project_data['resource_uri']
+    del project_data['absolute_url']
+    project = Project(**project_data)
+    def new_save(*args, **kwargs):
+        #fields = [(field, field.value_to_string(self)) for field in self._meta.fields]
+        print "Saving:"
+        #print fields
+        return 0
+    project.save = new_save
+    #project = Project.objects.live().get(pk=pk)
     print "Building %s" % project
     if version_pk:
         version = Version.objects.get(pk=version_pk)
     else:
         branch = project.default_branch or project.vcs_repo().fallback_branch
+        version_data = api.version(project.slug).get(slug='latest')['objects'][0]
+        del version_data['resource_uri']
+        version_data['project'] = project
+        version = Version(**version_data)
+        version.save = new_save
+        """
         version, created = Version.objects.get_or_create(
             project=project, slug='latest')
         #Lots of course correction.
@@ -83,6 +101,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
             to_save = True
         if to_save:
             version.save()
+        """
 
     if record:
         #Create Build Object.
@@ -434,7 +453,17 @@ def unzip_files(dest_file, html_path):
 
 @task
 def update_intersphinx(version_pk):
-    version = Version.objects.get(pk=version_pk)
+    #version = Version.objects.get(pk=version_pk)
+    version_data = api.version(version_pk).get()
+    del version_data['resource_uri']
+    project_data = version_data['project']
+    del project_data['users']
+    del project_data['resource_uri']
+    del project_data['absolute_url']
+    project = Project(**project_data)
+    version_data['project'] = project
+    version = Version(**version_data)
+
     object_file = version.project.find('objects.inv', version.slug)[0]
     path = version.project.rtd_build_path(version.slug)
     if not path:
