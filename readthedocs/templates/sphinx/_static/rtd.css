@@ -383,6 +383,9 @@ div.sphinxsidebar p a:hover {
     text-decoration: none;
     border: 1px solid #888;
 }
+div.sphinxsidebar p.logo a {
+    border: 0;
+}
 
 /* Tweak any link appearing in a heading */
 div.sphinxsidebar h3 a {
