@@ -30,11 +30,11 @@ warning = '<div class="admonition note"> <p class="first admonition-title">Note<
      url: "http://readthedocs.org/api/v1/version/" + doc_slug + "/?active=True",
      //url: "/api/v1/version/" + doc_slug + "/?active=True",
      success: function(data, textStatus, request) {
-        $('#version_menu').empty()
+        $('#version_menu,.version-listing').empty()
         for (key in data['objects']) {
             obj = data['objects'][key]
             current_url = window.location.pathname.replace(doc_version, obj.slug)
-            $("#version_menu").append('<li><a href="' + current_url + '">' + obj.slug + '</a></li>')
+            $("#version_menu,.version-listing").append('<li><a href="' + current_url + '">' + obj.slug + '</a></li>')
           }
      },
      dataType: 'jsonp'
