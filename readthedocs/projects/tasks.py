@@ -312,7 +312,7 @@ def scrape_conf_file(version):
     project_data['path'] = os.getcwd()
 
     try:
-        project_data['version'] = decimal.Decimal(data.get('version'))
+        project_data['version'] = str(decimal.Decimal(data.get('version')))
     except (TypeError, decimal.InvalidOperation):
         project_data['version'] = ''
 
