@@ -288,6 +288,7 @@ def scrape_conf_file(version):
     #This is where we actually find the conf.py, so we can't use
     #the value from the project :)
     project = version.project
+    project_data = {}
     try:
         conf_file = project.conf_file(version.slug)
     except IndexError:
@@ -303,19 +304,19 @@ def scrape_conf_file(version):
         match = ghetto_hack.search(line)
         if match:
             data[match.group(1).strip()] = match.group(2).strip()
-    project.copyright = data.get('copyright', 'Unknown')
-    project.theme = data.get('html_theme', 'default')
+    project_data['copyright'] = data.get('copyright', 'Unknown')
+    project_data['theme'] = data.get('html_theme', 'default')
     if len(project.theme) > 20:
-        project.theme = 'default'
-    project.suffix = data.get('source_suffix', '.rst')
-    project.path = os.getcwd()
+        project_data['theme'] = 'default'
+    project_data['suffix'] = data.get('source_suffix', '.rst')
+    project_data['path'] = os.getcwd()
 
     try:
-        project.version = decimal.Decimal(data.get('version'))
+        project_data['version'] = decimal.Decimal(data.get('version'))
     except (TypeError, decimal.InvalidOperation):
-        project.version = ''
+        project_data['version'] = ''
 
-    project.save()
+    api.project(project.pk).put(project_data)
 
 
 def update_created_docs(project):
@@ -357,9 +358,10 @@ def build_docs(project, build, version, pdf, man, epub, record, force, update_ou
     if successful:
         html_builder.move()
         if version:
-            version.active = True
-            version.built = True
-            version.save()
+            #version.active = True
+            #version.built = True
+            #version.save()
+            api.version(version.pk).put({'active': True, 'built': True})
     if html_builder.changed:
         if record:
             output_data = error_data = ''
