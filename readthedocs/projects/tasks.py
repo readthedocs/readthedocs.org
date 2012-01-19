@@ -229,12 +229,12 @@ def update_imported_docs(project, version):
                                         'slug', 255, project=project)
                 try:
 
-                    api.version.post(
+                    api.version.post(dict(
                         project="/api/v1/project/%s/" % project.pk,
                         slug=slug,
                         identifier=tag.identifier,
                         verbose_name=tag.verbose_name
-                    )
+                    ))
                     print "New tag found: %s" % ver
                     highest = project.highest_version['version']
                     ver_obj = mkversion(ver)
@@ -255,12 +255,12 @@ def update_imported_docs(project, version):
                 slug = slugify_uniquely(Version, branch.verbose_name,
                                         'slug', 255, project=project)
                 try:
-                    api.version.post(
+                    api.version.post(dict(
                         project="/api/v1/project/%s/" % project.pk,
                         slug=slug,
                         identifier=branch.identifier,
                         verbose_name=branch.verbose_name
-                    )
+                    ))
                     print "New branch found: %s" % ver
                 except Exception, e:
                     print "Failed to create version (branch): %s" % e
