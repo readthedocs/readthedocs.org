@@ -235,12 +235,14 @@ def update_imported_docs(project, version):
                         identifier=tag.identifier,
                         verbose_name=tag.verbose_name
                     ))
-                    print "New tag found: %s" % ver
+                    print "New tag found: %s" % tag.identifier
                     highest = project.highest_version['version']
                     ver_obj = mkversion(ver)
-                    if highest and ver_obj and ver_obj > highest:
-                        print "Highest verison known, building docs"
-                        update_docs.delay(ver.project.pk, version_pk=ver.pk)
+                    #TODO: Handle updating higher versions automatically.
+                    #This never worked very well, anyways.
+                    #if highest and ver_obj and ver_obj > highest:
+                        #print "Highest verison known, building docs"
+                        #update_docs.delay(ver.project.pk, version_pk=ver.pk)
                 except Exception, e:
                     print "Failed to create version (tag): %s" % e
                     transaction.rollback()
@@ -261,7 +263,7 @@ def update_imported_docs(project, version):
                         identifier=branch.identifier,
                         verbose_name=branch.verbose_name
                     ))
-                    print "New branch found: %s" % ver
+                    print "New branch found: %s" % branch.identifier
                 except Exception, e:
                     print "Failed to create version (branch): %s" % e
                     transaction.rollback()
