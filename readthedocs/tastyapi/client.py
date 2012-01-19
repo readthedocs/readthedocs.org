@@ -7,7 +7,6 @@ SERVER_LIST = [
 'http://pyramid.opencomparison.org',
 ]
 
-
 def import_project(project):
     for BASE_SERVER in SERVER_LIST:
         API_SERVER = '%s/api/v1/' % BASE_SERVER

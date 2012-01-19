@@ -7,7 +7,8 @@ PASS = getattr(settings, 'SLUMBER_PASSWORD', None)
 API_HOST = getattr(settings, 'SLUMBER_API_HOST', 'http://readthedocs.org')
 
 if USER and PASS:
-    print "Using slumber with Auth"
+    if getattr(settings, 'DEBUG', False):
+        print "Using slumber with user %s, pointed at %s" % (USER, API_HOST)
     api = slumber.API(base_url='%s/api/v1/' % API_HOST, auth=(USER, PASS))
 else:
     api = slumber.API(base_url='%s/api/v1/' % API_HOST)
