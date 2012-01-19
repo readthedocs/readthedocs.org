@@ -78,13 +78,14 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
     print "Building %s" % project
     if version_pk:
         version = Version.objects.get(pk=version_pk)
+        version_data = api.version(version_pk).get()
     else:
         branch = project.default_branch or project.vcs_repo().fallback_branch
         version_data = api.version(project.slug).get(slug='latest')['objects'][0]
-        del version_data['resource_uri']
-        version_data['project'] = project
-        version = Version(**version_data)
-        version.save = new_save
+    del version_data['resource_uri']
+    version_data['project'] = project
+    version = Version(**version_data)
+    version.save = new_save
         """
         version, created = Version.objects.get_or_create(
             project=project, slug='latest')
