@@ -288,7 +288,8 @@ def scrape_conf_file(version):
     #This is where we actually find the conf.py, so we can't use
     #the value from the project :)
     project = version.project
-    project_data = {}
+    project_data = api.project(project.pk).get()
+
     try:
         conf_file = project.conf_file(version.slug)
     except IndexError:
