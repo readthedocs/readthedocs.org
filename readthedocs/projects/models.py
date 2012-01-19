@@ -368,11 +368,8 @@ class Project(models.Model):
 
     @property
     def whitelisted(self):
-        try:
-            return all([user.get_profile().whitelisted for user in self.users.all()])
-        except ObjectDoesNotExist:
-            #Bare except so we don't have to import user.models.UserProfile
-            return False
+        #Hack this true for now.
+        return True
 
     #File Building stuff.
     #Not sure if this is used

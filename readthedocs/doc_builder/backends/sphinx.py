@@ -91,47 +91,20 @@ class Builder(BaseBuilder):
         rtd_string = Template(RTD_CONF_ADDITIONS).render(rtd_ctx)
         outfile.write(rtd_string)
 
-    def _sanitize(self):
-        project = self.version.project
-        conf_template = render_to_string('sphinx/conf.py.conf',
-                                         {'project': project,
-                                          'template_dir': TEMPLATE_DIR,
-                                          'badge': project.sponsored
-                                          })
-        rtd_ctx = Context({
-            'versions': project.ordered_active_versions(),
-            'current_version': self.version,
-            'project': project,
-            'settings': settings,
-            'static_path': STATIC_DIR,
-            'template_path': TEMPLATE_DIR,
-        })
-        rtd_string = Template(RTD_CONF_ADDITIONS).render(rtd_ctx)
-        conf_template = conf_template + "\n" + rtd_string
-        safe_write(project.conf_file(self.version.slug), conf_template)
-
     def clean(self):
         try:
-            if self.version.project.whitelisted and self.version.project.is_imported:
-                print "Project whitelisted"
-                self._whitelisted()
-            else:
-                print "Writing conf to disk"
-                self._sanitize()
+            print "Project whitelisted"
+            self._whitelisted()
         except (OSError, SiteProfileNotAvailable, ObjectDoesNotExist):
-            try:
-                print "Writing conf to disk on error."
-                self._sanitize()
-            except (OSError, IOError):
-                print "Conf file not found. Error writing to disk."
-                return ('', 'Conf file not found. Error writing to disk.', -1)
+            print "Conf file not found. Error writing to disk."
+            return ('', 'Conf file not found. Error writing to disk.', -1)
 
     @restoring_chdir
     def build(self):
         project = self.version.project
         os.chdir(project.conf_dir(self.version.slug))
         force_str = " -E " if self.force else ""
-        if project.use_virtualenv and project.whitelisted:
+        if project.use_virtualenv:
             build_command = '%s %s -b html . _build/html' % (project.venv_bin(
                 version=self.version.slug, bin='sphinx-build'), force_str)
         else:

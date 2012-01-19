@@ -14,7 +14,7 @@ class Builder(HtmlBuilder):
     def build(self):
         project = self.version.project
         os.chdir(project.conf_dir(self.version.slug))
-        if project.use_virtualenv and project.whitelisted:
+        if project.use_virtualenv:
             build_command = '%s -b epub . _build/epub' % project.venv_bin(
                 version=self.version.slug, bin='sphinx-build')
         else:

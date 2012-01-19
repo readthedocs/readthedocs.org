@@ -86,19 +86,20 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
     version = Version(**version_data)
     version.save = new_save
 
-    #Lots of course correction.
-    to_save = False
-    if not version.verbose_name:
-        version_data['verbose_name'] = 'latest'
-        to_save = True
-    if not version.active:
-        version_data['active'] = True
-        to_save = True
-    if version.identifier != branch:
-        version_data['identifier'] = branch
-        to_save = True
-    if to_save:
-        api.version(version.pk).put(version_data)
+    if not version_pk:
+        #Lots of course correction.
+        to_save = False
+        if not version.verbose_name:
+            version_data['verbose_name'] = 'latest'
+            to_save = True
+        if not version.active:
+            version_data['active'] = True
+            to_save = True
+        if version.identifier != branch:
+            version_data['identifier'] = branch
+            to_save = True
+        if to_save:
+            api.version(version.pk).put(version_data)
 
     if record:
         #Create Build Object.
@@ -199,7 +200,7 @@ def update_imported_docs(project, version):
         raise ProjectImportError("Conf File Missing. Skipping.")
 
     #Do Virtualenv bits:
-    if project.use_virtualenv and project.whitelisted:
+    if project.use_virtualenv:
         update_docs_output['venv'] = run('{cmd} --no-site-packages {path}'.format(
                 cmd='virtualenv',
                 path=project.venv_path(version=version_slug)))

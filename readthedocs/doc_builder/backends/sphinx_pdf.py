@@ -19,7 +19,7 @@ class Builder(BaseBuilder):
     def build(self):
         project = self.version.project
         os.chdir(project.conf_dir(self.version.slug))
-        if project.use_virtualenv and project.whitelisted:
+        if project.use_virtualenv:
             latex_results = run('%s -b latex -d _build/doctrees   . _build/latex' %
                                 project.venv_bin(version=self.version.slug, bin='sphinx-build'))
         else:
