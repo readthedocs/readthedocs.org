@@ -86,23 +86,23 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
     version_data['project'] = project
     version = Version(**version_data)
     version.save = new_save
-        """
-        version, created = Version.objects.get_or_create(
-            project=project, slug='latest')
-        #Lots of course correction.
-        to_save = False
-        if not version.verbose_name:
-            version.verbose_name = 'latest'
-            to_save = True
-        if not version.active:
-            version.active = True
-            to_save = True
-        if version.identifier != branch:
-            version.identifier = branch
-            to_save = True
-        if to_save:
-            version.save()
-        """
+    """
+    version, created = Version.objects.get_or_create(
+        project=project, slug='latest')
+    #Lots of course correction.
+    to_save = False
+    if not version.verbose_name:
+        version.verbose_name = 'latest'
+        to_save = True
+    if not version.active:
+        version.active = True
+        to_save = True
+    if version.identifier != branch:
+        version.identifier = branch
+        to_save = True
+    if to_save:
+        version.save()
+    """
 
     if record:
         #Create Build Object.
