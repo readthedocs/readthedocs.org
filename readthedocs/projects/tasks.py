@@ -366,6 +366,8 @@ def build_docs(project, build, version, pdf, man, epub, record, force, update_ou
             version_data = api.version(version.pk).get()
             version_data['active'] = True
             version_data['built'] = True
+            #Need to delete this because a bug in tastypie breaks on the users list.
+            del version_data['project']
             api.version(version.pk).put(version_data)
     if html_builder.changed:
         if record:
