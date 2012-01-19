@@ -171,6 +171,10 @@ class VersionResource(EnhancedModelResource):
 
     class Meta:
         queryset = Version.objects.all()
+        allowed_methods = ['get', 'put']
+        queryset = Project.objects.all()
+        authentication = PostAuthentication()
+        authorization = Authorization()
         filtering = {
             "project": ALL_WITH_RELATIONS,
             "slug": ALL_WITH_RELATIONS,
