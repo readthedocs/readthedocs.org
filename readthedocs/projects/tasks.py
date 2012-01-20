@@ -13,6 +13,7 @@ from django.db import transaction
 from django.conf import settings
 import redis
 from sphinx.ext.intersphinx import fetch_inventory
+import slumber
 
 
 from builds.models import Version
@@ -78,10 +79,26 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
     print "Building %s" % project
     if version_pk:
         version_data = api.version(version_pk).get()
+        del version_data['resource_uri']
     else:
+        #Create or use the 'latest' branch, which is the default for a project.
         branch = project.default_branch or project.vcs_repo().fallback_branch
-        version_data = api.version(project.slug).get(slug='latest')['objects'][0]
-    del version_data['resource_uri']
+        try:
+            version_data = api.version(project.slug).get(slug='latest')['objects'][0]
+            del version_data['resource_uri']
+        except (slumber.exceptions.HttpClientError, IndexError) as exc:
+            #if exc.response.status_code in [404,500]:
+            version_data = dict(
+                project='/api/v1/project/%s/' % project.pk,
+                slug='latest',
+                active=True,
+                verbose_name='latest',
+                identifier=branch,
+                )
+            try:
+                version_data = api.version.post(version_data)
+            except Exception as e:
+                raise e
     version_data['project'] = project
     version = Version(**version_data)
     version.save = new_save
