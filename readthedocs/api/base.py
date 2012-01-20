@@ -230,8 +230,8 @@ class VersionResource(EnhancedModelResource):
         return [
             url(r"^(?P<resource_name>%s)/(?P<project_slug>[a-z-]+)/highest/(?P<base>.+)/$" % self._meta.resource_name, self.wrap_view('version_compare'), name="version_compare"),
             url(r"^(?P<resource_name>%s)/(?P<project_slug>[a-z-]+)/highest/$" % self._meta.resource_name, self.wrap_view('version_compare'), name="version_compare"),
-            url(r"^(?P<resource_name>%s)/(?P<project__slug>[a-z-_]+)/$" % self._meta.resource_name, self.wrap_view('dispatch_list'), name="api_version_list"),
-            url(r"^(?P<resource_name>%s)/(?P<project_slug>[a-z-_]+)/(?P<version_slug>[a-z-]+)/build$" % self._meta.resource_name, self.wrap_view('build_version'), name="api_version_build_slug"),
+            url(r"^(?P<resource_name>%s)/(?P<project__slug>[a-z-]+[a-z0-9-]+)/$" % self._meta.resource_name, self.wrap_view('dispatch_list'), name="api_version_list"),
+            url(r"^(?P<resource_name>%s)/(?P<project_slug>[a-z-]+)/(?P<version_slug>[a-z-]+)/build$" % self._meta.resource_name, self.wrap_view('build_version'), name="api_version_build_slug"),
         ]
 
 class FileResource(EnhancedModelResource):
