@@ -178,6 +178,7 @@ class VersionResource(EnhancedModelResource):
     class Meta:
         queryset = Version.objects.all()
         allowed_methods = ['get', 'put', 'post']
+        always_return_data = True
         queryset = Version.objects.all()
         authentication = PostAuthentication()
         authorization = Authorization()
