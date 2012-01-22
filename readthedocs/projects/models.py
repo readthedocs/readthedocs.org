@@ -348,7 +348,7 @@ class Project(models.Model):
             return None
 
     def api_versions(self):
-        return api.version.get(project=self.pk, active=True)
+        return api.version.get(project=self.pk, active=True)['objects']
 
     def active_versions(self):
         api.version.filter(project=self.pk, built=True, active=True)

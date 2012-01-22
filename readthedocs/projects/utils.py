@@ -101,7 +101,10 @@ def slugify_uniquely(model, initial, field, max_length, **filters):
 
 def mkversion(version_obj):
     try:
-        ver =  NormalizedVersion(suggest_normalized_version(version_obj.slug))
+        if hasattr(version_obj, 'slug'):
+            ver =  NormalizedVersion(suggest_normalized_version(version_obj.slug))
+        else:
+            ver =  NormalizedVersion(suggest_normalized_version(version_obj['slug']))
         return ver
     except TypeError:
         return None
