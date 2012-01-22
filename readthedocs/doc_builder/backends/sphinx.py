@@ -49,7 +49,7 @@ context = {
     'current_version': "{{ current_version.slug }}",
     'MEDIA_URL': "{{ settings.MEDIA_URL }}",
     'versions': [{% for version in versions|sort_version_aware %}
-    ("{{ version.slug }}", "{{ version.get_absolute_url }}"),{% endfor %}
+    ("{{ version.slug }}", "{{ version.absolute_url }}"),{% endfor %}
     ],
     'slug': '{{ project.slug }}',
     'name': u'{{ project.name }}',
