@@ -4,9 +4,7 @@ Frequently Asked Questions
 My project isn't building with autodoc
 --------------------------------------
 
-First, you should check out the Builds tab of your project. That records all of the build attempts that RTD has made to build your project. If you look at your build page, and you see problems with import errors, it's likely that you aren't whitelisted. Virtualenv and pip options won't work without being whitelisted.
-
-You can check whether your account is whitelisted by going to your profile page. That is located at http://readthedocs.org/profiles/YOUR_USERNAME/.
+First, you should check out the Builds tab of your project. That records all of the build attempts that RTD has made to build your project. 
 
 If you need autodoc or other custom options, feel free to Contact Us either in IRC at #readthedocs on Freenode (`http://chat.freenode.net <http://webchat.freenode.net>`_), or by emailing the mailling list.
 
