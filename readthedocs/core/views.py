@@ -100,7 +100,7 @@ def github_build(request):
                 user = User.objects.get(email=email)
                 proj = Project.objects.create(
                     name=name,
-                    description=description,
+                    description=desc,
                     homepage=homepage,
                     repo=repo,
                 )
