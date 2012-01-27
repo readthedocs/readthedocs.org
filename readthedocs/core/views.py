@@ -101,7 +101,7 @@ def github_build(request):
                 proj = Project.objects.create(
                     name=name,
                     description=desc,
-                    homepage=homepage,
+                    project_url=homepage,
                     repo=repo,
                 )
                 proj.users.add(user)
