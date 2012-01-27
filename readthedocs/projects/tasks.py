@@ -141,7 +141,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
                 print("Error importing project: %s. Skipping build." % err)
                 return False
 
-            scrape_conf_file(version)
+            #scrape_conf_file(version)
         else:
             update_created_docs(project)
 
