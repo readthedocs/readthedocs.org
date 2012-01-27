@@ -107,7 +107,7 @@ def github_build(request):
                 proj.users.add(user)
                 log.error("Created new project %s" % (proj))
             except Exception, e:
-                log.error("Error creating new project %s" % (name))
+                log.error("Error creating new project %s: %s" % (name, e))
                 return HttpResponseNotFound('Build Failed')
 
             return HttpResponseNotFound('Build Failed')
