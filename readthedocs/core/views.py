@@ -6,6 +6,7 @@ from django.core.mail import mail_admins
 from django.core.urlresolvers import reverse
 from django.core.cache import cache
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.db.models import F, Max
 from django.http import HttpResponse, HttpResponseRedirect, \
     HttpResponsePermanentRedirect, Http404, HttpResponseNotFound
@@ -83,6 +84,32 @@ def github_build(request):
             return HttpResponse('Build Started: %s' % version_slug)
         except Exception, e:
             log.error("(Github Build) Failed: %s:%s" % (name, e))
+            #handle new repos
+            project = Project.objects.filter(repo__contains=ghetto_url)
+            if not len(project):
+                project = Project.objects.filter(name__icontains=name)
+                if len(project):
+                    #Bail if we think this thing exists
+                    return HttpResponseNotFound('Build Failed')
+            #create project
+            try:
+                email = obj['repository']['owner']['email']
+                desc = obj['repository']['description']
+                homepage = obj['repository']['homepage']
+                repo = obj['repository']['url']
+                user = User.objects.get(email=email)
+                proj = Project.objects.create(
+                    name=name,
+                    description=description,
+                    homepage=homepage,
+                    repo=repo,
+                )
+                proj.users.add(user)
+                log.error("Created new project %s" % (proj))
+            except Exception, e:
+                log.error("Error creating new project %s" % (name))
+                return HttpResponseNotFound('Build Failed')
+
             return HttpResponseNotFound('Build Failed')
     else:
         return render_to_response('post_commit.html', {},
