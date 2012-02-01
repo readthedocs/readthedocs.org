@@ -41,7 +41,7 @@ class Backend(BaseVCS):
 
     @property
     def branches(self):
-        retcode, stdout = self.run('hg', 'branches')[:2]
+        retcode, stdout = self.run('hg', 'branches', '--active')[:2]
         # error (or no tags found)
         if retcode != 0:
             return []
