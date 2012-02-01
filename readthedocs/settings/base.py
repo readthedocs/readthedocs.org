@@ -87,7 +87,7 @@ INSTALLED_APPS = [
     'djcelery',
     #'celery_haystack',
 
-    #daniellindsleyrocksdahouse
+    # Here be dragons. And bugs. And sadness.
     'haystack',
     'tastypie',
 
