@@ -146,7 +146,9 @@ def generic_build(request, pk):
             update_docs.delay(pk=pk, version_pk=version.pk, force=True)
         else:
             update_docs.delay(pk=pk, force=True)
-        return HttpResponse('Build Started')
+        #return HttpResponse('Build Started')
+        return render_to_response('post_commit.html', context,
+                context_instance=RequestContext(request))
     return render_to_response('post_commit.html', context,
             context_instance=RequestContext(request))
 
