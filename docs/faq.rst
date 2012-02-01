@@ -60,3 +60,8 @@ Where do I need to put my docs for RTD to find it?
 --------------------------------------------------
 
 Read the Docs will crawl your project looking for a ``conf.py``. Where it finds the ``conf.py``, it will run ``sphinx-build`` in that directory. So as long as you only have one set of sphinx documentation in your project, it should Just Work.
+
+I want to use the Blue/Default Sphinx theme
+-------------------------------------------
+
+We think that our theme is badass, and better than the default for many reasons. Some people don't like change though :), so there is a hack that will let you keep using the default theme. If you set the :ref:`html_style` variable in your ``conf.py``, it should default to using the default theme. The value of this doesn't matter, and can be set to None, ``'static/``.

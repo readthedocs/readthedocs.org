@@ -32,6 +32,12 @@ def restart():
     env.user = "root"
     run("restart readthedocs-gunicorn")
 
+@hosts(['chimera.ericholscher.com', 'ladon.ericholscher.com'])
+def reload():
+    "Reload (or just start) the server"
+    env.user = "root"
+    run("reload readthedocs-gunicorn")
+
 @hosts(['build.ericholscher.com'])
 #@hosts(['kirin.ericholscher.com'])
 def celery():
