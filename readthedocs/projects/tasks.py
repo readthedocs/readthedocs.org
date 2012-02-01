@@ -111,7 +111,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
                               mainsite=True, cname=True)
                 symlink_cname(version)
                 update_intersphinx(version.pk)
-                send_notifications(version)
+                #send_notifications(version)
                 print "Purged %s" % version
             else:
                 print "HTML Build ERROR"

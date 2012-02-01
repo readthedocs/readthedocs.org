@@ -22,8 +22,8 @@ class APIBuildTests(TestCase):
                                 )
         self.assertEqual(resp.status_code, 201)
         self.assertEqual(resp['location'],
-                         'http://testserver/api/v1/build/0/')
-        resp = self.client.get('/api/v1/build/0/',
+                         'http://testserver/api/v1/build/1/')
+        resp = self.client.get('/api/v1/build/1/',
                                data={'format': 'json'},
                                 HTTP_AUTHORIZATION='Basic %s' % base64.b64encode('eric:test')
                               )
