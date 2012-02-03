@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models.signals import post_save
+from django.db.utils import DatabaseError
 from django.dispatch import receiver
 from django.contrib.auth.models import User
 
@@ -42,5 +43,5 @@ def create_profile(sender, **kwargs):
     if kwargs['created'] is True:
         try:
             UserProfile.objects.create(user_id=kwargs['instance'].id, whitelisted=False)
-        except:
+        except DatabaseError:
             pass
