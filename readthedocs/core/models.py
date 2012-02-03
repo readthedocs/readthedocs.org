@@ -40,4 +40,7 @@ class UserProfile (models.Model):
 @receiver(post_save, sender=User)
 def create_profile(sender, **kwargs):
     if kwargs['created'] is True:
-        UserProfile.objects.create(user_id=kwargs['instance'].id, whitelisted=False)
+        try:
+            UserProfile.objects.create(user_id=kwargs['instance'].id, whitelisted=False)
+        except:
+            pass
