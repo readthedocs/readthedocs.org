@@ -121,9 +121,12 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
     try:
         result = client.import_project(project)
         if result:
-            print "Project imported from Django Packages!"
+            print "Project imported from Open Comparison!"
+        else:
+            print "Project failed to import from Open Comparison!"
+
     except:
-        print "Importing from Django Packages Errored."
+        print "Importing from Open Comparison Errored."
 
     return True
 
