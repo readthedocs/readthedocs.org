@@ -118,6 +118,10 @@ class ProjectResource(ModelResource):
             "slug": ALL_WITH_RELATIONS,
         }
 
+    def dehydrate(self, bundle):
+        bundle.data['subdomain'] = "http://%s/" % bundle.obj.subdomain
+        return bundle
+
     def post_list(self, request, **kwargs):
         """
         Creates a new resource/object with the provided data.
@@ -180,6 +184,11 @@ class VersionResource(EnhancedModelResource):
             "slug": ALL_WITH_RELATIONS,
             "active": ALL,
         }
+
+    #Find a better name for this before including it.
+    #def dehydrate(self, bundle):
+        #bundle.data['subdomain'] = "http://%s/en/%s/" % (bundle.obj.project.subdomain, bundle.obj.slug)
+        #return bundle
 
     def version_compare(self, request, **kwargs):
         project = get_object_or_404(Project, slug=kwargs['project_slug'])

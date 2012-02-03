@@ -90,6 +90,10 @@ class Project(models.Model):
     def __unicode__(self):
         return self.name
 
+    @property
+    def subdomain(self):
+        return "%s.readthedocs.org" % self.slug.replace('_', '-')
+
     def save(self, *args, **kwargs):
         #if hasattr(self, 'pk'):
             #previous_obj = self.__class__.objects.get(pk=self.pk)
