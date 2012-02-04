@@ -92,7 +92,7 @@ class Project(models.Model):
 
     @property
     def subdomain(self):
-        return "%s.readthedocs.org" % self.slug.replace('_', '-')
+        return "%s.readthedocs.org" % self.slug#.replace('_', '-')
 
     def save(self, *args, **kwargs):
         #if hasattr(self, 'pk'):
