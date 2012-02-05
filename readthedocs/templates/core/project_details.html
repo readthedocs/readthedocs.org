@@ -62,6 +62,11 @@
 <p> This project has more information available about it on <a href="{{ project.django_packages_url }}">Open Comparison!</a></p>
 {% endif %}
 
+{% if project.crate_url %}
+<h3>Crate</h3>
+<p> This project has more information available about it on <a href="{{ project.crate_url }}">Crate!</a></p>
+{% endif %}
+
 {% if project.subprojects.exists %}
   <h3>Sub Projects</h3>
     <ul>
