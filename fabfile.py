@@ -1,5 +1,6 @@
 from fabric.api import *
 from fabric.decorators import runs_once
+import time
 
 env.runtime = 'production'
 env.hosts = ['chimera.ericholscher.com', 'ladon.ericholscher.com', 'build.ericholscher.com']
@@ -31,6 +32,8 @@ def restart():
     "Restart (or just start) the server"
     env.user = "root"
     run("restart readthedocs-gunicorn")
+    #so it has time to reload
+    time.sleep(3)
 
 @hosts(['chimera.ericholscher.com', 'ladon.ericholscher.com'])
 def reload():

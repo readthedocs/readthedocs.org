@@ -28,7 +28,7 @@ from projects.utils import (
     safe_write,
     slugify_uniquely,
     )
-from tastyapi import client
+from tastyapi import client as tastyapi_client
 from core.utils import copy_to_app_servers, run_on_app_servers
 
 ghetto_hack = re.compile(
@@ -118,8 +118,9 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
         else:
             print "Build Unchanged"
 
+    # Try importing from Open Comparison sites.
     try:
-        result = client.import_project(project)
+        result = tastyapi_client.import_project(project)
         if result:
             print "Project imported from Open Comparison!"
         else:
@@ -127,6 +128,17 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
 
     except:
         print "Importing from Open Comparison Errored."
+
+    # Try importing from Crate
+    try:
+        result = tastyapi_client.import_crate(project)
+        if result:
+            print "Project imported from Crate!"
+        else:
+            print "Project failed to import from Crate!"
+
+    except:
+        print "Importing from Crate Errored."
 
     return True
 

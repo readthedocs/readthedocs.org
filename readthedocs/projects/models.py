@@ -77,6 +77,7 @@ class Project(models.Model):
         help_text="Install your project inside a virtualenv using "
         "setup.py install")
     django_packages_url = models.CharField(max_length=255, blank=True)
+    crate_url = models.CharField(max_length=255, blank=True)
 
     #Subprojects
     related_projects = models.ManyToManyField('self', blank=True, null=True, symmetrical=False, through=ProjectRelationship)
