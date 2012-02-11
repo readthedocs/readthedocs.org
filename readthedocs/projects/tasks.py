@@ -154,8 +154,6 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
     except:
         print "Importing from Crate Errored."
 
-    build.state = 'finished'
-    build.save()
     return True
 
 
@@ -357,6 +355,7 @@ def build_docs(project, build, version, pdf, man, epub, record, force, update_ou
             build.setup_error=error_data,
             build.output=html_output[1],
             build.error=html_output[2],
+            build.state = 'finished'
             build.save()
         #XXX:dc: all builds should have their output checked
         if pdf:
