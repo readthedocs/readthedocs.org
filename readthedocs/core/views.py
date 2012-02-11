@@ -50,19 +50,16 @@ def wipe_version(request, project_slug, version_slug):
         raise Http404("You must own this project to wipe it.")
     del_dir = version.project.checkout_path(version.slug)
     if request.method == 'POST' and del_dir:
-            remove_dir.delay(del_dir)
-            return render_to_response('wipe_version.html', {
-                        'del_dir': del_dir,
-                        'deleted': True,
-                    },
-                    context_instance=RequestContext(request))
+        remove_dir.delay(del_dir)
+        return render_to_response('wipe_version.html', {
+                    'del_dir': del_dir,
+                    'deleted': True,
+                },
+                context_instance=RequestContext(request))
     return render_to_response('wipe_version.html', {
-                'del_dir': del_dir,
-            },
-            context_instance=RequestContext(request))
-
-
-
+            'del_dir': del_dir,
+        },
+        context_instance=RequestContext(request))
 
 @csrf_view_exempt
 def github_build(request):
