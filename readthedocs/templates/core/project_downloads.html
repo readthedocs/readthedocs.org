@@ -1,17 +1,17 @@
-{% for version in version_data %}
-{% if version_data.version.pdf_url %}
+{% for version, dict in version_data.items %}
+{% if dict.pdf_url %}
 <li class="module-item col-span">
-      <a class="module-item-title" href="{{ version_data.version.pdf_url }}">{{ version }} PDF </a>
+      <a class="module-item-title" href="{{ dict.pdf_url }}">{{ version }} PDF </a>
 </li>
 {% endif %}
-{% if version_data.version.epub_url %}
+{% if dict.epub_url %}
 <li class="module-item col-span">
-      <a class="module-item-title" href="{{ version_data.version.epub_url }}">{{ version }} Epub</a>
+      <a class="module-item-title" href="{{ dict.epub_url }}">{{ version }} Epub</a>
 </li>
 {% endif %}
-{% if version_data.version.manpage_url %}
+{% if dict.manpage_url %}
 <li class="module-item col-span">
-      <a class="module-item-title" href="{{ version_data.version.manpage_url }}">{{ version }} Manpage</a>
+      <a class="module-item-title" href="{{ dict.manpage_url }}">{{ version }} Manpage</a>
 </li>
 {% endif %}
 {% endfor %}
