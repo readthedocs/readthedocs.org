@@ -1,6 +1,7 @@
 import os
 import shutil
 import codecs
+import zipfile
 
 from django.template.loader import render_to_string
 from django.template import Template, Context
@@ -135,13 +136,31 @@ class Builder(BaseBuilder):
         else:
             build_command = "sphinx-build -b html . _build/html"
         build_results = run(build_command)
+        self._zip_html()
         if 'no targets are out of date.' in build_results[1]:
             self._changed = False
         return build_results
 
+    def _zip_html(self):
+        from_path = self.version.project.full_build_path(self.version.slug)
+        from_file = os.path.join(from_path, '%s.zip' % self.version.project.slug)
+        to_path = self.version.project.checkout_path(self.version.slug)
+        to_file = os.path.join(to_path, '%s.zip' % self.version.project.slug)
+
+        print "Creating zip file from %s" % from_path
+        # Create a <slug>.zip file containing all files in file_path
+        archive = zipfile.ZipFile(to_file, 'w')
+        for root, subfolders, files in os.walk(from_path):
+            for file in files:
+                archive.write(os.path.join(root, file))
+        archive.close()
+
+        return to_file
+
     def move(self):
         project = self.version.project
         if project.full_build_path(self.version.slug):
+            #Copy the html files.
             target = project.rtd_build_path(self.version.slug)
             if getattr(settings, "MULTIPLE_APP_SERVERS", None):
                 print "Copying docs to remote server."
@@ -151,5 +170,20 @@ class Builder(BaseBuilder):
                     shutil.rmtree(target)
                 print "Copying docs on the local filesystem"
                 shutil.copytree(project.full_build_path(self.version.slug), target)
+
+            #Copy the zip file.
+            to_path = os.path.join(settings.MEDIA_ROOT,
+                   'htmlzip',
+                   project.slug,
+                   self.version.slug)
+            to_file = os.path.join(to_path, '%s.zip' % project.slug)
+            from_path = project.checkout_path(self.version.slug)
+            from_file = os.path.join(from_path, '%s.zip' % project.slug)
+            if getattr(settings, "MULTIPLE_APP_SERVERS", None):
+                copy_file_to_app_servers(from_file, to_file)
+            else:
+                if not os.path.exists(to_path):
+                    os.makedirs(to_path)
+                run('mv -f %s %s' % (from_file, to_file))
         else:
             print "Not moving docs, because the build dir is unknown."

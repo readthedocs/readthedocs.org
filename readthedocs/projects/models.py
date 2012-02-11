@@ -174,6 +174,22 @@ class Project(models.Model):
                                 '%s.1' % self.slug)
         return path
 
+    def get_htmlzip_url(self, version_slug='latest'):
+        path = os.path.join(settings.MEDIA_URL,
+                                'htmlzip',
+                                self.slug,
+                                version_slug,
+                                '%s.zip' % self.slug)
+        return path
+
+    def get_htmlzip_path(self, version_slug='latest'):
+        path = os.path.join(settings.MEDIA_ROOT,
+                                'htmlzip',
+                                self.slug,
+                                version_slug,
+                                '%s.zip' % self.slug)
+        return path
+
     #Doc PATH:
     #MEDIA_ROOT/slug/checkouts/version/<repo>
 
@@ -266,6 +282,9 @@ class Project(models.Model):
 
     def has_epub(self, version_slug='latest'):
         return os.path.exists(self.get_epub_path(version_slug))
+
+    def has_htmlzip(self, version_slug='latest'):
+        return os.path.exists(self.get_htmlzip_path(version_slug))
 
     @property
     def sponsored(self):

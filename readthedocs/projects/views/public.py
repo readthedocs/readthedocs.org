@@ -84,6 +84,8 @@ def project_downloads(request, project_slug):
         version_data[version.slug] = {}
         if project.has_pdf(version.slug):
             version_data[version.slug]['pdf_url'] = project.get_pdf_url(version.slug)
+        if project.has_htmlzip(version.slug):
+            version_data[version.slug]['htmlzip_url'] = project.get_htmlzip_url(version.slug)
         if project.has_epub(version.slug):
             version_data[version.slug]['epub_url'] = project.get_epub_url(version.slug)
         if project.has_manpage(version.slug):

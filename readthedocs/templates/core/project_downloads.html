@@ -4,16 +4,25 @@
       <a class="module-item-title" href="{{ dict.pdf_url }}">{{ version }} PDF </a>
 </li>
 {% endif %}
+
+{% if dict.htmlzip_url %}
+<li class="module-item col-span">
+      <a class="module-item-title" href="{{ dict.htmlzip_url }}">{{ version }} HTMLZip</a>
+</li>
+{% endif %}
+
 {% if dict.epub_url %}
 <li class="module-item col-span">
       <a class="module-item-title" href="{{ dict.epub_url }}">{{ version }} Epub</a>
 </li>
 {% endif %}
+
 {% if dict.manpage_url %}
 <li class="module-item col-span">
       <a class="module-item-title" href="{{ dict.manpage_url }}">{{ version }} Manpage</a>
 </li>
 {% endif %}
+
 {% empty %}
 <li class="module-item col-span">
       No downloads for this project.
