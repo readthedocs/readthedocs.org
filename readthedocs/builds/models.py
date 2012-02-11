@@ -2,6 +2,8 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from projects.models import Project
 
+from .constants import BUILD_STATE
+
 
 class Version(models.Model):
     project = models.ForeignKey(Project, related_name='versions')
@@ -50,6 +52,7 @@ class Build(models.Model):
     output = models.TextField()
     error = models.TextField()
     version = models.ForeignKey(Version, null=True, related_name='builds')
+    state = models.CharField(max_length=55, choices=BUILD_STATE, default='finished') 
 
     class Meta:
         ordering = ['-date']

@@ -84,6 +84,13 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
         if to_save:
             version.save()
 
+    #Create Build Object.
+    build = Build.objects.create(
+        project=project,
+        version=version,
+        state='triggered',
+    )
+
     #Make Dirs
     path = project.doc_path
     if not os.path.exists(path):
@@ -101,6 +108,8 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
             update_created_docs(project)
 
         # kick off a build
+        build.state = 'building'
+        build.save()
         (ret, out, err) = build_docs(project=project, version=version,
                                      pdf=pdf, man=man, epub=epub,
                                      record=record, force=force, update_output=update_output)
@@ -140,6 +149,8 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
     except:
         print "Importing from Crate Errored."
 
+    build.state = 'finished'
+    build.save()
     return True
 
 

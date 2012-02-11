@@ -5,7 +5,7 @@ from django.contrib import admin
 from builds.models import Build, VersionAlias, Version
 
 class BuildAdmin(admin.ModelAdmin):
-    list_display = ('project', 'date', 'success')
+    list_display = ('project', 'date', 'success', 'state')
 
 admin.site.register(Build, BuildAdmin)
 admin.site.register(VersionAlias)
