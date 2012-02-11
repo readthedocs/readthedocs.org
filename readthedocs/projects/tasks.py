@@ -84,13 +84,16 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
         if to_save:
             version.save()
 
-    #Create Build Object.
-    build = Build.objects.create(
-        project=project,
-        version=version,
-        type='html',
-        state='triggered',
-    )
+    if record:
+        #Create Build Object.
+        build = Build.objects.create(
+            project=project,
+            version=version,
+            type='html',
+            state='triggered',
+        )
+    else:
+        build = {}
 
     #Make Dirs
     path = project.doc_path
@@ -109,8 +112,9 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
             update_created_docs(project)
 
         # kick off a build
-        build.state = 'building'
-        build.save()
+        if record:
+            build.state = 'building'
+            build.save()
         (ret, out, err) = build_docs(project=project, build=build, version=version,
                                      pdf=pdf, man=man, epub=epub,
                                      record=record, force=force, update_output=update_output)
@@ -358,16 +362,17 @@ def build_docs(project, build, version, pdf, man, epub, record, force, update_ou
         if pdf:
             pdf_builder = builder_loading.get('sphinx_pdf')(version)
             latex_results, pdf_results = pdf_builder.build()
-            Build.objects.create(
-                project=project,
-                success=pdf_results[0] == 0,
-                type='pdf',
-                setup=latex_results[1],
-                setup_error=latex_results[2],
-                output=pdf_results[1],
-                error=pdf_results[2],
-                version=version
-            )
+            if record:
+                Build.objects.create(
+                    project=project,
+                    success=pdf_results[0] == 0,
+                    type='pdf',
+                    setup=latex_results[1],
+                    setup_error=latex_results[2],
+                    output=pdf_results[1],
+                    error=pdf_results[2],
+                    version=version
+                )
             #PDF Builder is oddly 2-steped, and stateful for now
             #pdf_builder.move(version)
         if man:
