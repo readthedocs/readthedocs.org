@@ -81,7 +81,7 @@ class Builder(BaseBuilder):
         outfile = codecs.open(project.conf_file(self.version.slug), encoding='utf-8', mode='a')
         outfile.write("\n")
         rtd_ctx = Context({
-                'versions': project.active_versions(),
+                'versions': project.ordered_active_versions(),
                 'current_version': self.version,
                 'project': project,
                 'settings': settings,
@@ -99,7 +99,7 @@ class Builder(BaseBuilder):
                                           'badge': project.sponsored
                                           })
         rtd_ctx = Context({
-            'versions': project.active_versions(),
+            'versions': project.ordered_active_versions(),
             'current_version': self.version,
             'project': project,
             'settings': settings,
