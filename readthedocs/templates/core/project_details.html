@@ -88,7 +88,9 @@
 
 {% if project.project_url %}
 <h3>Home Page</h3>
+<p>
     <a href="{{ project.project_url }}" rel="nofollow,noindex">{{ project.project_url }}</a>
+</p>
 {% endif %}
 
 {% if project.tags.count %}
