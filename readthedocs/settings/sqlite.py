@@ -26,7 +26,7 @@ TEST_OUTPUT_VERBOSE = True
 TEST_OUTPUT_DESCRIPTIONS = True
 TEST_OUTPUT_DIR = os.path.join(SITE_ROOT, 'xml_output')
 
-SLUMBER_USERNAME = 'eric'
+SLUMBER_USERNAME = 'test'
 SLUMBER_PASSWORD = 'test'
 SLUMBER_API_HOST = 'http://localhost:8000'
 
