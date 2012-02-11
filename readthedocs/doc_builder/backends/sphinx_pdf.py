@@ -31,23 +31,21 @@ class Builder(BaseBuilder):
             tex_globs = glob('*.tex')
             if tex_globs:
                 tex_file = tex_globs[0]
-            else:
-                return False
-            pdf_results = run('pdflatex -interaction=nonstopmode %s' % tex_file)
-            pdf_match = pdf_re.search(pdf_results[1])
-            if pdf_match:
-                to_path = os.path.join(settings.MEDIA_ROOT,
-                       'pdf',
-                       project.slug,
-                       self.version.slug)
-                from_file = os.path.join(os.getcwd(), "*.pdf")
-                to_file = os.path.join(to_path, '%s.pdf' % project.slug)
-                if getattr(settings, "MULTIPLE_APP_SERVERS", None):
-                    copy_file_to_app_servers(from_file, to_file)
-                else:
-                    if not os.path.exists(to_path):
-                        os.makedirs(to_path)
-                    run('mv -f %s %s' % (from_file, to_file))
+                pdf_results = run('pdflatex -interaction=nonstopmode %s' % tex_file)
+                pdf_match = pdf_re.search(pdf_results[1])
+                if pdf_match:
+                    to_path = os.path.join(settings.MEDIA_ROOT,
+                           'pdf',
+                           project.slug,
+                           self.version.slug)
+                    from_file = os.path.join(os.getcwd(), "*.pdf")
+                    to_file = os.path.join(to_path, '%s.pdf' % project.slug)
+                    if getattr(settings, "MULTIPLE_APP_SERVERS", None):
+                        copy_file_to_app_servers(from_file, to_file)
+                    else:
+                        if not os.path.exists(to_path):
+                            os.makedirs(to_path)
+                        run('mv -f %s %s' % (from_file, to_file))
         else:
             pdf_results = (1, '', '')
             print "PDF Building failed. Moving on."
