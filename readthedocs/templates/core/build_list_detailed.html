@@ -2,7 +2,7 @@
           {% for build in build_list %}
             <li class="module-item col-span">
               <a href="{{ build.get_absolute_url }}">{{ build.success|yesno:"Passed,Failed" }}
-                <span class="quiet">{% if build.version %}version {{ build.version.slug }} -{% endif %} {{ build.date|timesince }} ago</span>
+                <span class="quiet">{% if build.version %}version {{ build.version.slug }} ({{ build.type }}) -{% endif %} {{ build.date|timesince }} ago</span>
               </a>
             </li>
           {% empty %}
