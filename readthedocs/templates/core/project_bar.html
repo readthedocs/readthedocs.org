@@ -48,17 +48,7 @@
               <li><a href="{% url projects_versions project.slug %}" rel="nofollow,noindex">Versions</a></li>
             {% endif %}
 
-            {% if project.has_pdf %}
-              <li><a href="{{ project.get_pdf_url }}" rel="nofollow,noindex">PDF</a></li>
-            {% endif %}
-
-            {% if project.has_manpage %}
-              <li><a href="{{ project.get_manpage_url }}" rel="nofollow,noindex">Manpage</a></li>
-            {% endif %}
-
-            {% if project.has_epub %}
-              <li><a href="{{ project.get_epub_url }}" rel="nofollow,noindex">Epub</a></li>
-            {% endif %}
+              <li><a href="{% url project_downloads project.slug %}" rel="nofollow,noindex">Downloads</a></li>
           </ul>
         </div>
 

@@ -14,4 +14,8 @@
       <a class="module-item-title" href="{{ dict.manpage_url }}">{{ version }} Manpage</a>
 </li>
 {% endif %}
+{% empty %}
+<li class="module-item col-span">
+      No downloads for this project.
+</li>
 {% endfor %}
