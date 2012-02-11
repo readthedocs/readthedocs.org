@@ -342,7 +342,7 @@ class Project(models.Model):
 
     def get_latest_build(self):
         try:
-            return self.builds.all()[0]
+            return self.builds.filter(type='html')[0]
         except IndexError:
             return None
 

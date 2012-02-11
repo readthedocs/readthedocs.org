@@ -97,6 +97,7 @@ def project_downloads(request, project_slug):
         {
             'project': project,
             'version_data': version_data,
+            'versions': versions,
         },
         context_instance=RequestContext(request),
     )
