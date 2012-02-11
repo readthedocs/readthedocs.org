@@ -350,14 +350,14 @@ def build_docs(project, build, version, pdf, man, epub, record, force, update_ou
                 if data:
                     output_data += data[1]
                     error_data += data[2]
+            #Update build.
             build.success = successful
-            build.setup=output_data,
-            build.setup_error=error_data,
-            build.output=html_output[1],
-            build.error=html_output[2],
+            build.setup = output_data
+            build.setup_error = error_data
+            build.output = html_output[1]
+            build.error = html_output[2]
             build.state = 'finished'
             build.save()
-        #XXX:dc: all builds should have their output checked
         if pdf:
             pdf_builder = builder_loading.get('sphinx_pdf')(version)
             latex_results, pdf_results = pdf_builder.build()
@@ -374,6 +374,7 @@ def build_docs(project, build, version, pdf, man, epub, record, force, update_ou
                 )
             #PDF Builder is oddly 2-steped, and stateful for now
             #pdf_builder.move(version)
+        #XXX:dc: all builds should have their output checked
         if man:
             man_builder = builder_loading.get('sphinx_man')(version)
             man_builder.build()
