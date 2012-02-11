@@ -21,7 +21,7 @@ your docs whenever you push updates:
 * Click "Update Settings"
 
 Bitbucket
-------
+-----------
 
 If your project is hosted on Bitbucket, you can easily add a hook that will rebuild
 your docs whenever you push updates:

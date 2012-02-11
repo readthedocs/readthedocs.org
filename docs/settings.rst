@@ -2,7 +2,7 @@ Interesting Settings
 ====================
 
 VARNISH_SERVERS
---------------
+----------------
 
 Default: `undefined`
 
