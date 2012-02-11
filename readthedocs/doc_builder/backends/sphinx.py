@@ -11,7 +11,7 @@ from django.conf import settings
 
 from doc_builder.base import BaseBuilder, restoring_chdir
 from projects.utils import safe_write, run
-from core.utils import copy_to_app_servers
+from core.utils import copy_to_app_servers, copy_file_to_app_servers
 
 
 RTD_CONF_ADDITIONS = """
