@@ -7,6 +7,8 @@ from django.http import (HttpResponse, HttpResponseRedirect,
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
 from django.views.generic.list_detail import object_list, object_detail
+from django.utils.datastructures import SortedDict
+
 
 from core.views import serve_docs
 from projects.models import Project
@@ -77,7 +79,7 @@ def project_downloads(request, project_slug):
     """
     project = get_object_or_404(Project, slug=project_slug)
     versions = project.active_versions()
-    version_data = {}
+    version_data = SortedDict()
     for version in versions:
         version_data[version.slug] = {}
         if project.has_pdf(version.slug):
