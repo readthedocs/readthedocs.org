@@ -16,6 +16,11 @@ When RTD builds your project, it sets the ``READTHEDOCS`` environment variable t
     else:
         html_theme = 'nature'
 
+Deleting a stale or broken build environment
+--------------------------------------------
+
+RTD doesn't expose this in the UI, but it is possible to remove the build directory of your project. If you want to remove a build environment for your project, hit http://readthedocs.org/wipe/<project_slug>/<version_slug>/ with a POST. You must be logged in to do this.
+
 Packages installed in the build environment
 -------------------------------------------
 

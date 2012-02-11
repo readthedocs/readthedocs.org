@@ -16,7 +16,8 @@ from django.views.decorators.csrf import csrf_view_exempt
 from django.views.static import serve
 
 from projects.models import Project, ImportedFile, ProjectRelationship
-from projects.tasks import update_docs
+from projects.tasks import update_docs, remove_dir
+from builds.models import Version
 
 import json
 import mimetypes
@@ -41,6 +42,27 @@ def random_page(request, project=None):
     if project:
         return HttpResponseRedirect(ImportedFile.objects.filter(project__slug=project).order_by('?')[0].get_absolute_url())
     return HttpResponseRedirect(ImportedFile.objects.order_by('?')[0].get_absolute_url())
+
+@csrf_view_exempt
+def wipe_version(request, project_slug, version_slug):
+    version = get_object_or_404(Version, project__slug=project_slug, slug=version_slug)
+    if request.user not in version.project.users.all():
+        raise Http404("You must own this project to wipe it.")
+    del_dir = version.project.checkout_path(version.slug)
+    if request.method == 'POST' and del_dir:
+            remove_dir.delay(del_dir)
+            return render_to_response('wipe_version.html', {
+                        'del_dir': del_dir,
+                        'deleted': True,
+                    },
+                    context_instance=RequestContext(request))
+    return render_to_response('wipe_version.html', {
+                'del_dir': del_dir,
+            },
+            context_instance=RequestContext(request))
+
+
+
 
 @csrf_view_exempt
 def github_build(request):

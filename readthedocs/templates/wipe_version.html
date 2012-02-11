@@ -8,6 +8,10 @@
 {{ del_dir }} is now deleting.<br><br>
 {% else %}
 This is a page to delete a directory. Only POST to it if you wish to refresh a project on RTD's build servers.
+
+<form method="post" action=".">
+  <input type="submit" value="Wipe version">
+</form>
 {% endif %}
 
 {% endblock %}
