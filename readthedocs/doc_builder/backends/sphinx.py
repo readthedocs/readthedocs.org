@@ -154,7 +154,11 @@ class Builder(BaseBuilder):
         archive = zipfile.ZipFile(to_file, 'w')
         for root, subfolders, files in os.walk('.'):
             for file in files:
-                archive.write(os.path.join(root, file))
+                to_write = os.path.join(root, file)
+                archive.write(
+                    filename=to_write, 
+                    arcname=os.path.join("%s-%s" % (self.version.project.slug, self.version.slug), to_write)
+                )
         archive.close()
 
         return to_file
