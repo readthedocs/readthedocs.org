@@ -7,7 +7,7 @@
     <a href="{{ user.get_absolute_url }}" class="quiet">{{ user }}</a>{% if not forloop.last %}, {% endif %}
     {% endfor %}
     )
-    <span class="quiet">{{ project.modified_date|timesince }} ago</span>
+    <span class="right-menu quiet">{{ project.modified_date|timesince }} ago</span>
     <ul class="module-item-menu">
       {% if project.has_good_build %}
         <span class="hidden-child" style="display: none;">

@@ -275,6 +275,7 @@ p.build-missing { font-size: .8em; color: #9d9a55; margin: 0 0 3px; }
 .hide { display: none; }
 .left { float: left; }
 .right { float: right; }
+.right-menu { float: right; margin-right: 100px; }
 .quiet { color: #999; }
 .help_text { color: #999; }
 .highlighted { background-color: #ee9; padding: 0 1px; margin: 0 1px; border-radius: 3px; -moz-border-radius: 3px; -webkit-border-radius: 3px; }
