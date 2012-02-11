@@ -21,11 +21,11 @@ class Command(BaseCommand):
             default=False,
             help='Make a Build'
             ),
-        make_option('-t',
+        make_option('-f',
             action='store_true',
             dest='force',
             default=False,
-            help='Touch the files'
+            help='Force a build in sphinx'
             ),
         make_option('-V',
             dest='version',

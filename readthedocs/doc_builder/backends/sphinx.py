@@ -130,11 +130,12 @@ class Builder(BaseBuilder):
     def build(self):
         project = self.version.project
         os.chdir(project.conf_dir(self.version.slug))
+        force_str = " -E " if self.force else ""
         if project.use_virtualenv and project.whitelisted:
-            build_command = '%s -b html . _build/html' % project.venv_bin(
-                version=self.version.slug, bin='sphinx-build')
+            build_command = '%s %s -b html . _build/html' % (project.venv_bin(
+                version=self.version.slug, bin='sphinx-build'), force_str)
         else:
-            build_command = "sphinx-build -b html . _build/html"
+            build_command = "sphinx-build %s -b html . _build/html" % force_str
         build_results = run(build_command)
         self._zip_html()
         if 'no targets are out of date.' in build_results[1]:

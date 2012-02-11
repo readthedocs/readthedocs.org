@@ -22,6 +22,7 @@ class BaseBuilder(object):
     """
 
     workflow = ['clean', 'build', 'move']
+    force = False
 
     def __init__(self, version):
         self.version = version
@@ -37,9 +38,8 @@ class BaseBuilder(object):
         """
         An optional step to force a build even when nothing has changed.
         """
-        print "Forcing a build by touching files"
-        os.chdir(self.version.project.conf_dir(self.version.slug))
-        os.system('touch * && touch */*')
+        print "Forcing a build"
+        self.force = True
 
     def clean(self):
         """
