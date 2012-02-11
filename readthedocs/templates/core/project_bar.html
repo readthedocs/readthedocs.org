@@ -40,10 +40,6 @@
               <li {% block editing-option-builds %}{% endblock %}><a href="{{ project.get_builds_url }}">Builds</a></li>
             {% endif %}
 
-            {% if project.project_url %}
-              <li><a href="{{ project.project_url }}" rel="nofollow,noindex">Homepage</a></li>
-            {% endif %}
-
             {% if project.has_versions and request.user in project.users.all %}
               <li><a href="{% url projects_versions project.slug %}" rel="nofollow,noindex">Versions</a></li>
             {% endif %}

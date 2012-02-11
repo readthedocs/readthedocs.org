@@ -86,6 +86,10 @@
 <p>{{ project.repo }}</p>
 {% endif %}
 
+{% if project.project_url %}
+    <li><a href="{{ project.project_url }}" rel="nofollow,noindex">Homepage</a></li>
+{% endif %}
+
 {% if project.tags.count %}
   <h3>Tags</h3>
   <p>
