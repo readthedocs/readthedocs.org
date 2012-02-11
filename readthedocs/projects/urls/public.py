@@ -25,6 +25,10 @@ urlpatterns = patterns('projects.views.public',
         'project_detail',
         name='projects_detail'
     ),
+    url(r'^(?P<project_slug>[-\w]+)/downloads/$',
+        'project_downloads',
+        name='project_downloads'
+    ),
     url(r'^(?P<username>\w+)/(?P<project_slug>[-\w]+)/$',
         'legacy_project_detail',
         name='legacy_projects_detail'

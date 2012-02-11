@@ -258,15 +258,12 @@ class Project(models.Model):
     def has_aliases(self):
         return self.aliases.exists()
 
-    @property
     def has_pdf(self, version_slug='latest'):
         return os.path.exists(self.get_pdf_path(version_slug))
 
-    @property
     def has_manpage(self, version_slug='latest'):
         return os.path.exists(self.get_manpage_path(version_slug))
 
-    @property
     def has_epub(self, version_slug='latest'):
         return os.path.exists(self.get_epub_path(version_slug))
 

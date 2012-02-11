@@ -1,0 +1,32 @@
+{% extends "projects/base_project.html" %}
+
+{% load markup %}
+
+{% block title %}{{ project.name }}{% endblock %}
+
+{% block project_editing %}
+  {% include "core/project_bar.html" %}
+{% endblock %}
+
+{% block content %}
+
+          <!-- BEGIN builds list -->
+          <div class="module">
+            <div class="module-wrapper">
+
+              <div class="module-header">
+                <h3>Downloads</h3>
+              </div>
+
+              <div class="module-list">
+                <div class="module-list-wrapper">
+                  <ul>
+                    {% include "core/project_downloads.html" %}
+                  </ul>
+                </div>
+              </div>
+
+            </div>
+          </div>
+          <!-- END builds list -->
+{% endblock %}

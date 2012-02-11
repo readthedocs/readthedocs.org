@@ -71,6 +71,31 @@ def project_detail(request, project_slug):
         context_instance=RequestContext(request),
     )
 
+def project_downloads(request, project_slug):
+    """
+    A detail view for a project with various dataz
+    """
+    project = get_object_or_404(Project, slug=project_slug)
+    versions = project.active_versions()
+    version_data = {}
+    for version in versions:
+        version_data[version.slug] = {}
+        if project.has_pdf(version.slug):
+            version_data[version.slug]['pdf_url'] = project.get_pdf_url(version.slug)
+        if project.has_epub(version.slug):
+            version_data[version.slug]['epub_url'] = project.get_epub_url(version.slug)
+        if project.has_manpage(version.slug):
+            version_data[version.slug]['manpage_url'] = project.get_manpage_url(version.slug)
+    return render_to_response(
+        'projects/project_downloads.html',
+        {
+            'project': project,
+            'version_data': version_data,
+        },
+        context_instance=RequestContext(request),
+    )
+
+
 def legacy_project_detail(request, username, project_slug):
     return HttpResponsePermanentRedirect(reverse(
         project_detail, kwargs = {
