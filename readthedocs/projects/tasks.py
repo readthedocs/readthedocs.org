@@ -88,6 +88,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
     build = Build.objects.create(
         project=project,
         version=version,
+        type='html',
         state='triggered',
     )
 
@@ -110,7 +111,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
         # kick off a build
         build.state = 'building'
         build.save()
-        (ret, out, err) = build_docs(project=project, version=version,
+        (ret, out, err) = build_docs(project=project, build=build, version=version,
                                      pdf=pdf, man=man, epub=epub,
                                      record=record, force=force, update_output=update_output)
         if not 'no targets are out of date.' in out:
@@ -319,7 +320,7 @@ def update_created_docs(project):
         file.write_to_disk()
 
 
-def build_docs(project, version, pdf, man, epub, record, force, update_output={}):
+def build_docs(project, build, version, pdf, man, epub, record, force, update_output={}):
     """
     This handles the actual building of the documentation and DB records
     """
@@ -341,24 +342,32 @@ def build_docs(project, version, pdf, man, epub, record, force, update_output={}
     if html_builder.changed:
         if record:
             output_data = error_data = ''
+            #Grab all the text from updating the code via VCS.
             for key in ['checkout', 'venv', 'sphinx', 'requirements', 'install']:
                 data = update_output.get(key, None)
                 if data:
                     output_data += data[1]
                     error_data += data[2]
-            Build.objects.create(
-                project=project,
-                success=successful,
-                setup=output_data,
-                setup_error=error_data,
-                output=html_output[1],
-                error=html_output[2],
-                version=version
-            )
+            build.success = successful
+            build.setup=output_data,
+            build.setup_error=error_data,
+            build.output=html_output[1],
+            build.error=html_output[2],
+            build.save()
         #XXX:dc: all builds should have their output checked
         if pdf:
             pdf_builder = builder_loading.get('sphinx_pdf')(version)
-            pdf_builder.build()
+            latex_results, pdf_results = pdf_builder.build()
+            Build.objects.create(
+                project=project,
+                success=pdf_results[0] == 0,
+                type='pdf',
+                setup=latex_results[1],
+                setup_error=latex_results[2],
+                output=pdf_results[1],
+                error=pdf_results[2],
+                version=version
+            )
             #PDF Builder is oddly 2-steped, and stateful for now
             #pdf_builder.move(version)
         if man:

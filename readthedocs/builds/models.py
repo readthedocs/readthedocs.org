@@ -2,7 +2,7 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from projects.models import Project
 
-from .constants import BUILD_STATE
+from .constants import BUILD_STATE, BUILD_TYPES
 
 
 class Version(models.Model):
@@ -45,6 +45,7 @@ class VersionAlias(models.Model):
 
 class Build(models.Model):
     project = models.ForeignKey(Project, related_name='builds')
+    type = models.CharField(max_length=55, choices=BUILD_TYPES, default='html') 
     date = models.DateTimeField(auto_now_add=True)
     success = models.BooleanField()
     setup = models.TextField(null=True, blank=True)

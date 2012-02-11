@@ -3,3 +3,10 @@ BUILD_STATE = (
     ('building', 'Building'),
     ('finished', 'Finished'),
 )
+
+BUILD_TYPES = (
+    ('html', 'HTML'),
+    ('pdf', 'PDF'),
+    ('epub', 'Epub'),
+    ('man', 'Manpage'),
+)

@@ -163,6 +163,8 @@ class BuildResource(EnhancedModelResource):
         filtering = {
             "project": ALL_WITH_RELATIONS,
             "slug": ALL_WITH_RELATIONS,
+            "type": ALL_WITH_RELATIONS,
+            "state": ALL_WITH_RELATIONS,
         }
 
     def override_urls(self):

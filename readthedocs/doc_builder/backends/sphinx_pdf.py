@@ -49,8 +49,9 @@ class Builder(BaseBuilder):
                         os.makedirs(to_path)
                     run('mv -f %s %s' % (from_file, to_file))
         else:
+            pdf_results = (1, '', '')
             print "PDF Building failed. Moving on."
-        return latex_results
+        return (latex_results, pdf_results)
 
 
     def move(self):
