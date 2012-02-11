@@ -10,6 +10,7 @@ from django.template.defaultfilters import slugify
 from django.template.loader import render_to_string
 
 from projects import constants
+from projects.templatetags.projects_tags import sort_version_aware
 from projects.utils import diff, dmp, safe_write
 from projects.utils import highest_version as _highest
 from taggit.managers import TaggableManager
@@ -348,6 +349,10 @@ class Project(models.Model):
     def active_versions(self):
         return (self.versions.filter(built=True, active=True) |
                 self.versions.filter(active=True, uploaded=True))
+
+    def ordered_active_versions(self):
+        return sort_version_aware(self.versions.filter(active=True))
+    
     
     def all_active_versions(self):
         "A temporary workaround for active_versions filtering out things that were active, but failed to build"

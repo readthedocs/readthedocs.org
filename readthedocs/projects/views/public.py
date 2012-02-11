@@ -14,7 +14,6 @@ from core.views import serve_docs
 from projects.models import Project
 from projects.utils import highest_version
 
-
 from taggit.models import Tag
 
 def project_index(request, username=None, tag=None):
@@ -78,7 +77,7 @@ def project_downloads(request, project_slug):
     A detail view for a project with various dataz
     """
     project = get_object_or_404(Project, slug=project_slug)
-    versions = project.active_versions()
+    versions = project.ordered_active_versions()
     version_data = SortedDict()
     for version in versions:
         version_data[version.slug] = {}

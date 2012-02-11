@@ -26,7 +26,7 @@
   <h3> Versions </h3>
 
   <p>
-  {% for version in project.all_active_versions.all %}
+  {% for version in project.ordered_active_versions %}
       <div style="float: left; margin-right: 5px;" class="version_right">
         <form method="post" action="{% url generic_build project.pk %}">
             <input type="hidden" name="version_slug" value="{{version.slug}}">
