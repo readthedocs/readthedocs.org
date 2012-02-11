@@ -11,6 +11,7 @@ media/pdf
 media/export
 media/man
 media/epub
+media/htmlzip
 xml_output
 locks/*
 readthedocs/rtd_tests/tests/builds

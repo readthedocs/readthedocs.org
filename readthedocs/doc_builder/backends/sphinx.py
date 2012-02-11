@@ -141,6 +141,7 @@ class Builder(BaseBuilder):
             self._changed = False
         return build_results
 
+    @restoring_chdir
     def _zip_html(self):
         from_path = self.version.project.full_build_path(self.version.slug)
         from_file = os.path.join(from_path, '%s.zip' % self.version.project.slug)
@@ -149,8 +150,9 @@ class Builder(BaseBuilder):
 
         print "Creating zip file from %s" % from_path
         # Create a <slug>.zip file containing all files in file_path
+        os.chdir(from_path)
         archive = zipfile.ZipFile(to_file, 'w')
-        for root, subfolders, files in os.walk(from_path):
+        for root, subfolders, files in os.walk('.'):
             for file in files:
                 archive.write(os.path.join(root, file))
         archive.close()
