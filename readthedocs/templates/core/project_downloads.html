@@ -1,17 +1,17 @@
 {% for version in version_data %}
-{% if version.pdf_url %}
+{% if version_data.version.pdf_url %}
 <li class="module-item col-span">
-      <a class="module-item-title" href="{{ version.pdf_url }}">{{ version }} PDF </a>
+      <a class="module-item-title" href="{{ version_data.version.pdf_url }}">{{ version }} PDF </a>
 </li>
 {% endif %}
-{% if version.epub_url %}
+{% if version_data.version.epub_url %}
 <li class="module-item col-span">
-      <a class="module-item-title" href="{{ version.epub_url }}">{{ version }} Epub</a>
+      <a class="module-item-title" href="{{ version_data.version.epub_url }}">{{ version }} Epub</a>
 </li>
 {% endif %}
-{% if version.manpage_url %}
+{% if version_data.version.manpage_url %}
 <li class="module-item col-span">
-      <a class="module-item-title" href="{{ version.manpage_url }}">{{ version }} Manpage</a>
+      <a class="module-item-title" href="{{ version_data.version.manpage_url }}">{{ version }} Manpage</a>
 </li>
 {% endif %}
 {% endfor %}
