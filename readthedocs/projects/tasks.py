@@ -97,6 +97,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
                 )
             try:
                 version_data = api.version.post(version_data)
+                del version_data['resource_uri']
             except Exception as e:
                 raise e
     version_data['project'] = project
