@@ -409,13 +409,13 @@ def build_docs(project, build, version, pdf, man, epub, record, force, update_ou
             if record:
                 api.build.post(dict(
                     project = '/api/v1/project/%s/' % project.pk,
+                    version = '/api/v1/version/%s/' % version.pk
                     success=pdf_results[0] == 0,
                     type='pdf',
                     setup=latex_results[1],
                     setup_error=latex_results[2],
                     output=pdf_results[1],
                     error=pdf_results[2],
-                    version=version
                 ))
             #PDF Builder is oddly 2-steped, and stateful for now
             #pdf_builder.move(version)
