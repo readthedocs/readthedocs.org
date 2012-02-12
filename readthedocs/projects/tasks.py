@@ -409,7 +409,7 @@ def build_docs(project, build, version, pdf, man, epub, record, force, update_ou
             if record:
                 api.build.post(dict(
                     project = '/api/v1/project/%s/' % project.pk,
-                    version = '/api/v1/version/%s/' % version.pk
+                    version = '/api/v1/version/%s/' % version.pk,
                     success=pdf_results[0] == 0,
                     type='pdf',
                     setup=latex_results[1],
