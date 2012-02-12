@@ -156,7 +156,7 @@ class BuildResource(EnhancedModelResource):
     version = fields.ForeignKey('api.base.VersionResource', 'version')
 
     class Meta:
-        allowed_methods = ['get', 'post']
+        allowed_methods = ['get', 'post', 'put']
         queryset = Build.objects.all()
         authentication = PostAuthentication()
         authorization = Authorization()
