@@ -244,7 +244,7 @@ def update_imported_docs(project, version):
                 if tag.identifier in old_tags:
                     continue
                 slug = slugify_uniquely(Version, tag.verbose_name,
-                                        #'slug', 255, project=project)
+                                        'slug', 255, project=project)
                 try:
 
                     api.version.post(dict(
