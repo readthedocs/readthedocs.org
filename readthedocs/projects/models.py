@@ -348,7 +348,18 @@ class Project(models.Model):
             return None
 
     def api_versions(self):
-        return api.version.get(project=self.pk, active=True)['objects']
+        from builds.models import Version
+        ret = []
+        for version_data in api.version.get(project=self.pk, active=True)['objects']:
+            del version_data['resource_uri']
+            project_data = version_data['project']
+            del project_data['users']
+            del project_data['resource_uri']
+            del project_data['absolute_url']
+            project = Project(**project_data)
+            version_data['project'] = project
+            ret.append(Version(**version_data))
+        return sort_version_aware(ret)
 
     def active_versions(self):
         api.version.filter(project=self.pk, built=True, active=True)
