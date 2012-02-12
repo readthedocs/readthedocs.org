@@ -124,7 +124,7 @@ ABSOLUTE_URL_OVERRIDES = {
 INTERNAL_IPS = ('127.0.0.1',)
 
 backup_count = 1000
-if settings.DEBUG:
+if DEBUG:
     backup_count = 2
 
 LOGGING = {
