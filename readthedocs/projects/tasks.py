@@ -120,12 +120,12 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
 
     if record:
         #Create Build Object.
-        build = Build.objects.create(
-            project=project,
-            version=version,
+        build = api.build.post(dict(
+            project= '/api/v1/project/%s/' % project.pk,
+            version= '/api/v1/version/%s/' % version.pk,
             type='html',
             state='triggered',
-        )
+        ))
     else:
         build = {}
 
@@ -147,8 +147,8 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
 
         # kick off a build
         if record:
-            build.state = 'building'
-            build.save()
+            build['state'] = 'building'
+            api.build(build['id']).put(build)
         (ret, out, err) = build_docs(project=project, build=build, version=version,
                                      pdf=pdf, man=man, epub=epub,
                                      record=record, force=force, update_output=update_output)
@@ -394,21 +394,21 @@ def build_docs(project, build, version, pdf, man, epub, record, force, update_ou
                     output_data += data[1]
                     error_data += data[2]
             #Update build.
-            build.success = successful
-            build.setup = output_data
-            build.setup_error = error_data
-            build.output = html_output[1]
-            build.error = html_output[2]
-            build.state = 'finished'
-            #build.project= '/api/v1/project/%s/' % project.pk
-            #build.version= '/api/v1/version/%s/' % version.pk
-            build.save()
+            build['success'] = successful
+            build['setup'] = output_data
+            build['setup_error'] = error_data
+            build['output'] = html_output[1]
+            build['error'] = html_output[2]
+            build['state'] = 'finished'
+            build['project'] = '/api/v1/project/%s/' % project.pk
+            build['version'] = '/api/v1/version/%s/' % version.pk
+            api.build(build['id']).put(build)
         if pdf:
             pdf_builder = builder_loading.get('sphinx_pdf')(version)
             latex_results, pdf_results = pdf_builder.build()
             if record:
-                Build.objects.create(
-                    project=project,
+                api.build.post(dict(
+                    project = '/api/v1/project/%s/' % project.pk,
                     success=pdf_results[0] == 0,
                     type='pdf',
                     setup=latex_results[1],
@@ -416,7 +416,7 @@ def build_docs(project, build, version, pdf, man, epub, record, force, update_ou
                     output=pdf_results[1],
                     error=pdf_results[2],
                     version=version
-                )
+                ))
             #PDF Builder is oddly 2-steped, and stateful for now
             #pdf_builder.move(version)
         #XXX:dc: all builds should have their output checked
