@@ -123,6 +123,9 @@ ABSOLUTE_URL_OVERRIDES = {
 
 INTERNAL_IPS = ('127.0.0.1',)
 
+backup_count = 1000
+if settings.DEBUG:
+    backup_count = 2
 
 LOGGING = {
     'version': 1,
@@ -143,7 +146,7 @@ LOGGING = {
             'class':'logging.handlers.RotatingFileHandler',
             'filename': SITE_ROOT + "/rtd.log",
             'maxBytes': 50000,
-            'backupCount': 1000,
+            'backupCount': backup_count,
             'formatter': 'standard',
         },
         'errorlog': {
@@ -151,7 +154,7 @@ LOGGING = {
             'class':'logging.handlers.RotatingFileHandler',
             'filename': SITE_ROOT + "/rtd.log",
             'maxBytes': 50000,
-            'backupCount': 1000,
+            'backupCount': backup_count,
             'formatter': 'standard',
         },
         'mail_admins': {
