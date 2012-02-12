@@ -244,7 +244,7 @@ def update_imported_docs(project, version):
                 if tag.identifier in old_tags:
                     continue
                 slug = slugify_uniquely(Version, tag.verbose_name,
-                                        'slug', 255, project=project)
+                                        #'slug', 255, project=project)
                 try:
 
                     api.version.post(dict(
@@ -254,8 +254,8 @@ def update_imported_docs(project, version):
                         verbose_name=tag.verbose_name
                     ))
                     print "New tag found: %s" % tag.identifier
-                    highest = project.highest_version['version']
-                    ver_obj = mkversion(ver)
+                    #highest = project.highest_version['version']
+                    #ver_obj = mkversion(ver)
                     #TODO: Handle updating higher versions automatically.
                     #This never worked very well, anyways.
                     #if highest and ver_obj and ver_obj > highest:
