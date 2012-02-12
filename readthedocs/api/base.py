@@ -112,7 +112,7 @@ class ProjectResource(ModelResource):
         queryset = Project.objects.all()
         authentication = PostAuthentication()
         authorization = Authorization()
-        excludes = ['use_virtualenv', 'path', 'skip', 'featured']
+        excludes = ['path', 'skip', 'featured']
         filtering = {
             "users": ALL_WITH_RELATIONS,
             "slug": ALL_WITH_RELATIONS,
