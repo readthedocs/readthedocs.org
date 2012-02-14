@@ -18,7 +18,7 @@ class Version(models.Model):
         ordering = ['-verbose_name']
 
     def __unicode__(self):
-        return _(u"Version")'+' %s '+'_(u"of")'+' %s '+'(%s) % (self.verbose_name, self.project, self.pk)
+        return _(u"Version") + " %s " + _(u"of") + " %s " + "(%s)" % (self.verbose_name, self.project, self.pk) 
 
     def get_absolute_url(self):
         if not self.built and not self.uploaded:
@@ -57,7 +57,7 @@ class Build(models.Model):
         get_latest_by = 'date'
 
     def __unicode__(self):
-        return _(u"Build")'+' %s '+'_(u"for")'+' %s '+'(%s) % (self.project,
+        return _(u"Build") + " %s " + _(u"for") + " %s " + "(%s)" % (self.project,
                                                                ' '.join(self.project.users.all().values_list('username', flat=True)),
                                                                self.pk)
 

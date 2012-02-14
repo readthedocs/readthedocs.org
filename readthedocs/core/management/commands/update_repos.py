@@ -43,7 +43,7 @@ class Command(BaseCommand):
         if len(args):
             for slug in args:
                 if version and version != "all":
-                    print _("Updating version")' %s '_("for") %s) % (version, slug)
+                    print _("Updating version") + " %s " + _("for") + " %s)" % (version, slug)
                     for version in Version.objects.filter(project__slug=slug,
                                                           slug=version):
                         tasks.update_docs(version.project_id,

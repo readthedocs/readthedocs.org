@@ -51,7 +51,7 @@ class CreateProjectForm(ProjectForm):
 
 class ImportProjectForm(ProjectForm):
     repo = forms.CharField(required=True,
-            help_text='_(URL for your code (hg or git). Ex. http://github.com/ericholscher/django-kong.git'))
+            help_text=_(u'URL for your code (hg or git). Ex. http://github.com/ericholscher/django-kong.git'))
 
     class Meta:
         model = Project
@@ -60,9 +60,9 @@ class ImportProjectForm(ProjectForm):
     def clean_repo(self):
         repo = self.cleaned_data.get('repo', '').strip()
         if '&&' in repo or '|' in repo:
-            raise forms.ValidationError(_('Invalid character in repo name)')
+            raise forms.ValidationError(_(u'Invalid character in repo name'))
         elif '@' in repo:
-            raise forms.ValidationError(_('It looks like you entered a private repo - please use the public (http:// or git://) clone url'))
+            raise forms.ValidationError(_(u'It looks like you entered a private repo - please use the public (http:// or git://) clone url'))
         return repo
 
     def save(self, *args, **kwargs):

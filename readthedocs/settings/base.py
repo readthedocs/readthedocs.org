@@ -2,6 +2,8 @@ import os
 import djcelery
 djcelery.setup_loader()
 
+gettext = lambda s: s
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 TASTYPIE_FULL_DEBUG = True
@@ -33,8 +35,9 @@ FORCE_WWW = False
 TIME_ZONE = 'America/Chicago'
 LANGUAGE_CODE = 'en-us'
 LANGUAGES = (
-    ('en', _('English')),
-    ('es', _('Spanish')),
+    ('en', gettext('English')),
+    ('es', gettext('Spanish')),
+
 )
 USE_I18N = True
 USE_L10N = True
