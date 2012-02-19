@@ -117,6 +117,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
             version_data['identifier'] = branch
             to_save = True
         if to_save:
+            version_data['project'] = "/api/v1/version/%s/" % version_data['project'].pk
             api.version(version.pk).put(version_data)
 
     if record:
