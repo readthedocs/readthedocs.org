@@ -18,7 +18,7 @@ def push():
 
 def update_requirements():
     "Update requirements in the virtualenv."
-    run("%s/bin/pip install -r %s/deploy_requirements.txt" % (env.virtualenv, env.code_dir))
+    run("%s/bin/pip install -i http://simple.crate.io/ -r %s/deploy_requirements.txt" % (env.virtualenv, env.code_dir))
 
 @hosts(['chimera.ericholscher.com'])
 def migrate(project=None):
