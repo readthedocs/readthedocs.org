@@ -14,10 +14,7 @@ def push():
     local('git push origin master')
     with cd(env.code_dir):
         run('git fetch')
-        if env.host != 'build.ericholscher.com':
-            run('git reset --hard origin/master')
-        else:
-            run('git reset --hard origin/slumber_refactor')
+        run('git reset --hard origin/master')
 
 def update_requirements():
     "Update requirements in the virtualenv."
