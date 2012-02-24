@@ -80,6 +80,7 @@ def github_build(request):
             for project in projects:
                 version = project.version_from_branch_name(branch)
                 if version:
+                    log.info("(Github Build) Processing %s:%s" % (project.slug, version.slug))
                     default = project.default_branch or project.vcs_repo().fallback_branch
                     if branch == default:
                         #Shortcircuit versions that are default
