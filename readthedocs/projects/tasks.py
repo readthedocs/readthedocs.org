@@ -384,7 +384,7 @@ def build_docs(project, build, version, pdf, man, epub, record, force, update_ou
             try:
                 api.version(version.pk).put(version_data)
             except Exception, e:
-                import ipdb; ipdb.set_trace()
+                print "Unable to post a new version: %s" % e
 
     if html_builder.changed:
         if record:
