@@ -258,7 +258,7 @@ class Project(models.Model):
 
     @property
     def highest_version(self):
-        return _highest(self.versions.filter(active=True))
+        return _highest(self.api_versions())
 
     @property
     def is_imported(self):
