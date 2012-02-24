@@ -14,6 +14,7 @@ from projects.templatetags.projects_tags import sort_version_aware
 from projects.utils import diff, dmp, safe_write
 from projects.utils import highest_version as _highest
 from taggit.managers import TaggableManager
+from tastyapi.slum import api
 
 from vcs_support.base import VCSProject
 from vcs_support.backends import backend_cls
@@ -257,7 +258,7 @@ class Project(models.Model):
 
     @property
     def highest_version(self):
-        return _highest(self.versions.filter(active=True))
+        return _highest(self.api_versions())
 
     @property
     def is_imported(self):
@@ -346,7 +347,22 @@ class Project(models.Model):
         except IndexError:
             return None
 
+    def api_versions(self):
+        from builds.models import Version
+        ret = []
+        for version_data in api.version.get(project=self.pk, active=True)['objects']:
+            del version_data['resource_uri']
+            project_data = version_data['project']
+            del project_data['users']
+            del project_data['resource_uri']
+            del project_data['absolute_url']
+            project = Project(**project_data)
+            version_data['project'] = project
+            ret.append(Version(**version_data))
+        return sort_version_aware(ret)
+
     def active_versions(self):
+        api.version.filter(project=self.pk, built=True, active=True)
         return (self.versions.filter(built=True, active=True) |
                 self.versions.filter(active=True, uploaded=True))
 
@@ -368,11 +384,8 @@ class Project(models.Model):
 
     @property
     def whitelisted(self):
-        try:
-            return all([user.get_profile().whitelisted for user in self.users.all()])
-        except ObjectDoesNotExist:
-            #Bare except so we don't have to import user.models.UserProfile
-            return False
+        #Hack this true for now.
+        return True
 
     #File Building stuff.
     #Not sure if this is used

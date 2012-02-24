@@ -7,10 +7,6 @@
 {% block content-header %}<h1>Import an existing project</h1>{% endblock %}
 
 {% block content %}
-  {% if not request.user.get_profile.whitelisted %}
-  <p class="help_text"><b>Note:</b> If you are using custom extensions in your sphinx documentation, it will not work. Your project must be whitelisted, so that it can execute arbitrary code. Please <a href="mailto:readthedocs@readthedocs.org">email us</a> if you need this capability.</p>
-  {% endif %}
-
   <form method="post" action=".">{% csrf_token %}
     {{ form.as_p }}
     <p><input type="submit" value="Create" /></p>

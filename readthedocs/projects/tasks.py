@@ -13,9 +13,10 @@ from django.db import transaction
 from django.conf import settings
 import redis
 from sphinx.ext.intersphinx import fetch_inventory
+import slumber
 
 
-from builds.models import Build, Version
+from builds.models import Version, Build
 from doc_builder import loading as builder_loading
 from doc_builder.base import restoring_chdir
 from projects.exceptions import ProjectImportError
@@ -29,6 +30,7 @@ from projects.utils import (
     slugify_uniquely,
     )
 from tastyapi import client as tastyapi_client
+from tastyapi import api
 from core.utils import copy_to_app_servers, run_on_app_servers
 
 ghetto_hack = re.compile(
@@ -62,36 +64,70 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
     # Handle passed in arguments
     ###
     update_output = kwargs.get('update_output', {})
-    project = Project.objects.live().get(pk=pk)
+    project_data = api.project(pk).get()
+    del project_data['users']
+    del project_data['resource_uri']
+    del project_data['absolute_url']
+    project = Project(**project_data)
+    def new_save(*args, **kwargs):
+        #fields = [(field, field.value_to_string(self)) for field in self._meta.fields]
+        print "*** Called save on a non-real object."
+        #print fields
+        #raise TypeError('Not a real model')
+        return 0
+    project.save = new_save
     print "Building %s" % project
     if version_pk:
-        version = Version.objects.get(pk=version_pk)
+        version_data = api.version(version_pk).get()
+        del version_data['resource_uri']
     else:
+        #Create or use the 'latest' branch, which is the default for a project.
         branch = project.default_branch or project.vcs_repo().fallback_branch
-        version, created = Version.objects.get_or_create(
-            project=project, slug='latest')
+        try:
+            version_data = api.version(project.slug).get(slug='latest')['objects'][0]
+            del version_data['resource_uri']
+        except (slumber.exceptions.HttpClientError, IndexError) as exc:
+            #if exc.response.status_code in [404,500]:
+            version_data = dict(
+                project='/api/v1/project/%s/' % project.pk,
+                slug='latest',
+                active=True,
+                verbose_name='latest',
+                identifier=branch,
+                )
+            try:
+                version_data = api.version.post(version_data)
+                del version_data['resource_uri']
+            except Exception as e:
+                raise e
+    version_data['project'] = project
+    version = Version(**version_data)
+    version.save = new_save
+
+    if not version_pk:
         #Lots of course correction.
         to_save = False
         if not version.verbose_name:
-            version.verbose_name = 'latest'
+            version_data['verbose_name'] = 'latest'
             to_save = True
         if not version.active:
-            version.active = True
+            version_data['active'] = True
             to_save = True
         if version.identifier != branch:
-            version.identifier = branch
+            version_data['identifier'] = branch
             to_save = True
         if to_save:
-            version.save()
+            version_data['project'] = "/api/v1/version/%s/" % version_data['project'].pk
+            api.version(version.pk).put(version_data)
 
     if record:
         #Create Build Object.
-        build = Build.objects.create(
-            project=project,
-            version=version,
+        build = api.build.post(dict(
+            project= '/api/v1/project/%s/' % project.pk,
+            version= '/api/v1/version/%s/' % version.pk,
             type='html',
             state='triggered',
-        )
+        ))
     else:
         build = {}
 
@@ -107,14 +143,14 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
                 print("Error importing project: %s. Skipping build." % err)
                 return False
 
-            scrape_conf_file(version)
+            #scrape_conf_file(version)
         else:
             update_created_docs(project)
 
         # kick off a build
         if record:
-            build.state = 'building'
-            build.save()
+            build['state'] = 'building'
+            api.build(build['id']).put(build)
         (ret, out, err) = build_docs(project=project, build=build, version=version,
                                      pdf=pdf, man=man, epub=epub,
                                      record=record, force=force, update_output=update_output)
@@ -183,7 +219,7 @@ def update_imported_docs(project, version):
         raise ProjectImportError("Conf File Missing. Skipping.")
 
     #Do Virtualenv bits:
-    if project.use_virtualenv and project.whitelisted:
+    if project.use_virtualenv:
         update_docs_output['venv'] = run('{cmd} --no-site-packages {path}'.format(
                 cmd='virtualenv',
                 path=project.venv_path(version=version_slug)))
@@ -205,23 +241,25 @@ def update_imported_docs(project, version):
         if version_repo.supports_tags:
             transaction.enter_transaction_management(True)
             tags = version_repo.tags
-            old_tags = Version.objects.filter(
-                project=project).values_list('identifier', flat=True)
+            old_tags = [obj['identifier'] for obj in api.version.get(project__slug=project.slug, limit=50)['objects']]
             for tag in tags:
                 if tag.identifier in old_tags:
                     continue
                 slug = slugify_uniquely(Version, tag.verbose_name,
                                         'slug', 255, project=project)
                 try:
-                    ver, created = Version.objects.get_or_create(
-                        project=project,
+
+                    api.version.post(dict(
+                        project="/api/v1/project/%s/" % project.pk,
                         slug=slug,
                         identifier=tag.identifier,
                         verbose_name=tag.verbose_name
-                    )
-                    print "New tag found: %s" % ver
+                    ))
+                    print "New tag found: %s" % tag.identifier
                     highest = project.highest_version['version']
                     ver_obj = mkversion(ver)
+                    #TODO: Handle updating higher versions automatically.
+                    #This never worked very well, anyways.
                     if highest and ver_obj and ver_obj > highest:
                         print "Highest verison known, building docs"
                         update_docs.delay(ver.project.pk, version_pk=ver.pk)
@@ -232,32 +270,30 @@ def update_imported_docs(project, version):
         if version_repo.supports_branches:
             transaction.enter_transaction_management(True)
             branches = version_repo.branches
-            old_branches = Version.objects.filter(
-                project=project).values_list('identifier', flat=True)
+            old_branches = [obj['identifier'] for obj in api.version.get(project__slug=project.slug, limit=50)['objects']]
             for branch in branches:
                 if branch.identifier in old_branches:
                     continue
                 slug = slugify_uniquely(Version, branch.verbose_name,
                                         'slug', 255, project=project)
                 try:
-                    ver, created = Version.objects.get_or_create(
-                        project=project,
+                    api.version.post(dict(
+                        project="/api/v1/project/%s/" % project.pk,
                         slug=slug,
                         identifier=branch.identifier,
                         verbose_name=branch.verbose_name
-                    )
-                    print "New branch found: %s" % ver
+                    ))
+                    print "New branch found: %s" % branch.identifier
                 except Exception, e:
                     print "Failed to create version (branch): %s" % e
                     transaction.rollback()
             transaction.leave_transaction_management()
-            #Kill deleted branches
-            Version.objects.filter(
-                project=project).exclude(identifier__in=old_branches).delete()
+            #TODO: Kill deleted branches
     except ValueError, e:
         print "Error getting tags: %s" % e
 
-    fileify(version)
+    #TODO: Find a better way to handle indexing.
+    #fileify(version)
     return update_docs_output
 
 
@@ -269,6 +305,8 @@ def scrape_conf_file(version):
     #This is where we actually find the conf.py, so we can't use
     #the value from the project :)
     project = version.project
+    project_data = api.project(project.pk).get()
+
     try:
         conf_file = project.conf_file(version.slug)
     except IndexError:
@@ -284,19 +322,19 @@ def scrape_conf_file(version):
         match = ghetto_hack.search(line)
         if match:
             data[match.group(1).strip()] = match.group(2).strip()
-    project.copyright = data.get('copyright', 'Unknown')
-    project.theme = data.get('html_theme', 'default')
+    project_data['copyright'] = data.get('copyright', 'Unknown')
+    project_data['theme'] = data.get('html_theme', 'default')
     if len(project.theme) > 20:
-        project.theme = 'default'
-    project.suffix = data.get('source_suffix', '.rst')
-    project.path = os.getcwd()
+        project_data['theme'] = 'default'
+    project_data['suffix'] = data.get('source_suffix', '.rst')
+    project_data['path'] = os.getcwd()
 
     try:
-        project.version = decimal.Decimal(data.get('version'))
+        project_data['version'] = str(decimal.Decimal(data.get('version')))
     except (TypeError, decimal.InvalidOperation):
-        project.version = ''
+        project_data['version'] = ''
 
-    project.save()
+    api.project(project.pk).put(project_data)
 
 
 def update_created_docs(project):
@@ -312,7 +350,7 @@ def update_created_docs(project):
         os.makedirs(doc_root)
 
     project.path = doc_root
-    project.save()
+    #project.save()
     #Touch a conf.py
     safe_write(os.path.join(project.path, 'conf.py'), '')
 
@@ -338,9 +376,16 @@ def build_docs(project, build, version, pdf, man, epub, record, force, update_ou
     if successful:
         html_builder.move()
         if version:
-            version.active = True
-            version.built = True
-            version.save()
+            version_data = api.version(version.pk).get()
+            version_data['active'] = True
+            version_data['built'] = True
+            #Need to delete this because a bug in tastypie breaks on the users list.
+            del version_data['project']
+            try:
+                api.version(version.pk).put(version_data)
+            except Exception, e:
+                import ipdb; ipdb.set_trace()
+
     if html_builder.changed:
         if record:
             output_data = error_data = ''
@@ -351,27 +396,29 @@ def build_docs(project, build, version, pdf, man, epub, record, force, update_ou
                     output_data += data[1]
                     error_data += data[2]
             #Update build.
-            build.success = successful
-            build.setup = output_data
-            build.setup_error = error_data
-            build.output = html_output[1]
-            build.error = html_output[2]
-            build.state = 'finished'
-            build.save()
+            build['success'] = successful
+            build['setup'] = output_data
+            build['setup_error'] = error_data
+            build['output'] = html_output[1]
+            build['error'] = html_output[2]
+            build['state'] = 'finished'
+            build['project'] = '/api/v1/project/%s/' % project.pk
+            build['version'] = '/api/v1/version/%s/' % version.pk
+            api.build(build['id']).put(build)
         if pdf:
             pdf_builder = builder_loading.get('sphinx_pdf')(version)
             latex_results, pdf_results = pdf_builder.build()
             if record:
-                Build.objects.create(
-                    project=project,
+                api.build.post(dict(
+                    project = '/api/v1/project/%s/' % project.pk,
+                    version = '/api/v1/version/%s/' % version.pk,
                     success=pdf_results[0] == 0,
                     type='pdf',
                     setup=latex_results[1],
                     setup_error=latex_results[2],
                     output=pdf_results[1],
                     error=pdf_results[2],
-                    version=version
-                )
+                ))
             #PDF Builder is oddly 2-steped, and stateful for now
             #pdf_builder.move(version)
         #XXX:dc: all builds should have their output checked
@@ -400,8 +447,8 @@ def fileify(version):
                 if fnmatch.fnmatch(filename, '*.html'):
                     dirpath = os.path.join(root.replace(path, '').lstrip('/'),
                                             filename.lstrip('/'))
-                    file, new = ImportedFile.objects.get_or_create(
-                        project=project,
+                    api.importedfile.post(
+                        project="/api/v1/project/%s/" % project.pk,
                         path=dirpath,
                         name=filename)
 
@@ -434,7 +481,16 @@ def unzip_files(dest_file, html_path):
 
 @task
 def update_intersphinx(version_pk):
-    version = Version.objects.get(pk=version_pk)
+    version_data = api.version(version_pk).get()
+    del version_data['resource_uri']
+    project_data = version_data['project']
+    del project_data['users']
+    del project_data['resource_uri']
+    del project_data['absolute_url']
+    project = Project(**project_data)
+    version_data['project'] = project
+    version = Version(**version_data)
+
     object_file = version.project.find('objects.inv', version.slug)[0]
     path = version.project.rtd_build_path(version.slug)
     if not path:

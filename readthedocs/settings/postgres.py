@@ -23,6 +23,7 @@ SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
 HAYSTACK_SEARCH_ENGINE = 'solr'
 HAYSTACK_SOLR_URL = 'http://odin:8983/solr'
 
+SLUMBER_API_HOST = 'http://readthedocs.org'
 
 
 try:

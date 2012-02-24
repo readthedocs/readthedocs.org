@@ -19,6 +19,7 @@ django
 unittest-xml-reporting
 redis
 south
+slumber
 -e git+http://github.com/nathanborror/django-basic-apps.git#egg=basic
 -e git+http://github.com/alex/django-taggit.git#egg=taggit
 -e git+http://github.com/ericflo/django-pagination.git#egg=pagination

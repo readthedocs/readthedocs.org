@@ -92,16 +92,21 @@ def slugify_uniquely(model, initial, field, max_length, **filters):
     slug = _custom_slugify(initial)[:max_length]
     current = slug
     index = 0
+    """
     base_qs = model.objects.filter(**filters)
     while base_qs.filter(**{field: current}).exists():
         suffix = '-%s' % index
         current = '%s%s'  % (slug[:-len(suffix)], suffix)
         index += 1
+    """
     return current
 
 def mkversion(version_obj):
     try:
-        ver =  NormalizedVersion(suggest_normalized_version(version_obj.slug))
+        if hasattr(version_obj, 'slug'):
+            ver =  NormalizedVersion(suggest_normalized_version(version_obj.slug))
+        else:
+            ver =  NormalizedVersion(suggest_normalized_version(version_obj['slug']))
         return ver
     except TypeError:
         return None

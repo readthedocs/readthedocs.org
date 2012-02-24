@@ -76,30 +76,32 @@ def github_build(request):
         version_pk = None
         version_slug = branch
         try:
-            project = Project.objects.filter(repo__contains=ghetto_url)[0]
-            version = project.version_from_branch_name(branch)
-            if version:
-                default = project.default_branch or project.vcs_repo().fallback_branch
-                if branch == default:
-                    #Shortcircuit versions that are default
-                    #These will build at "latest", and thus won't be active
-                    version = project.versions.get(slug='latest')
-                    version_pk = version.pk
-                    version_slug = version.slug
-                    log.info("(Github Build) Building %s:%s" % (project.slug, version.slug))
-                elif version in project.versions.exclude(active=True):
-                    log.info("(Github Build) Not building %s" % version.slug)
-                    return HttpResponseNotFound('Not Building: %s' % branch)
+            projects = Project.objects.filter(repo__contains=ghetto_url)
+            for project in projects:
+                version = project.version_from_branch_name(branch)
+                if version:
+                    log.info("(Github Build) Processing %s:%s" % (project.slug, version.slug))
+                    default = project.default_branch or project.vcs_repo().fallback_branch
+                    if branch == default:
+                        #Shortcircuit versions that are default
+                        #These will build at "latest", and thus won't be active
+                        version = project.versions.get(slug='latest')
+                        version_pk = version.pk
+                        version_slug = version.slug
+                        log.info("(Github Build) Building %s:%s" % (project.slug, version.slug))
+                    elif version in project.versions.exclude(active=True):
+                        log.info("(Github Build) Not building %s" % version.slug)
+                        return HttpResponseNotFound('Not Building: %s' % branch)
+                    else:
+                        version_pk = version.pk
+                        version_slug = version.slug
+                        log.info("(Github Build) Building %s:%s" % (project.slug, version.slug))
                 else:
-                    version_pk = version.pk
-                    version_slug = version.slug
-                    log.info("(Github Build) Building %s:%s" % (project.slug, version.slug))
-            else:
-                version_slug = 'latest'
-                branch = 'latest'
-                log.info("(Github Build) Building %s:latest" % project.slug)
-            #version_pk being None means it will use "latest"
-            update_docs.delay(pk=project.pk, version_pk=version_pk, force=True)
+                    version_slug = 'latest'
+                    branch = 'latest'
+                    log.info("(Github Build) Building %s:latest" % project.slug)
+                #version_pk being None means it will use "latest"
+                update_docs.delay(pk=project.pk, version_pk=version_pk, force=True)
             return HttpResponse('Build Started: %s' % version_slug)
         except Exception, e:
             log.error("(Github Build) Failed: %s:%s" % (name, e))
