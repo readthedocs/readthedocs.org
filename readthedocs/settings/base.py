@@ -105,6 +105,7 @@ if DEBUG:
 #CARROT_BACKEND = "ghettoq.taproot.Database"
 CELERY_ALWAYS_EAGER = True
 CELERYD_TASK_TIME_LIMIT = 60*60 #60 minutes
+CELERY_SEND_TASK_ERROR_EMAILS = True
 
 
 DEFAULT_FROM_EMAIL = "no-reply@readthedocs.org"
