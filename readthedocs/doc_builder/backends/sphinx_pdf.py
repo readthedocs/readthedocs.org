@@ -46,7 +46,7 @@ class Builder(BaseBuilder):
                         if not os.path.exists(to_path):
                             os.makedirs(to_path)
                         run('mv -f %s %s' % (from_file, to_file))
-        else:
+        if not pdf_results:
             pdf_results = (1, '', '')
             print "PDF Building failed. Moving on."
         return (latex_results, pdf_results)
