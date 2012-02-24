@@ -32,7 +32,7 @@ else:
 using_rtd_theme = False
 if 'html_theme' in locals():
     if html_theme in ['default']:
-        if not 'html_style' in locals():
+        if not 'html_style' in locals() or project == 'Python':
             html_style = 'rtd.css'
             html_theme = 'default'
             html_theme_options = {}
