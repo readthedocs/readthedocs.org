@@ -362,7 +362,6 @@ class Project(models.Model):
         return sort_version_aware(ret)
 
     def active_versions(self):
-        api.version.filter(project=self.pk, built=True, active=True)
         return (self.versions.filter(built=True, active=True) |
                 self.versions.filter(active=True, uploaded=True))
 
