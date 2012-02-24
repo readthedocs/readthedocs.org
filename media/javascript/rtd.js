@@ -31,10 +31,14 @@ warning = '<div class="admonition note"> <p class="first admonition-title">Note<
      //url: "/api/v1/version/" + doc_slug + "/?active=True",
      success: function(data, textStatus, request) {
         $('#version_menu,.version-listing').empty()
+        $('#sidebar_versions').empty()
         for (key in data['objects']) {
             obj = data['objects'][key]
             current_url = window.location.pathname.replace(doc_version, obj.slug)
+            // Update widget
             $("#version_menu,.version-listing").append('<li><a href="' + current_url + '">' + obj.slug + '</a></li>')
+            // Update sidebar
+            $("#sidebar_versions").append('<li><a href="' + current_url + '">' + obj.slug + '</a></li>')
           }
      },
      dataType: 'jsonp'
