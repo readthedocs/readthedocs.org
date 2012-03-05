@@ -449,7 +449,7 @@ def fileify(version):
                 if fnmatch.fnmatch(filename, '*.html'):
                     dirpath = os.path.join(root.replace(path, '').lstrip('/'),
                                             filename.lstrip('/'))
-                    api.importedfile.post(dict(
+                    api.file.post(dict(
                         project="/api/v1/project/%s/" % project.pk,
                         path=dirpath,
                         name=filename))
