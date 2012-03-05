@@ -239,10 +239,12 @@ class FileResource(EnhancedModelResource):
     project = fields.ForeignKey(ProjectResource, 'project', full=True)
 
     class Meta:
-        allowed_methods = ['get']
+        allowed_methods = ['get', 'post']
         queryset = ImportedFile.objects.all()
         excludes = ['md5', 'slug']
         include_absolute_url = True
+        authentication = PostAuthentication()
+        authorization = Authorization()
 
     def override_urls(self):
         return [
