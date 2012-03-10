@@ -52,7 +52,6 @@ div.bodywrapper {
 div.body {
     margin: 0;
     padding: 0.5em 1.3em;
-    max-width: 55em;
     min-width: 20em;
 }
 
@@ -537,7 +536,7 @@ div.warning p.admonition-title {
 
 /* Sidebars only */
 div.sidebar {
-  max-width: 200px;
+  max-width: 30%;
 }
 
 
