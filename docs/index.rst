@@ -39,6 +39,7 @@ Developer Documentation
     :maxdepth: 2
 
     install
+    todo
     contribute
     architecture
     settings
