@@ -25,6 +25,8 @@ When RTD builds your project, it sets the `READTHEDOCS` environment variable to 
 
 I get import errors on libraries that depend on C modules
 ----------------------------------------------------------
+or RTD cannot install a module with C extension
+--------------------------------------------
 
 This happens because our build system doesn't have the dependencies for building your project. This happens with things like libevent and mysql, and other python things that depend on C libraries. We can't support installing random C binaries on our system, so there is another way to fix these imports.
 
