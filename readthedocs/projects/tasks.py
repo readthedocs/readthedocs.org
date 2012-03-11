@@ -266,7 +266,7 @@ def update_imported_docs(project, version):
                 except Exception, e:
                     print "Failed to create version (tag): %s" % e
                     transaction.rollback()
-                    break
+                    #break
             transaction.leave_transaction_management()
         if version_repo.supports_branches:
             transaction.enter_transaction_management(True)
@@ -288,7 +288,7 @@ def update_imported_docs(project, version):
                 except Exception, e:
                     print "Failed to create version (branch): %s" % e
                     transaction.rollback()
-                    break
+                    #break
             transaction.leave_transaction_management()
             #TODO: Kill deleted branches
     except ValueError, e:
