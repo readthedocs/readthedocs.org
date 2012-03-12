@@ -1,3 +1,24 @@
 This directory contains chef sources and a vagrant configuration file.
 
+To run on Amazon EC2 
+
+* Set up chef 
+* Install ruby and rubygems (If not already installed)
+* sudo gem install knife-ec2 chef 
+ 
+mkdir ~/.chef 
+cp knife.rb ~/.chef   # knife.rb is included in the directory where this README is
+
+# setup your enviroment variables for your keys (in .profile or another file) 
+export AWS_ACCESS_KEY_ID=XXXXXXXXXX
+export AWS_SECRET_ACCESS_KEY=XXXXXXXXXXXXXXXXXX
+
+# create a amazon ec2 key pair for "rtfd" and save it to ~/.ssh/rtfd.pem
+knife ec2 server create -r 'role[webserver]' -I ami-7000f019 -f m1.small
+
+# more work is needed for it to be integrated into knife 
+
+
+To use Vagrant 
+
 To start, run `vagrant up`
