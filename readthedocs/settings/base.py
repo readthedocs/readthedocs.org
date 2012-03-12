@@ -198,18 +198,12 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': False,
         },
-        'core': {
+        #Default handler for everything that we're doing. Hopefully this doesn't double-print
+        #the Django things as well. Not 100% sure how logging works :)
+        '': {
             'handlers': ['console', 'logfile'],
             'level': 'DEBUG',
         },
-        'api': {
-            'handlers': ['console', 'logfile'],
-            'level': 'DEBUG',
-        },
-        'projects': {
-            'handlers': ['console', 'logfile'],
-            'level': 'DEBUG',
-        },   
     }
 }
 
