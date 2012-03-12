@@ -32,17 +32,6 @@ class TestCeleryBuilding(RTDTestCase):
         shutil.rmtree(self.repo)
         super(TestCeleryBuilding, self).tearDown()
 
-    def test_update_docs(self):
-        """
-        Test that a superuser can use the API
-        """
-        result = tasks.update_docs.delay(pk=self.project.pk)
-        assert result.successful()
-        assert result.result == True
-        self.assertTrue(os.path.exists(
-            os.path.join(self.project.rtd_build_path(), 'index.html')
-        ))
-
     def test_remove_dir(self):
         directory = mkdtemp()
         assert exists(directory)

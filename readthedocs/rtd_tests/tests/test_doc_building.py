@@ -30,21 +30,3 @@ class TestBuilding(RTDTestCase):
     def tearDown(self):
         shutil.rmtree(self.repo)
         super(TestBuilding, self).tearDown()
-
-    def test_default_project_build(self):
-        """
-        Test that a superuser can use the API
-        """
-        tasks.update_docs(pk=self.project.pk)
-        self.assertTrue(os.path.exists(
-            os.path.join(self.project.rtd_build_path(), 'index.html')
-        ))
-
-    # def test_version_project_build(self):
-    #     """
-    #     Test that a superuser can use the API
-    #     """
-    #     tasks.update_docs(pk=self.project.pk, version_pk=self.version.pk)
-    #     self.assertTrue(os.path.exists(
-    #         os.path.join(self.project.rtd_build_path(), 'index.html')
-    #     ))
