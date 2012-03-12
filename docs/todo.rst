@@ -4,13 +4,17 @@ Todo
 Easy
 ----
 * Screencast of "Hosting your docs in 1 minute"
-* Write better API docs (https://github.com/deceze/Sphinx-HTTP-domain)
+* Write better API docs at http://docs.readthedocs.org/en/latest/api.html (https://github.com/deceze/Sphinx-HTTP-domain)
 
 Sprintable
 ----------
 * Fast frontend for filtering docs as you type (api-driven)
 * Inline commenting ala Django Book (http://ucomment.org/contents/)
 * Add a widget for RTD like travis-ci
+* Add a way to track pageviews internal to RTD.
+    - Have a slug 
+    - Use the API to track this.
+    - Count Pageviews, which domain/CNAME it was served on, version, etc.
 
 Design
 ------
