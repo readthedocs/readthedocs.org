@@ -25,7 +25,7 @@ from djangome import views as djangome
 
 log = logging.getLogger(__name__)
 
-def _do_search(self, request, model):
+def _do_search(self, request, models):
 
     self.method_check(request, allowed=['get'])
     self.is_authenticated(request)
@@ -33,7 +33,7 @@ def _do_search(self, request, model):
 
     # Do the query.
     query = request.GET.get('q', '')
-    sqs = SearchQuerySet().models(model).load_all().auto_query(query)
+    sqs = SearchQuerySet().models(*models).load_all().auto_query(query)
     paginator = Paginator(sqs, 20)
 
     try:
@@ -141,7 +141,7 @@ class ProjectResource(ModelResource):
         return HttpCreated(location=self.get_resource_uri(updated_bundle))
 
     def get_search(self, request, **kwargs):
-        return _do_search(self, request, Project)
+        return _do_search(self, request, [Project])
 
     def override_urls(self):
         return [
@@ -253,7 +253,7 @@ class FileResource(EnhancedModelResource):
         ]
 
     def get_search(self, request, **kwargs):
-        return _do_search(self, request, ImportedFile)
+        return _do_search(self, request, [Project, ImportedFile])
 
     def get_anchor(self, request, **kwargs):
         self.method_check(request, allowed=['get'])

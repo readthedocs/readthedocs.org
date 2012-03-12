@@ -26,3 +26,4 @@ Hard/Refactors
 * Internationalization (i18n)
 * Make hosting RTD internally more supported/easier
 * Make the readthedocs.org front-end i18n
+* Shard builders so we can use disk space across multiple machines.
