@@ -40,14 +40,16 @@ class Builder(BaseBuilder):
                            'pdf',
                            project.slug,
                            self.version.slug)
-                    from_file = os.path.join(os.getcwd(), "*.pdf")
-                    to_file = os.path.join(to_path, '%s.pdf' % project.slug)
-                    if getattr(settings, "MULTIPLE_APP_SERVERS", None):
-                        copy_file_to_app_servers(from_file, to_file)
-                    else:
-                        if not os.path.exists(to_path):
-                            os.makedirs(to_path)
-                        run('mv -f %s %s' % (from_file, to_file))
+                    from_globs = glob(os.path.join(os.getcwd(), "*.pdf"))
+                    if from_globs:
+                        from_file = from_globs[0]
+                        to_file = os.path.join(to_path, '%s.pdf' % project.slug)
+                        if getattr(settings, "MULTIPLE_APP_SERVERS", None):
+                            copy_file_to_app_servers(from_file, to_file)
+                        else:
+                            if not os.path.exists(to_path):
+                                os.makedirs(to_path)
+                            run('mv -f %s %s' % (from_file, to_file))
         else:
             print "PDF Building failed. Moving on."
         return (latex_results, pdf_results)
