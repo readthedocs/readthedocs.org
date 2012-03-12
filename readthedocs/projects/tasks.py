@@ -150,7 +150,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
             try:
                 update_output = update_imported_docs(project, version)
             except ProjectImportError, err:
-                log.error("Error importing project. Skipping build.", exc_info=True)
+                log.error("Failed to import project; skipping build.", exc_info=True)
                 return False
 
             #scrape_conf_file(version)
@@ -166,7 +166,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
                                      record=record, force=force, update_output=update_output)
         if not 'no targets are out of date.' in out:
             if ret == 0:
-                log.info("HTML Build OK")
+                log.info("Successful HTML Build")
                 purge_version(version, subdomain=True,
                               mainsite=True, cname=True)
                 symlink_cname(version)
@@ -174,7 +174,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
                 #send_notifications(version)
                 log.info("Purged %s" % version)
             else:
-                log.error("HTML Build ERROR")
+                log.warning("Failed HTML Build")
         else:
             log.info("Build Unchanged")
 
@@ -182,23 +182,22 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
     try:
         result = tastyapi_client.import_project(project)
         if result:
-            log.info("Project imported from Open Comparison!")
+            log.info("Successful import from Open Comparison")
         else:
-            log.info("Project failed to import from Open Comparison!")
-
+            log.info("Failed import from Open Comparison")
     except:
-        log.error("Importing from Open Comparison Errored.", exc_info=True)
+        log.info("Failed import from Open Comparison", exc_info=True)
 
     # Try importing from Crate
     try:
         result = tastyapi_client.import_crate(project)
         if result:
-            log.info("Project imported from Crate!")
+            log.info("Successful import from Crate")
         else:
-            log.info("Project failed to import from Crate!")
+            log.info("Failed mport from Crate")
 
     except:
-        log.error("Importing from Crate Errored.", exc_info=True)
+        log.info("Failed import from Crate", exc_info=True)
 
     return True
 
@@ -320,8 +319,8 @@ def scrape_conf_file(version):
 
     try:
         conf_file = project.conf_file(version.slug)
-    except IndexError:
-        print("Could not find conf.py in %s" % project)
+    except (ProjectImportError, IndexError):
+        log.error("Missing conf.py in %s" % project, exc_info=True)
         return -1
     else:
         conf_dir = conf_file.replace('/conf.py', '')
@@ -395,7 +394,7 @@ def build_docs(project, build, version, pdf, man, epub, record, force, update_ou
             try:
                 api.version(version.pk).put(version_data)
             except Exception, e:
-                print "Unable to post a new version: %s" % e
+                log.error("Unable to post a new version", exc_info=True)
 
     if html_builder.changed:
         if record:
@@ -476,7 +475,7 @@ def update_docs_pull(record=False, pdf=False, man=False, force=False):
             update_docs(
                 pk=project.pk, record=record, pdf=pdf, man=man, force=force)
         except Exception, e:
-            print "Failed: %s" % e
+            log.error("update_docs_pull failed", exc_info=True)
 
 
 @task
@@ -505,16 +504,16 @@ def update_intersphinx(version_pk):
     object_file = version.project.find('objects.inv', version.slug)[0]
     path = version.project.rtd_build_path(version.slug)
     if not path:
-        print "ERR: %s has no path" % version
+        log.warning("%s has no path" % version)
         return None
     app = DictObj()
     app.srcdir = path
     try:
         inv = fetch_inventory(app, path, object_file)
-    except TypeError:
-        print "Failed to fetch inventory for %s" % version
+    except TypeError, e:
+        log.error("Failed to fetch inventory for %s" % version, exc_info=True)
         return None
-    # I'm entirelty not sure this is even close to correct.
+    # TODO: I'm entirelty not sure this is even close to correct.
     # There's a lot of info I'm throwing away here; revisit later?
     for keytype in inv:
         for term in inv[keytype]:
@@ -533,13 +532,12 @@ def update_intersphinx(version_pk):
                 save_term(version, term, url, title)
                 if '.' in term:
                     save_term(version, term.split('.')[-1], url, title)
-            except Exception, e: #Yes, I'm an evil person.
-                print "*** Failed updating %s: %s" % (term, e)
+            except Exception, e: # TODO: Handle explicity exceptions
+                log.error("Failed updating %s" % term, exc_info=True)
 
 
 def save_term(version, term, url, title):
     redis_obj = redis.Redis(**settings.REDIS)
-    #print "Inserting %s: %s" % (term, url)
     lang = "en"
     project_slug = version.project.slug
     version_slug = version.slug
@@ -559,7 +557,7 @@ def symlink_cname(version):
     except redis.ConnectionError:
         return
     for cname in cnames:
-        print "Symlinking %s" % cname
+        log.info("Symlinking %s" % cname)
         symlink = version.project.rtd_cname_path(cname)
         run_on_app_servers('mkdir -p %s' % '/'.join(symlink.split('/')[:-1]))
         run_on_app_servers('ln -nsf %s %s' % (build_dir, symlink))
