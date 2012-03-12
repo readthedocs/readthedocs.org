@@ -41,9 +41,10 @@ def import_crate(project):
         log.error("Socket error trying to pull from Create", exc_info=True)
     if resp['status'] == '200':
         content_dict = json.loads(content)
-        project.crate_url = BASE_SERVER + content_dict['objects'][0]['absolute_url']
-        log.debug('Crate URL: %s' % project.crate_url)
-        project.save()
-        return True
+        if content_dict['meta']['total_count'] != 0:
+            project.crate_url = BASE_SERVER + content_dict['objects'][0]['absolute_url']
+            log.debug('Crate URL: %s' % project.crate_url)
+            project.save()
+            return True
     return False
 

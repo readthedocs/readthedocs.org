@@ -194,7 +194,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
         if result:
             log.info("Successful import from Crate")
         else:
-            log.info("Failed mport from Crate")
+            log.info("Failed import from Crate")
 
     except:
         log.info("Failed import from Crate", exc_info=True)
