@@ -5,9 +5,9 @@ import os
 
 from django.utils.html import strip_tags
 
-from haystack import site
-from haystack.indexes import *
-
+#from haystack import site
+from haystack import indexes
+from haystack.fields import CharField
 #from celery_haystack.indexes import SearchIndex
 
 from projects.models import File, ImportedFile, Project
@@ -15,7 +15,7 @@ from projects.models import File, ImportedFile, Project
 import logging
 log = logging.getLogger(__name__)
 
-class ProjectIndex(SearchIndex):
+class ProjectIndex(indexes.SearchIndex, indexes.Indexable):
     text = CharField(document=True, use_template=True)
     author = CharField()
     title = CharField(model_attr='name')
@@ -25,7 +25,7 @@ class ProjectIndex(SearchIndex):
     def prepare_author(self, obj):
         return obj.users.all()[0]
 
-class FileIndex(SearchIndex):
+class FileIndex(indexes.SearchIndex, indexes.Indexable):
     text = CharField(document=True, use_template=True)
     author = CharField()
     project = CharField(model_attr='project__name', faceted=True)
@@ -35,7 +35,7 @@ class FileIndex(SearchIndex):
         return obj.project.users.all()[0]
 
 #Should prob make a common subclass for this and FileIndex
-class ImportedFileIndex(SearchIndex):
+class ImportedFileIndex(indexes.SearchIndex, indexes.Indexable):
     text = CharField(document=True)
     author = CharField()
     project = CharField(model_attr='project__name', faceted=True)
@@ -67,7 +67,3 @@ class ImportedFileIndex(SearchIndex):
             #Pyquery returns ValueError if div.document doesn't exist.
             return
         return to_index
-
-site.register(File, FileIndex)
-site.register(ImportedFile, ImportedFileIndex)
-site.register(Project, ProjectIndex)
