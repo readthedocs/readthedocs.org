@@ -1,5 +1,8 @@
+import logging
 from django.utils import simplejson as json
 import httplib2
+
+log = logging.getLogger(__name__)
 
 SERVER_LIST = [
 'http://djangopackages.com',
@@ -14,10 +17,10 @@ def import_project(project):
         URL = API_SERVER + "package/%s/" % project.slug
         h = httplib2.Http(timeout=5)
         try:
-            print "Trying to import from %s" % API_SERVER
+            log.info("Trying to import from %s" % API_SERVER)
             resp, content = h.request(URL, "GET")
         except AttributeError:
-            print "Socket error trying to pull from Open Comparison"
+            log.error("Socket error trying to pull from Open Comparison", exc_info=True)
         if resp['status'] == '200':
             content_dict = json.loads(content)
             project.django_packages_url = BASE_SERVER + content_dict['absolute_url']
@@ -32,14 +35,14 @@ def import_crate(project):
     URL = API_SERVER + "package/?name__iexact=%s" % project.slug
     h = httplib2.Http(timeout=5)
     try:
-        print "Trying to import from %s" % API_SERVER
+        log.info("Trying to import from %s" % API_SERVER)
         resp, content = h.request(URL, "GET")
     except AttributeError:
-        print "Socket error trying to pull from Create"
+        log.error("Socket error trying to pull from Create", exc_info=True)
     if resp['status'] == '200':
         content_dict = json.loads(content)
         project.crate_url = BASE_SERVER + content_dict['objects'][0]['absolute_url']
-        print project.crate_url
+        log.debug('Crate URL: %s' % project.crate_url)
         project.save()
         return True
     return False

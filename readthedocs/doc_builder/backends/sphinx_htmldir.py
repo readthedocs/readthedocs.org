@@ -1,3 +1,4 @@
+import logging
 import os
 import shutil
 
@@ -6,6 +7,8 @@ from doc_builder.backends.sphinx import Builder as HtmlBuilder
 from projects.utils import run
 from core.utils import copy_to_app_servers
 from django.conf import settings
+
+log = logging.getLogger(__name__)
 
 class Builder(HtmlBuilder):
 
@@ -28,12 +31,12 @@ class Builder(HtmlBuilder):
         if project.full_build_path(self.version.slug):
             target = project.rtd_build_path(self.version.slug)
             if getattr(settings, "MULTIPLE_APP_SERVERS", None):
-                print "Copying docs to remote server."
+                log.info("Copying docs to remote server.")
                 copy_to_app_servers(project.full_build_path(self.version.slug), target)
             else:
                 if os.path.exists(target):
                     shutil.rmtree(target)
-                print "Copying docs on the local filesystem"
+                log.info("Copying docs on the local filesystem")
                 shutil.copytree(project.full_build_path(self.version.slug), target)
         else:
-            print "Not moving docs, because the build dir is unknown."
+            log.warning("Not moving docs, because the build dir is unknown.")

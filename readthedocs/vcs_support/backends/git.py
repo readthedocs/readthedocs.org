@@ -1,3 +1,4 @@
+import logging
 import csv
 import os
 from os.path import exists, join as pjoin
@@ -8,6 +9,7 @@ from projects.exceptions import ProjectImportError
 from vcs_support.backends.github import GithubContributionBackend
 from vcs_support.base import BaseVCS, VCSVersion
 
+log = logging.getLogger(__name__)
 
 class Backend(BaseVCS):
     supports_tags = True
@@ -50,12 +52,8 @@ class Backend(BaseVCS):
         code, out, err = self.run('git', 'reset', '--hard',
                                   'origin/%s' % branch)
         if code != 0:
-            print "Failed to get code from '%s' (git reset): %s" % (
-                self.repo_url, code)
-            print "Going on because this might not be horrible."
-            #raise ProjectImportError(
-                #"Failed to get code from '%s' (git reset): %s" % (self.repo_url, retcode)
-            #)
+            log.warning("Failed to get code from '%s' (git reset): %s" % (
+                self.repo_url, code))
         return [code, out, err]
 
     def clone(self):

@@ -2,6 +2,7 @@ import os
 import shutil
 import codecs
 import zipfile
+import logging
 
 from django.template.loader import render_to_string
 from django.template import Template, Context
@@ -12,6 +13,8 @@ from django.conf import settings
 from doc_builder.base import BaseBuilder, restoring_chdir
 from projects.utils import safe_write, run
 from core.utils import copy_to_app_servers, copy_file_to_app_servers
+
+log = logging.getLogger(__name__)
 
 
 RTD_CONF_ADDITIONS = """
@@ -95,11 +98,11 @@ class Builder(BaseBuilder):
         outfile.write(rtd_string)
 
     def clean(self):
+        log.info("Project whitelisted")
         try:
-            print "Project whitelisted"
             self._whitelisted()
         except (OSError, SiteProfileNotAvailable, ObjectDoesNotExist):
-            print "Conf file not found. Error writing to disk."
+            log.error("Conf file not found. Error writing to disk.", exc_info=True)
             return ('', 'Conf file not found. Error writing to disk.', -1)
 
     @restoring_chdir
@@ -125,7 +128,7 @@ class Builder(BaseBuilder):
         to_path = self.version.project.checkout_path(self.version.slug)
         to_file = os.path.join(to_path, '%s.zip' % self.version.project.slug)
 
-        print "Creating zip file from %s" % from_path
+        log.info("Creating zip file from %s" % from_path)
         # Create a <slug>.zip file containing all files in file_path
         os.chdir(from_path)
         archive = zipfile.ZipFile(to_file, 'w')
@@ -146,12 +149,12 @@ class Builder(BaseBuilder):
             #Copy the html files.
             target = project.rtd_build_path(self.version.slug)
             if getattr(settings, "MULTIPLE_APP_SERVERS", None):
-                print "Copying docs to remote server."
+                log.info("Copying docs to remote server.")
                 copy_to_app_servers(project.full_build_path(self.version.slug), target)
             else:
                 if os.path.exists(target):
                     shutil.rmtree(target)
-                print "Copying docs on the local filesystem"
+                log.info("Copying docs on the local filesystem")
                 shutil.copytree(project.full_build_path(self.version.slug), target)
 
             #Copy the zip file.
@@ -169,4 +172,4 @@ class Builder(BaseBuilder):
                     os.makedirs(to_path)
                 run('mv -f %s %s' % (from_file, to_file))
         else:
-            print "Not moving docs, because the build dir is unknown."
+            log.warning("Not moving docs, because the build dir is unknown.")

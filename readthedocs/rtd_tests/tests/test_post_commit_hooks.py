@@ -1,8 +1,11 @@
 from django.test import TestCase
 import json
+import logging
 
 from projects.models import Project
 from projects import tasks
+
+log = logging.getLogger(__name__)
 
 class PostCommitTest(TestCase):
     fixtures = ["eric", "test_data"]
@@ -13,7 +16,7 @@ class PostCommitTest(TestCase):
     def setUp(self):
         self.old_bd = tasks.update_docs
         def mock(*args, **kwargs):
-            print "Mocking for great profit and speed."
+            log.info("Mocking for great profit and speed.")
         tasks.update_docs = mock
 
         self.client.login(username='eric', password='test')

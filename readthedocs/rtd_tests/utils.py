@@ -1,8 +1,11 @@
+import logging
 from os import chdir, environ, getcwd
 from os.path import abspath, join as pjoin
 from shutil import copytree
 import subprocess
 from tempfile import mkdtemp
+
+log = logging.getLogger(__name__)
 
 
 def check_output(l, env=()):
@@ -23,9 +26,9 @@ def make_test_git():
     env = environ.copy()
     env['GIT_DIR'] = pjoin(directory, '.git')
     chdir(directory)
-    print check_output(['git', 'init'] + [directory], env=env)
-    print check_output(['git', 'add', '.'], env=env)
-    print check_output(['git', 'commit', '-m"init"'], env=env)
+    log.info(check_output(['git', 'init'] + [directory], env=env))
+    log.info(check_output(['git', 'add', '.'], env=env))
+    log.info(check_output(['git', 'commit', '-m"init"'], env=env))
     chdir(path)
     return directory
 
@@ -37,8 +40,8 @@ def make_test_hg():
     directory = pjoin(directory, 'sample_repo')
     copytree(sample, directory)
     chdir(directory)
-    print check_output(['hg', 'init'] + [directory])
-    print check_output(['hg', 'add', '.'])
-    print check_output(['hg', 'commit', '-m"init"'])
+    log.info(check_output(['hg', 'init'] + [directory]))
+    log.info(check_output(['hg', 'add', '.']))
+    log.info(check_output(['hg', 'commit', '-m"init"']))
     chdir(path)
     return directory

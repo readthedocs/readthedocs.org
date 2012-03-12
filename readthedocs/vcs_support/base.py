@@ -1,3 +1,4 @@
+import logging
 from collections import namedtuple
 import os
 from os.path import basename
@@ -5,6 +6,7 @@ import subprocess
 
 from django.template.defaultfilters import slugify
 
+log = logging.getLogger(__name__)
 
 class VCSVersion(object):
     """
@@ -48,11 +50,11 @@ class BaseCLI(object):
                                    stderr=subprocess.PIPE,
                                    cwd=self.working_dir, shell=False,
                                    env=self.env)
-        print self.log_tmpl.format(ident=basename(self.working_dir),
-                                   args=' '.join(args))
+        log.info(self.log_tmpl.format(ident=basename(self.working_dir),
+                                   args=' '.join(args)))
         stdout, stderr = process.communicate()
-        print self.log_tmpl.format(ident=basename(self.working_dir),
-                                   args=stdout)
+        log.info(self.log_tmpl.format(ident=basename(self.working_dir),
+                                   args=stdout))
         return (process.returncode, stdout, stderr)
 
     @property

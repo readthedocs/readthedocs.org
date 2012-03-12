@@ -1,3 +1,4 @@
+import logging
 from django.conf import settings
 from github2.client import Github
 from vcs_support.base import BaseContributionBackend
@@ -5,6 +6,8 @@ import base64
 import os
 import urllib
 import urllib2
+
+log = logging.getLogger(__name__)
 
 
 GITHUB_URLS = ('git://github.com', 'https://github.com', 'http://github.com')
@@ -21,9 +24,9 @@ class GithubContributionBackend(BaseContributionBackend):
         self.gh = Github(username=GITHUB_USERNAME, api_token=GITHUB_TOKEN)
 
     def run(self, *args):
-        print args
+        log.debug(args)
         ret = super(GithubContributionBackend, self).run(*args)
-        print ret
+        log.debug(ret)
         return ret
 
     @classmethod
@@ -83,7 +86,7 @@ class GithubContributionBackend(BaseContributionBackend):
         have to do it manually using urllib2 :(
         """
         identifier = self.get_branch_identifier(branch)
-        print 'pushing branch %s in %s' % (identifier, self._gh_name())
+        log.info('pushing branch %s in %s' % (identifier, self._gh_name()))
         # first push the branch to the rtd-account on github.
         self.check_remote()
         self.push_remote(identifier)
@@ -99,10 +102,10 @@ class GithubContributionBackend(BaseContributionBackend):
         """
         Open an actual pull request
         """
-        print 'pull request %s:%s to %s (%s/%s)' % (
-            GITHUB_USERNAME, identifier, self.gh_name(), title, comment)
+        log.info('pull request %s:%s to %s (%s/%s)' % (
+            GITHUB_USERNAME, identifier, self.gh_name(), title, comment))
         url = 'https://github.com/api/v2/json/pulls/%s' % self._gh_name()
-        print url
+        log.debug(url)
         request = urllib2.Request(url)
         auth = base64.encodestring('%s/token:%s' % (
                 GITHUB_USERNAME, GITHUB_TOKEN))[:-1]
@@ -118,11 +121,10 @@ class GithubContributionBackend(BaseContributionBackend):
         }
         pull_request_data = [("pull[%s]" % k, v) for k, v in data.items()]
         postdata = urllib.urlencode(pull_request_data)
-        print 'postdata:'
-        print postdata
+        log.debug('postdata: %s' % postdata)
         handler = urllib2.urlopen(request, postdata)
-        print handler.headers.dict
-        print handler.read()
+        log.debug(handler.headers.dict)
+        log.debug(handler.read())
 
     def gh_name(self):
         return '%s/%s' % (self.gh_user(), self.gh_reponame())
@@ -140,17 +142,17 @@ class GithubContributionBackend(BaseContributionBackend):
         """
         Check if the RTD remote is available in this repository, if not, add it.
         """
-        print 'checking remote'
+        log.info('checking remote')
         if not self.has_fork():
-            print 'no fork available'
+            log.info('no fork available')
             self.fork()
         else:
-            print 'fork found'
+            log.info('fork found')
         if 'rtd' not in self.run('git', 'remote')[1]:
-            print 'rtd remote not yet specified'
+            log.info('rtd remote not yet specified')
             self.run('git', 'remote', 'add', 'rtd', self.get_remote_name())
         else:
-            print 'rtd remote found'
+            log.info('rtd remote found')
 
     def get_remote_name(self):
         return 'git@github.com:%s/%s.git' % (
@@ -160,7 +162,7 @@ class GithubContributionBackend(BaseContributionBackend):
         """
         push a local branch to the RTD remote
         """
-        print 'pushing %s to remote %s' % (identifier, self.get_remote_name())
+        log.info('pushing %s to remote %s' % (identifier, self.get_remote_name()))
         self.run('git', 'push', 'rtd', identifier)
 
     def has_fork(self):
@@ -168,8 +170,8 @@ class GithubContributionBackend(BaseContributionBackend):
             r.name for r in self.gh.repos.list(GITHUB_USERNAME)]
 
     def fork(self):
-        print 'forking %s to %s' % (self.gh_name(), GITHUB_USERNAME)
-        print self.gh.repos.fork(self.gh_name())
+        log.info('forking %s to %s' % (self.gh_name(), GITHUB_USERNAME))
+        log.info(self.gh.repos.fork(self.gh_name()))
 
     @property
     def env(self):
