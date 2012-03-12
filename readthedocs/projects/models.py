@@ -10,6 +10,7 @@ from django.template.defaultfilters import slugify
 from django.template.loader import render_to_string
 
 from projects import constants
+from projects.exceptions import ProjectImportError
 from projects.templatetags.projects_tags import sort_version_aware
 from projects.utils import diff, dmp, safe_write
 from projects.utils import highest_version as _highest
@@ -248,8 +249,7 @@ class Project(models.Model):
                 if file.find('doc', 70) != -1:
                     return file
         else:
-            print("Could not find conf.py in %s" % self)
-            return ''
+            raise ProjectImportError("Conf File Missing.")
 
     def conf_dir(self, version='latest'):
         conf_file = self.conf_file(version)

@@ -224,9 +224,8 @@ def update_imported_docs(project, version):
         version_repo = project.vcs_repo(version_slug)
         update_docs_output['checkout'] = version_repo.update()
 
-    #Break early without a conf file.
-    if not project.conf_file(version.slug):
-        raise ProjectImportError("Conf File Missing. Skipping.")
+    # Ensure we have a conf file (an exception is raised if not)
+    conf_file = project.conf_file(version.slug)
 
     #Do Virtualenv bits:
     if project.use_virtualenv:
