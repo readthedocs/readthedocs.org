@@ -1,13 +1,18 @@
+import logging
+
 from django.core.management.base import BaseCommand
 from optparse import make_option
 from projects import tasks
 from projects.models import Project
 from builds.models import Version
 
+log = logging.getLogger(__name__)
+
 class Command(BaseCommand):
     """Custom management command to rebuild documentation for all projects on
     the site. Invoked via ``./manage.py update_repos``.
     """
+
     option_list = BaseCommand.option_list + (
         make_option('-p',
             action='store_true',
@@ -42,7 +47,7 @@ class Command(BaseCommand):
         if len(args):
             for slug in args:
                 if version and version != "all":
-                    print "Updating version %s for %s" % (version, slug)
+                    log.info("Updating version %s for %s" % (version, slug))
                     for version in Version.objects.filter(project__slug=slug,
                                                           slug=version):
                         tasks.update_docs(version.project_id,
@@ -50,7 +55,7 @@ class Command(BaseCommand):
                                           record=False,
                                           version_pk=version.pk)
                 elif version == "all":
-                    print "Updating all versions for %s" % slug
+                    log.info("Updating all versions for %s" % slug)
                     for version in Version.objects.filter(project__slug=slug,
                                                           active=True,
                                                           uploaded=False):
@@ -60,11 +65,11 @@ class Command(BaseCommand):
                                           version_pk=version.pk)
                 else:
                     p = Project.objects.get(slug=slug)
-                    print "Building %s" % p
+                    log.info("Building %s" % p)
                     tasks.update_docs(pk=p.pk, pdf=make_pdf, force=force)
         else:
             if version == "all":
-                print "Updating all versions"
+                log.info("Updating all versions")
                 for version in Version.objects.filter(active=True,
                                                       uploaded=False):
                     tasks.update_docs(pk=version.project_id,
@@ -73,7 +78,12 @@ class Command(BaseCommand):
                                       force=force,
                                       version_pk=version.pk)
             else:
-                print "Updating all docs"
+                log.info("Updating all docs")
                 tasks.update_docs_pull(pdf=make_pdf,
                                        record=record,
                                        force=force)
+ 
+    @property
+    def help(self):
+        return Command.__doc__
+ 

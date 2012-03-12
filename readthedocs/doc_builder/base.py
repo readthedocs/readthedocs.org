@@ -38,7 +38,7 @@ class BaseBuilder(object):
         """
         An optional step to force a build even when nothing has changed.
         """
-        print "Forcing a build"
+        log.info("Forcing a build")
         self.force = True
 
     def clean(self):

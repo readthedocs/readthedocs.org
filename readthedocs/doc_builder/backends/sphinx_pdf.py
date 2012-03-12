@@ -1,6 +1,7 @@
 from glob import glob
 import re
 import os
+import logging
 
 from django.conf import settings
 
@@ -12,6 +13,7 @@ from core.utils import copy_file_to_app_servers
 latex_re = re.compile('the LaTeX files are in (.*)\.')
 pdf_re = re.compile('Output written on (.+) \(')
 
+log = logging.getLogger(__name__)
 
 class Builder(BaseBuilder):
 
@@ -51,7 +53,7 @@ class Builder(BaseBuilder):
                                 os.makedirs(to_path)
                             run('mv -f %s %s' % (from_file, to_file))
         else:
-            print "PDF Building failed. Moving on."
+            log.warning("PDF Building failed. Moving on.")
         return (latex_results, pdf_results)
 
 

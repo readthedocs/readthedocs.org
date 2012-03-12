@@ -5,6 +5,7 @@ import os
 import re
 import subprocess
 import traceback
+import logging
 
 from distutils2.version import NormalizedVersion, suggest_normalized_version
 from django.conf import settings
@@ -13,6 +14,7 @@ import redis
 
 from projects.libs.diff_match_patch import diff_match_patch
 
+log = logging.getLogger(__name__)
 
 def find_file(file):
     """Find matching filenames in the current directory and its subdirectories,
@@ -45,7 +47,7 @@ def run(*commands):
         raise ValueError("run() requires one or more command-line strings")
 
     for command in commands:
-        print("Running: '%s'" % command)
+        log.info("Running: '%s'" % command)
         try:
             p = subprocess.Popen(command.split(), shell=False, cwd=cwd,
                                  stdout=subprocess.PIPE, stderr=subprocess.PIPE,
@@ -57,7 +59,7 @@ def run(*commands):
             out = ''
             err = traceback.format_exc()
             ret = -1
-            print "Command failed: %s" % err
+            log.error("Command failed", exc_info=True)
 
     return (ret, out, err)
 
@@ -136,17 +138,17 @@ def purge_version(version, mainsite=False, subdomain=False, cname=False):
                 headers = {'Host': host}
                 url = "/en/%s/*" % version.slug
                 to_purge = "http://%s%s" % (server, url)
-                print "Purging %s on %s" % (url, host)
+                log.info("Purging %s on %s" % (url, host))
                 ret = h.request(to_purge, method="PURGE", headers=headers)
             if mainsite:
                 headers = {'Host': "readthedocs.org"}
                 url = "/docs/%s/en/%s/*" % (version.project.slug, version.slug)
                 to_purge = "http://%s%s" % (server, url)
-                print "Purging %s on readthedocs.org" % url
+                log.info("Purging %s on readthedocs.org" % url)
                 ret = h.request(to_purge, method="PURGE", headers=headers)
                 root_url = "/docs/%s/" % version.project.slug
                 to_purge = "http://%s%s" % (server, root_url)
-                print "Purging %s on readthedocs.org" % root_url
+                log.info("Purging %s on readthedocs.org" % root_url)
                 ret2 = h.request(to_purge, method="PURGE", headers=headers)
             if cname:
                 redis_conn = redis.Redis(**settings.REDIS)
@@ -154,11 +156,11 @@ def purge_version(version, mainsite=False, subdomain=False, cname=False):
                     headers = {'Host': cnamed}
                     url = "/en/%s/*" % version.slug
                     to_purge = "http://%s%s" % (server, url)
-                    print "Purging %s on %s" % (url, cnamed)
+                    log.info("Purging %s on %s" % (url, cnamed))
                     ret = h.request(to_purge, method="PURGE", headers=headers)
                     root_url = "/"
                     to_purge = "http://%s%s" % (server, root_url)
-                    print "Purging %s on %s" % (root_url, cnamed)
+                    log.info("Purging %s on %s" % (root_url, cnamed))
                     ret2 = h.request(to_purge, method="PURGE", headers=headers)
 
 class DictObj(object):

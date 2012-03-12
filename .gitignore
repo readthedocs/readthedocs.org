@@ -16,4 +16,4 @@ xml_output
 locks/*
 readthedocs/rtd_tests/tests/builds
 deploy/.vagrant
-rtd.log*
+logs/*

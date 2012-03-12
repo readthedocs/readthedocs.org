@@ -7,6 +7,7 @@ import os
 import re
 import shutil
 import json
+import logging
 
 from celery.decorators import task
 from django.db import transaction
@@ -36,6 +37,7 @@ from core.utils import copy_to_app_servers, run_on_app_servers
 ghetto_hack = re.compile(
     r'(?P<key>.*)\s*=\s*u?\[?[\'\"](?P<value>.*)[\'\"]\]?')
 
+log = logging.getLogger(__name__)
 
 @task
 def remove_dir(path):
@@ -45,7 +47,7 @@ def remove_dir(path):
     This is mainly a wrapper around shutil.rmtree so that app servers
     can kill things on the build server.
     """
-    print "Removing %s" % path
+    log.info("Removing %s" % path)
     shutil.rmtree(path)
 
 
@@ -58,6 +60,14 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
     It handles all of the logic around whether a project is imported or we created it.
     Then it will build the html docs and other requested parts.
     It also handles clearing the varnish cache.
+
+    `pk`
+        Primary key of the project to update
+
+    `record`
+        Whether or not to keep a record of the update in the database. Useful 
+        for preventing changes visible to the end-user when running commands from
+        the shell, for example.
     """
 
     ###
@@ -69,14 +79,14 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
     del project_data['resource_uri']
     del project_data['absolute_url']
     project = Project(**project_data)
+
+    # Prevent saving the temporary Project instance
     def new_save(*args, **kwargs):
-        #fields = [(field, field.value_to_string(self)) for field in self._meta.fields]
-        print "*** Called save on a non-real object."
-        #print fields
-        #raise TypeError('Not a real model')
+        log.warning("Called save on a non-real object.")
         return 0
     project.save = new_save
-    print "Building %s" % project
+
+    log.info("Building %s" % project)
     if version_pk:
         version_data = api.version(version_pk).get()
         del version_data['resource_uri']
@@ -140,7 +150,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
             try:
                 update_output = update_imported_docs(project, version)
             except ProjectImportError, err:
-                print("Error importing project: %s. Skipping build." % err)
+                log.error("Failed to import project; skipping build.", exc_info=True)
                 return False
 
             #scrape_conf_file(version)
@@ -156,39 +166,38 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
                                      record=record, force=force, update_output=update_output)
         if not 'no targets are out of date.' in out:
             if ret == 0:
-                print "HTML Build OK"
+                log.info("Successful HTML Build")
                 purge_version(version, subdomain=True,
                               mainsite=True, cname=True)
                 symlink_cname(version)
                 update_intersphinx(version.pk)
                 #send_notifications(version)
-                print "Purged %s" % version
+                log.info("Purged %s" % version)
             else:
-                print "HTML Build ERROR"
+                log.warning("Failed HTML Build")
         else:
-            print "Build Unchanged"
+            log.info("Build Unchanged")
 
     # Try importing from Open Comparison sites.
     try:
         result = tastyapi_client.import_project(project)
         if result:
-            print "Project imported from Open Comparison!"
+            log.info("Successful import from Open Comparison")
         else:
-            print "Project failed to import from Open Comparison!"
-
+            log.info("Failed import from Open Comparison")
     except:
-        print "Importing from Open Comparison Errored."
+        log.info("Failed import from Open Comparison", exc_info=True)
 
     # Try importing from Crate
     try:
         result = tastyapi_client.import_crate(project)
         if result:
-            print "Project imported from Crate!"
+            log.info("Successful import from Crate")
         else:
-            print "Project failed to import from Crate!"
+            log.info("Failed mport from Crate")
 
     except:
-        print "Importing from Crate Errored."
+        log.info("Failed import from Crate", exc_info=True)
 
     return True
 
@@ -203,20 +212,19 @@ def update_imported_docs(project, version):
                 repo_type=project.repo_type))
 
     if version:
-        print 'Checking out version {slug}: {identifier}'.format(
-            slug=version.slug, identifier=version.identifier)
+        log.info('Checking out version {slug}: {identifier}'.format(
+            slug=version.slug, identifier=version.identifier))
         version_slug = version.slug
         version_repo = project.vcs_repo(version_slug)
         update_docs_output['checkout'] = version_repo.checkout(version.identifier)
     else:
-        print 'Updating to latest revision'
+        log.info('Updating to latest revision')
         version_slug = 'latest'
         version_repo = project.vcs_repo(version_slug)
         update_docs_output['checkout'] = version_repo.update()
 
-    #Break early without a conf file.
-    if not project.conf_file(version.slug):
-        raise ProjectImportError("Conf File Missing. Skipping.")
+    # Ensure we have a conf file (an exception is raised if not)
+    conf_file = project.conf_file(version.slug)
 
     #Do Virtualenv bits:
     if project.use_virtualenv:
@@ -255,16 +263,16 @@ def update_imported_docs(project, version):
                         identifier=tag.identifier,
                         verbose_name=tag.verbose_name
                     ))
-                    print "New tag found: %s" % tag.identifier
+                    log.info("New tag found: {0}".format(tag.identifier))
                     highest = project.highest_version['version']
                     ver_obj = mkversion(ver)
                     #TODO: Handle updating higher versions automatically.
                     #This never worked very well, anyways.
                     if highest and ver_obj and ver_obj > highest:
-                        print "Highest verison known, building docs"
+                        log.info("Highest verison known, building docs")
                         update_docs.delay(ver.project.pk, version_pk=ver.pk)
                 except Exception, e:
-                    print "Failed to create version (tag): %s" % e
+                    log.error("Failed to create version (tag)", exc_info=True)
                     transaction.rollback()
                     #break
             transaction.leave_transaction_management()
@@ -284,15 +292,15 @@ def update_imported_docs(project, version):
                         identifier=branch.identifier,
                         verbose_name=branch.verbose_name
                     ))
-                    print "New branch found: %s" % branch.identifier
+                    log.info("New branch found: {0}".format(branch.identifier))
                 except Exception, e:
-                    print "Failed to create version (branch): %s" % e
+                    log.error("Failed to create version (branch)", exc_info=True)
                     transaction.rollback()
                     #break
             transaction.leave_transaction_management()
             #TODO: Kill deleted branches
     except ValueError, e:
-        print "Error getting tags: %s" % e
+        log.error("Error getting tags", exc_info=True)
 
     #TODO: Find a better way to handle indexing.
     #fileify(version)
@@ -311,8 +319,8 @@ def scrape_conf_file(version):
 
     try:
         conf_file = project.conf_file(version.slug)
-    except IndexError:
-        print("Could not find conf.py in %s" % project)
+    except (ProjectImportError, IndexError):
+        log.error("Missing conf.py in %s" % project, exc_info=True)
         return -1
     else:
         conf_dir = conf_file.replace('/conf.py', '')
@@ -386,7 +394,7 @@ def build_docs(project, build, version, pdf, man, epub, record, force, update_ou
             try:
                 api.version(version.pk).put(version_data)
             except Exception, e:
-                print "Unable to post a new version: %s" % e
+                log.error("Unable to post a new version", exc_info=True)
 
     if html_builder.changed:
         if record:
@@ -466,8 +474,8 @@ def update_docs_pull(record=False, pdf=False, man=False, force=False):
         try:
             update_docs(
                 pk=project.pk, record=record, pdf=pdf, man=man, force=force)
-        except:
-            print "failed"
+        except Exception, e:
+            log.error("update_docs_pull failed", exc_info=True)
 
 
 @task
@@ -496,16 +504,16 @@ def update_intersphinx(version_pk):
     object_file = version.project.find('objects.inv', version.slug)[0]
     path = version.project.rtd_build_path(version.slug)
     if not path:
-        print "ERR: %s has no path" % version
+        log.warning("%s has no path" % version)
         return None
     app = DictObj()
     app.srcdir = path
     try:
         inv = fetch_inventory(app, path, object_file)
-    except TypeError:
-        print "Failed to fetch inventory for %s" % version
+    except TypeError, e:
+        log.error("Failed to fetch inventory for %s" % version, exc_info=True)
         return None
-    # I'm entirelty not sure this is even close to correct.
+    # TODO: I'm entirelty not sure this is even close to correct.
     # There's a lot of info I'm throwing away here; revisit later?
     for keytype in inv:
         for term in inv[keytype]:
@@ -524,13 +532,12 @@ def update_intersphinx(version_pk):
                 save_term(version, term, url, title)
                 if '.' in term:
                     save_term(version, term.split('.')[-1], url, title)
-            except Exception, e: #Yes, I'm an evil person.
-                print "*** Failed updating %s: %s" % (term, e)
+            except Exception, e: # TODO: Handle explicity exceptions
+                log.error("Failed updating %s" % term, exc_info=True)
 
 
 def save_term(version, term, url, title):
     redis_obj = redis.Redis(**settings.REDIS)
-    #print "Inserting %s: %s" % (term, url)
     lang = "en"
     project_slug = version.project.slug
     version_slug = version.slug
@@ -550,7 +557,7 @@ def symlink_cname(version):
     except redis.ConnectionError:
         return
     for cname in cnames:
-        print "Symlinking %s" % cname
+        log.info("Symlinking %s" % cname)
         symlink = version.project.rtd_cname_path(cname)
         run_on_app_servers('mkdir -p %s' % '/'.join(symlink.split('/')[:-1]))
         run_on_app_servers('ln -nsf %s %s' % (build_dir, symlink))
