@@ -72,19 +72,6 @@ class PostCommitTest(TestCase):
                 }
             }
 
-
-    def test_github_post_commit_hook_knows_the_repo_url(self):
-        """
-        Test the github post commit hook so only the main repo (or at
-        least the one specified in the project) is the only one that
-        triggers builds.
-        """
-        r = self.client.post('/github/', {'payload': json.dumps(self.payload)})
-        self.assertEqual(r.status_code, 200)
-        self.payload['repository']['url'] = "https://github.com/wraithan/readthedocs.org"
-        r = self.client.post('/github/', {'payload': json.dumps(self.payload)})
-        self.assertEqual(r.status_code, 404)
-
     def test_github_post_commit_hook_builds_branch_docs_if_it_should(self):
         """
         Test the github post commit hook to see if it will only build
