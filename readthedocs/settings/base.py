@@ -62,7 +62,7 @@ TEMPLATE_DIRS = (
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
-    "django.core.context_processors.auth",
+    "django.contrib.auth.context_processors.auth",
     "django.core.context_processors.debug",
     "django.core.context_processors.i18n",
     "django.core.context_processors.media",
@@ -111,9 +111,14 @@ CELERY_SEND_TASK_ERROR_EMAILS = True
 DEFAULT_FROM_EMAIL = "no-reply@readthedocs.org"
 SESSION_COOKIE_DOMAIN = 'readthedocs.org'
 
-HAYSTACK_SITECONF = 'core.search_sites'
-HAYSTACK_SEARCH_ENGINE = 'simple'
+#HAYSTACK_SITECONF = 'core.search_sites'
+#HAYSTACK_SEARCH_ENGINE = 'simple'
 
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.simple_backend.SimpleEngine'
+    }
+}                       
 
 AUTH_PROFILE_MODULE = "core.UserProfile"
 SOUTH_TESTS_MIGRATE = False

@@ -6,7 +6,7 @@ django-celery
 django-kombu
 celery-haystack
 django-extensions
-django-haystack
+#django-haystack
 mimeparse
 django-profiles
 mercurial
@@ -25,4 +25,5 @@ slumber
 -e git+http://github.com/ericflo/django-pagination.git#egg=pagination
 -e git+http://github.com/nathanborror/django-registration.git#egg=django-registration
 -e git+https://github.com/toastdriven/django-tastypie.git#egg=tastypie
+-e git+https://github.com/toastdriven/django-haystack#egg=django-haystack
 
