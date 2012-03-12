@@ -17,6 +17,7 @@ SITE_ROOT = '/'.join(os.path.dirname(__file__).split('/')[0:-2])
 DOCROOT = os.path.join(SITE_ROOT, 'user_builds')
 UPLOAD_ROOT = os.path.join(SITE_ROOT, 'user_uploads')
 CNAME_ROOT = os.path.join(SITE_ROOT, 'cnames')
+LOGS_ROOT = os.path.join(SITE_ROOT, 'logs')
 
 MEDIA_ROOT = '%s/media/' % (SITE_ROOT)
 MEDIA_URL = '/media/'
@@ -145,7 +146,7 @@ LOGGING = {
         'logfile': {
             'level':'DEBUG',
             'class':'logging.handlers.RotatingFileHandler',
-            'filename': SITE_ROOT + "/rtd.log",
+            'filename': os.path.join(LOGS_ROOT, "rtd.log"),
             'maxBytes': 50000,
             'backupCount': backup_count,
             'formatter': 'standard',
@@ -153,11 +154,19 @@ LOGGING = {
         'errorlog': {
             'level':'DEBUG',
             'class':'logging.handlers.RotatingFileHandler',
-            'filename': SITE_ROOT + "/rtd.log",
+            'filename': os.path.join(LOGS_ROOT, "rtd.log"),
             'maxBytes': 50000,
             'backupCount': backup_count,
             'formatter': 'standard',
         },
+        'db': {
+            'level':'DEBUG',
+            'class':'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(LOGS_ROOT, "db.log"),
+            'maxBytes': 50000,
+            'backupCount': backup_count,
+            'formatter': 'standard',
+        }, 
         'mail_admins': {
             'level': 'ERROR',
             'class': 'django.utils.log.AdminEmailHandler',
@@ -175,7 +184,7 @@ LOGGING = {
             'level':'WARN',
         },
         'django.db.backends': {
-            'handlers': ['logfile'],
+            'handlers': ['db'],
             'level': 'DEBUG',
             'propagate': False,
         },
@@ -192,6 +201,10 @@ LOGGING = {
             'handlers': ['console', 'logfile'],
             'level': 'DEBUG',
         },
+        'projects': {
+            'handlers': ['console', 'logfile'],
+            'level': 'DEBUG',
+        },   
     }
 }
 
