@@ -1,6 +1,8 @@
 from functools import wraps
 import os
+import logging
 
+log = logging.getLogger(__name__)
 
 def restoring_chdir(fn):
     #XXX:dc: This would be better off in a neutral module
