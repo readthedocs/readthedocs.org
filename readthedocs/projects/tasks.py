@@ -142,8 +142,6 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
             except ProjectImportError, err:
                 print("Error importing project: %s. Skipping build." % err)
                 return False
-
-            #scrape_conf_file(version)
         else:
             update_created_docs(project)
 
@@ -297,47 +295,6 @@ def update_imported_docs(project, version):
     #TODO: Find a better way to handle indexing.
     #fileify(version)
     return update_docs_output
-
-
-def scrape_conf_file(version):
-    """
-    Locate the given project's ``conf.py`` file and extract important
-    settings, including copyright, theme, source suffix and version.
-    """
-    #This is where we actually find the conf.py, so we can't use
-    #the value from the project :)
-    project = version.project
-    project_data = api.project(project.pk).get()
-
-    try:
-        conf_file = project.conf_file(version.slug)
-    except IndexError:
-        print("Could not find conf.py in %s" % project)
-        return -1
-    else:
-        conf_dir = conf_file.replace('/conf.py', '')
-
-    os.chdir(conf_dir)
-    lines = open('conf.py').readlines()
-    data = {}
-    for line in lines:
-        match = ghetto_hack.search(line)
-        if match:
-            data[match.group(1).strip()] = match.group(2).strip()
-    project_data['copyright'] = data.get('copyright', 'Unknown')
-    project_data['theme'] = data.get('html_theme', 'default')
-    if len(project.theme) > 20:
-        project_data['theme'] = 'default'
-    project_data['suffix'] = data.get('source_suffix', '.rst')
-    project_data['path'] = os.getcwd()
-
-    try:
-        project_data['version'] = str(decimal.Decimal(data.get('version')))
-    except (TypeError, decimal.InvalidOperation):
-        project_data['version'] = ''
-
-    api.project(project.pk).put(project_data)
-
 
 def update_created_docs(project):
     """
