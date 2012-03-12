@@ -8,7 +8,7 @@ This document covers the read-only API provided. We have plans to create a read/
 The API is written in Tastypie, which provides a nice ability to browse the API from your browser. If you go to http://readthedocs.org/api/v1/?format=json and just poke around, you should be able to figure out what is going on.
 
 A basic API client using slumber
-================================
+--------------------------------
 
 You can use `Slumber <http://slumber.in/>`_ to build basic API wrappers in python. Here is a simple example of using slumber to interact with the RTD API::
 
@@ -39,7 +39,7 @@ You can use `Slumber <http://slumber.in/>`_ to build basic API wrappers in pytho
         print json.dumps(val, indent=4)
 
 Example of adding a user to a project
---------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
 
@@ -71,52 +71,68 @@ Example of adding a user to a project
 
 
 API Examples
-============
+------------
 
 In all of these examples, replace `pip` with your own project.
 
 Project Details
----------------
+~~~~~~~~~~~~~~~
 
 cURL
-~~~~~
+`````
 Feel free to use cURL and python to look at formatted json examples. You can also look at them in your browser, if it handles returned json.
 
 `curl http://readthedocs.org/api/v1/project/pip/?format=json |python -mjson.tool`
 
 
 URL
-~~~
+```
 http://readthedocs.org/api/v1/project/pip/?format=json
 
 
 Build List
-----------
+~~~~~~~~~~
 
 URL
-~~~
+```
 http://readthedocs.org/api/v1/build/pip/?format=json
 
 Version List
--------------
+~~~~~~~~~~~~
 
 URL
-~~~
+```
 http://readthedocs.org/api/v1/version/pip/?format=json
 
 
 Highest Version
-----------------
+~~~~~~~~~~~~~~~
 
 URL
-~~~
+```
 http://readthedocs.org/api/v1/version/pip/highest/?format=json
 
 Compare Highest Version
------------------------
+~~~~~~~~~~~~~~~~~~~~~~~
 
 URL
-~~~
+```
 http://readthedocs.org/api/v1/version/pip/highest/0.8/?format=json
 
 This will allow you to compare whether a certain version is the highest version of a specific project. The above query should return a `'is_highest': false` in the returned dictionary.
+
+File Search
+~~~~~~~~~~~
+
+URL
+```
+http://readthedocs.org/api/v1/file/search/?format=json&q=virtualenv
+
+
+Anchor Search
+~~~~~~~~~~~~~
+
+URL
+```
+http://readthedocs.org/api/v1/file/anchor/?format=json&q=virtualenv
+
