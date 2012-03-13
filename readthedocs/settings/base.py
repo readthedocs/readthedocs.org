@@ -112,12 +112,10 @@ CELERY_SEND_TASK_ERROR_EMAILS = True
 DEFAULT_FROM_EMAIL = "no-reply@readthedocs.org"
 SESSION_COOKIE_DOMAIN = 'readthedocs.org'
 
-#HAYSTACK_SITECONF = 'core.search_sites'
-#HAYSTACK_SEARCH_ENGINE = 'simple'
-
 HAYSTACK_CONNECTIONS = {
     'default': {
-        'ENGINE': 'haystack.backends.simple_backend.SimpleEngine'
+        'ENGINE': 'haystack.backends.solr_backend.SolrEngine',
+        'URL': 'http://127.0.0.1:8983/solr',
     }
 }                       
 
