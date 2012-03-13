@@ -49,10 +49,48 @@ Or you can skip it and start with a fresh, empty site. Finally, you're ready to
 start the webserver::
 
     ./manage.py runserver
-
+ 
 Visit http://127.0.0.1:8000/ in your browser to see how it looks; you can use
 the admin interface via http://127.0.0.1:8000/admin (logging in with the
 superuser account you just created).
+                   
+
+Solr (Search) Setup
+-------------------
+Apache Solr is used to index and search documents. 
+
+Additional python requirements necessary to use Solr::
+
+    pip install pysolr
+    pip install pyquery
+
+Fetch and unpack Solr::
+
+    curl -O http://apache.mirrors.tds.net/lucene/solr/3.5.0/apache-solr-3.5.0.tgz
+    tar xvzf apache-solr-3.5.0.tgz && SOLR_PATH=`pwd`/apache-solr-3.5.0/example
+
+Generate the schema.xml file::
+
+    ./manage.py build_solr_schema > $SOLR_PATH/solr/conf/schema.xml
+
+Start the server::
+
+    cd $SOLR_PATH && java -jar start.jar
+
+Index the data::
+    
+    ./manage.py build_files # creates database objects referencing project files
+    ./manage.py update_index
+
+.. note::
+
+    For production environments, you'll want to run Solr in a more permanent
+    servelet container, such as Tomcat or Jetty. Ubuntu distributions include
+    prepackaged Solr installations. Try ``aptitude install solr-tomcat`` or 
+    ``aptitude install solr-jetty.``
+
+    See /etc/[solr|tomcat6|jetty] for configuration options.  The ``schema.xml``
+    file must be replaced with the version built by django-haystack.
 
 
 What's available
