@@ -6,7 +6,7 @@ import settings.sqlite
 from django.core.management import setup_environ
 setup_environ(settings.sqlite)
 
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.intersphinx']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.intersphinx', 'sphinx_http_domain']
 templates_path = ['_templates']
 source_suffix = '.rst'
 master_doc = 'index'
