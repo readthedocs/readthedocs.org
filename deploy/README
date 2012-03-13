@@ -16,9 +16,50 @@ export AWS_SECRET_ACCESS_KEY=XXXXXXXXXXXXXXXXXX
 # create a amazon ec2 key pair for "rtfd" and save it to ~/.ssh/rtfd.pem
 knife ec2 server create -r 'role[webserver]' -I ami-7000f019 -f m1.small
 
+# you can run this to get the servers you have running, as well as their ip addresses
+knife ec2 server list
+
+# if you ever want to start over from scratch you can destroy the instance by doing 
+knife ec2 delete i-xxxxxxx
+
 # more work is needed for it to be integrated into knife 
 
 
+# ssh to the machine 
+ssh -i ~/.ssh/rtfd.pem ubuntu@X.X.X.X
+sudo su - 
+edit .ssh/authorized_keys 
+
+# remove section command="echo 'Please login as the ubuntu user rather than root user.';echo;sleep 10"
+# so it starts with ssh-rsa
+# This should be automated 
+
+
+# if fabric is not installed you will need to do a 
+pip install fabric 
+
+# install chef on the ec2 server
+fab install_chef -H X.X.X.X -i ~/.ssh/rtfd.pem
+
+# sync the chef scripts to the server 
+# Make sure to have your key in ssh-agent for rsync to use 
+eval `ssh-agent`
+ssh-add ~/.ssh/rtfd.pem 
+fab sync_config -H X.X.X.X -i ~/.ssh/rtfd.pem
+
+# sync and run chef on the ec2 instance
+fab update -H X.X.X.X -i ~/.ssh/rtfd.pem
+
+ 
+
+
 To use Vagrant 
+
+# get latest virtualbox if you don't already have it  
+http://www.virtualbox.org/wiki/Downloads
+
+# get the latest vagrant 
+# install from downloads or from gem
+http://downloads.vagrantup.com/
 
 To start, run `vagrant up`

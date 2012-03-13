@@ -1,6 +1,6 @@
 from fabric.api import env, local, run, sudo
 env.user = 'root'
-env.hosts = ['204.232.205.6']
+#env.hosts = ['204.232.205.6']
 
 env.code_dir = '/home/docs/sites/readthedocs.org/checkouts/readthedocs.org'
 env.virtualenv = '/home/docs/sites/readthedocs.org'
