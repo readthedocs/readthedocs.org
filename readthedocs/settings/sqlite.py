@@ -18,7 +18,6 @@ REDIS = {
 
 
 SESSION_COOKIE_DOMAIN = None
-HAYSTACK_SOLR_URL = 'http://localhost:8983/solr'
 CACHE_BACKEND = 'dummy://'
 
 TEST_RUNNER = 'xmlrunner.extra.djangotestrunner.XMLTestRunner'

@@ -25,6 +25,9 @@ class ProjectIndex(indexes.SearchIndex, indexes.Indexable):
     def prepare_author(self, obj):
         return obj.users.all()[0]
 
+    def get_model(self):
+        return Project
+
 class FileIndex(indexes.SearchIndex, indexes.Indexable):
     text = CharField(document=True, use_template=True)
     author = CharField()
@@ -33,6 +36,9 @@ class FileIndex(indexes.SearchIndex, indexes.Indexable):
 
     def prepare_author(self, obj):
         return obj.project.users.all()[0]
+
+    def get_model(self):
+        return File
 
 #Should prob make a common subclass for this and FileIndex
 class ImportedFileIndex(indexes.SearchIndex, indexes.Indexable):
@@ -67,3 +73,6 @@ class ImportedFileIndex(indexes.SearchIndex, indexes.Indexable):
             #Pyquery returns ValueError if div.document doesn't exist.
             return
         return to_index
+
+    def get_model(self):
+        return ImportedFile
