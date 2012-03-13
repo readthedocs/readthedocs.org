@@ -309,7 +309,7 @@ class SearchView(TemplateView):
         )
 
     def get_selected_facets_list(self):
-        return [tuple(s.split(':')) for s in self.selected_facets]
+        return [tuple(s.split(':')) for s in self.selected_facets if s]
 
     def get_selected_facets(self):
         """
