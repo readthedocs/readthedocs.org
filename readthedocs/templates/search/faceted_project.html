@@ -2,8 +2,8 @@
 {% block faceting %}
   {% if query %}
 
-    {% if selected_facets %}
-        <h5>Filtered by {% for facet in selected_facets %}
+    {% if selected_facets_list %}
+        <h5>Filtered by {% for facet in selected_facets_list %}
             <strong>{{ facet.1 }}</strong>{% if not forloop.last %}, {% endif %}
         {% endfor %} <small>(<a href="?q={{ query }}">remove</a>)</small></h5>
 

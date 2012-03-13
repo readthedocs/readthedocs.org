@@ -276,7 +276,8 @@ class SearchView(TemplateView):
         context['facets'] = self.results.facet_counts() # causes solr request #1
         context['form'] = self.form
         context['query'] = self.query
-        context['selected_facets'] = self.get_selected_facets_list()
+        context['selected_facets'] = '&'.join(self.selected_facets)
+        context['selected_facets_list'] = self.get_selected_facets_list()
         context['results'] = self.results
         context['count'] = len(self.results) # causes solr request #2
         return context

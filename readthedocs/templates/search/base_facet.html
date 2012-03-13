@@ -12,6 +12,7 @@
       <form action="." method="GET">
         <div class="text-input-wrapper">
           <input type="text" name="q" value="{{ query }}" autocomplete="off" id="id_site_search_2">
+          <input type="hidden" name="selected_facets" value="{{ selected_facets }}">
         </div>
         <div class="submit-input-wrapper">
           <input type="submit" value="Go crazy." id="id_search_button">
@@ -36,7 +37,7 @@
         <div class="module-list-wrapper">
           <ul id="id_search_result">
           {% if query %}
-             {% autopaginate results 5 %}
+             {% autopaginate results 10 %}
              {% for result in results %}
               <li class="module-item">
               {% ifequal result.model_name 'project' %}
