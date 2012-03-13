@@ -19,6 +19,10 @@ knife ec2 server create -r 'role[webserver]' -I ami-7000f019 -f m1.small
 # you can run this to get the servers you have running, as well as their ip addresses
 knife ec2 server list
 
+# set it as a variable so you can reuse it  
+export RTFDHOST=X.X.X.X
+
+
 # if you ever want to start over from scratch you can destroy the instance by doing 
 knife ec2 delete i-xxxxxxx
 
@@ -26,7 +30,7 @@ knife ec2 delete i-xxxxxxx
 
 
 # ssh to the machine 
-ssh -i ~/.ssh/rtfd.pem ubuntu@X.X.X.X
+ssh -i ~/.ssh/rtfd.pem ubuntu@$RTFDHOST
 sudo su - 
 edit .ssh/authorized_keys 
 
@@ -39,16 +43,16 @@ edit .ssh/authorized_keys
 pip install fabric 
 
 # install chef on the ec2 server
-fab install_chef -H X.X.X.X -i ~/.ssh/rtfd.pem
+fab install_chef -H $RTFDHOST -i ~/.ssh/rtfd.pem
 
 # sync the chef scripts to the server 
 # Make sure to have your key in ssh-agent for rsync to use 
 eval `ssh-agent`
 ssh-add ~/.ssh/rtfd.pem 
-fab sync_config -H X.X.X.X -i ~/.ssh/rtfd.pem
+fab sync_config -H $RTFDHOST -i ~/.ssh/rtfd.pem
 
 # sync and run chef on the ec2 instance
-fab update -H X.X.X.X -i ~/.ssh/rtfd.pem
+fab update -H $RTFDHOST -i ~/.ssh/rtfd.pem
 
  
 
