@@ -1,9 +1,8 @@
 {% extends 'search/base_facet.html' %}
 {% block faceting %}
-{% if query %}
+  {% if query %}
     <!-- Begin faceting. -->
-    <h2>By Project</h2>
-
+    <h3>By Project</h3>
     <div class="filter">
         <dl>
             {% if facets.fields.project %}
@@ -19,5 +18,5 @@
         </dl>
     </div>
     <!-- End faceting -->
-{% endif %}
+  {% endif %}
 {% endblock %}

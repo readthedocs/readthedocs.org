@@ -27,7 +27,10 @@ class ProjectAdmin(admin.ModelAdmin):
 class FileAdmin(admin.ModelAdmin):
     pass
 
+class ImportedFileAdmin(admin.ModelAdmin):
+    list_display = ('name', 'project')
+    list_filter = ('project',)
 
 admin.site.register(Project, ProjectAdmin)
 admin.site.register(File, FileAdmin)
-admin.site.register(ImportedFile)
+admin.site.register(ImportedFile, ImportedFileAdmin)

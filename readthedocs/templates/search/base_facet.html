@@ -5,46 +5,45 @@
 {% block title %} Search: {{ query }} {% endblock %}
 
 {% block content %}
-        <!-- BEGIN search form -->
-        <div class="wide-search-bar">
-          <div class="wide-search-bar-wrapper clearfix">
-            <form action="." method="GET">
-              <div class="text-input-wrapper">
-                <input type="text" name="q" value="{{ query }}" id="id_site_search_2">
-              </div>
-              <div class="submit-input-wrapper">
-                <input type="submit" value="Go crazy." id="id_search_button">
-              </div>
-            </form>
-          </div>
+
+  <!-- BEGIN search form -->
+  <div class="wide-search-bar">
+    <div class="wide-search-bar-wrapper clearfix">
+      <form action="." method="GET">
+        <div class="text-input-wrapper">
+          <input type="text" name="q" value="{{ query }}" id="id_site_search_2">
         </div>
-        <!-- END search form -->
-
-<!-- BEGIN search results -->
-<div class="module">
-  <div class="module-wrapper">
-
-    <div class="module-header">
-      <h3 id="id_search_title">{% if query %}Results for {{ query }}{% else %}No search term entered{% endif %}</h3>
+        <div class="submit-input-wrapper">
+          <input type="submit" value="Go crazy." id="id_search_button">
+        </div>
+      </form>
     </div>
-
-    <div class="module-list">
-      <div class="module-list-wrapper">
-
-        <ul id="id_search_result">
-{% if query %}
-			{% include 'search/base_search.html' %}
-{% endif %}
-        </ul>
-
-      </div>
-    </div>
-
   </div>
-</div>
-<!-- END search results -->
+  <!-- END search form -->
 
-{% block faceting %}{% endblock %}
+  <!-- BEGIN search results -->
+  <div class="module">
+    <div class="module-wrapper">
+
+      <div class="module-header">
+        <h3 id="id_search_title">{% if query %}Results for {{ query }}{% else %}No search term entered{% endif %}</h3>
+      </div>
+  
+      <div class="module-list">
+        <div class="module-list-wrapper">
+          <ul id="id_search_result">
+          {% if query %}
+  			{% include 'search/base_search.html' %}
+          {% endif %}
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <!-- END search results -->
+  
+  {% block faceting %}{% endblock %}
 
   {% if page.has_previous or page.has_next %}
   <!-- BEGIN search pagination -->
@@ -63,6 +62,5 @@
   </div>
   <!-- END search pagination -->
   {% endif %}
-
 
 {% endblock %}

@@ -4,7 +4,7 @@ from django.conf import settings
 
 from haystack.forms import FacetedSearchForm
 from haystack.query import SearchQuerySet
-from haystack.views import FacetedSearchView
+from haystack.views import FacetedSearchView, search_view_factory
 from tastypie.api import Api
 
 from api.base import ProjectResource, UserResource, BuildResource, VersionResource, FileResource
@@ -50,10 +50,13 @@ urlpatterns = patterns('',
     url(r'^builds/', include('builds.urls')),
     url(r'^flagging/', include('basic.flagging.urls')),
     url(r'^accounts/', include('registration.backends.default.urls')),
-    url(r'^search/project/',
-        FacetedSearchView(form_class=FacetedSearchForm,
-                          searchqueryset=project_sqs,
-                          template="search/faceted_project.html"),
+    url(r'^search/project/', 
+        search_view_factory(
+            view_class=FacetedSearchView,
+            form_class=FacetedSearchForm,
+            searchqueryset=project_sqs,
+            template="search/faceted_project.html",
+        ),
         name='haystack_project'),
     url(r'^search/', include('haystack.urls')),
     url(r'^admin/', include(admin.site.urls)),

@@ -5,12 +5,12 @@
       {% ifequal result.model_name 'project' %}
         <p class="module-item-title">
           Project:
-          <a href="{{ result.object.get_absolute_url }}">{{ result.title }} - {{ result.author }}</a>
+          <a href="{% if result.absolute_url %}{{ result.absolute_url }}{% else %}{{ result.object.get_absolute_url }}{% endif %}">{{ result.title }} - {{ result.author }}</a>
         </p>
         {% else %}
         <p class="module-item-title">
           File:
-          <a href="{{ result.object.get_absolute_url }}?highlight={{ query }}">{{ result.project }} - {{ result.title }}</a>
+          <a href="{% if result.absolute_url %}{{ result.absolute_url }}{% else %}{{ result.object.get_absolute_url }}{% endif %}?highlight={{ query }}">{{ result.project }} - {{ result.title }}</a>
         </p>
         <p>
           {% highlight result.text with query %}
