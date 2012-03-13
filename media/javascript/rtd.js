@@ -1,14 +1,19 @@
- $(document).ready(function()
- {
+$(document).ready(function()
+{
     ShowActionOnOver();
     guessRepo();
     checkVersion();
     getVersions();
- });
+    instantSearch();
+});
 
 warning = '<div class="admonition note"> <p class="first admonition-title">Note</p> <p class="last"> You are not using the most up to date version of the library. '
 
  function checkVersion() {
+    // doc_slug and doc_version MUST be defined or else the error prevents
+    // Firefox from using any jQuery
+    doc_slug = ""
+    doc_version = ""
     $.ajax({
      type: 'GET',
      url: "http://readthedocs.org/api/v1/version/" + doc_slug + "/highest/" + doc_version + "/",
