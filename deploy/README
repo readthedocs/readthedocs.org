@@ -62,4 +62,16 @@ http://www.virtualbox.org/wiki/Downloads
 # install from downloads or from gem
 http://downloads.vagrantup.com/
 
-To start, run `vagrant up`
+# To start, run 
+vagrant up
+
+# Once this is done 
+vagrant ssh 
+# to ssh into the machine 
+
+# To destroy the box and start over again 
+vagrant destroy
+
+
+
+
