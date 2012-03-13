@@ -20,8 +20,12 @@ ADMIN_MEDIA_PREFIX = MEDIA_URL + 'admin/'
 CACHE_BACKEND = 'memcached://localhost:11211/'
 SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
 
-HAYSTACK_SOLR_URL = 'http://odin:8983/solr'
-
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.solr_backend.SolrEngine',
+        'URL': 'http://odin:8983/solr',
+    }
+}
 SLUMBER_API_HOST = 'http://readthedocs.org'
 
 
