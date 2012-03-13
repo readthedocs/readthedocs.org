@@ -2,13 +2,11 @@ from django.conf.urls.defaults import url, patterns, include
 from django.contrib import admin
 from django.conf import settings
 
-from haystack.forms import FacetedSearchForm
-from haystack.query import SearchQuerySet
-from haystack.views import FacetedSearchView, search_view_factory
 from tastypie.api import Api
 
 from api.base import ProjectResource, UserResource, BuildResource, VersionResource, FileResource
 from core.forms import UserProfileForm
+from core.views import SearchView
 from projects.feeds import LatestProjectsFeed, NewProjectsFeed
 
 v1_api = Api(api_name='v1')
@@ -19,8 +17,6 @@ v1_api.register(VersionResource())
 v1_api.register(FileResource())
 
 admin.autodiscover()
-
-project_sqs = SearchQuerySet().facet('project')
 
 handler500 = 'core.views.server_error'
 handler404 = 'core.views.server_error_404'
@@ -50,14 +46,7 @@ urlpatterns = patterns('',
     url(r'^builds/', include('builds.urls')),
     url(r'^flagging/', include('basic.flagging.urls')),
     url(r'^accounts/', include('registration.backends.default.urls')),
-    url(r'^search/project/', 
-        search_view_factory(
-            view_class=FacetedSearchView,
-            form_class=FacetedSearchForm,
-            searchqueryset=project_sqs,
-            template="search/faceted_project.html",
-        ),
-        name='haystack_project'),
+    url(r'^search/project/', SearchView.as_view(), name='haystack_project'),
     url(r'^search/', include('haystack.urls')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^dashboard/', include('projects.urls.private')),

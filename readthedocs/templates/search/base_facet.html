@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
-
 {% load highlight %}
+{% load pagination_tags %}
 
 {% block title %} Search: {{ query }} {% endblock %}
 
@@ -21,19 +21,42 @@
   </div>
   <!-- END search form -->
 
+
   <!-- BEGIN search results -->
   <div class="module">
     <div class="module-wrapper">
 
       <div class="module-header">
-        <h3 id="id_search_title">{% if query %}Results for {{ query }}{% else %}No search term entered{% endif %}</h3>
+        <h3 id="id_search_title">{% if query %}{{ count }} Results for {{ query }}{% else %}No search term entered{% endif %}</h3>
       </div>
+
+      {% block faceting %}{% endblock %}
   
       <div class="module-list">
         <div class="module-list-wrapper">
           <ul id="id_search_result">
           {% if query %}
-  			{% include 'search/base_search.html' %}
+             {% autopaginate results 5 %}
+             {% for result in results %}
+              <li class="module-item">
+              {% ifequal result.model_name 'project' %}
+                <p class="module-item-title">
+                  Project:
+                  <a href="{% if result.absolute_url %}{{ result.absolute_url }}{% else %}{{ result.object.get_absolute_url }}{% endif %}">{{ result.title }} - {{ result.author }}</a>
+                </p>
+                {% else %}
+                <p class="module-item-title">
+                  File:
+                  <a href="{% if result.absolute_url %}{{ result.absolute_url }}{% else %}{{ result.object.get_absolute_url }}{% endif %}?highlight={{ query }}">{{ result.project }} - {{ result.title }}</a>
+                </p>
+                <p>
+                  {% highlight result.text with query %}
+                </p>
+                {% endifequal %}
+              </li>
+            {% empty %}
+              <li class="module-item"><span class="quiet">No results found. Bummer.</span></li>
+            {% endfor %}  
           {% endif %}
           </ul>
         </div>
@@ -42,25 +65,7 @@
     </div>
   </div>
   <!-- END search results -->
-  
-  {% block faceting %}{% endblock %}
 
-  {% if page.has_previous or page.has_next %}
-  <!-- BEGIN search pagination -->
-  <div class="pagination">
-    {% if page.has_previous %}
-      <a href="{{ request.get_full_path }}&amp;page={{ page.previous_page_number }}">&laquo; Previous</a>
-    {% else %}
-      <span class="disabled">&laquo; Previous</span>
-    {% endif %}
-
-    {% if page.has_next %}
-      <a class="next" href="{{ request.get_full_path }}&amp;page={{ page.next_page_number }}">Next &raquo;</a>
-    {% else %}
-      <span class="next disabled">Next &raquo;</span>
-    {% endif %}
-  </div>
-  <!-- END search pagination -->
-  {% endif %}
+  {% paginate %}
 
 {% endblock %}
