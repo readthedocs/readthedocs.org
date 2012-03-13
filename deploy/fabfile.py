@@ -13,7 +13,7 @@ def install_chef():
     sudo('apt-get update', pty=True)
     sudo('apt-get install -y git-core libopenssl-ruby rubygems ruby ruby-dev', pty=True)
     #sudo('gem install chef --no-ri --no-rdoc', pty=True)
-    sudo('gem install chef --no-ri --no-rdoc -V 0.10.2', pty=True)
+    sudo('gem install chef --no-ri --no-rdoc --version=0.10.2', pty=True)
 
 
 def sync_config():
