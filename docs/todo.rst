@@ -3,6 +3,7 @@ Todo
 
 Easy
 ----
+* Internationalization (i18n)
 * Screencast of "Hosting your docs in 1 minute"
 * Write better API docs at http://docs.readthedocs.org/en/latest/api.html (https://github.com/deceze/Sphinx-HTTP-domain)
 
