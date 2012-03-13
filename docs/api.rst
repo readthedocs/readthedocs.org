@@ -39,7 +39,7 @@ You can use `Slumber <http://slumber.in/>`_ to build basic API wrappers in pytho
         print json.dumps(val, indent=4)
 
 Example of adding a user to a project
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------------------
 
 ::
 
@@ -70,80 +70,16 @@ Example of adding a user to a project
     print "After users: %s" % project2_objects['users']
 
 
-API Examples
-------------
+API Endpoints
+=============
 
-In all of these examples, replace `pip` with your own project.
-
-Project Details
-~~~~~~~~~~~~~~~
-
-cURL
-`````
 Feel free to use cURL and python to look at formatted json examples. You can also look at them in your browser, if it handles returned json.
 
-`curl http://readthedocs.org/api/v1/project/pip/?format=json |python -mjson.tool`
+::
 
+    curl http://readthedocs.org/api/v1/project/pip/?format=json | python -m json.tool
 
-URL
-```
-http://readthedocs.org/api/v1/project/pip/?format=json
-
-
-Build List
-~~~~~~~~~~
-
-URL
-```
-http://readthedocs.org/api/v1/build/pip/?format=json
-
-Version List
-~~~~~~~~~~~~
-
-URL
-```
-http://readthedocs.org/api/v1/version/pip/?format=json
-
-
-Highest Version
-~~~~~~~~~~~~~~~
-
-URL
-```
-http://readthedocs.org/api/v1/version/pip/highest/?format=json
-
-Compare Highest Version
-~~~~~~~~~~~~~~~~~~~~~~~
-
-URL
-```
-http://readthedocs.org/api/v1/version/pip/highest/0.8/?format=json
-
-This will allow you to compare whether a certain version is the highest version of a specific project. The above query should return a `'is_highest': false` in the returned dictionary.
-
-File Search
-~~~~~~~~~~~
-
-URL
-```
-http://readthedocs.org/api/v1/file/search/?format=json&q=virtualenv
-
-
-Anchor Search
-~~~~~~~~~~~~~
-
-URL
-```
-http://readthedocs.org/api/v1/file/anchor/?format=json&q=virtualenv
-
-
-
-Public API
-==========
-
-All examples are shown with JSON responses, but you may also get XML by specifying the format.
-
-Base
+Root
 ----
 .. http:method:: GET /api/v1/
 
@@ -173,9 +109,12 @@ Base
               "schema": "/api/v1/version/schema/"
           }
       }
+      
+   :data string list_endpoint: API endpoint for resource.
+   :data string schema: API endpoint for schema of resource.
 
 Builds
-~~~~~~
+------
 .. http:method:: GET /api/v1/build/
 
 .. http:response:: Retrieve a list of Builds.
@@ -198,11 +137,11 @@ Builds
    :data integer offset: Current offset used for pagination.
    :data string previous: URI for previous set of Builds.
    :data integer total_count: Total number of Builds.
-   :data string objects: List of `Build`_ objects.
+   :data array objects: Array of `Build`_ objects.
 
 
 Build
-~~~~~
+-----
 .. http:method:: GET /api/v1/build/{id}/
 
    :arg id: A Build id.
@@ -235,13 +174,13 @@ Build
    :data string resource_uri: URI for Build.
    :data string setup: Setup output from Sphinx build process.
    :data string setup_error: Setup error from Sphinx build process.
-   :data string state: 
-   :data string success: Was build successful? (True or False) 
-   :data string type: Build type (html, pdf, man, or epub)
+   :data string state: "triggered", "building", or "finished"
+   :data boolean success: Was build successful?
+   :data string type: Build type ("html", "pdf", "man", or "epub")
    :data string version: URI for Version of Build.
 
 Files
-~~~~~
+-----
 .. http:method:: GET /api/v1/file/
 
 .. http:response:: Retrieve a list of Files.
@@ -265,10 +204,10 @@ Files
    :data integer offset: Current offset used for pagination.
    :data string previous: URI for previous set of Files.
    :data integer total_count: Total number of Files.
-   :data string objects: List of `File`_ objects.
+   :data array objects: Array of `File`_ objects.
 
 File
-~~~~
+----
 .. http:method:: GET /api/v1/file/{id}/
 
    :arg id: A File id.
@@ -284,18 +223,18 @@ File
           "path": "search.html", 
           "project": {PROJECT},
           "resource_uri": "/api/v1/file/332692/"
-      }
+        }
 
 
    :data string absolute_url: URI for actual file (not the File object from the API.)
    :data string id: File id.
    :data string name: Name of File.
    :data string path: Name of Path.
-   :data string project: A `Project`_ object for the file's project.
+   :data object project: A `Project`_ object for the file's project.
    :data string resource_uri: URI for File object.
 
 Projects
-~~~~~~~~
+--------
 .. http:method:: GET /api/v1/project/
 
 .. http:response:: Retrieve a list of Projects.
@@ -319,11 +258,11 @@ Projects
    :data integer offset: Current offset used for pagination.
    :data string previous: URI for previous set of Projects.
    :data integer total_count: Total number of Projects.
-   :data string objects: List of `Project`_ objects.
+   :data array objects: Array of `Project`_ objects.
 
    
 Project
-~~~~~~~
+-------
 .. http:method:: GET /api/v1/project/{id}
 
    :arg id: A Project id.
@@ -371,27 +310,27 @@ Project
    :data string default_version: Default version.
    :data string description: Description of project.
    :data string django_packages_url: Djangopackages.com URI.
-   :data string documentation_type: FIXME: 
+   :data string documentation_type: Either "sphinx" or "sphinx_html". 
    :data string id: Project id.
    :data string modified_date: Last modified date.
    :data string name: Project name.
-   :data string project_url: FIXME: 
+   :data string project_url: Project homepage.
    :data string pub_date: Last published date.
    :data string repo: URI for VCS repository.
    :data string repo_type: Type of VCS repository.
-   :data string requirements_file: FIXME: 
+   :data string requirements_file: Pip requirements file for packages needed for building docs.
    :data string resource_uri: URI for Project.
    :data string slug: Slug.
    :data string subdomain: Subdomain.
-   :data string suffix: FIXME: 
+   :data string suffix: File suffix of docfiles. (Usually ".rst".)
    :data string theme: Sphinx theme.
-   :data string use_virtualenv: Build project in a virtualenv? (True or False)
-   :data string users: List of readthedocs.org users that are administrators of Project.
-   :data string version: FIXME: 
+   :data boolean use_virtualenv: Build project in a virtualenv? (True or False)
+   :data array users: Array of readthedocs.org user URIs for administrators of Project.
+   :data string version: DEPRECATED. 
 
 
 Users
-~~~~~
+-----
 .. http:method:: GET /api/v1/user/
 
 .. http:response:: Retrieve List of Users
@@ -414,11 +353,11 @@ Users
    :data integer offset: Current offset used for pagination.
    :data string previous: URI for previous set of Users.
    :data integer total_count: Total number of Users.
-   :data string USERS: List of `User`_ objects.
+   :data array USERS: Array of `User`_ objects.
  
  
 User
-~~~~
+----
 .. http:method:: GET /api/v1/user/{id}/
 
    :arg id: A User id.
@@ -436,7 +375,7 @@ User
           "username": "testuser"
       }
       
-   :data integer first_name: First name.
+   :data string first_name: First name.
    :data string id: User id.
    :data string last_login: Timestamp of last login.
    :data string last_name: Last name.
@@ -445,7 +384,7 @@ User
    
  
 Versions
-~~~~~~~~
+--------
 .. http:method:: GET /api/v1/version/
 
 .. http:response:: Retrieve a list of Versions.
@@ -469,11 +408,11 @@ Versions
    :data integer offset: Current offset used for pagination.
    :data string previous: URI for previous set of Versions.
    :data integer total_count: Total number of Versions.
-   :data string objects: A list of `Version`_ objects.
+   :data array objects: Array of `Version`_ objects.
 
 
 Version
-~~~~~~~
+-------
 .. http:method:: GET /api/v1/version/{id}
 
    :arg id: A Version id.
@@ -487,7 +426,7 @@ Version
           "built": false, 
           "id": "12095", 
           "identifier": "remotes/origin/zip_importing", 
-          "project": PROJECT, 
+          "project": {PROJECT}, 
           "resource_uri": "/api/v1/version/12095/", 
           "slug": "zip_importing", 
           "uploaded": false, 
@@ -495,12 +434,151 @@ Version
       }
 
 
-   :data string active: FIXME: 
-   :data string built: Were docs built for this Version? (True or False)
+   :data boolean active: Are we continuing to build docs for this version? 
+   :data boolean built: Have docs been built for this version?
    :data string id: Version id.
    :data string identifier: Identifier of Version.
-   :data string project: A `Project`_ object for the version's project.
+   :data object project: A `Project`_ object for the version's project.
    :data string resource_uri: URI for Version object.
-   :data string slug: Slug.
-   :data string uploaded: Was Version uploaded? (True or False) FIXME: 
-   :data string verbose_name: FIXME: 
+   :data string slug: String that uniquely identifies a project
+   :data boolean uploaded: Were docs uploaded? (As opposed to being build by Read the Docs.)
+   :data string verbose_name: Usually the same as Slug.
+
+
+Filtering Examples
+------------------
+
+Find Highest Version
+~~~~~~~~~~~~~~~~~~~~
+::
+
+    http://readthedocs.org/api/v1/version/pip/highest/?format=json
+    
+.. http:method:: GET /api/v1/version/{id}/highest/
+
+   :arg id: A Version id.
+
+.. http:response:: Retrieve highest version.
+
+   .. sourcecode:: js
+
+      {
+          "is_highest": true, 
+          "project": "Version 1.0.1 of pip (5476)", 
+          "slug": [
+              "1.0.1"
+          ], 
+          "url": "/docs/pip/en/1.0.1/", 
+          "version": "1.0.1"
+      }
+
+
+Compare Highest Version
+~~~~~~~~~~~~~~~~~~~~~~~
+
+This will allow you to compare whether a certain version is the highest version of a specific project. The below query should return a `'is_highest': false` in the returned dictionary.
+
+::
+
+    http://readthedocs.org/api/v1/version/pip/highest/0.8/?format=json 
+
+.. http:method:: GET /api/v1/version/{id}/highest/{version}
+
+   :arg id: A Version id.
+   :arg version: A Version number or string.
+
+.. http:response:: Retrieve highest version.
+
+   .. sourcecode:: js
+
+      {
+          "is_highest": false, 
+          "project": "Version 1.0.1 of pip (5476)", 
+          "slug": [
+              "1.0.1"
+          ], 
+          "url": "/docs/pip/en/1.0.1/", 
+          "version": "1.0.1"
+      }
+ 
+
+File Search
+~~~~~~~~~~~
+::
+
+    http://readthedocs.org/api/v1/file/search/?format=json&q=virtualenvwrapper
+    
+.. http:method:: GET /api/v1/file/search/?q={search_term}
+
+   :arg search_term: Perform search with this term.
+
+.. http:response:: Retrieve a list of `File`_ objects that contain the search term.
+
+   .. sourcecode:: js
+   
+      {
+          "objects": [
+              {
+                  "absolute_url": "/docs/python-guide/en/latest/scenarios/virtualenvs/index.html", 
+                  "id": "375539", 
+                  "name": "index.html", 
+                  "path": "scenarios/virtualenvs/index.html", 
+                  "project": {
+                      "absolute_url": "/projects/python-guide/", 
+                      "analytics_code": null, 
+                      "copyright": "Unknown", 
+                      "crate_url": "", 
+                      "default_branch": "", 
+                      "default_version": "latest", 
+                      "description": "[WIP] Python best practices...", 
+                      "django_packages_url": "", 
+                      "documentation_type": "sphinx_htmldir", 
+                      "id": "530", 
+                      "modified_date": "2012-03-13T01:05:30.191496", 
+                      "name": "python-guide", 
+                      "project_url": "", 
+                      "pub_date": "2011-03-20T19:40:03.599987", 
+                      "repo": "git://github.com/kennethreitz/python-guide.git", 
+                      "repo_type": "git", 
+                      "requirements_file": "", 
+                      "resource_uri": "/api/v1/project/530/", 
+                      "slug": "python-guide", 
+                      "subdomain": "http://python-guide.readthedocs.org/", 
+                      "suffix": ".rst", 
+                      "theme": "kr", 
+                      "use_virtualenv": false, 
+                      "users": [
+                          "/api/v1/user/130/"
+                      ], 
+                      "version": ""
+                  }, 
+                  "resource_uri": "/api/v1/file/375539/", 
+                  "text": "...<span class=\"highlighted\">virtualenvwrapper</span>\n..."
+              },
+              ...
+          ]
+      }
+
+Anchor Search
+~~~~~~~~~~~~~
+::
+
+    http://readthedocs.org/api/v1/file/anchor/?format=json&q=virtualenv
+
+.. http:method:: GET /api/v1/file/anchor/?q={search_term}
+
+   :arg search_term: Perform search of files containing anchor text with this term.
+
+.. http:response:: Retrieve a list of absolute URIs for files that contain the search term.
+
+   .. sourcecode:: js
+
+      {
+          "objects": [
+              "http//django-fab-deploy.readthedocs.org/en/latest/...", 
+              "http//dimagi-deployment-tools.readthedocs.org/en/...", 
+              "http//openblock.readthedocs.org/en/latest/install/base_install.html#virtualenv", 
+              ...
+          ]
+      }
+
