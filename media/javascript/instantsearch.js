@@ -7,7 +7,7 @@ function instantSearch() {
     } else {
       jQuery.ajax({
         type: 'GET',
-        url: "http://readthedocs.org/api/v1/file/search/",
+        url: "/api/v1/file/search/",
         data: {format: 'jsonp', q: $("#id_site_search_2").val()},
         success: function(searchres, text, xhqr) {
           strstart = this.url.indexOf("&q=") + 3;
