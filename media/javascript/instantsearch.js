@@ -31,8 +31,13 @@
     $results = $("#id_search_result");
     $title = $("#id_search_title");
     $selected_facets = $("#id_selected_facets");
-    lastQuery = queryString()
-    bind();
+    // minimum requirements for this script to kick in...
+    if(!$input.length || !$results.length) {
+      return false;
+    } else {
+      lastQuery = queryString()
+      bind();
+    }
   }
   Search.init = init;
    
