@@ -414,10 +414,16 @@ def fileify(version):
                 if fnmatch.fnmatch(filename, '*.html'):
                     dirpath = os.path.join(root.replace(path, '').lstrip('/'),
                                             filename.lstrip('/'))
-                    api.file.post(dict(
-                        project="/api/v1/project/%s/" % project.pk,
-                        path=dirpath,
-                        name=filename))
+                    if getattr(settings, 'DONT_HIT_DB', True):
+                        api.file.post(dict(
+                            project="/api/v1/project/%s/" % project.pk,
+                            path=dirpath,
+                            name=filename))
+                    else:
+                        ImportedFile.objects.get_or_create(
+                            project=project,
+                            path=dirpath,
+                            name=filename)
 
 
 #@periodic_task(run_every=crontab(hour="2", minute="10", day_of_week="*"))

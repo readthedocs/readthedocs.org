@@ -26,4 +26,4 @@ slumber
 -e git+http://github.com/nathanborror/django-registration.git#egg=django-registration
 -e git+https://github.com/toastdriven/django-tastypie.git#egg=tastypie
 -e git+https://github.com/toastdriven/django-haystack#egg=django-haystack
-
+-e git+https://github.com/deceze/Sphinx-HTTP-domain.git#egg=sphinx-http-domain
