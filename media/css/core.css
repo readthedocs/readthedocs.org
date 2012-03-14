@@ -131,7 +131,9 @@ label { display: block; margin-bottom: 4px; font-weight: bold; color: #444; }
 
 /* search */
 
-.filter { margin-bottom: 40px; }
+.filter { margin-bottom: 1em; }
+.filter dd { display: inline-block; margin-right: 0.75em; }
+.filter dd small { opacity: 0.7; }
 
 
 /* module */

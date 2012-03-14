@@ -1,15 +1,22 @@
 {% extends 'search/base_facet.html' %}
 {% block faceting %}
   {% if query %}
+
+    {% if selected_facets_list %}
+        <h5>Filtered by {% for facet in selected_facets_list %}
+            <strong>{{ facet.1 }}</strong>{% if not forloop.last %}, {% endif %}
+        {% endfor %} <small>(<a href="?q={{ query }}" id='id_remove_facets'>remove</a>)</small></h5>
+
+    {% else %}
     <!-- Begin faceting. -->
-    <h3>By Project</h3>
+    <h5>Filter by Project</h5>
     <div class="filter">
         <dl>
             {% if facets.fields.project %}
-                {# Provide only the top 5 projects #}
+                {# Provide only the top N projects #}
                 {% for project in facets.fields.project|slice:":10" %}
                     {% if project.1 != 0 %}
-                    <dd><a href="{{ request.get_full_path }}&amp;selected_facets=project_exact:{{ project.0|urlencode }}">{{ project.0 }}</a> ({{ project.1 }})</dd>
+                    <dd><a href="?q={{ query }}&amp;selected_facets=project_exact:{{ project.0|urlencode }}">{{ project.0 }}</a> <small>({{ project.1 }})</small></dd>
                     {% endif %}
                 {% endfor %}
             {% else %}
@@ -18,5 +25,7 @@
         </dl>
     </div>
     <!-- End faceting -->
+    {% endif %}
+
   {% endif %}
 {% endblock %}

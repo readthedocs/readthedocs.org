@@ -4,7 +4,7 @@ $(document).ready(function()
     guessRepo();
     checkVersion();
     getVersions();
-    instantSearch();
+    Search.init();
 });
 
 warning = '<div class="admonition note"> <p class="first admonition-title">Note</p> <p class="last"> You are not using the most up to date version of the library. '

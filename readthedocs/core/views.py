@@ -14,6 +14,11 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_view_exempt
 from django.views.static import serve
+from django.views.generic import TemplateView
+
+from haystack.views import FacetedSearchView
+from haystack.forms import FacetedSearchForm
+from haystack.query import SearchQuerySet, EmptySearchQuerySet
 
 from projects.models import Project, ImportedFile, ProjectRelationship
 from projects.tasks import update_docs, remove_dir
@@ -255,3 +260,77 @@ def server_error_404(request, template_name='404.html'):
     )
     r.status_code = 404
     return r
+
+class SearchView(TemplateView):
+
+    template_name = "search/faceted_project.html"
+    results = EmptySearchQuerySet()
+    form_class = FacetedSearchForm
+    form = None
+    query = ''
+    selected_facets = None
+
+    def get_context_data(self, request, **kwargs):
+        context = super(SearchView, self).get_context_data(**kwargs)
+        context['request'] = self.request
+        context['facets'] = self.results.facet_counts() # causes solr request #1
+        context['form'] = self.form
+        context['query'] = self.query
+        context['selected_facets'] = '&'.join(self.selected_facets)
+        context['selected_facets_list'] = self.get_selected_facets_list()
+        context['results'] = self.results
+        context['count'] = len(self.results) # causes solr request #2
+        return context
+ 
+    def get(self, request, **kwargs):
+        """
+        Performing the search causes three requests to be sent to Solr.
+            1. For the facets
+            2. For the count (unavoidable, as pagination will cause this anyay)
+            3. For the results
+        """
+        self.sqs = SearchQuerySet().facet('project')
+        self.request = request
+        self.selected_facets = self.get_selected_facets()
+        self.form = self.build_form()
+        self.query = self.get_query()
+        self.results = self.get_results()
+        context = self.get_context_data(request, **kwargs)
+        return self.render_to_response(context)
+
+    def build_form(self):
+        """
+        Instantiates the form the class should use to process the search query.
+        """
+        data = self.request.GET if len(self.request.GET) else None
+        return self.form_class(data, 
+            searchqueryset=self.sqs,
+            selected_facets=self.selected_facets,
+        )
+
+    def get_selected_facets_list(self):
+        return [tuple(s.split(':')) for s in self.selected_facets if s]
+
+    def get_selected_facets(self):
+        """
+        Returns the a list of facetname:value strings
+
+        e.g. [u'project_exact:Read The Docs', u'author_exact:Eric Holscher']
+        """
+        return self.request.GET.getlist("selected_facets")
+
+    def get_query(self):
+        """
+        Returns the query provided by the user.
+        Returns an empty string if the query is invalid.
+        """
+        if self.form.is_valid():
+            return self.form.cleaned_data['q']
+        return ''
+
+    def get_results(self):
+        """
+        Fetches the results via the form.
+        Returns an empty list if there's no query to search with.
+        """
+        return self.form.search()
