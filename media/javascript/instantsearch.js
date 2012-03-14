@@ -13,18 +13,25 @@
 
   // for instituting a delay between keypresses and searches 
   var timer = null; 
-  var delay = 200;
+  var delay = 250;
+  var lastQuery = null;
+
+  // Check if the browser supports history manipulation so
+  // we can change the URL upon instant searches
+  var replaceStateSupported = (typeof history.replaceState === "function");
 
   // queue of current requests
   var xhr = []; 
 
-  var $input, $button, $results, $title = null;
+  var $input, $button, $results, $title, $selected_facets = null;
 
   function init() {
     $input = $('#id_site_search_2');
     $button = $('#id_search_button');
     $results = $("#id_search_result");
     $title = $("#id_search_title");
+    $selected_facets = $("#id_selected_facets");
+    lastQuery = queryString()
     bind();
   }
   Search.init = init;
@@ -33,7 +40,13 @@
   function bind() {
 
     // Set a delay so not _every_ keystroke sends a search
-    $input.keyup(function() {
+    $input.keyup(function(ev) {
+
+      // Don't do anything unless the query has changed
+      if(lastQuery == queryString()) {
+        return;
+      }
+
       if(timer) {
         clearTimeout(timer);
       }
@@ -56,7 +69,7 @@
   function replaceResults(html) {
     $results.empty();
     $results.append(html);
-    $title.html("Results for " + $("#id_site_search_2").val());
+    $title.html(getTitle());
     $results.show();
   }
  
@@ -84,21 +97,52 @@
   function onResultsReceived(results) {
     // remove the request from the queue
     xhr.pop();
+    lastQuery = queryString()
     replaceResults(buildHTML(results));
-    //console.log(queryString());
+    replaceState();
+    $("#id_remove_facets").attr('href', removeFacetsUrl());
+  }
+
+  // Replace the URL with the one corresponding to the current search
+  function replaceState() {
+    if(!replaceStateSupported) {
+      return;
+    }
+    var url = "/search/project/?" + queryString();
+    var title = getTitle() + ' | Read the Docs';
+    window.history.replaceState({}, title, url);
+  }
+
+  // Page title
+  function getTitle() {
+    return "Results for " + $("#id_site_search_2").val();
   }
 
   // Params used in the search
   function getSearchData() {
-    return {
-      q: $input.val(),
-      selected_facets: $("#selected_facets").val() || ''
+    var data = {
+      q: getKeywords(),
     }
+    var selected_facets = $selected_facets.val() || ''
+    if(selected_facets) {
+      data['selected_facets'] = selected_facets;
+    }
+    return data;
   }
 
   // e.g. q=my+search&selected_facets=project_exact:Read%20The%20Docs
   function queryString() {
     return jQuery.param(getSearchData());
+  }
+
+  // The active query value
+  function getKeywords() {
+   return $input.val()
+  }
+
+  // Url for the current query with any facet filters removed
+  function removeFacetsUrl() {
+    return '?' + jQuery.param({q: getKeywords()});
   }
 
   // Perform the ajax request to get the search results from the API
@@ -109,7 +153,7 @@
     abortCurrentXHR();
 
     // Don't do anything if there is no query
-    if($input.val() == '') {
+    if(getKeywords() == '') {
       $results.empty();
       $results.hide();
       $title.html("No search term entered");

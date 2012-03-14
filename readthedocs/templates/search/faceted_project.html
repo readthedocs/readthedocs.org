@@ -5,7 +5,7 @@
     {% if selected_facets_list %}
         <h5>Filtered by {% for facet in selected_facets_list %}
             <strong>{{ facet.1 }}</strong>{% if not forloop.last %}, {% endif %}
-        {% endfor %} <small>(<a href="?q={{ query }}">remove</a>)</small></h5>
+        {% endfor %} <small>(<a href="?q={{ query }}" id='id_remove_facets'>remove</a>)</small></h5>
 
     {% else %}
     <!-- Begin faceting. -->
