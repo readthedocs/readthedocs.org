@@ -20,10 +20,10 @@ unittest-xml-reporting
 redis
 south
 slumber
--e git+http://github.com/nathanborror/django-basic-apps.git#egg=basic
--e git+http://github.com/alex/django-taggit.git#egg=taggit
--e git+http://github.com/ericflo/django-pagination.git#egg=pagination
--e git+http://github.com/nathanborror/django-registration.git#egg=django-registration
+-e git+https://github.com/nathanborror/django-basic-apps.git#egg=basic
+-e git+https://github.com/alex/django-taggit.git#egg=taggit
+-e git+https://github.com/ericflo/django-pagination.git#egg=pagination
+-e git+https://github.com/nathanborror/django-registration.git#egg=django-registration
 -e git+https://github.com/toastdriven/django-tastypie.git#egg=tastypie
 -e git+https://github.com/toastdriven/django-haystack#egg=django-haystack
 -e git+https://github.com/deceze/Sphinx-HTTP-domain.git#egg=sphinx-http-domain

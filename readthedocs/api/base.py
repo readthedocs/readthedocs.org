@@ -33,6 +33,7 @@ def _do_search(self, request, model):
 
     # Do the query.
     query = request.GET.get('q', '')
+    #facet = request.GET.get('selected_facets', '')
     sqs = SearchQuerySet().models(model).load_all().auto_query(query)
     paginator = Paginator(sqs, 20)
 
