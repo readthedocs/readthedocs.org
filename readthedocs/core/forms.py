@@ -1,8 +1,14 @@
-from django.forms import ModelForm
+import logging
+from haystack.forms import SearchForm
+from haystack.query import SearchQuerySet 
+
+from django import forms
 from django.forms.fields import CharField
 from models import UserProfile
 
-class UserProfileForm(ModelForm):
+log = logging.getLogger(__name__)
+
+class UserProfileForm(forms.ModelForm):
     first_name = CharField(label='First name', required=False)
     last_name = CharField(label='Last name', required=False)
 
@@ -30,3 +36,62 @@ class UserProfileForm(ModelForm):
             user.last_name = last_name
             user.save()
         return profile
+ 
+
+class FacetField(forms.MultipleChoiceField):
+    '''
+    For filtering searches on a facet, with validation for the format
+    of facet values.
+    '''
+    def valid_value(self, value):
+        '''
+        Although this is a choice field, no choices need to be supplied.
+        Instead, we just validate that the value is in the correct format
+        for facet filtering (facet_name:value)   
+        '''
+        if ":" not in value:
+            return False
+        return True
+
+
+class FacetedSearchForm(SearchForm):
+    '''
+    Supports fetching faceted results with a corresponding query.
+
+    `facets`
+        A list of facet names for which to get facet counts
+    `models`
+        Limit the search to one or more models
+    '''
+
+    selected_facets = FacetField(required=False)
+
+    def __init__(self, *args, **kwargs):
+        facets = kwargs.pop('facets', [])
+        models = kwargs.pop('models', [])
+        super(FacetedSearchForm, self).__init__(*args, **kwargs)
+
+        for facet in facets:
+            self.searchqueryset = self.searchqueryset.facet(facet)
+        if models:
+            self.searchqueryset = self.searchqueryset.models(*models)
+
+    def clean_selected_facets(self):
+        facets = self.cleaned_data['selected_facets']
+        cleaned_facets = []
+        clean = SearchQuerySet().query.clean
+        for facet in facets:
+            field, value = facet.split(":", 1)
+            if not value: # Ignore empty values
+                continue
+            value = clean(value)
+            cleaned_facets.append(u'%s:"%s"' % (field, value))
+        return cleaned_facets
+   
+    def search(self):
+        sqs = super(FacetedSearchForm, self).search()
+        for facet in self.cleaned_data['selected_facets']:
+            sqs = sqs.narrow(facet)
+        self.searchqueryset = sqs
+        return sqs
+ 

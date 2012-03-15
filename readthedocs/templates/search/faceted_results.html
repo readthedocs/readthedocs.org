@@ -6,9 +6,36 @@
 
     <div class="module-header">
       <h3 id="id_search_title">{% if query %}{{ count }} Results for {{ query }}{% else %}No search term entered{% endif %}</h3>
+    
+      {{ form.errors.as_ul }}
     </div>
 
-    {% block faceting %}{% endblock %}
+   <!-- Begin faceting. -->
+   {% if query %}
+    {% if selected_facets_list %}
+        <h5>Filtered by {% for facet in selected_facets_list %}
+            <strong>{{ facet.1 }}</strong>{% if not forloop.last %}, {% endif %}
+        {% endfor %} <small>(<a href="?q={{ query }}" id='id_remove_facets'>remove</a>)</small></h5>
+
+    {% else %}
+    <h5>Filter by Project</h5>
+    <div class="filter">
+        <dl>
+            {% if facets.fields.project %}
+                {# Provide only the top N projects #}
+                {% for project in facets.fields.project|slice:":10" %}
+                    {% if project.1 != 0 %}
+                    <dd><a href="?q={{ query }}&amp;selected_facets=project_exact:{{ project.0|urlencode }}">{{ project.0 }}</a> <small>({{ project.1 }})</small></dd>
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                <p>No project facets.</p>
+            {% endif %}
+        </dl>
+    </div>
+    {% endif %}
+  {% endif %}    
+  <!-- End faceting -->
 
     <div class="module-list">
       <div class="module-list-wrapper">
