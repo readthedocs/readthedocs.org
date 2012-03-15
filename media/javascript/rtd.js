@@ -12,8 +12,8 @@ warning = '<div class="admonition note"> <p class="first admonition-title">Note<
  function checkVersion() {
     // doc_slug and doc_version MUST be defined or else the error prevents
     // Firefox from using any jQuery
-    doc_slug = ""
-    doc_version = ""
+    doc_slug = doc_slug || ""
+    doc_version = doc_version || ""
     $.ajax({
      type: 'GET',
      url: "http://readthedocs.org/api/v1/version/" + doc_slug + "/highest/" + doc_version + "/",
