@@ -296,6 +296,11 @@ class SearchView(TemplateView):
         self.query = self.get_query()
         self.results = self.get_results()
         context = self.get_context_data(request, **kwargs)
+
+        # For returning results partials for javascript
+        if request.is_ajax() or request.GET.get('ajax'):
+            self.template_name = 'search/faceted_results.html'
+
         return self.render_to_response(context)
 
     def build_form(self):
