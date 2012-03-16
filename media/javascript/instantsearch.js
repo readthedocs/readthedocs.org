@@ -15,6 +15,7 @@
   var timer = null; 
   var delay = 250;
   var lastQuery = null;
+  var useApi = false;
 
   // Check if the browser supports history manipulation so
   // we can change the URL upon instant searches
@@ -31,6 +32,7 @@
     $results = $("#id_search_result");
     $title = $("#id_search_title");
     $selected_facets = $("#id_selected_facets");
+
     // minimum requirements for this script to kick in...
     if(!$input.length || !$results.length) {
       return false;
@@ -58,7 +60,7 @@
       timer = setTimeout("Search.run()", delay);
     }); 
 
-    $button.click(run);
+    $button.click(Search.run);
   }
 
   // Abort all existing XHR requests, since a new search is starting
@@ -166,7 +168,19 @@
     }
 
     var data = getSearchData();
-    xhr.push(jQuery.ajax({
+    if(useApi) {
+        apiSearch(data);
+    } else {
+        htmlSearch(data);
+    }
+
+  }
+  Search.run = run;
+
+  // TODO: The api search is incomplete. It doesn't take into account
+  // facets nor pagination. It's a partial implemenation.
+  function apiSearch(data) {
+     xhr.push(jQuery.ajax({
       type: 'GET',
       url: "/api/v1/file/search/",
       data: data,
@@ -175,8 +189,28 @@
         onResultsReceived(res.objects);
       }
     }));
-
   }
-  Search.run = run;
+
+  // Alternative search implementation not using the API. 
+  function htmlSearch(data) {
+     xhr.push(jQuery.ajax({
+      type: 'GET',
+      url: "/search/project/",
+      data: data,
+      success: function(res, text, xhqr) {
+        console.log(res);
+        onHtmlReceived(res);
+      }
+    }));
+  }
+ 
+  // Alternative implementation not using the API. Receives
+  // the full HTML including title, pagination, facets, etc.
+  function onHtmlReceived(html) {
+    xhr.pop(); // remove the request from the queue 
+    lastQuery = queryString()
+    $("#search_module").replaceWith(html);
+    replaceState();
+  }
 
 }).call(this);
