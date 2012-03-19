@@ -135,6 +135,8 @@ label { display: block; margin-bottom: 4px; font-weight: bold; color: #444; }
 .filter dd { display: inline-block; margin-right: 0.75em; }
 .filter dd small { opacity: 0.7; }
 
+#search_module .pagination { float: right; margin-top: 1em; }
+
 
 /* module */
 
