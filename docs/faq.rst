@@ -4,11 +4,9 @@ Frequently Asked Questions
 My project isn't building with autodoc
 --------------------------------------
 
-First, you should check out the Builds tab of your project. That records all of the build attempts that RTD has made to build your project. 
+First, you should check out the Builds tab of your project. That records all of the build attempts that RTD has made to build your project. If you see modules missing, you should enable the virtualenv feature, which will install your project into a virtualenv. If you are still seeing missing dependencies, you can install them with a pip requirements file in your project settings.
 
-If you need autodoc or other custom options, feel free to Contact Us either in IRC at #readthedocs on Freenode (`http://chat.freenode.net <http://webchat.freenode.net>`_), or by emailing the mailling list.
-
-Mailing list archives are available at http://librelist.com/browser/readthedocs/. To join, send an email to readthedocs@librelist.com, that will allow you to join, then send another mail with the content to post to the list.
+If you are still seeing errors because of C library dependencies, please see the below section about that.
 
 
 How do I change behavior for Read the Docs
