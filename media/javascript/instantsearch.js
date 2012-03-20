@@ -198,7 +198,6 @@
       url: "/search/project/",
       data: data,
       success: function(res, text, xhqr) {
-        console.log(res);
         onHtmlReceived(res);
       }
     }));
