@@ -17,9 +17,9 @@ from django.views.static import serve
 from django.views.generic import TemplateView
 
 from haystack.views import FacetedSearchView
-from haystack.forms import FacetedSearchForm
 from haystack.query import SearchQuerySet, EmptySearchQuerySet
 
+from core.forms import FacetedSearchForm
 from projects.models import Project, ImportedFile, ProjectRelationship
 from projects.tasks import update_docs, remove_dir
 from builds.models import Version
@@ -261,14 +261,16 @@ def server_error_404(request, template_name='404.html'):
     r.status_code = 404
     return r
 
+
 class SearchView(TemplateView):
 
-    template_name = "search/faceted_project.html"
+    template_name = "search/base_facet.html"
     results = EmptySearchQuerySet()
     form_class = FacetedSearchForm
     form = None
     query = ''
     selected_facets = None
+    selected_facets_list = None
 
     def get_context_data(self, request, **kwargs):
         context = super(SearchView, self).get_context_data(**kwargs)
@@ -276,8 +278,8 @@ class SearchView(TemplateView):
         context['facets'] = self.results.facet_counts() # causes solr request #1
         context['form'] = self.form
         context['query'] = self.query
-        context['selected_facets'] = '&'.join(self.selected_facets)
-        context['selected_facets_list'] = self.get_selected_facets_list()
+        context['selected_facets'] = '&'.join(self.selected_facets) if self.selected_facets else ''
+        context['selected_facets_list'] = self.selected_facets_list
         context['results'] = self.results
         context['count'] = len(self.results) # causes solr request #2
         return context
@@ -289,13 +291,19 @@ class SearchView(TemplateView):
             2. For the count (unavoidable, as pagination will cause this anyay)
             3. For the results
         """
-        self.sqs = SearchQuerySet().facet('project')
         self.request = request
-        self.selected_facets = self.get_selected_facets()
         self.form = self.build_form()
+        self.selected_facets = self.get_selected_facets()
+        self.selected_facets_list = self.get_selected_facets_list()
         self.query = self.get_query()
-        self.results = self.get_results()
+        if self.form.is_valid():
+            self.results = self.get_results()
         context = self.get_context_data(request, **kwargs)
+
+        # For returning results partials for javascript
+        if request.is_ajax() or request.GET.get('ajax'):
+            self.template_name = 'search/faceted_results.html'
+
         return self.render_to_response(context)
 
     def build_form(self):
@@ -303,10 +311,7 @@ class SearchView(TemplateView):
         Instantiates the form the class should use to process the search query.
         """
         data = self.request.GET if len(self.request.GET) else None
-        return self.form_class(data, 
-            searchqueryset=self.sqs,
-            selected_facets=self.selected_facets,
-        )
+        return self.form_class(data, facets=('project',))
 
     def get_selected_facets_list(self):
         return [tuple(s.split(':')) for s in self.selected_facets if s]
@@ -317,20 +322,17 @@ class SearchView(TemplateView):
 
         e.g. [u'project_exact:Read The Docs', u'author_exact:Eric Holscher']
         """
-        return self.request.GET.getlist("selected_facets")
+        return self.request.GET.getlist('selected_facets')
 
     def get_query(self):
         """
         Returns the query provided by the user.
         Returns an empty string if the query is invalid.
         """
-        if self.form.is_valid():
-            return self.form.cleaned_data['q']
-        return ''
+        return self.request.GET.get('q')
 
     def get_results(self):
         """
         Fetches the results via the form.
-        Returns an empty list if there's no query to search with.
         """
         return self.form.search()

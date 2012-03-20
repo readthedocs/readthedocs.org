@@ -1,10 +1,12 @@
 import logging
+import urllib
 
 from django.core.paginator import Paginator, InvalidPage
 from django.contrib.auth.models import User
 from django.conf.urls.defaults import url
 from django.shortcuts import get_object_or_404
 from django.http import Http404
+from django.core.urlresolvers import reverse
 
 from haystack.query import SearchQuerySet
 from haystack.utils import Highlighter
@@ -13,10 +15,13 @@ from tastypie.authentication import BasicAuthentication
 from tastypie.authorization import Authorization
 from tastypie.constants import ALL_WITH_RELATIONS, ALL
 from tastypie.resources import ModelResource
-from tastypie.exceptions import NotFound
+from tastypie.exceptions import NotFound, ImmediateHttpResponse
+from tastypie import http
+from tastypie.utils.mime import determine_format, build_content_type
 from tastypie.http import HttpCreated
 from tastypie.utils import dict_strip_unicode_keys, trailing_slash
 
+from core.forms import FacetedSearchForm
 from builds.models import Build, Version
 from projects.models import Project, ImportedFile
 from projects.utils import highest_version, mkversion
@@ -25,40 +30,121 @@ from djangome import views as djangome
 
 log = logging.getLogger(__name__)
 
-def _do_search(self, request, model):
+class SearchMixin(object):
+    '''
+    Adds a search api to any ModelResource provided the model is indexed.
+    The search can be configured using the Meta class in each ModelResource.
+    The search is limited to the model defined by the meta queryset. If the
+    search is invalid, a 400 Bad Request will be raised.
 
-    self.method_check(request, allowed=['get'])
-    self.is_authenticated(request)
-    self.throttle_check(request)
+    e.g.
+        class Meta:
+            # Return facet counts for each facetname
+            search_facets = ['facetname1', 'facetname1']
 
-    # Do the query.
-    query = request.GET.get('q', '')
-    #facet = request.GET.get('selected_facets', '')
-    sqs = SearchQuerySet().models(model).load_all().auto_query(query)
-    paginator = Paginator(sqs, 20)
+            # Number of results returned per page 
+            search_page_size = 20   
 
-    try:
-        page = paginator.page(int(request.GET.get('page', 1)))
-    except InvalidPage:
-        raise Http404("Sorry, no results on that page.")
+            # Highlight search terms in the text 
+            search_highlight = True 
+    '''
+    def get_search(self, request, **kwargs):
+        self.method_check(request, allowed=['get'])
+        self.is_authenticated(request)
+        self.throttle_check(request)
+        object_list = self._search(request, 
+            self._meta.queryset.model,
+            facets = getattr(self._meta, 'search_facets', []),
+            page_size = getattr(self._meta, 'search_page_size', 20),
+            highlight = getattr(self._meta, 'search_highlight', True),
+        )
+        self.log_throttled_access(request)
+        return self.create_response(request, object_list)
 
-    objects = []
+    def _url_template(self, query, selected_facets):
+        '''
+        Construct a url template to assist with navigating the resources.
+        This looks a bit nasty but urllib.urlencode resulted in even 
+        nastier output...
+        '''
+        query_params = []
+        for facet in selected_facets:
+            query_params.append(('selected_facets', facet))
+        query_params += [('q', query), ('format', 'json'), ('page', '{0}')]
+        query_string = '&'.join('='.join(p) for p in query_params)
+        url_template = reverse('api_get_search', kwargs={
+            'resource_name': self._meta.resource_name, 
+            'api_name': 'v1'
+        }) 
+        return url_template + '?' + query_string
 
-    for result in page.object_list:
-        if result:
-            highlighter = Highlighter(query)
-            text = highlighter.highlight(result.text)
+    def _search(self, request, model, facets=None, page_size=20, highlight=True):
+        '''
+        `facets`
+            A list of facets to include with the results
+        `models`
+            Limit the search to one or more models
+        '''
+        form = FacetedSearchForm(request.GET, facets=facets or [], 
+                                 models=(model,), load_all=True)
+        if not form.is_valid():
+            return self.error_response({'errors': form.errors }, request)
+        results = form.search()
+
+        paginator = Paginator(results, page_size)
+        try:
+            page = paginator.page(int(request.GET.get('page', 1)))
+        except InvalidPage:
+            raise Http404("Sorry, no results on that page.")
+
+        objects = []
+        query = request.GET.get('q', '')
+        highlighter = Highlighter(query)
+        for result in page.object_list:
+            if not result:
+                continue
+            text = result.text
+            if highlight:
+                text = highlighter.highlight(text)
             bundle = self.build_bundle(obj=result.object, request=request)
             bundle = self.full_dehydrate(bundle)
             bundle.data['text'] = text
             objects.append(bundle)
 
-    object_list = {
-        'objects': objects,
-    }
+        url_template = self._url_template(query, form['selected_facets'].value())
+        page_data = {
+            'number': page.number,
+            'per_page': paginator.per_page,
+            'num_pages': paginator.num_pages,
+            'page_range': paginator.page_range,
+            'object_count': paginator.count,
+            'url_template': url_template,
+        }
+        if page.has_next():
+            page_data['url_next'] = url_template.format(page.next_page_number())
+        if page.has_previous():
+            page_data['url_prev'] = url_template.format(page.previous_page_number())
 
-    self.log_throttled_access(request)
-    return self.create_response(request, object_list)
+        object_list = {
+            'page': page_data,
+            'objects': objects,
+        }
+        if facets:
+            object_list.update({'facets': results.facet_counts()})
+        return object_list
+
+ 
+    # XXX: This method is available in the latest tastypie, remove
+    # once available in production.
+    def error_response(self, errors, request):
+        if request:
+            desired_format = self.determine_format(request)
+        else:
+            desired_format = self._meta.default_format
+        serialized = self.serialize(request, errors, desired_format)
+        response = http.HttpBadRequest(content=serialized, content_type=build_content_type(desired_format))
+        raise ImmediateHttpResponse(response=response)
+
 
 class PostAuthentication(BasicAuthentication):
     def is_authenticated(self, request, **kwargs):
@@ -104,7 +190,7 @@ class UserResource(ModelResource):
         ]
 
 
-class ProjectResource(ModelResource):
+class ProjectResource(ModelResource, SearchMixin):
     users = fields.ToManyField(UserResource, 'users')
 
     class Meta:
@@ -141,14 +227,10 @@ class ProjectResource(ModelResource):
         updated_bundle = self.obj_create(bundle, request=request)
         return HttpCreated(location=self.get_resource_uri(updated_bundle))
 
-    def get_search(self, request, **kwargs):
-        return _do_search(self, request, Project)
-
     def override_urls(self):
         return [
             url(r"^(?P<resource_name>%s)/search%s$" % (self._meta.resource_name, trailing_slash()), self.wrap_view('get_search'), name="api_get_search"),
             url(r"^(?P<resource_name>%s)/(?P<slug>[a-z-_]+)/$" % self._meta.resource_name, self.wrap_view('dispatch_detail'), name="api_dispatch_detail"),
-
         ]
 
 
@@ -236,7 +318,8 @@ class VersionResource(EnhancedModelResource):
             url(r"^(?P<resource_name>%s)/(?P<project_slug>[a-z-_]+)/(?P<version_slug>[a-z-_]+)/build$" % self._meta.resource_name, self.wrap_view('build_version'), name="api_version_build_slug"),
         ]
 
-class FileResource(EnhancedModelResource):
+
+class FileResource(EnhancedModelResource, SearchMixin):
     project = fields.ForeignKey(ProjectResource, 'project', full=True)
 
     class Meta:
@@ -246,15 +329,13 @@ class FileResource(EnhancedModelResource):
         include_absolute_url = True
         authentication = PostAuthentication()
         authorization = Authorization()
+        search_facets = ['project']
 
     def override_urls(self):
         return [
             url(r"^(?P<resource_name>%s)/search%s$" % (self._meta.resource_name, trailing_slash()), self.wrap_view('get_search'), name="api_get_search"),
             url(r"^(?P<resource_name>%s)/anchor%s$" % (self._meta.resource_name, trailing_slash()), self.wrap_view('get_anchor'), name="api_get_anchor"),
         ]
-
-    def get_search(self, request, **kwargs):
-        return _do_search(self, request, ImportedFile)
 
     def get_anchor(self, request, **kwargs):
         self.method_check(request, allowed=['get'])
