@@ -3,7 +3,7 @@ import os
 import shutil
 
 from doc_builder.base import restoring_chdir
-from doc_builder.backends.sphinx import Builder as HtmlBuilder
+from doc_builder.backends.sphinx_html import Builder as HtmlBuilder
 from projects.utils import run
 from core.utils import copy_to_app_servers
 from django.conf import settings

@@ -4,7 +4,7 @@ import os
 from django.conf import settings
 
 from doc_builder.base import restoring_chdir
-from doc_builder.backends.sphinx import Builder as ManpageBuilder
+from doc_builder.backends.sphinx_html import Builder as ManpageBuilder
 from projects.utils import run
 from core.utils import copy_file_to_app_servers
 
