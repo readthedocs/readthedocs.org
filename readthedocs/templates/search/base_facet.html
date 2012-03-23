@@ -2,6 +2,10 @@
 
 {% block title %} Search: {{ query }} {% endblock %}
 
+{% block extra_scripts %}
+<script type="text/javascript" src="{{ MEDIA_URL }}javascript/instantsearch.js"></script>
+{% endblock %}
+
 {% block content %}
 
   <!-- BEGIN search form -->
