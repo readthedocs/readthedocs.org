@@ -10,7 +10,9 @@
           <a href="{{ user.get_absolute_url }}" class="quiet">{{ user }}</a>{% if not forloop.last %}, {% endif %}
           {% endfor %}
           )
+          {% comment %}
           {% if project.version %}<span class="quiet">version {{ project.version }} </span>{% endif %}
+          {% endcomment %}
         </div>
 
         <div class="options">
