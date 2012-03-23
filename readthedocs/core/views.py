@@ -219,7 +219,7 @@ def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
         filename += "index.html"
     else:
         filename = filename.rstrip('/')
-    basepath = proj.rtd_build_path(version_slug)
+    basepath = os.path.join(proj.rtd_build_path(version_slug), lang_slug)
     log.info('Serving %s for %s' % (filename, proj))
     if not settings.DEBUG:
         fullpath = os.path.join(basepath, filename)
@@ -233,6 +233,7 @@ def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
                                              proj.slug,
                                              'rtd-builds',
                                              version_slug,
+                                             lang_slug,
                                              filename)
         except UnicodeEncodeError:
             raise Http404
