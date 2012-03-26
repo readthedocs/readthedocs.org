@@ -26,11 +26,12 @@ Site Documentation
 
     getting_started
     faq
-    builds
-    features
     support
+    features
     webhooks
     alternate_domains
+    sponsors
+    builds
     talks
 
 Developer Documentation
