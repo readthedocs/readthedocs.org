@@ -27,25 +27,29 @@ server {
         break;
     }
 
-    location  ~* /docs/(.+)/en/(.+)/(.*) {
-	alias /home/docs/sites/readthedocs.org/checkouts/readthedocs.org/user_builds/$1/rtd-builds/$2/$3;
-        error_page 404 = @fallback;
-        error_page 500 = @fallback;
-        add_header X-Served Nginx;
-        add_header X-Deity <%= node.hostname %>;
-    }
-    location  ~* /en/(.+)/(.*) {
-        alias /home/docs/sites/readthedocs.org/checkouts/readthedocs.org/user_builds/$domain/rtd-builds/$1/$2;
+    location  ~* /docs/(.+?)/(.+?)/(.+?)/(.*) {
+        alias /home/docs/sites/readthedocs.org/checkouts/readthedocs.org/user_builds/$1/rtd-builds/$3/$2/$4;
         error_page 404 = @fallback;
         error_page 500 = @fallback;
         add_header X-Served Nginx;
         add_header X-Deity <%= node.hostname %>;
     }
 
-    location  ~* /docs/(?P<project>.+)/en/(?P<version>.+) {
-        rewrite .* http://readthedocs.org/docs/$project/en/$version/;
+    location  ~* /docs/(?P<project>.+)/(?P<lang>.+)/(?P<version>.+) {
+        rewrite .* http://readthedocs.org/docs/$project/$lang/$version/;
     }
-
+    location  ~* /docs/(?P<project>.+)/(?P<lang>.+)/ {
+        rewrite .* http://readthedocs.org/docs/$project/$lang/latest/;
+    }
+    location  ~* /docs/(?P<project>.+)/(?P<lang>.+) {
+        rewrite .* http://readthedocs.org/docs/$project/$lang/latest/;
+    }
+    location  ~* /docs/(?P<project>.+)/ {
+        rewrite .* http://readthedocs.org/docs/$project/en/latest/;
+    }
+    location  ~* /docs/(?P<project>.+) {
+        rewrite .* http://readthedocs.org/docs/$project/en/latest/;
+    }
 
     location / {
         proxy_pass http://127.0.0.1:8888;
@@ -88,16 +92,27 @@ server {
         break;
     }
 
-    location  ~* /en/(.+)/(.*) {
-        alias /home/docs/sites/readthedocs.org/checkouts/readthedocs.org/user_builds/$domain/rtd-builds/$1/$2;
+    location  ~* /(.+?)/(.+?)/(.*) {
+        alias /home/docs/sites/readthedocs.org/checkouts/readthedocs.org/user_builds/$domain/rtd-builds/$2/$1/$3;
         error_page 404 = @fallback;
         error_page 500 = @fallback;
         add_header X-Served Nginx;
         add_header X-Deity <%= node.hostname %>;
     }
-    location / {
-	rewrite (.*) http://$domain.readthedocs.org/en/latest/;
+
+    location  ~* /(?P<lang>.+)/(?P<version>.+) {
+        rewrite (.*) http://$domain.readthedocs.org/$lang/$version/;
     }
+    location  ~* /(?P<lang>.+)/ {
+        rewrite (.*) http://$domain.readthedocs.org/$lang/latest/;
+    }
+    location  ~* /(?P<lang>.+) {
+        rewrite (.*) http://$domain.readthedocs.org/$lang/latest/;
+    }
+    location / {
+        rewrite (.*) http://$domain.readthedocs.org/en/latest/;
+    }
+
     location @fallback {
         proxy_pass http://127.0.0.1:8888;
         proxy_buffering off;
