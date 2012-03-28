@@ -13,6 +13,19 @@
   <!-- css -->
   <link rel="stylesheet" href="{{ MEDIA_URL }}css/core.css">
   {% block extra_links %}{% endblock %}
+
+  <!-- jquery -->
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.4/jquery-ui.min.js"></script>
+  
+  <script type="text/javascript" src="{{ MEDIA_URL }}javascript/rtd.js"></script>
+  
+  {% block extra_scripts %}{% endblock %}
+  
+  <!-- typekit -->
+  <script type="text/javascript" src="http://use.typekit.com/xgl8ypn.js"></script>
+  <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+  
 </head>
 
 <body class="{% block body_class %}{% endblock %}">
@@ -61,18 +74,6 @@
     <!-- END footer-->
 
 </body>
-
-<!-- jquery -->
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.4/jquery-ui.min.js"></script>
-
-<script type="text/javascript" src="{{ MEDIA_URL }}javascript/rtd.js"></script>
-
-{% block extra_scripts %}{% endblock %}
-
-<!-- typekit -->
-<script type="text/javascript" src="http://use.typekit.com/xgl8ypn.js"></script>
-<script type="text/javascript">try{Typekit.load();}catch(e){}</script>
 
 <!-- BEGIN google analytics -->
 <script type="text/javascript">
