@@ -21,11 +21,16 @@ def build_list(request, project_slug=None, tag=None):
 
     project = get_object_or_404(Project, slug=project_slug)
     queryset = queryset.filter(project=project)
+    active_builds = queryset.exclude(state="finished").values('id')
 
     return object_list(
         request,
         queryset=queryset,
-        extra_context={'project': project, 'tag': tag},
+        extra_context={
+            'project': project,
+            'tag': tag,
+            'active_builds': active_builds
+        },
         template_object_name='build',
     )
 

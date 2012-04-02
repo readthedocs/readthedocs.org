@@ -96,3 +96,69 @@ function guessRepo() {
   )
 }
 
+
+// Show an animated 'loading' gif while we get the current details of the build
+// with `buildId` from the server.
+//
+// On success, hide the loading gif, populate any <span> nodes that have ids
+// matching the pattern "build-<field name in `data` object>", and if the build
+// state is "finished" clear the client-side polling interval with ID
+// `intervalId`.
+function updateBuildDetails(buildId, intervalId) {
+    $('div#build-' + buildId + ' img.build-loading').removeClass('hide');
+
+    $.get('/api/v1/build/' + buildId, function(data) {
+        for (var prop in data) {
+            if (data.hasOwnProperty(prop)) {
+                var val = data[prop];
+                var el = $('div#build-' + buildId + ' span#build-' + prop);
+
+                if (prop == 'success') {
+                    val = val ? "Passed" : "Failed";
+                }
+
+                if (prop == 'state') {
+                    val = val.charAt(0).toUpperCase() + val.slice(1);
+                    
+                    if (val == 'Finished') {
+                        $('div#build-' + buildId + ' img.build-loading').addClass('hide');
+                        clearInterval(intervalId);
+                    }
+                }
+
+                if (el) {
+                    el.text(val);
+                }
+            }
+        }
+    });
+}
+
+
+// If the the build with ID `buildId` has a state other than finished, poll the
+// server every 5 seconds for the current status. Update the details page with
+// the latest values from the server, to keep the user informed of progress.
+//
+// If we never get a 'finished' state back from the server, stop polling after
+// 10 minutes.
+function pollForBuildDetails(buildId) {
+    var stateSpan = $('div#build-' + buildId + ' span#build-state');
+
+    // If the build is already finished, or it isn't displayed on the page,
+    // ignore it.
+    if (stateSpan.text() == 'Finished' || stateSpan.length == 0) {
+        return;
+    }
+
+    updateBuildDetails(buildId, intervalId);
+
+    var intervalId = setInterval(function() {
+        updateBuildDetails(buildId, intervalId);
+    }, 5000);
+
+    // Stop polling after 10 minutes, in case the build never finishes.
+    setTimeout(function() {
+        updateBuildDetails(buildId, intervalId);
+    }, 600000);
+}
+
