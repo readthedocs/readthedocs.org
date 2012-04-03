@@ -1,9 +1,12 @@
 
           {% for build in build_list %}
-            <li class="module-item col-span">
-              <a href="{{ build.get_absolute_url }}">{% if build.state != 'finished' %}{{ build.get_state_display }} {% else %} {{ build.success|yesno:"Passed,Failed" }} {% endif %}
+          <li class="module-item col-span">
+            <div id="build-{{ build.id }}">
+              <a href="{{ build.get_absolute_url }}"><span id="build-state">{% if build.state != 'finished' %}{{ build.get_state_display }} {% else %} {{ build.success|yesno:"Passed,Failed" }} {% endif %}</span>
+              <img src="/media/images/loader.gif" class="build-loading hide">
                 <span class="quiet">{% if build.version %}version {{ build.version.slug }} ({{ build.type }}){% endif %}</span><span class="quiet right"> {{ build.date|timesince }} ago</span>
               </a>
+            </div>
             </li>
           {% empty %}
             <li class="module-item quiet">No projects found</li>
