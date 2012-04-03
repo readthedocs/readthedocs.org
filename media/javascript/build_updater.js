@@ -99,7 +99,6 @@
     BuildListUpdater.prototype = new BuildUpdater();
 
     BuildListUpdater.prototype.render = function(data) {
-        console.log(data);
         var _this = this;
 
         data['success'] = data['success'] ? "Passed" : "Failed";
