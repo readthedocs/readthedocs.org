@@ -159,8 +159,8 @@ function guessRepo() {
     // page with the latest values from the server, to keep the user informed of
     // progress.
     //
-    // If we never get a 'finished' state back from the server, stop polling
-    // after 10 minutes.
+    // If we haven't received a 'finished' state back the server in 10 minutes,
+    // stop polling.
     BuildUpdater.prototype.startPolling = function() {
         var stateSpan = $(this.buildDiv + ' span#build-state');
         var _this = this;
