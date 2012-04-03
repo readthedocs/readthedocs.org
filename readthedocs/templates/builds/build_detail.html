@@ -44,7 +44,7 @@
 {{ block.super }}
   <script type="text/javascript">
     $(function() {
-      pollForBuildDetails({{ build.id }});
+        new BuildUpdater({{ build.id }}).startPolling();
     });
   </script>
 {% endblock %}

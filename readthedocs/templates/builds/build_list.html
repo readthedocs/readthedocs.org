@@ -37,7 +37,7 @@
   <script type="text/javascript">
     $(function() {
       {% for build in active_builds %}
-        pollForBuildDetails({{ build.id }});
+        new BuildUpdater({{ build.id }}).startPolling();
       {% endfor %}
     });
   </script>
