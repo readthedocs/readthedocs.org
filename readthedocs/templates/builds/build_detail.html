@@ -42,6 +42,8 @@
 
 {% block extra_scripts %}
 {{ block.super }}
+  <script type="text/javascript" src="{{ MEDIA_URL }}javascript/build_updater.js"></script>
+
   <script type="text/javascript">
     $(function() {
         new BuildUpdater({{ build.id }}).startPolling();
