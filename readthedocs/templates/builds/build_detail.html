@@ -17,7 +17,7 @@
     <p>Type: <b>{{ build.type }}</b></p>
 
     <p>State: <b><span id="build-state">{{ build.get_state_display }}</span></b>
-      <img src="/media/images/loader.gif" class="hide build-loading">
+      <img src="{{ MEDIA_URL }}images/loader.gif" class="hide build-loading">
     </p>
 
     <h3>Sphinx Standard Output</h3>
