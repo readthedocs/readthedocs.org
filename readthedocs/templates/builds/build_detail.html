@@ -5,34 +5,48 @@
 {% block content-header %}<h1>Build for {{ build.project.name }}</h1>{% endblock %}
 
 {% block content %}
-  <p>Built: {{ build.date|date:"N j, Y. P" }}</p>
+  <div id="build-{{ build.id }}">
+    <p>Built: {{ build.date|date:"N j, Y. P" }}</p>
 
-  <p>Outcome: <b>{{ build.success|yesno:"Passed,Failed" }}</b></p>
+    <p>Outcome: <b><span id="build-success">{{ build.success|yesno:"Passed,Failed" }}</span></b></p>
 
-  {% if build.version %}
-  <p>Version: <b>{{ build.version.slug }}</b></p>
-  {% endif %}
+    {% if build.version %}
+    <p>Version: <b>{{ build.version.slug }}</b></p>
+    {% endif %}
 
-  <p>Type: <b>{{ build.type }}</b></p>
+    <p>Type: <b>{{ build.type }}</b></p>
 
-  <p>State: <b>{{ build.state }}</b></p>
+    <p>State: <b><span id="build-state">{{ build.get_state_display }}</span></b>
+      <img src="/media/images/loader.gif" class="hide build-loading">
+    </p>
 
-  <h3>Sphinx Standard Output</h3>
-  <pre class="build-output">{{ build.output }}</pre>
+    <h3>Sphinx Standard Output</h3>
+    <pre class="build-output"><span id="build-output">{{ build.output }}</span></pre>
 
-  {% if build.error %}
-  <h3>Sphinx Standard Error</h3>
-  <pre class="build-error">{{ build.error }}</pre>
-  {% endif %}
+    {% if build.error %}
+    <h3>Sphinx Standard Error</h3>
+    <pre class="build-error"><span id="build-error">{{ build.error }}</span></pre>
+    {% endif %}
 
-  {% if build.setup %}
-  <h3>Setup Output</h3>
-  <pre class="build-output">{{ build.setup }}</pre>
-  {% endif %}
+    {% if build.setup %}
+    <h3>Setup Output</h3>
+    <pre class="build-output"><span id="build-setup">{{ build.setup }}</span></pre>
+    {% endif %}
 
-  {% if build.setup_error %}
-  <h3>Environment Standard Error</h3>
-  <pre class="build-error">{{ build.setup_error }}</pre>
-  {% endif %}
+    {% if build.setup_error %}
+    <h3>Environment Standard Error</h3>
+    <pre class="build-error"><span id="build-setup_error">{{ build.setup_error }}</span></pre>
+    {% endif %}
+  </div>
+{% endblock %}
 
+{% block extra_scripts %}
+{{ block.super }}
+  <script type="text/javascript" src="{{ MEDIA_URL }}javascript/build_updater.js"></script>
+
+  <script type="text/javascript">
+    $(function() {
+        new BuildUpdater({{ build.id }}).startPolling();
+    });
+  </script>
 {% endblock %}

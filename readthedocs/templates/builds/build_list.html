@@ -31,3 +31,16 @@
           {% paginate %}
 
 {% endblock %}
+
+{% block extra_scripts %}
+{{ block.super }}
+  <script type="text/javascript" src="{{ MEDIA_URL }}javascript/build_updater.js"></script>
+
+  <script type="text/javascript">
+    $(function() {
+      {% for build in active_builds %}
+        new BuildListUpdater({{ build.id }}).startPolling();
+      {% endfor %}
+    });
+  </script>
+{% endblock %}
