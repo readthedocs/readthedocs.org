@@ -79,7 +79,7 @@ class Builder(BaseBuilder):
     Also handles the default sphinx output of html.
     """
 
-    def _whitelisted(self):
+    def _whitelisted(self, **kwargs):
         """Modify the given ``conf.py`` file from a whitelisted user's project.
         """
         project = self.version.project
@@ -97,7 +97,7 @@ class Builder(BaseBuilder):
         rtd_string = Template(RTD_CONF_ADDITIONS).render(rtd_ctx)
         outfile.write(rtd_string)
 
-    def clean(self):
+    def clean(self, **kwargs):
         log.info("Project whitelisted")
         try:
             self._whitelisted()
@@ -106,23 +106,30 @@ class Builder(BaseBuilder):
             return ('', 'Conf file not found. Error writing to disk.', -1)
 
     @restoring_chdir
-    def build(self):
+    def build(self, id, **kwargs):
+        id_dir = "/tmp/"
+        id_file = "docs-build-%s" % id
+        id_path = os.path.join(id_dir, id_file)
         project = self.version.project
         os.chdir(project.conf_dir(self.version.slug))
         force_str = " -E " if self.force else ""
         if project.use_virtualenv:
-            build_command = '%s %s -b html . _build/html' % (project.venv_bin(
-                version=self.version.slug, bin='sphinx-build'), force_str)
+            build_command = "%s %s -b html . _build/html | tee %s" % (
+                    project.venv_bin( version=self.version.slug, bin='sphinx-build'),
+                    force_str,
+                    id_path,
+                )
         else:
-            build_command = "sphinx-build %s -b html . _build/html" % force_str
-        build_results = run(build_command)
+            build_command = "sphinx-build %s -b html . _build/html | tee %s " % (force_str, id_path)
+        build_results = run(build_command, shell=True)
+        remove_results = run('rm %s' % id_path)
         self._zip_html()
         if 'no targets are out of date.' in build_results[1]:
             self._changed = False
         return build_results
 
     @restoring_chdir
-    def _zip_html(self):
+    def _zip_html(self, **kwargs):
         from_path = self.version.project.full_build_path(self.version.slug)
         from_file = os.path.join(from_path, '%s.zip' % self.version.project.slug)
         to_path = self.version.project.checkout_path(self.version.slug)
@@ -136,14 +143,14 @@ class Builder(BaseBuilder):
             for file in files:
                 to_write = os.path.join(root, file)
                 archive.write(
-                    filename=to_write, 
+                    filename=to_write,
                     arcname=os.path.join("%s-%s" % (self.version.project.slug, self.version.slug), to_write)
                 )
         archive.close()
 
         return to_file
 
-    def move(self):
+    def move(self, **kwargs):
         project = self.version.project
         if project.full_build_path(self.version.slug):
             #Copy the html files.

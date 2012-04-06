@@ -27,7 +27,7 @@ def find_file(file):
     return matches
 
 
-def run(*commands):
+def run(*commands, **kwargs):
     """
     Run one or more commands, and return ``(status, out, err)``.
     If more than one command is given, then this is equivalent to
@@ -45,14 +45,23 @@ def run(*commands):
     cwd = os.getcwd()
     if not commands:
         raise ValueError("run() requires one or more command-line strings")
+    shell = kwargs.get('shell', False)
 
     for command in commands:
+        if shell:
+            log.info("Running commands in a shell")
+            run_command = command
+        else:
+            run_command = command.split()
         log.info("Running: '%s'" % command)
         try:
-            p = subprocess.Popen(command.split(), shell=False, cwd=cwd,
+            output = ''
+            p = subprocess.Popen(run_command, shell=shell, cwd=cwd,
                                  stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                  env=environment)
 
+            while p.poll() is None:
+                print p.stdout.readline()
             out, err = p.communicate()
             ret = p.returncode
         except:

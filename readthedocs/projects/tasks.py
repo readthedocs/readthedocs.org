@@ -65,7 +65,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
         Primary key of the project to update
 
     `record`
-        Whether or not to keep a record of the update in the database. Useful 
+        Whether or not to keep a record of the update in the database. Useful
         for preventing changes visible to the end-user when running commands from
         the shell, for example.
     """
@@ -338,7 +338,7 @@ def build_docs(project, build, version, pdf, man, epub, record, force, update_ou
     if force:
         html_builder.force()
     html_builder.clean()
-    html_output = html_builder.build()
+    html_output = html_builder.build(id=build['id'])
     successful = (html_output[0] == 0)
     if successful:
         html_builder.move()

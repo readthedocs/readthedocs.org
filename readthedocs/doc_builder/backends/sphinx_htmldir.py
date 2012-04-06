@@ -13,7 +13,7 @@ log = logging.getLogger(__name__)
 class Builder(HtmlBuilder):
 
     @restoring_chdir
-    def build(self):
+    def build(self, **kwargs):
         project = self.version.project
         os.chdir(self.version.project.conf_dir(self.version.slug))
         if project.use_virtualenv:
@@ -26,7 +26,7 @@ class Builder(HtmlBuilder):
             self._changed = False
         return build_results
 
-    def move(self):
+    def move(self, **kwargs):
         project = self.version.project
         if project.full_build_path(self.version.slug):
             target = project.rtd_build_path(self.version.slug)

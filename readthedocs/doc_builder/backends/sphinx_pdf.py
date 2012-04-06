@@ -18,7 +18,7 @@ log = logging.getLogger(__name__)
 class Builder(BaseBuilder):
 
     @restoring_chdir
-    def build(self):
+    def build(self, **kwargs):
         project = self.version.project
         os.chdir(project.conf_dir(self.version.slug))
         #Default to this so we can return it always.
@@ -57,7 +57,7 @@ class Builder(BaseBuilder):
         return (latex_results, pdf_results)
 
 
-    def move(self):
+    def move(self, **kwargs):
         #This needs to be thought about more because of all the state above.
         #We could just shove the filename on the instance or something.
         return True

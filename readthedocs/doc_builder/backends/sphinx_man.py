@@ -12,7 +12,7 @@ from core.utils import copy_file_to_app_servers
 class Builder(ManpageBuilder):
 
     @restoring_chdir
-    def build(self):
+    def build(self, **kwargs):
         project = self.version.project
         os.chdir(self.version.project.conf_dir(self.version.slug))
         if project.use_virtualenv:
@@ -23,7 +23,7 @@ class Builder(ManpageBuilder):
         build_results = run(build_command)
         return build_results
 
-    def move(self):
+    def move(self, **kwargs):
         project = self.version.project
         outputted_path = os.path.join(project.conf_dir(self.version.slug),
                                     '_build', 'man')
