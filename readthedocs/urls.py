@@ -55,6 +55,7 @@ urlpatterns = patterns('',
     url(r'^build/(?P<pk>\d+)', 'core.views.generic_build', name='generic_build'),
     url(r'^random/(?P<project>[\w-]+)', 'core.views.random_page', name='random_page'),
     url(r'^random/$', 'core.views.random_page', name='random_page'),
+    url(r'^live/$', 'core.views.live_builds', name='live_builds'),
     url(r'^wipe/(?P<project_slug>[-\w]+)/(?P<version_slug>[-\w]+)/$',
         'core.views.wipe_version',
         name='wipe_version'

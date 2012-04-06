@@ -1,43 +1,13 @@
-{% extends "projects/base_project_editing.html" %}
+{% extends "base.html" %}
 
 {% block title %}{{ build.project.name }}{% endblock %}
 
-{% block content-header %}<h1>Build for {{ build.project.name }}</h1>{% endblock %}
-
 {% block content %}
-  <div id="build-{{ build.id }}">
-    <p>Built: {{ build.date|date:"N j, Y. P" }}</p>
 
-    <p>Outcome: <b><span id="build-success">{{ build.success|yesno:"Passed,Failed" }}</span></b></p>
-
-    {% if build.version %}
-    <p>Version: <b>{{ build.version.slug }}</b></p>
-    {% endif %}
-
-    <p>Type: <b>{{ build.type }}</b></p>
-
-    <p>State: <b><span id="build-state">{{ build.get_state_display }}</span></b>
-      <img src="{{ MEDIA_URL }}images/loader.gif" class="hide build-loading">
-    </p>
-
-    <h3>Sphinx Standard Output</h3>
-    <pre class="build-output"><span id="build-output">{{ build.output }}</span></pre>
-
-    {% if build.error %}
-    <h3>Sphinx Standard Error</h3>
-    <pre class="build-error"><span id="build-error">{{ build.error }}</span></pre>
-    {% endif %}
-
-    {% if build.setup %}
-    <h3>Setup Output</h3>
-    <pre class="build-output"><span id="build-setup">{{ build.setup }}</span></pre>
-    {% endif %}
-
-    {% if build.setup_error %}
-    <h3>Environment Standard Error</h3>
-    <pre class="build-error"><span id="build-setup_error">{{ build.setup_error }}</span></pre>
-    {% endif %}
-  </div>
+     {% for build in builds %}
+    <h3>{{ build }}</h3>
+    <pre class="build-output"><span id="build-output-{{ build.id }}">{{ build.output }}</span></pre>
+    {% endfor %}
     <form id="form" style="display: none;">
         <input type="submit">
     </form>
@@ -45,13 +15,8 @@
 
 {% block extra_scripts %}
 {{ block.super }}
-  <script type="text/javascript" src="{{ MEDIA_URL }}javascript/build_updater.js"></script>
 
   <script type="text/javascript">
-    $(function() {
-        new BuildUpdater({{ build.id }}).startPolling();
-    });
-
     $(function() {
         var WS = false;
         if (window.WebSocket) WS = WebSocket;
@@ -63,9 +28,8 @@
         var $form = $('#form');
         var $url = $('#url');
         var $status = $('#status');
-        var $build_output = $('#build-output');
 
-        var ws = new WS('ws://localhost:8088/websocket');
+        var ws = new WS('ws://127.0.0.1:8088/websocket');
         ws.send_json = function(data) {
             this.send(JSON.stringify(data));
         }
@@ -78,6 +42,8 @@
             var data = JSON.parse(message.data);
             switch (data.cmd) {
                 case 'status':
+
+                    $build_output = $('#build-output-' + data.id);
                     $build_output.append(data.status);
                     break;
                 case 'result':
@@ -98,9 +64,10 @@
         $form.bind('submit', function(e) {
             e.preventDefault();
             //var url = $url.val();
-            ws.send_json({cmd: 'tail', url: '/tmp/docs-build-{{ build.id }}'});
+            {% for build in builds %}
+            ws.send_json({id: '{{ build.id }}', cmd: 'tail', url: '/tmp/docs-build-{{ build.id }}'});
+            {% endfor %}
             //$form.hide()
-            console.log(url);
         });
 
     });

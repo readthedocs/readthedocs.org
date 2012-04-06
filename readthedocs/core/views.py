@@ -19,6 +19,7 @@ from django.views.generic import TemplateView
 from haystack.views import FacetedSearchView
 from haystack.query import SearchQuerySet, EmptySearchQuerySet
 
+from builds.models import Build
 from core.forms import FacetedSearchForm
 from projects.models import Project, ImportedFile, ProjectRelationship
 from projects.tasks import update_docs, remove_dir
@@ -47,6 +48,13 @@ def random_page(request, project=None):
     if project:
         return HttpResponseRedirect(ImportedFile.objects.filter(project__slug=project).order_by('?')[0].get_absolute_url())
     return HttpResponseRedirect(ImportedFile.objects.order_by('?')[0].get_absolute_url())
+
+
+def live_builds(request):
+    builds = Build.objects.filter(state='building')[:5]
+    return render_to_response('all_builds.html',
+                              {'builds': builds},
+                context_instance=RequestContext(request))
 
 @csrf_view_exempt
 def wipe_version(request, project_slug, version_slug):

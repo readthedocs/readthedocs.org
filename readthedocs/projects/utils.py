@@ -60,8 +60,6 @@ def run(*commands, **kwargs):
                                  stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                  env=environment)
 
-            while p.poll() is None:
-                print p.stdout.readline()
             out, err = p.communicate()
             ret = p.returncode
         except:
