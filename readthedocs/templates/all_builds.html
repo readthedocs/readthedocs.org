@@ -5,8 +5,10 @@
 {% block content %}
 
      {% for build in builds %}
-    <h3>{{ build.project }}</h3>
-    <pre class="build-output" style="float: left; width: {{ build_percent }}%;"><span id="build-output-{{ build.id }}">{{ build.output }}</span></pre>
+    <div style="float: left; width: {{ build_percent }}%;">
+        <h3>{{ build.project }}</h3>
+        <pre class="build-output"><span id="build-output-{{ build.id }}">{{ build.output }}</span></pre>
+    </div>
     {% endfor %}
     <form id="form" style="display: none;">
         <input type="submit">
