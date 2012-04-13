@@ -316,7 +316,7 @@ class VersionResource(EnhancedModelResource):
             url(r"^(?P<resource_name>%s)/(?P<project_slug>[a-z-_]+)/highest/(?P<base>.+)/$" % self._meta.resource_name, self.wrap_view('version_compare'), name="version_compare"),
             url(r"^(?P<resource_name>%s)/(?P<project_slug>[a-z-_]+)/highest/$" % self._meta.resource_name, self.wrap_view('version_compare'), name="version_compare"),
             url(r"^(?P<resource_name>%s)/(?P<project__slug>[a-z-_]+[a-z0-9-_]+)/$" % self._meta.resource_name, self.wrap_view('dispatch_list'), name="api_version_list"),
-            url(r"^(?P<resource_name>%s)/(?P<project_slug>[a-z-_]+)/(?P<version_slug>[a-z-_]+)/build$" % self._meta.resource_name, self.wrap_view('build_version'), name="api_version_build_slug"),
+            url(r"^(?P<resource_name>%s)/(?P<project_slug>[a-z-_]+)/(?P<version_slug>[a-z0-9-_]+)/build/$" % self._meta.resource_name, self.wrap_view('build_version'), name="api_version_build_slug"),
         ]
 
 
