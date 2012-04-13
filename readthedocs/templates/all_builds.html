@@ -6,7 +6,7 @@
 
      {% for build in builds %}
     <h3>{{ build.project }}</h3>
-    <pre class="build-output" style="float: left; width: {{ builds_percent }}%;"><span id="build-output-{{ build.id }}">{{ build.output }}</span></pre>
+    <pre class="build-output" style="float: left; width: {{ build_percent }}%;"><span id="build-output-{{ build.id }}">{{ build.output }}</span></pre>
     {% endfor %}
     <form id="form" style="display: none;">
         <input type="submit">
