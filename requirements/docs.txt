@@ -1,1 +1,2 @@
 sphinx_http_domain
+-r main.txt

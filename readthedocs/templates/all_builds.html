@@ -42,9 +42,9 @@
             var data = JSON.parse(message.data);
             switch (data.cmd) {
                 case 'status':
-
                     $build_output = $('#build-output-' + data.id);
                     $build_output.append(data.status);
+                    window.scrollBy(0,50);
                     break;
                 case 'result':
                     console.log(data.result);

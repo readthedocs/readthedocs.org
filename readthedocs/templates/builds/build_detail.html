@@ -79,6 +79,7 @@
             switch (data.cmd) {
                 case 'status':
                     $build_output.append(data.status);
+                    window.scrollBy(0,50);
                     break;
                 case 'result':
                     console.log(data.result);
