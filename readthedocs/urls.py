@@ -23,7 +23,7 @@ handler404 = 'core.views.server_error_404'
 
 urlpatterns = patterns('',
     url(r'^$', 'core.views.homepage'),
-    url(r'^docs/(?P<project_slug>[-\w]+)/(?P<lang_slug>en)/(?P<version_slug>[-._\w]+?)/(?P<filename>.*)$',
+    url(r'^docs/(?P<project_slug>[-\w]+)/(?P<lang_slug>[\w]+)/(?P<version_slug>[-._\w]+?)/(?P<filename>.*)$',
         'core.views.serve_docs',
         name='docs_detail'
     ),

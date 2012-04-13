@@ -1,3 +1,5 @@
+import collections
+import glob
 import os
 import shutil
 import codecs
@@ -9,6 +11,8 @@ from django.template import Template, Context
 from django.contrib.auth.models import SiteProfileNotAvailable
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
+from sphinx.config import Config
+from sphinx.util.tags import Tags
 
 from doc_builder.base import BaseBuilder, restoring_chdir
 from projects.utils import safe_write, run
@@ -108,18 +112,58 @@ class Builder(BaseBuilder):
     @restoring_chdir
     def build(self):
         project = self.version.project
-        os.chdir(project.conf_dir(self.version.slug))
-        force_str = " -E " if self.force else ""
-        if project.use_virtualenv:
-            build_command = '%s %s -b html . _build/html' % (project.venv_bin(
-                version=self.version.slug, bin='sphinx-build'), force_str)
-        else:
-            build_command = "sphinx-build %s -b html . _build/html" % force_str
-        build_results = run(build_command)
+        conf_dir = project.conf_dir(self.version.slug)
+        conf_file = project.conf_file(self.version.slug)
+
+        translations = self._get_translations(conf_dir, conf_file)
+        compile_commands = self._compile_commands(translations)
+        build_commands = self._build_commands(translations, project)
+
+        os.chdir(conf_dir)
+        build_results = run(*(compile_commands + build_commands))
+
         self._zip_html()
         if 'no targets are out of date.' in build_results[1]:
             self._changed = False
+
         return build_results
+
+    def _build_commands(self, translations, project):
+        if project.use_virtualenv:
+            sphinx_build = project.venv_bin(version=self.version.slug,
+                                            bin='sphinx-build')
+        else:
+            sphinx_build = 'sphinx-build'
+        options = ' -E' if self.force else ''
+
+        results = ['%s -b html %s . _build/html/en' % (sphinx_build, options)]
+        for lang in translations:
+            results.append('%s -b html -D language=%s . _build/html/%s' % (
+                    sphinx_build, lang + options, lang))
+        return results
+
+    def _compile_commands(self, translations):
+        results = []
+        for po_files in translations.values():
+            for po in po_files:
+                mo = os.path.splitext(po)[0] + '.mo'
+                results.append('msgfmt %s -o %s' % (po, mo))
+        return results
+
+    def _get_translations(self, conf_dir, conf_file):
+        config = Config(conf_dir, conf_file, {}, Tags(None))
+        config.init_values()
+
+        results = collections.defaultdict(list)
+
+        for dir_ in config.locale_dirs:
+            for lang in os.listdir(os.path.join(conf_dir, dir_)):
+                po_files = glob.glob(
+                    os.path.join(conf_dir, dir_, lang, 'LC_MESSAGES', '*.po'))
+                results[lang].extend(po_files)
+        log.info('Available translations: [%s]' % ','.join(results.keys()))
+
+        return results
 
     @restoring_chdir
     def _zip_html(self):
