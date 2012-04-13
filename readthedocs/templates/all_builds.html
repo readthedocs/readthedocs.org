@@ -35,6 +35,10 @@
             console.log('websocket connected');
             $form.submit()
         };
+        ws.onerror = function(evt) {
+            console.log('error');
+            console.log(evt.data);
+        };
         ws.onmessage = function(message) {
             console.log(message);
             var data = JSON.parse(message.data);
