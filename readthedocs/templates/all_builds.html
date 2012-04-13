@@ -65,7 +65,7 @@
             e.preventDefault();
             //var url = $url.val();
             {% for build in builds %}
-            ws.send_json({id: '{{ build.id }}', cmd: 'tail', url: '/tmp/docs-build-{{ build.id }}'});
+            ws.send_json({id: '{{ build.id }}', cmd: 'tail', url: '{{ build.id }}'});
             {% endfor %}
             //$form.hide()
         });
