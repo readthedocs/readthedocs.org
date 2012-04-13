@@ -3,7 +3,7 @@ from fabric.decorators import runs_once
 import time
 
 env.runtime = 'production'
-env.hosts = ['chimera.ericholscher.com', 'ladon.ericholscher.com', 'build.ericholscher.com']
+env.hosts = ['chimera.ericholscher.com', 'ladon.ericholscher.com', 'build.ericholscher.com', 'mozbuild.ericholscher.com']
 env.user = 'docs'
 env.code_dir = '/home/docs/sites/readthedocs.org/checkouts/readthedocs.org'
 env.virtualenv = '/home/docs/sites/readthedocs.org'
@@ -37,9 +37,20 @@ def restart():
 
 @hosts(['chimera.ericholscher.com', 'ladon.ericholscher.com'])
 def reload():
+    "Restart (or just start) the server"
+    env.user = "docs"
+    pid = run("ps aux |grep gunicorn |grep master |awk '{ print $2 }'")
+    run('kill -HUP %s' % pid)
+    #so it has time to reload
+    time.sleep(3)
+
+"""
+@hosts(['chimera.ericholscher.com', 'ladon.ericholscher.com'])
+def reload():
     "Reload (or just start) the server"
     env.user = "root"
     run("reload readthedocs-gunicorn")
+"""
 
 @hosts(['build.ericholscher.com'])
 #@hosts(['kirin.ericholscher.com'])
