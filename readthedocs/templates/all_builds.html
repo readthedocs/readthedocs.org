@@ -29,7 +29,7 @@
         var $url = $('#url');
         var $status = $('#status');
 
-        var ws = new WS('ws://127.0.0.1:8088/websocket');
+        var ws = new WS('ws://websocket.readthedocs.org:8088/websocket');
         ws.send_json = function(data) {
             this.send(JSON.stringify(data));
         }
