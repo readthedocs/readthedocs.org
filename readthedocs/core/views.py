@@ -53,8 +53,13 @@ def random_page(request, project=None):
 def live_builds(request):
     builds = Build.objects.filter(state='building')[:5]
     WEBSOCKET_HOST = getattr(settings, 'WEBSOCKET_HOST', 'localhost:8088')
+    count = builds.count()
+    percent = 100
+    if count > 1:
+        percent = 100 / count
     return render_to_response('all_builds.html',
                               {'builds': builds,
+                               'build_percent': percent,
                                'WEBSOCKET_HOST': WEBSOCKET_HOST},
                 context_instance=RequestContext(request))
 

@@ -5,8 +5,8 @@
 {% block content %}
 
      {% for build in builds %}
-    <h3>{{ build }}</h3>
-    <pre class="build-output"><span id="build-output-{{ build.id }}">{{ build.output }}</span></pre>
+    <h3>{{ build.project }}</h3>
+    <pre class="build-output" style="width: {{ builds_percent }}%"><span id="build-output-{{ build.id }}">{{ build.output }}</span></pre>
     {% endfor %}
     <form id="form" style="display: none;">
         <input type="submit">
