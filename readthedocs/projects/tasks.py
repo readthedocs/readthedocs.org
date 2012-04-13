@@ -247,7 +247,7 @@ def update_imported_docs(project, version):
         if version_repo.supports_tags:
             transaction.enter_transaction_management(True)
             tags = version_repo.tags
-            old_tags = [obj['identifier'] for obj in api.version.get(project__slug=project.slug, limit=50)['objects']]
+            old_tags = [obj['identifier'] for obj in api.version.get(project__slug=project.slug, limit=500)['objects']]
             for tag in tags:
                 if tag.identifier in old_tags:
                     continue
@@ -277,7 +277,7 @@ def update_imported_docs(project, version):
         if version_repo.supports_branches:
             transaction.enter_transaction_management(True)
             branches = version_repo.branches
-            old_branches = [obj['identifier'] for obj in api.version.get(project__slug=project.slug, limit=50)['objects']]
+            old_branches = [obj['identifier'] for obj in api.version.get(project__slug=project.slug, limit=500)['objects']]
             for branch in branches:
                 if branch.identifier in old_branches:
                     continue

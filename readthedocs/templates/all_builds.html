@@ -26,8 +26,6 @@
 
         var $results = $('#results');
         var $form = $('#form');
-        var $url = $('#url');
-        var $status = $('#status');
 
         var ws = new WS('ws://{{ WEBSOCKET_HOST }}/websocket');
         ws.send_json = function(data) {
@@ -69,7 +67,6 @@
             {% endfor %}
             //$form.hide()
         });
-
     });
 
   </script>
