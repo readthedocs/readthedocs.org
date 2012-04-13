@@ -26,7 +26,9 @@ HAYSTACK_CONNECTIONS = {
         'URL': 'http://odin:8983/solr',
     }
 }
+
 SLUMBER_API_HOST = 'http://readthedocs.org'
+WEBSOCKET_HOST = 'websocket.readthedocs.org:8088'
 
 
 try:

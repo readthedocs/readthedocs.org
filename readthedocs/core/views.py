@@ -52,8 +52,10 @@ def random_page(request, project=None):
 
 def live_builds(request):
     builds = Build.objects.filter(state='building')[:5]
+    WEBSOCKET_HOST = getattr(settings, 'WEBSOCKET_HOST', 'localhost:8088')
     return render_to_response('all_builds.html',
-                              {'builds': builds},
+                              {'builds': builds,
+                               'WEBSOCKET_HOST': WEBSOCKET_HOST},
                 context_instance=RequestContext(request))
 
 @csrf_view_exempt
