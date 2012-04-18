@@ -66,7 +66,7 @@ I want to use the Blue/Default Sphinx theme
 We think that our theme is badass, and better than the default for many reasons. Some people don't like change though :), so there is a hack that will let you keep using the default theme. If you set the ``html_style`` variable in your ``conf.py``, it should default to using the default theme. The value of this doesn't matter, and can be set to None, ``'static/``.
 
 
-Image scaling doesn't work in my documetation
+Image scaling doesn't work in my documentation
 ---------------------------------------------
 
 Image scaling in docutils depends on PIL. PIL is installed in the system that RTD runs on. However, if you are using the virtualenv building option, you will likely need to include PIL in your requirements for your project.
