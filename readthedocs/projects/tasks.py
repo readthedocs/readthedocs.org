@@ -463,7 +463,11 @@ def update_intersphinx(version_pk):
     version_data['project'] = project
     version = Version(**version_data)
 
-    object_file = version.project.find('objects.inv', version.slug)[0]
+    try:
+        object_file = version.project.find('objects.inv', version.slug)[0]
+    except IndexError, e:
+        print "Failed to find objects file"
+        return None
     path = version.project.rtd_build_path(version.slug)
     if not path:
         log.warning("%s has no path" % version)
