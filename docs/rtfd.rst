@@ -18,7 +18,7 @@ Web
 
 Build
 ~~~~~
-    * Mozbuild
+    * Build
 
 Database
 ~~~~~~~~
@@ -26,11 +26,15 @@ Database
 
 Solr
 ~~~~
-    * Odin
+    * Mozbuild
+
+Redis
+~~~~~
+    * Mozbuild
 
 Monitoring
 ~~~~~~~~~~
-    * Kirin
+    * Golem
 
 
 Site Checkout
