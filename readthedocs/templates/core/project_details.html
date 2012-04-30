@@ -2,9 +2,11 @@
 
 {% if project.description %}
   <h3>Description</h3>
+  <div id="project_description">
   <p>
     {{ project.description|restructuredtext }}
   </p>
+  </div>
 {% endif %}
 
 
