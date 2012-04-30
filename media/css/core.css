@@ -73,6 +73,10 @@ label { display: block; margin-bottom: 4px; font-weight: bold; color: #444; }
 #content { padding-top: 50px; }
 #content ul { margin-bottom: 20px; }
 
+#content #project_description { background-color: #eee; }
+/* Commenting this for now. Want to figure out how to make it look sane with small amounts of text. */
+/* #content p { background-color: #eee; } */
+
 
 /* header */
 
