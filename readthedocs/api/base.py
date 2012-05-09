@@ -12,7 +12,7 @@ from haystack.query import SearchQuerySet
 from haystack.utils import Highlighter
 from tastypie import fields
 from tastypie.authentication import BasicAuthentication
-from tastypie.authorization import Authorization
+from tastypie.authorization import DjangoAuthorization
 from tastypie.constants import ALL_WITH_RELATIONS, ALL
 from tastypie.resources import ModelResource
 from tastypie.exceptions import NotFound, ImmediateHttpResponse
@@ -198,7 +198,7 @@ class ProjectResource(ModelResource, SearchMixin):
         allowed_methods = ['get', 'post', 'put']
         queryset = Project.objects.all()
         authentication = PostAuthentication()
-        authorization = Authorization()
+        authorization = DjangoAuthorization()
         excludes = ['path', 'skip', 'featured']
         filtering = {
             "users": ALL_WITH_RELATIONS,
@@ -243,7 +243,7 @@ class BuildResource(EnhancedModelResource):
         allowed_methods = ['get', 'post', 'put']
         queryset = Build.objects.all()
         authentication = PostAuthentication()
-        authorization = Authorization()
+        authorization = DjangoAuthorization()
         filtering = {
             "project": ALL_WITH_RELATIONS,
             "slug": ALL_WITH_RELATIONS,
@@ -265,7 +265,7 @@ class VersionResource(EnhancedModelResource):
         always_return_data = True
         queryset = Version.objects.all()
         authentication = PostAuthentication()
-        authorization = Authorization()
+        authorization = DjangoAuthorization()
         filtering = {
             "project": ALL_WITH_RELATIONS,
             "slug": ALL_WITH_RELATIONS,
@@ -329,7 +329,7 @@ class FileResource(EnhancedModelResource, SearchMixin):
         excludes = ['md5', 'slug']
         include_absolute_url = True
         authentication = PostAuthentication()
-        authorization = Authorization()
+        authorization = DjangoAuthorization()
         search_facets = ['project']
 
     def override_urls(self):
