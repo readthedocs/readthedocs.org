@@ -89,12 +89,7 @@ class APITests(TestCase):
                                 content_type='application/json',
                                 HTTP_AUTHORIZATION='Basic %s' % base64.b64encode('tester:test')
                                 )
-        self.assertEqual(resp.status_code, 201)
-        resp = self.client.get(resp['location'].split("testserver")[1],
-                               data={'format':'json'},
-                               HTTP_AUTHORIZATION='Basic %s' % base64.b64encode('tester:test')
-                               )
-        self.assertEqual(["/api/v1/user/2/",], json.loads(resp.content)["users"])
+        self.assertEqual(resp.status_code, 401)
 
     def test_ensure_get_unauth(self):
         """
