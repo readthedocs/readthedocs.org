@@ -512,7 +512,7 @@ File Search
 
    :arg search_term: Perform search with this term.
 
-.. http:response:: Retrieve a list of `File`_ objects that contain the search term.
+.. http:response:: Retrieve a list of File objects that contain the search term.
 
    .. sourcecode:: js
    
