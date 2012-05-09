@@ -262,7 +262,7 @@ def update_imported_docs(project, version):
                         verbose_name=tag.verbose_name
                     ))
                     log.info("New tag found: {0}".format(tag.identifier))
-                    highest = project.highest_version['version']
+                    highest = project.highest_version[1]
                     ver_obj = mkversion(ver)
                     #TODO: Handle updating higher versions automatically.
                     #This never worked very well, anyways.
