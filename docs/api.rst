@@ -21,7 +21,7 @@ You can use `Slumber <http://slumber.in/>`_ to build basic API wrappers in pytho
     val = api.project.get(slug='pip')
     #val = api.project('pip').get()
 
-    #val = api.build.get(pk=49252)
+    #val = api.build(49252).get()
     #val = api.build.get(project__slug='read-the-docs')
 
     #val = api.user.get(username='eric')
