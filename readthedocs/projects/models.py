@@ -69,7 +69,7 @@ class Project(models.Model):
     documentation_type = models.CharField(max_length=20,
         choices=constants.DOCUMENTATION_CHOICES, default='sphinx',
         help_text='Type of documentation you are building.')
-    analytics_code = models.CharField(max_length=50, null=True, blank=True, help_text="Google Analytics Tracking Code. This may slow down your page loads.")
+    analytics_code = models.CharField(max_length=50, null=True, blank=True, help_text="Google Analytics Tracking ID (ex. UA-22345342-1). This may slow down your page loads.")
 
     #Other model data.
     path = models.CharField(help_text="The directory where conf.py lives",
