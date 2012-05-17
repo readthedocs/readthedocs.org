@@ -255,7 +255,7 @@ def update_imported_docs(project, version):
                                         'slug', 255, project=project)
                 try:
 
-                    version = api.version.post(dict(
+                    version_data = api.version.post(dict(
                         project="/api/v1/project/%s/" % project.pk,
                         slug=slug,
                         identifier=tag.identifier,
