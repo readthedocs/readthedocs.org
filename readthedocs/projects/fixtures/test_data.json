@@ -268,7 +268,24 @@
             "slug": "0.2.1"
         }
     },
-
+    {
+        "pk": 97214,
+        "model": "auth.user",
+        "fields": {
+            "username": "test",
+            "first_name": "Testy",
+            "last_name": "Testerson",
+            "is_active": true,
+            "is_superuser": true,
+            "is_staff": true,
+            "last_login": "2010-08-14 01:51:05",
+            "groups": [],
+            "user_permissions": [],
+            "password": "sha1$efaa6$17551368b198ef0dffcbf388908b7a609ec22eb1",
+            "email": "e@etest.co",
+            "date_joined": "2010-08-14 01:50:58"
+        }
+    },
     {
         "pk": 17,
         "model": "projects.project",
