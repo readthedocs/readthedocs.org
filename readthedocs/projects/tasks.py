@@ -255,14 +255,20 @@ def update_imported_docs(project, version):
                                         'slug', 255, project=project)
                 try:
 
-                    api.version.post(dict(
+                    version = api.version.post(dict(
                         project="/api/v1/project/%s/" % project.pk,
                         slug=slug,
                         identifier=tag.identifier,
                         verbose_name=tag.verbose_name
                     ))
+                    del version_data['resource_uri']
+                    del project_data['users']
+                    del project_data['resource_uri']
+                    del project_data['absolute_url']
+                    version_data['project'] = project
+                    ver = Version(**version_data)
                     log.info("New tag found: {0}".format(tag.identifier))
-                    highest = project.highest_version[1]
+                    ver, highest = project.highest_version[1]
                     ver_obj = mkversion(ver)
                     #TODO: Handle updating higher versions automatically.
                     #This never worked very well, anyways.
@@ -533,12 +539,15 @@ def send_notifications(version):
     message = "Build of %s successful" % version
     redis_obj = redis.Redis(**settings.REDIS)
     IRC = getattr(settings, 'IRC_CHANNEL', '#readthedocs')
-    redis_obj.publish('out',
-                    json.dumps({
-                    'version': 1,
-                    'type': 'privmsg',
-                    'data': {
-                        'to': IRC,
-                        'message': message,
-                        }
-                    }))
+    try:
+        redis_obj.publish('out',
+                        json.dumps({
+                        'version': 1,
+                        'type': 'privmsg',
+                        'data': {
+                            'to': IRC,
+                            'message': message,
+                            }
+                        }))
+    except redis.ConnectionError:
+        return
