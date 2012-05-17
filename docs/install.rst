@@ -40,13 +40,12 @@ This will prompt you to create a superuser account for Django. Do that. Then::
 
     ./manage.py migrate
 
-If you like, you can load up some test projects::
+Go ahead and load in a couple users and a test projects::
 
     ./manage.py loaddata test_data
-    ./manage.py update_repos
+    ./manage.py update_repos pip
 
-Or you can skip it and start with a fresh, empty site. Finally, you're ready to
-start the webserver::
+Finally, you're ready to start the webserver::
 
     ./manage.py runserver
  
