@@ -121,18 +121,3 @@ docs you've already built.  Simply provide us with the clone url to your repo,
 we'll pull your code, extract your docs, and build them!  We make available
 a post-commit webhook that can be configured to update the docs on our site
 whenever you commit to your repo, effectively letting you 'set it and forget it'.
-
-Caveats
--------
-
-Usually, `readthedocs.org <http://readthedocs.org>`_ generates its own ``conf.py``
-files, by extracting a few values (such as ``copyright``, ``html_theme``,
-``source_suffix`` and ``version``) from the project's ``conf.py`` file.  This is to
-avoid the possibility of arbitrary code execution within the python files.  As a
-result, projects with special extensions, themes, or templates won't work
-correctly.  We are planning to support popular themes in future.
-
-For projects which need to be able to run code in conf.py, there is a white list
-for users that we trust to have these abilities.  To get on the white list, ask
-on IRC (#readthedocs on `Freenode (chat.freenode.net)
-<http://webchat.freenode.net>`_).
