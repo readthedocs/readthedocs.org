@@ -18,7 +18,7 @@ warning = '<div class="admonition note"> <p class="first admonition-title">Note<
         doc_version = ""
     $.ajax({
      type: 'GET',
-     url: "http://readthedocs.org/api/v1/version/" + doc_slug + "/highest/" + doc_version + "/",
+     url: "//readthedocs.org/api/v1/version/" + doc_slug + "/highest/" + doc_version + "/",
      //url: "/api/v1/version/" + doc_slug + "/highest/" + doc_version + "/",
      success: function(data, textStatus, request) {
       if (!data.is_highest) {
@@ -34,7 +34,7 @@ warning = '<div class="admonition note"> <p class="first admonition-title">Note<
     $.ajax({
      type: 'GET',
      //This has to be hard coded for CNAMEs, subdomains.
-     url: "http://readthedocs.org/api/v1/version/" + doc_slug + "/?active=True",
+     url: "//readthedocs.org/api/v1/version/" + doc_slug + "/?active=True",
      //url: "/api/v1/version/" + doc_slug + "/?active=True",
      success: function(data, textStatus, request) {
         $('#version_menu,.version-listing').empty()
