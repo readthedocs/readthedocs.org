@@ -18,7 +18,7 @@ warning = '<div class="admonition note"> <p class="first admonition-title">Note<
         doc_version = ""
     $.ajax({
      type: 'GET',
-     url: "//readthedocs.org/api/v1/version/" + doc_slug + "highest/" + doc_version + "/",
+     url: "//readthedocs.org/api/v1/version/" + doc_slug + "/highest/" + doc_version + "/",
      //url: "/api/v1/version/" + doc_slug + "/highest/" + doc_version + "/",
      success: function(data, textStatus, request) {
       if (!data.is_highest) {
