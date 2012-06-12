@@ -56,14 +56,14 @@ class SubdomainMiddleware(object):
                 raise Http404('Invalid hostname')
         if len(domain_parts) == 3:
             subdomain = domain_parts[0]
-            if not (subdomain.lower() == 'www') and 'readthedocs.org' in host:
+            if not (subdomain.lower() == 'www') and not (subdomain.lower() == 'ssl') and 'readthedocs.org' in host:
                 request.subdomain = True
                 request.slug = subdomain
                 request.urlconf = 'core.subdomain_urls'
                 return None
         if len(domain_parts) == 3:
             subdomain = domain_parts[0]
-            if not (subdomain.lower() == 'www') and 'rtfd.org' in host:
+            if not (subdomain.lower() == 'www') and not (subdomain.lower() == 'ssl') and 'rtfd.org' in host:
                 request.slug = subdomain
                 request.urlconf = 'core.djangome_urls'
                 return None
