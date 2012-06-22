@@ -43,7 +43,6 @@ This will prompt you to create a superuser account for Django. Do that. Then::
 Go ahead and load in a couple users and a test projects::
 
     ./manage.py loaddata test_data
-    ./manage.py update_repos pip
 
 Finally, you're ready to start the webserver::
 
@@ -52,7 +51,12 @@ Finally, you're ready to start the webserver::
 Visit http://127.0.0.1:8000/ in your browser to see how it looks; you can use
 the admin interface via http://127.0.0.1:8000/admin (logging in with the
 superuser account you just created).
-                   
+
+While the webserver is running, you can build documentation for a project with
+the ``update_repos`` command::
+
+   ./manage.py update_repos pip
+
 
 Solr (Search) Setup
 -------------------
