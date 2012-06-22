@@ -591,6 +591,11 @@ p {
     margin: 0.8em 0 0.5em 0;
 }
 
+.section {
+    text-align: justify;
+    width: 50em;
+}
+
 .section p img.math {
     margin: 0;
 }
