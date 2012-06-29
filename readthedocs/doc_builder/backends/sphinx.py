@@ -155,28 +155,33 @@ class Builder(BaseBuilder):
         if project.full_build_path(self.version.slug):
             #Copy the html files.
             target = project.rtd_build_path(self.version.slug)
-            if getattr(settings, "MULTIPLE_APP_SERVERS", None):
-                log.info("Copying docs to remote server.")
-                copy_to_app_servers(project.full_build_path(self.version.slug), target)
+            if "_" in target:
+                targets = [target, target.replace('_','-')
             else:
-                if os.path.exists(target):
-                    shutil.rmtree(target)
-                log.info("Copying docs on the local filesystem")
-                shutil.copytree(project.full_build_path(self.version.slug), target)
+                targets = [target]
+            for target in targets:
+                if getattr(settings, "MULTIPLE_APP_SERVERS", None):
+                    log.info("Copying docs to remote server.")
+                    copy_to_app_servers(project.full_build_path(self.version.slug), target)
+                else:
+                    if os.path.exists(target):
+                        shutil.rmtree(target)
+                    log.info("Copying docs on the local filesystem")
+                    shutil.copytree(project.full_build_path(self.version.slug), target)
 
-            #Copy the zip file.
-            to_path = os.path.join(settings.MEDIA_ROOT,
-                   'htmlzip',
-                   project.slug,
-                   self.version.slug)
-            to_file = os.path.join(to_path, '%s.zip' % project.slug)
-            from_path = project.checkout_path(self.version.slug)
-            from_file = os.path.join(from_path, '%s.zip' % project.slug)
-            if getattr(settings, "MULTIPLE_APP_SERVERS", None):
-                copy_file_to_app_servers(from_file, to_file)
-            else:
-                if not os.path.exists(to_path):
-                    os.makedirs(to_path)
-                run('mv -f %s %s' % (from_file, to_file))
+                #Copy the zip file.
+                to_path = os.path.join(settings.MEDIA_ROOT,
+                       'htmlzip',
+                       project.slug,
+                       self.version.slug)
+                to_file = os.path.join(to_path, '%s.zip' % project.slug)
+                from_path = project.checkout_path(self.version.slug)
+                from_file = os.path.join(from_path, '%s.zip' % project.slug)
+                if getattr(settings, "MULTIPLE_APP_SERVERS", None):
+                    copy_file_to_app_servers(from_file, to_file)
+                else:
+                    if not os.path.exists(to_path):
+                        os.makedirs(to_path)
+                    run('mv -f %s %s' % (from_file, to_file))
         else:
             log.warning("Not moving docs, because the build dir is unknown.")
