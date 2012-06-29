@@ -156,7 +156,7 @@ class Builder(BaseBuilder):
             #Copy the html files.
             target = project.rtd_build_path(self.version.slug)
             if "_" in target:
-                targets = [target, target.replace('_','-')
+                targets = [target, target.replace('_','-')]
             else:
                 targets = [target]
             for target in targets:
