@@ -12,7 +12,9 @@ def copy_to_app_servers(full_build_path, target, mkdir=True):
     """
     log.info("Copying %s to %s" % (full_build_path, target))
     for server in settings.MULTIPLE_APP_SERVERS:
-        os.system("ssh %s@%s mkdir -p %s" % (getpass.getuser(), server, target))
+        ret = os.system("ssh %s@%s mkdir -p %s" % (getpass.getuser(), server, target))
+        if ret != 0:
+            log.error("COPY ERROR to app servers.")
         ret = os.system("rsync -e 'ssh -T' -av --delete %s/ %s@%s:%s" %
                         (full_build_path, getpass.getuser(), server, target))
         if ret != 0:
