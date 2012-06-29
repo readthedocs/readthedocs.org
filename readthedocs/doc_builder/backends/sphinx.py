@@ -156,8 +156,10 @@ class Builder(BaseBuilder):
             #Copy the html files.
             target = project.rtd_build_path(self.version.slug)
             if "_" in project.slug:
+                new_slug = project.slug.replace('_','-')
+                new_target = target.replace(project.slug, new_slug)
                 #Only replace 1, so user_builds doesn't get replaced >:x
-                targets = [target, target.replace('_','-', 1)]
+                targets = [target, new_target]
             else:
                 targets = [target]
             for target in targets:
