@@ -114,13 +114,11 @@ class Builder(BaseBuilder):
         os.chdir(project.conf_dir(self.version.slug))
         force_str = " -E " if self.force else ""
         if project.use_virtualenv:
-            build_command = "%s %s -b html . _build/html | tee %s" % (
+            build_command = "%s %s -b html . _build/html " % (
                     project.venv_bin( version=self.version.slug, bin='sphinx-build'),
-                    force_str,
-                    id_path,
-                )
+                    force_str)
         else:
-            build_command = "sphinx-build %s -b html . _build/html | tee %s " % (force_str, id_path)
+            build_command = "sphinx-build %s -b html . _build/html" % (force_str)
         build_results = run(build_command, shell=True)
         remove_results = run('rm %s' % id_path)
         self._zip_html()
