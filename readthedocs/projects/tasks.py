@@ -265,6 +265,7 @@ def update_imported_docs(project, version):
                         verbose_name=tag.verbose_name
                     ))
                     del version_data['resource_uri']
+                    project_data = version_data['project']
                     del project_data['users']
                     del project_data['resource_uri']
                     del project_data['absolute_url']
