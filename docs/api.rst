@@ -49,11 +49,11 @@ Example of adding a user to a project
     PASSWORD = 'test'
     
     user_to_add = 'coleifer'
-    project = 'read-the-docs'
+    project_slug = 'read-the-docs'
 
     api = slumber.API(base_url='http://readthedocs.org/api/v1/', authentication={'name': USERNAME, 'password': PASSWORD})
 
-    project = api.project.get(slug=project)
+    project = api.project.get(slug=project_slug)
     user = api.user.get(username=user_to_add)
     project_objects = project['objects'][0]
     user_objects = user['objects'][0]
@@ -64,7 +64,7 @@ Example of adding a user to a project
     print "Adding %s to %s" % (user_objects['username'], project_objects['slug'])
     api.project(project_objects['id']).put(data)
 
-    project2 = api.project.get(slug=project)
+    project2 = api.project.get(slug=project_slug)
     project2_objects = project2['objects'][0]
     print "Before users: %s" % project_objects['users']
     print "After users: %s" % project2_objects['users']
