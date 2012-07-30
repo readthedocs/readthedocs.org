@@ -46,7 +46,7 @@ You can mock out the imports for these modules in your conf.py with the followin
             return Mock()
 
         @classmethod
-        def __getattr__(self, name):
+        def __getattr__(cls, name):
             if name in ('__file__', '__path__'):
                 return '/dev/null'
             elif name[0] == name[0].upper():
