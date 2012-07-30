@@ -84,7 +84,7 @@ class ImportedFileIndex(indexes.SearchIndex, indexes.Indexable):
         except IOError as e:
             log.info('Unable to index file: %s, error :%s' % (file_path, e))
             return
-        log.debug('Indexing %s' % obj.slug)
+        log.debug('Indexing %s' % obj.path)
         try:
             to_index = strip_tags(PyQuery(content)("div.document").html()).replace(u'¶', '')
         except ValueError:
