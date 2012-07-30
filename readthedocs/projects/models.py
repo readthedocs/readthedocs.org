@@ -117,12 +117,11 @@ class Project(models.Model):
 
     def get_docs_url(self, version_slug=None):
         version = version_slug or self.get_default_version()
-        return reverse('docs_detail', kwargs={
-            'project_slug': self.slug,
-            'lang_slug': 'en',
-            'version_slug': version,
-            'filename': '',
-        })
+        return "http://%s.readthedocs.org/%s/%s/" % (
+            self.slug,
+            'en',
+            version,
+        )
 
     def get_builds_url(self):
         return reverse('builds_project_list', kwargs={
