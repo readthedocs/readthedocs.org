@@ -96,7 +96,7 @@ class Project(models.Model):
 
     @property
     def subdomain(self):
-        return "%s.readthedocs.org" % self.slug#.replace('_', '-')
+        return "%s.readthedocs.org" % self.slug.replace('_', '-')
 
     def save(self, *args, **kwargs):
         #if hasattr(self, 'pk'):
@@ -117,8 +117,8 @@ class Project(models.Model):
 
     def get_docs_url(self, version_slug=None):
         version = version_slug or self.get_default_version()
-        return "http://%s.readthedocs.org/%s/%s/" % (
-            self.slug,
+        return "http://%s/%s/%s/" % (
+            self.subdomain,
             'en',
             version,
         )
