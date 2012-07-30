@@ -93,7 +93,7 @@ class ImportedFileIndex(indexes.SearchIndex, indexes.Indexable):
         if not to_index:
             log.info('Unable to index file: %s:%s, empty file' % (obj.project, file_path))
         else:
-            log.debug('%s:%s length: %s' % (obj.project, file_path, len(to_index))
+            log.debug('%s:%s length: %s' % (obj.project, file_path, len(to_index)))
         return to_index
 
     def get_model(self):
