@@ -29,6 +29,7 @@ class Builder(HtmlBuilder):
     def move(self, **kwargs):
         project = self.version.project
         if project.full_build_path(self.version.slug):
+            target = project.rtd_build_path(self.version.slug)
             if "_" in project.slug:
                 new_slug = project.slug.replace('_','-')
                 new_target = target.replace(project.slug, new_slug)
