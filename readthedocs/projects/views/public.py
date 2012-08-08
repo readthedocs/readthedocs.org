@@ -168,13 +168,7 @@ def subdomain_handler(request, lang_slug=None, version_slug=None, filename=''):
     """
     if not filename:
         filename = "index.html"
-    try:
-        Project.objects.get(slug=request.slug)
-    except Project.DoesNotExist:
-        slug = request.slug.replace('-', '_')
-        Project.objects.get(slug=request.slug)
-    except Project.DoesNotExist:
-        raise Http404
+    project = get_object_or_404(Project, slug=request.slug)
     if version_slug is None:
         #Handle / on subdomain.
         default_version = project.get_default_version()
