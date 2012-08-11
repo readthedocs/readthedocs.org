@@ -38,7 +38,7 @@ def import_crate(project):
         log.info("Trying to import from %s" % API_SERVER)
         resp, content = h.request(URL, "GET")
     except AttributeError:
-        log.error("Socket error trying to pull from Create", exc_info=True)
+        log.error("Socket error trying to pull from Crate.io", exc_info=True)
     if resp['status'] == '200':
         content_dict = json.loads(content)
         if content_dict['meta']['total_count'] != 0:
