@@ -186,6 +186,7 @@ class UserResource(ModelResource):
 
     def override_urls(self):
         return [
+            url(r"^(?P<resource_name>%s)/schema/$" % self._meta.resource_name, self.wrap_view('get_schema'), name="api_get_schema"),
             url(r"^(?P<resource_name>%s)/(?P<username>[a-z-_]+)/$" % self._meta.resource_name, self.wrap_view('dispatch_detail'), name="api_dispatch_detail"),
         ]
 
@@ -229,6 +230,7 @@ class ProjectResource(ModelResource, SearchMixin):
 
     def override_urls(self):
         return [
+            url(r"^(?P<resource_name>%s)/schema/$" % self._meta.resource_name, self.wrap_view('get_schema'), name="api_get_schema"),
             url(r"^(?P<resource_name>%s)/search%s$" % (self._meta.resource_name, trailing_slash()), self.wrap_view('get_search'), name="api_get_search"),
             url(r"^(?P<resource_name>%s)/(?P<slug>[a-z-_]+)/$" % self._meta.resource_name, self.wrap_view('dispatch_detail'), name="api_dispatch_detail"),
         ]
@@ -253,6 +255,7 @@ class BuildResource(EnhancedModelResource):
 
     def override_urls(self):
         return [
+            url(r"^(?P<resource_name>%s)/schema/$" % self._meta.resource_name, self.wrap_view('get_schema'), name="api_get_schema"),
             url(r"^(?P<resource_name>%s)/(?P<project__slug>[a-z-_]+)/$" % self._meta.resource_name, self.wrap_view('dispatch_list'), name="build_list_detail"),
         ]
 
@@ -313,6 +316,7 @@ class VersionResource(EnhancedModelResource):
 
     def override_urls(self):
         return [
+            url(r"^(?P<resource_name>%s)/schema/$" % self._meta.resource_name, self.wrap_view('get_schema'), name="api_get_schema"),
             url(r"^(?P<resource_name>%s)/(?P<project_slug>[a-z-_]+)/highest/(?P<base>.+)/$" % self._meta.resource_name, self.wrap_view('version_compare'), name="version_compare"),
             url(r"^(?P<resource_name>%s)/(?P<project_slug>[a-z-_]+)/highest/$" % self._meta.resource_name, self.wrap_view('version_compare'), name="version_compare"),
             url(r"^(?P<resource_name>%s)/(?P<project__slug>[a-z-_]+[a-z0-9-_]+)/$" % self._meta.resource_name, self.wrap_view('dispatch_list'), name="api_version_list"),
@@ -334,6 +338,7 @@ class FileResource(EnhancedModelResource, SearchMixin):
 
     def override_urls(self):
         return [
+            url(r"^(?P<resource_name>%s)/schema/$" % self._meta.resource_name, self.wrap_view('get_schema'), name="api_get_schema"),
             url(r"^(?P<resource_name>%s)/search%s$" % (self._meta.resource_name, trailing_slash()), self.wrap_view('get_search'), name="api_get_search"),
             url(r"^(?P<resource_name>%s)/anchor%s$" % (self._meta.resource_name, trailing_slash()), self.wrap_view('get_anchor'), name="api_get_anchor"),
         ]
