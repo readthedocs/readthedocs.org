@@ -13,7 +13,7 @@ SERVER_LIST = [
 def import_project(project):
     for BASE_SERVER in SERVER_LIST:
         API_SERVER = '%s/api/v1/' % BASE_SERVER
-        sucess = False
+        success = False
         URL = API_SERVER + "package/%s/" % project.slug
         h = httplib2.Http(timeout=5)
         try:
@@ -31,14 +31,14 @@ def import_project(project):
 def import_crate(project):
     BASE_SERVER = 'http://crate.io'
     API_SERVER = '%s/api/v1/' % BASE_SERVER
-    sucess = False
+    success = False
     URL = API_SERVER + "package/?name__iexact=%s" % project.slug
     h = httplib2.Http(timeout=5)
     try:
         log.info("Trying to import from %s" % API_SERVER)
         resp, content = h.request(URL, "GET")
     except AttributeError:
-        log.error("Socket error trying to pull from Create", exc_info=True)
+        log.error("Socket error trying to pull from Crate.io", exc_info=True)
     if resp['status'] == '200':
         content_dict = json.loads(content)
         if content_dict['meta']['total_count'] != 0:
