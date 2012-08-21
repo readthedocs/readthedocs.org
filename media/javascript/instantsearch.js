@@ -89,17 +89,22 @@
         '<li class="module-item">',
           '<p class="module-item-title">',
               'File: <a href="', results[i].absolute_url, 
-                    '?highlight=', $("#id_site_search_2").val(), '">', 
-                    results[i].project.name,
-                    " - ", results[i].name, "</a>",
+                    '?highlight=', encodeURIComponent($("#id_site_search_2").val()), '">', 
+                    _(results[i].project.name),
+                    " - ", _(results[i].name), "</a>",
           "</p>",
-          "<p>", results[i].text, "</p>",
+          "<p>", _(results[i].text), "</p>",
         "</li>"].join('')
       );
     }   
     return html.join('');
   }
- 
+
+  // escape incoming text
+  function _(text) {
+    return $('<div />').text(text).html();
+  }
+
   // Pop the last search off the queue and render the `results`
   function onResultsReceived(results) {
     // remove the request from the queue
