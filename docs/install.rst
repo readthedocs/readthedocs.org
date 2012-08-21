@@ -69,7 +69,7 @@ Additional python requirements necessary to use Solr::
 
 Fetch and unpack Solr::
 
-    curl -O http://apache.mirrors.tds.net/lucene/solr/3.5.0/apache-solr-3.5.0.tgz
+    curl -O http://archive.apache.org/dist/lucene/solr/3.5.0/apache-solr-3.5.0.tgz
     tar xvzf apache-solr-3.5.0.tgz && SOLR_PATH=`pwd`/apache-solr-3.5.0/example
 
 Generate the schema.xml file::
