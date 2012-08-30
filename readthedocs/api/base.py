@@ -349,7 +349,7 @@ class FileResource(EnhancedModelResource, SearchMixin):
         self.throttle_check(request)
 
         query = request.GET.get('q', '')
-        redis_data = djangome.r.keys("*redirects:v3*%s*" % query)
+        redis_data = djangome.r.keys("*redirects:v4*%s*" % query)
         #-2 because http:
         urls = [''.join(data.split(':')[6:]) for data in redis_data if 'http://' in data]
 

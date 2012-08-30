@@ -8,6 +8,7 @@ import re
 import shutil
 import json
 import logging
+import operator
 
 from celery.decorators import task
 from django.db import transaction
@@ -478,48 +479,39 @@ def update_intersphinx(version_pk):
     except IndexError, e:
         print "Failed to find objects file"
         return None
-    path = version.project.rtd_build_path(version.slug)
-    if not path:
-        log.warning("%s has no path" % version)
-        return None
-    app = DictObj()
-    app.srcdir = path
-    try:
-        inv = fetch_inventory(app, path, object_file)
-    except TypeError, e:
-        log.error("Failed to fetch inventory for %s" % version, exc_info=True)
-        return None
-    # TODO: I'm entirelty not sure this is even close to correct.
-    # There's a lot of info I'm throwing away here; revisit later?
-    for keytype in inv:
-        for term in inv[keytype]:
-            try:
-                _, _, url, title = inv[keytype][term]
-                if not title or title == '-':
-                    if '#' in url:
-                        title = url.rsplit('#')[-1]
-                    else:
-                        title = url
-                find_str = "rtd-builds/latest"
-                latest = url.find(find_str)
-                url = url[latest + len(find_str) + 1:]
-                url = "http://%s.readthedocs.org/en/latest/%s" % (
-                    version.project.slug, url)
-                save_term(version, term, url, title)
-                if '.' in term:
-                    save_term(version, term.split('.')[-1], url, title)
-            except Exception, e: # TODO: Handle explicity exceptions
-                log.error("Failed updating %s" % term, exc_info=True)
 
+    f = open(object_file)
+    f.readline()
+    urlpattern = "http://%s/en/%s/%%s" % (project.subdomain, version.slug)
+    data = intersphinx.read_inventory_v2(f, urlpattern, operator.mod)
+    for top_key in data.keys():
+        print "KEY: %s" % top_key
+        inner_keys = data[top_key].keys()
+        for inner_key in inner_keys:
+            print "INNER KEY: %s" % inner_key
+            _project, version, url, title = data[top_key][inner_key]
+            url_key = url.split('#')[1]
+            if ":" in url_key:
+                #This dumps junk data into the url namespace we don't need
+                print "INNER: %s->%s" % (inner_key, url)
+                save_term(version.slug, inner_key, url)
+            else:
+                last_key = url_key.split('.')[-1]
+                if last_key != url_key:
+                    #Only save last key if it differes
+                    print "LAST: %s->%s" % (last_key, url)
+                    save_term(version.slug, last_key, url)
+                print "URL: %s->%s" % (url_key, url)
+                save_term(version.slug, url_key, url)
 
-def save_term(version, term, url, title):
+def save_term(version, term, url):
     redis_obj = redis.Redis(**settings.REDIS)
     lang = "en"
     project_slug = version.project.slug
     version_slug = version.slug
-    redis_obj.sadd('redirects:v3:%s:%s:%s:%s' % (lang, project_slug,
+    redis_obj.sadd('redirects:v4:%s:%s:%s:%s' % (lang, project_slug,
                                          version_slug, term), url)
-    redis_obj.setnx('redirects:v3:%s:%s:%s:%s:%s' % (lang, project_slug,
+    redis_obj.setnx('redirects:v4:%s:%s:%s:%s:%s' % (lang, project_slug,
                                              version_slug, term, url), 1)
 
 
