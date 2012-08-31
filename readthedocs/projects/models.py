@@ -78,7 +78,7 @@ class Project(models.Model):
     path = models.CharField(help_text="The directory where conf.py lives",
                             max_length=255, editable=False)
     conf_py_file = models.CharField(help_text="Path from project root to conf.py file. Leave blank if you want us to find it for you.",
-                            max_length=255, default='')
+                            max_length=255, default='', blank=True)
     featured = models.BooleanField()
     skip = models.BooleanField()
     use_virtualenv = models.BooleanField(
