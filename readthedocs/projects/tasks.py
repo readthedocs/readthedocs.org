@@ -14,7 +14,7 @@ from celery.decorators import task
 from django.db import transaction
 from django.conf import settings
 import redis
-from sphinx.ext.intersphinx import fetch_inventory
+from sphinx.ext import intersphinx
 import slumber
 
 
