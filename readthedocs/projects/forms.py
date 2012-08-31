@@ -54,7 +54,7 @@ class ImportProjectForm(ProjectForm):
 
     class Meta:
         model = Project
-        fields = ('name', 'repo', 'repo_type', 'description', 'project_url', 'tags', 'default_branch', 'default_version', 'use_virtualenv', 'requirements_file', 'analytics_code', 'documentation_type')
+        fields = ('name', 'repo', 'repo_type', 'description', 'project_url', 'tags', 'default_branch', 'default_version', 'use_virtualenv', 'conf_py_file', 'requirements_file', 'analytics_code', 'documentation_type')
 
     def clean_repo(self):
         repo = self.cleaned_data.get('repo', '').strip()
@@ -63,6 +63,12 @@ class ImportProjectForm(ProjectForm):
         elif '@' in repo:
             raise forms.ValidationError('It looks like you entered a private repo - please use the public (http:// or git://) clone url')
         return repo
+
+    def clean_conf_py_file(self):
+        file = self.cleaned_data.get('conf_py_file', '').strip()
+        if file and not 'conf.py' in file:
+            raise forms.ValidationError('Your configuration file is invalid, make sure it contains conf.py in it.')
+        return file
 
     def save(self, *args, **kwargs):
         # save the project

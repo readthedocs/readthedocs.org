@@ -74,6 +74,8 @@ class Project(models.Model):
     #Other model data.
     path = models.CharField(help_text="The directory where conf.py lives",
                             max_length=255, editable=False)
+    conf_py_file = models.CharField(help_text="Path from project root to conf.py file",
+                            max_length=255, default='')
     featured = models.BooleanField()
     skip = models.BooleanField()
     use_virtualenv = models.BooleanField(
@@ -238,6 +240,8 @@ class Project(models.Model):
         return os.path.join(settings.CNAME_ROOT, cname)
 
     def conf_file(self, version='latest'):
+        if self.conf_py_file:
+            return self.conf_py_file
         files = self.find('conf.py', version)
         if not files:
             files = self.full_find('conf.py', version)
@@ -366,8 +370,8 @@ class Project(models.Model):
 
     def ordered_active_versions(self):
         return sort_version_aware(self.versions.filter(active=True))
-    
-    
+
+
     def all_active_versions(self):
         "A temporary workaround for active_versions filtering out things that were active, but failed to build"
         return self.versions.filter(active=True)
