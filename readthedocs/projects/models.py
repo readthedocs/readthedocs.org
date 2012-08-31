@@ -1,4 +1,5 @@
 import fnmatch
+import logging
 import os
 
 from django.conf import settings
@@ -21,6 +22,8 @@ from vcs_support.base import VCSProject
 from vcs_support.backends import backend_cls
 from vcs_support.utils import Lock
 
+
+log = logging.getLogger(__name__)
 
 class ProjectManager(models.Manager):
     def live(self, *args, **kwargs):
@@ -74,7 +77,7 @@ class Project(models.Model):
     #Other model data.
     path = models.CharField(help_text="The directory where conf.py lives",
                             max_length=255, editable=False)
-    conf_py_file = models.CharField(help_text="Path from project root to conf.py file",
+    conf_py_file = models.CharField(help_text="Path from project root to conf.py file. Leave blank if you want us to find it for you.",
                             max_length=255, default='')
     featured = models.BooleanField()
     skip = models.BooleanField()
@@ -241,7 +244,8 @@ class Project(models.Model):
 
     def conf_file(self, version='latest'):
         if self.conf_py_file:
-            return self.conf_py_file
+            log.debug('Inserting conf.py file path from model')
+            return os.path.join(self.checkout_path(version), self.conf_py_file)
         files = self.find('conf.py', version)
         if not files:
             files = self.full_find('conf.py', version)

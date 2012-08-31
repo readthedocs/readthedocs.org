@@ -485,23 +485,23 @@ def update_intersphinx(version_pk):
     urlpattern = "http://%s/en/%s/%%s" % (project.subdomain, version.slug)
     data = intersphinx.read_inventory_v2(f, urlpattern, operator.mod)
     for top_key in data.keys():
-        print "KEY: %s" % top_key
+        #print "KEY: %s" % top_key
         inner_keys = data[top_key].keys()
         for inner_key in inner_keys:
-            print "INNER KEY: %s" % inner_key
+            #print "INNER KEY: %s" % inner_key
             _project, sphinx_version, url, title = data[top_key][inner_key]
             url_key = url.split('#')[1]
             if ":" in url_key:
                 #This dumps junk data into the url namespace we don't need
-                print "INNER: %s->%s" % (inner_key, url)
+                #print "INNER: %s->%s" % (inner_key, url)
                 save_term(version, inner_key, url)
             else:
                 last_key = url_key.split('.')[-1]
                 if last_key != url_key:
                     #Only save last key if it differes
-                    print "LAST: %s->%s" % (last_key, url)
+                    #print "LAST: %s->%s" % (last_key, url)
                     save_term(version, last_key, url)
-                print "URL: %s->%s" % (url_key, url)
+                #print "URL: %s->%s" % (url_key, url)
                 save_term(version, url_key, url)
 
 def save_term(version, term, url):
