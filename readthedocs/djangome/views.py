@@ -38,8 +38,8 @@ def redirect_to_term(request, version, term):
         if form.is_valid():
             # Make sure the new URL is in the set of URLs and increment its score.
             url = form.cleaned_data['url']
-            r.sadd('redirects:v4:%s:%s:%s:%s' % (lang, project, version, term), url)
-            r.incr('redirects:v4:%s:%s:%s:%s:%s' % (lang, project, version, term, url))
+            r.sadd('redirects:v4:%s:%s:%s:%s' % (lang, version, project, term), url)
+            r.incr('redirects:v4:%s:%s:%s:%s:%s' % (lang, version, project, term, url))
             return redirect(request.GET.get('return_to', url))
 
     urls = get_urls(lang, project, version, term)
@@ -53,7 +53,7 @@ def redirect_to_term(request, version, term):
         # then issue it.
         if len(winners) == 1:
             url = winners[0]
-            r.incr('redirects:v4:%s:%s:%s:%s:%s' % (lang, project, version, term, url))
+            r.incr('redirects:v4:%s:%s:%s:%s:%s' % (lang, version, project, term, url))
             return redirect(url)
 
         # Otherwise we need to display a list of all choices. We'll present this into
@@ -90,12 +90,11 @@ def get_urls(lang, project, version, term):
     # Sort the set of URLs in redirects:v1:term by the scores (clicks) in
     # redirects:v1:term:url, then get each score along with each URL.
     # This returns a list [score, url, score, url, ...]
-    urls = r.sort('redirects:v4:%s:%s:%s:%s' % (lang, project,
-                                                version, term),
-                  by   = 'redirects:v4:%s:%s:%s:%s:*' % (lang, project,
-                                                         version, term),
-                  get  = ('redirects:v4:%s:%s:%s:%s:*' % (lang, project,
-                                                          version, term), '#'),
+    urls = r.sort('redirects:v4:%s:%s:%s:%s' % (lang, version, project, term),
+                  by   = 'redirects:v4:%s:%s:%s:%s:*' % (lang, version, 
+                                                         project, term),
+                  get  = ('redirects:v4:%s:%s:%s:%s:*' % (lang, version,
+                                                          project, term), '#'),
                   desc = True)
 
     # Convert that to a list of tuples [(score, url), (score, url), ...]

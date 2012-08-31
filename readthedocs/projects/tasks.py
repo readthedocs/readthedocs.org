@@ -509,10 +509,10 @@ def save_term(version, term, url):
     lang = "en"
     project_slug = version.project.slug
     version_slug = version.slug
-    redis_obj.sadd('redirects:v4:%s:%s:%s:%s' % (lang, project_slug,
-                                         version_slug, term), url)
-    redis_obj.setnx('redirects:v4:%s:%s:%s:%s:%s' % (lang, project_slug,
-                                             version_slug, term, url), 1)
+    redis_obj.sadd('redirects:v4:%s:%s:%s:%s' % (lang, version_slug,
+                                         project_slug, term), url)
+    redis_obj.setnx('redirects:v4:%s:%s:%s:%s:%s' % (lang, version_slug,
+                                             project_slug, term, url), 1)
 
 
 def symlink_cname(version):
