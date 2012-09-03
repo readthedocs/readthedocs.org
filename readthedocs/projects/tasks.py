@@ -230,7 +230,7 @@ def update_imported_docs(project, version):
 
     #Do Virtualenv bits:
     if project.use_virtualenv:
-        update_docs_output['venv'] = run('{cmd} --distribute --never-download --no-site-packages {path}'.format(
+        update_docs_output['venv'] = run('{cmd} --distribute --no-site-packages {path}'.format(
                 cmd='virtualenv',
                 path=project.venv_path(version=version_slug)))
         update_docs_output['sphinx'] = run('{cmd} install -U sphinx'.format(
