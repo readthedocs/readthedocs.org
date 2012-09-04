@@ -110,7 +110,8 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
                 version_data = api.version.post(version_data)
                 del version_data['resource_uri']
             except Exception as e:
-                raise e
+                log.info("Exception in creating version: %s" % e)
+                #raise e
     version_data['project'] = project
     version = Version(**version_data)
     version.save = new_save
