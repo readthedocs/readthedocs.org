@@ -3,18 +3,16 @@ import os.path
 
 
 DATABASES = {
-        'default':
-                {
-                    'ENGINE': 'django.db.backends.sqlite3',
-                    'NAME': os.path.join(SITE_ROOT, 'dev.db'),
-                }
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(SITE_ROOT, 'dev.db'),
+    }
 }
 REDIS = {
     'host': 'localhost',
     'port': 6379,
     'db': 0,
 }
-
 
 
 SESSION_COOKIE_DOMAIN = None
@@ -33,11 +31,11 @@ WEBSOCKET_HOST = 'localhost:8088'
 
 HAYSTACK_CONNECTIONS = {
     'default': {
-        'ENGINE': 'haystack.backends.solr_backend.SolrEngine',
-        'URL': 'http://localhost:8983/solr',
+        'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
     },
 }
 
+IMPORT_EXTERNAL_DATA = False
 
 try:
     from local_settings import *

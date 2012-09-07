@@ -1,16 +1,20 @@
 import logging
+from django.conf import settings
 from django.utils import simplejson as json
 import httplib2
 
 log = logging.getLogger(__name__)
 
 SERVER_LIST = [
-'http://djangopackages.com',
-'http://plone.opencomparison.org',
-'http://pyramid.opencomparison.org',
+    'http://djangopackages.com',
+    'http://plone.opencomparison.org',
+    'http://pyramid.opencomparison.org',
 ]
 
 def import_project(project):
+    if not settings.IMPORT_EXTERNAL_DATA:
+        log.debug('importing of external data is disabled')
+        return False
     for BASE_SERVER in SERVER_LIST:
         API_SERVER = '%s/api/v1/' % BASE_SERVER
         success = False
@@ -29,6 +33,9 @@ def import_project(project):
     return False
 
 def import_crate(project):
+    if not settings.IMPORT_EXTERNAL_DATA:
+        log.debug('importing of external data is disabled')
+        return False
     BASE_SERVER = 'http://crate.io'
     API_SERVER = '%s/api/v1/' % BASE_SERVER
     success = False
@@ -47,4 +54,3 @@ def import_crate(project):
             project.save()
             return True
     return False
-

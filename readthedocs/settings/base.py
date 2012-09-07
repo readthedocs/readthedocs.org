@@ -114,10 +114,10 @@ SESSION_COOKIE_DOMAIN = 'readthedocs.org'
 
 HAYSTACK_CONNECTIONS = {
     'default': {
-        'ENGINE': 'haystack.backends.solr_backend.SolrEngine',
-        'URL': 'http://127.0.0.1:8983/solr',
-    }
-}                       
+        'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
+    },
+}
+
 
 AUTH_PROFILE_MODULE = "core.UserProfile"
 SOUTH_TESTS_MIGRATE = False
@@ -127,6 +127,8 @@ ABSOLUTE_URL_OVERRIDES = {
 }
 
 INTERNAL_IPS = ('127.0.0.1',)
+
+IMPORT_EXTERNAL_DATA = True
 
 backup_count = 1000
 if DEBUG:
@@ -169,7 +171,7 @@ LOGGING = {
             'maxBytes': 50000,
             'backupCount': backup_count,
             'formatter': 'standard',
-        }, 
+        },
         'mail_admins': {
             'level': 'ERROR',
             'class': 'django.utils.log.AdminEmailHandler',
@@ -204,5 +206,3 @@ LOGGING = {
         },
     }
 }
-
-
