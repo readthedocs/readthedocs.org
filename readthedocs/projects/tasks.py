@@ -383,7 +383,8 @@ def build_docs(project, build, version, pdf, man, epub, record, force, update_ou
             build['project'] = '/api/v1/project/%s/' % project.pk
             build['version'] = '/api/v1/version/%s/' % version.pk
             api.build(build['id']).put(build)
-        if pdf:
+        #pyramid_cookbook causes pdflatex to spin forever.
+        if pdf and project.slug != 'pyramid_cookbook':
             pdf_builder = builder_loading.get('sphinx_pdf')(version)
             latex_results, pdf_results = pdf_builder.build()
             if record:
