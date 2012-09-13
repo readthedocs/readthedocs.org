@@ -33,7 +33,8 @@ class Backend(BaseVCS):
             self.pull()
         else:
             self.clone()
-        self.run('git', 'submodule', 'update', '--init')
+        self.run('git', 'submodule', 'sync')
+        self.run('git', 'submodule', 'update', '--init', '--recursive')
         return self.reset()
 
     def pull(self):
