@@ -383,7 +383,6 @@ def build_docs(project, build, version, pdf, man, epub, record, force, update_ou
             build['project'] = '/api/v1/project/%s/' % project.pk
             build['version'] = '/api/v1/version/%s/' % version.pk
             api.build(build['id']).put(build)
-        #pyramid_cookbook causes pdflatex to spin forever.
         if pdf and not project.skip:
             pdf_builder = builder_loading.get('sphinx_pdf')(version)
             latex_results, pdf_results = pdf_builder.build()
@@ -401,11 +400,11 @@ def build_docs(project, build, version, pdf, man, epub, record, force, update_ou
             #PDF Builder is oddly 2-steped, and stateful for now
             #pdf_builder.move(version)
         #XXX:dc: all builds should have their output checked
-        if man:
+        if man and not project.skip:
             man_builder = builder_loading.get('sphinx_man')(version)
             man_builder.build()
             man_builder.move()
-        if epub:
+        if epub and not project.skip:
             epub_builder = builder_loading.get('sphinx_epub')(version)
             epub_builder.build()
             epub_builder.move()

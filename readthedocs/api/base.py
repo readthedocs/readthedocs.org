@@ -200,7 +200,7 @@ class ProjectResource(ModelResource, SearchMixin):
         queryset = Project.objects.all()
         authentication = PostAuthentication()
         authorization = DjangoAuthorization()
-        excludes = ['path', 'skip', 'featured']
+        excludes = ['path', 'featured']
         filtering = {
             "users": ALL_WITH_RELATIONS,
             "slug": ALL_WITH_RELATIONS,
