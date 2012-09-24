@@ -128,7 +128,7 @@ class Project(models.Model):
         protocol = "http"
         version = version_slug or self.get_default_version()
         return "%s://%s/%s/%s/" % (
-            protocol
+            protocol,
             self.subdomain,
             'en',
             version,
