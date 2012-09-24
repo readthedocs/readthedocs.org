@@ -101,7 +101,9 @@ class Project(models.Model):
 
     @property
     def subdomain(self):
-        return "%s.readthedocs.org" % self.slug.replace('_', '-')
+        prod_domain = getattr(settings, 'PRODUCTION_DOMAIN')
+        subdomain_slug = self.slug.replace('_', '-')
+        return "%s.%s" % (subdomain_slug, prod_domain)
 
     def save(self, *args, **kwargs):
         #if hasattr(self, 'pk'):
@@ -127,12 +129,23 @@ class Project(models.Model):
         """
         protocol = "http"
         version = version_slug or self.get_default_version()
-        return "%s://%s/%s/%s/" % (
-            protocol,
-            self.subdomain,
-            'en',
-            version,
-        )
+        use_subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
+        if use_subdomain:
+            return "%s://%s/%s/%s/" % (
+                protocol,
+                self.subdomain,
+                'en',
+                version,
+            )
+        else:
+            return reverse('docs_detail', kwargs={
+                'project_slug': self.slug,
+                'lang_slug': 'en',
+                'version_slug': version_slug,
+                'filename': ''
+            })
+            
+
 
     def get_builds_url(self):
         return reverse('builds_project_list', kwargs={

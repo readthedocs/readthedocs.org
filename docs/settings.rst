@@ -1,6 +1,23 @@
 Interesting Settings
 ====================
 
+USE_SUBDOMAINS
+---------------
+
+Default: `False`
+
+Whether to use subdomains in URLs on the site, or the Django-served content.
+When used in production, this should be True, as Nginx will serve this content.
+During developemnt and other possible deployments, this might be False.
+
+PRODUCTION_DOMAIN
+-----------------
+
+Default: `readthedocs.org`
+
+This is the domain that gets linked to throughout the site when used in production.
+It depends on ``USE_SUBDOMAINS``, otherwise it isn't used.
+
 VARNISH_SERVERS
 ----------------
 

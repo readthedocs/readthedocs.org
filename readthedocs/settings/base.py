@@ -6,6 +6,9 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 TASTYPIE_FULL_DEBUG = True
 
+PRODUCTION_DOMAIN = 'readthedocs.org'
+USE_SUBDOMAINS = False
+
 ADMINS = (
     ('Charlie Leifer', 'coleifer@gmail.com'),
     ('Eric Holscher', 'eric@ericholscher.com'),
