@@ -121,8 +121,14 @@ class Project(models.Model):
         return reverse('projects_detail', args=[self.slug])
 
     def get_docs_url(self, version_slug=None):
+        """ 
+        Return a url for the docs. Always use http for now,
+        to avoid content warnings.
+        """
+        protocol = "http"
         version = version_slug or self.get_default_version()
-        return "http://%s/%s/%s/" % (
+        return "%s://%s/%s/%s/" % (
+            protocol
             self.subdomain,
             'en',
             version,
