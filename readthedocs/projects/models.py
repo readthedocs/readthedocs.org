@@ -123,7 +123,7 @@ class Project(models.Model):
         return reverse('projects_detail', args=[self.slug])
 
     def get_docs_url(self, version_slug=None):
-        """ 
+        """
         Return a url for the docs. Always use http for now,
         to avoid content warnings.
         """
@@ -141,10 +141,10 @@ class Project(models.Model):
             return reverse('docs_detail', kwargs={
                 'project_slug': self.slug,
                 'lang_slug': 'en',
-                'version_slug': version_slug,
+                'version_slug': version,
                 'filename': ''
             })
-            
+
 
 
     def get_builds_url(self):
