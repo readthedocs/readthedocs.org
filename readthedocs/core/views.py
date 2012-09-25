@@ -29,6 +29,7 @@ import json
 import mimetypes
 import os
 import logging
+import redis
 
 log = logging.getLogger(__name__)
 
@@ -49,6 +50,9 @@ def random_page(request, project=None):
         return HttpResponseRedirect(ImportedFile.objects.filter(project__slug=project).order_by('?')[0].get_absolute_url())
     return HttpResponseRedirect(ImportedFile.objects.order_by('?')[0].get_absolute_url())
 
+def queue_depth(request):
+    r = redis.Redis(**settings.REDIS)
+    return HttpResponse(r.llen('celery'))
 
 def live_builds(request):
     builds = Build.objects.filter(state='building')[:5]
