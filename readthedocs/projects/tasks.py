@@ -1,7 +1,6 @@
 """Tasks related to projects, including fetching repository code, cleaning
 ``conf.py`` files, and rebuilding documentation.
 """
-import decimal
 import fnmatch
 import os
 import re
@@ -13,24 +12,22 @@ import operator
 from celery.decorators import task
 from django.db import transaction
 from django.conf import settings
+from django.contrib.sites.models import Site
+from django.core.mail import send_mail
+from django.template import Context
+from django.template.loader import get_template
 import redis
+import requests
 from sphinx.ext import intersphinx
 import slumber
 
-
-from builds.models import Version, Build
+from builds.models import Build, Version
 from doc_builder import loading as builder_loading
 from doc_builder.base import restoring_chdir
 from projects.exceptions import ProjectImportError
 from projects.models import ImportedFile, Project
-from projects.utils import (
-    DictObj,
-    mkversion,
-    purge_version,
-    run,
-    safe_write,
-    slugify_uniquely,
-    )
+from projects.utils import (mkversion, purge_version, run, safe_write,
+                            slugify_uniquely,)
 from tastyapi import client as tastyapi_client
 from tastyapi import api
 from core.utils import copy_to_app_servers, run_on_app_servers
@@ -39,6 +36,7 @@ ghetto_hack = re.compile(
     r'(?P<key>.*)\s*=\s*u?\[?[\'\"](?P<value>.*)[\'\"]\]?')
 
 log = logging.getLogger(__name__)
+
 
 @task
 def remove_dir(path):
@@ -58,17 +56,17 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
     """
     The main entry point for updating documentation.
 
-    It handles all of the logic around whether a project is imported or we created it.
-    Then it will build the html docs and other requested parts.
-    It also handles clearing the varnish cache.
+    It handles all of the logic around whether a project is imported or we
+    created it. Then it will build the html docs and other requested parts. It
+    also handles clearing the varnish cache.
 
     `pk`
         Primary key of the project to update
 
     `record`
         Whether or not to keep a record of the update in the database. Useful
-        for preventing changes visible to the end-user when running commands from
-        the shell, for example.
+        for preventing changes visible to the end-user when running commands
+        from the shell, for example.
     """
 
     ###
@@ -95,23 +93,23 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
         #Create or use the 'latest' branch, which is the default for a project.
         branch = project.default_branch or project.vcs_repo().fallback_branch
         try:
-            version_data = api.version(project.slug).get(slug='latest')['objects'][0]
+            version_data = (api.version(project.slug)
+                               .get(slug='latest')['objects'][0])
             del version_data['resource_uri']
-        except (slumber.exceptions.HttpClientError, IndexError) as exc:
-            #if exc.response.status_code in [404,500]:
+        except (slumber.exceptions.HttpClientError, IndexError):
             version_data = dict(
                 project='/api/v1/project/%s/' % project.pk,
                 slug='latest',
                 active=True,
                 verbose_name='latest',
                 identifier=branch,
-                )
+            )
             try:
                 version_data = api.version.post(version_data)
                 del version_data['resource_uri']
             except Exception as e:
                 log.info("Exception in creating version: %s" % e)
-                #raise e
+
     version_data['project'] = project
     version = Version(**version_data)
     version.save = new_save
@@ -129,14 +127,15 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
             version_data['identifier'] = branch
             to_save = True
         if to_save:
-            version_data['project'] = "/api/v1/version/%s/" % version_data['project'].pk
+            version_data['project'] = ("/api/v1/version/%s/" %
+                                       version_data['project'].pk)
             api.version(version.pk).put(version_data)
 
     if record:
         #Create Build Object.
         build = api.build.post(dict(
-            project= '/api/v1/project/%s/' % project.pk,
-            version= '/api/v1/version/%s/' % version.pk,
+            project='/api/v1/project/%s/' % project.pk,
+            version='/api/v1/version/%s/' % version.pk,
             type='html',
             state='triggered',
         ))
@@ -164,9 +163,10 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
         if record:
             build['state'] = 'building'
             api.build(build['id']).put(build)
-        (ret, out, err) = build_docs(project=project, build=build, version=version,
-                                     pdf=pdf, man=man, epub=epub,
-                                     record=record, force=force, update_output=update_output)
+        (ret, out, err) = build_docs(project=project, build=build,
+                                     version=version, pdf=pdf, man=man,
+                                     epub=epub, record=record, force=force,
+                                     update_output=update_output)
         if not 'no targets are out of date.' in out:
             if ret == 0:
                 log.info("Successful HTML Build")
@@ -174,7 +174,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
                               mainsite=True, cname=True)
                 symlink_cname(version)
                 update_intersphinx(version.pk)
-                send_notifications(version)
+                send_notifications(version, build)
                 log.info("Purged %s" % version)
             else:
                 log.warning("Failed HTML Build")
@@ -227,7 +227,7 @@ def update_imported_docs(project, version):
         update_docs_output['checkout'] = version_repo.update()
 
     # Ensure we have a conf file (an exception is raised if not)
-    conf_file = project.conf_file(version.slug)
+    project.conf_file(version.slug)
 
     #Do Virtualenv bits:
     if project.use_virtualenv:
@@ -281,7 +281,7 @@ def update_imported_docs(project, version):
                     if highest and ver_obj and ver_obj > highest:
                         log.info("Highest verison known, building docs")
                         update_docs.delay(ver.project.pk, version_pk=ver.pk)
-                except Exception, e:
+                except Exception:
                     log.error("Failed to create version (tag)", exc_info=True)
                     transaction.rollback()
                     #break here to stop updating tags when they will all fail.
@@ -303,14 +303,14 @@ def update_imported_docs(project, version):
                         verbose_name=branch.verbose_name
                     ))
                     log.info("New branch found: {0}".format(branch.identifier))
-                except Exception, e:
+                except Exception:
                     log.error("Failed to create version (branch)", exc_info=True)
                     transaction.rollback()
                     #break here to stop updating branches when they will all fail.
                     break
             transaction.leave_transaction_management()
             #TODO: Kill deleted branches
-    except ValueError, e:
+    except ValueError:
         log.error("Error getting tags", exc_info=True)
 
     #TODO: Find a better way to handle indexing.
@@ -363,7 +363,7 @@ def build_docs(project, build, version, pdf, man, epub, record, force, update_ou
             del version_data['project']
             try:
                 api.version(version.pk).put(version_data)
-            except Exception, e:
+            except Exception:
                 log.error("Unable to post a new version", exc_info=True)
 
     if html_builder.changed:
@@ -450,7 +450,7 @@ def update_docs_pull(record=False, pdf=False, man=False, force=False):
         try:
             update_docs(
                 pk=project.pk, record=record, pdf=pdf, man=man, force=force)
-        except Exception, e:
+        except Exception:
             log.error("update_docs_pull failed", exc_info=True)
 
 
@@ -479,7 +479,7 @@ def update_intersphinx(version_pk):
 
     try:
         object_file = version.project.find('objects.inv', version.slug)[0]
-    except IndexError, e:
+    except IndexError:
         print "Failed to find objects file"
         return None
 
@@ -534,7 +534,54 @@ def symlink_cname(version):
         run_on_app_servers('ln -nsf %s %s' % (build_dir, symlink))
 
 
-def send_notifications(version):
+def send_notifications(version, build):
+    zenircbot_notification(version.id)
+    for hook in version.project.webhook_notifications.all():
+        webhook_notification.delay(version.project.id, build, hook.url)
+    emails = version.project.emailhook_notifications.all().values_list('email',
+                                                                   flat=True)
+    for email in emails:
+        email_notification(version.project.id, build, email)
+
+
+@task
+def email_notification(project_id, build, email):
+    if build['success']:
+        return
+    project = Project.objects.get(id=project_id)
+    build_obj = Build.objects.get(id=build['id'])
+    subject = ('(ReadTheDocs) Building docs for %s failed' % project.name)
+    template = 'projects/notification_email.txt'
+    context = {
+        'project': project.name,
+        'build_url': 'http://%s%s' % (Site.objects.get_current().domain,
+                                      build_obj.get_absolute_url())
+    }
+    message = get_template(template).render(Context(context))
+
+    send_mail(subject=subject, message=message,
+              from_email=settings.DEFAULT_FROM_EMAIL, recipient_list=(email,))
+
+
+@task
+def webhook_notification(project_id, build, hook_url):
+    project = Project.objects.get(id=project_id)
+    data = json.dumps({
+        'name': project.name,
+        'slug': project.slug,
+        'build': {
+            'id': build['id'],
+            'success': build['success'],
+            'date': build['date']
+        }
+    })
+    log.debug('sending notification to: %s' % hook_url)
+    requests.post(hook_url, data=data)
+
+
+@task
+def zenircbot_notification(version_id):
+    version = Version.objects.get(id=version_id)
     message = "Build of %s successful" % version
     redis_obj = redis.Redis(**settings.REDIS)
     IRC = getattr(settings, 'IRC_CHANNEL', '#readthedocs')

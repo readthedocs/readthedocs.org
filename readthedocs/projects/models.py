@@ -632,3 +632,20 @@ class ImportedFile(models.Model):
 
     def __unicode__(self):
         return '%s: %s' % (self.name, self.project)
+
+
+class Notification(models.Model):
+    project = models.ForeignKey(Project,
+                                related_name='%(class)s_notifications')
+
+    class Meta:
+        abstract = True
+
+
+class EmailHook(Notification):
+    email = models.EmailField()
+
+
+class WebHook(Notification):
+    url = models.URLField(blank=True, verify_exists=False,
+                          help_text='URL to send the webhook to')

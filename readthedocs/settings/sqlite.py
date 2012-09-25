@@ -37,6 +37,9 @@ HAYSTACK_CONNECTIONS = {
 
 IMPORT_EXTERNAL_DATA = False
 
+CELERY_ALWAYS_EAGER = True
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 try:
     from local_settings import *
 except:
