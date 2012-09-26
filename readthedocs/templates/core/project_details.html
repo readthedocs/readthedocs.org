@@ -46,7 +46,7 @@
     <p>
       <div style="float: left; margin-right: 5px;" class="version_right">
         <form method="post" action="{% url generic_build project.pk %}">
-          <select class="revision-select" id="id_revision" name="revision">
+          <select id="id_version" name="version_slug">
           {% for version in project.ordered_active_versions %}
             <option value="{{ version.slug }}">{{ version.slug }}</option>
           {% endfor %}
