@@ -71,7 +71,7 @@ class Project(models.Model):
     requirements_file = models.CharField(max_length=255, default=None, null=True, blank=True, help_text='Requires Virtualenv. A pip requirements file needed to build your documentation. Path from the root of your project.')
     documentation_type = models.CharField(max_length=20,
         choices=constants.DOCUMENTATION_CHOICES, default='sphinx',
-        help_text='Type of documentation you are building.')
+        help_text='Type of documentation you are building. <a href="http://sphinx.pocoo.org/builders.html#sphinx.builders.html.DirectoryHTMLBuilder">More info</a>.')
     analytics_code = models.CharField(max_length=50, null=True, blank=True, help_text="Google Analytics Tracking ID (ex. UA-22345342-1). This may slow down your page loads.")
 
     #Other model data.
