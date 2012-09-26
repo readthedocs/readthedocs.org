@@ -27,7 +27,7 @@ HAYSTACK_CONNECTIONS = {
     }
 }
 
-SLUMBER_API_HOST = 'http://readthedocs.org'
+SLUMBER_API_HOST = 'https://readthedocs.org'
 WEBSOCKET_HOST = 'websocket.readthedocs.org:8088'
 
 PRODUCTION_URL = 'readthedocs.org'
