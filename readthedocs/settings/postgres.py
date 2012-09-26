@@ -33,6 +33,9 @@ WEBSOCKET_HOST = 'websocket.readthedocs.org:8088'
 PRODUCTION_URL = 'readthedocs.org'
 USE_SUBDOMAINS = True
 
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTOCOL", "https")
+
+
 
 try:
     from local_settings import *

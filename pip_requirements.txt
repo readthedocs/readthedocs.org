@@ -20,6 +20,7 @@ unittest-xml-reporting
 redis
 south
 slumber
+django-secure==0.1.2
 django-tastypie==0.9.11
 git+https://github.com/nathanborror/django-basic-apps.git#egg=basic
 git+https://github.com/alex/django-taggit.git#egg=taggit

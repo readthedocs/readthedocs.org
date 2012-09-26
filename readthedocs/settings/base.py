@@ -50,6 +50,7 @@ TEMPLATE_LOADERS = (
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
+    'djangosecure.middleware.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -89,6 +90,7 @@ INSTALLED_APPS = [
     'south',
     'basic.flagging',
     'djcelery',
+    'djangosecure',
     #'celery_haystack',
 
     #daniellindsleyrocksdahouse
