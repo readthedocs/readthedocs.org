@@ -12,7 +12,7 @@ from haystack.query import SearchQuerySet
 from haystack.utils import Highlighter
 from tastypie import fields
 from tastypie.authentication import BasicAuthentication
-from tastypie.authorization import DjangoAuthorization
+from tastypie.authorization import Authorization, DjangoAuthorization
 from tastypie.constants import ALL_WITH_RELATIONS, ALL
 from tastypie.resources import ModelResource
 from tastypie.exceptions import NotFound, ImmediateHttpResponse
@@ -190,6 +190,15 @@ class UserResource(ModelResource):
             url(r"^(?P<resource_name>%s)/(?P<username>[a-z-_]+)/$" % self._meta.resource_name, self.wrap_view('dispatch_detail'), name="api_dispatch_detail"),
         ]
 
+class OwnerAuthorization(Authorization):
+    def apply_limits(self, request, object_list):
+        if request and hasattr(request, 'user') and request.method != 'GET':
+            if request.user.is_authenticated():
+                object_list = object_list.filter(users__in=[request.user])
+            else:
+                object_list = object_list.none()
+
+        return object_list
 
 class ProjectResource(ModelResource, SearchMixin):
     users = fields.ToManyField(UserResource, 'users')
