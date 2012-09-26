@@ -8,7 +8,7 @@ log = logging.getLogger(__name__)
 
 USER = getattr(settings, 'SLUMBER_USERNAME', None)
 PASS = getattr(settings, 'SLUMBER_PASSWORD', None)
-API_HOST = getattr(settings, 'SLUMBER_API_HOST', 'http://readthedocs.org')
+API_HOST = getattr(settings, 'SLUMBER_API_HOST', 'https://readthedocs.org')
 
 if USER and PASS:
     log.debug("Using slumber with user %s, pointed at %s" % (USER, API_HOST))
