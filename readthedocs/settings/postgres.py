@@ -31,7 +31,7 @@ SLUMBER_API_HOST = 'http://readthedocs.org'
 WEBSOCKET_HOST = 'websocket.readthedocs.org:8088'
 
 PRODUCTION_URL = 'readthedocs.org'
-USE_SUBDOMAINS = True
+USE_SUBDOMAIN = True
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTOCOL", "https")
 
