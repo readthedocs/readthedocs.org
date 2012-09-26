@@ -443,7 +443,7 @@ def fileify(version):
                             name=filename)
 
 
-@periodic_task(run_every=crontab(hour="*", minute="*", day_of_week="*"))
+#@periodic_task(run_every=crontab(hour="*", minute="*", day_of_week="*"))
 def update_docs_pull(record=False, pdf=False, man=False, force=False):
     """
     A high-level interface that will update all of the projects.
