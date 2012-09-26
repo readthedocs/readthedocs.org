@@ -77,3 +77,10 @@ Image scaling doesn't work in my documentation
 -----------------------------------------------
 
 Image scaling in docutils depends on PIL. PIL is installed in the system that RTD runs on. However, if you are using the virtualenv building option, you will likely need to include PIL in your requirements for your project.
+
+I want comments in my docs
+--------------------------
+
+RTD doesn't have explicit support for this. That said, a tool like `Disqus`_ can be used for this purpose on RTD.
+
+.. _Disqus: http://disqus.com/
