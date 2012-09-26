@@ -1,8 +1,8 @@
 docutils
 simplejson
 sphinx
-celery
-django-celery
+celery==3.0.9
+django-celery==3.0.9
 django-kombu
 celery-haystack
 django-extensions
