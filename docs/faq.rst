@@ -50,7 +50,9 @@ You can mock out the imports for these modules in your conf.py with the followin
             if name in ('__file__', '__path__'):
                 return '/dev/null'
             elif name[0] == name[0].upper():
-                return type(name, (), {})
+                mockType = type(name, (), {})
+                mockType.__module__ = __name__
+                return mockType
             else:
                 return Mock()
 
