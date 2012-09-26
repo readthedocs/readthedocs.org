@@ -10,7 +10,8 @@ import json
 import logging
 import operator
 
-from celery.decorators import task
+from celery.decorators import task, periodic_task
+from celery.task.schedules import crontab
 from django.db import transaction
 from django.conf import settings
 import redis
@@ -351,7 +352,10 @@ def build_docs(project, build, version, pdf, man, epub, record, force, update_ou
     if force:
         html_builder.force()
     html_builder.clean()
-    html_output = html_builder.build(id=build['id'])
+    if record:
+        html_output = html_builder.build(id=build['id'])
+    else:
+        html_output = html_builder.build()
     successful = (html_output[0] == 0)
     if successful:
         html_builder.move()
@@ -439,17 +443,17 @@ def fileify(version):
                             name=filename)
 
 
-#@periodic_task(run_every=crontab(hour="2", minute="10", day_of_week="*"))
+@periodic_task(run_every=crontab(hour="*", minute="*", day_of_week="*"))
 def update_docs_pull(record=False, pdf=False, man=False, force=False):
     """
     A high-level interface that will update all of the projects.
 
     This is mainly used from a cronjob or management command.
     """
-    for project in Project.objects.live():
+    for version in Version.objects.filter(built=True):
         try:
             update_docs(
-                pk=project.pk, record=record, pdf=pdf, man=man, force=force)
+                pk=version.project.pk, version_pk=version.pk, record=record, pdf=pdf, man=man)
         except Exception, e:
             log.error("update_docs_pull failed", exc_info=True)
 

@@ -106,7 +106,7 @@ class Builder(BaseBuilder):
             return ('', 'Conf file not found. Error writing to disk.', -1)
 
     @restoring_chdir
-    def build(self, id, **kwargs):
+    def build(self, id=None, **kwargs):
         id_dir = "/tmp/"
         id_file = "docs-build-%s" % id
         id_path = os.path.join(id_dir, id_file)
