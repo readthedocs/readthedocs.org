@@ -26,5 +26,5 @@ git+https://github.com/nathanborror/django-basic-apps.git#egg=basic
 git+https://github.com/alex/django-taggit.git#egg=taggit
 git+https://github.com/ericflo/django-pagination.git#egg=pagination
 git+https://github.com/nathanborror/django-registration.git#egg=django-registration
-git+https://github.com/toastdriven/django-haystack#egg=django-haystack
+git+https://github.com/toastdriven/django-haystack@259274e4127f723d76b893c87a82777f9490b960#egg=django_haystack
 git+https://github.com/deceze/Sphinx-HTTP-domain.git#egg=sphinx-http-domain
