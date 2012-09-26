@@ -16,7 +16,7 @@ PRODUCTION_DOMAIN
 Default: `readthedocs.org`
 
 This is the domain that gets linked to throughout the site when used in production.
-It depends on ``USE_SUBDOMAINS``, otherwise it isn't used.
+It depends on `USE_SUBDOMAINS`, otherwise it isn't used.
 
 VARNISH_SERVERS
 ----------------

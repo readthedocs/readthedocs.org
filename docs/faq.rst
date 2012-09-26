@@ -72,6 +72,6 @@ We think that our theme is badass, and better than the default for many reasons.
 
 
 Image scaling doesn't work in my documentation
----------------------------------------------
+-----------------------------------------------
 
 Image scaling in docutils depends on PIL. PIL is installed in the system that RTD runs on. However, if you are using the virtualenv building option, you will likely need to include PIL in your requirements for your project.
