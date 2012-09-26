@@ -13,6 +13,11 @@
           <div class="module">
             <div class="module-wrapper">
 
+              <p class="empty">
+                Check out the <a href="http://docs.readthedocs.org/en/latest/index.html">documentation for Read the Docs</a>. It contains lots of information about how to get the most out of RTD.
+              </p>
+
+
               <div class="module-header">
                 <h3>My Projects</h3>
               </div>
@@ -34,12 +39,12 @@
                           {% if project.has_aliases %}
                             <li><a href="{% url projects_alias_list project.slug %}" rel="nofollow,noindex">Aliases</a></li>
                         {% endif %}
-                       
-                            {% comment %}
-                          <li><a href="{% url projects_subprojects project.slug %}">Subprojects</a></li>
-                            {% endcomment %}
 
+                          {% if project.subprojects.count %}
+                            <li><a href="{% url projects_subprojects project.slug %}">Subprojects</a></li>
+                          {% endif %}
                           <li><a href="{% url projects_edit project.slug %}">Edit</a></li>
+                          <li><a href="{{ project.get_builds_url }}">Builds</a></li>
                           <li><a href="{{ project.get_docs_url }}">View Docs</a></li>
                         </ul>
                       </li>
@@ -48,7 +53,6 @@
 
                 </div>
               </div>
-
             </div>
           </div>
           {% else %}
