@@ -30,7 +30,6 @@ from djangome import views as djangome
 
 log = logging.getLogger(__name__)
 
-
 class SearchMixin(object):
     '''
     Adds a search api to any ModelResource provided the model is indexed.
@@ -43,17 +42,17 @@ class SearchMixin(object):
             # Return facet counts for each facetname
             search_facets = ['facetname1', 'facetname1']
 
-            # Number of results returned per page
-            search_page_size = 20
+            # Number of results returned per page 
+            search_page_size = 20   
 
-            # Highlight search terms in the text
-            search_highlight = True
+            # Highlight search terms in the text 
+            search_highlight = True 
     '''
     def get_search(self, request, **kwargs):
         self.method_check(request, allowed=['get'])
         self.is_authenticated(request)
         self.throttle_check(request)
-        object_list = self._search(request,
+        object_list = self._search(request, 
             self._meta.queryset.model,
             facets = getattr(self._meta, 'search_facets', []),
             page_size = getattr(self._meta, 'search_page_size', 20),
@@ -65,7 +64,7 @@ class SearchMixin(object):
     def _url_template(self, query, selected_facets):
         '''
         Construct a url template to assist with navigating the resources.
-        This looks a bit nasty but urllib.urlencode resulted in even
+        This looks a bit nasty but urllib.urlencode resulted in even 
         nastier output...
         '''
         query_params = []
@@ -74,9 +73,9 @@ class SearchMixin(object):
         query_params += [('q', query), ('format', 'json'), ('page', '{0}')]
         query_string = '&'.join('='.join(p) for p in query_params)
         url_template = reverse('api_get_search', kwargs={
-            'resource_name': self._meta.resource_name,
+            'resource_name': self._meta.resource_name, 
             'api_name': 'v1'
-        })
+        }) 
         return url_template + '?' + query_string
 
     def _search(self, request, model, facets=None, page_size=20, highlight=True):
@@ -86,7 +85,7 @@ class SearchMixin(object):
         `models`
             Limit the search to one or more models
         '''
-        form = FacetedSearchForm(request.GET, facets=facets or [],
+        form = FacetedSearchForm(request.GET, facets=facets or [], 
                                  models=(model,), load_all=True)
         if not form.is_valid():
             return self.error_response({'errors': form.errors }, request)
@@ -134,7 +133,7 @@ class SearchMixin(object):
             object_list.update({'facets': results.facet_counts()})
         return object_list
 
-
+ 
     # XXX: This method is available in the latest tastypie, remove
     # once available in production.
     def error_response(self, errors, request):
@@ -199,10 +198,6 @@ class OwnerAuthorization(Authorization):
             else:
                 object_list = object_list.none()
 
-        if not object_list:
-            raise ImmediateHttpResponse(
-                http.HttpForbidden("You can not have")
-            )
         return object_list
 
 class ProjectResource(ModelResource, SearchMixin):
@@ -213,7 +208,7 @@ class ProjectResource(ModelResource, SearchMixin):
         allowed_methods = ['get', 'post', 'put']
         queryset = Project.objects.all()
         authentication = PostAuthentication()
-        authorization = OwnerAuthorization()
+        authorization = DjangoAuthorization()
         excludes = ['path', 'featured']
         filtering = {
             "users": ALL_WITH_RELATIONS,
