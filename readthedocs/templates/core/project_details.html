@@ -29,14 +29,8 @@
 
   <p>
   {% for version in project.ordered_active_versions %}
-      <div style="float: left; margin-right: 5px;" class="version_right">
-        <form method="post" action="{% url generic_build project.pk %}">
-            <input type="hidden" name="version_slug" value="{{version.slug}}">
-            <input style="border: none; padding: 2px;" type="image" value="submit" src="{{ MEDIA_URL}}images/build.png" height="15"  alt="Build!" title="Build Version" name="image">
-        </form>
-      </div>
       <div style="float: left;" class="version_left">
-      {% if version.uploaded or version.built %}
+        {% if version.uploaded or version.built %}
         {# Link to the docs #}
         <a href="{{ version.get_absolute_url }}">{{ version.slug }}</a>
       {% else %}
@@ -47,8 +41,22 @@
       <div style="clear: both;"></div>
   {% endfor %}
   </p>
-{% endif %}
 
+  <h3> Build a version </h3>
+    <p>
+      <div style="float: left; margin-right: 5px;" class="version_right">
+        <form method="post" action="{% url generic_build project.pk %}">
+          <select class="revision-select" id="id_revision" name="revision">
+          {% for version in project.ordered_active_versions %}
+            <option value="{{ version.slug }}">{{ version.slug }}</option>
+          {% endfor %}
+          </select>
+          <input type="submit" value="Build">
+        </form>
+      </div>
+    </p>
+      <div style="clear: both;"></div>
+{% endif %}
 
 
 {% if project.get_latest_build.success %}
@@ -122,10 +130,6 @@
   <h3>Post Commit Hook</h3>
     <p>http://readthedocs.org{% url generic_build project.pk %}</p>
 {% endif %}
-
-<form method="post" action="{% url generic_build project.pk %}">
-  <input type="submit" value="Build latest version">
-</form>
 
 {% if pageview_list %}
 <!-- BEGIN projects list -->
