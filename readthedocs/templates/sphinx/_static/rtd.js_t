@@ -1,0 +1,70 @@
+(function () {
+  "use strict";
+
+  var checkVersion = function (slug, version) {
+    var versionURL = ["//readthedocs.org/api/v1/version/", slug,
+                      "/highest/", version, "/"].join("");
+    $.ajax({
+      type: 'GET',
+      dataType: 'jsonp',
+      url: versionURL,
+      success: function (data, textStatus, request) {
+        if (!data.is_highest) {
+          var currentURL = window.location.pathname.replace(version, data.slug),
+              warning = ['<div class="admonition note"> <p class="first ',
+                         'admonition-title">Note</p> <p class="last"> ',
+                         'You are not using the most up to date version ',
+                         'of the library. <a href="', currentURL, '">',
+                         data.version, '</a> is the newest version.</p>',
+                         '</div>'].join("");
+          $("div.body").prepend(warning);
+        }
+      }
+    });
+  };
+
+  var getVersions = function (slug, version) {
+    var versionsURL = ["//readthedocs.org/api/v1/version/", slug,
+                       "/?active=True"].join("");
+    $.ajax({
+      type: 'GET',
+      dataType: 'jsonp',
+      url: versionsURL,
+      success: function (data, textStatus, request) {
+        $('#version_menu, .version-listing').empty();
+        $('#sidebar_versions').empty();
+
+        for (var key in data['objects']) {
+          var obj = data['objects'][key],
+              currentURL = window.location.pathname.replace(version, obj.slug),
+              versionItem = '<li><a href="' + currentURL + '">' +
+                            obj.slug + '</a></li>';
+          // Update widget
+          $("#version_menu, .version-listing").append(versionItem);
+          // Update sidebar
+          $("#sidebar_versions").append(versionItem);
+        }
+      }
+    });
+  };
+
+  $(document).ready(function () {
+    var slug = "{{ slug }}",
+        version = "{{ current_version }}";
+
+    // Show action on hover
+    $(".module-item-menu").hover(
+      function () {
+        $(".hidden-child", this).show();
+      }, function () {
+        $(".hidden-child", this).hide();
+      }
+    );
+
+    checkVersion(slug, version);
+    getVersions(slug, version);
+
+    Search.init();
+  });
+
+})();
