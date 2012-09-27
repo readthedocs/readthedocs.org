@@ -168,7 +168,9 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
         (ret, out, err) = build_docs(project=project, build=build, version=version,
                                      pdf=pdf, man=man, epub=epub,
                                      record=record, force=force, update_output=update_output)
-        if not 'no targets are out of date.' in out:
+        if 'no targets are out of date.' in out:
+            log.info("Build Unchanged")
+        else:
             if ret == 0:
                 log.info("Successful HTML Build")
                 purge_version(version, subdomain=True,
@@ -179,8 +181,6 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
                 log.info("Purged %s" % version)
             else:
                 log.warning("Failed HTML Build")
-        else:
-            log.info("Build Unchanged")
 
     # Try importing from Open Comparison sites.
     try:
