@@ -37,7 +37,7 @@ class CreateProjectForm(ProjectForm):
             for i, (sample_file, template) in enumerate(constants.SAMPLE_FILES):
                 file = File.objects.create(
                     project=project,
-                    heading=sample_file,
+                    heading=unicode(sample_file),
                     content=render_to_string(template, {'project': project}),
                     ordering=i+1,
                 )
