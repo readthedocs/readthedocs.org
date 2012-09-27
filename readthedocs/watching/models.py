@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.translation import ugettext
 from projects.models import Project
 
 class PageView(models.Model):
@@ -10,7 +11,10 @@ class PageView(models.Model):
         ordering = ('-count',)
 
     def __unicode__(self):
-        return u"Page views for %s's url %s" % (self.project, self.url)
+        return ugettext(u"Page views for %(project)s's url %(url)s") % {
+            'project': self.project,
+            'url': self.url
+        }
 
     @models.permalink
     def get_absolute_url(self):
