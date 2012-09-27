@@ -9,7 +9,7 @@ from models import UserProfile
 
 log = logging.getLogger(__name__)
 
-class UserProfileForm(ModelForm):
+class UserProfileForm(forms.ModelForm):
     first_name = CharField(label=_('First name'), required=False)
     last_name = CharField(label=_('Last name'), required=False)
 

@@ -1,5 +1,4 @@
 import logging
-import urllib
 
 from django.core.paginator import Paginator, InvalidPage
 from django.contrib.auth.models import User
@@ -7,9 +6,7 @@ from django.conf.urls.defaults import url
 from django.shortcuts import get_object_or_404
 from django.http import Http404
 from django.core.urlresolvers import reverse
-from django.utils.translation import ugettext_lazy as _
 
-from haystack.query import SearchQuerySet
 from haystack.utils import Highlighter
 from tastypie import fields
 from tastypie.authentication import BasicAuthentication
@@ -18,7 +15,7 @@ from tastypie.constants import ALL_WITH_RELATIONS, ALL
 from tastypie.resources import ModelResource
 from tastypie.exceptions import NotFound, ImmediateHttpResponse
 from tastypie import http
-from tastypie.utils.mime import determine_format, build_content_type
+from tastypie.utils.mime import build_content_type
 from tastypie.http import HttpCreated
 from tastypie.utils import dict_strip_unicode_keys, trailing_slash
 
@@ -173,7 +170,7 @@ class EnhancedModelResource(ModelResource):
         try:
             return self.get_object_list(request).filter(**applicable_filters)
         except ValueError, e:
-            raise NotFound(_("Invalid resource lookup data provided (mismatched type).: %s") % e)
+            raise NotFound("Invalid resource lookup data provided (mismatched type).: %s" % e)
 
 
 class UserResource(ModelResource):
