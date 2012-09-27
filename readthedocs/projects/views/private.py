@@ -63,7 +63,7 @@ def project_create(request):
     if request.method == 'POST' and form.is_valid():
         project = form.save()
         form.instance.users.add(request.user)
-        project_manage = reverse('projects_manage', args=[project.slug])
+        project_manage = reverse('projects_detail', args=[project.slug])
         return HttpResponseRedirect(project_manage)
 
     return render_to_response(
@@ -89,7 +89,7 @@ def project_edit(request, project_slug):
 
     if request.method == 'POST' and form.is_valid():
         form.save()
-        project_dashboard = reverse('projects_manage', args=[project.slug])
+        project_dashboard = reverse('projects_detail', args=[project.slug])
         return HttpResponseRedirect(project_dashboard)
 
     return render_to_response(
@@ -115,7 +115,7 @@ def project_versions(request, project_slug):
 
     if request.method == 'POST' and form.is_valid():
         form.save()
-        project_dashboard = reverse('projects_manage', args=[project.slug])
+        project_dashboard = reverse('projects_detail', args=[project.slug])
         return HttpResponseRedirect(project_dashboard)
 
     return render_to_response(
@@ -156,7 +156,7 @@ def project_import(request):
     if request.method == 'POST' and form.is_valid():
         project = form.save()
         form.instance.users.add(request.user)
-        project_manage = reverse('projects_manage', args=[project.slug])
+        project_manage = reverse('projects_detail', args=[project.slug])
         return HttpResponseRedirect(project_manage + '?docs_not_built=True')
 
     return render_to_response(
@@ -178,7 +178,7 @@ def file_add(request, project_slug):
     if request.method == 'POST' and form.is_valid():
         form.instance.project = project
         file = form.save()
-        project_manage = reverse('projects_manage', args=[project.slug])
+        project_manage = reverse('projects_detail', args=[project.slug])
         return HttpResponseRedirect(project_manage)
 
     return render_to_response(
@@ -199,7 +199,7 @@ def file_edit(request, project_slug, file_id):
 
     if request.method == 'POST' and form.is_valid():
         form.save()
-        project_manage = reverse('projects_manage', args=[project.slug])
+        project_manage = reverse('projects_detail', args=[project.slug])
         return HttpResponseRedirect(project_manage)
 
     return render_to_response(
@@ -219,7 +219,7 @@ def file_delete(request, project_slug, file_id):
     if request.method == 'POST':
         file.status = constants.DELETED_STATUS
         file.save()
-        project_manage = reverse('projects_manage', args=[project.slug])
+        project_manage = reverse('projects_detail', args=[project.slug])
         return HttpResponseRedirect(project_manage)
 
     return render_to_response(
@@ -392,7 +392,7 @@ def project_subprojects(request, project_slug):
 
     if request.method == 'POST' and form.is_valid():
         form.save()
-        project_dashboard = reverse('projects_manage', args=[project.slug])
+        project_dashboard = reverse('projects_detail', args=[project.slug])
         return HttpResponseRedirect(project_dashboard)
 
     subprojects = project.subprojects.all()
@@ -410,5 +410,5 @@ def project_subprojects_delete(request, project_slug, child_slug):
 
     parent.remove_subproject(child)
 
-    project_dashboard = reverse('projects_manage', args=[parent.slug])
+    project_dashboard = reverse('projects_detail', args=[parent.slug])
     return HttpResponseRedirect(project_dashboard)
