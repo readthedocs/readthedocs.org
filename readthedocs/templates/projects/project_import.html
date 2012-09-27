@@ -2,6 +2,10 @@
 
 {% block title %}Import an existing project{% endblock %}
 
+{% block extra_scripts %}
+<script type="text/javascript" src="{{ MEDIA_URL }}javascript/rtd-import.js"></script>
+{% endblock %}
+
 {% block dash-nav-import %}active{% endblock %}
 
 {% block content-header %}<h1>Import an existing project</h1>{% endblock %}
