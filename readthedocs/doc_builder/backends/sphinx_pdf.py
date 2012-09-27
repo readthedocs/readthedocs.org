@@ -28,15 +28,15 @@ class Builder(BaseBuilder):
 
         if latex_results[0] == 0:
             os.chdir('_build/latex')
-            if project.whitelisted:
+            #if project.whitelisted:
                 # For whitelisted projects, read LaTeX sources from conf.py
-                conf_py_file = project.conf_file(self.version.slug)
-                conf = {}
-                execfile(conf_py_file, conf, conf)
-                tex_files = [d[1] for d in conf.get('latex_documents', [])]
-            else:
+                #conf_py_file = project.conf_file(self.version.slug)
+                #conf = {}
+                #execfile(conf_py_file, conf, conf)
+                #tex_files = [d[1] for d in conf.get('latex_documents', [])]
+            #else:
                 # Otherwise treat all .tex files as sources
-                tex_files = glob('*.tex')
+            tex_files = glob('*.tex')
 
             # Run LaTeX -> PDF conversions
             pdflatex_cmds = ['pdflatex -interaction=nonstopmode %s' % tex_file
