@@ -47,16 +47,10 @@ def project_manage(request, project_slug):
     The management view for a project, where you will have links to edit
     the projects' configuration, edit the files associated with that
     project, etc.
+
+    Now redirects to the normal /projects/<slug> view.
     """
-    project = get_object_or_404(request.user.projects.live(), slug=project_slug)
-    return object_list(
-        request,
-        queryset=project.files.live(),
-        extra_context={'project': project},
-        page=int(request.GET.get('page', 1)),
-        template_object_name='file',
-        template_name='projects/project_manage.html',
-    )
+    return HttpResponseRedirect(reverse('projects_detail', args=[project_slug]))
 
 @login_required
 def project_create(request):
