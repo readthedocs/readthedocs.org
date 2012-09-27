@@ -1,1 +1,0 @@
-../pip_requirements.txt
