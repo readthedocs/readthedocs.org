@@ -7,18 +7,31 @@ Servers
 -------
 The servers are themed somewhere between Norse mythology and Final Fantasy Aeons. I tried to keep them topical, and have some sense of their historical meaning and their purpose in the infrastructure.
 
-Varnish
-~~~~~~~
+Load Balancer (nginx)
+~~~~~~~~~~~~~~~~~~~~~
     * Asgard
+
+Import Files
+````````````
+    * /etc/nginx/sites-enabled/default
 
 Web
 ~~~
     * Chimera
     * Ladon
 
+Import Files
+````````````
+    * /etc/nginx/sites-enabled/readthedocs
+    * /home/docs/sites/readthedocs.org/run/gunicorn.log
+
 Build
 ~~~~~
     * Build
+
+Import Files
+````````````
+    * /home/docs/sites/readthedocs.org/run/celery.log
 
 Database
 ~~~~~~~~
