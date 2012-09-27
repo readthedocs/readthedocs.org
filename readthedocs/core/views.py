@@ -302,7 +302,7 @@ class SearchView(TemplateView):
         context['results'] = self.results
         context['count'] = len(self.results) # causes solr request #2
         return context
-
+ 
     def get(self, request, **kwargs):
         """
         Performing the search causes three requests to be sent to Solr.
