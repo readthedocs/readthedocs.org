@@ -7,7 +7,7 @@ urlpatterns = patterns('',
         'core.views.subproject_serve_docs',
         name='subproject_docs_detail'
     ),
-    url(r'^(?P<lang_slug>\w{2})/(?P<version_slug>[\w.-]+)/(?P<filename>.+)$',
+    url(r'^(?P<lang_slug>\w{2})/(?P<version_slug>[\w.-]+)/(?P<filename>.*)$',
         'core.views.serve_docs',
         name='docs_detail'
     ),
