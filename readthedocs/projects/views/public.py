@@ -166,9 +166,10 @@ def subdomain_handler(request, lang_slug=None, version_slug=None, filename=''):
 
     This was made primarily to redirect old subdomain's to their version'd brothers.
     """
-    if not filename:
-        filename = "index.html"
     project = get_object_or_404(Project, slug=request.slug)
+    # Don't add index.html for htmldir.
+    if not filename and project.documentation_type != 'sphinx_htmldir':
+        filename = "index.html"
     if version_slug is None:
         #Handle / on subdomain.
         default_version = project.get_default_version()
