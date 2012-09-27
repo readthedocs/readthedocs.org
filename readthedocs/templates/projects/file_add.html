@@ -1,4 +1,5 @@
 {% extends "projects/base_project_editing.html" %}
+{% load i18n %}
 
 {% block extra_links %}
   <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}lib/markitup/skins/simple/style.css" />
@@ -15,10 +16,10 @@
   </script>
 {% endblock %}
 
-{% block title %}Add a file{% endblock %}
+{% block title %}{% trans "Add a file" %}{% endblock %}
 
 {% block content-header %}
-      <h1>Add a file</h1>
+      <h1>{% trans "Add a file" %}</h1>
 {% endblock %}
 
 {% block editing-option-manage %}class="active"{% endblock %}
@@ -26,6 +27,6 @@
 {% block content %}
   <form method="post" action=".">{% csrf_token %}
     {{ form.as_p }}
-    <p><input type="submit" value="Add file" /></p>
+    <p><input type="submit" value="{% trans "Add file" %}" /></p>
   </form>
 {% endblock %}

@@ -1,9 +1,10 @@
 {% extends "projects/base_project.html" %}
+{% load i18n %}
 
-{% block title %}Revert {{ file.heading }} to revision {{ revision.revision_number }}?{% endblock %}
+{% block title %}{% blocktrans %}Revert {{ file.heading }} to revision {{ revision.revision_number }}?{% endblocktrans %}{% endblock %}
 
 {% block content %}
   <form method="post" action=".">{% csrf_token %}
-    <p><input type="submit" value="Revert" /></p>
+    <p><input type="submit" value="{% trans "Revert" %}" /></p>
   </form>
 {% endblock %}

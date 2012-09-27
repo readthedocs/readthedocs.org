@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% load i18n %}
+
 {% block dashboard_bar %}
 
     <!-- BEGIN dashboard bar -->
@@ -7,27 +9,27 @@
       <div class="wrapper">
 
           <ul>
-            <li class="first last {% block dash-nav-projects %}{% endblock %}"><a href="{% url projects_dashboard %}">Projects</a></li>
+            <li class="first last {% block dash-nav-projects %}{% endblock %}"><a href="{% url projects_dashboard %}">{% trans "Projects" %}</a></li>
             {% comment %}
-            <li class="{% block dash-nav-bookmarks %}{% endblock %}"><a href="{% url user_bookmarks %}">Bookmarks</a></li>
+            <li class="{% block dash-nav-bookmarks %}{% endblock %}"><a href="{% url user_bookmarks %}">{% trans "Bookmarks" %}</a></li>
             {% endcomment %}
           </ul>
 
           <ul>
-            <!-- <li class="first {% block dash-nav-create %}{% endblock %}"><a href="{% url projects_create %}">Create</a></li>-->
-            <li class="first last {% block dash-nav-import %}{% endblock %}"><a href="{% url projects_import %}">Import</a></li>
+            <!-- <li class="first {% block dash-nav-create %}{% endblock %}"><a href="{% url projects_create %}">{% trans "Create" %}</a></li>-->
+            <li class="first last {% block dash-nav-import %}{% endblock %}"><a href="{% url projects_import %}">{% trans "Import" %}</a></li>
           </ul>
 
           <ul>
             <li class="first {% block dash-nav-profile %}{% endblock %}">
               {% if request.user.get_profile %}
-              <a href="{% url profiles_profile_edit %}">Edit Profile</a>
+              <a href="{% url profiles_profile_edit %}">{% trans "Edit Profile" %}</a>
               {% else %}
-              <a href="{% url profiles_profile_create %}">Create Profile</a>
+              <a href="{% url profiles_profile_create %}">{% trans "Create Profile" %}</a>
               {% endif %}
             </li>
             <li class="last {% block dash-nav-change-pw %}{% endblock %}">
-              <a href="/accounts/password/change/">Change Password</a>
+              <a href="/accounts/password/change/">{% trans "Change Password" %}</a>
             </li>
           </ul>
 

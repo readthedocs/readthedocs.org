@@ -1,21 +1,23 @@
+{% load i18n %}
+
 {% extends "registration/base_registration.html" %}
 
 
-{% block title %}Log in{% endblock %}
+{% block title %}{% trans "Log in" %}{% endblock %}
 {% block body_class %}{{ block.super }} login_form{% endblock %}
 
 
 {% block content-header %}
-  <h1>Log in</h1>
+  <h1>{% trans "Log in" %}</h1>
 {% endblock %}
 
 
 {% block content %}
   <form action="." method="post" class="login_form">{% csrf_token %}
     {{ form.as_p }}
-    <p class="submit"><input type="submit" name="submit" value="Log in"></p>
+    <p class="submit"><input type="submit" name="submit" value="{% trans "Log in" %}"></p>
   </form>
 <p>
-If you forgot your password, <a href="/accounts/password/reset/">reset it.</a>
+{% trans "If you forgot your password," %} <a href="/accounts/password/reset/">{% trans "reset it." %}</a>
 </p>
 {% endblock %}

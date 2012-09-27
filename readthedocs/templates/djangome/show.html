@@ -1,15 +1,16 @@
 {% extends "base.html" %}
+{% load i18n %}
 
-{% block title %}Statistics for "{{ term }}"{% endblock %}
-{% block pagetitle %}Statistics for <kbd>{{ term }}</kbd>:{% endblock %}
+{% block title %}{% trans "Statistics for" %} "{{ term }}"{% endblock %}
+{% block pagetitle %}{% trans "Statistics for" %} <kbd>{{ term }}</kbd>:{% endblock %}
 
 {% block content %}
   {% load url from future %}
   <table>
     <thead>
       <tr>
-        <th>URL</th>
-        <th>Clicks</th>
+        <th>{% trans "URL" %}</th>
+        <th>{% trans "Clicks" %}</th>
       </tr>
     </thead>
     <tbody>
@@ -35,7 +36,7 @@
               <input type="text" name="url" value="http://docs.djangoproject.com/" size="120">
               <input type="hidden" name="return_to" value="{% url "show_term" version=version term=term %}">
             </td>
-            <td><input type="submit" value="Add"></td>
+            <td><input type="submit" value="{% trans "Add" %}"></td>
           </tr>
         </form>
       {% endif %}

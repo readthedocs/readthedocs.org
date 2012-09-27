@@ -4,13 +4,14 @@ from haystack.query import SearchQuerySet
 
 from django import forms
 from django.forms.fields import CharField
+from django.utils.translation import ugettext_lazy as _
 from models import UserProfile
 
 log = logging.getLogger(__name__)
 
-class UserProfileForm(forms.ModelForm):
-    first_name = CharField(label='First name', required=False)
-    last_name = CharField(label='Last name', required=False)
+class UserProfileForm(ModelForm):
+    first_name = CharField(label=_('First name'), required=False)
+    last_name = CharField(label=_('Last name'), required=False)
 
     class Meta:
         model = UserProfile

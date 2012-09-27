@@ -2,6 +2,8 @@
 including available theme names and repository types.
 """
 
+from django.utils.translation import ugettext_lazy as _
+
 THEME_DEFAULT = 'default'
 THEME_SPHINX = 'sphinxdoc'
 THEME_SCROLLS = 'scrolls'
@@ -11,8 +13,8 @@ THEME_NATURE = 'nature'
 THEME_HAIKU = 'haiku'
 
 DOCUMENTATION_CHOICES = (
-    ('sphinx', 'Sphinx Html'),
-    ('sphinx_htmldir', 'Sphinx HtmlDir'),
+    ('sphinx', _('Sphinx Html')),
+    ('sphinx_htmldir', _('Sphinx HtmlDir')),
     #('sphinx_man', 'Sphinx Man'),
     #('rdoc', 'Rdoc'),
 )
@@ -28,8 +30,8 @@ DEFAULT_THEME_CHOICES = (
 )
 
 SAMPLE_FILES = (
-    ('Installation', 'projects/samples/installation.rst.html'),
-    ('Getting started', 'projects/samples/getting_started.rst.html'),
+    (_('Installation'), 'projects/samples/installation.rst.html'),
+    (_('Getting started'), 'projects/samples/getting_started.rst.html'),
 )
 
 SCRAPE_CONF_SETTINGS = [

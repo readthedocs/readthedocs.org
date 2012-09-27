@@ -1,6 +1,7 @@
 from django.core.urlresolvers import reverse
 from django.db import models
 from projects.models import Project
+from django.utils.translation import ugettext_lazy as _
 
 from .constants import BUILD_STATE, BUILD_TYPES
 
@@ -19,7 +20,7 @@ class Version(models.Model):
         ordering = ['-verbose_name']
 
     def __unicode__(self):
-        return u"Version %s of %s (%s)" % (self.verbose_name, self.project, self.pk)
+        return _(u"Version") + " %s " + _(u"of") + " %s " + "(%s)" % (self.verbose_name, self.project, self.pk) 
 
     def get_absolute_url(self):
         if not self.built and not self.uploaded:
@@ -34,7 +35,7 @@ class VersionAlias(models.Model):
     largest = models.BooleanField(default=False)
 
     def __unicode__(self):
-        return "Alias for %s: %s -> %s" % (self.project, self.from_slug, self.to_slug)
+        return _(u"Alias for")+' %s: %s -> %s' % (self.project, self.from_slug, self.to_slug)
 
 
 class Build(models.Model):
@@ -54,9 +55,9 @@ class Build(models.Model):
         get_latest_by = 'date'
 
     def __unicode__(self):
-        return u"Build %s for %s (%s)" % (self.project,
-                                          ' '.join(self.project.users.all().values_list('username', flat=True)),
-                                          self.pk)
+        return _(u"Build") + " %s " + _(u"for") + " %s " + "(%s)" % (self.project,
+                                                               ' '.join(self.project.users.all().values_list('username', flat=True)),
+                                                               self.pk)
 
     @models.permalink
     def get_absolute_url(self):

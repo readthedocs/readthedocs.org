@@ -1,9 +1,10 @@
 {% extends "base.html" %}
+{% load i18n %}
 
-{% block title %}Choose a redirect for "{{ djangome_term }}"{% endblock %}
+{% block title %}{% trans "Choose a redirect for" %} "{{ djangome_term }}"{% endblock %}
 
 {% block content %}
-    <h3> Choose a redirect for <kbd>{{ djangome_term }} on <a href="http://{{ request.slug }}.readthedocs.org">{{ request.slug }}.readthedocs.org</a></kbd></h3>
+    <h3> {% trans "Choose a redirect for" %} <kbd>{{ djangome_term }} {% trans "on" %} <a href="http://{{ request.slug }}.readthedocs.org">{{ request.slug }}.readthedocs.org</a></kbd></h3>
   {% load url from future %}
   {% if winners %}
     <ul class="winners">
@@ -24,7 +25,7 @@
     <p>
       {{ form.url.label_tag }}
       {{ form.url }}
-      <input type="submit" value="Save &amp; go &rarr;">
+      <input type="submit" value="{% trans "Save &amp; go &rarr;" %}">
     </p>
   </form>
 {% endblock %}

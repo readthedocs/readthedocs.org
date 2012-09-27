@@ -1,6 +1,7 @@
 import logging
 
 from django.core.management.base import BaseCommand
+from django.utils.translation import ugettext_lazy as _
 from projects import tasks
 from projects.models import Project, ImportedFile
 from builds.models import Version

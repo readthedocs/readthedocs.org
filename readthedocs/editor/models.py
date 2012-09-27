@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.translation import ugettext_lazy as _
 
 
 class BranchManager(models.Manager):
@@ -20,4 +21,4 @@ class Branch(models.Model):
     objects = BranchManager()
     
     def __unicode__(self):
-        return "Branch of %s by %s (%s)" % (self.project, self.user, self.pk)
+        return _("Branch of") %s " + "_("by")" %s (%s)") % (self.project, self.user, self.pk)

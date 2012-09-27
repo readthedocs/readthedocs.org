@@ -2,6 +2,7 @@ from django import forms
 from django.conf import settings
 from django.template.defaultfilters import slugify
 from django.template.loader import render_to_string
+from django.utils.translation import ugettext_lazy as _
 from projects import constants
 from projects.models import Project, File
 from projects.tasks import update_docs
@@ -15,7 +16,7 @@ class ProjectForm(forms.ModelForm):
         if not self.instance.pk:
             potential_slug = slugify(name)
             if Project.objects.filter(slug=potential_slug).count():
-                raise forms.ValidationError('A project with that name exists already!')
+                raise forms.ValidationError(_('A project with that name exists already!'))
 
         return name
 
@@ -50,7 +51,7 @@ class CreateProjectForm(ProjectForm):
 
 class ImportProjectForm(ProjectForm):
     repo = forms.CharField(required=True,
-            help_text='URL for your code (hg or git). Ex. http://github.com/ericholscher/django-kong.git')
+            help_text=_(u'URL for your code (hg or git). Ex. http://github.com/ericholscher/django-kong.git'))
 
     class Meta:
         model = Project
@@ -59,9 +60,9 @@ class ImportProjectForm(ProjectForm):
     def clean_repo(self):
         repo = self.cleaned_data.get('repo', '').strip()
         if '&&' in repo or '|' in repo:
-            raise forms.ValidationError('Invalid character in repo name')
+            raise forms.ValidationError(_(u'Invalid character in repo name'))
         elif '@' in repo:
-            raise forms.ValidationError('It looks like you entered a private repo - please use the public (http:// or git://) clone url')
+            raise forms.ValidationError(_(u'It looks like you entered a private repo - please use the public (http:// or git://) clone url'))
         return repo
 
     def clean_conf_py_file(self):
@@ -172,7 +173,7 @@ def build_versions_form(project):
     if active.exists():
         choices = [(version.slug, version.verbose_name) for version in active]
         attrs['default-version'] = forms.ChoiceField(
-            label="Choose the default version for this project",
+            label=_("Choose the default version for this project"),
             choices=choices,
             initial=project.get_default_version(),
         )
@@ -188,8 +189,8 @@ def build_versions_form(project):
 
 
 class BaseUploadHTMLForm(forms.Form):
-    content = forms.FileField(label="Zip file of HTML")
-    overwrite = forms.BooleanField(required=False, label="Overwrite existing HTML?")
+    content = forms.FileField(label=_("Zip file of HTML"))
+    overwrite = forms.BooleanField(required=False, label=_("Overwrite existing HTML?"))
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request', None)
@@ -202,9 +203,9 @@ class BaseUploadHTMLForm(forms.Form):
 
         #Validation
         if version.active and not self.cleaned_data.get('overwrite', False):
-            raise forms.ValidationError("That version is already active!")
+            raise forms.ValidationError(_("That version is already active!"))
         if not file.name.endswith('zip'):
-            raise forms.ValidationError("Must upload a zip file.")
+            raise forms.ValidationError(_("Must upload a zip file."))
 
         return self.cleaned_data
 
@@ -218,7 +219,7 @@ def build_upload_html_form(project):
         choices = []
         choices += [(version.slug, version.verbose_name) for version in active]
         attrs['version'] = forms.ChoiceField(
-            label="Version of the project you are uploading HTML for",
+            label=_("Version of the project you are uploading HTML for"),
             choices=choices,
         )
     return type('UploadHTMLForm', (BaseUploadHTMLForm,), attrs)

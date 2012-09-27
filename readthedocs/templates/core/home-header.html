@@ -1,3 +1,4 @@
+{% load i18n %}
 
     <!-- BEGIN header-->
     <div id="home-header">
@@ -5,16 +6,16 @@
 
         <!-- BEGIN header title-->
         <div class="home-header-title">
-          <h1>Read the Docs</h1>
-          <p class="tagline">Create, host, and browse documentation.</p>
+          <h1>{% trans "Read the Docs" %}</h1>
+          <p class="tagline">{% trans "Create, host, and browse documentation." %}</p>
         </div>
         <!-- END header title -->
 
         <!-- BEGIN header links-->
         <div class="home-header-links">
-          <a class="reg" href="{% url registration_register %}">Sign up</a>
+          <a class="reg" href="{% url registration_register %}">{% trans "Sign up" %}</a>
           <div class="login-box">
-            <p>or <a class="login" href="{% url auth_login %}">Log in</a></p>
+            <p>{% trans "or" %} <a class="login" href="{% url auth_login %}">{% trans "Log in" %}</a></p>
           </div>
         </div>
         <!-- END header links -->

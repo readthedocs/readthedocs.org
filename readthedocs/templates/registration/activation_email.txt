@@ -1,10 +1,12 @@
-Thank you for registering an account at {{ site.domain }}.
-To activate your registration, please visit the following page:
+{% load i18n %}
+
+{% trans "Thank you for registering an account at" %} {{ site.domain }}.
+{% trans "To activate your registration, please visit the following page:" %}
 
 http://{{ site.domain }}{% url registration_activate activation_key %}
 
-This page will expire in {{ expiration_days }} day{{ expiration_days|pluralize }}.
+{% blocktrans %}This page will expire in {{ expiration_days }} day{{ expiration_days|pluralize }}.{% endblocktrans %}
 
 ***
 
-If you didn't register this account you can simply delete this email and we won't bother you again.
+{% trans "If you didn't register this account you can simply delete this email and we won't bother you again." %}

@@ -1,14 +1,15 @@
 {% extends "dashboard/base_dashboard.html" %}
+{% load i18n %}
 
-{% block title %}Import an existing project{% endblock %}
+{% block title %}{% trans "Import an existing project" %}{% endblock %}
 
 {% block dash-nav-import %}active{% endblock %}
 
-{% block content-header %}<h1>Import an existing project</h1>{% endblock %}
+{% block content-header %}<h1>{% trans "Import an existing project" %}</h1>{% endblock %}
 
 {% block content %}
   <form method="post" action=".">{% csrf_token %}
     {{ form.as_p }}
-    <p><input type="submit" value="Create" /></p>
+    <p><input type="submit" value="{% trans "Create" %}" /></p>
   </form>
 {% endblock %}

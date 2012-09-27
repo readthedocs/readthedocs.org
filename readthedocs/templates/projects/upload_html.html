@@ -1,17 +1,18 @@
 {% extends "dashboard/base_dashboard.html" %}
+{% load i18n %}
 
-{% block title %}Import HTML Documentation{% endblock %}
+{% block title %}{% trans "Import HTML Documentation" %}{% endblock %}
 
 {% block dash-nav-upload %}active{% endblock %}
 
-{% block content-header %}<h1>Upload HTML Documentation</h1>{% endblock %}
+{% block content-header %}<h1>{% trans "Upload HTML Documentation" %}</h1>{% endblock %}
 
 {% block content %}
   <p class="help_text">
-    Use this to upload pre-existing HTML documentation for versions that don't build correctly anymore.
+    {% trans "Use this to upload pre-existing HTML documentation for versions that don't build correctly anymore." %}
   </p>
   <form enctype="multipart/form-data" method="post" action="{% url projects_upload_html project.slug %}"> {% csrf_token %}
     {{ form.as_p }}
-    <p><input type="submit" value="Upload" /></p>
+    <p><input type="submit" value="{% trans "Upload" %}" /></p>
   </form>
 {% endblock %}

@@ -1,12 +1,13 @@
 from django.contrib.syndication.views import Feed
 from django.db.models import Max
+from django.utils.translation import ugettext_lazy as _
 
 from projects.models import Project
 
 class LatestProjectsFeed(Feed):
-    title = "Recently updated documentation"
+    title = _("Recently updated documentation")
     link = "http://readthedocs.org"
-    description = "Recently updated documentation on Read the Docs"
+    description = _("Recently updated documentation on Read the Docs")
 
     def items(self):
         return Project.objects.order_by('-modified_date')[:10]
@@ -18,9 +19,9 @@ class LatestProjectsFeed(Feed):
         return item.get_latest_build()
 
 class NewProjectsFeed(Feed):
-    title = "Newest documentation"
+    title = _("Newest documentation")
     link = "http://readthedocs.org"
-    description = "Recently created documentation on Read the Docs"
+    description = _("Recently created documentation on Read the Docs")
 
     def items(self):
         return Project.objects.all().order_by('-pk')[:10]

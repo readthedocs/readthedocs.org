@@ -1,40 +1,42 @@
 {% extends "projects/base_project_editing.html" %}
 
+{% load i18n %}
+
 {% block title %}{{ build.project.name }}{% endblock %}
 
-{% block content-header %}<h1>Build for {{ build.project.name }}</h1>{% endblock %}
+{% block content-header %}<h1>{% blocktrans %}Build for {{ build.project.name }}{% endblocktrans %}</h1>{% endblock %}
 
 {% block content %}
   <div id="build-{{ build.id }}">
-    <p>Built: {{ build.date|date:"N j, Y. P" }}</p>
+    <p>{% blocktrans with build.date as build_date %}Built: {{ build_date|date:"N j, Y. P" }}{% endblocktrans %}</p>
 
-    <p>Outcome: <b><span id="build-success">{{ build.success|yesno:"Passed,Failed" }}</span></b></p>
+    <p>{% trans "Outcome:" } <b><span id="build-success">{% if build.success %}{% trans "Passed" %}{% else %}{% trans "Failed" %}{% endif %}</span></b></p>
 
     {% if build.version %}
-    <p>Version: <b>{{ build.version.slug }}</b></p>
+    <p>{% trans "Version:"% } <b>{{ build.version.slug }}</b></p>
     {% endif %}
 
-    <p>Type: <b>{{ build.type }}</b></p>
+    <p>{% trans "Type:" %} <b>{{ build.type }}</b></p>
 
-    <p>State: <b><span id="build-state">{{ build.get_state_display }}</span></b>
+    <p>{% trans "State:" %} <b><span id="build-state">{{ build.get_state_display }}</span></b>
       <img src="{{ MEDIA_URL }}images/loader.gif" class="hide build-loading">
     </p>
 
-    <h3>Sphinx Standard Output</h3>
+    <h3>{% trans "Sphinx Standard Output" %}</h3>
     <pre class="build-output"><span id="build-output">{{ build.output }}</span></pre>
 
     {% if build.error %}
-    <h3>Sphinx Standard Error</h3>
+    <h3>{% trans "Sphinx Standard Error" %}</h3>
     <pre class="build-error"><span id="build-error">{{ build.error }}</span></pre>
     {% endif %}
 
     {% if build.setup %}
-    <h3>Setup Output</h3>
+    <h3>{% trans "Setup Output" %}</h3>
     <pre class="build-output"><span id="build-setup">{{ build.setup }}</span></pre>
     {% endif %}
 
     {% if build.setup_error %}
-    <h3>Environment Standard Error</h3>
+    <h3>{% trans "Environment Standard Error" %}</h3>
     <pre class="build-error"><span id="build-setup_error">{{ build.setup_error }}</span></pre>
     {% endif %}
   </div>

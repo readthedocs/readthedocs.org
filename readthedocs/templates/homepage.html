@@ -1,7 +1,10 @@
 {% extends "base.html" %}
+
+{% load i18n %}
+
 {% load pagination_tags %}
 
-{% block title %}Home{% endblock %}
+{% block title %}{% trans "Home" %}{% endblock %}
 
 {% block body_class %}home {% if not request.user.is_authenticated %}splash{% endif %}{% endblock %}
 
@@ -22,15 +25,15 @@
             <div class="module-wrapper">
 
               <div class="module-header">
-                <h3>What is this place?</h3>
+                <h3>{% trans "What is this place?" %}</h3>
                 <p>
-                  Read the Docs hosts documentation, making it fully searchable and easy to find.
-                  You can import your docs using any major version control system, including Mercurial, Git, Subversion, and Bazaar.  
-                  We support <a href="http://read-the-docs.readthedocs.org/en/latest/webhooks.html">webhooks</a> so your docs get built when you commit code.
-                  There's also support for versioning so you can build docs from tags and branches of your code in your repository. A <a href="http://read-the-docs.readthedocs.org/en/latest/features.html">full list of features</a> is available.
+                  {% blocktrans %}Read the Docs hosts documentation, making it fully searchable and easy to find.
+                  You can import your docs using any major version control system, including Mercurial, Git, Subversion, and Bazaar.{% endblocktrans %}
+                  {% trans "We support" %} <a href="http://read-the-docs.readthedocs.org/en/latest/webhooks.html">webhooks</a> {% trans "so your docs get built when you commit code." %}
+                  {% trans "There's also support for versioning so you can build docs from tags and branches of your code in your repository. A" %} <a href="http://read-the-docs.readthedocs.org/en/latest/features.html">{% trans "full list of features" %}</a> {% trans "is available." %}
                 </p>   
                 <p>
-                  It's free and simple.  Read the <a href="http://readthedocs.org/docs/read-the-docs/latest/getting_started.html">Getting Started</a> guide to get going!
+                  {% trans "It's free and simple.  Read the" %} <a href="http://readthedocs.org/docs/read-the-docs/latest/getting_started.html">{% trans "Getting Started" %}</a> {% trans "guide to get going!" %}
                 <p>
               </div>
 
@@ -46,7 +49,7 @@
             <div class="module-wrapper">
 
               <div class="module-header">
-                <h3>Featured Projects</h3>
+                <h3>{% trans "Featured Projects" %}</h3>
               </div>
 
               <div class="module-list">
@@ -67,7 +70,7 @@
             <div class="module-wrapper">
 
               <div class="module-header">
-                <h3>Recently Updated Projects <span class="small_head"><a href="{% url projects_list %}">(All Projects)</a></span></h3>
+                <h3>{% trans "Recently Updated Projects" %} <span class="small_head"><a href="{% url projects_list %}">{% trans "(All Projects)" %}</a></span></h3>
               </div>
 
               <div class="module-list">
@@ -89,7 +92,7 @@
             <div class="module-wrapper">
 
               <div class="module-header">
-                <h3>Most Viewed Pages <span class="small_head"><a href="{% url pageviews_list %}">(All Views)</a></span></h3>
+                <h3>{% trans "Most Viewed Pages" %} <span class="small_head"><a href="{% url pageviews_list %}">{% trans "(All Views)" %}</a></span></h3>
               </div>
 
               <div class="module-list">
@@ -112,7 +115,7 @@
             <div class="module-wrapper">
 
               <div class="module-header">
-                <h3>Recently Bookmarked Docs <span class="small_head"><a href="{% url bookmarks_list %}">(All Bookmarks)</a></span></h3>
+                <h3>{% trans "Recently Bookmarked Docs" %} <span class="small_head"><a href="{% url bookmarks_list %}">{% trans "(All Bookmarks)" %}</a></span></h3>
               </div>
 
               <div class="module-list">

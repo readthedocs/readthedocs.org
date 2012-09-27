@@ -1,13 +1,14 @@
 {% extends "projects/base_project.html" %}
+{% load i18n %}
 
-{% block title %}Delete {{ project.name }}?{% endblock %}
+{% block title %}{% trans "Delete" %} {{ project.name }}?{% endblock %}
 
-{% block content-header %}<h1>Delete "{{ project.name }}"?</h1>{% endblock %}
+{% block content-header %}<h1>{% trans "Delete" %} "{{ project.name }}"?</h1>{% endblock %}
 
 {% block content %}
-  <p>You sure? O_o</p>
+  <p>{% trans "You sure?" %} O_o</p>
 
   <form method="post" action=".">{% csrf_token %}
-    <input type="submit" value="Delete forever">
+    <input type="submit" value="{% trans "Delete forever" %}">
   </form>
 {% endblock %}

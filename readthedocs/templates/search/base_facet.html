@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
 
-{% block title %} Search: {{ query }} {% endblock %}
+{% load i18n %}
+
+{% block title %}{% blocktrans %} Search: {{ query }}{% endblocktrans %}{% endblock %}
 
 {% block extra_scripts %}
 <script type="text/javascript" src="{{ MEDIA_URL }}javascript/instantsearch.js"></script>
@@ -17,7 +19,7 @@
           <input type="hidden" name="selected_facets" value="{{ selected_facets }}" id='id_selected_facets'>
         </div>
         <div class="submit-input-wrapper">
-          <input type="submit" value="Go crazy." id="id_search_button">
+          <input type="submit" value="{% trans "Go crazy." %}" id="id_search_button">
         </div>
       </form>
     </div>

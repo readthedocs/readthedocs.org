@@ -1,4 +1,5 @@
 {% extends "projects/base_project.html" %}
+{% load i18n %}
 
 {% block extra_links %}
   <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}lib/markitup/skins/simple/style.css" />
@@ -15,15 +16,15 @@
   </script>
 {% endblock %}
 
-{% block title %}Edit {{ filename }}{% endblock %}
+{% block title %}{% trans "Edit" %} {{ filename }}{% endblock %}
 
-{% block content-header %}<h1>Edit {{ filename }}</h1>{% endblock %}
+{% block content-header %}<h1>{% trans "Edit" %} {{ filename }}</h1>{% endblock %}
 
 {% block editing-option-manage %}class="active"{% endblock %}
 
 {% block content %}  
   <form method="post" action="{{ request.path }}">{% csrf_token %}
     {{ form.as_p }}
-    <p><input type="submit" value="Submit"><a class="button" href="{% url editor_push project.slug %}">Send pull request</a></p>
+    <p><input type="submit" value="{% trans "Submit" %}"><a class="button" href="{% url editor_push project.slug %}">{% trans "Send pull request" %}</a></p>
   </form>
 {% endblock %}
