@@ -1,26 +1,36 @@
 (function () {
-  "use strict";
+  $(function() {
+    var input = $('#id_repo'),
+        repo = $('#id_repo_type');
 
-  $(document).ready(function () {
-    $("#id_repo").blur(function () {
-      var val = this.value,
-          repo = $("#id_repo_type")[0];
+    input.blur(function () {
+      var val = input.val(),
+          type;
 
-      if (val.indexOf("git") >= 0) {
-        repo.value = "git";
-      } else if (val.indexOf("bitbucket") >= 0) {
-        repo.value = "hg";
-      } else if (val.indexOf("hg") >= 0) {
-        repo.value = "hg";
-      } else if (val.indexOf("bzr") >= 0) {
-        repo.value = "bzr";
-      } else if (val.indexOf("launchpad") >= 0) {
-        repo.value = "bzr";
-      } else if (val.indexOf("trunk") >= 0) {
-        repo.value = "svn";
-      } else if (val.indexOf("svn") >= 0) {
-        repo.value = "svn";
+      switch(true) {
+        case /bitbucket/.test(val):
+        case /^hg/.test(val):
+          type = 'hg';
+        break;
+
+        case /^bzr/.test(val):
+        case /launchpad/.test(val):
+          type = 'bzr';
+        break;
+
+        case /trunk/.test(val):
+        case /^svn/.test(val):
+          type = 'svn';
+        break;
+
+        default:
+        case /github/.test(val):
+        case /(^git|\.git$)/.test(val):
+          type = 'git';
+        break;
       }
+
+      repo.val(type);
     });
   });
 
