@@ -34,8 +34,6 @@
     return $.getJSON(versionsURL, gotData);
 
     function gotData (data) {
-      $('#version_menu, .version-listing, #sidebar_versions').empty();
-
       var items = $('<ul />')
         , currentURL
         , versionItem
@@ -50,7 +48,7 @@
       }
 
       // update widget and sidebar
-      $('#version_menu, .version-listing, #sidebar_versions').append(items.html())
+      $('#version_menu, .version-listing, #sidebar_versions').html(items.html())
     }
   };
 
