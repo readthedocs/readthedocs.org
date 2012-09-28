@@ -1,6 +1,4 @@
 (function () {
-  slug = window.doc_slug
-  version = window.doc_version
   var checkVersion = function (slug, version) {
     var versionURL = ["//readthedocs.org/api/v1/version/", slug,
                       "/highest/", version, "/?callback=?"].join("");
@@ -56,6 +54,9 @@
   };
 
   $(function () {
+    var slug = window.doc_slug,
+        version = window.doc_version;
+
     // Show action on hover
     $(".module-item-menu").hover(
       function () {
