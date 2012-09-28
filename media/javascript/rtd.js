@@ -1,4 +1,6 @@
 (function () {
+  slug = window.doc_slug
+  version = window.doc_version
   var checkVersion = function (slug, version) {
     var versionURL = ["//readthedocs.org/api/v1/version/", slug,
                       "/highest/", version, "/"].join("");
