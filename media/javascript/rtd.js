@@ -53,9 +53,6 @@
   };
 
   $(function () {
-    var slug = "{{ slug }}",
-        version = "{{ current_version }}";
-
     // Show action on hover
     $(".module-item-menu").hover(
       function () {
