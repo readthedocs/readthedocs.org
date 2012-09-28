@@ -1,54 +1,60 @@
 (function () {
-  "use strict";
-
   var checkVersion = function (slug, version) {
     var versionURL = ["//readthedocs.org/api/v1/version/", slug,
                       "/highest/", version, "/"].join("");
-    $.ajax({
-      type: 'GET',
-      dataType: 'jsonp',
-      url: versionURL,
-      success: function (data, textStatus, request) {
-        if (!data.is_highest) {
-          var currentURL = window.location.pathname.replace(version, data.slug),
-              warning = ['<div class="admonition note"> <p class="first ',
-                         'admonition-title">Note</p> <p class="last"> ',
-                         'You are not using the most up to date version ',
-                         'of the library. <a href="', currentURL, '">',
-                         data.version, '</a> is the newest version.</p>',
-                         '</div>'].join("");
-          $("div.body").prepend(warning);
-        }
+
+    $.getJSON(versionURL, onData);
+
+    function onData (data) {
+      if (data.is_highest) {
+        return;
       }
-    });
+
+      var currentURL = window.location.pathname.replace(version, data.slug),
+          warning = $('<div class="admonition note"> <p class="first \
+                       admonition-title">Note</p> <p class="last"> \
+                       You are not using the most up to date version \
+                       of the library. <a href="#"></a> is the newest version.</p>\
+                       </div>');
+
+      warning
+        .find('a')
+        .attr('href', currentURL)
+        .text(data.version);
+
+      $("div.body").prepend(warning);
+    }
+
   };
 
   var getVersions = function (slug, version) {
     var versionsURL = ["//readthedocs.org/api/v1/version/", slug,
                        "/?active=True"].join("");
-    $.ajax({
-      type: 'GET',
-      dataType: 'jsonp',
-      url: versionsURL,
-      success: function (data, textStatus, request) {
-        $('#version_menu, .version-listing').empty();
-        $('#sidebar_versions').empty();
 
-        for (var key in data['objects']) {
-          var obj = data['objects'][key],
-              currentURL = window.location.pathname.replace(version, obj.slug),
-              versionItem = '<li><a href="' + currentURL + '">' +
-                            obj.slug + '</a></li>';
-          // Update widget
-          $("#version_menu, .version-listing").append(versionItem);
-          // Update sidebar
-          $("#sidebar_versions").append(versionItem);
-        }
+    return $.getJSON(versionsURL, gotData);
+
+    function gotData (data) {
+      $('#version_menu, .version-listing, #sidebar_versions').empty();
+
+      var items = $('<ul />')
+        , currentURL
+        , versionItem
+        , object
+
+      for (var key in data.objects) {
+        object = data.objects[key]
+        currentURL = window.location.pathname.replace(version, object.slug)
+        versionItem = $('<a href="#"></a>')
+          .attr('href', currentURL)
+          .text(object.slug)
       }
-    });
+
+      // update widget and sidebar
+      $('#version_menu, .version-listing, #sidebar_versions').append(items.html())
+    }
   };
 
-  $(document).ready(function () {
+  $(function () {
     var slug = "{{ slug }}",
         version = "{{ current_version }}";
 
