@@ -18,10 +18,10 @@
   var doc_version = "{{ current_version }}";
   var doc_slug = "{{ slug }}";
 </script>
-{% comment %}
+{# 
 We include the media servers version here so we can update rtd.js across all
 documentation without rebuilding every one. If this script is embedded in each build, then updating the file across all docs is basically impossible.
-{% endcomment %}
+#}
 <script type="text/javascript" src="{{ MEDIA_URL }}javascript/rtd.js"></script>
 <!-- end RTD <head> -->
 {% endblock %}
