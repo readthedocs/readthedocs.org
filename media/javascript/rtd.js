@@ -3,7 +3,7 @@
   version = window.doc_version
   var checkVersion = function (slug, version) {
     var versionURL = ["//readthedocs.org/api/v1/version/", slug,
-                      "/highest/", version, "/"].join("");
+                      "/highest/", version, "/?callback=?"].join("");
 
     $.getJSON(versionURL, onData);
 
@@ -31,7 +31,7 @@
 
   var getVersions = function (slug, version) {
     var versionsURL = ["//readthedocs.org/api/v1/version/", slug,
-                       "/?active=True"].join("");
+                       "/?active=True&callback=?"].join("");
 
     return $.getJSON(versionsURL, gotData);
 
@@ -47,6 +47,7 @@
         versionItem = $('<a href="#"></a>')
           .attr('href', currentURL)
           .text(object.slug)
+          .appendTo($('<li />').appendTo(items))
       }
 
       // update widget and sidebar
