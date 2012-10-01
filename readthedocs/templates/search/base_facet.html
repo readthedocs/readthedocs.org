@@ -4,6 +4,11 @@
 
 {% block extra_scripts %}
 <script type="text/javascript" src="{{ MEDIA_URL }}javascript/instantsearch.js"></script>
+<script type="text/javascript">
+  $(function() {
+    Search.init();
+  });
+</script>
 {% endblock %}
 
 {% block content %}
