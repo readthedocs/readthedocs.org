@@ -6,7 +6,7 @@
 {% block htmltitle %}
 {{ super() }}
 <!-- RTD <head> -->
-<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
 <script type="text/javascript" src="{{ MEDIA_URL }}javascript/underscore.js"></script>
 <script type="text/javascript" src="{{ MEDIA_URL }}javascript/doctools.js"></script>
 <script type="text/javascript" src="{{ MEDIA_URL }}javascript/searchtools.js"></script>
@@ -62,7 +62,7 @@ documentation without rebuilding every one. If this script is embedded in each b
 {% endif %}
 
 <style type="text/css">
-  .badge {
+  .rtd-badge {
     position: fixed;
     display: block;
     bottom: 5px;
@@ -116,22 +116,22 @@ documentation without rebuilding every one. If this script is embedded in each b
     -moz-box-shadow: 0 1px 0px #465158;
     -webkit-box-shadow: 0 1px 0px #465158;
   }
-  .badge.rtd {
+  .rtd-badge.rtd {
     background: #3b4449 url(//media.readthedocs.org/images/badge-rtd.png) scroll 0px -46px no-repeat;
     border: 1px solid #282E32;
     width: 41px;
     right: 5px;
   }
-  .footer_popout:hover .badge.rtd {
+  .footer_popout:hover .rtd-badge.rtd {
     background-position: top left;
     width: 160px;
   }
-  .badge.revsys { background: #465158 url(//media.readthedocs.org/images/badge-revsys.png) top left no-repeat;
+  .rtd-badge.revsys { background: #465158 url(//media.readthedocs.org/images/badge-revsys.png) top left no-repeat;
     border: 1px solid #1C5871;
     width: 290px;
     right: 173px;
   }
-  .badge.revsys-inline-sponsored {
+  .rtd-badge.revsys-inline-sponsored {
     position: inherit;
     margin-left: auto;
     margin-right: 175px;
@@ -141,7 +141,7 @@ documentation without rebuilding every one. If this script is embedded in each b
     width: 290px;
     right: 173px;
   }
-  .badge.revsys-inline {
+  .rtd-badge.revsys-inline {
     position: inherit;
     margin-left: auto;
     margin-right: 175px;
@@ -157,7 +157,7 @@ documentation without rebuilding every one. If this script is embedded in each b
 </style>
 <div class="rtd_doc_footer">
   <div class="footer_popout">
-    <a href="//readthedocs.org/projects/{{ slug }}/?fromdocs={{ slug }}" class="badge rtd"> TEST Brought to you by Read the Docs</a>
+    <a href="//readthedocs.org/projects/{{ slug }}/?fromdocs={{ slug }}" class="rtd-badge rtd"> TEST Brought to you by Read the Docs</a>
     <ul id="version_menu">
       {% for slug, url in versions %}
         <li><a href="//readthedocs.org{{ url }}">{{ slug }}</a></li>
