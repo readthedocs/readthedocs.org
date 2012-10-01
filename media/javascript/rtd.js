@@ -68,8 +68,6 @@
 
     checkVersion(slug, version);
     getVersions(slug, version);
-
-    Search.init();
   });
 
 })();
