@@ -209,9 +209,19 @@ def legacy_serve_docs(request, username, project_slug, filename):
     })
     return HttpResponsePermanentRedirect(url)
 
-def subproject_serve_docs(request, project_slug, lang_slug, version_slug, filename=''):
+def subproject_serve_docs(request, project_slug, lang_slug=None, version_slug=None, filename=''):
     parent_slug = request.slug
     subproject_qs = ProjectRelationship.objects.filter(parent__slug=parent_slug, child__slug=project_slug)
+    if lang_slug == None or version_slug == None:
+        version_slug = proj.get_default_version()
+        url = reverse('subproject_docs_detail', kwargs={
+            'project_slug': project_slug,
+            'version_slug': version_slug,
+            'lang_slug': 'en',
+            'filename': filename
+        })
+        return HttpResponseRedirect(url)
+        
     if subproject_qs.exists():
         return serve_docs(request, lang_slug, version_slug, filename, project_slug)
     else:
