@@ -13,6 +13,8 @@ from django.views.decorators.csrf import csrf_view_exempt
 from django.views.static import serve
 from django.views.generic import TemplateView
 
+from haystack.query import EmptySearchQuerySet
+
 from builds.models import Build
 from core.forms import FacetedSearchForm
 from projects.models import Project, ImportedFile, ProjectRelationship
