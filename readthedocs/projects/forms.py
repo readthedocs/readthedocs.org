@@ -68,7 +68,7 @@ class ImportProjectForm(ProjectForm):
     def clean_conf_py_file(self):
         file = self.cleaned_data.get('conf_py_file', '').strip()
         if file and not 'conf.py' in file:
-            raise forms.ValidationError('Your configuration file is invalid, make sure it contains conf.py in it.')
+            raise forms.ValidationError(_('Your configuration file is invalid, make sure it contains conf.py in it.'))
         return file
 
     def save(self, *args, **kwargs):
@@ -83,7 +83,7 @@ class ImportProjectForm(ProjectForm):
 
 class FileForm(forms.ModelForm):
     content = forms.CharField(widget=forms.Textarea(attrs={'class': 'editor'}),
-        help_text='<small><a href="http://sphinx.pocoo.org/rest.html">reStructuredText Primer</a></small>')
+        help_text='<small><a href="http://sphinx.pocoo.org/rest.html">' + _('reStructuredText Primer') + '</a></small>')
     revision_comment = forms.CharField(max_length=255, required=False)
 
     class Meta:
@@ -236,7 +236,7 @@ class SubprojectForm(forms.Form):
         subproject_name = self.cleaned_data['subproject']
         subproject_qs = Project.objects.filter(name=subproject_name)
         if not subproject_qs.exists():
-            raise forms.ValidationError("Project %s does not exist" % subproject_name)
+            raise forms.ValidationError(_("Project %(name)s does not exist") % {'name': subproject_name})
         self.subproject = subproject_qs[0]
         return subproject_name
 

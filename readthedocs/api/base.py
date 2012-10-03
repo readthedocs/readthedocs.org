@@ -6,6 +6,7 @@ from django.conf.urls.defaults import url
 from django.shortcuts import get_object_or_404
 from django.http import Http404
 from django.core.urlresolvers import reverse
+from django.utils.translation import ugettext
 
 from haystack.utils import Highlighter
 from tastypie import fields
@@ -93,7 +94,7 @@ class SearchMixin(object):
         try:
             page = paginator.page(int(request.GET.get('page', 1)))
         except InvalidPage:
-            raise Http404("Sorry, no results on that page.")
+            raise Http404(ugettext("Sorry, no results on that page."))
 
         objects = []
         query = request.GET.get('q', '')
@@ -170,7 +171,7 @@ class EnhancedModelResource(ModelResource):
         try:
             return self.get_object_list(request).filter(**applicable_filters)
         except ValueError, e:
-            raise NotFound("Invalid resource lookup data provided (mismatched type).: %s" % e)
+            raise NotFound(ugettext("Invalid resource lookup data provided (mismatched type).: %(error)s") % {'error': e})
 
 
 class UserResource(ModelResource):

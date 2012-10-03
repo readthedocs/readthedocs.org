@@ -11,12 +11,12 @@ class BranchManager(models.Manager):
 
 
 class Branch(models.Model):
-    user = models.ForeignKey('auth.User')
-    project = models.ForeignKey('projects.Project')
-    active = models.BooleanField(default=True)
-    pushed = models.BooleanField(default=False)
-    title = models.TextField(default='')
-    comment = models.TextField(default='')
+    user = models.ForeignKey('auth.User', verbose_name=_('User'))
+    project = models.ForeignKey('projects.Project', verbose_name=_('Project'))
+    active = models.BooleanField(_('Active'), default=True)
+    pushed = models.BooleanField(_('Pushed'), default=False)
+    title = models.TextField(_('Title'), default='')
+    comment = models.TextField(_('Comment'), default='')
     
     objects = BranchManager()
     

@@ -6,13 +6,13 @@ from .constants import BUILD_STATE, BUILD_TYPES
 
 
 class Version(models.Model):
-    project = models.ForeignKey(Project, related_name='versions')
-    identifier = models.CharField(max_length=255) # used by the vcs backend
-    verbose_name = models.CharField(max_length=255)
-    slug = models.CharField(max_length=255)
-    active = models.BooleanField(default=False)
-    built = models.BooleanField(default=False)
-    uploaded = models.BooleanField(default=False)
+    project = models.ForeignKey(Project, verbose_name=_('Project'), related_name='versions')
+    identifier = models.CharField(_('Identifier'), max_length=255) # used by the vcs backend
+    verbose_name = models.CharField(_('Verbose Name'), max_length=255)
+    slug = models.CharField(_('Slug'), max_length=255)
+    active = models.BooleanField(_('Active'), default=False)
+    built = models.BooleanField(_('Built'), default=False)
+    uploaded = models.BooleanField(_('Uploaded'), default=False)
 
     class Meta:
         unique_together = [('project', 'slug')]
@@ -32,10 +32,10 @@ class Version(models.Model):
 
 
 class VersionAlias(models.Model):
-    project = models.ForeignKey(Project, related_name='aliases')
-    from_slug = models.CharField(max_length=255, default='')
-    to_slug = models.CharField(max_length=255, default='', blank=True)
-    largest = models.BooleanField(default=False)
+    project = models.ForeignKey(Project, verbose_name=_('Project'), related_name='aliases')
+    from_slug = models.CharField(_('From slug'), max_length=255, default='')
+    to_slug = models.CharField(_('To slug'), max_length=255, default='', blank=True)
+    largest = models.BooleanField(_('Largest'), default=False)
 
     def __unicode__(self):
         return ugettext(u"Alias for %(project)s: %(from)s -> %(to)s" % {
@@ -46,16 +46,16 @@ class VersionAlias(models.Model):
 
 
 class Build(models.Model):
-    project = models.ForeignKey(Project, related_name='builds')
-    type = models.CharField(max_length=55, choices=BUILD_TYPES, default='html') 
-    date = models.DateTimeField(auto_now_add=True)
-    success = models.BooleanField()
-    setup = models.TextField(null=True, blank=True)
-    setup_error = models.TextField(null=True, blank=True)
-    output = models.TextField()
-    error = models.TextField()
-    version = models.ForeignKey(Version, null=True, related_name='builds')
-    state = models.CharField(max_length=55, choices=BUILD_STATE, default='finished') 
+    project = models.ForeignKey(Project, verbose_name=_('Project'), related_name='builds')
+    type = models.CharField(_('Type'), max_length=55, choices=BUILD_TYPES, default='html')
+    date = models.DateTimeField(_('Date'), auto_now_add=True)
+    success = models.BooleanField(_('Success'))
+    setup = models.TextField(_('Setup'), null=True, blank=True)
+    setup_error = models.TextField(_('Setup error'), null=True, blank=True)
+    output = models.TextField(_('Output'))
+    error = models.TextField(_('Error'))
+    version = models.ForeignKey(Version, verbose_name=_('Version'), null=True, related_name='builds')
+    state = models.CharField(_('State'), max_length=55, choices=BUILD_STATE, default='finished')
 
     class Meta:
         ordering = ['-date']

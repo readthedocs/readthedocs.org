@@ -20,13 +20,13 @@ DOCUMENTATION_CHOICES = (
 )
 
 DEFAULT_THEME_CHOICES = (
-    (THEME_DEFAULT, 'Default'),
-    (THEME_SPHINX, 'Sphinx Docs'),
+    (THEME_DEFAULT, _('Default')),
+    (THEME_SPHINX, _('Sphinx Docs')),
     #(THEME_SCROLLS, 'Scrolls'),
     #(THEME_AGOGO, 'Agogo'),
-    (THEME_TRADITIONAL, 'Traditional'),
-    (THEME_NATURE, 'Nature'),
-    (THEME_HAIKU, 'Haiku'),
+    (THEME_TRADITIONAL, _('Traditional')),
+    (THEME_NATURE, _('Nature')),
+    (THEME_HAIKU, _('Haiku')),
 )
 
 SAMPLE_FILES = (
@@ -55,13 +55,13 @@ LIVE_STATUS = 1
 DELETED_STATUS = 99
 
 STATUS_CHOICES = (
-    (LIVE_STATUS, 'Live'),
-    (DELETED_STATUS, 'Deleted'),
+    (LIVE_STATUS, _('Live')),
+    (DELETED_STATUS, _('Deleted')),
 )
 
 REPO_CHOICES = (
-    ('git', 'Git'),
-    ('svn', 'Subversion'),
-    ('hg', 'Mercurial'),
-    ('bzr', 'Bazaar'),
+    ('git', _('Git')),
+    ('svn', _('Subversion')),
+    ('hg', _('Mercurial')),
+    ('bzr', _('Bazaar')),
 )
