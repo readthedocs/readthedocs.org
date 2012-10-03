@@ -1,26 +1,44 @@
 {% extends "base.html" %}
 
-{% block title %}{{ profile.user }}'s profile{% endblock %}
+{% load i18n %}
+
+{% block title %}{% blocktrans with profile.user as user %}{{ user }}'s profile{% endblocktrans %}{% endblock %}
 
 {% block content-header %}
-  <h1>{{ profile.user }}'s profile</h1>
+  <h1>{% blocktrans with profile.user as user %}{{ user }}'s profile{% endblocktrans %}</h1>
 {% endblock %}
 
 {% block content %}
   {% if profile.homepage %}
-  <h3>Homepage</h3>
+  <h3>{% trans "Homepage" %}</h3>
     <p><a href="{{ profile.homepage }}">{{ profile.homepage }}</a></p>
   {% endif %}
 
     {% if request.user == profile.user %}
 
     <p>
-    Whitelisted: {{ profile.whitelisted|yesno:"Yes,No" }}
+    {% if profile.whitelisted %}
+        {% trans "Whitelisted: Yes" %}
+    {% else %}
+        {% trans "Whitelisted: No" %}
+    {% endif %}
     </p>
 
     {% endif %}
 
-    <h3>Projects {% if person %}by {{ person.username }}{% endif %}{% if tag %}tagged with "{{ tag.name }}"{% endif %}</h3>
+    {% if person %}
+        {% if tag %}
+            <h3>{% blocktrans with person.username as username and tag.name as tag %}Projects by {{ username }} tagged with {{ tag }}{% endblocktrans %}</h3>
+        {% else %}
+            <h3>{% blocktrans with person.username as username %}Projects by {{ username }}{% endblocktrans %}</h3>
+        {% endif %}
+    {% else %}
+        {% if tag %}
+            <h3>{% blocktrans with tag.name as tag %}Projects tagged with {{ tag }}{% endblocktrans %}</h3>
+        {% else %}
+            <h3>{% trans "Projects" %}</h3>
+        {% endif %}
+    {% endif %}
 
     {% with profile.user.projects.live as project_list %}
           <!-- BEGIN projects list -->

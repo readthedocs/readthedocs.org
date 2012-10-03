@@ -1,17 +1,19 @@
 {% extends "projects/base_project_editing.html" %}
 
-{% block title %}Edit Subprojects{% endblock %}
+{% load i18n %}
+
+{% block title %}{% trans "Edit Subprojects" %}{% endblock %}
 
 {% block editing-option-edit-proj %}class="active"{% endblock %}
 
-{% block content-header %}<h1>Edit Subprojects</h1>{% endblock %}
+{% block content-header %}<h1>{% trans "Edit Subprojects" %}</h1>{% endblock %}
 
 {% block content %}
   <p class="help_text">
-    This allows you to add subprojects to your project. This allows them to live in the same namespace in the URLConf for a subdomain or CNAME.
+    {% trans "This allows you to add subprojects to your project. This allows them to live in the same namespace in the URLConf for a subdomain or CNAME." %}
   </p>
 
-  <h3> Existing Subprojects </h3>
+  <h3> {% trans "Existing Subprojects" %} </h3>
   <p>
     <ul>
     {% for relationship in subprojects %}
@@ -19,17 +21,17 @@
         <a href="{{ relationship.get_absolute_url }}">
         {{ relationship.child }}
         </a>
-        (<a href="{% url projects_subprojects_delete relationship.parent.slug relationship.child.slug %}">Remove</a>)
+        (<a href="{% url projects_subprojects_delete relationship.parent.slug relationship.child.slug %}">{% trans "Remove" %}</a>)
         </li>
     {% endfor %}
     </ul>
   <p>
-    Choose which project you would like to add as a subproject.
+    {% trans "Choose which project you would like to add as a subproject." %}
   </p>
   <form method="post" action=".">{% csrf_token %}
     {{ form.as_p }}
     <p>
-      <input style="display: inline;" type="submit" value="Submit">
+      <input style="display: inline;" type="submit" value="{% trans "Submit" %}">
     </p>
   </form>
 {% endblock %}

@@ -1,3 +1,4 @@
+from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 from django.core.cache import cache
 from django.http import Http404
@@ -26,8 +27,8 @@ OUR_CODE = """
 .rtd-badge.rtd { background: #257597 url(http://media.readthedocs.org/images/badge-rtd.png) top left no-repeat; border: 1px solid #282E32; width: 160px; right: 5px; }
 </style>
 
-<a href="http://readthedocs.org?fromdocs=middleware" class="rtd-badge rtd">Brought to you by Read the Docs</a>
-"""
+<a href="http://readthedocs.org?fromdocs=middleware" class="rtd-badge rtd">%s</a>
+""" % _("Brought to you by Read the Docs")
 
 def replace_insensitive(string, target, replacement):
     """
@@ -53,7 +54,7 @@ class SubdomainMiddleware(object):
         #Google was finding crazy www.blah.readthedocs.org domains.
         if len(domain_parts) > 3:
             if not settings.DEBUG:
-                raise Http404('Invalid hostname')
+                raise Http404(_('Invalid hostname'))
         if len(domain_parts) == 3:
             subdomain = domain_parts[0]
             if not (subdomain.lower() == 'www') and not (subdomain.lower() == 'ssl') and 'readthedocs.org' in host:
@@ -87,7 +88,7 @@ class SubdomainMiddleware(object):
             except:
                 #Some crazy person is CNAMEing to us. 404.
                 if not settings.DEBUG:
-                    raise Http404('Invalid Host Name.')
+                    raise Http404(_('Invalid Host Name.'))
         #Normal request.
         return None
 

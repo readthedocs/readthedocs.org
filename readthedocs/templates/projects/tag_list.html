@@ -1,9 +1,10 @@
 {% extends "projects/base_project.html" %}
+{% load i18n %}
 
-{% block title %}Popular tags{% endblock %}
+{% block title %}{% trans "Popular tags" %}{% endblock %}
 
 {% block content-header %}
-      <h1>Popular tags</h1>
+      <h1>{% trans "Popular tags" %}</h1>
 {% endblock %}
 
 {% block content %}

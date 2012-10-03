@@ -1,3 +1,4 @@
+{% load i18n %}
 
 {% for project in project_list %}
   <li class="module-item">
@@ -7,7 +8,7 @@
     <a href="{{ user.get_absolute_url }}" class="quiet">{{ user }}</a>{% if not forloop.last %}, {% endif %}
     {% endfor %}
     )
-    <span class="right-menu quiet">{{ project.modified_date|timesince }} ago</span>
+    <span class="right-menu quiet">{% blocktrans %}{{ project.modified_date|timesince }} ago{% endblocktrans %}</span>
     <ul class="module-item-menu">
       {% if project.has_good_build %}
         <span class="hidden-child" style="display: none;">
@@ -15,12 +16,12 @@
                 <li><a href="{{ version.get_absolute_url }}">{{ version.slug }}</a></li>
             {% endfor %}
         </span>
-        <li><a href="{{ project.get_docs_url }}">View Docs</a></li>
+        <li><a href="{{ project.get_docs_url }}">{% trans "View Docs" %}</a></li>
       {% else %}
-        <li><a href="{{ project.get_builds_url }}">No Docs</a></li>
+        <li><a href="{{ project.get_builds_url }}">{% trans "No Docs" %}</a></li>
       {% endif %}
     </ul>
   </li>
 {% empty %}
-  <li class="module-item quiet">No projects found</li>
+  <li class="module-item quiet">{% trans "No projects found" %}</li>
 {% endfor %}

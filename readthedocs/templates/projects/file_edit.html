@@ -1,4 +1,5 @@
 {% extends "projects/base_project_editing.html" %}
+{% load i18n %}
 
 {% block extra_links %}
   <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}lib/markitup/skins/simple/style.css" />
@@ -15,19 +16,19 @@
   </script>
 {% endblock %}
 
-{% block title %}Edit {{ file.heading }}{% endblock %}
+{% block title %}{% blocktrans with file.heading|default:"file" as heading %}Edit {{ heading }}{% endblocktrans %}{% endblock %}
 
-{% block content-header %}<h1>Edit {{ file.heading|default:"file" }}</h1>{% endblock %}
+{% block content-header %}<h1>{% blocktrans with file.heading|default:"file" as heading %}Edit {{ heading }}{% endblocktrans %}</h1>{% endblock %}
 
 {% block editing-option-manage %}class="active"{% endblock %}
 
 {% block content %}
   {% if file.revisions.count != 1 %}
-    <a class="call-out" href="{% url projects_file_history project.slug file.pk %}">Revision History</a>
+    <a class="call-out" href="{% url projects_file_history project.slug file.pk %}">{% trans "Revision History" %}</a>
   {% endif %}
   
   <form method="post" action=".">{% csrf_token %}
     {{ form.as_p }}
-    <p><input type="submit" value="Looks good! (Save)"></p>
+    <p><input type="submit" value="{% trans "Looks good! (Save)" %}" /></p>
   </form>
 {% endblock %}

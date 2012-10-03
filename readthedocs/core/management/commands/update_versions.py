@@ -14,8 +14,9 @@ class Command(BaseCommand):
             action='store_true',
             dest='pdf',
             default=False,
-            help='Make a pdf'),
-        )
+            help='Make a pdf'
+        ),
+    )
 
     def handle(self, *args, **options):
         make_pdf = options['pdf']

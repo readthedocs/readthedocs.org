@@ -1,8 +1,9 @@
 {% extends "projects/base_project.html" %}
+{% load i18n %}
 
-{% block title %}Pick a file to edit{% endblock %}
+{% block title %}{% trans "Pick a file to edit" %}{% endblock %}
 
-{% block content-header %}<h1>Pick a file to edit</h1>{% endblock %}
+{% block content-header %}<h1>{% trans "Pick a file to edit" %}</h1>{% endblock %}
 
 {% block editing-option-manage %}class="active"{% endblock %}
 

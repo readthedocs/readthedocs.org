@@ -1,3 +1,4 @@
+{% load i18n %}
 
 {% for project in featured_list %}
   <li class="module-item">
@@ -11,9 +12,9 @@
             <li><a href="{{ version.get_absolute_url }}">{{ version.slug }}</a></li>
         {% endfor %}
     </span>
-    <li><a href="{{ project.get_docs_url }}">View Docs</a></li>
+    <li><a href="{{ project.get_docs_url }}">{% trans "View Docs" %}</a></li>
     </ul>
   </li>
 {% empty %}
-  <li class="module-item quiet">No projects found</li>
+  <li class="module-item quiet">{% trans "No projects found" %}</li>
 {% endfor %}

@@ -2,6 +2,8 @@
 including available theme names and repository types.
 """
 
+from django.utils.translation import ugettext_lazy as _
+
 THEME_DEFAULT = 'default'
 THEME_SPHINX = 'sphinxdoc'
 THEME_SCROLLS = 'scrolls'
@@ -11,20 +13,25 @@ THEME_NATURE = 'nature'
 THEME_HAIKU = 'haiku'
 
 DOCUMENTATION_CHOICES = (
-    ('sphinx', 'Sphinx Html'),
-    ('sphinx_htmldir', 'Sphinx HtmlDir'),
+    ('sphinx', _('Sphinx Html')),
+    ('sphinx_htmldir', _('Sphinx HtmlDir')),
     #('sphinx_man', 'Sphinx Man'),
     #('rdoc', 'Rdoc'),
 )
 
 DEFAULT_THEME_CHOICES = (
-    (THEME_DEFAULT, 'Default'),
-    (THEME_SPHINX, 'Sphinx Docs'),
+    # Translators: This is a name of a Sphinx theme.
+    (THEME_DEFAULT, _('Default')),
+    # Translators: This is a name of a Sphinx theme.
+    (THEME_SPHINX, _('Sphinx Docs')),
     #(THEME_SCROLLS, 'Scrolls'),
     #(THEME_AGOGO, 'Agogo'),
-    (THEME_TRADITIONAL, 'Traditional'),
-    (THEME_NATURE, 'Nature'),
-    (THEME_HAIKU, 'Haiku'),
+    # Translators: This is a name of a Sphinx theme.
+    (THEME_TRADITIONAL, _('Traditional')),
+    # Translators: This is a name of a Sphinx theme.
+    (THEME_NATURE, _('Nature')),
+    # Translators: This is a name of a Sphinx theme.
+    (THEME_HAIKU, _('Haiku')),
 )
 
 SAMPLE_FILES = (
@@ -53,13 +60,13 @@ LIVE_STATUS = 1
 DELETED_STATUS = 99
 
 STATUS_CHOICES = (
-    (LIVE_STATUS, 'Live'),
-    (DELETED_STATUS, 'Deleted'),
+    (LIVE_STATUS, _('Live')),
+    (DELETED_STATUS, _('Deleted')),
 )
 
 REPO_CHOICES = (
-    ('git', 'Git'),
-    ('svn', 'Subversion'),
-    ('hg', 'Mercurial'),
-    ('bzr', 'Bazaar'),
+    ('git', _('Git')),
+    ('svn', _('Subversion')),
+    ('hg', _('Mercurial')),
+    ('bzr', _('Bazaar')),
 )

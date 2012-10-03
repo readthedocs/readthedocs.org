@@ -1,8 +1,10 @@
 {% extends "base.html" %}
 
+{% load i18n %}
+
 {% load pagination_tags %}
 
-{% block title %}Bookmarks{% endblock %}
+{% block title %}{% trans "Bookmarks" %}{% endblock %}
 
 {% block nav-browse %}class="active"{% endblock %}
 
@@ -15,7 +17,7 @@
             <div class="module-wrapper">
 
               <div class="module-header">
-                <h2>Recent Bookmarks</h2>
+                <h2>{% trans "Recent Bookmarks" %}</h2>
               </div>
 
               <div class="module-list">

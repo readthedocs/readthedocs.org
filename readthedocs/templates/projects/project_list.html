@@ -1,13 +1,14 @@
 {% extends "projects/base_project.html" %}
+{% load i18n %}
 
 {% load pagination_tags %}
 
-{% block title %}Projects {% if person %}by {{ person.username }}{% endif %}{% if tag %}tagged with "{{ tag.name }}"{% endif %}{% endblock %}
+{% block title %}{% trans "Projects" %} {% if person %}{% trans "by" %} {{ person.username }}{% endif %}{% if tag %}{% trans "tagged with" %} "{{ tag.name }}"{% endif %}{% endblock %}
 
 {% block nav-browse %}class="active"{% endblock %}
 
 {% block content-header %}
-    <h1>Projects {% if person %}by {{ person.username }}{% endif %}{% if tag %}tagged with "{{ tag.name }}"{% endif %}</h1>
+    <h1>{% trans "Projects" %} {% if person %}{% trans "by" %} {{ person.username }}{% endif %}{% if tag %}{% trans "tagged with" %} "{{ tag.name }}"{% endif %}</h1>
 {% endblock %}
 
 {% block content %}
@@ -18,7 +19,7 @@
             <div class="module-wrapper">
 
               <div class="module-header">
-                <h3>Browse projects</h3>
+                <h3>{% trans "Browse projects" %}</h3>
               </div>
 
               <div class="module-list">

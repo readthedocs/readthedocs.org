@@ -1,6 +1,7 @@
+{% load i18n %}
 
         <!-- BEGIN wide search bar -->
-        <h3>Search all the docs.</h3>
+        <h3>{% trans "Search all the docs." %}</h3>
 
         <div class="wide-search-bar">
           <div class="wide-search-bar-wrapper clearfix">
@@ -11,7 +12,8 @@
                 <input type="text" name="q" value="{{ term }}" id="id_site_search">
               </div>
               <div class="submit-input-wrapper">
-                <input type="submit" value="Let's do this.">
+                {% comment %}Translators: This is about starting a search{% endcomment %}
+                <input type="submit" value="{% trans "Let's do this." %}">
               </div>
             </form>
 

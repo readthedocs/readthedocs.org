@@ -1,4 +1,5 @@
 {% extends "dashboard/base_dashboard.html" %}
+{% load i18n %}
 
 {% block extra_links %}
   <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}lib/markitup/skins/simple/style.css" />
@@ -17,19 +18,19 @@
   </script>
 {% endblock %}
 
-{% block title %}Create a new project{% endblock %}
+{% block title %}{% trans "Create a new project" %}{% endblock %}
 
 {% block content-header %}
-      <h1>Create a New Project</h1>
+      <h1>{% trans "Create a New Project" %}</h1>
 {% endblock %}
 
 {% block content %}
       <p class="help_text">
-        Create new documentation here. If you already have docs in a public repository,
-        <a class="" href="{% url projects_import %}">import an existing project</a>.
+        {% trans "Create new documentation here. If you already have docs in a public repository," %}
+        <a class="" href="{% url projects_import %}">{% trans "import an existing project" %}</a>.
       </p>
       <form method="post" action=".">{% csrf_token %}
         {{ form.as_p }}
-        <p><input type="submit" value="Create" /></p>
+        <p><input type="submit" value="{% trans "Create" %}" /></p>
       </form>
 {% endblock %}

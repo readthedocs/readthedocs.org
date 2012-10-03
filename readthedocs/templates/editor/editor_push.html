@@ -1,14 +1,15 @@
 {% extends "projects/base_project.html" %}
+{% load i18n %}
 
-{% block title %}Send pull request to {{ project }}{% endblock %}
+{% block title %}{% trans "Send pull request to" %} {{ project }}{% endblock %}
 
-{% block content-header %}<h1>Send pull request to {{ project }}</h1>{% endblock %}
+{% block content-header %}<h1>{% trans "Send pull request to" %} {{ project }}</h1>{% endblock %}
 
 {% block editing-option-manage %}class="active"{% endblock %}
 
 {% block content %}  
   <form method="post" action=".">{% csrf_token %}
     {{ form.as_p }}
-    <p><input type="submit" value="Send"></p>
+    <p><input type="submit" value="{% trans "Send" %}"></p>
   </form>
 {% endblock %}

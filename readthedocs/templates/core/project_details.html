@@ -1,7 +1,9 @@
+{% load i18n %}
+
 {% load markup %}
 
 {% if project.description %}
-  <h3>Description</h3>
+  <h3>{% trans "Description" %}</h3>
   <div id="project_description">
   <p>
     {{ project.description|restructuredtext }}
@@ -11,7 +13,7 @@
 
 
 <!-- BEGIN search bar -->
-<h3>Search this project</h3>
+<h3>{% trans "Search this project" %}</h3>
 
 <div>
     <form action="{% url haystack_project %}" method="GET">
@@ -25,7 +27,7 @@
 
 
 {% if project.active_versions.count %}
-  <h3> Versions </h3>
+  <h3> {% trans "Versions" %} </h3>
 
   <p>
   {% for version in project.ordered_active_versions %}
@@ -34,7 +36,7 @@
         {# Link to the docs #}
         <a href="{{ version.get_absolute_url }}">{{ version.slug }}</a>
       {% else %}
-        {{ version.slug }} (Build Failed)
+          {% blocktrans with version.slug as slug %}{{ slug }} (Build Failed){% endblocktrans %}
       {% endif %}
 
       </div>
@@ -60,7 +62,7 @@
 
 
 {% if project.get_latest_build.success %}
-  <h3>Short URLs</h3>
+  <h3>{% trans "Short URLs" %}Short URLs</h3>
   <p>
       <a href="//{{ project.slug}}.readthedocs.org">{{ project.slug }}.readthedocs.org</a><br>
       <a href="//{{ project.slug}}.rtfd.org">{{ project.slug }}.rtfd.org</a>
@@ -68,13 +70,13 @@
 {% endif %}
 
 {% if project.django_packages_url %}
-<h3>Open Comparison</h3>
-<p> This project has more information available about it on <a href="{{ project.django_packages_url }}">Open Comparison!</a></p>
+<h3>{% trans "Open Comparison" %}</h3>
+<p>{% blocktrans with project.django_packages_url as url %}This project has more information available about it on <a href="{{ url }}">Open Comparison!</a>{% endblocktrans %}</p>
 {% endif %}
 
 {% if project.crate_url %}
-<h3>Crate</h3>
-<p> This project has more information available about it on <a href="{{ project.crate_url }}">Crate!</a></p>
+<h3>{% trans "Crate" %}</h3>
+<p>{% blocktrans with project.crate_url as url %}This project has more information available about it on <a href="{{ url }}">Crate!</a>{% endblocktrans %}</p>
 {% endif %}
 
 {% if project.subprojects.exists %}
@@ -87,12 +89,12 @@
 {% endif %}
 
 
-<h3>Last Built</h3>
+<h3>{% trans "Last Built" %}</h3>
 <p>{{ project.modified_date|timesince }} ago</p>
 
 
 {% if project.repo %}
-<h3>Repository</h3>
+<h3>{% trans "Repository" %}</h3>
 <p>{{ project.repo }}</p>
 {% endif %}
 
@@ -104,30 +106,30 @@
 {% endif %}
 
 {% if project.tags.count %}
-  <h3>Tags</h3>
+  <h3>{% trans "Tags" %}</h3>
   <p>
     {% for tag in project.tags.all %}
       <a href="{% url projects_tag_detail tag.slug %}">{{ tag.name }}</a>{% if forloop.last %}{% else %}, {% endif %}
     {% empty %}
-      <span class="quiet">No tags</span>
+      <span class="quiet">{% trans "No tags" %}</span>
     {% endfor %}
   </p>
 {% endif %}
 
 
 {% if project.get_latest_revisions.count %}
-<h3>Latest Revisions</h3>
+<h3>{% trans "Latest Revisions" %}</h3>
 <ul>
   {% for revision in project.get_latest_revisions|slice:":5" %}
-    <li>{{ revision }} {{ revision.created_date|timesince }} ago</li>
+    <li>{% blocktrans with revision.created_date|timesince as timesince %}{{ revision }} {{ timesince }} ago{% endblocktrans %}</li>
   {% empty %}
-    <li class="quiet">No revisions</li>
+    <li class="quiet">{% trans "No revisions" %}</li>
   {% endfor %}
 </ul>
 {% endif %}
 
 {% if request.user in project.users.all %}
-  <h3>Post Commit Hook</h3>
+  <h3>{% trans "Post Commit Hook" %}</h3>
     <p>http://readthedocs.org{% url generic_build project.pk %}</p>
 {% endif %}
 
@@ -137,7 +139,7 @@
   <div class="module-wrapper">
 
     <div class="module-header">
-      <h3>Most viewed pages for this project<span class="small_head"></span></h3>
+      <h3>{% trans "Most viewed pages for this project" %}<span class="small_head"></span></h3>
     </div>
 
     <div class="module-list">
