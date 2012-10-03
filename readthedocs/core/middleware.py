@@ -27,8 +27,8 @@ OUR_CODE = """
 .rtd-badge.rtd { background: #257597 url(http://media.readthedocs.org/images/badge-rtd.png) top left no-repeat; border: 1px solid #282E32; width: 160px; right: 5px; }
 </style>
 
-<a href="http://readthedocs.org?fromdocs=middleware" class="rtd-badge rtd">""" + _("Brought to you by Read the Docs") + """</a>
-"""
+<a href="http://readthedocs.org?fromdocs=middleware" class="rtd-badge rtd">%s</a>
+""" % _("Brought to you by Read the Docs")
 
 def replace_insensitive(string, target, replacement):
     """

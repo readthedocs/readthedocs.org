@@ -63,7 +63,7 @@ class Project(models.Model):
         help_text=_('Project copyright information'))
     theme = models.CharField(_('Theme'), max_length=20,
         choices=constants.DEFAULT_THEME_CHOICES, default=constants.THEME_DEFAULT,
-        help_text='<a href="http://sphinx.pocoo.org/theming.html#builtin-themes" target="_blank">' + _('Examples') + '</a>')
+        help_text=u'<a href="http://sphinx.pocoo.org/theming.html#builtin-themes" target="_blank">%s</a>' % _('Examples'))
     suffix = models.CharField(_('Suffix'), max_length=10, editable=False, default='.rst')
     default_version = models.CharField(_('Default version'), max_length=255, default='latest', help_text=_('The version of your project that / redirects to'))
     # In default_branch, None max_lengtheans the backend should choose the appropraite branch. Eg 'master' for git
