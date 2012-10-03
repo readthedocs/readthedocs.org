@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-10-03 06:23-0500\n"
+"POT-Creation-Date: 2012-10-03 16:03-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -176,7 +176,7 @@ msgstr ""
 msgid "Last name"
 msgstr ""
 
-#: core/middleware.py:30
+#: core/middleware.py:31
 msgid "Brought to you by Read the Docs"
 msgstr ""
 
@@ -207,24 +207,6 @@ msgstr ""
 #: core/models.py:19
 #, python-format
 msgid "%(username)s's profile"
-msgstr ""
-
-#: core/management/commands/sync_builds.py:20
-#: core/management/commands/update_repos.py:39
-msgid "Build a version, or all versions"
-msgstr ""
-
-#: core/management/commands/sync_builds.py:26
-msgid "sync checkouts"
-msgstr ""
-
-#: core/management/commands/update_repos.py:22
-#: core/management/commands/update_versions.py:18
-msgid "Make a pdf"
-msgstr ""
-
-#: core/management/commands/update_repos.py:28
-msgid "Make a Build"
 msgstr ""
 
 #: djangome/views.py:24
@@ -262,72 +244,49 @@ msgstr ""
 msgid "Sphinx HtmlDir"
 msgstr ""
 
-#: projects/constants.py:23
+#. Translators: This is a name of a Sphinx theme.
+#: projects/constants.py:24
 msgid "Default"
 msgstr ""
 
-#: projects/constants.py:24
+#: projects/constants.py:25
 msgid "Sphinx Docs"
 msgstr ""
 
-#: projects/constants.py:27
+#: projects/constants.py:28
 msgid "Traditional"
 msgstr ""
 
-#: projects/constants.py:28
+#: projects/constants.py:29
 msgid "Nature"
 msgstr ""
 
-#: projects/constants.py:29
+#: projects/constants.py:30
 msgid "Haiku"
 msgstr ""
 
-#: projects/constants.py:33
-msgid "Installation"
-msgstr ""
-
-#: projects/constants.py:34
-msgid "Getting started"
-msgstr ""
-
-#: projects/constants.py:58
+#: projects/constants.py:59
 msgid "Live"
 msgstr ""
 
-#: projects/constants.py:59
+#: projects/constants.py:60
 msgid "Deleted"
 msgstr ""
 
-#: projects/constants.py:63
+#: projects/constants.py:64
 msgid "Git"
 msgstr ""
 
-#: projects/constants.py:64
+#: projects/constants.py:65
 msgid "Subversion"
 msgstr ""
 
-#: projects/constants.py:65
+#: projects/constants.py:66
 msgid "Mercurial"
 msgstr ""
 
-#: projects/constants.py:66
+#: projects/constants.py:67
 msgid "Bazaar"
-msgstr ""
-
-#: projects/feeds.py:8
-msgid "Recently updated documentation"
-msgstr ""
-
-#: projects/feeds.py:10
-msgid "Recently updated documentation on Read the Docs"
-msgstr ""
-
-#: projects/feeds.py:22
-msgid "Newest documentation"
-msgstr ""
-
-#: projects/feeds.py:24
-msgid "Recently created documentation on Read the Docs"
 msgstr ""
 
 #: projects/forms.py:19
@@ -632,7 +591,8 @@ msgstr ""
 msgid "Fail.  Check back in a bit!"
 msgstr ""
 
-#: templates/base.html:13 templates/core/header.html:58
+#. Translators: Name of the website
+#: templates/base.html:13 templates/core/header.html:59
 #: templates/core/home-header.html:9
 msgid "Read the Docs"
 msgstr ""
@@ -646,19 +606,19 @@ msgstr ""
 msgid "Read the Docs thanks you for your continued patience."
 msgstr ""
 
-#: templates/base.html:74
-msgid "Created by"
+#: templates/base.html:75
+#, python-format
+msgid ""
+"\n"
+"2010. Created by %(eric)s, %(charles)s, and %(bobby)s for the 2010 "
+"%(djangodash)s.\n"
 msgstr ""
 
-#: templates/base.html:74
-msgid "and"
+#: templates/base.html:79
+msgid "Docs"
 msgstr ""
 
-#: templates/base.html:74
-msgid "for the"
-msgstr ""
-
-#: templates/base.html:81
+#: templates/base.html:84
 msgid ""
 "Thanks for believing in us: <a href=\"http://revsys.com\">RevSys</a>, <a "
 "href=\"http://www.python.org/psf/\">Python Software Foundation</a>, <a href="
@@ -667,7 +627,7 @@ msgid ""
 "\"http://lab305.com\">Lab305</a>, and <a href=\"http://enn.io/\">enn.io</a>."
 msgstr ""
 
-#: templates/base.html:84
+#: templates/base.html:87
 msgid ""
 "Made by <a href=\"https://github.com/rtfd/readthedocs.org/graphs/contributors"
 "\">humans</a>. Funded by <a href=\"https://www.gittip.com/readthedocs/"
@@ -688,55 +648,41 @@ msgstr ""
 
 #: templates/homepage.html:30
 msgid ""
+"\n"
 "Read the Docs hosts documentation, making it fully searchable and easy to "
 "find.\n"
-"                  You can import your docs using any major version control "
-"system, including Mercurial, Git, Subversion, and Bazaar."
-msgstr ""
-
-#: templates/homepage.html:32
-msgid "We support"
-msgstr ""
-
-#: templates/homepage.html:32
-msgid "so your docs get built when you commit code."
-msgstr ""
-
-#: templates/homepage.html:33
-msgid ""
+"You can import your docs using any major version control system, including "
+"Mercurial, Git, Subversion, and Bazaar.\n"
+"We support <a href=\"http://read-the-docs.readthedocs.org/en/latest/webhooks."
+"html\">webhooks</a> so your docs get built when you commit code.\n"
 "There's also support for versioning so you can build docs from tags and "
-"branches of your code in your repository. A"
+"branches of your code in your repository. A <a href=\"http://read-the-docs."
+"readthedocs.org/en/latest/features.html\">full list of features</a> is "
+"available.\n"
+"                  "
 msgstr ""
 
-#: templates/homepage.html:33
-msgid "full list of features"
-msgstr ""
-
-#: templates/homepage.html:33
-msgid "is available."
-msgstr ""
-
-#: templates/homepage.html:36
+#: templates/homepage.html:38
 msgid "It's free and simple.  Read the"
 msgstr ""
 
-#: templates/homepage.html:36 templates/projects/project_dashboard.html:61
+#: templates/homepage.html:38
 msgid "Getting Started"
 msgstr ""
 
-#: templates/homepage.html:36
+#: templates/homepage.html:38
 msgid "guide to get going!"
 msgstr ""
 
-#: templates/homepage.html:52
+#: templates/homepage.html:54
 msgid "Featured Projects"
 msgstr ""
 
-#: templates/homepage.html:73
+#: templates/homepage.html:75
 msgid "Recently Updated Projects"
 msgstr ""
 
-#: templates/homepage.html:73
+#: templates/homepage.html:75
 msgid "(All Projects)"
 msgstr ""
 
@@ -843,19 +789,19 @@ msgstr ""
 msgid "No projects found"
 msgstr ""
 
-#: templates/core/header.html:67
+#: templates/core/header.html:68
 msgid "Go"
 msgstr ""
 
-#: templates/core/header.html:93
+#: templates/core/header.html:94
 msgid "Dashboard"
 msgstr ""
 
-#: templates/core/header.html:94 templates/registration/logout.html:6
+#: templates/core/header.html:95 templates/registration/logout.html:6
 msgid "Log Out"
 msgstr ""
 
-#: templates/core/header.html:96 templates/core/home-header.html:18
+#: templates/core/header.html:97 templates/core/home-header.html:19
 #: templates/registration/login.html:6 templates/registration/login.html:11
 #: templates/registration/login.html:18
 #: templates/registration/password_reset_complete.html:16
@@ -866,11 +812,13 @@ msgstr ""
 msgid "Create, host, and browse documentation."
 msgstr ""
 
-#: templates/core/home-header.html:16
+#. Translators: Note, the full sentence goes 'Sign up' 'or' 'Log in'. But unfortunately the three bits have to be separate.
+#: templates/core/home-header.html:17
 msgid "Sign up"
 msgstr ""
 
-#: templates/core/home-header.html:18 templates/projects/project_edit.html:30
+#. Translators: The 'or' here is in between 'Submit' and 'delete'.
+#: templates/core/home-header.html:19 templates/projects/project_edit.html:31
 msgid "or"
 msgstr ""
 
@@ -900,8 +848,7 @@ msgid "Manage Files"
 msgstr ""
 
 #: templates/core/project_bar.html:41 templates/editor/editor_file.html:19
-#: templates/editor/editor_file.html:21 templates/projects/file_edit.html:19
-#: templates/projects/file_edit.html:21
+#: templates/editor/editor_file.html:21
 #: templates/projects/project_dashboard.html:47
 msgid "Edit"
 msgstr ""
@@ -977,7 +924,8 @@ msgid "Latest Revisions"
 msgstr ""
 
 #: templates/core/project_details.html:124
-msgid "ago"
+#, python-format
+msgid "%(revision)s %(timesince)s ago"
 msgstr ""
 
 #: templates/core/project_details.html:126
@@ -1005,12 +953,13 @@ msgstr ""
 msgid "Search all the docs."
 msgstr ""
 
-#: templates/core/widesearchbar.html:15
+#. Translators: This is about starting a search
+#: templates/core/widesearchbar.html:16
 msgid "Let's do this."
 msgstr ""
 
 #: templates/dashboard/base_dashboard.html:12
-#: templates/profiles/profile_detail.html:25
+#: templates/profiles/profile_detail.html:39
 #: templates/projects/project_list.html:6
 #: templates/projects/project_list.html:11
 msgid "Projects"
@@ -1039,12 +988,16 @@ msgstr ""
 msgid "Change Password"
 msgstr ""
 
-#: templates/djangome/choices.html:4 templates/djangome/choices.html.py:7
-msgid "Choose a redirect for"
+#: templates/djangome/choices.html:4
+#, python-format
+msgid "Choose a redirect for \"%(djangome_term)s\""
 msgstr ""
 
 #: templates/djangome/choices.html:7
-msgid "on"
+#, python-format
+msgid ""
+"Choose a redirect for <kbd>%(djangome_term)s on <a href=\"http://%(slug)s."
+"readthedocs.org\">%(slug)s.readthedocs.org</a></kbd>"
 msgstr ""
 
 #: templates/djangome/choices.html:28
@@ -1122,7 +1075,8 @@ msgid ""
 msgstr ""
 
 #: templates/flagging/flag_confirm.html:23
-msgid "Yes, this is"
+#, python-format
+msgid "Yes, this is %(title)s"
 msgstr ""
 
 #: templates/flagging/flag_confirm.html:24
@@ -1173,23 +1127,31 @@ msgstr ""
 
 #: templates/profiles/profile_detail.html:5
 #: templates/profiles/profile_detail.html:8
-msgid "profile"
+#, python-format
+msgid "%(user)s's profile"
 msgstr ""
 
-#: templates/profiles/profile_detail.html:20
-msgid "Whitelisted:"
+#: templates/profiles/profile_detail.html:21
+msgid "Whitelisted: Yes"
 msgstr ""
 
-#: templates/profiles/profile_detail.html:25
-#: templates/projects/project_list.html:6
-#: templates/projects/project_list.html:11
-msgid "by"
+#: templates/profiles/profile_detail.html:23
+msgid "Whitelisted: No"
 msgstr ""
 
-#: templates/profiles/profile_detail.html:25
-#: templates/projects/project_list.html:6
-#: templates/projects/project_list.html:11
-msgid "tagged with"
+#: templates/profiles/profile_detail.html:31
+#, python-format
+msgid "Projects by %(username)s tagged with %(tag)s"
+msgstr ""
+
+#: templates/profiles/profile_detail.html:33
+#, python-format
+msgid "Projects by %(username)s"
+msgstr ""
+
+#: templates/profiles/profile_detail.html:37
+#, python-format
+msgid "Projects tagged with %(tag)s"
 msgstr ""
 
 #: templates/profiles/profile_list.html:5
@@ -1224,19 +1186,22 @@ msgid "Add file"
 msgstr ""
 
 #: templates/projects/file_delete.html:4 templates/projects/file_delete.html:6
-#: templates/projects/project_delete.html:4
-#: templates/projects/project_delete.html:6
-msgid "Delete"
+#, python-format
+msgid "Delete %(heading)s?"
 msgstr ""
 
 #: templates/projects/file_delete.html:11
-#: templates/projects/project_delete.html:9
-msgid "You sure?"
+msgid "You sure? O_o"
 msgstr ""
 
 #: templates/projects/file_delete.html:13
 #, python-format
-msgid "I don't ever want to see '%(file.heading|default:\"file\")s' again"
+msgid "I don't ever want to see '%(heading)s' again"
+msgstr ""
+
+#: templates/projects/file_edit.html:19 templates/projects/file_edit.html:21
+#, python-format
+msgid "Edit %(heading)s"
 msgstr ""
 
 #: templates/projects/file_edit.html:27 templates/projects/file_history.html:6
@@ -1255,13 +1220,14 @@ msgstr ""
 msgid "Current"
 msgstr ""
 
-#: templates/projects/file_history.html:23
+#. Translators: Revert to a specific revision of a file.
+#: templates/projects/file_history.html:24
 msgid "Revert to"
 msgstr ""
 
 #: templates/projects/file_revert.html:4
 #, python-format
-msgid "Revert %(file.heading)s to revision %(revision.revision_number)s?"
+msgid "Revert %(heading)s to revision %(revision)s?"
 msgstr ""
 
 #: templates/projects/file_revert.html:8
@@ -1318,7 +1284,8 @@ msgid "actual code indented"
 msgstr ""
 
 #: templates/projects/project_configure.html:4
-msgid "Configure"
+#, python-format
+msgid "Configure %(name)s"
 msgstr ""
 
 #: templates/projects/project_configure.html:6
@@ -1355,24 +1322,26 @@ msgstr ""
 msgid "My Projects"
 msgstr ""
 
-#: templates/projects/project_dashboard.html:60
-msgid "You don't have any projects.  You should"
+#: templates/projects/project_dashboard.html:62
+#, python-format
+msgid ""
+"\n"
+"You don't have any projects.  You should<a href=\"%(projects_import_url)s"
+"\">create new docs</a> on the site.<br>\n"
+"Check out the <a href=\"http://readthedocs.org/docs/read-the-docs/latest/"
+"getting_started.html\">Getting Started</a> documentation for information "
+"about how to get going.\n"
+"          "
 msgstr ""
 
-#: templates/projects/project_dashboard.html:60
-msgid "create new docs"
+#: templates/projects/project_delete.html:4
+#: templates/projects/project_delete.html:6
+#, python-format
+msgid "Delete %(name)s?"
 msgstr ""
 
-#: templates/projects/project_dashboard.html:60
-msgid "on the site"
-msgstr ""
-
-#: templates/projects/project_dashboard.html:61
-msgid "Check out the"
-msgstr ""
-
-#: templates/projects/project_dashboard.html:61
-msgid "documentation for information about how to get going"
+#: templates/projects/project_delete.html:9
+msgid "You sure?"
 msgstr ""
 
 #: templates/projects/project_delete.html:12
@@ -1384,13 +1353,23 @@ msgstr ""
 msgid "Edit project"
 msgstr ""
 
-#: templates/projects/project_edit.html:30
+#: templates/projects/project_edit.html:32
 msgid "delete"
 msgstr ""
 
 #: templates/projects/project_import.html:4
 #: templates/projects/project_import.html:12
 msgid "Import an existing project"
+msgstr ""
+
+#: templates/projects/project_list.html:6
+#: templates/projects/project_list.html:11
+msgid "by"
+msgstr ""
+
+#: templates/projects/project_list.html:6
+#: templates/projects/project_list.html:11
+msgid "tagged with"
 msgstr ""
 
 #: templates/projects/project_manage.html:6
@@ -1469,7 +1448,7 @@ msgid "Huh?"
 msgstr ""
 
 #: templates/projects/search.html:38
-msgid "No docs matched your search."
+msgid "No docs matched your search. ¯\\(O_o)/¯"
 msgstr ""
 
 #: templates/projects/upload_html.html:4
@@ -1490,19 +1469,20 @@ msgstr ""
 msgid "Upload"
 msgstr ""
 
-#: templates/projects/includes/flagging.html:6
+#. Translators: After 'Flag this projcet as' follows either 'Inappropriate', 'Spam' and/or 'Dupliacte'
+#: templates/projects/includes/flagging.html:7
 msgid "Flag this project as"
 msgstr ""
 
-#: templates/projects/includes/flagging.html:7
+#: templates/projects/includes/flagging.html:8
 msgid "Inappropriate"
 msgstr ""
 
-#: templates/projects/includes/flagging.html:8
+#: templates/projects/includes/flagging.html:9
 msgid "Spam"
 msgstr ""
 
-#: templates/projects/includes/flagging.html:9
+#: templates/projects/includes/flagging.html:10
 msgid "Duplicate"
 msgstr ""
 
@@ -1523,7 +1503,8 @@ msgid "Here's a place to describe how to get up and running with your project"
 msgstr ""
 
 #: templates/projects/samples/installation.rst.html:3
-msgid "Here is where you can describe how to install"
+#, python-format
+msgid "Here is where you can describe how to install %(name)s"
 msgstr ""
 
 #: templates/registration/activate.html:6
@@ -1552,7 +1533,6 @@ msgstr ""
 
 #: templates/registration/activate.html:21
 #: templates/registration/activation_complete.html:17
-#: templates/registration/logout.html:20
 msgid "here"
 msgstr ""
 
@@ -1581,11 +1561,9 @@ msgid "registration"
 msgstr ""
 
 #: templates/registration/login.html:21
-msgid "If you forgot your password,"
-msgstr ""
-
-#: templates/registration/login.html:21
-msgid "reset it."
+msgid ""
+"If you forgot your password, <a href=\"/accounts/password/reset/\">reset it."
+"</a>"
 msgstr ""
 
 #: templates/registration/logout.html:11
@@ -1596,8 +1574,11 @@ msgstr ""
 msgid "Thanks for visiting!"
 msgstr ""
 
-#: templates/registration/logout.html:20
-msgid "If you are looking to log in again, you can do that"
+#: templates/registration/logout.html:21
+#, python-format
+msgid ""
+"If you are looking to log in again, you can do that <a href=\"%(login_url)s"
+"\">here</a>"
 msgstr ""
 
 #: templates/registration/password_change_done.html:4
@@ -1804,7 +1785,8 @@ msgstr ""
 msgid " Search: %(query)s"
 msgstr ""
 
-#: templates/search/base_facet.html:27 templates/search/search.html:16
+#. Translators: This is about starting a search
+#: templates/search/base_facet.html:27 templates/search/search.html:17
 msgid "Go crazy."
 msgstr ""
 
@@ -1832,16 +1814,16 @@ msgstr ""
 msgid "No author facets."
 msgstr ""
 
-#: templates/search/search.html:30
+#: templates/search/search.html:31
 #, python-format
 msgid "Results for %(query)s"
 msgstr ""
 
-#: templates/search/search.html:51 templates/search/search.html.py:53
+#: templates/search/search.html:52 templates/search/search.html.py:54
 msgid "Previous"
 msgstr ""
 
-#: templates/search/search.html:57 templates/search/search.html.py:59
+#: templates/search/search.html:58 templates/search/search.html.py:60
 msgid "Next"
 msgstr ""
 
