@@ -22,11 +22,15 @@ DOCUMENTATION_CHOICES = (
 DEFAULT_THEME_CHOICES = (
     # Translators: This is a name of a Sphinx theme.
     (THEME_DEFAULT, _('Default')),
+    # Translators: This is a name of a Sphinx theme.
     (THEME_SPHINX, _('Sphinx Docs')),
     #(THEME_SCROLLS, 'Scrolls'),
     #(THEME_AGOGO, 'Agogo'),
+    # Translators: This is a name of a Sphinx theme.
     (THEME_TRADITIONAL, _('Traditional')),
+    # Translators: This is a name of a Sphinx theme.
     (THEME_NATURE, _('Nature')),
+    # Translators: This is a name of a Sphinx theme.
     (THEME_HAIKU, _('Haiku')),
 )
 
