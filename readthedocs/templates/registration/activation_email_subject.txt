@@ -1,3 +1,1 @@
-{% load i18n %}
-
-{{ site.name }} - {% trans "activate your account" %}
+{% load i18n %}{% blocktrans with site.name as site_name %}{{ site_name }} - activate your account{% endblocktrans %}

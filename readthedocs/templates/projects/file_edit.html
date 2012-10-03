@@ -16,9 +16,9 @@
   </script>
 {% endblock %}
 
-{% block title %}{% trans "Edit" %} {{ file.heading }}{% endblock %}
+{% block title %}{% blocktrans with file.heading|default:"file" as heading %}Edit {{ heading }}{% endblocktrans %}{% endblock %}
 
-{% block content-header %}<h1>{% trans "Edit" %} {{ file.heading|default:"file" }}</h1>{% endblock %}
+{% block content-header %}<h1>{% blocktrans with file.heading|default:"file" as heading %}Edit {{ heading }}{% endblocktrans %}</h1>{% endblock %}
 
 {% block editing-option-manage %}class="active"{% endblock %}
 
