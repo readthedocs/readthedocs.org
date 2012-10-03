@@ -18,8 +18,8 @@
 <div>
     <form action="{% url haystack_project %}" method="GET">
         <input type="text" name="q" value="" id="id_site_search">
-        <input type="hidden" name="selected_facets" value="project:{{ project.name }}">
-        <!-- <input type="submit" value="{% trans "Go" %}"> -->
+        <input type="hidden" name="selected_facets" value="project_exact:{{ project.name }}">
+        <!-- <input type="submit" value="Go"> -->
     </form>
 </div>
 <br>

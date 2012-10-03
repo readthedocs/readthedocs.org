@@ -22,11 +22,11 @@ OUR_CODE = """
 </script>
 
 <style type="text/css">
-.badge { position: fixed; display: block; bottom: 5px; height: 40px; text-indent: -9999em; border-radius: 3px; -moz-border-radius: 3px; -webkit-border-radius: 3px; box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2), 0 1px 0 rgba(255, 255, 255, 0.2) inset; -moz-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2), 0 1px 0 rgba(255, 255, 255, 0.2) inset; -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2), 0 1px 0 rgba(255, 255, 255, 0.2) inset; }
-.badge.rtd { background: #257597 url(http://media.readthedocs.org/images/badge-rtd.png) top left no-repeat; border: 1px solid #282E32; width: 160px; right: 5px; }
+.rtd-badge { position: fixed; display: block; bottom: 5px; height: 40px; text-indent: -9999em; border-radius: 3px; -moz-border-radius: 3px; -webkit-border-radius: 3px; box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2), 0 1px 0 rgba(255, 255, 255, 0.2) inset; -moz-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2), 0 1px 0 rgba(255, 255, 255, 0.2) inset; -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2), 0 1px 0 rgba(255, 255, 255, 0.2) inset; }
+.rtd-badge.rtd { background: #257597 url(http://media.readthedocs.org/images/badge-rtd.png) top left no-repeat; border: 1px solid #282E32; width: 160px; right: 5px; }
 </style>
 
-<a href="http://readthedocs.org?fromdocs=middleware" class="badge rtd">Brought to you by Read the Docs</a>
+<a href="http://readthedocs.org?fromdocs=middleware" class="rtd-badge rtd">Brought to you by Read the Docs</a>
 """
 
 def replace_insensitive(string, target, replacement):

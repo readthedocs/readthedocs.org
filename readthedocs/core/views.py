@@ -2,12 +2,9 @@
 documentation and header rendering, and server errors.
 """
 
-from django.core.mail import mail_admins
 from django.core.urlresolvers import reverse
-from django.core.cache import cache
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.db.models import F, Max
 from django.http import HttpResponse, HttpResponseRedirect, \
     HttpResponsePermanentRedirect, Http404, HttpResponseNotFound
 from django.shortcuts import render_to_response, get_object_or_404
@@ -16,8 +13,7 @@ from django.views.decorators.csrf import csrf_view_exempt
 from django.views.static import serve
 from django.views.generic import TemplateView
 
-from haystack.views import FacetedSearchView
-from haystack.query import SearchQuerySet, EmptySearchQuerySet
+from haystack.query import EmptySearchQuerySet
 
 from builds.models import Build
 from core.forms import FacetedSearchForm
@@ -209,9 +205,20 @@ def legacy_serve_docs(request, username, project_slug, filename):
     })
     return HttpResponsePermanentRedirect(url)
 
-def subproject_serve_docs(request, project_slug, lang_slug, version_slug, filename=''):
+def subproject_serve_docs(request, project_slug, lang_slug=None, version_slug=None, filename=''):
     parent_slug = request.slug
+    proj = get_object_or_404(Project, slug=project_slug)
     subproject_qs = ProjectRelationship.objects.filter(parent__slug=parent_slug, child__slug=project_slug)
+    if lang_slug == None or version_slug == None:
+        version_slug = proj.get_default_version()
+        url = reverse('subproject_docs_detail', kwargs={
+            'project_slug': project_slug,
+            'version_slug': version_slug,
+            'lang_slug': 'en',
+            'filename': filename
+        })
+        return HttpResponseRedirect(url)
+        
     if subproject_qs.exists():
         return serve_docs(request, lang_slug, version_slug, filename, project_slug)
     else:

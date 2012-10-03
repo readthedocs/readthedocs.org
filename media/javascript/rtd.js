@@ -1,97 +1,73 @@
-$(document).ready(function()
-{
-    ShowActionOnOver();
-    guessRepo();
-    checkVersion();
-    getVersions();
-    Search.init();
-});
+(function () {
+  var checkVersion = function (slug, version) {
+    var versionURL = ["//readthedocs.org/api/v1/version/", slug,
+                      "/highest/", version, "/?callback=?"].join("");
 
-warning = '<div class="admonition note"> <p class="first admonition-title">Note</p> <p class="last"> You are not using the most up to date version of the library. '
+    $.getJSON(versionURL, onData);
 
- function checkVersion() {
-    // doc_slug and doc_version MUST be defined or else the error prevents
-    // Firefox from using any jQuery
-    if (typeof doc_slug === 'undefined') 
-        doc_slug = ""
-    if (typeof doc_version === 'undefined') 
-        doc_version = ""
-    $.ajax({
-     type: 'GET',
-     url: "//readthedocs.org/api/v1/version/" + doc_slug + "/highest/" + doc_version + "/",
-     //url: "/api/v1/version/" + doc_slug + "/highest/" + doc_version + "/",
-     success: function(data, textStatus, request) {
-      if (!data.is_highest) {
-        current_url = window.location.pathname.replace(doc_version, data.slug)
-         $("div.body").prepend(warning + "<a href='" + current_url  + "'>" + data.version + "</a> is the newest version. </p></div>")
+    function onData (data) {
+      if (data.is_highest) {
+        return;
       }
-     },
-     dataType: 'jsonp'
-    });
- }
 
- function getVersions() {
-    $.ajax({
-     type: 'GET',
-     //This has to be hard coded for CNAMEs, subdomains.
-     url: "//readthedocs.org/api/v1/version/" + doc_slug + "/?active=True",
-     //url: "/api/v1/version/" + doc_slug + "/?active=True",
-     success: function(data, textStatus, request) {
-        $('#version_menu,.version-listing').empty()
-        $('#sidebar_versions').empty()
-        for (key in data['objects']) {
-            obj = data['objects'][key]
-            current_url = window.location.pathname.replace(doc_version, obj.slug)
-            // Update widget
-            $("#version_menu,.version-listing").append('<li><a href="' + current_url + '">' + obj.slug + '</a></li>')
-            // Update sidebar
-            $("#sidebar_versions").append('<li><a href="' + current_url + '">' + obj.slug + '</a></li>')
-          }
-     },
-     dataType: 'jsonp'
-    });
- }
+      var currentURL = window.location.pathname.replace(version, data.slug),
+          warning = $('<div class="admonition note"> <p class="first \
+                       admonition-title">Note</p> <p class="last"> \
+                       You are not using the most up to date version \
+                       of the library. <a href="#"></a> is the newest version.</p>\
+                       </div>');
 
- function ShowActionOnOver()
- {
-   $(".module-item-menu").hover(
-       function()
-       {
-          $(".hidden-child",this).show();
-       },
-       function()
-       {
-           $(".hidden-child",this).hide();
-        }
+      warning
+        .find('a')
+        .attr('href', currentURL)
+        .text(data.version);
+
+      $("div.body").prepend(warning);
+    }
+
+  };
+
+  var getVersions = function (slug, version) {
+    var versionsURL = ["//readthedocs.org/api/v1/version/", slug,
+                       "/?active=True&callback=?"].join("");
+
+    return $.getJSON(versionsURL, gotData);
+
+    function gotData (data) {
+      var items = $('<ul />')
+        , currentURL
+        , versionItem
+        , object
+
+      for (var key in data.objects) {
+        object = data.objects[key]
+        currentURL = window.location.pathname.replace(version, object.slug)
+        versionItem = $('<a href="#"></a>')
+          .attr('href', currentURL)
+          .text(object.slug)
+          .appendTo($('<li />').appendTo(items))
+      }
+
+      // update widget and sidebar
+      $('#version_menu, .version-listing, #sidebar_versions').html(items.html())
+    }
+  };
+
+  $(function () {
+    var slug = window.doc_slug,
+        version = window.doc_version;
+
+    // Show action on hover
+    $(".module-item-menu").hover(
+      function () {
+        $(".hidden-child", this).show();
+      }, function () {
+        $(".hidden-child", this).hide();
+      }
     );
- }
 
-function guessRepo() {
-  $("#id_repo").blur(
-      function() {
-         val = this.value
-         repo = $("#id_repo_type")[0]
-         if (val.indexOf("git") >= 0) {
-            repo.value = "git"
-         }
-         else if (val.indexOf("bitbucket") >= 0) {
-            repo.value = "hg"
-         }
-         else if (val.indexOf("hg") >= 0) {
-            repo.value = "hg"
-         }
-         else if (val.indexOf("bzr") >= 0) {
-            repo.value = "bzr"
-         }
-         else if (val.indexOf("launchpad") >= 0) {
-            repo.value = "bzr"
-         }
-         else if (val.indexOf("trunk") >= 0) {
-            repo.value = "svn"
-         }
-         else if (val.indexOf("svn") >= 0) {
-            repo.value = "svn"
-         }
-      }
-  )
-}
+    checkVersion(slug, version);
+    getVersions(slug, version);
+  });
+
+})();

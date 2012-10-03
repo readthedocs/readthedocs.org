@@ -751,13 +751,13 @@ p {
         padding: 1em;
     }
 
-    .rtd_doc_footer .badge {
+    .rtd_doc_footer .rtd-badge {
         float: none;
         margin: 1em auto;
         position: static;
     }
 
-    .rtd_doc_footer .badge.revsys-inline {
+    .rtd_doc_footer .rtd-badge.revsys-inline {
         margin-right: auto;
         margin-bottom: 2em;
     }

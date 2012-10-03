@@ -235,7 +235,7 @@ def update_imported_docs(project, version):
         update_docs_output['venv'] = run('{cmd} --distribute --no-site-packages {path}'.format(
                 cmd='virtualenv',
                 path=project.venv_path(version=version_slug)))
-        update_docs_output['sphinx'] = run('{cmd} install -U sphinx virtualenv distribute'.format(
+        update_docs_output['sphinx'] = run('{cmd} install -U hg+http://bitbucket.org/birkenfeld/sphinx/@d4c6ac1fcc9c#egg=Sphinx virtualenv==1.8.2 distribute==0.6.28 docutils==0.8.1'.format(
                 cmd=project.venv_bin(version=version_slug, bin='pip')))
 
         if project.requirements_file:

@@ -17,3 +17,4 @@ locks/*
 readthedocs/rtd_tests/tests/builds
 deploy/.vagrant
 logs/*
+.DS_Store
