@@ -121,7 +121,7 @@
 <h3>{% trans "Latest Revisions" %}</h3>
 <ul>
   {% for revision in project.get_latest_revisions|slice:":5" %}
-    <li>{{ revision }} {{ revision.created_date|timesince }} {% trans "ago" %}</li>
+    <li>{% blocktrans with revision.created_date|timesince as timesince %}{{ revision }} {{ timesince }} ago{% endblocktrans %}</li>
   {% empty %}
     <li class="quiet">{% trans "No revisions" %}</li>
   {% endfor %}

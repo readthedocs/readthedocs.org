@@ -1,12 +1,19 @@
-{% load i18n %}
+{% load i18n %}{% url registration_activate activation_key as activation_url %}{% blocktrans  with count expiration_days as expiration_days site.domain as domain %}Thank you for registering an account at {{ domain }}.
+To activate your registration, please visit the following page:
 
-{% trans "Thank you for registering an account at" %} {{ site.domain }}.
-{% trans "To activate your registration, please visit the following page:" %}
+http://{{ domain }}{{ activation_url }}
 
-http://{{ site.domain }}{% url registration_activate activation_key %}
-
-{% blocktrans %}This page will expire in {{ expiration_days }} day{{ expiration_days|pluralize }}.{% endblocktrans %}
+This page will expire in {{ expiration_days }} day.
 
 ***
 
-{% trans "If you didn't register this account you can simply delete this email and we won't bother you again." %}
+If you didn't register this account you can simply delete this email and we won't bother you again.{% plural %}Thank you for registering an account at {{ domain }}.
+To activate your registration, please visit the following page:
+
+http://{{ domain }}{{ activation_url }}
+
+This page will expire in {{ expiration_days }} days.
+
+***
+
+If you didn't register this account you can simply delete this email and we won't bother you again.{% endblocktrans %}

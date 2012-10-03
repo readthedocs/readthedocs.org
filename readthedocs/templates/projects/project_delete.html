@@ -1,9 +1,9 @@
 {% extends "projects/base_project.html" %}
 {% load i18n %}
 
-{% block title %}{% trans "Delete" %} {{ project.name }}?{% endblock %}
+{% block title %}{% blocktrans with project.name as name %}Delete {{ name }}?{% endblocktrans %}{% endblock %}
 
-{% block content-header %}<h1>{% trans "Delete" %} "{{ project.name }}"?</h1>{% endblock %}
+{% block content-header %}<h1>{% blocktrans with project.name as name %}Delete {{ name }}?{% endblocktrans %}</h1>{% endblock %}
 
 {% block content %}
   <p>{% trans "You sure?" %} O_o</p>

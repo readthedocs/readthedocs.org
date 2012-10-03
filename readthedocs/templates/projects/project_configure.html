@@ -1,7 +1,7 @@
 {% extends "projects/base_project_editing.html" %}
 {% load i18n %}
 
-{% block title %}{% trans "Configure" %} {{ project.name }}{% endblock %}
+{% block title %}{% blocktrans with project.name as name %}Configure {{ name }}{% endblocktrans %}{% endblock %}
 
 {% block content-header %}<h1>{% trans "Edit Configuration" %}</h1>{% endblock %}
 

@@ -20,6 +20,7 @@
             <option value="{{ option.0 }}">{{ option.1|truncatewords:5 }}</option>
           {% endfor %}
         </select>
+       {% comment %}Translators: Revert to a specific revision of a file.{% endcomment %}
         <input type="submit" value="{% trans "Revert to" %}" class="revision-revert" />
       </h3>
     </form>

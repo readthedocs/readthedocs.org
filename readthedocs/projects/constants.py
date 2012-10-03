@@ -20,6 +20,7 @@ DOCUMENTATION_CHOICES = (
 )
 
 DEFAULT_THEME_CHOICES = (
+    # Translators: This is a name of a Sphinx theme.
     (THEME_DEFAULT, _('Default')),
     (THEME_SPHINX, _('Sphinx Docs')),
     #(THEME_SCROLLS, 'Scrolls'),
@@ -30,8 +31,8 @@ DEFAULT_THEME_CHOICES = (
 )
 
 SAMPLE_FILES = (
-    (_('Installation'), 'projects/samples/installation.rst.html'),
-    (_('Getting started'), 'projects/samples/getting_started.rst.html'),
+    ('Installation', 'projects/samples/installation.rst.html'),
+    ('Getting started', 'projects/samples/getting_started.rst.html'),
 )
 
 SCRAPE_CONF_SETTINGS = [

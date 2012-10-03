@@ -18,6 +18,6 @@
     <p class="submit"><input type="submit" name="submit" value="{% trans "Log in" %}"></p>
   </form>
 <p>
-{% trans "If you forgot your password," %} <a href="/accounts/password/reset/">{% trans "reset it." %}</a>
+{% blocktrans %}If you forgot your password, <a href="/accounts/password/reset/">reset it.</a>{% endblocktrans %}
 </p>
 {% endblock %}

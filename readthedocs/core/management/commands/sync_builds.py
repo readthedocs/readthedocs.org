@@ -1,7 +1,6 @@
 import logging
 
 from django.core.management.base import BaseCommand
-from django.utils.translation import ugettext_lazy as _
 from optparse import make_option
 from builds.models import Version
 from core.utils import copy_to_app_servers
@@ -17,13 +16,13 @@ class Command(BaseCommand):
         make_option('-V',
             dest='version',
             default=None,
-            help=_('Build a version, or all versions')
+            help='Build a version, or all versions'
             ),
         make_option('-c',
             action='store_true',
             dest='checkout',
             default=False,
-            help=_('sync checkouts')
+            help='sync checkouts'
             ),
         )
 

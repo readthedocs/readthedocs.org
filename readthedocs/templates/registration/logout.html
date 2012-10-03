@@ -17,6 +17,7 @@
     {% trans "Thanks for visiting!" %}
   </p>
   <p>
-    {% trans "If you are looking to log in again, you can do that" %} <a href="{% url auth_login %}">{% trans "here" %}</a>.
+    {% url auth_login as login_url %}
+    {% blocktrans %}If you are looking to log in again, you can do that <a href="{{ login_url }}">here</a>{% endblocktrans %}.
   </p>
 {% endblock %}

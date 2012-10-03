@@ -20,7 +20,7 @@
   <form action="{{ object|flag_url:flag_type.slug }}{% if next %}?next={{ next }}{% endif %}" method="post">{% csrf_token %}
     <p>{% blocktrans %}Are you sure you want to flag "{{ object }}" as "{{ flag_type.title }}"?{% endblocktrans %}</p>
     <p class="submit">
-      <button type="submit">{% trans "Yes, this is" %} {{ flag_type.title }}</button>
+      <button type="submit">{% blocktrans flag_type.title as title%}Yes, this is {{ title }}{% endblocktrans %}</button>
       <a href="{{ next }}">{% trans "cancel" %}</a>
     </p>
   </form>
