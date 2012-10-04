@@ -1,15 +1,17 @@
+{% load i18n %}
+
 {% load highlight %}
 {% for result in page.object_list %}
   {% if result and result.object %}
       <li class="module-item">
       {% ifequal result.model_name 'project' %}
         <p class="module-item-title">
-          Project:
+          {% trans "Project:" %}
           <a href="{% if result.absolute_url %}{{ result.absolute_url }}{% else %}{{ result.object.get_absolute_url }}{% endif %}">{{ result.title }} - {{ result.author }}</a>
         </p>
         {% else %}
         <p class="module-item-title">
-          File:
+          {% trans "File:" %}
           <a href="{% if result.absolute_url %}{{ result.absolute_url }}{% else %}{{ result.object.get_absolute_url }}{% endif %}?highlight={{ query }}">{{ result.project }} - {{ result.title }}</a>
         </p>
         <p>
@@ -19,5 +21,5 @@
       </li>
   {% endif %}
 {% empty %}
-  <li class="module-item"><span class="quiet">No results found. Bummer.</span></li>
+  <li class="module-item"><span class="quiet">{% trans "No results found. Bummer." %}</span></li>
 {% endfor %}

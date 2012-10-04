@@ -2,6 +2,8 @@ import os
 import djcelery
 djcelery.setup_loader()
 
+_ = gettext = lambda s: s
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 TASTYPIE_FULL_DEBUG = True
@@ -36,7 +38,13 @@ FORCE_WWW = False
 
 TIME_ZONE = 'America/Chicago'
 LANGUAGE_CODE = 'en-us'
+LANGUAGES = (
+    ('en', gettext('English')),
+    ('es', gettext('Spanish')),
+
+)
 USE_I18N = True
+USE_L10N = True
 SITE_ID = 1
 SECRET_KEY = 'asciidick'
 
@@ -51,6 +59,7 @@ TEMPLATE_LOADERS = (
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'djangosecure.middleware.SecurityMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',

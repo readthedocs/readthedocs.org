@@ -1,14 +1,15 @@
 {% extends "projects/base_project_editing.html" %}
+{% load i18n %}
 
-{% block title %}{{ file.heading }} History{% endblock %}
+{% block title %}{{ file.heading }} {% trans "History" %}{% endblock %}
 
-{% block content-header %}<h1>Revision History</h1>{% endblock %}
+{% block content-header %}<h1>{% trans "Revision History" %}</h1>{% endblock %}
 
 {% block editing-option-manage %}class="active"{% endblock %}
 
 {% block content %}
   <div class="content-panel original">
-    <h3 class="panel-text">Current</h3>
+    <h3 class="panel-text">{% trans "Current" %}</h3>
     <div>{{ file.content|linebreaks }}</div>
   </div>
   <div class="content-panel">
@@ -19,7 +20,8 @@
             <option value="{{ option.0 }}">{{ option.1|truncatewords:5 }}</option>
           {% endfor %}
         </select>
-        <input type="submit" value="Revert to" class="revision-revert" />
+       {% comment %}Translators: Revert to a specific revision of a file.{% endcomment %}
+        <input type="submit" value="{% trans "Revert to" %}" class="revision-revert" />
       </h3>
     </form>
     <div id="diff">

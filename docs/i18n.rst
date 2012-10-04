@@ -1,0 +1,22 @@
+Internationalization
+====================
+
+To update the translation source files (eg if you changed or added translatable strings in the templates or Python code)
+you should run ``python manage.py makemessages -l <language>`` in the ``readthedocs/`` directory (substitute
+``<language>`` with a valid language code).
+
+After you generated those source files, open them in a text (or po file) editor and translate the strings. Once that is
+completed, run ``python manage.py compilemessages -a`` to compile them into their optimized binary format that is used
+by Django.
+
+
+Transifex integration
+---------------------
+
+To push updated translation source files (see above) to transifex, run ``tx push -s`` (for English) or
+``tx push -t <language>`` (for non-English).
+
+To pull changes from transifex, run ``tx pull -a``. Note that transifex does not compile the translation files, so you
+have to do this after the pull (see above).
+
+For more information about the ``tx`` command, see http://help.transifex.com/features/client/.

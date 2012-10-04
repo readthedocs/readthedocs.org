@@ -1,5 +1,6 @@
-{% if is_paginated %}
 {% load i18n %}
+
+{% if is_paginated %}
 <div class="pagination">
     {% if page_obj.has_previous %}
         <a href="?page={{ page_obj.previous_page_number }}{{ getvars }}{{ hashtag }}" class="prev">&lsaquo;&lsaquo; {% trans "previous" %}</a>

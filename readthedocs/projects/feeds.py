@@ -1,5 +1,4 @@
 from django.contrib.syndication.views import Feed
-from django.db.models import Max
 
 from projects.models import Project
 

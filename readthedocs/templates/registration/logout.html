@@ -1,20 +1,23 @@
 {% extends "registration/base_registration.html" %}
 
+{% load i18n %}
 
-{% block title %}Log Out{% endblock %}
+
+{% block title %}{% trans "Log Out" %}{% endblock %}
 {% block body_class %}{{ block.super }}{% endblock %}
 
 
 {% block content-header %}
-  <h1>You've logged out.</h1>
+  <h1>{% trans "You've logged out." %}</h1>
 {% endblock %}
 
 
 {% block content %}
   <p>
-    Thanks for visiting!
+    {% trans "Thanks for visiting!" %}
   </p>
   <p>
-    If you are looking to log in again, you can do that <a href="{% url auth_login %}">here</a>.
+    {% url auth_login as login_url %}
+    {% blocktrans %}If you are looking to log in again, you can do that <a href="{{ login_url }}">here</a>{% endblocktrans %}.
   </p>
 {% endblock %}

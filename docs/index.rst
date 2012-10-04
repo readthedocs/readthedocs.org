@@ -45,6 +45,7 @@ Developer Documentation
     architecture
     settings
     tests
+    i18n
     api
     api/index
 

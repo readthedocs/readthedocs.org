@@ -1,12 +1,14 @@
+from django.utils.translation import ugettext_lazy as _
+
 BUILD_STATE = (
-    ('triggered', 'Triggered'),
-    ('building', 'Building'),
-    ('finished', 'Finished'),
+    ('triggered', _('Triggered')),
+    ('building', _('Building')),
+    ('finished', _('Finished')),
 )
 
 BUILD_TYPES = (
-    ('html', 'HTML'),
-    ('pdf', 'PDF'),
-    ('epub', 'Epub'),
-    ('man', 'Manpage'),
+    ('html', _('HTML')),
+    ('pdf', _('PDF')),
+    ('epub', _('Epub')),
+    ('man', _('Manpage')),
 )

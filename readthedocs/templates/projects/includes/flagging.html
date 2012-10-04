@@ -1,11 +1,13 @@
 {% load flagging %}
+{% load i18n %}
 
 {% if request.user.is_authenticated %}
   <p class="quiet">
-    Flag this project as (
-    {% if not project|flagged_with:"inappropriate" %}<a href="{{ project|flag_url:"inappropriate" }}?next={{ request.META.PATH_INFO }}">Inappropriate</a> |{% endif %}
-    {% if not project|flagged_with:"spam" %}<a href="{{ project|flag_url:"spam" }}?next={{ request.META.PATH_INFO }}">Spam</a> |{% endif %}
-    {% if not project|flagged_with:"duplicate" %}<a href="{{ project|flag_url:"duplicate" }}?next={{ request.META.PATH_INFO }}">Duplicate</a>{% endif %}
+    {% comment %}Translators: After 'Flag this project as' follows either 'Inappropriate', 'Spam' and/or 'Dupliacte'    {% endcomment %}
+    {% trans "Flag this project as" %} (
+    {% if not project|flagged_with:"inappropriate" %}<a href="{{ project|flag_url:"inappropriate" }}?next={{ request.META.PATH_INFO }}">{% trans "Inappropriate" %}</a> |{% endif %}
+    {% if not project|flagged_with:"spam" %}<a href="{{ project|flag_url:"spam" }}?next={{ request.META.PATH_INFO }}">{% trans "Spam" %}</a> |{% endif %}
+    {% if not project|flagged_with:"duplicate" %}<a href="{{ project|flag_url:"duplicate" }}?next={{ request.META.PATH_INFO }}">{% trans "Duplicate" %}</a>{% endif %}
     )
   </p>
 {% endif %}

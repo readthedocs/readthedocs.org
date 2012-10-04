@@ -6,3 +6,11 @@ You should read the `Open Comparison Contributing Docs`_. They are some of the b
 
 
 .. _Open Comparison Contributing Docs: http://opencomparison.readthedocs.org/en/latest/contributing.html
+
+
+Translations
+------------
+
+If you wish to contribute translations, please do so on `Transifex`_.
+
+.. _Transifex: https://www.transifex.com/projects/p/readthedocs/

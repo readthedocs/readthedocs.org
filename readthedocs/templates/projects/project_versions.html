@@ -1,23 +1,24 @@
 {% extends "projects/base_project_editing.html" %}
+{% load i18n %}
 
-{% block title %}Edit project versions{% endblock %}
+{% block title %}{% trans "Edit project versions" %}{% endblock %}
 
 {% block editing-option-edit-proj %}class="active"{% endblock %}
 
-{% block content-header %}<h1>Edit project versions</h1>{% endblock %}
+{% block content-header %}<h1>{% trans "Edit project versions" %}</h1>{% endblock %}
 
 {% block content %}
   <p class="help_text">
-    If you are having trouble building older versions of your Documentation, then you can <a href="{% url projects_upload_html project.slug %}">Upload a Zip file of HTML</a> instead. This is to support versions that may not build anymore with current Sphinx, or to support plugins and extensions that we may not have on our server.
+    {% trans "If you are having trouble building older versions of your Documentation, then you can" %} <a href="{% url projects_upload_html project.slug %}">{% trans "Upload a Zip file of HTML" %}</a> {% trans "instead. This is to support versions that may not build anymore with current Sphinx, or to support plugins and extensions that we may not have on our server." %}
   </p>
 
   <p>
-    Choose which versions you would like to publish besides the latest revision.
+    {% trans "Choose which versions you would like to publish besides the latest revision." %}
   </p>
   <form method="post" action=".">{% csrf_token %}
     {{ form.as_p }}
     <p>
-      <input style="display: inline;" type="submit" value="Submit">
+      <input style="display: inline;" type="submit" value="{% trans "Submit" %}">
     </p>
   </form>
 {% endblock %}

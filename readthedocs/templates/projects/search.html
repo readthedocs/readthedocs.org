@@ -1,9 +1,9 @@
-
 {% extends "projects/base_project.html" %}
+{% load i18n %}
 
 {% load pagination_tags %}
 
-{% block title %}Search results for {{ term }} {% endblock %}
+{% block title %}{% blocktrans %}Search results for {{ term }}{% endblocktrans %} {% endblock %}
 
 {% block nav-browse %}class="active"{% endblock %}
 
@@ -17,7 +17,7 @@
             <div class="module-wrapper">
 
               <div class="module-header">
-                  <h2>Search results for {{ term }}</h2>
+                  <h2>{% blocktrans %}Search results for {{ term }}{% endblocktrans %}</h2>
               </div>
 
               <div class="module-list">
@@ -34,8 +34,8 @@
           </div>
 
           {% else %}
-          <h2>Huh?</h2>
-          <p class="empty">No docs matched your search. ¯\(O_o)/¯</p>
+          <h2>{% trans "Huh?" %}</h2>
+          <p class="empty">{% trans "No docs matched your search. ¯\(O_o)/¯" %}</p>
           {% endif %}
 
           <!-- END projects list -->

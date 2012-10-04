@@ -1,9 +1,11 @@
 {% extends "base.html" %}
 
-{% block title %}User profiles{% endblock %}
+{% load i18n %}
+
+{% block title %}{% trans "User profiles" %}{% endblock %}
 
 {% block content-header %}
-  <h1>User profiles</h1>
+  <h1>{% trans "User profiles" %}</h1>
 {% endblock %}
 
 {% block content %}

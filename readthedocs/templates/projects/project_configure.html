@@ -1,14 +1,15 @@
 {% extends "projects/base_project_editing.html" %}
+{% load i18n %}
 
-{% block title %}Configure {{ project.name }}{% endblock %}
+{% block title %}{% blocktrans with project.name as name %}Configure {{ name }}{% endblocktrans %}{% endblock %}
 
-{% block content-header %}<h1>Edit Configuration</h1>{% endblock %}
+{% block content-header %}<h1>{% trans "Edit Configuration" %}</h1>{% endblock %}
 
 {% block editing-option-conf %}class="active"{% endblock %}
 
 {% block content %}
   <form method="post" action=".">{% csrf_token %}
     {{ form.as_p }}
-    <p><input type="submit" value="Save Configuration" /></p>
+    <p><input type="submit" value="{% trans "Save Configuration" %}" /></p>
   </form>
 {% endblock %}

@@ -1,32 +1,34 @@
-<dl>
-  <dt>External Links</dt>
-  <dd>`Link text &lt;http://example.com/&gt;`_</dd>
+{% load i18n %}
 
-  <dt>Internal Links</dt>
+<dl>
+  <dt>{% trans "External Links" %}</dt>
+  <dd>`{% trans "Link text" %} &lt;http://example.com/&gt;`_</dd>
+
+  <dt>{% trans "Internal Links" %}</dt>
   <dd>:doc:`heading`</dd>
 
-  <dt><strong>Bold</strong></dt>
-  <dd>**text to bold**</dd>
+  <dt><strong>{% trans "Bold" %}</strong></dt>
+  <dd>**{% trans "text to bold" %}**</dd>
 
-  <dt><em>Emphasized</em></dt>
-  <dd>*text to emphasize*</em></dd>
+  <dt><em>{% trans "Emphasized" %}</em></dt>
+  <dd>*{% trans "text to emphasize" %}*</em></dd>
 
-  <dt>Lists</dt>
+  <dt>{% trans "Lists" %}</dt>
   <dd>
     <ul>
-      <li>* Item 1</li>
-      <li>* Item 2</li>
+      <li>* {% trans "Item" %} 1</li>
+      <li>* {% trans "Item" %} 2</li>
     </ul>
     <ul>
-      <li>#. Item 1</li>
-      <li>#. Item 2</li>
+      <li>#. {% trans "Item" %} 1</li>
+      <li>#. {% trans "Item" %} 2</li>
     </ul>
   </dd>
 
-  <dt>Source Code</dt>
+  <dt>{% trans "Source Code" %}</dt>
   <dd><strong>::</strong>
-    <p>e.g. Check out this code::</p>
-    <pre>    actual code indented</pre>
+    <p>{% trans "e.g. Check out this code" %}::</p>
+    <pre>    {% trans "actual code indented" %}</pre>
   </dd>
 </dl>
-<p><a href="http://sphinx.pocoo.org/rest.html">reStructuredText Primer</a></p>
+<p><a href="http://sphinx.pocoo.org/rest.html">{% trans "reStructuredText Primer" %}</a></p>
