@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% load i18n %}
 
-{% block title %}{% trans "Statistics for" %} "{{ term }}"{% endblock %}
-{% block pagetitle %}{% trans "Statistics for" %} <kbd>{{ term }}</kbd>:{% endblock %}
+{% block title %}{% blocktrans %}Statistics for {{ term }}{% endblocktrans %}{% endblock %}
+{% block pagetitle %}{% blocktrans %}Statistics for <kbd>{{ term }}</kbd>:{% endblocktrans %}{% endblock %}
 
 {% block content %}
   {% load url from future %}

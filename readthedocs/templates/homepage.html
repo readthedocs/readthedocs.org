@@ -35,7 +35,9 @@ There's also support for versioning so you can build docs from tags and branches
                   {% endblocktrans %}
                 </p>
                 <p>
-                  {% trans "It's free and simple.  Read the" %} <a href="http://readthedocs.org/docs/read-the-docs/latest/getting_started.html">{% trans "Getting Started" %}</a> {% trans "guide to get going!" %}
+                  {% blocktrans with "http://readthedocs.org/docs/read-the-docs/latest/getting_started.html" as getting_started_url %}
+It's free and simple.  Read the <a href="{{ getting_started_url }}">Getting Started</a> guide to get going!
+                  {% endblocktrans %}
                 <p>
               </div>
 
