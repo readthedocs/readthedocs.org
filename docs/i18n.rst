@@ -215,7 +215,7 @@ If you need to use plurals, import the
 Lazily Translated Strings
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-You can use :func:`~django.utils.translation.ugettext`` or
+You can use :func:`~django.utils.translation.ugettext` or
 :func:`~django.utils.translation.ungettext` only in views or functions called
 from views. If the function will be evaluated when the module is loaded, then
 the string may end up in English or the locale of the last request!
