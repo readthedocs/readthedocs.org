@@ -1,5 +1,5 @@
 from django.db import models
-from django.utils.translation import ugettext
+from django.utils.translation import ugettext, ugettext_lazy as _
 from projects.models import Project
 
 class PageView(models.Model):
