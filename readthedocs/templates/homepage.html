@@ -27,17 +27,17 @@
               <div class="module-header">
                 <h3>{% trans "What is this place?" %}</h3>
                 <p>
-                  {% blocktrans %}
+{% blocktrans %}
 Read the Docs hosts documentation, making it fully searchable and easy to find.
 You can import your docs using any major version control system, including Mercurial, Git, Subversion, and Bazaar.
 We support <a href="http://read-the-docs.readthedocs.org/en/latest/webhooks.html">webhooks</a> so your docs get built when you commit code.
 There's also support for versioning so you can build docs from tags and branches of your code in your repository. A <a href="http://read-the-docs.readthedocs.org/en/latest/features.html">full list of features</a> is available.
-                  {% endblocktrans %}
+{% endblocktrans %}
                 </p>
                 <p>
-                  {% blocktrans with "http://readthedocs.org/docs/read-the-docs/latest/getting_started.html" as getting_started_url %}
+{% blocktrans with "http://readthedocs.org/docs/read-the-docs/latest/getting_started.html" as getting_started_url %}
 It's free and simple.  Read the <a href="{{ getting_started_url }}">Getting Started</a> guide to get going!
-                  {% endblocktrans %}
+{% endblocktrans %}
                 <p>
               </div>
 
