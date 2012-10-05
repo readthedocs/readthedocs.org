@@ -3,12 +3,38 @@
 
 {% load pagination_tags %}
 
-{% block title %}{% trans "Projects" %} {% if person %}{% trans "by" %} {{ person.username }}{% endif %}{% if tag %}{% trans "tagged with" %} "{{ tag.name }}"{% endif %}{% endblock %}
+{% block title %}
+{% if person %}
+    {% if tag %}
+        {% blocktrans with person.username as username and tag.name as tag %}Projects by {{ username }} tagged with {{ tag }}{% endblocktrans %}
+    {% else %}
+        {% blocktrans with person.username as username %}Projects by {{ username }}{% endblocktrans %}
+    {% endif %}
+{% else %}
+    {% if tag %}
+        {% blocktrans with tag.name as tag %}Projects tagged with {{ tag }}{% endblocktrans %}
+    {% else %}
+        {% trans "Projects" %}
+    {% endif %}
+{% endif %}
+{% endblock %}
 
 {% block nav-browse %}class="active"{% endblock %}
 
 {% block content-header %}
-    <h1>{% trans "Projects" %} {% if person %}{% trans "by" %} {{ person.username }}{% endif %}{% if tag %}{% trans "tagged with" %} "{{ tag.name }}"{% endif %}</h1>
+{% if person %}
+    {% if tag %}
+        <h1>{% blocktrans with person.username as username and tag.name as tag %}Projects by {{ username }} tagged with {{ tag }}{% endblocktrans %}</h1>
+    {% else %}
+        <h1>{% blocktrans with person.username as username %}Projects by {{ username }}{% endblocktrans %}</h1>
+    {% endif %}
+{% else %}
+    {% if tag %}
+        <h1>{% blocktrans with tag.name as tag %}Projects tagged with {{ tag }}{% endblocktrans %}</h1>
+    {% else %}
+        <h1>{% trans "Projects" %}</h1>
+    {% endif %}
+{% endif %}
 {% endblock %}
 
 {% block content %}
