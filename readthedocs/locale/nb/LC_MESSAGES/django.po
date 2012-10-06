@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs.org\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-10-05 21:58+0200\n"
-"PO-Revision-Date: 2012-10-05 21:58+0200\n"
+"POT-Creation-Date: 2012-10-06 02:22+0200\n"
+"PO-Revision-Date: 2012-10-06 02:22+0200\n"
 "Last-Translator: Stein Magnus Jodal <stein.magnus@jodal.no>\n"
 "Language-Team: \n"
 "Language: nb\n"
@@ -167,8 +167,8 @@ msgstr "Tilstand"
 
 #: builds/models.py:65
 #, python-format
-msgid "Build (project)s for %(usernames)s (%(pk)s"
-msgstr "Bygg (project)s for %(usernames)s (%(pk)s"
+msgid "Build %(project)s for %(usernames)s (%(pk)s)"
+msgstr "Bygg %(project)s for %(usernames)s (%(pk)s)"
 
 #: core/forms.py:13
 msgid "First name"
@@ -630,21 +630,19 @@ msgstr ""
 msgid "Read the Docs thanks you for your continued patience."
 msgstr "Read the Docs takker deg for tålmodigheten din."
 
-#: templates/base.html:75
+#: templates/base.html:74
 #, python-format
 msgid ""
-"\n"
 "2010. Created by %(eric)s, %(charles)s, and %(bobby)s for the 2010 "
-"%(djangodash)s.\n"
+"%(djangodash)s."
 msgstr ""
-"\n"
-"2010. Laget av %(eric)s, %(charles)s og %(bobby)s for %(djangodash) 2010.\n"
+"2010. Laget av %(eric)s, %(charles)s og %(bobby)s for %(djangodash) 2010."
 
-#: templates/base.html:79
+#: templates/base.html:76
 msgid "Docs"
 msgstr "Dokumentasjon"
 
-#: templates/base.html:84
+#: templates/base.html:81
 msgid ""
 "Thanks for believing in us: <a href=\"http://revsys.com\">RevSys</a>, <a "
 "href=\"http://www.python.org/psf/\">Python Software Foundation</a>, <a href="
@@ -658,7 +656,7 @@ msgstr ""
 "djangoproject.com/foundation/\">Django Software Foundation</a>, <a href="
 "\"http://lab305.com\">Lab305</a> og <a href=\"http://enn.io/\">enn.io</a>."
 
-#: templates/base.html:87
+#: templates/base.html:84
 msgid ""
 "Made by <a href=\"https://github.com/rtfd/readthedocs.org/graphs/contributors"
 "\">humans</a>. Funded by <a href=\"https://www.gittip.com/readthedocs/"
@@ -682,7 +680,6 @@ msgstr "Hva er dette?"
 
 #: templates/homepage.html:30
 msgid ""
-"\n"
 "Read the Docs hosts documentation, making it fully searchable and easy to "
 "find.\n"
 "You can import your docs using any major version control system, including "
@@ -692,10 +689,8 @@ msgid ""
 "There's also support for versioning so you can build docs from tags and "
 "branches of your code in your repository. A <a href=\"http://read-the-docs."
 "readthedocs.org/en/latest/features.html\">full list of features</a> is "
-"available.\n"
-"                  "
+"available."
 msgstr ""
-"\n"
 "Read the Docs hoster dokumentasjon, gjør den søkbar og enkel å finne.\n"
 "Du kan importere dokumentasjonen din ved hjelp av de fleste store "
 "versjonskontrollsystemer, inkludert Mercurial, Git, Subversion og Bazaar.\n"
@@ -704,31 +699,26 @@ msgstr ""
 "inn kode.\n"
 "Versjonering er også støttet, slik at du kan bygge dokumentasjon fra tagger "
 "og grener i repoet ditt.En <a href=\"http://read-the-docs.readthedocs.org/en/"
-"latest/features.html\">full liste av features</a> er tilgjengelig.\n"
-"                  "
+"latest/features.html\">full liste av features</a> er tilgjengelig."
 
-#: templates/homepage.html:38
+#: templates/homepage.html:36
 #, python-format
 msgid ""
-"\n"
 "It's free and simple.  Read the <a href=\"%(getting_started_url)s\">Getting "
-"Started</a> guide to get going!\n"
-"                  "
+"Started</a> guide to get going!"
 msgstr ""
-"\n"
 "Det er gratis og enkelt.  Les <a href=\"%(getting_started_url)s\">Kom i gang-"
-"guiden</a>!\n"
-"                  "
+"guiden</a>!"
 
-#: templates/homepage.html:56
+#: templates/homepage.html:52
 msgid "Featured Projects"
 msgstr "Aktuelle prosjekter"
 
-#: templates/homepage.html:77
+#: templates/homepage.html:73
 msgid "Recently Updated Projects"
 msgstr "Nylig oppdaterte prosjekter"
 
-#: templates/homepage.html:77
+#: templates/homepage.html:73
 msgid "(All Projects)"
 msgstr "(Alle prosjekter)"
 
@@ -737,18 +727,17 @@ msgid "Build Started"
 msgstr "Bygg startet"
 
 #: templates/post_commit.html:10
-msgid "is now building."
-msgstr "bygges nå"
+#, python-format
+msgid "%(project)s is now building."
+msgstr "%(project)s bygges nå."
 
-#: templates/post_commit.html:11
-msgid "Check it out"
-msgstr "Ta en titt"
+#. Translators: 'it' refers the current project being built.
+#: templates/post_commit.html:12
+#, python-format
+msgid "Check it out <a href=\"%(project_url)s\">over here</a>."
+msgstr "Ta en titt <a href=\"%(project_url)s\">på prosjektet</a>."
 
-#: templates/post_commit.html:11
-msgid "over here"
-msgstr "her"
-
-#: templates/post_commit.html:13
+#: templates/post_commit.html:14
 msgid ""
 "This is a post-commit hook. Set it up in your project admin to POST here, "
 "for us to update your doc changes automatically."
@@ -772,8 +761,8 @@ msgstr "Bygg for %(build.project.name)s"
 
 #: templates/builds/build_detail.html:11
 #, python-format
-msgid "Built: %(build_date|date:\"N j, Y. P\")s"
-msgstr "Bygget: %(build_date|date:\"N j, Y. P\")s"
+msgid "Built: %(build_date)s"
+msgstr "Bygget: %(build_date)s"
 
 #: templates/builds/build_detail.html:13
 msgid "Outcome:"
@@ -828,9 +817,10 @@ msgid "version %(slug)s (%(type)s)"
 msgstr "versjon %(slug)s (%(type)s)"
 
 #: templates/core/build_list_detailed.html:8
+#: templates/core/project_list_detailed.html:11
 #, python-format
-msgid "%(build_date|timesince)s ago"
-msgstr "%(build_date|timesince)s siden"
+msgid "%(date)s ago"
+msgstr "%(date)s siden"
 
 #: templates/core/build_list_detailed.html:13
 #: templates/core/project_list_detailed.html:26
@@ -993,11 +983,6 @@ msgstr "Post Commit Hook"
 msgid "Most viewed pages for this project"
 msgstr "Mest viste sider for dette prosjektet"
 
-#: templates/core/project_list_detailed.html:11
-#, python-format
-msgid "%(date)s ago"
-msgstr "%(date)s siden"
-
 #: templates/core/project_list_detailed.html:21
 msgid "No Docs"
 msgstr "Ingen dokumentasjon"
@@ -1013,8 +998,8 @@ msgstr "Kjør på."
 
 #: templates/dashboard/base_dashboard.html:12
 #: templates/profiles/profile_detail.html:39
-#: templates/projects/project_list.html:6
-#: templates/projects/project_list.html:11
+#: templates/projects/project_list.html:17
+#: templates/projects/project_list.html:35
 msgid "Projects"
 msgstr "Prosjekter"
 
@@ -1202,16 +1187,22 @@ msgid "Whitelisted: No"
 msgstr "Hvitelistet: Nei"
 
 #: templates/profiles/profile_detail.html:31
+#: templates/projects/project_list.html:9
+#: templates/projects/project_list.html:27
 #, python-format
 msgid "Projects by %(username)s tagged with %(tag)s"
 msgstr "Prosjekter av %(username)s tagget med %(tag)s"
 
 #: templates/profiles/profile_detail.html:33
+#: templates/projects/project_list.html:11
+#: templates/projects/project_list.html:29
 #, python-format
 msgid "Projects by %(username)s"
 msgstr "Prosjekter av %(username)s"
 
 #: templates/profiles/profile_detail.html:37
+#: templates/projects/project_list.html:15
+#: templates/projects/project_list.html:33
 #, python-format
 msgid "Projects tagged with %(tag)s"
 msgstr "Prosjekter tagget med %(tag)s"
@@ -1235,7 +1226,7 @@ msgid "Aliases"
 msgstr "Alias"
 
 #: templates/projects/alias_list.html:20
-#: templates/projects/project_list.html:22
+#: templates/projects/project_list.html:48
 msgid "Browse projects"
 msgstr "Finn prosjekter"
 
@@ -1389,20 +1380,16 @@ msgstr "Mine prosjekter"
 #: templates/projects/project_dashboard.html:62
 #, python-format
 msgid ""
-"\n"
 "You don't have any projects.  You should<a href=\"%(projects_import_url)s"
 "\">create new docs</a> on the site.<br>\n"
 "Check out the <a href=\"http://readthedocs.org/docs/read-the-docs/latest/"
 "getting_started.html\">Getting Started</a> documentation for information "
-"about how to get going.\n"
-"          "
+"about how to get going."
 msgstr ""
-"\n"
 "Du har ingen prosjekter.  Du burde <a href=\"%(projects_import_url)s\">lage "
 "ny dokumentasjon</a> på siden.<br>\n"
 "Ta en titt på <a href=\"http://readthedocs.org/docs/read-the-docs/latest/"
-"getting_started.html\">Kom i gang-guiden</a>..\n"
-"          "
+"getting_started.html\">Kom i gang-guiden</a>."
 
 #: templates/projects/project_delete.html:4
 #: templates/projects/project_delete.html:6
@@ -1431,16 +1418,6 @@ msgstr "slett"
 #: templates/projects/project_import.html:12
 msgid "Import an existing project"
 msgstr "Importer et eksisterende prosjekt"
-
-#: templates/projects/project_list.html:6
-#: templates/projects/project_list.html:11
-msgid "by"
-msgstr "av"
-
-#: templates/projects/project_list.html:6
-#: templates/projects/project_list.html:11
-msgid "tagged with"
-msgstr "tagget med"
 
 #: templates/projects/project_manage.html:6
 msgid "Manage"
@@ -1549,7 +1526,7 @@ msgstr ""
 msgid "Upload"
 msgstr "Last opp"
 
-#. Translators: After 'Flag this project as' follows either 'Inappropriate', 'Spam' and/or 'Dupliacte'
+#. Translators: After 'Flag this project as' follows either 'Inappropriate', 'Spam' and/or 'Duplicate'
 #: templates/projects/includes/flagging.html:7
 msgid "Flag this project as"
 msgstr "Flagg dette prosjektet som"
@@ -1884,10 +1861,10 @@ msgstr "Registrer deg"
 msgid "Send me the activation link."
 msgstr "Send meg aktiveringslenken."
 
-#: templates/search/base_facet.html:5
+#: templates/search/base_facet.html:5 templates/search/search.html:5
 #, python-format
-msgid " Search: %(query)s"
-msgstr " Søk: %(query)s"
+msgid "Search: %(query)s"
+msgstr "Søk: %(query)s"
 
 #. Translators: This is about starting a search
 #: templates/search/base_facet.html:27 templates/search/search.html:17
@@ -1895,14 +1872,17 @@ msgid "Go crazy."
 msgstr "Kjør på."
 
 #: templates/search/base_search.html:9
+#: templates/search/faceted_results.html:49
 msgid "Project:"
 msgstr "Prosjekt:"
 
 #: templates/search/base_search.html:14
+#: templates/search/faceted_results.html:54
 msgid "File:"
 msgstr "Fil:"
 
 #: templates/search/base_search.html:24
+#: templates/search/faceted_results.html:63
 msgid "No results found. Bummer."
 msgstr "Ingen resultater funnet. Søren."
 
@@ -1917,6 +1897,32 @@ msgstr "Forfatter"
 #: templates/search/faceted_author.html:21
 msgid "No author facets."
 msgstr "Ingen forfatter-fasetter."
+
+#: templates/search/faceted_results.html:7
+#, python-format
+msgid "%(count)s Results for %(query)s"
+msgstr "%(count)s treff for %(query)s"
+
+#: templates/search/faceted_results.html:7
+msgid "No search term entered"
+msgstr ""
+
+#. Translators: The refers to filtering a search by using facets
+#: templates/search/faceted_results.html:15
+msgid "Filtered by"
+msgstr "Filtrert på"
+
+#: templates/search/faceted_results.html:18
+msgid "remove"
+msgstr "fjern"
+
+#: templates/search/faceted_results.html:21
+msgid "Filter by Project"
+msgstr "Filtrer på prosjekt"
+
+#: templates/search/faceted_results.html:32
+msgid "No project facets."
+msgstr "Ingen prosjekterfasetter."
 
 #: templates/search/search.html:31
 #, python-format
@@ -1947,3 +1953,18 @@ msgstr "Antall"
 #, python-format
 msgid "Page views for %(project)s's url %(url)s"
 msgstr "Sidevisninger for %(project)s sin URL %(url)s"
+
+#~ msgid "Check it out"
+#~ msgstr "Ta en titt"
+
+#~ msgid "over here"
+#~ msgstr "her"
+
+#~ msgid "%(build_date|timesince)s ago"
+#~ msgstr "%(build_date|timesince)s siden"
+
+#~ msgid "by"
+#~ msgstr "av"
+
+#~ msgid "tagged with"
+#~ msgstr "tagget med"
