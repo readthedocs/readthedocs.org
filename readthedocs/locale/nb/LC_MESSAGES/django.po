@@ -636,7 +636,7 @@ msgid ""
 "2010. Created by %(eric)s, %(charles)s, and %(bobby)s for the 2010 "
 "%(djangodash)s."
 msgstr ""
-"2010. Laget av %(eric)s, %(charles)s og %(bobby)s for %(djangodash) 2010."
+"2010. Laget av %(eric)s, %(charles)s og %(bobby)s for %(djangodash)s 2010."
 
 #: templates/base.html:76
 msgid "Docs"
