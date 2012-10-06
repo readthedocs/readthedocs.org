@@ -1,0 +1,1970 @@
+# This file is distributed under the same license as the readthedocs.org
+# package.
+#
+# Translators:
+#
+# Stein Magnus Jodal <stein.magnus@jodal.no>, 2012.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: readthedocs.org\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-10-06 02:22+0200\n"
+"PO-Revision-Date: 2012-10-06 02:22+0200\n"
+"Last-Translator: Stein Magnus Jodal <stein.magnus@jodal.no>\n"
+"Language-Team: \n"
+"Language: nb\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+
+#: api/base.py:97
+msgid "Sorry, no results on that page."
+msgstr "Beklager, ingen treff på den siden."
+
+#: api/base.py:174
+#, python-format
+msgid "Invalid resource lookup data provided (mismatched type).: %(error)s"
+msgstr "Ugyldig ressursoppslagsdata benyttet (upassende type).: %(error)s"
+
+#: bookmarks/models.py:8 builds/models.py:9 builds/models.py:35
+#: builds/models.py:49 editor/models.py:15 projects/models.py:482
+#: projects/models.py:630 watching/models.py:6
+msgid "Project"
+msgstr "Prosjekt"
+
+#: bookmarks/models.py:9 core/models.py:13 editor/models.py:14
+#: projects/models.py:51
+msgid "User"
+msgstr "Bruker"
+
+#: bookmarks/models.py:10 builds/models.py:51
+msgid "Date"
+msgstr "Dato"
+
+#: bookmarks/models.py:11 templates/djangome/show.html:12 watching/models.py:7
+msgid "URL"
+msgstr "URL"
+
+#: bookmarks/models.py:12 projects/models.py:54
+#: templates/core/project_details.html:6
+msgid "Description"
+msgstr "Beskrivelse"
+
+#: bookmarks/models.py:18
+#, python-format
+msgid "Bookmark %(url)s for %(user)s (%(pk)s)"
+msgstr "Bokmerk %(url)s for %(user)s (%(pk)s)"
+
+#: builds/constants.py:4
+msgid "Triggered"
+msgstr "Trigget"
+
+#: builds/constants.py:5
+msgid "Building"
+msgstr "Bygger"
+
+#: builds/constants.py:6
+msgid "Finished"
+msgstr "Ferdig"
+
+#: builds/constants.py:10
+msgid "HTML"
+msgstr "HTML"
+
+#: builds/constants.py:11
+msgid "PDF"
+msgstr "PDF"
+
+#: builds/constants.py:12
+msgid "Epub"
+msgstr "Epub"
+
+#: builds/constants.py:13
+msgid "Manpage"
+msgstr "Man-side"
+
+#: builds/models.py:10
+msgid "Identifier"
+msgstr "Identifikator"
+
+#: builds/models.py:11
+msgid "Verbose Name"
+msgstr "Fullt navn"
+
+#: builds/models.py:12 projects/models.py:53 projects/models.py:486
+#: projects/models.py:632
+msgid "Slug"
+msgstr "Slug"
+
+#: builds/models.py:13 editor/models.py:16
+msgid "Active"
+msgstr "Aktiv"
+
+#: builds/models.py:14
+msgid "Built"
+msgstr "Bygget"
+
+#: builds/models.py:15
+msgid "Uploaded"
+msgstr "Lastet opp"
+
+#: builds/models.py:22
+#, python-format
+msgid "Version %(version)s of %(project)s (%(pk)s)"
+msgstr "Versjon %(version)s av %(project)s (%(pk)s)"
+
+#: builds/models.py:36
+msgid "From slug"
+msgstr "Fra slug"
+
+#: builds/models.py:37
+msgid "To slug"
+msgstr "Til slug"
+
+#: builds/models.py:38
+msgid "Largest"
+msgstr "Størst"
+
+#: builds/models.py:41
+#, python-format
+msgid "Alias for %(project)s: %(from)s -> %(to)s"
+msgstr "Alias for %(project)s: %(from)s -> %(to)s"
+
+#: builds/models.py:50
+msgid "Type"
+msgstr "Type"
+
+#: builds/models.py:52
+msgid "Success"
+msgstr "Suksess"
+
+#: builds/models.py:53
+msgid "Setup"
+msgstr "Oppsett"
+
+#: builds/models.py:54
+msgid "Setup error"
+msgstr "Oppsettsfeil"
+
+#: builds/models.py:55
+msgid "Output"
+msgstr "Utdata"
+
+#: builds/models.py:56
+msgid "Error"
+msgstr "Feil"
+
+#: builds/models.py:57 projects/models.py:60
+#: templates/djangome/oneoffs.html:11
+msgid "Version"
+msgstr "Versjon"
+
+#: builds/models.py:58
+msgid "State"
+msgstr "Tilstand"
+
+#: builds/models.py:65
+#, python-format
+msgid "Build %(project)s for %(usernames)s (%(pk)s)"
+msgstr "Bygg %(project)s for %(usernames)s (%(pk)s)"
+
+#: core/forms.py:13
+msgid "First name"
+msgstr "Fornavn"
+
+#: core/forms.py:14
+msgid "Last name"
+msgstr "Etternavn"
+
+#: core/middleware.py:31
+msgid "Brought to you by Read the Docs"
+msgstr "Levert av Read The Docs"
+
+#: core/middleware.py:57
+msgid "Invalid hostname"
+msgstr "Ugyldig hostnavn"
+
+#: core/middleware.py:91
+msgid "Invalid Host Name."
+msgstr "Ugyldig hostnavn."
+
+#: core/models.py:14
+msgid "Whitelisted"
+msgstr "Hvitelistet"
+
+#: core/models.py:15 templates/profiles/profile_detail.html:13
+msgid "Homepage"
+msgstr "Hjemmeside"
+
+#: core/models.py:16
+msgid "Allow email"
+msgstr "Tillat epost"
+
+#: core/models.py:16
+msgid "Show your email on VCS contributions."
+msgstr "Vis din epostadresse på VCS-bidrag."
+
+#: core/models.py:19
+#, python-format
+msgid "%(username)s's profile"
+msgstr "%(username)s sin profil"
+
+#: djangome/views.py:24
+#, python-format
+msgid "Please enter a valid URL on %s"
+msgstr "Fyll inn en gyldig URL på %s"
+
+#: editor/forms.py:6
+msgid "Body"
+msgstr "Hoveddel"
+
+#: editor/forms.py:7 editor/forms.py:12 editor/models.py:19
+#: projects/models.py:570
+msgid "Comment"
+msgstr "Kommentar"
+
+#: editor/forms.py:11 editor/models.py:18
+msgid "Title"
+msgstr "Tittel"
+
+#: editor/models.py:17
+msgid "Pushed"
+msgstr "Dyttet"
+
+#: editor/models.py:24
+#, python-format
+msgid "Branch of %(project)s by %(username)s (%(pk)s)"
+msgstr "Gren av %(project)s av %(username)s (%(pk)s)"
+
+#: projects/constants.py:16
+msgid "Sphinx Html"
+msgstr "Sphinx Html"
+
+#: projects/constants.py:17
+msgid "Sphinx HtmlDir"
+msgstr "Sphinx HtmlDir"
+
+#. Translators: This is a name of a Sphinx theme.
+#: projects/constants.py:24
+msgid "Default"
+msgstr "Standardverdi"
+
+#. Translators: This is a name of a Sphinx theme.
+#: projects/constants.py:26
+msgid "Sphinx Docs"
+msgstr "Sphinx Docs"
+
+#. Translators: This is a name of a Sphinx theme.
+#: projects/constants.py:30
+msgid "Traditional"
+msgstr "Tradisjonell"
+
+#. Translators: This is a name of a Sphinx theme.
+#: projects/constants.py:32
+msgid "Nature"
+msgstr "Natur"
+
+#. Translators: This is a name of a Sphinx theme.
+#: projects/constants.py:34
+msgid "Haiku"
+msgstr "Haiku"
+
+#: projects/constants.py:63
+msgid "Live"
+msgstr "Live"
+
+#: projects/constants.py:64
+msgid "Deleted"
+msgstr "Slettet"
+
+#: projects/constants.py:68
+msgid "Git"
+msgstr "Git"
+
+#: projects/constants.py:69
+msgid "Subversion"
+msgstr "Subversion"
+
+#: projects/constants.py:70
+msgid "Mercurial"
+msgstr "Mercurial"
+
+#: projects/constants.py:71
+msgid "Bazaar"
+msgstr "Bazaar"
+
+#: projects/forms.py:19
+msgid "A project with that name exists already!"
+msgstr "Det finnes allerede et prosjekt med det navnet!"
+
+#: projects/forms.py:54
+msgid ""
+"URL for your code (hg or git). Ex. http://github.com/ericholscher/django-"
+"kong.git"
+msgstr ""
+"URL til koden din (hg eller git). F.eks. http://github.com/ericholscher/"
+"django-kong.git"
+
+#: projects/forms.py:63
+msgid "Invalid character in repo name"
+msgstr "Ugyldig tegn i reponavnet"
+
+#: projects/forms.py:65
+msgid ""
+"It looks like you entered a private repo - please use the public (http:// or "
+"git://) clone url"
+msgstr ""
+"Du har lagt inn et privat repo - bruk den offenlige klone-URL-en (http:// "
+"eller git://)"
+
+#: projects/forms.py:71
+msgid ""
+"Your configuration file is invalid, make sure it contains conf.py in it."
+msgstr "Konfigurasjonsfilen din er ugyldig. Sjekk at den inneholder conf.py."
+
+#: projects/forms.py:86 templates/projects/legend.html:34
+msgid "reStructuredText Primer"
+msgstr "reStructuredText-innføring"
+
+#: projects/forms.py:176
+msgid "Choose the default version for this project"
+msgstr "Velg standardversjonen for dette prosjektet"
+
+#: projects/forms.py:192
+msgid "Zip file of HTML"
+msgstr "Zip-fil eller HTML"
+
+#: projects/forms.py:193
+msgid "Overwrite existing HTML?"
+msgstr "Overskriv eksisterende HTML?"
+
+#: projects/forms.py:206
+msgid "That version is already active!"
+msgstr "Den versjonen er allerede aktiv!"
+
+#: projects/forms.py:208
+msgid "Must upload a zip file."
+msgstr "Du må laste opp en zip-fil."
+
+#: projects/forms.py:222
+msgid "Version of the project you are uploading HTML for"
+msgstr "Versjon av prosjektet du laster opp HTML for"
+
+#: projects/forms.py:239
+#, python-format
+msgid "Project %(name)s does not exist"
+msgstr "Prosjektet %(name)s finnes ikke"
+
+#: projects/models.py:35 projects/models.py:483
+msgid "Parent"
+msgstr "Forelder"
+
+#: projects/models.py:36
+msgid "Child"
+msgstr "Barn"
+
+#: projects/models.py:47
+msgid "Publication date"
+msgstr "Publiseringsdato"
+
+#: projects/models.py:48
+msgid "Modified date"
+msgstr "Endringsdato"
+
+#: projects/models.py:52 projects/models.py:631
+msgid "Name"
+msgstr "Navn"
+
+#: projects/models.py:55
+msgid "The reStructuredText description of the project"
+msgstr "Beskrivelse av prosjektet i reStructuredText-format"
+
+#: projects/models.py:56
+msgid "Repository URL"
+msgstr "Repo-URL"
+
+#: projects/models.py:57
+msgid ""
+"Checkout URL for your code (hg, git, etc.). Ex. http://github.com/"
+"ericholscher/django-kong.git"
+msgstr ""
+"Utsjekkings-URL for koden din (hg, git, etc.). F.eks. http://github.com/"
+"ericholscher/django-kongo.git"
+
+#: projects/models.py:58
+msgid "Repository type"
+msgstr "Repotype"
+
+#: projects/models.py:59
+msgid "Project URL"
+msgstr "Prosjekt-URL"
+
+#: projects/models.py:59
+msgid "The project's homepage"
+msgstr "Prosjektets hjemmeside"
+
+#: projects/models.py:61
+msgid "Project version these docs apply to, i.e. 1.0a"
+msgstr "Prosjektversjon disse dokumentene tilhører, i.e. 1.0a"
+
+#: projects/models.py:62
+msgid "Copyright"
+msgstr "Opphavsrett"
+
+#: projects/models.py:63
+msgid "Project copyright information"
+msgstr "Informasjon om prosjektets opphavsrett"
+
+#: projects/models.py:64
+msgid "Theme"
+msgstr "Tema"
+
+#: projects/models.py:66
+msgid "Examples"
+msgstr "Eksempler"
+
+#: projects/models.py:67
+msgid "Suffix"
+msgstr "Postfiks"
+
+#: projects/models.py:68
+msgid "Default version"
+msgstr "Hovedversjon"
+
+#: projects/models.py:68
+msgid "The version of your project that / redirects to"
+msgstr "Versjonen av prosjektet ditt som / videresendes til"
+
+#: projects/models.py:70
+msgid "Default branch"
+msgstr "Hovedgren"
+
+#: projects/models.py:71
+msgid ""
+"What branch \"latest\" points to. Leave empty to use the default value for "
+"your VCS (eg. trunk or master)."
+msgstr ""
+"Hvilken gren \"latest\" peker til. La feltet være tomt for å bruke "
+"standardvalget for ditt VCS (f.eks. trunk eller master)"
+
+#: projects/models.py:72
+msgid "Requirements file"
+msgstr "Requirements-fil"
+
+#: projects/models.py:72
+msgid ""
+"Requires Virtualenv. A pip requirements file needed to build your "
+"documentation. Path from the root of your project."
+msgstr ""
+"Krever Virtualenv. En requirements-fil for pip trengs for å bygge "
+"dokumentasjonen din. Filsti fra roten av prosjektet."
+
+#: projects/models.py:73
+msgid "Documentation type"
+msgstr "Dokumentasjonstype"
+
+#: projects/models.py:75
+msgid ""
+"Type of documentation you are building. <a href=\"http://sphinx.pocoo.org/"
+"builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More info</a>."
+msgstr ""
+"Type dokumentasjon som bygges. <a href=\"http://sphinx.pocoo.org/builders."
+"html#sphinx.builders.html.DirectoryHTMLBuilder\">Mer informasjon</a>."
+
+#: projects/models.py:76
+msgid "Analytics code"
+msgstr "Analytics-kode"
+
+#: projects/models.py:76
+msgid ""
+"Google Analytics Tracking ID (ex. UA-22345342-1). This may slow down your "
+"page loads."
+msgstr ""
+"Google Analytics Tracking ID (f.eks. UA-22345342-1). Dette kan forsinke "
+"sidelastninger."
+
+#: projects/models.py:79 projects/models.py:633
+msgid "Path"
+msgstr "Filsti"
+
+#: projects/models.py:79
+msgid "The directory where conf.py lives"
+msgstr "Katalogen hvor conf.py er"
+
+#: projects/models.py:81
+msgid "Python configuration file"
+msgstr "Python-konfigurasjonsfil"
+
+#: projects/models.py:82
+msgid ""
+"Path from project root to conf.py file (ex. docs/conf.py). Leave blank if "
+"you want us to find it for you."
+msgstr ""
+"Filsti fra prosjektets rot til conf.py-filen (f.eks. docs/conf.py). La "
+"feltet være tomt om du vil at vi skal finne den for deg."
+
+#: projects/models.py:84
+msgid "Featured"
+msgstr "Aktuell"
+
+#: projects/models.py:85
+msgid "Skip"
+msgstr "Hopp over"
+
+#: projects/models.py:86
+msgid "Use virtualenv"
+msgstr "Bruk virtualenv"
+
+#: projects/models.py:87
+msgid "Install your project inside a virtualenv using setup.py install"
+msgstr ""
+"Installer prosjektet ditt i et virtualenv ved hjelp av setup.py install"
+
+#: projects/models.py:88
+msgid "Django Packages URL"
+msgstr "Django Packages-URL"
+
+#: projects/models.py:89
+msgid "Crate URL"
+msgstr "Crate-URL"
+
+#: projects/models.py:92
+msgid "Related projects"
+msgstr "Relaterte prosjekter"
+
+#: projects/models.py:120
+msgid "Model must have slug"
+msgstr "Modellen må ha en slug"
+
+#: projects/models.py:285
+msgid "Conf File Missing."
+msgstr "Konfigurasjonsfil mangler."
+
+#: projects/models.py:485
+msgid "Heading"
+msgstr "Overskrift"
+
+#: projects/models.py:487
+msgid "Content"
+msgstr "Innhold"
+
+#: projects/models.py:488
+msgid "Denormalized path"
+msgstr "Denormalisert filsti"
+
+#: projects/models.py:489
+msgid "Ordering"
+msgstr "Sortering"
+
+#: projects/models.py:490
+msgid "Status"
+msgstr "Status"
+
+#: projects/models.py:569
+msgid "File"
+msgstr "Fil"
+
+#: projects/models.py:571
+msgid "Diff"
+msgstr "Diff"
+
+#: projects/models.py:572
+msgid "Created date"
+msgstr "Opprettet dato"
+
+#: projects/models.py:574
+msgid "Revision number"
+msgstr "Revisjonsnummer"
+
+#: projects/models.py:575
+msgid "Is reverted"
+msgstr "Er tilbakerullet"
+
+#: projects/models.py:634
+msgid "MD5 checksum"
+msgstr "MD5-sjekksum"
+
+#: settings/base.py:42
+msgid "English"
+msgstr "Engelsk"
+
+#: settings/base.py:43
+msgid "Spanish"
+msgstr "Spansk"
+
+#: templates/404.html:6
+msgid "Maze Found"
+msgstr "Labyrint funnet"
+
+#: templates/404.html:12
+msgid "SORRY"
+msgstr "Beklager"
+
+#: templates/500.html:5
+msgid "Server Error"
+msgstr "Serverfeil"
+
+#: templates/500.html:7
+msgid "Something's wrong"
+msgstr "Noe er galt"
+
+#: templates/500.html:18
+msgid "Fail.  Check back in a bit!"
+msgstr "Feil.  Prøv igjen om en liten stund!"
+
+#. Translators: Name of the website
+#: templates/base.html:13 templates/core/header.html:59
+#: templates/core/home-header.html:9
+msgid "Read the Docs"
+msgstr "Read the Docs"
+
+#: templates/base.html:52
+msgid ""
+"You docs are currently being built.  It may take a moment for them to appear."
+msgstr ""
+"Dokumentasjonen er under bygging.  Det kan ta litt tid før den er klar."
+
+#: templates/base.html:53
+msgid "Read the Docs thanks you for your continued patience."
+msgstr "Read the Docs takker deg for tålmodigheten din."
+
+#: templates/base.html:74
+#, python-format
+msgid ""
+"2010. Created by %(eric)s, %(charles)s, and %(bobby)s for the 2010 "
+"%(djangodash)s."
+msgstr ""
+"2010. Laget av %(eric)s, %(charles)s og %(bobby)s for %(djangodash)s 2010."
+
+#: templates/base.html:76
+msgid "Docs"
+msgstr "Dokumentasjon"
+
+#: templates/base.html:81
+msgid ""
+"Thanks for believing in us: <a href=\"http://revsys.com\">RevSys</a>, <a "
+"href=\"http://www.python.org/psf/\">Python Software Foundation</a>, <a href="
+"\"http://blog.mozilla.com/webdev/\">Mozilla Web Dev</a>, <a href=\"https://"
+"www.djangoproject.com/foundation/\">Django Software Foundation</a>, <a href="
+"\"http://lab305.com\">Lab305</a>, and <a href=\"http://enn.io/\">enn.io</a>."
+msgstr ""
+"Takk for støtten: <a href=\"http://revsys.com\">RevSys</a>, <a href=\"http://"
+"www.python.org/psf/\">Python Software Foundation</a>, <a href=\"http://blog."
+"mozilla.com/webdev/\">Mozilla Web Dev</a>, <a href=\"https://www."
+"djangoproject.com/foundation/\">Django Software Foundation</a>, <a href="
+"\"http://lab305.com\">Lab305</a> og <a href=\"http://enn.io/\">enn.io</a>."
+
+#: templates/base.html:84
+msgid ""
+"Made by <a href=\"https://github.com/rtfd/readthedocs.org/graphs/contributors"
+"\">humans</a>. Funded by <a href=\"https://www.gittip.com/readthedocs/"
+"\">readers like you</a>."
+msgstr ""
+"Laget av <a href=\"https://github.com/rtfd/readthedocs.org/graphs/"
+"contributors\">mennesker</a>. Finansiert av <a href=\"https://www.gittip.com/"
+"readthedocs/\">lesere som deg</a>."
+
+#: templates/homepage.html:7
+#: templates/registration/password_reset_complete.html:6
+#: templates/registration/password_reset_confirm.html:6
+#: templates/registration/password_reset_done.html:6
+#: templates/registration/password_reset_form.html:7
+msgid "Home"
+msgstr "Hjem"
+
+#: templates/homepage.html:28
+msgid "What is this place?"
+msgstr "Hva er dette?"
+
+#: templates/homepage.html:30
+msgid ""
+"Read the Docs hosts documentation, making it fully searchable and easy to "
+"find.\n"
+"You can import your docs using any major version control system, including "
+"Mercurial, Git, Subversion, and Bazaar.\n"
+"We support <a href=\"http://read-the-docs.readthedocs.org/en/latest/webhooks."
+"html\">webhooks</a> so your docs get built when you commit code.\n"
+"There's also support for versioning so you can build docs from tags and "
+"branches of your code in your repository. A <a href=\"http://read-the-docs."
+"readthedocs.org/en/latest/features.html\">full list of features</a> is "
+"available."
+msgstr ""
+"Read the Docs hoster dokumentasjon, gjør den søkbar og enkel å finne.\n"
+"Du kan importere dokumentasjonen din ved hjelp av de fleste store "
+"versjonskontrollsystemer, inkludert Mercurial, Git, Subversion og Bazaar.\n"
+"Vi støtter <a href=\"http://read-the-docs.readthedocs.org/en/latest/webhooks."
+"html\">webhooks</a> slik at dokumentasjonen din blir bygget når du sjekker "
+"inn kode.\n"
+"Versjonering er også støttet, slik at du kan bygge dokumentasjon fra tagger "
+"og grener i repoet ditt.En <a href=\"http://read-the-docs.readthedocs.org/en/"
+"latest/features.html\">full liste av features</a> er tilgjengelig."
+
+#: templates/homepage.html:36
+#, python-format
+msgid ""
+"It's free and simple.  Read the <a href=\"%(getting_started_url)s\">Getting "
+"Started</a> guide to get going!"
+msgstr ""
+"Det er gratis og enkelt.  Les <a href=\"%(getting_started_url)s\">Kom i gang-"
+"guiden</a>!"
+
+#: templates/homepage.html:52
+msgid "Featured Projects"
+msgstr "Aktuelle prosjekter"
+
+#: templates/homepage.html:73
+msgid "Recently Updated Projects"
+msgstr "Nylig oppdaterte prosjekter"
+
+#: templates/homepage.html:73
+msgid "(All Projects)"
+msgstr "(Alle prosjekter)"
+
+#: templates/post_commit.html:5
+msgid "Build Started"
+msgstr "Bygg startet"
+
+#: templates/post_commit.html:10
+#, python-format
+msgid "%(project)s is now building."
+msgstr "%(project)s bygges nå."
+
+#. Translators: 'it' refers the current project being built.
+#: templates/post_commit.html:12
+#, python-format
+msgid "Check it out <a href=\"%(project_url)s\">over here</a>."
+msgstr "Ta en titt <a href=\"%(project_url)s\">på prosjektet</a>."
+
+#: templates/post_commit.html:14
+msgid ""
+"This is a post-commit hook. Set it up in your project admin to POST here, "
+"for us to update your doc changes automatically."
+msgstr ""
+"Dette er en post-commit hook. For at vi skal bygge dokumentasjonen din "
+"automatisk må du sette opp i administrasjonsgrensesnittet til prosjektet "
+"ditt at en POST-forespørsel skal sendes hit."
+
+#: templates/bookmarks/bookmark_list.html:7
+msgid "Bookmarks"
+msgstr "Bokmerker"
+
+#: templates/bookmarks/bookmark_list.html:20
+msgid "Recent Bookmarks"
+msgstr "Nye bokmerker"
+
+#: templates/builds/build_detail.html:7
+#, python-format
+msgid "Build for %(build.project.name)s"
+msgstr "Bygg for %(build.project.name)s"
+
+#: templates/builds/build_detail.html:11
+#, python-format
+msgid "Built: %(build_date)s"
+msgstr "Bygget: %(build_date)s"
+
+#: templates/builds/build_detail.html:13
+msgid "Outcome:"
+msgstr "Resultat:"
+
+#: templates/builds/build_detail.html:13
+#: templates/core/build_list_detailed.html:6
+msgid "Passed"
+msgstr "Passert"
+
+#: templates/builds/build_detail.html:13
+#: templates/core/build_list_detailed.html:6
+msgid "Failed"
+msgstr "Feilet"
+
+#: templates/builds/build_detail.html:19
+msgid "Type:"
+msgstr "Type:"
+
+#: templates/builds/build_detail.html:21
+msgid "State:"
+msgstr "Tilstand:"
+
+#: templates/builds/build_detail.html:25
+msgid "Sphinx Standard Output"
+msgstr "Sphinx Standard Output"
+
+#: templates/builds/build_detail.html:29
+msgid "Sphinx Standard Error"
+msgstr "Sphinx Standard Error"
+
+#: templates/builds/build_detail.html:34
+msgid "Setup Output"
+msgstr "Setup Output"
+
+#: templates/builds/build_detail.html:39
+msgid "Environment Standard Error"
+msgstr "Environment Standard Error"
+
+#: templates/builds/build_list.html:18
+msgid "Recent Builds"
+msgstr "Nylige bygg"
+
+#: templates/builds/tag_list.html:5 templates/projects/tag_list.html:4
+#: templates/projects/tag_list.html.py:7
+msgid "Popular tags"
+msgstr "Populære tagger"
+
+#: templates/core/build_list_detailed.html:8
+#, python-format
+msgid "version %(slug)s (%(type)s)"
+msgstr "versjon %(slug)s (%(type)s)"
+
+#: templates/core/build_list_detailed.html:8
+#: templates/core/project_list_detailed.html:11
+#, python-format
+msgid "%(date)s ago"
+msgstr "%(date)s siden"
+
+#: templates/core/build_list_detailed.html:13
+#: templates/core/project_list_detailed.html:26
+#: templates/core/project_list_featured.html:19
+msgid "No projects found"
+msgstr "Ingen prosjekter funnet"
+
+#: templates/core/header.html:68
+msgid "Go"
+msgstr "Søk"
+
+#: templates/core/header.html:94
+msgid "Dashboard"
+msgstr "Oversikt"
+
+#: templates/core/header.html:95 templates/registration/logout.html:6
+msgid "Log Out"
+msgstr "Logg ut"
+
+#: templates/core/header.html:97 templates/core/home-header.html:19
+#: templates/registration/login.html:6 templates/registration/login.html:11
+#: templates/registration/login.html:18
+#: templates/registration/password_reset_complete.html:16
+msgid "Log in"
+msgstr "Logg in"
+
+#: templates/core/home-header.html:10
+msgid "Create, host, and browse documentation."
+msgstr "Lag, tilgjengeliggjør og finn dokumentasjon."
+
+#. Translators: Note, the full sentence goes 'Sign up' 'or' 'Log in'. But unfortunately the three bits have to be separate.
+#: templates/core/home-header.html:17
+msgid "Sign up"
+msgstr "Registrering"
+
+#. Translators: The 'or' here is in between 'Submit' and 'delete'.
+#: templates/core/home-header.html:19 templates/projects/project_edit.html:31
+msgid "or"
+msgstr "eller"
+
+#: templates/core/project_bar.html:24
+#, python-format
+msgid "Build failed (<a href=\"%(url)s\">why</a>)"
+msgstr "Bygget feilet (<a href=\"%(url)s\">årsak</a>)"
+
+#: templates/core/project_bar.html:27
+msgid "There are no builds for this project"
+msgstr "Det er ingen bygg for dette prosjektet"
+
+#: templates/core/project_bar.html:27
+msgid "Is the repo correct?"
+msgstr "Er repoet riktig?"
+
+#: templates/core/project_bar.html:32
+#: templates/core/project_list_detailed.html:19
+#: templates/core/project_list_featured.html:15
+#: templates/projects/project_dashboard.html:49
+msgid "View Docs"
+msgstr "Vis dokumentasjon"
+
+#: templates/core/project_bar.html:39
+#: templates/projects/project_dashboard.html:35
+msgid "Manage Files"
+msgstr "Administrer filer"
+
+#: templates/core/project_bar.html:41 templates/editor/editor_file.html:19
+#: templates/editor/editor_file.html:21
+#: templates/projects/project_dashboard.html:47
+msgid "Edit"
+msgstr "Rediger"
+
+#: templates/core/project_bar.html:42
+#: templates/projects/project_dashboard.html:45
+msgid "Subprojects"
+msgstr "Underprosjekter"
+
+#: templates/core/project_bar.html:46
+#: templates/projects/project_dashboard.html:48
+msgid "Builds"
+msgstr "Bygg"
+
+#: templates/core/project_bar.html:50 templates/core/project_details.html:30
+#: templates/projects/project_dashboard.html:38
+msgid "Versions"
+msgstr "Versjoner"
+
+#: templates/core/project_details.html:16
+msgid "Search this project"
+msgstr "Søk i dette prosjektet"
+
+#: templates/core/project_details.html:39
+#, python-format
+msgid "%(slug)s (Build Failed)"
+msgstr "%(slug)s (Bygget feilet)"
+
+#: templates/core/project_details.html:65
+msgid "Short URLs"
+msgstr "Korte URL-er"
+
+#: templates/core/project_details.html:73
+msgid "Open Comparison"
+msgstr "Open Comparison"
+
+#: templates/core/project_details.html:74
+#, python-format
+msgid ""
+"This project has more information available about it on <a href=\"%(url)s"
+"\">Open Comparison!</a>"
+msgstr ""
+"Dette prosjektet har mer informasjon tilgjengelig på <a href=\"%(url)s"
+"\">Open Comparison!</a>"
+
+#: templates/core/project_details.html:78
+msgid "Crate"
+msgstr "Crate"
+
+#: templates/core/project_details.html:79
+#, python-format
+msgid ""
+"This project has more information available about it on <a href=\"%(url)s"
+"\">Crate!</a>"
+msgstr ""
+"Dette prosjektet har mer informasjon tilgjengelig på <a href=\"%(url)s"
+"\">Crate!</a>"
+
+#: templates/core/project_details.html:92
+msgid "Last Built"
+msgstr "Sist bygget"
+
+#: templates/core/project_details.html:97
+msgid "Repository"
+msgstr "Repo"
+
+#: templates/core/project_details.html:109
+msgid "Tags"
+msgstr "Tagger"
+
+#: templates/core/project_details.html:114
+msgid "No tags"
+msgstr "Ingen tagger"
+
+#: templates/core/project_details.html:121
+msgid "Latest Revisions"
+msgstr "Siste revisjoner"
+
+#: templates/core/project_details.html:124
+#, python-format
+msgid "%(revision)s %(timesince)s ago"
+msgstr "%(revision)s %(timesince)s siden"
+
+#: templates/core/project_details.html:126
+msgid "No revisions"
+msgstr "Ingen revisjoner"
+
+#: templates/core/project_details.html:132
+msgid "Post Commit Hook"
+msgstr "Post Commit Hook"
+
+#: templates/core/project_details.html:142
+msgid "Most viewed pages for this project"
+msgstr "Mest viste sider for dette prosjektet"
+
+#: templates/core/project_list_detailed.html:21
+msgid "No Docs"
+msgstr "Ingen dokumentasjon"
+
+#: templates/core/widesearchbar.html:4
+msgid "Search all the docs."
+msgstr "Søk i all dokumentasjon."
+
+#. Translators: This is about starting a search
+#: templates/core/widesearchbar.html:16
+msgid "Let's do this."
+msgstr "Kjør på."
+
+#: templates/dashboard/base_dashboard.html:12
+#: templates/profiles/profile_detail.html:39
+#: templates/projects/project_list.html:17
+#: templates/projects/project_list.html:35
+msgid "Projects"
+msgstr "Prosjekter"
+
+#: templates/dashboard/base_dashboard.html:20
+#: templates/projects/alias_edit.html:16
+#: templates/projects/project_create.html:34
+#: templates/projects/project_import.html:17
+msgid "Create"
+msgstr "Opprett"
+
+#: templates/dashboard/base_dashboard.html:21
+msgid "Import"
+msgstr "Importer"
+
+#: templates/dashboard/base_dashboard.html:27
+msgid "Edit Profile"
+msgstr "Rediger profil"
+
+#: templates/dashboard/base_dashboard.html:29
+msgid "Create Profile"
+msgstr "Opprett profil"
+
+#: templates/dashboard/base_dashboard.html:33
+msgid "Change Password"
+msgstr "Endre passord"
+
+#: templates/djangome/choices.html:4
+#, python-format
+msgid "Choose a redirect for \"%(djangome_term)s\""
+msgstr "Velg en videresending for \"%(djangome_term)s\""
+
+#: templates/djangome/choices.html:7
+#, python-format
+msgid ""
+"Choose a redirect for <kbd>%(djangome_term)s on <a href=\"http://%(slug)s."
+"readthedocs.org\">%(slug)s.readthedocs.org</a></kbd>"
+msgstr ""
+"Velg en videresending for <kbd>%(djangome_term)s på <a href=\"http://"
+"%(slug)s.readthedocs.org\">%(slug)s.readthedocs.org</a></kbd>"
+
+#: templates/djangome/choices.html:28
+msgid "Save &amp; go &rarr;"
+msgstr "Lagre &amp; fortsett &arr;"
+
+#: templates/djangome/oneoffs.html:4
+msgid "One-offs"
+msgstr "Engangsforeteelser"
+
+#: templates/djangome/oneoffs.html:12
+msgid "Term"
+msgstr "Begrep"
+
+#: templates/djangome/oneoffs.html:13
+msgid "Target"
+msgstr "Mål"
+
+#: templates/djangome/oneoffs.html:27
+msgid "kill"
+msgstr "fjern"
+
+#: templates/djangome/oneoffs.html:37
+msgid "add"
+msgstr "legg til"
+
+#: templates/djangome/show.html:4
+#, python-format
+msgid "Statistics for %(term)s"
+msgstr "Statistikk for %(term)s"
+
+#: templates/djangome/show.html:5
+#, python-format
+msgid "Statistics for <kbd>%(term)s</kbd>:"
+msgstr "Statistikk for <kbd>%(term)s</kbd>:"
+
+#: templates/djangome/show.html:13
+msgid "Clicks"
+msgstr "Klikk"
+
+#: templates/djangome/show.html:39
+msgid "Add"
+msgstr "Legg til"
+
+#: templates/editor/editor_file.html:28
+#: templates/projects/project_edit.html:29
+#: templates/projects/project_subprojects.html:34
+#: templates/projects/project_versions.html:21
+msgid "Submit"
+msgstr "Send inn"
+
+#: templates/editor/editor_file.html:28
+msgid "Send pull request"
+msgstr "Send pull request"
+
+#: templates/editor/editor_pick.html:4 templates/editor/editor_pick.html:6
+msgid "Pick a file to edit"
+msgstr "Velg en fil for redigering"
+
+#: templates/editor/editor_push.html:4 templates/editor/editor_push.html:6
+msgid "Send pull request to"
+msgstr "Send pull request til"
+
+#: templates/editor/editor_push.html:13
+msgid "Send"
+msgstr "Send"
+
+#: templates/flagging/flag_confirm.html:6
+#: templates/flagging/flag_confirm.html:11
+msgid "Confirm flagging"
+msgstr "Bekreft flagging"
+
+#: templates/flagging/flag_confirm.html:17
+msgid "What you are saying:"
+msgstr "Hva du sier:"
+
+#: templates/flagging/flag_confirm.html:21
+#, python-format
+msgid ""
+"Are you sure you want to flag \"%(object)s\" as \"%(flag_type.title)s\"?"
+msgstr ""
+"Er du sikker på at du vil flagge \"%(object)s\" som \"%(flag_type.title)s\"?"
+
+#: templates/flagging/flag_confirm.html:23
+#, python-format
+msgid "Yes, this is %(title)s"
+msgstr "Ja, dette er %(title)s"
+
+#: templates/flagging/flag_confirm.html:24
+msgid "cancel"
+msgstr "avbryt"
+
+#: templates/flagging/flag_success.html:6
+#: templates/flagging/flag_success.html:11
+msgid "Flagging successful"
+msgstr "Flagging vellykket"
+
+#: templates/flagging/flag_success.html:16
+#, python-format
+msgid "You have successfully flagged \"%(object)s\" as \"%(flag_type.title)s\""
+msgstr "Du har vellykket flagget \"%(object)s\" som \"%(flag_type.title)s\""
+
+#: templates/flagging/flag_success.html:18
+msgid "Thank you for contributing to the quality of this site!"
+msgstr "Takk for at du bidrar til å øke kvaliteten på siden!"
+
+#: templates/pagination/pagination.html:6
+#: templates/pagination/pagination.html:8
+msgid "previous"
+msgstr "forrige"
+
+#: templates/pagination/pagination.html:22
+#: templates/pagination/pagination.html:24
+msgid "next"
+msgstr "neste"
+
+#: templates/profiles/create_profile.html:5
+#: templates/profiles/create_profile.html:10
+msgid "Create your profile"
+msgstr "Lag deg en profil"
+
+#: templates/profiles/create_profile.html:16
+msgid "Create it!"
+msgstr "Opprett!"
+
+#: templates/profiles/edit_profile.html:5
+#: templates/profiles/edit_profile.html:10
+msgid "Edit your profile"
+msgstr "Rediger profilen din"
+
+#: templates/profiles/edit_profile.html:16
+msgid "OK, save it!"
+msgstr "OK, lagre den!"
+
+#: templates/profiles/profile_detail.html:5
+#: templates/profiles/profile_detail.html:8
+#, python-format
+msgid "%(user)s's profile"
+msgstr "%(user)s sin profil"
+
+#: templates/profiles/profile_detail.html:21
+msgid "Whitelisted: Yes"
+msgstr "Hvitelistet: Ja"
+
+#: templates/profiles/profile_detail.html:23
+msgid "Whitelisted: No"
+msgstr "Hvitelistet: Nei"
+
+#: templates/profiles/profile_detail.html:31
+#: templates/projects/project_list.html:9
+#: templates/projects/project_list.html:27
+#, python-format
+msgid "Projects by %(username)s tagged with %(tag)s"
+msgstr "Prosjekter av %(username)s tagget med %(tag)s"
+
+#: templates/profiles/profile_detail.html:33
+#: templates/projects/project_list.html:11
+#: templates/projects/project_list.html:29
+#, python-format
+msgid "Projects by %(username)s"
+msgstr "Prosjekter av %(username)s"
+
+#: templates/profiles/profile_detail.html:37
+#: templates/projects/project_list.html:15
+#: templates/projects/project_list.html:33
+#, python-format
+msgid "Projects tagged with %(tag)s"
+msgstr "Prosjekter tagget med %(tag)s"
+
+#: templates/profiles/profile_list.html:5
+#: templates/profiles/profile_list.html:8
+msgid "User profiles"
+msgstr "Brukerprofiler"
+
+#: templates/projects/alias_edit.html:4 templates/projects/alias_edit.html:7
+msgid "Project Alias"
+msgstr "Prosjektalias"
+
+#: templates/projects/alias_edit.html:12
+msgid "Add an alias for a project version."
+msgstr "Legg til et alias for en prosjektversjon."
+
+#: templates/projects/alias_list.html:6 templates/projects/alias_list.html:11
+#: templates/projects/project_dashboard.html:41
+msgid "Aliases"
+msgstr "Alias"
+
+#: templates/projects/alias_list.html:20
+#: templates/projects/project_list.html:48
+msgid "Browse projects"
+msgstr "Finn prosjekter"
+
+#: templates/projects/file_add.html:19 templates/projects/file_add.html:22
+msgid "Add a file"
+msgstr "Legg til en fil"
+
+#: templates/projects/file_add.html:30
+msgid "Add file"
+msgstr "Legg til fil"
+
+#: templates/projects/file_delete.html:4 templates/projects/file_delete.html:6
+#, python-format
+msgid "Delete %(heading)s?"
+msgstr "Slett %(heading)s?"
+
+#: templates/projects/file_delete.html:11
+msgid "You sure? O_o"
+msgstr "Er du sikker? O_o"
+
+#: templates/projects/file_delete.html:13
+#, python-format
+msgid "I don't ever want to see '%(heading)s' again"
+msgstr "Jeg vil aldri se '%(heading)s igjen"
+
+#: templates/projects/file_edit.html:19 templates/projects/file_edit.html:21
+#, python-format
+msgid "Edit %(heading)s"
+msgstr "Rediger %(heading)s"
+
+#: templates/projects/file_edit.html:27 templates/projects/file_history.html:6
+msgid "Revision History"
+msgstr "Revisjonshistorie"
+
+#: templates/projects/file_edit.html:32
+msgid "Looks good! (Save)"
+msgstr "Alt i orden! (Lagre)"
+
+#: templates/projects/file_history.html:4
+msgid "History"
+msgstr "Historikk"
+
+#: templates/projects/file_history.html:12
+msgid "Current"
+msgstr "Gjeldende"
+
+#. Translators: Revert to a specific revision of a file.
+#: templates/projects/file_history.html:24
+msgid "Revert to"
+msgstr "Rull tilbake til"
+
+#: templates/projects/file_revert.html:4
+#, python-format
+msgid "Revert %(heading)s to revision %(revision)s?"
+msgstr "Rull %(heading)s tilbake til revisjon %(revision)s?"
+
+#: templates/projects/file_revert.html:8
+msgid "Revert"
+msgstr "Rull tilbake"
+
+#: templates/projects/legend.html:4
+msgid "External Links"
+msgstr "Eksterne lenker"
+
+#: templates/projects/legend.html:5
+msgid "Link text"
+msgstr "Lenketekst"
+
+#: templates/projects/legend.html:7
+msgid "Internal Links"
+msgstr "Interne lenker"
+
+#: templates/projects/legend.html:10
+msgid "Bold"
+msgstr "Fet"
+
+#: templates/projects/legend.html:11
+msgid "text to bold"
+msgstr "fet tekst"
+
+#: templates/projects/legend.html:13
+msgid "Emphasized"
+msgstr "Uthevet"
+
+#: templates/projects/legend.html:14
+msgid "text to emphasize"
+msgstr "uthevet tekst"
+
+#: templates/projects/legend.html:16
+msgid "Lists"
+msgstr "Lister"
+
+#: templates/projects/legend.html:19 templates/projects/legend.html.py:20
+#: templates/projects/legend.html:23 templates/projects/legend.html.py:24
+msgid "Item"
+msgstr "Punkt"
+
+#: templates/projects/legend.html:28
+msgid "Source Code"
+msgstr "Kildekode"
+
+#: templates/projects/legend.html:30
+msgid "e.g. Check out this code"
+msgstr "f.eks. Se på denne kodesnutten"
+
+#: templates/projects/legend.html:31
+msgid "actual code indented"
+msgstr "faktisk kode indentert"
+
+#: templates/projects/project_configure.html:4
+#, python-format
+msgid "Configure %(name)s"
+msgstr "Konfigurer %(name)s"
+
+#: templates/projects/project_configure.html:6
+msgid "Edit Configuration"
+msgstr "Rediger konfigurasjon"
+
+#: templates/projects/project_configure.html:13
+msgid "Save Configuration"
+msgstr "Lagre konfigurasjon"
+
+#: templates/projects/project_create.html:21
+msgid "Create a new project"
+msgstr "Opprett et nytt prosjekt"
+
+#: templates/projects/project_create.html:24
+msgid "Create a New Project"
+msgstr "Opprett et nytt prosjekt"
+
+#: templates/projects/project_create.html:29
+msgid ""
+"Create new documentation here. If you already have docs in a public "
+"repository,"
+msgstr ""
+"Opprett et nytt prosjekt her. Hvis du allerede har dokumentasjon i et "
+"offentlig repo,"
+
+#: templates/projects/project_create.html:30
+msgid "import an existing project"
+msgstr "så importer et eksisterende prosjekt."
+
+#: templates/projects/project_dashboard.html:4
+msgid "Project Dashboard"
+msgstr "Prosjektoversikt"
+
+#: templates/projects/project_dashboard.html:23
+msgid "My Projects"
+msgstr "Mine prosjekter"
+
+#: templates/projects/project_dashboard.html:62
+#, python-format
+msgid ""
+"You don't have any projects.  You should<a href=\"%(projects_import_url)s"
+"\">create new docs</a> on the site.<br>\n"
+"Check out the <a href=\"http://readthedocs.org/docs/read-the-docs/latest/"
+"getting_started.html\">Getting Started</a> documentation for information "
+"about how to get going."
+msgstr ""
+"Du har ingen prosjekter.  Du burde <a href=\"%(projects_import_url)s\">lage "
+"ny dokumentasjon</a> på siden.<br>\n"
+"Ta en titt på <a href=\"http://readthedocs.org/docs/read-the-docs/latest/"
+"getting_started.html\">Kom i gang-guiden</a>."
+
+#: templates/projects/project_delete.html:4
+#: templates/projects/project_delete.html:6
+#, python-format
+msgid "Delete %(name)s?"
+msgstr "Slett %(name)s?"
+
+#: templates/projects/project_delete.html:9
+msgid "You sure?"
+msgstr "Er du sikker?"
+
+#: templates/projects/project_delete.html:12
+msgid "Delete forever"
+msgstr "Slett for alltid"
+
+#: templates/projects/project_edit.html:19
+#: templates/projects/project_edit.html:23
+msgid "Edit project"
+msgstr "Rediger prosjekt"
+
+#: templates/projects/project_edit.html:32
+msgid "delete"
+msgstr "slett"
+
+#: templates/projects/project_import.html:4
+#: templates/projects/project_import.html:12
+msgid "Import an existing project"
+msgstr "Importer et eksisterende prosjekt"
+
+#: templates/projects/project_manage.html:6
+msgid "Manage"
+msgstr "Administrer"
+
+#: templates/projects/project_manage.html:10
+msgid "Project Files"
+msgstr "Prosjektfiler"
+
+#: templates/projects/project_manage.html:19
+msgid "Add New File"
+msgstr "Legg til ny fil"
+
+#: templates/projects/project_manage.html:25
+msgid "(delete)"
+msgstr "(slett)"
+
+#: templates/projects/project_subprojects.html:5
+#: templates/projects/project_subprojects.html:9
+msgid "Edit Subprojects"
+msgstr "Rediger underprosjekter"
+
+#: templates/projects/project_subprojects.html:13
+msgid ""
+"This allows you to add subprojects to your project. This allows them to live "
+"in the same namespace in the URLConf for a subdomain or CNAME."
+msgstr ""
+"Dette lar deg legge til underprosjekter på ditt prosjekt. Slik kan de dele "
+"det samme navnerommet i URL-konfigurasjonen for et subdomene eller CNAME."
+
+#: templates/projects/project_subprojects.html:16
+msgid "Existing Subprojects"
+msgstr "Eksisterende underprosjekter"
+
+#: templates/projects/project_subprojects.html:24
+msgid "Remove"
+msgstr "Fjern"
+
+#: templates/projects/project_subprojects.html:29
+msgid "Choose which project you would like to add as a subproject."
+msgstr "Velg hvilket prosjekt du vil legge til som et underprosjekt."
+
+#: templates/projects/project_versions.html:4
+#: templates/projects/project_versions.html:8
+msgid "Edit project versions"
+msgstr "Rediger prosjektversjoner"
+
+#: templates/projects/project_versions.html:12
+msgid ""
+"If you are having trouble building older versions of your Documentation, "
+"then you can"
+msgstr ""
+"Hvis du har problemer med å bygge eldre versjoner av dokumentasjonen din, så "
+"kan du"
+
+#: templates/projects/project_versions.html:12
+msgid "Upload a Zip file of HTML"
+msgstr "Laste opp en Zip-fil med HTML"
+
+#: templates/projects/project_versions.html:12
+msgid ""
+"instead. This is to support versions that may not build anymore with current "
+"Sphinx, or to support plugins and extensions that we may not have on our "
+"server."
+msgstr ""
+"istedenfor. Dette for å støtte versjoner som ikke lenger kan bygges med "
+"siste Sphinx-versjon, eller for å støtte plugins og utvidelser som vi ikke "
+"støtter på vår tjener."
+
+#: templates/projects/project_versions.html:16
+msgid ""
+"Choose which versions you would like to publish besides the latest revision."
+msgstr ""
+"Velg hvilke versjoner du vil publisere i tillegg til den siste versjonen."
+
+#: templates/projects/search.html:6 templates/projects/search.html.py:20
+#, python-format
+msgid "Search results for %(term)s"
+msgstr "Søketreff for %(term)s"
+
+#: templates/projects/search.html:37
+msgid "Huh?"
+msgstr "Hæ?"
+
+#: templates/projects/search.html:38
+msgid "No docs matched your search. ¯\\(O_o)/¯"
+msgstr "Ingen dokumenter passet til søket ditt. ¯\\(O_o)/¯"
+
+#: templates/projects/upload_html.html:4
+msgid "Import HTML Documentation"
+msgstr "Importer HTML-dokumentasjon"
+
+#: templates/projects/upload_html.html:8
+msgid "Upload HTML Documentation"
+msgstr "Last opp HTML-dokumentasjon"
+
+#: templates/projects/upload_html.html:12
+msgid ""
+"Use this to upload pre-existing HTML documentation for versions that don't "
+"build correctly anymore."
+msgstr ""
+"Bruk dette til å laste opp eksisterende HTML-dokumentasjon som ikke bygger "
+"korrekt lenger."
+
+#: templates/projects/upload_html.html:16
+msgid "Upload"
+msgstr "Last opp"
+
+#. Translators: After 'Flag this project as' follows either 'Inappropriate', 'Spam' and/or 'Duplicate'
+#: templates/projects/includes/flagging.html:7
+msgid "Flag this project as"
+msgstr "Flagg dette prosjektet som"
+
+#: templates/projects/includes/flagging.html:8
+msgid "Inappropriate"
+msgstr "Upassende"
+
+#: templates/projects/includes/flagging.html:9
+msgid "Spam"
+msgstr "Søppel"
+
+#: templates/projects/includes/flagging.html:10
+msgid "Duplicate"
+msgstr "Duplikat"
+
+#: templates/projects/includes/icon_built.html:4
+msgid "(Built)"
+msgstr "(Bygget)"
+
+#: templates/projects/includes/icon_built.html:8
+msgid "(Uploaded)"
+msgstr "(Opplastet)"
+
+#: templates/projects/includes/icon_built.html:11
+msgid "(Not built)"
+msgstr "(Ikke bygget)"
+
+#: templates/projects/samples/getting_started.rst.html:3
+msgid "Here's a place to describe how to get up and running with your project"
+msgstr "Her er et felt for å beskrive hvordan komme i gang med prosjektet ditt"
+
+#: templates/projects/samples/installation.rst.html:3
+#, python-format
+msgid "Here is where you can describe how to install %(name)s"
+msgstr "Her kan du beskrive hvordan en installerer %(name)s"
+
+#: templates/registration/activate.html:6
+#: templates/registration/activate.html:11
+msgid "Account activation error"
+msgstr "Kontoaktiveringsfeil"
+
+#: templates/registration/activate.html:17
+#, python-format
+msgid ""
+"The activation key \"%(activation_key)s\" is invalid and cannot be used to "
+"activate this account."
+msgstr ""
+"Aktiveringsnøkkelen \"%(activation_key)s\" er ugyldig og kan ikke benyttes "
+"for å aktivere denne kontoen."
+
+#: templates/registration/activate.html:18
+#, python-format
+msgid ""
+"Did you really think activation key \"%(activation_key)s\" was going to "
+"work?!"
+msgstr ""
+"Trodde du virkelig at aktiveringsnøkkelen \"%(activation_key)s\" kom til å "
+"fungere?"
+
+#: templates/registration/activate.html:21
+msgid ""
+"We're not sure how you got that key, but would you mind registering again"
+msgstr ""
+"Vi vet ikke hvordan du fikk den nøkkelen, så vennligst registrer deg på nytt"
+
+#: templates/registration/activate.html:21
+#: templates/registration/activation_complete.html:17
+msgid "here"
+msgstr "her"
+
+#: templates/registration/activation_complete.html:6
+msgid "Account activation complete"
+msgstr "Kontoaktivering fullført"
+
+#: templates/registration/activation_complete.html:11
+msgid "Account activation complete, woo!"
+msgstr "Kontoaktivering fullført, woo!"
+
+#: templates/registration/activation_complete.html:16
+msgid "Your account has been activated."
+msgstr "Kontoen din har blitt aktivert."
+
+#: templates/registration/activation_complete.html:17
+msgid "Log in with the username and password you just created,"
+msgstr "Logg inn med brukernavnet og passordet du nettopp lagde."
+
+#: templates/registration/base_registration.html:5
+msgid "Registration"
+msgstr "Registrering"
+
+#: templates/registration/base_registration.html:6
+msgid "registration"
+msgstr "registrering"
+
+#: templates/registration/login.html:21
+msgid ""
+"If you forgot your password, <a href=\"/accounts/password/reset/\">reset it."
+"</a>"
+msgstr ""
+"Om du har glemt passordet, <a href=\"/accounts/password/reset/\">nullstill "
+"det.</a>"
+
+#: templates/registration/logout.html:11
+msgid "You've logged out."
+msgstr "Du har logget ut."
+
+#: templates/registration/logout.html:17
+msgid "Thanks for visiting!"
+msgstr "Takk for besøket!"
+
+#: templates/registration/logout.html:21
+#, python-format
+msgid ""
+"If you are looking to log in again, you can do that <a href=\"%(login_url)s"
+"\">here</a>"
+msgstr ""
+"Hvis du vil logge inn igjen, så kan du gjøre det <a href=\"%(login_url)s"
+"\">her</a>"
+
+#: templates/registration/password_change_done.html:4
+#: templates/registration/password_change_done.html:10
+msgid "Password change successful"
+msgstr "Endring av passord var vellykket"
+
+#: templates/registration/password_change_done.html:12
+msgid "Your password was changed."
+msgstr "Passordet ditt ble endret."
+
+#: templates/registration/password_change_form.html:4
+#: templates/registration/password_change_form.html:20
+msgid "Password change"
+msgstr "Endre passord"
+
+#: templates/registration/password_change_form.html:16
+msgid "Please correct the error below."
+msgid_plural "Please correct the errors below."
+msgstr[0] "Rett feilen nedenfor."
+msgstr[1] "Rett feilene nedenfor."
+
+#: templates/registration/password_change_form.html:22
+msgid ""
+"Please enter your old password, for security's sake, and then enter your new "
+"password twice so we can verify you typed it in correctly."
+msgstr ""
+"Skriv inn ditt gamle passord, av sikkerhetsmessige årsaker, og så ditt nye "
+"passord to ganger slik at vi kan verifisere at du har skrevet det rett."
+
+#: templates/registration/password_change_form.html:26
+msgid "Old password"
+msgstr "Gammelt passord"
+
+#: templates/registration/password_change_form.html:31
+msgid "New password"
+msgstr "Nytt passord"
+
+#: templates/registration/password_change_form.html:36
+msgid "Password (again)"
+msgstr "Passord (igjen)"
+
+#: templates/registration/password_change_form.html:40
+#: templates/registration/password_reset_confirm.html:23
+msgid "Change my password"
+msgstr "Endre passordet mitt"
+
+#: templates/registration/password_reset_complete.html:6
+#: templates/registration/password_reset_confirm.html:8
+#: templates/registration/password_reset_done.html:6
+#: templates/registration/password_reset_form.html:7
+#: templates/registration/password_reset_form.html:9
+#: templates/registration/password_reset_form.html:13
+msgid "Password reset"
+msgstr "Sett nytt passord"
+
+#: templates/registration/password_reset_complete.html:8
+#: templates/registration/password_reset_complete.html:12
+msgid "Password reset complete"
+msgstr "Nytt passord er satt"
+
+#: templates/registration/password_reset_complete.html:14
+msgid "Your password has been set.  You may go ahead and log in now."
+msgstr "Passordet ditt har blitt satt.  Du kan logge inn nå."
+
+#: templates/registration/password_reset_confirm.html:6
+msgid "Password reset confirmation"
+msgstr "Bekreftelse for setting av nytt passord"
+
+#: templates/registration/password_reset_confirm.html:14
+msgid "Enter new password"
+msgstr "Skriv inn nytt passord"
+
+#: templates/registration/password_reset_confirm.html:16
+msgid ""
+"Please enter your new password twice so we can verify you typed it in "
+"correctly."
+msgstr ""
+"Vennligst skriv inn ditt nye passord to ganger så vi kan verifisere at du "
+"skrev det inn rett."
+
+#: templates/registration/password_reset_confirm.html:20
+msgid "New password:"
+msgstr "Nytt passord:"
+
+#: templates/registration/password_reset_confirm.html:22
+msgid "Confirm password:"
+msgstr "Bekreft passord:"
+
+#: templates/registration/password_reset_confirm.html:28
+msgid "Password reset unsuccessful"
+msgstr "Setting av nytt passord feilet"
+
+#: templates/registration/password_reset_confirm.html:30
+msgid ""
+"The password reset link was invalid, possibly because it has already been "
+"used.  Please request a new password reset."
+msgstr ""
+"Lenken for setting av nytt passord var ugyldig. Det kan være fordi den alt "
+"har blitt brukt. Vennligst be om en ny setting av nytt passord."
+
+#: templates/registration/password_reset_done.html:8
+#: templates/registration/password_reset_done.html:12
+msgid "Password reset successful"
+msgstr "Nytt passord er satt"
+
+#: templates/registration/password_reset_done.html:14
+msgid ""
+"We've e-mailed you instructions for setting your password to the e-mail "
+"address you submitted. You should be receiving it shortly."
+msgstr ""
+"Vi har sendt instruksjoner for å sette passordet ditt til epostadressen du "
+"sendte inn. Du skal motta eposten straks."
+
+#: templates/registration/password_reset_email.html:2
+msgid "You're receiving this e-mail because you requested a password reset"
+msgstr "Du mottar denne eposten fordi du har bedt om å få sette nytt passord"
+
+#: templates/registration/password_reset_email.html:3
+#, python-format
+msgid "for your user account at %(site_name)s"
+msgstr "for brukerkontoen din på %(site_name)s"
+
+#: templates/registration/password_reset_email.html:5
+msgid "Please go to the following page and choose a new password:"
+msgstr "Gå til denne siden og velg et nytt passord:"
+
+#: templates/registration/password_reset_email.html:9
+msgid "Your username, in case you've forgotten:"
+msgstr "Brukernavnet ditt, i tilfelle du har glemt det:"
+
+#: templates/registration/password_reset_email.html:11
+msgid "Thanks for using our site!"
+msgstr "Takk for at du bruker siden vår"
+
+#: templates/registration/password_reset_email.html:13
+#, python-format
+msgid "The %(site_name)s team"
+msgstr "Teamet bak %(site_name)s"
+
+#: templates/registration/password_reset_form.html:15
+msgid ""
+"Forgotten your password? Enter your e-mail address below, and we'll e-mail "
+"instructions for setting a new one."
+msgstr ""
+"Glemt passordet ditt? Skriv inn epostadressen din under, og vi sender deg "
+"instruksjoner for å sette et nytt passord."
+
+#: templates/registration/password_reset_form.html:19
+msgid "E-mail address:"
+msgstr "Epostadresse:"
+
+#: templates/registration/password_reset_form.html:19
+msgid "Reset my password"
+msgstr "Sett nytt passord"
+
+#: templates/registration/registration_closed.html:6
+msgid "Registration closed"
+msgstr "Registrering er stengt"
+
+#: templates/registration/registration_closed.html:11
+msgid "Eh... Registration closed."
+msgstr "Æhm... registreringen er stengt."
+
+#: templates/registration/registration_closed.html:17
+msgid ""
+" You registered a long time ago.\n"
+"    We aren't sure if you are a robot or if \n"
+"    something got lost or what."
+msgstr ""
+" Du registrerte deg for en god stund siden.\n"
+"    Vi er ikke sikre på om du er en robot, om noe har gått tapt eller hva "
+"som har skjedd."
+
+#: templates/registration/registration_closed.html:20
+msgid "Please try"
+msgstr "Vennligst prøv"
+
+#: templates/registration/registration_closed.html:20
+msgid "registering again"
+msgstr "å registrere deg igjen"
+
+#: templates/registration/registration_closed.html:23
+msgid "We hope that isn't too inconvenient."
+msgstr "Vi håper det ikke er ubeleilig for deg."
+
+#: templates/registration/registration_complete.html:6
+#: templates/registration/registration_complete.html:11
+msgid "Registration complete"
+msgstr "Registrering fullført"
+
+#: templates/registration/registration_complete.html:16
+msgid "Now activate your account."
+msgstr "Nå må du aktivere kontoen din."
+
+#: templates/registration/registration_complete.html:18
+msgid ""
+"We will be sending you an email with an activation link.\n"
+"    Visit the link to verify this account."
+msgstr ""
+"Vi sender deg en epost med en aktiveringslenke.\n"
+"    Gå til lenken for å verifisere kontoen din."
+
+#: templates/registration/registration_complete.html:22
+msgid "Check your email.  We'll wait."
+msgstr "Sjekk eposten din.  Vi venter."
+
+#: templates/registration/registration_form.html:6
+#: templates/registration/registration_form.html:11
+msgid "Register for an account"
+msgstr "Registrer deg"
+
+#: templates/registration/registration_form.html:18
+msgid "Send me the activation link."
+msgstr "Send meg aktiveringslenken."
+
+#: templates/search/base_facet.html:5 templates/search/search.html:5
+#, python-format
+msgid "Search: %(query)s"
+msgstr "Søk: %(query)s"
+
+#. Translators: This is about starting a search
+#: templates/search/base_facet.html:27 templates/search/search.html:17
+msgid "Go crazy."
+msgstr "Kjør på."
+
+#: templates/search/base_search.html:9
+#: templates/search/faceted_results.html:49
+msgid "Project:"
+msgstr "Prosjekt:"
+
+#: templates/search/base_search.html:14
+#: templates/search/faceted_results.html:54
+msgid "File:"
+msgstr "Fil:"
+
+#: templates/search/base_search.html:24
+#: templates/search/faceted_results.html:63
+msgid "No results found. Bummer."
+msgstr "Ingen resultater funnet. Søren."
+
+#: templates/search/faceted_author.html:8
+msgid "By Author"
+msgstr "Etter forfatter"
+
+#: templates/search/faceted_author.html:13
+msgid "Author"
+msgstr "Forfatter"
+
+#: templates/search/faceted_author.html:21
+msgid "No author facets."
+msgstr "Ingen forfatter-fasetter."
+
+#: templates/search/faceted_results.html:7
+#, python-format
+msgid "%(count)s Results for %(query)s"
+msgstr "%(count)s treff for %(query)s"
+
+#: templates/search/faceted_results.html:7
+msgid "No search term entered"
+msgstr ""
+
+#. Translators: The refers to filtering a search by using facets
+#: templates/search/faceted_results.html:15
+msgid "Filtered by"
+msgstr "Filtrert på"
+
+#: templates/search/faceted_results.html:18
+msgid "remove"
+msgstr "fjern"
+
+#: templates/search/faceted_results.html:21
+msgid "Filter by Project"
+msgstr "Filtrer på prosjekt"
+
+#: templates/search/faceted_results.html:32
+msgid "No project facets."
+msgstr "Ingen prosjekterfasetter."
+
+#: templates/search/search.html:31
+#, python-format
+msgid "Results for %(query)s"
+msgstr "Resultater for %(query)s"
+
+#: templates/search/search.html:52 templates/search/search.html.py:54
+msgid "Previous"
+msgstr "Forrige"
+
+#: templates/search/search.html:58 templates/search/search.html.py:60
+msgid "Next"
+msgstr "Neste"
+
+#: templates/watching/pageview_list.html:5
+msgid "Views"
+msgstr "Visninger"
+
+#: templates/watching/pageview_list.html:18
+msgid "Most Viewed"
+msgstr "Mest vist"
+
+#: watching/models.py:8
+msgid "Count"
+msgstr "Antall"
+
+#: watching/models.py:14
+#, python-format
+msgid "Page views for %(project)s's url %(url)s"
+msgstr "Sidevisninger for %(project)s sin URL %(url)s"
+
+#~ msgid "Check it out"
+#~ msgstr "Ta en titt"
+
+#~ msgid "over here"
+#~ msgstr "her"
+
+#~ msgid "%(build_date|timesince)s ago"
+#~ msgstr "%(build_date|timesince)s siden"
+
+#~ msgid "by"
+#~ msgstr "av"
+
+#~ msgid "tagged with"
+#~ msgstr "tagget med"
