@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-10-03 16:03-0500\n"
+"POT-Creation-Date: 2012-10-05 15:39-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -27,8 +27,8 @@ msgid "Invalid resource lookup data provided (mismatched type).: %(error)s"
 msgstr ""
 
 #: bookmarks/models.py:8 builds/models.py:9 builds/models.py:35
-#: builds/models.py:49 editor/models.py:15 projects/models.py:476
-#: projects/models.py:624 watching/models.py:6
+#: builds/models.py:49 editor/models.py:15 projects/models.py:482
+#: projects/models.py:630 watching/models.py:6
 msgid "Project"
 msgstr ""
 
@@ -91,8 +91,8 @@ msgstr ""
 msgid "Verbose Name"
 msgstr ""
 
-#: builds/models.py:12 projects/models.py:53 projects/models.py:480
-#: projects/models.py:626
+#: builds/models.py:12 projects/models.py:53 projects/models.py:486
+#: projects/models.py:632
 msgid "Slug"
 msgstr ""
 
@@ -165,7 +165,7 @@ msgstr ""
 
 #: builds/models.py:65
 #, python-format
-msgid "Build (project)s for %(usernames)s (%(pk)s"
+msgid "Build %(project)s for %(usernames)s (%(pk)s)"
 msgstr ""
 
 #: core/forms.py:13
@@ -219,7 +219,7 @@ msgid "Body"
 msgstr ""
 
 #: editor/forms.py:7 editor/forms.py:12 editor/models.py:19
-#: projects/models.py:564
+#: projects/models.py:570
 msgid "Comment"
 msgstr ""
 
@@ -249,43 +249,47 @@ msgstr ""
 msgid "Default"
 msgstr ""
 
-#: projects/constants.py:25
+#. Translators: This is a name of a Sphinx theme.
+#: projects/constants.py:26
 msgid "Sphinx Docs"
 msgstr ""
 
-#: projects/constants.py:28
+#. Translators: This is a name of a Sphinx theme.
+#: projects/constants.py:30
 msgid "Traditional"
 msgstr ""
 
-#: projects/constants.py:29
+#. Translators: This is a name of a Sphinx theme.
+#: projects/constants.py:32
 msgid "Nature"
 msgstr ""
 
-#: projects/constants.py:30
+#. Translators: This is a name of a Sphinx theme.
+#: projects/constants.py:34
 msgid "Haiku"
 msgstr ""
 
-#: projects/constants.py:59
+#: projects/constants.py:63
 msgid "Live"
 msgstr ""
 
-#: projects/constants.py:60
+#: projects/constants.py:64
 msgid "Deleted"
 msgstr ""
 
-#: projects/constants.py:64
+#: projects/constants.py:68
 msgid "Git"
 msgstr ""
 
-#: projects/constants.py:65
+#: projects/constants.py:69
 msgid "Subversion"
 msgstr ""
 
-#: projects/constants.py:66
+#: projects/constants.py:70
 msgid "Mercurial"
 msgstr ""
 
-#: projects/constants.py:67
+#: projects/constants.py:71
 msgid "Bazaar"
 msgstr ""
 
@@ -347,7 +351,7 @@ msgstr ""
 msgid "Project %(name)s does not exist"
 msgstr ""
 
-#: projects/models.py:35 projects/models.py:477
+#: projects/models.py:35 projects/models.py:483
 msgid "Parent"
 msgstr ""
 
@@ -363,7 +367,7 @@ msgstr ""
 msgid "Modified date"
 msgstr ""
 
-#: projects/models.py:52 projects/models.py:625
+#: projects/models.py:52 projects/models.py:631
 msgid "Name"
 msgstr ""
 
@@ -465,7 +469,7 @@ msgid ""
 "page loads."
 msgstr ""
 
-#: projects/models.py:79 projects/models.py:627
+#: projects/models.py:79 projects/models.py:633
 msgid "Path"
 msgstr ""
 
@@ -515,51 +519,51 @@ msgstr ""
 msgid "Model must have slug"
 msgstr ""
 
-#: projects/models.py:279
+#: projects/models.py:285
 msgid "Conf File Missing."
 msgstr ""
 
-#: projects/models.py:479
+#: projects/models.py:485
 msgid "Heading"
 msgstr ""
 
-#: projects/models.py:481
+#: projects/models.py:487
 msgid "Content"
 msgstr ""
 
-#: projects/models.py:482
+#: projects/models.py:488
 msgid "Denormalized path"
 msgstr ""
 
-#: projects/models.py:483
+#: projects/models.py:489
 msgid "Ordering"
 msgstr ""
 
-#: projects/models.py:484
+#: projects/models.py:490
 msgid "Status"
 msgstr ""
 
-#: projects/models.py:563
+#: projects/models.py:569
 msgid "File"
 msgstr ""
 
-#: projects/models.py:565
+#: projects/models.py:571
 msgid "Diff"
 msgstr ""
 
-#: projects/models.py:566
+#: projects/models.py:572
 msgid "Created date"
 msgstr ""
 
-#: projects/models.py:568
+#: projects/models.py:574
 msgid "Revision number"
 msgstr ""
 
-#: projects/models.py:569
+#: projects/models.py:575
 msgid "Is reverted"
 msgstr ""
 
-#: projects/models.py:628
+#: projects/models.py:634
 msgid "MD5 checksum"
 msgstr ""
 
@@ -606,19 +610,18 @@ msgstr ""
 msgid "Read the Docs thanks you for your continued patience."
 msgstr ""
 
-#: templates/base.html:75
+#: templates/base.html:74
 #, python-format
 msgid ""
-"\n"
 "2010. Created by %(eric)s, %(charles)s, and %(bobby)s for the 2010 "
-"%(djangodash)s.\n"
+"%(djangodash)s."
 msgstr ""
 
-#: templates/base.html:79
+#: templates/base.html:76
 msgid "Docs"
 msgstr ""
 
-#: templates/base.html:84
+#: templates/base.html:81
 msgid ""
 "Thanks for believing in us: <a href=\"http://revsys.com\">RevSys</a>, <a "
 "href=\"http://www.python.org/psf/\">Python Software Foundation</a>, <a href="
@@ -627,7 +630,7 @@ msgid ""
 "\"http://lab305.com\">Lab305</a>, and <a href=\"http://enn.io/\">enn.io</a>."
 msgstr ""
 
-#: templates/base.html:87
+#: templates/base.html:84
 msgid ""
 "Made by <a href=\"https://github.com/rtfd/readthedocs.org/graphs/contributors"
 "\">humans</a>. Funded by <a href=\"https://www.gittip.com/readthedocs/"
@@ -648,7 +651,6 @@ msgstr ""
 
 #: templates/homepage.html:30
 msgid ""
-"\n"
 "Read the Docs hosts documentation, making it fully searchable and easy to "
 "find.\n"
 "You can import your docs using any major version control system, including "
@@ -658,31 +660,25 @@ msgid ""
 "There's also support for versioning so you can build docs from tags and "
 "branches of your code in your repository. A <a href=\"http://read-the-docs."
 "readthedocs.org/en/latest/features.html\">full list of features</a> is "
-"available.\n"
-"                  "
+"available."
 msgstr ""
 
-#: templates/homepage.html:38
-msgid "It's free and simple.  Read the"
+#: templates/homepage.html:36
+#, python-format
+msgid ""
+"It's free and simple.  Read the <a href=\"%(getting_started_url)s\">Getting "
+"Started</a> guide to get going!"
 msgstr ""
 
-#: templates/homepage.html:38
-msgid "Getting Started"
-msgstr ""
-
-#: templates/homepage.html:38
-msgid "guide to get going!"
-msgstr ""
-
-#: templates/homepage.html:54
+#: templates/homepage.html:52
 msgid "Featured Projects"
 msgstr ""
 
-#: templates/homepage.html:75
+#: templates/homepage.html:73
 msgid "Recently Updated Projects"
 msgstr ""
 
-#: templates/homepage.html:75
+#: templates/homepage.html:73
 msgid "(All Projects)"
 msgstr ""
 
@@ -691,18 +687,17 @@ msgid "Build Started"
 msgstr ""
 
 #: templates/post_commit.html:10
-msgid "is now building."
+#, python-format
+msgid "%(project)s is now building."
 msgstr ""
 
-#: templates/post_commit.html:11
-msgid "Check it out"
+#. Translators: 'it' refers the current project being built.
+#: templates/post_commit.html:12
+#, python-format
+msgid "Check it out <a href=\"%(project_url)s\">over here</a>."
 msgstr ""
 
-#: templates/post_commit.html:11
-msgid "over here"
-msgstr ""
-
-#: templates/post_commit.html:13
+#: templates/post_commit.html:14
 msgid ""
 "This is a post-commit hook. Set it up in your project admin to POST here, "
 "for us to update your doc changes automatically."
@@ -723,7 +718,7 @@ msgstr ""
 
 #: templates/builds/build_detail.html:11
 #, python-format
-msgid "Built: %(build_date|date:\"N j, Y. P\")s"
+msgid "Built: %(build_date)s"
 msgstr ""
 
 #: templates/builds/build_detail.html:13
@@ -779,8 +774,9 @@ msgid "version %(slug)s (%(type)s)"
 msgstr ""
 
 #: templates/core/build_list_detailed.html:8
+#: templates/core/project_list_detailed.html:11
 #, python-format
-msgid "%(build_date|timesince)s ago"
+msgid "%(date)s ago"
 msgstr ""
 
 #: templates/core/build_list_detailed.html:13
@@ -940,11 +936,6 @@ msgstr ""
 msgid "Most viewed pages for this project"
 msgstr ""
 
-#: templates/core/project_list_detailed.html:11
-#, python-format
-msgid "%(project.modified_date|timesince)s ago"
-msgstr ""
-
 #: templates/core/project_list_detailed.html:21
 msgid "No Docs"
 msgstr ""
@@ -960,8 +951,8 @@ msgstr ""
 
 #: templates/dashboard/base_dashboard.html:12
 #: templates/profiles/profile_detail.html:39
-#: templates/projects/project_list.html:6
-#: templates/projects/project_list.html:11
+#: templates/projects/project_list.html:17
+#: templates/projects/project_list.html:35
 msgid "Projects"
 msgstr ""
 
@@ -1024,8 +1015,14 @@ msgstr ""
 msgid "add"
 msgstr ""
 
-#: templates/djangome/show.html:4 templates/djangome/show.html.py:5
-msgid "Statistics for"
+#: templates/djangome/show.html:4
+#, python-format
+msgid "Statistics for %(term)s"
+msgstr ""
+
+#: templates/djangome/show.html:5
+#, python-format
+msgid "Statistics for <kbd>%(term)s</kbd>:"
 msgstr ""
 
 #: templates/djangome/show.html:13
@@ -1140,16 +1137,22 @@ msgid "Whitelisted: No"
 msgstr ""
 
 #: templates/profiles/profile_detail.html:31
+#: templates/projects/project_list.html:9
+#: templates/projects/project_list.html:27
 #, python-format
 msgid "Projects by %(username)s tagged with %(tag)s"
 msgstr ""
 
 #: templates/profiles/profile_detail.html:33
+#: templates/projects/project_list.html:11
+#: templates/projects/project_list.html:29
 #, python-format
 msgid "Projects by %(username)s"
 msgstr ""
 
 #: templates/profiles/profile_detail.html:37
+#: templates/projects/project_list.html:15
+#: templates/projects/project_list.html:33
 #, python-format
 msgid "Projects tagged with %(tag)s"
 msgstr ""
@@ -1173,7 +1176,7 @@ msgid "Aliases"
 msgstr ""
 
 #: templates/projects/alias_list.html:20
-#: templates/projects/project_list.html:22
+#: templates/projects/project_list.html:48
 msgid "Browse projects"
 msgstr ""
 
@@ -1325,13 +1328,11 @@ msgstr ""
 #: templates/projects/project_dashboard.html:62
 #, python-format
 msgid ""
-"\n"
 "You don't have any projects.  You should<a href=\"%(projects_import_url)s"
 "\">create new docs</a> on the site.<br>\n"
 "Check out the <a href=\"http://readthedocs.org/docs/read-the-docs/latest/"
 "getting_started.html\">Getting Started</a> documentation for information "
-"about how to get going.\n"
-"          "
+"about how to get going."
 msgstr ""
 
 #: templates/projects/project_delete.html:4
@@ -1360,16 +1361,6 @@ msgstr ""
 #: templates/projects/project_import.html:4
 #: templates/projects/project_import.html:12
 msgid "Import an existing project"
-msgstr ""
-
-#: templates/projects/project_list.html:6
-#: templates/projects/project_list.html:11
-msgid "by"
-msgstr ""
-
-#: templates/projects/project_list.html:6
-#: templates/projects/project_list.html:11
-msgid "tagged with"
 msgstr ""
 
 #: templates/projects/project_manage.html:6
@@ -1469,7 +1460,7 @@ msgstr ""
 msgid "Upload"
 msgstr ""
 
-#. Translators: After 'Flag this projcet as' follows either 'Inappropriate', 'Spam' and/or 'Dupliacte'
+#. Translators: After 'Flag this project as' follows either 'Inappropriate', 'Spam' and/or 'Duplicate'
 #: templates/projects/includes/flagging.html:7
 msgid "Flag this project as"
 msgstr ""
@@ -1550,6 +1541,40 @@ msgstr ""
 
 #: templates/registration/activation_complete.html:17
 msgid "Log in with the username and password you just created,"
+msgstr ""
+
+#: templates/registration/activation_email.txt:1
+#, python-format
+msgid ""
+"Thank you for registering an account at %(domain)s.\n"
+"To activate your registration, please visit the following page:\n"
+"\n"
+"http://%(domain)s%(activation_url)s\n"
+"\n"
+"This page will expire in %(expiration_days)s day.\n"
+"\n"
+"***\n"
+"\n"
+"If you didn't register this account you can simply delete this email and we "
+"won't bother you again."
+msgid_plural ""
+"Thank you for registering an account at %(domain)s.\n"
+"To activate your registration, please visit the following page:\n"
+"\n"
+"http://%(domain)s%(activation_url)s\n"
+"\n"
+"This page will expire in %(expiration_days)s days.\n"
+"\n"
+"***\n"
+"\n"
+"If you didn't register this account you can simply delete this email and we "
+"won't bother you again."
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/registration/activation_email_subject.txt:1
+#, python-format
+msgid "%(site_name)s - activate your account"
 msgstr ""
 
 #: templates/registration/base_registration.html:5
@@ -1780,9 +1805,9 @@ msgstr ""
 msgid "Send me the activation link."
 msgstr ""
 
-#: templates/search/base_facet.html:5
+#: templates/search/base_facet.html:5 templates/search/search.html:5
 #, python-format
-msgid " Search: %(query)s"
+msgid "Search: %(query)s"
 msgstr ""
 
 #. Translators: This is about starting a search
@@ -1791,14 +1816,17 @@ msgid "Go crazy."
 msgstr ""
 
 #: templates/search/base_search.html:9
+#: templates/search/faceted_results.html:49
 msgid "Project:"
 msgstr ""
 
 #: templates/search/base_search.html:14
+#: templates/search/faceted_results.html:54
 msgid "File:"
 msgstr ""
 
 #: templates/search/base_search.html:24
+#: templates/search/faceted_results.html:63
 msgid "No results found. Bummer."
 msgstr ""
 
@@ -1812,6 +1840,32 @@ msgstr ""
 
 #: templates/search/faceted_author.html:21
 msgid "No author facets."
+msgstr ""
+
+#: templates/search/faceted_results.html:7
+#, python-format
+msgid "%(count)s Results for %(query)s"
+msgstr ""
+
+#: templates/search/faceted_results.html:7
+msgid "No search term entered"
+msgstr ""
+
+#. Translators: The refers to filtering a search by using facets
+#: templates/search/faceted_results.html:15
+msgid "Filtered by"
+msgstr ""
+
+#: templates/search/faceted_results.html:18
+msgid "remove"
+msgstr ""
+
+#: templates/search/faceted_results.html:21
+msgid "Filter by Project"
+msgstr ""
+
+#: templates/search/faceted_results.html:32
+msgid "No project facets."
 msgstr ""
 
 #: templates/search/search.html:31

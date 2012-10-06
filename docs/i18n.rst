@@ -1,22 +1,286 @@
+.. _i18n:
+
 Internationalization
 ====================
 
-To update the translation source files (eg if you changed or added translatable strings in the templates or Python code)
-you should run ``python manage.py makemessages -l <language>`` in the ``readthedocs/`` directory (substitute
+This document covers the details regarding internationalization and
+localization that are applied in Read the Docs. The guidelines described are
+mostly based on `Kitsune's localization documentation
+<http://kitsune.readthedocs.org/en/latest/localization.html>`_.
+
+As most of the Django applications out there, Read the Docs' i18n/l10n
+framework is based on `GNU gettext <http://www.gnu.org/software/gettext/>`_.
+Crowd-sourced localization is optionally available at `Transifex
+<https://www.transifex.com/projects/p/readthedocs/>`_.
+
+
+Making Strings Localizable
+--------------------------
+
+Making strings in templates localizable is exceptionally easy. Making strings
+in Python localizable is a little more complicated. The short answer, though,
+is just wrap the string in ``_()``.
+
+
+Interpolation
+^^^^^^^^^^^^^
+
+A string is often a combination of a fixed string and something changing, for
+example, ``Welcome, James`` is a combination of the fixed part ``Welcome,``,
+and the changing part ``James``. The naive solution is to localize the first
+part and the follow it with the name::
+
+    _('Welcome, ') + username
+
+This is **wrong!**
+
+In some locales, the word order may be different. Use Python string formatting
+to interpolate the changing part into the string::
+
+    _('Welcome, {name}').format(name=username)
+
+Python gives you a lot of ways to interpolate strings. The best way is to use
+Py3k formatting and kwargs. That's the clearest for localizers.
+
+
+Localization Comments
+^^^^^^^^^^^^^^^^^^^^^
+
+Sometimes, it can help localizers to describe where a string comes from,
+particularly if it can be difficult to find in the interface, or is not very
+self-descriptive (e.g. very short strings). If you immediately precede the
+string with a comment that starts with ``Translators:``, the comment will be
+added to the PO file, and visible to localizers.
+
+Example::
+
+    DEFAULT_THEME_CHOICES = (
+        # Translators: This is a name of a Sphinx theme.
+        (THEME_DEFAULT, _('Default')),
+        # Translators: This is a name of a Sphinx theme.
+        (THEME_SPHINX, _('Sphinx Docs')),
+        # Translators: This is a name of a Sphinx theme.
+        (THEME_TRADITIONAL, _('Traditional')),
+        # Translators: This is a name of a Sphinx theme.
+        (THEME_NATURE, _('Nature')),
+        # Translators: This is a name of a Sphinx theme.
+        (THEME_HAIKU, _('Haiku')),
+    )
+
+
+Adding Context with msgctxt
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Strings may be the same in English, but different in other languages. English,
+for example, has no grammatical gender, and sometimes the noun and verb forms
+of a word are identical.
+
+To make it possible to localize these correctly, we can add "context" (known in
+gettext as *msgctxt*) to differentiate two otherwise identical strings. Django
+provides a :func:`~django.utils.translation.pgettext()` function for this.
+
+For example, the string *Search* may be a noun or a verb in English. In a
+heading, it may be considered a noun, but on a button, it may be a verb. It's
+appropriate to add a context (like *button*) to one of them.
+
+Generally, we should only add context if we are sure the strings aren't used in
+the same way, or if localizers ask us to.
+
+Example::
+
+    from django.utils.translation import pgettext
+
+    month = pgettext("text for the search button on the form", "Search")
+
+
+Plurals
+^^^^^^^
+
+*You have 1 new messages* grates on discerning ears. Fortunately, gettext gives
+us a way to fix that in English *and* other locales, the
+:func:`~django.utils.translation.ngettext()` function::
+
+    ngettext('singular sentence', 'plural sentence', count)
+
+A more realistic example might be::
+
+    ngettext('Found {count} result.',
+             'Found {count} results',
+             len(results)).format(count=len(results))
+
+This method takes three arguments because English only needs three, i.e., zero
+is considered "plural" for English. Other languages may have `different plural
+rules <http://translate.sourceforge.net/wiki/l10n/pluralforms>`_, and require
+different phrases for, say 0, 1, 2-3, 4-10, >10. That's absolutely fine, and
+gettext makes it possible.
+
+
+Strings in Templates
+--------------------
+
+When putting new text into a template, all you need to do is wrap it in a
+``{% trans %}`` template tag::
+
+    <h1>{% trans "Heading" %}</h1>
+
+Context can be added, too::
+
+    <h1>{% trans "Heading" context "section name" %}</h1>
+
+Comments for translators need to precede the internationalized text and must
+start with the ``Translators:`` keyword.::
+
+    {# Translators: This heading is displayed in the user's profile page #}
+    <h1>{% trans "Heading" %}</h1>
+
+To interpolate, you need to use the alternative and more verbose ``{%
+blocktrans %}`` template tag — it's actually a block::
+
+    {% blocktrans %}Welcome, {{ name }}!{% endblocktrans %}
+
+Note that the ``{{ name }}`` variable needs to exist in the template context.
+
+In some situations, it's desirable to evaluate template expressions such as
+filters or accessing object attributes. You can't do that within the ``{%
+blocktrans %}`` block, so you need to bind the expression to a local variable
+first::
+
+    {% blocktrans with revision.created_date|timesince as timesince %}
+    {{ revision }} {{ timesince }} ago
+    {% endblocktrans %}
+
+    {% blocktrans with project.name as name %}Delete {{ name }}?{% endblocktrans %}
+
+``{% blocktrans %}`` also provides pluralization. For that you need to bind a
+counter with the name ``count`` and provide a plural translation after the ``{%
+plural %}`` tag::
+
+    {% blocktrans with amount=article.price count years=i.length %}
+    That will cost $ {{ amount }} per year.
+    {% plural %}
+    That will cost $ {{ amount }} per {{ years }} years.
+    {% endblocktrans %}
+
+
+Strings in Python
+-----------------
+
+.. Note::
+
+   Whenever you are adding a string in Python, ask yourself if it
+   really needs to be there, or if it should be in the template. Keep
+   logic and presentation separate!
+
+Strings in Python are more complex for two reasons:
+
+#. We need to make sure we're always using Unicode strings and the
+   Unicode-friendly versions of the functions.
+
+#. If you use the :func:`~django.utils.translation.ugettext` function in the
+   wrong place, the string may end up in the wrong locale!
+
+Here's how you might localize a string in a view::
+
+    from django.utils.translation import ugettext as _
+
+    def my_view(request):
+        if request.user.is_superuser:
+            msg = _(u'Oh hi, staff!')
+        else:
+            msg = _(u'You are not staff!')
+
+Interpolation is done through normal Python string formatting::
+
+    msg = _(u'Oh, hi, {user}').format(user=request.user.username)
+
+Context information can be supplied by using the
+:func:`~django.utils.translation.pgettext` function::
+
+    msg = pgettext('the context', 'Search')
+
+Translator comments are normal one-line Python comments::
+
+    # Translators: A message to users.
+    msg = _(u'Oh, hi there!')
+
+If you need to use plurals, import the
+:func:`~django.utils.translation.ungettext` function::
+
+    from django.utils.translation import ungettext
+
+    n = len(results)
+    msg = ungettext('Found {0} result', 'Found {0} results', n).format(n)
+
+
+Lazily Translated Strings
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+You can use :func:`~django.utils.translation.ugettext` or
+:func:`~django.utils.translation.ungettext` only in views or functions called
+from views. If the function will be evaluated when the module is loaded, then
+the string may end up in English or the locale of the last request!
+
+Examples include strings in module-level code, arguments to functions in class
+definitions, strings in functions called from outside the context of a view. To
+internationalize these strings, you need to use the ``_lazy`` versions of the
+above methods, :func:`~django.utils.translation.ugettext_lazy` and
+:func:`~django.utils.translation.ungettext_lazy`. The result doesn't get
+translated until it is evaluated as a string, for example by being output or
+passed to ``unicode()``::
+
+    from django.utils.translation import ugettext_lazy as _
+
+    class UserProfileForm(forms.ModelForm):
+        first_name = CharField(label=_('First name'), required=False)
+        last_name = CharField(label=_('Last name'), required=False)
+
+In case you want to provide context to a lazily-evaluated gettext string, you
+will need to use :func:`~django.utils.translation.pgettext_lazy`.
+
+
+Updating Localization Files
+---------------------------
+
+To update the translation source files (eg if you changed or added translatable
+strings in the templates or Python code) you should run ``python manage.py
+makemessages -l <language>`` in the ``readthedocs/`` directory (substitute
 ``<language>`` with a valid language code).
 
-After you generated those source files, open them in a text (or po file) editor and translate the strings. Once that is
-completed, run ``python manage.py compilemessages -a`` to compile them into their optimized binary format that is used
-by Django.
+The updated files can now be localized in a `PO editor
+<https://en.wikipedia.org/wiki/Category:Software-localization_tools>`_ or
+crowd-sourced online translation tool.
 
 
-Transifex integration
+.. _i18n-compiling:
+
+Compiling to MO
+---------------
+
+Gettext doesn't parse any text files, it reads a binary format for faster
+performance. To compile the latest PO files in the repository, Django provides
+the ``compilemessages`` management command. For example, to compile all the
+available localizations, just run::
+
+    $ python manage.py compilemessages -a
+
+You will need to do this every time you want to push updated translations to
+the live site.
+
+Also, note that it's not a good idea to track MO files in version control,
+since they would need to be updated at the same pace PO files are updated, so
+it's silly and not worth it. They are ignored by ``.gitignore``, but please
+make sure you don't forcibly add them to the repository.
+
+
+Transifex Integration
 ---------------------
 
-To push updated translation source files (see above) to transifex, run ``tx push -s`` (for English) or
-``tx push -t <language>`` (for non-English).
+To push updated translation source files to Transifex, run ``tx
+push -s`` (for English) or ``tx push -t <language>`` (for non-English).
 
-To pull changes from transifex, run ``tx pull -a``. Note that transifex does not compile the translation files, so you
-have to do this after the pull (see above).
+To pull changes from Transifex, run ``tx pull -a``. Note that Transifex does
+not compile the translation files, so you have to do this after the pull (see
+the :ref:`i18n-compiling` section).
 
-For more information about the ``tx`` command, see http://help.transifex.com/features/client/.
+For more information about the ``tx`` command, read the `Transifex client's
+help pages <http://help.transifex.com/features/client/>`_.

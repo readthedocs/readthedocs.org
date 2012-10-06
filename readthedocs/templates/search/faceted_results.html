@@ -1,23 +1,24 @@
-{% load pagination_tags %}
-{% load highlight %}
+{% load i18n highlight pagination_tags %}
 <!-- BEGIN search results -->
 <div class="module" id='search_module'>
   <div class="module-wrapper">
 
     <div class="module-header">
-      <h3 id="id_search_title">{% if query %}{{ count }} Results for {{ query }}{% else %}No search term entered{% endif %}</h3>
+      <h3 id="id_search_title">{% if query %}{% blocktrans %}{{ count }} Results for {{ query }}{% endblocktrans %}{% else %}{% trans "No search term entered" %}{% endif %}</h3>
       {{ form.errors.as_ul }}
     </div>
 
      <!-- Begin faceting. -->
      {% if query %}
       {% if selected_facets_list %}
-          <h5>Filtered by {% for facet in selected_facets_list %}
-              <strong>{{ facet.1 }}</strong>{% if not forloop.last %}, {% endif %}
-          {% endfor %} <small>(<a href="?q={{ query }}" id='id_remove_facets'>remove</a>)</small></h5>
+        {# Translators: The refers to filtering a search by using facets #}
+        <h5>{% trans "Filtered by" %}
+          {% for facet in selected_facets_list %}
+            <strong>{{ facet.1 }}</strong>{% if not forloop.last %}, {% endif %}
+          {% endfor %} <small>(<a href="?q={{ query }}" id='id_remove_facets'>{% trans "remove" %}</a>)</small></h5>
   
       {% else %}
-      <h5>Filter by Project</h5>
+      <h5>{% trans "Filter by Project" %}</h5>
       <div class="filter">
           <dl>
               {% if facets.fields.project %}
@@ -28,7 +29,7 @@
                       {% endif %}
                   {% endfor %}
               {% else %}
-                  <p>No project facets.</p>
+                  <p>{% trans "No project facets." %}</p>
               {% endif %}
           </dl>
       </div>
@@ -45,12 +46,12 @@
             <li class="module-item">
             {% ifequal result.model_name 'project' %}
               <p class="module-item-title">
-                Project:
+                {% trans "Project:" %}
                 <a href="{% if result.absolute_url %}{{ result.absolute_url }}{% else %}{{ result.object.get_absolute_url }}{% endif %}">{{ result.title }} - {{ result.author }}</a>
               </p>
               {% else %}
               <p class="module-item-title">
-                File:
+                {% trans "File:" %}
                 <a href="{% if result.absolute_url %}{{ result.absolute_url }}{% else %}{{ result.object.get_absolute_url }}{% endif %}?highlight={{ query }}">{{ result.project }} - {{ result.title }}</a>
               </p>
               <p>
@@ -59,7 +60,7 @@
               {% endifequal %}
             </li>
           {% empty %}
-            <li class="module-item"><span class="quiet">No results found. Bummer.</span></li>
+            <li class="module-item"><span class="quiet">{% trans "No results found. Bummer." %}</span></li>
           {% endfor %}  
         {% endif %}
         </ul>
