@@ -13,7 +13,7 @@
     <p>{% trans "Outcome:" } <b><span id="build-success">{% if build.success %}{% trans "Passed" %}{% else %}{% trans "Failed" %}{% endif %}</span></b></p>
 
     {% if build.version %}
-    <p>{% trans "Version:"% } <b>{{ build.version.slug }}</b></p>
+    <p>{% trans "Version:" %} <b>{{ build.version.slug }}</b></p>
     {% endif %}
 
     <p>{% trans "Type:" %} <b>{{ build.type }}</b></p>
