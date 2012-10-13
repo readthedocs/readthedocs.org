@@ -415,32 +415,6 @@ class Project(models.Model):
         except IndexError:
             return None
 
-
-    @property
-    def whitelisted(self):
-        #Hack this true for now.
-        return True
-
-    #File Building stuff.
-    #Not sure if this is used
-    def get_top_level_files(self):
-        return self.files.live(parent__isnull=True).order_by('ordering')
-
-    def get_index_filename(self):
-        return os.path.join(self.path, 'index.rst')
-
-    def get_rendered_index(self):
-        return render_to_string('projects/index.rst.html', {'project': self})
-
-    def write_index(self):
-        if not self.is_imported:
-            safe_write(self.get_index_filename(), self.get_rendered_index())
-
-    def get_latest_revisions(self):
-        revision_qs = FileRevision.objects.filter(file__project=self,
-            file__status=constants.LIVE_STATUS)
-        return revision_qs.order_by('-created_date')
-
     def get_default_version(self):
         """
         Get the default version (slug).
@@ -522,110 +496,11 @@ class File(models.Model):
         #Update modified time on project.
         self.project.save()
 
-    @property
-    def depth(self):
-        return len(self.denormalized_path.split('/'))
-
-    def create_revision(self, old_content, comment):
-        FileRevision.objects.create(
-            file=self,
-            comment=comment,
-            diff=diff(self.content, old_content)
-        )
-
-    @property
-    def current_revision(self):
-        return self.revisions.filter(is_reverted=False)[0]
-
-    def get_html_diff(self, rev_from, rev_to):
-        rev_from = self.revisions.get(revision_number=rev_from)
-        rev_to = self.revisions.get(revision_number=rev_to)
-
-        diffs = dmp.diff_main(rev_from.diff, rev_to.diff)
-        return dmp.diff_prettyHtml(diffs)
-
-    def revert_to(self, revision_number):
-        revision = self.revisions.get(revision_number=revision_number)
-        revision.apply()
-
-    @property
-    def filename(self):
-        return os.path.join(
-            self.project.path,
-            '%s.rst' % self.denormalized_path
-        )
-
-    def get_rendered(self):
-        return render_to_string('projects/doc_file.rst.html', {'file': self})
-
-    def write_to_disk(self):
-        safe_write(self.filename, self.get_rendered())
-
     @models.permalink
     def get_absolute_url(self):
         return ('docs_detail', [self.project.slug, 'en', 'latest',
                                 self.denormalized_path + '.html'])
 
-
-class FileRevision(models.Model):
-    file = models.ForeignKey(File, verbose_name=_('File'), related_name='revisions')
-    comment = models.TextField(_('Comment'), blank=True)
-    diff = models.TextField(_('Diff'), blank=True)
-    created_date = models.DateTimeField(_('Created date'), auto_now_add=True)
-
-    revision_number = models.IntegerField(_('Revision number'))
-    is_reverted = models.BooleanField(_('Is reverted'), default=False)
-
-    class Meta:
-        ordering = ('-revision_number',)
-
-    def __unicode__(self):
-        return self.comment or '%s #%s' % (self.file.heading,
-                                           self.revision_number)
-
-    def get_file_content(self):
-        """
-        Apply the series of diffs after this revision in reverse order,
-        bringing the content back to the state it was in this revision
-        """
-        after = self.file.revisions.filter(
-            revision_number__gt=self.revision_number)
-        content = self.file.content
-
-        for revision in after:
-            patch = dmp.patch_fromText(revision.diff)
-            content = dmp.patch_apply(patch, content)[0]
-
-        return content
-
-    def apply(self):
-        original_content = self.file.content
-
-        # store the old content on the file
-        self.file.content = self.get_file_content()
-        self.file.save()
-
-        # mark reverted changesets
-        reverted_qs = self.file.revisions.filter(
-            revision_number__gt=self.revision_number)
-        reverted_qs.update(is_reverted=True)
-
-        # create a new revision
-        FileRevision.objects.create(
-            file=self.file,
-            comment='Reverted to #%s' % self.revision_number,
-            diff=diff(self.file.content, original_content)
-        )
-
-    def save(self, *args, **kwargs):
-        if not self.pk:
-            max_rev = self.file.revisions.aggregate(
-                max=models.Max('revision_number'))
-            if max_rev['max'] is None:
-                self.revision_number = 1
-            else:
-                self.revision_number = max_rev['max'] + 1
-        super(FileRevision, self).save(*args, **kwargs)
 
 
 class ImportedFile(models.Model):

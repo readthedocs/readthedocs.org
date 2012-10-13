@@ -16,8 +16,7 @@ class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
         # Don't allow users edit someone else's user page,
-        # or to whitelist themselves
-        exclude = ('user', 'whitelisted',)
+        exclude = ('user', )
 
     def __init__(self, *args, **kwargs):
         super(UserProfileForm, self).__init__(*args, **kwargs)

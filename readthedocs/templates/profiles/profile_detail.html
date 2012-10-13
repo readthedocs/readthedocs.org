@@ -14,18 +14,6 @@
     <p><a href="{{ profile.homepage }}">{{ profile.homepage }}</a></p>
   {% endif %}
 
-    {% if request.user == profile.user %}
-
-    <p>
-    {% if profile.whitelisted %}
-        {% trans "Whitelisted: Yes" %}
-    {% else %}
-        {% trans "Whitelisted: No" %}
-    {% endif %}
-    </p>
-
-    {% endif %}
-
     {% if person %}
         {% if tag %}
             <h3>{% blocktrans with person.username as username and tag.name as tag %}Projects by {{ username }} tagged with {{ tag }}{% endblocktrans %}</h3>

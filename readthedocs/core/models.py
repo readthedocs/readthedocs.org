@@ -43,6 +43,6 @@ class UserProfile (models.Model):
 def create_profile(sender, **kwargs):
     if kwargs['created'] is True:
         try:
-            UserProfile.objects.create(user_id=kwargs['instance'].id, whitelisted=False)
+            UserProfile.objects.create(user_id=kwargs['instance'].id)
         except DatabaseError:
             pass

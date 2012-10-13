@@ -97,7 +97,6 @@ class Builder(BaseBuilder):
         outfile.write(rtd_string)
 
     def clean(self, **kwargs):
-        log.info("Project whitelisted")
         try:
             self._whitelisted()
         except (OSError, SiteProfileNotAvailable, ObjectDoesNotExist):
