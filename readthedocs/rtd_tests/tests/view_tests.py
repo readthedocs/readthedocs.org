@@ -33,7 +33,7 @@ class Testmaker(TestCase):
         self.assertEqual(r.status_code, 302)
         r = self.client.get('/docs/django-kong/en/0.9/index.html', {})
         self.assertEqual(r.status_code, 200)
-        r = self.client.get('/builds/')
+        r = self.client.get('/builds/django-kong/')
         self.assertEqual(r.status_code, 200)
         r = self.client.get('/builds/django-kong/1/')
         self.assertEqual(r.status_code, 200)
