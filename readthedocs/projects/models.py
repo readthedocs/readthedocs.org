@@ -85,6 +85,8 @@ class Project(models.Model):
     skip = models.BooleanField(_('Skip'))
     use_virtualenv = models.BooleanField(_('Use virtualenv'),
         help_text=_("Install your project inside a virtualenv using setup.py install"))
+    use_system_packages = models.BooleanField(_('Use system packages'),
+        help_text=_("Give the virtual environment access to the global sites-packages dir"))
     django_packages_url = models.CharField(_('Django Packages URL'), max_length=255, blank=True)
     crate_url = models.CharField(_('Crate URL'), max_length=255, blank=True)
 

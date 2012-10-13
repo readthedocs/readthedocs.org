@@ -233,11 +233,23 @@ def update_imported_docs(project, version):
 
     #Do Virtualenv bits:
     if project.use_virtualenv:
-        update_docs_output['venv'] = run('{cmd} --distribute --no-site-packages {path}'.format(
+        if project.use_system_packages:
+            site_packages = '--system-site-packages'
+        else:
+            site_packages = '--no-site-packages'
+        update_docs_output['venv'] = run('{cmd} --distribute {site_packages} {path}'.format(
                 cmd='virtualenv',
+                site_packages=site_packages,
                 path=project.venv_path(version=version_slug)))
-        update_docs_output['sphinx'] = run('{cmd} install -U hg+http://bitbucket.org/birkenfeld/sphinx/@d4c6ac1fcc9c#egg=Sphinx virtualenv==1.8.2 distribute==0.6.28 docutils==0.8.1'.format(
-                cmd=project.venv_bin(version=version_slug, bin='pip')))
+        # Other code expects sphinx-build to be installed inside the virtualenv.
+        # Using the -I option makes sure it gets installed even if it is
+        # already installed system-wide (and --system-site-packages is used)
+        if project.use_system_packages:
+            ignore_option = '-I'
+        else:
+            ignore_option = ''
+        update_docs_output['sphinx'] = run('{cmd} install -U {ignore_option} hg+http://bitbucket.org/birkenfeld/sphinx/@d4c6ac1fcc9c#egg=Sphinx virtualenv==1.8.2 distribute==0.6.28 docutils==0.8.1'.format(
+                cmd=project.venv_bin(version=version_slug, bin='pip'), ignore_option=ignore_option))
 
         if project.requirements_file:
             os.chdir(project.checkout_path(version_slug))
