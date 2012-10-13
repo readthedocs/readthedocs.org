@@ -40,9 +40,9 @@ TIME_ZONE = 'America/Chicago'
 LANGUAGE_CODE = 'en-us'
 LANGUAGES = (
     ('en', gettext('English')),
-    ('nb', gettext('Norwegian Bokmål')),
-
+    ('nb', gettext('Norwegian'))
 )
+
 USE_I18N = True
 USE_L10N = True
 SITE_ID = 1
