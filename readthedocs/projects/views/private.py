@@ -1,21 +1,16 @@
 import os
 import shutil
-import simplejson
 import zipfile
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.contrib.markup.templatetags.markup import restructuredtext
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect, HttpResponse, Http404
+from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
-from django.template.defaultfilters import linebreaks
-from django.template.loader import render_to_string
 from django.views.generic.list_detail import object_list
 
 from builds.forms import AliasForm
-from projects import constants
 from projects.forms import (ImportProjectForm, build_versions_form,
                             build_upload_html_form, SubprojectForm)
 from projects.models import Project
@@ -55,10 +50,7 @@ def project_edit(request, project_slug):
     """
     project = get_object_or_404(request.user.projects.live(), slug=project_slug)
 
-    if project.is_imported:
-        form_class = ImportProjectForm
-    else:
-        form_class = CreateProjectForm
+    form_class = ImportProjectForm
 
     form = form_class(instance=project, data=request.POST or None)
 

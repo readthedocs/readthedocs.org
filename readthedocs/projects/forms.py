@@ -3,7 +3,6 @@ from django.conf import settings
 from django.template.defaultfilters import slugify
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
-from projects import constants
 from projects.models import Project
 from projects.tasks import update_docs
 

@@ -1,7 +1,5 @@
 from django import template
 
-from projects.constants import HEADING_MARKUP
-
 register = template.Library()
 
 @register.filter
