@@ -4,14 +4,13 @@ import codecs
 import zipfile
 import logging
 
-from django.template.loader import render_to_string
 from django.template import Template, Context
 from django.contrib.auth.models import SiteProfileNotAvailable
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 
 from doc_builder.base import BaseBuilder, restoring_chdir
-from projects.utils import safe_write, run
+from projects.utils import run
 from core.utils import copy_to_app_servers, copy_file_to_app_servers
 
 log = logging.getLogger(__name__)
@@ -120,7 +119,7 @@ class Builder(BaseBuilder):
         else:
             build_command = "sphinx-build %s -b html . _build/html" % (force_str)
         build_results = run(build_command, shell=True)
-        remove_results = run('rm %s' % id_path)
+        run('rm %s' % id_path)
         self._zip_html()
         if 'no targets are out of date.' in build_results[1]:
             self._changed = False
@@ -129,7 +128,6 @@ class Builder(BaseBuilder):
     @restoring_chdir
     def _zip_html(self, **kwargs):
         from_path = self.version.project.full_build_path(self.version.slug)
-        from_file = os.path.join(from_path, '%s.zip' % self.version.project.slug)
         to_path = self.version.project.checkout_path(self.version.slug)
         to_file = os.path.join(to_path, '%s.zip' % self.version.project.slug)
 

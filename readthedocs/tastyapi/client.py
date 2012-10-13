@@ -17,7 +17,6 @@ def import_project(project):
         return False
     for BASE_SERVER in SERVER_LIST:
         API_SERVER = '%s/api/v1/' % BASE_SERVER
-        success = False
         URL = API_SERVER + "package/%s/" % project.slug
         h = httplib2.Http(timeout=5)
         try:
@@ -38,7 +37,6 @@ def import_crate(project):
         return False
     BASE_SERVER = 'http://crate.io'
     API_SERVER = '%s/api/v1/' % BASE_SERVER
-    success = False
     URL = API_SERVER + "package/?name__iexact=%s" % project.slug
     h = httplib2.Http(timeout=5)
     try:

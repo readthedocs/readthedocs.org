@@ -1,6 +1,5 @@
 import imp
 import sys
-import traceback
 
 class ErrorlessImport(object):
     def find_module(self, name, path):

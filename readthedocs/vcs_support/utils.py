@@ -1,7 +1,6 @@
 import logging
 import os
 import time
-import traceback
 
 log = logging.getLogger(__name__)
 

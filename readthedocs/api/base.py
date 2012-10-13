@@ -311,7 +311,7 @@ class VersionResource(EnhancedModelResource):
                     ret_val['is_highest'] = base_ver >= highest[1]
                 else:
                     ret_val['is_highest'] = True
-            except (Version.DoesNotExist, TypeError) as e:
+            except (Version.DoesNotExist, TypeError):
                 ret_val['is_highest'] = True
         return self.create_response(request, ret_val)
 

@@ -45,7 +45,7 @@ class Command(BaseCommand):
                     else:
                         path = version.project.rtd_build_path(version.slug)
                     copy_to_app_servers(path, path)
-                except Exception, e:
+                except Exception:
                     log.error("Failed to update %s" % version, exc_info=True)
 
     @property

@@ -2,7 +2,7 @@ import logging
 
 from django.core.management.base import BaseCommand
 from projects import tasks
-from projects.models import Project, ImportedFile
+from projects.models import ImportedFile
 from builds.models import Version
 
 log = logging.getLogger(__name__)
@@ -25,5 +25,5 @@ filesystem for each project.
             log.info("Building files for %s" % v)
             try:
                 tasks.fileify(v)
-            except Exception, e:
+            except Exception:
                 log.error('Build failed for %s' % v, exc_info=True)

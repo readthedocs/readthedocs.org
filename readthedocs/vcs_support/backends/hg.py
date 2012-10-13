@@ -20,14 +20,14 @@ class Backend(BaseVCS):
 
     def pull(self):
         pull_output = self.run('hg', 'pull')
-        if output[0] != 0:
+        if pull_output[0] != 0:
             raise ProjectImportError(
-                "Failed to get code from '%s' (hg pull): %s" % (self.repo_url, retcode)
+                "Failed to get code from '%s' (hg pull): %s" % (self.repo_url, pull_output[0])
             )
         update_output = self.run('hg', 'update', '-C')[0]
         if update_output[0] != 0:
             raise ProjectImportError(
-                "Failed to get code from '%s' (hg update): %s" % (self.repo_url, retcode)
+                "Failed to get code from '%s' (hg update): %s" % (self.repo_url, pull_output[0])
             )
         return update_output
 
