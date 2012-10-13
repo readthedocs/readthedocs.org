@@ -40,7 +40,7 @@ TIME_ZONE = 'America/Chicago'
 LANGUAGE_CODE = 'en-us'
 LANGUAGES = (
     ('en', gettext('English')),
-    ('es', gettext('Spanish')),
+    ('nb', gettext('Norwegian Bokmål')),
 
 )
 USE_I18N = True
