@@ -4,7 +4,7 @@ from django.template.defaultfilters import slugify
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 from projects import constants
-from projects.models import Project, File
+from projects.models import Project
 from projects.tasks import update_docs
 
 
@@ -54,40 +54,6 @@ class ImportProjectForm(ProjectForm):
         update_docs.delay(pk=project.pk)
 
         return project
-
-
-class FileForm(forms.ModelForm):
-    content = forms.CharField(widget=forms.Textarea(attrs={'class': 'editor'}),
-        help_text='<small><a href="http://sphinx.pocoo.org/rest.html">%s</a></small>' % _('reStructuredText Primer'))
-    revision_comment = forms.CharField(max_length=255, required=False)
-
-    class Meta:
-        model = File
-        exclude = ('project', 'slug', 'status')
-
-    def __init__(self, instance=None, *args, **kwargs):
-        file_qs = instance.project.files.all()
-        if instance.pk:
-            file_qs = file_qs.exclude(pk=instance.pk)
-        self.base_fields['parent'].queryset = file_qs
-        super(FileForm, self).__init__(instance=instance, *args, **kwargs)
-
-    def save(self, *args, **kwargs):
-        # grab the old content before saving
-        old_content = self.initial.get('content', '')
-
-        # save the file object
-        file_obj = super(FileForm, self).save(*args, **kwargs)
-
-        # create a new revision from the old content -> new
-        file_obj.create_revision(
-            old_content,
-            self.cleaned_data.get('revision_comment', '')
-        )
-
-        update_docs.delay(file_obj.project.pk)
-
-        return file_obj
 
 
 class DualCheckboxWidget(forms.CheckboxInput):

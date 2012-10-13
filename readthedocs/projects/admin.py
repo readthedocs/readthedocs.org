@@ -4,7 +4,7 @@ and related models.
 
 from builds.models import Version
 from django.contrib import admin
-from projects.models import Project, File, ImportedFile, ProjectRelationship
+from projects.models import Project, ImportedFile, ProjectRelationship
 
 class ProjectRelationshipInline(admin.TabularInline):
     model = ProjectRelationship
@@ -24,13 +24,9 @@ class ProjectAdmin(admin.ModelAdmin):
     raw_id_fields = ('users',)
 
 
-class FileAdmin(admin.ModelAdmin):
-    pass
-
 class ImportedFileAdmin(admin.ModelAdmin):
     list_display = ('name', 'project')
     list_filter = ('project',)
 
 admin.site.register(Project, ProjectAdmin)
-admin.site.register(File, FileAdmin)
 admin.site.register(ImportedFile, ImportedFileAdmin)
