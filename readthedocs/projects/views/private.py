@@ -16,15 +16,10 @@ from django.views.generic.list_detail import object_list
 
 from builds.forms import AliasForm
 from projects import constants
-from projects.forms import (FileForm, CreateProjectForm,
-                            ImportProjectForm, FileRevisionForm,
-                            build_versions_form, build_upload_html_form,
-                            SubprojectForm)
-from projects.models import Project, File
+from projects.forms import (ImportProjectForm, build_versions_form,
+                            build_upload_html_form, SubprojectForm)
+from projects.models import Project
 from projects.tasks import unzip_files
-
-
-
 
 
 @login_required
@@ -51,26 +46,6 @@ def project_manage(request, project_slug):
     Now redirects to the normal /projects/<slug> view.
     """
     return HttpResponseRedirect(reverse('projects_detail', args=[project_slug]))
-
-@login_required
-def project_create(request):
-    """
-    The view for creating a new project where the docs will be hosted
-    as objects and edited through the site
-    """
-    form = CreateProjectForm(request.POST or None)
-
-    if request.method == 'POST' and form.is_valid():
-        project = form.save()
-        form.instance.users.add(request.user)
-        project_manage = reverse('projects_detail', args=[project.slug])
-        return HttpResponseRedirect(project_manage)
-
-    return render_to_response(
-        'projects/project_create.html',
-        {'form': form},
-        context_instance=RequestContext(request)
-    )
 
 @login_required
 def project_edit(request, project_slug):
@@ -164,134 +139,6 @@ def project_import(request):
         {'form': form},
         context_instance=RequestContext(request)
     )
-
-@login_required
-def file_add(request, project_slug):
-    """
-    Add a file to a project, redirecting on success to the projects mgmt page
-    """
-    project = get_object_or_404(request.user.projects.live(), slug=project_slug)
-    file = File(project=project)
-
-    form = FileForm(instance=file, data=request.POST or None)
-
-    if request.method == 'POST' and form.is_valid():
-        form.instance.project = project
-        file = form.save()
-        project_manage = reverse('projects_detail', args=[project.slug])
-        return HttpResponseRedirect(project_manage)
-
-    return render_to_response(
-        'projects/file_add.html',
-        {'form': form, 'project': project},
-        context_instance=RequestContext(request)
-    )
-
-@login_required
-def file_edit(request, project_slug, file_id):
-    """
-    Edit an existing file
-    """
-    project = get_object_or_404(request.user.projects.live(), slug=project_slug)
-    file = get_object_or_404(project.files.live(), pk=file_id)
-
-    form = FileForm(instance=file, data=request.POST or None)
-
-    if request.method == 'POST' and form.is_valid():
-        form.save()
-        project_manage = reverse('projects_detail', args=[project.slug])
-        return HttpResponseRedirect(project_manage)
-
-    return render_to_response(
-        'projects/file_edit.html',
-        {'form': form, 'project': project, 'file': file},
-        context_instance=RequestContext(request)
-    )
-
-@login_required
-def file_delete(request, project_slug, file_id):
-    """
-    Mark a given file as deleted on POST, otherwise ask for confirmation
-    """
-    project = get_object_or_404(request.user.projects.live(), slug=project_slug)
-    file = get_object_or_404(project.files.live(), pk=file_id)
-
-    if request.method == 'POST':
-        file.status = constants.DELETED_STATUS
-        file.save()
-        project_manage = reverse('projects_detail', args=[project.slug])
-        return HttpResponseRedirect(project_manage)
-
-    return render_to_response(
-        'projects/file_delete.html',
-        {'project': project, 'file': file},
-        context_instance=RequestContext(request)
-    )
-
-@login_required
-def file_history(request, project_slug, file_id):
-    """
-    A view that provides diffing from current to any revision, and when
-    posted to allows you to revert
-    """
-    project = get_object_or_404(request.user.projects.live(), slug=project_slug)
-    file = get_object_or_404(project.files.live(), pk=file_id)
-
-    form = FileRevisionForm(file, request.POST or None)
-
-    if request.method == 'POST' and form.is_valid():
-        form.cleaned_data['revision'].apply()
-        history = reverse('projects_file_history', args=[project.slug, file.pk])
-        return HttpResponseRedirect(history)
-
-    return object_list(
-        request,
-        queryset=file.revisions.all(),
-        extra_context={'project': project, 'file': file, 'form': form},
-        page=int(request.GET.get('page', 1)),
-        template_object_name='revision',
-        template_name='projects/file_history.html',
-    )
-
-@login_required
-def file_diff(request, project_slug, file_id, from_id, to_id):
-    """
-    Return the contents of a given revision.
-    """
-    project = get_object_or_404(request.user.projects.live(), slug=project_slug)
-    file = get_object_or_404(project.files.live(), pk=file_id)
-
-    # grab the requested revisions
-    from_rev = get_object_or_404(file.revisions.all(), pk=from_id)
-    to_rev = get_object_or_404(file.revisions.all(), pk=to_id)
-
-    # generate a pretty html diff
-    diff = file.get_html_diff(from_rev.revision_number, to_rev.revision_number)
-    contents = linebreaks(to_rev.get_file_content())
-
-    payload = {
-        'diff': diff,
-        'contents': contents,
-        'display': str(to_rev),
-    }
-
-    # return it assuming json
-    return HttpResponse(simplejson.dumps(payload), mimetype='text/javascript')
-
-@login_required
-def file_preview(request):
-    """
-    Live preview of restructuredtext payload - currently not wired up
-    """
-    f = File(
-        heading=request.POST['heading'],
-        content=request.POST['content'],
-    )
-    rendered_base = render_to_string('projects/doc_file.rst.html', {'file': f})
-    rendered = restructuredtext(rendered_base)
-
-    json_response = simplejson.dumps({'payload': rendered})
-    return HttpResponse(json_response, mimetype='text/javascript')
 
 @login_required
 def export(request, project_slug):

@@ -5,10 +5,6 @@ urlpatterns = patterns('projects.views.private',
         'project_dashboard',
         name='projects_dashboard'
     ),
-    url(r'^create/$',
-        'project_create',
-        name='projects_create'
-    ),
     url(r'^import/$',
         'project_import',
         name='projects_import'
@@ -56,25 +52,5 @@ urlpatterns = patterns('projects.views.private',
     url(r'^(?P<project_slug>[-\w]+)/subprojects/$',
         'project_subprojects',
         name='projects_subprojects'
-    ),
-    url(r'^(?P<project_slug>[-\w]+)/add/$',
-        'file_add',
-        name='projects_file_add'
-    ),
-    url(r'^(?P<project_slug>[-\w]+)/(?P<file_id>\d+)/edit/$',
-        'file_edit',
-        name='projects_file_edit'
-    ),
-    url(r'^(?P<project_slug>[-\w]+)/(?P<file_id>\d+)/history/$',
-        'file_history',
-        name='projects_file_history'
-    ),
-    url(r'^(?P<project_slug>[-\w]+)/(?P<file_id>\d+)/diff/(?P<from_id>\d+)/(?P<to_id>\d+)/$',
-        'file_diff',
-        name='projects_file_diff'
-    ),
-    url(r'^(?P<project_slug>[-\w]+)/(?P<file_id>\d+)/delete/$',
-        'file_delete',
-        name='projects_file_delete'
     ),
 )

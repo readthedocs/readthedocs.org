@@ -32,25 +32,6 @@ class ProjectIndex(indexes.SearchIndex, indexes.Indexable):
     def get_model(self):
         return Project
 
-class FileIndex(indexes.SearchIndex, indexes.Indexable):
-    text = CharField(document=True, use_template=True)
-    author = CharField()
-    project = CharField(model_attr='project__name', faceted=True)
-    title = CharField(model_attr='heading')
-    absolute_url = CharField()
-
-    def prepare_author(self, obj):
-        return obj.project.users.all()[0]
-
-    def prepare_title(self, obj):
-        return obj.heading.replace('.html', '').replace('_', ' ').title()
-
-    def prepare_absolute_url(self, obj):
-        return obj.get_absolute_url()
-
-    def get_model(self):
-        return File
-
 #Should prob make a common subclass for this and FileIndex
 class ImportedFileIndex(indexes.SearchIndex, indexes.Indexable):
     text = CharField(document=True)
