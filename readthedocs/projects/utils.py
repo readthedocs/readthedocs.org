@@ -53,7 +53,6 @@ def run(*commands, **kwargs):
             run_command = command.split()
         log.info("Running: '%s'" % command)
         try:
-            output = ''
             p = subprocess.Popen(run_command, shell=shell, cwd=cwd,
                                  stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                  env=environment)
@@ -90,7 +89,6 @@ def _custom_slugify(data):
 def slugify_uniquely(model, initial, field, max_length, **filters):
     slug = _custom_slugify(initial)[:max_length]
     current = slug
-    index = 0
     """
     base_qs = model.objects.filter(**filters)
     while base_qs.filter(**{field: current}).exists():
@@ -154,11 +152,11 @@ def purge_version(version, mainsite=False, subdomain=False, cname=False):
                     url = "/en/%s/*" % version.slug
                     to_purge = "http://%s%s" % (server, url)
                     log.info("Purging %s on %s" % (url, cnamed))
-                    ret = h.request(to_purge, method="PURGE", headers=headers)
+                    h.request(to_purge, method="PURGE", headers=headers)
                     root_url = "/"
                     to_purge = "http://%s%s" % (server, root_url)
                     log.info("Purging %s on %s" % (root_url, cnamed))
-                    ret2 = h.request(to_purge, method="PURGE", headers=headers)
+                    h.request(to_purge, method="PURGE", headers=headers)
 
 class DictObj(object):
     def __getattr__(self, attr):

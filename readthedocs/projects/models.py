@@ -6,15 +6,12 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db import models
-from django.core.exceptions import ObjectDoesNotExist
 from django.template.defaultfilters import slugify
-from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 
 from projects import constants
 from projects.exceptions import ProjectImportError
 from projects.templatetags.projects_tags import sort_version_aware
-from projects.utils import diff, dmp, safe_write
 from projects.utils import highest_version as _highest
 from taggit.managers import TaggableManager
 from tastyapi.slum import api

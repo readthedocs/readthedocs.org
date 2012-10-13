@@ -6,7 +6,7 @@ from django.http import (HttpResponse, HttpResponseRedirect,
                          Http404, HttpResponsePermanentRedirect)
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
-from django.views.generic.list_detail import object_list, object_detail
+from django.views.generic.list_detail import object_list
 from django.utils.datastructures import SortedDict
 
 
@@ -41,23 +41,6 @@ def project_index(request, username=None, tag=None):
         page=int(request.GET.get('page', 1)),
         template_object_name='project',
     )
-
-def slug_detail(request, project_slug, filename):
-    """
-    A detail view for a project with various dataz
-    """
-    version_slug = 'latest'
-    if not filename:
-        filename = "index.html"
-    split_filename = filename.split('/')
-    if len(split_filename) > 1:
-        version = split_filename[1]
-        proj = get_object_or_404(Project, slug=project_slug)
-        valid_version = proj.versions.filter(slug=version).count()
-        if valid_version:
-            version_slug = version
-            filename = '/'.join(split_filename[1:])
-    return serve_docs(request=request, project_slug=project_slug, version_slug=version, filename=filename)
 
 def project_detail(request, project_slug):
     """
@@ -157,7 +140,6 @@ def search_autocomplete(request):
     json_response = simplejson.dumps(list(project_names))
 
     return HttpResponse(json_response, mimetype='text/javascript')
-
 
 
 def subdomain_handler(request, lang_slug=None, version_slug=None, filename=''):

@@ -1,7 +1,6 @@
 """Tasks related to projects, including fetching repository code, cleaning
 ``conf.py`` files, and rebuilding documentation.
 """
-import decimal
 import fnmatch
 import os
 import re
@@ -19,13 +18,12 @@ from sphinx.ext import intersphinx
 import slumber
 
 
-from builds.models import Version, Build
+from builds.models import Version
 from doc_builder import loading as builder_loading
 from doc_builder.base import restoring_chdir
 from projects.exceptions import ProjectImportError
 from projects.models import ImportedFile, Project
 from projects.utils import (
-    DictObj,
     mkversion,
     purge_version,
     run,
@@ -98,8 +96,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
         try:
             version_data = api.version(project.slug).get(slug='latest')['objects'][0]
             del version_data['resource_uri']
-        except (slumber.exceptions.HttpClientError, IndexError) as exc:
-            #if exc.response.status_code in [404,500]:
+        except (slumber.exceptions.HttpClientError, IndexError):
             version_data = dict(
                 project='/api/v1/project/%s/' % project.pk,
                 slug='latest',
@@ -229,7 +226,7 @@ def update_imported_docs(project, version):
         update_docs_output['checkout'] = version_repo.update()
 
     # Ensure we have a conf file (an exception is raised if not)
-    conf_file = project.conf_file(version.slug)
+    project.conf_file(version.slug)
 
     #Do Virtualenv bits:
     if project.use_virtualenv:
@@ -299,7 +296,7 @@ def update_imported_docs(project, version):
                     log.error("Failed to create version (tag)", exc_info=True)
                     transaction.rollback()
                     # Break here to stop updating tags when they will all fail.
-                    # Only for when, there are a bunch of tags though. 
+                    # Only for when, there are a bunch of tags though.
                     # Because it ties up a worker
                     if len(tags) > 20:
                         break
@@ -324,7 +321,7 @@ def update_imported_docs(project, version):
                     log.error("Failed to create version (branch)", exc_info=True)
                     transaction.rollback()
                     # Break here to stop updating branches when they will all fail.
-                    # Only for when, there are a bunch of branches though. 
+                    # Only for when, there are a bunch of branches though.
                     # Because it ties up a worker.
                     if len(branches) > 20:
                         break
