@@ -12,8 +12,6 @@ from django.conf import settings
 from httplib2 import Http
 import redis
 
-from projects.libs.diff_match_patch import diff_match_patch
-
 log = logging.getLogger(__name__)
 
 def find_file(file):
@@ -69,14 +67,6 @@ def run(*commands, **kwargs):
             log.error("Command failed", exc_info=True)
 
     return (ret, out, err)
-
-
-dmp = diff_match_patch()
-
-def diff(txt1, txt2):
-    """Create a 'diff' from txt1 to txt2."""
-    patch = dmp.patch_make(txt1, txt2)
-    return dmp.patch_toText(patch)
 
 
 def safe_write(filename, contents):
