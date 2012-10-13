@@ -55,7 +55,10 @@ class ImportProjectForm(ProjectForm):
 
     class Meta:
         model = Project
-        fields = ('name', 'repo', 'repo_type', 'description', 'project_url', 'tags', 'default_branch', 'default_version', 'use_virtualenv', 'conf_py_file', 'requirements_file', 'analytics_code', 'documentation_type')
+        fields = ('name', 'repo', 'repo_type', 'description', 'project_url',
+                  'tags', 'default_branch', 'default_version', 'use_virtualenv',
+                  'use_system_packages', 'conf_py_file', 'requirements_file',
+                  'analytics_code', 'documentation_type')
 
     def clean_repo(self):
         repo = self.cleaned_data.get('repo', '').strip()
