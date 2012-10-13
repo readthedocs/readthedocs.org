@@ -1,25 +1,26 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
-#, fuzzy
+# 
+# Translators:
+#   <julenx@gmail.com>, 2012.
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-10-13 16:45-0500\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"PO-Revision-Date: 2012-10-13 21:44+0000\n"
+"Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: eu\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: api/base.py:97
 msgid "Sorry, no results on that page."
-msgstr ""
+msgstr "Sentitzen dugu, emaitzarik ez orri horretan."
 
 #: api/base.py:174
 #, python-format
@@ -30,25 +31,25 @@ msgstr ""
 #: builds/models.py:49 editor/models.py:15 projects/models.py:484
 #: projects/models.py:632 watching/models.py:6
 msgid "Project"
-msgstr ""
+msgstr "Proiektua"
 
 #: bookmarks/models.py:9 core/models.py:13 editor/models.py:14
 #: projects/models.py:51
 msgid "User"
-msgstr ""
+msgstr "Erabiltzailea"
 
 #: bookmarks/models.py:10 builds/models.py:51
 msgid "Date"
-msgstr ""
+msgstr "Data"
 
 #: bookmarks/models.py:11 templates/djangome/show.html:12 watching/models.py:7
 msgid "URL"
-msgstr ""
+msgstr "URLa"
 
 #: bookmarks/models.py:12 projects/models.py:54
 #: templates/core/project_details.html:6
 msgid "Description"
-msgstr ""
+msgstr "Deskribapena"
 
 #: bookmarks/models.py:18
 #, python-format
@@ -61,52 +62,52 @@ msgstr ""
 
 #: builds/constants.py:5
 msgid "Building"
-msgstr ""
+msgstr "Eraikitzen"
 
 #: builds/constants.py:6
 msgid "Finished"
-msgstr ""
+msgstr "Amaituta"
 
 #: builds/constants.py:10
 msgid "HTML"
-msgstr ""
+msgstr "HTML"
 
 #: builds/constants.py:11
 msgid "PDF"
-msgstr ""
+msgstr "PDF"
 
 #: builds/constants.py:12
 msgid "Epub"
-msgstr ""
+msgstr "Epub"
 
 #: builds/constants.py:13
 msgid "Manpage"
-msgstr ""
+msgstr "Manpage"
 
 #: builds/models.py:10
 msgid "Identifier"
-msgstr ""
+msgstr "Identifikadorea"
 
 #: builds/models.py:11
 msgid "Verbose Name"
-msgstr ""
+msgstr "Bistaratzeko izena"
 
 #: builds/models.py:12 projects/models.py:53 projects/models.py:488
 #: projects/models.py:634
 msgid "Slug"
-msgstr ""
+msgstr "Slug-a"
 
 #: builds/models.py:13 editor/models.py:16
 msgid "Active"
-msgstr ""
+msgstr "Aktibo"
 
 #: builds/models.py:14
 msgid "Built"
-msgstr ""
+msgstr "Eraikita"
 
 #: builds/models.py:15
 msgid "Uploaded"
-msgstr ""
+msgstr "Igota"
 
 #: builds/models.py:22
 #, python-format
@@ -132,7 +133,7 @@ msgstr ""
 
 #: builds/models.py:50
 msgid "Type"
-msgstr ""
+msgstr "Mota"
 
 #: builds/models.py:52
 msgid "Success"
@@ -140,28 +141,28 @@ msgstr ""
 
 #: builds/models.py:53
 msgid "Setup"
-msgstr ""
+msgstr "Konfigurazioa"
 
 #: builds/models.py:54
 msgid "Setup error"
-msgstr ""
+msgstr "Errorea konfigurazioan"
 
 #: builds/models.py:55
 msgid "Output"
-msgstr ""
+msgstr "Irteera"
 
 #: builds/models.py:56
 msgid "Error"
-msgstr ""
+msgstr "Errorea"
 
 #: builds/models.py:57 projects/models.py:60
 #: templates/djangome/oneoffs.html:11
 msgid "Version"
-msgstr ""
+msgstr "Bertsioa"
 
 #: builds/models.py:58
 msgid "State"
-msgstr ""
+msgstr "Egoera"
 
 #: builds/models.py:65
 #, python-format
@@ -170,11 +171,11 @@ msgstr ""
 
 #: core/forms.py:13
 msgid "First name"
-msgstr ""
+msgstr "Izena"
 
 #: core/forms.py:14
 msgid "Last name"
-msgstr ""
+msgstr "Abizena"
 
 #: core/middleware.py:31
 msgid "Brought to you by Read the Docs"
@@ -182,11 +183,11 @@ msgstr ""
 
 #: core/middleware.py:57
 msgid "Invalid hostname"
-msgstr ""
+msgstr "Ostalari-izen baliogabea"
 
 #: core/middleware.py:91
 msgid "Invalid Host Name."
-msgstr ""
+msgstr "Ostalari-izen baliogabea"
 
 #: core/models.py:14
 msgid "Whitelisted"
@@ -194,7 +195,7 @@ msgstr ""
 
 #: core/models.py:15 templates/profiles/profile_detail.html:13
 msgid "Homepage"
-msgstr ""
+msgstr "Webgunea"
 
 #: core/models.py:16
 msgid "Allow email"
@@ -207,7 +208,7 @@ msgstr ""
 #: core/models.py:19
 #, python-format
 msgid "%(username)s's profile"
-msgstr ""
+msgstr "%(username)s erabiltzailearen profila"
 
 #: djangome/views.py:24
 #, python-format
@@ -216,16 +217,16 @@ msgstr ""
 
 #: editor/forms.py:6
 msgid "Body"
-msgstr ""
+msgstr "Gorputza"
 
 #: editor/forms.py:7 editor/forms.py:12 editor/models.py:19
 #: projects/models.py:572
 msgid "Comment"
-msgstr ""
+msgstr "Iruzkina"
 
 #: editor/forms.py:11 editor/models.py:18
 msgid "Title"
-msgstr ""
+msgstr "Izenburua"
 
 #: editor/models.py:17
 msgid "Pushed"
@@ -309,8 +310,8 @@ msgstr ""
 
 #: projects/forms.py:68
 msgid ""
-"It looks like you entered a private repo - please use the public (http:// or "
-"git://) clone url"
+"It looks like you entered a private repo - please use the public (http:// or"
+" git://) clone url"
 msgstr ""
 
 #: projects/forms.py:74
@@ -369,11 +370,11 @@ msgstr ""
 
 #: projects/models.py:52 projects/models.py:633
 msgid "Name"
-msgstr ""
+msgstr "Izena"
 
 #: projects/models.py:55
 msgid "The reStructuredText description of the project"
-msgstr ""
+msgstr "Proiektuaren deskribapena reStructuredText formatuan"
 
 #: projects/models.py:56
 msgid "Repository URL"
@@ -381,41 +382,41 @@ msgstr ""
 
 #: projects/models.py:57
 msgid ""
-"Checkout URL for your code (hg, git, etc.). Ex. http://github.com/"
-"ericholscher/django-kong.git"
+"Checkout URL for your code (hg, git, etc.). Ex. "
+"http://github.com/ericholscher/django-kong.git"
 msgstr ""
 
 #: projects/models.py:58
 msgid "Repository type"
-msgstr ""
+msgstr "Biltegi mota"
 
 #: projects/models.py:59
 msgid "Project URL"
-msgstr ""
+msgstr "Proiektuaren URLa"
 
 #: projects/models.py:59
 msgid "The project's homepage"
-msgstr ""
+msgstr "Proiektuaren webgunea"
 
 #: projects/models.py:61
 msgid "Project version these docs apply to, i.e. 1.0a"
-msgstr ""
+msgstr "Dokumentazioari dagokion proiektuaren bertsioa, adibidez 1.0a"
 
 #: projects/models.py:62
 msgid "Copyright"
-msgstr ""
+msgstr "Copyright"
 
 #: projects/models.py:63
 msgid "Project copyright information"
-msgstr ""
+msgstr "Proiektuaren copyright informazioa"
 
 #: projects/models.py:64
 msgid "Theme"
-msgstr ""
+msgstr "Itxura"
 
 #: projects/models.py:66
 msgid "Examples"
-msgstr ""
+msgstr "Adibideak"
 
 #: projects/models.py:67
 msgid "Suffix"
@@ -455,8 +456,9 @@ msgstr ""
 
 #: projects/models.py:75
 msgid ""
-"Type of documentation you are building. <a href=\"http://sphinx.pocoo.org/"
-"builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More info</a>."
+"Type of documentation you are building. <a "
+"href=\"http://sphinx.pocoo.org/builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More"
+" info</a>."
 msgstr ""
 
 #: projects/models.py:76
@@ -607,12 +609,13 @@ msgstr ""
 #: templates/base.html:13 templates/core/header.html:59
 #: templates/core/home-header.html:9
 msgid "Read the Docs"
-msgstr ""
+msgstr "Read the Docs"
 
 #: templates/base.html:52
 msgid ""
-"You docs are currently being built.  It may take a moment for them to appear."
-msgstr ""
+"You docs are currently being built.  It may take a moment for them to "
+"appear."
+msgstr "Dokumentazioa eraikitzen ari da. Une bat har lezake agertu aurretik."
 
 #: templates/base.html:53
 msgid "Read the Docs thanks you for your continued patience."
@@ -632,17 +635,19 @@ msgstr ""
 #: templates/base.html:81
 msgid ""
 "Thanks for believing in us: <a href=\"http://revsys.com\">RevSys</a>, <a "
-"href=\"http://www.python.org/psf/\">Python Software Foundation</a>, <a href="
-"\"http://blog.mozilla.com/webdev/\">Mozilla Web Dev</a>, <a href=\"https://"
-"www.djangoproject.com/foundation/\">Django Software Foundation</a>, <a href="
-"\"http://lab305.com\">Lab305</a>, and <a href=\"http://enn.io/\">enn.io</a>."
+"href=\"http://www.python.org/psf/\">Python Software Foundation</a>, <a "
+"href=\"http://blog.mozilla.com/webdev/\">Mozilla Web Dev</a>, <a "
+"href=\"https://www.djangoproject.com/foundation/\">Django Software "
+"Foundation</a>, <a href=\"http://lab305.com\">Lab305</a>, and <a "
+"href=\"http://enn.io/\">enn.io</a>."
 msgstr ""
 
 #: templates/base.html:84
 msgid ""
-"Made by <a href=\"https://github.com/rtfd/readthedocs.org/graphs/contributors"
-"\">humans</a>. Funded by <a href=\"https://www.gittip.com/readthedocs/"
-"\">readers like you</a>."
+"Made by <a "
+"href=\"https://github.com/rtfd/readthedocs.org/graphs/contributors\">humans</a>."
+" Funded by <a href=\"https://www.gittip.com/readthedocs/\">readers like "
+"you</a>."
 msgstr ""
 
 #: templates/homepage.html:7
@@ -651,7 +656,7 @@ msgstr ""
 #: templates/registration/password_reset_done.html:6
 #: templates/registration/password_reset_form.html:7
 msgid "Home"
-msgstr ""
+msgstr "Hasiera-orria"
 
 #: templates/homepage.html:28
 msgid "What is this place?"
@@ -659,16 +664,10 @@ msgstr ""
 
 #: templates/homepage.html:30
 msgid ""
-"Read the Docs hosts documentation, making it fully searchable and easy to "
-"find.\n"
-"You can import your docs using any major version control system, including "
-"Mercurial, Git, Subversion, and Bazaar.\n"
-"We support <a href=\"http://read-the-docs.readthedocs.org/en/latest/webhooks."
-"html\">webhooks</a> so your docs get built when you commit code.\n"
-"There's also support for versioning so you can build docs from tags and "
-"branches of your code in your repository. A <a href=\"http://read-the-docs."
-"readthedocs.org/en/latest/features.html\">full list of features</a> is "
-"available."
+"Read the Docs hosts documentation, making it fully searchable and easy to find.\n"
+"You can import your docs using any major version control system, including Mercurial, Git, Subversion, and Bazaar.\n"
+"We support <a href=\"http://read-the-docs.readthedocs.org/en/latest/webhooks.html\">webhooks</a> so your docs get built when you commit code.\n"
+"There's also support for versioning so you can build docs from tags and branches of your code in your repository. A <a href=\"http://read-the-docs.readthedocs.org/en/latest/features.html\">full list of features</a> is available."
 msgstr ""
 
 #: templates/homepage.html:36
@@ -765,7 +764,7 @@ msgstr ""
 
 #: templates/builds/build_detail.html:34
 msgid "Setup Output"
-msgstr ""
+msgstr "Konfiguratu irteera"
 
 #: templates/builds/build_detail.html:39
 msgid "Environment Standard Error"
@@ -807,28 +806,29 @@ msgstr ""
 
 #: templates/core/header.html:95 templates/registration/logout.html:6
 msgid "Log Out"
-msgstr ""
+msgstr "Amaitu saioa"
 
 #: templates/core/header.html:97 templates/core/home-header.html:19
 #: templates/registration/login.html:6 templates/registration/login.html:11
 #: templates/registration/login.html:18
 #: templates/registration/password_reset_complete.html:16
 msgid "Log in"
-msgstr ""
+msgstr "Hasi saioa"
 
 #: templates/core/home-header.html:10
 msgid "Create, host, and browse documentation."
 msgstr ""
 
-#. Translators: Note, the full sentence goes 'Sign up' 'or' 'Log in'. But unfortunately the three bits have to be separate.
+#. Translators: Note, the full sentence goes 'Sign up' 'or' 'Log in'. But
+#. unfortunately the three bits have to be separate.
 #: templates/core/home-header.html:17
 msgid "Sign up"
-msgstr ""
+msgstr "Erregistratu"
 
 #. Translators: The 'or' here is in between 'Submit' and 'delete'.
 #: templates/core/home-header.html:19 templates/projects/project_edit.html:31
 msgid "or"
-msgstr ""
+msgstr "edo"
 
 #: templates/core/project_bar.html:24
 #, python-format
@@ -841,30 +841,30 @@ msgstr ""
 
 #: templates/core/project_bar.html:27
 msgid "Is the repo correct?"
-msgstr ""
+msgstr "Biltegia zuzena da?"
 
 #: templates/core/project_bar.html:32
 #: templates/core/project_list_detailed.html:19
 #: templates/core/project_list_featured.html:15
 #: templates/projects/project_dashboard.html:49
 msgid "View Docs"
-msgstr ""
+msgstr "Ikusi dokumentazioa"
 
 #: templates/core/project_bar.html:39
 #: templates/projects/project_dashboard.html:35
 msgid "Manage Files"
-msgstr ""
+msgstr "Kudeatu fitxategiak"
 
 #: templates/core/project_bar.html:41 templates/editor/editor_file.html:19
 #: templates/editor/editor_file.html:21
 #: templates/projects/project_dashboard.html:47
 msgid "Edit"
-msgstr ""
+msgstr "Editatu"
 
 #: templates/core/project_bar.html:42
 #: templates/projects/project_dashboard.html:45
 msgid "Subprojects"
-msgstr ""
+msgstr "Azpiproiektuak"
 
 #: templates/core/project_bar.html:46
 #: templates/projects/project_dashboard.html:48
@@ -874,11 +874,11 @@ msgstr ""
 #: templates/core/project_bar.html:50 templates/core/project_details.html:30
 #: templates/projects/project_dashboard.html:38
 msgid "Versions"
-msgstr ""
+msgstr "Bertsioak"
 
 #: templates/core/project_details.html:16
 msgid "Search this project"
-msgstr ""
+msgstr "Bilatu proiektu honetan"
 
 #: templates/core/project_details.html:39
 #, python-format
@@ -887,7 +887,7 @@ msgstr ""
 
 #: templates/core/project_details.html:65
 msgid "Short URLs"
-msgstr ""
+msgstr "URL laburrak"
 
 #: templates/core/project_details.html:73
 msgid "Open Comparison"
@@ -896,8 +896,8 @@ msgstr ""
 #: templates/core/project_details.html:74
 #, python-format
 msgid ""
-"This project has more information available about it on <a href=\"%(url)s"
-"\">Open Comparison!</a>"
+"This project has more information available about it on <a "
+"href=\"%(url)s\">Open Comparison!</a>"
 msgstr ""
 
 #: templates/core/project_details.html:78
@@ -907,21 +907,21 @@ msgstr ""
 #: templates/core/project_details.html:79
 #, python-format
 msgid ""
-"This project has more information available about it on <a href=\"%(url)s"
-"\">Crate!</a>"
+"This project has more information available about it on <a "
+"href=\"%(url)s\">Crate!</a>"
 msgstr ""
 
 #: templates/core/project_details.html:92
 msgid "Last Built"
-msgstr ""
+msgstr "Azken aldiz eraikia"
 
 #: templates/core/project_details.html:97
 msgid "Repository"
-msgstr ""
+msgstr "Biltegia"
 
 #: templates/core/project_details.html:109
 msgid "Tags"
-msgstr ""
+msgstr "Etiketak"
 
 #: templates/core/project_details.html:114
 msgid "No tags"
@@ -1003,8 +1003,8 @@ msgstr ""
 #: templates/djangome/choices.html:7
 #, python-format
 msgid ""
-"Choose a redirect for <kbd>%(djangome_term)s on <a href=\"http://%(slug)s."
-"readthedocs.org\">%(slug)s.readthedocs.org</a></kbd>"
+"Choose a redirect for <kbd>%(djangome_term)s on <a "
+"href=\"http://%(slug)s.readthedocs.org\">%(slug)s.readthedocs.org</a></kbd>"
 msgstr ""
 
 #: templates/djangome/choices.html:28
@@ -1083,8 +1083,7 @@ msgstr ""
 
 #: templates/flagging/flag_confirm.html:21
 #, python-format
-msgid ""
-"Are you sure you want to flag \"%(object)s\" as \"%(flag_type.title)s\"?"
+msgid "Are you sure you want to flag \"%(object)s\" as \"%(flag_type.title)s\"?"
 msgstr ""
 
 #: templates/flagging/flag_confirm.html:23
@@ -1113,12 +1112,12 @@ msgstr ""
 #: templates/pagination/pagination.html:6
 #: templates/pagination/pagination.html:8
 msgid "previous"
-msgstr ""
+msgstr "aurrekoa"
 
 #: templates/pagination/pagination.html:22
 #: templates/pagination/pagination.html:24
 msgid "next"
-msgstr ""
+msgstr "hurrengoa"
 
 #: templates/profiles/create_profile.html:5
 #: templates/profiles/create_profile.html:10
@@ -1132,11 +1131,11 @@ msgstr ""
 #: templates/profiles/edit_profile.html:5
 #: templates/profiles/edit_profile.html:10
 msgid "Edit your profile"
-msgstr ""
+msgstr "Editatu zure profila"
 
 #: templates/profiles/edit_profile.html:16
 msgid "OK, save it!"
-msgstr ""
+msgstr "Ados, gorde!"
 
 #: templates/profiles/profile_detail.html:5
 #: templates/profiles/profile_detail.html:8
@@ -1176,7 +1175,7 @@ msgstr ""
 #: templates/profiles/profile_list.html:5
 #: templates/profiles/profile_list.html:8
 msgid "User profiles"
-msgstr ""
+msgstr "Erabiltzaile-profilak"
 
 #: templates/projects/alias_edit.html:4 templates/projects/alias_edit.html:7
 msgid "Project Alias"
@@ -1194,15 +1193,15 @@ msgstr ""
 #: templates/projects/alias_list.html:20
 #: templates/projects/project_list.html:48
 msgid "Browse projects"
-msgstr ""
+msgstr "Arakatu proiektuak"
 
 #: templates/projects/file_add.html:19 templates/projects/file_add.html:22
 msgid "Add a file"
-msgstr ""
+msgstr "Gehitu fitxategi bat"
 
 #: templates/projects/file_add.html:30
 msgid "Add file"
-msgstr ""
+msgstr "Gehitu fitxategia"
 
 #: templates/projects/file_delete.html:4 templates/projects/file_delete.html:6
 #, python-format
@@ -1225,7 +1224,7 @@ msgstr ""
 
 #: templates/projects/file_edit.html:27 templates/projects/file_history.html:6
 msgid "Revision History"
-msgstr ""
+msgstr "Berrikuspenen historia"
 
 #: templates/projects/file_edit.html:32
 msgid "Looks good! (Save)"
@@ -1233,11 +1232,11 @@ msgstr ""
 
 #: templates/projects/file_history.html:4
 msgid "History"
-msgstr ""
+msgstr "Historia"
 
 #: templates/projects/file_history.html:12
 msgid "Current"
-msgstr ""
+msgstr "Unekoa"
 
 #. Translators: Revert to a specific revision of a file.
 #: templates/projects/file_history.html:24
@@ -1255,7 +1254,7 @@ msgstr ""
 
 #: templates/projects/legend.html:4
 msgid "External Links"
-msgstr ""
+msgstr "Kanpo-estekak"
 
 #: templates/projects/legend.html:5
 msgid "Link text"
@@ -1263,15 +1262,15 @@ msgstr ""
 
 #: templates/projects/legend.html:7
 msgid "Internal Links"
-msgstr ""
+msgstr "Barne-estekak"
 
 #: templates/projects/legend.html:10
 msgid "Bold"
-msgstr ""
+msgstr "Lodia"
 
 #: templates/projects/legend.html:11
 msgid "text to bold"
-msgstr ""
+msgstr "loditu testua"
 
 #: templates/projects/legend.html:13
 msgid "Emphasized"
@@ -1283,7 +1282,7 @@ msgstr ""
 
 #: templates/projects/legend.html:16
 msgid "Lists"
-msgstr ""
+msgstr "Zerrendak"
 
 #: templates/projects/legend.html:19 templates/projects/legend.html.py:20
 #: templates/projects/legend.html:23 templates/projects/legend.html.py:24
@@ -1344,11 +1343,8 @@ msgstr ""
 #: templates/projects/project_dashboard.html:62
 #, python-format
 msgid ""
-"You don't have any projects.  You should<a href=\"%(projects_import_url)s"
-"\">create new docs</a> on the site.<br>\n"
-"Check out the <a href=\"http://readthedocs.org/docs/read-the-docs/latest/"
-"getting_started.html\">Getting Started</a> documentation for information "
-"about how to get going."
+"You don't have any projects.  You should<a href=\"%(projects_import_url)s\">create new docs</a> on the site.<br>\n"
+"Check out the <a href=\"http://readthedocs.org/docs/read-the-docs/latest/getting_started.html\">Getting Started</a> documentation for information about how to get going."
 msgstr ""
 
 #: templates/projects/project_delete.html:4
@@ -1359,7 +1355,7 @@ msgstr ""
 
 #: templates/projects/project_delete.html:9
 msgid "You sure?"
-msgstr ""
+msgstr "Ziur zaude?"
 
 #: templates/projects/project_delete.html:12
 msgid "Delete forever"
@@ -1389,38 +1385,38 @@ msgstr ""
 
 #: templates/projects/project_manage.html:10
 msgid "Project Files"
-msgstr ""
+msgstr "Proiektuaren fitxategiak"
 
 #: templates/projects/project_manage.html:19
 msgid "Add New File"
-msgstr ""
+msgstr "Gehitu fitxategi berria"
 
 #: templates/projects/project_manage.html:25
 msgid "(delete)"
-msgstr ""
+msgstr "(ezabatu)"
 
 #: templates/projects/project_subprojects.html:5
 #: templates/projects/project_subprojects.html:9
 msgid "Edit Subprojects"
-msgstr ""
+msgstr "Editatu azpiproiektuak"
 
 #: templates/projects/project_subprojects.html:13
 msgid ""
-"This allows you to add subprojects to your project. This allows them to live "
-"in the same namespace in the URLConf for a subdomain or CNAME."
+"This allows you to add subprojects to your project. This allows them to live"
+" in the same namespace in the URLConf for a subdomain or CNAME."
 msgstr ""
 
 #: templates/projects/project_subprojects.html:16
 msgid "Existing Subprojects"
-msgstr ""
+msgstr "Dauden azpiproiektuak"
 
 #: templates/projects/project_subprojects.html:24
 msgid "Remove"
-msgstr ""
+msgstr "Kendu"
 
 #: templates/projects/project_subprojects.html:29
 msgid "Choose which project you would like to add as a subproject."
-msgstr ""
+msgstr "Aukeratu azpiproiektu gisa gehitu nahi duzun proiektua."
 
 #: templates/projects/project_versions.html:4
 #: templates/projects/project_versions.html:8
@@ -1439,8 +1435,8 @@ msgstr ""
 
 #: templates/projects/project_versions.html:12
 msgid ""
-"instead. This is to support versions that may not build anymore with current "
-"Sphinx, or to support plugins and extensions that we may not have on our "
+"instead. This is to support versions that may not build anymore with current"
+" Sphinx, or to support plugins and extensions that we may not have on our "
 "server."
 msgstr ""
 
@@ -1452,7 +1448,7 @@ msgstr ""
 #: templates/projects/search.html:6 templates/projects/search.html.py:20
 #, python-format
 msgid "Search results for %(term)s"
-msgstr ""
+msgstr "%(term)s terminoaren bilaketa-emaitzak"
 
 #: templates/projects/search.html:37
 msgid "Huh?"
@@ -1464,7 +1460,7 @@ msgstr ""
 
 #: templates/projects/upload_html.html:4
 msgid "Import HTML Documentation"
-msgstr ""
+msgstr "Inportatu HTML dokumentazioa"
 
 #: templates/projects/upload_html.html:8
 msgid "Upload HTML Documentation"
@@ -1480,7 +1476,8 @@ msgstr ""
 msgid "Upload"
 msgstr ""
 
-#. Translators: After 'Flag this project as' follows either 'Inappropriate', 'Spam' and/or 'Duplicate'
+#. Translators: After 'Flag this project as' follows either 'Inappropriate',
+#. 'Spam' and/or 'Duplicate'
 #: templates/projects/includes/flagging.html:7
 msgid "Flag this project as"
 msgstr ""
@@ -1491,7 +1488,7 @@ msgstr ""
 
 #: templates/projects/includes/flagging.html:9
 msgid "Spam"
-msgstr ""
+msgstr "Spama"
 
 #: templates/projects/includes/flagging.html:10
 msgid "Duplicate"
@@ -1499,15 +1496,15 @@ msgstr ""
 
 #: templates/projects/includes/icon_built.html:4
 msgid "(Built)"
-msgstr ""
+msgstr "(Eraikita)"
 
 #: templates/projects/includes/icon_built.html:8
 msgid "(Uploaded)"
-msgstr ""
+msgstr "(Igota)"
 
 #: templates/projects/includes/icon_built.html:11
 msgid "(Not built)"
-msgstr ""
+msgstr "(Eraiki gabea)"
 
 #: templates/projects/samples/getting_started.rst.html:3
 msgid "Here's a place to describe how to get up and running with your project"
@@ -1573,8 +1570,8 @@ msgstr ""
 
 #: templates/registration/login.html:21
 msgid ""
-"If you forgot your password, <a href=\"/accounts/password/reset/\">reset it."
-"</a>"
+"If you forgot your password, <a href=\"/accounts/password/reset/\">reset "
+"it.</a>"
 msgstr ""
 
 #: templates/registration/logout.html:11
@@ -1588,8 +1585,8 @@ msgstr ""
 #: templates/registration/logout.html:21
 #, python-format
 msgid ""
-"If you are looking to log in again, you can do that <a href=\"%(login_url)s"
-"\">here</a>"
+"If you are looking to log in again, you can do that <a "
+"href=\"%(login_url)s\">here</a>"
 msgstr ""
 
 #: templates/registration/password_change_done.html:4
@@ -1614,8 +1611,8 @@ msgstr[1] ""
 
 #: templates/registration/password_change_form.html:22
 msgid ""
-"Please enter your old password, for security's sake, and then enter your new "
-"password twice so we can verify you typed it in correctly."
+"Please enter your old password, for security's sake, and then enter your new"
+" password twice so we can verify you typed it in correctly."
 msgstr ""
 
 #: templates/registration/password_change_form.html:26
