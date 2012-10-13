@@ -4,7 +4,7 @@
 
 {% block title %}{{ build.project.name }}{% endblock %}
 
-{% block content-header %}<h1>{% blocktrans %}Build for {{ build.project.name }}{% endblocktrans %}</h1>{% endblock %}
+{% block content-header %}<h1>{% blocktrans with build.project.name as project_name %}Build for {{ project_name }}{% endblocktrans %}</h1>{% endblock %}
 
 {% block content %}
   <div id="build-{{ build.id }}">
