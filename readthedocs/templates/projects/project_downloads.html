@@ -1,6 +1,6 @@
 {% extends "projects/base_project.html" %}
 
-{% load markup %}
+{% load i18n markup %}
 
 {% block title %}{{ project.name }}{% endblock %}
 
@@ -15,7 +15,7 @@
             <div class="module-wrapper">
 
               <div class="module-header">
-                <h1>Downloads</h1>
+                <h1>{% trans "Downloads" %}</h1>
               </div>
 
               <div class="module-list">

@@ -1,7 +1,8 @@
+{% load i18n %}
 {% for version, dict in version_data.items %}
 {% if dict.pdf_url %}
 <li class="module-item col-span">
-      <a class="module-item-title" href="{{ dict.pdf_url }}">{{ version }} PDF </a>
+      <a class="module-item-title" href="{{ dict.pdf_url }}">{{ version }} PDF</a>
 </li>
 {% endif %}
 
@@ -25,6 +26,6 @@
 
 {% empty %}
 <li class="module-item col-span">
-      No downloads for this project.
+      {% trans "No downloads for this project." %}
 </li>
 {% endfor %}
