@@ -10,7 +10,7 @@ from haystack import indexes
 from haystack.fields import CharField
 #from celery_haystack.indexes import SearchIndex
 
-from projects.models import File, ImportedFile, Project
+from projects.models import ImportedFile, Project
 
 import logging
 log = logging.getLogger(__name__)
