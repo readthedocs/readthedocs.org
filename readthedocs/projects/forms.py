@@ -21,34 +21,6 @@ class ProjectForm(forms.ModelForm):
         return name
 
 
-class CreateProjectForm(ProjectForm):
-    class Meta:
-        model = Project
-        fields = ('name', 'description', 'theme', 'tags')
-
-    def save(self, *args, **kwargs):
-        created = self.instance.pk is None
-
-        # save the project
-        project = super(CreateProjectForm, self).save(*args, **kwargs)
-
-        if created:
-            # create a couple sample files
-            for i, (sample_file, template) in enumerate(constants.SAMPLE_FILES):
-                file = File.objects.create(
-                    project=project,
-                    heading=unicode(sample_file),
-                    content=render_to_string(template, {'project': project}),
-                    ordering=i+1,
-                )
-                file.create_revision(old_content='', comment='')
-
-        # kick off the celery job
-        update_docs.delay(pk=project.pk)
-
-        return project
-
-
 class ImportProjectForm(ProjectForm):
     repo = forms.CharField(required=True,
             help_text=_(u'URL for your code (hg or git). Ex. http://github.com/ericholscher/django-kong.git'))
@@ -116,15 +88,6 @@ class FileForm(forms.ModelForm):
         update_docs.delay(file_obj.project.pk)
 
         return file_obj
-
-
-class FileRevisionForm(forms.Form):
-    revision = forms.ModelChoiceField(queryset=None)
-
-    def __init__(self, file, *args, **kwargs):
-        revision_qs = file.revisions.exclude(pk=file.current_revision.pk)
-        self.base_fields['revision'].queryset = revision_qs
-        super(FileRevisionForm, self).__init__(*args, **kwargs)
 
 
 class DualCheckboxWidget(forms.CheckboxInput):

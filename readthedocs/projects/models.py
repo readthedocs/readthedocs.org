@@ -445,61 +445,6 @@ class Project(models.Model):
         return
 
 
-class FileManager(models.Manager):
-    def live(self, *args, **kwargs):
-        base_qs = self.filter(status=constants.LIVE_STATUS)
-        return base_qs.filter(*args, **kwargs)
-
-
-class File(models.Model):
-    project = models.ForeignKey(Project, verbose_name=_('Project'), related_name='files')
-    parent = models.ForeignKey('self', verbose_name=_('Parent'), null=True, blank=True,
-                               related_name='children')
-    heading = models.CharField(_('Heading'), max_length=255)
-    slug = models.SlugField(_('Slug'))
-    content = models.TextField(_('Content'))
-    denormalized_path = models.CharField(_('Denormalized path'), max_length=255, editable=False)
-    ordering = models.PositiveSmallIntegerField(_('Ordering'), default=1)
-    status = models.PositiveSmallIntegerField(_('Status'), choices=constants.STATUS_CHOICES,
-        default=constants.LIVE_STATUS)
-
-    objects = FileManager()
-
-    class Meta:
-        ordering = ('denormalized_path',)
-
-    def __unicode__(self):
-        return '%s: %s' % (self.project.name, self.heading)
-
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.heading)
-
-        if self.parent:
-            path = '%s/%s' % (self.parent.denormalized_path, self.slug)
-        else:
-            path = self.slug
-
-        self.denormalized_path = path
-
-        super(File, self).save(*args, **kwargs)
-
-        if self.children:
-            def update_children(children):
-                for child in children:
-                    child.save()
-                    update_children(child.children.all())
-            update_children(self.children.all())
-        #Update modified time on project.
-        self.project.save()
-
-    @models.permalink
-    def get_absolute_url(self):
-        return ('docs_detail', [self.project.slug, 'en', 'latest',
-                                self.denormalized_path + '.html'])
-
-
-
 class ImportedFile(models.Model):
     project = models.ForeignKey(Project, verbose_name=_('Project'), related_name='imported_files')
     name = models.CharField(_('Name'), max_length=255)
