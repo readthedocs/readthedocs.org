@@ -1,7 +1,6 @@
 *.pyc
 *.swp
 *.db
-*.mo
 doc_root
 user_uploads
 user_builds
