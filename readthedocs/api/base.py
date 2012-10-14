@@ -31,38 +31,13 @@ log = logging.getLogger(__name__)
 
 from .utils import SearchMixin, PostAuthentication, EnhancedModelResource
 
-class UserResource(ModelResource):
-    class Meta:
-        allowed_methods = ['get']
-        queryset = User.objects.all()
-        fields = ['username', 'first_name', 'last_name', 'last_login', 'id']
-        filtering = {
-            'username': 'exact',
-        }
-
-    def override_urls(self):
-        return [
-            url(r"^(?P<resource_name>%s)/schema/$" % self._meta.resource_name, self.wrap_view('get_schema'), name="api_get_schema"),
-            url(r"^(?P<resource_name>%s)/(?P<username>[a-z-_]+)/$" % self._meta.resource_name, self.wrap_view('dispatch_detail'), name="api_dispatch_detail"),
-        ]
-
-class OwnerAuthorization(Authorization):
-    def apply_limits(self, request, object_list):
-        if request and hasattr(request, 'user') and request.method != 'GET':
-            if request.user.is_authenticated():
-                object_list = object_list.filter(users__in=[request.user])
-            else:
-                object_list = object_list.none()
-
-        return object_list
-
 class ProjectResource(ModelResource, SearchMixin):
-    users = fields.ToManyField(UserResource, 'users')
+    users = fields.ToManyField('api.base.UserResource', 'users')
 
     class Meta:
         include_absolute_url = True
         allowed_methods = ['get', 'post', 'put']
-        queryset = Project.objects.protected()
+        queryset = Project.objects.public()
         authentication = PostAuthentication()
         authorization = DjangoAuthorization()
         excludes = ['path', 'featured']
@@ -72,7 +47,7 @@ class ProjectResource(ModelResource, SearchMixin):
         }
 
     def get_object_list(self, request):
-        self._meta.queryset = Project.objects.public(request.user)
+        self._meta.queryset = Project.objects.public(user=request.user)
         return super(ProjectResource, self).get_object_list(request)
 
     def dehydrate(self, bundle):
@@ -105,29 +80,6 @@ class ProjectResource(ModelResource, SearchMixin):
         ]
 
 
-class BuildResource(EnhancedModelResource):
-    project = fields.ForeignKey(ProjectResource, 'project')
-    version = fields.ForeignKey('api.base.VersionResource', 'version')
-
-    class Meta:
-        include_absolute_url = True
-        allowed_methods = ['get', 'post', 'put']
-        queryset = Build.objects.all()
-        authentication = PostAuthentication()
-        authorization = DjangoAuthorization()
-        filtering = {
-            "project": ALL_WITH_RELATIONS,
-            "slug": ALL_WITH_RELATIONS,
-            "type": ALL_WITH_RELATIONS,
-            "state": ALL_WITH_RELATIONS,
-        }
-
-    def override_urls(self):
-        return [
-            url(r"^(?P<resource_name>%s)/schema/$" % self._meta.resource_name, self.wrap_view('get_schema'), name="api_get_schema"),
-            url(r"^(?P<resource_name>%s)/(?P<project__slug>[a-z-_]+)/$" % self._meta.resource_name, self.wrap_view('dispatch_list'), name="build_list_detail"),
-        ]
-
 class VersionResource(EnhancedModelResource):
     project = fields.ForeignKey(ProjectResource, 'project', full=True)
 
@@ -135,7 +87,7 @@ class VersionResource(EnhancedModelResource):
         queryset = Version.objects.all()
         allowed_methods = ['get', 'put', 'post']
         always_return_data = True
-        queryset = Version.objects.protected()
+        queryset = Version.objects.public()
         authentication = PostAuthentication()
         authorization = DjangoAuthorization()
         filtering = {
@@ -196,6 +148,28 @@ class VersionResource(EnhancedModelResource):
             url(r"^(?P<resource_name>%s)/(?P<project_slug>[a-z-_]+)/(?P<version_slug>[a-z0-9-_.]+)/build/$" % self._meta.resource_name, self.wrap_view('build_version'), name="api_version_build_slug"),
         ]
 
+class BuildResource(EnhancedModelResource):
+    project = fields.ForeignKey(ProjectResource, 'project')
+    version = fields.ForeignKey('api.base.VersionResource', 'version')
+
+    class Meta:
+        include_absolute_url = True
+        allowed_methods = ['get', 'post', 'put']
+        queryset = Build.objects.all()
+        authentication = PostAuthentication()
+        authorization = DjangoAuthorization()
+        filtering = {
+            "project": ALL_WITH_RELATIONS,
+            "slug": ALL_WITH_RELATIONS,
+            "type": ALL_WITH_RELATIONS,
+            "state": ALL_WITH_RELATIONS,
+        }
+
+    def override_urls(self):
+        return [
+            url(r"^(?P<resource_name>%s)/schema/$" % self._meta.resource_name, self.wrap_view('get_schema'), name="api_get_schema"),
+            url(r"^(?P<resource_name>%s)/(?P<project__slug>[a-z-_]+)/$" % self._meta.resource_name, self.wrap_view('dispatch_list'), name="build_list_detail"),
+        ]
 
 class FileResource(EnhancedModelResource, SearchMixin):
     project = fields.ForeignKey(ProjectResource, 'project', full=True)
@@ -241,3 +215,19 @@ class FileResource(EnhancedModelResource, SearchMixin):
 
         self.log_throttled_access(request)
         return self.create_response(request, object_list)
+
+
+class UserResource(ModelResource):
+    class Meta:
+        allowed_methods = ['get']
+        queryset = User.objects.all()
+        fields = ['username', 'first_name', 'last_name', 'last_login', 'id']
+        filtering = {
+            'username': 'exact',
+        }
+
+    def override_urls(self):
+        return [
+            url(r"^(?P<resource_name>%s)/schema/$" % self._meta.resource_name, self.wrap_view('get_schema'), name="api_get_schema"),
+            url(r"^(?P<resource_name>%s)/(?P<username>[a-z-_]+)/$" % self._meta.resource_name, self.wrap_view('dispatch_detail'), name="api_dispatch_detail"),
+        ]
