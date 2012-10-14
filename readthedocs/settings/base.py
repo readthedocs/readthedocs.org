@@ -41,6 +41,7 @@ LANGUAGE_CODE = 'en-us'
 LANGUAGES = (
     ('en', gettext('English')),
     ('nb', gettext('Norwegian'))
+    ('fs', gettext('French'))
 )
 
 USE_I18N = True
