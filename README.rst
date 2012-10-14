@@ -1,7 +1,7 @@
 Welcome to Read The Docs
 ========================
 
-`Read the Docs`_ hosts documentation for the open source community.It supports Sphinx_ docs written with reStructuredText_, and can pull from your Subversion_, Bazaar_, Git_, and Mercurial_ repositories.
+`Read the Docs`_ hosts documentation for the open source community. It supports Sphinx_ docs written with reStructuredText_, and can pull from your Subversion_, Bazaar_, Git_, and Mercurial_ repositories.
 
 The full documentation is available on `the site`_.
 
