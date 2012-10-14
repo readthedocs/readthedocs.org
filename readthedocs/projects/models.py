@@ -9,7 +9,7 @@ from django.db import models
 from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext_lazy as _
 
-from guardian.shortcuts import get_objects_for_user
+from guardian.shortcuts import assign, get_objects_for_user
 
 from projects import constants
 from projects.exceptions import ProjectImportError
@@ -162,7 +162,10 @@ class Project(models.Model):
             self.slug = slugify(self.name)
             if self.slug == '':
                 raise Exception(_("Model must have slug"))
-        super(Project, self).save(*args, **kwargs)
+        obj = super(Project, self).save(*args, **kwargs)
+        for owner in self.users.all():
+            assign('view_project', owner, self)
+        return obj
 
     def get_absolute_url(self):
         return reverse('projects_detail', args=[self.slug])

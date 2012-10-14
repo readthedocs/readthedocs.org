@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from guardian.shortcuts import get_objects_for_user
+from guardian.shortcuts import assign, get_objects_for_user
 
 from projects.models import Project
 from projects import constants
@@ -68,6 +68,16 @@ class Version(models.Model):
         if not self.built and not self.uploaded:
             return ''
         return self.project.get_docs_url(version_slug=self.slug)
+
+    def save(self, *args, **kwargs):
+        """
+        Add permissions to the Version for all owners on save.
+        """
+        obj = super(Version, self).save(*args, **kwargs)
+        for owner in self.project.users.all():
+            assign('view_version', owner, self)
+        return obj
+
 
 
 class VersionAlias(models.Model):
