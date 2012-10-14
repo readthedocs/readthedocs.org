@@ -26,25 +26,35 @@ from vcs_support.utils import Lock
 log = logging.getLogger(__name__)
 
 class ProjectManager(models.Manager):
+    def _filter_queryset(self, user, privacy_level):
+        if isinstance(privacy_level, basestring):
+            privacy_level = (privacy_level,)
+        queryset = Project.objects.filter(privacy_level__in=privacy_level)
+        if not user:
+            return queryset
+        if user.is_authenticated():
+            # Add in possible user-specific views
+            user_queryset = get_objects_for_user(user, 'projects.view_project')
+            queryset = user_queryset | queryset
+        return queryset.filter(skip=False)
+
     def live(self, *args, **kwargs):
         base_qs = self.filter(skip=False)
         return base_qs.filter(*args, **kwargs)
 
-    def public(self, user, *args, **kwargs):
-        if user.is_authenticated():
-            projects = get_objects_for_user(user, 'projects.view_project')
-        else:
-            projects = Project.objects.none()
-        projects = projects | Project.objects.filter(privacy_level='public', skip=False)
-        return projects.filter(*args, **kwargs)
+    def public(self, user=None, *args, **kwargs):
+        """
+        Query for projects, privacy_level == public, and skip = False
+        """
+        queryset = self._filter_queryset(user, privacy_level='public')
+        return queryset.filter(*args, **kwargs)
 
-    def protected(self, user, *args, **kwargs):
-        if user.is_authenticated():
-            projects = get_objects_for_user(user, 'projects.view_project')
-        else:
-            projects = Project.objects.none()
-        projects = projects | Project.objects.exclude(privacy_level='private').filter(skip=False)
-        return projects.filter(*args, **kwargs)
+    def protected(self, user=None, *args, **kwargs):
+        """
+        Query for projects, privacy_level != private, and skip = False
+        """
+        queryset = self._filter_queryset(user, privacy_level=('public', 'protected'))
+        return queryset.filter(*args, **kwargs)
 
 
 class ProjectRelationship(models.Model):

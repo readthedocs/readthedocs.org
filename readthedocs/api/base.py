@@ -205,7 +205,7 @@ class ProjectResource(ModelResource, SearchMixin):
     class Meta:
         include_absolute_url = True
         allowed_methods = ['get', 'post', 'put']
-        queryset = Project.objects.all()
+        queryset = Project.objects.filter(privacy_level='public')
         authentication = PostAuthentication()
         authorization = DjangoAuthorization()
         excludes = ['path', 'featured']
@@ -278,7 +278,7 @@ class VersionResource(EnhancedModelResource):
         queryset = Version.objects.all()
         allowed_methods = ['get', 'put', 'post']
         always_return_data = True
-        queryset = Version.objects.all()
+        queryset = Version.objects.filter(privacy_level='public')
         authentication = PostAuthentication()
         authorization = DjangoAuthorization()
         filtering = {
@@ -291,6 +291,10 @@ class VersionResource(EnhancedModelResource):
     #def dehydrate(self, bundle):
         #bundle.data['subdomain'] = "http://%s/en/%s/" % (bundle.obj.project.subdomain, bundle.obj.slug)
         #return bundle
+
+    def get_object_list(self, request):
+        self._meta.queryset = Version.objects.public(user=request.user)
+        return super(VersionResource, self).get_object_list(request)
 
     def version_compare(self, request, **kwargs):
         project = get_object_or_404(Project, slug=kwargs['project_slug'])

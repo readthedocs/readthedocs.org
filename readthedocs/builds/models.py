@@ -9,22 +9,28 @@ from .constants import BUILD_STATE, BUILD_TYPES
 
 
 class VersionManager(models.Manager):
-    def public(self, user, project, *args, **kwargs):
-        if user.is_authenticated():
-            versions = get_objects_for_user(user, 'builds.view_version', klass=project.versions.all())
-        else:
-            versions = Version.objects.none()
+    def _filter_queryset(self, user, project, privacy_level):
+        if isinstance(privacy_level, basestring):
+            privacy_level = (privacy_level,)
+        queryset = Version.objects.filter(privacy_level__in=privacy_level)
+        if not user and not project:
+            return queryset
+        if user and user.is_authenticated():
+            # Add in possible user-specific views
+            user_queryset = get_objects_for_user(user, 'builds.view_version')
+            queryset = user_queryset | queryset
+        if project:
+            # Filter by project if requested
+            queryset =  queryset.filter(project=project)
+        return queryset.filter(active=True)
 
-        versions = versions | project.versions.filter(privacy_level='public', active=True)
-        return versions.filter(*args, **kwargs)
+    def public(self, user=None, project=None, *args, **kwargs):
+        queryset = self._filter_queryset(user, project, privacy_level='public')
+        return queryset.filter(*args, **kwargs)
 
     def protected(self, user, project, *args, **kwargs):
-        if user.is_authenticated():
-            versions = get_objects_for_user(user, 'builds.view_version', klass=project.versions.all())
-        else:
-            versions = Version.objects.none()
-        versions = versions | project.versions.exclude(privacy_level='private').filter(active=True)
-        return versions.filter(*args, **kwargs)
+        queryset = self._filter_queryset(user, project, privacy_level=('public', 'protected'))
+        return queryset.filter(*args, **kwargs)
 
 class Version(models.Model):
     project = models.ForeignKey(Project, verbose_name=_('Project'), related_name='versions')

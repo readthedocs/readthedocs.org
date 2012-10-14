@@ -125,7 +125,7 @@ def build_versions_form(project):
         attrs[privacy_name] = forms.ChoiceField(
             label=_("Privacy Level"),
             choices=constants.PRIVACY_CHOICES,
-            initial=project.version_privacy_level,
+            initial=version.privacy_level,
         )
     return type('VersionsForm', (BaseVersionsForm,), attrs)
 
