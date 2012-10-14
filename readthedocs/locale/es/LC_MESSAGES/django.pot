@@ -1,0 +1,536 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-10-13 19:24-0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: api/base.py:97
+msgid "Sorry, no results on that page."
+msgstr ""
+
+#: api/base.py:174
+#, python-format
+msgid "Invalid resource lookup data provided (mismatched type).: %(error)s"
+msgstr ""
+
+#: bookmarks/models.py:8
+msgid "Project"
+msgstr ""
+
+#: bookmarks/models.py:9
+msgid "User"
+msgstr ""
+
+#: bookmarks/models.py:10
+msgid "Date"
+msgstr ""
+
+#: bookmarks/models.py:11
+msgid "URL"
+msgstr ""
+
+#: bookmarks/models.py:12
+msgid "Description"
+msgstr ""
+
+#: bookmarks/models.py:18
+#, python-format
+msgid "Bookmark %(url)s for %(user)s (%(pk)s)"
+msgstr ""
+
+#: builds/constants.py:4
+msgid "Triggered"
+msgstr ""
+
+#: builds/constants.py:5
+msgid "Building"
+msgstr ""
+
+#: builds/constants.py:6
+msgid "Finished"
+msgstr ""
+
+#: builds/constants.py:10
+msgid "HTML"
+msgstr ""
+
+#: builds/constants.py:11
+msgid "PDF"
+msgstr ""
+
+#: builds/constants.py:12
+msgid "Epub"
+msgstr ""
+
+#: builds/constants.py:13
+msgid "Manpage"
+msgstr ""
+
+#: builds/models.py:9 builds/models.py:35 builds/models.py:49
+msgid "Project"
+msgstr ""
+
+#: builds/models.py:10
+msgid "Identifier"
+msgstr ""
+
+#: builds/models.py:11
+msgid "Verbose Name"
+msgstr ""
+
+#: builds/models.py:12
+msgid "Slug"
+msgstr ""
+
+#: builds/models.py:13
+msgid "Active"
+msgstr ""
+
+#: builds/models.py:14
+msgid "Built"
+msgstr ""
+
+#: builds/models.py:15
+msgid "Uploaded"
+msgstr ""
+
+#: builds/models.py:22
+#, python-format
+msgid "Version %(version)s of %(project)s (%(pk)s)"
+msgstr ""
+
+#: builds/models.py:36
+msgid "From slug"
+msgstr ""
+
+#: builds/models.py:37
+msgid "To slug"
+msgstr ""
+
+#: builds/models.py:38
+msgid "Largest"
+msgstr ""
+
+#: builds/models.py:41
+#, python-format
+msgid "Alias for %(project)s: %(from)s -> %(to)s"
+msgstr ""
+
+#: builds/models.py:50
+msgid "Type"
+msgstr ""
+
+#: builds/models.py:51
+msgid "Date"
+msgstr ""
+
+#: builds/models.py:52
+msgid "Success"
+msgstr ""
+
+#: builds/models.py:53
+msgid "Setup"
+msgstr ""
+
+#: builds/models.py:54
+msgid "Setup error"
+msgstr ""
+
+#: builds/models.py:55
+msgid "Output"
+msgstr ""
+
+#: builds/models.py:56
+msgid "Error"
+msgstr ""
+
+#: builds/models.py:57
+msgid "Version"
+msgstr ""
+
+#: builds/models.py:58
+msgid "State"
+msgstr ""
+
+#: builds/models.py:65
+#, python-format
+msgid "Build %(project)s for %(usernames)s (%(pk)s)"
+msgstr ""
+
+#: core/forms.py:13
+msgid "First name"
+msgstr ""
+
+#: core/forms.py:14
+msgid "Last name"
+msgstr ""
+
+#: core/middleware.py:31
+msgid "Brought to you by Read the Docs"
+msgstr ""
+
+#: core/middleware.py:57
+msgid "Invalid hostname"
+msgstr ""
+
+#: core/middleware.py:91
+msgid "Invalid Host Name."
+msgstr ""
+
+#: core/models.py:13
+msgid "User"
+msgstr ""
+
+#: core/models.py:14
+msgid "Whitelisted"
+msgstr ""
+
+#: core/models.py:15
+msgid "Homepage"
+msgstr ""
+
+#: core/models.py:16
+msgid "Allow email"
+msgstr ""
+
+#: core/models.py:16
+msgid "Show your email on VCS contributions."
+msgstr ""
+
+#: core/models.py:19
+#, python-format
+msgid "%(username)s's profile"
+msgstr ""
+
+#: djangome/views.py:24
+#, python-format
+msgid "Please enter a valid URL on %s"
+msgstr ""
+
+#: projects/constants.py:16
+msgid "Sphinx Html"
+msgstr ""
+
+#: projects/constants.py:17
+msgid "Sphinx HtmlDir"
+msgstr ""
+
+#. Translators: This is a name of a Sphinx theme.
+#: projects/constants.py:24
+msgid "Default"
+msgstr ""
+
+#. Translators: This is a name of a Sphinx theme.
+#: projects/constants.py:26
+msgid "Sphinx Docs"
+msgstr ""
+
+#. Translators: This is a name of a Sphinx theme.
+#: projects/constants.py:30
+msgid "Traditional"
+msgstr ""
+
+#. Translators: This is a name of a Sphinx theme.
+#: projects/constants.py:32
+msgid "Nature"
+msgstr ""
+
+#. Translators: This is a name of a Sphinx theme.
+#: projects/constants.py:34
+msgid "Haiku"
+msgstr ""
+
+#: projects/constants.py:63
+msgid "Live"
+msgstr ""
+
+#: projects/constants.py:64
+msgid "Deleted"
+msgstr ""
+
+#: projects/constants.py:68
+msgid "Git"
+msgstr ""
+
+#: projects/constants.py:69
+msgid "Subversion"
+msgstr ""
+
+#: projects/constants.py:70
+msgid "Mercurial"
+msgstr ""
+
+#: projects/constants.py:71
+msgid "Bazaar"
+msgstr ""
+
+#: projects/forms.py:18
+msgid "A project with that name exists already!"
+msgstr ""
+
+#: projects/forms.py:25
+msgid ""
+"URL for your code (hg or git). Ex. http://github.com/ericholscher/django-"
+"kong.git"
+msgstr ""
+
+#: projects/forms.py:37
+msgid "Invalid character in repo name"
+msgstr ""
+
+#: projects/forms.py:39
+msgid ""
+"It looks like you entered a private repo - please use the public (http:// or "
+"git://) clone url"
+msgstr ""
+
+#: projects/forms.py:45
+msgid ""
+"Your configuration file is invalid, make sure it contains conf.py in it."
+msgstr ""
+
+#: projects/forms.py:107
+msgid "Choose the default version for this project"
+msgstr ""
+
+#: projects/forms.py:123
+msgid "Zip file of HTML"
+msgstr ""
+
+#: projects/forms.py:124
+msgid "Overwrite existing HTML?"
+msgstr ""
+
+#: projects/forms.py:137
+msgid "That version is already active!"
+msgstr ""
+
+#: projects/forms.py:139
+msgid "Must upload a zip file."
+msgstr ""
+
+#: projects/forms.py:153
+msgid "Version of the project you are uploading HTML for"
+msgstr ""
+
+#: projects/forms.py:170
+#, python-format
+msgid "Project %(name)s does not exist"
+msgstr ""
+
+#: projects/models.py:32
+msgid "Parent"
+msgstr ""
+
+#: projects/models.py:33
+msgid "Child"
+msgstr ""
+
+#: projects/models.py:44
+msgid "Publication date"
+msgstr ""
+
+#: projects/models.py:45
+msgid "Modified date"
+msgstr ""
+
+#: projects/models.py:48
+msgid "User"
+msgstr ""
+
+#: projects/models.py:49 projects/models.py:450
+msgid "Name"
+msgstr ""
+
+#: projects/models.py:50 projects/models.py:451
+msgid "Slug"
+msgstr ""
+
+#: projects/models.py:51
+msgid "Description"
+msgstr ""
+
+#: projects/models.py:52
+msgid "The reStructuredText description of the project"
+msgstr ""
+
+#: projects/models.py:53
+msgid "Repository URL"
+msgstr ""
+
+#: projects/models.py:54
+msgid ""
+"Checkout URL for your code (hg, git, etc.). Ex. http://github.com/"
+"ericholscher/django-kong.git"
+msgstr ""
+
+#: projects/models.py:55
+msgid "Repository type"
+msgstr ""
+
+#: projects/models.py:56
+msgid "Project URL"
+msgstr ""
+
+#: projects/models.py:56
+msgid "The project's homepage"
+msgstr ""
+
+#: projects/models.py:57
+msgid "Version"
+msgstr ""
+
+#: projects/models.py:58
+msgid "Project version these docs apply to, i.e. 1.0a"
+msgstr ""
+
+#: projects/models.py:59
+msgid "Copyright"
+msgstr ""
+
+#: projects/models.py:60
+msgid "Project copyright information"
+msgstr ""
+
+#: projects/models.py:61
+msgid "Theme"
+msgstr ""
+
+#: projects/models.py:63
+msgid "Examples"
+msgstr ""
+
+#: projects/models.py:64
+msgid "Suffix"
+msgstr ""
+
+#: projects/models.py:65
+msgid "Default version"
+msgstr ""
+
+#: projects/models.py:65
+msgid "The version of your project that / redirects to"
+msgstr ""
+
+#: projects/models.py:67
+msgid "Default branch"
+msgstr ""
+
+#: projects/models.py:68
+msgid ""
+"What branch \"latest\" points to. Leave empty to use the default value for "
+"your VCS (eg. trunk or master)."
+msgstr ""
+
+#: projects/models.py:69
+msgid "Requirements file"
+msgstr ""
+
+#: projects/models.py:69
+msgid ""
+"Requires Virtualenv. A pip requirements file needed to build your "
+"documentation. Path from the root of your project."
+msgstr ""
+
+#: projects/models.py:70
+msgid "Documentation type"
+msgstr ""
+
+#: projects/models.py:72
+msgid ""
+"Type of documentation you are building. <a href=\"http://sphinx.pocoo.org/"
+"builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More info</a>."
+msgstr ""
+
+#: projects/models.py:73
+msgid "Analytics code"
+msgstr ""
+
+#: projects/models.py:73
+msgid ""
+"Google Analytics Tracking ID (ex. UA-22345342-1). This may slow down your "
+"page loads."
+msgstr ""
+
+#: projects/models.py:76 projects/models.py:452
+msgid "Path"
+msgstr ""
+
+#: projects/models.py:76
+msgid "The directory where conf.py lives"
+msgstr ""
+
+#: projects/models.py:78
+msgid "Python configuration file"
+msgstr ""
+
+#: projects/models.py:79
+msgid ""
+"Path from project root to conf.py file (ex. docs/conf.py). Leave blank if "
+"you want us to find it for you."
+msgstr ""
+
+#: projects/models.py:81
+msgid "Featured"
+msgstr ""
+
+#: projects/models.py:82
+msgid "Skip"
+msgstr ""
+
+#: projects/models.py:83
+msgid "Use virtualenv"
+msgstr ""
+
+#: projects/models.py:84
+msgid "Install your project inside a virtualenv using setup.py install"
+msgstr ""
+
+#: projects/models.py:85
+msgid "Use system packages"
+msgstr ""
+
+#: projects/models.py:86
+msgid "Give the virtual environment access to the global sites-packages dir"
+msgstr ""
+
+#: projects/models.py:87
+msgid "Django Packages URL"
+msgstr ""
+
+#: projects/models.py:88
+msgid "Crate URL"
+msgstr ""
+
+#: projects/models.py:91
+msgid "Related projects"
+msgstr ""
+
+#: projects/models.py:119
+msgid "Model must have slug"
+msgstr ""
+
+#: projects/models.py:284
+msgid "Conf File Missing."
+msgstr ""
+
+#: projects/models.py:449
+msgid "Project"
+msgstr ""
+
+#: projects/models.py:453
+msgid "MD5 checksum"
+msgstr ""

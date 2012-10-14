@@ -1,21 +1,21 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# 
+#
 # Translators:
 #   <htonal@wanadoo.fr>, 2012.
 msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-10-13 16:45-0500\n"
+"POT-Creation-Date: 2012-10-13 19:22-0500\n"
 "PO-Revision-Date: 2012-10-13 21:44+0000\n"
 "Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: fr\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #: api/base.py:97
@@ -28,13 +28,11 @@ msgid "Invalid resource lookup data provided (mismatched type).: %(error)s"
 msgstr ""
 
 #: bookmarks/models.py:8 builds/models.py:9 builds/models.py:35
-#: builds/models.py:49 editor/models.py:15 projects/models.py:484
-#: projects/models.py:632 watching/models.py:6
+#: builds/models.py:49 projects/models.py:449
 msgid "Project"
 msgstr "Projet"
 
-#: bookmarks/models.py:9 core/models.py:13 editor/models.py:14
-#: projects/models.py:51
+#: bookmarks/models.py:9 core/models.py:13 projects/models.py:48
 msgid "User"
 msgstr "Utilisateur"
 
@@ -42,11 +40,11 @@ msgstr "Utilisateur"
 msgid "Date"
 msgstr "Date"
 
-#: bookmarks/models.py:11 templates/djangome/show.html:12 watching/models.py:7
+#: bookmarks/models.py:11 templates/djangome/show.html:12
 msgid "URL"
 msgstr "URL"
 
-#: bookmarks/models.py:12 projects/models.py:54
+#: bookmarks/models.py:12 projects/models.py:51
 #: templates/core/project_details.html:6
 msgid "Description"
 msgstr "Description"
@@ -92,12 +90,11 @@ msgstr "Identifiant"
 msgid "Verbose Name"
 msgstr "Nom verbeux"
 
-#: builds/models.py:12 projects/models.py:53 projects/models.py:488
-#: projects/models.py:634
+#: builds/models.py:12 projects/models.py:50 projects/models.py:451
 msgid "Slug"
 msgstr "Libellé court"
 
-#: builds/models.py:13 editor/models.py:16
+#: builds/models.py:13
 msgid "Active"
 msgstr "Actif"
 
@@ -155,7 +152,7 @@ msgstr "Sortie"
 msgid "Error"
 msgstr "Erreur"
 
-#: builds/models.py:57 projects/models.py:60
+#: builds/models.py:57 projects/models.py:57
 #: templates/djangome/oneoffs.html:11
 msgid "Version"
 msgstr "Version"
@@ -215,28 +212,6 @@ msgstr "Profil de %(username)s"
 msgid "Please enter a valid URL on %s"
 msgstr "Saisissez une URL valide pour %s"
 
-#: editor/forms.py:6
-msgid "Body"
-msgstr "Corps"
-
-#: editor/forms.py:7 editor/forms.py:12 editor/models.py:19
-#: projects/models.py:572
-msgid "Comment"
-msgstr "Commentaire"
-
-#: editor/forms.py:11 editor/models.py:18
-msgid "Title"
-msgstr "Titre"
-
-#: editor/models.py:17
-msgid "Pushed"
-msgstr "Poussé"
-
-#: editor/models.py:24
-#, python-format
-msgid "Branch of %(project)s by %(username)s (%(pk)s)"
-msgstr "Branche de %(project)s par %(username)s (%(pk)s)"
-
 #: projects/constants.py:16
 msgid "Sphinx Html"
 msgstr "Sphinx Html"
@@ -294,286 +269,257 @@ msgstr "Mercurial"
 msgid "Bazaar"
 msgstr "Bazaar"
 
-#: projects/forms.py:19
+#: projects/forms.py:18
 msgid "A project with that name exists already!"
 msgstr "Ce nom est déjà associé à un projet existant"
 
-#: projects/forms.py:54
+#: projects/forms.py:25
 msgid ""
 "URL for your code (hg or git). Ex. http://github.com/ericholscher/django-"
 "kong.git"
-msgstr "URL pour votre code (hg or git). Ex. http://github.com/ericholscher/django-kong.git"
+msgstr ""
+"URL pour votre code (hg or git). Ex. http://github.com/ericholscher/django-"
+"kong.git"
 
-#: projects/forms.py:66
+#: projects/forms.py:37
 msgid "Invalid character in repo name"
 msgstr "Caractère invalide dans le nom du dépôt"
 
-#: projects/forms.py:68
+#: projects/forms.py:39
 msgid ""
-"It looks like you entered a private repo - please use the public (http:// or"
-" git://) clone url"
-msgstr "On dirait que vous avez accédé à un dépôt privé - s'il vous plaît utilisez l'url publique (http:// ou git :/ /) pour duppliquer"
+"It looks like you entered a private repo - please use the public (http:// or "
+"git://) clone url"
+msgstr ""
+"On dirait que vous avez accédé à un dépôt privé - s'il vous plaît utilisez "
+"l'url publique (http:// ou git :/ /) pour duppliquer"
 
-#: projects/forms.py:74
+#: projects/forms.py:45
 msgid ""
 "Your configuration file is invalid, make sure it contains conf.py in it."
-msgstr "Votre fichier de configuration est invalide, vérifiez qu'il inclut conf.py."
-
-#: projects/forms.py:89 templates/projects/legend.html:34
-msgid "reStructuredText Primer"
 msgstr ""
+"Votre fichier de configuration est invalide, vérifiez qu'il inclut conf.py."
 
-#: projects/forms.py:179
+#: projects/forms.py:107
 msgid "Choose the default version for this project"
 msgstr "Choisir la version par défaut pour ce projet"
 
-#: projects/forms.py:195
+#: projects/forms.py:123
 msgid "Zip file of HTML"
 msgstr "Fichier compressé HTML"
 
-#: projects/forms.py:196
+#: projects/forms.py:124
 msgid "Overwrite existing HTML?"
 msgstr "Ecraser HTML existant"
 
-#: projects/forms.py:209
+#: projects/forms.py:137
 msgid "That version is already active!"
 msgstr "Cette version est déjà active !"
 
-#: projects/forms.py:211
+#: projects/forms.py:139
 msgid "Must upload a zip file."
 msgstr "Chargement de fichier zip attendu"
 
-#: projects/forms.py:225
+#: projects/forms.py:153
 msgid "Version of the project you are uploading HTML for"
 msgstr "Version du projet pour laquelle vous chargez le code HTML"
 
-#: projects/forms.py:242
+#: projects/forms.py:170
 #, python-format
 msgid "Project %(name)s does not exist"
 msgstr "Projet %(name)s inexistant"
 
-#: projects/models.py:35 projects/models.py:485
+#: projects/models.py:32
 msgid "Parent"
 msgstr "Parent"
 
-#: projects/models.py:36
+#: projects/models.py:33
 msgid "Child"
 msgstr "Enfant"
 
-#: projects/models.py:47
+#: projects/models.py:44
 msgid "Publication date"
 msgstr "Publié le"
 
-#: projects/models.py:48
+#: projects/models.py:45
 msgid "Modified date"
 msgstr "Modifié le"
 
-#: projects/models.py:52 projects/models.py:633
+#: projects/models.py:49 projects/models.py:450
 msgid "Name"
 msgstr "Nom"
 
-#: projects/models.py:55
+#: projects/models.py:52
 msgid "The reStructuredText description of the project"
 msgstr "La description reStructuredText du projet"
 
-#: projects/models.py:56
+#: projects/models.py:53
 msgid "Repository URL"
 msgstr "URL du dépôt"
 
-#: projects/models.py:57
+#: projects/models.py:54
 msgid ""
-"Checkout URL for your code (hg, git, etc.). Ex. "
-"http://github.com/ericholscher/django-kong.git"
-msgstr "URL d'extraction de votre code (hg, git, etc.). Ex. http://github.com/ericholscher/django-kong.git"
+"Checkout URL for your code (hg, git, etc.). Ex. http://github.com/"
+"ericholscher/django-kong.git"
+msgstr ""
+"URL d'extraction de votre code (hg, git, etc.). Ex. http://github.com/"
+"ericholscher/django-kong.git"
 
-#: projects/models.py:58
+#: projects/models.py:55
 msgid "Repository type"
 msgstr "Type de dépôt"
 
-#: projects/models.py:59
+#: projects/models.py:56
 msgid "Project URL"
 msgstr "URL Projet"
 
-#: projects/models.py:59
+#: projects/models.py:56
 msgid "The project's homepage"
 msgstr "Page d'accueil du projet"
 
-#: projects/models.py:61
+#: projects/models.py:58
 msgid "Project version these docs apply to, i.e. 1.0a"
 msgstr "Version de projet pour laquelle ces docs sont valables, i.e. 1.0a"
 
-#: projects/models.py:62
+#: projects/models.py:59
 msgid "Copyright"
 msgstr "Copyright"
 
-#: projects/models.py:63
+#: projects/models.py:60
 msgid "Project copyright information"
 msgstr "Information de copyright concernant le projet"
 
-#: projects/models.py:64
+#: projects/models.py:61
 msgid "Theme"
 msgstr "Thème"
 
-#: projects/models.py:66
+#: projects/models.py:63
 msgid "Examples"
 msgstr "Exemples"
 
-#: projects/models.py:67
+#: projects/models.py:64
 msgid "Suffix"
 msgstr "Suffixe"
 
-#: projects/models.py:68
+#: projects/models.py:65
 msgid "Default version"
 msgstr "Version par défaut"
 
-#: projects/models.py:68
+#: projects/models.py:65
 msgid "The version of your project that / redirects to"
 msgstr "La version de votre projet à laquelle / redirige"
 
-#: projects/models.py:70
+#: projects/models.py:67
 msgid "Default branch"
 msgstr "Branche par défaut"
 
-#: projects/models.py:71
+#: projects/models.py:68
 msgid ""
 "What branch \"latest\" points to. Leave empty to use the default value for "
 "your VCS (eg. trunk or master)."
-msgstr "Vers quelle branche pointe \"latest\". Laissez vide pour utiliser la version par défaut pour votre VCS (par exemple trunk ou master)"
+msgstr ""
+"Vers quelle branche pointe \"latest\". Laissez vide pour utiliser la version "
+"par défaut pour votre VCS (par exemple trunk ou master)"
 
-#: projects/models.py:72
+#: projects/models.py:69
 msgid "Requirements file"
 msgstr "Fichier des prérequis"
 
-#: projects/models.py:72
+#: projects/models.py:69
 msgid ""
 "Requires Virtualenv. A pip requirements file needed to build your "
 "documentation. Path from the root of your project."
-msgstr "Virtualenv est requis. Un fichier pip de pré-requis est nécessaire pour compiler votre documentation. Chemin à partir de la racine de votre projet."
+msgstr ""
+"Virtualenv est requis. Un fichier pip de pré-requis est nécessaire pour "
+"compiler votre documentation. Chemin à partir de la racine de votre projet."
 
-#: projects/models.py:73
+#: projects/models.py:70
 msgid "Documentation type"
 msgstr "Type de documentation"
 
-#: projects/models.py:75
+#: projects/models.py:72
 msgid ""
-"Type of documentation you are building. <a "
-"href=\"http://sphinx.pocoo.org/builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More"
-" info</a>."
-msgstr "Type de documentation que vous compilez. <a href=\"http://sphinx.pocoo.org/builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More info</a>."
+"Type of documentation you are building. <a href=\"http://sphinx.pocoo.org/"
+"builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More info</a>."
+msgstr ""
+"Type de documentation que vous compilez. <a href=\"http://sphinx.pocoo.org/"
+"builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More info</a>."
 
-#: projects/models.py:76
+#: projects/models.py:73
 msgid "Analytics code"
 msgstr "Code Analytics"
 
-#: projects/models.py:76
+#: projects/models.py:73
 msgid ""
 "Google Analytics Tracking ID (ex. UA-22345342-1). This may slow down your "
 "page loads."
-msgstr "ID de traçage Google Analytics (ex. UA-22345342-1). Risque de ralentissement du chargement des pages."
+msgstr ""
+"ID de traçage Google Analytics (ex. UA-22345342-1). Risque de ralentissement "
+"du chargement des pages."
 
-#: projects/models.py:79 projects/models.py:635
+#: projects/models.py:76 projects/models.py:452
 msgid "Path"
 msgstr "Chemin"
 
-#: projects/models.py:79
+#: projects/models.py:76
 msgid "The directory where conf.py lives"
 msgstr "Le répertoire où conf.py est situé"
 
-#: projects/models.py:81
+#: projects/models.py:78
 msgid "Python configuration file"
 msgstr "Fichier de configuration Python"
 
-#: projects/models.py:82
+#: projects/models.py:79
 msgid ""
 "Path from project root to conf.py file (ex. docs/conf.py). Leave blank if "
 "you want us to find it for you."
 msgstr ""
 
-#: projects/models.py:84
+#: projects/models.py:81
 msgid "Featured"
 msgstr "En vedette"
 
-#: projects/models.py:85
+#: projects/models.py:82
 msgid "Skip"
 msgstr "Sauter"
 
-#: projects/models.py:86
+#: projects/models.py:83
 msgid "Use virtualenv"
 msgstr "Utiliser virtualenv"
 
-#: projects/models.py:87
+#: projects/models.py:84
 msgid "Install your project inside a virtualenv using setup.py install"
-msgstr "Projet installé dans un environnement virtuel en utilisant setup.py install"
+msgstr ""
+"Projet installé dans un environnement virtuel en utilisant setup.py install"
 
-#: projects/models.py:88
+#: projects/models.py:85
 msgid "Use system packages"
 msgstr ""
 
-#: projects/models.py:89
+#: projects/models.py:86
 msgid "Give the virtual environment access to the global sites-packages dir"
 msgstr ""
 
-#: projects/models.py:90
+#: projects/models.py:87
 msgid "Django Packages URL"
 msgstr "URL des paquets Django"
 
-#: projects/models.py:91
+#: projects/models.py:88
 msgid "Crate URL"
 msgstr "URL Crate"
 
-#: projects/models.py:94
+#: projects/models.py:91
 msgid "Related projects"
 msgstr "Projets apparentés"
 
-#: projects/models.py:122
+#: projects/models.py:119
 msgid "Model must have slug"
 msgstr "Le Model nécessite un libellé court (slug)"
 
-#: projects/models.py:287
+#: projects/models.py:284
 msgid "Conf File Missing."
 msgstr "Fichier Conf manquant"
 
-#: projects/models.py:487
-msgid "Heading"
-msgstr "En-tête"
-
-#: projects/models.py:489
-msgid "Content"
-msgstr "Contenu"
-
-#: projects/models.py:490
-msgid "Denormalized path"
-msgstr "Chemin dénormalisé"
-
-#: projects/models.py:491
-msgid "Ordering"
-msgstr "Tri par"
-
-#: projects/models.py:492
-msgid "Status"
-msgstr "Statut"
-
-#: projects/models.py:571
-msgid "File"
-msgstr "Fichier"
-
-#: projects/models.py:573
-msgid "Diff"
-msgstr "Diff"
-
-#: projects/models.py:574
-msgid "Created date"
-msgstr "Créé le"
-
-#: projects/models.py:576
-msgid "Revision number"
-msgstr "Numéro de révision"
-
-#: projects/models.py:577
-msgid "Is reverted"
-msgstr "est inversé"
-
-#: projects/models.py:636
+#: projects/models.py:453
 msgid "MD5 checksum"
 msgstr "Somme de contrôle MD5"
 
@@ -582,8 +528,8 @@ msgid "English"
 msgstr "Anglais"
 
 #: settings/base.py:43
-msgid "Spanish"
-msgstr "Espagnol"
+msgid "Norwegian"
+msgstr ""
 
 #: templates/404.html:6
 msgid "Maze Found"
@@ -613,9 +559,9 @@ msgstr "Lisez les Docs"
 
 #: templates/base.html:52
 msgid ""
-"You docs are currently being built.  It may take a moment for them to "
-"appear."
-msgstr "Docs en cours de compilation. Veuillez patienter pour les voir apparaitre."
+"You docs are currently being built.  It may take a moment for them to appear."
+msgstr ""
+"Docs en cours de compilation. Veuillez patienter pour les voir apparaitre."
 
 #: templates/base.html:53
 msgid "Read the Docs thanks you for your continued patience."
@@ -626,7 +572,9 @@ msgstr "Read the Docs vous remercie pour votre patience."
 msgid ""
 "2010. Created by %(eric)s, %(charles)s, and %(bobby)s for the 2010 "
 "%(djangodash)s."
-msgstr "2010. Créé par %(eric)s, %(charles)s, et %(bobby)s pour le 2010 %(djangodash)s."
+msgstr ""
+"2010. Créé par %(eric)s, %(charles)s, et %(bobby)s pour le 2010 "
+"%(djangodash)s."
 
 #: templates/base.html:76
 msgid "Docs"
@@ -635,20 +583,26 @@ msgstr "Docs"
 #: templates/base.html:81
 msgid ""
 "Thanks for believing in us: <a href=\"http://revsys.com\">RevSys</a>, <a "
-"href=\"http://www.python.org/psf/\">Python Software Foundation</a>, <a "
-"href=\"http://blog.mozilla.com/webdev/\">Mozilla Web Dev</a>, <a "
-"href=\"https://www.djangoproject.com/foundation/\">Django Software "
-"Foundation</a>, <a href=\"http://lab305.com\">Lab305</a>, and <a "
-"href=\"http://enn.io/\">enn.io</a>."
-msgstr "Merci de votre confiance: <a href=\"http://revsys.com\">RevSys</a>, <a href=\"http://www.python.org/psf/\">Python Software Foundation</a>, <a href=\"http://blog.mozilla.com/webdev/\">Mozilla Web Dev</a>, <a href=\"https://www.djangoproject.com/foundation/\">Django Software Foundation</a>, <a href=\"http://lab305.com\">Lab305</a>, and <a href=\"http://enn.io/\">enn.io</a>."
+"href=\"http://www.python.org/psf/\">Python Software Foundation</a>, <a href="
+"\"http://blog.mozilla.com/webdev/\">Mozilla Web Dev</a>, <a href=\"https://"
+"www.djangoproject.com/foundation/\">Django Software Foundation</a>, <a href="
+"\"http://lab305.com\">Lab305</a>, and <a href=\"http://enn.io/\">enn.io</a>."
+msgstr ""
+"Merci de votre confiance: <a href=\"http://revsys.com\">RevSys</a>, <a href="
+"\"http://www.python.org/psf/\">Python Software Foundation</a>, <a href="
+"\"http://blog.mozilla.com/webdev/\">Mozilla Web Dev</a>, <a href=\"https://"
+"www.djangoproject.com/foundation/\">Django Software Foundation</a>, <a href="
+"\"http://lab305.com\">Lab305</a>, and <a href=\"http://enn.io/\">enn.io</a>."
 
 #: templates/base.html:84
 msgid ""
-"Made by <a "
-"href=\"https://github.com/rtfd/readthedocs.org/graphs/contributors\">humans</a>."
-" Funded by <a href=\"https://www.gittip.com/readthedocs/\">readers like "
-"you</a>."
-msgstr "Créé par des <a href=\"https://github.com/rtfd/readthedocs.org/graphs/contributors\">hommes</a>. Fondé par des <a href=\"https://www.gittip.com/readthedocs/\">lecteurs comme vous</a>."
+"Made by <a href=\"https://github.com/rtfd/readthedocs.org/graphs/contributors"
+"\">humans</a>. Funded by <a href=\"https://www.gittip.com/readthedocs/"
+"\">readers like you</a>."
+msgstr ""
+"Créé par des <a href=\"https://github.com/rtfd/readthedocs.org/graphs/"
+"contributors\">hommes</a>. Fondé par des <a href=\"https://www.gittip.com/"
+"readthedocs/\">lecteurs comme vous</a>."
 
 #: templates/homepage.html:7
 #: templates/registration/password_reset_complete.html:6
@@ -664,10 +618,16 @@ msgstr "Quels services sont proposés ici ?"
 
 #: templates/homepage.html:30
 msgid ""
-"Read the Docs hosts documentation, making it fully searchable and easy to find.\n"
-"You can import your docs using any major version control system, including Mercurial, Git, Subversion, and Bazaar.\n"
-"We support <a href=\"http://read-the-docs.readthedocs.org/en/latest/webhooks.html\">webhooks</a> so your docs get built when you commit code.\n"
-"There's also support for versioning so you can build docs from tags and branches of your code in your repository. A <a href=\"http://read-the-docs.readthedocs.org/en/latest/features.html\">full list of features</a> is available."
+"Read the Docs hosts documentation, making it fully searchable and easy to "
+"find.\n"
+"You can import your docs using any major version control system, including "
+"Mercurial, Git, Subversion, and Bazaar.\n"
+"We support <a href=\"http://read-the-docs.readthedocs.org/en/latest/webhooks."
+"html\">webhooks</a> so your docs get built when you commit code.\n"
+"There's also support for versioning so you can build docs from tags and "
+"branches of your code in your repository. A <a href=\"http://read-the-docs."
+"readthedocs.org/en/latest/features.html\">full list of features</a> is "
+"available."
 msgstr ""
 
 #: templates/homepage.html:36
@@ -819,8 +779,7 @@ msgstr "Connexion"
 msgid "Create, host, and browse documentation."
 msgstr "Créer, héberger et parcourir la documentation"
 
-#. Translators: Note, the full sentence goes 'Sign up' 'or' 'Log in'. But
-#. unfortunately the three bits have to be separate.
+#. Translators: Note, the full sentence goes 'Sign up' 'or' 'Log in'. But unfortunately the three bits have to be separate.
 #: templates/core/home-header.html:17
 msgid "Sign up"
 msgstr "Inscription"
@@ -855,8 +814,7 @@ msgstr "Afficher les Docs"
 msgid "Manage Files"
 msgstr "Gérer les fichiers"
 
-#: templates/core/project_bar.html:41 templates/editor/editor_file.html:19
-#: templates/editor/editor_file.html:21
+#: templates/core/project_bar.html:41
 #: templates/projects/project_dashboard.html:47
 msgid "Edit"
 msgstr "Modifier"
@@ -896,9 +854,11 @@ msgstr "Open Comparison"
 #: templates/core/project_details.html:74
 #, python-format
 msgid ""
-"This project has more information available about it on <a "
-"href=\"%(url)s\">Open Comparison!</a>"
-msgstr "Vous trouverez plus d'information sur ce projet sur <a href=\"%(url)s\">Open Comparison!</a>"
+"This project has more information available about it on <a href=\"%(url)s"
+"\">Open Comparison!</a>"
+msgstr ""
+"Vous trouverez plus d'information sur ce projet sur <a href=\"%(url)s\">Open "
+"Comparison!</a>"
 
 #: templates/core/project_details.html:78
 msgid "Crate"
@@ -907,9 +867,11 @@ msgstr "Crate"
 #: templates/core/project_details.html:79
 #, python-format
 msgid ""
-"This project has more information available about it on <a "
-"href=\"%(url)s\">Crate!</a>"
-msgstr "Vous trouverez plus d'information sur ce projet sur <a href=\"%(url)s\">Crate!</a>"
+"This project has more information available about it on <a href=\"%(url)s"
+"\">Crate!</a>"
+msgstr ""
+"Vous trouverez plus d'information sur ce projet sur <a href=\"%(url)s"
+"\">Crate!</a>"
 
 #: templates/core/project_details.html:92
 msgid "Last Built"
@@ -966,32 +928,25 @@ msgid "Let's do this."
 msgstr "C'est parti."
 
 #: templates/dashboard/base_dashboard.html:12
-#: templates/profiles/profile_detail.html:39
+#: templates/profiles/profile_detail.html:27
 #: templates/projects/project_list.html:17
 #: templates/projects/project_list.html:35
 msgid "Projects"
 msgstr "Projets"
 
 #: templates/dashboard/base_dashboard.html:20
-#: templates/projects/alias_edit.html:16
-#: templates/projects/project_create.html:34
-#: templates/projects/project_import.html:17
-msgid "Create"
-msgstr "Créer"
-
-#: templates/dashboard/base_dashboard.html:21
 msgid "Import"
 msgstr "Importer"
 
-#: templates/dashboard/base_dashboard.html:27
+#: templates/dashboard/base_dashboard.html:26
 msgid "Edit Profile"
 msgstr "Modifier le profil"
 
-#: templates/dashboard/base_dashboard.html:29
+#: templates/dashboard/base_dashboard.html:28
 msgid "Create Profile"
 msgstr "Créer un profil"
 
-#: templates/dashboard/base_dashboard.html:33
+#: templates/dashboard/base_dashboard.html:32
 msgid "Change Password"
 msgstr "Modification du mot de passe"
 
@@ -1003,8 +958,8 @@ msgstr ""
 #: templates/djangome/choices.html:7
 #, python-format
 msgid ""
-"Choose a redirect for <kbd>%(djangome_term)s on <a "
-"href=\"http://%(slug)s.readthedocs.org\">%(slug)s.readthedocs.org</a></kbd>"
+"Choose a redirect for <kbd>%(djangome_term)s on <a href=\"http://%(slug)s."
+"readthedocs.org\">%(slug)s.readthedocs.org</a></kbd>"
 msgstr ""
 
 #: templates/djangome/choices.html:28
@@ -1049,29 +1004,6 @@ msgstr "Clics"
 msgid "Add"
 msgstr "Ajouter"
 
-#: templates/editor/editor_file.html:28
-#: templates/projects/project_edit.html:29
-#: templates/projects/project_subprojects.html:34
-#: templates/projects/project_versions.html:21
-msgid "Submit"
-msgstr "Soumettre"
-
-#: templates/editor/editor_file.html:28
-msgid "Send pull request"
-msgstr "Envoyer une requête pull"
-
-#: templates/editor/editor_pick.html:4 templates/editor/editor_pick.html:6
-msgid "Pick a file to edit"
-msgstr "Choisissez un fichier à modifier"
-
-#: templates/editor/editor_push.html:4 templates/editor/editor_push.html:6
-msgid "Send pull request to"
-msgstr ""
-
-#: templates/editor/editor_push.html:13
-msgid "Send"
-msgstr "Envoyer"
-
 #: templates/flagging/flag_confirm.html:6
 #: templates/flagging/flag_confirm.html:11
 msgid "Confirm flagging"
@@ -1083,7 +1015,8 @@ msgstr "Ce que vous dites"
 
 #: templates/flagging/flag_confirm.html:21
 #, python-format
-msgid "Are you sure you want to flag \"%(object)s\" as \"%(flag_type.title)s\"?"
+msgid ""
+"Are you sure you want to flag \"%(object)s\" as \"%(flag_type.title)s\"?"
 msgstr ""
 
 #: templates/flagging/flag_confirm.html:23
@@ -1143,29 +1076,21 @@ msgstr "C'est bon, enregistez!"
 msgid "%(user)s's profile"
 msgstr "Profil de %(user)s"
 
-#: templates/profiles/profile_detail.html:21
-msgid "Whitelisted: Yes"
-msgstr "Sur liste blanche: Oui"
-
-#: templates/profiles/profile_detail.html:23
-msgid "Whitelisted: No"
-msgstr "Sur liste blanche: Non"
-
-#: templates/profiles/profile_detail.html:31
+#: templates/profiles/profile_detail.html:19
 #: templates/projects/project_list.html:9
 #: templates/projects/project_list.html:27
 #, python-format
 msgid "Projects by %(username)s tagged with %(tag)s"
 msgstr "Projets par %(username)s étiquetés avec %(tag)s"
 
-#: templates/profiles/profile_detail.html:33
+#: templates/profiles/profile_detail.html:21
 #: templates/projects/project_list.html:11
 #: templates/projects/project_list.html:29
 #, python-format
 msgid "Projects by %(username)s"
 msgstr "Projets par %(username)s"
 
-#: templates/profiles/profile_detail.html:37
+#: templates/profiles/profile_detail.html:25
 #: templates/projects/project_list.html:15
 #: templates/projects/project_list.html:33
 #, python-format
@@ -1185,6 +1110,12 @@ msgstr "Alias pour le Projet "
 msgid "Add an alias for a project version."
 msgstr "Ajouter un alias pour une version de projet."
 
+#: templates/projects/alias_edit.html:16
+#: templates/projects/project_create.html:34
+#: templates/projects/project_import.html:17
+msgid "Create"
+msgstr "Créer"
+
 #: templates/projects/alias_list.html:6 templates/projects/alias_list.html:11
 #: templates/projects/project_dashboard.html:41
 msgid "Aliases"
@@ -1194,63 +1125,6 @@ msgstr "Alias"
 #: templates/projects/project_list.html:48
 msgid "Browse projects"
 msgstr "Parcourir les projets"
-
-#: templates/projects/file_add.html:19 templates/projects/file_add.html:22
-msgid "Add a file"
-msgstr "Ajouter un fichier"
-
-#: templates/projects/file_add.html:30
-msgid "Add file"
-msgstr "Ajouter fichier"
-
-#: templates/projects/file_delete.html:4 templates/projects/file_delete.html:6
-#, python-format
-msgid "Delete %(heading)s?"
-msgstr "Supprimer %(heading)s?"
-
-#: templates/projects/file_delete.html:11
-msgid "You sure? O_o"
-msgstr "Vous êtes sûr ? O_o"
-
-#: templates/projects/file_delete.html:13
-#, python-format
-msgid "I don't ever want to see '%(heading)s' again"
-msgstr ""
-
-#: templates/projects/file_edit.html:19 templates/projects/file_edit.html:21
-#, python-format
-msgid "Edit %(heading)s"
-msgstr "Modifier %(heading)s"
-
-#: templates/projects/file_edit.html:27 templates/projects/file_history.html:6
-msgid "Revision History"
-msgstr "Historique de révision"
-
-#: templates/projects/file_edit.html:32
-msgid "Looks good! (Save)"
-msgstr "C'est bon (Sauver)"
-
-#: templates/projects/file_history.html:4
-msgid "History"
-msgstr "Historique"
-
-#: templates/projects/file_history.html:12
-msgid "Current"
-msgstr "Actuel"
-
-#. Translators: Revert to a specific revision of a file.
-#: templates/projects/file_history.html:24
-msgid "Revert to"
-msgstr "Revenir à"
-
-#: templates/projects/file_revert.html:4
-#, python-format
-msgid "Revert %(heading)s to revision %(revision)s?"
-msgstr "Revenir %(heading)s à la révision %(revision)s?"
-
-#: templates/projects/file_revert.html:8
-msgid "Revert"
-msgstr "Revenir"
 
 #: templates/projects/legend.html:4
 msgid "External Links"
@@ -1301,6 +1175,10 @@ msgstr "Par exemple vérifiez ce code"
 msgid "actual code indented"
 msgstr "Code actuel indenté"
 
+#: templates/projects/legend.html:34
+msgid "reStructuredText Primer"
+msgstr ""
+
 #: templates/projects/project_configure.html:4
 #, python-format
 msgid "Configure %(name)s"
@@ -1326,7 +1204,9 @@ msgstr "Créer un nouveau projet"
 msgid ""
 "Create new documentation here. If you already have docs in a public "
 "repository,"
-msgstr "Créez une nouvelle documentation ici. Si vous avez déjà des documents dans un dépôt public,"
+msgstr ""
+"Créez une nouvelle documentation ici. Si vous avez déjà des documents dans "
+"un dépôt public,"
 
 #: templates/projects/project_create.html:30
 msgid "import an existing project"
@@ -1343,8 +1223,11 @@ msgstr "Mes projets"
 #: templates/projects/project_dashboard.html:62
 #, python-format
 msgid ""
-"You don't have any projects.  You should<a href=\"%(projects_import_url)s\">create new docs</a> on the site.<br>\n"
-"Check out the <a href=\"http://readthedocs.org/docs/read-the-docs/latest/getting_started.html\">Getting Started</a> documentation for information about how to get going."
+"You don't have any projects.  You should<a href=\"%(projects_import_url)s"
+"\">create new docs</a> on the site.<br>\n"
+"Check out the <a href=\"http://readthedocs.org/docs/read-the-docs/latest/"
+"getting_started.html\">Getting Started</a> documentation for information "
+"about how to get going."
 msgstr ""
 
 #: templates/projects/project_delete.html:4
@@ -1369,6 +1252,12 @@ msgstr ""
 #: templates/projects/project_edit.html:23
 msgid "Edit Project"
 msgstr ""
+
+#: templates/projects/project_edit.html:29
+#: templates/projects/project_subprojects.html:34
+#: templates/projects/project_versions.html:21
+msgid "Submit"
+msgstr "Soumettre"
 
 #: templates/projects/project_edit.html:32
 msgid "delete"
@@ -1402,8 +1291,8 @@ msgstr "Editer sous-projets"
 
 #: templates/projects/project_subprojects.html:13
 msgid ""
-"This allows you to add subprojects to your project. This allows them to live"
-" in the same namespace in the URLConf for a subdomain or CNAME."
+"This allows you to add subprojects to your project. This allows them to live "
+"in the same namespace in the URLConf for a subdomain or CNAME."
 msgstr ""
 
 #: templates/projects/project_subprojects.html:16
@@ -1427,7 +1316,9 @@ msgstr ""
 msgid ""
 "If you are having trouble building older versions of your Documentation, "
 "then you can"
-msgstr "Si vous éprouvez des difficultés à compiler les anciennes versions de vos documents, vous pouvez alors"
+msgstr ""
+"Si vous éprouvez des difficultés à compiler les anciennes versions de vos "
+"documents, vous pouvez alors"
 
 #: templates/projects/project_versions.html:12
 msgid "Upload a Zip file of HTML"
@@ -1435,15 +1326,20 @@ msgstr "Charger une archive Zip de fichiers HTML"
 
 #: templates/projects/project_versions.html:12
 msgid ""
-"instead. This is to support versions that may not build anymore with current"
-" Sphinx, or to support plugins and extensions that we may not have on our "
+"instead. This is to support versions that may not build anymore with current "
+"Sphinx, or to support plugins and extensions that we may not have on our "
 "server."
-msgstr "à la place. Il s'agit de gérer des versions qui ne peuvent pas compiler avec Sphinx, ou pour gérer les plugins et extensions indisponibles sur notre serveur."
+msgstr ""
+"à la place. Il s'agit de gérer des versions qui ne peuvent pas compiler avec "
+"Sphinx, ou pour gérer les plugins et extensions indisponibles sur notre "
+"serveur."
 
 #: templates/projects/project_versions.html:16
 msgid ""
 "Choose which versions you would like to publish besides the latest revision."
-msgstr "Choisissez les versions que vous souhaitez publier en plus de la dernière révision."
+msgstr ""
+"Choisissez les versions que vous souhaitez publier en plus de la dernière "
+"révision."
 
 #: templates/projects/search.html:6 templates/projects/search.html.py:20
 #, python-format
@@ -1470,14 +1366,15 @@ msgstr "Charger la documentation HTML"
 msgid ""
 "Use this to upload pre-existing HTML documentation for versions that don't "
 "build correctly anymore."
-msgstr "Utilisez cette option pour charger une documentation HTML pour les versions qui ne se génèrent plus correctement."
+msgstr ""
+"Utilisez cette option pour charger une documentation HTML pour les versions "
+"qui ne se génèrent plus correctement."
 
 #: templates/projects/upload_html.html:16
 msgid "Upload"
 msgstr "Chargement"
 
-#. Translators: After 'Flag this project as' follows either 'Inappropriate',
-#. 'Spam' and/or 'Duplicate'
+#. Translators: After 'Flag this project as' follows either 'Inappropriate', 'Spam' and/or 'Duplicate'
 #: templates/projects/includes/flagging.html:7
 msgid "Flag this project as"
 msgstr "Signaler ce projet comme"
@@ -1525,19 +1422,25 @@ msgstr "Erreur d'activation de compte"
 msgid ""
 "The activation key \"%(activation_key)s\" is invalid and cannot be used to "
 "activate this account."
-msgstr "La clé d'activation \"%(activation_key)s\" n'est pas valide et ne peut pas être utilisé pour activer ce compte."
+msgstr ""
+"La clé d'activation \"%(activation_key)s\" n'est pas valide et ne peut pas "
+"être utilisé pour activer ce compte."
 
 #: templates/registration/activate.html:18
 #, python-format
 msgid ""
 "Did you really think activation key \"%(activation_key)s\" was going to "
 "work?!"
-msgstr "Pensiez vous réellement que la clé d'activation \"%(activation_key)s\" allait fonctionner?!"
+msgstr ""
+"Pensiez vous réellement que la clé d'activation \"%(activation_key)s\" "
+"allait fonctionner?!"
 
 #: templates/registration/activate.html:21
 msgid ""
 "We're not sure how you got that key, but would you mind registering again"
-msgstr "Nous ne sommes pas sûr de savoir comment vous avez obtenu cette clé, mais pourriez-vous vous inscrire à nouveau"
+msgstr ""
+"Nous ne sommes pas sûr de savoir comment vous avez obtenu cette clé, mais "
+"pourriez-vous vous inscrire à nouveau"
 
 #: templates/registration/activate.html:21
 #: templates/registration/activation_complete.html:17
@@ -1558,7 +1461,9 @@ msgstr "Votre compte a été activé"
 
 #: templates/registration/activation_complete.html:17
 msgid "Log in with the username and password you just created,"
-msgstr "Identifiez vous avec le nom d'utilisateur et le mot de passe que vous venez de créer,"
+msgstr ""
+"Identifiez vous avec le nom d'utilisateur et le mot de passe que vous venez "
+"de créer,"
 
 #: templates/registration/base_registration.html:5
 msgid "Registration"
@@ -1570,9 +1475,11 @@ msgstr "inscription"
 
 #: templates/registration/login.html:21
 msgid ""
-"If you forgot your password, <a href=\"/accounts/password/reset/\">reset "
-"it.</a>"
-msgstr "Mot de passe oublié ? <a href=\"/accounts/password/reset/\">Réinitialisation.</a>"
+"If you forgot your password, <a href=\"/accounts/password/reset/\">reset it."
+"</a>"
+msgstr ""
+"Mot de passe oublié ? <a href=\"/accounts/password/reset/\">Réinitialisation."
+"</a>"
 
 #: templates/registration/logout.html:11
 msgid "You've logged out."
@@ -1585,9 +1492,11 @@ msgstr "Merci de votre visite!"
 #: templates/registration/logout.html:21
 #, python-format
 msgid ""
-"If you are looking to log in again, you can do that <a "
-"href=\"%(login_url)s\">here</a>"
-msgstr "Si vous souhaites vous identifier à nouveau, cliquez <a href=\"%(login_url)s\">ici</a>"
+"If you are looking to log in again, you can do that <a href=\"%(login_url)s"
+"\">here</a>"
+msgstr ""
+"Si vous souhaites vous identifier à nouveau, cliquez <a href=\"%(login_url)s"
+"\">ici</a>"
 
 #: templates/registration/password_change_done.html:4
 #: templates/registration/password_change_done.html:10
@@ -1611,9 +1520,12 @@ msgstr[1] "Veuillez corriger les erreurs ci-dessous"
 
 #: templates/registration/password_change_form.html:22
 msgid ""
-"Please enter your old password, for security's sake, and then enter your new"
-" password twice so we can verify you typed it in correctly."
-msgstr "Veuillez saisir votre ancien mot de passe, pour plus de sécurité, puis saisir votre nouveau mot de passe deux fois afin que nous puissions vérifier que vous l'avez tapé correctement."
+"Please enter your old password, for security's sake, and then enter your new "
+"password twice so we can verify you typed it in correctly."
+msgstr ""
+"Veuillez saisir votre ancien mot de passe, pour plus de sécurité, puis "
+"saisir votre nouveau mot de passe deux fois afin que nous puissions vérifier "
+"que vous l'avez tapé correctement."
 
 #: templates/registration/password_change_form.html:26
 msgid "Old password"
@@ -1648,7 +1560,8 @@ msgstr "Réinitialisation du mot de passe terminé"
 
 #: templates/registration/password_reset_complete.html:14
 msgid "Your password has been set.  You may go ahead and log in now."
-msgstr "Votre mot de passe à été défini. Vous pouvez maintenant vous identifier."
+msgstr ""
+"Votre mot de passe à été défini. Vous pouvez maintenant vous identifier."
 
 #: templates/registration/password_reset_confirm.html:6
 msgid "Password reset confirmation"
@@ -1662,7 +1575,9 @@ msgstr "Saisissez le nouveau mot de passe"
 msgid ""
 "Please enter your new password twice so we can verify you typed it in "
 "correctly."
-msgstr "Saisissez votre nouveau mot de passe afin de vérifier qu'il est correctement saisi."
+msgstr ""
+"Saisissez votre nouveau mot de passe afin de vérifier qu'il est correctement "
+"saisi."
 
 #: templates/registration/password_reset_confirm.html:20
 msgid "New password:"
@@ -1680,7 +1595,10 @@ msgstr "Echec de la réinitialisation du mot de passe"
 msgid ""
 "The password reset link was invalid, possibly because it has already been "
 "used.  Please request a new password reset."
-msgstr "Le lien de réinitialisation de mot n'était pas valide, peut-être parce qu'il a déjà été utilisé. Veuiller demander à nouveau la réinitialisation du mot de passe."
+msgstr ""
+"Le lien de réinitialisation de mot n'était pas valide, peut-être parce qu'il "
+"a déjà été utilisé. Veuiller demander à nouveau la réinitialisation du mot "
+"de passe."
 
 #: templates/registration/password_reset_done.html:8
 #: templates/registration/password_reset_done.html:12
@@ -1691,11 +1609,14 @@ msgstr "Réinitialisation du mot de passe réussie"
 msgid ""
 "We've e-mailed you instructions for setting your password to the e-mail "
 "address you submitted. You should be receiving it shortly."
-msgstr "Nous vous avons envoyé des instructions par email pour votre mot de passe. Vous devriez le recevoir sous peu."
+msgstr ""
+"Nous vous avons envoyé des instructions par email pour votre mot de passe. "
+"Vous devriez le recevoir sous peu."
 
 #: templates/registration/password_reset_email.html:2
 msgid "You're receiving this e-mail because you requested a password reset"
-msgstr "Vous recevez ce mail après une demande de réinitialisation de mot de passe."
+msgstr ""
+"Vous recevez ce mail après une demande de réinitialisation de mot de passe."
 
 #: templates/registration/password_reset_email.html:3
 #, python-format
@@ -1723,7 +1644,9 @@ msgstr "L'équipe %(site_name)s"
 msgid ""
 "Forgotten your password? Enter your e-mail address below, and we'll e-mail "
 "instructions for setting a new one."
-msgstr "Vous avez oublié votre mot de passe ? Saisissez votre e-mail en dessous et nous vous transmettrons les instructions pour en définir un nouveau."
+msgstr ""
+"Vous avez oublié votre mot de passe ? Saisissez votre e-mail en dessous et "
+"nous vous transmettrons les instructions pour en définir un nouveau."
 
 #: templates/registration/password_reset_form.html:19
 msgid "E-mail address:"
@@ -1746,7 +1669,10 @@ msgid ""
 " You registered a long time ago.\n"
 "    We aren't sure if you are a robot or if \n"
 "    something got lost or what."
-msgstr " Votre inscription date.\n    nous ne savons pas si vous êtes un robot \n    ou si vous avez perdu quelquechose."
+msgstr ""
+" Votre inscription date.\n"
+"    nous ne savons pas si vous êtes un robot \n"
+"    ou si vous avez perdu quelquechose."
 
 #: templates/registration/registration_closed.html:20
 msgid "Please try"
@@ -1773,7 +1699,9 @@ msgstr "Maintenant, activez votre compte"
 msgid ""
 "We will be sending you an email with an activation link.\n"
 "    Visit the link to verify this account."
-msgstr "Nous allons vous envoyer un mail avec un lien d'activation.\n    Suivez le lien pour valider le compte."
+msgstr ""
+"Nous allons vous envoyer un mail avec un lien d'activation.\n"
+"    Suivez le lien pour valider le compte."
 
 #: templates/registration/registration_complete.html:22
 msgid "Check your email.  We'll wait."
@@ -1864,19 +1792,110 @@ msgstr "Précédent"
 msgid "Next"
 msgstr "Suivant"
 
-#: templates/watching/pageview_list.html:5
-msgid "Views"
-msgstr "Affichages"
+#~ msgid "Body"
+#~ msgstr "Corps"
 
-#: templates/watching/pageview_list.html:18
-msgid "Most Viewed"
-msgstr "Meilleurs affichages"
+#~ msgid "Comment"
+#~ msgstr "Commentaire"
 
-#: watching/models.py:8
-msgid "Count"
-msgstr ""
+#~ msgid "Title"
+#~ msgstr "Titre"
 
-#: watching/models.py:14
-#, python-format
-msgid "Page views for %(project)s's url %(url)s"
-msgstr "Affichages pour %(project)s's url %(url)s"
+#~ msgid "Pushed"
+#~ msgstr "Poussé"
+
+#~ msgid "Branch of %(project)s by %(username)s (%(pk)s)"
+#~ msgstr "Branche de %(project)s par %(username)s (%(pk)s)"
+
+#~ msgid "Heading"
+#~ msgstr "En-tête"
+
+#~ msgid "Content"
+#~ msgstr "Contenu"
+
+#~ msgid "Denormalized path"
+#~ msgstr "Chemin dénormalisé"
+
+#~ msgid "Ordering"
+#~ msgstr "Tri par"
+
+#~ msgid "Status"
+#~ msgstr "Statut"
+
+#~ msgid "File"
+#~ msgstr "Fichier"
+
+#~ msgid "Diff"
+#~ msgstr "Diff"
+
+#~ msgid "Created date"
+#~ msgstr "Créé le"
+
+#~ msgid "Revision number"
+#~ msgstr "Numéro de révision"
+
+#~ msgid "Is reverted"
+#~ msgstr "est inversé"
+
+#~ msgid "Spanish"
+#~ msgstr "Espagnol"
+
+#~ msgid "Send pull request"
+#~ msgstr "Envoyer une requête pull"
+
+#~ msgid "Pick a file to edit"
+#~ msgstr "Choisissez un fichier à modifier"
+
+#~ msgid "Send"
+#~ msgstr "Envoyer"
+
+#~ msgid "Whitelisted: Yes"
+#~ msgstr "Sur liste blanche: Oui"
+
+#~ msgid "Whitelisted: No"
+#~ msgstr "Sur liste blanche: Non"
+
+#~ msgid "Add a file"
+#~ msgstr "Ajouter un fichier"
+
+#~ msgid "Add file"
+#~ msgstr "Ajouter fichier"
+
+#~ msgid "Delete %(heading)s?"
+#~ msgstr "Supprimer %(heading)s?"
+
+#~ msgid "You sure? O_o"
+#~ msgstr "Vous êtes sûr ? O_o"
+
+#~ msgid "Edit %(heading)s"
+#~ msgstr "Modifier %(heading)s"
+
+#~ msgid "Revision History"
+#~ msgstr "Historique de révision"
+
+#~ msgid "Looks good! (Save)"
+#~ msgstr "C'est bon (Sauver)"
+
+#~ msgid "History"
+#~ msgstr "Historique"
+
+#~ msgid "Current"
+#~ msgstr "Actuel"
+
+#~ msgid "Revert to"
+#~ msgstr "Revenir à"
+
+#~ msgid "Revert %(heading)s to revision %(revision)s?"
+#~ msgstr "Revenir %(heading)s à la révision %(revision)s?"
+
+#~ msgid "Revert"
+#~ msgstr "Revenir"
+
+#~ msgid "Views"
+#~ msgstr "Affichages"
+
+#~ msgid "Most Viewed"
+#~ msgstr "Meilleurs affichages"
+
+#~ msgid "Page views for %(project)s's url %(url)s"
+#~ msgstr "Affichages pour %(project)s's url %(url)s"
