@@ -46,7 +46,7 @@ class Version(models.Model):
     uploaded = models.BooleanField(_('Uploaded'), default=False)
     privacy_level = models.CharField(_('Privacy Level'), max_length=20,
         choices=constants.PRIVACY_CHOICES, default='public',
-        help_text="Level of privacy for this Version.")
+        help_text=_("Level of privacy for this Version."))
 
     objects = VersionManager()
 
@@ -54,6 +54,7 @@ class Version(models.Model):
         unique_together = [('project', 'slug')]
         ordering = ['-verbose_name']
         permissions = (
+            # Permission around whether a user can view the string.
             ('view_version', _('View Version')),
         )
 

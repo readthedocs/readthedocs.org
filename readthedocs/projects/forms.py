@@ -123,7 +123,8 @@ def build_versions_form(project):
             required=False,
         )
         attrs[privacy_name] = forms.ChoiceField(
-            label=_("Privacy Level"),
+            # This isn't a real label, but just a slug for the template
+            label="privacy",
             choices=constants.PRIVACY_CHOICES,
             initial=version.privacy_level,
         )
