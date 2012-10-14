@@ -1,2 +1,0 @@
-django-guardian==1.0.4
-
