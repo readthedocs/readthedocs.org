@@ -106,7 +106,7 @@ INSTALLED_APPS = [
     'basic.flagging',
     'djcelery',
     'djangosecure',
-    #'celery_haystack',
+    'guardian',
 
     #daniellindsleyrocksdahouse
     'haystack',
@@ -153,6 +153,8 @@ IMPORT_EXTERNAL_DATA = True
 backup_count = 1000
 if DEBUG:
     backup_count = 2
+
+ANONYMOUS_USER_ID = -1
 
 LOGGING = {
     'version': 1,
