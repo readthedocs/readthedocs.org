@@ -95,6 +95,9 @@ class Project(models.Model):
 
     class Meta:
         ordering = ('slug',)
+        permissions = (
+            ('view_project', 'View Project'),
+        )
 
     def __unicode__(self):
         return self.name

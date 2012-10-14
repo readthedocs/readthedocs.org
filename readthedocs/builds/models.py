@@ -17,6 +17,9 @@ class Version(models.Model):
     class Meta:
         unique_together = [('project', 'slug')]
         ordering = ['-verbose_name']
+        permissions = (
+            ('view_version', _('View Version')),
+        )
 
     def __unicode__(self):
         return ugettext(u"Version %(version)s of %(project)s (%(pk)s)" % {
