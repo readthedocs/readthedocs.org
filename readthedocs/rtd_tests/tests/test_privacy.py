@@ -221,7 +221,7 @@ class PrivacyTests(TestCase):
 
 
         # Need to figure out how to properly filter the detail view in tastypie.
-        # Protected stuff won't show up in detail pages on the API, but will show in list views.
+        # Protected stuff won't show up in detail pages on the API currently.
         self.client.login(username='tester', password='test')
         """
         resp = self.client.get("http://testserver/api/v1/project/django-kong/",
