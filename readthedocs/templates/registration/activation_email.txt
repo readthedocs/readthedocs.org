@@ -1,4 +1,4 @@
-{% load i18n %}{% url registration_activate activation_key as activation_url %}{% blocktrans  with count expiration_days as expiration_days and site.domain as domain %}Thank you for registering an account at {{ domain }}.
+{% load i18n %}{% url registration_activate activation_key as activation_url %}{% blocktrans with expiration_days=expiration_days site.domain=domain %}Thank you for registering an account at {{ domain }}.
 To activate your registration, please visit the following page:
 
 http://{{ domain }}{{ activation_url }}
