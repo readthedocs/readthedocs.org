@@ -10,12 +10,19 @@ from .constants import BUILD_STATE, BUILD_TYPES
 
 class VersionManager(models.Manager):
     def public(self, user, project, *args, **kwargs):
-        versions = get_objects_for_user(user, 'builds.view_version', klass=project.versions.all())
+        if user.is_authenticated():
+            versions = get_objects_for_user(user, 'builds.view_version', klass=project.versions.all())
+        else:
+            versions = Version.objects.none()
+
         versions = versions | project.versions.filter(privacy_level='public', active=True)
         return versions.filter(*args, **kwargs)
 
     def protected(self, user, project, *args, **kwargs):
-        versions = get_objects_for_user(user, 'builds.view_version', klass=project.versions.all())
+        if user.is_authenticated():
+            versions = get_objects_for_user(user, 'builds.view_version', klass=project.versions.all())
+        else:
+            versions = Version.objects.none()
         versions = versions | project.versions.exclude(privacy_level='private').filter(active=True)
         return versions.filter(*args, **kwargs)
 

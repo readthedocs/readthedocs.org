@@ -31,12 +31,18 @@ class ProjectManager(models.Manager):
         return base_qs.filter(*args, **kwargs)
 
     def public(self, user, *args, **kwargs):
-        projects = get_objects_for_user(user, 'projects.view_project', klass=self, any_perm=True)
+        if user.is_authenticated():
+            projects = get_objects_for_user(user, 'projects.view_project')
+        else:
+            projects = Project.objects.none()
         projects = projects | Project.objects.filter(privacy_level='public', skip=False)
         return projects.filter(*args, **kwargs)
 
     def protected(self, user, *args, **kwargs):
-        projects = get_objects_for_user(user, 'projects.view_project', klass=self, any_perm=True)
+        if user.is_authenticated():
+            projects = get_objects_for_user(user, 'projects.view_project')
+        else:
+            projects = Project.objects.none()
         projects = projects | Project.objects.exclude(privacy_level='private').filter(skip=False)
         return projects.filter(*args, **kwargs)
 
