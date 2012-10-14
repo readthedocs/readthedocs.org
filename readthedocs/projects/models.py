@@ -100,8 +100,11 @@ class Project(models.Model):
     django_packages_url = models.CharField(_('Django Packages URL'), max_length=255, blank=True)
     crate_url = models.CharField(_('Crate URL'), max_length=255, blank=True)
     privacy_level = models.CharField(_('Privacy Level'), max_length=20,
-        choices=constants.PRIVACY_OPTIONS, default='public',
+        choices=constants.PRIVACY_CHOICES, default='public',
         help_text="Level of privacy that you want on the repository. Protected means public but not in listings.")
+    version_privacy_level = models.CharField(_('Version Privacy Level'), max_length=20,
+        choices=constants.PRIVACY_CHOICES, default='public',
+        help_text="Default level of privacy you want on built versions of documentation.")
 
     #Subprojects
     related_projects = models.ManyToManyField('self', verbose_name=_('Related projects'), blank=True, null=True, symmetrical=False, through=ProjectRelationship)

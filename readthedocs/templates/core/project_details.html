@@ -42,6 +42,9 @@
         {% if version.uploaded or version.built %}
         {# Link to the docs #}
         <a href="{{ version.get_absolute_url }}">{{ version.slug }}</a>
+        {% if request.user in project.users.all %}
+            ({{ version.get_privacy_level_display }})
+        {% endif %}
       {% else %}
           {% blocktrans with version.slug as slug %}{{ slug }} (Build Failed){% endblocktrans %}
       {% endif %}

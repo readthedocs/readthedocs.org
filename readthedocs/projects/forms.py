@@ -3,7 +3,9 @@ from django.conf import settings
 from django.template.defaultfilters import slugify
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
+from django.utils.safestring import mark_safe
 
+from projects import constants
 from projects.models import Project
 from projects.tasks import update_docs
 
@@ -28,7 +30,7 @@ class ImportProjectForm(ProjectForm):
     class Meta:
         model = Project
         fields = ('name', 'repo', 'repo_type', 'description', 'project_url',
-                  'tags', 'privacy_level', 'default_branch', 'default_version', 'use_virtualenv',
+                  'tags', 'privacy_level', 'version_privacy_level', 'default_branch', 'default_version', 'use_virtualenv',
                   'use_system_packages', 'conf_py_file', 'requirements_file',
                   'analytics_code', 'documentation_type')
 
@@ -64,7 +66,7 @@ class DualCheckboxWidget(forms.CheckboxInput):
     def render(self, name, value, attrs=None):
         checkbox = super(DualCheckboxWidget, self).render(name, value, attrs)
         icon = self.render_icon()
-        return u'%s%s' % (checkbox, icon)
+        return mark_safe(u'%s%s' % (checkbox, icon))
 
     def render_icon(self):
         context = {
@@ -88,9 +90,11 @@ class BaseVersionsForm(forms.Form):
 
     def save_version(self, version):
         new_value = self.cleaned_data.get('version-%s' % version.slug, None)
-        if new_value is None or new_value == version.active:
+        privacy_level = self.cleaned_data.get('privacy-%s' % version.slug, None)
+        if (new_value is None or new_value == version.active) and (privacy_level is None or privacy_level == version.privacy_level):
             return
         version.active = new_value
+        version.privacy_level = privacy_level
         version.save()
         if version.active and not version.built and not version.uploaded:
             update_docs.delay(self.project.pk, record=True, version_pk=version.pk)
@@ -105,17 +109,23 @@ def build_versions_form(project):
     if active.exists():
         choices = [(version.slug, version.verbose_name) for version in active]
         attrs['default-version'] = forms.ChoiceField(
-            label=_("Choose the default version for this project"),
+            label=_("Default Version"),
             choices=choices,
             initial=project.get_default_version(),
         )
     for version in versions_qs:
         field_name = 'version-%s' % version.slug
+        privacy_name = 'privacy-%s' % version.slug
         attrs[field_name] = forms.BooleanField(
             label=version.verbose_name,
             widget=DualCheckboxWidget(version),
             initial=version.active,
             required=False,
+        )
+        attrs[privacy_name] = forms.ChoiceField(
+            label=_("Privacy Level"),
+            choices=constants.PRIVACY_CHOICES,
+            initial=project.version_privacy_level,
         )
     return type('VersionsForm', (BaseVersionsForm,), attrs)
 

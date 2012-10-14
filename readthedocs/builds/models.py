@@ -1,9 +1,23 @@
 from django.db import models
+
 from projects.models import Project
+from projects import constants
+
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from .constants import BUILD_STATE, BUILD_TYPES
 
+
+class Version(models.Manager):
+    def public(self, user, *args, **kwargs):
+        projects = get_objects_for_user(user, 'version.view_version', klass=self, any_perm=True)
+        projects = projects | Project.objects.filter(privacy_level='public', skip=False)
+        return projects.filter(*args, **kwargs)
+
+    def protected(self, user, *args, **kwargs):
+        projects = get_objects_for_user(user, 'version.view_version', klass=self, any_perm=True)
+        projects = projects | Project.objects.exclude(privacy_level='private').filter(skip=False)
+        return projects.filter(*args, **kwargs)
 
 class Version(models.Model):
     project = models.ForeignKey(Project, verbose_name=_('Project'), related_name='versions')
@@ -13,6 +27,9 @@ class Version(models.Model):
     active = models.BooleanField(_('Active'), default=False)
     built = models.BooleanField(_('Built'), default=False)
     uploaded = models.BooleanField(_('Uploaded'), default=False)
+    privacy_level = models.CharField(_('Privacy Level'), max_length=20,
+        choices=constants.PRIVACY_CHOICES, default='public',
+        help_text="Level of privacy for this Version.")
 
     class Meta:
         unique_together = [('project', 'slug')]
