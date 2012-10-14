@@ -9,6 +9,13 @@ env.code_dir = '/home/docs/sites/readthedocs.org/checkouts/readthedocs.org'
 env.virtualenv = '/home/docs/sites/readthedocs.org'
 env.rundir = '/home/docs/sites/readthedocs.org/run'
 
+def i18n():
+    with lcd('readthedocs'):
+        local('./manage.py makemessages --all')
+        local('tx push -s')
+        local('tx pull')
+        local('./manage.py compilemessages')
+
 def push():
     "Push new code, but don't restart/reload."
     local('git push origin master')
