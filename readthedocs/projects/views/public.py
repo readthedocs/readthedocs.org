@@ -51,10 +51,12 @@ def project_detail(request, project_slug):
     """
     queryset = Project.objects.protected(request.user)
     project = get_object_or_404(queryset, slug=project_slug)
+    versions = project.versions.public(request.user, project)
     return render_to_response(
         'projects/project_detail.html',
         {
             'project': project,
+            'versions': versions,
         },
         context_instance=RequestContext(request),
     )

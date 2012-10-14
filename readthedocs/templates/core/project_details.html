@@ -33,11 +33,11 @@
 <!-- BEGIN search bar -->
 
 
-{% if project.active_versions.count %}
+{% if versions %}
   <h3> {% trans "Versions" %} </h3>
 
   <p>
-  {% for version in project.ordered_active_versions %}
+  {% for version in versions %}
       <div style="float: left;" class="version_left">
         {% if version.uploaded or version.built %}
         {# Link to the docs #}
