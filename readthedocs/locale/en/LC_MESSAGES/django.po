@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-10-13 19:24-0500\n"
+"POT-Creation-Date: 2012-10-14 00:55-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,16 +26,16 @@ msgstr ""
 msgid "Invalid resource lookup data provided (mismatched type).: %(error)s"
 msgstr ""
 
-#: bookmarks/models.py:8 builds/models.py:9 builds/models.py:35
-#: builds/models.py:49 projects/models.py:449
+#: bookmarks/models.py:8 builds/models.py:23 builds/models.py:55
+#: builds/models.py:69 projects/models.py:471
 msgid "Project"
 msgstr ""
 
-#: bookmarks/models.py:9 core/models.py:13 projects/models.py:48
+#: bookmarks/models.py:9 core/models.py:13 projects/models.py:61
 msgid "User"
 msgstr ""
 
-#: bookmarks/models.py:10 builds/models.py:51
+#: bookmarks/models.py:10 builds/models.py:71
 msgid "Date"
 msgstr ""
 
@@ -43,8 +43,8 @@ msgstr ""
 msgid "URL"
 msgstr ""
 
-#: bookmarks/models.py:12 projects/models.py:51
-#: templates/core/project_details.html:6
+#: bookmarks/models.py:12 projects/models.py:64
+#: templates/core/project_details.html:13
 msgid "Description"
 msgstr ""
 
@@ -81,86 +81,95 @@ msgstr ""
 msgid "Manpage"
 msgstr ""
 
-#: builds/models.py:10
+#: builds/models.py:24
 msgid "Identifier"
 msgstr ""
 
-#: builds/models.py:11
+#: builds/models.py:25
 msgid "Verbose Name"
 msgstr ""
 
-#: builds/models.py:12 projects/models.py:50 projects/models.py:451
+#: builds/models.py:26 projects/models.py:63 projects/models.py:473
 msgid "Slug"
 msgstr ""
 
-#: builds/models.py:13
+#: builds/models.py:27
 msgid "Active"
 msgstr ""
 
-#: builds/models.py:14
+#: builds/models.py:28 templates/projects/includes/icon_built.html:4
 msgid "Built"
 msgstr ""
 
-#: builds/models.py:15
+#: builds/models.py:29 templates/projects/includes/icon_built.html:7
 msgid "Uploaded"
 msgstr ""
 
-#: builds/models.py:22
+#: builds/models.py:30 projects/forms.py:126 projects/models.py:102
+#: templates/core/project_details.html:5
+msgid "Privacy Level"
+msgstr ""
+
+#: builds/models.py:38
+msgid "View Version"
+msgstr ""
+
+#: builds/models.py:42
 #, python-format
 msgid "Version %(version)s of %(project)s (%(pk)s)"
 msgstr ""
 
-#: builds/models.py:36
+#: builds/models.py:56
 msgid "From slug"
 msgstr ""
 
-#: builds/models.py:37
+#: builds/models.py:57
 msgid "To slug"
 msgstr ""
 
-#: builds/models.py:38
+#: builds/models.py:58
 msgid "Largest"
 msgstr ""
 
-#: builds/models.py:41
+#: builds/models.py:61
 #, python-format
 msgid "Alias for %(project)s: %(from)s -> %(to)s"
 msgstr ""
 
-#: builds/models.py:50
+#: builds/models.py:70
 msgid "Type"
 msgstr ""
 
-#: builds/models.py:52
+#: builds/models.py:72
 msgid "Success"
 msgstr ""
 
-#: builds/models.py:53
+#: builds/models.py:73
 msgid "Setup"
 msgstr ""
 
-#: builds/models.py:54
+#: builds/models.py:74
 msgid "Setup error"
 msgstr ""
 
-#: builds/models.py:55
+#: builds/models.py:75
 msgid "Output"
 msgstr ""
 
-#: builds/models.py:56
+#: builds/models.py:76
 msgid "Error"
 msgstr ""
 
-#: builds/models.py:57 projects/models.py:57
+#: builds/models.py:77 projects/models.py:70
 #: templates/djangome/oneoffs.html:11
 msgid "Version"
 msgstr ""
 
-#: builds/models.py:58
+#: builds/models.py:78
 msgid "State"
 msgstr ""
 
-#: builds/models.py:65
+#: builds/models.py:85
 #, python-format
 msgid "Build %(project)s for %(usernames)s (%(pk)s)"
 msgstr ""
@@ -268,249 +277,265 @@ msgstr ""
 msgid "Bazaar"
 msgstr ""
 
-#: projects/forms.py:18
+#: projects/constants.py:75
+msgid "Public"
+msgstr ""
+
+#: projects/constants.py:76
+msgid "Protected"
+msgstr ""
+
+#: projects/constants.py:77
+msgid "Private"
+msgstr ""
+
+#: projects/forms.py:21
 msgid "A project with that name exists already!"
 msgstr ""
 
-#: projects/forms.py:25
+#: projects/forms.py:28
 msgid ""
 "URL for your code (hg or git). Ex. http://github.com/ericholscher/django-"
 "kong.git"
 msgstr ""
 
-#: projects/forms.py:37
+#: projects/forms.py:40
 msgid "Invalid character in repo name"
 msgstr ""
 
-#: projects/forms.py:39
+#: projects/forms.py:42
 msgid ""
 "It looks like you entered a private repo - please use the public (http:// or "
 "git://) clone url"
 msgstr ""
 
-#: projects/forms.py:45
+#: projects/forms.py:48
 msgid ""
 "Your configuration file is invalid, make sure it contains conf.py in it."
 msgstr ""
 
-#: projects/forms.py:107
-msgid "Choose the default version for this project"
+#: projects/forms.py:112
+msgid "Default Version"
 msgstr ""
 
-#: projects/forms.py:123
+#: projects/forms.py:134
 msgid "Zip file of HTML"
 msgstr ""
 
-#: projects/forms.py:124
+#: projects/forms.py:135
 msgid "Overwrite existing HTML?"
 msgstr ""
 
-#: projects/forms.py:137
+#: projects/forms.py:148
 msgid "That version is already active!"
 msgstr ""
 
-#: projects/forms.py:139
+#: projects/forms.py:150
 msgid "Must upload a zip file."
 msgstr ""
 
-#: projects/forms.py:153
+#: projects/forms.py:164
 msgid "Version of the project you are uploading HTML for"
 msgstr ""
 
-#: projects/forms.py:170
+#: projects/forms.py:181
 #, python-format
 msgid "Project %(name)s does not exist"
 msgstr ""
 
-#: projects/models.py:32
+#: projects/models.py:45
 msgid "Parent"
 msgstr ""
 
-#: projects/models.py:33
+#: projects/models.py:46
 msgid "Child"
 msgstr ""
 
-#: projects/models.py:44
+#: projects/models.py:57
 msgid "Publication date"
 msgstr ""
 
-#: projects/models.py:45
+#: projects/models.py:58
 msgid "Modified date"
 msgstr ""
 
-#: projects/models.py:49 projects/models.py:450
+#: projects/models.py:62 projects/models.py:472
 msgid "Name"
 msgstr ""
 
-#: projects/models.py:52
+#: projects/models.py:65
 msgid "The reStructuredText description of the project"
 msgstr ""
 
-#: projects/models.py:53
+#: projects/models.py:66
 msgid "Repository URL"
 msgstr ""
 
-#: projects/models.py:54
+#: projects/models.py:67
 msgid ""
 "Checkout URL for your code (hg, git, etc.). Ex. http://github.com/"
 "ericholscher/django-kong.git"
 msgstr ""
 
-#: projects/models.py:55
+#: projects/models.py:68
 msgid "Repository type"
 msgstr ""
 
-#: projects/models.py:56
+#: projects/models.py:69
 msgid "Project URL"
 msgstr ""
 
-#: projects/models.py:56
+#: projects/models.py:69
 msgid "The project's homepage"
 msgstr ""
 
-#: projects/models.py:58
+#: projects/models.py:71
 msgid "Project version these docs apply to, i.e. 1.0a"
 msgstr ""
 
-#: projects/models.py:59
+#: projects/models.py:72
 msgid "Copyright"
 msgstr ""
 
-#: projects/models.py:60
+#: projects/models.py:73
 msgid "Project copyright information"
 msgstr ""
 
-#: projects/models.py:61
+#: projects/models.py:74
 msgid "Theme"
 msgstr ""
 
-#: projects/models.py:63
+#: projects/models.py:76
 msgid "Examples"
 msgstr ""
 
-#: projects/models.py:64
+#: projects/models.py:77
 msgid "Suffix"
 msgstr ""
 
-#: projects/models.py:65
+#: projects/models.py:78
 msgid "Default version"
 msgstr ""
 
-#: projects/models.py:65
+#: projects/models.py:78
 msgid "The version of your project that / redirects to"
 msgstr ""
 
-#: projects/models.py:67
+#: projects/models.py:80
 msgid "Default branch"
 msgstr ""
 
-#: projects/models.py:68
+#: projects/models.py:81
 msgid ""
 "What branch \"latest\" points to. Leave empty to use the default value for "
 "your VCS (eg. trunk or master)."
 msgstr ""
 
-#: projects/models.py:69
+#: projects/models.py:82
 msgid "Requirements file"
 msgstr ""
 
-#: projects/models.py:69
+#: projects/models.py:82
 msgid ""
 "Requires Virtualenv. A pip requirements file needed to build your "
 "documentation. Path from the root of your project."
 msgstr ""
 
-#: projects/models.py:70
+#: projects/models.py:83
 msgid "Documentation type"
 msgstr ""
 
-#: projects/models.py:72
+#: projects/models.py:85
 msgid ""
 "Type of documentation you are building. <a href=\"http://sphinx.pocoo.org/"
 "builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More info</a>."
 msgstr ""
 
-#: projects/models.py:73
+#: projects/models.py:86
 msgid "Analytics code"
 msgstr ""
 
-#: projects/models.py:73
+#: projects/models.py:86
 msgid ""
 "Google Analytics Tracking ID (ex. UA-22345342-1). This may slow down your "
 "page loads."
 msgstr ""
 
-#: projects/models.py:76 projects/models.py:452
+#: projects/models.py:89 projects/models.py:474
 msgid "Path"
 msgstr ""
 
-#: projects/models.py:76
+#: projects/models.py:89
 msgid "The directory where conf.py lives"
 msgstr ""
 
-#: projects/models.py:78
+#: projects/models.py:91
 msgid "Python configuration file"
 msgstr ""
 
-#: projects/models.py:79
+#: projects/models.py:92
 msgid ""
 "Path from project root to conf.py file (ex. docs/conf.py). Leave blank if "
 "you want us to find it for you."
 msgstr ""
 
-#: projects/models.py:81
+#: projects/models.py:94
 msgid "Featured"
 msgstr ""
 
-#: projects/models.py:82
+#: projects/models.py:95
 msgid "Skip"
 msgstr ""
 
-#: projects/models.py:83
+#: projects/models.py:96
 msgid "Use virtualenv"
 msgstr ""
 
-#: projects/models.py:84
+#: projects/models.py:97
 msgid "Install your project inside a virtualenv using setup.py install"
 msgstr ""
 
-#: projects/models.py:85
+#: projects/models.py:98
 msgid "Use system packages"
 msgstr ""
 
-#: projects/models.py:86
+#: projects/models.py:99
 msgid "Give the virtual environment access to the global sites-packages dir"
 msgstr ""
 
-#: projects/models.py:87
+#: projects/models.py:100
 msgid "Django Packages URL"
 msgstr ""
 
-#: projects/models.py:88
+#: projects/models.py:101
 msgid "Crate URL"
 msgstr ""
 
-#: projects/models.py:91
+#: projects/models.py:105
+msgid "Version Privacy Level"
+msgstr ""
+
+#: projects/models.py:110
 msgid "Related projects"
 msgstr ""
 
-#: projects/models.py:119
+#: projects/models.py:141
 msgid "Model must have slug"
 msgstr ""
 
-#: projects/models.py:284
+#: projects/models.py:306
 msgid "Conf File Missing."
 msgstr ""
 
-#: projects/models.py:453
+#: projects/models.py:475
 msgid "MD5 checksum"
 msgstr ""
 
-#: settings/base.py:42
+#: settings/base.py:47
 msgid "English"
 msgstr ""
 
-#: settings/base.py:43
+#: settings/base.py:48
 msgid "Norwegian"
 msgstr ""
 
@@ -584,11 +609,11 @@ msgstr ""
 msgid "Home"
 msgstr ""
 
-#: templates/homepage.html:28
+#: templates/homepage.html:44
 msgid "What is this place?"
 msgstr ""
 
-#: templates/homepage.html:30
+#: templates/homepage.html:46
 msgid ""
 "Read the Docs hosts documentation, making it fully searchable and easy to "
 "find.\n"
@@ -602,22 +627,22 @@ msgid ""
 "available."
 msgstr ""
 
-#: templates/homepage.html:36
+#: templates/homepage.html:52
 #, python-format
 msgid ""
 "It's free and simple.  Read the <a href=\"%(getting_started_url)s\">Getting "
 "Started</a> guide to get going!"
 msgstr ""
 
-#: templates/homepage.html:52
+#: templates/homepage.html:68
 msgid "Featured Projects"
 msgstr ""
 
-#: templates/homepage.html:73
+#: templates/homepage.html:89
 msgid "Recently Updated Projects"
 msgstr ""
 
-#: templates/homepage.html:73
+#: templates/homepage.html:89
 msgid "(All Projects)"
 msgstr ""
 
@@ -801,80 +826,80 @@ msgstr ""
 msgid "Builds"
 msgstr ""
 
-#: templates/core/project_bar.html:50 templates/core/project_details.html:30
+#: templates/core/project_bar.html:50 templates/core/project_details.html:37
 #: templates/projects/project_dashboard.html:38
 msgid "Versions"
 msgstr ""
 
-#: templates/core/project_details.html:16
+#: templates/core/project_details.html:23
 msgid "Search this project"
 msgstr ""
 
-#: templates/core/project_details.html:39
+#: templates/core/project_details.html:49
 #, python-format
 msgid "%(slug)s (Build Failed)"
 msgstr ""
 
-#: templates/core/project_details.html:65
+#: templates/core/project_details.html:75
 msgid "Short URLs"
 msgstr ""
 
-#: templates/core/project_details.html:73
+#: templates/core/project_details.html:83
 msgid "Open Comparison"
 msgstr ""
 
-#: templates/core/project_details.html:74
+#: templates/core/project_details.html:84
 #, python-format
 msgid ""
 "This project has more information available about it on <a href=\"%(url)s"
 "\">Open Comparison!</a>"
 msgstr ""
 
-#: templates/core/project_details.html:78
+#: templates/core/project_details.html:88
 msgid "Crate"
 msgstr ""
 
-#: templates/core/project_details.html:79
+#: templates/core/project_details.html:89
 #, python-format
 msgid ""
 "This project has more information available about it on <a href=\"%(url)s"
 "\">Crate!</a>"
 msgstr ""
 
-#: templates/core/project_details.html:92
+#: templates/core/project_details.html:102
 msgid "Last Built"
 msgstr ""
 
-#: templates/core/project_details.html:97
+#: templates/core/project_details.html:107
 msgid "Repository"
 msgstr ""
 
-#: templates/core/project_details.html:109
+#: templates/core/project_details.html:119
 msgid "Tags"
 msgstr ""
 
-#: templates/core/project_details.html:114
+#: templates/core/project_details.html:124
 msgid "No tags"
 msgstr ""
 
-#: templates/core/project_details.html:121
+#: templates/core/project_details.html:131
 msgid "Latest Revisions"
 msgstr ""
 
-#: templates/core/project_details.html:124
+#: templates/core/project_details.html:134
 #, python-format
 msgid "%(revision)s %(timesince)s ago"
 msgstr ""
 
-#: templates/core/project_details.html:126
+#: templates/core/project_details.html:136
 msgid "No revisions"
 msgstr ""
 
-#: templates/core/project_details.html:132
+#: templates/core/project_details.html:142
 msgid "Post Commit Hook"
 msgstr ""
 
-#: templates/core/project_details.html:142
+#: templates/core/project_details.html:152
 msgid "Most viewed pages for this project"
 msgstr ""
 
@@ -1221,7 +1246,7 @@ msgstr ""
 
 #: templates/projects/project_edit.html:29
 #: templates/projects/project_subprojects.html:34
-#: templates/projects/project_versions.html:21
+#: templates/projects/project_versions.html:37
 msgid "Submit"
 msgstr ""
 
@@ -1348,16 +1373,8 @@ msgstr ""
 msgid "Duplicate"
 msgstr ""
 
-#: templates/projects/includes/icon_built.html:4
-msgid "(Built)"
-msgstr ""
-
-#: templates/projects/includes/icon_built.html:8
-msgid "(Uploaded)"
-msgstr ""
-
-#: templates/projects/includes/icon_built.html:11
-msgid "(Not built)"
+#: templates/projects/includes/icon_built.html:9
+msgid "Not built"
 msgstr ""
 
 #: templates/projects/samples/getting_started.rst.html:3
@@ -1412,6 +1429,40 @@ msgstr ""
 
 #: templates/registration/activation_complete.html:17
 msgid "Log in with the username and password you just created,"
+msgstr ""
+
+#: templates/registration/activation_email.txt:1
+#, python-format
+msgid ""
+"Thank you for registering an account at %(domain)s.\n"
+"To activate your registration, please visit the following page:\n"
+"\n"
+"http://%(domain)s%(activation_url)s\n"
+"\n"
+"This page will expire in %(expiration_days)s day.\n"
+"\n"
+"***\n"
+"\n"
+"If you didn't register this account you can simply delete this email and we "
+"won't bother you again."
+msgid_plural ""
+"Thank you for registering an account at %(domain)s.\n"
+"To activate your registration, please visit the following page:\n"
+"\n"
+"http://%(domain)s%(activation_url)s\n"
+"\n"
+"This page will expire in %(expiration_days)s days.\n"
+"\n"
+"***\n"
+"\n"
+"If you didn't register this account you can simply delete this email and we "
+"won't bother you again."
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/registration/activation_email_subject.txt:1
+#, python-format
+msgid "%(site_name)s - activate your account"
 msgstr ""
 
 #: templates/registration/base_registration.html:5

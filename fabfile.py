@@ -12,9 +12,10 @@ env.rundir = '/home/docs/sites/readthedocs.org/run'
 @hosts(['localhost'])
 def i18n():
     with lcd('readthedocs'):
-        local('./manage.py makemessages --all')
-        local('tx push -s')
+        local('rm -rf rtd_tests/tests/builds/')
         local('tx pull')
+        local('./manage.py makemessages --all')
+        #local('tx push -s')
         local('./manage.py compilemessages')
 
 def push():
