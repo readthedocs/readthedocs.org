@@ -71,8 +71,13 @@ REPO_CHOICES = (
     ('bzr', _('Bazaar')),
 )
 
+PUBLIC = 'public'
+PROTECTED = 'protected'
+PRIVATE = 'private'
+
 PRIVACY_CHOICES = (
-    ('public', _('Public')),
-    ('protected', _('Protected')),
-    ('private', _('Private')),
+    (PUBLIC, _('Public')),
+    (PROTECTED, _('Protected')),
+    (PRIVATE, _('Private')),
 )
+

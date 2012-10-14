@@ -46,21 +46,21 @@ class ProjectManager(models.Manager):
         """
         Query for projects, privacy_level == public, and skip = False
         """
-        queryset = self._filter_queryset(user, privacy_level='public')
+        queryset = self._filter_queryset(user, privacy_level=constants.PUBLIC)
         return queryset.filter(*args, **kwargs)
 
     def protected(self, user=None, *args, **kwargs):
         """
         Query for projects, privacy_level != private, and skip = False
         """
-        queryset = self._filter_queryset(user, privacy_level=('public', 'protected'))
+        queryset = self._filter_queryset(user, privacy_level=(constants.PUBLIC, constants.PROTECTED))
         return queryset.filter(*args, **kwargs)
 
     def private(self, user=None, *args, **kwargs):
         """
         Query for projects, privacy_level != private, and skip = False
         """
-        queryset = self._filter_queryset(user, privacy_level='private')
+        queryset = self._filter_queryset(user, privacy_level=constants.PRIVATE)
         return queryset.filter(*args, **kwargs)
 
 

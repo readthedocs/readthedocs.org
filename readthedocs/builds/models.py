@@ -25,15 +25,15 @@ class VersionManager(models.Manager):
         return queryset.filter(active=True)
 
     def public(self, user=None, project=None, *args, **kwargs):
-        queryset = self._filter_queryset(user, project, privacy_level='public')
+        queryset = self._filter_queryset(user, project, privacy_level=constants.PUBLIC)
         return queryset.filter(*args, **kwargs)
 
-    def protected(self, user, project, *args, **kwargs):
-        queryset = self._filter_queryset(user, project, privacy_level=('public', 'protected'))
+    def protected(self, user=None, project=None, *args, **kwargs):
+        queryset = self._filter_queryset(user, project, privacy_level=(constants.PUBLIC, constants.PROTECTED))
         return queryset.filter(*args, **kwargs)
 
-    def private(self, user, project, *args, **kwargs):
-        queryset = self._filter_queryset(user, project, privacy_level='private')
+    def private(self, user=None, project=None, *args, **kwargs):
+        queryset = self._filter_queryset(user, project, privacy_level=constants.PRIVATE)
         return queryset.filter(*args, **kwargs)
 
 class Version(models.Model):
