@@ -18,6 +18,22 @@
   {% endif %}
 {% endblock %}
 
+{% block extra_scripts %}
+        <script>
+    $(document).ready(function() {
+            // Show action on hover
+            $(".module-item-menu").hover(
+              function () {
+                $(".hidden-child", this).show();
+              }, function () {
+                $(".hidden-child", this).hide();
+              }
+            );
+    });
+        </script>
+{% endblock %}
+
+
 {% block content %}
 
         {% if not request.user.is_authenticated %}
