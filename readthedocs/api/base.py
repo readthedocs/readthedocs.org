@@ -205,7 +205,7 @@ class ProjectResource(ModelResource, SearchMixin):
     class Meta:
         include_absolute_url = True
         allowed_methods = ['get', 'post', 'put']
-        queryset = Project.objects.filter(privacy_level='public')
+        queryset = Project.objects.public()
         authentication = PostAuthentication()
         authorization = DjangoAuthorization()
         excludes = ['path', 'featured']
@@ -278,7 +278,7 @@ class VersionResource(EnhancedModelResource):
         queryset = Version.objects.all()
         allowed_methods = ['get', 'put', 'post']
         always_return_data = True
-        queryset = Version.objects.filter(privacy_level='public')
+        queryset = Version.objects.public()
         authentication = PostAuthentication()
         authorization = DjangoAuthorization()
         filtering = {

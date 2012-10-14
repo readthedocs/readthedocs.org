@@ -56,6 +56,13 @@ class ProjectManager(models.Manager):
         queryset = self._filter_queryset(user, privacy_level=('public', 'protected'))
         return queryset.filter(*args, **kwargs)
 
+    def private(self, user=None, *args, **kwargs):
+        """
+        Query for projects, privacy_level != private, and skip = False
+        """
+        queryset = self._filter_queryset(user, privacy_level='private')
+        return queryset.filter(*args, **kwargs)
+
 
 class ProjectRelationship(models.Model):
     parent = models.ForeignKey('Project', verbose_name=_('Parent'), related_name='subprojects')

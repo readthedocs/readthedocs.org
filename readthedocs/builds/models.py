@@ -32,6 +32,10 @@ class VersionManager(models.Manager):
         queryset = self._filter_queryset(user, project, privacy_level=('public', 'protected'))
         return queryset.filter(*args, **kwargs)
 
+    def private(self, user, project, *args, **kwargs):
+        queryset = self._filter_queryset(user, project, privacy_level='private')
+        return queryset.filter(*args, **kwargs)
+
 class Version(models.Model):
     project = models.ForeignKey(Project, verbose_name=_('Project'), related_name='versions')
     identifier = models.CharField(_('Identifier'), max_length=255) # used by the vcs backend
