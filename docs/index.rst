@@ -28,6 +28,7 @@ Site Documentation
     faq
     support
     features
+    privacy
     webhooks
     alternate_domains
     sponsors
