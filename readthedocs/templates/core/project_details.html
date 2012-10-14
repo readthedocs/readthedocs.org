@@ -2,13 +2,6 @@
 
 {% load markup %}
 
-  <h3>{% trans "Privacy Level" %}</h3>
-  <div id="privacy_level">
-  <p>
-    {{ project.get_privacy_level_display }}
-  </p>
-  </div>
-
 {% if project.description %}
   <h3>{% trans "Description" %}</h3>
   <div id="project_description">
@@ -31,6 +24,13 @@
 </div>
 <br>
 <!-- BEGIN search bar -->
+
+<h3>{% trans "Privacy Level" %}</h3>
+    <div id="privacy_level">
+        <p>
+            {{ project.get_privacy_level_display }}
+        </p>
+    </div>
 
 
 {% if versions %}
