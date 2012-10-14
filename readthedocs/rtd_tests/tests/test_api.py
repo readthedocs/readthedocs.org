@@ -18,14 +18,14 @@ class APIBuildTests(TestCase):
         resp = self.client.post('/api/v1/build/',
                                 data=json.dumps(post_data),
                                 content_type='application/json',
-                                HTTP_AUTHORIZATION='Basic %s' % base64.b64encode('eric:test')
+                                HTTP_AUTHORIZATION='Basic %s' % base64.b64encode('super:test')
                                 )
         self.assertEqual(resp.status_code, 201)
         self.assertEqual(resp['location'],
                          'http://testserver/api/v1/build/1/')
         resp = self.client.get('/api/v1/build/1/',
                                data={'format': 'json'},
-                                HTTP_AUTHORIZATION='Basic %s' % base64.b64encode('eric:test')
+                                HTTP_AUTHORIZATION='Basic %s' % base64.b64encode('super:test')
                               )
         self.assertEqual(resp.status_code, 200)
         obj = json.loads(resp.content)
@@ -46,7 +46,7 @@ class APITests(TestCase):
         resp = self.client.post('/api/v1/project/',
                                 data=json.dumps(post_data),
                                 content_type='application/json',
-                                HTTP_AUTHORIZATION='Basic %s' % base64.b64encode('eric:test')
+                                HTTP_AUTHORIZATION='Basic %s' % base64.b64encode('super:test')
                                 )
         self.assertEqual(resp.status_code, 201)
         self.assertEqual(resp['location'],
