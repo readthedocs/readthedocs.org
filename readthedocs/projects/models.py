@@ -138,7 +138,7 @@ class Project(models.Model):
     class Meta:
         ordering = ('slug',)
         permissions = (
-            # Permission around whether you can view a project
+            # Translators: Permission around whether a user can view the project
             ('view_project', _('View Project')),
         )
 

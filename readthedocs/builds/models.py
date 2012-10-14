@@ -54,7 +54,7 @@ class Version(models.Model):
         unique_together = [('project', 'slug')]
         ordering = ['-verbose_name']
         permissions = (
-            # Permission around whether a user can view the string.
+            # Translators: Permission around whether a user can view the version
             ('view_version', _('View Version')),
         )
 
