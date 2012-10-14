@@ -154,6 +154,8 @@ backup_count = 1000
 if DEBUG:
     backup_count = 2
 
+# Guardian Settings
+GUARDIAN_RAISE_403 = True
 ANONYMOUS_USER_ID = -1
 
 LOGGING = {

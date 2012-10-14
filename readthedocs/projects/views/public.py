@@ -9,19 +9,22 @@ from django.template import RequestContext
 from django.views.generic.list_detail import object_list
 from django.utils.datastructures import SortedDict
 
+from guardian.decorators import permission_required_or_403
+from guardian.shortcuts import get_objects_for_user
+from taggit.models import Tag
 
 from core.views import serve_docs
 from projects.models import Project
 from projects.utils import highest_version
 
-from taggit.models import Tag
 
 def project_index(request, username=None, tag=None):
     """
     The list of projects, which will optionally filter by user or tag,
     in which case a 'person' or 'tag' will be added to the context
     """
-    queryset = Project.objects.live()
+    live_projects = Project.objects.live()
+    queryset = get_objects_for_user(request.user, 'projects.view_project', live_projects)
     if username:
         user = get_object_or_404(User, username=username)
         queryset = queryset.filter(user=user)
@@ -42,6 +45,8 @@ def project_index(request, username=None, tag=None):
         template_object_name='project',
     )
 
+
+@permission_required_or_403('projects.view_project')
 def project_detail(request, project_slug):
     """
     A detail view for a project with various dataz
