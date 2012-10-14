@@ -34,13 +34,6 @@ def build_list(request, project_slug=None, tag=None):
         template_object_name='build',
     )
 
-def legacy_build_list(request, username=None, project_slug=None, tag=None):
-    return HttpResponsePermanentRedirect(
-        reverse(build_list, kwargs={
-            'project_slug': project_slug,
-        })
-    )
-
 def build_detail(request, project_slug, pk):
     """Show the details of a particular build.
     """
@@ -53,12 +46,4 @@ def build_detail(request, project_slug, pk):
         object_id=pk,
         extra_context={'project': project },
         template_object_name='build',
-    )
-
-def legacy_build_detail(request, username, project_slug, pk):
-    return HttpResponsePermanentRedirect(
-        reverse(build_detail, kwargs={
-            'project_slug': project_slug,
-            'pk': pk,
-        })
     )
