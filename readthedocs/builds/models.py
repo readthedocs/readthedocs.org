@@ -11,12 +11,12 @@ from .constants import BUILD_STATE, BUILD_TYPES
 class Version(models.Manager):
     def public(self, user, *args, **kwargs):
         projects = get_objects_for_user(user, 'version.view_version', klass=self, any_perm=True)
-        projects = projects | Project.objects.filter(privacy_level='public', skip=False)
+        projects = projects | Version.objects.filter(privacy_level='public', skip=False)
         return projects.filter(*args, **kwargs)
 
     def protected(self, user, *args, **kwargs):
         projects = get_objects_for_user(user, 'version.view_version', klass=self, any_perm=True)
-        projects = projects | Project.objects.exclude(privacy_level='private').filter(skip=False)
+        projects = projects | Version.objects.exclude(privacy_level='private').filter(skip=False)
         return projects.filter(*args, **kwargs)
 
 class Version(models.Model):
