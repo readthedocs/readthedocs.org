@@ -544,4 +544,4 @@ class EmailHook(Notification):
 
 class WebHook(Notification):
     url = models.URLField(blank=True, verify_exists=False,
-                          help_text='URL to send the webhook to')
+                          help_text=_('URL to send the webhook to'))
