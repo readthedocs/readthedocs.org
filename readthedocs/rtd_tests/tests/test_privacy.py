@@ -220,21 +220,21 @@ class PrivacyTests(TestCase):
         self.assertEqual(data['meta']['total_count'], 1)
 
 
+        self.client.login(username='tester', password='test')
+        resp = self.client.get("http://testserver/api/v1/project/",
+                         data={"format": "json"}
+                         )
+        data = json.loads(resp.content)
+        self.assertEqual(data['meta']['total_count'], 0)
+
         # Need to figure out how to properly filter the detail view in tastypie.
         # Protected stuff won't show up in detail pages on the API currently.
-        self.client.login(username='tester', password='test')
         """
         resp = self.client.get("http://testserver/api/v1/project/django-kong/",
                          data={"format": "json"}
                          )
         self.assertEqual(resp.status_code, 200)
         """
-
-        resp = self.client.get("http://testserver/api/v1/project/",
-                         data={"format": "json"}
-                         )
-        data = json.loads(resp.content)
-        self.assertEqual(data['meta']['total_count'], 0)
 
 
     def test_private_repo_api(self):
