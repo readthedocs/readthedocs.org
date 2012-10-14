@@ -3,11 +3,13 @@ from django.http import HttpResponsePermanentRedirect
 from django.shortcuts import get_object_or_404
 from django.views.generic.list_detail import object_list, object_detail
 
+from guardian.decorators import permission_required_or_403
+from taggit.models import Tag
+
 from builds.models import Build
 from projects.models import Project
 
-from taggit.models import Tag
-
+@permission_required_or_403('projects.view_project')
 def build_list(request, project_slug=None, tag=None):
     """Show a list of builds.
     """

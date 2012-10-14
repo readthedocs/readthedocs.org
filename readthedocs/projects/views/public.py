@@ -60,6 +60,7 @@ def project_detail(request, project_slug):
         context_instance=RequestContext(request),
     )
 
+@permission_required_or_403('projects.view_project')
 def project_downloads(request, project_slug):
     """
     A detail view for a project with various dataz
