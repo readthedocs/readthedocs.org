@@ -32,8 +32,7 @@ log = logging.getLogger(__name__)
 
 def homepage(request):
     #latest_projects = Project.objects.filter(builds__isnull=False).annotate(max_date=Max('builds__date')).order_by('-max_date')[:10]
-    latest_qs = Project.objects.order_by('-modified_date')
-    latest = get_objects_for_user(request.user, 'projects.view_project', latest_qs)[:10]
+    latest = Project.objects.public(request.user).order_by('-modified_date')[:10]
     featured = Project.objects.filter(featured=True)
 
     return render_to_response('homepage.html',

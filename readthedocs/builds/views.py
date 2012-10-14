@@ -9,7 +9,6 @@ from taggit.models import Tag
 from builds.models import Build
 from projects.models import Project
 
-@permission_required_or_403('projects.view_project')
 def build_list(request, project_slug=None, tag=None):
     """Show a list of builds.
     """
@@ -21,7 +20,7 @@ def build_list(request, project_slug=None, tag=None):
     else:
         tag = None
 
-    project = get_object_or_404(Project, slug=project_slug)
+    project = get_object_or_404(Project.objects.protected(request.user), slug=project_slug)
     queryset = queryset.filter(project=project)
     active_builds = queryset.exclude(state="finished").values('id')
 
@@ -39,8 +38,8 @@ def build_list(request, project_slug=None, tag=None):
 def build_detail(request, project_slug, pk):
     """Show the details of a particular build.
     """
-    project = get_object_or_404(Project, slug=project_slug)
     queryset = Build.objects.filter(project=project)
+    project = get_object_or_404(Project.objects.protected(request.user), slug=project_slug)
 
     return object_detail(
         request,

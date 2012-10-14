@@ -3,6 +3,7 @@ from django.conf import settings
 from django.template.defaultfilters import slugify
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
+
 from projects.models import Project
 from projects.tasks import update_docs
 
@@ -27,7 +28,7 @@ class ImportProjectForm(ProjectForm):
     class Meta:
         model = Project
         fields = ('name', 'repo', 'repo_type', 'description', 'project_url',
-                  'tags', 'default_branch', 'default_version', 'use_virtualenv',
+                  'tags', 'privacy_level', 'default_branch', 'default_version', 'use_virtualenv',
                   'use_system_packages', 'conf_py_file', 'requirements_file',
                   'analytics_code', 'documentation_type')
 

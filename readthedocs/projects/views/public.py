@@ -23,8 +23,7 @@ def project_index(request, username=None, tag=None):
     The list of projects, which will optionally filter by user or tag,
     in which case a 'person' or 'tag' will be added to the context
     """
-    live_projects = Project.objects.live()
-    queryset = get_objects_for_user(request.user, 'projects.view_project', live_projects)
+    queryset = Project.objects.public(request.user)
     if username:
         user = get_object_or_404(User, username=username)
         queryset = queryset.filter(user=user)
@@ -46,12 +45,12 @@ def project_index(request, username=None, tag=None):
     )
 
 
-@permission_required_or_403('projects.view_project')
 def project_detail(request, project_slug):
     """
     A detail view for a project with various dataz
     """
-    project = get_object_or_404(Project, slug=project_slug)
+    queryset = Project.objects.protected(request.user)
+    project = get_object_or_404(queryset, slug=project_slug)
     return render_to_response(
         'projects/project_detail.html',
         {
@@ -60,12 +59,11 @@ def project_detail(request, project_slug):
         context_instance=RequestContext(request),
     )
 
-@permission_required_or_403('projects.view_project')
 def project_downloads(request, project_slug):
     """
     A detail view for a project with various dataz
     """
-    project = get_object_or_404(Project, slug=project_slug)
+    project = get_object_or_404(Project.objects.protected(request.user), slug=project_slug)
     versions = project.ordered_active_versions()
     version_data = SortedDict()
     for version in versions:

@@ -9,6 +9,8 @@ from django.db import models
 from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext_lazy as _
 
+from guardian.shortcuts import get_objects_for_user
+
 from projects import constants
 from projects.exceptions import ProjectImportError
 from projects.templatetags.projects_tags import sort_version_aware
@@ -27,6 +29,17 @@ class ProjectManager(models.Manager):
     def live(self, *args, **kwargs):
         base_qs = self.filter(skip=False)
         return base_qs.filter(*args, **kwargs)
+
+    def public(self, user, *args, **kwargs):
+        projects = get_objects_for_user(user, 'projects.view_project', klass=self, any_perm=True)
+        projects = projects | Project.objects.filter(privacy_level='public', skip=False)
+        return projects.filter(*args, **kwargs)
+
+    def protected(self, user, *args, **kwargs):
+        projects = get_objects_for_user(user, 'projects.view_project', klass=self, any_perm=True)
+        projects = projects | Project.objects.exclude(privacy_level='private').filter(skip=False)
+        return projects.filter(*args, **kwargs)
+
 
 class ProjectRelationship(models.Model):
     parent = models.ForeignKey('Project', verbose_name=_('Parent'), related_name='subprojects')
@@ -86,6 +99,9 @@ class Project(models.Model):
         help_text=_("Give the virtual environment access to the global sites-packages dir"))
     django_packages_url = models.CharField(_('Django Packages URL'), max_length=255, blank=True)
     crate_url = models.CharField(_('Crate URL'), max_length=255, blank=True)
+    privacy_level = models.CharField(_('Privacy Level'), max_length=20,
+        choices=constants.PRIVACY_OPTIONS, default='public',
+        help_text="Level of privacy that you want on the repository. Protected means public but not in listings.")
 
     #Subprojects
     related_projects = models.ManyToManyField('self', verbose_name=_('Related projects'), blank=True, null=True, symmetrical=False, through=ProjectRelationship)
