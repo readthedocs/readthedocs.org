@@ -267,6 +267,7 @@ def update_imported_docs(project, version):
             for tag in tags:
                 if tag.identifier in old_versions:
                     continue
+                log.debug('NEW TAG: (%s not in %s)' % (tag.identifier, old_versions))
                 slug = slugify_uniquely(Version, tag.verbose_name,
                                         'slug', 255, project=project)
                 try:
@@ -307,6 +308,7 @@ def update_imported_docs(project, version):
             for branch in branches:
                 if branch.identifier in old_versions:
                     continue
+                log.debug('NEW BRANCH: (%s not in %s)' % (branch, old_versions))
                 slug = slugify_uniquely(Version, branch.verbose_name,
                                         'slug', 255, project=project)
                 try:
