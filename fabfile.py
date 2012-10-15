@@ -15,7 +15,7 @@ def i18n():
         local('rm -rf rtd_tests/tests/builds/')
         local('tx pull')
         local('./manage.py makemessages --all')
-        #local('tx push -s')
+        local('tx push -s')
         local('./manage.py compilemessages')
 
 def push():

@@ -102,7 +102,7 @@ INSTALLED_APPS = [
     'registration',
     'profiles',
     'taggit',
-    #'south',
+    'south',
     'basic.flagging',
     'djcelery',
     'djangosecure',
