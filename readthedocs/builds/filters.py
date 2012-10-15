@@ -27,5 +27,4 @@ class BuildFilter(django_filters.FilterSet):
 
     class Meta:
         model = Build
-        fields = ['type', 'date', 'version', 'success']
-
+        fields = ['type', 'date', 'success']
