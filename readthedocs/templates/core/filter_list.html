@@ -1,0 +1,13 @@
+{% load i18n %}
+
+        {% for obj in filter %}
+        <li class="module-item col-span">
+            <div id="obj-{{ build.id }}">
+                <a href="{{ obj.get_absolute_url }}">
+                    {{ obj }}
+              </a>
+            </div>
+        </li>
+        {% empty %}
+        <li class="module-item quiet">{% trans "No projects found" %}</li>
+        {% endfor %}

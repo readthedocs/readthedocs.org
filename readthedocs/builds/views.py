@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404
 from django.views.generic.list_detail import object_list, object_detail
 
 from builds.models import Build
+from builds.filters import BuildFilter
 from projects.models import Project
 
 from taggit.models import Tag
@@ -12,6 +13,7 @@ def build_list(request, project_slug=None, tag=None):
     """Show a list of builds.
     """
     queryset = Build.objects.all()
+    filter = BuildFilter(request.GET, queryset=queryset)
 
     if tag:
         tag = get_object_or_404(Tag, slug=tag)
@@ -28,6 +30,7 @@ def build_list(request, project_slug=None, tag=None):
         queryset=queryset,
         extra_context={
             'project': project,
+            'filter': filter,
             'tag': tag,
             'active_builds': active_builds
         },
