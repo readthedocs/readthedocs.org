@@ -16,7 +16,23 @@
     {% trans "Choose which versions you would like to publish besides the latest revision." %}
   </p>
   <form method="post" action=".">{% csrf_token %}
-    {{ form.as_p }}
+
+{% for field in form %}
+    {% if forloop.first  %}
+        {# For choosing the default version #}
+        <h5> {{ field.label }} </h5>
+        {{ field }}
+    {% else %}
+        {% if field.label != "privacy" %}
+        <h3> {{ field.label}} </h3>
+          {{ field }}
+        {% else %}
+          {{ field }}
+        {% endif %}
+    {% endif %}
+    <br>
+{% endfor %}
+
     <p>
       <input style="display: inline;" type="submit" value="{% trans "Submit" %}">
     </p>

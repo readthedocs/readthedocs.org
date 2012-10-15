@@ -1,7 +1,6 @@
 import logging
 import getpass
 import os
-
 from django.conf import settings
 
 log = logging.getLogger(__name__)
@@ -49,3 +48,5 @@ def run_on_app_servers(command):
     else:
         ret = os.system(command)
         return ret
+
+
