@@ -13,7 +13,6 @@ def build_list(request, project_slug=None, tag=None):
     """Show a list of builds.
     """
     queryset = Build.objects.all()
-    filter = BuildFilter(request.GET, queryset=queryset)
 
     if tag:
         tag = get_object_or_404(Tag, slug=tag)
@@ -23,6 +22,7 @@ def build_list(request, project_slug=None, tag=None):
 
     project = get_object_or_404(Project, slug=project_slug)
     queryset = queryset.filter(project=project)
+    filter = BuildFilter(request.GET, queryset=queryset)
     active_builds = queryset.exclude(state="finished").values('id')
 
     return object_list(
