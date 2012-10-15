@@ -9,12 +9,14 @@
 {% block content %}
 <div id="build_list">
 
+        {% comment %}
         <form action="" method="get">
             {{ filter.form.as_p }}
             <input type="submit" value="Filter" />
         </form>
+        {% endcomment %}
 
-        {% autopaginate filter 15 %}
+        {% autopaginate build_list 15 %}
 
         <!-- BEGIN builds list -->
         <div class="module">
@@ -27,9 +29,7 @@
             <div class="module-list">
               <div class="module-list-wrapper">
                 <ul>
-                  {% with filter as build_list %}
                   {% include "core/build_list_detailed.html" %}
-                  {% endwith %}
                 </ul>
               </div>
             </div>
