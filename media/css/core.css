@@ -217,10 +217,6 @@ p.build-success { font-size: .8em; color: #108830; margin: 0 0 3px; }
 p.build-failure { font-size: .8em; color: #dc1020; margin: 0 0 3px; }
 p.build-missing { font-size: .8em; color: #9d9a55; margin: 0 0 3px; }
 
-/* build page */
-
-#build_list select { width: 10em; }
-
 
 /* dashboard bar */
 

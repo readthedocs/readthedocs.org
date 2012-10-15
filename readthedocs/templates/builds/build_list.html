@@ -7,40 +7,30 @@
 {% block title %}Builds{% endblock %}
 
 {% block content %}
-<div id="build_list">
 
-        <form action="" method="get">
-            {{ filter.form.as_p }}
-            <input type="submit" value="Filter" />
-        </form>
+          {% autopaginate build_list 15 %}
 
-        {% autopaginate filter 15 %}
+          <!-- BEGIN builds list -->
+          <div class="module">
+            <div class="module-wrapper">
 
-        <!-- BEGIN builds list -->
-        <div class="module">
-          <div class="module-wrapper">
-
-            <div class="module-header">
-              <h1>{% trans "Recent Builds" %}</h1>
-            </div>
-
-            <div class="module-list">
-              <div class="module-list-wrapper">
-                <ul>
-                  {% with filter as build_list %}
-                  {% include "core/build_list_detailed.html" %}
-                  {% endwith %}
-                </ul>
+              <div class="module-header">
+                <h1>{% trans "Recent Builds" %}</h1>
               </div>
+
+              <div class="module-list">
+                <div class="module-list-wrapper">
+                  <ul>
+                    {% include "core/build_list_detailed.html" %}
+                  </ul>
+                </div>
+              </div>
+
             </div>
-
           </div>
-        </div>
-        <!-- END builds list -->
+          <!-- END builds list -->
 
-        {% paginate %}
-
-</div>
+          {% paginate %}
 
 {% endblock %}
 
