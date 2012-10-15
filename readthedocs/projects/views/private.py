@@ -10,6 +10,8 @@ from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
 from django.views.generic.list_detail import object_list
 
+from guardian.shortcuts import assign
+
 from builds.forms import AliasForm
 from projects.forms import (ImportProjectForm, build_versions_form,
                             build_upload_html_form, SubprojectForm)
@@ -123,6 +125,7 @@ def project_import(request):
     if request.method == 'POST' and form.is_valid():
         project = form.save()
         form.instance.users.add(request.user)
+        assign('view_project', request.user, project)
         project_manage = reverse('projects_detail', args=[project.slug])
         return HttpResponseRedirect(project_manage + '?docs_not_built=True')
 

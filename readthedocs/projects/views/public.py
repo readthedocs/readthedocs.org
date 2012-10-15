@@ -9,19 +9,21 @@ from django.template import RequestContext
 from django.views.generic.list_detail import object_list
 from django.utils.datastructures import SortedDict
 
+from guardian.decorators import permission_required_or_403
+from guardian.shortcuts import get_objects_for_user
+from taggit.models import Tag
 
 from core.views import serve_docs
 from projects.models import Project
 from projects.utils import highest_version
 
-from taggit.models import Tag
 
 def project_index(request, username=None, tag=None):
     """
     The list of projects, which will optionally filter by user or tag,
     in which case a 'person' or 'tag' will be added to the context
     """
-    queryset = Project.objects.live()
+    queryset = Project.objects.public(request.user)
     if username:
         user = get_object_or_404(User, username=username)
         queryset = queryset.filter(user=user)
@@ -42,15 +44,19 @@ def project_index(request, username=None, tag=None):
         template_object_name='project',
     )
 
+
 def project_detail(request, project_slug):
     """
     A detail view for a project with various dataz
     """
-    project = get_object_or_404(Project, slug=project_slug)
+    queryset = Project.objects.protected(request.user)
+    project = get_object_or_404(queryset, slug=project_slug)
+    versions = project.versions.public(request.user, project)
     return render_to_response(
         'projects/project_detail.html',
         {
             'project': project,
+            'versions': versions,
         },
         context_instance=RequestContext(request),
     )
@@ -59,7 +65,7 @@ def project_downloads(request, project_slug):
     """
     A detail view for a project with various dataz
     """
-    project = get_object_or_404(Project, slug=project_slug)
+    project = get_object_or_404(Project.objects.protected(request.user), slug=project_slug)
     versions = project.ordered_active_versions()
     version_data = SortedDict()
     for version in versions:

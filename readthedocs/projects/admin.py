@@ -5,6 +5,7 @@ and related models.
 from builds.models import Version
 from django.contrib import admin
 from projects.models import Project, ImportedFile, ProjectRelationship
+from guardian.admin import GuardedModelAdmin
 
 class ProjectRelationshipInline(admin.TabularInline):
     model = ProjectRelationship
@@ -14,7 +15,7 @@ class VersionInline(admin.TabularInline):
     model = Version
 
 
-class ProjectAdmin(admin.ModelAdmin):
+class ProjectAdmin(GuardedModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
     list_display = ('name', 'repo', 'repo_type', 'featured', 'theme')
     list_filter = ('repo_type', 'featured')

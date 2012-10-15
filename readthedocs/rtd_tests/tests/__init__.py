@@ -5,3 +5,4 @@ from test_backend import *
 from test_celery import *
 from test_hacks import *
 from test_post_commit_hooks import *
+from test_privacy import *

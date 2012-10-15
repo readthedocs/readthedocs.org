@@ -19,6 +19,8 @@ class Testmaker(TestCase):
              'repo': 'https://github.com/ericholscher/django-kong',
              'csrfmiddlewaretoken': '34af7c8a5ba84b84564403a280d9a9be',
              'default_version': 'latest',
+             'privacy_level': 'public',
+             'version_privacy_level': 'public',
              'description': 'OOHHH AH AH AH KONG SMASH',
              'documentation_type': 'sphinx'})
         self.assertEqual(r.status_code, 302)

@@ -27,6 +27,11 @@ LOGS_ROOT = os.path.join(SITE_ROOT, 'logs')
 MEDIA_ROOT = '%s/media/' % (SITE_ROOT)
 MEDIA_URL = '/media/'
 ADMIN_MEDIA_PREFIX = '/media/admin/'
+# For 1.4
+STATIC_ROOT = ''
+STATIC_URL = '/static/'
+STATICFILES_DIRS = ()
+STATICFILES_FINDERS = ()
 
 CACHE_BACKEND = 'memcached://localhost:11211/'
 CACHE_KEY_PREFIX = 'docs'
@@ -97,11 +102,11 @@ INSTALLED_APPS = [
     'registration',
     'profiles',
     'taggit',
-    'south',
+    #'south',
     'basic.flagging',
     'djcelery',
     'djangosecure',
-    #'celery_haystack',
+    'guardian',
 
     #daniellindsleyrocksdahouse
     'haystack',
@@ -148,6 +153,10 @@ IMPORT_EXTERNAL_DATA = True
 backup_count = 1000
 if DEBUG:
     backup_count = 2
+
+# Guardian Settings
+GUARDIAN_RAISE_403 = True
+ANONYMOUS_USER_ID = -1
 
 LOGGING = {
     'version': 1,

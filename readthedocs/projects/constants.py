@@ -70,3 +70,14 @@ REPO_CHOICES = (
     ('hg', _('Mercurial')),
     ('bzr', _('Bazaar')),
 )
+
+PUBLIC = 'public'
+PROTECTED = 'protected'
+PRIVATE = 'private'
+
+PRIVACY_CHOICES = (
+    (PUBLIC, _('Public')),
+    (PROTECTED, _('Protected')),
+    (PRIVATE, _('Private')),
+)
+

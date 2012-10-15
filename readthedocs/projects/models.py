@@ -9,6 +9,8 @@ from django.db import models
 from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext_lazy as _
 
+from guardian.shortcuts import assign, get_objects_for_user
+
 from projects import constants
 from projects.exceptions import ProjectImportError
 from projects.templatetags.projects_tags import sort_version_aware
@@ -24,9 +26,43 @@ from vcs_support.utils import Lock
 log = logging.getLogger(__name__)
 
 class ProjectManager(models.Manager):
+    def _filter_queryset(self, user, privacy_level):
+        if isinstance(privacy_level, basestring):
+            privacy_level = (privacy_level,)
+        queryset = Project.objects.filter(privacy_level__in=privacy_level)
+        if not user:
+            return queryset
+        if user.is_authenticated():
+            # Add in possible user-specific views
+            user_queryset = get_objects_for_user(user, 'projects.view_project')
+            queryset = user_queryset | queryset
+        return queryset.filter(skip=False)
+
     def live(self, *args, **kwargs):
         base_qs = self.filter(skip=False)
         return base_qs.filter(*args, **kwargs)
+
+    def public(self, user=None, *args, **kwargs):
+        """
+        Query for projects, privacy_level == public, and skip = False
+        """
+        queryset = self._filter_queryset(user, privacy_level=constants.PUBLIC)
+        return queryset.filter(*args, **kwargs)
+
+    def protected(self, user=None, *args, **kwargs):
+        """
+        Query for projects, privacy_level != private, and skip = False
+        """
+        queryset = self._filter_queryset(user, privacy_level=(constants.PUBLIC, constants.PROTECTED))
+        return queryset.filter(*args, **kwargs)
+
+    def private(self, user=None, *args, **kwargs):
+        """
+        Query for projects, privacy_level != private, and skip = False
+        """
+        queryset = self._filter_queryset(user, privacy_level=constants.PRIVATE)
+        return queryset.filter(*args, **kwargs)
+
 
 class ProjectRelationship(models.Model):
     parent = models.ForeignKey('Project', verbose_name=_('Parent'), related_name='subprojects')
@@ -86,6 +122,12 @@ class Project(models.Model):
         help_text=_("Give the virtual environment access to the global sites-packages dir"))
     django_packages_url = models.CharField(_('Django Packages URL'), max_length=255, blank=True)
     crate_url = models.CharField(_('Crate URL'), max_length=255, blank=True)
+    privacy_level = models.CharField(_('Privacy Level'), max_length=20,
+        choices=constants.PRIVACY_CHOICES, default='public',
+        help_text=_("Level of privacy that you want on the repository. Protected means public but not in listings."))
+    version_privacy_level = models.CharField(_('Version Privacy Level'), max_length=20,
+        choices=constants.PRIVACY_CHOICES, default='public',
+        help_text=_("Default level of privacy you want on built versions of documentation."))
 
     #Subprojects
     related_projects = models.ManyToManyField('self', verbose_name=_('Related projects'), blank=True, null=True, symmetrical=False, through=ProjectRelationship)
@@ -95,6 +137,10 @@ class Project(models.Model):
 
     class Meta:
         ordering = ('slug',)
+        permissions = (
+            # Translators: Permission around whether a user can view the project
+            ('view_project', _('View Project')),
+        )
 
     def __unicode__(self):
         return self.name
@@ -117,7 +163,10 @@ class Project(models.Model):
             self.slug = slugify(self.name)
             if self.slug == '':
                 raise Exception(_("Model must have slug"))
-        super(Project, self).save(*args, **kwargs)
+        obj = super(Project, self).save(*args, **kwargs)
+        for owner in self.users.all():
+            assign('view_project', owner, self)
+        return obj
 
     def get_absolute_url(self):
         return reverse('projects_detail', args=[self.slug])

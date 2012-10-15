@@ -14,6 +14,7 @@ from django.views.static import serve
 from django.views.generic import TemplateView
 
 from haystack.query import EmptySearchQuerySet
+from guardian.shortcuts import get_objects_for_user
 
 from builds.models import Build
 from core.forms import FacetedSearchForm
@@ -31,11 +32,11 @@ log = logging.getLogger(__name__)
 
 def homepage(request):
     #latest_projects = Project.objects.filter(builds__isnull=False).annotate(max_date=Max('builds__date')).order_by('-max_date')[:10]
-    latest_projects = Project.objects.order_by('-modified_date')[:10]
+    latest = Project.objects.public(request.user).order_by('-modified_date')[:10]
     featured = Project.objects.filter(featured=True)
 
     return render_to_response('homepage.html',
-                              {'project_list': latest_projects,
+                              {'project_list': latest,
                                'featured_list': featured,
                                #'updated_list': updated
                                },
@@ -218,7 +219,7 @@ def subproject_serve_docs(request, project_slug, lang_slug=None, version_slug=No
             'filename': filename
         })
         return HttpResponseRedirect(url)
-        
+
     if subproject_qs.exists():
         return serve_docs(request, lang_slug, version_slug, filename, project_slug)
     else:

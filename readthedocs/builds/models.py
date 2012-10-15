@@ -1,9 +1,40 @@
 from django.db import models
-from projects.models import Project
 from django.utils.translation import ugettext_lazy as _, ugettext
 
+from guardian.shortcuts import assign, get_objects_for_user
+
+from projects.models import Project
+from projects import constants
 from .constants import BUILD_STATE, BUILD_TYPES
 
+
+class VersionManager(models.Manager):
+    def _filter_queryset(self, user, project, privacy_level):
+        if isinstance(privacy_level, basestring):
+            privacy_level = (privacy_level,)
+        queryset = Version.objects.filter(privacy_level__in=privacy_level)
+        if not user and not project:
+            return queryset
+        if user and user.is_authenticated():
+            # Add in possible user-specific views
+            user_queryset = get_objects_for_user(user, 'builds.view_version')
+            queryset = user_queryset | queryset
+        if project:
+            # Filter by project if requested
+            queryset =  queryset.filter(project=project)
+        return queryset.filter(active=True)
+
+    def public(self, user=None, project=None, *args, **kwargs):
+        queryset = self._filter_queryset(user, project, privacy_level=constants.PUBLIC)
+        return queryset.filter(*args, **kwargs)
+
+    def protected(self, user=None, project=None, *args, **kwargs):
+        queryset = self._filter_queryset(user, project, privacy_level=(constants.PUBLIC, constants.PROTECTED))
+        return queryset.filter(*args, **kwargs)
+
+    def private(self, user=None, project=None, *args, **kwargs):
+        queryset = self._filter_queryset(user, project, privacy_level=constants.PRIVATE)
+        return queryset.filter(*args, **kwargs)
 
 class Version(models.Model):
     project = models.ForeignKey(Project, verbose_name=_('Project'), related_name='versions')
@@ -13,10 +44,19 @@ class Version(models.Model):
     active = models.BooleanField(_('Active'), default=False)
     built = models.BooleanField(_('Built'), default=False)
     uploaded = models.BooleanField(_('Uploaded'), default=False)
+    privacy_level = models.CharField(_('Privacy Level'), max_length=20,
+        choices=constants.PRIVACY_CHOICES, default='public',
+        help_text=_("Level of privacy for this Version."))
+
+    objects = VersionManager()
 
     class Meta:
         unique_together = [('project', 'slug')]
         ordering = ['-verbose_name']
+        permissions = (
+            # Translators: Permission around whether a user can view the version
+            ('view_version', _('View Version')),
+        )
 
     def __unicode__(self):
         return ugettext(u"Version %(version)s of %(project)s (%(pk)s)" % {
@@ -29,6 +69,16 @@ class Version(models.Model):
         if not self.built and not self.uploaded:
             return ''
         return self.project.get_docs_url(version_slug=self.slug)
+
+    def save(self, *args, **kwargs):
+        """
+        Add permissions to the Version for all owners on save.
+        """
+        obj = super(Version, self).save(*args, **kwargs)
+        for owner in self.project.users.all():
+            assign('view_version', owner, self)
+        return obj
+
 
 
 class VersionAlias(models.Model):
