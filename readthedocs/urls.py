@@ -6,9 +6,11 @@ from django.views.generic.simple import direct_to_template
 from tastypie.api import Api
 
 from api.base import ProjectResource, UserResource, BuildResource, VersionResource, FileResource
+from builds.filters import VersionFilter
 from core.forms import UserProfileForm
 from core.views import SearchView
 from projects.feeds import LatestProjectsFeed, NewProjectsFeed
+from projects.filters import ProjectFilter
 
 v1_api = Api(api_name='v1')
 v1_api.register(BuildResource())
@@ -60,6 +62,16 @@ urlpatterns = patterns('',
     url(r'^random/$', 'core.views.random_page', name='random_page'),
     url(r'^depth/$', 'core.views.queue_depth', name='queue_depth'),
     url(r'^live/$', 'core.views.live_builds', name='live_builds'),
+    url(r'^filter/version/$',
+        'django_filters.views.object_filter',
+        { 'filter_class': VersionFilter, 'template_name': 'filter.html' },
+        name='filter_version'
+    ),
+    url(r'^filter/project/$',
+        'django_filters.views.object_filter',
+        { 'filter_class': ProjectFilter, 'template_name': 'filter.html' },
+        name='filter_project'
+    ),
     url(r'^wipe/(?P<project_slug>[-\w]+)/(?P<version_slug>[-\w]+)/$',
         'core.views.wipe_version',
         name='wipe_version'
