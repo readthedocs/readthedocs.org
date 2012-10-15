@@ -22,6 +22,7 @@ sphinx-http-domain==0.2
 # Pegged git requirements
 git+https://github.com/toastdriven/django-haystack@259274e4127f723d76b893c87a82777f9490b960#egg=django_haystack
 hg+http://bitbucket.org/andrewgodwin/south/@ecaafda23e600e510e252734d67bf8f9f2362dc9#egg=South-tip
+git+https://github.com/alex/django-filter.git#egg=django-filter
 git+http://github.com/alex/django-taggit.git@36f6dabcf10e27c7d9442a94243d4189f2a4f121#egg=django_taggit-dev
 git+http://github.com/ericflo/django-pagination.git@47e7ec874cd7dddda5ed13ffb6993a64dced2537#egg=django_pagination-dev
 git+http://github.com/nathanborror/django-basic-apps.git@171fdbe21a0dbbb38919a383cc265cb3cbc73771#egg=django_basic_apps-dev
