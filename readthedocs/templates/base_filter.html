@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+
+{% block nav-dashboard %} class="active"{% endblock %}
+
+{% block project_editing %}
+
+    <!-- BEGIN filter bar -->
+    <div id="project_bar">
+      <div class="wrapper">
+
+        <div class="project-title">
+          <h1>Filter</h1>
+        </div>
+
+        <div class="options">
+
+          <ul>
+            {% block filter_bar %}{% endblock %}
+          </ul>
+        </div>
+
+
+      </div>
+    </div>
+    <!-- END filter bar -->
+
+{% endblock %}
