@@ -7,15 +7,15 @@ Public, Protected, Private on Projects and Versions.
 Understanding the Privacy Levels
 --------------------------------
 
-+------------+------------+-----------+
-| Level      | Detail     | Listing   |
-+============+============+===========+
-| Private    | No         | No        |
-+------------+------------+-----------+
-| Protected  | Yes        | No        |
-+------------+------------+-----------+
-| Public     | Yes        | Yes       |
-+------------+------------+-----------+
++------------+------------+-----------+-----------+
+| Level      | Detail     | Listing   | Search    |
++============+============+===========+===========+
+| Private    | No         | No        | No        |
++------------+------------+-----------+-----------+
+| Protected  | Yes        | No        | No        |
++------------+------------+-----------+-----------+
+| Public     | Yes        | Yes       | Yes       |
++------------+------------+-----------+-----------+
 
 Public
 ~~~~~~
@@ -53,6 +53,7 @@ List Views
     * Home Page
     * All Projects Page
     * User Profile Page (/profiles/<user>/)
+    * Search 
 
 
 Version Objects
@@ -64,3 +65,4 @@ List Views
     * Project Detail (/projects/<slug>)
     * Version Selector on Home page
     * Version Selector on Documentation page
+    * Search 
