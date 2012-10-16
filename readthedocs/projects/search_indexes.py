@@ -10,6 +10,7 @@ from haystack import indexes
 from haystack.fields import CharField
 #from celery_haystack.indexes import SearchIndex
 
+from projects import constants
 from projects.models import ImportedFile, Project
 
 import logging
@@ -31,6 +32,10 @@ class ProjectIndex(indexes.SearchIndex, indexes.Indexable):
 
     def get_model(self):
         return Project
+
+    def index_queryset(self):
+        "Used when the entire index for model is updated."
+        return self.get_model().objects.public()
 
 #Should prob make a common subclass for this and FileIndex
 class ImportedFileIndex(indexes.SearchIndex, indexes.Indexable):
@@ -79,3 +84,7 @@ class ImportedFileIndex(indexes.SearchIndex, indexes.Indexable):
 
     def get_model(self):
         return ImportedFile
+
+    def index_queryset(self):
+        "Used when the entire index for model is updated."
+        return self.get_model().objects.filter(project__privacy_level=constants.PUBLIC)
