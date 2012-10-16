@@ -124,10 +124,10 @@ class Project(models.Model):
     crate_url = models.CharField(_('Crate URL'), max_length=255, blank=True)
     privacy_level = models.CharField(_('Privacy Level'), max_length=20,
         choices=constants.PRIVACY_CHOICES, default='public',
-        help_text=_("Level of privacy that you want on the repository. Protected means public but not in listings."))
+        help_text=_("(Beta) Level of privacy that you want on the repository. Protected means public but not in listings."))
     version_privacy_level = models.CharField(_('Version Privacy Level'), max_length=20,
         choices=constants.PRIVACY_CHOICES, default='public',
-        help_text=_("Default level of privacy you want on built versions of documentation."))
+        help_text=_("(Beta) Default level of privacy you want on built versions of documentation."))
 
     #Subprojects
     related_projects = models.ManyToManyField('self', verbose_name=_('Related projects'), blank=True, null=True, symmetrical=False, through=ProjectRelationship)
