@@ -42,8 +42,8 @@ def build_list(request, project_slug=None, tag=None):
 def build_detail(request, project_slug, pk):
     """Show the details of a particular build.
     """
-    queryset = Build.objects.filter(project=project)
     project = get_object_or_404(Project.objects.protected(request.user), slug=project_slug)
+    queryset = Build.objects.filter(project=project)
 
     return object_detail(
         request,
