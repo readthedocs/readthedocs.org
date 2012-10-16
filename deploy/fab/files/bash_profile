@@ -1,0 +1,14 @@
+. .bashrc
+
+export PIP_DOWNLOAD_CACHE=/tmp/pip
+export DJANGO_SETTINGS_MODULE=settings.onebox
+export PYTHONPATH=$PYTHONPATH:~/checkouts/readthedocs.org/readthedocs
+export EDITOR=vim
+
+. bin/activate
+
+cd ~/checkouts/readthedocs.org/
+
+alias chk='cd /home/docs/checkouts/readthedocs.org'
+alias run='cd /home/docs/run'
+
