@@ -304,6 +304,18 @@ class Project(models.Model):
         """
         return os.path.join(self.conf_dir(version), "_build", "latex")
 
+    def full_man_path(self, version='latest'):
+        """
+        The path to the build latex docs in the project.
+        """
+        return os.path.join(self.conf_dir(version), "_build", "man")
+    
+    def full_epub_path(self, version='latest'):
+        """
+        The path to the build latex docs in the project.
+        """
+        return os.path.join(self.conf_dir(version), "_build", "epub")
+
     def rtd_build_path(self, version="latest"):
         """
         The path to the build html docs in the project.
