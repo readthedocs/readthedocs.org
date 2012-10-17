@@ -31,7 +31,7 @@ def users():
 def install_packages():
     env.user = 'root'
     sudo('apt-get update')
-    sudo('apt-get install -y git-core python-setuptools python-dev postgresql-client libpq-dev subversion graphviz curl sqlite')
+    sudo('apt-get install -y git-core python-setuptools python-dev postgresql-client libpq-dev subversion graphviz curl sqlite libxml2-dev libxslt-dev vim')
     sudo ('easy_install pip')
     sudo ('pip install -U virtualenv mercurial')
 
