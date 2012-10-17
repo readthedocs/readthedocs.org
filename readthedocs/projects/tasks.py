@@ -200,7 +200,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
     except:
         log.info("Failed import from Crate", exc_info=True)
 
-    clear_artifacts(version)
+    #clear_artifacts(version)
     return True
 
 
