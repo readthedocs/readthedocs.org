@@ -28,10 +28,10 @@ MEDIA_ROOT = '%s/media/' % (SITE_ROOT)
 MEDIA_URL = '/media/'
 ADMIN_MEDIA_PREFIX = '/media/admin/'
 # For 1.4
-STATIC_ROOT = ''
+STATIC_ROOT = os.path.join(SITE_ROOT, 'static_root')
 STATIC_URL = '/static/'
-STATICFILES_DIRS = ()
-STATICFILES_FINDERS = ()
+#STATICFILES_DIRS = ()
+#STATICFILES_FINDERS = ()
 
 CACHE_BACKEND = 'memcached://localhost:11211/'
 CACHE_KEY_PREFIX = 'docs'
@@ -96,6 +96,7 @@ INSTALLED_APPS = [
     'django.contrib.markup',
     'django.contrib.sessions',
     'django.contrib.sites',
+    'django.contrib.staticfiles',
 
     # third party apps
     'pagination',
