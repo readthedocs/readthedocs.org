@@ -10,3 +10,7 @@ The mailling list at readthedocs@librelist.org is also available for support.
 .. _Freenode: irc://freenode.net/
 .. _Github: http://github.com/rtfd/readthedocs.org/issues
 
+Backwards Incompatible Changes
+==============================
+
+Backwards Incompatible Changes will be emailed to the mailling list, readthedocs@librelist.org. They will be prefixed with "Backwards Incompatible Changes". We are thinking about having some kind of Backwards Incompatible Changes policy, much like the 1.0 of a code base, once we define the redirects and interfaces that we wish to expose permanently.
