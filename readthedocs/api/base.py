@@ -102,7 +102,7 @@ class VersionResource(EnhancedModelResource):
         #return bundle
 
     def get_object_list(self, request):
-        self._meta.queryset = Version.objects.public(user=request.user)
+        self._meta.queryset = Version.objects.public(user=request.user, only_active=False)
         return super(VersionResource, self).get_object_list(request)
 
     def version_compare(self, request, **kwargs):
@@ -149,7 +149,7 @@ class VersionResource(EnhancedModelResource):
         ]
 
 class BuildResource(EnhancedModelResource):
-    project = fields.ForeignKey(ProjectResource, 'project')
+    project = fields.ForeignKey('api.base.ProjectResource', 'project')
     version = fields.ForeignKey('api.base.VersionResource', 'version')
 
     class Meta:

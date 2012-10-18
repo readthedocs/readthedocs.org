@@ -9,7 +9,7 @@ from .constants import BUILD_STATE, BUILD_TYPES
 
 
 class VersionManager(models.Manager):
-    def _filter_queryset(self, user, project, privacy_level):
+    def _filter_queryset(self, user, project, privacy_level, only_active):
         if isinstance(privacy_level, basestring):
             privacy_level = (privacy_level,)
         queryset = Version.objects.filter(privacy_level__in=privacy_level)
@@ -22,18 +22,35 @@ class VersionManager(models.Manager):
         if project:
             # Filter by project if requested
             queryset =  queryset.filter(project=project)
-        return queryset.filter(active=True)
+        if only_active:
+            queryset.filter(active=True)
+        return queryset
 
-    def public(self, user=None, project=None, *args, **kwargs):
-        queryset = self._filter_queryset(user, project, privacy_level=constants.PUBLIC)
+    def public(self, user=None, project=None, only_active=True, *args, **kwargs):
+        queryset = self._filter_queryset(
+            user,
+            project,
+            privacy_level=(constants.PUBLIC),
+            only_active=only_active
+        )
         return queryset.filter(*args, **kwargs)
 
-    def protected(self, user=None, project=None, *args, **kwargs):
-        queryset = self._filter_queryset(user, project, privacy_level=(constants.PUBLIC, constants.PROTECTED))
+    def protected(self, user=None, project=None, only_active=True, *args, **kwargs):
+        queryset = self._filter_queryset(
+            user,
+            project,
+            privacy_level=(constants.PUBLIC, constants.PROTECTED),
+            only_active=only_active
+        )
         return queryset.filter(*args, **kwargs)
 
-    def private(self, user=None, project=None, *args, **kwargs):
-        queryset = self._filter_queryset(user, project, privacy_level=constants.PRIVATE)
+    def private(self, user=None, project=None, only_active=True, *args, **kwargs):
+        queryset = self._filter_queryset(
+            user,
+            project,
+            privacy_level=(constants.PRIVATE),
+            only_active=only_active
+        )
         return queryset.filter(*args, **kwargs)
 
 class Version(models.Model):
