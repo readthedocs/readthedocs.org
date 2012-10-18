@@ -302,11 +302,6 @@ def update_imported_docs(project, version):
                 except Exception, e:
                     log.error("Failed to create version (tag)", exc_info=True)
                     transaction.rollback()
-                    # Break here to stop updating tags when they will all fail.
-                    # Only for when, there are a bunch of tags though.
-                    # Because it ties up a worker
-                    if len(tags) > 20:
-                        break
             transaction.leave_transaction_management()
         if version_repo.supports_branches:
             transaction.enter_transaction_management(True)
@@ -328,11 +323,6 @@ def update_imported_docs(project, version):
                 except Exception, e:
                     log.error("Failed to create version (branch)", exc_info=True)
                     transaction.rollback()
-                    # Break here to stop updating branches when they will all fail.
-                    # Only for when, there are a bunch of branches though.
-                    # Because it ties up a worker.
-                    if len(branches) > 20:
-                        break
             transaction.leave_transaction_management()
             #TODO: Kill deleted branches
     except ValueError, e:
