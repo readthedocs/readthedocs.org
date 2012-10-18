@@ -34,8 +34,16 @@ urlpatterns = patterns('',
         name='docs_detail'
     ),
 
+    #This is for redirecting /docs/pip/ -> /docs/pip/en/latest/
+    url(r'^docs/(?P<project_slug>[-\w]+)/(?P<filename>.*)$',
+        'core.views.serve_docs',
+        {'version_slug': None,
+        'lang_slug': None},
+        name='docs_detail'
+    ),
+
     #WTF are these both here?
-    url(r'^docs/', include('projects.urls.public')),
+    #url(r'^docs/', include('projects.urls.public')),
     url(r'^projects/', include('projects.urls.public')),
     url(r'^builds/', include('builds.urls')),
     url(r'^flagging/', include('basic.flagging.urls')),
