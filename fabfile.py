@@ -37,6 +37,11 @@ def migrate(project=None):
         run('django-admin.py migrate')
 
 @hosts(['chimera.ericholscher.com', 'ladon.ericholscher.com'])
+def static():
+    "Restart (or just start) the server"
+    run('django-admin.py collectstatic --noinput')
+
+@hosts(['chimera.ericholscher.com', 'ladon.ericholscher.com'])
 def restart():
     "Restart (or just start) the server"
     env.user = "root"
