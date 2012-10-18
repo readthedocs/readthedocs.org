@@ -106,7 +106,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
                 log.info("Exception in creating version: %s" % e)
                 raise e
 
-    version = make_api_version(version_data, project)
+    version = make_api_version(version_data)
     version.save = new_save
 
     if not version_pk:
@@ -284,7 +284,7 @@ def update_imported_docs(project, version):
                         identifier=tag.identifier,
                         verbose_name=tag.verbose_name
                     ))
-                    ver = make_api_version(version_data, project)
+                    ver = make_api_version(version_data)
                     log.info("New tag found: {0}".format(tag.identifier))
                     ver, highest = project.highest_version[1]
                     ver_obj = mkversion(ver)
@@ -453,6 +453,7 @@ def unzip_files(dest_file, html_path):
 def update_intersphinx(version_pk):
     version_data = api.version(version_pk).get()
     version = make_api_version(version_data)
+    project = version.project
 
     try:
         object_file = version.project.find('objects.inv', version.slug)[0]

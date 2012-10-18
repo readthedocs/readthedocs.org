@@ -165,7 +165,7 @@ class DictObj(object):
         return self.__dict__.get(attr)
 
 
-def make_api_version(version_data, project):
+def make_api_version(version_data):
     from builds.models import Version
     del version_data['resource_uri']
     project_data = version_data['project']
