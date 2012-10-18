@@ -17,7 +17,7 @@
   var doc_version = "{{ current_version }}";
   var doc_slug = "{{ slug }}";
 </script>
-{# 
+{#
 We include the media servers version here so we can update rtd.js across all
 documentation without rebuilding every one. If this script is embedded in each build, then updating the file across all docs is basically impossible.
 #}
@@ -32,7 +32,7 @@ documentation without rebuilding every one. If this script is embedded in each b
     <h3>Project Versions</h3>
     <ul id="sidebar_versions">
 {% for slug, url in versions %}
-  <li><a href="//readthedocs.org{{ url }}">{{ slug }}</a></li>
+  <li><a href="{{ url }}">{{ slug }}</a></li>
 {% endfor %}
     </ul>
 {% endif %}
@@ -159,7 +159,7 @@ documentation without rebuilding every one. If this script is embedded in each b
     <a href="//readthedocs.org/projects/{{ slug }}/?fromdocs={{ slug }}" class="rtd-badge rtd"> TEST Brought to you by Read the Docs</a>
     <ul id="version_menu">
       {% for slug, url in versions %}
-        <li><a href="//readthedocs.org{{ url }}">{{ slug }}</a></li>
+        <li><a href="{{ url }}">{{ slug }}</a></li>
       {% endfor %}
     </ul>
   </div>
