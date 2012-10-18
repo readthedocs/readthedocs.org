@@ -13,8 +13,6 @@ from django.conf import settings
 from distutils2.version import NormalizedVersion, suggest_normalized_version
 import redis
 
-from builds.models import Version
-from projects.models import Project
 
 log = logging.getLogger(__name__)
 
@@ -168,6 +166,7 @@ class DictObj(object):
 
 
 def make_api_version(version_data):
+    from builds.models import Version
     del version_data['resource_uri']
     project_data = version_data['project']
     del project_data['users']
@@ -178,6 +177,7 @@ def make_api_version(version_data):
     return ver
 
 def make_api_project(project_data):
+    from projects.models import Project
     del project_data['users']
     del project_data['resource_uri']
     del project_data['absolute_url']
