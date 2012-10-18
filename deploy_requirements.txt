@@ -10,4 +10,4 @@ launchpadlib
 pillow
 
 #Uncomment this if you want to index things in solr.
-#pyquery==1.0
+pyquery==1.0

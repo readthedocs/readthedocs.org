@@ -6,11 +6,15 @@ import re
 import subprocess
 import traceback
 import logging
+from httplib2 import Http
+
+from django.conf import settings
 
 from distutils2.version import NormalizedVersion, suggest_normalized_version
-from django.conf import settings
-from httplib2 import Http
 import redis
+
+from builds.models import Version
+from projects.models import Project
 
 log = logging.getLogger(__name__)
 
