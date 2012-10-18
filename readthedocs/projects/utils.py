@@ -169,9 +169,7 @@ def make_api_version(version_data, project):
     from builds.models import Version
     del version_data['resource_uri']
     project_data = version_data['project']
-    del project_data['users']
-    del project_data['resource_uri']
-    del project_data['absolute_url']
+    project = make_api_project(project_data)
     version_data['project'] = project
     ver = Version(**version_data)
     return ver

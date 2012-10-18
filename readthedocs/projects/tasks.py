@@ -284,13 +284,7 @@ def update_imported_docs(project, version):
                         identifier=tag.identifier,
                         verbose_name=tag.verbose_name
                     ))
-                    del version_data['resource_uri']
-                    project_data = version_data['project']
-                    del project_data['users']
-                    del project_data['resource_uri']
-                    del project_data['absolute_url']
-                    version_data['project'] = project
-                    ver = Version(**version_data)
+                    ver = make_api_version(version_data, project)
                     log.info("New tag found: {0}".format(tag.identifier))
                     ver, highest = project.highest_version[1]
                     ver_obj = mkversion(ver)
@@ -458,14 +452,7 @@ def unzip_files(dest_file, html_path):
 @task
 def update_intersphinx(version_pk):
     version_data = api.version(version_pk).get()
-    del version_data['resource_uri']
-    project_data = version_data['project']
-    del project_data['users']
-    del project_data['resource_uri']
-    del project_data['absolute_url']
-    project = Project(**project_data)
-    version_data['project'] = project
-    version = Version(**version_data)
+    version = make_api_version(version_data)
 
     try:
         object_file = version.project.find('objects.inv', version.slug)[0]
