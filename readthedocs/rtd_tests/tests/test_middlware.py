@@ -14,14 +14,12 @@ class MiddlewareTests(unittest.TestCase):
         self.middleware = SubdomainMiddleware()
         self.url = '/'
 
-    @override_settings(DEBUG=False)
     def test_failey_cname(self):
         request = self.factory.get(self.url, HTTP_HOST = 'my.host.com')
         with self.assertRaises(Http404):
             ret_val = self.middleware.process_request(request)
         self.assertEqual(request.cname, True)
 
-    @override_settings(DEBUG=False)
     def test_proper_subdomain(self):
         request = self.factory.get(self.url, HTTP_HOST = 'pip.readthedocs.org')
         ret_val = self.middleware.process_request(request)
@@ -30,7 +28,6 @@ class MiddlewareTests(unittest.TestCase):
         self.assertEqual(request.slug, 'pip')
 
 
-    @override_settings(DEBUG=False)
     def test_proper_cname(self):
         cache.get = lambda x: 'my_slug'
         request = self.factory.get(self.url, HTTP_HOST = 'my.valid.homename')
@@ -39,10 +36,15 @@ class MiddlewareTests(unittest.TestCase):
         self.assertEqual(request.cname, True)
         self.assertEqual(request.slug, 'my_slug')
 
-    @override_settings(DEBUG=False)
     def test_djangome(self):
         request = self.factory.get(self.url, HTTP_HOST = 'pip.rtfd.org')
         ret_val = self.middleware.process_request(request)
         self.assertEqual(request.urlconf, 'core.djangome_urls')
         self.assertEqual(request.slug, 'pip')
         self.assertFalse(hasattr(request, 'subdomain'))
+
+    @override_settings(DEBUG=True)
+    def test_debug_on(self):
+        request = self.factory.get(self.url, HTTP_HOST = 'doesnt.really.matter')
+        ret_val = self.middleware.process_request(request)
+        self.assertEqual(ret_val, None)

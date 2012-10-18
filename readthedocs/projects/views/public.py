@@ -91,14 +91,6 @@ def project_downloads(request, project_slug):
         context_instance=RequestContext(request),
     )
 
-
-def legacy_project_detail(request, username, project_slug):
-    return HttpResponsePermanentRedirect(reverse(
-        project_detail, kwargs = {
-            'project_slug': project_slug,
-        }
-    ))
-
 def tag_index(request):
     """
     List of all tags by most common

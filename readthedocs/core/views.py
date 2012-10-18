@@ -195,17 +195,6 @@ def generic_build(request, pk):
             context_instance=RequestContext(request))
 
 
-def legacy_serve_docs(request, username, project_slug, filename):
-    proj = get_object_or_404(Project, slug=project_slug)
-    default_version = proj.get_default_version()
-    url = reverse(serve_docs, kwargs={
-        'project_slug': project_slug,
-        'version_slug': default_version,
-        'lang_slug': 'en',
-        'filename': filename
-    })
-    return HttpResponsePermanentRedirect(url)
-
 def subproject_serve_docs(request, project_slug, lang_slug=None, version_slug=None, filename=''):
     parent_slug = request.slug
     proj = get_object_or_404(Project, slug=project_slug)

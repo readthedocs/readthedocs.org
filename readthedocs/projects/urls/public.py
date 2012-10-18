@@ -29,18 +29,8 @@ urlpatterns = patterns('projects.views.public',
         'project_downloads',
         name='project_downloads'
     ),
-    url(r'^(?P<username>\w+)/(?P<project_slug>[-\w]+)/$',
-        'legacy_project_detail',
-        name='legacy_projects_detail'
-    ),
     url(r'^(?P<username>\w+)/$',
         'project_index',
         name='projects_user_list'
-    ),
-)
-
-urlpatterns += patterns('',
-    url(r'^(?P<username>\w+)/(?P<project_slug>[-\w]+)/docs/(?P<filename>.*)$',
-        'core.views.legacy_serve_docs',
     ),
 )
