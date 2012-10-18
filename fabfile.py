@@ -9,6 +9,11 @@ env.code_dir = '/home/docs/sites/readthedocs.org/checkouts/readthedocs.org'
 env.virtualenv = '/home/docs/sites/readthedocs.org'
 env.rundir = '/home/docs/sites/readthedocs.org/run'
 
+@hosts(['asgard.ericholscher.com'])
+def nginx_logs():
+    env.user = "root"
+    run("tail -f /var/log/nginx/*.log")
+
 @hosts(['localhost'])
 def i18n():
     with lcd('readthedocs'):
