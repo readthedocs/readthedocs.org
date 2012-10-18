@@ -7,3 +7,4 @@ from test_hacks import *
 from test_post_commit_hooks import *
 from test_privacy import *
 from test_middlware import *
+from test_redirects import *

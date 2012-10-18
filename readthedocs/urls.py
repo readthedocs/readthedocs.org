@@ -35,10 +35,11 @@ urlpatterns = patterns('',
     ),
 
     #This is for redirecting /docs/pip/ -> /docs/pip/en/latest/
-    url(r'^docs/(?P<project_slug>[-\w]+)/(?P<filename>.*)$',
+    url(r'^docs/(?P<project_slug>[-\w]+)/$',
         'core.views.serve_docs',
         {'version_slug': None,
-        'lang_slug': None},
+        'lang_slug': None,
+        'filename': ''},
         name='docs_detail'
     ),
 
