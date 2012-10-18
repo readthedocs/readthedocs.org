@@ -21,10 +21,10 @@ urlpatterns = patterns('',
         name='docs_detail'
     ),
     url(r'^(?P<version_slug>.*)/$',
-        'projects.views.public.subdomain_handler',
+        'core.views.subdomain_handler',
         name='version_subdomain_handler'
     ),
-    url(r'^$', 'projects.views.public.subdomain_handler'),
+    url(r'^$', 'core.views.subdomain_handler'),
 )
 
 urlpatterns += main_patterns
