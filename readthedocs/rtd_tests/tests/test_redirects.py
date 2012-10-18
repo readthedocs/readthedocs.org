@@ -10,6 +10,8 @@ class RedirectTests(TestCase):
         self.assertEqual(r.status_code, 301)
         self.assertEqual(r._headers['location'], ('Location', 'http://testserver/docs/pip/'))
         r = self.client.get(r._headers['location'][1])
+        self.assertEqual(r.status_code, 302)
+        r = self.client.get(r._headers['location'][1])
         self.assertEqual(r.status_code, 200)
 
     def test_proper_url(self):
