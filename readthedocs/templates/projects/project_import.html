@@ -13,6 +13,7 @@
 
 {% block content %}
   <form method="post" action=".">{% csrf_token %}
+    <p><input type="submit" value="{% trans "Create" %}" /></p>
     {{ form.as_p }}
     <p><input type="submit" value="{% trans "Create" %}" /></p>
   </form>
