@@ -13,23 +13,24 @@ class SubdomainMiddleware(object):
         if ':' in host:
             host = host.split(':')[0]
         domain_parts = host.split('.')
-        #Google was finding crazy www.blah.readthedocs.org domains.
+
+        # Google was finding crazy www.blah.readthedocs.org domains.
         if len(domain_parts) > 3:
-            if not settings.DEBUG:
-                raise Http404(_('Invalid hostname'))
+            raise Http404(_('Invalid hostname'))
         if len(domain_parts) == 3:
             subdomain = domain_parts[0]
+            # Serve subdomains
             if not (subdomain.lower() == 'www') and not (subdomain.lower() == 'ssl') and 'readthedocs.org' in host:
                 request.subdomain = True
                 request.slug = subdomain
                 request.urlconf = 'core.subdomain_urls'
                 return None
-        if len(domain_parts) == 3:
-            subdomain = domain_parts[0]
-            if not (subdomain.lower() == 'www') and not (subdomain.lower() == 'ssl') and 'rtfd.org' in host:
+            # Serve rtfd.org
+            elif not (subdomain.lower() == 'www') and not (subdomain.lower() == 'ssl') and 'rtfd.org' in host:
                 request.slug = subdomain
                 request.urlconf = 'core.djangome_urls'
                 return None
+        # Serve CNAMEs
         if 'readthedocs.org' not in host \
             and 'localhost' not in host \
             and 'testserver' not in host:
@@ -48,8 +49,7 @@ class SubdomainMiddleware(object):
                 request.slug = slug
                 request.urlconf = 'core.subdomain_urls'
             except:
-                #Some crazy person is CNAMEing to us. 404.
-                if not settings.DEBUG:
-                    raise Http404(_('Invalid Host Name.'))
-        #Normal request.
+                # Some crazy person is CNAMEing to us. 404.
+                raise Http404(_('Invalid Host Name.'))
+        # Normal request.
         return None
