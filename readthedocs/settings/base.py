@@ -161,6 +161,7 @@ ANONYMOUS_USER_ID = -1
 
 # RTD Settings
 REPO_LOCK_SECONDS = 30
+ALLOW_PRIVATE_REPOS = False
 
 LOGGING = {
     'version': 1,

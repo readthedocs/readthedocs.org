@@ -46,7 +46,7 @@ class ImportProjectForm(ProjectForm):
         repo = self.cleaned_data.get('repo', '').strip()
         if '&&' in repo or '|' in repo:
             raise forms.ValidationError(_(u'Invalid character in repo name'))
-        elif '@' in repo:
+        elif '@' in repo and getattr(settings, 'ALLOW_PRIVATE_REPOS', False):
             raise forms.ValidationError(_(u'It looks like you entered a private repo - please use the public (http:// or git://) clone url'))
         return repo
 
