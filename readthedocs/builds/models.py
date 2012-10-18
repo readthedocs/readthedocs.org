@@ -23,7 +23,7 @@ class VersionManager(models.Manager):
             # Filter by project if requested
             queryset =  queryset.filter(project=project)
         if only_active:
-            queryset.filter(active=True)
+            queryset = queryset.filter(active=True)
         return queryset
 
     def public(self, user=None, project=None, only_active=True, *args, **kwargs):
