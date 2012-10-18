@@ -578,4 +578,4 @@ def clear_artifacts(version):
     run('rm -rf %s' % version.project.full_build_path(version.slug))
     run('rm -rf %s' % version.project.full_latex_path(version.slug))
     run('rm -rf %s' % version.project.full_epub_path(version.slug))
-    run('rm -rf %s' % version.project.epub_man_path(version.slug))
+    run('rm -rf %s' % version.project.full_man_path(version.slug))
