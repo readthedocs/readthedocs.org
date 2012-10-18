@@ -28,23 +28,12 @@ urlpatterns = patterns('',
     url(r'^$', 'core.views.homepage'),
     url(r'^_admin/', direct_to_template, {'template': 'admin.html'}),
 
+    # For serving docs locally and when nginx isn't
     url(r'^docs/(?P<project_slug>[-\w]+)/(?P<lang_slug>en)/(?P<version_slug>[-._\w]+?)/(?P<filename>.*)$',
         'core.views.serve_docs',
         name='docs_detail'
     ),
-    #This is for redirecting to the latest.
-    url(r'^docs/(?P<project_slug>[-\w]+)/(?P<version_slug>[-._\w]+?)/(?P<filename>.*)$',
-        'core.views.serve_docs',
-        {'lang_slug': None},
-        name='docs_detail'
-    ),
-    #This is for redirecting to the latest.
-    url(r'^docs/(?P<project_slug>[-\w]+)/(?P<filename>.*)$',
-        'core.views.serve_docs',
-        {'version_slug': None,
-        'lang_slug': None},
-        name='docs_detail'
-    ),
+
     #WTF are these both here?
     url(r'^docs/', include('projects.urls.public')),
     url(r'^projects/', include('projects.urls.public')),
