@@ -159,6 +159,9 @@ if DEBUG:
 GUARDIAN_RAISE_403 = True
 ANONYMOUS_USER_ID = -1
 
+# RTD Settings
+REPO_LOCK_SECONDS = 30
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,

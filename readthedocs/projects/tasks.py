@@ -27,8 +27,9 @@ from projects.utils import (
     mkversion,
     purge_version,
     run,
-    safe_write,
     slugify_uniquely,
+    make_api_version,
+    make_api_project,
     )
 from tastyapi import client as tastyapi_client
 from tastyapi import api
@@ -73,12 +74,8 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
     ###
     # Handle passed in arguments
     ###
-    update_output = kwargs.get('update_output', {})
     project_data = api.project(pk).get()
-    del project_data['users']
-    del project_data['resource_uri']
-    del project_data['absolute_url']
-    project = Project(**project_data)
+    project = make_api_project(project_data)
 
     # Prevent saving the temporary Project instance
     def new_save(*args, **kwargs):
@@ -89,14 +86,13 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
     log.info("Building %s" % project)
     if version_pk:
         version_data = api.version(version_pk).get()
-        del version_data['resource_uri']
     else:
-        #Create or use the 'latest' branch, which is the default for a project.
         branch = project.default_branch or project.vcs_repo().fallback_branch
         try:
+            # Use latest version
             version_data = api.version(project.slug).get(slug='latest')['objects'][0]
-            del version_data['resource_uri']
         except (slumber.exceptions.HttpClientError, IndexError):
+            # Create the latest version since it doesn't exist
             version_data = dict(
                 project='/api/v1/project/%s/' % project.pk,
                 slug='latest',
@@ -106,16 +102,15 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
                 )
             try:
                 version_data = api.version.post(version_data)
-                del version_data['resource_uri']
             except Exception as e:
                 log.info("Exception in creating version: %s" % e)
-                #raise e
-    version_data['project'] = project
-    version = Version(**version_data)
+                raise e
+
+    version = make_api_version(version_data)
     version.save = new_save
 
     if not version_pk:
-        #Lots of course correction.
+        # Lots of course correction.
         to_save = False
         if not version.verbose_name:
             version_data['verbose_name'] = 'latest'
@@ -142,29 +137,36 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
         build = {}
 
     #Make Dirs
-    path = project.doc_path
-    if not os.path.exists(path):
-        os.makedirs(path)
-    with project.repo_lock(30):
-        if project.is_imported:
-            try:
-                update_output = update_imported_docs(project, version)
-            except ProjectImportError, err:
-                log.error("Failed to import project; skipping build.", exc_info=True)
-                build['state'] = 'finished'
-                build['setup_error'] = 'Failed to import project; skipping build.\nPlease make sure your repo is correct and you have a conf.py'
-                api.build(build['id']).put(build)
-                return False
-        else:
-            update_created_docs(project)
+    if not os.path.exists(project.doc_path):
+        os.makedirs(project.doc_path)
+    with project.repo_lock(getattr(settings, 'REPO_LOCK_SECONDS', 30)):
+        try:
+            update_output = update_imported_docs(project, version)
+        except ProjectImportError, err:
+            log.error("Failed to import project; skipping build.", exc_info=True)
+            build['state'] = 'finished'
+            build['setup_error'] = 'Failed to import project; skipping build.\nPlease make sure your repo is correct and you have a conf.py'
+            api.build(build['id']).put(build)
+            return False
 
         # kick off a build
         if record:
+            # Update the build with info about the setup
             build['state'] = 'building'
+            output_data = error_data = ''
+            # Grab all the text from updating the code via VCS.
+            for key in ['checkout', 'venv', 'sphinx', 'requirements', 'install']:
+                data = update_output.get(key, None)
+                if data:
+                    output_data += u"\n\n%s\n\n%s\n\n" % (key.upper(), data[1])
+                    error_data += u"\n\n%s\n\n%s\n\n" % (key.upper(), data[2])
+            build['setup'] = output_data
+            build['setup_error'] = error_data
             api.build(build['id']).put(build)
-        (ret, out, err) = build_docs(project=project, build=build, version=version,
+        # This is only checking the results of the HTML build, as it's a canary
+        (ret, out, err) = build_docs(project=project, version=version, build=build,
                                      pdf=pdf, man=man, epub=epub,
-                                     record=record, force=force, update_output=update_output)
+                                     record=record, force=force)
         if 'no targets are out of date.' in out:
             log.info("Build Unchanged")
         else:
@@ -178,6 +180,9 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
                 log.info("Purged %s" % version)
             else:
                 log.warning("Failed HTML Build")
+
+        # Needs to happen every build
+        clear_artifacts(version)
 
     # Try importing from Open Comparison sites.
     try:
@@ -200,7 +205,6 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
     except:
         log.info("Failed import from Crate", exc_info=True)
 
-    clear_artifacts(version)
     return True
 
 
@@ -213,6 +217,7 @@ def update_imported_docs(project, version):
         raise ProjectImportError("Repo type '{repo_type}' unknown".format(
                 repo_type=project.repo_type))
 
+    # Get the actual code on disk
     if version:
         log.info('Checking out version {slug}: {identifier}'.format(
             slug=version.slug, identifier=version.identifier))
@@ -220,6 +225,7 @@ def update_imported_docs(project, version):
         version_repo = project.vcs_repo(version_slug)
         update_docs_output['checkout'] = version_repo.checkout(version.identifier)
     else:
+        # Does this ever get called?
         log.info('Updating to latest revision')
         version_slug = 'latest'
         version_repo = project.vcs_repo(version_slug)
@@ -228,7 +234,7 @@ def update_imported_docs(project, version):
     # Ensure we have a conf file (an exception is raised if not)
     project.conf_file(version.slug)
 
-    #Do Virtualenv bits:
+    # Do Virtualenv bits:
     if project.use_virtualenv:
         if project.use_system_packages:
             site_packages = '--system-site-packages'
@@ -291,7 +297,7 @@ def update_imported_docs(project, version):
                     #TODO: Handle updating higher versions automatically.
                     #This never worked very well, anyways.
                     if highest and ver_obj and ver_obj > highest:
-                        log.info("Highest verison known, building docs")
+                        log.info("Highest version known, building docs")
                         update_docs.delay(ver.project.pk, version_pk=ver.pk)
                 except Exception, e:
                     log.error("Failed to create version (tag)", exc_info=True)
@@ -336,30 +342,7 @@ def update_imported_docs(project, version):
     #fileify(version)
     return update_docs_output
 
-def update_created_docs(project):
-    """
-    Handle generating the docs for projects hosted on RTD.
-    """
-    # grab the root path for the generated docs to live at
-    path = project.doc_path
-
-    doc_root = os.path.join(path, 'checkouts', 'latest', 'docs')
-
-    if not os.path.exists(doc_root):
-        os.makedirs(doc_root)
-
-    project.path = doc_root
-    #project.save()
-    #Touch a conf.py
-    safe_write(os.path.join(project.path, 'conf.py'), '')
-
-    project.write_index()
-
-    for file in project.files.all():
-        file.write_to_disk()
-
-
-def build_docs(project, build, version, pdf, man, epub, record, force, update_output={}):
+def build_docs(project, build, version, pdf, man, epub, record, force):
     """
     This handles the actual building of the documentation and DB records
     """
@@ -378,6 +361,7 @@ def build_docs(project, build, version, pdf, man, epub, record, force, update_ou
     if successful:
         html_builder.move()
         if version:
+            # Mark version active on the site
             version_data = api.version(version.pk).get()
             version_data['active'] = True
             version_data['built'] = True
@@ -388,25 +372,18 @@ def build_docs(project, build, version, pdf, man, epub, record, force, update_ou
             except Exception, e:
                 log.error("Unable to post a new version", exc_info=True)
 
+    if record:
+        #Update build.
+        build['success'] = successful
+        build['output'] = html_output[1]
+        build['error'] = html_output[2]
+        build['state'] = 'finished'
+        build['project'] = '/api/v1/project/%s/' % project.pk
+        build['version'] = '/api/v1/version/%s/' % version.pk
+        api.build(build['id']).put(build)
+
+    # Only build everything else if the html build changed.
     if html_builder.changed:
-        if record:
-            output_data = error_data = ''
-            #Grab all the text from updating the code via VCS.
-            for key in ['checkout', 'venv', 'sphinx', 'requirements', 'install']:
-                data = update_output.get(key, None)
-                if data:
-                    output_data += data[1]
-                    error_data += data[2]
-            #Update build.
-            build['success'] = successful
-            build['setup'] = output_data
-            build['setup_error'] = error_data
-            build['output'] = html_output[1]
-            build['error'] = html_output[2]
-            build['state'] = 'finished'
-            build['project'] = '/api/v1/project/%s/' % project.pk
-            build['version'] = '/api/v1/version/%s/' % version.pk
-            api.build(build['id']).put(build)
         if pdf and not project.skip:
             pdf_builder = builder_loading.get('sphinx_pdf')(version)
             latex_results, pdf_results = pdf_builder.build()
@@ -423,7 +400,7 @@ def build_docs(project, build, version, pdf, man, epub, record, force, update_ou
                 ))
             #PDF Builder is oddly 2-steped, and stateful for now
             #pdf_builder.move(version)
-        #XXX:dc: all builds should have their output checked
+
         if man and not project.skip:
             man_builder = builder_loading.get('sphinx_man')(version)
             man_builder.build()
@@ -432,6 +409,7 @@ def build_docs(project, build, version, pdf, man, epub, record, force, update_ou
             epub_builder = builder_loading.get('sphinx_epub')(version)
             epub_builder.build()
             epub_builder.move()
+
     return html_output
 
 

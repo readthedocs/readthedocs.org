@@ -161,3 +161,20 @@ def purge_version(version, mainsite=False, subdomain=False, cname=False):
 class DictObj(object):
     def __getattr__(self, attr):
         return self.__dict__.get(attr)
+
+
+def make_api_version(version_data):
+    del version_data['resource_uri']
+    project_data = version_data['project']
+    del project_data['users']
+    del project_data['resource_uri']
+    del project_data['absolute_url']
+    version_data['project'] = project
+    ver = Version(**version_data)
+    return ver
+
+def make_api_project(project_data):
+    del project_data['users']
+    del project_data['resource_uri']
+    del project_data['absolute_url']
+    project = Project(**project_data)
