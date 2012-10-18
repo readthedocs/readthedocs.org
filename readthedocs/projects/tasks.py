@@ -106,7 +106,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
                 log.info("Exception in creating version: %s" % e)
                 raise e
 
-    version = make_api_version(version_data)
+    version = make_api_version(version_data, project)
     version.save = new_save
 
     if not version_pk:

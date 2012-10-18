@@ -97,15 +97,15 @@ class VersionAlias(models.Model):
 
 class Build(models.Model):
     project = models.ForeignKey(Project, verbose_name=_('Project'), related_name='builds')
+    version = models.ForeignKey(Version, verbose_name=_('Version'), null=True, related_name='builds')
     type = models.CharField(_('Type'), max_length=55, choices=BUILD_TYPES, default='html')
+    state = models.CharField(_('State'), max_length=55, choices=BUILD_STATE, default='finished')
     date = models.DateTimeField(_('Date'), auto_now_add=True)
     success = models.BooleanField(_('Success'))
     setup = models.TextField(_('Setup'), null=True, blank=True)
     setup_error = models.TextField(_('Setup error'), null=True, blank=True)
-    output = models.TextField(_('Output'))
-    error = models.TextField(_('Error'))
-    version = models.ForeignKey(Version, verbose_name=_('Version'), null=True, related_name='builds')
-    state = models.CharField(_('State'), max_length=55, choices=BUILD_STATE, default='finished')
+    output = models.TextField(_('Output'), default='', blank=True)
+    error = models.TextField(_('Error'), default='', blank=True)
 
     class Meta:
         ordering = ['-date']
