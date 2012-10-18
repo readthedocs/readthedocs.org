@@ -14,8 +14,8 @@ media/export
 media/htmlzip
 media/man
 media/pdf
+media/static
 readthedocs/rtd_tests/tests/builds
-static_root
 user_builds
 user_uploads
 xml_output

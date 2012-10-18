@@ -16,6 +16,7 @@ TEMPLATE_DEBUG = False
 CELERY_ALWAYS_EAGER = False
 
 MEDIA_URL = '//media.readthedocs.org/'
+STATIC_URL = '//media.readthedocs.org/static/'
 ADMIN_MEDIA_PREFIX = MEDIA_URL + 'admin/'
 CACHE_BACKEND = 'memcached://localhost:11211/'
 SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
