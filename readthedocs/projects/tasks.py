@@ -126,17 +126,17 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
             api.version(version.pk).put(version_data)
 
     if record:
-        #Create Build Object.
+        # Create Build Object.
         build = api.build.post(dict(
-            project= '/api/v1/project/%s/' % project.pk,
-            version= '/api/v1/version/%s/' % version.pk,
+            project='/api/v1/project/%s/' % project.pk,
+            version='/api/v1/version/%s/' % version.pk,
             type='html',
             state='triggered',
         ))
     else:
         build = {}
 
-    #Make Dirs
+    # Make Dirs
     if not os.path.exists(project.doc_path):
         os.makedirs(project.doc_path)
     with project.repo_lock(getattr(settings, 'REPO_LOCK_SECONDS', 30)):
@@ -493,7 +493,11 @@ def update_intersphinx(version_pk):
         for inner_key in inner_keys:
             #print "INNER KEY: %s" % inner_key
             _project, sphinx_version, url, title = data[top_key][inner_key]
-            url_key = url.split('#')[1]
+            try:
+                url_key = url.split('#')[1]
+            except IndexError:
+                # Invalid data
+                continue
             if ":" in url_key:
                 #This dumps junk data into the url namespace we don't need
                 #print "INNER: %s->%s" % (inner_key, url)
