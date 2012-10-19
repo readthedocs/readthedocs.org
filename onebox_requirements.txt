@@ -1,0 +1,9 @@
+-r pip_requirements.txt
+dnspython
+gunicorn
+#For resizing images
+pillow
+pyquery
+python-memcached
+whoosh
+

@@ -18,4 +18,5 @@ media/static
 readthedocs/rtd_tests/tests/builds
 user_builds
 user_uploads
+whoosh_index
 xml_output

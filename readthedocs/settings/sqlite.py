@@ -36,6 +36,7 @@ HAYSTACK_CONNECTIONS = {
 }
 
 IMPORT_EXTERNAL_DATA = False
+DONT_HIT_DB = False
 
 try:
     from local_settings import *
