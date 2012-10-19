@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from guardian.shortcuts import assign, get_objects_for_user
+from guardian.shortcuts import assign, get_objects_for_user, get_perms
 
 from projects.models import Project
 from projects import constants
