@@ -14,7 +14,7 @@ github2==0.5.2
 httplib2==0.7.2
 mercurial==2.0.1
 mimeparse==0.1.3
-redis==2.4.10
+redis==2.7.1
 simplejson==2.3.0
 slumber==0.4.2
 Sphinx==1.1.2
