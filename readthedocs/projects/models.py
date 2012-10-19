@@ -32,11 +32,11 @@ class ProjectManager(models.Manager):
         queryset = Project.objects.filter(privacy_level__in=privacy_level)
         if not user:
             return queryset
-        else:
+        #else:
             # Hack around get_objects_for_user not supporting global perms
-            global_access = get_perms(user, 'projects.view_project')
-            if global_access:
-                queryset = Project.objects.all()
+            #global_access = get_perms(user, 'projects.view_project')
+            #if global_access:
+                #queryset = Project.objects.all()
         if user.is_authenticated():
             # Add in possible user-specific views
             user_queryset = get_objects_for_user(user, 'projects.view_project')

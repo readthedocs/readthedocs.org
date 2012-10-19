@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from guardian.shortcuts import assign, get_objects_for_user, get_perms
+from guardian.shortcuts import assign, get_objects_for_user
 
 from projects.models import Project
 from projects import constants
@@ -19,11 +19,11 @@ class VersionManager(models.Manager):
             # Add in possible user-specific views
             user_queryset = get_objects_for_user(user, 'builds.view_version')
             queryset = user_queryset | queryset
-        else:
+        #else:
             # Hack around get_objects_for_user not supporting global perms
-            global_access = get_perms(user, 'versions.view_version')
-            if global_access:
-                queryset = Version.objects.all()
+            #global_access = get_perms(user, 'versions.view_version')
+            #if global_access:
+                #queryset = Version.objects.all()
         if project:
             # Filter by project if requested
             queryset =  queryset.filter(project=project)
