@@ -20,6 +20,10 @@ urlpatterns = patterns('',
         {'filename': 'index.html'},
         name='docs_detail'
     ),
+    url(r'^(?P<version_slug>.*)/$',
+        'core.views.subdomain_handler',
+        name='version_subdomain_handler'
+    ),
     url(r'^$', 'core.views.subdomain_handler'),
 )
 
