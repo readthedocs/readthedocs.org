@@ -238,6 +238,7 @@ def subdomain_handler(request, lang_slug=None, version_slug=None, filename=''):
             except NoReverseMatch:
                 raise Http404
         return HttpResponseRedirect(url)
+    # Serve normal docs
     return serve_docs(request=request,
                       project_slug=project.slug,
                       lang_slug=lang_slug,
