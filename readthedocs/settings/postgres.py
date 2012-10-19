@@ -18,7 +18,6 @@ CELERY_ALWAYS_EAGER = False
 MEDIA_URL = '//media.readthedocs.org/'
 STATIC_URL = '//media.readthedocs.org/static/'
 ADMIN_MEDIA_PREFIX = MEDIA_URL + 'admin/'
-CACHE_BACKEND = 'memcached://localhost:11211/'
 SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
 
 HAYSTACK_CONNECTIONS = {
@@ -26,6 +25,18 @@ HAYSTACK_CONNECTIONS = {
         'ENGINE': 'haystack.backends.solr_backend.SolrEngine',
         'URL': 'http://odin:8983/solr',
     }
+}
+
+CACHES = {
+    'default': {
+        'BACKEND': 'redis_cache.RedisCache',
+        'LOCATION': 'localhost:6379',
+        'PREFIX': 'docs',
+        'OPTIONS': {
+            'DB': 1,
+            'PARSER_CLASS': 'redis.connection.HiredisParser'
+        },
+    },
 }
 
 SLUMBER_API_HOST = 'https://readthedocs.org'

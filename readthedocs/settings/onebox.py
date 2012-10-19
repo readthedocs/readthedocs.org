@@ -16,7 +16,18 @@ HAYSTACK_CONNECTIONS = {
     },
 }
 
-CACHE_BACKEND = 'memcached://localhost:11211/'
+CACHES = {
+    'default': {
+        'BACKEND': 'redis_cache.RedisCache',
+        'LOCATION': 'localhost:6379',
+        'PREFIX': 'docs',
+        'OPTIONS': {
+            'DB': 1,
+            'PARSER_CLASS': 'redis.connection.HiredisParser'
+        },
+    },
+}
+
 SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
 
 SLUMBER_API_HOST = 'http://localhost:8000'

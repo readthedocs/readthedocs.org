@@ -33,8 +33,13 @@ STATIC_URL = '/static/'
 #STATICFILES_DIRS = ()
 #STATICFILES_FINDERS = ()
 
-CACHE_BACKEND = 'memcached://localhost:11211/'
-CACHE_KEY_PREFIX = 'docs'
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+        'PREFIX': 'docs',
+    }
+}
+
 CACHE_MIDDLEWARE_SECONDS = 60
 
 LOGIN_REDIRECT_URL = '/dashboard/'
