@@ -9,7 +9,7 @@ from django.db import models
 from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext_lazy as _
 
-from guardian.shortcuts import assign, get_objects_for_user
+from guardian.shortcuts import assign, get_objects_for_user, get_perms
 
 from projects import constants
 from projects.exceptions import ProjectImportError
@@ -32,6 +32,11 @@ class ProjectManager(models.Manager):
         queryset = Project.objects.filter(privacy_level__in=privacy_level)
         if not user:
             return queryset
+        else:
+            # Hack around get_objects_for_user not supporting global perms
+            global_access = get_perms(user, 'projects.view_project')
+            if global_access:
+                queryset = Project.objects.all()
         if user.is_authenticated():
             # Add in possible user-specific views
             user_queryset = get_objects_for_user(user, 'projects.view_project')
@@ -309,7 +314,7 @@ class Project(models.Model):
         The path to the build latex docs in the project.
         """
         return os.path.join(self.conf_dir(version), "_build", "man")
-    
+
     def full_epub_path(self, version='latest'):
         """
         The path to the build latex docs in the project.
