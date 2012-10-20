@@ -147,9 +147,10 @@ class SearchMixin(object):
 
 class PostAuthentication(BasicAuthentication):
     def is_authenticated(self, request, **kwargs):
+        val = super(PostAuthentication, self).is_authenticated(request, **kwargs)
         if request.method == "GET":
             return True
-        return super(PostAuthentication, self).is_authenticated(request, **kwargs)
+        return val
 
 
 class EnhancedModelResource(ModelResource):

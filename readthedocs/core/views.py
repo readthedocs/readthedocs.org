@@ -251,6 +251,7 @@ def subproject_serve_docs(request, project_slug, lang_slug=None, version_slug=No
     proj = get_object_or_404(Project, slug=project_slug)
     subproject_qs = ProjectRelationship.objects.filter(parent__slug=parent_slug, child__slug=project_slug)
     if lang_slug == None or version_slug == None:
+        # Handle /
         version_slug = proj.get_default_version()
         url = reverse('subproject_docs_detail', kwargs={
             'project_slug': project_slug,
