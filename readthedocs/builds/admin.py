@@ -10,7 +10,7 @@ class BuildAdmin(admin.ModelAdmin):
 
 class VersionAdmin(GuardedModelAdmin):
     search_fields = ('slug', 'project__name')
-    list_filter = ('project',)
+    list_filter = ('project', 'privacy_level')
 
 admin.site.register(Build, BuildAdmin)
 admin.site.register(VersionAlias)
