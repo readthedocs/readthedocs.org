@@ -9,6 +9,10 @@ env.code_dir = '/home/docs/sites/readthedocs.org/checkouts/readthedocs.org'
 env.virtualenv = '/home/docs/sites/readthedocs.org'
 env.rundir = '/home/docs/sites/readthedocs.org/run'
 
+@hosts(['chimera.ericholscher.com', 'ladon.ericholscher.com'])
+def remove_project(project):
+    run('rm -rf %s/user_builds/%s' % (env.code_dir, project))
+
 @hosts(['asgard.ericholscher.com'])
 def nginx_logs():
     env.user = "root"
