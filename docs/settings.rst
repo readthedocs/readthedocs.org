@@ -32,3 +32,17 @@ MULTIPLE_APP_SERVERS
 Default: `undefined`
 
 This is a list of application servers that built documentation is copied to. This allows you to run an independent build server, and then have it rsync your built documentation across multiple front end documentation/app servers.
+
+SLUMBER_USERNAME
+----------------
+
+Default: `test`
+
+The username to use when connecting to the Read the Docs API. Used for hitting the API while building the docs.
+
+SLUMBER_PASSWORD
+----------------
+
+Default: `test`
+
+The password to use when connecting to the Read the Docs API. Used for hitting the API while building the docs.
