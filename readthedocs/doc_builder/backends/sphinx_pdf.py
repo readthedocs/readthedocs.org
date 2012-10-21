@@ -47,6 +47,7 @@ class Builder(BaseBuilder):
     def move(self, **kwargs):
         #This needs to be thought about more because of all the state above.
         #We could just shove the filename on the instance or something.
+        project = self.version.project
         os.chdir(os.path.join(project.conf_dir(self.version.slug), '_build', 'latex'))
         tex_files = glob('*.tex')
         for tex_file in tex_files:
