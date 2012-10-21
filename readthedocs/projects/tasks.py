@@ -136,12 +136,10 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
     else:
         build = {}
 
-    # Make Dirs
-    if not os.path.exists(project.doc_path):
-        os.makedirs(project.doc_path)
     with project.repo_lock(getattr(settings, 'REPO_LOCK_SECONDS', 30)):
         try:
-            update_output = update_imported_docs(project, version)
+            update_result = update_imported_docs.apply_async(args=[version.pk], queue='builder')
+            update_output = update_result.get()
         except ProjectImportError, err:
             log.error("Failed to import project; skipping build.", exc_info=True)
             build['state'] = 'finished'
@@ -163,15 +161,56 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
             build['setup'] = output_data
             build['setup_error'] = error_data
             api.build(build['id']).put(build)
+
         # This is only checking the results of the HTML build, as it's a canary
-        (ret, out, err) = build_docs(project=project, version=version, build=build,
-                                     pdf=pdf, man=man, epub=epub,
-                                     record=record, force=force)
+        build_result =  build_docs.apply_async(
+            kwargs=dict(
+                version_pk=version.pk, pdf=pdf, man=man, epub=epub, record=record, force=force
+                ),
+            queue='builder'
+        )
+        (html_results, latex_results, pdf_results, man_results, epub_results) = build_result.get()
+        (ret, out, err) = html_results
+
+        if record:
+            # Update builds
+            api.build.post(dict(
+                project = '/api/v1/project/%s/' % project.pk,
+                version = '/api/v1/version/%s/' % version.pk,
+                success = html_results[0] == 0,
+                output = html_results[1],
+                error = html_results[2],
+                state = 'finished',
+            ))
+            api.build.post(dict(
+                project = '/api/v1/project/%s/' % project.pk,
+                version = '/api/v1/version/%s/' % version.pk,
+                success=pdf_results[0] == 0,
+                type='pdf',
+                setup=latex_results[1],
+                setup_error=latex_results[2],
+                output=pdf_results[1],
+                error=pdf_results[2],
+            ))
+
+        if version:
+            # Mark version active on the site
+            version_data = api.version(version.pk).get()
+            version_data['active'] = True
+            version_data['built'] = True
+            #Need to delete this because a bug in tastypie breaks on the users list.
+            del version_data['project']
+            try:
+                api.version(version.pk).put(version_data)
+            except Exception, e:
+                log.error("Unable to post a new version", exc_info=True)
+
         if 'no targets are out of date.' in out:
             log.info("Build Unchanged")
         else:
             if ret == 0:
-                log.info("Successful HTML Build")
+                # House Keeping
+                log.info("Successful Build")
                 purge_version(version, subdomain=True,
                               mainsite=True, cname=True)
                 symlink_cname(version)
@@ -207,15 +246,23 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
 
     return True
 
-
-def update_imported_docs(project, version):
+@task
+def update_imported_docs(version_pk):
     """
     Check out or update the given project's repository.
     """
+    version_data = api.version(version_pk).get()
+    version = make_api_version(version_data)
+    project = version.project
+
     update_docs_output = {}
     if not project.vcs_repo():
         raise ProjectImportError("Repo type '{repo_type}' unknown".format(
                 repo_type=project.repo_type))
+
+    # Make Dirs
+    if not os.path.exists(project.doc_path):
+        os.makedirs(project.doc_path)
 
     # Get the actual code on disk
     if version:
@@ -326,10 +373,16 @@ def update_imported_docs(project, version):
     #fileify(version)
     return update_docs_output
 
-def build_docs(project, build, version, pdf, man, epub, record, force):
+@task
+def build_docs(version_pk, pdf, man, epub, record, force):
     """
     This handles the actual building of the documentation and DB records
     """
+
+    version_data = api.version(version_pk).get()
+    version = make_api_version(version_data)
+    project = version.project
+
     if not project.conf_file(version.slug):
         return ('', 'Conf file not found.', -1)
 
@@ -337,64 +390,37 @@ def build_docs(project, build, version, pdf, man, epub, record, force):
     if force:
         html_builder.force()
     html_builder.clean()
-    if record:
-        html_output = html_builder.build(id=build['id'])
-    else:
-        html_output = html_builder.build()
-    successful = (html_output[0] == 0)
-    if successful:
+    html_results = html_builder.build()
+    if html_results[0] == 0:
         html_builder.move()
-        if version:
-            # Mark version active on the site
-            version_data = api.version(version.pk).get()
-            version_data['active'] = True
-            version_data['built'] = True
-            #Need to delete this because a bug in tastypie breaks on the users list.
-            del version_data['project']
-            try:
-                api.version(version.pk).put(version_data)
-            except Exception, e:
-                log.error("Unable to post a new version", exc_info=True)
 
-    if record:
-        #Update build.
-        build['success'] = successful
-        build['output'] = html_output[1]
-        build['error'] = html_output[2]
-        build['state'] = 'finished'
-        build['project'] = '/api/v1/project/%s/' % project.pk
-        build['version'] = '/api/v1/version/%s/' % version.pk
-        api.build(build['id']).put(build)
-
+    fake_results = (999, "Project Skipped, Didn't build", "Project Skipped, Didn't build")
     # Only build everything else if the html build changed.
-    if html_builder.changed:
-        if pdf and not project.skip:
+    if html_builder.changed and not project.skip:
+        if pdf:
             pdf_builder = builder_loading.get('sphinx_pdf')(version)
             latex_results, pdf_results = pdf_builder.build()
-            if record:
-                api.build.post(dict(
-                    project = '/api/v1/project/%s/' % project.pk,
-                    version = '/api/v1/version/%s/' % version.pk,
-                    success=pdf_results[0] == 0,
-                    type='pdf',
-                    setup=latex_results[1],
-                    setup_error=latex_results[2],
-                    output=pdf_results[1],
-                    error=pdf_results[2],
-                ))
-            #PDF Builder is oddly 2-steped, and stateful for now
-            #pdf_builder.move(version)
-
-        if man and not project.skip:
+            if pdf_results[0] == 0:
+                pdf_builder.move()
+        else:
+            pdf_results = latex_results = fake_results
+        if man:
             man_builder = builder_loading.get('sphinx_man')(version)
-            man_builder.build()
-            man_builder.move()
-        if epub and not project.skip:
+            man_results = man_builder.build()
+            if man_results[0] == 0:
+                man_builder.move()
+        else:
+            man_results = fake_results
+        if epub:
             epub_builder = builder_loading.get('sphinx_epub')(version)
-            epub_builder.build()
-            epub_builder.move()
+            epub_results = epub_builder.build()
+            if epub_results[0] == 0:
+                epub_builder.move()
+        else:
+            epub_results = fake_results
 
-    return html_output
+    return (html_results, latex_results, pdf_results, man_results, epub_results)
+
 
 
 def fileify(version):
