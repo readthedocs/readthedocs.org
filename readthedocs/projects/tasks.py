@@ -387,10 +387,7 @@ def build_docs(version_pk, pdf, man, epub, record, force):
     if force:
         html_builder.force()
     html_builder.clean()
-    if record:
-        html_results = html_builder.build(id=build['id'])
-    else:
-        html_results = html_builder.build()
+    html_results = html_builder.build()
     if html_results[0] == 0:
         html_builder.move()
 
@@ -399,15 +396,18 @@ def build_docs(version_pk, pdf, man, epub, record, force):
         if pdf and not project.skip:
             pdf_builder = builder_loading.get('sphinx_pdf')(version)
             latex_results, pdf_results = pdf_builder.build()
-            pdf_builder.move()
+            if pdf_results[0] == 0:
+                pdf_builder.move()
         if man and not project.skip:
             man_builder = builder_loading.get('sphinx_man')(version)
             man_results = man_builder.build()
-            man_builder.move()
+            if man_results[0] == 0:
+                man_builder.move()
         if epub and not project.skip:
             epub_builder = builder_loading.get('sphinx_epub')(version)
             epub_results = epub_builder.build()
-            epub_builder.move()
+            if epub_results[0] == 0:
+                epub_builder.move()
 
     return (html_results, pdf_results, man_results, epub_results)
 
