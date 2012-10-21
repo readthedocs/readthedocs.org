@@ -9,6 +9,5 @@ export EDITOR=vim
 
 cd ~/checkouts/readthedocs.org/
 
-alias chk='cd /home/docs/checkouts/readthedocs.org'
-alias run='cd /home/docs/run'
-
+alias chk='cd ~/checkouts/readthedocs.org'
+alias run='cd ~/run'
