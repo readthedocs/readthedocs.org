@@ -168,7 +168,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
         # This is only checking the results of the HTML build, as it's a canary
         build_result =  build_docs.apply_async(
             kwargs=dict(
-                version=version.pk, pdf=pdf, man=man, epub=epub, record=record, force=force
+                version_pk=version.pk, pdf=pdf, man=man, epub=epub, record=record, force=force
                 ),
             queue='syncer'
         )
