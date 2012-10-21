@@ -172,7 +172,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
                 ),
             queue='syncer'
         )
-        (html_results, pdf_results, man_results, epub_results) = build_result.get()
+        (html_results, latex_results, pdf_results, man_results, epub_results) = build_result.get()
 
         if record:
             #Update build.
@@ -180,8 +180,8 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
                 project = '/api/v1/project/%s/' % project.pk,
                 version = '/api/v1/version/%s/' % version.pk,
                 success = html_results[0] == 0,
-                output = out[1],
-                error = out[2],
+                output = html_results[1],
+                error = html_results[2],
                 state = 'finished',
             ))
             api.build.post(dict(
@@ -400,7 +400,7 @@ def build_docs(version_pk, pdf, man, epub, record, force):
             if pdf_results[0] == 0:
                 pdf_builder.move()
         else:
-            pdf_results = fake_results
+            pdf_results, latex_results = fake_results
         if man:
             man_builder = builder_loading.get('sphinx_man')(version)
             man_results = man_builder.build()
@@ -416,7 +416,7 @@ def build_docs(version_pk, pdf, man, epub, record, force):
         else:
             epub_results = fake_results
 
-    return (html_results, pdf_results, man_results, epub_results)
+    return (html_results, latex_results, pdf_results, man_results, epub_results)
 
 
 
