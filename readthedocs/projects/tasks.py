@@ -256,17 +256,16 @@ def update_imported_docs(version_pk):
     version_data = api.version(version_pk).get()
     version = make_api_version(version_data)
     project = version.project
-            # House Keeping
+
+    # Make Dirs
+    if not os.path.exists(project.doc_path):
+        os.makedirs(project.doc_path)
 
     with project.repo_lock(getattr(settings, 'REPO_LOCK_SECONDS', 30)):
         update_docs_output = {}
         if not project.vcs_repo():
             raise ProjectImportError("Repo type '{repo_type}' unknown".format(
                     repo_type=project.repo_type))
-
-        # Make Dirs
-        if not os.path.exists(project.doc_path):
-            os.makedirs(project.doc_path)
 
         # Get the actual code on disk
         if version:
