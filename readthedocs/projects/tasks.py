@@ -341,9 +341,11 @@ def build_docs(project, build, version, pdf, man, epub, record, force):
         html_output = html_builder.build(id=build['id'])
     else:
         html_output = html_builder.build()
+    move_html.apply_async(version.pk, html_output[0], queue='syncer')
+   
     successful = (html_output[0] == 0)
     if successful:
-        html_builder.move()
+        #html_builder.move()
         if version:
             # Mark version active on the site
             version_data = api.version(version.pk).get()
@@ -368,34 +370,54 @@ def build_docs(project, build, version, pdf, man, epub, record, force):
 
     # Only build everything else if the html build changed.
     if html_builder.changed:
-        if pdf and not project.skip:
-            pdf_builder = builder_loading.get('sphinx_pdf')(version)
-            latex_results, pdf_results = pdf_builder.build()
-            if record:
-                api.build.post(dict(
-                    project = '/api/v1/project/%s/' % project.pk,
-                    version = '/api/v1/version/%s/' % version.pk,
-                    success=pdf_results[0] == 0,
-                    type='pdf',
-                    setup=latex_results[1],
-                    setup_error=latex_results[2],
-                    output=pdf_results[1],
-                    error=pdf_results[2],
-                ))
-            #PDF Builder is oddly 2-steped, and stateful for now
-            #pdf_builder.move(version)
+        if project.skip:
+            if pdf:
+                pdf_builder = builder_loading.get('sphinx_pdf')(version)
+                latex_results, pdf_results, tex_files = pdf_builder.build()
+                if record:
+                    api.build.post(dict(
+                        project = '/api/v1/project/%s/' % project.pk,
+                        version = '/api/v1/version/%s/' % version.pk,
+                        success=pdf_results[0] == 0,
+                        type='pdf',
+                        setup=latex_results[1],
+                        setup_error=latex_results[2],
+                        output=pdf_results[1],
+                        error=pdf_results[2],
+                    ))
 
-        if man and not project.skip:
-            man_builder = builder_loading.get('sphinx_man')(version)
-            man_builder.build()
-            man_builder.move()
-        if epub and not project.skip:
-            epub_builder = builder_loading.get('sphinx_epub')(version)
-            epub_builder.build()
-            epub_builder.move()
+            if man:
+                man_builder = builder_loading.get('sphinx_man')(version)
+                man_results = man_builder.build()
+            if epub:
+                epub_builder = builder_loading.get('sphinx_epub')(version)
+                epub_results = epub_builder.build()
+
+            move_others.apply_async(version.pk, pdf_results[0], man_results[0], epub_results[0], queue='syncer')
 
     return html_output
 
+@task
+def move_html(version_pk, html_success):
+    version_data = api.version(version_pk).get()
+    version = make_api_version(version_data)
+    if html_success == 0:
+        html_builder = builder_loading.get(version.project.documentation_type)(version)
+        html_builder.move()
+
+@task
+def move_others(version_pk, pdf_success, man_success, epub_success):
+    version_data = api.version(version_pk).get()
+    version = make_api_version(version_data)
+    if pdf_success == 0:
+        pdf_builder = builder_loading.get('sphinx_pdf')(version)
+        pdf_builder.move()
+    if man_success:
+        man_builder = builder_loading.get('sphinx_man')(version)
+        man_builder.move()
+    if epub_success:
+        epub_builder = builder_loading.get('sphinx_epub')(version)
+        epub_results = epub_builder.move()
 
 def fileify(version):
     """
