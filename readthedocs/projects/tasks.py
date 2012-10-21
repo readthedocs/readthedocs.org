@@ -141,7 +141,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
         os.makedirs(project.doc_path)
     with project.repo_lock(getattr(settings, 'REPO_LOCK_SECONDS', 30)):
         try:
-            update_output = update_imported_docs.apply_async(args=[project.pk, version.pk], queue='syncer')
+            update_output = update_imported_docs.apply_async(args=[version.pk], queue='syncer')
         except ProjectImportError, err:
             log.error("Failed to import project; skipping build.", exc_info=True)
             build['state'] = 'finished'
