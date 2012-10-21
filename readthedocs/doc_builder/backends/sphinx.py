@@ -106,7 +106,6 @@ class Builder(BaseBuilder):
     @restoring_chdir
     def build(self, **kwargs):
         id_dir = "/tmp/"
-        id_path = os.path.join(id_dir, id_file)
         project = self.version.project
         os.chdir(project.conf_dir(self.version.slug))
         force_str = " -E " if self.force else ""
@@ -117,7 +116,6 @@ class Builder(BaseBuilder):
         else:
             build_command = "sphinx-build %s -b html . _build/html" % (force_str)
         build_results = run(build_command, shell=True)
-        run('rm %s' % id_path)
         self._zip_html()
         if 'no targets are out of date.' in build_results[1]:
             self._changed = False
