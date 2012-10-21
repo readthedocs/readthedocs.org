@@ -141,7 +141,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
         os.makedirs(project.doc_path)
     with project.repo_lock(getattr(settings, 'REPO_LOCK_SECONDS', 30)):
         try:
-            update_output = update_imported_docs.apply_sync(args=[project.pk, version.pk], queue='syncer')
+            update_output = update_imported_docs.apply_async(args=[project.pk, version.pk], queue='syncer')
         except ProjectImportError, err:
             log.error("Failed to import project; skipping build.", exc_info=True)
             build['state'] = 'finished'
@@ -163,12 +163,11 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
             build['setup'] = output_data
             build['setup_error'] = error_data
             api.build(build['id']).put(build)
-       
+
         # This is only checking the results of the HTML build, as it's a canary
         (html_results, pdf_results, man_results, epub_results) = build_docs.apply_async(
             kwargs=dict(
-                project=project, version=version, build=build, pdf=pdf, man=man,
-                epub=epub, record=record, force=force
+                version=version.pk, pdf=pdf, man=man, epub=epub, record=record, force=force
                 ),
             queue='syncer'
         )
@@ -247,10 +246,14 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
     return True
 
 @task
-def update_imported_docs(project, version):
+def update_imported_docs(version_pk):
     """
     Check out or update the given project's repository.
     """
+    version_data = api.version(version_pk).get()
+    version = make_api_version(version_data)
+    project = version.project
+
     update_docs_output = {}
     if not project.vcs_repo():
         raise ProjectImportError("Repo type '{repo_type}' unknown".format(
@@ -366,10 +369,15 @@ def update_imported_docs(project, version):
     return update_docs_output
 
 @task
-def build_docs(project, build, version, pdf, man, epub, record, force):
+def build_docs(version_pk, pdf, man, epub, record, force):
     """
     This handles the actual building of the documentation and DB records
     """
+
+    version_data = api.version(version_pk).get()
+    version = make_api_version(version_data)
+    project = version.project
+
     if not project.conf_file(version.slug):
         return ('', 'Conf file not found.', -1)
 
