@@ -137,6 +137,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
         build = {}
 
     try:
+        log.info("Updating docs from VCS")
         update_result = update_imported_docs.apply_async(args=[version.pk], queue='builder')
         update_output = update_result.get()
     except ProjectImportError, err:
@@ -161,6 +162,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
         build['setup_error'] = error_data
         api.build(build['id']).put(build)
 
+    log.info("Building docs")
     # This is only checking the results of the HTML build, as it's a canary
     build_result =  build_docs.apply_async(
         kwargs=dict(
