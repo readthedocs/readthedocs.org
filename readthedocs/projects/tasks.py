@@ -173,6 +173,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
             queue='syncer'
         )
         (html_results, latex_results, pdf_results, man_results, epub_results) = build_result.get()
+        (out, ret, err) = html_results
 
         if record:
             #Update build.
