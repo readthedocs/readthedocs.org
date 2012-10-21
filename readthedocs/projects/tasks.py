@@ -408,8 +408,11 @@ def build_docs(version_pk, pdf, man, epub, record, force):
             epub_results = epub_builder.build()
             if epub_results[0] == 0:
                 epub_builder.move()
+        return (html_results, pdf_results, man_results, epub_results)
+    else:
+        results = (999, "Project Skipped, Didn't build", "Project Skipped, Didn't build")
+        return (html_results, results, results, results)
 
-    return (html_results, pdf_results, man_results, epub_results)
 
 
 def fileify(version):
