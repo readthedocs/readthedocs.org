@@ -400,7 +400,7 @@ def build_docs(version_pk, pdf, man, epub, record, force):
             if pdf_results[0] == 0:
                 pdf_builder.move()
         else:
-            pdf_results, latex_results = fake_results
+            pdf_results = latex_results = fake_results
         if man:
             man_builder = builder_loading.get('sphinx_man')(version)
             man_results = man_builder.build()
