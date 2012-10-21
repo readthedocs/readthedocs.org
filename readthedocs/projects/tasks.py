@@ -341,8 +341,8 @@ def build_docs(project, build, version, pdf, man, epub, record, force):
         html_output = html_builder.build(id=build['id'])
     else:
         html_output = html_builder.build()
-    move_html.apply_async(version.pk, html_output[0], queue='syncer')
-   
+    move_html.apply_async(args=[version.pk, html_output[0]], queue='syncer')
+
     successful = (html_output[0] == 0)
     if successful:
         #html_builder.move()
@@ -393,7 +393,7 @@ def build_docs(project, build, version, pdf, man, epub, record, force):
                 epub_builder = builder_loading.get('sphinx_epub')(version)
                 epub_results = epub_builder.build()
 
-            move_others.apply_async(version.pk, pdf_results[0], man_results[0], epub_results[0], queue='syncer')
+            move_others.apply_async(args=[version.pk, pdf_results[0], man_results[0], epub_results[0]], queue='syncer')
 
     return html_output
 
