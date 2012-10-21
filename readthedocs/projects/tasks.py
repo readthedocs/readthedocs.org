@@ -381,14 +381,14 @@ def build_docs(version_pk, pdf, man, epub, record, force):
     """
     This handles the actual building of the documentation and DB records
     """
+    version_data = api.version(version_pk).get()
+    version = make_api_version(version_data)
+    project = version.project
+
+    if not project.conf_file(version.slug):
+        return ('', 'Conf file not found.', -1)
 
     with project.repo_lock(getattr(settings, 'REPO_LOCK_SECONDS', 30)):
-        version_data = api.version(version_pk).get()
-        version = make_api_version(version_data)
-        project = version.project
-
-        if not project.conf_file(version.slug):
-            return ('', 'Conf file not found.', -1)
 
         html_builder = builder_loading.get(project.documentation_type)(version)
         if force:
