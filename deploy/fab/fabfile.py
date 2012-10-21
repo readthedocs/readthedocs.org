@@ -5,8 +5,7 @@ import fabtools
 from fabtools import require
 
 cwd = os.getcwd()
-all_users = ['docs', 'eric', 'builder']
-checkout_users = ['docs', 'builder']
+all_users = ['docs', 'builder']
 required_dirs =['checkouts', 'etc', 'run', 'log']
 
 def all():
@@ -37,17 +36,17 @@ def users():
             put('keys/*.pub', '%s/.ssh/authorized_keys' % home, mode=700)
             sudo('chown -R %s:%s %s' % (user, user, home))
             sudo('chmod -R 700 %s' % home)
-    sudo('mkdir /var/build')
+    sudo('mkdir -p /var/build')
     sudo('chmod 777 /var/build')
     # Docs > Syncer
     sudo('adduser docs builder')
 
 
-def checkout(user):
+def checkout(user=None):
     if user:
         users = [user]
     else:
-        users = checkout_users
+        users = all_users
     for user in users:
         env.user = user
         home = '/home/%s' % user
@@ -60,16 +59,17 @@ def checkout(user):
             run('virtualenv %s' % home)
         run('%s/bin/pip install -U -r %s/checkouts/readthedocs.org/deploy_requirements.txt' % (home, home))
 
-def setup_env(user):
+def setup_env(user=None):
     if user:
         users = [user]
     else:
-        users = checkout_users
+        users = all_users
     for user in users:
         env.user = user
         home = '/home/%s' % user
         put('files/bash_profile', '%s/.bash_profile' % home)
         put('files/%s_supervisord.conf' % user, '%s/etc/supervisord.conf' % home)
+        #put('files/%s_local_settings.py' % user, '%s/checkouts/readthedocs.org/readthedocs/settings/local_settings.py' % home)
         run('%s/bin/pip install -U supervisor ipython gunicorn' % home)
 
 def setup_db():

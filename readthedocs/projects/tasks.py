@@ -214,14 +214,16 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
                 purge_version(version, subdomain=True,
                               mainsite=True, cname=True)
                 symlink_cname(version)
-                update_intersphinx(version.pk)
                 send_notifications(version)
                 log.info("Purged %s" % version)
             else:
                 log.warning("Failed HTML Build")
 
-        # Needs to happen every build
-        clear_artifacts(version)
+        # Things that touch redis
+        update_result = update_intersphinx.apply_async(args=[version.pk], queue='builder')
+        update_result.get()
+        # Needs to happen after update_intersphinx
+        clear_artifacts.apply_async(args=[version.pk], queue='builder')
 
     # Try importing from Open Comparison sites.
     try:
@@ -559,8 +561,11 @@ def send_notifications(version):
     except redis.ConnectionError:
         return
 
-def clear_artifacts(version):
+@task
+def clear_artifacts(version_pk):
     """ Remove artifacts from the build server. """
+    version_data = api.version(version_pk).get()
+    version = make_api_version(version_data)
     run('rm -rf %s' % version.project.full_build_path(version.slug))
     run('rm -rf %s' % version.project.full_latex_path(version.slug))
     run('rm -rf %s' % version.project.full_epub_path(version.slug))

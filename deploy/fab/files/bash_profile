@@ -1,6 +1,6 @@
 . .bashrc
 
-export PIP_DOWNLOAD_CACHE=/tmp/pip
+# export PIP_DOWNLOAD_CACHE=/tmp/pip-$USER-cache
 export DJANGO_SETTINGS_MODULE=settings.onebox
 export PYTHONPATH=$PYTHONPATH:~/checkouts/readthedocs.org/readthedocs
 export EDITOR=vim
