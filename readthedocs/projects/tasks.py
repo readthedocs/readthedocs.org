@@ -391,27 +391,32 @@ def build_docs(version_pk, pdf, man, epub, record, force):
     if html_results[0] == 0:
         html_builder.move()
 
+    fake_results = (999, "Project Skipped, Didn't build", "Project Skipped, Didn't build")
     # Only build everything else if the html build changed.
-    if html_builder.changed:
-        if pdf and not project.skip:
+    if html_builder.changed and not project.skip:
+        if pdf:
             pdf_builder = builder_loading.get('sphinx_pdf')(version)
             latex_results, pdf_results = pdf_builder.build()
             if pdf_results[0] == 0:
                 pdf_builder.move()
-        if man and not project.skip:
+        else:
+            pdf_results = fake_results
+        if man:
             man_builder = builder_loading.get('sphinx_man')(version)
             man_results = man_builder.build()
             if man_results[0] == 0:
                 man_builder.move()
-        if epub and not project.skip:
+        else:
+            man_results = fake_results
+        if epub:
             epub_builder = builder_loading.get('sphinx_epub')(version)
             epub_results = epub_builder.build()
             if epub_results[0] == 0:
                 epub_builder.move()
-        return (html_results, pdf_results, man_results, epub_results)
-    else:
-        results = (999, "Project Skipped, Didn't build", "Project Skipped, Didn't build")
-        return (html_results, results, results, results)
+        else:
+            epub_results = fake_results
+
+    return (html_results, pdf_results, man_results, epub_results)
 
 
 
