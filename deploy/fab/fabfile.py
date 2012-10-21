@@ -37,6 +37,11 @@ def users():
             put('keys/*.pub', '%s/.ssh/authorized_keys' % home, mode=700)
             sudo('chown -R %s:%s %s' % (user, user, home))
             sudo('chmod -R 700 %s' % home)
+    sudo('mkdir /var/build')
+    sudo('chmod 777 /var/build')
+    # Syncer > Docs
+    sudo('adduser syncer docs')
+
 
 def checkout(user):
     if user:
