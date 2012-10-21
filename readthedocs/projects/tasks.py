@@ -136,12 +136,9 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
     else:
         build = {}
 
-    # Make Dirs
-    if not os.path.exists(project.doc_path):
-        os.makedirs(project.doc_path)
     with project.repo_lock(getattr(settings, 'REPO_LOCK_SECONDS', 30)):
         try:
-            update_result = update_imported_docs.apply_async(args=[version.pk], queue='syncer')
+            update_result = update_imported_docs.apply_async(args=[version.pk], queue='builder')
             update_output = update_result.get()
         except ProjectImportError, err:
             log.error("Failed to import project; skipping build.", exc_info=True)
@@ -170,13 +167,13 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
             kwargs=dict(
                 version_pk=version.pk, pdf=pdf, man=man, epub=epub, record=record, force=force
                 ),
-            queue='syncer'
+            queue='builder'
         )
         (html_results, latex_results, pdf_results, man_results, epub_results) = build_result.get()
         (ret, out, err) = html_results
 
         if record:
-            #Update build.
+            # Update builds
             api.build.post(dict(
                 project = '/api/v1/project/%s/' % project.pk,
                 version = '/api/v1/version/%s/' % version.pk,
@@ -195,6 +192,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
                 output=pdf_results[1],
                 error=pdf_results[2],
             ))
+
         if version:
             # Mark version active on the site
             version_data = api.version(version.pk).get()
@@ -207,12 +205,12 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
             except Exception, e:
                 log.error("Unable to post a new version", exc_info=True)
 
-
         if 'no targets are out of date.' in out:
             log.info("Build Unchanged")
         else:
             if ret == 0:
-                log.info("Successful HTML Build")
+                # House Keeping
+                log.info("Successful Build")
                 purge_version(version, subdomain=True,
                               mainsite=True, cname=True)
                 symlink_cname(version)
@@ -261,6 +259,10 @@ def update_imported_docs(version_pk):
     if not project.vcs_repo():
         raise ProjectImportError("Repo type '{repo_type}' unknown".format(
                 repo_type=project.repo_type))
+
+    # Make Dirs
+    if not os.path.exists(project.doc_path):
+        os.makedirs(project.doc_path)
 
     # Get the actual code on disk
     if version:

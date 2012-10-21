@@ -7,7 +7,9 @@ export EDITOR=vim
 
 . bin/activate
 
-cd ~/checkouts/readthedocs.org/
+cd ~/checkouts/readthedocs.org/readthedocs
 
 alias chk='cd ~/checkouts/readthedocs.org'
 alias run='cd ~/run'
+
+alias mp='~/checkouts/readthedocs.org/readthedocs/manage.py'

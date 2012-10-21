@@ -5,8 +5,8 @@ import fabtools
 from fabtools import require
 
 cwd = os.getcwd()
-all_users = ['docs', 'eric', 'syncer']
-checkout_users = ['docs', 'syncer']
+all_users = ['docs', 'eric', 'builder']
+checkout_users = ['docs', 'builder']
 required_dirs =['checkouts', 'etc', 'run', 'log']
 
 def all():
@@ -39,8 +39,8 @@ def users():
             sudo('chmod -R 700 %s' % home)
     sudo('mkdir /var/build')
     sudo('chmod 777 /var/build')
-    # Syncer > Docs
-    sudo('adduser syncer docs')
+    # Docs > Syncer
+    sudo('adduser docs builder')
 
 
 def checkout(user):
