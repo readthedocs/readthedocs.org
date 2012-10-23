@@ -59,8 +59,8 @@
           {% else %}
           {% url projects_import as projects_import_url %}
           <p class="empty">
-          {% blocktrans %}You don't have any projects.  You should <a href="{{ projects_import_url }}">create new docs</a> on the site.<br>
-Check out the <a href="http://readthedocs.org/docs/read-the-docs/latest/getting_started.html">Getting Started</a> documentation for information about how to get going.{% endblocktrans %}</p>
+          {% blocktrans with "https://read-the-docs.readthedocs.org/en/latest/getting_started.html" as getting_started_url %}You don't have any projects.  You should <a href="{{ projects_import_url }}">create new docs</a> on the site.<br>
+          Check out the <a href="{{ getting_started_url }}">Getting Started</a> documentation for information about how to get going.{% endblocktrans %}</p>
           {% endif %}
           <!-- END your projects list -->
 
