@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-10-14 00:55-0500\n"
+"POT-Creation-Date: 2012-10-23 05:31-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,25 +17,25 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: api/base.py:97
+#: api/utils.py:97
 msgid "Sorry, no results on that page."
 msgstr ""
 
-#: api/base.py:174
+#: api/utils.py:175
 #, python-format
 msgid "Invalid resource lookup data provided (mismatched type).: %(error)s"
 msgstr ""
 
-#: bookmarks/models.py:8 builds/models.py:23 builds/models.py:55
-#: builds/models.py:69 projects/models.py:471
+#: bookmarks/models.py:8 builds/models.py:62 builds/models.py:107
+#: builds/models.py:121 projects/models.py:515
 msgid "Project"
 msgstr ""
 
-#: bookmarks/models.py:9 core/models.py:13 projects/models.py:61
+#: bookmarks/models.py:9 core/models.py:13 projects/models.py:89
 msgid "User"
 msgstr ""
 
-#: bookmarks/models.py:10 builds/models.py:71
+#: bookmarks/models.py:10 builds/models.py:125
 msgid "Date"
 msgstr ""
 
@@ -43,8 +43,8 @@ msgstr ""
 msgid "URL"
 msgstr ""
 
-#: bookmarks/models.py:12 projects/models.py:64
-#: templates/core/project_details.html:13
+#: bookmarks/models.py:12 projects/models.py:92
+#: templates/core/project_details.html:6
 msgid "Description"
 msgstr ""
 
@@ -81,95 +81,112 @@ msgstr ""
 msgid "Manpage"
 msgstr ""
 
-#: builds/models.py:24
-msgid "Identifier"
+#: builds/filters.py:10 projects/filters.py:9
+msgid "Any"
 msgstr ""
 
-#: builds/models.py:25
-msgid "Verbose Name"
-msgstr ""
-
-#: builds/models.py:26 projects/models.py:63 projects/models.py:473
+#: builds/filters.py:18 builds/models.py:65 projects/models.py:91
+#: projects/models.py:517
 msgid "Slug"
 msgstr ""
 
-#: builds/models.py:27
+#: builds/filters.py:25
+msgid "Build Date"
+msgstr ""
+
+#: builds/filters.py:26
+msgid "Build Type"
+msgstr ""
+
+#: builds/models.py:63
+msgid "Identifier"
+msgstr ""
+
+#: builds/models.py:64
+msgid "Verbose Name"
+msgstr ""
+
+#: builds/models.py:66
 msgid "Active"
 msgstr ""
 
-#: builds/models.py:28 templates/projects/includes/icon_built.html:4
+#: builds/models.py:67 templates/projects/includes/icon_built.html:4
 msgid "Built"
 msgstr ""
 
-#: builds/models.py:29 templates/projects/includes/icon_built.html:7
+#: builds/models.py:68 templates/projects/includes/icon_built.html:7
 msgid "Uploaded"
 msgstr ""
 
-#: builds/models.py:30 projects/forms.py:126 projects/models.py:102
-#: templates/core/project_details.html:5
+#: builds/models.py:69 projects/models.py:130
 msgid "Privacy Level"
 msgstr ""
 
-#: builds/models.py:38
+#: builds/models.py:71
+msgid "Level of privacy for this Version."
+msgstr ""
+
+#. Translators: Permission around whether a user can view the version
+#: builds/models.py:80
 msgid "View Version"
 msgstr ""
 
-#: builds/models.py:42
+#: builds/models.py:84
 #, python-format
 msgid "Version %(version)s of %(project)s (%(pk)s)"
 msgstr ""
 
-#: builds/models.py:56
+#: builds/models.py:108
 msgid "From slug"
 msgstr ""
 
-#: builds/models.py:57
+#: builds/models.py:109
 msgid "To slug"
 msgstr ""
 
-#: builds/models.py:58
+#: builds/models.py:110
 msgid "Largest"
 msgstr ""
 
-#: builds/models.py:61
+#: builds/models.py:113
 #, python-format
 msgid "Alias for %(project)s: %(from)s -> %(to)s"
 msgstr ""
 
-#: builds/models.py:70
-msgid "Type"
-msgstr ""
-
-#: builds/models.py:72
-msgid "Success"
-msgstr ""
-
-#: builds/models.py:73
-msgid "Setup"
-msgstr ""
-
-#: builds/models.py:74
-msgid "Setup error"
-msgstr ""
-
-#: builds/models.py:75
-msgid "Output"
-msgstr ""
-
-#: builds/models.py:76
-msgid "Error"
-msgstr ""
-
-#: builds/models.py:77 projects/models.py:70
+#: builds/models.py:122 projects/models.py:98
 #: templates/djangome/oneoffs.html:11
 msgid "Version"
 msgstr ""
 
-#: builds/models.py:78
+#: builds/models.py:123
+msgid "Type"
+msgstr ""
+
+#: builds/models.py:124
 msgid "State"
 msgstr ""
 
-#: builds/models.py:85
+#: builds/models.py:126
+msgid "Success"
+msgstr ""
+
+#: builds/models.py:127
+msgid "Setup"
+msgstr ""
+
+#: builds/models.py:128
+msgid "Setup error"
+msgstr ""
+
+#: builds/models.py:129
+msgid "Output"
+msgstr ""
+
+#: builds/models.py:130
+msgid "Error"
+msgstr ""
+
+#: builds/models.py:137
 #, python-format
 msgid "Build %(project)s for %(usernames)s (%(pk)s)"
 msgstr ""
@@ -182,15 +199,11 @@ msgstr ""
 msgid "Last name"
 msgstr ""
 
-#: core/middleware.py:31
-msgid "Brought to you by Read the Docs"
-msgstr ""
-
-#: core/middleware.py:57
+#: core/middleware.py:19
 msgid "Invalid hostname"
 msgstr ""
 
-#: core/middleware.py:91
+#: core/middleware.py:53
 msgid "Invalid Host Name."
 msgstr ""
 
@@ -277,16 +290,32 @@ msgstr ""
 msgid "Bazaar"
 msgstr ""
 
-#: projects/constants.py:75
+#: projects/constants.py:79
 msgid "Public"
 msgstr ""
 
-#: projects/constants.py:76
+#: projects/constants.py:80
 msgid "Protected"
 msgstr ""
 
-#: projects/constants.py:77
+#: projects/constants.py:81
 msgid "Private"
+msgstr ""
+
+#: projects/filters.py:15 projects/models.py:90 projects/models.py:516
+msgid "Name"
+msgstr ""
+
+#: projects/filters.py:16
+msgid "Created Date"
+msgstr ""
+
+#: projects/filters.py:17 projects/models.py:94
+msgid "Repository URL"
+msgstr ""
+
+#: projects/filters.py:19 templates/core/project_details.html:107
+msgid "Repository"
 msgstr ""
 
 #: projects/forms.py:21
@@ -299,244 +328,256 @@ msgid ""
 "kong.git"
 msgstr ""
 
-#: projects/forms.py:40
+#: projects/forms.py:48
 msgid "Invalid character in repo name"
 msgstr ""
 
-#: projects/forms.py:42
+#: projects/forms.py:50
 msgid ""
 "It looks like you entered a private repo - please use the public (http:// or "
 "git://) clone url"
 msgstr ""
 
-#: projects/forms.py:48
+#: projects/forms.py:56
 msgid ""
 "Your configuration file is invalid, make sure it contains conf.py in it."
 msgstr ""
 
-#: projects/forms.py:112
+#: projects/forms.py:120
 msgid "Default Version"
 msgstr ""
 
-#: projects/forms.py:134
+#: projects/forms.py:143
 msgid "Zip file of HTML"
 msgstr ""
 
-#: projects/forms.py:135
+#: projects/forms.py:144
 msgid "Overwrite existing HTML?"
 msgstr ""
 
-#: projects/forms.py:148
+#: projects/forms.py:157
 msgid "That version is already active!"
 msgstr ""
 
-#: projects/forms.py:150
+#: projects/forms.py:159
 msgid "Must upload a zip file."
 msgstr ""
 
-#: projects/forms.py:164
+#: projects/forms.py:173
 msgid "Version of the project you are uploading HTML for"
 msgstr ""
 
-#: projects/forms.py:181
+#: projects/forms.py:190
 #, python-format
 msgid "Project %(name)s does not exist"
 msgstr ""
 
-#: projects/models.py:45
+#: projects/models.py:73
 msgid "Parent"
 msgstr ""
 
-#: projects/models.py:46
+#: projects/models.py:74
 msgid "Child"
 msgstr ""
 
-#: projects/models.py:57
+#: projects/models.py:85
 msgid "Publication date"
 msgstr ""
 
-#: projects/models.py:58
+#: projects/models.py:86
 msgid "Modified date"
 msgstr ""
 
-#: projects/models.py:62 projects/models.py:472
-msgid "Name"
-msgstr ""
-
-#: projects/models.py:65
+#: projects/models.py:93
 msgid "The reStructuredText description of the project"
 msgstr ""
 
-#: projects/models.py:66
-msgid "Repository URL"
-msgstr ""
-
-#: projects/models.py:67
+#: projects/models.py:95
 msgid ""
 "Checkout URL for your code (hg, git, etc.). Ex. http://github.com/"
 "ericholscher/django-kong.git"
 msgstr ""
 
-#: projects/models.py:68
+#: projects/models.py:96
 msgid "Repository type"
 msgstr ""
 
-#: projects/models.py:69
+#: projects/models.py:97
 msgid "Project URL"
 msgstr ""
 
-#: projects/models.py:69
+#: projects/models.py:97
 msgid "The project's homepage"
 msgstr ""
 
-#: projects/models.py:71
+#: projects/models.py:99
 msgid "Project version these docs apply to, i.e. 1.0a"
 msgstr ""
 
-#: projects/models.py:72
+#: projects/models.py:100
 msgid "Copyright"
 msgstr ""
 
-#: projects/models.py:73
+#: projects/models.py:101
 msgid "Project copyright information"
 msgstr ""
 
-#: projects/models.py:74
+#: projects/models.py:102
 msgid "Theme"
 msgstr ""
 
-#: projects/models.py:76
+#: projects/models.py:104
 msgid "Examples"
 msgstr ""
 
-#: projects/models.py:77
+#: projects/models.py:105
 msgid "Suffix"
 msgstr ""
 
-#: projects/models.py:78
+#: projects/models.py:106
 msgid "Default version"
 msgstr ""
 
-#: projects/models.py:78
+#: projects/models.py:106
 msgid "The version of your project that / redirects to"
 msgstr ""
 
-#: projects/models.py:80
+#: projects/models.py:108
 msgid "Default branch"
 msgstr ""
 
-#: projects/models.py:81
+#: projects/models.py:109
 msgid ""
 "What branch \"latest\" points to. Leave empty to use the default value for "
 "your VCS (eg. trunk or master)."
 msgstr ""
 
-#: projects/models.py:82
+#: projects/models.py:110
 msgid "Requirements file"
 msgstr ""
 
-#: projects/models.py:82
+#: projects/models.py:110
 msgid ""
 "Requires Virtualenv. A pip requirements file needed to build your "
 "documentation. Path from the root of your project."
 msgstr ""
 
-#: projects/models.py:83
+#: projects/models.py:111
 msgid "Documentation type"
 msgstr ""
 
-#: projects/models.py:85
+#: projects/models.py:113
 msgid ""
 "Type of documentation you are building. <a href=\"http://sphinx.pocoo.org/"
 "builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More info</a>."
 msgstr ""
 
-#: projects/models.py:86
+#: projects/models.py:114
 msgid "Analytics code"
 msgstr ""
 
-#: projects/models.py:86
+#: projects/models.py:114
 msgid ""
 "Google Analytics Tracking ID (ex. UA-22345342-1). This may slow down your "
 "page loads."
 msgstr ""
 
-#: projects/models.py:89 projects/models.py:474
+#: projects/models.py:117 projects/models.py:518
 msgid "Path"
 msgstr ""
 
-#: projects/models.py:89
+#: projects/models.py:117
 msgid "The directory where conf.py lives"
 msgstr ""
 
-#: projects/models.py:91
+#: projects/models.py:119
 msgid "Python configuration file"
 msgstr ""
 
-#: projects/models.py:92
+#: projects/models.py:120
 msgid ""
 "Path from project root to conf.py file (ex. docs/conf.py). Leave blank if "
 "you want us to find it for you."
 msgstr ""
 
-#: projects/models.py:94
+#: projects/models.py:122
 msgid "Featured"
 msgstr ""
 
-#: projects/models.py:95
+#: projects/models.py:123
 msgid "Skip"
 msgstr ""
 
-#: projects/models.py:96
+#: projects/models.py:124
 msgid "Use virtualenv"
 msgstr ""
 
-#: projects/models.py:97
+#: projects/models.py:125
 msgid "Install your project inside a virtualenv using setup.py install"
 msgstr ""
 
-#: projects/models.py:98
+#: projects/models.py:126
 msgid "Use system packages"
 msgstr ""
 
-#: projects/models.py:99
+#: projects/models.py:127
 msgid "Give the virtual environment access to the global sites-packages dir"
 msgstr ""
 
-#: projects/models.py:100
+#: projects/models.py:128
 msgid "Django Packages URL"
 msgstr ""
 
-#: projects/models.py:101
+#: projects/models.py:129
 msgid "Crate URL"
 msgstr ""
 
-#: projects/models.py:105
+#: projects/models.py:132
+msgid ""
+"(Beta) Level of privacy that you want on the repository. Protected means "
+"public but not in listings."
+msgstr ""
+
+#: projects/models.py:133
 msgid "Version Privacy Level"
 msgstr ""
 
-#: projects/models.py:110
+#: projects/models.py:135
+msgid ""
+"(Beta) Default level of privacy you want on built versions of documentation."
+msgstr ""
+
+#: projects/models.py:138
 msgid "Related projects"
 msgstr ""
 
-#: projects/models.py:141
+#. Translators: Permission around whether a user can view the project
+#: projects/models.py:147
+msgid "View Project"
+msgstr ""
+
+#: projects/models.py:170
 msgid "Model must have slug"
 msgstr ""
 
-#: projects/models.py:306
+#: projects/models.py:350
 msgid "Conf File Missing."
 msgstr ""
 
-#: projects/models.py:475
+#: projects/models.py:519
 msgid "MD5 checksum"
 msgstr ""
 
-#: settings/base.py:47
+#: settings/base.py:52
 msgid "English"
 msgstr ""
 
-#: settings/base.py:48
+#: settings/base.py:53
 msgid "Norwegian"
+msgstr ""
+
+#: settings/base.py:54
+msgid "French"
 msgstr ""
 
 #: templates/404.html:6
@@ -599,6 +640,14 @@ msgid ""
 "Made by <a href=\"https://github.com/rtfd/readthedocs.org/graphs/contributors"
 "\">humans</a>. Funded by <a href=\"https://www.gittip.com/readthedocs/"
 "\">readers like you</a>."
+msgstr ""
+
+#: templates/base_filter.html:14 templates/core/filter_bar.html:8
+msgid "Filter"
+msgstr ""
+
+#: templates/filter.html:26
+msgid "Filtered Results"
 msgstr ""
 
 #: templates/homepage.html:7
@@ -727,7 +776,7 @@ msgstr ""
 msgid "Environment Standard Error"
 msgstr ""
 
-#: templates/builds/build_list.html:18
+#: templates/builds/build_list.html:27
 msgid "Recent Builds"
 msgstr ""
 
@@ -748,6 +797,7 @@ msgid "%(date)s ago"
 msgstr ""
 
 #: templates/core/build_list_detailed.html:13
+#: templates/core/filter_list.html:12
 #: templates/core/project_list_detailed.html:26
 #: templates/core/project_list_featured.html:19
 msgid "No projects found"
@@ -831,8 +881,12 @@ msgstr ""
 msgid "Versions"
 msgstr ""
 
-#: templates/core/project_details.html:23
+#: templates/core/project_details.html:16
 msgid "Search this project"
+msgstr ""
+
+#: templates/core/project_details.html:28
+msgid "Project Privacy Level"
 msgstr ""
 
 #: templates/core/project_details.html:49
@@ -868,10 +922,6 @@ msgstr ""
 
 #: templates/core/project_details.html:102
 msgid "Last Built"
-msgstr ""
-
-#: templates/core/project_details.html:107
-msgid "Repository"
 msgstr ""
 
 #: templates/core/project_details.html:119
@@ -1105,7 +1155,8 @@ msgstr ""
 
 #: templates/projects/alias_edit.html:16
 #: templates/projects/project_create.html:34
-#: templates/projects/project_import.html:17
+#: templates/projects/project_import.html:16
+#: templates/projects/project_import.html:18
 msgid "Create"
 msgstr ""
 
@@ -1214,11 +1265,10 @@ msgstr ""
 #: templates/projects/project_dashboard.html:62
 #, python-format
 msgid ""
-"You don't have any projects.  You should<a href=\"%(projects_import_url)s"
+"You don't have any projects.  You should <a href=\"%(projects_import_url)s"
 "\">create new docs</a> on the site.<br>\n"
-"Check out the <a href=\"http://readthedocs.org/docs/read-the-docs/latest/"
-"getting_started.html\">Getting Started</a> documentation for information "
-"about how to get going."
+"          Check out the <a href=\"%(getting_started_url)s\">Getting Started</"
+"a> documentation for information about how to get going."
 msgstr ""
 
 #: templates/projects/project_delete.html:4
@@ -1444,9 +1494,7 @@ msgid ""
 "***\n"
 "\n"
 "If you didn't register this account you can simply delete this email and we "
-"won't bother you again."
-msgid_plural ""
-"Thank you for registering an account at %(domain)s.\n"
+"won't bother you again. Thank you for registering an account at %(domain)s.\n"
 "To activate your registration, please visit the following page:\n"
 "\n"
 "http://%(domain)s%(activation_url)s\n"
@@ -1457,8 +1505,7 @@ msgid_plural ""
 "\n"
 "If you didn't register this account you can simply delete this email and we "
 "won't bother you again."
-msgstr[0] ""
-msgstr[1] ""
+msgstr ""
 
 #: templates/registration/activation_email_subject.txt:1
 #, python-format
