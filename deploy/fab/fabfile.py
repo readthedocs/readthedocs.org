@@ -8,21 +8,36 @@ cwd = os.getcwd()
 all_users = ['docs', 'builder']
 required_dirs =['checkouts', 'etc', 'run', 'log']
 
-def all():
-    install_packages()
+def build():
+    install_packages('build')
     users()
     checkout()
     setup_env()
 
-def install_packages():
+def web():
+    install_packages('web')
+    users('docs')
+    checkout('docs')
+    setup_env()
+
+def db():
+    install_packages('db')
+
+def install_packages(type):
     env.user = 'root'
     sudo('apt-get update')
-    sudo('apt-get install -y git-core python-setuptools python-dev postgresql-client libpq-dev subversion graphviz curl sqlite libxml2-dev libxslt-dev vim')
     sudo ('easy_install pip')
-    sudo ('pip install -U virtualenv mercurial')
+    sudo ('pip install -U virtualenv' )
 
-    # Prod Packages
-    sudo('apt-get install -y redis-server memcached')
+    if type == 'build':
+        sudo('apt-get install -y git-core python-setuptools python-dev postgresql-client libpq-dev subversion graphviz curl sqlite libxml2-dev libxslt-dev vim')
+        sudo ('pip install -U mercurial')
+    if type == 'db':
+        sudo('apt-get install -y solr-tomcat redis-server postgresql ')
+    if type == 'web':
+        sudo('apt-get install -y nginx')
+
+
 
 def users():
     env.user = 'root'
