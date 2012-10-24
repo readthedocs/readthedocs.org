@@ -38,7 +38,7 @@ documentation without rebuilding every one. If this script is embedded in each b
 {% endif %}
 <div id="searchbox" style="">
   <h3>RTD Search</h3>
-    <form class="search" action="//readthedocs.org/search/project/" method="get">
+    <form class="search" action="//{{ PRODUCTION_DOMAIN }}/search/project/" method="get">
       <input type="text" name="q" size="18">
       <input type="submit" value="Go">
       <input type="hidden" name="selected_facets" value="project_exact:{{ name }}">
@@ -116,7 +116,7 @@ documentation without rebuilding every one. If this script is embedded in each b
     -webkit-box-shadow: 0 1px 0px #465158;
   }
   .rtd-badge.rtd {
-    background: #3b4449 url(//media.readthedocs.org/images/badge-rtd.png) scroll 0px -46px no-repeat;
+    background: #3b4449 url(//{{ MEDIA_URL }}/images/badge-rtd.png) scroll 0px -46px no-repeat;
     border: 1px solid #282E32;
     width: 41px;
     right: 5px;
@@ -125,7 +125,7 @@ documentation without rebuilding every one. If this script is embedded in each b
     background-position: top left;
     width: 160px;
   }
-  .rtd-badge.revsys { background: #465158 url(//media.readthedocs.org/images/badge-revsys.png) top left no-repeat;
+  .rtd-badge.revsys { background: #465158 url(//{{ MEDIA_URL }}/images/badge-revsys.png) top left no-repeat;
     border: 1px solid #1C5871;
     width: 290px;
     right: 173px;
@@ -135,7 +135,7 @@ documentation without rebuilding every one. If this script is embedded in each b
     margin-left: auto;
     margin-right: 175px;
     margin-bottom: 5px;
-    background: #465158 url(//media.readthedocs.org/images/badge-revsys.png) top left no-repeat;
+    background: #465158 url(//{{ MEDIA_URL }}/images/badge-revsys.png) top left no-repeat;
     border: 1px solid #1C5871;
     width: 290px;
     right: 173px;
@@ -145,7 +145,7 @@ documentation without rebuilding every one. If this script is embedded in each b
     margin-left: auto;
     margin-right: 175px;
     margin-bottom: 5px;
-    background: #465158 url(//media.readthedocs.org/images/badge-revsys-sm.png) top left no-repeat;
+    background: #465158 url(//{{ MEDIA_URL }}/images/badge-revsys-sm.png) top left no-repeat;
     border: 1px solid #1C5871;
     width: 205px;
     right: 173px;
@@ -156,7 +156,7 @@ documentation without rebuilding every one. If this script is embedded in each b
 </style>
 <div class="rtd_doc_footer">
   <div class="footer_popout">
-    <a href="//readthedocs.org/projects/{{ slug }}/?fromdocs={{ slug }}" class="rtd-badge rtd"> TEST Brought to you by Read the Docs</a>
+    <a href="//{{ PRODUCTION_DOMAIN }}/projects/{{ slug }}/?fromdocs={{ slug }}" class="rtd-badge rtd"> TEST Brought to you by Read the Docs</a>
     <ul id="version_menu">
       {% for slug, url in versions %}
         <li><a href="{{ url }}">{{ slug }}</a></li>

@@ -42,7 +42,7 @@ CACHES = {
 SLUMBER_API_HOST = 'https://readthedocs.org'
 WEBSOCKET_HOST = 'websocket.readthedocs.org:8088'
 
-PRODUCTION_URL = 'readthedocs.org'
+PRODUCTION_DOMAIN = 'readthedocs.org'
 USE_SUBDOMAIN = True
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTOCOL", "https")

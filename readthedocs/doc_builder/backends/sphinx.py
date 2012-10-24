@@ -53,6 +53,7 @@ context = {
     'using_theme': using_rtd_theme,
     'current_version': "{{ current_version.slug }}",
     'MEDIA_URL': "{{ settings.MEDIA_URL }}",
+    'PRODUCTION_DOMAIN': "{{ settings.PRODUCTION_DOMAIN }}",
     'versions': [{% for version in versions|sort_version_aware %}
     ("{{ version.slug }}", "/en/{{ version.slug }}/"),{% endfor %}
     ],

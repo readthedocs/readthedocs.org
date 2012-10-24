@@ -47,7 +47,7 @@ WEBSOCKET_HOST = 'localhost:8088'
 
 IMPORT_EXTERNAL_DATA = False
 DONT_HIT_DB = False
-#PRODUCTION_URL = 'readthedocs.org'
+#PRODUCTION_DOMAIN = 'readthedocs.org'
 #USE_SUBDOMAIN = True
 
 
