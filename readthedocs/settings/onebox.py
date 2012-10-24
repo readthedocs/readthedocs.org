@@ -23,7 +23,6 @@ CACHES = {
         'PREFIX': 'docs',
         'OPTIONS': {
             'DB': 1,
-            'PARSER_CLASS': 'redis.connection.HiredisParser'
         },
     },
 }
