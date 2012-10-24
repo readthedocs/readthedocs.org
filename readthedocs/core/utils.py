@@ -38,7 +38,7 @@ def copy_file_to_app_servers(from_file, to_file):
             log.error("COPY ERROR to app servers.")
             log.error(sync_cmd)
 
-        sync_cmd = (rsync -e 'ssh -T' -av --delete %s %s@%s:%s" % (from_file, getpass.getuser(), server, to_file))
+        sync_cmd = ("rsync -e 'ssh -T' -av --delete %s %s@%s:%s" % (from_file, getpass.getuser(), server, to_file))
         ret = os.system(sync_cmd)
         if ret != 0:
             log.error("COPY ERROR to app servers.")
