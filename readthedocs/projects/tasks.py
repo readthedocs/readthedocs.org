@@ -318,7 +318,7 @@ def update_imported_docs(version_pk):
         # check tags/version
         #XXX:dc: what in this block raises the values error?
         try:
-            old_versions = [obj['identifier'] for obj in api.version.get(project__slug=project.slug, limit=500)['objects']]
+            old_versions = [obj['identifier'] for obj in api.version.get(project__slug=project.slug, limit=5000)['objects']]
             if version_repo.supports_tags:
                 transaction.enter_transaction_management(True)
                 tags = version_repo.tags
@@ -455,7 +455,7 @@ def fileify(version):
                             name=filename)
 
 
-#@periodic_task(run_every=crontab(hour="*", minute="*", day_of_week="*"))
+#@periodic_task(run_every=crontab(hour="*", minute="*/5", day_of_week="*"))
 def update_docs_pull(record=False, pdf=False, man=False, force=False):
     """
     A high-level interface that will update all of the projects.
