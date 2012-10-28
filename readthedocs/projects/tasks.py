@@ -570,7 +570,7 @@ def clear_artifacts(version_pk):
     """ Remove artifacts from the build server. """
     version_data = api.version(version_pk).get()
     version = make_api_version(version_data)
-    run('rm -rf %s' % version.project.full_build_path(version.slug))
-    run('rm -rf %s' % version.project.full_latex_path(version.slug))
     run('rm -rf %s' % version.project.full_epub_path(version.slug))
     run('rm -rf %s' % version.project.full_man_path(version.slug))
+    run('rm -rf %s' % version.project.full_build_path(version.slug))
+    run('rm -rf %s' % version.project.full_latex_path(version.slug))
