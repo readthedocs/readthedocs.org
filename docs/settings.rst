@@ -11,7 +11,7 @@ When used in production, this should be True, as Nginx will serve this content.
 During developemnt and other possible deployments, this might be False.
 
 PRODUCTION_DOMAIN
------------------
+------------------
 
 Default: `readthedocs.org`
 

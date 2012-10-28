@@ -18,7 +18,7 @@ Import Files
 Web
 ~~~
     * Chimera
-    * Ladon
+    * Asgard
 
 Import Files
 ````````````
@@ -35,20 +35,15 @@ Import Files
 
 Database
 ~~~~~~~~
-    * Loki
+    * DB
 
 Solr
 ~~~~
-    * Mozbuild
+    * DB
 
 Redis
 ~~~~~
-    * Mozbuild
-
-Monitoring
-~~~~~~~~~~
-    * Golem
-
+    * DB
 
 Site Checkout
 -------------
