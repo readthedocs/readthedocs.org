@@ -138,8 +138,8 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
 
     try:
         log.info("Updating docs from VCS")
-        update_result = update_imported_docs.apply_async(args=[version.pk], queue='builder')
-        update_output = update_result.get()
+        update_output = update_imported_docs(version.pk)
+        #update_output = update_result.get()
     except ProjectImportError, err:
         log.error("Failed to import project; skipping build.", exc_info=True)
         build['state'] = 'finished'
@@ -156,33 +156,39 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
         for key in ['checkout', 'venv', 'sphinx', 'requirements', 'install']:
             data = update_output.get(key, None)
             if data:
-                output_data += u"\n\n%s\n\n%s\n\n" % (key.upper(), data[1])
-                error_data += u"\n\n%s\n\n%s\n\n" % (key.upper(), data[2])
+                try:
+                    output_data += u"\n\n%s\n\n%s\n\n" % (key.upper(), data[1])
+                    error_data += u"\n\n%s\n\n%s\n\n" % (key.upper(), data[2]) 
+                except UnicodeDecodeError:
+                    log.debug("Unicode Error in setup")
         build['setup'] = output_data
         build['setup_error'] = error_data
         api.build(build['id']).put(build)
 
     log.info("Building docs")
     # This is only checking the results of the HTML build, as it's a canary
-    build_result =  build_docs.apply_async(
-        kwargs=dict(
-            version_pk=version.pk, pdf=pdf, man=man, epub=epub, record=record, force=force
-            ),
-        queue='builder'
-    )
-    (html_results, latex_results, pdf_results, man_results, epub_results) = build_result.get()
-    (ret, out, err) = html_results
+    try:
+        (html_results, latex_results, pdf_results, man_results, epub_results) =  build_docs(
+                version_pk=version.pk, pdf=pdf, man=man, epub=epub, record=record, force=force
+        )
+        (ret, out, err) = html_results
+    except Exception as e: 
+        log.error("Exception in flailboat build_docs", exc_info=True)
+        html_results = (999, "Project build Failed", str(e))
+        latex_results = (999, "Project build Failed", str(e))
+        pdf_results = (999, "Project build Failed", str(e))
+        man_results = (999, "Project build Failed", str(e))
+        epub_results = (999, "Project build Failed", str(e))
+        (ret, out, err) = html_results
 
     if record:
         # Update builds
-        api.build.post(dict(
-            project = '/api/v1/project/%s/' % project.pk,
-            version = '/api/v1/version/%s/' % version.pk,
-            success = html_results[0] == 0,
-            output = html_results[1],
-            error = html_results[2],
-            state = 'finished',
-        ))
+        build['success'] = html_results[0] == 0
+        build['output'] = html_results[1]
+        build['error'] = html_results[2]
+        build['state'] = 'finished'
+        api.build(build['id']).put(build)
+
         api.build.post(dict(
             project = '/api/v1/project/%s/' % project.pk,
             version = '/api/v1/version/%s/' % version.pk,
@@ -222,10 +228,9 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
             log.warning("Failed HTML Build")
 
         # Things that touch redis
-        update_result = update_intersphinx.apply_async(args=[version.pk], queue='builder')
-        update_result.get()
+        update_result = update_intersphinx(version.pk)
         # Needs to happen after update_intersphinx
-        clear_artifacts.apply_async(args=[version.pk], queue='builder')
+        clear_artifacts(version.pk)
 
     # Try importing from Open Comparison sites.
     try:
