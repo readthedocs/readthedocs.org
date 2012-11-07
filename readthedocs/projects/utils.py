@@ -179,5 +179,6 @@ def make_api_project(project_data):
     del project_data['users']
     del project_data['resource_uri']
     del project_data['absolute_url']
+    del project_data['downloads']
     project = Project(**project_data)
     return project
