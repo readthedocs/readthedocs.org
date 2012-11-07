@@ -14,7 +14,7 @@ from guardian.shortcuts import assign, get_objects_for_user, get_perms
 from projects import constants
 from projects.exceptions import ProjectImportError
 from projects.templatetags.projects_tags import sort_version_aware
-from projects.utils import highest_version as _highest
+from projects.utils import highest_version as _highest, make_api_version, make_api_project
 from taggit.managers import TaggableManager
 from tastyapi.slum import api
 
@@ -449,14 +449,8 @@ class Project(models.Model):
         from builds.models import Version
         ret = []
         for version_data in api.version.get(project=self.pk, active=True)['objects']:
-            del version_data['resource_uri']
-            project_data = version_data['project']
-            del project_data['users']
-            del project_data['resource_uri']
-            del project_data['absolute_url']
-            project = Project(**project_data)
-            version_data['project'] = project
-            ret.append(Version(**version_data))
+            version = make_api_version(version_data)
+            ret.append(version)
         return sort_version_aware(ret)
 
     def active_versions(self):
