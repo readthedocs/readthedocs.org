@@ -46,3 +46,15 @@ class RedirectTests(TestCase):
     def test_proper_subdomain_and_url(self):
         r = self.client.get('/en/latest/', HTTP_HOST = 'pip.readthedocs.org')
         self.assertEqual(r.status_code, 200)
+
+    # Specific Page Redirects
+    def test_proper_page_on_subdomain(self):
+        r = self.client.get('/page/test.html', HTTP_HOST = 'pip.readthedocs.org')
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(r._headers['location'], ('Location', 'http://pip.readthedocs.org/en/latest/test.html'))
+
+    # Specific Page Redirects
+    def test_proper_page_on_main_site(self):
+        r = self.client.get('/docs/pip/page/test.html')
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(r._headers['location'], ('Location', 'http://testserver/docs/pip/en/latest/test.html'))

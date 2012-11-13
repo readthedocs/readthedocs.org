@@ -15,15 +15,15 @@ urlpatterns = patterns('',
         'core.views.serve_docs',
         name='docs_detail'
     ),
-    url(r'^page/(?P<filename>.*)$',
-        'core.views.serve_docs',
-        {'version_slug': None,
-        'lang_slug': None},
-        name='docs_detail'
-    ),
     url(r'^(?P<lang_slug>\w{2})/(?P<version_slug>.*)/$',
         'core.views.serve_docs',
         {'filename': 'index.html'},
+        name='docs_detail'
+    ),
+    url(r'^page/(?P<filename>.*)$',
+        'core.views.subdomain_handler',
+        {'version_slug': None,
+        'lang_slug': None},
         name='docs_detail'
     ),
     url(r'^(?P<version_slug>.*)/$',
