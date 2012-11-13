@@ -34,12 +34,18 @@ urlpatterns = patterns('',
         name='docs_detail'
     ),
 
-    #This is for redirecting /docs/pip/ -> /docs/pip/en/latest/
+    # Redirect to default version.
     url(r'^docs/(?P<project_slug>[-\w]+)/$',
         'core.views.serve_docs',
         {'version_slug': None,
         'lang_slug': None,
         'filename': ''},
+        name='docs_detail'
+    ),
+    url(r'^docs/(?P<project_slug>[-\w]+)/page/(?P<filename>.*)$',
+        'core.views.serve_docs',
+        {'version_slug': None,
+        'lang_slug': None},
         name='docs_detail'
     ),
 
