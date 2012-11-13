@@ -52,6 +52,12 @@ class ProjectResource(ModelResource, SearchMixin):
 
     def dehydrate(self, bundle):
         bundle.data['subdomain'] = "http://%s/" % bundle.obj.subdomain
+        downloads = {}
+        downloads['htmlzip'] = bundle.obj.get_htmlzip_url()
+        downloads['epub'] = bundle.obj.get_epub_url()
+        downloads['pdf'] = bundle.obj.get_pdf_url()
+        downloads['manpage'] = bundle.obj.get_manpage_url()
+        bundle.data['downloads'] = downloads
         return bundle
 
     def post_list(self, request, **kwargs):
