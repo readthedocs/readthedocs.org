@@ -411,8 +411,9 @@ def build_docs(version_pk, pdf, man, epub, record, force):
             if pdf:
                 pdf_builder = builder_loading.get('sphinx_pdf')(version)
                 latex_results, pdf_results = pdf_builder.build()
-                if pdf_results[0] == 0:
-                    pdf_builder.move()
+                # Always move pdf results even when there's an error.
+                #if pdf_results[0] == 0:
+                pdf_builder.move()
             else:
                 pdf_results = latex_results = fake_results
             if man:
