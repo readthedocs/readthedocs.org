@@ -24,7 +24,7 @@ filesystem for each project.
         '''
         # Delete all existing as a cleanup for any deleted projects.
         ImportedFile.objects.all().delete()
-        if getattr(settings, 'INDEX_ONLY_LATEST', False):
+        if getattr(settings, 'INDEX_ONLY_LATEST', True):
             queryset = Version.objects.filter(slug='latst')
         else:
             queryset = Version.objects.public()
