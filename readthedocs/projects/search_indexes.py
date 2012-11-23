@@ -72,6 +72,7 @@ class ImportedFileIndex(indexes.SearchIndex, indexes.Indexable):
             log.info('Unable to index file: %s, error :%s' % (file_path, e))
             return
         log.debug('Indexing %s:%s' % (obj.project, obj.path))
+        DOCUMENT_PYQUERY_PATH = getattr(settings, 'DOCUMENT_PYQUERY_PATH', 'div.document')
         try:
             to_index = strip_tags(PyQuery(content)("div.document").html()).replace(u'¶', '')
         except ValueError:
