@@ -42,6 +42,7 @@ class ImportedFileIndex(indexes.SearchIndex, indexes.Indexable):
     text = CharField(document=True)
     author = CharField()
     project = CharField(model_attr='project__name', faceted=True)
+    version = CharField(model_attr='version__slug', faceted=True)
     title = CharField(model_attr='name')
     absolute_url = CharField()
 

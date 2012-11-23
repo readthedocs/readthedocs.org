@@ -506,7 +506,8 @@ class Project(models.Model):
 
 
 class ImportedFile(models.Model):
-    project = models.ForeignKey(Project, verbose_name=_('Project'), related_name='imported_files')
+    project = models.ForeignKey('Project', verbose_name=_('Project'), related_name='imported_files')
+    version = models.ForeignKey('builds.Version', verbose_name=_('Version'), related_name='imported_filed', null=True)
     name = models.CharField(_('Name'), max_length=255)
     slug = models.SlugField(_('Slug'))
     path = models.CharField(_('Path'), max_length=255)

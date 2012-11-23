@@ -46,3 +46,9 @@ SLUMBER_PASSWORD
 Default: `test`
 
 The password to use when connecting to the Read the Docs API. Used for hitting the API while building the docs.
+
+
+INDEX_ONLY_LATEST
+-----------------
+
+In search, only index the `latest` version of a Project. 

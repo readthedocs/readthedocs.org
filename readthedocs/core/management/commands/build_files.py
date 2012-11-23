@@ -11,7 +11,7 @@ class Command(BaseCommand):
 
     help = '''\
 Delete and re-create ImportedFile objects for all latest Versions, such
-that they can be added to the search index. This is accomplished by walking the 
+that they can be added to the search index. This is accomplished by walking the
 filesystem for each project.
 '''
 
@@ -21,7 +21,11 @@ filesystem for each project.
         '''
         # Delete all existing as a cleanup for any deleted projects.
         ImportedFile.objects.all().delete()
-        for v in Version.objects.filter(slug='latest'):
+        if getattr(settings, 'INDEX_ONLY_LATEST', False):
+            queryset = Version.objects.filter(slug='latst')
+        else:
+            queryset = Version.objects.public()
+        for v in queryset:
             log.info("Building files for %s" % v)
             try:
                 tasks.fileify(v)
