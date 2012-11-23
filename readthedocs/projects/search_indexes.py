@@ -3,6 +3,7 @@
 import codecs
 import os
 
+from django.conf import settings
 from django.utils.html import strip_tags
 
 #from haystack import site
@@ -74,7 +75,7 @@ class ImportedFileIndex(indexes.SearchIndex, indexes.Indexable):
         log.debug('Indexing %s:%s' % (obj.project, obj.path))
         DOCUMENT_PYQUERY_PATH = getattr(settings, 'DOCUMENT_PYQUERY_PATH', 'div.document')
         try:
-            to_index = strip_tags(PyQuery(content)("div.document").html()).replace(u'¶', '')
+            to_index = strip_tags(PyQuery(content)(DOCUMENT_PYQUERY_PATH).html()).replace(u'¶', '')
         except ValueError:
             #Pyquery returns ValueError if div.document doesn't exist.
             return
