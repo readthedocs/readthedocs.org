@@ -19,31 +19,35 @@
                 Check out the <a href="http://docs.readthedocs.org/en/latest/index.html">documentation for Read the Docs</a>. It contains lots of information about how to get the most out of RTD.
               </p>
 
-              <div class="module-header">
-                <h3>{% trans "Important Versions" %}</h3>
-              </div>
+              {% if filter|length > 0 %}
 
-              <div class="filter">
-                {% autopaginate filter 15 %}
-
-                <!-- BEGIN filter list -->
-                <div class="module">
-                  <div class="module-wrapper">
-
-                    <div class="module-list">
-                      <div class="module-list-wrapper">
-                        <ul>
-                          {% include "core/filter_list.html" %}
-                        </ul>
-                      </div>
-                    </div>
-
-                  </div>
+                <div class="module-header">
+                  <h3>{% trans "Important Versions" %}</h3>
                 </div>
-                <!-- END filter list -->
 
-                {% paginate %}
-              </div>
+                <div class="filter">
+                  {% autopaginate filter 15 %}
+
+                  <!-- BEGIN filter list -->
+                  <div class="module">
+                    <div class="module-wrapper">
+
+                      <div class="module-list">
+                        <div class="module-list-wrapper">
+                          <ul>
+                            {% include "core/filter_list.html" %}
+                          </ul>
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+                  <!-- END filter list -->
+
+                  {% paginate %}
+                </div>
+
+              {% endif %}
 
               <div class="module-header">
                 <h3>{% trans "My Projects" %}</h3>
