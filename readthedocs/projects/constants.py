@@ -81,3 +81,6 @@ PRIVACY_CHOICES = (
     (PRIVATE, _('Private')),
 )
 
+IMPORTANT_VERSION_FILTERS = {
+    'slug': 'important'
+}

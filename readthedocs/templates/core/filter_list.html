@@ -2,12 +2,12 @@
 
         {% for obj in filter %}
         <li class="module-item col-span">
-            <div id="obj-{{ build.id }}">
+            <div id="obj-{{ obj.id }}">
                 <a href="{{ obj.get_absolute_url }}">
                     {{ obj }}
               </a>
             </div>
         </li>
         {% empty %}
-        <li class="module-item quiet">{% trans "No projects found" %}</li>
+        <li class="module-item quiet">{% trans "No objects found" %}</li>
         {% endfor %}

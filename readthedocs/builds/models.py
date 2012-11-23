@@ -31,6 +31,15 @@ class VersionManager(models.Manager):
             queryset = queryset.filter(active=True)
         return queryset
 
+    def active(self, user=None, project=None, *args, **kwargs):
+        queryset = self._filter_queryset(
+            user,
+            project,
+            privacy_level=(constants.PUBLIC, constants.PROTECTED, constants.PRIVATE),
+            only_active=True,
+        )
+        return queryset.filter(*args, **kwargs)
+
     def public(self, user=None, project=None, only_active=True, *args, **kwargs):
         queryset = self._filter_queryset(
             user,
