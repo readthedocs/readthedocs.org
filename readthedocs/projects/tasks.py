@@ -158,7 +158,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
             if data:
                 try:
                     output_data += u"\n\n%s\n\n%s\n\n" % (key.upper(), data[1])
-                    error_data += u"\n\n%s\n\n%s\n\n" % (key.upper(), data[2]) 
+                    error_data += u"\n\n%s\n\n%s\n\n" % (key.upper(), data[2])
                 except UnicodeDecodeError:
                     log.debug("Unicode Error in setup")
         build['setup'] = output_data
@@ -172,7 +172,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
                 version_pk=version.pk, pdf=pdf, man=man, epub=epub, record=record, force=force
         )
         (ret, out, err) = html_results
-    except Exception as e: 
+    except Exception as e:
         log.error("Exception in flailboat build_docs", exc_info=True)
         html_results = (999, "Project build Failed", str(e))
         latex_results = (999, "Project build Failed", str(e))
@@ -452,11 +452,13 @@ def fileify(version):
                     if getattr(settings, 'DONT_HIT_DB', True):
                         api.file.post(dict(
                             project="/api/v1/project/%s/" % project.pk,
+                            version="/api/v1/version/%s/" % version.pk,
                             path=dirpath,
                             name=filename))
                     else:
                         ImportedFile.objects.get_or_create(
                             project=project,
+                            version=version,
                             path=dirpath,
                             name=filename)
 
