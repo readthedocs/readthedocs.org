@@ -1,5 +1,12 @@
 from .base import *
 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(SITE_ROOT, 'dev.db'),
+    }
+}
+
 REDIS = {
     'host': 'localhost',
     'port': 6379,
