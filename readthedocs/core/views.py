@@ -284,7 +284,7 @@ def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
         })
         return HttpResponseRedirect(url)
 
-    ver = get_object_or_404(Version, slug=version_slug)
+    ver = get_object_or_404(Version, project__slug=project_slug, slug=version_slug)
     # Auth checks
     if ver not in proj.versions.public(request.user, proj):
         res = HttpResponse("You don't have access to this version.")
