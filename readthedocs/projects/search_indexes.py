@@ -17,7 +17,7 @@ from projects.models import ImportedFile, Project
 import logging
 log = logging.getLogger(__name__)
 
-class ProjectIndex(celery_indexes.SearchIndex, indexes.Indexable):
+class ProjectIndex(celery_indexes.CelerySearchIndex, indexes.Indexable):
     text = CharField(document=True, use_template=True)
     author = CharField()
     title = CharField(model_attr='name')
@@ -39,7 +39,7 @@ class ProjectIndex(celery_indexes.SearchIndex, indexes.Indexable):
         return self.get_model().objects.public()
 
 #Should prob make a common subclass for this and FileIndex
-class ImportedFileIndex(celery_indexes.SearchIndex, indexes.Indexable):
+class ImportedFileIndex(celery_indexes.CelerySearchIndex, indexes.Indexable):
     text = CharField(document=True)
     author = CharField()
     project = CharField(model_attr='project__name', faceted=True)
