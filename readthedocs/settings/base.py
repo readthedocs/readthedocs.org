@@ -139,7 +139,7 @@ CELERYD_TASK_TIME_LIMIT = 60*60 #60 minutes
 CELERY_SEND_TASK_ERROR_EMAILS = True
 
 CELERY_ROUTES = {
-        'celery_haystack.tasks.*': {
+        'celery_haystack.tasks.CeleryHaystackSignalHandler': {
             'queue': 'celery_haystack',
         },
 }
