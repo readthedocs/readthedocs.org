@@ -97,7 +97,10 @@ def _get_github_username_repo(version):
 
 def _get_github_version(version):
     if version.slug == 'latest':
-        return version.project.vcs_repo().fallback_branch
+        if version.project.default_branch:
+            return version.project.default_branch
+        else:
+            return version.project.vcs_repo().fallback_branch
     else:
         return version.slug
 
