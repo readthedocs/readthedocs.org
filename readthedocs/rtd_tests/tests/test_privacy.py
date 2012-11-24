@@ -271,10 +271,9 @@ class PrivacyTests(TestCase):
         self.client.post('/dashboard/django-kong/versions/', {'version-test-slug': 'on', 'privacy-test-slug': 'private' })
         r = self.client.get('/docs/django-kong/en/test-slug/')
         self.client.login(username='eric', password='test')
-        import ipdb; ipdb.set_trace()
-        self.assertTrue(r.status_code != 401)
+        self.assertEqual(r.status_code, 200)
 
         # Make sure it doesn't show up as tester
         self.client.login(username='tester', password='test')
         r = self.client.get('/docs/django-kong/en/test-slug/')
-        self.assertTrue(r.status_code == 401)
+        self.assertEqual(r.status_code, 401)
