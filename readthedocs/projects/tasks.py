@@ -227,6 +227,9 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
         else:
             log.warning("Failed HTML Build")
 
+        # TODO: Find a better way to handle indexing.
+        fileify(version)
+
         # Things that touch redis
         update_result = update_intersphinx(version.pk)
         # Needs to happen after update_intersphinx
@@ -378,9 +381,6 @@ def update_imported_docs(version_pk):
                 #TODO: Kill deleted branches
         except ValueError, e:
             log.error("Error getting tags", exc_info=True)
-
-        #TODO: Find a better way to handle indexing.
-        fileify(version)
     return update_docs_output
 
 @task
