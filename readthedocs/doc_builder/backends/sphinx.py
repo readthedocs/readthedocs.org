@@ -65,6 +65,7 @@ context = {
     'conf_py_path': '{{ conf_py_path }}',
     'github_user': '{{ github_user }}',
     'github_repo': '{{ github_repo }}',
+    'github_version': '{{ github_version }}',
 }
 if 'html_context' in locals():
     html_context.update(context)
@@ -94,6 +95,11 @@ def _get_github_username_repo(version):
         return (un, repo)
     return (None, None)
 
+def _get_github_version(version):
+    if version.slug == 'latest':
+        return project.default_branch
+    else:
+        return version.slug
 
 class Builder(BaseBuilder):
     """
@@ -111,6 +117,7 @@ class Builder(BaseBuilder):
         outfile.write("\n")
         conf_py_path = _get_conf_py_path(self.version)
         github_info = _get_github_username_repo(self.version)
+        github_version = _get_github_version(self.version)
         rtd_ctx = Context({
                 'versions': project.api_versions(),
                 'current_version': self.version,
@@ -121,6 +128,7 @@ class Builder(BaseBuilder):
                 'conf_py_path': conf_py_path,
                 'github_user': github_info[0],
                 'github_repo': github_info[1],
+                'github_version':  github_version,
                 })
         rtd_string = Template(RTD_CONF_ADDITIONS).render(rtd_ctx)
         outfile.write(rtd_string)
