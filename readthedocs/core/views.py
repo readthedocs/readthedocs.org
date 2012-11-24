@@ -272,6 +272,8 @@ def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
     if not project_slug:
         project_slug = request.slug
     proj = get_object_or_404(Project, slug=project_slug)
+
+    # Redirects
     if not version_slug or not lang_slug:
         version_slug = proj.get_default_version()
         url = reverse(serve_docs, kwargs={
@@ -281,6 +283,16 @@ def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
             'filename': filename
         })
         return HttpResponseRedirect(url)
+
+    ver = get_object_or_404(Version, slug=version_slug)
+    # Auth checks
+    if ver not in proj.versions.public(request.user, proj):
+        res = HttpResponse("You don't have access to this version.")
+        res.status_code = 401
+        return res
+
+    # Normal handling
+
     if not filename:
         filename = "index.html"
     #This is required because we're forming the filenames outselves instead of letting the web server do it.
