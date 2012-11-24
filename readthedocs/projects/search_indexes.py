@@ -9,7 +9,7 @@ from django.utils.html import strip_tags
 #from haystack import site
 from haystack import indexes
 from haystack.fields import CharField
-#from celery_haystack.indexes import SearchIndex
+from celery_haystack import indexes as celery_indexes
 
 from projects import constants
 from projects.models import ImportedFile, Project
@@ -17,7 +17,7 @@ from projects.models import ImportedFile, Project
 import logging
 log = logging.getLogger(__name__)
 
-class ProjectIndex(indexes.SearchIndex, indexes.Indexable):
+class ProjectIndex(celery_indexes.SearchIndex, indexes.Indexable):
     text = CharField(document=True, use_template=True)
     author = CharField()
     title = CharField(model_attr='name')
@@ -39,7 +39,7 @@ class ProjectIndex(indexes.SearchIndex, indexes.Indexable):
         return self.get_model().objects.public()
 
 #Should prob make a common subclass for this and FileIndex
-class ImportedFileIndex(indexes.SearchIndex, indexes.Indexable):
+class ImportedFileIndex(celery_indexes.SearchIndex, indexes.Indexable):
     text = CharField(document=True)
     author = CharField()
     project = CharField(model_attr='project__name', faceted=True)

@@ -23,7 +23,7 @@ filesystem for each project.
         Build/index all versions or a single project's version
         '''
         # Delete all existing as a cleanup for any deleted projects.
-        ImportedFile.objects.all().delete()
+        #ImportedFile.objects.all().delete()
         if getattr(settings, 'INDEX_ONLY_LATEST', True):
             queryset = Version.objects.filter(slug='latst')
         else:

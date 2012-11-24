@@ -380,7 +380,7 @@ def update_imported_docs(version_pk):
             log.error("Error getting tags", exc_info=True)
 
         #TODO: Find a better way to handle indexing.
-        #fileify(version)
+        fileify(version)
     return update_docs_output
 
 @task
@@ -440,6 +440,7 @@ def fileify(version):
     Create ImportedFile objects for all of a version's files.
 
     This is a prereq for indexing the docs for search.
+    It also causes celery-haystack to kick off an index of the file.
     """
     project = version.project
     path = project.rtd_build_path(version.slug)
