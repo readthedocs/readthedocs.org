@@ -47,7 +47,7 @@ documentation without rebuilding every one. If this script is embedded in each b
         Full-text doc search.
     </p>
 </div>
-{% if github_user and github_repo %}
+{% if github_user not 'None'  and github_repo not 'None' %}
 <p>
     Go to<a href="https://github.com/{{ github_user }}/{{ github_repo }}/blob/{{ github_version }}{{ conf_py_path }}{{ pagename }}.rst"> this page </a>on GitHub.
     (<a href="https://github.com/{{ github_user }}/{{ github_repo }}/edit/{{ github_version }}{{ conf_py_path }}{{ pagename }}.rst">Edit</a>)
