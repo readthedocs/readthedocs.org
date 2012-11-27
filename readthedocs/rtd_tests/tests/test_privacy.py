@@ -262,3 +262,18 @@ class PrivacyTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         data = json.loads(resp.content)
         self.assertEqual(data['meta']['total_count'], 0)
+
+    def test_private_doc_serving(self):
+        kong = self._create_kong('public', 'private')
+
+        self.client.login(username='eric', password='test')
+        kong_1 = Version.objects.create(project=kong, identifier='test id', verbose_name='test verbose', slug='test-slug')
+        self.client.post('/dashboard/django-kong/versions/', {'version-test-slug': 'on', 'privacy-test-slug': 'private' })
+        r = self.client.get('/docs/django-kong/en/test-slug/')
+        self.client.login(username='eric', password='test')
+        self.assertEqual(r.status_code, 200)
+
+        # Make sure it doesn't show up as tester
+        self.client.login(username='tester', password='test')
+        r = self.client.get('/docs/django-kong/en/test-slug/')
+        self.assertEqual(r.status_code, 401)

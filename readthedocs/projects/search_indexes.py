@@ -3,12 +3,13 @@
 import codecs
 import os
 
+from django.conf import settings
 from django.utils.html import strip_tags
 
 #from haystack import site
 from haystack import indexes
 from haystack.fields import CharField
-#from celery_haystack.indexes import SearchIndex
+from celery_haystack import indexes as celery_indexes
 
 from projects import constants
 from projects.models import ImportedFile, Project
@@ -16,7 +17,7 @@ from projects.models import ImportedFile, Project
 import logging
 log = logging.getLogger(__name__)
 
-class ProjectIndex(indexes.SearchIndex, indexes.Indexable):
+class ProjectIndex(celery_indexes.CelerySearchIndex, indexes.Indexable):
     text = CharField(document=True, use_template=True)
     author = CharField()
     title = CharField(model_attr='name')
@@ -38,10 +39,11 @@ class ProjectIndex(indexes.SearchIndex, indexes.Indexable):
         return self.get_model().objects.public()
 
 #Should prob make a common subclass for this and FileIndex
-class ImportedFileIndex(indexes.SearchIndex, indexes.Indexable):
+class ImportedFileIndex(celery_indexes.CelerySearchIndex, indexes.Indexable):
     text = CharField(document=True)
     author = CharField()
     project = CharField(model_attr='project__name', faceted=True)
+    version = CharField(model_attr='version__slug', faceted=True)
     title = CharField(model_attr='name')
     absolute_url = CharField()
 
@@ -71,8 +73,9 @@ class ImportedFileIndex(indexes.SearchIndex, indexes.Indexable):
             log.info('Unable to index file: %s, error :%s' % (file_path, e))
             return
         log.debug('Indexing %s:%s' % (obj.project, obj.path))
+        DOCUMENT_PYQUERY_PATH = getattr(settings, 'DOCUMENT_PYQUERY_PATH', 'div.document')
         try:
-            to_index = strip_tags(PyQuery(content)("div.document").html()).replace(u'¶', '')
+            to_index = strip_tags(PyQuery(content)(DOCUMENT_PYQUERY_PATH).html()).replace(u'¶', '')
         except ValueError:
             #Pyquery returns ValueError if div.document doesn't exist.
             return

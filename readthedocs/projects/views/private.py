@@ -13,10 +13,13 @@ from django.views.generic.list_detail import object_list
 from guardian.shortcuts import assign
 
 from builds.forms import AliasForm
+from builds.filters import VersionFilter
+from builds.models import Version
 from projects.forms import (ImportProjectForm, build_versions_form,
                             build_upload_html_form, SubprojectForm)
 from projects.models import Project
 from projects.tasks import unzip_files
+from projects import constants
 
 
 @login_required
@@ -25,12 +28,17 @@ def project_dashboard(request):
     A dashboard!  If you aint know what that means you aint need to.
     Essentially we show you an overview of your content.
     """
+    qs = Version.objects.active(user=request.user).filter(project__users__in=[request.user])
+    filter = VersionFilter(constants.IMPORTANT_VERSION_FILTERS, queryset=qs)
     return object_list(
         request,
         queryset=request.user.projects.live(),
         page=int(request.GET.get('page', 1)),
         template_object_name='project',
         template_name='projects/project_dashboard.html',
+        extra_context={
+            'filter': filter,
+        }
     )
 
 @login_required

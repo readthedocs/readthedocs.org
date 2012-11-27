@@ -16,7 +16,7 @@
           {% for facet in selected_facets_list %}
             <strong>{{ facet.1 }}</strong>{% if not forloop.last %}, {% endif %}
           {% endfor %} <small>(<a href="?q={{ query }}" id='id_remove_facets'>{% trans "remove" %}</a>)</small></h5>
-  
+
       {% else %}
       <h5>{% trans "Filter by Project" %}</h5>
       <div class="filter">
@@ -34,7 +34,7 @@
           </dl>
       </div>
       {% endif %}
-    {% endif %}    
+    {% endif %}
     <!-- End faceting -->
 
     <div class="module-list">
@@ -51,8 +51,8 @@
               </p>
               {% else %}
               <p class="module-item-title">
-                {% trans "File:" %}
-                <a href="{% if result.absolute_url %}{{ result.absolute_url }}{% else %}{{ result.object.get_absolute_url }}{% endif %}?highlight={{ query }}">{{ result.project }} - {{ result.title }}</a>
+                {% trans "File" %}
+                <a href="{% if result.absolute_url %}{{ result.absolute_url }}{% else %}{{ result.object.get_absolute_url }}{% endif %}?highlight={{ query }}">{{ result.project }} {% if result.version %} ({{ result.version }}) {% endif %} - {{ result.title }}</a>
               </p>
               <p>
                 {% highlight result.text with query %}
@@ -61,7 +61,7 @@
             </li>
           {% empty %}
             <li class="module-item"><span class="quiet">{% trans "No results found. Bummer." %}</span></li>
-          {% endfor %}  
+          {% endfor %}
         {% endif %}
         </ul>
       </div>

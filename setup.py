@@ -1,7 +1,6 @@
 import os
 from setuptools import setup, find_packages
 
-#libraries = [l.strip() for l in open('pip_requirements.txt').readlines()]
 
 setup(
     name='readthedocs',
@@ -13,7 +12,6 @@ setup(
     url='http://readthedocs.org',
     packages=find_packages(),
     include_package_data=True,
-    #install_requires=libraries,
     zip_safe=False,
     classifiers=[
         'Development Status :: 4 - Beta',
@@ -24,5 +22,4 @@ setup(
         'Programming Language :: Python',
         'Framework :: Django',
     ],
-    #test_suite='readthedocs.tests.rtd_tests.runtests'
 )

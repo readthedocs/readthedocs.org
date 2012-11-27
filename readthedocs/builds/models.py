@@ -13,13 +13,14 @@ class VersionManager(models.Manager):
         if isinstance(privacy_level, basestring):
             privacy_level = (privacy_level,)
         queryset = Version.objects.filter(privacy_level__in=privacy_level)
-        if not user and not project:
-            return queryset
+        # Remove this so we can use public() for all active public projects
+        #if not user and not project:
+            #return queryset
         if user and user.is_authenticated():
             # Add in possible user-specific views
             user_queryset = get_objects_for_user(user, 'builds.view_version')
             queryset = user_queryset | queryset
-        else:
+        elif user:
             # Hack around get_objects_for_user not supporting global perms
             global_access = user.has_perm('builds.view_version')
             if global_access:
@@ -30,6 +31,15 @@ class VersionManager(models.Manager):
         if only_active:
             queryset = queryset.filter(active=True)
         return queryset
+
+    def active(self, user=None, project=None, *args, **kwargs):
+        queryset = self._filter_queryset(
+            user,
+            project,
+            privacy_level=(constants.PUBLIC, constants.PROTECTED, constants.PRIVATE),
+            only_active=True,
+        )
+        return queryset.filter(*args, **kwargs)
 
     def public(self, user=None, project=None, only_active=True, *args, **kwargs):
         queryset = self._filter_queryset(

@@ -1,8 +1,9 @@
 import os
 import shutil
 import codecs
-import zipfile
+import re
 import logging
+import zipfile
 
 from django.template import Template, Context
 from django.contrib.auth.models import SiteProfileNotAvailable
@@ -61,6 +62,10 @@ context = {
     'name': u'{{ project.name }}',
     'badge_revsys': {{ project.sponsored }},
     'analytics_code': '{{ project.analytics_code }}',
+    'conf_py_path': '{{ conf_py_path }}',
+    'github_user': '{{ github_user }}',
+    'github_repo': '{{ github_repo }}',
+    'github_version': '{{ github_version }}',
 }
 if 'html_context' in locals():
     html_context.update(context)
@@ -71,6 +76,33 @@ else:
 TEMPLATE_DIR = '%s/readthedocs/templates/sphinx' % settings.SITE_ROOT
 STATIC_DIR = '%s/_static' % TEMPLATE_DIR
 
+def _get_conf_py_path(version):
+    conf_py_path = version.project.conf_file(version.slug)
+    conf_py_path = conf_py_path.replace(version.project.checkout_path(version.slug), '')
+    return conf_py_path.replace('conf.py', '')
+
+def _get_github_username_repo(version):
+    REGEX1 = re.compile('github.com/(.+)/(.+)(?:\.git){1}')
+    REGEX2 = re.compile('github.com/(.+)/(.+)')
+    repo_url = version.project.repo
+    if 'github' in repo_url:
+        try:
+            un, repo = REGEX1.search(repo_url).groups()
+        except AttributeError:
+            un, repo = REGEX2.search(repo_url).groups()
+        except AttributeError:
+            return (None, None)
+        return (un, repo)
+    return (None, None)
+
+def _get_github_version(version):
+    if version.slug == 'latest':
+        if version.project.default_branch:
+            return version.project.default_branch
+        else:
+            return version.project.vcs_repo().fallback_branch
+    else:
+        return version.slug
 
 class Builder(BaseBuilder):
     """
@@ -86,6 +118,9 @@ class Builder(BaseBuilder):
         #Open file for appending.
         outfile = codecs.open(project.conf_file(self.version.slug), encoding='utf-8', mode='a')
         outfile.write("\n")
+        conf_py_path = _get_conf_py_path(self.version)
+        github_info = _get_github_username_repo(self.version)
+        github_version = _get_github_version(self.version)
         rtd_ctx = Context({
                 'versions': project.api_versions(),
                 'current_version': self.version,
@@ -93,6 +128,10 @@ class Builder(BaseBuilder):
                 'settings': settings,
                 'static_path': STATIC_DIR,
                 'template_path': TEMPLATE_DIR,
+                'conf_py_path': conf_py_path,
+                'github_user': github_info[0],
+                'github_repo': github_info[1],
+                'github_version':  github_version,
                 })
         rtd_string = Template(RTD_CONF_ADDITIONS).render(rtd_ctx)
         outfile.write(rtd_string)

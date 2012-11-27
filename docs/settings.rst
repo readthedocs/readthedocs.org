@@ -46,3 +46,19 @@ SLUMBER_PASSWORD
 Default: `test`
 
 The password to use when connecting to the Read the Docs API. Used for hitting the API while building the docs.
+
+
+INDEX_ONLY_LATEST
+-----------------
+
+Default: `False`
+
+In search, only index the `latest` version of a Project. 
+
+DOCUMENT_PYQUERY_PATH
+---------------------
+
+Default: `div.document`
+
+The Pyquery path to an HTML element that is the root of your document. 
+This is used for making sure we are only searching the main content of a document.

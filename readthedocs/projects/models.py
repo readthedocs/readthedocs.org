@@ -506,7 +506,8 @@ class Project(models.Model):
 
 
 class ImportedFile(models.Model):
-    project = models.ForeignKey(Project, verbose_name=_('Project'), related_name='imported_files')
+    project = models.ForeignKey('Project', verbose_name=_('Project'), related_name='imported_files')
+    version = models.ForeignKey('builds.Version', verbose_name=_('Version'), related_name='imported_filed', null=True)
     name = models.CharField(_('Name'), max_length=255)
     slug = models.SlugField(_('Slug'))
     path = models.CharField(_('Path'), max_length=255)
@@ -514,7 +515,7 @@ class ImportedFile(models.Model):
 
     @models.permalink
     def get_absolute_url(self):
-        return ('docs_detail', [self.project.slug, 'en', 'latest', self.path])
+        return ('docs_detail', [self.project.slug, 'en', self.version.slug, self.path])
 
     def __unicode__(self):
         return '%s: %s' % (self.name, self.project)
