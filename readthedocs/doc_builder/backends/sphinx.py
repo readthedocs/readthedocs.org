@@ -90,7 +90,7 @@ def _get_github_username_repo(version):
             un, repo = REGEX1.search(repo_url).groups()
         except AttributeError:
             un, repo = REGEX2.search(repo_url).groups()
-        except AttributeError:
+        except:
             return (None, None)
         return (un, repo)
     return (None, None)
