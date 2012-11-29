@@ -88,11 +88,14 @@ def _get_github_username_repo(version):
     if 'github' in repo_url:
         try:
             un, repo = REGEX1.search(repo_url).groups()
+            return (un, repo)
         except AttributeError:
-            un, repo = REGEX2.search(repo_url).groups()
+            try:
+                un, repo = REGEX2.search(repo_url).groups()
+            except:
+                return (None, None)
         except:
             return (None, None)
-        return (un, repo)
     return (None, None)
 
 def _get_github_version(version):
