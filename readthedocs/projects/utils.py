@@ -176,9 +176,8 @@ def make_api_version(version_data):
 
 def make_api_project(project_data):
     from projects.models import Project
-    del project_data['users']
-    del project_data['resource_uri']
-    del project_data['absolute_url']
-    del project_data['downloads']
+    for key in ['users', 'resource_uri', 'absolute_url', 'downloads']:
+        if project_data.has_key(key):
+            del project_data(key)
     project = Project(**project_data)
     return project
