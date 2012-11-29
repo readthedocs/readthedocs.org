@@ -178,6 +178,6 @@ def make_api_project(project_data):
     from projects.models import Project
     for key in ['users', 'resource_uri', 'absolute_url', 'downloads']:
         if project_data.has_key(key):
-            del project_data(key)
+            del project_data[key]
     project = Project(**project_data)
     return project
