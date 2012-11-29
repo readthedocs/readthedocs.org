@@ -28,32 +28,31 @@ documentation without rebuilding every one. If this script is embedded in each b
 {% block sidebarlogo %}
 {{ super() }}
 {% if using_theme %}
-{% if versions %}
-    <h3>Project Versions</h3>
-    <ul id="sidebar_versions">
-{% for slug, url in versions %}
-  <li><a href="{{ url }}">{{ slug }}</a></li>
-{% endfor %}
-    </ul>
-{% endif %}
-<div id="searchbox" style="">
-  <h3>RTD Search</h3>
-    <form class="search" action="//{{ PRODUCTION_DOMAIN }}/search/project/" method="get">
-      <input type="text" name="q" size="18">
-      <input type="submit" value="Go">
-      <input type="hidden" name="selected_facets" value="project_exact:{{ name }}">
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-        Full-text doc search.
-    </p>
-</div>
-{# 
-# Kill this for now, because I'm going to the coast and it's displaying for everyone :)
-<p>
-    Go to<a href="https://github.com/{{ github_user }}/{{ github_repo }}/blob/{{ github_version }}{{ conf_py_path }}{{ pagename }}.rst"> this page </a>on GitHub.
-    (<a href="https://github.com/{{ github_user }}/{{ github_repo }}/edit/{{ github_version }}{{ conf_py_path }}{{ pagename }}.rst">Edit</a>)
-</p>
-#} 
+    {% if versions %}
+            <h3>Project Versions</h3>
+            <ul id="sidebar_versions">
+        {% for slug, url in versions %}
+          <li><a href="{{ url }}">{{ slug }}</a></li>
+        {% endfor %}
+            </ul>
+    {% endif %}
+    <div id="searchbox" style="">
+      <h3>RTD Search</h3>
+        <form class="search" action="//{{ PRODUCTION_DOMAIN }}/search/project/" method="get">
+          <input type="text" name="q" size="18">
+          <input type="submit" value="Go">
+          <input type="hidden" name="selected_facets" value="project_exact:{{ name }}">
+        </form>
+        <p class="searchtip" style="font-size: 90%">
+            Full-text doc search.
+        </p>
+    </div>
+    {% if display_github %}
+        <p>
+            Go to<a href="https://github.com/{{ github_user }}/{{ github_repo }}/blob/{{ github_version }}{{ conf_py_path }}{{ pagename }}.rst"> this page </a>on GitHub.
+            (<a href="https://github.com/{{ github_user }}/{{ github_repo }}/edit/{{ github_version }}{{ conf_py_path }}{{ pagename }}.rst">Edit</a>)
+        </p>
+    {% endif %} 
 {% endif %}
 {% endblock %}
 

@@ -121,6 +121,10 @@ class Builder(BaseBuilder):
         conf_py_path = _get_conf_py_path(self.version)
         github_info = _get_github_username_repo(self.version)
         github_version = _get_github_version(self.version)
+        if github_info[0] == None:
+            display_github = False
+        else:
+            display_github = True
         rtd_ctx = Context({
                 'versions': project.api_versions(),
                 'current_version': self.version,
@@ -132,6 +136,7 @@ class Builder(BaseBuilder):
                 'github_user': github_info[0],
                 'github_repo': github_info[1],
                 'github_version':  github_version,
+                'display_github': display_github,
                 })
         rtd_string = Template(RTD_CONF_ADDITIONS).render(rtd_ctx)
         outfile.write(rtd_string)
