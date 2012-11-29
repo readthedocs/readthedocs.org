@@ -10,7 +10,7 @@
   <link rel="icon" type="image/png" href="{{ MEDIA_URL }}images/favicon.png">
 
   <!-- title -->
-  <title>{% block title %}{% endblock %} | {% trans "Read the Docs" %}</title>
+  <title>{% block title %}{% endblock %} | {% block branding %}{% trans "Read the Docs" %} {% endblock %}</title>
 
   <!-- css -->
   <link rel="stylesheet" href="{{ MEDIA_URL }}css/core.css">
