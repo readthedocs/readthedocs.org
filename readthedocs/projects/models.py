@@ -491,6 +491,15 @@ class Project(models.Model):
             return self.default_version
         return 'latest'
 
+    def get_default_branch(self):
+       """
+       Get the version representing "latest"
+       """
+       if self.default_branch:
+           return self.default_branch
+       else: 
+           return self.vcs_repo().fallback_branch
+
     def add_subproject(self, child):
         subproject, created = ProjectRelationship.objects.get_or_create(
             parent=self,

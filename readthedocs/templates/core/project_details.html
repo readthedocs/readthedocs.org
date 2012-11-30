@@ -138,9 +138,16 @@
 </ul>
 {% endif %}
 
+<h3>{% trans "Latest version" %}</h3>
+<p> {{ project.get_default_branch }}</p>
+
+<h3>{% trans "Default Version" %}</h3>
+<p> {{ project.get_default_version }}</p>
+
+
 {% if request.user in project.users.all %}
   <h3>{% trans "Post Commit Hook" %}</h3>
-    <p>http://readthedocs.org{% url generic_build project.pk %}</p>
+    <p>http://{{ PRODUCTION_DOMAIN }}{% url generic_build project.pk %}</p>
 {% endif %}
 
 {% if pageview_list %}
