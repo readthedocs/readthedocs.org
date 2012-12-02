@@ -71,3 +71,5 @@ Then usage is pretty similar. You reference something using normal sphinx syntax
     :mod:`Intersphinx <sphinx:sphinx.ext.intersphinx>`
 
 This will create a link to the official Sphinx documentation for intersphinx.
+
+More information can be found on Reinout van Rees' blog: http://reinout.vanrees.org/weblog/2012/12/01/django-intersphinx.html
