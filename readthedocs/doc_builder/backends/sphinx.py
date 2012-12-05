@@ -66,7 +66,7 @@ context = {
     'github_user': '{{ github_user }}',
     'github_repo': '{{ github_repo }}',
     'github_version': '{{ github_version }}',
-    'display_github': '{{ display_github }}',
+    'display_github': {{ display_github }},
 }
 if 'html_context' in locals():
     html_context.update(context)
