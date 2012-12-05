@@ -85,6 +85,7 @@ def _get_conf_py_path(version):
 def _get_github_username_repo(version):
     REGEX1 = re.compile('github.com/(.+)/(.+)(?:\.git){1}')
     REGEX2 = re.compile('github.com/(.+)/(.+)')
+    REGEX3 = re.compile('github.com:(.+)/(.+).git')
     repo_url = version.project.repo
     if 'github' in repo_url:
         try:
@@ -95,7 +96,11 @@ def _get_github_username_repo(version):
                 un, repo = REGEX2.search(repo_url).groups()
                 return (un, repo)
             except:
-                return (None, None)
+                try:
+                    un, repo = REGEX3.search(repo_url).groups()
+                    return (un, repo)
+                except:
+                    return (None, None)
         except:
             return (None, None)
     return (None, None)
