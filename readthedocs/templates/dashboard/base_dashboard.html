@@ -20,13 +20,18 @@
           </ul>
 
           <ul>
-            <li class="first {% block dash-nav-profile %}{% endblock %}">
-              {% if request.user.get_profile %}
-              <a href="{% url profiles_profile_edit %}">{% trans "Edit Profile" %}</a>
-              {% else %}
-              <a href="{% url profiles_profile_create %}">{% trans "Create Profile" %}</a>
-              {% endif %}
-            </li>
+            {% if request.user.get_profile %}
+              <li class="first">
+                <a href="{{ request.user.get_profile.get_absolute_url }}">{% trans "View Profile" %}</a>
+              </li>
+              <li class="{% block dash-nav-profile %}{% endblock %}">
+                <a href="{% url profiles_profile_edit %}">{% trans "Edit Profile" %}</a>
+              </li>
+            {% else %}
+              <li class="first {% block dash-nav-profile %}{% endblock %}">
+                <a href="{% url profiles_profile_create %}">{% trans "Create Profile" %}</a>
+              </li>
+            {% endif %}
             <li class="last {% block dash-nav-change-pw %}{% endblock %}">
               <a href="/accounts/password/change/">{% trans "Change Password" %}</a>
             </li>
