@@ -28,7 +28,7 @@
                 <a href="{% url profiles_profile_edit %}">{% trans "Edit Profile" %}</a>
               </li>
             {% else %}
-              <li class="first {% block dash-nav-profile %}{% endblock %}">
+              <li>
                 <a href="{% url profiles_profile_create %}">{% trans "Create Profile" %}</a>
               </li>
             {% endif %}
