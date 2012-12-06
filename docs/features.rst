@@ -11,7 +11,7 @@ We now support linking to GitHub by default in the sidebar. It links to the page
 
 .. note:: This only allows to people using the Read the Docs theme.
 
-.. img:: /img/edit_on_github.png
+.. image:: /img/edit_on_github.png
 
 
 Auto-updating
