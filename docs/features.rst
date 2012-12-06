@@ -8,8 +8,6 @@ Github Integration
 
 We now support linking to GitHub by default in the sidebar. It links to the page on GitHub, and directly links to the edit view as well. This should help people quickly update typos and send pull requests to contribute to project documentation.
 
-.. note:: This only allows to people using the Read the Docs theme.
-
 Screenshot
 ~~~~~~~~~~
 
