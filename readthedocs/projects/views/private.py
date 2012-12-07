@@ -4,6 +4,7 @@ import zipfile
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, render_to_response
@@ -16,7 +17,8 @@ from builds.forms import AliasForm
 from builds.filters import VersionFilter
 from builds.models import Version
 from projects.forms import (ImportProjectForm, build_versions_form,
-                            build_upload_html_form, SubprojectForm)
+                            build_upload_html_form, SubprojectForm,
+                            UserForm)
 from projects.models import Project
 from projects.tasks import unzip_files
 from projects import constants
@@ -261,4 +263,32 @@ def project_subprojects_delete(request, project_slug, child_slug):
     parent.remove_subproject(child)
 
     project_dashboard = reverse('projects_detail', args=[parent.slug])
+    return HttpResponseRedirect(project_dashboard)
+
+
+@login_required
+def project_users(request, project_slug):
+    project = get_object_or_404(request.user.projects.live(), slug=project_slug)
+
+    form = UserForm(data=request.POST or None, project=project)
+
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        project_dashboard = reverse('projects_users', args=[project.slug])
+        return HttpResponseRedirect(project_dashboard)
+
+    users = project.users.all()
+
+    return render_to_response(
+        'projects/project_users.html',
+        {'form': form, 'project': project, 'users': users},
+        context_instance=RequestContext(request)
+    )
+
+@login_required
+def project_users_delete(request, project_slug, user_slug):
+    project = get_object_or_404(request.user.projects.live(), slug=project_slug)
+    user = get_object_or_404(User.objects.all(), username=user_slug)
+    project.users.remove(user)
+    project_dashboard = reverse('projects_users', args=[project.slug])
     return HttpResponseRedirect(project_dashboard)

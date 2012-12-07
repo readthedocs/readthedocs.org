@@ -1,0 +1,44 @@
+{% extends "projects/base_project.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans "Edit Users" %}{% endblock %}
+
+{% block project_editing %}
+    {% with users_active="active" %}
+        {% include "core/project_bar.html" %}
+    {% endwith %}
+{% endblock %}
+
+{% block content-header %}<h1>{% trans "Edit Users" %}</h1>{% endblock %}
+
+{% block content %}
+  <p class="help_text">
+    {% trans "This allows you to add users to your project. It gives them admin access to the project, so be careful!" %}
+  </p>
+
+  <h3> {% trans "Existing Users" %} </h3>
+  <p>
+    <ul>
+    {% for user in users %}
+        <li>
+        <a href="{% url profiles_profile_detail user.username %}">
+        {{ user }}
+        </a>
+        {% if user != request.user %}
+        (<a href="{% url projects_users_delete project.slug user.username %}">{% trans "Remove" %}</a>)
+        {% endif %}
+        </li>
+    {% endfor %}
+    </ul>
+  <p>
+    {% trans "Choose which user you would like to add." %}
+  </p>
+  <form method="post" action=".">{% csrf_token %}
+    {{ form.as_p }}
+    <p>
+      <input style="display: inline;" type="submit" value="{% trans "Submit" %}">
+    </p>
+  </form>
+{% endblock %}
+
