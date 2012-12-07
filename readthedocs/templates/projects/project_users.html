@@ -17,7 +17,7 @@
     {% trans "This allows you to add users to your project. It gives them admin access to the project, so be careful!" %}
   </p>
 
-  <h3> {% trans "Existing Admins" %} </h3>
+  <h3>{% trans "Existing Admins" %}</h3>
   <p>
     <ul>
     {% for user in users %}
@@ -30,7 +30,7 @@
     </ul>
 
   {% if users|length > 1 %}
-  <h3> {% trans "Remove Admin" %} </h3>
+  <h3>{% trans "Remove Admin" %}</h3>
     <p>
         <form method="post" action="{% url projects_users_delete project.slug %}">
             {% csrf_token %}

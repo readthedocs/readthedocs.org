@@ -207,7 +207,8 @@ class UserForm(forms.Form):
         name = self.cleaned_data['user']
         user_qs = User.objects.filter(username=name)
         if not user_qs.exists():
-            raise forms.ValidationError(_("User %(name)s does not exist") % {'name': name})
+            raise forms.ValidationError(_("User %(name)s does not exist") %
+                                        {'name': name})
         self.user = user_qs[0]
         return name
 
