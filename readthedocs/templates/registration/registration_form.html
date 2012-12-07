@@ -7,6 +7,15 @@
 {% block body_class %}{{ block.super }} registration_form{% endblock %}
 
 
+{% block extra_scripts %}
+<script type="text/javascript">
+  $(function () {
+    $('#id_username').focus();
+  });
+</script>
+{% endblock %}
+
+
 {% block content-header %}
   <h1>{% trans "Register for an account" %}</h1>
 {% endblock %}
