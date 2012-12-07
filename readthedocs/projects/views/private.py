@@ -286,9 +286,13 @@ def project_users(request, project_slug):
     )
 
 @login_required
-def project_users_delete(request, project_slug, user_slug):
+def project_users_delete(request, project_slug):
+    if request.method != 'POST':
+        raise Http404
     project = get_object_or_404(request.user.projects.live(), slug=project_slug)
-    user = get_object_or_404(User.objects.all(), username=user_slug)
+    user = get_object_or_404(User.objects.all(), username=request.POST.get('username'))
+    if user == request.user:
+        raise Http404
     project.users.remove(user)
     project_dashboard = reverse('projects_users', args=[project.slug])
     return HttpResponseRedirect(project_dashboard)

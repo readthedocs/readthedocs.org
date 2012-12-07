@@ -25,12 +25,27 @@
         <a href="{% url profiles_profile_detail user.username %}">
         {{ user }}
         </a>
-        {% if user != request.user %}
-        (<a href="{% url projects_users_delete project.slug user.username %}">{% trans "Remove" %}</a>)
-        {% endif %}
         </li>
     {% endfor %}
     </ul>
+
+  {% if users|length > 1 %}
+  <h3> {% trans "Remove User" %} </h3>
+    <p>
+        <form method="post" action="{% url projects_users_delete project.slug %}">
+            {% csrf_token %}
+          <select id="id_user" name="username">
+          {% for user in users %}
+            {% if user != request.user %}
+            <option value="{{ user.username }}">{{ user }}</option>
+            {% endif %}
+          {% endfor %}
+          </select>
+          <input type="submit" value="Remove">
+        </form>
+    </p>
+  {% endif %}
+
   <p>
     {% trans "Choose which user you would like to add." %}
   </p>
@@ -41,4 +56,3 @@
     </p>
   </form>
 {% endblock %}
-

@@ -18,7 +18,7 @@ hr { height: 1px; border: 0; border: none; width: 100%; background: #bfbfbf; col
 /* general layout */
 
 body { position: relative; text-align: center; z-index: 0; background: #fafafa url(../images/body-bg.png) top left repeat; }
-.wrapper { position: relative; text-align: left; margin: 0 auto; padding: 0 10px; width: 780px; }
+.wrapper { position: relative; text-align: left; margin: 0 auto; padding: 0 10px; width: 800px; }
 
 
 /* typography */
