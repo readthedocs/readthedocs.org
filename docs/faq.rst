@@ -26,6 +26,12 @@ When RTD builds your project, it sets the `READTHEDOCS` environment variable to 
     else:
         html_theme = 'nature'
 
+The ``READTHEDOCS`` variable is also available in the Sphinx build environment, and will be set to ``True`` when building on RTD::
+
+    {% if READTHEDOCS %}
+    Woo
+    {% endif %}
+
 I get import errors on libraries that depend on C modules
 ----------------------------------------------------------
 

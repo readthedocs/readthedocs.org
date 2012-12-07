@@ -67,6 +67,7 @@ context = {
     'github_repo': '{{ github_repo }}',
     'github_version': '{{ github_version }}',
     'display_github': {{ display_github }},
+    'READTHEDOCS': True,
 }
 if 'html_context' in locals():
     html_context.update(context)
