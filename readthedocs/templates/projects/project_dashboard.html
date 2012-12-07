@@ -65,6 +65,7 @@
                       <li class="module-item col-span">
                         <a href="{% url projects_manage project.slug %}">{{ project.name }}</a>
                         <ul class="module-item-menu">
+                          <li><a href="{% url projects_users project.slug %}">{% trans "Admins" %}</a></li>
                           <li><a href="{% url projects_versions project.slug %}" rel="nofollow,noindex">{% trans "Versions" %}</a></li>
                           <li><a href="{% url projects_subprojects project.slug %}">{% trans "Subprojects" %}</a></li>
                           <li><a href="{% url projects_edit project.slug %}">{% trans "Edit" %}</a></li>

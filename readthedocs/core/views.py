@@ -342,7 +342,6 @@ def server_error_404(request, template_name='404.html'):
     r.status_code = 404
     return r
 
-
 class SearchView(TemplateView):
 
     template_name = "search/base_facet.html"

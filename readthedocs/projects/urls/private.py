@@ -53,4 +53,12 @@ urlpatterns = patterns('projects.views.private',
         'project_subprojects',
         name='projects_subprojects'
     ),
+    url(r'^(?P<project_slug>[-\w]+)/users/$',
+        'project_users',
+        name='projects_users'
+    ),
+    url(r'^(?P<project_slug>[-\w]+)/users/delete/$',
+        'project_users_delete',
+        name='projects_users_delete'
+    ),
 )

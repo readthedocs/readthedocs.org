@@ -1,5 +1,6 @@
 from django import forms
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.template.defaultfilters import slugify
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
@@ -194,3 +195,23 @@ class SubprojectForm(forms.Form):
     def save(self):
         relationship = self.parent.add_subproject(self.subproject)
         return relationship
+
+class UserForm(forms.Form):
+    user = forms.CharField()
+
+    def __init__(self, *args, **kwargs):
+        self.project = kwargs.pop('project', None)
+        super(UserForm, self).__init__(*args, **kwargs)
+
+    def clean_user(self):
+        name = self.cleaned_data['user']
+        user_qs = User.objects.filter(username=name)
+        if not user_qs.exists():
+            raise forms.ValidationError(_("User %(name)s does not exist") %
+                                        {'name': name})
+        self.user = user_qs[0]
+        return name
+
+    def save(self):
+        project = self.project.users.add(self.user)
+        return self.user
