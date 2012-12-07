@@ -1,13 +1,14 @@
 from django.test import TestCase
 
+from builds.models import Version
+from projects.models import Project
+
 class Testmaker(TestCase):
     fixtures = ["eric"]
 
-    def setUp(self):
-        self.client.login(username='eric', password='test')
-
     def test_imported_docs(self):
         # Test Import
+        self.client.login(username='eric', password='test')
         r = self.client.get('/dashboard/', {})
         self.assertEqual(r.status_code, 200)
         r = self.client.get('/dashboard/import/', {})
@@ -24,6 +25,8 @@ class Testmaker(TestCase):
              'version_privacy_level': 'public',
              'description': 'OOHHH AH AH AH KONG SMASH',
              'documentation_type': 'sphinx'})
+        kong = Project.objects.get(slug='django-kong')
+        kong_1 = Version.objects.create(project=kong, identifier='latest', verbose_name='latest', slug='latest', active=True)
         self.assertEqual(r.status_code, 302)
         r = self.client.get('/docs/django-kong/en/latest/', {})
         self.assertEqual(r.status_code, 200)

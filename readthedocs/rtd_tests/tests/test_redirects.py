@@ -1,7 +1,27 @@
 from django.test import TestCase
 
+from builds.models import Version
+from projects.models import Project
+
 class RedirectTests(TestCase):
     fixtures = ["eric", "test_data"]
+
+    def setUp(self):
+        self.client.login(username='eric', password='test')
+        r = self.client.post(
+            '/dashboard/import/',
+            {'repo_type': 'git', 'name': 'Pip',
+             'tags': 'big, fucking, monkey', 'default_branch': '',
+             'project_url': 'http://pip.rtfd.org',
+             'repo': 'https://github.com/fail/sauce',
+             'csrfmiddlewaretoken': '34af7c8a5ba84b84564403a280d9a9be',
+             'default_version': 'latest',
+             'privacy_level': 'public',
+             'version_privacy_level': 'public',
+             'description': 'wat',
+             'documentation_type': 'sphinx'})
+        pip = Project.objects.get(slug='pip')
+        pip_latest = Version.objects.create(project=pip, identifier='latest', verbose_name='latest', slug='latest', active=True)
 
 
     def test_proper_url_no_slash(self):
