@@ -5,8 +5,12 @@
 {% block title %}{{ project.name }}{% endblock %}
 
 {% block project_editing %}
-  {% include "core/project_bar.html" %}
+    {% with downloads_active="active" %}
+        {% include "core/project_bar.html" %}
+    {% endwith %}
 {% endblock %}
+
+{% block downloads-view %}active{% endblock %}
 
 {% block content %}
 

@@ -1,10 +1,14 @@
-{% extends "dashboard/base_dashboard.html" %}
+{% extends "base.html" %}
 {% load i18n %}
 {% load pagination_tags %}
 
 {% block title %}{% trans "Project Dashboard" %}{% endblock %}
 
-{% block nav-dashboard %}class="active"{% endblock %}
+{% block dashboard_bar %}
+  {% with projects_active="active" %}
+    {% include "dashboard/dashboard_bar.html" %}
+  {% endwith %}
+{% endblock %}
 
 {% block dash-nav-projects %}active{% endblock %}
 
@@ -61,21 +65,13 @@
                       <li class="module-item col-span">
                         <a href="{% url projects_manage project.slug %}">{{ project.name }}</a>
                         <ul class="module-item-menu">
-                          {% if not project.is_imported %}
-                            <li><a href="{% url projects_manage project.slug %}">{% trans "Manage Files" %}</a></li>
-                          {% endif %}
-                          {% if project.has_versions %}
-                            <li><a href="{% url projects_versions project.slug %}" rel="nofollow,noindex">{% trans "Versions" %}</a></li>
-                        {% endif %}
+                          <li><a href="{% url projects_versions project.slug %}" rel="nofollow,noindex">{% trans "Versions" %}</a></li>
+                          <li><a href="{% url projects_subprojects project.slug %}">{% trans "Subprojects" %}</a></li>
+                          <li><a href="{% url projects_edit project.slug %}">{% trans "Edit" %}</a></li>
                           {% if project.has_aliases %}
                             <li><a href="{% url projects_alias_list project.slug %}" rel="nofollow,noindex">{% trans "Aliases" %}</a></li>
-                        {% endif %}
-
-                          {% if project.subprojects.count %}
-                          <li><a href="{% url projects_subprojects project.slug %}">{% trans "Subprojects" %}</a></li>
                           {% endif %}
-                          <li><a href="{% url projects_edit project.slug %}">{% trans "Edit" %}</a></li>
-                          <li><a href="{{ project.get_builds_url }}">{% trans "Builds" %}</a></li>
+                          <li>&nbsp;&nbsp;</li>
                           <li><a href="{{ project.get_docs_url }}">{% trans "View Docs" %}</a></li>
                         </ul>
                       </li>

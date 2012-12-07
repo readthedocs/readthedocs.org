@@ -1,10 +1,15 @@
-{% extends "profiles/base_profile.html" %}
+{% extends "base.html" %}
 
 {% load i18n %}
 
 {% block title %}{% trans "Edit your profile" %}{% endblock %}
 
-{% block dash-nav-profile %}active{% endblock %}
+
+{% block dashboard_bar %}
+  {% with edit_profile_active="active" %}
+    {% include "dashboard/dashboard_bar.html" %}
+  {% endwith %}
+{% endblock %}
 
 {% block content-header %}
   <h1>{% trans "Edit your profile" %}</h1>
@@ -16,4 +21,3 @@
     <input type="submit" name="submit" value="{% trans "OK, save it!" %}" id="submit"/>
   </form>
 {% endblock %}
-

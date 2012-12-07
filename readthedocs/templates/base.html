@@ -19,11 +19,11 @@
   <!-- jquery -->
   <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
   <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.4/jquery-ui.min.js"></script>
-  
+
   <script type="text/javascript" src="{{ MEDIA_URL }}javascript/instantsearch.js"></script>
-  
+
   {% block extra_scripts %}{% endblock %}
-  
+
   <!-- typekit -->
   <!-- Old typekit
   <script type="text/javascript" src="//use.typekit.com/xgl8ypn.js"></script>
@@ -32,12 +32,14 @@
 
   <script type="text/javascript" src="//use.typekit.net/haq4xtp.js"></script>
   <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
-  
+
 </head>
 
 <body class="{% block body_class %}{% endblock %}">
 
-    {% block header-wrapper %}{% include "core/header.html" %}{% endblock %}
+    {% block header-wrapper %}
+        {% include "core/header.html" %}
+    {% endblock %}
 
     {% block dashboard_bar %}{% endblock %}
 

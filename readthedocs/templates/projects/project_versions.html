@@ -1,4 +1,4 @@
-{% extends "projects/base_project_editing.html" %}
+{% extends "projects/base_project.html" %}
 {% load i18n %}
 
 {% block title %}{% trans "Edit Project Versions" %}{% endblock %}
@@ -6,6 +6,13 @@
 {% block editing-option-edit-proj %}class="active"{% endblock %}
 
 {% block content-header %}<h1>{% trans "Edit Project Versions" %}</h1>{% endblock %}
+
+
+{% block project_editing %}
+    {% with versions_active="active" %}
+        {% include "core/project_bar.html" %}
+    {% endwith %}
+{% endblock %}
 
 {% block content %}
   <p class="help_text">

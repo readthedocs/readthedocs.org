@@ -1,10 +1,16 @@
-{% extends "projects/base_project_editing.html" %}
+{% extends "projects/base_project.html" %}
 
 {% load i18n %}
 
 {% load pagination_tags %}
 
 {% block title %}Builds{% endblock %}
+
+{% block project_editing %}
+    {% with builds_active="active" %}
+        {% include "core/project_bar.html" %}
+    {% endwith %}
+{% endblock %}
 
 {% block content %}
 <div id="build_list">

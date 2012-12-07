@@ -8,6 +8,16 @@
   <h1>{% blocktrans with profile.user as user %}{{ user }}'s profile{% endblocktrans %}</h1>
 {% endblock %}
 
+
+{% block dashboard_bar %}
+    {% if request.user == profile.user %}
+        {% with view_profile_active="active" %}
+            {% include "dashboard/dashboard_bar.html" %}
+        {% endwith %}
+    {% endif %}
+{% endblock %}
+
+
 {% block content %}
   {% if profile.homepage %}
   <h3>{% trans "Homepage" %}</h3>

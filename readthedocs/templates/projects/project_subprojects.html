@@ -1,8 +1,16 @@
-{% extends "projects/base_project_editing.html" %}
+{% extends "projects/base_project.html" %}
 
 {% load i18n %}
 
 {% block title %}{% trans "Edit Subprojects" %}{% endblock %}
+
+{% block nav-dashboard %} class="active"{% endblock %}
+
+{% block project_editing %}
+    {% with subprojects_active="active" %}
+        {% include "core/project_bar.html" %}
+    {% endwith %}
+{% endblock %}
 
 {% block editing-option-edit-proj %}class="active"{% endblock %}
 

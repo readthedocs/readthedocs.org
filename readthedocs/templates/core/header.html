@@ -89,7 +89,7 @@
         <div class="rtfd-header-nav">
           <ul>
             {% if request.user.is_authenticated %}
-              <li {% block nav-dashboard %}{% endblock %}><a href="{% url projects_dashboard %}">{% trans "Dashboard" %}</a></li>
+              <li class="{{ dashboard_active }}"><a href="{% url projects_dashboard %}">{% trans "Dashboard" %}</a></li>
               <li><a href="{% url auth_logout %}">{% trans "Log Out" %}</a></li>
             {% else %}
               <li><a href="{% url auth_login %}">{% trans "Log in" %}</a></li>
