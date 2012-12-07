@@ -40,6 +40,10 @@
 
             <li>&nbsp;&nbsp;</li>
 
+            {% if request.user in project.users.all %}
+                <li><a href="{% url projects_users project.slug %}">{% trans "Admins" %}</a></li>
+            {% endif %}
+
             {% if project.has_versions and request.user in project.users.all %}
               <li class="{{ versions_active }}"><a href="{% url projects_versions project.slug %}" rel="nofollow,noindex">{% trans "Versions" %}</a></li>
             {% endif %}
