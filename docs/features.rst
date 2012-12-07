@@ -10,9 +10,11 @@ We now support linking to GitHub by default in the sidebar. It links to the page
 
 If you want to integrate this into your own theme, the following variables are available in your custom templates:
 
-* github_user
-* github_repo
-* github_version
+* github_user - GitHub username
+* github_repo - GitHub repo name
+* github_version - Github blob
+* conf_py_path - Path in the checkout to the docs root
+* pagename - Sphinx variable representing the name of the page you're on.
 * display_github
 
 It can be used like this::
