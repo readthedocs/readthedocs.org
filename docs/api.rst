@@ -71,7 +71,7 @@ Example of adding a user to a project
 
 
 API Endpoints
-=============
+-------------
 
 Feel free to use cURL and python to look at formatted json examples. You can also look at them in your browser, if it handles returned json.
 
