@@ -35,6 +35,13 @@ Site Documentation
     builds
     talks
 
+Designer Documentation
+----------------------
+.. toctree::
+    :maxdepth: 2
+
+    design
+
 Developer Documentation
 -----------------------
 .. toctree::
@@ -49,7 +56,6 @@ Developer Documentation
     i18n
     api
     api/index
-    design
 
 Operations Documentation
 ------------------------
