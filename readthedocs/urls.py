@@ -98,6 +98,7 @@ urlpatterns = patterns('',
 
 if settings.DEBUG:
     urlpatterns += patterns('',
+        url('style-catalog/$', 'django.views.generic.simple.direct_to_template', {'template':'style_catalog.html'}),
         url(
             regex  = '^%s/(?P<path>.*)$' % settings.MEDIA_URL.strip('/'),
             view   = 'django.views.static.serve',

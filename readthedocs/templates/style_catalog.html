@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<hr>
+
+<h1>Header 1.</h1>
+<h2>Header 2.</h2>
+<h3>Header 3.</h3>
+<h4>Header 4.</h4>
+<h5>Header 5.</h5> 
+<p>Paragraph. <span class="aside">Aside.</span></p>
+<p>Paragraph with <a href="#">link.</a></p>
+<p>Paragraph with <span class="highlighted">highlighted text.</span></p>
+
+<p>
+<strong>Long form text. </strong>Read the Docs hosts documentation, making it
+fully <em>searchable</em> and easy to find. You can import your docs using any major
+version control system, including Mercurial, Git, Subversion, and Bazaar.
+We support <a href="#">links</a> so your docs get built when you commit code.
+<span class="quiet">There's also support </span>for versioning so you can build docs from tags and
+branches of your code in your repository. A <a href="#">website</a> is available.
+</p>
+<p>
+It's free and simple.  Read the <a href="">Getting Started</a> guide to get going!
+</p>
+
+<hr>
+
+<table>
+    <thead><tr><th>Table header</th><th>Table header 2</th></tr></thead>
+    <tbody>
+        <tr>
+        <td>Table element.</td>
+        <td>Table element 2.</td>
+        </tr>
+        <tr>
+        <td>Table element.</td>
+        <td>Table element 2.</td>
+        </tr>
+    </tbody>
+</table>
+
+<hr>
+
+<form>
+    <p>Form Paragraph.</p>
+    <p><label>Form label</label><p>
+    <p class=required><label>Required form label.</label></p>
+    <p><label>Default textarea</label><textarea>Textarea</textarea></p>
+    <p><label>Default text input</label><input placeholder="Default text input." />
+    <span class="helptext">Help text for input</span>
+    </p>
+    <p>
+    <label>Default Radio 1 <input name="x" type="radio" /></label>
+    <label>Default Radio 2 <input name="x" type="radio" /></label>
+    <label>Default Radio 3 <input name="x" type="radio" /></label>
+    </p>
+    <p><label>Default checkbox input <input name="x" type="checkbox" /></label>
+    </p>
+    <p><label>Default select input</label>
+    <select><option value="">---</option><option value="">Option 1</option><option value="">Option 2</option><option value="">Option 3</option></select>
+    </p>
+
+    <input type="button" value="input type button" />
+    <input type="submit" value="input type submit" />
+    <button>Custom button text</button>
+    <a class="button" href="#">Button link</a>
+
+    <hr>
+    <fieldset>
+        Fieldset.
+        <p>Fieldset Paragraph</p>
+    </fieldset>
+    <fieldset>
+        <legend>Fieldset Legend</legend>
+        Fieldset.
+        <p>Fieldset Paragraph</p>
+    </fieldset>
+</form>
+
+<hr>
+
+<div class="wide-search-bar">
+    <div class="wide-search-bar-wrapper clearfix">
+        <form action="" method="GET">
+            <div class="text-input-wrapper">
+                <input type="text">
+            </div>
+            <div class="submit-input-wrapper">
+                <input type="submit" value="Submit">
+            </div>
+        </form>
+    </div>
+</div>
+
+<hr>
+
+<div class="module">
+	<div class="module-wrapper">
+		<div class="module-header">
+            <h3>
+                Module list header
+                <span class="small_head">Small Aside</span>
+            </h3>
+        </div>
+
+        <div class="module-list">
+            <div class="module-list-wrapper">
+            <ul>
+                <li class="module-item">Module list item.
+                <li class="module-item">Module item with right content.
+                    <span class="right-menu">Right-aligned-ish content.
+                <li class="module-item">
+                    Module list item with menu.
+                    <ul class="module-item-menu">
+                        <li><a href="#">Link 1.</a>    
+                        <li><a href="#">Link 2.</a>    
+                    </ul>
+                </li>
+                <li class="module-item">
+                    Module list item with menu and right content.
+                        <span class="right-menu">Right-aligned-ish content.
+                    <ul class="module-item-menu">
+                        <li><a href="#">Link 1.</a>    
+                    </ul>
+                </li>
+                
+
+                <li class="module-item">
+                    <p class="module-item-title">
+                    File <a href="#">Search result item</a>
+                    </p>
+                    <p>Extra <span class="highlighted">search</span> result info.</p>
+                </li>
+            </ul>
+            </div>
+        </div>
+	</div>
+</div>
+
+<div class="module">
+	<div class="module-wrapper">
+		<div class="module-header">
+            <h3>
+                Col-span module list
+                <span class="small_head">requires each li to have one &lt;a&gt; tag member</span>
+            </h3>
+        </div>
+        <div class="module-list">
+            <div class="module-list-wrapper">
+            <ul>
+                <li class="module-item col-span"><a href="#">Col-span module list item.</a>
+                <li class="module-item col-span"><a href="#">Col-span module list item.</a>
+            </ul>
+            </div>
+        </div>
+
+	</div>
+</div>
+
+<hr>
+
+<div id="rtfd-header">
+	<div class="rtfd-header-title">
+		<h1>
+			<a href="#">Header text</a>
+		</h1>
+	</div>
+
+    <div class="rtfd-header-search">
+        <form>
+    	<input type="text" />
+    	<input type="submit" value="Go" />
+        </form>
+    </div>
+
+    <div class="rtfd-header-nav">
+      <ul>
+          <li class=""><a href="/dashboard/">Dashboard</a></li>
+          <li><a href="/accounts/logout/">Log Out</a></li>
+      </ul>
+    </div>
+</div>
+
+<hr>
+
+<div id="home-header">
+
+</div>
+
+<hr>
+
+<div class="filter">
+<dl>
+<dd><a href="#">project name</a> <small>(255)</small></dd>
+<dd><a href="#">other project name</a> <small>(113)</small></dd>
+</dl>
+</div>
+
+<hr>
+
+<div class="pagination">
+    <a href="#" class="prev">‹‹ previous</a>
+    <a href="#" class="page">1</a>
+    <span class="current page">2</span>
+    <a href="#" class="page">3</a>
+    <a href="#" class="page">4</a>
+    <span>...</span>
+    <a href="#" class="page">9</a>
+    <a href="#" class="page">10</a>
+    <a href="#" class="page">11</a>
+    <a href="#" class="page">12</a>
+    <a href="#" class="next">next ››</a>
+</div>
+
+<hr>
+
+<div class="pagination">
+    <span class="disabled prev">‹‹ previous</span>
+    <span class="disabled next">next ››</span>
+</div>
+
+<hr>
+
+<div id="dashboard_bar">
+	<div class="wrapper">
+		<ul>
+			<li class="first">
+				<a href="#">Link</a>
+			</li>
+			<li>
+				<a href="#">Link</a>
+			</li>
+			<li class="last">
+				<a href="#">Link</a>
+			</li>
+		</ul>
+	</div>
+</div>
+
+<hr>
+
+
+
+{% endblock content %}
