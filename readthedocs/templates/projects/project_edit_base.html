@@ -1,0 +1,27 @@
+{% extends "projects/base_project.html" %}
+
+{% block project_editing %}
+    {% with edit_active="active" %}
+        {% include "core/project_bar.html" %}
+    {% endwith %}
+{% endblock %}
+{% load i18n %}
+
+{% block content %}
+<div class="navigable">
+  <ul>
+    <li class="{% block project-edit-active %}{% endblock %}"><a href="{% url projects_edit project.slug %}">{% trans "Settings" %} </a></li>
+    <li class="{% block project-admins-active %}{% endblock %}"><a href="{% url projects_users project.slug %}">{% trans "Admins" %}</a></li>
+    {% if project.has_versions %}
+    <li class="{% block project-versions-active %}{% endblock %}"><a href="{% url projects_versions project.slug %}" rel="nofollow,noindex">{% trans "Versions" %}</a></li>
+    {% endif %}
+    <li class="{% block project-subprojects-active %}{% endblock %}"><a href="{% url projects_subprojects project.slug %}">{% trans "Subprojects" %}</a></li>
+  </ul>
+  <div>
+    <h2>{% block project_edit_content_header %}{% endblock %}</h2>
+    {% block project_edit_content %}
+
+    {% endblock %}
+  </div>
+</div>
+{% endblock %}

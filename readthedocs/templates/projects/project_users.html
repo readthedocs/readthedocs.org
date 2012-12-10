@@ -1,18 +1,13 @@
-{% extends "projects/base_project.html" %}
+{% extends "projects/project_edit_base.html" %}
 
 {% load i18n %}
 
 {% block title %}{% trans "Edit Admins" %}{% endblock %}
 
-{% block project_editing %}
-    {% with users_active="active" %}
-        {% include "core/project_bar.html" %}
-    {% endwith %}
-{% endblock %}
+{% block project-admins-active %}active{% endblock %}
+{% block project_edit_content_header %}{% trans "Edit Admins" %}{% endblock %}
 
-{% block content-header %}<h1>{% trans "Edit Admins" %}</h1>{% endblock %}
-
-{% block content %}
+{% block project_edit_content %}
   <p class="help_text">
     {% trans "This allows you to add users to your project. It gives them admin access to the project, so be careful!" %}
   </p>
