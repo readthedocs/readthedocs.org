@@ -1,3 +1,5 @@
+.. _contributing-to-read-the-docs:
+
 Contributing to Read the Docs
 =============================
 
