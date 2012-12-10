@@ -51,7 +51,6 @@ documentation without rebuilding every one. If this script is embedded in each b
 {% endblock %}
 
 {% block sidebarsourcelink %}
-  {{ super() }}
   {% if show_source and has_source and sourcename or display_github %}
     <h3>{{ _('This Page') }}</h3>
     <ul class="this-page-menu">
