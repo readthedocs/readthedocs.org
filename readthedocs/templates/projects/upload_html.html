@@ -1,13 +1,12 @@
-{% extends "dashboard/base_dashboard.html" %}
+{% extends "projects/project_edit_base.html" %}
 {% load i18n %}
 
 {% block title %}{% trans "Import HTML Documentation" %}{% endblock %}
 
-{% block dash-nav-upload %}active{% endblock %}
+{% block project-versions-active %}active{% endblock %}
+{% block project_edit_content_header %}{% trans "Upload HTML Documentation" %}{% endblock %}
 
-{% block content-header %}<h1>{% trans "Upload HTML Documentation" %}</h1>{% endblock %}
-
-{% block content %}
+{% block project_edit_content %}
   <p class="help_text">
     {% trans "Use this to upload pre-existing HTML documentation for versions that don't build correctly anymore." %}
   </p>
