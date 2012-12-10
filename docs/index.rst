@@ -49,6 +49,7 @@ Developer Documentation
     i18n
     api
     api/index
+    design
 
 Operations Documentation
 ------------------------
