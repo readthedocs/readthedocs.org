@@ -24,7 +24,7 @@
 {% block editing-option-edit-proj %}class="active"{% endblock %}
 {% block editing-option-view %}active{% endblock %}
 
-{% block project_edit_content_header %}{% trans "Edit Project" %}{% endblock %}
+{% block project_edit_content_header %}{{ project.name }} <small class="quiet">{% trans "Settings" %}</small>{% endblock %}
 
 {% block project_edit_content %}
   <form method="post" action=".">{% csrf_token %}

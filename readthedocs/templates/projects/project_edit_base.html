@@ -11,7 +11,7 @@
 <div class="navigable">
   <ul>
     <li class="{% block project-edit-active %}{% endblock %}"><a href="{% url projects_edit project.slug %}">{% trans "Settings" %} </a></li>
-    <li class="{% block project-admins-active %}{% endblock %}"><a href="{% url projects_users project.slug %}">{% trans "Admins" %}</a></li>
+    <li class="{% block project-admins-active %}{% endblock %}"><a href="{% url projects_users project.slug %}">{% trans "Maintainers" %}</a></li>
     <li class="{% block project-versions-active %}{% endblock %}"><a href="{% url projects_versions project.slug %}" rel="nofollow,noindex">{% trans "Versions" %}</a></li>
     <li class="{% block project-subprojects-active %}{% endblock %}"><a href="{% url projects_subprojects project.slug %}">{% trans "Subprojects" %}</a></li>
   </ul>
