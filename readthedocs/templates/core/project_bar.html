@@ -23,7 +23,7 @@
                 <p class="build-failure">{% blocktrans with project.get_builds_url as url %}Build failed (<a href="{{ url }}">why</a>){% endblocktrans %}</p>
             {% endif %}
           {% else %}
-            <p class="build-missing"{% trans "There are no builds for this project" %}>.{% if request.user in project.users.all %} <a href="{% url projects_edit project.slug %}">{% trans "Is the repo correct?" %}</a>{% endif %}</p>
+            <p class="build-missing">{% trans "There are no builds for this project" %}.{% if request.user in project.users.all %} <a href="{% url projects_edit project.slug %}">{% trans "Is the repo correct?" %}</a>{% endif %}</p>
           {% endif %}
 
           <ul>
