@@ -43,7 +43,7 @@
             {% endif %}
 
             {% if request.user in project.users.all %}
-    <li class="{{ edit_active }}"><a href="{% url projects_edit project.slug %}"><i class="gear"></i>{% trans "Admin" %} </a></li>
+              <li class="{{ edit_active }}"><a href="{% url projects_edit project.slug %}"><i class="gear"></i>{% trans "Admin" %} </a></li>
             {% endif %}
 
 
