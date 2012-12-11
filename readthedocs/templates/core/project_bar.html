@@ -21,6 +21,10 @@
           {% if project.get_latest_build %}
             {% if not project.get_latest_build.success and project.get_latest_build.state == 'finished' %}
                 <p class="build-failure">{% blocktrans with project.get_builds_url as url %}Build failed (<a href="{{ url }}">why</a>){% endblocktrans %}</p>
+            {% else %}
+                {# always keep an empty <p> around to keep spacing #}
+                {# consistent between pages. #}
+                <p class="build-success">&nbsp;</p>
             {% endif %}
           {% else %}
             <p class="build-missing">{% trans "There are no builds for this project" %}.{% if request.user in project.users.all %} <a href="{% url projects_edit project.slug %}">{% trans "Is the repo correct?" %}</a>{% endif %}</p>
@@ -38,16 +42,13 @@
               <li class="{{ builds_active }}"><a href="{{ project.get_builds_url }}">{% trans "Builds" %}</a></li>
             {% endif %}
 
-            <li>&nbsp;&nbsp;</li>
-
             {% if request.user in project.users.all %}
-    <li class="{{ edit_active }}"><a href="{% url projects_edit project.slug %}">{% trans "Edit" %} </a></li>
+    <li class="{{ edit_active }}"><a href="{% url projects_edit project.slug %}"><i class="gear"></i>{% trans "Admin" %} </a></li>
             {% endif %}
 
 
           </ul>
         </div>
-
 
       </div>
     </div>

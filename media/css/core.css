@@ -77,10 +77,13 @@ label { display: block; margin-bottom: 4px; font-weight: bold; color: #444; }
 /* Commenting this for now. Want to figure out how to make it look sane with small amounts of text. */
 /* #content p { background-color: #eee; } */
 
+/* icons */
+
+i { display: block; float:left; padding:0; margin:0; padding-right:6px; position: relative; bottom:-0px; width: 16px; height: 16px; background:no-repeat url(../images/gear.png); }
 
 /* header */
 
-#rtfd-header { height: 50px; background: url(../images/header-bg.png) bottom left repeat-x #465158; overflow: hidden; text-align: left; border-bottom: 1px solid #000; }
+#rtfd-header { height: 50px; background: url(../images/header-bg.png) bottom left repeat-x #465158; overflow: hidden; text-align: left; border-bottom: 1px solid #000; position:relative; }
 
   /* header title */
   .rtfd-header-title { position: relative; margin: 0; padding: 0; height: 50px; width: 180px; }
@@ -184,9 +187,12 @@ label { display: block; margin-bottom: 4px; font-weight: bold; color: #444; }
 
 /* project bar */
 
-#project_bar { background: #E8ECEF url(../images/project-bar-bg.png) top left repeat; padding: 40px 0 50px; border-bottom: 1px solid #DAE1E5; }
+#project_bar { background: #E8ECEF url(../images/project-bar-bg.png) top left repeat; border-bottom: 1px solid #DAE1E5; overflow:hidden; position:relative; }
 #project_bar a { text-decoration: none; }
 
+#project_bar > .wrapper { padding: 40px 0 50px; }
+
+  body.project-edit #project_bar > .wrapper { background: url(../images/project-bar-bg-admin.svg) scroll 100% 1.1em no-repeat; }
   /* editing dashboard toolbar */
   #project_bar .project-title { padding: 0; }
   #project_bar .project-title h1 { margin: 0 0 5px; padding: 0; }
