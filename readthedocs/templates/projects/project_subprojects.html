@@ -1,4 +1,4 @@
-{% extends "projects/base_project.html" %}
+{% extends "projects/project_edit_base.html" %}
 
 {% load i18n %}
 
@@ -6,17 +6,12 @@
 
 {% block nav-dashboard %} class="active"{% endblock %}
 
-{% block project_editing %}
-    {% with subprojects_active="active" %}
-        {% include "core/project_bar.html" %}
-    {% endwith %}
-{% endblock %}
-
 {% block editing-option-edit-proj %}class="active"{% endblock %}
 
-{% block content-header %}<h1>{% trans "Edit Subprojects" %}</h1>{% endblock %}
+{% block project-subprojects-active %}active{% endblock %}
+{% block project_edit_content_header %}{{ project.name }} <small class="quiet">{% trans "Subprojects" %}</small>{% endblock %}
 
-{% block content %}
+{% block project_edit_content %}
   <p class="help_text">
     {% trans "This allows you to add subprojects to your project. This allows them to live in the same namespace in the URLConf for a subdomain or CNAME." %}
   </p>

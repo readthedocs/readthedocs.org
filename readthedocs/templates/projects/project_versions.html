@@ -1,20 +1,14 @@
-{% extends "projects/base_project.html" %}
+{% extends "projects/project_edit_base.html" %}
 {% load i18n %}
 
 {% block title %}{% trans "Edit Project Versions" %}{% endblock %}
 
+{% block project-versions-active %}active{% endblock %}
 {% block editing-option-edit-proj %}class="active"{% endblock %}
 
-{% block content-header %}<h1>{% trans "Edit Project Versions" %}</h1>{% endblock %}
+{% block project_edit_content_header %}{{ project.name }} <small class="quiet">{% trans "Versions" %}</small>{% endblock %}
 
-
-{% block project_editing %}
-    {% with versions_active="active" %}
-        {% include "core/project_bar.html" %}
-    {% endwith %}
-{% endblock %}
-
-{% block content %}
+{% block project_edit_content %}
   <p class="help_text">
     {% trans "If you are having trouble building older versions of your Documentation, then you can" %} <a href="{% url projects_upload_html project.slug %}">{% trans "Upload a Zip file of HTML" %}</a> {% trans "instead. This is to support versions that may not build anymore with current Sphinx, or to support plugins and extensions that we may not have on our server." %}
   </p>
