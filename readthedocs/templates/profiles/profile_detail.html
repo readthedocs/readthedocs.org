@@ -7,7 +7,7 @@
 
 {% block content-header %}
   <div style="float: left;">
-      {% gravatar user.email 30 %}
+      {% gravatar profile.user.email 30 %}
   </div>
   <h1>{% blocktrans with profile.user as user %}{{ user }}'s profile{% endblocktrans %}</h1>
 {% endblock %}
