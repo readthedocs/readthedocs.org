@@ -81,9 +81,6 @@
       </li>
       {% endif %}
       {% if profile.user.pk == user.pk %}
-        <li>
-          <span style="float:left; margin-right:4px; ">{{ form.allow_email }}</span><small><label for="id_{{ form.allow_email.name }}">{{ form.allow_email.help_text }}</label></small>
-        </li>
         <li class="when-editing">
           <small class="quiet">{% trans "Press enter to save your changes, or escape to discard them" %}</small>
         </li>
