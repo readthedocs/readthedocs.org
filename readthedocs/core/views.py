@@ -349,7 +349,7 @@ def morelikethis(request, project_slug, filename):
     file = get_object_or_404(ImportedFile, project=project, path=filename)
     sqs = SearchQuerySet().more_like_this(file)[:5]
     if len(sqs):
-        output = [(obj.title, obj.get_absolute_url()) for obj in sqs]
+        output = [(obj.title, obj.absolute_url) for obj in sqs]
         json_response = simplejson.dumps(output)
         return HttpResponse(json_response, mimetype='text/javascript')
     else:
