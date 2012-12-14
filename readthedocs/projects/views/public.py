@@ -1,4 +1,4 @@
-import simplejson
+import json
 
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse, NoReverseMatch
@@ -135,7 +135,7 @@ def search_autocomplete(request):
     queryset = Project.objects.live(name__icontains=term)[:20]
 
     project_names = queryset.values_list('name', flat=True)
-    json_response = simplejson.dumps(list(project_names))
+    json_response = json.dumps(list(project_names))
 
     return HttpResponse(json_response, mimetype='text/javascript')
 

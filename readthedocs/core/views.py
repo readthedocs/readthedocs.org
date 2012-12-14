@@ -350,7 +350,7 @@ def morelikethis(request, project_slug, filename):
     sqs = SearchQuerySet().more_like_this(file)[:5]
     if len(sqs):
         output = [(obj.title, obj.absolute_url) for obj in sqs]
-        json_response = simplejson.dumps(output)
+        json_response = json.dumps(output)
         return HttpResponse(json_response, mimetype='text/javascript')
     else:
         return HttpResponse('{"message": "Not Found"}')
