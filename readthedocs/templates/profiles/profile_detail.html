@@ -95,16 +95,29 @@
   </div>
   <script type="text/javascript">
     (function() {
-      var checkboxen = document.getElementsByClassName('edit-toggle')
-        , form = document.getElementById('edit_form')
+      var checkboxen = $('.edit-toggle')
+        , form = $('#edit_form')
+        , body = document.body
+        , when = body.attachEvent || body.addEventListener
 
-      document.body.addEventListener('click', function(ev) {
+      when.call(body, 'click', function(ev) {
+        var target = $(ev.target)
+
+        if(!target.parents('label.edit,.edit-input').length && !target.is('.edit')) {
+          $('.edit-toggle:checked').click()
+          return
+        }
+
         setTimeout(function() {
-          ev.target.parentNode.querySelector('.editable input').focus()
-        }, 0)
+          target
+            .parent()
+            .parent()
+            .find('.editable input')
+            .eq(0).focus()
+        }, 0) 
       }, false)
 
-      document.body.addEventListener('keyup', function(ev) {
+      when.call(body, 'keyup', function(ev) {
         if(ev.keyCode == 27) for(var i = 0, len = checkboxen.length; i < len; ++i) {
           checkboxen[i].checked = false
         } else if(ev.keyCode == 13 && form) {
