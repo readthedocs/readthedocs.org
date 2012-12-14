@@ -123,6 +123,17 @@ class Project(models.Model):
     skip = models.BooleanField(_('Skip'))
     use_virtualenv = models.BooleanField(_('Use virtualenv'),
         help_text=_("Install your project inside a virtualenv using setup.py install"))
+
+    #
+    # this model attribute hold the python interpreter used to create the
+    # virtual environment (therefore the interpreter used on the virtual
+    # environment)
+    #
+    python_interpreter = models.CharField(_('Python Interpreter'), max_length=20,
+        choices=constants.PYTHON_CHOICES, default='python',
+        help_text=_("""(Beta) The Python interpreter used to create the virtual
+            environment."""))
+
     use_system_packages = models.BooleanField(_('Use system packages'),
         help_text=_("Give the virtual environment access to the global sites-packages dir"))
     django_packages_url = models.CharField(_('Django Packages URL'), max_length=255, blank=True)
