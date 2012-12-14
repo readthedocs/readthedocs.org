@@ -81,7 +81,10 @@
       {% endif %}
       {% if profile.user.pk == user.pk %}
         <li>
-          <span style="float:left; margin-right:4px; ">{{ form.allow_email }}</span><small>{{ form.allow_email.help_text }}</small>
+          <span style="float:left; margin-right:4px; ">{{ form.allow_email }}</span><small><label for="id_{{ form.allow_email.name }}">{{ form.allow_email.help_text }}</label></small>
+        </li>
+        <li class="when-editing">
+          <small class="quiet">{% trans "Press enter to save your changes, or escape to discard them" %}</small>
         </li>
       {% endif %}
   </ul>
@@ -108,41 +111,64 @@
     {% endwith %}
     </div>
   </div>
+  {% if profile.user.pk == user.pk %}
   <script type="text/javascript">
     (function() {
       var checkboxen = $('.edit-toggle')
         , form = $('#edit_form')
-        , body = document.body
-        , when = body.attachEvent || body.addEventListener
+        , body = $('body')
 
-      when.call(body, 'click', function(ev) {
-        var target = $(ev.target)
+      body.on('change', '.edit-toggle', toggle_editing)
 
-        if(!target.parents('label.edit,.edit-input').length && !target.is('.edit')) {
-          $('.edit-toggle:checked').click()
-          return
-        }
+      toggle_editing()
+
+      body.on('click', 'label.edit', function(ev) {
+        var target = $(this)
 
         setTimeout(function() {
           target
             .parent()
-            .parent()
             .find('.editable input')
             .eq(0).focus()
         }, 0) 
-      }, false)
+      })
 
-      when.call(body, 'keyup', function(ev) {
-        if(ev.keyCode == 27) for(var i = 0, len = checkboxen.length; i < len; ++i) {
-          checkboxen[i].checked = false
+      body.on('keyup', 'input', function(ev) {
+        if(ev.keyCode == 27) {
+          checkboxen.attr('checked', false)
+          toggle_editing()
         } else if(ev.keyCode == 13 && form) {
-          form.submit()
+          submit()
         }
-      }, false)
+      })
+
+      body.on('change', '#id_allow_email', function(ev) {
+        submit()
+      })
+
+      function toggle_editing(ev) {
+        if($('.edit-toggle:checked').length) {
+          body.addClass('editing')
+        } else {
+          body.removeClass('editing')
+        }
+      }
+
+      function submit() {
+        $('.edit-input').each(function(i, el) {
+          el = $(el)
+
+          el.prev().text(el.find('input').val())
+        })
+        checkboxen.attr('checked', false)
+
+        $.post(form.attr('action'), form.serialize(), function() {
+
+        }) 
+      }
     })()
   </script>
 
-  {% if profile.user.pk == user.pk %}
     {% csrf_token %}
     <input type="submit" value="submit" style="display:none" />
     <noscript>

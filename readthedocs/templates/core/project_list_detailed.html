@@ -7,16 +7,14 @@
     {% with project.users.all as users %}
 
       {% if users|length > 1 %}
-      (
-      {% for user in project.users.all %}
+      ({% for user in project.users.all %}
         {% if omit and user.pk != omit.pk %}
-          <a href="{{ user.get_absolute_url }}" class="quiet">{{ user }}</a>{% if not forloop.last %}, {% endif %}
+          <a href="{{ user.get_absolute_url }}" class="quiet user">{{ user }}</a>
         {% endif %}
-      {% endfor %}
-      )
+      {% endfor %})
       {% else %}
         {% if omit and users.0.pk == omit.pk %}{% else %}
-            (<a href="{{ user.get_absolute_url }}" class="quiet">{{ user }}</a>{% if not forloop.last %}, {% endif %})
+          (<a href="{{ user.get_absolute_url }}" class="quiet user">{{ user }}</a>)
 
         {% endif %}
       {% endif %}
