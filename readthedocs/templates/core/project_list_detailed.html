@@ -3,11 +3,24 @@
 {% for project in project_list %}
   <li class="module-item">
     <a class="module-item-title" href="{{ project.get_absolute_url }}">{{ project.name }}</a>
-    (
-    {% for user in project.users.all %}
-    <a href="{{ user.get_absolute_url }}" class="quiet">{{ user }}</a>{% if not forloop.last %}, {% endif %}
-    {% endfor %}
-    )
+
+    {% with project.users.all as users %}
+
+      {% if users|length > 1 %}
+      (
+      {% for user in project.users.all %}
+        {% if omit and user.pk != omit.pk %}
+          <a href="{{ user.get_absolute_url }}" class="quiet">{{ user }}</a>{% if not forloop.last %}, {% endif %}
+        {% endif %}
+      {% endfor %}
+      )
+      {% else %}
+        {% if omit and users.0.pk == omit.pk %}{% else %}
+            (<a href="{{ user.get_absolute_url }}" class="quiet">{{ user }}</a>{% if not forloop.last %}, {% endif %})
+
+        {% endif %}
+      {% endif %}
+    {% endwith %}
     <span class="right-menu quiet">{% blocktrans with date=project.modified_date|timesince %}{{ date }} ago{% endblocktrans %}</span>
     <ul class="module-item-menu">
       {% if project.has_good_build %}

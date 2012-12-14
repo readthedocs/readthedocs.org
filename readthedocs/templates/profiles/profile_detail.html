@@ -5,13 +5,7 @@
 
 {% block title %}{% blocktrans with profile.user as user %}{{ user }}'s profile{% endblocktrans %}{% endblock %}
 
-{% block content-header %}
-  <div style="float: left;">
-      {% gravatar profile.user.email 30 %}
-  </div>
-  <h1>{% blocktrans with profile.user as user %}{{ user }}'s profile{% endblocktrans %}</h1>
-{% endblock %}
-
+{% block body_class %}profile{% endblock %}
 
 {% block dashboard_bar %}
     {% if request.user == profile.user %}
@@ -23,25 +17,61 @@
 
 
 {% block content %}
-  {% if profile.homepage %}
-  <h3>{% trans "Homepage" %}</h3>
-    <p><a href="{{ profile.homepage }}">{{ profile.homepage }}</a></p>
+  {% with profile.get_form as form %}
+
+  {% if profile.user.pk == user.pk %}
+    <form id="edit_form" method="POST" action="{% url profiles_profile_edit %}"> 
   {% endif %}
 
-    {% if person %}
-        {% if tag %}
-            <h3>{% blocktrans with person.username as username and tag.name as tag %}Projects by {{ username }} tagged with {{ tag }}{% endblocktrans %}</h3>
-        {% else %}
-            <h3>{% blocktrans with person.username as username %}Projects by {{ username }}{% endblocktrans %}</h3>
-        {% endif %}
-    {% else %}
-        {% if tag %}
-            <h3>{% blocktrans with tag.name as tag %}Projects tagged with {{ tag }}{% endblocktrans %}</h3>
-        {% else %}
-            <h3>{% trans "Projects" %}</h3>
-        {% endif %}
-    {% endif %}
+  <div class="navigable">
 
+  <ul>
+      <li>
+          <div class="profile_image">
+              {% gravatar profile.user.email 184 %}
+          </div>
+      </li>
+      <li>
+          <div>
+          {% if profile.user.pk == user.pk %}
+            <label for="edit_name" class="edit"><span>{% trans "Edit" %}</span></label>                      
+          {% endif %}
+
+          <input type="checkbox" id="edit_name" class="edit-toggle" />
+          <h3 {% if profile.user.pk == user.pk %}class="editable"{% endif %}>
+            <span class="edit-target">{{ profile.user.first_name }}</span>
+            <span class="edit-input">{{ form.first_name }}</span>
+            <span class="edit-target">{{ profile.user.last_name }}</span>
+            <span class="edit-input">{{ form.last_name }}</span>
+            <small class="quiet">({{ profile.user }})</small>
+          </h3>
+          </div>
+      </li>
+
+
+      {% if profile.homepage or profile.user.pk == user.pk %}
+      <li>
+        <div>
+          {% if profile.user.pk == user.pk %}
+            <label for="edit_homepage" class="edit"><span>{% trans "Edit" %}</span></label>                      
+          {% endif %}
+
+          <input type="checkbox" id="edit_homepage" class="edit-toggle" />
+          <p {% if profile.user.pk == user.pk %}class="editable"{% endif %}>
+            <a class="edit-target" href="{{ profile.homepage }}" rel="nofollow">{{ profile.homepage }}</a>
+            <span class="edit-input">{{ form.homepage }}</span>
+          </p>
+        </div>
+      </li>
+      {% endif %}
+      {% if profile.user.pk == user.pk %}
+        <li>
+          <span style="float:left; margin-right:4px; ">{{ form.allow_email }}</span><small>{{ form.allow_email.help_text }}</small>
+        </li>
+      {% endif %}
+  </ul>
+
+  <div>
     {% with profile.user.projects.live as project_list %}
           <!-- BEGIN projects list -->
           <div class="module">
@@ -51,7 +81,7 @@
                 <div class="module-list-wrapper">
 
                   <ul>
-                    {% include "core/project_list_detailed.html" %}
+                    {% include "core/project_list_detailed.html" with omit=profile.user %}
                   </ul>
 
                 </div>
@@ -61,5 +91,38 @@
           </div>
           <!-- END projects list -->
     {% endwith %}
+    </div>
+  </div>
+  <script type="text/javascript">
+    (function() {
+      var checkboxen = document.getElementsByClassName('edit-toggle')
+        , form = document.getElementById('edit_form')
+
+      document.body.addEventListener('click', function(ev) {
+        setTimeout(function() {
+          ev.target.parentNode.querySelector('.editable input').focus()
+        }, 0)
+      }, false)
+
+      document.body.addEventListener('keyup', function(ev) {
+        if(ev.keyCode == 27) for(var i = 0, len = checkboxen.length; i < len; ++i) {
+          checkboxen[i].checked = false
+        } else if(ev.keyCode == 13 && form) {
+          form.submit()
+        }
+      }, false)
+    })()
+  </script>
+
+  {% if profile.user.pk == user.pk %}
+    {% csrf_token %}
+    <input type="submit" value="submit" style="display:none" />
+    <noscript>
+      <input type="submit" value="submit"  />
+  
+    </noscript>
+    </form>
+  {% endif %}
+  {% endwith %}
 
 {% endblock %}
