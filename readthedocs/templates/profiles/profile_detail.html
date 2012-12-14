@@ -41,8 +41,9 @@
           <h3 {% if profile.user.pk == user.pk %}class="editable"{% endif %}>
             {% if profile.user.pk == user.pk %}
                 {% if not profile.user.first_name and not profile.user.last_name %}
-                  <em class="edit-target">{% trans "Add Your Name" %}</em>
+                  <span class="edit-target"><em>{% trans "Add Your Name" %}</em></span>
                   <span class="edit-input">{{ form.first_name }}</span>
+                  <span class="edit-target"></span>
                   <span class="edit-input">{{ form.last_name }}</span>
                 {% else %}
                   <span class="edit-target">{{ profile.user.first_name }}</span>
