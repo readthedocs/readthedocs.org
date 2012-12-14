@@ -69,14 +69,14 @@
           {% endif %}
 
           <input type="checkbox" id="edit_homepage" class="edit-toggle" />
-          <p {% if profile.user.pk == user.pk %}class="editable"{% endif %}>
+          <small {% if profile.user.pk == user.pk %}class="editable"{% endif %}>
             {% if profile.homepage %}
               <a class="edit-target" href="{{ profile.homepage }}" rel="nofollow">{{ profile.homepage }}</a>
             {% else %}
               <em class="edit-target">{% trans "Add a Homepage" %}</em>
             {% endif %}
             <span class="edit-input">{{ form.homepage }}</span>
-          </p>
+          </small>
         </div>
       </li>
       {% endif %}

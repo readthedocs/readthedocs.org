@@ -51,6 +51,7 @@ thead { background: #f2f2f2; }
 
 
 /* forms */
+small input[type=text] { font-size:0.8em; padding:2px; }
 
 form p { color: #999; }
 form p label { font-weight: normal; }
@@ -283,7 +284,7 @@ p.build-missing { font-size: .8em; color: #9d9a55; margin: 0 0 3px; }
 .navigable { width: 100%; }
 .navigable:after { content:' '; display:block; visibility:visible; clear:both; }
 .navigable > ul { width:184px; margin-right:16px; float: left; }
-.navigable > ul > li { border-bottom: 1px solid #bfbfbf; position:relative; }
+.navigable > ul > li { border-bottom: 1px solid #bfbfbf; position:relative; word-break:break-all; }
 .navigable > ul > li > * { padding-left:8px; padding-bottom:4px; padding-top:5px; text-decoration: none; display: block; }
 .navigable > ul > li:last-child { border-bottom: none; }
 .navigable > ul > li.active { background:#DAE1E5; }
