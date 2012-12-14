@@ -347,13 +347,14 @@ def server_error_404(request, template_name='404.html'):
 def morelikethis(request, project_slug, filename):
     project = get_object_or_404(Project, slug=project_slug)
     file = get_object_or_404(ImportedFile, project=project, path=filename)
+    #sqs = SearchQuerySet().filter(project=project).more_like_this(file)[:5]
     sqs = SearchQuerySet().more_like_this(file)[:5]
     if len(sqs):
         output = [(obj.title, obj.absolute_url) for obj in sqs]
         json_response = json.dumps(output)
         return HttpResponse(json_response, mimetype='text/javascript')
     else:
-        return HttpResponse('{"message": "Not Found"}')
+        return HttpResponse('{"message": "Not Found"}', mimetype='text/javascript')
 
 
 class SearchView(TemplateView):
