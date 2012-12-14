@@ -352,9 +352,10 @@ def morelikethis(request, project_slug, filename):
     if len(sqs):
         output = [(obj.title, obj.absolute_url) for obj in sqs]
         json_response = json.dumps(output)
-        return HttpResponse(json_response, mimetype='text/javascript')
     else:
-        return HttpResponse('{"message": "Not Found"}', mimetype='text/javascript')
+        json_response = {"message": "Not Found"}
+    jsonp = "%s(%s)" % (request.GET.get('callback'), json_response)
+    return HttpResponse(jsonp, mimetype='text/javascript')
 
 
 class SearchView(TemplateView):
