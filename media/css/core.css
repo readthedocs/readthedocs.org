@@ -79,7 +79,7 @@ label { display: block; margin-bottom: 4px; font-weight: bold; color: #444; }
 
 /* icons */
 
-i { display: block; float:left; padding:0; margin:0; padding-right:6px; position: relative; bottom:-0px; width: 16px; height: 16px; background:no-repeat url(../images/gear.png); }
+i { display: inline-block; padding:0; margin:0; padding-right:6px; position: relative; bottom:-2px; width: 15px; height: 15px; background:no-repeat url(../images/gear.png); }
 
 /* header */
 
