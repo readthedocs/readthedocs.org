@@ -113,6 +113,7 @@ INSTALLED_APPS = [
     'basic.flagging',
     'djangosecure',
     'guardian',
+    'django_gravatar',
 
     # Celery bits
     'djcelery',

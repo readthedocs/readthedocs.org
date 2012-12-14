@@ -1,10 +1,14 @@
 {% extends "base.html" %}
 
 {% load i18n %}
+{% load gravatar %}
 
 {% block title %}{% blocktrans with profile.user as user %}{{ user }}'s profile{% endblocktrans %}{% endblock %}
 
 {% block content-header %}
+  <div style="float: left;">
+      {% gravatar user.email 30 %}
+  </div>
   <h1>{% blocktrans with profile.user as user %}{{ user }}'s profile{% endblocktrans %}</h1>
 {% endblock %}
 
