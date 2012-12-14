@@ -11,6 +11,9 @@
         {% if omit and user.pk != omit.pk %}
           <a href="{{ user.get_absolute_url }}" class="quiet user">{{ user }}</a>
         {% endif %}
+        {% if not omit %}
+          <a href="{{ user.get_absolute_url }}" class="quiet user">{{ user }}</a>
+        {% endif %}
       {% endfor %})
       {% else %}
         {% if omit and users.0.pk == omit.pk %}{% else %}{% with project.users.all.0 as user %}
