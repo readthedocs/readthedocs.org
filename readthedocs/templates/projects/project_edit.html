@@ -1,14 +1,8 @@
-{% extends "projects/base_project.html" %}
+{% extends "projects/project_edit_base.html" %}
 {% load i18n %}
 
+{% block project-edit-active %}active{% endblock %}
 {% block nav-dashboard %} class="active"{% endblock %}
-
-{% block project_editing %}
-    {% with edit_active="active" %}
-        {% include "core/project_bar.html" %}
-    {% endwith %}
-{% endblock %}
-
 
 {% block extra_links %}
   <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}lib/markitup/skins/simple/style.css" />
@@ -30,9 +24,9 @@
 {% block editing-option-edit-proj %}class="active"{% endblock %}
 {% block editing-option-view %}active{% endblock %}
 
-{% block content-header %}<h1>{% trans "Edit Project" %}</h1>{% endblock %}
+{% block project_edit_content_header %}{{ project.name }} <small class="quiet">{% trans "Settings" %}</small>{% endblock %}
 
-{% block content %}
+{% block project_edit_content %}
   <form method="post" action=".">{% csrf_token %}
     {{ form.as_p }}
     <p>
