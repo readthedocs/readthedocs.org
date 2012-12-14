@@ -280,8 +280,9 @@ p.build-missing { font-size: .8em; color: #9d9a55; margin: 0 0 3px; }
 
 /* sidebar + main content */
 
-.navigable { width: 100%; overflow: hidden; }
-.navigable > ul { width:184px; margin-right:16px; float: left; overflow:hidden; }
+.navigable { width: 100%; }
+.navigable:after { content:' '; display:block; visibility:visible; clear:both; }
+.navigable > ul { width:184px; margin-right:16px; float: left; }
 .navigable > ul > li { border-bottom: 1px solid #bfbfbf; position:relative; }
 .navigable > ul > li > * { padding-left:8px; padding-bottom:4px; padding-top:5px; text-decoration: none; display: block; }
 .navigable > ul > li:last-child { border-bottom: none; }
@@ -338,7 +339,7 @@ body .edit-toggle { display: none; }
 .edit-toggle:checked + .editable .edit-input { display: inline; }
 .edit-toggle:checked + .editable .edit-target { display: none; }
 
-.navigable ul .edit { position:absolute; bottom:8px; right:8px; opacity:0; -webkit-transition:opacity 0.2s ease-in-out; text-transform:uppercase; text-decoration: underline; }
+.navigable ul .edit { position:absolute; top:8px; left:-16px; opacity:0.25; -webkit-transition:opacity 0.2s ease-in-out; text-transform:uppercase; text-decoration: underline; }
 .navigable ul li:hover .edit { opacity:1; }
 
 .navigable ul input[type=text] { width: 164px; }
