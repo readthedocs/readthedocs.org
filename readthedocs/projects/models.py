@@ -497,7 +497,7 @@ class Project(models.Model):
        """
        if self.default_branch:
            return self.default_branch
-       else: 
+       else:
            return self.vcs_repo().fallback_branch
 
     def add_subproject(self, child):
@@ -541,7 +541,13 @@ class Notification(models.Model):
 class EmailHook(Notification):
     email = models.EmailField()
 
+    def __unicode__(self):
+        return self.email
+
 
 class WebHook(Notification):
     url = models.URLField(blank=True, verify_exists=False,
                           help_text=_('URL to send the webhook to'))
+
+    def __unicode__(self):
+        return self.url

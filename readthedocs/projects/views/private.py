@@ -18,8 +18,8 @@ from builds.filters import VersionFilter
 from builds.models import Version
 from projects.forms import (ImportProjectForm, build_versions_form,
                             build_upload_html_form, SubprojectForm,
-                            UserForm)
-from projects.models import Project
+                            UserForm, EmailHookForm)
+from projects.models import Project, EmailHook, WebHook
 from projects.tasks import unzip_files
 from projects import constants
 
@@ -295,4 +295,32 @@ def project_users_delete(request, project_slug):
         raise Http404
     project.users.remove(user)
     project_dashboard = reverse('projects_users', args=[project.slug])
+    return HttpResponseRedirect(project_dashboard)
+
+@login_required
+def project_notifications(request, project_slug):
+    project = get_object_or_404(request.user.projects.live(), slug=project_slug)
+    form = EmailHookForm(data=request.POST or None, project=project)
+
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        project_dashboard = reverse('projects_notifications', args=[project.slug])
+        return HttpResponseRedirect(project_dashboard)
+
+    emails = project.emailhook_notifications.all()
+
+    return render_to_response(
+        'projects/project_notifications.html',
+        {'form': form, 'project': project, 'emails': emails},
+        context_instance=RequestContext(request)
+    )
+
+@login_required
+def project_notifications_delete(request, project_slug):
+    if request.method != 'POST':
+        raise Http404
+    project = get_object_or_404(request.user.projects.live(), slug=project_slug)
+    notification = get_object_or_404(EmailHook.objects.all(), email=request.POST.get('email'))
+    notification.delete()
+    project_dashboard = reverse('projects_notifications', args=[project.slug])
     return HttpResponseRedirect(project_dashboard)
