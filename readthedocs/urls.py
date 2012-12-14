@@ -94,6 +94,10 @@ urlpatterns = patterns('',
     url(r'^feeds/latest/$',
         LatestProjectsFeed(),
         name="latest_feed"),
+    url(r'^mlt/(?P<project_slug>[-\w]+)/(?P<filename>.*)$',
+        'core.views.morelikethis',
+        name='morelikethis'
+    ),
 )
 
 if settings.DEBUG:

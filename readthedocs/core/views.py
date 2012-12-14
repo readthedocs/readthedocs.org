@@ -14,14 +14,16 @@ from django.views.static import serve
 from django.views.generic import TemplateView
 
 from haystack.query import EmptySearchQuerySet
+from haystack.query import SearchQuerySet
 from guardian.shortcuts import get_objects_for_user
 
 from builds.models import Build
+from builds.models import Version
 from core.forms import FacetedSearchForm
 from projects.models import Project, ImportedFile, ProjectRelationship
 from projects.tasks import update_docs, remove_dir
 from projects.utils import highest_version
-from builds.models import Version
+
 
 import json
 import mimetypes
@@ -341,6 +343,18 @@ def server_error_404(request, template_name='404.html'):
     )
     r.status_code = 404
     return r
+
+def morelikethis(request, project_slug, filename):
+    project = get_object_or_404(Project, slug=project_slug)
+    file = get_object_or_404(ImportedFile, project=project, path=filename)
+    sqs = SearchQuerySet().more_like_this(file)[:5]
+    if len(sqs):
+        output = [(obj.title, obj.get_absolute_url()) for obj in sqs]
+        json_response = simplejson.dumps(output)
+        return HttpResponse(json_response, mimetype='text/javascript')
+    else:
+        return HttpResponse('{"message": "Not Found"}')
+
 
 class SearchView(TemplateView):
 
