@@ -325,7 +325,8 @@ p.build-missing { font-size: .8em; color: #9d9a55; margin: 0 0 3px; }
 .clearfix, .wrapper { display: block; }
 
 
-
+.when-editing { opacity: 0; -webkit-transition:opacity 0.2s ease-in-out; -moz-transition:opacity 0.2s ease-in-out; -ms-transition:opacity 0.2s ease-in-out; -o-transition:opacity 0.2s ease-in-out; transition:opacity 0.2s ease-in-out; pointer-events:none; -webkit-user-select:none; }
+.editing .when-editing { opacity: 1; }
 
 .edit { cursor: pointer; -webkit-user-select: none; overflow:hidden; position:relative; }
 .edit { background:url(../images/edit.png) no-repeat; display:block; width:16px; height:16px; background-size:100% 100%; }
@@ -339,7 +340,7 @@ body .edit-toggle { display: none; }
 .edit-toggle:checked + .editable .edit-input { display: inline; }
 .edit-toggle:checked + .editable .edit-target { display: none; }
 
-.navigable ul .edit { position:absolute; top:8px; left:-16px; opacity:0.25; -webkit-transition:opacity 0.2s ease-in-out; text-transform:uppercase; text-decoration: underline; }
+.navigable ul .edit { position:absolute; top:8px; left:-16px; opacity:0.25; -webkit-transition:opacity 0.2s ease-in-out; -moz-transition:opacity 0.2s ease-in-out; -ms-transition:opacity 0.2s ease-in-out; -o-transition:opacity 0.2s ease-in-out; transition:opacity 0.2s ease-in-out; text-transform:uppercase; text-decoration: underline; }
 .navigable ul li:hover .edit { opacity:1; }
 
 .navigable ul input[type=text] { width: 164px; }
