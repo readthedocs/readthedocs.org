@@ -39,10 +39,21 @@
 
           <input type="checkbox" id="edit_name" class="edit-toggle" />
           <h3 {% if profile.user.pk == user.pk %}class="editable"{% endif %}>
-            <span class="edit-target">{{ profile.user.first_name }}</span>
-            <span class="edit-input">{{ form.first_name }}</span>
-            <span class="edit-target">{{ profile.user.last_name }}</span>
-            <span class="edit-input">{{ form.last_name }}</span>
+            {% if profile.user.pk == user.pk %}
+                {% if not profile.user.first_name and not profile.user.last_name %}
+                  <em class="edit-target">{% trans "Add Your Name" %}</em>
+                  <span class="edit-input">{{ form.first_name }}</span>
+                  <span class="edit-input">{{ form.last_name }}</span>
+                {% else %}
+                  <span class="edit-target">{{ profile.user.first_name }}</span>
+                  <span class="edit-input">{{ form.first_name }}</span>
+                  <span class="edit-target">{{ profile.user.last_name }}</span>
+                  <span class="edit-input">{{ form.last_name }}</span>
+                {% endif %}
+            {% else %}
+                <span class="edit-target">{{ profile.user.first_name }}</span>
+                <span class="edit-target">{{ profile.user.last_name }}</span>
+            {% endif %}
             <small class="quiet">({{ profile.user }})</small>
           </h3>
           </div>
@@ -53,12 +64,16 @@
       <li>
         <div>
           {% if profile.user.pk == user.pk %}
-            <label for="edit_homepage" class="edit"><span>{% trans "Edit" %}</span></label>                      
+            <label for="edit_homepage" class="edit"><span>{% trans "Edit" %}</span></label> 
           {% endif %}
 
           <input type="checkbox" id="edit_homepage" class="edit-toggle" />
           <p {% if profile.user.pk == user.pk %}class="editable"{% endif %}>
-            <a class="edit-target" href="{{ profile.homepage }}" rel="nofollow">{{ profile.homepage }}</a>
+            {% if profile.homepage %}
+              <a class="edit-target" href="{{ profile.homepage }}" rel="nofollow">{{ profile.homepage }}</a>
+            {% else %}
+              <em class="edit-target">{% trans "Add a Homepage" %}</em>
+            {% endif %}
             <span class="edit-input">{{ form.homepage }}</span>
           </p>
         </div>

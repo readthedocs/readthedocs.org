@@ -18,10 +18,7 @@
           <ul>
             {% if request.user.get_profile %}
               <li class="first {{ view_profile_active }}">
-                <a href="{{ request.user.get_profile.get_absolute_url }}">{% trans "View Profile" %}</a>
-              </li>
-              <li class="{{ edit_profile_active }}">
-                <a href="{% url profiles_profile_edit %}">{% trans "Edit Profile" %}</a>
+                <a href="{{ request.user.get_profile.get_absolute_url }}">{% trans "Profile" %}</a>
               </li>
             {% else %}
               <li>
