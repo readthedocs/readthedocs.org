@@ -34,7 +34,7 @@
         <a href="#">&#x25BC;</a>
       </span>
       <ul>
-      <li><input type="search" placeholder="Search..." /></li>
+      <li><input type="search" placeholder="{% trans "Search" %}&hellip;" /></li>
       {% for version in project.ordered_active_versions reversed %}
           <li><a href="{{ version.get_absolute_url }}">{{ version.slug }}</a></li>
       {% endfor %}

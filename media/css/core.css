@@ -353,7 +353,7 @@ select.dropdown { display: none; }
 
 .dropdown { position: relative; display: inline-block; height: 32px; min-width:128px; }
 .dropdown > span { position:relative; display: block; }
-.dropdown > span a:first-child { display: block; padding: 6px 10px 4px; margin: 7px 7px 0 0; font-weight: bold; font-size: 14px; height: 20px; line-height: 17px; text-decoration: none; color: #fff; background: #7C8F99 url(../images/gradient-light.png) bottom left repeat-x; border-radius: 3px; -moz-border-radius: 3px; -webkit-border-radius: 3px; text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5); box-shadow: 0 1px 1px #465158; -moz-box-shadow: 0 1px 1px #465158; -webkit-box-shadow: 0 1px 1px #465158; }
+.dropdown > span a:first-child { display: block; padding: 6px 10px 4px; padding-right:42px; margin: 7px 7px 0 0; font-weight: bold; font-size: 14px; height: 20px; line-height: 17px; text-decoration: none; color: #fff; background: #7C8F99 url(../images/gradient-light.png) bottom left repeat-x; border-radius: 3px; -moz-border-radius: 3px; -webkit-border-radius: 3px; text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5); box-shadow: 0 1px 1px #465158; -moz-box-shadow: 0 1px 1px #465158; -webkit-box-shadow: 0 1px 1px #465158; }
 .dropdown > span a:first-child:hover { background: #8CA1AF; }
 
 .dropdown > span a + a { display: block; overflow: hidden; position:absolute; padding:3px 0px; right:7px; top:0px; width:32px; border-left:1px solid #465158; border-radius:0px 2px 2px 0px; color:white; text-decoration:none; font-size:12px; text-align:center; }
