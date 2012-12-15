@@ -20,18 +20,25 @@
       {% endif %}
     {% endwith %}
     <span class="right-menu quiet">{% blocktrans with date=project.modified_date|timesince %}{{ date }} ago{% endblocktrans %}</span>
-    <ul class="module-item-menu">
-      {% if project.has_good_build %}
-        <span class="hidden-child" style="display: none;">
-            {% for version in project.ordered_active_versions reversed %}
-                <li><a href="{{ version.get_absolute_url }}">{{ version.slug }}</a></li>
-            {% endfor %}
-        </span>
-        <li><a href="{{ project.get_docs_url }}">{% trans "View Docs" %}</a></li>
-      {% else %}
-        <li><a href="{{ project.get_builds_url }}">{% trans "No Docs" %}</a></li>
-      {% endif %}
-    </ul>
+
+    <span class="dropdown" style="position:absolute; right:0px; top:0px;">
+      <span>
+        {% if project.has_good_build %}
+          <a href="{{ project.get_docs_url }}">{% trans "View Docs" %}</a>
+        {% else %}
+          <a href="{{ project.get_builds_url }}">{% trans "No Docs" %}</a>
+        {% endif %}
+        <a href="#">&#x25BC;</a>
+      </span>
+      <ul>
+      <li><input type="search" placeholder="Search..." /></li>
+      {% for version in project.ordered_active_versions reversed %}
+          <li><a href="{{ version.get_absolute_url }}">{{ version.slug }}</a></li>
+      {% endfor %}
+
+      </ul> 
+    </span>
+
   </li>
 {% empty %}
   <li class="module-item quiet">{% trans "No projects found" %}</li>

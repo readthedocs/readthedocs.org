@@ -157,7 +157,7 @@ i { display: inline-block; padding:0; margin:0; padding-right:6px; position: rel
   .module-list { padding: 8px; background: #E6E6E6; background: rgba(0, 0, 0, 0.1); border-radius: 5px; -moz-border-radius: 5px; -webkit-border-radius: 5px; }
   .module-list-wrapper { border: 1px solid #bfbfbf; border: 1px solid #bfbfbf; border-bottom: none; }
   .module-list .count { float: right; font-size: .9em; color: #aaa; }
-  .module-item { position: relative; border-bottom: 1px solid #bfbfbf; padding: 10px; }
+  .module-item { position: relative; border-bottom: 1px solid #bfbfbf; padding: 10px; position:relative; }
   .module-item p { margin: 0; }
 
   /* module item title */
@@ -312,7 +312,7 @@ p.build-missing { font-size: .8em; color: #9d9a55; margin: 0 0 3px; }
 .hide { display: none; }
 .left { float: left; }
 .right { float: right; }
-.right-menu { float: right; margin-right: 100px; }
+.right-menu { float: right; margin-right: 132px; }
 .quiet { color: #999; }
 .help_text { color: #999; }
 .highlighted { background-color: #ee9; padding: 0 1px; margin: 0 1px; border-radius: 3px; -moz-border-radius: 3px; -webkit-border-radius: 3px; }
@@ -344,3 +344,24 @@ body .edit-toggle { display: none; }
 .navigable ul li:hover .edit { opacity:1; }
 
 .navigable ul input[type=text] { width: 164px; }
+
+
+select.dropdown { display: none; }
+.dropdown > a { font-family: "ff-meta-web-pro", "ff-meta-web-pro-1", "ff-meta-web-pro-2", Arial, "Helvetica Neue", sans-serif; color: #666; font-weight: bold; padding: 8px 15px; border: none; background: #e6e6e6 url(../images/gradient.png) repeat-x bottom left; margin: 30px 5px 20px 0; text-shadow: 0 1px 0 rgba(255, 255, 255, 1); border: 1px solid #bfbfbf; display: block; text-decoration: none; box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset; -moz-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset; -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset; }
+
+
+.dropdown { position: relative; display: inline-block; height: 32px; min-width:128px; }
+.dropdown > span { position:relative; display: block; }
+.dropdown > span a:first-child { display: block; padding: 6px 10px 4px; margin: 7px 7px 0 0; font-weight: bold; font-size: 14px; height: 20px; line-height: 17px; text-decoration: none; color: #fff; background: #7C8F99 url(../images/gradient-light.png) bottom left repeat-x; border-radius: 3px; -moz-border-radius: 3px; -webkit-border-radius: 3px; text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5); box-shadow: 0 1px 1px #465158; -moz-box-shadow: 0 1px 1px #465158; -webkit-box-shadow: 0 1px 1px #465158; }
+.dropdown > span a:first-child:hover { background: #8CA1AF; }
+
+.dropdown > span a + a { display: block; overflow: hidden; position:absolute; padding:3px 0px; right:7px; top:0px; width:32px; border-left:1px solid #465158; border-radius:0px 2px 2px 0px; color:white; text-decoration:none; font-size:12px; text-align:center; }
+.dropdown > span a + a:hover { background: #8CA1AF; }
+
+.dropdown > ul { display: none; margin-top:16px; position:absolute; top:100%; left:-8px; background:#465158; padding:4px; border-radius:4px; z-index:1005; min-width:128px; box-shadow: 0px 0px 8px 2px rgba(0,0,0,0.2); }
+.dropdown > ul > li { background: white; padding:8px 10px; border-bottom:1px solid #EEE; }
+
+.dropdown > ul.js-open { display:block; }
+
+.dropdown > ul:before { content:' '; visibility: visible; border:8px solid transparent; border-bottom-color: #465158; position:absolute; top:-16px; left:104px; }
+
