@@ -27,7 +27,7 @@
     </ul>
 
   {% if emails|length > 0 %}
-  <h3>{% trans "Remove Emails" %}</h3>
+  <h3>{% trans "Remove Notifications" %}</h3>
     <p>
         <form method="post" action="{% url projects_notification_delete project.slug %}">
             {% csrf_token %}
@@ -42,6 +42,7 @@
   {% endif %}
 
 
+  <h3>{% trans "New Notifications" %}</h3>
   <p>
     {% trans "Add an email address to notify" %}
   </p>
