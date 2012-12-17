@@ -16,27 +16,40 @@ Load Balancer (nginx)
 ~~~~~~~~~~~~~~~~~~~~~
     * Asgard
 
-Import Files
-````````````
+Important Files
+```````````````
     * /etc/nginx/sites-enabled/default
+
+Important Services
+``````````````````
+    * nginx running from init
 
 Web
 ~~~
     * Chimera
     * Asgard
 
-Import Files
-````````````
+Important Files
+```````````````
     * /etc/nginx/sites-enabled/readthedocs
     * /home/docs/sites/readthedocs.org/run/gunicorn.log
+
+Important Services
+``````````````````
+    * nginx running from init
+    * gunicorn (running from supervisord as docs user)
 
 Build
 ~~~~~
     * Build
 
-Import Files
-````````````
+Important Files
+```````````````
     * /home/docs/sites/readthedocs.org/run/celery.log
+
+Important Services
+``````````````````
+    * celery (running from supervisord as docs user)
 
 Database
 ~~~~~~~~
