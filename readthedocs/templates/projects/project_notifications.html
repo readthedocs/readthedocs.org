@@ -13,7 +13,7 @@
 
 {% block project_edit_content %}
   <p class="help_text">
-    {% trans "Configure notificaitons to be sent on build failures." %}
+    {% trans "Configure Notifications to be sent on build failures." %}
   </p>
 
   <h3>{% trans "Existing Notifications" %}</h3>
@@ -36,7 +36,7 @@
             <option value="{{ email.email }}">{{ email }}</option>
           {% endfor %}
           </select>
-          <input type="submit" value="Remove">
+          <input type="submit" value="{% trans "Remove" %}">
         </form>
     </p>
   {% endif %}
