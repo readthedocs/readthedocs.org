@@ -13,6 +13,8 @@ from guardian.decorators import permission_required_or_403
 from guardian.shortcuts import get_objects_for_user
 from taggit.models import Tag
 
+from builds.filters import VersionSlugFilter
+from builds.models import Version
 from core.views import serve_docs
 from projects.models import Project
 from projects.utils import highest_version
@@ -52,11 +54,13 @@ def project_detail(request, project_slug):
     queryset = Project.objects.protected(request.user)
     project = get_object_or_404(queryset, slug=project_slug)
     versions = project.versions.public(request.user, project)
+    filter = VersionSlugFilter(request.GET, queryset=versions)
     return render_to_response(
         'projects/project_detail.html',
         {
             'project': project,
             'versions': versions,
+            'filter': filter,
         },
         context_instance=RequestContext(request),
     )
@@ -132,10 +136,51 @@ def search_autocomplete(request):
         term = request.GET['term']
     else:
         raise Http404
-    queryset = Project.objects.live(name__icontains=term)[:20]
+    queryset = Project.objects.public(request.user).filter(name__icontains=term)[:20]
 
     project_names = queryset.values_list('name', flat=True)
     json_response = json.dumps(list(project_names))
 
     return HttpResponse(json_response, mimetype='text/javascript')
 
+def version_autocomplete(request, project_slug):
+    """
+    return a json list of version names
+    """
+    queryset = Project.objects.protected(request.user)
+    project = get_object_or_404(queryset, slug=project_slug)
+    versions = Version.objects.public(request.user)
+    if 'term' in request.GET:
+        term = request.GET['term']
+    else:
+        raise Http404
+    version_queryset = versions.filter(slug__icontains=term)[:20]
+
+    names = version_queryset.values_list('slug', flat=True)
+    json_response = simplejson.dumps(list(names))
+
+    return HttpResponse(json_response, mimetype='text/javascript')
+
+def version_filter_autocomplete(request, project_slug):
+    queryset = Project.objects.protected(request.user)
+    project = get_object_or_404(queryset, slug=project_slug)
+    versions = Version.objects.public(request.user)
+    filter = VersionSlugFilter(request.GET, queryset=versions)
+    format = request.GET.get('format', 'json')
+   
+    if format == 'json':
+        names = filter.qs.values_list('slug', flat=True)
+        json_response = simplejson.dumps(list(names))
+        return HttpResponse(json_response, mimetype='text/javascript')
+    elif format == 'html':
+        return render_to_response(
+            'core/version_list.html',
+            {
+                'project': project,
+                'versions': versions,
+                'filter': filter,
+            },
+            context_instance=RequestContext(request),
+        )
+    else:
+        raise HttpResponse(status=400)
