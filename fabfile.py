@@ -3,17 +3,17 @@ from fabric.decorators import runs_once
 import time
 
 env.runtime = 'production'
-env.hosts = ['chimera.ericholscher.com', 'ladon.ericholscher.com', 'build.ericholscher.com', 'mozbuild.ericholscher.com']
+env.hosts = ['chimera.readthedocs.com', 'build.readthedocs.com', 'asgard.readthedocs.com']
 env.user = 'docs'
-env.code_dir = '/home/docs/sites/readthedocs.org/checkouts/readthedocs.org'
-env.virtualenv = '/home/docs/sites/readthedocs.org'
-env.rundir = '/home/docs/sites/readthedocs.org/run'
+env.code_dir = '/home/docs/checkouts/readthedocs.org'
+env.virtualenv = '/home/docs/'
+env.rundir = '/home/docs/run'
 
-@hosts(['chimera.ericholscher.com', 'ladon.ericholscher.com'])
+@hosts(['chimera.readthedocs.com', 'asgard.ericholscher.com'])
 def remove_project(project):
     run('rm -rf %s/user_builds/%s' % (env.code_dir, project))
 
-@hosts(['asgard.ericholscher.com'])
+@hosts(['asgard.readthedocs.com'])
 def nginx_logs():
     env.user = "root"
     run("tail -f /var/log/nginx/*.log")
@@ -38,19 +38,19 @@ def update_requirements():
     "Update requirements in the virtualenv."
     run("%s/bin/pip install -i http://simple.crate.io/ -r %s/deploy_requirements.txt" % (env.virtualenv, env.code_dir))
 
-@hosts(['chimera.ericholscher.com'])
+@hosts(['chimera.readthedocs.com'])
 def migrate(project=None):
     if project:
         run('django-admin.py migrate %s' % project)
     else:
         run('django-admin.py migrate')
 
-@hosts(['chimera.ericholscher.com', 'ladon.ericholscher.com'])
+@hosts(['chimera.readthedocs.com', 'asgard.ericholscher.com'])
 def static():
     "Restart (or just start) the server"
     run('django-admin.py collectstatic --noinput')
 
-@hosts(['chimera.ericholscher.com', 'ladon.ericholscher.com'])
+@hosts(['chimera.readthedocs.com', 'asgard.ericholscher.com'])
 def restart():
     "Restart (or just start) the server"
     env.user = "root"
@@ -58,7 +58,7 @@ def restart():
     #so it has time to reload
     time.sleep(3)
 
-@hosts(['chimera.ericholscher.com', 'ladon.ericholscher.com'])
+@hosts(['chimera.readthedocs.com', 'asgard.ericholscher.com'])
 def reload():
     "Restart (or just start) the server"
     env.user = "docs"
@@ -68,15 +68,15 @@ def reload():
     time.sleep(3)
 
 """
-@hosts(['chimera.ericholscher.com', 'ladon.ericholscher.com'])
+@hosts(['chimera.readthedocs.com', 'asgard.ericholscher.com'])
 def reload():
     "Reload (or just start) the server"
     env.user = "root"
     run("reload readthedocs-gunicorn")
 """
 
-@hosts(['build.ericholscher.com'])
-#@hosts(['kirin.ericholscher.com'])
+@hosts(['build.readthedocs.com'])
+#@hosts(['kirin.readthedocs.com'])
 def celery():
     "Restart (or just start) the server"
     env.user = "root"
@@ -170,10 +170,10 @@ def full_deploy():
     #restart()
     #celery()
 
-@hosts(['chimera.ericholscher.com'])
+@hosts(['chimera.readthedocs.com'])
 def uptime():
     run('uptime')
 
-@hosts(['chimera.ericholscher.com'])
+@hosts(['chimera.readthedocs.com'])
 def update_index():
     run('django-admin.py update_index')
