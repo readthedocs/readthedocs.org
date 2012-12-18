@@ -19,6 +19,7 @@
 
           </div>
         </div>
+        {% comment %}
         <script type="text/javascript">
           $('.wide-search-bar #id_site_search').autocomplete({
             source: '{% url search_autocomplete %}',
@@ -29,4 +30,4 @@
             }
           });
         </script>
-        <!-- BEGIN wide search bar -->
+        {% endcomment %}
