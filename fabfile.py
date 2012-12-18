@@ -9,7 +9,7 @@ env.code_dir = '/home/docs/checkouts/readthedocs.org'
 env.virtualenv = '/home/docs/'
 env.rundir = '/home/docs/run'
 
-@hosts(['chimera.readthedocs.com', 'asgard.ericholscher.com'])
+@hosts(['chimera.readthedocs.com', 'asgard.readthedocs.com'])
 def remove_project(project):
     run('rm -rf %s/user_builds/%s' % (env.code_dir, project))
 
@@ -45,20 +45,20 @@ def migrate(project=None):
     else:
         run('django-admin.py migrate')
 
-@hosts(['chimera.readthedocs.com', 'asgard.ericholscher.com'])
+@hosts(['chimera.readthedocs.com', 'asgard.readthedocs.com'])
 def static():
     "Restart (or just start) the server"
     run('django-admin.py collectstatic --noinput')
 
-@hosts(['chimera.readthedocs.com', 'asgard.ericholscher.com'])
+@hosts(['chimera.readthedocs.com', 'asgard.readthedocs.com'])
 def restart():
     "Restart (or just start) the server"
-    env.user = "root"
-    run("restart readthedocs-gunicorn")
+    env.user = "docs"
+    run("supervisorctl restart web")
     #so it has time to reload
     time.sleep(3)
 
-@hosts(['chimera.readthedocs.com', 'asgard.ericholscher.com'])
+@hosts(['chimera.readthedocs.com', 'asgard.readthedocs.com'])
 def reload():
     "Restart (or just start) the server"
     env.user = "docs"
@@ -67,20 +67,15 @@ def reload():
     #so it has time to reload
     time.sleep(3)
 
-"""
-@hosts(['chimera.readthedocs.com', 'asgard.ericholscher.com'])
+@hosts(['chimera.readthedocs.com', 'asgard.readthedocs.com'])
 def reload():
     "Reload (or just start) the server"
-    env.user = "root"
-    run("reload readthedocs-gunicorn")
-"""
+    run("supervisorctl update")
 
 @hosts(['build.readthedocs.com'])
-#@hosts(['kirin.readthedocs.com'])
 def celery():
     "Restart (or just start) the server"
-    env.user = "root"
-    run("restart readthedocs-celery")
+    run("supervisorctl restart celery")
 
 def pull():
     "Pull new code"
