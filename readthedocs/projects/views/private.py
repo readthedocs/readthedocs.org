@@ -13,7 +13,7 @@ from django.views.generic.list_detail import object_list
 
 from guardian.shortcuts import assign
 
-from builds.forms import AliasForm, VersionForm
+from builds.forms import AliasForm
 from builds.filters import VersionFilter
 from builds.models import Version
 from projects.forms import (ImportProjectForm, build_versions_form,
@@ -100,24 +100,6 @@ def project_versions(request, project_slug):
     return render_to_response(
         'projects/project_versions.html',
         {'form': form, 'project': project},
-        context_instance=RequestContext(request)
-    )
-
-@login_required
-def project_version_detail(request, project_slug, version_slug):
-    project = get_object_or_404(request.user.projects.live(), slug=project_slug)
-    version = get_object_or_404(project.versions.all(), slug=version_slug)
-
-    form = VersionForm(request.POST or None, instance=version)
-
-    if request.method == 'POST' and form.is_valid():
-        form.save()
-        url = reverse('projects_versions', args=[project.slug])
-        return HttpResponseRedirect(url)
-
-    return render_to_response(
-        'projects/project_version_detail.html',
-        {'form': form, 'project': project, 'version': version},
         context_instance=RequestContext(request)
     )
 

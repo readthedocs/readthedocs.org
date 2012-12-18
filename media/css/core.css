@@ -76,7 +76,7 @@ label { display: block; margin-bottom: 4px; font-weight: bold; color: #444; }
 #content { padding-top: 50px; }
 #content ul { margin-bottom: 20px; }
 
-#content #project_description { margin-bottom: 20px; }
+#content #project_description { background-color: #eee; }
 /* Commenting this for now. Want to figure out how to make it look sane with small amounts of text. */
 /* #content p { background-color: #eee; } */
 
@@ -140,10 +140,6 @@ i { display: inline-block; padding:0; margin:0; padding-right:6px; position: rel
 
 
 /* search */
-
-.search { border-bottom: solid 1px #bfbfbf; }
-.search input[type=text] { float: left; margin-right: 10px; padding: 8px 10px; }
-.search input[type=submit] { margin-top: 0; }
 
 .filter { margin-bottom: 1em; }
 .filter dd { display: inline-block; margin-right: 0.75em; }
@@ -329,34 +325,6 @@ p.build-missing { font-size: .8em; color: #9d9a55; margin: 0 0 3px; }
 .clearfix:after, .wrapper:after { content: "\0020"; display: block; height: 0; clear: both; visibility: hidden; overflow: hidden; }
 .clearfix, .wrapper { display: block; }
 
-/* project detail */
-.project_detail .module {
-  float: left;
-  width: 500px;
-}
-
-.project_detail .module .help_text {
-  font-size: 14px;
-}
-
-.project_detail .help_text em {
-  color: #666;
-}
-
-.project_detail .build_a_version {
-  margin-top: 40px;
-}
-
-.project_detail .project_details {
-  float: right;
-  width: 250px;
-  margin-top: 34px;
-}
-
-.project_detail .project_details h3 {
-  margin-bottom: 0;
-  font-size: 16px;
-}
 
 .when-editing { opacity: 0; -webkit-transition:opacity 0.2s ease-in-out; -moz-transition:opacity 0.2s ease-in-out; -ms-transition:opacity 0.2s ease-in-out; -o-transition:opacity 0.2s ease-in-out; transition:opacity 0.2s ease-in-out; pointer-events:none; -webkit-user-select:none; }
 .editing .when-editing { opacity: 1; }
@@ -397,3 +365,4 @@ select.dropdown { display: none; }
 .dropdown > ul.js-open { display:block; }
 
 .dropdown > ul:before { content:' '; visibility: visible; border:8px solid transparent; border-bottom-color: #465158; position:absolute; top:-16px; left:104px; }
+
