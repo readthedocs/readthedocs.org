@@ -66,9 +66,6 @@
                         <a href="{% url projects_manage project.slug %}">{{ project.name }}</a>
                         <ul class="module-item-menu">
                           <li><a href="{% url projects_edit project.slug %}"><i class="gear"></i>{% trans "Admin" %}</a></li>
-                          {% if project.has_aliases %}
-                            <li><a href="{% url projects_alias_list project.slug %}" rel="nofollow,noindex">{% trans "Aliases" %}</a></li>
-                          {% endif %}
                           <li>&nbsp;&nbsp;</li>
                           <li><a href="{{ project.get_docs_url }}">{% trans "View Docs" %}</a></li>
                         </ul>
