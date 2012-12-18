@@ -2,6 +2,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from guardian.shortcuts import assign, get_objects_for_user
+from taggit.managers import TaggableManager
 
 from projects.models import Project
 from projects import constants
@@ -80,6 +81,7 @@ class Version(models.Model):
         choices=constants.PRIVACY_CHOICES, default='public',
         help_text=_("Level of privacy for this Version."))
 
+    tags = TaggableManager(blank=True)
     objects = VersionManager()
 
     class Meta:

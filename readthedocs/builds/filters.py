@@ -12,10 +12,17 @@ ANY_REPO = (
 
 BUILD_TYPES = ANY_REPO + constants.BUILD_TYPES
 
+class VersionSlugFilter(django_filters.FilterSet):
+    slug = django_filters.CharFilter(label=_("Name"), name='slug', lookup_type='icontains')
+    tag = django_filters.CharFilter(label=_("Tag"), name='tags', lookup_type='name__icontains')
+
+    class Meta:
+        model = Version
+        fields = ['slug', 'tag']
 
 class VersionFilter(django_filters.FilterSet):
     project = django_filters.CharFilter(name='project__name', lookup_type="icontains")
-    slug= django_filters.CharFilter(label=_("Slug"), name='slug', lookup_type='icontains')
+    slug = django_filters.CharFilter(label=_("Name"), name='slug', lookup_type='icontains')
 
     class Meta:
         model = Version
