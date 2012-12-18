@@ -74,4 +74,19 @@ Bash Aliases
     * `chk` - Will take you to the checkout directory
     * `run` - Will take you to the run directory
 
+Deploying
+---------
+
+Pushing code to servers. This updates code & media::
+
+    fab push
+
+Restart the webs::
+
+    fab restart
+
+Restart the build servers celery::
+
+    fab celery
+
 
