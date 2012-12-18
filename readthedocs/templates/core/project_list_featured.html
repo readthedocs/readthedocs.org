@@ -3,18 +3,31 @@
 {% for project in featured_list %}
   <li class="module-item">
     <a class="module-item-title" href="{{ project.get_absolute_url }}">{{ project.name }}</a>
-    {% for user in project.users.all %}	
-    <a href="{{ user.get_absolute_url }}" class="quiet">({{ user }})</a>
+    {% for user in project.users.all %}
+        <a href="{{ user.get_absolute_url }}" class="quiet">({{ user }})</a>
     {% endfor %}
-    <ul class="module-item-menu">
-    <span class="hidden-child" style="display: none;">
-        {% for version in project.ordered_active_versions reversed %}
-            <li><a href="{{ version.get_absolute_url }}">{{ version.slug }}</a></li>
-        {% endfor %}
+
+    {% if project.has_good_build %}
+    <span class="dropdown" style="position:absolute; right:0px; top:0px;">
+      <span>
+          <a href="{{ project.get_docs_url }}">{% trans "View Docs" %}</a>
+        <a href="#">&#x25BC;</a>
+      </span>
+      <ul>
+          <li><input type="search" placeholder="{% trans "Search" %}&hellip;" /></li>
+          {% for version in project.ordered_active_versions reversed %}
+              <li><a href="{{ version.get_absolute_url }}">{{ version.slug }}</a></li>
+          {% endfor %}
+      </ul>
     </span>
-    <li><a href="{{ project.get_docs_url }}">{% trans "View Docs" %}</a></li>
+    {% else %}
+    <ul class="module-item-menu">
+      <li><a href="{{ project.get_builds_url }}">{% trans "No Docs" %}</a></li>
     </ul>
+    {% endif %}
+
   </li>
+
 {% empty %}
   <li class="module-item quiet">{% trans "No projects found" %}</li>
 {% endfor %}
