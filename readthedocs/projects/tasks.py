@@ -304,7 +304,7 @@ def update_imported_docs(version_pk):
             # interpreters.
             update_docs_output['venv'] = run('{cmd} --distribute {site_packages} {path}'.format(
                     cmd='{interpreter} -m virtualenv'.format(
-                        interpreter=project.python_version),
+                        interpreter=project.python_interpreter),
                     site_packages=site_packages,
                     path=project.venv_path(version=version_slug)))
             # Other code expects sphinx-build to be installed inside the virtualenv.
@@ -314,7 +314,12 @@ def update_imported_docs(version_pk):
                 ignore_option = '-I'
             else:
                 ignore_option = ''
-            update_docs_output['sphinx'] = run('{cmd} install -U {ignore_option} hg+http://bitbucket.org/birkenfeld/sphinx/@d4c6ac1fcc9c#egg=Sphinx virtualenv==1.8.2 distribute==0.6.28 docutils==0.8.1'.format(
+            if project.python_interpreter != 'python3':
+                update_docs_output['sphinx'] = run('{cmd} install -U {ignore_option} hg+http://bitbucket.org/birkenfeld/sphinx/@d4c6ac1fcc9c#egg=Sphinx virtualenv==1.8.2 distribute==0.6.28 docutils==0.8.1'.format(
+                    cmd=project.venv_bin(version=version_slug, bin='pip'), ignore_option=ignore_option))
+            else:
+                # python 3 specific hax
+                update_docs_output['sphinx'] = run('{cmd} install {ignore_option} hg+http://bitbucket.org/birkenfeld/sphinx/@d4c6ac1fcc9c#egg=Sphinx virtualenv==1.8.2 docutils==0.8.1'.format(
                     cmd=project.venv_bin(version=version_slug, bin='pip'), ignore_option=ignore_option))
 
             if project.requirements_file:
