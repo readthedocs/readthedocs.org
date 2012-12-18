@@ -133,7 +133,7 @@ class Project(models.Model):
         max_length=20,
         choices=constants.PYTHON_CHOICES,
         default='python',
-        help_text=_("""(Beta) The Python interpreter used to create the virtual environment."""))
+        help_text=_("(Beta) The Python interpreter used to create the virtual environment."))
 
     use_system_packages = models.BooleanField(_('Use system packages'),
         help_text=_("Give the virtual environment access to the global sites-packages dir"))

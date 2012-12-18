@@ -28,7 +28,7 @@
     {% else %}
 
         {% if forloop.counter0 == 1 %}
-            <h2> {% trans "Choose Active Verisons" %} </h2>
+            <h2> {% trans "Choose Active Versions" %} </h2>
             <p>
             {% trans "Active versions below will show up on the site." %}
             </p>
@@ -40,13 +40,13 @@
 
         {% comment %}
         {% elif field.label == "tags" %}
-            Tags: {{ field }}
+            {% trans "Tags" %}: {{ field }}
         {% endcomment %}
 
         {% else %}
         {# This is a custom field with a label of the version, and a value of a checkbox denoting if it is active #}
         <h3> <a href="{% url project_version_detail project.slug field.label %}"> {{ field.label}}</a> </h3>
-          Active     {{ field }}
+          {% trans "Active" %} {{ field }}
         {% endif %}
     {% endif %}
     <br>

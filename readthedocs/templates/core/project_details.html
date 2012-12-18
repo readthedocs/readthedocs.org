@@ -15,7 +15,7 @@
   <form action="{% url haystack_project %}" method="GET">
     <input type="text" name="q" value="" placeholder="{% blocktrans %}Search {{ project }}{% endblocktrans %}" id="id_site_search">
     <input type="hidden" name="selected_facets" value="project_exact:{{ project.name }}">
-    <input type="submit" value="Search">
+    <input type="submit" value="{% trans "Search" %}">
   </form>
 </div>
 <br>
@@ -33,7 +33,7 @@
     <div class="filter_form">
       <form id="filter_form">
         {{ filter.form }}
-        <input type="submit" value="Filter">
+        <input type="submit" value="{% trans "Filter" %}">
       </form>
     </div>
   {% endcomment %}
@@ -57,7 +57,7 @@
         {% endif %}
           {% if request.user in project.users.all %}
             <ul class="module-item-menu">
-              <li><a href="{% url project_version_detail project.slug version.slug %}">Edit</a></li>
+              <li><a href="{% url project_version_detail project.slug version.slug %}">{% trans "Edit" %}</a></li>
             </ul>
           {% endif %}
         </li>
@@ -67,7 +67,7 @@
   </div>
 
   <div class="build_a_version">
-    <h3>Build a version</h3>
+    <h3>{% trans "Build a version" %}</h3>
     <div style="float: left; margin-right: 5px;" class="version_right">
       <form method="post" action="{% url generic_build project.pk %}">
         <select id="id_version" name="version_slug">
@@ -75,7 +75,7 @@
           <option value="{{ version.slug }}">{{ version.slug }}</option>
         {% endfor %}
         </select>
-        <input type="submit" value="Build">
+        <input type="submit" value="{% trans "Build" %}">
       </form>
     </div>
   </div>
@@ -104,7 +104,7 @@
   <p>{{ project.modified_date|timesince }} ago</p>
 
   {% if project.project_url %}
-    <h3>Home Page</h3>
+    <h3>{% trans "Home Page" %}</h3>
     <p>
       <a href="{{ project.project_url }}" rel="nofollow,noindex">{{ project.project_url }}</a>
     </p>
@@ -136,7 +136,7 @@
   {% endif %}
 
   {% if project.subprojects.exists %}
-    <h3>Sub Projects</h3>
+    <h3>{% trans "Sub Projects" %}</h3>
       <ul>
       {% for rel in project.subprojects.all %}
           <li><a href="{{ rel.get_absolute_url }}">{{ rel.child }}</a></li>
