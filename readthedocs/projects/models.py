@@ -129,10 +129,11 @@ class Project(models.Model):
     # virtual environment (therefore the interpreter used on the virtual
     # environment)
     #
-    python_interpreter = models.CharField(_('Python Interpreter'), max_length=20,
-        choices=constants.PYTHON_CHOICES, default='python',
-        help_text=_("""(Beta) The Python interpreter used to create the virtual
-            environment."""))
+    python_interpreter = models.CharField(_('Python Interpreter'),
+        max_length=20,
+        choices=constants.PYTHON_CHOICES,
+        default='python',
+        help_text=_("""(Beta) The Python interpreter used to create the virtual environment."""))
 
     use_system_packages = models.BooleanField(_('Use system packages'),
         help_text=_("Give the virtual environment access to the global sites-packages dir"))

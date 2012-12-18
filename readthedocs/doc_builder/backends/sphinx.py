@@ -167,7 +167,7 @@ class Builder(BaseBuilder):
         force_str = " -E " if self.force else ""
         if project.use_virtualenv:
             build_command = "%s %s -b html . _build/html " % (
-                    project.venv_bin( version=self.version.slug, bin='sphinx-build'),
+                    project.venv_bin(version=self.version.slug, bin='sphinx-build'),
                     force_str)
         else:
             build_command = "sphinx-build %s -b html . _build/html" % (force_str)
