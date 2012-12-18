@@ -28,6 +28,11 @@ class ImportProjectForm(ProjectForm):
     repo = forms.CharField(required=True,
             help_text=_(u'URL for your code (hg or git). Ex. http://github.com/ericholscher/django-kong.git'))
 
+    python_interpreter = forms.ChoiceField(
+        choices=constants.PYTHON_CHOICES, initial='python',
+        help_text=_("""(Beta) The Python interpreter used to create the virtual
+            environment."""))
+
     class Meta:
         model = Project
         fields = (
@@ -39,6 +44,7 @@ class ImportProjectForm(ProjectForm):
             'privacy_level', 'version_privacy_level',
             # Python specific
             'use_virtualenv', 'use_system_packages', 'requirements_file',
+            'python_interpreter',
             # Fringe
             'analytics_code', 'documentation_type', 'tags'
         )
