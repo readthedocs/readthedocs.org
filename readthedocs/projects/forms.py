@@ -44,7 +44,7 @@ class ImportProjectForm(ProjectForm):
             'privacy_level', 'version_privacy_level',
             # Python specific
             'use_virtualenv', 'use_system_packages', 'requirements_file',
-            'python_interpreter',
+            #'python_interpreter',
             # Fringe
             'analytics_code', 'documentation_type', 'tags'
         )
