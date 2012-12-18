@@ -89,6 +89,6 @@ IMPORTANT_VERSION_FILTERS = {
 # detect all available Python interpreters in the fly (Maybe using
 # update-alternatives linux tool family?).
 PYTHON_CHOICES = (
-    ('python', _('Python')),
+    ('python', _('Python 2.x')),
     ('python3', _('Python 3.x')),
 )
