@@ -1,0 +1,57 @@
+{% extends "projects/project_edit_base.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans "Edit Notifications" %}{% endblock %}
+
+{% block nav-dashboard %} class="active"{% endblock %}
+
+{% block editing-option-edit-proj %}class="active"{% endblock %}
+
+{% block project-notifications-active %}active{% endblock %}
+{% block project_edit_content_header %}{{ project.name }} <small class="quiet">{% trans "Notifications" %}</small>{% endblock %}
+
+{% block project_edit_content %}
+  <p class="help_text">
+    {% trans "Configure Notifications to be sent on build failures." %}
+  </p>
+
+  <h3>{% trans "Existing Notifications" %}</h3>
+  <p>
+    <ul>
+    {% for email in emails %}
+        <li>
+        {{ email }}
+        </li>
+    {% endfor %}
+    </ul>
+
+  {% if emails|length > 0 %}
+  <h3>{% trans "Remove Notifications" %}</h3>
+    <p>
+        <form method="post" action="{% url projects_notification_delete project.slug %}">
+            {% csrf_token %}
+          <select id="id_email" name="email">
+          {% for email in emails %}
+            <option value="{{ email.email }}">{{ email }}</option>
+          {% endfor %}
+          </select>
+          <input type="submit" value="{% trans "Remove" %}">
+        </form>
+    </p>
+  {% endif %}
+
+
+  <h3>{% trans "New Notifications" %}</h3>
+  <p>
+    {% trans "Add an email address to notify" %}
+  </p>
+  <form method="post" action=".">{% csrf_token %}
+    {{ form.email.label_tag }}
+    {{ form.email.errors }}
+    {{ form.email }}
+    <p>
+      <input style="display: inline;" type="submit" value="{% trans "Submit" %}">
+    </p>
+  </form>
+{% endblock %}

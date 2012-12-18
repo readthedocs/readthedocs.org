@@ -4,7 +4,7 @@ and related models.
 
 from builds.models import Version
 from django.contrib import admin
-from projects.models import Project, ImportedFile, ProjectRelationship
+from projects.models import Project, ImportedFile, ProjectRelationship, EmailHook, WebHook
 from guardian.admin import GuardedModelAdmin
 
 class ProjectRelationshipInline(admin.TabularInline):
@@ -31,3 +31,5 @@ class ImportedFileAdmin(admin.ModelAdmin):
 
 admin.site.register(Project, ProjectAdmin)
 admin.site.register(ImportedFile, ImportedFileAdmin)
+admin.site.register(EmailHook)
+admin.site.register(WebHook)
