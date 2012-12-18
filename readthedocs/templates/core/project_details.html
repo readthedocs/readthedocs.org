@@ -44,13 +44,16 @@
         <li class="module-item col-span">
         {% if version.uploaded or version.built %}
           {# Link to the docs #}
-          <a class="module-item-title" href="{{ version.get_absolute_url }}">{{ version.slug }}
+          <a class="module-item-title" href="{{ version.get_absolute_url }}">
+            {% blocktrans with version.slug as slug %} {{ slug }} {% endblocktrans %}
           {% if request.user in project.users.all %}
             <span class="right-menu quiet">{{ version.get_privacy_level_display }}</span>
           {% endif %}
           </a>
         {% else %}
-          {% blocktrans with version.slug as slug %}{{ slug }} (Build Failed){% endblocktrans %}
+          <a class="module-item-title" href="{{ version.project.get_builds_url }}">{{ version.slug }}
+            {% blocktrans with version.slug as slug %} {{ slug }} (Build Failed){% endblocktrans %}
+          </a>
         {% endif %}
           {% if request.user in project.users.all %}
             <ul class="module-item-menu">
@@ -185,7 +188,3 @@
   <!-- END projects list -->
   {% endif %}
 </div>{# END .project_details #}
-
-{% if request.user not in project.users.all %}
-  {% include "projects/includes/flagging.html" %}
-{% endif %}
