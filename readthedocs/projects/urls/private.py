@@ -61,4 +61,12 @@ urlpatterns = patterns('projects.views.private',
         'project_users_delete',
         name='projects_users_delete'
     ),
+    url(r'^(?P<project_slug>[-\w]+)/notifications/$',
+        'project_notifications',
+        name='projects_notifications'
+    ),
+    url(r'^(?P<project_slug>[-\w]+)/notifications/delete/$',
+        'project_notifications_delete',
+        name='projects_notification_delete'
+    ),
 )

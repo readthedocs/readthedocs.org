@@ -222,7 +222,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
             purge_version(version, subdomain=True,
                           mainsite=True, cname=True)
             symlink_cname(version)
-            send_notifications(version)
+            send_notifications(version, build)
             log.info("Purged %s" % version)
         else:
             log.warning("Failed HTML Build")
@@ -559,8 +559,54 @@ def symlink_cname(version):
         run_on_app_servers('mkdir -p %s' % '/'.join(symlink.split('/')[:-1]))
         run_on_app_servers('ln -nsf %s %s' % (build_dir, symlink))
 
+def send_notifications(version, build):
+    zenircbot_notification(version.id)
+    for hook in version.project.webhook_notifications.all():
+        webhook_notification.delay(version.project.id, build, hook.url)
+    emails = version.project.emailhook_notifications.all().values_list('email',
+                                                                   flat=True)
+    for email in emails:
+        email_notification(version.project.id, build, email)
 
-def send_notifications(version):
+
+@task
+def email_notification(project_id, build, email):
+    if build['success']:
+        return
+    project = Project.objects.get(id=project_id)
+    build_obj = Build.objects.get(id=build['id'])
+    subject = (_('(ReadTheDocs) Building docs for %s failed') % project.name)
+    template = 'projects/notification_email.txt'
+    context = {
+        'project': project.name,
+        'build_url': 'http://%s%s' % (Site.objects.get_current().domain,
+                                      build_obj.get_absolute_url())
+    }
+    message = get_template(template).render(Context(context))
+
+    send_mail(subject=subject, message=message,
+              from_email=settings.DEFAULT_FROM_EMAIL, recipient_list=(email,))
+
+
+@task
+def webhook_notification(project_id, build, hook_url):
+    project = Project.objects.get(id=project_id)
+    data = json.dumps({
+        'name': project.name,
+        'slug': project.slug,
+        'build': {
+            'id': build['id'],
+            'success': build['success'],
+            'date': build['date']
+        }
+    })
+    log.debug('sending notification to: %s' % hook_url)
+    requests.post(hook_url, data=data)
+
+
+@task
+def zenircbot_notification(version_id):
+    version = Version.objects.get(id=version_id)
     message = "Build of %s successful" % version
     redis_obj = redis.Redis(**settings.REDIS)
     IRC = getattr(settings, 'IRC_CHANNEL', '#readthedocs-build')

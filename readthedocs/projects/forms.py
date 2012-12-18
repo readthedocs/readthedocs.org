@@ -7,7 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
 
 from projects import constants
-from projects.models import Project
+from projects.models import Project, EmailHook, WebHook
 from projects.tasks import update_docs
 
 
@@ -221,3 +221,18 @@ class UserForm(forms.Form):
     def save(self):
         project = self.project.users.add(self.user)
         return self.user
+
+class EmailHookForm(forms.Form):
+    email = forms.EmailField()
+
+    def __init__(self, *args, **kwargs):
+        self.project = kwargs.pop('project', None)
+        super(EmailHookForm, self).__init__(*args, **kwargs)
+
+    def clean_email(self):
+        self.email = EmailHook.objects.get_or_create(email=self.cleaned_data['email'], project=self.project)[0]
+        return self.email
+
+    def save(self):
+        project = self.project.emailhook_notifications.add(self.email)
+        return self.project
