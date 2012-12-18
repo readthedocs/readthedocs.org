@@ -34,6 +34,7 @@ class PrivacyTests(TestCase):
              'repo': 'https://github.com/ericholscher/django-kong',
              'csrfmiddlewaretoken': '34af7c8a5ba84b84564403a280d9a9be',
              'default_version': 'latest',
+             'python_interpreter': 'python',
              'privacy_level': privacy_level,
              'version_privacy_level': version_privacy_level,
              'description': 'OOHHH AH AH AH KONG SMASH',
