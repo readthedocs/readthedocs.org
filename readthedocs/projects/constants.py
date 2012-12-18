@@ -84,3 +84,11 @@ PRIVACY_CHOICES = (
 IMPORTANT_VERSION_FILTERS = {
     'slug': 'important'
 }
+
+# in the future this constant can be replaced with a implementation that
+# detect all available Python interpreters in the fly (Maybe using
+# update-alternatives linux tool family?).
+PYTHON_CHOICES = (
+    ('python', _('Python')),
+    ('python3', _('Python 3.x')),
+)

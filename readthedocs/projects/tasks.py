@@ -300,8 +300,11 @@ def update_imported_docs(version_pk):
                 site_packages = '--system-site-packages'
             else:
                 site_packages = '--no-site-packages'
+            # Here the command has been modified to support different
+            # interpreters.
             update_docs_output['venv'] = run('{cmd} --distribute {site_packages} {path}'.format(
-                    cmd='virtualenv',
+                    cmd='{interpreter} -m virtualenv'.format(
+                        interpreter=project.python_version),
                     site_packages=site_packages,
                     path=project.venv_path(version=version_slug)))
             # Other code expects sphinx-build to be installed inside the virtualenv.
