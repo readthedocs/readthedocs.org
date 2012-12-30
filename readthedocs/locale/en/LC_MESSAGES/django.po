@@ -613,7 +613,7 @@ msgstr ""
 
 #: templates/base.html:54
 msgid ""
-"You docs are currently being built.  It may take a moment for them to appear."
+"Your docs are currently being built.  It may take a moment for them to appear."
 msgstr ""
 
 #: templates/base.html:55
