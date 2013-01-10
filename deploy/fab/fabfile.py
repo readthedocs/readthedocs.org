@@ -38,7 +38,7 @@ def install_packages(type):
 
     if type == 'build':
         sudo(
-            'apt-get install -y git-core python-dev postgresql-client libpq-dev subversion graphviz curl sqlite libxml2-dev libxslt-dev vim g++ python-numpy build-essential texlive-full')
+            'apt-get install -y git-core python-dev postgresql-client libpq-dev subversion graphviz curl sqlite libxml2-dev libxslt-dev vim g++ python-numpy build-essential texlive-full libevent-dev')
         sudo('pip install -U mercurial')
     if type == 'db':
         sudo('apt-get install -y solr-tomcat redis-server postgresql ')
