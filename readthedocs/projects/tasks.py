@@ -329,8 +329,12 @@ def update_imported_docs(version_pk):
                         cmd=project.venv_bin(version=version_slug, bin='pip'),
                         requirements=project.requirements_file))
             os.chdir(project.checkout_path(version_slug))
-            update_docs_output['install'] = run('{cmd} setup.py install --force'.format(
-                    cmd=project.venv_bin(version=version_slug, bin='python')))
+            if getattr(settings, 'USE_PIP_INSTALL', False):
+                update_docs_output['install'] = run('{cmd} install --ignore-installed .'.format(
+                        cmd=project.venv_bin(version=version_slug, bin='pip')))
+            else:
+                update_docs_output['install'] = run('{cmd} setup.py install --force'.format(
+                        cmd=project.venv_bin(version=version_slug, bin='python')))
 
         # check tags/version
         #XXX:dc: what in this block raises the values error?
