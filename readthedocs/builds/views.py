@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.core.urlresolvers import reverse
 from django.http import HttpResponsePermanentRedirect
 from django.shortcuts import get_object_or_404
@@ -13,8 +14,8 @@ from projects.models import Project
 def build_list(request, project_slug=None, tag=None):
     """Show a list of builds.
     """
-    queryset = Build.objects.all()
-    filter = BuildFilter(request.GET, queryset=queryset)
+    project = get_object_or_404(Project.objects.protected(request.user), slug=project_slug)
+    queryset = Build.objects.filter(project=project)
 
     if tag:
         tag = get_object_or_404(Tag, slug=tag)
@@ -22,8 +23,6 @@ def build_list(request, project_slug=None, tag=None):
     else:
         tag = None
 
-    project = get_object_or_404(Project.objects.protected(request.user), slug=project_slug)
-    queryset = queryset.filter(project=project)
     filter = BuildFilter(request.GET, queryset=queryset)
     active_builds = queryset.exclude(state="finished").values('id')
 
