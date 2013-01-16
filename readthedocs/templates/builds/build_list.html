@@ -29,6 +29,22 @@
           <div class="module-wrapper">
 
             <div class="module-header">
+              <div style="float:right;">
+                <form method="post" action="{% url generic_build project.pk %}">
+                  <ul class="build_a_version">
+                    <li style="display: inline-block">
+                      <input type="submit" value="{% trans "Build Version:" %}">
+                    </li>
+                    <li style="display: inline-block">
+                      <select id="id_version" name="version_slug">
+                      {% for version in project.ordered_active_versions %}
+                        <option value="{{ version.slug }}">{{ version.slug }}</option>
+                      {% endfor %}
+                      </select>
+                    </li>
+                  </form>
+                </div>
+              </div>
               <h1>{% trans "Recent Builds" %}</h1>
             </div>
 
@@ -57,6 +73,7 @@
   <script type="text/javascript">
     $(function() {
       {% for build in active_builds %}
+        $('#build-{{ build.id }}').effect('highlight', {}, 3000);
         new BuildListUpdater({{ build.id }}).startPolling();
       {% endfor %}
     });
