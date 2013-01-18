@@ -45,7 +45,7 @@
 
         {% else %}
         {# This is a custom field with a label of the version, and a value of a checkbox denoting if it is active #}
-        <h3> <a href="{% url project_version_detail project.slug field.label %}"> {{ field.label}}</a> </h3>
+        <h3>{{ field.label}}</h3>
           {% trans "Active" %} {{ field }}
         {% endif %}
     {% endif %}

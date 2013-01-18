@@ -7,7 +7,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.http import HttpResponse, HttpResponseRedirect, \
     HttpResponsePermanentRedirect, Http404, HttpResponseNotFound
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_view_exempt
 from django.views.static import serve
@@ -157,8 +157,7 @@ def github_build(request):
 
             return HttpResponseNotFound('Build Failed')
     else:
-        return render_to_response('post_commit.html', {},
-                context_instance=RequestContext(request))
+        return redirect('builds_project_list', project.slug)
 
 @csrf_view_exempt
 def bitbucket_build(request):
@@ -176,8 +175,7 @@ def bitbucket_build(request):
             log.error("(Github Build) Failed: %s:%s" % (name, e))
             return HttpResponseNotFound('Build Failed')
     else:
-        return render_to_response('post_commit.html', {},
-                context_instance=RequestContext(request))
+        return redirect('builds_project_list', project.slug)
 
 @csrf_view_exempt
 def generic_build(request, pk):
@@ -192,10 +190,8 @@ def generic_build(request, pk):
         else:
             update_docs.delay(pk=pk, force=True)
         #return HttpResponse('Build Started')
-        return render_to_response('post_commit.html', context,
-                context_instance=RequestContext(request))
-    return render_to_response('post_commit.html', context,
-            context_instance=RequestContext(request))
+        return redirect('builds_project_list', project.slug)
+    return redirect('builds_project_list', project.slug)
 
 def subdomain_handler(request, lang_slug=None, version_slug=None, filename=''):
     """

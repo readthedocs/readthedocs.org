@@ -9,9 +9,14 @@ required_dirs = ['checkouts', 'etc', 'run', 'log']
 
 def build():
     install_packages('build')
+    users('docs')
+    checkout('docs')
+    setup_env('docs')
+    """
     users('build')
     checkout('build')
-    setup_env()
+    setup_env('build')
+    """
 
 
 def web():
@@ -27,17 +32,23 @@ def db():
 
 def install_packages(type):
     sudo('apt-get update')
+    sudo('apt-get install -y python-setuptools')
     sudo('easy_install pip')
     sudo('pip install -U virtualenv')
 
     if type == 'build':
         sudo(
-            'apt-get install -y git-core python-setuptools python-dev postgresql-client libpq-dev subversion graphviz curl sqlite libxml2-dev libxslt-dev vim g++ python-numpy')
+            'apt-get install -y git-core python-dev '
+            'postgresql-client libpq-dev subversion graphviz '
+            'curl sqlite libxml2-dev libxslt-dev vim g++ python-numpy python-scipy '
+            'build-essential texlive-full libevent-dev'
+        )
         sudo('pip install -U mercurial')
     if type == 'db':
         sudo('apt-get install -y solr-tomcat redis-server postgresql ')
     if type == 'web':
         sudo('apt-get install -y nginx')
+
 
 
 def users(user=None):
@@ -58,7 +69,7 @@ def users(user=None):
     sudo('mkdir -p /var/build')
     sudo('chmod 777 /var/build')
     # Docs > Syncer
-    sudo('adduser docs builder')
+    #sudo('adduser docs builder')
 
 
 def checkout(user=None):

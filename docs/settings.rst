@@ -1,7 +1,7 @@
 Interesting Settings
 ====================
 
-USE_SUBDOMAINS
+USE_SUBDOMAIN
 ---------------
 
 Default: `False`
@@ -16,7 +16,7 @@ PRODUCTION_DOMAIN
 Default: `readthedocs.org`
 
 This is the domain that gets linked to throughout the site when used in production.
-It depends on `USE_SUBDOMAINS`, otherwise it isn't used.
+It depends on `USE_SUBDOMAIN`, otherwise it isn't used.
 
 VARNISH_SERVERS
 ----------------
@@ -62,3 +62,10 @@ Default: `div.document`
 
 The Pyquery path to an HTML element that is the root of your document. 
 This is used for making sure we are only searching the main content of a document.
+
+USE_PIP_INSTALL
+---------------
+
+Default: `False`
+
+Whether to use `pip install .` or `python setup.py install` when installing packages into the Virtualenv. Default is to use pip.

@@ -222,7 +222,8 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
             purge_version(version, subdomain=True,
                           mainsite=True, cname=True)
             symlink_cname(version)
-            send_notifications(version, build)
+            # This requires database access, must disable it for now.
+            #send_notifications(version, build)
             log.info("Purged %s" % version)
         else:
             log.warning("Failed HTML Build")
@@ -328,8 +329,12 @@ def update_imported_docs(version_pk):
                         cmd=project.venv_bin(version=version_slug, bin='pip'),
                         requirements=project.requirements_file))
             os.chdir(project.checkout_path(version_slug))
-            update_docs_output['install'] = run('{cmd} setup.py install --force'.format(
-                    cmd=project.venv_bin(version=version_slug, bin='python')))
+            if getattr(settings, 'USE_PIP_INSTALL', False):
+                update_docs_output['install'] = run('{cmd} install --ignore-installed .'.format(
+                        cmd=project.venv_bin(version=version_slug, bin='pip')))
+            else:
+                update_docs_output['install'] = run('{cmd} setup.py install --force'.format(
+                        cmd=project.venv_bin(version=version_slug, bin='python')))
 
         # check tags/version
         #XXX:dc: what in this block raises the values error?
@@ -633,7 +638,9 @@ def clear_artifacts(version_pk):
     """ Remove artifacts from the build server. """
     version_data = api.version(version_pk).get()
     version = make_api_version(version_data)
-    run('rm -rf %s' % version.project.full_epub_path(version.slug))
-    run('rm -rf %s' % version.project.full_man_path(version.slug))
-    run('rm -rf %s' % version.project.full_build_path(version.slug))
-    run('rm -rf %s' % version.project.full_latex_path(version.slug))
+    # Stop doing this for now as it causes 403s if people build things back to back some times
+    # because of a race condition
+    #run('rm -rf %s' % version.project.full_epub_path(version.slug))
+    #run('rm -rf %s' % version.project.full_man_path(version.slug))
+    #run('rm -rf %s' % version.project.full_build_path(version.slug))
+    #run('rm -rf %s' % version.project.full_latex_path(version.slug))
