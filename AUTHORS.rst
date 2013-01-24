@@ -31,5 +31,6 @@ Awesome Contributors
 * Dag Odenhall
 * Jacob Burch
 * Julen Ruiz Aizpuru
+* Manuel F. Viera
 
 For a list of all the contributions: https://github.com/rtfd/readthedocs.org/contributors
