@@ -21,7 +21,6 @@ filesystem for each project.
 
     option_list = BaseCommand.option_list + (
         make_option('-p',
-            action='store_true',
             dest='project',
             default='',
             help='Project to index'
@@ -29,7 +28,7 @@ filesystem for each project.
     )
 
 
-    def handle(self, *args, **kwargs):
+    def handle(self, *args, **options):
         '''
         Build/index all versions or a single project's version
         '''
@@ -38,7 +37,8 @@ filesystem for each project.
         project = options['project']
 
         if project:
-            queryset = Version.objects.get(slug=project)
+            queryset = Version.objects.filter(project__slug=project)
+            log.info("Building all versions for %s" % project)
         elif getattr(settings, 'INDEX_ONLY_LATEST', True):
             queryset = Version.objects.filter(slug='latst')
         else:
@@ -49,3 +49,4 @@ filesystem for each project.
                 tasks.fileify(v)
             except Exception:
                 log.error('Build failed for %s' % v, exc_info=True)
+
