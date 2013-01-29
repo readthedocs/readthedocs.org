@@ -57,6 +57,13 @@ Developer Documentation
     api
     api/index
 
+Custom install Documentation
+----------------------------
+.. toctree::
+    :maxdepth: 3
+
+    custom_installs/index
+
 Operations Documentation
 ------------------------
 .. toctree::
