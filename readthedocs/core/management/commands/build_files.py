@@ -46,7 +46,6 @@ filesystem for each project.
         for v in queryset:
             log.info("Building files for %s" % v)
             try:
-                tasks.fileify(v)
+                tasks.fileify(v.pk)
             except Exception:
                 log.error('Build failed for %s' % v, exc_info=True)
-
