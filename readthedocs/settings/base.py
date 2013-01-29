@@ -83,7 +83,7 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'urls'
 
 TEMPLATE_DIRS = (
-    '%s/readthedocs/templates/' % (SITE_ROOT),
+    '%s/readthedocs/templates/' % SITE_ROOT,
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
