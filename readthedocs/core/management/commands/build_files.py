@@ -18,13 +18,27 @@ that they can be added to the search index. This is accomplished by walking the
 filesystem for each project.
 '''
 
+    option_list = BaseCommand.option_list + (
+        make_option('-p',
+            action='store_true',
+            dest='project',
+            default='',
+            help='Project to index'
+        ),
+    )
+
+
     def handle(self, *args, **kwargs):
         '''
         Build/index all versions or a single project's version
         '''
         # Delete all existing as a cleanup for any deleted projects.
         #ImportedFile.objects.all().delete()
-        if getattr(settings, 'INDEX_ONLY_LATEST', True):
+        project = options['project']
+
+        if project:
+            queryset = Version.objects.get(slug=project)
+        elif getattr(settings, 'INDEX_ONLY_LATEST', True):
             queryset = Version.objects.filter(slug='latst')
         else:
             queryset = Version.objects.public()
