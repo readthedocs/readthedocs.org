@@ -457,6 +457,7 @@ def fileify(version):
     """
     project = version.project
     path = project.rtd_build_path(version.slug)
+    log.info('Indexing files for %s' % project)
     if path:
         for root, dirnames, filenames in os.walk(path):
             for filename in filenames:
