@@ -37,7 +37,7 @@ filesystem for each project.
         project = options['project']
 
         if project:
-            queryset = Version.objects.filter(project__slug=project)
+            queryset = Version.objects.public(project__slug=project)
             log.info("Building all versions for %s" % project)
         elif getattr(settings, 'INDEX_ONLY_LATEST', True):
             queryset = Version.objects.filter(slug='latst')
