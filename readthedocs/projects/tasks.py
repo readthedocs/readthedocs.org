@@ -229,7 +229,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
             log.warning("Failed HTML Build")
 
         # TODO: Find a better way to handle indexing.
-        fileify(version)
+        fileify.delay(version.pk)
 
         # Things that touch redis
         update_result = update_intersphinx(version.pk)
@@ -447,14 +447,16 @@ def build_docs(version_pk, pdf, man, epub, record, force):
     return (html_results, latex_results, pdf_results, man_results, epub_results)
 
 
-
-def fileify(version):
+@task
+def fileify(version_pk):
     """
     Create ImportedFile objects for all of a version's files.
 
     This is a prereq for indexing the docs for search.
     It also causes celery-haystack to kick off an index of the file.
     """
+    version_data = api.version(version_pk).get()
+    version = make_api_version(version_data)
     project = version.project
     path = project.rtd_build_path(version.slug)
     log.info('Indexing files for %s' % project)

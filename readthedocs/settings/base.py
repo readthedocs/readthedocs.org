@@ -143,6 +143,9 @@ CELERY_ROUTES = {
         'celery_haystack.tasks.CeleryHaystackSignalHandler': {
             'queue': 'celery_haystack',
         },
+        'projects.tasks.fileify': {
+            'queue': 'celery_haystack',
+        },
 }
 
 
