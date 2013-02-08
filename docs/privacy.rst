@@ -20,16 +20,19 @@ Understanding the Privacy Levels
 Public
 ~~~~~~
 
-This is the easiest and most obvious. It is also the default. It means that everything is available to be seen by everyone.
+This is the easiest and most obvious. It is also the default.
+It means that everything is available to be seen by everyone.
 
 Protected
 ~~~~~~~~~
 
-Protected means that your object won't show up in Listing Pages, but Detail pages still still work.
-For example, a Project that is Protected will not show on the homepage Recently Updated list,
-however, if you link directly to the project, you will get a 200 and the page will display.
+Protected means that your object won't show up in Listing Pages,
+but Detail pages still work. For example, a Project that is Protected will
+not show on the homepage Recently Updated list, however,
+if you link directly to the project, you will get a 200 and the page will display.
 
-Protected Versions are similar, they won't show up in your version listings, but will be available once linked to.
+Protected Versions are similar, they won't show up in your version listings,
+but will be available once linked to.
 
 
 Private
