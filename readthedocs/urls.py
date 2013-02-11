@@ -26,7 +26,7 @@ handler404 = 'core.views.server_error_404'
 
 urlpatterns = patterns('',
     url(r'^$', 'core.views.homepage'),
-    url(r'^_admin/', direct_to_template, {'template': 'admin.html'}),
+    url(r'^security/', direct_to_template, {'template': 'security.html'}),
 
     # For serving docs locally and when nginx isn't
     url(r'^docs/(?P<project_slug>[-\w]+)/(?P<lang_slug>en)/(?P<version_slug>[-._\w]+?)/(?P<filename>.*)$',
