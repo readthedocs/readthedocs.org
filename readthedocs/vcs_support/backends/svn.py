@@ -14,9 +14,11 @@ class Backend(BaseVCS):
         if self.repo_url[-1] != '/':
             self.base_url = self.repo_url
             self.repo_url += '/'
-        if self.repo_url.endswith('/trunk/'):
+        elif self.repo_url.endswith('/trunk/'):
             self.supports_tags = True
             self.base_url = self.repo_url[:-7]
+        else:
+            self.base_url = self.repo_url
 
     def update(self):
         super(Backend, self).update()
