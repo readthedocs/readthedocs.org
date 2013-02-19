@@ -78,3 +78,9 @@ class RedirectTests(TestCase):
         r = self.client.get('/docs/pip/page/test.html')
         self.assertEqual(r.status_code, 302)
         self.assertEqual(r._headers['location'], ('Location', 'http://testserver/docs/pip/en/latest/test.html'))
+
+    # Test _ -> -
+    def test_underscore_redirect(self):
+        r = self.client.get('/en/latest/', HTTP_HOST = 'django_kong.readthedocs.org')
+        # 404 and not an exception, yay!
+        self.assertEqual(r.status_code, 404)

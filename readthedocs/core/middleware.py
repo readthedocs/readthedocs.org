@@ -2,6 +2,8 @@ from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 from django.core.cache import cache
 from django.http import Http404
+from django.http import HttpResponsePermanentRedirect
+from django.utils.http import urlquote
 
 import redis
 
