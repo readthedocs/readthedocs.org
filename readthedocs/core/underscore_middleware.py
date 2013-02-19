@@ -5,7 +5,7 @@ from django.utils.http import urlquote
 import re
 from django import http
 
-host_validation_re = re.compile(r"^([a-z0-9.-]+|\[[a-f0-9]*:[a-f0-9:]+\])(:\d+)?$")
+host_validation_re = re.compile(r"^([a-z0-9_.-]+|\[[a-f0-9]*:[a-f0-9:]+\])(:\d+)?$")
 #host_validation_re = re.compile(r"^([a-z0-9.-]+|\[[a-f0-9]*:[a-f0-9:]+\])(:\d+)?$")
 http.host_validation_re = host_validation_re
 
