@@ -13,6 +13,8 @@ class UnderscoreMiddleware(object):
     def process_request(self, request):
         # Handle redirect of domains with _ in them.
         host = request.get_host()
+        # We aren't serving - domains properly ATM, so turn this off.
+        """
         if '_' in host:
             host = host.replace('_', '-')
             new_uri = '%s://%s%s%s' % (
@@ -22,3 +24,4 @@ class UnderscoreMiddleware(object):
                 (request.method == 'GET' and len(request.GET) > 0) and '?%s' % request.GET.urlencode() or ''
             )
             return HttpResponsePermanentRedirect(new_uri)
+        """
