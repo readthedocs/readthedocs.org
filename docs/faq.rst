@@ -14,7 +14,7 @@ Do I need to be whitelisted?
 No. Whitelisting has been removed as a concept in Read the Docs. You should have access to all of the features already.
 
 
-How do I change behavior for Read the Docs
+How do I change behavior for Read the Docs?
 -------------------------------------------
 
 When RTD builds your project, it sets the `READTHEDOCS` environment variable to the string `True`. So within your Sphinx's conf.py file, you can vary the behavior based on this. For example::
