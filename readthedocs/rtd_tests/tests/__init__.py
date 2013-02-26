@@ -8,3 +8,4 @@ from test_post_commit_hooks import *
 from test_privacy import *
 from test_middlware import *
 from test_redirects import *
+from test_urls import *
