@@ -76,7 +76,7 @@ urlpatterns = patterns('',
         { 'filter_class': ProjectFilter, 'template_name': 'filter.html' },
         name='filter_project'
     ),
-    url(r'^wipe/(?P<project_slug>[-\w]+)/(?P<version_slug>[-\w]+)/$',
+    url(r'^wipe/(?P<project_slug>[-\w]+)/(?P<version_slug>[\w]{1}[-\w\.]+)/$',
         'core.views.wipe_version',
         name='wipe_version'
     ),
