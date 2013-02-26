@@ -79,8 +79,11 @@ class RedirectTests(TestCase):
         self.assertEqual(r.status_code, 302)
         self.assertEqual(r._headers['location'], ('Location', 'http://testserver/docs/pip/en/latest/test.html'))
 
+    # This is currently turned off.
+    """
     # Test _ -> -
     def test_underscore_redirect(self):
         r = self.client.get('/en/latest/', HTTP_HOST = 'django_kong.readthedocs.org')
         self.assertEqual(r.status_code, 301)
         self.assertEqual(r._headers['location'], ('Location', 'http://django-kong.readthedocs.org/en/latest/'))
+    """
