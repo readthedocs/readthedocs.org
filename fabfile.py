@@ -72,7 +72,7 @@ def reload():
     "Reload (or just start) the server"
     run("supervisorctl update")
 
-@hosts(['build.readthedocs.com'])
+@hosts(['bigbuild.readthedocs.com'])
 def celery():
     "Restart (or just start) the server"
     run("supervisorctl restart celery")
