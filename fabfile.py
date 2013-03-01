@@ -3,7 +3,7 @@ from fabric.decorators import runs_once
 import time
 
 env.runtime = 'production'
-env.hosts = ['chimera.readthedocs.com', 'build.readthedocs.com', 'asgard.readthedocs.com']
+env.hosts = ['chimera.readthedocs.com', 'bigbuild.readthedocs.com', 'asgard.readthedocs.com']
 env.user = 'docs'
 env.code_dir = '/home/docs/checkouts/readthedocs.org'
 env.virtualenv = '/home/docs/'
