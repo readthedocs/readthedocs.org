@@ -340,6 +340,9 @@ def server_error_404(request, template_name='404.html'):
     r.status_code = 404
     return r
 
+def divide_by_zero(request):
+    return 1 / 0
+
 def morelikethis(request, project_slug, filename):
     project = get_object_or_404(Project, slug=project_slug)
     file = get_object_or_404(ImportedFile, project=project, path=filename)
