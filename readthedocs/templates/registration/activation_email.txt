@@ -5,15 +5,4 @@ http://{{ domain }}{{ activation_url }}
 
 This page will expire in {{ expiration_days }} day.
 
-***
-
-If you didn't register this account you can simply delete this email and we won't bother you again. Thank you for registering an account at {{ domain }}.
-To activate your registration, please visit the following page:
-
-http://{{ domain }}{{ activation_url }}
-
-This page will expire in {{ expiration_days }} days.
-
-***
-
 If you didn't register this account you can simply delete this email and we won't bother you again.{% endblocktrans %}
