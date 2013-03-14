@@ -173,8 +173,10 @@ INTERNAL_IPS = ('127.0.0.1',)
 IMPORT_EXTERNAL_DATA = True
 
 backup_count = 1000
+maxBytes = 500 * 100 * 100
 if DEBUG:
     backup_count = 2
+    maxBytes = 500 * 100 * 10
 
 # Guardian Settings
 GUARDIAN_RAISE_403 = True
@@ -201,8 +203,8 @@ LOGGING = {
         'exceptionlog': {
             'level':'DEBUG',
             'class':'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(LOGS_ROOT, "rtd-exceptions.log"),
-            'maxBytes': 50000,
+            'filename': os.path.join(LOGS_ROOT, "exceptions.log"),
+            'maxBytes': maxBytes,
             'backupCount': backup_count,
             'formatter': 'standard',
         },
@@ -210,7 +212,7 @@ LOGGING = {
             'level':'DEBUG',
             'class':'logging.handlers.RotatingFileHandler',
             'filename': os.path.join(LOGS_ROOT, "rtd.log"),
-            'maxBytes': 50000,
+            'maxBytes': maxBytes,
             'backupCount': backup_count,
             'formatter': 'standard',
         },
@@ -218,7 +220,7 @@ LOGGING = {
             'level':'DEBUG',
             'class':'logging.handlers.RotatingFileHandler',
             'filename': os.path.join(LOGS_ROOT, "db.log"),
-            'maxBytes': 50000,
+            'maxBytes': maxBytes,
             'backupCount': backup_count,
             'formatter': 'standard',
         },
