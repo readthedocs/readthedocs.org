@@ -198,10 +198,10 @@ LOGGING = {
             'level':'DEBUG',
             'class':'django.utils.log.NullHandler',
         },
-        'logfile': {
+        'exceptionlog': {
             'level':'DEBUG',
             'class':'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(LOGS_ROOT, "rtd.log"),
+            'filename': os.path.join(LOGS_ROOT, "rtd-exceptions.log"),
             'maxBytes': 50000,
             'backupCount': backup_count,
             'formatter': 'standard',
@@ -244,14 +244,14 @@ LOGGING = {
             'propagate': False,
         },
         'django.request': {
-            'handlers': ['mail_admins', 'errorlog'],
+            'handlers': ['mail_admins', 'exceptionlog'],
             'level': 'ERROR',
             'propagate': False,
         },
         #Default handler for everything that we're doing. Hopefully this doesn't double-print
         #the Django things as well. Not 100% sure how logging works :)
         '': {
-            'handlers': ['console', 'logfile'],
+            'handlers': ['console', 'errorlog'],
             'level': 'DEBUG',
         },
     }
