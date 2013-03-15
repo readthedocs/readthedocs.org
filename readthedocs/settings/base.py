@@ -246,7 +246,7 @@ LOGGING = {
             'propagate': False,
         },
         'django.request': {
-            'handlers': ['mail_admins', 'exceptionlog'],
+            'handlers': ['exceptionlog'],
             'level': 'ERROR',
             'propagate': False,
         },
