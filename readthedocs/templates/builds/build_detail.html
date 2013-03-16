@@ -17,17 +17,23 @@
   <div id="build-{{ build.id }}">
     <p>{% blocktrans with build.date|date:"N j, Y. P" as build_date %}Built: {{ build_date }}{% endblocktrans %}</p>
 
-    <p>{% trans "Outcome:" %} <b><span id="build-success">{% if build.success %}{% trans "Passed" %}{% else %}{% trans "Failed" %}{% endif %}</span></b></p>
+    <p>{% trans "State:" %} <b><span id="build-state">{{ build.get_state_display }}</span></b>
+      <img src="{{ MEDIA_URL }}images/loader.gif" class="hide build-loading">
+    </p>
+
+    <p>{% trans "Outcome:" %}
+      <b>
+        <span id="build-success">
+          {% if build.state != 'finished' %}{% trans "Not yet finished" %} {% else %} {% if build.success %}{% trans "Passed" %}{% else %}{% trans "Failed" %}{% endif %}{% endif %}
+        </span>
+      </b>
+    </p>
 
     {% if build.version %}
     <p>{% trans "Version:" %} <b>{{ build.version.slug }}</b></p>
     {% endif %}
 
     <p>{% trans "Type:" %} <b>{{ build.type }}</b></p>
-
-    <p>{% trans "State:" %} <b><span id="build-state">{{ build.get_state_display }}</span></b>
-      <img src="{{ MEDIA_URL }}images/loader.gif" class="hide build-loading">
-    </p>
 
     <h3>{% trans "Sphinx Standard Output" %}</h3>
     <pre class="build-output"><span id="build-output">{{ build.output }}</span></pre>

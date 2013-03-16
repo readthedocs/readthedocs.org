@@ -30,12 +30,17 @@
                 var el = $(this.buildDiv + ' span#build-' + prop);
 
                 if (prop == 'success') {
-                    val = val ? "Passed" : "Failed";
+                    if (data.hasOwnProperty('state') && data['state'] != 'finished') {
+                        val = "Not yet finished";
+                    }
+                    else {
+                        val = val ? "Passed" : "Failed";
+                    }
                 }
 
                 if (prop == 'state') {
                     val = val.charAt(0).toUpperCase() + val.slice(1);
-                    
+
                     if (val == 'Finished') {
                         _this.stopPolling();
                     }
