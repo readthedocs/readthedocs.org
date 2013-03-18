@@ -18,7 +18,7 @@ from builds.filters import VersionFilter
 from builds.models import Version
 from projects.forms import (ImportProjectForm, build_versions_form,
                             build_upload_html_form, SubprojectForm,
-                            UserForm, EmailHookForm)
+                            UserForm, EmailHookForm, TranslationForm)
 from projects.models import Project, EmailHook, WebHook
 from projects.tasks import unzip_files
 from projects import constants
@@ -341,4 +341,30 @@ def project_notifications_delete(request, project_slug):
     notification = get_object_or_404(EmailHook.objects.all(), email=request.POST.get('email'))
     notification.delete()
     project_dashboard = reverse('projects_notifications', args=[project.slug])
+    return HttpResponseRedirect(project_dashboard)
+
+@login_required
+def project_translations(request, project_slug):
+    project = get_object_or_404(request.user.projects.live(), slug=project_slug)
+    form = TranslationForm(data=request.POST or None, parent=project)
+
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        project_dashboard = reverse('projects_translations', args=[project.slug])
+        return HttpResponseRedirect(project_dashboard)
+
+    lang_projects = project.translations.all()
+
+    return render_to_response(
+        'projects/project_translations.html',
+        {'form': form, 'project': project, 'lang_projects': lang_projects},
+        context_instance=RequestContext(request)
+    )
+
+@login_required
+def project_translations_delete(request, project_slug, child_slug):
+    project = get_object_or_404(request.user.projects.live(), slug=project_slug)
+    subproj = get_object_or_404(Project.objects.public(), slug=child_slug)
+    project.translations.remove(subproj)
+    project_dashboard = reverse('projects_translations', args=[project.slug])
     return HttpResponseRedirect(project_dashboard)

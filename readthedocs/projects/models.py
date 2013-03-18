@@ -113,7 +113,7 @@ class Project(models.Model):
         help_text=_('Type of documentation you are building. <a href="http://sphinx.pocoo.org/builders.html#sphinx.builders.html.DirectoryHTMLBuilder">More info</a>.'))
     analytics_code = models.CharField(_('Analytics code'), max_length=50, null=True, blank=True, help_text=_("Google Analytics Tracking ID (ex. UA-22345342-1). This may slow down your page loads."))
 
-    #Other model data.
+    # Other model data.
     path = models.CharField(_('Path'), help_text=_("The directory where conf.py lives"),
                             max_length=255, editable=False)
     conf_py_file = models.CharField(_('Python configuration file'),
@@ -124,11 +124,7 @@ class Project(models.Model):
     use_virtualenv = models.BooleanField(_('Use virtualenv'),
         help_text=_("Install your project inside a virtualenv using setup.py install"))
 
-    #
-    # this model attribute hold the python interpreter used to create the
-    # virtual environment (therefore the interpreter used on the virtual
-    # environment)
-    #
+    # This model attribute holds the python interpreter used to create the virtual environment
     python_interpreter = models.CharField(_('Python Interpreter'),
         max_length=20,
         choices=constants.PYTHON_CHOICES,
@@ -146,8 +142,13 @@ class Project(models.Model):
         choices=constants.PRIVACY_CHOICES, default='public',
         help_text=_("(Beta) Default level of privacy you want on built versions of documentation."))
 
-    #Subprojects
+    # Subprojects
     related_projects = models.ManyToManyField('self', verbose_name=_('Related projects'), blank=True, null=True, symmetrical=False, through=ProjectRelationship)
+
+    # Language bits
+    language = models.CharField('Language', max_length=20, default='en', help_text="The language the project documentation is rendered in", choices=constants.LANGUAGES)
+    # A subproject pointed at it's main language, so it can be tracked
+    main_language_project = models.ForeignKey('self', related_name='translations', blank=True, null=True)
 
     tags = TaggableManager(blank=True)
     objects = ProjectManager()
