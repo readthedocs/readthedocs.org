@@ -11,6 +11,7 @@ from core.forms import UserProfileForm
 from core.views import SearchView
 from projects.feeds import LatestProjectsFeed, NewProjectsFeed
 from projects.filters import ProjectFilter
+from projects.constants import LANGUAGES_REGEX
 
 v1_api = Api(api_name='v1')
 v1_api.register(BuildResource())
@@ -29,7 +30,7 @@ urlpatterns = patterns('',
     url(r'^security/', direct_to_template, {'template': 'security.html'}),
 
     # For serving docs locally and when nginx isn't
-    url(r'^docs/(?P<project_slug>[-\w]+)/(?P<lang_slug>en)/(?P<version_slug>[-._\w]+?)/(?P<filename>.*)$',
+    url(r'^docs/(?P<project_slug>[-\w]+)/(?P<lang_slug>%s)/(?P<version_slug>[-._\w]+?)/(?P<filename>.*)$' % LANGUAGES_REGEX,
         'core.views.serve_docs',
         name='docs_detail'
     ),

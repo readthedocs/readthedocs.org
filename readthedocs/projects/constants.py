@@ -2,6 +2,8 @@
 including available theme names and repository types.
 """
 
+import re
+
 from django.utils.translation import ugettext_lazy as _
 
 THEME_DEFAULT = 'default'
@@ -127,4 +129,8 @@ LANGUAGES = (
     ("uk_UA", "Ukrainian"),
     ("zh_CN", "Simplified Chinese"),
     ("zh_TW", "Traditional Chinese"),
+)
+
+LANGUAGES_REGEX = "|".join(
+    [re.escape(code[0]) for code in LANGUAGES]
 )
