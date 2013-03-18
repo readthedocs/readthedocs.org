@@ -9,10 +9,6 @@
 {% block project_edit_content_header %}{{ project.name }} <small class="quiet">{% trans "Versions" %}</small>{% endblock %}
 
 {% block project_edit_content %}
-  <p class="help_text">
-    {% trans "If you are having trouble building older versions of your Documentation, then you can" %} <a href="{% url projects_upload_html project.slug %}">{% trans "Upload a Zip file of HTML" %}</a> {% trans "instead. This is to support versions that may not build anymore with current Sphinx, or to support plugins and extensions that we may not have on our server." %}
-  </p>
-
   <form method="post" action=".">{% csrf_token %}
 
 {% for field in form %}
