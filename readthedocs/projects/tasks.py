@@ -557,7 +557,6 @@ def save_term(version, term, url):
     redis_obj.setnx('redirects:v4:%s:%s:%s:%s:%s' % (lang, version_slug,
                                              project_slug, term, url), 1)
 
-
 def symlink_cname(version):
     build_dir = version.project.rtd_build_path(version.slug)
     #Chop off the version from the end.
