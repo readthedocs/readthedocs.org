@@ -1,21 +1,16 @@
 import json
 
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse, NoReverseMatch
-from django.http import (HttpResponse, HttpResponseRedirect,
-                         Http404, HttpResponsePermanentRedirect)
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
 from django.views.generic.list_detail import object_list
 from django.utils.datastructures import SortedDict
 
-from guardian.decorators import permission_required_or_403
-from guardian.shortcuts import get_objects_for_user
 from taggit.models import Tag
 
 from builds.filters import VersionSlugFilter
 from builds.models import Version
-from core.views import serve_docs
 from projects.models import Project
 from projects.utils import highest_version
 
@@ -157,7 +152,7 @@ def version_autocomplete(request, project_slug):
     version_queryset = versions.filter(slug__icontains=term)[:20]
 
     names = version_queryset.values_list('slug', flat=True)
-    json_response = simplejson.dumps(list(names))
+    json_response = json.dumps(list(names))
 
     return HttpResponse(json_response, mimetype='text/javascript')
 
@@ -167,10 +162,10 @@ def version_filter_autocomplete(request, project_slug):
     versions = Version.objects.public(request.user)
     filter = VersionSlugFilter(request.GET, queryset=versions)
     format = request.GET.get('format', 'json')
-   
+
     if format == 'json':
         names = filter.qs.values_list('slug', flat=True)
-        json_response = simplejson.dumps(list(names))
+        json_response = json.dumps(list(names))
         return HttpResponse(json_response, mimetype='text/javascript')
     elif format == 'html':
         return render_to_response(

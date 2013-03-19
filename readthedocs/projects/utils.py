@@ -142,11 +142,11 @@ def purge_version(version, mainsite=False, subdomain=False, cname=False):
                 url = "/docs/%s/en/%s/*" % (version.project.slug, version.slug)
                 to_purge = "http://%s%s" % (server, url)
                 log.info("Purging %s on readthedocs.org" % url)
-                ret = h.request(to_purge, method="PURGE", headers=headers)
+                h.request(to_purge, method="PURGE", headers=headers)
                 root_url = "/docs/%s/" % version.project.slug
                 to_purge = "http://%s%s" % (server, root_url)
                 log.info("Purging %s on readthedocs.org" % root_url)
-                ret2 = h.request(to_purge, method="PURGE", headers=headers)
+                h.request(to_purge, method="PURGE", headers=headers)
             if cname:
                 redis_conn = redis.Redis(**settings.REDIS)
                 for cnamed in redis_conn.smembers('rtd_slug:v1:%s' % version.project.slug):

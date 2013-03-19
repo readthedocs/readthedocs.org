@@ -2,11 +2,11 @@
 documentation and header rendering, and server errors.
 """
 
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import NoReverseMatch, reverse
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.http import HttpResponse, HttpResponseRedirect, \
-    HttpResponsePermanentRedirect, Http404, HttpResponseNotFound
+from django.http import (HttpResponse, HttpResponseRedirect, Http404,
+                         HttpResponseNotFound)
 from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_view_exempt
@@ -15,7 +15,6 @@ from django.views.generic import TemplateView
 
 from haystack.query import EmptySearchQuerySet
 from haystack.query import SearchQuerySet
-from guardian.shortcuts import get_objects_for_user
 
 from builds.models import Build
 from builds.models import Version
