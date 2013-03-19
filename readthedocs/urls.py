@@ -43,6 +43,7 @@ urlpatterns = patterns('',
         'filename': ''},
         name='docs_detail'
     ),
+
     # Handle /page/<path> redirects for explicit "latest" version goodness.
     url(r'^docs/(?P<project_slug>[-\w]+)/page/(?P<filename>.*)$',
         'core.views.serve_docs',
@@ -51,8 +52,6 @@ urlpatterns = patterns('',
         name='docs_detail'
     ),
 
-    #WTF are these both here?
-    #url(r'^docs/', include('projects.urls.public')),
     url(r'^projects/', include('projects.urls.public')),
     url(r'^builds/', include('builds.urls')),
     url(r'^flagging/', include('basic.flagging.urls')),

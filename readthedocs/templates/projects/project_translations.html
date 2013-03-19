@@ -2,7 +2,7 @@
 
 {% load i18n %}
 
-{% block title %}{% trans "Edit Languages" %}{% endblock %}
+{% block title %}{% trans "Edit Translations" %}{% endblock %}
 
 {% block nav-dashboard %} class="active"{% endblock %}
 
@@ -21,9 +21,8 @@
     <ul>
     {% for lang_project in lang_projects %}
         <li>
-        <a href="{{ lang_project.get_absolute_url }}">
-        {{ lang_project }}
-        </a>
+        <a href="{{ lang_project.get_absolute_url }}">{{ lang_project }}</a>
+        ({{ lang_project.language }})
         (<a href="{% url projects_translations_delete project.slug lang_project.slug  %}">{% trans "Remove" %}</a>)
         </li>
     {% endfor %}

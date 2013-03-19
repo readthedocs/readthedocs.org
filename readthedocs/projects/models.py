@@ -189,7 +189,7 @@ class Project(models.Model):
     def get_absolute_url(self):
         return reverse('projects_detail', args=[self.slug])
 
-    def get_docs_url(self, version_slug=None):
+    def get_docs_url(self, version_slug=None, lang_slug='en'):
         """
         Return a url for the docs. Always use http for now,
         to avoid content warnings.
@@ -201,18 +201,37 @@ class Project(models.Model):
             return "%s://%s/%s/%s/" % (
                 protocol,
                 self.subdomain,
-                'en',
+                lang_slug,
                 version,
             )
         else:
             return reverse('docs_detail', kwargs={
                 'project_slug': self.slug,
-                'lang_slug': 'en',
+                'lang_slug': lang_slug,
                 'version_slug': version,
                 'filename': ''
             })
 
-
+    def get_translation_url(self, version_slug=None):
+        parent = self.main_language_project
+        lang_slug = self.language
+        protocol = "http"
+        version = version_slug or parent.get_default_version()
+        use_subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
+        if use_subdomain:
+            return "%s://%s/%s/%s/" % (
+                protocol,
+                parent.subdomain,
+                lang_slug,
+                version,
+            )
+        else:
+            return reverse('docs_detail', kwargs={
+                'project_slug': parent.slug,
+                'lang_slug': lang_slug,
+                'version_slug': version,
+                'filename': ''
+            })
 
     def get_builds_url(self):
         return reverse('builds_project_list', kwargs={
@@ -295,6 +314,9 @@ class Project(models.Model):
 
     def venv_path(self, version='latest'):
         return os.path.join(self.doc_path, 'envs', version)
+
+    def translations_path(self, language='en'):
+        return os.path.join(self.doc_path, 'translations', language)
 
     def venv_bin(self, version='latest', bin='python'):
         return os.path.join(self.venv_path(version), 'bin', bin)

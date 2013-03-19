@@ -208,7 +208,7 @@ def subdomain_handler(request, lang_slug=None, version_slug=None, filename=''):
         default_version = project.get_default_version()
         url = reverse(serve_docs, kwargs={
             'version_slug': default_version,
-            'lang_slug': 'en',
+            'lang_slug': project.language,
             'filename': filename
         })
         return HttpResponseRedirect(url)
@@ -224,14 +224,14 @@ def subdomain_handler(request, lang_slug=None, version_slug=None, filename=''):
                 version_slug = aliases[0].to_slug
             url = reverse(serve_docs, kwargs={
                 'version_slug': version_slug,
-                'lang_slug': 'en',
+                'lang_slug': project.language,
                 'filename': filename
             })
         else:
             try:
                 url = reverse(serve_docs, kwargs={
                     'version_slug': version_slug,
-                    'lang_slug': 'en',
+                    'lang_slug': project.language,
                     'filename': filename
                 })
             except NoReverseMatch:
@@ -252,10 +252,11 @@ def subproject_serve_docs(request, project_slug, lang_slug=None, version_slug=No
     if lang_slug == None or version_slug == None:
         # Handle /
         version_slug = proj.get_default_version()
+        lang_slug = proj.language
         url = reverse('subproject_docs_detail', kwargs={
             'project_slug': project_slug,
             'version_slug': version_slug,
-            'lang_slug': 'en',
+            'lang_slug': language,
             'filename': filename
         })
         return HttpResponseRedirect(url)
@@ -277,7 +278,7 @@ def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
         url = reverse(serve_docs, kwargs={
             'project_slug': project_slug,
             'version_slug': version_slug,
-            'lang_slug': 'en',
+            'lang_slug': proj.language,
             'filename': filename
         })
         return HttpResponseRedirect(url)
@@ -298,7 +299,11 @@ def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
         filename += "index.html"
     else:
         filename = filename.rstrip('/')
-    basepath = proj.rtd_build_path(version_slug)
+    if lang_slug == proj.language:
+        basepath = proj.rtd_build_path(version_slug)
+    else:
+        basepath = proj.translations_path(lang_slug)
+        basepath = os.path.join(basepath, version_slug)
     log.info('Serving %s for %s' % (filename, proj))
     if not settings.DEBUG:
         fullpath = os.path.join(basepath, filename)

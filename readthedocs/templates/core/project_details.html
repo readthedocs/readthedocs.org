@@ -135,6 +135,15 @@
   <p>{% blocktrans with project.crate_url as url %}This project has more information available about it on <a href="{{ url }}">Crate!</a>{% endblocktrans %}</p>
   {% endif %}
 
+  {% if project.translations.exists %}
+    <h3>{% trans "Translations" %}</h3>
+      <ul>
+      {% for trans in project.translations.all %}
+          <li><a href="{{ trans.get_translation_url }}">{{ trans }}</a></li>
+      {% endfor %}
+      </ul>
+  {% endif %}
+
   {% if project.subprojects.exists %}
     <h3>{% trans "Sub Projects" %}</h3>
       <ul>
