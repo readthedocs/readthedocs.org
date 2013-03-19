@@ -252,11 +252,10 @@ def subproject_serve_docs(request, project_slug, lang_slug=None, version_slug=No
     if lang_slug == None or version_slug == None:
         # Handle /
         version_slug = proj.get_default_version()
-        lang_slug = proj.language
         url = reverse('subproject_docs_detail', kwargs={
             'project_slug': project_slug,
             'version_slug': version_slug,
-            'lang_slug': language,
+            'lang_slug': proj.language,
             'filename': filename
         })
         return HttpResponseRedirect(url)
