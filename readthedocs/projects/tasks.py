@@ -587,6 +587,13 @@ def symlink_translations(version):
         log.info("Symlinking %s" % translation.language)
         run_on_app_servers('mkdir -p %s' % '/'.join(base_path.split('/')[:-1]))
         run_on_app_servers('ln -nsf %s %s' % (translation_dir, base_path))
+    # Hack in the en version for backwards compat
+    base_path = version.project.translations_path('en')
+    translation_dir = version.project.rtd_build_path(version.project.slug)
+    # Chop off the version from the end.
+    translation_dir = '/'.join(translation_dir.split('/')[:-1])
+    run_on_app_servers('mkdir -p %s' % '/'.join(base_path.split('/')[:-1]))
+    run_on_app_servers('ln -nsf %s %s' % (translation_dir, base_path))
 
 def send_notifications(version, build):
     zenircbot_notification(version.id)

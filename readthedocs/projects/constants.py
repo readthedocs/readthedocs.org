@@ -124,11 +124,14 @@ LANGUAGES = (
     ("sl", "Slovenian"),
     ("sv", "Swedish"),
     ("tr", "Turkish"),
-    ("nb_NO", "Norwegian Bokmal"),
-    ("pt_BR", "Brazilian Portuguese"),
-    ("uk_UA", "Ukrainian"),
-    ("zh_CN", "Simplified Chinese"),
-    ("zh_TW", "Traditional Chinese"),
+
+    # Comment out non-2 letter language names for now.
+    # Update this once we're done with the initial cutover.
+    #("nb_NO", "Norwegian Bokmal"),
+    #("pt_BR", "Brazilian Portuguese"),
+    #("uk_UA", "Ukrainian"),
+    #("zh_CN", "Simplified Chinese"),
+    #("zh_TW", "Traditional Chinese"),
 )
 
 LANGUAGES_REGEX = "|".join(

@@ -298,6 +298,9 @@ def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
         filename += "index.html"
     else:
         filename = filename.rstrip('/')
+    # Use the old paths if we're on our old location.
+    # Otherwise use the new language symlinks.
+    # This can be removed once we have 'en' symlinks for every project.
     if lang_slug == proj.language:
         basepath = proj.rtd_build_path(version_slug)
     else:

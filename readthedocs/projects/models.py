@@ -78,7 +78,7 @@ class ProjectRelationship(models.Model):
 
     #HACK
     def get_absolute_url(self):
-        return "http://%s.readthedocs.org/projects/%s/en/latest/" % (self.parent.slug, self.child.slug)
+        return "http://%s.readthedocs.org/projects/%s/%s/latest/" % (self.parent.slug, self.child.slug, self.child.language)
 
 class Project(models.Model):
     #Auto fields
@@ -189,7 +189,7 @@ class Project(models.Model):
     def get_absolute_url(self):
         return reverse('projects_detail', args=[self.slug])
 
-    def get_docs_url(self, version_slug=None, lang_slug='en'):
+    def get_docs_url(self, version_slug=None, lang_slug=None):
         """
         Return a url for the docs. Always use http for now,
         to avoid content warnings.
@@ -197,6 +197,8 @@ class Project(models.Model):
         protocol = "http"
         version = version_slug or self.get_default_version()
         use_subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
+        if not lang_slug:
+            lang_slug = self.language
         if use_subdomain:
             return "%s://%s/%s/%s/" % (
                 protocol,
@@ -315,7 +317,9 @@ class Project(models.Model):
     def venv_path(self, version='latest'):
         return os.path.join(self.doc_path, 'envs', version)
 
-    def translations_path(self, language='en'):
+    def translations_path(self, language=None):
+        if not language:
+            language = self.language
         return os.path.join(self.doc_path, 'translations', language)
 
     def venv_bin(self, version='latest', bin='python'):
@@ -559,7 +563,7 @@ class ImportedFile(models.Model):
 
     @models.permalink
     def get_absolute_url(self):
-        return ('docs_detail', [self.project.slug, 'en', self.version.slug, self.path])
+        return ('docs_detail', [self.project.slug, self.project.language, self.version.slug, self.path])
 
     def __unicode__(self):
         return '%s: %s' % (self.name, self.project)
