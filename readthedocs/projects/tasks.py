@@ -560,7 +560,7 @@ def save_term(version, term, url):
 
 def symlink_cname(version):
     build_dir = version.project.rtd_build_path(version.slug)
-    #Chop off the version from the end.
+    # Chop off the version from the end.
     build_dir = '/'.join(build_dir.split('/')[:-1])
     redis_conn = redis.Redis(**settings.REDIS)
     try:
@@ -582,7 +582,7 @@ def symlink_translations(version):
         # Get the first part of the symlink.
         base_path = version.project.translations_path(translation.language)
         translation_dir = translation.rtd_build_path(translation.slug)
-        #Chop off the version from the end.
+        # Chop off the version from the end.
         translation_dir = '/'.join(translation_dir.split('/')[:-1])
         log.info("Symlinking %s" % translation.language)
         run_on_app_servers('mkdir -p %s' % '/'.join(base_path.split('/')[:-1]))
