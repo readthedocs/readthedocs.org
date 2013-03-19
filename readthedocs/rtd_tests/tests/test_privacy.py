@@ -28,7 +28,7 @@ class PrivacyTests(TestCase):
         log.info("Making kong with privacy: %s and version privacy: %s" % (privacy_level, version_privacy_level))
         r = self.client.post(
             '/dashboard/import/',
-            {'repo_type': 'git', 'name': 'Django Kong',
+            {'repo_type': 'git', 'name': 'Django Kong', 'language': 'en',
              'tags': 'big, fucking, monkey', 'default_branch': '',
              'project_url': 'http://django-kong.rtfd.org',
              'repo': 'https://github.com/ericholscher/django-kong',
