@@ -1,0 +1,52 @@
+{% extends "projects/project_edit_base.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans "Edit Translations" %}{% endblock %}
+
+{% block nav-dashboard %} class="active"{% endblock %}
+
+{% block editing-option-edit-translations %}class="active"{% endblock %}
+
+{% block project-translations-active %}active{% endblock %}
+{% block project_edit_content_header %}{{ project.name }} <small class="quiet">{% trans "Translations" %}</small>{% endblock %}
+
+{% block project_edit_content %}
+  <p class="help_text">
+    {% trans "This allows you to add translations to your project. Select the project below that is a translation of your current project." %}
+  </p>
+
+  <h3> {% trans "Existing Translations" %} </h3>
+  <p>
+    <ul>
+    {% for lang_project in lang_projects %}
+        <li>
+        <a href="{{ lang_project.get_absolute_url }}">{{ lang_project }}</a>
+        ({{ lang_project.language }})
+        (<a href="{% url projects_translations_delete project.slug lang_project.slug  %}">{% trans "Remove" %}</a>)
+        </li>
+    {% endfor %}
+    </ul>
+  <p>
+    {% trans "Choose which project you would like to add as a translation." %}
+  </p>
+  <form method="post" action=".">{% csrf_token %}
+    {{ form.as_p }}
+    <p>
+      <input style="display: inline;" type="submit" value="{% trans "Submit" %}">
+    </p>
+  </form>
+{% endblock %}
+
+
+{% block footerjs %}
+      $('#id_project').autocomplete({
+    source: '{% url search_autocomplete %}',
+    minLength: 2,
+    open: function(event, ui) {
+      ac_top = $('.ui-autocomplete').css('top');
+      $('.ui-autocomplete').css({'width': '233px', 'top': ac_top + 10 });
+    }
+  });
+
+{% endblock %}

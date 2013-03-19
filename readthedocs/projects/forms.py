@@ -31,12 +31,12 @@ class ImportProjectForm(ProjectForm):
     python_interpreter = forms.ChoiceField(
         choices=constants.PYTHON_CHOICES, initial='python',
         help_text=_("(Beta) The Python interpreter used to create the virtual environment."))
-    
+
     class Meta:
         model = Project
         fields = (
             # Important
-            'name', 'repo', 'repo_type', 'description',
+            'name', 'repo', 'repo_type', 'description', 'language',
             # Not as important
             'project_url', 'tags', 'default_branch', 'default_version', 'conf_py_file',
             # Privacy
@@ -235,3 +235,23 @@ class EmailHookForm(forms.Form):
     def save(self):
         project = self.project.emailhook_notifications.add(self.email)
         return self.project
+
+class TranslationForm(forms.Form):
+    project = forms.CharField()
+
+    def __init__(self, *args, **kwargs):
+        self.parent = kwargs.pop('parent', None)
+        super(TranslationForm, self).__init__(*args, **kwargs)
+
+    def clean_project(self):
+        subproject_name = self.cleaned_data['project']
+        subproject_qs = Project.objects.filter(name=subproject_name)
+        if not subproject_qs.exists():
+            raise forms.ValidationError(_("Project %(name)s does not exist") % {'name': subproject_name})
+        self.subproject = subproject_qs[0]
+        return subproject_name
+
+    def save(self):
+        project = self.parent.translations.add(self.subproject)
+        return project
+

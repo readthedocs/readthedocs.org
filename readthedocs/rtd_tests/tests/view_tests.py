@@ -15,7 +15,7 @@ class Testmaker(TestCase):
         self.assertEqual(r.status_code, 200)
         r = self.client.post(
             '/dashboard/import/',
-            {'repo_type': 'git', 'name': 'Django Kong',
+            {'repo_type': 'git', 'name': 'Django Kong', 'language': 'en',
              'tags': 'big, fucking, monkey', 'default_branch': '',
              'project_url': 'http://django-kong.rtfd.org',
              'repo': 'https://github.com/ericholscher/django-kong',

@@ -2,6 +2,8 @@
 including available theme names and repository types.
 """
 
+import re
+
 from django.utils.translation import ugettext_lazy as _
 
 THEME_DEFAULT = 'default'
@@ -91,4 +93,47 @@ IMPORTANT_VERSION_FILTERS = {
 PYTHON_CHOICES = (
     ('python', _('Python 2.x')),
     ('python3', _('Python 3.x')),
+)
+
+# Via http://sphinx-doc.org/latest/config.html#confval-language
+LANGUAGES = (
+    ("bn", "Bengali"),
+    ("ca", "Catalan"),
+    ("cs", "Czech"),
+    ("da", "Danish"),
+    ("de", "German"),
+    ("en", "English"),
+    ("es", "Spanish"),
+    ("et", "Estonian"),
+    ("eu", "Basque"),
+    ("fa", "Iranian"),
+    ("fi", "Finnish"),
+    ("fr", "French"),
+    ("hr", "Croatian"),
+    ("hu", "Hungarian"),
+    ("it", "Italian"),
+    ("ja", "Japanese"),
+    ("ko", "Korean"),
+    ("lt", "Lithuanian"),
+    ("lv", "Latvian"),
+    ("ne", "Nepali"),
+    ("nl", "Dutch"),
+    ("pl", "Polish"),
+    ("ru", "Russian"),
+    ("sk", "Slovak"),
+    ("sl", "Slovenian"),
+    ("sv", "Swedish"),
+    ("tr", "Turkish"),
+
+    # Comment out non-2 letter language names for now.
+    # Update this once we're done with the initial cutover.
+    #("nb_NO", "Norwegian Bokmal"),
+    #("pt_BR", "Brazilian Portuguese"),
+    #("uk_UA", "Ukrainian"),
+    #("zh_CN", "Simplified Chinese"),
+    #("zh_TW", "Traditional Chinese"),
+)
+
+LANGUAGES_REGEX = "|".join(
+    [re.escape(code[0]) for code in LANGUAGES]
 )

@@ -78,7 +78,7 @@ class ProjectRelationship(models.Model):
 
     #HACK
     def get_absolute_url(self):
-        return "http://%s.readthedocs.org/projects/%s/en/latest/" % (self.parent.slug, self.child.slug)
+        return "http://%s.readthedocs.org/projects/%s/%s/latest/" % (self.parent.slug, self.child.slug, self.child.language)
 
 class Project(models.Model):
     #Auto fields
@@ -113,7 +113,7 @@ class Project(models.Model):
         help_text=_('Type of documentation you are building. <a href="http://sphinx.pocoo.org/builders.html#sphinx.builders.html.DirectoryHTMLBuilder">More info</a>.'))
     analytics_code = models.CharField(_('Analytics code'), max_length=50, null=True, blank=True, help_text=_("Google Analytics Tracking ID (ex. UA-22345342-1). This may slow down your page loads."))
 
-    #Other model data.
+    # Other model data.
     path = models.CharField(_('Path'), help_text=_("The directory where conf.py lives"),
                             max_length=255, editable=False)
     conf_py_file = models.CharField(_('Python configuration file'),
@@ -124,11 +124,7 @@ class Project(models.Model):
     use_virtualenv = models.BooleanField(_('Use virtualenv'),
         help_text=_("Install your project inside a virtualenv using setup.py install"))
 
-    #
-    # this model attribute hold the python interpreter used to create the
-    # virtual environment (therefore the interpreter used on the virtual
-    # environment)
-    #
+    # This model attribute holds the python interpreter used to create the virtual environment
     python_interpreter = models.CharField(_('Python Interpreter'),
         max_length=20,
         choices=constants.PYTHON_CHOICES,
@@ -146,8 +142,13 @@ class Project(models.Model):
         choices=constants.PRIVACY_CHOICES, default='public',
         help_text=_("(Beta) Default level of privacy you want on built versions of documentation."))
 
-    #Subprojects
+    # Subprojects
     related_projects = models.ManyToManyField('self', verbose_name=_('Related projects'), blank=True, null=True, symmetrical=False, through=ProjectRelationship)
+
+    # Language bits
+    language = models.CharField('Language', max_length=20, default='en', help_text="The language the project documentation is rendered in", choices=constants.LANGUAGES)
+    # A subproject pointed at it's main language, so it can be tracked
+    main_language_project = models.ForeignKey('self', related_name='translations', blank=True, null=True)
 
     tags = TaggableManager(blank=True)
     objects = ProjectManager()
@@ -188,7 +189,7 @@ class Project(models.Model):
     def get_absolute_url(self):
         return reverse('projects_detail', args=[self.slug])
 
-    def get_docs_url(self, version_slug=None):
+    def get_docs_url(self, version_slug=None, lang_slug=None):
         """
         Return a url for the docs. Always use http for now,
         to avoid content warnings.
@@ -196,22 +197,43 @@ class Project(models.Model):
         protocol = "http"
         version = version_slug or self.get_default_version()
         use_subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
+        if not lang_slug:
+            lang_slug = self.language
         if use_subdomain:
             return "%s://%s/%s/%s/" % (
                 protocol,
                 self.subdomain,
-                'en',
+                lang_slug,
                 version,
             )
         else:
             return reverse('docs_detail', kwargs={
                 'project_slug': self.slug,
-                'lang_slug': 'en',
+                'lang_slug': lang_slug,
                 'version_slug': version,
                 'filename': ''
             })
 
-
+    def get_translation_url(self, version_slug=None):
+        parent = self.main_language_project
+        lang_slug = self.language
+        protocol = "http"
+        version = version_slug or parent.get_default_version()
+        use_subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
+        if use_subdomain:
+            return "%s://%s/%s/%s/" % (
+                protocol,
+                parent.subdomain,
+                lang_slug,
+                version,
+            )
+        else:
+            return reverse('docs_detail', kwargs={
+                'project_slug': parent.slug,
+                'lang_slug': lang_slug,
+                'version_slug': version,
+                'filename': ''
+            })
 
     def get_builds_url(self):
         return reverse('builds_project_list', kwargs={
@@ -294,6 +316,11 @@ class Project(models.Model):
 
     def venv_path(self, version='latest'):
         return os.path.join(self.doc_path, 'envs', version)
+
+    def translations_path(self, language=None):
+        if not language:
+            language = self.language
+        return os.path.join(self.doc_path, 'translations', language)
 
     def venv_bin(self, version='latest', bin='python'):
         return os.path.join(self.venv_path(version), 'bin', bin)
@@ -536,7 +563,7 @@ class ImportedFile(models.Model):
 
     @models.permalink
     def get_absolute_url(self):
-        return ('docs_detail', [self.project.slug, 'en', self.version.slug, self.path])
+        return ('docs_detail', [self.project.slug, self.project.language, self.version.slug, self.path])
 
     def __unicode__(self):
         return '%s: %s' % (self.name, self.project)

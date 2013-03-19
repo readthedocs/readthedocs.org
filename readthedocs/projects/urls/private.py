@@ -73,4 +73,12 @@ urlpatterns = patterns('projects.views.private',
         'project_notifications_delete',
         name='projects_notification_delete'
     ),
+    url(r'^(?P<project_slug>[-\w]+)/translations/$',
+        'project_translations',
+        name='projects_translations'
+    ),
+    url(r'^(?P<project_slug>[-\w]+)/translations/delete/(?P<child_slug>[-\w]+)/$',
+        'project_translations_delete',
+        name='projects_translations_delete'
+    ),
 )
