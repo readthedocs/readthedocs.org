@@ -1,31 +1,19 @@
 import logging
 
 from django.core.paginator import Paginator, InvalidPage
-from django.contrib.auth.models import User
-from django.conf.urls.defaults import url
-from django.shortcuts import get_object_or_404
 from django.http import Http404
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext
 
 from haystack.utils import Highlighter
-from tastypie import fields
 from tastypie.authentication import BasicAuthentication
-from tastypie.authorization import Authorization, DjangoAuthorization
-from tastypie.constants import ALL_WITH_RELATIONS, ALL
+from tastypie.authorization import Authorization
 from tastypie.resources import ModelResource
 from tastypie.exceptions import NotFound, ImmediateHttpResponse
 from tastypie import http
 from tastypie.utils.mime import build_content_type
-from tastypie.http import HttpCreated
-from tastypie.utils import dict_strip_unicode_keys, trailing_slash
 
 from core.forms import FacetedSearchForm
-from builds.models import Build, Version
-from projects.models import Project, ImportedFile
-from projects.utils import highest_version, mkversion
-from projects import tasks
-from djangome import views as djangome
 
 log = logging.getLogger(__name__)
 

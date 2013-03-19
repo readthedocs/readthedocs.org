@@ -9,28 +9,26 @@ import json
 import logging
 import operator
 
-from celery.decorators import task, periodic_task
-from celery.task.schedules import crontab
-from django.db import transaction
+from celery.decorators import task
 from django.conf import settings
+from django.contrib.sites.models import Site
+from django.core.mail import send_mail
+from django.db import transaction
+from django.template import Context
+from django.template.loader import get_template
+from django.utils.translation import ugettext_lazy as _
 import redis
-from sphinx.ext import intersphinx
+import requests
 import slumber
+from sphinx.ext import intersphinx
 
-
-from builds.models import Version
+from builds.models import Build, Version
 from doc_builder import loading as builder_loading
 from doc_builder.base import restoring_chdir
 from projects.exceptions import ProjectImportError
 from projects.models import ImportedFile, Project
-from projects.utils import (
-    mkversion,
-    purge_version,
-    run,
-    slugify_uniquely,
-    make_api_version,
-    make_api_project,
-    )
+from projects.utils import (mkversion, purge_version, run, slugify_uniquely,
+                            make_api_version, make_api_project)
 from tastyapi import client as tastyapi_client
 from tastyapi import api
 from core.utils import copy_to_app_servers, run_on_app_servers

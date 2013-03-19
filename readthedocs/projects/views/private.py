@@ -19,7 +19,7 @@ from builds.models import Version
 from projects.forms import (ImportProjectForm, build_versions_form,
                             build_upload_html_form, SubprojectForm,
                             UserForm, EmailHookForm, TranslationForm)
-from projects.models import Project, EmailHook, WebHook
+from projects.models import Project, EmailHook
 from projects.tasks import unzip_files
 from projects import constants
 

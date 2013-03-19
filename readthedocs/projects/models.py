@@ -9,12 +9,12 @@ from django.db import models
 from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext_lazy as _
 
-from guardian.shortcuts import assign, get_objects_for_user, get_perms
+from guardian.shortcuts import assign, get_objects_for_user
 
 from projects import constants
 from projects.exceptions import ProjectImportError
 from projects.templatetags.projects_tags import sort_version_aware
-from projects.utils import highest_version as _highest, make_api_version, make_api_project
+from projects.utils import highest_version as _highest, make_api_version
 from taggit.managers import TaggableManager
 from tastyapi.slum import api
 
@@ -485,7 +485,6 @@ class Project(models.Model):
             return None
 
     def api_versions(self):
-        from builds.models import Version
         ret = []
         for version_data in api.version.get(project=self.pk, active=True)['objects']:
             version = make_api_version(version_data)

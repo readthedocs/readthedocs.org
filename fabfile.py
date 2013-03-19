@@ -60,15 +60,6 @@ def restart():
 
 @hosts(['chimera.readthedocs.com', 'asgard.readthedocs.com'])
 def reload():
-    "Restart (or just start) the server"
-    env.user = "docs"
-    pid = run("ps aux |grep gunicorn |grep master |awk '{ print $2 }'")
-    run('kill -HUP %s' % pid)
-    #so it has time to reload
-    time.sleep(3)
-
-@hosts(['chimera.readthedocs.com', 'asgard.readthedocs.com'])
-def reload():
     "Reload (or just start) the server"
     run("supervisorctl update")
 
