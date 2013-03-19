@@ -1,9 +1,6 @@
-from django.core.urlresolvers import reverse
-from django.http import HttpResponsePermanentRedirect
 from django.shortcuts import get_object_or_404
 from django.views.generic.list_detail import object_list, object_detail
 
-from guardian.decorators import permission_required_or_403
 from taggit.models import Tag
 
 from builds.models import Build

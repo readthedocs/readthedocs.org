@@ -161,7 +161,6 @@ class Builder(BaseBuilder):
 
     @restoring_chdir
     def build(self, **kwargs):
-        id_dir = "/tmp/"
         project = self.version.project
         os.chdir(project.conf_dir(self.version.slug))
         force_str = " -E " if self.force else ""
