@@ -28,9 +28,8 @@ your docs whenever you push updates:
 
 * Go to the "admin" page for your project
 * Click "Services"
-* In the available service hooks, click "POST"
-* Put "http://readthedocs.org/bitbucket" as the URL
-* Click "Save Settings"
+* In the available service hooks, select "Read the Docs"
+* Click "Add service"
 
 Others
 ------
