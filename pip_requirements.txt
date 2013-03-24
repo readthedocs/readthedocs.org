@@ -27,7 +27,9 @@ slumber==0.4.2
 # Required for slumber because it just pulls down "requests"
 requests==0.14.1
 virtualenv==1.8.4
-
+doc2dash==1.1.0
+beautifulsoup4==4.1.3
+lxml==3.0.2
 
 # Pegged git requirements
 git+git://github.com/toastdriven/django-haystack@259274e4127f723d76b893c87a82777f9490b960#egg=django_haystack

@@ -82,6 +82,8 @@ def project_downloads(request, project_slug):
             version_data[version.slug]['epub_url'] = project.get_epub_url(version.slug)
         if project.has_manpage(version.slug):
             version_data[version.slug]['manpage_url'] = project.get_manpage_url(version.slug)
+        if project.has_dash(version.slug):
+            version_data[version.slug]['dash_url'] = project.get_dash_url(version.slug)
         #Kill ones that have no downloads.
         if not len(version_data[version.slug]):
             del version_data[version.slug]

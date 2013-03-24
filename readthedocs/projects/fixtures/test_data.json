@@ -40,7 +40,7 @@
             "modified_date": "2010-08-15 13:18:23",
             "description": "",
             "project_url": "",
-            "repo": "http://github.com/jezdez/pip",
+            "repo": "http://github.com/pypa/pip",
             "version": "",
             "users": [
 		1
@@ -142,7 +142,7 @@
             "modified_date": "2010-08-15 13:18:19",
             "description": "",
             "project_url": "",
-            "repo": "http://github.com/bitprophet/fabric",
+            "repo": "http://github.com/fabric/fabric",
             "version": "0.1.0",
             "users": [
 		1
