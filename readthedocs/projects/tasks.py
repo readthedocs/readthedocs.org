@@ -52,7 +52,8 @@ def remove_dir(path):
 
 @task
 @restoring_chdir
-def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None, force=False, **kwargs):
+def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
+                version_pk=None, force=False, **kwargs):
     """
     The main entry point for updating documentation.
 
@@ -166,9 +167,9 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
     log.info("Building docs")
     # This is only checking the results of the HTML build, as it's a canary
     try:
-        (html_results, latex_results, pdf_results, man_results, epub_results) =  build_docs(
-                version_pk=version.pk, pdf=pdf, man=man, epub=epub, record=record, force=force
-        )
+        results = build_docs(version_pk=version.pk, pdf=pdf, man=man, epub=epub,
+                             dash=dash, record=record, force=force)
+        html_results, latex_results, pdf_results, man_results, epub_results, dash_results = results
         (ret, out, err) = html_results
     except Exception as e:
         log.error("Exception in flailboat build_docs", exc_info=True)
@@ -177,6 +178,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
         pdf_results = (999, "Project build Failed", str(e))
         man_results = (999, "Project build Failed", str(e))
         epub_results = (999, "Project build Failed", str(e))
+        dash_results = (999, "Project build Failed", str(e))
         (ret, out, err) = html_results
 
     if record:
@@ -188,8 +190,8 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
         api.build(build['id']).put(build)
 
         api.build.post(dict(
-            project = '/api/v1/project/%s/' % project.pk,
-            version = '/api/v1/version/%s/' % version.pk,
+            project='/api/v1/project/%s/' % project.pk,
+            version='/api/v1/version/%s/' % version.pk,
             success=pdf_results[0] == 0,
             type='pdf',
             setup=latex_results[1],
@@ -231,7 +233,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, version_pk=None,
         fileify.delay(version.pk)
 
         # Things that touch redis
-        update_result = update_intersphinx(version.pk)
+        update_intersphinx(version.pk)
         # Needs to happen after update_intersphinx
         clear_artifacts(version.pk)
 
@@ -396,7 +398,7 @@ def update_imported_docs(version_pk):
     return update_docs_output
 
 @task
-def build_docs(version_pk, pdf, man, epub, record, force):
+def build_docs(version_pk, pdf, man, epub, dash, record, force):
     """
     This handles the actual building of the documentation and DB records
     """
@@ -442,9 +444,16 @@ def build_docs(version_pk, pdf, man, epub, record, force):
                     epub_builder.move()
             else:
                 epub_results = fake_results
+            if dash:
+                dash_builder = builder_loading.get('sphinx_dash')(version)
+                dash_results = dash_builder.build()
+                if dash_results[0] == 0:
+                    dash_builder.move()
+            else:
+                dash_results = fake_results
 
-    return (html_results, latex_results, pdf_results, man_results, epub_results)
-
+    return (html_results, latex_results, pdf_results, man_results,
+            epub_results, dash_results)
 
 
 @task

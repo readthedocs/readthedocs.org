@@ -11,4 +11,5 @@ BUILD_TYPES = (
     ('pdf', _('PDF')),
     ('epub', _('Epub')),
     ('man', _('Manpage')),
+    ('dash', _('Dash')),
 )
