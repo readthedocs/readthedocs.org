@@ -4,7 +4,8 @@ from .backends import (
     sphinx_htmldir,
     sphinx_man,
     sphinx_pdf,
-    )
+    sphinx_dash,
+)
 
 
 loading = {'sphinx': sphinx.Builder,
@@ -12,4 +13,5 @@ loading = {'sphinx': sphinx.Builder,
            'sphinx_htmldir': sphinx_htmldir.Builder,
            'sphinx_man': sphinx_man.Builder,
            'sphinx_pdf': sphinx_pdf.Builder,
+           'sphinx_dash': sphinx_dash.Builder,
            }

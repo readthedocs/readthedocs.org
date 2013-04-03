@@ -304,6 +304,22 @@ class Project(models.Model):
                                 '%s.zip' % self.slug)
         return path
 
+    def get_dash_url(self, version_slug='latest'):
+        path = os.path.join(settings.MEDIA_URL,
+                            'dash',
+                            self.slug,
+                            version_slug,
+                            '%s.docset.zip' % self.slug)
+        return path
+
+    def get_dash_path(self, version_slug='latest'):
+        path = os.path.join(settings.MEDIA_ROOT,
+                            'dash',
+                            self.slug,
+                            version_slug,
+                            '%s.docset.zip' % self.slug)
+        return path
+
     #Doc PATH:
     #MEDIA_ROOT/slug/checkouts/version/<repo>
 
@@ -359,6 +375,12 @@ class Project(models.Model):
         The path to the build latex docs in the project.
         """
         return os.path.join(self.conf_dir(version), "_build", "epub")
+
+    def full_dash_path(self, version='latest'):
+        """
+        The path to the build dash docs in the project.
+        """
+        return os.path.join(self.conf_dir(version), "_build", "dash")
 
     def rtd_build_path(self, version="latest"):
         """
@@ -421,6 +443,9 @@ class Project(models.Model):
 
     def has_epub(self, version_slug='latest'):
         return os.path.exists(self.get_epub_path(version_slug))
+
+    def has_dash(self, version_slug='latest'):
+        return os.path.exists(self.get_dash_path(version_slug))
 
     def has_htmlzip(self, version_slug='latest'):
         return os.path.exists(self.get_htmlzip_path(version_slug))

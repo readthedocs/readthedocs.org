@@ -52,8 +52,8 @@ An example in code::
 
     update_imported_docs(project, version)
     (ret, out, err) = build_docs(project=project, version=version,
-                                         pdf=pdf, man=man, epub=epub,
-                                         record=record, force=force)
+                                 pdf=pdf, man=man, epub=epub, dash=dash,
+                                 record=record, force=force)
     #This follows the builder workflow layed out below.
     purge_version(version, subdomain=True,
                     mainsite=True, cname=True)

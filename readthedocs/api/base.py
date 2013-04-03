@@ -47,6 +47,7 @@ class ProjectResource(ModelResource, SearchMixin):
         downloads['epub'] = bundle.obj.get_epub_url()
         downloads['pdf'] = bundle.obj.get_pdf_url()
         downloads['manpage'] = bundle.obj.get_manpage_url()
+        downloads['dash'] = bundle.obj.get_dash_url()
         bundle.data['downloads'] = downloads
         return bundle
 
