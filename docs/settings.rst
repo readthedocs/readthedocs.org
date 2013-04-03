@@ -69,10 +69,3 @@ USE_PIP_INSTALL
 Default: `False`
 
 Whether to use `pip install .` or `python setup.py install` when installing packages into the Virtualenv. Default is to use pip.
-
-NGINX_X_ACCEL_REDIRECT
-----------------------
-
-Default: `False`
-
-Enable this if you are using Nginx for improved file handling.

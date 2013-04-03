@@ -306,7 +306,7 @@ def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
         basepath = proj.translations_path(lang_slug)
         basepath = os.path.join(basepath, version_slug)
     log.info('Serving %s for %s' % (filename, proj))
-    if getattr(settings, 'NGINX_X_ACCEL_REDIRECT', False):
+    if not settings.DEBUG:
         fullpath = os.path.join(basepath, filename)
         mimetype, encoding = mimetypes.guess_type(fullpath)
         mimetype = mimetype or 'application/octet-stream'
