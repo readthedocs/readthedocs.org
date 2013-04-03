@@ -40,6 +40,7 @@ HAYSTACK_CONNECTIONS = {
 
 IMPORT_EXTERNAL_DATA = False
 DONT_HIT_DB = False
+NGINX_X_ACCEL_REDIRECT = True
 
 CELERY_ALWAYS_EAGER = True
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
