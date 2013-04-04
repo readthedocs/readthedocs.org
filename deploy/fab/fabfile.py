@@ -7,23 +7,25 @@ cwd = os.getcwd()
 all_users = ['docs', 'builder']
 required_dirs = ['checkouts', 'etc', 'run', 'log']
 
+def all():
+    install_packages('build')
+    install_packages('web')
+    install_packages('db')
+    users('docs')
+    checkout('docs')
+    setup_env('docs')
+
 def build():
     install_packages('build')
     users('docs')
     checkout('docs')
     setup_env('docs')
-    """
-    users('build')
-    checkout('build')
-    setup_env('build')
-    """
-
 
 def web():
     install_packages('web')
     users('docs')
     checkout('docs')
-    setup_env()
+    setup_env('docs')
 
 
 def db():
@@ -104,10 +106,19 @@ def setup_env(user=None):
         #put('files/%s_local_settings.py' % user, '%s/checkouts/readthedocs.org/readthedocs/settings/local_settings.py' % home)
         run('%s/bin/pip install -U supervisor ipython gunicorn' % home)
 
+def fix_perms(user=None):
+    if user:
+        users = [user]
+    else:
+        users = all_users
+    for user in users:
+        env.user = user
+        home = '/home/%s' % user
+        sudo('chown -R %s:%s %s' % (user, user, home))
 
 def setup_db():
     env.user = "docs"
-    home = '/home/%s' % user
+    home = '/home/%s' % env.user
     with cd('%s/checkouts/readthedocs.org/readthedocs' % home):
         run('./manage.py syncdb --noinput')
         run('./manage.py migrate')
