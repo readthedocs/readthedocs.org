@@ -1,5 +1,6 @@
-from .base import *
 import os.path
+
+from .base import *  # noqa
 
 
 DATABASES = {
@@ -46,6 +47,6 @@ CELERY_ALWAYS_EAGER = True
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 try:
-    from local_settings import *
+    from local_settings import *  # noqa
 except:
     pass
