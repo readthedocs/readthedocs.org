@@ -79,11 +79,10 @@ class GithubContributionBackend(BaseContributionBackend):
         self.run('git', 'checkout', branch)
 
     def push_branch(self, branch, title='', comment=''):
-        """
-        Pushes a branch upstream.
+        """Pushes a branch upstream.
 
-        Since the python github API libraries don't support pull requests, we'll
-        have to do it manually using urllib2 :(
+        Since the python github API libraries don't support pull requests,
+        we'll have to do it manually using urllib2 :(
         """
         identifier = self.get_branch_identifier(branch)
         log.info('pushing branch %s in %s' % (identifier, self._gh_name()))
@@ -107,8 +106,8 @@ class GithubContributionBackend(BaseContributionBackend):
         url = 'https://github.com/api/v2/json/pulls/%s' % self._gh_name()
         log.debug(url)
         request = urllib2.Request(url)
-        auth = base64.encodestring('%s/token:%s' % (
-                GITHUB_USERNAME, GITHUB_TOKEN))[:-1]
+        auth = base64.encodestring('%s/token:%s' % (GITHUB_USERNAME,
+                                                    GITHUB_TOKEN))[:-1]
         request.add_header("Authorization", 'Basic %s' % auth)
         branch = self.fallback_branch
         if self.default_branch:
@@ -140,7 +139,8 @@ class GithubContributionBackend(BaseContributionBackend):
 
     def check_remote(self):
         """
-        Check if the RTD remote is available in this repository, if not, add it.
+        Check if the RTD remote is available in this repository, if not,
+        add it.
         """
         log.info('checking remote')
         if not self.has_fork():
@@ -162,7 +162,8 @@ class GithubContributionBackend(BaseContributionBackend):
         """
         push a local branch to the RTD remote
         """
-        log.info('pushing %s to remote %s' % (identifier, self.get_remote_name()))
+        log.info('pushing %s to remote %s' % (identifier,
+                                              self.get_remote_name()))
         self.run('git', 'push', 'rtd', identifier)
 
     def has_fork(self):
