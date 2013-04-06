@@ -8,6 +8,7 @@ from django.template.defaultfilters import slugify
 
 log = logging.getLogger(__name__)
 
+
 class VCSVersion(object):
     """
     Represents a Version (tag or branch) in a VCS.
@@ -28,7 +29,7 @@ class VCSVersion(object):
 
 
 class VCSProject(namedtuple("VCSProject",
-                         "name default_branch working_dir repo_url")):
+                            "name default_branch working_dir repo_url")):
     """Transient object to encapsulate a projects stuff"""
     pass
 
@@ -51,10 +52,10 @@ class BaseCLI(object):
                                    cwd=self.working_dir, shell=False,
                                    env=self.env)
         log.info(self.log_tmpl.format(ident=basename(self.working_dir),
-                                   args=' '.join(args)))
+                                      args=' '.join(args)))
         stdout, stderr = process.communicate()
         log.info(self.log_tmpl.format(ident=basename(self.working_dir),
-                                   args=stdout))
+                                      args=stdout))
         return (process.returncode, stdout, stderr)
 
     @property
@@ -67,13 +68,13 @@ class BaseVCS(BaseCLI):
     Base for VCS Classes.
     Built on top of the BaseCLI.
     """
-    supports_tags = False # Whether this VCS supports tags or not.
-    supports_branches = False # Whether this VCS supports branches or not.
+    supports_tags = False  # Whether this VCS supports tags or not.
+    supports_branches = False  # Whether this VCS supports branches or not.
     contribution_backends = []
 
-    #===========================================================================
+    #==========================================================================
     # General methods
-    #===========================================================================
+    #==========================================================================
 
     def __init__(self, project, version):
         self.default_branch = project.default_branch
@@ -92,23 +93,25 @@ class BaseVCS(BaseCLI):
         """
         self.check_working_dir()
 
-    #===========================================================================
+    #==========================================================================
     # Tag / Branch related methods
     # These methods only apply if supports_tags = True and/or
     # support_branches = True
-    #===========================================================================
+    #==========================================================================
 
     @property
     def tags(self):
         """
-        Returns a list of VCSVersion objects. See VCSVersion for more information.
+        Returns a list of VCSVersion objects. See VCSVersion for more
+        information.
         """
         raise NotImplementedError
 
     @property
     def branches(self):
         """
-        Returns a list of VCSVersion objects. See VCSVersion for more information.
+        Returns a list of VCSVersion objects. See VCSVersion for more
+        information.
         """
         raise NotImplementedError
 
@@ -123,10 +126,10 @@ class BaseVCS(BaseCLI):
         """
         self.check_working_dir()
 
-    #===========================================================================
+    #==========================================================================
     # Contribution related methods
     # These methods only apply if supports_contribution = True
-    #===========================================================================
+    #==========================================================================
 
     def get_contribution_backend(self):
         """

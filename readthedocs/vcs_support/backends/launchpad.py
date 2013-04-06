@@ -22,7 +22,8 @@ class Backend(bzr.Backend):
     def get_project(self):
         if self.lp_project is None:
             lp = self.get_launchpad()
-            self.lp_project = lp.projects[self.slug] # Probably need to improve this
+            # Probably need to improve this
+            self.lp_project = lp.projects[self.slug]
         return self.lp_project
 
     def get_launchpad(self):
