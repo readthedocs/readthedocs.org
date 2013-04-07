@@ -17,6 +17,7 @@ from projects.models import ImportedFile, Project
 import logging
 log = logging.getLogger(__name__)
 
+
 class ProjectIndex(celery_indexes.CelerySearchIndex, indexes.Indexable):
     text = CharField(document=True, use_template=True)
     author = CharField()
@@ -37,6 +38,7 @@ class ProjectIndex(celery_indexes.CelerySearchIndex, indexes.Indexable):
     def index_queryset(self):
         "Used when the entire index for model is updated."
         return self.get_model().objects.public()
+
 
 #Should prob make a common subclass for this and FileIndex
 class ImportedFileIndex(celery_indexes.CelerySearchIndex, indexes.Indexable):
@@ -73,16 +75,20 @@ class ImportedFileIndex(celery_indexes.CelerySearchIndex, indexes.Indexable):
             log.info('Unable to index file: %s, error :%s' % (file_path, e))
             return
         log.debug('Indexing %s:%s' % (obj.project, obj.path))
-        DOCUMENT_PYQUERY_PATH = getattr(settings, 'DOCUMENT_PYQUERY_PATH', 'div.document')
+        DOCUMENT_PYQUERY_PATH = getattr(settings, 'DOCUMENT_PYQUERY_PATH',
+                                        'div.document')
         try:
-            to_index = strip_tags(PyQuery(content)(DOCUMENT_PYQUERY_PATH).html()).replace(u'¶', '')
+            to_index = strip_tags(PyQuery(content)(
+                DOCUMENT_PYQUERY_PATH).html()).replace(u'¶', '')
         except ValueError:
             #Pyquery returns ValueError if div.document doesn't exist.
             return
         if not to_index:
-            log.info('Unable to index file: %s:%s, empty file' % (obj.project, file_path))
+            log.info('Unable to index file: %s:%s, empty file' % (obj.project,
+                                                                  file_path))
         else:
-            log.debug('%s:%s length: %s' % (obj.project, file_path, len(to_index)))
+            log.debug('%s:%s length: %s' % (obj.project, file_path,
+                                            len(to_index)))
         return to_index
 
     def get_model(self):
@@ -90,4 +96,5 @@ class ImportedFileIndex(celery_indexes.CelerySearchIndex, indexes.Indexable):
 
     def index_queryset(self):
         "Used when the entire index for model is updated."
-        return self.get_model().objects.filter(project__privacy_level=constants.PUBLIC)
+        return (self.get_model().objects
+                .filter(project__privacy_level=constants.PUBLIC))

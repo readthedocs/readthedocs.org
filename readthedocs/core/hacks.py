@@ -1,6 +1,7 @@
 import imp
 import sys
 
+
 class ErrorlessImport(object):
     def find_module(self, name, path):
         try:
@@ -32,6 +33,7 @@ class FreeLoader:
 def patch_meta_path():
     FreeLoader._class = ErrorlessImport()
     sys.meta_path += [FreeLoader._class]
+
 
 def unpatch_meta_path():
     sys.meta_path.remove(FreeLoader._class)

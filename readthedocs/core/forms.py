@@ -1,6 +1,6 @@
 import logging
 from haystack.forms import SearchForm
-from haystack.query import SearchQuerySet 
+from haystack.query import SearchQuerySet
 
 from django import forms
 from django.forms.fields import CharField
@@ -8,6 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 from models import UserProfile
 
 log = logging.getLogger(__name__)
+
 
 class UserProfileForm(forms.ModelForm):
     first_name = CharField(label=_('First name'), required=False)
@@ -36,7 +37,7 @@ class UserProfileForm(forms.ModelForm):
             user.last_name = last_name
             user.save()
         return profile
- 
+
 
 class FacetField(forms.MultipleChoiceField):
     '''
@@ -47,7 +48,7 @@ class FacetField(forms.MultipleChoiceField):
         '''
         Although this is a choice field, no choices need to be supplied.
         Instead, we just validate that the value is in the correct format
-        for facet filtering (facet_name:value)   
+        for facet filtering (facet_name:value)
         '''
         if ":" not in value:
             return False
@@ -82,16 +83,15 @@ class FacetedSearchForm(SearchForm):
         clean = SearchQuerySet().query.clean
         for facet in facets:
             field, value = facet.split(":", 1)
-            if not value: # Ignore empty values
+            if not value:  # Ignore empty values
                 continue
             value = clean(value)
             cleaned_facets.append(u'%s:"%s"' % (field, value))
         return cleaned_facets
-   
+
     def search(self):
         sqs = super(FacetedSearchForm, self).search()
         for facet in self.cleaned_data['selected_facets']:
             sqs = sqs.narrow(facet)
         self.searchqueryset = sqs
         return sqs
- 

@@ -6,12 +6,14 @@ from django.views.generic.list_detail import object_list
 
 from bookmarks.models import Bookmark
 
+
 def bookmark_list(request, queryset=Bookmark.objects.all()):
     return object_list(
         request,
         queryset=queryset,
         template_object_name='bookmark',
     )
+
 
 @login_required
 def user_bookmark_list(request):
@@ -20,6 +22,7 @@ def user_bookmark_list(request):
     queryset = Bookmark.objects.all()
     queryset = queryset.filter(user=request.user)
     return bookmark_list(request, queryset=queryset)
+
 
 @login_required
 def bookmark_add(request, url):
@@ -30,6 +33,7 @@ def bookmark_add(request, url):
     payload = simplejson.dumps({'added': True})
 
     return HttpResponse(payload, mimetype='text/javascript')
+
 
 @login_required
 def bookmark_remove(request, url):

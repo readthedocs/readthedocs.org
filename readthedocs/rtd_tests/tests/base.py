@@ -7,6 +7,7 @@ from django.test import TestCase
 
 log = logging.getLogger(__name__)
 
+
 class RTDTestCase(TestCase):
     def setUp(self):
         self.cwd = os.path.dirname(__file__)

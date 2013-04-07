@@ -12,6 +12,7 @@ from django.utils.translation import ugettext_lazy as _
 
 r = redis.Redis(**settings.REDIS)
 
+
 class RedirectForm(forms.Form):
     _domain = 'readthedocs.org'
 
@@ -21,11 +22,15 @@ class RedirectForm(forms.Form):
     def clean_url(self):
         url = urlparse.urlparse(self.cleaned_data['url'])
         if self._domain not in url.netloc:
-            raise forms.ValidationError(_('Please enter a valid URL on %s') % self._domain)
+            raise forms.ValidationError(_('Please enter a valid URL on %s') %
+                                        self._domain)
         return self.cleaned_data['url']
 
+
 def redirect_home(request, version):
-    return http.HttpResponseRedirect('http://%s.readthedocs.org' % request.slug)
+    return http.HttpResponseRedirect('http://%s.readthedocs.org'
+                                     % request.slug)
+
 
 def redirect_to_term(request, version, term):
     form = RedirectForm(request.GET or None)
@@ -37,10 +42,13 @@ def redirect_to_term(request, version, term):
     # make sure this service can't be used for spam.
     if 'url' in request.GET:
         if form.is_valid():
-            # Make sure the new URL is in the set of URLs and increment its score.
+            # Make sure the new URL is in the set of URLs and increment its
+            # score.
             url = form.cleaned_data['url']
-            r.sadd('redirects:v4:%s:%s:%s:%s' % (lang, version, project, term), url)
-            r.incr('redirects:v4:%s:%s:%s:%s:%s' % (lang, version, project, term, url))
+            r.sadd('redirects:v4:%s:%s:%s:%s' % (lang, version, project, term),
+                   url)
+            r.incr('redirects:v4:%s:%s:%s:%s:%s' % (lang, version, project,
+                                                    term, url))
             return redirect(request.GET.get('return_to', url))
 
     urls = get_urls(lang, project, version, term)
@@ -48,19 +56,20 @@ def redirect_to_term(request, version, term):
         scoregroups = group_urls(urls)
 
         # The first group is the URLs with the highest score.
-        score, winners = scoregroups.next()
+        _, winners = scoregroups.next()
 
-        # If there's only a single winning URL, we're done. Count the redirect and
-        # then issue it.
+        # If there's only a single winning URL, we're done. Count the redirect
+        # and then issue it.
         if len(winners) == 1:
             url = winners[0]
-            r.incr('redirects:v4:%s:%s:%s:%s:%s' % (lang, version, project, term, url))
+            r.incr('redirects:v4:%s:%s:%s:%s:%s' % (lang, version, project,
+                                                    term, url))
             return redirect(url)
 
-        # Otherwise we need to display a list of all choices. We'll present this into
-        # two buckets: the tied URLs with the high score (which is the list of winners
-        # we've already gotten) and the tied URLs with a lower score. This second
-        # bucket might be empty.
+        # Otherwise we need to display a list of all choices. We'll present
+        # this into two buckets: the tied URLs with the high score (which is
+        # the list of winners we've already gotten) and the tied URLs with a
+        # lower score. This second bucket might be empty.
         losers = [losing_group for score, losing_group in scoregroups]
 
     else:
@@ -74,6 +83,7 @@ def redirect_to_term(request, version, term):
         'version': version,
     })
 
+
 def show_term(request, version, term):
     return render(request, 'djangome/show.html', {
         'djangome_term': term,
@@ -81,6 +91,7 @@ def show_term(request, version, term):
         'urls': get_urls(version, term),
         'can_edit': request.COOKIES.get('sekrit') == settings.SECRET_KEY,
     })
+
 
 def get_urls(lang, project, version, term):
     """
@@ -92,14 +103,15 @@ def get_urls(lang, project, version, term):
     # redirects:v1:term:url, then get each score along with each URL.
     # This returns a list [score, url, score, url, ...]
     urls = r.sort('redirects:v4:%s:%s:%s:%s' % (lang, version, project, term),
-                  by   = 'redirects:v4:%s:%s:%s:%s:*' % (lang, version, 
-                                                         project, term),
-                  get  = ('redirects:v4:%s:%s:%s:%s:*' % (lang, version,
-                                                          project, term), '#'),
-                  desc = True)
+                  by='redirects:v4:%s:%s:%s:%s:*' % (lang, version,
+                                                     project, term),
+                  get=('redirects:v4:%s:%s:%s:%s:*' % (lang, version,
+                                                       project, term), '#'),
+                  desc=True)
 
     # Convert that to a list of tuples [(score, url), (score, url), ...]
     return zip(urls[::2], urls[1::2])
+
 
 def group_urls(urls):
     """
@@ -109,6 +121,7 @@ def group_urls(urls):
     """
     for (score, group) in itertools.groupby(urls, operator.itemgetter(0)):
         yield (score, [url for score, url in group])
+
 
 def firstof(list):
     for i in list:

@@ -7,6 +7,7 @@ from projects import tasks
 
 log = logging.getLogger(__name__)
 
+
 class PostCommitTest(TestCase):
     fixtures = ["eric", "test_data"]
 
@@ -15,6 +16,7 @@ class PostCommitTest(TestCase):
 
     def setUp(self):
         self.old_bd = tasks.update_docs
+
         def mock(*args, **kwargs):
             log.info("Mocking for great profit and speed.")
         tasks.update_docs = mock
@@ -31,25 +33,27 @@ class PostCommitTest(TestCase):
                         "email": "eric@ericholscher.com",
                         "name": "Eric Holscher",
                         "username": "ericholscher"
-                        },
+                    },
                     "distinct": False,
                     "id": "11f229c6a78f5bc8cb173104a3f7a68cdb7eb15a",
                     "message": "Fix it on the front list as well.",
                     "modified": [
                         "readthedocs/templates/core/project_list_detailed.html"
-                        ],
+                    ],
                     "removed": [],
                     "timestamp": "2011-09-12T19:38:55-07:00",
-                    "url": "https://github.com/wraithan/readthedocs.org/commit/11f229c6a78f5bc8cb173104a3f7a68cdb7eb15a"}
-                ,
-                ],
-            "compare": "https://github.com/wraithan/readthedocs.org/compare/5b4e453...5ad7573",
+                    "url": ("https://github.com/wraithan/readthedocs.org/"
+                            "commit/11f229c6a78f5bc8cb173104a3f7a68cdb7eb15a")
+                },
+            ],
+            "compare": ("https://github.com/wraithan/readthedocs.org/compare/"
+                        "5b4e453...5ad7573"),
             "created": False,
             "deleted": False,
             "forced": False,
             "pusher": {
                 "name": "none"
-                },
+            },
             "ref": "refs/heads/awesome",
             "repository": {
                 "created_at": "2011/09/09 14:20:13 -0700",
@@ -66,14 +70,14 @@ class PostCommitTest(TestCase):
                 "owner": {
                     "email": "XWraithanX@gmail.com",
                     "name": "wraithan"
-                    },
+                },
                 "private": False,
                 "pushed_at": "2011/09/12 22:33:34 -0700",
                 "size": 140,
                 "url": "https://github.com/rtfd/readthedocs.org",
                 "watchers": 1
-                }
             }
+        }
 
     def test_github_post_commit_hook_builds_branch_docs_if_it_should(self):
         """
@@ -92,7 +96,6 @@ class PostCommitTest(TestCase):
         r = self.client.post('/github/', {'payload': json.dumps(self.payload)})
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r.content, 'Build Started: latest')
-
 
     def test_github_post_commit_knows_default_branches(self):
         """

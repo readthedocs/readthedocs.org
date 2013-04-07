@@ -77,7 +77,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'pagination.middleware.PaginationMiddleware',
     # Hack
-    'core.underscore_middleware.UnderscoreMiddleware',
+    # 'core.underscore_middleware.UnderscoreMiddleware',
     'core.middleware.SubdomainMiddleware',
     #'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
 )

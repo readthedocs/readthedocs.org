@@ -5,6 +5,7 @@ from django.contrib import admin
 
 from core.models import UserProfile
 
+
 class UserProfileAdmin(admin.ModelAdmin):
     list_display = ('user', 'homepage')
     search_fields = ('user__username', 'homepage')

@@ -62,7 +62,7 @@ class TestGitBackend(RTDTestCase):
             ('a63a2de628a3ce89034b7d1a5ca5e8159534eef0', '2.1.0.beta2'),
             ('c7fc3d16ed9dc0b19f0d27583ca661a64562d21e', '2.1.0.rc1'),
             ('edc0a2d02a0cc8eae8b67a3a275f65cd126c05b1', '2.1.0.rc2'),
-            ]
+        ]
 
         given_ids = [(x.identifier, x.verbose_name) for x in
                      self.project.vcs_repo().parse_tags(data)]
@@ -111,7 +111,7 @@ class TestHgBackend(RTDTestCase):
             ('aa1f3be38ab1', '1.8.1'),
             ('2616325766e3', '1.8'),
             ('2b2155623ee2', '1.7.5'),
-            ]
+        ]
 
         given_ids = [(x.identifier, x.verbose_name) for x in
                      self.project.vcs_repo().parse_tags(data)]

@@ -7,6 +7,7 @@ from core.utils import copy_to_app_servers
 
 log = logging.getLogger(__name__)
 
+
 class Command(BaseCommand):
     """Custom management command to rebuild documentation for all projects on
     the site. Invoked via ``./manage.py update_repos``.
@@ -14,17 +15,15 @@ class Command(BaseCommand):
 
     option_list = BaseCommand.option_list + (
         make_option('-V',
-            dest='version',
-            default=None,
-            help='Build a version, or all versions'
-            ),
+                    dest='version',
+                    default=None,
+                    help='Build a version, or all versions'),
         make_option('-c',
-            action='store_true',
-            dest='checkout',
-            default=False,
-            help='sync checkouts'
-            ),
-        )
+                    action='store_true',
+                    dest='checkout',
+                    default=False,
+                    help='sync checkouts'),
+    )
 
     def handle(self, *args, **options):
         version = options['version']

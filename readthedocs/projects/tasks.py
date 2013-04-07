@@ -1,5 +1,6 @@
 """Tasks related to projects, including fetching repository code, cleaning
 ``conf.py`` files, and rebuilding documentation.
+
 """
 import fnmatch
 import os
@@ -38,6 +39,7 @@ ghetto_hack = re.compile(
 
 log = logging.getLogger(__name__)
 
+
 @task
 def remove_dir(path):
     """
@@ -54,20 +56,20 @@ def remove_dir(path):
 @restoring_chdir
 def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
                 version_pk=None, force=False, **kwargs):
-    """
-    The main entry point for updating documentation.
+    """The main entry point for updating documentation.
 
-    It handles all of the logic around whether a project is imported or we created it.
-    Then it will build the html docs and other requested parts.
-    It also handles clearing the varnish cache.
+    It handles all of the logic around whether a project is imported or we
+    created it.  Then it will build the html docs and other requested parts. It
+    also handles clearing the varnish cache.
 
     `pk`
         Primary key of the project to update
 
     `record`
         Whether or not to keep a record of the update in the database. Useful
-        for preventing changes visible to the end-user when running commands from
-        the shell, for example.
+        for preventing changes visible to the end-user when running commands
+        from the shell, for example.
+
     """
 
     ###
@@ -89,7 +91,8 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
         branch = project.default_branch or project.vcs_repo().fallback_branch
         try:
             # Use latest version
-            version_data = api.version(project.slug).get(slug='latest')['objects'][0]
+            version_data = (api.version(project.slug)
+                            .get(slug='latest')['objects'][0])
         except (slumber.exceptions.HttpClientError, IndexError):
             # Create the latest version since it doesn't exist
             version_data = dict(
@@ -98,7 +101,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
                 active=True,
                 verbose_name='latest',
                 identifier=branch,
-                )
+            )
             try:
                 version_data = api.version.post(version_data)
             except Exception as e:
@@ -121,7 +124,8 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
             version_data['identifier'] = branch
             to_save = True
         if to_save:
-            version_data['project'] = "/api/v1/version/%s/" % version_data['project'].pk
+            version_data['project'] = ("/api/v1/version/%s/"
+                                       % version_data['project'].pk)
             api.version(version.pk).put(version_data)
 
     if record:
@@ -142,7 +146,9 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
     except ProjectImportError, err:
         log.error("Failed to import project; skipping build.", exc_info=True)
         build['state'] = 'finished'
-        build['setup_error'] = 'Failed to import project; skipping build.\nPlease make sure your repo is correct and you have a conf.py'
+        build['setup_error'] = ('Failed to import project; skipping build.\n'
+                                'Please make sure your repo is correct and '
+                                'you have a conf.py')
         api.build(build['id']).put(build)
         return False
 
@@ -167,18 +173,20 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
     log.info("Building docs")
     # This is only checking the results of the HTML build, as it's a canary
     try:
-        results = build_docs(version_pk=version.pk, pdf=pdf, man=man, epub=epub,
-                             dash=dash, record=record, force=force)
-        html_results, latex_results, pdf_results, man_results, epub_results, dash_results = results
+        results = build_docs(version_pk=version.pk, pdf=pdf, man=man,
+                             epub=epub, dash=dash, record=record, force=force)
+        (html_results, latex_results, pdf_results, man_results, epub_results,
+         dash_results) = results
         (ret, out, err) = html_results
     except Exception as e:
         log.error("Exception in flailboat build_docs", exc_info=True)
         html_results = (999, "Project build Failed", str(e))
         latex_results = (999, "Project build Failed", str(e))
         pdf_results = (999, "Project build Failed", str(e))
-        man_results = (999, "Project build Failed", str(e))
-        epub_results = (999, "Project build Failed", str(e))
-        dash_results = (999, "Project build Failed", str(e))
+        # These variables aren't currently being used.
+        # man_results = (999, "Project build Failed", str(e))
+        # epub_results = (999, "Project build Failed", str(e))
+        # dash_results = (999, "Project build Failed", str(e))
         (ret, out, err) = html_results
 
     if record:
@@ -205,7 +213,8 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
         version_data = api.version(version.pk).get()
         version_data['active'] = True
         version_data['built'] = True
-        #Need to delete this because a bug in tastypie breaks on the users list.
+        # Need to delete this because a bug in tastypie breaks on the users
+        # list.
         del version_data['project']
         try:
             api.version(version.pk).put(version_data)
@@ -224,7 +233,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
             symlink_cname(version)
             symlink_translations(version)
             # This requires database access, must disable it for now.
-            #send_notifications(version, build)
+            # send_notifications(version, build)
             log.info("Purged %s" % version)
         else:
             log.warning("Failed HTML Build")
@@ -260,6 +269,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
 
     return True
 
+
 @task
 def update_imported_docs(version_pk):
     """
@@ -276,8 +286,8 @@ def update_imported_docs(version_pk):
     with project.repo_lock(getattr(settings, 'REPO_LOCK_SECONDS', 30)):
         update_docs_output = {}
         if not project.vcs_repo():
-            raise ProjectImportError("Repo type '{repo_type}' unknown".format(
-                    repo_type=project.repo_type))
+            raise ProjectImportError(("Repo type '{0}' unknown"
+                                      .format(project.repo_type)))
 
         # Get the actual code on disk
         if version:
@@ -285,7 +295,9 @@ def update_imported_docs(version_pk):
                 slug=version.slug, identifier=version.identifier))
             version_slug = version.slug
             version_repo = project.vcs_repo(version_slug)
-            update_docs_output['checkout'] = version_repo.checkout(version.identifier)
+            update_docs_output['checkout'] = version_repo.checkout(
+                version.identifier
+            )
         else:
             # Does this ever get called?
             log.info('Updating to latest revision')
@@ -304,50 +316,70 @@ def update_imported_docs(version_pk):
                 site_packages = '--no-site-packages'
             # Here the command has been modified to support different
             # interpreters.
-            update_docs_output['venv'] = run('{cmd} --distribute {site_packages} {path}'.format(
+            update_docs_output['venv'] = run(
+                '{cmd} --distribute {site_packages} {path}'.format(
                     cmd='virtualenv -p {interpreter}'.format(
                         interpreter=project.python_interpreter),
                     site_packages=site_packages,
-                    path=project.venv_path(version=version_slug)))
-            # Other code expects sphinx-build to be installed inside the virtualenv.
-            # Using the -I option makes sure it gets installed even if it is
-            # already installed system-wide (and --system-site-packages is used)
+                    path=project.venv_path(version=version_slug)
+                )
+            )
+            # Other code expects sphinx-build to be installed inside the
+            # virtualenv.  Using the -I option makes sure it gets installed
+            # even if it is already installed system-wide (and
+            # --system-site-packages is used)
             if project.use_system_packages:
                 ignore_option = '-I'
             else:
                 ignore_option = ''
+            sphinx = ('hg+http://bitbucket.org/birkenfeld/sphinx/@d4c6ac1fcc9c'
+                      '#egg=Sphinx')
             if project.python_interpreter != 'python3':
-                update_docs_output['sphinx'] = run('{cmd} install -U {ignore_option} hg+http://bitbucket.org/birkenfeld/sphinx/@d4c6ac1fcc9c#egg=Sphinx virtualenv==1.8.2 distribute==0.6.28 docutils==0.8.1'.format(
-                    cmd=project.venv_bin(version=version_slug, bin='pip'), ignore_option=ignore_option))
+                update_docs_output['sphinx'] = run(
+                    ('{cmd} install -U {ignore_option} {sphinx} '
+                     'virtualenv==1.8.2 distribute==0.6.28 '
+                     'docutils==0.8.1').format(
+                         cmd=project.venv_bin(version=version_slug, bin='pip'),
+                         sphinx=sphinx, ignore_option=ignore_option))
             else:
                 # python 3 specific hax
-                update_docs_output['sphinx'] = run('{cmd} install {ignore_option} hg+http://bitbucket.org/birkenfeld/sphinx/@d4c6ac1fcc9c#egg=Sphinx virtualenv==1.8.2 docutils==0.8.1'.format(
-                    cmd=project.venv_bin(version=version_slug, bin='pip'), ignore_option=ignore_option))
+                update_docs_output['sphinx'] = run((
+                    '{cmd} install {ignore_option} {sphinx} virtualenv==1.8.2 '
+                    'docutils==0.8.1').format(
+                        cmd=project.venv_bin(version=version_slug, bin='pip'),
+                        sphinx=sphinx, ignore_option=ignore_option))
 
             if project.requirements_file:
                 os.chdir(project.checkout_path(version_slug))
-                update_docs_output['requirements'] = run('{cmd} install -r {requirements}'.format(
+                update_docs_output['requirements'] = run(
+                    '{cmd} install -r {requirements}'.format(
                         cmd=project.venv_bin(version=version_slug, bin='pip'),
                         requirements=project.requirements_file))
             os.chdir(project.checkout_path(version_slug))
             if getattr(settings, 'USE_PIP_INSTALL', False):
-                update_docs_output['install'] = run('{cmd} install --ignore-installed .'.format(
+                update_docs_output['install'] = run(
+                    '{cmd} install --ignore-installed .'.format(
                         cmd=project.venv_bin(version=version_slug, bin='pip')))
             else:
-                update_docs_output['install'] = run('{cmd} setup.py install --force'.format(
-                        cmd=project.venv_bin(version=version_slug, bin='python')))
+                update_docs_output['install'] = run(
+                    '{cmd} setup.py install --force'.format(
+                        cmd=project.venv_bin(version=version_slug,
+                                             bin='python')))
 
         # check tags/version
         #XXX:dc: what in this block raises the values error?
         try:
-            old_versions = [obj['identifier'] for obj in api.version.get(project__slug=project.slug, limit=5000)['objects']]
+            old_versions = [obj['identifier'] for obj
+                            in api.version.get(project__slug=project.slug,
+                                               limit=5000)['objects']]
             if version_repo.supports_tags:
                 transaction.enter_transaction_management(True)
                 tags = version_repo.tags
                 for tag in tags:
                     if tag.identifier in old_versions:
                         continue
-                    log.debug('NEW TAG: (%s not in %s)' % (tag.identifier, old_versions))
+                    log.debug('NEW TAG: (%s not in %s)' % (tag.identifier,
+                                                           old_versions))
                     slug = slugify_uniquely(Version, tag.verbose_name,
                                             'slug', 255, project=project)
                     try:
@@ -362,13 +394,15 @@ def update_imported_docs(version_pk):
                         log.info("New tag found: {0}".format(tag.identifier))
                         ver, highest = project.highest_version[1]
                         ver_obj = mkversion(ver)
-                        #TODO: Handle updating higher versions automatically.
-                        #This never worked very well, anyways.
+                        # TODO: Handle updating higher versions automatically.
+                        # This never worked very well, anyways.
                         if highest and ver_obj and ver_obj > highest:
                             log.info("Highest version known, building docs")
-                            update_docs.delay(ver.project.pk, version_pk=ver.pk)
-                    except Exception, e:
-                        log.error("Failed to create version (tag)", exc_info=True)
+                            update_docs.delay(ver.project.pk,
+                                              version_pk=ver.pk)
+                    except Exception:
+                        log.error("Failed to create version (tag)",
+                                  exc_info=True)
                         transaction.rollback()
                 transaction.leave_transaction_management()
             if version_repo.supports_branches:
@@ -377,7 +411,8 @@ def update_imported_docs(version_pk):
                 for branch in branches:
                     if branch.identifier in old_versions:
                         continue
-                    log.debug('NEW BRANCH: (%s not in %s)' % (branch, old_versions))
+                    log.debug('NEW BRANCH: (%s not in %s)' % (branch,
+                                                              old_versions))
                     slug = slugify_uniquely(Version, branch.verbose_name,
                                             'slug', 255, project=project)
                     try:
@@ -387,15 +422,18 @@ def update_imported_docs(version_pk):
                             identifier=branch.identifier,
                             verbose_name=branch.verbose_name
                         ))
-                        log.info("New branch found: {0}".format(branch.identifier))
-                    except Exception, e:
-                        log.error("Failed to create version (branch)", exc_info=True)
+                        log.info(("New branch found: {0}"
+                                  .format(branch.identifier)))
+                    except Exception:
+                        log.error("Failed to create version (branch)",
+                                  exc_info=True)
                         transaction.rollback()
                 transaction.leave_transaction_management()
                 #TODO: Kill deleted branches
-        except ValueError, e:
+        except ValueError:
             log.error("Error getting tags", exc_info=True)
     return update_docs_output
+
 
 @task
 def build_docs(version_pk, pdf, man, epub, dash, record, force):
@@ -419,7 +457,8 @@ def build_docs(version_pk, pdf, man, epub, dash, record, force):
         if html_results[0] == 0:
             html_builder.move()
 
-        fake_results = (999, "Project Skipped, Didn't build", "Project Skipped, Didn't build")
+        fake_results = (999, "Project Skipped, Didn't build",
+                        "Project Skipped, Didn't build")
         # Only build everything else if the html build changed.
         if html_builder.changed and not project.skip:
             if pdf:
@@ -474,7 +513,7 @@ def fileify(version_pk):
             for filename in filenames:
                 if fnmatch.fnmatch(filename, '*.html'):
                     dirpath = os.path.join(root.replace(path, '').lstrip('/'),
-                                            filename.lstrip('/'))
+                                           filename.lstrip('/'))
                     if getattr(settings, 'DONT_HIT_DB', True):
                         api.file.post(dict(
                             project="/api/v1/project/%s/" % project.pk,
@@ -498,9 +537,9 @@ def update_docs_pull(record=False, pdf=False, man=False, force=False):
     """
     for version in Version.objects.filter(built=True):
         try:
-            update_docs(
-                pk=version.project.pk, version_pk=version.pk, record=record, pdf=pdf, man=man)
-        except Exception, e:
+            update_docs(pk=version.project.pk, version_pk=version.pk,
+                        record=record, pdf=pdf, man=man)
+        except Exception:
             log.error("update_docs_pull failed", exc_info=True)
 
 
@@ -523,7 +562,7 @@ def update_intersphinx(version_pk):
 
     try:
         object_file = version.project.find('objects.inv', version.slug)[0]
-    except IndexError, e:
+    except IndexError:
         print "Failed to find objects file"
         return None
 
@@ -555,15 +594,18 @@ def update_intersphinx(version_pk):
                 #print "URL: %s->%s" % (url_key, url)
                 save_term(version, url_key, url)
 
+
 def save_term(version, term, url):
     redis_obj = redis.Redis(**settings.REDIS)
     lang = "en"
     project_slug = version.project.slug
     version_slug = version.slug
     redis_obj.sadd('redirects:v4:%s:%s:%s:%s' % (lang, version_slug,
-                                         project_slug, term), url)
+                                                 project_slug, term), url)
     redis_obj.setnx('redirects:v4:%s:%s:%s:%s:%s' % (lang, version_slug,
-                                             project_slug, term, url), 1)
+                                                     project_slug, term, url),
+                    1)
+
 
 def symlink_cname(version):
     build_dir = version.project.rtd_build_path(version.slug)
@@ -580,9 +622,11 @@ def symlink_cname(version):
         run_on_app_servers('mkdir -p %s' % '/'.join(symlink.split('/')[:-1]))
         run_on_app_servers('ln -nsf %s %s' % (build_dir, symlink))
 
+
 def symlink_translations(version):
     """
-    Link from HOME/user_builds/project/translations/<lang> -> HOME/user_builds/<project>/rtd-builds/
+    Link from HOME/user_builds/project/translations/<lang> ->
+              HOME/user_builds/<project>/rtd-builds/
     """
     translations = version.project.translations.all()
     for translation in translations:
@@ -602,12 +646,13 @@ def symlink_translations(version):
     run_on_app_servers('mkdir -p %s' % '/'.join(base_path.split('/')[:-1]))
     run_on_app_servers('ln -nsf %s %s' % (translation_dir, base_path))
 
+
 def send_notifications(version, build):
     zenircbot_notification(version.id)
     for hook in version.project.webhook_notifications.all():
         webhook_notification.delay(version.project.id, build, hook.url)
-    emails = version.project.emailhook_notifications.all().values_list('email',
-                                                                   flat=True)
+    emails = (version.project.emailhook_notifications.all()
+              .values_list('email', flat=True))
     for email in emails:
         email_notification(version.project.id, build, email)
 
@@ -655,24 +700,26 @@ def zenircbot_notification(version_id):
     IRC = getattr(settings, 'IRC_CHANNEL', '#readthedocs-build')
     try:
         redis_obj.publish('out',
-                        json.dumps({
-                        'version': 1,
-                        'type': 'privmsg',
-                        'data': {
-                            'to': IRC,
-                            'message': message,
-                            }
-                        }))
+                          json.dumps({
+                              'version': 1,
+                              'type': 'privmsg',
+                              'data': {
+                                  'to': IRC,
+                                  'message': message,
+                              }
+                          }))
     except redis.ConnectionError:
         return
+
 
 @task
 def clear_artifacts(version_pk):
     """ Remove artifacts from the build server. """
-    version_data = api.version(version_pk).get()
-    version = make_api_version(version_data)
-    # Stop doing this for now as it causes 403s if people build things back to back some times
-    # because of a race condition
+    pass
+    # Stop doing this for now as it causes 403s if people build things back to
+    # back some times because of a race condition
+    #version_data = api.version(version_pk).get()
+    #version = make_api_version(version_data)
     #run('rm -rf %s' % version.project.full_epub_path(version.slug))
     #run('rm -rf %s' % version.project.full_man_path(version.slug))
     #run('rm -rf %s' % version.project.full_build_path(version.slug))

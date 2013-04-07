@@ -1,11 +1,12 @@
 import os
 
-from fabric.api import *
+from fabric.api import cd, env, put, run, sudo
 import fabtools
 
 cwd = os.getcwd()
 all_users = ['docs', 'builder']
 required_dirs = ['checkouts', 'etc', 'run', 'log']
+
 
 def all():
     install_packages('build')
@@ -15,11 +16,13 @@ def all():
     checkout('docs')
     setup_env('docs')
 
+
 def build():
     install_packages('build')
     users('docs')
     checkout('docs')
     setup_env('docs')
+
 
 def web():
     install_packages('web')
@@ -42,16 +45,15 @@ def install_packages(type):
         sudo(
             'apt-get install -y git-core python-dev '
             'postgresql-client libpq-dev subversion graphviz '
-            'curl sqlite libxml2-dev libxslt-dev vim g++ python-numpy python-scipy '
-            'build-essential texlive-full libevent-dev libmysqlclient-dev '
-            'python-m2crypto'
+            'curl sqlite libxml2-dev libxslt-dev vim g++ python-numpy '
+            'python-scipy build-essential texlive-full libevent-dev '
+            'libmysqlclient-dev python-m2crypto'
         )
         sudo('pip install -U mercurial')
     if type == 'db':
         sudo('apt-get install -y solr-tomcat redis-server postgresql ')
     if type == 'web':
         sudo('apt-get install -y nginx')
-
 
 
 def users(user=None):
@@ -66,7 +68,8 @@ def users(user=None):
 
         if not fabtools.files.is_file('%s/.ssh/authorized_keys' % home):
             sudo('mkdir -p %s/.ssh' % home)
-            put('keys/*.pub', '%s/.ssh/authorized_keys' % home, mode=700, use_sudo=True)
+            put('keys/*.pub', '%s/.ssh/authorized_keys' % home, mode=700,
+                use_sudo=True)
             sudo('chown -R %s:%s %s' % (user, user, home))
             sudo('chmod -R 700 %s' % home)
     sudo('mkdir -p /var/build')
@@ -90,7 +93,8 @@ def checkout(user=None):
                 run('git clone git://github.com/rtfd/readthedocs.org.git')
         if not fabtools.files.is_file('%s/bin/python' % home):
             run('virtualenv %s' % home)
-        run('%s/bin/pip install -U -r %s/checkouts/readthedocs.org/deploy_requirements.txt' % (home, home))
+        run(('%s/bin/pip install -U -r %s/checkouts/readthedocs.org/'
+             'deploy_requirements.txt') % (home, home))
 
 
 def setup_env(user=None):
@@ -102,9 +106,10 @@ def setup_env(user=None):
         env.user = user
         home = '/home/%s' % user
         put('files/bash_profile', '%s/.bash_profile' % home)
-        put('files/%s_supervisord.conf' % user, '%s/etc/supervisord.conf' % home)
-        #put('files/%s_local_settings.py' % user, '%s/checkouts/readthedocs.org/readthedocs/settings/local_settings.py' % home)
+        put('files/%s_supervisord.conf' % user,
+            '%s/etc/supervisord.conf' % home)
         run('%s/bin/pip install -U supervisor ipython gunicorn' % home)
+
 
 def fix_perms(user=None):
     if user:
@@ -115,6 +120,7 @@ def fix_perms(user=None):
         env.user = user
         home = '/home/%s' % user
         sudo('chown -R %s:%s %s' % (user, user, home))
+
 
 def setup_db():
     env.user = "docs"

@@ -2,6 +2,7 @@ from django.contrib.syndication.views import Feed
 
 from projects.models import Project
 
+
 class LatestProjectsFeed(Feed):
     title = "Recently updated documentation"
     link = "http://readthedocs.org"
@@ -15,6 +16,7 @@ class LatestProjectsFeed(Feed):
 
     def item_description(self, item):
         return item.get_latest_build()
+
 
 class NewProjectsFeed(Feed):
     title = "Newest documentation"

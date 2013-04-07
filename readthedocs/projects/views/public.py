@@ -12,7 +12,6 @@ from taggit.models import Tag
 from builds.filters import VersionSlugFilter
 from builds.models import Version
 from projects.models import Project
-from projects.utils import highest_version
 
 
 def project_index(request, username=None, tag=None):
@@ -60,28 +59,30 @@ def project_detail(request, project_slug):
         context_instance=RequestContext(request),
     )
 
+
 def project_downloads(request, project_slug):
     """
     A detail view for a project with various dataz
     """
-    project = get_object_or_404(Project.objects.protected(request.user), slug=project_slug)
+    project = get_object_or_404(Project.objects.protected(request.user),
+                                slug=project_slug)
     versions = project.ordered_active_versions()
     version_data = SortedDict()
     for version in versions:
-        version_data[version.slug] = {}
+        data = {}
         if project.has_pdf(version.slug):
-            version_data[version.slug]['pdf_url'] = project.get_pdf_url(version.slug)
+            data['pdf_url'] = project.get_pdf_url(version.slug)
         if project.has_htmlzip(version.slug):
-            version_data[version.slug]['htmlzip_url'] = project.get_htmlzip_url(version.slug)
+            data['htmlzip_url'] = project.get_htmlzip_url(version.slug)
         if project.has_epub(version.slug):
-            version_data[version.slug]['epub_url'] = project.get_epub_url(version.slug)
+            data['epub_url'] = project.get_epub_url(version.slug)
         if project.has_manpage(version.slug):
-            version_data[version.slug]['manpage_url'] = project.get_manpage_url(version.slug)
+            data['manpage_url'] = project.get_manpage_url(version.slug)
         if project.has_dash(version.slug):
-            version_data[version.slug]['dash_url'] = project.get_dash_url(version.slug)
+            data['dash_url'] = project.get_dash_url(version.slug)
         #Kill ones that have no downloads.
-        if not len(version_data[version.slug]):
-            del version_data[version.slug]
+        if len(data):
+            version_data[version.slug] = data
     return render_to_response(
         'projects/project_downloads.html',
         {
@@ -91,6 +92,7 @@ def project_downloads(request, project_slug):
         },
         context_instance=RequestContext(request),
     )
+
 
 def tag_index(request):
     """
@@ -104,6 +106,7 @@ def tag_index(request):
         template_object_name='tag',
         template_name='projects/tag_list.html',
     )
+
 
 def search(request):
     """
@@ -125,6 +128,7 @@ def search(request):
         template_name='projects/search.html',
     )
 
+
 def search_autocomplete(request):
     """
     return a json list of project names
@@ -133,19 +137,21 @@ def search_autocomplete(request):
         term = request.GET['term']
     else:
         raise Http404
-    queryset = Project.objects.public(request.user).filter(name__icontains=term)[:20]
+    queryset = (Project.objects.public(request.user)
+                .filter(name__icontains=term)[:20])
 
     project_names = queryset.values_list('name', flat=True)
     json_response = json.dumps(list(project_names))
 
     return HttpResponse(json_response, mimetype='text/javascript')
 
+
 def version_autocomplete(request, project_slug):
     """
     return a json list of version names
     """
     queryset = Project.objects.protected(request.user)
-    project = get_object_or_404(queryset, slug=project_slug)
+    get_object_or_404(queryset, slug=project_slug)
     versions = Version.objects.public(request.user)
     if 'term' in request.GET:
         term = request.GET['term']
@@ -157,6 +163,7 @@ def version_autocomplete(request, project_slug):
     json_response = json.dumps(list(names))
 
     return HttpResponse(json_response, mimetype='text/javascript')
+
 
 def version_filter_autocomplete(request, project_slug):
     queryset = Project.objects.protected(request.user)

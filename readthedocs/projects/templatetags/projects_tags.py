@@ -2,6 +2,7 @@ from django import template
 
 register = template.Library()
 
+
 @register.filter
 def sort_version_aware(versions):
     """
@@ -10,4 +11,6 @@ def sort_version_aware(versions):
     from distutils2.version import NormalizedVersion
     from projects.utils import mkversion
     fallback = NormalizedVersion('99999999.0', error_on_huge_major_num=False)
-    return sorted(versions, key=lambda v:(mkversion(v) or fallback), reverse=True)
+    return sorted(versions,
+                  key=lambda v: (mkversion(v) or fallback),
+                  reverse=True)

@@ -1,11 +1,11 @@
-from test_api import *
-from view_tests import *
-from test_doc_building import *
-from test_backend import *
-from test_celery import *
-from test_hacks import *
-from test_post_commit_hooks import *
-from test_privacy import *
-from test_middlware import *
-from test_redirects import *
-from test_urls import *
+from test_api import *  # noqa
+from view_tests import *  # noqa
+from test_doc_building import *  # noqa
+from test_backend import *  # noqa
+from test_celery import *  # noqa
+from test_hacks import *  # noqa
+from test_post_commit_hooks import *  # noqa
+from test_privacy import *  # noqa
+from test_middlware import *  # noqa
+from test_redirects import *  # noqa
+from test_urls import *  # noqa
