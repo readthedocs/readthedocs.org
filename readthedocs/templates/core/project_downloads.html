@@ -1,42 +1,66 @@
 {% load i18n %}
 {% for version, dict in version_data.items %}
-{% if dict.pdf_url %}
-<li class="module-item col-span">
-      <a class="module-item-title" href="{{ dict.pdf_url }}">{{ version }} PDF</a>
-</li>
-{% endif %}
+  {% if dict.pdf_url %}
+  <li class="module-item col-span">
+    <a class="module-item-title" href="{{ dict.pdf_url }}">
+      {% blocktrans %}
+        {{ version }} PDF
+      {% endblocktrans %}
+    </a>
+  </li>
+  {% endif %}
 
-{% if dict.htmlzip_url %}
-<li class="module-item col-span">
-      <a class="module-item-title" href="{{ dict.htmlzip_url }}">{{ version }} HTMLZip</a>
-</li>
-{% endif %}
+  {% if dict.htmlzip_url %}
+  <li class="module-item col-span">
+    <a class="module-item-title" href="{{ dict.htmlzip_url }}">
+      {% blocktrans %}
+        {{ version }} HTMLZip
+      {% endblocktrans %}
+    </a>
+  </li>
+  {% endif %}
 
-{% if dict.epub_url %}
-<li class="module-item col-span">
-      <a class="module-item-title" href="{{ dict.epub_url }}">{{ version }} Epub</a>
-</li>
-{% endif %}
+  {% if dict.epub_url %}
+  <li class="module-item col-span">
+    <a class="module-item-title" href="{{ dict.epub_url }}">
+      {% blocktrans %}
+        {{ version }} Epub
+      {% endblocktrans %}
+    </a>
+  </li>
+  {% endif %}
 
-{% if dict.manpage_url %}
-<li class="module-item col-span">
-      <a class="module-item-title" href="{{ dict.manpage_url }}">{{ version }} Manpage</a>
-</li>
-{% endif %}
+  {% if dict.manpage_url %}
+  <li class="module-item col-span">
+    <a class="module-item-title" href="{{ dict.manpage_url }}">
+      {% blocktrans %}
+        {{ version }} Manpage
+      {% endblocktrans %}
+    </a>
+  </li>
+  {% endif %}
 
-{% if dict.dash_url %}
-<li class="module-item col-span">
-      <a class="module-item-title" href="{{ dict.dash_url }}">{{ version }} Dash docset</a>
-</li>
-{% endif %}
-{% if dict.dash_feed_url %}
-<li class="module-item col-span">
-      <a class="module-item-title" href="dash-feed://{% filter urlencode %}{{ media_url_prefix }}{{ dict.dash_feed_url }}{% endfilter %}">{{ version }} Dash feed</a>
-</li>
-{% endif %}
+  {% if dict.dash_url %}
+  <li class="module-item col-span">
+    <a class="module-item-title" href="{{ dict.dash_url }}">
+      {% blocktrans %}
+        {{ version }} Dash docset
+      {% endblocktrans %}
+    </a>
+  </li>
+  {% endif %}
 
+  {% if dict.dash_feed_url %}
+  <li class="module-item col-span">
+    <a class="module-item-title" href="dash-feed://{% filter urlencode %}{{ media_url_prefix }}{{ dict.dash_feed_url }}{% endfilter %}">
+      {% blocktrans %}
+        {{ version }} Dash feed
+      {% endblocktrans %}
+    </a>
+  </li>
+  {% endif %}
 {% empty %}
-<li class="module-item col-span">
-      {% trans "No downloads for this project." %}
-</li>
+  <li class="module-item col-span">
+    {% trans "No downloads for this project." %}
+  </li>
 {% endfor %}
