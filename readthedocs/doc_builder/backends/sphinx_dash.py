@@ -3,7 +3,6 @@ import logging
 import os
 import shutil
 import tarfile
-import zipfile
 
 from django.conf import settings
 from django.template import Template, Context
@@ -18,7 +17,7 @@ log = logging.getLogger(__name__)
 
 FEED_TEMPLATE = """<entry>
     <version>{{ version.slug }}</version>
-    <url>http://localhost:8000{{ version.project.get_dash_url }}</url>
+    <url>{{ media_url_prefix }}{{ version.project.get_dash_url }}</url>
 </entry>
 """
 
@@ -54,7 +53,14 @@ class Builder(HtmlBuilder):
         return dash_build_results
 
     def _write_feed(self):
-        context = Context({'version': self.version})
+        if settings.MEDIA_URL.startswith('//'):
+            media_url_prefix = 'http:'
+        else:
+            media_url_prefix = ''
+        context = Context({
+            'version': self.version,
+            'media_url_prefix': media_url_prefix,
+        })
         feed_content = Template(FEED_TEMPLATE).render(context)
         to_file = self.version.project.get_dash_feed_path(self.version.slug)
         to_path = os.path.dirname(to_file)
