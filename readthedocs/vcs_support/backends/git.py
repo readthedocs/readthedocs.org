@@ -11,11 +11,12 @@ from vcs_support.base import BaseVCS, VCSVersion
 
 log = logging.getLogger(__name__)
 
+
 class Backend(BaseVCS):
     supports_tags = True
     supports_branches = True
     contribution_backends = [GithubContributionBackend]
-    fallback_branch = 'master' # default branch
+    fallback_branch = 'master'  # default branch
 
     def check_working_dir(self):
         if exists(self.working_dir):

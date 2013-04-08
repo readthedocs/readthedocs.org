@@ -1,4 +1,4 @@
-from .base import *
+from .base import *  # noqa
 
 DATABASES = {
     'default': {
@@ -58,6 +58,6 @@ DONT_HIT_DB = False
 
 
 try:
-    from local_settings import *
+    from local_settings import *  # noqa
 except:
     pass

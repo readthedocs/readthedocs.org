@@ -1,4 +1,3 @@
-
 from . import bzr, hg, git, svn
 
 backend_cls = {
@@ -7,4 +6,4 @@ backend_cls = {
     'svn': svn.Backend,
     'git': git.Backend,
     'hg': hg.Backend,
-    }
+}

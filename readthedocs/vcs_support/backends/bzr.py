@@ -21,12 +21,14 @@ class Backend(BaseVCS):
         retcode = self.run('bzr', 'revert')[0]
         if retcode != 0:
             raise ProjectImportError(
-                "Failed to get code from '%s' (bzr revert): %s" % (self.repo_url, retcode)
+                ("Failed to get code from '%s' (bzr revert): %s"
+                 % (self.repo_url, retcode))
             )
         up_output = self.run('bzr', 'up')
         if up_output[0] != 0:
             raise ProjectImportError(
-                "Failed to get code from '%s' (bzr up): %s" % (self.repo_url, retcode)
+                ("Failed to get code from '%s' (bzr up): %s"
+                 % (self.repo_url, retcode))
             )
         return up_output
 
@@ -34,7 +36,8 @@ class Backend(BaseVCS):
         retcode = self.run('bzr', 'checkout', self.repo_url, '.')[0]
         if retcode != 0:
             raise ProjectImportError(
-                "Failed to get code from '%s' (bzr checkout): %s" % (self.repo_url, retcode)
+                ("Failed to get code from '%s' (bzr checkout): %s"
+                 % (self.repo_url, retcode))
             )
 
     @property

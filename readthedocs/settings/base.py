@@ -77,7 +77,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'pagination.middleware.PaginationMiddleware',
     # Hack
-    'core.underscore_middleware.UnderscoreMiddleware',
+    # 'core.underscore_middleware.UnderscoreMiddleware',
     'core.middleware.SubdomainMiddleware',
     #'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
 )
@@ -138,16 +138,16 @@ if DEBUG:
 
 #CARROT_BACKEND = "ghettoq.taproot.Database"
 CELERY_ALWAYS_EAGER = True
-CELERYD_TASK_TIME_LIMIT = 60*60 #60 minutes
+CELERYD_TASK_TIME_LIMIT = 60*60  # 60 minutes
 CELERY_SEND_TASK_ERROR_EMAILS = True
 
 CELERY_ROUTES = {
-        'celery_haystack.tasks.CeleryHaystackSignalHandler': {
-            'queue': 'celery_haystack',
-        },
-        'projects.tasks.fileify': {
-            'queue': 'celery_haystack',
-        },
+    'celery_haystack.tasks.CeleryHaystackSignalHandler': {
+        'queue': 'celery_haystack',
+    },
+    'projects.tasks.fileify': {
+        'queue': 'celery_haystack',
+    },
 }
 
 
@@ -186,39 +186,41 @@ ANONYMOUS_USER_ID = -1
 REPO_LOCK_SECONDS = 30
 ALLOW_PRIVATE_REPOS = False
 
+LOG_FORMAT = "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s"
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,
     'formatters': {
         'standard': {
-            'format' : "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
-            'datefmt' : "%d/%b/%Y %H:%M:%S"
+            'format': LOG_FORMAT,
+            'datefmt': "%d/%b/%Y %H:%M:%S"
         },
     },
     'handlers': {
         'null': {
-            'level':'DEBUG',
-            'class':'django.utils.log.NullHandler',
+            'level': 'DEBUG',
+            'class': 'django.utils.log.NullHandler',
         },
         'exceptionlog': {
-            'level':'DEBUG',
-            'class':'logging.handlers.RotatingFileHandler',
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
             'filename': os.path.join(LOGS_ROOT, "exceptions.log"),
             'maxBytes': maxBytes,
             'backupCount': backup_count,
             'formatter': 'standard',
         },
         'errorlog': {
-            'level':'DEBUG',
-            'class':'logging.handlers.RotatingFileHandler',
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
             'filename': os.path.join(LOGS_ROOT, "rtd.log"),
             'maxBytes': maxBytes,
             'backupCount': backup_count,
             'formatter': 'standard',
         },
         'db': {
-            'level':'DEBUG',
-            'class':'logging.handlers.RotatingFileHandler',
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
             'filename': os.path.join(LOGS_ROOT, "db.log"),
             'maxBytes': maxBytes,
             'backupCount': backup_count,
@@ -228,17 +230,17 @@ LOGGING = {
             'level': 'ERROR',
             'class': 'django.utils.log.AdminEmailHandler',
         },
-        'console':{
-            'level':'DEBUG',
-            'class':'logging.StreamHandler',
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
             'formatter': 'standard'
         },
     },
     'loggers': {
         'django': {
-            'handlers':['console', 'errorlog'],
+            'handlers': ['console', 'errorlog'],
             'propagate': True,
-            'level':'WARN',
+            'level': 'WARN',
         },
         'django.db.backends': {
             'handlers': ['db'],
@@ -250,8 +252,9 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': False,
         },
-        #Default handler for everything that we're doing. Hopefully this doesn't double-print
-        #the Django things as well. Not 100% sure how logging works :)
+        # Default handler for everything that we're doing. Hopefully this
+        # doesn't double-print the Django things as well. Not 100% sure how
+        # logging works :)
         '': {
             'handlers': ['console', 'errorlog'],
             'level': 'DEBUG',

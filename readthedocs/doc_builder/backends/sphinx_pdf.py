@@ -11,6 +11,7 @@ from core.utils import copy_file_to_app_servers
 
 log = logging.getLogger(__name__)
 
+
 class Builder(BaseBuilder):
 
     @restoring_chdir
@@ -20,11 +21,12 @@ class Builder(BaseBuilder):
         #Default to this so we can return it always.
         pdf_results = (1, '', '')
         if project.use_virtualenv:
-            latex_results = run('%s -b latex -d _build/doctrees   . _build/latex' %
-                                project.venv_bin(version=self.version.slug, bin='sphinx-build'))
+            latex_results = run('%s -b latex -d _build/doctrees . _build/latex'
+                                % project.venv_bin(version=self.version.slug,
+                                                   bin='sphinx-build'))
         else:
-            latex_results = run('sphinx-build -b latex '
-                            '-d _build/doctrees   . _build/latex')
+            latex_results = run('sphinx-build -b latex -d _build/doctrees '
+                                '. _build/latex')
 
         if latex_results[0] == 0:
             os.chdir('_build/latex')
@@ -32,29 +34,26 @@ class Builder(BaseBuilder):
 
             if tex_files:
                 # Run LaTeX -> PDF conversions
-                pdflatex_cmds = ['pdflatex -interaction=nonstopmode %s' % tex_file
-                                 for tex_file in tex_files]
+                pdflatex_cmds = [('pdflatex -interaction=nonstopmode %s'
+                                 % tex_file) for tex_file in tex_files]
                 pdf_results = run(*pdflatex_cmds)
             else:
                 pdf_results = (0, "No tex files found", "No tex files found")
-
 
         if latex_results[0] != 0 or pdf_results[0] != 0:
             log.warning("PDF Building failed. Moving on.")
         return (latex_results, pdf_results)
 
-
     def move(self, **kwargs):
         #This needs to be thought about more because of all the state above.
         #We could just shove the filename on the instance or something.
         project = self.version.project
-        os.chdir(os.path.join(project.conf_dir(self.version.slug), '_build', 'latex'))
+        os.chdir(os.path.join(project.conf_dir(self.version.slug), '_build',
+                              'latex'))
         tex_files = glob('*.tex')
         for tex_file in tex_files:
-            to_path = os.path.join(settings.MEDIA_ROOT,
-                   'pdf',
-                   project.slug,
-                   self.version.slug)
+            to_path = os.path.join(settings.MEDIA_ROOT, 'pdf', project.slug,
+                                   self.version.slug)
             to_file = os.path.join(to_path, '%s.pdf' % project.slug)
             # pdflatex names its output predictably: foo.tex -> foo.pdf
             pdf_filename = os.path.splitext(tex_file)[0] + '.pdf'

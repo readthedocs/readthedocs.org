@@ -1,22 +1,27 @@
-from fabric.api import *
+from fabric.api import cd, env, lcd, local, hosts, prompt, run
 from fabric.decorators import runs_once
 import time
 
 env.runtime = 'production'
-env.hosts = ['chimera.readthedocs.com', 'bigbuild.readthedocs.com', 'asgard.readthedocs.com']
+env.hosts = ['chimera.readthedocs.com',
+             'bigbuild.readthedocs.com',
+             'asgard.readthedocs.com']
 env.user = 'docs'
 env.code_dir = '/home/docs/checkouts/readthedocs.org'
 env.virtualenv = '/home/docs/'
 env.rundir = '/home/docs/run'
 
+
 @hosts(['chimera.readthedocs.com', 'asgard.readthedocs.com'])
 def remove_project(project):
     run('rm -rf %s/user_builds/%s' % (env.code_dir, project))
+
 
 @hosts(['asgard.readthedocs.com'])
 def nginx_logs():
     env.user = "root"
     run("tail -f /var/log/nginx/*.log")
+
 
 @hosts(['localhost'])
 def i18n():
@@ -27,6 +32,7 @@ def i18n():
         local('tx push -s')
         local('./manage.py compilemessages')
 
+
 def push():
     "Push new code, but don't restart/reload."
     local('git push origin master')
@@ -34,9 +40,12 @@ def push():
         run('git fetch')
         run('git reset --hard origin/master')
 
+
 def update_requirements():
     "Update requirements in the virtualenv."
-    run("%s/bin/pip install -i http://simple.crate.io/ -r %s/deploy_requirements.txt" % (env.virtualenv, env.code_dir))
+    run(("%s/bin/pip install -i http://simple.crate.io/ -r "
+         "%s/deploy_requirements.txt") % (env.virtualenv, env.code_dir))
+
 
 @hosts(['chimera.readthedocs.com'])
 def migrate(project=None):
@@ -45,10 +54,12 @@ def migrate(project=None):
     else:
         run('django-admin.py migrate')
 
+
 @hosts(['chimera.readthedocs.com', 'asgard.readthedocs.com'])
 def static():
     "Restart (or just start) the server"
     run('django-admin.py collectstatic --noinput')
+
 
 @hosts(['chimera.readthedocs.com', 'asgard.readthedocs.com'])
 def restart():
@@ -58,29 +69,34 @@ def restart():
     #so it has time to reload
     time.sleep(3)
 
+
 @hosts(['chimera.readthedocs.com', 'asgard.readthedocs.com'])
 def reload():
     "Reload (or just start) the server"
     run("supervisorctl update")
+
 
 @hosts(['bigbuild.readthedocs.com'])
 def celery():
     "Restart (or just start) the server"
     run("supervisorctl restart celery")
 
+
 def pull():
     "Pull new code"
     with cd(env.code_dir):
         run('git pull origin master')
 
+
 @runs_once
 def spider():
     local('patu.py -d1 readthedocs.org')
 
+
 def _aws_wrapper(f, *args, **kwargs):
     "get AWS credentials if not defined"
     #these are normally defined in ~/.fabricrc
-    @hosts('run_once') #so fab doesn't go crazy
+    @hosts('run_once')  # so fab doesn't go crazy
     def wrapped(*args, **kwargs):
         from boto.cloudfront.exception import CloudFrontServerError
         from boto.cloudfront import CloudFrontConnection
@@ -96,6 +112,7 @@ def _aws_wrapper(f, *args, **kwargs):
             print "Error: \n", e.error_message
     return wrapped
 
+
 @_aws_wrapper
 def to_cdn(c, slug):
     "Create a new Distribution object on CloudFront"
@@ -110,9 +127,10 @@ def to_cdn(c, slug):
         enabled=True,
         comment='Slug: ' + slug,
         cnames=[slug + '.readthedocs.org']
-        )
+    )
     print "Created: " + d.domain_name + " for " + slug
     list_cdn()
+
 
 @_aws_wrapper
 def list_cdn(c):
@@ -122,6 +140,7 @@ def list_cdn(c):
         print "%3s %4s %40s %30s" % ('Ena' if d.enabled else 'Dis',
                                      d.status[:4], d.origin.dns_name,
                                      d.domain_name)
+
 
 @_aws_wrapper
 def disable_cdn(c, *args):
@@ -135,12 +154,13 @@ def disable_cdn(c, *args):
             #fix is to comment out lines 347-352 in cloudfront/distribution.py
             distro.get_distribution().disable()
 
+
 @_aws_wrapper
 def delete_cdn(c):
     "Deletes all Distributions in the 'Disabled' state."
     distributions = c.get_all_distributions()
     for distro in distributions:
-        if not distro.enabled and distro.status=="Deployed":
+        if not distro.enabled and distro.status == "Deployed":
             print "Deleting", distro.origin.dns_name
             distro.get_distribution().delete()
 
@@ -156,9 +176,11 @@ def full_deploy():
     #restart()
     #celery()
 
+
 @hosts(['chimera.readthedocs.com'])
 def uptime():
     run('uptime')
+
 
 @hosts(['chimera.readthedocs.com'])
 def update_index():

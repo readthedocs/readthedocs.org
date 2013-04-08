@@ -1,11 +1,13 @@
-import logging
 import getpass
+import logging
 import os
+
 from django.conf import settings
 
 log = logging.getLogger(__name__)
 
 SYNC_USER = getattr(settings, 'SYNC_USER', getpass.getuser())
+
 
 def copy_to_app_servers(full_build_path, target, mkdir=True):
     """
@@ -19,8 +21,8 @@ def copy_to_app_servers(full_build_path, target, mkdir=True):
             log.error("COPY ERROR to app servers:")
             log.error(mkdir_cmd)
 
-        sync_cmd = ("rsync -e 'ssh -T' -av --delete %s/ %s@%s:%s" %
-                        (full_build_path, SYNC_USER, server, target))
+        sync_cmd = ("rsync -e 'ssh -T' -av --delete %s/ %s@%s:%s"
+                    % (full_build_path, SYNC_USER, server, target))
         ret = os.system(sync_cmd)
         if ret != 0:
             log.error("COPY ERROR to app servers.")
@@ -40,7 +42,10 @@ def copy_file_to_app_servers(from_file, to_file):
             log.error("COPY ERROR to app servers.")
             log.error(mkdir_cmd)
 
-        sync_cmd = ("rsync -e 'ssh -T' -av --delete %s %s@%s:%s" % (from_file, SYNC_USER, server, to_file))
+        sync_cmd = ("rsync -e 'ssh -T' -av --delete %s %s@%s:%s" % (from_file,
+                                                                    SYNC_USER,
+                                                                    server,
+                                                                    to_file))
         ret = os.system(sync_cmd)
         if ret != 0:
             log.error("COPY ERROR to app servers.")

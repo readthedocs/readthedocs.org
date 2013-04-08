@@ -5,6 +5,7 @@ from django.http import Http404
 
 import redis
 
+
 class SubdomainMiddleware(object):
     def process_request(self, request):
         if settings.DEBUG:
@@ -20,20 +21,22 @@ class SubdomainMiddleware(object):
         if len(domain_parts) == 3:
             subdomain = domain_parts[0]
             # Serve subdomains
-            if not (subdomain.lower() == 'www') and not (subdomain.lower() == 'ssl') and 'readthedocs.org' in host:
+            is_www = subdomain.lower() == 'www'
+            is_ssl = subdomain.lower() == 'ssl'
+            if not is_www and not is_ssl and 'readthedocs.org' in host:
                 request.subdomain = True
                 request.slug = subdomain
                 request.urlconf = 'core.subdomain_urls'
                 return None
             # Serve rtfd.org
-            elif not (subdomain.lower() == 'www') and not (subdomain.lower() == 'ssl') and 'rtfd.org' in host:
+            elif not is_www and not is_ssl and 'rtfd.org' in host:
                 request.slug = subdomain
                 request.urlconf = 'core.djangome_urls'
                 return None
         # Serve CNAMEs
-        if 'readthedocs.org' not in host \
-            and 'localhost' not in host \
-            and 'testserver' not in host:
+        if 'readthedocs.org' not in host and \
+           'localhost' not in host and \
+           'testserver' not in host:
             request.cname = True
             try:
                 slug = cache.get(host)

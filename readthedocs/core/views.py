@@ -1,5 +1,6 @@
 """Core views, including the main homepage, post-commit build hook,
 documentation and header rendering, and server errors.
+
 """
 
 from django.core.urlresolvers import NoReverseMatch, reverse
@@ -32,26 +33,30 @@ import redis
 
 log = logging.getLogger(__name__)
 
+
 def homepage(request):
-    #latest_projects = Project.objects.filter(builds__isnull=False).annotate(max_date=Max('builds__date')).order_by('-max_date')[:10]
-    latest = Project.objects.public(request.user).order_by('-modified_date')[:10]
+    latest = (Project.objects.public(request.user)
+              .order_by('-modified_date')[:10])
     featured = Project.objects.filter(featured=True)
 
     return render_to_response('homepage.html',
                               {'project_list': latest,
-                               'featured_list': featured,
-                               #'updated_list': updated
-                               },
-                context_instance=RequestContext(request))
+                               'featured_list': featured},
+                              context_instance=RequestContext(request))
+
 
 def random_page(request, project=None):
+    imp_file = ImportedFile.objects.order_by('?')
     if project:
-        return HttpResponseRedirect(ImportedFile.objects.filter(project__slug=project).order_by('?')[0].get_absolute_url())
-    return HttpResponseRedirect(ImportedFile.objects.order_by('?')[0].get_absolute_url())
+        return HttpResponseRedirect((imp_file.filter(project__slug=project)[0]
+                                             .get_absolute_url()))
+    return HttpResponseRedirect(imp_file[0].get_absolute_url())
+
 
 def queue_depth(request):
     r = redis.Redis(**settings.REDIS)
     return HttpResponse(r.llen('celery'))
+
 
 def live_builds(request):
     builds = Build.objects.filter(state='building')[:5]
@@ -64,25 +69,26 @@ def live_builds(request):
                               {'builds': builds,
                                'build_percent': percent,
                                'WEBSOCKET_HOST': WEBSOCKET_HOST},
-                context_instance=RequestContext(request))
+                              context_instance=RequestContext(request))
+
 
 @csrf_view_exempt
 def wipe_version(request, project_slug, version_slug):
-    version = get_object_or_404(Version, project__slug=project_slug, slug=version_slug)
+    version = get_object_or_404(Version, project__slug=project_slug,
+                                slug=version_slug)
     if request.user not in version.project.users.all():
         raise Http404("You must own this project to wipe it.")
     del_dir = version.project.checkout_path(version.slug)
     if del_dir:
         remove_dir.delay(del_dir)
-        return render_to_response('wipe_version.html', {
-                    'del_dir': del_dir,
-                    'deleted': True,
-                },
-                context_instance=RequestContext(request))
-    return render_to_response('wipe_version.html', {
-            'del_dir': del_dir,
-        },
-        context_instance=RequestContext(request))
+        return render_to_response('wipe_version.html',
+                                  {'del_dir': del_dir,
+                                   'deleted': True},
+                                  context_instance=RequestContext(request))
+    return render_to_response('wipe_version.html',
+                              {'del_dir': del_dir},
+                              context_instance=RequestContext(request))
+
 
 @csrf_view_exempt
 def github_build(request):
@@ -103,28 +109,37 @@ def github_build(request):
             for project in projects:
                 version = project.version_from_branch_name(branch)
                 if version:
-                    log.info("(Github Build) Processing %s:%s" % (project.slug, version.slug))
-                    default = project.default_branch or project.vcs_repo().fallback_branch
+                    log.info(("(Github Build) Processing %s:%s"
+                              % (project.slug, version.slug)))
+                    default = project.default_branch or (project.vcs_repo()
+                                                         .fallback_branch)
                     if branch == default:
-                        #Shortcircuit versions that are default
-                        #These will build at "latest", and thus won't be active
+                        # Short circuit versions that are default
+                        # These will build at "latest", and thus won't be
+                        # active
                         version = project.versions.get(slug='latest')
                         version_pk = version.pk
                         version_slug = version.slug
-                        log.info("(Github Build) Building %s:%s" % (project.slug, version.slug))
+                        log.info(("(Github Build) Building %s:%s"
+                                  % (project.slug, version.slug)))
                     elif version in project.versions.exclude(active=True):
-                        log.info("(Github Build) Not building %s" % version.slug)
-                        return HttpResponseNotFound('Not Building: %s' % branch)
+                        log.info(("(Github Build) Not building %s"
+                                  % version.slug))
+                        return HttpResponseNotFound(('Not Building: %s'
+                                                     % branch))
                     else:
                         version_pk = version.pk
                         version_slug = version.slug
-                        log.info("(Github Build) Building %s:%s" % (project.slug, version.slug))
+                        log.info(("(Github Build) Building %s:%s"
+                                  % (project.slug, version.slug)))
                 else:
                     version_slug = 'latest'
                     branch = 'latest'
-                    log.info("(Github Build) Building %s:latest" % project.slug)
-                #version_pk being None means it will use "latest"
-                update_docs.delay(pk=project.pk, version_pk=version_pk, force=True)
+                    log.info(("(Github Build) Building %s:latest"
+                              % project.slug))
+                # version_pk being None means it will use "latest"
+                update_docs.delay(pk=project.pk, version_pk=version_pk,
+                                  force=True)
             return HttpResponse('Build Started: %s' % version_slug)
         except Exception, e:
             log.error("(Github Build) Failed: %s:%s" % (name, e))
@@ -158,6 +173,7 @@ def github_build(request):
     else:
         return redirect('builds_project_list', project.slug)
 
+
 @csrf_view_exempt
 def bitbucket_build(request):
     if request.method == 'POST':
@@ -176,6 +192,7 @@ def bitbucket_build(request):
     else:
         return redirect('builds_project_list', project.slug)
 
+
 @csrf_view_exempt
 def generic_build(request, pk):
     project = Project.objects.get(pk=pk)
@@ -188,22 +205,24 @@ def generic_build(request, pk):
             update_docs.delay(pk=pk, version_pk=version.pk, force=True)
         else:
             update_docs.delay(pk=pk, force=True)
-        #return HttpResponse('Build Started')
+        # return HttpResponse('Build Started')
         return redirect('builds_project_list', project.slug)
     return redirect('builds_project_list', project.slug)
 
-def subdomain_handler(request, lang_slug=None, version_slug=None, filename=''):
-    """
-    This provides the fall-back routing for subdomain requests.
 
-    This was made primarily to redirect old subdomain's to their version'd brothers.
+def subdomain_handler(request, lang_slug=None, version_slug=None, filename=''):
+    """This provides the fall-back routing for subdomain requests.
+
+    This was made primarily to redirect old subdomain's to their version'd
+    brothers.
+
     """
     project = get_object_or_404(Project, slug=request.slug)
     # Don't add index.html for htmldir.
     if not filename and project.documentation_type != 'sphinx_htmldir':
         filename = "index.html"
     if version_slug is None:
-        #Handle / on subdomain.
+        # Handle / on subdomain.
         default_version = project.get_default_version()
         url = reverse(serve_docs, kwargs={
             'version_slug': default_version,
@@ -212,12 +231,13 @@ def subdomain_handler(request, lang_slug=None, version_slug=None, filename=''):
         })
         return HttpResponseRedirect(url)
     if version_slug and lang_slug is None:
-        #Handle /version/ on subdomain.
+        # Handle /version/ on subdomain.
         aliases = project.aliases.filter(from_slug=version_slug)
-        #Handle Aliases.
+        # Handle Aliases.
         if aliases.count():
             if aliases[0].largest:
-                highest_ver = highest_version(project.versions.filter(slug__contains=version_slug, active=True))
+                highest_ver = highest_version(project.versions.filter(
+                    slug__contains=version_slug, active=True))
                 version_slug = highest_ver[0].slug
             else:
                 version_slug = aliases[0].to_slug
@@ -244,11 +264,13 @@ def subdomain_handler(request, lang_slug=None, version_slug=None, filename=''):
                       filename=filename)
 
 
-def subproject_serve_docs(request, project_slug, lang_slug=None, version_slug=None, filename=''):
+def subproject_serve_docs(request, project_slug, lang_slug=None,
+                          version_slug=None, filename=''):
     parent_slug = request.slug
     proj = get_object_or_404(Project, slug=project_slug)
-    subproject_qs = ProjectRelationship.objects.filter(parent__slug=parent_slug, child__slug=project_slug)
-    if lang_slug == None or version_slug == None:
+    subproject_qs = ProjectRelationship.objects.filter(
+        parent__slug=parent_slug, child__slug=project_slug)
+    if lang_slug is None or version_slug is None:
         # Handle /
         version_slug = proj.get_default_version()
         url = reverse('subproject_docs_detail', kwargs={
@@ -260,10 +282,13 @@ def subproject_serve_docs(request, project_slug, lang_slug=None, version_slug=No
         return HttpResponseRedirect(url)
 
     if subproject_qs.exists():
-        return serve_docs(request, lang_slug, version_slug, filename, project_slug)
+        return serve_docs(request, lang_slug, version_slug, filename,
+                          project_slug)
     else:
-        log.info('Subproject lookup failed: %s:%s' % (project_slug, parent_slug))
+        log.info('Subproject lookup failed: %s:%s' % (project_slug,
+                                                      parent_slug))
         raise Http404("Subproject does not exist")
+
 
 def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
     if not project_slug:
@@ -281,7 +306,8 @@ def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
         })
         return HttpResponseRedirect(url)
 
-    ver = get_object_or_404(Version, project__slug=project_slug, slug=version_slug)
+    ver = get_object_or_404(Version, project__slug=project_slug,
+                            slug=version_slug)
     # Auth checks
     if ver not in proj.versions.public(request.user, proj):
         res = HttpResponse("You don't have access to this version.")
@@ -292,8 +318,13 @@ def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
 
     if not filename:
         filename = "index.html"
-    #This is required because we're forming the filenames outselves instead of letting the web server do it.
-    elif proj.documentation_type == 'sphinx_htmldir' and "_static" not in filename and "_images" not in filename and "html" not in filename and not "inv" in filename:
+    # This is required because we're forming the filenames outselves instead of
+    # letting the web server do it.
+    elif (proj.documentation_type == 'sphinx_htmldir'
+          and "_static" not in filename
+          and "_images" not in filename
+          and "html" not in filename
+          and not "inv" in filename):
         filename += "index.html"
     else:
         filename = filename.rstrip('/')
@@ -315,10 +346,9 @@ def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
             response["Content-Encoding"] = encoding
         try:
             response['X-Accel-Redirect'] = os.path.join('/user_builds',
-                                             proj.slug,
-                                             'rtd-builds',
-                                             version_slug,
-                                             filename)
+                                                        proj.slug,
+                                                        'rtd-builds',
+                                                        version_slug, filename)
         except UnicodeEncodeError:
             raise Http404
 
@@ -326,33 +356,35 @@ def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
     else:
         return serve(request, filename, basepath)
 
+
 def server_error(request, template_name='500.html'):
     """
     A simple 500 handler so we get media
     """
     r = render_to_response(template_name,
-        context_instance = RequestContext(request)
-    )
+                           context_instance=RequestContext(request))
     r.status_code = 500
     return r
+
 
 def server_error_404(request, template_name='404.html'):
     """
     A simple 500 handler so we get media
     """
-    r =  render_to_response(template_name,
-        context_instance = RequestContext(request)
-    )
+    r = render_to_response(template_name,
+                           context_instance=RequestContext(request))
     r.status_code = 404
     return r
+
 
 def divide_by_zero(request):
     return 1 / 0
 
+
 def morelikethis(request, project_slug, filename):
     project = get_object_or_404(Project, slug=project_slug)
     file = get_object_or_404(ImportedFile, project=project, path=filename)
-    #sqs = SearchQuerySet().filter(project=project).more_like_this(file)[:5]
+    # sqs = SearchQuerySet().filter(project=project).more_like_this(file)[:5]
     sqs = SearchQuerySet().more_like_this(file)[:5]
     if len(sqs):
         output = [(obj.title, obj.absolute_url) for obj in sqs]
@@ -376,13 +408,15 @@ class SearchView(TemplateView):
     def get_context_data(self, request, **kwargs):
         context = super(SearchView, self).get_context_data(**kwargs)
         context['request'] = self.request
-        context['facets'] = self.results.facet_counts() # causes solr request #1
+        # causes solr request #1
+        context['facets'] = self.results.facet_counts()
         context['form'] = self.form
         context['query'] = self.query
-        context['selected_facets'] = '&'.join(self.selected_facets) if self.selected_facets else ''
+        context['selected_facets'] = ('&'.join(self.selected_facets)
+                                      if self.selected_facets else '')
         context['selected_facets_list'] = self.selected_facets_list
         context['results'] = self.results
-        context['count'] = len(self.results) # causes solr request #2
+        context['count'] = len(self.results)  # causes solr request #2
         return context
 
     def get(self, request, **kwargs):

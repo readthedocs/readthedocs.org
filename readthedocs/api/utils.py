@@ -17,6 +17,7 @@ from core.forms import FacetedSearchForm
 
 log = logging.getLogger(__name__)
 
+
 class SearchMixin(object):
     '''
     Adds a search api to any ModelResource provided the model is indexed.
@@ -39,12 +40,11 @@ class SearchMixin(object):
         self.method_check(request, allowed=['get'])
         self.is_authenticated(request)
         self.throttle_check(request)
-        object_list = self._search(request,
-            self._meta.queryset.model,
-            facets = getattr(self._meta, 'search_facets', []),
-            page_size = getattr(self._meta, 'search_page_size', 20),
-            highlight = getattr(self._meta, 'search_highlight', True),
-        )
+        object_list = self._search(
+            request, self._meta.queryset.model,
+            facets=getattr(self._meta, 'search_facets', []),
+            page_size=getattr(self._meta, 'search_page_size', 20),
+            highlight=getattr(self._meta, 'search_highlight', True))
         self.log_throttled_access(request)
         return self.create_response(request, object_list)
 
@@ -65,7 +65,8 @@ class SearchMixin(object):
         })
         return url_template + '?' + query_string
 
-    def _search(self, request, model, facets=None, page_size=20, highlight=True):
+    def _search(self, request, model, facets=None, page_size=20,
+                highlight=True):
         '''
         `facets`
             A list of facets to include with the results
@@ -75,7 +76,7 @@ class SearchMixin(object):
         form = FacetedSearchForm(request.GET, facets=facets or [],
                                  models=(model,), load_all=True)
         if not form.is_valid():
-            return self.error_response({'errors': form.errors }, request)
+            return self.error_response({'errors': form.errors}, request)
         results = form.search()
 
         paginator = Paginator(results, page_size)
@@ -98,7 +99,8 @@ class SearchMixin(object):
             bundle.data['text'] = text
             objects.append(bundle)
 
-        url_template = self._url_template(query, form['selected_facets'].value())
+        url_template = self._url_template(query,
+                                          form['selected_facets'].value())
         page_data = {
             'number': page.number,
             'per_page': paginator.per_page,
@@ -108,9 +110,11 @@ class SearchMixin(object):
             'url_template': url_template,
         }
         if page.has_next():
-            page_data['url_next'] = url_template.format(page.next_page_number())
+            page_data['url_next'] = url_template.format(
+                page.next_page_number())
         if page.has_previous():
-            page_data['url_prev'] = url_template.format(page.previous_page_number())
+            page_data['url_prev'] = url_template.format(
+                page.previous_page_number())
 
         object_list = {
             'page': page_data,
@@ -120,7 +124,6 @@ class SearchMixin(object):
             object_list.update({'facets': results.facet_counts()})
         return object_list
 
-
     # XXX: This method is available in the latest tastypie, remove
     # once available in production.
     def error_response(self, errors, request):
@@ -129,13 +132,16 @@ class SearchMixin(object):
         else:
             desired_format = self._meta.default_format
         serialized = self.serialize(request, errors, desired_format)
-        response = http.HttpBadRequest(content=serialized, content_type=build_content_type(desired_format))
+        response = http.HttpBadRequest(
+            content=serialized,
+            content_type=build_content_type(desired_format))
         raise ImmediateHttpResponse(response=response)
 
 
 class PostAuthentication(BasicAuthentication):
     def is_authenticated(self, request, **kwargs):
-        val = super(PostAuthentication, self).is_authenticated(request, **kwargs)
+        val = super(PostAuthentication, self).is_authenticated(request,
+                                                               **kwargs)
         if request.method == "GET":
             return True
         return val
@@ -160,7 +166,10 @@ class EnhancedModelResource(ModelResource):
         try:
             return self.get_object_list(request).filter(**applicable_filters)
         except ValueError, e:
-            raise NotFound(ugettext("Invalid resource lookup data provided (mismatched type).: %(error)s") % {'error': e})
+            raise NotFound(ugettext("Invalid resource lookup data provided "
+                                    "(mismatched type).: %(error)s") % {
+                                        'error': e
+                                    })
 
 
 class OwnerAuthorization(Authorization):

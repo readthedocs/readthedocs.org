@@ -1,1 +1,1 @@
-from .slum import api
+from .slum import api  # noqa

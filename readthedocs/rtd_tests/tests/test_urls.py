@@ -2,6 +2,7 @@ from django.core.urlresolvers import reverse
 from django.core.urlresolvers import NoReverseMatch
 from django.test import TestCase
 
+
 class URLTests(TestCase):
 
     def test_wipe_no_params(self):

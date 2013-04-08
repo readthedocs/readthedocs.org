@@ -1,12 +1,13 @@
 import logging
+from optparse import make_option
 
 from django.core.management.base import BaseCommand
-from optparse import make_option
 from projects import tasks
 from projects.models import Project
 from builds.models import Version
 
 log = logging.getLogger(__name__)
+
 
 class Command(BaseCommand):
     """Custom management command to rebuild documentation for all projects on
@@ -15,29 +16,25 @@ class Command(BaseCommand):
 
     option_list = BaseCommand.option_list + (
         make_option('-p',
-            action='store_true',
-            dest='pdf',
-            default=False,
-            help='Make a pdf'
-            ),
+                    action='store_true',
+                    dest='pdf',
+                    default=False,
+                    help='Make a pdf'),
         make_option('-r',
-            action='store_true',
-            dest='record',
-            default=False,
-            help='Make a Build'
-            ),
+                    action='store_true',
+                    dest='record',
+                    default=False,
+                    help='Make a Build'),
         make_option('-f',
-            action='store_true',
-            dest='force',
-            default=False,
-            help='Force a build in sphinx'
-            ),
+                    action='store_true',
+                    dest='force',
+                    default=False,
+                    help='Force a build in sphinx'),
         make_option('-V',
-            dest='version',
-            default=None,
-            help='Build a version, or all versions'
-            )
-        )
+                    dest='version',
+                    default=None,
+                    help='Build a version, or all versions')
+    )
 
     def handle(self, *args, **options):
         make_pdf = options['pdf']
@@ -82,8 +79,7 @@ class Command(BaseCommand):
                 tasks.update_docs_pull(pdf=make_pdf,
                                        record=record,
                                        force=force)
- 
+
     @property
     def help(self):
         return Command.__doc__
- 

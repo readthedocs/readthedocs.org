@@ -32,10 +32,12 @@ class Builder(HtmlBuilder):
         force_str = " -E " if self.force else ""
         if project.use_virtualenv:
             html_build_command = "%s %s -b html . _build/html " % (
-                project.venv_bin(version=self.version.slug, bin='sphinx-build'),
+                project.venv_bin(version=self.version.slug,
+                                 bin='sphinx-build'),
                 force_str)
         else:
-            html_build_command = "sphinx-build %s -b html . _build/html" % (force_str)
+            html_build_command = ("sphinx-build %s -b html . _build/html"
+                                  % (force_str))
         html_build_results = run(html_build_command, shell=True)
         if 'no targets are out of date.' in html_build_results[1]:
             self._changed = False
@@ -65,7 +67,8 @@ class Builder(HtmlBuilder):
     def _zip_dash(self, **kwargs):
         from_path = self.version.project.full_dash_path(self.version.slug)
         to_path = self.version.project.checkout_path(self.version.slug)
-        to_file = os.path.join(to_path, '%s.tgz' % self.version.project.doc_name)
+        to_file = os.path.join(to_path,
+                               '%s.tgz' % self.version.project.doc_name)
 
         log.info("Creating zipped tarball from %s at %s" % (from_path, to_file))
         # Create a <slug>.tgz file containing all files in file_path

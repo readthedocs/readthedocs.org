@@ -1,4 +1,5 @@
-from .base import *
+from .base import *  # noqa
+
 
 DATABASES = {
     'default': {
@@ -49,8 +50,7 @@ NGINX_X_ACCEL_REDIRECT = True
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTOCOL", "https")
 
 
-
 try:
-    from local_settings import *
+    from local_settings import *  # noqa
 except:
     pass
