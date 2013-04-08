@@ -29,6 +29,11 @@
       <a class="module-item-title" href="{{ dict.dash_url }}">{{ version }} Dash docset</a>
 </li>
 {% endif %}
+{% if dict.dash_feed_url %}
+<li class="module-item col-span">
+      <a class="module-item-title" href="dash-feed://{% filter urlencode %}{{ media_url_prefix }}{{ dict.dash_feed_url }}{% endfilter %}">{{ version }} Dash feed</a>
+</li>
+{% endif %}
 
 {% empty %}
 <li class="module-item col-span">
