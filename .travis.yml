@@ -1,0 +1,7 @@
+language: python
+python:
+ - "2.7"
+install:
+ - pip install flake8 --use-mirrors
+script:
+ - flake8 `find . -iname "*.py" -not -ipath "*migration*"`
