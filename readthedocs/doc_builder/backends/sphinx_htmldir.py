@@ -10,6 +10,7 @@ from django.conf import settings
 
 log = logging.getLogger(__name__)
 
+
 class Builder(HtmlBuilder):
 
     @restoring_chdir
@@ -31,7 +32,7 @@ class Builder(HtmlBuilder):
         if project.full_build_path(self.version.slug):
             target = project.rtd_build_path(self.version.slug)
             if "_" in project.slug:
-                new_slug = project.slug.replace('_','-')
+                new_slug = project.slug.replace('_', '-')
                 new_target = target.replace(project.slug, new_slug)
                 #Only replace 1, so user_builds doesn't get replaced >:x
                 targets = [target, new_target]
@@ -40,11 +41,13 @@ class Builder(HtmlBuilder):
             for target in targets:
                 if getattr(settings, "MULTIPLE_APP_SERVERS", None):
                     log.info("Copying docs to remote server.")
-                    copy_to_app_servers(project.full_build_path(self.version.slug), target)
+                    copy_to_app_servers(
+                        project.full_build_path(self.version.slug), target)
                 else:
                     if os.path.exists(target):
                         shutil.rmtree(target)
                     log.info("Copying docs on the local filesystem")
-                    shutil.copytree(project.full_build_path(self.version.slug), target)
+                    shutil.copytree(project.full_build_path(self.version.slug),
+                                    target)
         else:
             log.warning("Not moving docs, because the build dir is unknown.")

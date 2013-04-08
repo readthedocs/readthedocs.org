@@ -5,7 +5,6 @@ from doc_builder.backends.sphinx import Builder as HtmlBuilder
 from projects.utils import run
 from core.utils import copy_file_to_app_servers
 
-
 from django.conf import settings
 
 
@@ -26,7 +25,7 @@ class Builder(HtmlBuilder):
     def move(self, **kwargs):
         project = self.version.project
         outputted_path = os.path.join(project.conf_dir(self.version.slug),
-                                    '_build', 'epub')
+                                      '_build', 'epub')
         to_path = os.path.join(settings.MEDIA_ROOT,
                                'epub',
                                project.slug,

@@ -28,7 +28,7 @@ class VersionManager(models.Manager):
                 queryset = Version.objects.all()
         if project:
             # Filter by project if requested
-            queryset =  queryset.filter(project=project)
+            queryset = queryset.filter(project=project)
         if only_active:
             queryset = queryset.filter(active=True)
         return queryset
@@ -37,12 +37,14 @@ class VersionManager(models.Manager):
         queryset = self._filter_queryset(
             user,
             project,
-            privacy_level=(constants.PUBLIC, constants.PROTECTED, constants.PRIVATE),
+            privacy_level=(constants.PUBLIC, constants.PROTECTED,
+                           constants.PRIVATE),
             only_active=True,
         )
         return queryset.filter(*args, **kwargs)
 
-    def public(self, user=None, project=None, only_active=True, *args, **kwargs):
+    def public(self, user=None, project=None, only_active=True, *args,
+               **kwargs):
         queryset = self._filter_queryset(
             user,
             project,
@@ -51,7 +53,8 @@ class VersionManager(models.Manager):
         )
         return queryset.filter(*args, **kwargs)
 
-    def protected(self, user=None, project=None, only_active=True, *args, **kwargs):
+    def protected(self, user=None, project=None, only_active=True, *args,
+                  **kwargs):
         queryset = self._filter_queryset(
             user,
             project,
@@ -60,7 +63,8 @@ class VersionManager(models.Manager):
         )
         return queryset.filter(*args, **kwargs)
 
-    def private(self, user=None, project=None, only_active=True, *args, **kwargs):
+    def private(self, user=None, project=None, only_active=True, *args,
+                **kwargs):
         queryset = self._filter_queryset(
             user,
             project,
@@ -69,17 +73,21 @@ class VersionManager(models.Manager):
         )
         return queryset.filter(*args, **kwargs)
 
+
 class Version(models.Model):
-    project = models.ForeignKey(Project, verbose_name=_('Project'), related_name='versions')
-    identifier = models.CharField(_('Identifier'), max_length=255) # used by the vcs backend
+    project = models.ForeignKey(Project, verbose_name=_('Project'),
+                                related_name='versions')
+    # used by the vcs backend
+    identifier = models.CharField(_('Identifier'), max_length=255)
+
     verbose_name = models.CharField(_('Verbose Name'), max_length=255)
     slug = models.CharField(_('Slug'), max_length=255)
     active = models.BooleanField(_('Active'), default=False)
     built = models.BooleanField(_('Built'), default=False)
     uploaded = models.BooleanField(_('Uploaded'), default=False)
-    privacy_level = models.CharField(_('Privacy Level'), max_length=20,
-        choices=constants.PRIVACY_CHOICES, default='public',
-        help_text=_("Level of privacy for this Version."))
+    privacy_level = models.CharField(
+        _('Privacy Level'), max_length=20, choices=constants.PRIVACY_CHOICES,
+        default='public', help_text=_("Level of privacy for this Version."))
 
     tags = TaggableManager(blank=True)
     objects = VersionManager()
@@ -88,7 +96,8 @@ class Version(models.Model):
         unique_together = [('project', 'slug')]
         ordering = ['-verbose_name']
         permissions = (
-            # Translators: Permission around whether a user can view the version
+            # Translators: Permission around whether a user can view the
+            #              version
             ('view_version', _('View Version')),
         )
 
@@ -114,11 +123,12 @@ class Version(models.Model):
         return obj
 
 
-
 class VersionAlias(models.Model):
-    project = models.ForeignKey(Project, verbose_name=_('Project'), related_name='aliases')
+    project = models.ForeignKey(Project, verbose_name=_('Project'),
+                                related_name='aliases')
     from_slug = models.CharField(_('From slug'), max_length=255, default='')
-    to_slug = models.CharField(_('To slug'), max_length=255, default='', blank=True)
+    to_slug = models.CharField(_('To slug'), max_length=255, default='',
+                               blank=True)
     largest = models.BooleanField(_('Largest'), default=False)
 
     def __unicode__(self):
@@ -130,10 +140,14 @@ class VersionAlias(models.Model):
 
 
 class Build(models.Model):
-    project = models.ForeignKey(Project, verbose_name=_('Project'), related_name='builds')
-    version = models.ForeignKey(Version, verbose_name=_('Version'), null=True, related_name='builds')
-    type = models.CharField(_('Type'), max_length=55, choices=BUILD_TYPES, default='html')
-    state = models.CharField(_('State'), max_length=55, choices=BUILD_STATE, default='finished')
+    project = models.ForeignKey(Project, verbose_name=_('Project'),
+                                related_name='builds')
+    version = models.ForeignKey(Version, verbose_name=_('Version'), null=True,
+                                related_name='builds')
+    type = models.CharField(_('Type'), max_length=55, choices=BUILD_TYPES,
+                            default='html')
+    state = models.CharField(_('State'), max_length=55, choices=BUILD_STATE,
+                             default='finished')
     date = models.DateTimeField(_('Date'), auto_now_add=True)
     success = models.BooleanField(_('Success'))
     setup = models.TextField(_('Setup'), null=True, blank=True)
@@ -148,7 +162,8 @@ class Build(models.Model):
     def __unicode__(self):
         return ugettext(u"Build %(project)s for %(usernames)s (%(pk)s)" % {
             'project': self.project,
-            'usernames': ' '.join(self.project.users.all().values_list('username', flat=True)),
+            'usernames': ' '.join(self.project.users.all()
+                                  .values_list('username', flat=True)),
             'pk': self.pk,
         })
 

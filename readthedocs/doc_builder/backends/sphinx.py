@@ -23,7 +23,8 @@ RTD_CONF_ADDITIONS = """
 if 'templates_path' in locals():
     templates_path.insert(0, '{{ template_path }}')
 else:
-    templates_path = ['{{ template_path }}', 'templates', '_templates', '.templates']
+    templates_path = ['{{ template_path }}', 'templates', '_templates',
+                      '.templates']
 
 #Add RTD Static Path. Add to the end because it overwrites previous files.
 if 'html_static_path' in locals():
@@ -78,10 +79,13 @@ else:
 TEMPLATE_DIR = '%s/readthedocs/templates/sphinx' % settings.SITE_ROOT
 STATIC_DIR = '%s/_static' % TEMPLATE_DIR
 
+
 def _get_conf_py_path(version):
     conf_py_path = version.project.conf_file(version.slug)
-    conf_py_path = conf_py_path.replace(version.project.checkout_path(version.slug), '')
+    conf_py_path = conf_py_path.replace(
+        version.project.checkout_path(version.slug), '')
     return conf_py_path.replace('conf.py', '')
+
 
 def _get_github_username_repo(version):
     REGEX1 = re.compile('github.com/(.+)/(.+)(?:\.git){1}')
@@ -106,6 +110,7 @@ def _get_github_username_repo(version):
             return (None, None)
     return (None, None)
 
+
 def _get_github_version(version):
     if version.slug == 'latest':
         if version.project.default_branch:
@@ -114,6 +119,7 @@ def _get_github_version(version):
             return version.project.vcs_repo().fallback_branch
     else:
         return version.slug
+
 
 class Builder(BaseBuilder):
     """
@@ -127,28 +133,29 @@ class Builder(BaseBuilder):
         """
         project = self.version.project
         #Open file for appending.
-        outfile = codecs.open(project.conf_file(self.version.slug), encoding='utf-8', mode='a')
+        outfile = codecs.open(project.conf_file(self.version.slug),
+                              encoding='utf-8', mode='a')
         outfile.write("\n")
         conf_py_path = _get_conf_py_path(self.version)
         github_info = _get_github_username_repo(self.version)
         github_version = _get_github_version(self.version)
-        if github_info[0] == None:
+        if github_info[0] is None:
             display_github = False
         else:
             display_github = True
         rtd_ctx = Context({
-                'versions': project.api_versions(),
-                'current_version': self.version,
-                'project': project,
-                'settings': settings,
-                'static_path': STATIC_DIR,
-                'template_path': TEMPLATE_DIR,
-                'conf_py_path': conf_py_path,
-                'github_user': github_info[0],
-                'github_repo': github_info[1],
-                'github_version':  github_version,
-                'display_github': display_github,
-                })
+            'versions': project.api_versions(),
+            'current_version': self.version,
+            'project': project,
+            'settings': settings,
+            'static_path': STATIC_DIR,
+            'template_path': TEMPLATE_DIR,
+            'conf_py_path': conf_py_path,
+            'github_user': github_info[0],
+            'github_repo': github_info[1],
+            'github_version':  github_version,
+            'display_github': display_github,
+        })
         rtd_string = Template(RTD_CONF_ADDITIONS).render(rtd_ctx)
         outfile.write(rtd_string)
 
@@ -156,7 +163,8 @@ class Builder(BaseBuilder):
         try:
             self._whitelisted()
         except (OSError, SiteProfileNotAvailable, ObjectDoesNotExist):
-            log.error("Conf file not found. Error writing to disk.", exc_info=True)
+            log.error("Conf file not found. Error writing to disk.",
+                      exc_info=True)
             return ('', 'Conf file not found. Error writing to disk.', -1)
 
     @restoring_chdir
@@ -166,10 +174,12 @@ class Builder(BaseBuilder):
         force_str = " -E " if self.force else ""
         if project.use_virtualenv:
             build_command = "%s %s -b html . _build/html " % (
-                    project.venv_bin(version=self.version.slug, bin='sphinx-build'),
-                    force_str)
+                project.venv_bin(version=self.version.slug,
+                                 bin='sphinx-build'),
+                force_str)
         else:
-            build_command = "sphinx-build %s -b html . _build/html" % (force_str)
+            build_command = ("sphinx-build %s -b html . _build/html"
+                             % (force_str))
         build_results = run(build_command, shell=True)
         self._zip_html()
         if 'no targets are out of date.' in build_results[1]:
@@ -191,7 +201,9 @@ class Builder(BaseBuilder):
                 to_write = os.path.join(root, file)
                 archive.write(
                     filename=to_write,
-                    arcname=os.path.join("%s-%s" % (self.version.project.slug, self.version.slug), to_write)
+                    arcname=os.path.join("%s-%s" % (self.version.project.slug,
+                                                    self.version.slug),
+                                         to_write)
                 )
         archive.close()
 
@@ -203,7 +215,7 @@ class Builder(BaseBuilder):
             #Copy the html files.
             target = project.rtd_build_path(self.version.slug)
             if "_" in project.slug:
-                new_slug = project.slug.replace('_','-')
+                new_slug = project.slug.replace('_', '-')
                 new_target = target.replace(project.slug, new_slug)
                 #Only replace 1, so user_builds doesn't get replaced >:x
                 targets = [target, new_target]
@@ -212,18 +224,18 @@ class Builder(BaseBuilder):
             for target in targets:
                 if getattr(settings, "MULTIPLE_APP_SERVERS", None):
                     log.info("Copying docs to remote server.")
-                    copy_to_app_servers(project.full_build_path(self.version.slug), target)
+                    copy_to_app_servers(
+                        project.full_build_path(self.version.slug), target)
                 else:
                     if os.path.exists(target):
                         shutil.rmtree(target)
                     log.info("Copying docs on the local filesystem")
-                    shutil.copytree(project.full_build_path(self.version.slug), target)
+                    shutil.copytree(
+                        project.full_build_path(self.version.slug), target)
 
                 #Copy the zip file.
-                to_path = os.path.join(settings.MEDIA_ROOT,
-                       'htmlzip',
-                       project.slug,
-                       self.version.slug)
+                to_path = os.path.join(settings.MEDIA_ROOT, 'htmlzip',
+                                       project.slug, self.version.slug)
                 to_file = os.path.join(to_path, '%s.zip' % project.slug)
                 from_path = project.checkout_path(self.version.slug)
                 from_file = os.path.join(from_path, '%s.zip' % project.slug)

@@ -4,6 +4,7 @@ import logging
 
 log = logging.getLogger(__name__)
 
+
 def restoring_chdir(fn):
     #XXX:dc: This would be better off in a neutral module
     @wraps(fn)
@@ -71,13 +72,14 @@ class BaseBuilder(object):
 
     @property
     def changed(self):
-        """
-        Says whether the documentation has changed, and requires further action.
+        """Says whether the documentation has changed, and requires further
+        action.
 
         This is mainly used to short-circuit more expensive builds of other
         output formats if the project docs didn't change on an update.
         Subclasses are recommended to override for more efficient builds.
 
         Defaults to `True`
+
         """
         return True
