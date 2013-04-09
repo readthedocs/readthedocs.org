@@ -76,7 +76,8 @@ class Builder(HtmlBuilder):
         to_file = os.path.join(to_path,
                                '%s.tgz' % self.version.project.doc_name)
 
-        log.info("Creating zipped tarball from %s at %s" % (from_path, to_file))
+        log.info("Creating zipped tarball from %s at %s" %
+                 (from_path, to_file))
         # Create a <slug>.tgz file containing all files in file_path
         os.chdir(from_path)
         archive = tarfile.open(to_file, "w:gz")
