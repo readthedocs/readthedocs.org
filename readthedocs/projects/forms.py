@@ -46,7 +46,7 @@ class ImportProjectForm(ProjectForm):
             'project_url', 'tags', 'default_branch', 'default_version',
             'conf_py_file',
             # Privacy
-            # 'privacy_level', 'version_privacy_level',
+            'privacy_level', 'version_privacy_level',
             # Python specific
             'use_virtualenv', 'use_system_packages', 'requirements_file',
             'python_interpreter',
