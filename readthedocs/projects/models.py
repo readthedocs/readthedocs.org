@@ -339,13 +339,33 @@ class Project(models.Model):
 
     def get_dash_url(self, version_slug='latest'):
         path = os.path.join(settings.MEDIA_URL, 'dash', self.slug,
-                            version_slug, '%s.docset.zip' % self.slug)
+                            version_slug, '%s.tgz' % self.doc_name)
         return path
 
     def get_dash_path(self, version_slug='latest'):
         path = os.path.join(settings.MEDIA_ROOT, 'dash', self.slug,
-                            version_slug, '%s.docset.zip' % self.slug)
+                            version_slug, '%s.tgz' % self.doc_name)
         return path
+
+    def get_dash_feed_path(self, version_slug='latest'):
+        path = os.path.join(settings.MEDIA_ROOT,
+                            'dash',
+                            self.slug,
+                            version_slug,
+                            '%s.xml' % self.doc_name)
+        return path
+
+    def get_dash_feed_url(self, version_slug='latest'):
+        path = os.path.join(settings.MEDIA_URL,
+                            'dash',
+                            self.slug,
+                            version_slug,
+                            '%s.xml' % self.doc_name)
+        return path
+
+    @property
+    def doc_name(self):
+        return self.name.replace(' ', '_')
 
     #Doc PATH:
     #MEDIA_ROOT/slug/checkouts/version/<repo>
