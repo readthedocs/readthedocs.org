@@ -116,6 +116,7 @@ INSTALLED_APPS = [
     'djangosecure',
     'guardian',
     'django_gravatar',
+    'django_nose',
 
     # Celery bits
     'djcelery',

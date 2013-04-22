@@ -5,7 +5,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'docs',
-        'USER': 'postgres',                      # Not used with sqlite3.
+        'USER': 'postgres',  # Not used with sqlite3.
         'PASSWORD': '',
         'HOST': '10.177.73.97',
         'PORT': '',

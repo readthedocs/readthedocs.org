@@ -22,10 +22,7 @@ CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 SESSION_COOKIE_DOMAIN = None
 CACHE_BACKEND = 'dummy://'
 
-TEST_RUNNER = 'xmlrunner.extra.djangotestrunner.XMLTestRunner'
-TEST_OUTPUT_VERBOSE = True
-TEST_OUTPUT_DESCRIPTIONS = True
-TEST_OUTPUT_DIR = os.path.join(SITE_ROOT, 'xml_output')
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
 SLUMBER_USERNAME = 'test'
 SLUMBER_PASSWORD = 'test'
