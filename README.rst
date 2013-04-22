@@ -1,7 +1,7 @@
 Welcome to Read The Docs
 ========================
 
-status
+|status|
 
 .. |status| image:: https://travis-ci.org/rtfd/readthedocs.org.png?branch=master
 .. _status: https://travis-ci.org/rtfd/readthedocs.org
