@@ -141,6 +141,7 @@ if DEBUG:
 CELERY_ALWAYS_EAGER = True
 CELERYD_TASK_TIME_LIMIT = 60*60  # 60 minutes
 CELERY_SEND_TASK_ERROR_EMAILS = True
+CELERYD_HIJACK_ROOT_LOGGER = False
 
 CELERY_ROUTES = {
     'celery_haystack.tasks.CeleryHaystackSignalHandler': {
