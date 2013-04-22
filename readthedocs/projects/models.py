@@ -348,11 +348,8 @@ class Project(models.Model):
         return path
 
     def get_dash_feed_path(self, version_slug='latest'):
-        path = os.path.join(settings.MEDIA_ROOT,
-                            'dash',
-                            self.slug,
-                            version_slug,
-                            '%s.xml' % self.doc_name)
+        path = os.path.join(settings.MEDIA_ROOT, 'dash', self.slug,
+                            version_slug, '%s.xml' % self.doc_name)
         return path
 
     def get_dash_feed_url(self, version_slug='latest'):
