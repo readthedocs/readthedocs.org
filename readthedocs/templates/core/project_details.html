@@ -86,7 +86,7 @@
 
   {% if project.repo %}
     <h3>{% trans "Repository" %}</h3>
-    <p>{{ project.repo }}</p>
+    <p>{{ project.repo|urlize }}</p>
   {% endif %}
 
   {% if project.tags.count %}
