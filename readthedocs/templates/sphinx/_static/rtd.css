@@ -566,13 +566,12 @@ dl {
 }
 
 dl dt {
-    font-weight: bold;
     font-style: italic;
 }
 
 dl dd {
-    color: #555;
-    font-size: 95%;
+    color: rgb(68, 68, 68);
+    font-size: 0.95em;
 }
 
 /* Highlight target when you click an internal link */
