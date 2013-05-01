@@ -4,7 +4,7 @@ Frequently Asked Questions
 My project isn't building with autodoc
 --------------------------------------
 
-First, you should check out the Builds tab of your project. That records all of the build attempts that RTD has made to build your project. If you see modules missing, you should enable the virtualenv feature, which will install your project into a virtualenv. If you are still seeing missing dependencies, you can install them with a pip requirements file in your project settings.
+First, you should check out the Builds tab of your project. That records all of the build attempts that RTD has made to build your project. If you see ``ImportError`` messages for custom Python modules, you should enable the virtualenv feature in the Admin page of your project, which will install your project into a virtualenv, and allow you to specify a ``requirements.txt`` file for your project. 
 
 If you are still seeing errors because of C library dependencies, please see the below section about that.
 
