@@ -54,8 +54,9 @@ Visit http://127.0.0.1:8000/ in your browser to see how it looks; you can use
 the admin interface via http://127.0.0.1:8000/admin (logging in with the
 superuser account you just created).
 
-While the webserver is running, you can build documentation for a project with
-the ``update_repos`` command::
+While the webserver is running, you can build documentation for the latest version of
+a project called 'pip' (should be setup after loading the test data) with the
+``update_repos`` command::
 
    ./manage.py update_repos pip
 
