@@ -6,4 +6,4 @@ pillow
 pyquery
 python-memcached
 whoosh
-
+django-redis
