@@ -565,6 +565,15 @@ dl {
     margin: 1em 0 2.5em 0;
 }
 
+dl dt {
+    font-style: italic;
+}
+
+dl dd {
+    color: rgb(68, 68, 68);
+    font-size: 0.95em;
+}
+
 /* Highlight target when you click an internal link */
 dt:target {
     background: #ffe080;
