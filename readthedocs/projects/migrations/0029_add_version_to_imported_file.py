@@ -7,6 +7,10 @@ from django.db import models
 
 class Migration(SchemaMigration):
 
+    depends_on = (
+        ('builds', '0010_add_largest_alias'),
+    )
+
     def forwards(self, orm):
         # Adding field 'ImportedFile.version'
         db.add_column('projects_importedfile', 'version',
