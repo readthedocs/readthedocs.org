@@ -44,7 +44,7 @@ class Backend(BaseVCS):
 
     @property
     def branches(self):
-        retcode, stdout = self.run('hg', 'branches', '--active')[:2]
+        retcode, stdout = self.run('hg', 'branches', '-q')[:2]
         # error (or no tags found)
         if retcode != 0:
             return []
@@ -52,18 +52,12 @@ class Backend(BaseVCS):
 
     def parse_branches(self, data):
         """
-        stable                     13575:8e94a1b4e9a4
-        default                    13572:1bb2a56a9d73
+        stable
+        default
         """
-        raw_branches = csv.reader(StringIO(data), delimiter=' ')
-        clean_branches = []
-        for branch in raw_branches:
-            branch = filter(lambda f: f != '', branch)
-            if branch == []:
-                continue
-            name, rev = branch
-            clean_branches.append(VCSVersion(self, name, name))
-        return clean_branches
+
+        names = [name.lstrip() for name in data.splitlines()]
+        return [VCSVersion(self, name, name) for name in names if name]
 
     @property
     def tags(self):

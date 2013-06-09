@@ -86,8 +86,8 @@ class TestHgBackend(RTDTestCase):
 
     def test_parse_branches(self):
         data = """\
-        stable                     13575:8e94a1b4e9a4
-        default                    13572:1bb2a56a9d73
+        stable
+        default
         """
 
         expected_ids = ['stable', 'default']
