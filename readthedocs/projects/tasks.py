@@ -352,7 +352,7 @@ def update_imported_docs(version_pk):
             if project.requirements_file:
                 os.chdir(project.checkout_path(version_slug))
                 update_docs_output['requirements'] = run(
-                    '{cmd} install -r {requirements}'.format(
+                    '{cmd} install --exists-action=w -r {requirements}'.format(
                         cmd=project.venv_bin(version=version_slug, bin='pip'),
                         requirements=project.requirements_file))
             os.chdir(project.checkout_path(version_slug))
