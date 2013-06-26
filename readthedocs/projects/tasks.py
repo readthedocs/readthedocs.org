@@ -231,8 +231,8 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
             purge_version(version, subdomain=True,
                           mainsite=True, cname=True)
             symlink_cname(version)
-            symlink_translations(version)
             # This requires database access, must disable it for now.
+            # symlink_translations(version)
             # send_notifications(version, build)
             log.info("Purged %s" % version)
         else:
