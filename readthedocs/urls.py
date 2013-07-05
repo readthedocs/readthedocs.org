@@ -40,16 +40,20 @@ urlpatterns = patterns(
     # Redirect to default version.
     url(r'^docs/(?P<project_slug>[-\w]+)/$',
         'core.views.serve_docs',
-        {'version_slug': None,
-        'lang_slug': None,
-        'filename': ''},
+        {
+            'version_slug': None,
+            'lang_slug': None,
+            'filename': '',
+        },
         name='docs_detail'),
 
     # Handle /page/<path> redirects for explicit "latest" version goodness.
     url(r'^docs/(?P<project_slug>[-\w]+)/page/(?P<filename>.*)$',
         'core.views.serve_docs',
-        {'version_slug': None,
-        'lang_slug': None},
+        {
+            'version_slug': None,
+            'lang_slug': None,
+        },
         name='docs_detail'),
 
     url(r'^projects/', include('projects.urls.public')),

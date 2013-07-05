@@ -167,9 +167,10 @@ class EnhancedModelResource(ModelResource):
             return self.get_object_list(request).filter(**applicable_filters)
         except ValueError, e:
             raise NotFound(ugettext("Invalid resource lookup data provided "
-                                    "(mismatched type).: %(error)s") % {
-                                        'error': e
-                                    })
+                                    "(mismatched type).: %(error)s")
+                           % {
+                               'error': e
+                           })
 
 
 class OwnerAuthorization(Authorization):

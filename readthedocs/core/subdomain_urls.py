@@ -25,8 +25,10 @@ urlpatterns = patterns(
 
     url(r'^page/(?P<filename>.*)$',
         'core.views.subdomain_handler',
-        {'version_slug': None,
-        'lang_slug': None},
+        {
+            'version_slug': None,
+            'lang_slug': None,
+        },
         name='docs_detail'),
 
     url(r'^(?P<version_slug>.*)/$',

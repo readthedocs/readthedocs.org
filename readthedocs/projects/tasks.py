@@ -339,13 +339,13 @@ def update_imported_docs(version_pk):
                     ('{cmd} install -U {ignore_option} {sphinx} '
                      'virtualenv==1.8.2 distribute==0.6.28 '
                      'docutils==0.8.1').format(
-                         cmd=project.venv_bin(version=version_slug, bin='pip'),
-                         sphinx=sphinx, ignore_option=ignore_option))
+                        cmd=project.venv_bin(version=version_slug, bin='pip'),
+                        sphinx=sphinx, ignore_option=ignore_option))
             else:
                 # python 3 specific hax
-                update_docs_output['sphinx'] = run((
-                    '{cmd} install {ignore_option} {sphinx} virtualenv==1.8.2 '
-                    'docutils==0.8.1').format(
+                update_docs_output['sphinx'] = run(
+                    ('{cmd} install {ignore_option} {sphinx} '
+                     'virtualenv==1.8.2 docutils==0.8.1').format(
                         cmd=project.venv_bin(version=version_slug, bin='pip'),
                         sphinx=sphinx, ignore_option=ignore_option))
 
