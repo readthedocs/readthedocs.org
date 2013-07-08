@@ -79,6 +79,14 @@ documentation without rebuilding every one. If this script is embedded in each b
 {% endif %}
 
 <style type="text/css">
+  #version_menu, .rtd-badge.rtd {
+    -webkit-transition: all 0.25s 0.75s;
+    transition: all 0.25s 0.75s;
+  }
+  .footer_popout:hover #version_menu, .footer_popout:hover .rtd-badge.rtd {
+    -webkit-transition: all 0.25s 0s;
+    transition: all 0.25s 0s;
+  }
   .rtd-badge {
     position: fixed;
     display: block;
@@ -94,14 +102,17 @@ documentation without rebuilding every one. If this script is embedded in each b
   }
   #version_menu {
     position: fixed;
-    display: none;
+    visibility: hidden;
+    opacity: 0;
     bottom: 11px;
-    right: 166px;
+    right: 47px;
     list-style-type: none;
     margin: 0;
   }
   .footer_popout:hover #version_menu {
-    display: block;
+    visibility: visible;
+    opacity: 1;
+    right: 166px;
   }
   #version_menu li {
     display: block;
@@ -134,13 +145,12 @@ documentation without rebuilding every one. If this script is embedded in each b
     -webkit-box-shadow: 0 1px 0px #465158;
   }
   .rtd-badge.rtd {
-    background: #3b4449 url({{ MEDIA_URL }}/images/badge-rtd.png) scroll 0px -46px no-repeat;
+    background: #3b4449 url({{ MEDIA_URL }}/images/badge-rtd.png) scroll top left no-repeat;
     border: 1px solid #282E32;
     width: 41px;
     right: 5px;
   }
   .footer_popout:hover .rtd-badge.rtd {
-    background-position: top left;
     width: 160px;
   }
   .rtd-badge.revsys { background: #465158 url({{ MEDIA_URL }}/images/badge-revsys.png) top left no-repeat;
