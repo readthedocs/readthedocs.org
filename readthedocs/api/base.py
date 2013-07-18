@@ -101,7 +101,11 @@ class ProjectResource(ModelResource, SearchMixin):
             current_versions.append(version['identifier'])
         for version in versions['branches']:
             current_versions.append(version['identifier'])
-        to_delete_qs = project.versions.exclude(identifier__in=current_versions).exclude(uploaded=True)
+        to_delete_qs = project.versions.exclude(
+                identifier__in=current_versions).exclude(
+                uploaded=True).exclude(
+                active=True
+            )
         ret_val = to_delete_qs.values_list('identifier', flat=True)
         to_delete_qs.delete()
         return ret_val
