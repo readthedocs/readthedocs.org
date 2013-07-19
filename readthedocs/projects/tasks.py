@@ -366,72 +366,22 @@ def update_imported_docs(version_pk):
                         cmd=project.venv_bin(version=version_slug,
                                              bin='python')))
 
-        # check tags/version
-        #XXX:dc: what in this block raises the values error?
-        try:
-            old_versions = [obj['identifier'] for obj
-                            in api.version.get(project__slug=project.slug,
-                                               limit=5000)['objects']]
-            if version_repo.supports_tags:
-                transaction.enter_transaction_management(True)
-                tags = version_repo.tags
-                for tag in tags:
-                    if tag.identifier in old_versions:
-                        continue
-                    log.debug('NEW TAG: (%s not in %s)' % (tag.identifier,
-                                                           old_versions))
-                    slug = slugify_uniquely(Version, tag.verbose_name,
-                                            'slug', 255, project=project)
-                    try:
+        # Update tags/version
 
-                        version_data = api.version.post(dict(
-                            project="/api/v1/project/%s/" % project.pk,
-                            slug=slug,
-                            identifier=tag.identifier,
-                            verbose_name=tag.verbose_name
-                        ))
-                        ver = make_api_version(version_data)
-                        log.info("New tag found: {0}".format(tag.identifier))
-                        ver, highest = project.highest_version[1]
-                        ver_obj = mkversion(ver)
-                        # TODO: Handle updating higher versions automatically.
-                        # This never worked very well, anyways.
-                        if highest and ver_obj and ver_obj > highest:
-                            log.info("Highest version known, building docs")
-                            update_docs.delay(ver.project.pk,
-                                              version_pk=ver.pk)
-                    except Exception:
-                        log.error("Failed to create version (tag)",
-                                  exc_info=True)
-                        transaction.rollback()
-                transaction.leave_transaction_management()
-            if version_repo.supports_branches:
-                transaction.enter_transaction_management(True)
-                branches = version_repo.branches
-                for branch in branches:
-                    if branch.identifier in old_versions:
-                        continue
-                    log.debug('NEW BRANCH: (%s not in %s)' % (branch,
-                                                              old_versions))
-                    slug = slugify_uniquely(Version, branch.verbose_name,
-                                            'slug', 255, project=project)
-                    try:
-                        api.version.post(dict(
-                            project="/api/v1/project/%s/" % project.pk,
-                            slug=slug,
-                            identifier=branch.identifier,
-                            verbose_name=branch.verbose_name
-                        ))
-                        log.info(("New branch found: {0}"
-                                  .format(branch.identifier)))
-                    except Exception:
-                        log.error("Failed to create version (branch)",
-                                  exc_info=True)
-                        transaction.rollback()
-                transaction.leave_transaction_management()
-                #TODO: Kill deleted branches
-        except ValueError:
-            log.error("Error getting tags", exc_info=True)
+        version_post_data = {'repo': version_repo.repo_url}
+        if version_repo.supports_tags:
+            version_post_data['tags'] = [
+                {'identifier': v.identifier,
+                 'verbose_name': v.verbose_name,
+                 } for v in version_repo.tags
+            ]
+        if version_repo.supports_branches:
+            version_post_data['branches'] = [
+                {'identifier': v.identifier,
+                 'verbose_name': v.verbose_name,
+                 } for v in version_repo.branches
+            ]
+        api.project(project.pk).sync_versions.post(json.dumps(version_post_data))
     return update_docs_output
 
 

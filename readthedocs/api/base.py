@@ -1,4 +1,5 @@
 import logging
+import json
 
 from django.contrib.auth.models import User
 from django.conf.urls.defaults import url
@@ -13,7 +14,7 @@ from tastypie.utils import dict_strip_unicode_keys, trailing_slash
 
 from builds.models import Build, Version
 from projects.models import Project, ImportedFile
-from projects.utils import highest_version, mkversion
+from projects.utils import highest_version, mkversion, slugify_uniquely
 from projects import tasks
 from djangome import views as djangome
 
@@ -73,6 +74,65 @@ class ProjectResource(ModelResource, SearchMixin):
         updated_bundle = self.obj_create(bundle, request=request)
         return HttpCreated(location=self.get_resource_uri(updated_bundle))
 
+    def _sync_versions(self, project, versions): 
+        """
+        Update the database with the current versions from the repository.
+        """
+        old_versions = project.versions.values_list('identifier', flat=True)
+
+        # Add new versions
+        for version in versions:
+            if version['identifier'] in old_versions:
+                continue
+            slug = slugify_uniquely(Version, version['verbose_name'], 'slug', 255, project=project)
+            Version.objects.create(
+                    project=project,
+                    slug=slug,
+                    identifier=version['identifier'],
+                    verbose_name=version['verbose_name'],
+                )
+
+    def _delete_versions(self, project, versions):
+        """
+        Delete all versions not in the current repo.
+        """
+        current_versions = []
+        for version in versions['tags']:
+            current_versions.append(version['identifier'])
+        for version in versions['branches']:
+            current_versions.append(version['identifier'])
+        to_delete_qs = project.versions.exclude(
+                identifier__in=current_versions).exclude(
+                uploaded=True).exclude(
+                active=True
+            )
+        ret_val = to_delete_qs.values_list('identifier', flat=True)
+        to_delete_qs.delete()
+        return ret_val
+
+
+    def sync_versions(self, request, **kwargs):
+        """
+        Sync the version data in the repo (on the build server) with what we have in the database.
+
+        Returns the identifiers for the versions that have been deleted.
+        """
+        project = get_object_or_404(Project, pk=kwargs['pk'])
+        post_data = self.deserialize(
+            request, request.raw_post_data,
+            format=request.META.get('CONTENT_TYPE', 'application/json')
+        )
+        data = json.loads(post_data)
+        self.method_check(request, allowed=['post'])
+        self.is_authenticated(request)
+        self.throttle_check(request)
+        self.log_throttled_access(request)
+        self._sync_versions(project, data['tags'])
+        self._sync_versions(project, data['tags'])
+        deleted_versions = self._delete_versions(project, data)
+        return self.create_response(request, deleted_versions)
+
+
     def override_urls(self):
         return [
             url(r"^(?P<resource_name>%s)/schema/$" % self._meta.resource_name,
@@ -80,6 +140,9 @@ class ProjectResource(ModelResource, SearchMixin):
             url(r"^(?P<resource_name>%s)/search%s$" % (
                 self._meta.resource_name, trailing_slash()),
                 self.wrap_view('get_search'), name="api_get_search"),
+            url(r"^(?P<resource_name>%s)/(?P<pk>\d+)/sync_versions%s$" % (
+                self._meta.resource_name, trailing_slash()),
+                self.wrap_view('sync_versions'), name="api_sync_versions"),
             url((r"^(?P<resource_name>%s)/(?P<slug>[a-z-_]+)/$")
                 % self._meta.resource_name, self.wrap_view('dispatch_detail'),
                 name="api_dispatch_detail"),
