@@ -381,6 +381,7 @@ def update_imported_docs(version_pk):
                  'verbose_name': v.verbose_name,
                  } for v in version_repo.branches
             ]
+        log.info("Sending JSON: %s" % json.dumps(version_post_data))
         api.project(project.pk).sync_versions.post(json.dumps(version_post_data))
     return update_docs_output
 
