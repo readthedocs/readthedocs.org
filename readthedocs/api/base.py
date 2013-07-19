@@ -118,16 +118,16 @@ class ProjectResource(ModelResource, SearchMixin):
         Returns the identifiers for the versions that have been deleted.
         """
         project = get_object_or_404(Project, pk=kwargs['pk'])
-        post_data = self.deserialize(
-            request, request.raw_post_data,
-            format=request.META.get('CONTENT_TYPE', 'application/json')
-        )
-        data = json.loads(post_data)
-        self.method_check(request, allowed=['post'])
-        self.is_authenticated(request)
-        self.throttle_check(request)
-        self.log_throttled_access(request)
         try:
+            post_data = self.deserialize(
+                request, request.raw_post_data,
+                format=request.META.get('CONTENT_TYPE', 'application/json')
+            )
+            data = json.loads(post_data)
+            self.method_check(request, allowed=['post'])
+            self.is_authenticated(request)
+            self.throttle_check(request)
+            self.log_throttled_access(request)
             self._sync_versions(project, data['tags'])
             self._sync_versions(project, data['tags'])
             deleted_versions = self._delete_versions(project, data)
