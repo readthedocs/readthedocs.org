@@ -127,9 +127,12 @@ class ProjectResource(ModelResource, SearchMixin):
         self.is_authenticated(request)
         self.throttle_check(request)
         self.log_throttled_access(request)
-        self._sync_versions(project, data['tags'])
-        self._sync_versions(project, data['tags'])
-        deleted_versions = self._delete_versions(project, data)
+        try:
+            self._sync_versions(project, data['tags'])
+            self._sync_versions(project, data['tags'])
+            deleted_versions = self._delete_versions(project, data)
+        except Exception e:
+            print "ERROR: %s" % e 
         return self.create_response(request, deleted_versions)
 
 
