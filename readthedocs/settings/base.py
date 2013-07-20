@@ -250,7 +250,7 @@ LOGGING = {
             'propagate': False,
         },
         'django.request': {
-            'handlers': ['exceptionlog'],
+            'handlers': ['mail_admins', 'exceptionlog'],
             'level': 'ERROR',
             'propagate': False,
         },
