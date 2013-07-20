@@ -369,20 +369,23 @@ def update_imported_docs(version_pk):
         # Update tags/version
 
         version_post_data = {'repo': version_repo.repo_url}
+
         if version_repo.supports_tags:
             version_post_data['tags'] = [
                 {'identifier': v.identifier,
                  'verbose_name': v.verbose_name,
                  } for v in version_repo.tags
             ]
+
         if version_repo.supports_branches:
             version_post_data['branches'] = [
                 {'identifier': v.identifier,
                  'verbose_name': v.verbose_name,
                  } for v in version_repo.branches
             ]
-        log.info("Sending JSON: %s" % json.dumps(version_post_data))
+
         api.project(project.pk).sync_versions.post(json.dumps(version_post_data))
+        
     return update_docs_output
 
 
