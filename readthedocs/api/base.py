@@ -132,7 +132,7 @@ class ProjectResource(ModelResource, SearchMixin):
             self._sync_versions(project, data['tags'])
             deleted_versions = self._delete_versions(project, data)
         except Exception, e:
-            pass
+            return self.create_response(request, {'exception': e.message})
         return self.create_response(request, deleted_versions)
 
 
