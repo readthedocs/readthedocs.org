@@ -9,7 +9,7 @@ from tastypie import fields
 from tastypie.authorization import DjangoAuthorization
 from tastypie.constants import ALL_WITH_RELATIONS, ALL
 from tastypie.resources import ModelResource
-from tastypie.http import HttpCreated
+from tastypie.http import HttpCreated, HttpApplicationError
 from tastypie.utils import dict_strip_unicode_keys, trailing_slash
 
 from builds.models import Build, Version
@@ -132,7 +132,11 @@ class ProjectResource(ModelResource, SearchMixin):
             self._sync_versions(project, data['branches'])
             deleted_versions = self._delete_versions(project, data)
         except Exception, e:
-            return self.create_response(request, {'exception': e.message})
+            return self.create_response(
+                request,
+                {'exception': e.message},
+                response_class=HttpApplicationError,
+            )
         return self.create_response(request, deleted_versions)
 
 
