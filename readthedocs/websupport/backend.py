@@ -69,5 +69,5 @@ class WebStorage(StorageBackend):
         url = "http://localhost:8000/websupport/_add_node"
         data = {'id': id, 'document': document, 'source': source}
         headers = {'Content-type': 'application/json'}
-        r = requests.post(url, data=data), headers=headers)
+        r = requests.post(url, data=json.dumps(data), headers=headers)
         return True
