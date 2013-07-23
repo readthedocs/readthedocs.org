@@ -63,7 +63,7 @@ class WebStorage(StorageBackend):
         url = "http://localhost:8000/websupport/_has_node"
         data = {'node_id': id,}
         headers = {'Content-type': 'application/json'}
-        r = requests.get(url, data=json.dumps(data), headers=headers)
+        r = requests.get(url, params=data, headers=headers)
         return r.json['exists']
 
     def add_node(self, id, document, source):
