@@ -131,6 +131,7 @@ INSTALLED_APPS = [
     'builds',
     'core',
     'rtd_tests',
+    'websupport',
 ]
 
 if DEBUG:

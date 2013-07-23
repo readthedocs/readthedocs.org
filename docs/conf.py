@@ -10,11 +10,13 @@ setup_environ(settings.sqlite)
 
 
 sys.path.append(os.path.abspath('_ext'))
+sys.path.append(os.path.abspath('_ext/websupport2'))
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.intersphinx',
     'sphinx_http_domain',
     'djangodocs',
+    'websupport2',
 ]
 templates_path = ['_templates']
 source_suffix = '.rst'

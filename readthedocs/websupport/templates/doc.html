@@ -1,0 +1,33 @@
+{% extends "docbase.html" %}
+
+{% block title %}
+  {{ document.title|striptags }}
+{% endblock %}
+
+{% block css %}
+  {{ document.css|safe }}
+{% endblock %}
+
+{% block js %}
+  {{ document.script|safe }}
+{% endblock %}
+
+{% block relbar1 %}
+  {{ document.relbar|safe }}
+{% endblock %}
+
+{% block body %}
+  {{ document.body|safe }}
+{% endblock %}
+
+{% block content %}
+  {{ document.body|safe }}
+{% endblock %}
+
+{% block sidebar %}
+  {{ document.sidebar|safe }}
+{% endblock %}
+
+{% block relbar2 %}
+  {{ document.relbar|safe }}
+{% endblock %}

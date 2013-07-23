@@ -1,0 +1,216 @@
+div#login {
+    margin: 1em;
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 0.75em 1em;
+    float: right;
+}
+
+div.flashed-messages {
+    padding: 0.5em 0;
+}
+
+div.flashed-message {
+    margin-bottom: 0.5em;
+    padding: 0.5em;
+    background-color: #eee;
+    border: 1px solid #aaa;
+    font-weight: bold;
+}
+
+p.error {
+    color: #783232;
+    padding: 10px;
+    background: #EBCACA;
+}
+
+input[name="openid"] {
+    background: url(openid.png) 4px no-repeat;
+    padding-left: 24px;
+}
+
+div.popup-error {
+    background: #EBCACA;
+    color: #783232;
+    display: none;
+    position: fixed;
+    padding: 0.5em;
+    margin: 0;
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 32;
+    border-bottom: 2px solid #AAA;
+}
+
+div.popup-error div.error-message {
+    font-size: 130%;
+}
+
+a.sphinx-comment img, a.sphinx-comment-close img {
+    margin-left: .25em;
+}
+
+a.sphinx-comment.nocomment {
+    visibility: hidden;
+}
+
+:hover > a.sphinx-comment {
+    visibility: visible;
+}
+
+div.sphinx-comments {
+    display: none;
+    max-height: 500px;
+    overflow: auto;
+    border: 1px solid #CCC;
+    z-index: 16;
+    margin-top: .5em;
+    padding: 6px 18px;
+    background: #FFF;
+    text-align: left;
+}
+
+div.sphinx-comments div.comment-header {
+    font-size: 130%;
+    margin-bottom: 10px;
+}
+
+div.sphinx-comments div.comment-loading {
+    text-align: center;
+    color: #11557C;
+}
+
+div.sphinx-comments textarea {
+    display: block;
+    line-height: 1.5em;
+    margin: 6px 0 0 0;
+}
+
+p.propose-button {
+    margin: 0;
+}
+
+form.comment-form input {
+    margin-top: .5em;
+}
+
+a.hide-propose-change {
+    display: none;
+}
+
+a.show-propose-change, a.hide-propose-change {
+    font-size: smaller;
+}
+
+p.sort-options {
+    float: right;
+    margin: 0 2em;
+}
+
+a.sort-option {
+    margin-left: .5em;
+}
+
+a.sel {
+    color: #2491cf;
+    text-decoration: underline;
+}
+
+div.sphinx-comments ul {
+    list-style: none;
+    padding: 0 0 0 10px;
+}
+
+div.sphinx-comments ul li {
+    margin-top: .5em;
+}
+
+div.vote {
+    padding-top: 3px;
+    float: left;
+}
+
+div.arrow {
+    width: 16px;
+    height: 16px;
+    margin-bottom: 10px;
+}
+
+div.comment-content p, pre.proposal {
+    line-height: 1.5em;
+    margin: 0 0 0 25px;
+}
+
+pre.proposal {
+    color: #555;
+    display: none;
+    margin: .5em 0 .5em 25px;
+}
+
+a.hide-proposal, a.show-proposal {
+    display: none;
+}
+
+pre.proposal .prop-added {
+    background-color: #CFC;
+}
+
+pre.proposal .prop-removed {
+    background-color: #FCC;
+}
+
+pre.proposal ins {
+    text-decoration: none;
+    background-color: #8F8;
+}
+
+pre.proposal del {
+    text-decoration: none;
+    background-color: #F88;
+}
+
+.rating, .delta {
+    font-size: .9em;
+}
+
+a.un {
+    display: none;
+}
+
+.user-id {
+    color: #EE9816;
+}
+
+p.tagline span {
+    margin-right: .25em;
+}
+
+p.comment-opts a {
+    color: #666;
+    font-size: .9em;
+    margin-right: 1em;
+}
+
+ul.children {
+    margin-left: 22px;
+    border-left: 1px solid #DDD;
+}
+
+a.close-reply {
+    display: none;
+}
+
+div.clearleft {
+    clear: left;
+}
+
+.hidden {
+    display: none;
+}
+
+a.oid img {
+    padding: 5px;
+    border: 1px solid #DDD;
+    margin: 1em .5em 0;
+}

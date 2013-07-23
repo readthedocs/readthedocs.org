@@ -104,6 +104,8 @@ urlpatterns = patterns(
     url(r'^mlt/(?P<project_slug>[-\w]+)/(?P<filename>.*)$',
         'core.views.morelikethis',
         name='morelikethis'),
+    url(r'^websupport/', include('websupport.urls')),
+
 )
 
 if settings.DEBUG:
@@ -114,5 +116,5 @@ if settings.DEBUG:
             {'template': 'style_catalog.html'}),
         url(regex='^%s/(?P<path>.*)$' % settings.MEDIA_URL.strip('/'),
             view='django.views.static.serve',
-            kwargs={'document_root': settings.MEDIA_ROOT})
+            kwargs={'document_root': settings.MEDIA_ROOT}),
     )
