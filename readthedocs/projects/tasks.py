@@ -384,8 +384,11 @@ def update_imported_docs(version_pk):
                  } for v in version_repo.branches
             ]
 
-        api.project(project.pk).sync_versions.post(json.dumps(version_post_data))
-        
+        try:
+            api.project(project.pk).sync_versions.post(json.dumps(version_post_data))
+        except Exception, e:
+            print "Sync Verisons Exception: %s" % e.message
+
     return update_docs_output
 
 
