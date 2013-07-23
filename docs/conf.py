@@ -36,7 +36,8 @@ if on_rtd:
     html_theme = 'default'
 else:
     html_theme = 'nature'
-html_static_path = ['_static']
+# This doesn't exist since we aren't shipping any static files ourselves.
+#html_static_path = ['_static']
 htmlhelp_basename = 'ReadTheDocsdoc'
 latex_documents = [
     ('index', 'ReadTheDocs.tex', u'Read The Docs Documentation',
