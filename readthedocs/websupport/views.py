@@ -65,7 +65,9 @@ def has_node(request):
 
 @csrf_exempt
 def add_node(request):
-    document = request.POST.get('document', '')
-    id = request.POST.get('id', '')
-    source = request.POST.get('source', '')
-    storage.add_node(id, document, source)
+    post_data = json.loads(request.raw_post_data)
+    document = post_data.get('document', '')
+    id = post_data.get('id', '')
+    source = post_data.get('source', '')
+    created = storage.add_node(id, document, source)
+    return jsonify({'created': created})
