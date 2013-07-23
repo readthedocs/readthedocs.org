@@ -59,7 +59,10 @@
      data: {document: page_name},
 
      success: function(data, textStatus, request) {
-      COMMENT_METADATA = data
+        COMMENT_METADATA = data
+        // add comment anchors for all paragraphs that are commentable
+        $('.sphinx-has-comment').comment();
+
      },
      error: function(request, textStatus, error) {
        showError('Oops, there was a problem retrieving comment metadata.');
@@ -831,8 +834,6 @@
 })(jQuery);
 
 $(document).ready(function() {
-  // add comment anchors for all paragraphs that are commentable
-  $('.sphinx-has-comment').comment();
 
   // highlight search words in search results
   $("div.context").each(function() {
