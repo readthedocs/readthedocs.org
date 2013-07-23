@@ -52,6 +52,7 @@
   }
 
   function initMetaData() {
+    var COMMENT_METADATA = {}
     $.ajax({
      type: 'GET',
      url: opts.metadataURL,
