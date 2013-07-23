@@ -610,16 +610,6 @@ p {
 }
 
 
-/* Sphinx Commenting Styles */
-
-.sphinx-comment-open > img {
-    margin: none;
-}
-
-.sphinx-comment-close > img {
-    margin: none;
-}
-
 /* MOBILE LAYOUT -------------------------------------------------------------- */
 
 @media screen and (max-width: 600px) {
