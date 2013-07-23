@@ -6,7 +6,7 @@ from sphinx.util import copy_static_entry
 from sphinx.util.console import bold
 from sphinx.util.osutil import copyfile
 from translator import UUIDTranslator
-from websupport.backend import DjangoStorage
+from websupport.backend import DjangoStorage, WebStorage
 
 import os
 
@@ -35,7 +35,7 @@ class UUIDBuilder(StandaloneHTMLBuilder):
     """
     name = 'websupport2'
     versioning_method = 'commentable'
-    storage = DjangoStorage()
+    storage = WebStorage()
 
     def init(self):
         StandaloneHTMLBuilder.init(self)

@@ -57,3 +57,15 @@ def get_metadata(request):
 def get_options(request):
     document = request.GET.get('document', '')
     return jsonify(support.base_comment_opts)
+
+def has_node(request):
+    node_id = request.GET.get('node_id', '')
+    exists = storage.has_node(node_id)
+    return jsonify({'exists': exists})
+
+@csrf_exempt
+def add_node(request):
+    document = request.POST.get('document', '')
+    id = request.POST.get('id', '')
+    source = request.POST.get('source', '')
+    storage.add_node(id, document, source)
