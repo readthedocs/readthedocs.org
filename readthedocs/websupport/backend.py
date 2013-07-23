@@ -16,7 +16,7 @@ class DjangoStorage(StorageBackend):
         return SphinxNode.objects.filter(hash=id).exists()
 
     def add_node(self, id, document, source):
-       created, node = SphinxNode.objects.get_or_create(hash=id, document=document, source=source)
+       node, created = SphinxNode.objects.get_or_create(hash=id, document=document, source=source)
        return created
 
     def get_metadata(self, docname, moderator=None):
@@ -62,13 +62,11 @@ class WebStorage(StorageBackend):
     def has_node(self, id):
         url = "http://localhost:8000/websupport/_has_node"
         data = {'node_id': id,}
-        headers = {'Content-type': 'application/json'}
-        r = requests.get(url, params=data, headers=headers)
+        r = requests.get(url, params=data)
         return r.json['exists']
 
     def add_node(self, id, document, source):
         url = "http://localhost:8000/websupport/_add_node"
         data = {'id': id, 'document': document, 'source': source}
-        headers = {'Content-type': 'application/json'}
-        r = requests.post(url, data=json.dumps(data), headers=headers)
+        r = requests.post(url, params=data)
         return True
