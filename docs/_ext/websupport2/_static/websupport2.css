@@ -47,15 +47,19 @@ div.popup-error div.error-message {
     font-size: 130%;
 }
 
-a.sphinx-comment img, a.sphinx-comment-close img {
+a.sphinx-comment-open img, a.sphinx-comment-close img {
     margin-left: .25em;
 }
 
-a.sphinx-comment.nocomment {
+a.sphinx-comment-open, a.sphinx-comment-close  {
+    border: none;
+}
+
+a.sphinx-comment-open.nocomment {
     visibility: hidden;
 }
 
-:hover > a.sphinx-comment {
+:hover > a.sphinx-comment-open {
     visibility: visible;
 }
 
