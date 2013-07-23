@@ -610,6 +610,12 @@ p {
 }
 
 
+/* Sphinx Commenting Styles */
+
+a.sphinx-comment-open a.sphinx-comment-close {
+    border-bottom: none;
+}
+
 /* MOBILE LAYOUT -------------------------------------------------------------- */
 
 @media screen and (max-width: 600px) {
@@ -802,3 +808,4 @@ p {
     }
 
 }
+
