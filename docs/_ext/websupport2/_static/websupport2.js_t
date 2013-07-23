@@ -56,7 +56,7 @@
     $.ajax({
      type: 'GET',
      url: opts.metadataURL,
-     data: {document: window.location.pathname.substring(1)},
+     data: {document: page_name},
 
      success: function(data, textStatus, request) {
       COMMENT_METADATA = data
