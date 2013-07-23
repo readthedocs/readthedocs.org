@@ -440,6 +440,8 @@ def build_docs(version_pk, pdf, man, epub, dash, record, force):
                     epub_builder.move()
             else:
                 epub_results = fake_results
+            # Disable dash building for now.
+            dash = False
             if dash:
                 dash_builder = builder_loading.get('sphinx_dash')(version)
                 dash_results = dash_builder.build()
