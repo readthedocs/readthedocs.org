@@ -54,6 +54,9 @@ def migrate(project=None):
     else:
         run('django-admin.py migrate')
 
+@hosts(['chimera.readthedocs.com'])
+def syncdb(project=None):
+    run('django-admin.py syncdb')
 
 @hosts(['chimera.readthedocs.com', 'asgard.readthedocs.com'])
 def static():
