@@ -125,7 +125,6 @@ class VersionResource(EnhancedModelResource):
     project = fields.ForeignKey(ProjectResource, 'project', full=True)
 
     class Meta:
-        queryset = Version.objects.all()
         allowed_methods = ['get', 'put', 'post']
         always_return_data = True
         queryset = Version.objects.public()

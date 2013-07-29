@@ -153,6 +153,7 @@ CELERY_ALWAYS_EAGER = True
 CELERYD_TASK_TIME_LIMIT = 60*60  # 60 minutes
 CELERY_SEND_TASK_ERROR_EMAILS = True
 CELERYD_HIJACK_ROOT_LOGGER = False
+HAYSTACK_SIGNAL_PROCESSOR = 'celery_haystack.signals.CelerySignalProcessor'
 
 CELERY_ROUTES = {
     'celery_haystack.tasks.CeleryHaystackSignalHandler': {
@@ -214,6 +215,11 @@ LOGGING = {
             'datefmt': "%d/%b/%Y %H:%M:%S"
         },
     },
+    'filters': {
+         'require_debug_false': {
+             '()': 'django.utils.log.RequireDebugFalse'
+         }
+     },
     'handlers': {
         'null': {
             'level': 'DEBUG',
@@ -269,6 +275,7 @@ LOGGING = {
         },
         'mail_admins': {
             'level': 'ERROR',
+             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler',
         },
         'console': {

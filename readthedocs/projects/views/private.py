@@ -9,9 +9,10 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
-from django.views.generic.list_detail import object_list
 
 from guardian.shortcuts import assign
+
+from core.generic.list_detail import object_list
 
 from builds.forms import AliasForm, VersionForm
 from builds.filters import VersionFilter

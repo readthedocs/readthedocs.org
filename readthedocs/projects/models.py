@@ -108,7 +108,7 @@ class Project(models.Model):
                                  choices=constants.REPO_CHOICES, default='git')
     project_url = models.URLField(_('Project URL'), blank=True,
                                   help_text=_('The project\'s homepage'),
-                                  verify_exists=False)
+                                  )
     version = models.CharField(_('Version'), max_length=100, blank=True,
                                help_text=_('Project version these docs apply '
                                            'to, i.e. 1.0a'))
@@ -696,7 +696,7 @@ class EmailHook(Notification):
 
 
 class WebHook(Notification):
-    url = models.URLField(blank=True, verify_exists=False,
+    url = models.URLField(blank=True,
                           help_text=_('URL to send the webhook to'))
 
     def __unicode__(self):

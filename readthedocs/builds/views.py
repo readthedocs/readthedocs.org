@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404
-from django.views.generic.list_detail import object_list, object_detail
+from core.generic.list_detail import object_list, object_detail
 
 from taggit.models import Tag
 

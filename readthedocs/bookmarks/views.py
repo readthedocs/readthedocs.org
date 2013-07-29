@@ -2,7 +2,7 @@ import simplejson
 
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
-from django.views.generic.list_detail import object_list
+from core.generic.list_detail import object_list
 
 from bookmarks.models import Bookmark
 

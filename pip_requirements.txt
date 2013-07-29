@@ -10,7 +10,6 @@ django-extensions==0.7.1
 django-guardian==1.0.4
 django-kombu==0.9.4
 django-nose==1.1
-django-profiles==0.2
 django-secure==0.1.2
 django==1.4.8
 docutils==0.8.1
@@ -49,6 +48,7 @@ git+git://github.com/nathanborror/django-basic-apps.git@171fdbe21a0dbbb38919a383
 git+git://github.com/nathanborror/django-registration.git@dc0b564b7bfb79f58592fe8ad836729a85ec17ae#egg=django_registration-dev
 git+git://github.com/toastdriven/django-tastypie.git@c5451b90b18b0cb64841b2276d543230d5f58231#egg=django_tastypie-dev
 git+git://github.com/ericholscher/readthedocs-sphinx-ext#egg=readthedocs_ext
+hg+ssh://hg@bitbucket.org/fcurella/django-profiles@views#egg=profiles
 
 # Websupport
 git+git://github.com/ericholscher/django-sphinx-websupport#egg=websupport

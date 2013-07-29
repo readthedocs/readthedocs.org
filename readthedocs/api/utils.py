@@ -148,7 +148,7 @@ class PostAuthentication(BasicAuthentication):
 
 
 class EnhancedModelResource(ModelResource):
-    def obj_get_list(self, request=None, **kwargs):
+    def obj_get_list(self, request=None, *args, **kwargs):
         """
         A ORM-specific implementation of ``obj_get_list``.
 
@@ -156,6 +156,7 @@ class EnhancedModelResource(ModelResource):
         used to narrow the query.
         """
         filters = None
+        import ipdb; ipdb.set_trace()
 
         if hasattr(request, 'GET'):
             filters = request.GET

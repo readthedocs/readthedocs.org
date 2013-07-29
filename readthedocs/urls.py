@@ -1,7 +1,7 @@
 from django.conf.urls.defaults import url, patterns, include
 from django.contrib import admin
 from django.conf import settings
-from django.views.generic.simple import direct_to_template
+from django.views.generic.base import TemplateView
 
 from tastypie.api import Api
 
@@ -34,7 +34,7 @@ handler404 = 'core.views.server_error_404'
 urlpatterns = patterns(
     '',  # base view, flake8 complains if it is on the previous line.
     url(r'^$', 'core.views.homepage'),
-    url(r'^security/', direct_to_template, {'template': 'security.html'}),
+    url(r'^security/', TemplateView.as_view(template_name='security.html')),
 
     # For serving docs locally and when nginx isn't
     url((r'^docs/(?P<project_slug>[-\w]+)/(?P<lang_slug>%s)/(?P<version_slug>'
@@ -120,8 +120,7 @@ if settings.DEBUG:
     urlpatterns += patterns(
         '',  # base view, flake8 complains if it is on the previous line.
         url('style-catalog/$',
-            'django.views.generic.simple.direct_to_template',
-            {'template': 'style_catalog.html'}),
+            TemplateView.as_view(template_name='style_catalog.html')),
         url(regex='^%s/(?P<path>.*)$' % settings.MEDIA_URL.strip('/'),
             view='django.views.static.serve',
             kwargs={'document_root': settings.MEDIA_ROOT}),
