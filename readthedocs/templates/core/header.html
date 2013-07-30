@@ -1,5 +1,7 @@
 {% load i18n %}
 
+{% load browserid %}
+
 {% if include_render %}
     <!-- rtfd header style -->
     <link rel="stylesheet" href="{{ MEDIA_URL }}css/header.css">
@@ -90,11 +92,12 @@
           <ul>
             {% if request.user.is_authenticated %}
               <li class="{{ dashboard_active }}"><a href="{% url projects_dashboard %}">{% trans "Dashboard" %}</a></li>
-              <li><a href="{% url auth_logout %}">{% trans "Log Out" %}</a></li>
+              {% trans "Log Out" as persona_logout_text %}
+              <li>{% browserid_logout text=persona_logout_text %}</li>
             {% else %}
-              <li><a href="{% url auth_login %}">{% trans "Log in" %}</a></li>
+              {% trans "Log in" as persona_login_text %}
+              <li>{% browserid_login text=persona_login_text %}</li>
             {% endif %}
-
 
           </ul>
         </div>

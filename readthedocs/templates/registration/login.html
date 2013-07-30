@@ -2,6 +2,7 @@
 
 {% load i18n %}
 
+{% load browserid %}
 
 {% block title %}{% trans "Log in" %}{% endblock %}
 {% block body_class %}{{ block.super }} login_form{% endblock %}
@@ -15,18 +16,13 @@
 </script>
 {% endblock %}
 
-
 {% block content-header %}
   <h1>{% trans "Log in" %}</h1>
 {% endblock %}
 
-
 {% block content %}
-  <form action="." method="post" class="login_form">{% csrf_token %}
-    {{ form.as_p }}
-    <p class="submit"><input type="submit" name="submit" value="{% trans "Log in" %}"></p>
-  </form>
-<p>
-{% blocktrans %}If you forgot your password, <a href="/accounts/password/reset/">reset it.</a>{% endblocktrans %}
-</p>
+
+{% trans "Log in" as persona_login_text %}
+{% browserid_login text=persona_login_text %}
+
 {% endblock %}

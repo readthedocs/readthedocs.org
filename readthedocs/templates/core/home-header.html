@@ -1,5 +1,7 @@
 {% load i18n %}
 
+{% load browserid %}
+
     <!-- BEGIN header-->
     <div id="home-header">
       <div class="wrapper">
@@ -16,7 +18,8 @@
           {% comment %}Translators: Note, the full sentence goes 'Sign up' 'or' 'Log in'. But unfortunately the three bits have to be separate.{% endcomment %}
           <a class="reg" href="{% url registration_register %}">{% trans "Sign up" %}</a>
           <div class="login-box">
-            <p>{% trans "or" %} <a class="login" href="{% url auth_login %}">{% trans "Log in" %}</a></p>
+            {% trans "Log in" as persona_login_text %}
+            <p>{% trans "or" %} {% browserid_login link_class='login' text=persona_login_text next=request.get_full_path %}</p>
           </div>
         </div>
         <!-- END header links -->

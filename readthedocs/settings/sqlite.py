@@ -43,6 +43,8 @@ NGINX_X_ACCEL_REDIRECT = True
 CELERY_ALWAYS_EAGER = True
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
+SITE_URL = 'http://localhost:8000' # BrowserID audience
+
 try:
     from local_settings import *  # noqa
 except:
