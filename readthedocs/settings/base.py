@@ -99,6 +99,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.media",
     "django.core.context_processors.request",
     "core.context_processors.readthedocs_processor",
+    "django_browserid.context_processors.browserid",
 )
 
 INSTALLED_APPS = [
@@ -123,6 +124,7 @@ INSTALLED_APPS = [
     'django_nose',
     'rest_framework',
     'corsheaders',
+    'django_browserid',
 
     # Celery bits
     'djcelery',
@@ -147,6 +149,18 @@ REST_FRAMEWORK = {
 
 if DEBUG:
     INSTALLED_APPS.append('django_extensions')
+
+BROWSERID_CREATE_USER = False
+LOGIN_REDIRECT_URL_FAILURE = '/accounts/register/'
+BROWSERID_REQUEST_ARGS = {
+    'siteName': 'Read the Docs',
+    'backgroundColor': '#465158',
+}
+
+AUTHENTICATION_BACKENDS = (
+    'django_browserid.auth.BrowserIDBackend',
+    'django.contrib.auth.backends.ModelBackend',
+)
 
 #CARROT_BACKEND = "ghettoq.taproot.Database"
 CELERY_ALWAYS_EAGER = True
