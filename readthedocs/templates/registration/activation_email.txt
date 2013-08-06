@@ -3,6 +3,6 @@ To activate your registration, please visit the following page:
 
 http://{{ domain }}{{ activation_url }}
 
-This page will expire in {{ expiration_days }} day.
+This page will expire in {{ expiration_days }} days.
 
 If you didn't register this account you can simply delete this email and we won't bother you again.{% endblocktrans %}
