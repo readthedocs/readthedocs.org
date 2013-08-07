@@ -95,6 +95,7 @@ urlpatterns = patterns(
         name='profiles_profile_edit'),
     url(r'^profiles/', include('profiles.urls')),
     url(r'^api/', include(v1_api.urls)),
+    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^feeds/new/$',
         NewProjectsFeed(),
         name="new_feed"),

@@ -117,6 +117,7 @@ INSTALLED_APPS = [
     'guardian',
     'django_gravatar',
     'django_nose',
+    'rest_framework',
 
     # Celery bits
     'djcelery',
@@ -134,9 +135,13 @@ INSTALLED_APPS = [
     'websupport',
 ]
 
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAdminUser',),
+    'PAGINATE_BY': 10
+}
+
 if DEBUG:
     INSTALLED_APPS.append('django_extensions')
-
 
 #CARROT_BACKEND = "ghettoq.taproot.Database"
 CELERY_ALWAYS_EAGER = True
