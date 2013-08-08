@@ -79,9 +79,19 @@ MIDDLEWARE_CLASSES = (
     # Hack
     # 'core.underscore_middleware.UnderscoreMiddleware',
     'core.middleware.SubdomainMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     #'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
 )
 
+CORS_ORIGIN_REGEX_WHITELIST = ('^http?://(\w+\.)?readthedocs\.org$', '^https?://(\w+\.)?readthedocs\.org$')
+# For testing locally. Put this in your /etc/hosts:
+# 127.0.0.1 test 
+# and navigate to http://test:8000
+CORS_ORIGIN_WHITELIST = (
+    'test:8000',
+)
+# So people can post to their accounts
+CORS_ALLOW_CREDENTIALS = True
 ROOT_URLCONF = 'urls'
 
 TEMPLATE_DIRS = (
@@ -118,6 +128,7 @@ INSTALLED_APPS = [
     'django_gravatar',
     'django_nose',
     'rest_framework',
+    'corsheaders',
 
     # Celery bits
     'djcelery',
