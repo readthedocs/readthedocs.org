@@ -84,12 +84,6 @@ MIDDLEWARE_CLASSES = (
 )
 
 CORS_ORIGIN_REGEX_WHITELIST = ('^http?://(\w+\.)?readthedocs\.org$', '^https?://(\w+\.)?readthedocs\.org$')
-# For testing locally. Put this in your /etc/hosts:
-# 127.0.0.1 test 
-# and navigate to http://test:8000
-CORS_ORIGIN_WHITELIST = (
-    'test:8000',
-)
 # So people can post to their accounts
 CORS_ALLOW_CREDENTIALS = True
 ROOT_URLCONF = 'urls'
