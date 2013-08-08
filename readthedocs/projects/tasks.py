@@ -14,7 +14,6 @@ from celery.decorators import task
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.mail import send_mail
-from django.db import transaction
 from django.template import Context
 from django.template.loader import get_template
 from django.utils.translation import ugettext_lazy as _
@@ -28,7 +27,7 @@ from doc_builder import loading as builder_loading
 from doc_builder.base import restoring_chdir
 from projects.exceptions import ProjectImportError
 from projects.models import ImportedFile, Project
-from projects.utils import (mkversion, purge_version, run, slugify_uniquely,
+from projects.utils import (purge_version, run,
                             make_api_version, make_api_project)
 from tastyapi import client as tastyapi_client
 from tastyapi import api
@@ -72,17 +71,8 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
 
     """
 
-    ###
-    # Handle passed in arguments
-    ###
     project_data = api.project(pk).get()
     project = make_api_project(project_data)
-
-    # Prevent saving the temporary Project instance
-    def new_save(*args, **kwargs):
-        log.warning("Called save on a non-real object.")
-        return 0
-    project.save = new_save
 
     log.info("Building %s" % project)
     if version_pk:
@@ -109,7 +99,6 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
                 raise e
 
     version = make_api_version(version_data)
-    version.save = new_save
 
     if not version_pk:
         # Lots of course correction.
@@ -151,6 +140,16 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
                                 'you have a conf.py')
         api.build(build['id']).put(build)
         return False
+
+    ###
+    # Keep state between the repo and the database
+    ###
+    log.info("Setting config values from .rtd.yml")
+    try:
+        update_config_from_json(version.pk)
+    except Exception, e:
+        # Never kill the build, but log the error
+        log.error("Failure in config parsing code: %s " % e.message)
 
     # kick off a build
     if record:
@@ -269,6 +268,37 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
 
     return True
 
+@task 
+def update_config_from_json(version_pk):
+    """
+    Check out or update the given project's repository.
+    """
+    # Remove circular import
+    from projects.forms import ImportProjectForm
+    log.info("Checking for json config")
+    version_data = api.version(version_pk).get()
+    version = make_api_version(version_data)
+    project = version.project
+    try:
+        rtd_json = open(os.path.join(
+            project.checkout_path(version.slug),
+            '.rtd.json'
+        ))
+        json_obj = json.load(rtd_json)
+        for key in json_obj.keys():
+            # Treat the defined fields on the Import form as 
+            # the canonical list of allowed user editable fields.
+            # This is in essense just another UI for that form.
+            if key not in ImportProjectForm._meta.fields:
+                del json_obj[key]
+    except IOError:
+        log.info("No rtd.json found.")
+        return None
+
+    project_data = api.project(project.pk).get()
+    project_data.update(json_obj)
+    api.project(project.pk).put(project_data)
+    log.info("Updated from JSON.")
 
 @task
 def update_imported_docs(version_pk):
