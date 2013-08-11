@@ -8,13 +8,11 @@ from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 
 from betterversion.better import version_windows, BetterVersion 
-from projects.models import Project
+from projects.models import Project, EmailHook
+
+from .permissions import RelatedProjectIsOwner
 
 class ProjectViewSet(viewsets.ModelViewSet):
-    """
-    A simple ViewSet that for listing or retrieving users.
-    """
-
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     renderer_classes = (JSONRenderer, BrowsableAPIRenderer)
     model = Project
@@ -47,3 +45,18 @@ class ProjectViewSet(viewsets.ModelViewSet):
         return Response({
             'flat': version_strings,
             })
+
+class NotificationViewSet(viewsets.ModelViewSet):
+    permission_classes = (permissions.IsAuthenticated, RelatedProjectIsOwner)
+    renderer_classes = (JSONRenderer, BrowsableAPIRenderer)
+    model = EmailHook
+
+    def get_queryset(self):
+        """
+        This view should return a list of all the purchases
+        for the currently authenticated user.
+        """
+        user = self.request.user
+        if user.is_superuser:
+            return self.model.objects.all()
+        return self.model.objects.filter(project__users__in=[user.pk])
