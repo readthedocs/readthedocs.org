@@ -70,3 +70,4 @@ Operations Documentation
     :maxdepth: 2
 
     rtfd
+    metrics
