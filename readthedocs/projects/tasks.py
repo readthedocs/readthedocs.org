@@ -233,7 +233,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
             symlink_cname(version)
             # This requires database access, must disable it for now.
             # symlink_translations(version)
-            send_notifications(version, build)
+            #send_notifications(version, build)
             log.info("Purged %s" % version)
         else:
             log.warning("Failed HTML Build")
