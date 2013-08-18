@@ -50,7 +50,7 @@ class ImportProjectForm(ProjectForm):
             'project_url', 'tags', 'default_branch', 'default_version',
             'conf_py_file',
             # Version Support
-            'num_major', 'num_minor', 'num_point',
+            #'num_major', 'num_minor', 'num_point',
             # Privacy
             'privacy_level', 'version_privacy_level',
             # Python specific
