@@ -1,3 +1,4 @@
+# Not used currently.
 from rest_framework import routers
 from .views import ProjectViewSet, NotificationViewSet
 

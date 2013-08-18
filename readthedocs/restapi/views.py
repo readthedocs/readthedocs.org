@@ -40,7 +40,8 @@ class ProjectViewSet(viewsets.ModelViewSet):
             flat=True,
         )
         version_strings = [v._string for v in active_versions]
-        project.versions.exclude(verbose_name__in=version_strings).update(active=False)
+        # Disable making old versions inactive for now.
+        #project.versions.exclude(verbose_name__in=version_strings).update(active=False)
         project.versions.filter(verbose_name__in=version_strings).update(active=True)
         return Response({
             'flat': version_strings,
