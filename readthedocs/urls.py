@@ -4,6 +4,7 @@ from django.conf import settings
 from django.views.generic.simple import direct_to_template
 
 from tastypie.api import Api
+from rest_framework import routers
 
 from api.base import (ProjectResource, UserResource, BuildResource,
                       VersionResource, FileResource)
@@ -13,6 +14,8 @@ from core.views import SearchView
 from projects.feeds import LatestProjectsFeed, NewProjectsFeed
 from projects.filters import ProjectFilter
 from projects.constants import LANGUAGES_REGEX
+from restapi.views import ProjectViewSet, NotificationViewSet
+
 
 v1_api = Api(api_name='v1')
 v1_api.register(BuildResource())
@@ -20,6 +23,11 @@ v1_api.register(UserResource())
 v1_api.register(ProjectResource())
 v1_api.register(VersionResource())
 v1_api.register(FileResource())
+
+# API v2
+router = routers.DefaultRouter()
+router.register(r'project', ProjectViewSet)
+router.register(r'notification', NotificationViewSet)
 
 admin.autodiscover()
 
@@ -95,6 +103,7 @@ urlpatterns = patterns(
         name='profiles_profile_edit'),
     url(r'^profiles/', include('profiles.urls')),
     url(r'^api/', include(v1_api.urls)),
+    url(r'^api/v2/', include(router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^feeds/new/$',
         NewProjectsFeed(),

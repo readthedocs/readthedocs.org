@@ -177,7 +177,7 @@ class Project(models.Model):
     use_system_packages = models.BooleanField(
         _('Use system packages'),
         help_text=_("Give the virtual environment access to the global "
-                    "sites-packages dir"))
+                    "sites-packages dir."))
     django_packages_url = models.CharField(_('Django Packages URL'),
                                            max_length=255, blank=True)
     crate_url = models.CharField(_('Crate URL'), max_length=255, blank=True)
@@ -200,12 +200,39 @@ class Project(models.Model):
     # Language bits
     language = models.CharField('Language', max_length=20, default='en',
                                 help_text="The language the project "
-                                "documentation is rendered in",
+                                "documentation is rendered in. "
+                                "Note: this affects your project's URL.",
                                 choices=constants.LANGUAGES)
     # A subproject pointed at it's main language, so it can be tracked
     main_language_project = models.ForeignKey('self',
                                               related_name='translations',
                                               blank=True, null=True)
+
+    # Version State 
+    num_major = models.IntegerField(
+        _('Number of Major versions'), 
+        max_length=3,
+        default=None,
+        null=True,
+        blank=True,
+        help_text=_("2 means supporting 3.X.X and 2.X.X, but not 1.X.X")
+    )
+    num_minor = models.IntegerField(
+        _('Number of Minor versions'), 
+        max_length=3,
+        default=None,
+        null=True,
+        blank=True,
+        help_text=_("2 means supporting 2.2.X and 2.1.X, but not 2.0.X")
+    )
+    num_point = models.IntegerField(
+        _('Number of Point versions'), 
+        max_length=3,
+        default=None,
+        null=True,
+        blank=True,
+        help_text=_("2 means supporting 2.2.2 and 2.2.1, but not 2.2.0")
+    )
 
     tags = TaggableManager(blank=True)
     objects = ProjectManager()
