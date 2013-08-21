@@ -6,11 +6,22 @@
 {% block title %}{% trans "Register for an account" %}{% endblock %}
 {% block body_class %}{{ block.super }} registration_form{% endblock %}
 
+{% block extra_links %}
+<style>
+#unauthenticated-message {
+	display: none;
+}
+</style>
+{% endblock %}
+
 
 {% block extra_scripts %}
 <script type="text/javascript">
   $(function () {
     $('#id_username').focus();
+    if (!$('#browseridInfo').data('userEmail')) {
+      console.log('logging the user out');
+	}
   });
 </script>
 {% endblock %}

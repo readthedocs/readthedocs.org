@@ -26,4 +26,11 @@
 
       </div>
     </div>
+    {% if not request.user.is_authenticated %}
+    <div id="unauthenticated-message">
+      <div class="wrapper">
+        <p>We have changed our login system to use Persona instead of using an email/password combination. You'll need to log into Persona using the email account that you associated with your account on Read the Docs. <a href='https://login.persona.org/about'>Click here</a> for more information on Persona.
+      </div>
+    </div>
+    {% endif %}
     <!-- END header-->

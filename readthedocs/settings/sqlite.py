@@ -45,13 +45,11 @@ CELERY_ALWAYS_EAGER = True
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # For testing locally. Put this in your /etc/hosts:
-# 127.0.0.1 test 
+# 127.0.0.1 test
 # and navigate to http://test:8000
 CORS_ORIGIN_WHITELIST = (
     'test:8000',
 )
-
-SITE_URL = 'http://localhost:8000' # BrowserID audience
 
 try:
     from local_settings import *  # noqa

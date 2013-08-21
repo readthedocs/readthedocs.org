@@ -111,7 +111,7 @@ i { display: inline-block; padding:0; margin:0; padding-right:6px; position: rel
 /* home */
 
 #home-header { background: url(../images/header-home-bg.png) top left repeat #465158; border-bottom: 1px solid #333; padding: 65px 0 35px 0; color: #fff; }
-.home.splash #content { padding-top: 80px; }
+/* .home.splash #content { padding-top: 80px; } */
 
   /* title */
   .home-header-title { padding: 15px 0 30px 110px; margin-left: -25px; background: url(../images/home-logo.png) top left no-repeat; text-shadow: 0 2px 0 rgba(0, 0, 0, 0.3); }
@@ -397,3 +397,13 @@ select.dropdown { display: none; }
 .dropdown > ul.js-open { display:block; }
 
 .dropdown > ul:before { content:' '; visibility: visible; border:8px solid transparent; border-bottom-color: #465158; position:absolute; top:-16px; left:104px; }
+
+
+/* persona notice */
+
+#unauthenticated-message .wrapper {
+  background: lightyellow;
+  border-width: 0 1px 1px 1px;
+  border-style: solid;
+  border-color: black;
+}
