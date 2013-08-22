@@ -92,8 +92,8 @@ IMPORTANT_VERSION_FILTERS = {
 # detect all available Python interpreters in the fly (Maybe using
 # update-alternatives linux tool family?).
 PYTHON_CHOICES = (
-    ('python', _('Python 2.x')),
-    ('python3', _('Python 3.x')),
+    ('python', _('CPython 2.x')),
+    ('python3', _('CPython 3.x')),
 )
 
 # Via http://sphinx-doc.org/latest/config.html#confval-language
