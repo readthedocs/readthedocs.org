@@ -5,5 +5,5 @@ install:
  - pip install flake8 --use-mirrors
  - pip install -r pip_requirements.txt --use-mirrors
 script:
- - flake8 `find . -iname "*.py" -not -ipath "*migration*"`
+ #- flake8 `find . -iname "*.py" -not -ipath "*migration*"`
  - ./runtests.sh
