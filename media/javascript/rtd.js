@@ -53,7 +53,31 @@
     }
   };
 
+  function logHashChange(project, version, page, id, hash) {
+    $.ajax({
+      type: 'POST',
+      url: 'http://api.grokthedocs.com/api/v1/actions/',
+      crossDomain: true,
+      data: {
+        project: project,
+        version: version,
+        page: page,
+        object_slug: id,
+        hash: hash,
+        url: window.location.href,
+        type: "hashchange"
+      },
+      success: function(data, textStatus, request) {
+        console.log("Sent hash change data")
+      },
+      error: function(request, textStatus, error) {
+        console.log("Error sending hash change data")
+      }
+    });
+  }
+
   $(function () {
+    // Code executed on load
     var slug = window.doc_slug,
         version = window.doc_version;
 
@@ -68,6 +92,25 @@
 
     checkVersion(slug, version);
     getVersions(slug, version);
+
+
+    // Click tracking code
+    window.onhashchange = function(ev) {
+      var element = document.getElementById((window.location.hash || '').slice(1))
+      var project = doc_slug
+      var version = doc_version
+      var page = page_name
+      var id = element.id
+        if (typeof element.hash != "undefined") {
+            var hash = element.hash
+        } else {
+          var hash = null
+        }
+      logHashChange(project, version, page, id, hash);
+    }
+
+
+
   });
 
 })();
