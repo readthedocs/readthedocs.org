@@ -75,6 +75,12 @@
 
 })();
 
+/*
+ * Grok the Docs event handling
+ * This will allow you to better 
+ * understand whats happening in your docs,
+ * once fully rolled out.
+*/
 
 
 $(document).ready(function () {
@@ -100,10 +106,16 @@ $(document).ready(function () {
     logHashChange(gtd_project, gtd_version, gtd_page, id, hash);
   });
 
-  $("a.rtd-badge.rtd").hover(function (ev) { 
-    logHover(gtd_project, gtd_version, gtd_page);
-  })
+  $("a.rtd-badge.rtd").hover(
+    function (ev) { 
+      logHover(gtd_project, gtd_version, gtd_page);
+    },
+    function (ev) {
+      // We only want hover in  
+    }
+  )
 
+});
 
 function logHover(project, version, page) {
   $.ajax({
@@ -148,5 +160,3 @@ function logHashChange(project, version, page, id, hash) {
     }
   });
 }
-
-});
