@@ -56,7 +56,7 @@
   function logHashChange(project, version, page, id, hash) {
     $.ajax({
       type: 'POST',
-      url: 'http://api.grokthedocs.com/api/v1/actions/',
+      url: '//api.grokthedocs.com/api/v1/actions/',
       crossDomain: true,
       data: {
         project: project,
@@ -99,13 +99,17 @@
       var element = document.getElementById((window.location.hash || '').slice(1))
       var project = doc_slug
       var version = doc_version
-      var page = page_name
       var id = element.id
-        if (typeof element.hash != "undefined") {
-            var hash = element.hash
-        } else {
-          var hash = null
-        }
+      if (typeof page_name != "undefined") {
+          var page = page_name
+      } else {
+          var page = null
+      }
+      if (typeof element.hash != "undefined") {
+          var hash = element.hash
+      } else {
+        var hash = null
+      }
       logHashChange(project, version, page, id, hash);
     }
 
