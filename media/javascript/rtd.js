@@ -53,29 +53,6 @@
     }
   };
 
-  function logHashChange(project, version, page, id, hash) {
-    $.ajax({
-      type: 'POST',
-      url: '//api.grokthedocs.com/api/v1/actions/',
-      crossDomain: true,
-      data: {
-        project: project,
-        version: version,
-        page: page,
-        object_slug: id,
-        hash: hash,
-        url: window.location.href,
-        type: "hashchange"
-      },
-      success: function(data, textStatus, request) {
-        console.log("Sent hash change data")
-      },
-      error: function(request, textStatus, error) {
-        console.log("Error sending hash change data")
-      }
-    });
-  }
-
   $(function () {
     // Code executed on load
     var slug = window.doc_slug,
@@ -94,27 +71,82 @@
     getVersions(slug, version);
 
 
-    // Click tracking code
-    window.onhashchange = function(ev) {
-      var element = document.getElementById((window.location.hash || '').slice(1))
-      var project = doc_slug
-      var version = doc_version
-      var id = element.id
-      if (typeof page_name != "undefined") {
-          var page = page_name
-      } else {
-          var page = null
-      }
-      if (typeof element.hash != "undefined") {
-          var hash = element.hash
-      } else {
-        var hash = null
-      }
-      logHashChange(project, version, page, id, hash);
-    }
-
-
-
   });
 
 })();
+
+
+
+$(document).ready(function () {
+
+  // Page-level variables
+  var gtd_project = doc_slug
+  var gtd_version = doc_version
+  if (typeof page_name != "undefined") {
+      var gtd_page = page_name
+  } else {
+      var gtd_page = null
+  }
+
+  $(window).bind('hashchange', function(ev) {
+    // Element-level variables
+    var element = document.getElementById((window.location.hash || '').slice(1))
+    var id = element.id
+    if (typeof element.hash != "undefined") {
+        var hash = element.hash
+    } else {
+      var hash = null
+    }
+    logHashChange(gtd_project, gtd_version, gtd_page, id, hash);
+  });
+
+  $("a.rtd-badge.rtd").hover(function (ev) { 
+    logHover(gtd_project, gtd_version, gtd_page);
+  })
+
+
+function logHover(project, version, page) {
+  $.ajax({
+    type: 'POST',
+    url: '//api.grokthedocs.com/api/v1/actions/',
+    crossDomain: true,
+    data: {
+      project: project,
+      version: version,
+      page: page,
+      url: window.location.href,
+        type: "iconhover"
+    },
+    success: function(data, textStatus, request) {
+      console.log("Sent Icon hover data")
+    },
+    error: function(request, textStatus, error) {
+      console.log("Error sending Icon hover data")
+    }
+  });
+}
+
+function logHashChange(project, version, page, id, hash) {
+  $.ajax({
+    type: 'POST',
+    url: '//api.grokthedocs.com/api/v1/actions/',
+    crossDomain: true,
+    data: {
+      project: project,
+      version: version,
+      page: page,
+      object_slug: id,
+      hash: hash,
+      url: window.location.href,
+        type: "hashchange"
+    },
+    success: function(data, textStatus, request) {
+      console.log("Sent hash change data")
+    },
+    error: function(request, textStatus, error) {
+      console.log("Error sending hash change data")
+    }
+  });
+}
+
+});
