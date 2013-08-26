@@ -89,3 +89,28 @@ crossDomain: true,
 dataType: "script",
 cache: true,
 });
+
+// Google Analytics Custom bits
+
+$(document).ready( function () {
+_gaq.push(['_setCustomVar',
+      1,                   // This custom var is set to slot #1.  Required parameter.
+      'Project',           // The top-level name for your online content categories.  Required parameter.
+      doc_slug,  // Sets the value of "Section" to "Life & Style" for this particular aricle.  Required parameter.
+      3                    // Sets the scope to page-level.  Optional parameter.
+   ]);
+
+_gaq.push(['_setCustomVar',
+      1,                   // This custom var is set to slot #1.  Required parameter.
+      'Version',           // The top-level name for your online content categories.  Required parameter.
+      doc_version,  // Sets the value of "Section" to "Life & Style" for this particular aricle.  Required parameter.
+      3                    // Sets the scope to page-level.  Optional parameter.
+   ]);
+
+_gaq.push(['_setCustomVar',
+      1,                   // This custom var is set to slot #1.  Required parameter.
+      'Page',           // The top-level name for your online content categories.  Required parameter.
+      page_name,  // Sets the value of "Section" to "Life & Style" for this particular aricle.  Required parameter.
+      3                    // Sets the scope to page-level.  Optional parameter.
+   ]);
+})
