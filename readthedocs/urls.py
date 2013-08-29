@@ -115,6 +115,7 @@ urlpatterns = patterns(
         'core.views.morelikethis',
         name='morelikethis'),
     url(r'^websupport/', include('websupport.urls')),
+    url(r'^browserid/', include('django_browserid.urls')),
 
 )
 

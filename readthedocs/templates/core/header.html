@@ -1,5 +1,7 @@
 {% load i18n %}
 
+{% load browserid %}
+
 {% if include_render %}
     <!-- rtfd header style -->
     <link rel="stylesheet" href="{{ MEDIA_URL }}css/header.css">
@@ -90,11 +92,12 @@
           <ul>
             {% if request.user.is_authenticated %}
               <li class="{{ dashboard_active }}"><a href="{% url projects_dashboard %}">{% trans "Dashboard" %}</a></li>
-              <li><a href="{% url auth_logout %}">{% trans "Log Out" %}</a></li>
+              {% trans "Log Out" as persona_logout_text %}
+              <li>{% browserid_logout text=persona_logout_text %}</li>
             {% else %}
-              <li><a href="{% url auth_login %}">{% trans "Log in" %}</a></li>
+              {% trans "Log in with Persona" as persona_login_text %}
+              <li>{% browserid_login text=persona_login_text next=request.get_full_path %}</li>
             {% endif %}
-
 
           </ul>
         </div>
@@ -102,4 +105,11 @@
 
       </div>
     </div>
+    {% if not request.user.is_authenticated %}
+    <div id='unauthenticated-message'> 
+      <div class='wrapper'>
+        <p>We have changed our login system to use Persona instead of using an email/password combination. You'll need to log into Persona using the email account that you associated with your account on Read the Docs. <a href='https://login.persona.org/about'>Click here</a> for more information on Persona.
+      </div>
+    </div>
+    {% endif %}
     <!-- END header-->

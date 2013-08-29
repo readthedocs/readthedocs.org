@@ -1,5 +1,7 @@
 {% load i18n %}
 
+{% load browserid %}
+
 <!DOCTYPE html>
 <html>
 
@@ -37,6 +39,8 @@
 </head>
 
 <body class="{% block body_class %}{% endblock %}">
+
+    {% browserid_info %}
 
     {% block header-wrapper %}
         {% include "core/header.html" %}
@@ -91,6 +95,8 @@
       </div>
     </div>
     <!-- END footer-->
+
+    {% browserid_js %}
 
 </body>
 

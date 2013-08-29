@@ -1,5 +1,7 @@
 {% load i18n %}
 
+{% load browserid %}
+
     <!-- BEGIN header-->
     <div id="home-header">
       <div class="wrapper">
@@ -16,11 +18,19 @@
           {% comment %}Translators: Note, the full sentence goes 'Sign up' 'or' 'Log in'. But unfortunately the three bits have to be separate.{% endcomment %}
           <a class="reg" href="{% url registration_register %}">{% trans "Sign up" %}</a>
           <div class="login-box">
-            <p>{% trans "or" %} <a class="login" href="{% url auth_login %}">{% trans "Log in" %}</a></p>
+            {% trans "Log in" as persona_login_text %}
+            <p>{% trans "or" %} {% browserid_login link_class='login' text=persona_login_text next=request.get_full_path %}</p>
           </div>
         </div>
         <!-- END header links -->
 
       </div>
     </div>
+    {% if not request.user.is_authenticated %}
+    <div id="unauthenticated-message">
+      <div class="wrapper">
+        <p>We have changed our login system to use Persona instead of using an email/password combination. You'll need to log into Persona using the email account that you associated with your account on Read the Docs. <a href='https://login.persona.org/about'>Click here</a> for more information on Persona.
+      </div>
+    </div>
+    {% endif %}
     <!-- END header-->

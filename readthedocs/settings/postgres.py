@@ -49,6 +49,7 @@ NGINX_X_ACCEL_REDIRECT = True
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTOCOL", "https")
 
+SITE_URL = 'https://readthedocs.org' # BrowserID audience
 
 try:
     from local_settings import *  # noqa
