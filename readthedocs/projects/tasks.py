@@ -308,6 +308,7 @@ def update_imported_docs(version_pk):
         # Ensure we have a conf file (an exception is raised if not)
         project.conf_file(version.slug)
 
+
         # Do Virtualenv bits:
         if project.use_virtualenv:
             if project.use_system_packages:
@@ -317,8 +318,8 @@ def update_imported_docs(version_pk):
             # Here the command has been modified to support different
             # interpreters.
             update_docs_output['venv'] = run(
-                '{cmd} --distribute {site_packages} {path}'.format(
-                    cmd='virtualenv -p {interpreter}'.format(
+                '{cmd} {site_packages} {path}'.format(
+                    cmd='virtualenv-2.7 -p {interpreter}'.format(
                         interpreter=project.python_interpreter),
                     site_packages=site_packages,
                     path=project.venv_path(version=version_slug)
@@ -337,7 +338,7 @@ def update_imported_docs(version_pk):
                           '#egg=Sphinx')
                 update_docs_output['sphinx'] = run(
                     ('{cmd} install -U {ignore_option} {sphinx} '
-                     'virtualenv==1.8.2 distribute==0.6.28 '
+                     'virtualenv==1.10.1 setuptools==1.1 '
                      'docutils==0.8.1').format(
                         cmd=project.venv_bin(version=version_slug, bin='pip'),
                         sphinx=sphinx, ignore_option=ignore_option))
