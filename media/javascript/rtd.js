@@ -84,7 +84,7 @@
 
 
 $.ajax({
-url: "//api.grokthedocs.com/static/client.js",
+url: "https://api.grokthedocs.com/static/client.js",
 crossDomain: true,
 dataType: "script",
 cache: true,
