@@ -339,7 +339,7 @@ def update_imported_docs(version_pk):
                 update_docs_output['sphinx'] = run(
                     ('{cmd} install -U {ignore_option} {sphinx} '
                      'virtualenv==1.10.1 setuptools==1.1 '
-                     'docutils==0.8.1').format(
+                     'docutils==0.11').format(
                         cmd=project.venv_bin(version=version_slug, bin='pip'),
                         sphinx=sphinx, ignore_option=ignore_option))
             else:
