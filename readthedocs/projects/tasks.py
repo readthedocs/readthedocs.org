@@ -334,8 +334,8 @@ def update_imported_docs(version_pk):
             else:
                 ignore_option = ''
             if project.python_interpreter != 'python3':
-                sphinx = ('hg+http://bitbucket.org/birkenfeld/sphinx/@d4c6ac1fcc9c'
-                          '#egg=Sphinx')
+                # Let's see if this works now.
+                sphinx = 'sphinx==1.1.3'
                 update_docs_output['sphinx'] = run(
                     ('{cmd} install -U {ignore_option} {sphinx} '
                      'virtualenv==1.10.1 setuptools==1.1 '
