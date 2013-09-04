@@ -92,6 +92,12 @@ if 'html_context' in locals():
     html_context.update(context)
 else:
     html_context = context
+
+# Add custom RTD extension
+if 'extensions' in locals():
+    extensions.append("readthedocs_ext.readthedocs")
+else:
+    extensions = ["readthedocs_ext.readthedocs"]
 """
 
 TEMPLATE_DIR = '%s/readthedocs/templates/sphinx' % settings.SITE_ROOT
@@ -192,12 +198,12 @@ class Builder(BaseBuilder):
         os.chdir(project.conf_dir(self.version.slug))
         force_str = " -E " if self.force else ""
         if project.use_virtualenv:
-            build_command = "%s %s -b html . _build/html " % (
+            build_command = "%s %s -b readthedocs . _build/html " % (
                 project.venv_bin(version=self.version.slug,
                                  bin='sphinx-build'),
                 force_str)
         else:
-            build_command = ("sphinx-build %s -b html . _build/html"
+            build_command = ("sphinx-build %s -b readthedocs . _build/html"
                              % (force_str))
         build_results = run(build_command, shell=True)
         self._zip_html()
