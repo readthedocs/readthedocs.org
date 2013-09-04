@@ -3,21 +3,21 @@ from fabric.decorators import runs_once
 import time
 
 env.runtime = 'production'
-env.hosts = ['chimera.readthedocs.com',
-             'bigbuild.readthedocs.com',
-             'asgard.readthedocs.com']
+env.hosts = ['newchimera.readthedocs.com',
+             'newbuild.readthedocs.com',
+             'newasgard.readthedocs.com']
 env.user = 'docs'
 env.code_dir = '/home/docs/checkouts/readthedocs.org'
 env.virtualenv = '/home/docs/'
 env.rundir = '/home/docs/run'
 
 
-@hosts(['chimera.readthedocs.com', 'asgard.readthedocs.com'])
+@hosts(['newchimera.readthedocs.com', 'newasgard.readthedocs.com'])
 def remove_project(project):
     run('rm -rf %s/user_builds/%s' % (env.code_dir, project))
 
 
-@hosts(['asgard.readthedocs.com'])
+@hosts(['newasgard.readthedocs.com'])
 def nginx_logs():
     env.user = "root"
     run("tail -f /var/log/nginx/*.log")
@@ -47,24 +47,24 @@ def update_requirements():
          "%s/deploy_requirements.txt") % (env.virtualenv, env.code_dir))
 
 
-@hosts(['chimera.readthedocs.com'])
+@hosts(['newchimera.readthedocs.com'])
 def migrate(project=None):
     if project:
         run('django-admin.py migrate %s' % project)
     else:
         run('django-admin.py migrate')
 
-@hosts(['chimera.readthedocs.com'])
+@hosts(['newchimera.readthedocs.com'])
 def syncdb(project=None):
     run('django-admin.py syncdb')
 
-@hosts(['chimera.readthedocs.com', 'asgard.readthedocs.com'])
+@hosts(['newchimera.readthedocs.com', 'newasgard.readthedocs.com'])
 def static():
     "Restart (or just start) the server"
     run('django-admin.py collectstatic --noinput')
 
 
-@hosts(['chimera.readthedocs.com', 'asgard.readthedocs.com'])
+@hosts(['newchimera.readthedocs.com', 'newasgard.readthedocs.com'])
 def restart():
     "Restart (or just start) the server"
     env.user = "docs"
@@ -73,13 +73,13 @@ def restart():
     time.sleep(3)
 
 
-@hosts(['chimera.readthedocs.com', 'asgard.readthedocs.com'])
+@hosts(['newchimera.readthedocs.com', 'newasgard.readthedocs.com'])
 def reload():
     "Reload (or just start) the server"
     run("supervisorctl update")
 
 
-@hosts(['bigbuild.readthedocs.com'])
+@hosts(['newbuild.readthedocs.com'])
 def celery():
     "Restart (or just start) the server"
     run("supervisorctl restart celery")
@@ -180,11 +180,11 @@ def full_deploy():
     #celery()
 
 
-@hosts(['chimera.readthedocs.com'])
+@hosts(['newchimera.readthedocs.com'])
 def uptime():
     run('uptime')
 
 
-@hosts(['chimera.readthedocs.com'])
+@hosts(['newchimera.readthedocs.com'])
 def update_index():
     run('django-admin.py update_index')
