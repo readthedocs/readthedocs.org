@@ -72,7 +72,7 @@ def install_packages(type):
             ' postgresql-client libpq-dev subversion graphviz '
             ' curl sqlite libxml2-dev libxslt-dev vim g++ python-numpy '
             ' python-scipy build-essential texlive-full libevent-dev '
-            ' libmysqlclient-dev python-m2crypto libffi-dev '
+            ' libmysqlclient-dev python-m2crypto libffi-dev python-matplotlib '
             ' graphviz-dev libenchant1c2a '
         )
         sudo('pip install -U mercurial')
