@@ -244,7 +244,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
         # Things that touch redis
         update_intersphinx(version.pk)
         # Needs to happen after update_intersphinx
-        clear_artifacts(version.pk)
+        #clear_artifacts(version.pk)
 
     # Try importing from Open Comparison sites.
     try:
@@ -339,7 +339,7 @@ def update_imported_docs(version_pk):
                 update_docs_output['sphinx'] = run(
                     ('{cmd} install -U {ignore_option} {sphinx} '
                      'virtualenv==1.10.1 setuptools==1.1 '
-                     'docutils==0.11').format(
+                     'docutils==0.11 readthedocs-sphinx-ext==0.2').format(
                         cmd=project.venv_bin(version=version_slug, bin='pip'),
                         sphinx=sphinx, ignore_option=ignore_option))
             else:
@@ -347,7 +347,7 @@ def update_imported_docs(version_pk):
                 # python 3 specific hax
                 update_docs_output['sphinx'] = run(
                     ('{cmd} install {ignore_option} {sphinx} '
-                     'virtualenv==1.9.1 docutils==0.11').format(
+                     'virtualenv==1.9.1 docutils==0.11 readthedocs-sphinx-ext==0.2').format(
                         cmd=project.venv_bin(version=version_slug, bin='pip'),
                         sphinx=sphinx, ignore_option=ignore_option))
 
@@ -676,7 +676,6 @@ def zenircbot_notification(version_id):
 @task
 def clear_artifacts(version_pk):
     """ Remove artifacts from the build server. """
-    pass
     # Stop doing this for now as it causes 403s if people build things back to
     # back some times because of a race condition
     #version_data = api.version(version_pk).get()
