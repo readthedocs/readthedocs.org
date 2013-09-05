@@ -78,13 +78,9 @@ def wipe_version(request, project_slug, version_slug):
                                 slug=version_slug)
     if request.user not in version.project.users.all():
         raise Http404("You must own this project to wipe it.")
-    del_dir = version.project.checkout_path(version.slug)
-    if del_dir:
+    del_dirs = [version.project.checkout_path(version.slug), version.project.venv_path(version.slug)]
+    for del_dir in del_dirs:
         remove_dir.delay(del_dir)
-        return render_to_response('wipe_version.html',
-                                  {'del_dir': del_dir,
-                                   'deleted': True},
-                                  context_instance=RequestContext(request))
     return render_to_response('wipe_version.html',
                               {'del_dir': del_dir},
                               context_instance=RequestContext(request))
