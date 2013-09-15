@@ -12,7 +12,7 @@ django-kombu==0.9.4
 django-nose==1.1
 django-profiles==0.2
 django-secure==0.1.2
-django==1.4.6
+django==1.4.8
 docutils==0.8.1
 github2==0.5.2
 httplib2==0.7.2
