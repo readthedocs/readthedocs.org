@@ -7,7 +7,7 @@
     {% with project.users.all as users %}
 
       {% if users|length > 1 %}
-      ({% for user in project.users.all %}
+      ({% for user in project.users.all|slice:":3" %}
         {% if omit and user.pk != omit.pk %}
           <a href="{{ user.get_absolute_url }}" class="quiet user">{{ user }}</a>
         {% endif %}
