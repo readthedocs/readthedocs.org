@@ -19,3 +19,30 @@ Build
 
 fab -H bigbuild.readthedocs.com build
 
+Web
+---
+
+::
+
+fab -H bigbuild.readthedocs.com users:docs web
+
+DB
+--
+
+::
+
+fab -H root@$SERVER db users:root
+
+
+Full setup
+----------
+
+::
+
+fab -H root@newbuild build
+fab -H root@newchimera web
+fab -H root@newasgard web
+fab -H root@newdb db
+fab -H root@newbackup backup
+
+You might also need to fix_perms, host_files, and a few other 1 time runs.
