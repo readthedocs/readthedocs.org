@@ -6,7 +6,7 @@ This will serve as a list of all of the features that Read the Docs currently ha
 Github Integration
 ------------------
 
-We now support linking to GitHub by default in the sidebar. It links to the page on GitHub, and directly links to the edit view as well. This should help people quickly update typos and send pull requests to contribute to project documentation.
+We now support linking to GitHub by default in the sidebar. It links to the page on GitHub, and directly links to the edit view as well. This should help people quickly update typos and send pull requests to contribute to project documentation. Note that users must be logged in to GitHub in order to directly jump into the edit view via the "Edit on GitHub" link, otherwise they'll be presented with an unfortunate 404 page. The user does not, however, need to be logged on to use the "Show in GitHub" link. 
 
 If you want to integrate this into your own theme, the following variables are available in your custom templates:
 
