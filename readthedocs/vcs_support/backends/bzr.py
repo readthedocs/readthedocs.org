@@ -1,4 +1,5 @@
 import csv
+import re
 from StringIO import StringIO
 
 from projects.exceptions import ProjectImportError
@@ -58,7 +59,8 @@ class Backend(BaseVCS):
             0.2.0-pre-alpha      177
         """
         # parse the lines into a list of tuples (commit-hash, tag ref name)
-        raw_tags = csv.reader(StringIO(data), delimiter=' ')
+        squashed_data = re.sub(r' +', ' ', data)
+        raw_tags = csv.reader(StringIO(squashed_data), delimiter=' ')
         vcs_tags = []
         for name, commit in raw_tags:
             vcs_tags.append(VCSVersion(self, commit, name))
