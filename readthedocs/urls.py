@@ -74,7 +74,7 @@ urlpatterns = patterns(
     url(r'^dashboard/', include('projects.urls.private')),
     url(r'^github', 'core.views.github_build', name='github_build'),
     url(r'^bitbucket', 'core.views.bitbucket_build', name='bitbucket_build'),
-    url(r'^build/(?P<pk>\d+)',
+    url(r'^build/(?P<pk>[-\w]+)',
         'core.views.generic_build',
         name='generic_build'),
     url(r'^random/(?P<project>[\w-]+)',

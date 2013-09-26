@@ -162,7 +162,7 @@
 {% if request.user in project.users.all %}
   <h3>{% trans "Post Commit Hook" %}</h3>
     <p>
-        curl -X POST http://{{ PRODUCTION_DOMAIN }}{% url generic_build project.pk %}
+        curl -X POST http://{{ PRODUCTION_DOMAIN }}{% url generic_build project.slug %}
     </p>
 
 {% endif %}
