@@ -23,9 +23,8 @@ simplejson==2.3.0
 south==0.7.6
 sphinx-http-domain==0.2
 django-gravatar2==1.0.6
-slumber==0.4.2
-# Required for slumber because it just pulls down "requests"
-requests==0.14.1
+slumber==0.6
+requests==2.0
 virtualenv==1.10.1
 doc2dash==1.1.0
 beautifulsoup4==4.1.3

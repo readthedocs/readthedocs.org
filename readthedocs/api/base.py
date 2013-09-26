@@ -250,6 +250,7 @@ class BuildResource(EnhancedModelResource):
     version = fields.ForeignKey('api.base.VersionResource', 'version')
 
     class Meta:
+        always_return_data = True
         include_absolute_url = True
         allowed_methods = ['get', 'post', 'put']
         queryset = Build.objects.all()

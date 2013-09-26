@@ -47,6 +47,15 @@ class ProjectViewSet(viewsets.ModelViewSet):
             'flat': version_strings,
             })
 
+    @link()
+    def translations(self, request, **kwargs):
+        project = get_object_or_404(Project, pk=kwargs['pk'])
+        ret_val = []
+        for translation in project.translations.all():
+            ret_val['slug'] = translation.slug
+            ret_val['language'] = translation.language
+        return Response({'translations': ret_val})
+
 class NotificationViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticated, RelatedProjectIsOwner)
     renderer_classes = (JSONRenderer, BrowsableAPIRenderer)

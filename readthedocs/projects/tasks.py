@@ -31,7 +31,7 @@ from projects.models import ImportedFile, Project
 from projects.utils import (mkversion, purge_version, run, slugify_uniquely,
                             make_api_version, make_api_project)
 from tastyapi import client as tastyapi_client
-from tastyapi import api
+from tastyapi import api, apiv2
 from core.utils import copy_to_app_servers, run_on_app_servers
 
 ghetto_hack = re.compile(
@@ -232,7 +232,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
                           mainsite=True, cname=True)
             symlink_cname(version)
             # This requires database access, must disable it for now.
-            # symlink_translations(version)
+            symlink_translations.delay(version)
             #send_notifications(version, build)
             log.info("Purged %s" % version)
         else:
@@ -589,23 +589,27 @@ def symlink_translations(version):
     Link from HOME/user_builds/project/translations/<lang> ->
               HOME/user_builds/<project>/rtd-builds/
     """
-    translations = version.project.translations.all()
-    for translation in translations:
-        # Get the first part of the symlink.
-        base_path = version.project.translations_path(translation.language)
-        translation_dir = translation.rtd_build_path(translation.slug)
+    try:
+        translations = apiv2.project(version.project.pk).translations.get()['translations']
+        for translation in translations:
+            # Get the first part of the symlink.
+            base_path = version.project.translations_path(translation['language'])
+            translation_dir = translation.rtd_build_path(translation['slug'])
+            # Chop off the version from the end.
+            translation_dir = '/'.join(translation_dir.split('/')[:-1])
+            log.info("Symlinking %s" % translation['language'])
+            run_on_app_servers('mkdir -p %s' % '/'.join(base_path.split('/')[:-1]))
+            run_on_app_servers('ln -nsf %s %s' % (translation_dir, base_path))
+        # Hack in the en version for backwards compat
+        base_path = version.project.translations_path('en')
+        translation_dir = version.project.rtd_build_path(version.project.slug)
         # Chop off the version from the end.
         translation_dir = '/'.join(translation_dir.split('/')[:-1])
-        log.info("Symlinking %s" % translation.language)
         run_on_app_servers('mkdir -p %s' % '/'.join(base_path.split('/')[:-1]))
         run_on_app_servers('ln -nsf %s %s' % (translation_dir, base_path))
-    # Hack in the en version for backwards compat
-    base_path = version.project.translations_path('en')
-    translation_dir = version.project.rtd_build_path(version.project.slug)
-    # Chop off the version from the end.
-    translation_dir = '/'.join(translation_dir.split('/')[:-1])
-    run_on_app_servers('mkdir -p %s' % '/'.join(base_path.split('/')[:-1]))
-    run_on_app_servers('ln -nsf %s %s' % (translation_dir, base_path))
+    except Exception:
+        # Don't fail on translation bits
+        pass
 
 
 def send_notifications(version, build):

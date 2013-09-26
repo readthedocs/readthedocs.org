@@ -15,3 +15,10 @@ if USER and PASS:
 else:
     log.warning("SLUMBER_USERNAME/PASSWORD settings are not set")
     api = slumber.API(base_url='%s/api/v1/' % API_HOST)
+
+if USER and PASS:
+    log.debug("Using slumber v2 with user %s, pointed at %s" % (USER, API_HOST))
+    apiv2 = slumber.API(base_url='%s/api/v2/' % API_HOST, auth=(USER, PASS))
+else:
+    log.warning("SLUMBER_USERNAME/PASSWORD settings are not set")
+    apiv2 = slumber.API(base_url='%s/api/v2/' % API_HOST)
