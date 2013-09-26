@@ -190,8 +190,12 @@ def bitbucket_build(request):
 
 
 @csrf_view_exempt
-def generic_build(request, pk):
-    project = Project.objects.get(pk=pk)
+def generic_build(request, pk=None):
+    try:
+        project = Project.objects.get(pk=pk)
+    # Allow slugs too
+    except (Project.DoesNotExist, ValueError):
+        project = Project.objects.get(slug=pk)
     context = {'built': False, 'project': project}
     if request.method == 'POST':
         context['built'] = True
