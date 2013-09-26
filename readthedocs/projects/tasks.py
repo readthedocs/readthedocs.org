@@ -482,11 +482,13 @@ def fileify(version_pk):
                             path=dirpath,
                             name=filename))
                     else:
-                        ImportedFile.objects.get_or_create(
+                        obj, created = ImportedFile.objects.get_or_create(
                             project=project,
                             version=version,
                             path=dirpath,
                             name=filename)
+                        if not created:
+                            obj.save()
 
 
 #@periodic_task(run_every=crontab(hour="*", minute="*/5", day_of_week="*"))
