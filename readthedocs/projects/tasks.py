@@ -607,7 +607,8 @@ def symlink_translations(version):
         translation_dir = '/'.join(translation_dir.split('/')[:-1])
         run_on_app_servers('mkdir -p %s' % '/'.join(base_path.split('/')[:-1]))
         run_on_app_servers('ln -nsf %s %s' % (translation_dir, base_path))
-    except Exception:
+    except Exception, e:
+        log.error("Error in symlink_translations: %s" % e)
         # Don't fail on translation bits
         pass
 
