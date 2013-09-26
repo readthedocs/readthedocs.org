@@ -598,7 +598,7 @@ def symlink_translations(version):
             translation_dir = translation.rtd_build_path(translation.slug)
             # Chop off the version from the end.
             translation_dir = '/'.join(translation_dir.split('/')[:-1])
-            log.info("Symlinking %s" % translation['language'])
+            log.info("Symlinking %s" % translation.language)
             run_on_app_servers('mkdir -p %s' % '/'.join(base_path.split('/')[:-1]))
             run_on_app_servers('ln -nsf %s %s' % (translation_dir, base_path))
         # Hack in the en version for backwards compat
