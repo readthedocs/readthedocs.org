@@ -52,8 +52,11 @@ class ProjectViewSet(viewsets.ModelViewSet):
         project = get_object_or_404(Project, pk=kwargs['pk'])
         ret_val = []
         for translation in project.translations.all():
-            ret_val['slug'] = translation.slug
-            ret_val['language'] = translation.language
+            ret_obj = {
+                'slug': translation.slug,
+                'language': translation.language,
+            }
+            ret_val.append(ret_obj)
         return Response({'translations': ret_val})
 
 class NotificationViewSet(viewsets.ModelViewSet):
