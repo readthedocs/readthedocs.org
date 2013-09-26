@@ -10,6 +10,7 @@ from rest_framework.response import Response
 from betterversion.better import version_windows, BetterVersion 
 from projects.models import Project, EmailHook
 
+from .serializers import ProjectSerializer
 from .permissions import RelatedProjectIsOwner
 
 class ProjectViewSet(viewsets.ModelViewSet):
@@ -50,14 +51,10 @@ class ProjectViewSet(viewsets.ModelViewSet):
     @link()
     def translations(self, request, **kwargs):
         project = get_object_or_404(Project, pk=kwargs['pk'])
-        ret_val = []
-        for translation in project.translations.all():
-            ret_obj = {
-                'slug': translation.slug,
-                'language': translation.language,
-            }
-            ret_val.append(ret_obj)
-        return Response({'translations': ret_val})
+        queryset = project.translations.all()
+        return Response({
+            'translations': ProjectSerializer(queryset, many=True).data
+        })
 
 class NotificationViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticated, RelatedProjectIsOwner)

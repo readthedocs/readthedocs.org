@@ -591,10 +591,11 @@ def symlink_translations(version):
     """
     try:
         translations = apiv2.project(version.project.pk).translations.get()['translations']
-        for translation in translations:
+        for translation_data in translations:
+            translation = make_api_project(translation_data)
             # Get the first part of the symlink.
-            base_path = version.project.translations_path(translation['language'])
-            translation_dir = translation.rtd_build_path(translation['slug'])
+            base_path = version.project.translations_path(translation.language)
+            translation_dir = translation.rtd_build_path(translation.slug)
             # Chop off the version from the end.
             translation_dir = '/'.join(translation_dir.split('/')[:-1])
             log.info("Symlinking %s" % translation['language'])
