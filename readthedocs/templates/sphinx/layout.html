@@ -6,7 +6,14 @@
 {% block htmltitle %}
 {{ super() }}
 <!-- RTD <head> -->
-<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+<!-- jquery -->
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script type="text/javascript">
+  if (!window.jQuery) {
+    document.write('<script src="{{ MEDIA_URL }}javascript/jquery/jquery-2.0.3.min.js"><\/script>');
+  }
+</script>
+<script type="text/javascript" src="{{ MEDIA_URL }}javascript/jquery/jquery-migrate-1.2.1.min.js"></script>
 <script type="text/javascript" src="{{ MEDIA_URL }}javascript/underscore.js"></script>
 <script type="text/javascript" src="{{ MEDIA_URL }}javascript/doctools.js"></script>
 {% if using_theme %}

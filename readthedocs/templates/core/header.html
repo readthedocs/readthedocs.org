@@ -7,7 +7,14 @@
     <script type="text/javascript" src="http://use.typekit.com/xgl8ypn.js"></script>
     <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
     <!-- jquery -->
-    <!-- <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script> -->
+      <!-- jquery -->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script type="text/javascript">
+      if (!window.jQuery) {
+        document.write('<script src="{{ MEDIA_URL }}javascript/jquery/jquery-2.0.3.min.js"><\/script>');
+      }
+    </script>
+    <script type="text/javascript" src="{{ MEDIA_URL }}javascript/jquery/jquery-migrate-1.2.1.min.js"></script>
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.4/jquery-ui.min.js"></script>
     <script type="text/javascript">
       $(function() {
