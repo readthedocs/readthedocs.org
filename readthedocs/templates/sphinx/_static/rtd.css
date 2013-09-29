@@ -609,6 +609,10 @@ p {
     margin: 1em 2em;
 }
 
+table.docutils td, table.docutils th {
+    padding: 1px 8px 1px 5px;
+}
+
 
 /* MOBILE LAYOUT -------------------------------------------------------------- */
 
@@ -802,4 +806,5 @@ p {
     }
 
 }
+
 
