@@ -17,7 +17,9 @@ class SubdomainMiddleware(object):
 
         # Google was finding crazy www.blah.readthedocs.org domains.
         if len(domain_parts) > 3:
-            raise Http404(_('Invalid hostname'))
+            # Let's try allowing this again.
+            pass
+            #raise Http404(_('Invalid hostname'))
         if len(domain_parts) == 3:
             subdomain = domain_parts[0]
             # Serve subdomains
