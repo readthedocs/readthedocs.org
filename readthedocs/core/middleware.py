@@ -39,20 +39,26 @@ class SubdomainMiddleware(object):
            'testserver' not in host:
             request.cname = True
             try:
-                slug = cache.get(host)
-                if not slug:
-                    redis_conn = redis.Redis(**settings.REDIS)
-                    from dns import resolver
-                    answer = [ans for ans in resolver.query(host, 'CNAME')][0]
-                    domain = answer.target.to_unicode()
-                    slug = domain.split('.')[0]
-                    cache.set(host, slug, 60*60)
-                    #Cache the slug -> host mapping permanently.
-                    redis_conn.sadd("rtd_slug:v1:%s" % slug, host)
-                request.slug = slug
+                request.slug = request.META['HTTP_X_RTD_SLUG']
                 request.urlconf = 'core.subdomain_urls'
-            except:
-                # Some crazy person is CNAMEing to us. 404.
-                raise Http404(_('Invalid Host Name.'))
+                request.rtdheader = True
+            except KeyError:
+                # Try header first, then DNS
+                try:
+                    slug = cache.get(host)
+                    if not slug:
+                        redis_conn = redis.Redis(**settings.REDIS)
+                        from dns import resolver
+                        answer = [ans for ans in resolver.query(host, 'CNAME')][0]
+                        domain = answer.target.to_unicode()
+                        slug = domain.split('.')[0]
+                        cache.set(host, slug, 60*60)
+                        #Cache the slug -> host mapping permanently.
+                        redis_conn.sadd("rtd_slug:v1:%s" % slug, host)
+                    request.slug = slug
+                    request.urlconf = 'core.subdomain_urls'
+                except:
+                    # Some crazy person is CNAMEing to us. 404.
+                    raise Http404(_('Invalid Host Name.'))
         # Normal request.
         return None
