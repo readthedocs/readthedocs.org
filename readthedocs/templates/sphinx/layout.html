@@ -5,7 +5,7 @@
 
 {% block htmltitle %}
 {{ super() }}
-<!-- RTD <head> -->
+<!-- RTD <htmltitle> -->
 <!-- jquery -->
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
 <script type="text/javascript">
@@ -19,6 +19,11 @@
 {% if using_theme %}
   <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;"/>
 {% endif %}
+<!-- end RTD <htmltitle> -->
+{% endblock %}
+
+{% block extrahead %}
+<!-- RTD Extra Head -->
 <script type="text/javascript">
   // This is included here for Javascript that doesn't have access to the templates.
   var doc_version = "{{ current_version }}";
@@ -30,7 +35,9 @@ We include the media servers version here so we can update rtd.js across all
 documentation without rebuilding every one. If this script is embedded in each build, then updating the file across all docs is basically impossible.
 #}
 <script type="text/javascript" src="{{ MEDIA_URL }}javascript/rtd.js"></script>
-<!-- end RTD <head> -->
+<link rel="stylesheet" href="{{ MEDIA_URL }}css/rtd-shim.css" type="text/css" />
+<!-- end RTD <extrahead> -->
+
 {% endblock %}
 
 {% block sidebarlogo %}
