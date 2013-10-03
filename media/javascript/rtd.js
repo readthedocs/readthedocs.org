@@ -69,24 +69,25 @@
 
     checkVersion(slug, version);
     getVersions(slug, version);
+    
+    /*
+     * Grok the Docs event handling
+     * This will allow you to better 
+     * understand whats happening in your docs,
+     * once fully rolled out.
+    */
+
+
+    $.ajax({
+    url: "https://api.grokthedocs.com/static/client.js",
+    crossDomain: true,
+    dataType: "script",
+    cache: true,
+    });
+
 
 
   });
 
 })();
-
-/*
- * Grok the Docs event handling
- * This will allow you to better 
- * understand whats happening in your docs,
- * once fully rolled out.
-*/
-
-
-$.ajax({
-url: "https://api.grokthedocs.com/static/client.js",
-crossDomain: true,
-dataType: "script",
-cache: true,
-});
 
