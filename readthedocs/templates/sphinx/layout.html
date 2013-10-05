@@ -23,6 +23,7 @@
 {% endblock %}
 
 {% block extrahead %}
+{{ super() }}
 <!-- RTD Extra Head -->
 <script type="text/javascript">
   // This is included here for Javascript that doesn't have access to the templates.
@@ -37,7 +38,6 @@ documentation without rebuilding every one. If this script is embedded in each b
 <script type="text/javascript" src="{{ MEDIA_URL }}javascript/rtd.js"></script>
 <link rel="stylesheet" href="{{ MEDIA_URL }}css/rtd-shim.css" type="text/css" />
 <!-- end RTD <extrahead> -->
-
 {% endblock %}
 
 {% block sidebarlogo %}
