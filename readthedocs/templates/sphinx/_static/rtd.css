@@ -133,6 +133,11 @@ a {
     /* border-bottom: none; */
 }
 
+/* Search box size */
+div.sphinxsidebar #searchbox input[type="submit"] {
+    width: 50px;
+}
+
 /* Most links get an underline-effect when hovered */
 a:hover,
 div.toctree-wrapper a:hover,
