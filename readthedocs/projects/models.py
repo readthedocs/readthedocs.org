@@ -604,8 +604,8 @@ class Project(models.Model):
 
     def version_from_branch_name(self, branch):
         try:
-            return (self.versions.filter(identifier=branch) |
-                    self.versions.filter(identifier=('remotes/origin/%s'
+            return (self.versions.filter(active=True, identifier=branch) |
+                    self.versions.filter(active=True, identifier=('remotes/origin/%s'
                                                      % branch)))[0]
         except IndexError:
             return None
