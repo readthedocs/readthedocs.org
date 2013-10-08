@@ -19,18 +19,26 @@
 {% if using_theme %}
   <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;"/>
 {% endif %}
+<script type="text/javascript">
+  // This is included here for javascript included in the project
+  var doc_version = "{{ current_version }}";
+  var doc_slug = "{{ slug }}";
+  var page_name = "{{ pagename }}";
+</script>
 <!-- end RTD <htmltitle> -->
 {% endblock %}
 
 {% block extrahead %}
 {{ super() }}
 <!-- RTD Extra Head -->
+{% if not self.htmltitle %}
 <script type="text/javascript">
-  // This is included here for Javascript that doesn't have access to the templates.
+  // This is included here for theme's that don't have a htmltitle template
   var doc_version = "{{ current_version }}";
   var doc_slug = "{{ slug }}";
   var page_name = "{{ pagename }}";
 </script>
+{% endif %}
 {#
 We include the media servers version here so we can update rtd.js across all
 documentation without rebuilding every one. If this script is embedded in each build, then updating the file across all docs is basically impossible.

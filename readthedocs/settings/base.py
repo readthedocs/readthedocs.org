@@ -83,7 +83,7 @@ MIDDLEWARE_CLASSES = (
     #'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
 )
 
-CORS_ORIGIN_REGEX_WHITELIST = ('^http?://(\w+\.)?readthedocs\.org$', '^https?://(\w+\.)?readthedocs\.org$')
+CORS_ORIGIN_REGEX_WHITELIST = ('^http://(.+)\.readthedocs\.org$', '^https://(.+)\.readthedocs\.org$')
 # So people can post to their accounts
 CORS_ALLOW_CREDENTIALS = True
 ROOT_URLCONF = 'urls'
