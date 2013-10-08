@@ -20,7 +20,7 @@
   <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;"/>
 {% endif %}
 <script type="text/javascript">
-  // This is included here for javascript included in the project
+  // This is included here for javascript included in the project.
   var doc_version = "{{ current_version }}";
   var doc_slug = "{{ slug }}";
   var page_name = "{{ pagename }}";
@@ -33,7 +33,7 @@
 <!-- RTD Extra Head -->
 {% if not self.htmltitle %}
 <script type="text/javascript">
-  // This is included here for theme's that don't have a htmltitle template
+  // This is included here for theme's that don't have a htmltitle template.
   var doc_version = "{{ current_version }}";
   var doc_slug = "{{ slug }}";
   var page_name = "{{ pagename }}";
@@ -45,6 +45,24 @@ documentation without rebuilding every one. If this script is embedded in each b
 #}
 <script type="text/javascript" src="{{ MEDIA_URL }}javascript/rtd.js"></script>
 <link rel="stylesheet" href="{{ MEDIA_URL }}css/rtd-shim.css" type="text/css" />
+
+{% if not self.footer %}
+<!-- RTD Analytics Code -->
+<!-- Included in the header because you don't have a footer block. -->
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-17997319-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+<!-- end RTD Analytics Code -->
+{% endif %}
+
 <!-- end RTD <extrahead> -->
 {% endblock %}
 
