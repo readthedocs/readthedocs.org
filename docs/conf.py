@@ -32,10 +32,8 @@ intersphinx_mapping = {
     'sphinx': ('http://sphinx.readthedocs.org/en/latest/', None),
 }
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
-if on_rtd:
-    html_theme = 'default'
-else:
-    html_theme = 'nature'
+html_theme_path = ['_themes/sphinx_rtd_theme']
+html_theme = 'sphinx_rtd_theme'
 # This doesn't exist since we aren't shipping any static files ourselves.
 #html_static_path = ['_static']
 htmlhelp_basename = 'ReadTheDocsdoc'
