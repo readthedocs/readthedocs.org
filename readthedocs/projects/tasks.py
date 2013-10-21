@@ -14,7 +14,6 @@ from celery.decorators import task
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.mail import send_mail
-from django.db import transaction
 from django.template import Context
 from django.template.loader import get_template
 from django.utils.translation import ugettext_lazy as _
@@ -38,7 +37,6 @@ ghetto_hack = re.compile(
     r'(?P<key>.*)\s*=\s*u?\[?[\'\"](?P<value>.*)[\'\"]\]?')
 
 log = logging.getLogger(__name__)
-
 
 @task
 def remove_dir(path):
@@ -442,8 +440,6 @@ def build_docs(version_pk, pdf, man, epub, dash, record, force):
                     epub_builder.move()
             else:
                 epub_results = fake_results
-            # Disable dash building for now.
-            dash = False
             if dash:
                 dash_builder = builder_loading.get('sphinx_dash')(version)
                 dash_results = dash_builder.build()

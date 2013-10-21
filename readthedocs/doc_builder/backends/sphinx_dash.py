@@ -28,19 +28,6 @@ class Builder(HtmlBuilder):
     def build(self, **kwargs):
         project = self.version.project
         os.chdir(project.conf_dir(self.version.slug))
-        force_str = " -E " if self.force else ""
-        if project.use_virtualenv:
-            html_build_command = "%s %s -b html . _build/html " % (
-                project.venv_bin(version=self.version.slug,
-                                 bin='sphinx-build'),
-                force_str)
-        else:
-            html_build_command = ("sphinx-build %s -b html . _build/html"
-                                  % (force_str))
-        html_build_results = run(html_build_command, shell=True)
-        if 'no targets are out of date.' in html_build_results[1]:
-            self._changed = False
-
         if os.path.exists('_build/dash'):
             shutil.rmtree('_build/dash')
         os.makedirs('_build/dash')
