@@ -1,5 +1,8 @@
+Support
+=======
+
 Getting Help
-=============
+------------
 
 The easiest way to get help with the project is to join the ``#readthedocs``
 channel on Freenode_. We hang out there and you can get real-time help with
@@ -11,7 +14,7 @@ The mailing list at https://groups.google.com/forum/#!forum/read-the-docs is als
 .. _Github: http://github.com/rtfd/readthedocs.org/issues
 
 Backwards Incompatible Changes
-==============================
+------------------------------
 
 Backwards Incompatible Changes will be emailed to the `mailing list`_. They will be prefixed with "Backwards
 Incompatible Changes". We are thinking about having some kind of Backwards
