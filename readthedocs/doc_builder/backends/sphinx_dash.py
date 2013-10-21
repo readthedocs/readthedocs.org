@@ -21,7 +21,6 @@ FEED_TEMPLATE = """<entry>
 </entry>
 """
 
-
 class Builder(HtmlBuilder):
 
     @restoring_chdir
