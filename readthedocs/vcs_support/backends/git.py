@@ -36,6 +36,7 @@ class Backend(BaseVCS):
             self.clone()
         self.run('git', 'submodule', 'sync')
         self.run('git', 'submodule', 'update', '--init', '--recursive')
+        self.run('git', 'submodule', 'foreach', 'git', 'pull', 'origin', 'master')
         return self.reset()
 
     def pull(self):
