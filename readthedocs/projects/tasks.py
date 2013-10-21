@@ -418,6 +418,13 @@ def build_docs(version_pk, pdf, man, epub, dash, record, force):
                         "Project Skipped, Didn't build")
         # Only build everything else if the html build changed.
         if html_builder.changed and not project.skip:
+            if dash:
+                dash_builder = builder_loading.get('sphinx_dash')(version)
+                dash_results = dash_builder.build()
+                if dash_results[0] == 0:
+                    dash_builder.move()
+            else:
+                dash_results = fake_results
             if pdf:
                 pdf_builder = builder_loading.get('sphinx_pdf')(version)
                 latex_results, pdf_results = pdf_builder.build()
@@ -440,13 +447,6 @@ def build_docs(version_pk, pdf, man, epub, dash, record, force):
                     epub_builder.move()
             else:
                 epub_results = fake_results
-            if dash:
-                dash_builder = builder_loading.get('sphinx_dash')(version)
-                dash_results = dash_builder.build()
-                if dash_results[0] == 0:
-                    dash_builder.move()
-            else:
-                dash_results = fake_results
 
     return (html_results, latex_results, pdf_results, man_results,
             epub_results, dash_results)
