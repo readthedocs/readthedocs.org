@@ -50,7 +50,8 @@ class Builder(HtmlBuilder):
         })
         feed_content = Template(FEED_TEMPLATE).render(context)
         to_file = self.version.project.get_dash_feed_path(self.version.slug)
-        to_path = os.path.dirname(to_file)
+        to_path = self.version.project.checkout_path(self.version.slug)
+        to_file = os.path.join(to_path, '%s.xml' % self.version.project.doc_name)
         if not os.path.exists(to_path):
             os.makedirs(to_path)
         with open(to_file, 'w') as feed_file:
@@ -84,9 +85,19 @@ class Builder(HtmlBuilder):
                                project.slug,
                                self.version.slug)
         from_globs = glob(os.path.join(outputted_path, "*.tgz"))
+        xml_globs = glob(os.path.join(outputted_path, "*.xml"))
         if from_globs:
             from_file = from_globs[0]
             to_file = os.path.join(to_path, "%s.tgz" % project.doc_name)
+            if getattr(settings, "MULTIPLE_APP_SERVERS", None):
+                copy_file_to_app_servers(from_file, to_file)
+            else:
+                if not os.path.exists(to_path):
+                    os.makedirs(to_path)
+                run('mv -f %s %s' % (from_file, to_file))
+        if xml_globs:
+            from_file = from_globs[0]
+            to_file = os.path.join(to_path, "%s.xml" % project.doc_name)
             if getattr(settings, "MULTIPLE_APP_SERVERS", None):
                 copy_file_to_app_servers(from_file, to_file)
             else:
