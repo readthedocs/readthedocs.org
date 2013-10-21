@@ -84,8 +84,8 @@ class Builder(HtmlBuilder):
                                'dash',
                                project.slug,
                                self.version.slug)
+        
         from_globs = glob(os.path.join(outputted_path, "*.tgz"))
-        xml_globs = glob(os.path.join(outputted_path, "*.xml"))
         if from_globs:
             from_file = from_globs[0]
             to_file = os.path.join(to_path, "%s.tgz" % project.doc_name)
@@ -95,8 +95,10 @@ class Builder(HtmlBuilder):
                 if not os.path.exists(to_path):
                     os.makedirs(to_path)
                 run('mv -f %s %s' % (from_file, to_file))
+
+        xml_globs = glob(os.path.join(outputted_path, "*.xml"))
         if xml_globs:
-            from_file = from_globs[0]
+            from_file = xml_globs[0]
             to_file = os.path.join(to_path, "%s.xml" % project.doc_name)
             if getattr(settings, "MULTIPLE_APP_SERVERS", None):
                 copy_file_to_app_servers(from_file, to_file)
