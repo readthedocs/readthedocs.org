@@ -647,7 +647,6 @@ class Project(models.Model):
         ProjectRelationship.objects.filter(parent=self, child=child).delete()
         return
 
-
 class ImportedFile(models.Model):
     project = models.ForeignKey('Project', verbose_name=_('Project'),
                                 related_name='imported_files')
