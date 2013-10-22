@@ -8,6 +8,7 @@ from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 
 from betterversion.better import version_windows, BetterVersion 
+from builds.models import Version
 from projects.models import Project, EmailHook
 
 from .serializers import ProjectSerializer
@@ -70,3 +71,16 @@ class NotificationViewSet(viewsets.ModelViewSet):
         if user.is_superuser:
             return self.model.objects.all()
         return self.model.objects.filter(project__users__in=[user.pk])
+
+class VersionViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    renderer_classes = (JSONRenderer, BrowsableAPIRenderer)
+    model = Version
+
+    @link()
+    def downloads(self, request, **kwargs):
+        version = get_object_or_404(Version, pk=kwargs['pk'])
+        downloads = version.get_downloads(pretty=True)
+        return Response({
+            'downloads': downloads
+        })

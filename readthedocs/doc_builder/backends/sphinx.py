@@ -13,6 +13,7 @@ from django.conf import settings
 from doc_builder.base import BaseBuilder, restoring_chdir
 from projects.utils import run
 from core.utils import copy_to_app_servers, copy_file_to_app_servers
+from tastyapi import apiv2
 
 log = logging.getLogger(__name__)
 
@@ -157,7 +158,7 @@ class Builder(BaseBuilder):
             'github_repo': github_info[1],
             'github_version':  github_version,
             'display_github': display_github,
-            'downloads': self.version.get_downloads(pretty=True),
+            'downloads': apiv2.version(self.version.pk).downloads.get()['downloads'],
         })
         rtd_string = Template(RTD_CONF_ADDITIONS).render(rtd_ctx)
         outfile.write(rtd_string)

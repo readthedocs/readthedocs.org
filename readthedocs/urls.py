@@ -4,7 +4,6 @@ from django.conf import settings
 from django.views.generic.simple import direct_to_template
 
 from tastypie.api import Api
-from rest_framework import routers
 
 from api.base import (ProjectResource, UserResource, BuildResource,
                       VersionResource, FileResource)
@@ -14,7 +13,7 @@ from core.views import SearchView
 from projects.feeds import LatestProjectsFeed, NewProjectsFeed
 from projects.filters import ProjectFilter
 from projects.constants import LANGUAGES_REGEX
-from restapi.views import ProjectViewSet, NotificationViewSet
+from restapi.urls import router
 
 
 v1_api = Api(api_name='v1')
@@ -25,9 +24,7 @@ v1_api.register(VersionResource())
 v1_api.register(FileResource())
 
 # API v2
-router = routers.DefaultRouter()
-router.register(r'project', ProjectViewSet)
-router.register(r'notification', NotificationViewSet)
+
 
 admin.autodiscover()
 
