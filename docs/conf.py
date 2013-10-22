@@ -45,3 +45,5 @@ man_pages = [
     ('index', 'read-the-docs', u'Read The Docs Documentation',
      [u'Eric Holscher, Charlie Leifer, Bobby Grace'], 1)
 ]
+
+RTD_NEW_THEME = True
