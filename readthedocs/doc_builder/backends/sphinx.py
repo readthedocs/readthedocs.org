@@ -45,21 +45,18 @@ if 'html_theme' in locals():
     if html_theme in ['default']:
         # Allow people to bail with a hack of having an html_style
         if not 'html_style' in locals():
-            if 'RTD_NEW_THEME' in locals():
-                html_theme = 'sphinx_rtd_theme'
-            else:
-                html_style = 'rtd.css'
-                html_theme = 'default'
+            html_style = 'rtd.css'
+            html_theme = 'default'
             html_theme_options = {}
             using_rtd_theme = True
 else:
-    if 'RTD_NEW_THEME' in locals():
-        html_theme = 'sphinx_rtd_theme'
-    else:
-        html_style = 'rtd.css'
-        html_theme = 'default'
+    html_style = 'rtd.css'
+    html_theme = 'default'
     html_theme_options = {}
     using_rtd_theme = True
+
+if 'RTD_NEW_THEME' in locals():
+    html_theme = 'sphinx_rtd_theme'
 
 #Add project information to the template context.
 context = {
