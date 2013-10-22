@@ -1,0 +1,26 @@
+{% if READTHEDOCS %}
+  <div class="rst-versions" data-toggle="rst-versions">
+    <span class="rst-current-version {% if current_version != "latest" %}rst-out-of-date{% endif %}" data-toggle="rst-current-version">
+      <span class="float-left icon icon-book"> Read the Docs</span>
+      v: {{ current_version }} 
+      {% if current_version != "latest" %}(old) {% endif %}
+      <span class="icon icon-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+      <dl>
+        <dt>Version</dt>
+        {% for slug, url in versions %}
+          <dd><a href="{{ url }}">{{ slug }}</a></dd>
+        {% endfor %}
+      </dl>
+      <dl>
+        <dt>Downloads</dt>
+        {% for type, url in downloads %}
+          <dd><a href="{{ url }}">{{ type }}</a></dd>
+        {% endfor %}
+      </dl>
+      <hr/>
+      Free document hosting provided by <a href="http://www.readthedocs.org">Read the Docs</a>.
+    </div>
+  </div>
+{% endif %}
