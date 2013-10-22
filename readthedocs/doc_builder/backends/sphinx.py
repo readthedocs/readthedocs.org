@@ -27,31 +27,41 @@ else:
     templates_path = ['{{ template_path }}', 'templates', '_templates',
                       '.templates']
 
-#Add RTD Static Path. Add to the end because it overwrites previous files.
+# Add RTD Static Path. Add to the end because it overwrites previous files.
 if 'html_static_path' in locals():
     html_static_path.append('{{ static_path }}')
 else:
     html_static_path = ['_static', '{{ static_path }}']
 
-#Add RTD CSS File only if they aren't overriding it already
+# Add RTD Theme Path. 
+if 'html_theme_path' in locals():
+    html_theme_path.append('{{ template_path }}')
+else:
+    html_theme_path = ['_themes', '{{ template_path }}']
+
+# Add RTD Theme only if they aren't overriding it already
 using_rtd_theme = False
-if project == "Python":
-    #Do nothing for Python theme-wise
-    pass
-elif 'html_theme' in locals():
+if 'html_theme' in locals():
     if html_theme in ['default']:
+        # Allow people to bail with a hack of having an html_style
         if not 'html_style' in locals():
-            html_style = 'rtd.css'
-            html_theme = 'default'
+            if 'RTD_NEW_THEME' in locals():
+                html_theme = 'sphinx_rtd_theme'
+            else:
+                html_style = 'rtd.css'
+                html_theme = 'default'
             html_theme_options = {}
             using_rtd_theme = True
 else:
-    html_style = 'rtd.css'
-    html_theme = 'default'
+    if 'RTD_NEW_THEME' in locals():
+        html_theme = 'sphinx_rtd_theme'
+    else:
+        html_style = 'rtd.css'
+        html_theme = 'default'
     html_theme_options = {}
     using_rtd_theme = True
 
-#Add sponsorship and project information to the template context.
+#Add project information to the template context.
 context = {
     'using_theme': using_rtd_theme,
     'current_version': "{{ current_version.slug }}",
