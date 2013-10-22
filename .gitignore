@@ -1,6 +1,7 @@
 *.db
 *.pyc
 *.swp
+*.egg-info
 .DS_Store
 _build
 cnames

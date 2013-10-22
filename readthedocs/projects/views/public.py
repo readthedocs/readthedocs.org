@@ -70,19 +70,8 @@ def project_downloads(request, project_slug):
     versions = project.ordered_active_versions()
     version_data = SortedDict()
     for version in versions:
-        data = {}
-        if project.has_pdf(version.slug):
-            data['pdf_url'] = project.get_pdf_url(version.slug)
-        if project.has_htmlzip(version.slug):
-            data['htmlzip_url'] = project.get_htmlzip_url(version.slug)
-        if project.has_epub(version.slug):
-            data['epub_url'] = project.get_epub_url(version.slug)
-        if project.has_manpage(version.slug):
-            data['manpage_url'] = project.get_manpage_url(version.slug)
-        if project.has_dash(version.slug):
-            data['dash_url'] = project.get_dash_url(version.slug)
-            data['dash_feed_url'] = project.get_dash_feed_url(version.slug)
-        # Kill ones that have no downloads.
+        data = version.get_downloads()
+        # Don't show ones that have no downloads.
         if data:
             version_data[version.slug] = data
 

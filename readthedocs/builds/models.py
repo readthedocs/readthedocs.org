@@ -122,6 +122,30 @@ class Version(models.Model):
             assign('view_version', owner, self)
         return obj
 
+    def get_downloads(self, pretty=False):
+        project = self.project
+        data = {}
+        if pretty:
+            if project.has_pdf(self.slug):
+                data['PDF'] = project.get_pdf_url(self.slug)
+            if project.has_htmlzip(self.slug):
+                data['HTML'] = project.get_htmlzip_url(self.slug)
+            if project.has_epub(self.slug):
+                data['Epub'] = project.get_epub_url(self.slug)
+        else:
+            if project.has_pdf(self.slug):
+                data['pdf_url'] = project.get_pdf_url(self.slug)
+            if project.has_htmlzip(self.slug):
+                data['htmlzip_url'] = project.get_htmlzip_url(self.slug)
+            if project.has_epub(self.slug):
+                data['epub_url'] = project.get_epub_url(self.slug)
+            if project.has_manpage(self.slug):
+                data['manpage_url'] = project.get_manpage_url(self.slug)
+            if project.has_dash(self.slug):
+                data['dash_url'] = project.get_dash_url(self.slug)
+                data['dash_feed_url'] = project.get_dash_feed_url(self.slug)
+        return data
+
 
 class VersionAlias(models.Model):
     project = models.ForeignKey(Project, verbose_name=_('Project'),

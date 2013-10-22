@@ -59,9 +59,11 @@ context = {
     'versions': [{% for version in versions|sort_version_aware %}
     ("{{ version.slug }}", "/en/{{ version.slug }}/"),{% endfor %}
     ],
+    'downloads': [ {% for key, val in downloads.items %}
+    ("{{ key }}", "{{ val }}"),{% endfor %}
+    ],
     'slug': '{{ project.slug }}',
     'name': u'{{ project.name }}',
-    'badge_revsys': {{ project.sponsored }},
     'analytics_code': '{{ project.analytics_code }}',
     'conf_py_path': '{{ conf_py_path }}',
     'github_user': '{{ github_user }}',
@@ -155,6 +157,7 @@ class Builder(BaseBuilder):
             'github_repo': github_info[1],
             'github_version':  github_version,
             'display_github': display_github,
+            'downloads': self.version.get_downloads(pretty=True),
         })
         rtd_string = Template(RTD_CONF_ADDITIONS).render(rtd_ctx)
         outfile.write(rtd_string)
