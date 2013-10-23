@@ -103,8 +103,8 @@ def github_build(request):
         try:
             projects = Project.objects.filter(repo__contains=ghetto_url)
             for project in projects:
-                version = project.version_from_branch_name(branch)
-                if version:
+                versions = project.versions_from_branch_name(branch)
+                for version in versions:
                     log.info(("(Github Build) Processing %s:%s"
                               % (project.slug, version.slug)))
                     default = project.default_branch or (project.vcs_repo()

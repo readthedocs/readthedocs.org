@@ -610,6 +610,11 @@ class Project(models.Model):
         except IndexError:
             return None
 
+    def versions_from_branch_name(self, branch):
+        return (
+            self.versions.filter(identifier=branch) |
+            self.versions.filter(identifier='remotes/origin/%s' % branch)
+        )
     def get_default_version(self):
         """
         Get the default version (slug).
