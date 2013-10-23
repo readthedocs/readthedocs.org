@@ -8,12 +8,6 @@ First, you should check out the Builds tab of your project. That records all of 
 
 If you are still seeing errors because of C library dependencies, please see the below section about that.
 
-Do I need to be whitelisted?
-----------------------------
-
-No. Whitelisting has been removed as a concept in Read the Docs. You should have access to all of the features already.
-
-
 How do I change behavior for Read the Docs?
 -------------------------------------------
 
@@ -68,6 +62,24 @@ You can mock out the imports for these modules in your conf.py with the followin
 
 Of course, replacing `MOCK_MODULES` with the modules that you want to mock out.
 
+Can I make search engines only see one version of my docs?
+----------------------------------------------------------
+
+You can do this for Google at least with a canonical link tag.
+It looks something along the lines of:
+
+.. code-block:: html
+
+    <link rel="canonical" href="http://$YOURSLUG.readthedocs.org/en/latest/
+    {%- for word in pagename.split('/') -%}
+        {%- if word != 'index' -%}
+            {%- if word != '' -%}
+                {{ word }}/
+            {%- endif -%}
+        {%- endif -%}
+    {%- endfor -%}
+    ">
+
 Where do I need to put my docs for RTD to find it?
 --------------------------------------------------
 
@@ -77,7 +89,6 @@ I want to use the Blue/Default Sphinx theme
 -------------------------------------------
 
 We think that our theme is badass, and better than the default for many reasons. Some people don't like change though :), so there is a hack that will let you keep using the default theme. If you set the ``html_style`` variable in your ``conf.py``, it should default to using the default theme. The value of this doesn't matter, and can be set to ``/default.css`` for default behavior.
-
 
 Image scaling doesn't work in my documentation
 -----------------------------------------------
@@ -98,3 +109,9 @@ This is something that has been long planned. In fact, we have a language string
 
  * http://ja.python-requests.org/en/latest/index.html
  * http://docs.python-requests.org/en/latest/index.html
+
+Do I need to be whitelisted?
+----------------------------
+
+No. Whitelisting has been removed as a concept in Read the Docs. You should have access to all of the features already.
+
