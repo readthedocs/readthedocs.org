@@ -126,10 +126,10 @@ def github_build(request):
                         version_pk = version.pk
                         version_slug = version.slug
                         log.info(("(Github Build) Building %s:%s"
+                                  % (project.slug, version.slug)))
                     # version_pk being None means it will use "latest"
                     update_docs.delay(pk=project.pk, version_pk=version_pk,
                                       force=True)
-                                  % (project.slug, version.slug)))
                 else:
                     version_slug = 'latest'
                     branch = 'latest'
