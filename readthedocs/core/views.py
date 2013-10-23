@@ -121,21 +121,23 @@ def github_build(request):
                     elif version in project.versions.exclude(active=True):
                         log.info(("(Github Build) Not building %s"
                                   % version.slug))
-                        return HttpResponseNotFound(('Not Building: %s'
-                                                     % branch))
+                        continue
                     else:
                         version_pk = version.pk
                         version_slug = version.slug
                         log.info(("(Github Build) Building %s:%s"
+                    # version_pk being None means it will use "latest"
+                    update_docs.delay(pk=project.pk, version_pk=version_pk,
+                                      force=True)
                                   % (project.slug, version.slug)))
                 else:
                     version_slug = 'latest'
                     branch = 'latest'
                     log.info(("(Github Build) Building %s:latest"
                               % project.slug))
-                # version_pk being None means it will use "latest"
-                update_docs.delay(pk=project.pk, version_pk=version_pk,
-                                  force=True)
+                    # version_pk being None means it will use "latest"
+                    update_docs.delay(pk=project.pk, version_pk=version_pk,
+                                      force=True)
             return HttpResponse('Build Started: %s' % version_slug)
         except Exception, e:
             log.error("(Github Build) Failed: %s:%s" % (name, e))
