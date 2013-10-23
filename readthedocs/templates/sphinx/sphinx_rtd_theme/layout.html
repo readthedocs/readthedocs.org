@@ -23,6 +23,7 @@
   {% endif %}
 
   {# CSS #}
+  <link href='http://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700' rel='stylesheet' type='text/css'>
   <link rel="stylesheet" href="{{ pathto('_static/' + style, 1) }}" type="text/css" />
   {% for cssfile in css_files %}
     <link rel="stylesheet" href="{{ pathto(cssfile, 1) }}" type="text/css" />
@@ -78,11 +79,6 @@
   {%- endblock %}
   {%- block extrahead %} {% endblock %}
 
-  {# OPTIONAL USE OF TYPEKIT FONTS. SET IN THEME.CONF #}
-  {% if theme_typekit_id %}
-    <script type="text/javascript" src="//use.typekit.net/{{ theme_typekit_id  }}.js"></script>
-    <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
-  {% endif %}
   <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
 
 </head>
