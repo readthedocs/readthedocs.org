@@ -68,7 +68,7 @@
     );
 
     checkVersion(slug, version);
-    getVersions(slug, version);
+    //getVersions(slug, version);
     
     /*
      * Grok the Docs event handling

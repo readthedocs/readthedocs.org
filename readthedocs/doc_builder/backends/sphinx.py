@@ -69,6 +69,7 @@ if 'RTD_NEW_THEME' in locals():
 #Add project information to the template context.
 context = {
     'using_theme': using_rtd_theme,
+    'html_theme': html_theme,
     'current_version': "{{ current_version.slug }}",
     'MEDIA_URL': "{{ settings.MEDIA_URL }}",
     'PRODUCTION_DOMAIN': "{{ settings.PRODUCTION_DOMAIN }}",

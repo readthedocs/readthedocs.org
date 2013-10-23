@@ -79,7 +79,7 @@ class VersionViewSet(viewsets.ModelViewSet):
     renderer_classes = (JSONRenderer, BrowsableAPIRenderer)
     model = Version
 
-    @link()
+    @decorators.link()
     def downloads(self, request, **kwargs):
         version = get_object_or_404(Version, pk=kwargs['pk'])
         downloads = version.get_downloads(pretty=True)
@@ -88,13 +88,15 @@ class VersionViewSet(viewsets.ModelViewSet):
         })
 
 TEMPLATE = """
+<div class="injected">
  <!-- End original user content -->
-{% if not using_theme %}
+{% if not using_theme and not new_theme %}
 <br/>
 <br/>
 <br/>
 {% endif %}
 
+{% if not new_theme %}
 <style type="text/css">
   #version_menu, .rtd-badge.rtd {
     -webkit-transition: all 0.25s 0.75s;
@@ -195,7 +197,6 @@ TEMPLATE = """
     width: 205px;
     right: 173px;
   }
-
 {% if using_theme %}
 .rtd_doc_footer { background-color: #465158;}
 {% endif %}
@@ -204,8 +205,14 @@ TEMPLATE = """
 <div class="rtd_doc_footer">
   <div class="footer_popout">
     <a href="//{{ settings.PRODUCTION_DOMAIN }}/projects/{{ project.slug }}/?fromdocs={{ project.slug }}" class="rtd-badge rtd"> Brought to you by Read the Docs</a>
+    <ul id="version_menu">
+      {% for version in versions %}
+        <li><a href="/en/{{ version.slug }}">{{ version.slug }}</a></li>
+      {% endfor %}
+    </ul>
   </div>
 </div>
+{% endif %}
 
 {% if project.analytics_code %}
 <!-- User Analytics Code -->
@@ -221,16 +228,21 @@ TEMPLATE = """
   })();
 </script>
 {% endif %}
+</div>
 """
 
 @decorators.api_view(['GET'])
 def footer_html(request):
     slug = request.GET.get('project', None)
-    using_theme = request.GET.get('using_theme', False)
+    theme = request.GET.get('theme', False)
+    new_theme = (theme == "sphinx_rtd_theme")
+    using_theme = (theme == "default")
     project = get_object_or_404(Project, slug=slug)
     context = Context({
-        'project': project.slug,
+        'project': project,
+        'versions': project.ordered_active_versions(),
         'using_theme': using_theme,
+        'new_theme': new_theme,
         'settings': settings,
     })
     html = Template(TEMPLATE).render(context)
