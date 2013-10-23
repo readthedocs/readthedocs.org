@@ -61,6 +61,11 @@ else:
     html_theme_options = {}
     using_rtd_theme = True
 
+# Force theme on setting
+if 'RTD_NEW_THEME' in locals():
+    html_theme = 'sphinx_rtd_theme'
+    html_style = None
+
 #Add project information to the template context.
 context = {
     'using_theme': using_rtd_theme,
