@@ -89,157 +89,77 @@ class VersionViewSet(viewsets.ModelViewSet):
 
 TEMPLATE = """
 <div class="injected">
- <!-- End original user content -->
-{% if not using_theme and not new_theme %}
-<br/>
-<br/>
-<br/>
-{% endif %}
 
-{% if not new_theme %}
-<style type="text/css">
-  #version_menu, .rtd-badge.rtd {
-    -webkit-transition: all 0.25s 0.75s;
-    transition: all 0.25s 0.75s;
-  }
-  .footer_popout:hover #version_menu, .footer_popout:hover .rtd-badge.rtd {
-    -webkit-transition: all 0.25s 0s;
-    transition: all 0.25s 0s;
-  }
-  .rtd-badge {
-    position: fixed;
-    display: block;
-    bottom: 5px;
-    height: 40px;
-    text-indent: -9999em;
-    border-radius: 3px;
-    -moz-border-radius: 3px;
-    -webkit-border-radius: 3px;
-    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2), 0 1px 0 rgba(255, 255, 255, 0.2) inset;
-    -moz-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2), 0 1px 0 rgba(255, 255, 255, 0.2) inset;
-    -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2), 0 1px 0 rgba(255, 255, 255, 0.2) inset;
-  }
-  #version_menu {
-    position: fixed;
-    visibility: hidden;
-    opacity: 0;
-    bottom: 11px;
-    right: 47px;
-    list-style-type: none;
-    margin: 0;
-  }
-  .footer_popout:hover #version_menu {
-    visibility: visible;
-    opacity: 1;
-    right: 166px;
-  }
-  #version_menu li {
-    display: block;
-    float: right;
-  }
-  #version_menu li a {
-    display: block;
-    padding: 6px 10px 4px 10px;
-    margin: 7px 7px 0 0;
-    font-weight: bold;
-    font-size: 14px;
-    height: 20px;
-    line-height: 17px;
-    text-decoration: none;
-    color: #fff;
-    background: #8ca1af url({{ settings.MEDIA_URL }}/images/gradient-light.png) bottom left repeat-x;
-    border-radius: 3px;
-    -moz-border-radius: 3px;
-    -webkit-border-radius: 3px;
-    box-shadow: 0 1px 1px #465158;
-    -moz-box-shadow: 0 1px 1px #465158;
-    -webkit-box-shadow: 0 1px 1px #465158;
-    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
-  }
-  #version_menu li a:hover {
-    text-decoration: none;
-    background-color: #697983;
-    box-shadow: 0 1px 0px #465158;
-    -moz-box-shadow: 0 1px 0px #465158;
-    -webkit-box-shadow: 0 1px 0px #465158;
-  }
-  .rtd-badge.rtd {
-    background: #3b4449 url({{ settings.MEDIA_URL }}/images/badge-rtd.png) scroll top left no-repeat;
-    border: 1px solid #282E32;
-    width: 41px;
-    right: 5px;
-  }
-  .footer_popout:hover .rtd-badge.rtd {
-    width: 160px;
-  }
-  .rtd-badge.revsys { background: #465158 url({{ settings.MEDIA_URL }}/images/badge-revsys.png) top left no-repeat;
-    border: 1px solid #1C5871;
-    width: 290px;
-    right: 173px;
-  }
-  .rtd-badge.revsys-inline-sponsored {
-    position: inherit;
-    margin-left: auto;
-    margin-right: 175px;
-    margin-bottom: 5px;
-    background: #465158 url({{ settings.MEDIA_URL }}/images/badge-revsys.png) top left no-repeat;
-    border: 1px solid #1C5871;
-    width: 290px;
-    right: 173px;
-  }
-  .rtd-badge.revsys-inline {
-    position: inherit;
-    margin-left: auto;
-    margin-right: 175px;
-    margin-bottom: 5px;
-    background: #465158 url({{ settings.MEDIA_URL }}/images/badge-revsys-sm.png) top left no-repeat;
-    border: 1px solid #1C5871;
-    width: 205px;
-    right: 173px;
-  }
-{% if using_theme %}
-.rtd_doc_footer { background-color: #465158;}
-{% endif %}
-</style>
+  <link rel="stylesheet" href="http://localhost:8000/docs/kong/en/latest/_static/theme.css" type="text/css" />
 
-<div class="rtd_doc_footer">
-  <div class="footer_popout">
-    <a href="//{{ settings.PRODUCTION_DOMAIN }}/projects/{{ project.slug }}/?fromdocs={{ project.slug }}" class="rtd-badge rtd"> Brought to you by Read the Docs</a>
-    <ul id="version_menu">
-      {% for version in versions %}
-        <li><a href="/en/{{ version.slug }}">{{ version.slug }}</a></li>
-      {% endfor %}
-    </ul>
+  <div class="rst-versions rst-badge" data-toggle="rst-versions">
+    <span class="rst-current-version {% if current_version != "latest" %}rst-out-of-date{% endif %}" data-toggle="rst-current-version">
+      <span class="icon icon-book"> Read the Docs</span>
+      v: {{ current_version }}
+      {% if current_version != "latest" %}(old) {% endif %}
+      <span class="icon icon-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+      <dl>
+        <dt>Versions</dt>
+        {% for version in versions %}
+          <dd><a href="/{{ version.project.language }}/{{ version.slug }}/">{{ version.slug }}</a></dd>
+        {% endfor %}
+      </dl>
+      <dl>
+        <dt>Downloads</dt>
+        {% for name, url in downloads.items %}
+          <dd><a href="{{ url }}">{{ name }}</a></dd>
+        {% endfor %}
+      </dl>
+      <dl>
+        <dt>On Read the Docs</dt>
+          <dd>
+            <a href="//{{ settings.PRODUCTION_DOMAIN }}/projects/{{ project.slug }}/?fromdocs={{ project.slug }}">Project Home</a>
+          </dd>
+          <dd>
+            <a href="//{{ settings.PRODUCTION_DOMAIN }}/builds/{{ project.slug }}/?fromdocs={{ project.slug }}">Builds</a>
+          </dd>
+      </dl>
+      <hr/>
+      Free document hosting provided by <a href="http://www.readthedocs.org">Read the Docs</a>.
+
+    </div>
   </div>
-</div>
-{% endif %}
 
-{% if project.analytics_code %}
-<!-- User Analytics Code -->
-<script type="text/javascript">
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', '{{ project.analytics_code }}']);
-  _gaq.push(['_trackPageview']);
 
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
-</script>
-{% endif %}
+    {% if project.analytics_code %}
+    <!-- Read the Docs User Analytics Code -->
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', '{{ project.analytics_code }}']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+    {% endif %}
+
 </div>
 """
 
 @decorators.api_view(['GET'])
+@decorators.permission_classes((permissions.AllowAny,))
 def footer_html(request):
-    slug = request.GET.get('project', None)
+    project_slug = request.GET.get('project', None)
+    version_slug = request.GET.get('version', None)
     theme = request.GET.get('theme', False)
     new_theme = (theme == "sphinx_rtd_theme")
     using_theme = (theme == "default")
-    project = get_object_or_404(Project, slug=slug)
+    project = get_object_or_404(Project, slug=project_slug)
+    version = project.versions.get(slug=version_slug)
     context = Context({
         'project': project,
+        'downloads': version.get_downloads(pretty=True),
+        'current_version': version.slug,
         'versions': project.ordered_active_versions(),
         'using_theme': using_theme,
         'new_theme': new_theme,
