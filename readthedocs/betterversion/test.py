@@ -23,7 +23,6 @@ class TestSequenceFunctions(unittest.TestCase):
         ]
 
     def test_major(self):
-        #import ipdb; ipdb.set_trace()
         major_versions = version_windows(self.versions, major=1)
         self.assertEqual(len(major_versions), 1)
 
@@ -37,7 +36,6 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(len(major_versions), 3)
 
     def test_minor(self):
-        #import ipdb; ipdb.set_trace()
         minor_versions = version_windows(self.versions, minor=1)
         self.assertEqual(len(minor_versions[2]), 1)
 
@@ -51,7 +49,6 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(len(minor_versions[2]), 3)
 
     def test_point(self):
-        #import ipdb; ipdb.set_trace()
         point_versions = version_windows(self.versions, point=1)
         self.assertEqual(len(point_versions[2][3]), 1)
 
@@ -65,7 +62,6 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(len(point_versions[2][3]), 4)
 
         point_versions = version_windows(self.versions, point=5)
-        print point_versions[2][3]
         self.assertEqual(len(point_versions[2][3]), 4)
 
     def test_sort(self):
