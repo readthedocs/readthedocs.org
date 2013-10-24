@@ -72,7 +72,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
 
     project_data = api.project(pk).get()
     project = make_api_project(project_data)
-    if 'edx-platform' in  project.repo_url:
+    if 'edx-platform' in  project.repo:
         # Skip edx for now
         return
 
