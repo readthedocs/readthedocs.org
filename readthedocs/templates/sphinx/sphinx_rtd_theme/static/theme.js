@@ -1,15 +1,16 @@
-$( document ).ready(function() {
+$(document).ready(function() {
   // Shift nav in mobile when clicking the menu.
-  $("[data-toggle='wy-nav-top']").click(function() {
+  $(document).on('click', "[data-toggle='wy-nav-top']", function() {
     $("[data-toggle='wy-nav-shift']").toggleClass("shift");
     $("[data-toggle='rst-versions']").toggleClass("shift");
   });
   // Close menu when you click a link.
-  $(".wy-menu-vertical .current ul li a").click(function() {
+  $(document).on('click', ".wy-menu-vertical .current ul li a", function() {
     $("[data-toggle='wy-nav-shift']").removeClass("shift");
     $("[data-toggle='rst-versions']").toggleClass("shift");
   });
-  $("[data-toggle='rst-current-version']").click(function() {
+  $(document).on('click', "[data-toggle='rst-current-version']", function() {
     $("[data-toggle='rst-versions']").toggleClass("shift-up");
   });  
 });
+
