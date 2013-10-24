@@ -90,7 +90,7 @@ class VersionViewSet(viewsets.ModelViewSet):
 TEMPLATE = """
 <div class="injected">
 
-  <link rel="stylesheet" href="http://localhost:8000/docs/kong/en/latest/_static/theme.css" type="text/css" />
+  <link rel="stylesheet" href="{{ settings.MEDIA_URL }}css/badge_only.css" type="text/css" />
 
   <div class="rst-versions rst-badge" data-toggle="rst-versions">
     <span class="rst-current-version {% if current_version != "latest" %}rst-out-of-date{% endif %}" data-toggle="rst-current-version">
