@@ -74,7 +74,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
     project = make_api_project(project_data)
     if 'edx-platform' in  project.repo_url:
         # Skip edx for now
-        continue
+        return
 
     log.info("Building %s" % project)
     if version_pk:
