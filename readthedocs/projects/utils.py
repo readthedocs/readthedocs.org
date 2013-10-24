@@ -176,6 +176,10 @@ class DictObj(object):
     def __getattr__(self, attr):
         return self.__dict__.get(attr)
 
+# Prevent saving the temporary Project instance
+def _new_save(*args, **kwargs):
+    log.warning("Called save on a non-real object.")
+    return 0
 
 def make_api_version(version_data):
     from builds.models import Version
@@ -186,6 +190,8 @@ def make_api_version(version_data):
     project = make_api_project(project_data)
     version_data['project'] = project
     ver = Version(**version_data)
+    ver.save = _new_save
+
     return ver
 
 
@@ -195,4 +201,5 @@ def make_api_project(project_data):
         if key in project_data:
             del project_data[key]
     project = Project(**project_data)
+    project.save = _new_save
     return project
