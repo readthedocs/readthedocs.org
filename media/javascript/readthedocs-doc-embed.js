@@ -2,15 +2,18 @@ $(document).ready(function () {
 
     // Theme popout code
     $.ajax({
-      url: "https://readthedocs.org/api/v2/footer_html/",
+      //url: "https://readthedocs.org/api/v2/footer_html/",
+      url: "http://localhost:8000/api/v2/footer_html/",
       crossDomain: true,
       xhrFields: {
         withCredentials: true,
       },
+      dataType: "jsonp",
       data: {
-        project: doc_slug,
-        version: doc_version,
-        theme: html_theme,
+        "format": "jsonp",
+        project: READTHEDOCS_DATA['project'],
+        version: READTHEDOCS_DATA['version'],
+        theme: READTHEDOCS_DATA['theme'],
       },
       success: function (data) {
             $("body").append(data['html'])

@@ -6,16 +6,16 @@
 <script type="text/javascript">
   // This is included here because other places don't have access to the pagename variable.
   var READTHEDOCS_DATA = {
-    project: "{{ slug }}";
-    version: "{{ current_version }}";
-    page: "{{ pagename }}";
-    theme: "{{ html_theme }}";
+    project: "{{ slug }}",
+    version: "{{ current_version }}",
+    page: "{{ pagename }}",
+    theme: "{{ html_theme }}"
   }
   // Old variables
   var doc_version = "{{ current_version }}";
   var doc_slug = "{{ slug }}";
   var page_name = "{{ pagename }}";
-  var theme = "{{ html_theme }}";
+  var html_theme = "{{ html_theme }}";
 </script>
 <!-- RTD Analytics Code -->
 <!-- Included in the header because you don't have a footer block. -->

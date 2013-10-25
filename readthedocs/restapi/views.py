@@ -6,7 +6,7 @@ from distlib.version import UnsupportedVersionError
 from rest_framework import decorators
 from rest_framework import permissions
 from rest_framework import viewsets
-from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
+from rest_framework.renderers import JSONPRenderer, JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 
 from betterversion.better import version_windows, BetterVersion 
@@ -91,17 +91,22 @@ TEMPLATE = """
 <div class="injected">
 
   <div class="rst-versions {% if not new_theme %}rst-badge {% endif %}" data-toggle="rst-versions">
-    <span class="rst-current-version {% if current_version != "latest" %}rst-out-of-date{% endif %}" data-toggle="rst-current-version">
+    <span class="rst-current-version" data-toggle="rst-current-version">
       <span class="icon icon-book">&nbsp;</span>
       v: {{ current_version }}
-      {% if current_version != "latest" %}(old) {% endif %}
       <span class="icon icon-caret-down"></span>
     </span>
     <div class="rst-other-versions">
       <dl>
         <dt>Versions</dt>
         {% for version in versions %}
+          {% if version.slug == current_version %}
+          <strong>
+          {% endif %}
           <dd><a href="{{ version.get_subdomain_url }}">{{ version.slug }}</a></dd>
+          {% if version.slug == current_version %}
+          </strong>
+          {% endif %}
         {% endfor %}
       </dl>
       <dl>
@@ -129,6 +134,7 @@ TEMPLATE = """
 
 @decorators.api_view(['GET'])
 @decorators.permission_classes((permissions.AllowAny,))
+@decorators.renderer_classes((JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
 def footer_html(request):
     project_slug = request.GET.get('project', None)
     version_slug = request.GET.get('version', None)

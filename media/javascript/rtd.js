@@ -44,7 +44,7 @@
         currentURL = window.location.pathname.replace(version, object.slug)
         versionItem = $('<a href="#"></a>')
           .attr('href', currentURL)
-          .text(object.slug):w
+          .text(object.slug)
           .appendTo($('<li />').appendTo(items))
       }
 
