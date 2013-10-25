@@ -90,6 +90,7 @@ class VersionViewSet(viewsets.ModelViewSet):
 TEMPLATE = """
 <div class="injected">
 
+  {% if not new_theme %}
   <link rel="stylesheet" href="{{ settings.MEDIA_URL }}css/badge_only.css" type="text/css" />
 
   <div class="rst-versions rst-badge" data-toggle="rst-versions">
@@ -126,22 +127,23 @@ TEMPLATE = """
 
     </div>
   </div>
+  {% endif %}
 
 
-    {% if project.analytics_code %}
-    <!-- Read the Docs User Analytics Code -->
-    <script type="text/javascript">
-      var _gaq = _gaq || [];
-      _gaq.push(['_setAccount', '{{ project.analytics_code }}']);
-      _gaq.push(['_trackPageview']);
+  {% if project.analytics_code %}
+  <!-- Read the Docs User Analytics Code -->
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', '{{ project.analytics_code }}']);
+    _gaq.push(['_trackPageview']);
 
-      (function() {
-        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-      })();
-    </script>
-    {% endif %}
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+  {% endif %}
 
 </div>
 """
