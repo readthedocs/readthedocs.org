@@ -113,6 +113,12 @@ class Version(models.Model):
             return ''
         return self.project.get_docs_url(version_slug=self.slug)
 
+    def get_subdomain_url(self):
+        return "/%s/%s/" % (
+            self.project.language,
+            self.slug,
+        )
+
     def save(self, *args, **kwargs):
         """
         Add permissions to the Version for all owners on save.

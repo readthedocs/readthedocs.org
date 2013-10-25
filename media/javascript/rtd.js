@@ -44,7 +44,7 @@
         currentURL = window.location.pathname.replace(version, object.slug)
         versionItem = $('<a href="#"></a>')
           .attr('href', currentURL)
-          .text(object.slug)
+          .text(object.slug):w
           .appendTo($('<li />').appendTo(items))
       }
 
@@ -68,7 +68,7 @@
     );
 
     checkVersion(slug, version);
-    //getVersions(slug, version);
+    getVersions(slug, version);
     
     /*
      * Grok the Docs event handling

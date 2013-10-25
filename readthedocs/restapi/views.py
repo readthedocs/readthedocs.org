@@ -95,7 +95,7 @@ TEMPLATE = """
 
   <div class="rst-versions rst-badge" data-toggle="rst-versions">
     <span class="rst-current-version {% if current_version != "latest" %}rst-out-of-date{% endif %}" data-toggle="rst-current-version">
-      <span class="icon icon-book"> Read the Docs</span>
+      <span class="icon icon-book">&nbsp;</span>
       v: {{ current_version }}
       {% if current_version != "latest" %}(old) {% endif %}
       <span class="icon icon-caret-down"></span>
@@ -104,7 +104,7 @@ TEMPLATE = """
       <dl>
         <dt>Versions</dt>
         {% for version in versions %}
-          <dd><a href="/{{ version.project.language }}/{{ version.slug }}/">{{ version.slug }}</a></dd>
+          <dd><a href="{{ version.get_subdomain_url }}">{{ version.slug }}</a></dd>
         {% endfor %}
       </dl>
       <dl>
@@ -129,6 +129,21 @@ TEMPLATE = """
   </div>
   {% endif %}
 
+
+  <!-- RTD Analytics Code -->
+  <!-- Included in the header because you don't have a footer block. -->
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-17997319-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+  <!-- end RTD Analytics Code -->
 
   {% if project.analytics_code %}
   <!-- Read the Docs User Analytics Code -->
