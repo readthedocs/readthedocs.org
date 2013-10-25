@@ -16,7 +16,11 @@ $(document).ready(function () {
         theme: READTHEDOCS_DATA['theme'],
       },
       success: function (data) {
-            $("body").append(data['html'])
+            if (READTHEDOCS_DATA['theme'] != "sphinx_rtd_theme") {
+              $("body").append(data['html'])
+            } else {
+              $("div.rst-other-versions").html(data['html'])
+            }
       },
       error: function () {
           console.log('Error loading footer')

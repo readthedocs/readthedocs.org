@@ -90,6 +90,7 @@ class VersionViewSet(viewsets.ModelViewSet):
 TEMPLATE = """
 <div class="injected">
 
+  {% if not new_theme %}
   <div class="rst-versions {% if not new_theme %}rst-badge {% endif %}" data-toggle="rst-versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
       <span class="icon icon-book">&nbsp;</span>
@@ -97,6 +98,8 @@ TEMPLATE = """
       <span class="icon icon-caret-down"></span>
     </span>
     <div class="rst-other-versions">
+  {% endif %}
+  
       <dl>
         <dt>Versions</dt>
         {% for version in versions %}
@@ -127,8 +130,11 @@ TEMPLATE = """
       <hr/>
       Free document hosting provided by <a href="http://www.readthedocs.org">Read the Docs</a>.
 
+  {% if not new_theme %}
     </div>
   </div>
+  {% endif %}
+
 </div>
 """
 
