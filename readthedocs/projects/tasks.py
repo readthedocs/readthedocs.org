@@ -386,14 +386,14 @@ def update_imported_docs(version_pk):
             if project.requirements_file:
                 os.chdir(project.checkout_path(version_slug))
                 update_docs_output['requirements'] = run(
-                    '{cmd} install --force-reinstall --exists-action=w -r {requirements}'.format(
+                    '{cmd} install --exists-action=w -r {requirements}'.format(
                         cmd=project.venv_bin(version=version_slug, bin='pip'),
                         requirements=project.requirements_file))
             os.chdir(project.checkout_path(version_slug))
             if os.path.isfile("setup.py"):
                 if getattr(settings, 'USE_PIP_INSTALL', False):
                     update_docs_output['install'] = run(
-                        '{cmd} install --force-reinstall --ignore-installed .'.format(
+                        '{cmd} install --ignore-installed .'.format(
                             cmd=project.venv_bin(version=version_slug, bin='pip')))
                 else:
                     update_docs_output['install'] = run(
