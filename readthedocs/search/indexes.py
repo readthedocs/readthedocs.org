@@ -104,7 +104,7 @@ class Index(object):
             'settings': self.get_settings(),
             'mappings': self.get_mapping(),
         }
-        self.es.indices.create(index, body)
+        self.es.indices.create(index=index, body=body)
 
     def bulk_index(self, data, index=None, chunk_size=500):
         """
@@ -132,7 +132,7 @@ class Index(object):
     def index_document(self, data, index=None):
         index = index or self._index
         doc = self.extract_document(data)
-        self.es.index(index, self._type, doc, doc['id'])
+        self.es.index(index=index, doc_type=self._type, body=doc, id=doc['id'])
 
     def get_mapping(self):
         """
@@ -156,7 +156,7 @@ class Index(object):
 
         # Get current alias, if any.
         try:
-            aliases = self.es.indices.get_alias(self._index)
+            aliases = self.es.indices.get_alias(name=self._index)
             if aliases and aliases.keys():
                 old_index = aliases.keys()[0]
         except exceptions.NotFoundError:
@@ -168,11 +168,11 @@ class Index(object):
                                        'alias': self._index}})
         actions.append({'add': {'index': new_index, 'alias': self._index}})
 
-        self.es.indices.update_aliases({'actions': actions})
+        self.es.indices.update_aliases(body={'actions': actions})
 
         # Delete old index if any and if specified.
         if delete and old_index:
-            self.es.indices.delete(old_index)
+            self.es.indices.delete(index=old_index)
 
 
 class Project(Index):
