@@ -167,8 +167,8 @@ def footer_html(request):
 @decorators.renderer_classes((JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
 def quick_search(request):
     project_slug = request.GET.get('project', None)
-    version_slug = request.GET.get('version', None)
-    query = request.GET.get('q', '')
+    version_slug = request.GET.get('version', 'latest')
+    query = request.GET.get('q', None)
     redis_data = djangome.r.keys('redirects:v4:en:%s:%s:*%s*' % (version_slug, project_slug, query))
     ret_dict = {}
     for data in redis_data:
