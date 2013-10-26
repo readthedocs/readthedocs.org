@@ -183,7 +183,7 @@ def quick_search(request):
 def search(request):
     project_slug = request.GET.get('project', None)
     if not project_slug:
-        return Response({'error': 'Project does not support point version control'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'error': 'project GET argument required'}, status=status.HTTP_400_BAD_REQUEST)
     version_slug = request.GET.get('version', 'latest')
     query = request.GET.get('q', None)
     es = Elasticsearch(settings.ES_HOSTS)
