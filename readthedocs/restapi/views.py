@@ -3,6 +3,7 @@ from django.template import Template, Context
 from django.conf import settings
 
 from distlib.version import UnsupportedVersionError
+from elasticsearch import Elasticsearch
 from rest_framework import decorators
 from rest_framework import permissions
 from rest_framework import viewsets
@@ -176,4 +177,19 @@ def quick_search(request):
             key = data.split(':')[5]
             value = ':'.join(data.split(':')[6:])
             ret_dict[key] = value
+    return Response({"results": ret_dict})
+
+@decorators.api_view(['GET'])
+@decorators.permission_classes((permissions.AllowAny,))
+@decorators.renderer_classes((JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
+def search(request):
+    project_slug = request.GET.get('project', None)
+    version_slug = request.GET.get('version', 'latest')
+    query = request.GET.get('q', None)
+    es = Elasticsearch(settings.ES_HOSTS)
+    ret_dict = {}
+    results = es.query({'project': project_slug, 'version': version_slug, 'query': query})
+    for result in results:
+        #ret_dict[result['key']] = result['url']
+        pass
     return Response({"results": ret_dict})
