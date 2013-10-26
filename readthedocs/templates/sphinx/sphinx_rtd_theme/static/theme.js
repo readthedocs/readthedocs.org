@@ -1,3 +1,4 @@
+/* Comment this because we include this information in our main JS file.
 $(document).ready(function() {
   // Shift nav in mobile when clicking the menu.
   $(document).on('click', "[data-toggle='wy-nav-top']", function() {
@@ -13,5 +14,4 @@ $(document).ready(function() {
     $("[data-toggle='rst-versions']").toggleClass("shift-up");
   });  
 });
-
-
+*/
