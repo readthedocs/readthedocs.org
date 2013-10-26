@@ -12,6 +12,7 @@ from rest_framework.response import Response
 from betterversion.better import version_windows, BetterVersion 
 from builds.models import Version
 from projects.models import Project, EmailHook
+from djangome import views as djangome
 
 from .serializers import ProjectSerializer
 from .permissions import RelatedProjectIsOwner
@@ -160,3 +161,14 @@ def footer_html(request):
     })
     html = Template(TEMPLATE).render(context)
     return Response({"html": html})
+
+@decorators.api_view(['GET'])
+@decorators.permission_classes((permissions.AllowAny,))
+@decorators.renderer_classes((JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
+def quick_search(request):
+    project_slug = request.GET.get('project', None)
+    version_slug = request.GET.get('version', None)
+    query = request.GET.get('q', '')
+    redis_data = djangome.r.keys('redirects:v4:en:%s:%s:%s' % (version_slug, project_slug, query))
+    urls = [':'.join(data.split(':')[6:]) for data in redis_data if 'http://' in data]
+    return Response({"results": urls})

@@ -102,6 +102,7 @@ urlpatterns = patterns(
     url(r'^api/', include(v1_api.urls)),
     url(r'^api/v2/', include(router.urls)),
     url(r'^api/v2/footer_html/$', 'restapi.views.footer_html', name='footer_html'),
+    url(r'^api/v2/quick_search/$', 'restapi.views.quick_search', name='quick_search'),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^feeds/new/$',
         NewProjectsFeed(),
