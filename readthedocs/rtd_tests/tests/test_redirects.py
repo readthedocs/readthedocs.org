@@ -44,7 +44,7 @@ class RedirectTests(TestCase):
         r = self.client.get(r['Location'])
         self.assertEqual(r.status_code, 200)
 
-    def test_inproper_url(self):
+    def test_improper_url(self):
         r = self.client.get('/docs/pip/en/')
         self.assertEqual(r.status_code, 404)
 
@@ -61,7 +61,7 @@ class RedirectTests(TestCase):
 
     # Keep this around for now, until we come up with a nicer interface
     """
-    def test_inproper_subdomain(self):
+    def test_improper_subdomain(self):
         r = self.client.get('/en/', HTTP_HOST='pip.readthedocs.org')
         self.assertEqual(r.status_code, 404)
     """
