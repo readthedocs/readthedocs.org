@@ -70,7 +70,7 @@ if 'RTD_NEW_THEME' in locals():
 context = {
     'using_theme': using_rtd_theme,
     'html_theme': html_theme,
-    'current_version': "{{ current_version.slug }}",
+    'current_version': "{{ current_version }}",
     'MEDIA_URL': "{{ settings.MEDIA_URL }}",
     'PRODUCTION_DOMAIN': "{{ settings.PRODUCTION_DOMAIN }}",
     'versions': [{% for version in versions|sort_version_aware %}
@@ -88,6 +88,8 @@ context = {
     'github_version': '{{ github_version }}',
     'display_github': {{ display_github }},
     'READTHEDOCS': True,
+    'using_theme': (html_theme == "default"),
+    'new_theme': (html_theme == "sphinx_rtd_theme"),
 }
 if 'html_context' in locals():
     html_context.update(context)
@@ -169,9 +171,11 @@ class Builder(BaseBuilder):
             display_github = False
         else:
             display_github = True
+
         rtd_ctx = Context({
             'versions': project.api_versions(),
-            'current_version': self.version,
+            'downloads': self.version.get_downloads(pretty=True),
+            'current_version': self.version.slug,
             'project': project,
             'settings': settings,
             'static_path': STATIC_DIR,

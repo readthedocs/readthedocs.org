@@ -98,12 +98,11 @@ def github_build(request):
         ghetto_url = url.replace('http://', '').replace('https://', '')
         branch = obj['ref'].replace('refs/heads/', '')
         log.info("(Github Build) %s:%s" % (ghetto_url, branch))
-        version_pk = None
-        version_slug = branch
         try:
             projects = Project.objects.filter(repo__contains=ghetto_url)
             for project in projects:
                 versions = project.versions_from_branch_name(branch)
+                to_build = set()
                 for version in versions:
                     log.info(("(Github Build) Processing %s:%s"
                               % (project.slug, version.slug)))
@@ -114,8 +113,7 @@ def github_build(request):
                         # These will build at "latest", and thus won't be
                         # active
                         version = project.versions.get(slug='latest')
-                        version_pk = version.pk
-                        version_slug = version.slug
+                        to_build.add(version.pk)
                         log.info(("(Github Build) Building %s:%s"
                                   % (project.slug, version.slug)))
                     elif version in project.versions.exclude(active=True):
@@ -123,13 +121,13 @@ def github_build(request):
                                   % version.slug))
                         continue
                     else:
-                        version_pk = version.pk
-                        version_slug = version.slug
+                        to_build.add(version.pk)
                         log.info(("(Github Build) Building %s:%s"
                                   % (project.slug, version.slug)))
+
+                for pk in to_build:
                     # version_pk being None means it will use "latest"
-                    update_docs.delay(pk=project.pk, version_pk=version_pk,
-                                      force=True)
+                    update_docs.delay(pk=project.pk, version_pk=pk, force=True)
                 # Remove else block as it was causing double builds.
                 """
                 else:
@@ -141,7 +139,7 @@ def github_build(request):
                     update_docs.delay(pk=project.pk, version_pk=version_pk,
                                       force=True)
                 """
-            return HttpResponse('Build Started: %s' % version_slug)
+            return HttpResponse('Build Started')
         except Exception, e:
             log.error("(Github Build) Failed: %s:%s" % (name, e))
             #handle new repos

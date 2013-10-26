@@ -19,6 +19,8 @@ fabfile_dir = os.path.dirname(__file__)
 def remove_project(project):
     run('rm -rf %s/user_builds/%s' % (env.code_dir, project))
 
+def ntpdate():
+    run('ntpdate-debian')
 
 @hosts(['newasgard.readthedocs.com'])
 def nginx_logs():
