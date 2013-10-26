@@ -85,6 +85,26 @@ def wipe_version(request, project_slug, version_slug):
                               {'del_dir': del_dir},
                               context_instance=RequestContext(request))
 
+def _build_verison(project, slug):
+    default = project.default_branch or (project.vcs_repo().fallback_branch)
+    if slug == default:
+        # short circuit versions that are default
+        # these will build at "latest", and thus won't be
+        # active
+        version = project.versions.get(slug='latest')
+        update_docs.delay(pk=project.pk, version_pk=version.pk, force=True)
+        log.info(("(Version build) building %s:%s"
+                  % (project.slug, version.slug)))
+        return "latest"
+    elif slug in project.versions.exclude(active=True).values_list('slug', flat=True):
+        log.info(("(Version build) not building %s"% slug))
+        return None
+    else:
+        version = project.versions.get(slug=slug)
+        update_docs.delay(pk=project.pk, version_pk=version.pk, force=True)
+        log.info(("(Version build) building %s:%s"
+                  % (project.slug, version.slug)))
+        return slug
 
 @csrf_view_exempt
 def github_build(request):
@@ -107,44 +127,15 @@ def github_build(request):
                 for version in versions:
                     log.info(("(Github Build) Processing %s:%s"
                               % (project.slug, version.slug)))
-                    default = project.default_branch or (project.vcs_repo()
-                                                         .fallback_branch)
-                    if version.slug == default:
-                        # Short circuit versions that are default
-                        # These will build at "latest", and thus won't be
-                        # active
-                        version = project.versions.get(slug='latest')
-                        to_build.add(version)
-                        log.info(("(Github Build) Building %s:%s"
-                                  % (project.slug, version.slug)))
-                    elif version in project.versions.exclude(active=True):
-                        log.info(("(Github Build) Not building %s"
-                                  % version.slug))
-                        not_building.add(version)
-                        continue
+                    ret =  _build_verison(project, version.slug)
+                    if ret:
+                        to_build.add(ret)
                     else:
-                        to_build.add(version)
-                        log.info(("(Github Build) Building %s:%s"
-                                  % (project.slug, version.slug)))
-
-                for ver in to_build:
-                    # version_pk being None means it will use "latest"
-                    update_docs.delay(pk=project.pk, version_pk=ver.pk, force=True)
-                # Remove else block as it was causing double builds.
-                """
-                else:
-                    version_slug = 'latest'
-                    branch = 'latest'
-                    log.info(("(Github Build) Building %s:latest"
-                              % project.slug))
-                    # version_pk being None means it will use "latest"
-                    update_docs.delay(pk=project.pk, version_pk=version_pk,
-                                      force=True)
-                """
+                        not_building.add(version.slug)
             if to_build:
-                return HttpResponse('Build Started: %s' % ' '.join([ver.slug for ver in to_build]))
+                return HttpResponse('Build Started: %s' % ' '.join(to_build))
             else:
-                return HttpResponse('Not Building: %s' % ' '.join([ver.slug for ver in not_building]))
+                return HttpResponse('Not Building: %s' % ' '.join(not_building))
         except Exception, e:
             log.error("(Github Build) Failed: %s:%s" % (name, e))
             #handle new repos
@@ -196,7 +187,6 @@ def bitbucket_build(request):
     else:
         return redirect('builds_project_list', project.slug)
 
-
 @csrf_view_exempt
 def generic_build(request, pk=None):
     try:
@@ -207,15 +197,9 @@ def generic_build(request, pk=None):
     context = {'built': False, 'project': project}
     if request.method == 'POST':
         context['built'] = True
-        default = project.default_branch or (project.vcs_repo().fallback_branch)
         slug = request.POST.get('version_slug', None)
         if slug:
-            if slug == default:
-                version = project.versions.get(slug='latest')
-                update_docs.delay(pk=pk, version_pk=version.pk, force=True)
-            else:
-                version = project.versions.get(slug=slug)
-                update_docs.delay(pk=pk, version_pk=version.pk, force=True)
+            _build_verison(project, slug)
         else:
             update_docs.delay(pk=pk, force=True)
         return redirect('builds_project_list', project.slug)
