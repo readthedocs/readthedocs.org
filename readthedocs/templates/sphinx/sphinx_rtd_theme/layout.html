@@ -95,7 +95,12 @@
       </div>
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix">
-        {{ toctree(maxdepth=2, collapse=False) }}
+        {% set toctree = toctree(maxdepth=2, collapse=False) %}
+        {% if toctree %}
+            {{ toctree }}
+        {% else %}
+            {{ toc }}
+        {% end %}
       </div>
       {% include "versions.html" %}
       &nbsp;
