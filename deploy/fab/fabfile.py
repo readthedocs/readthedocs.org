@@ -78,6 +78,10 @@ def install_packages(type=None):
         sudo('pip install -U mercurial')
     if type == 'db':
         sudo('apt-get install -y solr-tomcat postgresql ')
+    if type == 'search':
+        sudo('add-apt-repository ppa:webupd8team/java')
+        sudo('apt-get update')
+        #sudo('apt-get install oracle-java7-installer')
     if type == 'web':
         sudo('apt-get install -y nginx git-core python-dev libpq-dev libxml2-dev libxslt-dev')
     if type == 'backup':
