@@ -25,7 +25,7 @@ class SubdomainMiddleware(object):
             # Serve subdomains
             is_www = subdomain.lower() == 'www'
             is_ssl = subdomain.lower() == 'ssl'
-            if not is_www and not is_ssl and 'readthedocs.org' in host:
+            if not is_www and not is_ssl and settings.PRODUCTION_DOMAIN in host:
                 request.subdomain = True
                 request.slug = subdomain
                 request.urlconf = 'core.subdomain_urls'
@@ -36,7 +36,7 @@ class SubdomainMiddleware(object):
                 request.urlconf = 'core.djangome_urls'
                 return None
         # Serve CNAMEs
-        if 'readthedocs.org' not in host and \
+        if settings.PRODUCTION_DOMAIN not in host and \
            'localhost' not in host and \
            'testserver' not in host:
             request.cname = True
