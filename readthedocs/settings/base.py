@@ -173,6 +173,10 @@ HAYSTACK_CONNECTIONS = {
     },
 }
 
+# Elasticsearch settings.
+ES_HOSTS = ['127.0.0.1:9200']
+ES_DEFAULT_NUM_REPLICAS = 0
+ES_DEFAULT_NUM_SHARDS = 5
 
 AUTH_PROFILE_MODULE = "core.UserProfile"
 SOUTH_TESTS_MIGRATE = False
