@@ -85,7 +85,7 @@ def wipe_version(request, project_slug, version_slug):
                               {'del_dir': del_dir},
                               context_instance=RequestContext(request))
 
-def _build_verison(project, slug):
+def _build_version(project, slug):
     default = project.default_branch or (project.vcs_repo().fallback_branch)
     if slug == default:
         # short circuit versions that are default
@@ -96,7 +96,7 @@ def _build_verison(project, slug):
         log.info(("(Version build) building %s:%s"
                   % (project.slug, version.slug)))
         return "latest"
-    elif slug in project.versions.exclude(active=True).values_list('slug', flat=True):
+    elif project.versions.exclude(active=True).filter(slug=slug).exists():
         log.info(("(Version build) not building %s"% slug))
         return None
     else:
@@ -127,7 +127,7 @@ def github_build(request):
                 for version in versions:
                     log.info(("(Github Build) Processing %s:%s"
                               % (project.slug, version.slug)))
-                    ret =  _build_verison(project, version.slug)
+                    ret =  _build_version(project, version.slug)
                     if ret:
                         to_build.add(ret)
                     else:
@@ -199,7 +199,7 @@ def generic_build(request, pk=None):
         context['built'] = True
         slug = request.POST.get('version_slug', None)
         if slug:
-            _build_verison(project, slug)
+            _build_version(project, slug)
         else:
             update_docs.delay(pk=pk, force=True)
         return redirect('builds_project_list', project.slug)
