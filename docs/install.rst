@@ -38,7 +38,9 @@ Next, install the dependencies using ``pip`` (included with virtualenv_)::
     OS X) with building ``lxml``, you probably might need to use Homebrew_
     to ``brew install libxml2``, and invoke the install with::
 
-        CFLAGS=-I/usr/local/opt/libxml2/include/libxml2 LDFLAGS=-L/usr/local/opt/libxml2/lib pip install -r pip_requirements.txt
+        CFLAGS=-I/usr/local/opt/libxml2/include/libxml2 \
+        LDFLAGS=-L/usr/local/opt/libxml2/lib \
+        pip install -r pip_requirements.txt
 
 .. _Homebrew: http://brew.sh/
 
