@@ -28,7 +28,7 @@ class Index(object):
     """
     # The _index and _type define the URL path to Elasticsearch, e.g.:
     #   http://localhost:9200/{_index}/{_type}/_search
-    _index = None
+    _index = 'readthedocs'
     _type = None
 
     def __init__(self):
@@ -102,11 +102,14 @@ class Index(object):
         index = index or self._index
         body = {
             'settings': self.get_settings(),
-            'mappings': self.get_mapping(),
         }
         self.es.indices.create(index=index, body=body)
 
-    def bulk_index(self, data, index=None, chunk_size=500):
+    def put_mapping(self, index=None):
+        index = index or self._index
+        self.es.indices.put_mapping(index, self._type, self.get_mapping())
+
+    def bulk_index(self, data, index=None, chunk_size=500, parent=None):
         """
         Given a list of documents, uses Elasticsearch bulk indexing.
 
@@ -120,19 +123,23 @@ class Index(object):
         docs = []
         for d in data:
             source = self.extract_document(d)
-            docs.append({
+            doc = {
                 '_index': index,
                 '_type': self._type,
                 '_id': source['id'],
                 '_source': source,
-            })
+            }
+            if parent:
+                doc['_parent'] = parent
+            docs.append(doc)
 
         bulk_index(self.es, docs, chunk_size=chunk_size)
 
-    def index_document(self, data, index=None):
+    def index_document(self, data, index=None, parent=None):
         index = index or self._index
         doc = self.extract_document(data)
-        self.es.index(index=index, doc_type=self._type, body=doc, id=doc['id'])
+        self.es.index(index=index, doc_type=self._type, body=doc, id=doc['id'],
+                      parent=parent)
 
     def get_mapping(self):
         """
@@ -177,7 +184,6 @@ class Index(object):
 
 class Project(Index):
 
-    _index = 'projects'
     _type = 'project'
 
     def get_mapping(self):
@@ -217,8 +223,8 @@ class Project(Index):
 
 class Page(Index):
 
-    _index = 'pages'
     _type = 'page'
+    _parent = 'project'
 
     def get_mapping(self):
         mapping = {
@@ -227,8 +233,11 @@ class Page(Index):
                 '_all': {'enabled': False},
                 # Add a boost field to enhance relevancy of a document.
                 '_boost': {'name': '_boost', 'null_value': 1.0},
+                # Associate a page with a project.
+                '_parent': {'type': self._parent},
                 'properties': {
                     'id': {'type': 'string', 'index': 'not_analyzed'},
+                    'project': {'type': 'long'},
                     'title': {'type': 'string', 'analyzer': 'default_icu'},
                     'headers': {'type': 'string', 'analyzer': 'default_icu'},
                     'version': {'type': 'string', 'index': 'not_analyzed'},
@@ -243,7 +252,7 @@ class Page(Index):
     def extract_document(self, data):
         doc = {}
 
-        attrs = ('id', 'title', 'version', 'path', 'content')
+        attrs = ('id', 'project', 'title', 'version', 'path', 'content')
         for attr in attrs:
             doc[attr] = data.get(attr, '')
 
