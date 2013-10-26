@@ -20,6 +20,7 @@ class PostCommitTest(TestCase):
         def mock(*args, **kwargs):
             log.info("Mocking for great profit and speed.")
         tasks.update_docs = mock
+        tasks.update_docs.delay = mock
 
         self.client.login(username='eric', password='test')
         self.payload = {
@@ -90,12 +91,12 @@ class PostCommitTest(TestCase):
         self.assertEqual(r.content, 'Build Started: awesome')
         self.payload['ref'] = 'refs/heads/not_ok'
         r = self.client.post('/github/', {'payload': json.dumps(self.payload)})
-        self.assertEqual(r.status_code, 404)
+        self.assertEqual(r.status_code, 200)
         self.assertEqual(r.content, 'Not Building: not_ok')
         self.payload['ref'] = 'refs/heads/unknown'
         r = self.client.post('/github/', {'payload': json.dumps(self.payload)})
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r.content, 'Build Started: latest')
+        self.assertEqual(r.content, 'Not Building: ')
 
     def test_github_post_commit_knows_default_branches(self):
         """
@@ -114,3 +115,11 @@ class PostCommitTest(TestCase):
 
         rtd.default_branch = old_default
         rtd.save()
+
+    def test_core_commit_hook(self):
+        rtd = Project.objects.get(slug='read-the-docs')
+        rtd.default_branch = 'master'
+        rtd.save()
+        r = self.client.post('/build/%s' % rtd.pk, {'version_slug': 'master'})
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(r._headers['location'][1], 'http://testserver/builds/read-the-docs/')

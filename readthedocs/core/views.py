@@ -103,6 +103,7 @@ def github_build(request):
             for project in projects:
                 versions = project.versions_from_branch_name(branch)
                 to_build = set()
+                not_building = set()
                 for version in versions:
                     log.info(("(Github Build) Processing %s:%s"
                               % (project.slug, version.slug)))
@@ -113,21 +114,22 @@ def github_build(request):
                         # These will build at "latest", and thus won't be
                         # active
                         version = project.versions.get(slug='latest')
-                        to_build.add(version.pk)
+                        to_build.add(version)
                         log.info(("(Github Build) Building %s:%s"
                                   % (project.slug, version.slug)))
                     elif version in project.versions.exclude(active=True):
                         log.info(("(Github Build) Not building %s"
                                   % version.slug))
+                        not_building.add(version)
                         continue
                     else:
-                        to_build.add(version.pk)
+                        to_build.add(version)
                         log.info(("(Github Build) Building %s:%s"
                                   % (project.slug, version.slug)))
 
-                for pk in to_build:
+                for ver in to_build:
                     # version_pk being None means it will use "latest"
-                    update_docs.delay(pk=project.pk, version_pk=pk, force=True)
+                    update_docs.delay(pk=project.pk, version_pk=ver.pk, force=True)
                 # Remove else block as it was causing double builds.
                 """
                 else:
@@ -139,7 +141,10 @@ def github_build(request):
                     update_docs.delay(pk=project.pk, version_pk=version_pk,
                                       force=True)
                 """
-            return HttpResponse('Build Started')
+            if to_build:
+                return HttpResponse('Build Started: %s' % ' '.join([ver.slug for ver in to_build]))
+            else:
+                return HttpResponse('Not Building: %s' % ' '.join([ver.slug for ver in not_building]))
         except Exception, e:
             log.error("(Github Build) Failed: %s:%s" % (name, e))
             #handle new repos
@@ -202,13 +207,17 @@ def generic_build(request, pk=None):
     context = {'built': False, 'project': project}
     if request.method == 'POST':
         context['built'] = True
+        default = project.default_branch or (project.vcs_repo().fallback_branch)
         slug = request.POST.get('version_slug', None)
         if slug:
-            version = project.versions.get(slug=slug)
-            update_docs.delay(pk=pk, version_pk=version.pk, force=True)
+            if slug == default:
+                version = project.versions.get(slug='latest')
+                update_docs.delay(pk=pk, version_pk=version.pk, force=True)
+            else:
+                version = project.versions.get(slug=slug)
+                update_docs.delay(pk=pk, version_pk=version.pk, force=True)
         else:
             update_docs.delay(pk=pk, force=True)
-        # return HttpResponse('Build Started')
         return redirect('builds_project_list', project.slug)
     return redirect('builds_project_list', project.slug)
 
