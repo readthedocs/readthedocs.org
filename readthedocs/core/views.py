@@ -130,6 +130,8 @@ def github_build(request):
                     # version_pk being None means it will use "latest"
                     update_docs.delay(pk=project.pk, version_pk=version_pk,
                                       force=True)
+                # Remove else block as it was causing double builds.
+                """
                 else:
                     version_slug = 'latest'
                     branch = 'latest'
@@ -138,6 +140,7 @@ def github_build(request):
                     # version_pk being None means it will use "latest"
                     update_docs.delay(pk=project.pk, version_pk=version_pk,
                                       force=True)
+                """
             return HttpResponse('Build Started: %s' % version_slug)
         except Exception, e:
             log.error("(Github Build) Failed: %s:%s" % (name, e))
