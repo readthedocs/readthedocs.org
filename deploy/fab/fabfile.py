@@ -59,9 +59,9 @@ def backup():
     firewall('backup')
 
 
-def install_packages(type):
+def install_packages(type=None):
     sudo('apt-get update')
-    sudo('apt-get install -y vim')
+    sudo('apt-get install -y vim software-properties-common')
     sudo('apt-get install -y python-setuptools')
     sudo('easy_install pip')
     sudo('pip install -U virtualenv')
