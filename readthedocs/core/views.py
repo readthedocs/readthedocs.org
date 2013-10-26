@@ -266,6 +266,15 @@ def subdomain_handler(request, lang_slug=None, version_slug=None, filename=''):
                       version_slug=version_slug,
                       filename=filename)
 
+def subproject_list(request):
+    project_slug = request.slug
+    proj = get_object_or_404(Project, slug=project_slug)
+    subprojects = [rel.child for rel in proj.subprojects.all()]
+    return render_to_response(
+        'projects/project_list.html',
+        {'project_list': subprojects},
+        context_instance=RequestContext(request)
+    )
 
 def subproject_serve_docs(request, project_slug, lang_slug=None,
                           version_slug=None, filename=''):
