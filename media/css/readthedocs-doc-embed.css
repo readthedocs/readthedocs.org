@@ -1,1 +1,15 @@
 /* Left for CSS overrides we need to make in the future */
+
+/* Fix badge on RTD Theme */
+
+.rst-other-versions {
+	text-align: left;
+}
+
+.rst-other-versions a {
+	border: 0;
+}
+
+.rst-other-versions dl {
+	margin: 0;
+}
