@@ -109,7 +109,7 @@ def github_build(request):
                               % (project.slug, version.slug)))
                     default = project.default_branch or (project.vcs_repo()
                                                          .fallback_branch)
-                    if branch == default:
+                    if version.slug == default:
                         # Short circuit versions that are default
                         # These will build at "latest", and thus won't be
                         # active
