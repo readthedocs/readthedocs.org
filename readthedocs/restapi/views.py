@@ -4,9 +4,7 @@ from django.conf import settings
 
 from distlib.version import UnsupportedVersionError
 from elasticsearch import Elasticsearch
-from rest_framework import decorators
-from rest_framework import permissions
-from rest_framework import viewsets
+from rest_framework import decorators, permissions, viewsets, status
 from rest_framework.renderers import JSONPRenderer, JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 
@@ -30,7 +28,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
         """
         project = get_object_or_404(Project, pk=kwargs['pk'])
         if not project.num_major or not project.num_minor or not project.num_point:
-            return Response({'error': 'Project does not support point version control.'})
+            return Response({'error': 'Project does not support point version control'}, status=status.HTTP_400_BAD_REQUEST)
         versions = []
         for ver in project.versions.all():
             try:
@@ -184,6 +182,8 @@ def quick_search(request):
 @decorators.renderer_classes((JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
 def search(request):
     project_slug = request.GET.get('project', None)
+    if not project_slug:
+        return Response({'error': 'Project does not support point version control'}, status=status.HTTP_400_BAD_REQUEST)
     version_slug = request.GET.get('version', 'latest')
     query = request.GET.get('q', None)
     es = Elasticsearch(settings.ES_HOSTS)
