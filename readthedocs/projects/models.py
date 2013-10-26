@@ -282,14 +282,13 @@ class Project(models.Model):
         """
         protocol = "http"
         version = version_slug or self.get_default_version()
+        lang = lang_slug or self.language
         use_subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
-        if not lang_slug:
-            lang_slug = self.language
         if use_subdomain:
             return "%s://%s/%s/%s/" % (
                 protocol,
                 self.subdomain,
-                lang_slug,
+                lang,
                 version,
             )
         else:

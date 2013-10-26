@@ -1,5 +1,7 @@
 from fabric.api import cd, env, lcd, local, hosts, prompt, run
 from fabric.decorators import runs_once
+
+import os
 import time
 
 env.runtime = 'production'
@@ -11,6 +13,7 @@ env.code_dir = '/home/docs/checkouts/readthedocs.org'
 env.virtualenv = '/home/docs/'
 env.rundir = '/home/docs/run'
 
+fabfile_dir = os.path.dirname(__file__)
 
 @hosts(['newchimera.readthedocs.com', 'newasgard.readthedocs.com'])
 def remove_project(project):
@@ -188,3 +191,11 @@ def uptime():
 @hosts(['newchimera.readthedocs.com'])
 def update_index():
     run('django-admin.py update_index')
+
+@hosts('None')
+def update_theme():
+    with lcd(os.path.join(fabfile_dir, 'readthedocs', 'templates', 'sphinx')):
+        local('git clone https://github.com/snide/sphinx_rtd_theme.git test')
+        local('rm -rf sphinx_rtd_theme')
+        local('mv test/sphinx_rtd_theme .')
+        local('rm -rf test')

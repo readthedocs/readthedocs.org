@@ -1,10 +1,12 @@
 from django.shortcuts import get_object_or_404
+from django.template import Template, Context
+from django.conf import settings
 
 from distlib.version import UnsupportedVersionError
+from rest_framework import decorators
 from rest_framework import permissions
 from rest_framework import viewsets
-from rest_framework.decorators import link
-from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
+from rest_framework.renderers import JSONPRenderer, JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 
 from betterversion.better import version_windows, BetterVersion 
@@ -19,7 +21,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
     renderer_classes = (JSONRenderer, BrowsableAPIRenderer)
     model = Project
 
-    @link()
+    @decorators.link()
     def valid_versions(self, request, **kwargs):
         """
         Maintain state of versions that are wanted.
@@ -49,7 +51,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
             'flat': version_strings,
             })
 
-    @link()
+    @decorators.link()
     def translations(self, request, **kwargs):
         project = get_object_or_404(Project, pk=kwargs['pk'])
         queryset = project.translations.all()
@@ -77,10 +79,84 @@ class VersionViewSet(viewsets.ModelViewSet):
     renderer_classes = (JSONRenderer, BrowsableAPIRenderer)
     model = Version
 
-    @link()
+    @decorators.link()
     def downloads(self, request, **kwargs):
         version = get_object_or_404(Version, pk=kwargs['pk'])
         downloads = version.get_downloads(pretty=True)
         return Response({
             'downloads': downloads
         })
+
+TEMPLATE = """
+<div class="injected">
+
+  {% if not new_theme %}
+  <div class="rst-versions rst-badge" data-toggle="rst-versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      <span class="icon icon-book">&nbsp;</span>
+      v: {{ current_version }}
+      <span class="icon icon-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+  {% endif %}
+  
+      <dl>
+        <dt>Versions</dt>
+        {% for version in versions %}
+          {% if version.slug == current_version %}
+          <strong>
+          {% endif %}
+          <dd><a href="{{ version.get_subdomain_url }}">{{ version.slug }}</a></dd>
+          {% if version.slug == current_version %}
+          </strong>
+          {% endif %}
+        {% endfor %}
+      </dl>
+      <dl>
+        <dt>Downloads</dt>
+        {% for name, url in downloads.items %}
+          <dd><a href="{{ url }}">{{ name }}</a></dd>
+        {% endfor %}
+      </dl>
+      <dl>
+        <dt>On Read the Docs</dt>
+          <dd>
+            <a href="//{{ settings.PRODUCTION_DOMAIN }}/projects/{{ project.slug }}/?fromdocs={{ project.slug }}">Project Home</a>
+          </dd>
+          <dd>
+            <a href="//{{ settings.PRODUCTION_DOMAIN }}/builds/{{ project.slug }}/?fromdocs={{ project.slug }}">Builds</a>
+          </dd>
+      </dl>
+      <hr/>
+      Free document hosting provided by <a href="http://www.readthedocs.org">Read the Docs</a>.
+
+  {% if not new_theme %}
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+"""
+
+@decorators.api_view(['GET'])
+@decorators.permission_classes((permissions.AllowAny,))
+@decorators.renderer_classes((JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
+def footer_html(request):
+    project_slug = request.GET.get('project', None)
+    version_slug = request.GET.get('version', None)
+    theme = request.GET.get('theme', False)
+    new_theme = (theme == "sphinx_rtd_theme")
+    using_theme = (theme == "default")
+    project = get_object_or_404(Project, slug=project_slug)
+    version = project.versions.get(slug=version_slug)
+    context = Context({
+        'project': project,
+        'downloads': version.get_downloads(pretty=True),
+        'current_version': version.slug,
+        'versions': project.ordered_active_versions(),
+        'using_theme': using_theme,
+        'new_theme': new_theme,
+        'settings': settings,
+    })
+    html = Template(TEMPLATE).render(context)
+    return Response({"html": html})

@@ -1,3 +1,5 @@
+from django.core.urlresolvers import reverse
+from django.conf import settings
 from django.db import models
 from django.utils.translation import ugettext_lazy as _, ugettext
 
@@ -112,6 +114,21 @@ class Version(models.Model):
         if not self.built and not self.uploaded:
             return ''
         return self.project.get_docs_url(version_slug=self.slug)
+
+    def get_subdomain_url(self):
+        use_subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
+        if use_subdomain:
+            return "/%s/%s/" % (
+                self.project.language,
+                self.slug,
+            )
+        else:
+            return reverse('docs_detail', kwargs={
+                'project_slug': self.project.slug,
+                'lang_slug': self.project.language,
+                'version_slug': self.slug,
+                'filename': ''
+            })
 
     def save(self, *args, **kwargs):
         """

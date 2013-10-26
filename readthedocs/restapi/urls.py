@@ -7,3 +7,4 @@ router.register(r'project', ProjectViewSet)
 router.register(r'notification', NotificationViewSet)
 
 urlpatterns = router.urls
+
