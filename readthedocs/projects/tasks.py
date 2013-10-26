@@ -332,7 +332,6 @@ def update_imported_docs(version_pk):
             else:
                 ignore_option = ''
             if project.python_interpreter != 'python3':
-                # Let's see if this works now.
                 sphinx = 'sphinx==1.1.3'
                 update_docs_output['sphinx'] = run(
                     ('{cmd} install {ignore_option} {sphinx} '

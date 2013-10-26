@@ -91,7 +91,7 @@ TEMPLATE = """
 <div class="injected">
 
   {% if not new_theme %}
-  <div class="rst-versions {% if not new_theme %}rst-badge {% endif %}" data-toggle="rst-versions">
+  <div class="rst-versions rst-badge" data-toggle="rst-versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
       <span class="icon icon-book">&nbsp;</span>
       v: {{ current_version }}
