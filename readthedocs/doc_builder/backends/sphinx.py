@@ -1,7 +1,6 @@
 import os
 import shutil
 import codecs
-import re
 import logging
 import zipfile
 
@@ -10,9 +9,10 @@ from django.contrib.auth.models import SiteProfileNotAvailable
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 
+from builds import utils as version_utils
+from core.utils import copy_to_app_servers, copy_file_to_app_servers
 from doc_builder.base import BaseBuilder, restoring_chdir
 from projects.utils import run
-from core.utils import copy_to_app_servers, copy_file_to_app_servers
 from tastyapi import apiv2
 
 log = logging.getLogger(__name__)
@@ -108,47 +108,6 @@ TEMPLATE_DIR = '%s/readthedocs/templates/sphinx' % settings.SITE_ROOT
 STATIC_DIR = '%s/_static' % TEMPLATE_DIR
 
 
-def _get_conf_py_path(version):
-    conf_py_path = version.project.conf_file(version.slug)
-    conf_py_path = conf_py_path.replace(
-        version.project.checkout_path(version.slug), '')
-    return conf_py_path.replace('conf.py', '')
-
-
-def _get_github_username_repo(version):
-    REGEX1 = re.compile('github.com/(.+)/(.+)(?:\.git){1}')
-    REGEX2 = re.compile('github.com/(.+)/(.+)')
-    REGEX3 = re.compile('github.com:(.+)/(.+).git')
-    repo_url = version.project.repo
-    if 'github' in repo_url:
-        try:
-            un, repo = REGEX1.search(repo_url).groups()
-            return (un, repo)
-        except AttributeError:
-            try:
-                un, repo = REGEX2.search(repo_url).groups()
-                return (un, repo)
-            except:
-                try:
-                    un, repo = REGEX3.search(repo_url).groups()
-                    return (un, repo)
-                except:
-                    return (None, None)
-        except:
-            return (None, None)
-    return (None, None)
-
-
-def _get_github_version(version):
-    if version.slug == 'latest':
-        if version.project.default_branch:
-            return version.project.default_branch
-        else:
-            return version.project.vcs_repo().fallback_branch
-    else:
-        return version.slug
-
-
 class Builder(BaseBuilder):
     """
     The parent for most sphinx builders.
@@ -164,9 +123,9 @@ class Builder(BaseBuilder):
         outfile = codecs.open(project.conf_file(self.version.slug),
                               encoding='utf-8', mode='a')
         outfile.write("\n")
-        conf_py_path = _get_conf_py_path(self.version)
-        github_info = _get_github_username_repo(self.version)
-        github_version = _get_github_version(self.version)
+        conf_py_path = version_utils.get_conf_py_path(self.version)
+        github_info = version_utils.get_github_username_repo(self.version)
+        github_version = version_utils.get_github_version(self.version)
         if github_info[0] is None:
             display_github = False
         else:
