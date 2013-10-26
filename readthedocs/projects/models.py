@@ -294,7 +294,7 @@ class Project(models.Model):
         else:
             return reverse('docs_detail', kwargs={
                 'project_slug': self.slug,
-                'lang_slug': lang_slug,
+                'lang_slug': lang,
                 'version_slug': version,
                 'filename': ''
             })
