@@ -1,17 +1,22 @@
+import json
+import hashlib
+
 from django.shortcuts import get_object_or_404
 from django.template import Template, Context
 from django.conf import settings
 
 from distlib.version import UnsupportedVersionError
+from elasticsearch import Elasticsearch
 from rest_framework import decorators, permissions, viewsets, status
 from rest_framework.renderers import JSONPRenderer, JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
+import requests
 
 from betterversion.better import version_windows, BetterVersion 
 from builds.models import Version
-from projects.models import Project, EmailHook
-from search.indexes import Page as PageIndex, Project as ProjectIndex
 from djangome import views as djangome
+from search.indexes import Page as PageIndex, Project as ProjectIndex
+from projects.models import Project, EmailHook
 
 from .serializers import ProjectSerializer
 from .permissions import RelatedProjectIsOwner
@@ -176,6 +181,42 @@ def quick_search(request):
             value = ':'.join(data.split(':')[6:])
             ret_dict[key] = value
     return Response({"results": ret_dict})
+
+@decorators.api_view(['POST'])
+@decorators.permission_classes((permissions.IsAdminUser,))
+@decorators.renderer_classes((JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
+def index_search(request):
+    """
+    Example Page data:
+    {
+        'project': 2,
+        'title': 'Outro',
+        'headers': ['Getting finished'],
+        'version': '1.0',
+        'path': 'outro',
+        'content': 'Lots of stuff here...',
+        '_boost': 5, # scaled_page[page]
+    }
+    """
+    page_obj = Page()
+    data = json.loads(request.raw_post_data)['data']
+    page_list = data['page_list']
+    project_pk = data['project_pk']
+    version_pk = data['version_pk']
+    project = Project.objects.get(pk=project_pk)
+    version = Version.objects.get(pk=version_pk)
+    resp = requests.get('https://api.grokthedocs.com/api/v1/index/1/heatmap/', params={'project': project.slug, 'compare': True})
+    ret_json = resp.json()
+    project_scale = ret_json['scaled_project'][project.slug]
+
+    index_list = []
+    for page in page_list:
+        page_scale = ret_json['scaled_project'].get(page, 1)
+        page['_boast'] = page_scale + project_scale
+        page['id'] = hashlib.md5('%s-%s-%s' % (project.slug, version.slug, page['path']) ).hexdigest(),
+        index_list.append(page)
+    page_obj.bulk_index(index_list, parent=project_pk)
+    return Response({'indexed': True})
 
 @decorators.api_view(['GET'])
 @decorators.permission_classes((permissions.AllowAny,))
