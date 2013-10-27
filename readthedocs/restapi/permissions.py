@@ -7,7 +7,6 @@ class IsOwner(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
         # Write permissions are only allowed to the owner of the snippet
-        import ipdb; ipdb.set_trace()
         return request.user in obj.users.all() 
 
 class RelatedProjectIsOwner(permissions.BasePermission):
@@ -17,5 +16,4 @@ class RelatedProjectIsOwner(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
         # Write permissions are only allowed to the owner of the snippet
-        import ipdb; ipdb.set_trace()
         return request.user in obj.project.users.all() 
