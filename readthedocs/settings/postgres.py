@@ -40,6 +40,11 @@ CACHES = {
     },
 }
 
+# Elasticsearch settings.
+ES_HOSTS = ['backup:9200', 'db:9200']
+ES_DEFAULT_NUM_REPLICAS = 1
+ES_DEFAULT_NUM_SHARDS = 5
+
 SLUMBER_API_HOST = 'https://readthedocs.org'
 WEBSOCKET_HOST = 'websocket.readthedocs.org:8088'
 

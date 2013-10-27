@@ -179,7 +179,9 @@ def firewall(type):
             sudo('ufw allow from %s to any port 6379 #Redis' % ip )
     if type == "backup":
         pass
-
+    if type == "search":
+        for ip in [asgard_ip, chimera_ip, backup_ip, db_ip]:
+            sudo('ufw allow proto tcp from %s to any port 9200:9400 #ES' % ip)
 
 def host_file():
    host_string = """
