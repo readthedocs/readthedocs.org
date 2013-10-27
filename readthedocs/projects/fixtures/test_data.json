@@ -6,7 +6,7 @@
             "modified_date": "2010-08-15 14:36:46",
             "description": "",
             "project_url": "",
-            "repo": "http://github.com/rtfd/readthedocs.org",
+            "repo": "https://github.com/rtfd/readthedocs.org",
             "version": "0.1",
             "users": [
 		1
@@ -23,7 +23,7 @@
             "modified_date": "2010-08-15 13:18:23",
             "description": "",
             "project_url": "",
-            "repo": "http://github.com/alex/django-taggit",
+            "repo": "https://github.com/alex/django-taggit",
             "version": "0.8",
             "users": [
 		1
@@ -40,7 +40,7 @@
             "modified_date": "2010-08-15 13:18:23",
             "description": "",
             "project_url": "",
-            "repo": "http://github.com/pypa/pip",
+            "repo": "https://github.com/pypa/pip",
             "version": "",
             "users": [
 		1
@@ -57,7 +57,7 @@
             "modified_date": "2010-08-15 13:18:22",
             "description": "Awesome forms!",
             "project_url": "",
-            "repo": "http://github.com/pydanny/django-uni-form",
+            "repo": "https://github.com/pydanny/django-uni-form",
             "version": "0.7",
             "users": [
 		1
@@ -91,7 +91,7 @@
             "modified_date": "2010-08-15 13:18:20",
             "description": "ZOMG HE'S COMING?!",
             "project_url": "",
-            "repo": "http://github.com/ericholscher/django-kong",
+            "repo": "https://github.com/ericholscher/django-kong",
             "version": "0.1",
             "users": [
 		1
@@ -108,7 +108,7 @@
             "modified_date": "2010-08-15 13:18:20",
             "description": "",
             "project_url": "",
-            "repo": "http://github.com/worldcompany/djangoembed",
+            "repo": "https://github.com/worldcompany/djangoembed",
             "version": "",
             "users": [
 		1
@@ -142,7 +142,7 @@
             "modified_date": "2010-08-15 13:18:19",
             "description": "",
             "project_url": "",
-            "repo": "http://github.com/fabric/fabric",
+            "repo": "https://github.com/fabric/fabric",
             "version": "0.1.0",
             "users": [
 		1
@@ -193,7 +193,7 @@
             "modified_date": "2010-08-15 13:18:16",
             "description": "",
             "project_url": "",
-            "repo": "http://github.com/ericholscher/django-test-utils",
+            "repo": "https://github.com/ericholscher/django-test-utils",
             "version": "0.2",
             "users": [
 		1
@@ -293,7 +293,7 @@
             "modified_date": "2010-08-15 13:18:14",
             "description": "Awesome docs",
             "project_url": "",
-            "repo": "http://github.com/toastdriven/django-haystack",
+            "repo": "https://github.com/toastdriven/django-haystack",
             "version": "1.1.0",
             "users": [
 		1
