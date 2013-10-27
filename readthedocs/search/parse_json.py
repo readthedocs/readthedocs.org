@@ -54,6 +54,8 @@ def process_file(filename):
         log.error('Unable to index content for: %s' % filename)
     if 'title' in data:
         title = data['title']
+        if title.startswith('<'):
+            title = recurse_while_none(PyQuery(data['title']))
     else:
         log.error('Unable to index title for: %s' % filename)
 
