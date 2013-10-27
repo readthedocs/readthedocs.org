@@ -253,7 +253,16 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
         # Needs to happen after update_intersphinx
         #clear_artifacts(version.pk)
 
-    # Try importing from Open Comparison sites.
+    import_open_comparison(project)
+    import_crate(project)
+
+    return True
+
+
+def import_open_comparison(project):
+    """
+    Try importing a Project model from Open Comparison sites.
+    """
     try:
         result = tastyapi_client.import_project(project)
         if result:
@@ -263,7 +272,11 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
     except:
         log.info("Failed import from Open Comparison", exc_info=True)
 
-    # Try importing from Crate
+
+def import_crate(project):
+    """
+    Try importing a Project model from Crate.
+    """
     try:
         result = tastyapi_client.import_crate(project)
         if result:
@@ -274,7 +287,6 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
     except:
         log.info("Failed import from Crate", exc_info=True)
 
-    return True
 
 @task 
 def update_config_from_json(version_pk):
