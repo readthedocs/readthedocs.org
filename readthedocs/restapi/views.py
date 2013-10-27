@@ -185,18 +185,6 @@ def quick_search(request):
 @decorators.permission_classes((permissions.IsAdminUser,))
 @decorators.renderer_classes((JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
 def index_search(request):
-    """
-    Example Page data:
-    {
-        'project': 2,
-        'title': 'Outro',
-        'headers': ['Getting finished'],
-        'version': '1.0',
-        'path': 'outro',
-        'content': 'Lots of stuff here...',
-        '_boost': 5, # scaled_page[page]
-    }
-    """
     page_obj = PageIndex()
     data = json.loads(request.raw_post_data)['data']
     page_list = data['page_list']
