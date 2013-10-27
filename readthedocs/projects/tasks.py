@@ -20,6 +20,7 @@ from django.utils.translation import ugettext_lazy as _
 import redis
 import requests
 import slumber
+import tastyapi
 from sphinx.ext import intersphinx
 
 from builds.models import Build, Version
@@ -53,7 +54,8 @@ def remove_dir(path):
 @task
 @restoring_chdir
 def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
-                version_pk=None, force=False, **kwargs):
+                version_pk=None, force=False, intersphinx=True,
+                api=None, **kwargs):
     """The main entry point for updating documentation.
 
     It handles all of the logic around whether a project is imported or we
@@ -69,6 +71,9 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
         from the shell, for example.
 
     """
+
+    if api is None:
+        api = tastyapi.api
 
     project_data = api.project(pk).get()
     project = make_api_project(project_data)
@@ -132,7 +137,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
 
     try:
         log.info("Updating docs from VCS")
-        update_output = update_imported_docs(version.pk)
+        update_output = update_imported_docs(version.pk, api)
         #update_output = update_result.get()
     except ProjectImportError, err:
         log.error("Failed to import project; skipping build.", exc_info=True)
@@ -243,11 +248,21 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
         fileify.delay(version.pk)
 
         # Things that touch redis
-        update_intersphinx(version.pk)
+        if intersphinx:
+            update_intersphinx(version.pk, api)
         # Needs to happen after update_intersphinx
         #clear_artifacts(version.pk)
 
-    # Try importing from Open Comparison sites.
+    import_open_comparison(project)
+    import_crate(project)
+
+    return True
+
+
+def import_open_comparison(project):
+    """
+    Try importing a Project model from Open Comparison sites.
+    """
     try:
         result = tastyapi_client.import_project(project)
         if result:
@@ -257,7 +272,11 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
     except:
         log.info("Failed import from Open Comparison", exc_info=True)
 
-    # Try importing from Crate
+
+def import_crate(project):
+    """
+    Try importing a Project model from Crate.
+    """
     try:
         result = tastyapi_client.import_crate(project)
         if result:
@@ -268,7 +287,6 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
     except:
         log.info("Failed import from Crate", exc_info=True)
 
-    return True
 
 @task 
 def update_config_from_json(version_pk):
@@ -303,10 +321,13 @@ def update_config_from_json(version_pk):
     log.info("Updated from JSON.")
 
 @task
-def update_imported_docs(version_pk):
+def update_imported_docs(version_pk, api=None):
     """
     Check out or update the given project's repository.
     """
+    if api is None:
+        api = tastyapi.api
+
     version_data = api.version(version_pk).get()
     version = make_api_version(version_data)
     project = version.project
@@ -550,7 +571,10 @@ def unzip_files(dest_file, html_path):
 
 
 @task
-def update_intersphinx(version_pk):
+def update_intersphinx(version_pk, api=None):
+    if api is None:
+        api = tastyapi.api
+
     version_data = api.version(version_pk).get()
     version = make_api_version(version_data)
     project = version.project

@@ -2,12 +2,14 @@ from os.path import exists
 import shutil
 from tempfile import mkdtemp
 from django.contrib.admin.models import User
+import json
 
 from projects.models import Project
 from projects import tasks
 
 from rtd_tests.utils import make_test_git
 from rtd_tests.tests.base import RTDTestCase
+from rtd_tests.tests.mock_api import MockApi
 
 
 class TestCeleryBuilding(RTDTestCase):
@@ -37,3 +39,13 @@ class TestCeleryBuilding(RTDTestCase):
         result = tasks.remove_dir.delay(directory)
         assert result.successful()
         assert not exists(directory)
+
+    def test_update_docs(self):
+        result = tasks.update_docs.delay(self.project.pk, record=False,
+            intersphinx=False, api=MockApi(self.repo))
+        assert result.successful()
+
+    def test_update_imported_doc(self):
+        result = tasks.update_imported_docs.delay(self.project.pk,
+            api=MockApi(self.repo))
+        assert result.successful()
