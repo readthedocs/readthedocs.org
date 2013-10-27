@@ -84,9 +84,12 @@ class Version(models.Model):
 
     verbose_name = models.CharField(_('Verbose Name'), max_length=255)
     slug = models.CharField(_('Slug'), max_length=255)
+
+    supported = models.BooleanField(_('Supported'), default=True)
     active = models.BooleanField(_('Active'), default=False)
     built = models.BooleanField(_('Built'), default=False)
     uploaded = models.BooleanField(_('Uploaded'), default=False)
+    
     privacy_level = models.CharField(
         _('Privacy Level'), max_length=20, choices=constants.PRIVACY_CHOICES,
         default='public', help_text=_("Level of privacy for this Version."))
