@@ -1,12 +1,9 @@
 import logging
 import os
-import shutil
 
 from doc_builder.base import restoring_chdir
 from doc_builder.backends.sphinx import Builder as HtmlBuilder
 from projects.utils import run
-from core.utils import copy_to_app_servers
-from django.conf import settings
 
 log = logging.getLogger(__name__)
 
@@ -23,31 +20,7 @@ class Builder(HtmlBuilder):
         else:
             build_command = "sphinx-build -b readthedocsdirhtml . _build/html"
         build_results = run(build_command)
+        self._zip_html()
         if 'no targets are out of date.' in build_results[1]:
             self._changed = False
         return build_results
-
-    def move(self, **kwargs):
-        project = self.version.project
-        if project.full_build_path(self.version.slug):
-            target = project.rtd_build_path(self.version.slug)
-            if "_" in project.slug:
-                new_slug = project.slug.replace('_', '-')
-                new_target = target.replace(project.slug, new_slug)
-                #Only replace 1, so user_builds doesn't get replaced >:x
-                targets = [target, new_target]
-            else:
-                targets = [target]
-            for target in targets:
-                if getattr(settings, "MULTIPLE_APP_SERVERS", None):
-                    log.info("Copying docs to remote server.")
-                    copy_to_app_servers(
-                        project.full_build_path(self.version.slug), target)
-                else:
-                    if os.path.exists(target):
-                        shutil.rmtree(target)
-                    log.info("Copying docs on the local filesystem")
-                    shutil.copytree(project.full_build_path(self.version.slug),
-                                    target)
-        else:
-            log.warning("Not moving docs, because the build dir is unknown.")

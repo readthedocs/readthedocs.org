@@ -196,7 +196,6 @@ class Builder(BaseBuilder):
                                          to_write)
                 )
         archive.close()
-
         return to_file
 
     def move(self, **kwargs):
