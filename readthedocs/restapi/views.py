@@ -3,15 +3,14 @@ from django.template import Template, Context
 from django.conf import settings
 
 from distlib.version import UnsupportedVersionError
-from rest_framework import decorators
-from rest_framework import permissions
-from rest_framework import viewsets
+from rest_framework import decorators, permissions, viewsets, status
 from rest_framework.renderers import JSONPRenderer, JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 
 from betterversion.better import version_windows, BetterVersion 
 from builds.models import Version
 from projects.models import Project, EmailHook
+from search.indexes import Page as PageIndex, Project as ProjectIndex
 from djangome import views as djangome
 
 from .serializers import ProjectSerializer
@@ -29,7 +28,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
         """
         project = get_object_or_404(Project, pk=kwargs['pk'])
         if not project.num_major or not project.num_minor or not project.num_point:
-            return Response({'error': 'Project does not support point version control.'})
+            return Response({'error': 'Project does not support point version control'}, status=status.HTTP_400_BAD_REQUEST)
         versions = []
         for ver in project.versions.all():
             try:
@@ -177,3 +176,45 @@ def quick_search(request):
             value = ':'.join(data.split(':')[6:])
             ret_dict[key] = value
     return Response({"results": ret_dict})
+
+@decorators.api_view(['GET'])
+@decorators.permission_classes((permissions.AllowAny,))
+@decorators.renderer_classes((JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
+def search(request):
+    project_id = request.GET.get('project', None)
+    version_slug = request.GET.get('version', 'latest')
+    query = request.GET.get('q', None)
+
+    if project_id:
+        # This is a search within a project -- do a Page search.
+        body = {
+            'filter': {
+                'term': {'project': project_id},
+                'term': {'version': version_slug},
+            },
+            'query': {
+                'bool': {
+                    'should': [
+                        {'match': {'title': {'query': query, 'boost': 10}}},
+                        {'match': {'headers': {'query': query, 'boost': 5}}},
+                        {'match': {'content': {'query': query}}},
+                    ]
+                }
+            }
+        }
+        results = PageIndex().search(body, routing=project_id)
+
+    else:
+        body = {
+            'query': {
+                'bool': {
+                    'should': [
+                        {'match': {'name': {'query': query, 'boost': 10}}},
+                        {'match': {'description': {'query': query}}},
+                    ]
+                }
+            }
+        }
+        results = ProjectIndex().search(body)
+
+    return Response({'results': results})
