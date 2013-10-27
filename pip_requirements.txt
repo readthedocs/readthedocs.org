@@ -14,6 +14,7 @@ django-profiles==0.2
 django-secure==0.1.2
 django==1.4.8
 docutils==0.8.1
+elasticsearch==0.4.3
 github2==0.5.2
 httplib2==0.7.2
 mercurial==2.6.3

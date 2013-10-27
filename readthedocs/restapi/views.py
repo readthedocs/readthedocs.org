@@ -1,3 +1,6 @@
+import json
+import hashlib
+
 from django.shortcuts import get_object_or_404
 from django.template import Template, Context
 from django.conf import settings
@@ -7,15 +10,13 @@ from elasticsearch import Elasticsearch
 from rest_framework import decorators, permissions, viewsets, status
 from rest_framework.renderers import JSONPRenderer, JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
-import json
-import hashlib
 import requests
 
 from betterversion.better import version_windows, BetterVersion 
 from builds.models import Version
 from djangome import views as djangome
+from search.indexes import Page as PageIndex, Project as ProjectIndex
 from projects.models import Project, EmailHook
-from search.indexes import Page
 
 from .serializers import ProjectSerializer
 from .permissions import RelatedProjectIsOwner
@@ -181,23 +182,6 @@ def quick_search(request):
             ret_dict[key] = value
     return Response({"results": ret_dict})
 
-@decorators.api_view(['GET'])
-@decorators.permission_classes((permissions.AllowAny,))
-@decorators.renderer_classes((JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
-def search(request):
-    project_slug = request.GET.get('project', None)
-    if not project_slug:
-        return Response({'error': 'project GET argument required'}, status=status.HTTP_400_BAD_REQUEST)
-    version_slug = request.GET.get('version', 'latest')
-    query = request.GET.get('q', None)
-    es = Elasticsearch(settings.ES_HOSTS)
-    ret_dict = {}
-    results = es.query({'project': project_slug, 'version': version_slug, 'query': query})
-    for result in results:
-        #ret_dict[result['key']] = result['url']
-        pass
-    return Response({"results": ret_dict})
-
 @decorators.api_view(['POST'])
 @decorators.permission_classes((permissions.IsAdminUser,))
 @decorators.renderer_classes((JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
@@ -233,3 +217,45 @@ def index_search(request):
         index_list.append(page)
     page_obj.bulk_index(index_list, parent=project_pk)
     return Response({'indexed': True})
+
+@decorators.api_view(['GET'])
+@decorators.permission_classes((permissions.AllowAny,))
+@decorators.renderer_classes((JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
+def search(request):
+    project_id = request.GET.get('project', None)
+    version_slug = request.GET.get('version', 'latest')
+    query = request.GET.get('q', None)
+
+    if project_id:
+        # This is a search within a project -- do a Page search.
+        body = {
+            'filter': {
+                'term': {'project': project_id},
+                'term': {'version': version_slug},
+            },
+            'query': {
+                'bool': {
+                    'should': [
+                        {'match': {'title': {'query': query, 'boost': 10}}},
+                        {'match': {'headers': {'query': query, 'boost': 5}}},
+                        {'match': {'content': {'query': query}}},
+                    ]
+                }
+            }
+        }
+        results = PageIndex().search(body, routing=project_id)
+
+    else:
+        body = {
+            'query': {
+                'bool': {
+                    'should': [
+                        {'match': {'name': {'query': query, 'boost': 10}}},
+                        {'match': {'description': {'query': query}}},
+                    ]
+                }
+            }
+        }
+        results = ProjectIndex().search(body)
+
+    return Response({'results': results})
