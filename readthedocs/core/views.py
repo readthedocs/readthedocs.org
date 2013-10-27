@@ -108,6 +108,36 @@ def _build_version(project, slug, already_built=()):
     else:
         return None
 
+def _build_branches(project, branch_list):
+    for branch in branch_list:
+        versions = project.versions_from_branch_name(branch)
+        to_build = set()
+        not_building = set()
+        for version in versions:
+            log.info(("(Branch Build) Processing %s:%s"
+                      % (project.slug, version.slug)))
+            ret =  _build_version(project, version.slug, already_built=to_build)
+            if ret:
+                to_build.add(ret)
+            else:
+                not_building.add(version.slug)
+    return (to_build, not_building)
+    
+
+def _build_url(url, branches):
+    try:
+        projects = Project.objects.filter(repo__contains=url)
+        for project in projects:
+            (to_build, not_building) = _build_branches(project, branches)
+        if to_build:
+            log.info('(URL Build) Build Started: %s [%s]' % (url, ' '.join(to_build)))
+            return HttpResponse('Build Started: %s' % ' '.join(to_build))
+        else:
+            log.info('(URL Build) Not Building: %s [%s]' % (url, ' '.join(not_building)))
+            return HttpResponse('Not Building: %s' % ' '.join(not_building))
+    except Exception, e:
+        log.error("(URL Build) Failed: %s:%s" % (url, e))
+        return HttpResponse('Build Failed: %s' % ' '.join(to_build))
 
 @csrf_view_exempt
 def github_build(request):
@@ -116,79 +146,22 @@ def github_build(request):
     """
     if request.method == 'POST':
         obj = json.loads(request.POST['payload'])
-        name = obj['repository']['name']
         url = obj['repository']['url']
         ghetto_url = url.replace('http://', '').replace('https://', '')
         branch = obj['ref'].replace('refs/heads/', '')
-        log.info("(Github Build) %s:%s" % (ghetto_url, branch))
-        try:
-            projects = Project.objects.filter(repo__contains=ghetto_url)
-            for project in projects:
-                versions = project.versions_from_branch_name(branch)
-                to_build = set()
-                not_building = set()
-                for version in versions:
-                    log.info(("(Github Build) Processing %s:%s"
-                              % (project.slug, version.slug)))
-                    ret =  _build_version(project, version.slug, already_built=to_build)
-                    if ret:
-                        to_build.add(ret)
-                    else:
-                        not_building.add(version.slug)
-            if to_build:
-                return HttpResponse('Build Started: %s' % ' '.join(to_build))
-            else:
-                return HttpResponse('Not Building: %s' % ' '.join(not_building))
-        except Exception, e:
-            log.error("(Github Build) Failed: %s:%s" % (name, e))
-            #handle new repos
-            project = Project.objects.filter(repo__contains=ghetto_url)
-            if not len(project):
-                project = Project.objects.filter(name__icontains=name)
-                if len(project):
-                    #Bail if we think this thing exists
-                    return HttpResponseNotFound('Build Failed')
-            #create project
-            try:
-                email = obj['repository']['owner']['email']
-                desc = obj['repository']['description']
-                homepage = obj['repository']['homepage']
-                repo = obj['repository']['url']
-                user = User.objects.get(email=email)
-                proj = Project.objects.create(
-                    name=name,
-                    description=desc,
-                    project_url=homepage,
-                    repo=repo,
-                )
-                proj.users.add(user)
-                log.error("Created new project %s" % (proj))
-            except Exception, e:
-                log.error("Error creating new project %s: %s" % (name, e))
-                return HttpResponseNotFound('Build Failed')
-
-            return HttpResponseNotFound('Build Failed')
-    else:
-        return redirect('builds_project_list', project.slug)
-
+        log.info("(Incoming Github Build) %s [%s]" % (ghetto_url, branch))
+        return _build_url(ghetto_url, [branch])
 
 @csrf_view_exempt
 def bitbucket_build(request):
     if request.method == 'POST':
         obj = json.loads(request.POST['payload'])
         rep = obj['repository']
-        name = rep['name']
-        url = "%s%s" % ("bitbucket.org",  rep['absolute_url'].rstrip('/'))
-        log.info("(Bitbucket Build) %s" % (url))
-        try:
-            project = Project.objects.filter(repo__contains=url)[0]
-            update_docs.delay(pk=project.pk, force=True)
-            return HttpResponse('Build Started')
-        except Exception, e:
-            log.error("(Github Build) Failed: %s:%s" % (name, e))
-            return HttpResponseNotFound('Build Failed')
-    else:
-        return redirect('builds_project_list', project.slug)
+        branches = [rec['branch'] for rec in json['payload']['commits']]
+        ghetto_url = "%s%s" % ("bitbucket.org",  rep['absolute_url'].rstrip('/'))
+        log.info("(Incoming Bitbucket Build) %s [%s]" % (ghetto_url, ' '.join(branches)))
+        _build_url(ghetto_url, branches)
+
 
 @csrf_view_exempt
 def generic_build(request, pk=None):
@@ -202,8 +175,10 @@ def generic_build(request, pk=None):
         context['built'] = True
         slug = request.POST.get('version_slug', None)
         if slug:
+            log.info("(Incoming Generic Build) %s [%s]" % (project.slug, slug))
             _build_version(project, slug)
         else:
+            log.info("(Incoming Generic Build) %s [%s]" % (project.slug, 'latest'))
             update_docs.delay(pk=pk, force=True)
         return redirect('builds_project_list', project.slug)
     return redirect('builds_project_list', project.slug)
