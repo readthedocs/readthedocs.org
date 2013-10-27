@@ -21,31 +21,31 @@ log = logging.getLogger(__name__)
 RTD_CONF_ADDITIONS = """
 {% load projects_tags %}
 #Add RTD Template Path.
-if 'templates_path' in locals():
+if 'templates_path' in globals():
     templates_path.insert(0, '{{ template_path }}')
 else:
     templates_path = ['{{ template_path }}', 'templates', '_templates',
                       '.templates']
 
 # Add RTD Static Path. Add to the end because it overwrites previous files.
-if 'html_static_path' in locals():
+if 'html_static_path' in globals():
     html_static_path.append('{{ static_path }}')
 else:
     html_static_path = ['_static', '{{ static_path }}']
 
 # Add RTD Theme Path. 
-if 'html_theme_path' in locals():
+if 'html_theme_path' in globals():
     html_theme_path.append('{{ template_path }}')
 else:
     html_theme_path = ['_themes', '{{ template_path }}']
 
 # Add RTD Theme only if they aren't overriding it already
 using_rtd_theme = False
-if 'html_theme' in locals():
+if 'html_theme' in globals():
     if html_theme in ['default']:
         # Allow people to bail with a hack of having an html_style
-        if not 'html_style' in locals():
-            if 'RTD_NEW_THEME' in locals():
+        if not 'html_style' in globals():
+            if globals().get('RTD_NEW_THEME', False):
                 html_theme = 'sphinx_rtd_theme'
             else:
                 html_style = 'rtd.css'
@@ -53,7 +53,7 @@ if 'html_theme' in locals():
             html_theme_options = {}
             using_rtd_theme = True
 else:
-    if 'RTD_NEW_THEME' in locals():
+    if globals().get('RTD_NEW_THEME', False):
         html_theme = 'sphinx_rtd_theme'
     else:
         html_style = 'rtd.css'
@@ -62,7 +62,7 @@ else:
     using_rtd_theme = True
 
 # Force theme on setting
-if 'RTD_NEW_THEME' in locals():
+if globals().get('RTD_NEW_THEME', False):
     html_theme = 'sphinx_rtd_theme'
     html_style = None
 
@@ -91,13 +91,13 @@ context = {
     'using_theme': (html_theme == "default"),
     'new_theme': (html_theme == "sphinx_rtd_theme"),
 }
-if 'html_context' in locals():
+if 'html_context' in globals():
     html_context.update(context)
 else:
     html_context = context
 
 # Add custom RTD extension
-if 'extensions' in locals():
+if 'extensions' in globals():
     extensions.append("readthedocs_ext.readthedocs")
     extensions.append("readthedocs_ext.readthedocshtmldir")
 else:
