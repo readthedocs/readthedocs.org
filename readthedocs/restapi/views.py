@@ -217,7 +217,7 @@ def index_search(request):
             'lang': project.language,
             'author': [user.username for user in project.users.all()],
             'url': project.get_absolute_url(),
-
+            '_boost': project_scale,
         })
 
     index_list = []
