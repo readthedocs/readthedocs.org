@@ -7,7 +7,6 @@ class ProjectData(object):
         return dict()
 
 
-
 def mockVersion(repo):
     class MockVersion(object):
         def __init__(self, x=None):
