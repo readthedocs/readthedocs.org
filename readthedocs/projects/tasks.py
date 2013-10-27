@@ -508,10 +508,14 @@ def build_docs(version_pk, pdf, man, epub, dash, search, record, force):
                 epub_results = fake_results
 
             if search:
-                search_builder = builder_loading.get('sphinx_search')(version)
-                search_results = search_builder.build()
-                if search_results[0] == 0:
-                    search_builder.upload()
+                try:
+                    # BETA
+                    search_builder = builder_loading.get('sphinx_search')(version)
+                    search_results = search_builder.build()
+                    if search_results[0] == 0:
+                        search_builder.upload()
+                except Exception, e:
+                    log.error(e)
 
     return (html_results, latex_results, pdf_results, man_results,
             epub_results, dash_results, search_results)

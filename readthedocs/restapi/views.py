@@ -6,7 +6,6 @@ from django.template import Template, Context
 from django.conf import settings
 
 from distlib.version import UnsupportedVersionError
-from elasticsearch import Elasticsearch
 from rest_framework import decorators, permissions, viewsets, status
 from rest_framework.renderers import JSONPRenderer, JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
@@ -209,11 +208,25 @@ def index_search(request):
     ret_json = resp.json()
     project_scale = ret_json['scaled_project'][project.slug]
 
+    project_obj = ProjectIndex()
+    project_obj.index_document({
+            'id': project.pk,
+            'name': project.name,
+            'slug': project.slug,
+            'description': project.description,
+            'lang': project.language,
+            'author': [user.username for user in project.users.all()],
+            'url': project.get_absolute_url(),
+
+        })
+
     index_list = []
     for page in page_list:
-        page_scale = ret_json['scaled_project'].get(page, 1)
-        page['_boast'] = page_scale + project_scale
-        page['id'] = hashlib.md5('%s-%s-%s' % (project.slug, version.slug, page['path']) ).hexdigest(),
+        page_scale = ret_json['scaled_page'].get(page['path'], 1)
+        page['_boost'] = page_scale + project_scale
+        page['project'] = project.pk
+        page['version'] = version.slug
+        page['id'] = hashlib.md5('%s-%s-%s' % (project.slug, version.slug, page['path']) ).hexdigest()
         index_list.append(page)
     page_obj.bulk_index(index_list, parent=project_pk)
     return Response({'indexed': True})
