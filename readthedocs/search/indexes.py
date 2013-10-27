@@ -241,7 +241,7 @@ class Page(Index):
                 '_parent': {'type': self._parent},
                 'properties': {
                     'id': {'type': 'string', 'index': 'not_analyzed'},
-                    'project': {'type': 'long'},
+                    'project': {'type': 'string', 'index': 'not_analyzed'},
                     'title': {'type': 'string', 'analyzer': 'default_icu'},
                     'headers': {'type': 'string', 'analyzer': 'default_icu'},
                     'version': {'type': 'string', 'index': 'not_analyzed'},

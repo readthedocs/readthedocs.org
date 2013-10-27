@@ -235,15 +235,17 @@ def index_search(request):
 @decorators.permission_classes((permissions.AllowAny,))
 @decorators.renderer_classes((JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
 def search(request):
-    project_id = request.GET.get('project', None)
+    project_slug = request.GET.get('project', None)
     version_slug = request.GET.get('version', 'latest')
     query = request.GET.get('q', None)
 
-    if project_id:
+    project = get_object_or_404(Project, slug=project_slug)
+
+    if project:
         # This is a search within a project -- do a Page search.
         body = {
             'filter': {
-                'term': {'project': project_id},
+                'term': {'project': project.slug},
                 'term': {'version': version_slug},
             },
             'query': {
@@ -256,7 +258,7 @@ def search(request):
                 }
             }
         }
-        results = PageIndex().search(body, routing=project_id)
+        results = PageIndex().search(body, routing=project.pk)
 
     else:
         body = {
