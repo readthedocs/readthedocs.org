@@ -224,7 +224,7 @@ def index_search(request):
     for page in page_list:
         page_scale = ret_json['scaled_page'].get(page['path'], 1)
         page['_boost'] = page_scale + project_scale
-        page['project'] = project.pk
+        page['project'] = project.slug
         page['version'] = version.slug
         page['id'] = hashlib.md5('%s-%s-%s' % (project.slug, version.slug, page['path']) ).hexdigest()
         index_list.append(page)
@@ -239,9 +239,8 @@ def search(request):
     version_slug = request.GET.get('version', 'latest')
     query = request.GET.get('q', None)
 
-    project = get_object_or_404(Project, slug=project_slug)
-
-    if project:
+    if project_slug:
+        project = Project.objects.get(slug=project_slug)
         # This is a search within a project -- do a Page search.
         body = {
             'filter': {
