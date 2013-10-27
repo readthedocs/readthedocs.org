@@ -31,22 +31,20 @@ class RedirectTests(TestCase):
         # This is triggered by Django, so its a 301, basically just
         # APPEND_SLASH
         self.assertEqual(r.status_code, 301)
-        self.assertEqual(r._headers['location'],
-                         ('Location', 'http://testserver/docs/pip/'))
-        r = self.client.get(r._headers['location'][1])
+        self.assertEqual(r['Location'], 'http://testserver/docs/pip/')
+        r = self.client.get(r['Location'])
         self.assertEqual(r.status_code, 302)
-        r = self.client.get(r._headers['location'][1])
+        r = self.client.get(r['Location'])
         self.assertEqual(r.status_code, 200)
 
     def test_proper_url(self):
         r = self.client.get('/docs/pip/')
         self.assertEqual(r.status_code, 302)
-        self.assertEqual(r._headers['location'],
-                         ('Location', 'http://testserver/docs/pip/en/latest/'))
-        r = self.client.get(r._headers['location'][1])
+        self.assertEqual(r['Location'], 'http://testserver/docs/pip/en/latest/')
+        r = self.client.get(r['Location'])
         self.assertEqual(r.status_code, 200)
 
-    def test_inproper_url(self):
+    def test_improper_url(self):
         r = self.client.get('/docs/pip/en/')
         self.assertEqual(r.status_code, 404)
 
@@ -59,12 +57,11 @@ class RedirectTests(TestCase):
     def test_proper_subdomain(self):
         r = self.client.get('/', HTTP_HOST='pip.readthedocs.org')
         self.assertEqual(r.status_code, 302)
-        self.assertEqual(r._headers['location'],
-                         ('Location', 'http://pip.readthedocs.org/en/latest/'))
+        self.assertEqual(r['Location'], 'http://pip.readthedocs.org/en/latest/')
 
     # Keep this around for now, until we come up with a nicer interface
     """
-    def test_inproper_subdomain(self):
+    def test_improper_subdomain(self):
         r = self.client.get('/en/', HTTP_HOST='pip.readthedocs.org')
         self.assertEqual(r.status_code, 404)
     """
@@ -77,17 +74,22 @@ class RedirectTests(TestCase):
     def test_proper_page_on_subdomain(self):
         r = self.client.get('/page/test.html', HTTP_HOST='pip.readthedocs.org')
         self.assertEqual(r.status_code, 302)
-        self.assertEqual(r._headers['location'],
-                         ('Location',
-                          'http://pip.readthedocs.org/en/latest/test.html'))
+        self.assertEqual(r['Location'],
+                          'http://pip.readthedocs.org/en/latest/test.html')
 
     # Specific Page Redirects
     def test_proper_page_on_main_site(self):
         r = self.client.get('/docs/pip/page/test.html')
         self.assertEqual(r.status_code, 302)
-        self.assertEqual(r._headers['location'],
-                         ('Location',
-                          'http://testserver/docs/pip/en/latest/test.html'))
+        self.assertEqual(r['Location'],
+                          'http://testserver/docs/pip/en/latest/test.html')
+
+    # When there's only a version slug, the redirect prepends the lang slug
+    def test_version_slug_only_prepend_lang(self):
+        r = self.client.get('/1.4.1/', HTTP_HOST='pip.readthedocs.org')
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(r['Location'],
+                          'http://pip.readthedocs.org/en/1.4.1/')
 
     # This is currently turned off.
     """
@@ -96,7 +98,7 @@ class RedirectTests(TestCase):
         r = self.client.get('/en/latest/',
                             HTTP_HOST='django_kong.readthedocs.org')
         self.assertEqual(r.status_code, 301)
-        self.assertEqual(r._headers['location'],
+        self.assertEqual(r._headers['Location'],
                          ('Location',
                           'http://django-kong.readthedocs.org/en/latest/'))
     """
