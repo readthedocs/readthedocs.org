@@ -22,10 +22,15 @@ def remove_project(project):
 def ntpdate():
     run('ntpdate-debian')
 
-@hosts(['newasgard.readthedocs.com'])
+@hosts(['newasgard.readthedocs.com', 'newchimera.readthedocs.com'])
 def nginx_logs():
     env.user = "root"
     run("tail -f /var/log/nginx/*.log")
+
+@hosts(['newbuild.readthedocs.com'])
+def celery_logs():
+    env.user = "docs"
+    run("tail -f tail -f ~/log/celery.err")
 
 @hosts(['newasgard.readthedocs.com', 'newchimera.readthedocs.com'])
 def logs():
