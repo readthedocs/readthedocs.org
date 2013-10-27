@@ -3,6 +3,20 @@ Configuration of the production servers
 
 This document is to help people who are involved in the production instance of Read the Docs running on readthedocs.org. It contains implementation details and useful hints for the people handling operations of the servers.
 
+Elastic Search Setup
+--------------------
+
+::
+
+    from search.indexes import Index
+     
+    # Create the index.
+    index = Index()
+    index_name = index.timestamped_index()
+    index.create_index(index_name)
+    index.update_aliases(index_name)
+
+
 Servers
 -------
 The servers are themed somewhere between Norse mythology and Final Fantasy Aeons. I tried to keep them topical, and have some sense of their historical meaning and their purpose in the infrastructure.
