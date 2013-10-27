@@ -198,7 +198,7 @@ def index_search(request):
         '_boost': 5, # scaled_page[page]
     }
     """
-    page_obj = Page()
+    page_obj = PageIndex()
     data = json.loads(request.raw_post_data)['data']
     page_list = data['page_list']
     project_pk = data['project_pk']

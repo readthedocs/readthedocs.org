@@ -37,6 +37,7 @@ def process_file(filename):
     data = json.loads(file_contents)
     headers = []
     content = ''
+    title = ''
     if 'current_page_name' in data:
         path = data['current_page_name']
     else:

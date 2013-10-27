@@ -10,5 +10,4 @@ django-redis-cache==0.9.5
 pillow
 
 #Uncomment this if you want to index things in solr.
-pyquery==1.2.2
 cssselect==0.7.1
