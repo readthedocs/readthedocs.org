@@ -20,7 +20,7 @@ from projects.models import Project, EmailHook
 from .serializers import ProjectSerializer
 from .permissions import RelatedProjectIsOwner
 
-class ProjectViewSet(viewsets.ModelViewSet):
+class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     renderer_classes = (JSONRenderer, BrowsableAPIRenderer)
     model = Project
@@ -63,7 +63,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
             'translations': ProjectSerializer(queryset, many=True).data
         })
 
-class NotificationViewSet(viewsets.ModelViewSet):
+class NotificationViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = (permissions.IsAuthenticated, RelatedProjectIsOwner)
     renderer_classes = (JSONRenderer, BrowsableAPIRenderer)
     model = EmailHook
@@ -78,7 +78,7 @@ class NotificationViewSet(viewsets.ModelViewSet):
             return self.model.objects.all()
         return self.model.objects.filter(project__users__in=[user.pk])
 
-class VersionViewSet(viewsets.ModelViewSet):
+class VersionViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     renderer_classes = (JSONRenderer, BrowsableAPIRenderer)
     model = Version
