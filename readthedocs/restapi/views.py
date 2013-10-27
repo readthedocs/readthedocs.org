@@ -221,12 +221,13 @@ def index_search(request):
     version_pk = data['version_pk']
     project = Project.objects.get(pk=project_pk)
     version = Version.objects.get(pk=version_pk)
-    resp = requests.get('https://api.grokthedocs.com/api/v1/index/1/heatmap/', {'project': project.slug, 'compare': True})
-    project_scale = resp.json['scaled_project'][project.slug]
+    resp = requests.get('https://api.grokthedocs.com/api/v1/index/1/heatmap/', params={'project': project.slug, 'compare': True})
+    ret_json = resp.json()
+    project_scale = ret_json['scaled_project'][project.slug]
 
     index_list = []
     for page in page_list:
-        page_scale = resp.json['scaled_project'].get(page, 1)
+        page_scale = ret_json['scaled_project'].get(page, 1)
         page['_boast'] = page_scale + project_scale
         page['id'] = hashlib.md5('%s-%s-%s' % (project.slug, version.slug, page['path']) ).hexdigest(),
         index_list.append(page)
