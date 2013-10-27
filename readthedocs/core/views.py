@@ -130,14 +130,17 @@ def _build_url(url, branches):
         for project in projects:
             (to_build, not_building) = _build_branches(project, branches)
         if to_build:
-            log.info('(URL Build) Build Started: %s [%s]' % (url, ' '.join(to_build)))
-            return HttpResponse('Build Started: %s' % ' '.join(to_build))
+            msg = '(URL Build) Build Started: %s [%s]' % (url, ' '.join(to_build))
+            log.info(msg)
+            return HttpResponse(msg)
         else:
-            log.info('(URL Build) Not Building: %s [%s]' % (url, ' '.join(not_building)))
-            return HttpResponse('Not Building: %s' % ' '.join(not_building))
+            msg = '(URL Build) Not Building: %s [%s]' % (url, ' '.join(not_building))
+            log.info(msg)
+            return HttpResponse(msg)
     except Exception, e:
-        log.error("(URL Build) Failed: %s:%s" % (url, e))
-        return HttpResponse('Build Failed: %s' % ' '.join(to_build))
+        msg = "(URL Build) Failed: %s:%s" % (url, e)
+        log.error(msg)
+        return HttpResponse(msg)
 
 @csrf_view_exempt
 def github_build(request):
