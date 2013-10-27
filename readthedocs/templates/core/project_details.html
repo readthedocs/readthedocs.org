@@ -119,9 +119,9 @@
 
   <h3>{% trans "Short URLs" %}</h3>
   <p>
-    <a href="//{{ project.slug}}.{{ PRODUCTION_DOMAIN }}">{{ project.slug }}.{{ PRODUCTION_DOMAIN }}</a><br>
+    <a href="http://{{ project.slug}}.{{ PRODUCTION_DOMAIN }}">{{ project.slug }}.{{ PRODUCTION_DOMAIN }}</a><br>
     {% if PRODUCTION_DOMAIN == "readthedocs.org" %}
-    <a href="//{{ project.slug}}.rtfd.org">{{ project.slug }}.rtfd.org</a>
+    <a href="http://{{ project.slug}}.rtfd.org">{{ project.slug }}.rtfd.org</a>
     {% endif %}
   </p>
 
