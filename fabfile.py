@@ -27,6 +27,10 @@ def nginx_logs():
     env.user = "root"
     run("tail -f /var/log/nginx/*.log")
 
+@hosts(['newasgard.readthedocs.com', 'newchimera.readthedocs.com'])
+def logs():
+    env.user = "docs"
+    run("tail -f %s/logs/*.log" % env.code_dir)
 
 @hosts(['localhost'])
 def i18n():

@@ -157,7 +157,7 @@ def bitbucket_build(request):
     if request.method == 'POST':
         obj = json.loads(request.POST['payload'])
         rep = obj['repository']
-        branches = [rec['branch'] for rec in json['payload']['commits']]
+        branches = [rec['branch'] for rec in obj['commits']]
         ghetto_url = "%s%s" % ("bitbucket.org",  rep['absolute_url'].rstrip('/'))
         log.info("(Incoming Bitbucket Build) %s [%s]" % (ghetto_url, ' '.join(branches)))
         _build_url(ghetto_url, branches)
