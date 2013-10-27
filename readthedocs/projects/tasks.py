@@ -54,7 +54,7 @@ def remove_dir(path):
 @task
 @restoring_chdir
 def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
-                version_pk=None, force=False, intersphinx=True,
+                search=True, version_pk=None, force=False, intersphinx=True,
                 api=None, **kwargs):
     """The main entry point for updating documentation.
 
@@ -180,9 +180,10 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
     # This is only checking the results of the HTML build, as it's a canary
     try:
         results = build_docs(version_pk=version.pk, pdf=pdf, man=man,
-                             epub=epub, dash=dash, record=record, force=force)
+                             epub=epub, dash=dash, search=search,
+                             record=record, force=force)
         (html_results, latex_results, pdf_results, man_results, epub_results,
-         dash_results) = results
+         dash_results, search_results) = results
         (ret, out, err) = html_results
     except Exception as e:
         log.error("Exception in flailboat build_docs", exc_info=True)
@@ -193,6 +194,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
         # man_results = (999, "Project build Failed", str(e))
         # epub_results = (999, "Project build Failed", str(e))
         # dash_results = (999, "Project build Failed", str(e))
+        # search_results = (999, "Project build Failed", str(e))
         (ret, out, err) = html_results
 
     if record:
@@ -450,7 +452,7 @@ def update_imported_docs(version_pk, api=None):
 
 
 @task
-def build_docs(version_pk, pdf, man, epub, dash, record, force):
+def build_docs(version_pk, pdf, man, epub, dash, search, record, force):
     """
     This handles the actual building of the documentation and DB records
     """
@@ -505,8 +507,14 @@ def build_docs(version_pk, pdf, man, epub, dash, record, force):
             else:
                 epub_results = fake_results
 
+            if search:
+                search_builder = builder_loading.get('sphinx_search')(version)
+                search_results = search_builder.build()
+                if search_results[0] == 0:
+                    search_builder.upload()
+
     return (html_results, latex_results, pdf_results, man_results,
-            epub_results, dash_results)
+            epub_results, dash_results, search_results)
 
 
 @task
