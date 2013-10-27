@@ -8,13 +8,18 @@ Elastic Search Setup
 
 ::
 
-    from search.indexes import Index
+    from search.indexes import Index, Page, Project
      
     # Create the index.
     index = Index()
     index_name = index.timestamped_index()
     index.create_index(index_name)
     index.update_aliases(index_name)
+    # Update mapping
+    proj = Project()
+    proj.put_mapping()
+    page = Page()
+    page.put_mapping()
 
 
 Servers
