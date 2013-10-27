@@ -181,6 +181,10 @@ class Index(object):
         if delete and old_index:
             self.es.indices.delete(index=old_index)
 
+    def search(self, body):
+        return self.es.search(index=self._index, doc_type=self._type,
+                              body=body)
+
 
 class Project(Index):
 
@@ -252,7 +256,8 @@ class Page(Index):
     def extract_document(self, data):
         doc = {}
 
-        attrs = ('id', 'project', 'title', 'version', 'path', 'content')
+        attrs = ('id', 'project', 'title', 'headers', 'version', 'path',
+                 'content')
         for attr in attrs:
             doc[attr] = data.get(attr, '')
 
