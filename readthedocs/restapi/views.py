@@ -202,7 +202,7 @@ def search(request):
                 }
             }
         }
-        results = PageIndex().search(body)
+        results = PageIndex().search(body, routing=project_id)
 
     else:
         body = {

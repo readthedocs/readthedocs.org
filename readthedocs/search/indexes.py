@@ -181,9 +181,9 @@ class Index(object):
         if delete and old_index:
             self.es.indices.delete(index=old_index)
 
-    def search(self, body):
+    def search(self, body, **kwargs):
         return self.es.search(index=self._index, doc_type=self._type,
-                              body=body)
+                              body=body, **kwargs)
 
 
 class Project(Index):
