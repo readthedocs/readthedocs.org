@@ -272,7 +272,7 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': False,
         },
-        'core.views': {
+        'core.views.post_commit': {
             'handlers': ['postcommit'],
             'level': 'DEBUG',
             'propagate': False,
