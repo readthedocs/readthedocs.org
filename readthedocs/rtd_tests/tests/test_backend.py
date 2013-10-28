@@ -24,19 +24,23 @@ class TestGitBackend(RTDTestCase):
         self.project.users.add(self.eric)
 
     def test_parse_branches(self):
-        data = """\
+        data = """
         develop
         master
         release/2.0.0
-        remotes/origin/2.0.X
-        remotes/origin/HEAD -> origin/master
-        remotes/origin/master
-        remotes/origin/release/2.0.0"""
+        origin/2.0.X
+        origin/HEAD -> origin/master
+        origin/master
+        origin/release/2.0.0
+        """
 
-        expected_ids = [('develop', 'develop'), ('master', 'master'),
-                        ('release/2.0.0', 'release-2.0.0'),
-                        ('remotes/origin/2.0.X', '2.0.X'),
-                        ('remotes/origin/release/2.0.0', 'release-2.0.0')]
+        expected_ids = [
+            ('develop', 'develop'), 
+            ('master', 'master'),
+            ('release/2.0.0', 'release-2.0.0'),
+            ('origin/2.0.X', '2.0.X'),
+            ('origin/release/2.0.0', 'release-2.0.0')
+        ]
         given_ids = [(x.identifier, x.verbose_name) for x in
                      self.project.vcs_repo().parse_branches(data)]
         assert expected_ids == given_ids
