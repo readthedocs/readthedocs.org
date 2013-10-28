@@ -163,6 +163,7 @@ def bitbucket_build(request):
         branches = [rec['branch'] for rec in obj['commits']]
         ghetto_url = "%s%s" % ("bitbucket.org",  rep['absolute_url'].rstrip('/'))
         log.info("(Incoming Bitbucket Build) %s [%s]" % (ghetto_url, ' '.join(branches)))
+        log.info("(Incoming Bitbucket Build) JSON: \n\n%s\n\n" % obj)
         _build_url(ghetto_url, branches)
 
 
