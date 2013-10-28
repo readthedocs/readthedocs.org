@@ -88,15 +88,15 @@ class PostCommitTest(TestCase):
         """
         r = self.client.post('/github/', {'payload': json.dumps(self.payload)})
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r.content, 'Build Started: awesome')
+        self.assertEqual(r.content, '(URL Build) Build Started: github.com/rtfd/readthedocs.org [awesome]')
         self.payload['ref'] = 'refs/heads/not_ok'
         r = self.client.post('/github/', {'payload': json.dumps(self.payload)})
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r.content, 'Not Building: not_ok')
+        self.assertEqual(r.content, '(URL Build) Not Building: github.com/rtfd/readthedocs.org [not_ok]')
         self.payload['ref'] = 'refs/heads/unknown'
         r = self.client.post('/github/', {'payload': json.dumps(self.payload)})
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r.content, 'Not Building: ')
+        self.assertEqual(r.content, '(URL Build) Not Building: github.com/rtfd/readthedocs.org []')
 
     def test_github_post_commit_knows_default_branches(self):
         """
@@ -111,7 +111,7 @@ class PostCommitTest(TestCase):
 
         r = self.client.post('/github/', {'payload': json.dumps(self.payload)})
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r.content, 'Build Started: latest')
+        self.assertEqual(r.content, '(URL Build) Build Started: github.com/rtfd/readthedocs.org [latest]')
 
         rtd.default_branch = old_default
         rtd.save()
