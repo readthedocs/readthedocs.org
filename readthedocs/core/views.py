@@ -5,9 +5,7 @@ documentation and header rendering, and server errors.
 
 from django.core.urlresolvers import NoReverseMatch, reverse
 from django.conf import settings
-from django.contrib.auth.models import User
-from django.http import (HttpResponse, HttpResponseRedirect, Http404,
-                         HttpResponseNotFound)
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_view_exempt
@@ -173,9 +171,7 @@ def generic_build(request, pk=None):
     # Allow slugs too
     except (Project.DoesNotExist, ValueError):
         project = Project.objects.get(slug=pk)
-    context = {'built': False, 'project': project}
     if request.method == 'POST':
-        context['built'] = True
         slug = request.POST.get('version_slug', None)
         if slug:
             log.info("(Incoming Generic Build) %s [%s]" % (project.slug, slug))
@@ -183,7 +179,6 @@ def generic_build(request, pk=None):
         else:
             log.info("(Incoming Generic Build) %s [%s]" % (project.slug, 'latest'))
             update_docs.delay(pk=pk, force=True)
-        return redirect('builds_project_list', project.slug)
     return redirect('builds_project_list', project.slug)
 
 
