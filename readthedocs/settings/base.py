@@ -235,6 +235,14 @@ LOGGING = {
             'backupCount': backup_count,
             'formatter': 'standard',
         },
+        'postcommit': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(LOGS_ROOT, "postcommit.log"),
+            'maxBytes': maxBytes,
+            'backupCount': backup_count,
+            'formatter': 'standard',
+        },
         'db': {
             'level': 'INFO',
             'class': 'logging.handlers.RotatingFileHandler',
@@ -261,6 +269,11 @@ LOGGING = {
         },
         'django.db.backends': {
             'handlers': ['db'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+        'core.views': {
+            'handlers': ['postcommit'],
             'level': 'DEBUG',
             'propagate': False,
         },
