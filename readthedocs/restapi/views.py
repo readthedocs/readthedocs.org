@@ -1,5 +1,5 @@
-import json
 import hashlib
+import logging
 
 from django.shortcuts import get_object_or_404
 from django.template import Template, Context
@@ -19,10 +19,14 @@ from projects.models import Project, EmailHook
 
 from .serializers import ProjectSerializer
 from .permissions import RelatedProjectIsOwner
+import utils as api_utils
+
+
+log = logging.getLogger(__name__)
 
 class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    renderer_classes = (JSONRenderer, BrowsableAPIRenderer)
+    renderer_classes = (JSONRenderer, JSONPRenderer, BrowsableAPIRenderer)
     model = Project
 
     @decorators.link()
@@ -62,6 +66,34 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
         return Response({
             'translations': ProjectSerializer(queryset, many=True).data
         })
+
+
+    @decorators.action(permission_classes=[permissions.IsAdminUser])
+    def sync_versions(self, request, **kwargs):
+        """
+        Sync the version data in the repo (on the build server) with what we have in the database.
+
+        Returns the identifiers for the versions that have been deleted.
+        """
+        project = get_object_or_404(Project, pk=kwargs['pk'])
+        try:
+            data = request.DATA
+            added_versions = set()
+            if 'tags' in data:
+                ret_set = api_utils.sync_versions(project, data['tags'])
+                added_versions.update(ret_set)
+            if 'branches' in data:
+                ret_set = api_utils.sync_versions(project, data['branches'])
+                added_versions.update(ret_set)
+            deleted_versions = api_utils.delete_versions(project, data)
+            return Response({
+                'added_versions': added_versions,
+                'deleted_versions': deleted_versions,
+            })       
+        except Exception, e:
+            log.exception(e.message)
+            return Response({'error': e.message}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class NotificationViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = (permissions.IsAuthenticated, RelatedProjectIsOwner)
@@ -186,7 +218,7 @@ def quick_search(request):
 @decorators.renderer_classes((JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
 def index_search(request):
     page_obj = PageIndex()
-    data = json.loads(request.raw_post_data)['data']
+    data = request.DATA['data']
     page_list = data['page_list']
     project_pk = data['project_pk']
     version_pk = data['version_pk']

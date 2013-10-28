@@ -74,41 +74,6 @@ class ProjectResource(ModelResource, SearchMixin):
         updated_bundle = self.obj_create(bundle, request=request)
         return HttpCreated(location=self.get_resource_uri(updated_bundle))
 
-    def _sync_versions(self, project, versions): 
-        """
-        Update the database with the current versions from the repository.
-        """
-        old_versions = project.versions.values_list('identifier', flat=True)
-
-        # Add new versions
-        for version in versions:
-            if version['identifier'] in old_versions:
-                continue
-            slug = slugify_uniquely(Version, version['verbose_name'], 'slug', 255, project=project)
-            Version.objects.create(
-                    project=project,
-                    slug=slug,
-                    identifier=version['identifier'],
-                    verbose_name=version['verbose_name'],
-                )
-
-    def _delete_versions(self, project, versions):
-        """
-        Delete all versions not in the current repo.
-        """
-        current_versions = []
-        for version in versions['tags']:
-            current_versions.append(version['identifier'])
-        for version in versions['branches']:
-            current_versions.append(version['identifier'])
-        to_delete_qs = project.versions.exclude(
-                identifier__in=current_versions).exclude(
-                uploaded=True).exclude(
-                active=True
-            )
-        ret_val = to_delete_qs.values_list('identifier', flat=True)
-        to_delete_qs.delete()
-        return ret_val
 
 
     def sync_versions(self, request, **kwargs):
@@ -314,18 +279,6 @@ class FileResource(EnhancedModelResource, SearchMixin):
         #-2 because http:
         urls = [''.join(data.split(':')[6:]) for data in redis_data
                 if 'http://' in data]
-
-        """
-        paginator = Paginator(urls, 20)
-
-        try:
-            page = paginator.page(int(request.GET.get('page', 1)))
-        except InvalidPage:
-            raise Http404("Sorry, no results on that page.")
-
-        objects = [result for result in page.object_list]
-        object_list = { 'objects': objects, }
-        """
         object_list = {'objects': urls}
 
         self.log_throttled_access(request)

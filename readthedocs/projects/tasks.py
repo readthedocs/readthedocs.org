@@ -444,7 +444,7 @@ def update_imported_docs(version_pk, api=None):
             ]
 
         try:
-            api.project(project.pk).sync_versions.post(json.dumps(version_post_data))
+            apiv2.project(project.pk).sync_versions.post(version_post_data)
         except Exception, e:
             print "Sync Verisons Exception: %s" % e.message
 
