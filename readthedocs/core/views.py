@@ -92,19 +92,20 @@ def _build_version(project, slug, already_built=()):
         # active
         version = project.versions.get(slug='latest')
         update_docs.delay(pk=project.pk, version_pk=version.pk, force=True)
-        pc_log.info(("(Version build) building %s:%s"
+        pc_log.info(("(Version build) Building %s:%s"
                   % (project.slug, version.slug)))
         return "latest"
     elif project.versions.exclude(active=True).filter(slug=slug).exists():
-        pc_log.info(("(Version build) not building %s"% slug))
+        pc_log.info(("(Version build) Not Building %s"% slug))
         return None
     elif slug not in already_built:
         version = project.versions.get(slug=slug)
         update_docs.delay(pk=project.pk, version_pk=version.pk, force=True)
-        pc_log.info(("(Version build) building %s:%s"
+        pc_log.info(("(Version build) Building %s:%s"
                   % (project.slug, version.slug)))
         return slug
     else:
+        pc_log.info(("(Version build) Not Building %s"% slug))
         return None
 
 def _build_branches(project, branch_list):
