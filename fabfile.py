@@ -206,7 +206,9 @@ def update_index():
 @hosts('None')
 def update_theme():
     with lcd(os.path.join(fabfile_dir, 'readthedocs', 'templates', 'sphinx')):
-        local('git clone https://github.com/snide/sphinx_rtd_theme.git test')
+        local('rm -rf theme_update_dir')
+        local('git clone https://github.com/snide/sphinx_rtd_theme.git theme_update_dir')
         local('rm -rf sphinx_rtd_theme')
-        local('mv test/sphinx_rtd_theme .')
-        local('rm -rf test')
+        local('mv theme_update_dir/sphinx_rtd_theme .')
+        local('cp sphinx_rtd_theme/static/theme.css %s' % os.path.join(fabfile_dir, 'media', 'css', 'sphinx_rtd_theme.css'))
+        local('rm -rf theme_update_dir')
