@@ -228,7 +228,7 @@ LOGGING = {
             'formatter': 'standard',
         },
         'errorlog': {
-            'level': 'DEBUG',
+            'level': 'INFO',
             'class': 'logging.handlers.RotatingFileHandler',
             'filename': os.path.join(LOGS_ROOT, "rtd.log"),
             'maxBytes': maxBytes,
@@ -236,7 +236,7 @@ LOGGING = {
             'formatter': 'standard',
         },
         'db': {
-            'level': 'DEBUG',
+            'level': 'INFO',
             'class': 'logging.handlers.RotatingFileHandler',
             'filename': os.path.join(LOGS_ROOT, "db.log"),
             'maxBytes': maxBytes,
