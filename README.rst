@@ -1,10 +1,10 @@
 Welcome to Read The Docs
 ========================
 
-|status|
-
-.. |status| image:: https://travis-ci.org/rtfd/readthedocs.org.png?branch=master
-.. _status: https://travis-ci.org/rtfd/readthedocs.org
+.. image:: https://travis-ci.org/rtfd/readthedocs.org.png?branch=master
+    :alt: status
+    :scale: 100%
+    :target: https://travis-ci.org/rtfd/readthedocs.org
 
 `Read the Docs`_ hosts documentation for the open source community. It supports
 Sphinx_ docs written with reStructuredText_, and can pull from your Subversion_,
