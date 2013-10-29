@@ -205,6 +205,8 @@ class Version(models.Model):
             if match:
                 user, repo = match.groups()
                 break
+        else:
+            return ''
         docroot = self.get_conf_py_path()
 
         return GITHUB_URL.format(
@@ -232,6 +234,8 @@ class Version(models.Model):
             if match:
                 user, repo = match.groups()
                 break
+        else:
+            return ''
         docroot = self.get_conf_py_path()
 
         return BB_URL.format(
