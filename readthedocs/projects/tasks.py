@@ -401,7 +401,7 @@ def update_imported_docs(version_pk, api=None):
                 sphinx = 'sphinx==1.1.3'
                 # python 3 specific hax
                 update_docs_output['sphinx'] = run(
-                    ('{cmd} install {ignore_option} {sphinx} '
+                    ('{cmd} install -U {ignore_option} {sphinx} '
                      'virtualenv==1.9.1 docutils==0.11 readthedocs-sphinx-ext>=0.3.3').format(
                         cmd=project.venv_bin(version=version_slug, bin='pip'),
                         sphinx=sphinx, ignore_option=ignore_option))
