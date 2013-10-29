@@ -124,12 +124,17 @@ class Builder(BaseBuilder):
                               encoding='utf-8', mode='a')
         outfile.write("\n")
         conf_py_path = version_utils.get_conf_py_path(self.version)
+        remote_version = version_utils.get_vcs_version(self.version)
         github_info = version_utils.get_github_username_repo(self.version)
-        github_version = version_utils.get_github_version(self.version)
+        bitbucket_info = version_utils.get_bitbucket_username_repo(self.version)
         if github_info[0] is None:
             display_github = False
         else:
             display_github = True
+        if bitbucket_info[0] is None:
+            display_bitbucket = False
+        else:
+            display_bitbucket = True
 
         rtd_ctx = Context({
             'versions': project.api_versions(),
@@ -140,11 +145,17 @@ class Builder(BaseBuilder):
             'static_path': STATIC_DIR,
             'template_path': TEMPLATE_DIR,
             'conf_py_path': conf_py_path,
+            'downloads': apiv2.version(self.version.pk).downloads.get()['downloads'],
+            # GitHub
             'github_user': github_info[0],
             'github_repo': github_info[1],
-            'github_version':  github_version,
+            'github_version':  remote_version,
             'display_github': display_github,
-            'downloads': apiv2.version(self.version.pk).downloads.get()['downloads'],
+            # BitBucket
+            'bitbucket_user': bitbucket_info[0],
+            'bitbucket_repo': bitbucket_info[1],
+            'bitbucket_version':  remote_version,
+            'display_bitbucket': display_bitbucket,
         })
         rtd_string = Template(RTD_CONF_ADDITIONS).render(rtd_ctx)
         outfile.write(rtd_string)

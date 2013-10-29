@@ -1,3 +1,5 @@
+import re
+
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.db import models
@@ -118,6 +120,17 @@ class Version(models.Model):
             return ''
         return self.project.get_docs_url(version_slug=self.slug)
 
+    @property 
+    def remote_slug(self):
+        if self.slug == 'latest':
+            if self.project.default_branch:
+                return self.project.default_branch
+            else:
+                return self.project.vcs_repo().fallback_branch
+        else:
+            return self.slug
+
+
     def get_subdomain_url(self):
         use_subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
         if use_subdomain:
@@ -165,6 +178,68 @@ class Version(models.Model):
                 data['dash_url'] = project.get_dash_url(self.slug)
                 data['dash_feed_url'] = project.get_dash_feed_url(self.slug)
         return data
+
+    def get_conf_py_path(self):
+        conf_py_path = self.project.conf_file(self.slug)
+        conf_py_path = conf_py_path.replace(
+            self.project.checkout_path(self.slug), '')
+        return conf_py_path.replace('conf.py', '')
+
+
+    def get_github_url(self, filename):
+        GITHUB_REGEXS = [
+            re.compile('github.com/(.+)/(.+)(?:\.git){1}'),
+            re.compile('github.com/(.+)/(.+)'),
+            re.compile('github.com:(.+)/(.+).git'),
+        ]
+        GITHUB_URL = 'https://github.com/{user}/{repo}/blob/{version}{docroot}{path}.rst'
+
+        repo_url = self.project.repo
+        if 'github' not in repo_url:
+            return ''
+
+        for regex in GITHUB_REGEXS:
+            match = regex.search(repo_url)
+            if match:
+                user, repo = match.groups()
+                break
+        docroot = self.get_conf_py_path()
+
+        return GITHUB_URL.format(
+            user=user,
+            repo=repo,
+            version=self.remote_slug,
+            docroot=docroot,
+            path=filename,
+            )
+
+    def get_bitbucket_url(self, filename):
+        BB_REGEXS = [
+            re.compile('bitbucket.com/(.+)/(.+)/'),
+            re.compile('bitbucket.com/(.+)/(.+)'),
+            re.compile('bitbucket.com:(.+)/(.+)\.git'),
+        ]
+        BB_URL = 'https://bitbucket.org/{user}/{repo}/src/{version}{docroot}{path}.rst'
+
+        repo_url = self.project.repo
+        if 'bitbucket' not in repo_url:
+            return ''
+
+        for regex in BB_REGEXS:
+            match = regex.search(repo_url)
+            if match:
+                user, repo = match.groups()
+                break
+        docroot = self.get_conf_py_path()
+
+        return BB_URL.format(
+            user=user,
+            repo=repo,
+            version=self.remote_slug,
+            docroot=docroot,
+            path=filename,
+            )
+
 
 
 class VersionAlias(models.Model):

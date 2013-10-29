@@ -13,6 +13,7 @@ $(document).ready(function () {
         "format": "jsonp",
         project: READTHEDOCS_DATA['project'],
         version: READTHEDOCS_DATA['version'],
+        page: READTHEDOCS_DATA['page'],
         theme: READTHEDOCS_DATA['theme'],
       },
       success: function (data) {
