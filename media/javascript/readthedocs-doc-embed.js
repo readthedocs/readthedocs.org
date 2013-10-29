@@ -10,11 +10,12 @@ $(document).ready(function () {
       },
       dataType: "jsonp",
       data: {
-        "format": "jsonp",
         project: READTHEDOCS_DATA['project'],
         version: READTHEDOCS_DATA['version'],
         page: READTHEDOCS_DATA['page'],
         theme: READTHEDOCS_DATA['theme'],
+        docroot: READTHEDOCS_DATA['docroot']
+        format: "jsonp",
       },
       success: function (data) {
             if (READTHEDOCS_DATA['theme'] != "sphinx_rtd_theme") {

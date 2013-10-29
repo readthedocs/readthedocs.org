@@ -188,7 +188,7 @@ class Version(models.Model):
         return conf_py_path.replace('conf.py', '')
 
 
-    def get_github_url(self, filename):
+    def get_github_url(self, docroot, filename):
         GITHUB_REGEXS = [
             re.compile('github.com/(.+)/(.+)(?:\.git){1}'),
             re.compile('github.com/(.+)/(.+)'),
@@ -199,6 +199,8 @@ class Version(models.Model):
         repo_url = self.project.repo
         if 'github' not in repo_url:
             return ''
+        if not docroot:
+            return ''
 
         for regex in GITHUB_REGEXS:
             match = regex.search(repo_url)
@@ -207,7 +209,6 @@ class Version(models.Model):
                 break
         else:
             return ''
-        docroot = self.get_conf_py_path()
         repo = repo.rstrip('/')
 
         return GITHUB_URL.format(
@@ -218,7 +219,7 @@ class Version(models.Model):
             path=filename,
             )
 
-    def get_bitbucket_url(self, filename):
+    def get_bitbucket_url(self, docroot, filename):
         BB_REGEXS = [
             re.compile('bitbucket.org/(.+)/(.+).git'),
             re.compile('bitbucket.org/(.+)/(.+)/'),
@@ -229,6 +230,8 @@ class Version(models.Model):
         repo_url = self.project.repo
         if 'bitbucket' not in repo_url:
             return ''
+        if not docroot:
+            return ''
 
         for regex in BB_REGEXS:
             match = regex.search(repo_url)
@@ -237,7 +240,6 @@ class Version(models.Model):
                 break
         else:
             return ''
-        docroot = self.get_conf_py_path()
         repo = repo.rstrip('/')
 
         return BB_URL.format(

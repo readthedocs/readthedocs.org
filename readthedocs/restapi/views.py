@@ -197,6 +197,7 @@ def footer_html(request):
     version_slug = request.GET.get('version', None)
     page_slug = request.GET.get('page', None)
     theme = request.GET.get('theme', False)
+    docroot = request.GET.get('docroot', '')
     new_theme = (theme == "sphinx_rtd_theme")
     using_theme = (theme == "default")
     project = get_object_or_404(Project, slug=project_slug)
@@ -209,8 +210,8 @@ def footer_html(request):
         'using_theme': using_theme,
         'new_theme': new_theme,
         'settings': settings,
-        'github_url': version.get_github_url(page_slug),
-        'bitbucket_url': version.get_bitbucket_url(page_slug),
+        'github_url': version.get_github_url(docroot, page_slug),
+        'bitbucket_url': version.get_bitbucket_url(docroot, page_slug),
     })
     html = Template(TEMPLATE).render(context)
     return Response({"html": html})
