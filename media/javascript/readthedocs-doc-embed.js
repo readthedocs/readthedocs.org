@@ -8,7 +8,7 @@ $(document).ready(function () {
         format: "jsonp",
     }
 
-    if (typeof docroot !== 'undefined') {
+    if ("docroot" in READTHEDOCS_DATA) {
       get_data['docroot'] = READTHEDOCS_DATA['docroot']
     }
 
