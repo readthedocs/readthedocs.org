@@ -295,6 +295,9 @@ def search(request):
                     ]
                 }
             },
+            "facets" : {
+              "path" : { "terms" : {"field" : "path"} }
+            },
             "highlight" : {
                 "fields" : {
                     "title" : {},
@@ -304,7 +307,7 @@ def search(request):
             }
 
         }
-        results = PageIndex().search(body, routing=project.pk)
+        results = PageIndex().search(body, routing=project.pk, fields=['title', 'project', 'version', 'path'])
 
     else:
         body = {
@@ -315,15 +318,8 @@ def search(request):
                         {"match": {"description": {"query": query}}},
                     ]
                 },
-                "highlight" : {
-                    "fields" : {
-                        "title" : {},
-                        "headers" : {},
-                        "content" : {},
-                    }
-                },
             }
         }
-        results = ProjectIndex().search(body)
+        results = ProjectIndex().search(body, fields=['name', 'slug', 'description', 'lang'])
 
     return Response({'results': results})
