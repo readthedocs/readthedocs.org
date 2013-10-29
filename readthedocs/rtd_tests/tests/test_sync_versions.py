@@ -6,7 +6,7 @@ from builds.models import Version
 from projects.models import Project
 
 
-class RedirectTests(TestCase):
+class TestSyncVersions(TestCase):
     fixtures = ["eric", "test_data"]
 
     def setUp(self):
