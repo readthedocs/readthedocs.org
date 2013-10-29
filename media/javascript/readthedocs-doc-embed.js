@@ -1,21 +1,27 @@
 $(document).ready(function () {
 
+    get_data = {
+        project: READTHEDOCS_DATA['project'],
+        version: READTHEDOCS_DATA['version'],
+        page: READTHEDOCS_DATA['page'],
+        theme: READTHEDOCS_DATA['theme'],
+        format: "jsonp",
+    }
+
+    if (typeof docroot !== 'undefined') {
+      get_data['docroot'] = READTHEDOCS_DATA['docroot']
+    }
+
     // Theme popout code
     $.ajax({
-      url: "https://readthedocs.org/api/v2/footer_html/",
-      //url: "http://localhost:8000/api/v2/footer_html/",
+      //url: "https://readthedocs.org/api/v2/footer_html/",
+      url: "http://localhost:8000/api/v2/footer_html/",
       crossDomain: true,
       xhrFields: {
         withCredentials: true,
       },
       dataType: "jsonp",
       data: {
-        project: READTHEDOCS_DATA['project'],
-        version: READTHEDOCS_DATA['version'],
-        page: READTHEDOCS_DATA['page'],
-        theme: READTHEDOCS_DATA['theme'],
-        docroot: READTHEDOCS_DATA['docroot']
-        format: "jsonp",
       },
       success: function (data) {
             if (READTHEDOCS_DATA['theme'] != "sphinx_rtd_theme") {
