@@ -283,10 +283,10 @@ def search(request):
         # This is a search within a project -- do a Page search.
         body = {
             "filter": {
-                "term": {
-                    "project": project.slug,
-                    "version": version_slug,
-                },
+                "and": [
+                    {"term": {"project": project.slug}},
+                    {"term": {"version": version_slug}},
+                ]
             },
             "query": {
                 "bool": {
@@ -297,17 +297,17 @@ def search(request):
                     ]
                 }
             },
-            "facets" : {
-              "path" : { "terms" : {"field" : "path"} }
+            "facets": {
+                "path": {
+                    "terms": {"field": "path"}}
             },
-            "highlight" : {
-                "fields" : {
-                    "title" : {},
-                    "headers" : {},
-                    "content" : {},
+            "highlight": {
+                "fields": {
+                    "title": {},
+                    "headers": {},
+                    "content": {},
                 }
             }
-
         }
         results = PageIndex().search(body, routing=project.pk, fields=['title', 'project', 'version', 'path'])
 
