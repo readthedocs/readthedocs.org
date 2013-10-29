@@ -283,8 +283,10 @@ def search(request):
         # This is a search within a project -- do a Page search.
         body = {
             "filter": {
-                "term": {"project": project.slug},
-                "term": {"version": version_slug},
+                "term": {
+                    "project": project.slug,
+                    "version": version_slug,
+                },
             },
             "query": {
                 "bool": {
