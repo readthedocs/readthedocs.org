@@ -282,31 +282,46 @@ def search(request):
         project = Project.objects.get(slug=project_slug)
         # This is a search within a project -- do a Page search.
         body = {
-            'filter': {
-                'term': {'project': project.slug},
-                'term': {'version': version_slug},
+            "filter": {
+                "term": {"project": project.slug},
+                "term": {"version": version_slug},
             },
-            'query': {
-                'bool': {
-                    'should': [
-                        {'match': {'title': {'query': query, 'boost': 10}}},
-                        {'match': {'headers': {'query': query, 'boost': 5}}},
-                        {'match': {'content': {'query': query}}},
+            "query": {
+                "bool": {
+                    "should": [
+                        {"match": {"title": {"query": query, "boost": 10}}},
+                        {"match": {"headers": {"query": query, "boost": 5}}},
+                        {"match": {"content": {"query": query}}},
                     ]
                 }
+            },
+            "highlight" : {
+                "fields" : {
+                    "title" : {},
+                    "headers" : {},
+                    "content" : {},
+                }
             }
+
         }
         results = PageIndex().search(body, routing=project.pk)
 
     else:
         body = {
-            'query': {
-                'bool': {
-                    'should': [
-                        {'match': {'name': {'query': query, 'boost': 10}}},
-                        {'match': {'description': {'query': query}}},
+            "query": {
+                "bool": {
+                    "should": [
+                        {"match": {"name": {"query": query, "boost": 10}}},
+                        {"match": {"description": {"query": query}}},
                     ]
-                }
+                },
+                "highlight" : {
+                    "fields" : {
+                        "title" : {},
+                        "headers" : {},
+                        "content" : {},
+                    }
+                },
             }
         }
         results = ProjectIndex().search(body)
