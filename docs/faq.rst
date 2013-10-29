@@ -90,11 +90,11 @@ I want to use the Blue/Default Sphinx theme
 
 We think that our theme is badass, and better than the default for many reasons. Some people don't like change though :), so there is a hack that will let you keep using the default theme. If you set the ``html_style`` variable in your ``conf.py``, it should default to using the default theme. The value of this doesn't matter, and can be set to ``/default.css`` for default behavior.
 
-I want to use Sphinx theme offline
-----------------------------------
+I want to use the Read the Docs theme locally
+---------------------------------------------
 
 There is a repository for that: https://github.com/snide/sphinx_rtd_theme.
-Simply follow the instructions from readme.
+Simply follow the instructions in the README.
 
 Image scaling doesn't work in my documentation
 -----------------------------------------------
