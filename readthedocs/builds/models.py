@@ -180,6 +180,8 @@ class Version(models.Model):
         return data
 
     def get_conf_py_path(self):
+        # Hack this for now.
+        return "/docs/"
         conf_py_path = self.project.conf_file(self.slug)
         conf_py_path = conf_py_path.replace(
             self.project.checkout_path(self.slug), '')
