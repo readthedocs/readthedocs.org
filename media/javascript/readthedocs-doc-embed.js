@@ -21,8 +21,7 @@ $(document).ready(function () {
         withCredentials: true,
       },
       dataType: "jsonp",
-      data: {
-      },
+      data: get_data,
       success: function (data) {
             if (READTHEDOCS_DATA['theme'] != "sphinx_rtd_theme") {
               $("body").append(data['html'])
