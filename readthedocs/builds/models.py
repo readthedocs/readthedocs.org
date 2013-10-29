@@ -208,6 +208,7 @@ class Version(models.Model):
         else:
             return ''
         docroot = self.get_conf_py_path()
+        repo = repo.rstrip('/')
 
         return GITHUB_URL.format(
             user=user,
@@ -219,9 +220,9 @@ class Version(models.Model):
 
     def get_bitbucket_url(self, filename):
         BB_REGEXS = [
-            re.compile('bitbucket.com/(.+)/(.+)/'),
-            re.compile('bitbucket.com/(.+)/(.+)'),
-            re.compile('bitbucket.com:(.+)/(.+)\.git'),
+            re.compile('bitbucket.org/(.+)/(.+).git'),
+            re.compile('bitbucket.org/(.+)/(.+)/'),
+            re.compile('bitbucket.org/(.+)/(.+)'),
         ]
         BB_URL = 'https://bitbucket.org/{user}/{repo}/src/{version}{docroot}{path}.rst'
 
@@ -237,6 +238,7 @@ class Version(models.Model):
         else:
             return ''
         docroot = self.get_conf_py_path()
+        repo = repo.rstrip('/')
 
         return BB_URL.format(
             user=user,
