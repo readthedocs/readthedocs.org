@@ -609,16 +609,19 @@ class Project(models.Model):
 
     def version_from_branch_name(self, branch):
         try:
-            return (self.versions.filter(identifier=branch) |
-                    self.versions.filter(identifier=('remotes/origin/%s'
-                                                     % branch)))[0]
+            return (
+                self.versions.filter(identifier=branch) |
+                self.versions.filter(identifier=('remotes/origin/%s' % branch))
+                self.versions.filter(identifier=('origin/%s' % branch))
+            )[0]
         except IndexError:
             return None
 
     def versions_from_branch_name(self, branch):
         return (
             self.versions.filter(identifier=branch) |
-            self.versions.filter(identifier='remotes/origin/%s' % branch)
+            self.versions.filter(identifier='remotes/origin/%s' % branch) |
+            self.versions.filter(identifier='origin/%s' % branch)
         )
     def get_default_version(self):
         """
