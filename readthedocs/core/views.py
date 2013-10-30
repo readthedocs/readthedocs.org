@@ -3,9 +3,10 @@ documentation and header rendering, and server errors.
 
 """
 
+from django.contrib.auth.models import User
 from django.core.urlresolvers import NoReverseMatch, reverse
 from django.conf import settings
-from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.http import HttpResponse, HttpResponseRedirect, Http404, HttpResponseNotFound
 from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_view_exempt
@@ -127,6 +128,8 @@ def _build_branches(project, branch_list):
 def _build_url(url, branches):
     try:
         projects = Project.objects.filter(repo__contains=url)
+        if not projects.count():
+            raise Project.DoesNotExist
         for project in projects:
             (to_build, not_building) = _build_branches(project, branches)
         if to_build:
@@ -142,6 +145,7 @@ def _build_url(url, branches):
         pc_log.error(msg)
         return HttpResponse(msg)
 
+
 @csrf_view_exempt
 def github_build(request):
     """
@@ -153,7 +157,29 @@ def github_build(request):
         ghetto_url = url.replace('http://', '').replace('https://', '')
         branch = obj['ref'].replace('refs/heads/', '')
         pc_log.info("(Incoming Github Build) %s [%s]" % (ghetto_url, branch))
-        return _build_url(ghetto_url, [branch])
+        try:
+            return _build_url(ghetto_url, [branch])
+        except Project.DoesNotExist:
+            try:
+                name = obj['repository']['name']
+                desc = obj['repository']['description']
+                homepage = obj['repository']['homepage']
+                repo = obj['repository']['url']
+
+                email = obj['repository']['owner']['email']
+                user = User.objects.get(email=email)
+
+                proj = Project.objects.create(
+                    name=name,
+                    description=desc,
+                    project_url=homepage,
+                    repo=repo,
+                )
+                proj.users.add(user)
+                pc_log.info("Created new project %s" % (proj))
+            except Exception, e:
+                pc_log.error("Error creating new project %s: %s" % (name, e))
+                return HttpResponseNotFound('Repo not found')
 
 @csrf_view_exempt
 def bitbucket_build(request):
@@ -164,7 +190,12 @@ def bitbucket_build(request):
         ghetto_url = "%s%s" % ("bitbucket.org",  rep['absolute_url'].rstrip('/'))
         pc_log.info("(Incoming Bitbucket Build) %s [%s]" % (ghetto_url, ' '.join(branches)))
         pc_log.info("(Incoming Bitbucket Build) JSON: \n\n%s\n\n" % obj)
-        return _build_url(ghetto_url, branches)
+        try:
+            return _build_url(ghetto_url, branches)
+        except Project.DoesNotExist:
+            pc_log.error("(Incoming Bitbucket Build) Repo not found:  %s" % ghetto_url)
+            return HttpResponseNotFound('Repo not found' % ghetto_url)
+
 
 @csrf_view_exempt
 def generic_build(request, pk=None):
