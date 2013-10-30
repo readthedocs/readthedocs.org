@@ -179,7 +179,8 @@ def github_build(request):
                     repo=repo,
                 )
                 proj.users.add(user)
-                _build_version(proj, 'latest')
+                # Version doesn't exist yet, so use classic build method
+                update_docs.delay(pk=proj.pk)
                 pc_log.info("Created new project %s" % (proj))
             except Exception, e:
                 pc_log.error("Error creating new project %s: %s" % (name, e))
