@@ -23,7 +23,6 @@ from projects.models import Project, ImportedFile, ProjectRelationship
 from projects.tasks import update_docs, remove_dir
 from projects.utils import highest_version
 
-
 import json
 import mimetypes
 import os
@@ -33,6 +32,8 @@ import redis
 log = logging.getLogger(__name__)
 pc_log = logging.getLogger(__name__+'.post_commit')
 
+class NoProjectException(Exception):
+    pass
 
 def homepage(request):
     latest = (Project.objects.public(request.user)
@@ -129,7 +130,7 @@ def _build_url(url, branches):
     try:
         projects = Project.objects.filter(repo__contains=url)
         if not projects.count():
-            raise Project.DoesNotExist
+            raise NoProjectException()
         for project in projects:
             (to_build, not_building) = _build_branches(project, branches)
         if to_build:
@@ -159,7 +160,7 @@ def github_build(request):
         pc_log.info("(Incoming Github Build) %s [%s]" % (ghetto_url, branch))
         try:
             return _build_url(ghetto_url, [branch])
-        except Project.DoesNotExist:
+        except NoProjectException:
             try:
                 name = obj['repository']['name']
                 desc = obj['repository']['description']
@@ -192,7 +193,7 @@ def bitbucket_build(request):
         pc_log.info("(Incoming Bitbucket Build) JSON: \n\n%s\n\n" % obj)
         try:
             return _build_url(ghetto_url, branches)
-        except Project.DoesNotExist:
+        except NoProjectException:
             pc_log.error("(Incoming Bitbucket Build) Repo not found:  %s" % ghetto_url)
             return HttpResponseNotFound('Repo not found' % ghetto_url)
 
