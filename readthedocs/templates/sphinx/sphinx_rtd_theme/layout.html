@@ -24,11 +24,7 @@
 
   {# CSS #}
   <link href='http://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700' rel='stylesheet' type='text/css'>
-  <link rel="stylesheet" href="{{ pathto('_static/' + style, 1) }}" type="text/css" />
-  {% for cssfile in css_files %}
-    <link rel="stylesheet" href="{{ pathto(cssfile, 1) }}" type="text/css" />
-  {% endfor %}    
-
+  
   {# JS #}    
   {% if not embedded %}
   
@@ -41,7 +37,7 @@
         HAS_SOURCE:  {{ has_source|lower }}
       };
     </script>
-    {%- for scriptfile in script_files + ["_static/theme.js"] %}
+    {%- for scriptfile in script_files %}
       <script type="text/javascript" src="{{ pathto(scriptfile, 1) }}"></script>
     {%- endfor %}
     
@@ -50,7 +46,17 @@
     {% endif %}
 
   {% endif %}
-  
+
+  {# RTD hosts these file themselves, so just load on non RTD builds #}
+  {% if not READTHEDOCS %}
+    <link rel="stylesheet" href="{{ pathto('_static/' + style, 1) }}" type="text/css" />
+    <script type="text/javascript" src="_static/theme.js"></script>
+  {% endif %}
+
+  {% for cssfile in css_files %}
+    <link rel="stylesheet" href="{{ pathto(cssfile, 1) }}" type="text/css" />
+  {% endfor %}
+
   {%- block linktags %}
     {%- if hasdoc('about') %}
         <link rel="author" title="{{ _('About these documents') }}"
