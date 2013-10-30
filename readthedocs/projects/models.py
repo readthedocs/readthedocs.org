@@ -264,7 +264,8 @@ class Project(models.Model):
                 #tasks.remove_dir.delay(os.path.join(self.doc_path,
                                                     #'checkouts'))
         if not self.slug:
-            self.slug = slugify(self.name)
+            # Subdomains can't have underscores in them.
+            self.slug = slugify(self.name).replace('_','-')
             if self.slug == '':
                 raise Exception(_("Model must have slug"))
         obj = super(Project, self).save(*args, **kwargs)
