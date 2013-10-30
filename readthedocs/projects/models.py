@@ -611,7 +611,7 @@ class Project(models.Model):
         try:
             return (
                 self.versions.filter(identifier=branch) |
-                self.versions.filter(identifier=('remotes/origin/%s' % branch))
+                self.versions.filter(identifier=('remotes/origin/%s' % branch)) |
                 self.versions.filter(identifier=('origin/%s' % branch))
             )[0]
         except IndexError:
