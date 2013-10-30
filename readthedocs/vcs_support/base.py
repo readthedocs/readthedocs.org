@@ -38,7 +38,7 @@ class BaseCLI(object):
     """
     Helper class for CLI-heavy classes.
     """
-    log_tmpl = 'VCS[{ident}]: {args}'
+    log_tmpl = 'VCS[{name}:{ident}]: {args}'
 
     def __call__(self, *args):
         return self.run(args)
@@ -52,9 +52,11 @@ class BaseCLI(object):
                                    cwd=self.working_dir, shell=False,
                                    env=self.env)
         log.info(self.log_tmpl.format(ident=basename(self.working_dir),
+                                      name=self.name,
                                       args=' '.join(args)))
         stdout, stderr = process.communicate()
         log.info(self.log_tmpl.format(ident=basename(self.working_dir),
+                                      name=self.name,
                                       args=stdout))
         return (process.returncode, stdout, stderr)
 

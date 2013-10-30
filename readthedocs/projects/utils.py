@@ -54,7 +54,7 @@ def run(*commands, **kwargs):
             run_command = command
         else:
             run_command = command.split()
-        log.info("Running: '%s'" % command)
+        log.info("Running: '%s' [%s]" % (command, cwd))
         try:
             p = subprocess.Popen(run_command, shell=shell, cwd=cwd,
                                  stdout=subprocess.PIPE,

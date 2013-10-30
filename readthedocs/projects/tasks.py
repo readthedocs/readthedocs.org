@@ -39,6 +39,8 @@ ghetto_hack = re.compile(
 
 log = logging.getLogger(__name__)
 
+LOG_TEMPLATE = "(Build) [{project}:{version}] {msg}"
+
 @task
 def remove_dir(path):
     """
@@ -81,7 +83,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
         # Skip edx for now
         #return
 
-    log.info("Building %s" % project)
+    log.info(LOG_TEMPLATE.format(project=project.slug, version='', msg='Building'))
     if version_pk:
         version_data = api.version(version_pk).get()
     else:
@@ -102,7 +104,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
             try:
                 version_data = api.version.post(version_data)
             except Exception as e:
-                log.info("Exception in creating version: %s" % e)
+                log.info(LOG_TEMPLATE.format(project=project.slug, version='', msg='Exception in creating version: %s' % e))
                 raise e
 
     version = make_api_version(version_data)
@@ -136,11 +138,11 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
         build = {}
 
     try:
-        log.info("Updating docs from VCS")
+        log.info(LOG_TEMPLATE.format(project=project.slug, version=version.slug, msg='Updating docs from VCS'))
         update_output = update_imported_docs(version.pk, api)
         #update_output = update_result.get()
     except ProjectImportError, err:
-        log.error("Failed to import project; skipping build.", exc_info=True)
+        log.error(LOG_TEMPLATE.format(project=project.slug, version=version.slug, msg='Failed to import project; skipping build'), exc_info=True)
         build['state'] = 'finished'
         build['setup_error'] = ('Failed to import project; skipping build.\n'
                                 'Please make sure your repo is correct and '
@@ -151,12 +153,12 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
     ###
     # Keep state between the repo and the database
     ###
-    log.info("Setting config values from .rtd.yml")
+    log.debug(LOG_TEMPLATE.format(project=project.slug, version=version.slug, msg='Setting config values from .rtd.yml'))
     try:
         update_config_from_json(version.pk)
     except Exception, e:
         # Never kill the build, but log the error
-        log.error("Failure in config parsing code: %s " % e.message)
+        log.error(LOG_TEMPLATE.format(project=project.slug, version=version.slug, msg='Failure in config parsing code: %s ' % e.message))
 
     # kick off a build
     if record:
@@ -171,12 +173,12 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
                     output_data += u"\n\n%s\n\n%s\n\n" % (key.upper(), data[1])
                     error_data += u"\n\n%s\n\n%s\n\n" % (key.upper(), data[2])
                 except UnicodeDecodeError:
-                    log.debug("Unicode Error in setup")
+                    log.debug(LOG_TEMPLATE.format(project=project.slug, version=version.slug, msg="Unicode Error in setup"))
         build['setup'] = output_data
         build['setup_error'] = error_data
         api.build(build['id']).put(build)
 
-    log.info("Building docs")
+    log.info(LOG_TEMPLATE.format(project=project.slug, version=version.slug, msg="Building docs"))
     # This is only checking the results of the HTML build, as it's a canary
     try:
         results = build_docs(version_pk=version.pk, pdf=pdf, man=man,
@@ -186,7 +188,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
          dash_results, search_results) = results
         (ret, out, err) = html_results
     except Exception as e:
-        log.error("Exception in flailboat build_docs", exc_info=True)
+        log.error(LOG_TEMPLATE.format(project=project.slug, version=version.slug, msg="Exception in flailboat build_docs"), exc_info=True)
         html_results = (999, "Project build Failed", str(e))
         latex_results = (999, "Project build Failed", str(e))
         pdf_results = (999, "Project build Failed", str(e))
@@ -227,24 +229,24 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
         try:
             api.version(version.pk).put(version_data)
         except Exception, e:
-            log.error("Unable to post a new version", exc_info=True)
+            log.error(LOG_TEMPLATE.format(project=project.slug, version=version.slug, msg="Unable to post a new version"), exc_info=True)
 
     # Build Finished, do house keeping bits
 
     if 'no targets are out of date.' in out:
-        log.info("Build Unchanged")
+        log.info(LOG_TEMPLATE.format(project=project.slug, version=version.slug, msg="Build Unchanged"))
     else:
         if ret == 0:
-            log.info("Successful Build")
+            log.info(LOG_TEMPLATE.format(project=project.slug, version=version.slug, msg="Successful Build"))
             purge_version(version, subdomain=True,
                           mainsite=True, cname=True)
             symlink_cname(version)
             # This requires database access, must disable it for now.
             symlink_translations(version)
             #send_notifications(version, build)
-            log.info("Purged %s" % version)
+            #log.info("Purged %s" % version)
         else:
-            log.warning("Failed HTML Build")
+            log.warning(LOG_TEMPLATE.format(project=project.slug, version=version.slug, msg="Failed HTML Build"))
 
         # TODO: Find a better way to handle indexing.
         fileify.delay(version.pk)
@@ -268,11 +270,11 @@ def import_open_comparison(project):
     try:
         result = tastyapi_client.import_project(project)
         if result:
-            log.info("Successful import from Open Comparison")
+            log.debug(LOG_TEMPLATE.format(project=project.slug, version='', msg="Successful import from Open Comparison"))
         else:
-            log.info("Failed import from Open Comparison")
+            log.debug(LOG_TEMPLATE.format(project=project.slug, version='', msg="Failed import from Open Comparison"))
     except:
-        log.info("Failed import from Open Comparison", exc_info=True)
+        log.debug("Failed import from Open Comparison", exc_info=True)
 
 
 def import_crate(project):
@@ -282,12 +284,11 @@ def import_crate(project):
     try:
         result = tastyapi_client.import_crate(project)
         if result:
-            log.info("Successful import from Crate")
+            log.debug(LOG_TEMPLATE.format(project=project.slug, version='', msg="Successful import from Crate"))
         else:
-            log.info("Failed import from Crate")
-
+            log.debug(LOG_TEMPLATE.format(project=project.slug, version='', msg="Failed import from Crate"))
     except:
-        log.info("Failed import from Crate", exc_info=True)
+        log.debug(LOG_TEMPLATE.format(project=project.slug, version='', msg="Failed import from Crate"), exc_info=True)
 
 
 @task 
@@ -297,10 +298,10 @@ def update_config_from_json(version_pk):
     """
     # Remove circular import
     from projects.forms import ImportProjectForm
-    log.info("Checking for json config")
     version_data = api.version(version_pk).get()
     version = make_api_version(version_data)
     project = version.project
+    log.debug(LOG_TEMPLATE.format(project=project.slug, version=version.slug, msg="Checking for json config"))
     try:
         rtd_json = open(os.path.join(
             project.checkout_path(version.slug),
@@ -314,13 +315,13 @@ def update_config_from_json(version_pk):
             if key not in ImportProjectForm._meta.fields:
                 del json_obj[key]
     except IOError:
-        log.info("No rtd.json found.")
+        log.debug(LOG_TEMPLATE.format(project=project.slug, version=version.slug, msg="No rtd.json found."))
         return None
 
     project_data = api.project(project.pk).get()
     project_data.update(json_obj)
     api.project(project.pk).put(project_data)
-    log.info("Updated from JSON.")
+    log.debug(LOG_TEMPLATE.format(project=project.slug, version=version.slug, msg="Updated from JSON."))
 
 @task
 def update_imported_docs(version_pk, api=None):
@@ -346,8 +347,16 @@ def update_imported_docs(version_pk, api=None):
 
         # Get the actual code on disk
         if version:
-            log.info('Checking out version {slug}: {identifier}'.format(
-                slug=version.slug, identifier=version.identifier))
+            log.info(
+                LOG_TEMPLATE.format(
+                    project=project.slug, 
+                    version=version.slug, 
+                    msg='Checking out version {slug}: {identifier}'.format(
+                        slug=version.slug, 
+                        identifier=version.identifier
+                    )
+                )
+            )
             version_slug = version.slug
             version_repo = project.vcs_repo(version_slug)
             update_docs_output['checkout'] = version_repo.checkout(
@@ -355,7 +364,7 @@ def update_imported_docs(version_pk, api=None):
             )
         else:
             # Does this ever get called?
-            log.info('Updating to latest revision')
+            log.info(LOG_TEMPLATE.format(project=project.slug, version=version.slug, msg='Updating to latest revision'))
             version_slug = 'latest'
             version_repo = project.vcs_repo(version_slug)
             update_docs_output['checkout'] = version_repo.update()
@@ -516,7 +525,7 @@ def build_docs(version_pk, pdf, man, epub, dash, search, record, force):
                     if search_results[0] == 0:
                         search_builder.upload()
                 except Exception, e:
-                    log.error(e)
+                    log.error(LOG_TEMPLATE.format(project=project.slug, version=version.slug, msg=e.message), exc_info=True)
 
     return (html_results, latex_results, pdf_results, man_results,
             epub_results, dash_results, search_results)
@@ -534,7 +543,7 @@ def fileify(version_pk):
     version = make_api_version(version_data)
     project = version.project
     path = project.rtd_build_path(version.slug)
-    log.info('Indexing files for %s' % project)
+    log.info(LOG_TEMPLATE.format(project=project.slug, version=version.slug, msg='Indexing files'))
     if path:
         for root, dirnames, filenames in os.walk(path):
             for filename in filenames:
@@ -649,7 +658,7 @@ def symlink_cname(version):
     except redis.ConnectionError:
         return
     for cname in cnames:
-        log.info("Symlinking %s" % cname)
+        log.debug(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Symlinking %s" % cname))
         symlink = version.project.rtd_cname_path(cname)
         run_on_app_servers('mkdir -p %s' % '/'.join(symlink.split('/')[:-1]))
         run_on_app_servers('ln -nsf %s %s' % (build_dir, symlink))
@@ -669,7 +678,7 @@ def symlink_translations(version):
             translation_dir = translation.rtd_build_path(translation.slug)
             # Chop off the version from the end.
             translation_dir = '/'.join(translation_dir.split('/')[:-1])
-            log.info("Symlinking %s" % translation.language)
+            log.debug(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Symlinking %s" % translation.language))
             run_on_app_servers('mkdir -p %s' % '/'.join(base_path.split('/')[:-1]))
             run_on_app_servers('ln -nsf %s %s' % (translation_dir, base_path))
         # Hack in the en version for backwards compat
@@ -680,7 +689,7 @@ def symlink_translations(version):
         run_on_app_servers('mkdir -p %s' % '/'.join(base_path.split('/')[:-1]))
         run_on_app_servers('ln -nsf %s %s' % (translation_dir, base_path))
     except Exception, e:
-        log.error("Error in symlink_translations: %s" % e)
+        log.error(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Error in symlink_translations: %s" % e.message))
         # Don't fail on translation bits
         pass
 
@@ -726,7 +735,7 @@ def webhook_notification(project_id, build, hook_url):
             'date': build['date']
         }
     })
-    log.debug('sending notification to: %s' % hook_url)
+    log.debug(LOG_TEMPLATE.format(project=project.slug, version='', msg='sending notification to: %s' % hook_url))
     requests.post(hook_url, data=data)
 
 
