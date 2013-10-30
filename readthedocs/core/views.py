@@ -179,6 +179,7 @@ def github_build(request):
                     repo=repo,
                 )
                 proj.users.add(user)
+                _build_version(proj, 'latest')
                 pc_log.info("Created new project %s" % (proj))
             except Exception, e:
                 pc_log.error("Error creating new project %s: %s" % (name, e))
