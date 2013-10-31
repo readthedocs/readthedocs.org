@@ -8,7 +8,7 @@ We'll try and answer your questions here about how to customize the theme,
 or make it function better.
 
 If you have issues or feedback,
- please `open an issue`_ on the theme's GitHub repository.
+please `open an issue`_ on the theme's GitHub repository.
 
 How do I change the sidebar contents?
 -------------------------------------
