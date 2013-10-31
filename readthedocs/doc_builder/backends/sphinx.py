@@ -66,6 +66,10 @@ if globals().get('RTD_NEW_THEME', False):
     html_theme = 'sphinx_rtd_theme'
     html_style = None
 
+if globals().get('RTD_OLD_THEME', False):
+    html_style = 'rtd.css'
+    html_theme = 'default'
+
 #Add project information to the template context.
 context = {
     'using_theme': using_rtd_theme,
