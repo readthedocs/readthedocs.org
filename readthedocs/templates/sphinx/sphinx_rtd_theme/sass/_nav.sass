@@ -47,15 +47,16 @@
       background: darken($section-background-color, 10%)
       a
         color: $text-medium
-        border-left: solid 5px darken($section-background-color, 20%)
         border-right: solid 1px darken($section-background-color, 20%)
-        border-bottom: solid 1px darken($section-background-color, 20%)
+        padding: $gutter / 4 $gutter * 1.5
         &:hover
           background: darken($section-background-color, 15%)
+        .current
+          background: darken($section-background-color, 20%)
   li.on a, li.current > a
-    color: $link-color
+    color: $text-color
+    padding: $gutter / 4 $gutter
     font-weight: bold
-    font-size: 100%
     position: relative
     background: $section-background-color
     border: none
@@ -245,8 +246,11 @@ footer
       overflow: hidden
 
 +media($desktop-wide)
+  .wy-nav-content-wrap
+    background: rgba(0,0,0,.05)
   .wy-nav-content
     margin: 0
+    background: $section-background-color
 
 @media print
   .wy-nav-side
