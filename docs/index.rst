@@ -28,6 +28,7 @@ Site Documentation
     faq
     support
     features
+    theme
     privacy
     webhooks
     alternate_domains
