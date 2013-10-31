@@ -42,6 +42,11 @@ def postcommit_logs():
     env.user = "docs"
     run("tail -f %s/logs/postcommit.log" % env.code_dir)
 
+@hosts(['newasgard.readthedocs.com', 'newchimera.readthedocs.com'])
+def cat_postcommit_logs():
+    env.user = "docs"
+    run("cat %s/logs/postcommit.log" % env.code_dir)
+
 @hosts(['localhost'])
 def i18n():
     with lcd('readthedocs'):
