@@ -35,7 +35,7 @@ Screenshot
 Auto-updating
 -------------
 
-The :doc:`webhooks` page talks about the different way you can ping RTD to let us know your project has been updated. We have official support for Github, and anywhere else we have a generic post-commit hook that allows you to POST to a URL to get your documentation built.
+The :doc:`webhooks` page talks about the different ways you can ping RTD to let us know your project has been updated. We have official support for Github, and anywhere else we have a generic post-commit hook that allows you to POST to a URL to get your documentation built.
 
 Heavily Cached
 --------------
@@ -68,7 +68,7 @@ Version Control Support Matrix
 PDF Generation
 --------------
 
-When you build your project on RTD, we automatically build a PDF of your projects documentation. We also build them for every version that you upload, so we can host the PDFs of your latest documentation, as well as your latest stable releases as well.
+When you build your project on RTD, we automatically build a PDF of your project's documentation. We also build them for every version that you upload, so we can host the PDFs of your latest documentation, as well as your latest stable releases as well.
 
 Search
 ------
@@ -78,7 +78,7 @@ We provide full-text search across all of the pages of documentation hosted on o
 Alternate Domains
 -----------------
 
-We provide support for CNAMEs, Subdomains, and a shorturl for your project as well. This is outlined in the :doc:`alternate_domains` section.
+We provide support for CNAMEs, subdomains, and a shorturl for your project as well. This is outlined in the :doc:`alternate_domains` section.
 
 Intersphinx Support
 -------------------
