@@ -8,7 +8,7 @@ localization that are applied in Read the Docs. The guidelines described are
 mostly based on `Kitsune's localization documentation
 <http://kitsune.readthedocs.org/en/latest/localization.html>`_.
 
-As most of the Django applications out there, Read the Docs' i18n/l10n
+As with most of the Django applications out there, Read the Docs' i18n/l10n
 framework is based on `GNU gettext <http://www.gnu.org/software/gettext/>`_.
 Crowd-sourced localization is optionally available at `Transifex
 <https://www.transifex.com/projects/p/readthedocs/>`_.
@@ -19,7 +19,7 @@ Making Strings Localizable
 
 Making strings in templates localizable is exceptionally easy. Making strings
 in Python localizable is a little more complicated. The short answer, though,
-is just wrap the string in ``_()``.
+is to just wrap the string in ``_()``.
 
 
 Interpolation
@@ -28,7 +28,7 @@ Interpolation
 A string is often a combination of a fixed string and something changing, for
 example, ``Welcome, James`` is a combination of the fixed part ``Welcome,``,
 and the changing part ``James``. The naive solution is to localize the first
-part and the follow it with the name::
+part and then follow it with the name::
 
     _('Welcome, ') + username
 
