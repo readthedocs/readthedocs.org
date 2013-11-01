@@ -46,7 +46,7 @@ Then we build the proper backend code for the type of documentation you've selec
 
 When we build your documentation, we run `sphinx-build -b html . _build/html`, where `html` would be replaced with the correct backend. We also create man pages and pdf's automatically based on your project.
 
-Then these files are rsync'd across to our application servers from the build server. Once on the application servers, they are served from nginx and then cached in Varnish for a week. This varnish cache is pro-actively purged whenever a new version of your docs are built.
+Then these files are rsync'd across to our application servers from the build server. Once on the application servers, they are served from nginx and then cached in Varnish for a week. This Varnish cache is pro-actively purged whenever a new version of your docs are built.
 
 An example in code::
 
@@ -61,7 +61,7 @@ An example in code::
 Writing your own builder
 ------------------------
 
-The documentation build system in RTD is made plugable, so that you can build out your own backend. If you have a documentation format that isn't currently supported, you can add support by contributing a backend.
+The documentation build system in RTD is made pluggable, so that you can build out your own backend. If you have a documentation format that isn't currently supported, you can add support by contributing a backend.
 
 The :doc:`api/doc_builder` API explains the higher level parts of the API that you need to implement. A basic run goes something like this::
 
