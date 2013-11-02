@@ -17,10 +17,10 @@ class Builder(HtmlBuilder):
         project = self.version.project
         os.chdir(self.version.project.conf_dir(self.version.slug))
         if project.use_virtualenv:
-            build_command = '%s -E -b websupport2 . _build/html' % project.venv_bin(
-                version=self.version.slug, bin='sphinx-build')
+            build_command = '%s -E -b websupport2 -D language=%s . _build/html' % (project.venv_bin(
+                version=self.version.slug, bin='sphinx-build'), project.language)
         else:
-            build_command = "sphinx-build -E -b websupport2 . _build/html"
+            build_command = "sphinx-build -E -b websupport2 -D language=%s . _build/html" % project.language
         build_results = run(build_command)
         if 'no targets are out of date.' in build_results[1]:
             self._changed = False

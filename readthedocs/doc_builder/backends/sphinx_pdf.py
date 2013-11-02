@@ -21,12 +21,12 @@ class Builder(BaseBuilder):
         #Default to this so we can return it always.
         pdf_results = (1, '', '')
         if project.use_virtualenv:
-            latex_results = run('%s -b latex -d _build/doctrees . _build/latex'
-                                % project.venv_bin(version=self.version.slug,
-                                                   bin='sphinx-build'))
+            latex_results = run('%s -b latex -D language=%s -d _build/doctrees . _build/latex'
+                                % (project.venv_bin(version=self.version.slug,
+                                                   bin='sphinx-build'), project.language))
         else:
-            latex_results = run('sphinx-build -b latex -d _build/doctrees '
-                                '. _build/latex')
+            latex_results = run('sphinx-build -b latex -D language=%s -d _build/doctrees '
+                                '. _build/latex' % project.language)
 
         if latex_results[0] == 0:
             os.chdir('_build/latex')

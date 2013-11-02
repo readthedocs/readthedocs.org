@@ -16,12 +16,12 @@ class Builder(ManpageBuilder):
         project = self.version.project
         os.chdir(self.version.project.conf_dir(self.version.slug))
         if project.use_virtualenv:
-            build_command = ('%s -b man  -d _build/doctrees . _build/man'
-                             % project.venv_bin(
+            build_command = ('%s -b man -D language=%s -d _build/doctrees . _build/man'
+                             % (project.venv_bin(
                                  version=self.version.slug,
-                                 bin='sphinx-build'))
+                                 bin='sphinx-build'), project.language))
         else:
-            build_command = "sphinx-build -b man . _build/man"
+            build_command = "sphinx-build -D language=%s -b man . _build/man" % project.language
         build_results = run(build_command)
         return build_results
 

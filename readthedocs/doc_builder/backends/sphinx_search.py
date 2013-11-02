@@ -17,10 +17,10 @@ class Builder(HtmlBuilder):
         project = self.version.project
         os.chdir(self.version.project.conf_dir(self.version.slug))
         if project.use_virtualenv:
-            build_command = '%s -b json . _build/json' % project.venv_bin(
-                version=self.version.slug, bin='sphinx-build')
+            build_command = '%s -b json -D language=%s . _build/json' % (project.venv_bin(
+                version=self.version.slug, bin='sphinx-build'), project.language)
         else:
-            build_command = "sphinx-build -b json . _build/json"
+            build_command = "sphinx-build -b json -D language=%s . _build/json" % project.language
         build_results = run(build_command)
         if 'no targets are out of date.' in build_results[1]:
             self._changed = False
