@@ -283,54 +283,48 @@ def search(request):
     project_slug = request.GET.get('project', None)
     version_slug = request.GET.get('version', 'latest')
     query = request.GET.get('q', None)
+    log.debug("(API Search) %s" % query)
+
+    kwargs = {}
+    body = {
+        "query": {
+            "bool": {
+                "should": [
+                    {"match": {"title": {"query": query, "boost": 10}}},
+                    {"match": {"headers": {"query": query, "boost": 5}}},
+                    {"match": {"content": {"query": query}}},
+                ]
+            }
+        },
+        "facets": {
+            "path": {
+                "terms": {"field": "path"}}
+        },
+        "highlight": {
+            "fields": {
+                "title": {},
+                "headers": {},
+                "content": {},
+            }
+        },
+        "fields": ["title", "project", "version", "path"],
+        "size": 50  # TODO: Support pagination.
+    }
 
     if project_slug:
-        log.debug("(API Search) %s:%s" % (project_slug, query))
-        project = Project.objects.get(slug=project_slug)
-        # This is a search within a project -- do a Page search.
-        body = {
-            "filter": {
-                "and": [
-                    {"term": {"project": project.slug}},
-                    {"term": {"version": version_slug}},
-                ]
-            },
-            "query": {
-                "bool": {
-                    "should": [
-                        {"match": {"title": {"query": query, "boost": 10}}},
-                        {"match": {"headers": {"query": query, "boost": 5}}},
-                        {"match": {"content": {"query": query}}},
-                    ]
-                }
-            },
-            "facets": {
-                "path": {
-                    "terms": {"field": "path"}}
-            },
-            "highlight": {
-                "fields": {
-                    "title": {},
-                    "headers": {},
-                    "content": {},
-                }
-            }
+        # Get the project ID to add the Elasticsearch routing key.
+        # TODO: Update index to route on slug to avoid this db hit.
+        project = get_object_or_404(Project, slug=project_slug)
+        body['filter'] = {
+            "and": [
+                {"term": {"project": project.slug}},
+                {"term": {"version": version_slug}},
+            ]
         }
-        results = PageIndex().search(body, routing=project.pk, fields=['title', 'project', 'version', 'path'])
+        # Add routing to optimize search by hitting the right shard.
+        kwargs['routing'] = project.pk
 
-    else:
-        log.debug("(API Search) %s" % (query))
-        body = {
-            "query": {
-                "bool": {
-                    "should": [
-                        {"match": {"name": {"query": query, "boost": 10}}},
-                        {"match": {"description": {"query": query}}},
-                    ]
-                },
-            }
-        }
-        results = ProjectIndex().search(body, fields=['name', 'slug', 'description', 'lang'])
+    results = PageIndex().search(body, **kwargs)
 
     return Response({'results': results})
 
