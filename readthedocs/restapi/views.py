@@ -333,3 +333,26 @@ def search(request):
         results = ProjectIndex().search(body, fields=['name', 'slug', 'description', 'lang'])
 
     return Response({'results': results})
+
+
+@decorators.api_view(['GET'])
+@decorators.permission_classes((permissions.AllowAny,))
+@decorators.renderer_classes((JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
+def project_search(request):
+    query = request.GET.get('q', None)
+
+    log.debug("(Project API Search) %s" % (query))
+    body = {
+        "query": {
+            "bool": {
+                "should": [
+                    {"match": {"name": {"query": query, "boost": 10}}},
+                    {"match": {"description": {"query": query}}},
+                ]
+            },
+        },
+        "fields": ["name", "slug", "description", "lang"]
+    }
+    results = ProjectIndex().search(body)
+
+    return Response({'results': results})
