@@ -15,10 +15,10 @@ class Builder(HtmlBuilder):
         project = self.version.project
         os.chdir(project.conf_dir(self.version.slug))
         if project.use_virtualenv:
-            build_command = '%s -b epub . _build/epub' % project.venv_bin(
-                version=self.version.slug, bin='sphinx-build')
+            build_command = '%s -b epub -D language=%s . _build/epub' % (project.venv_bin(
+                version=self.version.slug, bin='sphinx-build'), project.language)
         else:
-            build_command = "sphinx-build -b epub . _build/epub"
+            build_command = "sphinx-build -D language=%s -b epub . _build/epub" % project.language
         build_results = run(build_command)
         return build_results
 
