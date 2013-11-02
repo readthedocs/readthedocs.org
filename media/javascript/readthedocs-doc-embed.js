@@ -48,7 +48,7 @@ $(document).ready(function () {
       $("[data-toggle='rst-versions']").toggleClass("shift-up");
     });  
     // Make tables responsive
-    $("table.docutils:not(.field-list").wrap("<div class='wy-table-responsive'></div>");
+    $("table.docutils:not(.field-list)").wrap("<div class='wy-table-responsive'></div>");
 
     
     // Add Grok the Docs Client
