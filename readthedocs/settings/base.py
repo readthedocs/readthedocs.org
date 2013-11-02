@@ -295,6 +295,12 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': False,
         },
+        # Uncomment if you want to see Elasticsearch queries in the console.
+        #'elasticsearch.trace': {
+        #    'level': 'DEBUG',
+        #    'handlers': ['console'],
+        #},
+
         # Default handler for everything that we're doing. Hopefully this
         # doesn't double-print the Django things as well. Not 100% sure how
         # logging works :)
