@@ -186,7 +186,7 @@ class Index(object):
                               body=body, **kwargs)
 
 
-class Project(Index):
+class ProjectIndex(Index):
 
     _type = 'project'
 
@@ -225,7 +225,7 @@ class Project(Index):
         return doc
 
 
-class Page(Index):
+class PageIndex(Index):
 
     _type = 'page'
     _parent = 'project'

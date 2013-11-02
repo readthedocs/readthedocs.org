@@ -11,10 +11,10 @@ from rest_framework.renderers import JSONPRenderer, JSONRenderer, BrowsableAPIRe
 from rest_framework.response import Response
 import requests
 
-from betterversion.better import version_windows, BetterVersion 
+from betterversion.better import version_windows, BetterVersion
 from builds.models import Version
 from djangome import views as djangome
-from search.indexes import Page as PageIndex, Project as ProjectIndex
+from search.indexes import PageIndex, ProjectIndex
 from projects.models import Project, EmailHook
 
 from .serializers import ProjectSerializer
@@ -23,6 +23,7 @@ import utils as api_utils
 
 
 log = logging.getLogger(__name__)
+
 
 class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
@@ -45,9 +46,9 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
                 # Probably a branch
                 pass
         active_versions = version_windows(
-            versions, 
-            major=project.num_major, 
-            minor=project.num_minor, 
+            versions,
+            major=project.num_major,
+            minor=project.num_minor,
             point=project.num_point,
             flat=True,
         )
@@ -66,7 +67,6 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
         return Response({
             'translations': ProjectSerializer(queryset, many=True).data
         })
-
 
     @decorators.action(permission_classes=[permissions.IsAdminUser])
     def sync_versions(self, request, **kwargs):
@@ -89,7 +89,7 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
             return Response({
                 'added_versions': added_versions,
                 'deleted_versions': deleted_versions,
-            })       
+            })
         except Exception, e:
             log.exception("Sync Versions Error: %s" % e.message)
             return Response({'error': e.message}, status=status.HTTP_400_BAD_REQUEST)
@@ -109,6 +109,7 @@ class NotificationViewSet(viewsets.ReadOnlyModelViewSet):
         if user.is_superuser:
             return self.model.objects.all()
         return self.model.objects.filter(project__users__in=[user.pk])
+
 
 class VersionViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
@@ -135,7 +136,7 @@ TEMPLATE = """
     </span>
     <div class="rst-other-versions">
   {% endif %}
-  
+
       <dl>
         <dt>Versions</dt>
         {% for version in versions %}
@@ -189,6 +190,7 @@ TEMPLATE = """
 </div>
 """
 
+
 @decorators.api_view(['GET'])
 @decorators.permission_classes((permissions.AllowAny,))
 @decorators.renderer_classes((JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
@@ -216,6 +218,7 @@ def footer_html(request):
     html = Template(TEMPLATE).render(context)
     return Response({"html": html})
 
+
 @decorators.api_view(['GET'])
 @decorators.permission_classes((permissions.AllowAny,))
 @decorators.renderer_classes((JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
@@ -231,6 +234,7 @@ def quick_search(request):
             value = ':'.join(data.split(':')[6:])
             ret_dict[key] = value
     return Response({"results": ret_dict})
+
 
 @decorators.api_view(['POST'])
 @decorators.permission_classes((permissions.IsAdminUser,))
@@ -249,15 +253,15 @@ def index_search(request):
 
     project_obj = ProjectIndex()
     project_obj.index_document({
-            'id': project.pk,
-            'name': project.name,
-            'slug': project.slug,
-            'description': project.description,
-            'lang': project.language,
-            'author': [user.username for user in project.users.all()],
-            'url': project.get_absolute_url(),
-            '_boost': project_scale,
-        })
+        'id': project.pk,
+        'name': project.name,
+        'slug': project.slug,
+        'description': project.description,
+        'lang': project.language,
+        'author': [user.username for user in project.users.all()],
+        'url': project.get_absolute_url(),
+        '_boost': project_scale,
+    })
 
     index_list = []
     for page in page_list:
@@ -266,10 +270,11 @@ def index_search(request):
         page['_boost'] = page_scale + project_scale
         page['project'] = project.slug
         page['version'] = version.slug
-        page['id'] = hashlib.md5('%s-%s-%s' % (project.slug, version.slug, page['path']) ).hexdigest()
+        page['id'] = hashlib.md5('%s-%s-%s' % (project.slug, version.slug, page['path'])).hexdigest()
         index_list.append(page)
     page_obj.bulk_index(index_list, parent=project_pk)
     return Response({'indexed': True})
+
 
 @decorators.api_view(['GET'])
 @decorators.permission_classes((permissions.AllowAny,))

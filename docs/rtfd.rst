@@ -8,7 +8,7 @@ Elastic Search Setup
 
 ::
 
-    from search.indexes import Index, Page, Project
+    from search.indexes import Index, PageIndex, ProjectIndex
      
     # Create the index.
     index = Index()
@@ -16,9 +16,9 @@ Elastic Search Setup
     index.create_index(index_name)
     index.update_aliases(index_name)
     # Update mapping
-    proj = Project()
+    proj = ProjectIndex()
     proj.put_mapping()
-    page = Page()
+    page = PageIndex()
     page.put_mapping()
 
 
