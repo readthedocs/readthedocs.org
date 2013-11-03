@@ -24,10 +24,10 @@
 
   {# CSS #}
   <link href='http://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700' rel='stylesheet' type='text/css'>
-  
-  {# JS #}    
+
+  {# JS #}
   {% if not embedded %}
-  
+
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:'{{ url_root }}',
@@ -40,7 +40,7 @@
     {%- for scriptfile in script_files %}
       <script type="text/javascript" src="{{ pathto(scriptfile, 1) }}"></script>
     {%- endfor %}
-    
+
     {% if use_opensearch %}
       <link rel="search" type="application/opensearchdescription+xml" title="{% trans docstitle=docstitle|e %}Search within {{ docstitle }}{% endtrans %}" href="{{ pathto('_static/opensearch.xml', 1) }}"/>
     {% endif %}
@@ -92,7 +92,7 @@
 <body class="wy-body-for-nav">
 
   <div class="wy-grid-for-nav">
-    
+
     {# SIDE NAV, TOGGLES ON MOBILE #}
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-nav-search">
@@ -108,7 +108,6 @@
             {{ toc }}
         {% endif %}
       </div>
-      {% include "versions.html" %}
       &nbsp;
     </nav>
 
@@ -117,9 +116,9 @@
       {# MOBILE NAV, TRIGGLES SIDE NAV ON TOGGLE #}
       <nav class="wy-nav-top">
         <i data-toggle="wy-nav-top" class="icon icon-reorder"></i>
-        <a href="/">{{ project }}</a>        
+        <a href="/">{{ project }}</a>
       </nav>
-      
+
 
       {# PAGE CONTENT #}
       <div class="wy-nav-content">
@@ -133,5 +132,6 @@
     </section>
 
   </div>
+  {% include "versions.html" %}
 </body>
 </html>

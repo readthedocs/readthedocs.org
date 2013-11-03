@@ -7,6 +7,7 @@
   background: darken($menu-background-color, 8%)
   border-top: solid 10px $menu-background-color
   font-family: $base-font-family
+  z-index: $z-index-tray
   a
     color: $link_color
     text-decoration: none
@@ -20,7 +21,6 @@
     font-size: 90%
     cursor: pointer
     color: $green
-    z-index: $z-index-tray 
     +clearfix
     .icon
       color: $section-background-color
@@ -42,7 +42,7 @@
       border: 0
       margin: 20px 0
       padding: 0
-      border-top: solid 1px lighten($menu-background-color, 5%)      
+      border-top: solid 1px lighten($menu-background-color, 5%)
     dd
       display: inline-block
       margin: 0
@@ -58,7 +58,7 @@
     border: none
     max-width: $nav-desktop-width
     .icon-book
-      float: none 
+      float: none
     &.shift-up .rst-current-version
       text-align: right
       .icon-book
