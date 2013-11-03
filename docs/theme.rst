@@ -35,5 +35,5 @@ Other style notes
 * Wide tables will add a horizontal scroll bar to maintain the responsive layout.
 
 .. _github here: https://www.github.com/snide/sphinx_rtd_theme
-.. _blog post: http://ericholscher.com/blog/2013/nov/1/new-theme-read-the-docs/
+.. _blog post: http://ericholscher.com/blog/2013/nov/4/new-theme-read-the-docs/
 .. _open an issue: https://github.com/snide/sphinx_rtd_theme/issues
