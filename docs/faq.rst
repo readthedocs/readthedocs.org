@@ -97,6 +97,8 @@ This also works the same for CNAME's:
 
 http://docs.celeryproject.org/projects/kombu/en/latest/
 
+You can add subprojects in the Admin section for your project.
+
 Where do I need to put my docs for RTD to find it?
 --------------------------------------------------
 
