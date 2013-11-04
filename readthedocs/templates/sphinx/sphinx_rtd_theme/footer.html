@@ -1,6 +1,7 @@
 <footer>
   <hr/>
 
+  <p>
   {%- if show_copyright %}
     {%- if hasdoc('copyright') %}
       {% trans path=pathto('copyright'), copyright=copyright|e %}&copy; <a href="{{ path }}">Copyright</a> {{ copyright }}.{% endtrans %}
@@ -12,5 +13,7 @@
   {%- if last_updated %}
     {% trans last_updated=last_updated|e %}Last updated on {{ last_updated }}.{% endtrans %}
   {%- endif %}
+  </p>
 
+  {% trans %}<a href="https://www.github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="http://www.readthedocs.org">Read the Docs</a>{% endtrans %}
 </footer>
