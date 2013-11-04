@@ -47,16 +47,19 @@ if 'html_theme' in globals():
         if not 'html_style' in globals():
             html_theme = 'sphinx_rtd_theme'
             html_style = None
+            html_theme_options = {}
             using_rtd_theme = True
 else:
     html_theme = 'sphinx_rtd_theme'
     html_style = None
+    html_theme_options = {}
     using_rtd_theme = True
 
 # Force theme on setting
 if globals().get('RTD_NEW_THEME', False):
     html_theme = 'sphinx_rtd_theme'
     html_style = None
+    html_theme_options = {}
     using_rtd_theme = True
 
 if globals().get('RTD_OLD_THEME', False):
