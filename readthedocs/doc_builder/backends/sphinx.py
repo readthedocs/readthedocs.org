@@ -45,26 +45,19 @@ if 'html_theme' in globals():
     if html_theme in ['default']:
         # Allow people to bail with a hack of having an html_style
         if not 'html_style' in globals():
-            if globals().get('RTD_NEW_THEME', False):
-                html_theme = 'sphinx_rtd_theme'
-            else:
-                html_style = 'rtd.css'
-                html_theme = 'default'
-            html_theme_options = {}
+            html_theme = 'sphinx_rtd_theme'
+            html_style = None
             using_rtd_theme = True
 else:
-    if globals().get('RTD_NEW_THEME', False):
-        html_theme = 'sphinx_rtd_theme'
-    else:
-        html_style = 'rtd.css'
-        html_theme = 'default'
-    html_theme_options = {}
+    html_theme = 'sphinx_rtd_theme'
+    html_style = None
     using_rtd_theme = True
 
 # Force theme on setting
 if globals().get('RTD_NEW_THEME', False):
     html_theme = 'sphinx_rtd_theme'
     html_style = None
+    using_rtd_theme = True
 
 if globals().get('RTD_OLD_THEME', False):
     html_style = 'rtd.css'
