@@ -12,6 +12,9 @@ log = logging.getLogger(__name__)
 
 
 def process_all_json_files(version):
+    """
+    Return a list of pages to index
+    """
     full_path = version.project.full_json_path(version.slug)
     html_files = []
     for root, dirs, files in os.walk(full_path):

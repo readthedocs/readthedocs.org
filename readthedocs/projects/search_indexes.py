@@ -72,9 +72,9 @@ class ImportedFileIndex(celery_indexes.CelerySearchIndex, indexes.Indexable):
             with codecs.open(file_path, encoding='utf-8', mode='r') as f:
                 content = f.read()
         except IOError as e:
-            log.info('Unable to index file: %s, error :%s' % (file_path, e))
+            log.info('(Search Index) Unable to index file: %s, error :%s' % (file_path, e))
             return
-        log.debug('Indexing %s:%s' % (obj.project, obj.path))
+        log.debug('(Search Index) Indexing %s:%s' % (obj.project, obj.path))
         DOCUMENT_PYQUERY_PATH = getattr(settings, 'DOCUMENT_PYQUERY_PATH',
                                         'div.document')
         try:
@@ -84,10 +84,10 @@ class ImportedFileIndex(celery_indexes.CelerySearchIndex, indexes.Indexable):
             #Pyquery returns ValueError if div.document doesn't exist.
             return
         if not to_index:
-            log.info('Unable to index file: %s:%s, empty file' % (obj.project,
+            log.info('(Search Index) Unable to index file: %s:%s, empty file' % (obj.project,
                                                                   file_path))
         else:
-            log.debug('%s:%s length: %s' % (obj.project, file_path,
+            log.debug('(Search Index) %s:%s length: %s' % (obj.project, file_path,
                                             len(to_index)))
         return to_index
 

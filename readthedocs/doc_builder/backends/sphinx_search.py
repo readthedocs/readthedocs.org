@@ -27,9 +27,12 @@ class Builder(HtmlBuilder):
         return build_results
 
     def upload(self, **kwargs):
+        page_list = process_all_json_files(self.version)
         data = {
-            'page_list': process_all_json_files(self.version),
+            'page_list': page_list,
             'version_pk': self.version.pk,
             'project_pk': self.version.project.pk
         }
+        log_msg = ' '.join([page['path'] for page in page_list])
+        log.info("(Search Index) Sending Data: %s [%s]" % (self.version.project.slug, log_msg))
         apiv2.index_search.post({'data': data})
