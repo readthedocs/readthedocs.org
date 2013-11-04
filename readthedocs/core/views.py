@@ -364,10 +364,8 @@ def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
         if encoding:
             response["Content-Encoding"] = encoding
         try:
-            response['X-Accel-Redirect'] = os.path.join('/user_builds',
-                                                        proj.slug,
-                                                        'rtd-builds',
-                                                        version_slug, filename)
+            response['X-Accel-Redirect'] = os.path.join(basepath[len(settings.SITE_ROOT):],
+                                                        filename)
         except UnicodeEncodeError:
             raise Http404
 
