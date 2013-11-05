@@ -4,10 +4,10 @@
       {% if next %}
         <a href="{{ next.link|e }}" class="btn btn-neutral float-right" title="{{ next.title|striptags|e }}"/>Next <span class="icon icon-circle-arrow-right"></span></a>
       {% endif %}
+      {% if prev %}
+        <a href="{{ prev.link|e }}" class="btn btn-neutral" title="{{ prev.title|striptags|e }}"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      {% endif %}
     </div>
-    {% if prev %}
-      <a href="{{ prev.link|e }}" class="btn btn-neutral" title="{{ prev.title|striptags|e }}"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-    {% endif %}
   {% endif %}
 
   <hr/>
