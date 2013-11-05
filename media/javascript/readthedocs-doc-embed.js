@@ -54,6 +54,15 @@ $(document).ready(function () {
     // Make tables responsive
     $("table.docutils:not(.field-list)").wrap("<div class='wy-table-responsive'></div>");
 
+    
+    // Add Grok the Docs Client
+    $.ajax({
+        url: "https://api.grokthedocs.com/static/javascript/bundle-client.js",
+        crossDomain: true,
+        dataType: "script",
+    });
+
+    searchLanding()
 
     // Search
 
@@ -75,16 +84,21 @@ $(document).ready(function () {
     }) 
     */
 
-    // Highlight based on highlight GET arg
-    var params = $.getQueryParameters();
-    console.log(params)
-    var query = (params.highlight) ? params.highlight[0].split(/\s+/) : [];
-    if (!query.length) {
-      var query = (params.q) ? params.q[0].split(/\s+/) : [];
+
+    function searchLanding() {
+      // Highlight based on highlight GET arg
+      var params = $.getQueryParameters();
+      console.log(params)
+      var query = (params.highlight) ? params.highlight[0].split(/\s+/) : [];
+      if (!query.length) {
+        var query = (params.q) ? params.q[0].split(/\s+/) : [];
+      }
+      if (query.length) {
+        query = query.join(" ")
+        console.log("Searching based on highlight for: " + query)
+        getSearch(query)
+      }
     }
-    query = query.join(" ")
-    console.log("Searching based on highlight for: " + query)
-    getSearch(query)
 
 
     function getSearch(query) {
@@ -133,14 +147,6 @@ $(document).ready(function () {
     function clearSearch() {
       $('.result-count').remove()
     }
-
-    
-    // Add Grok the Docs Client
-    $.ajax({
-        url: "https://api.grokthedocs.com/static/javascript/bundle-client.js",
-        crossDomain: true,
-        dataType: "script",
-    });
 
 
 })
