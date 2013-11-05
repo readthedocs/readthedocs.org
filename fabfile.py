@@ -229,5 +229,5 @@ def update_theme():
         local('git clone https://github.com/snide/sphinx_rtd_theme.git theme_update_dir')
         local('rm -rf sphinx_rtd_theme')
         local('mv theme_update_dir/sphinx_rtd_theme .')
-        local('cp sphinx_rtd_theme/static/theme.css %s' % os.path.join(fabfile_dir, 'media', 'css', 'sphinx_rtd_theme.css'))
+        local('cp sphinx_rtd_theme/static/css/theme.css %s' % os.path.join(fabfile_dir, 'media', 'css', 'sphinx_rtd_theme.css'))
         local('rm -rf theme_update_dir')
