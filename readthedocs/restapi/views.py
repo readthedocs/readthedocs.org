@@ -140,13 +140,13 @@ TEMPLATE = """
       <dl>
         <dt>Versions</dt>
         {% for version in versions %}
-          {% if version.slug == current_version %}
-          <strong>
-          {% endif %}
-          <dd><a href="{{ version.get_subdomain_url }}">{{ version.slug }}</a></dd>
-          {% if version.slug == current_version %}
-          </strong>
-          {% endif %}
+          {% if version.slug == current_version %} <strong> {% endif %}
+              {% if subproject %}
+              <dd><a href="{{ version.get_subproject_url }}">{{ version.slug }}</a></dd>
+              {% else %}
+              <dd><a href="{{ version.get_subdomain_url }}">{{ version.slug }}</a></dd>
+              {% endif %}
+          {% if version.slug == current_version %} </strong> {% endif %}
         {% endfor %}
       </dl>
       <dl>
@@ -200,6 +200,8 @@ def footer_html(request):
     page_slug = request.GET.get('page', None)
     theme = request.GET.get('theme', False)
     docroot = request.GET.get('docroot', '')
+    subproject = request.GET.get('subproject', False)
+
     new_theme = (theme == "sphinx_rtd_theme")
     using_theme = (theme == "default")
     project = get_object_or_404(Project, slug=project_slug)
@@ -212,6 +214,7 @@ def footer_html(request):
         'using_theme': using_theme,
         'new_theme': new_theme,
         'settings': settings,
+        'subproject': subproject,
         'github_url': version.get_github_url(docroot, page_slug),
         'bitbucket_url': version.get_bitbucket_url(docroot, page_slug),
     })

@@ -146,6 +146,13 @@ class Version(models.Model):
                 'filename': ''
             })
 
+    def get_subproject_url(self):
+        return "/projects/%s/%s/%s/" % (
+            self.project,
+            self.project.language,
+            self.slug,
+        )
+
     def save(self, *args, **kwargs):
         """
         Add permissions to the Version for all owners on save.

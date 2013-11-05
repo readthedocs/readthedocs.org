@@ -12,6 +12,10 @@ $(document).ready(function () {
       get_data['docroot'] = READTHEDOCS_DATA['docroot']
     }
 
+    if (window.location.pathname.match((/^\/projects/))) {
+      get_data['subproject'] = true
+    }
+
     // Theme popout code
     $.ajax({
       url: "https://readthedocs.org/api/v2/footer_html/",
