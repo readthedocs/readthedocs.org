@@ -57,6 +57,7 @@ $(document).ready(function () {
 
     // Search
 
+    /*  Hide tooltip display for now
     $(document).on({
       mouseenter: function(ev) {
           tooltip = $(ev.target).next()
@@ -67,10 +68,26 @@ $(document).ready(function () {
           tooltip.hide()
       }
     }, '.result-count')
+    */
+
+    // Highlight based on highlight GET arg
+    var params = $.getQueryParameters();
+    console.log(params)
+    var query = (params.highlight) ? params.highlight[0].split(/\s+/) : [];
+    if (!query.length) {
+      var query = (params.q) ? params.q[0].split(/\s+/) : [];
+    }
+    query = query.join(" ")
+    console.log("Searching based on highlight for: " + query)
+    getSearch(query)
 
     $(document).on('submit', '#rtd-search-form', function (ev) {
-      ev.preventDefault();
+      //ev.preventDefault();
       query = $("#rtd-search-form input[name='q'").val()
+      getSearch(query)
+    }) // End on submit of search
+
+    function getSearch(query) {
       get_data = {
         project: READTHEDOCS_DATA['project'],
         version: READTHEDOCS_DATA['version'],
@@ -89,24 +106,33 @@ $(document).ready(function () {
         dataType: "jsonp",
         data: get_data,
         success: function (data) {
-          $('.result-count').remove()
+          clearSearch()
           hits = data.results.hits.hits
-          for (index in hits) {
-            hit = hits[index]
-            page = hit.fields.page
-            title = hit.fields.title
-            highlight = hit.highlight.content
-            li = $(".wy-menu a:contains('" + title + "')")
-            console.log(li)
-            li.append("<span class='result-count' style='position:absolute;right:30px;top:6px;'>" + 1 + "</span>")
-            li.append("<div style='display: none;' class='tooltip'>" + highlight + "</div>")
-          }
+          displaySearch(hits)
         },
         error: function () {
             console.log('Error searching')
         }
       });
-    }) // End on submit of search
+    }
+
+    function displaySearch(hits) {
+      for (index in hits) {
+        hit = hits[index]
+        page = hit.fields.page
+        title = hit.fields.title
+        highlight = hit.highlight.content
+        li = $(".wy-menu a:contains('" + title + "')")
+        console.log(li)
+        li.append("<i style='position:absolute;right:30px;top:6px;' class='icon icon-flag'></i>")
+        //li.append("<span class='result-count' style='position:absolute;right:30px;top:6px;'>" + 1 + "</span>")
+        //li.append("<div style='display: none;' class='tooltip'>" + highlight + "</div>")
+      }
+    }
+
+    function clearSearch() {
+      $('.result-count').remove()
+    }
 
     
     // Add Grok the Docs Client
