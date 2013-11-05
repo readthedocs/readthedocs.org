@@ -148,7 +148,7 @@ class Version(models.Model):
 
     def get_subproject_url(self):
         return "/projects/%s/%s/%s/" % (
-            self.project,
+            self.project.slug,
             self.project.language,
             self.slug,
         )
