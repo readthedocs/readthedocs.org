@@ -54,6 +54,60 @@ $(document).ready(function () {
     // Make tables responsive
     $("table.docutils:not(.field-list)").wrap("<div class='wy-table-responsive'></div>");
 
+
+    // Search
+
+    $(document).on({
+      mouseenter: function(ev) {
+          tooltip = $(ev.target).next()
+          tooltip.show()
+      },
+      mouseleave: function(ev) {
+          tooltip = $(ev.target).next()
+          tooltip.hide()
+      }
+    }, '.result-count')
+
+    $(document).on('submit', '#rtd-search-form', function (ev) {
+      ev.preventDefault();
+      query = $("#rtd-search-form input[name='q'").val()
+      get_data = {
+        project: READTHEDOCS_DATA['project'],
+        version: READTHEDOCS_DATA['version'],
+        format: "jsonp",
+        q: query
+      }
+
+      // Theme popout code
+      $.ajax({
+        //url: "https://readthedocs.org/api/v2/search/",
+        url: "http://localhost:8000/api/v2/search/",
+        crossDomain: true,
+        xhrFields: {
+          withCredentials: true,
+        },
+        dataType: "jsonp",
+        data: get_data,
+        success: function (data) {
+          $('.result-count').remove()
+          hits = data.results.hits.hits
+          for (index in hits) {
+            hit = hits[index]
+            page = hit.fields.page
+            title = hit.fields.title
+            highlight = hit.highlight.content
+            li = $(".wy-menu a:contains('" + title + "')")
+            console.log(li)
+            li.append("<span class='result-count' style='position:absolute;right:30px;top:6px;'>" + 1 + "</span>")
+            li.append("<div style='display: none;' class='tooltip'>" + highlight + "</div>")
+          }
+        },
+        error: function () {
+            console.log('Error searching')
+        }
+      });
+    }) // End on submit of search
+
     
     // Add Grok the Docs Client
     $.ajax({
