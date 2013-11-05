@@ -376,6 +376,10 @@ def update_imported_docs(version_pk, api=None):
 
         # Do Virtualenv bits:
         if project.use_virtualenv:
+            build_dir = os.path.join(project.venv_path(version=version_slug), 'build')
+            if os.path.exists(build_dir):
+                log.info(LOG_TEMPLATE.format(project=project.slug, version=version.slug, msg='Removing existing build dir'))
+                shutil.remove_dir(build_dir)
             if project.use_system_packages:
                 site_packages = '--system-site-packages'
             else:
