@@ -70,17 +70,17 @@ $(document).ready(function () {
     /*  Hide tooltip display for now
     $(document).on({
       mouseenter: function(ev) {
-          tooltip = $(ev.target).next()
+          var tooltip = $(ev.target).next()
           tooltip.show()
       },
       mouseleave: function(ev) {
-          tooltip = $(ev.target).next()
+          var tooltip = $(ev.target).next()
           tooltip.hide()
       }
     }, '.result-count')
     $(document).on('submit', '#rtd-search-form', function (ev) {
       //ev.preventDefault();
-      query = $("#rtd-search-form input[name='q'").val()
+      var query = $("#rtd-search-form input[name='q'").val()
       getSearch(query)
     }) 
     */
