@@ -100,7 +100,7 @@ $(document).ready(function () {
     }
 
     function getSearch(query) {
-      get_data = {
+      var get_data = {
         project: READTHEDOCS_DATA['project'],
         version: READTHEDOCS_DATA['version'],
         format: "jsonp",
@@ -130,11 +130,11 @@ $(document).ready(function () {
 
     function displaySearch(hits) {
       for (index in hits) {
-        hit = hits[index]
-        page = hit.fields.page
-        title = hit.fields.title
-        highlight = hit.highlight.content
-        li = $(".wy-menu a:contains('" + title + "')")
+        var hit = hits[index]
+        var page = hit.fields.page
+        var title = hit.fields.title
+        var highlight = hit.highlight.content
+        var li = $(".wy-menu a:contains('" + title + "')")
         li.append("<i style='position:absolute;right:30px;top:6px;' class='icon icon-flag'></i>")
         //li.append("<span class='result-count' style='position:absolute;right:30px;top:6px;'>" + 1 + "</span>")
         //li.append("<div style='display: none;' class='tooltip'>" + highlight + "</div>")
