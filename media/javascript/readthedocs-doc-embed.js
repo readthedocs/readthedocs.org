@@ -53,7 +53,6 @@ $(document).ready(function () {
     });  
     // Make tables responsive
     $("table.docutils:not(.field-list)").wrap("<div class='wy-table-responsive'></div>");
-
     
     // Add Grok the Docs Client
     $.ajax({
@@ -86,7 +85,6 @@ $(document).ready(function () {
     }) 
     */
 
-
     function searchLanding() {
       // Highlight based on highlight GET arg
       var params = $.getQueryParameters();
@@ -100,7 +98,6 @@ $(document).ready(function () {
         getSearch(query)
       }
     }
-
 
     function getSearch(query) {
       get_data = {
@@ -147,6 +144,5 @@ $(document).ready(function () {
     function clearSearch() {
       $('.result-count').remove()
     }
-
 
 })
