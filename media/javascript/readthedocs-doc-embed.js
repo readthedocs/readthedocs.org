@@ -68,6 +68,11 @@ $(document).ready(function () {
           tooltip.hide()
       }
     }, '.result-count')
+    $(document).on('submit', '#rtd-search-form', function (ev) {
+      //ev.preventDefault();
+      query = $("#rtd-search-form input[name='q'").val()
+      getSearch(query)
+    }) 
     */
 
     // Highlight based on highlight GET arg
@@ -81,11 +86,6 @@ $(document).ready(function () {
     console.log("Searching based on highlight for: " + query)
     getSearch(query)
 
-    $(document).on('submit', '#rtd-search-form', function (ev) {
-      //ev.preventDefault();
-      query = $("#rtd-search-form input[name='q'").val()
-      getSearch(query)
-    }) // End on submit of search
 
     function getSearch(query) {
       get_data = {
