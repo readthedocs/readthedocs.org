@@ -88,14 +88,13 @@ $(document).ready(function () {
     function searchLanding() {
       // Highlight based on highlight GET arg
       var params = $.getQueryParameters();
-      console.log(params)
       var query = (params.highlight) ? params.highlight[0].split(/\s+/) : [];
       if (!query.length) {
         var query = (params.q) ? params.q[0].split(/\s+/) : [];
       }
       if (query.length) {
         query = query.join(" ")
-        console.log("Searching based on highlight for: " + query)
+        console.log("Searching based on GET arg for: " + query)
         getSearch(query)
       }
     }
@@ -137,7 +136,6 @@ $(document).ready(function () {
         title = hit.fields.title
         highlight = hit.highlight.content
         li = $(".wy-menu a:contains('" + title + "')")
-        console.log(li)
         li.append("<i style='position:absolute;right:30px;top:6px;' class='icon icon-flag'></i>")
         //li.append("<span class='result-count' style='position:absolute;right:30px;top:6px;'>" + 1 + "</span>")
         //li.append("<div style='display: none;' class='tooltip'>" + highlight + "</div>")
