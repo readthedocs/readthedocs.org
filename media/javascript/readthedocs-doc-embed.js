@@ -97,8 +97,8 @@ $(document).ready(function () {
 
       // Theme popout code
       $.ajax({
-        //url: "https://readthedocs.org/api/v2/search/",
-        url: "http://localhost:8000/api/v2/search/",
+        url: "https://readthedocs.org/api/v2/search/",
+        //url: "http://localhost:8000/api/v2/search/",
         crossDomain: true,
         xhrFields: {
           withCredentials: true,
