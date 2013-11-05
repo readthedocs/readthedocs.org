@@ -135,7 +135,7 @@ $(document).ready(function () {
         var title = hit.fields.title
         var highlight = hit.highlight.content
         var li = $(".wy-menu a:contains('" + title + "')")
-        li.append("<i style='position:absolute;right:30px;top:6px;' class='icon icon-flag'></i>")
+        li.append("<i style='position:absolute;right:30px;top:6px;' class='icon icon-search'></i>")
         //li.append("<span class='result-count' style='position:absolute;right:30px;top:6px;'>" + 1 + "</span>")
         //li.append("<div style='display: none;' class='tooltip'>" + highlight + "</div>")
       }
