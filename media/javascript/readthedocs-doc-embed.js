@@ -62,7 +62,9 @@ $(document).ready(function () {
         dataType: "script",
     });
 
-    searchLanding()
+    if (READTHEDOCS_DATA['theme'] == 'sphinx_rtd_theme') {
+      searchLanding()
+    }
 
     // Search
 
@@ -86,18 +88,16 @@ $(document).ready(function () {
 
 
     function searchLanding() {
-      if (READTHEDOCS_DATA['theme'] == 'sphinx_rtd_theme') {
-        // Highlight based on highlight GET arg
-        var params = $.getQueryParameters();
-        var query = (params.highlight) ? params.highlight[0].split(/\s+/) : [];
-        if (!query.length) {
-          var query = (params.q) ? params.q[0].split(/\s+/) : [];
-        }
-        if (query.length) {
-          query = query.join(" ")
-          console.log("Searching based on GET arg for: " + query)
-          getSearch(query)
-        }
+      // Highlight based on highlight GET arg
+      var params = $.getQueryParameters();
+      var query = (params.highlight) ? params.highlight[0].split(/\s+/) : [];
+      if (!query.length) {
+        var query = (params.q) ? params.q[0].split(/\s+/) : [];
+      }
+      if (query.length) {
+        query = query.join(" ")
+        console.log("Searching based on GET arg for: " + query)
+        getSearch(query)
       }
     }
 
