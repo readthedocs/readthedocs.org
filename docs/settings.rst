@@ -68,4 +68,4 @@ USE_PIP_INSTALL
 
 Default: `False`
 
-Whether to use `pip install .` or `python setup.py install` when installing packages into the Virtualenv. Default is to use pip.
+Whether to use `pip install .` or `python setup.py install` when installing packages into the Virtualenv. Default is to use `python setup.py install`.
