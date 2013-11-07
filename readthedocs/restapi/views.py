@@ -180,7 +180,7 @@ TEMPLATE = """
       </dl>
       {% endif %}
       <hr/>
-      Free document hosting provided by <a href="http://www.readthedocs.org">Read the Docs</a>.
+      Free document hosting provided by <a href="https://readthedocs.org">Read the Docs</a>.
 
   {% if not new_theme %}
     </div>
