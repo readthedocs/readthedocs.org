@@ -104,11 +104,11 @@
         {% set toctree = toctree(maxdepth=2, collapse=False) %}
         {% if not next and not prev %}
             <!-- Local TOC for single page -->
-            {{ toc }}
+            <div class="local-toc">{{ toc }}</div>
         {% elif toctree %}
             {{ toctree }}
         {% else %}
-            {{ toc }}
+          <div class="local-toc">{{ toc }}</div>
         {% endif %}
       </div>
       &nbsp;
