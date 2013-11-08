@@ -102,13 +102,11 @@
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix">
         {% set toctree = toctree(maxdepth=2, collapse=False) %}
-        {% if not next and not prev %}
-            <!-- Local TOC for single page -->
-            <div class="local-toc">{{ toc }}</div>
-        {% elif toctree %}
+        {% if toctree %}
             {{ toctree }}
         {% else %}
-          <div class="local-toc">{{ toc }}</div>
+            <!-- Local TOC -->
+            <div class="local-toc">{{ toc }}</div>
         {% endif %}
       </div>
       &nbsp;
