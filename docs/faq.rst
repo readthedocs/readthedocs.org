@@ -4,7 +4,7 @@ Frequently Asked Questions
 My project isn't building with autodoc
 --------------------------------------
 
-First, you should check out the Builds tab of your project. That records all of the build attempts that RTD has made to build your project. If you see ``ImportError`` messages for custom Python modules, you should enable the virtualenv feature in the Admin page of your project, which will install your project into a virtualenv, and allow you to specify a ``requirements.txt`` file for your project. 
+First, you should check out the Builds tab of your project. That records all of the build attempts that RTD has made to build your project. If you see ``ImportError`` messages for custom Python modules, you should enable the virtualenv feature in the Admin page of your project, which will install your project into a virtualenv, and allow you to specify a ``requirements.txt`` file for your project.
 
 If you are still seeing errors because of C library dependencies, please see the below section about that.
 
@@ -140,3 +140,22 @@ Do I need to be whitelisted?
 
 No. Whitelisting has been removed as a concept in Read the Docs. You should have access to all of the features already.
 
+Does Read The Docs work well with "legible" docstrings?
+--------------------------------------------------
+
+Yes. One criticism of Sphinx is that its annotated docstrings are too
+dense and difficult for humans to read. In response, many projects
+have adopted customized docstring styles that are simultaneously
+informative and legible. The
+`NumPy <https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt>`_
+and
+`Google <http://google-styleguide.googlecode.com/svn/trunk/pyguide.html?showone=Comments#Comments>`_
+styles are two popular docstring formats.  Fortunately, the default
+Read The Docs theme handles both formats just fine, provided
+your ``conf.py`` specifies an appropriate Sphinx extension that
+knows how to convert your customized docstrings.  Two such extensions
+are `numpydoc <https://github.com/numpy/numpydoc>`_ and
+`napoleon <http://sphinxcontrib-napoleon.readthedocs.org>`_. Only
+``napoleon`` is able to handle both docstring formats. Its default
+output more closely matches the format of standard Sphinx annotations,
+and as a result, it tends to look a bit better with the default theme.
