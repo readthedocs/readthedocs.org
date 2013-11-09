@@ -242,10 +242,10 @@ class PageIndex(Index):
                 'properties': {
                     'id': {'type': 'string', 'index': 'not_analyzed'},
                     'project': {'type': 'string', 'index': 'not_analyzed'},
-                    'title': {'type': 'string', 'analyzer': 'default_icu'},
-                    'headers': {'type': 'string', 'analyzer': 'default_icu'},
                     'version': {'type': 'string', 'index': 'not_analyzed'},
                     'path': {'type': 'string', 'index': 'not_analyzed'},
+                    'title': {'type': 'string', 'analyzer': 'default_icu'},
+                    'headers': {'type': 'string', 'analyzer': 'default_icu'},
                     'content': {'type': 'string', 'analyzer': 'default_icu'},
                 }
             }

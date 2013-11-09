@@ -272,11 +272,16 @@ def index_search(request):
     for page in page_list:
         log.debug("(API Index) %s:%s" % (project.slug, page['path']))
         page_scale = ret_json['scaled_page'].get(page['path'], 1)
-        page['_boost'] = page_scale + project_scale
-        page['project'] = project.slug
-        page['version'] = version.slug
-        page['id'] = hashlib.md5('%s-%s-%s' % (project.slug, version.slug, page['path'])).hexdigest()
-        index_list.append(page)
+        index_list.append({
+            'id': hashlib.md5('%s-%s-%s' % (project.slug, version.slug, page['path'])).hexdigest(),
+            'project': project.slug,
+            'version': version.slug,
+            'path': page['path'],
+            'title': page['title'],
+            'headers': page['headers'],
+            'content': page['content'],
+            '_boost': page_scale + project_scale,
+            })
         for section in page['sections']:
             section_index_list.append({
                 'id': hashlib.md5('%s-%s-%s-%s' % (project.slug, version.slug, page['path'], section['id'])).hexdigest(),
