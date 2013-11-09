@@ -189,9 +189,13 @@ def github_build(request):
 @csrf_view_exempt
 def bitbucket_build(request):
     if request.method == 'POST':
-        obj = json.loads(request.POST['payload'])
+        payload = request.POST.get('payload')
+        pc_log.info("(Incoming Bitbucket Build) Raw: %s" % payload)
+        if not payload:
+            return HttpResponseNotFound('Invalid Request')
+        obj = json.loads(payload)
         rep = obj['repository']
-        branches = [rec['branch'] for rec in obj['commits']]
+        branches = [rec.get('branch', '') for rec in obj['commits']]
         ghetto_url = "%s%s" % ("bitbucket.org",  rep['absolute_url'].rstrip('/'))
         pc_log.info("(Incoming Bitbucket Build) %s [%s]" % (ghetto_url, ' '.join(branches)))
         pc_log.info("(Incoming Bitbucket Build) JSON: \n\n%s\n\n" % obj)
@@ -199,7 +203,7 @@ def bitbucket_build(request):
             return _build_url(ghetto_url, branches)
         except NoProjectException:
             pc_log.error("(Incoming Bitbucket Build) Repo not found:  %s" % ghetto_url)
-            return HttpResponseNotFound('Repo not found' % ghetto_url)
+            return HttpResponseNotFound('Repo not found: %s' % ghetto_url)
 
 
 @csrf_view_exempt
