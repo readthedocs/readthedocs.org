@@ -156,6 +156,6 @@ your ``conf.py`` specifies an appropriate Sphinx extension that
 knows how to convert your customized docstrings.  Two such extensions
 are `numpydoc <https://github.com/numpy/numpydoc>`_ and
 `napoleon <http://sphinxcontrib-napoleon.readthedocs.org>`_. Only
-``napolean`` is able to handle both docstring formats. Its default
+``napoleon`` is able to handle both docstring formats. Its default
 output more closely matches the format of standard Sphinx annotations,
 and as a result, it tends to look a bit better with the default theme.
