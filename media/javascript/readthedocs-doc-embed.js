@@ -143,7 +143,9 @@ $(document).ready(function () {
         var content = $('.rst-content')
 
         ul.append('<li class="toctree-l1">' + title + '</li>')
-        content.html(hit.fields.content)
+        if (index == 0) {
+          content.html(hit.fields.content)
+        }
 
         //li.append("<i style='position:absolute;right:30px;top:6px;' class='icon icon-search result-icon'></i>")
         //li.append("<span class='result-count' style='position:absolute;right:30px;top:6px;'>" + 1 + "</span>")
