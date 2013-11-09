@@ -265,3 +265,44 @@ class PageIndex(Index):
         doc['_boost'] = data.get('_boost', 1.0)
 
         return doc
+
+class SectionIndex(Index):
+
+    _type = 'section'
+    _parent = 'page'
+
+    def get_mapping(self):
+        mapping = {
+            self._type: {
+                # Disable _all field to reduce index size.
+                '_all': {'enabled': False},
+                # Add a boost field to enhance relevancy of a document.
+                '_boost': {'name': '_boost', 'null_value': 1.0},
+                # Associate a page with a project.
+                '_parent': {'type': self._parent},
+                'properties': {
+                    'id': {'type': 'string', 'index': 'not_analyzed'},
+                    'project': {'type': 'string', 'index': 'not_analyzed'},
+                    'version': {'type': 'string', 'index': 'not_analyzed'},
+                    'path': {'type': 'string', 'index': 'not_analyzed'},
+                    'page_id': {'type': 'string', 'index': 'not_analyzed'},
+                    'title': {'type': 'string', 'analyzer': 'default_icu'},
+                    'content': {'type': 'string', 'analyzer': 'default_icu'},
+                }
+            }
+        }
+
+        return mapping
+
+    def extract_document(self, data):
+        doc = {}
+
+        attrs = ('id', 'project', 'title', 'page_id', 'version', 'path',
+                 'content')
+        for attr in attrs:
+            doc[attr] = data.get(attr, '')
+
+        # Add page boost.
+        doc['_boost'] = data.get('_boost', 1.0)
+
+        return doc

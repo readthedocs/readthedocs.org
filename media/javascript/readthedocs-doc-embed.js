@@ -18,8 +18,8 @@ $(document).ready(function () {
 
     // Theme popout code
     $.ajax({
-      url: "https://readthedocs.org/api/v2/footer_html/",
-      //url: "http://localhost:8000/api/v2/footer_html/",
+      //url: "https://readthedocs.org/api/v2/footer_html/",
+      url: "http://localhost:8000/api/v2/footer_html/",
       crossDomain: true,
       xhrFields: {
         withCredentials: true,
@@ -67,7 +67,7 @@ $(document).ready(function () {
 
     // Search
 
-    /*  Hide tooltip display for now
+    /*  Hide tooltip display for now */
     $(document).on({
       mouseenter: function(ev) {
           var tooltip = $(ev.target).next()
@@ -79,11 +79,12 @@ $(document).ready(function () {
       }
     }, '.result-count')
     $(document).on('submit', '#rtd-search-form', function (ev) {
-      //ev.preventDefault();
+      ev.preventDefault();
+      clearSearch()
       var query = $("#rtd-search-form input[name='q'").val()
       getSearch(query)
     }) 
-    */
+    /**/
 
     function searchLanding() {
       // Highlight based on highlight GET arg
@@ -107,10 +108,10 @@ $(document).ready(function () {
         q: query
       }
 
-      // Theme popout code
+      // Search results
       $.ajax({
-        url: "https://readthedocs.org/api/v2/search/",
-        //url: "http://localhost:8000/api/v2/search/",
+        //url: "https://readthedocs.org/api/v2/search/",
+        url: "http://localhost:8000/api/v2/search/section/",
         crossDomain: true,
         xhrFields: {
           withCredentials: true,
@@ -129,6 +130,8 @@ $(document).ready(function () {
     }
 
     function displaySearch(hits) {
+      var ul = $('.wy-menu-vertical > ul')
+      ul.empty()
       for (index in hits) {
         var hit = hits[index]
         var page = hit.fields.page
@@ -137,15 +140,19 @@ $(document).ready(function () {
         var li  = $(".wy-menu a").filter(function() {
             return $(this).text() === title;
         })
+        var content = $('.rst-content')
 
-        li.append("<i style='position:absolute;right:30px;top:6px;' class='icon icon-search'></i>")
+        ul.append('<li class="toctree-l1">' + title + '</li>')
+        content.html(hit.fields.content)
+
+        //li.append("<i style='position:absolute;right:30px;top:6px;' class='icon icon-search result-icon'></i>")
         //li.append("<span class='result-count' style='position:absolute;right:30px;top:6px;'>" + 1 + "</span>")
         //li.append("<div style='display: none;' class='tooltip'>" + highlight + "</div>")
       }
     }
 
     function clearSearch() {
-      $('.result-count').remove()
+      $('.result-icon').remove()
     }
 
 })

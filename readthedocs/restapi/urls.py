@@ -16,4 +16,5 @@ urlpatterns = patterns(
     url(r'index_search/', 'restapi.views.index_search', name='index_search'),
     url(r'search/$', 'restapi.views.search', name='search'),
     url(r'search/project/$', 'restapi.views.project_search', name='project_search'),
+    url(r'search/section/$', 'restapi.views.section_search', name='section_search'),
 )

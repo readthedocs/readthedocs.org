@@ -14,7 +14,7 @@ import requests
 from betterversion.better import version_windows, BetterVersion
 from builds.models import Version
 from djangome import views as djangome
-from search.indexes import PageIndex, ProjectIndex
+from search.indexes import PageIndex, ProjectIndex, SectionIndex
 from projects.models import Project, EmailHook
 
 from .serializers import ProjectSerializer
@@ -244,6 +244,7 @@ def quick_search(request):
 @decorators.renderer_classes((JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
 def index_search(request):
     page_obj = PageIndex()
+    section_obj = SectionIndex()
     data = request.DATA['data']
     page_list = data['page_list']
     project_pk = data['project_pk']
@@ -267,6 +268,7 @@ def index_search(request):
     })
 
     index_list = []
+    section_index_list = []
     for page in page_list:
         log.debug("(API Index) %s:%s" % (project.slug, page['path']))
         page_scale = ret_json['scaled_page'].get(page['path'], 1)
@@ -275,6 +277,19 @@ def index_search(request):
         page['version'] = version.slug
         page['id'] = hashlib.md5('%s-%s-%s' % (project.slug, version.slug, page['path'])).hexdigest()
         index_list.append(page)
+        for section in page['sections']:
+            section_index_list.append({
+                'id': hashlib.md5('%s-%s-%s-%s' % (project.slug, version.slug, page['path'], section['id'])).hexdigest(),
+                'project': project.slug,
+                'version': version.slug,
+                'path': page['path'],
+                'page_id': section['id'],
+                'title': section['title'],
+                'content': section['content'],
+                '_boost': page_scale,
+            })
+        section_obj.bulk_index(section_index_list, parent=page['id'])
+
     page_obj.bulk_index(index_list, parent=project_pk)
     return Response({'indexed': True})
 
@@ -298,10 +313,6 @@ def search(request):
                     {"match": {"content": {"query": query}}},
                 ]
             }
-        },
-        "facets": {
-            "path": {
-                "terms": {"field": "path"}}
         },
         "highlight": {
             "fields": {
@@ -338,7 +349,7 @@ def search(request):
 def project_search(request):
     query = request.GET.get('q', None)
 
-    log.debug("(Project API Search) %s" % (query))
+    log.debug("(API Project Search) %s" % (query))
     body = {
         "query": {
             "bool": {
@@ -351,5 +362,53 @@ def project_search(request):
         "fields": ["name", "slug", "description", "lang"]
     }
     results = ProjectIndex().search(body)
+
+    return Response({'results': results})
+
+@decorators.api_view(['GET'])
+@decorators.permission_classes((permissions.AllowAny,))
+@decorators.renderer_classes((JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
+def section_search(request):
+    project_slug = request.GET.get('project', None)
+    version_slug = request.GET.get('version', 'latest')
+    query = request.GET.get('q', None)
+    log.debug("(API Section Search) %s" % query)
+
+    kwargs = {}
+    body = {
+        "query": {
+            "bool": {
+                "should": [
+                    {"match": {"title": {"query": query, "boost": 10}}},
+                    {"match": {"content": {"query": query}}},
+                ]
+            }
+        },
+        "facets": {
+            "path": {
+                "terms": {"field": "path"}}
+        },
+        "highlight": {
+            "fields": {
+                "title": {},
+                "content": {},
+            }
+        },
+        "fields": ["title", "project", "version", "path", "content"],
+        "size": 50  # TODO: Support pagination.
+    }
+
+    if project_slug:
+        # Get the project ID to add the Elasticsearch routing key.
+        # TODO: Update index to route on slug to avoid this db hit.
+        project = get_object_or_404(Project, slug=project_slug)
+        body['filter'] = {
+            "and": [
+                {"term": {"project": project.slug}},
+                {"term": {"version": version_slug}},
+            ]
+        }
+
+    results = SectionIndex().search(body, **kwargs)
 
     return Response({'results': results})

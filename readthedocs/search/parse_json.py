@@ -39,6 +39,7 @@ def process_file(filename):
         return
     data = json.loads(file_contents)
     headers = []
+    sections = []
     content = ''
     title = ''
     if 'current_page_name' in data:
@@ -52,7 +53,21 @@ def process_file(filename):
         if None in headers:
             log.error('Unable to index file headers for: %s' % filename)
     if 'body' in data:
-        content = PyQuery(data['body']).text().replace(u'¶', '')
+        body = PyQuery(data['body'])
+        content = body.text().replace(u'¶', '')
+        # Section stuff from inside the body
+        section_list = body('.section')
+        for num in range(len(section_list)):
+            section_id = section_list.eq(num).attr('id')
+            title = section_list.eq(num).find(':header').eq(0).text().replace(u'¶', '')
+            content = section_list.eq(num).html()
+            sections.append({
+                'id': section_id,
+                'title': title,
+                'content': content,
+            })
+            log.debug("(Search Index) Section [%s:%s]: %s" % (section_id, title, content))
+
     else:
         log.error('Unable to index content for: %s' % filename)
     if 'title' in data:
@@ -63,7 +78,7 @@ def process_file(filename):
         log.error('Unable to index title for: %s' % filename)
 
     return {'headers': headers, 'content': content, 'path': path,
-            'title': title}
+            'title': title, 'sections': sections}
 
 def recurse_while_none(element):
     if element.text is None:
