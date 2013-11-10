@@ -295,9 +295,9 @@ def index_search(request):
                 '_boost': page_scale,
             })
         section_obj.bulk_index(section_index_list, parent=page_id,
-                               routing=project_pk)
+                               routing=project.slug)
 
-    page_obj.bulk_index(index_list, parent=project_pk)
+    page_obj.bulk_index(index_list, parent=project.slug)
     return Response({'indexed': True})
 
 
@@ -333,17 +333,14 @@ def search(request):
     }
 
     if project_slug:
-        # Get the project ID to add the Elasticsearch routing key.
-        # TODO: Update index to route on slug to avoid this db hit.
-        project = get_object_or_404(Project, slug=project_slug)
         body['filter'] = {
             "and": [
-                {"term": {"project": project.slug}},
+                {"term": {"project": project_slug}},
                 {"term": {"version": version_slug}},
             ]
         }
         # Add routing to optimize search by hitting the right shard.
-        kwargs['routing'] = project.pk
+        kwargs['routing'] = project_slug
 
     results = PageIndex().search(body, **kwargs)
 
@@ -406,17 +403,14 @@ def section_search(request):
     }
 
     if project_slug:
-        # Get the project ID to add the Elasticsearch routing key.
-        # TODO: Update index to route on slug to avoid this db hit.
-        project = get_object_or_404(Project, slug=project_slug)
         body['filter'] = {
             "and": [
-                {"term": {"project": project.slug}},
+                {"term": {"project": project_slug}},
                 {"term": {"version": version_slug}},
             ]
         }
         # Add routing to optimize search by hitting the right shard.
-        kwargs['routing'] = project.pk
+        kwargs['routing'] = project_slug
 
     results = SectionIndex().search(body, **kwargs)
 
