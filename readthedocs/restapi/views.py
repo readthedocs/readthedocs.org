@@ -415,6 +415,8 @@ def section_search(request):
                 {"term": {"version": version_slug}},
             ]
         }
+        # Add routing to optimize search by hitting the right shard.
+        kwargs['routing'] = project.pk
 
     results = SectionIndex().search(body, **kwargs)
 
