@@ -79,7 +79,7 @@ $(document).ready(function () {
       }
     }, '.result-count')
     $(document).on('submit', '#rtd-search-form', function (ev) {
-      ev.preventDefault();
+      //ev.preventDefault();
       clearSearch()
       var query = $("#rtd-search-form input[name='q'").val()
       getSearch(query)
@@ -153,6 +153,7 @@ $(document).ready(function () {
         var title = hit.fields.title
         var content = hit.fields.content
         var highlight = hit.highlight.content
+        var score = hit._score
 
         var li = $(".toctree-l1 > a[href^='" + path + "']")
         var ul = li.next()
@@ -161,7 +162,8 @@ $(document).ready(function () {
 
         // Display content for first result
         if (index == 0) {
-          displayContent(content)
+          // Don't display content for now, so we show sphinx results
+          //displayContent(content)
         }
 
         // Clear out subheading with result content
@@ -176,8 +178,11 @@ $(document).ready(function () {
         // Dedupe
         if (!FIRSTRUN[path+title]) {
           ul.append('<li class="toctree-l2">' + '<a class="reference internal search-result" href="' + pageId + '">' + title + '</a>' + '<span style="display: none;" class="data">' + content + '</span>' + '</li>')
-          //inserted = $('.toctree-l2 > a[href="' + pageId + '"]')
-          //inserted.append("<span class='result-count' style='position:absolute;right:30px;top:6px;'>" + index + "</span>")
+          if (score > 1) {
+            $(".toctree-l2 ")
+            inserted = $('.toctree-l2 > a[href="' + pageId + '"]')
+            inserted.append("<i style='position:absolute;right:30px;top:6px;' class='icon icon-fire'></i>")
+          }
           FIRSTRUN[path+title] = true
         }
 
@@ -206,7 +211,6 @@ $(document).ready(function () {
         var el = $(el)
         el.show()
         el.parent().show()
-        el.next().empty()
       })
 
     }
