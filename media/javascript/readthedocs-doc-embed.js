@@ -142,7 +142,7 @@ $(document).ready(function () {
 
     function displaySearch(hits) {
       var ul = $('.wy-menu-vertical > ul')
-      //ul.empty()
+      ul.empty()
       for (index in hits) {
         var hit = hits[index]
         var page = hit.fields.page
@@ -155,22 +155,17 @@ $(document).ready(function () {
             return $(this).text() === title;
         })
 
-        li.empty()
-        console.log(li)
-
-        li.addClass('current')
-        li.append("<i style='position:absolute;right:30px;top:6px;' class='icon icon-search result-icon'></i>")
-        li.append("<span class='result-count' style='position:absolute;right:30px;top:6px;'>" + 1 + "</span>")
-
-        li.append('<li class="toctree-l2">')
-        li.append('<a class="search-result" href="' + pageId + '">' + title + '</a>')
-        li.append('<span style="display: none;" class="data">' + content + '</span>')
-        li.append('</li>')
+        ul.append('<li class="toctree-l1">')
+        ul.append('<a class="search-result" href="' + pageId + '">' + title + '</a>')
+        ul.append('<span style="display: none;" class="data">' + content + '</span>')
+        ul.append('</li>')
 
         if (index == 0) {
           displayContent(content)
         }
 
+        //li.append("<i style='position:absolute;right:30px;top:6px;' class='icon icon-search result-icon'></i>")
+        //li.append("<span class='result-count' style='position:absolute;right:30px;top:6px;'>" + 1 + "</span>")
         //li.append("<div style='display: none;' class='tooltip'>" + highlight + "</div>")
       }
     }
