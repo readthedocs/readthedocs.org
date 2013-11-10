@@ -84,6 +84,12 @@ $(document).ready(function () {
       var query = $("#rtd-search-form input[name='q'").val()
       getSearch(query)
     }) 
+    $(document).on('click', '.search-result', function (ev) {
+      ev.preventDefault();
+      console.log(ev.target)
+      html = $(ev.target).next().html()
+      displayContent(html);
+    }) 
     /**/
 
     function searchLanding() {
@@ -129,26 +135,42 @@ $(document).ready(function () {
       });
     }
 
+    function displayContent(html) {
+        var content = $('.rst-content')
+        content.html(html)
+    }
+
     function displaySearch(hits) {
       var ul = $('.wy-menu-vertical > ul')
-      ul.empty()
+      //ul.empty()
       for (index in hits) {
         var hit = hits[index]
         var page = hit.fields.page
+        var pageId = hit.fields.page_id
         var title = hit.fields.title
+        var content = hit.fields.content
         var highlight = hit.highlight.content
+
         var li  = $(".wy-menu a").filter(function() {
             return $(this).text() === title;
         })
-        var content = $('.rst-content')
 
-        ul.append('<li class="toctree-l1">' + title + '</li>')
+        li.empty()
+        console.log(li)
+
+        li.addClass('current')
+        li.append("<i style='position:absolute;right:30px;top:6px;' class='icon icon-search result-icon'></i>")
+        li.append("<span class='result-count' style='position:absolute;right:30px;top:6px;'>" + 1 + "</span>")
+
+        li.append('<li class="toctree-l2">')
+        li.append('<a class="search-result" href="' + pageId + '">' + title + '</a>')
+        li.append('<span style="display: none;" class="data">' + content + '</span>')
+        li.append('</li>')
+
         if (index == 0) {
-          content.html(hit.fields.content)
+          displayContent(content)
         }
 
-        //li.append("<i style='position:absolute;right:30px;top:6px;' class='icon icon-search result-icon'></i>")
-        //li.append("<span class='result-count' style='position:absolute;right:30px;top:6px;'>" + 1 + "</span>")
         //li.append("<div style='display: none;' class='tooltip'>" + highlight + "</div>")
       }
     }
