@@ -109,7 +109,8 @@ class Index(object):
         index = index or self._index
         self.es.indices.put_mapping(index, self._type, self.get_mapping())
 
-    def bulk_index(self, data, index=None, chunk_size=500, parent=None):
+    def bulk_index(self, data, index=None, chunk_size=500, parent=None,
+                   routing=None):
         """
         Given a list of documents, uses Elasticsearch bulk indexing.
 
@@ -131,15 +132,25 @@ class Index(object):
             }
             if parent:
                 doc['_parent'] = parent
+            if routing:
+                doc['_routing'] = routing
             docs.append(doc)
 
         bulk_index(self.es, docs, chunk_size=chunk_size)
 
-    def index_document(self, data, index=None, parent=None):
-        index = index or self._index
+    def index_document(self, data, index=None, parent=None, routing=None):
         doc = self.extract_document(data)
-        self.es.index(index=index, doc_type=self._type, body=doc, id=doc['id'],
-                      parent=parent)
+        kwargs = {
+            'index': index or self._index,
+            'doc_type': self._type,
+            'body': doc,
+            'id': doc['id']
+        }
+        if parent:
+            kwargs['parent'] = parent
+        if routing:
+            kwargs['routing'] = routing
+        self.es.index(**kwargs)
 
     def get_mapping(self):
         """
@@ -278,7 +289,7 @@ class SectionIndex(Index):
                 '_all': {'enabled': False},
                 # Add a boost field to enhance relevancy of a document.
                 '_boost': {'name': '_boost', 'null_value': 1.0},
-                # Associate a page with a project.
+                # Associate a section with a page.
                 '_parent': {'type': self._parent},
                 'properties': {
                     'id': {'type': 'string', 'index': 'not_analyzed'},

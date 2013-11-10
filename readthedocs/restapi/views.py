@@ -294,7 +294,8 @@ def index_search(request):
                 'content': section['content'],
                 '_boost': page_scale,
             })
-        section_obj.bulk_index(section_index_list, parent=page_id)
+        section_obj.bulk_index(section_index_list, parent=page_id,
+                               routing=project_pk)
 
     page_obj.bulk_index(index_list, parent=project_pk)
     return Response({'indexed': True})
