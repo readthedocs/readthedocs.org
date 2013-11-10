@@ -12,7 +12,7 @@ $(document).ready(function () {
       get_data['docroot'] = READTHEDOCS_DATA['docroot']
     }
 
-    if (window.location.pathname.match((/^\/projects/))) {
+    if (window.location.pathname.indexOf('/projects/') == 0) {
       get_data['subproject'] = true
     }
 
