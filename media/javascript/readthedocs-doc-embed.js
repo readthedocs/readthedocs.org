@@ -141,31 +141,43 @@ $(document).ready(function () {
     }
 
     function displaySearch(hits) {
-      var ul = $('.wy-menu-vertical > ul')
-      ul.empty()
+      FIRSTRUN = {}
       for (index in hits) {
         var hit = hits[index]
-        var page = hit.fields.page
+        var path = hit.fields.path
         var pageId = hit.fields.page_id
         var title = hit.fields.title
         var content = hit.fields.content
         var highlight = hit.highlight.content
 
-        var li  = $(".wy-menu a").filter(function() {
-            return $(this).text() === title;
-        })
+        var li = $(".toctree-l1 > a[href^='" + path + "']")
+        var ul = li.next()
 
-        ul.append('<li class="toctree-l1">')
-        ul.append('<a class="search-result" href="' + pageId + '">' + title + '</a>')
-        ul.append('<span style="display: none;" class="data">' + content + '</span>')
-        ul.append('</li>')
+        console.log(path)
 
+        // Display content for first result
         if (index == 0) {
           displayContent(content)
         }
 
-        //li.append("<i style='position:absolute;right:30px;top:6px;' class='icon icon-search result-icon'></i>")
-        //li.append("<span class='result-count' style='position:absolute;right:30px;top:6px;'>" + 1 + "</span>")
+        // Clear out subheading with result content
+        if (!FIRSTRUN[path]) {
+          li.parent().addClass("current")
+          li.append("<i style='position:absolute;right:30px;top:6px;' class='icon icon-search result-icon'></i>")
+          ul.empty()
+          FIRSTRUN[path] = true
+        }
+
+        // Dedupe
+        if (!FIRSTRUN[path+title]) {
+          ul.append('<li class="toctree-l2">' + '<a class="reference internal search-result" href="' + pageId + '">' + title + '</a>' + '<span style="display: none;" class="data">' + content + '</span>' + '</li>')
+          //inserted = $('.toctree-l2 > a[href="' + pageId + '"]')
+          //inserted.append("<span class='result-count' style='position:absolute;right:30px;top:6px;'>" + index + "</span>")
+          FIRSTRUN[path+title] = true
+        }
+
+
+
         //li.append("<div style='display: none;' class='tooltip'>" + highlight + "</div>")
       }
     }
