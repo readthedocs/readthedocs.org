@@ -162,6 +162,7 @@ $(document).ready(function () {
 
         // Clear out subheading with result content
         if (!FIRSTRUN[path]) {
+          li.show()
           li.parent().addClass("current")
           li.append("<i style='position:absolute;right:30px;top:6px;' class='icon icon-search result-icon'></i>")
           ul.empty()
@@ -180,6 +181,20 @@ $(document).ready(function () {
 
         //li.append("<div style='display: none;' class='tooltip'>" + highlight + "</div>")
       }
+      $.each($(".toctree-l1 > a"), function (index, el) {
+          hide = true
+          for (key in FIRSTRUN) {
+              if ($(el).attr('href').indexOf(key) == 0) {
+                hide = false
+              }
+          }
+          if (hide) {
+            console.log("Hiding " + el)
+            $(el).hide()
+          }
+
+      })
+
     }
 
     function clearSearch() {
