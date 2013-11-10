@@ -184,6 +184,11 @@ $(document).ready(function () {
 
     function clearSearch() {
       $('.result-icon').remove()
+      $.each($(".toctree-l1 > a"), function (index, el) {
+        var el = $(el)
+        el.parent().removeClass('current')
+        el.next().empty()
+      })
     }
 
 })
