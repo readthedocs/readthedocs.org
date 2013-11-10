@@ -127,7 +127,11 @@ $(document).ready(function () {
         success: function (data) {
           clearSearch()
           hits = data.results.hits.hits
-          displaySearch(hits)
+          if (!hits.length) {
+            resetState()
+          } else {
+            displaySearch(hits)
+          }
         },
         error: function () {
             console.log('Error searching')
@@ -197,6 +201,15 @@ $(document).ready(function () {
 
     }
 
+    function resetState() {
+      $.each($(".toctree-l1 > a"), function (index, el) {
+        var el = $(el)
+        el.show()
+        el.parent().show()
+        el.next().empty()
+      })
+
+    }
     function clearSearch() {
       $('.result-icon').remove()
       $.each($(".toctree-l1 > a"), function (index, el) {
