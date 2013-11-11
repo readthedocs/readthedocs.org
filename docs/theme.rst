@@ -31,7 +31,7 @@ depth when it renders.
 Other style notes
 -----------------
 
-* As a responsive style, your should not set a height and width to your images.
+* As a responsive style, you should not set a height and width to your images.
 * Wide tables will add a horizontal scroll bar to maintain the responsive layout.
 
 .. _github here: https://www.github.com/snide/sphinx_rtd_theme
