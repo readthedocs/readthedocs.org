@@ -56,11 +56,13 @@ def process_file(filename):
         body = PyQuery(data['body'])
         content = body.text().replace(u'¶', '')
         # Section stuff from inside the body
-        section_list = body('.section')
+        section_list = body('.section > h2')
         for num in range(len(section_list)):
-            section_id = section_list.eq(num).attr('id')
-            title = section_list.eq(num).find(':header').eq(0).text().replace(u'¶', '')
-            content = section_list.eq(num).html()
+            div = section_list.eq(num).parent()
+            header = section_list.eq(num)
+            title = header.text().replace(u'¶', '').strip()
+            section_id = div.attr('id')
+            content = div.html()
             sections.append({
                 'id': section_id,
                 'title': title,
