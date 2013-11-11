@@ -12,7 +12,7 @@ $(document).ready(function () {
       get_data['docroot'] = READTHEDOCS_DATA['docroot']
     }
 
-    if (window.location.pathname.match((/^\/projects/))) {
+    if (window.location.pathname.indexOf('/projects/') == 0) {
       get_data['subproject'] = true
     }
 
@@ -67,7 +67,7 @@ $(document).ready(function () {
 
     // Search
 
-    /*  Hide tooltip display for now
+    /*  Hide tooltip display for now */
     $(document).on({
       mouseenter: function(ev) {
           var tooltip = $(ev.target).next()
@@ -80,10 +80,17 @@ $(document).ready(function () {
     }, '.result-count')
     $(document).on('submit', '#rtd-search-form', function (ev) {
       //ev.preventDefault();
+      clearSearch()
       var query = $("#rtd-search-form input[name='q'").val()
       getSearch(query)
     }) 
-    */
+    $(document).on('click', '.search-result', function (ev) {
+      ev.preventDefault();
+      console.log(ev.target)
+      html = $(ev.target).next().html()
+      displayContent(html);
+    }) 
+    /**/
 
     function searchLanding() {
       // Highlight based on highlight GET arg
@@ -107,10 +114,10 @@ $(document).ready(function () {
         q: query
       }
 
-      // Theme popout code
+      // Search results
       $.ajax({
-        url: "https://readthedocs.org/api/v2/search/",
-        //url: "http://localhost:8000/api/v2/search/",
+        url: "https://readthedocs.org/api/v2/search/section/",
+        //url: "http://localhost:8000/api/v2/search/section/",
         crossDomain: true,
         xhrFields: {
           withCredentials: true,
@@ -120,7 +127,11 @@ $(document).ready(function () {
         success: function (data) {
           clearSearch()
           hits = data.results.hits.hits
-          displaySearch(hits)
+          if (!hits.length) {
+            resetState()
+          } else {
+            displaySearch(hits)
+          }
         },
         error: function () {
             console.log('Error searching')
@@ -128,24 +139,88 @@ $(document).ready(function () {
       });
     }
 
-    function displaySearch(hits) {
-      for (index in hits) {
-        var hit = hits[index]
-        var page = hit.fields.page
-        var title = hit.fields.title
-        var highlight = hit.highlight.content
-        var li  = $(".wy-menu a").filter(function() {
-            return $(this).text() === title;
-        })
-
-        li.append("<i style='position:absolute;right:30px;top:6px;' class='icon icon-search'></i>")
-        //li.append("<span class='result-count' style='position:absolute;right:30px;top:6px;'>" + 1 + "</span>")
-        //li.append("<div style='display: none;' class='tooltip'>" + highlight + "</div>")
-      }
+    function displayContent(html) {
+        var content = $('.rst-content')
+        content.html(html)
     }
 
+    function displaySearch(hits) {
+      FIRSTRUN = {}
+      for (index in hits) {
+        var hit = hits[index]
+        var path = hit.fields.path
+        var pageId = hit.fields.page_id
+        var title = hit.fields.title
+        var content = hit.fields.content
+        var highlight = hit.highlight.content
+        var score = hit._score
+
+        var li = $(".toctree-l1 > a[href^='" + path + "']")
+        var ul = li.next()
+
+        console.log(path)
+
+        // Display content for first result
+        if (index == 0) {
+          // Don't display content for now, so we show sphinx results
+          //displayContent(content)
+        }
+
+        // Clear out subheading with result content
+        if (!FIRSTRUN[path]) {
+          li.show()
+          li.parent().addClass("current")
+          li.append("<i style='position:absolute;right:30px;top:6px;' class='icon icon-search result-icon'></i>")
+          ul.empty()
+          FIRSTRUN[path] = true
+        }
+
+        // Dedupe
+        if (!FIRSTRUN[path+title]) {
+          ul.append('<li class="toctree-l2">' + '<a class="reference internal search-result" href="' + pageId + '">' + title + '</a>' + '<span style="display: none;" class="data">' + content + '</span>' + '</li>')
+          if (score > 1) {
+            $(".toctree-l2 ")
+            inserted = $('.toctree-l2 > a[href="' + pageId + '"]')
+            inserted.append("<i style='position:absolute;right:30px;top:6px;' class='icon icon-fire'></i>")
+          }
+          FIRSTRUN[path+title] = true
+        }
+
+
+
+        //li.append("<div style='display: none;' class='tooltip'>" + highlight + "</div>")
+      }
+      $.each($(".toctree-l1 > a"), function (index, el) {
+          hide = true
+          for (key in FIRSTRUN) {
+              if ($(el).attr('href').indexOf(key) == 0) {
+                hide = false
+              }
+          }
+          if (hide) {
+            console.log("Hiding " + el)
+            $(el).hide()
+          }
+
+      })
+
+    }
+
+    function resetState() {
+      $.each($(".toctree-l1 > a"), function (index, el) {
+        var el = $(el)
+        el.show()
+        el.parent().show()
+      })
+
+    }
     function clearSearch() {
-      $('.result-count').remove()
+      $('.result-icon').remove()
+      $.each($(".toctree-l1 > a"), function (index, el) {
+        var el = $(el)
+        el.parent().removeClass('current')
+        el.next().empty()
+      })
     }
 
 })
