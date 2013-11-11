@@ -54,7 +54,7 @@ def process_file(filename):
             log.error('Unable to index file headers for: %s' % filename)
     if 'body' in data:
         body = PyQuery(data['body'])
-        content = body.text().replace(u'¶', '')
+        body_content = body.text().replace(u'¶', '')
         # Section stuff from inside the body
         section_list = body('.section > h2')
         for num in range(len(section_list)):
@@ -79,7 +79,7 @@ def process_file(filename):
     else:
         log.error('Unable to index title for: %s' % filename)
 
-    return {'headers': headers, 'content': content, 'path': path,
+    return {'headers': headers, 'content': body_content, 'path': path,
             'title': title, 'sections': sections}
 
 def recurse_while_none(element):
