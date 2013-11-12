@@ -13,8 +13,12 @@ in short, the theme aims to solve the limitations of Sphinx's default navigation
 where only a small portion of your docs were accessible in the sidebar. Our theme is also
 meant to work well on mobile and tablet devices.
 
+Contributing to the theme
+-------------------------
 If you have issues or feedback, please `open an issue`_ on the theme's GitHub repository
-which itself is a submodule within the larger RTD codebase.
+which itself is a submodule within the larger RTD codebase. That means any changes to the
+theme or the Read the Docs badge styling should be made there. The code is separate so that
+it can be used independent of Read the Docs as a regular Sphinx theme.
 
 How the Table of Contents builds
 --------------------------------
