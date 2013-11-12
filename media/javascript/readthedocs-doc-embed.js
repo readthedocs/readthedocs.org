@@ -18,8 +18,8 @@ $(document).ready(function () {
 
     // Theme popout code
     $.ajax({
-      url: "https://readthedocs.org/api/v2/footer_html/",
-      //url: "http://localhost:8000/api/v2/footer_html/",
+      //url: "https://readthedocs.org/api/v2/footer_html/",
+      url: "http://localhost:8000/api/v2/footer_html/",
       crossDomain: true,
       xhrFields: {
         withCredentials: true,
@@ -67,7 +67,6 @@ $(document).ready(function () {
 
     // Search
 
-    /*  Hide tooltip display for now */
     $(document).on({
       mouseenter: function(ev) {
           var tooltip = $(ev.target).next()
@@ -78,35 +77,42 @@ $(document).ready(function () {
           tooltip.hide()
       }
     }, '.result-count')
+
     $(document).on('submit', '#rtd-search-form', function (ev) {
       //ev.preventDefault();
       clearSearch()
       var query = $("#rtd-search-form input[name='q'").val()
-      getSearch(query)
+      getSearch(query, true)
     }) 
+
     $(document).on('click', '.search-result', function (ev) {
       ev.preventDefault();
       console.log(ev.target)
       html = $(ev.target).next().html()
       displayContent(html);
     }) 
-    /**/
 
     function searchLanding() {
       // Highlight based on highlight GET arg
       var params = $.getQueryParameters();
-      var query = (params.highlight) ? params.highlight[0].split(/\s+/) : [];
+      var query = (params.q) ? params.q[0].split(/\s+/) : [];
+      var clear = true
+      /* Don't "search" on highlight phrases 
       if (!query.length) {
-        var query = (params.q) ? params.q[0].split(/\s+/) : [];
+        // Only clear on q
+        clear = false
+        var query = (params.highlight) ? params.highlight[0].split(/\s+/) : [];
       }
+      */
       if (query.length) {
         query = query.join(" ")
         console.log("Searching based on GET arg for: " + query)
-        getSearch(query)
+        $("#rtd-search-form input[name='q'").val(query)
+        getSearch(query, clear)
       }
     }
 
-    function getSearch(query) {
+    function getSearch(query, clear) {
       var get_data = {
         project: READTHEDOCS_DATA['project'],
         version: READTHEDOCS_DATA['version'],
@@ -116,8 +122,8 @@ $(document).ready(function () {
 
       // Search results
       $.ajax({
-        url: "https://readthedocs.org/api/v2/search/section/",
-        //url: "http://localhost:8000/api/v2/search/section/",
+        //url: "https://readthedocs.org/api/v2/search/section/",
+        url: "http://localhost:8000/api/v2/search/section/",
         crossDomain: true,
         xhrFields: {
           withCredentials: true,
@@ -125,12 +131,12 @@ $(document).ready(function () {
         dataType: "jsonp",
         data: get_data,
         success: function (data) {
-          clearSearch()
+          clearSearch(clear)
           hits = data.results.hits.hits
           if (!hits.length) {
             resetState()
           } else {
-            displaySearch(hits)
+            displaySearch(hits, query)
           }
         },
         error: function () {
@@ -144,8 +150,9 @@ $(document).ready(function () {
         content.html(html)
     }
 
-    function displaySearch(hits) {
+    function displaySearch(hits, query) {
       FIRSTRUN = {}
+      current = $(".toctree-l1.current > a")
       for (index in hits) {
         var hit = hits[index]
         var path = hit.fields.path
@@ -156,6 +163,17 @@ $(document).ready(function () {
         var score = hit._score
 
         var li = $(".toctree-l1 > a[href^='" + path + "']")
+
+        /*
+        // This doesn't work :)
+        if (!li.length && $(current.next().children()[0]).text() == title) {
+            li = current
+            console.log("Current page: " + title)
+        } else {
+          console.log("Not: " + title)
+        }
+        */
+
         var ul = li.next()
 
         console.log(path)
@@ -169,6 +187,7 @@ $(document).ready(function () {
         // Clear out subheading with result content
         if (!FIRSTRUN[path]) {
           li.show()
+          li.attr("href", li.attr('href') + "?highlight=" + query)
           li.parent().addClass("current")
           li.append("<i style='position:absolute;right:30px;top:6px;' class='icon icon-search result-icon'></i>")
           ul.empty()
@@ -177,21 +196,22 @@ $(document).ready(function () {
 
         // Dedupe
         if (!FIRSTRUN[path+title]) {
-          ul.append('<li class="toctree-l2">' + '<a class="reference internal search-result" href="' + pageId + '">' + title + '</a>' + '<span style="display: none;" class="data">' + content + '</span>' + '</li>')
+          ul.append('<li class="toctree-l2">' + '<a class="reference internal search-result" pageId="' + pageId + '">' + title + '</a>' + '<span style="display: none;" class="data">' + content + '</span>' + '</li>')
           if (score > 1) {
             $(".toctree-l2 ")
-            inserted = $('.toctree-l2 > a[href="' + pageId + '"]')
+            inserted = $('.toctree-l2 > [pageId="' + pageId + '"]')
             inserted.append("<i style='position:absolute;right:30px;top:6px;' class='icon icon-fire'></i>")
           }
           FIRSTRUN[path+title] = true
         }
-
-
-
-        //li.append("<div style='display: none;' class='tooltip'>" + highlight + "</div>")
       }
+      // Hide non-showing bits
       $.each($(".toctree-l1 > a"), function (index, el) {
           hide = true
+          if ($(el).attr('href') == "") {
+              // Current page
+              hide = false
+          }
           for (key in FIRSTRUN) {
               if ($(el).attr('href').indexOf(key) == 0) {
                 hide = false
@@ -214,12 +234,15 @@ $(document).ready(function () {
       })
 
     }
-    function clearSearch() {
+    function clearSearch(empty) {
       $('.result-icon').remove()
       $.each($(".toctree-l1 > a"), function (index, el) {
         var el = $(el)
-        el.parent().removeClass('current')
-        el.next().empty()
+        if (empty) {
+          console.log('Clearing ' + el.next())
+          el.parent().removeClass('current')
+          el.next().empty()
+        }
       })
     }
 

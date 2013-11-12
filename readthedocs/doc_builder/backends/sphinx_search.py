@@ -1,10 +1,15 @@
 import logging
+import shutil
 import os
 
+from django.conf import settings
+
+from core.utils import copy_to_app_servers
 from doc_builder.base import restoring_chdir
 from doc_builder.backends.sphinx import Builder as HtmlBuilder
 from projects.utils import run
 from search.parse_json import process_all_json_files
+
 from tastyapi import apiv2
 
 log = logging.getLogger(__name__)
@@ -36,3 +41,22 @@ class Builder(HtmlBuilder):
         log_msg = ' '.join([page['path'] for page in page_list])
         log.info("(Search Index) Sending Data: %s [%s]" % (self.version.project.slug, log_msg))
         apiv2.index_search.post({'data': data})
+
+    def move(self, **kwargs):
+        project = self.version.project
+        if project.full_build_path(self.version.slug):
+            #Copy the html files.
+            to_path = os.path.join(settings.MEDIA_ROOT, 'json', project.slug,
+                       self.version.slug)
+            if getattr(settings, "MULTIPLE_APP_SERVERS", None):
+                log.info("Copying json to remote server.")
+                copy_to_app_servers(
+                    project.full_json_path(self.version.slug), to_path)
+            else:
+                if os.path.exists(to_path):
+                    shutil.rmtree(to_path)
+                log.info("Copying json on the local filesystem")
+                shutil.copytree(
+                    project.full_json_path(self.version.slug), to_path)
+        else:
+            log.warning("Not moving json, because the build dir is unknown.")

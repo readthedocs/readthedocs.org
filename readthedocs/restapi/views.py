@@ -399,7 +399,7 @@ def section_search(request):
             }
         },
         "fields": ["title", "project", "version", "path", "page_id", "content"],
-        "size": 8  # TODO: Support pagination.
+        "size": 10  # TODO: Support pagination.
     }
 
     if project_slug:
