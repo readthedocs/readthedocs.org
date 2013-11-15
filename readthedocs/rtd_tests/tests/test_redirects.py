@@ -85,7 +85,7 @@ class RedirectTests(TestCase):
                           'http://testserver/docs/pip/en/latest/test.html')
 
     # When there's only a version slug, the redirect prepends the lang slug
-    def test_version_slug_only_prepend_lang(self):
+    def test_proper_subdomain_with_version_slug_only(self):
         r = self.client.get('/1.4.1/', HTTP_HOST='pip.readthedocs.org')
         self.assertEqual(r.status_code, 302)
         self.assertEqual(r['Location'],
