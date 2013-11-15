@@ -52,6 +52,20 @@ class RedirectTests(TestCase):
         r = self.client.get('/docs/pip/en/latest/')
         self.assertEqual(r.status_code, 200)
 
+    def test_proper_url_full_with_filename(self):
+        r = self.client.get('/docs/pip/en/latest/test.html')
+        self.assertEqual(r.status_code, 200)
+
+    # Current behavior is to return 404, even though equivalent
+    # subdomain URL gets redirected to /<lang_slug>/<version_slug>/
+    def test_proper_url_with_version_slug_only(self):
+        r = self.client.get('/docs/pip/latest/')
+        self.assertEqual(r.status_code, 404)
+
+    def test_improper_url_filename_only(self):
+        r = self.client.get('/test.html')
+        self.assertEqual(r.status_code, 404)
+
     # Subdomains
 
     def test_proper_subdomain(self):
@@ -68,6 +82,10 @@ class RedirectTests(TestCase):
 
     def test_proper_subdomain_and_url(self):
         r = self.client.get('/en/latest/', HTTP_HOST='pip.readthedocs.org')
+        self.assertEqual(r.status_code, 200)
+
+    def test_proper_subdomain_and_url_with_filename(self):
+        r = self.client.get('/en/latest/test.html', HTTP_HOST='pip.readthedocs.org')
         self.assertEqual(r.status_code, 200)
 
     # Specific Page Redirects
@@ -90,6 +108,10 @@ class RedirectTests(TestCase):
         self.assertEqual(r.status_code, 302)
         self.assertEqual(r['Location'],
                           'http://pip.readthedocs.org/en/1.4.1/')
+
+    def test_improper_subdomain_filename_only(self):
+        r = self.client.get('/test.html', HTTP_HOST='pip.readthedocs.org')
+        self.assertEqual(r.status_code, 404)
 
     # This is currently turned off.
     """
