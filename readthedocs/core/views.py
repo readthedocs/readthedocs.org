@@ -319,12 +319,23 @@ def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
     proj = get_object_or_404(Project, slug=project_slug)
 
     # Redirects
-    if not version_slug or not lang_slug:
+    must_redirect = False
+    if version_slug and not lang_slug:
+        lang_slug = proj.language
+        must_redirect = True
+    elif lang_slug and not version_slug:
         version_slug = proj.get_default_version()
+        must_redirect = True
+    elif not version_slug and not lang_slug:
+        lang_slug = proj.language
+        version_slug = proj.get_default_version()
+        must_redirect = True
+
+    if must_redirect:
         url = reverse(serve_docs, kwargs={
             'project_slug': project_slug,
             'version_slug': version_slug,
-            'lang_slug': proj.language,
+            'lang_slug': lang_slug,
             'filename': filename
         })
         return HttpResponseRedirect(url)

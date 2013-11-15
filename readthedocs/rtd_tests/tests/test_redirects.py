@@ -44,9 +44,9 @@ class RedirectTests(TestCase):
         r = self.client.get(r['Location'])
         self.assertEqual(r.status_code, 200)
 
-    def test_improper_url(self):
+    def test_proper_url_with_lang_slug_only(self):
         r = self.client.get('/docs/pip/en/')
-        self.assertEqual(r.status_code, 404)
+        self.assertEqual(r.status_code, 302)
 
     def test_proper_url_full(self):
         r = self.client.get('/docs/pip/en/latest/')
@@ -63,14 +63,23 @@ class RedirectTests(TestCase):
         self.assertEqual(r['Location'],
                           'http://testserver/docs/pip/en/latest/test.html')
 
-    # Current behavior is to return 404, even though equivalent
-    # subdomain URL gets redirected to /<lang_slug>/<version_slug>/
     def test_proper_url_with_version_slug_only(self):
         r = self.client.get('/docs/pip/latest/')
+        self.assertEqual(r.status_code, 302)
+
+    # If slug is neither valid lang nor valid version, it should 404.
+    def test_improper_url_with_nonexistent_slug(self):
+        r = self.client.get('/docs/pip/nonexistent/')
+        self.assertEqual(r.status_code, 302)
+        r = self.client.get(r['Location'])
         self.assertEqual(r.status_code, 404)
 
     def test_improper_url_filename_only(self):
-        r = self.client.get('/test.html')
+        r = self.client.get('/docs/pip/test.html')
+        self.assertEqual(r.status_code, 301)
+        r = self.client.get(r['Location'])
+        self.assertEqual(r.status_code, 302)
+        r = self.client.get(r['Location'])
         self.assertEqual(r.status_code, 404)
 
     # Subdomains
@@ -80,12 +89,9 @@ class RedirectTests(TestCase):
         self.assertEqual(r.status_code, 302)
         self.assertEqual(r['Location'], 'http://pip.readthedocs.org/en/latest/')
 
-    # Keep this around for now, until we come up with a nicer interface
-    """
-    def test_improper_subdomain(self):
+    def test_proper_subdomain_with_lang_slug_only(self):
         r = self.client.get('/en/', HTTP_HOST='pip.readthedocs.org')
-        self.assertEqual(r.status_code, 404)
-    """
+        self.assertEqual(r.status_code, 302)
 
     def test_proper_subdomain_and_url(self):
         r = self.client.get('/en/latest/', HTTP_HOST='pip.readthedocs.org')
