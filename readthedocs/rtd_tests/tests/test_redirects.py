@@ -56,6 +56,13 @@ class RedirectTests(TestCase):
         r = self.client.get('/docs/pip/en/latest/test.html')
         self.assertEqual(r.status_code, 200)
 
+    # Specific Page Redirects
+    def test_proper_page_on_main_site(self):
+        r = self.client.get('/docs/pip/page/test.html')
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(r['Location'],
+                          'http://testserver/docs/pip/en/latest/test.html')
+
     # Current behavior is to return 404, even though equivalent
     # subdomain URL gets redirected to /<lang_slug>/<version_slug>/
     def test_proper_url_with_version_slug_only(self):
@@ -94,13 +101,6 @@ class RedirectTests(TestCase):
         self.assertEqual(r.status_code, 302)
         self.assertEqual(r['Location'],
                           'http://pip.readthedocs.org/en/latest/test.html')
-
-    # Specific Page Redirects
-    def test_proper_page_on_main_site(self):
-        r = self.client.get('/docs/pip/page/test.html')
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(r['Location'],
-                          'http://testserver/docs/pip/en/latest/test.html')
 
     # When there's only a version slug, the redirect prepends the lang slug
     def test_proper_subdomain_with_version_slug_only(self):
