@@ -44,7 +44,7 @@ urlpatterns = patterns(
         'core.views.redirect_version_slug',
         name='version_subdomain_handler'),
 
-    url(r'^$', 'core.views.subdomain_handler'),
+    url(r'^$', 'core.views.redirect_project_slug'),
 )
 
 urlpatterns += main_patterns

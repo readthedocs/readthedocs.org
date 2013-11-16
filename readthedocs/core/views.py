@@ -365,6 +365,12 @@ def redirect_version_slug(request, version_slug, project_slug=None):
     url = reverse(serve_docs, kwargs=kwargs)
     return HttpResponseRedirect(url)
 
+def redirect_project_slug(request, project_slug=None):
+    """Redirect / to /en/latest/."""
+    kwargs = default_docs_kwargs(request, project_slug)
+    url = reverse(serve_docs, kwargs=kwargs)
+    return HttpResponseRedirect(url)
+
 def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
     if not project_slug:
         project_slug = request.slug

@@ -54,12 +54,7 @@ urlpatterns = patterns(
 
     # Redirect to default version.
     url(r'^docs/(?P<project_slug>[-\w]+)/$',
-        'core.views.serve_docs',
-        {
-            'version_slug': None,
-            'lang_slug': None,
-            'filename': '',
-        },
+        'core.views.redirect_project_slug',
         name='docs_detail'),
 
     # Handle /page/<path> redirects for explicit "latest" version goodness.
