@@ -46,6 +46,12 @@ class SubdomainUrlTests(TestCase):
             kwargs={'version_slug': '1.4.1'})
         self.assertEqual(url, '/1.4.1/')
 
+    def test_sub_lang(self):
+        url = reverse('lang_subdomain_handler',
+            urlconf='core.subdomain_urls',
+            kwargs={'lang_slug': 'en'})
+        self.assertEqual(url, '/en/')
+
 
 class WipeUrlTests(TestCase):
 

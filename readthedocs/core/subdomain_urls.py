@@ -37,8 +37,8 @@ urlpatterns = patterns(
         name='docs_detail'),
 
     url(r'^(?P<lang_slug>%s)/$' % LANGUAGES_REGEX,
-        'core.views.subdomain_handler',
-        name='version_subdomain_handler'),
+        'core.views.redirect_lang_slug',
+        name='lang_subdomain_handler'),
 
     url(r'^(?P<version_slug>.*)/$',
         'core.views.subdomain_handler',
