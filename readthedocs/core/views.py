@@ -384,14 +384,14 @@ def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
     proj = get_object_or_404(Project, slug=project_slug)
     ver = get_object_or_404(Version, project__slug=project_slug,
                             slug=version_slug)
+
     # Auth checks
     if ver not in proj.versions.public(request.user, proj):
         res = HttpResponse("You don't have access to this version.")
         res.status_code = 401
         return res
 
-    # Normal handling
-
+    # Figure out actual file to serve
     if not filename:
         filename = "index.html"
     # This is required because we're forming the filenames outselves instead of
@@ -412,6 +412,8 @@ def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
     else:
         basepath = proj.translations_path(lang_slug)
         basepath = os.path.join(basepath, version_slug)
+
+    # Serve file
     log.info('Serving %s for %s' % (filename, proj))
     if not settings.DEBUG:
         fullpath = os.path.join(basepath, filename)
