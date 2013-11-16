@@ -29,11 +29,7 @@ urlpatterns = patterns(
         name='docs_detail'),
 
     url(r'^page/(?P<filename>.*)$',
-        'core.views.subdomain_handler',
-        {
-            'version_slug': None,
-            'lang_slug': None,
-        },
+        'core.views.redirect_page_with_filename',
         name='docs_detail'),
 
     url(r'^(?P<lang_slug>%s)/$' % LANGUAGES_REGEX,

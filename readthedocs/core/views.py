@@ -371,6 +371,13 @@ def redirect_project_slug(request, project_slug=None):
     url = reverse(serve_docs, kwargs=kwargs)
     return HttpResponseRedirect(url)
 
+def redirect_page_with_filename(request, filename, project_slug=None):
+    """Redirect /page/file.html to /en/latest/file.html."""
+    kwargs = default_docs_kwargs(request, project_slug)
+    kwargs['filename'] = filename
+    url = reverse(serve_docs, kwargs=kwargs)
+    return HttpResponseRedirect(url)
+
 def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
     if not project_slug:
         project_slug = request.slug
