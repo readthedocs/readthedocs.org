@@ -48,6 +48,8 @@ class RedirectTests(TestCase):
         r = self.client.get('/docs/pip/en/')
         self.assertEqual(r.status_code, 302)
         self.assertEqual(r['Location'], 'http://testserver/docs/pip/en/latest/')
+        r = self.client.get(r['Location'])
+        self.assertEqual(r.status_code, 200)
 
     def test_proper_url_full(self):
         r = self.client.get('/docs/pip/en/latest/')
@@ -63,11 +65,15 @@ class RedirectTests(TestCase):
         self.assertEqual(r.status_code, 302)
         self.assertEqual(r['Location'],
                           'http://testserver/docs/pip/en/latest/test.html')
+        r = self.client.get(r['Location'])
+        self.assertEqual(r.status_code, 200)
 
     def test_proper_url_with_version_slug_only(self):
         r = self.client.get('/docs/pip/latest/')
         self.assertEqual(r.status_code, 302)
         self.assertEqual(r['Location'], 'http://testserver/docs/pip/en/latest/')
+        r = self.client.get(r['Location'])
+        self.assertEqual(r.status_code, 200)
 
     # If slug is neither valid lang nor valid version, it should 404.
     # TODO: This should 404 directly, not redirect first
