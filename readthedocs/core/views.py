@@ -320,6 +320,20 @@ def subproject_serve_docs(request, project_slug, lang_slug=None,
                                                       parent_slug))
         raise Http404("Subproject does not exist")
 
+def redirect_lang_slug(request, lang_slug, project_slug=None):
+    # If project_slug isn't in URL pattern, it's set in subdomain middleware.
+    if not project_slug:
+        project_slug = request.slug
+    proj = get_object_or_404(Project, slug=project_slug)
+    version_slug = proj.get_default_version()
+    url = reverse(serve_docs, kwargs={
+        'project_slug': project_slug,
+        'version_slug': version_slug,
+        'lang_slug': lang_slug,
+        'filename': ''
+    })
+    return HttpResponseRedirect(url)
+
 
 def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
     if not project_slug:
