@@ -49,13 +49,8 @@ urlpatterns = patterns(
 
     # Redirect to default version, if only version_slug is set.
     url(r'^docs/(?P<project_slug>[-\w]+)/(?P<version_slug>[-._\w]+)/$',
-        'core.views.serve_docs',
-        {
-            'lang_slug': None,
-            'filename': '',
-        },
+        'core.views.redirect_version_slug',
         name='docs_detail'),
-
 
     # Redirect to default version.
     url(r'^docs/(?P<project_slug>[-\w]+)/$',
