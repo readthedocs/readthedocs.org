@@ -320,7 +320,17 @@ def subproject_serve_docs(request, project_slug, lang_slug=None,
                                                       parent_slug))
         raise Http404("Subproject does not exist")
 
-def default_version_kwargs(request, project_slug=None):
+def default_docs_kwargs(request, project_slug=None):
+    """
+    Return kwargs used to reverse lookup a project's default docs URL.
+
+    Determining which URL to redirect to is done based on the kwargs
+    passed to reverse(serve_docs, kwargs).  This function populates
+    kwargs for the default docs for a project, and sets appropriate keys
+    depending on whether request is for a subdomain URL, or a non-subdomain
+    URL.
+
+    """
     # If project_slug isn't in URL pattern, it's set in subdomain
     # middleware as request.slug.
     if project_slug is None:
@@ -342,7 +352,8 @@ def default_version_kwargs(request, project_slug=None):
     return kwargs
 
 def redirect_lang_slug(request, lang_slug, project_slug=None):
-    kwargs = default_version_kwargs(request, project_slug)
+    """Redirect /en/ to /en/latest/."""
+    kwargs = default_docs_kwargs(request, project_slug)
     kwargs['lang_slug'] = lang_slug
     url = reverse(serve_docs, kwargs=kwargs)
     return HttpResponseRedirect(url)
