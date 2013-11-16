@@ -47,6 +47,7 @@ class RedirectTests(TestCase):
     def test_proper_url_with_lang_slug_only(self):
         r = self.client.get('/docs/pip/en/')
         self.assertEqual(r.status_code, 302)
+        self.assertEqual(r['Location'], 'http://testserver/docs/pip/en/latest/')
 
     def test_proper_url_full(self):
         r = self.client.get('/docs/pip/en/latest/')
@@ -66,14 +67,17 @@ class RedirectTests(TestCase):
     def test_proper_url_with_version_slug_only(self):
         r = self.client.get('/docs/pip/latest/')
         self.assertEqual(r.status_code, 302)
+        self.assertEqual(r['Location'], 'http://testserver/docs/pip/en/latest/')
 
     # If slug is neither valid lang nor valid version, it should 404.
+    # TODO: This should 404 directly, not redirect first
     def test_improper_url_with_nonexistent_slug(self):
         r = self.client.get('/docs/pip/nonexistent/')
         self.assertEqual(r.status_code, 302)
         r = self.client.get(r['Location'])
         self.assertEqual(r.status_code, 404)
 
+    # TODO: This should 404 directly, not redirect first
     def test_improper_url_filename_only(self):
         r = self.client.get('/docs/pip/test.html')
         self.assertEqual(r.status_code, 301)
@@ -92,6 +96,7 @@ class RedirectTests(TestCase):
     def test_proper_subdomain_with_lang_slug_only(self):
         r = self.client.get('/en/', HTTP_HOST='pip.readthedocs.org')
         self.assertEqual(r.status_code, 302)
+        self.assertEqual(r['Location'], 'http://pip.readthedocs.org/en/latest/')
 
     def test_proper_subdomain_and_url(self):
         r = self.client.get('/en/latest/', HTTP_HOST='pip.readthedocs.org')

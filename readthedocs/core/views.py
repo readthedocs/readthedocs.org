@@ -235,7 +235,15 @@ def subdomain_handler(request, lang_slug=None, version_slug=None, filename=''):
     # Don't add index.html for htmldir.
     if not filename and project.documentation_type != 'sphinx_htmldir':
         filename = "index.html"
-    if version_slug is None:
+    if version_slug is None and lang_slug:
+        default_version = project.get_default_version()
+        url = reverse(serve_docs, kwargs={
+            'version_slug': default_version,
+            'lang_slug': lang_slug,
+            'filename': filename
+        })
+        return HttpResponseRedirect(url)
+    if version_slug is None and lang_slug is None:
         # Handle / on subdomain.
         default_version = project.get_default_version()
         url = reverse(serve_docs, kwargs={

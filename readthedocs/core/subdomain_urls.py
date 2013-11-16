@@ -1,5 +1,6 @@
 from django.conf.urls.defaults import url, patterns
 
+from projects.constants import LANGUAGES_REGEX
 from urls import urlpatterns as main_patterns
 
 
@@ -34,6 +35,10 @@ urlpatterns = patterns(
             'lang_slug': None,
         },
         name='docs_detail'),
+
+    url(r'^(?P<lang_slug>%s)/$' % LANGUAGES_REGEX,
+        'core.views.subdomain_handler',
+        name='version_subdomain_handler'),
 
     url(r'^(?P<version_slug>.*)/$',
         'core.views.subdomain_handler',
