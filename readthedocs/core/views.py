@@ -223,68 +223,6 @@ def generic_build(request, pk=None):
             update_docs.delay(pk=pk, force=True)
     return redirect('builds_project_list', project.slug)
 
-
-def subdomain_handler(request, lang_slug=None, version_slug=None, filename=''):
-    """This provides the fall-back routing for subdomain requests.
-
-    This was made primarily to redirect old subdomain's to their version'd
-    brothers.
-
-    """
-    project = get_object_or_404(Project, slug=request.slug)
-    # Don't add index.html for htmldir.
-    if not filename and project.documentation_type != 'sphinx_htmldir':
-        filename = "index.html"
-    if version_slug is None and lang_slug:
-        default_version = project.get_default_version()
-        url = reverse(serve_docs, kwargs={
-            'version_slug': default_version,
-            'lang_slug': lang_slug,
-            'filename': filename
-        })
-        return HttpResponseRedirect(url)
-    if version_slug is None and lang_slug is None:
-        # Handle / on subdomain.
-        default_version = project.get_default_version()
-        url = reverse(serve_docs, kwargs={
-            'version_slug': default_version,
-            'lang_slug': project.language,
-            'filename': filename
-        })
-        return HttpResponseRedirect(url)
-    if version_slug and lang_slug is None:
-        # Handle /version/ on subdomain.
-        aliases = project.aliases.filter(from_slug=version_slug)
-        # Handle Aliases.
-        if aliases.count():
-            if aliases[0].largest:
-                highest_ver = highest_version(project.versions.filter(
-                    slug__contains=version_slug, active=True))
-                version_slug = highest_ver[0].slug
-            else:
-                version_slug = aliases[0].to_slug
-            url = reverse(serve_docs, kwargs={
-                'version_slug': version_slug,
-                'lang_slug': project.language,
-                'filename': filename
-            })
-        else:
-            try:
-                url = reverse(serve_docs, kwargs={
-                    'version_slug': version_slug,
-                    'lang_slug': project.language,
-                    'filename': filename
-                })
-            except NoReverseMatch:
-                raise Http404
-        return HttpResponseRedirect(url)
-    # Serve normal docs
-    return serve_docs(request=request,
-                      project_slug=project.slug,
-                      lang_slug=lang_slug,
-                      version_slug=version_slug,
-                      filename=filename)
-
 def subproject_list(request):
     project_slug = request.slug
     proj = get_object_or_404(Project, slug=project_slug)

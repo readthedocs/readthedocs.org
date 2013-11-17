@@ -7,7 +7,7 @@ import core.views
 class SubdomainUrlTests(TestCase):
 
     def test_sub_index(self):
-        url = reverse(core.views.subdomain_handler,
+        url = reverse(core.views.redirect_project_slug,
             urlconf='core.subdomain_urls')
         self.assertEqual(url, '/')
 
