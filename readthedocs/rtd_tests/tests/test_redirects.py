@@ -92,6 +92,34 @@ class RedirectTests(TestCase):
         r = self.client.get(r['Location'])
         self.assertEqual(r.status_code, 404)
 
+    def test_improper_url_dir_file(self):
+        r = self.client.get('/docs/pip/nonexistent_dir/bogus.html')
+        self.assertEqual(r.status_code, 404)
+
+    def test_improper_url_dir_subdir_file(self):
+        r = self.client.get('/docs/pip/nonexistent_dir/subdir/bogus.html')
+        self.assertEqual(r.status_code, 404)
+
+    # TODO: This should 404 directly, not redirect first
+    def test_improper_url_lang_file(self):
+        r = self.client.get('/docs/pip/en/bogus.html')
+        self.assertEqual(r.status_code, 301)
+        r = self.client.get(r['Location'])
+        self.assertEqual(r.status_code, 404)
+
+    def test_improper_url_lang_subdir_file(self):
+        r = self.client.get('/docs/pip/en/nonexistent_dir/bogus.html')
+        self.assertEqual(r.status_code, 404)
+
+    def test_improper_url_dir_subdir_file(self):
+        r = self.client.get('/docs/pip/en/nonexistent_dir/subdir/bogus.html')
+        self.assertEqual(r.status_code, 404)
+
+    def test_improper_url_version_dir_file(self):
+        r = self.client.get('/docs/pip/latest/nonexistent_dir/bogus.html')
+        self.assertEqual(r.status_code, 404)
+
+
     # Subdomains
 
     def test_proper_subdomain(self):
