@@ -1,6 +1,3 @@
-import csv
-from StringIO import StringIO
-
 from projects.exceptions import ProjectImportError
 from vcs_support.base import BaseVCS, VCSVersion
 
@@ -77,11 +74,12 @@ class Backend(BaseVCS):
         0.1                               50:30c2c6b3a055
         maintenance release 1             10:f83c32fe8126
         """
-        # parse the lines into a list of tuples (commit-hash, tag ref name)
         vcs_tags = []
         tag_lines = [line.strip() for line in data.splitlines()]
-        raw_tags = [line.rsplit(None, 1) for line in tag_lines]
-        for row in raw_tags:
+        # starting from the rhs of each line, split a single value (changeset)
+        # off at whitespace; the tag name is the string to the left of that
+        tag_pairs = [line.rsplit(None, 1) for line in tag_lines]
+        for row in tag_pairs:
             if len(row) != 2:
                 continue
             name, commit = row
