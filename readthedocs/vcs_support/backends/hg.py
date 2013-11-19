@@ -75,13 +75,14 @@ class Backend(BaseVCS):
         0.2.2                            152:6b0364d98837
         0.2.1                            117:a14b7b6ffa03
         0.1                               50:30c2c6b3a055
+        maintenance release 1             10:f83c32fe8126
         """
         # parse the lines into a list of tuples (commit-hash, tag ref name)
-        raw_tags = csv.reader(StringIO(data), delimiter=' ')
         vcs_tags = []
+        tag_lines = [line.strip() for line in data.splitlines()]
+        raw_tags = [line.rsplit(None, 1) for line in tag_lines]
         for row in raw_tags:
-            row = filter(lambda f: f != '', row)
-            if row == []:
+            if len(row) != 2:
                 continue
             name, commit = row
             if name == 'tip':
