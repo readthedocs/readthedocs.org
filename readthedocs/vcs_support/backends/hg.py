@@ -66,13 +66,16 @@ class Backend(BaseVCS):
 
     def parse_tags(self, data):
         """
-        Parses output of show-ref --tags, eg:
+        Parses output of `hg tags`, eg:
 
-        tip                              278:c4b2d21db51a
-        0.2.2                            152:6b0364d98837
-        0.2.1                            117:a14b7b6ffa03
-        0.1                               50:30c2c6b3a055
-        maintenance release 1             10:f83c32fe8126
+            tip                              278:c4b2d21db51a
+            0.2.2                            152:6b0364d98837
+            0.2.1                            117:a14b7b6ffa03
+            0.1                               50:30c2c6b3a055
+            maintenance release 1             10:f83c32fe8126
+
+        Into VCSVersion objects with the tag name as verbose_name and the
+        commit hash as identifier.
         """
         vcs_tags = []
         tag_lines = [line.strip() for line in data.splitlines()]
