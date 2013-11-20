@@ -72,7 +72,7 @@ class SubdomainMiddleware(object):
                     log.debug(LOG_TEMPLATE.format(msg='CNAME detetected: %s' % request.slug, **log_kwargs))
                 except:
                     # Some crazy person is CNAMEing to us. 404.
-                    log.debug(LOG_TEMPLATE.format(msg='CNAME 404: %s', **log_kwargs))
+                    log.debug(LOG_TEMPLATE.format(msg='CNAME 404', **log_kwargs))
                     raise Http404(_('Invalid Host Name.'))
         # Normal request.
         return None
