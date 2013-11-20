@@ -243,6 +243,14 @@ LOGGING = {
             'backupCount': backup_count,
             'formatter': 'standard',
         },
+        'middleware': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(LOGS_ROOT, "middleware.log"),
+            'maxBytes': maxBytes,
+            'backupCount': backup_count,
+            'formatter': 'standard',
+        },
         'restapi': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
@@ -282,6 +290,11 @@ LOGGING = {
         },
         'core.views.post_commit': {
             'handlers': ['postcommit'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+        'core.middleware': {
+            'handlers': ['middleware'],
             'level': 'DEBUG',
             'propagate': False,
         },

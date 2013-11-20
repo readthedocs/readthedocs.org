@@ -1,3 +1,5 @@
+import logging
+
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 from django.core.cache import cache
@@ -5,12 +7,18 @@ from django.http import Http404
 
 import redis
 
+log = logging.getLogger(__name__)
+
+LOG_TEMPLATE = "(Middleware) {msg} [{host}{path}]"
 
 class SubdomainMiddleware(object):
     def process_request(self, request):
-        if settings.DEBUG:
-            return None
         host = request.get_host()
+        path = request.get_full_path()
+        log_kwargs = dict(host=host, path=path)
+        if settings.DEBUG:
+            log.debug(LOG_TEMPLATE.format(msg='DEBUG on, not processing middleware', **log_kwargs))
+            return None
         if ':' in host:
             host = host.split(':')[0]
         domain_parts = host.split('.')
@@ -18,7 +26,7 @@ class SubdomainMiddleware(object):
         # Google was finding crazy www.blah.readthedocs.org domains.
         if len(domain_parts) > 3:
             # Let's try allowing this again.
-            pass
+            log.debug(LOG_TEMPLATE.format(msg='Allowing long domain name', **log_kwargs))
             #raise Http404(_('Invalid hostname'))
         if len(domain_parts) == 3:
             subdomain = domain_parts[0]
@@ -34,6 +42,7 @@ class SubdomainMiddleware(object):
             elif not is_www and not is_ssl and 'rtfd.org' in host:
                 request.slug = subdomain
                 request.urlconf = 'core.djangome_urls'
+                log.debug(LOG_TEMPLATE.format(msg='Django.me request let through', **log_kwargs))
                 return None
         # Serve CNAMEs
         if settings.PRODUCTION_DOMAIN not in host and \
@@ -44,6 +53,7 @@ class SubdomainMiddleware(object):
                 request.slug = request.META['HTTP_X_RTD_SLUG']
                 request.urlconf = 'core.subdomain_urls'
                 request.rtdheader = True
+                log.debug(LOG_TEMPLATE.format(msg='X-RTD-Slug header detetected: %s' % request.slug, **log_kwargs))
             except KeyError:
                 # Try header first, then DNS
                 try:
@@ -59,8 +69,10 @@ class SubdomainMiddleware(object):
                         redis_conn.sadd("rtd_slug:v1:%s" % slug, host)
                     request.slug = slug
                     request.urlconf = 'core.subdomain_urls'
+                    log.debug(LOG_TEMPLATE.format(msg='CNAME detetected: %s' % request.slug, **log_kwargs))
                 except:
                     # Some crazy person is CNAMEing to us. 404.
+                    log.debug(LOG_TEMPLATE.format(msg='CNAME 404: %s', **log_kwargs))
                     raise Http404(_('Invalid Host Name.'))
         # Normal request.
         return None
