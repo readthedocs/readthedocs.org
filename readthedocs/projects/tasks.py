@@ -40,6 +40,7 @@ ghetto_hack = re.compile(
 log = logging.getLogger(__name__)
 
 LOG_TEMPLATE = "(Build) [{project}:{version}] {msg}"
+HTML_ONLY = getattr(settings, 'HTML_ONLY_PROJECTS', ())
 
 @task
 def remove_dir(path):
@@ -491,6 +492,11 @@ def build_docs(version_pk, pdf, man, epub, dash, search, record, force):
                         "Project Skipped, Didn't build")
         # Only build everything else if the html build changed.
         if html_builder.changed and not project.skip:
+            if search:
+                search_builder = builder_loading.get('sphinx_search')(version)
+                search_results = search_builder.build()
+                if search_results[0] == 0:
+                    search_builder.upload()
             if dash:
                 dash_builder = builder_loading.get('sphinx_dash')(version)
                 dash_results = dash_builder.build()
@@ -498,38 +504,30 @@ def build_docs(version_pk, pdf, man, epub, dash, search, record, force):
                     dash_builder.move()
             else:
                 dash_results = fake_results
-            if pdf:
-                pdf_builder = builder_loading.get('sphinx_pdf')(version)
-                latex_results, pdf_results = pdf_builder.build()
-                # Always move pdf results even when there's an error.
-                #if pdf_results[0] == 0:
-                pdf_builder.move()
-            else:
-                pdf_results = latex_results = fake_results
-            if man:
-                man_builder = builder_loading.get('sphinx_man')(version)
-                man_results = man_builder.build()
-                if man_results[0] == 0:
-                    man_builder.move()
-            else:
-                man_results = fake_results
-            if epub:
-                epub_builder = builder_loading.get('sphinx_epub')(version)
-                epub_results = epub_builder.build()
-                if epub_results[0] == 0:
-                    epub_builder.move()
-            else:
-                epub_results = fake_results
+            if version.project.slug not in HTML_ONLY:
+                if pdf:
+                    pdf_builder = builder_loading.get('sphinx_pdf')(version)
+                    latex_results, pdf_results = pdf_builder.build()
+                    # Always move pdf results even when there's an error.
+                    #if pdf_results[0] == 0:
+                    pdf_builder.move()
+                else:
+                    pdf_results = latex_results = fake_results
+                if man:
+                    man_builder = builder_loading.get('sphinx_man')(version)
+                    man_results = man_builder.build()
+                    if man_results[0] == 0:
+                        man_builder.move()
+                else:
+                    man_results = fake_results
+                if epub:
+                    epub_builder = builder_loading.get('sphinx_epub')(version)
+                    epub_results = epub_builder.build()
+                    if epub_results[0] == 0:
+                        epub_builder.move()
+                else:
+                    epub_results = fake_results
 
-            if search:
-                try:
-                    # BETA
-                    search_builder = builder_loading.get('sphinx_search')(version)
-                    search_results = search_builder.build()
-                    if search_results[0] == 0:
-                        search_builder.upload()
-                except Exception, e:
-                    log.error(LOG_TEMPLATE.format(project=project.slug, version=version.slug, msg=e.message), exc_info=True)
 
     return (html_results, latex_results, pdf_results, man_results,
             epub_results, dash_results, search_results)
