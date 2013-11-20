@@ -493,10 +493,13 @@ def build_docs(version_pk, pdf, man, epub, dash, search, record, force):
         # Only build everything else if the html build changed.
         if html_builder.changed and not project.skip:
             if search:
-                search_builder = builder_loading.get('sphinx_search')(version)
-                search_results = search_builder.build()
-                if search_results[0] == 0:
-                    search_builder.upload()
+                try:
+                    search_builder = builder_loading.get('sphinx_search')(version)
+                    search_results = search_builder.build()
+                    if search_results[0] == 0:
+                        search_builder.upload()
+                except:
+                    pass
             if dash:
                 dash_builder = builder_loading.get('sphinx_dash')(version)
                 dash_results = dash_builder.build()
