@@ -54,6 +54,16 @@ def api_logs():
     env.user = "docs"
     run("tail -f %s/logs/api.log" % env.code_dir)
 
+@hosts(['newasgard.readthedocs.com', 'newchimera.readthedocs.com'])
+def web_logs(type):
+    """
+    Get logs from the web servers::
+
+    fab -P web_logs:middleware
+    """
+    env.user = "docs"
+    run("tail -f %s/logs/%s.log" % (env.code_dir, type))
+
 ## Normal bits
 
 @hosts(['localhost'])
