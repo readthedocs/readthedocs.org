@@ -1,6 +1,3 @@
-import csv
-from StringIO import StringIO
-
 from projects.exceptions import ProjectImportError
 from vcs_support.base import BaseVCS, VCSVersion
 
@@ -69,19 +66,24 @@ class Backend(BaseVCS):
 
     def parse_tags(self, data):
         """
-        Parses output of show-ref --tags, eg:
+        Parses output of `hg tags`, eg:
 
-        tip                              278:c4b2d21db51a
-        0.2.2                            152:6b0364d98837
-        0.2.1                            117:a14b7b6ffa03
-        0.1                               50:30c2c6b3a055
+            tip                              278:c4b2d21db51a
+            0.2.2                            152:6b0364d98837
+            0.2.1                            117:a14b7b6ffa03
+            0.1                               50:30c2c6b3a055
+            maintenance release 1             10:f83c32fe8126
+
+        Into VCSVersion objects with the tag name as verbose_name and the
+        commit hash as identifier.
         """
-        # parse the lines into a list of tuples (commit-hash, tag ref name)
-        raw_tags = csv.reader(StringIO(data), delimiter=' ')
         vcs_tags = []
-        for row in raw_tags:
-            row = filter(lambda f: f != '', row)
-            if row == []:
+        tag_lines = [line.strip() for line in data.splitlines()]
+        # starting from the rhs of each line, split a single value (changeset)
+        # off at whitespace; the tag name is the string to the left of that
+        tag_pairs = [line.rsplit(None, 1) for line in tag_lines]
+        for row in tag_pairs:
+            if len(row) != 2:
                 continue
             name, commit = row
             if name == 'tip':
