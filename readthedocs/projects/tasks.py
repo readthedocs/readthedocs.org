@@ -504,6 +504,7 @@ def build_docs(version_pk, pdf, man, epub, dash, search, record, force):
                     dash_builder.move()
             else:
                 dash_results = fake_results
+
             if version.project.slug not in HTML_ONLY:
                 if pdf:
                     pdf_builder = builder_loading.get('sphinx_pdf')(version)
@@ -527,6 +528,8 @@ def build_docs(version_pk, pdf, man, epub, dash, search, record, force):
                         epub_builder.move()
                 else:
                     epub_results = fake_results
+            else:
+                latex_results = pdf_results = man_results = epub_results = (999, "Optional builds disabled", "Optional builds disabled")
 
 
     return (html_results, latex_results, pdf_results, man_results,
