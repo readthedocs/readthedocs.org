@@ -497,7 +497,10 @@ def build_docs(version_pk, pdf, man, epub, dash, search, record, force):
                     search_builder = builder_loading.get('sphinx_search')(version)
                     search_results = search_builder.build()
                     if search_results[0] == 0:
+                        # Update search index
                         search_builder.upload()
+                        # Copy json for safe keeping
+                        search_builder.move()
                 except:
                     pass
             if dash:
