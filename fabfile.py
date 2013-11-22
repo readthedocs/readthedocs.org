@@ -62,7 +62,7 @@ def web_logs(type):
     fab -P web_logs:middleware
     """
     env.user = "docs"
-    run("tail -f %s/logs/%s.log" % (env.code_dir, type))
+    run("tail -F %s/logs/%s.log" % (env.code_dir, type))
 
 ## Normal bits
 

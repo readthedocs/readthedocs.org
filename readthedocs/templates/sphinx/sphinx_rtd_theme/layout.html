@@ -101,7 +101,7 @@
       </div>
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix">
-        {% set toctree = toctree(maxdepth=2, collapse=False) %}
+        {% set toctree = toctree(maxdepth=2, collapse=False, includehidden=True) %}
         {% if toctree %}
             {{ toctree }}
         {% else %}
@@ -117,7 +117,7 @@
       {# MOBILE NAV, TRIGGLES SIDE NAV ON TOGGLE #}
       <nav class="wy-nav-top">
         <i data-toggle="wy-nav-top" class="icon icon-reorder"></i>
-        <a href="/">{{ project }}</a>
+        <a href="{{ pathto(master_doc) }}">{{ project }}</a>
       </nav>
 
 
