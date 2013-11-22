@@ -109,7 +109,8 @@ class Index(object):
         index = index or self._index
         self.es.indices.put_mapping(index, self._type, self.get_mapping())
 
-    def bulk_index(self, data, index=None, chunk_size=500, parent=None):
+    def bulk_index(self, data, index=None, chunk_size=500, parent=None,
+                   routing=None):
         """
         Given a list of documents, uses Elasticsearch bulk indexing.
 
@@ -131,15 +132,25 @@ class Index(object):
             }
             if parent:
                 doc['_parent'] = parent
+            if routing:
+                doc['_routing'] = routing
             docs.append(doc)
 
         bulk_index(self.es, docs, chunk_size=chunk_size)
 
-    def index_document(self, data, index=None, parent=None):
-        index = index or self._index
+    def index_document(self, data, index=None, parent=None, routing=None):
         doc = self.extract_document(data)
-        self.es.index(index=index, doc_type=self._type, body=doc, id=doc['id'],
-                      parent=parent)
+        kwargs = {
+            'index': index or self._index,
+            'doc_type': self._type,
+            'body': doc,
+            'id': doc['id']
+        }
+        if parent:
+            kwargs['parent'] = parent
+        if routing:
+            kwargs['routing'] = routing
+        self.es.index(**kwargs)
 
     def get_mapping(self):
         """
@@ -242,10 +253,10 @@ class PageIndex(Index):
                 'properties': {
                     'id': {'type': 'string', 'index': 'not_analyzed'},
                     'project': {'type': 'string', 'index': 'not_analyzed'},
-                    'title': {'type': 'string', 'analyzer': 'default_icu'},
-                    'headers': {'type': 'string', 'analyzer': 'default_icu'},
                     'version': {'type': 'string', 'index': 'not_analyzed'},
                     'path': {'type': 'string', 'index': 'not_analyzed'},
+                    'title': {'type': 'string', 'analyzer': 'default_icu'},
+                    'headers': {'type': 'string', 'analyzer': 'default_icu'},
                     'content': {'type': 'string', 'analyzer': 'default_icu'},
                 }
             }
@@ -257,6 +268,47 @@ class PageIndex(Index):
         doc = {}
 
         attrs = ('id', 'project', 'title', 'headers', 'version', 'path',
+                 'content')
+        for attr in attrs:
+            doc[attr] = data.get(attr, '')
+
+        # Add page boost.
+        doc['_boost'] = data.get('_boost', 1.0)
+
+        return doc
+
+class SectionIndex(Index):
+
+    _type = 'section'
+    _parent = 'page'
+
+    def get_mapping(self):
+        mapping = {
+            self._type: {
+                # Disable _all field to reduce index size.
+                '_all': {'enabled': False},
+                # Add a boost field to enhance relevancy of a document.
+                '_boost': {'name': '_boost', 'null_value': 1.0},
+                # Associate a section with a page.
+                '_parent': {'type': self._parent},
+                'properties': {
+                    'id': {'type': 'string', 'index': 'not_analyzed'},
+                    'project': {'type': 'string', 'index': 'not_analyzed'},
+                    'version': {'type': 'string', 'index': 'not_analyzed'},
+                    'path': {'type': 'string', 'index': 'not_analyzed'},
+                    'page_id': {'type': 'string', 'index': 'not_analyzed'},
+                    'title': {'type': 'string', 'analyzer': 'default_icu'},
+                    'content': {'type': 'string', 'analyzer': 'default_icu'},
+                }
+            }
+        }
+
+        return mapping
+
+    def extract_document(self, data):
+        doc = {}
+
+        attrs = ('id', 'project', 'title', 'page_id', 'version', 'path',
                  'content')
         for attr in attrs:
             doc[attr] = data.get(attr, '')

@@ -8,7 +8,7 @@ Elastic Search Setup
 
 ::
 
-    from search.indexes import Index, PageIndex, ProjectIndex
+    from search.indexes import Index, PageIndex, ProjectIndex, SectionIndex
      
     # Create the index.
     index = Index()
@@ -20,6 +20,8 @@ Elastic Search Setup
     proj.put_mapping()
     page = PageIndex()
     page.put_mapping()
+    sec = SectionIndex()
+    sec.put_mapping()
 
 
 Servers
