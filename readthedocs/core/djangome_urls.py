@@ -1,7 +1,5 @@
 from django.conf.urls.defaults import patterns, url
 
-from urls import urlpatterns as main_patterns
-
 ALL_VERSIONS_RE = '(?P<version>.+)'
 
 urlpatterns = patterns(
@@ -26,4 +24,3 @@ urlpatterns = patterns(
         'djangome.views.show_term',
         name='show_term'),
 )
-urlpatterns += main_patterns
