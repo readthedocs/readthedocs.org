@@ -23,11 +23,6 @@ class SubdomainMiddleware(object):
             host = host.split(':')[0]
         domain_parts = host.split('.')
 
-        # Google was finding crazy www.blah.readthedocs.org domains.
-        if len(domain_parts) > 3:
-            # Let's try allowing this again.
-            log.debug(LOG_TEMPLATE.format(msg='Allowing long domain name', **log_kwargs))
-            #raise Http404(_('Invalid hostname'))
         if len(domain_parts) == 3:
             subdomain = domain_parts[0]
             # Serve subdomains
@@ -74,5 +69,10 @@ class SubdomainMiddleware(object):
                     # Some crazy person is CNAMEing to us. 404.
                     log.debug(LOG_TEMPLATE.format(msg='CNAME 404', **log_kwargs))
                     raise Http404(_('Invalid Host Name.'))
+        # Google was finding crazy www.blah.readthedocs.org domains.
+        # Block these explicitly after trying CNAME logic.
+        if len(domain_parts) > 3:
+            log.debug(LOG_TEMPLATE.format(msg='Blocking long domain name', **log_kwargs))
+            raise Http404(_('Invalid hostname'))
         # Normal request.
         return None

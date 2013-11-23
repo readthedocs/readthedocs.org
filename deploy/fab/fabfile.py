@@ -163,9 +163,12 @@ def setup_db():
         run('./manage.py migrate')
 
 def firewall(type):
-    sudo('apt-get install ufw')
-    sudo('ufw allow 22 #SSH')
-    sudo('ufw enable')
+    if type == "setup":
+        sudo('apt-get install ufw')
+        sudo('ufw allow 22 #SSH')
+        sudo('ufw enable')
+    if type == "munin":
+        sudo('ufw allow from %s to any port 4949 #Munin' % backup_ip)
     if type == "web":
         sudo('ufw allow 80 #Nginx')
         sudo('ufw allow 443 #Nginx')
@@ -220,7 +223,7 @@ def migrate_media():
 
 @hosts('root@newdb')
 def migrate_db():
-    run('sudo -iu postgres dropdb docs')
-    run('sudo -iu postgres createdb docs --encoding=unicode')
+    #run('sudo -iu postgres dropdb docs')
+    #run('sudo -iu postgres createdb docs --encoding=unicode')
     with settings(host_string='root@db'):
         run('time sudo -iu postgres pg_dump -Fc -C docs | ssh root@newdb.readthedocs.com " sudo -iu postgres pg_restore -C -d docs"')
