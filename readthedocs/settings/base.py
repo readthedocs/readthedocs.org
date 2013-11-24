@@ -115,7 +115,6 @@ INSTALLED_APPS = [
     'profiles',
     'taggit',
     'south',
-    'basic.flagging',
     'djangosecure',
     'guardian',
     'django_gravatar',

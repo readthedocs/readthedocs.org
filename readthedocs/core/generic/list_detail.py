@@ -1,6 +1,5 @@
 from django.template import loader, RequestContext
 from django.http import Http404, HttpResponse
-from django.core.xheaders import populate_xheaders
 from django.core.paginator import Paginator, InvalidPage
 from django.core.exceptions import ObjectDoesNotExist
 
