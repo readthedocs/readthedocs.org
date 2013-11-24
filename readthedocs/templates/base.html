@@ -121,7 +121,7 @@
   })();
 
   $('.rtfd-header-search input:text').autocomplete({
-    source: '{% url search_autocomplete %}',
+    source: '{% url "search_autocomplete" %}',
     minLength: 2,
     open: function(event, ui) {
       ac_top = $('.ui-autocomplete').css('top');

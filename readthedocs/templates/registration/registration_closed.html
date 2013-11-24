@@ -17,7 +17,7 @@
     {% blocktrans %} You registered a long time ago.
     We aren't sure if you are a robot or if 
     something got lost or what.{% endblocktrans %}
-    {% trans "Please try" %} <a href="{% url registration_register %}">{% trans "registering again" %}</a>.
+    {% trans "Please try" %} <a href="{% url "registration_register" %}">{% trans "registering again" %}</a>.
   </p>
   <p class="quiet">
     {% trans "We hope that isn't too inconvenient." %}

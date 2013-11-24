@@ -30,7 +30,7 @@
 
             <div class="module-header">
               <div style="float:right;">
-                <form method="post" action="{% url generic_build project.pk %}">
+                <form method="post" action="{% url "generic_build" project.pk %}">
                   <ul class="build_a_version">
                     <li style="display: inline-block">
                       <input style="display: inline-block" type="submit" value="{% trans "Build Version:" %}">
