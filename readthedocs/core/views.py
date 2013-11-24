@@ -9,7 +9,7 @@ from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect, Http404, HttpResponseNotFound
 from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.template import RequestContext
-from django.views.decorators.csrf import csrf_view_exempt
+from django.views.decorators.csrf import csrf_exempt
 from django.views.static import serve
 from django.views.generic import TemplateView
 
@@ -73,7 +73,7 @@ def live_builds(request):
                               context_instance=RequestContext(request))
 
 
-@csrf_view_exempt
+@csrf_exempt
 def wipe_version(request, project_slug, version_slug):
     version = get_object_or_404(Version, project__slug=project_slug,
                                 slug=version_slug)
@@ -149,7 +149,7 @@ def _build_url(url, branches):
         return HttpResponse(msg)
 
 
-@csrf_view_exempt
+@csrf_exempt
 def github_build(request):
     """
     A post-commit hook for github.
@@ -186,7 +186,7 @@ def github_build(request):
                 pc_log.error("Error creating new project %s: %s" % (name, e))
                 return HttpResponseNotFound('Repo not found')
 
-@csrf_view_exempt
+@csrf_exempt
 def bitbucket_build(request):
     if request.method == 'POST':
         payload = request.POST.get('payload')
@@ -206,7 +206,7 @@ def bitbucket_build(request):
             return HttpResponseNotFound('Repo not found: %s' % ghetto_url)
 
 
-@csrf_view_exempt
+@csrf_exempt
 def generic_build(request, pk=None):
     try:
         project = Project.objects.get(pk=pk)
