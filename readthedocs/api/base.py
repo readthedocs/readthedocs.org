@@ -2,7 +2,7 @@ import logging
 import json
 
 from django.contrib.auth.models import User
-from django.conf.urls.defaults import url
+from django.conf.urls import url
 from django.shortcuts import get_object_or_404
 
 from tastypie import fields
