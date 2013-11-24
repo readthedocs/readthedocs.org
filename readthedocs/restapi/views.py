@@ -180,7 +180,7 @@ TEMPLATE = """
       </dl>
       {% endif %}
       <hr/>
-      Free document hosting provided by <a href="https://readthedocs.org">Read the Docs</a>.
+      Free document hosting provided by <a href="https://readthedocs.org">Read the Docs</a>. Support us on <a href="https://www.gittip.com/readthedocs/">Gittip</a>.
 
   {% if not new_theme %}
     </div>
