@@ -29,7 +29,7 @@
   {% if emails|length > 0 %}
   <h3>{% trans "Remove Notifications" %}</h3>
     <p>
-        <form method="post" action="{% url "projects_notification_delete" project.slug %}">
+        <form method="post" action="{% url projects_notification_delete project.slug %}">
             {% csrf_token %}
           <select id="id_email" name="email">
           {% for email in emails %}

@@ -7,14 +7,14 @@
         <div class="rtfd-header-title">
             <h1>
                 {% comment %}Translators: Name of the website{% endcomment %}
-                <a href="{% url "core.views.homepage" %}">{% trans "Read the Docs" %}</a>
+                <a href="{% url core.views.homepage %}">{% trans "Read the Docs" %}</a>
             </h1>
         </div>
         <!-- END header title -->
 
         <!-- BEGIN global search -->
         <div class="rtfd-header-search">
-          <form action="{% url "haystack_project" %}" method="GET">
+          <form action="{% url haystack_project %}" method="GET">
             <input type="text" name="q" value="{{ term }}" id="id_site_search">
             <input type="submit" value="{% trans "Go" %}">
           </form>
@@ -27,9 +27,9 @@
         {% if request.META.PATH_INFO != '/' %}
         <div class="rtfd-header-bookmark">
           {% if has_bookmark %}
-            <a href="{% url "bookmarks_remove" request.META.PATH_INFO %}" class="rtfd-header-bookmark-icon active">{% trans "Remove bookmark" %}</a>
+            <a href="{% url bookmarks_remove request.META.PATH_INFO %}" class="rtfd-header-bookmark-icon active">{% trans "Remove bookmark" %}</a>
           {% else %}
-            <a href="{% url "bookmarks_add" request.META.PATH_INFO %}" class="rtfd-header-bookmark-icon">{% trans "Bookmark this URL" %}</a>
+            <a href="{% url bookmarks_add request.META.PATH_INFO %}" class="rtfd-header-bookmark-icon">{% trans "Bookmark this URL" %}</a>
           {% endif %}
         </div>
         {% endif %}
@@ -41,10 +41,10 @@
         <div class="rtfd-header-nav">
           <ul>
             {% if request.user.is_authenticated %}
-              <li class="{{ dashboard_active }}"><a href="{% url "projects_dashboard" %}">{% trans "Dashboard" %}</a></li>
-              <li><a href="{% url "auth_logout" %}">{% trans "Log Out" %}</a></li>
+              <li class="{{ dashboard_active }}"><a href="{% url projects_dashboard %}">{% trans "Dashboard" %}</a></li>
+              <li><a href="{% url auth_logout %}">{% trans "Log Out" %}</a></li>
             {% else %}
-              <li><a href="{% url "auth_login" %}">{% trans "Log in" %}</a></li>
+              <li><a href="{% url auth_login %}">{% trans "Log in" %}</a></li>
             {% endif %}
 
 

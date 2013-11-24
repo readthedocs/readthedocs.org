@@ -18,6 +18,6 @@
     {% blocktrans %}Did you really think activation key "{{ activation_key }}" was going to work?!{% endblocktrans %}
   </p>
   <p>
-    {% trans "We're not sure how you got that key, but would you mind registering again" %} <a href="{% url "registration_register" %}">{% trans "here" %}</a>?  
+    {% trans "We're not sure how you got that key, but would you mind registering again" %} <a href="{% url registration_register %}">{% trans "here" %}</a>?  
   </p>
 {% endblock %}

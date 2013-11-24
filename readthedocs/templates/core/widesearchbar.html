@@ -7,7 +7,7 @@
           <div class="wide-search-bar-wrapper clearfix">
 
 
-            <form action="{% url "haystack_project" %}" method="GET">
+            <form action="{% url haystack_project %}" method="GET">
               <div class="text-input-wrapper">
                 <input type="text" name="q" value="{{ term }}" id="id_site_search">
               </div>
@@ -22,7 +22,7 @@
         {% comment %}
         <script type="text/javascript">
           $('.wide-search-bar #id_site_search').autocomplete({
-            source: '{% url "search_autocomplete" %}',
+            source: '{% url search_autocomplete %}',
             minLength: 2,
             open: function(event, ui) {
               ac_top = $('.ui-autocomplete').css('top');
