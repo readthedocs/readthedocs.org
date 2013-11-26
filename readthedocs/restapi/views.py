@@ -402,6 +402,9 @@ def section_search(request):
 
         GET /api/v2/search/section/?q=virtualenv&project=django
 
+    Current Query
+    -------------
+
     """
     query = request.GET.get('q', None)
     if not query:
