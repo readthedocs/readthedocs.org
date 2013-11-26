@@ -676,7 +676,7 @@ def symlink_cnames(version):
         # Chop off the version from the end.
         docs_dir = '/'.join(docs_dir.split('/')[:-1])
         # Old symlink location -- Keep this here til we change nginx over
-        symlink = version.project.rtd_cname_path(cname)
+        symlink = version.project.cnames_symlink_path(cname)
         run_on_app_servers('mkdir -p %s' % '/'.join(symlink.split('/')[:-1]))
         run_on_app_servers('ln -nsf %s %s' % (docs_dir, symlink))
 
