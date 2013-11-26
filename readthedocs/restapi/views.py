@@ -466,6 +466,7 @@ def section_search(request):
                 {"term": {"path": path_slug}},
             ]
         }
+        
     if path_slug and not project_slug:
         # Show facets when we only have a path
         body["facets"]['path'] = {
