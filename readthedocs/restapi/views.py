@@ -374,7 +374,7 @@ def project_search(request):
 @decorators.renderer_classes((JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
 def section_search(request):
     """
-    Search for a Section of content on Read the Docs
+    Search for a Section of content on Read the Docs.
     A Section is a subheading on a specific page.
 
     Query Thoughts
