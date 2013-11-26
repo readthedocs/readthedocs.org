@@ -407,9 +407,18 @@ class Project(models.Model):
         return os.path.join(self.doc_path, 'envs', version)
 
     def translations_path(self, language=None):
+        """
+        Path in the doc_path that we symlink translations
+        """
         if not language:
             language = self.language
         return os.path.join(self.doc_path, 'translations', language)
+
+    def subprojects_path(self, project):
+        """
+        Path in the doc_path that we symlink subprojects
+        """
+        return os.path.join(self.doc_path, 'subprojects', project)
 
     def venv_bin(self, version='latest', bin='python'):
         return os.path.join(self.venv_path(version), 'bin', bin)

@@ -68,6 +68,15 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
             'translations': ProjectSerializer(queryset, many=True).data
         })
 
+    @decorators.link()
+    def subprojects(self, request, **kwargs):
+        project = get_object_or_404(Project, pk=kwargs['pk'])
+        rels = project.subprojects.all()
+        children = [rel.child for rel in rels]
+        return Response({
+            'subprojects': ProjectSerializer(children, many=True).data
+        })
+
     @decorators.action(permission_classes=[permissions.IsAdminUser])
     def sync_versions(self, request, **kwargs):
         """

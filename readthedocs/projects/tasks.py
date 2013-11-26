@@ -242,8 +242,9 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
             purge_version(version, subdomain=True,
                           mainsite=True, cname=True)
             symlink_cname(version)
-            # This requires database access, must disable it for now.
             symlink_translations(version)
+            symlink_subprojects(version)
+            # This requires database access, must disable it for now.
             #send_notifications(version, build)
             #log.info("Purged %s" % version)
         else:
@@ -689,7 +690,7 @@ def symlink_translations(version):
             translation_dir = translation.rtd_build_path(translation.slug)
             # Chop off the version from the end.
             translation_dir = '/'.join(translation_dir.split('/')[:-1])
-            log.debug(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Symlinking %s" % translation.language))
+            log.debug(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Symlinking translation: %s" % translation.language))
             run_on_app_servers('mkdir -p %s' % '/'.join(base_path.split('/')[:-1]))
             run_on_app_servers('ln -nsf %s %s' % (translation_dir, base_path))
         # Hack in the en version for backwards compat
@@ -702,6 +703,29 @@ def symlink_translations(version):
     except Exception, e:
         log.error(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Error in symlink_translations: %s" % e.message))
         # Don't fail on translation bits
+        pass
+ 
+
+def symlink_subprojects(version):
+    """
+    Link from HOME/user_builds/project/subprojects/<project> ->
+              HOME/user_builds/<project>/rtd-builds/
+    """
+    try:
+        subprojects = apiv2.project(version.project.pk).subprojects.get()['subprojects']
+        for subproject_data in subprojects:
+            subproject = make_api_project(subproject_data)
+            # Get the first part of the symlink.
+            base_path = version.project.subprojects_path(subproject.slug)
+            subproject_dir = subproject.rtd_build_path(subproject.slug)
+            # Chop off the version from the end.
+            subproject_dir = '/'.join(subproject_dir.split('/')[:-1])
+            log.debug(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Symlinking subproject: %s" % subproject.slug))
+            run_on_app_servers('mkdir -p %s' % '/'.join(base_path.split('/')[:-1]))
+            run_on_app_servers('ln -nsf %s %s' % (subproject_dir, base_path))
+    except Exception, e:
+        log.error(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Error in symlink_subprojects: %s" % e.message))
+        # Don't fail on subproject bits
         pass
 
 

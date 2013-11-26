@@ -6,6 +6,15 @@ class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
         excludes = ['path', 'featured']
+        fields = (
+        	'id', 
+        	'name', 'slug', 'description', 'language',
+	    	'repo', 'repo_type',
+	    	'default_version', 'default_branch',
+	    	'documentation_type',
+	    	'num_major', 'num_minor', 'num_point',
+	    	'users',
+        	)
 
 class SearchIndexSerializer(serializers.Serializer):
     q = serializers.CharField(max_length=500)
