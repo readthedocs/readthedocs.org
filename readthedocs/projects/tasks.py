@@ -679,10 +679,6 @@ def symlink_cnames(version):
         symlink = version.project.rtd_cname_path(cname)
         run_on_app_servers('mkdir -p %s' % '/'.join(symlink.split('/')[:-1]))
         run_on_app_servers('ln -nsf %s %s' % (docs_dir, symlink))
-        # New symlink location 
-        symlink = version.project.cnames_symlink_path(cname)
-        run_on_app_servers('mkdir -p %s' % '/'.join(symlink.split('/')[:-1]))
-        run_on_app_servers('ln -nsf %s %s' % (docs_dir, symlink))
 
 
 def symlink_subprojects(version):

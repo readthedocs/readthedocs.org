@@ -412,8 +412,10 @@ class Project(models.Model):
     def cnames_symlink_path(self, domain):
         """
         Path in the doc_path that we symlink cnames
+
+        This has to be at the top-level because Nginx doesn't know the projects slug.
         """
-        return os.path.join(self.doc_path, 'cnames', domain)
+        return os.path.join(settings.CNAME_ROOT, domain)
 
     def translations_symlink_path(self, language=None):
         """
@@ -488,12 +490,6 @@ class Project(models.Model):
         The path to the build html docs in the project.
         """
         return os.path.join(self.doc_path, 'rtd-builds', version)
-
-    def rtd_cname_path(self, cname):
-        """
-        The path to the build html docs in the project.
-        """
-        return os.path.join(settings.CNAME_ROOT, cname)
 
     def conf_file(self, version='latest'):
         if self.conf_py_file:

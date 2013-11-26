@@ -23,4 +23,6 @@ urlpatterns = patterns(
     url('^%s/(?P<term>[\w\-\.]+)/stats$' % ALL_VERSIONS_RE,
         'djangome.views.show_term',
         name='show_term'),
+    # Hack in a core.views.homepage bit for reverse in base template
+    url(r'home/', 'core.views.homepage'),
 )
