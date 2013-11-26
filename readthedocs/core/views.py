@@ -269,12 +269,12 @@ def default_docs_kwargs(request, project_slug=None):
     URL.
 
     """
-    # If project_slug isn't in URL pattern, it's set in subdomain
-    # middleware as request.slug.
-    if project_slug is None:
-        proj = get_object_or_404(Project, slug=request.slug)
-    else:
+    if project_slug:
         proj = get_object_or_404(Project, slug=project_slug)
+    else:
+        # If project_slug isn't in URL pattern, it's set in subdomain
+        # middleware as request.slug.
+        proj = get_object_or_404(Project, slug=request.slug)
     version_slug = proj.get_default_version()
     kwargs = {
         'project_slug': project_slug,
