@@ -428,7 +428,10 @@ def section_search(request):
         },
         "facets": {
             "project": {
-                "terms": {"field": "project"}
+                "terms": {"field": "project"},
+                "facet_filter": {
+                    "term": {"version": version_slug},
+                } 
             },
         },
         "highlight": {
