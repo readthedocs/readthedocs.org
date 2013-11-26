@@ -241,7 +241,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
             log.info(LOG_TEMPLATE.format(project=project.slug, version=version.slug, msg="Successful Build"))
             purge_version(version, subdomain=True,
                           mainsite=True, cname=True)
-            symlink_cname(version)
+            symlink_cnames(version)
             symlink_translations(version)
             symlink_subprojects(version)
             # This requires database access, must disable it for now.
@@ -659,21 +659,50 @@ def save_term(version, term, url):
                                                      project_slug, term, url),
                     1)
 
-
-def symlink_cname(version):
-    build_dir = version.project.rtd_build_path(version.slug)
-    # Chop off the version from the end.
-    build_dir = '/'.join(build_dir.split('/')[:-1])
-    redis_conn = redis.Redis(**settings.REDIS)
+def symlink_cnames(version):
+    """
+    Link from HOME/user_builds/project/cnames/<cname> ->
+              HOME/user_builds/<project>/rtd-builds/
+    """
     try:
+        redis_conn = redis.Redis(**settings.REDIS)
         cnames = redis_conn.smembers('rtd_slug:v1:%s' % version.project.slug)
     except redis.ConnectionError:
+        log.error(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg='Failed to symlink cnames, Redis error.'), exc_info=True)
         return
     for cname in cnames:
-        log.debug(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Symlinking %s" % cname))
+        log.debug(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Symlinking CNAME: %s" % cname))
+        docs_dir = version.project.rtd_build_path(version.slug)
+        # Chop off the version from the end.
+        docs_dir = '/'.join(docs_dir.split('/')[:-1])
+        # Old symlink location -- Keep this here til we change nginx over
         symlink = version.project.rtd_cname_path(cname)
         run_on_app_servers('mkdir -p %s' % '/'.join(symlink.split('/')[:-1]))
-        run_on_app_servers('ln -nsf %s %s' % (build_dir, symlink))
+        run_on_app_servers('ln -nsf %s %s' % (docs_dir, symlink))
+        # New symlink location 
+        symlink = version.project.cnames_symlink_path(cname)
+        run_on_app_servers('mkdir -p %s' % '/'.join(symlink.split('/')[:-1]))
+        run_on_app_servers('ln -nsf %s %s' % (docs_dir, symlink))
+
+
+def symlink_subprojects(version):
+    """
+    Link from HOME/user_builds/project/subprojects/<project> ->
+              HOME/user_builds/<project>/rtd-builds/
+    """
+    # Subprojects
+    subprojects = apiv2.project(version.project.pk).subprojects.get()['subprojects']
+    for subproject_data in subprojects:
+        subproject_slug = subproject_data['slug']
+        log.debug(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Symlinking subproject: %s" % subproject_slug))
+
+        # The directory for this specific subproject
+        symlink = version.project.subprojects_symlink_path(subproject_slug)
+        run_on_app_servers('mkdir -p %s' % '/'.join(symlink.split('/')[:-1]))
+
+        # Where the actual docs live
+        docs_dir = os.path.join(settings.DOCROOT, subproject_slug, 'rtd-builds')
+        run_on_app_servers('ln -nsf %s %s' % (docs_dir, symlink))
 
 
 def symlink_translations(version):
@@ -681,53 +710,24 @@ def symlink_translations(version):
     Link from HOME/user_builds/project/translations/<lang> ->
               HOME/user_builds/<project>/rtd-builds/
     """
-    try:
-        translations = apiv2.project(version.project.pk).translations.get()['translations']
-        for translation_data in translations:
-            translation = make_api_project(translation_data)
-            # Get the first part of the symlink.
-            base_path = version.project.translations_path(translation.language)
-            translation_dir = translation.rtd_build_path(translation.slug)
-            # Chop off the version from the end.
-            translation_dir = '/'.join(translation_dir.split('/')[:-1])
-            log.debug(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Symlinking translation: %s" % translation.language))
-            run_on_app_servers('mkdir -p %s' % '/'.join(base_path.split('/')[:-1]))
-            run_on_app_servers('ln -nsf %s %s' % (translation_dir, base_path))
-        # Hack in the en version for backwards compat
-        base_path = version.project.translations_path('en')
-        translation_dir = version.project.rtd_build_path(version.project.slug)
-        # Chop off the version from the end.
-        translation_dir = '/'.join(translation_dir.split('/')[:-1])
-        run_on_app_servers('mkdir -p %s' % '/'.join(base_path.split('/')[:-1]))
-        run_on_app_servers('ln -nsf %s %s' % (translation_dir, base_path))
-    except Exception, e:
-        log.error(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Error in symlink_translations: %s" % e.message))
-        # Don't fail on translation bits
-        pass
- 
+    translations = apiv2.project(version.project.pk).translations.get()['translations']
+    for translation_data in translations:
+        translation_slug = translation_data['slug']
+        translation_language = translation_data['language']
+        log.debug(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Symlinking translation: %s->%s" % (translation_language, translation_slug)))
 
-def symlink_subprojects(version):
-    """
-    Link from HOME/user_builds/project/subprojects/<project> ->
-              HOME/user_builds/<project>/rtd-builds/
-    """
-    try:
-        subprojects = apiv2.project(version.project.pk).subprojects.get()['subprojects']
-        for subproject_data in subprojects:
-            subproject = make_api_project(subproject_data)
-            # Get the first part of the symlink.
-            base_path = version.project.subprojects_path(subproject.slug)
-            subproject_dir = subproject.rtd_build_path(subproject.slug)
-            # Chop off the version from the end.
-            subproject_dir = '/'.join(subproject_dir.split('/')[:-1])
-            log.debug(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Symlinking subproject: %s" % subproject.slug))
-            run_on_app_servers('mkdir -p %s' % '/'.join(base_path.split('/')[:-1]))
-            run_on_app_servers('ln -nsf %s %s' % (subproject_dir, base_path))
-    except Exception, e:
-        log.error(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Error in symlink_subprojects: %s" % e.message))
-        # Don't fail on subproject bits
-        pass
+        # The directory for this specific translation
+        symlink = version.project.translations_symlink_path(translation_language)
+        run_on_app_servers('mkdir -p %s' % '/'.join(symlink.split('/')[:-1]))
 
+        # Where the actual docs live
+        docs_dir = os.path.join(settings.DOCROOT, translation_slug, 'rtd-builds')
+        run_on_app_servers('ln -nsf %s %s' % (docs_dir, symlink))
+
+    # Hack in the en version for backwards compat
+    symlink = version.project.translations_symlink_path('en')
+    docs_dir = os.path.join(settings.DOCROOT, version.project.slug, 'rtd-builds')
+    run_on_app_servers('ln -nsf %s %s' % (docs_dir, symlink))
 
 def send_notifications(version, build):
     #zenircbot_notification(version.id)

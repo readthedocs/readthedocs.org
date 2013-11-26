@@ -17,7 +17,7 @@ from djangome import views as djangome
 from search.indexes import PageIndex, ProjectIndex, SectionIndex
 from projects.models import Project, EmailHook
 
-from .serializers import ProjectSerializer
+from .serializers import ProjectSerializer, VersionSerializer
 from .permissions import RelatedProjectIsOwner
 import utils as api_utils
 
@@ -29,6 +29,17 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     renderer_classes = (JSONRenderer, JSONPRenderer, BrowsableAPIRenderer)
     model = Project
+
+    def get_queryset(self):
+        """
+        Optionally restricts the returned purchases to a given project,
+        by filtering against a `slug` query parameter in the URL.
+        """
+        queryset = Project.objects.all()
+        slug = self.request.QUERY_PARAMS.get('slug', None)
+        if slug is not None:
+            queryset = queryset.filter(slug=slug)
+        return queryset
 
     @decorators.link()
     def valid_versions(self, request, **kwargs):
@@ -123,7 +134,23 @@ class NotificationViewSet(viewsets.ReadOnlyModelViewSet):
 class VersionViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     renderer_classes = (JSONRenderer, BrowsableAPIRenderer)
+    serializer_class = VersionSerializer
     model = Version
+
+    def get_queryset(self):
+        """
+        Optionally restricts the returned purchases to a given project,
+        by filtering against a `project` query parameter in the URL.
+        """
+        queryset = Version.objects.all()
+        project = self.request.QUERY_PARAMS.get('project', None)
+        if project is not None:
+            queryset = queryset.filter(project__slug=project)
+        slug = self.request.QUERY_PARAMS.get('slug', None)
+        if slug is not None:
+            queryset = queryset.filter(slug=slug)
+        return queryset
+
 
     @decorators.link()
     def downloads(self, request, **kwargs):
