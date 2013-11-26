@@ -503,7 +503,7 @@ def build_docs(version_pk, pdf, man, epub, dash, search, record, force):
                         # Copy json for safe keeping
                         search_builder.move()
                 except:
-                    pass
+                    log.error(LOG_TEMPLATE.format(project=project.slug, version=version.slug, msg="JSON Build Error"), exc_info=True)
             if dash:
                 dash_builder = builder_loading.get('sphinx_dash')(version)
                 dash_results = dash_builder.build()
