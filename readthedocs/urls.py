@@ -42,23 +42,24 @@ urlpatterns = patterns(
         'core.views.serve_docs',
         name='docs_detail'),
 
+    # Redirect to default version, if only lang_slug is set.
+    url((r'^docs/(?P<project_slug>[-\w]+)/(?P<lang_slug>%s)/$') % LANGUAGES_REGEX,
+        'core.views.redirect_lang_slug',
+        name='docs_detail'),
+
+    # Redirect to default version, if only version_slug is set.
+    url(r'^docs/(?P<project_slug>[-\w]+)/(?P<version_slug>[-._\w]+)/$',
+        'core.views.redirect_version_slug',
+        name='docs_detail'),
+
     # Redirect to default version.
     url(r'^docs/(?P<project_slug>[-\w]+)/$',
-        'core.views.serve_docs',
-        {
-            'version_slug': None,
-            'lang_slug': None,
-            'filename': '',
-        },
+        'core.views.redirect_project_slug',
         name='docs_detail'),
 
     # Handle /page/<path> redirects for explicit "latest" version goodness.
     url(r'^docs/(?P<project_slug>[-\w]+)/page/(?P<filename>.*)$',
-        'core.views.serve_docs',
-        {
-            'version_slug': None,
-            'lang_slug': None,
-        },
+        'core.views.redirect_page_with_filename',
         name='docs_detail'),
 
     url(r'^projects/', include('projects.urls.public')),

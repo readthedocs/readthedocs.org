@@ -7,7 +7,7 @@ import core.views
 class SubdomainUrlTests(TestCase):
 
     def test_sub_index(self):
-        url = reverse(core.views.subdomain_handler,
+        url = reverse(core.views.redirect_project_slug,
             urlconf='core.subdomain_urls')
         self.assertEqual(url, '/')
 
@@ -45,6 +45,12 @@ class SubdomainUrlTests(TestCase):
             urlconf='core.subdomain_urls',
             kwargs={'version_slug': '1.4.1'})
         self.assertEqual(url, '/1.4.1/')
+
+    def test_sub_lang(self):
+        url = reverse('lang_subdomain_handler',
+            urlconf='core.subdomain_urls',
+            kwargs={'lang_slug': 'en'})
+        self.assertEqual(url, '/en/')
 
 
 class WipeUrlTests(TestCase):

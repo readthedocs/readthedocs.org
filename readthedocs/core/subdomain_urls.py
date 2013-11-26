@@ -1,5 +1,6 @@
 from django.conf.urls.defaults import url, patterns
 
+from projects.constants import LANGUAGES_REGEX
 from urls import urlpatterns as main_patterns
 
 
@@ -28,18 +29,18 @@ urlpatterns = patterns(
         name='docs_detail'),
 
     url(r'^page/(?P<filename>.*)$',
-        'core.views.subdomain_handler',
-        {
-            'version_slug': None,
-            'lang_slug': None,
-        },
+        'core.views.redirect_page_with_filename',
         name='docs_detail'),
 
+    url(r'^(?P<lang_slug>%s)/$' % LANGUAGES_REGEX,
+        'core.views.redirect_lang_slug',
+        name='lang_subdomain_handler'),
+
     url(r'^(?P<version_slug>.*)/$',
-        'core.views.subdomain_handler',
+        'core.views.redirect_version_slug',
         name='version_subdomain_handler'),
 
-    url(r'^$', 'core.views.subdomain_handler'),
+    url(r'^$', 'core.views.redirect_project_slug'),
 )
 
 urlpatterns += main_patterns
