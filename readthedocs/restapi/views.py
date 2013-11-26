@@ -373,10 +373,45 @@ def project_search(request):
 @decorators.permission_classes((permissions.AllowAny,))
 @decorators.renderer_classes((JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
 def section_search(request):
+    """
+    Search for a Section of content on Read the Docs
+    A Section is a subheading on a specific page.
+
+    Query Thoughts
+    --------------
+
+    If you want to search across all documents, just query with a ``q`` GET arg.
+    If you want to filter by a specific project, include a ``project`` GET arg.
+
+    Facets
+    ------
+
+    When you search, you will have a ``project`` facet, which includes the number of matching sections per project.
+    When you search inside a project, the ``path`` facet will show the number of matching sections per page.
+
+    Possible GET args
+    -----------------
+
+    * q - The query string **Required**
+    * project - A project slug *Optional*
+    * version - A version slug *Optional*
+    * path - A file path slug  *Optional*
+
+    Example
+    -------
+
+        GET /api/v2/search/section/?q=virtualenv&project=django
+
+    """
+    query = request.GET.get('q', None)
+    if not query:
+        return Response({'error': 'Search term required. Use the "q" GET arg to search. '}, status=status.HTTP_400_BAD_REQUEST)
+
     project_slug = request.GET.get('project', None)
     version_slug = request.GET.get('version', 'latest')
-    query = request.GET.get('q', None)
-    log.debug("(API Section Search) %s" % query)
+    path_slug = request.GET.get('path', None)
+
+    log.debug("(API Section Search) [%s:%s] %s" % (project_slug, version_slug, query))
 
     kwargs = {}
     body = {
@@ -389,8 +424,9 @@ def section_search(request):
             }
         },
         "facets": {
-            "path": {
-                "terms": {"field": "path"}}
+            "project": {
+                "terms": {"field": "project"}
+            },
         },
         "highlight": {
             "fields": {
@@ -409,8 +445,27 @@ def section_search(request):
                 {"term": {"version": version_slug}},
             ]
         }
+        body["facets"]['path'] = {
+            "terms": {"field": "path"},
+            "facet_filter": {
+                "term": {"project": project_slug},
+            } 
+        },
         # Add routing to optimize search by hitting the right shard.
         kwargs['routing'] = project_slug
+
+    if path_slug:
+        body['filter'] = {
+            "and": [
+                {"term": {"path": path_slug}},
+            ]
+        }
+    if path_slug and not project_slug:
+        # Show facets when we only have a path
+        body["facets"]['path'] = {
+            "terms": {"field": "path"}
+        }
+
 
     results = SectionIndex().search(body, **kwargs)
 
