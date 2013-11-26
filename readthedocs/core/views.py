@@ -348,7 +348,7 @@ def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
     if lang_slug == proj.language:
         basepath = proj.rtd_build_path(version_slug)
     else:
-        basepath = proj.translations_path(lang_slug)
+        basepath = proj.translations_symlink_path(lang_slug)
         basepath = os.path.join(basepath, version_slug)
 
     # Serve file
