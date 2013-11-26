@@ -280,7 +280,7 @@ def project_subprojects(request, project_slug):
 
     if request.method == 'POST' and form.is_valid():
         form.save()
-        project_dashboard = reverse('projects_detail', args=[project.slug])
+        project_dashboard = reverse('projects_subprojects', args=[project.slug])
         return HttpResponseRedirect(project_dashboard)
 
     subprojects = project.subprojects.all()

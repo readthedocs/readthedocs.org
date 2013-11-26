@@ -323,3 +323,6 @@ LOGGING = {
         },
     }
 }
+
+if DEBUG:
+    LOGGING['handlers']['console']['level'] = 'DEBUG'
