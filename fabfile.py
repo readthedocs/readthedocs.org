@@ -27,22 +27,22 @@ def ntpdate():
 @hosts(['newasgard.readthedocs.com', 'newchimera.readthedocs.com'])
 def nginx_logs():
     env.user = "root"
-    run("tail -f /var/log/nginx/*.log")
+    run("tail -F /var/log/nginx/*.log")
 
 @hosts(['newbuild.readthedocs.com'])
 def celery_logs():
     env.user = "docs"
-    run("tail -f tail -f ~/log/celery.err")
+    run("tail -F tail -f ~/log/celery.err")
 
 @hosts(['newasgard.readthedocs.com', 'newchimera.readthedocs.com'])
 def logs():
     env.user = "docs"
-    run("tail -f %s/logs/*.log" % env.code_dir)
+    run("tail -F %s/logs/*.log" % env.code_dir)
 
 @hosts(['newasgard.readthedocs.com', 'newchimera.readthedocs.com'])
 def postcommit_logs():
     env.user = "docs"
-    run("tail -f %s/logs/postcommit.log" % env.code_dir)
+    run("tail -F %s/logs/postcommit.log" % env.code_dir)
 
 @hosts(['newasgard.readthedocs.com', 'newchimera.readthedocs.com'])
 def cat_postcommit_logs():
@@ -52,7 +52,7 @@ def cat_postcommit_logs():
 @hosts(['newasgard.readthedocs.com', 'newchimera.readthedocs.com'])
 def api_logs():
     env.user = "docs"
-    run("tail -f %s/logs/api.log" % env.code_dir)
+    run("tail -F %s/logs/api.log" % env.code_dir)
 
 @hosts(['newasgard.readthedocs.com', 'newchimera.readthedocs.com'])
 def web_logs(type):
