@@ -37,7 +37,7 @@ class SubdomainMiddleware(object):
             elif not is_www and not is_ssl and 'rtfd.org' in host:
                 # Disable RTFD django.me close stuff for now.
                 # AFAICT nobody uses it, and it causes 500s in templates :)
-                continue
+                return None
                 request.slug = subdomain
                 request.urlconf = 'core.djangome_urls'
                 log.debug(LOG_TEMPLATE.format(msg='Django.me request let through', **log_kwargs))
