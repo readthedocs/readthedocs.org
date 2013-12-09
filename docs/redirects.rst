@@ -26,7 +26,7 @@ Among all the multiple versions of docs, you can choose which is the "default" v
 Supported Top-Level Redirects
 -----------------------------
 
-The main challenge of URL routing in Read the Docs is handling redirects correctly. Both in the interest of redirecting older URLs that are now obsolete, and in the interest of handling "logical-looking" URLs (leaving out the lang_slug or version_slug shouldn't result in a 404), the following redirects should be handled::
+The main challenge of URL routing in Read the Docs is handling redirects correctly. Both in the interest of redirecting older URLs that are now obsolete, and in the interest of handling "logical-looking" URLs (leaving out the lang_slug or version_slug shouldn't result in a 404), the following redirects are supported::
 
     /          -> /en/latest/
     /en/       -> /en/latest/
