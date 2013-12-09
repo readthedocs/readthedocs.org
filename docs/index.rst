@@ -28,6 +28,7 @@ Site Documentation
     faq
     support
     features
+    redirects
     theme
     privacy
     webhooks
