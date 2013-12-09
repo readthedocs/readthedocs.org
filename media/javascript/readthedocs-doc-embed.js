@@ -107,7 +107,7 @@ $(document).ready(function () {
       if (query.length) {
         query = query.join(" ")
         console.log("Searching based on GET arg for: " + query)
-        $("#rtd-search-form input[name='q'").val(query)
+        $("#rtd-search-form input[name='q']").val(query)
         getSearch(query, clear)
       }
     }
