@@ -26,6 +26,11 @@ Among all the multiple versions of docs, you can choose which is the "default" v
 Supported Top-Level Redirects
 -----------------------------
 
+.. note:: These "implicit" redirects are supported for legacy reasons.
+          We will not be adding support for any more magic redirects.
+          If you want additional redirects,
+          they should live at a prefix like :ref:`page-redirect`
+
 The main challenge of URL routing in Read the Docs is handling redirects correctly. Both in the interest of redirecting older URLs that are now obsolete, and in the interest of handling "logical-looking" URLs (leaving out the lang_slug or version_slug shouldn't result in a 404), the following redirects are supported::
 
     /          -> /en/latest/
@@ -34,6 +39,8 @@ The main challenge of URL routing in Read the Docs is handling redirects correct
 
 The language redirect will work for any of the defined ``LANGUAGE_CODES`` we support.
 The version redirect will work for supported versions.
+
+.. _page-redirect:
 
 Redirecting to a Page
 ---------------------
