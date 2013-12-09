@@ -23,6 +23,13 @@ The reasoning behind this is that RTD organizes the URLs for docs so that multip
 
 Among all the multiple versions of docs, you can choose which is the "default" version for RTD to display, which usually corresponds to the git branch of the most recent official release from your project.
 
+rtfd.org
+~~~~~~~~
+
+Links to rtfd.org are treated the same way as above.
+They redirect the root URL to the default version of the project.
+They are intended to be easy and short for people to type.
+
 Supported Top-Level Redirects
 -----------------------------
 
