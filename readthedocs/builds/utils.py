@@ -7,9 +7,6 @@ GH_REGEXS = [
 ]
 
 BB_REGEXS = [
-    re.compile('bitbucket.com/(.+)/(.+)/'),
-    re.compile('bitbucket.com/(.+)/(.+)'),
-    re.compile('bitbucket.com:(.+)/(.+)\.git'),
     re.compile('bitbucket.org/(.+)/(.+)/'),
     re.compile('bitbucket.org/(.+)/(.+)'),
     re.compile('bitbucket.org:(.+)/(.+)\.git'),
