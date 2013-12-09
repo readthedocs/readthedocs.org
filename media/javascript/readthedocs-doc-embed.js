@@ -81,7 +81,7 @@ $(document).ready(function () {
     $(document).on('submit', '#rtd-search-form', function (ev) {
       //ev.preventDefault();
       clearSearch()
-      var query = $("#rtd-search-form input[name='q'").val()
+      var query = $("#rtd-search-form input["name='q'").val()
       getSearch(query, true)
     }) 
 
