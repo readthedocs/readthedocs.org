@@ -64,6 +64,7 @@ class SubdomainMiddleware(object):
                         cache.set(host, slug, 60*60)
                         #Cache the slug -> host mapping permanently.
                         redis_conn.sadd("rtd_slug:v1:%s" % slug, host)
+                        log.debug(LOG_TEMPLATE.format(msg='CNAME cached: %s->%s' % (slug, host), **log_kwargs))
                     request.slug = slug
                     request.urlconf = 'core.subdomain_urls'
                     log.debug(LOG_TEMPLATE.format(msg='CNAME detetected: %s' % request.slug, **log_kwargs))
