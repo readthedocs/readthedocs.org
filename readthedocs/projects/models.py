@@ -135,7 +135,7 @@ class Project(models.Model):
         _('Requirements file'), max_length=255, default=None, null=True,
         blank=True, help_text=_(
             'Requires Virtualenv. A <a '
-            'href="http://www.pip-installer.org/en/latest/requirements.html">'
+            'href="http://www.pip-installer.org/en/latest/cookbook.html#requirements-files">'
             'pip requirements file</a> needed to build your documentation. '
             'Path from the root of your project.'))
     documentation_type = models.CharField(
