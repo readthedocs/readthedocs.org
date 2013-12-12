@@ -18,7 +18,7 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-SITE_ROOT = '/'.join(os.path.dirname(__file__).split('/')[0:-2])
+SITE_ROOT = '/'.join(os.path.dirname(os.path.realpath(__file__)).split('/')[0:-2])
 DOCROOT = os.path.join(SITE_ROOT, 'user_builds')
 UPLOAD_ROOT = os.path.join(SITE_ROOT, 'user_uploads')
 CNAME_ROOT = os.path.join(SITE_ROOT, 'cnames')
