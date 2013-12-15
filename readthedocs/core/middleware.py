@@ -117,4 +117,12 @@ class SingleVersionMiddleware(object):
 
             if proj.single_version:
                 request.urlconf = 'core.single_version_urls'
+                # Logging
+                host = request.get_host()
+                path = request.get_full_path()
+                log_kwargs = dict(host=host, path=path)
+                log.debug(LOG_TEMPLATE.format(
+                    msg='Handling single_version request', **log_kwargs)
+                )
+
         return None
