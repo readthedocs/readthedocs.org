@@ -1,9 +1,13 @@
 import logging
+import os
 
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 from django.core.cache import cache
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.http import Http404
+
+from projects.models import Project
 
 import redis
 
@@ -70,4 +74,22 @@ class SubdomainMiddleware(object):
             log.debug(LOG_TEMPLATE.format(msg='Blocking long domain name', **log_kwargs))
             raise Http404(_('Invalid hostname'))
         # Normal request.
+        return None
+
+
+class SingleVersionMiddleware(object):
+    def process_request(self, request):
+        path = request.get_full_path()
+
+        # Handle '/docs/<project>/' URLs
+        parts = path.split('/')
+        if len(parts) > 2 and parts[1] == 'docs':
+            slug = parts[2]
+            try:
+                proj = Project.objects.get(slug=slug)
+            except (ObjectDoesNotExist, MultipleObjectsReturned):
+                return None
+
+            if proj.single_version:
+                request.urlconf = 'core.single_version_urls'
         return None

@@ -80,6 +80,7 @@ MIDDLEWARE_CLASSES = (
     # Hack
     # 'core.underscore_middleware.UnderscoreMiddleware',
     'core.middleware.SubdomainMiddleware',
+    'core.middleware.SingleVersionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     #'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
 )

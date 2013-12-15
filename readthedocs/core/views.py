@@ -371,6 +371,19 @@ def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
         return serve(request, filename, basepath)
 
 
+def serve_single_version_docs(request, filename, project_slug=None):
+    if not project_slug:
+        project_slug = request.slug
+    proj = get_object_or_404(Project, slug=project_slug)
+
+    # This function only handles single version projects
+    if not proj.single_version:
+        raise Http404
+
+    return serve_docs(request, proj.language, proj.default_version,
+                      filename, project_slug)
+
+
 def server_error(request, template_name='500.html'):
     """
     A simple 500 handler so we get media
