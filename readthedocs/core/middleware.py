@@ -78,37 +78,43 @@ class SubdomainMiddleware(object):
 
 
 class SingleVersionMiddleware(object):
-    def process_request(self, request):
-        path = request.get_full_path()
+    """Reset urlconf for requests for 'single_version' docs.
 
-        # Handle '/docs/<project>/' URLs
-        parts = path.split('/')
-        if len(parts) > 2 and parts[1] == 'docs':
-            slug = parts[2]
-            try:
-                proj = Project.objects.get(slug=slug)
-            except (ObjectDoesNotExist, MultipleObjectsReturned):
-                return None
+    In settings.MIDDLEWARE_CLASSES, SingleVersionMiddleware must follow
+    after SubdomainMiddleware.
 
-            if proj.single_version:
-                request.urlconf = 'core.single_version_urls'
+    """
+    def _get_slug(self, request):
+        """Get slug from URLs requesting docs.
 
-        # Handle subdomains and CNAMEs
+        If URL is like '/docs/<project_name>/', we split path
+        and pull out slug.
 
-        # Since we depend on the presence of request.slug to determine if URL
-        # is a subdomain or CNAME, that means that SingleVersionMiddleware
-        # must come after SubdomainMiddleware in settings.MIDDLEWARE_CLASSES.
+        If URL is subdomain or CNAME, we simply read request.slug, which is
+        set by SubdomainMiddleware.
 
-        # This also means that SingleVersionMiddleware will be bypassed if
-        # settings.DEBUG is True.
+        """
+        slug = None
         if hasattr(request, 'slug'):
+            # Handle subdomains and CNAMEs.
             slug = request.slug
+        else:
+            # Handle '/docs/<project>/' URLs
+            path = request.get_full_path()
+            path_parts = path.split('/')
+            if len(path_parts) > 2 and path_parts[1] == 'docs':
+                slug = path_parts[2]
+        return slug
+
+    def process_request(self, request):
+        slug = self._get_slug(request)
+        if slug:
             try:
                 proj = Project.objects.get(slug=slug)
             except (ObjectDoesNotExist, MultipleObjectsReturned):
+                # Let 404 be handled further up stack.
                 return None
 
             if proj.single_version:
                 request.urlconf = 'core.single_version_urls'
-
         return None
