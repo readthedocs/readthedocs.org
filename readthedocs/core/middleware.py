@@ -92,4 +92,23 @@ class SingleVersionMiddleware(object):
 
             if proj.single_version:
                 request.urlconf = 'core.single_version_urls'
+
+        # Handle subdomains and CNAMEs
+
+        # Since we depend on the presence of request.slug to determine if URL
+        # is a subdomain or CNAME, that means that SingleVersionMiddleware
+        # must come after SubdomainMiddleware in settings.MIDDLEWARE_CLASSES.
+
+        # This also means that SingleVersionMiddleware will be bypassed if
+        # settings.DEBUG is True.
+        if hasattr(request, 'slug'):
+            slug = request.slug
+            try:
+                proj = Project.objects.get(slug=slug)
+            except (ObjectDoesNotExist, MultipleObjectsReturned):
+                return None
+
+            if proj.single_version:
+                request.urlconf = 'core.single_version_urls'
+
         return None

@@ -28,3 +28,11 @@ class RedirectSingleVersionTests(TestCase):
     def test_improper_single_version_url_nonexistent_project(self):
         r = self.client.get('/docs/nonexistent/blah.html')
         self.assertEqual(r.status_code, 404)
+
+    def test_proper_single_version_url_subdomain(self):
+        r = self.client.get('/usage.html', HTTP_HOST='pip.readthedocs.org')
+        self.assertEqual(r.status_code, 200)
+
+    def test_improper_single_version_url_subdomain(self):
+        r = self.client.get('/blah.html', HTTP_HOST='nonexistent.readthedocs.org')
+        self.assertEqual(r.status_code, 404)
