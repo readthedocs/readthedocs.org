@@ -62,6 +62,11 @@ urlpatterns = patterns(
         'core.views.redirect_page_with_filename',
         name='docs_detail'),
 
+    # Handle single version URLs
+    url(r'^docs/(?P<project_slug>[-\w]+)/(?P<filename>.*)$',
+        'core.views.serve_single_version_docs',
+        name='docs_detail'),
+
     url(r'^projects/', include('projects.urls.public')),
     url(r'^builds/', include('builds.urls')),
     url(r'^flagging/', include('basic.flagging.urls')),
