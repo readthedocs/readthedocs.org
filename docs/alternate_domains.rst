@@ -20,6 +20,38 @@ As an example, fabric's dig record looks like this::
     ;; ANSWER SECTION:
     docs.fabfile.org.   7200    IN  CNAME   fabric.readthedocs.org.
 
+CNAME SSL
+---------
+
+We don't support SSL for CNAMEs on our side,
+but you can enable support if you have your own server.
+SSL requires having a secret key,
+and if we hosted the key for you,
+it would no longer be secret.
+
+To enable SSL:
+* Have a server listening on 443 that you control
+* Add a domain that you wish to point at Read the Docs
+* Enable proxying to us, with a custom ``X-RTD-SLUG`` header
+
+An example nginx configuration for pip would look like:
+
+.. code-block:: nginx
+   :emphasize-lines: 9
+
+    server {
+        server_name docs.pip-installer.org;
+        location / {
+            proxy_pass http://pip.readthedocs.org:80;
+            proxy_set_header Host $http_host;
+            proxy_set_header X-Forwarded-Proto http;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Scheme $scheme;
+            proxy_set_header X-RTD-SLUG pip;
+            proxy_connect_timeout 10s;
+            proxy_read_timeout 20s;
+        }
+    }
 
 RTFD.org
 ---------
