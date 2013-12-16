@@ -30,6 +30,7 @@ and if we hosted the key for you,
 it would no longer be secret.
 
 To enable SSL:
+
 * Have a server listening on 443 that you control
 * Add a domain that you wish to point at Read the Docs
 * Enable proxying to us, with a custom ``X-RTD-SLUG`` header
