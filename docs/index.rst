@@ -28,11 +28,11 @@ Site Documentation
     faq
     support
     features
-    redirects
     theme
-    privacy
+    redirects
     webhooks
     alternate_domains
+    privacy
     sponsors
     builds
     talks
