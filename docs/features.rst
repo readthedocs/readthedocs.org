@@ -50,7 +50,7 @@ Versions
 Versions are supported at the Version Control level. We support tags and branches that map to versions in RTD parlance. Not all version control systems are equally supported. We would love to accept patches from users of other VCS systems to gain equivalent features across systems.
 
 Version Control Support Matrix
--------------------------------
+++++++++++++++++++++++++++++++
 
 +------------+------------+-----------+------------+-----------+
 |            |    Git     |    hg     |   bzr      |     svn   |
