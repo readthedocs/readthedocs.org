@@ -47,10 +47,16 @@ We also bust caches on all documentation on the RTD domain (not CNAMEs, yet) whe
 Versions
 --------
 
-Versions are supported at the Version Control level. We support tags and branches that map to versions in RTD parlance. Not all version control systems are equally supported. We would love to accept patches from users of other VCS systems to gain equivalent features across systems.
+We can build multiple versions of your documentation. Look on the "Versions" page 
+of your project's admin (using the nav on the left) to find a list of available versions 
+that we've inferred from the tags and branches in your source control system (according to 
+the support matrix below). On the Versions page you can tell us which versions you'd like us 
+to build docs for, whether each should be public, protected, or private, and what the default 
+version should be (we'll redirect there when someone hits your main project page, e.g., 
+http://my-project.rtfd.org/).
 
 Version Control Support Matrix
-++++++++++++++++++++++++++++++
+-------------------------------
 
 +------------+------------+-----------+------------+-----------+
 |            |    Git     |    hg     |   bzr      |     svn   |
