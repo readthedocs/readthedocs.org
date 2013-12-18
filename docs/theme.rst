@@ -41,3 +41,19 @@ Other style notes
 .. _github here: https://www.github.com/snide/sphinx_rtd_theme
 .. _blog post: http://ericholscher.com/blog/2013/nov/4/new-theme-read-the-docs/
 .. _open an issue: https://github.com/snide/sphinx_rtd_theme/issues
+
+How do I use this locally, *and* on Read the Docs?
+--------------------------------------------------
+
+Unfortunately, at the moment Read the Docs can't handle importing ``sphinx_rtd_theme``, so if you try to use that theme for building on both Read the Docs and locally, it will fail. To build it locally, and on Read the Docs::
+
+	# on_rtd is whether we are on readthedocs.org
+	import os
+	on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
+
+	if not on_rtd:  # only import and set the theme if we're building docs locally
+	    import sphinx_rtd_theme
+	    html_theme = 'sphinx_rtd_theme'
+	    html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+
+	# otherwise, readthedocs.org uses their theme by default, so no need to specify it
