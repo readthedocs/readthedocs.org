@@ -43,13 +43,6 @@ class MiddlewareTests(unittest.TestCase):
         self.assertEqual(request.rtdheader, True)
         self.assertEqual(request.slug, 'pip')
 
-    def test_djangome(self):
-        request = self.factory.get(self.url, HTTP_HOST='pip.rtfd.org')
-        self.middleware.process_request(request)
-        self.assertEqual(request.urlconf, 'core.djangome_urls')
-        self.assertEqual(request.slug, 'pip')
-        self.assertFalse(hasattr(request, 'subdomain'))
-
     @override_settings(DEBUG=True)
     def test_debug_on(self):
         request = self.factory.get(self.url, HTTP_HOST='doesnt.really.matter')
