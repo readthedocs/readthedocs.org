@@ -115,7 +115,7 @@ class SingleVersionMiddleware(object):
                 # Let 404 be handled further up stack.
                 return None
 
-            if proj.single_version:
+            if getattr(proj, 'single_version', False):
                 request.urlconf = 'core.single_version_urls'
                 # Logging
                 host = request.get_host()
