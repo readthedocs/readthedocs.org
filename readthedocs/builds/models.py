@@ -290,6 +290,8 @@ class Build(models.Model):
     setup_error = models.TextField(_('Setup error'), null=True, blank=True)
     output = models.TextField(_('Output'), default='', blank=True)
     error = models.TextField(_('Error'), default='', blank=True)
+    exit_code = models.IntegerField(_('Exit code'), max_length=3, null=True,
+                                    blank=True)
 
     class Meta:
         ordering = ['-date']

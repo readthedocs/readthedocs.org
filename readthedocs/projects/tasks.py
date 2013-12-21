@@ -206,6 +206,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
         build['output'] = html_results[1]
         build['error'] = html_results[2]
         build['state'] = 'finished'
+        build['exit_code'] = html_results[0]
         api.build(build['id']).put(build)
 
         api.build.post(dict(
@@ -217,6 +218,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
             setup_error=latex_results[2],
             output=pdf_results[1],
             error=pdf_results[2],
+            exit_code=pdf_results[0],
         ))
 
     if version:
