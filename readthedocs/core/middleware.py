@@ -1,9 +1,13 @@
 import logging
+import os
 
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 from django.core.cache import cache
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.http import Http404
+
+from projects.models import Project
 
 import redis
 
@@ -70,4 +74,55 @@ class SubdomainMiddleware(object):
             log.debug(LOG_TEMPLATE.format(msg='Blocking long domain name', **log_kwargs))
             raise Http404(_('Invalid hostname'))
         # Normal request.
+        return None
+
+
+class SingleVersionMiddleware(object):
+    """Reset urlconf for requests for 'single_version' docs.
+
+    In settings.MIDDLEWARE_CLASSES, SingleVersionMiddleware must follow
+    after SubdomainMiddleware.
+
+    """
+    def _get_slug(self, request):
+        """Get slug from URLs requesting docs.
+
+        If URL is like '/docs/<project_name>/', we split path
+        and pull out slug.
+
+        If URL is subdomain or CNAME, we simply read request.slug, which is
+        set by SubdomainMiddleware.
+
+        """
+        slug = None
+        if hasattr(request, 'slug'):
+            # Handle subdomains and CNAMEs.
+            slug = request.slug
+        else:
+            # Handle '/docs/<project>/' URLs
+            path = request.get_full_path()
+            path_parts = path.split('/')
+            if len(path_parts) > 2 and path_parts[1] == 'docs':
+                slug = path_parts[2]
+        return slug
+
+    def process_request(self, request):
+        slug = self._get_slug(request)
+        if slug:
+            try:
+                proj = Project.objects.get(slug=slug)
+            except (ObjectDoesNotExist, MultipleObjectsReturned):
+                # Let 404 be handled further up stack.
+                return None
+
+            if getattr(proj, 'single_version', False):
+                request.urlconf = 'core.single_version_urls'
+                # Logging
+                host = request.get_host()
+                path = request.get_full_path()
+                log_kwargs = dict(host=host, path=path)
+                log.debug(LOG_TEMPLATE.format(
+                    msg='Handling single_version request', **log_kwargs)
+                )
+
         return None
