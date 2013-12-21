@@ -70,15 +70,15 @@ It looks something along the lines of:
 
 .. code-block:: html
 
-    <link rel="canonical" href="http://$YOURSLUG.readthedocs.org/en/latest/
-    {%- for word in pagename.split('/') -%}
-        {%- if word != 'index' -%}
-            {%- if word != '' -%}
-                {{ word }}/
+        <link rel="canonical" href="http://ericholscher.com/
+        {%- for word in pagename.split('/') -%}
+            {%- if word != 'index' -%}
+                {%- if word != '' -%}
+                    {{ word }}{% if builder == "dirhtml" %}/{% else %}.html{% endif %}
+                {%- endif -%}
             {%- endif -%}
-        {%- endif -%}
-    {%- endfor -%}
-    ">
+        {%- endfor -%}
+        ">
 
 How do I host multiple projects on one CNAME?
 ---------------------------------------------
