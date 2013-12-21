@@ -81,6 +81,7 @@ context = {
     ],
     'slug': '{{ project.slug }}',
     'name': u'{{ project.name }}',
+    'rtd_language': u'{{ project.language }}',
     'canonical_url': '{{ project.canonical_url }}',
     'analytics_code': '{{ project.analytics_code }}',
     'conf_py_path': '{{ conf_py_path }}',
