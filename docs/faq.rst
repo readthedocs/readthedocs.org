@@ -66,13 +66,10 @@ Can I make search engines only see one version of my docs?
 ----------------------------------------------------------
 
 You can do this for Google at least with a canonical link tag.
-You can override the ``page.html`` template in your Sphinx project.
 It should look like:
 
 .. code-block:: jinja
 
-    {% extends "!layout.html" %}
-    {% block extrahead %}
         <link rel="canonical" href="http://ericholscher.com/
         {%- for word in pagename.split('/') -%}
             {%- if word != 'index' -%}
@@ -83,10 +80,6 @@ It should look like:
         {%- endfor -%}
         {% if builder == "dirhtml" %}/{% else %}.html{% endif %}
         ">
-    {% endblock %}
-    {% block body %}
-      {{ body }}
-    {% endblock %}
 
 How do I host multiple projects on one CNAME?
 ---------------------------------------------
