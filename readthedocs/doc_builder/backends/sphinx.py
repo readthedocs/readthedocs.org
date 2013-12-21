@@ -81,6 +81,7 @@ context = {
     ],
     'slug': '{{ project.slug }}',
     'name': u'{{ project.name }}',
+    'canonical_url': '{{ project.canonical_url }}',
     'analytics_code': '{{ project.analytics_code }}',
     'conf_py_path': '{{ conf_py_path }}',
     'github_user': '{{ github_user }}',

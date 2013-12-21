@@ -24,7 +24,7 @@
     <p>{% trans "Outcome:" %}
       <b>
         <span id="build-success">
-          {% if build.state != 'finished' %}{% trans "Not yet finished" %} {% else %} {% if build.success %}{% trans "Passed" %}{% else %}{% trans "Failed" %}{% endif %}{% endif %} {% if not build.success %} ({% trans "Status Code:"} {{ build.exit_code }}){% endif %}
+          {% if build.state != 'finished' %}{% trans "Not yet finished" %} {% else %} {% if build.success %}{% trans "Passed" %}{% else %}{% trans "Failed" %}{% endif %}{% endif %} {% if not build.success %} ({% trans "Status Code:" %} {{ build.exit_code }}){% endif %}
         </span>
       </b>
     </p>
