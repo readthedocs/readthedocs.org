@@ -4,9 +4,11 @@
 {{ super() }}
 <!-- RTD Extra Head -->
 {% if canonical_url %}
-<link rel="canonical" href="{{ canonical_url }}{{ pagename }}{% if builder == "readthedocsdirhtml" %}/{% else %}.html{% endif %}">
+<link rel="canonical" href="{{ canonical_url }}{{ rtd_language }}/{{ current_version}}/{{ pagename }}{% if builder == "readthedocsdirhtml" %}/{% else %}.html{% endif %}">
 {% else %}
+<!--
 <link rel="canonical" href="http://{{ slug }}.readthedocs.org/{{ rtd_language }}/{{ current_version }}/{{ pagename }}{% if builder == "readthedocsdirhtml" %}/{% else %}.html{% endif %}">
+-->
 {% endif %}
 <script type="text/javascript">
   // This is included here because other places don't have access to the pagename variable.
