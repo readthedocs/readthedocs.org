@@ -173,6 +173,18 @@ TEMPLATE = """
     <div class="rst-other-versions">
   {% endif %}
 
+      {% if not project.single_version %}
+      <dl>
+        <dt>Languages</dt>
+        {% if main_project.language == current_language %} <strong> {% endif %}
+        <dd><a href="{{ main_project.get_docs_url }}">{{ main_project.language }}</a></dd>
+        {% if main_project.language == current_language %} </strong> {% endif %}
+        {% for translation in translations %}
+          {% if translation.language == current_language %} <strong> {% endif %}
+          <dd><a href="{{ translation.get_translation_url }}">{{ translation.language }}</a></dd>
+          {% if translation.language == current_language %} </strong> {% endif %}
+        {% endfor %}
+      </dl>
       <dl>
         <dt>Versions</dt>
         {% for version in versions %}
@@ -185,6 +197,7 @@ TEMPLATE = """
           {% if version.slug == current_version %} </strong> {% endif %}
         {% endfor %}
       </dl>
+      {% endif %}
       <dl>
         <dt>Downloads</dt>
         {% for name, url in downloads.items %}
@@ -242,11 +255,15 @@ def footer_html(request):
     using_theme = (theme == "default")
     project = get_object_or_404(Project, slug=project_slug)
     version = project.versions.get(slug=version_slug)
+    main_project = project.get_main_language_project() or project
     context = Context({
         'project': project,
         'downloads': version.get_downloads(pretty=True),
         'current_version': version.slug,
         'versions': project.ordered_active_versions(),
+        'main_project': main_project,
+        'translations': main_project.translations.all(),
+        'current_language': project.language,
         'using_theme': using_theme,
         'new_theme': new_theme,
         'settings': settings,
