@@ -724,6 +724,7 @@ def symlink_translations(version):
 
     # Hack in the en version for backwards compat
     symlink = version.project.translations_symlink_path('en')
+    run_on_app_servers('mkdir -p %s' % '/'.join(symlink.split('/')[:-1]))
     docs_dir = os.path.join(settings.DOCROOT, version.project.slug, 'rtd-builds')
     run_on_app_servers('ln -nsf %s %s' % (docs_dir, symlink))
 
