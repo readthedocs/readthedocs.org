@@ -437,6 +437,12 @@ class Project(models.Model):
         """
         return os.path.join(self.doc_path, 'subprojects', project)
 
+    def single_version_symlink_path(self):
+        """
+        Path in the doc_path for the single_version symlink.
+        """
+        return os.path.join(self.doc_path, 'single_version')
+
     #
     # End symlink paths
     #

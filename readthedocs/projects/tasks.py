@@ -246,6 +246,12 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
             symlink_cnames(version)
             symlink_translations(version)
             symlink_subprojects(version)
+
+            if project.single_version:
+                symlink_single_version(version)
+            else:
+                remove_symlink_single_version(version)
+
             # This requires database access, must disable it for now.
             #send_notifications(version, build)
             #log.info("Purged %s" % version)
@@ -726,6 +732,32 @@ def symlink_translations(version):
     symlink = version.project.translations_symlink_path('en')
     docs_dir = os.path.join(settings.DOCROOT, version.project.slug, 'rtd-builds')
     run_on_app_servers('ln -nsf %s %s' % (docs_dir, symlink))
+
+def symlink_single_version(version):
+    """
+    Link from HOME/user_builds/<project>/single_version ->
+              HOME/user_builds/<project>/rtd-builds/<default_version>/
+    """
+    default_version = version.project.default_version
+    log.debug(LOG_TEMPLATE.format(project=version.project.slug, version=default_version, msg="Symlinking single_version"))
+
+    # The single_version directory
+    symlink = version.project.single_version_symlink_path()
+    run_on_app_servers('mkdir -p %s' % '/'.join(symlink.split('/')[:-1]))
+
+    # Where the actual docs live
+    docs_dir = os.path.join(settings.DOCROOT, version.project.slug, 'rtd-builds', default_version)
+    run_on_app_servers('ln -nsf %s %s' % (docs_dir, symlink))
+
+def remove_symlink_single_version(version):
+    """Remove single_version symlink"""
+    log.debug(LOG_TEMPLATE.format(
+        project=version.project.slug,
+        version=version.project.default_version,
+        msg="Removing symlink for single_version")
+    )
+    symlink = version.project.single_version_symlink_path()
+    run_on_app_servers('rm %s' % symlink)
 
 def send_notifications(version, build):
     #zenircbot_notification(version.id)
