@@ -126,7 +126,7 @@ class Builder(BaseBuilder):
                               encoding='utf-8', mode='a')
         outfile.write("\n")
         conf_py_path = version_utils.get_conf_py_path(self.version)
-        remote_version = version_utils.get_vcs_version(self.version)
+        remote_version = version_utils.get_vcs_version_slug(self.version)
         github_info = version_utils.get_github_username_repo(self.version)
         bitbucket_info = version_utils.get_bitbucket_username_repo(self.version)
         if github_info[0] is None:
