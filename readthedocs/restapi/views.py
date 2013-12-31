@@ -173,7 +173,7 @@ TEMPLATE = """
     <div class="rst-other-versions">
   {% endif %}
 
-      {% if not project.single_version and translations %}
+      {% if translations %}
       <dl>
         <dt>Languages</dt>
         {% if main_project.language == current_language %} <strong> {% endif %}
@@ -185,6 +185,8 @@ TEMPLATE = """
           {% if translation.language == current_language %} </strong> {% endif %}
         {% endfor %}
       </dl>
+      {% endif %}
+      {% if not project.single_version %}
       <dl>
         <dt>Versions</dt>
         {% for version in versions %}
