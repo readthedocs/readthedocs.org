@@ -73,7 +73,7 @@ def install_packages(type=None):
             ' curl sqlite libxml2-dev libxslt-dev vim g++ python-numpy '
             ' python-scipy build-essential texlive-full libevent-dev '
             ' libmysqlclient-dev python-m2crypto libffi-dev python-matplotlib '
-            ' graphviz-dev libenchant1c2a '
+            ' graphviz-dev libenchant1c2a pandoc'
         )
         sudo('pip install -U mercurial')
     if type == 'db':
