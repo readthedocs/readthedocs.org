@@ -64,7 +64,7 @@ def install_packages(type=None):
     sudo('apt-get install -y vim software-properties-common')
     sudo('apt-get install -y python-setuptools')
     sudo('easy_install pip')
-    sudo('pip install -U virtualenv')
+    sudo('pip-2.7 install -U virtualenv')
 
     if type == 'build':
         sudo(
@@ -75,7 +75,7 @@ def install_packages(type=None):
             ' libmysqlclient-dev python-m2crypto libffi-dev python-matplotlib '
             ' graphviz-dev libenchant1c2a pandoc'
         )
-        sudo('pip install -U mercurial')
+        sudo('pip-2.7 install -U mercurial')
     if type == 'db':
         sudo('apt-get install -y solr-tomcat postgresql ')
     if type == 'search':
