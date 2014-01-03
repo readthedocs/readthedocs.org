@@ -110,7 +110,7 @@ class Project(models.Model):
                                   help_text=_('The project\'s homepage'),
                                   verify_exists=False)
     canonical_url = models.URLField(_('Canonical URL'), blank=True,
-                                  help_text=_('The official URL that the docs live at. This can be at readthedocs.org, or somewhere else.'),
+                                  help_text=_('The official URL that the docs live at. This can be at readthedocs.org, or somewhere else. Ex. http://www.pip-installer.org'),
                                   verify_exists=False)
     version = models.CharField(_('Version'), max_length=100, blank=True,
                                help_text=_('Project version these docs apply '

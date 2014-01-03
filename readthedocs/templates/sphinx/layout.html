@@ -4,10 +4,18 @@
 {{ super() }}
 <!-- RTD Extra Head -->
 {% if canonical_url %}
-<link rel="canonical" href="{{ canonical_url }}{{ rtd_language }}/latest/{{ pagename }}{% if builder == "readthedocsdirhtml" %}/{% else %}.html{% endif %}">
+  {% set ending = "/" if builder == "readthedocsdirhtml" else ".html" %}
+  {% set canonical_page = pagename + ending %}
+
+  {% if single_page %}
+  <link rel="canonical" href="{{ canonical_url }}{{ canonical_page.replace("index.html", "").replace("/index/", "/") }}">
+  {% else %}
+  <!-- Always link to the latest version, as canonical -->
+  <link rel="canonical" href="{{ canonical_url }}{{ rtd_language }}/latest/{{ canonical_page.replace("index.html", "").replace("/index/", "/") }}">
+  {% endif %}
 {% else %}
 <!--
-<link rel="canonical" href="http://{{ slug }}.readthedocs.org/{{ rtd_language }}/latest/{{ pagename }}{% if builder == "readthedocsdirhtml" %}/{% else %}.html{% endif %}">
+<link rel="canonical" href="http://{{ slug }}.readthedocs.org/{{ rtd_language }}/latest/{{ canonical_page.replace("index.html", "").replace("/index/", "/") }}">
 -->
 {% endif %}
 <script type="text/javascript">

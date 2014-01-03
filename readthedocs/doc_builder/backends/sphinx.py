@@ -84,6 +84,7 @@ context = {
     'rtd_language': u'{{ project.language }}',
     'canonical_url': '{{ project.canonical_url }}',
     'analytics_code': '{{ project.analytics_code }}',
+    'single_page': '{{ project.single_page }}',
     'conf_py_path': '{{ conf_py_path }}',
     'github_user': '{{ github_user }}',
     'github_repo': '{{ github_repo }}',
