@@ -402,6 +402,8 @@ class Project(models.Model):
 
     @property
     def clean_canonical_url(self):
+        if not self.canonical_url:
+            return ""
         parsed = urlparse(self.canonical_url)
         return "%s://%s/" % (parsed.scheme, parsed.netloc)
 
