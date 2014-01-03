@@ -17,6 +17,7 @@ The code is open source, and `available on github`_.
 
 The documentation for the site is organized into two different sections below. One is for users of readthedocs.org, that is the first section. The next section is for users of the code that powers the site. All of the RTD code is open source, so you can run your own instance. 
 
+.. _site-docs:
 
 Site Documentation
 ------------------
@@ -32,10 +33,13 @@ Site Documentation
     redirects
     webhooks
     alternate_domains
+    canonical
     privacy
     sponsors
     builds
     talks
+
+.. _design-docs:
 
 Designer Documentation
 ----------------------
@@ -43,6 +47,8 @@ Designer Documentation
     :maxdepth: 2
 
     design
+
+.. _dev-docs:
 
 Developer Documentation
 -----------------------
@@ -59,12 +65,16 @@ Developer Documentation
     api
     api/index
 
+.. _custom-docs:
+
 Custom install Documentation
 ----------------------------
 .. toctree::
     :maxdepth: 3
 
     custom_installs/index
+
+.. _ops-docs:
 
 Operations Documentation
 ------------------------
