@@ -10,7 +10,7 @@ Read the Docs uses these in two ways:
 * We point all versions of your docs at the "latest" version as canonical
 * We point at the user specififed canonical URL, generally a custom domain for your docs.
 
-You can set the canonical URL for your project in the Edit Project page.
+.. note:: You can set the canonical URL for your project in the Edit Project page.
 
 Implementation
 --------------
