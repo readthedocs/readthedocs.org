@@ -38,7 +38,7 @@ class BaseCLI(object):
     """
     Helper class for CLI-heavy classes.
     """
-    log_tmpl = 'VCS[{name}:{ident}]: {args}'
+    log_tmpl = u'VCS[{name}:{ident}]: {args}'
 
     def __call__(self, *args):
         return self.run(args)
