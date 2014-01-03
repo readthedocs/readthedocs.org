@@ -18,7 +18,7 @@ The :doc:`webhooks` page talks about the different ways you can ping RTD to let 
 Canonical URLs
 --------------
 
-Canonical URLs give your docs better search perforamnce, by pointing all URLs to one version. This also helps to solve the issues around users landing on outdated versions of documentation.
+Canonical URLs give your docs better search performance, by pointing all URLs to one version. This also helps to solve the issues around users landing on outdated versions of documentation.
 
 More information can be found in the :doc:`canonical` page.
 
