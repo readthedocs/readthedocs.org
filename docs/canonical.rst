@@ -20,8 +20,8 @@ This means that Google will index both ``http://fabric.readthedocs.org`` and ``h
 Fabric will want to set ``http://docs.fabfile.org`` as their canonical URL.
 This means that when Google indexes ``http://fabric.readthedocs.org``, it will know that it should really point at ``http://docs.fabfile.org``.
 
-Turning them on
----------------
+Enabling
+--------
 
 You can set the canonical URL for your project in the Project Admin page. Check your `dashboard`_ for a list of your projects.
 
