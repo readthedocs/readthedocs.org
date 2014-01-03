@@ -127,7 +127,7 @@ class Project(models.Model):
                               default='.rst')
     single_version = models.BooleanField(
         _('Single version'), default=False,
-        help_text=_('A single version site has no translations and only your "latest" version.'))
+        help_text=_('A single version site has no translations and only your "latest" version, served at the root of the domain.'))
     default_version = models.CharField(
         _('Default version'), max_length=255, default='latest',
         help_text=_('The version of your project that / redirects to'))
