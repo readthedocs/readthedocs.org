@@ -39,7 +39,7 @@ ghetto_hack = re.compile(
 
 log = logging.getLogger(__name__)
 
-LOG_TEMPLATE = "(Build) [{project}:{version}] {msg}"
+LOG_TEMPLATE = u"(Build) [{project}:{version}] {msg}"
 HTML_ONLY = getattr(settings, 'HTML_ONLY_PROJECTS', ())
 
 @task
