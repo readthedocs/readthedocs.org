@@ -7,7 +7,7 @@
   {% set ending = "/" if builder == "readthedocsdirhtml" else ".html" %}
   {% set canonical_page = pagename + ending %}
 
-  {% if single_page %}
+  {% if single_version %}
   <link rel="canonical" href="{{ canonical_url }}{{ canonical_page.replace("index.html", "").replace("/index/", "/") }}">
   {% else %}
   <!-- Always link to the latest version, as canonical -->
