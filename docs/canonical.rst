@@ -10,7 +10,10 @@ Read the Docs uses these in two ways:
 * We point all versions of your docs at the "latest" version as canonical
 * We point at the user specififed canonical URL, generally a custom domain for your docs.
 
-.. note:: You can set the canonical URL for your project in the Edit Project page.
+Turning them on
+---------------
+
+You can set the canonical URL for your project in the Project Admin page. Check your `dashboard`_ for a list of your projects.
 
 Implementation
 --------------
@@ -32,3 +35,5 @@ http://www.mattcutts.com/blog/seo-advice-url-canonicalization/
 This is a good explanation for why canonical pages are good for SEO:
 
 http://moz.com/blog/canonical-url-tag-the-most-important-advancement-in-seo-practices-since-sitemaps
+
+.. _dashboard: https://readthedocs.org/dashboard/
