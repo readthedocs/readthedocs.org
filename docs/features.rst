@@ -3,10 +3,10 @@ Read the Docs features
 
 This will serve as a list of all of the features that Read the Docs currently has. Some features are important enough to have their own page in the docs, others will simply be listed here.
 
-Github Integration
-------------------
+Github and Bitbucket Integration
+--------------------------------
 
-We now support linking to GitHub by default in the sidebar. It links to the page on GitHub, and directly links to the edit view as well. This should help people quickly update typos and rend pull requests to contribute to project documentation. 
+We now support linking by default in the sidebar. It links to the page on your host, which should help people quickly update typos and send pull requests to contribute to project documentation. 
 
 More information can be found in the :doc:`vcs` page.
 
