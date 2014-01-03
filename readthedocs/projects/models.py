@@ -405,7 +405,8 @@ class Project(models.Model):
         if not self.canonical_url:
             return ""
         parsed = urlparse(self.canonical_url)
-        return "%s://%s/" % (parsed.scheme, parsed.netloc)
+        scheme = parsed.scheme or "http"
+        return "%s://%s/" % (scheme, parsed.netloc)
 
     #Doc PATH:
     #MEDIA_ROOT/slug/checkouts/version/<repo>
