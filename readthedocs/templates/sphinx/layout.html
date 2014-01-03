@@ -7,14 +7,14 @@
 {% set canonical_page = pagename + ending %}
 {% if canonical_url %}
   {% if single_version %}
-  <link rel="canonical" href="{{ canonical_url }}{{ canonical_page.replace("index.html", "").replace("index", "") }}">
+  <link rel="canonical" href="{{ canonical_url }}{{ canonical_page.replace("index.html", "").replace("index/", "") }}">
   {% else %}
   <!-- Always link to the latest version, as canonical -->
-  <link rel="canonical" href="{{ canonical_url }}{{ rtd_language }}/latest/{{ canonical_page.replace("index.html", "").replace("index", "") }}">
+  <link rel="canonical" href="{{ canonical_url }}{{ rtd_language }}/latest/{{ canonical_page.replace("index.html", "").replace("index/", "") }}">
   {% endif %}
 {% else %}
 <!--
-<link rel="canonical" href="http://{{ slug }}.readthedocs.org/{{ rtd_language }}/latest/{{ canonical_page.replace("index.html", "").replace("index", "") }}">
+<link rel="canonical" href="http://{{ slug }}.readthedocs.org/{{ rtd_language }}/latest/{{ canonical_page.replace("index.html", "").replace("index/", "") }}">
 -->
 {% endif %}
 <script type="text/javascript">
