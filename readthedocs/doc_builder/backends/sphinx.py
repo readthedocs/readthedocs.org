@@ -74,7 +74,7 @@ context = {
     'MEDIA_URL': "{{ settings.MEDIA_URL }}",
     'PRODUCTION_DOMAIN': "{{ settings.PRODUCTION_DOMAIN }}",
     'versions': [{% for version in versions|sort_version_aware %}
-    ("{{ version.slug }}", "/en/{{ version.slug }}/"),{% endfor %}
+    ("{{ version.slug }}", "{{ version.get_absolute_url }}"),{% endfor %}
     ],
     'downloads': [ {% for key, val in downloads.items %}
     ("{{ key }}", "{{ val }}"),{% endfor %}
