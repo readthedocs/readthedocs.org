@@ -21,7 +21,7 @@ Implementation
 If you look at the source code for documentation built after you set your canonical URL,
 you should see a bit of HTML like this:
 
-.. code-block: html
+.. code-block:: html
 
     <link rel="canonical" href="http://pip.readthedocs.org/en/latest/installing.html">
 
