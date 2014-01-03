@@ -3,10 +3,9 @@
 {% block extrahead %}
 {{ super() }}
 <!-- RTD Extra Head -->
+{% set ending = "/" if builder == "readthedocsdirhtml" else ".html" %}
+{% set canonical_page = pagename + ending %}
 {% if canonical_url %}
-  {% set ending = "/" if builder == "readthedocsdirhtml" else ".html" %}
-  {% set canonical_page = pagename + ending %}
-
   {% if single_version %}
   <link rel="canonical" href="{{ canonical_url }}{{ canonical_page.replace("index.html", "").replace("/index/", "/") }}">
   {% else %}
