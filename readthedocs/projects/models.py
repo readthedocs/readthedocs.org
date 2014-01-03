@@ -293,19 +293,31 @@ class Project(models.Model):
         lang = lang_slug or self.language
         use_subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
         if use_subdomain:
-            return "%s://%s/%s/%s/" % (
-                protocol,
-                self.subdomain,
-                lang,
-                version,
-            )
+            if self.single_version:
+                return "%s://%s/" % (
+                    protocol,
+                    self.subdomain,
+                )
+            else:
+                return "%s://%s/%s/%s/" % (
+                    protocol,
+                    self.subdomain,
+                    lang,
+                    version,
+                )
         else:
-            return reverse('docs_detail', kwargs={
-                'project_slug': self.slug,
-                'lang_slug': lang,
-                'version_slug': version,
-                'filename': ''
-            })
+            if self.single_version:
+                return reverse('docs_detail', kwargs={
+                    'project_slug': self.slug,
+                    'filename': ''
+                })
+            else:
+                return reverse('docs_detail', kwargs={
+                    'project_slug': self.slug,
+                    'lang_slug': lang,
+                    'version_slug': version,
+                    'filename': ''
+                })
 
     def get_translation_url(self, version_slug=None):
         parent = self.main_language_project
