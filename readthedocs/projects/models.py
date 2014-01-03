@@ -1,6 +1,7 @@
 import fnmatch
 import logging
 import os
+from urlparse import urlparse
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -398,6 +399,11 @@ class Project(models.Model):
     @property
     def doc_name(self):
         return self.slug
+
+    @property
+    def clean_canonical_url(self):
+        parsed = urlparse(self.canonical_url)
+        return "%s://%s/" % (parsed.scheme, parsed.netloc)
 
     #Doc PATH:
     #MEDIA_ROOT/slug/checkouts/version/<repo>
