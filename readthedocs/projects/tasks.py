@@ -145,9 +145,10 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
     except ProjectImportError, err:
         log.error(LOG_TEMPLATE.format(project=project.slug, version=version.slug, msg='Failed to import project; skipping build'), exc_info=True)
         build['state'] = 'finished'
-        build['setup_error'] = ('Failed to import project; skipping build.\n'
-                                'Please make sure your repo is correct and '
-                                'you have a conf.py')
+        build['setup_error'] = (
+            'Failed to import project; skipping build.\n'
+            'Error\n-----\n\n %s' % err.message
+        )
         api.build(build['id']).put(build)
         return False
 
@@ -380,7 +381,11 @@ def update_imported_docs(version_pk, api=None):
             update_docs_output['checkout'] = version_repo.update()
 
         # Ensure we have a conf file (an exception is raised if not)
-        project.conf_file(version.slug)
+        try:
+            project.conf_file(version.slug)
+        except ProjectImportError:
+            raise
+
 
 
 
