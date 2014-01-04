@@ -47,7 +47,8 @@ class ImportProjectForm(ProjectForm):
             # Important
             'name', 'repo', 'repo_type', 'description', 'language',
             # Not as important
-            'project_url', 'canonical_url', 'tags', 'default_branch', 'default_version',
+            'project_url', 'canonical_url', 
+            'single_version', 'default_branch', 'default_version',
             'conf_py_file',
             # Version Support
             #'num_major', 'num_minor', 'num_point',
