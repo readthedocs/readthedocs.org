@@ -89,13 +89,16 @@ def summary_results(num_tests, num_fails):
 def main():
 
     header('Served by Nginx')
-    nginx_urls = subdomain_urls + cname_urls + single_version_urls + translation_urls
+    nginx_urls = subdomain_urls + cname_urls + single_version_urls + translation_urls + project_urls
     for url in nginx_urls:
         run_test(served_by_nginx, url)
 
+    """
+    # Deprecated, nothing should be served this way in production.
     header('Served by nginx-via-django')
     for url in project_urls:
         run_test(served_by_nginx_via_django, url)
+    """
 
     header('Served by Django')
     for url in rtd_urls:
@@ -147,12 +150,14 @@ if __name__ == '__main__':
         'https://ericholschercom.readthedocs.org/en/latest/about/'
     ]
 
-    # served_by_nginx_via_django()
+    # served_by_django()
     project_urls = [
         'http://docs.pylonsproject.org/projects/pyramid/en/latest/',
         'http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/install.html',
-        'http://docs.pylonsproject.org/projects/pylons-webframework/en/latest/',
-        'http://docs.pylonsproject.org/projects/pylons-webframework/en/latest/concepts.html',
+        'http://docs.pylonsproject.org/projects/pyramid_amon/en/latest/',
+        'http://docs.pylonsproject.org/projects/pyramid_amon/en/latest/genindex.html',
+        'http://edx.readthedocs.org/projects/devdata/en/latest/',
+        'http://edx.readthedocs.org/projects/devdata/en/latest/course_data_formats/course_xml.html',
     ]
 
     # served_by_django()
