@@ -13,6 +13,9 @@ framework is based on `GNU gettext <http://www.gnu.org/software/gettext/>`_.
 Crowd-sourced localization is optionally available at `Transifex
 <https://www.transifex.com/projects/p/readthedocs/>`_.
 
+For more information about the general ideas,
+look at this document: http://www.gnu.org/software/gettext/manual/html_node/Concepts.html
+
 
 Making Strings Localizable
 --------------------------
