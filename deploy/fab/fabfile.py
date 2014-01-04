@@ -2,6 +2,7 @@ import os
 
 from fabric.api import cd, env, put, run, sudo, settings
 from fabric.decorators import hosts
+from fabric.contrib.files import upload_template
 import fabtools
 
 cwd = os.getcwd()
@@ -195,6 +196,17 @@ def host_file():
 %s db
     """ % (asgard_ip, backup_ip, build_ip, chimera_ip, db_ip)
    sudo("echo '%s' >> /etc/hosts " % host_string) 
+
+def nginx_configs():
+    with settings(host_string='root@newasgard'):
+        context = {'host': 'Asgard'}
+        upload_template('../production/app.nginx.conf', '/etc/nginx/sites-enabled/readthedocs', context=context, backup=False)
+        upload_template('../production/lb.nginx.conf', '/etc/nginx/sites-enabled/lb', context=context, backup=False)
+    with settings(host_string='root@newChimera'):
+        context = {'host': 'Chimera'}
+        upload_template('../production/app.nginx.conf', '/etc/nginx/sites-enabled/readthedocs', context=context, backup=False)
+        upload_template('../production/lb.nginx.conf', '/etc/nginx/sites-enabled/lb', context=context, backup=False)
+    
 
 def pg_hba():
     hba_string = """
