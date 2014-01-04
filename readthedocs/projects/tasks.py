@@ -674,8 +674,12 @@ def save_term(version, term, url):
 
 def symlink_cnames(version):
     """
-    Link from HOME/user_builds/project/cnames/<cname> ->
+    OLD
+    Link from HOME/user_builds/cnames/<cname> ->
               HOME/user_builds/<project>/rtd-builds/
+    NEW
+    Link from HOME/user_builds/cnametoproject/<cname> ->
+              HOME/user_builds/<project>/
     """
     try:
         redis_conn = redis.Redis(**settings.REDIS)
@@ -692,6 +696,11 @@ def symlink_cnames(version):
         symlink = version.project.cnames_symlink_path(cname)
         run_on_app_servers('mkdir -p %s' % '/'.join(symlink.split('/')[:-1]))
         run_on_app_servers('ln -nsf %s %s' % (docs_dir, symlink))
+        # New symlink location 
+        new_docs_dir = version.project.doc_path
+        new_cname_symlink = os.path.join(getattr(settings, 'SITE_ROOT'), 'cnametoproject')
+        run_on_app_servers('mkdir -p %s' % '/'.join(new_cname_symlink.split('/')[:-1]))
+        run_on_app_servers('ln -nsf %s %s' % (new_docs_dir, new_cname_symlink))
 
 
 def symlink_subprojects(version):
