@@ -1,7 +1,7 @@
 How we use symlinks
 ===================
 
-Read the Docs stays highly available by serving all documentation pages out of Nginx.
+Read the Docs stays highly available by serving all documentation pages out of nginx.
 This means that they never hit our Python layer,
 meaning that they never hit out database.
 This reduces the total number of servers to serve a request to 1,
@@ -32,9 +32,19 @@ So we simply serve them the documentation:
         alias /home/docs/checkouts/readthedocs.org/user_builds/$domain/rtd-builds/$1/$2;
         error_page 404 = @fallback;
         error_page 500 = @fallback;
-        add_header X-Served Nginx;
-        add_header X-Deity Asgard;
     } 
+
+    location @fallback {
+        proxy_pass http://127.0.0.1:8888;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        add_header X-Deity Asgard;
+    }
+
+.. note:: The ``@fallback`` directive is hit when we don't find the proper file.
+	      This will cause things to hit the Python backend,
+		  so that proper action can be taken.
 
 CNAMEs
 ------
@@ -61,9 +71,6 @@ $host would be ``docs.fabfile.org``:
 
     location ~ ^/en/(?P<doc_verison>.+)/(?P<path>.*) {
         alias /home/docs/checkouts/readthedocs.org/cnames/$host/$doc_verison/$path;
-        add_header X-Served Nginx;
-        add_header X-Cname $host;
-        add_header X-Deity Asgard;
         error_page 404 = @fallback;
         error_page 500 = @fallback;
     }
