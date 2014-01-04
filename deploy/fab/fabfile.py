@@ -206,7 +206,12 @@ def nginx_configs():
         context = {'host': 'Chimera'}
         upload_template('../nginx/app.nginx.conf', '/etc/nginx/sites-enabled/readthedocs', context=context, backup=False)
         upload_template('../nginx/lb.nginx.conf', '/etc/nginx/sites-enabled/lb', context=context, backup=False)
-    
+
+def nginx_reload():
+    with settings(host_string='root@newasgard'):
+        sudo('/etc/init.d/nginx reload')
+    with settings(host_string='root@newChimera'):
+        sudo('/etc/init.d/nginx reload')
 
 def pg_hba():
     hba_string = """
