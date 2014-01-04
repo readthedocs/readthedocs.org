@@ -43,8 +43,8 @@ So we simply serve them the documentation:
     }
 
 .. note:: The ``@fallback`` directive is hit when we don't find the proper file.
-	      This will cause things to hit the Python backend,
-		  so that proper action can be taken.
+          This will cause things to hit the Python backend,
+          so that proper action can be taken.
 
 CNAMEs
 ------
