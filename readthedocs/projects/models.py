@@ -530,7 +530,9 @@ class Project(models.Model):
                 if file.find('doc', 70) != -1:
                     return file
         else:
-            raise ProjectImportError(_("Conf File Missing."))
+            # Having this be translatable causes this odd error:
+            # ProjectImportError(<django.utils.functional.__proxy__ object at 0x1090cded0>,)
+            raise ProjectImportError(u"Conf File Missing. Please make sure you have a conf.py in your project.")
 
     def conf_dir(self, version='latest'):
         conf_file = self.conf_file(version)

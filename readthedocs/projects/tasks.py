@@ -147,7 +147,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
         build['state'] = 'finished'
         build['setup_error'] = (
             'Failed to import project; skipping build.\n'
-            'Error\n-----\n\n %s' % err.message
+            '\nError\n-----\n\n %s' % err.message
         )
         api.build(build['id']).put(build)
         return False
