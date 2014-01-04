@@ -89,7 +89,7 @@ def summary_results(num_tests, num_fails):
 def main():
 
     header('Served by Nginx')
-    nginx_urls = subdomain_urls + cname_urls
+    nginx_urls = subdomain_urls + cname_urls + single_version_urls
     for url in nginx_urls:
         run_test(served_by_nginx, url)
 
@@ -129,6 +129,15 @@ if __name__ == '__main__':
     cname_urls = [
         'http://docs.fabfile.org/en/latest/',
         'http://docs.fabfile.org/en/latest/faq.html',
+    ]
+
+    # served_by_nginx()
+    single_version_urls = [
+        'https://ericholschercom.readthedocs.org',
+        'https://ericholschercom.readthedocs.org/',
+        'https://ericholschercom.readthedocs.org/en/latest/',
+        'https://ericholschercom.readthedocs.org/about/',
+        'https://ericholschercom.readthedocs.org/en/latest/about/'
     ]
 
     # served_by_nginx_via_django()
