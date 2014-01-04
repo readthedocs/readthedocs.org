@@ -15,7 +15,8 @@ You can set the canonical URL for your project in the Project Admin page. Check 
 Effects
 -------
 
-Links generated on Read the Docs will now point to the proper URL.
+Links generated on Read the Docs will now point to the proper URL. For example, pip will now point at ``http://pip.readthedocs.org/``,
+and the documentation will be served at that URL.
 
 Documentation at ``/<language>/<version>/`` will still be served for backwards compatability reasons. Our usage of :doc:`canonical` should stop these from being indexed by Google, though.
 
