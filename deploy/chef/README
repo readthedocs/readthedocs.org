@@ -75,7 +75,3 @@ vagrant ssh
 
 # To destroy the box and start over again 
 vagrant destroy
-
-
-
-

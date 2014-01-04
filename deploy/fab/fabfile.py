@@ -200,12 +200,12 @@ def host_file():
 def nginx_configs():
     with settings(host_string='root@newasgard'):
         context = {'host': 'Asgard'}
-        upload_template('../production/app.nginx.conf', '/etc/nginx/sites-enabled/readthedocs', context=context, backup=False)
-        upload_template('../production/lb.nginx.conf', '/etc/nginx/sites-enabled/lb', context=context, backup=False)
+        upload_template('../nginx/app.nginx.conf', '/etc/nginx/sites-enabled/readthedocs', context=context, backup=False)
+        upload_template('../nginx/lb.nginx.conf', '/etc/nginx/sites-enabled/lb', context=context, backup=False)
     with settings(host_string='root@newChimera'):
         context = {'host': 'Chimera'}
-        upload_template('../production/app.nginx.conf', '/etc/nginx/sites-enabled/readthedocs', context=context, backup=False)
-        upload_template('../production/lb.nginx.conf', '/etc/nginx/sites-enabled/lb', context=context, backup=False)
+        upload_template('../nginx/app.nginx.conf', '/etc/nginx/sites-enabled/readthedocs', context=context, backup=False)
+        upload_template('../nginx/lb.nginx.conf', '/etc/nginx/sites-enabled/lb', context=context, backup=False)
     
 
 def pg_hba():
