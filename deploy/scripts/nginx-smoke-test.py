@@ -132,6 +132,8 @@ if __name__ == '__main__':
     cname_urls = [
         'http://docs.fabfile.org/en/latest/',
         'http://docs.fabfile.org/en/latest/faq.html',
+        'http://site.ericholscher.com/',
+        'http://site.ericholscher.com/bike/',
     ]
 
     # served_by_nginx()
