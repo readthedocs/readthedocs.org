@@ -100,7 +100,6 @@ def main():
 
 if __name__ == '__main__':
 
-    # served_by_nginx()
     subdomain_urls = [
         'https://pip.readthedocs.org/en/latest/',
         'https://pip.readthedocs.org/en/latest/usage.html',
@@ -108,7 +107,6 @@ if __name__ == '__main__':
         'https://pip.readthedocs.org/en/1.4.1/news.html',
     ]
 
-    # served_by_nginx()
     cname_urls = [
         'http://docs.fabfile.org/en/latest/',
         'http://docs.fabfile.org/en/latest/faq.html',
@@ -116,14 +114,12 @@ if __name__ == '__main__':
         'http://site.ericholscher.com/bike/',
     ]
 
-    # served_by_nginx()
     translation_urls = [
         "http://phpmyadmin.readthedocs.org/ja/latest/",
         "http://phpmyadmin.readthedocs.org/cs/latest/",
         "http://phpmyadmin.readthedocs.org/en/latest/",
     ]
 
-    # served_by_nginx()
     single_version_urls = [
         'https://ericholschercom.readthedocs.org',
         'https://ericholschercom.readthedocs.org/',
@@ -132,7 +128,6 @@ if __name__ == '__main__':
         'https://ericholschercom.readthedocs.org/en/latest/about/'
     ]
 
-    # served_by_django()
     project_urls = [
         'http://docs.pylonsproject.org/projects/pyramid/en/latest/',
         'http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/install.html',
@@ -142,7 +137,6 @@ if __name__ == '__main__':
         'http://edx.readthedocs.org/projects/devdata/en/latest/course_data_formats/course_xml.html',
     ]
 
-    # served_by_django()
     rtd_urls = [
         'https://readthedocs.org/search/',
         'https://readthedocs.org/projects/julia/',
@@ -152,7 +146,6 @@ if __name__ == '__main__':
         'https://readthedocs.org/profiles/Wraithan/',
     ]
 
-    # served()
     other_urls = [
         'http://docs.fabfile.org/robots.txt',
         'http://docs.fabfile.org/favicon.ico',
@@ -164,7 +157,6 @@ if __name__ == '__main__':
         'https://media.readthedocs.org/css/sphinx_rtd_theme.css',
     ]
 
-    # redirected()
     redirected_urls = [
         [
             'https://pip.readthedocs.org/',
