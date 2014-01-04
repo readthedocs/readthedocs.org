@@ -750,6 +750,12 @@ def symlink_translations(version):
     run_on_app_servers('mkdir -p %s' % '/'.join(symlink.split('/')[:-1]))
     docs_dir = os.path.join(settings.DOCROOT, version.project.slug, 'rtd-builds')
     run_on_app_servers('ln -nsf %s %s' % (docs_dir, symlink))
+    # Add the main language project to nginx too
+    if version.project.language is not 'en':
+        symlink = version.project.translations_symlink_path(version.project.language)
+        run_on_app_servers('mkdir -p %s' % '/'.join(symlink.split('/')[:-1]))
+        docs_dir = os.path.join(settings.DOCROOT, version.project.slug, 'rtd-builds')
+        run_on_app_servers('ln -nsf %s %s' % (docs_dir, symlink))
 
 def symlink_single_version(version):
     """
