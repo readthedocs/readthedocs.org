@@ -76,7 +76,8 @@ def summary_results(num_tests, num_fails):
 def main():
 
     header('Served by Nginx')
-    nginx_urls = subdomain_urls + cname_urls + single_version_urls + translation_urls + project_urls
+    nginx_urls = (subdomain_urls + cname_urls + translation_urls +
+                  single_version_urls + project_urls)
     for url in nginx_urls:
         run_test(served_by_nginx, url)
 
