@@ -6,7 +6,7 @@ On the initial import,
 we will create a ``latest`` version.
 This will point at the default branch for your VCS control: ``master``, ``default``, or ``trunk``.
 
-How we invision versions working
+How we envision versions working
 --------------------------------
 
 In the normal case,
