@@ -210,17 +210,20 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
         build['exit_code'] = html_results[0]
         api.build(build['id']).put(build)
 
-        api.build.post(dict(
-            project='/api/v1/project/%s/' % project.pk,
-            version='/api/v1/version/%s/' % version.pk,
-            success=pdf_results[0] == 0,
-            type='pdf',
-            setup=latex_results[1],
-            setup_error=latex_results[2],
-            output=pdf_results[1],
-            error=pdf_results[2],
-            exit_code=pdf_results[0],
-        ))
+        try:
+            api.build.post(dict(
+                project='/api/v1/project/%s/' % project.pk,
+                version='/api/v1/version/%s/' % version.pk,
+                success=pdf_results[0] == 0,
+                type='pdf',
+                setup=latex_results[1],
+                setup_error=latex_results[2],
+                output=pdf_results[1],
+                error=pdf_results[2],
+                exit_code=pdf_results[0],
+            ))
+        except UnicodeDecodeError, e:
+            log.error(LOG_TEMPLATE.format(project=project.slug, version=version.slug, msg="Unable to post a new build"), exc_info=True)
 
     if version:
         # Mark version active on the site
@@ -233,7 +236,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
         try:
             api.version(version.pk).put(version_data)
         except Exception, e:
-            log.error(LOG_TEMPLATE.format(project=project.slug, version=version.slug, msg="Unable to post a new version"), exc_info=True)
+            log.error(LOG_TEMPLATE.format(project=project.slug, version=version.slug, msg="Unable to put a new version"), exc_info=True)
 
     # Build Finished, do house keeping bits
 
