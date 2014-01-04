@@ -21,15 +21,17 @@ def symlink(slug):
 class Command(BaseCommand):
     def handle(self, *args, **options):
         if len(args):
-            for slug in args:
-                symlink(slug)
-        else:
-            redis_conn = redis.Redis(**settings.REDIS)
-            slugs = redis_conn.keys('rtd_slug:v1:*')
-            slugs = [slug.replace("rtd_slug:v1:", "") for slug in slugs]
-            for slug in slugs:
-                try:
-                    log.info("Got slug from redis: %s" % slug)
+            if args[0] == "cnames":
+                log.info("Updating all CNAME Symlinks")
+                redis_conn = redis.Redis(**settings.REDIS)
+                slugs = redis_conn.keys('rtd_slug:v1:*')
+                slugs = [slug.replace("rtd_slug:v1:", "") for slug in slugs]
+                for slug in slugs:
+                    try:
+                        log.info("Got slug from redis: %s" % slug)
+                        symlink(slug)
+                    except Exception, e:
+                        print e
+            else:
+                for slug in args:
                     symlink(slug)
-                except Exception, e:
-                    print e
