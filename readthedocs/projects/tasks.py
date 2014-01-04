@@ -698,7 +698,7 @@ def symlink_cnames(version):
         run_on_app_servers('ln -nsf %s %s' % (docs_dir, symlink))
         # New symlink location 
         new_docs_dir = version.project.doc_path
-        new_cname_symlink = os.path.join(getattr(settings, 'SITE_ROOT'), 'cnametoproject')
+        new_cname_symlink = os.path.join(getattr(settings, 'SITE_ROOT'), 'cnametoproject', cname)
         run_on_app_servers('mkdir -p %s' % '/'.join(new_cname_symlink.split('/')[:-1]))
         run_on_app_servers('ln -nsf %s %s' % (new_docs_dir, new_cname_symlink))
 
