@@ -26,6 +26,10 @@ class Command(BaseCommand):
         else:
             redis_conn = redis.Redis(**settings.REDIS)
             slugs = redis_conn.keys('rtd_slug:v1:*')
+            slugs = [slug.replace("rtd_slug:v1:", "") for slug in slugs]
             for slug in slugs:
-                log.info("Got slug from redis: %s" % slug)
-                symlink(slug)
+                try:
+                    log.info("Got slug from redis: %s" % slug)
+                    symlink(slug)
+                except Exception, e:
+                    print e
