@@ -127,7 +127,7 @@ class Project(models.Model):
                               default='.rst')
     single_version = models.BooleanField(
         _('Single version'), default=False,
-        help_text=_('A single version site has no translations and only a single version.'))
+        help_text=_('A single version site has no translations and only your "latest" version, served at the root of the domain.'))
     default_version = models.CharField(
         _('Default version'), max_length=255, default='latest',
         help_text=_('The version of your project that / redirects to'))
@@ -293,19 +293,31 @@ class Project(models.Model):
         lang = lang_slug or self.language
         use_subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
         if use_subdomain:
-            return "%s://%s/%s/%s/" % (
-                protocol,
-                self.subdomain,
-                lang,
-                version,
-            )
+            if self.single_version:
+                return "%s://%s/" % (
+                    protocol,
+                    self.subdomain,
+                )
+            else:
+                return "%s://%s/%s/%s/" % (
+                    protocol,
+                    self.subdomain,
+                    lang,
+                    version,
+                )
         else:
-            return reverse('docs_detail', kwargs={
-                'project_slug': self.slug,
-                'lang_slug': lang,
-                'version_slug': version,
-                'filename': ''
-            })
+            if self.single_version:
+                return reverse('docs_detail', kwargs={
+                    'project_slug': self.slug,
+                    'filename': ''
+                })
+            else:
+                return reverse('docs_detail', kwargs={
+                    'project_slug': self.slug,
+                    'lang_slug': lang,
+                    'version_slug': version,
+                    'filename': ''
+                })
 
     def get_translation_url(self, version_slug=None):
         parent = self.main_language_project
