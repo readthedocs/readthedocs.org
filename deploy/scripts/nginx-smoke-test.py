@@ -17,16 +17,6 @@ def served_by_nginx(url):
     nginx = ('x-served' in r.headers and r.headers['x-served'] == 'Nginx')
     return all([status, nginx])
 
-def served_by_nginx_via_django(url):
-    """Return True if url returns 200 and is served by nginx-via-django.
-
-    Not really sure what 'nginx-via-django' means...
-    """
-    r = requests.get(url, allow_redirects=False)
-    status = (r.status_code == 200)
-    nginx = ('x-served' in r.headers and r.headers['x-served'] == 'nginx-via-django')
-    return all([status, nginx])
-
 def served_by_django(url):
     """Return True if url returns 200 and is served by Django. (NOT Nginx)"""
     r = requests.get(url, allow_redirects=False)
@@ -45,9 +35,6 @@ def redirected(url, location):
     status = (r.status_code in (301, 302))
     redirect = ('location' in r.headers and r.headers['location'] == location)
     return all([status, redirect])
-
-def not_found(url):
-    pass
 
 def count(fn):
     def wrapped(*args, **kwargs):
@@ -92,13 +79,6 @@ def main():
     nginx_urls = subdomain_urls + cname_urls + single_version_urls + translation_urls + project_urls
     for url in nginx_urls:
         run_test(served_by_nginx, url)
-
-    """
-    # Deprecated, nothing should be served this way in production.
-    header('Served by nginx-via-django')
-    for url in project_urls:
-        run_test(served_by_nginx_via_django, url)
-    """
 
     header('Served by Django')
     for url in rtd_urls:
