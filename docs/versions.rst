@@ -17,11 +17,11 @@ you should set the **Default Branch** to that branch.
 You should push a **tag** for each version of your project.
 These tags should be numbered in a way that is consistent with `semantic versioning <http://semver.org/>`_.
 
-If you have documentation changes on a long-lived **branch**,
+If you have documentation changes on a **long-lived branch**,
 you can build those too.
 This will allow you to see how the new docs will be built in this branch of the code.
 Generally you won't have more than 1 active branch over a long period of time.
-The main exception here would be *release branches*,
+The main exception here would be **release branches**,
 which are branches that are maintained over time for a specific release number.
 
 Redirects on root URLs
