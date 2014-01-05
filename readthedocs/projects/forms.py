@@ -45,20 +45,30 @@ class ImportProjectForm(ProjectForm):
         model = Project
         fields = (
             # Important
-            'name', 'repo', 'repo_type', 'description', 'language',
+            'name', 'repo', 'repo_type', 
             # Not as important
-            'project_url', 'canonical_url', 
-            'single_version', 'default_branch', 'default_version',
+            'language', 
+            'canonical_url',
+            'single_version', 
+            'description', 
+            'project_url',
+            'tags'
+            'default_branch', 
+            'default_version',
             'conf_py_file',
             # Version Support
             #'num_major', 'num_minor', 'num_point',
             # Privacy
-            'privacy_level', 'version_privacy_level',
+            'privacy_level', 
+            # 'version_privacy_level',
             # Python specific
-            'use_virtualenv', 'use_system_packages', 'requirements_file',
+            'use_virtualenv', 
+            'use_system_packages',
+            'requirements_file',
             'python_interpreter',
             # Fringe
-            'analytics_code', 'documentation_type', 'tags'
+            'analytics_code', 
+            'documentation_type', 
         )
 
     def clean_repo(self):
