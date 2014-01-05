@@ -429,7 +429,7 @@ class Project(models.Model):
 
     @property
     def doc_path(self):
-        return os.path.join(settings.DOCROOT, self.slug)
+        return os.path.join(settings.DOCROOT, self.slug.replace('_', '-'))
 
     def checkout_path(self, version='latest'):
         return os.path.join(self.doc_path, 'checkouts', version)
