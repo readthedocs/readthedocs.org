@@ -410,7 +410,7 @@ class Project(models.Model):
 
     @property
     def doc_name(self):
-        return self.slug
+        return self.slug.replace('_', '-')
 
     @property
     def clean_canonical_url(self):
