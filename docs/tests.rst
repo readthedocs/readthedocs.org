@@ -10,4 +10,6 @@ This should spit out a bunch of info, build a couple projects, and eventually pa
 Continuous Integration
 ----------------------
 
-The fine folks over at `Django CMS <https://www.django-cms.org/>`_ have been nice enough to sponsor our CI setup on their hudson instance. You can check out the current build status: http://ci.django-cms.org/job/readthedocs.org/
+The RTD test suite is exercised by Travis CI on every push to our repo at
+GitHub. You can check out the current build status:
+https://travis-ci.org/rtfd/readthedocs.org
