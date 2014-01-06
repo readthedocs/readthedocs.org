@@ -272,7 +272,6 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
         #clear_artifacts(version.pk)
 
     import_open_comparison(project)
-    import_crate(project)
 
     return True
 
@@ -289,20 +288,6 @@ def import_open_comparison(project):
             log.debug(LOG_TEMPLATE.format(project=project.slug, version='', msg="Failed import from Open Comparison"))
     except:
         log.debug("Failed import from Open Comparison", exc_info=True)
-
-
-def import_crate(project):
-    """
-    Try importing a Project model from Crate.
-    """
-    try:
-        result = tastyapi_client.import_crate(project)
-        if result:
-            log.debug(LOG_TEMPLATE.format(project=project.slug, version='', msg="Successful import from Crate"))
-        else:
-            log.debug(LOG_TEMPLATE.format(project=project.slug, version='', msg="Failed import from Crate"))
-    except:
-        log.debug(LOG_TEMPLATE.format(project=project.slug, version='', msg="Failed import from Crate"), exc_info=True)
 
 
 @task 
