@@ -76,8 +76,10 @@ def summary_results(num_tests, num_fails):
 def main():
 
     header('Served by Nginx')
-    nginx_urls = (subdomain_urls + cname_urls + translation_urls +
-                  single_version_urls + project_urls)
+    nginx_urls = (
+        subdomain_urls + cname_urls + translation_urls +
+        single_version_urls + project_urls 
+    )
     for url in nginx_urls:
         run_test(served_by_nginx, url)
 
@@ -190,6 +192,14 @@ if __name__ == '__main__':
         [
             'https://readthedocs.org/docs/pip/en/',
             'https://readthedocs.org/docs/pip/en/latest/'
+        ],
+        [
+            'http://django_compressor.readthedocs.org/',
+            'http://django-compressor.readthedocs.org/',
+        ],
+        [
+            'http://django-compressor.readthedocs.org/',
+            'http://django-compressor.readthedocs.org/en/latest/',
         ],
     ]
 
