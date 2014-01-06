@@ -421,7 +421,7 @@ def update_imported_docs(version_pk, api=None):
             else:
                 ignore_option = ''
             if project.python_interpreter != 'python3':
-                sphinx = 'sphinx==1.1.3'
+                sphinx = 'sphinx==1.2'
                 update_docs_output['sphinx'] = run(
                     ('{cmd} install -U {ignore_option} {sphinx} '
                      'virtualenv==1.10.1 setuptools==1.1 '
@@ -429,7 +429,7 @@ def update_imported_docs(version_pk, api=None):
                         cmd=project.venv_bin(version=version_slug, bin='pip'),
                         sphinx=sphinx, ignore_option=ignore_option))
             else:
-                sphinx = 'sphinx==1.1.3'
+                sphinx = 'sphinx==1.2'
                 # python 3 specific hax
                 update_docs_output['sphinx'] = run(
                     ('{cmd} install -U {ignore_option} {sphinx} '
