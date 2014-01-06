@@ -67,7 +67,7 @@ class SubdomainMiddleware(object):
                 except:
                     # Some crazy person is CNAMEing to us. 404.
                     log.debug(LOG_TEMPLATE.format(msg='CNAME 404', **log_kwargs))
-                    raise Http404(_('Invalid Host Name.'))
+                    raise Http404(_('Invalid hostname'))
         # Google was finding crazy www.blah.readthedocs.org domains.
         # Block these explicitly after trying CNAME logic.
         if len(domain_parts) > 3:
