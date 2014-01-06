@@ -52,7 +52,7 @@ class ImportProjectForm(ProjectForm):
             'single_version', 
             'description', 
             'project_url',
-            'tags'
+            'tags',
             'default_branch', 
             'default_version',
             'conf_py_file',
