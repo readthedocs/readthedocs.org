@@ -33,6 +33,7 @@ Site Documentation
     redirects
     webhooks
     alternate_domains
+    single_version
     canonical
     privacy
     sponsors
@@ -56,6 +57,7 @@ Developer Documentation
     :maxdepth: 2
 
     install
+    symlinks
     todo
     contribute
     architecture
