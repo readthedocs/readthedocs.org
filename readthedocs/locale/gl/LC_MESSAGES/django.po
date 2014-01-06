@@ -1,21 +1,22 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# 
+#
 # Translators:
 # Leandro Regueiro <leandro.regueiro@gmail.com>, 2013
 msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-01-06 09:04-0600\n"
+"POT-Creation-Date: 2014-01-06 16:54-0600\n"
 "PO-Revision-Date: 2014-01-06 14:59+0000\n"
 "Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
-"Language-Team: Galician (http://www.transifex.com/projects/p/readthedocs/language/gl/)\n"
+"Language-Team: Galician (http://www.transifex.com/projects/p/readthedocs/"
+"language/gl/)\n"
+"Language: gl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: gl\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: api/utils.py:86
@@ -221,11 +222,7 @@ msgstr "Nome"
 msgid "Last name"
 msgstr "Apelidos"
 
-#: core/middleware.py:70
-msgid "Invalid Host Name."
-msgstr ""
-
-#: core/middleware.py:75
+#: core/middleware.py:70 core/middleware.py:75
 msgid "Invalid hostname"
 msgstr ""
 
@@ -356,7 +353,9 @@ msgstr "Xa existe un proxecto con ese nome!"
 msgid ""
 "URL for your code (hg or git). Ex. http://github.com/ericholscher/django-"
 "kong.git"
-msgstr "URL do seu código (hg ou git). P.ex. http://github.com/ericholscher/django-kong.git"
+msgstr ""
+"URL do seu código (hg ou git). P.ex. http://github.com/ericholscher/django-"
+"kong.git"
 
 #: projects/forms.py:41 projects/models.py:181
 msgid "(Beta) The Python interpreter used to create the virtual environment."
@@ -368,14 +367,18 @@ msgstr "Carácter non válido no nome do repositorio"
 
 #: projects/forms.py:81
 msgid ""
-"It looks like you entered a private repo - please use the public (http:// or"
-" git://) clone url"
-msgstr "Semella que entrou nun repositorio privado - por favor empregue a ligazón de clonación pública (http:// ou git://)"
+"It looks like you entered a private repo - please use the public (http:// or "
+"git://) clone url"
+msgstr ""
+"Semella que entrou nun repositorio privado - por favor empregue a ligazón de "
+"clonación pública (http:// ou git://)"
 
 #: projects/forms.py:89
 msgid ""
 "Your configuration file is invalid, make sure it contains conf.py in it."
-msgstr "O seu ficheiro de configuración é incorrecto, asegúrese de que contén conf.py nel."
+msgstr ""
+"O seu ficheiro de configuración é incorrecto, asegúrese de que contén conf."
+"py nel."
 
 #: projects/forms.py:159 templates/core/project_details.html:157
 msgid "Default Version"
@@ -433,8 +436,8 @@ msgstr "A descrición do proxecto empregando reStructuredText"
 
 #: projects/models.py:105
 msgid ""
-"Checkout URL for your code (hg, git, etc.). Ex. "
-"http://github.com/ericholscher/django-kong.git"
+"Checkout URL for your code (hg, git, etc.). Ex. http://github.com/"
+"ericholscher/django-kong.git"
 msgstr ""
 
 #: projects/models.py:108
@@ -518,10 +521,9 @@ msgstr "Ficheiro de requisitos"
 
 #: projects/models.py:144
 msgid ""
-"Requires Virtualenv. A <a href=\"http://www.pip-"
-"installer.org/en/latest/cookbook.html#requirements-files\">pip requirements "
-"file</a> needed to build your documentation. Path from the root of your "
-"project."
+"Requires Virtualenv. A <a href=\"http://www.pip-installer.org/en/latest/"
+"cookbook.html#requirements-files\">pip requirements file</a> needed to build "
+"your documentation. Path from the root of your project."
 msgstr ""
 
 #: projects/models.py:149
@@ -530,10 +532,12 @@ msgstr "Tipo de documentación"
 
 #: projects/models.py:151
 msgid ""
-"Type of documentation you are building. <a "
-"href=\"http://sphinx.pocoo.org/builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More"
-" info</a>."
-msgstr "Tipo de documentación que está a xerar. <a href=\"http://sphinx.pocoo.org/builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">Máis información</a>."
+"Type of documentation you are building. <a href=\"http://sphinx.pocoo.org/"
+"builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More info</a>."
+msgstr ""
+"Tipo de documentación que está a xerar. <a href=\"http://sphinx.pocoo.org/"
+"builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">Máis información</"
+"a>."
 
 #: projects/models.py:155
 msgid "Analytics code"
@@ -561,7 +565,9 @@ msgstr "Ficheiro de configuración Python"
 msgid ""
 "Path from project root to conf.py file (ex. docs/conf.py). Leave blank if "
 "you want us to find it for you."
-msgstr "Ruta desde a raíz do proxecto ao ficheiro conf.py (p.ex. docs/conf.py). Déixeo en branco se desexa que o atopemos por vostede."
+msgstr ""
+"Ruta desde a raíz do proxecto ao ficheiro conf.py (p.ex. docs/conf.py). "
+"Déixeo en branco se desexa que o atopemos por vostede."
 
 #: projects/models.py:167
 msgid "Featured"
@@ -588,7 +594,7 @@ msgid "Use system packages"
 msgstr "Usar os paquetes do sistema"
 
 #: projects/models.py:186
-msgid "Give the virtual environment access to the global sites-packages dir."
+msgid "Give the virtual environment access to the global site-packages dir."
 msgstr ""
 
 #: projects/models.py:188
@@ -700,8 +706,8 @@ msgstr ""
 #: templates/base.html:83
 #, python-format
 msgid ""
-"Copyright 2010-2013. Created by %(eric)s, %(charles)s, and %(bobby)s for the"
-" 2010 %(djangodash)s."
+"Copyright 2010-2013. Created by %(eric)s, %(charles)s, and %(bobby)s for the "
+"2010 %(djangodash)s."
 msgstr ""
 
 #: templates/base.html:85
@@ -710,11 +716,13 @@ msgstr ""
 
 #: templates/base.html:87
 msgid ""
-"Made by <a "
-"href=\"https://github.com/rtfd/readthedocs.org/graphs/contributors\">humans</a>."
-" Funded by <a href=\"https://www.gittip.com/readthedocs/\">readers like "
-"you</a>."
-msgstr "Feito por <a href=\"https://github.com/rtfd/readthedocs.org/graphs/contributors\">humanos</a>. Financiado por <a href=\"https://www.gittip.com/readthedocs/\">lectores como vostede</a>."
+"Made by <a href=\"https://github.com/rtfd/readthedocs.org/graphs/contributors"
+"\">humans</a>. Funded by <a href=\"https://www.gittip.com/readthedocs/"
+"\">readers like you</a>."
+msgstr ""
+"Feito por <a href=\"https://github.com/rtfd/readthedocs.org/graphs/"
+"contributors\">humanos</a>. Financiado por <a href=\"https://www.gittip.com/"
+"readthedocs/\">lectores como vostede</a>."
 
 #: templates/base_filter.html:14 templates/core/filter_bar.html:8
 msgid "Filter"
@@ -738,10 +746,16 @@ msgstr "Que é este sitio?"
 
 #: templates/homepage.html:46
 msgid ""
-"Read the Docs hosts documentation, making it fully searchable and easy to find.\n"
-"You can import your docs using any major version control system, including Mercurial, Git, Subversion, and Bazaar.\n"
-"We support <a href=\"http://read-the-docs.readthedocs.org/en/latest/webhooks.html\">webhooks</a> so your docs get built when you commit code.\n"
-"There's also support for versioning so you can build docs from tags and branches of your code in your repository. A <a href=\"http://read-the-docs.readthedocs.org/en/latest/features.html\">full list of features</a> is available."
+"Read the Docs hosts documentation, making it fully searchable and easy to "
+"find.\n"
+"You can import your docs using any major version control system, including "
+"Mercurial, Git, Subversion, and Bazaar.\n"
+"We support <a href=\"http://read-the-docs.readthedocs.org/en/latest/webhooks."
+"html\">webhooks</a> so your docs get built when you commit code.\n"
+"There's also support for versioning so you can build docs from tags and "
+"branches of your code in your repository. A <a href=\"http://read-the-docs."
+"readthedocs.org/en/latest/features.html\">full list of features</a> is "
+"available."
 msgstr ""
 
 #: templates/homepage.html:52
@@ -907,8 +921,7 @@ msgstr "Acceder"
 msgid "Create, host, and browse documentation."
 msgstr "Cree, aloxe e consulte documentación."
 
-#. Translators: Note, the full sentence goes 'Sign up' 'or' 'Log in'. But
-#. unfortunately the three bits have to be separate.
+#. Translators: Note, the full sentence goes 'Sign up' 'or' 'Log in'. But unfortunately the three bits have to be separate.
 #: templates/core/home-header.html:17
 msgid "Sign up"
 msgstr "Crear conta"
@@ -941,6 +954,11 @@ msgstr "Resumo"
 #: templates/projects/project_dashboard.html:70
 msgid "View Docs"
 msgstr "Ver a documentación"
+
+#: templates/core/project_bar.html:40
+#: templates/projects/project_downloads.html:22
+msgid "Downloads"
+msgstr "Descargas"
 
 #: templates/core/project_bar.html:43
 msgid "Builds"
@@ -1027,8 +1045,8 @@ msgstr "Open Comparison"
 #: templates/core/project_details.html:131
 #, python-format
 msgid ""
-"This project has more information available about it on <a "
-"href=\"%(url)s\">Open Comparison!</a>"
+"This project has more information available about it on <a href=\"%(url)s"
+"\">Open Comparison!</a>"
 msgstr ""
 
 #: templates/core/project_details.html:135
@@ -1038,9 +1056,11 @@ msgstr "Crate"
 #: templates/core/project_details.html:136
 #, python-format
 msgid ""
-"This project has more information available about it on <a "
-"href=\"%(url)s\">Crate!</a>"
-msgstr "Este proxecto ten máis información dispoñíbel sobre el en <a href=\"%(url)s\">Crate!</a>"
+"This project has more information available about it on <a href=\"%(url)s"
+"\">Crate!</a>"
+msgstr ""
+"Este proxecto ten máis información dispoñíbel sobre el en <a href=\"%(url)s"
+"\">Crate!</a>"
 
 #: templates/core/project_details.html:140
 #: templates/projects/project_edit_base.html:18
@@ -1169,8 +1189,8 @@ msgstr ""
 #: templates/djangome/choices.html:7
 #, python-format
 msgid ""
-"Choose a redirect for <kbd>%(djangome_term)s on <a "
-"href=\"http://%(slug)s.readthedocs.org\">%(slug)s.readthedocs.org</a></kbd>"
+"Choose a redirect for <kbd>%(djangome_term)s on <a href=\"http://%(slug)s."
+"readthedocs.org\">%(slug)s.readthedocs.org</a></kbd>"
 msgstr ""
 
 #: templates/djangome/choices.html:28
@@ -1226,7 +1246,8 @@ msgstr ""
 
 #: templates/flagging/flag_confirm.html:21
 #, python-format
-msgid "Are you sure you want to flag \"%(object)s\" as \"%(flag_type.title)s\"?"
+msgid ""
+"Are you sure you want to flag \"%(object)s\" as \"%(flag_type.title)s\"?"
 msgstr ""
 
 #: templates/flagging/flag_confirm.html:23
@@ -1412,8 +1433,10 @@ msgstr "Os meus proxectos"
 #: templates/projects/project_dashboard.html:83
 #, python-format
 msgid ""
-"You don't have any projects.  You should <a href=\"%(projects_import_url)s\">create new docs</a> on the site.<br>\n"
-"          Check out the <a href=\"%(getting_started_url)s\">Getting Started</a> documentation for information about how to get going."
+"You don't have any projects.  You should <a href=\"%(projects_import_url)s"
+"\">create new docs</a> on the site.<br>\n"
+"          Check out the <a href=\"%(getting_started_url)s\">Getting Started</"
+"a> documentation for information about how to get going."
 msgstr ""
 
 #: templates/projects/project_delete.html:4
@@ -1429,10 +1452,6 @@ msgstr ""
 #: templates/projects/project_delete.html:12
 msgid "Delete forever"
 msgstr "Eliminar para sempre"
-
-#: templates/projects/project_downloads.html:22
-msgid "Downloads"
-msgstr "Descargas"
 
 #: templates/projects/project_edit.html:23
 msgid "Edit Project"
@@ -1530,8 +1549,8 @@ msgstr ""
 
 #: templates/projects/project_subprojects.html:16
 msgid ""
-"This allows you to add subprojects to your project. This allows them to live"
-" in the same namespace in the URLConf for a subdomain or CNAME."
+"This allows you to add subprojects to your project. This allows them to live "
+"in the same namespace in the URLConf for a subdomain or CNAME."
 msgstr ""
 
 #: templates/projects/project_subprojects.html:19
@@ -1638,8 +1657,7 @@ msgstr ""
 msgid "Upload"
 msgstr "Enviar"
 
-#. Translators: After 'Flag this project as' follows either 'Inappropriate',
-#. 'Spam' and/or 'Duplicate'
+#. Translators: After 'Flag this project as' follows either 'Inappropriate', 'Spam' and/or 'Duplicate'
 #: templates/projects/includes/flagging.html:7
 msgid "Flag this project as"
 msgstr "Marcar este proxecto como"
@@ -1724,7 +1742,8 @@ msgid ""
 "\n"
 "This page will expire in %(expiration_days)s days.\n"
 "\n"
-"If you didn't register this account you can simply delete this email and we won't bother you again."
+"If you didn't register this account you can simply delete this email and we "
+"won't bother you again."
 msgstr ""
 
 #: templates/registration/activation_email_subject.txt:1
@@ -1742,8 +1761,8 @@ msgstr "rexistro"
 
 #: templates/registration/login.html:30
 msgid ""
-"If you forgot your password, <a href=\"/accounts/password/reset/\">reset "
-"it.</a>"
+"If you forgot your password, <a href=\"/accounts/password/reset/\">reset it."
+"</a>"
 msgstr ""
 
 #: templates/registration/login.html:33
@@ -1763,8 +1782,8 @@ msgstr "Grazas pola visita!"
 #: templates/registration/logout.html:21
 #, python-format
 msgid ""
-"If you are looking to log in again, you can do that <a "
-"href=\"%(login_url)s\">here</a>"
+"If you are looking to log in again, you can do that <a href=\"%(login_url)s"
+"\">here</a>"
 msgstr ""
 
 #: templates/registration/password_change_done.html:4
@@ -1789,8 +1808,8 @@ msgstr[1] "Corrixa os erros de abaixo."
 
 #: templates/registration/password_change_form.html:26
 msgid ""
-"Please enter your old password, for security's sake, and then enter your new"
-" password twice so we can verify you typed it in correctly."
+"Please enter your old password, for security's sake, and then enter your new "
+"password twice so we can verify you typed it in correctly."
 msgstr ""
 
 #: templates/registration/password_change_form.html:30
@@ -2065,6 +2084,6 @@ msgstr ""
 
 #: templates/sphinx/sphinx_rtd_theme/search.html:35
 msgid ""
-"Your search did not match any documents. Please make sure that all words are"
-" spelled correctly and that you've selected enough categories."
+"Your search did not match any documents. Please make sure that all words are "
+"spelled correctly and that you've selected enough categories."
 msgstr ""

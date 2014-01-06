@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-01-06 09:04-0600\n"
+"POT-Creation-Date: 2014-01-06 16:54-0600\n"
 "PO-Revision-Date: 2014-01-06 14:59+0000\n"
 "Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
 "Language-Team: French (http://www.transifex.com/projects/p/readthedocs/"
@@ -223,11 +223,7 @@ msgstr "Prénom"
 msgid "Last name"
 msgstr "Nom"
 
-#: core/middleware.py:70
-msgid "Invalid Host Name."
-msgstr "Nom d'hôte invalide"
-
-#: core/middleware.py:75
+#: core/middleware.py:70 core/middleware.py:75
 msgid "Invalid hostname"
 msgstr "Nom d'hôte invalide"
 
@@ -604,7 +600,7 @@ msgid "Use system packages"
 msgstr "Utiliser les paquets système"
 
 #: projects/models.py:186
-msgid "Give the virtual environment access to the global sites-packages dir."
+msgid "Give the virtual environment access to the global site-packages dir."
 msgstr ""
 
 #: projects/models.py:188
@@ -978,6 +974,11 @@ msgstr "Aperçu"
 #: templates/projects/project_dashboard.html:70
 msgid "View Docs"
 msgstr "Afficher les Docs"
+
+#: templates/core/project_bar.html:40
+#: templates/projects/project_downloads.html:22
+msgid "Downloads"
+msgstr "Téléchargements"
 
 #: templates/core/project_bar.html:43
 msgid "Builds"
@@ -1481,10 +1482,6 @@ msgstr "Etes vous sur ?"
 #: templates/projects/project_delete.html:12
 msgid "Delete forever"
 msgstr "Supprimer définitivement"
-
-#: templates/projects/project_downloads.html:22
-msgid "Downloads"
-msgstr "Téléchargements"
 
 #: templates/projects/project_edit.html:23
 msgid "Edit Project"
@@ -2153,3 +2150,6 @@ msgid ""
 "Your search did not match any documents. Please make sure that all words are "
 "spelled correctly and that you've selected enough categories."
 msgstr ""
+
+#~ msgid "Invalid Host Name."
+#~ msgstr "Nom d'hôte invalide"

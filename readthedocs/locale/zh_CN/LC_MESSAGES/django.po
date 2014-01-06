@@ -1,7 +1,7 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# 
+#
 # Translators:
 # mozillazg <opensource.mozillazg@gmail.com>, 2014
 # rimy <Siramizu@gmail.com>, 2013
@@ -9,14 +9,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-01-06 09:04-0600\n"
+"POT-Creation-Date: 2014-01-06 16:55-0600\n"
 "PO-Revision-Date: 2014-01-06 14:59+0000\n"
 "Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
-"Language-Team: Chinese (China) (http://www.transifex.com/projects/p/readthedocs/language/zh_CN/)\n"
+"Language-Team: Chinese (China) (http://www.transifex.com/projects/p/"
+"readthedocs/language/zh_CN/)\n"
+"Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: zh_CN\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
 #: api/utils.py:86
@@ -222,11 +223,7 @@ msgstr "名字"
 msgid "Last name"
 msgstr "姓氏"
 
-#: core/middleware.py:70
-msgid "Invalid Host Name."
-msgstr "主机名无效。"
-
-#: core/middleware.py:75
+#: core/middleware.py:70 core/middleware.py:75
 msgid "Invalid hostname"
 msgstr "主机名无效"
 
@@ -357,7 +354,9 @@ msgstr "已存在相同的项目名称！"
 msgid ""
 "URL for your code (hg or git). Ex. http://github.com/ericholscher/django-"
 "kong.git"
-msgstr "代码仓库 URL (hg 或 git). 例如. http://github.com/ericholscher/django-kong.git"
+msgstr ""
+"代码仓库 URL (hg 或 git). 例如. http://github.com/ericholscher/django-kong."
+"git"
 
 #: projects/forms.py:41 projects/models.py:181
 msgid "(Beta) The Python interpreter used to create the virtual environment."
@@ -369,8 +368,8 @@ msgstr "仓库名称中包含无效字符"
 
 #: projects/forms.py:81
 msgid ""
-"It looks like you entered a private repo - please use the public (http:// or"
-" git://) clone url"
+"It looks like you entered a private repo - please use the public (http:// or "
+"git://) clone url"
 msgstr ""
 
 #: projects/forms.py:89
@@ -434,9 +433,11 @@ msgstr "reStructuredText 格式的项目说明"
 
 #: projects/models.py:105
 msgid ""
-"Checkout URL for your code (hg, git, etc.). Ex. "
-"http://github.com/ericholscher/django-kong.git"
-msgstr "该项目代码库德地址（hg、git 等）。如：http://github.com/ericholscher/django-kong.git"
+"Checkout URL for your code (hg, git, etc.). Ex. http://github.com/"
+"ericholscher/django-kong.git"
+msgstr ""
+"该项目代码库德地址（hg、git 等）。如：http://github.com/ericholscher/django-"
+"kong.git"
 
 #: projects/models.py:108
 msgid "Repository type"
@@ -511,7 +512,9 @@ msgstr "默认分支"
 msgid ""
 "What branch \"latest\" points to. Leave empty to use the default value for "
 "your VCS (eg. trunk or master)."
-msgstr "“latest” 分支所实际指向的分支。留空则根据您的版本控制系统决定（如：trunk 或 master）。"
+msgstr ""
+"“latest” 分支所实际指向的分支。留空则根据您的版本控制系统决定（如：trunk 或 "
+"master）。"
 
 #: projects/models.py:142
 msgid "Requirements file"
@@ -519,10 +522,9 @@ msgstr ""
 
 #: projects/models.py:144
 msgid ""
-"Requires Virtualenv. A <a href=\"http://www.pip-"
-"installer.org/en/latest/cookbook.html#requirements-files\">pip requirements "
-"file</a> needed to build your documentation. Path from the root of your "
-"project."
+"Requires Virtualenv. A <a href=\"http://www.pip-installer.org/en/latest/"
+"cookbook.html#requirements-files\">pip requirements file</a> needed to build "
+"your documentation. Path from the root of your project."
 msgstr ""
 
 #: projects/models.py:149
@@ -531,10 +533,11 @@ msgstr "文档类型"
 
 #: projects/models.py:151
 msgid ""
-"Type of documentation you are building. <a "
-"href=\"http://sphinx.pocoo.org/builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More"
-" info</a>."
-msgstr "您要构建的文档类型。<a href=\"http://sphinx.pocoo.org/builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">更多信息</a>。"
+"Type of documentation you are building. <a href=\"http://sphinx.pocoo.org/"
+"builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More info</a>."
+msgstr ""
+"您要构建的文档类型。<a href=\"http://sphinx.pocoo.org/builders.html#sphinx."
+"builders.html.DirectoryHTMLBuilder\">更多信息</a>。"
 
 #: projects/models.py:155
 msgid "Analytics code"
@@ -562,7 +565,8 @@ msgstr "Python 配置文件"
 msgid ""
 "Path from project root to conf.py file (ex. docs/conf.py). Leave blank if "
 "you want us to find it for you."
-msgstr "相对项目根目录的 conf.py 文件路径（如：docs/conf.py）。留空则自动查找。"
+msgstr ""
+"相对项目根目录的 conf.py 文件路径（如：docs/conf.py）。留空则自动查找。"
 
 #: projects/models.py:167
 msgid "Featured"
@@ -589,7 +593,7 @@ msgid "Use system packages"
 msgstr ""
 
 #: projects/models.py:186
-msgid "Give the virtual environment access to the global sites-packages dir."
+msgid "Give the virtual environment access to the global site-packages dir."
 msgstr ""
 
 #: projects/models.py:188
@@ -701,8 +705,8 @@ msgstr ""
 #: templates/base.html:83
 #, python-format
 msgid ""
-"Copyright 2010-2013. Created by %(eric)s, %(charles)s, and %(bobby)s for the"
-" 2010 %(djangodash)s."
+"Copyright 2010-2013. Created by %(eric)s, %(charles)s, and %(bobby)s for the "
+"2010 %(djangodash)s."
 msgstr ""
 
 #: templates/base.html:85
@@ -711,10 +715,9 @@ msgstr ""
 
 #: templates/base.html:87
 msgid ""
-"Made by <a "
-"href=\"https://github.com/rtfd/readthedocs.org/graphs/contributors\">humans</a>."
-" Funded by <a href=\"https://www.gittip.com/readthedocs/\">readers like "
-"you</a>."
+"Made by <a href=\"https://github.com/rtfd/readthedocs.org/graphs/contributors"
+"\">humans</a>. Funded by <a href=\"https://www.gittip.com/readthedocs/"
+"\">readers like you</a>."
 msgstr ""
 
 #: templates/base_filter.html:14 templates/core/filter_bar.html:8
@@ -739,10 +742,16 @@ msgstr "这是哪里？"
 
 #: templates/homepage.html:46
 msgid ""
-"Read the Docs hosts documentation, making it fully searchable and easy to find.\n"
-"You can import your docs using any major version control system, including Mercurial, Git, Subversion, and Bazaar.\n"
-"We support <a href=\"http://read-the-docs.readthedocs.org/en/latest/webhooks.html\">webhooks</a> so your docs get built when you commit code.\n"
-"There's also support for versioning so you can build docs from tags and branches of your code in your repository. A <a href=\"http://read-the-docs.readthedocs.org/en/latest/features.html\">full list of features</a> is available."
+"Read the Docs hosts documentation, making it fully searchable and easy to "
+"find.\n"
+"You can import your docs using any major version control system, including "
+"Mercurial, Git, Subversion, and Bazaar.\n"
+"We support <a href=\"http://read-the-docs.readthedocs.org/en/latest/webhooks."
+"html\">webhooks</a> so your docs get built when you commit code.\n"
+"There's also support for versioning so you can build docs from tags and "
+"branches of your code in your repository. A <a href=\"http://read-the-docs."
+"readthedocs.org/en/latest/features.html\">full list of features</a> is "
+"available."
 msgstr ""
 
 #: templates/homepage.html:52
@@ -908,8 +917,7 @@ msgstr "登录"
 msgid "Create, host, and browse documentation."
 msgstr "创建、托管并浏览文档。"
 
-#. Translators: Note, the full sentence goes 'Sign up' 'or' 'Log in'. But
-#. unfortunately the three bits have to be separate.
+#. Translators: Note, the full sentence goes 'Sign up' 'or' 'Log in'. But unfortunately the three bits have to be separate.
 #: templates/core/home-header.html:17
 msgid "Sign up"
 msgstr "注册"
@@ -942,6 +950,11 @@ msgstr ""
 #: templates/projects/project_dashboard.html:70
 msgid "View Docs"
 msgstr "阅读文档"
+
+#: templates/core/project_bar.html:40
+#: templates/projects/project_downloads.html:22
+msgid "Downloads"
+msgstr "下载"
 
 #: templates/core/project_bar.html:43
 msgid "Builds"
@@ -1028,8 +1041,8 @@ msgstr ""
 #: templates/core/project_details.html:131
 #, python-format
 msgid ""
-"This project has more information available about it on <a "
-"href=\"%(url)s\">Open Comparison!</a>"
+"This project has more information available about it on <a href=\"%(url)s"
+"\">Open Comparison!</a>"
 msgstr ""
 
 #: templates/core/project_details.html:135
@@ -1039,8 +1052,8 @@ msgstr ""
 #: templates/core/project_details.html:136
 #, python-format
 msgid ""
-"This project has more information available about it on <a "
-"href=\"%(url)s\">Crate!</a>"
+"This project has more information available about it on <a href=\"%(url)s"
+"\">Crate!</a>"
 msgstr ""
 
 #: templates/core/project_details.html:140
@@ -1170,8 +1183,8 @@ msgstr ""
 #: templates/djangome/choices.html:7
 #, python-format
 msgid ""
-"Choose a redirect for <kbd>%(djangome_term)s on <a "
-"href=\"http://%(slug)s.readthedocs.org\">%(slug)s.readthedocs.org</a></kbd>"
+"Choose a redirect for <kbd>%(djangome_term)s on <a href=\"http://%(slug)s."
+"readthedocs.org\">%(slug)s.readthedocs.org</a></kbd>"
 msgstr ""
 
 #: templates/djangome/choices.html:28
@@ -1227,7 +1240,8 @@ msgstr ""
 
 #: templates/flagging/flag_confirm.html:21
 #, python-format
-msgid "Are you sure you want to flag \"%(object)s\" as \"%(flag_type.title)s\"?"
+msgid ""
+"Are you sure you want to flag \"%(object)s\" as \"%(flag_type.title)s\"?"
 msgstr ""
 
 #: templates/flagging/flag_confirm.html:23
@@ -1413,8 +1427,10 @@ msgstr "我的项目"
 #: templates/projects/project_dashboard.html:83
 #, python-format
 msgid ""
-"You don't have any projects.  You should <a href=\"%(projects_import_url)s\">create new docs</a> on the site.<br>\n"
-"          Check out the <a href=\"%(getting_started_url)s\">Getting Started</a> documentation for information about how to get going."
+"You don't have any projects.  You should <a href=\"%(projects_import_url)s"
+"\">create new docs</a> on the site.<br>\n"
+"          Check out the <a href=\"%(getting_started_url)s\">Getting Started</"
+"a> documentation for information about how to get going."
 msgstr ""
 
 #: templates/projects/project_delete.html:4
@@ -1430,10 +1446,6 @@ msgstr "确定吗？"
 #: templates/projects/project_delete.html:12
 msgid "Delete forever"
 msgstr "永久删除"
-
-#: templates/projects/project_downloads.html:22
-msgid "Downloads"
-msgstr "下载"
 
 #: templates/projects/project_edit.html:23
 msgid "Edit Project"
@@ -1531,8 +1543,8 @@ msgstr "编辑子项目"
 
 #: templates/projects/project_subprojects.html:16
 msgid ""
-"This allows you to add subprojects to your project. This allows them to live"
-" in the same namespace in the URLConf for a subdomain or CNAME."
+"This allows you to add subprojects to your project. This allows them to live "
+"in the same namespace in the URLConf for a subdomain or CNAME."
 msgstr ""
 
 #: templates/projects/project_subprojects.html:19
@@ -1639,8 +1651,7 @@ msgstr ""
 msgid "Upload"
 msgstr ""
 
-#. Translators: After 'Flag this project as' follows either 'Inappropriate',
-#. 'Spam' and/or 'Duplicate'
+#. Translators: After 'Flag this project as' follows either 'Inappropriate', 'Spam' and/or 'Duplicate'
 #: templates/projects/includes/flagging.html:7
 msgid "Flag this project as"
 msgstr ""
@@ -1725,7 +1736,8 @@ msgid ""
 "\n"
 "This page will expire in %(expiration_days)s days.\n"
 "\n"
-"If you didn't register this account you can simply delete this email and we won't bother you again."
+"If you didn't register this account you can simply delete this email and we "
+"won't bother you again."
 msgstr ""
 
 #: templates/registration/activation_email_subject.txt:1
@@ -1743,9 +1755,10 @@ msgstr "注册"
 
 #: templates/registration/login.html:30
 msgid ""
-"If you forgot your password, <a href=\"/accounts/password/reset/\">reset "
-"it.</a>"
-msgstr "若您忘记了密码，可以<a href=\"/accounts/password/reset/\">重设密码</a>。"
+"If you forgot your password, <a href=\"/accounts/password/reset/\">reset it."
+"</a>"
+msgstr ""
+"若您忘记了密码，可以<a href=\"/accounts/password/reset/\">重设密码</a>。"
 
 #: templates/registration/login.html:33
 msgid ""
@@ -1764,8 +1777,8 @@ msgstr ""
 #: templates/registration/logout.html:21
 #, python-format
 msgid ""
-"If you are looking to log in again, you can do that <a "
-"href=\"%(login_url)s\">here</a>"
+"If you are looking to log in again, you can do that <a href=\"%(login_url)s"
+"\">here</a>"
 msgstr "若您想重新登录，您可以点击<a href=\"%(login_url)s\">这里</a>"
 
 #: templates/registration/password_change_done.html:4
@@ -1789,8 +1802,8 @@ msgstr[0] "请改正下列错误。"
 
 #: templates/registration/password_change_form.html:26
 msgid ""
-"Please enter your old password, for security's sake, and then enter your new"
-" password twice so we can verify you typed it in correctly."
+"Please enter your old password, for security's sake, and then enter your new "
+"password twice so we can verify you typed it in correctly."
 msgstr ""
 
 #: templates/registration/password_change_form.html:30
@@ -2065,6 +2078,9 @@ msgstr ""
 
 #: templates/sphinx/sphinx_rtd_theme/search.html:35
 msgid ""
-"Your search did not match any documents. Please make sure that all words are"
-" spelled correctly and that you've selected enough categories."
+"Your search did not match any documents. Please make sure that all words are "
+"spelled correctly and that you've selected enough categories."
 msgstr ""
+
+#~ msgid "Invalid Host Name."
+#~ msgstr "主机名无效。"

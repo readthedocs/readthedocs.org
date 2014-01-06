@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-01-06 09:04-0600\n"
+"POT-Creation-Date: 2014-01-06 16:54-0600\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -220,11 +220,7 @@ msgstr ""
 msgid "Last name"
 msgstr ""
 
-#: core/middleware.py:70
-msgid "Invalid Host Name."
-msgstr ""
-
-#: core/middleware.py:75
+#: core/middleware.py:70 core/middleware.py:75
 msgid "Invalid hostname"
 msgstr ""
 
@@ -585,7 +581,7 @@ msgid "Use system packages"
 msgstr ""
 
 #: projects/models.py:186
-msgid "Give the virtual environment access to the global sites-packages dir."
+msgid "Give the virtual environment access to the global site-packages dir."
 msgstr ""
 
 #: projects/models.py:188
@@ -941,6 +937,11 @@ msgstr ""
 #: templates/core/project_list_featured.html:13
 #: templates/projects/project_dashboard.html:70
 msgid "View Docs"
+msgstr ""
+
+#: templates/core/project_bar.html:40
+#: templates/projects/project_downloads.html:22
+msgid "Downloads"
 msgstr ""
 
 #: templates/core/project_bar.html:43
@@ -1432,10 +1433,6 @@ msgstr ""
 
 #: templates/projects/project_delete.html:12
 msgid "Delete forever"
-msgstr ""
-
-#: templates/projects/project_downloads.html:22
-msgid "Downloads"
 msgstr ""
 
 #: templates/projects/project_edit.html:23
