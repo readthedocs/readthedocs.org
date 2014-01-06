@@ -184,7 +184,7 @@ class Project(models.Model):
     use_system_packages = models.BooleanField(
         _('Use system packages'),
         help_text=_("Give the virtual environment access to the global "
-                    "sites-packages dir."))
+                    "site-packages dir."))
     django_packages_url = models.CharField(_('Django Packages URL'),
                                            max_length=255, blank=True)
     crate_url = models.CharField(_('Crate URL'), max_length=255, blank=True)
