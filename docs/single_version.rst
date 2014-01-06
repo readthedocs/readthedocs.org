@@ -7,6 +7,8 @@ But, if you enable the "Single Version" option for a project, its documentation 
 
 .. warning:: This means you can't have translations or multiple versions for your documentation.
 
+You can see an example of this at www.contribution-guide.org
+
 Enabling
 --------
 
