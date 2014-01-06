@@ -51,9 +51,14 @@ TIME_ZONE = 'America/Chicago'
 LANGUAGE_CODE = 'en-us'
 LANGUAGES = (
     ('en', gettext('English')),
+    ('es', gettext('Spanish')),
     ('nb', gettext('Norwegian')),
     ('fr', gettext('French')),
 )
+LOCALE_PATHS = [
+    os.path.join(SITE_ROOT, 'readthedocs', 'locale'),
+]
+
 
 USE_I18N = True
 USE_L10N = True
