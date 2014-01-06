@@ -270,11 +270,21 @@ def default_docs_kwargs(request, project_slug=None):
 
     """
     if project_slug:
-        proj = get_object_or_404(Project, slug=project_slug)
+        try:
+            proj = Project.objects.get(slug=project_slug)
+        except (Project.DoesNotExist, ValueError):
+            # Try with underscore, for legacy 
+            proj = Project.objects.get(slug=project_slug.replace('-', '_'))
     else:
         # If project_slug isn't in URL pattern, it's set in subdomain
         # middleware as request.slug.
-        proj = get_object_or_404(Project, slug=request.slug)
+        try:
+            proj = Project.objects.get(slug=request.slug)
+        except (Project.DoesNotExist, ValueError):
+            # Try with underscore, for legacy 
+            proj = Project.objects.get(slug=request.slug.replace('-', '_'))
+    if not proj:
+        raise Http404("Project slug not found")
     version_slug = proj.get_default_version()
     kwargs = {
         'project_slug': project_slug,
