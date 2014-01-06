@@ -3,11 +3,14 @@ from django.test import TestCase
 from builds.models import Version
 from projects.models import Project
 
+import logging
 
 class RedirectTests(TestCase):
     fixtures = ["eric", "test_data"]
 
+
     def setUp(self):
+        logging.disable(logging.DEBUG)
         self.client.login(username='eric', password='test')
         self.client.post(
             '/dashboard/import/',
@@ -150,14 +153,20 @@ class RedirectTests(TestCase):
         r = self.client.get('/test.html', HTTP_HOST='pip.readthedocs.org')
         self.assertEqual(r.status_code, 404)
 
-    # This is currently turned off.
-    """
-    # Test _ -> -
+class RedirectUnderscoreTests(TestCase):
+    fixtures = ["eric", "test_data"]
+
+    def setUp(self):
+        logging.disable(logging.DEBUG)
+        self.client.login(username='eric', password='test')
+        whatup = Project.objects.create(slug='what_up', name='What Up Underscore')
+        Version.objects.create(project=whatup, identifier='latest',
+                               verbose_name='latest', slug='latest',
+                               active=True)
+
+    # Test _ -> - slug lookup
     def test_underscore_redirect(self):
-        r = self.client.get('/en/latest/',
-                            HTTP_HOST='django_kong.readthedocs.org')
-        self.assertEqual(r.status_code, 301)
-        self.assertEqual(r._headers['Location'],
-                         ('Location',
-                          'http://django-kong.readthedocs.org/en/latest/'))
-    """
+        r = self.client.get('/',
+                            HTTP_HOST='what-up.readthedocs.org')
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(r['Location'], 'http://what-up.readthedocs.org/en/latest/')
