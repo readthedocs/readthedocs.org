@@ -130,11 +130,6 @@
   <p>{% blocktrans with project.django_packages_url as url %}This project has more information available about it on <a href="{{ url }}">Open Comparison!</a>{% endblocktrans %}</p>
   {% endif %}
 
-  {% if project.crate_url %}
-  <h3>{% trans "Crate" %}</h3>
-  <p>{% blocktrans with project.crate_url as url %}This project has more information available about it on <a href="{{ url }}">Crate!</a>{% endblocktrans %}</p>
-  {% endif %}
-
   {% if project.translations.exists %}
     <h3>{% trans "Translations" %}</h3>
       <ul>
