@@ -34,7 +34,6 @@ def mockVersion(repo):
                     "absolute_url": "/projects/docs/",
                     "analytics_code": "",
                     "copyright": "",
-                    "crate_url": "",
                     "default_branch": "",
                     "default_version": "latest",
                     "description": "Make docs.readthedocs.org work :D",
