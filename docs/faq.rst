@@ -142,7 +142,7 @@ Do I need to be whitelisted?
 No. Whitelisting has been removed as a concept in Read the Docs. You should have access to all of the features already.
 
 Does Read The Docs work well with "legible" docstrings?
---------------------------------------------------
+-------------------------------------------------------
 
 Yes. One criticism of Sphinx is that its annotated docstrings are too
 dense and difficult for humans to read. In response, many projects

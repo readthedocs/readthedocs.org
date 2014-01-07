@@ -18,7 +18,7 @@ Style Catalog
 Once you have RTD running locally, you can open ``http://localhost:8000/style-catalog/``
 for a quick overview of the currently available styles.
 
-.. image:: https://f.cloud.github.com/assets/37303/3011/f26b9b1e-4294-11e2-912b-eabc4c107743.png
+.. image:: /img/headers.png
 
 This way you can quickly get started writing HTML -- or if you're
 modifying existing styles you can get a quick idea of how things
