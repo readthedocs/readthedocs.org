@@ -86,6 +86,7 @@ context = {
     'analytics_code': '{{ project.analytics_code }}',
     'single_version': {{ project.single_version }},
     'conf_py_path': '{{ conf_py_path }}',
+    'api_host': '{{ api_host }}',
     'github_user': '{{ github_user }}',
     'github_repo': '{{ github_repo }}',
     'github_version': '{{ github_version }}',
@@ -149,6 +150,7 @@ class Builder(BaseBuilder):
             'template_path': TEMPLATE_DIR,
             'conf_py_path': conf_py_path,
             'downloads': apiv2.version(self.version.pk).downloads.get()['downloads'],
+            'api_host': getattr(settings, 'SLUMBER_API_HOST', 'https://readthedocs.org'),
             # GitHub
             'github_user': github_info[0],
             'github_repo': github_info[1],

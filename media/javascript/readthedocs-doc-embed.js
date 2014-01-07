@@ -12,14 +12,19 @@ $(document).ready(function () {
       get_data['docroot'] = READTHEDOCS_DATA['docroot']
     }
 
+    if ("api_host" in READTHEDOCS_DATA) {
+      API_HOST = READTHEDOCS_DATA['api_host']
+    } else {
+      API_HOST = 'https://readthedocs.org'
+    }
+
     if (window.location.pathname.indexOf('/projects/') == 0) {
       get_data['subproject'] = true
     }
 
     // Theme popout code
     $.ajax({
-      url: "https://readthedocs.org/api/v2/footer_html/",
-      //url: "http://localhost:8000/api/v2/footer_html/",
+      url: API_HOST + "/api/v2/footer_html/",
       crossDomain: true,
       xhrFields: {
         withCredentials: true,
@@ -126,8 +131,7 @@ $(document).ready(function () {
 
       // Search results
       $.ajax({
-        url: "https://readthedocs.org/api/v2/search/section/",
-        //url: "http://localhost:8000/api/v2/search/section/",
+        url: API_HOST + "/api/v2/search/section/",
         crossDomain: true,
         xhrFields: {
           withCredentials: true,
