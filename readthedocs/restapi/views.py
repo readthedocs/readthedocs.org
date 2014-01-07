@@ -257,9 +257,6 @@ def footer_html(request):
     using_theme = (theme == "default")
     project = get_object_or_404(Project, slug=project_slug)
     version = project.versions.get(slug=version_slug)
-    version_active = True
-    if not version.active:
-        version_active = False
     main_project = project.get_main_language_project() or project
     context = Context({
         'project': project,
@@ -277,7 +274,7 @@ def footer_html(request):
         'bitbucket_url': version.get_bitbucket_url(docroot, page_slug),
     })
     html = Template(TEMPLATE).render(context)
-    return Response({"html": html, 'version_active': version_active})
+    return Response({"html": html, 'version_active': version.active})
 
 
 @decorators.api_view(['GET'])
