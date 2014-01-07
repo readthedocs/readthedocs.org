@@ -19,6 +19,10 @@ class Builder(HtmlBuilder):
                 version=self.version.slug, bin='sphinx-build'), project.language)
         else:
             build_command = "sphinx-build -D language=%s -b readthedocsdirhtml . _build/html" % project.language
+
+        if not os.path.isdir('_build/html'):
+            os.makedirs('_build/html')
+
         build_results = run(build_command)
         self._zip_html()
         if 'no targets are out of date.' in build_results[1]:

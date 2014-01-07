@@ -187,6 +187,10 @@ class Builder(BaseBuilder):
         else:
             build_command = ("sphinx-build %s -b readthedocs -D language=%s . _build/html"
                              % (force_str, project.language))
+
+        if not os.path.isdir('_build/html'):
+            os.makedirs('_build/html')
+
         build_results = run(build_command, shell=True)
         self._zip_html()
         if 'no targets are out of date.' in build_results[1]:

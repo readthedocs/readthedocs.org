@@ -21,6 +21,10 @@ class Builder(HtmlBuilder):
                 version=self.version.slug, bin='sphinx-build'), project.language)
         else:
             build_command = "sphinx-build -E -b websupport2 -D language=%s . _build/html" % project.language
+
+        if not os.path.isdir('_build/html'):
+            os.makedirs('_build/html')
+
         build_results = run(build_command)
         if 'no targets are out of date.' in build_results[1]:
             self._changed = False
