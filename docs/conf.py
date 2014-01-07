@@ -43,4 +43,12 @@ man_pages = [
      [u'Eric Holscher, Charlie Leifer, Bobby Grace'], 1)
 ]
 
-RTD_NEW_THEME = True
+exclude_patterns = [
+    #'api' # needed for ``make gettext`` to not die.
+]
+
+language = 'en'
+locale_dirs = [
+    '_build/locale',
+]
+gettext_compact = False
