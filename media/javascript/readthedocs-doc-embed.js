@@ -32,6 +32,10 @@ $(document).ready(function () {
             } else {
               $("div.rst-other-versions").html(data['html'])
             }
+            if (!data['version_active']) {
+                // Show out of date header
+                $('.rst-current-version').addClass('rst-out-of-date')
+            }
       },
       error: function () {
           console.log('Error loading footer')

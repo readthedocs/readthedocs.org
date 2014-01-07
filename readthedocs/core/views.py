@@ -334,7 +334,7 @@ def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
                             slug=version_slug)
 
     # Auth checks
-    if ver not in proj.versions.public(request.user, proj):
+    if ver not in proj.versions.public(request.user, proj, only_active=False):
         res = HttpResponse("You don't have access to this version.")
         res.status_code = 401
         return res
