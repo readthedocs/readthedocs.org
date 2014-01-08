@@ -12,9 +12,8 @@ $(document).ready(function () {
       get_data['docroot'] = READTHEDOCS_DATA['docroot']
     }
 
-    if ("api_host" in READTHEDOCS_DATA) {
-      API_HOST = READTHEDOCS_DATA['api_host']
-    } else {
+    var API_HOST = READTHEDOCS_DATA['api_host']
+    if (API_HOST === undefined) {
       API_HOST = 'https://readthedocs.org'
     }
 
