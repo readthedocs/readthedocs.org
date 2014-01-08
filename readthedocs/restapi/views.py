@@ -196,7 +196,7 @@ TEMPLATE = """
 
       </dl>
       {% endif %}
-      {% if not project.single_version and versions|length > 1 %}
+      {% if not project.single_version %} {# and versions|length > 1 #}
       <dl>
         <dt>Versions</dt>
         {% for version in versions %}
