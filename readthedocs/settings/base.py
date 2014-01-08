@@ -52,8 +52,11 @@ LANGUAGE_CODE = 'en-us'
 LANGUAGES = (
     ('en', gettext('English')),
     ('es', gettext('Spanish')),
-    ('nb', gettext('Norwegian')),
+    ('nb', gettext('Norwegian Bokmål')),
     ('fr', gettext('French')),
+    ('ru', gettext('Russian')),
+    ('de', gettext('German')),
+    ('gl', gettext('Galician')),
 )
 LOCALE_PATHS = [
     os.path.join(SITE_ROOT, 'readthedocs', 'locale'),

@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-01-06 16:54-0600\n"
+"POT-Creation-Date: 2014-01-08 11:19-0600\n"
 "PO-Revision-Date: 2014-01-06 14:59+0000\n"
 "Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
 "Language-Team: French (http://www.transifex.com/projects/p/readthedocs/"
@@ -30,7 +30,7 @@ msgid "Invalid resource lookup data provided (mismatched type).: %(error)s"
 msgstr ""
 
 #: bookmarks/models.py:9 builds/models.py:82 builds/models.py:263
-#: builds/models.py:279 projects/models.py:725
+#: builds/models.py:279 projects/models.py:722
 msgid "Project"
 msgstr "Projet"
 
@@ -93,7 +93,7 @@ msgid "Any"
 msgstr "Aucun"
 
 #: builds/filters.py:17 builds/filters.py:30 projects/filters.py:16
-#: projects/models.py:99 projects/models.py:729
+#: projects/models.py:99 projects/models.py:726
 msgid "Name"
 msgstr "Nom"
 
@@ -117,7 +117,7 @@ msgstr "Identifiant"
 msgid "Verbose Name"
 msgstr "Nom verbeux"
 
-#: builds/models.py:88 projects/models.py:100 projects/models.py:730
+#: builds/models.py:88 projects/models.py:100 projects/models.py:727
 msgid "Slug"
 msgstr "Libellé court"
 
@@ -173,7 +173,7 @@ msgstr "Plus grand"
 msgid "Alias for %(project)s: %(from)s -> %(to)s"
 msgstr "Alias pour %(project)s: %(from)s -> %(to)s"
 
-#: builds/models.py:281 projects/models.py:116 projects/models.py:727
+#: builds/models.py:281 projects/models.py:116 projects/models.py:724
 #: templates/djangome/oneoffs.html:11
 msgid "Version"
 msgstr "Version"
@@ -554,7 +554,7 @@ msgstr ""
 "ID de traçage Google Analytics (ex. UA-22345342-1). Risque de ralentissement "
 "du chargement des pages."
 
-#: projects/models.py:160 projects/models.py:731
+#: projects/models.py:160 projects/models.py:728
 msgid "Path"
 msgstr "Chemin"
 
@@ -664,11 +664,11 @@ msgstr "Voir le projet"
 msgid "Model must have slug"
 msgstr "Le Model nécessite un libellé court (slug)"
 
-#: projects/models.py:732
+#: projects/models.py:729
 msgid "MD5 checksum"
 msgstr "Somme de contrôle MD5"
 
-#: projects/models.py:760
+#: projects/models.py:757
 msgid "URL to send the webhook to"
 msgstr ""
 

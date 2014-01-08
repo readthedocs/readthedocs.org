@@ -3,13 +3,14 @@
 # This file is distributed under the same license as the PACKAGE package.
 #
 # Translators:
+# Rodrigo Prior <rprior@infranology.com.br>, 2014
 msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-01-06 16:55-0600\n"
-"PO-Revision-Date: 2014-01-06 20:55+0000\n"
-"Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
+"POT-Creation-Date: 2014-01-08 11:19-0600\n"
+"PO-Revision-Date: 2014-01-07 21:17+0000\n"
+"Last-Translator: Rodrigo Prior <rprior@infranology.com.br>\n"
 "Language-Team: Portuguese (Brazil) (http://www.transifex.com/projects/p/"
 "readthedocs/language/pt_BR/)\n"
 "Language: pt_BR\n"
@@ -28,26 +29,26 @@ msgid "Invalid resource lookup data provided (mismatched type).: %(error)s"
 msgstr ""
 
 #: bookmarks/models.py:9 builds/models.py:82 builds/models.py:263
-#: builds/models.py:279 projects/models.py:725
+#: builds/models.py:279 projects/models.py:722
 msgid "Project"
-msgstr ""
+msgstr "Projeto"
 
 #: bookmarks/models.py:11 core/models.py:14 projects/models.py:97
 msgid "User"
-msgstr ""
+msgstr "Usuário"
 
 #: bookmarks/models.py:13 builds/models.py:287
 msgid "Date"
-msgstr ""
+msgstr "Data"
 
 #: bookmarks/models.py:14 templates/djangome/show.html:12
 msgid "URL"
-msgstr ""
+msgstr "URL"
 
 #: bookmarks/models.py:15 projects/models.py:101
 #: templates/core/project_details.html:5
 msgid "Description"
-msgstr ""
+msgstr "Descrição"
 
 #: bookmarks/models.py:21
 #, python-format
@@ -64,19 +65,19 @@ msgstr ""
 
 #: builds/constants.py:6
 msgid "Finished"
-msgstr ""
+msgstr "Finalizado"
 
 #: builds/constants.py:10
 msgid "HTML"
-msgstr ""
+msgstr "HTML"
 
 #: builds/constants.py:11
 msgid "PDF"
-msgstr ""
+msgstr "PDF"
 
 #: builds/constants.py:12
 msgid "Epub"
-msgstr ""
+msgstr "Epub"
 
 #: builds/constants.py:13
 msgid "Manpage"
@@ -91,7 +92,7 @@ msgid "Any"
 msgstr ""
 
 #: builds/filters.py:17 builds/filters.py:30 projects/filters.py:16
-#: projects/models.py:99 projects/models.py:729
+#: projects/models.py:99 projects/models.py:726
 msgid "Name"
 msgstr ""
 
@@ -109,13 +110,13 @@ msgstr ""
 
 #: builds/models.py:85
 msgid "Identifier"
-msgstr ""
+msgstr "Identificador"
 
 #: builds/models.py:87
 msgid "Verbose Name"
 msgstr ""
 
-#: builds/models.py:88 projects/models.py:100 projects/models.py:730
+#: builds/models.py:88 projects/models.py:100 projects/models.py:727
 msgid "Slug"
 msgstr ""
 
@@ -125,7 +126,7 @@ msgstr ""
 
 #: builds/models.py:91 templates/projects/project_versions.html:46
 msgid "Active"
-msgstr ""
+msgstr "Ativo"
 
 #: builds/models.py:92 templates/projects/includes/icon_built.html:4
 msgid "Built"
@@ -171,14 +172,14 @@ msgstr ""
 msgid "Alias for %(project)s: %(from)s -> %(to)s"
 msgstr ""
 
-#: builds/models.py:281 projects/models.py:116 projects/models.py:727
+#: builds/models.py:281 projects/models.py:116 projects/models.py:724
 #: templates/djangome/oneoffs.html:11
 msgid "Version"
 msgstr ""
 
 #: builds/models.py:283
 msgid "Type"
-msgstr ""
+msgstr "Tipo"
 
 #: builds/models.py:285
 msgid "State"
@@ -186,7 +187,7 @@ msgstr ""
 
 #: builds/models.py:288
 msgid "Success"
-msgstr ""
+msgstr "Sucesso"
 
 #: builds/models.py:289
 msgid "Setup"
@@ -215,11 +216,11 @@ msgstr ""
 
 #: core/forms.py:14
 msgid "First name"
-msgstr ""
+msgstr "Primeiro nome"
 
 #: core/forms.py:15
 msgid "Last name"
-msgstr ""
+msgstr "Sobrenome"
 
 #: core/middleware.py:70 core/middleware.py:75
 msgid "Invalid hostname"
@@ -231,7 +232,7 @@ msgstr ""
 
 #: core/models.py:17
 msgid "Homepage"
-msgstr ""
+msgstr "Página inicial"
 
 #: core/models.py:18
 msgid "Allow email"
@@ -266,7 +267,7 @@ msgstr ""
 #. Translators: This is a name of a Sphinx theme.
 #: projects/constants.py:27
 msgid "Default"
-msgstr ""
+msgstr "Padrão"
 
 #. Translators: This is a name of a Sphinx theme.
 #: projects/constants.py:29
@@ -379,11 +380,11 @@ msgstr ""
 
 #: projects/forms.py:182
 msgid "Zip file of HTML"
-msgstr ""
+msgstr "Arquivo zip do HTML"
 
 #: projects/forms.py:184
 msgid "Overwrite existing HTML?"
-msgstr ""
+msgstr "Sobrescrever o HTML existente?"
 
 #: projects/forms.py:197
 msgid "That version is already active!"
@@ -439,7 +440,7 @@ msgstr ""
 
 #: projects/models.py:110
 msgid "Project URL"
-msgstr ""
+msgstr "URL do Projeto"
 
 #: projects/models.py:111
 msgid "The project's homepage"
@@ -462,7 +463,7 @@ msgstr ""
 #: projects/models.py:119 templates/sphinx/sphinx_rtd_theme/layout.html:73
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:140
 msgid "Copyright"
-msgstr ""
+msgstr "Copyright"
 
 #: projects/models.py:120
 msgid "Project copyright information"
@@ -470,11 +471,11 @@ msgstr ""
 
 #: projects/models.py:122
 msgid "Theme"
-msgstr ""
+msgstr "Tema"
 
 #: projects/models.py:125
 msgid "Examples"
-msgstr ""
+msgstr "Exemplos"
 
 #: projects/models.py:126
 msgid "Suffix"
@@ -539,7 +540,7 @@ msgid ""
 "page loads."
 msgstr ""
 
-#: projects/models.py:160 projects/models.py:731
+#: projects/models.py:160 projects/models.py:728
 msgid "Path"
 msgstr ""
 
@@ -646,11 +647,11 @@ msgstr ""
 msgid "Model must have slug"
 msgstr ""
 
-#: projects/models.py:732
+#: projects/models.py:729
 msgid "MD5 checksum"
 msgstr ""
 
-#: projects/models.py:760
+#: projects/models.py:757
 msgid "URL to send the webhook to"
 msgstr ""
 
