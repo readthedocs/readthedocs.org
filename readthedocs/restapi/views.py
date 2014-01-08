@@ -176,17 +176,25 @@ TEMPLATE = """
       {% if translations %}
       <dl>
         <dt>Languages</dt>
+
+        {# Output the main project language since it isn't included in translations list #}
         {% if main_project.language == current_language %} <strong> {% endif %}
         <dd><a href="{{ main_project.get_docs_url }}">{{ main_project.language }}</a></dd>
         {% if main_project.language == current_language %} </strong> {% endif %}
-        {% for translation in translations %}
-          {% if translation.language == current_language %} <strong> {% endif %}
-          <dd><a href="{{ translation.get_translation_url }}">{{ translation.language }}</a></dd>
-          {% if translation.language == current_language %} </strong> {% endif %}
+
+        {# regroup to make language_list unique per language #}
+        {% regroup translations by language as language_list %}
+        {% for translation in language_list %}
+          {% if translation.language != main_project.language %}
+              {% if translation.language == current_language %} <strong> {% endif %}
+              <dd><a href="{{ translation.get_translation_url }}">{{ translation.language }}</a></dd>
+              {% if translation.language == current_language %} </strong> {% endif %}
+          {% endif %}
         {% endfor %}
+
       </dl>
       {% endif %}
-      {% if not project.single_version %}
+      {% if not project.single_version and versions|length > 1 %}
       <dl>
         <dt>Versions</dt>
         {% for version in versions %}
@@ -200,12 +208,14 @@ TEMPLATE = """
         {% endfor %}
       </dl>
       {% endif %}
+      {% if downloads %}
       <dl>
         <dt>Downloads</dt>
         {% for name, url in downloads.items %}
           <dd><a href="{{ url }}">{{ name }}</a></dd>
         {% endfor %}
       </dl>
+      {% endif %}
       <dl>
         <dt>On Read the Docs</dt>
           <dd>
@@ -257,7 +267,7 @@ def footer_html(request):
     using_theme = (theme == "default")
     project = get_object_or_404(Project, slug=project_slug)
     version = project.versions.get(slug=version_slug)
-    main_project = project.get_main_language_project() or project
+    main_project = project.main_language_project or project
     context = Context({
         'project': project,
         'downloads': version.get_downloads(pretty=True),

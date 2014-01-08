@@ -708,9 +708,6 @@ class Project(models.Model):
         else:
             return self.vcs_repo().fallback_branch
 
-    def get_main_language_project(self):
-        return self.main_language_project
-
     def add_subproject(self, child):
         subproject, created = ProjectRelationship.objects.get_or_create(
             parent=self, child=child,
