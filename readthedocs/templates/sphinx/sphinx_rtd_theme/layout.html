@@ -50,7 +50,7 @@
   {# RTD hosts these file themselves, so just load on non RTD builds #}
   {% if not READTHEDOCS %}
     <link rel="stylesheet" href="{{ pathto('_static/' + style, 1) }}" type="text/css" />
-    <script type="text/javascript" src="_static/js/theme.js"></script>
+    <script type="text/javascript" src="{{ pathto('_static/js/theme.js', 1) }}"></script>
   {% endif %}
 
   {% for cssfile in css_files %}
@@ -85,7 +85,7 @@
   {%- endblock %}
   {%- block extrahead %} {% endblock %}
 
-  <script src="http://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
 
 </head>
 
