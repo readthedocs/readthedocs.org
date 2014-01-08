@@ -184,12 +184,14 @@ TEMPLATE = """
 
         {# regroup to make language_list unique per language #}
         {% regroup translations by language as language_list %}
-        {% for translation in language_list.0.list %}
-          {% if translation.language != main_project.language %}
-              {% if translation.language == current_language %} <strong> {% endif %}
-              <dd><a href="{{ translation.get_translation_url }}">{{ translation.language }}</a></dd>
-              {% if translation.language == current_language %} </strong> {% endif %}
-          {% endif %}
+        {% for group in language_list %}
+            {% for translation in group.list %}
+              {% if translation.language != main_project.language %}
+                  {% if translation.language == current_language %} <strong> {% endif %}
+                  <dd><a href="{{ translation.get_translation_url }}">{{ translation.language }}</a></dd>
+                  {% if translation.language == current_language %} </strong> {% endif %}
+              {% endif %}
+            {% endfor %}
         {% endfor %}
 
       </dl>
