@@ -274,7 +274,7 @@ def footer_html(request):
         'bitbucket_url': version.get_bitbucket_url(docroot, page_slug),
     })
     html = Template(TEMPLATE).render(context)
-    return Response({"html": html})
+    return Response({"html": html, 'version_active': version.active})
 
 
 @decorators.api_view(['GET'])
