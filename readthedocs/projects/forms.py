@@ -36,39 +36,18 @@ class ImportProjectForm(ProjectForm):
     #num_minor = forms.ChoiceField(choices=VERSION_CHOICES)
     #num_point = forms.ChoiceField(choices=VERSION_CHOICES)
 
-    python_interpreter = forms.ChoiceField(
-        choices=constants.PYTHON_CHOICES, initial='python',
-        help_text=_("(Beta) The Python interpreter used to create the virtual "
-                    "environment."))
-
     class Meta:
         model = Project
         fields = (
             # Important
             'name', 'repo', 'repo_type', 
             # Not as important
+            'description', 
             'language', 
+            'project_url',
             'canonical_url',
             'single_version', 
-            'description', 
-            'project_url',
             'tags',
-            'default_branch', 
-            'default_version',
-            'conf_py_file',
-            # Version Support
-            #'num_major', 'num_minor', 'num_point',
-            # Privacy
-            'privacy_level', 
-            # 'version_privacy_level',
-            # Python specific
-            'use_virtualenv', 
-            'use_system_packages',
-            'requirements_file',
-            'python_interpreter',
-            # Fringe
-            'analytics_code', 
-            'documentation_type', 
         )
 
     def clean_repo(self):
@@ -81,6 +60,49 @@ class ImportProjectForm(ProjectForm):
                 _(u'It looks like you entered a private repo - please use the '
                   u'public (http:// or git://) clone url'))
         return repo
+
+    def save(self, *args, **kwargs):
+        # save the project
+        project = super(ImportProjectForm, self).save(*args, **kwargs)
+
+        # kick off the celery job
+        update_docs.delay(pk=project.pk)
+
+        return project
+
+
+class AdvancedProjectForm(ProjectForm):
+    #VERSION_CHOICES = [['', 'disabled']] + [(x, x) for x in range(10)]
+    #num_major = forms.ChoiceField(choices=VERSION_CHOICES)
+    #num_minor = forms.ChoiceField(choices=VERSION_CHOICES)
+    #num_point = forms.ChoiceField(choices=VERSION_CHOICES)
+
+    python_interpreter = forms.ChoiceField(
+        choices=constants.PYTHON_CHOICES, initial='python',
+        help_text=_("(Beta) The Python interpreter used to create the virtual "
+                    "environment."))
+
+    class Meta:
+        model = Project
+        fields = (
+            # Standard build edits
+            'use_virtualenv', 
+            'requirements_file',
+            'conf_py_file',
+            'default_branch', 
+            'default_version',
+            # Version Support
+            #'num_major', 'num_minor', 'num_point',
+            # Privacy
+            'privacy_level', 
+            # 'version_privacy_level',
+            # Python specific
+            'use_system_packages',
+            'python_interpreter',
+            # Fringe
+            'analytics_code', 
+            'documentation_type', 
+        )
 
     def clean_conf_py_file(self):
         file = self.cleaned_data.get('conf_py_file', '').strip()
@@ -98,7 +120,6 @@ class ImportProjectForm(ProjectForm):
         update_docs.delay(pk=project.pk)
 
         return project
-
 
 class DualCheckboxWidget(forms.CheckboxInput):
     def __init__(self, version, attrs=None, check_test=bool):

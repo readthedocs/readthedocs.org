@@ -18,7 +18,8 @@ from builds.filters import VersionFilter
 from builds.models import Version
 from projects.forms import (ImportProjectForm, build_versions_form,
                             build_upload_html_form, SubprojectForm,
-                            UserForm, EmailHookForm, TranslationForm)
+                            UserForm, EmailHookForm, TranslationForm,
+                            AdvancedProjectForm)
 from projects.models import Project, EmailHook
 from projects.tasks import unzip_files
 from projects import constants
@@ -57,7 +58,6 @@ def project_manage(request, project_slug):
     return HttpResponseRedirect(reverse('projects_detail',
                                         args=[project_slug]))
 
-
 @login_required
 def project_edit(request, project_slug):
     """
@@ -78,6 +78,28 @@ def project_edit(request, project_slug):
 
     return render_to_response(
         'projects/project_edit.html',
+        {'form': form, 'project': project},
+        context_instance=RequestContext(request)
+    )
+
+@login_required
+def project_advanced(request, project_slug):
+    """
+    Edit an existing project - depending on what type of project is being
+    edited (created or imported) a different form will be displayed
+    """
+    project = get_object_or_404(request.user.projects.live(),
+                                slug=project_slug)
+    form_class = AdvancedProjectForm
+    form = form_class(instance=project, data=request.POST or None)
+
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        project_dashboard = reverse('projects_detail', args=[project.slug])
+        return HttpResponseRedirect(project_dashboard)
+
+    return render_to_response(
+        'projects/project_advanced.html',
         {'form': form, 'project': project},
         context_instance=RequestContext(request)
     )
