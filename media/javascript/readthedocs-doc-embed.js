@@ -8,6 +8,10 @@ $(document).ready(function () {
         format: "jsonp",
     }
 
+    // Crappy heuristic, but people change the theme name on us.
+    // So we have to do some duck typing.
+    var USING_RTD_THEME = (READTHEDOCS_DATA['theme'] == 'sphinx_rtd_theme') || $('div.rst-other-versions').length == 1
+
     if ("docroot" in READTHEDOCS_DATA) {
       get_data['docroot'] = READTHEDOCS_DATA['docroot']
     }
@@ -31,20 +35,25 @@ $(document).ready(function () {
       dataType: "jsonp",
       data: get_data,
       success: function (data) {
-            if (READTHEDOCS_DATA['theme'] != "sphinx_rtd_theme") {
-              $("body").append(data['html'])
-            } else {
+            // If the theme looks like ours, update the existing badge
+            // otherwise throw a a full one into the page.
+            if (USING_RTD_THEME) {
               $("div.rst-other-versions").html(data['html'])
+            } else {
+              $("body").append(data['html'])
             }
+
             if (!data['version_active']) {
-                // Show out of date header
+                // Show out of date header when this version isn't active
                 $('.rst-current-version').addClass('rst-out-of-date')
             }
       },
       error: function () {
-          console.log('Error loading footer')
+          console.log('Error loading Read the Docs footer')
       }
     });
+
+    /// Read the Docs theme code
 
     // Shift nav in mobile when clicking the menu.
     $(document).on('click', "[data-toggle='wy-nav-top']", function() {
@@ -62,18 +71,22 @@ $(document).ready(function () {
     // Make tables responsive
     $("table.docutils:not(.field-list)").wrap("<div class='wy-table-responsive'></div>");
     
-    // Add Grok the Docs Client
+    /// Add Grok the Docs Client
+
     $.ajax({
         url: "https://api.grokthedocs.com/static/javascript/bundle-client.js",
         crossDomain: true,
         dataType: "script",
     });
 
-    if (READTHEDOCS_DATA['theme'] == 'sphinx_rtd_theme') {
+
+
+    /// Search
+    /// Here be dragons, this is beta quality code. Beware.
+
+    if (USING_RTD_THEME) {
       searchLanding()
     }
-
-    // Search
 
     $(document).on({
       mouseenter: function(ev) {
