@@ -260,8 +260,11 @@ class Project(models.Model):
     @property
     def subdomain(self):
         prod_domain = getattr(settings, 'PRODUCTION_DOMAIN')
-        subdomain_slug = self.slug.replace('_', '-')
-        return "%s.%s" % (subdomain_slug, prod_domain)
+        if self.canonical_domain:
+            return self.canonical_domain
+        else:
+            subdomain_slug = self.slug.replace('_', '-')
+            return "%s.%s" % (subdomain_slug, prod_domain)
 
     def sync_supported_versions(self):
         supported = self.supported_versions(flat=True)
@@ -423,16 +426,23 @@ class Project(models.Model):
         return self.slug.replace('_', '-')
 
     @property
+    def canonical_domain(self):
+        if not self.clean_canonical_url:
+            return ""
+        return urlparse(self.clean_canonical_url).netloc
+
+    @property
     def clean_canonical_url(self):
         if not self.canonical_url:
             return ""
         parsed = urlparse(self.canonical_url)
         if parsed.scheme:
-            return "%s://%s/" % (parsed.scheme, parsed.netloc)
+            scheme, netloc = parsed.scheme, parsed.netloc
         elif parsed.netloc:
-            return "http://%s/" % (parsed.netloc)
+            scheme, netloc = "http", parsed.netloc
         else:
-            return "http://%s/" % (parsed.path)
+            scheme, netloc = "http", parsed.path
+        return "%s://%s/" % (scheme, netloc)
 
     #Doc PATH:
     #MEDIA_ROOT/slug/checkouts/version/<repo>
