@@ -13,7 +13,6 @@ from core.views import SearchView
 from projects.feeds import LatestProjectsFeed, NewProjectsFeed
 from projects.filters import ProjectFilter
 from projects.constants import LANGUAGES_REGEX
-from restapi.urls import router
 
 
 v1_api = Api(api_name='v1')
@@ -22,9 +21,6 @@ v1_api.register(UserResource())
 v1_api.register(ProjectResource())
 v1_api.register(VersionResource())
 v1_api.register(FileResource())
-
-# API v2
-
 
 admin.autodiscover()
 
@@ -106,7 +102,6 @@ urlpatterns = patterns(
         name='profiles_profile_edit'),
     url(r'^profiles/', include('profiles.urls')),
     url(r'^api/', include(v1_api.urls)),
-    url(r'^api/v2/', include(router.urls)),
     url(r'^api/v2/', include('restapi.urls')),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^feeds/new/$',

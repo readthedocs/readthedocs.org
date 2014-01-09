@@ -1,4 +1,4 @@
-from django.conf.urls.defaults import url, patterns
+from django.conf.urls.defaults import url, patterns, include
 
 from rest_framework import routers
 
@@ -11,6 +11,7 @@ router.register(r'notification', NotificationViewSet)
 
 urlpatterns = patterns(
     '',
+	url(r'^', include(router.urls)),
     url(r'footer_html/', 'restapi.views.footer_html', name='footer_html'),
     url(r'quick_search/', 'restapi.views.quick_search', name='quick_search'),
     url(r'index_search/', 'restapi.views.index_search', name='index_search'),
