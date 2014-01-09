@@ -1,10 +1,12 @@
 from django.shortcuts import get_object_or_404
-from django.template import loader as template_loader
+from django.template import Context, loader as template_loader
 from django.conf import settings
 
 from rest_framework import decorators, permissions, viewsets, status
 from rest_framework.renderers import JSONPRenderer, JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
+
+from projects.models import Project
 
 @decorators.api_view(['GET'])
 @decorators.permission_classes((permissions.AllowAny,))
