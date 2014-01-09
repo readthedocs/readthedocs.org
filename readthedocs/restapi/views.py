@@ -2,7 +2,7 @@ import hashlib
 import logging
 
 from django.shortcuts import get_object_or_404
-from django.template import Template, Context
+from django.template import Template, Context, loader as template_loader
 from django.conf import settings
 
 from distlib.version import UnsupportedVersionError
@@ -160,99 +160,6 @@ class VersionViewSet(viewsets.ReadOnlyModelViewSet):
             'downloads': downloads
         })
 
-TEMPLATE = """
-<div class="injected">
-
-  {% if not new_theme %}
-  <div class="rst-versions rst-badge" data-toggle="rst-versions">
-    <span class="rst-current-version" data-toggle="rst-current-version">
-      <span class="icon icon-book">&nbsp;</span>
-      v: {{ current_version }}
-      <span class="icon icon-caret-down"></span>
-    </span>
-    <div class="rst-other-versions">
-  {% endif %}
-
-      {% if translations %}
-      <dl>
-        <dt>Languages</dt>
-
-        {# Output the main project language since it isn't included in translations list #}
-        {% if main_project.language == current_language %} <strong> {% endif %}
-        <dd><a href="{{ main_project.get_docs_url }}">{{ main_project.language }}</a></dd>
-        {% if main_project.language == current_language %} </strong> {% endif %}
-
-        {# regroup to make language_list unique per language #}
-        {% regroup translations by language as language_list %}
-        {% for group in language_list %}
-            {% for translation in group.list %}
-              {% if translation.language != main_project.language %}
-                  {% if translation.language == current_language %} <strong> {% endif %}
-                  <dd><a href="{{ translation.get_translation_url }}">{{ translation.language }}</a></dd>
-                  {% if translation.language == current_language %} </strong> {% endif %}
-              {% endif %}
-            {% endfor %}
-        {% endfor %}
-
-      </dl>
-      {% endif %}
-      {% if not project.single_version %} {# and versions|length > 1 #}
-      <dl>
-        <dt>Versions</dt>
-        {% for version in versions %}
-          {% if version.slug == current_version %} <strong> {% endif %}
-              {% if subproject %}
-              <dd><a href="{{ version.get_subproject_url }}">{{ version.slug }}</a></dd>
-              {% else %}
-              <dd><a href="{{ version.get_subdomain_url }}">{{ version.slug }}</a></dd>
-              {% endif %}
-          {% if version.slug == current_version %} </strong> {% endif %}
-        {% endfor %}
-      </dl>
-      {% endif %}
-      {% if downloads %}
-      <dl>
-        <dt>Downloads</dt>
-        {% for name, url in downloads.items %}
-          <dd><a href="{{ url }}">{{ name }}</a></dd>
-        {% endfor %}
-      </dl>
-      {% endif %}
-      <dl>
-        <dt>On Read the Docs</dt>
-          <dd>
-            <a href="//{{ settings.PRODUCTION_DOMAIN }}/projects/{{ project.slug }}/?fromdocs={{ project.slug }}">Project Home</a>
-          </dd>
-          <dd>
-            <a href="//{{ settings.PRODUCTION_DOMAIN }}/builds/{{ project.slug }}/?fromdocs={{ project.slug }}">Builds</a>
-          </dd>
-      </dl>
-      {% if github_url %}
-      <dl>
-        <dt>On GitHub</dt>
-          <dd>
-            <a href="{{ github_url }}">Edit</a>
-          </dd>
-      </dl>
-      {% elif bitbucket_url %}
-      <dl>
-        <dt>On Bitbucket</dt>
-          <dd>
-            <a href="{{ bitbucket_url }}">Edit</a>
-          </dd>
-      </dl>
-      {% endif %}
-      <hr/>
-      Free document hosting provided by <a href="https://readthedocs.org">Read the Docs</a>. Support us on <a href="https://www.gittip.com/readthedocs/">Gittip</a>.
-
-  {% if not new_theme %}
-    </div>
-  </div>
-  {% endif %}
-
-</div>
-"""
-
 
 @decorators.api_view(['GET'])
 @decorators.permission_classes((permissions.AllowAny,))
@@ -285,7 +192,7 @@ def footer_html(request):
         'github_url': version.get_github_url(docroot, page_slug),
         'bitbucket_url': version.get_bitbucket_url(docroot, page_slug),
     })
-    html = Template(TEMPLATE).render(context)
+    html = template_loader.get_template('restapi/footer.html').render(context)
     return Response({"html": html, 'version_active': version.active})
 
 

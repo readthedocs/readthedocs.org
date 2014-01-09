@@ -149,6 +149,7 @@ INSTALLED_APPS = [
     'core',
     'rtd_tests',
     'websupport',
+    'restapi',
 ]
 
 REST_FRAMEWORK = {
