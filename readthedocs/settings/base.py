@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# encoding: utf-8
 import os
 import djcelery
 djcelery.setup_loader()
