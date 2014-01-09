@@ -3,13 +3,18 @@ import logging
 from builds.models import Version
 from projects.utils import slugify_uniquely
 
+from betterversion.better import version_windows, BetterVersion
+
 log = logging.getLogger(__name__)
 
-
-def sync_versions(project, versions): 
+def sync_versions(project, versions, type): 
     """
     Update the database with the current versions from the repository.
     """
+    # Bookkeeping for keeping tag/branch identifies correct
+    verbose_names = [v['verbose_name'] for v in versions]
+    project.versions.filter(verbose_name__in=verbose_names).update(type=type)
+
     old_versions = {}
     old_version_values = project.versions.values('identifier', 'verbose_name')
     for version in old_version_values:
@@ -29,7 +34,8 @@ def sync_versions(project, versions):
                 Version.objects.filter(
                     project=project, verbose_name=version_name
                 ).update(
-                    identifier=version_id
+                    identifier=version_id,
+                    type=type,
                 )
                 log.info("(Sync Versions) Updated Version: [%s=%s] " % (version['verbose_name'], version['identifier']))
         else:
@@ -38,6 +44,7 @@ def sync_versions(project, versions):
             Version.objects.create(
                     project=project,
                     slug=slug,
+                    type=type,
                     identifier=version['identifier'],
                     verbose_name=version['verbose_name'],
                 )

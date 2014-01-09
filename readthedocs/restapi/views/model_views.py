@@ -77,10 +77,10 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
             data = request.DATA
             added_versions = set()
             if 'tags' in data:
-                ret_set = api_utils.sync_versions(project=project, versions=data['tags'], type='tags')
+                ret_set = api_utils.sync_versions(project=project, versions=data['tags'], type='tag')
                 added_versions.update(ret_set)
             if 'branches' in data:
-                ret_set = api_utils.sync_versions(project=project, versions=data['branches'], type='branches')
+                ret_set = api_utils.sync_versions(project=project, versions=data['branches'], type='branch')
                 added_versions.update(ret_set)
             deleted_versions = api_utils.delete_versions(project, data)
             return Response({
