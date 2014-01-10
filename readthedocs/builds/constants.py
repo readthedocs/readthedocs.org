@@ -13,3 +13,9 @@ BUILD_TYPES = (
     ('man', _('Manpage')),
     ('dash', _('Dash')),
 )
+
+VERSION_TYPES = (
+    ('branch', _('Branch')),
+    ('tag', _('Tag')),
+    ('unknown', _('Unknown')),
+)

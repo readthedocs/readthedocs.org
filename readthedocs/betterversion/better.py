@@ -14,7 +14,6 @@ class BetterVersion(AdaptiveVersion):
         except IndexError, e:
             return 0
 
-
 class VersionManager(object):
 
     _state = defaultdict(lambda: defaultdict(list))
@@ -49,8 +48,6 @@ class VersionManager(object):
                 except TypeError, e:
                     # Raise these for now.
                     raise
-
-
 
 def version_windows(versions, major=1, minor=1, point=1, flat=False):
     major_version_window = major

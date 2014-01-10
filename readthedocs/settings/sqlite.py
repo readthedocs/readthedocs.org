@@ -2,18 +2,19 @@ import os.path
 
 from .base import *  # noqa
 
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(SITE_ROOT, 'dev.db'),
     }
 }
+
 REDIS = {
     'host': 'localhost',
     'port': 6379,
     'db': 0,
 }
+
 BROKER_URL = 'redis://localhost:6379/0'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 #CELERY_ALWAYS_EAGER = False
@@ -28,6 +29,7 @@ TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 SLUMBER_USERNAME = 'test'
 SLUMBER_PASSWORD = 'test'
 SLUMBER_API_HOST = 'http://localhost:8000'
+PRODUCTION_DOMAIN = 'localhost:8000'
 
 WEBSOCKET_HOST = 'localhost:8088'
 

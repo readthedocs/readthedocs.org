@@ -3,6 +3,7 @@ import logging
 import os
 from urlparse import urlparse
 
+from distlib.version import UnsupportedVersionError
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
@@ -12,6 +13,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from guardian.shortcuts import assign, get_objects_for_user
 
+from betterversion.better import version_windows, BetterVersion
 from projects import constants
 from projects.exceptions import ProjectImportError
 from projects.templatetags.projects_tags import sort_version_aware
@@ -258,8 +260,18 @@ class Project(models.Model):
     @property
     def subdomain(self):
         prod_domain = getattr(settings, 'PRODUCTION_DOMAIN')
-        subdomain_slug = self.slug.replace('_', '-')
-        return "%s.%s" % (subdomain_slug, prod_domain)
+        if self.canonical_domain:
+            return self.canonical_domain
+        else:
+            subdomain_slug = self.slug.replace('_', '-')
+            return "%s.%s" % (subdomain_slug, prod_domain)
+
+    def sync_supported_versions(self):
+        supported = self.supported_versions(flat=True)
+        if supported:
+            self.versions.filter(type='tag', verbose_name__in=supported).update(supported=True)
+            self.versions.filter(type='tag').exclude(verbose_name__in=supported).update(supported=False)
+
 
     def save(self, *args, **kwargs):
         #if hasattr(self, 'pk'):
@@ -278,6 +290,7 @@ class Project(models.Model):
         obj = super(Project, self).save(*args, **kwargs)
         for owner in self.users.all():
             assign('view_project', owner, self)
+        self.sync_supported_versions()
         return obj
 
     def get_absolute_url(self):
@@ -413,16 +426,23 @@ class Project(models.Model):
         return self.slug.replace('_', '-')
 
     @property
+    def canonical_domain(self):
+        if not self.clean_canonical_url:
+            return ""
+        return urlparse(self.clean_canonical_url).netloc
+
+    @property
     def clean_canonical_url(self):
         if not self.canonical_url:
             return ""
         parsed = urlparse(self.canonical_url)
         if parsed.scheme:
-            return "%s://%s/" % (parsed.scheme, parsed.netloc)
+            scheme, netloc = parsed.scheme, parsed.netloc
         elif parsed.netloc:
-            return "http://%s/" % (parsed.netloc)
+            scheme, netloc = "http", parsed.netloc
         else:
-            return "http://%s/" % (parsed.path)
+            scheme, netloc = "http", parsed.path
+        return "%s://%s/" % (scheme, netloc)
 
     #Doc PATH:
     #MEDIA_ROOT/slug/checkouts/version/<repo>
@@ -664,6 +684,30 @@ class Project(models.Model):
 
         """
         return self.versions.filter(active=True)
+
+    def supported_versions(self, flat=True):
+        """
+        Get the list of supported versions.
+        Returns a list of version strings.
+        """
+        if not self.num_major or not self.num_minor or not self.num_point:
+            return None
+        versions = []
+        for ver in self.versions.all():
+            try:
+                versions.append(BetterVersion(ver.verbose_name))
+            except UnsupportedVersionError:
+                # Probably a branch
+                pass
+        active_versions = version_windows(
+            versions,
+            major=self.num_major,
+            minor=self.num_minor,
+            point=self.num_point,
+            flat=flat,
+        )
+        version_strings = [v._string for v in active_versions]
+        return version_strings
 
     def version_from_branch_name(self, branch):
         try:
