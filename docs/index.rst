@@ -28,8 +28,9 @@ Site Documentation
     getting_started
     faq
     support
-    features
     theme
+    features
+    localization
     redirects
     webhooks
     alternate_domains
