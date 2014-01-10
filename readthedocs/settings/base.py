@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# encoding: utf-8
 import os
 import djcelery
 djcelery.setup_loader()
@@ -149,6 +149,7 @@ INSTALLED_APPS = [
     'core',
     'rtd_tests',
     'websupport',
+    'restapi',
 ]
 
 REST_FRAMEWORK = {

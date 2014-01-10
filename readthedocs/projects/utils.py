@@ -94,12 +94,14 @@ def _custom_slugify(data):
 def slugify_uniquely(model, initial, field, max_length, **filters):
     slug = _custom_slugify(initial)[:max_length]
     current = slug
+    """
     base_qs = model.objects.filter(**filters)
     index = 0
     while base_qs.filter(**{field: current}).exists():
         suffix = '-%s' % index
         current = '%s%s'  % (slug, suffix)
         index += 1
+    """
     return current
 
 

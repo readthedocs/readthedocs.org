@@ -98,6 +98,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
             version_data = dict(
                 project='/api/v1/project/%s/' % project.pk,
                 slug='latest',
+                type='branch',
                 active=True,
                 verbose_name='latest',
                 identifier=branch,

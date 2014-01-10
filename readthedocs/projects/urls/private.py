@@ -39,6 +39,10 @@ urlpatterns = patterns(
         'project_edit',
         name='projects_edit'),
 
+    url(r'^(?P<project_slug>[-\w]+)/advanced/$',
+        'project_advanced',
+        name='projects_advanced'),
+
     url(r'^(?P<project_slug>[-\w]+)/version/(?P<version_slug>[-\w.]+)/$',
         'project_version_detail',
         name='project_version_detail'),
