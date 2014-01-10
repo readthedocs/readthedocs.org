@@ -189,7 +189,6 @@ class Project(models.Model):
                     "site-packages dir."))
     django_packages_url = models.CharField(_('Django Packages URL'),
                                            max_length=255, blank=True)
-    crate_url = models.CharField(_('Crate URL'), max_length=255, blank=True)
     privacy_level = models.CharField(
         _('Privacy Level'), max_length=20, choices=constants.PRIVACY_CHOICES,
         default='public',
