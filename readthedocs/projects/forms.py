@@ -114,7 +114,7 @@ class AdvancedProjectForm(ProjectForm):
 
     def save(self, *args, **kwargs):
         # save the project
-        project = super(ImportProjectForm, self).save(*args, **kwargs)
+        project = super(AdvancedProjectForm, self).save(*args, **kwargs)
 
         # kick off the celery job
         update_docs.delay(pk=project.pk)
