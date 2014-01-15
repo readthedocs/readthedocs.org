@@ -43,6 +43,18 @@ class PrivacyTests(TestCase):
              'description': 'OOHHH AH AH AH KONG SMASH',
              'documentation_type': 'sphinx'})
         self.assertEqual(r.status_code, 302)
+        r = self.client.post(
+            '/dashboard/django-kong/advanced/',
+            {'tags': 'big, fucking, monkey', 'default_branch': '',
+             'csrfmiddlewaretoken': '34af7c8a5ba84b84564403a280d9a9be',
+             'default_version': 'latest',
+             'python_interpreter': 'python',
+             'privacy_level': privacy_level,
+             'num_minor': 2, 'num_major': 2, 'num_point': 2,
+             'version_privacy_level': version_privacy_level,
+             'documentation_type': 'sphinx'})
+        #import ipdb; ipdb.set_trace()
+
         self.assertAlmostEqual(Project.objects.count(), 1)
         r = self.client.get('/projects/django-kong/')
         self.assertEqual(r.status_code, 200)

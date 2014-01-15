@@ -91,7 +91,7 @@ def project_advanced(request, project_slug):
     project = get_object_or_404(request.user.projects.live(),
                                 slug=project_slug)
     form_class = AdvancedProjectForm
-    form = form_class(instance=project, data=request.POST or None)
+    form = form_class(instance=project, data=request.POST or None, initial={'num_minor': 2, 'num_major': 2, 'num_point': 2})
 
     if request.method == 'POST' and form.is_valid():
         form.save()

@@ -31,11 +31,6 @@ class ImportProjectForm(ProjectForm):
                            help_text=_(u'URL for your code (hg or git). Ex. '
                                        u'http://github.com/ericholscher/django'
                                        u'-kong.git'))
-    #VERSION_CHOICES = [['', 'disabled']] + [(x, x) for x in range(10)]
-    #num_major = forms.ChoiceField(choices=VERSION_CHOICES)
-    #num_minor = forms.ChoiceField(choices=VERSION_CHOICES)
-    #num_point = forms.ChoiceField(choices=VERSION_CHOICES)
-
     class Meta:
         model = Project
         fields = (
@@ -72,10 +67,10 @@ class ImportProjectForm(ProjectForm):
 
 
 class AdvancedProjectForm(ProjectForm):
-    #VERSION_CHOICES = [['', 'disabled']] + [(x, x) for x in range(10)]
-    #num_major = forms.ChoiceField(choices=VERSION_CHOICES)
-    #num_minor = forms.ChoiceField(choices=VERSION_CHOICES)
-    #num_point = forms.ChoiceField(choices=VERSION_CHOICES)
+    VERSION_CHOICES = [['', 'disabled']] + [(x, x) for x in range(10)]
+    num_major = forms.ChoiceField(choices=VERSION_CHOICES)
+    num_minor = forms.ChoiceField(choices=VERSION_CHOICES)
+    num_point = forms.ChoiceField(choices=VERSION_CHOICES)
 
     python_interpreter = forms.ChoiceField(
         choices=constants.PYTHON_CHOICES, initial='python',
@@ -91,8 +86,6 @@ class AdvancedProjectForm(ProjectForm):
             'conf_py_file',
             'default_branch', 
             'default_version',
-            # Version Support
-            #'num_major', 'num_minor', 'num_point',
             # Privacy
             'privacy_level', 
             # 'version_privacy_level',
@@ -102,6 +95,8 @@ class AdvancedProjectForm(ProjectForm):
             # Fringe
             'analytics_code', 
             'documentation_type', 
+            # Version Support
+            'num_major', 'num_minor', 'num_point',
         )
 
     def clean_conf_py_file(self):

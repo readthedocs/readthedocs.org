@@ -220,7 +220,7 @@ class Project(models.Model):
     num_major = models.IntegerField(
         _('Number of Major versions'), 
         max_length=3,
-        default=None,
+        default=2,
         null=True,
         blank=True,
         help_text=_("2 means supporting 3.X.X and 2.X.X, but not 1.X.X")
@@ -228,7 +228,7 @@ class Project(models.Model):
     num_minor = models.IntegerField(
         _('Number of Minor versions'), 
         max_length=3,
-        default=None,
+        default=2,
         null=True,
         blank=True,
         help_text=_("2 means supporting 2.2.X and 2.1.X, but not 2.0.X")
@@ -236,7 +236,7 @@ class Project(models.Model):
     num_point = models.IntegerField(
         _('Number of Point versions'), 
         max_length=3,
-        default=None,
+        default=2,
         null=True,
         blank=True,
         help_text=_("2 means supporting 2.2.2 and 2.2.1, but not 2.2.0")
