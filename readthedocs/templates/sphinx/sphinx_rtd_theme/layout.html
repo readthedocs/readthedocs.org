@@ -89,12 +89,12 @@
 
 </head>
 
-<body class="wy-body-for-nav">
+<body class="wy-body-for-nav" role="document">
 
   <div class="wy-grid-for-nav">
 
     {# SIDE NAV, TOGGLES ON MOBILE #}
-    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side" role="navigation" aria-label="side navigation">
       <div class="wy-side-nav-search">
         <a href="{{ pathto(master_doc) }}" class="icon icon-home"> {{ project }}</a>
         {% include "searchbox.html" %}
@@ -115,14 +115,14 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       {# MOBILE NAV, TRIGGLES SIDE NAV ON TOGGLE #}
-      <nav class="wy-nav-top">
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
         <i data-toggle="wy-nav-top" class="icon icon-reorder"></i>
         <a href="{{ pathto(master_doc) }}">{{ project }}</a>
       </nav>
 
 
       {# PAGE CONTENT #}
-      <div class="wy-nav-content">
+      <div class="wy-nav-content" role="main">
         <div class="rst-content">
           {% include "breadcrumbs.html" %}
           {% block body %}{% endblock %}
