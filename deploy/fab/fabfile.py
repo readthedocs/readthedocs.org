@@ -75,6 +75,8 @@ def install_packages(type=None):
             ' python-scipy build-essential texlive-full libevent-dev '
             ' libmysqlclient-dev python-m2crypto libffi-dev python-matplotlib '
             ' graphviz-dev libenchant1c2a pandoc'
+            ' latex-cjk-chinese-arphic-gbsn00lp latex-cjk-chinese-arphic-gkai00mp',
+            ' latex-cjk-chinese-arphic-bsmi00lp latex-cjk-chinese-arphic-bkai00mp'
         )
         sudo('pip-2.7 install -U mercurial')
     if type == 'db':
