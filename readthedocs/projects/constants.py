@@ -131,8 +131,10 @@ LANGUAGES = (
     #("nb_NO", "Norwegian Bokmal"),
     #("pt_BR", "Brazilian Portuguese"),
     #("uk_UA", "Ukrainian"),
-    #("zh_CN", "Simplified Chinese"),
-    #("zh_TW", "Traditional Chinese"),
+
+    # Try these to test our non-2 letter language support
+    ("zh_CN", "Simplified Chinese"),
+    ("zh_TW", "Traditional Chinese"),
 )
 
 LANGUAGES_REGEX = "|".join(
