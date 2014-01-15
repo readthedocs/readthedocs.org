@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-01-08 11:19-0600\n"
+"POT-Creation-Date: 2014-01-15 05:36-0600\n"
 "PO-Revision-Date: 2014-01-06 14:59+0000\n"
 "Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
 "Language-Team: Vietnamese (Viet Nam) (http://www.transifex.com/projects/p/"
@@ -28,16 +28,16 @@ msgstr "Xin lỗi, không tìm thấy kết quả nào trên trang đó."
 msgid "Invalid resource lookup data provided (mismatched type).: %(error)s"
 msgstr ""
 
-#: bookmarks/models.py:9 builds/models.py:82 builds/models.py:263
-#: builds/models.py:279 projects/models.py:722
+#: bookmarks/models.py:9 builds/models.py:82 builds/models.py:268
+#: builds/models.py:284 projects/models.py:765
 msgid "Project"
 msgstr "Dự án"
 
-#: bookmarks/models.py:11 core/models.py:14 projects/models.py:97
+#: bookmarks/models.py:11 core/models.py:14 projects/models.py:99
 msgid "User"
 msgstr "Người sử dụng"
 
-#: bookmarks/models.py:13 builds/models.py:287
+#: bookmarks/models.py:13 builds/models.py:292
 msgid "Date"
 msgstr "Ngày tháng"
 
@@ -45,7 +45,7 @@ msgstr "Ngày tháng"
 msgid "URL"
 msgstr "URL"
 
-#: bookmarks/models.py:15 projects/models.py:101
+#: bookmarks/models.py:15 projects/models.py:103
 #: templates/core/project_details.html:5
 msgid "Description"
 msgstr "Miêu tả"
@@ -87,18 +87,26 @@ msgstr "Trang hướng dẫn manpage"
 msgid "Dash"
 msgstr ""
 
+#: builds/constants.py:18
+msgid "Branch"
+msgstr ""
+
+#: builds/constants.py:19 builds/filters.py:19
+msgid "Tag"
+msgstr ""
+
+#: builds/constants.py:20
+msgid "Unknown"
+msgstr ""
+
 #: builds/filters.py:10 projects/filters.py:9
 msgid "Any"
 msgstr ""
 
 #: builds/filters.py:17 builds/filters.py:30 projects/filters.py:16
-#: projects/models.py:99 projects/models.py:726
+#: projects/models.py:101 projects/models.py:769
 msgid "Name"
 msgstr "Tên"
-
-#: builds/filters.py:19
-msgid "Tag"
-msgstr ""
 
 #: builds/filters.py:39
 msgid "Build Date"
@@ -108,108 +116,108 @@ msgstr ""
 msgid "Build Type"
 msgstr ""
 
-#: builds/models.py:85
+#: builds/models.py:85 builds/models.py:288
+msgid "Type"
+msgstr "Kiểu"
+
+#: builds/models.py:89
 msgid "Identifier"
 msgstr ""
 
-#: builds/models.py:87
+#: builds/models.py:91
 msgid "Verbose Name"
 msgstr "Tên chi tiết"
 
-#: builds/models.py:88 projects/models.py:100 projects/models.py:727
+#: builds/models.py:92 projects/models.py:102 projects/models.py:770
 msgid "Slug"
 msgstr ""
 
-#: builds/models.py:90
+#: builds/models.py:94
 msgid "Supported"
 msgstr ""
 
-#: builds/models.py:91 templates/projects/project_versions.html:46
+#: builds/models.py:95 templates/projects/project_versions.html:46
 msgid "Active"
 msgstr "Đang hoạt động"
 
-#: builds/models.py:92 templates/projects/includes/icon_built.html:4
+#: builds/models.py:96 templates/projects/includes/icon_built.html:4
 msgid "Built"
 msgstr "Đã được xây dựng"
 
-#: builds/models.py:93 templates/projects/includes/icon_built.html:7
+#: builds/models.py:97 templates/projects/includes/icon_built.html:7
 msgid "Uploaded"
 msgstr "Đã được tải lên"
 
-#: builds/models.py:96 projects/models.py:192
+#: builds/models.py:99 projects/models.py:193
 msgid "Privacy Level"
 msgstr ""
 
-#: builds/models.py:97
+#: builds/models.py:100
 msgid "Level of privacy for this Version."
 msgstr ""
 
 #. Translators: Permission around whether a user can view the
 #. version
-#: builds/models.py:108
+#: builds/models.py:111
 msgid "View Version"
 msgstr ""
 
-#: builds/models.py:112
+#: builds/models.py:115
 #, python-format
 msgid "Version %(version)s of %(project)s (%(pk)s)"
 msgstr "Phiên bản %(version)s của dự án %(project)s (%(pk)s)"
 
-#: builds/models.py:265
+#: builds/models.py:270
 msgid "From slug"
 msgstr ""
 
-#: builds/models.py:266
+#: builds/models.py:271
 msgid "To slug"
 msgstr ""
 
-#: builds/models.py:268
+#: builds/models.py:273
 msgid "Largest"
 msgstr "Lớn nhất"
 
-#: builds/models.py:271
+#: builds/models.py:276
 #, python-format
 msgid "Alias for %(project)s: %(from)s -> %(to)s"
 msgstr ""
 
-#: builds/models.py:281 projects/models.py:116 projects/models.py:724
+#: builds/models.py:286 projects/models.py:118 projects/models.py:767
 #: templates/djangome/oneoffs.html:11
 msgid "Version"
 msgstr "Phiên bản"
 
-#: builds/models.py:283
-msgid "Type"
-msgstr "Kiểu"
-
-#: builds/models.py:285
+#: builds/models.py:290
 msgid "State"
 msgstr "Trạng thái"
 
-#: builds/models.py:288
+#: builds/models.py:293
 msgid "Success"
 msgstr "Thành công"
 
-#: builds/models.py:289
+#: builds/models.py:294
 msgid "Setup"
 msgstr "Cài đặt"
 
-#: builds/models.py:290
+#: builds/models.py:295
 msgid "Setup error"
 msgstr "Lỗi cài đặt"
 
-#: builds/models.py:291
+#: builds/models.py:296
 msgid "Output"
 msgstr "Đầu ra"
 
-#: builds/models.py:292
+#: builds/models.py:297
 msgid "Error"
 msgstr "Lỗi"
 
-#: builds/models.py:293
+#: builds/models.py:298
 msgid "Exit code"
 msgstr ""
 
-#: builds/models.py:301
+#: builds/models.py:306
 #, python-format
 msgid "Build %(project)s for %(usernames)s (%(pk)s)"
 msgstr ""
@@ -338,7 +346,7 @@ msgstr ""
 msgid "Created Date"
 msgstr ""
 
-#: projects/filters.py:20 projects/models.py:104
+#: projects/filters.py:20 projects/models.py:106
 msgid "Repository URL"
 msgstr "URL của repository"
 
@@ -358,15 +366,11 @@ msgstr ""
 "URL cho code của bạn (hg hoặc git). VD: http://github.com/ericholscher/"
 "django-kong.git"
 
-#: projects/forms.py:41 projects/models.py:181
-msgid "(Beta) The Python interpreter used to create the virtual environment."
-msgstr ""
-
-#: projects/forms.py:78
+#: projects/forms.py:57
 msgid "Invalid character in repo name"
 msgstr "Có ký tự không được phép trong tên repo"
 
-#: projects/forms.py:81
+#: projects/forms.py:60
 msgid ""
 "It looks like you entered a private repo - please use the public (http:// or "
 "git://) clone url"
@@ -374,67 +378,71 @@ msgstr ""
 "Có vẻ bạn đã nhập một repo không công cộng (private) - xin hãy dùng địa chỉ "
 "clone công cộng (bắt đầu bằng http:// hoặc git://)"
 
-#: projects/forms.py:89
+#: projects/forms.py:82 projects/models.py:183
+msgid "(Beta) The Python interpreter used to create the virtual environment."
+msgstr ""
+
+#: projects/forms.py:111
 msgid ""
 "Your configuration file is invalid, make sure it contains conf.py in it."
 msgstr ""
 "Có vấn đề với tập tin thiết lập của bạn, xin hãy đảm bảo nó có chứa conf.py."
 
-#: projects/forms.py:159 templates/core/project_details.html:157
+#: projects/forms.py:180 templates/core/project_details.html:152
 msgid "Default Version"
 msgstr ""
 
-#: projects/forms.py:182
+#: projects/forms.py:203
 msgid "Zip file of HTML"
 msgstr "Tập Zip chứa HTML"
 
-#: projects/forms.py:184
+#: projects/forms.py:205
 msgid "Overwrite existing HTML?"
 msgstr "Bạn có muốn ghi đè HTML đã có sẵn?"
 
-#: projects/forms.py:197
+#: projects/forms.py:218
 msgid "That version is already active!"
 msgstr "Phiên bản này đã được kích hoạt sẵn rồi!"
 
-#: projects/forms.py:199
+#: projects/forms.py:220
 msgid "Must upload a zip file."
 msgstr "Bắt buộc phải tải lên một tập tin zip."
 
-#: projects/forms.py:213
+#: projects/forms.py:234
 msgid "Version of the project you are uploading HTML for"
 msgstr "Phiên bản của dự án mà bạn đang tải HTML lên"
 
-#: projects/forms.py:230 projects/forms.py:289
+#: projects/forms.py:251 projects/forms.py:310
 #, python-format
 msgid "Project %(name)s does not exist"
 msgstr "Dự án %(name)s không tồn tại"
 
-#: projects/forms.py:251
+#: projects/forms.py:272
 #, python-format
 msgid "User %(name)s does not exist"
 msgstr ""
 
-#: projects/models.py:77
+#: projects/models.py:79
 msgid "Parent"
 msgstr "Cha"
 
-#: projects/models.py:79
+#: projects/models.py:81
 msgid "Child"
 msgstr "Con"
 
-#: projects/models.py:93
+#: projects/models.py:95
 msgid "Publication date"
 msgstr "Ngày xuất bản"
 
-#: projects/models.py:94
+#: projects/models.py:96
 msgid "Modified date"
 msgstr "Ngày thay đổi"
 
-#: projects/models.py:102
+#: projects/models.py:104
 msgid "The reStructuredText description of the project"
 msgstr "Miêu tả chi tiết dự án bằng reStructureText"
 
-#: projects/models.py:105
+#: projects/models.py:107
 msgid ""
 "Checkout URL for your code (hg, git, etc.). Ex. http://github.com/"
 "ericholscher/django-kong.git"
@@ -442,76 +450,76 @@ msgstr ""
 "URL để checkout code của bạn (hg, git,...). VD: http://github.com/"
 "ericholscher/django-kong.git"
 
-#: projects/models.py:108
+#: projects/models.py:110
 msgid "Repository type"
 msgstr "Kiểu repository"
 
-#: projects/models.py:110
+#: projects/models.py:112
 msgid "Project URL"
 msgstr "URL của dự án"
 
-#: projects/models.py:111
+#: projects/models.py:113
 msgid "The project's homepage"
 msgstr "Trang chủ của dự án"
 
-#: projects/models.py:113
+#: projects/models.py:115
 msgid "Canonical URL"
 msgstr ""
 
-#: projects/models.py:114
+#: projects/models.py:116
 msgid ""
 "The official URL that the docs live at. This can be at readthedocs.org, or "
 "somewhere else. Ex. http://docs.fabfile.org"
 msgstr ""
 
-#: projects/models.py:117
+#: projects/models.py:119
 msgid "Project version these docs apply to, i.e. 1.0a"
 msgstr "Phiên bản của dự án tương ứng với những tài liệu này (1.0a,...)"
 
-#: projects/models.py:119 templates/sphinx/sphinx_rtd_theme/layout.html:73
+#: projects/models.py:121 templates/sphinx/sphinx_rtd_theme/layout.html:82
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:140
 msgid "Copyright"
 msgstr "Bản quyền"
 
-#: projects/models.py:120
+#: projects/models.py:122
 msgid "Project copyright information"
 msgstr "Thông tin bản quyền của dự án"
 
-#: projects/models.py:122
+#: projects/models.py:124
 msgid "Theme"
 msgstr ""
 
-#: projects/models.py:125
+#: projects/models.py:127
 msgid "Examples"
 msgstr "Ví dụ"
 
-#: projects/models.py:126
+#: projects/models.py:128
 msgid "Suffix"
 msgstr "Gắn thêm đuôi"
 
-#: projects/models.py:129
+#: projects/models.py:131
 msgid "Single version"
 msgstr ""
 
-#: projects/models.py:130
+#: projects/models.py:132
 msgid ""
 "A single version site has no translations and only your \"latest\" version, "
 "served at the root of the domain."
 msgstr ""
 
-#: projects/models.py:132
+#: projects/models.py:134
 msgid "Default version"
 msgstr "Phiên bản mặc định"
 
-#: projects/models.py:133
+#: projects/models.py:135
 msgid "The version of your project that / redirects to"
 msgstr "Phiên bản mà / trỏ tới"
 
-#: projects/models.py:137
+#: projects/models.py:139
 msgid "Default branch"
 msgstr "Nhánh mặc định"
 
-#: projects/models.py:138
+#: projects/models.py:140
 msgid ""
 "What branch \"latest\" points to. Leave empty to use the default value for "
 "your VCS (eg. trunk or master)."
@@ -519,22 +527,22 @@ msgstr ""
 "Nơi mà nhánh \"latest\" trỏ tới. Bỏ trống để sử dụng giá trị mặc định cho "
 "VCS của bạn (VD: trunk hoặc master)."
 
-#: projects/models.py:142
+#: projects/models.py:144
 msgid "Requirements file"
 msgstr ""
 
-#: projects/models.py:144
+#: projects/models.py:146
 msgid ""
 "Requires Virtualenv. A <a href=\"http://www.pip-installer.org/en/latest/"
 "cookbook.html#requirements-files\">pip requirements file</a> needed to build "
 "your documentation. Path from the root of your project."
 msgstr ""
 
-#: projects/models.py:149
+#: projects/models.py:151
 msgid "Documentation type"
 msgstr "Kiểu tài liệu"
 
-#: projects/models.py:151
+#: projects/models.py:153
 msgid ""
 "Type of documentation you are building. <a href=\"http://sphinx.pocoo.org/"
 "builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More info</a>."
@@ -543,11 +551,11 @@ msgstr ""
 "html#sphinx.builders.html.DirectoryHTMLBuilder\">Click vào đây để xem thông "
 "tin chi tiết</a>."
 
-#: projects/models.py:155
+#: projects/models.py:157
 msgid "Analytics code"
 msgstr "Mã Analytics"
 
-#: projects/models.py:156
+#: projects/models.py:158
 msgid ""
 "Google Analytics Tracking ID (ex. UA-22345342-1). This may slow down your "
 "page loads."
@@ -555,19 +563,19 @@ msgstr ""
 "Tracking ID của Google Analytics (VD: UA-22345342-1). Sử dụng tính năng này "
 "có thể làm giảm tốc độ tải trang."
 
-#: projects/models.py:160 projects/models.py:728
+#: projects/models.py:162 projects/models.py:771
 msgid "Path"
 msgstr "Đường dẫn"
 
-#: projects/models.py:161
+#: projects/models.py:163
 msgid "The directory where conf.py lives"
 msgstr "Thư mục chứa file conf.py"
 
-#: projects/models.py:163
+#: projects/models.py:165
 msgid "Python configuration file"
 msgstr "Tập tin thiết lập bằng Python"
 
-#: projects/models.py:164
+#: projects/models.py:166
 msgid ""
 "Path from project root to conf.py file (ex. docs/conf.py). Leave blank if "
 "you want us to find it for you."
@@ -575,123 +583,131 @@ msgstr ""
 "Đường dẫn từ thư mục gốc của dự án đến tập tin conf.py (VD: docs/conf.py). "
 "Bỏ trống để hệ thống tự tìm."
 
-#: projects/models.py:167
+#: projects/models.py:169
 msgid "Featured"
 msgstr ""
 
-#: projects/models.py:168
+#: projects/models.py:170
 msgid "Skip"
 msgstr "Bỏ qua"
 
-#: projects/models.py:170
+#: projects/models.py:172
 msgid "Use virtualenv"
 msgstr "Sử dụng virtualenv"
 
-#: projects/models.py:171
+#: projects/models.py:173
 msgid "Install your project inside a virtualenv using setup.py install"
 msgstr ""
 "Cài đặt dự án của bạn trong một virtualenv sử dụng lệnh setup.py install"
 
-#: projects/models.py:177
+#: projects/models.py:179
 msgid "Python Interpreter"
 msgstr ""
 
-#: projects/models.py:185
+#: projects/models.py:187
 msgid "Use system packages"
 msgstr ""
 
-#: projects/models.py:186
+#: projects/models.py:188
 msgid "Give the virtual environment access to the global site-packages dir."
 msgstr ""
 
-#: projects/models.py:188
+#: projects/models.py:190
 msgid "Django Packages URL"
 msgstr ""
 
-#: projects/models.py:190
-msgid "Crate URL"
-msgstr ""
-
-#: projects/models.py:194
+#: projects/models.py:195
 msgid ""
 "(Beta) Level of privacy that you want on the repository. Protected means "
 "public but not in listings."
 msgstr ""
 
-#: projects/models.py:197
+#: projects/models.py:198
 msgid "Version Privacy Level"
 msgstr ""
 
-#: projects/models.py:199
+#: projects/models.py:200
 msgid ""
 "(Beta) Default level of privacy you want on built versions of documentation."
 msgstr ""
 
-#: projects/models.py:204
+#: projects/models.py:205
 msgid "Related projects"
 msgstr "Các dự án liên quan"
 
-#: projects/models.py:220
+#: projects/models.py:221
 msgid "Number of Major versions"
 msgstr ""
 
-#: projects/models.py:225
+#: projects/models.py:226
 msgid "2 means supporting 3.X.X and 2.X.X, but not 1.X.X"
 msgstr ""
 
-#: projects/models.py:228
+#: projects/models.py:229
 msgid "Number of Minor versions"
 msgstr ""
 
-#: projects/models.py:233
+#: projects/models.py:234
 msgid "2 means supporting 2.2.X and 2.1.X, but not 2.0.X"
 msgstr ""
 
-#: projects/models.py:236
+#: projects/models.py:237
 msgid "Number of Point versions"
 msgstr ""
 
-#: projects/models.py:241
+#: projects/models.py:242
 msgid "2 means supporting 2.2.2 and 2.2.1, but not 2.2.0"
 msgstr ""
 
 #. Translators: Permission around whether a user can view the
 #. project
-#: projects/models.py:252
+#: projects/models.py:253
 msgid "View Project"
 msgstr ""
 
-#: projects/models.py:277
+#: projects/models.py:288
 msgid "Model must have slug"
 msgstr ""
 
-#: projects/models.py:729
+#: projects/models.py:772
 msgid "MD5 checksum"
 msgstr "Mã checksum MD5"
 
-#: projects/models.py:757
+#: projects/models.py:800
 msgid "URL to send the webhook to"
 msgstr ""
 
-#: projects/tasks.py:802
+#: projects/tasks.py:788
 #, python-format
 msgid "(ReadTheDocs) Building docs for %s failed"
 msgstr ""
 
-#: settings/base.py:53
+#: settings/base.py:54
 msgid "English"
 msgstr "Tiếng Anh"
 
-#: settings/base.py:54
+#: settings/base.py:55
 msgid "Spanish"
 msgstr ""
 
-#: settings/base.py:55
-msgid "Norwegian"
+#: settings/base.py:56
+msgid "Norwegian Bokmål"
 msgstr ""
 
-#: settings/base.py:56
+#: settings/base.py:57
 msgid "French"
+msgstr ""
+
+#: settings/base.py:58
+msgid "Russian"
+msgstr ""
+
+#: settings/base.py:59
+msgid "German"
+msgstr ""
+
+#: settings/base.py:60
+msgid "Galician"
 msgstr ""
 
 #. Translators: Name of the website
@@ -984,14 +1000,14 @@ msgstr ""
 #: templates/core/project_details.html:18
 #: templates/core/project_list_detailed.html:34
 #: templates/core/project_list_featured.html:17
-#: templates/sphinx/sphinx_rtd_theme/layout.html:70
+#: templates/sphinx/sphinx_rtd_theme/layout.html:79
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:137
 #: templates/sphinx/sphinx_rtd_theme/search.html:11
 msgid "Search"
 msgstr ""
 
 #: templates/core/project_details.html:27
-#: templates/projects/project_edit_base.html:17
+#: templates/projects/project_edit_base.html:18
 #: templates/projects/project_versions.html:9
 #: templates/projects/upload_html.html:7
 msgid "Versions"
@@ -1057,35 +1073,24 @@ msgid ""
 msgstr ""
 
 #: templates/core/project_details.html:135
-msgid "Crate"
-msgstr ""
-
-#: templates/core/project_details.html:136
-#, python-format
-msgid ""
-"This project has more information available about it on <a href=\"%(url)s"
-"\">Crate!</a>"
-msgstr ""
-
-#: templates/core/project_details.html:140
-#: templates/projects/project_edit_base.html:18
+#: templates/projects/project_edit_base.html:19
 #: templates/projects/project_translations.html:12
 msgid "Translations"
 msgstr ""
 
-#: templates/core/project_details.html:149
+#: templates/core/project_details.html:144
 msgid "Sub Projects"
 msgstr ""
 
-#: templates/core/project_details.html:160
+#: templates/core/project_details.html:155
 msgid "'latest' Version"
 msgstr ""
 
-#: templates/core/project_details.html:164
+#: templates/core/project_details.html:159
 msgid "Post Commit Hook"
 msgstr ""
 
-#: templates/core/project_details.html:177
+#: templates/core/project_details.html:172
 msgid "Most viewed pages for this project"
 msgstr ""
 
@@ -1405,6 +1410,25 @@ msgstr ""
 msgid "reStructuredText Primer"
 msgstr "Hướng dẫn cơ bản reStructureText"
 
+#: templates/projects/project_advanced.html:23
+msgid "Edit Advanced Project Settings"
+msgstr ""
+
+#: templates/projects/project_advanced.html:28
+#: templates/projects/project_edit_base.html:16
+msgid "Advanced Settings"
+msgstr ""
+
+#: templates/projects/project_advanced.html:34
+#: templates/projects/project_edit.html:34
+#: templates/projects/project_notifications.html:54
+#: templates/projects/project_subprojects.html:37
+#: templates/projects/project_translations.html:36
+#: templates/projects/project_users.html:51
+#: templates/projects/project_versions.html:53
+msgid "Submit"
+msgstr ""
+
 #: templates/projects/project_create.html:29
 msgid "Create a new project"
 msgstr "Tạo một dự án mới"
@@ -1468,30 +1492,21 @@ msgstr ""
 msgid "Settings"
 msgstr ""
 
-#: templates/projects/project_edit.html:34
-#: templates/projects/project_notifications.html:54
-#: templates/projects/project_subprojects.html:37
-#: templates/projects/project_translations.html:36
-#: templates/projects/project_users.html:51
-#: templates/projects/project_versions.html:53
-msgid "Submit"
-msgstr ""
-
 #: templates/projects/project_edit.html:37
 msgid "delete"
 msgstr "xóa"
 
-#: templates/projects/project_edit_base.html:16
+#: templates/projects/project_edit_base.html:17
 #: templates/projects/project_users.html:8
 msgid "Maintainers"
 msgstr ""
 
-#: templates/projects/project_edit_base.html:19
+#: templates/projects/project_edit_base.html:20
 #: templates/projects/project_subprojects.html:12
 msgid "Subprojects"
 msgstr "Dự án con"
 
-#: templates/projects/project_edit_base.html:20
+#: templates/projects/project_edit_base.html:21
 #: templates/projects/project_notifications.html:12
 msgid "Notifications"
 msgstr ""
@@ -2092,12 +2107,12 @@ msgstr ""
 msgid "Next"
 msgstr ""
 
-#: templates/sphinx/sphinx_rtd_theme/layout.html:62
+#: templates/sphinx/sphinx_rtd_theme/layout.html:71
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:131
 msgid "About these documents"
 msgstr ""
 
-#: templates/sphinx/sphinx_rtd_theme/layout.html:66
+#: templates/sphinx/sphinx_rtd_theme/layout.html:75
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:134
 msgid "Index"
 msgstr ""

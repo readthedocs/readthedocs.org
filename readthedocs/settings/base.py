@@ -58,6 +58,9 @@ LANGUAGES = (
     ('ru', gettext('Russian')),
     ('de', gettext('German')),
     ('gl', gettext('Galician')),
+    ('zh_CN', gettext('Chinese')),
+    ('vi_VN', gettext('Vietnamese')),
+
 )
 LOCALE_PATHS = [
     os.path.join(SITE_ROOT, 'readthedocs', 'locale'),
