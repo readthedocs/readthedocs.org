@@ -653,15 +653,18 @@ def update_intersphinx(version_pk, api=None):
 
 
 def save_term(version, term, url):
-    redis_obj = redis.Redis(**settings.REDIS)
-    lang = "en"
-    project_slug = version.project.slug
-    version_slug = version.slug
-    redis_obj.sadd('redirects:v4:%s:%s:%s:%s' % (lang, version_slug,
-                                                 project_slug, term), url)
-    redis_obj.setnx('redirects:v4:%s:%s:%s:%s:%s' % (lang, version_slug,
-                                                     project_slug, term, url),
-                    1)
+    try:
+        redis_obj = redis.Redis(**settings.REDIS)
+        lang = "en"
+        project_slug = version.project.slug
+        version_slug = version.slug
+        redis_obj.sadd('redirects:v4:%s:%s:%s:%s' % (lang, version_slug,
+                                                     project_slug, term), url)
+        redis_obj.setnx('redirects:v4:%s:%s:%s:%s:%s' % (lang, version_slug,
+                                                         project_slug, term, url),
+                        1)
+    except:
+        pass
 
 def symlink_cnames(version):
     """

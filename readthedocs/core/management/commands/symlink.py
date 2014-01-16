@@ -3,20 +3,12 @@ import logging
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
-from projects import tasks
+from projects import tasks, utils
 from tastyapi import apiv2 as api
 
 import redis
 
 log = logging.getLogger(__name__)
-
-def symlink(slug):
-    version_data = api.version().get(project=slug, slug='latest')['results'][0]
-    v = tasks.make_api_version(version_data)
-    log.info("Symlinking %s" % v)
-    tasks.symlink_subprojects(v)
-    tasks.symlink_cnames(v)
-    tasks.symlink_translations(v)
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
@@ -29,9 +21,9 @@ class Command(BaseCommand):
                 for slug in slugs:
                     try:
                         log.info("Got slug from redis: %s" % slug)
-                        symlink(slug)
+                        utils.symlink(project=slug)
                     except Exception, e:
                         print e
             else:
                 for slug in args:
-                    symlink(slug)
+                    utils.symlink(project=slug)

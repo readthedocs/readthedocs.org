@@ -9,13 +9,25 @@ import logging
 from httplib2 import Http
 
 from django.conf import settings
-
 from distutils2.version import NormalizedVersion, suggest_normalized_version
 import redis
 
 
 log = logging.getLogger(__name__)
 
+def symlink(project, version='latest'):
+    from projects import tasks
+    from builds.models import Version
+    from tastyapi import api
+    if getattr(settings, 'DONT_HIT_DB', True):
+        version_data = api.version().get(project=project, slug=version)['results'][0]
+        v = tasks.make_api_version(version_data)
+    else:
+        v = Version.objects.get(project__slug=project, slug=version)
+    log.info("Symlinking %s" % v)
+    tasks.symlink_subprojects(v)
+    tasks.symlink_cnames(v)
+    tasks.symlink_translations(v)
 
 def find_file(file):
     """Find matching filenames in the current directory and its subdirectories,

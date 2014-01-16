@@ -17,7 +17,7 @@ from betterversion.better import version_windows, BetterVersion
 from projects import constants
 from projects.exceptions import ProjectImportError
 from projects.templatetags.projects_tags import sort_version_aware
-from projects.utils import highest_version as _highest, make_api_version
+from projects.utils import highest_version as _highest, make_api_version, symlink
 from taggit.managers import TaggableManager
 from tastyapi.slum import api
 
@@ -290,6 +290,7 @@ class Project(models.Model):
         for owner in self.users.all():
             assign('view_project', owner, self)
         self.sync_supported_versions()
+        symlink(project=self.slug)
         return obj
 
     def get_absolute_url(self):
