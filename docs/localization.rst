@@ -1,5 +1,5 @@
-Localization
-============
+Localization of Documentation
+=============================
 
 Read the Docs supports hosting your docs in multiple languages.
 There are two different things that we support:
