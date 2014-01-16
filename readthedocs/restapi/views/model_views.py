@@ -20,6 +20,9 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     renderer_classes = (JSONRenderer, JSONPRenderer, BrowsableAPIRenderer)
     model = Project
+    paginate_by = 100
+    paginate_by_param = 'page_size'
+    max_paginate_by = 1000
 
     def get_queryset(self):
         """

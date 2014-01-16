@@ -586,7 +586,7 @@ def update_mirror_docs(record=False, pdf=False, man=False, force=False):
     """
     A periodic task used to update all projects that we mirror.
     """
-    data = apiv2.project().get(mirror=True)
+    data = apiv2.project().get(mirror=True, page_size=500)
     for project_data in data['results']:
         p = make_api_project(project_data)
         update_docs(pk=p.pk)
