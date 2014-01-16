@@ -10,7 +10,8 @@ import json
 import logging
 import operator
 
-from celery.decorators import task
+from celery.decorators import task, periodic_task
+from celery.schedules import crontab
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.mail import send_mail
@@ -580,20 +581,15 @@ def fileify(version_pk):
                             obj.save()
 
 
-#@periodic_task(run_every=crontab(hour="*", minute="*/5", day_of_week="*"))
-def update_docs_pull(record=False, pdf=False, man=False, force=False):
+@periodic_task(run_every=crontab(hour="*", minute="*/30", day_of_week="*"))
+def update_mirror_docs(record=False, pdf=False, man=False, force=False):
     """
-    A high-level interface that will update all of the projects.
-
-    This is mainly used from a cronjob or management command.
+    A periodic task used to update all projects that we mirror.
     """
-    for version in Version.objects.filter(built=True):
-        try:
-            update_docs(pk=version.project.pk, version_pk=version.pk,
-                        record=record, pdf=pdf, man=man)
-        except Exception:
-            log.error("update_docs_pull failed", exc_info=True)
-
+    data = apiv2.project().get(mirror=True)
+    for project_data in data['results']:
+        p = make_api_project(project_data)
+        update_docs(pk=p.pk)
 
 @task
 def unzip_files(dest_file, html_path):

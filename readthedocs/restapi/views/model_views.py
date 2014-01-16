@@ -30,6 +30,9 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
         slug = self.request.QUERY_PARAMS.get('slug', None)
         if slug is not None:
             queryset = queryset.filter(slug=slug)
+        mirror = self.request.QUERY_PARAMS.get('mirror', False)
+        if mirror:
+            queryset = queryset.filter(mirror=True)
         return queryset
 
     @decorators.link()

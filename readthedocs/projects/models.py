@@ -168,6 +168,7 @@ class Project(models.Model):
 
     featured = models.BooleanField(_('Featured'))
     skip = models.BooleanField(_('Skip'))
+    mirror = models.BooleanField(_('Mirror'), default=False)
     use_virtualenv = models.BooleanField(
         _('Use virtualenv'),
         help_text=_("Install your project inside a virtualenv using setup.py "
