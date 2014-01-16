@@ -9,7 +9,7 @@ redis==2.7.1
 requests==2.0
 slumber==0.6
 celery==3.0.24
-django-celery==3.0.24
+django-celery==3.0.23
 
 # VCS
 bzr==2.5b4
