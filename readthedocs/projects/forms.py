@@ -67,11 +67,6 @@ class ImportProjectForm(ProjectForm):
 
 
 class AdvancedProjectForm(ProjectForm):
-    VERSION_CHOICES = [['', 'disabled']] + [(x, x) for x in range(10)]
-    num_major = forms.ChoiceField(choices=VERSION_CHOICES)
-    num_minor = forms.ChoiceField(choices=VERSION_CHOICES)
-    num_point = forms.ChoiceField(choices=VERSION_CHOICES)
-
     python_interpreter = forms.ChoiceField(
         choices=constants.PYTHON_CHOICES, initial='python',
         help_text=_("(Beta) The Python interpreter used to create the virtual "
