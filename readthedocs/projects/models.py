@@ -269,9 +269,8 @@ class Project(models.Model):
     def sync_supported_versions(self):
         supported = self.supported_versions(flat=True)
         if supported:
-            self.versions.filter(type='tag', verbose_name__in=supported).update(supported=True)
-            self.versions.filter(type='tag').exclude(verbose_name__in=supported).update(supported=False)
-
+            self.versions.filter(verbose_name__in=supported).update(supported=True)
+            self.versions.exclude(verbose_name__in=supported).update(supported=False)
 
     def save(self, *args, **kwargs):
         #if hasattr(self, 'pk'):
