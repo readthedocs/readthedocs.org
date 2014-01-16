@@ -20,6 +20,9 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     renderer_classes = (JSONRenderer, JSONPRenderer, BrowsableAPIRenderer)
     model = Project
+    paginate_by = 100
+    paginate_by_param = 'page_size'
+    max_paginate_by = 1000
 
     def get_queryset(self):
         """
@@ -30,6 +33,9 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
         slug = self.request.QUERY_PARAMS.get('slug', None)
         if slug is not None:
             queryset = queryset.filter(slug=slug)
+        mirror = self.request.QUERY_PARAMS.get('mirror', False)
+        if mirror:
+            queryset = queryset.filter(mirror=True)
         return queryset
 
     @decorators.link()
