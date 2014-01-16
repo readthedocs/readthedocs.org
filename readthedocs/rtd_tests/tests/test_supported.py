@@ -7,11 +7,10 @@ from projects.models import Project
 
 
 class TestSupportedVersions(TestCase):
-    fixtures = ["eric", "test_data"]
 
     def setUp(self):
         self.client.login(username='eric', password='test')
-        self.pip = Project.objects.get(slug='pip')
+        self.pip = Project.objects.create(name='Pip', slug='pip')
         Version.objects.create(project=self.pip, identifier='latest',
                                verbose_name='latest', slug='latest',
                                type='branch',
