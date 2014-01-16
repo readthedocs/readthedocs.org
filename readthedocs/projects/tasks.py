@@ -2,6 +2,7 @@
 ``conf.py`` files, and rebuilding documentation.
 
 """
+import datetime
 import fnmatch
 import os
 import re
@@ -582,14 +583,19 @@ def fileify(version_pk):
 
 
 @periodic_task(run_every=crontab(hour="*", minute="*/30", day_of_week="*"))
-def update_mirror_docs(record=False, pdf=False, man=False, force=False):
+def update_mirror_docs():
     """
     A periodic task used to update all projects that we mirror.
     """
+    record = False
+    current = datetime.datetime.now()
+    # Only record one build a day, at midnight.
+    if current.hour == 0 and current.minute == 0:
+        record = True
     data = apiv2.project().get(mirror=True, page_size=500)
     for project_data in data['results']:
         p = make_api_project(project_data)
-        update_docs(pk=p.pk)
+        update_docs(pk=p.pk, record=record)
 
 @task
 def unzip_files(dest_file, html_path):
