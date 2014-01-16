@@ -271,6 +271,7 @@ class Project(models.Model):
         if supported:
             self.versions.filter(verbose_name__in=supported).update(supported=True)
             self.versions.exclude(verbose_name__in=supported).update(supported=False)
+            self.versions.filter(verbose_name='latest').update(supported=True)
 
     def save(self, *args, **kwargs):
         #if hasattr(self, 'pk'):
@@ -289,8 +290,16 @@ class Project(models.Model):
         obj = super(Project, self).save(*args, **kwargs)
         for owner in self.users.all():
             assign('view_project', owner, self)
-        self.sync_supported_versions()
-        symlink(project=self.slug)
+
+        # Add exceptions here for safety
+        try:
+            self.sync_supported_versions()
+        except Exception, e:
+            log.error('failed to sync supported versions', exc_info=True)
+        try:
+            symlink(project=self.slug)
+        except Exception, e:
+            log.error('failed to symlink project', exc_info=True)
         return obj
 
     def get_absolute_url(self):
