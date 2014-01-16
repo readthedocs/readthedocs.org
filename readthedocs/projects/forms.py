@@ -41,7 +41,6 @@ class ImportProjectForm(ProjectForm):
             'language', 
             'project_url',
             'canonical_url',
-            'single_version', 
             'tags',
         )
 
@@ -78,6 +77,7 @@ class AdvancedProjectForm(ProjectForm):
             # Standard build edits
             'use_virtualenv', 
             'requirements_file',
+            'single_version', 
             'conf_py_file',
             'default_branch', 
             'default_version',
