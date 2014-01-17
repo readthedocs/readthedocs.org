@@ -62,6 +62,7 @@ urlpatterns = patterns(
         'core.views.serve_single_version_docs',
         name='docs_detail'),
 
+    url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r'^projects/', include('projects.urls.public')),
     url(r'^builds/', include('builds.urls')),
     url(r'^flagging/', include('basic.flagging.urls')),

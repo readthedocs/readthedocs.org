@@ -79,6 +79,7 @@
 
         <hr>
 
+
         {% block footer-content %}
         <p>{% blocktrans with "<a href='http://ericholscher.com/'>Eric Holscher</a>" as eric and "<a href='http://charlesleifer.com/'>Charles Leifer<a>" as charles and "<a href='http://bobbygrace.info/'>Bobby Grace</a>" as bobby and "<a href='http://djangodash.com/'>Django Dash</a>" as djangodash %}Copyright 2010-2013. Created by {{ eric }}, {{ charles }}, and {{ bobby }} for the 2010 {{ djangodash }}.{% endblocktrans %}
         </p>
@@ -88,6 +89,30 @@
         </p>
         {% endblock %}
 
+        <p>
+        Change Site Language
+        </p>
+
+
+        {% get_current_language as current_lang %}
+        <form action="/i18n/setlang/" method="post">{% csrf_token %}
+          <input name="next" type="hidden" value="/" />
+            {% csrf_token %}
+            <select style="float: left; height: 33px;" name="language">
+              {% for lang in LANGUAGES %}
+                {% if lang.0 == current_lang %}
+                <option selected="selected" value="{{ lang.0 }}">{{ lang.0|language_name_local }} [{{ lang.1 }}]</option>
+                {% else %}
+                <option value="{{ lang.0 }}">{{ lang.0|language_name_local }} [{{ lang.1 }}]</option>
+                {% endif %}
+                }
+              {% endfor %}
+            </select>
+            <input style="float: left; height: 33px; margin: 0px;" type="submit" value="Change Language" name="submit">
+        </form>
+
+        <br>
+        <br>
 
         <p>
         Read the Docs Announcements
