@@ -133,7 +133,7 @@ def checkout(user=None):
              'deploy_requirements.txt') % (home, home))
 
 
-def setup_env(user=None):
+def setup_env(user=None, role=None):
     if user:
         users = [user]
     else:
@@ -142,8 +142,9 @@ def setup_env(user=None):
         env.user = user
         home = '/home/%s' % user
         put('files/bash_profile', '%s/.bash_profile' % home)
-        #put('files/%s_supervisord.conf' % user,
-            #'%s/etc/supervisord.conf' % home)
+        if role:
+            put('files/%s_supervisord.conf' % role,
+                '%s/etc/supervisord.conf' % home)
         #run('%s/bin/pip install -U supervisor ipython gunicorn' % home)
 
 
