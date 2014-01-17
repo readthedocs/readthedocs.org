@@ -79,6 +79,21 @@
 
         <hr>
 
+
+        {% block footer-content %}
+        <p>{% blocktrans with "<a href='http://ericholscher.com/'>Eric Holscher</a>" as eric and "<a href='http://charlesleifer.com/'>Charles Leifer<a>" as charles and "<a href='http://bobbygrace.info/'>Bobby Grace</a>" as bobby and "<a href='http://djangodash.com/'>Django Dash</a>" as djangodash %}Copyright 2010-2013. Created by {{ eric }}, {{ charles }}, and {{ bobby }} for the 2010 {{ djangodash }}.{% endblocktrans %}
+        </p>
+        <a href="https://github.com/rtfd/readthedocs.org">Github</a> | <a href="http://read-the-docs.readthedocs.org">{%  trans "Docs" %}</a>.
+
+        {% trans 'Made by <a href="https://github.com/rtfd/readthedocs.org/graphs/contributors">humans</a>. Funded by <a href="https://www.gittip.com/readthedocs/">readers like you</a>.' %}
+        </p>
+        {% endblock %}
+
+        <p>
+        Change Site Language
+        </p>
+
+
         {% get_current_language as current_lang %}
         <form action="/i18n/setlang/" method="post">{% csrf_token %}
           <input name="next" type="hidden" value="/" />
@@ -98,16 +113,6 @@
 
         <br>
         <br>
-
-        {% block footer-content %}
-        <p>{% blocktrans with "<a href='http://ericholscher.com/'>Eric Holscher</a>" as eric and "<a href='http://charlesleifer.com/'>Charles Leifer<a>" as charles and "<a href='http://bobbygrace.info/'>Bobby Grace</a>" as bobby and "<a href='http://djangodash.com/'>Django Dash</a>" as djangodash %}Copyright 2010-2013. Created by {{ eric }}, {{ charles }}, and {{ bobby }} for the 2010 {{ djangodash }}.{% endblocktrans %}
-        </p>
-        <a href="https://github.com/rtfd/readthedocs.org">Github</a> | <a href="http://read-the-docs.readthedocs.org">{%  trans "Docs" %}</a>.
-
-        {% trans 'Made by <a href="https://github.com/rtfd/readthedocs.org/graphs/contributors">humans</a>. Funded by <a href="https://www.gittip.com/readthedocs/">readers like you</a>.' %}
-        </p>
-        {% endblock %}
-
 
         <p>
         Read the Docs Announcements
