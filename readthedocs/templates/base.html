@@ -79,12 +79,18 @@
 
         <hr>
 
+        {% get_current_language as current_lang %}
         <form action="/i18n/setlang/" method="post">{% csrf_token %}
           <input name="next" type="hidden" value="/" />
             {% csrf_token %}
             <select style="float: left; height: 33px;" name="language">
               {% for lang in LANGUAGES %}
+                {% if lang.0 == current_lang %}
+                <option selected="selected" value="{{ lang.0 }}">{{ lang.0|language_name_local }} [{{ lang.1 }}]</option>
+                {% else %}
                 <option value="{{ lang.0 }}">{{ lang.0|language_name_local }} [{{ lang.1 }}]</option>
+                {% endif %}
+                }
               {% endfor %}
             </select>
             <input style="float: left; height: 33px; margin: 0px;" type="submit" value="Change Language" name="submit">
