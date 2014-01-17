@@ -69,8 +69,8 @@ $host would be ``docs.fabfile.org``:
 
 .. code-block:: nginx
 
-    location ~ ^/en/(?P<doc_verison>.+)/(?P<path>.*) {
-        alias /home/docs/checkouts/readthedocs.org/cnames/$host/$doc_verison/$path;
+    location ~ ^/en/(?P<doc_version>.+)/(?P<path>.*) {
+        alias /home/docs/checkouts/readthedocs.org/cnames/$host/$doc_version/$path;
         error_page 404 = @fallback;
         error_page 500 = @fallback;
     }
