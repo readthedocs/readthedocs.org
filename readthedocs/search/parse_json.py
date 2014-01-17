@@ -42,6 +42,7 @@ def process_file(filename):
     sections = []
     content = ''
     title = ''
+    body_content = ''
     if 'current_page_name' in data:
         path = data['current_page_name']
     else:
