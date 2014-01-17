@@ -58,8 +58,8 @@ LANGUAGES = (
     ('ru', gettext('Russian')),
     ('de', gettext('German')),
     ('gl', gettext('Galician')),
-    ('zh', gettext('Chinese')),
     ('vi', gettext('Vietnamese')),
+    ('zh-cn', gettext('Chinese')),
 
 )
 LOCALE_PATHS = [
