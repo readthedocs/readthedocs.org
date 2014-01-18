@@ -52,6 +52,7 @@ Features
     vcs
     canonical
     redirects
+    versions
     single_version
     privacy
 

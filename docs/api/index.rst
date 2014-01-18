@@ -11,5 +11,4 @@ code.
     doc_builder
     core
     projects
-    watching
     vcs_support

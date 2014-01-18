@@ -8,8 +8,6 @@ We have started keeping track of major releases so that it is easier for people 
 
 **The Future**
 
-
-
 1.0
 ---
 
