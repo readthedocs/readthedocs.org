@@ -17,10 +17,10 @@ The code is open source, and `available on github`_.
 
 The documentation for the site is organized into a few different sections below:
 
-    * :ref:`site-docs`
-    * :ref:`feature-docs`
-    * :ref:`dev-docs`
-    * :ref:`design-docs`
+* :ref:`site-docs`
+* :ref:`feature-docs`
+* :ref:`dev-docs`
+* :ref:`design-docs`
 
 .. _site-docs:
 
