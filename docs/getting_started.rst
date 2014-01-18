@@ -55,7 +55,7 @@ you'd use to checkout, clone, or branch your code. Some examples:
 Add an optional homepage URL and some keywords, then click "Create".
 
 Within a few minutes your code will automatically be fetched from your public
-repository, and the documentation will be built.
+repository, and the documentation will be built. Check out our :doc:`builds` page to learn more about how we build your docs.
 
 If you want to keep your code updated as you commit, configure your code repository to hit our `Post Commit Hooks`_.
 
