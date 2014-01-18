@@ -57,7 +57,7 @@ Add an optional homepage URL and some keywords, then click "Create".
 Within a few minutes your code will automatically be fetched from your public
 repository, and the documentation will be built.
 
-If you want to keep your code updated as you commit, configure your code repository to hit our `Post Commit Hooks`_. Otherwise your project will get rebuilt nightly.
+If you want to keep your code updated as you commit, configure your code repository to hit our `Post Commit Hooks`_.
 
 .. _a screencast: https://www.youtube.com/watch?feature=player_embedded&v=oJsUvBQyHBs
 .. _Sphinx: http://sphinx.pocoo.org/
