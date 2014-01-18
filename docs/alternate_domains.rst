@@ -54,7 +54,7 @@ An example nginx configuration for pip would look like:
         }
     }
 
-RTFD.org
+rtfd.org
 ---------
 
-You can also use <slug>.rtfd.org as a short URL for the front page of your subdomain'd site. For example, http://pip.rtfd.org redirects to it's documentation page. We're looking for more fun ways to use this domain, so feel free to suggest an idea.
+You can also use `rtfd.org` as a short URL for Read the Docs. For example, http://pip.rtfd.org redirects to it's documentation page. Any use of `rtfd.org` will simply be redirected to `readthedocs.org`.
