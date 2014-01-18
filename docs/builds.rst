@@ -10,9 +10,11 @@ The first step of the process is that we check out your code from the repository
 
 Then we build the proper backend code for the type of documentation you've selected. Currently we only support Sphinx, but we are looking to expand this selection.
 
+If you have the *Use Virtualenv* option enabled, we will run ``setup.py install`` on your package, installing it into a virtual environment. You can also define additional packages to install with the *Requirements File* option.
+
 When we build your documentation, we run `sphinx-build -b html . _build/html`, where `html` would be replaced with the correct backend. We also create man pages and pdf's automatically based on your project.
 
-Then these files are rsync'd across to our application servers from the build server. Once on the application servers, they are served from nginx and then cached in Varnish for a week. This Varnish cache is pro-actively purged whenever a new version of your docs are built.
+Then these files are copied across to our application servers from the build server. Once on the application servers, they are served from nginx. 
 
 An example in code::
 
