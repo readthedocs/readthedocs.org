@@ -81,6 +81,13 @@ It should look like:
         {% if builder == "dirhtml" %}/{% else %}.html{% endif %}
         ">
 
+
+Deleting a stale or broken build environment
+--------------------------------------------
+
+RTD doesn't expose this in the UI, but it is possible to remove the build directory of your project. If you want to remove a build environment for your project, hit http://readthedocs.org/wipe/<project_slug>/<version_slug>/. You must be logged in to do this.
+
+
 How do I host multiple projects on one CNAME?
 ---------------------------------------------
 

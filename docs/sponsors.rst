@@ -11,11 +11,11 @@ Current sponsors
 Past sponsors
 -------------
 
-    * Revsys_
-    * `Python Software Foundation`_
-    * `Mozilla Web Dev`_
-    * `Django Software Foundation`_
-    * Lab305_
+* Revsys_
+* `Python Software Foundation`_
+* `Mozilla Web Dev`_
+* `Django Software Foundation`_
+* Lab305_
 
 .. _Revsys: http://www.revsys.com/
 .. _Python Software Foundation: http://python.org/psf/

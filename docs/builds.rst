@@ -40,12 +40,6 @@ The build server does have a select number of C libraries installed, because the
     * libxslt1.1
     * libxml2-dev
 
-Deleting a stale or broken build environment
---------------------------------------------
-
-RTD doesn't expose this in the UI, but it is possible to remove the build directory of your project. If you want to remove a build environment for your project, hit http://readthedocs.org/wipe/<project_slug>/<version_slug>/. You must be logged in to do this.
-
-
 Writing your own builder
 ------------------------
 
@@ -63,15 +57,8 @@ The :doc:`api/doc_builder` API explains the higher level parts of the API that y
     if success:
         backend.move(version)
 
-Changing behavior for Read the Docs
------------------------------------
+Deleting a stale or broken build environment
+--------------------------------------------
 
-When RTD builds your project, it sets the ``READTHEDOCS`` environment variable to the string `True`. So within your Sphinx's conf.py file, you can vary the behavior based on this. For example::
-
-    import os
-    on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
-    if on_rtd:
-        html_theme = 'default'
-    else:
-        html_theme = 'nature'
+RTD doesn't expose this in the UI, but it is possible to remove the build directory of your project. If you want to remove a build environment for your project, hit http://readthedocs.org/wipe/<project_slug>/<version_slug>/. You must be logged in to do this.
 

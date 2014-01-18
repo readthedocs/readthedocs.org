@@ -10,12 +10,12 @@ But, if you enable the "Single Version" option for a project, its documentation 
 You can see a live example of this at http://www.contribution-guide.org
 
 Enabling
---------
+~~~~~~~~
 
 You can toggle the "Single Version" option on or off for your project in the Project Admin page. Check your `dashboard`_ for a list of your projects.
 
 Effects
--------
+~~~~~~~
 
 Links generated on Read the Docs will now point to the proper URL. For example, if pip was set as a "Single Version" project, then links to its documentation would point to ``http://pip.readthedocs.org/`` rather than the default ``http://pip.readthedocs.org/en/latest/``.
 

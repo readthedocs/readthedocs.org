@@ -15,21 +15,38 @@ The code is open source, and `available on github`_.
 .. _Mercurial: http://mercurial.selenic.com/
 .. _available on github: http://github.com/rtfd/readthedocs.org
 
-The documentation for the site is organized into two different sections below. One is for users of readthedocs.org, that is the first section. The next section is for users of the code that powers the site. All of the RTD code is open source, so you can run your own instance. 
+The documentation for the site is organized into a few different sections below:
+
+    * :ref:`site-docs`
+        * :ref:`feature-docs`
+    * :ref:`dev-docs`
+    * :ref:`design-docs`
 
 .. _site-docs:
 
-Site Documentation
+User Documentation
 ------------------
 
 .. toctree::
     :maxdepth: 2
 
     getting_started
-    faq
-    support
-    theme
+    builds
     features
+    support
+    faq
+    sponsors
+    talks
+
+.. _feature-docs:
+
+Features
+~~~~~~~~
+
+.. toctree::
+    :maxdepth: 2
+
+    theme
     localization
     redirects
     webhooks
@@ -37,18 +54,6 @@ Site Documentation
     single_version
     canonical
     privacy
-    sponsors
-    builds
-    talks
-
-.. _design-docs:
-
-Designer Documentation
-----------------------
-.. toctree::
-    :maxdepth: 2
-
-    design
 
 .. _dev-docs:
 
@@ -67,6 +72,16 @@ Developer Documentation
     i18n
     api
     api/index
+
+.. _design-docs:
+
+Designer Documentation
+----------------------
+.. toctree::
+    :maxdepth: 2
+
+    design
+
 
 .. _custom-docs:
 
