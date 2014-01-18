@@ -75,7 +75,10 @@ with the name of any added project::
 
 Solr (Search) Setup
 -------------------
-Apache Solr is used to index and search documents. 
+
+Apache Solr is used to index and search documents.
+This is an optional requirement,
+and only necessary if you want to develop or use search.
 
 Additional python requirements necessary to use Solr::
 
