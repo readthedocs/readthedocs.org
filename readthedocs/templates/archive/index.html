@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content-header %}
+<h1>{% trans "Read the Docs Archive" %}</h1>
+{% endblock %}
+
+{% block content %}
+{% for project, versions in doc_index.items %}
+	<h2>{{ project }}</h2>
+	<ul>
+	{% for version in versions %}
+	<li>
+		<a href="/rtd-builds/{{ version }}/">{{ version }}</a>
+	</li>
+	{% endfor %}
+	</ul>
+{% endfor %}
+{% endblock %}
