@@ -49,6 +49,7 @@ Features
     webhooks
     alternate_domains
     localization
+    vcs
     canonical
     redirects
     single_version
