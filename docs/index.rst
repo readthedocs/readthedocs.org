@@ -51,7 +51,6 @@ Features
     localization
     canonical
     redirects
-    theme
     single_version
     privacy
 
@@ -81,6 +80,7 @@ Designer Documentation
     :maxdepth: 2
 
     design
+    theme
 
 
 .. _custom-docs:
