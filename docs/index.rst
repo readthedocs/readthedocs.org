@@ -91,6 +91,7 @@ Custom install Documentation
     :maxdepth: 3
 
     custom_installs/index
+    settings
 
 .. _ops-docs:
 
