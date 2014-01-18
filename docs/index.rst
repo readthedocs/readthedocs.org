@@ -95,7 +95,6 @@ About Read the Docs
 
     sponsors
     talks
-    todo
 
 
 .. Things that need more love before getting upgraded to the above list.
