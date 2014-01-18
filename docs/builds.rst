@@ -16,15 +16,17 @@ When we build your documentation, we run `sphinx-build -b html . _build/html`, w
 
 Then these files are copied across to our application servers from the build server. Once on the application servers, they are served from nginx. 
 
-An example in code::
+An example in code:
+
+.. code-block:: python
 
     update_imported_docs(project, version)
-    (ret, out, err) = build_docs(project=project, version=version,
-                                 pdf=pdf, man=man, epub=epub, dash=dash,
-                                 record=record, force=force)
-    #This follows the builder workflow layed out below.
-    purge_version(version, subdomain=True,
-                    mainsite=True, cname=True)
+    if project.use_virtualenv:
+        run('python setup.py install')
+        if project.requirements_file:
+            run('pip install -r %s' % project.requirements_file)
+    build_docs(version=version, pdf=pdf, man=man, epub=epub, dash=dash)
+    
 
 Packages installed in the build environment
 -------------------------------------------
