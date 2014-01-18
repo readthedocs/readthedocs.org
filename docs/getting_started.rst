@@ -1,14 +1,12 @@
 Getting Started
 ===============
 
-It's really easy to start using RTD for your project's documentation. This
-section shows you how.
+This document will show you how to get up and running with Read the Docs.
 
 If you are already using Sphinx_ for your docs, skip ahead to
 :ref:`import-docs`.
 
 There is `a screencast`_ that will help you get started if you prefer.
-
 
 Write Your Docs
 ---------------
@@ -29,20 +27,19 @@ can just accept the defaults. When it's done, you'll have an ``index.rst``, a
 
 Now, edit your ``index.rst`` and add some information about your project.
 Include as much detail as you like (refer to the reStructuredText_ syntax
-if you need help). Build them to see how they look::
+or `this template`_ if you need help). Build them to see how they look::
 
     $ make html
 
-Edit and rebuild until you like what you see, then commit and/or push your
-changes to your public repository.
-
+Edit your files and rebuild until you like what you see, then commit your changes and push to your public repository.
+Once you have Sphinx documentation in a public repository, you can start using Read the Docs.
 
 .. _import-docs:
 
 Import Your Docs
 ----------------
 
-`Sign up`_ for an account and `log in`_. Visit your dashboard_ and click
+`Sign up`_ for an account on RTD, then `log in`_. Visit your dashboard_ and click
 Import_ to add your project to the site. Fill in the name and description, then
 specify where your repository is located. This is normally the URL or path name
 you'd use to checkout, clone, or branch your code. Some examples:
@@ -52,16 +49,19 @@ you'd use to checkout, clone, or branch your code. Some examples:
 * Mercurial: ``https://bitbucket.org/ianb/pip``
 * Bazaar: ``lp:pasta``
 
-Add an optional homepage URL and some keywords, then click "Create".
+Add an optional homepage URL and some tags, then click "Create".
 
 Within a few minutes your code will automatically be fetched from your public
-repository, and the documentation will be built. Check out our :doc:`builds` page to learn more about how we build your docs.
+repository, and the documentation will be built. Check out our :doc:`builds` page to learn more about how we build your docs, and to troubleshoot any issues that arise.
 
-If you want to keep your code updated as you commit, configure your code repository to hit our `Post Commit Hooks`_.
+If you want to keep your code updated as you commit, configure your code repository to hit our `Post Commit Hooks`_. This will rebuild your docs every time you push your code.
+
+If you have any more trouble, don't hesitate to reach out to us. The :doc:`support` page has more information on getting in touch.
 
 .. _a screencast: https://www.youtube.com/watch?feature=player_embedded&v=oJsUvBQyHBs
 .. _Sphinx: http://sphinx.pocoo.org/
 .. _reStructuredText: http://sphinx.pocoo.org/rest.html
+.. _this template: http://docs.writethedocs.org/en/latest/writing/beginners-guide-to-docs/#id1
 .. _Sign up: http://readthedocs.org/accounts/register
 .. _log in: http://readthedocs.org/accounts/login
 .. _dashboard: http://readthedocs.org/dashboard
