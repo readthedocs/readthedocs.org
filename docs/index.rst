@@ -21,6 +21,8 @@ The documentation for the site is organized into a few different sections below:
 * :ref:`feature-docs`
 * :ref:`dev-docs`
 * :ref:`design-docs`
+* :ref:`about-docs`
+
 
 .. _site-docs:
 
@@ -35,8 +37,6 @@ User Documentation
     features
     support
     faq
-    sponsors
-    talks
 
 .. _feature-docs:
 
@@ -60,16 +60,16 @@ Features
 
 Developer Documentation
 -----------------------
+
 .. toctree::
     :maxdepth: 2
 
     install
-    symlinks
-    todo
     contribute
-    architecture
-    settings
     tests
+    architecture
+    symlinks
+    settings
     i18n
     api
     api/index
@@ -78,17 +78,33 @@ Developer Documentation
 
 Designer Documentation
 ----------------------
+
 .. toctree::
     :maxdepth: 2
 
     design
     theme
 
+.. _about-docs:
+
+About Read the Docs
+-------------------
+
+.. toctree::
+    :maxdepth: 2
+
+    sponsors
+    talks
+    todo
+
+
+.. Things that need more love before getting upgraded to the above list.
 
 .. _custom-docs:
 
 Custom install Documentation
 ----------------------------
+
 .. toctree::
     :maxdepth: 3
 
@@ -99,6 +115,7 @@ Custom install Documentation
 
 Operations Documentation
 ------------------------
+
 .. toctree::
     :maxdepth: 2
 
