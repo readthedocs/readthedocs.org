@@ -46,13 +46,13 @@ Features
 .. toctree::
     :maxdepth: 2
 
-    theme
-    localization
-    redirects
     webhooks
     alternate_domains
-    single_version
+    localization
     canonical
+    redirects
+    theme
+    single_version
     privacy
 
 .. _dev-docs:
