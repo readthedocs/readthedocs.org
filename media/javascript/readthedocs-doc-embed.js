@@ -85,6 +85,7 @@ $(document).ready(function () {
                     }
                 },
                 enable = function () {
+                    init();
                     applyStickNav();
                     win.on('resize', applyStickNav);
                 },
