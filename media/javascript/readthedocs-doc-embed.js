@@ -141,7 +141,7 @@ $(document).ready(function () {
 
     $(document).on('click', '.search-result', function (ev) {
       ev.preventDefault();
-      console.log(ev.target)
+      //console.log(ev.target)
       html = $(ev.target).next().html()
       displayContent(html);
     }) 
@@ -271,7 +271,7 @@ $(document).ready(function () {
               }
           }
           if (hide) {
-            console.log("Hiding " + el)
+            //console.log("Hiding " + el)
             $(el).hide()
           }
 
@@ -292,7 +292,7 @@ $(document).ready(function () {
       $.each($(".toctree-l1 > a"), function (index, el) {
         var el = $(el)
         if (empty) {
-          console.log('Clearing ' + el.next())
+          //console.log('Clearing ' + el.next())
           el.parent().removeClass('current')
           el.next().empty()
         }
