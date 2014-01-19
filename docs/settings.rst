@@ -22,7 +22,7 @@ Default: `False`
 
 Whether to use subdomains in URLs on the site, or the Django-served content.
 When used in production, this should be ``True``, as Nginx will serve this content.
-During developemnt and other possible deployments, this might be ``False``.
+During development and other possible deployments, this might be ``False``.
 
 PRODUCTION_DOMAIN
 ------------------
