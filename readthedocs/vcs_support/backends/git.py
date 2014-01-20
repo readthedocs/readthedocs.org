@@ -130,7 +130,7 @@ class Backend(BaseVCS):
                 if branch.startswith('origin/'):
                     cut_len = len('origin/')
                     slug = branch[cut_len:].replace('/', '-')
-                    if slug in ['HEAD', self.fallback_branch]:
+                    if slug in ['HEAD']:
                         continue
                     clean_branches.append(VCSVersion(self, branch, slug))
                 else:
