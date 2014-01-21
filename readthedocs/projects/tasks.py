@@ -582,7 +582,7 @@ def fileify(version_pk):
                             obj.save()
 
 
-@periodic_task(run_every=crontab(hour="*", minute="*/30", day_of_week="*"))
+@periodic_task(run_every=crontab(hour="*/12", minute="*", day_of_week="*"))
 def update_mirror_docs():
     """
     A periodic task used to update all projects that we mirror.
