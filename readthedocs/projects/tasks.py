@@ -582,8 +582,7 @@ def fileify(version_pk):
                             obj.save()
 
 
-"""
-@periodic_task(run_every=crontab(hour="*/12", minute="*", day_of_week="*"))
+#@periodic_task(run_every=crontab(hour="*/12", minute="*", day_of_week="*"))
 def update_mirror_docs():
     """
     A periodic task used to update all projects that we mirror.
@@ -597,7 +596,6 @@ def update_mirror_docs():
     for project_data in data['results']:
         p = make_api_project(project_data)
         update_docs(pk=p.pk, record=record)
-"""
 
 @task
 def unzip_files(dest_file, html_path):
