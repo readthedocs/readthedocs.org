@@ -32,10 +32,11 @@ class SubdomainMiddleware(object):
             # Serve subdomains
             is_www = subdomain.lower() == 'www'
             is_ssl = subdomain.lower() == 'ssl'
-            if not is_www and not is_ssl and settings.PRODUCTION_DOMAIN in host:
+            if not is_www and not is_ssl:
                 request.subdomain = True
                 request.slug = subdomain
                 request.urlconf = 'core.subdomain_urls'
+                log.debug(LOG_TEMPLATE.format(msg='3-part domain detected with slug: %s' % request.slug, **log_kwargs))
                 return None
         # Serve CNAMEs
         if settings.PRODUCTION_DOMAIN not in host and \
