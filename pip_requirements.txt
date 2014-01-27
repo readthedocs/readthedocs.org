@@ -6,6 +6,7 @@ Sphinx==1.2
 django==1.4.8
 south==0.7.6
 redis==2.7.1
+hiredis==0.1.2
 requests==2.0
 slumber==0.6
 celery==3.0.24
