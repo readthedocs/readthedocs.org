@@ -33,6 +33,10 @@ class Builder(HtmlBuilder):
         dash_build_command = ("doc2dash --name=\"%s\" --force "
                               "--destination=_build/dash _build/html"
                               % project.name)
+
+        if not os.path.isdir('_build/html'):
+            os.makedirs('_build/html')
+
         dash_build_results = run(dash_build_command, shell=True)
         self._zip_dash()
         self._write_feed()

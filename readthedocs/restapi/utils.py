@@ -70,7 +70,7 @@ def delete_versions(project, version_data):
             active=True
         )
     if to_delete_qs.count():
-        ret_val = {obj.slug for obj in to_delete_qs}
+        ret_val = set([obj.slug for obj in to_delete_qs])
         log.info("(Sync Versions) Deleted Versions: [%s]" % ' '.join(ret_val))
         to_delete_qs.delete()
         return ret_val

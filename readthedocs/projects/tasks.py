@@ -394,7 +394,7 @@ def update_imported_docs(version_pk, api=None):
             # interpreters.
             update_docs_output['venv'] = run(
                 '{cmd} {site_packages} {path}'.format(
-                    cmd='virtualenv-2.7 -p {interpreter}'.format(
+                    cmd='virtualenv -p {interpreter}'.format(
                         interpreter=project.python_interpreter),
                     site_packages=site_packages,
                     path=project.venv_path(version=version_slug)
