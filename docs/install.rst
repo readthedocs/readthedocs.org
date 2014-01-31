@@ -25,7 +25,7 @@ Create a folder in here, and clone the repository::
 
     mkdir checkouts
     cd checkouts
-    git clone http://github.com/rtfd/readthedocs.org.git
+    git clone https://github.com/rtfd/readthedocs.org.git
 
 Next, install the dependencies using ``pip`` (included with virtualenv_)::
 
