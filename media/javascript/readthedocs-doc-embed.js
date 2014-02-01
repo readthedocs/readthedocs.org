@@ -68,7 +68,7 @@ $(document).ready(function () {
     });
     $(document).on('click', "[data-toggle='rst-current-version']", function() {
       $("[data-toggle='rst-versions']").toggleClass("shift-up");
-    });  
+    });
     // Make tables responsive
     $("table.docutils:not(.field-list)").wrap("<div class='wy-table-responsive'></div>");
 
@@ -137,21 +137,21 @@ $(document).ready(function () {
       clearSearch()
       var query = $("#rtd-search-form input[name='q']").val()
       getSearch(query, true)
-    }) 
+    })
 
     $(document).on('click', '.search-result', function (ev) {
       ev.preventDefault();
       //console.log(ev.target)
       html = $(ev.target).next().html()
       displayContent(html);
-    }) 
+    })
 
     function searchLanding() {
       // Highlight based on highlight GET arg
       var params = $.getQueryParameters();
       var query = (params.q) ? params.q[0].split(/\s+/) : [];
       var clear = true
-      /* Don't "search" on highlight phrases 
+      /* Don't "search" on highlight phrases
       if (!query.length) {
         // Only clear on q
         clear = false
@@ -242,7 +242,7 @@ $(document).ready(function () {
           li.show()
           li.attr("href", li.attr('href') + "?highlight=" + query)
           li.parent().addClass("current")
-          li.append("<i style='position:absolute;right:30px;top:6px;' class='icon icon-search result-icon'></i>")
+          li.append("<i style='position:absolute;right:30px;top:6px;' class='fa fa-search result-icon'></i>")
           ul.empty()
           FIRSTRUN[path] = true
         }
@@ -253,7 +253,7 @@ $(document).ready(function () {
           if (score > 1) {
             $(".toctree-l2 ")
             inserted = $('.toctree-l2 > [pageId="' + pageId + '"]')
-            inserted.append("<i style='position:absolute;right:30px;top:6px;' class='icon icon-fire'></i>")
+            inserted.append("<i style='position:absolute;right:30px;top:6px;' class='fa fa-fire'></i>")
           }
           FIRSTRUN[path+title] = true
         }
