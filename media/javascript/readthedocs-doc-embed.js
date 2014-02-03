@@ -46,7 +46,7 @@ $(document).ready(function () {
             if (!data['version_active']) {
                 $('.rst-current-version').addClass('rst-out-of-date')
             } else if (!data['version_supported']) {
-                $('.rst-current-version').addClass('rst-active-old-version')
+                //$('.rst-current-version').addClass('rst-active-old-version')
             }
       },
       error: function () {
