@@ -724,7 +724,7 @@ def symlink_translations(version):
     """
     translations = apiv2.project(version.project.pk).translations.get()['translations']
     for translation_data in translations:
-        translation_slug = translation_data['slug']
+        translation_slug = translation_data['slug'].replace('_', '-')
         translation_language = translation_data['language']
         log.debug(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Symlinking translation: %s->%s" % (translation_language, translation_slug)))
 
@@ -745,7 +745,7 @@ def symlink_translations(version):
     if version.project.language is not 'en':
         symlink = version.project.translations_symlink_path(version.project.language)
         run_on_app_servers('mkdir -p %s' % '/'.join(symlink.split('/')[:-1]))
-        docs_dir = os.path.join(settings.DOCROOT, version.project.slug, 'rtd-builds')
+        docs_dir = os.path.join(settings.DOCROOT, version.project.slug.replace('_', '-'), 'rtd-builds')
         run_on_app_servers('ln -nsf %s %s' % (docs_dir, symlink))
 
 def symlink_single_version(version):
