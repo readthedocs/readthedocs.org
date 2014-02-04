@@ -39,6 +39,7 @@ class ImportProjectForm(ProjectForm):
             # Not as important
             'description', 
             'language', 
+            'documentation_type', 
             'project_url',
             'canonical_url',
             'tags',
@@ -89,7 +90,6 @@ class AdvancedProjectForm(ProjectForm):
             'python_interpreter',
             # Fringe
             'analytics_code', 
-            'documentation_type', 
             # Version Support
             'num_major', 'num_minor', 'num_point',
         )

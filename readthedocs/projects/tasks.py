@@ -371,15 +371,6 @@ def update_imported_docs(version_pk, api=None):
             version_repo = project.vcs_repo(version_slug)
             update_docs_output['checkout'] = version_repo.update()
 
-        # Ensure we have a conf file (an exception is raised if not)
-        try:
-            project.conf_file(version.slug)
-        except ProjectImportError:
-            raise
-
-
-
-
         # Do Virtualenv bits:
         if project.use_virtualenv:
             build_dir = os.path.join(project.venv_path(version=version_slug), 'build')
@@ -480,7 +471,7 @@ def build_docs(version_pk, pdf, man, epub, dash, search, record, force):
     version = make_api_version(version_data)
     project = version.project
 
-    if not project.conf_file(version.slug):
+    if 'sphinx' in project.documentation_type and not project.conf_file(version.slug):
         return ('', 'Conf file not found.', -1)
 
     with project.repo_lock(getattr(settings, 'REPO_LOCK_SECONDS', 30)):
@@ -496,7 +487,7 @@ def build_docs(version_pk, pdf, man, epub, dash, search, record, force):
         fake_results = (999, "Project Skipped, Didn't build",
                         "Project Skipped, Didn't build")
         # Only build everything else if the html build changed.
-        if html_builder.changed and not project.skip:
+        if html_builder.changed and not project.skip and 'sphinx' in project.documentation_type:
             if search:
                 try:
                     search_builder = builder_loading.get('sphinx_search')(version)
@@ -540,7 +531,9 @@ def build_docs(version_pk, pdf, man, epub, dash, search, record, force):
                 else:
                     epub_results = fake_results
             else:
-                latex_results = pdf_results = man_results = epub_results = (999, "Optional builds disabled", "Optional builds disabled")
+                search_results = dash_results = latex_results = pdf_results = man_results = epub_results = (999, "Optional builds disabled", "Optional builds disabled")
+        else:
+            search_results = dash_results = latex_results = pdf_results = man_results = epub_results = (999, "Optional builds disabled", "Optional builds disabled")
 
 
     return (html_results, latex_results, pdf_results, man_results,
