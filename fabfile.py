@@ -130,7 +130,8 @@ def celery():
 def pull():
     "Pull new code"
     with cd(env.code_dir):
-        run('git pull origin master')
+        run('git fetch')
+        run('git reset --hard origin/master')
 
 
 @runs_once
