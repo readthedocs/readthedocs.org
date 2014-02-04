@@ -233,12 +233,13 @@ def update_index():
 
 @hosts('None')
 def update_theme():
-    with lcd(os.path.join(fabfile_dir, 'readthedocs', 'templates', 'sphinx')):
-        local('rm -rf theme_update_dir')
-        local('git clone https://github.com/snide/sphinx_rtd_theme.git theme_update_dir')
-        local('rm -rf sphinx_rtd_theme')
-        local('cp -r theme_update_dir/sphinx_rtd_theme .')
-        local('cp -r sphinx_rtd_theme/static/fonts/ %s' % os.path.join(fabfile_dir, 'media', 'font'))
-        local('cp sphinx_rtd_theme/static/css/badge_only.css %s' % os.path.join(fabfile_dir, 'media', 'css'))
-        local('cp sphinx_rtd_theme/static/css/theme.css %s' % os.path.join(fabfile_dir, 'media', 'css', 'sphinx_rtd_theme.css'))
-        local('rm -rf theme_update_dir')
+    theme_dir = os.path.join(fabfile_dir, 'readthedocs', 'templates', 'sphinx')
+    if not os.path.exists('/tmp/sphinx_rtd_theme'):
+        local('git clone https://github.com/snide/sphinx_rtd_theme.git /tmp/sphinx_rtd_theme')
+    with lcd('/tmp/sphinx_rtd_theme'):
+        local('git remote update')
+        local('git reset --hard origin/master ')
+        local('cp -r /tmp/sphinx_rtd_theme/sphinx_rtd_theme %s' % theme_dir)
+        local('cp -r /tmp/sphinx_rtd_theme/sphinx_rtd_theme/static/fonts/ %s' % os.path.join(fabfile_dir, 'media', 'font'))
+        local('cp /tmp/sphinx_rtd_theme/sphinx_rtd_theme/static/css/badge_only.css %s' % os.path.join(fabfile_dir, 'media', 'css'))
+        local('cp /tmp/sphinx_rtd_theme/sphinx_rtd_theme/static/css/theme.css %s' % os.path.join(fabfile_dir, 'media', 'css', 'sphinx_rtd_theme.css'))
