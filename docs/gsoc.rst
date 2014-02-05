@@ -37,3 +37,19 @@ If you're interested in participating in GSoC 2014 as a student, mentor, or inte
 In addition you may be able to find us on IRC at ``#readthedocs`` on ``irc.freenode.org``.  If no one is available to answer your question, please be patient and post it to the mailing list as well.
 
 .. _mailing list: https://groups.google.com/forum/#!forum/readthedocs
+
+Project Ideas
+-------------
+
+We have some medium sized projects sketched out in our issue tracker with the tag *Feature Overview*.
+Looking through `these issues`_ is a good place to start.
+
+.. _these issues: https://github.com/rtfd/readthedocs.org/issues?direction=desc&labels=Feature+Overview&page=1&sort=updated&state=open
+
+Thanks
+------
+
+This page was heavily inspired by Mailman's similar `GSOC page`_.
+Thanks for the inspiration.
+
+.. _GSOC page: http://wiki.list.org/display/DEV/Google+Summer+of+Code+2014
