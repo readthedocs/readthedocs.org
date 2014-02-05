@@ -3,11 +3,8 @@ Configuration of the production servers
 
 This document is to help people who are involved in the production instance of Read the Docs running on readthedocs.org. It contains implementation details and useful hints for the people handling operations of the servers.
 
-Deploying
-=========
-
-Code
-----
+Deploying Code
+--------------
 
 This uses the ``fabfile.py`` located in the root of project.
 
@@ -23,8 +20,8 @@ Restart the build servers celery::
 
     fab celery
 
-Nginx
------
+Deploying Nginx
+---------------
 
 This uses the fabfile located in ``deploy/fab/fabfile.py`` to deploy the nginx configs in ``deploy/nginx/``.
 
