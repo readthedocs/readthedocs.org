@@ -61,11 +61,27 @@ def queue_depth(request):
 
 def queue_info(request):
     i = inspect()
+    active_pks = []
+    reserved_pks = []
+    resp = ""
+
     active = i.active()
+    if active:
+        active_json = json.loads(active)
+        for obj in active_json['build']:
+            active_pks.append(obj['kwargs']['pk'])
+        active_resp = "Active: %s  " % " ".join(active_pks)
+        resp += active_resp
+
     reserved = i.reserved()
-    active_resp = "Active\n-------\n\n%s\n\n" % active
-    reserved_resp = "Reserved\n--------\n\n%s\n\n" % reserved
-    return HttpResponse(active_resp + reserved_resp)
+    if reserved:
+        reserved_json = json.loads(reserved)
+        for obj in reserved_json['build']:
+            reserved_pks.append(obj['kwargs']['pk'])
+        reserved_resp = " | Reserved %s" % " ".join(reserved_pks)
+        resp += reserved_resp
+        
+    return HttpResponse(resp)
 
 def live_builds(request):
     builds = Build.objects.filter(state='building')[:5]
