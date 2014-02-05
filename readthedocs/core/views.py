@@ -15,6 +15,7 @@ from django.views.generic import TemplateView
 
 from haystack.query import EmptySearchQuerySet
 from haystack.query import SearchQuerySet
+from celery.task.control import inspect
 
 from builds.models import Build
 from builds.models import Version
@@ -58,6 +59,13 @@ def queue_depth(request):
     r = redis.Redis(**settings.REDIS)
     return HttpResponse(r.llen('celery'))
 
+def queue_info(request):
+    i = inspect()
+    active = i.active()
+    reserved = i.reserved()
+    active_resp = "Active\n-------\n\n%s\n\n" % active
+    reserved_resp = "Reserved\n--------\n\n%s\n\n" % reserved
+    return HttpResponse(active_resp + reserved_resp)
 
 def live_builds(request):
     builds = Build.objects.filter(state='building')[:5]
