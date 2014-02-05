@@ -26,7 +26,7 @@ Restart the build servers celery::
 Nginx
 -----
 
-This uses the fabfile located in ``deploy/fab/fabfile.py``.
+This uses the fabfile located in ``deploy/fab/fabfile.py`` to deploy the nginx configs in ``deploy/nginx/``.
 
 To update the nginx configs::
 
