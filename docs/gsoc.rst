@@ -20,10 +20,10 @@ We're happy to help you get up to speed, but the more you are able to demonstrat
 Getting Started
 ---------------
 
-The :doc:`install` is probably the best place to get going.
+The :doc:`install` doc is probably the best place to get going.
 It will walk you through getting a basic environment for Read the Docs setup. 
 
-Then you can look through our :doc:`contribute` for information on how to get started contributing to RTD.
+Then you can look through our :doc:`contribute` doc for information on how to get started contributing to RTD.
 If you try and submit a patch,
 or at least comment on a bug before applying,
 you will be much more likely to be accepted.
@@ -45,6 +45,14 @@ We have some medium sized projects sketched out in our issue tracker with the ta
 Looking through `these issues`_ is a good place to start.
 
 .. _these issues: https://github.com/rtfd/readthedocs.org/issues?direction=desc&labels=Feature+Overview&page=1&sort=updated&state=open
+
+Possible Mentors
+----------------
+
+* Eric Holscher
+* Wraithan McDonald
+* Justin Abrahams
+* Jannis Leidel
 
 Thanks
 ------
