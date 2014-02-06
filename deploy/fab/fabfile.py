@@ -104,12 +104,13 @@ def users(user=None):
         if not fabtools.user.exists(user):
             sudo('adduser --gecos "" -q --disabled-password %s' % user)
 
-        if not fabtools.files.is_file('%s/.ssh/authorized_keys' % home):
-            sudo('mkdir -p %s/.ssh' % home)
-            put('keys/*.pub', '%s/.ssh/authorized_keys' % home, mode=700,
-                use_sudo=True)
-            sudo('chown -R %s:%s %s' % (user, user, home))
-            sudo('chmod -R 700 %s' % home)
+        # Always update keys for now
+        sudo('mkdir -p %s/.ssh' % home)
+        put('keys/*.pub', '%s/.ssh/authorized_keys' % home, mode=700,
+            use_sudo=True)
+        sudo('chown -R %s:%s %s/.ssh' % (user, user, home))
+        sudo('chmod 700 %s/.ssh' % home)
+        sudo('chmod 600 %s/.ssh/*' % home)
     # Docs > Syncer
     #sudo('adduser docs builder')
 
