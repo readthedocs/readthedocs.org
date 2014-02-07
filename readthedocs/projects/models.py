@@ -430,6 +430,15 @@ class Project(models.Model):
                             '%s.xml' % self.doc_name)
         return path
 
+    def get_downloads(self, version_slug='latest'):
+        downloads = {}
+        downloads['htmlzip'] = self.get_htmlzip_url()
+        downloads['epub'] = self.get_epub_url()
+        downloads['pdf'] = self.get_pdf_url()
+        downloads['manpage'] = self.get_manpage_url()
+        downloads['dash'] = self.get_dash_url()
+        return downloads
+
     @property
     def doc_name(self):
         return self.slug.replace('_', '-')

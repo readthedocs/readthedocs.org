@@ -4,6 +4,8 @@ from builds.models import Version
 from projects.models import Project
 
 class ProjectSerializer(serializers.ModelSerializer):
+    downloads = serializers.CharField(source='get_downloads', read_only=True)
+
     class Meta:
         model = Project
         fields = (
@@ -12,8 +14,8 @@ class ProjectSerializer(serializers.ModelSerializer):
             'repo', 'repo_type',
             'default_version', 'default_branch',
             'documentation_type',
-            'num_major', 'num_minor', 'num_point',
             'users',
+            'downloads',
             )
 
 class VersionSerializer(serializers.ModelSerializer):

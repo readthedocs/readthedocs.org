@@ -8,6 +8,7 @@ from rest_framework.response import Response
 
 from builds.models import Version
 from projects.models import Project, EmailHook
+from projects.filters import ProjectFilter
 
 from restapi.serializers import ProjectSerializer, VersionSerializer
 from restapi.permissions import RelatedProjectIsOwner
@@ -19,6 +20,8 @@ log = logging.getLogger(__name__)
 class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     renderer_classes = (JSONRenderer, JSONPRenderer, BrowsableAPIRenderer)
+    serializer_class = ProjectSerializer
+    filter_class = ProjectFilter
     model = Project
     paginate_by = 100
     paginate_by_param = 'page_size'
@@ -30,9 +33,6 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
         by filtering against a `slug` query parameter in the URL.
         """
         queryset = Project.objects.all()
-        slug = self.request.QUERY_PARAMS.get('slug', None)
-        if slug is not None:
-            queryset = queryset.filter(slug=slug)
         mirror = self.request.QUERY_PARAMS.get('mirror', False)
         if mirror:
             queryset = queryset.filter(mirror=True)
