@@ -18,7 +18,7 @@ log = logging.getLogger(__name__)
 def symlink(project, version='latest'):
     from projects import tasks
     from builds.models import Version
-    from tastyapi import api
+    from tastyapi import apiv2 as api
     if getattr(settings, 'DONT_HIT_DB', True):
         version_data = api.version().get(project=project, slug=version)['results'][0]
         v = tasks.make_api_version(version_data)

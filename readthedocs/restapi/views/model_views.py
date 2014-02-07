@@ -7,6 +7,7 @@ from rest_framework.renderers import JSONPRenderer, JSONRenderer, BrowsableAPIRe
 from rest_framework.response import Response
 
 from builds.models import Version
+from builds.filters import VersionFilter
 from projects.models import Project, EmailHook
 from projects.filters import ProjectFilter
 
@@ -118,6 +119,7 @@ class VersionViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     renderer_classes = (JSONRenderer, BrowsableAPIRenderer)
     serializer_class = VersionSerializer
+    filter_class = VersionFilter
     model = Version
 
     def get_queryset(self):
@@ -127,11 +129,6 @@ class VersionViewSet(viewsets.ReadOnlyModelViewSet):
         """
         queryset = Version.objects.all()
         project = self.request.QUERY_PARAMS.get('project', None)
-        if project is not None:
-            queryset = queryset.filter(project__slug=project)
-        slug = self.request.QUERY_PARAMS.get('slug', None)
-        if slug is not None:
-            queryset = queryset.filter(slug=slug)
         return queryset
 
 

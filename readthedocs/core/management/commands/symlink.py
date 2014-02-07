@@ -4,7 +4,6 @@ from django.core.management.base import BaseCommand
 from django.conf import settings
 
 from projects import tasks, utils
-from tastyapi import apiv2 as api
 
 import redis
 
