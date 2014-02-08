@@ -15,15 +15,20 @@ import redis
 
 log = logging.getLogger(__name__)
 
-def symlink(project, version='latest'):
+def version_from_slug(slug, version):
     from projects import tasks
     from builds.models import Version
     from tastyapi import apiv2 as api
     if getattr(settings, 'DONT_HIT_DB', True):
-        version_data = api.version().get(project=project, slug=version)['results'][0]
+        version_data = api.version().get(project=slug, slug=version)['results'][0]
         v = tasks.make_api_version(version_data)
     else:
         v = Version.objects.get(project__slug=project, slug=version)
+    return v
+
+def symlink(project, version='latest'):
+    from projects import tasks
+    v = version_from_slug(project, version)
     log.info("Symlinking %s" % v)
     tasks.symlink_subprojects(v)
     tasks.symlink_cnames(v)
