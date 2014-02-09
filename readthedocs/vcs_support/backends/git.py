@@ -36,14 +36,8 @@ class Backend(BaseVCS):
         return self.run('git', 'remote', 'set-url', 'origin', url)
 
     def update(self):
-        super(Backend, self).update()
-        if self.repo_exists():
-            self.fetch()
-        else:
-            self.clone()
-        self.run('git', 'submodule', 'sync')
-        self.run('git', 'submodule', 'update', '--init', '--recursive')
-        return self.reset()
+        # Use checkout() to update repo
+        self.checkout()
 
     def repo_exists(self):
         code, out, err = self.run('git', 'status')
@@ -150,17 +144,33 @@ class Backend(BaseVCS):
         return clean_branches
 
     def checkout(self, identifier=None):
-        super(Backend, self).checkout()
-        #Run update so that we can pull new versions.
-        self.update()
+        self.check_working_dir()
 
+        # Clone or update repository
+        if self.repo_exists():
+            self.fetch()
+        else:
+            self.clone()
+
+        # Find proper identifier
         if not identifier:
             identifier = self.default_branch or self.fallback_branch
 
         identifier = self.find_ref(identifier)
 
         #Checkout the correct identifier for this branch.
-        return self.reset(identifier)
+        code, out, err = self.reset(identifier)
+        if code != 0:
+            return code, out, err
+
+        # Clean any remains of previous checkouts
+        self.run('git', 'clean', '-d', '-f', '-f')
+
+        # Update submodules
+        self.run('git', 'submodule', 'sync')
+        self.run('git', 'submodule', 'update', '--init', '--recursive')
+
+        return code, out, err
 
     def find_ref(self, ref):
         # Check if ref is a SHA1 hash
