@@ -1,7 +1,6 @@
 import logging
 import csv
 import os
-import re
 from StringIO import StringIO
 
 from projects.exceptions import ProjectImportError
@@ -12,8 +11,6 @@ log = logging.getLogger(__name__)
 
 
 class Backend(BaseVCS):
-    RE_SHA1 = re.compile(r'^[0-9a-f]{40}$')
-
     supports_tags = True
     supports_branches = True
     contribution_backends = [GithubContributionBackend]
@@ -165,10 +162,6 @@ class Backend(BaseVCS):
     def find_ref(self, ref):
         # Check if ref starts with 'origin/'
         if ref.startswith('origin/'):
-            return ref
-
-        # Check if ref is a SHA1 hash
-        if self.RE_SHA1.match(ref):
             return ref
 
         # Check if ref is a branch of the origin remote
