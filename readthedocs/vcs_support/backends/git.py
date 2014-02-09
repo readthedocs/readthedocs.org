@@ -3,7 +3,6 @@ import csv
 import os
 from os.path import exists, join as pjoin
 from StringIO import StringIO
-from shutil import rmtree
 
 from projects.exceptions import ProjectImportError
 from vcs_support.backends.github import GithubContributionBackend
@@ -20,7 +19,8 @@ class Backend(BaseVCS):
 
     def check_working_dir(self):
         if exists(self.working_dir) and self.repo_url_changed():
-            rmtree(self.working_dir)
+            self.set_remote_url(self.repo_url)
+
         super(Backend, self).check_working_dir()
 
     def repo_url_changed(self):
@@ -28,6 +28,9 @@ class Backend(BaseVCS):
                                   pjoin(self.working_dir, '.git/config'),
                                   '--get', 'remote.origin.url')
         return out.strip() != self.repo_url
+
+    def set_remote_url(self, url):
+        return self.run('git', 'remote', 'set-url', 'origin', url)
 
     def update(self):
         super(Backend, self).update()
