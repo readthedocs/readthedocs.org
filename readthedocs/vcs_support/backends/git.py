@@ -32,7 +32,7 @@ class Backend(BaseVCS):
     def update(self):
         super(Backend, self).update()
         if self.repo_exists():
-            self.pull()
+            self.fetch()
         else:
             self.clone()
         self.run('git', 'submodule', 'sync')
@@ -43,7 +43,7 @@ class Backend(BaseVCS):
         code, out, err = self.run('git', 'status')
         return code == 0
 
-    def pull(self):
+    def fetch(self):
         code, out, err = self.run('git', 'fetch', '--prune')
         if code != 0:
             raise ProjectImportError(
