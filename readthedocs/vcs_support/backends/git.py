@@ -39,14 +39,14 @@ class Backend(BaseVCS):
                     self.repo_url, code)
             )
 
-    def reset(self, revision=None):
+    def checkout_revision(self, revision=None):
         if not revision:
             branch = self.default_branch or self.fallback_branch
             revision = 'origin/%s' % branch
 
-        code, out, err = self.run('git', 'reset', '--hard', revision)
+        code, out, err = self.run('git', 'checkout', '--force', revision)
         if code != 0:
-            log.warning("Failed to reset repo to revision '%s': %s" % (
+            log.warning("Failed to checkout revision '%s': %s" % (
                 revision, code))
         return [code, out, err]
 
@@ -148,7 +148,7 @@ class Backend(BaseVCS):
         identifier = self.find_ref(identifier)
 
         #Checkout the correct identifier for this branch.
-        code, out, err = self.reset(identifier)
+        code, out, err = self.checkout_revision(identifier)
         if code != 0:
             return code, out, err
 
