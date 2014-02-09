@@ -44,7 +44,8 @@ class Backend(BaseVCS):
             branch = self.default_branch or self.fallback_branch
             revision = 'origin/%s' % branch
 
-        code, out, err = self.run('git', 'checkout', '--force', revision)
+        code, out, err = self.run('git', 'checkout',
+                                  '--force', '--quiet', revision)
         if code != 0:
             log.warning("Failed to checkout revision '%s': %s" % (
                 revision, code))
