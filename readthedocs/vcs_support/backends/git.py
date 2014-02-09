@@ -2,7 +2,6 @@ import logging
 import csv
 import os
 import re
-from os.path import exists, join as pjoin
 from StringIO import StringIO
 
 from projects.exceptions import ProjectImportError
