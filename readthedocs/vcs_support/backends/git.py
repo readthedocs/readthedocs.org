@@ -51,9 +51,11 @@ class Backend(BaseVCS):
                     self.repo_url, code)
             )
 
-    def reset(self):
-        branch = self.default_branch or self.fallback_branch
-        revision = 'origin/%s' % branch
+    def reset(self, revision=None):
+        if not revision:
+            branch = self.default_branch or self.fallback_branch
+            revision = 'origin/%s' % branch
+
         code, out, err = self.run('git', 'reset', '--hard', revision)
         if code != 0:
             log.warning("Failed to reset repo to revision '%s': %s" % (
