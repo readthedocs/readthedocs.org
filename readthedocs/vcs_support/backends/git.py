@@ -48,9 +48,7 @@ class Backend(BaseVCS):
             )
 
     def reset(self):
-        branch = self.fallback_branch
-        if self.default_branch:
-            branch = self.default_branch
+        branch = self.default_branch or self.fallback_branch
         code, out, err = self.run('git', 'reset', '--hard',
                                   'origin/%s' % branch)
         if code != 0:
@@ -144,9 +142,8 @@ class Backend(BaseVCS):
         #Run update so that we can pull new versions.
         self.update()
         if not identifier:
-            identifier = self.fallback_branch
-            if self.default_branch:
-                identifier = self.default_branch
+            identifier = self.default_branch or self.fallback_branch
+
         #Checkout the correct identifier for this branch.
         return self.run('git', 'reset', '--hard', identifier, '--')
 
