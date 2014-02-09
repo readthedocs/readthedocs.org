@@ -56,5 +56,5 @@ DONT_HIT_DB = False
 
 try:
     from local_settings import *  # noqa
-except:
+except ImportError:
     pass
