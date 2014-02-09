@@ -20,18 +20,6 @@ class Backend(BaseVCS):
     contribution_backends = [GithubContributionBackend]
     fallback_branch = 'master'  # default branch
 
-    def check_working_dir(self):
-        if exists(self.working_dir) and self.repo_url_changed():
-            self.set_remote_url(self.repo_url)
-
-        super(Backend, self).check_working_dir()
-
-    def repo_url_changed(self):
-        code, out, err = self.run('git', 'config', '-f',
-                                  pjoin(self.working_dir, '.git/config'),
-                                  '--get', 'remote.origin.url')
-        return out.strip() != self.repo_url
-
     def set_remote_url(self, url):
         return self.run('git', 'remote', 'set-url', 'origin', url)
 
@@ -148,6 +136,7 @@ class Backend(BaseVCS):
 
         # Clone or update repository
         if self.repo_exists():
+            self.set_remote_url(self.repo_url)
             self.fetch()
         else:
             self.clone()
