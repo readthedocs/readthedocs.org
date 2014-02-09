@@ -56,8 +56,8 @@ class Backend(BaseVCS):
         revision = 'origin/%s' % branch
         code, out, err = self.run('git', 'reset', '--hard', revision)
         if code != 0:
-            log.warning("Failed to get code from '%s' (git reset): %s" % (
-                self.repo_url, code))
+            log.warning("Failed to reset repo to revision '%s': %s" % (
+                revision, code))
         return [code, out, err]
 
     def clone(self):
