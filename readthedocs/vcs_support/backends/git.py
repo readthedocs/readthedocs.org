@@ -151,7 +151,7 @@ class Backend(BaseVCS):
             identifier = self.default_branch or self.fallback_branch
 
         #Checkout the correct identifier for this branch.
-        return self.run('git', 'reset', '--hard', identifier, '--')
+        return self.reset(identifier)
 
     @property
     def env(self):
