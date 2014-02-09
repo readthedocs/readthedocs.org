@@ -53,8 +53,8 @@ class Backend(BaseVCS):
 
     def reset(self):
         branch = self.default_branch or self.fallback_branch
-        code, out, err = self.run('git', 'reset', '--hard',
-                                  'origin/%s' % branch)
+        revision = 'origin/%s' % branch
+        code, out, err = self.run('git', 'reset', '--hard', revision)
         if code != 0:
             log.warning("Failed to get code from '%s' (git reset): %s" % (
                 self.repo_url, code))
