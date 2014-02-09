@@ -162,6 +162,10 @@ class Backend(BaseVCS):
         return code, out, err
 
     def find_ref(self, ref):
+        # Check if ref starts with 'origin/'
+        if ref.startswith('origin/'):
+            return ref
+
         # Check if ref is a SHA1 hash
         if self.RE_SHA1.match(ref):
             return ref
