@@ -157,7 +157,8 @@ class Backend(BaseVCS):
 
         # Update submodules
         self.run('git', 'submodule', 'sync')
-        self.run('git', 'submodule', 'update', '--init', '--recursive')
+        self.run('git', 'submodule', 'update',
+                 '--init', '--recursive', '--force')
 
         return code, out, err
 
