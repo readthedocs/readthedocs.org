@@ -31,14 +31,17 @@ class Backend(BaseVCS):
 
     def update(self):
         super(Backend, self).update()
-        code, out, err = self.run('git', 'status')
-        if code == 0:
+        if self.repo_exists():
             self.pull()
         else:
             self.clone()
         self.run('git', 'submodule', 'sync')
         self.run('git', 'submodule', 'update', '--init', '--recursive')
         return self.reset()
+
+    def repo_exists(self):
+        code, out, err = self.run('git', 'status')
+        return code == 0
 
     def pull(self):
         code, out, err = self.run('git', 'fetch', '--prune')
