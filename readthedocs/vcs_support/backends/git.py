@@ -19,13 +19,15 @@ class Backend(BaseVCS):
     fallback_branch = 'master'  # default branch
 
     def check_working_dir(self):
-        if exists(self.working_dir):
-            code, out, err = self.run('git', 'config', '-f',
-                                      pjoin(self.working_dir, '.git/config'),
-                                      '--get', 'remote.origin.url')
-            if out.strip() != self.repo_url:
-                rmtree(self.working_dir)
+        if exists(self.working_dir) and self.repo_url_changed():
+            rmtree(self.working_dir)
         super(Backend, self).check_working_dir()
+
+    def repo_url_changed(self):
+        code, out, err = self.run('git', 'config', '-f',
+                                  pjoin(self.working_dir, '.git/config'),
+                                  '--get', 'remote.origin.url')
+        return out.strip() != self.repo_url
 
     def update(self):
         super(Backend, self).update()
