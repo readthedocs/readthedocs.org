@@ -1,6 +1,7 @@
 import logging
 import csv
 import os
+import re
 from os.path import exists, join as pjoin
 from StringIO import StringIO
 
@@ -12,6 +13,8 @@ log = logging.getLogger(__name__)
 
 
 class Backend(BaseVCS):
+    RE_SHA1 = re.compile(r'^[0-9a-f]{40}$')
+
     supports_tags = True
     supports_branches = True
     contribution_backends = [GithubContributionBackend]
@@ -150,11 +153,29 @@ class Backend(BaseVCS):
         super(Backend, self).checkout()
         #Run update so that we can pull new versions.
         self.update()
+
         if not identifier:
             identifier = self.default_branch or self.fallback_branch
 
+        identifier = self.find_ref(identifier)
+
         #Checkout the correct identifier for this branch.
         return self.reset(identifier)
+
+    def find_ref(self, ref):
+        # Check if ref is a SHA1 hash
+        if self.RE_SHA1.match(ref):
+            return ref
+
+        # Check if ref is a branch of the origin remote
+        if self.ref_exists('remotes/origin/' + ref):
+            return 'origin/' + ref
+
+        return ref
+
+    def ref_exists(self, ref):
+        code, out, err = self.run('git', 'show-ref', ref)
+        return code == 0
 
     @property
     def env(self):
