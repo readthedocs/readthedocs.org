@@ -26,9 +26,10 @@ HAYSTACK_CONNECTIONS = {
 CACHES = {
     'default': {
         'BACKEND': 'redis_cache.cache.RedisCache',
-        'LOCATION': 'localhost:6379:1',
+        'LOCATION': 'localhost:6379',
         'PREFIX': 'docs',
         'OPTIONS': {
+            'DB': 1,
             'CLIENT_CLASS': 'redis_cache.client.DefaultClient',
         },
     },
