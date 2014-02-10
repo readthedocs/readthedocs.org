@@ -27,10 +27,8 @@
       - file: {{ site_path }}
 {% endfor %}
 
-git://github.com/rtfd/readthedocs.org.git:
-  git.latest:
-    - target: {{ site_path }}/checkouts/readthedocs.org
-    - runas: docs
+{{ site_path }}/checkouts/readthedocs.org:
+  file.directory:
     - require:
       - user: docs
       - file: {{ site_path }}/checkouts
@@ -51,7 +49,7 @@ rtd-deps:
         -r deploy_requirements.txt
     - cwd: {{ site_path }}/checkouts/readthedocs.org
     - watch:
-      - git: git://github.com/rtfd/readthedocs.org.git
+      - file: {{ site_path }}/checkouts/readthedocs.org
       - pkg: rtd-build-pkgs
     - require:
       - virtualenv: {{ site_path }}
@@ -67,13 +65,13 @@ rtd-deps:
     - user: docs
     - group: docs
     - require:
-      - git: git://github.com/rtfd/readthedocs.org.git
+      - file: {{ site_path }}/checkouts/readthedocs.org
 
 rtd-db-sync:
   cmd.wait:
     - name:
         {{ venv_python }} manage.py syncdb
-        --settings readthedocs.settings.postgres
+        --settings=readthedocs.settings.postgres
         --noinput
     - cwd: {{ site_path }}/checkouts/readthedocs.org
     - user: docs
@@ -87,7 +85,7 @@ rtd-db-migrate:
   cmd.wait:
     - name:
         {{ venv_python }} manage.py migrate
-        --settings readthedocs.settings.postgres
+        --settings=readthedocs.settings.postgres
     - cwd: {{ site_path }}/checkouts/readthedocs.org
     - user: docs
     - watch:
@@ -97,16 +95,25 @@ rtd-db-migrate:
       - file: {{ local_settings }}
 
 {% if grains['id'] == 'vagrant' %}
-rtd-db-loaddata:
+rtd-db-loaduser:
   cmd.wait:
     - name:
-        {{ venv_python }} manage.py loaddata
-        --settings readthedocs.settings.postgres test_data
+        {{ venv_python }} manage.py loaddata test_auth
+        --settings=readthedocs.settings.postgres
     - cwd: {{ site_path }}/checkouts/readthedocs.org
     - user: docs
     - watch:
       - cmd: rtd-db-migrate
-      - file: {{ local_settings }}
+
+rtd-db-loaddata:
+  cmd.wait:
+    - name:
+        {{ venv_python }} manage.py loaddata test_data
+        --settings=readthedocs.settings.postgres
+    - cwd: {{ site_path }}/checkouts/readthedocs.org
+    - user: docs
+    - watch:
+      - cmd: rtd-db-loaduser
 {% endif %}
 
 # Site build requirements

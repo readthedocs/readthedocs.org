@@ -10,12 +10,17 @@ Vagrant.configure(2) do |config|
   config.vm.network "forwarded_port", guest: 9999, host: 9999
 
   config.vm.synced_folder "deploy/salt/", "/srv/salt/"
+  config.vm.synced_folder(
+    "./",
+    "/home/docs/sites/readthedocs.org/checkouts/readthedocs.org",
+    :mount_options => ["uid=1005,gid=205"]
+  )
 
   config.vm.provision :salt do |salt|
     salt.minion_config = "deploy/salt/minion"
     salt.run_highstate = true
     salt.verbose = true
     salt.install_type = "git"
-    salt.install_args = "develop"
+    salt.install_args = "v0.17.5"
   end
 end
