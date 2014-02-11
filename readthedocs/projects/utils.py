@@ -23,7 +23,7 @@ def version_from_slug(slug, version):
         version_data = api.version().get(project=slug, slug=version)['results'][0]
         v = tasks.make_api_version(version_data)
     else:
-        v = Version.objects.get(project__slug=project, slug=version)
+        v = Version.objects.get(project__slug=slug, slug=version)
     return v
 
 def symlink(project, version='latest'):
