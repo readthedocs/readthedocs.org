@@ -39,6 +39,9 @@ You can mock out the imports for these modules in your conf.py with the followin
     import sys
 
     class Mock(object):
+        
+        __all__ = []
+       
         def __init__(self, *args, **kwargs):
             pass
 
