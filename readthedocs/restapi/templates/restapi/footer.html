@@ -1,3 +1,4 @@
+{% load restapi_extras %}
 <!-- Inserted RTD Footer -->
 <div class="injected">
 
@@ -17,7 +18,7 @@
 
         {# Output the main project language since it isn't included in translations list #}
         {% if main_project.language == current_language %} <strong> {% endif %}
-        <dd><a href="{{ main_project.get_docs_url }}">{{ main_project.language }}</a></dd>
+        <dd><a href="{% doc_url main_project current_version current_page %}">{{ main_project.language }}</a></dd>
         {% if main_project.language == current_language %} </strong> {% endif %}
 
         {# regroup to make language_list unique per language #}
@@ -26,7 +27,7 @@
             {% for translation in group.list %}
               {% if translation.language != main_project.language %}
                   {% if translation.language == current_language %} <strong> {% endif %}
-                  <dd><a href="{{ translation.get_translation_url }}">{{ translation.language }}</a></dd>
+                  <dd><a href="{% doc_url translation current_version current_page %}">{{ translation.language }}</a></dd>
                   {% if translation.language == current_language %} </strong> {% endif %}
               {% endif %}
             {% endfor %}
