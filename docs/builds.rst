@@ -8,7 +8,7 @@ Understanding how Read the Docs builds your project will help you with debugging
 
 The first step of the process is that we check out your code from the repository you have given us. If the code is already checked out, we update the copy to the branch that you have specified in your projects configuration.
 
-Then we build the proper backend code for the type of documentation you've selected. Currently we only support Sphinx, but we are looking to expand this selection.
+Then we build the proper backend code for the type of documentation you've selected.
 
 If you have the *Use Virtualenv* option enabled, we will run ``setup.py install`` on your package, installing it into a virtual environment. You can also define additional packages to install with the *Requirements File* option.
 
