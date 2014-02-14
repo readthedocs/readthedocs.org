@@ -9,4 +9,4 @@ def make_document_url(project, version=None, page=None):
   else:
     base_url = project.get_docs_url(version)
   ending = "/" if project.documentation_type == "sphinx_htmldir" else ".html"
-  return base_url + page + ending
+  return base_url + ((page + ending) if page != "index" else "")
