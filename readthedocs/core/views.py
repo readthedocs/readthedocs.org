@@ -436,7 +436,7 @@ def server_error(request, template_name='500.html'):
 
 def server_error_404(request, template_name='404.html'):
     """
-    A simple 500 handler so we get media
+    A simple 404 handler so we get media
     """
     r = render_to_response(template_name,
                            context_instance=RequestContext(request))
