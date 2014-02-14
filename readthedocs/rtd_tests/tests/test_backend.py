@@ -39,6 +39,7 @@ class TestGitBackend(RTDTestCase):
             ('master', 'master'),
             ('release/2.0.0', 'release-2.0.0'),
             ('origin/2.0.X', '2.0.X'),
+            ('origin/master', 'master'),
             ('origin/release/2.0.0', 'release-2.0.0')
         ]
         given_ids = [(x.identifier, x.verbose_name) for x in
