@@ -8,6 +8,7 @@ _ = gettext = lambda s: s
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 TASTYPIE_FULL_DEBUG = True
+LOG_DEBUG = False
 
 PRODUCTION_DOMAIN = 'readthedocs.org'
 USE_SUBDOMAIN = False
@@ -207,7 +208,7 @@ IMPORT_EXTERNAL_DATA = True
 
 backup_count = 1000
 maxBytes = 500 * 100 * 100
-if DEBUG:
+if LOG_DEBUG:
     backup_count = 2
     maxBytes = 500 * 100 * 10
 
