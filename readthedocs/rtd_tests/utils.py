@@ -40,8 +40,9 @@ def make_test_hg():
     directory = pjoin(directory, 'sample_repo')
     copytree(sample, directory)
     chdir(directory)
+    hguser = 'Test User <test-user@readthedocs.org>'
     log.info(check_output(['hg', 'init'] + [directory]))
     log.info(check_output(['hg', 'add', '.']))
-    log.info(check_output(['hg', 'commit', '-m"init"']))
+    log.info(check_output(['hg', 'commit', '-u', hguser, '-m"init"']))
     chdir(path)
     return directory
