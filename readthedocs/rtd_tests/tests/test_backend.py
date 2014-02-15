@@ -44,12 +44,12 @@ class TestGitBackend(RTDTestCase):
         ]
         given_ids = [(x.identifier, x.verbose_name) for x in
                      self.project.vcs_repo().parse_branches(data)]
-        assert expected_ids == given_ids
+        self.assertEqual(expected_ids, given_ids)
 
     def test_git_checkout(self):
         repo = self.project.vcs_repo()
         repo.checkout()
-        assert exists(repo.working_dir)
+        self.assertTrue(exists(repo.working_dir))
 
     def test_parse_git_tags(self):
         data = """\
@@ -71,7 +71,7 @@ class TestGitBackend(RTDTestCase):
 
         given_ids = [(x.identifier, x.verbose_name) for x in
                      self.project.vcs_repo().parse_tags(data)]
-        assert expected_tags == given_ids
+        self.assertEqual(expected_tags, given_ids)
 
 
 class TestHgBackend(RTDTestCase):
@@ -98,12 +98,12 @@ class TestHgBackend(RTDTestCase):
         expected_ids = ['stable', 'default']
         given_ids = [x.identifier for x in
                      self.project.vcs_repo().parse_branches(data)]
-        assert expected_ids == given_ids
+        self.assertEqual(expected_ids, given_ids)
 
     def test_checkout(self):
         repo = self.project.vcs_repo()
         repo.checkout()
-        assert exists(repo.working_dir)
+        self.assertTrue(exists(repo.working_dir))
 
     def test_parse_tags(self):
         data = """\
@@ -120,4 +120,4 @@ class TestHgBackend(RTDTestCase):
 
         given_ids = [(x.identifier, x.verbose_name) for x in
                      self.project.vcs_repo().parse_tags(data)]
-        assert expected_tags == given_ids
+        self.assertEqual(expected_tags, given_ids)
