@@ -10,6 +10,7 @@ requests==2.0
 slumber==0.6
 celery==3.0.24
 django-celery==3.0.23
+mkdocs==0.4
 
 # VCS
 bzr==2.5b4

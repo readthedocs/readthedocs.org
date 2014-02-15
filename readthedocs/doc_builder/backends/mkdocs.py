@@ -48,12 +48,12 @@ class Builder(BaseBuilder):
         project = self.version.project
         os.chdir(project.checkout_path(self.version.slug))
         if project.use_virtualenv:
-            build_command = "%s build" % (
+            build_command = "%s build --theme=readthedocs" % (
                 project.venv_bin(version=self.version.slug,
                                  bin='mkdocs')
                 )
         else:
-            build_command = "mkdocs build"
+            build_command = "mkdocs build --theme=readthedocs"
         build_results = run(build_command, shell=True)
         return build_results
 
