@@ -20,7 +20,7 @@ class Builder(HtmlBuilder):
         else:
             build_command = "sphinx-build -D language=%s -b readthedocsdirhtml . _build/html" % project.language
         build_results = run(build_command)
-        self._zip_html()
+        #self._zip_html()
         if 'no targets are out of date.' in build_results[1]:
             self._changed = False
         return build_results

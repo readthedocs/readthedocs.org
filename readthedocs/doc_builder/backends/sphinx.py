@@ -187,7 +187,7 @@ class Builder(BaseBuilder):
             build_command = ("sphinx-build %s -b readthedocs -D language=%s . _build/html"
                              % (force_str, project.language))
         build_results = run(build_command, shell=True)
-        self._zip_html()
+        #self._zip_html()
         if 'no targets are out of date.' in build_results[1]:
             self._changed = False
         return build_results
@@ -244,11 +244,12 @@ class Builder(BaseBuilder):
                 to_file = os.path.join(to_path, '%s.zip' % project.slug)
                 from_path = project.checkout_path(self.version.slug)
                 from_file = os.path.join(from_path, '%s.zip' % project.slug)
-                if getattr(settings, "MULTIPLE_APP_SERVERS", None):
-                    copy_file_to_app_servers(from_file, to_file)
-                else:
-                    if not os.path.exists(to_path):
-                        os.makedirs(to_path)
-                    run('mv -f %s %s' % (from_file, to_file))
+                if os.path.exists(from_file):
+                    if getattr(settings, "MULTIPLE_APP_SERVERS", None):
+                        copy_file_to_app_servers(from_file, to_file)
+                    else:
+                        if not os.path.exists(to_path):
+                            os.makedirs(to_path)
+                        run('mv -f %s %s' % (from_file, to_file))
         else:
             log.warning("Not moving docs, because the build dir is unknown.")
