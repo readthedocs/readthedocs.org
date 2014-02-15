@@ -24,7 +24,6 @@ class TestSupportedVersions(TestCase):
                                type='tag',
                                active=True)
 
-    """
     def test_supported_versions(self):
         self.pip.num_major = 1
         self.pip.num_minor = 1
@@ -65,4 +64,3 @@ class TestSupportedVersions(TestCase):
                                active=True)
         # This gets set to False on creation.
         self.assertEqual(self.pip.versions.get(slug='0.1.1').supported, False)
-    """

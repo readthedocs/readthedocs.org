@@ -16,7 +16,8 @@ class BetterVersion(AdaptiveVersion):
 
 class VersionManager(object):
 
-    _state = defaultdict(lambda: defaultdict(list))
+    def __init__(self):
+        self._state = defaultdict(lambda: defaultdict(list))
 
     def add(self, version):
         self._state[version.major_version][version.minor_version].append(version)
