@@ -35,17 +35,17 @@ class TestCeleryBuilding(RTDTestCase):
 
     def test_remove_dir(self):
         directory = mkdtemp()
-        assert exists(directory)
+        self.assertTrue(exists(directory))
         result = tasks.remove_dir.delay(directory)
-        assert result.successful()
-        assert not exists(directory)
+        self.assertTrue(result.successful())
+        self.assertFalse(exists(directory))
 
     def test_update_docs(self):
         result = tasks.update_docs.delay(self.project.pk, record=False,
             intersphinx=False, api=MockApi(self.repo))
-        assert result.successful()
+        self.assertTrue(result.successful())
 
     def test_update_imported_doc(self):
         result = tasks.update_imported_docs.delay(self.project.pk,
             api=MockApi(self.repo))
-        assert result.successful()
+        self.assertTrue(result.successful())
