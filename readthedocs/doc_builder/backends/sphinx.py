@@ -103,9 +103,8 @@ else:
 # Add custom RTD extension
 if 'extensions' in globals():
     extensions.append("readthedocs_ext.readthedocs")
-    extensions.append("readthedocs_ext.readthedocshtmldir")
 else:
-    extensions = ["readthedocs_ext.readthedocs", "readthedocs_ext.readthedocshtmldir"]
+    extensions = ["readthedocs_ext.readthedocs"]
 """
 
 TEMPLATE_DIR = '%s/readthedocs/templates/sphinx' % settings.SITE_ROOT
