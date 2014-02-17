@@ -52,7 +52,12 @@ if 'html_theme' in globals():
 else:
     html_theme = 'sphinx_rtd_theme'
     html_style = None
-    html_theme_options = {}
+    html_theme_options = {
+        'github_user': '{{ github_user }}',
+        'github_repo': '{{ github_repo }}',
+        'github_version': '{{ github_version }}',
+        'display_github': {{ display_github }},
+    }
     using_rtd_theme = True
 
 # Force theme on setting
@@ -87,10 +92,6 @@ context = {
     'single_version': {{ project.single_version }},
     'conf_py_path': '{{ conf_py_path }}',
     'api_host': '{{ api_host }}',
-    'github_user': '{{ github_user }}',
-    'github_repo': '{{ github_repo }}',
-    'github_version': '{{ github_version }}',
-    'display_github': {{ display_github }},
     'READTHEDOCS': True,
     'using_theme': (html_theme == "default"),
     'new_theme': (html_theme == "sphinx_rtd_theme"),
