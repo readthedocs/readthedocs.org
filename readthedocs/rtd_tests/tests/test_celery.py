@@ -9,7 +9,7 @@ from projects import tasks
 
 from rtd_tests.utils import make_test_git
 from rtd_tests.base import RTDTestCase
-from rtd_tests.tests.mock_api import MockApi
+from rtd_tests.mocks.mock_api import MockApi
 
 
 class TestCeleryBuilding(RTDTestCase):
