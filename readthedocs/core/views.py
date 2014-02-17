@@ -23,7 +23,6 @@ from core.forms import FacetedSearchForm
 from projects.models import Project, ImportedFile, ProjectRelationship
 from projects.tasks import update_docs, remove_dir
 from projects.utils import highest_version
-from projects.constants import LANGUAGES_REGEX
 
 import json
 import mimetypes
