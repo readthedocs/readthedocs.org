@@ -438,17 +438,7 @@ def server_error(request, template_name='500.html'):
 
 def server_error_404(request, template_name='404.html'):
     """
-    A rich 404 handler
-
-    | # | project | version | language | What to show |
-    | 1 |    0    |    0    |     0    | Error message |
-    | 2 |    0    |    0    |     1    | Error message (Can't happen) |
-    | 3 |    0    |    1    |     0    | Error message (Can't happen) |
-    | 4 |    0    |    1    |     1    | Error message (Can't happen) |
-    | 5 |    1    |    0    |     0    | A link to top-level page of default version |
-    | 6 |    1    |    0    |     1    | Available versions on the translation project |
-    | 7 |    1    |    1    |     0    | Available translations of requested version |
-    | 8 |    1    |    1    |     1    | A link to top-level page of requested version |
+    A helpful 404 handler
     """
     suggestion = {}
     path = re.sub(r'/index$', r'', re.sub(r'\.html$', r'', re.sub(r'/$', r'', request.path)))
@@ -465,10 +455,37 @@ def server_error_404(request, template_name='404.html'):
         version_slug = m.group('version_slug')
         pagename     = m.group('filename')
         try:
+            lang_slug = m.group('lang_slug')
+        except IndexError:
+            lang_slug = None
+        suggestion = get_suggestion(project_slug, lang_slug, version_slug, pagename, request.user)
+    else: # Unknown URL pattern
+        suggestion = get_suggestion(None, None, None, None, request.user)
+
+    r = render_to_response(template_name,
+                           {'suggestion': suggestion},
+                           context_instance=RequestContext(request))
+    r.status_code = 404
+    return r
+
+def get_suggestion(project_slug, lang_slug, version_slug, pagename, user):
+    """
+    | # | project | version | language | What to show |
+    | 1 |    0    |    0    |     0    | Error message |
+    | 2 |    0    |    0    |     1    | Error message (Can't happen) |
+    | 3 |    0    |    1    |     0    | Error message (Can't happen) |
+    | 4 |    0    |    1    |     1    | Error message (Can't happen) |
+    | 5 |    1    |    0    |     0    | A link to top-level page of default version |
+    | 6 |    1    |    0    |     1    | Available versions on the translation project |
+    | 7 |    1    |    1    |     0    | Available translations of requested version |
+    | 8 |    1    |    1    |     1    | A link to top-level page of requested version |
+    """
+
+    suggestion = {}
+    if project_slug:
+        try:
             proj = Project.objects.get(slug=project_slug)
-            try:
-                lang_slug = m.group('lang_slug')
-            except IndexError:
+            if not lang_slug:
                 lang_slug = proj.language
             try:
                 ver = Version.objects.get(project__slug=project_slug, slug=version_slug)
@@ -523,7 +540,7 @@ def server_error_404(request, template_name='404.html'):
                     suggestion['type'] = 'list'
                     suggestion['message'] = "Requested version seems not to have been built yet. But these versions are available."
                     suggestion['list'] = []
-                    for v in Version.objects.public(request.user, trans, True):
+                    for v in Version.objects.public(user, trans, True):
                         suggestion['list'].append({
                             'label': v.slug,
                             'project': trans,
@@ -539,16 +556,11 @@ def server_error_404(request, template_name='404.html'):
             # Case #1-4: Show error mssage
             suggestion['type'] = 'none'
             suggestion['message'] = "What are you looking for???"
-    else: # Unknown URL pattern
+    else:
         suggestion['type'] = 'none'
         suggestion['message'] = "What are you looking for????"
 
-    r = render_to_response(template_name,
-                           {'suggestion': suggestion},
-                           context_instance=RequestContext(request))
-    r.status_code = 404
-    return r
-
+    return suggestion
 
 def divide_by_zero(request):
     return 1 / 0
