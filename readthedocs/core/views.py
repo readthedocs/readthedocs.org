@@ -68,8 +68,7 @@ def queue_info(request):
     active = i.active()
     if active:
         try:
-            active_json = json.loads(active)
-            for obj in active_json['build']:
+            for obj in active['build']:
                 active_pks.append(obj['kwargs']['pk'])
             active_resp = "Active: %s  " % " ".join(active_pks)
             resp += active_resp
@@ -79,8 +78,7 @@ def queue_info(request):
     reserved = i.reserved()
     if reserved:
         try:
-            reserved_json = json.loads(reserved)
-            for obj in reserved_json['build']:
+            for obj in reserved['build']:
                 reserved_pks.append(obj['kwargs']['pk'])
             reserved_resp = " | Reserved %s" % " ".join(reserved_pks)
             resp += reserved_resp
