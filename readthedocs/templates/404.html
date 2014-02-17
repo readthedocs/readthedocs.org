@@ -98,6 +98,7 @@ Maze Found
     <!-- BEGIN content-->
     <div id="content">
       <div class="wrapper">
+        {% if suggestion %}
           <div class="suggestions">
               <h1>You've found something doesn't exist.</h1>
               <p>{{ suggestion.message }}</p>
@@ -114,6 +115,7 @@ Maze Found
               </ul>
               {% endifequal %}
           </div>
+        {% endif %}
         
 <pre>
 

@@ -361,9 +361,14 @@ def redirect_page_with_filename(request, filename, project_slug=None):
 def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
     if not project_slug:
         project_slug = request.slug
-    proj = get_object_or_404(Project, slug=project_slug)
-    ver = get_object_or_404(Version, project__slug=project_slug,
-                            slug=version_slug)
+    try:
+        proj = Project.objects.get(slug=project_slug)
+        ver  = Version.objects.get(project__slug=project_slug, slug=version_slug)
+    except (Project.DoesNotExist, Version.DoesNotExist):
+        proj = None
+        ver  = None
+    if not proj or not ver:
+        return server_helpful_404(request, project_slug, lang_slug, version_slug, filename)
 
     # Auth checks
     if ver not in proj.versions.public(request.user, proj, only_active=False):
@@ -438,35 +443,23 @@ def server_error(request, template_name='500.html'):
 
 def server_error_404(request, template_name='404.html'):
     """
-    A helpful 404 handler
+    A simple 404 handler so we get media
     """
-    suggestion = {}
-    path = re.sub(r'/index$', r'', re.sub(r'\.html$', r'', re.sub(r'/$', r'', request.path)))
-    p = re.compile((r'^/user_builds/(?P<project_slug>[-\w]+)/rtd-builds/(?P<version_slug>[-._\w]+?)/(?P<filename>.*)$'))
-    m = p.match(path)
-    if not m:
-        p = re.compile((r'^/user_builds/(?P<project_slug>[-\w]+)/translations/(?P<lang_slug>%s)/(?P<version_slug>[-._\w]+?)/(?P<filename>.*)$') % LANGUAGES_REGEX)
-        m = p.match(path)
-    if not m:
-        p = re.compile((r'^/docs/(?P<project_slug>[-\w]+)/(?P<lang_slug>%s)/(?P<version_slug>[-._\w]+?)/(?P<filename>.*)$') % LANGUAGES_REGEX)
-        m = p.match(path)
-    if m:
-        project_slug = m.group('project_slug')
-        version_slug = m.group('version_slug')
-        pagename     = m.group('filename')
-        try:
-            lang_slug = m.group('lang_slug')
-        except IndexError:
-            lang_slug = None
-        suggestion = get_suggestion(project_slug, lang_slug, version_slug, pagename, request.user)
-    else: # Unknown URL pattern
-        suggestion = get_suggestion(None, None, None, None, request.user)
+    r = render_to_response(template_name,
+                           context_instance=RequestContext(request))
+    r.status_code = 404
+    return r
 
+
+def server_helpful_404(request, project_slug=None, lang_slug=None, version_slug=None, filename=None, template_name='404.html'):
+    pagename = re.sub(r'/index$', r'', re.sub(r'\.html$', r'', re.sub(r'/$', r'', filename)))
+    suggestion = get_suggestion(project_slug, lang_slug, version_slug, pagename, request.user)
     r = render_to_response(template_name,
                            {'suggestion': suggestion},
                            context_instance=RequestContext(request))
     r.status_code = 404
     return r
+
 
 def get_suggestion(project_slug, lang_slug, version_slug, pagename, user):
     """
@@ -561,6 +554,7 @@ def get_suggestion(project_slug, lang_slug, version_slug, pagename, user):
         suggestion['message'] = "What are you looking for????"
 
     return suggestion
+
 
 def divide_by_zero(request):
     return 1 / 0
