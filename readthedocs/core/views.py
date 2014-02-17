@@ -72,8 +72,8 @@ def queue_info(request):
                 active_pks.append(obj['kwargs']['pk'])
             active_resp = "Active: %s  " % " ".join(active_pks)
             resp += active_resp
-        except:
-            pass
+        except Exception, e:
+            resp += e
 
     reserved = i.reserved()
     if reserved:
@@ -82,8 +82,8 @@ def queue_info(request):
                 reserved_pks.append(obj['kwargs']['pk'])
             reserved_resp = " | Reserved %s" % " ".join(reserved_pks)
             resp += reserved_resp
-        except:
-            pass
+        except Exception, e:
+            resp += e
         
     return HttpResponse(resp)
 
