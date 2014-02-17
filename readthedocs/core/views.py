@@ -478,9 +478,9 @@ def server_error_404(request, template_name='404.html'):
             if ver: # if requested version is available on main project
                 if  lang_slug != proj.language:
                     try:
-                        translations = proj.translations.all().filter(language=lang_slug)
+                        translations = proj.translations.filter(language=lang_slug)
                         if translations:
-                            ver = Version.objects.get(project__slug=translations[0], slug=version_slug)
+                            ver = Version.objects.get(project__slug=translations[0].slug, slug=version_slug)
                         else:
                             ver = None
                     except Version.DoesNotExist:
@@ -503,7 +503,7 @@ def server_error_404(request, template_name='404.html'):
                         })
                     for t in proj.translations.all():
                         try:
-                            Version.objects.get(project__slug=t, slug=version_slug)
+                            Version.objects.get(project__slug=t.slug, slug=version_slug)
                             suggestion['list'].append({
                                 'label':t.language,
                                 'project': t,
