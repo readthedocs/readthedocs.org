@@ -274,14 +274,6 @@ class Project(models.Model):
             self.versions.filter(verbose_name='latest').update(supported=True)
 
     def save(self, *args, **kwargs):
-        #if hasattr(self, 'pk'):
-            #previous_obj = self.__class__.objects.get(pk=self.pk)
-            #if previous_obj.repo != self.repo:
-                #Needed to not have an import loop on Project
-                #from projects import tasks
-                #This needs to run on the build machine.
-                #tasks.remove_dir.delay(os.path.join(self.doc_path,
-                                                    #'checkouts'))
         if not self.slug:
             # Subdomains can't have underscores in them.
             self.slug = slugify(self.name).replace('_','-')
