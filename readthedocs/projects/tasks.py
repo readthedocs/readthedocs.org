@@ -60,7 +60,7 @@ def remove_dir(path):
 @restoring_chdir
 def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
                 search=True, version_pk=None, force=False, intersphinx=True,
-                api=None, **kwargs):
+                localmedia=True, api=None, **kwargs):
     """The main entry point for updating documentation.
 
     It handles all of the logic around whether a project is imported or we
@@ -187,7 +187,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
     # This is only checking the results of the HTML build, as it's a canary
     try:
         results = build_docs(version_pk=version.pk, pdf=pdf, man=man,
-                             epub=epub, dash=dash, search=search,
+                             epub=epub, dash=dash, search=search, localmedia=localmedia,
                              record=record, force=force)
         (html_results, latex_results, pdf_results, man_results, epub_results,
          dash_results, search_results) = results
@@ -463,7 +463,7 @@ def update_imported_docs(version_pk, api=None):
 
 
 @task
-def build_docs(version_pk, pdf, man, epub, dash, search, record, force):
+def build_docs(version_pk, pdf, man, epub, dash, search, localmedia, record, force):
     """
     This handles the actual building of the documentation and DB records
     """
@@ -488,6 +488,7 @@ def build_docs(version_pk, pdf, man, epub, dash, search, record, force):
                         "Project Skipped, Didn't build")
         # Only build everything else if the html build changed.
         if html_builder.changed and not project.skip and 'sphinx' in project.documentation_type:
+            # Search builder. Creates JSON from docs and sends it to the server.
             if search:
                 try:
                     search_builder = builder_loading.get('sphinx_search')(version)
@@ -499,14 +500,17 @@ def build_docs(version_pk, pdf, man, epub, dash, search, record, force):
                         search_builder.move()
                 except:
                     log.error(LOG_TEMPLATE.format(project=project.slug, version=version.slug, msg="JSON Build Error"), exc_info=True)
-            if dash:
-                dash_builder = builder_loading.get('sphinx_dash')(version)
-                dash_results = dash_builder.build()
-                if dash_results[0] == 0:
-                    dash_builder.move()
-            else:
-                dash_results = fake_results
-
+            # Local media builder for singlepage HTML download archive
+            if localmedia:
+                try:
+                    localmedia_builder = builder_loading.get('sphinx_singlehtmllocalmedia')(version)
+                    localmedia_results = localmedia_builder.build()
+                    if localmedia_results[0] == 0:
+                        localmedia_builder.move()
+                except:
+                    log.error(LOG_TEMPLATE.format(project=project.slug, version=version.slug, msg="Local Media HTML Build Error"), exc_info=True)
+                    
+            # Optional build steps 
             if version.project.slug not in HTML_ONLY:
                 if pdf:
                     pdf_builder = builder_loading.get('sphinx_pdf')(version)
@@ -516,6 +520,14 @@ def build_docs(version_pk, pdf, man, epub, dash, search, record, force):
                     pdf_builder.move()
                 else:
                     pdf_results = latex_results = fake_results
+                if dash:
+                    dash_builder = builder_loading.get('sphinx_dash')(version)
+                    dash_results = dash_builder.build()
+                    if dash_results[0] == 0:
+                        dash_builder.move()
+                else:
+                    dash_results = fake_results
+
                 if man:
                     man_builder = builder_loading.get('sphinx_man')(version)
                     man_results = man_builder.build()

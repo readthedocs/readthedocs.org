@@ -560,6 +560,12 @@ class Project(models.Model):
         """
         return os.path.join(self.conf_dir(version), "_build", "json")
 
+    def full_singlehtml_path(self, version='latest'):
+        """
+        The path to the build dash docs in the project.
+        """
+        return os.path.join(self.conf_dir(version), "_build", "singlehtml")
+
     def rtd_build_path(self, version="latest"):
         """
         The path to the build html docs in the project.
