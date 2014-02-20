@@ -174,6 +174,10 @@ if __name__ == '__main__':
             'https://pip.readthedocs.org/en/latest/'
         ],
         [
+            'https://pip.readthedocs.org/en/develop',
+            'https://pip.readthedocs.org/en/develop/'
+        ],
+        [
             'https://pip.readthedocs.org/latest/',
             'https://pip.readthedocs.org/en/latest/'
         ],
