@@ -189,7 +189,7 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
         results = build_docs(version_pk=version.pk, pdf=pdf, man=man,
                              epub=epub, dash=dash, search=search, localmedia=localmedia,
                              record=record, force=force)
-        (html_results, latex_results, pdf_results, man_results, epub_results,
+        (html_results, latex_results, pdf_results, epub_results,
          dash_results, search_results) = results
         (ret, out, err) = html_results
     except Exception as e:
@@ -198,7 +198,6 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
         latex_results = (999, "Project build Failed", str(e))
         pdf_results = (999, "Project build Failed", str(e))
         # These variables aren't currently being used.
-        # man_results = (999, "Project build Failed", str(e))
         # epub_results = (999, "Project build Failed", str(e))
         # dash_results = (999, "Project build Failed", str(e))
         # search_results = (999, "Project build Failed", str(e))
@@ -528,14 +527,6 @@ def build_docs(version_pk, pdf, man, epub, dash, search, localmedia, record, for
                 else:
                     dash_results = fake_results
 
-                # if man:
-                #     man_builder = builder_loading.get('sphinx_man')(version)
-                #     man_results = man_builder.build()
-                #     if man_results[0] == 0:
-                #         man_builder.move()
-                # else:
-                #     man_results = fake_results
-
                 if epub:
                     epub_builder = builder_loading.get('sphinx_epub')(version)
                     epub_results = epub_builder.build()
@@ -544,12 +535,12 @@ def build_docs(version_pk, pdf, man, epub, dash, search, localmedia, record, for
                 else:
                     epub_results = fake_results
             else:
-                search_results = dash_results = latex_results = pdf_results = man_results = epub_results = (999, "Optional builds disabled", "Optional builds disabled")
+                search_results = dash_results = latex_results = pdf_results = epub_results = (999, "Optional builds disabled", "Optional builds disabled")
         else:
-            search_results = dash_results = latex_results = pdf_results = man_results = epub_results = (999, "Optional builds disabled", "Optional builds disabled")
+            search_results = dash_results = latex_results = pdf_results = epub_results = (999, "Optional builds disabled", "Optional builds disabled")
 
 
-    return (html_results, latex_results, pdf_results, man_results,
+    return (html_results, latex_results, pdf_results,
             epub_results, dash_results, search_results)
 
 
