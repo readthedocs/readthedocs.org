@@ -4,7 +4,7 @@ documentation and header rendering, and server errors.
 """
 
 from django.contrib.auth.models import User
-from django.core.urlresolvers import NoReverseMatch, reverse
+from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect, Http404, HttpResponseNotFound
 from django.shortcuts import render_to_response, get_object_or_404, redirect
@@ -22,7 +22,6 @@ from builds.models import Version
 from core.forms import FacetedSearchForm
 from projects.models import Project, ImportedFile, ProjectRelationship
 from projects.tasks import update_docs, remove_dir
-from projects.utils import highest_version
 
 import json
 import mimetypes
@@ -156,9 +155,11 @@ def _build_branches(project, branch_list):
 
 def _build_url(url, branches):
     try:
-        projects = Project.objects.filter(repo__contains=url)
+        projects = Project.objects.filter(repo__endswith=url)
         if not projects.count():
-            raise NoProjectException()
+            projects = Project.objects.filter(repo__endswith=url + '.git')
+            if not projects.count():
+                raise NoProjectException()
         for project in projects:
             (to_build, not_building) = _build_branches(project, branches)
         if to_build:
@@ -301,7 +302,7 @@ def default_docs_kwargs(request, project_slug=None):
         try:
             proj = Project.objects.get(slug=project_slug)
         except (Project.DoesNotExist, ValueError):
-            # Try with underscore, for legacy 
+            # Try with underscore, for legacy
             try:
                 proj = Project.objects.get(slug=project_slug.replace('-', '_'))
             except (Project.DoesNotExist):
@@ -312,7 +313,7 @@ def default_docs_kwargs(request, project_slug=None):
         try:
             proj = Project.objects.get(slug=request.slug)
         except (Project.DoesNotExist, ValueError):
-            # Try with underscore, for legacy 
+            # Try with underscore, for legacy
             try:
                 proj = Project.objects.get(slug=request.slug.replace('-', '_'))
             except (Project.DoesNotExist):
