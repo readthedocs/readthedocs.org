@@ -69,7 +69,7 @@ def queue_info(request):
         try:
             for obj in active['build']:
                 kwargs = eval(obj['kwargs'])
-                active_pks.append(kwargs['pk'])
+                active_pks.append(str(kwargs['pk']))
             active_resp = "Active: %s  " % " ".join(active_pks)
             resp += active_resp
         except Exception, e:
@@ -80,7 +80,7 @@ def queue_info(request):
         try:
             for obj in reserved['build']:
                 kwrags = eval(obj['kwargs'])
-                reserved_pks.append(kwargs['pk'])
+                reserved_pks.append(str(kwargs['pk']))
             reserved_resp = " | Reserved %s" % " ".join(reserved_pks)
             resp += reserved_resp
         except Exception, e:
