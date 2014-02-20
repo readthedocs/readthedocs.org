@@ -73,7 +73,7 @@ def queue_info(request):
             active_resp = "Active: %s  " % " ".join(active_pks)
             resp += active_resp
         except Exception, e:
-            resp += e
+            resp += str(e)
 
     reserved = i.reserved()
     if reserved:
@@ -84,7 +84,7 @@ def queue_info(request):
             reserved_resp = " | Reserved %s" % " ".join(reserved_pks)
             resp += reserved_resp
         except Exception, e:
-            resp += e
+            resp += str(e)
         
     return HttpResponse(resp)
 
