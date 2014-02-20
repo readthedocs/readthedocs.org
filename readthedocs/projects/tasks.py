@@ -528,13 +528,14 @@ def build_docs(version_pk, pdf, man, epub, dash, search, localmedia, record, for
                 else:
                     dash_results = fake_results
 
-                if man:
-                    man_builder = builder_loading.get('sphinx_man')(version)
-                    man_results = man_builder.build()
-                    if man_results[0] == 0:
-                        man_builder.move()
-                else:
-                    man_results = fake_results
+                # if man:
+                #     man_builder = builder_loading.get('sphinx_man')(version)
+                #     man_results = man_builder.build()
+                #     if man_results[0] == 0:
+                #         man_builder.move()
+                # else:
+                #     man_results = fake_results
+
                 if epub:
                     epub_builder = builder_loading.get('sphinx_epub')(version)
                     epub_results = epub_builder.build()
