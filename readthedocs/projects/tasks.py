@@ -1,6 +1,5 @@
 """Tasks related to projects, including fetching repository code, cleaning
 ``conf.py`` files, and rebuilding documentation.
-
 """
 import datetime
 import fnmatch
@@ -34,7 +33,8 @@ from projects.utils import (purge_version, run,
                             make_api_version, make_api_project)
 from tastyapi import client as tastyapi_client
 from tastyapi import api, apiv2
-from core.utils import copy_to_app_servers, run_on_app_servers
+from core.utils import (copy_to_app_servers, copy_file_to_app_servers,
+                        run_on_app_servers)
 
 ghetto_hack = re.compile(
     r'(?P<key>.*)\s*=\s*u?\[?[\'\"](?P<value>.*)[\'\"]\]?')
@@ -770,6 +770,48 @@ def remove_symlink_single_version(version):
     )
     symlink = version.project.single_version_symlink_path()
     run_on_app_servers('rm %s' % symlink)
+
+def update_static_metadata(project_pk):
+    """Update static metadata JSON file
+
+    Metadata settings include the following project settings:
+
+    version
+      The default version for the project, default: `latest`
+
+    language
+      The default language for the project, default: `en`
+
+    languages
+      List of languages built by linked translation projects.
+    """
+    project_base = apiv2.project(project_pk)
+    project_data = project_base.get()
+    project = make_api_project(project_data)
+    translations = project_base.translations.get()['translations']
+    languages = set([
+        translation['language']
+        for translation in translations
+        if 'language' in translation
+    ])
+    # Convert to JSON safe types
+    metadata = {
+        'version': project.default_version,
+        'language': project.language,
+        'languages': list(languages)
+    }
+    try:
+        path = project.static_metadata_path()
+        fh = open(path, 'w')
+        json.dump(metadata, fh)
+        fh.close()
+        copy_file_to_app_servers(path, path)
+    except IOError as e:
+        log.debug(LOG_TEMPLATE.format(
+            project=project.slug,
+            version='',
+            msg='Cannot write to metadata.json: {0}'.format(e)
+        ))
 
 def send_notifications(version, build):
     #zenircbot_notification(version.id)

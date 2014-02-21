@@ -34,6 +34,11 @@ def symlink(project, version='latest'):
     tasks.symlink_cnames(v)
     tasks.symlink_translations(v)
 
+def update_static_metadata(project_pk):
+    from projects import tasks
+    log.info("Updating static metadata")
+    tasks.update_static_metadata(project_pk)
+
 def find_file(file):
     """Find matching filenames in the current directory and its subdirectories,
     and return a list of matching filenames.
