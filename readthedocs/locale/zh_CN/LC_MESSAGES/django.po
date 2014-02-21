@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-01-15 05:36-0600\n"
-"PO-Revision-Date: 2014-01-13 11:29+0000\n"
+"POT-Creation-Date: 2014-02-20 21:09-0600\n"
+"PO-Revision-Date: 2014-01-21 09:15+0000\n"
 "Last-Translator: mozillazg <opensource.mozillazg@gmail.com>\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/projects/p/"
 "readthedocs/language/zh_CN/)\n"
@@ -30,7 +30,7 @@ msgid "Invalid resource lookup data provided (mismatched type).: %(error)s"
 msgstr ""
 
 #: bookmarks/models.py:9 builds/models.py:82 builds/models.py:268
-#: builds/models.py:284 projects/models.py:765
+#: builds/models.py:284 projects/models.py:782
 msgid "Project"
 msgstr "项目"
 
@@ -86,11 +86,11 @@ msgstr "Manpage"
 
 #: builds/constants.py:14
 msgid "Dash"
-msgstr ""
+msgstr "Dash"
 
 #: builds/constants.py:18
 msgid "Branch"
-msgstr ""
+msgstr "分支"
 
 #: builds/constants.py:19 builds/filters.py:19
 msgid "Tag"
@@ -98,14 +98,14 @@ msgstr "标签"
 
 #: builds/constants.py:20
 msgid "Unknown"
-msgstr ""
+msgstr "未知"
 
 #: builds/filters.py:10 projects/filters.py:9
 msgid "Any"
 msgstr "任何"
 
-#: builds/filters.py:17 builds/filters.py:30 projects/filters.py:16
-#: projects/models.py:101 projects/models.py:769
+#: builds/filters.py:17 builds/filters.py:30 projects/filters.py:31
+#: projects/models.py:101 projects/models.py:786
 msgid "Name"
 msgstr "名称"
 
@@ -129,13 +129,14 @@ msgstr ""
 msgid "Verbose Name"
 msgstr ""
 
-#: builds/models.py:92 projects/models.py:102 projects/models.py:770
+#: builds/models.py:92 projects/filters.py:33 projects/models.py:102
+#: projects/models.py:787
 msgid "Slug"
 msgstr "Slug"
 
 #: builds/models.py:94
 msgid "Supported"
-msgstr ""
+msgstr "支持的"
 
 #: builds/models.py:95 templates/projects/project_versions.html:46
 msgid "Active"
@@ -149,7 +150,7 @@ msgstr "构建"
 msgid "Uploaded"
 msgstr "已上传"
 
-#: builds/models.py:99 projects/models.py:193
+#: builds/models.py:99 projects/models.py:194
 msgid "Privacy Level"
 msgstr "隐私级别"
 
@@ -185,7 +186,7 @@ msgstr "最大"
 msgid "Alias for %(project)s: %(from)s -> %(to)s"
 msgstr "%(project)s 的别名: %(from)s -> %(to)s"
 
-#: builds/models.py:286 projects/models.py:118 projects/models.py:767
+#: builds/models.py:286 projects/models.py:118 projects/models.py:784
 #: templates/djangome/oneoffs.html:11
 msgid "Version"
 msgstr "版本"
@@ -231,7 +232,7 @@ msgstr "名字"
 msgid "Last name"
 msgstr "姓氏"
 
-#: core/middleware.py:70 core/middleware.py:75
+#: core/middleware.py:70
 msgid "Invalid hostname"
 msgstr "主机名无效"
 
@@ -270,89 +271,94 @@ msgid "Sphinx HtmlDir"
 msgstr "Sphinx HtmlDir"
 
 #: projects/constants.py:20
-msgid "Sphinx Websupport"
+msgid "Sphinx Single Page HTML"
+msgstr ""
+
+#: projects/constants.py:21
+msgid "Mkdocs"
 msgstr ""
 
 #. Translators: This is a name of a Sphinx theme.
-#: projects/constants.py:27
+#: projects/constants.py:29
 msgid "Default"
 msgstr "默认"
 
 #. Translators: This is a name of a Sphinx theme.
-#: projects/constants.py:29
+#: projects/constants.py:31
 msgid "Sphinx Docs"
 msgstr "Sphinx Docs"
 
 #. Translators: This is a name of a Sphinx theme.
-#: projects/constants.py:33
+#: projects/constants.py:35
 msgid "Traditional"
 msgstr ""
 
 #. Translators: This is a name of a Sphinx theme.
-#: projects/constants.py:35
+#: projects/constants.py:37
 msgid "Nature"
 msgstr ""
 
 #. Translators: This is a name of a Sphinx theme.
-#: projects/constants.py:37
+#: projects/constants.py:39
 msgid "Haiku"
 msgstr ""
 
-#: projects/constants.py:66
+#: projects/constants.py:68
 msgid "Live"
 msgstr ""
 
-#: projects/constants.py:67
+#: projects/constants.py:69
 msgid "Deleted"
 msgstr "已删除"
 
-#: projects/constants.py:71
+#: projects/constants.py:73
 msgid "Git"
 msgstr "Git"
 
-#: projects/constants.py:72
+#: projects/constants.py:74
 msgid "Subversion"
 msgstr "Subversion"
 
-#: projects/constants.py:73
+#: projects/constants.py:75
 msgid "Mercurial"
 msgstr "Mercurial"
 
-#: projects/constants.py:74
+#: projects/constants.py:76
 msgid "Bazaar"
 msgstr "Bazaar"
 
-#: projects/constants.py:82
+#: projects/constants.py:84
 msgid "Public"
 msgstr "公开"
 
-#: projects/constants.py:83
+#: projects/constants.py:85
 msgid "Protected"
 msgstr "保护"
 
-#: projects/constants.py:84
+#: projects/constants.py:86
 msgid "Private"
 msgstr "私有"
 
-#: projects/constants.py:95
+#: projects/constants.py:97
 msgid "CPython 2.x"
-msgstr ""
+msgstr "CPython 2.x"
 
-#: projects/constants.py:96
+#: projects/constants.py:98
 msgid "CPython 3.x"
-msgstr ""
+msgstr "CPython 3.x"
 
-#: projects/filters.py:18
+#: projects/filters.py:34
 msgid "Created Date"
 msgstr "创建日期"
 
-#: projects/filters.py:20 projects/models.py:106
+#: projects/filters.py:36 projects/models.py:106
 msgid "Repository URL"
 msgstr "代码库地址"
 
-#: projects/filters.py:23 templates/core/project_details.html:89
-msgid "Repository"
-msgstr "代码库"
+#: projects/filters.py:39
+#, fuzzy
+msgid "Repository Type"
+msgstr "代码库类型"
 
 #: projects/forms.py:23
 msgid "A project with that name exists already!"
@@ -366,55 +372,55 @@ msgstr ""
 "代码仓库 URL (hg 或 git). 例如. http://github.com/ericholscher/django-kong."
 "git"
 
-#: projects/forms.py:57
+#: projects/forms.py:52
 msgid "Invalid character in repo name"
 msgstr "仓库名称中包含无效字符"
 
-#: projects/forms.py:60
+#: projects/forms.py:55
 msgid ""
 "It looks like you entered a private repo - please use the public (http:// or "
 "git://) clone url"
 msgstr ""
 
-#: projects/forms.py:82 projects/models.py:183
+#: projects/forms.py:72 projects/models.py:184
 msgid "(Beta) The Python interpreter used to create the virtual environment."
-msgstr ""
+msgstr "(Beta) 用于创建虚拟环境的 Python 解释器。"
 
-#: projects/forms.py:111
+#: projects/forms.py:101
 msgid ""
 "Your configuration file is invalid, make sure it contains conf.py in it."
 msgstr ""
 
-#: projects/forms.py:180 templates/core/project_details.html:152
+#: projects/forms.py:170 templates/core/project_details.html:152
 msgid "Default Version"
 msgstr "默认版本"
 
-#: projects/forms.py:203
+#: projects/forms.py:193
 msgid "Zip file of HTML"
 msgstr "所有 HTML 文件的 Zip 压缩包"
 
-#: projects/forms.py:205
+#: projects/forms.py:195
 msgid "Overwrite existing HTML?"
 msgstr "覆盖已存在的 HTML 文件？"
 
-#: projects/forms.py:218
+#: projects/forms.py:208
 msgid "That version is already active!"
 msgstr "这个版本已激活！"
 
-#: projects/forms.py:220
+#: projects/forms.py:210
 msgid "Must upload a zip file."
 msgstr "必须上传一个 zip 文件。"
 
-#: projects/forms.py:234
+#: projects/forms.py:224
 msgid "Version of the project you are uploading HTML for"
 msgstr ""
 
-#: projects/forms.py:251 projects/forms.py:310
+#: projects/forms.py:241 projects/forms.py:300
 #, python-format
 msgid "Project %(name)s does not exist"
 msgstr "项目 %(name)s 不存在"
 
-#: projects/forms.py:272
+#: projects/forms.py:262
 #, python-format
 msgid "User %(name)s does not exist"
 msgstr "用户 %(name)s 不存在"
@@ -461,13 +467,15 @@ msgstr "项目的主页"
 
 #: projects/models.py:115
 msgid "Canonical URL"
-msgstr ""
+msgstr "标准 URL"
 
 #: projects/models.py:116
 msgid ""
 "The official URL that the docs live at. This can be at readthedocs.org, or "
 "somewhere else. Ex. http://docs.fabfile.org"
 msgstr ""
+"文档的官方 URL 。可以在 readthedocs.org 上，或其他地方。比如：http://docs."
+"fabfile.org"
 
 #: projects/models.py:119
 msgid "Project version these docs apply to, i.e. 1.0a"
@@ -496,13 +504,16 @@ msgstr ""
 
 #: projects/models.py:131
 msgid "Single version"
-msgstr ""
+msgstr "单一版本"
 
 #: projects/models.py:132
+#, fuzzy
 msgid ""
 "A single version site has no translations and only your \"latest\" version, "
-"served at the root of the domain."
+"served at the root of the domain. Use this with caution, only turn it on if "
+"you will <b>never</b> have multiple versions of your docs."
 msgstr ""
+"一个单一版本站点没有翻译并且只包含 \"latest\" 版本，使用根域名进行服务。"
 
 #: projects/models.py:134
 msgid "Default version"
@@ -534,6 +545,9 @@ msgid ""
 "cookbook.html#requirements-files\">pip requirements file</a> needed to build "
 "your documentation. Path from the root of your project."
 msgstr ""
+"需要 Virtualenv. 需要一个 <a href=\"http://www.pip-installer.org/en/latest/"
+"cookbook.html#requirements-files\">pip requirements 文件</a> 用来构建您的文"
+"档。 路径相对于您的项目根目录。"
 
 #: projects/models.py:151
 msgid "Documentation type"
@@ -557,7 +571,7 @@ msgid ""
 "page loads."
 msgstr "Google 分析追踪 ID（如：UA-22345342-1）。这可能导致页面加载变慢。"
 
-#: projects/models.py:162 projects/models.py:771
+#: projects/models.py:162 projects/models.py:788
 msgid "Path"
 msgstr "路径"
 
@@ -584,123 +598,136 @@ msgstr ""
 msgid "Skip"
 msgstr ""
 
-#: projects/models.py:172
+#: projects/models.py:171
+#, fuzzy
+msgid "Mirror"
+msgstr "错误"
+
+#: projects/models.py:173
 msgid "Use virtualenv"
 msgstr "使用 virtualenv"
 
-#: projects/models.py:173
+#: projects/models.py:174
 msgid "Install your project inside a virtualenv using setup.py install"
 msgstr ""
 
-#: projects/models.py:179
+#: projects/models.py:180
 msgid "Python Interpreter"
-msgstr ""
+msgstr "Python 解释器"
 
-#: projects/models.py:187
+#: projects/models.py:188
 msgid "Use system packages"
 msgstr "使用系统包"
 
-#: projects/models.py:188
+#: projects/models.py:189
 msgid "Give the virtual environment access to the global site-packages dir."
-msgstr ""
+msgstr "让虚拟环境可以访问全局 site-packages 目录。"
 
-#: projects/models.py:190
+#: projects/models.py:191
 msgid "Django Packages URL"
 msgstr "Django 包 URL"
 
-#: projects/models.py:195
+#: projects/models.py:196
 msgid ""
 "(Beta) Level of privacy that you want on the repository. Protected means "
 "public but not in listings."
 msgstr "(Beta) 仓库的隐私级别。 “保护的”意味着公开但不被显示在列表中。"
 
-#: projects/models.py:198
+#: projects/models.py:199
 msgid "Version Privacy Level"
 msgstr "版本隐私级别"
 
-#: projects/models.py:200
+#: projects/models.py:201
 msgid ""
 "(Beta) Default level of privacy you want on built versions of documentation."
 msgstr "(Beta) 构建不同版本的文档时的默认隐私级别。"
 
-#: projects/models.py:205
+#: projects/models.py:206
 msgid "Related projects"
 msgstr "相关项目"
 
-#: projects/models.py:221
+#: projects/models.py:222
 msgid "Number of Major versions"
-msgstr ""
+msgstr "主版本号"
 
-#: projects/models.py:226
+#: projects/models.py:227
 msgid "2 means supporting 3.X.X and 2.X.X, but not 1.X.X"
-msgstr ""
+msgstr "2 意味着支持 3.X.X 和 2.X.X, 但是不支持 1.X.X"
 
-#: projects/models.py:229
+#: projects/models.py:230
 msgid "Number of Minor versions"
-msgstr ""
+msgstr "小版本号"
 
-#: projects/models.py:234
+#: projects/models.py:235
 msgid "2 means supporting 2.2.X and 2.1.X, but not 2.0.X"
-msgstr ""
+msgstr "2 意味着支持 2.2.X 和 2.1.X, 但是不支持 2.0.X"
 
-#: projects/models.py:237
+#: projects/models.py:238
 msgid "Number of Point versions"
-msgstr ""
+msgstr "点版本号"
 
-#: projects/models.py:242
+#: projects/models.py:243
 msgid "2 means supporting 2.2.2 and 2.2.1, but not 2.2.0"
-msgstr ""
+msgstr "2 意味着支持 2.2.2 和 2.2.1, 但是不支持 2.2.0"
 
 #. Translators: Permission around whether a user can view the
 #. project
-#: projects/models.py:253
+#: projects/models.py:254
 msgid "View Project"
 msgstr "查看项目"
 
-#: projects/models.py:288
+#: projects/models.py:281
 msgid "Model must have slug"
 msgstr ""
 
-#: projects/models.py:772
+#: projects/models.py:789
 msgid "MD5 checksum"
 msgstr "MD5 校验码"
 
-#: projects/models.py:800
+#: projects/models.py:817
 msgid "URL to send the webhook to"
-msgstr ""
+msgstr "URL 用来发送 webhook 到"
 
-#: projects/tasks.py:788
+#: projects/tasks.py:790
 #, python-format
 msgid "(ReadTheDocs) Building docs for %s failed"
 msgstr "(ReadTheDocs) 为 %s 构建文档失败"
 
-#: settings/base.py:54
+#: settings/base.py:55
 msgid "English"
 msgstr "英语"
 
-#: settings/base.py:55
-msgid "Spanish"
-msgstr ""
-
 #: settings/base.py:56
-#, fuzzy
-msgid "Norwegian Bokmål"
-msgstr "挪威语"
+msgid "Spanish"
+msgstr "Spanish"
 
 #: settings/base.py:57
+msgid "Norwegian Bokmål"
+msgstr "Norwegian Bokmål"
+
+#: settings/base.py:58
 msgid "French"
 msgstr "法国"
 
-#: settings/base.py:58
-msgid "Russian"
-msgstr ""
-
 #: settings/base.py:59
-msgid "German"
-msgstr ""
+msgid "Russian"
+msgstr "Russian"
 
 #: settings/base.py:60
+msgid "German"
+msgstr "German"
+
+#: settings/base.py:61
 msgid "Galician"
+msgstr "Galician"
+
+#: settings/base.py:62
+#, fuzzy
+msgid "Vietnamese"
+msgstr "名字"
+
+#: settings/base.py:63
+msgid "Chinese"
 msgstr ""
 
 #. Translators: Name of the website
@@ -719,7 +746,7 @@ msgstr "您的文档当前正在构建中。可能需要一段时间才会出现
 msgid "Read the Docs thanks you for your continued patience."
 msgstr ""
 
-#: templates/base.html:83
+#: templates/base.html:84
 #, python-format
 msgid ""
 "Copyright 2010-2013. Created by %(eric)s, %(charles)s, and %(bobby)s for the "
@@ -728,11 +755,11 @@ msgstr ""
 "Copyright 2010-2013. Created by %(eric)s, %(charles)s, and %(bobby)s for the "
 "2010 %(djangodash)s."
 
-#: templates/base.html:85
+#: templates/base.html:86
 msgid "Docs"
 msgstr "文档"
 
-#: templates/base.html:87
+#: templates/base.html:88
 msgid ""
 "Made by <a href=\"https://github.com/rtfd/readthedocs.org/graphs/contributors"
 "\">humans</a>. Funded by <a href=\"https://www.gittip.com/readthedocs/"
@@ -812,6 +839,11 @@ msgid ""
 "This is a post-commit hook. Set it up in your project admin to POST here, "
 "for us to update your doc changes automatically."
 msgstr ""
+
+#: templates/archive/index.html:5
+#, fuzzy
+msgid "Read the Docs Archive"
+msgstr "Read the Docs"
 
 #: templates/bookmarks/bookmark_list.html:7
 msgid "Bookmarks"
@@ -942,7 +974,7 @@ msgid "Sign up"
 msgstr "注册"
 
 #. Translators: The 'or' here is in between 'Submit' and 'delete'.
-#: templates/core/home-header.html:19 templates/projects/project_edit.html:36
+#: templates/core/home-header.html:19 templates/projects/project_edit.html:39
 msgid "or"
 msgstr ""
 
@@ -1028,6 +1060,10 @@ msgstr "构建一个版本"
 #: templates/core/project_details.html:79
 msgid "Build"
 msgstr "构建"
+
+#: templates/core/project_details.html:89
+msgid "Repository"
+msgstr "代码库"
 
 #: templates/core/project_details.html:94
 msgid "Tags"
@@ -1119,18 +1155,7 @@ msgstr ""
 "        %(version)s Epub\n"
 "      "
 
-#: templates/core/project_downloads.html:36
-#, python-format
-msgid ""
-"\n"
-"        %(version)s Manpage\n"
-"      "
-msgstr ""
-"\n"
-"        %(version)s Manpage\n"
-"      "
-
-#: templates/core/project_downloads.html:46
+#: templates/core/project_downloads.html:49
 #, python-format
 msgid ""
 "\n"
@@ -1141,7 +1166,7 @@ msgstr ""
 "        %(version)s Dash docset\n"
 "      "
 
-#: templates/core/project_downloads.html:56
+#: templates/core/project_downloads.html:59
 #, python-format
 msgid ""
 "\n"
@@ -1152,7 +1177,7 @@ msgstr ""
 "        %(version)s Dash feed\n"
 "      "
 
-#: templates/core/project_downloads.html:64
+#: templates/core/project_downloads.html:67
 msgid "No downloads for this project."
 msgstr "当前项目无可下载项。"
 
@@ -1354,13 +1379,13 @@ msgstr ""
 #: templates/projects/alias_edit.html:16
 #: templates/projects/project_create.html:42
 #: templates/projects/project_import.html:32
-#: templates/projects/project_import.html:34
+#: templates/projects/project_import.html:38
 msgid "Create"
 msgstr "创建"
 
 #: templates/projects/alias_list.html:6 templates/projects/alias_list.html:11
 msgid "Aliases"
-msgstr ""
+msgstr "别名"
 
 #: templates/projects/alias_list.html:20
 #: templates/projects/project_list.html:48
@@ -1421,18 +1446,16 @@ msgid "reStructuredText Primer"
 msgstr ""
 
 #: templates/projects/project_advanced.html:23
-#, fuzzy
 msgid "Edit Advanced Project Settings"
-msgstr "编辑项目版本"
+msgstr "编辑高级项目设置"
 
 #: templates/projects/project_advanced.html:28
 #: templates/projects/project_edit_base.html:16
-#, fuzzy
 msgid "Advanced Settings"
-msgstr "设置"
+msgstr "高级设置"
 
 #: templates/projects/project_advanced.html:34
-#: templates/projects/project_edit.html:34
+#: templates/projects/project_edit.html:37
 #: templates/projects/project_notifications.html:54
 #: templates/projects/project_subprojects.html:37
 #: templates/projects/project_translations.html:36
@@ -1503,14 +1526,14 @@ msgstr "编辑项目"
 msgid "Settings"
 msgstr "设置"
 
-#: templates/projects/project_edit.html:37
+#: templates/projects/project_edit.html:40
 msgid "delete"
 msgstr "删除"
 
 #: templates/projects/project_edit_base.html:17
 #: templates/projects/project_users.html:8
 msgid "Maintainers"
-msgstr "贡献者"
+msgstr "维护者"
 
 #: templates/projects/project_edit_base.html:20
 #: templates/projects/project_subprojects.html:12
@@ -1569,7 +1592,7 @@ msgstr "移除"
 
 #: templates/projects/project_notifications.html:45
 msgid "New Notifications"
-msgstr "新的通知"
+msgstr "新建通知"
 
 #: templates/projects/project_notifications.html:47
 msgid "Add an email address to notify"
@@ -1602,6 +1625,7 @@ msgid ""
 "This allows you to add translations to your project. Select the project "
 "below that is a translation of your current project."
 msgstr ""
+"这将允许您给您的项目添加翻译。请从下面选择用于作为您当前项目翻译的项目。"
 
 #: templates/projects/project_translations.html:19
 msgid "Existing Translations"
@@ -1609,7 +1633,7 @@ msgstr "已存在的翻译"
 
 #: templates/projects/project_translations.html:31
 msgid "Choose which project you would like to add as a translation."
-msgstr ""
+msgstr "请选择您希望将哪个项目添加为翻译的项目。"
 
 #: templates/projects/project_users.html:5
 msgid "Edit Maintainers"
@@ -1637,7 +1661,7 @@ msgstr "添加维护者"
 
 #: templates/projects/project_users.html:46
 msgid "Choose which user you would like to add."
-msgstr ""
+msgstr "选择您想添加的用户。"
 
 #: templates/projects/project_version_detail.html:14
 #, python-format
@@ -2133,3 +2157,16 @@ msgid ""
 "Your search did not match any documents. Please make sure that all words are "
 "spelled correctly and that you've selected enough categories."
 msgstr ""
+"您的搜索未匹配任何文档。请确保所有的单词都拼写错误并且选中了足够多的分类。"
+
+#~ msgid "Sphinx Websupport"
+#~ msgstr "Sphinx Websupport"
+
+#~ msgid ""
+#~ "\n"
+#~ "        %(version)s Manpage\n"
+#~ "      "
+#~ msgstr ""
+#~ "\n"
+#~ "        %(version)s Manpage\n"
+#~ "      "
