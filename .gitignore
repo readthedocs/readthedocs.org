@@ -24,3 +24,4 @@ user_uploads
 whoosh_index
 xml_output
 .idea
+.vagrant
