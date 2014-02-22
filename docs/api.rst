@@ -582,3 +582,35 @@ Anchor Search
           ]
       }
 
+Stats
+-----
+
+In the v2 of the api, there is the beginning of some stats endpoints.
+
+Build Stats
+~~~~~~~~~~~
+
+::
+
+    http://readthedocs.org/api/v2/stats/builds/?interval=hour
+
+.. http:method:: GET /api/v2/stats/builds/?interval={interval}
+
+   :arg interval: The interval to use to group the results by. Valid values include:
+                  ``minute``, ``hour``, ``day``, ``week``, ``month``, ``quarter``, and ``year``.
+
+.. http:response:: The number of builds grouped the provided interval.
+
+   .. sourcecode:: js
+
+      {
+          "results": [
+              {
+                  "count": 10,
+                  "when": 1347667200
+              }, {
+                  "count": 7,
+                  "when": 1347670800
+              }
+          ]
+      }
