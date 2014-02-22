@@ -10,7 +10,6 @@ from builds.models import Build
 
 VALID_INTERVALS = (
     'minute',
-    'second',
     'hour',
     'day',
     'week',
