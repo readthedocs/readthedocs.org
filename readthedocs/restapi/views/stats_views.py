@@ -24,6 +24,7 @@ VALID_INTERVALS = (
 @decorators.permission_classes((permissions.AllowAny,))
 @decorators.renderer_classes((JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
 def build_stats(request):
+    """Returns the number of builds per the given interval."""
     interval = request.GET.get('interval', 'hour')
     if connection.vendor != 'postgresql':
         return Response({
