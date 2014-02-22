@@ -33,11 +33,11 @@ def build_stats(request):
         return Response({
             'error': 'interval not valid. Valid choices are ' + ', '.join(VALID_INTERVALS)
         })
-    graph_data = (Build.objects.filter(state='finished')
-                               .extra(select={'when': 'extract(epoch from date_trunc(%s, date))'},
-                                      select_params=(interval,))
-                               .values('when')
-                               .annotate(count=Count('id'))
-                               .order_by('when'))
+    results = (Build.objects.filter(state='finished')
+                            .extra(select={'when': 'extract(epoch from date_trunc(%s, date))'},
+                                   select_params=(interval,))
+                            .values('when')
+                            .annotate(count=Count('id'))
+                            .order_by('when'))
 
-    return Response({'graph_data': graph_data})
+    return Response({'results': results})
