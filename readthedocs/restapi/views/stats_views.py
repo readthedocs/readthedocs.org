@@ -40,4 +40,4 @@ def build_stats(request):
                             .annotate(count=Count('id'))
                             .order_by('when'))
 
-    return Response({'results': results})
+    return Response({'results': list(results)})
