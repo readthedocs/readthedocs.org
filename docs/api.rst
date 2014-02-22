@@ -592,9 +592,9 @@ Build Stats
 
 ::
 
-    http://readthedocs.org/api/v2/stats/build_stats/?interval=hour
+    http://readthedocs.org/api/v2/stats/builds/?interval=hour
 
-.. http:method:: GET /api/v2/stats/build_stats/?interval={interval}
+.. http:method:: GET /api/v2/stats/builds/?interval={interval}
 
    :arg interval: The interval to use to group the results by. Valid values include:
                   ``minute``, ``hour``, ``day``, ``week``, ``month``, ``quarter``, and ``year``.
