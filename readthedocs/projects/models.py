@@ -560,7 +560,7 @@ class Project(models.Model):
 
     def rtd_build_path(self, version="latest"):
         """
-        The path to the build html docs in the project.
+        The destination path where the built docs are copied.
         """
         return os.path.join(self.doc_path, 'rtd-builds', version)
 
