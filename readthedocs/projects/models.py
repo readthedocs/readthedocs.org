@@ -45,7 +45,7 @@ class ProjectManager(models.Manager):
             # Add in possible user-specific views
             user_queryset = get_objects_for_user(user, 'projects.view_project')
             queryset = user_queryset | queryset
-        return queryset.filter(skip=False)
+        return queryset.filter()
 
     def live(self, *args, **kwargs):
         base_qs = self.filter(skip=False)
@@ -53,14 +53,14 @@ class ProjectManager(models.Manager):
 
     def public(self, user=None, *args, **kwargs):
         """
-        Query for projects, privacy_level == public, and skip = False
+        Query for projects, privacy_level == public
         """
         queryset = self._filter_queryset(user, privacy_level=constants.PUBLIC)
         return queryset.filter(*args, **kwargs)
 
     def protected(self, user=None, *args, **kwargs):
         """
-        Query for projects, privacy_level != private, and skip = False
+        Query for projects, privacy_level != private
         """
         queryset = self._filter_queryset(user,
                                          privacy_level=(constants.PUBLIC,
@@ -69,7 +69,7 @@ class ProjectManager(models.Manager):
 
     def private(self, user=None, *args, **kwargs):
         """
-        Query for projects, privacy_level != private, and skip = False
+        Query for projects, privacy_level != private
         """
         queryset = self._filter_queryset(user, privacy_level=constants.PRIVATE)
         return queryset.filter(*args, **kwargs)
