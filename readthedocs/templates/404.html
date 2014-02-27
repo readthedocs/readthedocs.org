@@ -1,61 +1,10 @@
 {% extends "base.html" %}
 
-{% load i18n %}
-
     {% block header-wrapper %}
-
-    <!-- BEGIN header-->
-    <div id="rtfd-header">
-      <div class="wrapper">
-
-        <!-- BEGIN header title-->
-        <div class="rtfd-header-title">
-            <h1>
-                {% comment %}Translators: Name of the website{% endcomment %}
-                <a href="//{{ PRODUCTION_DOMAIN }}{% url core.views.homepage %}">
-                  {% trans "Read the Docs" %}
-                </a>
-            </h1>
-        </div>
-        <!-- END header title -->
-
-        <!-- BEGIN global search -->
-        <div class="rtfd-header-search">
-          <form action="//{{ PRODUCTION_DOMAIN }}{% url haystack_project %}" method="GET">
-            <input type="text" name="q" value="{{ term }}" id="id_site_search">
-            <input type="submit" value="{% trans "Go" %}">
-          </form>
-        </div>
-        <!-- END global search -->
-
-        <!-- BEGIN header nav -->
-        <div class="rtfd-header-nav">
-          <ul>
-            {% if request.user.is_authenticated %}
-              <li class="{{ dashboard_active }}">
-                <a href="//{{ PRODUCTION_DOMAIN }}/dashboard/">{% trans "Dashboard" %}</a>
-              </li>
-              <li>
-                <a href="//{{ PRODUCTION_DOMAIN }}{% url auth_logout %}">{% trans "Log Out" %}</a>
-              </li>
-            {% else %}
-              <li>
-                <a href="//{{ PRODUCTION_DOMAIN }}{% url auth_login %}">{% trans "Log in" %}</a>
-              </li>
-            {% endif %}
-          </ul>
-        </div>
-        <!-- END header nav -->
-
-      </div>
-    </div>
-    <!-- END header-->
-
+      {% include "error_header.html" %}
     {% endblock %}
 
-
 {% block content %}
-
 <pre>
 
         \          SORRY            /
@@ -81,6 +30,4 @@
          /           q,            \
         /                           \
 </pre>
-
-
 {% endblock %}
