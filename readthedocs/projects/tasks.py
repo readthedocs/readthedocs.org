@@ -486,7 +486,7 @@ def build_docs(version_pk, pdf, man, epub, dash, search, localmedia, record, for
         fake_results = (999, "Project Skipped, Didn't build",
                         "Project Skipped, Didn't build")
         # Only build everything else if the html build changed.
-        if html_builder.changed and not project.skip and 'sphinx' in project.documentation_type:
+        if html_builder.changed and 'sphinx' in project.documentation_type:
             # Search builder. Creates JSON from docs and sends it to the server.
             if search:
                 try:
@@ -510,7 +510,7 @@ def build_docs(version_pk, pdf, man, epub, dash, search, localmedia, record, for
                     log.error(LOG_TEMPLATE.format(project=project.slug, version=version.slug, msg="Local Media HTML Build Error"), exc_info=True)
                     
             # Optional build steps 
-            if version.project.slug not in HTML_ONLY:
+            if version.project.slug not in HTML_ONLY and not project.skip:
                 if pdf:
                     pdf_builder = builder_loading.get('sphinx_pdf')(version)
                     latex_results, pdf_results = pdf_builder.build()
