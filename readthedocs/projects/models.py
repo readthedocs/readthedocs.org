@@ -530,13 +530,13 @@ class Project(models.Model):
 
     def full_man_path(self, version='latest'):
         """
-        The path to the build latex docs in the project.
+        The path to the build man docs in the project.
         """
         return os.path.join(self.conf_dir(version), "_build", "man")
 
     def full_epub_path(self, version='latest'):
         """
-        The path to the build latex docs in the project.
+        The path to the build epub docs in the project.
         """
         return os.path.join(self.conf_dir(version), "_build", "epub")
 
@@ -548,19 +548,19 @@ class Project(models.Model):
 
     def full_json_path(self, version='latest'):
         """
-        The path to the build dash docs in the project.
+        The path to the build json docs in the project.
         """
         return os.path.join(self.conf_dir(version), "_build", "json")
 
     def full_singlehtml_path(self, version='latest'):
         """
-        The path to the build dash docs in the project.
+        The path to the build singlehtml docs in the project.
         """
         return os.path.join(self.conf_dir(version), "_build", "singlehtml")
 
     def rtd_build_path(self, version="latest"):
         """
-        The path to the build html docs in the project.
+        The destination path where the built docs are copied.
         """
         return os.path.join(self.doc_path, 'rtd-builds', version)
 
