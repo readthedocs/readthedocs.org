@@ -322,7 +322,6 @@ def default_docs_kwargs(request, project_slug=None):
                 proj = None
     if not proj:
         raise Http404("Project slug not found")
-    project_slug = proj.slug
     version_slug = proj.get_default_version()
     kwargs = {
         'project_slug': project_slug,
