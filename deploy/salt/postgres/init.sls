@@ -3,7 +3,8 @@
 postgresql:
   pkg:
     - installed
-  service.enabled:
+  service.running:
+    - enable: True
     - require:
       - pkg: postgresql
       - file: /etc/postgresql/9.1/main/pg_hba.conf
