@@ -88,6 +88,19 @@ def queue_info(request):
         
     return HttpResponse(resp)
 
+def badge(request, project_slug, version_slug):
+    version = get_object_or_404(Version, project__slug=project_slug,
+                                slug=version_slug)
+    last_build = version.builds.filter(type='html').order_by('-date')[0]
+
+    color = 'green'
+    if not last_build.success:
+        color = 'red'
+    url = 'http://img.shields.io/badge/Docs-%s-%s.svg' % (version.slug, color)
+    import requests
+    response = requests.get(url, stream=True)
+    return HttpResponse(response.content, mimetype="image/svg+xml")
+
 def live_builds(request):
     builds = Build.objects.filter(state='building')[:5]
     WEBSOCKET_HOST = getattr(settings, 'WEBSOCKET_HOST', 'localhost:8088')
