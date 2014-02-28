@@ -4,7 +4,7 @@ from django.test import TestCase
 
 from search.parse_json import process_file
 
-base_dir = os.path.dirname(__file__)
+base_dir = os.path.dirname(os.path.dirname(__file__))
 
 class TestHacks(TestCase):
 
