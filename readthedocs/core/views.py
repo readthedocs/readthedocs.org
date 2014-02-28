@@ -96,7 +96,10 @@ def badge(request, project_slug, version_slug):
     color = 'green'
     if not last_build.success:
         color = 'red'
-    return HttpResponseRedirect('http://img.shields.io/badge/Docs-%s-%s.svg' % (version.slug, color))
+    url = 'http://img.shields.io/badge/Docs-%s-%s.svg' % (version.slug, color)
+    import requests
+    response = requests.get(url, stream=True)
+    return HttpResponse(response.content, mimetype="image/svg+xml")
 
 def live_builds(request):
     builds = Build.objects.filter(state='building')[:5]
