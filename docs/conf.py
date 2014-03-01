@@ -48,7 +48,8 @@ exclude_patterns = [
 ]
 
 language = 'en'
+
 locale_dirs = [
-    '_build/locale',
+    'locale/',
 ]
 gettext_compact = False
