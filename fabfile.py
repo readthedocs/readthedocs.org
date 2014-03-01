@@ -75,6 +75,14 @@ def i18n():
         local('tx push -s')
         local('./manage.py compilemessages')
 
+@hosts(['localhost'])
+def i18n_docs():
+    with lcd('docs'):
+        local('tx pull')
+        local('make gettext')
+        local('tx push -s')
+        local('sphinx-intl build')
+
 
 def push():
     "Push new code, but don't restart/reload."
