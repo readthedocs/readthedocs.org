@@ -9,6 +9,7 @@ from django.views.generic.list_detail import object_list
 from django.utils.datastructures import SortedDict
 
 from taggit.models import Tag
+import requests
 
 from builds.filters import VersionSlugFilter
 from builds.models import Version
@@ -60,6 +61,20 @@ def project_detail(request, project_slug):
         context_instance=RequestContext(request),
     )
 
+def project_badge(request, project_slug):
+    """
+    Return a sweet badge for the project
+    """
+    version_slug = request.GET.get('version', 'latest')
+    version = get_object_or_404(Version, project__slug=project_slug,
+                                slug=version_slug)
+    last_build = version.builds.filter(type='html').order_by('-date')[0]
+    color = 'green'
+    if not last_build.success:
+        color = 'red'
+    url = 'http://img.shields.io/badge/Docs-%s-%s.svg' % (version.slug, color)
+    response = requests.get(url)
+    return HttpResponse(response.content, mimetype="image/svg+xml")
 
 def project_downloads(request, project_slug):
     """

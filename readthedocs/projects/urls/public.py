@@ -39,6 +39,10 @@ urlpatterns = patterns(
         'project_downloads',
         name='project_downloads'),
 
+    url(r'^(?P<project_slug>[-\w]+)/badge/$',
+        'project_badge',
+        name='project_badge'),
+
     url(r'^(?P<username>\w+)/$',
         'project_index',
         name='projects_user_list'),
