@@ -32,13 +32,6 @@ Default: `readthedocs.org`
 This is the domain that gets linked to throughout the site when used in production.
 It depends on `USE_SUBDOMAIN`, otherwise it isn't used.
 
-VARNISH_SERVERS
-----------------
-
-Default: `undefined`
-
-This is a list of the varnish servers that you are using. It is used to perform cache invalidation. If this settings is not defined, no invalidation will be done.
-
 MULTIPLE_APP_SERVERS
 --------------------
 
