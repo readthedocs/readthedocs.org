@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-02-20 21:09-0600\n"
+"POT-Creation-Date: 2014-03-01 03:34-0600\n"
 "PO-Revision-Date: 2014-01-22 03:08+0000\n"
 "Last-Translator: Fábio <bnafta@gmail.com>\n"
 "Language-Team: Portuguese (Brazil) (http://www.transifex.com/projects/p/"
@@ -715,8 +715,8 @@ msgid "Chinese"
 msgstr ""
 
 #. Translators: Name of the website
-#: templates/base.html:13 templates/core/header.html:10
-#: templates/core/home-header.html:9
+#: templates/base.html:13 templates/error_header.html:12
+#: templates/core/header.html:10 templates/core/home-header.html:9
 msgid "Read the Docs"
 msgstr ""
 
@@ -750,6 +750,22 @@ msgstr ""
 
 #: templates/base_filter.html:14 templates/core/filter_bar.html:8
 msgid "Filter"
+msgstr ""
+
+#: templates/error_header.html:22 templates/core/header.html:19
+msgid "Go"
+msgstr ""
+
+#: templates/error_header.html:32 templates/core/header.html:46
+#: templates/registration/logout.html:6
+msgid "Log Out"
+msgstr ""
+
+#: templates/error_header.html:36 templates/core/header.html:48
+#: templates/core/home-header.html:19 templates/registration/login.html:6
+#: templates/registration/login.html:20 templates/registration/login.html:27
+#: templates/registration/password_reset_complete.html:16
+msgid "Log in"
 msgstr ""
 
 #: templates/filter.html:26
@@ -926,23 +942,8 @@ msgstr ""
 msgid "No objects found"
 msgstr ""
 
-#: templates/core/header.html:19
-msgid "Go"
-msgstr ""
-
 #: templates/core/header.html:45
 msgid "Dashboard"
-msgstr ""
-
-#: templates/core/header.html:46 templates/registration/logout.html:6
-msgid "Log Out"
-msgstr ""
-
-#: templates/core/header.html:48 templates/core/home-header.html:19
-#: templates/registration/login.html:6 templates/registration/login.html:20
-#: templates/registration/login.html:27
-#: templates/registration/password_reset_complete.html:16
-msgid "Log in"
 msgstr ""
 
 #: templates/core/home-header.html:10

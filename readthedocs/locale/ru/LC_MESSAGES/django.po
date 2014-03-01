@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-02-20 21:09-0600\n"
-"PO-Revision-Date: 2014-01-10 22:33+0000\n"
+"POT-Creation-Date: 2014-03-01 03:34-0600\n"
+"PO-Revision-Date: 2014-02-21 11:01+0000\n"
 "Last-Translator: ferm32 <ferm32@gmail.com>\n"
 "Language-Team: Russian (http://www.transifex.com/projects/p/readthedocs/"
 "language/ru/)\n"
@@ -92,7 +92,7 @@ msgstr "Dash"
 
 #: builds/constants.py:18
 msgid "Branch"
-msgstr ""
+msgstr "Ветка"
 
 #: builds/constants.py:19 builds/filters.py:19
 msgid "Tag"
@@ -100,7 +100,7 @@ msgstr "Тэг"
 
 #: builds/constants.py:20
 msgid "Unknown"
-msgstr ""
+msgstr "Неизв."
 
 #: builds/filters.py:10 projects/filters.py:9
 msgid "Any"
@@ -274,11 +274,11 @@ msgstr "Sphinx HtmlDir"
 
 #: projects/constants.py:20
 msgid "Sphinx Single Page HTML"
-msgstr ""
+msgstr "Одностраничный документ HTML Sphinx"
 
 #: projects/constants.py:21
 msgid "Mkdocs"
-msgstr ""
+msgstr "Mkdocs"
 
 #. Translators: This is a name of a Sphinx theme.
 #: projects/constants.py:29
@@ -358,7 +358,6 @@ msgid "Repository URL"
 msgstr "URL репозитория"
 
 #: projects/filters.py:39
-#, fuzzy
 msgid "Repository Type"
 msgstr "Тип репозитория"
 
@@ -514,14 +513,15 @@ msgid "Single version"
 msgstr "Единственная версия"
 
 #: projects/models.py:132
-#, fuzzy
 msgid ""
 "A single version site has no translations and only your \"latest\" version, "
 "served at the root of the domain. Use this with caution, only turn it on if "
 "you will <b>never</b> have multiple versions of your docs."
 msgstr ""
-"Сайт с единственной версией не имеет переводов, на нём размещёна лишь ваша "
-"\"последняя\" версия, которая выдаётся при обращении к корневой папке домена."
+"Сайт с одной версией и без преводов, с последней - latest версией, выдаётся "
+"при обращении к корневой папке домена. Используйте с осторожностью и только "
+"если <b>точно</b> не планируете в будущем иметь несколько версий вашей "
+"документации."
 
 #: projects/models.py:134
 msgid "Default version"
@@ -611,9 +611,8 @@ msgid "Skip"
 msgstr "Пропустить"
 
 #: projects/models.py:171
-#, fuzzy
 msgid "Mirror"
-msgstr "Ошибка"
+msgstr "Зеркало"
 
 #: projects/models.py:173
 msgid "Use virtualenv"
@@ -721,7 +720,6 @@ msgid "Spanish"
 msgstr "Испанский"
 
 #: settings/base.py:57
-#, fuzzy
 msgid "Norwegian Bokmål"
 msgstr "Норвежский"
 
@@ -731,28 +729,27 @@ msgstr "Французский"
 
 #: settings/base.py:59
 msgid "Russian"
-msgstr ""
+msgstr "Русский"
 
 #: settings/base.py:60
 msgid "German"
-msgstr ""
+msgstr "Немецкий"
 
 #: settings/base.py:61
 msgid "Galician"
-msgstr ""
+msgstr "Галисийский"
 
 #: settings/base.py:62
-#, fuzzy
 msgid "Vietnamese"
-msgstr "Имя"
+msgstr "Вьетнамский"
 
 #: settings/base.py:63
 msgid "Chinese"
-msgstr ""
+msgstr "Китайский"
 
 #. Translators: Name of the website
-#: templates/base.html:13 templates/core/header.html:10
-#: templates/core/home-header.html:9
+#: templates/base.html:13 templates/error_header.html:12
+#: templates/core/header.html:10 templates/core/home-header.html:9
 msgid "Read the Docs"
 msgstr "Читайте документацию"
 
@@ -794,6 +791,22 @@ msgstr ""
 #: templates/base_filter.html:14 templates/core/filter_bar.html:8
 msgid "Filter"
 msgstr "Фильтр"
+
+#: templates/error_header.html:22 templates/core/header.html:19
+msgid "Go"
+msgstr "Искать"
+
+#: templates/error_header.html:32 templates/core/header.html:46
+#: templates/registration/logout.html:6
+msgid "Log Out"
+msgstr "Выйти"
+
+#: templates/error_header.html:36 templates/core/header.html:48
+#: templates/core/home-header.html:19 templates/registration/login.html:6
+#: templates/registration/login.html:20 templates/registration/login.html:27
+#: templates/registration/password_reset_complete.html:16
+msgid "Log in"
+msgstr "Войти"
 
 #: templates/filter.html:26
 msgid "Filtered Results"
@@ -882,9 +895,8 @@ msgstr ""
 "установите его в админ-панели вашего проекта и укажите здесь."
 
 #: templates/archive/index.html:5
-#, fuzzy
 msgid "Read the Docs Archive"
-msgstr "Читайте документацию"
+msgstr "Архив Read the Docs"
 
 #: templates/bookmarks/bookmark_list.html:7
 msgid "Bookmarks"
@@ -986,24 +998,9 @@ msgstr "Не найдено ни одной сборки"
 msgid "No objects found"
 msgstr "Не найдено ни одного объекта"
 
-#: templates/core/header.html:19
-msgid "Go"
-msgstr "Искать"
-
 #: templates/core/header.html:45
 msgid "Dashboard"
 msgstr "Панель инструментов"
-
-#: templates/core/header.html:46 templates/registration/logout.html:6
-msgid "Log Out"
-msgstr "Выйти"
-
-#: templates/core/header.html:48 templates/core/home-header.html:19
-#: templates/registration/login.html:6 templates/registration/login.html:20
-#: templates/registration/login.html:27
-#: templates/registration/password_reset_complete.html:16
-msgid "Log in"
-msgstr "Войти"
 
 #: templates/core/home-header.html:10
 msgid "Create, host, and browse documentation."
@@ -1495,15 +1492,13 @@ msgid "reStructuredText Primer"
 msgstr "Пример reStructuredText"
 
 #: templates/projects/project_advanced.html:23
-#, fuzzy
 msgid "Edit Advanced Project Settings"
-msgstr "Редактировать версии проекта"
+msgstr "Редактировать расширенные настройки проекта"
 
 #: templates/projects/project_advanced.html:28
 #: templates/projects/project_edit_base.html:16
-#, fuzzy
 msgid "Advanced Settings"
-msgstr "Настройки"
+msgstr "Расширенные настройки"
 
 #: templates/projects/project_advanced.html:34
 #: templates/projects/project_edit.html:37
@@ -2245,28 +2240,3 @@ msgstr ""
 "В результате этого поиска документов не найдено. Пожалуйста, убедитесь, что "
 "все слова написаны правильно, и что вы выбрали достаточное количество "
 "категорий."
-
-#~ msgid "Sphinx Websupport"
-#~ msgstr "Поддержка Sphinx на сайте разработчиков"
-
-#~ msgid ""
-#~ "\n"
-#~ "        %(version)s Manpage\n"
-#~ "      "
-#~ msgstr ""
-#~ "\n"
-#~ "        %(version)s man-страница\n"
-#~ "      "
-
-#~ msgid "Crate URL"
-#~ msgstr "Создать URL"
-
-#~ msgid "Crate"
-#~ msgstr "Создать"
-
-#~ msgid ""
-#~ "This project has more information available about it on <a href=\"%(url)s"
-#~ "\">Crate!</a>"
-#~ msgstr ""
-#~ "Доступна дополнительная информация об этом проекте по ссылке <a href="
-#~ "\"%(url)s\">Создать!</a>"

@@ -3,15 +3,16 @@
 # This file is distributed under the same license as the PACKAGE package.
 #
 # Translators:
+# wlbksy <kookbond@gmail.com>, 2014
 # mozillazg <opensource.mozillazg@gmail.com>, 2014
 # rimy <Siramizu@gmail.com>, 2013
 msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-02-20 21:09-0600\n"
-"PO-Revision-Date: 2014-01-21 09:15+0000\n"
-"Last-Translator: mozillazg <opensource.mozillazg@gmail.com>\n"
+"POT-Creation-Date: 2014-03-01 03:34-0600\n"
+"PO-Revision-Date: 2014-02-28 15:14+0000\n"
+"Last-Translator: wlbksy <kookbond@gmail.com>\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/projects/p/"
 "readthedocs/language/zh_CN/)\n"
 "Language: zh_CN\n"
@@ -54,7 +55,7 @@ msgstr "说明"
 #: bookmarks/models.py:21
 #, python-format
 msgid "Bookmark %(url)s for %(user)s (%(pk)s)"
-msgstr ""
+msgstr "%(user)s 的书签 %(url)s (%(pk)s)"
 
 #: builds/constants.py:4
 msgid "Triggered"
@@ -123,11 +124,11 @@ msgstr "类型"
 
 #: builds/models.py:89
 msgid "Identifier"
-msgstr ""
+msgstr "标识符"
 
 #: builds/models.py:91
 msgid "Verbose Name"
-msgstr ""
+msgstr "长名字"
 
 #: builds/models.py:92 projects/filters.py:33 projects/models.py:102
 #: projects/models.py:787
@@ -167,7 +168,7 @@ msgstr "查看版本"
 #: builds/models.py:115
 #, python-format
 msgid "Version %(version)s of %(project)s (%(pk)s)"
-msgstr ""
+msgstr "%(project)s 的 %(version)s 版本 (%(pk)s)"
 
 #: builds/models.py:270
 msgid "From slug"
@@ -222,7 +223,7 @@ msgstr "退出码"
 #: builds/models.py:306
 #, python-format
 msgid "Build %(project)s for %(usernames)s (%(pk)s)"
-msgstr ""
+msgstr "为 %(usernames)s 构建 %(project)s (%(pk)s)"
 
 #: core/forms.py:14
 msgid "First name"
@@ -246,11 +247,11 @@ msgstr "主页"
 
 #: core/models.py:18
 msgid "Allow email"
-msgstr "允许 email 地址"
+msgstr "允许 Email 地址"
 
 #: core/models.py:19
 msgid "Show your email on VCS contributions."
-msgstr "在版本库的贡献者名单中显示你的 email 地址。"
+msgstr "在版本库的贡献者名单中显示你的 Email 地址。"
 
 #: core/models.py:24
 #, python-format
@@ -276,7 +277,7 @@ msgstr ""
 
 #: projects/constants.py:21
 msgid "Mkdocs"
-msgstr ""
+msgstr "Mkdocs"
 
 #. Translators: This is a name of a Sphinx theme.
 #: projects/constants.py:29
@@ -356,7 +357,6 @@ msgid "Repository URL"
 msgstr "代码库地址"
 
 #: projects/filters.py:39
-#, fuzzy
 msgid "Repository Type"
 msgstr "代码库类型"
 
@@ -389,7 +389,7 @@ msgstr "(Beta) 用于创建虚拟环境的 Python 解释器。"
 #: projects/forms.py:101
 msgid ""
 "Your configuration file is invalid, make sure it contains conf.py in it."
-msgstr ""
+msgstr "您的配置文件无效，请确认包含 conf.py 文件。"
 
 #: projects/forms.py:170 templates/core/project_details.html:152
 msgid "Default Version"
@@ -413,7 +413,7 @@ msgstr "必须上传一个 zip 文件。"
 
 #: projects/forms.py:224
 msgid "Version of the project you are uploading HTML for"
-msgstr ""
+msgstr "您要上传 HTML 的项目版本是"
 
 #: projects/forms.py:241 projects/forms.py:300
 #, python-format
@@ -450,7 +450,7 @@ msgid ""
 "Checkout URL for your code (hg, git, etc.). Ex. http://github.com/"
 "ericholscher/django-kong.git"
 msgstr ""
-"该项目代码库德地址（hg、git 等）。如：http://github.com/ericholscher/django-"
+"该项目代码库的地址（hg、git 等）。如：http://github.com/ericholscher/django-"
 "kong.git"
 
 #: projects/models.py:110
@@ -484,7 +484,7 @@ msgstr ""
 #: projects/models.py:121 templates/sphinx/sphinx_rtd_theme/layout.html:82
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:140
 msgid "Copyright"
-msgstr ""
+msgstr "版权"
 
 #: projects/models.py:122
 msgid "Project copyright information"
@@ -496,24 +496,24 @@ msgstr "主题"
 
 #: projects/models.py:127
 msgid "Examples"
-msgstr ""
+msgstr "例子"
 
 #: projects/models.py:128
 msgid "Suffix"
-msgstr ""
+msgstr "后缀"
 
 #: projects/models.py:131
 msgid "Single version"
 msgstr "单一版本"
 
 #: projects/models.py:132
-#, fuzzy
 msgid ""
 "A single version site has no translations and only your \"latest\" version, "
 "served at the root of the domain. Use this with caution, only turn it on if "
 "you will <b>never</b> have multiple versions of your docs."
 msgstr ""
-"一个单一版本站点没有翻译并且只包含 \"latest\" 版本，使用根域名进行服务。"
+"单一版本的站点不含翻译版本，只包含 \"latest\" 版本，使用根域名进行服务。谨慎"
+"使用。仅在您<b>没有</b>多版本时使用。"
 
 #: projects/models.py:134
 msgid "Default version"
@@ -537,7 +537,7 @@ msgstr ""
 
 #: projects/models.py:144
 msgid "Requirements file"
-msgstr ""
+msgstr "所需求的文件"
 
 #: projects/models.py:146
 msgid ""
@@ -577,7 +577,7 @@ msgstr "路径"
 
 #: projects/models.py:163
 msgid "The directory where conf.py lives"
-msgstr ""
+msgstr "conf.py 所在的文件夹"
 
 #: projects/models.py:165
 msgid "Python configuration file"
@@ -592,16 +592,15 @@ msgstr ""
 
 #: projects/models.py:169
 msgid "Featured"
-msgstr ""
+msgstr "精选"
 
 #: projects/models.py:170
 msgid "Skip"
-msgstr ""
+msgstr "跳过"
 
 #: projects/models.py:171
-#, fuzzy
 msgid "Mirror"
-msgstr "错误"
+msgstr "镜像"
 
 #: projects/models.py:173
 msgid "Use virtualenv"
@@ -609,7 +608,7 @@ msgstr "使用 virtualenv"
 
 #: projects/models.py:174
 msgid "Install your project inside a virtualenv using setup.py install"
-msgstr ""
+msgstr "在 virtualenv 中使用 setup.py install 来安装你的项目"
 
 #: projects/models.py:180
 msgid "Python Interpreter"
@@ -699,19 +698,19 @@ msgstr "英语"
 
 #: settings/base.py:56
 msgid "Spanish"
-msgstr "Spanish"
+msgstr "西班牙语"
 
 #: settings/base.py:57
 msgid "Norwegian Bokmål"
-msgstr "Norwegian Bokmål"
+msgstr "挪威语"
 
 #: settings/base.py:58
 msgid "French"
-msgstr "法国"
+msgstr "法语"
 
 #: settings/base.py:59
 msgid "Russian"
-msgstr "Russian"
+msgstr "俄语"
 
 #: settings/base.py:60
 msgid "German"
@@ -722,17 +721,16 @@ msgid "Galician"
 msgstr "Galician"
 
 #: settings/base.py:62
-#, fuzzy
 msgid "Vietnamese"
-msgstr "名字"
+msgstr "越南语"
 
 #: settings/base.py:63
 msgid "Chinese"
-msgstr ""
+msgstr "中文"
 
 #. Translators: Name of the website
-#: templates/base.html:13 templates/core/header.html:10
-#: templates/core/home-header.html:9
+#: templates/base.html:13 templates/error_header.html:12
+#: templates/core/header.html:10 templates/core/home-header.html:9
 msgid "Read the Docs"
 msgstr "Read the Docs"
 
@@ -744,7 +742,7 @@ msgstr "您的文档当前正在构建中。可能需要一段时间才会出现
 
 #: templates/base.html:62
 msgid "Read the Docs thanks you for your continued patience."
-msgstr ""
+msgstr "本网站感谢您的耐心。"
 
 #: templates/base.html:84
 #, python-format
@@ -765,10 +763,29 @@ msgid ""
 "\">humans</a>. Funded by <a href=\"https://www.gittip.com/readthedocs/"
 "\">readers like you</a>."
 msgstr ""
+"由 <a href=\"https://github.com/rtfd/readthedocs.org/graphs/contributors\">贡"
+"献者</a>建立。由<a href=\"https://www.gittip.com/readthedocs/\">像您一样的读"
+"者</a>资助。"
 
 #: templates/base_filter.html:14 templates/core/filter_bar.html:8
 msgid "Filter"
 msgstr "过滤"
+
+#: templates/error_header.html:22 templates/core/header.html:19
+msgid "Go"
+msgstr "搜索"
+
+#: templates/error_header.html:32 templates/core/header.html:46
+#: templates/registration/logout.html:6
+msgid "Log Out"
+msgstr "退出"
+
+#: templates/error_header.html:36 templates/core/header.html:48
+#: templates/core/home-header.html:19 templates/registration/login.html:6
+#: templates/registration/login.html:20 templates/registration/login.html:27
+#: templates/registration/password_reset_complete.html:16
+msgid "Log in"
+msgstr "登录"
 
 #: templates/filter.html:26
 msgid "Filtered Results"
@@ -832,7 +849,7 @@ msgstr "正在构建 %(project)s。"
 #: templates/post_commit.html:12
 #, python-format
 msgid "Check it out <a href=\"%(project_url)s\">over here</a>."
-msgstr ""
+msgstr "来这儿<a href=\"%(project_url)s\">这儿</a>看看。"
 
 #: templates/post_commit.html:14
 msgid ""
@@ -841,9 +858,8 @@ msgid ""
 msgstr ""
 
 #: templates/archive/index.html:5
-#, fuzzy
 msgid "Read the Docs Archive"
-msgstr "Read the Docs"
+msgstr "Read the Docs 档案"
 
 #: templates/bookmarks/bookmark_list.html:7
 msgid "Bookmarks"
@@ -861,7 +877,7 @@ msgstr "构建 %(project_name)s"
 #: templates/builds/build_detail.html:18
 #, python-format
 msgid "Built: %(build_date)s"
-msgstr ""
+msgstr "构建：%(build_date)s"
 
 #: templates/builds/build_detail.html:20
 msgid "State:"
@@ -907,11 +923,11 @@ msgstr "Sphinx 标准错误"
 
 #: templates/builds/build_detail.html:47
 msgid "Setup Output"
-msgstr ""
+msgstr "设置输出"
 
 #: templates/builds/build_detail.html:52
 msgid "Environment Standard Error"
-msgstr ""
+msgstr "环境标准错误"
 
 #: templates/builds/build_list.html:37
 msgid "Build Version:"
@@ -919,7 +935,7 @@ msgstr "构建版本："
 
 #: templates/builds/build_list.html:49
 msgid "Recent Builds"
-msgstr ""
+msgstr "近期构建"
 
 #: templates/builds/tag_list.html:5 templates/projects/tag_list.html:4
 #: templates/projects/tag_list.html.py:7
@@ -929,7 +945,7 @@ msgstr "热门标签"
 #: templates/core/build_list_detailed.html:8
 #, python-format
 msgid "version %(slug)s (%(type)s)"
-msgstr ""
+msgstr "%(slug)s 版本 (%(type)s)"
 
 #: templates/core/build_list_detailed.html:8
 #: templates/core/project_list_detailed.html:25
@@ -945,24 +961,9 @@ msgstr "未发现相关构建"
 msgid "No objects found"
 msgstr "未发现相关对象"
 
-#: templates/core/header.html:19
-msgid "Go"
-msgstr ""
-
 #: templates/core/header.html:45
 msgid "Dashboard"
-msgstr ""
-
-#: templates/core/header.html:46 templates/registration/logout.html:6
-msgid "Log Out"
-msgstr "退出"
-
-#: templates/core/header.html:48 templates/core/home-header.html:19
-#: templates/registration/login.html:6 templates/registration/login.html:20
-#: templates/registration/login.html:27
-#: templates/registration/password_reset_complete.html:16
-msgid "Log in"
-msgstr "登录"
+msgstr "控制面板"
 
 #: templates/core/home-header.html:10
 msgid "Create, host, and browse documentation."
@@ -976,7 +977,7 @@ msgstr "注册"
 #. Translators: The 'or' here is in between 'Submit' and 'delete'.
 #: templates/core/home-header.html:19 templates/projects/project_edit.html:39
 msgid "or"
-msgstr ""
+msgstr "或"
 
 #: templates/core/project_bar.html:24
 #, python-format
@@ -985,7 +986,7 @@ msgstr "构建失败（<a href=\"%(url)s\">找找原因</a>）"
 
 #: templates/core/project_bar.html:31
 msgid "There are no builds for this project"
-msgstr ""
+msgstr "本项目未构建"
 
 #: templates/core/project_bar.html:31
 msgid "Is the repo correct?"
@@ -1120,7 +1121,7 @@ msgstr ""
 
 #: templates/core/project_details.html:172
 msgid "Most viewed pages for this project"
-msgstr ""
+msgstr "本项目被浏览最多的页面"
 
 #: templates/core/project_downloads.html:6
 #, python-format
@@ -1184,12 +1185,12 @@ msgstr "当前项目无可下载项。"
 #: templates/core/project_list_detailed.html:42
 #: templates/core/project_list_featured.html:25
 msgid "No Docs"
-msgstr ""
+msgstr "没有文档"
 
 #: templates/core/project_list_detailed.html:49
 #: templates/core/project_list_featured.html:32
 msgid "No projects found"
-msgstr ""
+msgstr "未找到项目"
 
 #: templates/core/version_list.html:12
 msgid "Add tags"
@@ -1197,12 +1198,12 @@ msgstr "添加标签"
 
 #: templates/core/widesearchbar.html:4
 msgid "Search all the docs."
-msgstr ""
+msgstr "搜索所有文档。"
 
 #. Translators: This is about starting a search
 #: templates/core/widesearchbar.html:16
 msgid "Let's do this."
-msgstr ""
+msgstr "搜索"
 
 #: templates/dashboard/dashboard_bar.html:8
 #: templates/projects/project_list.html:17
@@ -1252,15 +1253,15 @@ msgstr ""
 
 #: templates/djangome/oneoffs.html:13
 msgid "Target"
-msgstr ""
+msgstr "目标"
 
 #: templates/djangome/oneoffs.html:27
 msgid "kill"
-msgstr ""
+msgstr "终止"
 
 #: templates/djangome/oneoffs.html:37
 msgid "add"
-msgstr ""
+msgstr "添加"
 
 #: templates/djangome/show.html:4
 #, python-format
@@ -1274,11 +1275,11 @@ msgstr ""
 
 #: templates/djangome/show.html:13
 msgid "Clicks"
-msgstr ""
+msgstr "点击"
 
 #: templates/djangome/show.html:39
 msgid "Add"
-msgstr ""
+msgstr "添加"
 
 #: templates/flagging/flag_confirm.html:6
 #: templates/flagging/flag_confirm.html:11
@@ -1287,7 +1288,7 @@ msgstr ""
 
 #: templates/flagging/flag_confirm.html:17
 msgid "What you are saying:"
-msgstr ""
+msgstr "您说的是："
 
 #: templates/flagging/flag_confirm.html:21
 #, python-format
@@ -1316,17 +1317,17 @@ msgstr ""
 
 #: templates/flagging/flag_success.html:18
 msgid "Thank you for contributing to the quality of this site!"
-msgstr ""
+msgstr "感谢您对此网站的贡献！"
 
 #: templates/pagination/pagination.html:6
 #: templates/pagination/pagination.html:8
 msgid "previous"
-msgstr ""
+msgstr "上一页"
 
 #: templates/pagination/pagination.html:22
 #: templates/pagination/pagination.html:24
 msgid "next"
-msgstr ""
+msgstr "下一页"
 
 #: templates/profiles/create_profile.html:5
 #: templates/profiles/create_profile.html:10
@@ -1335,7 +1336,7 @@ msgstr "创建您的资料"
 
 #: templates/profiles/create_profile.html:16
 msgid "Create it!"
-msgstr ""
+msgstr "创建！"
 
 #: templates/profiles/edit_profile.html:5
 #: templates/profiles/edit_profile.html:15
@@ -1344,7 +1345,7 @@ msgstr "编辑您的资料"
 
 #: templates/profiles/edit_profile.html:21
 msgid "OK, save it!"
-msgstr ""
+msgstr "保存！"
 
 #: templates/profiles/profile_detail.html:6
 #, python-format
@@ -1370,11 +1371,11 @@ msgstr "用户资料"
 
 #: templates/projects/alias_edit.html:4 templates/projects/alias_edit.html:7
 msgid "Project Alias"
-msgstr ""
+msgstr "项目别名"
 
 #: templates/projects/alias_edit.html:12
 msgid "Add an alias for a project version."
-msgstr ""
+msgstr "给项目版本添加别名"
 
 #: templates/projects/alias_edit.html:16
 #: templates/projects/project_create.html:42
@@ -1394,40 +1395,40 @@ msgstr "浏览项目"
 
 #: templates/projects/legend.html:4
 msgid "External Links"
-msgstr ""
+msgstr "外部链接"
 
 #: templates/projects/legend.html:5
 msgid "Link text"
-msgstr ""
+msgstr "链接文本"
 
 #: templates/projects/legend.html:7
 msgid "Internal Links"
-msgstr ""
+msgstr "内部链接"
 
 #: templates/projects/legend.html:10
 msgid "Bold"
-msgstr ""
+msgstr "加粗"
 
 #: templates/projects/legend.html:11
 msgid "text to bold"
-msgstr ""
+msgstr "要加粗的文本"
 
 #: templates/projects/legend.html:13
 msgid "Emphasized"
-msgstr ""
+msgstr "斜体"
 
 #: templates/projects/legend.html:14
 msgid "text to emphasize"
-msgstr ""
+msgstr "要改为斜体的文本"
 
 #: templates/projects/legend.html:16
 msgid "Lists"
-msgstr ""
+msgstr "列表"
 
 #: templates/projects/legend.html:19 templates/projects/legend.html.py:20
 #: templates/projects/legend.html:23 templates/projects/legend.html.py:24
 msgid "Item"
-msgstr ""
+msgstr "列表项"
 
 #: templates/projects/legend.html:28
 msgid "Source Code"
@@ -1435,7 +1436,7 @@ msgstr "源代码"
 
 #: templates/projects/legend.html:30
 msgid "e.g. Check out this code"
-msgstr ""
+msgstr "如，检查此代码"
 
 #: templates/projects/legend.html:31
 msgid "actual code indented"
@@ -1443,7 +1444,7 @@ msgstr ""
 
 #: templates/projects/legend.html:34
 msgid "reStructuredText Primer"
-msgstr ""
+msgstr "reStructuredText Primer"
 
 #: templates/projects/project_advanced.html:23
 msgid "Edit Advanced Project Settings"
@@ -1476,7 +1477,7 @@ msgstr "创建新项目"
 msgid ""
 "Create new documentation here. If you already have docs in a public "
 "repository,"
-msgstr ""
+msgstr "在此创建新文档。如果你在公共仓库中已经有文档，"
 
 #: templates/projects/project_create.html:38
 msgid "import an existing project"
@@ -1484,7 +1485,7 @@ msgstr "导入现有项目"
 
 #: templates/projects/project_dashboard.html:5
 msgid "Project Dashboard"
-msgstr ""
+msgstr "项目控制面板"
 
 #: templates/projects/project_dashboard.html:29
 msgid "Important Versions"
@@ -1502,6 +1503,10 @@ msgid ""
 "          Check out the <a href=\"%(getting_started_url)s\">Getting Started</"
 "a> documentation for information about how to get going."
 msgstr ""
+"您没有项目。您可以在网站上<a href=\"%(projects_import_url)s\">创建新文档</a> "
+"<br>\n"
+"          阅读 <a href=\"%(getting_started_url)s\">打这儿开始</a> 这份文档来"
+"看看如何开始。"
 
 #: templates/projects/project_delete.html:4
 #: templates/projects/project_delete.html:6
@@ -1614,7 +1619,7 @@ msgstr "现有子项目"
 
 #: templates/projects/project_subprojects.html:32
 msgid "Choose which project you would like to add as a subproject."
-msgstr ""
+msgstr "请选择您希望将哪个项目添加为翻译的项目。"
 
 #: templates/projects/project_translations.html:5
 msgid "Edit Translations"
@@ -1691,7 +1696,7 @@ msgstr ""
 
 #: templates/projects/search.html:37
 msgid "Huh?"
-msgstr ""
+msgstr "嗯？"
 
 #: templates/projects/search.html:38
 msgid "No docs matched your search. ¯\\(O_o)/¯"
@@ -1713,7 +1718,7 @@ msgstr ""
 
 #: templates/projects/upload_html.html:15
 msgid "Upload"
-msgstr ""
+msgstr "上传"
 
 #. Translators: After 'Flag this project as' follows either 'Inappropriate', 'Spam' and/or 'Duplicate'
 #: templates/projects/includes/flagging.html:7
@@ -1722,15 +1727,15 @@ msgstr ""
 
 #: templates/projects/includes/flagging.html:8
 msgid "Inappropriate"
-msgstr ""
+msgstr "不恰当"
 
 #: templates/projects/includes/flagging.html:9
 msgid "Spam"
-msgstr ""
+msgstr "垃圾邮件"
 
 #: templates/projects/includes/flagging.html:10
 msgid "Duplicate"
-msgstr ""
+msgstr "重复"
 
 #: templates/projects/includes/icon_built.html:9
 msgid "Not built"
@@ -1743,19 +1748,19 @@ msgstr ""
 #: templates/projects/samples/installation.rst.html:3
 #, python-format
 msgid "Here is where you can describe how to install %(name)s"
-msgstr ""
+msgstr "在此描述如何安装 %(name)s"
 
 #: templates/registration/activate.html:6
 #: templates/registration/activate.html:11
 msgid "Account activation error"
-msgstr ""
+msgstr "账户激活错误"
 
 #: templates/registration/activate.html:17
 #, python-format
 msgid ""
 "The activation key \"%(activation_key)s\" is invalid and cannot be used to "
 "activate this account."
-msgstr ""
+msgstr "激活码 \"%(activation_key)s\" 无效，无法激活此账户。"
 
 #: templates/registration/activate.html:18
 #, python-format
@@ -1767,28 +1772,28 @@ msgstr ""
 #: templates/registration/activate.html:21
 msgid ""
 "We're not sure how you got that key, but would you mind registering again"
-msgstr ""
+msgstr "此激活码有错，请重新注册"
 
 #: templates/registration/activate.html:21
 #: templates/registration/activation_complete.html:17
 msgid "here"
-msgstr ""
+msgstr "这儿"
 
 #: templates/registration/activation_complete.html:6
 msgid "Account activation complete"
-msgstr ""
+msgstr "账户激活完成"
 
 #: templates/registration/activation_complete.html:11
 msgid "Account activation complete, woo!"
-msgstr ""
+msgstr "账户激活完成。"
 
 #: templates/registration/activation_complete.html:16
 msgid "Your account has been activated."
-msgstr ""
+msgstr "账户已激活。"
 
 #: templates/registration/activation_complete.html:17
 msgid "Log in with the username and password you just created,"
-msgstr ""
+msgstr "使用您刚注册的用户名和密码登录。"
 
 #: templates/registration/activation_email.txt:1
 #, python-format
@@ -1844,7 +1849,7 @@ msgstr "您已退出。"
 
 #: templates/registration/logout.html:17
 msgid "Thanks for visiting!"
-msgstr ""
+msgstr "谢谢访问！"
 
 #: templates/registration/logout.html:21
 #, python-format
@@ -1877,6 +1882,8 @@ msgid ""
 "Please enter your old password, for security's sake, and then enter your new "
 "password twice so we can verify you typed it in correctly."
 msgstr ""
+"为保证安全，请先输入你的旧密码。然后输入两次你的新密码，用于两次输入验证是否"
+"一致。"
 
 #: templates/registration/password_change_form.html:30
 msgid "Old password"
@@ -1911,21 +1918,21 @@ msgstr "密码已重设"
 
 #: templates/registration/password_reset_complete.html:14
 msgid "Your password has been set.  You may go ahead and log in now."
-msgstr ""
+msgstr "密码已重设。现在可以登录了。"
 
 #: templates/registration/password_reset_confirm.html:6
 msgid "Password reset confirmation"
-msgstr ""
+msgstr "确认重设密码"
 
 #: templates/registration/password_reset_confirm.html:14
 msgid "Enter new password"
-msgstr ""
+msgstr "输入新密码"
 
 #: templates/registration/password_reset_confirm.html:16
 msgid ""
 "Please enter your new password twice so we can verify you typed it in "
 "correctly."
-msgstr ""
+msgstr "请输入两次你的新密码，用于验证两次输入是否一致。"
 
 #: templates/registration/password_reset_confirm.html:20
 msgid "New password:"
@@ -1954,7 +1961,7 @@ msgstr "重设密码成功"
 msgid ""
 "We've e-mailed you instructions for setting your password to the e-mail "
 "address you submitted. You should be receiving it shortly."
-msgstr ""
+msgstr "我们已向您设置的邮箱发送密码重置的邮件。请稍等。"
 
 #: templates/registration/password_reset_email.html:2
 msgid "You're receiving this e-mail because you requested a password reset"
@@ -1963,7 +1970,7 @@ msgstr ""
 #: templates/registration/password_reset_email.html:3
 #, python-format
 msgid "for your user account at %(site_name)s"
-msgstr ""
+msgstr "您在 %(site_name)s 的账号"
 
 #: templates/registration/password_reset_email.html:5
 msgid "Please go to the following page and choose a new password:"
@@ -2012,6 +2019,8 @@ msgid ""
 "    We aren't sure if you are a robot or if \n"
 "    something got lost or what."
 msgstr ""
+" 您是很久前注册的。\n"
+"    我们需要确认您的身份。"
 
 #: templates/registration/registration_closed.html:20
 msgid "Please try"
@@ -2098,7 +2107,7 @@ msgstr "%(count)s 条与 %(query)s 相关的结果"
 
 #: templates/search/faceted_results.html:7
 msgid "No search term entered"
-msgstr ""
+msgstr "未输入搜索项"
 
 #. Translators: The refers to filtering a search by using facets
 #: templates/search/faceted_results.html:15
@@ -2157,16 +2166,4 @@ msgid ""
 "Your search did not match any documents. Please make sure that all words are "
 "spelled correctly and that you've selected enough categories."
 msgstr ""
-"您的搜索未匹配任何文档。请确保所有的单词都拼写错误并且选中了足够多的分类。"
-
-#~ msgid "Sphinx Websupport"
-#~ msgstr "Sphinx Websupport"
-
-#~ msgid ""
-#~ "\n"
-#~ "        %(version)s Manpage\n"
-#~ "      "
-#~ msgstr ""
-#~ "\n"
-#~ "        %(version)s Manpage\n"
-#~ "      "
+"您的搜索未匹配任何文档。请确保所有的单词都拼写正确并且选中了足够多的分类。"
