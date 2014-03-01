@@ -1,5 +1,8 @@
 # Vagrant development settings
 
+from .base import *  # noqa
+
+
 REDIS = {
     'host': 'localhost',
     'port': 6379,
