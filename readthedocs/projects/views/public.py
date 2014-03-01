@@ -68,7 +68,13 @@ def project_badge(request, project_slug):
     version_slug = request.GET.get('version', 'latest')
     version = get_object_or_404(Version, project__slug=project_slug,
                                 slug=version_slug)
-    last_build = version.builds.filter(type='html').order_by('-date')[0]
+    version_builds = version.builds.filter(type='html').order_by('-date')
+    if not version_builds.count():
+        url = 'http://img.shields.io/badge/Docs-No%20Builds-yellow.svg'
+        response = requests.get(url)
+        return HttpResponse(response.content, mimetype="image/svg+xml")
+    else:
+        last_build = version_builds[0]
     color = 'green'
     if not last_build.success:
         color = 'red'
