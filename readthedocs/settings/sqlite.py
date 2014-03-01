@@ -55,5 +55,5 @@ CORS_ORIGIN_WHITELIST = (
 
 try:
     from local_settings import *  # noqa
-except:
+except ImportError:
     pass

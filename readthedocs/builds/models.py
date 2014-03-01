@@ -184,8 +184,8 @@ class Version(models.Model):
                 data['htmlzip_url'] = project.get_htmlzip_url(self.slug)
             if project.has_epub(self.slug):
                 data['epub_url'] = project.get_epub_url(self.slug)
-            if project.has_manpage(self.slug):
-                data['manpage_url'] = project.get_manpage_url(self.slug)
+            #if project.has_manpage(self.slug):
+                #data['manpage_url'] = project.get_manpage_url(self.slug)
             if project.has_dash(self.slug):
                 data['dash_url'] = project.get_dash_url(self.slug)
                 data['dash_feed_url'] = project.get_dash_feed_url(self.slug)

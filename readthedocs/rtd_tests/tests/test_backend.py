@@ -3,7 +3,7 @@ from os.path import exists
 from django.contrib.admin.models import User
 
 from projects.models import Project
-from rtd_tests.tests.base import RTDTestCase
+from rtd_tests.base import RTDTestCase
 
 from rtd_tests.utils import make_test_git, make_test_hg
 

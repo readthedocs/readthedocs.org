@@ -45,7 +45,7 @@ class ProjectManager(models.Manager):
             # Add in possible user-specific views
             user_queryset = get_objects_for_user(user, 'projects.view_project')
             queryset = user_queryset | queryset
-        return queryset.filter(skip=False)
+        return queryset.filter()
 
     def live(self, *args, **kwargs):
         base_qs = self.filter(skip=False)
@@ -53,14 +53,14 @@ class ProjectManager(models.Manager):
 
     def public(self, user=None, *args, **kwargs):
         """
-        Query for projects, privacy_level == public, and skip = False
+        Query for projects, privacy_level == public
         """
         queryset = self._filter_queryset(user, privacy_level=constants.PUBLIC)
         return queryset.filter(*args, **kwargs)
 
     def protected(self, user=None, *args, **kwargs):
         """
-        Query for projects, privacy_level != private, and skip = False
+        Query for projects, privacy_level != private
         """
         queryset = self._filter_queryset(user,
                                          privacy_level=(constants.PUBLIC,
@@ -69,7 +69,7 @@ class ProjectManager(models.Manager):
 
     def private(self, user=None, *args, **kwargs):
         """
-        Query for projects, privacy_level != private, and skip = False
+        Query for projects, privacy_level != private
         """
         queryset = self._filter_queryset(user, privacy_level=constants.PRIVATE)
         return queryset.filter(*args, **kwargs)
@@ -274,14 +274,6 @@ class Project(models.Model):
             self.versions.filter(verbose_name='latest').update(supported=True)
 
     def save(self, *args, **kwargs):
-        #if hasattr(self, 'pk'):
-            #previous_obj = self.__class__.objects.get(pk=self.pk)
-            #if previous_obj.repo != self.repo:
-                #Needed to not have an import loop on Project
-                #from projects import tasks
-                #This needs to run on the build machine.
-                #tasks.remove_dir.delay(os.path.join(self.doc_path,
-                                                    #'checkouts'))
         if not self.slug:
             # Subdomains can't have underscores in them.
             self.slug = slugify(self.name).replace('_','-')
@@ -538,13 +530,13 @@ class Project(models.Model):
 
     def full_man_path(self, version='latest'):
         """
-        The path to the build latex docs in the project.
+        The path to the build man docs in the project.
         """
         return os.path.join(self.conf_dir(version), "_build", "man")
 
     def full_epub_path(self, version='latest'):
         """
-        The path to the build latex docs in the project.
+        The path to the build epub docs in the project.
         """
         return os.path.join(self.conf_dir(version), "_build", "epub")
 
@@ -556,13 +548,19 @@ class Project(models.Model):
 
     def full_json_path(self, version='latest'):
         """
-        The path to the build dash docs in the project.
+        The path to the build json docs in the project.
         """
         return os.path.join(self.conf_dir(version), "_build", "json")
 
+    def full_singlehtml_path(self, version='latest'):
+        """
+        The path to the build singlehtml docs in the project.
+        """
+        return os.path.join(self.conf_dir(version), "_build", "singlehtml")
+
     def rtd_build_path(self, version="latest"):
         """
-        The path to the build html docs in the project.
+        The destination path where the built docs are copied.
         """
         return os.path.join(self.doc_path, 'rtd-builds', version)
 
