@@ -1,4 +1,9 @@
 {% extends "base.html" %}
+{% load i18n %}
+
+    {% block title %}
+      {% trans "Server Error" %}
+    {% endblock %}
 
     {% block header-wrapper %}
       {% include "error_header.html" %}
