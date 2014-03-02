@@ -1,10 +1,29 @@
 {% extends "base.html" %}
+{% load core_tags %}
 
     {% block header-wrapper %}
       {% include "error_header.html" %}
     {% endblock %}
 
 {% block content %}
+    {% if suggestion %}
+      <div class="suggestions">
+          <h1>You've found something doesn't exist.</h1>
+          <p>{{ suggestion.message }}</p>
+          {% ifequal suggestion.type 'top' %}
+          <p>
+              <a href="{{ suggestion.href }}">Go to top of the document.</a>
+          </p>
+          {% endifequal %}
+          {% ifequal suggestion.type 'list' %}
+          <ul>
+            {% for item in suggestion.list %}
+              <li><a href="{% doc_url item.project item.version_slug item.pagename %}">{{ item.label }}</a></li>
+            {% endfor %}
+          </ul>
+          {% endifequal %}
+      </div>
+    {% endif %}
 <pre>
 
         \          SORRY            /
