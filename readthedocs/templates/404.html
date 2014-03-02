@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 
+    {% block title %}
+      {% trans "Not Found" %}
+    {% endblock %}
+
     {% block header-wrapper %}
       {% include "error_header.html" %}
     {% endblock %}
