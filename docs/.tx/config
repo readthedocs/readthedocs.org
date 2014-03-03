@@ -157,3 +157,53 @@ file_filter = locale/<lang>/LC_MESSAGES/custom_installs/index.po
 source_file = locale/pot/custom_installs/index.pot
 source_lang = en
 
+[readthedocs-docs.alternate_domains]
+file_filter = locale/<lang>/LC_MESSAGES/alternate_domains.po
+source_file = locale/pot/alternate_domains.pot
+source_lang = en
+
+[readthedocs-docs.architecture]
+file_filter = locale/<lang>/LC_MESSAGES/architecture.po
+source_file = locale/pot/architecture.pot
+source_lang = en
+
+[readthedocs-docs.builds]
+file_filter = locale/<lang>/LC_MESSAGES/builds.po
+source_file = locale/pot/builds.pot
+source_lang = en
+
+[readthedocs-docs.canonical]
+file_filter = locale/<lang>/LC_MESSAGES/canonical.po
+source_file = locale/pot/canonical.pot
+source_lang = en
+
+[readthedocs-docs.changelog]
+file_filter = locale/<lang>/LC_MESSAGES/changelog.po
+source_file = locale/pot/changelog.pot
+source_lang = en
+
+[readthedocs-docs.contribute]
+file_filter = locale/<lang>/LC_MESSAGES/contribute.po
+source_file = locale/pot/contribute.pot
+source_lang = en
+
+[readthedocs-docs.custom_installs]
+file_filter = locale/<lang>/LC_MESSAGES/custom_installs.po
+source_file = locale/pot/custom_installs.pot
+source_lang = en
+
+[readthedocs-docs.design]
+file_filter = locale/<lang>/LC_MESSAGES/design.po
+source_file = locale/pot/design.pot
+source_lang = en
+
+[readthedocs-docs.faq]
+file_filter = locale/<lang>/LC_MESSAGES/faq.po
+source_file = locale/pot/faq.pot
+source_lang = en
+
+[readthedocs-docs.features]
+file_filter = locale/<lang>/LC_MESSAGES/features.po
+source_file = locale/pot/features.pot
+source_lang = en
+
