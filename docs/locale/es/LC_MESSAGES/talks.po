@@ -1,0 +1,49 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2010, Eric Holscher, Charlie Leifer, Bobby Grace
+# This file is distributed under the same license as the Read The Docs package.
+# 
+# Translators:
+msgid ""
+msgstr ""
+"Project-Id-Version: readthedocs-docs\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-03-01 22:07+0800\n"
+"PO-Revision-Date: 2014-03-01 13:42+0000\n"
+"Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
+"Language-Team: Spanish (http://www.transifex.com/projects/p/readthedocs-docs/language/es/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: es\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# 5d114b44fb5c49a19aee1fc7f094b05a
+#: ../../talks.rst:2
+msgid "Talks about Read the Docs"
+msgstr ""
+
+# f525a7416a934a518f356c4076346109
+#: ../../talks.rst:4
+msgid ""
+"This page is mainly just for showing a demo of updating docs, during a talk."
+msgstr ""
+
+# 8ce29433ebd84dba8c6ee31c12bdaa50
+#: ../../talks.rst:6
+msgid "PDX Python, May 2011"
+msgstr ""
+
+# 1253a5b0df2742518c487a50ae92d518
+#: ../../talks.rst:7
+msgid "OS Bridge, June 2011"
+msgstr ""
+
+# eba50dee36dd43e6a633fcf0b2034fed
+#: ../../talks.rst:8
+msgid "OSCON, July 2011"
+msgstr ""
+
+# e458e7af378f43eaa8cfe53d092230ec
+#: ../../talks.rst:9
+msgid "Djangocon, July 2011"
+msgstr ""

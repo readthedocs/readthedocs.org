@@ -1,12 +1,170 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2010, Eric Holscher, Charlie Leifer, Bobby Grace
+# This file is distributed under the same license as the Read The Docs package.
 # 
+# Translators:
 msgid ""
 msgstr ""
-"Project-Id-Version: Read The Docs 1.0\n"
+"Project-Id-Version: readthedocs-docs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-01 17:22+0800\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"POT-Creation-Date: 2014-03-01 22:07+0800\n"
+"PO-Revision-Date: 2014-03-01 09:58+0000\n"
+"Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: en\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# 255065df5bca4ebb9c16b53b76092ccb
+#: ../../gsoc.rst:2
+msgid "Google Summer of Code"
+msgstr "Google Summer of Code"
+
+# fe3bc8a13fe14b16a93e2fc39ccb6288
+#: ../../gsoc.rst:4
+msgid ""
+"Read the Docs is hoping to participate in the Google Summer of Code in 2014."
+" This page will contain all the information for students and anyone else "
+"interested in helping."
+msgstr "Read the Docs is hoping to participate in the Google Summer of Code in 2014. This page will contain all the information for students and anyone else interested in helping."
+
+# 4732214d1cba4ba69b6852a4134d638c
+#: ../../gsoc.rst:8
+msgid "Required Skills"
+msgstr "Required Skills"
+
+# 7f5c26e97cf04bb4984331657cc56038
+#: ../../gsoc.rst:10
+msgid "Incoming students will need the following skills:"
+msgstr "Incoming students will need the following skills:"
+
+# 4080221e9e3a4966aa23268b1cfef07a
+#: ../../gsoc.rst:12
+msgid "Intermediate python programming"
+msgstr "Intermediate python programming"
+
+# e3f88fb4d62945559d47ccb87012f50d
+#: ../../gsoc.rst:13
+msgid ""
+"Familiarity with Markdown, reStructuredText, or some other plain text markup"
+" language"
+msgstr "Familiarity with Markdown, reStructuredText, or some other plain text markup language"
+
+# 592dc68be26f4f5e9efb0d4e9cc171b2
+#: ../../gsoc.rst:14
+msgid "Familiarity with git, or some other source control"
+msgstr "Familiarity with git, or some other source control"
+
+# 787c39c78a674c93a730892d29a895d0
+#: ../../gsoc.rst:15
+msgid "Ability to set up your own development environment for Read the Docs"
+msgstr "Ability to set up your own development environment for Read the Docs"
+
+# ba795aaeea50484a8de54516cbd81a87
+#: ../../gsoc.rst:16
+msgid ""
+"An interest in documentation and improving open source documentation tools "
+"would be great too!"
+msgstr "An interest in documentation and improving open source documentation tools would be great too!"
+
+# 007815e895e346228a00569418f63fe6
+#: ../../gsoc.rst:18
+msgid ""
+"We're happy to help you get up to speed, but the more you are able to "
+"demonstrate ability in advance, the more likely we are to choose your "
+"application!"
+msgstr "We're happy to help you get up to speed, but the more you are able to demonstrate ability in advance, the more likely we are to choose your application!"
+
+# 4dd790b769c047719177a2217205c53a
+#: ../../gsoc.rst:21
+msgid "Getting Started"
+msgstr "Getting Started"
+
+# b51dbe1c16834d04ae0ec44a6d1cf95e
+#: ../../gsoc.rst:23
+msgid ""
+"The :doc:`install` doc is probably the best place to get going. It will walk"
+" you through getting a basic environment for Read the Docs setup."
+msgstr "The :doc:`install` doc is probably the best place to get going. It will walk you through getting a basic environment for Read the Docs setup."
+
+# 0d3fdd496a5e4f1c8f2b85a8a81c1f0b
+#: ../../gsoc.rst:26
+msgid ""
+"Then you can look through our :doc:`contribute` doc for information on how "
+"to get started contributing to RTD. If you try and submit a patch, or at "
+"least comment on a bug before applying, you will be much more likely to be "
+"accepted."
+msgstr "Then you can look through our :doc:`contribute` doc for information on how to get started contributing to RTD. If you try and submit a patch, or at least comment on a bug before applying, you will be much more likely to be accepted."
+
+# ce6c0db7981d40f188ab125c88ef42e3
+#: ../../gsoc.rst:33
+msgid "Want to get involved?"
+msgstr "Want to get involved?"
+
+# 305fc2bf5b9443b195ae867996498837
+#: ../../gsoc.rst:35
+msgid ""
+"If you're interested in participating in GSoC 2014 as a student, mentor, or "
+"interested community member, you should join the `mailing list`_ and post "
+"any questions, comments, etc. you may have"
+msgstr "If you're interested in participating in GSoC 2014 as a student, mentor, or interested community member, you should join the `mailing list`_ and post any questions, comments, etc. you may have"
+
+# 884ccea0bb1e4502bedd53c729d660b4
+#: ../../gsoc.rst:37
+msgid ""
+"In addition you may be able to find us on IRC at ``#readthedocs`` on "
+"``irc.freenode.org``.  If no one is available to answer your question, "
+"please be patient and post it to the mailing list as well."
+msgstr "In addition you may be able to find us on IRC at ``#readthedocs`` on ``irc.freenode.org``.  If no one is available to answer your question, please be patient and post it to the mailing list as well."
+
+# 418df1960ab54b76b01a7f9ff07aab79
+#: ../../gsoc.rst:42
+msgid "Project Ideas"
+msgstr "Project Ideas"
+
+# 2cdb345643e0457683fe59f933c737cb
+#: ../../gsoc.rst:44
+msgid ""
+"We have some medium sized projects sketched out in our issue tracker with "
+"the tag *Feature Overview*. Looking through `these issues`_ is a good place "
+"to start."
+msgstr "We have some medium sized projects sketched out in our issue tracker with the tag *Feature Overview*. Looking through `these issues`_ is a good place to start."
+
+# 3dcc1b747bd44985b2f00329e25d0a66
+#: ../../gsoc.rst:50
+msgid "Possible Mentors"
+msgstr "Possible Mentors"
+
+# 7374dcbf36cc446e95f2ef3202a24b1e
+#: ../../gsoc.rst:52
+msgid "Eric Holscher"
+msgstr "Eric Holscher"
+
+# 1fe0f197fca0482cb558c80de51918c6
+#: ../../gsoc.rst:53
+msgid "Wraithan McDonald"
+msgstr "Wraithan McDonald"
+
+# bea912ff883d4a178b6689aceab9e150
+#: ../../gsoc.rst:54
+msgid "Justin Abrahams"
+msgstr "Justin Abrahams"
+
+# 488759a14e7d449f87a6924b9dfde9f2
+#: ../../gsoc.rst:55
+msgid "Jannis Leidel"
+msgstr "Jannis Leidel"
+
+# 8d7b8c43d4fc4a18b5e2a60ada3be2fc
+#: ../../gsoc.rst:58
+msgid "Thanks"
+msgstr "Thanks"
+
+# f4e1659ba7634ce3aa60063c41af7f51
+#: ../../gsoc.rst:60
+msgid ""
+"This page was heavily inspired by Mailman's similar `GSOC page`_. Thanks for"
+" the inspiration."
+msgstr "This page was heavily inspired by Mailman's similar `GSOC page`_. Thanks for the inspiration."

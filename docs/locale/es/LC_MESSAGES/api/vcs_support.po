@@ -1,0 +1,156 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2010, Eric Holscher, Charlie Leifer, Bobby Grace
+# This file is distributed under the same license as the Read The Docs package.
+# 
+# Translators:
+msgid ""
+msgstr ""
+"Project-Id-Version: readthedocs-docs\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-03-01 22:07+0800\n"
+"PO-Revision-Date: 2014-03-01 13:43+0000\n"
+"Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
+"Language-Team: Spanish (http://www.transifex.com/projects/p/readthedocs-docs/language/es/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: es\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# c114b9fc573b4e6ea9bd677487ccc350
+#: ../../api/vcs_support.rst:2
+msgid ":mod:`vcs_support`"
+msgstr ""
+
+# 2168fb47a3b045f69db6118a75b7649f
+#: ../../api/vcs_support.rst:5
+msgid ":mod:`vcs_support.base`"
+msgstr ""
+
+# 039fe7d0b3b44bca9d59ab4dabcba217
+#: ../../../readthedocs/vcs_support/base.pydocstring of
+#: vcs_support.base.BaseCLI:1
+msgid "Helper class for CLI-heavy classes."
+msgstr ""
+
+# e84b37640a714fe89cb6336c58569fe7
+#: ../../../readthedocs/vcs_support/base.pydocstring of
+#: vcs_support.base.BaseCLI.run:1
+msgid "list of command and args. See `subprocess` docs"
+msgstr ""
+
+# 9029d3bceac34fc2974a98619075a5d1
+#: ../../../readthedocs/vcs_support/base.pydocstring of
+#: vcs_support.base.BaseContributionBackend:1
+msgid "Base class for contribution backends."
+msgstr ""
+
+# 08cec6ad85fd4b01aef16e3364f18052
+#: ../../../readthedocs/vcs_support/base.pydocstring of
+#: vcs_support.base.BaseContributionBackend:3
+msgid "The main purpose of this base class is to define the API."
+msgstr ""
+
+# 91323650500e43109e3ad9928ad3e8d9
+#: ../../../readthedocs/vcs_support/base.pydocstring of
+#: vcs_support.base.BaseContributionBackend.accepts:1
+msgid ""
+"Classmethod that checks if a given repository URL is supported by this "
+"backend."
+msgstr ""
+
+# 4d161b0f18b74a0e8388a00a14f98ab6
+#: ../../../readthedocs/vcs_support/base.pydocstring of
+#: vcs_support.base.BaseContributionBackend.get_branch_file:1
+msgid "Returns the contents of a file as it is in the specified branch."
+msgstr ""
+
+# 23c018029e684891b18b7c47198cb6ef
+#: ../../../readthedocs/vcs_support/base.pydocstring of
+#: vcs_support.base.BaseContributionBackend.push_branch:1
+msgid "Pushes a branch upstream."
+msgstr ""
+
+# 9df8fdc150164c43b89919ce049b491e
+#: ../../../readthedocs/vcs_support/base.pydocstring of
+#: vcs_support.base.BaseContributionBackend.set_branch_file:1
+msgid "Saves the file in the specified branch."
+msgstr ""
+
+# c65beb5e1b4f46c58dbd5f6924bb1107
+#: ../../../readthedocs/vcs_support/base.pydocstring of
+#: vcs_support.base.BaseVCS:1
+msgid "Base for VCS Classes. Built on top of the BaseCLI."
+msgstr ""
+
+# e4b8b4f783b745a2944707d791a06565
+# f29a1e6b2d984fbe9b634de766591c83
+#: ../../../readthedocs/vcs_support/base.pydocstring of
+#: vcs_support.base.BaseVCS.branches:1
+#: ../../../readthedocs/vcs_support/base.pydocstring of
+#: vcs_support.base.BaseVCS.tags:1
+msgid ""
+"Returns a list of VCSVersion objects. See VCSVersion for more information."
+msgstr ""
+
+# d2ef3260822a4b5d84d923ef7a8aa146
+#: ../../../readthedocs/vcs_support/base.pydocstring of
+#: vcs_support.base.BaseVCS.checkout:1
+msgid "Set the state to the given identifier."
+msgstr ""
+
+# 655c7b2f2d70435b80cd8402d424dcc5
+#: ../../../readthedocs/vcs_support/base.pydocstring of
+#: vcs_support.base.BaseVCS.checkout:3
+msgid "If identifier is None, checkout to the latest revision."
+msgstr ""
+
+# 1c69e90a4da345a1aba7fc9b107bf65a
+#: ../../../readthedocs/vcs_support/base.pydocstring of
+#: vcs_support.base.BaseVCS.checkout:5
+msgid ""
+"The type and format of identifier may change from VCS to VCS, so each "
+"backend is responsible to understand it's identifiers."
+msgstr ""
+
+# 60ee23dcf33747de8dfeafd041501b84
+#: ../../../readthedocs/vcs_support/base.pydocstring of
+#: vcs_support.base.BaseVCS.get_contribution_backend:1
+msgid ""
+"Returns a contribution backend or None for this repository. The backend is "
+"detected via the repository URL."
+msgstr ""
+
+# f49a5857106c404486ec6de084165101
+#: ../../../readthedocs/vcs_support/base.pydocstring of
+#: vcs_support.base.BaseVCS.update:1
+msgid ""
+"If self.working_dir is already a valid local copy of the repository, update "
+"the repository, else create a new local copy of the repository."
+msgstr ""
+
+# fd4f7a239d6542819687680626b2f291
+#: ../../../readthedocs/vcs_support/base.pydocstring of
+#: vcs_support.base.VCSProject:1
+msgid "Transient object to encapsulate a projects stuff"
+msgstr ""
+
+# e7718753e3b5488d8665e56c62b59ed6
+#: ../../../readthedocs/vcs_support/base.pydocstring of
+#: vcs_support.base.VCSVersion:1
+msgid "Represents a Version (tag or branch) in a VCS."
+msgstr ""
+
+# 9c37d628fd414f4eb3aa9c258789244e
+#: ../../../readthedocs/vcs_support/base.pydocstring of
+#: vcs_support.base.VCSVersion:3
+msgid "This class should only be instantiated in BaseVCS subclasses."
+msgstr ""
+
+# 2f17689d78524225b98df526bc2ec9c9
+#: ../../../readthedocs/vcs_support/base.pydocstring of
+#: vcs_support.base.VCSVersion:5
+msgid ""
+"It can act as a context manager to temporarily switch to this tag (eg to "
+"build docs for this tag)."
+msgstr ""

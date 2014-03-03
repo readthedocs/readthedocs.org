@@ -1,0 +1,182 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2010, Eric Holscher, Charlie Leifer, Bobby Grace
+# This file is distributed under the same license as the Read The Docs package.
+# 
+# Translators:
+msgid ""
+msgstr ""
+"Project-Id-Version: readthedocs-docs\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-03-01 22:07+0800\n"
+"PO-Revision-Date: 2014-03-01 13:42+0000\n"
+"Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
+"Language-Team: Spanish (http://www.transifex.com/projects/p/readthedocs-docs/language/es/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: es\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# 68a7ee4f7d034bc596b1435a7fbeb5b4
+#: ../../privacy.rst:2
+msgid "Privacy Levels"
+msgstr ""
+
+# d59e6b097cd140d8a09e5ae29a942178
+#: ../../privacy.rst:4
+msgid ""
+"Read the Docs supports 3 different privacy levels on 2 different objects; "
+"Public, Protected, Private on Projects and Versions."
+msgstr ""
+
+# cbe46204e92545ca9779fb6eeb171dc4
+#: ../../privacy.rst:8
+msgid "Understanding the Privacy Levels"
+msgstr ""
+
+# c69aeb022cbe4906aa4435a967b45b7b
+#: ../../privacy.rst:11
+msgid "Level"
+msgstr ""
+
+# 2f23e4a77c344d7b8d83aac647d1cd86
+#: ../../privacy.rst:11
+msgid "Detail"
+msgstr ""
+
+# 14909c30124b45af9af1abb37768d96f
+#: ../../privacy.rst:11
+msgid "Listing"
+msgstr ""
+
+# c8e5736827dc4bd9bc69c048a712a7bf
+# 2dc914ed349c4e15a51a5136bd51c8f8
+# 75b5877f677b41fda0afcf1ce89a1f65
+#: ../../privacy.rst:11 ../../privacy.rst:59 ../../privacy.rst:71
+msgid "Search"
+msgstr ""
+
+# c8d08b8163634d568e7e234ce54e560d
+# 6e225fb0768b4196ae97ac789560ee62
+#: ../../privacy.rst:13 ../../privacy.rst:39
+msgid "Private"
+msgstr ""
+
+# 91ca668caa1941acad9eed63eecfa2c2
+# 40cd874d65ca4fdf9b29b6e64b9392ac
+# 41ae4cfdf73a4f7fb90045cae4b63ec0
+# 2986cbaa28f243fd9716b23f2d0a7fd2
+# 9a30e5529e354b46b66a63061f7f4ff6
+#: ../../privacy.rst:13 ../../privacy.rst:13 ../../privacy.rst:13
+#: ../../privacy.rst:15 ../../privacy.rst:15
+msgid "No"
+msgstr ""
+
+# 4d97747918874593b8ef42d7a83f3158
+# b761452855db4d0396859ed82ea7c8e9
+#: ../../privacy.rst:15 ../../privacy.rst:27
+msgid "Protected"
+msgstr ""
+
+# 3c20dd986b4a4e9db248c2eb5fdf36b1
+# 76763a9d8a094cbbaad6de40b9406b41
+# f61df8bfff3444c8a823f463bf9bd9b3
+# 8ce642f126414b61823913f2eb681dab
+#: ../../privacy.rst:15 ../../privacy.rst:17 ../../privacy.rst:17
+#: ../../privacy.rst:17
+msgid "Yes"
+msgstr ""
+
+# db7beb697ed44c2e98d7a65be83614a0
+# cb932747cac54af394093cbec2795092
+#: ../../privacy.rst:17 ../../privacy.rst:21
+msgid "Public"
+msgstr ""
+
+# d78076a8398c428a82435d6ec49dcd71
+#: ../../privacy.rst:23
+msgid ""
+"This is the easiest and most obvious. It is also the default. It means that "
+"everything is available to be seen by everyone."
+msgstr ""
+
+# 797a1d33c5d843e9bab1a4363e49646f
+#: ../../privacy.rst:29
+msgid ""
+"Protected means that your object won't show up in Listing Pages, but Detail "
+"pages still work. For example, a Project that is Protected will not show on "
+"the homepage Recently Updated list, however, if you link directly to the "
+"project, you will get a 200 and the page will display."
+msgstr ""
+
+# 0583c47c093647748a27f15a38216c5f
+#: ../../privacy.rst:34
+msgid ""
+"Protected Versions are similar, they won't show up in your version listings,"
+" but will be available once linked to."
+msgstr ""
+
+# bef82b036f9c4697802738c47b66afaa
+#: ../../privacy.rst:41
+msgid ""
+"Private objects are available only to people who have permissions so see "
+"them. They will not display on any list view, and will 404 when you link "
+"them to others."
+msgstr ""
+
+# a3a87af338674114b891dca1ef1adfde
+#: ../../privacy.rst:45
+msgid "Project Objects"
+msgstr ""
+
+# d071dfc8c8a84049b115698ff1fd9861
+#: ../../privacy.rst:48
+msgid "Detail Views"
+msgstr ""
+
+# d2c51e7b805449f5a767210da7e096bb
+# e22273f5883944b3b3d54cbf5decf122
+#: ../../privacy.rst:50 ../../privacy.rst:68
+msgid "Project Detail (/projects/<slug>)"
+msgstr ""
+
+# 84110cb95e634ddc8033cd6aaef60544
+#: ../../privacy.rst:51
+msgid "API Detail (/api/v1/project/<slug>/)"
+msgstr ""
+
+# a27f073d889d4086bc101ce21ab1914f
+# fb5b29051264403eaf407a73573adb80
+#: ../../privacy.rst:54 ../../privacy.rst:66
+msgid "List Views"
+msgstr ""
+
+# 1fcf26a792f843a984526a80b81b2e78
+#: ../../privacy.rst:56
+msgid "Home Page"
+msgstr ""
+
+# d046457d8557428c85136d0a5b0f88a6
+#: ../../privacy.rst:57
+msgid "All Projects Page"
+msgstr ""
+
+# 8b3c7ac20435419485b47c9319ab1354
+#: ../../privacy.rst:58
+msgid "User Profile Page (/profiles/<user>/)"
+msgstr ""
+
+# c3c6bd7d7b8444d49e627e449bc5b5d9
+#: ../../privacy.rst:63
+msgid "Version Objects"
+msgstr ""
+
+# 96f65d5ec57e4b66840245cfc92aa95f
+#: ../../privacy.rst:69
+msgid "Version Selector on Home page"
+msgstr ""
+
+# 50d63d1600b246d0996afcec9accceaf
+#: ../../privacy.rst:70
+msgid "Version Selector on Documentation page"
+msgstr ""

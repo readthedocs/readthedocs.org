@@ -1,12 +1,480 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2010, Eric Holscher, Charlie Leifer, Bobby Grace
+# This file is distributed under the same license as the Read The Docs package.
 # 
+# Translators:
 msgid ""
 msgstr ""
-"Project-Id-Version: Read The Docs 1.0\n"
+"Project-Id-Version: readthedocs-docs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-01 17:22+0800\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"POT-Creation-Date: 2014-03-01 22:07+0800\n"
+"PO-Revision-Date: 2014-03-01 13:43+0000\n"
+"Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: en\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# 8a9a614ab388441aad6ebf92bfcf54f6
+#: ../../api/projects.rst:2
+msgid ":mod:`projects`"
+msgstr ":mod:`projects`"
+
+# 3a85bbd57c9842aa84aaee39ecefbe09
+#: ../../api/projects.rst:5
+msgid ":mod:`projects.admin`"
+msgstr ":mod:`projects.admin`"
+
+# 7b2f3ab7abba41919880b86597a1834d
+#: ../../../readthedocs/projects/admin.pydocstring of projects.admin:1
+msgid ""
+"Django administration interface for `~projects.models.Project` and related "
+"models."
+msgstr "Django administration interface for `~projects.models.Project` and related models."
+
+# 85ccda3d132344ab82e44050b9c23f30
+#: ../../api/projects.rst:10
+msgid ":mod:`projects.constants`"
+msgstr ":mod:`projects.constants`"
+
+# 6739af59661b47db99d93cbb1c465148
+#: ../../../readthedocs/projects/constants.pydocstring of projects.constants:1
+msgid ""
+"Default values and other various configuration for projects, including "
+"available theme names and repository types."
+msgstr "Default values and other various configuration for projects, including available theme names and repository types."
+
+# ddf1d5fee70f42a9ac05653b3cab049b
+#: ../../api/projects.rst:15
+msgid ":mod:`projects.forms`"
+msgstr ":mod:`projects.forms`"
+
+# 50beadc405e04c65a117dcd08b292bd3
+#: ../../api/projects.rst:20
+msgid ":mod:`projects.models`"
+msgstr ":mod:`projects.models`"
+
+# 18c0d05d3ad8463bb0a35e9e1e4dfee3
+#: ../../../readthedocs/projects/models.pydocstring of
+#: projects.models.EmailHook:1
+msgid "EmailHook(id, project_id, email)"
+msgstr "EmailHook(id, project_id, email)"
+
+# 9232676fa67742dfa184373d6d06b3ea
+#: ../../../readthedocs/projects/models.pydocstring of
+#: projects.models.ImportedFile:1
+msgid "ImportedFile(id, project_id, version_id, name, slug, path, md5)"
+msgstr "ImportedFile(id, project_id, version_id, name, slug, path, md5)"
+
+# 5edb560f63ff4799babba27f4897ffd7
+#: ../../../readthedocs/projects/models.pydocstring of
+#: projects.models.Project:1
+msgid ""
+"Project(id, pub_date, modified_date, name, slug, description, repo, "
+"repo_type, project_url, canonical_url, version, copyright, theme, suffix, "
+"single_version, default_version, default_branch, requirements_file, "
+"documentation_type, analytics_code, path, conf_py_file, featured, skip, "
+"mirror, use_virtualenv, python_interpreter, use_system_packages, "
+"django_packages_url, privacy_level, version_privacy_level, language, "
+"main_language_project_id, num_major, num_minor, num_point)"
+msgstr "Project(id, pub_date, modified_date, name, slug, description, repo, repo_type, project_url, canonical_url, version, copyright, theme, suffix, single_version, default_version, default_branch, requirements_file, documentation_type, analytics_code, path, conf_py_file, featured, skip, mirror, use_virtualenv, python_interpreter, use_system_packages, django_packages_url, privacy_level, version_privacy_level, language, main_language_project_id, num_major, num_minor, num_point)"
+
+# 5675441d8110478498b27d731d633eeb
+#: ../../../readthedocs/projects/models.pydocstring of
+#: projects.models.Project.all_active_versions:1
+msgid ""
+"A temporary workaround for active_versions filtering out things that were "
+"active, but failed to build"
+msgstr "A temporary workaround for active_versions filtering out things that were active, but failed to build"
+
+# e0ae6c572a6543f1be74ffe5171cd2ce
+#: ../../../readthedocs/projects/models.pydocstring of
+#: projects.models.Project.cnames_symlink_path:1
+msgid "Path in the doc_path that we symlink cnames"
+msgstr "Path in the doc_path that we symlink cnames"
+
+# bf7ae6ee13994ad1a69c4b5c13b365f3
+#: ../../../readthedocs/projects/models.pydocstring of
+#: projects.models.Project.cnames_symlink_path:3
+msgid ""
+"This has to be at the top-level because Nginx doesn't know the projects "
+"slug."
+msgstr "This has to be at the top-level because Nginx doesn't know the projects slug."
+
+# 08b509e8cce24d9790afc88ab643ac6f
+# 5d51723c24db4007b66de7fdceb8ff27
+#: ../../../readthedocs/projects/models.pydocstring of
+#: projects.models.Project.find:1
+#: ../../../readthedocs/projects/models.pydocstring of
+#: projects.models.Project.full_find:1
+msgid "A balla API to find files inside of a projects dir."
+msgstr "A balla API to find files inside of a projects dir."
+
+# e519f438728b4884b51926773bb6937d
+#: ../../../readthedocs/projects/models.pydocstring of
+#: projects.models.Project.full_build_path:1
+msgid "The path to the build html docs in the project."
+msgstr "The path to the build html docs in the project."
+
+# 7c011d20fb904b32963abc98520334fd
+#: ../../../readthedocs/projects/models.pydocstring of
+#: projects.models.Project.full_dash_path:1
+msgid "The path to the build dash docs in the project."
+msgstr "The path to the build dash docs in the project."
+
+# 78c38a8e11e8429cbbab83bc572f7826
+#: ../../../readthedocs/projects/models.pydocstring of
+#: projects.models.Project.full_doc_path:1
+msgid "The path to the documentation root in the project."
+msgstr "The path to the documentation root in the project."
+
+# ee1eb04bb2ec469bb928c1f112f1cee0
+#: ../../../readthedocs/projects/models.pydocstring of
+#: projects.models.Project.full_epub_path:1
+msgid "The path to the build epub docs in the project."
+msgstr "The path to the build epub docs in the project."
+
+# ee1eb04bb2ec469bb928c1f112f1cee0
+#: ../../../readthedocs/projects/models.pydocstring of
+#: projects.models.Project.full_json_path:1
+msgid "The path to the build json docs in the project."
+msgstr "The path to the build json docs in the project."
+
+# 94129d075c35418e906f8333b963343f
+#: ../../../readthedocs/projects/models.pydocstring of
+#: projects.models.Project.full_latex_path:1
+msgid "The path to the build latex docs in the project."
+msgstr "The path to the build latex docs in the project."
+
+# ee1eb04bb2ec469bb928c1f112f1cee0
+#: ../../../readthedocs/projects/models.pydocstring of
+#: projects.models.Project.full_man_path:1
+msgid "The path to the build man docs in the project."
+msgstr "The path to the build man docs in the project."
+
+# 54d38fb2a7ba4b2f9b7bd4dab9f7bde6
+#: ../../../readthedocs/projects/models.pydocstring of
+#: projects.models.Project.full_singlehtml_path:1
+msgid "The path to the build singlehtml docs in the project."
+msgstr "The path to the build singlehtml docs in the project."
+
+# 9f115122a3714851a01928d190425612
+#: ../../../readthedocs/projects/models.pydocstring of
+#: projects.models.Project.get_default_branch:1
+msgid "Get the version representing \"latest\""
+msgstr "Get the version representing \"latest\""
+
+# ed6afc175888454ea69f977192b6666f
+#: ../../../readthedocs/projects/models.pydocstring of
+#: projects.models.Project.get_default_version:1
+msgid "Get the default version (slug)."
+msgstr "Get the default version (slug)."
+
+# d86d617176ee45539c17b77772e84d25
+#: ../../../readthedocs/projects/models.pydocstring of
+#: projects.models.Project.get_default_version:3
+msgid ""
+"Returns self.default_version if the version with that slug actually exists "
+"(is built and published). Otherwise returns 'latest'."
+msgstr "Returns self.default_version if the version with that slug actually exists (is built and published). Otherwise returns 'latest'."
+
+# fc4f82d0647943f19c9f2952bdc687f1
+#: ../../../readthedocs/projects/models.pydocstring of
+#: projects.models.Project.get_docs_url:1
+msgid ""
+"Return a url for the docs. Always use http for now, to avoid content "
+"warnings."
+msgstr "Return a url for the docs. Always use http for now, to avoid content warnings."
+
+# b9dc426b24ef430ca9d74b11beab855a
+#: ../../../readthedocs/projects/models.pydocstring of
+#: projects.models.Project.rtd_build_path:1
+msgid "The destination path where the built docs are copied."
+msgstr "The destination path where the built docs are copied."
+
+# 7b471222702f414db858b43073c7d9c2
+#: ../../../readthedocs/projects/models.pydocstring of
+#: projects.models.Project.single_version_symlink_path:1
+msgid "Path in the doc_path for the single_version symlink."
+msgstr "Path in the doc_path for the single_version symlink."
+
+# 9c42a7e3969a459fa6a4991b989a67d0
+#: ../../../readthedocs/projects/models.pydocstring of
+#: projects.models.Project.subprojects_symlink_path:1
+msgid "Path in the doc_path that we symlink subprojects"
+msgstr "Path in the doc_path that we symlink subprojects"
+
+# 6a2b786705274c008323db14a41b81c7
+#: ../../../readthedocs/projects/models.pydocstring of
+#: projects.models.Project.supported_versions:1
+msgid "Get the list of supported versions. Returns a list of version strings."
+msgstr "Get the list of supported versions. Returns a list of version strings."
+
+# 33fc917403674f3ea273de1e64cfa768
+#: ../../../readthedocs/projects/models.pydocstring of
+#: projects.models.Project.translations_symlink_path:1
+msgid "Path in the doc_path that we symlink translations"
+msgstr "Path in the doc_path that we symlink translations"
+
+# f420a18d21fe42c5aaedf0c49a0a9df1
+#: ../../../readthedocs/projects/models.pydocstring of
+#: projects.models.ProjectRelationship:1
+msgid "ProjectRelationship(id, parent_id, child_id)"
+msgstr "ProjectRelationship(id, parent_id, child_id)"
+
+# 1262e10548be4ed7b8bebbcd47b8fe5e
+#: ../../../readthedocs/projects/models.pydocstring of
+#: projects.models.WebHook:1
+msgid "WebHook(id, project_id, url)"
+msgstr "WebHook(id, project_id, url)"
+
+# 4863508f0c86430f8c29c8d08a610fe9
+#: ../../api/projects.rst:25
+msgid ":mod:`projects.search_indexes`"
+msgstr ":mod:`projects.search_indexes`"
+
+# ef7732bc51af4a9bb041207065435119
+#: ../../api/projects.rst:30
+msgid ":mod:`projects.tasks`"
+msgstr ":mod:`projects.tasks`"
+
+# 7616523a00784b9b9605a8d84758a192
+#: ../../../readthedocs/projects/tasks.pydocstring of projects.tasks:1
+msgid ""
+"Tasks related to projects, including fetching repository code, cleaning "
+"``conf.py`` files, and rebuilding documentation."
+msgstr "Tasks related to projects, including fetching repository code, cleaning ``conf.py`` files, and rebuilding documentation."
+
+# c5133618f92e40089f97ac5503025468
+#: ../../../readthedocs/projects/tasks.pydocstring of
+#: projects.tasks.import_open_comparison:1
+msgid "Try importing a Project model from Open Comparison sites."
+msgstr "Try importing a Project model from Open Comparison sites."
+
+# 05fe24fc916e4e9c876e2a680c90f844
+#: ../../../readthedocs/projects/tasks.pydocstring of
+#: projects.tasks.remove_symlink_single_version:1
+msgid "Remove single_version symlink"
+msgstr "Remove single_version symlink"
+
+# a1c705bcd4b1441c984db2f611c5da98
+#: ../../../readthedocs/projects/tasks.pydocstring of
+#: projects.tasks.symlink_cnames:1
+msgid "OLD Link from HOME/user_builds/cnames/<cname> ->"
+msgstr "OLD Link from HOME/user_builds/cnames/<cname> ->"
+
+# 0b8296a15eb240e39b748f191f21f9fd
+# 0b8296a15eb240e39b748f191f21f9fd
+# 0b8296a15eb240e39b748f191f21f9fd
+#: ../../../readthedocs/projects/tasks.pydocstring of
+#: projects.tasks.symlink_cnames:3
+#: ../../../readthedocs/projects/tasks.pydocstring of
+#: projects.tasks.symlink_subprojects:2
+#: ../../../readthedocs/projects/tasks.pydocstring of
+#: projects.tasks.symlink_translations:2
+msgid "HOME/user_builds/<project>/rtd-builds/"
+msgstr "HOME/user_builds/<project>/rtd-builds/"
+
+# 50ee1a531931414794724e088a5d7da8
+#: ../../../readthedocs/projects/tasks.pydocstring of
+#: projects.tasks.symlink_cnames:4
+msgid "NEW Link from HOME/user_builds/cnametoproject/<cname> ->"
+msgstr "NEW Link from HOME/user_builds/cnametoproject/<cname> ->"
+
+# 5d27e28473984668bade228754d67928
+#: ../../../readthedocs/projects/tasks.pydocstring of
+#: projects.tasks.symlink_cnames:6
+msgid "HOME/user_builds/<project>/"
+msgstr "HOME/user_builds/<project>/"
+
+# 53fce50cbbb447d7b8399aa4c559c9ea
+#: ../../../readthedocs/projects/tasks.pydocstring of
+#: projects.tasks.symlink_single_version:1
+msgid "Link from HOME/user_builds/<project>/single_version ->"
+msgstr "Link from HOME/user_builds/<project>/single_version ->"
+
+# a5a46bda73d24287a3f6b198e3de05fc
+#: ../../../readthedocs/projects/tasks.pydocstring of
+#: projects.tasks.symlink_single_version:2
+msgid "HOME/user_builds/<project>/rtd-builds/<default_version>/"
+msgstr "HOME/user_builds/<project>/rtd-builds/<default_version>/"
+
+# 126f7c2c7c1142eb91ad3765094bd852
+#: ../../../readthedocs/projects/tasks.pydocstring of
+#: projects.tasks.symlink_subprojects:1
+msgid "Link from HOME/user_builds/project/subprojects/<project> ->"
+msgstr "Link from HOME/user_builds/project/subprojects/<project> ->"
+
+# a3dc199da18e4cb983a9e9bdf55af75f
+#: ../../../readthedocs/projects/tasks.pydocstring of
+#: projects.tasks.symlink_translations:1
+msgid "Link from HOME/user_builds/project/translations/<lang> ->"
+msgstr "Link from HOME/user_builds/project/translations/<lang> ->"
+
+# fd98d43655d94503852a51ce36b583a0
+#: ../../../readthedocs/projects/tasks.pydocstring of
+#: projects.tasks.update_mirror_docs:1
+msgid "A periodic task used to update all projects that we mirror."
+msgstr "A periodic task used to update all projects that we mirror."
+
+# 9f49cd1cdf87490498bc6620f5d65c20
+#: ../../api/projects.rst:35
+msgid ":mod:`projects.utils`"
+msgstr ":mod:`projects.utils`"
+
+# d9e018a58a424853a489543bf83f516b
+#: ../../../readthedocs/projects/utils.pydocstring of projects.utils:1
+msgid "Utility functions used by projects."
+msgstr "Utility functions used by projects."
+
+# ff9698e1d8dd4255ac1e1fcbcfae985e
+#: ../../../readthedocs/projects/utils.pydocstring of
+#: projects.utils.find_file:1
+msgid ""
+"Find matching filenames in the current directory and its subdirectories, and"
+" return a list of matching filenames."
+msgstr "Find matching filenames in the current directory and its subdirectories, and return a list of matching filenames."
+
+# 2f3dd702e2f84e008dbdc9a61d083430
+#: ../../../readthedocs/projects/utils.pydocstring of projects.utils.run:1
+msgid ""
+"Run one or more commands, and return ``(status, out, err)``. If more than "
+"one command is given, then this is equivalent to chaining them together with"
+" ``&&``; if all commands succeed, then ``(status, out, err)`` will represent"
+" the last successful command. If one command failed, then ``(status, out, "
+"err)`` will represent the failed command."
+msgstr "Run one or more commands, and return ``(status, out, err)``. If more than one command is given, then this is equivalent to chaining them together with ``&&``; if all commands succeed, then ``(status, out, err)`` will represent the last successful command. If one command failed, then ``(status, out, err)`` will represent the failed command."
+
+# 0d9594b1fba94a7caf46a9052f4ed8cd
+#: ../../../readthedocs/projects/utils.pydocstring of
+#: projects.utils.safe_write:1
+msgid ""
+"Write ``contents`` to the given ``filename``. If the filename's directory "
+"does not exist, it is created. Contents are written as UTF-8, ignoring any "
+"characters that cannot be encoded as UTF-8."
+msgstr "Write ``contents`` to the given ``filename``. If the filename's directory does not exist, it is created. Contents are written as UTF-8, ignoring any characters that cannot be encoded as UTF-8."
+
+# 5b7b40193f1641b69717a0ee61ee61dc
+#: ../../api/projects.rst:40
+msgid ":mod:`projects.views`"
+msgstr ":mod:`projects.views`"
+
+# 01026916182b41bfbf291c9e16c44ab1
+#: ../../api/projects.rst:43
+msgid ":mod:`projects.views.public`"
+msgstr ":mod:`projects.views.public`"
+
+# 0d6acbba8f8a43ceb6ca6199d0c25bef
+#: ../../../readthedocs/projects/views/public.pydocstring of
+#: projects.views.public.project_badge:1
+msgid "Return a sweet badge for the project"
+msgstr "Return a sweet badge for the project"
+
+# d3d78d8ed03640ad943eba4b5fb17f5c
+# 3b1fa7bfbcef435b9a0d72326c176129
+#: ../../../readthedocs/projects/views/public.pydocstring of
+#: projects.views.public.project_detail:1
+#: ../../../readthedocs/projects/views/public.pydocstring of
+#: projects.views.public.project_downloads:1
+msgid "A detail view for a project with various dataz"
+msgstr "A detail view for a project with various dataz"
+
+# e53a22ee68564e48929b382f7e629656
+#: ../../../readthedocs/projects/views/public.pydocstring of
+#: projects.views.public.project_index:1
+msgid ""
+"The list of projects, which will optionally filter by user or tag, in which "
+"case a 'person' or 'tag' will be added to the context"
+msgstr "The list of projects, which will optionally filter by user or tag, in which case a 'person' or 'tag' will be added to the context"
+
+# 4f85615a264744b5a256b7fb3163c4b9
+#: ../../../readthedocs/projects/views/public.pydocstring of
+#: projects.views.public.search:1
+msgid "our ghetto site search.  see roadmap."
+msgstr "our ghetto site search.  see roadmap."
+
+# f513ed5a9df248ef8840de44ec95fd10
+#: ../../../readthedocs/projects/views/public.pydocstring of
+#: projects.views.public.search_autocomplete:1
+msgid "return a json list of project names"
+msgstr "return a json list of project names"
+
+# 412e4bf583a44f34a5634523d95f03e3
+#: ../../../readthedocs/projects/views/public.pydocstring of
+#: projects.views.public.tag_index:1
+msgid "List of all tags by most common"
+msgstr "List of all tags by most common"
+
+# 3ea93d8785c3494bbcbde87e8ddadfa8
+#: ../../../readthedocs/projects/views/public.pydocstring of
+#: projects.views.public.version_autocomplete:1
+msgid "return a json list of version names"
+msgstr "return a json list of version names"
+
+# 03258a8916b740349157700c1e165246
+#: ../../api/projects.rst:48
+msgid ":mod:`projects.views.private`"
+msgstr ":mod:`projects.views.private`"
+
+# 6062e161b4f443d79aefd2c1cc28bc99
+#: ../../../readthedocs/projects/views/private.pydocstring of
+#: projects.views.private.export:1
+msgid "Export a projects' docs as a .zip file, including the .rst source"
+msgstr "Export a projects' docs as a .zip file, including the .rst source"
+
+# 5222a9d261fa490f9246d5d57964fc4e
+# 5222a9d261fa490f9246d5d57964fc4e
+#: ../../../readthedocs/projects/views/private.pydocstring of
+#: projects.views.private.project_advanced:1
+#: ../../../readthedocs/projects/views/private.pydocstring of
+#: projects.views.private.project_edit:1
+msgid ""
+"Edit an existing project - depending on what type of project is being edited"
+" (created or imported) a different form will be displayed"
+msgstr "Edit an existing project - depending on what type of project is being edited (created or imported) a different form will be displayed"
+
+# 318da3dc4a634de8aabd97e36eb3f2fb
+#: ../../../readthedocs/projects/views/private.pydocstring of
+#: projects.views.private.project_dashboard:1
+msgid ""
+"A dashboard!  If you aint know what that means you aint need to. Essentially"
+" we show you an overview of your content."
+msgstr "A dashboard!  If you aint know what that means you aint need to. Essentially we show you an overview of your content."
+
+# 3e1396b6b0e8443e9ebd0bd2a31f6cae
+#: ../../../readthedocs/projects/views/private.pydocstring of
+#: projects.views.private.project_delete:1
+msgid ""
+"Make a project as deleted on POST, otherwise show a form asking for "
+"confirmation of delete."
+msgstr "Make a project as deleted on POST, otherwise show a form asking for confirmation of delete."
+
+# a7523151177242e6a0ff4f7f218a8ab9
+#: ../../../readthedocs/projects/views/private.pydocstring of
+#: projects.views.private.project_import:1
+msgid "Import docs from an repo"
+msgstr "Import docs from an repo"
+
+# 2055bfe65f5740bfa729ee9dccb9e3de
+#: ../../../readthedocs/projects/views/private.pydocstring of
+#: projects.views.private.project_manage:1
+msgid ""
+"The management view for a project, where you will have links to edit the "
+"projects' configuration, edit the files associated with that project, etc."
+msgstr "The management view for a project, where you will have links to edit the projects' configuration, edit the files associated with that project, etc."
+
+# 82d0b6a00476474fb2a896c6b5821904
+#: ../../../readthedocs/projects/views/private.pydocstring of
+#: projects.views.private.project_manage:5
+msgid "Now redirects to the normal /projects/<slug> view."
+msgstr "Now redirects to the normal /projects/<slug> view."
+
+# cc4c1922c68f4de1982d72d7baefcd4a
+#: ../../../readthedocs/projects/views/private.pydocstring of
+#: projects.views.private.project_versions:1
+msgid ""
+"Shows the available versions and lets the user choose which ones he would "
+"like to have built."
+msgstr "Shows the available versions and lets the user choose which ones he would like to have built."

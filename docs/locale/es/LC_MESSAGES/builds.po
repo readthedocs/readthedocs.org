@@ -1,0 +1,169 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2010, Eric Holscher, Charlie Leifer, Bobby Grace
+# This file is distributed under the same license as the Read The Docs package.
+# 
+# Translators:
+msgid ""
+msgstr ""
+"Project-Id-Version: readthedocs-docs\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-03-01 22:07+0800\n"
+"PO-Revision-Date: 2014-03-01 14:09+0000\n"
+"Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
+"Language-Team: Spanish (http://www.transifex.com/projects/p/readthedocs-docs/language/es/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: es\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# 3a8fbbce5d45416d99da9711b09bb6a9
+#: ../../builds.rst:2
+msgid "Build Process"
+msgstr ""
+
+# ef7b9d6a4ea34f449918d1f8cde89295
+#: ../../builds.rst:5
+msgid "Understanding what's going on"
+msgstr ""
+
+# 9596846224074a88b4a15b8fe94c5ab8
+#: ../../builds.rst:7
+msgid ""
+"Understanding how Read the Docs builds your project will help you with "
+"debugging the problems you have with the site. It should also allow you to "
+"take advantage of certain things that happen during the build process."
+msgstr ""
+
+# a30b1141a52b4c10b2802fef386117f6
+#: ../../builds.rst:9
+msgid ""
+"The first step of the process is that we check out your code from the "
+"repository you have given us. If the code is already checked out, we update "
+"the copy to the branch that you have specified in your projects "
+"configuration."
+msgstr ""
+
+# a54e8b4580e1459a8d5e0d127075b8a6
+#: ../../builds.rst:11
+msgid ""
+"Then we build the proper backend code for the type of documentation you've "
+"selected."
+msgstr ""
+
+# ba475848a7994d5396abf0fc6ceb6143
+#: ../../builds.rst:13
+msgid ""
+"If you have the *Use Virtualenv* option enabled, we will run ``setup.py "
+"install`` on your package, installing it into a virtual environment. You can"
+" also define additional packages to install with the *Requirements File* "
+"option."
+msgstr ""
+
+# 06cc6cc16a0549819a7dad291636baf5
+#: ../../builds.rst:15
+msgid ""
+"When we build your documentation, we run `sphinx-build -b html . "
+"_build/html`, where `html` would be replaced with the correct backend. We "
+"also create man pages and pdf's automatically based on your project."
+msgstr ""
+
+# 1f5069b137144fea87206c3b3a7a6b1c
+#: ../../builds.rst:17
+msgid ""
+"Then these files are copied across to our application servers from the build"
+" server. Once on the application servers, they are served from nginx."
+msgstr ""
+
+# 932aa28f576e49cbae81fbebbe084571
+#: ../../builds.rst:19
+msgid "An example in code:"
+msgstr ""
+
+# 458b6790f8b24bc08fd4ec19661494d4
+#: ../../builds.rst:32
+msgid "Packages installed in the build environment"
+msgstr ""
+
+# 18068130d2ba4cbd8ba7aa8a2add59b8
+#: ../../builds.rst:34
+msgid ""
+"The build server does have a select number of C libraries installed, because"
+" they are used across a wide array of python projects. We can't install "
+"every C library out there, but we try and support the major ones. We "
+"currently have the following libraries installed:"
+msgstr ""
+
+# 68d042505a7e4e65a9acc42a896a1c77
+#: ../../builds.rst:36
+msgid "Latex (texlive-full)"
+msgstr ""
+
+# c76432f795c24fc298e68ad9032ac29b
+#: ../../builds.rst:37
+msgid "libevent (libevent-dev)"
+msgstr ""
+
+# 3662e62a19a549428ea5b075c464dbd8
+#: ../../builds.rst:38
+msgid "dvipng"
+msgstr ""
+
+# fb278765ae2a4fc8942165bb93fe40ca
+#: ../../builds.rst:39
+msgid "graphviz"
+msgstr ""
+
+# dcc1733c94db40809c2a383da69aa5d4
+#: ../../builds.rst:40
+msgid "libxslt1.1"
+msgstr ""
+
+# 0e0696a8b6054e41af0f0eb6ed866239
+#: ../../builds.rst:41
+msgid "libxml2-dev"
+msgstr ""
+
+# 9ed92a9aa08740b78b89ffb2f228c413
+#: ../../builds.rst:44
+msgid "Writing your own builder"
+msgstr ""
+
+# ebc648e07b6c485c85285f5e07d54f0f
+#: ../../builds.rst:46
+msgid ""
+"Builds happen on a server using only the RTD Public API. There is no reason "
+"that you couldn't build your own independent builder that wrote into the RTD"
+" namespace. The only thing that is currently unsupported there is a saner "
+"way than uploading the processed files as a zip."
+msgstr ""
+
+# 609c81d8bf394290a3f02e10126d32da
+#: ../../builds.rst:48
+msgid ""
+"The documentation build system in RTD is made pluggable, so that you can "
+"build out your own backend. If you have a documentation format that isn't "
+"currently supported, you can add support by contributing a backend."
+msgstr ""
+
+# c9d3c709fc1a4bca9b0d4cf7cc4d92aa
+#: ../../builds.rst:50
+msgid ""
+"The :doc:`api/doc_builder` API explains the higher level parts of the API "
+"that you need to implement. A basic run goes something like this::"
+msgstr ""
+
+# 6f80ca5d2dd545999044449b14c56764
+#: ../../builds.rst:61
+msgid "Deleting a stale or broken build environment"
+msgstr ""
+
+# 5c23d9f9966147089b03281cbf66820c
+#: ../../builds.rst:63
+msgid ""
+"RTD doesn't expose this in the UI, but it is possible to remove the build "
+"directory of your project. If you want to remove a build environment for "
+"your project, hit "
+"http://readthedocs.org/wipe/<project_slug>/<version_slug>/. You must be "
+"logged in to do this."
+msgstr ""

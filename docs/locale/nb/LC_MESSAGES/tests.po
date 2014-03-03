@@ -1,0 +1,51 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2010, Eric Holscher, Charlie Leifer, Bobby Grace
+# This file is distributed under the same license as the Read The Docs package.
+# 
+# Translators:
+msgid ""
+msgstr ""
+"Project-Id-Version: readthedocs-docs\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-03-01 22:07+0800\n"
+"PO-Revision-Date: 2014-03-01 13:42+0000\n"
+"Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
+"Language-Team: Norwegian Bokmål (http://www.transifex.com/projects/p/readthedocs-docs/language/nb/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: nb\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# 6e61944095de45909984eff8907a7f50
+#: ../../tests.rst:2
+msgid "Running tests"
+msgstr ""
+
+# f61351f3089443ab884018d5e08635fa
+#: ../../tests.rst:4
+msgid ""
+"Currently RTD isn't well tested. This is a problem, and it is being worked "
+"on. However, we do have a basic test suite. To run the tests, you need "
+"simply need to run::"
+msgstr ""
+
+# 4bd7428833f34ecf8014efb94a4068f5
+#: ../../tests.rst:8
+msgid ""
+"This should spit out a bunch of info, build a couple projects, and "
+"eventually pass."
+msgstr ""
+
+# f9061bbd54004cbd8005cd369b9344c9
+#: ../../tests.rst:11
+msgid "Continuous Integration"
+msgstr ""
+
+# 41a783a9b5a64014a1ded9407c8b8100
+#: ../../tests.rst:13
+msgid ""
+"The RTD test suite is exercised by Travis CI on every push to our repo at "
+"GitHub. You can check out the current build status: https://travis-"
+"ci.org/rtfd/readthedocs.org"
+msgstr ""

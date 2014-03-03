@@ -1,0 +1,147 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2010, Eric Holscher, Charlie Leifer, Bobby Grace
+# This file is distributed under the same license as the Read The Docs package.
+# 
+# Translators:
+msgid ""
+msgstr ""
+"Project-Id-Version: readthedocs-docs\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-03-01 22:07+0800\n"
+"PO-Revision-Date: 2014-03-01 13:42+0000\n"
+"Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
+"Language-Team: Spanish (http://www.transifex.com/projects/p/readthedocs-docs/language/es/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: es\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# 94680832b91f4929bf53532994faf20f
+#: ../../getting_started.rst:2
+msgid "Getting Started"
+msgstr ""
+
+# b5087c8cfa1a46e6973fb1b5f2468531
+#: ../../getting_started.rst:4
+msgid ""
+"This document will show you how to get up and running with Read the Docs."
+msgstr ""
+
+# c736e6dfba4f4bb5ba95bdde2612f4b9
+#: ../../getting_started.rst:6
+msgid ""
+"If you are already using Sphinx_ for your docs, skip ahead to :ref:`import-"
+"docs`."
+msgstr ""
+
+# 20869ea4ee9544bb889f53f260a381b5
+#: ../../getting_started.rst:9
+msgid "There is `a screencast`_ that will help you get started if you prefer."
+msgstr ""
+
+# e4bbcc8b5b7e419a805d8b4da78c6aa1
+#: ../../getting_started.rst:12
+msgid "Write Your Docs"
+msgstr ""
+
+# b90f238da5684b6889e1a7360d8a08d5
+#: ../../getting_started.rst:14
+msgid ""
+"Install Sphinx_, and create a directory inside your project to hold your "
+"docs::"
+msgstr ""
+
+# 7890b8eebc8c4d12ad4fa8f24a186171
+#: ../../getting_started.rst:19
+msgid "Run ``sphinx-quickstart`` in there::"
+msgstr ""
+
+# 323c1c64fa134111bfff71af91fe3354
+#: ../../getting_started.rst:24
+msgid ""
+"This will walk you through creating the basic configuration; in most cases, "
+"you can just accept the defaults. When it's done, you'll have an "
+"``index.rst``, a ``conf.py`` and some other files. Add these to revision "
+"control."
+msgstr ""
+
+# 93b667b94bee4cd998979e17c5e23e4e
+#: ../../getting_started.rst:28
+msgid ""
+"Now, edit your ``index.rst`` and add some information about your project. "
+"Include as much detail as you like (refer to the reStructuredText_ syntax or"
+" `this template`_ if you need help). Build them to see how they look::"
+msgstr ""
+
+# b6ecd74d973f4945af1d7ac50f220d77
+#: ../../getting_started.rst:34
+msgid ""
+"Edit your files and rebuild until you like what you see, then commit your "
+"changes and push to your public repository. Once you have Sphinx "
+"documentation in a public repository, you can start using Read the Docs."
+msgstr ""
+
+# 621a032741654fbe94eeb8ced1fc4df9
+#: ../../getting_started.rst:40
+msgid "Import Your Docs"
+msgstr ""
+
+# 88b6a472072944fba715415ccfb21baa
+#: ../../getting_started.rst:42
+msgid ""
+"`Sign up`_ for an account on RTD, then `log in`_. Visit your dashboard_ and "
+"click Import_ to add your project to the site. Fill in the name and "
+"description, then specify where your repository is located. This is normally"
+" the URL or path name you'd use to checkout, clone, or branch your code. "
+"Some examples:"
+msgstr ""
+
+# 0eaf2d9626dd463d836655dc4ba299b0
+#: ../../getting_started.rst:47
+msgid "Git: ``http://github.com/ericholscher/django-kong.git``"
+msgstr ""
+
+# 24a01bc5b09549b8bfbe0cfd1f4993e4
+#: ../../getting_started.rst:48
+msgid "Subversion: ``http://varnish-cache.org/svn/trunk``"
+msgstr ""
+
+# 665b40223dd64b77bec199e8951e1d59
+#: ../../getting_started.rst:49
+msgid "Mercurial: ``https://bitbucket.org/ianb/pip``"
+msgstr ""
+
+# a8d5721c75a84481b684f80d1cd11271
+#: ../../getting_started.rst:50
+msgid "Bazaar: ``lp:pasta``"
+msgstr ""
+
+# c7c217cabab34ccab46cb0dd90c8e007
+#: ../../getting_started.rst:52
+msgid "Add an optional homepage URL and some tags, then click \"Create\"."
+msgstr ""
+
+# ecf599bf3bbb4eb9bb31f25c3561e35c
+#: ../../getting_started.rst:54
+msgid ""
+"Within a few minutes your code will automatically be fetched from your "
+"public repository, and the documentation will be built. Check out our "
+":doc:`builds` page to learn more about how we build your docs, and to "
+"troubleshoot any issues that arise."
+msgstr ""
+
+# 35c76658de93497ba8061846dd24b261
+#: ../../getting_started.rst:57
+msgid ""
+"If you want to keep your code updated as you commit, configure your code "
+"repository to hit our `Post Commit Hooks`_. This will rebuild your docs "
+"every time you push your code."
+msgstr ""
+
+# 4b77085452fb4a839b693dd522ed6a3f
+#: ../../getting_started.rst:59
+msgid ""
+"If you have any more trouble, don't hesitate to reach out to us. The "
+":doc:`support` page has more information on getting in touch."
+msgstr ""
