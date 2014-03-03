@@ -56,22 +56,12 @@ rtd-deps:
 
 # Site data, load once on successful pip install
 {% set venv_python = site_path + '/bin/python' %}
-{% set local_settings = site_path + '/checkouts/readthedocs.org/readthedocs/settings/local_settings.py' %}
-
-{{ local_settings }}:
-  file.managed:
-    - source: salt://readthedocs/site/local_settings.py
-    - template: jinja
-    - user: docs
-    - group: docs
-    - require:
-      - file: {{ site_path }}/checkouts/readthedocs.org
 
 rtd-db-sync:
   cmd.wait:
     - name:
         {{ venv_python }} manage.py syncdb
-        --settings=readthedocs.settings.postgres
+        --settings=readthedocs.settings.vagrant
         --noinput
     - cwd: {{ site_path }}/checkouts/readthedocs.org
     - user: docs
@@ -79,27 +69,25 @@ rtd-db-sync:
       - cmd: rtd-deps
     - require:
       - postgres_database: postgresql-docs
-      - file: {{ local_settings }}
 
 rtd-db-migrate:
   cmd.wait:
     - name:
         {{ venv_python }} manage.py migrate
-        --settings=readthedocs.settings.postgres
+        --settings=readthedocs.settings.vagrant
     - cwd: {{ site_path }}/checkouts/readthedocs.org
     - user: docs
     - watch:
       - cmd: rtd-db-sync
     - require:
       - postgres_database: postgresql-docs
-      - file: {{ local_settings }}
 
 {% if grains['id'] == 'vagrant' %}
 rtd-db-loaduser:
   cmd.wait:
     - name:
         {{ venv_python }} manage.py loaddata test_auth
-        --settings=readthedocs.settings.postgres
+        --settings=readthedocs.settings.vagrant
     - cwd: {{ site_path }}/checkouts/readthedocs.org
     - user: docs
     - watch:
@@ -109,7 +97,7 @@ rtd-db-loaddata:
   cmd.wait:
     - name:
         {{ venv_python }} manage.py loaddata test_data
-        --settings=readthedocs.settings.postgres
+        --settings=readthedocs.settings.vagrant
     - cwd: {{ site_path }}/checkouts/readthedocs.org
     - user: docs
     - watch:
