@@ -18,7 +18,7 @@ class Lock(object):
 
     def __init__(self, project, version, timeout=5, polling_interval=0.1):
         self.name = project.slug
-        self.fpath = os.path.join(project.checkout_path(version.slug), '__rtdlock__')
+        self.fpath = os.path.join(project.doc_path), '%s__rtdlock' % version.slug)
         self.timeout = timeout
         self.polling_interval = polling_interval
 
