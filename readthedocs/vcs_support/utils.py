@@ -1,6 +1,7 @@
 import logging
 import os
 import time
+import stat
 
 log = logging.getLogger(__name__)
 
@@ -24,6 +25,12 @@ class Lock(object):
     def __enter__(self):
         start = time.time()
         while os.path.exists(self.fpath):
+            lock_age = time.time() - os.stat(self.fname)[stat.ST_MTIME]
+            if lock_age > self.timeout:
+                log.info("Lock (%s): Force unlock, old lockfile" %
+                         self.name)
+                os.remove(self.fpath)
+                break
             log.info("Lock (%s): Locked, waiting.." % self.name)
             time.sleep(self.polling_interval)
             timesince = time.time() - start
