@@ -82,9 +82,9 @@ def update_docs(pk, record=True, pdf=True, man=True, epub=True, dash=True,
 
     project_data = api.project(pk).get()
     project = make_api_project(project_data)
-    #if 'OnroerendErfgoed' in  project.repo:
+    if 'tryton' in  project.repo:
         # Skip for now
-        #return
+        return
 
     log.info(LOG_TEMPLATE.format(project=project.slug, version='', msg='Building'))
     if version_pk:
