@@ -340,7 +340,7 @@ def update_imported_docs(version_pk, api=None):
     if not os.path.exists(project.doc_path):
         os.makedirs(project.doc_path)
 
-    with project.repo_lock(getattr(settings, 'REPO_LOCK_SECONDS', 30)):
+    with project.repo_lock(version, getattr(settings, 'REPO_LOCK_SECONDS', 30)):
         update_docs_output = {}
         if not project.vcs_repo():
             raise ProjectImportError(("Repo type '{0}' unknown"
@@ -473,7 +473,7 @@ def build_docs(version_pk, pdf, man, epub, dash, search, localmedia, record, for
     if 'sphinx' in project.documentation_type and not project.conf_file(version.slug):
         return ('', 'Conf file not found.', -1)
 
-    with project.repo_lock(getattr(settings, 'REPO_LOCK_SECONDS', 30)):
+    with project.repo_lock(version, getattr(settings, 'REPO_LOCK_SECONDS', 30)):
 
         html_builder = builder_loading.get(project.documentation_type)(version)
         if force:

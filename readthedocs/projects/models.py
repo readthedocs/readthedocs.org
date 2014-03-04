@@ -650,8 +650,8 @@ class Project(models.Model):
         self._contribution_backend = cb
         return cb
 
-    def repo_lock(self, timeout=5, polling_interval=5):
-        return Lock(self, timeout, polling_interval)
+    def repo_lock(self, version, timeout=5, polling_interval=5):
+        return Lock(self, version, timeout, polling_interval)
 
     def find(self, file, version):
         """
