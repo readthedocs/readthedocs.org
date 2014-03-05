@@ -1,3 +1,12 @@
+# Hack around bzr hosting
+
+--allow-external bar
+--allow-unverified bzr 
+--allow-external launchpadlib
+--allow-unverified launchpadlib 
+--allow-external lazr.authentication
+--allow-unverified lazr.authentication
+
 # Basic tools
 virtualenv==1.11.1
 docutils==0.11
