@@ -454,6 +454,12 @@ class Project(models.Model):
             scheme, netloc = "http", parsed.path
         return "%s://%s/" % (scheme, netloc)
 
+    @property
+    def clean_repo(self):
+        if self.repo.startswith('http://github.com'):
+            return self.repo.replace('http://github.com', 'https://github.com')
+        return self.repo
+
     #Doc PATH:
     #MEDIA_ROOT/slug/checkouts/version/<repo>
 
@@ -634,7 +640,7 @@ class Project(models.Model):
             repo = None
         else:
             proj = VCSProject(self.name, self.default_branch,
-                              self.checkout_path(version), self.repo)
+                              self.checkout_path(version), self.clean_repo)
             repo = backend(proj, version)
         #self._vcs_repo = repo
         return repo
