@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-01 03:34-0600\n"
+"POT-Creation-Date: 2014-03-04 20:27-0600\n"
 "PO-Revision-Date: 2014-02-21 11:01+0000\n"
 "Last-Translator: ferm32 <ferm32@gmail.com>\n"
 "Language-Team: Russian (http://www.transifex.com/projects/p/readthedocs/"
@@ -32,7 +32,7 @@ msgstr ""
 "%(error)s"
 
 #: bookmarks/models.py:9 builds/models.py:82 builds/models.py:268
-#: builds/models.py:284 projects/models.py:782
+#: builds/models.py:284 projects/models.py:788
 msgid "Project"
 msgstr "Проект"
 
@@ -107,7 +107,7 @@ msgid "Any"
 msgstr "Любой"
 
 #: builds/filters.py:17 builds/filters.py:30 projects/filters.py:31
-#: projects/models.py:101 projects/models.py:786
+#: projects/models.py:101 projects/models.py:792
 msgid "Name"
 msgstr "Имя"
 
@@ -132,7 +132,7 @@ msgid "Verbose Name"
 msgstr "Подробное наименование"
 
 #: builds/models.py:92 projects/filters.py:33 projects/models.py:102
-#: projects/models.py:787
+#: projects/models.py:793
 msgid "Slug"
 msgstr "Идёт с трудом"
 
@@ -188,7 +188,7 @@ msgstr "Самый большой"
 msgid "Alias for %(project)s: %(from)s -> %(to)s"
 msgstr "Псевдоним для %(project)s: %(from)s -> %(to)s"
 
-#: builds/models.py:286 projects/models.py:118 projects/models.py:784
+#: builds/models.py:286 projects/models.py:118 projects/models.py:790
 #: templates/djangome/oneoffs.html:11
 msgid "Version"
 msgstr "Версия"
@@ -487,7 +487,7 @@ msgstr ""
 msgid "Project version these docs apply to, i.e. 1.0a"
 msgstr "К какой версии проекта относится данная документация, например, 1.0a"
 
-#: projects/models.py:121 templates/sphinx/sphinx_rtd_theme/layout.html:82
+#: projects/models.py:121 templates/sphinx/sphinx_rtd_theme/layout.html:58
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:140
 msgid "Copyright"
 msgstr "© (авторские права)"
@@ -582,7 +582,7 @@ msgstr ""
 "Google Analytics Tracking ID (напр. UA-22345342-1). Может замедлить загрузку "
 "ваших страниц."
 
-#: projects/models.py:162 projects/models.py:788
+#: projects/models.py:162 projects/models.py:794
 msgid "Path"
 msgstr "Путь"
 
@@ -698,11 +698,11 @@ msgstr "Просмотреть проект"
 msgid "Model must have slug"
 msgstr "В модели должен быть slug"
 
-#: projects/models.py:789
+#: projects/models.py:795
 msgid "MD5 checksum"
 msgstr "Контрольная сумма MD5"
 
-#: projects/models.py:817
+#: projects/models.py:823
 msgid "URL to send the webhook to"
 msgstr "URL, на которые следует отправлять webhook"
 
@@ -746,6 +746,15 @@ msgstr "Вьетнамский"
 #: settings/base.py:63
 msgid "Chinese"
 msgstr "Китайский"
+
+#: templates/404.html:5
+msgid "Maze Found"
+msgstr ""
+
+#: templates/500.html:5
+#, fuzzy
+msgid "Server Error"
+msgstr "Ошибка настройки"
 
 #. Translators: Name of the website
 #: templates/base.html:13 templates/error_header.html:12
@@ -1062,7 +1071,7 @@ msgstr "Поиск в %(project)s"
 #: templates/core/project_details.html:18
 #: templates/core/project_list_detailed.html:34
 #: templates/core/project_list_featured.html:17
-#: templates/sphinx/sphinx_rtd_theme/layout.html:79
+#: templates/sphinx/sphinx_rtd_theme/layout.html:55
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:137
 #: templates/sphinx/sphinx_rtd_theme/search.html:11
 msgid "Search"
@@ -2214,12 +2223,12 @@ msgstr "Назад"
 msgid "Next"
 msgstr "Вперёд"
 
-#: templates/sphinx/sphinx_rtd_theme/layout.html:71
+#: templates/sphinx/sphinx_rtd_theme/layout.html:47
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:131
 msgid "About these documents"
 msgstr "Об этих документах"
 
-#: templates/sphinx/sphinx_rtd_theme/layout.html:75
+#: templates/sphinx/sphinx_rtd_theme/layout.html:51
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:134
 msgid "Index"
 msgstr "Алфавитный указатель"

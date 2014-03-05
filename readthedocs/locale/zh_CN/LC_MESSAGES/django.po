@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-01 03:34-0600\n"
+"POT-Creation-Date: 2014-03-04 20:27-0600\n"
 "PO-Revision-Date: 2014-02-28 15:14+0000\n"
 "Last-Translator: wlbksy <kookbond@gmail.com>\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/projects/p/"
@@ -31,7 +31,7 @@ msgid "Invalid resource lookup data provided (mismatched type).: %(error)s"
 msgstr ""
 
 #: bookmarks/models.py:9 builds/models.py:82 builds/models.py:268
-#: builds/models.py:284 projects/models.py:782
+#: builds/models.py:284 projects/models.py:788
 msgid "Project"
 msgstr "项目"
 
@@ -106,7 +106,7 @@ msgid "Any"
 msgstr "任何"
 
 #: builds/filters.py:17 builds/filters.py:30 projects/filters.py:31
-#: projects/models.py:101 projects/models.py:786
+#: projects/models.py:101 projects/models.py:792
 msgid "Name"
 msgstr "名称"
 
@@ -131,7 +131,7 @@ msgid "Verbose Name"
 msgstr "长名字"
 
 #: builds/models.py:92 projects/filters.py:33 projects/models.py:102
-#: projects/models.py:787
+#: projects/models.py:793
 msgid "Slug"
 msgstr "Slug"
 
@@ -187,7 +187,7 @@ msgstr "最大"
 msgid "Alias for %(project)s: %(from)s -> %(to)s"
 msgstr "%(project)s 的别名: %(from)s -> %(to)s"
 
-#: builds/models.py:286 projects/models.py:118 projects/models.py:784
+#: builds/models.py:286 projects/models.py:118 projects/models.py:790
 #: templates/djangome/oneoffs.html:11
 msgid "Version"
 msgstr "版本"
@@ -481,7 +481,7 @@ msgstr ""
 msgid "Project version these docs apply to, i.e. 1.0a"
 msgstr ""
 
-#: projects/models.py:121 templates/sphinx/sphinx_rtd_theme/layout.html:82
+#: projects/models.py:121 templates/sphinx/sphinx_rtd_theme/layout.html:58
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:140
 msgid "Copyright"
 msgstr "版权"
@@ -571,7 +571,7 @@ msgid ""
 "page loads."
 msgstr "Google 分析追踪 ID（如：UA-22345342-1）。这可能导致页面加载变慢。"
 
-#: projects/models.py:162 projects/models.py:788
+#: projects/models.py:162 projects/models.py:794
 msgid "Path"
 msgstr "路径"
 
@@ -679,11 +679,11 @@ msgstr "查看项目"
 msgid "Model must have slug"
 msgstr ""
 
-#: projects/models.py:789
+#: projects/models.py:795
 msgid "MD5 checksum"
 msgstr "MD5 校验码"
 
-#: projects/models.py:817
+#: projects/models.py:823
 msgid "URL to send the webhook to"
 msgstr "URL 用来发送 webhook 到"
 
@@ -727,6 +727,15 @@ msgstr "越南语"
 #: settings/base.py:63
 msgid "Chinese"
 msgstr "中文"
+
+#: templates/404.html:5
+msgid "Maze Found"
+msgstr ""
+
+#: templates/500.html:5
+#, fuzzy
+msgid "Server Error"
+msgstr "安装错误"
 
 #. Translators: Name of the website
 #: templates/base.html:13 templates/error_header.html:12
@@ -1025,7 +1034,7 @@ msgstr "搜索 %(project)s"
 #: templates/core/project_details.html:18
 #: templates/core/project_list_detailed.html:34
 #: templates/core/project_list_featured.html:17
-#: templates/sphinx/sphinx_rtd_theme/layout.html:79
+#: templates/sphinx/sphinx_rtd_theme/layout.html:55
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:137
 #: templates/sphinx/sphinx_rtd_theme/search.html:11
 msgid "Search"
@@ -2143,12 +2152,12 @@ msgstr "上一页"
 msgid "Next"
 msgstr "下一页"
 
-#: templates/sphinx/sphinx_rtd_theme/layout.html:71
+#: templates/sphinx/sphinx_rtd_theme/layout.html:47
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:131
 msgid "About these documents"
 msgstr "关于这些文档"
 
-#: templates/sphinx/sphinx_rtd_theme/layout.html:75
+#: templates/sphinx/sphinx_rtd_theme/layout.html:51
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:134
 msgid "Index"
 msgstr "首页"

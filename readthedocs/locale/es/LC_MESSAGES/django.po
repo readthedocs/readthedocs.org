@@ -11,9 +11,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-01 03:34-0600\n"
-"PO-Revision-Date: 2014-02-06 23:05+0000\n"
-"Last-Translator: puentesarrin <puentesarrin@gmail.com>\n"
+"POT-Creation-Date: 2014-03-04 20:26-0600\n"
+"PO-Revision-Date: 2014-03-03 11:51+0000\n"
+"Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
 "Language-Team: Spanish (http://www.transifex.com/projects/p/readthedocs/"
 "language/es/)\n"
 "Language: es\n"
@@ -34,7 +34,7 @@ msgstr ""
 "%(error)s"
 
 #: bookmarks/models.py:9 builds/models.py:82 builds/models.py:268
-#: builds/models.py:284 projects/models.py:782
+#: builds/models.py:284 projects/models.py:788
 msgid "Project"
 msgstr "Proyecto"
 
@@ -109,7 +109,7 @@ msgid "Any"
 msgstr "Cualquier"
 
 #: builds/filters.py:17 builds/filters.py:30 projects/filters.py:31
-#: projects/models.py:101 projects/models.py:786
+#: projects/models.py:101 projects/models.py:792
 msgid "Name"
 msgstr "Nombre"
 
@@ -134,7 +134,7 @@ msgid "Verbose Name"
 msgstr "Nombre completo"
 
 #: builds/models.py:92 projects/filters.py:33 projects/models.py:102
-#: projects/models.py:787
+#: projects/models.py:793
 msgid "Slug"
 msgstr "Slug"
 
@@ -190,7 +190,7 @@ msgstr "Más grande"
 msgid "Alias for %(project)s: %(from)s -> %(to)s"
 msgstr "Alias para %(project)s: %(from)s -> %(to)s"
 
-#: builds/models.py:286 projects/models.py:118 projects/models.py:784
+#: builds/models.py:286 projects/models.py:118 projects/models.py:790
 #: templates/djangome/oneoffs.html:11
 msgid "Version"
 msgstr "Versión"
@@ -280,7 +280,7 @@ msgstr ""
 
 #: projects/constants.py:21
 msgid "Mkdocs"
-msgstr ""
+msgstr "Mkdocs"
 
 #. Translators: This is a name of a Sphinx theme.
 #: projects/constants.py:29
@@ -360,7 +360,6 @@ msgid "Repository URL"
 msgstr "URL del repositorio"
 
 #: projects/filters.py:39
-#, fuzzy
 msgid "Repository Type"
 msgstr "Tipo de repositorio"
 
@@ -489,7 +488,7 @@ msgstr ""
 msgid "Project version these docs apply to, i.e. 1.0a"
 msgstr "Versión del proyecto para la que aplica estos docs, ej. 1.0a"
 
-#: projects/models.py:121 templates/sphinx/sphinx_rtd_theme/layout.html:82
+#: projects/models.py:121 templates/sphinx/sphinx_rtd_theme/layout.html:58
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:140
 msgid "Copyright"
 msgstr "Copyright"
@@ -577,7 +576,7 @@ msgstr ""
 "Google Analytics Tracking ID (ex. UA-22345342-1). Esto puede reducir la "
 "velocidad de carga de la página."
 
-#: projects/models.py:162 projects/models.py:788
+#: projects/models.py:162 projects/models.py:794
 msgid "Path"
 msgstr "Ruta"
 
@@ -606,9 +605,8 @@ msgid "Skip"
 msgstr "Saltar"
 
 #: projects/models.py:171
-#, fuzzy
 msgid "Mirror"
-msgstr "Error"
+msgstr ""
 
 #: projects/models.py:173
 msgid "Use virtualenv"
@@ -691,11 +689,11 @@ msgstr "Ver proyecto"
 msgid "Model must have slug"
 msgstr "El modelo debe tener un slug"
 
-#: projects/models.py:789
+#: projects/models.py:795
 msgid "MD5 checksum"
 msgstr "MD5 checksum"
 
-#: projects/models.py:817
+#: projects/models.py:823
 msgid "URL to send the webhook to"
 msgstr ""
 
@@ -733,13 +731,21 @@ msgid "Galician"
 msgstr "Gallego"
 
 #: settings/base.py:62
-#, fuzzy
 msgid "Vietnamese"
-msgstr "Nombre"
+msgstr ""
 
 #: settings/base.py:63
 msgid "Chinese"
 msgstr ""
+
+#: templates/404.html:5
+msgid "Maze Found"
+msgstr ""
+
+#: templates/500.html:5
+#, fuzzy
+msgid "Server Error"
+msgstr "Error de configuración"
 
 #. Translators: Name of the website
 #: templates/base.html:13 templates/error_header.html:12
@@ -889,9 +895,8 @@ msgstr ""
 "automáticamente."
 
 #: templates/archive/index.html:5
-#, fuzzy
 msgid "Read the Docs Archive"
-msgstr "Read the Docs"
+msgstr ""
 
 #: templates/bookmarks/bookmark_list.html:7
 msgid "Bookmarks"
@@ -1057,7 +1062,7 @@ msgstr "Buscar %(project)s"
 #: templates/core/project_details.html:18
 #: templates/core/project_list_detailed.html:34
 #: templates/core/project_list_featured.html:17
-#: templates/sphinx/sphinx_rtd_theme/layout.html:79
+#: templates/sphinx/sphinx_rtd_theme/layout.html:55
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:137
 #: templates/sphinx/sphinx_rtd_theme/search.html:11
 msgid "Search"
@@ -2216,12 +2221,12 @@ msgstr "Anterior"
 msgid "Next"
 msgstr "Siguiente"
 
-#: templates/sphinx/sphinx_rtd_theme/layout.html:71
+#: templates/sphinx/sphinx_rtd_theme/layout.html:47
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:131
 msgid "About these documents"
 msgstr "Acerca de estos documentos"
 
-#: templates/sphinx/sphinx_rtd_theme/layout.html:75
+#: templates/sphinx/sphinx_rtd_theme/layout.html:51
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:134
 msgid "Index"
 msgstr "Índice"
@@ -2242,15 +2247,3 @@ msgstr ""
 "Su búsqueda no coincidió con ningún documento. Por favor, asegúrate que "
 "todas las palabras están escritas correctamente y que ha seleccionado "
 "suficientes categorías."
-
-#~ msgid "Sphinx Websupport"
-#~ msgstr "Soporte Web de Sphinx"
-
-#~ msgid ""
-#~ "\n"
-#~ "        %(version)s Manpage\n"
-#~ "      "
-#~ msgstr ""
-#~ "\n"
-#~ "        %(version)s Manpage\n"
-#~ "      "

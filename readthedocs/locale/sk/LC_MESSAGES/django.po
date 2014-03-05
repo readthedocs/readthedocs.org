@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-01 03:34-0600\n"
+"POT-Creation-Date: 2014-03-04 20:27-0600\n"
 "PO-Revision-Date: 2014-01-12 21:06+0000\n"
 "Last-Translator: Juraj Bubniak <translations@jbub.eu>\n"
 "Language-Team: Slovak (http://www.transifex.com/projects/p/readthedocs/"
@@ -29,7 +29,7 @@ msgid "Invalid resource lookup data provided (mismatched type).: %(error)s"
 msgstr ""
 
 #: bookmarks/models.py:9 builds/models.py:82 builds/models.py:268
-#: builds/models.py:284 projects/models.py:782
+#: builds/models.py:284 projects/models.py:788
 msgid "Project"
 msgstr "Projekt"
 
@@ -104,7 +104,7 @@ msgid "Any"
 msgstr ""
 
 #: builds/filters.py:17 builds/filters.py:30 projects/filters.py:31
-#: projects/models.py:101 projects/models.py:786
+#: projects/models.py:101 projects/models.py:792
 msgid "Name"
 msgstr "Názov"
 
@@ -129,7 +129,7 @@ msgid "Verbose Name"
 msgstr "Dlhý názov"
 
 #: builds/models.py:92 projects/filters.py:33 projects/models.py:102
-#: projects/models.py:787
+#: projects/models.py:793
 msgid "Slug"
 msgstr "Slug"
 
@@ -185,7 +185,7 @@ msgstr ""
 msgid "Alias for %(project)s: %(from)s -> %(to)s"
 msgstr ""
 
-#: builds/models.py:286 projects/models.py:118 projects/models.py:784
+#: builds/models.py:286 projects/models.py:118 projects/models.py:790
 #: templates/djangome/oneoffs.html:11
 msgid "Version"
 msgstr "Verzia"
@@ -480,7 +480,7 @@ msgstr ""
 msgid "Project version these docs apply to, i.e. 1.0a"
 msgstr "Verzia projektu, ktorej sa týka táto dokumentácia, napr. 1.0a"
 
-#: projects/models.py:121 templates/sphinx/sphinx_rtd_theme/layout.html:82
+#: projects/models.py:121 templates/sphinx/sphinx_rtd_theme/layout.html:58
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:140
 msgid "Copyright"
 msgstr "Autorské práva"
@@ -567,7 +567,7 @@ msgstr ""
 "Google Analytics Tracking ID (napr. UA-22345342-1). Toto môže spomaliť "
 "načítanie vašej stránky."
 
-#: projects/models.py:162 projects/models.py:788
+#: projects/models.py:162 projects/models.py:794
 msgid "Path"
 msgstr "Cesta"
 
@@ -677,11 +677,11 @@ msgstr ""
 msgid "Model must have slug"
 msgstr "Model musí mať slug"
 
-#: projects/models.py:789
+#: projects/models.py:795
 msgid "MD5 checksum"
 msgstr "MD5 kontrolný súčet"
 
-#: projects/models.py:817
+#: projects/models.py:823
 msgid "URL to send the webhook to"
 msgstr ""
 
@@ -725,6 +725,14 @@ msgstr "Meno"
 
 #: settings/base.py:63
 msgid "Chinese"
+msgstr ""
+
+#: templates/404.html:5
+msgid "Maze Found"
+msgstr ""
+
+#: templates/500.html:5
+msgid "Server Error"
 msgstr ""
 
 #. Translators: Name of the website
@@ -1026,7 +1034,7 @@ msgstr ""
 #: templates/core/project_details.html:18
 #: templates/core/project_list_detailed.html:34
 #: templates/core/project_list_featured.html:17
-#: templates/sphinx/sphinx_rtd_theme/layout.html:79
+#: templates/sphinx/sphinx_rtd_theme/layout.html:55
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:137
 #: templates/sphinx/sphinx_rtd_theme/search.html:11
 msgid "Search"
@@ -2119,12 +2127,12 @@ msgstr ""
 msgid "Next"
 msgstr ""
 
-#: templates/sphinx/sphinx_rtd_theme/layout.html:71
+#: templates/sphinx/sphinx_rtd_theme/layout.html:47
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:131
 msgid "About these documents"
 msgstr "O týcho dokumetoch"
 
-#: templates/sphinx/sphinx_rtd_theme/layout.html:75
+#: templates/sphinx/sphinx_rtd_theme/layout.html:51
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:134
 msgid "Index"
 msgstr "Index"
