@@ -11,6 +11,7 @@ required_dirs = ['checkouts', 'etc', 'run', 'log']
 
 asgard_ip = '10.176.7.42'
 backup_ip = '10.176.4.219'
+bari_ip = '10.176.13.14'
 build_ip = '10.176.11.210'
 chimera_ip = '10.176.11.213'
 db_ip = '10.176.9.67'
@@ -64,8 +65,15 @@ def install_packages(type=None):
     sudo('apt-get update')
     sudo('apt-get install -y vim software-properties-common')
     sudo('apt-get install -y python-setuptools')
-    sudo('easy_install pip')
-    sudo('pip-2.7 install -U virtualenv')
+
+    # Python 3
+    sudo('apt-get install -y python3.3 python3.3-dev')
+    sudo('easy_install3 pip')
+    sudo('pip3 install -U virtualenv')
+
+    # Python 2
+    sudo('easy_install-2.7 pip')
+    sudo('pip2 install -U virtualenv')
 
     if type == 'build':
         sudo(
@@ -78,7 +86,7 @@ def install_packages(type=None):
             ' latex-cjk-chinese-arphic-gbsn00lp latex-cjk-chinese-arphic-gkai00mp',
             ' latex-cjk-chinese-arphic-bsmi00lp latex-cjk-chinese-arphic-bkai00mp'
         )
-        sudo('pip-2.7 install -U mercurial')
+        sudo('pip2 install -U mercurial')
     if type == 'db':
         sudo('apt-get install -y solr-tomcat postgresql ')
     if type == 'search':
@@ -129,8 +137,8 @@ def checkout(user=None):
             with cd('%s/checkouts/' % home):
                 run('git clone git://github.com/rtfd/readthedocs.org.git')
         if not fabtools.files.is_file('%s/bin/python' % home):
-            run('virtualenv %s' % home)
-        run(('%s/bin/pip install -U -r %s/checkouts/readthedocs.org/'
+            run('virtualenv2 %s' % home)
+        run(('%s/bin/pip2 install --allow-all-external --allow-unverified bzr --allow-unverified launchpadlib --allow-unverified lazr.authentication -U -r %s/checkouts/readthedocs.org/'
              'deploy_requirements.txt') % (home, home))
 
 
@@ -167,6 +175,36 @@ def setup_db():
         run('./manage.py syncdb --noinput')
         run('./manage.py migrate')
 
+def all_firewall():
+    # Webs
+    with settings(host_string='root@newasgard'):
+        firewall('web')
+        firewall('munin')
+    with settings(host_string='root@newchimera'):
+        firewall('web')
+        firewall('munin')
+
+    # Build servers
+    with settings(host_string='root@bari'):
+        firewall('build')
+        firewall('munin')
+    with settings(host_string='root@newbuild'):
+        firewall('build')
+        firewall('munin')
+
+    # Backup
+    with settings(host_string='root@newbackup'):
+        firewall('backup')
+        firewall('search')
+        firewall('munin')
+
+    # DB
+    with settings(host_string='root@newdb'):
+        firewall('db')
+        firewall('search')
+        firewall('munin')
+
+
 def firewall(type):
     if type == "setup":
         sudo('apt-get install ufw')
@@ -183,7 +221,7 @@ def firewall(type):
         for ip in [asgard_ip, chimera_ip]:
             sudo('ufw allow from %s to any port 8080 #Solr' % ip)
     if type == "build":
-        for ip in [asgard_ip, build_ip, chimera_ip, backup_ip]:
+        for ip in [asgard_ip, build_ip, chimera_ip, backup_ip, bari_ip]:
             sudo('ufw allow from %s to any port 6379 #Redis' % ip )
     if type == "backup":
         pass
@@ -198,7 +236,8 @@ def host_file():
 %s build
 %s chimera
 %s db
-    """ % (asgard_ip, backup_ip, build_ip, chimera_ip, db_ip)
+%s bari
+    """ % (asgard_ip, backup_ip, build_ip, chimera_ip, db_ip, bari_ip)
    sudo("echo '%s' >> /etc/hosts " % host_string) 
 
 def nginx_configs():

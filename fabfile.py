@@ -7,6 +7,7 @@ import time
 env.runtime = 'production'
 env.hosts = ['newchimera.readthedocs.com',
              'newbuild.readthedocs.com',
+             'bari.readthedocs.com',
              'newasgard.readthedocs.com']
 env.user = 'docs'
 env.code_dir = '/home/docs/checkouts/readthedocs.org'
@@ -29,7 +30,7 @@ def nginx_logs():
     env.user = "root"
     run("tail -F /var/log/nginx/*.log")
 
-@hosts(['newbuild.readthedocs.com'])
+@hosts(['newbuild.readthedocs.com', 'bari.readthedocs.com'])
 def celery_logs():
     env.user = "docs"
     run("tail -F tail -f ~/log/celery.err")
@@ -129,7 +130,7 @@ def reload():
     run("supervisorctl update")
 
 
-@hosts(['newbuild.readthedocs.com'])
+@hosts(['newbuild.readthedocs.com', 'bari.readthedocs.com'])
 def celery():
     "Restart (or just start) the server"
     run("supervisorctl restart celery")
