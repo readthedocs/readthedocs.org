@@ -3,13 +3,14 @@
 # This file is distributed under the same license as the Read The Docs package.
 # 
 # Translators:
+# numerodix <numerodix@gmail.com>, 2014
 msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs-docs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-01 22:07+0800\n"
-"PO-Revision-Date: 2014-03-02 13:43+0000\n"
-"Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
+"POT-Creation-Date: 2014-03-03 10:59+0800\n"
+"PO-Revision-Date: 2014-03-03 21:00+0000\n"
+"Last-Translator: numerodix <numerodix@gmail.com>\n"
 "Language-Team: Italian (http://www.transifex.com/projects/p/readthedocs-docs/language/it/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -20,12 +21,12 @@ msgstr ""
 # 3a8fbbce5d45416d99da9711b09bb6a9
 #: ../../builds.rst:2
 msgid "Build Process"
-msgstr ""
+msgstr "Il processo di costruzione"
 
 # ef7b9d6a4ea34f449918d1f8cde89295
 #: ../../builds.rst:5
 msgid "Understanding what's going on"
-msgstr ""
+msgstr "Comprendere come funzione"
 
 # 9596846224074a88b4a15b8fe94c5ab8
 #: ../../builds.rst:7
@@ -33,7 +34,7 @@ msgid ""
 "Understanding how Read the Docs builds your project will help you with "
 "debugging the problems you have with the site. It should also allow you to "
 "take advantage of certain things that happen during the build process."
-msgstr ""
+msgstr "Comprendere come Read the Docs costruisce il tuo progetto ti aiuterà a risolvere dei problemi che tu possa avere con il sito. È importante anche per poter influire sul processo di costruzione."
 
 # a30b1141a52b4c10b2802fef386117f6
 #: ../../builds.rst:9
@@ -42,14 +43,14 @@ msgid ""
 "repository you have given us. If the code is already checked out, we update "
 "the copy to the branch that you have specified in your projects "
 "configuration."
-msgstr ""
+msgstr "Il primo passo consiste nel fare un checkout del tuo sorgente dal repository segnalato. Se un checkout è già stato fatto sarà aggiornato secondo il ramo indicato nella configurazione del progetto."
 
 # a54e8b4580e1459a8d5e0d127075b8a6
 #: ../../builds.rst:11
 msgid ""
 "Then we build the proper backend code for the type of documentation you've "
 "selected."
-msgstr ""
+msgstr "DI conseguenza sarà costruito il codice backend adatto al tipo di documentazione richiesto."
 
 # ba475848a7994d5396abf0fc6ceb6143
 #: ../../builds.rst:13

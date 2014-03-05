@@ -79,10 +79,12 @@ def i18n():
 @hosts(['localhost'])
 def i18n_docs():
     with lcd('docs'):
-        local('tx pull')
+        # Update our tanslations
+        local('tx pull -a')
+        local('sphinx-intl build')
+        # Push new ones
         local('make gettext')
         local('tx push -s')
-        local('sphinx-intl build')
 
 
 def push():

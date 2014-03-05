@@ -3,13 +3,14 @@
 # This file is distributed under the same license as the Read The Docs package.
 # 
 # Translators:
+# numerodix <numerodix@gmail.com>, 2014
 msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs-docs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-01 22:07+0800\n"
-"PO-Revision-Date: 2014-03-02 13:43+0000\n"
-"Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
+"POT-Creation-Date: 2014-03-03 10:59+0800\n"
+"PO-Revision-Date: 2014-03-03 20:40+0000\n"
+"Last-Translator: numerodix <numerodix@gmail.com>\n"
 "Language-Team: Italian (http://www.transifex.com/projects/p/readthedocs-docs/language/it/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -20,7 +21,7 @@ msgstr ""
 # 818e4029f377471cb6e9a4b26c5d774f
 #: ../../install.rst:4
 msgid "Installation"
-msgstr ""
+msgstr "Installazione"
 
 # ec9b5e928ffb4a6b94c9cb7ce1e96494
 #: ../../install.rst:6
@@ -86,7 +87,7 @@ msgstr ""
 # 31a93895b45f4120aac2b5165d0e0a50
 #: ../../install.rst:61
 msgid "Finally, you're ready to start the webserver::"
-msgstr ""
+msgstr "Infine siamo pronti a avviare il web server::"
 
 # 4bed87a049264508bb97ecf4774bd593
 #: ../../install.rst:65
