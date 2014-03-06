@@ -1,14 +1,12 @@
 # Nginx
 
 nginx:
-  pkg:
-    - installed
+  pkg.installed:
+    - name: nginx-extras
   service.running:
     - enable: True
     - require:
       - pkg: nginx
-    - watch:
-      - file: /etc/nginx/sites-enabled/readthedocs
 
 /etc/nginx/nginx.conf:
   file.managed:
@@ -18,3 +16,8 @@ nginx:
 /etc/nginx/sites-enabled/default:
   file:
     - absent
+
+/usr/share/nginx/perl:
+  file.directory:
+    - require:
+      - pkg: nginx

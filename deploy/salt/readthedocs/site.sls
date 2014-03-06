@@ -153,4 +153,23 @@ readthedocs-{{ service }}:
       - service: nginx
     - require:
       - file: /etc/nginx/nginx.conf
+      - file: /usr/share/nginx/perl/ReadTheDocs.pm
       - service: readthedocs-gunicorn
+
+/usr/share/nginx/perl/ReadTheDocs.pm:
+  file.managed:
+    - source: salt://nginx/perl/lib/ReadTheDocs.pm
+    - watch_in:
+      - service: nginx
+    - require:
+      - file: /usr/share/nginx/perl
+      - pkg: libi18n-acceptlanguage-perl
+      - pkg: libjson-perl
+
+libi18n-acceptlanguage-perl:
+  pkg:
+    - installed
+
+libjson-perl:
+  pkg:
+    - installed

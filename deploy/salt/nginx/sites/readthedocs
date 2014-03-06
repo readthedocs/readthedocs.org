@@ -1,3 +1,6 @@
+perl_modules perl;
+perl_require ReadTheDocs.pm;
+
 server {
     listen 8000;
     server_name media.readthedocs.org;
@@ -88,16 +91,27 @@ server {
         break;
     }
 
-    location  ~* /en/(.+)/(.*) {
-        alias /home/docs/sites/readthedocs.org/checkouts/readthedocs.org/user_builds/$domain/rtd-builds/$1/$2;
+    location  ~* /en/(?<version>.+)(?:/(.*)|$) {
+        alias /home/docs/sites/readthedocs.org/checkouts/readthedocs.org/user_builds/$domain/rtd-builds/$version/$1;
         error_page 404 = @fallback;
         error_page 500 = @fallback;
         add_header X-Served Nginx;
         add_header X-Deity {{ grains['host'] }};
     }
-    location / {
-	rewrite (.*) http://$domain.readthedocs.org/en/latest/;
+
+    location  ~* /(?<lang>\w\w)/(?<version>.+)(?:/(.*)|$) {
+        alias /home/docs/sites/readthedocs.org/checkouts/readthedocs.org/user_builds/$domain/translations/$lang/$version/$1;
+        error_page 404 = @fallback;
+        error_page 500 = @fallback;
+        add_header X-Served Nginx;
+        add_header X-Deity {{ grains['host'] }};
     }
+
+    location ~ /$ {
+        set $rtd_metadata /home/docs/sites/readthedocs.org/checkouts/readthedocs.org/user_builds/$domain/metadata.json;
+        perl ReadTheDocs::redirect_home;
+    }
+
     location @fallback {
         proxy_pass http://127.0.0.1:8888;
         proxy_buffering off;

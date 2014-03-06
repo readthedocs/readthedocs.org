@@ -17,7 +17,8 @@ from betterversion.better import version_windows, BetterVersion
 from projects import constants
 from projects.exceptions import ProjectImportError
 from projects.templatetags.projects_tags import sort_version_aware
-from projects.utils import highest_version as _highest, make_api_version, symlink
+from projects.utils import (highest_version as _highest, make_api_version,
+                            symlink, update_static_metadata)
 from taggit.managers import TaggableManager
 from tastyapi.slum import api
 
@@ -292,6 +293,10 @@ class Project(models.Model):
             symlink(project=self.slug)
         except Exception, e:
             log.error('failed to symlink project', exc_info=True)
+        try:
+            update_static_metadata(project_pk=self.pk)
+        except Exception:
+            log.error('failed to update static metadata', exc_info=True)
         return obj
 
     def get_absolute_url(self):
@@ -569,6 +574,12 @@ class Project(models.Model):
         The destination path where the built docs are copied.
         """
         return os.path.join(self.doc_path, 'rtd-builds', version)
+
+    def static_metadata_path(self):
+        """
+        The path to the static metadata JSON settings file
+        """
+        return os.path.join(self.doc_path, 'metadata.json')
 
     def conf_file(self, version='latest'):
         if self.conf_py_file:
