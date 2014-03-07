@@ -37,7 +37,7 @@ HTML_ONLY = getattr(settings, 'HTML_ONLY_PROJECTS', ())
 
 @task
 @restoring_chdir
-def update_docs(pk, version_pk=None, record=True, docker=False,
+def update_docs(pk, version_pk=None, record=True, docker=True,
                 pdf=True, man=True, epub=True, dash=True,
                 search=True, force=False, intersphinx=True, localmedia=True,
                 api=None, **kwargs):
@@ -76,7 +76,7 @@ def update_docs(pk, version_pk=None, record=True, docker=False,
 
     record_build(api=api, build=build, record=record, results=results, state='building')
     if docker:
-        build_results = docker_build(version.pk, force, pdf, man, epub, dash, search, localmedia)
+        build_results = run_docker(version)
     else:
         setup_results = setup_environment(version) 
         build_results = build_docs(version, force, pdf, man, epub, dash, search, localmedia)
@@ -85,7 +85,7 @@ def update_docs(pk, version_pk=None, record=True, docker=False,
     results.update(build_results)
 
     record_build(api=api, build=build, record=record, results=results, state='finished')
-    record_pdf(api=api, record=record, results=results, state='finished')
+    record_pdf(api=api, record=record, results=results, state='finished', version=version)
 
     if results['html'][0] == 0:
         # Mark version active on the site
@@ -101,13 +101,18 @@ def update_docs(pk, version_pk=None, record=True, docker=False,
             log.error(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Unable to put a new version"), exc_info=True)
     finish_build(version, build, results['html'])
 
+def run_docker(version):
+    path = version.project.doc_path
+    run('docker run -v %s:/home/docs/checkouts/readthedocs.org/user_builds/%s ericholscher/readthedocs-build /bin/bash /home/docs/run.sh %s' % (path, version.project.slug, version.project.slug))
+    return {}
+
 def docker_build(version_pk, pdf=True, man=True, epub=True, dash=True, search=True, force=False, intersphinx=True, localmedia=True):
     """
     The code that executes inside of docker
     """
     version_data = api.version(version_pk).get()
     version = make_api_version(version_data)
-    
+
     environment_results = setup_environment(version) 
     build_results = build_docs(version, force, pdf, man, epub, dash, search, localmedia)
     return environment_results.update(build_results)
@@ -608,7 +613,7 @@ def record_build(api, record, build, results, state):
     ret = api.build(build['id']).put(build)
     return ret
 
-def record_pdf(api, record, results, state):
+def record_pdf(api, record, results, state, version):
     if not record:
         return None
     try:
