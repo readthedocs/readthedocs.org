@@ -76,7 +76,7 @@ def update_docs(pk, version_pk=None, record=True, docker=False,
 
     record_build(api=api, build=build, record=record, results=results, state='building')
     if docker:
-        build_results = docker_build(version, force, pdf, man, epub, dash, search, localmedia)
+        build_results = docker_build(version.pk, force, pdf, man, epub, dash, search, localmedia)
     else:
         setup_results = setup_environment(version) 
         build_results = build_docs(version, force, pdf, man, epub, dash, search, localmedia)
@@ -101,12 +101,15 @@ def update_docs(pk, version_pk=None, record=True, docker=False,
             log.error(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Unable to put a new version"), exc_info=True)
     finish_build(version, build, results['html'])
 
-def docker_build(version, force, pdf, man, epub, dash, search, localmedia):
+def docker_build(version_pk, pdf=True, man=True, epub=True, dash=True, search=True, force=False, intersphinx=True, localmedia=True):
     """
     The code that executes inside of docker
     """
+    version_data = api.version(version_pk).get()
+    version = make_api_version(version_data)
+    
     environment_results = setup_environment(version) 
-    build_results = build_docs(version.pk, force, pdf, man, epub, dash, search, localmedia)
+    build_results = build_docs(version, force, pdf, man, epub, dash, search, localmedia)
     return environment_results.update(build_results)
 
 def ensure_version(api, project, version_pk):
@@ -372,12 +375,11 @@ def setup_environment(version):
     return ret_dict
 
 @task
-def build_docs(version_pk, pdf, man, epub, dash, search, localmedia, force):
+def build_docs(version, pdf, man, epub, dash, search, localmedia, force):
     """
     This handles the actual building of the documentation
     """
-    version_data = api.version(version_pk).get()
-    version = make_api_version(version_data)
+
     project = version.project
     ret_dict = {}
 
