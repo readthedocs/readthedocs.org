@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-04 20:27-0600\n"
-"PO-Revision-Date: 2014-03-04 12:50+0000\n"
+"POT-Creation-Date: 2014-03-07 03:08-0600\n"
+"PO-Revision-Date: 2014-03-06 21:20+0000\n"
 "Last-Translator: Тарас Буник <tbunyk@gmail.com>\n"
 "Language-Team: Ukrainian (http://www.transifex.com/projects/p/readthedocs/"
 "language/uk/)\n"
@@ -31,11 +31,11 @@ msgid "Invalid resource lookup data provided (mismatched type).: %(error)s"
 msgstr ""
 
 #: bookmarks/models.py:9 builds/models.py:82 builds/models.py:268
-#: builds/models.py:284 projects/models.py:788
+#: builds/models.py:284 projects/models.py:799
 msgid "Project"
 msgstr "Проект"
 
-#: bookmarks/models.py:11 core/models.py:14 projects/models.py:99
+#: bookmarks/models.py:11 core/models.py:14 projects/models.py:100
 msgid "User"
 msgstr "Користувач"
 
@@ -47,7 +47,7 @@ msgstr "Дата"
 msgid "URL"
 msgstr "URL"
 
-#: bookmarks/models.py:15 projects/models.py:103
+#: bookmarks/models.py:15 projects/models.py:104
 #: templates/core/project_details.html:5
 msgid "Description"
 msgstr "Опис"
@@ -55,7 +55,7 @@ msgstr "Опис"
 #: bookmarks/models.py:21
 #, python-format
 msgid "Bookmark %(url)s for %(user)s (%(pk)s)"
-msgstr ""
+msgstr "Закладка %(url)s для %(user)s (%(pk)s)"
 
 #: builds/constants.py:4
 msgid "Triggered"
@@ -63,7 +63,7 @@ msgstr ""
 
 #: builds/constants.py:5
 msgid "Building"
-msgstr ""
+msgstr "Будується"
 
 #: builds/constants.py:6
 msgid "Finished"
@@ -91,7 +91,7 @@ msgstr ""
 
 #: builds/constants.py:18
 msgid "Branch"
-msgstr ""
+msgstr "Гілка"
 
 #: builds/constants.py:19 builds/filters.py:19
 msgid "Tag"
@@ -106,9 +106,9 @@ msgid "Any"
 msgstr ""
 
 #: builds/filters.py:17 builds/filters.py:30 projects/filters.py:31
-#: projects/models.py:101 projects/models.py:792
+#: projects/models.py:102 projects/models.py:803
 msgid "Name"
-msgstr ""
+msgstr "Ім’я"
 
 #: builds/filters.py:39
 msgid "Build Date"
@@ -120,7 +120,7 @@ msgstr ""
 
 #: builds/models.py:85 builds/models.py:288
 msgid "Type"
-msgstr ""
+msgstr "Тип"
 
 #: builds/models.py:89
 msgid "Identifier"
@@ -128,10 +128,10 @@ msgstr "Ідентифікатор"
 
 #: builds/models.py:91
 msgid "Verbose Name"
-msgstr ""
+msgstr "Детальне ім’я"
 
-#: builds/models.py:92 projects/filters.py:33 projects/models.py:102
-#: projects/models.py:793
+#: builds/models.py:92 projects/filters.py:33 projects/models.py:103
+#: projects/models.py:804
 msgid "Slug"
 msgstr ""
 
@@ -141,17 +141,17 @@ msgstr ""
 
 #: builds/models.py:95 templates/projects/project_versions.html:46
 msgid "Active"
-msgstr ""
+msgstr "Активний"
 
 #: builds/models.py:96 templates/projects/includes/icon_built.html:4
 msgid "Built"
-msgstr ""
+msgstr "Збудований"
 
 #: builds/models.py:97 templates/projects/includes/icon_built.html:7
 msgid "Uploaded"
 msgstr "Завантажено"
 
-#: builds/models.py:99 projects/models.py:194
+#: builds/models.py:99 projects/models.py:195
 msgid "Privacy Level"
 msgstr ""
 
@@ -168,7 +168,7 @@ msgstr ""
 #: builds/models.py:115
 #, python-format
 msgid "Version %(version)s of %(project)s (%(pk)s)"
-msgstr ""
+msgstr "Версія %(version)s проекту %(project)s (%(pk)s)"
 
 #: builds/models.py:270
 msgid "From slug"
@@ -180,21 +180,21 @@ msgstr ""
 
 #: builds/models.py:273
 msgid "Largest"
-msgstr ""
+msgstr "Найбільший"
 
 #: builds/models.py:276
 #, python-format
 msgid "Alias for %(project)s: %(from)s -> %(to)s"
-msgstr ""
+msgstr "Псевдонім для %(project)s: %(from)s -> %(to)s"
 
-#: builds/models.py:286 projects/models.py:118 projects/models.py:790
+#: builds/models.py:286 projects/models.py:119 projects/models.py:801
 #: templates/djangome/oneoffs.html:11
 msgid "Version"
 msgstr "Версія"
 
 #: builds/models.py:290
 msgid "State"
-msgstr ""
+msgstr "Стан"
 
 #: builds/models.py:293
 msgid "Success"
@@ -202,15 +202,15 @@ msgstr "Успішно"
 
 #: builds/models.py:294
 msgid "Setup"
-msgstr ""
+msgstr "Установка"
 
 #: builds/models.py:295
 msgid "Setup error"
-msgstr ""
+msgstr "Помилка установки"
 
 #: builds/models.py:296
 msgid "Output"
-msgstr ""
+msgstr "Вивід"
 
 #: builds/models.py:297
 msgid "Error"
@@ -227,49 +227,49 @@ msgstr ""
 
 #: core/forms.py:14
 msgid "First name"
-msgstr ""
+msgstr "Ім’я"
 
 #: core/forms.py:15
 msgid "Last name"
-msgstr ""
+msgstr "Прізвище"
 
 #: core/middleware.py:70
 msgid "Invalid hostname"
-msgstr ""
+msgstr "Неправильний хостнейм"
 
 #: core/models.py:16
 msgid "Whitelisted"
-msgstr ""
+msgstr "Перенесено в білий список"
 
 #: core/models.py:17
 msgid "Homepage"
-msgstr ""
+msgstr "Домашня сторінка"
 
 #: core/models.py:18
 msgid "Allow email"
-msgstr ""
+msgstr "Дозволити email"
 
 #: core/models.py:19
 msgid "Show your email on VCS contributions."
-msgstr ""
+msgstr "Показувати ваш email на внеску з СКВ."
 
 #: core/models.py:24
 #, python-format
 msgid "%(username)s's profile"
-msgstr ""
+msgstr "профіль користувача %(username)s"
 
 #: djangome/views.py:25
 #, python-format
 msgid "Please enter a valid URL on %s"
-msgstr ""
+msgstr "Будь-ласка введіть коректний URL на %s"
 
 #: projects/constants.py:18
 msgid "Sphinx Html"
-msgstr ""
+msgstr "Sphinx Html"
 
 #: projects/constants.py:19
 msgid "Sphinx HtmlDir"
-msgstr ""
+msgstr "Sphinx HtmlDir"
 
 #: projects/constants.py:20
 msgid "Sphinx Single Page HTML"
@@ -282,35 +282,35 @@ msgstr ""
 #. Translators: This is a name of a Sphinx theme.
 #: projects/constants.py:29
 msgid "Default"
-msgstr ""
+msgstr "Стандартна"
 
 #. Translators: This is a name of a Sphinx theme.
 #: projects/constants.py:31
 msgid "Sphinx Docs"
-msgstr ""
+msgstr "Документи Sphinx"
 
 #. Translators: This is a name of a Sphinx theme.
 #: projects/constants.py:35
 msgid "Traditional"
-msgstr ""
+msgstr "Традиційна"
 
 #. Translators: This is a name of a Sphinx theme.
 #: projects/constants.py:37
 msgid "Nature"
-msgstr ""
+msgstr "Природа"
 
 #. Translators: This is a name of a Sphinx theme.
 #: projects/constants.py:39
 msgid "Haiku"
-msgstr ""
+msgstr "Хайку"
 
 #: projects/constants.py:68
 msgid "Live"
-msgstr ""
+msgstr "Наживо"
 
 #: projects/constants.py:69
 msgid "Deleted"
-msgstr ""
+msgstr "Видалено"
 
 #: projects/constants.py:73
 msgid "Git"
@@ -342,19 +342,19 @@ msgstr ""
 
 #: projects/constants.py:97
 msgid "CPython 2.x"
-msgstr ""
+msgstr "CPython 2.x"
 
 #: projects/constants.py:98
 msgid "CPython 3.x"
-msgstr ""
+msgstr "CPython 3.x"
 
 #: projects/filters.py:34
 msgid "Created Date"
 msgstr ""
 
-#: projects/filters.py:36 projects/models.py:106
+#: projects/filters.py:36 projects/models.py:107
 msgid "Repository URL"
-msgstr ""
+msgstr "URL репозиторію"
 
 #: projects/filters.py:39
 msgid "Repository Type"
@@ -362,32 +362,39 @@ msgstr ""
 
 #: projects/forms.py:23
 msgid "A project with that name exists already!"
-msgstr ""
+msgstr "Проект з таким іменем вже існує!"
 
 #: projects/forms.py:31
 msgid ""
 "URL for your code (hg or git). Ex. http://github.com/ericholscher/django-"
 "kong.git"
 msgstr ""
+"URL для вашого коду (hg чи git). Напр.: http://github.com/ericholscher/"
+"django-kong.git"
 
 #: projects/forms.py:52
 msgid "Invalid character in repo name"
-msgstr ""
+msgstr "Недозволений символ в назві репозиторію"
 
 #: projects/forms.py:55
 msgid ""
 "It looks like you entered a private repo - please use the public (http:// or "
 "git://) clone url"
 msgstr ""
+"Схоже що ви ввели приватний репозиторій. Будь-ласка використайте публічний "
+"(http:// чи git://) URL для клонування."
 
-#: projects/forms.py:72 projects/models.py:184
+#: projects/forms.py:72 projects/models.py:185
 msgid "(Beta) The Python interpreter used to create the virtual environment."
 msgstr ""
+"(бета) Інтерпретатор Python що використовується для створення віртуального "
+"оточення."
 
 #: projects/forms.py:101
 msgid ""
 "Your configuration file is invalid, make sure it contains conf.py in it."
 msgstr ""
+"Файл конфігурації помилковий, переконайтесь що він містить в собі conf.py"
 
 #: projects/forms.py:170 templates/core/project_details.html:152
 msgid "Default Version"
@@ -395,336 +402,347 @@ msgstr ""
 
 #: projects/forms.py:193
 msgid "Zip file of HTML"
-msgstr ""
+msgstr "Zip архів чи HTML"
 
 #: projects/forms.py:195
 msgid "Overwrite existing HTML?"
-msgstr ""
+msgstr "Переписати існуючий HTML?"
 
 #: projects/forms.py:208
 msgid "That version is already active!"
-msgstr ""
+msgstr "Ця версія вже активна!"
 
 #: projects/forms.py:210
 msgid "Must upload a zip file."
-msgstr ""
+msgstr "Треба завантажити zip архів."
 
 #: projects/forms.py:224
 msgid "Version of the project you are uploading HTML for"
-msgstr ""
+msgstr "Версія проекту для якої ви завантажуєте HTML."
 
 #: projects/forms.py:241 projects/forms.py:300
 #, python-format
 msgid "Project %(name)s does not exist"
-msgstr ""
+msgstr "Проект %(name)s не існує."
 
 #: projects/forms.py:262
 #, python-format
 msgid "User %(name)s does not exist"
 msgstr ""
 
-#: projects/models.py:79
+#: projects/models.py:80
 msgid "Parent"
-msgstr ""
+msgstr "Батько"
 
-#: projects/models.py:81
+#: projects/models.py:82
 msgid "Child"
-msgstr ""
-
-#: projects/models.py:95
-msgid "Publication date"
-msgstr ""
+msgstr "Дитина"
 
 #: projects/models.py:96
+msgid "Publication date"
+msgstr "Дата публікації"
+
+#: projects/models.py:97
 msgid "Modified date"
-msgstr ""
+msgstr "Модифікована дата"
 
-#: projects/models.py:104
+#: projects/models.py:105
 msgid "The reStructuredText description of the project"
-msgstr ""
+msgstr "Опис проекту в reStructuredText"
 
-#: projects/models.py:107
+#: projects/models.py:108
 msgid ""
 "Checkout URL for your code (hg, git, etc.). Ex. http://github.com/"
 "ericholscher/django-kong.git"
 msgstr ""
+"URL для чекауту вашого коду (hg, git, і т.п.). Напр. http://github.com/"
+"ericholscher/django-kong.git"
 
-#: projects/models.py:110
+#: projects/models.py:111
 msgid "Repository type"
-msgstr ""
-
-#: projects/models.py:112
-msgid "Project URL"
-msgstr ""
+msgstr "Тип репозиторію"
 
 #: projects/models.py:113
-msgid "The project's homepage"
-msgstr ""
+msgid "Project URL"
+msgstr "URL проекту"
 
-#: projects/models.py:115
-msgid "Canonical URL"
-msgstr ""
+#: projects/models.py:114
+msgid "The project's homepage"
+msgstr "Домашня сторінка проекту"
 
 #: projects/models.py:116
+msgid "Canonical URL"
+msgstr "Канонічний URL"
+
+#: projects/models.py:117
 msgid ""
 "The official URL that the docs live at. This can be at readthedocs.org, or "
 "somewhere else. Ex. http://docs.fabfile.org"
 msgstr ""
 
-#: projects/models.py:119
+#: projects/models.py:120
 msgid "Project version these docs apply to, i.e. 1.0a"
-msgstr ""
+msgstr "Версія проекту для якої актуальна ця документація, напр. 1.0a"
 
-#: projects/models.py:121 templates/sphinx/sphinx_rtd_theme/layout.html:58
+#: projects/models.py:122 templates/sphinx/sphinx_rtd_theme/layout.html:58
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:140
 msgid "Copyright"
-msgstr ""
+msgstr "Копірайт"
 
-#: projects/models.py:122
+#: projects/models.py:123
 msgid "Project copyright information"
-msgstr ""
+msgstr "Інформація про копірайти проекту"
 
-#: projects/models.py:124
+#: projects/models.py:125
 msgid "Theme"
-msgstr ""
-
-#: projects/models.py:127
-msgid "Examples"
-msgstr ""
+msgstr "Тема"
 
 #: projects/models.py:128
-msgid "Suffix"
-msgstr ""
+msgid "Examples"
+msgstr "Приклади"
 
-#: projects/models.py:131
+#: projects/models.py:129
+msgid "Suffix"
+msgstr "Суфікс"
+
+#: projects/models.py:132
 msgid "Single version"
 msgstr ""
 
-#: projects/models.py:132
+#: projects/models.py:133
 msgid ""
 "A single version site has no translations and only your \"latest\" version, "
 "served at the root of the domain. Use this with caution, only turn it on if "
 "you will <b>never</b> have multiple versions of your docs."
 msgstr ""
 
-#: projects/models.py:134
-msgid "Default version"
-msgstr ""
-
 #: projects/models.py:135
-msgid "The version of your project that / redirects to"
-msgstr ""
+msgid "Default version"
+msgstr "Версія за замовчуванням"
 
-#: projects/models.py:139
-msgid "Default branch"
-msgstr ""
+#: projects/models.py:136
+msgid "The version of your project that / redirects to"
+msgstr "Версія проекту на яку перенаправляє /"
 
 #: projects/models.py:140
+msgid "Default branch"
+msgstr "Гілка за замовчуванням"
+
+#: projects/models.py:141
 msgid ""
 "What branch \"latest\" points to. Leave empty to use the default value for "
 "your VCS (eg. trunk or master)."
 msgstr ""
+"Яка гілка вказує на \"останню\" версію. Залиште порожнім щоб використати "
+"значення за замовчуванням для вашої СКВ (trunk чи master)."
 
-#: projects/models.py:144
+#: projects/models.py:145
 msgid "Requirements file"
-msgstr ""
+msgstr "Файл вимог"
 
-#: projects/models.py:146
+#: projects/models.py:147
 msgid ""
 "Requires Virtualenv. A <a href=\"http://www.pip-installer.org/en/latest/"
 "cookbook.html#requirements-files\">pip requirements file</a> needed to build "
 "your documentation. Path from the root of your project."
 msgstr ""
 
-#: projects/models.py:151
+#: projects/models.py:152
 msgid "Documentation type"
-msgstr ""
+msgstr "Тип документації"
 
-#: projects/models.py:153
+#: projects/models.py:154
 msgid ""
 "Type of documentation you are building. <a href=\"http://sphinx.pocoo.org/"
 "builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More info</a>."
 msgstr ""
-
-#: projects/models.py:157
-msgid "Analytics code"
-msgstr ""
+"Вид документації яку ви створюєте. <a href=\"http://sphinx.pocoo.org/"
+"builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">Більше інформації</"
+"a>."
 
 #: projects/models.py:158
+msgid "Analytics code"
+msgstr "Код аналітики"
+
+#: projects/models.py:159
 msgid ""
 "Google Analytics Tracking ID (ex. UA-22345342-1). This may slow down your "
 "page loads."
 msgstr ""
+"Google Analytics Tracking ID (ex. UA-22345342-1). Це може сповільнити "
+"завантаження сторінок."
 
-#: projects/models.py:162 projects/models.py:794
+#: projects/models.py:163 projects/models.py:805
 msgid "Path"
-msgstr ""
+msgstr "Шлях"
 
-#: projects/models.py:163
+#: projects/models.py:164
 msgid "The directory where conf.py lives"
-msgstr ""
-
-#: projects/models.py:165
-msgid "Python configuration file"
-msgstr ""
+msgstr "Директорія в якій знаходиться conf.py"
 
 #: projects/models.py:166
+msgid "Python configuration file"
+msgstr "Файл конфігурації Python"
+
+#: projects/models.py:167
 msgid ""
 "Path from project root to conf.py file (ex. docs/conf.py). Leave blank if "
 "you want us to find it for you."
 msgstr ""
-
-#: projects/models.py:169
-msgid "Featured"
-msgstr ""
+"Шлях від кореня вашого проекту до файлу conf.py (напр. docs/conf.py). "
+"Залиште порожнім якщо хочете щоб ми знайшли його за вас."
 
 #: projects/models.py:170
-msgid "Skip"
-msgstr ""
+msgid "Featured"
+msgstr "Обране"
 
 #: projects/models.py:171
+msgid "Skip"
+msgstr "Пропустити"
+
+#: projects/models.py:172
 msgid "Mirror"
 msgstr ""
 
-#: projects/models.py:173
-msgid "Use virtualenv"
-msgstr ""
-
 #: projects/models.py:174
-msgid "Install your project inside a virtualenv using setup.py install"
-msgstr ""
+msgid "Use virtualenv"
+msgstr "Використати virtualenv"
 
-#: projects/models.py:180
+#: projects/models.py:175
+msgid "Install your project inside a virtualenv using setup.py install"
+msgstr "Встановіть ваш проект в virtualenv використовуючи setup.py"
+
+#: projects/models.py:181
 msgid "Python Interpreter"
 msgstr ""
 
-#: projects/models.py:188
+#: projects/models.py:189
 msgid "Use system packages"
 msgstr ""
 
-#: projects/models.py:189
+#: projects/models.py:190
 msgid "Give the virtual environment access to the global site-packages dir."
 msgstr ""
 
-#: projects/models.py:191
+#: projects/models.py:192
 msgid "Django Packages URL"
-msgstr ""
+msgstr "URL пакетів Django"
 
-#: projects/models.py:196
+#: projects/models.py:197
 msgid ""
 "(Beta) Level of privacy that you want on the repository. Protected means "
 "public but not in listings."
 msgstr ""
 
-#: projects/models.py:199
+#: projects/models.py:200
 msgid "Version Privacy Level"
 msgstr ""
 
-#: projects/models.py:201
+#: projects/models.py:202
 msgid ""
 "(Beta) Default level of privacy you want on built versions of documentation."
 msgstr ""
 
-#: projects/models.py:206
+#: projects/models.py:207
 msgid "Related projects"
-msgstr ""
+msgstr "Пов’язані проекти"
 
-#: projects/models.py:222
+#: projects/models.py:223
 msgid "Number of Major versions"
 msgstr ""
 
-#: projects/models.py:227
+#: projects/models.py:228
 msgid "2 means supporting 3.X.X and 2.X.X, but not 1.X.X"
 msgstr ""
 
-#: projects/models.py:230
+#: projects/models.py:231
 msgid "Number of Minor versions"
 msgstr ""
 
-#: projects/models.py:235
+#: projects/models.py:236
 msgid "2 means supporting 2.2.X and 2.1.X, but not 2.0.X"
 msgstr ""
 
-#: projects/models.py:238
+#: projects/models.py:239
 msgid "Number of Point versions"
 msgstr ""
 
-#: projects/models.py:243
+#: projects/models.py:244
 msgid "2 means supporting 2.2.2 and 2.2.1, but not 2.2.0"
 msgstr ""
 
 #. Translators: Permission around whether a user can view the
 #. project
-#: projects/models.py:254
+#: projects/models.py:255
 msgid "View Project"
 msgstr ""
 
-#: projects/models.py:281
+#: projects/models.py:282
 msgid "Model must have slug"
-msgstr ""
+msgstr "Модель повинна мати slug"
 
-#: projects/models.py:795
+#: projects/models.py:806
 msgid "MD5 checksum"
-msgstr ""
+msgstr "Чексума MD5"
 
-#: projects/models.py:823
+#: projects/models.py:834
 msgid "URL to send the webhook to"
 msgstr ""
 
-#: projects/tasks.py:790
+#: projects/tasks.py:832
 #, python-format
 msgid "(ReadTheDocs) Building docs for %s failed"
 msgstr ""
 
 #: settings/base.py:55
 msgid "English"
-msgstr ""
+msgstr "Англійська"
 
 #: settings/base.py:56
 msgid "Spanish"
-msgstr ""
+msgstr "Іспанська"
 
 #: settings/base.py:57
 msgid "Norwegian Bokmål"
-msgstr ""
+msgstr "Норвезька (букмол)"
 
 #: settings/base.py:58
 msgid "French"
-msgstr ""
+msgstr "Французька"
 
 #: settings/base.py:59
 msgid "Russian"
-msgstr ""
+msgstr "Російська"
 
 #: settings/base.py:60
 msgid "German"
-msgstr ""
+msgstr "Німецька"
 
 #: settings/base.py:61
 msgid "Galician"
-msgstr ""
+msgstr "Галісійська"
 
 #: settings/base.py:62
 msgid "Vietnamese"
-msgstr ""
+msgstr "В’єтнамська"
 
 #: settings/base.py:63
 msgid "Chinese"
-msgstr ""
+msgstr "Китайська"
 
 #: templates/404.html:5
 msgid "Maze Found"
-msgstr ""
+msgstr "Знайдено лабіринт"
 
 #: templates/500.html:5
 msgid "Server Error"
-msgstr ""
+msgstr "Помилка сервера"
 
 #. Translators: Name of the website
 #: templates/base.html:13 templates/error_header.html:12
 #: templates/core/header.html:10 templates/core/home-header.html:9
 msgid "Read the Docs"
-msgstr ""
+msgstr "Read the Docs"
 
 #: templates/base.html:61
 msgid ""
@@ -734,7 +752,7 @@ msgstr ""
 
 #: templates/base.html:62
 msgid "Read the Docs thanks you for your continued patience."
-msgstr ""
+msgstr "Read the Docs дякує вам за ваше подальше терпіння."
 
 #: templates/base.html:84
 #, python-format
@@ -745,7 +763,7 @@ msgstr ""
 
 #: templates/base.html:86
 msgid "Docs"
-msgstr ""
+msgstr "Документація"
 
 #: templates/base.html:88
 msgid ""
@@ -753,6 +771,9 @@ msgid ""
 "\">humans</a>. Funded by <a href=\"https://www.gittip.com/readthedocs/"
 "\">readers like you</a>."
 msgstr ""
+"Зроблено <a href=\"https://github.com/rtfd/readthedocs.org/graphs/"
+"contributors\">людьми</a>. Фінансується <a href=\"https://www.gittip.com/"
+"readthedocs/\">читачами як ви</a>."
 
 #: templates/base_filter.html:14 templates/core/filter_bar.html:8
 msgid "Filter"
@@ -760,19 +781,19 @@ msgstr ""
 
 #: templates/error_header.html:22 templates/core/header.html:19
 msgid "Go"
-msgstr ""
+msgstr "Пішли!"
 
 #: templates/error_header.html:32 templates/core/header.html:46
 #: templates/registration/logout.html:6
 msgid "Log Out"
-msgstr ""
+msgstr "Вийти"
 
 #: templates/error_header.html:36 templates/core/header.html:48
 #: templates/core/home-header.html:19 templates/registration/login.html:6
 #: templates/registration/login.html:20 templates/registration/login.html:27
 #: templates/registration/password_reset_complete.html:16
 msgid "Log in"
-msgstr ""
+msgstr "Увійти"
 
 #: templates/filter.html:26
 msgid "Filtered Results"
@@ -784,11 +805,11 @@ msgstr ""
 #: templates/registration/password_reset_done.html:6
 #: templates/registration/password_reset_form.html:7
 msgid "Home"
-msgstr ""
+msgstr "Дім"
 
 #: templates/homepage.html:44
 msgid "What is this place?"
-msgstr ""
+msgstr "Що це за місце?"
 
 #: templates/homepage.html:46
 msgid ""
@@ -813,19 +834,19 @@ msgstr ""
 
 #: templates/homepage.html:68
 msgid "Featured Projects"
-msgstr ""
+msgstr "Вибрані проекти"
 
 #: templates/homepage.html:89
 msgid "Recently Updated Projects"
-msgstr ""
+msgstr "Недавно оновлені проекти"
 
 #: templates/homepage.html:89
 msgid "(All Projects)"
-msgstr ""
+msgstr "(Всі проекти)"
 
 #: templates/post_commit.html:5
 msgid "Build Started"
-msgstr ""
+msgstr "Білд стартував"
 
 #: templates/post_commit.html:10
 #, python-format
@@ -843,6 +864,8 @@ msgid ""
 "This is a post-commit hook. Set it up in your project admin to POST here, "
 "for us to update your doc changes automatically."
 msgstr ""
+"Це пост-комміт хук. Встановіть його в адмінці свого проекту щоб він робив "
+"POST запит сюди, і аби ми оновлювали зміни в документації автоматично."
 
 #: templates/archive/index.html:5
 msgid "Read the Docs Archive"
@@ -850,11 +873,11 @@ msgstr ""
 
 #: templates/bookmarks/bookmark_list.html:7
 msgid "Bookmarks"
-msgstr ""
+msgstr "Закладки"
 
 #: templates/bookmarks/bookmark_list.html:20
 msgid "Recent Bookmarks"
-msgstr ""
+msgstr "Недавні закладки"
 
 #: templates/builds/build_detail.html:14
 #, python-format
@@ -868,53 +891,53 @@ msgstr ""
 
 #: templates/builds/build_detail.html:20
 msgid "State:"
-msgstr ""
+msgstr "Стан:"
 
 #: templates/builds/build_detail.html:24
 msgid "Outcome:"
-msgstr ""
+msgstr "Результати:"
 
 #: templates/builds/build_detail.html:27
 msgid "Not yet finished"
-msgstr ""
+msgstr "Ще не закінчено"
 
 #: templates/builds/build_detail.html:27
 #: templates/core/build_list_detailed.html:6
 msgid "Passed"
-msgstr ""
+msgstr "Пройдено"
 
 #: templates/builds/build_detail.html:27
 #: templates/core/build_list_detailed.html:6
 msgid "Failed"
-msgstr ""
+msgstr "Провалено"
 
 #: templates/builds/build_detail.html:27
 msgid "Status Code:"
-msgstr ""
+msgstr "Статус код:"
 
 #: templates/builds/build_detail.html:33
 msgid "Version:"
-msgstr ""
+msgstr "Версія:"
 
 #: templates/builds/build_detail.html:36
 msgid "Type:"
-msgstr ""
+msgstr "Тип:"
 
 #: templates/builds/build_detail.html:38
 msgid "Sphinx Standard Output"
-msgstr ""
+msgstr "Стандартний вивід Sphinx"
 
 #: templates/builds/build_detail.html:42
 msgid "Sphinx Standard Error"
-msgstr ""
+msgstr "Sphinx Standard Error"
 
 #: templates/builds/build_detail.html:47
 msgid "Setup Output"
-msgstr ""
+msgstr "Setup Output"
 
 #: templates/builds/build_detail.html:52
 msgid "Environment Standard Error"
-msgstr ""
+msgstr "Environment Standard Error"
 
 #: templates/builds/build_list.html:37
 msgid "Build Version:"
@@ -922,23 +945,23 @@ msgstr ""
 
 #: templates/builds/build_list.html:49
 msgid "Recent Builds"
-msgstr ""
+msgstr "Недавні білди"
 
 #: templates/builds/tag_list.html:5 templates/projects/tag_list.html:4
 #: templates/projects/tag_list.html.py:7
 msgid "Popular tags"
-msgstr ""
+msgstr "Популярні теґи"
 
 #: templates/core/build_list_detailed.html:8
 #, python-format
 msgid "version %(slug)s (%(type)s)"
-msgstr ""
+msgstr "версія %(slug)s (%(type)s)"
 
 #: templates/core/build_list_detailed.html:8
 #: templates/core/project_list_detailed.html:25
 #, python-format
 msgid "%(date)s ago"
-msgstr ""
+msgstr "%(date)s назад"
 
 #: templates/core/build_list_detailed.html:13
 msgid "No builds found"
@@ -950,34 +973,34 @@ msgstr ""
 
 #: templates/core/header.html:45
 msgid "Dashboard"
-msgstr ""
+msgstr "Панель керування"
 
 #: templates/core/home-header.html:10
 msgid "Create, host, and browse documentation."
-msgstr ""
+msgstr "Створюйте, публікуйте та переглядайте документацію."
 
 #. Translators: Note, the full sentence goes 'Sign up' 'or' 'Log in'. But unfortunately the three bits have to be separate.
 #: templates/core/home-header.html:17
 msgid "Sign up"
-msgstr ""
+msgstr "Зареєструватись"
 
 #. Translators: The 'or' here is in between 'Submit' and 'delete'.
 #: templates/core/home-header.html:19 templates/projects/project_edit.html:39
 msgid "or"
-msgstr ""
+msgstr "чи"
 
 #: templates/core/project_bar.html:24
 #, python-format
 msgid "Build failed (<a href=\"%(url)s\">why</a>)"
-msgstr ""
+msgstr "Білд провалився (<a href=\"%(url)s\">чому</a>)"
 
 #: templates/core/project_bar.html:31
 msgid "There are no builds for this project"
-msgstr ""
+msgstr "Немає білдів цього проекту"
 
 #: templates/core/project_bar.html:31
 msgid "Is the repo correct?"
-msgstr ""
+msgstr "Цей репозиторій правильний?"
 
 #: templates/core/project_bar.html:35
 msgid "Overview"
@@ -988,21 +1011,21 @@ msgstr ""
 #: templates/core/project_list_featured.html:13
 #: templates/projects/project_dashboard.html:70
 msgid "View Docs"
-msgstr ""
+msgstr "Переглянути документи"
 
 #: templates/core/project_bar.html:40
 #: templates/projects/project_downloads.html:22
 msgid "Downloads"
-msgstr ""
+msgstr "Завантаження"
 
 #: templates/core/project_bar.html:43
 msgid "Builds"
-msgstr ""
+msgstr "Білди"
 
 #: templates/core/project_bar.html:47
 #: templates/projects/project_dashboard.html:68
 msgid "Admin"
-msgstr ""
+msgstr "Адмін"
 
 #: templates/core/project_details.html:16
 #, python-format
@@ -1023,7 +1046,7 @@ msgstr ""
 #: templates/projects/project_versions.html:9
 #: templates/projects/upload_html.html:7
 msgid "Versions"
-msgstr ""
+msgstr "Версії"
 
 #: templates/core/project_details.html:49
 #, python-format
@@ -1039,7 +1062,7 @@ msgstr ""
 #: templates/profiles/profile_detail.html:37
 #: templates/profiles/profile_detail.html:68
 msgid "Edit"
-msgstr ""
+msgstr "Редагувати"
 
 #: templates/core/project_details.html:71
 msgid "Build a version"
@@ -1051,19 +1074,19 @@ msgstr ""
 
 #: templates/core/project_details.html:89
 msgid "Repository"
-msgstr ""
+msgstr "Репозиторій"
 
 #: templates/core/project_details.html:94
 msgid "Tags"
-msgstr ""
+msgstr "Теги"
 
 #: templates/core/project_details.html:99
 msgid "No tags"
-msgstr ""
+msgstr "Нема тегів"
 
 #: templates/core/project_details.html:104
 msgid "Last Built"
-msgstr ""
+msgstr "Останній білд"
 
 #: templates/core/project_details.html:108
 msgid "Home Page"
@@ -1075,11 +1098,11 @@ msgstr ""
 
 #: templates/core/project_details.html:121
 msgid "Short URLs"
-msgstr ""
+msgstr "Короткі URL"
 
 #: templates/core/project_details.html:130
 msgid "Open Comparison"
-msgstr ""
+msgstr "Відкрите порівняння"
 
 #: templates/core/project_details.html:131
 #, python-format
@@ -1104,11 +1127,11 @@ msgstr ""
 
 #: templates/core/project_details.html:159
 msgid "Post Commit Hook"
-msgstr ""
+msgstr "Пост-комміт хук"
 
 #: templates/core/project_details.html:172
 msgid "Most viewed pages for this project"
-msgstr ""
+msgstr "Сторінки цього проекту що мають найбільше переглядів."
 
 #: templates/core/project_downloads.html:6
 #, python-format
@@ -1152,17 +1175,17 @@ msgstr ""
 
 #: templates/core/project_downloads.html:67
 msgid "No downloads for this project."
-msgstr ""
+msgstr "Нема завантажень для цього проекту."
 
 #: templates/core/project_list_detailed.html:42
 #: templates/core/project_list_featured.html:25
 msgid "No Docs"
-msgstr ""
+msgstr "Без документації"
 
 #: templates/core/project_list_detailed.html:49
 #: templates/core/project_list_featured.html:32
 msgid "No projects found"
-msgstr ""
+msgstr "Проектів не знайдено"
 
 #: templates/core/version_list.html:12
 msgid "Add tags"
@@ -1170,22 +1193,22 @@ msgstr ""
 
 #: templates/core/widesearchbar.html:4
 msgid "Search all the docs."
-msgstr ""
+msgstr "Пошук по всій документації."
 
 #. Translators: This is about starting a search
 #: templates/core/widesearchbar.html:16
 msgid "Let's do this."
-msgstr ""
+msgstr "Зробімо це."
 
 #: templates/dashboard/dashboard_bar.html:8
 #: templates/projects/project_list.html:17
 #: templates/projects/project_list.html:35
 msgid "Projects"
-msgstr ""
+msgstr "Проекти"
 
 #: templates/dashboard/dashboard_bar.html:16
 msgid "Import"
-msgstr ""
+msgstr "Імпорт"
 
 #: templates/dashboard/dashboard_bar.html:22
 msgid "Profile"
@@ -1193,16 +1216,16 @@ msgstr ""
 
 #: templates/dashboard/dashboard_bar.html:26
 msgid "Create Profile"
-msgstr ""
+msgstr "Створити профіль"
 
 #: templates/dashboard/dashboard_bar.html:30
 msgid "Change Password"
-msgstr ""
+msgstr "Змінити пароль"
 
 #: templates/djangome/choices.html:4
 #, python-format
 msgid "Choose a redirect for \"%(djangome_term)s\""
-msgstr ""
+msgstr "Оберіть перенаправлення для \"%(djangome_term)s\""
 
 #: templates/djangome/choices.html:7
 #, python-format
@@ -1210,10 +1233,12 @@ msgid ""
 "Choose a redirect for <kbd>%(djangome_term)s on <a href=\"http://%(slug)s."
 "readthedocs.org\">%(slug)s.readthedocs.org</a></kbd>"
 msgstr ""
+"Оберіть перенаправлення для <kbd>%(djangome_term)s на <a href=\"http://"
+"%(slug)s.readthedocs.org\">%(slug)s.readthedocs.org</a></kbd>"
 
 #: templates/djangome/choices.html:28
 msgid "Save &amp; go &rarr;"
-msgstr ""
+msgstr "Зберегти"
 
 #: templates/djangome/oneoffs.html:4
 msgid "One-offs"
@@ -1225,165 +1250,166 @@ msgstr ""
 
 #: templates/djangome/oneoffs.html:13
 msgid "Target"
-msgstr ""
+msgstr "Ціль"
 
 #: templates/djangome/oneoffs.html:27
 msgid "kill"
-msgstr ""
+msgstr "kill"
 
 #: templates/djangome/oneoffs.html:37
 msgid "add"
-msgstr ""
+msgstr "додати"
 
 #: templates/djangome/show.html:4
 #, python-format
 msgid "Statistics for %(term)s"
-msgstr ""
+msgstr "Статистика для %(term)s"
 
 #: templates/djangome/show.html:5
 #, python-format
 msgid "Statistics for <kbd>%(term)s</kbd>:"
-msgstr ""
+msgstr "Статистика для <kbd>%(term)s</kbd>:"
 
 #: templates/djangome/show.html:13
 msgid "Clicks"
-msgstr ""
+msgstr "Кліки"
 
 #: templates/djangome/show.html:39
 msgid "Add"
-msgstr ""
+msgstr "Додати"
 
 #: templates/flagging/flag_confirm.html:6
 #: templates/flagging/flag_confirm.html:11
 msgid "Confirm flagging"
-msgstr ""
+msgstr "Підтвердіть позначення"
 
 #: templates/flagging/flag_confirm.html:17
 msgid "What you are saying:"
-msgstr ""
+msgstr "Що ви кажете:"
 
 #: templates/flagging/flag_confirm.html:21
 #, python-format
 msgid ""
 "Are you sure you want to flag \"%(object)s\" as \"%(flag_type.title)s\"?"
 msgstr ""
+"Ви впевнені що хочете позначити  \"%(object)s\" як \"%(flag_type.title)s\"?"
 
 #: templates/flagging/flag_confirm.html:23
 #, python-format
 msgid "Yes, this is %(title)s"
-msgstr ""
+msgstr "Так, це %(title)s"
 
 #: templates/flagging/flag_confirm.html:24
 msgid "cancel"
-msgstr ""
+msgstr "відмінити"
 
 #: templates/flagging/flag_success.html:6
 #: templates/flagging/flag_success.html:11
 msgid "Flagging successful"
-msgstr ""
+msgstr "Позначення успішне"
 
 #: templates/flagging/flag_success.html:16
 #, python-format
 msgid "You have successfully flagged \"%(object)s\" as \"%(flag_type.title)s\""
-msgstr ""
+msgstr "Ви успішно позначили \"%(object)s\" як \"%(flag_type.title)s\""
 
 #: templates/flagging/flag_success.html:18
 msgid "Thank you for contributing to the quality of this site!"
-msgstr ""
+msgstr "Дякуємо з внесок в якість цього сайту!"
 
 #: templates/pagination/pagination.html:6
 #: templates/pagination/pagination.html:8
 msgid "previous"
-msgstr ""
+msgstr "попередній"
 
 #: templates/pagination/pagination.html:22
 #: templates/pagination/pagination.html:24
 msgid "next"
-msgstr ""
+msgstr "наступний"
 
 #: templates/profiles/create_profile.html:5
 #: templates/profiles/create_profile.html:10
 msgid "Create your profile"
-msgstr ""
+msgstr "Створіть свій профіль"
 
 #: templates/profiles/create_profile.html:16
 msgid "Create it!"
-msgstr ""
+msgstr "Створити його!"
 
 #: templates/profiles/edit_profile.html:5
 #: templates/profiles/edit_profile.html:15
 msgid "Edit your profile"
-msgstr ""
+msgstr "Відредагуйте свій профіль."
 
 #: templates/profiles/edit_profile.html:21
 msgid "OK, save it!"
-msgstr ""
+msgstr "Гаразд, зберегти!"
 
 #: templates/profiles/profile_detail.html:6
 #, python-format
 msgid "%(user)s's profile"
-msgstr ""
+msgstr "Профіль користувача %(user)s"
 
 #: templates/profiles/profile_detail.html:44
 msgid "Add Your Name"
-msgstr ""
+msgstr "Додайте своє ім’я"
 
 #: templates/profiles/profile_detail.html:76
 msgid "Add a Homepage"
-msgstr ""
+msgstr "Додайте домашню сторінку"
 
 #: templates/profiles/profile_detail.html:85
 msgid "Press enter to save your changes, or escape to discard them"
-msgstr ""
+msgstr "Натисніть enter щоб зберегти ваші зміни, чи escape щоб відкинути їх."
 
 #: templates/profiles/profile_list.html:5
 #: templates/profiles/profile_list.html:8
 msgid "User profiles"
-msgstr ""
+msgstr "Профілі користувачів"
 
 #: templates/projects/alias_edit.html:4 templates/projects/alias_edit.html:7
 msgid "Project Alias"
-msgstr ""
+msgstr "Псевдонім проекту"
 
 #: templates/projects/alias_edit.html:12
 msgid "Add an alias for a project version."
-msgstr ""
+msgstr "Додайте псевдонім для версії проекту."
 
 #: templates/projects/alias_edit.html:16
 #: templates/projects/project_create.html:42
 #: templates/projects/project_import.html:32
 #: templates/projects/project_import.html:38
 msgid "Create"
-msgstr ""
+msgstr "Створити"
 
 #: templates/projects/alias_list.html:6 templates/projects/alias_list.html:11
 msgid "Aliases"
-msgstr ""
+msgstr "Псевдоніми"
 
 #: templates/projects/alias_list.html:20
 #: templates/projects/project_list.html:48
 msgid "Browse projects"
-msgstr ""
+msgstr "Перегляд проектів"
 
 #: templates/projects/legend.html:4
 msgid "External Links"
-msgstr ""
+msgstr "Зовнішні посилання"
 
 #: templates/projects/legend.html:5
 msgid "Link text"
-msgstr ""
+msgstr "Текст посилання"
 
 #: templates/projects/legend.html:7
 msgid "Internal Links"
-msgstr ""
+msgstr "Внутрішні посилання."
 
 #: templates/projects/legend.html:10
 msgid "Bold"
-msgstr ""
+msgstr "Жирний"
 
 #: templates/projects/legend.html:11
 msgid "text to bold"
-msgstr ""
+msgstr "зробити текст жирним"
 
 #: templates/projects/legend.html:13
 msgid "Emphasized"
@@ -1395,16 +1421,16 @@ msgstr ""
 
 #: templates/projects/legend.html:16
 msgid "Lists"
-msgstr ""
+msgstr "Списки"
 
 #: templates/projects/legend.html:19 templates/projects/legend.html.py:20
 #: templates/projects/legend.html:23 templates/projects/legend.html.py:24
 msgid "Item"
-msgstr ""
+msgstr "Елемент"
 
 #: templates/projects/legend.html:28
 msgid "Source Code"
-msgstr ""
+msgstr "Джерельний код"
 
 #: templates/projects/legend.html:30
 msgid "e.g. Check out this code"
@@ -1416,7 +1442,7 @@ msgstr ""
 
 #: templates/projects/legend.html:34
 msgid "reStructuredText Primer"
-msgstr ""
+msgstr "Азбука reStructuredText"
 
 #: templates/projects/project_advanced.html:23
 msgid "Edit Advanced Project Settings"
@@ -1435,29 +1461,31 @@ msgstr ""
 #: templates/projects/project_users.html:51
 #: templates/projects/project_versions.html:53
 msgid "Submit"
-msgstr ""
+msgstr "Відправити"
 
 #: templates/projects/project_create.html:29
 msgid "Create a new project"
-msgstr ""
+msgstr "Створити новий проект"
 
 #: templates/projects/project_create.html:32
 msgid "Create a New Project"
-msgstr ""
+msgstr "Створити Новий проект"
 
 #: templates/projects/project_create.html:37
 msgid ""
 "Create new documentation here. If you already have docs in a public "
 "repository,"
 msgstr ""
+"Створіть ному документацію тут. Якщо ви вже маєте документацію в публічному "
+"репозиторії."
 
 #: templates/projects/project_create.html:38
 msgid "import an existing project"
-msgstr ""
+msgstr "імпортувати існуючий проект"
 
 #: templates/projects/project_dashboard.html:5
 msgid "Project Dashboard"
-msgstr ""
+msgstr "Панель керування проектом"
 
 #: templates/projects/project_dashboard.html:29
 msgid "Important Versions"
@@ -1465,7 +1493,7 @@ msgstr ""
 
 #: templates/projects/project_dashboard.html:57
 msgid "My Projects"
-msgstr ""
+msgstr "Мої проекти"
 
 #: templates/projects/project_dashboard.html:83
 #, python-format
@@ -1480,28 +1508,28 @@ msgstr ""
 #: templates/projects/project_delete.html:6
 #, python-format
 msgid "Delete %(name)s?"
-msgstr ""
+msgstr "Видалити %(name)s?"
 
 #: templates/projects/project_delete.html:9
 msgid "You sure?"
-msgstr ""
+msgstr "Ви впевнені?"
 
 #: templates/projects/project_delete.html:12
 msgid "Delete forever"
-msgstr ""
+msgstr "Видалити назавжди"
 
 #: templates/projects/project_edit.html:23
 msgid "Edit Project"
-msgstr ""
+msgstr "Редагувати проект"
 
 #: templates/projects/project_edit.html:28
 #: templates/projects/project_edit_base.html:15
 msgid "Settings"
-msgstr ""
+msgstr "Налаштування"
 
 #: templates/projects/project_edit.html:40
 msgid "delete"
-msgstr ""
+msgstr "видалити"
 
 #: templates/projects/project_edit_base.html:17
 #: templates/projects/project_users.html:8
@@ -1511,7 +1539,7 @@ msgstr ""
 #: templates/projects/project_edit_base.html:20
 #: templates/projects/project_subprojects.html:12
 msgid "Subprojects"
-msgstr ""
+msgstr "Підпроекти"
 
 #: templates/projects/project_edit_base.html:21
 #: templates/projects/project_notifications.html:12
@@ -1521,25 +1549,25 @@ msgstr ""
 #: templates/projects/project_import.html:4
 #: templates/projects/project_import.html:28
 msgid "Import an existing project"
-msgstr ""
+msgstr "Імпортувати існуючий проект"
 
 #: templates/projects/project_list.html:9
 #: templates/projects/project_list.html:27
 #, python-format
 msgid "Projects by %(username)s tagged with %(tag)s"
-msgstr ""
+msgstr "Проекти користувача %(username)s позначені %(tag)s"
 
 #: templates/projects/project_list.html:11
 #: templates/projects/project_list.html:29
 #, python-format
 msgid "Projects by %(username)s"
-msgstr ""
+msgstr "Проекти користувача %(username)s"
 
 #: templates/projects/project_list.html:15
 #: templates/projects/project_list.html:33
 #, python-format
 msgid "Projects tagged with %(tag)s"
-msgstr ""
+msgstr "Проекти позначені %(tag)s"
 
 #: templates/projects/project_notifications.html:5
 msgid "Edit Notifications"
@@ -1561,7 +1589,7 @@ msgstr ""
 #: templates/projects/project_subprojects.html:27
 #: templates/projects/project_translations.html:26
 msgid "Remove"
-msgstr ""
+msgstr "Вилучити"
 
 #: templates/projects/project_notifications.html:45
 msgid "New Notifications"
@@ -1573,7 +1601,7 @@ msgstr ""
 
 #: templates/projects/project_subprojects.html:5
 msgid "Edit Subprojects"
-msgstr ""
+msgstr "Редагувати підпроекти"
 
 #: templates/projects/project_subprojects.html:16
 msgid ""
@@ -1583,11 +1611,11 @@ msgstr ""
 
 #: templates/projects/project_subprojects.html:19
 msgid "Existing Subprojects"
-msgstr ""
+msgstr "Існуючі підпроекти"
 
 #: templates/projects/project_subprojects.html:32
 msgid "Choose which project you would like to add as a subproject."
-msgstr ""
+msgstr "Виберіть який проект ви хотіли б додати як підпроект."
 
 #: templates/projects/project_translations.html:5
 msgid "Edit Translations"
@@ -1636,7 +1664,7 @@ msgstr ""
 #: templates/projects/project_version_detail.html:14
 #, python-format
 msgid "%(version_name)s"
-msgstr ""
+msgstr "%(version_name)s"
 
 #: templates/projects/project_versions.html:4
 msgid "Edit Project Versions"
@@ -1657,23 +1685,23 @@ msgstr ""
 #: templates/projects/search.html:6 templates/projects/search.html.py:20
 #, python-format
 msgid "Search results for %(term)s"
-msgstr ""
+msgstr "Результати пошуку для %(term)s"
 
 #: templates/projects/search.html:37
 msgid "Huh?"
-msgstr ""
+msgstr "Га?"
 
 #: templates/projects/search.html:38
 msgid "No docs matched your search. ¯\\(O_o)/¯"
-msgstr ""
+msgstr "Немає документації що відповідає вашому пошуку. ¯\\(O_o)/¯"
 
 #: templates/projects/upload_html.html:4
 msgid "Import HTML Documentation"
-msgstr ""
+msgstr "Імпортувати документацію в HTML"
 
 #: templates/projects/upload_html.html:7
 msgid "Upload HTML"
-msgstr ""
+msgstr "Завантажити HTML"
 
 #: templates/projects/upload_html.html:11
 msgid ""
@@ -1683,12 +1711,12 @@ msgstr ""
 
 #: templates/projects/upload_html.html:15
 msgid "Upload"
-msgstr ""
+msgstr "Завантажити"
 
 #. Translators: After 'Flag this project as' follows either 'Inappropriate', 'Spam' and/or 'Duplicate'
 #: templates/projects/includes/flagging.html:7
 msgid "Flag this project as"
-msgstr ""
+msgstr "Позначити цей проект як"
 
 #: templates/projects/includes/flagging.html:8
 msgid "Inappropriate"
@@ -1696,11 +1724,11 @@ msgstr ""
 
 #: templates/projects/includes/flagging.html:9
 msgid "Spam"
-msgstr ""
+msgstr "Спам"
 
 #: templates/projects/includes/flagging.html:10
 msgid "Duplicate"
-msgstr ""
+msgstr "Дублікат"
 
 #: templates/projects/includes/icon_built.html:9
 msgid "Not built"
@@ -1713,12 +1741,12 @@ msgstr ""
 #: templates/projects/samples/installation.rst.html:3
 #, python-format
 msgid "Here is where you can describe how to install %(name)s"
-msgstr ""
+msgstr "Тут можна описати як встановити %(name)s"
 
 #: templates/registration/activate.html:6
 #: templates/registration/activate.html:11
 msgid "Account activation error"
-msgstr ""
+msgstr "Помилка активації аккаунту"
 
 #: templates/registration/activate.html:17
 #, python-format
@@ -1742,23 +1770,23 @@ msgstr ""
 #: templates/registration/activate.html:21
 #: templates/registration/activation_complete.html:17
 msgid "here"
-msgstr ""
+msgstr "тут"
 
 #: templates/registration/activation_complete.html:6
 msgid "Account activation complete"
-msgstr ""
+msgstr "Активація аккаунту завершена"
 
 #: templates/registration/activation_complete.html:11
 msgid "Account activation complete, woo!"
-msgstr ""
+msgstr "Активація аккаунту завершена, ура!"
 
 #: templates/registration/activation_complete.html:16
 msgid "Your account has been activated."
-msgstr ""
+msgstr "Ваш аккаунт активовано."
 
 #: templates/registration/activation_complete.html:17
 msgid "Log in with the username and password you just created,"
-msgstr ""
+msgstr "Увійдіть використовуючи логін та пароль які ви щойно створили."
 
 #: templates/registration/activation_email.txt:1
 #, python-format
@@ -1781,17 +1809,19 @@ msgstr ""
 
 #: templates/registration/base_registration.html:5
 msgid "Registration"
-msgstr ""
+msgstr "Реєстрація"
 
 #: templates/registration/base_registration.html:6
 msgid "registration"
-msgstr ""
+msgstr "реєстрація"
 
 #: templates/registration/login.html:30
 msgid ""
 "If you forgot your password, <a href=\"/accounts/password/reset/\">reset it."
 "</a>"
 msgstr ""
+"Якщо ви забули ваш пароль, <a href=\"/accounts/password/reset/\">скиньте "
+"його.</a>"
 
 #: templates/registration/login.html:33
 msgid ""
@@ -1801,11 +1831,11 @@ msgstr ""
 
 #: templates/registration/logout.html:11
 msgid "You've logged out."
-msgstr ""
+msgstr "Ви вийшли."
 
 #: templates/registration/logout.html:17
 msgid "Thanks for visiting!"
-msgstr ""
+msgstr "Дякуємо за візит!"
 
 #: templates/registration/logout.html:21
 #, python-format
@@ -1817,16 +1847,16 @@ msgstr ""
 #: templates/registration/password_change_done.html:4
 #: templates/registration/password_change_done.html:10
 msgid "Password change successful"
-msgstr ""
+msgstr "Успішна зміна пароля"
 
 #: templates/registration/password_change_done.html:12
 msgid "Your password was changed."
-msgstr ""
+msgstr "Ваш пароль змінено."
 
 #: templates/registration/password_change_form.html:4
 #: templates/registration/password_change_form.html:24
 msgid "Password change"
-msgstr ""
+msgstr "Зміна пароля"
 
 #: templates/registration/password_change_form.html:20
 msgid "Please correct the error below."
@@ -1840,23 +1870,25 @@ msgid ""
 "Please enter your old password, for security's sake, and then enter your new "
 "password twice so we can verify you typed it in correctly."
 msgstr ""
+"Будь-ласка введіть ваш старий пароль, з вимог безпеки, а потім введіть ваш "
+"новий пароль двічі щоб ми могли переконатись що ви ввели його правильно."
 
 #: templates/registration/password_change_form.html:30
 msgid "Old password"
-msgstr ""
+msgstr "Старий пароль"
 
 #: templates/registration/password_change_form.html:35
 msgid "New password"
-msgstr ""
+msgstr "Новий пароль"
 
 #: templates/registration/password_change_form.html:40
 msgid "Password (again)"
-msgstr ""
+msgstr "Пароль (знову)"
 
 #: templates/registration/password_change_form.html:44
 #: templates/registration/password_reset_confirm.html:23
 msgid "Change my password"
-msgstr ""
+msgstr "Змінити мій пароль"
 
 #: templates/registration/password_reset_complete.html:6
 #: templates/registration/password_reset_confirm.html:8
@@ -1865,42 +1897,44 @@ msgstr ""
 #: templates/registration/password_reset_form.html:9
 #: templates/registration/password_reset_form.html:13
 msgid "Password reset"
-msgstr ""
+msgstr "Скидання пароля"
 
 #: templates/registration/password_reset_complete.html:8
 #: templates/registration/password_reset_complete.html:12
 msgid "Password reset complete"
-msgstr ""
+msgstr "Скидання пароля завершено"
 
 #: templates/registration/password_reset_complete.html:14
 msgid "Your password has been set.  You may go ahead and log in now."
-msgstr ""
+msgstr "Ваш пароль встановлено. Тепер ви можете увійти."
 
 #: templates/registration/password_reset_confirm.html:6
 msgid "Password reset confirmation"
-msgstr ""
+msgstr "Підтвердження скидання пароля."
 
 #: templates/registration/password_reset_confirm.html:14
 msgid "Enter new password"
-msgstr ""
+msgstr "Введіть новий пароль."
 
 #: templates/registration/password_reset_confirm.html:16
 msgid ""
 "Please enter your new password twice so we can verify you typed it in "
 "correctly."
 msgstr ""
+"Будь-ласка, введіть ваш новий пароль двічі щоб ми могли переконатись що ви "
+"ввели його правильно."
 
 #: templates/registration/password_reset_confirm.html:20
 msgid "New password:"
-msgstr ""
+msgstr "Новий пароль:"
 
 #: templates/registration/password_reset_confirm.html:22
 msgid "Confirm password:"
-msgstr ""
+msgstr "Підтвердіть пароль:"
 
 #: templates/registration/password_reset_confirm.html:28
 msgid "Password reset unsuccessful"
-msgstr ""
+msgstr "Невдача скидання пароля"
 
 #: templates/registration/password_reset_confirm.html:30
 msgid ""
@@ -1911,7 +1945,7 @@ msgstr ""
 #: templates/registration/password_reset_done.html:8
 #: templates/registration/password_reset_done.html:12
 msgid "Password reset successful"
-msgstr ""
+msgstr "Успішне скидання пароля!"
 
 #: templates/registration/password_reset_done.html:14
 msgid ""
@@ -1938,12 +1972,12 @@ msgstr ""
 
 #: templates/registration/password_reset_email.html:11
 msgid "Thanks for using our site!"
-msgstr ""
+msgstr "Дякуємо за використання нашого сайту!"
 
 #: templates/registration/password_reset_email.html:13
 #, python-format
 msgid "The %(site_name)s team"
-msgstr ""
+msgstr "Команда %(site_name)s"
 
 #: templates/registration/password_reset_form.html:15
 msgid ""
@@ -1953,19 +1987,19 @@ msgstr ""
 
 #: templates/registration/password_reset_form.html:19
 msgid "E-mail address:"
-msgstr ""
+msgstr "Адреса e-mail:"
 
 #: templates/registration/password_reset_form.html:19
 msgid "Reset my password"
-msgstr ""
+msgstr "Скинути мій пароль"
 
 #: templates/registration/registration_closed.html:6
 msgid "Registration closed"
-msgstr ""
+msgstr "Реєстрація закрита"
 
 #: templates/registration/registration_closed.html:11
 msgid "Eh... Registration closed."
-msgstr ""
+msgstr "Ех... Реєстрація закрита."
 
 #: templates/registration/registration_closed.html:17
 msgid ""
@@ -1976,62 +2010,64 @@ msgstr ""
 
 #: templates/registration/registration_closed.html:20
 msgid "Please try"
-msgstr ""
+msgstr "Будь-ласка спробуйте"
 
 #: templates/registration/registration_closed.html:20
 msgid "registering again"
-msgstr ""
+msgstr "зареєструватись знову"
 
 #: templates/registration/registration_closed.html:23
 msgid "We hope that isn't too inconvenient."
-msgstr ""
+msgstr "Ми сподіваємось це не надто незручно."
 
 #: templates/registration/registration_complete.html:6
 #: templates/registration/registration_complete.html:11
 msgid "Registration complete"
-msgstr ""
+msgstr "Реєстрацію завершено."
 
 #: templates/registration/registration_complete.html:16
 msgid "Now activate your account."
-msgstr ""
+msgstr "Тепер активуйте свій аккаунт."
 
 #: templates/registration/registration_complete.html:18
 msgid ""
 "We will be sending you an email with an activation link.\n"
 "    Visit the link to verify this account."
 msgstr ""
+"Ми пошлемо вам емейл з посиланням. \n"
+"Перейдіть по ньому для підтвердження аккаунту."
 
 #: templates/registration/registration_complete.html:22
 msgid "Check your email.  We'll wait."
-msgstr ""
+msgstr "Перевірте свою пошту. Ми зачекаємо."
 
 #: templates/registration/registration_form.html:6
 #: templates/registration/registration_form.html:20
 msgid "Register for an account"
-msgstr ""
+msgstr "Зареєструйте аккаунт"
 
 #: templates/registration/registration_form.html:27
 msgid "Send me the activation link."
-msgstr ""
+msgstr "Надіслати мені посилання на активацію."
 
 #: templates/search/base_facet.html:5 templates/search/search.html:5
 #, python-format
 msgid "Search: %(query)s"
-msgstr ""
+msgstr "Пошук: %(query)s"
 
 #. Translators: This is about starting a search
 #: templates/search/base_facet.html:27 templates/search/search.html:17
 msgid "Go crazy."
-msgstr ""
+msgstr "Сказитися."
 
 #: templates/search/base_search.html:9
 #: templates/search/faceted_results.html:49
 msgid "Project:"
-msgstr ""
+msgstr "Проект:"
 
 #: templates/search/base_search.html:14
 msgid "File:"
-msgstr ""
+msgstr "Файл:"
 
 #: templates/search/base_search.html:24
 #: templates/search/faceted_results.html:63
@@ -2040,29 +2076,29 @@ msgstr ""
 
 #: templates/search/faceted_author.html:8
 msgid "By Author"
-msgstr ""
+msgstr "За автором"
 
 #: templates/search/faceted_author.html:13
 msgid "Author"
-msgstr ""
+msgstr "Автор"
 
 #: templates/search/faceted_author.html:21
 msgid "No author facets."
-msgstr ""
+msgstr "Немає фасетів автора."
 
 #: templates/search/faceted_results.html:7
 #, python-format
 msgid "%(count)s Results for %(query)s"
-msgstr ""
+msgstr "%(count)s результатів для %(query)s"
 
 #: templates/search/faceted_results.html:7
 msgid "No search term entered"
-msgstr ""
+msgstr "Не введений запит пошуку"
 
 #. Translators: The refers to filtering a search by using facets
 #: templates/search/faceted_results.html:15
 msgid "Filtered by"
-msgstr ""
+msgstr "Відфільтровано за"
 
 #: templates/search/faceted_results.html:18
 msgid "remove"
@@ -2083,15 +2119,15 @@ msgstr ""
 #: templates/search/search.html:31
 #, python-format
 msgid "Results for %(query)s"
-msgstr ""
+msgstr "Результати для %(query)s"
 
 #: templates/search/search.html:52 templates/search/search.html.py:54
 msgid "Previous"
-msgstr ""
+msgstr "Попередній"
 
 #: templates/search/search.html:58 templates/search/search.html.py:60
 msgid "Next"
-msgstr ""
+msgstr "Наступний"
 
 #: templates/sphinx/sphinx_rtd_theme/layout.html:47
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:131
@@ -2101,15 +2137,15 @@ msgstr ""
 #: templates/sphinx/sphinx_rtd_theme/layout.html:51
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:134
 msgid "Index"
-msgstr ""
+msgstr "Індекс"
 
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:29
 msgid "Navigation"
-msgstr ""
+msgstr "Навігація"
 
 #: templates/sphinx/sphinx_rtd_theme/search.html:33
 msgid "Search Results"
-msgstr ""
+msgstr "Результати пошуку"
 
 #: templates/sphinx/sphinx_rtd_theme/search.html:35
 msgid ""

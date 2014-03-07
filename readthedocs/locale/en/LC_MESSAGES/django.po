@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-04 20:26-0600\n"
+"POT-Creation-Date: 2014-03-07 03:07-0600\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -27,11 +27,11 @@ msgid "Invalid resource lookup data provided (mismatched type).: %(error)s"
 msgstr ""
 
 #: bookmarks/models.py:9 builds/models.py:82 builds/models.py:268
-#: builds/models.py:284 projects/models.py:788
+#: builds/models.py:284 projects/models.py:799
 msgid "Project"
 msgstr ""
 
-#: bookmarks/models.py:11 core/models.py:14 projects/models.py:99
+#: bookmarks/models.py:11 core/models.py:14 projects/models.py:100
 msgid "User"
 msgstr ""
 
@@ -43,7 +43,7 @@ msgstr ""
 msgid "URL"
 msgstr ""
 
-#: bookmarks/models.py:15 projects/models.py:103
+#: bookmarks/models.py:15 projects/models.py:104
 #: templates/core/project_details.html:5
 msgid "Description"
 msgstr ""
@@ -102,7 +102,7 @@ msgid "Any"
 msgstr ""
 
 #: builds/filters.py:17 builds/filters.py:30 projects/filters.py:31
-#: projects/models.py:101 projects/models.py:792
+#: projects/models.py:102 projects/models.py:803
 msgid "Name"
 msgstr ""
 
@@ -126,8 +126,8 @@ msgstr ""
 msgid "Verbose Name"
 msgstr ""
 
-#: builds/models.py:92 projects/filters.py:33 projects/models.py:102
-#: projects/models.py:793
+#: builds/models.py:92 projects/filters.py:33 projects/models.py:103
+#: projects/models.py:804
 msgid "Slug"
 msgstr ""
 
@@ -147,7 +147,7 @@ msgstr ""
 msgid "Uploaded"
 msgstr ""
 
-#: builds/models.py:99 projects/models.py:194
+#: builds/models.py:99 projects/models.py:195
 msgid "Privacy Level"
 msgstr ""
 
@@ -183,7 +183,7 @@ msgstr ""
 msgid "Alias for %(project)s: %(from)s -> %(to)s"
 msgstr ""
 
-#: builds/models.py:286 projects/models.py:118 projects/models.py:790
+#: builds/models.py:286 projects/models.py:119 projects/models.py:801
 #: templates/djangome/oneoffs.html:11
 msgid "Version"
 msgstr ""
@@ -348,7 +348,7 @@ msgstr ""
 msgid "Created Date"
 msgstr ""
 
-#: projects/filters.py:36 projects/models.py:106
+#: projects/filters.py:36 projects/models.py:107
 msgid "Repository URL"
 msgstr ""
 
@@ -376,7 +376,7 @@ msgid ""
 "git://) clone url"
 msgstr ""
 
-#: projects/forms.py:72 projects/models.py:184
+#: projects/forms.py:72 projects/models.py:185
 msgid "(Beta) The Python interpreter used to create the virtual environment."
 msgstr ""
 
@@ -419,255 +419,255 @@ msgstr ""
 msgid "User %(name)s does not exist"
 msgstr ""
 
-#: projects/models.py:79
+#: projects/models.py:80
 msgid "Parent"
 msgstr ""
 
-#: projects/models.py:81
+#: projects/models.py:82
 msgid "Child"
 msgstr ""
 
-#: projects/models.py:95
+#: projects/models.py:96
 msgid "Publication date"
 msgstr ""
 
-#: projects/models.py:96
+#: projects/models.py:97
 msgid "Modified date"
 msgstr ""
 
-#: projects/models.py:104
+#: projects/models.py:105
 msgid "The reStructuredText description of the project"
 msgstr ""
 
-#: projects/models.py:107
+#: projects/models.py:108
 msgid ""
 "Checkout URL for your code (hg, git, etc.). Ex. http://github.com/"
 "ericholscher/django-kong.git"
 msgstr ""
 
-#: projects/models.py:110
+#: projects/models.py:111
 msgid "Repository type"
 msgstr ""
 
-#: projects/models.py:112
+#: projects/models.py:113
 msgid "Project URL"
 msgstr ""
 
-#: projects/models.py:113
+#: projects/models.py:114
 msgid "The project's homepage"
 msgstr ""
 
-#: projects/models.py:115
+#: projects/models.py:116
 msgid "Canonical URL"
 msgstr ""
 
-#: projects/models.py:116
+#: projects/models.py:117
 msgid ""
 "The official URL that the docs live at. This can be at readthedocs.org, or "
 "somewhere else. Ex. http://docs.fabfile.org"
 msgstr ""
 
-#: projects/models.py:119
+#: projects/models.py:120
 msgid "Project version these docs apply to, i.e. 1.0a"
 msgstr ""
 
-#: projects/models.py:121 templates/sphinx/sphinx_rtd_theme/layout.html:58
+#: projects/models.py:122 templates/sphinx/sphinx_rtd_theme/layout.html:58
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:140
 msgid "Copyright"
 msgstr ""
 
-#: projects/models.py:122
+#: projects/models.py:123
 msgid "Project copyright information"
 msgstr ""
 
-#: projects/models.py:124
+#: projects/models.py:125
 msgid "Theme"
 msgstr ""
 
-#: projects/models.py:127
+#: projects/models.py:128
 msgid "Examples"
 msgstr ""
 
-#: projects/models.py:128
+#: projects/models.py:129
 msgid "Suffix"
 msgstr ""
 
-#: projects/models.py:131
+#: projects/models.py:132
 msgid "Single version"
 msgstr ""
 
-#: projects/models.py:132
+#: projects/models.py:133
 msgid ""
 "A single version site has no translations and only your \"latest\" version, "
 "served at the root of the domain. Use this with caution, only turn it on if "
 "you will <b>never</b> have multiple versions of your docs."
 msgstr ""
 
-#: projects/models.py:134
+#: projects/models.py:135
 msgid "Default version"
 msgstr ""
 
-#: projects/models.py:135
+#: projects/models.py:136
 msgid "The version of your project that / redirects to"
 msgstr ""
 
-#: projects/models.py:139
+#: projects/models.py:140
 msgid "Default branch"
 msgstr ""
 
-#: projects/models.py:140
+#: projects/models.py:141
 msgid ""
 "What branch \"latest\" points to. Leave empty to use the default value for "
 "your VCS (eg. trunk or master)."
 msgstr ""
 
-#: projects/models.py:144
+#: projects/models.py:145
 msgid "Requirements file"
 msgstr ""
 
-#: projects/models.py:146
+#: projects/models.py:147
 msgid ""
 "Requires Virtualenv. A <a href=\"http://www.pip-installer.org/en/latest/"
 "cookbook.html#requirements-files\">pip requirements file</a> needed to build "
 "your documentation. Path from the root of your project."
 msgstr ""
 
-#: projects/models.py:151
+#: projects/models.py:152
 msgid "Documentation type"
 msgstr ""
 
-#: projects/models.py:153
+#: projects/models.py:154
 msgid ""
 "Type of documentation you are building. <a href=\"http://sphinx.pocoo.org/"
 "builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More info</a>."
 msgstr ""
 
-#: projects/models.py:157
+#: projects/models.py:158
 msgid "Analytics code"
 msgstr ""
 
-#: projects/models.py:158
+#: projects/models.py:159
 msgid ""
 "Google Analytics Tracking ID (ex. UA-22345342-1). This may slow down your "
 "page loads."
 msgstr ""
 
-#: projects/models.py:162 projects/models.py:794
+#: projects/models.py:163 projects/models.py:805
 msgid "Path"
 msgstr ""
 
-#: projects/models.py:163
+#: projects/models.py:164
 msgid "The directory where conf.py lives"
 msgstr ""
 
-#: projects/models.py:165
+#: projects/models.py:166
 msgid "Python configuration file"
 msgstr ""
 
-#: projects/models.py:166
+#: projects/models.py:167
 msgid ""
 "Path from project root to conf.py file (ex. docs/conf.py). Leave blank if "
 "you want us to find it for you."
 msgstr ""
 
-#: projects/models.py:169
+#: projects/models.py:170
 msgid "Featured"
 msgstr ""
 
-#: projects/models.py:170
+#: projects/models.py:171
 msgid "Skip"
 msgstr ""
 
-#: projects/models.py:171
+#: projects/models.py:172
 msgid "Mirror"
 msgstr ""
 
-#: projects/models.py:173
+#: projects/models.py:174
 msgid "Use virtualenv"
 msgstr ""
 
-#: projects/models.py:174
+#: projects/models.py:175
 msgid "Install your project inside a virtualenv using setup.py install"
 msgstr ""
 
-#: projects/models.py:180
+#: projects/models.py:181
 msgid "Python Interpreter"
 msgstr ""
 
-#: projects/models.py:188
+#: projects/models.py:189
 msgid "Use system packages"
 msgstr ""
 
-#: projects/models.py:189
+#: projects/models.py:190
 msgid "Give the virtual environment access to the global site-packages dir."
 msgstr ""
 
-#: projects/models.py:191
+#: projects/models.py:192
 msgid "Django Packages URL"
 msgstr ""
 
-#: projects/models.py:196
+#: projects/models.py:197
 msgid ""
 "(Beta) Level of privacy that you want on the repository. Protected means "
 "public but not in listings."
 msgstr ""
 
-#: projects/models.py:199
+#: projects/models.py:200
 msgid "Version Privacy Level"
 msgstr ""
 
-#: projects/models.py:201
+#: projects/models.py:202
 msgid ""
 "(Beta) Default level of privacy you want on built versions of documentation."
 msgstr ""
 
-#: projects/models.py:206
+#: projects/models.py:207
 msgid "Related projects"
 msgstr ""
 
-#: projects/models.py:222
+#: projects/models.py:223
 msgid "Number of Major versions"
 msgstr ""
 
-#: projects/models.py:227
+#: projects/models.py:228
 msgid "2 means supporting 3.X.X and 2.X.X, but not 1.X.X"
 msgstr ""
 
-#: projects/models.py:230
+#: projects/models.py:231
 msgid "Number of Minor versions"
 msgstr ""
 
-#: projects/models.py:235
+#: projects/models.py:236
 msgid "2 means supporting 2.2.X and 2.1.X, but not 2.0.X"
 msgstr ""
 
-#: projects/models.py:238
+#: projects/models.py:239
 msgid "Number of Point versions"
 msgstr ""
 
-#: projects/models.py:243
+#: projects/models.py:244
 msgid "2 means supporting 2.2.2 and 2.2.1, but not 2.2.0"
 msgstr ""
 
 #. Translators: Permission around whether a user can view the
 #. project
-#: projects/models.py:254
+#: projects/models.py:255
 msgid "View Project"
 msgstr ""
 
-#: projects/models.py:281
+#: projects/models.py:282
 msgid "Model must have slug"
 msgstr ""
 
-#: projects/models.py:795
+#: projects/models.py:806
 msgid "MD5 checksum"
 msgstr ""
 
-#: projects/models.py:823
+#: projects/models.py:834
 msgid "URL to send the webhook to"
 msgstr ""
 
-#: projects/tasks.py:790
+#: projects/tasks.py:832
 #, python-format
 msgid "(ReadTheDocs) Building docs for %s failed"
 msgstr ""

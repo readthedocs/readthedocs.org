@@ -9,9 +9,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-04 20:27-0600\n"
-"PO-Revision-Date: 2014-03-04 14:02+0000\n"
-"Last-Translator: shirou - しろう\n"
+"POT-Creation-Date: 2014-03-07 03:08-0600\n"
+"PO-Revision-Date: 2014-03-06 08:20+0000\n"
+"Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
 "Language-Team: Japanese (http://www.transifex.com/projects/p/readthedocs/"
 "language/ja/)\n"
 "Language: ja\n"
@@ -30,11 +30,11 @@ msgid "Invalid resource lookup data provided (mismatched type).: %(error)s"
 msgstr "無効なリソース検索データです(種類の不整合): %(error)s"
 
 #: bookmarks/models.py:9 builds/models.py:82 builds/models.py:268
-#: builds/models.py:284 projects/models.py:788
+#: builds/models.py:284 projects/models.py:799
 msgid "Project"
 msgstr "プロジェクト"
 
-#: bookmarks/models.py:11 core/models.py:14 projects/models.py:99
+#: bookmarks/models.py:11 core/models.py:14 projects/models.py:100
 msgid "User"
 msgstr "ユーザー"
 
@@ -46,7 +46,7 @@ msgstr "日付"
 msgid "URL"
 msgstr "URL"
 
-#: bookmarks/models.py:15 projects/models.py:103
+#: bookmarks/models.py:15 projects/models.py:104
 #: templates/core/project_details.html:5
 msgid "Description"
 msgstr "説明"
@@ -105,7 +105,7 @@ msgid "Any"
 msgstr "すべて"
 
 #: builds/filters.py:17 builds/filters.py:30 projects/filters.py:31
-#: projects/models.py:101 projects/models.py:792
+#: projects/models.py:102 projects/models.py:803
 msgid "Name"
 msgstr "名前"
 
@@ -129,8 +129,8 @@ msgstr "識別子"
 msgid "Verbose Name"
 msgstr "長い名前"
 
-#: builds/models.py:92 projects/filters.py:33 projects/models.py:102
-#: projects/models.py:793
+#: builds/models.py:92 projects/filters.py:33 projects/models.py:103
+#: projects/models.py:804
 msgid "Slug"
 msgstr "スラグ"
 
@@ -150,7 +150,7 @@ msgstr "ビルド済み"
 msgid "Uploaded"
 msgstr "アップロード"
 
-#: builds/models.py:99 projects/models.py:194
+#: builds/models.py:99 projects/models.py:195
 msgid "Privacy Level"
 msgstr "プライバシーレベル"
 
@@ -186,7 +186,7 @@ msgstr "最大"
 msgid "Alias for %(project)s: %(from)s -> %(to)s"
 msgstr "%(project)s の別名: %(from)s -> %(to)s"
 
-#: builds/models.py:286 projects/models.py:118 projects/models.py:790
+#: builds/models.py:286 projects/models.py:119 projects/models.py:801
 #: templates/djangome/oneoffs.html:11
 msgid "Version"
 msgstr "バージョン"
@@ -351,7 +351,7 @@ msgstr "CPython 3.x"
 msgid "Created Date"
 msgstr "作成日付"
 
-#: projects/filters.py:36 projects/models.py:106
+#: projects/filters.py:36 projects/models.py:107
 msgid "Repository URL"
 msgstr "リポジトリURL"
 
@@ -383,7 +383,7 @@ msgstr ""
 "プライベートリポジトリを指定されています。パブリック(http:// か git://) な"
 "clone URLを指定してください。"
 
-#: projects/forms.py:72 projects/models.py:184
+#: projects/forms.py:72 projects/models.py:185
 msgid "(Beta) The Python interpreter used to create the virtual environment."
 msgstr "(Beta) virtual環境を作成する時に使うPythonの種類。"
 
@@ -426,27 +426,27 @@ msgstr "プロジェクト %(name)s はありません"
 msgid "User %(name)s does not exist"
 msgstr "%(name)s というユーザーは存在しません"
 
-#: projects/models.py:79
+#: projects/models.py:80
 msgid "Parent"
 msgstr "親"
 
-#: projects/models.py:81
+#: projects/models.py:82
 msgid "Child"
 msgstr "子"
 
-#: projects/models.py:95
+#: projects/models.py:96
 msgid "Publication date"
 msgstr "公開時刻"
 
-#: projects/models.py:96
+#: projects/models.py:97
 msgid "Modified date"
 msgstr "変更時刻"
 
-#: projects/models.py:104
+#: projects/models.py:105
 msgid "The reStructuredText description of the project"
 msgstr "このプロジェクトの説明をreStructuredTextで書きます。"
 
-#: projects/models.py:107
+#: projects/models.py:108
 msgid ""
 "Checkout URL for your code (hg, git, etc.). Ex. http://github.com/"
 "ericholscher/django-kong.git"
@@ -454,23 +454,23 @@ msgstr ""
 "あなたのコード (hgやgitなど) のチェックアウトURL 例: http://github.com/"
 "ericholscher/django-kong.git"
 
-#: projects/models.py:110
+#: projects/models.py:111
 msgid "Repository type"
 msgstr "リポジトリの種類"
 
-#: projects/models.py:112
+#: projects/models.py:113
 msgid "Project URL"
 msgstr "プロジェクトURL"
 
-#: projects/models.py:113
+#: projects/models.py:114
 msgid "The project's homepage"
 msgstr "プロジェクトのホームページ"
 
-#: projects/models.py:115
+#: projects/models.py:116
 msgid "Canonical URL"
 msgstr "Canonical URL"
 
-#: projects/models.py:116
+#: projects/models.py:117
 msgid ""
 "The official URL that the docs live at. This can be at readthedocs.org, or "
 "somewhere else. Ex. http://docs.fabfile.org"
@@ -478,36 +478,36 @@ msgstr ""
 "このドキュメントが置かれる正式なURLです。これは readthedocs.org でも他のURLで"
 "も構いません。　例: http://docs.fabfile.org"
 
-#: projects/models.py:119
+#: projects/models.py:120
 msgid "Project version these docs apply to, i.e. 1.0a"
 msgstr "ドキュメントに適用するプロジェクトのバージョン 例: 1.0a"
 
-#: projects/models.py:121 templates/sphinx/sphinx_rtd_theme/layout.html:58
+#: projects/models.py:122 templates/sphinx/sphinx_rtd_theme/layout.html:58
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:140
 msgid "Copyright"
 msgstr "コピーライト"
 
-#: projects/models.py:122
+#: projects/models.py:123
 msgid "Project copyright information"
 msgstr "プロジェクトのコピーライト情報"
 
-#: projects/models.py:124
+#: projects/models.py:125
 msgid "Theme"
 msgstr "テーマ"
 
-#: projects/models.py:127
+#: projects/models.py:128
 msgid "Examples"
 msgstr "例"
 
-#: projects/models.py:128
+#: projects/models.py:129
 msgid "Suffix"
 msgstr "接尾辞"
 
-#: projects/models.py:131
+#: projects/models.py:132
 msgid "Single version"
 msgstr "単一バージョン"
 
-#: projects/models.py:132
+#: projects/models.py:133
 msgid ""
 "A single version site has no translations and only your \"latest\" version, "
 "served at the root of the domain. Use this with caution, only turn it on if "
@@ -517,19 +517,19 @@ msgstr ""
 "す。もし、<b>今後ずっと</b>複数バージョンのファイルを持つことがない場合のみ、"
 "これを有効にしてください。十分に注意して使用してください。"
 
-#: projects/models.py:134
+#: projects/models.py:135
 msgid "Default version"
 msgstr "初期設定のバージョン"
 
-#: projects/models.py:135
+#: projects/models.py:136
 msgid "The version of your project that / redirects to"
 msgstr "リダイレクト先のプロジェクトのバージョン"
 
-#: projects/models.py:139
+#: projects/models.py:140
 msgid "Default branch"
 msgstr "デフォルトブランチ"
 
-#: projects/models.py:140
+#: projects/models.py:141
 msgid ""
 "What branch \"latest\" points to. Leave empty to use the default value for "
 "your VCS (eg. trunk or master)."
@@ -537,11 +537,11 @@ msgstr ""
 "\"latest\"ブランチが指し示す先です。VCSのデフォルト値(例: trunkやmaster)を使"
 "う場合、空白のままにしてください。"
 
-#: projects/models.py:144
+#: projects/models.py:145
 msgid "Requirements file"
 msgstr "Requirements ファイル"
 
-#: projects/models.py:146
+#: projects/models.py:147
 msgid ""
 "Requires Virtualenv. A <a href=\"http://www.pip-installer.org/en/latest/"
 "cookbook.html#requirements-files\">pip requirements file</a> needed to build "
@@ -552,11 +552,11 @@ msgstr ""
 "requirementsファイル</a>が必要です。プロジェクトのrootからのパスを入力してく"
 "ださい。"
 
-#: projects/models.py:151
+#: projects/models.py:152
 msgid "Documentation type"
 msgstr "ドキュメントの種類"
 
-#: projects/models.py:153
+#: projects/models.py:154
 msgid ""
 "Type of documentation you are building. <a href=\"http://sphinx.pocoo.org/"
 "builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More info</a>."
@@ -564,11 +564,11 @@ msgstr ""
 "ビルドしたいドキュメントの種類。 詳細は<a href=\"http://sphinx.pocoo.org/"
 "builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">こちら</a>。"
 
-#: projects/models.py:157
+#: projects/models.py:158
 msgid "Analytics code"
 msgstr "Analyticsのコード"
 
-#: projects/models.py:158
+#: projects/models.py:159
 msgid ""
 "Google Analytics Tracking ID (ex. UA-22345342-1). This may slow down your "
 "page loads."
@@ -576,19 +576,19 @@ msgstr ""
 "Google AnalyticsのトラッキングID(例: UA-22345342-1)。 これはページの読み込み"
 "を遅くする場合があります。"
 
-#: projects/models.py:162 projects/models.py:794
+#: projects/models.py:163 projects/models.py:805
 msgid "Path"
 msgstr "パス"
 
-#: projects/models.py:163
+#: projects/models.py:164
 msgid "The directory where conf.py lives"
 msgstr "conf.pyがあるディレクトリ"
 
-#: projects/models.py:165
+#: projects/models.py:166
 msgid "Python configuration file"
 msgstr "Python設定ファイル"
 
-#: projects/models.py:166
+#: projects/models.py:167
 msgid ""
 "Path from project root to conf.py file (ex. docs/conf.py). Leave blank if "
 "you want us to find it for you."
@@ -596,46 +596,46 @@ msgstr ""
 "プロジェクトのrootからconf.pyへのパスです(例: docs/conf.py)。 自動で検索する"
 "場合は空白のままにしてください。"
 
-#: projects/models.py:169
+#: projects/models.py:170
 msgid "Featured"
 msgstr "注目"
 
-#: projects/models.py:170
+#: projects/models.py:171
 msgid "Skip"
 msgstr "飛ばす"
 
-#: projects/models.py:171
+#: projects/models.py:172
 msgid "Mirror"
 msgstr "ミラー"
 
-#: projects/models.py:173
+#: projects/models.py:174
 msgid "Use virtualenv"
 msgstr "virtualenvを使う"
 
-#: projects/models.py:174
+#: projects/models.py:175
 msgid "Install your project inside a virtualenv using setup.py install"
 msgstr ""
 "setup.py installでvirtualenv環境の内部にこのプロジェクトをインストールする"
 
-#: projects/models.py:180
+#: projects/models.py:181
 msgid "Python Interpreter"
 msgstr "Python"
 
-#: projects/models.py:188
+#: projects/models.py:189
 msgid "Use system packages"
 msgstr "システムパッケージを使う"
 
-#: projects/models.py:189
+#: projects/models.py:190
 msgid "Give the virtual environment access to the global site-packages dir."
 msgstr ""
 "グローバルのsite packagesディレクトリに対してvirtual environmentのアクセスを"
 "与える"
 
-#: projects/models.py:191
+#: projects/models.py:192
 msgid "Django Packages URL"
 msgstr "DjangoパッケージURL"
 
-#: projects/models.py:196
+#: projects/models.py:197
 msgid ""
 "(Beta) Level of privacy that you want on the repository. Protected means "
 "public but not in listings."
@@ -643,45 +643,45 @@ msgstr ""
 "(Beta) リポジトリに対するプライバシーのレベルです. 非公開とは公開されているけ"
 "れども、リストには出ていない状態です。"
 
-#: projects/models.py:199
+#: projects/models.py:200
 msgid "Version Privacy Level"
 msgstr "バージョンのプライバシーレベル"
 
-#: projects/models.py:201
+#: projects/models.py:202
 msgid ""
 "(Beta) Default level of privacy you want on built versions of documentation."
 msgstr ""
 "(Beta) ドキュメントのビルドしたバージョンに設定する初期プライバシーレベル"
 
-#: projects/models.py:206
+#: projects/models.py:207
 msgid "Related projects"
 msgstr "関連するプロジェクト"
 
-#: projects/models.py:222
+#: projects/models.py:223
 msgid "Number of Major versions"
 msgstr "メジャーバージョンの数"
 
-#: projects/models.py:227
+#: projects/models.py:228
 msgid "2 means supporting 3.X.X and 2.X.X, but not 1.X.X"
 msgstr ""
 "例えば2を指定した場合、3.X.Xと2.X.Xをサポートしますが、1.X.Xはサポートしませ"
 "ん"
 
-#: projects/models.py:230
+#: projects/models.py:231
 msgid "Number of Minor versions"
 msgstr "マイナーバージョンの数"
 
-#: projects/models.py:235
+#: projects/models.py:236
 msgid "2 means supporting 2.2.X and 2.1.X, but not 2.0.X"
 msgstr ""
 "例えば2を指定した場合、2.2.Xと2.1.Xをサポートしますが、2.0.Xはサポートしませ"
 "ん"
 
-#: projects/models.py:238
+#: projects/models.py:239
 msgid "Number of Point versions"
 msgstr "ポイントバージョンの数"
 
-#: projects/models.py:243
+#: projects/models.py:244
 msgid "2 means supporting 2.2.2 and 2.2.1, but not 2.2.0"
 msgstr ""
 "例えば2を指定した場合、2.2.2と2.2.1をサポートしますが、2.2.0はサポートしませ"
@@ -689,23 +689,23 @@ msgstr ""
 
 #. Translators: Permission around whether a user can view the
 #. project
-#: projects/models.py:254
+#: projects/models.py:255
 msgid "View Project"
 msgstr "プロジェクトを見る"
 
-#: projects/models.py:281
+#: projects/models.py:282
 msgid "Model must have slug"
 msgstr "モデルはスラグを持つ必要があります。"
 
-#: projects/models.py:795
+#: projects/models.py:806
 msgid "MD5 checksum"
 msgstr "MD5チェックサム"
 
-#: projects/models.py:823
+#: projects/models.py:834
 msgid "URL to send the webhook to"
 msgstr "webhookを送るURL"
 
-#: projects/tasks.py:790
+#: projects/tasks.py:832
 #, python-format
 msgid "(ReadTheDocs) Building docs for %s failed"
 msgstr "(ReadTheDocs) %s ドキュメントのビルドが失敗しました"
@@ -751,9 +751,8 @@ msgid "Maze Found"
 msgstr ""
 
 #: templates/500.html:5
-#, fuzzy
 msgid "Server Error"
-msgstr "設定エラー"
+msgstr ""
 
 #. Translators: Name of the website
 #: templates/base.html:13 templates/error_header.html:12

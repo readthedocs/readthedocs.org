@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-04 20:27-0600\n"
+"POT-Creation-Date: 2014-03-07 03:08-0600\n"
 "PO-Revision-Date: 2014-02-28 15:14+0000\n"
 "Last-Translator: wlbksy <kookbond@gmail.com>\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/projects/p/"
@@ -31,11 +31,11 @@ msgid "Invalid resource lookup data provided (mismatched type).: %(error)s"
 msgstr ""
 
 #: bookmarks/models.py:9 builds/models.py:82 builds/models.py:268
-#: builds/models.py:284 projects/models.py:788
+#: builds/models.py:284 projects/models.py:799
 msgid "Project"
 msgstr "项目"
 
-#: bookmarks/models.py:11 core/models.py:14 projects/models.py:99
+#: bookmarks/models.py:11 core/models.py:14 projects/models.py:100
 msgid "User"
 msgstr "用户"
 
@@ -47,7 +47,7 @@ msgstr "日期"
 msgid "URL"
 msgstr "网址"
 
-#: bookmarks/models.py:15 projects/models.py:103
+#: bookmarks/models.py:15 projects/models.py:104
 #: templates/core/project_details.html:5
 msgid "Description"
 msgstr "说明"
@@ -106,7 +106,7 @@ msgid "Any"
 msgstr "任何"
 
 #: builds/filters.py:17 builds/filters.py:30 projects/filters.py:31
-#: projects/models.py:101 projects/models.py:792
+#: projects/models.py:102 projects/models.py:803
 msgid "Name"
 msgstr "名称"
 
@@ -130,8 +130,8 @@ msgstr "标识符"
 msgid "Verbose Name"
 msgstr "长名字"
 
-#: builds/models.py:92 projects/filters.py:33 projects/models.py:102
-#: projects/models.py:793
+#: builds/models.py:92 projects/filters.py:33 projects/models.py:103
+#: projects/models.py:804
 msgid "Slug"
 msgstr "Slug"
 
@@ -151,7 +151,7 @@ msgstr "构建"
 msgid "Uploaded"
 msgstr "已上传"
 
-#: builds/models.py:99 projects/models.py:194
+#: builds/models.py:99 projects/models.py:195
 msgid "Privacy Level"
 msgstr "隐私级别"
 
@@ -187,7 +187,7 @@ msgstr "最大"
 msgid "Alias for %(project)s: %(from)s -> %(to)s"
 msgstr "%(project)s 的别名: %(from)s -> %(to)s"
 
-#: builds/models.py:286 projects/models.py:118 projects/models.py:790
+#: builds/models.py:286 projects/models.py:119 projects/models.py:801
 #: templates/djangome/oneoffs.html:11
 msgid "Version"
 msgstr "版本"
@@ -352,7 +352,7 @@ msgstr "CPython 3.x"
 msgid "Created Date"
 msgstr "创建日期"
 
-#: projects/filters.py:36 projects/models.py:106
+#: projects/filters.py:36 projects/models.py:107
 msgid "Repository URL"
 msgstr "代码库地址"
 
@@ -382,7 +382,7 @@ msgid ""
 "git://) clone url"
 msgstr ""
 
-#: projects/forms.py:72 projects/models.py:184
+#: projects/forms.py:72 projects/models.py:185
 msgid "(Beta) The Python interpreter used to create the virtual environment."
 msgstr "(Beta) 用于创建虚拟环境的 Python 解释器。"
 
@@ -425,27 +425,27 @@ msgstr "项目 %(name)s 不存在"
 msgid "User %(name)s does not exist"
 msgstr "用户 %(name)s 不存在"
 
-#: projects/models.py:79
+#: projects/models.py:80
 msgid "Parent"
 msgstr "父"
 
-#: projects/models.py:81
+#: projects/models.py:82
 msgid "Child"
 msgstr "子"
 
-#: projects/models.py:95
+#: projects/models.py:96
 msgid "Publication date"
 msgstr "发布日期"
 
-#: projects/models.py:96
+#: projects/models.py:97
 msgid "Modified date"
 msgstr "修改日期"
 
-#: projects/models.py:104
+#: projects/models.py:105
 msgid "The reStructuredText description of the project"
 msgstr "reStructuredText 格式的项目说明"
 
-#: projects/models.py:107
+#: projects/models.py:108
 msgid ""
 "Checkout URL for your code (hg, git, etc.). Ex. http://github.com/"
 "ericholscher/django-kong.git"
@@ -453,23 +453,23 @@ msgstr ""
 "该项目代码库的地址（hg、git 等）。如：http://github.com/ericholscher/django-"
 "kong.git"
 
-#: projects/models.py:110
+#: projects/models.py:111
 msgid "Repository type"
 msgstr "代码库类型"
 
-#: projects/models.py:112
+#: projects/models.py:113
 msgid "Project URL"
 msgstr "项目网址"
 
-#: projects/models.py:113
+#: projects/models.py:114
 msgid "The project's homepage"
 msgstr "项目的主页"
 
-#: projects/models.py:115
+#: projects/models.py:116
 msgid "Canonical URL"
 msgstr "标准 URL"
 
-#: projects/models.py:116
+#: projects/models.py:117
 msgid ""
 "The official URL that the docs live at. This can be at readthedocs.org, or "
 "somewhere else. Ex. http://docs.fabfile.org"
@@ -477,36 +477,36 @@ msgstr ""
 "文档的官方 URL 。可以在 readthedocs.org 上，或其他地方。比如：http://docs."
 "fabfile.org"
 
-#: projects/models.py:119
+#: projects/models.py:120
 msgid "Project version these docs apply to, i.e. 1.0a"
 msgstr ""
 
-#: projects/models.py:121 templates/sphinx/sphinx_rtd_theme/layout.html:58
+#: projects/models.py:122 templates/sphinx/sphinx_rtd_theme/layout.html:58
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:140
 msgid "Copyright"
 msgstr "版权"
 
-#: projects/models.py:122
+#: projects/models.py:123
 msgid "Project copyright information"
 msgstr "项目版权信息"
 
-#: projects/models.py:124
+#: projects/models.py:125
 msgid "Theme"
 msgstr "主题"
 
-#: projects/models.py:127
+#: projects/models.py:128
 msgid "Examples"
 msgstr "例子"
 
-#: projects/models.py:128
+#: projects/models.py:129
 msgid "Suffix"
 msgstr "后缀"
 
-#: projects/models.py:131
+#: projects/models.py:132
 msgid "Single version"
 msgstr "单一版本"
 
-#: projects/models.py:132
+#: projects/models.py:133
 msgid ""
 "A single version site has no translations and only your \"latest\" version, "
 "served at the root of the domain. Use this with caution, only turn it on if "
@@ -515,19 +515,19 @@ msgstr ""
 "单一版本的站点不含翻译版本，只包含 \"latest\" 版本，使用根域名进行服务。谨慎"
 "使用。仅在您<b>没有</b>多版本时使用。"
 
-#: projects/models.py:134
+#: projects/models.py:135
 msgid "Default version"
 msgstr "默认版本"
 
-#: projects/models.py:135
+#: projects/models.py:136
 msgid "The version of your project that / redirects to"
 msgstr "访问项目根目录时重定向的目标版本"
 
-#: projects/models.py:139
+#: projects/models.py:140
 msgid "Default branch"
 msgstr "默认分支"
 
-#: projects/models.py:140
+#: projects/models.py:141
 msgid ""
 "What branch \"latest\" points to. Leave empty to use the default value for "
 "your VCS (eg. trunk or master)."
@@ -535,11 +535,11 @@ msgstr ""
 "“latest” 分支所实际指向的分支。留空则根据您的版本控制系统决定（如：trunk 或 "
 "master）。"
 
-#: projects/models.py:144
+#: projects/models.py:145
 msgid "Requirements file"
 msgstr "所需求的文件"
 
-#: projects/models.py:146
+#: projects/models.py:147
 msgid ""
 "Requires Virtualenv. A <a href=\"http://www.pip-installer.org/en/latest/"
 "cookbook.html#requirements-files\">pip requirements file</a> needed to build "
@@ -549,11 +549,11 @@ msgstr ""
 "cookbook.html#requirements-files\">pip requirements 文件</a> 用来构建您的文"
 "档。 路径相对于您的项目根目录。"
 
-#: projects/models.py:151
+#: projects/models.py:152
 msgid "Documentation type"
 msgstr "文档类型"
 
-#: projects/models.py:153
+#: projects/models.py:154
 msgid ""
 "Type of documentation you are building. <a href=\"http://sphinx.pocoo.org/"
 "builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More info</a>."
@@ -561,133 +561,133 @@ msgstr ""
 "您要构建的文档类型。<a href=\"http://sphinx.pocoo.org/builders.html#sphinx."
 "builders.html.DirectoryHTMLBuilder\">更多信息</a>。"
 
-#: projects/models.py:157
+#: projects/models.py:158
 msgid "Analytics code"
 msgstr "分析代码"
 
-#: projects/models.py:158
+#: projects/models.py:159
 msgid ""
 "Google Analytics Tracking ID (ex. UA-22345342-1). This may slow down your "
 "page loads."
 msgstr "Google 分析追踪 ID（如：UA-22345342-1）。这可能导致页面加载变慢。"
 
-#: projects/models.py:162 projects/models.py:794
+#: projects/models.py:163 projects/models.py:805
 msgid "Path"
 msgstr "路径"
 
-#: projects/models.py:163
+#: projects/models.py:164
 msgid "The directory where conf.py lives"
 msgstr "conf.py 所在的文件夹"
 
-#: projects/models.py:165
+#: projects/models.py:166
 msgid "Python configuration file"
 msgstr "Python 配置文件"
 
-#: projects/models.py:166
+#: projects/models.py:167
 msgid ""
 "Path from project root to conf.py file (ex. docs/conf.py). Leave blank if "
 "you want us to find it for you."
 msgstr ""
 "相对项目根目录的 conf.py 文件路径（如：docs/conf.py）。留空则自动查找。"
 
-#: projects/models.py:169
+#: projects/models.py:170
 msgid "Featured"
 msgstr "精选"
 
-#: projects/models.py:170
+#: projects/models.py:171
 msgid "Skip"
 msgstr "跳过"
 
-#: projects/models.py:171
+#: projects/models.py:172
 msgid "Mirror"
 msgstr "镜像"
 
-#: projects/models.py:173
+#: projects/models.py:174
 msgid "Use virtualenv"
 msgstr "使用 virtualenv"
 
-#: projects/models.py:174
+#: projects/models.py:175
 msgid "Install your project inside a virtualenv using setup.py install"
 msgstr "在 virtualenv 中使用 setup.py install 来安装你的项目"
 
-#: projects/models.py:180
+#: projects/models.py:181
 msgid "Python Interpreter"
 msgstr "Python 解释器"
 
-#: projects/models.py:188
+#: projects/models.py:189
 msgid "Use system packages"
 msgstr "使用系统包"
 
-#: projects/models.py:189
+#: projects/models.py:190
 msgid "Give the virtual environment access to the global site-packages dir."
 msgstr "让虚拟环境可以访问全局 site-packages 目录。"
 
-#: projects/models.py:191
+#: projects/models.py:192
 msgid "Django Packages URL"
 msgstr "Django 包 URL"
 
-#: projects/models.py:196
+#: projects/models.py:197
 msgid ""
 "(Beta) Level of privacy that you want on the repository. Protected means "
 "public but not in listings."
 msgstr "(Beta) 仓库的隐私级别。 “保护的”意味着公开但不被显示在列表中。"
 
-#: projects/models.py:199
+#: projects/models.py:200
 msgid "Version Privacy Level"
 msgstr "版本隐私级别"
 
-#: projects/models.py:201
+#: projects/models.py:202
 msgid ""
 "(Beta) Default level of privacy you want on built versions of documentation."
 msgstr "(Beta) 构建不同版本的文档时的默认隐私级别。"
 
-#: projects/models.py:206
+#: projects/models.py:207
 msgid "Related projects"
 msgstr "相关项目"
 
-#: projects/models.py:222
+#: projects/models.py:223
 msgid "Number of Major versions"
 msgstr "主版本号"
 
-#: projects/models.py:227
+#: projects/models.py:228
 msgid "2 means supporting 3.X.X and 2.X.X, but not 1.X.X"
 msgstr "2 意味着支持 3.X.X 和 2.X.X, 但是不支持 1.X.X"
 
-#: projects/models.py:230
+#: projects/models.py:231
 msgid "Number of Minor versions"
 msgstr "小版本号"
 
-#: projects/models.py:235
+#: projects/models.py:236
 msgid "2 means supporting 2.2.X and 2.1.X, but not 2.0.X"
 msgstr "2 意味着支持 2.2.X 和 2.1.X, 但是不支持 2.0.X"
 
-#: projects/models.py:238
+#: projects/models.py:239
 msgid "Number of Point versions"
 msgstr "点版本号"
 
-#: projects/models.py:243
+#: projects/models.py:244
 msgid "2 means supporting 2.2.2 and 2.2.1, but not 2.2.0"
 msgstr "2 意味着支持 2.2.2 和 2.2.1, 但是不支持 2.2.0"
 
 #. Translators: Permission around whether a user can view the
 #. project
-#: projects/models.py:254
+#: projects/models.py:255
 msgid "View Project"
 msgstr "查看项目"
 
-#: projects/models.py:281
+#: projects/models.py:282
 msgid "Model must have slug"
 msgstr ""
 
-#: projects/models.py:795
+#: projects/models.py:806
 msgid "MD5 checksum"
 msgstr "MD5 校验码"
 
-#: projects/models.py:823
+#: projects/models.py:834
 msgid "URL to send the webhook to"
 msgstr "URL 用来发送 webhook 到"
 
-#: projects/tasks.py:790
+#: projects/tasks.py:832
 #, python-format
 msgid "(ReadTheDocs) Building docs for %s failed"
 msgstr "(ReadTheDocs) 为 %s 构建文档失败"
