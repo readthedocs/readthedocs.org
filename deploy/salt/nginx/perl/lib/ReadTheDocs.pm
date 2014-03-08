@@ -68,6 +68,7 @@ sub redirect_home {
 
     # Return redirect, no body
     $req->header_out('Location', sprintf('/%s/%s/', $lang, $version));
+    $req->header_out('X-Perl-Redirect', 'True');
     return 302;
 }
 
