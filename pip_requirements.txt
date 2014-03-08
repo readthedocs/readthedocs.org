@@ -1,6 +1,6 @@
 # Hack around bzr hosting
 
---allow-external bar
+--allow-external bzr
 --allow-unverified bzr 
 --allow-external launchpadlib
 --allow-unverified launchpadlib 
