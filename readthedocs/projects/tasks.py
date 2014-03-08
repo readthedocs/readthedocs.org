@@ -70,6 +70,7 @@ def update_docs(pk, version_pk=None, record=True, docker=True,
     if docker:
         record_build(api=api, build=build, record=record, results=results, state='building')
         build_results = run_docker(version)
+        results.update(build_results)
     else:
         record_build(api=api, build=build, record=record, results=results, state='installing')
         setup_results = setup_environment(version) 
@@ -100,10 +101,9 @@ def update_docs(pk, version_pk=None, record=True, docker=True,
 def run_docker(version):
     serialized_path = os.path.join(version.project.doc_path, 'build.json')
     if os.path.exists(serialized_path):
-        shutil.rmtree(serialized_path)
+        os.remove(serialized_path)
     path = version.project.doc_path
     docker_results = run('docker run -v %s:/home/docs/checkouts/readthedocs.org/user_builds/%s ericholscher/readthedocs-build /bin/bash /home/docs/run.sh %s' % (path, version.project.slug, version.project.slug))
-    import ipdb; ipdb.set_trace()
     path = os.path.join(version.project.doc_path, 'build.json')
     json_file = open(path)
     serialized_results = json.load(json_file)
