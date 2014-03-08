@@ -620,10 +620,11 @@ def record_build(api, record, build, results, state):
     if not record:
         return None
     build['state'] = state
-    if build.get('setup', False):
+    if results.get('checkout', False):
+        build['success'] = results['checkout'][0] == 0
         build['setup'] = results['checkout'][1]
         build['setup_error'] = results['checkout'][2]
-    if build.get('html', False):
+    if results.get('html', False):
         build['success'] = results['html'][0] == 0
         build['output'] = results['html'][1]
         build['error'] = results['html'][2]
