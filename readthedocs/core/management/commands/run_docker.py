@@ -17,7 +17,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         if len(args):
             for slug in args:
-                project_data = api.project(slug).get()
-                p = tasks.make_api_project(project_data)
-                log.info("Building %s" % p)
-                tasks.update_docs(pk=p.pk, docker=True)
+                version_data = api.version(slug).get(slug="latest")['objects'][0]
+                version = tasks.make_api_version(version_data)
+                log.info("Building %s" % version)
+                tasks.docker_build(version_pk=version.pk)

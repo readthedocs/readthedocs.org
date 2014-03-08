@@ -6,16 +6,11 @@ import os
 import shutil
 import json
 import logging
+import uuid
 
 from celery.decorators import task
 from django.conf import settings
-from django.contrib.sites.models import Site
-from django.core.mail import send_mail
-from django.template import Context
-from django.template.loader import get_template
-from django.utils.translation import ugettext_lazy as _
 import redis
-import requests
 import slumber
 import tastyapi
 
@@ -63,9 +58,7 @@ def update_docs(pk, version_pk=None, record=True, docker=True,
 
     project_data = api.project(pk).get()
     project = make_api_project(project_data)
-
     log.info(LOG_TEMPLATE.format(project=project.slug, version='', msg='Building'))
-
     version = ensure_version(api, project, version_pk)
     build = create_build(version, api, record)
     results = {}
@@ -74,18 +67,20 @@ def update_docs(pk, version_pk=None, record=True, docker=True,
     vcs_results = setup_vcs(version, build, api)
     results.update(vcs_results)
 
-    record_build(api=api, build=build, record=record, results=results, state='building')
     if docker:
+        record_build(api=api, build=build, record=record, results=results, state='building')
         build_results = run_docker(version)
     else:
+        record_build(api=api, build=build, record=record, results=results, state='installing')
         setup_results = setup_environment(version) 
-        build_results = build_docs(version, force, pdf, man, epub, dash, search, localmedia)
-        build_results.update(setup_results)
+        results.update(setup_results)
 
-    results.update(build_results)
+        record_build(api=api, build=build, record=record, results=results, state='building')
+        build_results = build_docs(version, force, pdf, man, epub, dash, search, localmedia)
+        results.update(build_results)
 
     record_build(api=api, build=build, record=record, results=results, state='finished')
-    record_pdf(api=api, record=record, results=results, state='finished', version=version)
+    #record_pdf(api=api, record=record, results=results, state='finished', version=version)
 
     if results['html'][0] == 0:
         # Mark version active on the site
@@ -101,10 +96,19 @@ def update_docs(pk, version_pk=None, record=True, docker=True,
             log.error(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Unable to put a new version"), exc_info=True)
     finish_build(version, build, results['html'])
 
+
 def run_docker(version):
+    serialized_path = os.path.join(version.project.doc_path, 'build.json')
+    if os.path.exists(serialized_path):
+        shutil.rmtree(serialized_path)
     path = version.project.doc_path
-    run('docker run -v %s:/home/docs/checkouts/readthedocs.org/user_builds/%s ericholscher/readthedocs-build /bin/bash /home/docs/run.sh %s' % (path, version.project.slug, version.project.slug))
-    return {}
+    docker_results = run('docker run -v %s:/home/docs/checkouts/readthedocs.org/user_builds/%s ericholscher/readthedocs-build /bin/bash /home/docs/run.sh %s' % (path, version.project.slug, version.project.slug))
+    import ipdb; ipdb.set_trace()
+    path = os.path.join(version.project.doc_path, 'build.json')
+    json_file = open(path)
+    serialized_results = json.load(json_file)
+    json_file.close()
+    return serialized_results
 
 def docker_build(version_pk, pdf=True, man=True, epub=True, dash=True, search=True, force=False, intersphinx=True, localmedia=True):
     """
@@ -114,8 +118,22 @@ def docker_build(version_pk, pdf=True, man=True, epub=True, dash=True, search=Tr
     version = make_api_version(version_data)
 
     environment_results = setup_environment(version) 
-    build_results = build_docs(version, force, pdf, man, epub, dash, search, localmedia)
-    return environment_results.update(build_results)
+    results = build_docs(version, force, pdf, man, epub, dash, search, localmedia)
+    results.update(environment_results)
+    try:
+        number = uuid.uuid4()
+        path = os.path.join(version.project.doc_path, 'build.json')
+        fh = open(path, 'w')
+        json.dump(results, fh)
+        fh.close()
+    except IOError as e:
+        log.debug(LOG_TEMPLATE.format(
+            project=version.project.slug,
+            version='',
+            msg='Cannot write to build.json: {0}'.format(e)
+        ))
+        return None
+    return number
 
 def ensure_version(api, project, version_pk):
     """

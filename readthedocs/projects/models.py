@@ -580,7 +580,7 @@ class Project(models.Model):
         The path to the static metadata JSON settings file
         """
         return os.path.join(self.doc_path, 'metadata.json')
-
+        
     def conf_file(self, version='latest'):
         if self.conf_py_file:
             log.debug('Inserting conf.py file path from model')
