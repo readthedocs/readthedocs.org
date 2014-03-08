@@ -60,22 +60,26 @@ def backup():
     install_packages('backup')
     firewall('backup')
 
+def install_python(version=2):
+    # Python 3
+    if version == 3:
+        sudo('apt-get install -y python3.3 python3.3-dev')
+        sudo('easy_install3 pip')
+        sudo('pip3 install -U virtualenv')
+
+    # Python 2
+    if version == 2:
+        sudo('easy_install-2.7 pip')
+        sudo('pip2 install -U virtualenv')
+
 
 def install_packages(type=None):
     sudo('apt-get update')
     sudo('apt-get install -y vim software-properties-common')
     sudo('apt-get install -y python-setuptools')
 
-    # Python 3
-    sudo('apt-get install -y python3.3 python3.3-dev')
-    sudo('easy_install3 pip')
-    sudo('pip3 install -U virtualenv')
-
-    # Python 2
-    sudo('easy_install-2.7 pip')
-    sudo('pip2 install -U virtualenv')
-
     if type == 'build':
+        install_python()
         sudo(
             ' apt-get install -y git-core python-dev '
             ' postgresql-client libpq-dev subversion graphviz '
