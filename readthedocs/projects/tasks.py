@@ -32,7 +32,7 @@ HTML_ONLY = getattr(settings, 'HTML_ONLY_PROJECTS', ())
 
 @task
 @restoring_chdir
-def update_docs(pk, version_pk=None, record=True, docker=True,
+def update_docs(pk, version_pk=None, record=True, docker=False,
                 pdf=True, man=True, epub=True, dash=True,
                 search=True, force=False, intersphinx=True, localmedia=True,
                 api=None, **kwargs):
@@ -404,7 +404,7 @@ def build_docs(version, pdf, man, epub, dash, search, localmedia, force):
     """
 
     project = version.project
-    ret_dict = {}
+    results = {}
 
     if 'sphinx' in project.documentation_type and not project.conf_file(version.slug):
         return ('', 'Conf file not found.', -1)
@@ -414,21 +414,22 @@ def build_docs(version, pdf, man, epub, dash, search, localmedia, force):
         html_builder = builder_loading.get(project.documentation_type)(version)
         if force:
             html_builder.force()
-        html_builder.clean()
-        ret_dict['html'] = html_builder.build()
-        if ret_dict['html'][0] == 0:
+        #html_builder.clean()
+        html_results = html_builder.build()
+        results.update(html_results)
+        if results['html'][0] == 0:
             html_builder.move()
 
         fake_results = (999, "Project Skipped, Didn't build",
                         "Project Skipped, Didn't build")
-        # Only build everything else if the html build changed.
-        if html_builder.changed and 'sphinx' in project.documentation_type:
+        if 'sphinx' in project.documentation_type:
             # Search builder. Creates JSON from docs and sends it to the server.
             if search:
                 try:
                     search_builder = builder_loading.get('sphinx_search')(version)
-                    ret_dict['search'] = search_builder.build()
-                    if ret_dict['search'][0] == 0:
+                    search_results = search_builder.build()
+                    results.update(search_results)
+                    if results['search'][0] == 0:
                         # Update search index
                         search_builder.upload()
                         # Copy json for safe keeping
@@ -439,8 +440,9 @@ def build_docs(version, pdf, man, epub, dash, search, localmedia, force):
             if localmedia:
                 try:
                     localmedia_builder = builder_loading.get('sphinx_singlehtmllocalmedia')(version)
-                    ret_dict['localmedia'] = localmedia_builder.build()
-                    if ret_dict['localmedia'][0] == 0:
+                    localmedia_results = localmedia_builder.build()
+                    results.update(localmedia_results)
+                    if results['localmedia'][0] == 0:
                         localmedia_builder.move()
                 except:
                     log.error(LOG_TEMPLATE.format(project=project.slug, version=version.slug, msg="Local Media HTML Build Error"), exc_info=True)
@@ -449,20 +451,22 @@ def build_docs(version, pdf, man, epub, dash, search, localmedia, force):
             if version.project.slug not in HTML_ONLY and not project.skip:
                 if pdf:
                     pdf_builder = builder_loading.get('sphinx_pdf')(version)
-                    ret_dict['latex'], ret_dict['pdf'] = pdf_builder.build()
+                    pdf_results = pdf_builder.build()
+                    results.update(pdf_results)
                     # Always move pdf results even when there's an error.
                     #if pdf_results[0] == 0:
                     pdf_builder.move()
                 else:
-                    ret_dict['pdf'] = ret_dict['latex'] = fake_results
+                    results['pdf'] = results['latex'] = fake_results
                 if epub:
                     epub_builder = builder_loading.get('sphinx_epub')(version)
-                    ret_dict['epub'] = epub_builder.build()
-                    if ret_dict['epub'][0] == 0:
+                    epub_results = epub_builder.build()
+                    results.update(epub_results)
+                    if results['epub'][0] == 0:
                         epub_builder.move()
                 else:
-                    ret_dict['epub'] = fake_results
-    return ret_dict
+                    results['epub'] = fake_results
+    return results
 
 
 def symlink_cnames(version):

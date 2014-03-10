@@ -150,9 +150,10 @@ INSTALLED_APPS = [
     'tastypie',
 
     # our apps
-    'projects',
     'builds',
     'core',
+    'doc_builder',
+    'projects',
     'rtd_tests',
     'websupport',
     'restapi',

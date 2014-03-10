@@ -15,16 +15,17 @@ class Builder(HtmlBuilder):
     def build(self, **kwargs):
         project = self.version.project
         os.chdir(self.version.project.conf_dir(self.version.slug))
+        results = {}
         if project.use_virtualenv:
             build_command = '%s -b readthedocssinglehtml -D language=%s . _build/html' % (project.venv_bin(
                 version=self.version.slug, bin='sphinx-build'), project.language)
         else:
             build_command = "sphinx-build -D language=%s -b readthedocssinglehtml . _build/html" % project.language
-        build_results = run(build_command)
+        results['singlehtml'] = run(build_command)
         #self._zip_html()
-        if 'no targets are out of date.' in build_results[1]:
+        if 'no targets are out of date.' in results['singlehtml'][1]:
             self._changed = False
-        return build_results
+        return results
 
 class LocalMediaBuilder(HtmlBuilder):
 
@@ -39,16 +40,17 @@ class LocalMediaBuilder(HtmlBuilder):
     def build(self, **kwargs):
         project = self.version.project
         os.chdir(self.version.project.conf_dir(self.version.slug))
+        results = {}
         if project.use_virtualenv:
             build_command = '%s -b readthedocssinglehtmllocalmedia -D language=%s . _build/localmedia' % (project.venv_bin(
                 version=self.version.slug, bin='sphinx-build'), project.language)
         else:
             build_command = "sphinx-build -D language=%s -b readthedocssinglehtmllocalmedia . _build/localmedia" % project.language
-        build_results = run(build_command)
+        results['localmedia'] = run(build_command)
         self._zip_html()
-        if 'no targets are out of date.' in build_results[1]:
+        if 'no targets are out of date.' in results['localmedia'][1]:
             self._changed = False
-        return build_results
+        return results
 
     @restoring_chdir
     def _zip_html(self, **kwargs):

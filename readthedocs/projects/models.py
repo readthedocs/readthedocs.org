@@ -294,7 +294,8 @@ class Project(models.Model):
         except Exception, e:
             log.error('failed to symlink project', exc_info=True)
         try:
-            update_static_metadata(project_pk=self.pk)
+            #update_static_metadata(project_pk=self.pk)
+            pass
         except Exception:
             log.error('failed to update static metadata', exc_info=True)
         return obj
@@ -526,6 +527,12 @@ class Project(models.Model):
                 return os.path.join(doc_base, '%s' % possible_path)
         #No docs directory, docs are at top-level.
         return doc_base
+
+    def artifact_path(self, type, version='latest'):
+        """
+        The path to the build html docs in the project.
+        """
+        return os.path.join(self.doc_path, "artifacts", version, type)
 
     def full_build_path(self, version='latest'):
         """

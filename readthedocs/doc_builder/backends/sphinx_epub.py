@@ -14,13 +14,14 @@ class Builder(HtmlBuilder):
     def build(self, **kwargs):
         project = self.version.project
         os.chdir(project.conf_dir(self.version.slug))
+        results = {}
         if project.use_virtualenv:
             build_command = '%s -b epub -D language=%s . _build/epub' % (project.venv_bin(
                 version=self.version.slug, bin='sphinx-build'), project.language)
         else:
             build_command = "sphinx-build -D language=%s -b epub . _build/epub" % project.language
-        build_results = run(build_command)
-        return build_results
+        results['epub'] = run(build_command)
+        return results
 
     def move(self, **kwargs):
         project = self.version.project
