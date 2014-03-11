@@ -31,7 +31,6 @@ If this is not the case please update your pip version before continuing::
 
     pip install --upgrade pip
 
-
 Create a folder in here, and clone the repository::
 
     mkdir checkouts
