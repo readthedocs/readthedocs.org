@@ -24,11 +24,12 @@ activate it::
 
 
 You will need to verify that your pip version is higher than 1.5 you can do this as such::
+
     pip --version
     
 If this is not the case please update your pip version before continuing::
 
-   pip install --upgrade pip
+    pip install --upgrade pip
 
 
 Create a folder in here, and clone the repository::
