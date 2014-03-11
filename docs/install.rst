@@ -10,6 +10,7 @@ virtual environment will make the installation easier, and will help to avoid
 clutter in your system-wide libraries. You will also need Git_ in order to
 clone the repository.
 
+
 .. _Python: http://www.python.org/
 .. _virtualenv: http://pypi.python.org/pypi/virtualenv
 .. _Git: http://git-scm.com/
@@ -20,6 +21,15 @@ activate it::
     virtualenv rtd
     cd rtd
     source bin/activate
+
+
+You will need to verify that your pip version is higher than 1.5 you can do this as such::
+    pip --version
+    
+If this is not the case please update your pip version before continuing::
+
+   pip install --upgrade pip
+
 
 Create a folder in here, and clone the repository::
 
