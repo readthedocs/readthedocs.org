@@ -63,39 +63,43 @@ def update_docs(pk, version_pk=None, record=True, docker=False,
     build = create_build(version, api, record)
     results = {}
 
-    record_build(api=api, build=build, record=record, results=results, state='cloning')
-    vcs_results = setup_vcs(version, build, api)
-    results.update(vcs_results)
+    try:
+        record_build(api=api, build=build, record=record, results=results, state='cloning')
+        vcs_results = setup_vcs(version, build, api)
+        results.update(vcs_results)
 
-    if docker:
-        record_build(api=api, build=build, record=record, results=results, state='building')
-        build_results = run_docker(version)
-        results.update(build_results)
-    else:
-        record_build(api=api, build=build, record=record, results=results, state='installing')
-        setup_results = setup_environment(version) 
-        results.update(setup_results)
+        if docker:
+            record_build(api=api, build=build, record=record, results=results, state='building')
+            build_results = run_docker(version)
+            results.update(build_results)
+        else:
+            record_build(api=api, build=build, record=record, results=results, state='installing')
+            setup_results = setup_environment(version) 
+            results.update(setup_results)
 
-        record_build(api=api, build=build, record=record, results=results, state='building')
-        build_results = build_docs(version, force, pdf, man, epub, dash, search, localmedia)
-        results.update(build_results)
+            record_build(api=api, build=build, record=record, results=results, state='building')
+            build_results = build_docs(version, force, pdf, man, epub, dash, search, localmedia)
+            results.update(build_results)
 
-    record_build(api=api, build=build, record=record, results=results, state='finished')
-    #record_pdf(api=api, record=record, results=results, state='finished', version=version)
+        #record_pdf(api=api, record=record, results=results, state='finished', version=version)
+        finish_build(version=version, build=build, results=results)
 
-    if results['html'][0] == 0:
-        # Mark version active on the site
-        version_data = api.version(version.pk).get()
-        version_data['active'] = True
-        version_data['built'] = True
-        # Need to delete this because a bug in tastypie breaks on the users
-        # list.
-        del version_data['project']
-        try:
-            api.version(version.pk).put(version_data)
-        except Exception, e:
-            log.error(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Unable to put a new version"), exc_info=True)
-    finish_build(version, build, results['html'])
+        if results['html'][0] == 0:
+            # Mark version active on the site
+            version_data = api.version(version.pk).get()
+            version_data['active'] = True
+            version_data['built'] = True
+            # Need to delete this because a bug in tastypie breaks on the users
+            # list.
+            del version_data['project']
+            try:
+                api.version(version.pk).put(version_data)
+            except Exception, e:
+                log.error(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Unable to put a new version"), exc_info=True)
+    except Exception, e:
+        log.error(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Top-level Build Failure"), exc_info=True)
+    finally:
+        record_build(api=api, build=build, record=record, results=results, state='finished')
 
 
 def run_docker(version):
@@ -224,12 +228,12 @@ def setup_vcs(version, build, api):
         return False
     return update_output
 
-def finish_build(version, build, html_results):
+def finish_build(version, build, results):
     """
     Build Finished, do house keeping bits
     """
 
-    (ret, out, err) = html_results
+    (ret, out, err) = results['html']
 
     if 'no targets are out of date.' in out:
         log.info(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Build Unchanged"))
