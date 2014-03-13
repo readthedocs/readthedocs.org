@@ -24,6 +24,8 @@ from projects.utils import (purge_version, run,
 from tastyapi import api, apiv2
 from core.utils import (copy_to_app_servers, copy_file_to_app_servers,
                         run_on_app_servers)
+from core import utils as core_utils
+from search.parse_json import process_all_json_files
 
 log = logging.getLogger(__name__)
 
@@ -81,6 +83,7 @@ def update_docs(pk, version_pk=None, record=True, docker=False,
             build_results = build_docs(version, force, pdf, man, epub, dash, search, localmedia)
             results.update(build_results)
 
+        move_files(version, results)
         #record_pdf(api=api, record=record, results=results, state='finished', version=version)
         finish_build(version=version, build=build, results=results)
 
@@ -100,8 +103,28 @@ def update_docs(pk, version_pk=None, record=True, docker=False,
         log.error(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Top-level Build Failure"), exc_info=True)
     finally:
         record_build(api=api, build=build, record=record, results=results, state='finished')
+        log.info(LOG_TEMPLATE.format(project=version.project.slug, version='', msg='Build finished'))
 
+def move_files(version, results):
+    if results['html'][0] == 0:
+        build_path = version.project.full_build_path(version.slug)
+        target = version.project.rtd_build_path(version.slug)
+        core_utils.copy(build_path, target)
 
+    if 'sphinx' in version.project.documentation_type:
+        if results['pdf'][0] == 0:
+            os.chdir(version.project.artifact_path(version=version.slug, type='sphinx_pdf'))
+            tex_files = glob('*.pdf')
+            for tex_file in tex_files:
+                to_path = os.path.join(settings.MEDIA_ROOT, 'pdf', version.project.slug, version.slug)
+                to_file = os.path.join(to_path, '%s.pdf' % version.project.slug)
+                # pdflatex names its output predictably: foo.tex -> foo.pdf
+                pdf_filename = os.path.splitext(tex_file)[0] + '.pdf'
+                from_file = os.path.join(os.getcwd(), pdf_filename)                                       
+                core_utils.copy(from_file, to_file)
+        if results['pdf'][0] == 0:
+            pass
+                                                              
 def run_docker(version):
     serialized_path = os.path.join(version.project.doc_path, 'build.json')
     if os.path.exists(serialized_path):
@@ -109,9 +132,12 @@ def run_docker(version):
     path = version.project.doc_path
     docker_results = run('docker run -v %s:/home/docs/checkouts/readthedocs.org/user_builds/%s ericholscher/readthedocs-build /bin/bash /home/docs/run.sh %s' % (path, version.project.slug, version.project.slug))
     path = os.path.join(version.project.doc_path, 'build.json')
-    json_file = open(path)
-    serialized_results = json.load(json_file)
-    json_file.close()
+    if os.path.exists(path):
+        json_file = open(path)
+        serialized_results = json.load(json_file)
+        json_file.close()
+    else:
+        serialized_results = {}
     return serialized_results
 
 def docker_build(version_pk, pdf=True, man=True, epub=True, dash=True, search=True, force=False, intersphinx=True, localmedia=True):
@@ -240,6 +266,8 @@ def finish_build(version, build, results):
     else:
         if ret == 0:
             log.info(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Successful Build"))
+            #update_search(version)
+            #fileify.delay(version.pk)
             symlink_cnames(version)
             symlink_translations(version)
             symlink_subprojects(version)
@@ -249,13 +277,21 @@ def finish_build(version, build, results):
             else:
                 remove_symlink_single_version(version)
 
-            # TODO: Find a better way to handle indexing.
-            fileify.delay(version.pk)
             # This requires database access, must disable it for now.
             #send_notifications(version, build)
         else:
             log.warning(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Failed HTML Build"))
 
+def update_search(version): 
+    page_list = process_all_json_files(version)
+    data = {
+        'page_list': page_list,
+        'version_pk': version.pk,
+        'project_pk': version.project.pk
+    }
+    log_msg = ' '.join([page['path'] for page in page_list])
+    log.info("(Search Index) Sending Data: %s [%s]" % (version.project.slug, log_msg))
+    apiv2.index_search.post({'data': data})
 
 @task
 def update_imported_docs(version_pk, api=None):
@@ -419,8 +455,8 @@ def build_docs(version, pdf, man, epub, dash, search, localmedia, force):
         if force:
             html_builder.force()
         #html_builder.clean()
-        html_results = html_builder.build()
-        results.update(html_results)
+        html_builder.append_conf()
+        results['html'] = html_builder.build()
         if results['html'][0] == 0:
             html_builder.move()
 
@@ -431,11 +467,8 @@ def build_docs(version, pdf, man, epub, dash, search, localmedia, force):
             if search:
                 try:
                     search_builder = builder_loading.get('sphinx_search')(version)
-                    search_results = search_builder.build()
-                    results.update(search_results)
+                    results['search'] = search_builder.build()
                     if results['search'][0] == 0:
-                        # Update search index
-                        search_builder.upload()
                         # Copy json for safe keeping
                         search_builder.move()
                 except:
@@ -444,8 +477,7 @@ def build_docs(version, pdf, man, epub, dash, search, localmedia, force):
             if localmedia:
                 try:
                     localmedia_builder = builder_loading.get('sphinx_singlehtmllocalmedia')(version)
-                    localmedia_results = localmedia_builder.build()
-                    results.update(localmedia_results)
+                    results['localmedia'] = localmedia_builder.build()
                     if results['localmedia'][0] == 0:
                         localmedia_builder.move()
                 except:
@@ -455,8 +487,7 @@ def build_docs(version, pdf, man, epub, dash, search, localmedia, force):
             if version.project.slug not in HTML_ONLY and not project.skip:
                 if pdf:
                     pdf_builder = builder_loading.get('sphinx_pdf')(version)
-                    pdf_results = pdf_builder.build()
-                    results.update(pdf_results)
+                    results['pdf'] = pdf_builder.build()
                     # Always move pdf results even when there's an error.
                     #if pdf_results[0] == 0:
                     pdf_builder.move()
@@ -464,8 +495,7 @@ def build_docs(version, pdf, man, epub, dash, search, localmedia, force):
                     results['pdf'] = results['latex'] = fake_results
                 if epub:
                     epub_builder = builder_loading.get('sphinx_epub')(version)
-                    epub_results = epub_builder.build()
-                    results.update(epub_results)
+                    results['epub'] = epub_builder.build()
                     if results['epub'][0] == 0:
                         epub_builder.move()
                 else:

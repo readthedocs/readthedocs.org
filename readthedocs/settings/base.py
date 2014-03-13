@@ -339,7 +339,7 @@ LOGGING = {
         # logging works :)
         '': {
             'handlers': ['console', 'errorlog'],
-            'level': 'DEBUG',
+            'level': 'INFO',
         },
     }
 }

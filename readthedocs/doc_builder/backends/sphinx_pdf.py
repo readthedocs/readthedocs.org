@@ -13,11 +13,11 @@ log = logging.getLogger(__name__)
 
 
 class Builder(BaseBuilder):
+    type = 'sphinx_pdf'
 
     def __init__(self, version):
-        self.version = version
+        super(Builder).__init__(*args, **kwargs)
         self.old_artifact_path = self.version.project.full_latex_path(self.version.slug)
-        self.type = 'sphinx_pdf'
 
     @restoring_chdir
     def build(self, **kwargs):

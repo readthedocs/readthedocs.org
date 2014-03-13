@@ -8,7 +8,6 @@ from core.utils import copy_to_app_servers
 from doc_builder.base import restoring_chdir
 from doc_builder.backends.sphinx import Builder as HtmlBuilder
 from projects.utils import run
-from search.parse_json import process_all_json_files
 
 from tastyapi import apiv2
 
@@ -16,24 +15,15 @@ log = logging.getLogger(__name__)
 
 
 class Builder(HtmlBuilder):
+    sphinx_builder = 'json'
+    sphinx_build_dir = '_build/json'
+    results_name = 'epub'
+    type = 'sphinx_search'
+
 
     def __init__(self, version):
         self.version = version
         self.old_artifact_path = self.version.project.full_json_path(self.version.slug)
-        self.type = 'sphinx_search'
-
-    @restoring_chdir
-    def build(self, **kwargs):
-        project = self.version.project
-        os.chdir(self.version.project.conf_dir(self.version.slug))
-        results = {}
-        if project.use_virtualenv:
-            build_command = '%s -b json -D language=%s . _build/json' % (project.venv_bin(
-                version=self.version.slug, bin='sphinx-build'), project.language)
-        else:
-            build_command = "sphinx-build -b json -D language=%s . _build/json" % project.language
-        results['search'] = run(build_command)
-        return results
 
     def upload(self, **kwargs):
         page_list = process_all_json_files(self.version)

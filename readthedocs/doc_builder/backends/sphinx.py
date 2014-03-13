@@ -20,17 +20,42 @@ log = logging.getLogger(__name__)
 TEMPLATE_DIR = '%s/readthedocs/templates/sphinx' % settings.SITE_ROOT
 STATIC_DIR = '%s/_static' % TEMPLATE_DIR
 
-class Builder(BaseBuilder):
+class BaseSphinx(BaseBuilder):
     """
     The parent for most sphinx builders.
-
-    Also handles the default sphinx output of html.
     """
 
-    def __init__(self, version):
+    def __init__(self, version, *args, **kwargs):
         self.version = version
-        self.old_artifact_path = self.version.project.full_build_path(self.version.slug)
-        self.type = 'sphinx'
+        self.old_artifact_path = os.path.join(self.version.project.conf_dir(version.slug), self.sphinx_build_dir)
+
+    @restoring_chdir
+    def build(self, **kwargs):
+        project = self.version.project
+        os.chdir(project.conf_dir(self.version.slug))
+        force_str = " -E " if self.force else ""
+        if project.use_virtualenv:
+            build_command = "%s %s -b %s -D language=%s . %s " % (
+                project.venv_bin(version=self.version.slug,
+                                 bin='sphinx-build'),
+                force_str,
+                self.sphinx_builder,
+                project.language,
+                self.sphinx_build_dir,
+                )
+        else:
+            build_command = ("sphinx-build %s -b %s -D language=%s . %s"
+                             % (
+                                force_str, 
+                                self.sphinx_builder,
+                                project.language,
+                                self.sphinx_build_dir,
+                                )
+                             )
+        results = run(build_command, shell=True)
+        return results
+
+
 
     def append_conf(self, **kwargs):
         """Modify the given ``conf.py`` file from a whitelisted user's project.
@@ -78,21 +103,102 @@ class Builder(BaseBuilder):
         rtd_string = template_loader.get_template('doc_builder/conf.py.tmpl').render(rtd_ctx)
         outfile.write(rtd_string)
 
+
+class HtmlBuilder(BaseSphinx):
+    """
+    Default HTML Builder
+    """
+
+    type = 'sphinx'
+    sphinx_builder = 'readthedocs'
+    sphinx_build_dir = '_build/html'
+
+class HtmlDirBuilder(HtmlBuilder):
+    type = 'sphinx_htmldir'
+    sphinx_builder = 'readthedocsdirhtml'
+
+class SingleHtmlBuilder(HtmlBuilder):
+    type = 'sphinx_singlehtml'
+    sphinx_builder = 'readthedocssinglehtml'
+
+class EpubBuilder(BaseSphinx):
+    type = 'sphinx_epub'
+    sphinx_builder = 'epub'
+    sphinx_build_dir = '_build/epub'
+
+class SearchBuilder(BaseSphinx):
+    type = 'sphinx_search'
+    sphinx_builder = 'json'
+    sphinx_build_dir = '_build/json'
+
+
+class PdfBuilder(BaseBuilder):
+    type = 'sphinx_pdf'
+    sphinx_build_dir = '_build/latex'
+
     @restoring_chdir
     def build(self, **kwargs):
-        self.append_conf()
         project = self.version.project
-        results = {}
         os.chdir(project.conf_dir(self.version.slug))
-        force_str = " -E " if self.force else ""
+        #Default to this so we can return it always.
+        results = {}
         if project.use_virtualenv:
-            build_command = "%s %s -b readthedocs -D language=%s . _build/html " % (
-                project.venv_bin(version=self.version.slug,
-                                 bin='sphinx-build'),
-                force_str,
-                project.language)
+            latex_results = run('%s -b latex -D language=%s -d _build/doctrees . _build/latex'
+                                % (project.venv_bin(version=self.version.slug,
+                                                   bin='sphinx-build'), project.language))
         else:
-            build_command = ("sphinx-build %s -b readthedocs -D language=%s . _build/html"
-                             % (force_str, project.language))
-        results['html'] = run(build_command, shell=True)
+            latex_results = run('sphinx-build -b latex -D language=%s -d _build/doctrees '
+                                '. _build/latex' % project.language)
+
+        if latex_results[0] == 0:
+            os.chdir('_build/latex')
+            tex_files = glob('*.tex')
+
+            if tex_files:
+                # Run LaTeX -> PDF conversions
+                pdflatex_cmds = [('pdflatex -interaction=nonstopmode %s'
+                                 % tex_file) for tex_file in tex_files]
+                pdf_results = run(*pdflatex_cmds)
+            else:
+                pdf_results = (0, "No tex files found", "No tex files found")
+
+            results = [
+                latex_results[0] + pdf_results[0],
+                latex_results[1] + pdf_results[1],
+                latex_results[2] + pdf_results[2],
+            ]
+        else:
+            results = latex_results
         return results
+
+
+class LocalMediaBuilder(BaseSphinx):
+    type = 'sphinx_localmedia'
+    sphinx_builder = 'readthedocssinglehtmllocalmedia'
+    sphinx_build_dir = '_build/localmedia'
+
+    @restoring_chdir
+    def move(self, **kwargs):
+        log.info("Creating zip file from %s" % self.old_artifact_path)
+        target = self.version.project.artifact_path(version=self.version.slug, type=self.type)
+        target_file = os.path.join(target, '%s.zip' % self.version.project.slug)
+
+        if not os.path.exists(target):
+            os.makedirs(target)
+        if os.path.exists(target_file):
+            os.remove(target_file)
+
+        # Create a <slug>.zip file
+        os.chdir(self.old_artifact_path)
+        archive = zipfile.ZipFile(target_file, 'w')
+        for root, subfolders, files in os.walk('.'):
+            for file in files:
+                to_write = os.path.join(root, file)
+                archive.write(
+                    filename=to_write,
+                    arcname=os.path.join("%s-%s" % (self.version.project.slug,
+                                                    self.version.slug),
+                                         to_write)
+                )
+        archive.close()
+

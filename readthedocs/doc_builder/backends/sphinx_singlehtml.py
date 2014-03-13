@@ -10,22 +10,10 @@ log = logging.getLogger(__name__)
 
 
 class Builder(HtmlBuilder):
-    
-    @restoring_chdir
-    def build(self, **kwargs):
-        project = self.version.project
-        os.chdir(self.version.project.conf_dir(self.version.slug))
-        results = {}
-        if project.use_virtualenv:
-            build_command = '%s -b readthedocssinglehtml -D language=%s . _build/html' % (project.venv_bin(
-                version=self.version.slug, bin='sphinx-build'), project.language)
-        else:
-            build_command = "sphinx-build -D language=%s -b readthedocssinglehtml . _build/html" % project.language
-        results['singlehtml'] = run(build_command)
-        #self._zip_html()
-        if 'no targets are out of date.' in results['singlehtml'][1]:
-            self._changed = False
-        return results
+
+    sphinx_builder = 'readthedocssinglehtml'
+    sphinx_build_dir = '_build/html'
+    type = 'sphinx_singlehtml'
 
 class LocalMediaBuilder(HtmlBuilder):
 
