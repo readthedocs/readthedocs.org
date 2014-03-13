@@ -10,11 +10,11 @@ class Builder(BaseBuilder):
     """
     Mkdocs builder
     """
+    type = 'mkdocs'
 
-    def __init__(self, version):
-        self.version = version
+    def __init__(self, *args, **kwargs):
+        super(BaseBuilder, self).__init__(*args, **kwargs)
         self.old_artifact_path = os.path.join(self.version.project.checkout_path(self.version.slug), 'site')
-        self.type = 'mkdocs'
 
     @restoring_chdir
     def build(self, **kwargs):

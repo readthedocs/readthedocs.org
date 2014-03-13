@@ -10,11 +10,11 @@ class Builder(BaseBuilder):
     """
     Ascii Doctor builder
     """
+    type = 'asciidoc'
 
-    def __init__(self, version):
-        self.verison = version
+    def __init__(self, *args, **kwargs):
+        super(BaseBuilder, self).__init__(*args, **kwargs)
         self.old_artifact_path = os.path.join(self.version.project.checkout_path(self.version.slug), 'site')
-        self.type = 'asciidoc'
 
     @restoring_chdir
     def build(self, **kwargs):

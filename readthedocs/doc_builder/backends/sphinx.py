@@ -1,7 +1,7 @@
 import os
 import shutil
 import codecs
-import glob
+from glob import glob
 import logging
 import zipfile
 
@@ -106,21 +106,55 @@ class BaseSphinx(BaseBuilder):
 
 
 class HtmlBuilder(BaseSphinx):
-    """
-    Default HTML Builder
-    """
-
     type = 'sphinx'
     sphinx_builder = 'readthedocs'
     sphinx_build_dir = '_build/html'
+
 
 class HtmlDirBuilder(HtmlBuilder):
     type = 'sphinx_htmldir'
     sphinx_builder = 'readthedocsdirhtml'
 
+
 class SingleHtmlBuilder(HtmlBuilder):
     type = 'sphinx_singlehtml'
     sphinx_builder = 'readthedocssinglehtml'
+
+
+class SearchBuilder(BaseSphinx):
+    type = 'sphinx_search'
+    sphinx_builder = 'json'
+    sphinx_build_dir = '_build/json'
+
+    
+class LocalMediaBuilder(BaseSphinx):
+    type = 'sphinx_localmedia'
+    sphinx_builder = 'readthedocssinglehtmllocalmedia'
+    sphinx_build_dir = '_build/localmedia'
+
+    @restoring_chdir
+    def move(self, **kwargs):
+        log.info("Creating zip file from %s" % self.old_artifact_path)
+        target_file = os.path.join(self.target, '%s.zip' % self.version.project.slug)
+        if not os.path.exists(self.target):
+            os.makedirs(self.target)
+        if os.path.exists(target_file):
+            os.remove(target_file)
+
+        # Create a <slug>.zip file
+        os.chdir(self.old_artifact_path)
+        archive = zipfile.ZipFile(target_file, 'w')
+        for root, subfolders, files in os.walk('.'):
+            for file in files:
+                to_write = os.path.join(root, file)
+                archive.write(
+                    filename=to_write,
+                    arcname=os.path.join("%s-%s" % (self.version.project.slug,
+                                                    self.version.slug),
+                                         to_write)
+                )
+        archive.close()
+
 
 class EpubBuilder(BaseSphinx):
     type = 'sphinx_epub'
@@ -133,14 +167,8 @@ class EpubBuilder(BaseSphinx):
             os.makedirs(self.target)
         if from_globs:
             from_file = from_globs[0]
-            to_file = os.path.join(self.target, "%s.epub" % project.slug)
+            to_file = os.path.join(self.target, "%s.epub" % self.version.project.slug)
             run('mv -f %s %s' % (from_file, to_file))
-
-class SearchBuilder(BaseSphinx):
-    type = 'sphinx_search'
-    sphinx_builder = 'json'
-    sphinx_build_dir = '_build/json'
-
 
 class PdfBuilder(BaseBuilder):
     type = 'sphinx_pdf'
@@ -181,32 +209,12 @@ class PdfBuilder(BaseBuilder):
             results = latex_results
         return results
 
-
-class LocalMediaBuilder(BaseSphinx):
-    type = 'sphinx_localmedia'
-    sphinx_builder = 'readthedocssinglehtmllocalmedia'
-    sphinx_build_dir = '_build/localmedia'
-
-    @restoring_chdir
     def move(self, **kwargs):
-        log.info("Creating zip file from %s" % self.old_artifact_path)
-        target_file = os.path.join(self.target, '%s.zip' % self.version.project.slug)
+        from_globs = glob(os.path.join(self.old_artifact_path, "*.pdf"))
         if not os.path.exists(self.target):
             os.makedirs(self.target)
-        if os.path.exists(target_file):
-            os.remove(target_file)
-
-        # Create a <slug>.zip file
-        os.chdir(self.old_artifact_path)
-        archive = zipfile.ZipFile(target_file, 'w')
-        for root, subfolders, files in os.walk('.'):
-            for file in files:
-                to_write = os.path.join(root, file)
-                archive.write(
-                    filename=to_write,
-                    arcname=os.path.join("%s-%s" % (self.version.project.slug,
-                                                    self.version.slug),
-                                         to_write)
-                )
-        archive.close()
+        if from_globs:
+            from_file = from_globs[0]
+            to_file = os.path.join(self.target, "%s.pdf" % self.version.project.slug)
+            run('mv -f %s %s' % (from_file, to_file))
 
