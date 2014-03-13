@@ -1,6 +1,7 @@
 import os
 import shutil
 import codecs
+import glob
 import logging
 import zipfile
 
@@ -25,15 +26,15 @@ class BaseSphinx(BaseBuilder):
     The parent for most sphinx builders.
     """
 
-    def __init__(self, version, *args, **kwargs):
-        self.version = version
-        self.old_artifact_path = os.path.join(self.version.project.conf_dir(version.slug), self.sphinx_build_dir)
+    def __init__(self, *args, **kwargs):
+        super(BaseSphinx, self).__init__(*args, **kwargs)
+        self.old_artifact_path = os.path.join(self.version.project.conf_dir(self.version.slug), self.sphinx_build_dir)
 
     @restoring_chdir
     def build(self, **kwargs):
         project = self.version.project
         os.chdir(project.conf_dir(self.version.slug))
-        force_str = " -E " if self.force else ""
+        force_str = " -E " if self._force else ""
         if project.use_virtualenv:
             build_command = "%s %s -b %s -D language=%s . %s " % (
                 project.venv_bin(version=self.version.slug,
@@ -126,6 +127,15 @@ class EpubBuilder(BaseSphinx):
     sphinx_builder = 'epub'
     sphinx_build_dir = '_build/epub'
 
+    def move(self, **kwargs):
+        from_globs = glob(os.path.join(self.old_artifact_path, "*.epub"))
+        if not os.path.exists(self.target):
+            os.makedirs(self.target)
+        if from_globs:
+            from_file = from_globs[0]
+            to_file = os.path.join(self.target, "%s.epub" % project.slug)
+            run('mv -f %s %s' % (from_file, to_file))
+
 class SearchBuilder(BaseSphinx):
     type = 'sphinx_search'
     sphinx_builder = 'json'
@@ -180,11 +190,9 @@ class LocalMediaBuilder(BaseSphinx):
     @restoring_chdir
     def move(self, **kwargs):
         log.info("Creating zip file from %s" % self.old_artifact_path)
-        target = self.version.project.artifact_path(version=self.version.slug, type=self.type)
-        target_file = os.path.join(target, '%s.zip' % self.version.project.slug)
-
-        if not os.path.exists(target):
-            os.makedirs(target)
+        target_file = os.path.join(self.target, '%s.zip' % self.version.project.slug)
+        if not os.path.exists(self.target):
+            os.makedirs(self.target)
         if os.path.exists(target_file):
             os.remove(target_file)
 

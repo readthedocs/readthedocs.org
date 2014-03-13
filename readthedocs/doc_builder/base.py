@@ -23,17 +23,19 @@ class BaseBuilder(object):
     The Base for all Builders. Defines the API for subclasses.
     """
 
+    _force = False
+
     def __init__(self, version, force=False):
         self.version = version
-        self.force = force
+        self._force = force
+        self.target = self.version.project.artifact_path(version=self.version.slug, type=self.type)
 
-    @restoring_chdir
     def force(self, **kwargs):
         """
         An optional step to force a build even when nothing has changed.
         """
         log.info("Forcing a build")
-        self.force = True
+        self._force = True
 
     def build(self, id=None, **kwargs):
         """
@@ -45,11 +47,10 @@ class BaseBuilder(object):
         """
         Move the documentation from it's generated place to its artifact directory.
         """
-        target = self.version.project.artifact_path(version=self.version.slug, type=self.type)
         if os.path.exists(self.old_artifact_path):
-            if os.path.exists(target):
-                shutil.rmtree(target)
+            if os.path.exists(self.target):
+                shutil.rmtree(self.target)
             log.info("Copying docs on the local filesystem")
-            shutil.copytree(self.old_artifact_path, target)
+            shutil.copytree(self.old_artifact_path, self.target)
         else:
             log.warning("Not moving docs, because the build dir is unknown.")
