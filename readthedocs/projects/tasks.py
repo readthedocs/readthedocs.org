@@ -21,6 +21,8 @@ from projects.exceptions import ProjectImportError
 from projects.models import ImportedFile, Project
 from projects.utils import (purge_version, run,
                             make_api_version, make_api_project)
+from projects.constants import LOG_TEMPLATE
+from projects import symlinks
 from tastyapi import api, apiv2
 from core.utils import (copy_to_app_servers, copy_file_to_app_servers,
                         run_on_app_servers)
@@ -29,7 +31,6 @@ from search.parse_json import process_all_json_files
 
 log = logging.getLogger(__name__)
 
-LOG_TEMPLATE = u"(Build) [{project}:{version}] {msg}"
 HTML_ONLY = getattr(settings, 'HTML_ONLY_PROJECTS', ())
 
 @task
@@ -112,18 +113,22 @@ def move_files(version, results):
         core_utils.copy(build_path, target)
 
     if 'sphinx' in version.project.documentation_type:
+        if results['localmedia'][0] == 0:
+            from_path = version.project.artifact_path(version=version.slug, type='sphinx_localmedia')
+            to_path = os.path.join(settings.MEDIA_ROOT, 'htmlzip', version.project.slug, version.slug)
+            core_utils.copy(from_path, to_path)
+        if results['search'][0] == 0:
+            from_path = version.project.artifact_path(version=version.slug, type='sphinx_search')
+            to_path = os.path.join(settings.MEDIA_ROOT, 'json', version.project.slug, version.slug)
+            core_utils.copy(from_path, to_path)
         if results['pdf'][0] == 0:
-            os.chdir(version.project.artifact_path(version=version.slug, type='sphinx_pdf'))
-            tex_files = glob('*.pdf')
-            for tex_file in tex_files:
-                to_path = os.path.join(settings.MEDIA_ROOT, 'pdf', version.project.slug, version.slug)
-                to_file = os.path.join(to_path, '%s.pdf' % version.project.slug)
-                # pdflatex names its output predictably: foo.tex -> foo.pdf
-                pdf_filename = os.path.splitext(tex_file)[0] + '.pdf'
-                from_file = os.path.join(os.getcwd(), pdf_filename)                                       
-                core_utils.copy(from_file, to_file)
-        if results['pdf'][0] == 0:
-            pass
+            from_path = version.project.artifact_path(version=version.slug, type='sphinx_pdf')
+            to_path = os.path.join(settings.MEDIA_ROOT, 'pdf', version.project.slug, version.slug)
+            core_utils.copy(from_path, to_path)
+        if results['epub'][0] == 0:
+            from_path = version.project.artifact_path(version=version.slug, type='sphinx_epub')
+            to_path = os.path.join(settings.MEDIA_ROOT, 'epub', version.project.slug, version.slug)
+            core_utils.copy(from_path, to_path)
                                                               
 def run_docker(version):
     serialized_path = os.path.join(version.project.doc_path, 'build.json')
@@ -268,14 +273,14 @@ def finish_build(version, build, results):
             log.info(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Successful Build"))
             #update_search(version)
             #fileify.delay(version.pk)
-            symlink_cnames(version)
-            symlink_translations(version)
-            symlink_subprojects(version)
+            symlinks.symlink_cnames(version)
+            symlinks.symlink_translations(version)
+            symlinks.symlink_subprojects(version)
 
             if version.project.single_version:
-                symlink_single_version(version)
+                symlinks.symlink_single_version(version)
             else:
-                remove_symlink_single_version(version)
+                symlinks.remove_symlink_single_version(version)
 
             # This requires database access, must disable it for now.
             #send_notifications(version, build)
@@ -502,115 +507,6 @@ def build_docs(version, pdf, man, epub, dash, search, localmedia, force):
                     results['epub'] = fake_results
     return results
 
-
-def symlink_cnames(version):
-    """
-    OLD
-    Link from HOME/user_builds/cnames/<cname> ->
-              HOME/user_builds/<project>/rtd-builds/
-    NEW
-    Link from HOME/user_builds/cnametoproject/<cname> ->
-              HOME/user_builds/<project>/
-    """
-    try:
-        redis_conn = redis.Redis(**settings.REDIS)
-        cnames = redis_conn.smembers('rtd_slug:v1:%s' % version.project.slug)
-    except redis.ConnectionError:
-        log.error(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg='Failed to symlink cnames, Redis error.'), exc_info=True)
-        return
-    for cname in cnames:
-        log.debug(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Symlinking CNAME: %s" % cname))
-        docs_dir = version.project.rtd_build_path(version.slug)
-        # Chop off the version from the end.
-        docs_dir = '/'.join(docs_dir.split('/')[:-1])
-        # Old symlink location -- Keep this here til we change nginx over
-        symlink = version.project.cnames_symlink_path(cname)
-        run_on_app_servers('mkdir -p %s' % '/'.join(symlink.split('/')[:-1]))
-        run_on_app_servers('ln -nsf %s %s' % (docs_dir, symlink))
-        # New symlink location 
-        new_docs_dir = version.project.doc_path
-        new_cname_symlink = os.path.join(getattr(settings, 'SITE_ROOT'), 'cnametoproject', cname)
-        run_on_app_servers('mkdir -p %s' % '/'.join(new_cname_symlink.split('/')[:-1]))
-        run_on_app_servers('ln -nsf %s %s' % (new_docs_dir, new_cname_symlink))
-
-
-def symlink_subprojects(version):
-    """
-    Link from HOME/user_builds/project/subprojects/<project> ->
-              HOME/user_builds/<project>/rtd-builds/
-    """
-    # Subprojects
-    subprojects = apiv2.project(version.project.pk).subprojects.get()['subprojects']
-    for subproject_data in subprojects:
-        subproject_slug = subproject_data['slug']
-        log.debug(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Symlinking subproject: %s" % subproject_slug))
-
-        # The directory for this specific subproject
-        symlink = version.project.subprojects_symlink_path(subproject_slug)
-        run_on_app_servers('mkdir -p %s' % '/'.join(symlink.split('/')[:-1]))
-
-        # Where the actual docs live
-        docs_dir = os.path.join(settings.DOCROOT, subproject_slug, 'rtd-builds')
-        run_on_app_servers('ln -nsf %s %s' % (docs_dir, symlink))
-
-
-def symlink_translations(version):
-    """
-    Link from HOME/user_builds/project/translations/<lang> ->
-              HOME/user_builds/<project>/rtd-builds/
-    """
-    translations = apiv2.project(version.project.pk).translations.get()['translations']
-    for translation_data in translations:
-        translation_slug = translation_data['slug'].replace('_', '-')
-        translation_language = translation_data['language']
-        log.debug(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Symlinking translation: %s->%s" % (translation_language, translation_slug)))
-
-        # The directory for this specific translation
-        symlink = version.project.translations_symlink_path(translation_language)
-        run_on_app_servers('mkdir -p %s' % '/'.join(symlink.split('/')[:-1]))
-
-        # Where the actual docs live
-        docs_dir = os.path.join(settings.DOCROOT, translation_slug, 'rtd-builds')
-        run_on_app_servers('ln -nsf %s %s' % (docs_dir, symlink))
-
-    # Hack in the en version for backwards compat
-    symlink = version.project.translations_symlink_path('en')
-    run_on_app_servers('mkdir -p %s' % '/'.join(symlink.split('/')[:-1]))
-    docs_dir = os.path.join(version.project.doc_path, 'rtd-builds')
-    run_on_app_servers('ln -nsf %s %s' % (docs_dir, symlink))
-    # Add the main language project to nginx too
-    if version.project.language is not 'en':
-        symlink = version.project.translations_symlink_path(version.project.language)
-        run_on_app_servers('mkdir -p %s' % '/'.join(symlink.split('/')[:-1]))
-        docs_dir = os.path.join(settings.DOCROOT, version.project.slug.replace('_', '-'), 'rtd-builds')
-        run_on_app_servers('ln -nsf %s %s' % (docs_dir, symlink))
-
-def symlink_single_version(version):
-    """
-    Link from HOME/user_builds/<project>/single_version ->
-              HOME/user_builds/<project>/rtd-builds/<default_version>/
-    """
-    default_version = version.project.default_version
-    log.debug(LOG_TEMPLATE.format(project=version.project.slug, version=default_version, msg="Symlinking single_version"))
-
-    # The single_version directory
-    symlink = version.project.single_version_symlink_path()
-    run_on_app_servers('mkdir -p %s' % '/'.join(symlink.split('/')[:-1]))
-
-    # Where the actual docs live
-    docs_dir = os.path.join(settings.DOCROOT, version.project.slug, 'rtd-builds', default_version)
-    run_on_app_servers('ln -nsf %s %s' % (docs_dir, symlink))
-
-def remove_symlink_single_version(version):
-    """Remove single_version symlink"""
-    log.debug(LOG_TEMPLATE.format(
-        project=version.project.slug,
-        version=version.project.default_version,
-        msg="Removing symlink for single_version")
-    )
-    symlink = version.project.single_version_symlink_path()
-    run_on_app_servers('rm %s' % symlink)
-
 def update_static_metadata(project_pk):
     """Update static metadata JSON file
 
@@ -734,17 +630,6 @@ def remove_dir(path):
     """
     log.info("Removing %s" % path)
     shutil.rmtree(path)
-
-@task
-def unzip_files(dest_file, html_path):
-    if not os.path.exists(html_path):
-        os.makedirs(html_path)
-    else:
-        shutil.rmtree(html_path)
-        os.makedirs(html_path)
-    run('unzip -o %s -d %s' % (dest_file, html_path))
-    copy_to_app_servers(html_path, html_path)
-
 
 # @task 
 # def update_config_from_json(version_pk):
