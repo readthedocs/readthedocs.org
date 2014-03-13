@@ -221,23 +221,6 @@ def ensure_version(api, project, version_pk):
 
     return version
 
-def create_build(version, api, record):
-    """
-    Create the build object.
-    If we're recording it, save it to the DB.
-    Otherwise just use an empty hash.
-    """
-    if record:
-        # Create Build Object.
-        build = api.build.post(dict(
-            project='/api/v1/project/%s/' % version.project.pk,
-            version='/api/v1/version/%s/' % version.pk,
-            type='html',
-            state='triggered',
-        ))
-    else:
-        build = {}
-    return build
 
 def setup_vcs(version, build, api):
     """
@@ -258,45 +241,6 @@ def setup_vcs(version, build, api):
         api.build(build['id']).put(build)
         return False
     return update_output
-
-def finish_build(version, build, results):
-    """
-    Build Finished, do house keeping bits
-    """
-
-    (ret, out, err) = results['html']
-
-    if 'no targets are out of date.' in out:
-        log.info(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Build Unchanged"))
-    else:
-        if ret == 0:
-            log.info(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Successful Build"))
-            #update_search(version)
-            #fileify.delay(version.pk)
-            symlinks.symlink_cnames(version)
-            symlinks.symlink_translations(version)
-            symlinks.symlink_subprojects(version)
-
-            if version.project.single_version:
-                symlinks.symlink_single_version(version)
-            else:
-                symlinks.remove_symlink_single_version(version)
-
-            # This requires database access, must disable it for now.
-            #send_notifications(version, build)
-        else:
-            log.warning(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Failed HTML Build"))
-
-def update_search(version): 
-    page_list = process_all_json_files(version)
-    data = {
-        'page_list': page_list,
-        'version_pk': version.pk,
-        'project_pk': version.project.pk
-    }
-    log_msg = ' '.join([page['path'] for page in page_list])
-    log.info("(Search Index) Sending Data: %s [%s]" % (version.project.slug, log_msg))
-    apiv2.index_search.post({'data': data})
 
 @task
 def update_imported_docs(version_pk, api=None):
@@ -366,10 +310,7 @@ def update_imported_docs(version_pk, api=None):
             apiv2.project(project.pk).sync_versions.post(version_post_data)
         except Exception, e:
             print "Sync Verisons Exception: %s" % e.message
-
-
     return ret_dict
-
 
 
 def setup_environment(version):
@@ -507,6 +448,37 @@ def build_docs(version, pdf, man, epub, dash, search, localmedia, force):
                     results['epub'] = fake_results
     return results
 
+
+def finish_build(version, build, results):
+    """
+    Build Finished, do house keeping bits
+    """
+
+    (ret, out, err) = results['html']
+
+    if 'no targets are out of date.' in out:
+        log.info(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Build Unchanged"))
+    else:
+        if ret == 0:
+            log.info(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Successful Build"))
+            #update_search(version)
+            #fileify.delay(version.pk)
+            symlinks.symlink_cnames(version)
+            symlinks.symlink_translations(version)
+            symlinks.symlink_subprojects(version)
+
+            if version.project.single_version:
+                symlinks.symlink_single_version(version)
+            else:
+                symlinks.remove_symlink_single_version(version)
+
+            # This requires database access, must disable it for now.
+            #send_notifications(version, build)
+        else:
+            log.warning(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Failed HTML Build"))
+
+
+
 def update_static_metadata(project_pk):
     """Update static metadata JSON file
 
@@ -550,6 +522,24 @@ def update_static_metadata(project_pk):
         ))
 
 
+def create_build(version, api, record):
+    """
+    Create the build object.
+    If we're recording it, save it to the DB.
+    Otherwise just use an empty hash.
+    """
+    if record:
+        # Create Build Object.
+        build = api.build.post(dict(
+            project='/api/v1/project/%s/' % version.project.pk,
+            version='/api/v1/version/%s/' % version.pk,
+            type='html',
+            state='triggered',
+        ))
+    else:
+        build = {}
+    return build
+
 def record_build(api, record, build, results, state):
     if not record:
         return None
@@ -585,7 +575,17 @@ def record_pdf(api, record, results, state, version):
     except UnicodeDecodeError, e:
         log.error(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Unable to post a new build"), exc_info=True)
 
-@task
+def update_search(version): 
+    page_list = process_all_json_files(version)
+    data = {
+        'page_list': page_list,
+        'version_pk': version.pk,
+        'project_pk': version.project.pk
+    }
+    log_msg = ' '.join([page['path'] for page in page_list])
+    log.info("(Search Index) Sending Data: %s [%s]" % (version.project.slug, log_msg))
+    apiv2.index_search.post({'data': data})
+
 def fileify(version_pk):
     """
     Create ImportedFile objects for all of a version's files.
