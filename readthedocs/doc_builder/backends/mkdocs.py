@@ -13,14 +13,13 @@ class Builder(BaseBuilder):
     type = 'mkdocs'
 
     def __init__(self, *args, **kwargs):
-        super(BaseBuilder, self).__init__(*args, **kwargs)
+        super(Builder, self).__init__(*args, **kwargs)
         self.old_artifact_path = os.path.join(self.version.project.checkout_path(self.version.slug), 'site')
 
     @restoring_chdir
     def build(self, **kwargs):
         project = self.version.project
         os.chdir(project.checkout_path(self.version.slug))
-        results = {}
         if project.use_virtualenv:
             build_command = "%s build --theme=readthedocs" % (
                 project.venv_bin(version=self.version.slug,
@@ -28,5 +27,5 @@ class Builder(BaseBuilder):
                 )
         else:
             build_command = "mkdocs build --theme=readthedocs"
-        results['html'] = run(build_command, shell=True)
+        results = run(build_command, shell=True)
         return results

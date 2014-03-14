@@ -108,9 +108,9 @@ def update_docs(pk, version_pk=None, record=True, docker=False,
 
 def move_files(version, results):
     if results['html'][0] == 0:
-        build_path = version.project.full_build_path(version.slug)
+        from_path = version.project.artifact_path(version=version.slug, type=version.project.documentation_type)
         target = version.project.rtd_build_path(version.slug)
-        core_utils.copy(build_path, target)
+        core_utils.copy(from_path, target)
 
     if 'sphinx' in version.project.documentation_type:
         if results['localmedia'][0] == 0:
@@ -401,7 +401,8 @@ def build_docs(version, pdf, man, epub, dash, search, localmedia, force):
         if force:
             html_builder.force()
         #html_builder.clean()
-        html_builder.append_conf()
+        if 'sphinx' in project.documentation_type:
+            html_builder.append_conf()
         results['html'] = html_builder.build()
         if results['html'][0] == 0:
             html_builder.move()
