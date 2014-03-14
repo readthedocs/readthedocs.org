@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: readthedocs-docs\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-03-03 10:59+0800\n"
-"PO-Revision-Date: 2014-03-04 14:10+0000\n"
+"PO-Revision-Date: 2014-03-06 08:00+0000\n"
 "Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
 "Language-Team: Japanese (http://www.transifex.com/projects/p/readthedocs-docs/language/ja/)\n"
 "MIME-Version: 1.0\n"
@@ -136,14 +136,14 @@ msgstr ""
 #: ../../features.rst:42 ../../features.rst:42 ../../features.rst:44
 #: ../../features.rst:44 ../../features.rst:44
 msgid "Yes"
-msgstr ""
+msgstr "はい"
 
 # 6d0a7a7e0dcb4c4c816b6e241501ed46
 # 6420be08599d4094b3a5ce543468036e
 # c868fda3d10b4a539f224511e4a2c1ca
 #: ../../features.rst:42 ../../features.rst:42 ../../features.rst:44
 msgid "No"
-msgstr ""
+msgstr "いいえ"
 
 # 5a9758d266554fe28dc92a13f411b6ba
 #: ../../features.rst:44
@@ -187,7 +187,7 @@ msgstr ""
 # 8cc55875e97e4811937f454795389009
 #: ../../features.rst:56
 msgid "Search"
-msgstr ""
+msgstr "検索"
 
 # 5a3007e4b1ad4d1caad021a480d94821
 #: ../../features.rst:58

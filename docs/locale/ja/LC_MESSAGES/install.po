@@ -3,13 +3,14 @@
 # This file is distributed under the same license as the Read The Docs package.
 # 
 # Translators:
+# shirou - しろう, 2014
 msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs-docs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-03 10:59+0800\n"
-"PO-Revision-Date: 2014-03-04 14:10+0000\n"
-"Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
+"POT-Creation-Date: 2014-03-05 10:29+0800\n"
+"PO-Revision-Date: 2014-03-08 16:10+0000\n"
+"Last-Translator: shirou - しろう\n"
 "Language-Team: Japanese (http://www.transifex.com/projects/p/readthedocs-docs/language/ja/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -20,7 +21,7 @@ msgstr ""
 # 818e4029f377471cb6e9a4b26c5d774f
 #: ../../install.rst:4
 msgid "Installation"
-msgstr ""
+msgstr "インストール"
 
 # ec9b5e928ffb4a6b94c9cb7ce1e96494
 #: ../../install.rst:6
@@ -107,7 +108,7 @@ msgstr ""
 # 1d166a5c19494c6a91e9809dae75dcbd
 #: ../../install.rst:77
 msgid "Solr (Search) Setup"
-msgstr ""
+msgstr "Solr (検索) の設定"
 
 # a8bc916a941448f7a71906c7649fd680
 #: ../../install.rst:79
@@ -180,7 +181,7 @@ msgstr ""
 # 63c825883d524731a11131146e7155ec
 #: ../../install.rst:128
 msgid "Creating new Docs"
-msgstr ""
+msgstr "新しいドキュメントの作成"
 
 # 18006bd7b7d2406c8ce45b7e5b01ac76
 #: ../../install.rst:130
@@ -196,7 +197,7 @@ msgstr ""
 # 861d806bbcbb4ee485eebbf20d07f06e
 #: ../../install.rst:139
 msgid "Importing existing docs"
-msgstr ""
+msgstr "既存ドキュメントのインポート"
 
 # 57d758b04f4140f59290f51a1ac4e871
 #: ../../install.rst:141
@@ -212,7 +213,7 @@ msgstr ""
 # 3c220ff2ea3b4d30b9c907811d74b9d1
 #: ../../install.rst:149
 msgid "Installation with Vagrant"
-msgstr ""
+msgstr "Vagrantを使ったインストール"
 
 # 8f4f50ca679f47a499b33e250c2c3291
 #: ../../install.rst:151
@@ -232,13 +233,13 @@ msgstr ""
 # bf895210891f428680a80d74b2be7338
 #: ../../install.rst:161
 msgid "http://localhost:8000"
-msgstr ""
+msgstr "http://localhost:8000"
 
 # aa99aa42bfd64e5fa2c3fbf5893ed2d3
 # 4a6ac939b291474d9ebdd1c453c38ae6
 #: ../../install.rst:162 ../../install.rst:163
 msgid "docs"
-msgstr ""
+msgstr "docs"
 
 # 99205168dd024c75b1a0d21b894fdb90
 #: ../../install.rst:170

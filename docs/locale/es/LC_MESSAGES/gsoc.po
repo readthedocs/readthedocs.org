@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs-docs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-01 22:07+0800\n"
-"PO-Revision-Date: 2014-03-01 13:42+0000\n"
+"POT-Creation-Date: 2014-03-05 10:29+0800\n"
+"PO-Revision-Date: 2014-03-09 20:40+0000\n"
 "Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
 "Language-Team: Spanish (http://www.transifex.com/projects/p/readthedocs-docs/language/es/)\n"
 "MIME-Version: 1.0\n"
@@ -80,7 +80,7 @@ msgstr ""
 # 4dd790b769c047719177a2217205c53a
 #: ../../gsoc.rst:21
 msgid "Getting Started"
-msgstr ""
+msgstr "Empezando"
 
 # b51dbe1c16834d04ae0ec44a6d1cf95e
 #: ../../gsoc.rst:23

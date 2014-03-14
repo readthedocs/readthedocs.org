@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs-docs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-03 10:59+0800\n"
-"PO-Revision-Date: 2014-03-05 01:20+0000\n"
+"POT-Creation-Date: 2014-03-05 10:29+0800\n"
+"PO-Revision-Date: 2014-03-06 07:44+0000\n"
 "Last-Translator: shirou - しろう\n"
 "Language-Team: Japanese (http://www.transifex.com/projects/p/readthedocs-docs/language/ja/)\n"
 "MIME-Version: 1.0\n"
@@ -39,7 +39,7 @@ msgstr "もしドキュメント作成にすでに Sphinx_ を使っているの
 # 20869ea4ee9544bb889f53f260a381b5
 #: ../../getting_started.rst:9
 msgid "There is `a screencast`_ that will help you get started if you prefer."
-msgstr "また、 `動画<a screencast>`_  もありますので、そちらもご参照ください。"
+msgstr "また、 `a screencast`_  もありますので、そちらもご参照ください。"
 
 # e4bbcc8b5b7e419a805d8b4da78c6aa1
 #: ../../getting_started.rst:12
@@ -65,7 +65,7 @@ msgid ""
 "you can just accept the defaults. When it's done, you'll have an "
 "``index.rst``, a ``conf.py`` and some other files. Add these to revision "
 "control."
-msgstr ""
+msgstr "sphinx-quickstartコマンドは問いかけに答えるだけで基本的な設定を作成してくれます。多くの場合、初期設定をそのまま使えます。完了すると、 ``index.rst`` と ``conf.py`` と、その他いくつかのファイルが出来上がっているはずです。これらをバージョン管理システムに登録してください。"
 
 # 93b667b94bee4cd998979e17c5e23e4e
 #: ../../getting_started.rst:28
@@ -73,7 +73,7 @@ msgid ""
 "Now, edit your ``index.rst`` and add some information about your project. "
 "Include as much detail as you like (refer to the reStructuredText_ syntax or"
 " `this template`_ if you need help). Build them to see how they look::"
-msgstr ""
+msgstr "``index.rst`` を編集し、あなたのプロジェクトに関する情報を付け加えましょう。好きなだけいろいろなことを書いてください。 (書き方は reStructuredText_ か `this template`_  を参照してください)。終了したら、こんなふうにビルドします。::"
 
 # b6ecd74d973f4945af1d7ac50f220d77
 #: ../../getting_started.rst:34
@@ -81,7 +81,7 @@ msgid ""
 "Edit your files and rebuild until you like what you see, then commit your "
 "changes and push to your public repository. Once you have Sphinx "
 "documentation in a public repository, you can start using Read the Docs."
-msgstr ""
+msgstr "ファイルを編集し、好きなだけビルドしなおしてください。それからファイルの変更をコミットし、公開リポジトリにプッシュしてください。あなたのSphinxドキュメントが公開リポジトリにプッシュされたら、Read the Docsを使い始められます。"
 
 # 621a032741654fbe94eeb8ced1fc4df9
 #: ../../getting_started.rst:40
@@ -96,7 +96,7 @@ msgid ""
 "description, then specify where your repository is located. This is normally"
 " the URL or path name you'd use to checkout, clone, or branch your code. "
 "Some examples:"
-msgstr ""
+msgstr "Read the Docsに `Sign up`_ をし、 `log in`_　してください。 dashboard_  を開き、 Import_  をクリックして、Read the Docsにあなたのプロジェクトを登録してください。それから名前と説明を記載し、リポジトリの場所を指定します。この場所は通常チェックアウトやクローンをするURLかパス名です。例:"
 
 # 0eaf2d9626dd463d836655dc4ba299b0
 #: ../../getting_started.rst:47
@@ -121,7 +121,7 @@ msgstr "Bazaar: ``lp:pasta``"
 # c7c217cabab34ccab46cb0dd90c8e007
 #: ../../getting_started.rst:52
 msgid "Add an optional homepage URL and some tags, then click \"Create\"."
-msgstr ""
+msgstr "任意ですがwebページのURLとタグを追加し、 \"作成\"をクリックしてください。"
 
 # ecf599bf3bbb4eb9bb31f25c3561e35c
 #: ../../getting_started.rst:54
@@ -130,7 +130,7 @@ msgid ""
 "public repository, and the documentation will be built. Check out our "
 ":doc:`builds` page to learn more about how we build your docs, and to "
 "troubleshoot any issues that arise."
-msgstr ""
+msgstr "数分後、あなたのコードが公開リポジトリから自動的に取得され、ドキュメントがビルドされます。  :doc:`builds` ページで私達がどのようにあなたのドキュメントをビルドし問題を解消しているかを読んでください。"
 
 # 35c76658de93497ba8061846dd24b261
 #: ../../getting_started.rst:57
@@ -138,11 +138,11 @@ msgid ""
 "If you want to keep your code updated as you commit, configure your code "
 "repository to hit our `Post Commit Hooks`_. This will rebuild your docs "
 "every time you push your code."
-msgstr ""
+msgstr "もしコミットのたびにあなたのコードを更新したい場合、リポジトリの設定で `Post Commit Hooks`_ を設定してください。これにより、あなたがコードをプッシュするたびにドキュメントがビルドされます。"
 
 # 4b77085452fb4a839b693dd522ed6a3f
 #: ../../getting_started.rst:59
 msgid ""
 "If you have any more trouble, don't hesitate to reach out to us. The "
 ":doc:`support` page has more information on getting in touch."
-msgstr ""
+msgstr "もし問題が起きた場合、どうか私達に教えてください。 :doc:`support` ページに連絡する方法が詳しく書かれています。"

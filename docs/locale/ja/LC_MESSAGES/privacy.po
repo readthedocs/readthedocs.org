@@ -3,13 +3,14 @@
 # This file is distributed under the same license as the Read The Docs package.
 # 
 # Translators:
+# shirou - しろう, 2014
 msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs-docs\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-03-03 10:59+0800\n"
-"PO-Revision-Date: 2014-03-04 14:10+0000\n"
-"Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
+"PO-Revision-Date: 2014-03-06 08:20+0000\n"
+"Last-Translator: shirou - しろう\n"
 "Language-Team: Japanese (http://www.transifex.com/projects/p/readthedocs-docs/language/ja/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -20,47 +21,47 @@ msgstr ""
 # 68a7ee4f7d034bc596b1435a7fbeb5b4
 #: ../../privacy.rst:2
 msgid "Privacy Levels"
-msgstr ""
+msgstr "プライバシーレベル"
 
 # d59e6b097cd140d8a09e5ae29a942178
 #: ../../privacy.rst:4
 msgid ""
 "Read the Docs supports 3 different privacy levels on 2 different objects; "
 "Public, Protected, Private on Projects and Versions."
-msgstr ""
+msgstr "Read the Docs は3種類のプライバシーレベルを2種類の対象に設定できます。公開、非公開、プライベートの三種類を、プロジェクトとバージョンに設定できます。"
 
 # cbe46204e92545ca9779fb6eeb171dc4
 #: ../../privacy.rst:8
 msgid "Understanding the Privacy Levels"
-msgstr ""
+msgstr "プライバシーレベル表"
 
 # c69aeb022cbe4906aa4435a967b45b7b
 #: ../../privacy.rst:11
 msgid "Level"
-msgstr ""
+msgstr "レベル"
 
 # 2f23e4a77c344d7b8d83aac647d1cd86
 #: ../../privacy.rst:11
 msgid "Detail"
-msgstr ""
+msgstr "詳細"
 
 # 14909c30124b45af9af1abb37768d96f
 #: ../../privacy.rst:11
 msgid "Listing"
-msgstr ""
+msgstr "一覧に記載"
 
 # c8e5736827dc4bd9bc69c048a712a7bf
 # 2dc914ed349c4e15a51a5136bd51c8f8
 # 75b5877f677b41fda0afcf1ce89a1f65
 #: ../../privacy.rst:11 ../../privacy.rst:59 ../../privacy.rst:71
 msgid "Search"
-msgstr ""
+msgstr "検索"
 
 # c8d08b8163634d568e7e234ce54e560d
 # 6e225fb0768b4196ae97ac789560ee62
 #: ../../privacy.rst:13 ../../privacy.rst:39
 msgid "Private"
-msgstr ""
+msgstr "プライベート"
 
 # 91ca668caa1941acad9eed63eecfa2c2
 # 40cd874d65ca4fdf9b29b6e64b9392ac
@@ -70,13 +71,13 @@ msgstr ""
 #: ../../privacy.rst:13 ../../privacy.rst:13 ../../privacy.rst:13
 #: ../../privacy.rst:15 ../../privacy.rst:15
 msgid "No"
-msgstr ""
+msgstr "いいえ"
 
 # 4d97747918874593b8ef42d7a83f3158
 # b761452855db4d0396859ed82ea7c8e9
 #: ../../privacy.rst:15 ../../privacy.rst:27
 msgid "Protected"
-msgstr ""
+msgstr "非公開"
 
 # 3c20dd986b4a4e9db248c2eb5fdf36b1
 # 76763a9d8a094cbbaad6de40b9406b41
@@ -85,13 +86,13 @@ msgstr ""
 #: ../../privacy.rst:15 ../../privacy.rst:17 ../../privacy.rst:17
 #: ../../privacy.rst:17
 msgid "Yes"
-msgstr ""
+msgstr "はい"
 
 # db7beb697ed44c2e98d7a65be83614a0
 # cb932747cac54af394093cbec2795092
 #: ../../privacy.rst:17 ../../privacy.rst:21
 msgid "Public"
-msgstr ""
+msgstr "公開"
 
 # d78076a8398c428a82435d6ec49dcd71
 #: ../../privacy.rst:23
@@ -154,12 +155,12 @@ msgstr ""
 # 1fcf26a792f843a984526a80b81b2e78
 #: ../../privacy.rst:56
 msgid "Home Page"
-msgstr ""
+msgstr "webページ"
 
 # d046457d8557428c85136d0a5b0f88a6
 #: ../../privacy.rst:57
 msgid "All Projects Page"
-msgstr ""
+msgstr "プロジェクトのすべてのページ"
 
 # 8b3c7ac20435419485b47c9319ab1354
 #: ../../privacy.rst:58

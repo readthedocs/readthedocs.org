@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs-docs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-03 10:59+0800\n"
-"PO-Revision-Date: 2014-03-05 01:10+0000\n"
+"POT-Creation-Date: 2014-03-05 10:29+0800\n"
+"PO-Revision-Date: 2014-03-06 07:52+0000\n"
 "Last-Translator: shirou - しろう\n"
 "Language-Team: Japanese (http://www.transifex.com/projects/p/readthedocs-docs/language/ja/)\n"
 "MIME-Version: 1.0\n"
@@ -30,39 +30,39 @@ msgid ""
 "supports Sphinx_ docs written with reStructuredText_, and can pull from your"
 " Subversion_, Bazaar_, Git_, and Mercurial_ repositories. The code is open "
 "source, and `available on github`_."
-msgstr ""
+msgstr "`Read the Docs`_ はオープンソースコミュニティのためのドキュメントを提供しています。 reStructuredText_ で書かれた Sphinx_ ドキュメントを使え、 Subversion_ 、 Bazaar_ 、 Git_ 、 Mercurial_ のリポジトリからプルできます。このコードはオープンソースであり、 `available on github`_ 。"
 
 # 650f82d4b7674e12bbaeb9167916911d
 #: ../../index.rst:18
 msgid ""
 "The documentation for the site is organized into a few different sections "
 "below:"
-msgstr ""
+msgstr "このドキュメントは下記にあるいくつかのセクションで構成されています。"
 
 # b940724b82f3481780036c6e9452bef1
 #: ../../index.rst:20
 msgid ":ref:`site-docs`"
-msgstr ""
+msgstr ":ref:`site-docs`"
 
 # 89306f02cad44949a55ba1eb99d947a0
 #: ../../index.rst:21
 msgid ":ref:`feature-docs`"
-msgstr ""
+msgstr ":ref:`feature-docs`"
 
 # 16eed7976a1a4258a968b56ec8932998
 #: ../../index.rst:22
 msgid ":ref:`dev-docs`"
-msgstr ""
+msgstr ":ref:`dev-docs`"
 
 # 414c5e7b462242f69544ff1dcfcce26a
 #: ../../index.rst:23
 msgid ":ref:`design-docs`"
-msgstr ""
+msgstr ":ref:`design-docs`"
 
 # c2ad8cf74fae4af3bc294e3fba77188e
 #: ../../index.rst:24
 msgid ":ref:`about-docs`"
-msgstr ""
+msgstr ":ref:`about-docs`"
 
 # 7fd0b59687ba44df9f35eaf039a1d22f
 #: ../../index.rst:30
@@ -92,7 +92,7 @@ msgstr "Read the Docsについて"
 # 2da908ba87d94b4685277d2482e0fcad
 #: ../../index.rst:105
 msgid "Custom install Documentation"
-msgstr ""
+msgstr "カスタムインストール向けドキュメント"
 
 # 60926664d88d449897c1cde115bac962
 #: ../../index.rst:116
