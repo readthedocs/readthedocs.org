@@ -170,7 +170,7 @@ class EpubBuilder(BaseSphinx):
             to_file = os.path.join(self.target, "%s.epub" % self.version.project.slug)
             run('mv -f %s %s' % (from_file, to_file))
 
-class PdfBuilder(BaseBuilder):
+class PdfBuilder(BaseSphinx):
     type = 'sphinx_pdf'
     sphinx_build_dir = '_build/latex'
 

@@ -543,16 +543,38 @@ def create_build(version, api, record):
 def record_build(api, record, build, results, state):
     if not record:
         return None
+
+    setup_steps = ['checkout', 'venv', 'sphinx', 'requirements', 'install']
+    output_steps = ['html', 'pdf', 'epub']
+    all_steps = setup_steps + output_steps
+
     build['state'] = state
-    if results.get('checkout', False):
-        build['success'] = results['checkout'][0] == 0
-        build['setup'] = results['checkout'][1]
-        build['setup_error'] = results['checkout'][2]
-    if results.get('html', False):
-        build['success'] = results['html'][0] == 0
-        build['output'] = results['html'][1]
-        build['error'] = results['html'][2]
-        build['exit_code'] = results['html'][0]
+    build['success'] = True
+
+    # Set global state
+    for step in all_steps:
+        if results.get(step, False):
+            if results.get(step)[0] != 0:
+                results['success'] = False
+
+    build['exit_code'] = max([results.get(step, [0])[0] for step in all_steps])
+
+    build['setup'] = build['setup_error'] = ""
+    build['output'] = build['error'] = ""
+
+    for step in setup_steps:
+        if results.get(step, False):
+            build['setup'] += "\n\n%s\n-----\n\n" % step
+            build['setup'] += results.get(step)[1]
+            build['setup_error'] += "\n\n%s\n-----\n\n" % step
+            build['setup_error'] += results.get(step)[2]
+
+    for step in output_steps:
+        if results.get(step, False):
+            build['output'] += "\n\n%s\n-----\n\n" % step
+            build['output'] += results.get(step)[1]
+            build['error'] += "\n\n%s\n-----\n\n" % step
+            build['error'] += results.get(step)[2]
     ret = api.build(build['id']).put(build)
     return ret
 
