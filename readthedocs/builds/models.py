@@ -1,4 +1,5 @@
 import re
+import os.path
 
 from django.core.urlresolvers import reverse
 from django.conf import settings
@@ -199,6 +200,12 @@ class Version(models.Model):
             self.project.checkout_path(self.slug), '')
         return conf_py_path.replace('conf.py', '')
 
+    def get_build_path(self):
+        '''Return version build path if path exists, otherwise `None`'''
+        path = self.project.checkout_path(version=self.slug)
+        if os.path.exists(path):
+            return path
+        return None
 
     def get_github_url(self, docroot, filename):
         GITHUB_REGEXS = [
