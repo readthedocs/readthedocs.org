@@ -554,10 +554,10 @@ def get_suggestion(project_slug, lang_slug, version_slug, pagename, user):
         except Project.DoesNotExist:
             # Case #1-4: Show error mssage
             suggestion['type'] = 'none'
-            suggestion['message'] = "What are you looking for???"
+            suggestion['message'] = "We're sorry, we don't know what you're looking for"
     else:
         suggestion['type'] = 'none'
-        suggestion['message'] = "What are you looking for????"
+        suggestion['message'] = "We're sorry, we don't know what you're looking for"
 
     return suggestion
 
