@@ -150,9 +150,10 @@ INSTALLED_APPS = [
     'tastypie',
 
     # our apps
-    'projects',
     'builds',
     'core',
+    'doc_builder',
+    'projects',
     'rtd_tests',
     'websupport',
     'restapi',
@@ -338,7 +339,7 @@ LOGGING = {
         # logging works :)
         '': {
             'handlers': ['console', 'errorlog'],
-            'level': 'DEBUG',
+            'level': 'INFO',
         },
     }
 }

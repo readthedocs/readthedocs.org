@@ -141,3 +141,5 @@ LANGUAGES = (
 LANGUAGES_REGEX = "|".join(
     [re.escape(code[0]) for code in LANGUAGES]
 )
+
+LOG_TEMPLATE = u"(Build) [{project}:{version}] {msg}"

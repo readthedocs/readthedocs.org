@@ -294,7 +294,8 @@ class Project(models.Model):
         except Exception, e:
             log.error('failed to symlink project', exc_info=True)
         try:
-            update_static_metadata(project_pk=self.pk)
+            #update_static_metadata(project_pk=self.pk)
+            pass
         except Exception:
             log.error('failed to update static metadata', exc_info=True)
         return obj
@@ -527,6 +528,12 @@ class Project(models.Model):
         #No docs directory, docs are at top-level.
         return doc_base
 
+    def artifact_path(self, type, version='latest'):
+        """
+        The path to the build html docs in the project.
+        """
+        return os.path.join(self.doc_path, "artifacts", version, type)
+
     def full_build_path(self, version='latest'):
         """
         The path to the build html docs in the project.
@@ -580,7 +587,7 @@ class Project(models.Model):
         The path to the static metadata JSON settings file
         """
         return os.path.join(self.doc_path, 'metadata.json')
-
+        
     def conf_file(self, version='latest'):
         if self.conf_py_file:
             log.debug('Inserting conf.py file path from model')
