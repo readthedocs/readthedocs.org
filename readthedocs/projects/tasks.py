@@ -113,19 +113,19 @@ def move_files(version, results):
         core_utils.copy(from_path, target)
 
     if 'sphinx' in version.project.documentation_type:
-        if results['localmedia'][0] == 0:
+        if 'localmedia' in results and results['localmedia'][0] == 0:
             from_path = version.project.artifact_path(version=version.slug, type='sphinx_localmedia')
             to_path = os.path.join(settings.MEDIA_ROOT, 'htmlzip', version.project.slug, version.slug)
             core_utils.copy(from_path, to_path)
-        if results['search'][0] == 0:
+        if 'search' in results and results['search'][0] == 0:
             from_path = version.project.artifact_path(version=version.slug, type='sphinx_search')
             to_path = os.path.join(settings.MEDIA_ROOT, 'json', version.project.slug, version.slug)
             core_utils.copy(from_path, to_path)
-        if results['pdf'][0] == 0:
-            from_path = version.project.artifact_path(version=version.slug, type='sphinx_pdf')
-            to_path = os.path.join(settings.MEDIA_ROOT, 'pdf', version.project.slug, version.slug)
-            core_utils.copy(from_path, to_path)
-        if results['epub'][0] == 0:
+        if 'pdf' in results and results['pdf'][0] == 0:
+                from_path = version.project.artifact_path(version=version.slug, type='sphinx_pdf')
+                to_path = os.path.join(settings.MEDIA_ROOT, 'pdf', version.project.slug, version.slug)
+                core_utils.copy(from_path, to_path)
+        if 'epub' in results and results['epub'][0] == 0:
             from_path = version.project.artifact_path(version=version.slug, type='sphinx_epub')
             to_path = os.path.join(settings.MEDIA_ROOT, 'epub', version.project.slug, version.slug)
             core_utils.copy(from_path, to_path)
