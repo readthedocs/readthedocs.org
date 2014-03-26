@@ -28,6 +28,7 @@ import mimetypes
 import os
 import logging
 import redis
+import re
 
 log = logging.getLogger(__name__)
 pc_log = logging.getLogger(__name__+'.post_commit')
@@ -366,9 +367,14 @@ def redirect_page_with_filename(request, filename, project_slug=None):
 def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
     if not project_slug:
         project_slug = request.slug
-    proj = get_object_or_404(Project, slug=project_slug)
-    ver = get_object_or_404(Version, project__slug=project_slug,
-                            slug=version_slug)
+    try:
+        proj = Project.objects.get(slug=project_slug)
+        ver  = Version.objects.get(project__slug=project_slug, slug=version_slug)
+    except (Project.DoesNotExist, Version.DoesNotExist):
+        proj = None
+        ver  = None
+    if not proj or not ver:
+        return server_helpful_404(request, project_slug, lang_slug, version_slug, filename)
 
     # Auth checks
     if ver not in proj.versions.public(request.user, proj, only_active=False):
@@ -449,6 +455,111 @@ def server_error_404(request, template_name='404.html'):
                            context_instance=RequestContext(request))
     r.status_code = 404
     return r
+
+
+def server_helpful_404(request, project_slug=None, lang_slug=None, version_slug=None, filename=None, template_name='404.html'):
+    pagename = re.sub(r'/index$', r'', re.sub(r'\.html$', r'', re.sub(r'/$', r'', filename)))
+    suggestion = get_suggestion(project_slug, lang_slug, version_slug, pagename, request.user)
+    r = render_to_response(template_name,
+                           {'suggestion': suggestion},
+                           context_instance=RequestContext(request))
+    r.status_code = 404
+    return r
+
+
+def get_suggestion(project_slug, lang_slug, version_slug, pagename, user):
+    """
+    | # | project | version | language | What to show |
+    | 1 |    0    |    0    |     0    | Error message |
+    | 2 |    0    |    0    |     1    | Error message (Can't happen) |
+    | 3 |    0    |    1    |     0    | Error message (Can't happen) |
+    | 4 |    0    |    1    |     1    | Error message (Can't happen) |
+    | 5 |    1    |    0    |     0    | A link to top-level page of default version |
+    | 6 |    1    |    0    |     1    | Available versions on the translation project |
+    | 7 |    1    |    1    |     0    | Available translations of requested version |
+    | 8 |    1    |    1    |     1    | A link to top-level page of requested version |
+    """
+
+    suggestion = {}
+    if project_slug:
+        try:
+            proj = Project.objects.get(slug=project_slug)
+            if not lang_slug:
+                lang_slug = proj.language
+            try:
+                ver = Version.objects.get(project__slug=project_slug, slug=version_slug)
+            except Version.DoesNotExist:
+                ver = None
+
+            if ver: # if requested version is available on main project
+                if  lang_slug != proj.language:
+                    try:
+                        translations = proj.translations.filter(language=lang_slug)
+                        if translations:
+                            ver = Version.objects.get(project__slug=translations[0].slug, slug=version_slug)
+                        else:
+                            ver = None
+                    except Version.DoesNotExist:
+                        ver = None
+                if ver: #if requested version is available on translation project too
+                    # Case #8: Show a link to top-level page of the version
+                    suggestion['type'] = 'top'
+                    suggestion['message'] = "What are you looking for?"
+                    suggestion['href'] = proj.get_docs_url(ver.slug, lang_slug)
+                else: # requested version is available but not in requested language
+                    # Case #7: Show available translations of the version
+                    suggestion['type'] = 'list'
+                    suggestion['message'] = "Requested page seems not to be translated in requested language. But it's available in these languages."
+                    suggestion['list'] = []
+                    suggestion['list'].append({
+                        'label':proj.language,
+                        'project': proj,
+                        'version_slug': version_slug,
+                        'pagename': pagename
+                        })
+                    for t in proj.translations.all():
+                        try:
+                            Version.objects.get(project__slug=t.slug, slug=version_slug)
+                            suggestion['list'].append({
+                                'label':t.language,
+                                'project': t,
+                                'version_slug': version_slug,
+                                'pagename': pagename
+                                })
+                        except Version.DoesNotExist:
+                            pass
+            else: # requested version does not exist on main project
+                if lang_slug == proj.language:
+                    trans = proj
+                else:
+                    translations = proj.translations.filter(language=lang_slug)
+                    trans = translations[0] if translations else None
+                if trans: # requested language is available
+                    # Case #6: Show available versions of the translation
+                    suggestion['type'] = 'list'
+                    suggestion['message'] = "Requested version seems not to have been built yet. But these versions are available."
+                    suggestion['list'] = []
+                    for v in Version.objects.public(user, trans, True):
+                        suggestion['list'].append({
+                            'label': v.slug,
+                            'project': trans,
+                            'version_slug': v.slug,
+                            'pagename': pagename
+                            })
+                else: # requested project exists but requested version and language are not available.
+                    # Case #5: Show a link to top-level page of default version of main project
+                    suggestion['type'] = 'top'
+                    suggestion['message'] = 'What are you looking for??'
+                    suggestion['href'] = proj.get_docs_url()
+        except Project.DoesNotExist:
+            # Case #1-4: Show error mssage
+            suggestion['type'] = 'none'
+            suggestion['message'] = "What are you looking for???"
+    else:
+        suggestion['type'] = 'none'
+        suggestion['message'] = "What are you looking for????"
+
+    return suggestion
 
 
 def divide_by_zero(request):
