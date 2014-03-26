@@ -85,7 +85,7 @@ def update_docs(pk, version_pk=None, record=True, docker=False,
             results.update(build_results)
 
         move_files(version, results)
-        #record_pdf(api=api, record=record, results=results, state='finished', version=version)
+        record_pdf(api=api, record=record, results=results, state='finished', version=version)
         finish_build(version=version, build=build, results=results)
 
         if results['html'][0] == 0:
@@ -547,12 +547,12 @@ def record_build(api, record, build, results, state):
 
     Returns nothing
     """
-    
+
     if not record:
         return None
 
     setup_steps = ['checkout', 'venv', 'sphinx', 'requirements', 'install']
-    output_steps = ['html', 'pdf', 'epub']
+    output_steps = ['html', 'epub']
     all_steps = setup_steps + output_steps
 
     build['state'] = state
@@ -585,7 +585,7 @@ def record_build(api, record, build, results, state):
     try:
         ret = api.build(build['id']).put(build)
     except Exception, e:
-        log.error(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Unable to post a new build"), exc_info=True)
+        log.error("Unable to post a new build", exc_info=True)
 
 def record_pdf(api, record, results, state, version):
     if not record:
