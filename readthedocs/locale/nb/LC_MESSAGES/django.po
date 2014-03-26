@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-07 03:08-0600\n"
+"POT-Creation-Date: 2014-03-26 05:35-0500\n"
 "PO-Revision-Date: 2014-02-21 08:51+0000\n"
 "Last-Translator: Stein Magnus Jodal <stein.magnus@jodal.no>\n"
 "Language-Team: Norwegian Bokmål (http://www.transifex.com/projects/p/"
@@ -28,8 +28,8 @@ msgstr "Beklager, ingen treff på den siden."
 msgid "Invalid resource lookup data provided (mismatched type).: %(error)s"
 msgstr "Ugyldig ressursoppslagsdata benyttet (upassende type).: %(error)s"
 
-#: bookmarks/models.py:9 builds/models.py:82 builds/models.py:268
-#: builds/models.py:284 projects/models.py:799
+#: bookmarks/models.py:9 builds/models.py:83 builds/models.py:275
+#: builds/models.py:291 projects/models.py:806
 msgid "Project"
 msgstr "Prosjekt"
 
@@ -37,7 +37,7 @@ msgstr "Prosjekt"
 msgid "User"
 msgstr "Bruker"
 
-#: bookmarks/models.py:13 builds/models.py:292
+#: bookmarks/models.py:13 builds/models.py:299
 msgid "Date"
 msgstr "Dato"
 
@@ -60,42 +60,50 @@ msgid "Triggered"
 msgstr "Trigget"
 
 #: builds/constants.py:5
+msgid "Cloning"
+msgstr ""
+
+#: builds/constants.py:6
+msgid "Installing"
+msgstr ""
+
+#: builds/constants.py:7
 msgid "Building"
 msgstr "Bygger"
 
-#: builds/constants.py:6
+#: builds/constants.py:8
 msgid "Finished"
 msgstr "Ferdig"
 
-#: builds/constants.py:10
+#: builds/constants.py:12
 msgid "HTML"
 msgstr "HTML"
 
-#: builds/constants.py:11
+#: builds/constants.py:13
 msgid "PDF"
 msgstr "PDF"
 
-#: builds/constants.py:12
+#: builds/constants.py:14
 msgid "Epub"
 msgstr "Epub"
 
-#: builds/constants.py:13
+#: builds/constants.py:15
 msgid "Manpage"
 msgstr "Man-side"
 
-#: builds/constants.py:14
+#: builds/constants.py:16
 msgid "Dash"
 msgstr "Dash"
 
-#: builds/constants.py:18
+#: builds/constants.py:20
 msgid "Branch"
 msgstr "Gren"
 
-#: builds/constants.py:19 builds/filters.py:19
+#: builds/constants.py:21 builds/filters.py:19
 msgid "Tag"
 msgstr "Tagg"
 
-#: builds/constants.py:20
+#: builds/constants.py:22
 msgid "Unknown"
 msgstr "Ukjent"
 
@@ -103,122 +111,122 @@ msgstr "Ukjent"
 msgid "Any"
 msgstr "Alle"
 
-#: builds/filters.py:17 builds/filters.py:30 projects/filters.py:31
-#: projects/models.py:102 projects/models.py:803
+#: builds/filters.py:17 builds/filters.py:29 projects/filters.py:31
+#: projects/models.py:102 projects/models.py:810
 msgid "Name"
 msgstr "Navn"
 
-#: builds/filters.py:39
+#: builds/filters.py:38
 msgid "Build Date"
 msgstr "Byggdato"
 
-#: builds/filters.py:40
+#: builds/filters.py:39
 msgid "Build Type"
 msgstr "Byggtype"
 
-#: builds/models.py:85 builds/models.py:288
+#: builds/models.py:86 builds/models.py:295
 msgid "Type"
 msgstr "Type"
 
-#: builds/models.py:89
+#: builds/models.py:90
 msgid "Identifier"
 msgstr "Identifikator"
 
-#: builds/models.py:91
+#: builds/models.py:92
 msgid "Verbose Name"
 msgstr "Fullt navn"
 
-#: builds/models.py:92 projects/filters.py:33 projects/models.py:103
-#: projects/models.py:804
+#: builds/models.py:93 projects/filters.py:33 projects/models.py:103
+#: projects/models.py:811
 msgid "Slug"
 msgstr "Slug"
 
-#: builds/models.py:94
+#: builds/models.py:95
 msgid "Supported"
 msgstr "Støttet"
 
-#: builds/models.py:95 templates/projects/project_versions.html:46
+#: builds/models.py:96 templates/projects/project_versions.html:46
 msgid "Active"
 msgstr "Aktiv"
 
-#: builds/models.py:96 templates/projects/includes/icon_built.html:4
+#: builds/models.py:97 templates/projects/includes/icon_built.html:4
 msgid "Built"
 msgstr "Bygget"
 
-#: builds/models.py:97 templates/projects/includes/icon_built.html:7
+#: builds/models.py:98 templates/projects/includes/icon_built.html:7
 msgid "Uploaded"
 msgstr "Lastet opp"
 
-#: builds/models.py:99 projects/models.py:195
+#: builds/models.py:100 projects/models.py:195
 msgid "Privacy Level"
 msgstr "Tilgangsnivå"
 
-#: builds/models.py:100
+#: builds/models.py:101
 msgid "Level of privacy for this Version."
 msgstr "Tilgangsnivå for denne versjonen."
 
 #. Translators: Permission around whether a user can view the
 #. version
-#: builds/models.py:111
+#: builds/models.py:112
 msgid "View Version"
 msgstr "Vis versjon"
 
-#: builds/models.py:115
+#: builds/models.py:116
 #, python-format
 msgid "Version %(version)s of %(project)s (%(pk)s)"
 msgstr "Versjon %(version)s av %(project)s (%(pk)s)"
 
-#: builds/models.py:270
+#: builds/models.py:277
 msgid "From slug"
 msgstr "Fra slug"
 
-#: builds/models.py:271
+#: builds/models.py:278
 msgid "To slug"
 msgstr "Til slug"
 
-#: builds/models.py:273
+#: builds/models.py:280
 msgid "Largest"
 msgstr "Størst"
 
-#: builds/models.py:276
+#: builds/models.py:283
 #, python-format
 msgid "Alias for %(project)s: %(from)s -> %(to)s"
 msgstr "Alias for %(project)s: %(from)s -> %(to)s"
 
-#: builds/models.py:286 projects/models.py:119 projects/models.py:801
+#: builds/models.py:293 projects/models.py:119 projects/models.py:808
 #: templates/djangome/oneoffs.html:11
 msgid "Version"
 msgstr "Versjon"
 
-#: builds/models.py:290
+#: builds/models.py:297
 msgid "State"
 msgstr "Tilstand"
 
-#: builds/models.py:293
+#: builds/models.py:300
 msgid "Success"
 msgstr "Suksess"
 
-#: builds/models.py:294
+#: builds/models.py:302
 msgid "Setup"
 msgstr "Oppsett"
 
-#: builds/models.py:295
+#: builds/models.py:303
 msgid "Setup error"
 msgstr "Oppsettsfeil"
 
-#: builds/models.py:296
+#: builds/models.py:304
 msgid "Output"
 msgstr "Utdata"
 
-#: builds/models.py:297
+#: builds/models.py:305
 msgid "Error"
 msgstr "Feil"
 
-#: builds/models.py:298
+#: builds/models.py:306
 msgid "Exit code"
 msgstr "Avslutningskode"
 
-#: builds/models.py:306
+#: builds/models.py:314
 #, python-format
 msgid "Build %(project)s for %(usernames)s (%(pk)s)"
 msgstr "Bygg %(project)s for %(usernames)s (%(pk)s)"
@@ -576,7 +584,7 @@ msgstr ""
 "Google Analytics Tracking ID (f.eks. UA-22345342-1). Dette kan forsinke "
 "sidelastninger."
 
-#: projects/models.py:163 projects/models.py:805
+#: projects/models.py:163 projects/models.py:812
 msgid "Path"
 msgstr "Filsti"
 
@@ -689,18 +697,13 @@ msgstr "Vis prosjekt"
 msgid "Model must have slug"
 msgstr "Modellen må ha en slug"
 
-#: projects/models.py:806
+#: projects/models.py:813
 msgid "MD5 checksum"
 msgstr "MD5-sjekksum"
 
-#: projects/models.py:834
+#: projects/models.py:841
 msgid "URL to send the webhook to"
 msgstr "URL-en webhooken må kontakte"
-
-#: projects/tasks.py:832
-#, python-format
-msgid "(ReadTheDocs) Building docs for %s failed"
-msgstr "(ReadTheDocs) Bygging av dokumentasjon for %s feilet"
 
 #: settings/base.py:55
 msgid "English"
@@ -737,6 +740,19 @@ msgstr "Vietnamesisk"
 #: settings/base.py:63
 msgid "Chinese"
 msgstr "Kinesisk"
+
+#: settings/base.py:64
+#, fuzzy
+msgid "Taiwanese"
+msgstr "Kinesisk"
+
+#: settings/base.py:65
+msgid "Japanese"
+msgstr ""
+
+#: settings/base.py:66
+msgid "Ukrainian"
+msgstr ""
 
 #: templates/404.html:5
 msgid "Maze Found"
@@ -2232,3 +2248,6 @@ msgid ""
 msgstr ""
 "Søket ditt fant ingen dokumenter. Sjekk at alle ord er skrevet korrekt og at "
 "du har valgt nok kategorier."
+
+#~ msgid "(ReadTheDocs) Building docs for %s failed"
+#~ msgstr "(ReadTheDocs) Bygging av dokumentasjon for %s feilet"

@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-07 03:08-0600\n"
+"POT-Creation-Date: 2014-03-26 05:35-0500\n"
 "PO-Revision-Date: 2014-03-06 08:20+0000\n"
 "Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
 "Language-Team: Japanese (http://www.transifex.com/projects/p/readthedocs/"
@@ -29,8 +29,8 @@ msgstr ""
 msgid "Invalid resource lookup data provided (mismatched type).: %(error)s"
 msgstr "無効なリソース検索データです(種類の不整合): %(error)s"
 
-#: bookmarks/models.py:9 builds/models.py:82 builds/models.py:268
-#: builds/models.py:284 projects/models.py:799
+#: bookmarks/models.py:9 builds/models.py:83 builds/models.py:275
+#: builds/models.py:291 projects/models.py:806
 msgid "Project"
 msgstr "プロジェクト"
 
@@ -38,7 +38,7 @@ msgstr "プロジェクト"
 msgid "User"
 msgstr "ユーザー"
 
-#: bookmarks/models.py:13 builds/models.py:292
+#: bookmarks/models.py:13 builds/models.py:299
 msgid "Date"
 msgstr "日付"
 
@@ -61,42 +61,50 @@ msgid "Triggered"
 msgstr ""
 
 #: builds/constants.py:5
+msgid "Cloning"
+msgstr ""
+
+#: builds/constants.py:6
+msgid "Installing"
+msgstr ""
+
+#: builds/constants.py:7
 msgid "Building"
 msgstr "ビルドしています"
 
-#: builds/constants.py:6
+#: builds/constants.py:8
 msgid "Finished"
 msgstr "完了"
 
-#: builds/constants.py:10
+#: builds/constants.py:12
 msgid "HTML"
 msgstr "HTML"
 
-#: builds/constants.py:11
+#: builds/constants.py:13
 msgid "PDF"
 msgstr "PDF"
 
-#: builds/constants.py:12
+#: builds/constants.py:14
 msgid "Epub"
 msgstr "Epub"
 
-#: builds/constants.py:13
+#: builds/constants.py:15
 msgid "Manpage"
 msgstr "Manpage"
 
-#: builds/constants.py:14
+#: builds/constants.py:16
 msgid "Dash"
 msgstr "Dash"
 
-#: builds/constants.py:18
+#: builds/constants.py:20
 msgid "Branch"
 msgstr "ブランチ"
 
-#: builds/constants.py:19 builds/filters.py:19
+#: builds/constants.py:21 builds/filters.py:19
 msgid "Tag"
 msgstr "タグ"
 
-#: builds/constants.py:20
+#: builds/constants.py:22
 msgid "Unknown"
 msgstr "不明"
 
@@ -104,122 +112,122 @@ msgstr "不明"
 msgid "Any"
 msgstr "すべて"
 
-#: builds/filters.py:17 builds/filters.py:30 projects/filters.py:31
-#: projects/models.py:102 projects/models.py:803
+#: builds/filters.py:17 builds/filters.py:29 projects/filters.py:31
+#: projects/models.py:102 projects/models.py:810
 msgid "Name"
 msgstr "名前"
 
-#: builds/filters.py:39
+#: builds/filters.py:38
 msgid "Build Date"
 msgstr "ビルド時刻"
 
-#: builds/filters.py:40
+#: builds/filters.py:39
 msgid "Build Type"
 msgstr "ビルド種類"
 
-#: builds/models.py:85 builds/models.py:288
+#: builds/models.py:86 builds/models.py:295
 msgid "Type"
 msgstr "種類"
 
-#: builds/models.py:89
+#: builds/models.py:90
 msgid "Identifier"
 msgstr "識別子"
 
-#: builds/models.py:91
+#: builds/models.py:92
 msgid "Verbose Name"
 msgstr "長い名前"
 
-#: builds/models.py:92 projects/filters.py:33 projects/models.py:103
-#: projects/models.py:804
+#: builds/models.py:93 projects/filters.py:33 projects/models.py:103
+#: projects/models.py:811
 msgid "Slug"
 msgstr "スラグ"
 
-#: builds/models.py:94
+#: builds/models.py:95
 msgid "Supported"
 msgstr ""
 
-#: builds/models.py:95 templates/projects/project_versions.html:46
+#: builds/models.py:96 templates/projects/project_versions.html:46
 msgid "Active"
 msgstr "有効"
 
-#: builds/models.py:96 templates/projects/includes/icon_built.html:4
+#: builds/models.py:97 templates/projects/includes/icon_built.html:4
 msgid "Built"
 msgstr "ビルド済み"
 
-#: builds/models.py:97 templates/projects/includes/icon_built.html:7
+#: builds/models.py:98 templates/projects/includes/icon_built.html:7
 msgid "Uploaded"
 msgstr "アップロード"
 
-#: builds/models.py:99 projects/models.py:195
+#: builds/models.py:100 projects/models.py:195
 msgid "Privacy Level"
 msgstr "プライバシーレベル"
 
-#: builds/models.py:100
+#: builds/models.py:101
 msgid "Level of privacy for this Version."
 msgstr "このバージョンのプライバシーレベル"
 
 #. Translators: Permission around whether a user can view the
 #. version
-#: builds/models.py:111
+#: builds/models.py:112
 msgid "View Version"
 msgstr "バージョンを見る"
 
-#: builds/models.py:115
+#: builds/models.py:116
 #, python-format
 msgid "Version %(version)s of %(project)s (%(pk)s)"
 msgstr "%(project)s (%(pk)s)　のバージョン %(version)s"
 
-#: builds/models.py:270
+#: builds/models.py:277
 msgid "From slug"
 msgstr "スラグから"
 
-#: builds/models.py:271
+#: builds/models.py:278
 msgid "To slug"
 msgstr "スラグへ"
 
-#: builds/models.py:273
+#: builds/models.py:280
 msgid "Largest"
 msgstr "最大"
 
-#: builds/models.py:276
+#: builds/models.py:283
 #, python-format
 msgid "Alias for %(project)s: %(from)s -> %(to)s"
 msgstr "%(project)s の別名: %(from)s -> %(to)s"
 
-#: builds/models.py:286 projects/models.py:119 projects/models.py:801
+#: builds/models.py:293 projects/models.py:119 projects/models.py:808
 #: templates/djangome/oneoffs.html:11
 msgid "Version"
 msgstr "バージョン"
 
-#: builds/models.py:290
+#: builds/models.py:297
 msgid "State"
 msgstr "状態"
 
-#: builds/models.py:293
+#: builds/models.py:300
 msgid "Success"
 msgstr "成功"
 
-#: builds/models.py:294
+#: builds/models.py:302
 msgid "Setup"
 msgstr "設定"
 
-#: builds/models.py:295
+#: builds/models.py:303
 msgid "Setup error"
 msgstr "設定エラー"
 
-#: builds/models.py:296
+#: builds/models.py:304
 msgid "Output"
 msgstr "出力"
 
-#: builds/models.py:297
+#: builds/models.py:305
 msgid "Error"
 msgstr "エラー"
 
-#: builds/models.py:298
+#: builds/models.py:306
 msgid "Exit code"
 msgstr "終了コード"
 
-#: builds/models.py:306
+#: builds/models.py:314
 #, python-format
 msgid "Build %(project)s for %(usernames)s (%(pk)s)"
 msgstr "%(usernames)s (%(pk)s)  の %(project)s をビルドする"
@@ -576,7 +584,7 @@ msgstr ""
 "Google AnalyticsのトラッキングID(例: UA-22345342-1)。 これはページの読み込み"
 "を遅くする場合があります。"
 
-#: projects/models.py:163 projects/models.py:805
+#: projects/models.py:163 projects/models.py:812
 msgid "Path"
 msgstr "パス"
 
@@ -697,18 +705,13 @@ msgstr "プロジェクトを見る"
 msgid "Model must have slug"
 msgstr "モデルはスラグを持つ必要があります。"
 
-#: projects/models.py:806
+#: projects/models.py:813
 msgid "MD5 checksum"
 msgstr "MD5チェックサム"
 
-#: projects/models.py:834
+#: projects/models.py:841
 msgid "URL to send the webhook to"
 msgstr "webhookを送るURL"
-
-#: projects/tasks.py:832
-#, python-format
-msgid "(ReadTheDocs) Building docs for %s failed"
-msgstr "(ReadTheDocs) %s ドキュメントのビルドが失敗しました"
 
 #: settings/base.py:55
 msgid "English"
@@ -745,6 +748,19 @@ msgstr "ベトナム語"
 #: settings/base.py:63
 msgid "Chinese"
 msgstr "中国語"
+
+#: settings/base.py:64
+#, fuzzy
+msgid "Taiwanese"
+msgstr "中国語"
+
+#: settings/base.py:65
+msgid "Japanese"
+msgstr ""
+
+#: settings/base.py:66
+msgid "Ukrainian"
+msgstr ""
 
 #: templates/404.html:5
 msgid "Maze Found"
@@ -2228,3 +2244,6 @@ msgid ""
 msgstr ""
 "検索はどのドキュメントにも一致しませんでした。文字が正確に入力されているか、"
 "十分なカテゴリーを選択しているか確認して下さい。"
+
+#~ msgid "(ReadTheDocs) Building docs for %s failed"
+#~ msgstr "(ReadTheDocs) %s ドキュメントのビルドが失敗しました"

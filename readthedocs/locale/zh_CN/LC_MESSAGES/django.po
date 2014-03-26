@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-07 03:08-0600\n"
+"POT-Creation-Date: 2014-03-26 05:35-0500\n"
 "PO-Revision-Date: 2014-02-28 15:14+0000\n"
 "Last-Translator: wlbksy <kookbond@gmail.com>\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/projects/p/"
@@ -30,8 +30,8 @@ msgstr "抱歉，在那个页面上没有结果。"
 msgid "Invalid resource lookup data provided (mismatched type).: %(error)s"
 msgstr ""
 
-#: bookmarks/models.py:9 builds/models.py:82 builds/models.py:268
-#: builds/models.py:284 projects/models.py:799
+#: bookmarks/models.py:9 builds/models.py:83 builds/models.py:275
+#: builds/models.py:291 projects/models.py:806
 msgid "Project"
 msgstr "项目"
 
@@ -39,7 +39,7 @@ msgstr "项目"
 msgid "User"
 msgstr "用户"
 
-#: bookmarks/models.py:13 builds/models.py:292
+#: bookmarks/models.py:13 builds/models.py:299
 msgid "Date"
 msgstr "日期"
 
@@ -62,42 +62,50 @@ msgid "Triggered"
 msgstr "已触发"
 
 #: builds/constants.py:5
+msgid "Cloning"
+msgstr ""
+
+#: builds/constants.py:6
+msgid "Installing"
+msgstr ""
+
+#: builds/constants.py:7
 msgid "Building"
 msgstr "构建中"
 
-#: builds/constants.py:6
+#: builds/constants.py:8
 msgid "Finished"
 msgstr "已完成"
 
-#: builds/constants.py:10
+#: builds/constants.py:12
 msgid "HTML"
 msgstr "HTML"
 
-#: builds/constants.py:11
+#: builds/constants.py:13
 msgid "PDF"
 msgstr "PDF"
 
-#: builds/constants.py:12
+#: builds/constants.py:14
 msgid "Epub"
 msgstr "Epub"
 
-#: builds/constants.py:13
+#: builds/constants.py:15
 msgid "Manpage"
 msgstr "Manpage"
 
-#: builds/constants.py:14
+#: builds/constants.py:16
 msgid "Dash"
 msgstr "Dash"
 
-#: builds/constants.py:18
+#: builds/constants.py:20
 msgid "Branch"
 msgstr "分支"
 
-#: builds/constants.py:19 builds/filters.py:19
+#: builds/constants.py:21 builds/filters.py:19
 msgid "Tag"
 msgstr "标签"
 
-#: builds/constants.py:20
+#: builds/constants.py:22
 msgid "Unknown"
 msgstr "未知"
 
@@ -105,122 +113,122 @@ msgstr "未知"
 msgid "Any"
 msgstr "任何"
 
-#: builds/filters.py:17 builds/filters.py:30 projects/filters.py:31
-#: projects/models.py:102 projects/models.py:803
+#: builds/filters.py:17 builds/filters.py:29 projects/filters.py:31
+#: projects/models.py:102 projects/models.py:810
 msgid "Name"
 msgstr "名称"
 
-#: builds/filters.py:39
+#: builds/filters.py:38
 msgid "Build Date"
 msgstr "构建日期"
 
-#: builds/filters.py:40
+#: builds/filters.py:39
 msgid "Build Type"
 msgstr "构建类型"
 
-#: builds/models.py:85 builds/models.py:288
+#: builds/models.py:86 builds/models.py:295
 msgid "Type"
 msgstr "类型"
 
-#: builds/models.py:89
+#: builds/models.py:90
 msgid "Identifier"
 msgstr "标识符"
 
-#: builds/models.py:91
+#: builds/models.py:92
 msgid "Verbose Name"
 msgstr "长名字"
 
-#: builds/models.py:92 projects/filters.py:33 projects/models.py:103
-#: projects/models.py:804
+#: builds/models.py:93 projects/filters.py:33 projects/models.py:103
+#: projects/models.py:811
 msgid "Slug"
 msgstr "Slug"
 
-#: builds/models.py:94
+#: builds/models.py:95
 msgid "Supported"
 msgstr "支持的"
 
-#: builds/models.py:95 templates/projects/project_versions.html:46
+#: builds/models.py:96 templates/projects/project_versions.html:46
 msgid "Active"
 msgstr "激活"
 
-#: builds/models.py:96 templates/projects/includes/icon_built.html:4
+#: builds/models.py:97 templates/projects/includes/icon_built.html:4
 msgid "Built"
 msgstr "构建"
 
-#: builds/models.py:97 templates/projects/includes/icon_built.html:7
+#: builds/models.py:98 templates/projects/includes/icon_built.html:7
 msgid "Uploaded"
 msgstr "已上传"
 
-#: builds/models.py:99 projects/models.py:195
+#: builds/models.py:100 projects/models.py:195
 msgid "Privacy Level"
 msgstr "隐私级别"
 
-#: builds/models.py:100
+#: builds/models.py:101
 msgid "Level of privacy for this Version."
 msgstr "当前版本的隐私级别。"
 
 #. Translators: Permission around whether a user can view the
 #. version
-#: builds/models.py:111
+#: builds/models.py:112
 msgid "View Version"
 msgstr "查看版本"
 
-#: builds/models.py:115
+#: builds/models.py:116
 #, python-format
 msgid "Version %(version)s of %(project)s (%(pk)s)"
 msgstr "%(project)s 的 %(version)s 版本 (%(pk)s)"
 
-#: builds/models.py:270
+#: builds/models.py:277
 msgid "From slug"
 msgstr ""
 
-#: builds/models.py:271
+#: builds/models.py:278
 msgid "To slug"
 msgstr ""
 
-#: builds/models.py:273
+#: builds/models.py:280
 msgid "Largest"
 msgstr "最大"
 
-#: builds/models.py:276
+#: builds/models.py:283
 #, python-format
 msgid "Alias for %(project)s: %(from)s -> %(to)s"
 msgstr "%(project)s 的别名: %(from)s -> %(to)s"
 
-#: builds/models.py:286 projects/models.py:119 projects/models.py:801
+#: builds/models.py:293 projects/models.py:119 projects/models.py:808
 #: templates/djangome/oneoffs.html:11
 msgid "Version"
 msgstr "版本"
 
-#: builds/models.py:290
+#: builds/models.py:297
 msgid "State"
 msgstr "状态"
 
-#: builds/models.py:293
+#: builds/models.py:300
 msgid "Success"
 msgstr "成功"
 
-#: builds/models.py:294
+#: builds/models.py:302
 msgid "Setup"
 msgstr "安装"
 
-#: builds/models.py:295
+#: builds/models.py:303
 msgid "Setup error"
 msgstr "安装错误"
 
-#: builds/models.py:296
+#: builds/models.py:304
 msgid "Output"
 msgstr "输出"
 
-#: builds/models.py:297
+#: builds/models.py:305
 msgid "Error"
 msgstr "错误"
 
-#: builds/models.py:298
+#: builds/models.py:306
 msgid "Exit code"
 msgstr "退出码"
 
-#: builds/models.py:306
+#: builds/models.py:314
 #, python-format
 msgid "Build %(project)s for %(usernames)s (%(pk)s)"
 msgstr "为 %(usernames)s 构建 %(project)s (%(pk)s)"
@@ -571,7 +579,7 @@ msgid ""
 "page loads."
 msgstr "Google 分析追踪 ID（如：UA-22345342-1）。这可能导致页面加载变慢。"
 
-#: projects/models.py:163 projects/models.py:805
+#: projects/models.py:163 projects/models.py:812
 msgid "Path"
 msgstr "路径"
 
@@ -679,18 +687,13 @@ msgstr "查看项目"
 msgid "Model must have slug"
 msgstr ""
 
-#: projects/models.py:806
+#: projects/models.py:813
 msgid "MD5 checksum"
 msgstr "MD5 校验码"
 
-#: projects/models.py:834
+#: projects/models.py:841
 msgid "URL to send the webhook to"
 msgstr "URL 用来发送 webhook 到"
-
-#: projects/tasks.py:832
-#, python-format
-msgid "(ReadTheDocs) Building docs for %s failed"
-msgstr "(ReadTheDocs) 为 %s 构建文档失败"
 
 #: settings/base.py:55
 msgid "English"
@@ -727,6 +730,19 @@ msgstr "越南语"
 #: settings/base.py:63
 msgid "Chinese"
 msgstr "中文"
+
+#: settings/base.py:64
+#, fuzzy
+msgid "Taiwanese"
+msgstr "中文"
+
+#: settings/base.py:65
+msgid "Japanese"
+msgstr ""
+
+#: settings/base.py:66
+msgid "Ukrainian"
+msgstr ""
 
 #: templates/404.html:5
 msgid "Maze Found"
@@ -2176,3 +2192,6 @@ msgid ""
 "spelled correctly and that you've selected enough categories."
 msgstr ""
 "您的搜索未匹配任何文档。请确保所有的单词都拼写正确并且选中了足够多的分类。"
+
+#~ msgid "(ReadTheDocs) Building docs for %s failed"
+#~ msgstr "(ReadTheDocs) 为 %s 构建文档失败"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-07 03:07-0600\n"
+"POT-Creation-Date: 2014-03-26 05:35-0500\n"
 "PO-Revision-Date: 2014-01-06 14:59+0000\n"
 "Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
 "Language-Team: Galician (http://www.transifex.com/projects/p/readthedocs/"
@@ -28,8 +28,8 @@ msgstr "Sentímolo, non hai resultados nesa páxina."
 msgid "Invalid resource lookup data provided (mismatched type).: %(error)s"
 msgstr ""
 
-#: bookmarks/models.py:9 builds/models.py:82 builds/models.py:268
-#: builds/models.py:284 projects/models.py:799
+#: bookmarks/models.py:9 builds/models.py:83 builds/models.py:275
+#: builds/models.py:291 projects/models.py:806
 msgid "Project"
 msgstr "Proxecto"
 
@@ -37,7 +37,7 @@ msgstr "Proxecto"
 msgid "User"
 msgstr "Usuario"
 
-#: bookmarks/models.py:13 builds/models.py:292
+#: bookmarks/models.py:13 builds/models.py:299
 msgid "Date"
 msgstr "Data"
 
@@ -60,42 +60,50 @@ msgid "Triggered"
 msgstr ""
 
 #: builds/constants.py:5
+msgid "Cloning"
+msgstr ""
+
+#: builds/constants.py:6
+msgid "Installing"
+msgstr ""
+
+#: builds/constants.py:7
 msgid "Building"
 msgstr "Compilando"
 
-#: builds/constants.py:6
+#: builds/constants.py:8
 msgid "Finished"
 msgstr "Finalizada"
 
-#: builds/constants.py:10
+#: builds/constants.py:12
 msgid "HTML"
 msgstr "HTML"
 
-#: builds/constants.py:11
+#: builds/constants.py:13
 msgid "PDF"
 msgstr "PDF"
 
-#: builds/constants.py:12
+#: builds/constants.py:14
 msgid "Epub"
 msgstr "Epub"
 
-#: builds/constants.py:13
+#: builds/constants.py:15
 msgid "Manpage"
 msgstr "Páxina man"
 
-#: builds/constants.py:14
+#: builds/constants.py:16
 msgid "Dash"
 msgstr ""
 
-#: builds/constants.py:18
+#: builds/constants.py:20
 msgid "Branch"
 msgstr ""
 
-#: builds/constants.py:19 builds/filters.py:19
+#: builds/constants.py:21 builds/filters.py:19
 msgid "Tag"
 msgstr ""
 
-#: builds/constants.py:20
+#: builds/constants.py:22
 msgid "Unknown"
 msgstr ""
 
@@ -103,122 +111,122 @@ msgstr ""
 msgid "Any"
 msgstr "Calquera"
 
-#: builds/filters.py:17 builds/filters.py:30 projects/filters.py:31
-#: projects/models.py:102 projects/models.py:803
+#: builds/filters.py:17 builds/filters.py:29 projects/filters.py:31
+#: projects/models.py:102 projects/models.py:810
 msgid "Name"
 msgstr "Nome"
 
-#: builds/filters.py:39
+#: builds/filters.py:38
 msgid "Build Date"
 msgstr "Data de xeración"
 
-#: builds/filters.py:40
+#: builds/filters.py:39
 msgid "Build Type"
 msgstr "Tipo de xeración"
 
-#: builds/models.py:85 builds/models.py:288
+#: builds/models.py:86 builds/models.py:295
 msgid "Type"
 msgstr "Tipo"
 
-#: builds/models.py:89
+#: builds/models.py:90
 msgid "Identifier"
 msgstr "Identificador"
 
-#: builds/models.py:91
+#: builds/models.py:92
 msgid "Verbose Name"
 msgstr "Nome detallado"
 
-#: builds/models.py:92 projects/filters.py:33 projects/models.py:103
-#: projects/models.py:804
+#: builds/models.py:93 projects/filters.py:33 projects/models.py:103
+#: projects/models.py:811
 msgid "Slug"
 msgstr "Slug"
 
-#: builds/models.py:94
+#: builds/models.py:95
 msgid "Supported"
 msgstr ""
 
-#: builds/models.py:95 templates/projects/project_versions.html:46
+#: builds/models.py:96 templates/projects/project_versions.html:46
 msgid "Active"
 msgstr "Activa"
 
-#: builds/models.py:96 templates/projects/includes/icon_built.html:4
+#: builds/models.py:97 templates/projects/includes/icon_built.html:4
 msgid "Built"
 msgstr "Xerada"
 
-#: builds/models.py:97 templates/projects/includes/icon_built.html:7
+#: builds/models.py:98 templates/projects/includes/icon_built.html:7
 msgid "Uploaded"
 msgstr "Subido"
 
-#: builds/models.py:99 projects/models.py:195
+#: builds/models.py:100 projects/models.py:195
 msgid "Privacy Level"
 msgstr ""
 
-#: builds/models.py:100
+#: builds/models.py:101
 msgid "Level of privacy for this Version."
 msgstr ""
 
 #. Translators: Permission around whether a user can view the
 #. version
-#: builds/models.py:111
+#: builds/models.py:112
 msgid "View Version"
 msgstr "Ver a versión"
 
-#: builds/models.py:115
+#: builds/models.py:116
 #, python-format
 msgid "Version %(version)s of %(project)s (%(pk)s)"
 msgstr "Versión %(version)s de %(project)s (%(pk)s)"
 
-#: builds/models.py:270
+#: builds/models.py:277
 msgid "From slug"
 msgstr "Do slug"
 
-#: builds/models.py:271
+#: builds/models.py:278
 msgid "To slug"
 msgstr "Para o slug"
 
-#: builds/models.py:273
+#: builds/models.py:280
 msgid "Largest"
 msgstr "Meirande"
 
-#: builds/models.py:276
+#: builds/models.py:283
 #, python-format
 msgid "Alias for %(project)s: %(from)s -> %(to)s"
 msgstr "Alias para %(project)s: %(from)s -> %(to)s"
 
-#: builds/models.py:286 projects/models.py:119 projects/models.py:801
+#: builds/models.py:293 projects/models.py:119 projects/models.py:808
 #: templates/djangome/oneoffs.html:11
 msgid "Version"
 msgstr "Versión"
 
-#: builds/models.py:290
+#: builds/models.py:297
 msgid "State"
 msgstr "Estado"
 
-#: builds/models.py:293
+#: builds/models.py:300
 msgid "Success"
 msgstr "Éxito"
 
-#: builds/models.py:294
+#: builds/models.py:302
 msgid "Setup"
 msgstr ""
 
-#: builds/models.py:295
+#: builds/models.py:303
 msgid "Setup error"
 msgstr ""
 
-#: builds/models.py:296
+#: builds/models.py:304
 msgid "Output"
 msgstr "Saída"
 
-#: builds/models.py:297
+#: builds/models.py:305
 msgid "Error"
 msgstr "Erro"
 
-#: builds/models.py:298
+#: builds/models.py:306
 msgid "Exit code"
 msgstr ""
 
-#: builds/models.py:306
+#: builds/models.py:314
 #, python-format
 msgid "Build %(project)s for %(usernames)s (%(pk)s)"
 msgstr ""
@@ -564,7 +572,7 @@ msgid ""
 "page loads."
 msgstr ""
 
-#: projects/models.py:163 projects/models.py:805
+#: projects/models.py:163 projects/models.py:812
 msgid "Path"
 msgstr "Ruta"
 
@@ -674,17 +682,12 @@ msgstr "Ver o proxecto"
 msgid "Model must have slug"
 msgstr "O modelo debe ter un slug"
 
-#: projects/models.py:806
+#: projects/models.py:813
 msgid "MD5 checksum"
 msgstr "Suma de comprobación MD5"
 
-#: projects/models.py:834
+#: projects/models.py:841
 msgid "URL to send the webhook to"
-msgstr ""
-
-#: projects/tasks.py:832
-#, python-format
-msgid "(ReadTheDocs) Building docs for %s failed"
 msgstr ""
 
 #: settings/base.py:55
@@ -723,6 +726,18 @@ msgstr "Nome"
 
 #: settings/base.py:63
 msgid "Chinese"
+msgstr ""
+
+#: settings/base.py:64
+msgid "Taiwanese"
+msgstr ""
+
+#: settings/base.py:65
+msgid "Japanese"
+msgstr ""
+
+#: settings/base.py:66
+msgid "Ukrainian"
 msgstr ""
 
 #: templates/404.html:5
