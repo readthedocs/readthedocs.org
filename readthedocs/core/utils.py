@@ -31,7 +31,7 @@ def copy(path, target, file=False):
                 slash = "/"
             # Add a slash when copying directories
             sync_cmd = ("rsync -e 'ssh -T' -av --delete %s%s %s@%s:%s"
-                        % (full_build_path, slash, SYNC_USER, server, target))
+                        % (path, slash, SYNC_USER, server, target))
             ret = os.system(sync_cmd)
             if ret != 0:
                 log.error("COPY ERROR to app servers.")
