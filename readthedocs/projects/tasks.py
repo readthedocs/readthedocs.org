@@ -439,7 +439,7 @@ def build_docs(version, pdf, man, epub, dash, search, localmedia, force):
                     #if pdf_results[0] == 0:
                     pdf_builder.move()
                 else:
-                    results['pdf'] = results['latex'] = fake_results
+                    results['pdf'] = fake_results
                 if epub:
                     epub_builder = builder_loading.get('sphinx_epub')(version)
                     results['epub'] = epub_builder.build()
@@ -552,7 +552,7 @@ def record_build(api, record, build, results, state):
         return None
 
     setup_steps = ['checkout', 'venv', 'sphinx', 'requirements', 'install']
-    output_steps = ['html', 'epub']
+    output_steps = ['html']
     all_steps = setup_steps + output_steps
 
     build['state'] = state
@@ -597,8 +597,6 @@ def record_pdf(api, record, results, state, version):
             version='/api/v1/version/%s/' % version.pk,
             success=results['pdf'][0] == 0,
             type='pdf',
-            setup=results['latex'][1],
-            setup_error=results['latex'][2],
             output=results['pdf'][1],
             error=results['pdf'][2],
             exit_code=results['pdf'][0],
