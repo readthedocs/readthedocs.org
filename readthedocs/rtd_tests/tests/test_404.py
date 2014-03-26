@@ -23,7 +23,7 @@ class Testmaker(TestCase):
     def test_project_does_not_exist(self):
         # Case 1-4: Project doesn't exist
         r = self.client.get('/docs/nonexistent_proj/en/nonexistent_dir/subdir/bogus.html')
-        self.assertContains(r, '<p>What are you looking for???</p>', status_code=404, html=False)
+        self.assertContains(r, '''<p>We're sorry, we don't know what you're looking for</p>''', status_code=404, html=False)
 
     def test_only_project_exist(self):
         # Case 5: Project exists but both of version and language are not available
