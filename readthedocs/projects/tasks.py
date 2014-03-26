@@ -542,6 +542,12 @@ def create_build(version, api, record):
     return build
 
 def record_build(api, record, build, results, state):
+    """
+    Record a build by hitting the API.
+
+    Returns nothing
+    """
+    
     if not record:
         return None
 
@@ -576,8 +582,10 @@ def record_build(api, record, build, results, state):
             build['output'] += results.get(step)[1]
             build['error'] += "\n\n%s\n-----\n\n" % step
             build['error'] += results.get(step)[2]
-    ret = api.build(build['id']).put(build)
-    return ret
+    try:
+        ret = api.build(build['id']).put(build)
+    except Exception, e:
+        log.error(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Unable to post a new build"), exc_info=True)
 
 def record_pdf(api, record, results, state, version):
     if not record:
