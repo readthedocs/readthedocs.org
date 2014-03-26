@@ -393,7 +393,7 @@ def build_docs(version, pdf, man, epub, dash, search, localmedia, force):
     results = {}
 
     if 'sphinx' in project.documentation_type and not project.conf_file(version.slug):
-        results['html'] = (0, 'Conf file not found.', '')
+        results['html'] = (999, 'Conf file not found.', '')
         return results
 
     with project.repo_lock(version, getattr(settings, 'REPO_LOCK_SECONDS', 30)):
@@ -574,14 +574,14 @@ def record_build(api, record, build, results, state):
     build['output'] = build['error'] = ""
 
     for step in setup_steps:
-        if results.get(step, False):
+        if step in results:
             build['setup'] += "\n\n%s\n-----\n\n" % step
             build['setup'] += results.get(step)[1]
             build['setup_error'] += "\n\n%s\n-----\n\n" % step
             build['setup_error'] += results.get(step)[2]
 
     for step in output_steps:
-        if results.get(step, False):
+        if step in results:
             build['output'] += "\n\n%s\n-----\n\n" % step
             build['output'] += results.get(step)[1]
             build['error'] += "\n\n%s\n-----\n\n" % step
