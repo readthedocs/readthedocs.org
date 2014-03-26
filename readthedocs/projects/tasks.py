@@ -556,13 +556,16 @@ def record_build(api, record, build, results, state):
     all_steps = setup_steps + output_steps
 
     build['state'] = state
-    build['success'] = True
+    if 'html' in results:
+        build['success'] = results['html'][0] == 0
+    else:
+        build['success'] = False
 
-    # Set global state
-    for step in all_steps:
-        if results.get(step, False):
-            if results.get(step)[0] != 0:
-                results['success'] = False
+    # # Set global state
+    # for step in all_steps:
+    #     if results.get(step, False):
+    #         if results.get(step)[0] != 0:
+    #             results['success'] = False
 
     build['exit_code'] = max([results.get(step, [0])[0] for step in all_steps])
 
