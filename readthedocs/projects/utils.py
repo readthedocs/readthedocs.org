@@ -23,16 +23,21 @@ def version_from_slug(slug, version):
         version_data = api.version().get(project=slug, slug=version)['results'][0]
         v = tasks.make_api_version(version_data)
     else:
-        v = Version.objects.get(project__slug=project, slug=version)
+        v = Version.objects.get(project__slug=slug, slug=version)
     return v
 
 def symlink(project, version='latest'):
-    from projects import tasks
+    from projects import symlinks
     v = version_from_slug(project, version)
     log.info("Symlinking %s" % v)
-    tasks.symlink_subprojects(v)
-    tasks.symlink_cnames(v)
-    tasks.symlink_translations(v)
+    symlinks.symlink_subprojects(v)
+    symlinks.symlink_cnames(v)
+    symlinks.symlink_translations(v)
+
+def update_static_metadata(project_pk):
+    from projects import tasks
+    log.info("Updating static metadata")
+    tasks.update_static_metadata(project_pk)
 
 def find_file(file):
     """Find matching filenames in the current directory and its subdirectories,

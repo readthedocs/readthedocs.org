@@ -7,6 +7,7 @@ import time
 env.runtime = 'production'
 env.hosts = ['newchimera.readthedocs.com',
              'newbuild.readthedocs.com',
+             'bari.readthedocs.com',
              'newasgard.readthedocs.com']
 env.user = 'docs'
 env.code_dir = '/home/docs/checkouts/readthedocs.org'
@@ -29,7 +30,7 @@ def nginx_logs():
     env.user = "root"
     run("tail -F /var/log/nginx/*.log")
 
-@hosts(['newbuild.readthedocs.com'])
+@hosts(['newbuild.readthedocs.com', 'bari.readthedocs.com'])
 def celery_logs():
     env.user = "docs"
     run("tail -F tail -f ~/log/celery.err")
@@ -74,6 +75,16 @@ def i18n():
         local('./manage.py makemessages --all')
         local('tx push -s')
         local('./manage.py compilemessages')
+
+@hosts(['localhost'])
+def i18n_docs():
+    with lcd('docs'):
+        # Update our tanslations
+        local('tx pull -a')
+        local('sphinx-intl build')
+        # Push new ones
+        local('make gettext')
+        local('tx push -s')
 
 
 def push():
@@ -121,7 +132,7 @@ def reload():
     run("supervisorctl update")
 
 
-@hosts(['newbuild.readthedocs.com'])
+@hosts(['newbuild.readthedocs.com', 'bari.readthedocs.com'])
 def celery():
     "Restart (or just start) the server"
     run("supervisorctl restart celery")

@@ -1,6 +1,7 @@
 import logging
 import os
 import time
+import stat
 
 log = logging.getLogger(__name__)
 
@@ -15,15 +16,21 @@ class Lock(object):
     If we're in the same thread as the one holding this lock, ignore the lock.
     """
 
-    def __init__(self, project, timeout=5, polling_interval=0.1):
+    def __init__(self, project, version, timeout=5, polling_interval=0.1):
         self.name = project.slug
-        self.fpath = os.path.join(project.doc_path, 'rtdlock')
+        self.fpath = os.path.join(project.doc_path, '%s__rtdlock' % version.slug)
         self.timeout = timeout
         self.polling_interval = polling_interval
 
     def __enter__(self):
         start = time.time()
         while os.path.exists(self.fpath):
+            lock_age = time.time() - os.stat(self.fpath)[stat.ST_MTIME]
+            if lock_age > self.timeout:
+                log.info("Lock (%s): Force unlock, old lockfile" %
+                         self.name)
+                os.remove(self.fpath)
+                break
             log.info("Lock (%s): Locked, waiting.." % self.name)
             time.sleep(self.polling_interval)
             timesince = time.time() - start

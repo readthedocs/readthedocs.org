@@ -1,0 +1,112 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2010, Eric Holscher, Charlie Leifer, Bobby Grace
+# This file is distributed under the same license as the Read The Docs package.
+# 
+# Translators:
+msgid ""
+msgstr ""
+"Project-Id-Version: readthedocs-docs\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-03-01 22:07+0800\n"
+"PO-Revision-Date: 2014-03-01 13:42+0000\n"
+"Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
+"Language-Team: Spanish (http://www.transifex.com/projects/p/readthedocs-docs/language/es/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: es\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# 62b01e08f4134d68b9f406f50b721cfc
+#: ../../theme.rst:2
+msgid "Read the Docs Theme"
+msgstr ""
+
+# 49f77e84ab644198bea74d804e8293f2
+#: ../../theme.rst:6
+msgid ""
+"By default, Read the Docs will use its own custom sphinx theme unless you "
+"set one yourself in your ``conf.py`` file. Likewise, setting the theme to "
+"``default`` will accomplish the same behavior. The theme can be found on "
+"`github here`_ and is meant to work independently of Read the Docs itself if"
+" you want to just use the theme locally."
+msgstr ""
+
+# 3c0bfefc3fde4df6915d8884500ef885
+#: ../../theme.rst:11
+msgid ""
+"This `blog post`_ provides some info about the design, but in short, the "
+"theme aims to solve the limitations of Sphinx's default navigation setup, "
+"where only a small portion of your docs were accessible in the sidebar. Our "
+"theme is also meant to work well on mobile and tablet devices."
+msgstr ""
+
+# c06f30e1256447b3be99c3334092ff36
+#: ../../theme.rst:17
+msgid "Contributing to the theme"
+msgstr ""
+
+# 05b6c8d8394f4dbea6cf537edb153a4d
+#: ../../theme.rst:18
+msgid ""
+"If you have issues or feedback, please `open an issue`_ on the theme's "
+"GitHub repository which itself is a submodule within the larger RTD "
+"codebase. That means any changes to the theme or the Read the Docs badge "
+"styling should be made there. The code is separate so that it can be used "
+"independent of Read the Docs as a regular Sphinx theme."
+msgstr ""
+
+# 4bdd61c9bb6b453bab097298166ae443
+#: ../../theme.rst:24
+msgid "How the Table of Contents builds"
+msgstr ""
+
+# 9f48d1375be2472e9f4402ab3f76981f
+#: ../../theme.rst:26
+msgid ""
+"Currently the left menu will build based upon any ``toctree(s)`` defined in "
+"your ``index.rst`` file. It outputs 2 levels of depth, which should give "
+"your visitors a high level of access to your docs. If no toctrees are set in"
+" your index.rst file the theme reverts to sphinx's usual local toctree which"
+" is based upon the heading set on your current page."
+msgstr ""
+
+# 70759ce98c2f43c6bbd51ee0b8f1391d
+#: ../../theme.rst:31
+msgid ""
+"It's important to note that if you don't follow the same styling for your "
+"rST headers across your documents, the toctree will misbuild, and the "
+"resulting menu might not show the correct depth when it renders."
+msgstr ""
+
+# bce9bdaf31a64f558c217376587a4cca
+#: ../../theme.rst:36
+msgid "Other style notes"
+msgstr ""
+
+# c128eecd85e44702bc5c454504cffb2e
+#: ../../theme.rst:38
+msgid ""
+"As a responsive style, you should not set a height and width to your images."
+msgstr ""
+
+# 20a6219be1bb435299c20db3455d0238
+#: ../../theme.rst:39
+msgid ""
+"Wide tables will add a horizontal scroll bar to maintain the responsive "
+"layout."
+msgstr ""
+
+# af868dc278894e37a41fb47a24b2d96b
+#: ../../theme.rst:46
+msgid "How do I use this locally, *and* on Read the Docs?"
+msgstr ""
+
+# 90d8fb16e0b74c21880dc2b19c211a9d
+#: ../../theme.rst:48
+msgid ""
+"Unfortunately, at the moment Read the Docs can't handle importing "
+"``sphinx_rtd_theme``, so if you try to use that theme for building on both "
+"Read the Docs and locally, it will fail. To build it locally, and on Read "
+"the Docs::"
+msgstr ""

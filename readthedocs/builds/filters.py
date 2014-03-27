@@ -25,8 +25,7 @@ class VersionSlugFilter(django_filters.FilterSet):
 
 
 class VersionFilter(django_filters.FilterSet):
-    project = django_filters.CharFilter(name='project__name',
-                                        lookup_type="icontains")
+    project = django_filters.CharFilter(name='project__slug')
     slug = django_filters.CharFilter(label=_("Name"), name='slug',
                                      lookup_type='icontains')
 

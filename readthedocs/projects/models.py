@@ -17,7 +17,8 @@ from betterversion.better import version_windows, BetterVersion
 from projects import constants
 from projects.exceptions import ProjectImportError
 from projects.templatetags.projects_tags import sort_version_aware
-from projects.utils import highest_version as _highest, make_api_version, symlink
+from projects.utils import (highest_version as _highest, make_api_version,
+                            symlink, update_static_metadata)
 from taggit.managers import TaggableManager
 from tastyapi.slum import api
 
@@ -45,7 +46,7 @@ class ProjectManager(models.Manager):
             # Add in possible user-specific views
             user_queryset = get_objects_for_user(user, 'projects.view_project')
             queryset = user_queryset | queryset
-        return queryset.filter(skip=False)
+        return queryset.filter()
 
     def live(self, *args, **kwargs):
         base_qs = self.filter(skip=False)
@@ -53,14 +54,14 @@ class ProjectManager(models.Manager):
 
     def public(self, user=None, *args, **kwargs):
         """
-        Query for projects, privacy_level == public, and skip = False
+        Query for projects, privacy_level == public
         """
         queryset = self._filter_queryset(user, privacy_level=constants.PUBLIC)
         return queryset.filter(*args, **kwargs)
 
     def protected(self, user=None, *args, **kwargs):
         """
-        Query for projects, privacy_level != private, and skip = False
+        Query for projects, privacy_level != private
         """
         queryset = self._filter_queryset(user,
                                          privacy_level=(constants.PUBLIC,
@@ -69,7 +70,7 @@ class ProjectManager(models.Manager):
 
     def private(self, user=None, *args, **kwargs):
         """
-        Query for projects, privacy_level != private, and skip = False
+        Query for projects, privacy_level != private
         """
         queryset = self._filter_queryset(user, privacy_level=constants.PRIVATE)
         return queryset.filter(*args, **kwargs)
@@ -129,7 +130,7 @@ class Project(models.Model):
                               default='.rst')
     single_version = models.BooleanField(
         _('Single version'), default=False,
-        help_text=_('A single version site has no translations and only your "latest" version, served at the root of the domain.'))
+        help_text=_('A single version site has no translations and only your "latest" version, served at the root of the domain. Use this with caution, only turn it on if you will <b>never</b> have multiple versions of your docs.'))
     default_version = models.CharField(
         _('Default version'), max_length=255, default='latest',
         help_text=_('The version of your project that / redirects to'))
@@ -274,14 +275,6 @@ class Project(models.Model):
             self.versions.filter(verbose_name='latest').update(supported=True)
 
     def save(self, *args, **kwargs):
-        #if hasattr(self, 'pk'):
-            #previous_obj = self.__class__.objects.get(pk=self.pk)
-            #if previous_obj.repo != self.repo:
-                #Needed to not have an import loop on Project
-                #from projects import tasks
-                #This needs to run on the build machine.
-                #tasks.remove_dir.delay(os.path.join(self.doc_path,
-                                                    #'checkouts'))
         if not self.slug:
             # Subdomains can't have underscores in them.
             self.slug = slugify(self.name).replace('_','-')
@@ -300,6 +293,11 @@ class Project(models.Model):
             symlink(project=self.slug)
         except Exception, e:
             log.error('failed to symlink project', exc_info=True)
+        try:
+            #update_static_metadata(project_pk=self.pk)
+            pass
+        except Exception:
+            log.error('failed to update static metadata', exc_info=True)
         return obj
 
     def get_absolute_url(self):
@@ -462,6 +460,12 @@ class Project(models.Model):
             scheme, netloc = "http", parsed.path
         return "%s://%s/" % (scheme, netloc)
 
+    @property
+    def clean_repo(self):
+        if self.repo.startswith('http://github.com'):
+            return self.repo.replace('http://github.com', 'https://github.com')
+        return self.repo
+
     #Doc PATH:
     #MEDIA_ROOT/slug/checkouts/version/<repo>
 
@@ -524,6 +528,12 @@ class Project(models.Model):
         #No docs directory, docs are at top-level.
         return doc_base
 
+    def artifact_path(self, type, version='latest'):
+        """
+        The path to the build html docs in the project.
+        """
+        return os.path.join(self.doc_path, "artifacts", version, type)
+
     def full_build_path(self, version='latest'):
         """
         The path to the build html docs in the project.
@@ -538,13 +548,13 @@ class Project(models.Model):
 
     def full_man_path(self, version='latest'):
         """
-        The path to the build latex docs in the project.
+        The path to the build man docs in the project.
         """
         return os.path.join(self.conf_dir(version), "_build", "man")
 
     def full_epub_path(self, version='latest'):
         """
-        The path to the build latex docs in the project.
+        The path to the build epub docs in the project.
         """
         return os.path.join(self.conf_dir(version), "_build", "epub")
 
@@ -556,16 +566,28 @@ class Project(models.Model):
 
     def full_json_path(self, version='latest'):
         """
-        The path to the build dash docs in the project.
+        The path to the build json docs in the project.
         """
         return os.path.join(self.conf_dir(version), "_build", "json")
 
+    def full_singlehtml_path(self, version='latest'):
+        """
+        The path to the build singlehtml docs in the project.
+        """
+        return os.path.join(self.conf_dir(version), "_build", "singlehtml")
+
     def rtd_build_path(self, version="latest"):
         """
-        The path to the build html docs in the project.
+        The destination path where the built docs are copied.
         """
         return os.path.join(self.doc_path, 'rtd-builds', version)
 
+    def static_metadata_path(self):
+        """
+        The path to the static metadata JSON settings file
+        """
+        return os.path.join(self.doc_path, 'metadata.json')
+        
     def conf_file(self, version='latest'):
         if self.conf_py_file:
             log.debug('Inserting conf.py file path from model')
@@ -636,7 +658,7 @@ class Project(models.Model):
             repo = None
         else:
             proj = VCSProject(self.name, self.default_branch,
-                              self.checkout_path(version), self.repo)
+                              self.checkout_path(version), self.clean_repo)
             repo = backend(proj, version)
         #self._vcs_repo = repo
         return repo
@@ -652,8 +674,8 @@ class Project(models.Model):
         self._contribution_backend = cb
         return cb
 
-    def repo_lock(self, timeout=5, polling_interval=5):
-        return Lock(self, timeout, polling_interval)
+    def repo_lock(self, version, timeout=5, polling_interval=5):
+        return Lock(self, version, timeout, polling_interval)
 
     def find(self, file, version):
         """

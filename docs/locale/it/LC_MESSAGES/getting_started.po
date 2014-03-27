@@ -1,0 +1,148 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2010, Eric Holscher, Charlie Leifer, Bobby Grace
+# This file is distributed under the same license as the Read The Docs package.
+# 
+# Translators:
+# numerodix <numerodix@gmail.com>, 2014
+msgid ""
+msgstr ""
+"Project-Id-Version: readthedocs-docs\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-03-03 10:59+0800\n"
+"PO-Revision-Date: 2014-03-03 19:11+0000\n"
+"Last-Translator: numerodix <numerodix@gmail.com>\n"
+"Language-Team: Italian (http://www.transifex.com/projects/p/readthedocs-docs/language/it/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: it\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# 94680832b91f4929bf53532994faf20f
+#: ../../getting_started.rst:2
+msgid "Getting Started"
+msgstr "Per cominciare"
+
+# b5087c8cfa1a46e6973fb1b5f2468531
+#: ../../getting_started.rst:4
+msgid ""
+"This document will show you how to get up and running with Read the Docs."
+msgstr "Questo documento ti mostrerà come fare per cominciare a utilizzare Read the Docs."
+
+# c736e6dfba4f4bb5ba95bdde2612f4b9
+#: ../../getting_started.rst:6
+msgid ""
+"If you are already using Sphinx_ for your docs, skip ahead to :ref:`import-"
+"docs`."
+msgstr "Se già fai uso di Sphinx_ per la tua documentazione puoi saltare in avanti fino a :ref:`import-docs`."
+
+# 20869ea4ee9544bb889f53f260a381b5
+#: ../../getting_started.rst:9
+msgid "There is `a screencast`_ that will help you get started if you prefer."
+msgstr "A preferenza puoi visualizzare `uno screencast`_."
+
+# e4bbcc8b5b7e419a805d8b4da78c6aa1
+#: ../../getting_started.rst:12
+msgid "Write Your Docs"
+msgstr "Scrivere la documentazione"
+
+# b90f238da5684b6889e1a7360d8a08d5
+#: ../../getting_started.rst:14
+msgid ""
+"Install Sphinx_, and create a directory inside your project to hold your "
+"docs::"
+msgstr "Installa Sphinx_, e crea una cartella nel tuo progetto che conterrà la documentazione::"
+
+# 7890b8eebc8c4d12ad4fa8f24a186171
+#: ../../getting_started.rst:19
+msgid "Run ``sphinx-quickstart`` in there::"
+msgstr "Esegui ``sphinx-quickstart`` all'interno::"
+
+# 323c1c64fa134111bfff71af91fe3354
+#: ../../getting_started.rst:24
+msgid ""
+"This will walk you through creating the basic configuration; in most cases, "
+"you can just accept the defaults. When it's done, you'll have an "
+"``index.rst``, a ``conf.py`` and some other files. Add these to revision "
+"control."
+msgstr "Adesso vedrai come creare una configurazione di base. Spesso basta accettare i parametri predefiniti. Appena l'avrai terminato troverai ``index.rst`` e ``conf.py`` ed altri file. Bisogna aggiungerli al sistema di controllo di versione."
+
+# 93b667b94bee4cd998979e17c5e23e4e
+#: ../../getting_started.rst:28
+msgid ""
+"Now, edit your ``index.rst`` and add some information about your project. "
+"Include as much detail as you like (refer to the reStructuredText_ syntax or"
+" `this template`_ if you need help). Build them to see how they look::"
+msgstr "Modifica ``index.rst`` e aggiungi alcune informazioni a proposito del progetto. Puoi metterci quanti contenuti vuoi (`questo documento`_ può servire da riferimento per la sintassi reStructuredText_). Compila per vedere a cosa assomiglia::"
+
+# b6ecd74d973f4945af1d7ac50f220d77
+#: ../../getting_started.rst:34
+msgid ""
+"Edit your files and rebuild until you like what you see, then commit your "
+"changes and push to your public repository. Once you have Sphinx "
+"documentation in a public repository, you can start using Read the Docs."
+msgstr "Continua a modificare i file fino a che non sei soddisfatto, eseguendo la compilazione ogni volta per vedere il risultato. Poi registra le modifiche tramite il controllo di versione e inviale al tuo repository pubblico. Bisogna rendere la documentazione Sphinx disponibile dal tuo repository pubblico per cominciare a utilizzare Read the Docs."
+
+# 621a032741654fbe94eeb8ced1fc4df9
+#: ../../getting_started.rst:40
+msgid "Import Your Docs"
+msgstr "Importare la documentazione"
+
+# 88b6a472072944fba715415ccfb21baa
+#: ../../getting_started.rst:42
+msgid ""
+"`Sign up`_ for an account on RTD, then `log in`_. Visit your dashboard_ and "
+"click Import_ to add your project to the site. Fill in the name and "
+"description, then specify where your repository is located. This is normally"
+" the URL or path name you'd use to checkout, clone, or branch your code. "
+"Some examples:"
+msgstr "`iscriviti`_ sul RTD, poi `connettiti`_. Visita il tuo cruscotto e clicca importare_ per aggiungere il tuo progetto su questo sito. Dovrai inserire il nome e una descrizione del progetto e specificare l'indirizzo del repository. Il può spesso è uguale all'URL oppure al cammino che bisogna utilizzare per fare un checkout, clone oppure branch del sorgente. Seguono alcuni esempi:"
+
+# 0eaf2d9626dd463d836655dc4ba299b0
+#: ../../getting_started.rst:47
+msgid "Git: ``http://github.com/ericholscher/django-kong.git``"
+msgstr "Git: ``http://github.com/ericholscher/django-kong.git``"
+
+# 24a01bc5b09549b8bfbe0cfd1f4993e4
+#: ../../getting_started.rst:48
+msgid "Subversion: ``http://varnish-cache.org/svn/trunk``"
+msgstr "Subversion: ``http://varnish-cache.org/svn/trunk``"
+
+# 665b40223dd64b77bec199e8951e1d59
+#: ../../getting_started.rst:49
+msgid "Mercurial: ``https://bitbucket.org/ianb/pip``"
+msgstr "Mercurial: ``https://bitbucket.org/ianb/pip``"
+
+# a8d5721c75a84481b684f80d1cd11271
+#: ../../getting_started.rst:50
+msgid "Bazaar: ``lp:pasta``"
+msgstr "Bazaar: ``lp:pasta``"
+
+# c7c217cabab34ccab46cb0dd90c8e007
+#: ../../getting_started.rst:52
+msgid "Add an optional homepage URL and some tags, then click \"Create\"."
+msgstr "Puoi anche inserire l'URL del sito web e dei tag. Poi cilcca \"Creare\"."
+
+# ecf599bf3bbb4eb9bb31f25c3561e35c
+#: ../../getting_started.rst:54
+msgid ""
+"Within a few minutes your code will automatically be fetched from your "
+"public repository, and the documentation will be built. Check out our "
+":doc:`builds` page to learn more about how we build your docs, and to "
+"troubleshoot any issues that arise."
+msgstr "Il sorgente verrà scaricato dal tuo repository pubblico dopo alcuni minuti e la documentazione verrà compilata. Controlla la nostra pagina :doc:`builds` per sapere di più su come viene effettuata la compilazione della documentazione e per avere delle informazioni utili per riparare a dei errori che possono manifestarsi."
+
+# 35c76658de93497ba8061846dd24b261
+#: ../../getting_started.rst:57
+msgid ""
+"If you want to keep your code updated as you commit, configure your code "
+"repository to hit our `Post Commit Hooks`_. This will rebuild your docs "
+"every time you push your code."
+msgstr "Se desideri avere sempre la documentazione aggiornata puoi impostare il tuo repository in modo da approfittare dei `Post Commit Hooks`_. Così la tua documentazione verrà compilata ogni volta che invii il sorgente al repository."
+
+# 4b77085452fb4a839b693dd522ed6a3f
+#: ../../getting_started.rst:59
+msgid ""
+"If you have any more trouble, don't hesitate to reach out to us. The "
+":doc:`support` page has more information on getting in touch."
+msgstr "Se hai bisogno di aiuto puoi sempre contattarci. La pagina :doc:`support` contiene delle informazioni al riguardo."

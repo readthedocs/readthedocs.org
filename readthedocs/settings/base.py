@@ -8,6 +8,7 @@ _ = gettext = lambda s: s
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 TASTYPIE_FULL_DEBUG = True
+LOG_DEBUG = False
 
 PRODUCTION_DOMAIN = 'readthedocs.org'
 USE_SUBDOMAIN = False
@@ -60,7 +61,9 @@ LANGUAGES = (
     ('gl', gettext('Galician')),
     ('vi', gettext('Vietnamese')),
     ('zh-cn', gettext('Chinese')),
-
+    ('zh-tw', gettext('Taiwanese')),
+    ('ja', gettext('Japanese')),
+    ('uk', gettext('Ukrainian')),
 )
 LOCALE_PATHS = [
     os.path.join(SITE_ROOT, 'readthedocs', 'locale'),
@@ -147,9 +150,10 @@ INSTALLED_APPS = [
     'tastypie',
 
     # our apps
-    'projects',
     'builds',
     'core',
+    'doc_builder',
+    'projects',
     'rtd_tests',
     'websupport',
     'restapi',
@@ -207,7 +211,7 @@ IMPORT_EXTERNAL_DATA = True
 
 backup_count = 1000
 maxBytes = 500 * 100 * 100
-if DEBUG:
+if LOG_DEBUG:
     backup_count = 2
     maxBytes = 500 * 100 * 10
 
@@ -335,7 +339,7 @@ LOGGING = {
         # logging works :)
         '': {
             'handlers': ['console', 'errorlog'],
-            'level': 'DEBUG',
+            'level': 'INFO',
         },
     }
 }

@@ -21,7 +21,6 @@ from projects.forms import (ImportProjectForm, build_versions_form,
                             UserForm, EmailHookForm, TranslationForm,
                             AdvancedProjectForm)
 from projects.models import Project, EmailHook
-from projects.tasks import unzip_files
 from projects import constants
 
 
@@ -194,71 +193,6 @@ def project_import(request):
     return render_to_response(
         'projects/project_import.html',
         {'form': form},
-        context_instance=RequestContext(request)
-    )
-
-
-@login_required
-def export(request, project_slug):
-    """
-    Export a projects' docs as a .zip file, including the .rst source
-    """
-    project = Project.objects.live().get(users=request.user, slug=project_slug)
-    os.chdir(project.doc_path)
-    dir_path = os.path.join(settings.MEDIA_ROOT, 'export', project_slug)
-    zip_filename = '%s.zip' % project.slug
-    file_path = os.path.join(dir_path, zip_filename)
-    try:
-        os.makedirs(dir_path)
-    except OSError:
-        #Directory already exists
-        pass
-
-    # Create a <slug>.zip file containing all files in file_path
-    archive = zipfile.ZipFile(zip_filename, 'w')
-    for root, subfolders, files in os.walk(file_path):
-        for file in files:
-            archive.write(os.path.join(root, file))
-    archive.close()
-
-    return HttpResponseRedirect(os.path.join(settings.MEDIA_URL, 'export',
-                                             project_slug, zip_filename))
-
-
-def upload_html(request, project_slug):
-    proj = get_object_or_404(Project.objects.all(), slug=project_slug)
-    FormClass = build_upload_html_form(proj)
-    if request.method == 'POST':
-        form = FormClass(request.POST, request.FILES, request=request)
-        if form.is_valid():
-            file = request.FILES['content']
-            version_slug = form.cleaned_data['version']
-            version = proj.versions.get(slug=version_slug)
-            #Copy file
-            dest_dir = os.path.join(settings.UPLOAD_ROOT, proj.slug)
-            if not os.path.exists(dest_dir):
-                os.makedirs(dest_dir)
-            dest_file = os.path.join(dest_dir, file.name)
-            destination = open(dest_file, 'wb+')
-            for chunk in file.chunks():
-                destination.write(chunk)
-            destination.close()
-
-            #Mark version active.
-            version.active = True
-            version.uploaded = True
-            version.built = False
-            version.save()
-
-            #Extract file into the correct place.
-            html_path = proj.rtd_build_path(version.slug)
-            unzip_files(dest_file, html_path)
-            return HttpResponseRedirect(proj.get_absolute_url())
-    else:
-        form = FormClass(request=request)
-    return render_to_response(
-        'projects/upload_html.html',
-        {'form': form, 'project': proj},
         context_instance=RequestContext(request)
     )
 

@@ -1,110 +1,34 @@
+{% extends "base.html" %}
+{% load core_tags %}
+{% load i18n %}
 
+{% block title %}
+  {% trans "Maze Found" %}
+{% endblock %}
 
+{% block header-wrapper %}
+  {% include "error_header.html" %}
+{% endblock %}
 
-<!DOCTYPE html>
-<html>
-
-<head><script type="text/javascript">var NREUMQ=NREUMQ||[];NREUMQ.push(["mark","firstbyte",new Date().getTime()]);</script>
-
-  <!-- meta -->
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <link rel="icon" type="image/png" href="https://media.readthedocs.org/images/favicon.png">
-
-  <!-- title -->
-  <title>
-Maze Found
- | Read the Docs </title>
-
-  <!-- css -->
-  <link rel="stylesheet" href="https://media.readthedocs.org/css/core.css">
-  
-
-  <!-- jquery -->
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
-  <script type="text/javascript">
-    if (!window.jQuery) {
-      document.write('<script src="https://media.readthedocs.org/javascript/jquery/jquery-2.0.3.min.js"><\/script>');
-    }
-  </script>
-  <script type="text/javascript" src="https://media.readthedocs.org/javascript/jquery/jquery-migrate-1.2.1.min.js"></script>
-  <script type="text/javascript" src="https://media.readthedocs.org/javascript/jquery/jquery-ui-1.8.24.custom.min.js"></script>
-
-  <script type="text/javascript" src="https://media.readthedocs.org/javascript/instantsearch.js"></script>
-  <script type="text/javascript" src="https://media.readthedocs.org/javascript/base.js"></script>
-
-  
-
-  <!-- typekit -->
-  <!-- Old typekit
-  <script type="text/javascript" src="//use.typekit.com/xgl8ypn.js"></script>
-  <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
-  -->
-
-  <script type="text/javascript" src="//use.typekit.net/haq4xtp.js"></script>
-  <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
-
-</head>
-
-<body class="">
-
-    
-        
-    <!-- BEGIN header-->
-    <div id="rtfd-header">
-      <div class="wrapper">
-
-        <!-- BEGIN header title-->
-        <div class="rtfd-header-title">
-            <h1>
-                
-                <a href="/">Read the Docs</a>
-            </h1>
-        </div>
-        <!-- END header title -->
-
-        <!-- BEGIN global search -->
-        <div class="rtfd-header-search">
-          <form action="/search/project/" method="GET">
-            <input type="text" name="q" value="" id="id_site_search">
-            <input type="submit" value="Go">
-          </form>
-        </div>
-        <!-- END global search -->
-
-        
-
-        <!-- BEGIN header nav -->
-        <div class="rtfd-header-nav">
+{% block content %}
+    {% if suggestion %}
+      <div class="suggestions">
+          <h1>You've found something doesn't exist.</h1>
+          <p>{{ suggestion.message }}</p>
+          {% ifequal suggestion.type 'top' %}
+          <p>
+              <a href="{{ suggestion.href }}">Go to top of the document.</a>
+          </p>
+          {% endifequal %}
+          {% ifequal suggestion.type 'list' %}
           <ul>
-            
-              <li><a href="/accounts/login/">Log in</a></li>
-            
-
-
+            {% for item in suggestion.list %}
+              <li><a href="{% doc_url item.project item.version_slug item.pagename %}">{{ item.label }}</a></li>
+            {% endfor %}
           </ul>
-        </div>
-        <!-- END header nav -->
-
+          {% endifequal %}
       </div>
-    </div>
-    <!-- END header-->
-
-    
-
-    
-
-    
-
-    <!-- BEGIN content-->
-    <div id="content">
-      <div class="wrapper">
-
-        
-
-        
-        
-
-        
+    {% endif %}
 <pre>
 
         \          SORRY            /
@@ -130,72 +54,4 @@ Maze Found
          /           q,            \
         /                           \
 </pre>
-
-
-      </div>
-    </div>
-    <!-- END content-->
-
-    <!-- BEGIN footer-->
-    <div id="footer">
-      <div class="wrapper">
-
-        <hr>
-
-        
-        <p>Copyright 2010-2013. Created by <a href='http://ericholscher.com/'>Eric Holscher</a>, <a href='http://charlesleifer.com/'>Charles Leifer<a>, and <a href='http://bobbygrace.info/'>Bobby Grace</a> for the 2010 <a href='http://djangodash.com/'>Django Dash</a>.
-        </p>
-        <a href="http://github.com/rtfd/readthedocs.org">Github</a> | <a href="http://read-the-docs.readthedocs.org">Docs</a>.
-
-        Made by <a href="https://github.com/rtfd/readthedocs.org/graphs/contributors">humans</a>. Funded by <a href="https://www.gittip.com/readthedocs/">readers like you</a>.
-        </p>
-        
-
-
-        <p>
-        Read the Docs Announcements
-        <!-- Begin MailChimp Signup Form -->
-        <div id="mc_embed_signup">
-        <form action="http://readthedocs.us3.list-manage2.com/subscribe/post?u=a6a22369cc2b356379cf789ca&amp;id=1759385fc5" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
-                <input  style="float: left; height: 20px;"type="email" value="" name="EMAIL" class="email" id="mce-EMAIL" placeholder="email address" required>
-                <input style="float: left; height: 33px; margin: 0px;" type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe">
-        </form>
-        </div>
-        </p>
-
-        <!--End mc_embed_signup-->
-      </div>
-    </div>
-    <!-- END footer-->
-
-<script type="text/javascript">if(!NREUMQ.f){NREUMQ.f=function(){NREUMQ.push(["load",new Date().getTime()]);var e=document.createElement("script");e.type="text/javascript";e.src=(("http:"===document.location.protocol)?"http:":"https:")+"//"+"js-agent.newrelic.com/nr-100.js";document.body.appendChild(e);if(NREUMQ.a)NREUMQ.a();};NREUMQ.a=window.onload;window.onload=NREUMQ.f;};NREUMQ.push(["nrfj","beacon-1.newrelic.com","97a187b9fc","2379096","Y1ZSNktWWkEDBUdbDVocdhdXVEBbDQgcUQ1GVh4UUFJDQVgVVkAUUUFvB0tFW0A9UgMG",0,11,new Date().getTime(),"","","","",""]);</script></body>
-
-<!-- BEGIN google analytics -->
-<script type="text/javascript">
-
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-17997319-1']);
-  _gaq.push(['_trackPageview']);
-
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
-
-  $('.rtfd-header-search input:text').autocomplete({
-    source: '/projects/search/autocomplete/',
-    minLength: 2,
-    open: function(event, ui) {
-      ac_top = $('.ui-autocomplete').css('top');
-      $('.ui-autocomplete').css({'width': '233px', 'top': ac_top + 10 });
-    }
-  });
-
-  
-
-</script>
-<!-- END google analytics -->
-
-</html>
-
+{% endblock %}

@@ -1,0 +1,106 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2010, Eric Holscher, Charlie Leifer, Bobby Grace
+# This file is distributed under the same license as the Read The Docs package.
+# 
+# Translators:
+# shirou - しろう, 2014
+msgid ""
+msgstr ""
+"Project-Id-Version: readthedocs-docs\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-03-03 10:59+0800\n"
+"PO-Revision-Date: 2014-03-08 16:10+0000\n"
+"Last-Translator: shirou - しろう\n"
+"Language-Team: Japanese (http://www.transifex.com/projects/p/readthedocs-docs/language/ja/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ja\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+# e7d08bebf8254f379c2abbf2dea31bfa
+#: ../../localization.rst:2
+msgid "Localization of Documentation"
+msgstr "ドキュメントの多言語化"
+
+# 69fdf006370f4c99b1d51de39f478d3a
+#: ../../localization.rst:4
+msgid ""
+"Read the Docs supports hosting your docs in multiple languages. There are "
+"two different things that we support:"
+msgstr "Read the Docsではあなたのドキュメントを複数の言語で提供できます。以下の２つをサポートしています。"
+
+# 822a873c5f8d4286ad23e89f38267e86
+#: ../../localization.rst:7
+msgid "A single project written in another language"
+msgstr "他の言語で書かれたプロジェクト"
+
+# 092d786ec3c841fdb1bb3ae8a4018004
+#: ../../localization.rst:8
+msgid "A project with translations into multiple languages"
+msgstr "複数の言語に翻訳されているプロジェクト"
+
+# 517ebf91f4054f9ca9be586555d0bf70
+#: ../../localization.rst:11
+msgid "Single project in another language"
+msgstr "別の言語で書かれたプロジェクト"
+
+# e6c82a6ccd0c41db9eb54173990c73c7
+#: ../../localization.rst:13
+msgid ""
+"It is easy to set the *Language* of your project. On the project *Admin* "
+"page (or Import page), simply select your desired *Language* from the "
+"dropdown. This will tell Read the Docs that your project is in the language."
+" The language will be represented in the URL for you project."
+msgstr "この場合 *言語* を設定するのは簡単です。プロジェクトの *管理* ページ(あるいはインポートのページ)で、ドロップダウンメニューから希望の *言語* を選ぶだけです。これにより、Read the Docsは指定された言語でプロジェクトを提供するようになります。この言語はプロジェクトのURLに含まれています。"
+
+# cf51b8cd1e73498a89b279d09c66fe10
+#: ../../localization.rst:19
+msgid ""
+"For example, a project that is in spanish will have a default URL of "
+"``/es/latest/`` instead of ``/en/latest/``."
+msgstr "例えば、スペイン語のプロジェクトは ``/en/latest/`` ではなく ``/es/latest/`` が初期設定のURLに含まれています。"
+
+# ea5e40bbfac2443aa0cce2ebb76a45b7
+#: ../../localization.rst:23
+msgid "Project with multiple translations"
+msgstr "複数の言語に翻訳されているプロジェクト"
+
+# 37e51a8c09d44c04a7d8d021adcab608
+#: ../../localization.rst:25
+msgid ""
+"This situation is a bit more complicated. To support this, you will have one"
+" parent project and a number of projects marked as translations of that "
+"parent. Let's use ``phpmyadmin`` as an example."
+msgstr "この場合少し複雑となります。一つの親プロジェクトと、プロジェクトの翻訳と印が付けられた複数のプロジェクトが必要になります。例として ``phpmyadmin`` を見てみます。"
+
+# 3c8c8dd882c443ea9845109d8dd49999
+#: ../../localization.rst:30
+msgid ""
+"The main ``phpmyadmin`` project is the parent for all translations. Then you"
+" must create a project for each translation, for example ``phpmyadmin-"
+"spanish``. You will set the *Language* for ``phpmyadmin-spanish`` to "
+"``Spanish``. In the parent projects *Translations* page, you will say that "
+"``phpmyadmin-spanish`` is a translation for your project."
+msgstr "メインの ``phpmyadmin`` がすべての翻訳の親とします。また、それぞれの翻訳ごとにプロジェクトを作成します。例えば、 ``phpmyadmin-spanish`` です。 ``phpmyadmin-spanish`` の *言語* を ``スペイン語`` に設定します。親プロジェクトの *翻訳* ページでは、 ``phpmyadmin-spanish`` がそのプロジェクトの翻訳であると設定します。"
+
+# 9ad74fa3d00946a9b373d0275449e846
+#: ../../localization.rst:37
+msgid "This has the results of serving:"
+msgstr "これにより以下のように提供されるようになります。"
+
+# fb3d649db2234c228b7b58a8a0b0a3c2
+#: ../../localization.rst:39
+msgid "``phpmyadmin`` at ``http://phpmyadmin.readthedocs.org/en/latest/``"
+msgstr "``phpmyadmin`` が``http://phpmyadmin.readthedocs.org/en/latest/`` で"
+
+# 36a76f14892c40ceb6d35f0387eaa75a
+#: ../../localization.rst:40
+msgid ""
+"``phpmyadmin-spanish`` at ``http://phpmyadmin.readthedocs.org/es/latest/``"
+msgstr "``phpmyadmin-spanish`` が ``http://phpmyadmin.readthedocs.org/es/latest/`` で"
+
+# 175581c389594465b29a7e35993e57a6
+#: ../../localization.rst:42
+msgid "It also gets included in the Read the Docs flyout:"
+msgstr "また、  Read the Docs の左下に各言語が表示されるようになります。"

@@ -11,6 +11,7 @@ required_dirs = ['checkouts', 'etc', 'run', 'log']
 
 asgard_ip = '10.176.7.42'
 backup_ip = '10.176.4.219'
+bari_ip = '10.176.13.14'
 build_ip = '10.176.11.210'
 chimera_ip = '10.176.11.213'
 db_ip = '10.176.9.67'
@@ -59,15 +60,26 @@ def backup():
     install_packages('backup')
     firewall('backup')
 
+def install_python(version=2):
+    # Python 3
+    if version == 3:
+        sudo('apt-get install -y python3.3 python3.3-dev')
+        sudo('easy_install3 pip')
+        sudo('pip3 install -U virtualenv')
+
+    # Python 2
+    if version == 2:
+        sudo('easy_install-2.7 pip')
+        sudo('pip2 install -U virtualenv')
+
 
 def install_packages(type=None):
     sudo('apt-get update')
     sudo('apt-get install -y vim software-properties-common')
     sudo('apt-get install -y python-setuptools')
-    sudo('easy_install pip')
-    sudo('pip-2.7 install -U virtualenv')
 
     if type == 'build':
+        install_python()
         sudo(
             ' apt-get install -y git-core python-dev '
             ' postgresql-client libpq-dev subversion graphviz '
@@ -78,7 +90,7 @@ def install_packages(type=None):
             ' latex-cjk-chinese-arphic-gbsn00lp latex-cjk-chinese-arphic-gkai00mp',
             ' latex-cjk-chinese-arphic-bsmi00lp latex-cjk-chinese-arphic-bkai00mp'
         )
-        sudo('pip-2.7 install -U mercurial')
+        sudo('pip2 install -U mercurial')
     if type == 'db':
         sudo('apt-get install -y solr-tomcat postgresql ')
     if type == 'search':
@@ -86,7 +98,7 @@ def install_packages(type=None):
         sudo('apt-get update')
         #sudo('apt-get install oracle-java7-installer')
     if type == 'web':
-        sudo('apt-get install -y nginx git-core python-dev libpq-dev libxml2-dev libxslt-dev')
+        sudo('apt-get install -y nginx nginx-extras git-core python-dev libpq-dev libxml2-dev libxslt-dev libjson-perl libi18n-acceptlanguage-perl')
     if type == 'backup':
         sudo('apt-get install -y rsync')
 
@@ -129,8 +141,8 @@ def checkout(user=None):
             with cd('%s/checkouts/' % home):
                 run('git clone git://github.com/rtfd/readthedocs.org.git')
         if not fabtools.files.is_file('%s/bin/python' % home):
-            run('virtualenv %s' % home)
-        run(('%s/bin/pip install -U -r %s/checkouts/readthedocs.org/'
+            run('virtualenv2 %s' % home)
+        run(('%s/bin/pip2 install --allow-all-external --allow-unverified bzr --allow-unverified launchpadlib --allow-unverified lazr.authentication -U -r %s/checkouts/readthedocs.org/'
              'deploy_requirements.txt') % (home, home))
 
 
@@ -167,6 +179,36 @@ def setup_db():
         run('./manage.py syncdb --noinput')
         run('./manage.py migrate')
 
+def all_firewall():
+    # Webs
+    with settings(host_string='root@newasgard'):
+        firewall('web')
+        firewall('munin')
+    with settings(host_string='root@newchimera'):
+        firewall('web')
+        firewall('munin')
+
+    # Build servers
+    with settings(host_string='root@bari'):
+        firewall('build')
+        firewall('munin')
+    with settings(host_string='root@newbuild'):
+        firewall('build')
+        firewall('munin')
+
+    # Backup
+    with settings(host_string='root@newbackup'):
+        firewall('backup')
+        firewall('search')
+        firewall('munin')
+
+    # DB
+    with settings(host_string='root@newdb'):
+        firewall('db')
+        firewall('search')
+        firewall('munin')
+
+
 def firewall(type):
     if type == "setup":
         sudo('apt-get install ufw')
@@ -183,7 +225,7 @@ def firewall(type):
         for ip in [asgard_ip, chimera_ip]:
             sudo('ufw allow from %s to any port 8080 #Solr' % ip)
     if type == "build":
-        for ip in [asgard_ip, build_ip, chimera_ip, backup_ip]:
+        for ip in [asgard_ip, build_ip, chimera_ip, backup_ip, bari_ip]:
             sudo('ufw allow from %s to any port 6379 #Redis' % ip )
     if type == "backup":
         pass
@@ -198,7 +240,8 @@ def host_file():
 %s build
 %s chimera
 %s db
-    """ % (asgard_ip, backup_ip, build_ip, chimera_ip, db_ip)
+%s bari
+    """ % (asgard_ip, backup_ip, build_ip, chimera_ip, db_ip, bari_ip)
    sudo("echo '%s' >> /etc/hosts " % host_string) 
 
 def nginx_configs():
@@ -207,11 +250,17 @@ def nginx_configs():
         upload_template('../nginx/app.nginx.conf', '/etc/nginx/sites-enabled/readthedocs', context=context, backup=False)
         upload_template('../nginx/lb.nginx.conf', '/etc/nginx/sites-enabled/lb', context=context, backup=False)
         upload_template('../nginx/main.nginx.conf', '/etc/nginx/nginx.conf', context=context, backup=False)
+        # Perl config
+        sudo('mkdir -p /usr/share/nginx/perl/')
+        put('../salt/nginx/perl/lib/ReadTheDocs.pm', '/usr/share/nginx/perl/ReadTheDocs.pm')
     with settings(host_string='root@newChimera'):
         context = {'host': 'Chimera'}
         upload_template('../nginx/app.nginx.conf', '/etc/nginx/sites-enabled/readthedocs', context=context, backup=False)
         upload_template('../nginx/lb.nginx.conf', '/etc/nginx/sites-enabled/lb', context=context, backup=False)
         upload_template('../nginx/main.nginx.conf', '/etc/nginx/nginx.conf', context=context, backup=False)
+        # Perl config
+        sudo('mkdir -p /usr/share/nginx/perl/')
+        put('../salt/nginx/perl/lib/ReadTheDocs.pm', '/usr/share/nginx/perl/ReadTheDocs.pm')
 
 def nginx_reload():
     with settings(host_string='root@newasgard'):

@@ -15,7 +15,8 @@ If your project is hosted on Github, you can easily add a hook that will rebuild
 your docs whenever you push updates:
 
 * Go to the "Settings" page for your project
-* Click "Service Hooks"
+* Click "Webhooks & Services"
+* Click "Configure services" on the third-party services dialog
 * In the available service hooks, click "ReadTheDocs"
 * Check "Active"
 * Click "Update Settings"
@@ -27,9 +28,9 @@ If your project is hosted on Bitbucket, you can easily add a hook that will rebu
 your docs whenever you push updates:
 
 * Go to the "admin" page for your project
-* Click "Services"
+* Click "Hooks"
 * In the available service hooks, select "Read the Docs"
-* Click "Add service"
+* Click "Add hook"
 
 Others
 ------

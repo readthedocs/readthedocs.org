@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-01-15 05:36-0600\n"
+"POT-Creation-Date: 2014-03-26 05:35-0500\n"
 "PO-Revision-Date: 2014-01-12 21:06+0000\n"
 "Last-Translator: Juraj Bubniak <translations@jbub.eu>\n"
 "Language-Team: Slovak (http://www.transifex.com/projects/p/readthedocs/"
@@ -28,16 +28,16 @@ msgstr "Ospravedlňujeme sa, na tejto stránke neboli nájdené žiadne výsledk
 msgid "Invalid resource lookup data provided (mismatched type).: %(error)s"
 msgstr ""
 
-#: bookmarks/models.py:9 builds/models.py:82 builds/models.py:268
-#: builds/models.py:284 projects/models.py:765
+#: bookmarks/models.py:9 builds/models.py:83 builds/models.py:275
+#: builds/models.py:291 projects/models.py:806
 msgid "Project"
 msgstr "Projekt"
 
-#: bookmarks/models.py:11 core/models.py:14 projects/models.py:99
+#: bookmarks/models.py:11 core/models.py:14 projects/models.py:100
 msgid "User"
 msgstr "Používateľ"
 
-#: bookmarks/models.py:13 builds/models.py:292
+#: bookmarks/models.py:13 builds/models.py:299
 msgid "Date"
 msgstr "Dátum"
 
@@ -45,7 +45,7 @@ msgstr "Dátum"
 msgid "URL"
 msgstr "URL Adresa"
 
-#: bookmarks/models.py:15 projects/models.py:103
+#: bookmarks/models.py:15 projects/models.py:104
 #: templates/core/project_details.html:5
 msgid "Description"
 msgstr "Popis"
@@ -60,42 +60,50 @@ msgid "Triggered"
 msgstr ""
 
 #: builds/constants.py:5
-msgid "Building"
+msgid "Cloning"
 msgstr ""
 
 #: builds/constants.py:6
+msgid "Installing"
+msgstr ""
+
+#: builds/constants.py:7
+msgid "Building"
+msgstr ""
+
+#: builds/constants.py:8
 msgid "Finished"
 msgstr ""
 
-#: builds/constants.py:10
+#: builds/constants.py:12
 msgid "HTML"
 msgstr "HTML"
 
-#: builds/constants.py:11
+#: builds/constants.py:13
 msgid "PDF"
 msgstr "PDF"
 
-#: builds/constants.py:12
+#: builds/constants.py:14
 msgid "Epub"
 msgstr "Epub"
 
-#: builds/constants.py:13
+#: builds/constants.py:15
 msgid "Manpage"
 msgstr "Stránka manuálu"
 
-#: builds/constants.py:14
+#: builds/constants.py:16
 msgid "Dash"
 msgstr ""
 
-#: builds/constants.py:18
+#: builds/constants.py:20
 msgid "Branch"
 msgstr ""
 
-#: builds/constants.py:19 builds/filters.py:19
+#: builds/constants.py:21 builds/filters.py:19
 msgid "Tag"
 msgstr ""
 
-#: builds/constants.py:20
+#: builds/constants.py:22
 msgid "Unknown"
 msgstr ""
 
@@ -103,121 +111,122 @@ msgstr ""
 msgid "Any"
 msgstr ""
 
-#: builds/filters.py:17 builds/filters.py:30 projects/filters.py:16
-#: projects/models.py:101 projects/models.py:769
+#: builds/filters.py:17 builds/filters.py:29 projects/filters.py:31
+#: projects/models.py:102 projects/models.py:810
 msgid "Name"
 msgstr "Názov"
 
-#: builds/filters.py:39
+#: builds/filters.py:38
 msgid "Build Date"
 msgstr ""
 
-#: builds/filters.py:40
+#: builds/filters.py:39
 msgid "Build Type"
 msgstr ""
 
-#: builds/models.py:85 builds/models.py:288
+#: builds/models.py:86 builds/models.py:295
 msgid "Type"
 msgstr "Typ"
 
-#: builds/models.py:89
+#: builds/models.py:90
 msgid "Identifier"
 msgstr "Identifikátor"
 
-#: builds/models.py:91
+#: builds/models.py:92
 msgid "Verbose Name"
 msgstr "Dlhý názov"
 
-#: builds/models.py:92 projects/models.py:102 projects/models.py:770
+#: builds/models.py:93 projects/filters.py:33 projects/models.py:103
+#: projects/models.py:811
 msgid "Slug"
 msgstr "Slug"
 
-#: builds/models.py:94
+#: builds/models.py:95
 msgid "Supported"
 msgstr ""
 
-#: builds/models.py:95 templates/projects/project_versions.html:46
+#: builds/models.py:96 templates/projects/project_versions.html:46
 msgid "Active"
 msgstr "Aktívny"
 
-#: builds/models.py:96 templates/projects/includes/icon_built.html:4
+#: builds/models.py:97 templates/projects/includes/icon_built.html:4
 msgid "Built"
 msgstr ""
 
-#: builds/models.py:97 templates/projects/includes/icon_built.html:7
+#: builds/models.py:98 templates/projects/includes/icon_built.html:7
 msgid "Uploaded"
 msgstr "Odoslaný"
 
-#: builds/models.py:99 projects/models.py:193
+#: builds/models.py:100 projects/models.py:195
 msgid "Privacy Level"
 msgstr ""
 
-#: builds/models.py:100
+#: builds/models.py:101
 msgid "Level of privacy for this Version."
 msgstr ""
 
 #. Translators: Permission around whether a user can view the
 #. version
-#: builds/models.py:111
+#: builds/models.py:112
 msgid "View Version"
 msgstr ""
 
-#: builds/models.py:115
+#: builds/models.py:116
 #, python-format
 msgid "Version %(version)s of %(project)s (%(pk)s)"
 msgstr "Verzia %(version)s z %(project)s (%(pk)s)"
 
-#: builds/models.py:270
+#: builds/models.py:277
 msgid "From slug"
 msgstr ""
 
-#: builds/models.py:271
+#: builds/models.py:278
 msgid "To slug"
 msgstr ""
 
-#: builds/models.py:273
+#: builds/models.py:280
 msgid "Largest"
 msgstr ""
 
-#: builds/models.py:276
+#: builds/models.py:283
 #, python-format
 msgid "Alias for %(project)s: %(from)s -> %(to)s"
 msgstr ""
 
-#: builds/models.py:286 projects/models.py:118 projects/models.py:767
+#: builds/models.py:293 projects/models.py:119 projects/models.py:808
 #: templates/djangome/oneoffs.html:11
 msgid "Version"
 msgstr "Verzia"
 
-#: builds/models.py:290
+#: builds/models.py:297
 msgid "State"
 msgstr "Stav"
 
-#: builds/models.py:293
+#: builds/models.py:300
 msgid "Success"
 msgstr ""
 
-#: builds/models.py:294
+#: builds/models.py:302
 msgid "Setup"
 msgstr ""
 
-#: builds/models.py:295
+#: builds/models.py:303
 msgid "Setup error"
 msgstr ""
 
-#: builds/models.py:296
+#: builds/models.py:304
 msgid "Output"
 msgstr "Výstup"
 
-#: builds/models.py:297
+#: builds/models.py:305
 msgid "Error"
 msgstr "Chyba"
 
-#: builds/models.py:298
+#: builds/models.py:306
 msgid "Exit code"
 msgstr ""
 
-#: builds/models.py:306
+#: builds/models.py:314
 #, python-format
 msgid "Build %(project)s for %(usernames)s (%(pk)s)"
 msgstr ""
@@ -230,7 +239,7 @@ msgstr "Meno"
 msgid "Last name"
 msgstr "Priezvisko"
 
-#: core/middleware.py:70 core/middleware.py:75
+#: core/middleware.py:70
 msgid "Invalid hostname"
 msgstr "Neplatný názov hostiteľa"
 
@@ -269,89 +278,94 @@ msgid "Sphinx HtmlDir"
 msgstr "Sphinx HtmlDir"
 
 #: projects/constants.py:20
-msgid "Sphinx Websupport"
+msgid "Sphinx Single Page HTML"
+msgstr ""
+
+#: projects/constants.py:21
+msgid "Mkdocs"
 msgstr ""
 
 #. Translators: This is a name of a Sphinx theme.
-#: projects/constants.py:27
+#: projects/constants.py:29
 msgid "Default"
 msgstr "Default"
 
 #. Translators: This is a name of a Sphinx theme.
-#: projects/constants.py:29
+#: projects/constants.py:31
 msgid "Sphinx Docs"
 msgstr "Sphinx Docs"
 
 #. Translators: This is a name of a Sphinx theme.
-#: projects/constants.py:33
+#: projects/constants.py:35
 msgid "Traditional"
 msgstr "Traditional"
 
 #. Translators: This is a name of a Sphinx theme.
-#: projects/constants.py:35
+#: projects/constants.py:37
 msgid "Nature"
 msgstr "Nature"
 
 #. Translators: This is a name of a Sphinx theme.
-#: projects/constants.py:37
+#: projects/constants.py:39
 msgid "Haiku"
 msgstr "Haiku"
 
-#: projects/constants.py:66
+#: projects/constants.py:68
 msgid "Live"
 msgstr ""
 
-#: projects/constants.py:67
+#: projects/constants.py:69
 msgid "Deleted"
 msgstr "Vymazaný"
 
-#: projects/constants.py:71
+#: projects/constants.py:73
 msgid "Git"
 msgstr "Git"
 
-#: projects/constants.py:72
+#: projects/constants.py:74
 msgid "Subversion"
 msgstr "Subversion"
 
-#: projects/constants.py:73
+#: projects/constants.py:75
 msgid "Mercurial"
 msgstr "Mercurial"
 
-#: projects/constants.py:74
+#: projects/constants.py:76
 msgid "Bazaar"
 msgstr "Bazaar"
 
-#: projects/constants.py:82
+#: projects/constants.py:84
 msgid "Public"
 msgstr ""
 
-#: projects/constants.py:83
+#: projects/constants.py:85
 msgid "Protected"
 msgstr ""
 
-#: projects/constants.py:84
+#: projects/constants.py:86
 msgid "Private"
 msgstr ""
 
-#: projects/constants.py:95
+#: projects/constants.py:97
 msgid "CPython 2.x"
 msgstr ""
 
-#: projects/constants.py:96
+#: projects/constants.py:98
 msgid "CPython 3.x"
 msgstr ""
 
-#: projects/filters.py:18
+#: projects/filters.py:34
 msgid "Created Date"
 msgstr ""
 
-#: projects/filters.py:20 projects/models.py:106
+#: projects/filters.py:36 projects/models.py:107
 msgid "Repository URL"
 msgstr "URL Repozitára"
 
-#: projects/filters.py:23 templates/core/project_details.html:89
-msgid "Repository"
-msgstr ""
+#: projects/filters.py:39
+#, fuzzy
+msgid "Repository Type"
+msgstr "Typ repozitára"
 
 #: projects/forms.py:23
 msgid "A project with that name exists already!"
@@ -365,11 +379,11 @@ msgstr ""
 "URL adresa vášho kódu (hg alebo git). Napr. http://github.com/ericholscher/"
 "django-kong.git"
 
-#: projects/forms.py:57
+#: projects/forms.py:52
 msgid "Invalid character in repo name"
 msgstr "Neplatný znak v názve repozitára"
 
-#: projects/forms.py:60
+#: projects/forms.py:55
 msgid ""
 "It looks like you entered a private repo - please use the public (http:// or "
 "git://) clone url"
@@ -377,70 +391,70 @@ msgstr ""
 "Vypadá to, že ste zadali súkromný repozitár - použite prosím verejnú "
 "(http:// alebo git://) url adresu pre klonovanie"
 
-#: projects/forms.py:82 projects/models.py:183
+#: projects/forms.py:72 projects/models.py:185
 msgid "(Beta) The Python interpreter used to create the virtual environment."
 msgstr ""
 
-#: projects/forms.py:111
+#: projects/forms.py:101
 msgid ""
 "Your configuration file is invalid, make sure it contains conf.py in it."
 msgstr "Váš konfiguračný súbor je neplatný, uistite sa, že obsahuje conf.py."
 
-#: projects/forms.py:180 templates/core/project_details.html:152
+#: projects/forms.py:170 templates/core/project_details.html:152
 msgid "Default Version"
 msgstr ""
 
-#: projects/forms.py:203
+#: projects/forms.py:193
 msgid "Zip file of HTML"
 msgstr "Zip súbor s HTML"
 
-#: projects/forms.py:205
+#: projects/forms.py:195
 msgid "Overwrite existing HTML?"
 msgstr "Prepísať existujúce HTML?"
 
-#: projects/forms.py:218
+#: projects/forms.py:208
 msgid "That version is already active!"
 msgstr "Táto verzia je už aktívna!"
 
-#: projects/forms.py:220
+#: projects/forms.py:210
 msgid "Must upload a zip file."
 msgstr "Musíte odoslať zip súbor."
 
-#: projects/forms.py:234
+#: projects/forms.py:224
 msgid "Version of the project you are uploading HTML for"
 msgstr "Verzia projektu, pre ktorý odosielate HTML"
 
-#: projects/forms.py:251 projects/forms.py:310
+#: projects/forms.py:241 projects/forms.py:300
 #, python-format
 msgid "Project %(name)s does not exist"
 msgstr "Projekt %(name)s neexistuje"
 
-#: projects/forms.py:272
+#: projects/forms.py:262
 #, python-format
 msgid "User %(name)s does not exist"
 msgstr ""
 
-#: projects/models.py:79
+#: projects/models.py:80
 msgid "Parent"
 msgstr "Rodič"
 
-#: projects/models.py:81
+#: projects/models.py:82
 msgid "Child"
 msgstr "Potomok"
 
-#: projects/models.py:95
+#: projects/models.py:96
 msgid "Publication date"
 msgstr "Dátum zverejnenia"
 
-#: projects/models.py:96
+#: projects/models.py:97
 msgid "Modified date"
 msgstr "Dátum úpravy"
 
-#: projects/models.py:104
+#: projects/models.py:105
 msgid "The reStructuredText description of the project"
 msgstr "Popis projektu za pomoci reStructuredText formátu"
 
-#: projects/models.py:107
+#: projects/models.py:108
 msgid ""
 "Checkout URL for your code (hg, git, etc.). Ex. http://github.com/"
 "ericholscher/django-kong.git"
@@ -448,76 +462,77 @@ msgstr ""
 "URL adresa pre získanie vášho kódu (hg, git, atď.). Napr. http://github.com/"
 "ericholscher/django-kong.git"
 
-#: projects/models.py:110
+#: projects/models.py:111
 msgid "Repository type"
 msgstr "Typ repozitára"
 
-#: projects/models.py:112
+#: projects/models.py:113
 msgid "Project URL"
 msgstr "URL Adresa Projektu"
 
-#: projects/models.py:113
+#: projects/models.py:114
 msgid "The project's homepage"
 msgstr "Domovská stránka projektu"
 
-#: projects/models.py:115
+#: projects/models.py:116
 msgid "Canonical URL"
 msgstr ""
 
-#: projects/models.py:116
+#: projects/models.py:117
 msgid ""
 "The official URL that the docs live at. This can be at readthedocs.org, or "
 "somewhere else. Ex. http://docs.fabfile.org"
 msgstr ""
 
-#: projects/models.py:119
+#: projects/models.py:120
 msgid "Project version these docs apply to, i.e. 1.0a"
 msgstr "Verzia projektu, ktorej sa týka táto dokumentácia, napr. 1.0a"
 
-#: projects/models.py:121 templates/sphinx/sphinx_rtd_theme/layout.html:82
+#: projects/models.py:122 templates/sphinx/sphinx_rtd_theme/layout.html:58
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:140
 msgid "Copyright"
 msgstr "Autorské práva"
 
-#: projects/models.py:122
+#: projects/models.py:123
 msgid "Project copyright information"
 msgstr "Informácia o autorských právach projektu"
 
-#: projects/models.py:124
+#: projects/models.py:125
 msgid "Theme"
 msgstr "Téma"
 
-#: projects/models.py:127
+#: projects/models.py:128
 msgid "Examples"
 msgstr "Príklady"
 
-#: projects/models.py:128
+#: projects/models.py:129
 msgid "Suffix"
 msgstr "Prípona"
 
-#: projects/models.py:131
+#: projects/models.py:132
 msgid "Single version"
 msgstr ""
 
-#: projects/models.py:132
+#: projects/models.py:133
 msgid ""
 "A single version site has no translations and only your \"latest\" version, "
-"served at the root of the domain."
+"served at the root of the domain. Use this with caution, only turn it on if "
+"you will <b>never</b> have multiple versions of your docs."
 msgstr ""
 
-#: projects/models.py:134
+#: projects/models.py:135
 msgid "Default version"
 msgstr "Štandardná verzia"
 
-#: projects/models.py:135
+#: projects/models.py:136
 msgid "The version of your project that / redirects to"
 msgstr "Verzia projektu, na ktorý sa adresa / presmeruje"
 
-#: projects/models.py:139
+#: projects/models.py:140
 msgid "Default branch"
 msgstr "Štandardná vetva"
 
-#: projects/models.py:140
+#: projects/models.py:141
 msgid ""
 "What branch \"latest\" points to. Leave empty to use the default value for "
 "your VCS (eg. trunk or master)."
@@ -525,22 +540,22 @@ msgstr ""
 "Ktorá vetva smeruje na \"latest\". Ponechajte prázdne pre použitie "
 "štandardnej hodnoty vášho VCS (napr. trunk alebo master)."
 
-#: projects/models.py:144
+#: projects/models.py:145
 msgid "Requirements file"
 msgstr "Súbor závislostí"
 
-#: projects/models.py:146
+#: projects/models.py:147
 msgid ""
 "Requires Virtualenv. A <a href=\"http://www.pip-installer.org/en/latest/"
 "cookbook.html#requirements-files\">pip requirements file</a> needed to build "
 "your documentation. Path from the root of your project."
 msgstr ""
 
-#: projects/models.py:151
+#: projects/models.py:152
 msgid "Documentation type"
 msgstr "Typ dokumentácie"
 
-#: projects/models.py:153
+#: projects/models.py:154
 msgid ""
 "Type of documentation you are building. <a href=\"http://sphinx.pocoo.org/"
 "builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More info</a>."
@@ -548,11 +563,11 @@ msgstr ""
 "Typ dokumentácie, ktorú budujete. <a href=\"http://sphinx.pocoo.org/builders."
 "html#sphinx.builders.html.DirectoryHTMLBuilder\">Viac informácií</a>."
 
-#: projects/models.py:157
+#: projects/models.py:158
 msgid "Analytics code"
 msgstr "Analytics kód"
 
-#: projects/models.py:158
+#: projects/models.py:159
 msgid ""
 "Google Analytics Tracking ID (ex. UA-22345342-1). This may slow down your "
 "page loads."
@@ -560,19 +575,19 @@ msgstr ""
 "Google Analytics Tracking ID (napr. UA-22345342-1). Toto môže spomaliť "
 "načítanie vašej stránky."
 
-#: projects/models.py:162 projects/models.py:771
+#: projects/models.py:163 projects/models.py:812
 msgid "Path"
 msgstr "Cesta"
 
-#: projects/models.py:163
+#: projects/models.py:164
 msgid "The directory where conf.py lives"
 msgstr "Adresár, kde sa nachádza conf.py"
 
-#: projects/models.py:165
+#: projects/models.py:166
 msgid "Python configuration file"
 msgstr "Python konfiguračný súbor"
 
-#: projects/models.py:166
+#: projects/models.py:167
 msgid ""
 "Path from project root to conf.py file (ex. docs/conf.py). Leave blank if "
 "you want us to find it for you."
@@ -580,135 +595,164 @@ msgstr ""
 "Cesta z koreňového adresára na súbor conf.py (napr. docs/conf.py). "
 "Ponechajte prázdne, ak chcete, aby sme ju našli za vás."
 
-#: projects/models.py:169
+#: projects/models.py:170
 msgid "Featured"
 msgstr ""
 
-#: projects/models.py:170
+#: projects/models.py:171
 msgid "Skip"
 msgstr "Preskočiť"
 
 #: projects/models.py:172
+#, fuzzy
+msgid "Mirror"
+msgstr "Chyba"
+
+#: projects/models.py:174
 msgid "Use virtualenv"
 msgstr "Použiť virtualenv"
 
-#: projects/models.py:173
+#: projects/models.py:175
 msgid "Install your project inside a virtualenv using setup.py install"
 msgstr "Nainštalujte váš projekt vo virtuelenve pomocou setup.py install"
 
-#: projects/models.py:179
+#: projects/models.py:181
 msgid "Python Interpreter"
 msgstr ""
 
-#: projects/models.py:187
+#: projects/models.py:189
 msgid "Use system packages"
 msgstr ""
 
-#: projects/models.py:188
+#: projects/models.py:190
 msgid "Give the virtual environment access to the global site-packages dir."
 msgstr "Povoliť virtualenvu prístup do globálneho adresára site-packages."
 
-#: projects/models.py:190
+#: projects/models.py:192
 msgid "Django Packages URL"
 msgstr ""
 
-#: projects/models.py:195
+#: projects/models.py:197
 msgid ""
 "(Beta) Level of privacy that you want on the repository. Protected means "
 "public but not in listings."
 msgstr ""
 
-#: projects/models.py:198
+#: projects/models.py:200
 msgid "Version Privacy Level"
 msgstr ""
 
-#: projects/models.py:200
+#: projects/models.py:202
 msgid ""
 "(Beta) Default level of privacy you want on built versions of documentation."
 msgstr ""
 
-#: projects/models.py:205
+#: projects/models.py:207
 msgid "Related projects"
 msgstr ""
 
-#: projects/models.py:221
+#: projects/models.py:223
 msgid "Number of Major versions"
 msgstr ""
 
-#: projects/models.py:226
+#: projects/models.py:228
 msgid "2 means supporting 3.X.X and 2.X.X, but not 1.X.X"
 msgstr ""
 
-#: projects/models.py:229
+#: projects/models.py:231
 msgid "Number of Minor versions"
 msgstr ""
 
-#: projects/models.py:234
+#: projects/models.py:236
 msgid "2 means supporting 2.2.X and 2.1.X, but not 2.0.X"
 msgstr ""
 
-#: projects/models.py:237
+#: projects/models.py:239
 msgid "Number of Point versions"
 msgstr ""
 
-#: projects/models.py:242
+#: projects/models.py:244
 msgid "2 means supporting 2.2.2 and 2.2.1, but not 2.2.0"
 msgstr ""
 
 #. Translators: Permission around whether a user can view the
 #. project
-#: projects/models.py:253
+#: projects/models.py:255
 msgid "View Project"
 msgstr ""
 
-#: projects/models.py:288
+#: projects/models.py:282
 msgid "Model must have slug"
 msgstr "Model musí mať slug"
 
-#: projects/models.py:772
+#: projects/models.py:813
 msgid "MD5 checksum"
 msgstr "MD5 kontrolný súčet"
 
-#: projects/models.py:800
+#: projects/models.py:841
 msgid "URL to send the webhook to"
 msgstr ""
 
-#: projects/tasks.py:788
-#, python-format
-msgid "(ReadTheDocs) Building docs for %s failed"
-msgstr ""
-
-#: settings/base.py:54
+#: settings/base.py:55
 msgid "English"
 msgstr "Anglicky"
 
-#: settings/base.py:55
+#: settings/base.py:56
 msgid "Spanish"
 msgstr "Španielsky"
 
-#: settings/base.py:56
+#: settings/base.py:57
 msgid "Norwegian Bokmål"
 msgstr ""
 
-#: settings/base.py:57
+#: settings/base.py:58
 msgid "French"
 msgstr ""
 
-#: settings/base.py:58
+#: settings/base.py:59
 msgid "Russian"
 msgstr ""
 
-#: settings/base.py:59
+#: settings/base.py:60
 msgid "German"
 msgstr ""
 
-#: settings/base.py:60
+#: settings/base.py:61
 msgid "Galician"
 msgstr ""
 
+#: settings/base.py:62
+#, fuzzy
+msgid "Vietnamese"
+msgstr "Meno"
+
+#: settings/base.py:63
+msgid "Chinese"
+msgstr ""
+
+#: settings/base.py:64
+msgid "Taiwanese"
+msgstr ""
+
+#: settings/base.py:65
+msgid "Japanese"
+msgstr ""
+
+#: settings/base.py:66
+msgid "Ukrainian"
+msgstr ""
+
+#: templates/404.html:5
+msgid "Maze Found"
+msgstr ""
+
+#: templates/500.html:5
+msgid "Server Error"
+msgstr ""
+
 #. Translators: Name of the website
-#: templates/base.html:13 templates/core/header.html:10
-#: templates/core/home-header.html:9
+#: templates/base.html:13 templates/error_header.html:12
+#: templates/core/header.html:10 templates/core/home-header.html:9
 msgid "Read the Docs"
 msgstr "Read the Docs"
 
@@ -722,18 +766,18 @@ msgstr ""
 msgid "Read the Docs thanks you for your continued patience."
 msgstr "Read the Docs vám ďakuje za vašu trpezlivosť."
 
-#: templates/base.html:83
+#: templates/base.html:84
 #, python-format
 msgid ""
 "Copyright 2010-2013. Created by %(eric)s, %(charles)s, and %(bobby)s for the "
 "2010 %(djangodash)s."
 msgstr ""
 
-#: templates/base.html:85
+#: templates/base.html:86
 msgid "Docs"
 msgstr ""
 
-#: templates/base.html:87
+#: templates/base.html:88
 msgid ""
 "Made by <a href=\"https://github.com/rtfd/readthedocs.org/graphs/contributors"
 "\">humans</a>. Funded by <a href=\"https://www.gittip.com/readthedocs/"
@@ -746,6 +790,22 @@ msgstr ""
 #: templates/base_filter.html:14 templates/core/filter_bar.html:8
 msgid "Filter"
 msgstr ""
+
+#: templates/error_header.html:22 templates/core/header.html:19
+msgid "Go"
+msgstr ""
+
+#: templates/error_header.html:32 templates/core/header.html:46
+#: templates/registration/logout.html:6
+msgid "Log Out"
+msgstr "Odhlásiť sa"
+
+#: templates/error_header.html:36 templates/core/header.html:48
+#: templates/core/home-header.html:19 templates/registration/login.html:6
+#: templates/registration/login.html:20 templates/registration/login.html:27
+#: templates/registration/password_reset_complete.html:16
+msgid "Log in"
+msgstr "Prihlásiť sa"
 
 #: templates/filter.html:26
 msgid "Filtered Results"
@@ -819,6 +879,11 @@ msgstr ""
 "Toto je post-commit hook. Nastavte ho v administrácii vášho projektu tak, "
 "aby naň vykonával POST požiadavku, čo bude pre nás znamenať automatickú "
 "aktualizáciu vašej dokumentácie."
+
+#: templates/archive/index.html:5
+#, fuzzy
+msgid "Read the Docs Archive"
+msgstr "Read the Docs"
 
 #: templates/bookmarks/bookmark_list.html:7
 msgid "Bookmarks"
@@ -920,24 +985,9 @@ msgstr ""
 msgid "No objects found"
 msgstr ""
 
-#: templates/core/header.html:19
-msgid "Go"
-msgstr ""
-
 #: templates/core/header.html:45
 msgid "Dashboard"
 msgstr ""
-
-#: templates/core/header.html:46 templates/registration/logout.html:6
-msgid "Log Out"
-msgstr "Odhlásiť sa"
-
-#: templates/core/header.html:48 templates/core/home-header.html:19
-#: templates/registration/login.html:6 templates/registration/login.html:20
-#: templates/registration/login.html:27
-#: templates/registration/password_reset_complete.html:16
-msgid "Log in"
-msgstr "Prihlásiť sa"
 
 #: templates/core/home-header.html:10
 msgid "Create, host, and browse documentation."
@@ -949,7 +999,7 @@ msgid "Sign up"
 msgstr "Zaregistrovať sa"
 
 #. Translators: The 'or' here is in between 'Submit' and 'delete'.
-#: templates/core/home-header.html:19 templates/projects/project_edit.html:36
+#: templates/core/home-header.html:19 templates/projects/project_edit.html:39
 msgid "or"
 msgstr "alebo"
 
@@ -999,7 +1049,7 @@ msgstr ""
 #: templates/core/project_details.html:18
 #: templates/core/project_list_detailed.html:34
 #: templates/core/project_list_featured.html:17
-#: templates/sphinx/sphinx_rtd_theme/layout.html:79
+#: templates/sphinx/sphinx_rtd_theme/layout.html:55
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:137
 #: templates/sphinx/sphinx_rtd_theme/search.html:11
 msgid "Search"
@@ -1034,6 +1084,10 @@ msgstr ""
 
 #: templates/core/project_details.html:79
 msgid "Build"
+msgstr ""
+
+#: templates/core/project_details.html:89
+msgid "Repository"
 msgstr ""
 
 #: templates/core/project_details.html:94
@@ -1117,15 +1171,7 @@ msgid ""
 "      "
 msgstr ""
 
-#: templates/core/project_downloads.html:36
-#, python-format
-msgid ""
-"\n"
-"        %(version)s Manpage\n"
-"      "
-msgstr ""
-
-#: templates/core/project_downloads.html:46
+#: templates/core/project_downloads.html:49
 #, python-format
 msgid ""
 "\n"
@@ -1133,7 +1179,7 @@ msgid ""
 "      "
 msgstr ""
 
-#: templates/core/project_downloads.html:56
+#: templates/core/project_downloads.html:59
 #, python-format
 msgid ""
 "\n"
@@ -1141,7 +1187,7 @@ msgid ""
 "      "
 msgstr ""
 
-#: templates/core/project_downloads.html:64
+#: templates/core/project_downloads.html:67
 msgid "No downloads for this project."
 msgstr ""
 
@@ -1343,7 +1389,7 @@ msgstr ""
 #: templates/projects/alias_edit.html:16
 #: templates/projects/project_create.html:42
 #: templates/projects/project_import.html:32
-#: templates/projects/project_import.html:34
+#: templates/projects/project_import.html:38
 msgid "Create"
 msgstr "Vytvoriť"
 
@@ -1419,7 +1465,7 @@ msgid "Advanced Settings"
 msgstr ""
 
 #: templates/projects/project_advanced.html:34
-#: templates/projects/project_edit.html:34
+#: templates/projects/project_edit.html:37
 #: templates/projects/project_notifications.html:54
 #: templates/projects/project_subprojects.html:37
 #: templates/projects/project_translations.html:36
@@ -1490,7 +1536,7 @@ msgstr ""
 msgid "Settings"
 msgstr ""
 
-#: templates/projects/project_edit.html:37
+#: templates/projects/project_edit.html:40
 msgid "delete"
 msgstr "vymazať"
 
@@ -2096,12 +2142,12 @@ msgstr ""
 msgid "Next"
 msgstr ""
 
-#: templates/sphinx/sphinx_rtd_theme/layout.html:71
+#: templates/sphinx/sphinx_rtd_theme/layout.html:47
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:131
 msgid "About these documents"
 msgstr "O týcho dokumetoch"
 
-#: templates/sphinx/sphinx_rtd_theme/layout.html:75
+#: templates/sphinx/sphinx_rtd_theme/layout.html:51
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:134
 msgid "Index"
 msgstr "Index"

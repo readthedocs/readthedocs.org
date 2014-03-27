@@ -1,0 +1,32 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2010, Eric Holscher, Charlie Leifer, Bobby Grace
+# This file is distributed under the same license as the Read The Docs package.
+# 
+# Translators:
+msgid ""
+msgstr ""
+"Project-Id-Version: readthedocs-docs\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-03-01 22:07+0800\n"
+"PO-Revision-Date: 2014-03-01 13:43+0000\n"
+"Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# e52de36f1bf24ee6a7fda490b7ec9ad8
+#: ../../custom_installs/index.rst:2
+msgid "Info about custom installs"
+msgstr "Info about custom installs"
+
+# 1534817d7caf41288543ecf717ac55f3
+#: ../../custom_installs/index.rst:4
+msgid ""
+"Read the Docs is open source, which means you can run your own version of "
+"it. There are many reasons to do this, the main one being if you want a "
+"private instance. If you have to keep everything behind a firewall of VPN, "
+"this is for you."
+msgstr "Read the Docs is open source, which means you can run your own version of it. There are many reasons to do this, the main one being if you want a private instance. If you have to keep everything behind a firewall of VPN, this is for you."

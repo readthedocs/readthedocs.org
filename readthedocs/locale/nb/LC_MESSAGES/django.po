@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-01-15 05:36-0600\n"
-"PO-Revision-Date: 2014-01-11 19:32+0000\n"
+"POT-Creation-Date: 2014-03-26 05:35-0500\n"
+"PO-Revision-Date: 2014-02-21 08:51+0000\n"
 "Last-Translator: Stein Magnus Jodal <stein.magnus@jodal.no>\n"
 "Language-Team: Norwegian Bokmål (http://www.transifex.com/projects/p/"
 "readthedocs/language/nb/)\n"
@@ -28,16 +28,16 @@ msgstr "Beklager, ingen treff på den siden."
 msgid "Invalid resource lookup data provided (mismatched type).: %(error)s"
 msgstr "Ugyldig ressursoppslagsdata benyttet (upassende type).: %(error)s"
 
-#: bookmarks/models.py:9 builds/models.py:82 builds/models.py:268
-#: builds/models.py:284 projects/models.py:765
+#: bookmarks/models.py:9 builds/models.py:83 builds/models.py:275
+#: builds/models.py:291 projects/models.py:806
 msgid "Project"
 msgstr "Prosjekt"
 
-#: bookmarks/models.py:11 core/models.py:14 projects/models.py:99
+#: bookmarks/models.py:11 core/models.py:14 projects/models.py:100
 msgid "User"
 msgstr "Bruker"
 
-#: bookmarks/models.py:13 builds/models.py:292
+#: bookmarks/models.py:13 builds/models.py:299
 msgid "Date"
 msgstr "Dato"
 
@@ -45,7 +45,7 @@ msgstr "Dato"
 msgid "URL"
 msgstr "URL"
 
-#: bookmarks/models.py:15 projects/models.py:103
+#: bookmarks/models.py:15 projects/models.py:104
 #: templates/core/project_details.html:5
 msgid "Description"
 msgstr "Beskrivelse"
@@ -60,164 +60,173 @@ msgid "Triggered"
 msgstr "Trigget"
 
 #: builds/constants.py:5
+msgid "Cloning"
+msgstr ""
+
+#: builds/constants.py:6
+msgid "Installing"
+msgstr ""
+
+#: builds/constants.py:7
 msgid "Building"
 msgstr "Bygger"
 
-#: builds/constants.py:6
+#: builds/constants.py:8
 msgid "Finished"
 msgstr "Ferdig"
 
-#: builds/constants.py:10
+#: builds/constants.py:12
 msgid "HTML"
 msgstr "HTML"
 
-#: builds/constants.py:11
+#: builds/constants.py:13
 msgid "PDF"
 msgstr "PDF"
 
-#: builds/constants.py:12
+#: builds/constants.py:14
 msgid "Epub"
 msgstr "Epub"
 
-#: builds/constants.py:13
+#: builds/constants.py:15
 msgid "Manpage"
 msgstr "Man-side"
 
-#: builds/constants.py:14
+#: builds/constants.py:16
 msgid "Dash"
 msgstr "Dash"
 
-#: builds/constants.py:18
+#: builds/constants.py:20
 msgid "Branch"
-msgstr ""
+msgstr "Gren"
 
-#: builds/constants.py:19 builds/filters.py:19
+#: builds/constants.py:21 builds/filters.py:19
 msgid "Tag"
 msgstr "Tagg"
 
-#: builds/constants.py:20
+#: builds/constants.py:22
 msgid "Unknown"
-msgstr ""
+msgstr "Ukjent"
 
 #: builds/filters.py:10 projects/filters.py:9
 msgid "Any"
 msgstr "Alle"
 
-#: builds/filters.py:17 builds/filters.py:30 projects/filters.py:16
-#: projects/models.py:101 projects/models.py:769
+#: builds/filters.py:17 builds/filters.py:29 projects/filters.py:31
+#: projects/models.py:102 projects/models.py:810
 msgid "Name"
 msgstr "Navn"
 
-#: builds/filters.py:39
+#: builds/filters.py:38
 msgid "Build Date"
 msgstr "Byggdato"
 
-#: builds/filters.py:40
+#: builds/filters.py:39
 msgid "Build Type"
 msgstr "Byggtype"
 
-#: builds/models.py:85 builds/models.py:288
+#: builds/models.py:86 builds/models.py:295
 msgid "Type"
 msgstr "Type"
 
-#: builds/models.py:89
+#: builds/models.py:90
 msgid "Identifier"
 msgstr "Identifikator"
 
-#: builds/models.py:91
+#: builds/models.py:92
 msgid "Verbose Name"
 msgstr "Fullt navn"
 
-#: builds/models.py:92 projects/models.py:102 projects/models.py:770
+#: builds/models.py:93 projects/filters.py:33 projects/models.py:103
+#: projects/models.py:811
 msgid "Slug"
 msgstr "Slug"
 
-#: builds/models.py:94
+#: builds/models.py:95
 msgid "Supported"
 msgstr "Støttet"
 
-#: builds/models.py:95 templates/projects/project_versions.html:46
+#: builds/models.py:96 templates/projects/project_versions.html:46
 msgid "Active"
 msgstr "Aktiv"
 
-#: builds/models.py:96 templates/projects/includes/icon_built.html:4
+#: builds/models.py:97 templates/projects/includes/icon_built.html:4
 msgid "Built"
 msgstr "Bygget"
 
-#: builds/models.py:97 templates/projects/includes/icon_built.html:7
+#: builds/models.py:98 templates/projects/includes/icon_built.html:7
 msgid "Uploaded"
 msgstr "Lastet opp"
 
-#: builds/models.py:99 projects/models.py:193
+#: builds/models.py:100 projects/models.py:195
 msgid "Privacy Level"
 msgstr "Tilgangsnivå"
 
-#: builds/models.py:100
+#: builds/models.py:101
 msgid "Level of privacy for this Version."
 msgstr "Tilgangsnivå for denne versjonen."
 
 #. Translators: Permission around whether a user can view the
 #. version
-#: builds/models.py:111
+#: builds/models.py:112
 msgid "View Version"
 msgstr "Vis versjon"
 
-#: builds/models.py:115
+#: builds/models.py:116
 #, python-format
 msgid "Version %(version)s of %(project)s (%(pk)s)"
 msgstr "Versjon %(version)s av %(project)s (%(pk)s)"
 
-#: builds/models.py:270
+#: builds/models.py:277
 msgid "From slug"
 msgstr "Fra slug"
 
-#: builds/models.py:271
+#: builds/models.py:278
 msgid "To slug"
 msgstr "Til slug"
 
-#: builds/models.py:273
+#: builds/models.py:280
 msgid "Largest"
 msgstr "Størst"
 
-#: builds/models.py:276
+#: builds/models.py:283
 #, python-format
 msgid "Alias for %(project)s: %(from)s -> %(to)s"
 msgstr "Alias for %(project)s: %(from)s -> %(to)s"
 
-#: builds/models.py:286 projects/models.py:118 projects/models.py:767
+#: builds/models.py:293 projects/models.py:119 projects/models.py:808
 #: templates/djangome/oneoffs.html:11
 msgid "Version"
 msgstr "Versjon"
 
-#: builds/models.py:290
+#: builds/models.py:297
 msgid "State"
 msgstr "Tilstand"
 
-#: builds/models.py:293
+#: builds/models.py:300
 msgid "Success"
 msgstr "Suksess"
 
-#: builds/models.py:294
+#: builds/models.py:302
 msgid "Setup"
 msgstr "Oppsett"
 
-#: builds/models.py:295
+#: builds/models.py:303
 msgid "Setup error"
 msgstr "Oppsettsfeil"
 
-#: builds/models.py:296
+#: builds/models.py:304
 msgid "Output"
 msgstr "Utdata"
 
-#: builds/models.py:297
+#: builds/models.py:305
 msgid "Error"
 msgstr "Feil"
 
-#: builds/models.py:298
+#: builds/models.py:306
 msgid "Exit code"
 msgstr "Avslutningskode"
 
-#: builds/models.py:306
+#: builds/models.py:314
 #, python-format
 msgid "Build %(project)s for %(usernames)s (%(pk)s)"
 msgstr "Bygg %(project)s for %(usernames)s (%(pk)s)"
@@ -230,7 +239,7 @@ msgstr "Fornavn"
 msgid "Last name"
 msgstr "Etternavn"
 
-#: core/middleware.py:70 core/middleware.py:75
+#: core/middleware.py:70
 msgid "Invalid hostname"
 msgstr "Ugyldig hostnavn"
 
@@ -269,89 +278,93 @@ msgid "Sphinx HtmlDir"
 msgstr "Sphinx HtmlDir"
 
 #: projects/constants.py:20
-msgid "Sphinx Websupport"
-msgstr "Sphinx Websupport"
+msgid "Sphinx Single Page HTML"
+msgstr "Sphinx enkeltside HTML"
+
+#: projects/constants.py:21
+msgid "Mkdocs"
+msgstr "Mkdocs"
 
 #. Translators: This is a name of a Sphinx theme.
-#: projects/constants.py:27
+#: projects/constants.py:29
 msgid "Default"
 msgstr "Standardverdi"
 
 #. Translators: This is a name of a Sphinx theme.
-#: projects/constants.py:29
+#: projects/constants.py:31
 msgid "Sphinx Docs"
 msgstr "Sphinx Docs"
 
 #. Translators: This is a name of a Sphinx theme.
-#: projects/constants.py:33
+#: projects/constants.py:35
 msgid "Traditional"
 msgstr "Tradisjonell"
 
 #. Translators: This is a name of a Sphinx theme.
-#: projects/constants.py:35
+#: projects/constants.py:37
 msgid "Nature"
 msgstr "Natur"
 
 #. Translators: This is a name of a Sphinx theme.
-#: projects/constants.py:37
+#: projects/constants.py:39
 msgid "Haiku"
 msgstr "Haiku"
 
-#: projects/constants.py:66
+#: projects/constants.py:68
 msgid "Live"
 msgstr "Live"
 
-#: projects/constants.py:67
+#: projects/constants.py:69
 msgid "Deleted"
 msgstr "Slettet"
 
-#: projects/constants.py:71
+#: projects/constants.py:73
 msgid "Git"
 msgstr "Git"
 
-#: projects/constants.py:72
+#: projects/constants.py:74
 msgid "Subversion"
 msgstr "Subversion"
 
-#: projects/constants.py:73
+#: projects/constants.py:75
 msgid "Mercurial"
 msgstr "Mercurial"
 
-#: projects/constants.py:74
+#: projects/constants.py:76
 msgid "Bazaar"
 msgstr "Bazaar"
 
-#: projects/constants.py:82
+#: projects/constants.py:84
 msgid "Public"
 msgstr "Offentlig"
 
-#: projects/constants.py:83
+#: projects/constants.py:85
 msgid "Protected"
 msgstr "Beskyttet"
 
-#: projects/constants.py:84
+#: projects/constants.py:86
 msgid "Private"
 msgstr "Privat"
 
-#: projects/constants.py:95
+#: projects/constants.py:97
 msgid "CPython 2.x"
 msgstr "CPython 2.x"
 
-#: projects/constants.py:96
+#: projects/constants.py:98
 msgid "CPython 3.x"
 msgstr "CPython 3.x"
 
-#: projects/filters.py:18
+#: projects/filters.py:34
 msgid "Created Date"
 msgstr "Opprettet dato"
 
-#: projects/filters.py:20 projects/models.py:106
+#: projects/filters.py:36 projects/models.py:107
 msgid "Repository URL"
 msgstr "Repo-URL"
 
-#: projects/filters.py:23 templates/core/project_details.html:89
-msgid "Repository"
-msgstr "Repo"
+#: projects/filters.py:39
+msgid "Repository Type"
+msgstr "Repotype"
 
 #: projects/forms.py:23
 msgid "A project with that name exists already!"
@@ -365,11 +378,11 @@ msgstr ""
 "URL til koden din (hg eller git). F.eks. http://github.com/ericholscher/"
 "django-kong.git"
 
-#: projects/forms.py:57
+#: projects/forms.py:52
 msgid "Invalid character in repo name"
 msgstr "Ugyldig tegn i reponavnet"
 
-#: projects/forms.py:60
+#: projects/forms.py:55
 msgid ""
 "It looks like you entered a private repo - please use the public (http:// or "
 "git://) clone url"
@@ -377,71 +390,71 @@ msgstr ""
 "Du har lagt inn et privat repo - bruk den offenlige klone-URL-en (http:// "
 "eller git://)"
 
-#: projects/forms.py:82 projects/models.py:183
+#: projects/forms.py:72 projects/models.py:185
 msgid "(Beta) The Python interpreter used to create the virtual environment."
 msgstr ""
 "(Beta) Python-tolkeren som blir brukt til å lage det virtuelle miljøet."
 
-#: projects/forms.py:111
+#: projects/forms.py:101
 msgid ""
 "Your configuration file is invalid, make sure it contains conf.py in it."
 msgstr "Konfigurasjonsfilen din er ugyldig. Sjekk at den inneholder conf.py."
 
-#: projects/forms.py:180 templates/core/project_details.html:152
+#: projects/forms.py:170 templates/core/project_details.html:152
 msgid "Default Version"
 msgstr "Standard versjon"
 
-#: projects/forms.py:203
+#: projects/forms.py:193
 msgid "Zip file of HTML"
 msgstr "Zip-fil eller HTML"
 
-#: projects/forms.py:205
+#: projects/forms.py:195
 msgid "Overwrite existing HTML?"
 msgstr "Overskriv eksisterende HTML?"
 
-#: projects/forms.py:218
+#: projects/forms.py:208
 msgid "That version is already active!"
 msgstr "Den versjonen er allerede aktiv!"
 
-#: projects/forms.py:220
+#: projects/forms.py:210
 msgid "Must upload a zip file."
 msgstr "Du må laste opp en zip-fil."
 
-#: projects/forms.py:234
+#: projects/forms.py:224
 msgid "Version of the project you are uploading HTML for"
 msgstr "Versjon av prosjektet du laster opp HTML for"
 
-#: projects/forms.py:251 projects/forms.py:310
+#: projects/forms.py:241 projects/forms.py:300
 #, python-format
 msgid "Project %(name)s does not exist"
 msgstr "Prosjektet %(name)s finnes ikke"
 
-#: projects/forms.py:272
+#: projects/forms.py:262
 #, python-format
 msgid "User %(name)s does not exist"
 msgstr "Brukeren %(name)s finnes ikke"
 
-#: projects/models.py:79
+#: projects/models.py:80
 msgid "Parent"
 msgstr "Forelder"
 
-#: projects/models.py:81
+#: projects/models.py:82
 msgid "Child"
 msgstr "Barn"
 
-#: projects/models.py:95
+#: projects/models.py:96
 msgid "Publication date"
 msgstr "Publiseringsdato"
 
-#: projects/models.py:96
+#: projects/models.py:97
 msgid "Modified date"
 msgstr "Endringsdato"
 
-#: projects/models.py:104
+#: projects/models.py:105
 msgid "The reStructuredText description of the project"
 msgstr "Beskrivelse av prosjektet i reStructuredText-format"
 
-#: projects/models.py:107
+#: projects/models.py:108
 msgid ""
 "Checkout URL for your code (hg, git, etc.). Ex. http://github.com/"
 "ericholscher/django-kong.git"
@@ -449,23 +462,23 @@ msgstr ""
 "Utsjekkings-URL for koden din (hg, git, etc.). F.eks. http://github.com/"
 "ericholscher/django-kongo.git"
 
-#: projects/models.py:110
+#: projects/models.py:111
 msgid "Repository type"
 msgstr "Repotype"
 
-#: projects/models.py:112
+#: projects/models.py:113
 msgid "Project URL"
 msgstr "Prosjekt-URL"
 
-#: projects/models.py:113
+#: projects/models.py:114
 msgid "The project's homepage"
 msgstr "Prosjektets hjemmeside"
 
-#: projects/models.py:115
+#: projects/models.py:116
 msgid "Canonical URL"
 msgstr "Kanonisk URL"
 
-#: projects/models.py:116
+#: projects/models.py:117
 msgid ""
 "The official URL that the docs live at. This can be at readthedocs.org, or "
 "somewhere else. Ex. http://docs.fabfile.org"
@@ -473,56 +486,58 @@ msgstr ""
 "Den offisielle URL-en som dokumentasjonen lever på. Dette kan være "
 "readthedocs.org, eller noe annet. For eksempel http://docs.fabfile.org"
 
-#: projects/models.py:119
+#: projects/models.py:120
 msgid "Project version these docs apply to, i.e. 1.0a"
 msgstr "Prosjektversjon disse dokumentene tilhører, i.e. 1.0a"
 
-#: projects/models.py:121 templates/sphinx/sphinx_rtd_theme/layout.html:82
+#: projects/models.py:122 templates/sphinx/sphinx_rtd_theme/layout.html:58
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:140
 msgid "Copyright"
 msgstr "Opphavsrett"
 
-#: projects/models.py:122
+#: projects/models.py:123
 msgid "Project copyright information"
 msgstr "Informasjon om prosjektets opphavsrett"
 
-#: projects/models.py:124
+#: projects/models.py:125
 msgid "Theme"
 msgstr "Tema"
 
-#: projects/models.py:127
+#: projects/models.py:128
 msgid "Examples"
 msgstr "Eksempler"
 
-#: projects/models.py:128
+#: projects/models.py:129
 msgid "Suffix"
 msgstr "Postfiks"
 
-#: projects/models.py:131
+#: projects/models.py:132
 msgid "Single version"
 msgstr "Enkeltversjon"
 
-#: projects/models.py:132
+#: projects/models.py:133
 msgid ""
 "A single version site has no translations and only your \"latest\" version, "
-"served at the root of the domain."
+"served at the root of the domain. Use this with caution, only turn it on if "
+"you will <b>never</b> have multiple versions of your docs."
 msgstr ""
-"En enkeltversjonsside har ingen oversettelser og bare \"siste\" versjon "
-"tilgjengelig. Siden vises direkte på roten til domenet."
+"En enkeltversjonside har ingen oversettelser og bare \"siste\" versjon, "
+"servert på roten til domenet. Vær forsiktig og skru kun på dette dersom du "
+"<b>aldri</b> kommer til å ha flere versjoner av dokumentasjonen din."
 
-#: projects/models.py:134
+#: projects/models.py:135
 msgid "Default version"
 msgstr "Hovedversjon"
 
-#: projects/models.py:135
+#: projects/models.py:136
 msgid "The version of your project that / redirects to"
 msgstr "Versjonen av prosjektet ditt som / videresendes til"
 
-#: projects/models.py:139
+#: projects/models.py:140
 msgid "Default branch"
 msgstr "Hovedgren"
 
-#: projects/models.py:140
+#: projects/models.py:141
 msgid ""
 "What branch \"latest\" points to. Leave empty to use the default value for "
 "your VCS (eg. trunk or master)."
@@ -530,11 +545,11 @@ msgstr ""
 "Hvilken gren \"latest\" peker til. La feltet være tomt for å bruke "
 "standardvalget for ditt VCS (f.eks. trunk eller master)"
 
-#: projects/models.py:144
+#: projects/models.py:145
 msgid "Requirements file"
 msgstr "Requirements-fil"
 
-#: projects/models.py:146
+#: projects/models.py:147
 msgid ""
 "Requires Virtualenv. A <a href=\"http://www.pip-installer.org/en/latest/"
 "cookbook.html#requirements-files\">pip requirements file</a> needed to build "
@@ -545,11 +560,11 @@ msgstr ""
 "det som kreves for å bygge dokumentasjonen. Sti fra roten av prosjektet til "
 "filen."
 
-#: projects/models.py:151
+#: projects/models.py:152
 msgid "Documentation type"
 msgstr "Dokumentasjonstype"
 
-#: projects/models.py:153
+#: projects/models.py:154
 msgid ""
 "Type of documentation you are building. <a href=\"http://sphinx.pocoo.org/"
 "builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More info</a>."
@@ -557,11 +572,11 @@ msgstr ""
 "Type dokumentasjon som bygges. <a href=\"http://sphinx.pocoo.org/builders."
 "html#sphinx.builders.html.DirectoryHTMLBuilder\">Mer informasjon</a>."
 
-#: projects/models.py:157
+#: projects/models.py:158
 msgid "Analytics code"
 msgstr "Analytics-kode"
 
-#: projects/models.py:158
+#: projects/models.py:159
 msgid ""
 "Google Analytics Tracking ID (ex. UA-22345342-1). This may slow down your "
 "page loads."
@@ -569,19 +584,19 @@ msgstr ""
 "Google Analytics Tracking ID (f.eks. UA-22345342-1). Dette kan forsinke "
 "sidelastninger."
 
-#: projects/models.py:162 projects/models.py:771
+#: projects/models.py:163 projects/models.py:812
 msgid "Path"
 msgstr "Filsti"
 
-#: projects/models.py:163
+#: projects/models.py:164
 msgid "The directory where conf.py lives"
 msgstr "Katalogen hvor conf.py er"
 
-#: projects/models.py:165
+#: projects/models.py:166
 msgid "Python configuration file"
 msgstr "Python-konfigurasjonsfil"
 
-#: projects/models.py:166
+#: projects/models.py:167
 msgid ""
 "Path from project root to conf.py file (ex. docs/conf.py). Leave blank if "
 "you want us to find it for you."
@@ -589,41 +604,45 @@ msgstr ""
 "Filsti fra prosjektets rot til conf.py-filen (f.eks. docs/conf.py). La "
 "feltet være tomt om du vil at vi skal finne den for deg."
 
-#: projects/models.py:169
+#: projects/models.py:170
 msgid "Featured"
 msgstr "Aktuell"
 
-#: projects/models.py:170
+#: projects/models.py:171
 msgid "Skip"
 msgstr "Hopp over"
 
 #: projects/models.py:172
+msgid "Mirror"
+msgstr "Speil"
+
+#: projects/models.py:174
 msgid "Use virtualenv"
 msgstr "Bruk virtualenv"
 
-#: projects/models.py:173
+#: projects/models.py:175
 msgid "Install your project inside a virtualenv using setup.py install"
 msgstr ""
 "Installer prosjektet ditt i et virtualenv ved hjelp av setup.py install"
 
-#: projects/models.py:179
+#: projects/models.py:181
 msgid "Python Interpreter"
 msgstr "Python-tolker"
 
-#: projects/models.py:187
+#: projects/models.py:189
 msgid "Use system packages"
 msgstr "Bruk systempakker"
 
-#: projects/models.py:188
+#: projects/models.py:190
 msgid "Give the virtual environment access to the global site-packages dir."
 msgstr ""
 "Gi det virtuelle miljøet tilgang til den globale \"site-packages\"-katalogen."
 
-#: projects/models.py:190
+#: projects/models.py:192
 msgid "Django Packages URL"
 msgstr "Django Packages-URL"
 
-#: projects/models.py:195
+#: projects/models.py:197
 msgid ""
 "(Beta) Level of privacy that you want on the repository. Protected means "
 "public but not in listings."
@@ -631,98 +650,122 @@ msgstr ""
 "(Beta) Ønsket tilgangsnivå for repoet. Beskyttet betyr offentlig men ikke "
 "listet."
 
-#: projects/models.py:198
+#: projects/models.py:200
 msgid "Version Privacy Level"
 msgstr "Versjonstilgangsnivå"
 
-#: projects/models.py:200
+#: projects/models.py:202
 msgid ""
 "(Beta) Default level of privacy you want on built versions of documentation."
 msgstr "(Beta) Standard tilgangsnivå for dokumentasjonsversjoner."
 
-#: projects/models.py:205
+#: projects/models.py:207
 msgid "Related projects"
 msgstr "Relaterte prosjekter"
 
-#: projects/models.py:221
+#: projects/models.py:223
 msgid "Number of Major versions"
 msgstr "Antall major-versjoner"
 
-#: projects/models.py:226
+#: projects/models.py:228
 msgid "2 means supporting 3.X.X and 2.X.X, but not 1.X.X"
 msgstr "2 betyr at 3.x.x og 2.x.x er støttet, men ikke 1.x.x."
 
-#: projects/models.py:229
+#: projects/models.py:231
 msgid "Number of Minor versions"
 msgstr "Antall minor-versjoner"
 
-#: projects/models.py:234
+#: projects/models.py:236
 msgid "2 means supporting 2.2.X and 2.1.X, but not 2.0.X"
 msgstr "2 betyr at 2.2.x og 2.1.x er støttet, men ikke 2.0.x."
 
-#: projects/models.py:237
+#: projects/models.py:239
 msgid "Number of Point versions"
 msgstr "Antall punkt-versjoner"
 
-#: projects/models.py:242
+#: projects/models.py:244
 msgid "2 means supporting 2.2.2 and 2.2.1, but not 2.2.0"
 msgstr "2 betyr at 2.2.2 og 2.2.1 er støttet, men ikke 2.2.0"
 
 #. Translators: Permission around whether a user can view the
 #. project
-#: projects/models.py:253
+#: projects/models.py:255
 msgid "View Project"
 msgstr "Vis prosjekt"
 
-#: projects/models.py:288
+#: projects/models.py:282
 msgid "Model must have slug"
 msgstr "Modellen må ha en slug"
 
-#: projects/models.py:772
+#: projects/models.py:813
 msgid "MD5 checksum"
 msgstr "MD5-sjekksum"
 
-#: projects/models.py:800
+#: projects/models.py:841
 msgid "URL to send the webhook to"
 msgstr "URL-en webhooken må kontakte"
 
-#: projects/tasks.py:788
-#, python-format
-msgid "(ReadTheDocs) Building docs for %s failed"
-msgstr "(ReadTheDocs) Bygging av dokumentasjon for %s feilet"
-
-#: settings/base.py:54
+#: settings/base.py:55
 msgid "English"
 msgstr "engelsk"
 
-#: settings/base.py:55
+#: settings/base.py:56
 msgid "Spanish"
 msgstr "spansk"
 
-#: settings/base.py:56
-#, fuzzy
-msgid "Norwegian Bokmål"
-msgstr "norsk"
-
 #: settings/base.py:57
+msgid "Norwegian Bokmål"
+msgstr "Norsk bokmål"
+
+#: settings/base.py:58
 msgid "French"
 msgstr "fransk"
 
-#: settings/base.py:58
-msgid "Russian"
-msgstr ""
-
 #: settings/base.py:59
-msgid "German"
-msgstr ""
+msgid "Russian"
+msgstr "Russisk"
 
 #: settings/base.py:60
+msgid "German"
+msgstr "Tysk"
+
+#: settings/base.py:61
 msgid "Galician"
+msgstr "Galisisk"
+
+#: settings/base.py:62
+msgid "Vietnamese"
+msgstr "Vietnamesisk"
+
+#: settings/base.py:63
+msgid "Chinese"
+msgstr "Kinesisk"
+
+#: settings/base.py:64
+#, fuzzy
+msgid "Taiwanese"
+msgstr "Kinesisk"
+
+#: settings/base.py:65
+msgid "Japanese"
 msgstr ""
 
+#: settings/base.py:66
+msgid "Ukrainian"
+msgstr ""
+
+#: templates/404.html:5
+msgid "Maze Found"
+msgstr ""
+
+#: templates/500.html:5
+#, fuzzy
+msgid "Server Error"
+msgstr "Oppsettsfeil"
+
 #. Translators: Name of the website
-#: templates/base.html:13 templates/core/header.html:10
-#: templates/core/home-header.html:9
+#: templates/base.html:13 templates/error_header.html:12
+#: templates/core/header.html:10 templates/core/home-header.html:9
 msgid "Read the Docs"
 msgstr "Read the Docs"
 
@@ -737,7 +780,7 @@ msgstr ""
 msgid "Read the Docs thanks you for your continued patience."
 msgstr "Read the Docs takker deg for tålmodigheten din."
 
-#: templates/base.html:83
+#: templates/base.html:84
 #, python-format
 msgid ""
 "Copyright 2010-2013. Created by %(eric)s, %(charles)s, and %(bobby)s for the "
@@ -746,11 +789,11 @@ msgstr ""
 "Copyright 2010-2013. Laget av %(eric)s, %(charles)s og %(bobby)s for "
 "%(djangodash)s 2010."
 
-#: templates/base.html:85
+#: templates/base.html:86
 msgid "Docs"
 msgstr "Dokumentasjon"
 
-#: templates/base.html:87
+#: templates/base.html:88
 msgid ""
 "Made by <a href=\"https://github.com/rtfd/readthedocs.org/graphs/contributors"
 "\">humans</a>. Funded by <a href=\"https://www.gittip.com/readthedocs/"
@@ -763,6 +806,22 @@ msgstr ""
 #: templates/base_filter.html:14 templates/core/filter_bar.html:8
 msgid "Filter"
 msgstr "Filter"
+
+#: templates/error_header.html:22 templates/core/header.html:19
+msgid "Go"
+msgstr "Søk"
+
+#: templates/error_header.html:32 templates/core/header.html:46
+#: templates/registration/logout.html:6
+msgid "Log Out"
+msgstr "Logg ut"
+
+#: templates/error_header.html:36 templates/core/header.html:48
+#: templates/core/home-header.html:19 templates/registration/login.html:6
+#: templates/registration/login.html:20 templates/registration/login.html:27
+#: templates/registration/password_reset_complete.html:16
+msgid "Log in"
+msgstr "Logg in"
 
 #: templates/filter.html:26
 msgid "Filtered Results"
@@ -847,6 +906,10 @@ msgstr ""
 "Dette er en post-commit hook. For at vi skal bygge dokumentasjonen din "
 "automatisk må du sette opp i administrasjonsgrensesnittet til prosjektet "
 "ditt at en POST-forespørsel skal sendes hit."
+
+#: templates/archive/index.html:5
+msgid "Read the Docs Archive"
+msgstr "Read The Docs-arkiv"
 
 #: templates/bookmarks/bookmark_list.html:7
 msgid "Bookmarks"
@@ -948,24 +1011,9 @@ msgstr "Ingen bygg funnet"
 msgid "No objects found"
 msgstr "Ingen objekter funnet"
 
-#: templates/core/header.html:19
-msgid "Go"
-msgstr "Søk"
-
 #: templates/core/header.html:45
 msgid "Dashboard"
 msgstr "Oversikt"
-
-#: templates/core/header.html:46 templates/registration/logout.html:6
-msgid "Log Out"
-msgstr "Logg ut"
-
-#: templates/core/header.html:48 templates/core/home-header.html:19
-#: templates/registration/login.html:6 templates/registration/login.html:20
-#: templates/registration/login.html:27
-#: templates/registration/password_reset_complete.html:16
-msgid "Log in"
-msgstr "Logg in"
 
 #: templates/core/home-header.html:10
 msgid "Create, host, and browse documentation."
@@ -977,7 +1025,7 @@ msgid "Sign up"
 msgstr "Registrering"
 
 #. Translators: The 'or' here is in between 'Submit' and 'delete'.
-#: templates/core/home-header.html:19 templates/projects/project_edit.html:36
+#: templates/core/home-header.html:19 templates/projects/project_edit.html:39
 msgid "or"
 msgstr "eller"
 
@@ -1027,7 +1075,7 @@ msgstr "Søk i %(project)s"
 #: templates/core/project_details.html:18
 #: templates/core/project_list_detailed.html:34
 #: templates/core/project_list_featured.html:17
-#: templates/sphinx/sphinx_rtd_theme/layout.html:79
+#: templates/sphinx/sphinx_rtd_theme/layout.html:55
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:137
 #: templates/sphinx/sphinx_rtd_theme/search.html:11
 msgid "Search"
@@ -1063,6 +1111,10 @@ msgstr "Bygg en versjon"
 #: templates/core/project_details.html:79
 msgid "Build"
 msgstr "Bygg"
+
+#: templates/core/project_details.html:89
+msgid "Repository"
+msgstr "Repo"
 
 #: templates/core/project_details.html:94
 msgid "Tags"
@@ -1156,18 +1208,7 @@ msgstr ""
 "        %(version)s Epub\n"
 "      "
 
-#: templates/core/project_downloads.html:36
-#, python-format
-msgid ""
-"\n"
-"        %(version)s Manpage\n"
-"      "
-msgstr ""
-"\n"
-"        %(version)s Man-side\n"
-"      "
-
-#: templates/core/project_downloads.html:46
+#: templates/core/project_downloads.html:49
 #, python-format
 msgid ""
 "\n"
@@ -1178,7 +1219,7 @@ msgstr ""
 "        %(version)s Dash-sett\n"
 "      "
 
-#: templates/core/project_downloads.html:56
+#: templates/core/project_downloads.html:59
 #, python-format
 msgid ""
 "\n"
@@ -1189,7 +1230,7 @@ msgstr ""
 "        %(version)s Dash-strøm\n"
 "      "
 
-#: templates/core/project_downloads.html:64
+#: templates/core/project_downloads.html:67
 msgid "No downloads for this project."
 msgstr "Ingen nedlastninger er tilgjengelig for dette prosjektet."
 
@@ -1395,7 +1436,7 @@ msgstr "Legg til et alias for en prosjektversjon."
 #: templates/projects/alias_edit.html:16
 #: templates/projects/project_create.html:42
 #: templates/projects/project_import.html:32
-#: templates/projects/project_import.html:34
+#: templates/projects/project_import.html:38
 msgid "Create"
 msgstr "Opprett"
 
@@ -1462,18 +1503,16 @@ msgid "reStructuredText Primer"
 msgstr "reStructuredText-innføring"
 
 #: templates/projects/project_advanced.html:23
-#, fuzzy
 msgid "Edit Advanced Project Settings"
-msgstr "Rediger prosjektversjoner"
+msgstr "Rediger avanserte prosjektinnstillinger"
 
 #: templates/projects/project_advanced.html:28
 #: templates/projects/project_edit_base.html:16
-#, fuzzy
 msgid "Advanced Settings"
-msgstr "Instillinger"
+msgstr "Avanserte innstillinger"
 
 #: templates/projects/project_advanced.html:34
-#: templates/projects/project_edit.html:34
+#: templates/projects/project_edit.html:37
 #: templates/projects/project_notifications.html:54
 #: templates/projects/project_subprojects.html:37
 #: templates/projects/project_translations.html:36
@@ -1549,7 +1588,7 @@ msgstr "Rediger prosjekt"
 msgid "Settings"
 msgstr "Instillinger"
 
-#: templates/projects/project_edit.html:37
+#: templates/projects/project_edit.html:40
 msgid "delete"
 msgstr "slett"
 
@@ -2184,12 +2223,12 @@ msgstr "Forrige"
 msgid "Next"
 msgstr "Neste"
 
-#: templates/sphinx/sphinx_rtd_theme/layout.html:71
+#: templates/sphinx/sphinx_rtd_theme/layout.html:47
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:131
 msgid "About these documents"
 msgstr "Om disse dokumentene"
 
-#: templates/sphinx/sphinx_rtd_theme/layout.html:75
+#: templates/sphinx/sphinx_rtd_theme/layout.html:51
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:134
 msgid "Index"
 msgstr "Indeks"
@@ -2210,15 +2249,5 @@ msgstr ""
 "Søket ditt fant ingen dokumenter. Sjekk at alle ord er skrevet korrekt og at "
 "du har valgt nok kategorier."
 
-#~ msgid "Crate URL"
-#~ msgstr "Crate-URL"
-
-#~ msgid "Crate"
-#~ msgstr "Crate"
-
-#~ msgid ""
-#~ "This project has more information available about it on <a href=\"%(url)s"
-#~ "\">Crate!</a>"
-#~ msgstr ""
-#~ "Dette prosjektet har mer informasjon tilgjengelig på <a href=\"%(url)s"
-#~ "\">Crate!</a>"
+#~ msgid "(ReadTheDocs) Building docs for %s failed"
+#~ msgstr "(ReadTheDocs) Bygging av dokumentasjon for %s feilet"

@@ -1,0 +1,123 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2010, Eric Holscher, Charlie Leifer, Bobby Grace
+# This file is distributed under the same license as the Read The Docs package.
+# 
+# Translators:
+msgid ""
+msgstr ""
+"Project-Id-Version: readthedocs-docs\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-03-01 22:07+0800\n"
+"PO-Revision-Date: 2014-03-01 14:08+0000\n"
+"Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# 611d066357c741f6b281b3c4370da82e
+#: ../../alternate_domains.rst:2
+msgid "Alternate Domains"
+msgstr "Alternate Domains"
+
+# e60ba9fed7eb4434a59bb6eaa49c9695
+#: ../../alternate_domains.rst:4
+msgid ""
+"Read the Docs supports a number of custom domains for your convenience. "
+"Shorter urls make everyone happy, and we like making people happy!"
+msgstr "Read the Docs supports a number of custom domains for your convenience. Shorter urls make everyone happy, and we like making people happy!"
+
+# f70862aa50954b9e92fc4d513d86a112
+#: ../../alternate_domains.rst:7
+msgid "Subdomain Support"
+msgstr "Subdomain Support"
+
+# 8e43c6182074461299d8325580e867f6
+#: ../../alternate_domains.rst:9
+msgid ""
+"Every project has a subdomain that is available to serve it's documentation."
+" If you go to <slug>.readthedocs.org, it should show you the latest version "
+"of documentation. A good example is http://pip.readthedocs.org"
+msgstr "Every project has a subdomain that is available to serve it's documentation. If you go to <slug>.readthedocs.org, it should show you the latest version of documentation. A good example is http://pip.readthedocs.org"
+
+# 8593b4cea401470090e2ecd2e84d69b7
+#: ../../alternate_domains.rst:11
+msgid ""
+"If you have an old project that has an underscore (_) in the name, it will "
+"use a subdomain with a hypen (-). `RTFD 1035 "
+"<http://tools.ietf.org/html/rfc1035>`_ has more information on valid "
+"subdomains."
+msgstr "If you have an old project that has an underscore (_) in the name, it will use a subdomain with a hypen (-). `RTFD 1035 <http://tools.ietf.org/html/rfc1035>`_ has more information on valid subdomains."
+
+# 8d8306bebc324a9a89163b7794d4dade
+#: ../../alternate_domains.rst:15
+msgid "CNAME Support"
+msgstr "CNAME Support"
+
+# ed95727e73ca49588ecc56519b04e0b5
+#: ../../alternate_domains.rst:17
+msgid ""
+"If you have your own domain, you can still host with us. If you point a "
+"CNAME record in your DNS to the subdomain for your project, it should "
+"magically serve your latest documentation on the custom domain. Using pip as"
+" another example, http://www.pip-installer.org resolves, but is hosted on "
+"our infrastructure."
+msgstr "If you have your own domain, you can still host with us. If you point a CNAME record in your DNS to the subdomain for your project, it should magically serve your latest documentation on the custom domain. Using pip as another example, http://www.pip-installer.org resolves, but is hosted on our infrastructure."
+
+# 8b294299a97748beba723ae93fa507fa
+#: ../../alternate_domains.rst:19
+msgid "As an example, fabric's dig record looks like this::"
+msgstr "As an example, fabric's dig record looks like this::"
+
+# 3faf2458a66c4f818b083e8700512b30
+#: ../../alternate_domains.rst:27
+msgid "CNAME SSL"
+msgstr "CNAME SSL"
+
+# b0dc64d41d1e4761b19ecf18948727d2
+#: ../../alternate_domains.rst:29
+msgid ""
+"We don't support SSL for CNAMEs on our side, but you can enable support if "
+"you have your own server. SSL requires having a secret key, and if we hosted"
+" the key for you, it would no longer be secret."
+msgstr "We don't support SSL for CNAMEs on our side, but you can enable support if you have your own server. SSL requires having a secret key, and if we hosted the key for you, it would no longer be secret."
+
+# 0812a6744f06408b9371f7eba14bd446
+#: ../../alternate_domains.rst:35
+msgid "To enable SSL:"
+msgstr "To enable SSL:"
+
+# bd242a88c79d4575b48a6b128155531c
+#: ../../alternate_domains.rst:37
+msgid "Have a server listening on 443 that you control"
+msgstr "Have a server listening on 443 that you control"
+
+# 9ac2902f1bf74b949104e47c0efb7d03
+#: ../../alternate_domains.rst:38
+msgid "Add a domain that you wish to point at Read the Docs"
+msgstr "Add a domain that you wish to point at Read the Docs"
+
+# d56d2d6bb83047669c6b4abe05ce7a56
+#: ../../alternate_domains.rst:39
+msgid "Enable proxying to us, with a custom ``X-RTD-SLUG`` header"
+msgstr "Enable proxying to us, with a custom ``X-RTD-SLUG`` header"
+
+# 5f23a87007344515867ac1601e1fa6df
+#: ../../alternate_domains.rst:41
+msgid "An example nginx configuration for pip would look like:"
+msgstr "An example nginx configuration for pip would look like:"
+
+# 66b5da23108045a5979e1d5f425f9cab
+#: ../../alternate_domains.rst:61
+msgid "rtfd.org"
+msgstr "rtfd.org"
+
+# eff90d7177ee4c1e93389898da25e1d9
+#: ../../alternate_domains.rst:63
+msgid ""
+"You can also use `rtfd.org` as a short URL for Read the Docs. For example, "
+"http://pip.rtfd.org redirects to its documentation page. Any use of "
+"`rtfd.org` will simply be redirected to `readthedocs.org`."
+msgstr "You can also use `rtfd.org` as a short URL for Read the Docs. For example, http://pip.rtfd.org redirects to its documentation page. Any use of `rtfd.org` will simply be redirected to `readthedocs.org`."

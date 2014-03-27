@@ -3,7 +3,7 @@ from os.path import exists
 from django.contrib.admin.models import User
 
 from projects.models import Project
-from rtd_tests.tests.base import RTDTestCase
+from rtd_tests.base import RTDTestCase
 
 from rtd_tests.utils import make_test_git, make_test_hg
 
@@ -39,16 +39,17 @@ class TestGitBackend(RTDTestCase):
             ('master', 'master'),
             ('release/2.0.0', 'release-2.0.0'),
             ('origin/2.0.X', '2.0.X'),
+            ('origin/master', 'master'),
             ('origin/release/2.0.0', 'release-2.0.0')
         ]
         given_ids = [(x.identifier, x.verbose_name) for x in
                      self.project.vcs_repo().parse_branches(data)]
-        assert expected_ids == given_ids
+        self.assertEqual(expected_ids, given_ids)
 
     def test_git_checkout(self):
         repo = self.project.vcs_repo()
         repo.checkout()
-        assert exists(repo.working_dir)
+        self.assertTrue(exists(repo.working_dir))
 
     def test_parse_git_tags(self):
         data = """\
@@ -70,7 +71,7 @@ class TestGitBackend(RTDTestCase):
 
         given_ids = [(x.identifier, x.verbose_name) for x in
                      self.project.vcs_repo().parse_tags(data)]
-        assert expected_tags == given_ids
+        self.assertEqual(expected_tags, given_ids)
 
 
 class TestHgBackend(RTDTestCase):
@@ -97,12 +98,12 @@ class TestHgBackend(RTDTestCase):
         expected_ids = ['stable', 'default']
         given_ids = [x.identifier for x in
                      self.project.vcs_repo().parse_branches(data)]
-        assert expected_ids == given_ids
+        self.assertEqual(expected_ids, given_ids)
 
     def test_checkout(self):
         repo = self.project.vcs_repo()
         repo.checkout()
-        assert exists(repo.working_dir)
+        self.assertTrue(exists(repo.working_dir))
 
     def test_parse_tags(self):
         data = """\
@@ -119,4 +120,4 @@ class TestHgBackend(RTDTestCase):
 
         given_ids = [(x.identifier, x.verbose_name) for x in
                      self.project.vcs_repo().parse_tags(data)]
-        assert expected_tags == given_ids
+        self.assertEqual(expected_tags, given_ids)

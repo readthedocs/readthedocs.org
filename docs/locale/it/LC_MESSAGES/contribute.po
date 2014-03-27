@@ -1,0 +1,56 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2010, Eric Holscher, Charlie Leifer, Bobby Grace
+# This file is distributed under the same license as the Read The Docs package.
+# 
+# Translators:
+msgid ""
+msgstr ""
+"Project-Id-Version: readthedocs-docs\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-03-01 22:07+0800\n"
+"PO-Revision-Date: 2014-03-02 13:43+0000\n"
+"Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
+"Language-Team: Italian (http://www.transifex.com/projects/p/readthedocs-docs/language/it/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: it\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# 351bbc50f2c146168531bb497305344c
+#: ../../contribute.rst:4
+msgid "Contributing to Read the Docs"
+msgstr ""
+
+# ab39a6eecace4a8788f0cbb338b75fb1
+#: ../../contribute.rst:6
+msgid ""
+"Read the Docs follows the standard Contribution Guidelines set forth at "
+"`contribution-guide.org`_. Please read that site and follow the instructions"
+" to make sure your patches will be accepted."
+msgstr ""
+
+# dedde10fdd2e4e8783d1e8120808bc3c
+#: ../../contribute.rst:12
+msgid "Tickets"
+msgstr ""
+
+# 312f9d1c0711442b91a7e23799099283
+#: ../../contribute.rst:14
+msgid ""
+"There are a set of tickets with a `Feature Overview`_ tag. These tickets "
+"have a general overview and description of the work required to finish. If "
+"you want to start somewhere, this would be a good place to start. That said,"
+" these aren't necessarily the easiest tickets. They are simply things that "
+"are explained."
+msgstr ""
+
+# 53580dc3abfe41bda62913c58f1a9941
+#: ../../contribute.rst:25
+msgid "Translations"
+msgstr ""
+
+# ca8371d36e1248f4bdc46315d0b1ac5a
+#: ../../contribute.rst:27
+msgid "If you wish to contribute translations, please do so on `Transifex`_."
+msgstr ""

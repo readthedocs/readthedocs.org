@@ -1,0 +1,72 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2010, Eric Holscher, Charlie Leifer, Bobby Grace
+# This file is distributed under the same license as the Read The Docs package.
+# 
+# Translators:
+msgid ""
+msgstr ""
+"Project-Id-Version: readthedocs-docs\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-03-01 22:07+0800\n"
+"PO-Revision-Date: 2014-03-02 12:03+0000\n"
+"Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
+"Language-Team: Danish (http://www.transifex.com/projects/p/readthedocs-docs/language/da/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: da\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# 09fb80bccdfb44fea8508c51cef865d9
+#: ../../api/bookmarks.rst:2
+msgid ":mod:`bookmarks`"
+msgstr ""
+
+# 5dfbee8d37374e4cbca8c2f6b0f3eca1
+#: ../../api/bookmarks.rst:5
+msgid ":mod:`bookmarks.admin`"
+msgstr ""
+
+# 417fd35ad8454a92baed69146625e542
+#: ../../../readthedocs/bookmarks/admin.pydocstring of bookmarks.admin:1
+msgid "Django admin interface for `~bookmarks.models.Bookmark`."
+msgstr ""
+
+# 5dcd47a596304c4c8783c92702fa6005
+#: ../../api/bookmarks.rst:10
+msgid ":mod:`bookmarks.models`"
+msgstr ""
+
+# fb84c63a6e6e4766801eeba2e5fcfd5c
+#: ../../../readthedocs/bookmarks/models.pydocstring of
+#: bookmarks.models.Bookmark:1
+msgid "Bookmark(id, project_id, user_id, date, url, desc)"
+msgstr ""
+
+# 5f90838962ca4fa69102fa2d6e01aa89
+#: ../../api/bookmarks.rst:15
+msgid ":mod:`bookmarks.urls`"
+msgstr ""
+
+# 1eac96e18ee249a08b6c735da76c248c
+#: ../../api/bookmarks.rst:20
+msgid ":mod:`bookmarks.views`"
+msgstr ""
+
+# 68fab0209248454eabb109e70d2ea08f
+#: ../../../readthedocs/bookmarks/views.pydocstring of
+#: bookmarks.views.bookmark_add:1
+msgid "Add a new bookmark for the current user to ``url``."
+msgstr ""
+
+# 17e214c70393426c85b6f162c4d826fc
+#: ../../../readthedocs/bookmarks/views.pydocstring of
+#: bookmarks.views.bookmark_remove:1
+msgid "Remove the current user's bookmark to ``url``."
+msgstr ""
+
+# 9cc0a234c856437297191a5d3be9d165
+#: ../../../readthedocs/bookmarks/views.pydocstring of
+#: bookmarks.views.user_bookmark_list:1
+msgid "Show a list of the current user's bookmarks."
+msgstr ""

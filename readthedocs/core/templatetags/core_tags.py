@@ -19,3 +19,20 @@ def gravatar(email, size=48):
     })
     return ('<img src="%s" width="%s" height="%s" alt="gravatar" '
             'class="gravatar" border="0" />' % (url, size, size))
+
+@register.simple_tag(name="doc_url")
+def make_document_url(project, version=None, page=None):
+    if project.main_language_project:
+        base_url =  project.get_translation_url(version)
+    else:
+        base_url = project.get_docs_url(version)
+    if page and page != "index":
+        if project.documentation_type == "sphinx_htmldir":
+            path =  page + "/"
+        elif project.documentation_type == "sphinx_singlehtml":
+            path = "index.html#document-" + page
+        else:
+            path =  page + ".html"
+    else:
+        path = ""
+    return base_url + path

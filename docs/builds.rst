@@ -26,7 +26,18 @@ An example in code:
         if project.requirements_file:
             run('pip install -r %s' % project.requirements_file)
     build_docs(version=version, pdf=pdf, man=man, epub=epub, dash=dash)
+    copy_files(artifact_dir)
     
+
+Builder Responsibility
+----------------------
+
+Builders have a very specific job.
+They take the updated source code and generate the correct artifacts.
+The code lives in ``self.version.project.checkout_path(self.version.slug)``.
+The artifacts should end up in ``self.version.project.artifact_path(version=self.version.slug, type=self.type)``
+Where ``type`` is the name of your builder.
+All files that end up in the artifact directory should be in their final form.
 
 Packages installed in the build environment
 -------------------------------------------

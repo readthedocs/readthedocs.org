@@ -1,0 +1,644 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2010, Eric Holscher, Charlie Leifer, Bobby Grace
+# This file is distributed under the same license as the Read The Docs package.
+# 
+# Translators:
+msgid ""
+msgstr ""
+"Project-Id-Version: readthedocs-docs\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-03-01 22:07+0800\n"
+"PO-Revision-Date: 2014-03-02 13:43+0000\n"
+"Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
+"Language-Team: Italian (http://www.transifex.com/projects/p/readthedocs-docs/language/it/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: it\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# ac4435557ec54a0698a7652375e52cea
+#: ../../api.rst:2
+msgid "Read the Docs Public API"
+msgstr ""
+
+# b7be09eadfc0471185be47a502cc09ab
+#: ../../api.rst:4
+msgid ""
+"We have a limited public API that is available for you to get data out of "
+"the site. This page will only show a few of the basic parts, please file a "
+"ticket or ping us on IRC (#readthedocs on `Freenode (chat.freenode.net) "
+"<http://webchat.freenode.net>`_) if you have feature requests."
+msgstr ""
+
+# 6dba36b9c81c4c5ca088d7858dc9c64b
+#: ../../api.rst:6
+msgid ""
+"This document covers the read-only API provided. We have plans to create a "
+"read/write API, so that you can easily automate interactions with your "
+"project."
+msgstr ""
+
+# ac65e5c56cae49689840a19ea5bd23c6
+#: ../../api.rst:8
+msgid ""
+"The API is written in Tastypie, which provides a nice ability to browse the "
+"API from your browser. If you go to "
+"http://readthedocs.org/api/v1/?format=json and just poke around, you should "
+"be able to figure out what is going on."
+msgstr ""
+
+# dace8530c59e462aae92712881d3e647
+#: ../../api.rst:11
+msgid "A basic API client using slumber"
+msgstr ""
+
+# 09b7adbd84384a528caeb2a9e49c334d
+#: ../../api.rst:13
+msgid ""
+"You can use `Slumber <http://slumber.in/>`_ to build basic API wrappers in "
+"python. Here is a simple example of using slumber to interact with the RTD "
+"API::"
+msgstr ""
+
+# 785e8fcbb6304e9e82169f9e498255c1
+#: ../../api.rst:42
+msgid "Example of adding a user to a project"
+msgstr ""
+
+# dbb32c2891e74511aa76006d50809c53
+#: ../../api.rst:74
+msgid "API Endpoints"
+msgstr ""
+
+# 256d6d2f42634b408c316f1838dbd418
+#: ../../api.rst:76
+msgid ""
+"Feel free to use cURL and python to look at formatted json examples. You can"
+" also look at them in your browser, if it handles returned json."
+msgstr ""
+
+# 925e67726ec844eda23cf223ca8ed70c
+#: ../../api.rst:83
+msgid "Root"
+msgstr ""
+
+# 49219ebf9fc4433e887ec0ffded5267e
+#: ../../api.rst:113
+msgid "API endpoint for resource."
+msgstr ""
+
+# 187caa6e4807401baddeec344bbc6d01
+#: ../../api.rst:114
+msgid "API endpoint for schema of resource."
+msgstr ""
+
+# f4891dae130e47e59b06bea32d59cd2f
+#: ../../api.rst:117
+msgid "Builds"
+msgstr ""
+
+# 8546f8d134d74994ad138614d4268c3f
+#: ../../api.rst:135
+msgid "Number of Builds returned."
+msgstr ""
+
+# f563a7b3b9814ca1ae18ba582d909561
+#: ../../api.rst:136
+msgid "URI for next set of Builds."
+msgstr ""
+
+# 91fc6bb3f3b549fa997578a0a58d89e0
+# 9b57a4c51db9446d82f1cd4d47e3f2fd
+# c6f2d6b77d1444b3836e56c7e442118f
+# 92332ddb736a43a7a0a83eeea67c7336
+# e9db61910bc04c508376b4a37c584477
+#: ../../api.rst:137 ../../api.rst:204 ../../api.rst:258 ../../api.rst:353
+#: ../../api.rst:408
+msgid "Current offset used for pagination."
+msgstr ""
+
+# 4932e8fd2b164793b9cbc5a7f3ee5dd7
+#: ../../api.rst:138
+msgid "URI for previous set of Builds."
+msgstr ""
+
+# 39da05c4172e4cecb610ae264b5f1f2d
+#: ../../api.rst:139
+msgid "Total number of Builds."
+msgstr ""
+
+# 617550e94e6a48a68d2816beb7fe96fc
+#: ../../api.rst:140
+msgid "Array of `Build`_ objects."
+msgstr ""
+
+# 42aa7c3b40d948a5a6c66ca3097dded6
+#: ../../api.rst:144
+msgid "Build"
+msgstr ""
+
+# 119aa8a5ac124969a4831f83385c04ea
+#: ../../api.rst:147
+msgid "A Build id."
+msgstr ""
+
+# 8a37c144b880428a94feebe7b3f996ae
+#: ../../api.rst:169
+msgid "Date of Build."
+msgstr ""
+
+# c0116659a7e64af9aa9d36750407371e
+#: ../../api.rst:170
+msgid "Error from Sphinx build process."
+msgstr ""
+
+# c895fa777f974afeb9e4d0388a48e004
+#: ../../api.rst:171
+msgid "Build id."
+msgstr ""
+
+# 4788ecdc77e94da9810d44e921221877
+#: ../../api.rst:172
+msgid "Output from Sphinx build process."
+msgstr ""
+
+# ddbe5eee7c7f4ff89adc75094810b7c2
+#: ../../api.rst:173
+msgid "URI for Project of Build."
+msgstr ""
+
+# b1c75d9d97b34a0dbd7074ded790f157
+#: ../../api.rst:174
+msgid "URI for Build."
+msgstr ""
+
+# 8c0b8e9a700a42f792591bd213e6da20
+#: ../../api.rst:175
+msgid "Setup output from Sphinx build process."
+msgstr ""
+
+# 9f18ac3cd5fd4665964ef3fb30b8003b
+#: ../../api.rst:176
+msgid "Setup error from Sphinx build process."
+msgstr ""
+
+# bb88975ccacc42088b4d2d1a4f6c8972
+#: ../../api.rst:177
+msgid "\"triggered\", \"building\", or \"finished\""
+msgstr ""
+
+# 9e0891b9e92a49b996d4cc118d691099
+#: ../../api.rst:178
+msgid "Was build successful?"
+msgstr ""
+
+# 8fbec26522cb4cc2a7d0c79513432cf6
+#: ../../api.rst:179
+msgid "Build type (\"html\", \"pdf\", \"man\", or \"epub\")"
+msgstr ""
+
+# 91a0d27882164afab1f6e2343bda3a87
+#: ../../api.rst:180
+msgid "URI for Version of Build."
+msgstr ""
+
+# efd5e1ed6b0d4379a01bc2e12b1a26c1
+#: ../../api.rst:183
+msgid "Files"
+msgstr ""
+
+# b1bff81d5e1c45d08f023b5f685b40b2
+#: ../../api.rst:202
+msgid "Number of Files returned."
+msgstr ""
+
+# d0f4916a663a428e99573e8025911909
+#: ../../api.rst:203
+msgid "URI for next set of Files."
+msgstr ""
+
+# 6929977ef35d46f78a83504b4fb7c928
+#: ../../api.rst:205
+msgid "URI for previous set of Files."
+msgstr ""
+
+# 33125cae21a84b0cbf6ac7daf12074e1
+#: ../../api.rst:206
+msgid "Total number of Files."
+msgstr ""
+
+# 8ec3f429672a4ef694e620bc1cbc63c5
+#: ../../api.rst:207
+msgid "Array of `File`_ objects."
+msgstr ""
+
+# f53da8f907cb49d79c2a5af96682b8f7
+#: ../../api.rst:210
+msgid "File"
+msgstr ""
+
+# f0e347883fab4f0ca76d99e6481bdefd
+#: ../../api.rst:213
+msgid "A File id."
+msgstr ""
+
+# 52c2f5761f8844feb791e9ae0e4440fd
+#: ../../api.rst:229
+msgid "URI for actual file (not the File object from the API.)"
+msgstr ""
+
+# 2d63e5b7b6f74159b72e1b2caca055b5
+#: ../../api.rst:230
+msgid "File id."
+msgstr ""
+
+# 44d7f8220c8d48eaad71e3e78e978c85
+#: ../../api.rst:231
+msgid "Name of File."
+msgstr ""
+
+# b651b232f5c24af6a4460691f3a4e349
+#: ../../api.rst:232
+msgid "Name of Path."
+msgstr ""
+
+# cb2bf233fa4e4689a34eaa7d847e4eff
+#: ../../api.rst:233
+msgid "A `Project`_ object for the file's project."
+msgstr ""
+
+# d6ee5d3412364e2faa0d078e3a1c1776
+#: ../../api.rst:234
+msgid "URI for File object."
+msgstr ""
+
+# 9208eb574e134642af14f4e0066ebb89
+#: ../../api.rst:237
+msgid "Projects"
+msgstr ""
+
+# 2c5b4298bc4e4887964beaf4edfd176a
+#: ../../api.rst:256
+msgid "Number of Projects returned."
+msgstr ""
+
+# 88a79000716247f2950c9c4f62192165
+#: ../../api.rst:257
+msgid "URI for next set of Projects."
+msgstr ""
+
+# f55ba5bacb74435d8e8b1c3283aa4e66
+#: ../../api.rst:259
+msgid "URI for previous set of Projects."
+msgstr ""
+
+# 9ee7a1ac44a84dc19ac0739f4a554e91
+#: ../../api.rst:260
+msgid "Total number of Projects."
+msgstr ""
+
+# de8fecbded8a4b05b2c7d1fa7df2db75
+#: ../../api.rst:261
+msgid "Array of `Project`_ objects."
+msgstr ""
+
+# ccd083da60884e06b971cdde183801f7
+#: ../../api.rst:265
+msgid "Project"
+msgstr ""
+
+# 3ae27c8a52a143cc88e8efef8f8d3d51
+#: ../../api.rst:268
+msgid "A Project id."
+msgstr ""
+
+# ffaff4d3bb644df9a3032cb67589183b
+#: ../../api.rst:305
+msgid "URI for project (not the Project object from the API.)"
+msgstr ""
+
+# 73377caefe0e4e4da310316631687869
+#: ../../api.rst:306
+msgid "Analytics tracking code."
+msgstr ""
+
+# 80abb8cd54d945979da68ac02b2baa5b
+#: ../../api.rst:307
+msgid "Copyright"
+msgstr ""
+
+# 4336364a50664071b0f65b0d807742ca
+#: ../../api.rst:308
+msgid "Crate.io URI."
+msgstr ""
+
+# 6c888ac3d10c4b65bd3abdcc4b750f01
+#: ../../api.rst:309
+msgid "Default branch."
+msgstr ""
+
+# 37db6aacac4a40cbb41c133090417d32
+#: ../../api.rst:310
+msgid "Default version."
+msgstr ""
+
+# 566c82d078404bc1ae8037fdb12281da
+#: ../../api.rst:311
+msgid "Description of project."
+msgstr ""
+
+# d64d7d4d686f4909913497e6bb412084
+#: ../../api.rst:312
+msgid "Djangopackages.com URI."
+msgstr ""
+
+# a11849760f124cbd9115b047ca6f49f5
+#: ../../api.rst:313
+msgid "Either \"sphinx\" or \"sphinx_html\"."
+msgstr ""
+
+# 9e5a345ee9154266bdb05808252661cf
+#: ../../api.rst:314
+msgid "Project id."
+msgstr ""
+
+# 32b326fb47f844069f8c2f779fd691f9
+#: ../../api.rst:315
+msgid "Last modified date."
+msgstr ""
+
+# e4d51e4ab53444159f3b4d84a7d7cd1d
+#: ../../api.rst:316
+msgid "Project name."
+msgstr ""
+
+# e4c6369819a14f72903f73213dfe10c7
+#: ../../api.rst:317
+msgid "Project homepage."
+msgstr ""
+
+# ac9e7ebd216044558453736c0ea63805
+#: ../../api.rst:318
+msgid "Last published date."
+msgstr ""
+
+# bac61fdd45ca45d4935993ef0ba04881
+#: ../../api.rst:319
+msgid "URI for VCS repository."
+msgstr ""
+
+# f956712f326443d087889f647e280ea4
+#: ../../api.rst:320
+msgid "Type of VCS repository."
+msgstr ""
+
+# 92a098cbc04d45d38731d6b2d43daa77
+#: ../../api.rst:321
+msgid "Pip requirements file for packages needed for building docs."
+msgstr ""
+
+# 3ba270adaef8417cad96ce98ceb44f8c
+#: ../../api.rst:322
+msgid "URI for Project."
+msgstr ""
+
+# f8180992629b4d209bbc7cb228a32fc3
+#: ../../api.rst:323
+msgid "Slug."
+msgstr ""
+
+# 87c0da5e4e60410f9cedae05dcbd57f8
+#: ../../api.rst:324
+msgid "Subdomain."
+msgstr ""
+
+# 02ea53d43c284a6296a25c9872b7b5d6
+#: ../../api.rst:325
+msgid "File suffix of docfiles. (Usually \".rst\".)"
+msgstr ""
+
+# 987aec8c320945d48cdba60caa340b9a
+#: ../../api.rst:326
+msgid "Sphinx theme."
+msgstr ""
+
+# 3ee22ab5384346c8b7dede723fa53a42
+#: ../../api.rst:327
+msgid "Build project in a virtualenv? (True or False)"
+msgstr ""
+
+# 24a499932a63456fae2a94fb6c1dca68
+#: ../../api.rst:328
+msgid "Array of readthedocs.org user URIs for administrators of Project."
+msgstr ""
+
+# ede247beac7d4c51b068fd692641610e
+#: ../../api.rst:329
+msgid "DEPRECATED."
+msgstr ""
+
+# e9c76ece62754d2888ef0ac4fc2e0571
+#: ../../api.rst:333
+msgid "Users"
+msgstr ""
+
+# f7629aa3942a47b6b44de8096567791b
+#: ../../api.rst:351
+msgid "Number of Users returned."
+msgstr ""
+
+# 6823a3ab7eea4436bf3817369d41a817
+#: ../../api.rst:352
+msgid "URI for next set of Users."
+msgstr ""
+
+# a5851a61a01a4faf9e58cfc1ece1f457
+#: ../../api.rst:354
+msgid "URI for previous set of Users."
+msgstr ""
+
+# bc1c957223854df0a48413840a319284
+#: ../../api.rst:355
+msgid "Total number of Users."
+msgstr ""
+
+# 54064875a3784ce3aa1b3a8704aae370
+#: ../../api.rst:356
+msgid "Array of `User`_ objects."
+msgstr ""
+
+# ad57e1125b1c4467905022bea6f212e8
+#: ../../api.rst:360
+msgid "User"
+msgstr ""
+
+# 20359af6e60342389e3653804d8524b0
+#: ../../api.rst:363
+msgid "A User id."
+msgstr ""
+
+# 3b007c0464654c0a9e462e721c109b15
+#: ../../api.rst:378
+msgid "First name."
+msgstr ""
+
+# d5d0941e8d414697a3af1b45fc2da470
+#: ../../api.rst:379
+msgid "User id."
+msgstr ""
+
+# 5cfd860d068b48c8bc351939feae57db
+#: ../../api.rst:380
+msgid "Timestamp of last login."
+msgstr ""
+
+# 6538d1f9b7ce422e87890d2e1fb92b2f
+#: ../../api.rst:381
+msgid "Last name."
+msgstr ""
+
+# e2f008f1f39a4fa292c4021824bd0a81
+#: ../../api.rst:382
+msgid "URI for this user."
+msgstr ""
+
+# 205bd87506ce4f438ed17e27bbc94f70
+#: ../../api.rst:383
+msgid "User name."
+msgstr ""
+
+# e626db1a66094a7d965e794c6b0db78f
+#: ../../api.rst:387
+msgid "Versions"
+msgstr ""
+
+# 6858d2545b434b35aa5004a6a5abe96e
+#: ../../api.rst:406
+msgid "Number of Versions returned."
+msgstr ""
+
+# 82bf3f5e6089456487ee173d8263439c
+#: ../../api.rst:407
+msgid "URI for next set of Versions."
+msgstr ""
+
+# 78fd452156e144c0989663d10420cdcc
+#: ../../api.rst:409
+msgid "URI for previous set of Versions."
+msgstr ""
+
+# 93fddf71370445a09c51805681918e1f
+#: ../../api.rst:410
+msgid "Total number of Versions."
+msgstr ""
+
+# 8b63b45dd8e44928bfd4c42a5b6e900e
+#: ../../api.rst:411
+msgid "Array of `Version`_ objects."
+msgstr ""
+
+# ce42ef1aae90433cba6b9c7ccf01b1f1
+#: ../../api.rst:415
+msgid "Version"
+msgstr ""
+
+# 9662153d97c74802b932193bb0789e70
+# 1c78f8ac57b64f7b9f251126c92282f5
+# 3789c84af92f47b28ccdd830dafa6766
+#: ../../api.rst:418 ../../api.rst:459 ../../api.rst:487
+msgid "A Version id."
+msgstr ""
+
+# 77b74636bba643a8bbb971b9d3808fa8
+#: ../../api.rst:437
+msgid "Are we continuing to build docs for this version?"
+msgstr ""
+
+# 45872947b4bd4ac18c0cbf962b35a31f
+#: ../../api.rst:438
+msgid "Have docs been built for this version?"
+msgstr ""
+
+# a63ce5db2d524186b6255fe43a1fe8b1
+#: ../../api.rst:439
+msgid "Version id."
+msgstr ""
+
+# 8c6ab958ba784fda8f3b3f8a3ca53829
+#: ../../api.rst:440
+msgid "Identifier of Version."
+msgstr ""
+
+# 307e3bc71e2b4e1d88b123f81fa3d800
+#: ../../api.rst:441
+msgid "A `Project`_ object for the version's project."
+msgstr ""
+
+# 6372c5cacaab415fa7ba0aba5bcf22b1
+#: ../../api.rst:442
+msgid "URI for Version object."
+msgstr ""
+
+# 95116e9005ad4b57843e36474e6b36fb
+#: ../../api.rst:443
+msgid "String that uniquely identifies a project"
+msgstr ""
+
+# f3a7cc2cab324f38afc8ba39c690de95
+#: ../../api.rst:444
+msgid "Were docs uploaded? (As opposed to being build by Read the Docs.)"
+msgstr ""
+
+# 738c5cfdf3d44f2ea7505c3152440798
+#: ../../api.rst:445
+msgid "Usually the same as Slug."
+msgstr ""
+
+# fe2ec80d0cfd4016b41033eb91146a42
+#: ../../api.rst:449
+msgid "Filtering Examples"
+msgstr ""
+
+# 726458cece1f4449aae87ddfaea246fb
+#: ../../api.rst:452
+msgid "Find Highest Version"
+msgstr ""
+
+# 91866a75a7b44bc7bff811261ddd7f2a
+#: ../../api.rst:477
+msgid "Compare Highest Version"
+msgstr ""
+
+# 948755edb21842b497acf94a0f32bb6a
+#: ../../api.rst:479
+msgid ""
+"This will allow you to compare whether a certain version is the highest "
+"version of a specific project. The below query should return a "
+"`'is_highest': false` in the returned dictionary."
+msgstr ""
+
+# 667cf9549eed41a18cc80ce6101eac87
+#: ../../api.rst:488
+msgid "A Version number or string."
+msgstr ""
+
+# 2c43df5a275c49e8a9d1363782e10f99
+#: ../../api.rst:506
+msgid "File Search"
+msgstr ""
+
+# eded5174ea8545f69825ef22419e318f
+#: ../../api.rst:513
+msgid "Perform search with this term."
+msgstr ""
+
+# 8958abbf7f1c4312ba083f885f7f981c
+#: ../../api.rst:563
+msgid "Anchor Search"
+msgstr ""
+
+# cc940d2a0b5441a8b4c56b1d8d8c15a0
+#: ../../api.rst:570
+msgid "Perform search of files containing anchor text with this term."
+msgstr ""

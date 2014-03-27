@@ -1,0 +1,39 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2010, Eric Holscher, Charlie Leifer, Bobby Grace
+# This file is distributed under the same license as the Read The Docs package.
+# 
+# Translators:
+# shirou - しろう, 2014
+msgid ""
+msgstr ""
+"Project-Id-Version: readthedocs-docs\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-03-03 10:59+0800\n"
+"PO-Revision-Date: 2014-03-08 16:10+0000\n"
+"Last-Translator: shirou - しろう\n"
+"Language-Team: Japanese (http://www.transifex.com/projects/p/readthedocs-docs/language/ja/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ja\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+# 9ea817ff76ed4771b64cedf6245c6248
+#: ../../architecture.rst:2
+msgid "Architecture"
+msgstr "アーキテクチャ"
+
+# abe94834b6fc4b70b94e5747a3babbc9
+#: ../../architecture.rst:4
+msgid ""
+"Read the Docs is architected to be highly available. A lot of projects host "
+"their documentation with us, so we have built the site so that it shouldn't "
+"go down. The load balancer is the only real single point of failure "
+"currently. This means mainly that if the network to the load balancer goes "
+"down, we have issues."
+msgstr "Read the Docsは可用性を高くするように設計されています。私達はたくさんのプロジェクトのドキュメントを提供しているため、サイトが停止しないようにしています。現時点で、単一障害点はロードバランサーだけとなっています。つまり、もしロードバランサーへのネットワークで障害が起きた場合に問題が起きるということです。"
+
+# f96821ae1b7647f0a4d408e7b4eb23c4
+#: ../../architecture.rst:7
+msgid "Diagram"
+msgstr "構成図"

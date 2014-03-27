@@ -1,0 +1,56 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2010, Eric Holscher, Charlie Leifer, Bobby Grace
+# This file is distributed under the same license as the Read The Docs package.
+# 
+# Translators:
+msgid ""
+msgstr ""
+"Project-Id-Version: readthedocs-docs\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-03-01 17:22+0800\n"
+"PO-Revision-Date: 2014-03-01 14:09+0000\n"
+"Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
+"Language-Team: Spanish (http://www.transifex.com/projects/p/readthedocs-docs/language/es/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: es\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# a7843b5a787841c79843882fb978e58e
+#: ../../changelog.rst:2
+msgid "Changes"
+msgstr ""
+
+# a892a3ebbd1d4a87af875852ad13ab21
+#: ../../changelog.rst:4
+msgid ""
+"We have started keeping track of major releases so that it is easier for "
+"people using RTD internally at companies to have sane upgrade cycles. We "
+"will be documenting the major and backwards incompatible features here."
+msgstr ""
+
+# 14c64ea3891644fd840e503a6cde7807
+#: ../../changelog.rst:7
+msgid "1.1 (next)"
+msgstr ""
+
+# 7b41a38edd0c4335a90d4b104bd6c6af
+#: ../../changelog.rst:9
+msgid "**The Future**"
+msgstr ""
+
+# ea33db3ca7994d539055ed0595530ff5
+#: ../../changelog.rst:12
+msgid "1.0"
+msgstr ""
+
+# bf4ee9d25e5148ceba2b6e0501efd509
+#: ../../changelog.rst:14
+msgid "**Tue Feb 8 19:37:16 2011 -0800**"
+msgstr ""
+
+# 2738456c9fe24b69bb137437409fa584
+#: ../../changelog.rst:16
+msgid "Initial public version."
+msgstr ""

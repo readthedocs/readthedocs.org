@@ -1,4 +1,5 @@
 import re
+import os.path
 
 from django.core.urlresolvers import reverse
 from django.conf import settings
@@ -184,8 +185,8 @@ class Version(models.Model):
                 data['htmlzip_url'] = project.get_htmlzip_url(self.slug)
             if project.has_epub(self.slug):
                 data['epub_url'] = project.get_epub_url(self.slug)
-            if project.has_manpage(self.slug):
-                data['manpage_url'] = project.get_manpage_url(self.slug)
+            #if project.has_manpage(self.slug):
+                #data['manpage_url'] = project.get_manpage_url(self.slug)
             if project.has_dash(self.slug):
                 data['dash_url'] = project.get_dash_url(self.slug)
                 data['dash_feed_url'] = project.get_dash_feed_url(self.slug)
@@ -199,6 +200,12 @@ class Version(models.Model):
             self.project.checkout_path(self.slug), '')
         return conf_py_path.replace('conf.py', '')
 
+    def get_build_path(self):
+        '''Return version build path if path exists, otherwise `None`'''
+        path = self.project.checkout_path(version=self.slug)
+        if os.path.exists(path):
+            return path
+        return None
 
     def get_github_url(self, docroot, filename):
         GITHUB_REGEXS = [
@@ -291,6 +298,7 @@ class Build(models.Model):
                              default='finished')
     date = models.DateTimeField(_('Date'), auto_now_add=True)
     success = models.BooleanField(_('Success'))
+    
     setup = models.TextField(_('Setup'), null=True, blank=True)
     setup_error = models.TextField(_('Setup error'), null=True, blank=True)
     output = models.TextField(_('Output'), default='', blank=True)

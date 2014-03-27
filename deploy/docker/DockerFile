@@ -1,0 +1,44 @@
+FROM ubuntu:13.10
+MAINTAINER Eric Holscher <eric@ericholscher.com>
+
+ENV DEBIAN_FRONTEND noninteractive
+ENV APPDIR /app
+ENV DJANGO_SETTINGS_MODULE config
+
+RUN apt-get -y update
+RUN apt-get install -y vim software-properties-common
+RUN apt-get install -y python3-setuptools python3.3 python3.3-dev
+RUN apt-get install -y python-setuptools python-dev
+RUN apt-get -y install \
+ git-core postgresql-client libpq-dev subversion graphviz \
+ curl sqlite libxml2-dev libxslt-dev vim g++ python-numpy \
+ python-scipy build-essential  libevent-dev \
+ libmysqlclient-dev python-m2crypto libffi-dev python-matplotlib \
+ graphviz-dev libenchant1c2a pandoc
+
+RUN easy_install-2.7 pip
+RUN easy_install3 pip
+RUN pip2 install -U virtualenv
+RUN pip3 install -U virtualenv
+
+RUN adduser --gecos '' -q --disabled-password docs
+RUN mkdir -p /home/docs/checkouts /home/docs/etc /home/docs/run /home/docs/log
+RUN cd /home/docs/checkouts && git clone git://github.com/rtfd/readthedocs.org.git
+RUN virtualenv-2.7 /home/docs/
+RUN cd /home/docs/checkouts/readthedocs.org && /home/docs/bin/pip install --allow-all-external --allow-unverified bzr --allow-unverified launchpadlib --allow-unverified lazr.authentication -r deploy_requirements.txt
+
+ADD local /home/docs/checkouts/readthedocs.org/readthedocs/settings/local_settings.py
+ADD run.sh /home/docs/run.sh
+ADD bash_profile /home/docs/.bash_profile
+
+RUN cd /home/docs/checkouts/readthedocs.org/ && git fetch && git reset --hard origin/docker
+
+RUN chown -R docs:docs /home/docs
+RUN chmod +x /home/docs/run.sh
+
+ENV DJANGO_SETTINGS_MODULE settings
+ENV HOME /home/docs
+
+
+USER docs
+CMD [""]

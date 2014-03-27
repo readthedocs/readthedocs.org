@@ -6,8 +6,8 @@ from urls import urlpatterns as main_patterns
 
 urlpatterns = patterns(
     '',  # base view, flake8 complains if it is on the previous line.
-    url((r'^projects/(?P<project_slug>[\w.-]+)/(?P<lang_slug>\w{2})/'
-         r'(?P<version_slug>[\w.-]+)/(?P<filename>.*)$'),
+    url((r'^projects/(?P<project_slug>[\w.-]+)/(?P<lang_slug>%s)/'
+         r'(?P<version_slug>[\w.-]+)/(?P<filename>.*)$' % LANGUAGES_REGEX),
         'core.views.subproject_serve_docs',
         name='subproject_docs_detail'),
 
@@ -19,11 +19,11 @@ urlpatterns = patterns(
         'core.views.subproject_list',
         name='subproject_docs_list'),
 
-    url(r'^(?P<lang_slug>\w{2})/(?P<version_slug>[\w.-]+)/(?P<filename>.*)$',
+    url(r'^(?P<lang_slug>%s)/(?P<version_slug>[\w.-]+)/(?P<filename>.*)$' % LANGUAGES_REGEX,
         'core.views.serve_docs',
         name='docs_detail'),
 
-    url(r'^(?P<lang_slug>\w{2})/(?P<version_slug>.*)/$',
+    url(r'^(?P<lang_slug>%s)/(?P<version_slug>.*)/$' % LANGUAGES_REGEX,
         'core.views.serve_docs',
         {'filename': 'index.html'},
         name='docs_detail'),

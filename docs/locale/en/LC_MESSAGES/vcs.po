@@ -1,0 +1,106 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2010, Eric Holscher, Charlie Leifer, Bobby Grace
+# This file is distributed under the same license as the Read The Docs package.
+# 
+# Translators:
+msgid ""
+msgstr ""
+"Project-Id-Version: readthedocs-docs\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-03-01 22:07+0800\n"
+"PO-Revision-Date: 2014-03-01 13:42+0000\n"
+"Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# 75df231c31fe4db6841f325cdf88fa8d
+#: ../../vcs.rst:2
+msgid "VCS Integration"
+msgstr "VCS Integration"
+
+# 16d56057306b47ddbcea61b13912dc98
+#: ../../vcs.rst:5
+msgid "GitHub"
+msgstr "GitHub"
+
+# 14a1f754fa82483a9bbae8aebc08f567
+#: ../../vcs.rst:7
+msgid ""
+"If you want to integrate GitHub editing into your own theme, the following "
+"variables are available in your custom templates:"
+msgstr "If you want to integrate GitHub editing into your own theme, the following variables are available in your custom templates:"
+
+# 66535cb4e1064e31879893b4577e2e0a
+#: ../../vcs.rst:9
+msgid "github_user - GitHub username"
+msgstr "github_user - GitHub username"
+
+# 158f0a5184df4e569789874d180ade41
+#: ../../vcs.rst:10
+msgid "github_repo - GitHub repo name"
+msgstr "github_repo - GitHub repo name"
+
+# 3fcdaf1da8834156b40f3141d6b225ca
+#: ../../vcs.rst:11
+msgid "github_version - Github blob"
+msgstr "github_version - Github blob"
+
+# 435d8b914b93477492459f884785581a
+# bc763750dad94b43b5968659d38d337c
+#: ../../vcs.rst:12 ../../vcs.rst:31
+msgid "conf_py_path - Path in the checkout to the docs root"
+msgstr "conf_py_path - Path in the checkout to the docs root"
+
+# 32929b32257f49e18fd81cf86b6b94c4
+# b9352a27fe5f430eab43d3ed8e779b41
+#: ../../vcs.rst:13 ../../vcs.rst:32
+msgid ""
+"pagename - Sphinx variable representing the name of the page you're on."
+msgstr "pagename - Sphinx variable representing the name of the page you're on."
+
+# 8e7a1669380d42e9bb36faa898ef2f98
+#: ../../vcs.rst:14
+msgid "display_github"
+msgstr "display_github"
+
+# 77c7d56941b2424cb8b9a2e414225809
+# 10a0c213d9424a66ae2e8a1c86dfd83b
+#: ../../vcs.rst:16 ../../vcs.rst:35
+msgid "It can be used like this::"
+msgstr "It can be used like this::"
+
+# 9366365bb0bf4008a04b0b399d8ad982
+#: ../../vcs.rst:24
+msgid "Bitbucket"
+msgstr "Bitbucket"
+
+# 9a0e79b087c64953981d253bc50e8e60
+#: ../../vcs.rst:26
+msgid ""
+"If you want to integrate Bitbucket editing into your own theme, the "
+"following variables are available in your custom templates:"
+msgstr "If you want to integrate Bitbucket editing into your own theme, the following variables are available in your custom templates:"
+
+# aaa622ae990d436b893555f5e5c51b37
+#: ../../vcs.rst:28
+msgid "bitbucket_user - Bitbucket username"
+msgstr "bitbucket_user - Bitbucket username"
+
+# 8f93d949c4fb4f16b1dae50ad0bc6ca3
+#: ../../vcs.rst:29
+msgid "bitbucket_repo - Bitbucket repo name"
+msgstr "bitbucket_repo - Bitbucket repo name"
+
+# 69137fd785454c749db725bd3b99b93b
+#: ../../vcs.rst:30
+msgid "bitbucket_version - BitBucket version"
+msgstr "bitbucket_version - BitBucket version"
+
+# bede91d763814529bf68c73ebd180684
+#: ../../vcs.rst:33
+msgid "display_bitbucket"
+msgstr "display_bitbucket"

@@ -1,3 +1,12 @@
+# Hack around bzr hosting
+
+--allow-external bzr
+--allow-unverified bzr 
+--allow-external launchpadlib
+--allow-unverified launchpadlib 
+--allow-external lazr.authentication
+--allow-unverified lazr.authentication
+
 # Basic tools
 virtualenv==1.11.1
 docutils==0.11
@@ -6,10 +15,12 @@ Sphinx==1.2
 django==1.4.8
 south==0.7.6
 redis==2.7.1
+hiredis==0.1.2
 requests==2.0
 slumber==0.6
 celery==3.0.24
 django-celery==3.0.23
+mkdocs==0.4
 
 # VCS
 bzr==2.5b4

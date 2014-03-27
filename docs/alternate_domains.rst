@@ -60,4 +60,4 @@ An example nginx configuration for pip would look like:
 rtfd.org
 ---------
 
-You can also use `rtfd.org` as a short URL for Read the Docs. For example, http://pip.rtfd.org redirects to it's documentation page. Any use of `rtfd.org` will simply be redirected to `readthedocs.org`.
+You can also use `rtfd.org` as a short URL for Read the Docs. For example, http://pip.rtfd.org redirects to its documentation page. Any use of `rtfd.org` will simply be redirected to `readthedocs.org`.

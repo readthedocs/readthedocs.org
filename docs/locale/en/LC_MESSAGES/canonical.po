@@ -1,0 +1,122 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2010, Eric Holscher, Charlie Leifer, Bobby Grace
+# This file is distributed under the same license as the Read The Docs package.
+# 
+# Translators:
+msgid ""
+msgstr ""
+"Project-Id-Version: readthedocs-docs\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-03-01 22:07+0800\n"
+"PO-Revision-Date: 2014-03-01 14:09+0000\n"
+"Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# 921a66fbea0649d8ac0f530c9e23d6ae
+#: ../../canonical.rst:2
+msgid "Canonical URLs"
+msgstr "Canonical URLs"
+
+# 497295cd991946a1a08f2b94e659d22b
+#: ../../canonical.rst:4
+msgid ""
+"Canonical URLs allow people to have consistent page URLs for domains. This "
+"is mainly useful for search engines, so that they can send people to the "
+"correct page."
+msgstr "Canonical URLs allow people to have consistent page URLs for domains. This is mainly useful for search engines, so that they can send people to the correct page."
+
+# 3f155754a08e4730b701cbe350cd3a94
+#: ../../canonical.rst:8
+msgid "Read the Docs uses these in two ways:"
+msgstr "Read the Docs uses these in two ways:"
+
+# ef97d1ca9f8548648e0648254d5bf80e
+#: ../../canonical.rst:10
+msgid "We point all versions of your docs at the \"latest\" version as canonical"
+msgstr "We point all versions of your docs at the \"latest\" version as canonical"
+
+# 0bafcc10347b4a7a8b104646ec8b52c1
+#: ../../canonical.rst:11
+msgid ""
+"We point at the user specified canonical URL, generally a custom domain for "
+"your docs."
+msgstr "We point at the user specified canonical URL, generally a custom domain for your docs."
+
+# aa3a6bd7606a41bf86a11ee25b4b1c05
+#: ../../canonical.rst:14
+msgid "Example"
+msgstr "Example"
+
+# 9d93513e59be4a12af135bd87158b96d
+#: ../../canonical.rst:16
+msgid ""
+"Fabric hosts their docs on Read the Docs. They mostly use their own domain "
+"for them ``http://docs.fabfile.org``. This means that Google will index both"
+" ``http://fabric.readthedocs.org`` and ``http://docs.fabfile.org`` for their"
+" documentation."
+msgstr "Fabric hosts their docs on Read the Docs. They mostly use their own domain for them ``http://docs.fabfile.org``. This means that Google will index both ``http://fabric.readthedocs.org`` and ``http://docs.fabfile.org`` for their documentation."
+
+# 8c83b33254cc46ce8275dc9c331e9c74
+#: ../../canonical.rst:20
+msgid ""
+"Fabric will want to set ``http://docs.fabfile.org`` as their canonical URL. "
+"This means that when Google indexes ``http://fabric.readthedocs.org``, it "
+"will know that it should really point at ``http://docs.fabfile.org``."
+msgstr "Fabric will want to set ``http://docs.fabfile.org`` as their canonical URL. This means that when Google indexes ``http://fabric.readthedocs.org``, it will know that it should really point at ``http://docs.fabfile.org``."
+
+# fd6280eed84844f8a6c0c55e0672f9af
+#: ../../canonical.rst:24
+msgid "Enabling"
+msgstr "Enabling"
+
+# e911c4cf9cc54da580319f31bf125c81
+#: ../../canonical.rst:26
+msgid ""
+"You can set the canonical URL for your project in the Project Admin page. "
+"Check your `dashboard`_ for a list of your projects."
+msgstr "You can set the canonical URL for your project in the Project Admin page. Check your `dashboard`_ for a list of your projects."
+
+# 28fdbf7c1aec4ae08f92d6224033dfa1
+#: ../../canonical.rst:29
+msgid "Implementation"
+msgstr "Implementation"
+
+# 0790df700231421f92d044caaf97967c
+#: ../../canonical.rst:31
+msgid ""
+"If you look at the source code for documentation built after you set your "
+"canonical URL, you should see a bit of HTML like this:"
+msgstr "If you look at the source code for documentation built after you set your canonical URL, you should see a bit of HTML like this:"
+
+# c3cc4cfa11e04e33ab7bc636050d7cbe
+#: ../../canonical.rst:39
+msgid "Links"
+msgstr "Links"
+
+# 74ddc3e7c4674c66ad002c388dc21612
+#: ../../canonical.rst:41
+msgid ""
+"This is a good explanation of the usage of canonical URLs in search engines:"
+msgstr "This is a good explanation of the usage of canonical URLs in search engines:"
+
+# 6e25304294e444dc89d2f579a17aed09
+#: ../../canonical.rst:43
+msgid "http://www.mattcutts.com/blog/seo-advice-url-canonicalization/"
+msgstr "http://www.mattcutts.com/blog/seo-advice-url-canonicalization/"
+
+# d9ea914b2d594f23bad437c22b67b75c
+#: ../../canonical.rst:45
+msgid "This is a good explanation for why canonical pages are good for SEO:"
+msgstr "This is a good explanation for why canonical pages are good for SEO:"
+
+# 5943978f623a439cb44672b916c22d62
+#: ../../canonical.rst:47
+msgid ""
+"http://moz.com/blog/canonical-url-tag-the-most-important-advancement-in-seo-"
+"practices-since-sitemaps"
+msgstr "http://moz.com/blog/canonical-url-tag-the-most-important-advancement-in-seo-practices-since-sitemaps"
