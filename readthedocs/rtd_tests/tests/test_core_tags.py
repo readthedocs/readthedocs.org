@@ -63,6 +63,11 @@ class CoreTagsTests(TestCase):
         url = core_tags.make_document_url(proj, '')
         self.assertEqual(url, '/docs/pip/fr/latest/')
 
+    def test_subproject_project_only(self):
+        proj = Project.objects.get(slug='pip')
+        url = core_tags.make_document_url(proj, '', '', True)
+        self.assertEqual(url, '/projects/pip/en/latest/')
+
     def test_project_and_version(self):
         proj = Project.objects.get(slug='pip')
         url = core_tags.make_document_url(proj, 'abc')
@@ -109,6 +114,11 @@ class CoreTagsTests(TestCase):
         url = core_tags.make_document_url(proj, 'abc', '')
         self.assertEqual(url, '/docs/pip/fr/abc/')
 
+    def test_subproject_project_and_version(self):
+        proj = Project.objects.get(slug='pip')
+        url = core_tags.make_document_url(proj, 'abc', '', True)
+        self.assertEqual(url, '/projects/pip/en/abc/')
+
     def test_project_and_version_and_page(self):
         proj = Project.objects.get(slug='pip')
         url = core_tags.make_document_url(proj, 'abc', 'xyz')
@@ -154,4 +164,11 @@ class CoreTagsTests(TestCase):
         self.assertEqual(url, '/docs/pip/fr/abc/index.html#document-xyz')
         url = core_tags.make_document_url(proj, 'abc', 'index')
         self.assertEqual(url, '/docs/pip/fr/abc/')
+
+    def test_subproject_project_and_version_and_page(self):
+        proj = Project.objects.get(slug='pip')
+        url = core_tags.make_document_url(proj, 'abc', 'xyz', True)
+        self.assertEqual(url, '/projects/pip/en/abc/xyz.html')
+        url = core_tags.make_document_url(proj, 'abc', 'index', True)
+        self.assertEqual(url, '/projects/pip/en/abc/')
 
