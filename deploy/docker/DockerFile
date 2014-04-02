@@ -36,7 +36,7 @@ RUN cd /home/docs/checkouts/readthedocs.org/ && git fetch && git reset --hard or
 RUN chown -R docs:docs /home/docs
 RUN chmod +x /home/docs/run.sh
 
-ENV DJANGO_SETTINGS_MODULE settings
+ENV DJANGO_SETTINGS_MODULE settings.postgres
 ENV HOME /home/docs
 
 

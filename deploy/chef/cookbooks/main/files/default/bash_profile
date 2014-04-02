@@ -1,7 +1,7 @@
 . .bashrc
 
 export PIP_DOWNLOAD_CACHE=/tmp/pip
-export DJANGO_SETTINGS_MODULE=settings
+export DJANGO_SETTINGS_MODULE=settings.postgres
 export PYTHONPATH=$PYTHONPATH:~/sites/readthedocs.org/checkouts/readthedocs.org/readthedocs
 export EDITOR=vim
 
