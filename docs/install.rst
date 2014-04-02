@@ -54,6 +54,14 @@ Next, install the dependencies using ``pip`` (included with virtualenv_)::
 
 .. _Homebrew: http://brew.sh/
 
+.. note::
+
+    If ``pip`` is giving an error usable to install ``lxml`` on Windows, try
+    doing this with ``easy_install`` program from your virtualenv::
+
+        rtd\Scripts\easy_install.exe lxml
+
+
 This may take a while, so go grab a beverage. When it's done, build your
 database::
 
