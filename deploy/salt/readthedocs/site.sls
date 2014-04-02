@@ -107,9 +107,10 @@ rtd-db-loaddata:
 rtd-vcs-pkgs:
   pkg.installed:
     - pkgs:
-      - git-core
-      - subversion
       - bzr
+      - git-core
+      - mercurial
+      - subversion
     - require:
       - pkg: python-dev
 

@@ -82,7 +82,8 @@ def install_packages(type=None):
         install_python()
         sudo(
             ' apt-get install -y git-core python-dev '
-            ' postgresql-client libpq-dev bzr subversion graphviz '
+            ' bzr mercurial subversion '
+            ' postgresql-client libpq-dev graphviz '
             ' curl sqlite libxml2-dev libxslt-dev vim g++ python-numpy '
             ' python-scipy build-essential texlive-full libevent-dev '
             ' libmysqlclient-dev python-m2crypto libffi-dev python-matplotlib '

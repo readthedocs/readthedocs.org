@@ -19,8 +19,7 @@ celery==3.0.24
 django-celery==3.0.23
 mkdocs==0.4
 
-# VCS (bzr, git and svn use cmdline tools)
-mercurial==2.6.3
+# VCS (bzr, git, hg and svn use cmdline tools)
 github2==0.5.2
 httplib2==0.7.7
 
