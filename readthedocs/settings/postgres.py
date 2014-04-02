@@ -1,6 +1,5 @@
 from .base import *  # noqa
 
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -28,17 +27,25 @@ HAYSTACK_CONNECTIONS = {
     }
 }
 
-CACHES = {
-    'default': {
-        'BACKEND': 'redis_cache.RedisCache',
-        'LOCATION': 'localhost:6379',
-        'PREFIX': 'docs',
-        'OPTIONS': {
-            'DB': 1,
-            'PARSER_CLASS': 'redis.connection.HiredisParser'
-        },
-    },
-}
+
+# Caching settings
+try:
+    import redis_cache
+
+    CACHES = {
+         'default': {
+             'BACKEND': 'redis_cache.RedisCache',
+             'LOCATION': 'localhost:6379',
+             'PREFIX': 'docs',
+             'OPTIONS': {
+                 'DB': 1,
+                 'PARSER_CLASS': 'redis.connection.HiredisParser'
+             },
+         },
+     }
+except ImportError:
+    print('Warning: Redis cache is not installed. Caching disabled')
+
 
 # Elasticsearch settings.
 ES_HOSTS = ['backup:9200', 'db:9200']
