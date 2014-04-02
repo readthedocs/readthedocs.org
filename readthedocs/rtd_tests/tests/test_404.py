@@ -1,5 +1,3 @@
-import lxml.html
-
 from django.test import TestCase
 
 from builds.models import Version
