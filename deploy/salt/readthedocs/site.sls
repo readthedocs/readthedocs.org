@@ -43,7 +43,6 @@ rtd-deps:
         {{ site_path }}/bin/pip install
         --timeout 120
         --allow-all-external
-        --allow-unverified bzr
         --allow-unverified launchpadlib
         --allow-unverified lazr.authentication
         -r deploy_requirements.txt
