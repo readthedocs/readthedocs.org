@@ -50,6 +50,12 @@ If you want to change it, more info is available in our docs:
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-17997319-1']);
   _gaq.push(['_trackPageview']);
+{% if analytics_code %}
+  // User Analytics Code
+  _gaq.push(['user._setAccount', '{{ analytics_code }}']);
+  _gaq.push(['user._trackPageview']);
+  // End User Analytics Code
+{% endif %}
 
   (function() {
     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
@@ -58,22 +64,6 @@ If you want to change it, more info is available in our docs:
   })();
 </script>
 <!-- end RTD Analytics Code -->
-
-{% if analytics_code %}
-<!-- User Analytics Code -->
-<script type="text/javascript">
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', '{{ analytics_code }}']);
-  _gaq.push(['_trackPageview']);
-
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
-</script>
-<!-- End User Analytics Code -->
-{% endif %}
 <!-- end RTD <extrahead> -->
 {% endblock %}
 
