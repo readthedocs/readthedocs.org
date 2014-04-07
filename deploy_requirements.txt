@@ -4,7 +4,10 @@ gunicorn==0.12.1
 pysolr==2.0.13
 dnspython==1.11.0
 launchpadlib==1.9.8
+
+# Production pages are cached with Redis
 django-redis-cache==0.9.5
+hiredis==0.1.2
 
 #For resizing images
 pillow

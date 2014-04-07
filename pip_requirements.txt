@@ -1,7 +1,5 @@
 # Hack around bzr hosting
 
---allow-external bzr
---allow-unverified bzr 
 --allow-external launchpadlib
 --allow-unverified launchpadlib 
 --allow-external lazr.authentication
@@ -10,21 +8,17 @@
 # Basic tools
 virtualenv==1.11.1
 docutils==0.11
-pip==1.5.1
 Sphinx==1.2
 django==1.4.8
 south==0.7.6
 redis==2.7.1
-hiredis==0.1.2
 requests==2.0
 slumber==0.6
 celery==3.0.24
 django-celery==3.0.23
 mkdocs==0.4
 
-# VCS
-bzr==2.5b4
-mercurial==2.6.3
+# VCS (bzr, git, hg and svn use cmdline tools)
 github2==0.5.2
 httplib2==0.7.7
 
@@ -37,7 +31,6 @@ pyquery==1.2.2
 # Utils
 django-gravatar2==1.0.6
 doc2dash==1.1.0
-lxml==3.0.2
 pytz==2013b
 beautifulsoup4==4.1.3
 Unipath==0.2.1

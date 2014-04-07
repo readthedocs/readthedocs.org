@@ -82,7 +82,8 @@ def install_packages(type=None):
         install_python()
         sudo(
             ' apt-get install -y git-core python-dev '
-            ' postgresql-client libpq-dev subversion graphviz '
+            ' bzr mercurial subversion '
+            ' postgresql-client libpq-dev graphviz '
             ' curl sqlite libxml2-dev libxslt-dev vim g++ python-numpy '
             ' python-scipy build-essential texlive-full libevent-dev '
             ' libmysqlclient-dev python-m2crypto libffi-dev python-matplotlib '
@@ -142,7 +143,7 @@ def checkout(user=None):
                 run('git clone git://github.com/rtfd/readthedocs.org.git')
         if not fabtools.files.is_file('%s/bin/python' % home):
             run('virtualenv2 %s' % home)
-        run(('%s/bin/pip2 install --allow-all-external --allow-unverified bzr --allow-unverified launchpadlib --allow-unverified lazr.authentication -U -r %s/checkouts/readthedocs.org/'
+        run(('%s/bin/pip2 install --allow-all-external --allow-unverified launchpadlib --allow-unverified lazr.authentication -U -r %s/checkouts/readthedocs.org/'
              'deploy_requirements.txt') % (home, home))
 
 

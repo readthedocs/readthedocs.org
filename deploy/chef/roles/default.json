@@ -6,9 +6,9 @@
   "run_list": [ "main::default", "main::python", "main::munin", "main::security"],
   "default_attributes": {
       "all_servers": {"golem": "127.0.0.1"},
-      "base_packages": ["git-core", "ipython", "subversion", "bzr", "graphviz"],
+      "base_packages": ["git-core", "ipython", "bzr", "mercurial", "subversion", "graphviz"],
       "ubuntu_python_packages": ["python-setuptools", "python-pip", "python-dev", "libpq-dev"],
-      "pip_python_packages": {"virtualenv": "1.5.1", "mercurial": "1.7"},
+      "pip_python_packages": {"virtualenv": "1.5.1"},
       "users": {
         "docs": {
           "id": 1005,

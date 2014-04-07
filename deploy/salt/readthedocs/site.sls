@@ -43,7 +43,6 @@ rtd-deps:
         {{ site_path }}/bin/pip install
         --timeout 120
         --allow-all-external
-        --allow-unverified bzr
         --allow-unverified launchpadlib
         --allow-unverified lazr.authentication
         -r deploy_requirements.txt
@@ -108,9 +107,10 @@ rtd-db-loaddata:
 rtd-vcs-pkgs:
   pkg.installed:
     - pkgs:
-      - git-core
-      - subversion
       - bzr
+      - git-core
+      - mercurial
+      - subversion
     - require:
       - pkg: python-dev
 
