@@ -219,6 +219,7 @@ class PdfBuilder(BaseSphinx):
             from_globs = glob(os.path.join(self.old_artifact_path, "*.pdf"))
             if from_globs:
                 from_file = from_globs[0]
-        to_file = os.path.join(self.target, "%s.pdf" % self.version.project.slug)
-        run('mv -f %s %s' % (from_file, to_file))
+        if from_file:
+            to_file = os.path.join(self.target, "%s.pdf" % self.version.project.slug)
+            run('mv -f %s %s' % (from_file, to_file))
 
