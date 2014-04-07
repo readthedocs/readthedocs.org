@@ -1,3 +1,5 @@
+.. _`Localization of Documentation`:
+
 Localization of Documentation
 =============================
 

@@ -141,10 +141,7 @@ RTD doesn't have explicit support for this. That said, a tool like `Disqus`_ can
 How do I support multiple languages of documentation?
 -----------------------------------------------------
 
-This is something that has been long planned. In fact, we have a language string in the URLs! However, it isn't currently modeled and supported in the code base. However, you can specify the conf.py file to use for a specific version of the documentation. So, you can create a project for each language of documentation, and do it that way. You can then CNAME different domains on your docs to them. Requests does something like this with it's translations:
-
- * http://ja.python-requests.org/en/latest/index.html
- * http://docs.python-requests.org/en/latest/index.html
+See the section on :ref:`Localization of Documentation`.
 
 Do I need to be whitelisted?
 ----------------------------
