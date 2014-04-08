@@ -212,13 +212,17 @@ class PdfBuilder(BaseSphinx):
     def move(self, **kwargs):
         if not os.path.exists(self.target):
             os.makedirs(self.target)
+
         exact = os.path.join(self.old_artifact_path, "%s.pdf" % self.version.project.slug)
+
         if os.path.exists(exact):
             from_file = exact
         else:
             from_globs = glob(os.path.join(self.old_artifact_path, "*.pdf"))
             if from_globs:
                 from_file = from_globs[0]
+            else:
+                from_file = None
         if from_file:
             to_file = os.path.join(self.target, "%s.pdf" % self.version.project.slug)
             run('mv -f %s %s' % (from_file, to_file))

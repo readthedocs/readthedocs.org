@@ -98,7 +98,7 @@ def install_packages(type=None):
         sudo('apt-get update')
         #sudo('apt-get install oracle-java7-installer')
     if type == 'web':
-        sudo('apt-get install -y nginx nginx-extras git-core python-dev libpq-dev libxml2-dev libxslt-dev libjson-perl libi18n-acceptlanguage-perl')
+        sudo('apt-get install -y  nginx-extras git-core python-dev libpq-dev libxml2-dev libxslt-dev libjson-perl libi18n-acceptlanguage-perl')
     if type == 'backup':
         sudo('apt-get install -y rsync')
 
@@ -245,6 +245,14 @@ def host_file():
    sudo("echo '%s' >> /etc/hosts " % host_string) 
 
 def nginx_configs():
+    with settings(host_string='root@162.209.99.176'):
+        context = {'host': 'Asgard'}
+        upload_template('../nginx/app.nginx.conf', '/etc/nginx/sites-enabled/readthedocs', context=context, backup=False)
+        upload_template('../nginx/lb.nginx.conf', '/etc/nginx/sites-enabled/lb', context=context, backup=False)
+        upload_template('../nginx/main.nginx.conf', '/etc/nginx/nginx.conf', context=context, backup=False)
+        # Perl config
+        sudo('mkdir -p /usr/share/nginx/perl/')
+        put('../salt/nginx/perl/lib/ReadTheDocs.pm', '/usr/share/nginx/perl/ReadTheDocs.pm')
     with settings(host_string='root@newasgard'):
         context = {'host': 'Asgard'}
         upload_template('../nginx/app.nginx.conf', '/etc/nginx/sites-enabled/readthedocs', context=context, backup=False)
