@@ -21,7 +21,7 @@ As an example, fabric's dig record looks like this::
     -> dig docs.fabfile.org
     ...
     ;; ANSWER SECTION:
-    docs.fabfile.org.   7200    IN  CNAME   fabric.readthedocs.org.
+    docs.fabfile.org.   7200    IN  CNAME   fabric-docs.readthedocs.org.
 
 CNAME SSL
 ---------
