@@ -50,16 +50,19 @@ def symlink_subprojects(version):
     # Subprojects
     subprojects = apiv2.project(version.project.pk).subprojects.get()['subprojects']
     for subproject_data in subprojects:
-        subproject_slug = subproject_data['slug']
-        log.debug(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Symlinking subproject: %s" % subproject_slug))
+        slugs = [subproject_data['slug']]
+        if '_' in slugs[0]:
+            slugs.append(slugs[0].replace('_', '-'))
+        for subproject_slug in slugs:
+            log.debug(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Symlinking subproject: %s" % subproject_slug))
 
-        # The directory for this specific subproject
-        symlink = version.project.subprojects_symlink_path(subproject_slug)
-        run_on_app_servers('mkdir -p %s' % '/'.join(symlink.split('/')[:-1]))
+            # The directory for this specific subproject
+            symlink = version.project.subprojects_symlink_path(subproject_slug)
+            run_on_app_servers('mkdir -p %s' % '/'.join(symlink.split('/')[:-1]))
 
-        # Where the actual docs live
-        docs_dir = os.path.join(settings.DOCROOT, subproject_slug, 'rtd-builds')
-        run_on_app_servers('ln -nsf %s %s' % (docs_dir, symlink))
+            # Where the actual docs live
+            docs_dir = os.path.join(settings.DOCROOT, subproject_slug, 'rtd-builds')
+            run_on_app_servers('ln -nsf %s %s' % (docs_dir, symlink))
 
 
 def symlink_translations(version):
