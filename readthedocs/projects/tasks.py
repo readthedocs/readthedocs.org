@@ -28,6 +28,7 @@ from core.utils import (copy_to_app_servers, copy_file_to_app_servers,
                         run_on_app_servers)
 from core import utils as core_utils
 from search.parse_json import process_all_json_files
+from vcs_support import utils as vcs_support_utils
 
 log = logging.getLogger(__name__)
 
@@ -100,6 +101,10 @@ def update_docs(pk, version_pk=None, record=True, docker=False,
                 api.version(version.pk).put(version_data)
             except Exception, e:
                 log.error(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Unable to put a new version"), exc_info=True)
+    except vcs_support_utils.LockTimeout, e:
+        results['setup'] = (999, "", "Task locked, retrying later")
+        log.info(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Unable to lock, will retry"))
+        raise update_docs.retry(exc=e)
     except Exception, e:
         log.error(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Top-level Build Failure"), exc_info=True)
     finally:
@@ -259,7 +264,8 @@ def update_imported_docs(version_pk, api=None):
     if not os.path.exists(project.doc_path):
         os.makedirs(project.doc_path)
 
-    with project.repo_lock(version, getattr(settings, 'REPO_LOCK_SECONDS', 30)):
+    with project.repo_nonblockinglock(version=version,
+                                      max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
         if not project.vcs_repo():
             raise ProjectImportError(("Repo type '{0}' unknown"
                                       .format(project.repo_type)))
@@ -399,8 +405,8 @@ def build_docs(version, pdf, man, epub, dash, search, localmedia, force):
             results['html'] = (999, 'Conf file not found.', '')
             return results
 
-    with project.repo_lock(version, getattr(settings, 'REPO_LOCK_SECONDS', 30)):
-
+    with project.repo_nonblockinglock(version=version,
+                                      max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
         html_builder = builder_loading.get(project.documentation_type)(version)
         if force:
             html_builder.force()

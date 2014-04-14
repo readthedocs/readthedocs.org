@@ -24,7 +24,7 @@ from tastyapi.slum import api
 
 from vcs_support.base import VCSProject
 from vcs_support.backends import backend_cls
-from vcs_support.utils import Lock
+from vcs_support.utils import Lock, NonBlockingLock
 
 
 log = logging.getLogger(__name__)
@@ -673,6 +673,9 @@ class Project(models.Model):
             cb = self.vcs_repo.get_contribution_backend()
         self._contribution_backend = cb
         return cb
+
+    def repo_nonblockinglock(self, version, max_lock_age=5):
+        return NonBlockingLock(project=self, version=version, max_lock_age=max_lock_age)
 
     def repo_lock(self, version, timeout=5, polling_interval=5):
         return Lock(self, version, timeout, polling_interval)
