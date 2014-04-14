@@ -43,7 +43,7 @@ def update_docs(pk, version_pk=None, record=True, docker=False,
     The main entry point for updating documentation.
 
     It handles all of the logic around whether a project is imported or we
-    created it.  Then it will build the html docs and other requested parts. 
+    created it.  Then it will build the html docs and other requested parts.
 
     `pk`
         Primary key of the project to update
@@ -77,7 +77,7 @@ def update_docs(pk, version_pk=None, record=True, docker=False,
             results.update(build_results)
         else:
             record_build(api=api, build=build, record=record, results=results, state='installing')
-            setup_results = setup_environment(version) 
+            setup_results = setup_environment(version)
             results.update(setup_results)
 
             record_build(api=api, build=build, record=record, results=results, state='building')
@@ -129,7 +129,7 @@ def move_files(version, results):
             from_path = version.project.artifact_path(version=version.slug, type='sphinx_epub')
             to_path = os.path.join(settings.MEDIA_ROOT, 'epub', version.project.slug, version.slug)
             core_utils.copy(from_path, to_path)
-                                                              
+
 def run_docker(version):
     serialized_path = os.path.join(version.project.doc_path, 'build.json')
     if os.path.exists(serialized_path):
@@ -152,7 +152,7 @@ def docker_build(version_pk, pdf=True, man=True, epub=True, dash=True, search=Tr
     version_data = api.version(version_pk).get()
     version = make_api_version(version_data)
 
-    environment_results = setup_environment(version) 
+    environment_results = setup_environment(version)
     results = build_docs(version, force, pdf, man, epub, dash, search, localmedia)
     results.update(environment_results)
     try:
@@ -268,10 +268,10 @@ def update_imported_docs(version_pk, api=None):
         if version:
             log.info(
                 LOG_TEMPLATE.format(
-                    project=project.slug, 
-                    version=version.slug, 
+                    project=project.slug,
+                    version=version.slug,
                     msg='Checking out version {slug}: {identifier}'.format(
-                        slug=version.slug, 
+                        slug=version.slug,
                         identifier=version.identifier
                     )
                 )
@@ -433,8 +433,8 @@ def build_docs(version, pdf, man, epub, dash, search, localmedia, force):
                         localmedia_builder.move()
                 except:
                     log.error(LOG_TEMPLATE.format(project=project.slug, version=version.slug, msg="Local Media HTML Build Error"), exc_info=True)
-                    
-            # Optional build steps 
+
+            # Optional build steps
             if version.project.slug not in HTML_ONLY and not project.skip:
                 if pdf:
                     pdf_builder = builder_loading.get('sphinx_pdf')(version)
@@ -611,7 +611,7 @@ def record_pdf(api, record, results, state, version):
     except UnicodeDecodeError, e:
         log.error(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Unable to post a new build"), exc_info=True)
 
-def update_search(version): 
+def update_search(version):
     page_list = process_all_json_files(version)
     data = {
         'page_list': page_list,
@@ -667,7 +667,7 @@ def remove_dir(path):
     log.info("Removing %s" % path)
     shutil.rmtree(path)
 
-# @task 
+# @task
 # def update_config_from_json(version_pk):
 #     """
 #     Check out or update the given project's repository.
@@ -685,7 +685,7 @@ def remove_dir(path):
 #         ))
 #         json_obj = json.load(rtd_json)
 #         for key in json_obj.keys():
-#             # Treat the defined fields on the Import form as 
+#             # Treat the defined fields on the Import form as
 #             # the canonical list of allowed user editable fields.
 #             # This is in essense just another UI for that form.
 #             if key not in ImportProjectForm._meta.fields:
