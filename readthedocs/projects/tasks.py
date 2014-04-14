@@ -106,7 +106,7 @@ def update_docs(pk, version_pk=None, record=True, docker=False,
         log.info(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Unable to lock, will retry"))
         # http://celery.readthedocs.org/en/3.0/userguide/tasks.html#retrying
         # Should completely retry the task for us until max_retries is exceeded
-        raise update_docs.retry(exc=e)
+        update_docs.retry(exc=e, throw=False)
     except Exception, e:
         log.error(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Top-level Build Failure"), exc_info=True)
     finally:
