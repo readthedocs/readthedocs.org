@@ -15,14 +15,18 @@ The code is open source, and `available on github`_.
 .. _Mercurial: http://mercurial.selenic.com/
 .. _available on github: http://github.com/rtfd/readthedocs.org
 
-The documentation for the site is organized into a few different sections below:
+The main documentation for the site is organized into a couple sections:
 
 * :ref:`site-docs`
 * :ref:`feature-docs`
-* :ref:`dev-docs`
-* :ref:`design-docs`
 * :ref:`about-docs`
 
+Information about development and running your own instance is also available:
+
+* :ref:`dev-docs`
+* :ref:`design-docs`
+* :ref:`custom-docs`
+* :ref:`ops-docs`
 
 .. _site-docs:
 
