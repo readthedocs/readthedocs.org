@@ -1,7 +1,0 @@
-127.0.0.1     localhost localhost.localdomain
-
-<% if @node.attribute?(:all_servers) %>
-<% @node.all_servers.each_pair do |name, ip| -%>
-<%= ip %> <%= name %>
-<% end -%>
-<% end -%>

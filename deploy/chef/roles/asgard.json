@@ -1,6 +1,0 @@
-{
-  "json_class": "Chef::Role",
-  "chef_type": "role",
-  "run_list": [ "role[default]", "main::varnish"],
-  "default_attributes": {}
-}
