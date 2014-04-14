@@ -8,7 +8,7 @@ import json
 import logging
 import uuid
 
-from celery.decorators import task
+from celery import task
 from django.conf import settings
 import redis
 import slumber
@@ -33,7 +33,7 @@ log = logging.getLogger(__name__)
 
 HTML_ONLY = getattr(settings, 'HTML_ONLY_PROJECTS', ())
 
-@task
+@task(default_retry_delay=7 * 60, max_retries=5)
 @restoring_chdir
 def update_docs(pk, version_pk=None, record=True, docker=False,
                 pdf=True, man=True, epub=True, dash=True,
@@ -242,7 +242,7 @@ def setup_vcs(version, build, api):
         return False
     return update_output
 
-@task
+@task()
 def update_imported_docs(version_pk, api=None):
     """
     Check out or update the given project's repository.
@@ -383,7 +383,7 @@ def setup_environment(version):
             ret_dict['install'] = (999, "", "No setup.py, skipping install")
     return ret_dict
 
-@task
+@task()
 def build_docs(version, pdf, man, epub, dash, search, localmedia, force):
     """
     This handles the actual building of the documentation
@@ -656,7 +656,7 @@ def fileify(version_pk):
                             obj.save()
     # End
 
-@task
+@task()
 def remove_dir(path):
     """
     Remove a directory on the build/celery server.
@@ -667,7 +667,7 @@ def remove_dir(path):
     log.info("Removing %s" % path)
     shutil.rmtree(path)
 
-# @task
+# @task()
 # def update_config_from_json(version_pk):
 #     """
 #     Check out or update the given project's repository.
@@ -721,7 +721,7 @@ def remove_dir(path):
 #         email_notification(version.project.id, build, email)
 
 
-# @task
+# @task()
 # def email_notification(project_id, build, email):
 #     if build['success']:
 #         return
@@ -740,7 +740,7 @@ def remove_dir(path):
 #               from_email=settings.DEFAULT_FROM_EMAIL, recipient_list=(email,))
 
 
-# @task
+# @task()
 # def webhook_notification(project_id, build, hook_url):
 #     project = Project.objects.get(id=project_id)
 #     data = json.dumps({
@@ -755,7 +755,7 @@ def remove_dir(path):
 #     log.debug(LOG_TEMPLATE.format(project=project.slug, version='', msg='sending notification to: %s' % hook_url))
 #     requests.post(hook_url, data=data)
 
-# @task
+# @task()
 # def zenircbot_notification(version_id):
 #     version = version.objects.get(id=version_id)
 #     message = "build of %s successful" % version
@@ -774,7 +774,7 @@ def remove_dir(path):
 #     except redis.connectionerror:
 #         return
 
-# @task
+# @task()
 # def clear_artifacts(version_pk):
 #     """ Remove artifacts from the build server. """
 #     # Stop doing this for now as it causes 403s if people build things back to
