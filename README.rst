@@ -6,6 +6,11 @@ Welcome to Read The Docs
     :scale: 100%
     :target: https://travis-ci.org/rtfd/readthedocs.org
 
+.. image:: https://readthedocs.org/projects/docs/badge/?version=latest
+    :alt: status
+    :scale: 100%
+    :target: https://readthedocs.org/builds/docs/
+
 Purpose
 -------
 
