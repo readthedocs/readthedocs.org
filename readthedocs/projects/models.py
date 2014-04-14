@@ -152,7 +152,7 @@ class Project(models.Model):
         _('Documentation type'), max_length=20,
         choices=constants.DOCUMENTATION_CHOICES, default='sphinx',
         help_text=_('Type of documentation you are building. <a href="http://'
-                    'sphinx.pocoo.org/builders.html#sphinx.builders.html.'
+                    'sphinx-doc.org/builders.html#sphinx.builders.html.'
                     'DirectoryHTMLBuilder">More info</a>.'))
     analytics_code = models.CharField(
         _('Analytics code'), max_length=50, null=True, blank=True,
