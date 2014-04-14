@@ -6,11 +6,12 @@ Welcome to Read The Docs
     :scale: 100%
     :target: https://travis-ci.org/rtfd/readthedocs.org
 
+Purpose
+-------
+
 `Read the Docs`_ hosts documentation for the open source community. It supports
 Sphinx_ docs written with reStructuredText_, and can pull from your Subversion_,
 Bazaar_, Git_, and Mercurial_ repositories.
-
-The full documentation is available on `the site`_.
 
 .. _Read the docs: http://readthedocs.org/
 .. _Sphinx: http://sphinx.pocoo.org/
@@ -19,10 +20,39 @@ The full documentation is available on `the site`_.
 .. _Bazaar: http://bazaar.canonical.com/
 .. _Git: http://git-scm.com/
 .. _Mercurial: http://mercurial.selenic.com/
-.. _the site: http://read-the-docs.readthedocs.org
 
-The documentation for the site is organized into two different sections below.
-One is for users of readthedocs.org, that is the first section. The next section
-is for users of the code that powers the site. All of the RTD code is open
-source, so you can run your own instance. Presumably in an internal install
-inside your company, or something.
+Quick start for Github hosted projects
+--------------------------------------
+
+By the end of this quick start you will have a new project automatically updated
+when you push to Github.
+
+#. Create an account on `Read the docs`_.  You will get an email verifying your
+   email address which you should accept within 7 days.
+
+#. Login and click on Import
+
+#. Give your project a name, add the HTTPS link for your Github project, and
+   select Git as your repository type.
+
+#. Fill in the rest of the form as needed and click create.
+
+#. On Github click on Settings.
+
+#. In the sidebar click on "Web Hooks & Services" then find and click on the
+   ReadTheDocs service.
+
+#. Check the Active setting and click "Update Settings"
+
+#. All done.  Commit away and your project will auto update.
+
+Documentation for RTD
+---------------------
+
+You will find complete documentation for setting up your project at `the Read
+the Docs site`_.  For individuals looking to run separate instances of RTD you
+can refer to our `Custom Install`_ documentation.
+
+.. _Custom Install: http://read-the-docs.readthedocs.org/en/latest/custom_installs/index.html
+.. _the Read the Docs site: http://read-the-docs.readthedocs.org
+
