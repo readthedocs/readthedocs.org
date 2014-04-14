@@ -1,8 +1,0 @@
-{
-  "name": "build",
-  "json_class": "Chef::Role",
-  "description": "Build Server",
-  "chef_type": "role",
-  "run_list": [ "role[default]", "main::readthedocs", "main::celery"],
-  "default_attributes": {}
-}

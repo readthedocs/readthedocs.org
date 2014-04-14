@@ -1,8 +1,0 @@
-{
-  "name": "web",
-  "json_class": "Chef::Role",
-  "description": "Web Server",
-  "chef_type": "role",
-  "run_list": [ "role[default]", "main::memcached", "main::nginx", "main::readthedocs", "main::gunicorn"],
-  "default_attributes": {}
-}
