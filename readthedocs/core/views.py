@@ -122,10 +122,16 @@ def _build_version(project, slug, already_built=()):
         # short circuit versions that are default
         # these will build at "latest", and thus won't be
         # active
-        version = project.versions.get(slug='latest')
-        update_docs.delay(pk=project.pk, version_pk=version.pk, force=True)
+        latest_version = project.versions.get(slug='latest')
+        update_docs.delay(pk=project.pk, version_pk=latest_version.pk, force=True)
         pc_log.info(("(Version build) Building %s:%s"
-                  % (project.slug, version.slug)))
+                  % (project.slug, latest_version.slug)))
+        if project.versions.exclude(active=False).filter(slug=slug).exists():
+            # Handle the case where we want to build the custom branch too
+            slug_version = project.versions.get(slug=slug)
+            update_docs.delay(pk=project.pk, version_pk=slug_version.pk, force=True)
+            pc_log.info(("(Version build) Building %s:%s"
+                      % (project.slug, slug_version.slug)))
         return "latest"
     elif project.versions.exclude(active=True).filter(slug=slug).exists():
         pc_log.info(("(Version build) Not Building %s"% slug))
