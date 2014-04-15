@@ -18,6 +18,7 @@ def footer_html(request):
     theme = request.GET.get('theme', False)
     docroot = request.GET.get('docroot', '')
     subproject = request.GET.get('subproject', False)
+    source_suffix = request.GET.get('source_suffix', '.rst')
 
     new_theme = (theme == "sphinx_rtd_theme")
     using_theme = (theme == "default")
@@ -37,8 +38,8 @@ def footer_html(request):
         'new_theme': new_theme,
         'settings': settings,
         'subproject': subproject,
-        'github_url': version.get_github_url(docroot, page_slug),
-        'bitbucket_url': version.get_bitbucket_url(docroot, page_slug),
+        'github_url': version.get_github_url(docroot, page_slug, source_suffix),
+        'bitbucket_url': version.get_bitbucket_url(docroot, page_slug, source_suffix),
     })
 
     html = template_loader.get_template('restapi/footer.html').render(context)

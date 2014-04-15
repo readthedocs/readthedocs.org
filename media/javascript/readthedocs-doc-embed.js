@@ -16,6 +16,10 @@ $(document).ready(function () {
       get_data['docroot'] = READTHEDOCS_DATA['docroot']
     }
 
+    if ("source_suffix" in READTHEDOCS_DATA) {
+      get_data['source_suffix'] = READTHEDOCS_DATA['source_suffix']
+    }
+
     var API_HOST = READTHEDOCS_DATA['api_host']
     if (API_HOST === undefined) {
       API_HOST = 'https://readthedocs.org'

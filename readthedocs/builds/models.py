@@ -207,13 +207,13 @@ class Version(models.Model):
             return path
         return None
 
-    def get_github_url(self, docroot, filename):
+    def get_github_url(self, docroot, filename, source_suffix):
         GITHUB_REGEXS = [
             re.compile('github.com/(.+)/(.+)(?:\.git){1}'),
             re.compile('github.com/(.+)/(.+)'),
             re.compile('github.com:(.+)/(.+).git'),
         ]
-        GITHUB_URL = 'https://github.com/{user}/{repo}/blob/{version}{docroot}{path}.rst'
+        GITHUB_URL = 'https://github.com/{user}/{repo}/blob/{version}{docroot}{path}{source_suffix}'
 
         repo_url = self.project.repo
         if 'github' not in repo_url:
@@ -236,15 +236,16 @@ class Version(models.Model):
             version=self.remote_slug,
             docroot=docroot,
             path=filename,
+            source_suffix=source_suffix,
             )
 
-    def get_bitbucket_url(self, docroot, filename):
+    def get_bitbucket_url(self, docroot, filename, source_suffix):
         BB_REGEXS = [
             re.compile('bitbucket.org/(.+)/(.+).git'),
             re.compile('bitbucket.org/(.+)/(.+)/'),
             re.compile('bitbucket.org/(.+)/(.+)'),
         ]
-        BB_URL = 'https://bitbucket.org/{user}/{repo}/src/{version}{docroot}{path}.rst'
+        BB_URL = 'https://bitbucket.org/{user}/{repo}/src/{version}{docroot}{path}{source_suffix}'
 
         repo_url = self.project.repo
         if 'bitbucket' not in repo_url:
@@ -267,6 +268,7 @@ class Version(models.Model):
             version=self.remote_slug,
             docroot=docroot,
             path=filename,
+            source_suffix=source_suffix,
             )
 
 
