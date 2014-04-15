@@ -102,7 +102,7 @@ def update_docs(pk, version_pk=None, record=True, docker=False,
             except Exception, e:
                 log.error(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Unable to put a new version"), exc_info=True)
     except vcs_support_utils.LockTimeout, e:
-        results['checkout'] = (999, "", "Task locked, retrying later")
+        results['checkout'] = (999, "", "Version locked, retrying in 5 minutes.")
         log.info(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Unable to lock, will retry"))
         # http://celery.readthedocs.org/en/3.0/userguide/tasks.html#retrying
         # Should completely retry the task for us until max_retries is exceeded

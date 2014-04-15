@@ -54,6 +54,8 @@ NGINX_X_ACCEL_REDIRECT = True
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTOCOL", "https")
 
+# Lock builds for 10 minutes
+REPO_LOCK_SECONDS = 300
 
 try:
     from local_settings import *  # noqa
