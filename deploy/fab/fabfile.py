@@ -248,7 +248,7 @@ def host_file():
    sudo("echo '%s' >> /etc/hosts " % host_string) 
 
 def nginx_configs():
-    with settings(host_string='root@bari'):
+    with settings(host_string='root@lb'):
         context = {'host': 'Asgard'}
         upload_template('../nginx/app.nginx.conf', '/etc/nginx/sites-enabled/readthedocs', context=context, backup=False)
         upload_template('../nginx/lb.nginx.conf', '/etc/nginx/sites-enabled/lb', context=context, backup=False)
@@ -274,7 +274,7 @@ def nginx_configs():
         put('../salt/nginx/perl/lib/ReadTheDocs.pm', '/usr/share/nginx/perl/ReadTheDocs.pm')
 
 def nginx_reload():
-    with settings(host_string='root@bari'):
+    with settings(host_string='root@lb'):
         sudo('/etc/init.d/nginx reload')
     with settings(host_string='root@newasgard'):
         sudo('/etc/init.d/nginx reload')
