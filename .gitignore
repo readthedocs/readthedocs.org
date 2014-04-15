@@ -21,6 +21,7 @@ media/static
 readthedocs/rtd_tests/tests/builds
 user_builds
 user_uploads
+wheelhouse
 whoosh_index
 xml_output
 .idea
