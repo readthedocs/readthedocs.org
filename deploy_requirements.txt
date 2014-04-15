@@ -5,6 +5,7 @@ pysolr==2.0.13
 dnspython==1.11.0
 launchpadlib==1.9.8
 django-redis-cache==0.9.5
+django-mailgun==0.2.2
 
 #For resizing images
 pillow
