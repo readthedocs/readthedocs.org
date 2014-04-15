@@ -16,6 +16,9 @@ build_ip = '10.176.11.210'
 chimera_ip = '10.176.11.213'
 db_ip = '10.176.9.67'
 
+@hosts('root@newchimera', 'root@newasgard', 'root@newbuild', 'root@lb', 'root@bari')
+def ntp():
+    sudo('ntpdate-debian')
 
 def all():
     install_packages('build')
