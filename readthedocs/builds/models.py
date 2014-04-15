@@ -207,7 +207,7 @@ class Version(models.Model):
             return path
         return None
 
-    def get_github_url(self, docroot, filename, source_suffix):
+    def get_github_url(self, docroot, filename, source_suffix='.rst'):
         GITHUB_REGEXS = [
             re.compile('github.com/(.+)/(.+)(?:\.git){1}'),
             re.compile('github.com/(.+)/(.+)'),
@@ -239,7 +239,7 @@ class Version(models.Model):
             source_suffix=source_suffix,
             )
 
-    def get_bitbucket_url(self, docroot, filename, source_suffix):
+    def get_bitbucket_url(self, docroot, filename, source_suffix='.rst'):
         BB_REGEXS = [
             re.compile('bitbucket.org/(.+)/(.+).git'),
             re.compile('bitbucket.org/(.+)/(.+)/'),
