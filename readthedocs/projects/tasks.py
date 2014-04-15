@@ -8,7 +8,7 @@ import json
 import logging
 import uuid
 
-from celery.decorators import task
+from celery import task
 from django.conf import settings
 import redis
 import slumber
@@ -28,12 +28,13 @@ from core.utils import (copy_to_app_servers, copy_file_to_app_servers,
                         run_on_app_servers)
 from core import utils as core_utils
 from search.parse_json import process_all_json_files
+from vcs_support import utils as vcs_support_utils
 
 log = logging.getLogger(__name__)
 
 HTML_ONLY = getattr(settings, 'HTML_ONLY_PROJECTS', ())
 
-@task
+@task(default_retry_delay=7 * 60, max_retries=5)
 @restoring_chdir
 def update_docs(pk, version_pk=None, record=True, docker=False,
                 pdf=True, man=True, epub=True, dash=True,
@@ -43,7 +44,7 @@ def update_docs(pk, version_pk=None, record=True, docker=False,
     The main entry point for updating documentation.
 
     It handles all of the logic around whether a project is imported or we
-    created it.  Then it will build the html docs and other requested parts. 
+    created it.  Then it will build the html docs and other requested parts.
 
     `pk`
         Primary key of the project to update
@@ -77,7 +78,7 @@ def update_docs(pk, version_pk=None, record=True, docker=False,
             results.update(build_results)
         else:
             record_build(api=api, build=build, record=record, results=results, state='installing')
-            setup_results = setup_environment(version) 
+            setup_results = setup_environment(version)
             results.update(setup_results)
 
             record_build(api=api, build=build, record=record, results=results, state='building')
@@ -100,6 +101,12 @@ def update_docs(pk, version_pk=None, record=True, docker=False,
                 api.version(version.pk).put(version_data)
             except Exception, e:
                 log.error(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Unable to put a new version"), exc_info=True)
+    except vcs_support_utils.LockTimeout, e:
+        results['setup'] = (999, "", "Task locked, retrying later")
+        log.info(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Unable to lock, will retry"))
+        # http://celery.readthedocs.org/en/3.0/userguide/tasks.html#retrying
+        # Should completely retry the task for us until max_retries is exceeded
+        update_docs.retry(exc=e, throw=False)
     except Exception, e:
         log.error(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Top-level Build Failure"), exc_info=True)
     finally:
@@ -129,7 +136,7 @@ def move_files(version, results):
             from_path = version.project.artifact_path(version=version.slug, type='sphinx_epub')
             to_path = os.path.join(settings.MEDIA_ROOT, 'epub', version.project.slug, version.slug)
             core_utils.copy(from_path, to_path)
-                                                              
+
 def run_docker(version):
     serialized_path = os.path.join(version.project.doc_path, 'build.json')
     if os.path.exists(serialized_path):
@@ -152,7 +159,7 @@ def docker_build(version_pk, pdf=True, man=True, epub=True, dash=True, search=Tr
     version_data = api.version(version_pk).get()
     version = make_api_version(version_data)
 
-    environment_results = setup_environment(version) 
+    environment_results = setup_environment(version)
     results = build_docs(version, force, pdf, man, epub, dash, search, localmedia)
     results.update(environment_results)
     try:
@@ -242,7 +249,7 @@ def setup_vcs(version, build, api):
         return False
     return update_output
 
-@task
+@task()
 def update_imported_docs(version_pk, api=None):
     """
     Check out or update the given project's repository.
@@ -259,7 +266,8 @@ def update_imported_docs(version_pk, api=None):
     if not os.path.exists(project.doc_path):
         os.makedirs(project.doc_path)
 
-    with project.repo_lock(version, getattr(settings, 'REPO_LOCK_SECONDS', 30)):
+    with project.repo_nonblockinglock(version=version,
+                                      max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
         if not project.vcs_repo():
             raise ProjectImportError(("Repo type '{0}' unknown"
                                       .format(project.repo_type)))
@@ -268,10 +276,10 @@ def update_imported_docs(version_pk, api=None):
         if version:
             log.info(
                 LOG_TEMPLATE.format(
-                    project=project.slug, 
-                    version=version.slug, 
+                    project=project.slug,
+                    version=version.slug,
                     msg='Checking out version {slug}: {identifier}'.format(
-                        slug=version.slug, 
+                        slug=version.slug,
                         identifier=version.identifier
                     )
                 )
@@ -383,7 +391,7 @@ def setup_environment(version):
             ret_dict['install'] = (999, "", "No setup.py, skipping install")
     return ret_dict
 
-@task
+@task()
 def build_docs(version, pdf, man, epub, dash, search, localmedia, force):
     """
     This handles the actual building of the documentation
@@ -399,8 +407,8 @@ def build_docs(version, pdf, man, epub, dash, search, localmedia, force):
             results['html'] = (999, 'Conf file not found.', '')
             return results
 
-    with project.repo_lock(version, getattr(settings, 'REPO_LOCK_SECONDS', 30)):
-
+    with project.repo_nonblockinglock(version=version,
+                                      max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
         html_builder = builder_loading.get(project.documentation_type)(version)
         if force:
             html_builder.force()
@@ -433,8 +441,8 @@ def build_docs(version, pdf, man, epub, dash, search, localmedia, force):
                         localmedia_builder.move()
                 except:
                     log.error(LOG_TEMPLATE.format(project=project.slug, version=version.slug, msg="Local Media HTML Build Error"), exc_info=True)
-                    
-            # Optional build steps 
+
+            # Optional build steps
             if version.project.slug not in HTML_ONLY and not project.skip:
                 if pdf:
                     pdf_builder = builder_loading.get('sphinx_pdf')(version)
@@ -611,7 +619,7 @@ def record_pdf(api, record, results, state, version):
     except UnicodeDecodeError, e:
         log.error(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Unable to post a new build"), exc_info=True)
 
-def update_search(version): 
+def update_search(version):
     page_list = process_all_json_files(version)
     data = {
         'page_list': page_list,
@@ -656,7 +664,7 @@ def fileify(version_pk):
                             obj.save()
     # End
 
-@task
+@task()
 def remove_dir(path):
     """
     Remove a directory on the build/celery server.
@@ -667,7 +675,7 @@ def remove_dir(path):
     log.info("Removing %s" % path)
     shutil.rmtree(path)
 
-# @task 
+# @task()
 # def update_config_from_json(version_pk):
 #     """
 #     Check out or update the given project's repository.
@@ -685,7 +693,7 @@ def remove_dir(path):
 #         ))
 #         json_obj = json.load(rtd_json)
 #         for key in json_obj.keys():
-#             # Treat the defined fields on the Import form as 
+#             # Treat the defined fields on the Import form as
 #             # the canonical list of allowed user editable fields.
 #             # This is in essense just another UI for that form.
 #             if key not in ImportProjectForm._meta.fields:
@@ -721,7 +729,7 @@ def remove_dir(path):
 #         email_notification(version.project.id, build, email)
 
 
-# @task
+# @task()
 # def email_notification(project_id, build, email):
 #     if build['success']:
 #         return
@@ -740,7 +748,7 @@ def remove_dir(path):
 #               from_email=settings.DEFAULT_FROM_EMAIL, recipient_list=(email,))
 
 
-# @task
+# @task()
 # def webhook_notification(project_id, build, hook_url):
 #     project = Project.objects.get(id=project_id)
 #     data = json.dumps({
@@ -755,7 +763,7 @@ def remove_dir(path):
 #     log.debug(LOG_TEMPLATE.format(project=project.slug, version='', msg='sending notification to: %s' % hook_url))
 #     requests.post(hook_url, data=data)
 
-# @task
+# @task()
 # def zenircbot_notification(version_id):
 #     version = version.objects.get(id=version_id)
 #     message = "build of %s successful" % version
@@ -774,7 +782,7 @@ def remove_dir(path):
 #     except redis.connectionerror:
 #         return
 
-# @task
+# @task()
 # def clear_artifacts(version_pk):
 #     """ Remove artifacts from the build server. """
 #     # Stop doing this for now as it causes 403s if people build things back to
