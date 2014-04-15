@@ -354,7 +354,7 @@ def setup_environment(version):
             ignore_option = '-I'
         else:
             ignore_option = ''
-        sphinx = 'sphinx==1.2'
+        sphinx = 'sphinx==1.2.2'
         if project.python_interpreter != 'python3':
             ret_dict['sphinx'] = run(
                 ('{cmd} install -U {ignore_option} {sphinx} '

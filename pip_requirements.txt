@@ -11,7 +11,7 @@
 virtualenv==1.11.1
 docutils==0.11
 pip==1.5.1
-Sphinx==1.2
+Sphinx==1.2.2
 django==1.4.8
 south==0.7.6
 redis==2.7.1
