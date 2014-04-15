@@ -23,6 +23,10 @@ def remove_project(project):
 def ntpdate():
     run('ntpdate-debian')
 
+def wheelhouse():
+    for host in ['newchimera.readthedocs.com', 'newasgard.readthedocs.com']:
+        run('rsync -av wheelhouse/ root@%s:/home/docs/checkouts/readthedocs.org/media/wheelhouse/' % host)
+
 ## Logging Awesomeness
 
 @hosts(['newasgard.readthedocs.com', 'newchimera.readthedocs.com'])
