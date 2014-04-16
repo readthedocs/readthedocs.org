@@ -45,6 +45,11 @@ if globals().get('RTD_OLD_THEME', False):
     html_style = 'rtd.css'
     html_theme = 'default'
 
+if globals().get('source_suffix', False):
+    SUFFIX = source_suffix
+else:
+    SUFFIX = '.rst'
+
 #Add project information to the template context.
 context = {
     'using_theme': using_rtd_theme,
@@ -77,7 +82,7 @@ context = {
     'READTHEDOCS': True,
     'using_theme': (html_theme == "default"),
     'new_theme': (html_theme == "sphinx_rtd_theme"),
-    'source_suffix': source_suffix,
+    'source_suffix': SUFFIX,
 }
 if 'html_context' in globals():
     html_context.update(context)
