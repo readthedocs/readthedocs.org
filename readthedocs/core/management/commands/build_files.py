@@ -35,7 +35,7 @@ class Command(BaseCommand):
             queryset = Version.objects.public(project__slug=project)
             log.info("Building all versions for %s" % project)
         elif getattr(settings, 'INDEX_ONLY_LATEST', True):
-            queryset = Version.objects.filter(slug='latst')
+            queryset = Version.objects.filter(slug='latest')
         else:
             queryset = Version.objects.public()
         for v in queryset:
