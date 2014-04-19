@@ -13,11 +13,11 @@
 {% block content %}
     {% if suggestion %}
       <div class="suggestions">
-          <h1>You've found something doesn't exist.</h1>
+          <h1>You've found something that doesn't exist.</h1>
           <p>{{ suggestion.message }}</p>
           {% ifequal suggestion.type 'top' %}
           <p>
-              <a href="{{ suggestion.href }}">Go to top of the document.</a>
+              <a href="{{ suggestion.href }}">Go to the top of the documentation.</a>
           </p>
           {% endifequal %}
           {% ifequal suggestion.type 'list' %}
