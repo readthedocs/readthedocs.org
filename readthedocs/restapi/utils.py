@@ -57,7 +57,7 @@ def delete_versions(project, version_data):
     """
     Delete all versions not in the current repo.
     """
-    current_versions = []
+    current_versions = ['latest']
     if 'tags' in version_data:
         for version in version_data['tags']:
             current_versions.append(version['identifier'])
