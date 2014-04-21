@@ -7,15 +7,19 @@ Public, Protected, Private on Projects and Versions.
 Understanding the Privacy Levels
 --------------------------------
 
-+------------+------------+-----------+-----------+
-| Level      | Detail     | Listing   | Search    |
-+============+============+===========+===========+
-| Private    | No         | No        | No        |
-+------------+------------+-----------+-----------+
-| Protected  | Yes        | No        | No        |
-+------------+------------+-----------+-----------+
-| Public     | Yes        | Yes       | Yes       |
-+------------+------------+-----------+-----------+
++------------+------------+-----------+-----------+-------------+
+| Level      | Detail     | Listing   | Search    | Viewing     |
++============+============+===========+===========+=============+
+| Private    | No         | No        | No        | Yes         |
++------------+------------+-----------+-----------+-------------+
+| Protected  | Yes        | No        | No        | Yes         |
++------------+------------+-----------+-----------+-------------+
+| Public     | Yes        | Yes       | Yes       | Yes         |
++------------+------------+-----------+-----------+-------------+
+
+.. note:: With a URL to view the actual documentation, even private docs are viewable.
+          This is because our architecture doesn't do any logic on documentation display,
+          to increase availability.
 
 Public
 ~~~~~~
