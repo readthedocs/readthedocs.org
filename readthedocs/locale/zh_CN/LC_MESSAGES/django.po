@@ -10,9 +10,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-26 05:35-0500\n"
-"PO-Revision-Date: 2014-02-28 15:14+0000\n"
-"Last-Translator: wlbksy <kookbond@gmail.com>\n"
+"POT-Creation-Date: 2014-04-24 16:43-0500\n"
+"PO-Revision-Date: 2014-04-20 01:16+0000\n"
+"Last-Translator: mozillazg <opensource.mozillazg@gmail.com>\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/projects/p/"
 "readthedocs/language/zh_CN/)\n"
 "Language: zh_CN\n"
@@ -30,8 +30,8 @@ msgstr "抱歉，在那个页面上没有结果。"
 msgid "Invalid resource lookup data provided (mismatched type).: %(error)s"
 msgstr ""
 
-#: bookmarks/models.py:9 builds/models.py:83 builds/models.py:275
-#: builds/models.py:291 projects/models.py:806
+#: bookmarks/models.py:9 builds/models.py:83 builds/models.py:277
+#: builds/models.py:293 projects/models.py:809
 msgid "Project"
 msgstr "项目"
 
@@ -39,7 +39,7 @@ msgstr "项目"
 msgid "User"
 msgstr "用户"
 
-#: bookmarks/models.py:13 builds/models.py:299
+#: bookmarks/models.py:13 builds/models.py:301
 msgid "Date"
 msgstr "日期"
 
@@ -63,11 +63,11 @@ msgstr "已触发"
 
 #: builds/constants.py:5
 msgid "Cloning"
-msgstr ""
+msgstr "正在克隆"
 
 #: builds/constants.py:6
 msgid "Installing"
-msgstr ""
+msgstr "正在安装"
 
 #: builds/constants.py:7
 msgid "Building"
@@ -114,7 +114,7 @@ msgid "Any"
 msgstr "任何"
 
 #: builds/filters.py:17 builds/filters.py:29 projects/filters.py:31
-#: projects/models.py:102 projects/models.py:810
+#: projects/models.py:102 projects/models.py:813
 msgid "Name"
 msgstr "名称"
 
@@ -126,7 +126,7 @@ msgstr "构建日期"
 msgid "Build Type"
 msgstr "构建类型"
 
-#: builds/models.py:86 builds/models.py:295
+#: builds/models.py:86 builds/models.py:297
 msgid "Type"
 msgstr "类型"
 
@@ -139,7 +139,7 @@ msgid "Verbose Name"
 msgstr "长名字"
 
 #: builds/models.py:93 projects/filters.py:33 projects/models.py:103
-#: projects/models.py:811
+#: projects/models.py:814
 msgid "Slug"
 msgstr "Slug"
 
@@ -178,57 +178,57 @@ msgstr "查看版本"
 msgid "Version %(version)s of %(project)s (%(pk)s)"
 msgstr "%(project)s 的 %(version)s 版本 (%(pk)s)"
 
-#: builds/models.py:277
+#: builds/models.py:279
 msgid "From slug"
 msgstr ""
 
-#: builds/models.py:278
+#: builds/models.py:280
 msgid "To slug"
 msgstr ""
 
-#: builds/models.py:280
+#: builds/models.py:282
 msgid "Largest"
 msgstr "最大"
 
-#: builds/models.py:283
+#: builds/models.py:285
 #, python-format
 msgid "Alias for %(project)s: %(from)s -> %(to)s"
 msgstr "%(project)s 的别名: %(from)s -> %(to)s"
 
-#: builds/models.py:293 projects/models.py:119 projects/models.py:808
+#: builds/models.py:295 projects/models.py:119 projects/models.py:811
 #: templates/djangome/oneoffs.html:11
 msgid "Version"
 msgstr "版本"
 
-#: builds/models.py:297
+#: builds/models.py:299
 msgid "State"
 msgstr "状态"
 
-#: builds/models.py:300
+#: builds/models.py:302
 msgid "Success"
 msgstr "成功"
 
-#: builds/models.py:302
+#: builds/models.py:304
 msgid "Setup"
 msgstr "安装"
 
-#: builds/models.py:303
+#: builds/models.py:305
 msgid "Setup error"
 msgstr "安装错误"
 
-#: builds/models.py:304
+#: builds/models.py:306
 msgid "Output"
 msgstr "输出"
 
-#: builds/models.py:305
+#: builds/models.py:307
 msgid "Error"
 msgstr "错误"
 
-#: builds/models.py:306
+#: builds/models.py:308
 msgid "Exit code"
 msgstr "退出码"
 
-#: builds/models.py:314
+#: builds/models.py:316
 #, python-format
 msgid "Build %(project)s for %(usernames)s (%(pk)s)"
 msgstr "为 %(usernames)s 构建 %(project)s (%(pk)s)"
@@ -281,7 +281,7 @@ msgstr "Sphinx HtmlDir"
 
 #: projects/constants.py:20
 msgid "Sphinx Single Page HTML"
-msgstr ""
+msgstr "Sphinx Single Page HTML"
 
 #: projects/constants.py:21
 msgid "Mkdocs"
@@ -300,21 +300,21 @@ msgstr "Sphinx Docs"
 #. Translators: This is a name of a Sphinx theme.
 #: projects/constants.py:35
 msgid "Traditional"
-msgstr ""
+msgstr "Traditional"
 
 #. Translators: This is a name of a Sphinx theme.
 #: projects/constants.py:37
 msgid "Nature"
-msgstr ""
+msgstr "Nature"
 
 #. Translators: This is a name of a Sphinx theme.
 #: projects/constants.py:39
 msgid "Haiku"
-msgstr ""
+msgstr "Haiku"
 
 #: projects/constants.py:68
 msgid "Live"
-msgstr ""
+msgstr "Live"
 
 #: projects/constants.py:69
 msgid "Deleted"
@@ -389,6 +389,7 @@ msgid ""
 "It looks like you entered a private repo - please use the public (http:// or "
 "git://) clone url"
 msgstr ""
+"看起来您似乎输入了一个私有仓库 - 请使用公开的 (http:// or git://) 克隆 url"
 
 #: projects/forms.py:72 projects/models.py:185
 msgid "(Beta) The Python interpreter used to create the virtual environment."
@@ -487,7 +488,7 @@ msgstr ""
 
 #: projects/models.py:120
 msgid "Project version these docs apply to, i.e. 1.0a"
-msgstr ""
+msgstr "这些文档应用的项目版本, 比如：1.0a"
 
 #: projects/models.py:122 templates/sphinx/sphinx_rtd_theme/layout.html:58
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:140
@@ -562,8 +563,9 @@ msgid "Documentation type"
 msgstr "文档类型"
 
 #: projects/models.py:154
+#, fuzzy
 msgid ""
-"Type of documentation you are building. <a href=\"http://sphinx.pocoo.org/"
+"Type of documentation you are building. <a href=\"http://sphinx-doc.org/"
 "builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More info</a>."
 msgstr ""
 "您要构建的文档类型。<a href=\"http://sphinx.pocoo.org/builders.html#sphinx."
@@ -579,7 +581,7 @@ msgid ""
 "page loads."
 msgstr "Google 分析追踪 ID（如：UA-22345342-1）。这可能导致页面加载变慢。"
 
-#: projects/models.py:163 projects/models.py:812
+#: projects/models.py:163 projects/models.py:815
 msgid "Path"
 msgstr "路径"
 
@@ -685,13 +687,13 @@ msgstr "查看项目"
 
 #: projects/models.py:282
 msgid "Model must have slug"
-msgstr ""
+msgstr "Model 必须包含 slug"
 
-#: projects/models.py:813
+#: projects/models.py:816
 msgid "MD5 checksum"
 msgstr "MD5 校验码"
 
-#: projects/models.py:841
+#: projects/models.py:844
 msgid "URL to send the webhook to"
 msgstr "URL 用来发送 webhook 到"
 
@@ -732,26 +734,24 @@ msgid "Chinese"
 msgstr "中文"
 
 #: settings/base.py:64
-#, fuzzy
 msgid "Taiwanese"
-msgstr "中文"
+msgstr "繁体中文"
 
 #: settings/base.py:65
 msgid "Japanese"
-msgstr ""
+msgstr "日语"
 
 #: settings/base.py:66
 msgid "Ukrainian"
-msgstr ""
+msgstr "乌克兰语"
 
-#: templates/404.html:5
+#: templates/404.html:6
 msgid "Maze Found"
-msgstr ""
+msgstr "未找到"
 
 #: templates/500.html:5
-#, fuzzy
 msgid "Server Error"
-msgstr "安装错误"
+msgstr "服务器错误"
 
 #. Translators: Name of the website
 #: templates/base.html:13 templates/error_header.html:12
@@ -848,6 +848,8 @@ msgid ""
 "It's free and simple.  Read the <a href=\"%(getting_started_url)s\">Getting "
 "Started</a> guide to get going!"
 msgstr ""
+"它既简单又免费。从阅读 <a href=\"%(getting_started_url)s\">开始</a> 向导出发"
+"吧！"
 
 #: templates/homepage.html:68
 msgid "Featured Projects"
@@ -1142,7 +1144,7 @@ msgstr "'latest' 版本"
 
 #: templates/core/project_details.html:159
 msgid "Post Commit Hook"
-msgstr ""
+msgstr "Post Commit 钩子"
 
 #: templates/core/project_details.html:172
 msgid "Most viewed pages for this project"
@@ -1255,7 +1257,7 @@ msgstr "修改密码"
 #: templates/djangome/choices.html:4
 #, python-format
 msgid "Choose a redirect for \"%(djangome_term)s\""
-msgstr ""
+msgstr "为 \"%(djangome_term)s\" 选择一个重定向"
 
 #: templates/djangome/choices.html:7
 #, python-format
@@ -1263,10 +1265,12 @@ msgid ""
 "Choose a redirect for <kbd>%(djangome_term)s on <a href=\"http://%(slug)s."
 "readthedocs.org\">%(slug)s.readthedocs.org</a></kbd>"
 msgstr ""
+"为<kbd><a href=\"http://%(slug)s.readthedocs.org\">%(slug)s.readthedocs.org</"
+"a> 上的 %(djangome_term)s </kbd> 选择一个重定向"
 
 #: templates/djangome/choices.html:28
 msgid "Save &amp; go &rarr;"
-msgstr ""
+msgstr "保存 &amp; 到 &rarr;"
 
 #: templates/djangome/oneoffs.html:4
 msgid "One-offs"
@@ -1291,12 +1295,12 @@ msgstr "添加"
 #: templates/djangome/show.html:4
 #, python-format
 msgid "Statistics for %(term)s"
-msgstr ""
+msgstr "关于 %(term)s 的统计"
 
 #: templates/djangome/show.html:5
 #, python-format
 msgid "Statistics for <kbd>%(term)s</kbd>:"
-msgstr ""
+msgstr "关于 <kbd>%(term)s</kbd> 的统计:"
 
 #: templates/djangome/show.html:13
 msgid "Clicks"
@@ -1309,7 +1313,7 @@ msgstr "添加"
 #: templates/flagging/flag_confirm.html:6
 #: templates/flagging/flag_confirm.html:11
 msgid "Confirm flagging"
-msgstr ""
+msgstr "确认标记"
 
 #: templates/flagging/flag_confirm.html:17
 msgid "What you are saying:"
@@ -1319,7 +1323,7 @@ msgstr "您说的是："
 #, python-format
 msgid ""
 "Are you sure you want to flag \"%(object)s\" as \"%(flag_type.title)s\"?"
-msgstr ""
+msgstr "您确定要将 \"%(object)s\" 标记为 \"%(flag_type.title)s\"?"
 
 #: templates/flagging/flag_confirm.html:23
 #, python-format
@@ -1333,12 +1337,12 @@ msgstr "取消"
 #: templates/flagging/flag_success.html:6
 #: templates/flagging/flag_success.html:11
 msgid "Flagging successful"
-msgstr ""
+msgstr "标记成功"
 
 #: templates/flagging/flag_success.html:16
 #, python-format
 msgid "You have successfully flagged \"%(object)s\" as \"%(flag_type.title)s\""
-msgstr ""
+msgstr "您已成功将 \"%(object)s\" 标记为 \"%(flag_type.title)s\""
 
 #: templates/flagging/flag_success.html:18
 msgid "Thank you for contributing to the quality of this site!"
@@ -1717,7 +1721,7 @@ msgstr "下面激活的版本将在站点上显示。"
 #: templates/projects/search.html:6 templates/projects/search.html.py:20
 #, python-format
 msgid "Search results for %(term)s"
-msgstr ""
+msgstr "包含 %(term)s 的搜索结果"
 
 #: templates/projects/search.html:37
 msgid "Huh?"
@@ -1748,7 +1752,7 @@ msgstr "上传"
 #. Translators: After 'Flag this project as' follows either 'Inappropriate', 'Spam' and/or 'Duplicate'
 #: templates/projects/includes/flagging.html:7
 msgid "Flag this project as"
-msgstr ""
+msgstr "标记该项目为"
 
 #: templates/projects/includes/flagging.html:8
 msgid "Inappropriate"
@@ -1756,7 +1760,7 @@ msgstr "不恰当"
 
 #: templates/projects/includes/flagging.html:9
 msgid "Spam"
-msgstr "垃圾邮件"
+msgstr "垃圾"
 
 #: templates/projects/includes/flagging.html:10
 msgid "Duplicate"
@@ -1768,7 +1772,7 @@ msgstr "未构建"
 
 #: templates/projects/samples/getting_started.rst.html:3
 msgid "Here's a place to describe how to get up and running with your project"
-msgstr ""
+msgstr "这里用于描述如何获取和运行您的项目"
 
 #: templates/projects/samples/installation.rst.html:3
 #, python-format
@@ -1792,7 +1796,7 @@ msgstr "激活码 \"%(activation_key)s\" 无效，无法激活此账户。"
 msgid ""
 "Did you really think activation key \"%(activation_key)s\" was going to "
 "work?!"
-msgstr ""
+msgstr "您真的任务激活码 \"%(activation_key)s\" 是有效的?!"
 
 #: templates/registration/activate.html:21
 msgid ""
@@ -1990,7 +1994,7 @@ msgstr "我们已向您设置的邮箱发送密码重置的邮件。请稍等。
 
 #: templates/registration/password_reset_email.html:2
 msgid "You're receiving this e-mail because you requested a password reset"
-msgstr ""
+msgstr "您之所以收到这份邮件是因为您请求进行密码重置"
 
 #: templates/registration/password_reset_email.html:3
 #, python-format
@@ -2192,6 +2196,3 @@ msgid ""
 "spelled correctly and that you've selected enough categories."
 msgstr ""
 "您的搜索未匹配任何文档。请确保所有的单词都拼写正确并且选中了足够多的分类。"
-
-#~ msgid "(ReadTheDocs) Building docs for %s failed"
-#~ msgstr "(ReadTheDocs) 为 %s 构建文档失败"

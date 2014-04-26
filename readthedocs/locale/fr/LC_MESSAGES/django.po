@@ -3,15 +3,18 @@
 # This file is distributed under the same license as the PACKAGE package.
 #
 # Translators:
+# Aymeric Augustin <aymeric.augustin@m4x.org>, 2014
 # Francois-Xavier Bénard <fxb@wp-translations.org>, 2013
+# Francois-Xavier Bénard <fxb@wp-translations.org>, 2013
+# htonal <htonal@wanadoo.fr>, 2012
 # htonal <htonal@wanadoo.fr>, 2012
 msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-26 05:35-0500\n"
-"PO-Revision-Date: 2014-01-06 14:59+0000\n"
-"Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
+"POT-Creation-Date: 2014-04-26 11:01-0500\n"
+"PO-Revision-Date: 2014-04-25 20:33+0000\n"
+"Last-Translator: Aymeric Augustin <aymeric.augustin@m4x.org>\n"
 "Language-Team: French (http://www.transifex.com/projects/p/readthedocs/"
 "language/fr/)\n"
 "Language: fr\n"
@@ -28,9 +31,10 @@ msgstr "Désolé, aucun résultat sur ​​cette page."
 #, python-format
 msgid "Invalid resource lookup data provided (mismatched type).: %(error)s"
 msgstr ""
+"Données de recherche de ressource incorrectes (type incompatible) : %(error)s"
 
-#: bookmarks/models.py:9 builds/models.py:83 builds/models.py:275
-#: builds/models.py:291 projects/models.py:806
+#: bookmarks/models.py:9 builds/models.py:83 builds/models.py:277
+#: builds/models.py:293 projects/models.py:809
 msgid "Project"
 msgstr "Projet"
 
@@ -38,7 +42,7 @@ msgstr "Projet"
 msgid "User"
 msgstr "Utilisateur"
 
-#: bookmarks/models.py:13 builds/models.py:299
+#: bookmarks/models.py:13 builds/models.py:301
 msgid "Date"
 msgstr "Date"
 
@@ -62,11 +66,11 @@ msgstr "Lancé"
 
 #: builds/constants.py:5
 msgid "Cloning"
-msgstr ""
+msgstr "Clonage en cours"
 
 #: builds/constants.py:6
 msgid "Installing"
-msgstr ""
+msgstr "Installation en cours"
 
 #: builds/constants.py:7
 msgid "Building"
@@ -94,26 +98,26 @@ msgstr "Manuel de commande"
 
 #: builds/constants.py:16
 msgid "Dash"
-msgstr ""
+msgstr "Tiret"
 
 #: builds/constants.py:20
 msgid "Branch"
-msgstr ""
+msgstr "Branche"
 
 #: builds/constants.py:21 builds/filters.py:19
 msgid "Tag"
-msgstr ""
+msgstr "Étiquette"
 
 #: builds/constants.py:22
 msgid "Unknown"
-msgstr ""
+msgstr "Inconnu"
 
 #: builds/filters.py:10 projects/filters.py:9
 msgid "Any"
 msgstr "Aucun"
 
 #: builds/filters.py:17 builds/filters.py:29 projects/filters.py:31
-#: projects/models.py:102 projects/models.py:810
+#: projects/models.py:102 projects/models.py:813
 msgid "Name"
 msgstr "Nom"
 
@@ -125,7 +129,7 @@ msgstr "Date de compilation"
 msgid "Build Type"
 msgstr "Type de compilation"
 
-#: builds/models.py:86 builds/models.py:295
+#: builds/models.py:86 builds/models.py:297
 msgid "Type"
 msgstr "Type"
 
@@ -138,13 +142,13 @@ msgid "Verbose Name"
 msgstr "Nom verbeux"
 
 #: builds/models.py:93 projects/filters.py:33 projects/models.py:103
-#: projects/models.py:811
+#: projects/models.py:814
 msgid "Slug"
 msgstr "Libellé court"
 
 #: builds/models.py:95
 msgid "Supported"
-msgstr ""
+msgstr "Supporté"
 
 #: builds/models.py:96 templates/projects/project_versions.html:46
 msgid "Active"
@@ -177,57 +181,57 @@ msgstr "Voir la version"
 msgid "Version %(version)s of %(project)s (%(pk)s)"
 msgstr "Version %(version)s de %(project)s (%(pk)s)"
 
-#: builds/models.py:277
+#: builds/models.py:279
 msgid "From slug"
 msgstr "jeton de"
 
-#: builds/models.py:278
+#: builds/models.py:280
 msgid "To slug"
 msgstr "jeton à"
 
-#: builds/models.py:280
+#: builds/models.py:282
 msgid "Largest"
 msgstr "Plus grand"
 
-#: builds/models.py:283
+#: builds/models.py:285
 #, python-format
 msgid "Alias for %(project)s: %(from)s -> %(to)s"
 msgstr "Alias pour %(project)s: %(from)s -> %(to)s"
 
-#: builds/models.py:293 projects/models.py:119 projects/models.py:808
+#: builds/models.py:295 projects/models.py:119 projects/models.py:811
 #: templates/djangome/oneoffs.html:11
 msgid "Version"
 msgstr "Version"
 
-#: builds/models.py:297
+#: builds/models.py:299
 msgid "State"
 msgstr "Etat"
 
-#: builds/models.py:300
+#: builds/models.py:302
 msgid "Success"
 msgstr "Succès"
 
-#: builds/models.py:302
+#: builds/models.py:304
 msgid "Setup"
 msgstr "Configuration"
 
-#: builds/models.py:303
+#: builds/models.py:305
 msgid "Setup error"
 msgstr "Erreur de configuration"
 
-#: builds/models.py:304
+#: builds/models.py:306
 msgid "Output"
 msgstr "Sortie"
 
-#: builds/models.py:305
+#: builds/models.py:307
 msgid "Error"
 msgstr "Erreur"
 
-#: builds/models.py:306
+#: builds/models.py:308
 msgid "Exit code"
-msgstr ""
+msgstr "Code de retour"
 
-#: builds/models.py:314
+#: builds/models.py:316
 #, python-format
 msgid "Build %(project)s for %(usernames)s (%(pk)s)"
 msgstr "Compiler %(project)s pour %(usernames)s (%(pk)s)"
@@ -280,11 +284,11 @@ msgstr "Sphinx HtmlDir"
 
 #: projects/constants.py:20
 msgid "Sphinx Single Page HTML"
-msgstr ""
+msgstr "Sphinx Single Page HTML"
 
 #: projects/constants.py:21
 msgid "Mkdocs"
-msgstr ""
+msgstr "Mkdocs"
 
 #. Translators: This is a name of a Sphinx theme.
 #: projects/constants.py:29
@@ -349,11 +353,11 @@ msgstr "Privé"
 
 #: projects/constants.py:97
 msgid "CPython 2.x"
-msgstr ""
+msgstr "CPython 2.x"
 
 #: projects/constants.py:98
 msgid "CPython 3.x"
-msgstr ""
+msgstr "CPython 3.x"
 
 #: projects/filters.py:34
 msgid "Created Date"
@@ -364,7 +368,6 @@ msgid "Repository URL"
 msgstr "URL du dépôt"
 
 #: projects/filters.py:39
-#, fuzzy
 msgid "Repository Type"
 msgstr "Type de dépôt"
 
@@ -395,6 +398,7 @@ msgstr ""
 #: projects/forms.py:72 projects/models.py:185
 msgid "(Beta) The Python interpreter used to create the virtual environment."
 msgstr ""
+"(Beta) L'interpréteur Python utilisé pour créer l'environnement virtuel."
 
 #: projects/forms.py:101
 msgid ""
@@ -478,13 +482,15 @@ msgstr "Page d'accueil du projet"
 
 #: projects/models.py:116
 msgid "Canonical URL"
-msgstr ""
+msgstr "URL canonique"
 
 #: projects/models.py:117
 msgid ""
 "The official URL that the docs live at. This can be at readthedocs.org, or "
 "somewhere else. Ex. http://docs.fabfile.org"
 msgstr ""
+"L'URL officielle à laquelle la documentation est hébergée. Elle peut être "
+"sur readthedocs.org ou ailleurs. Par exemple, http://docs.fabfile.org."
 
 #: projects/models.py:120
 msgid "Project version these docs apply to, i.e. 1.0a"
@@ -513,7 +519,7 @@ msgstr "Suffixe"
 
 #: projects/models.py:132
 msgid "Single version"
-msgstr ""
+msgstr "Version unique"
 
 #: projects/models.py:133
 msgid ""
@@ -521,6 +527,10 @@ msgid ""
 "served at the root of the domain. Use this with caution, only turn it on if "
 "you will <b>never</b> have multiple versions of your docs."
 msgstr ""
+"Un site avec une version unique n'a pas de traductions et n'affiche que la "
+"dernière version, à la racine de votre domaine. Soyez prudent, n'activez "
+"cette option que si vous n'allez <b>jamais</b> avoir plusieurs versions de "
+"votre documentation."
 
 #: projects/models.py:135
 msgid "Default version"
@@ -552,6 +562,10 @@ msgid ""
 "cookbook.html#requirements-files\">pip requirements file</a> needed to build "
 "your documentation. Path from the root of your project."
 msgstr ""
+"Virtualenv est requis. Un <a href=\"http://www.pip-installer.org/en/latest/"
+"cookbook.html#requirements-files\">fichier pip de pré-requis</a> est "
+"nécessaire pour compiler votre documentation. Chemin à partir de la racine "
+"de votre projet."
 
 #: projects/models.py:152
 msgid "Documentation type"
@@ -559,11 +573,12 @@ msgstr "Type de documentation"
 
 #: projects/models.py:154
 msgid ""
-"Type of documentation you are building. <a href=\"http://sphinx.pocoo.org/"
+"Type of documentation you are building. <a href=\"http://sphinx-doc.org/"
 "builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More info</a>."
 msgstr ""
-"Type de documentation que vous compilez. <a href=\"http://sphinx.pocoo.org/"
-"builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More info</a>."
+"Type de documentation que vous compilez. <a href=\"http://sphinx-doc.org/"
+"builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">Plus de détails</"
+"a>."
 
 #: projects/models.py:158
 msgid "Analytics code"
@@ -577,7 +592,7 @@ msgstr ""
 "ID de traçage Google Analytics (ex. UA-22345342-1). Risque de ralentissement "
 "du chargement des pages."
 
-#: projects/models.py:163 projects/models.py:812
+#: projects/models.py:163 projects/models.py:815
 msgid "Path"
 msgstr "Chemin"
 
@@ -606,9 +621,8 @@ msgid "Skip"
 msgstr "Sauter"
 
 #: projects/models.py:172
-#, fuzzy
 msgid "Mirror"
-msgstr "Erreur"
+msgstr "Mirroir"
 
 #: projects/models.py:174
 msgid "Use virtualenv"
@@ -621,7 +635,7 @@ msgstr ""
 
 #: projects/models.py:181
 msgid "Python Interpreter"
-msgstr ""
+msgstr "Interpréteur Python"
 
 #: projects/models.py:189
 msgid "Use system packages"
@@ -630,6 +644,7 @@ msgstr "Utiliser les paquets système"
 #: projects/models.py:190
 msgid "Give the virtual environment access to the global site-packages dir."
 msgstr ""
+"Donner accès à l'environnement virtuel au dossier global site-packages."
 
 #: projects/models.py:192
 msgid "Django Packages URL"
@@ -640,6 +655,8 @@ msgid ""
 "(Beta) Level of privacy that you want on the repository. Protected means "
 "public but not in listings."
 msgstr ""
+"(Beta) Niveau de confidentialité que vous souhaitez pour ce dépôt. Protégé "
+"signifie public mais absent des index."
 
 #: projects/models.py:200
 msgid "Version Privacy Level"
@@ -649,6 +666,8 @@ msgstr "Niveau de confidentialité de la version"
 msgid ""
 "(Beta) Default level of privacy you want on built versions of documentation."
 msgstr ""
+"(Beta) Niveau de confidentialité par défaut que vous voulez sur les versions "
+"compilées de la documentation."
 
 #: projects/models.py:207
 msgid "Related projects"
@@ -656,27 +675,27 @@ msgstr "Projets apparentés"
 
 #: projects/models.py:223
 msgid "Number of Major versions"
-msgstr ""
+msgstr "Nombre de versions majeures"
 
 #: projects/models.py:228
 msgid "2 means supporting 3.X.X and 2.X.X, but not 1.X.X"
-msgstr ""
+msgstr "2 annonce le support de 3.X.X et 2.X.X mais pas 1.X.X"
 
 #: projects/models.py:231
 msgid "Number of Minor versions"
-msgstr ""
+msgstr "Nombre de versions mineures"
 
 #: projects/models.py:236
 msgid "2 means supporting 2.2.X and 2.1.X, but not 2.0.X"
-msgstr ""
+msgstr "2 annonce le support de 2.2.X et 2.1.X mais pas 2.0.X"
 
 #: projects/models.py:239
 msgid "Number of Point versions"
-msgstr ""
+msgstr "Nombre de révisions"
 
 #: projects/models.py:244
 msgid "2 means supporting 2.2.2 and 2.2.1, but not 2.2.0"
-msgstr ""
+msgstr "2 annonce le support de 2.2.2 et 2.2.1 mais pas 2.2.0"
 
 #. Translators: Permission around whether a user can view the
 #. project
@@ -688,13 +707,13 @@ msgstr "Voir le projet"
 msgid "Model must have slug"
 msgstr "Le Model nécessite un libellé court (slug)"
 
-#: projects/models.py:813
+#: projects/models.py:816
 msgid "MD5 checksum"
 msgstr "Somme de contrôle MD5"
 
-#: projects/models.py:841
+#: projects/models.py:844
 msgid "URL to send the webhook to"
-msgstr ""
+msgstr "URL sur laquelle pointer le webhook"
 
 #: settings/base.py:55
 msgid "English"
@@ -702,12 +721,11 @@ msgstr "Anglais"
 
 #: settings/base.py:56
 msgid "Spanish"
-msgstr ""
+msgstr "Espagnol"
 
 #: settings/base.py:57
-#, fuzzy
 msgid "Norwegian Bokmål"
-msgstr "Norvégien"
+msgstr "Norvégien Bokmål"
 
 #: settings/base.py:58
 msgid "French"
@@ -715,45 +733,43 @@ msgstr "Français"
 
 #: settings/base.py:59
 msgid "Russian"
-msgstr ""
+msgstr "Russe"
 
 #: settings/base.py:60
 msgid "German"
-msgstr ""
+msgstr "Allemand"
 
 #: settings/base.py:61
 msgid "Galician"
-msgstr ""
+msgstr "Galicien"
 
 #: settings/base.py:62
-#, fuzzy
 msgid "Vietnamese"
-msgstr "Prénom"
+msgstr "Vietnâmien"
 
 #: settings/base.py:63
 msgid "Chinese"
-msgstr ""
+msgstr "Chinois"
 
 #: settings/base.py:64
 msgid "Taiwanese"
-msgstr ""
+msgstr "Taïwanais"
 
 #: settings/base.py:65
 msgid "Japanese"
-msgstr ""
+msgstr "Japonais"
 
 #: settings/base.py:66
 msgid "Ukrainian"
-msgstr ""
+msgstr "Ukrainien"
 
-#: templates/404.html:5
+#: templates/404.html:6
 msgid "Maze Found"
-msgstr ""
+msgstr "Perdu dans le labyrinthe"
 
 #: templates/500.html:5
-#, fuzzy
 msgid "Server Error"
-msgstr "Erreur de configuration"
+msgstr "Erreur du serveur"
 
 #. Translators: Name of the website
 #: templates/base.html:13 templates/error_header.html:12
@@ -766,6 +782,8 @@ msgid ""
 "Your docs are currently being built.  It may take a moment for them to "
 "appear."
 msgstr ""
+"Votre documentation est en cours de compilation. Veuillez patienter pour la "
+"voir apparaitre."
 
 #: templates/base.html:62
 msgid "Read the Docs thanks you for your continued patience."
@@ -777,6 +795,8 @@ msgid ""
 "Copyright 2010-2013. Created by %(eric)s, %(charles)s, and %(bobby)s for the "
 "2010 %(djangodash)s."
 msgstr ""
+"Copyright 2010-2013. Créé par %(eric)s, %(charles)s, et %(bobby)s pour le "
+"2010 %(djangodash)s."
 
 #: templates/base.html:86
 msgid "Docs"
@@ -789,7 +809,7 @@ msgid ""
 "\">readers like you</a>."
 msgstr ""
 "Créé par des <a href=\"https://github.com/rtfd/readthedocs.org/graphs/"
-"contributors\">hommes</a>. Fondé par des <a href=\"https://www.gittip.com/"
+"contributors\">humains</a>. Financé par des <a href=\"https://www.gittip.com/"
 "readthedocs/\">lecteurs comme vous</a>."
 
 #: templates/base_filter.html:14 templates/core/filter_bar.html:8
@@ -895,11 +915,13 @@ msgid ""
 "This is a post-commit hook. Set it up in your project admin to POST here, "
 "for us to update your doc changes automatically."
 msgstr ""
+"Ceci est un post-commit hook. Configurez-le dans l'administration de votre "
+"projet pour envoyer un POST ici et nous mettrons à jour votre documentation "
+"automatiquement."
 
 #: templates/archive/index.html:5
-#, fuzzy
 msgid "Read the Docs Archive"
-msgstr "Lisez les Docs"
+msgstr "Archive de Read the Docs"
 
 #: templates/bookmarks/bookmark_list.html:7
 msgid "Bookmarks"
@@ -929,7 +951,7 @@ msgstr "Résultat"
 
 #: templates/builds/build_detail.html:27
 msgid "Not yet finished"
-msgstr ""
+msgstr "Pas encore terminé"
 
 #: templates/builds/build_detail.html:27
 #: templates/core/build_list_detailed.html:6
@@ -943,7 +965,7 @@ msgstr "Echec"
 
 #: templates/builds/build_detail.html:27
 msgid "Status Code:"
-msgstr ""
+msgstr "Code de retour :"
 
 #: templates/builds/build_detail.html:33
 msgid "Version:"
@@ -971,7 +993,7 @@ msgstr "Erreur standard d'environnement"
 
 #: templates/builds/build_list.html:37
 msgid "Build Version:"
-msgstr ""
+msgstr "Numéro de compilation :"
 
 #: templates/builds/build_list.html:49
 msgid "Recent Builds"
@@ -1055,12 +1077,12 @@ msgstr "Compilations"
 #: templates/core/project_bar.html:47
 #: templates/projects/project_dashboard.html:68
 msgid "Admin"
-msgstr ""
+msgstr "Admin"
 
 #: templates/core/project_details.html:16
 #, python-format
 msgid "Search %(project)s"
-msgstr ""
+msgstr "Chercher dans %(project)s"
 
 #: templates/core/project_details.html:18
 #: templates/core/project_list_detailed.html:34
@@ -1069,7 +1091,7 @@ msgstr ""
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:137
 #: templates/sphinx/sphinx_rtd_theme/search.html:11
 msgid "Search"
-msgstr ""
+msgstr "Chercher"
 
 #: templates/core/project_details.html:27
 #: templates/projects/project_edit_base.html:18
@@ -1081,12 +1103,12 @@ msgstr "Versions"
 #: templates/core/project_details.html:49
 #, python-format
 msgid " %(slug)s "
-msgstr ""
+msgstr " %(slug)s "
 
 #: templates/core/project_details.html:56
 #, python-format
 msgid " %(slug)s (Build Failed)"
-msgstr ""
+msgstr " %(slug)s (compilation échouée)"
 
 #: templates/core/project_details.html:61
 #: templates/profiles/profile_detail.html:37
@@ -1096,11 +1118,11 @@ msgstr "Modifier"
 
 #: templates/core/project_details.html:71
 msgid "Build a version"
-msgstr ""
+msgstr "Compiler une version"
 
 #: templates/core/project_details.html:79
 msgid "Build"
-msgstr ""
+msgstr "Compiler"
 
 #: templates/core/project_details.html:89
 msgid "Repository"
@@ -1120,7 +1142,7 @@ msgstr "Dernière compilation"
 
 #: templates/core/project_details.html:108
 msgid "Home Page"
-msgstr ""
+msgstr "Page d'accueil"
 
 #: templates/core/project_details.html:114
 msgid "Project Privacy Level"
@@ -1147,15 +1169,15 @@ msgstr ""
 #: templates/projects/project_edit_base.html:19
 #: templates/projects/project_translations.html:12
 msgid "Translations"
-msgstr ""
+msgstr "Traductions"
 
 #: templates/core/project_details.html:144
 msgid "Sub Projects"
-msgstr ""
+msgstr "Sous-projets"
 
 #: templates/core/project_details.html:155
 msgid "'latest' Version"
-msgstr ""
+msgstr "Dernière version"
 
 #: templates/core/project_details.html:159
 msgid "Post Commit Hook"
@@ -1172,6 +1194,9 @@ msgid ""
 "        %(version)s PDF\n"
 "      "
 msgstr ""
+"\n"
+"        %(version)s PDF\n"
+"      "
 
 #: templates/core/project_downloads.html:16
 #, python-format
@@ -1180,6 +1205,9 @@ msgid ""
 "        %(version)s HTMLZip\n"
 "      "
 msgstr ""
+"\n"
+"        %(version)s HTMLZip\n"
+"      "
 
 #: templates/core/project_downloads.html:26
 #, python-format
@@ -1188,6 +1216,9 @@ msgid ""
 "        %(version)s Epub\n"
 "      "
 msgstr ""
+"\n"
+"        %(version)s Epub\n"
+"      "
 
 #: templates/core/project_downloads.html:49
 #, python-format
@@ -1196,6 +1227,9 @@ msgid ""
 "        %(version)s Dash docset\n"
 "      "
 msgstr ""
+"\n"
+"        %(version)s Dash docset\n"
+"      "
 
 #: templates/core/project_downloads.html:59
 #, python-format
@@ -1204,6 +1238,9 @@ msgid ""
 "        %(version)s Dash feed\n"
 "      "
 msgstr ""
+"\n"
+"        %(version)s Dash feed\n"
+"      "
 
 #: templates/core/project_downloads.html:67
 msgid "No downloads for this project."
@@ -1221,7 +1258,7 @@ msgstr "Pas de projet trouvé"
 
 #: templates/core/version_list.html:12
 msgid "Add tags"
-msgstr ""
+msgstr "Ajouter des étiquettes"
 
 #: templates/core/widesearchbar.html:4
 msgid "Search all the docs."
@@ -1244,7 +1281,7 @@ msgstr "Importer"
 
 #: templates/dashboard/dashboard_bar.html:22
 msgid "Profile"
-msgstr ""
+msgstr "Profil"
 
 #: templates/dashboard/dashboard_bar.html:26
 msgid "Create Profile"
@@ -1257,7 +1294,7 @@ msgstr "Modification du mot de passe"
 #: templates/djangome/choices.html:4
 #, python-format
 msgid "Choose a redirect for \"%(djangome_term)s\""
-msgstr ""
+msgstr "Choisissez une redirection pour \"%(djangome_term)s\""
 
 #: templates/djangome/choices.html:7
 #, python-format
@@ -1265,6 +1302,8 @@ msgid ""
 "Choose a redirect for <kbd>%(djangome_term)s on <a href=\"http://%(slug)s."
 "readthedocs.org\">%(slug)s.readthedocs.org</a></kbd>"
 msgstr ""
+"Choisissez une redirection pour <kbd>%(djangome_term)s on <a href=\"http://"
+"%(slug)s.readthedocs.org\">%(slug)s.readthedocs.org</a></kbd>"
 
 #: templates/djangome/choices.html:28
 msgid "Save &amp; go &rarr;"
@@ -1383,15 +1422,17 @@ msgstr "Profil de %(user)s"
 
 #: templates/profiles/profile_detail.html:44
 msgid "Add Your Name"
-msgstr ""
+msgstr "Ajoutez votre nom"
 
 #: templates/profiles/profile_detail.html:76
 msgid "Add a Homepage"
-msgstr ""
+msgstr "Ajoutez une page d'accueil"
 
 #: templates/profiles/profile_detail.html:85
 msgid "Press enter to save your changes, or escape to discard them"
 msgstr ""
+"Appuyez sur Entrée pour enregistrer vos changements ou sur Esc pour les "
+"ignorer"
 
 #: templates/profiles/profile_list.html:5
 #: templates/profiles/profile_list.html:8
@@ -1476,14 +1517,13 @@ msgid "reStructuredText Primer"
 msgstr "reStructuredText Primer"
 
 #: templates/projects/project_advanced.html:23
-#, fuzzy
 msgid "Edit Advanced Project Settings"
-msgstr "Modifier les versions du projet"
+msgstr "Modifier les paramètres avancés du projet"
 
 #: templates/projects/project_advanced.html:28
 #: templates/projects/project_edit_base.html:16
 msgid "Advanced Settings"
-msgstr ""
+msgstr "Paramètres avancés"
 
 #: templates/projects/project_advanced.html:34
 #: templates/projects/project_edit.html:37
@@ -1561,7 +1601,7 @@ msgstr "Modifier le projet"
 #: templates/projects/project_edit.html:28
 #: templates/projects/project_edit_base.html:15
 msgid "Settings"
-msgstr ""
+msgstr "Paramètres"
 
 #: templates/projects/project_edit.html:40
 msgid "delete"
@@ -1570,7 +1610,7 @@ msgstr "supprimer"
 #: templates/projects/project_edit_base.html:17
 #: templates/projects/project_users.html:8
 msgid "Maintainers"
-msgstr ""
+msgstr "Mainteneurs"
 
 #: templates/projects/project_edit_base.html:20
 #: templates/projects/project_subprojects.html:12
@@ -1580,7 +1620,7 @@ msgstr "Sous-projets"
 #: templates/projects/project_edit_base.html:21
 #: templates/projects/project_notifications.html:12
 msgid "Notifications"
-msgstr ""
+msgstr "Notifications"
 
 #: templates/projects/project_import.html:4
 #: templates/projects/project_import.html:28
@@ -1607,19 +1647,19 @@ msgstr "Projets étiquetés avec %(tag)s"
 
 #: templates/projects/project_notifications.html:5
 msgid "Edit Notifications"
-msgstr ""
+msgstr "Modifier les notifications"
 
 #: templates/projects/project_notifications.html:16
 msgid "Configure Notifications to be sent on build failures."
-msgstr ""
+msgstr "Paramétrer les notifications envoyées lors d'échecs de compilation"
 
 #: templates/projects/project_notifications.html:19
 msgid "Existing Notifications"
-msgstr ""
+msgstr "Notifications actuelles"
 
 #: templates/projects/project_notifications.html:30
 msgid "Remove Notifications"
-msgstr ""
+msgstr "Supprimer les notifications"
 
 #: templates/projects/project_notifications.html:39
 #: templates/projects/project_subprojects.html:27
@@ -1629,11 +1669,11 @@ msgstr "Supprimer"
 
 #: templates/projects/project_notifications.html:45
 msgid "New Notifications"
-msgstr ""
+msgstr "Nouvelles notifications"
 
 #: templates/projects/project_notifications.html:47
 msgid "Add an email address to notify"
-msgstr ""
+msgstr "Ajouter une adresse email de notification"
 
 #: templates/projects/project_subprojects.html:5
 msgid "Edit Subprojects"
@@ -1644,6 +1684,9 @@ msgid ""
 "This allows you to add subprojects to your project. This allows them to live "
 "in the same namespace in the URLConf for a subdomain or CNAME."
 msgstr ""
+"Ceci vous permet d'ajouter des sous-projets à votre projet. Ils peuvent "
+"alors vivre dans le même espace de noms dans l'URLConf pour un sous-domaine "
+"ou un CNAME."
 
 #: templates/projects/project_subprojects.html:19
 msgid "Existing Subprojects"
@@ -1655,43 +1698,48 @@ msgstr "Choisissez quel projet vous souhaitez ajouter en tant que sous-projet."
 
 #: templates/projects/project_translations.html:5
 msgid "Edit Translations"
-msgstr ""
+msgstr "Modifier les traductions"
 
 #: templates/projects/project_translations.html:16
 msgid ""
 "This allows you to add translations to your project. Select the project "
 "below that is a translation of your current project."
 msgstr ""
+"Cela vous permet d'ajouter des traductions à votre projet. Sélectionnez le "
+"projet qui est une traduction de votre projet actuel dans la liste ci-"
+"dessous."
 
 #: templates/projects/project_translations.html:19
 msgid "Existing Translations"
-msgstr ""
+msgstr "Traductions actuelles"
 
 #: templates/projects/project_translations.html:31
 msgid "Choose which project you would like to add as a translation."
-msgstr ""
+msgstr "Choisissez quel projet vous souhaitez ajouter en tant que traduction."
 
 #: templates/projects/project_users.html:5
 msgid "Edit Maintainers"
-msgstr ""
+msgstr "Modifier les mainteneurs"
 
 #: templates/projects/project_users.html:12
 msgid ""
 "This allows you to add maintainers to your project. It gives them admin "
 "access to the project, so be careful!"
 msgstr ""
+"Cela vous permet d'ajouter des mainteneurs à votre projet. Cela leurs donne "
+"les droits d'administration sur le projet, alors soyez prudent !"
 
 #: templates/projects/project_users.html:15
 msgid "Existing Maintainers"
-msgstr ""
+msgstr "Mainteneurs actuels"
 
 #: templates/projects/project_users.html:28
 msgid "Remove Maintainer"
-msgstr ""
+msgstr "Retirer un mainteneur"
 
 #: templates/projects/project_users.html:44
 msgid "Add Maintainer"
-msgstr ""
+msgstr "Ajouter un mainteneur"
 
 #: templates/projects/project_users.html:46
 msgid "Choose which user you would like to add."
@@ -1700,7 +1748,7 @@ msgstr "Choisissez quel utilisateur vous souhaitez ajouter."
 #: templates/projects/project_version_detail.html:14
 #, python-format
 msgid "%(version_name)s"
-msgstr ""
+msgstr "%(version_name)s"
 
 #: templates/projects/project_versions.html:4
 msgid "Edit Project Versions"
@@ -1708,15 +1756,15 @@ msgstr "Modifier les versions du projet"
 
 #: templates/projects/project_versions.html:21
 msgid "Choose the version that / will redirect to."
-msgstr ""
+msgstr "Choisissez la versions vers laquelle / redirigera."
 
 #: templates/projects/project_versions.html:27
 msgid "Choose Active Versions"
-msgstr ""
+msgstr "Choisissez les versions actives"
 
 #: templates/projects/project_versions.html:29
 msgid "Active versions below will show up on the site."
-msgstr ""
+msgstr "Les versions actives ci-dessous apparaîtront sur votre site."
 
 #: templates/projects/search.html:6 templates/projects/search.html.py:20
 #, python-format
@@ -1737,7 +1785,7 @@ msgstr "Importer la documentation HTML"
 
 #: templates/projects/upload_html.html:7
 msgid "Upload HTML"
-msgstr ""
+msgstr "Charger du HTML"
 
 #: templates/projects/upload_html.html:11
 msgid ""
@@ -1847,11 +1895,20 @@ msgid ""
 "If you didn't register this account you can simply delete this email and we "
 "won't bother you again."
 msgstr ""
+"Merci d'avoir créé un compte sur %(domain)s.\n"
+"Pour activer votre compte, veuillez vous rendre sur la page suivante :\n"
+"\n"
+"http://%(domain)s%(activation_url)s\n"
+"\n"
+"Cette page expirera dans %(expiration_days)s jours.\n"
+"\n"
+"Si vous n'avez pas créé ce compte, vous pouvez effacer cet email. Nous ne "
+"vous dérangerons plus."
 
 #: templates/registration/activation_email_subject.txt:1
 #, python-format
 msgid "%(site_name)s - activate your account"
-msgstr ""
+msgstr "%(site_name)s - activez votre compte"
 
 #: templates/registration/base_registration.html:5
 msgid "Registration"
@@ -1874,6 +1931,8 @@ msgid ""
 "Don't have an account?  <a href=\"/accounts/register/\">Register</a> a new "
 "one."
 msgstr ""
+"Vous n'avez pas de compte?  <a href=\"/accounts/register/\">Enregistrez-"
+"vous</a>."
 
 #: templates/registration/logout.html:11
 msgid "You've logged out."
@@ -2144,7 +2203,7 @@ msgstr "Auteur"
 
 #: templates/search/faceted_author.html:21
 msgid "No author facets."
-msgstr ""
+msgstr "Pas de facette par auteur."
 
 #: templates/search/faceted_results.html:7
 #, python-format
@@ -2192,39 +2251,26 @@ msgstr "Suivant"
 #: templates/sphinx/sphinx_rtd_theme/layout.html:47
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:131
 msgid "About these documents"
-msgstr ""
+msgstr "À propos de ces documents"
 
 #: templates/sphinx/sphinx_rtd_theme/layout.html:51
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:134
 msgid "Index"
-msgstr ""
+msgstr "Index"
 
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:29
 msgid "Navigation"
-msgstr ""
+msgstr "Navigation"
 
 #: templates/sphinx/sphinx_rtd_theme/search.html:33
 msgid "Search Results"
-msgstr ""
+msgstr "Résultats de la recherche"
 
 #: templates/sphinx/sphinx_rtd_theme/search.html:35
 msgid ""
 "Your search did not match any documents. Please make sure that all words are "
 "spelled correctly and that you've selected enough categories."
 msgstr ""
-
-#~ msgid "Crate URL"
-#~ msgstr "URL Crate"
-
-#~ msgid "Crate"
-#~ msgstr "Crate"
-
-#~ msgid ""
-#~ "This project has more information available about it on <a href=\"%(url)s"
-#~ "\">Crate!</a>"
-#~ msgstr ""
-#~ "Vous trouverez plus d'information sur ce projet sur <a href=\"%(url)s"
-#~ "\">Crate!</a>"
-
-#~ msgid "Invalid Host Name."
-#~ msgstr "Nom d'hôte invalide"
+"Votre recherche ne correspond à aucun document. Veuillez vous assurer que "
+"tous les mots sont orthographiés correctement et que vous avez sélectionné "
+"suffisamment de catégories."

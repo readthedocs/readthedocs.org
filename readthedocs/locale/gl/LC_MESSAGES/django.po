@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-26 05:35-0500\n"
-"PO-Revision-Date: 2014-01-06 14:59+0000\n"
+"POT-Creation-Date: 2014-04-26 11:01-0500\n"
+"PO-Revision-Date: 2014-04-24 21:43+0000\n"
 "Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
 "Language-Team: Galician (http://www.transifex.com/projects/p/readthedocs/"
 "language/gl/)\n"
@@ -28,8 +28,8 @@ msgstr "Sentímolo, non hai resultados nesa páxina."
 msgid "Invalid resource lookup data provided (mismatched type).: %(error)s"
 msgstr ""
 
-#: bookmarks/models.py:9 builds/models.py:83 builds/models.py:275
-#: builds/models.py:291 projects/models.py:806
+#: bookmarks/models.py:9 builds/models.py:83 builds/models.py:277
+#: builds/models.py:293 projects/models.py:809
 msgid "Project"
 msgstr "Proxecto"
 
@@ -37,7 +37,7 @@ msgstr "Proxecto"
 msgid "User"
 msgstr "Usuario"
 
-#: bookmarks/models.py:13 builds/models.py:299
+#: bookmarks/models.py:13 builds/models.py:301
 msgid "Date"
 msgstr "Data"
 
@@ -112,7 +112,7 @@ msgid "Any"
 msgstr "Calquera"
 
 #: builds/filters.py:17 builds/filters.py:29 projects/filters.py:31
-#: projects/models.py:102 projects/models.py:810
+#: projects/models.py:102 projects/models.py:813
 msgid "Name"
 msgstr "Nome"
 
@@ -124,7 +124,7 @@ msgstr "Data de xeración"
 msgid "Build Type"
 msgstr "Tipo de xeración"
 
-#: builds/models.py:86 builds/models.py:295
+#: builds/models.py:86 builds/models.py:297
 msgid "Type"
 msgstr "Tipo"
 
@@ -137,7 +137,7 @@ msgid "Verbose Name"
 msgstr "Nome detallado"
 
 #: builds/models.py:93 projects/filters.py:33 projects/models.py:103
-#: projects/models.py:811
+#: projects/models.py:814
 msgid "Slug"
 msgstr "Slug"
 
@@ -176,57 +176,57 @@ msgstr "Ver a versión"
 msgid "Version %(version)s of %(project)s (%(pk)s)"
 msgstr "Versión %(version)s de %(project)s (%(pk)s)"
 
-#: builds/models.py:277
+#: builds/models.py:279
 msgid "From slug"
 msgstr "Do slug"
 
-#: builds/models.py:278
+#: builds/models.py:280
 msgid "To slug"
 msgstr "Para o slug"
 
-#: builds/models.py:280
+#: builds/models.py:282
 msgid "Largest"
 msgstr "Meirande"
 
-#: builds/models.py:283
+#: builds/models.py:285
 #, python-format
 msgid "Alias for %(project)s: %(from)s -> %(to)s"
 msgstr "Alias para %(project)s: %(from)s -> %(to)s"
 
-#: builds/models.py:293 projects/models.py:119 projects/models.py:808
+#: builds/models.py:295 projects/models.py:119 projects/models.py:811
 #: templates/djangome/oneoffs.html:11
 msgid "Version"
 msgstr "Versión"
 
-#: builds/models.py:297
+#: builds/models.py:299
 msgid "State"
 msgstr "Estado"
 
-#: builds/models.py:300
+#: builds/models.py:302
 msgid "Success"
 msgstr "Éxito"
 
-#: builds/models.py:302
+#: builds/models.py:304
 msgid "Setup"
 msgstr ""
 
-#: builds/models.py:303
+#: builds/models.py:305
 msgid "Setup error"
 msgstr ""
 
-#: builds/models.py:304
+#: builds/models.py:306
 msgid "Output"
 msgstr "Saída"
 
-#: builds/models.py:305
+#: builds/models.py:307
 msgid "Error"
 msgstr "Erro"
 
-#: builds/models.py:306
+#: builds/models.py:308
 msgid "Exit code"
 msgstr ""
 
-#: builds/models.py:314
+#: builds/models.py:316
 #, python-format
 msgid "Build %(project)s for %(usernames)s (%(pk)s)"
 msgstr ""
@@ -363,9 +363,8 @@ msgid "Repository URL"
 msgstr "URL do repositorio"
 
 #: projects/filters.py:39
-#, fuzzy
 msgid "Repository Type"
-msgstr "Tipo de repositorio"
+msgstr ""
 
 #: projects/forms.py:23
 msgid "A project with that name exists already!"
@@ -555,12 +554,9 @@ msgstr "Tipo de documentación"
 
 #: projects/models.py:154
 msgid ""
-"Type of documentation you are building. <a href=\"http://sphinx.pocoo.org/"
+"Type of documentation you are building. <a href=\"http://sphinx-doc.org/"
 "builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More info</a>."
 msgstr ""
-"Tipo de documentación que está a xerar. <a href=\"http://sphinx.pocoo.org/"
-"builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">Máis información</"
-"a>."
 
 #: projects/models.py:158
 msgid "Analytics code"
@@ -572,7 +568,7 @@ msgid ""
 "page loads."
 msgstr ""
 
-#: projects/models.py:163 projects/models.py:812
+#: projects/models.py:163 projects/models.py:815
 msgid "Path"
 msgstr "Ruta"
 
@@ -601,9 +597,8 @@ msgid "Skip"
 msgstr "Saltar"
 
 #: projects/models.py:172
-#, fuzzy
 msgid "Mirror"
-msgstr "Erro"
+msgstr ""
 
 #: projects/models.py:174
 msgid "Use virtualenv"
@@ -682,11 +677,11 @@ msgstr "Ver o proxecto"
 msgid "Model must have slug"
 msgstr "O modelo debe ter un slug"
 
-#: projects/models.py:813
+#: projects/models.py:816
 msgid "MD5 checksum"
 msgstr "Suma de comprobación MD5"
 
-#: projects/models.py:841
+#: projects/models.py:844
 msgid "URL to send the webhook to"
 msgstr ""
 
@@ -699,9 +694,8 @@ msgid "Spanish"
 msgstr ""
 
 #: settings/base.py:57
-#, fuzzy
 msgid "Norwegian Bokmål"
-msgstr "Noruegués"
+msgstr ""
 
 #: settings/base.py:58
 msgid "French"
@@ -720,9 +714,8 @@ msgid "Galician"
 msgstr ""
 
 #: settings/base.py:62
-#, fuzzy
 msgid "Vietnamese"
-msgstr "Nome"
+msgstr ""
 
 #: settings/base.py:63
 msgid "Chinese"
@@ -740,7 +733,7 @@ msgstr ""
 msgid "Ukrainian"
 msgstr ""
 
-#: templates/404.html:5
+#: templates/404.html:6
 msgid "Maze Found"
 msgstr ""
 
@@ -876,9 +869,8 @@ msgid ""
 msgstr ""
 
 #: templates/archive/index.html:5
-#, fuzzy
 msgid "Read the Docs Archive"
-msgstr "Lea a documentación"
+msgstr ""
 
 #: templates/bookmarks/bookmark_list.html:7
 msgid "Bookmarks"
@@ -2147,16 +2139,3 @@ msgid ""
 "Your search did not match any documents. Please make sure that all words are "
 "spelled correctly and that you've selected enough categories."
 msgstr ""
-
-#~ msgid "Crate URL"
-#~ msgstr "URL de Crate"
-
-#~ msgid "Crate"
-#~ msgstr "Crate"
-
-#~ msgid ""
-#~ "This project has more information available about it on <a href=\"%(url)s"
-#~ "\">Crate!</a>"
-#~ msgstr ""
-#~ "Este proxecto ten máis información dispoñíbel sobre el en <a href="
-#~ "\"%(url)s\">Crate!</a>"

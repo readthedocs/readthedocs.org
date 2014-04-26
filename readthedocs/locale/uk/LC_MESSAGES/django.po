@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-26 05:35-0500\n"
+"POT-Creation-Date: 2014-04-26 11:01-0500\n"
 "PO-Revision-Date: 2014-03-06 21:20+0000\n"
 "Last-Translator: Тарас Буник <tbunyk@gmail.com>\n"
 "Language-Team: Ukrainian (http://www.transifex.com/projects/p/readthedocs/"
@@ -30,8 +30,8 @@ msgstr "Вибачте, на тій сторінці немає результа
 msgid "Invalid resource lookup data provided (mismatched type).: %(error)s"
 msgstr ""
 
-#: bookmarks/models.py:9 builds/models.py:83 builds/models.py:275
-#: builds/models.py:291 projects/models.py:806
+#: bookmarks/models.py:9 builds/models.py:83 builds/models.py:277
+#: builds/models.py:293 projects/models.py:809
 msgid "Project"
 msgstr "Проект"
 
@@ -39,7 +39,7 @@ msgstr "Проект"
 msgid "User"
 msgstr "Користувач"
 
-#: bookmarks/models.py:13 builds/models.py:299
+#: bookmarks/models.py:13 builds/models.py:301
 msgid "Date"
 msgstr "Дата"
 
@@ -114,7 +114,7 @@ msgid "Any"
 msgstr ""
 
 #: builds/filters.py:17 builds/filters.py:29 projects/filters.py:31
-#: projects/models.py:102 projects/models.py:810
+#: projects/models.py:102 projects/models.py:813
 msgid "Name"
 msgstr "Ім’я"
 
@@ -126,7 +126,7 @@ msgstr ""
 msgid "Build Type"
 msgstr ""
 
-#: builds/models.py:86 builds/models.py:295
+#: builds/models.py:86 builds/models.py:297
 msgid "Type"
 msgstr "Тип"
 
@@ -139,7 +139,7 @@ msgid "Verbose Name"
 msgstr "Детальне ім’я"
 
 #: builds/models.py:93 projects/filters.py:33 projects/models.py:103
-#: projects/models.py:811
+#: projects/models.py:814
 msgid "Slug"
 msgstr ""
 
@@ -178,57 +178,57 @@ msgstr ""
 msgid "Version %(version)s of %(project)s (%(pk)s)"
 msgstr "Версія %(version)s проекту %(project)s (%(pk)s)"
 
-#: builds/models.py:277
+#: builds/models.py:279
 msgid "From slug"
 msgstr ""
 
-#: builds/models.py:278
+#: builds/models.py:280
 msgid "To slug"
 msgstr ""
 
-#: builds/models.py:280
+#: builds/models.py:282
 msgid "Largest"
 msgstr "Найбільший"
 
-#: builds/models.py:283
+#: builds/models.py:285
 #, python-format
 msgid "Alias for %(project)s: %(from)s -> %(to)s"
 msgstr "Псевдонім для %(project)s: %(from)s -> %(to)s"
 
-#: builds/models.py:293 projects/models.py:119 projects/models.py:808
+#: builds/models.py:295 projects/models.py:119 projects/models.py:811
 #: templates/djangome/oneoffs.html:11
 msgid "Version"
 msgstr "Версія"
 
-#: builds/models.py:297
+#: builds/models.py:299
 msgid "State"
 msgstr "Стан"
 
-#: builds/models.py:300
+#: builds/models.py:302
 msgid "Success"
 msgstr "Успішно"
 
-#: builds/models.py:302
+#: builds/models.py:304
 msgid "Setup"
 msgstr "Установка"
 
-#: builds/models.py:303
+#: builds/models.py:305
 msgid "Setup error"
 msgstr "Помилка установки"
 
-#: builds/models.py:304
+#: builds/models.py:306
 msgid "Output"
 msgstr "Вивід"
 
-#: builds/models.py:305
+#: builds/models.py:307
 msgid "Error"
 msgstr "Помилка"
 
-#: builds/models.py:306
+#: builds/models.py:308
 msgid "Exit code"
 msgstr ""
 
-#: builds/models.py:314
+#: builds/models.py:316
 #, python-format
 msgid "Build %(project)s for %(usernames)s (%(pk)s)"
 msgstr ""
@@ -560,8 +560,9 @@ msgid "Documentation type"
 msgstr "Тип документації"
 
 #: projects/models.py:154
+#, fuzzy
 msgid ""
-"Type of documentation you are building. <a href=\"http://sphinx.pocoo.org/"
+"Type of documentation you are building. <a href=\"http://sphinx-doc.org/"
 "builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More info</a>."
 msgstr ""
 "Вид документації яку ви створюєте. <a href=\"http://sphinx.pocoo.org/"
@@ -580,7 +581,7 @@ msgstr ""
 "Google Analytics Tracking ID (ex. UA-22345342-1). Це може сповільнити "
 "завантаження сторінок."
 
-#: projects/models.py:163 projects/models.py:812
+#: projects/models.py:163 projects/models.py:815
 msgid "Path"
 msgstr "Шлях"
 
@@ -689,11 +690,11 @@ msgstr ""
 msgid "Model must have slug"
 msgstr "Модель повинна мати slug"
 
-#: projects/models.py:813
+#: projects/models.py:816
 msgid "MD5 checksum"
 msgstr "Чексума MD5"
 
-#: projects/models.py:841
+#: projects/models.py:844
 msgid "URL to send the webhook to"
 msgstr ""
 
@@ -746,7 +747,7 @@ msgstr ""
 msgid "Ukrainian"
 msgstr ""
 
-#: templates/404.html:5
+#: templates/404.html:6
 msgid "Maze Found"
 msgstr "Знайдено лабіринт"
 
