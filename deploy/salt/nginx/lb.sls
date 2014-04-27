@@ -20,6 +20,11 @@ nginx:
     - source: salt://nginx/logrotate.conf
     - mode: 0640
 
+/etc/fstab:
+  file.managed:
+    - source: salt://nginx/lb/fstab.conf
+    - mode: 0640
+
 /etc/nginx/sites-enabled/default:
   file:
     - absent
