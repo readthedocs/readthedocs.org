@@ -2,7 +2,7 @@
 
 # Nginx
 
-lb.nginx:
+nginx:
   pkg.installed:
     - name: nginx-extras
   service.running:
