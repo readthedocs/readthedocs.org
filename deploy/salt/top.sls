@@ -7,3 +7,6 @@ base:
     - python.base
     - readthedocs.user
     - readthedocs.site
+  'valhalla':
+    - nginx.lb
+    - hosts
