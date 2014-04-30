@@ -15,6 +15,11 @@ Auto-updating
 
 The :doc:`webhooks` page talks about the different ways you can ping RTD to let us know your project has been updated. We have official support for Github, and anywhere else we have a generic post-commit hook that allows you to POST to a URL to get your documentation built.
 
+Internationalization
+--------------------
+
+Read the Docs itself is localized, and we support documentation translated into multiple languages. Read more on the :doc:`localization` and :doc:`i18n` pages.
+
 Canonical URLs
 --------------
 
@@ -62,24 +67,3 @@ Alternate Domains
 
 We provide support for CNAMEs, subdomains, and a shorturl for your project as well. This is outlined in the :doc:`alternate_domains` section.
 
-Intersphinx Support
--------------------
-
-We host intersphinx catalogs for all projects built on Read the Docs. For more info on this support, read the Sphinx docs on  :mod:`Intersphinx <sphinx:sphinx.ext.intersphinx>`. Your configuration should look something like this::
-
-    intersphinx_mapping = {
-      'python': ('http://python.readthedocs.org/en/latest/', None),
-      'django': ('http://django.readthedocs.org/en/latest/', None),
-      'sphinx': ('http://sphinx.readthedocs.org/en/latest/', None),
-        }
-
-Then usage is pretty similar. You reference something using normal sphinx syntax, but can use the namespace of the project you want to reference, like so:
-
-.. code-block:: rest 
-
-    :mod:`Intersphinx <sphinx.ext.intersphinx>`
-    :mod:`Intersphinx <sphinx:sphinx.ext.intersphinx>`
-
-This will create a link to the official Sphinx documentation for intersphinx.
-
-More information can be found on Reinout van Rees' blog: http://reinout.vanrees.org/weblog/2012/12/01/django-intersphinx.html
