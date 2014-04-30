@@ -128,7 +128,8 @@ def move_files(version, results):
             from_path = version.project.artifact_path(version=version.slug, type='sphinx_search')
             to_path = os.path.join(settings.MEDIA_ROOT, 'json', version.project.slug, version.slug)
             core_utils.copy(from_path, to_path)
-        if 'pdf' in results and results['pdf'][0] == 0:
+        # Always move PDF's because the return code lies.
+        if 'pdf' in results:
                 from_path = version.project.artifact_path(version=version.slug, type='sphinx_pdf')
                 to_path = os.path.join(settings.MEDIA_ROOT, 'pdf', version.project.slug, version.slug)
                 core_utils.copy(from_path, to_path)
