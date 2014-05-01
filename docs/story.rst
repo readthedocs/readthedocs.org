@@ -1,10 +1,9 @@
 The Story of Read the Docs
 ==========================
 
-Writing documentation is hard. So is finding the right documentation.
-`Read the Docs`_ was created to make documentation simple.
+Documenting projects is hard, hosting them shouldn’t be. Read the Docs was created to make hosting documentation simple. 
 
-Read the Docs was started with a couple main goals in mind. The first goal was
+`Read the Docs`_ was started with a couple main goals in mind. The first goal was
 to encourage people to write documentation, by removing the barrier of entry to
 hosting. The other goal was to create a central platform for people to find
 documentation. Having a shared platform for all documentation allows for
@@ -12,10 +11,13 @@ innovation at the platform level, allowing work to be done once and benefit
 everyone.
 
 `Documentation matters`_, but its often overlooked. We think that we can help a
-documentation culture flourish, in open source communities and in enterprise.
+documentation culture flourish.
 Great projects, such as Django_ and SQLAlchemy_, and projects from companies
 like Mozilla_, are already using Read the Docs to serve their documentation to
 the world.
+
+We plan to keep building a great experience for people hosting their docs with us,
+and for users of the documentation that we host.
 
 .. _`Read the Docs`: http://readthedocs.org
 .. _`Documentation matters`: http://ericholscher.com/blog/2012/jan/22/why-read-docs-matters/
