@@ -4,7 +4,7 @@ The Story of Read the Docs
 Writing documentation is hard. So is finding the right documentation.
 `Read the Docs`_ was created to make documentation simple.
 
-Read the Docs was started with several main goals in mind. The first goal was
+Read the Docs was started with a couple main goals in mind. The first goal was
 to encourage people to write documentation, by removing the barrier of entry to
 hosting. The other goal was to create a central platform for people to find
 documentation. Having a shared platform for all documentation allows for
@@ -20,6 +20,6 @@ the world.
 .. _`Read the Docs`: http://readthedocs.org
 .. _`Documentation matters`: http://ericholscher.com/blog/2012/jan/22/why-read-docs-matters/
 
-.. _`Django`: https://docs.djangoproject.com/en
-.. _`SQLAlchemy`: http://docs.sqlalchemy.org/en
+.. _`Django`: https://docs.djangoproject.com/
+.. _`SQLAlchemy`: http://docs.sqlalchemy.org/
 .. _`Mozilla`: http://mozilla.org
