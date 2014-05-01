@@ -3,7 +3,7 @@ The Story of Read the Docs
 
 Documenting projects is hard, hosting them shouldn’t be. Read the Docs was created to make hosting documentation simple. 
 
-`Read the Docs`_ was started with a couple main goals in mind. The first goal was
+Read the Docs was `started`_ with a couple main goals in mind. The first goal was
 to encourage people to write documentation, by removing the barrier of entry to
 hosting. The other goal was to create a central platform for people to find
 documentation. Having a shared platform for all documentation allows for
@@ -19,7 +19,7 @@ the world.
 We plan to keep building a great experience for people hosting their docs with us,
 and for users of the documentation that we host.
 
-.. _`Read the Docs`: http://readthedocs.org
+.. _started: http://ericholscher.com/blog/2010/aug/16/announcing-read-docs/
 .. _`Documentation matters`: http://ericholscher.com/blog/2012/jan/22/why-read-docs-matters/
 
 .. _`Django`: https://docs.djangoproject.com/
