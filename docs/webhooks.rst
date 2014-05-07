@@ -16,10 +16,10 @@ your docs whenever you push updates:
 
 * Go to the "Settings" page for your project
 * Click "Webhooks & Services"
-* Click "Configure services" on the third-party services dialog
-* In the available service hooks, click "ReadTheDocs"
+* In the "Services" section, click "Add service"
+* In the list of available services, click "ReadTheDocs"
 * Check "Active"
-* Click "Update Settings"
+* Click "Add service"
 
 Bitbucket
 -----------
