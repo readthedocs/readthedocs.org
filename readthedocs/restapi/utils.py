@@ -57,7 +57,7 @@ def delete_versions(project, version_data):
     """
     Delete all versions not in the current repo.
     """
-    current_versions = ['latest']
+    current_versions = []
     if 'tags' in version_data:
         for version in version_data['tags']:
             current_versions.append(version['identifier'])
@@ -67,8 +67,9 @@ def delete_versions(project, version_data):
     to_delete_qs = project.versions.exclude(
             identifier__in=current_versions).exclude(
             uploaded=True).exclude(
-            active=True
-        )
+            active=True).exclude(
+            slug='latest')
+            
     if to_delete_qs.count():
         ret_val = {obj.slug for obj in to_delete_qs}
         log.info("(Sync Versions) Deleted Versions: [%s]" % ' '.join(ret_val))
