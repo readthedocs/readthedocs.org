@@ -105,3 +105,21 @@ def run_on_app_servers(command):
     else:
         ret = os.system(command)
         return ret
+
+def make_latest(project):
+    """
+    Useful for correcting versions with no latest, using the database.
+
+    >>> no_latest = Project.objects.exclude(versions__slug__in=['latest'])
+    >>> for project in no_latest:
+    >>>     make_latest(project)
+    """
+    branch = project.default_branch or project.vcs_repo().fallback_branch
+    version_data, created = Version.objects.get_or_create(
+        project=project,
+        slug='latest',
+        type='branch',
+        active=True,
+        verbose_name='latest',
+        identifier=branch,
+    )
