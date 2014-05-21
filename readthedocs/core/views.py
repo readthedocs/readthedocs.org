@@ -223,6 +223,9 @@ def github_build(request):
             except Exception, e:
                 pc_log.error("Error creating new project %s: %s" % (name, e))
                 return HttpResponseNotFound('Repo not found')
+    else:
+        return HttpResponse("You must POST to this resource.")
+
 
 @csrf_view_exempt
 def bitbucket_build(request):
@@ -242,6 +245,8 @@ def bitbucket_build(request):
         except NoProjectException:
             pc_log.error("(Incoming Bitbucket Build) Repo not found:  %s" % ghetto_url)
             return HttpResponseNotFound('Repo not found: %s' % ghetto_url)
+    else:
+        return HttpResponse("You must POST to this resource.")
 
 
 @csrf_view_exempt
@@ -259,6 +264,8 @@ def generic_build(request, pk=None):
         else:
             pc_log.info("(Incoming Generic Build) %s [%s]" % (project.slug, 'latest'))
             update_docs.delay(pk=pk, force=True)
+    else:
+        return HttpResponse("You must POST to this resource.")
     return redirect('builds_project_list', project.slug)
 
 def subproject_list(request):
