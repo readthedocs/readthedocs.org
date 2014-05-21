@@ -218,7 +218,7 @@ class PdfBuilder(BaseSphinx):
 
         if os.path.exists(exact):
             from_file = exact
-        elif os.path.exists(exact_upper)
+        elif os.path.exists(exact_upper):
             from_file = exact_upper
         else:
             from_globs = glob(os.path.join(self.old_artifact_path, "*.pdf"))
