@@ -214,9 +214,12 @@ class PdfBuilder(BaseSphinx):
             os.makedirs(self.target)
 
         exact = os.path.join(self.old_artifact_path, "%s.pdf" % self.version.project.slug)
+        exact_upper = os.path.join(self.old_artifact_path, "%s.pdf" % self.version.project.slug.capitalize())
 
         if os.path.exists(exact):
             from_file = exact
+        elif os.path.exists(exact_upper)
+            from_file = exact_upper
         else:
             from_globs = glob(os.path.join(self.old_artifact_path, "*.pdf"))
             if from_globs:
