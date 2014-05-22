@@ -130,9 +130,9 @@ def move_files(version, results):
             core_utils.copy(from_path, to_path)
         # Always move PDF's because the return code lies.
         if 'pdf' in results:
-                from_path = version.project.artifact_path(version=version.slug, type='sphinx_pdf')
-                to_path = os.path.join(settings.MEDIA_ROOT, 'pdf', version.project.slug, version.slug)
-                core_utils.copy(from_path, to_path)
+            from_path = version.project.artifact_path(version=version.slug, type='sphinx_pdf')
+            to_path = os.path.join(settings.MEDIA_ROOT, 'pdf', version.project.slug, version.slug)
+            core_utils.copy(from_path, to_path)
         if 'epub' in results and results['epub'][0] == 0:
             from_path = version.project.artifact_path(version=version.slug, type='sphinx_epub')
             to_path = os.path.join(settings.MEDIA_ROOT, 'epub', version.project.slug, version.slug)
@@ -161,7 +161,7 @@ def docker_build(version_pk, pdf=True, man=True, epub=True, dash=True, search=Tr
     version = make_api_version(version_data)
 
     environment_results = setup_environment(version)
-    results = build_docs(version, force, pdf, man, epub, dash, search, localmedia)
+    results = build_docs(version=version, force=force, pdf=pdf, man=man, epub=epub, dash=dash, search=search, localmedia=localmedia)
     results.update(environment_results)
     try:
         number = uuid.uuid4()
@@ -393,7 +393,7 @@ def setup_environment(version):
     return ret_dict
 
 @task()
-def build_docs(version, pdf, man, epub, dash, search, localmedia, force):
+def build_docs(version, force, pdf, man, epub, dash, search, localmedia):
     """
     This handles the actual building of the documentation
     """
