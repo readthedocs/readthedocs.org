@@ -17,7 +17,17 @@ fabfile_dir = os.path.dirname(__file__)
 
 @hosts(['newchimera.readthedocs.com', 'newasgard.readthedocs.com'])
 def remove_project(project):
+    """
+    Removes a project from the web servers.
+    This is different than wiping it,
+    as it will delete **all** the public files.
+    """
     run('rm -rf %s/user_builds/%s' % (env.code_dir, project))
+    run('rm -rf %s/media/pdf/%s' % (env.code_dir, project))
+    run('rm -rf %s/media/epub/%s' % (env.code_dir, project))
+    run('rm -rf %s/media/json/%s' % (env.code_dir, project))
+    run('rm -rf %s/media/man/%s' % (env.code_dir, project))
+    run('rm -rf %s/media/htmlzip/%s' % (env.code_dir, project))
 
 def ntpdate():
     run('ntpdate-debian')
@@ -33,7 +43,7 @@ def nginx_logs():
     env.user = "root"
     run("tail -F /var/log/nginx/*.log")
 
-@hosts(['newbuild.readthedocs.com'])
+@hosts(['newbuild.readthedocs.com', 'build-lts.readthedocs.com'])
 def celery_logs():
     env.user = "docs"
     run("tail -F tail -f ~/log/celery.err")
