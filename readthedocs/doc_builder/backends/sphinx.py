@@ -196,6 +196,8 @@ class PdfBuilder(BaseSphinx):
                 # Run LaTeX -> PDF conversions
                 pdflatex_cmds = [('pdflatex -interaction=nonstopmode %s'
                                  % tex_file) for tex_file in tex_files]
+                # Run twice because of https://github.com/rtfd/readthedocs.org/issues/749
+                pdf_results = run(*pdflatex_cmds)
                 pdf_results = run(*pdflatex_cmds)
             else:
                 pdf_results = (0, "No tex files found", "No tex files found")
