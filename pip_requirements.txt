@@ -47,7 +47,6 @@ django-kombu==0.9.4
 django-nose==1.1
 django-profiles==0.2
 django-secure==0.1.2
-django-tastypie==0.11.1
 mimeparse==0.1.3
 mock==1.0.1
 simplejson==2.3.0
@@ -70,6 +69,7 @@ git+https://github.com/alex/django-taggit.git@36f6dabcf10e27c7d9442a94243d4189f2
 git+https://github.com/ericflo/django-pagination.git@e5f669036c#egg=django_pagination-dev
 git+https://github.com/nathanborror/django-basic-apps.git@171fdbe21a0dbbb38919a383cc265cb3cbc73771#egg=django_basic_apps-dev
 git+https://github.com/nathanborror/django-registration.git@dc0b564b7bfb79f58592fe8ad836729a85ec17ae#egg=django_registration-dev
+git+https://github.com/toastdriven/django-tastypie.git@c5451b90b18b0cb64841b2276d543230d5f58231#egg=django_tastypie-dev
 git+https://github.com/ericholscher/readthedocs-sphinx-ext#egg=readthedocs_ext
 
 # Websupport
