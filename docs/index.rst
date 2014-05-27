@@ -25,7 +25,6 @@ Information about development and running your own instance is also available:
 
 * :ref:`dev-docs`
 * :ref:`design-docs`
-* :ref:`custom-docs`
 * :ref:`ops-docs`
 
 .. _site-docs:
@@ -104,15 +103,6 @@ About Read the Docs
 .. Things that need more love before getting upgraded to the above list.
 
 .. _custom-docs:
-
-Custom install Documentation
-----------------------------
-
-.. toctree::
-    :maxdepth: 3
-
-    custom_installs/index
-    settings
 
 .. _ops-docs:
 
