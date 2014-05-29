@@ -89,7 +89,7 @@ def install_packages(type=None):
             ' curl sqlite libxml2-dev libxslt-dev vim g++ python-numpy '
             ' python-scipy build-essential texlive-full libevent-dev '
             ' libmysqlclient-dev python-m2crypto libffi-dev python-matplotlib '
-            ' graphviz-dev libenchant1c2a pandoc'
+            ' graphviz-dev libenchant1c2a pandoc doxygen '
             ' latex-cjk-chinese-arphic-gbsn00lp latex-cjk-chinese-arphic-gkai00mp',
             ' latex-cjk-chinese-arphic-bsmi00lp latex-cjk-chinese-arphic-bkai00mp'
         )
