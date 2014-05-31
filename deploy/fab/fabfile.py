@@ -9,11 +9,17 @@ cwd = os.getcwd()
 all_users = ['docs', 'builder']
 required_dirs = ['checkouts', 'etc', 'run', 'log']
 
-asgard_ip = '10.176.7.42'
+#asgard_ip = '10.176.7.42'
+asgard_ip = '10.176.69.3'
+#chimera_ip = '10.176.11.213'
+chimera_ip = '10.176.68.247'
+#build_ip = '10.176.11.210'
+build_ip = '10.176.66.57' 
+#build2_ip = '10.176.13.14'
+build2_ip = '10.176.67.9'
+
+# Not changing
 backup_ip = '10.176.4.219'
-bari_ip = '10.176.13.14'
-build_ip = '10.176.11.210'
-chimera_ip = '10.176.11.213'
 db_ip = '10.176.9.67'
 
 @hosts('root@newchimera', 'root@newasgard', 'root@newbuild', 'root@lb', 'root@bari')
@@ -35,7 +41,7 @@ def build():
     install_packages('build')
     firewall('build')
     checkout('docs')
-    setup_env('docs')
+    setup_env('docs', 'build')
     fix_perms('docs')
     sudo('mkdir -p /var/build')
     sudo('chmod 777 /var/build')
@@ -47,7 +53,7 @@ def web():
     install_packages('web')
     firewall('web')
     checkout('docs')
-    setup_env('docs')
+    setup_env('docs', 'web')
     fix_perms('docs')
     sudo('mkdir -p /var/build')
     sudo('chmod 777 /var/build')
@@ -101,6 +107,7 @@ def install_packages(type=None):
         sudo('apt-get update')
         #sudo('apt-get install oracle-java7-installer')
     if type == 'web':
+        install_python()
         sudo('apt-get install -y  nginx-extras git-core python-dev libpq-dev libxml2-dev libxslt-dev libjson-perl libi18n-acceptlanguage-perl')
     if type == 'backup':
         sudo('apt-get install -y rsync')
@@ -144,7 +151,7 @@ def checkout(user=None):
             with cd('%s/checkouts/' % home):
                 run('git clone git://github.com/rtfd/readthedocs.org.git')
         if not fabtools.files.is_file('%s/bin/python' % home):
-            run('virtualenv2 %s' % home)
+            run('virtualenv %s' % home)
         run(('%s/bin/pip2 install --allow-all-external --allow-unverified bzr --allow-unverified launchpadlib --allow-unverified lazr.authentication -U -r %s/checkouts/readthedocs.org/'
              'deploy_requirements.txt') % (home, home))
 
@@ -161,7 +168,7 @@ def setup_env(user=None, role=None):
         if role:
             put('files/%s_supervisord.conf' % role,
                 '%s/etc/supervisord.conf' % home)
-        #run('%s/bin/pip install -U supervisor ipython gunicorn' % home)
+        run('%s/bin/pip install -U supervisor ipython gunicorn' % home)
 
 
 def fix_perms(user=None):
@@ -171,7 +178,7 @@ def fix_perms(user=None):
         users = all_users
     for user in users:
         env.user = user
-        home = '/home/%s' % user
+        home = '/home/%s/' % user
         sudo('chown -R %s:%s %s' % (user, user, home))
 
 
@@ -184,18 +191,18 @@ def setup_db():
 
 def all_firewall():
     # Webs
-    with settings(host_string='root@newasgard'):
+    with settings(host_string='root@asgard-lts'):
         firewall('web')
         firewall('munin')
-    with settings(host_string='root@newchimera'):
+    with settings(host_string='root@chimera-lts'):
         firewall('web')
         firewall('munin')
 
     # Build servers
-    with settings(host_string='root@bari'):
+    with settings(host_string='root@build-lts'):
         firewall('build')
         firewall('munin')
-    with settings(host_string='root@newbuild'):
+    with settings(host_string='root@build-lts-2'):
         firewall('build')
         firewall('munin')
 
@@ -220,15 +227,14 @@ def firewall(type):
     if type == "munin":
         sudo('ufw allow from %s to any port 4949 #Munin' % backup_ip)
     if type == "web":
-        sudo('ufw allow 80 #Nginx')
-        sudo('ufw allow 443 #Nginx')
+        sudo('ufw allow 8000 #Nginx')
     if type == "db":
         for ip in [asgard_ip, chimera_ip, backup_ip]:
             sudo('ufw allow from %s to any port 5432 #Postgres' % ip)
         for ip in [asgard_ip, chimera_ip]:
             sudo('ufw allow from %s to any port 8080 #Solr' % ip)
     if type == "build":
-        for ip in [asgard_ip, build_ip, chimera_ip, backup_ip, bari_ip]:
+        for ip in [asgard_ip, build_ip, chimera_ip, backup_ip, build2_ip]:
             sudo('ufw allow from %s to any port 6379 #Redis' % ip )
     if type == "backup":
         pass
@@ -243,42 +249,61 @@ def host_file():
 %s build
 %s chimera
 %s db
-%s bari
-    """ % (asgard_ip, backup_ip, build_ip, chimera_ip, db_ip, bari_ip)
+%s build-2
+    """ % (asgard_ip, backup_ip, build_ip, chimera_ip, db_ip, build2_ip)
    sudo("echo '%s' >> /etc/hosts " % host_string) 
 
 def nginx_configs():
-    with settings(host_string='root@lb'):
-        context = {'host': 'Asgard'}
-        upload_template('../nginx/app.nginx.conf', '/etc/nginx/sites-enabled/readthedocs', context=context, backup=False)
-        upload_template('../nginx/lb.nginx.conf', '/etc/nginx/sites-enabled/lb', context=context, backup=False)
-        upload_template('../nginx/main.nginx.conf', '/etc/nginx/nginx.conf', context=context, backup=False)
-        # Perl config
-        sudo('mkdir -p /usr/share/nginx/perl/')
-        put('../salt/nginx/perl/lib/ReadTheDocs.pm', '/usr/share/nginx/perl/ReadTheDocs.pm')
     with settings(host_string='root@newasgard'):
         context = {'host': 'Asgard'}
         upload_template('../nginx/app.nginx.conf', '/etc/nginx/sites-enabled/readthedocs', context=context, backup=False)
-        upload_template('../nginx/lb.nginx.conf', '/etc/nginx/sites-enabled/lb', context=context, backup=False)
+        #upload_template('../nginx/lb.nginx.conf', '/etc/nginx/sites-enabled/lb', context=context, backup=False)
         upload_template('../nginx/main.nginx.conf', '/etc/nginx/nginx.conf', context=context, backup=False)
+        sudo('rm -f /etc/nginx/sites-enabled/lb')
+        sudo('rm -f /etc/nginx/sites-enabled/default')
         # Perl config
         sudo('mkdir -p /usr/share/nginx/perl/')
         put('../salt/nginx/perl/lib/ReadTheDocs.pm', '/usr/share/nginx/perl/ReadTheDocs.pm')
-    with settings(host_string='root@newChimera'):
+    with settings(host_string='root@newchimera'):
         context = {'host': 'Chimera'}
         upload_template('../nginx/app.nginx.conf', '/etc/nginx/sites-enabled/readthedocs', context=context, backup=False)
-        upload_template('../nginx/lb.nginx.conf', '/etc/nginx/sites-enabled/lb', context=context, backup=False)
+        #upload_template('../nginx/lb.nginx.conf', '/etc/nginx/sites-enabled/lb', context=context, backup=False)
         upload_template('../nginx/main.nginx.conf', '/etc/nginx/nginx.conf', context=context, backup=False)
+        sudo('rm -f /etc/nginx/sites-enabled/lb')
+        sudo('rm -f /etc/nginx/sites-enabled/default')
+        # Perl config
+        sudo('mkdir -p /usr/share/nginx/perl/')
+        put('../salt/nginx/perl/lib/ReadTheDocs.pm', '/usr/share/nginx/perl/ReadTheDocs.pm')
+
+    with settings(host_string='root@asgard-lts'):
+        context = {'host': 'Asgard'}
+        upload_template('../nginx/app.nginx.conf', '/etc/nginx/sites-enabled/readthedocs', context=context, backup=False)
+        #upload_template('../nginx/lb.nginx.conf', '/etc/nginx/sites-enabled/lb', context=context, backup=False)
+        upload_template('../nginx/main.nginx.conf', '/etc/nginx/nginx.conf', context=context, backup=False)
+        sudo('rm -f /etc/nginx/sites-enabled/lb')
+        sudo('rm -f /etc/nginx/sites-enabled/default')
+        # Perl config
+        sudo('mkdir -p /usr/share/nginx/perl/')
+        put('../salt/nginx/perl/lib/ReadTheDocs.pm', '/usr/share/nginx/perl/ReadTheDocs.pm')
+    with settings(host_string='root@chimera-lts'):
+        context = {'host': 'Chimera'}
+        upload_template('../nginx/app.nginx.conf', '/etc/nginx/sites-enabled/readthedocs', context=context, backup=False)
+        #upload_template('../nginx/lb.nginx.conf', '/etc/nginx/sites-enabled/lb', context=context, backup=False)
+        upload_template('../nginx/main.nginx.conf', '/etc/nginx/nginx.conf', context=context, backup=False)
+        sudo('rm -f /etc/nginx/sites-enabled/lb')
+        sudo('rm -f /etc/nginx/sites-enabled/default')
         # Perl config
         sudo('mkdir -p /usr/share/nginx/perl/')
         put('../salt/nginx/perl/lib/ReadTheDocs.pm', '/usr/share/nginx/perl/ReadTheDocs.pm')
 
 def nginx_reload():
-    with settings(host_string='root@lb'):
-        sudo('/etc/init.d/nginx reload')
     with settings(host_string='root@newasgard'):
         sudo('/etc/init.d/nginx reload')
-    with settings(host_string='root@newChimera'):
+    with settings(host_string='root@newchimera'):
+        sudo('/etc/init.d/nginx reload')
+    with settings(host_string='root@asgard-lts'):
+        sudo('/etc/init.d/nginx reload')
+    with settings(host_string='root@chimera-lts'):
         sudo('/etc/init.d/nginx reload')
 
 def pg_hba():
@@ -290,21 +315,23 @@ host    all             all             %s/32          trust
     sudo("echo '%s' >> /etc/postgresql/9.1/main/pg_hba.conf " % hba_string) 
 
 
-@hosts('root@newchimera')
 def migrate_html():
-    #with cd('/var/build/'):
-        #run('rsync -a root@chimera.readthedocs.com:/var/build/user_builds .')
-    with settings(host_string='root@newasgard'):
-        with cd('/var/build/'):
-            run('rsync -a root@chimera:/var/build/user_builds .')
+    with cd('/home/docs/checkouts/readthedocs.org'):
+        run('rsync -av root@10.176.11.213:/home/docs/checkouts/readthedocs.org/user_builds/ user_builds/')
 
-@hosts('docs@newchimera')
 def migrate_media():
     with cd('/home/docs/checkouts/readthedocs.org/'):
-        run('rsync -a chimera.readthedocs.com:/home/docs/checkouts/readthedocs.org/media .')
-    with settings(host_string='docs@newasgard'):
-        with cd('/home/docs/checkouts/readthedocs.org/'):
-            run('rsync -a chimera:/home/docs/checkouts/readthedocs.org/media .')
+        run('rsync -av root@10.176.7.42:/home/docs/checkouts/readthedocs.org/media .')
+
+def migrate_other():
+    with cd('/home/docs/'):
+        run('rsync -av root@newasgard.readthedocs.com:/home/docs/newrelic.ini .')
+    with cd('/home/docs/'):
+        run('rsync -av root@newasgard.readthedocs.com:/home/docs/.bash_profile .')
+    with cd('/home/docs/etc/'):
+        run('rsync -av root@newasgard.readthedocs.com:/home/docs/etc/supervisord.conf .')
+    with cd('/home/docs/checkouts/readthedocs.org/readthedocs/settings/'):
+        run('rsync -av root@newasgard.readthedocs.com:/home/docs/checkouts/readthedocs.org/readthedocs/settings/local_settings.py .')
 
 @hosts('root@newdb')
 def migrate_db():
