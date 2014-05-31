@@ -617,7 +617,7 @@ def record_pdf(api, record, results, state, version):
             error=results['pdf'][2],
             exit_code=results['pdf'][0],
         ))
-    except UnicodeDecodeError, e:
+    except Exception, e:
         log.error(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Unable to post a new build"), exc_info=True)
 
 def update_search(version):
