@@ -284,7 +284,7 @@ class VersionAlias(models.Model):
     def __unicode__(self):
         return ugettext(u"Alias for %(project)s: %(from)s -> %(to)s" % {
             'project': self.project,
-            'form': self.from_slug,
+            'from': self.from_slug,
             'to': self.to_slug,
         })
 
