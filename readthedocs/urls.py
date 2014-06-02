@@ -74,7 +74,7 @@ urlpatterns = patterns(
     url(r'^projects/', include('projects.urls.public')),
     url(r'^builds/', include('builds.urls')),
     url(r'^flagging/', include('basic.flagging.urls')),
-    url(r'^accounts/', include('registration.backends.default.urls')),
+    url(r'^accounts/', include('allauth.urls')),
     url(r'^search/project/', SearchView.as_view(), name='haystack_project'),
     url(r'^search/', include('haystack.urls')),
     url(r'^admin/', include(admin.site.urls)),
