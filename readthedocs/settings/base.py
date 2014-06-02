@@ -107,6 +107,8 @@ AUTHENTICATION_BACKENDS = (
     "allauth.account.auth_backends.AuthenticationBackend",
 )
 
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 
 CORS_ORIGIN_REGEX_WHITELIST = ('^http://(.+)\.readthedocs\.org$', '^https://(.+)\.readthedocs\.org$')
 # So people can post to their accounts
@@ -170,7 +172,7 @@ INSTALLED_APPS = [
     'rtd_tests',
     'websupport',
     'restapi',
-    
+
     # allauth
     'allauth',
     'allauth.account',
