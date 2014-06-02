@@ -218,9 +218,9 @@ class Project(models.Model):
                                               related_name='translations',
                                               blank=True, null=True)
 
-    # Version State 
+    # Version State
     num_major = models.IntegerField(
-        _('Number of Major versions'), 
+        _('Number of Major versions'),
         max_length=3,
         default=2,
         null=True,
@@ -228,7 +228,7 @@ class Project(models.Model):
         help_text=_("2 means supporting 3.X.X and 2.X.X, but not 1.X.X")
     )
     num_minor = models.IntegerField(
-        _('Number of Minor versions'), 
+        _('Number of Minor versions'),
         max_length=3,
         default=2,
         null=True,
@@ -236,7 +236,7 @@ class Project(models.Model):
         help_text=_("2 means supporting 2.2.X and 2.1.X, but not 2.0.X")
     )
     num_point = models.IntegerField(
-        _('Number of Point versions'), 
+        _('Number of Point versions'),
         max_length=3,
         default=2,
         null=True,
@@ -481,7 +481,7 @@ class Project(models.Model):
 
     #
     # Paths for symlinks in project doc_path.
-    # 
+    #
     def cnames_symlink_path(self, domain):
         """
         Path in the doc_path that we symlink cnames
@@ -587,7 +587,7 @@ class Project(models.Model):
         The path to the static metadata JSON settings file
         """
         return os.path.join(self.doc_path, 'metadata.json')
-        
+
     def conf_file(self, version='latest'):
         if self.conf_py_file:
             log.debug('Inserting conf.py file path from model')
@@ -840,7 +840,7 @@ class EmailHook(Notification):
 
 
 class WebHook(Notification):
-    url = models.URLField(blank=True, verify_exists=False,
+    url = models.URLField(blank=True,
                           help_text=_('URL to send the webhook to'))
 
     def __unicode__(self):

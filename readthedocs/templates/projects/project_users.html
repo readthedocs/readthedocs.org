@@ -17,7 +17,7 @@
     <ul>
     {% for user in users %}
         <li>
-        <a href="{% url profiles_profile_detail user.username %}">
+        <a href="{% url "profiles_profile_detail" user.username %}">
         {{ user }}
         </a>
         </li>
@@ -27,7 +27,7 @@
   {% if users|length > 1 %}
   <h3>{% trans "Remove Maintainer" %}</h3>
     <p>
-        <form method="post" action="{% url projects_users_delete project.slug %}">
+        <form method="post" action="{% url "projects_users_delete" project.slug %}">
             {% csrf_token %}
           <select id="id_user" name="username">
           {% for user in users %}

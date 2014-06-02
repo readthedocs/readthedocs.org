@@ -2,7 +2,7 @@ import logging
 import json
 
 from django.contrib.auth.models import User
-from django.conf.urls.defaults import url
+from django.conf.urls import url
 from django.shortcuts import get_object_or_404
 
 from tastypie import fields
@@ -119,7 +119,6 @@ class VersionResource(EnhancedModelResource):
     project = fields.ForeignKey(ProjectResource, 'project', full=True)
 
     class Meta:
-        queryset = Version.objects.all()
         allowed_methods = ['get', 'put', 'post']
         always_return_data = True
         queryset = Version.objects.public()
