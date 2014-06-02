@@ -160,13 +160,6 @@ INSTALLED_APPS = [
     'haystack',
     'tastypie',
 
-    # allauth
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount', 
-    #'allauth.socialaccount.providers.github',
-    #'allauth.socialaccount.providers.bitbucket',
-    #'allauth.socialaccount.providers.twitter',
 
 
     # our apps
@@ -177,6 +170,14 @@ INSTALLED_APPS = [
     'rtd_tests',
     'websupport',
     'restapi',
+    
+    # allauth
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount', 
+    #'allauth.socialaccount.providers.github',
+    #'allauth.socialaccount.providers.bitbucket',
+    #'allauth.socialaccount.providers.twitter',
 ]
 
 REST_FRAMEWORK = {
