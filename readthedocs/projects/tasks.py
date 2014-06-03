@@ -325,10 +325,11 @@ def update_imported_docs(version_pk, api=None):
 def setup_environment(version):
     """
     Build the virtualenv and install the project into it.
+
+    Always build projects with a virtualenv.
     """
     ret_dict = {}
     project = version.project
-    #if project.use_virtualenv:
     build_dir = os.path.join(project.venv_path(version=version.slug), 'build')
     if os.path.exists(build_dir):
         log.info(LOG_TEMPLATE.format(project=project.slug, version=version.slug, msg='Removing existing build dir'))
