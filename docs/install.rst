@@ -26,7 +26,7 @@ activate it::
 You will need to verify that your pip version is higher than 1.5 you can do this as such::
 
     pip --version
-    
+
 If this is not the case please update your pip version before continuing::
 
     pip install --upgrade pip
@@ -68,10 +68,16 @@ Go ahead and load in a couple users and a test projects::
 
     ./manage.py loaddata test_data
 
+.. note::
+
+    If you do not opt to install test data, you'll need to create an account for
+    API use and set ``SLUMBER_USERNAME`` and ``SLUMBER_PASSWORD`` in order for
+    everything to work properly.
+
 Finally, you're ready to start the webserver::
 
     ./manage.py runserver
- 
+
 Visit http://127.0.0.1:8000/ in your browser to see how it looks; you can use
 the admin interface via http://127.0.0.1:8000/admin (logging in with the
 superuser account you just created).
@@ -109,7 +115,7 @@ Start the server::
     cd $SOLR_PATH && java -jar start.jar
 
 Index the data::
-    
+
     ./manage.py build_files # creates database objects referencing project files
     ./manage.py update_index
 
@@ -117,7 +123,7 @@ Index the data::
 
     For production environments, you'll want to run Solr in a more permanent
     servelet container, such as Tomcat or Jetty. Ubuntu distributions include
-    prepackaged Solr installations. Try ``aptitude install solr-tomcat`` or 
+    prepackaged Solr installations. Try ``aptitude install solr-tomcat`` or
     ``aptitude install solr-jetty.``
 
     See /etc/[solr|tomcat6|jetty] for configuration options.  The ``schema.xml``
