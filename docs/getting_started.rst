@@ -59,8 +59,8 @@ If you want to keep your code updated as you commit, configure your code reposit
 If you have any more trouble, don't hesitate to reach out to us. The :doc:`support` page has more information on getting in touch.
 
 .. _a screencast: https://www.youtube.com/watch?feature=player_embedded&v=oJsUvBQyHBs
-.. _Sphinx: http://sphinx.pocoo.org/
-.. _reStructuredText: http://sphinx.pocoo.org/rest.html
+.. _Sphinx: http://sphinx-doc.org/
+.. _reStructuredText: http://sphinx-doc.org/rest.html
 .. _this template: http://docs.writethedocs.org/en/latest/writing/beginners-guide-to-docs/#id1
 .. _Sign up: http://readthedocs.org/accounts/register
 .. _log in: http://readthedocs.org/accounts/login
