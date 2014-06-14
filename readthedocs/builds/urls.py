@@ -1,22 +1,20 @@
 from django.conf.urls import patterns, url
 
+from .views import BuildList, BuildDetail
+
 
 urlpatterns = patterns(
     # base view, flake8 complains if it is on the previous line.
     'builds.views',
-    url(r'^$',
-        'build_list',
-        name='builds_list'),
-
     url(r'^(?P<project_slug>[-\w]+)/(?P<pk>\d+)/$',
-        'build_detail',
+        BuildDetail.as_view(),
         name='builds_detail'),
-
+    
     url(r'^(?P<project_slug>[-\w]+)/$',
-        'build_list',
+        BuildList.as_view(),
         name='builds_project_list'),
 
     url(r'^tag/(?P<tag>\w+)/$',
-        'build_list',
+        BuildList.as_view(),
         name='builds_tag_list'),
 )
