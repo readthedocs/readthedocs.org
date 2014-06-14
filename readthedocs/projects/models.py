@@ -165,13 +165,15 @@ class Project(models.Model):
         help_text=_('Path from project root to conf.py file (ex. docs/conf.py)'
                     '. Leave blank if you want us to find it for you.'))
 
-    featured = models.BooleanField(_('Featured'))
-    skip = models.BooleanField(_('Skip'))
+    featured = models.BooleanField(_('Featured'), default=False)
+    skip = models.BooleanField(_('Skip'), default=False)
     mirror = models.BooleanField(_('Mirror'), default=False)
     use_virtualenv = models.BooleanField(
         _('Use virtualenv'),
         help_text=_("Install your project inside a virtualenv using setup.py "
-                    "install"))
+                    "install"),
+        default=False
+    )
 
     # This model attribute holds the python interpreter used to create the
     # virtual environment
@@ -186,7 +188,9 @@ class Project(models.Model):
     use_system_packages = models.BooleanField(
         _('Use system packages'),
         help_text=_("Give the virtual environment access to the global "
-                    "site-packages dir."))
+                    "site-packages dir."),
+        default=False
+        )
     django_packages_url = models.CharField(_('Django Packages URL'),
                                            max_length=255, blank=True)
     privacy_level = models.CharField(
