@@ -26,6 +26,14 @@ Bazaar_, Git_, and Mercurial_ repositories.
 .. _Git: http://git-scm.com/
 .. _Mercurial: http://mercurial.selenic.com/
 
+Documentation for RTD
+---------------------
+
+You will find complete documentation for setting up your project at `the Read
+the Docs site`_.
+
+.. _the Read the Docs site: http://read-the-docs.readthedocs.org
+
 Quick start for Github hosted projects
 --------------------------------------
 
@@ -51,13 +59,4 @@ when you push to Github.
 
 #. All done.  Commit away and your project will auto update.
 
-Documentation for RTD
----------------------
-
-You will find complete documentation for setting up your project at `the Read
-the Docs site`_.  For individuals looking to run separate instances of RTD you
-can refer to our `Custom Install`_ documentation.
-
-.. _Custom Install: http://read-the-docs.readthedocs.org/en/latest/custom_installs/index.html
-.. _the Read the Docs site: http://read-the-docs.readthedocs.org
 

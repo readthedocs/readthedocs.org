@@ -51,19 +51,28 @@ class Backend(BaseVCS):
 
     def parse_tags(self, data):
         """
-        Parses output of show-ref --tags, eg:
+        Parses output of bzr tags, eg:
 
             0.1.0                171
             0.1.1                173
             0.1.2                174
             0.2.0-pre-alpha      177
+
+        Can't forget about poorly formatted tags or tags that lack revisions,
+        such as:
+
+            3.3.0-rc1            ?
+            tag with spaces      123
         """
         # parse the lines into a list of tuples (commit-hash, tag ref name)
         squashed_data = re.sub(r' +', ' ', data)
         raw_tags = csv.reader(StringIO(squashed_data), delimiter=' ')
         vcs_tags = []
-        for name, commit in raw_tags:
-            vcs_tags.append(VCSVersion(self, commit, name))
+        for row in raw_tags:
+            name = ' '.join(row[:-1])
+            commit = row[-1]
+            if commit != '?':
+                vcs_tags.append(VCSVersion(self, commit, name))
         return vcs_tags
 
     def checkout(self, identifier=None):
