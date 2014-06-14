@@ -71,9 +71,7 @@ django-cors-headers==0.11
 # Pegged git requirements
 git+https://github.com/alex/django-filter.git#egg=django-filter
 git+https://github.com/ericflo/django-pagination.git@e5f669036c#egg=django_pagination-dev
-git+https://github.com/nathanborror/django-basic-apps.git@171fdbe21a0dbbb38919a383cc265cb3cbc73771#egg=django_basic_apps-dev
 git+https://github.com/ericholscher/readthedocs-sphinx-ext#egg=readthedocs_ext
-hg+https://hg@bitbucket.org/fcurella/django-profiles@views#egg=profiles
 
 git+https://github.com/alex/django-taggit.git#egg=django_taggit-dev
 
