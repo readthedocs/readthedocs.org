@@ -7,7 +7,7 @@
 --allow-external lazr.authentication
 --allow-unverified lazr.authentication
 
-# Upgraded packages
+## Upgraded packages
 pip==1.5.6
 virtualenv==1.11.6
 docutils==0.11
@@ -19,14 +19,14 @@ django-haystack==2.1.0
 celery-haystack==0.7.2
 django-guardian==1.2.0
 django-extensions==1.3.8
+South==0.8.4
 
+requests==2.3.0
+slumber==0.6.0
 
 # Basic tools
-south==0.7.6
 redis==2.7.1
 hiredis==0.1.2
-requests==2.0
-slumber==0.6
 celery==3.0.24
 django-celery==3.0.23
 mkdocs==0.4

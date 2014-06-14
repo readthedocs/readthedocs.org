@@ -168,7 +168,6 @@ INSTALLED_APPS = [
     'core',
     'doc_builder',
     'rtd_tests',
-    'websupport',
     'restapi',
 
     # allauth
