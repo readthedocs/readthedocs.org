@@ -18,7 +18,7 @@ from projects.utils import highest_version, mkversion, slugify_uniquely
 from projects import tasks
 from djangome import views as djangome
 
-from .utils import SearchMixin, PostAuthentication, EnhancedModelResource
+from .utils import SearchMixin, PostAuthentication 
 
 log = logging.getLogger(__name__)
 
@@ -115,7 +115,7 @@ class ProjectResource(ModelResource, SearchMixin):
         ]
 
 
-class VersionResource(EnhancedModelResource):
+class VersionResource(ModelResource):
     project = fields.ForeignKey(ProjectResource, 'project', full=True)
 
     class Meta:
@@ -203,7 +203,7 @@ class VersionResource(EnhancedModelResource):
         ]
 
 
-class BuildResource(EnhancedModelResource):
+class BuildResource(ModelResource):
     project = fields.ForeignKey('api.base.ProjectResource', 'project')
     version = fields.ForeignKey('api.base.VersionResource', 'version')
 
@@ -234,7 +234,7 @@ class BuildResource(EnhancedModelResource):
         ]
 
 
-class FileResource(EnhancedModelResource, SearchMixin):
+class FileResource(ModelResource, SearchMixin):
     project = fields.ForeignKey(ProjectResource, 'project', full=True)
 
     class Meta:

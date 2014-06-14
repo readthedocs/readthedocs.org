@@ -73,7 +73,6 @@ urlpatterns = patterns(
     url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r'^projects/', include('projects.urls.public')),
     url(r'^builds/', include('builds.urls')),
-    url(r'^flagging/', include('basic.flagging.urls')),
     url(r'^accounts/', include('allauth.urls')),
     url(r'^search/project/', SearchView.as_view(), name='haystack_project'),
     url(r'^search/', include('haystack.urls')),
@@ -122,7 +121,6 @@ urlpatterns = patterns(
     url(r'^mlt/(?P<project_slug>[-\w]+)/(?P<filename>.*)$',
         'core.views.morelikethis',
         name='morelikethis'),
-    url(r'^websupport/', include('websupport.urls')),
 
 )
 

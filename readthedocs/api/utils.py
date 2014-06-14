@@ -156,7 +156,6 @@ class EnhancedModelResource(ModelResource):
         used to narrow the query.
         """
         filters = None
-        import ipdb; ipdb.set_trace()
 
         if hasattr(request, 'GET'):
             filters = request.GET
