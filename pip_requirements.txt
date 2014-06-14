@@ -21,6 +21,7 @@ django-guardian==1.2.0
 django-extensions==1.3.8
 South==0.8.4
 djangorestframework==2.3.14 
+django-nose==1.2
 
 requests==2.3.0
 slumber==0.6.0
@@ -52,7 +53,6 @@ pytz==2013b
 beautifulsoup4==4.1.3
 Unipath==0.2.1
 django-kombu==0.9.4
-django-nose==1.1
 django-secure==0.1.2
 mimeparse==0.1.3
 mock==1.0.1
