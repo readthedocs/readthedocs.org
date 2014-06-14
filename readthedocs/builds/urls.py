@@ -13,8 +13,4 @@ urlpatterns = patterns(
     url(r'^(?P<project_slug>[-\w]+)/$',
         BuildList.as_view(),
         name='builds_project_list'),
-
-    url(r'^tag/(?P<tag>\w+)/$',
-        BuildList.as_view(),
-        name='builds_tag_list'),
 )
