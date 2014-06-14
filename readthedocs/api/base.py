@@ -57,14 +57,14 @@ class ProjectResource(ModelResource, SearchMixin):
         If a new resource is created, return ``HttpCreated`` (201 Created).
         """
         deserialized = self.deserialize(
-            request, request.raw_post_data,
+            request, request.body,
             format=request.META.get('CONTENT_TYPE', 'application/json')
         )
 
         # Force this in an ugly way, at least should do "reverse"
         deserialized["users"] = ["/api/v1/user/%s/" % request.user.id]
-        bundle = self.build_bundle(data=dict_strip_unicode_keys(deserialized))
-        self.is_valid(bundle, request)
+        bundle = self.build_bundle(data=dict_strip_unicode_keys(deserialized), request=request)
+        self.is_valid(bundle)
         updated_bundle = self.obj_create(bundle, request=request)
         return HttpCreated(location=self.get_resource_uri(updated_bundle))
 
@@ -79,7 +79,7 @@ class ProjectResource(ModelResource, SearchMixin):
         project = get_object_or_404(Project, pk=kwargs['pk'])
         try:
             post_data = self.deserialize(
-                request, request.raw_post_data,
+                request, request.body,
                 format=request.META.get('CONTENT_TYPE', 'application/json')
             )
             data = json.loads(post_data)
