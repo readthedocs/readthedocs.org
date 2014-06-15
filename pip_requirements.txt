@@ -21,6 +21,7 @@ slumber==0.6
 celery==3.0.24
 django-celery==3.0.23
 mkdocs==0.4
+django-allauth==0.16.1
 
 # VCS
 bzr==2.5b4
@@ -68,7 +69,6 @@ git+https://github.com/alex/django-filter.git#egg=django-filter
 git+https://github.com/alex/django-taggit.git@36f6dabcf10e27c7d9442a94243d4189f2a4f121#egg=django_taggit-dev
 git+https://github.com/ericflo/django-pagination.git@e5f669036c#egg=django_pagination-dev
 git+https://github.com/nathanborror/django-basic-apps.git@171fdbe21a0dbbb38919a383cc265cb3cbc73771#egg=django_basic_apps-dev
-git+https://github.com/nathanborror/django-registration.git@dc0b564b7bfb79f58592fe8ad836729a85ec17ae#egg=django_registration-dev
 git+https://github.com/toastdriven/django-tastypie.git@c5451b90b18b0cb64841b2276d543230d5f58231#egg=django_tastypie-dev
 git+https://github.com/ericholscher/readthedocs-sphinx-ext#egg=readthedocs_ext
 

@@ -14,9 +14,9 @@
         <!-- BEGIN header links-->
         <div class="home-header-links">
           {% comment %}Translators: Note, the full sentence goes 'Sign up' 'or' 'Log in'. But unfortunately the three bits have to be separate.{% endcomment %}
-          <a class="reg" href="{% url registration_register %}">{% trans "Sign up" %}</a>
+          <a class="reg" href="{% url account_signup %}">{% trans "Sign up" %}</a>
           <div class="login-box">
-            <p>{% trans "or" %} <a class="login" href="{% url auth_login %}">{% trans "Log in" %}</a></p>
+            <p>{% trans "or" %} <a class="login" href="{% url account_login %}">{% trans "Log in" %}</a></p>
           </div>
         </div>
         <!-- END header links -->

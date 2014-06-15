@@ -42,9 +42,9 @@
           <ul>
             {% if request.user.is_authenticated %}
               <li class="{{ dashboard_active }}"><a href="{% url projects_dashboard %}">{% trans "Dashboard" %}</a></li>
-              <li><a href="{% url auth_logout %}">{% trans "Log Out" %}</a></li>
+              <li><a href="{% url account_logout %}">{% trans "Log Out" %}</a></li>
             {% else %}
-              <li><a href="{% url auth_login %}">{% trans "Log in" %}</a></li>
+              <li><a href="{% url account_login %}">{% trans "Log in" %}</a></li>
             {% endif %}
 
 

@@ -100,6 +100,16 @@ MIDDLEWARE_CLASSES = (
     #'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
 )
 
+AUTHENTICATION_BACKENDS = (
+    # Needed to login by username in Django admin, regardless of `allauth`
+    "django.contrib.auth.backends.ModelBackend",
+    # `allauth` specific authentication methods, such as login by e-mail
+    "allauth.account.auth_backends.AuthenticationBackend",
+)
+
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+
 CORS_ORIGIN_REGEX_WHITELIST = ('^http://(.+)\.readthedocs\.org$', '^https://(.+)\.readthedocs\.org$')
 # So people can post to their accounts
 CORS_ALLOW_CREDENTIALS = True
@@ -115,7 +125,11 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.i18n",
     "django.core.context_processors.media",
     "django.core.context_processors.request",
+    # Read the Docs processor
     "core.context_processors.readthedocs_processor",
+    # allauth specific context processors
+    "allauth.account.context_processors.account",
+    "allauth.socialaccount.context_processors.socialaccount",
 )
 
 INSTALLED_APPS = [
@@ -129,7 +143,6 @@ INSTALLED_APPS = [
 
     # third party apps
     'pagination',
-    'registration',
     'profiles',
     'taggit',
     'south',
@@ -149,6 +162,8 @@ INSTALLED_APPS = [
     'haystack',
     'tastypie',
 
+
+
     # our apps
     'projects',
     'builds',
@@ -157,6 +172,14 @@ INSTALLED_APPS = [
     'rtd_tests',
     'websupport',
     'restapi',
+
+    # allauth
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount', 
+    #'allauth.socialaccount.providers.github',
+    #'allauth.socialaccount.providers.bitbucket',
+    #'allauth.socialaccount.providers.twitter',
 ]
 
 REST_FRAMEWORK = {

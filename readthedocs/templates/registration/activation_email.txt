@@ -1,8 +1,0 @@
-{% load i18n %}{% url registration_activate activation_key as activation_url %}{% blocktrans with expiration_days=expiration_days domain=site.domain %}Thank you for registering an account at {{ domain }}.
-To activate your registration, please visit the following page:
-
-http://{{ domain }}{{ activation_url }}
-
-This page will expire in {{ expiration_days }} days.
-
-If you didn't register this account you can simply delete this email and we won't bother you again.{% endblocktrans %}
