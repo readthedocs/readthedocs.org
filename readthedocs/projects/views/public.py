@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
-from core.generic.list_detail import object_list
+from django.views.generic import ListView
 from django.utils.datastructures import SortedDict
 
 from taggit.models import Tag
@@ -16,32 +16,32 @@ from builds.models import Version
 from projects.models import Project
 
 
-def project_index(request, username=None, tag=None):
-    """
-    The list of projects, which will optionally filter by user or tag,
-    in which case a 'person' or 'tag' will be added to the context
-    """
-    queryset = Project.objects.public(request.user)
-    if username:
-        user = get_object_or_404(User, username=username)
-        queryset = queryset.filter(user=user)
-    else:
-        user = None
+class ProjectIndex(ListView):
+    model = Project
 
-    if tag:
-        tag = get_object_or_404(Tag, slug=tag)
-        queryset = queryset.filter(tags__name__in=[tag.slug])
-    else:
-        tag = None
+    def get_queryset(self):
+        queryset = Project.objects.public(self.request.user)
+        if self.kwargs.get('username'):
+            self.user = get_object_or_404(User, username=self.kwargs.get('username'))
+            queryset = queryset.filter(user=self.user)
+        else:
+            self.user = None
 
-    return object_list(
-        request,
-        queryset=queryset,
-        extra_context={'person': user, 'tag': tag},
-        page=int(request.GET.get('page', 1)),
-        template_object_name='project',
-    )
+        if self.kwargs.get('tag'):
+            self.tag = get_object_or_404(Tag, slug=self.kwargs.get('tag'))
+            queryset = queryset.filter(tags__name__in=[self.tag.slug])
+        else:
+            self.tag = None
 
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super(ProjectIndex, self).get_context_data(**kwargs)
+        context['person'] = self.user
+        context['tag'] = self.tag
+        return context
+
+project_index = ProjectIndex.as_view()
 
 def project_detail(request, project_slug):
     """
@@ -115,41 +115,6 @@ def project_downloads(request, project_slug):
             'media_url_prefix': media_url_prefix,
         },
         context_instance=RequestContext(request),
-    )
-
-
-def tag_index(request):
-    """
-    List of all tags by most common
-    """
-    tag_qs = Project.tags.most_common()
-    return object_list(
-        request,
-        queryset=tag_qs,
-        page=int(request.GET.get('page', 1)),
-        template_object_name='tag',
-        template_name='projects/tag_list.html',
-    )
-
-
-def search(request):
-    """
-    our ghetto site search.  see roadmap.
-    """
-    if 'q' in request.GET:
-        term = request.GET['q']
-    else:
-        raise Http404
-    queryset = Project.objects.live(name__icontains=term)
-    if queryset.count() == 1:
-        return HttpResponseRedirect(queryset[0].get_absolute_url())
-
-    return object_list(
-        request,
-        queryset=queryset,
-        template_object_name='term',
-        extra_context={'term': term},
-        template_name='projects/search.html',
     )
 
 
