@@ -3,15 +3,15 @@
 # This file is distributed under the same license as the PACKAGE package.
 #
 # Translators:
-# Roman Kozlovskiy <krzroman@gmail.com>, 2013
-# Тарас Буник <tbunyk@gmail.com>, 2014
+# Roman Kozlovskyi <krzroman@gmail.com>, 2013
+# tbunyk <tbunyk@gmail.com>, 2014
 msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-04-26 11:01-0500\n"
-"PO-Revision-Date: 2014-03-06 21:20+0000\n"
-"Last-Translator: Тарас Буник <tbunyk@gmail.com>\n"
+"POT-Creation-Date: 2014-06-25 00:25-0500\n"
+"PO-Revision-Date: 2014-04-24 21:43+0000\n"
+"Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
 "Language-Team: Ukrainian (http://www.transifex.com/projects/p/readthedocs/"
 "language/uk/)\n"
 "Language: uk\n"
@@ -560,14 +560,10 @@ msgid "Documentation type"
 msgstr "Тип документації"
 
 #: projects/models.py:154
-#, fuzzy
 msgid ""
 "Type of documentation you are building. <a href=\"http://sphinx-doc.org/"
 "builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More info</a>."
 msgstr ""
-"Вид документації яку ви створюєте. <a href=\"http://sphinx.pocoo.org/"
-"builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">Більше інформації</"
-"a>."
 
 #: projects/models.py:158
 msgid "Analytics code"
@@ -623,7 +619,7 @@ msgstr "Встановіть ваш проект в virtualenv використ�
 
 #: projects/models.py:181
 msgid "Python Interpreter"
-msgstr ""
+msgstr "Інтерпретатор Python"
 
 #: projects/models.py:189
 msgid "Use system packages"
@@ -735,9 +731,8 @@ msgid "Chinese"
 msgstr "Китайська"
 
 #: settings/base.py:64
-#, fuzzy
 msgid "Taiwanese"
-msgstr "Китайська"
+msgstr ""
 
 #: settings/base.py:65
 msgid "Japanese"
@@ -822,7 +817,7 @@ msgstr ""
 #: templates/registration/password_reset_done.html:6
 #: templates/registration/password_reset_form.html:7
 msgid "Home"
-msgstr "Дім"
+msgstr "Головна"
 
 #: templates/homepage.html:44
 msgid "What is this place?"
@@ -1028,7 +1023,7 @@ msgstr ""
 #: templates/core/project_list_featured.html:13
 #: templates/projects/project_dashboard.html:70
 msgid "View Docs"
-msgstr "Переглянути документи"
+msgstr "Переглянути документацію"
 
 #: templates/core/project_bar.html:40
 #: templates/projects/project_downloads.html:22
@@ -1068,7 +1063,7 @@ msgstr "Версії"
 #: templates/core/project_details.html:49
 #, python-format
 msgid " %(slug)s "
-msgstr ""
+msgstr "%(slug)s"
 
 #: templates/core/project_details.html:56
 #, python-format
@@ -1107,7 +1102,7 @@ msgstr "Останній білд"
 
 #: templates/core/project_details.html:108
 msgid "Home Page"
-msgstr ""
+msgstr "Домашня сторінка"
 
 #: templates/core/project_details.html:114
 msgid "Project Privacy Level"
@@ -1132,7 +1127,7 @@ msgstr ""
 #: templates/projects/project_edit_base.html:19
 #: templates/projects/project_translations.html:12
 msgid "Translations"
-msgstr ""
+msgstr "Переклади"
 
 #: templates/core/project_details.html:144
 msgid "Sub Projects"
@@ -1140,7 +1135,7 @@ msgstr ""
 
 #: templates/core/project_details.html:155
 msgid "'latest' Version"
-msgstr ""
+msgstr "'остання' версія"
 
 #: templates/core/project_details.html:159
 msgid "Post Commit Hook"
@@ -1206,7 +1201,7 @@ msgstr "Проектів не знайдено"
 
 #: templates/core/version_list.html:12
 msgid "Add tags"
-msgstr ""
+msgstr "Додати теги"
 
 #: templates/core/widesearchbar.html:4
 msgid "Search all the docs."
@@ -1215,7 +1210,7 @@ msgstr "Пошук по всій документації."
 #. Translators: This is about starting a search
 #: templates/core/widesearchbar.html:16
 msgid "Let's do this."
-msgstr "Зробімо це."
+msgstr "Давайте!"
 
 #: templates/dashboard/dashboard_bar.html:8
 #: templates/projects/project_list.html:17
@@ -1737,7 +1732,7 @@ msgstr "Позначити цей проект як"
 
 #: templates/projects/includes/flagging.html:8
 msgid "Inappropriate"
-msgstr ""
+msgstr "Невідповідний"
 
 #: templates/projects/includes/flagging.html:9
 msgid "Spam"

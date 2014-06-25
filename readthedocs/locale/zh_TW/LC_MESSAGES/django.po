@@ -1,24 +1,25 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# 
+#
 # Translators:
 # mozillazg <opensource.mozillazg@gmail.com>, 2014
 # rimy <Siramizu@gmail.com>, 2013
 # wlbksy <kookbond@gmail.com>, 2014
-# Yu-Ren Chen <yrchen@atcity.org>, 2014
+# Xaver Y.R. Chen <yrchen@atcity.org>, 2014
 msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-04-24 16:42-0500\n"
+"POT-Creation-Date: 2014-06-25 00:25-0500\n"
 "PO-Revision-Date: 2014-04-24 21:43+0000\n"
 "Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
-"Language-Team: Chinese (Taiwan) (http://www.transifex.com/projects/p/readthedocs/language/zh_TW/)\n"
+"Language-Team: Chinese (Taiwan) (http://www.transifex.com/projects/p/"
+"readthedocs/language/zh_TW/)\n"
+"Language: zh_TW\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: zh_TW\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
 #: api/utils.py:86
@@ -376,7 +377,8 @@ msgstr "已存在相同的專案名稱！"
 msgid ""
 "URL for your code (hg or git). Ex. http://github.com/ericholscher/django-"
 "kong.git"
-msgstr "原始碼 URL (hg 或 git)。例如：http://github.com/ericholscher/django-kong.git"
+msgstr ""
+"原始碼 URL (hg 或 git)。例如：http://github.com/ericholscher/django-kong.git"
 
 #: projects/forms.py:52
 msgid "Invalid character in repo name"
@@ -384,9 +386,10 @@ msgstr "倉庫名稱中包含無效字符"
 
 #: projects/forms.py:55
 msgid ""
-"It looks like you entered a private repo - please use the public (http:// or"
-" git://) clone url"
-msgstr "看來您誤闖了一個私有的文件庫，請使用公開 (http:// or git://) clone 的網址連線"
+"It looks like you entered a private repo - please use the public (http:// or "
+"git://) clone url"
+msgstr ""
+"看來您誤闖了一個私有的文件庫，請使用公開 (http:// or git://) clone 的網址連線"
 
 #: projects/forms.py:72 projects/models.py:185
 msgid "(Beta) The Python interpreter used to create the virtual environment."
@@ -453,9 +456,11 @@ msgstr "reStructuredText 格式的專案說明"
 
 #: projects/models.py:108
 msgid ""
-"Checkout URL for your code (hg, git, etc.). Ex. "
-"http://github.com/ericholscher/django-kong.git"
-msgstr "該專案原始碼倉庫的位址 (hg、git 等)。例如：http://github.com/ericholscher/django-kong.git"
+"Checkout URL for your code (hg, git, etc.). Ex. http://github.com/"
+"ericholscher/django-kong.git"
+msgstr ""
+"該專案原始碼倉庫的位址 (hg、git 等)。例如：http://github.com/ericholscher/"
+"django-kong.git"
 
 #: projects/models.py:111
 msgid "Repository type"
@@ -477,7 +482,9 @@ msgstr "標準 URL"
 msgid ""
 "The official URL that the docs live at. This can be at readthedocs.org, or "
 "somewhere else. Ex. http://docs.fabfile.org"
-msgstr "文檔的官方 URL 。可以在 readthedocs.org 上，或其他地方。比如：http://docs.fabfile.org"
+msgstr ""
+"文檔的官方 URL 。可以在 readthedocs.org 上，或其他地方。比如：http://docs."
+"fabfile.org"
 
 #: projects/models.py:120
 msgid "Project version these docs apply to, i.e. 1.0a"
@@ -513,7 +520,9 @@ msgid ""
 "A single version site has no translations and only your \"latest\" version, "
 "served at the root of the domain. Use this with caution, only turn it on if "
 "you will <b>never</b> have multiple versions of your docs."
-msgstr "單一版本的站點不含翻譯版本，只包含 \"latest\" 版本，使用根域名進行服務。謹慎使用。僅在您<b>沒有</b>多版本時使用。"
+msgstr ""
+"單一版本的站點不含翻譯版本，只包含 \"latest\" 版本，使用根域名進行服務。謹慎"
+"使用。僅在您<b>沒有</b>多版本時使用。"
 
 #: projects/models.py:135
 msgid "Default version"
@@ -531,7 +540,9 @@ msgstr "預設分支"
 msgid ""
 "What branch \"latest\" points to. Leave empty to use the default value for "
 "your VCS (eg. trunk or master)."
-msgstr "“latest” 分支所實際指向的分支。留空則根據您的版本控制系統決定（如：trunk 或 master）。"
+msgstr ""
+"“latest” 分支所實際指向的分支。留空則根據您的版本控制系統決定（如：trunk 或 "
+"master）。"
 
 #: projects/models.py:145
 msgid "Requirements file"
@@ -539,11 +550,13 @@ msgstr "所需求的文件"
 
 #: projects/models.py:147
 msgid ""
-"Requires Virtualenv. A <a href=\"http://www.pip-"
-"installer.org/en/latest/cookbook.html#requirements-files\">pip requirements "
-"file</a> needed to build your documentation. Path from the root of your "
-"project."
-msgstr "需要 Virtualenv. 系統需要一個 <a href=\"http://www.pip-installer.org/en/latest/cookbook.html#requirements-files\">pip requirements 文件</a> 用來構建您的文件， 路徑則是相對於您的專案根目錄。"
+"Requires Virtualenv. A <a href=\"http://www.pip-installer.org/en/latest/"
+"cookbook.html#requirements-files\">pip requirements file</a> needed to build "
+"your documentation. Path from the root of your project."
+msgstr ""
+"需要 Virtualenv. 系統需要一個 <a href=\"http://www.pip-installer.org/en/"
+"latest/cookbook.html#requirements-files\">pip requirements 文件</a> 用來構建"
+"您的文件， 路徑則是相對於您的專案根目錄。"
 
 #: projects/models.py:152
 msgid "Documentation type"
@@ -551,9 +564,8 @@ msgstr "文檔類型"
 
 #: projects/models.py:154
 msgid ""
-"Type of documentation you are building. <a href=\"http://sphinx-"
-"doc.org/builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More "
-"info</a>."
+"Type of documentation you are building. <a href=\"http://sphinx-doc.org/"
+"builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More info</a>."
 msgstr ""
 
 #: projects/models.py:158
@@ -582,7 +594,9 @@ msgstr "Python 配置文件"
 msgid ""
 "Path from project root to conf.py file (ex. docs/conf.py). Leave blank if "
 "you want us to find it for you."
-msgstr "相對專案根目錄的 conf.py 文件路徑 (如：docs/conf.py)，留白可啟動自動搜尋功能。"
+msgstr ""
+"相對專案根目錄的 conf.py 文件路徑 (如：docs/conf.py)，留白可啟動自動搜尋功"
+"能。"
 
 #: projects/models.py:170
 msgid "Featured"
@@ -756,9 +770,11 @@ msgstr "本網站感謝您的耐心。"
 #: templates/base.html:84
 #, python-format
 msgid ""
-"Copyright 2010-2013. Created by %(eric)s, %(charles)s, and %(bobby)s for the"
-" 2010 %(djangodash)s."
-msgstr "版權所有 2010-2013. Created by %(eric)s, %(charles)s, and %(bobby)s for the 2010 %(djangodash)s."
+"Copyright 2010-2013. Created by %(eric)s, %(charles)s, and %(bobby)s for the "
+"2010 %(djangodash)s."
+msgstr ""
+"版權所有 2010-2013. Created by %(eric)s, %(charles)s, and %(bobby)s for the "
+"2010 %(djangodash)s."
 
 #: templates/base.html:86
 msgid "Docs"
@@ -766,11 +782,13 @@ msgstr "文檔"
 
 #: templates/base.html:88
 msgid ""
-"Made by <a "
-"href=\"https://github.com/rtfd/readthedocs.org/graphs/contributors\">humans</a>."
-" Funded by <a href=\"https://www.gittip.com/readthedocs/\">readers like "
-"you</a>."
-msgstr "由 <a href=\"https://github.com/rtfd/readthedocs.org/graphs/contributors\">貢獻者</a>建立。由<a href=\"https://www.gittip.com/readthedocs/\">像您一樣的讀者</a>資助。"
+"Made by <a href=\"https://github.com/rtfd/readthedocs.org/graphs/contributors"
+"\">humans</a>. Funded by <a href=\"https://www.gittip.com/readthedocs/"
+"\">readers like you</a>."
+msgstr ""
+"由 <a href=\"https://github.com/rtfd/readthedocs.org/graphs/contributors\">貢"
+"獻者</a>建立。由<a href=\"https://www.gittip.com/readthedocs/\">像您一樣的讀"
+"者</a>資助。"
 
 #: templates/base_filter.html:14 templates/core/filter_bar.html:8
 msgid "Filter"
@@ -810,10 +828,16 @@ msgstr "這是哪裡？"
 
 #: templates/homepage.html:46
 msgid ""
-"Read the Docs hosts documentation, making it fully searchable and easy to find.\n"
-"You can import your docs using any major version control system, including Mercurial, Git, Subversion, and Bazaar.\n"
-"We support <a href=\"http://read-the-docs.readthedocs.org/en/latest/webhooks.html\">webhooks</a> so your docs get built when you commit code.\n"
-"There's also support for versioning so you can build docs from tags and branches of your code in your repository. A <a href=\"http://read-the-docs.readthedocs.org/en/latest/features.html\">full list of features</a> is available."
+"Read the Docs hosts documentation, making it fully searchable and easy to "
+"find.\n"
+"You can import your docs using any major version control system, including "
+"Mercurial, Git, Subversion, and Bazaar.\n"
+"We support <a href=\"http://read-the-docs.readthedocs.org/en/latest/webhooks."
+"html\">webhooks</a> so your docs get built when you commit code.\n"
+"There's also support for versioning so you can build docs from tags and "
+"branches of your code in your repository. A <a href=\"http://read-the-docs."
+"readthedocs.org/en/latest/features.html\">full list of features</a> is "
+"available."
 msgstr ""
 
 #: templates/homepage.html:52
@@ -968,8 +992,7 @@ msgstr "控制面板"
 msgid "Create, host, and browse documentation."
 msgstr "創建、托管並瀏覽文檔。"
 
-#. Translators: Note, the full sentence goes 'Sign up' 'or' 'Log in'. But
-#. unfortunately the three bits have to be separate.
+#. Translators: Note, the full sentence goes 'Sign up' 'or' 'Log in'. But unfortunately the three bits have to be separate.
 #: templates/core/home-header.html:17
 msgid "Sign up"
 msgstr "註冊"
@@ -1097,8 +1120,8 @@ msgstr ""
 #: templates/core/project_details.html:131
 #, python-format
 msgid ""
-"This project has more information available about it on <a "
-"href=\"%(url)s\">Open Comparison!</a>"
+"This project has more information available about it on <a href=\"%(url)s"
+"\">Open Comparison!</a>"
 msgstr ""
 
 #: templates/core/project_details.html:135
@@ -1129,7 +1152,10 @@ msgid ""
 "\n"
 "        %(version)s PDF\n"
 "      "
-msgstr "\n        %(version)s PDF\n      "
+msgstr ""
+"\n"
+"        %(version)s PDF\n"
+"      "
 
 #: templates/core/project_downloads.html:16
 #, python-format
@@ -1137,7 +1163,10 @@ msgid ""
 "\n"
 "        %(version)s HTMLZip\n"
 "      "
-msgstr "\n        %(version)s HTMLZip\n      "
+msgstr ""
+"\n"
+"        %(version)s HTMLZip\n"
+"      "
 
 #: templates/core/project_downloads.html:26
 #, python-format
@@ -1145,7 +1174,10 @@ msgid ""
 "\n"
 "        %(version)s Epub\n"
 "      "
-msgstr "\n        %(version)s Epub\n      "
+msgstr ""
+"\n"
+"        %(version)s Epub\n"
+"      "
 
 #: templates/core/project_downloads.html:49
 #, python-format
@@ -1153,7 +1185,10 @@ msgid ""
 "\n"
 "        %(version)s Dash docset\n"
 "      "
-msgstr "\n        %(version)s Dash docset\n      "
+msgstr ""
+"\n"
+"        %(version)s Dash docset\n"
+"      "
 
 #: templates/core/project_downloads.html:59
 #, python-format
@@ -1161,7 +1196,10 @@ msgid ""
 "\n"
 "        %(version)s Dash feed\n"
 "      "
-msgstr "\n        %(version)s Dash feed\n      "
+msgstr ""
+"\n"
+"        %(version)s Dash feed\n"
+"      "
 
 #: templates/core/project_downloads.html:67
 msgid "No downloads for this project."
@@ -1220,8 +1258,8 @@ msgstr ""
 #: templates/djangome/choices.html:7
 #, python-format
 msgid ""
-"Choose a redirect for <kbd>%(djangome_term)s on <a "
-"href=\"http://%(slug)s.readthedocs.org\">%(slug)s.readthedocs.org</a></kbd>"
+"Choose a redirect for <kbd>%(djangome_term)s on <a href=\"http://%(slug)s."
+"readthedocs.org\">%(slug)s.readthedocs.org</a></kbd>"
 msgstr ""
 
 #: templates/djangome/choices.html:28
@@ -1277,7 +1315,8 @@ msgstr "您說的是："
 
 #: templates/flagging/flag_confirm.html:21
 #, python-format
-msgid "Are you sure you want to flag \"%(object)s\" as \"%(flag_type.title)s\"?"
+msgid ""
+"Are you sure you want to flag \"%(object)s\" as \"%(flag_type.title)s\"?"
 msgstr "您確定要將 %(object)s 標記為 %(flag_type.title)s 嗎？"
 
 #: templates/flagging/flag_confirm.html:23
@@ -1482,9 +1521,15 @@ msgstr "我的專案"
 #: templates/projects/project_dashboard.html:83
 #, python-format
 msgid ""
-"You don't have any projects.  You should <a href=\"%(projects_import_url)s\">create new docs</a> on the site.<br>\n"
-"          Check out the <a href=\"%(getting_started_url)s\">Getting Started</a> documentation for information about how to get going."
-msgstr "您目前沒有任何專案。您可以在網站上<a href=\"%(projects_import_url)s\">建立新文件</a> <br>\n          閱讀 <a href=\"%(getting_started_url)s\">Getting Started</a> 這份文件來看看如何開始。"
+"You don't have any projects.  You should <a href=\"%(projects_import_url)s"
+"\">create new docs</a> on the site.<br>\n"
+"          Check out the <a href=\"%(getting_started_url)s\">Getting Started</"
+"a> documentation for information about how to get going."
+msgstr ""
+"您目前沒有任何專案。您可以在網站上<a href=\"%(projects_import_url)s\">建立新"
+"文件</a> <br>\n"
+"          閱讀 <a href=\"%(getting_started_url)s\">Getting Started</a> 這份文"
+"件來看看如何開始。"
 
 #: templates/projects/project_delete.html:4
 #: templates/projects/project_delete.html:6
@@ -1587,8 +1632,8 @@ msgstr "編輯子專案"
 
 #: templates/projects/project_subprojects.html:16
 msgid ""
-"This allows you to add subprojects to your project. This allows them to live"
-" in the same namespace in the URLConf for a subdomain or CNAME."
+"This allows you to add subprojects to your project. This allows them to live "
+"in the same namespace in the URLConf for a subdomain or CNAME."
 msgstr "您可增加子計畫到本計畫中，這讓您可以相同的網域名稱管理所有計畫。"
 
 #: templates/projects/project_subprojects.html:19
@@ -1607,7 +1652,8 @@ msgstr "編輯翻譯"
 msgid ""
 "This allows you to add translations to your project. Select the project "
 "below that is a translation of your current project."
-msgstr "這將允許您給您的專案新增翻譯。請從下面選擇用於作為您當前專案翻譯的專案。"
+msgstr ""
+"這將允許您給您的專案新增翻譯。請從下面選擇用於作為您當前專案翻譯的專案。"
 
 #: templates/projects/project_translations.html:19
 msgid "Existing Translations"
@@ -1625,7 +1671,9 @@ msgstr "編輯維護者"
 msgid ""
 "This allows you to add maintainers to your project. It gives them admin "
 "access to the project, so be careful!"
-msgstr "這將允許您給您的專案添加維護者。維護者將擁有專案的管理員權限，所以請務必小心！"
+msgstr ""
+"這將允許您給您的專案添加維護者。維護者將擁有專案的管理員權限，所以請務必小"
+"心！"
 
 #: templates/projects/project_users.html:15
 msgid "Existing Maintainers"
@@ -1695,8 +1743,7 @@ msgstr ""
 msgid "Upload"
 msgstr "上傳"
 
-#. Translators: After 'Flag this project as' follows either 'Inappropriate',
-#. 'Spam' and/or 'Duplicate'
+#. Translators: After 'Flag this project as' follows either 'Inappropriate', 'Spam' and/or 'Duplicate'
 #: templates/projects/includes/flagging.html:7
 msgid "Flag this project as"
 msgstr "將此專案標記為"
@@ -1781,8 +1828,17 @@ msgid ""
 "\n"
 "This page will expire in %(expiration_days)s days.\n"
 "\n"
-"If you didn't register this account you can simply delete this email and we won't bother you again."
-msgstr "感謝您在 %(domain)s 上註冊帳號。\n為了啟動您的帳號，請訪問以下頁面：\n\nhttp://%(domain)s%(activation_url)s\n\n這個頁面 %(expiration_days)s 天後過期。\n\n如果您沒有註冊這個帳號，您可以刪除這封郵件。我們不會再打擾您。"
+"If you didn't register this account you can simply delete this email and we "
+"won't bother you again."
+msgstr ""
+"感謝您在 %(domain)s 上註冊帳號。\n"
+"為了啟動您的帳號，請訪問以下頁面：\n"
+"\n"
+"http://%(domain)s%(activation_url)s\n"
+"\n"
+"這個頁面 %(expiration_days)s 天後過期。\n"
+"\n"
+"如果您沒有註冊這個帳號，您可以刪除這封郵件。我們不會再打擾您。"
 
 #: templates/registration/activation_email_subject.txt:1
 #, python-format
@@ -1799,9 +1855,10 @@ msgstr "註冊"
 
 #: templates/registration/login.html:30
 msgid ""
-"If you forgot your password, <a href=\"/accounts/password/reset/\">reset "
-"it.</a>"
-msgstr "若您忘記了密碼，可以<a href=\"/accounts/password/reset/\">重設密碼</a>。"
+"If you forgot your password, <a href=\"/accounts/password/reset/\">reset it."
+"</a>"
+msgstr ""
+"若您忘記了密碼，可以<a href=\"/accounts/password/reset/\">重設密碼</a>。"
 
 #: templates/registration/login.html:33
 msgid ""
@@ -1820,8 +1877,8 @@ msgstr "謝謝訪問！"
 #: templates/registration/logout.html:21
 #, python-format
 msgid ""
-"If you are looking to log in again, you can do that <a "
-"href=\"%(login_url)s\">here</a>"
+"If you are looking to log in again, you can do that <a href=\"%(login_url)s"
+"\">here</a>"
 msgstr "若您想重新登錄，您可以點擊<a href=\"%(login_url)s\">這裡</a>"
 
 #: templates/registration/password_change_done.html:4
@@ -1845,9 +1902,11 @@ msgstr[0] "請改正下列錯誤。"
 
 #: templates/registration/password_change_form.html:26
 msgid ""
-"Please enter your old password, for security's sake, and then enter your new"
-" password twice so we can verify you typed it in correctly."
-msgstr "為保證安全，請先輸入您的舊密碼。然後輸入兩次您的新密碼，用於兩次輸入驗證是否一致。"
+"Please enter your old password, for security's sake, and then enter your new "
+"password twice so we can verify you typed it in correctly."
+msgstr ""
+"為保證安全，請先輸入您的舊密碼。然後輸入兩次您的新密碼，用於兩次輸入驗證是否"
+"一致。"
 
 #: templates/registration/password_change_form.html:30
 msgid "Old password"
@@ -1957,7 +2016,9 @@ msgstr "%(site_name)s 團隊"
 msgid ""
 "Forgotten your password? Enter your e-mail address below, and we'll e-mail "
 "instructions for setting a new one."
-msgstr "忘記您的密碼了？ 請在下方輸入您的 email 地址，我們將給您發送一封密碼重置郵件。"
+msgstr ""
+"忘記您的密碼了？ 請在下方輸入您的 email 地址，我們將給您發送一封密碼重置郵"
+"件。"
 
 #: templates/registration/password_reset_form.html:19
 msgid "E-mail address:"
@@ -1980,7 +2041,9 @@ msgid ""
 " You registered a long time ago.\n"
 "    We aren't sure if you are a robot or if \n"
 "    something got lost or what."
-msgstr " 您是很久前註冊的。\n    我們需要確認您的身份。"
+msgstr ""
+" 您是很久前註冊的。\n"
+"    我們需要確認您的身份。"
 
 #: templates/registration/registration_closed.html:20
 msgid "Please try"
@@ -2007,7 +2070,9 @@ msgstr "現在啟動您的帳號。"
 msgid ""
 "We will be sending you an email with an activation link.\n"
 "    Visit the link to verify this account."
-msgstr "我們將給您發送一封包含啟動連結的郵件。\n   請打開這個連結來啟動當前帳號。"
+msgstr ""
+"我們將給您發送一封包含啟動連結的郵件。\n"
+"   請打開這個連結來啟動當前帳號。"
 
 #: templates/registration/registration_complete.html:22
 msgid "Check your email.  We'll wait."
@@ -2121,6 +2186,7 @@ msgstr "搜索結果"
 
 #: templates/sphinx/sphinx_rtd_theme/search.html:35
 msgid ""
-"Your search did not match any documents. Please make sure that all words are"
-" spelled correctly and that you've selected enough categories."
-msgstr "您的搜索未匹配任何文檔。請確保所有的單詞都拼寫正確並且選中了足夠多的分類。"
+"Your search did not match any documents. Please make sure that all words are "
+"spelled correctly and that you've selected enough categories."
+msgstr ""
+"您的搜索未匹配任何文檔。請確保所有的單詞都拼寫正確並且選中了足夠多的分類。"

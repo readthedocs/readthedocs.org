@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-04-24 16:43-0500\n"
-"PO-Revision-Date: 2014-04-20 01:16+0000\n"
+"POT-Creation-Date: 2014-06-25 00:25-0500\n"
+"PO-Revision-Date: 2014-06-02 12:00+0000\n"
 "Last-Translator: mozillazg <opensource.mozillazg@gmail.com>\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/projects/p/"
 "readthedocs/language/zh_CN/)\n"
@@ -28,7 +28,7 @@ msgstr "抱歉，在那个页面上没有结果。"
 #: api/utils.py:169
 #, python-format
 msgid "Invalid resource lookup data provided (mismatched type).: %(error)s"
-msgstr ""
+msgstr "要查找的数据是个无效的资源 (不匹配的类型).: %(error)s"
 
 #: bookmarks/models.py:9 builds/models.py:83 builds/models.py:277
 #: builds/models.py:293 projects/models.py:809
@@ -180,11 +180,11 @@ msgstr "%(project)s 的 %(version)s 版本 (%(pk)s)"
 
 #: builds/models.py:279
 msgid "From slug"
-msgstr ""
+msgstr "从 slug"
 
 #: builds/models.py:280
 msgid "To slug"
-msgstr ""
+msgstr "到 slug"
 
 #: builds/models.py:282
 msgid "Largest"
@@ -563,13 +563,12 @@ msgid "Documentation type"
 msgstr "文档类型"
 
 #: projects/models.py:154
-#, fuzzy
 msgid ""
 "Type of documentation you are building. <a href=\"http://sphinx-doc.org/"
 "builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More info</a>."
 msgstr ""
-"您要构建的文档类型。<a href=\"http://sphinx.pocoo.org/builders.html#sphinx."
-"builders.html.DirectoryHTMLBuilder\">更多信息</a>。"
+"您要构建的文档类型。 <a href=\"http://sphinx-doc.org/builders.html#sphinx."
+"builders.html.DirectoryHTMLBuilder\">更多信息</a> 。"
 
 #: projects/models.py:158
 msgid "Analytics code"
@@ -841,6 +840,12 @@ msgid ""
 "readthedocs.org/en/latest/features.html\">full list of features</a> is "
 "available."
 msgstr ""
+"Read the Docs 托管文档， 让文档可以被搜索和更易查找。您可以导入您使用版本控制"
+"系统托管的文档，包括 Mercurial, Git, Subversion, 和 Bazaar。我们支持 <a href="
+"\"http://read-the-docs.readthedocs.org/en/latest/webhooks.html\">webhooks</"
+"a> 因此可以在您提交代码时自动构建文档。并且同样也支持版本功能，因此您可以构建"
+"来自您代码仓库中某个标签或分支的文档。 <a href=\"http://read-the-docs."
+"readthedocs.org/en/latest/features.html\">查看全部的特性列表</a> 。 "
 
 #: templates/homepage.html:52
 #, python-format
@@ -883,6 +888,8 @@ msgid ""
 "This is a post-commit hook. Set it up in your project admin to POST here, "
 "for us to update your doc changes automatically."
 msgstr ""
+"这是个 post-commit 钩子。在您的项目管理面板中设置一下，向它发送 POST 请求， "
+"这样我们就可以自动更新您的文档变更。"
 
 #: templates/archive/index.html:5
 msgid "Read the Docs Archive"
@@ -1119,7 +1126,7 @@ msgstr "短网址"
 
 #: templates/core/project_details.html:130
 msgid "Open Comparison"
-msgstr ""
+msgstr "Open Comparison"
 
 #: templates/core/project_details.html:131
 #, python-format
@@ -1127,6 +1134,7 @@ msgid ""
 "This project has more information available about it on <a href=\"%(url)s"
 "\">Open Comparison!</a>"
 msgstr ""
+"可以在 <a href=\"%(url)s\">Open Comparison</a> 上查看此项目的更多信息！"
 
 #: templates/core/project_details.html:135
 #: templates/projects/project_edit_base.html:19
@@ -1274,11 +1282,11 @@ msgstr "保存 &amp; 到 &rarr;"
 
 #: templates/djangome/oneoffs.html:4
 msgid "One-offs"
-msgstr ""
+msgstr "One-offs"
 
 #: templates/djangome/oneoffs.html:12
 msgid "Term"
-msgstr ""
+msgstr "条目"
 
 #: templates/djangome/oneoffs.html:13
 msgid "Target"
@@ -1469,7 +1477,7 @@ msgstr "如，检查此代码"
 
 #: templates/projects/legend.html:31
 msgid "actual code indented"
-msgstr ""
+msgstr "真实缩进后的代码"
 
 #: templates/projects/legend.html:34
 msgid "reStructuredText Primer"
@@ -1641,6 +1649,8 @@ msgid ""
 "This allows you to add subprojects to your project. This allows them to live "
 "in the same namespace in the URLConf for a subdomain or CNAME."
 msgstr ""
+"它允许您为您的项目增加子项目。这将允许它们在 URLConf 中使用相同的命名空间，用"
+"于子域名或 CNAME 。"
 
 #: templates/projects/project_subprojects.html:19
 msgid "Existing Subprojects"
@@ -1743,7 +1753,7 @@ msgstr "上传 HTML"
 msgid ""
 "Use this to upload pre-existing HTML documentation for versions that don't "
 "build correctly anymore."
-msgstr ""
+msgstr "使用这个为构建失败的版本上传已存在的 HTML 文档。"
 
 #: templates/projects/upload_html.html:15
 msgid "Upload"
@@ -2127,7 +2137,7 @@ msgstr "作者"
 
 #: templates/search/faceted_author.html:21
 msgid "No author facets."
-msgstr ""
+msgstr "没有相关的作者。"
 
 #: templates/search/faceted_results.html:7
 #, python-format
@@ -2153,7 +2163,7 @@ msgstr "按项目过滤"
 
 #: templates/search/faceted_results.html:32
 msgid "No project facets."
-msgstr ""
+msgstr "没有相关的项目。"
 
 #: templates/search/faceted_results.html:54
 msgid "File"

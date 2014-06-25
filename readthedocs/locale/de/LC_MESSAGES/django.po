@@ -5,12 +5,12 @@
 # Translators:
 # Jannis Leidel <jannis@leidel.info>, 2012,2014
 # Jonas Obrist <ojiidotch@gmail.com>, 2012
-# Mineo <themineo+transifex@googlemail.com>, 2014
+# Wieland Hoffmann <themineo+transifex@googlemail.com>, 2014
 msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-05-31 18:22-0500\n"
+"POT-Creation-Date: 2014-06-25 00:24-0500\n"
 "PO-Revision-Date: 2014-04-24 21:43+0000\n"
 "Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
 "Language-Team: German (http://www.transifex.com/projects/p/readthedocs/"

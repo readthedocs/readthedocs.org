@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-04-24 16:43-0500\n"
-"PO-Revision-Date: 2014-01-06 14:59+0000\n"
+"POT-Creation-Date: 2014-06-25 00:25-0500\n"
+"PO-Revision-Date: 2014-04-24 21:43+0000\n"
 "Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
 "Language-Team: Vietnamese (Viet Nam) (http://www.transifex.com/projects/p/"
 "readthedocs/language/vi_VN/)\n"
@@ -364,9 +364,8 @@ msgid "Repository URL"
 msgstr "URL của repository"
 
 #: projects/filters.py:39
-#, fuzzy
 msgid "Repository Type"
-msgstr "Kiểu repository"
+msgstr ""
 
 #: projects/forms.py:23
 msgid "A project with that name exists already!"
@@ -558,14 +557,10 @@ msgid "Documentation type"
 msgstr "Kiểu tài liệu"
 
 #: projects/models.py:154
-#, fuzzy
 msgid ""
 "Type of documentation you are building. <a href=\"http://sphinx-doc.org/"
 "builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More info</a>."
 msgstr ""
-"Kiểu tài liệu bạn muốn xây dựng. <a href=\"http://sphinx.pocoo.org/builders."
-"html#sphinx.builders.html.DirectoryHTMLBuilder\">Click vào đây để xem thông "
-"tin chi tiết</a>."
 
 #: projects/models.py:158
 msgid "Analytics code"
@@ -608,9 +603,8 @@ msgid "Skip"
 msgstr "Bỏ qua"
 
 #: projects/models.py:172
-#, fuzzy
 msgid "Mirror"
-msgstr "Lỗi"
+msgstr ""
 
 #: projects/models.py:174
 msgid "Use virtualenv"
@@ -727,9 +721,8 @@ msgid "Galician"
 msgstr ""
 
 #: settings/base.py:62
-#, fuzzy
 msgid "Vietnamese"
-msgstr "Tên"
+msgstr ""
 
 #: settings/base.py:63
 msgid "Chinese"
@@ -752,9 +745,8 @@ msgid "Maze Found"
 msgstr ""
 
 #: templates/500.html:5
-#, fuzzy
 msgid "Server Error"
-msgstr "Lỗi cài đặt"
+msgstr ""
 
 #. Translators: Name of the website
 #: templates/base.html:13 templates/error_header.html:12
@@ -884,9 +876,8 @@ msgid ""
 msgstr ""
 
 #: templates/archive/index.html:5
-#, fuzzy
 msgid "Read the Docs Archive"
-msgstr "Read the Docs"
+msgstr ""
 
 #: templates/bookmarks/bookmark_list.html:7
 msgid "Bookmarks"
@@ -2178,6 +2169,3 @@ msgid ""
 "Your search did not match any documents. Please make sure that all words are "
 "spelled correctly and that you've selected enough categories."
 msgstr ""
-
-#~ msgid "Invalid Host Name."
-#~ msgstr "Hostname không đúng."

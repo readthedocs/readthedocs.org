@@ -1,21 +1,22 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# 
+#
 # Translators:
-# jqueralt <jqueralt@gmail.com>, 2014
+# Joan Queralt <jqueralt@gmail.com>, 2014
 msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-04-24 16:42-0500\n"
+"POT-Creation-Date: 2014-06-25 00:24-0500\n"
 "PO-Revision-Date: 2014-04-24 21:43+0000\n"
 "Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
-"Language-Team: Catalan (http://www.transifex.com/projects/p/readthedocs/language/ca/)\n"
+"Language-Team: Catalan (http://www.transifex.com/projects/p/readthedocs/"
+"language/ca/)\n"
+"Language: ca\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: ca\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: api/utils.py:86
@@ -25,7 +26,9 @@ msgstr "No hi ha cap resultat per aquesta pàgina"
 #: api/utils.py:169
 #, python-format
 msgid "Invalid resource lookup data provided (mismatched type).: %(error)s"
-msgstr "Les dades de recerca de recursos proporcionades no són vàlides (tipus no coincident): %(error)s"
+msgstr ""
+"Les dades de recerca de recursos proporcionades no són vàlides (tipus no "
+"coincident): %(error)s"
 
 #: bookmarks/models.py:9 builds/models.py:83 builds/models.py:277
 #: builds/models.py:293 projects/models.py:809
@@ -373,7 +376,9 @@ msgstr "Ja existeix un projecte amb aquest nom"
 msgid ""
 "URL for your code (hg or git). Ex. http://github.com/ericholscher/django-"
 "kong.git"
-msgstr "URL del vostre codi (hg or git). Ex. http://github.com/ericholscher/django-kong.git"
+msgstr ""
+"URL del vostre codi (hg or git). Ex. http://github.com/ericholscher/django-"
+"kong.git"
 
 #: projects/forms.py:52
 msgid "Invalid character in repo name"
@@ -381,9 +386,11 @@ msgstr "Hi ha un caràcter no vàlid al nom del repositori"
 
 #: projects/forms.py:55
 msgid ""
-"It looks like you entered a private repo - please use the public (http:// or"
-" git://) clone url"
-msgstr "Sembla que heu entrat un repositori privat - cal que utilitzeu la url del clon públic (http:// or git://)"
+"It looks like you entered a private repo - please use the public (http:// or "
+"git://) clone url"
+msgstr ""
+"Sembla que heu entrat un repositori privat - cal que utilitzeu la url del "
+"clon públic (http:// or git://)"
 
 #: projects/forms.py:72 projects/models.py:185
 msgid "(Beta) The Python interpreter used to create the virtual environment."
@@ -392,7 +399,8 @@ msgstr "(Beta) L'intèrpret Python utilitzat per crear l'entorn virtual."
 #: projects/forms.py:101
 msgid ""
 "Your configuration file is invalid, make sure it contains conf.py in it."
-msgstr "El vostre fitxer de configuració no és vàlid, assegureu-vos que conté conf.py"
+msgstr ""
+"El vostre fitxer de configuració no és vàlid, assegureu-vos que conté conf.py"
 
 #: projects/forms.py:170 templates/core/project_details.html:152
 msgid "Default Version"
@@ -450,9 +458,11 @@ msgstr "La descripció del projecte en reStructuredText"
 
 #: projects/models.py:108
 msgid ""
-"Checkout URL for your code (hg, git, etc.). Ex. "
-"http://github.com/ericholscher/django-kong.git"
-msgstr "Comproveu la URL del vostre codi (hg, git, etc.). Ex. http://github.com/ericholscher/django-kong.git"
+"Checkout URL for your code (hg, git, etc.). Ex. http://github.com/"
+"ericholscher/django-kong.git"
+msgstr ""
+"Comproveu la URL del vostre codi (hg, git, etc.). Ex. http://github.com/"
+"ericholscher/django-kong.git"
 
 #: projects/models.py:111
 msgid "Repository type"
@@ -474,7 +484,9 @@ msgstr "URL canònica"
 msgid ""
 "The official URL that the docs live at. This can be at readthedocs.org, or "
 "somewhere else. Ex. http://docs.fabfile.org"
-msgstr "La URL oficial on viu la documentació. Pot ser a readthedocs.org o un altre lloc, ex: http://docs.elmeulloc.org"
+msgstr ""
+"La URL oficial on viu la documentació. Pot ser a readthedocs.org o un altre "
+"lloc, ex: http://docs.elmeulloc.org"
 
 #: projects/models.py:120
 msgid "Project version these docs apply to, i.e. 1.0a"
@@ -510,7 +522,10 @@ msgid ""
 "A single version site has no translations and only your \"latest\" version, "
 "served at the root of the domain. Use this with caution, only turn it on if "
 "you will <b>never</b> have multiple versions of your docs."
-msgstr "Una versió senzilla del lloc no té traduccions i només conté la darrera versió a l'arrel del domini. Useu-lo amb precaució i activeu-lo només si <b>mai</b> voleu tenir diverses versions dels vostres documents."
+msgstr ""
+"Una versió senzilla del lloc no té traduccions i només conté la darrera "
+"versió a l'arrel del domini. Useu-lo amb precaució i activeu-lo només si "
+"<b>mai</b> voleu tenir diverses versions dels vostres documents."
 
 #: projects/models.py:135
 msgid "Default version"
@@ -528,7 +543,9 @@ msgstr "Branca per defecte"
 msgid ""
 "What branch \"latest\" points to. Leave empty to use the default value for "
 "your VCS (eg. trunk or master)."
-msgstr "A quina branca apunta \"el darrer\". Deixeu-ho buit si voleu utilitzar el valor per defecte del vostre VCS (p.ex: trunk o master)."
+msgstr ""
+"A quina branca apunta \"el darrer\". Deixeu-ho buit si voleu utilitzar el "
+"valor per defecte del vostre VCS (p.ex: trunk o master)."
 
 #: projects/models.py:145
 msgid "Requirements file"
@@ -536,11 +553,14 @@ msgstr "Fitxer de requeriments"
 
 #: projects/models.py:147
 msgid ""
-"Requires Virtualenv. A <a href=\"http://www.pip-"
-"installer.org/en/latest/cookbook.html#requirements-files\">pip requirements "
-"file</a> needed to build your documentation. Path from the root of your "
-"project."
-msgstr "Requereix Virtualenv. Un <a href=\"http://www.pip-installer.org/en/latest/cookbook.html#requirements-files\">fitxer de requeriments pip</a> necessari per construir la vostra documentació. Camí des de l'arrel del vostre projecte."
+"Requires Virtualenv. A <a href=\"http://www.pip-installer.org/en/latest/"
+"cookbook.html#requirements-files\">pip requirements file</a> needed to build "
+"your documentation. Path from the root of your project."
+msgstr ""
+"Requereix Virtualenv. Un <a href=\"http://www.pip-installer.org/en/latest/"
+"cookbook.html#requirements-files\">fitxer de requeriments pip</a> necessari "
+"per construir la vostra documentació. Camí des de l'arrel del vostre "
+"projecte."
 
 #: projects/models.py:152
 msgid "Documentation type"
@@ -548,9 +568,8 @@ msgstr "Tipus de documentació"
 
 #: projects/models.py:154
 msgid ""
-"Type of documentation you are building. <a href=\"http://sphinx-"
-"doc.org/builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More "
-"info</a>."
+"Type of documentation you are building. <a href=\"http://sphinx-doc.org/"
+"builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More info</a>."
 msgstr ""
 
 #: projects/models.py:158
@@ -561,7 +580,9 @@ msgstr "Codi d'Analytics"
 msgid ""
 "Google Analytics Tracking ID (ex. UA-22345342-1). This may slow down your "
 "page loads."
-msgstr "ID de seguiment de Google Analytics (ex. UA-22345342-1). Això, però, pot alentir la càrrega de la vostra pàgina."
+msgstr ""
+"ID de seguiment de Google Analytics (ex. UA-22345342-1). Això, però, pot "
+"alentir la càrrega de la vostra pàgina."
 
 #: projects/models.py:163 projects/models.py:815
 msgid "Path"
@@ -579,7 +600,9 @@ msgstr "Fitxer de configuració de Python"
 msgid ""
 "Path from project root to conf.py file (ex. docs/conf.py). Leave blank if "
 "you want us to find it for you."
-msgstr "Camí des projecte al fitxer conf.py  (ex. docs/conf.py). Deixeu-ho en blanc si voleu que el trobem per vós."
+msgstr ""
+"Camí des projecte al fitxer conf.py  (ex. docs/conf.py). Deixeu-ho en blanc "
+"si voleu que el trobem per vós."
 
 #: projects/models.py:170
 msgid "Featured"
@@ -599,7 +622,9 @@ msgstr "Usa virtualenv"
 
 #: projects/models.py:175
 msgid "Install your project inside a virtualenv using setup.py install"
-msgstr "Instal·leu el vostre projecte dins virtualenv usant la instal·lació de setup.py"
+msgstr ""
+"Instal·leu el vostre projecte dins virtualenv usant la instal·lació de setup."
+"py"
 
 #: projects/models.py:181
 msgid "Python Interpreter"
@@ -611,7 +636,8 @@ msgstr "Usa els paquets del sistema"
 
 #: projects/models.py:190
 msgid "Give the virtual environment access to the global site-packages dir."
-msgstr "Doneu accés a l'entorn virtual al directori global de paquets del lloc."
+msgstr ""
+"Doneu accés a l'entorn virtual al directori global de paquets del lloc."
 
 #: projects/models.py:192
 msgid "Django Packages URL"
@@ -621,7 +647,9 @@ msgstr "URL dels paquets de Django"
 msgid ""
 "(Beta) Level of privacy that you want on the repository. Protected means "
 "public but not in listings."
-msgstr "(Beta) Nivell de privacitat que desitgeu en el repositori. Protegit significa Públic, però no en els llistats."
+msgstr ""
+"(Beta) Nivell de privacitat que desitgeu en el repositori. Protegit "
+"significa Públic, però no en els llistats."
 
 #: projects/models.py:200
 msgid "Version Privacy Level"
@@ -630,7 +658,9 @@ msgstr "Nivell de privacitat de la versió"
 #: projects/models.py:202
 msgid ""
 "(Beta) Default level of privacy you want on built versions of documentation."
-msgstr "(Beta) Nivell de privacitat per defecte que desitgeu en les versions construïdes de la documentació."
+msgstr ""
+"(Beta) Nivell de privacitat per defecte que desitgeu en les versions "
+"construïdes de la documentació."
 
 #: projects/models.py:207
 msgid "Related projects"
@@ -744,7 +774,9 @@ msgstr "Read the Docs"
 msgid ""
 "Your docs are currently being built.  It may take a moment for them to "
 "appear."
-msgstr "Ara mateix s'està construint la vostra documentació. Trigarà encara uns moments en aparèixer."
+msgstr ""
+"Ara mateix s'està construint la vostra documentació. Trigarà encara uns "
+"moments en aparèixer."
 
 #: templates/base.html:62
 msgid "Read the Docs thanks you for your continued patience."
@@ -753,9 +785,11 @@ msgstr "Read the Docs us agraeix la vostra paciència infinita."
 #: templates/base.html:84
 #, python-format
 msgid ""
-"Copyright 2010-2013. Created by %(eric)s, %(charles)s, and %(bobby)s for the"
-" 2010 %(djangodash)s."
-msgstr "Copyright 2010-2013. Creat per %(eric)s, %(charles)s, i %(bobby)s pel 2010 %(djangodash)s."
+"Copyright 2010-2013. Created by %(eric)s, %(charles)s, and %(bobby)s for the "
+"2010 %(djangodash)s."
+msgstr ""
+"Copyright 2010-2013. Creat per %(eric)s, %(charles)s, i %(bobby)s pel 2010 "
+"%(djangodash)s."
 
 #: templates/base.html:86
 msgid "Docs"
@@ -763,11 +797,13 @@ msgstr "Documents"
 
 #: templates/base.html:88
 msgid ""
-"Made by <a "
-"href=\"https://github.com/rtfd/readthedocs.org/graphs/contributors\">humans</a>."
-" Funded by <a href=\"https://www.gittip.com/readthedocs/\">readers like "
-"you</a>."
-msgstr "Fet per <a href=\"https://github.com/rtfd/readthedocs.org/graphs/contributors\">humans</a>. Amb fons de  <a href=\"https://www.gittip.com/readthedocs/\">lectors com vós</a>."
+"Made by <a href=\"https://github.com/rtfd/readthedocs.org/graphs/contributors"
+"\">humans</a>. Funded by <a href=\"https://www.gittip.com/readthedocs/"
+"\">readers like you</a>."
+msgstr ""
+"Fet per <a href=\"https://github.com/rtfd/readthedocs.org/graphs/contributors"
+"\">humans</a>. Amb fons de  <a href=\"https://www.gittip.com/readthedocs/"
+"\">lectors com vós</a>."
 
 #: templates/base_filter.html:14 templates/core/filter_bar.html:8
 msgid "Filter"
@@ -807,18 +843,37 @@ msgstr "Què hi ha aquí?"
 
 #: templates/homepage.html:46
 msgid ""
-"Read the Docs hosts documentation, making it fully searchable and easy to find.\n"
-"You can import your docs using any major version control system, including Mercurial, Git, Subversion, and Bazaar.\n"
-"We support <a href=\"http://read-the-docs.readthedocs.org/en/latest/webhooks.html\">webhooks</a> so your docs get built when you commit code.\n"
-"There's also support for versioning so you can build docs from tags and branches of your code in your repository. A <a href=\"http://read-the-docs.readthedocs.org/en/latest/features.html\">full list of features</a> is available."
-msgstr "Read the Docs allotja documentació, fent-la completament cercable i fàcil de trobar.\nPodeu importar els vostres documents usant qualsevol sistema de control de versions, incloent Mercurial, Git, Subversion, i Bazaar.\nDonem suport a <a href=\"http://read-the-docs.readthedocs.org/en/latest/webhooks.html\">webhooks</a> de forma que que la vostra documentació es construeix quan n'envieu el codi.\nTambé hi ha suport per versions de manera que podeu contruir documentació a partir d'etiquetes i branques del codi al vostre repositori. Podeu trobar una  <a href=\"http://read-the-docs.readthedocs.org/en/latest/features.html\">llista completa de característiques</a>."
+"Read the Docs hosts documentation, making it fully searchable and easy to "
+"find.\n"
+"You can import your docs using any major version control system, including "
+"Mercurial, Git, Subversion, and Bazaar.\n"
+"We support <a href=\"http://read-the-docs.readthedocs.org/en/latest/webhooks."
+"html\">webhooks</a> so your docs get built when you commit code.\n"
+"There's also support for versioning so you can build docs from tags and "
+"branches of your code in your repository. A <a href=\"http://read-the-docs."
+"readthedocs.org/en/latest/features.html\">full list of features</a> is "
+"available."
+msgstr ""
+"Read the Docs allotja documentació, fent-la completament cercable i fàcil de "
+"trobar.\n"
+"Podeu importar els vostres documents usant qualsevol sistema de control de "
+"versions, incloent Mercurial, Git, Subversion, i Bazaar.\n"
+"Donem suport a <a href=\"http://read-the-docs.readthedocs.org/en/latest/"
+"webhooks.html\">webhooks</a> de forma que que la vostra documentació es "
+"construeix quan n'envieu el codi.\n"
+"També hi ha suport per versions de manera que podeu contruir documentació a "
+"partir d'etiquetes i branques del codi al vostre repositori. Podeu trobar "
+"una  <a href=\"http://read-the-docs.readthedocs.org/en/latest/features.html"
+"\">llista completa de característiques</a>."
 
 #: templates/homepage.html:52
 #, python-format
 msgid ""
 "It's free and simple.  Read the <a href=\"%(getting_started_url)s\">Getting "
 "Started</a> guide to get going!"
-msgstr "És gratis i senzill. Llegiu la Guia <a href=\"%(getting_started_url)s\">Getting Started</a> per començar."
+msgstr ""
+"És gratis i senzill. Llegiu la Guia <a href=\"%(getting_started_url)s"
+"\">Getting Started</a> per començar."
 
 #: templates/homepage.html:68
 msgid "Featured Projects"
@@ -851,7 +906,10 @@ msgstr "Comproveu <a href=\"%(project_url)s\">aquí</a>."
 msgid ""
 "This is a post-commit hook. Set it up in your project admin to POST here, "
 "for us to update your doc changes automatically."
-msgstr "Aquest és un hook post-commit. Configureu l'admin del vostre projecte per poder fer POST aquí i perquè nosaltres puguem modificar automàticament els canvis dels vostres  documents."
+msgstr ""
+"Aquest és un hook post-commit. Configureu l'admin del vostre projecte per "
+"poder fer POST aquí i perquè nosaltres puguem modificar automàticament els "
+"canvis dels vostres  documents."
 
 #: templates/archive/index.html:5
 msgid "Read the Docs Archive"
@@ -965,8 +1023,7 @@ msgstr "Consola"
 msgid "Create, host, and browse documentation."
 msgstr "Crea, allotja i mostra documentació."
 
-#. Translators: Note, the full sentence goes 'Sign up' 'or' 'Log in'. But
-#. unfortunately the three bits have to be separate.
+#. Translators: Note, the full sentence goes 'Sign up' 'or' 'Log in'. But unfortunately the three bits have to be separate.
 #: templates/core/home-header.html:17
 msgid "Sign up"
 msgstr "Registreu-vos"
@@ -1094,9 +1151,11 @@ msgstr "Open Comparison"
 #: templates/core/project_details.html:131
 #, python-format
 msgid ""
-"This project has more information available about it on <a "
-"href=\"%(url)s\">Open Comparison!</a>"
-msgstr "Aquest projecte té disponible més informació a <a href=\"%(url)s\">Open Comparison!</a>"
+"This project has more information available about it on <a href=\"%(url)s"
+"\">Open Comparison!</a>"
+msgstr ""
+"Aquest projecte té disponible més informació a <a href=\"%(url)s\">Open "
+"Comparison!</a>"
 
 #: templates/core/project_details.html:135
 #: templates/projects/project_edit_base.html:19
@@ -1126,7 +1185,10 @@ msgid ""
 "\n"
 "        %(version)s PDF\n"
 "      "
-msgstr "\n        %(version)s PDF\n      "
+msgstr ""
+"\n"
+"        %(version)s PDF\n"
+"      "
 
 #: templates/core/project_downloads.html:16
 #, python-format
@@ -1134,7 +1196,10 @@ msgid ""
 "\n"
 "        %(version)s HTMLZip\n"
 "      "
-msgstr "\n        %(version)s HTMLZip\n      "
+msgstr ""
+"\n"
+"        %(version)s HTMLZip\n"
+"      "
 
 #: templates/core/project_downloads.html:26
 #, python-format
@@ -1142,7 +1207,10 @@ msgid ""
 "\n"
 "        %(version)s Epub\n"
 "      "
-msgstr "\n        %(version)s Epub\n      "
+msgstr ""
+"\n"
+"        %(version)s Epub\n"
+"      "
 
 #: templates/core/project_downloads.html:49
 #, python-format
@@ -1150,7 +1218,10 @@ msgid ""
 "\n"
 "        %(version)s Dash docset\n"
 "      "
-msgstr "\n        %(version)s Dash docset\n      "
+msgstr ""
+"\n"
+"        %(version)s Dash docset\n"
+"      "
 
 #: templates/core/project_downloads.html:59
 #, python-format
@@ -1158,7 +1229,10 @@ msgid ""
 "\n"
 "        %(version)s Dash feed\n"
 "      "
-msgstr "\n        %(version)s Dash feed\n      "
+msgstr ""
+"\n"
+"        %(version)s Dash feed\n"
+"      "
 
 #: templates/core/project_downloads.html:67
 msgid "No downloads for this project."
@@ -1217,9 +1291,11 @@ msgstr "Escolliu una redirecció per \"%(djangome_term)s\""
 #: templates/djangome/choices.html:7
 #, python-format
 msgid ""
-"Choose a redirect for <kbd>%(djangome_term)s on <a "
-"href=\"http://%(slug)s.readthedocs.org\">%(slug)s.readthedocs.org</a></kbd>"
-msgstr "Escolliu una redirecció per <kbd>%(djangome_term)s a <a href=\"http://%(slug)s.readthedocs.org\">%(slug)s.readthedocs.org</a></kbd>"
+"Choose a redirect for <kbd>%(djangome_term)s on <a href=\"http://%(slug)s."
+"readthedocs.org\">%(slug)s.readthedocs.org</a></kbd>"
+msgstr ""
+"Escolliu una redirecció per <kbd>%(djangome_term)s a <a href=\"http://"
+"%(slug)s.readthedocs.org\">%(slug)s.readthedocs.org</a></kbd>"
 
 #: templates/djangome/choices.html:28
 msgid "Save &amp; go &rarr;"
@@ -1274,8 +1350,10 @@ msgstr "El que esteu dient:"
 
 #: templates/flagging/flag_confirm.html:21
 #, python-format
-msgid "Are you sure you want to flag \"%(object)s\" as \"%(flag_type.title)s\"?"
-msgstr "Esteu segur que voleu marcar  \"%(object)s\" com a  \"%(flag_type.title)s\"?"
+msgid ""
+"Are you sure you want to flag \"%(object)s\" as \"%(flag_type.title)s\"?"
+msgstr ""
+"Esteu segur que voleu marcar  \"%(object)s\" com a  \"%(flag_type.title)s\"?"
 
 #: templates/flagging/flag_confirm.html:23
 #, python-format
@@ -1458,7 +1536,9 @@ msgstr "Crea un nou projecte"
 msgid ""
 "Create new documentation here. If you already have docs in a public "
 "repository,"
-msgstr "Creeu aquí documentació nova. En cas que ja tingueu documents en un repositori públic"
+msgstr ""
+"Creeu aquí documentació nova. En cas que ja tingueu documents en un "
+"repositori públic"
 
 #: templates/projects/project_create.html:38
 msgid "import an existing project"
@@ -1479,9 +1559,15 @@ msgstr "Els meus projectes"
 #: templates/projects/project_dashboard.html:83
 #, python-format
 msgid ""
-"You don't have any projects.  You should <a href=\"%(projects_import_url)s\">create new docs</a> on the site.<br>\n"
-"          Check out the <a href=\"%(getting_started_url)s\">Getting Started</a> documentation for information about how to get going."
-msgstr "No teniu cap projecte. Podeu <a href=\"%(projects_import_url)s\">crear documentació nova</a> al lloc.<br>\nLlegiu la documentació <a href=\"%(getting_started_url)s\">Getting Started</a> per més informació sobre com començar."
+"You don't have any projects.  You should <a href=\"%(projects_import_url)s"
+"\">create new docs</a> on the site.<br>\n"
+"          Check out the <a href=\"%(getting_started_url)s\">Getting Started</"
+"a> documentation for information about how to get going."
+msgstr ""
+"No teniu cap projecte. Podeu <a href=\"%(projects_import_url)s\">crear "
+"documentació nova</a> al lloc.<br>\n"
+"Llegiu la documentació <a href=\"%(getting_started_url)s\">Getting Started</"
+"a> per més informació sobre com començar."
 
 #: templates/projects/project_delete.html:4
 #: templates/projects/project_delete.html:6
@@ -1554,7 +1640,9 @@ msgstr "Edita les notificacions"
 
 #: templates/projects/project_notifications.html:16
 msgid "Configure Notifications to be sent on build failures."
-msgstr "Configura les Notificacions que s'han d'enviar quan hi hagi errors de construcció."
+msgstr ""
+"Configura les Notificacions que s'han d'enviar quan hi hagi errors de "
+"construcció."
 
 #: templates/projects/project_notifications.html:19
 msgid "Existing Notifications"
@@ -1584,9 +1672,11 @@ msgstr "Edita els subprojectes"
 
 #: templates/projects/project_subprojects.html:16
 msgid ""
-"This allows you to add subprojects to your project. This allows them to live"
-" in the same namespace in the URLConf for a subdomain or CNAME."
-msgstr "Això us permet afegir subprojectes al vostre projecte. Així estaran al mateix namespace de l'URLConf per un subdomini o CNAME"
+"This allows you to add subprojects to your project. This allows them to live "
+"in the same namespace in the URLConf for a subdomain or CNAME."
+msgstr ""
+"Això us permet afegir subprojectes al vostre projecte. Així estaran al "
+"mateix namespace de l'URLConf per un subdomini o CNAME"
 
 #: templates/projects/project_subprojects.html:19
 msgid "Existing Subprojects"
@@ -1604,7 +1694,9 @@ msgstr "Edita les traduccions"
 msgid ""
 "This allows you to add translations to your project. Select the project "
 "below that is a translation of your current project."
-msgstr "Això us permet afegir traduccions al vostre projecte. Seleccioneu el projecte que sigui una traducció del vostre projecte actual."
+msgstr ""
+"Això us permet afegir traduccions al vostre projecte. Seleccioneu el "
+"projecte que sigui una traducció del vostre projecte actual."
 
 #: templates/projects/project_translations.html:19
 msgid "Existing Translations"
@@ -1622,7 +1714,9 @@ msgstr "Edita els mantenidors"
 msgid ""
 "This allows you to add maintainers to your project. It gives them admin "
 "access to the project, so be careful!"
-msgstr "Us permet afegir els mantenidors del vostre projecte. Els dóna accés com administradors del projecte, així que sigueu curosos."
+msgstr ""
+"Us permet afegir els mantenidors del vostre projecte. Els dóna accés com "
+"administradors del projecte, així que sigueu curosos."
 
 #: templates/projects/project_users.html:15
 msgid "Existing Maintainers"
@@ -1686,14 +1780,15 @@ msgstr "Carrega HTML"
 msgid ""
 "Use this to upload pre-existing HTML documentation for versions that don't "
 "build correctly anymore."
-msgstr "Utilitzeu-ho per carregar documentació HTML existent a les versions que ja no es construeixen correctament."
+msgstr ""
+"Utilitzeu-ho per carregar documentació HTML existent a les versions que ja "
+"no es construeixen correctament."
 
 #: templates/projects/upload_html.html:15
 msgid "Upload"
 msgstr "Carrega"
 
-#. Translators: After 'Flag this project as' follows either 'Inappropriate',
-#. 'Spam' and/or 'Duplicate'
+#. Translators: After 'Flag this project as' follows either 'Inappropriate', 'Spam' and/or 'Duplicate'
 #: templates/projects/includes/flagging.html:7
 msgid "Flag this project as"
 msgstr "Marca aquest projecte com a"
@@ -1716,7 +1811,9 @@ msgstr "No construït"
 
 #: templates/projects/samples/getting_started.rst.html:3
 msgid "Here's a place to describe how to get up and running with your project"
-msgstr "Aquí hi ha un espai per descriure com arribar a fer funcionar el vostre projecte"
+msgstr ""
+"Aquí hi ha un espai per descriure com arribar a fer funcionar el vostre "
+"projecte"
 
 #: templates/projects/samples/installation.rst.html:3
 #, python-format
@@ -1733,19 +1830,24 @@ msgstr "Error d'activació del compte"
 msgid ""
 "The activation key \"%(activation_key)s\" is invalid and cannot be used to "
 "activate this account."
-msgstr "La clau d'activació \"%(activation_key)s\" no és vàlida i no es pot utilitzar per activar aquest compte."
+msgstr ""
+"La clau d'activació \"%(activation_key)s\" no és vàlida i no es pot "
+"utilitzar per activar aquest compte."
 
 #: templates/registration/activate.html:18
 #, python-format
 msgid ""
 "Did you really think activation key \"%(activation_key)s\" was going to "
 "work?!"
-msgstr "Crèieu realment que la clau d'activació \"%(activation_key)s\" funcionaria?"
+msgstr ""
+"Crèieu realment que la clau d'activació \"%(activation_key)s\" funcionaria?"
 
 #: templates/registration/activate.html:21
 msgid ""
 "We're not sure how you got that key, but would you mind registering again"
-msgstr "No estem segurs sobre com heu aconseguit aquesta clau, però val més que us torneu a registrar un altre cop."
+msgstr ""
+"No estem segurs sobre com heu aconseguit aquesta clau, però val més que us "
+"torneu a registrar un altre cop."
 
 #: templates/registration/activate.html:21
 #: templates/registration/activation_complete.html:17
@@ -1778,8 +1880,18 @@ msgid ""
 "\n"
 "This page will expire in %(expiration_days)s days.\n"
 "\n"
-"If you didn't register this account you can simply delete this email and we won't bother you again."
-msgstr "Gràcies per registrar-vos a %(domain)s.\nPer activar el registre visiteu aquesta pàgina:\n\nhttp://%(domain)s%(activation_url)s\n\nAquesta pàgina expirarà en %(expiration_days)s dies.\n\nSi no us heu registrat simplement esborreu aquest correu i no us molestarem més."
+"If you didn't register this account you can simply delete this email and we "
+"won't bother you again."
+msgstr ""
+"Gràcies per registrar-vos a %(domain)s.\n"
+"Per activar el registre visiteu aquesta pàgina:\n"
+"\n"
+"http://%(domain)s%(activation_url)s\n"
+"\n"
+"Aquesta pàgina expirarà en %(expiration_days)s dies.\n"
+"\n"
+"Si no us heu registrat simplement esborreu aquest correu i no us molestarem "
+"més."
 
 #: templates/registration/activation_email_subject.txt:1
 #, python-format
@@ -1796,15 +1908,18 @@ msgstr "registre"
 
 #: templates/registration/login.html:30
 msgid ""
-"If you forgot your password, <a href=\"/accounts/password/reset/\">reset "
-"it.</a>"
-msgstr "Si heu oblidat la vostra contrasenya, <a href=\"/accounts/password/reset/\">reinicieu-la.</a>"
+"If you forgot your password, <a href=\"/accounts/password/reset/\">reset it."
+"</a>"
+msgstr ""
+"Si heu oblidat la vostra contrasenya, <a href=\"/accounts/password/reset/"
+"\">reinicieu-la.</a>"
 
 #: templates/registration/login.html:33
 msgid ""
 "Don't have an account?  <a href=\"/accounts/register/\">Register</a> a new "
 "one."
-msgstr "No teniu cap compte?  <a href=\"/accounts/register/\">Registreu-vos-hi</a>."
+msgstr ""
+"No teniu cap compte?  <a href=\"/accounts/register/\">Registreu-vos-hi</a>."
 
 #: templates/registration/logout.html:11
 msgid "You've logged out."
@@ -1817,9 +1932,11 @@ msgstr "Gràcies per la visita."
 #: templates/registration/logout.html:21
 #, python-format
 msgid ""
-"If you are looking to log in again, you can do that <a "
-"href=\"%(login_url)s\">here</a>"
-msgstr "Si voleu tornar a registrar-vos, ho podeu fer <a href=\"%(login_url)s\">aquí</a>"
+"If you are looking to log in again, you can do that <a href=\"%(login_url)s"
+"\">here</a>"
+msgstr ""
+"Si voleu tornar a registrar-vos, ho podeu fer <a href=\"%(login_url)s"
+"\">aquí</a>"
 
 #: templates/registration/password_change_done.html:4
 #: templates/registration/password_change_done.html:10
@@ -1843,9 +1960,12 @@ msgstr[1] "Corregiu els errors següents."
 
 #: templates/registration/password_change_form.html:26
 msgid ""
-"Please enter your old password, for security's sake, and then enter your new"
-" password twice so we can verify you typed it in correctly."
-msgstr "Per raons de seguretat escriviu primer la contrasenya antiga i, en acabat, dos cops la nova de manera que es pugui verificar que l'heu escrita correctament."
+"Please enter your old password, for security's sake, and then enter your new "
+"password twice so we can verify you typed it in correctly."
+msgstr ""
+"Per raons de seguretat escriviu primer la contrasenya antiga i, en acabat, "
+"dos cops la nova de manera que es pugui verificar que l'heu escrita "
+"correctament."
 
 #: templates/registration/password_change_form.html:30
 msgid "Old password"
@@ -1880,7 +2000,8 @@ msgstr "S'ha completat el reinici de la contrasenya"
 
 #: templates/registration/password_reset_complete.html:14
 msgid "Your password has been set.  You may go ahead and log in now."
-msgstr "S'ha establert la vostra contrasenya. Ara podeu continuar i registrar-vos."
+msgstr ""
+"S'ha establert la vostra contrasenya. Ara podeu continuar i registrar-vos."
 
 #: templates/registration/password_reset_confirm.html:6
 msgid "Password reset confirmation"
@@ -1894,7 +2015,9 @@ msgstr "Escriviu la nova contrasenya"
 msgid ""
 "Please enter your new password twice so we can verify you typed it in "
 "correctly."
-msgstr "Escriviu la nova contrasenya dues vegades de manera que puguem verificar que l'heu escrita correctament."
+msgstr ""
+"Escriviu la nova contrasenya dues vegades de manera que puguem verificar que "
+"l'heu escrita correctament."
 
 #: templates/registration/password_reset_confirm.html:20
 msgid "New password:"
@@ -1912,7 +2035,9 @@ msgstr "No s'ha pogut reiniciar correctament la contrasenya"
 msgid ""
 "The password reset link was invalid, possibly because it has already been "
 "used.  Please request a new password reset."
-msgstr "L'enllaç pel reinici de la contrasenya no és vàlid, probablement perquè ja s'ha utilitzat. Demaneu una contrasenya nova."
+msgstr ""
+"L'enllaç pel reinici de la contrasenya no és vàlid, probablement perquè ja "
+"s'ha utilitzat. Demaneu una contrasenya nova."
 
 #: templates/registration/password_reset_done.html:8
 #: templates/registration/password_reset_done.html:12
@@ -1923,11 +2048,14 @@ msgstr "S'ha reiniciat correctament la contrasenya"
 msgid ""
 "We've e-mailed you instructions for setting your password to the e-mail "
 "address you submitted. You should be receiving it shortly."
-msgstr "Us hem enviat un missatge de correu amb instruccions per configurar la vostra contrasenya a l'adreça que ens heu donat. El rebreu d'aquí a molt poc."
+msgstr ""
+"Us hem enviat un missatge de correu amb instruccions per configurar la "
+"vostra contrasenya a l'adreça que ens heu donat. El rebreu d'aquí a molt poc."
 
 #: templates/registration/password_reset_email.html:2
 msgid "You're receiving this e-mail because you requested a password reset"
-msgstr "Rebeu aquest missatge perquè heu demanat el reinici de la vostra contrasenya"
+msgstr ""
+"Rebeu aquest missatge perquè heu demanat el reinici de la vostra contrasenya"
 
 #: templates/registration/password_reset_email.html:3
 #, python-format
@@ -1936,7 +2064,8 @@ msgstr "pel vostre compte d'usuari a %(site_name)s"
 
 #: templates/registration/password_reset_email.html:5
 msgid "Please go to the following page and choose a new password:"
-msgstr "Si us plau, adreceu-vos a la pàgina següent i escolliu una contrasenya nova:"
+msgstr ""
+"Si us plau, adreceu-vos a la pàgina següent i escolliu una contrasenya nova:"
 
 #: templates/registration/password_reset_email.html:9
 msgid "Your username, in case you've forgotten:"
@@ -1955,7 +2084,9 @@ msgstr "L'equip %(site_name)s"
 msgid ""
 "Forgotten your password? Enter your e-mail address below, and we'll e-mail "
 "instructions for setting a new one."
-msgstr "Heu oblidat la contrasenya? Escriviu la vostra adreça de correu a sota i us hi enviarem instruccions per aconseguir-ne una de nova."
+msgstr ""
+"Heu oblidat la contrasenya? Escriviu la vostra adreça de correu a sota i us "
+"hi enviarem instruccions per aconseguir-ne una de nova."
 
 #: templates/registration/password_reset_form.html:19
 msgid "E-mail address:"
@@ -1978,7 +2109,10 @@ msgid ""
 " You registered a long time ago.\n"
 "    We aren't sure if you are a robot or if \n"
 "    something got lost or what."
-msgstr "Us vareu registrar fa força temps.\nNo estem segurs si sou un robot o si\nalguna cosa no funciona prou bé."
+msgstr ""
+"Us vareu registrar fa força temps.\n"
+"No estem segurs si sou un robot o si\n"
+"alguna cosa no funciona prou bé."
 
 #: templates/registration/registration_closed.html:20
 msgid "Please try"
@@ -2005,7 +2139,9 @@ msgstr "Ara activeu el vostre compte."
 msgid ""
 "We will be sending you an email with an activation link.\n"
 "    Visit the link to verify this account."
-msgstr "Us hem enviat un missatge de correu amb un enllaç d'activació.\nSeguiu l'enllaç per verificar el compte."
+msgstr ""
+"Us hem enviat un missatge de correu amb un enllaç d'activació.\n"
+"Seguiu l'enllaç per verificar el compte."
 
 #: templates/registration/registration_complete.html:22
 msgid "Check your email.  We'll wait."
@@ -2119,6 +2255,8 @@ msgstr "Resultats de la cerca"
 
 #: templates/sphinx/sphinx_rtd_theme/search.html:35
 msgid ""
-"Your search did not match any documents. Please make sure that all words are"
-" spelled correctly and that you've selected enough categories."
-msgstr "La vostra cerca no coincideix amb cap document. Assegureu-vos que les paraules estiguin ben escrites i que hàgiu seleccionat prou categories."
+"Your search did not match any documents. Please make sure that all words are "
+"spelled correctly and that you've selected enough categories."
+msgstr ""
+"La vostra cerca no coincideix amb cap document. Assegureu-vos que les "
+"paraules estiguin ben escrites i que hàgiu seleccionat prou categories."

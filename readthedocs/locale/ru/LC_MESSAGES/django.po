@@ -1,23 +1,25 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# 
+#
 # Translators:
 # ferm32 <ferm32@gmail.com>, 2013-2014
-# Донер Кебаб <pentusha@gmail.com>, 2014
+# pentusha <pentusha@gmail.com>, 2014
 msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-04-24 16:42-0500\n"
+"POT-Creation-Date: 2014-06-25 00:25-0500\n"
 "PO-Revision-Date: 2014-05-04 12:00+0000\n"
 "Last-Translator: ferm32 <ferm32@gmail.com>\n"
-"Language-Team: Russian (http://www.transifex.com/projects/p/readthedocs/language/ru/)\n"
+"Language-Team: Russian (http://www.transifex.com/projects/p/readthedocs/"
+"language/ru/)\n"
+"Language: ru\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: ru\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
 #: api/utils.py:86
 msgid "Sorry, no results on that page."
@@ -26,7 +28,9 @@ msgstr "Извините, на этой странице ничего не на�
 #: api/utils.py:169
 #, python-format
 msgid "Invalid resource lookup data provided (mismatched type).: %(error)s"
-msgstr "Для просмотра ресурса предоставлены неверные данные (не совпадает тип): %(error)s"
+msgstr ""
+"Для просмотра ресурса предоставлены неверные данные (не совпадает тип): "
+"%(error)s"
 
 #: bookmarks/models.py:9 builds/models.py:83 builds/models.py:277
 #: builds/models.py:293 projects/models.py:809
@@ -374,7 +378,9 @@ msgstr "Проект с таким названием уже существуе�
 msgid ""
 "URL for your code (hg or git). Ex. http://github.com/ericholscher/django-"
 "kong.git"
-msgstr "URL вашего кода (hg или git). Например, http://github.com/ericholscher/django-kong.git"
+msgstr ""
+"URL вашего кода (hg или git). Например, http://github.com/ericholscher/"
+"django-kong.git"
 
 #: projects/forms.py:52
 msgid "Invalid character in repo name"
@@ -382,18 +388,23 @@ msgstr "Неверный символ в имени репозитория"
 
 #: projects/forms.py:55
 msgid ""
-"It looks like you entered a private repo - please use the public (http:// or"
-" git://) clone url"
-msgstr "Похоже, вы указали приватный репозиторий - пожалуйста, используйте общедоступный для клонирования (http:// или git://) url"
+"It looks like you entered a private repo - please use the public (http:// or "
+"git://) clone url"
+msgstr ""
+"Похоже, вы указали приватный репозиторий - пожалуйста, используйте "
+"общедоступный для клонирования (http:// или git://) url"
 
 #: projects/forms.py:72 projects/models.py:185
 msgid "(Beta) The Python interpreter used to create the virtual environment."
-msgstr "(Beta) Интерпретатор Python, используемый для создания виртуального окружения virtualenv."
+msgstr ""
+"(Beta) Интерпретатор Python, используемый для создания виртуального "
+"окружения virtualenv."
 
 #: projects/forms.py:101
 msgid ""
 "Your configuration file is invalid, make sure it contains conf.py in it."
-msgstr "У вас неверный конфигурационный файл, убедитесь, что он содержит conf.py."
+msgstr ""
+"У вас неверный конфигурационный файл, убедитесь, что он содержит conf.py."
 
 #: projects/forms.py:170 templates/core/project_details.html:152
 msgid "Default Version"
@@ -451,9 +462,11 @@ msgstr "Описание проекта в формате reStructuredText"
 
 #: projects/models.py:108
 msgid ""
-"Checkout URL for your code (hg, git, etc.). Ex. "
-"http://github.com/ericholscher/django-kong.git"
-msgstr "URL, по которому будет проверяться ваш код (hg, git, etc.). Напр. http://github.com/ericholscher/django-kong.git"
+"Checkout URL for your code (hg, git, etc.). Ex. http://github.com/"
+"ericholscher/django-kong.git"
+msgstr ""
+"URL, по которому будет проверяться ваш код (hg, git, etc.). Напр. http://"
+"github.com/ericholscher/django-kong.git"
 
 #: projects/models.py:111
 msgid "Repository type"
@@ -475,7 +488,9 @@ msgstr "Канонический URL"
 msgid ""
 "The official URL that the docs live at. This can be at readthedocs.org, or "
 "somewhere else. Ex. http://docs.fabfile.org"
-msgstr "Официальный URL для документации. Он может быть и на readthedocs.org, и где-то в другом месте, например, http://docs.fabfile.org"
+msgstr ""
+"Официальный URL для документации. Он может быть и на readthedocs.org, и где-"
+"то в другом месте, например, http://docs.fabfile.org"
 
 #: projects/models.py:120
 msgid "Project version these docs apply to, i.e. 1.0a"
@@ -511,7 +526,11 @@ msgid ""
 "A single version site has no translations and only your \"latest\" version, "
 "served at the root of the domain. Use this with caution, only turn it on if "
 "you will <b>never</b> have multiple versions of your docs."
-msgstr "Сайт с одной версией и без переводов, с последней - latest версией, выдаётся при обращении к корневой папке домена. Используйте с осторожностью и только если <b>точно</b> не планируете в будущем иметь несколько версий вашей документации."
+msgstr ""
+"Сайт с одной версией и без переводов, с последней - latest версией, выдаётся "
+"при обращении к корневой папке домена. Используйте с осторожностью и только "
+"если <b>точно</b> не планируете в будущем иметь несколько версий вашей "
+"документации."
 
 #: projects/models.py:135
 msgid "Default version"
@@ -529,7 +548,9 @@ msgstr "Ветка по умолчанию"
 msgid ""
 "What branch \"latest\" points to. Leave empty to use the default value for "
 "your VCS (eg. trunk or master)."
-msgstr "Ветка, на которую указывает \"latest\". Не заполняйте, чтобы использовать значение по умолчанию для вашей VCS (напр. trunk или master)"
+msgstr ""
+"Ветка, на которую указывает \"latest\". Не заполняйте, чтобы использовать "
+"значение по умолчанию для вашей VCS (напр. trunk или master)"
 
 #: projects/models.py:145
 msgid "Requirements file"
@@ -537,11 +558,13 @@ msgstr "Файл с описанием требований, англ. requireme
 
 #: projects/models.py:147
 msgid ""
-"Requires Virtualenv. A <a href=\"http://www.pip-"
-"installer.org/en/latest/cookbook.html#requirements-files\">pip requirements "
-"file</a> needed to build your documentation. Path from the root of your "
-"project."
-msgstr "Требуется Virtualenv. Для формирования вашей документации нужен <a href=\"http://www.pip-installer.org/en/latest/cookbook.html#requirements-files\">файл с требованиями pip</a>. Путь от корня вашего проекта."
+"Requires Virtualenv. A <a href=\"http://www.pip-installer.org/en/latest/"
+"cookbook.html#requirements-files\">pip requirements file</a> needed to build "
+"your documentation. Path from the root of your project."
+msgstr ""
+"Требуется Virtualenv. Для формирования вашей документации нужен <a href="
+"\"http://www.pip-installer.org/en/latest/cookbook.html#requirements-files"
+"\">файл с требованиями pip</a>. Путь от корня вашего проекта."
 
 #: projects/models.py:152
 msgid "Documentation type"
@@ -549,10 +572,12 @@ msgstr "Тип документации"
 
 #: projects/models.py:154
 msgid ""
-"Type of documentation you are building. <a href=\"http://sphinx-"
-"doc.org/builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More "
-"info</a>."
-msgstr "Тип формируемой вами документации. <a href=\"http://sphinx-doc.org/builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">Дополнительная информация</a>."
+"Type of documentation you are building. <a href=\"http://sphinx-doc.org/"
+"builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More info</a>."
+msgstr ""
+"Тип формируемой вами документации. <a href=\"http://sphinx-doc.org/builders."
+"html#sphinx.builders.html.DirectoryHTMLBuilder\">Дополнительная информация</"
+"a>."
 
 #: projects/models.py:158
 msgid "Analytics code"
@@ -562,7 +587,9 @@ msgstr "Код для аналитики"
 msgid ""
 "Google Analytics Tracking ID (ex. UA-22345342-1). This may slow down your "
 "page loads."
-msgstr "Google Analytics Tracking ID (напр. UA-22345342-1). Может замедлить загрузку ваших страниц."
+msgstr ""
+"Google Analytics Tracking ID (напр. UA-22345342-1). Может замедлить загрузку "
+"ваших страниц."
 
 #: projects/models.py:163 projects/models.py:815
 msgid "Path"
@@ -580,7 +607,9 @@ msgstr "Файл конфигурации в формате синтаксиса
 msgid ""
 "Path from project root to conf.py file (ex. docs/conf.py). Leave blank if "
 "you want us to find it for you."
-msgstr "Путь от корневой папки проекта к файлу conf.py (напр., docs/conf.py). Не заполняйте, чтобы мы поискали его сами."
+msgstr ""
+"Путь от корневой папки проекта к файлу conf.py (напр., docs/conf.py). Не "
+"заполняйте, чтобы мы поискали его сами."
 
 #: projects/models.py:170
 msgid "Featured"
@@ -600,7 +629,8 @@ msgstr "Использовать virtualenv"
 
 #: projects/models.py:175
 msgid "Install your project inside a virtualenv using setup.py install"
-msgstr "Развернуть ваш проект внутри virtualenv с использованием setup.py install"
+msgstr ""
+"Развернуть ваш проект внутри virtualenv с использованием setup.py install"
 
 #: projects/models.py:181
 msgid "Python Interpreter"
@@ -612,7 +642,9 @@ msgstr "Использовать пакеты системы"
 
 #: projects/models.py:190
 msgid "Give the virtual environment access to the global site-packages dir."
-msgstr "Дать виртуальному окружению доступ к общесистемной папке с пакетами site-packages."
+msgstr ""
+"Дать виртуальному окружению доступ к общесистемной папке с пакетами site-"
+"packages."
 
 #: projects/models.py:192
 msgid "Django Packages URL"
@@ -622,7 +654,9 @@ msgstr "URL пакетов Django"
 msgid ""
 "(Beta) Level of privacy that you want on the repository. Protected means "
 "public but not in listings."
-msgstr "(Beta) Желаемый уровень приватности репозитория. Защищённый означает общедоступный, но не присутствующий в списках."
+msgstr ""
+"(Beta) Желаемый уровень приватности репозитория. Защищённый означает "
+"общедоступный, но не присутствующий в списках."
 
 #: projects/models.py:200
 msgid "Version Privacy Level"
@@ -631,7 +665,9 @@ msgstr "Уровень приватности версии"
 #: projects/models.py:202
 msgid ""
 "(Beta) Default level of privacy you want on built versions of documentation."
-msgstr "(Beta) Уровень желаемой приватности по умолчанию для формируемых версий документации."
+msgstr ""
+"(Beta) Уровень желаемой приватности по умолчанию для формируемых версий "
+"документации."
 
 #: projects/models.py:207
 msgid "Related projects"
@@ -745,7 +781,9 @@ msgstr "Читайте документацию"
 msgid ""
 "Your docs are currently being built.  It may take a moment for them to "
 "appear."
-msgstr "Ваша документация находится в процессе сборки. Её появление может занять небольшое время."
+msgstr ""
+"Ваша документация находится в процессе сборки. Её появление может занять "
+"небольшое время."
 
 #: templates/base.html:62
 msgid "Read the Docs thanks you for your continued patience."
@@ -754,9 +792,11 @@ msgstr "Read the Docs благодарит Вас за долготерпени�
 #: templates/base.html:84
 #, python-format
 msgid ""
-"Copyright 2010-2013. Created by %(eric)s, %(charles)s, and %(bobby)s for the"
-" 2010 %(djangodash)s."
-msgstr "Copyright 2010-2013. Авторы: %(eric)s, %(charles)s, и %(bobby)s для 2010 %(djangodash)s."
+"Copyright 2010-2013. Created by %(eric)s, %(charles)s, and %(bobby)s for the "
+"2010 %(djangodash)s."
+msgstr ""
+"Copyright 2010-2013. Авторы: %(eric)s, %(charles)s, и %(bobby)s для 2010 "
+"%(djangodash)s."
 
 #: templates/base.html:86
 msgid "Docs"
@@ -764,11 +804,13 @@ msgstr "Доки"
 
 #: templates/base.html:88
 msgid ""
-"Made by <a "
-"href=\"https://github.com/rtfd/readthedocs.org/graphs/contributors\">humans</a>."
-" Funded by <a href=\"https://www.gittip.com/readthedocs/\">readers like "
-"you</a>."
-msgstr "Разработано <a href=\"https://github.com/rtfd/readthedocs.org/graphs/contributors\">людьми</a>. Основатели &#x2012 <a href=\"https://www.gittip.com/readthedocs/\">такие же читатели документации, как и Вы</a>."
+"Made by <a href=\"https://github.com/rtfd/readthedocs.org/graphs/contributors"
+"\">humans</a>. Funded by <a href=\"https://www.gittip.com/readthedocs/"
+"\">readers like you</a>."
+msgstr ""
+"Разработано <a href=\"https://github.com/rtfd/readthedocs.org/graphs/"
+"contributors\">людьми</a>. Основатели &#x2012 <a href=\"https://www.gittip."
+"com/readthedocs/\">такие же читатели документации, как и Вы</a>."
 
 #: templates/base_filter.html:14 templates/core/filter_bar.html:8
 msgid "Filter"
@@ -808,18 +850,37 @@ msgstr "Где я?"
 
 #: templates/homepage.html:46
 msgid ""
-"Read the Docs hosts documentation, making it fully searchable and easy to find.\n"
-"You can import your docs using any major version control system, including Mercurial, Git, Subversion, and Bazaar.\n"
-"We support <a href=\"http://read-the-docs.readthedocs.org/en/latest/webhooks.html\">webhooks</a> so your docs get built when you commit code.\n"
-"There's also support for versioning so you can build docs from tags and branches of your code in your repository. A <a href=\"http://read-the-docs.readthedocs.org/en/latest/features.html\">full list of features</a> is available."
-msgstr "Read the Docs служит для размещения документации, делает её доступной для полноценного поиска и позволяет легко найти её заново.\nВы можете импортировать ваши документы с использованием наиболее известных систем контроля версий, включая Mercurial, Git, Subversion и Bazaar.\nМы поддерживаем <a href=\"http://read-the-docs.readthedocs.org/en/latest/webhooks.html\">webhooks</a> , так что ваша документация может быть пересобрана сразу после внесения в репозиторий нового кода.\nТакже, у нас есть поддержка различных версий, поэтому вы можете собирать документацию по меткам или тем веткам, которые у вас есть репозитории. Здесь перечислен <a href=\"http://read-the-docs.readthedocs.org/en/latest/features.html\">полный список возможностей</a>."
+"Read the Docs hosts documentation, making it fully searchable and easy to "
+"find.\n"
+"You can import your docs using any major version control system, including "
+"Mercurial, Git, Subversion, and Bazaar.\n"
+"We support <a href=\"http://read-the-docs.readthedocs.org/en/latest/webhooks."
+"html\">webhooks</a> so your docs get built when you commit code.\n"
+"There's also support for versioning so you can build docs from tags and "
+"branches of your code in your repository. A <a href=\"http://read-the-docs."
+"readthedocs.org/en/latest/features.html\">full list of features</a> is "
+"available."
+msgstr ""
+"Read the Docs служит для размещения документации, делает её доступной для "
+"полноценного поиска и позволяет легко найти её заново.\n"
+"Вы можете импортировать ваши документы с использованием наиболее известных "
+"систем контроля версий, включая Mercurial, Git, Subversion и Bazaar.\n"
+"Мы поддерживаем <a href=\"http://read-the-docs.readthedocs.org/en/latest/"
+"webhooks.html\">webhooks</a> , так что ваша документация может быть "
+"пересобрана сразу после внесения в репозиторий нового кода.\n"
+"Также, у нас есть поддержка различных версий, поэтому вы можете собирать "
+"документацию по меткам или тем веткам, которые у вас есть репозитории. Здесь "
+"перечислен <a href=\"http://read-the-docs.readthedocs.org/en/latest/features."
+"html\">полный список возможностей</a>."
 
 #: templates/homepage.html:52
 #, python-format
 msgid ""
 "It's free and simple.  Read the <a href=\"%(getting_started_url)s\">Getting "
 "Started</a> guide to get going!"
-msgstr "Это просто и бесплатно.  Чтобы двигаться дальше, читайте руководство: <a href=\"%(getting_started_url)s\">С чего начать?</a>"
+msgstr ""
+"Это просто и бесплатно.  Чтобы двигаться дальше, читайте руководство: <a "
+"href=\"%(getting_started_url)s\">С чего начать?</a>"
 
 #: templates/homepage.html:68
 msgid "Featured Projects"
@@ -852,7 +913,10 @@ msgstr "Зацените, что вышло <a href=\"%(project_url)s\">вот �
 msgid ""
 "This is a post-commit hook. Set it up in your project admin to POST here, "
 "for us to update your doc changes automatically."
-msgstr "Это \"крючок\", англ. hook, который запускается после фиксации изменений - commit. Чтобы ваша документация обновлялась после внесения изменений, установите его в админ-панели вашего проекта и укажите здесь."
+msgstr ""
+"Это \"крючок\", англ. hook, который запускается после фиксации изменений - "
+"commit. Чтобы ваша документация обновлялась после внесения изменений, "
+"установите его в админ-панели вашего проекта и укажите здесь."
 
 #: templates/archive/index.html:5
 msgid "Read the Docs Archive"
@@ -966,8 +1030,7 @@ msgstr "Панель инструментов"
 msgid "Create, host, and browse documentation."
 msgstr "Создать, сохранить на сайте и просмотреть документацию."
 
-#. Translators: Note, the full sentence goes 'Sign up' 'or' 'Log in'. But
-#. unfortunately the three bits have to be separate.
+#. Translators: Note, the full sentence goes 'Sign up' 'or' 'Log in'. But unfortunately the three bits have to be separate.
 #: templates/core/home-header.html:17
 msgid "Sign up"
 msgstr "Регистрация"
@@ -1095,9 +1158,11 @@ msgstr "Открытое сравнение"
 #: templates/core/project_details.html:131
 #, python-format
 msgid ""
-"This project has more information available about it on <a "
-"href=\"%(url)s\">Open Comparison!</a>"
-msgstr "Есть дополнительная информация об этом проекте по ссылке <a href=\"%(url)s\">Открытое Сравнение!</a>"
+"This project has more information available about it on <a href=\"%(url)s"
+"\">Open Comparison!</a>"
+msgstr ""
+"Есть дополнительная информация об этом проекте по ссылке <a href=\"%(url)s"
+"\">Открытое Сравнение!</a>"
 
 #: templates/core/project_details.html:135
 #: templates/projects/project_edit_base.html:19
@@ -1127,7 +1192,10 @@ msgid ""
 "\n"
 "        %(version)s PDF\n"
 "      "
-msgstr "\n        %(version)s PDF\n      "
+msgstr ""
+"\n"
+"        %(version)s PDF\n"
+"      "
 
 #: templates/core/project_downloads.html:16
 #, python-format
@@ -1135,7 +1203,10 @@ msgid ""
 "\n"
 "        %(version)s HTMLZip\n"
 "      "
-msgstr "\n        %(version)s HTMLZip\n      "
+msgstr ""
+"\n"
+"        %(version)s HTMLZip\n"
+"      "
 
 #: templates/core/project_downloads.html:26
 #, python-format
@@ -1143,7 +1214,10 @@ msgid ""
 "\n"
 "        %(version)s Epub\n"
 "      "
-msgstr "\n        %(version)s Epub\n      "
+msgstr ""
+"\n"
+"        %(version)s Epub\n"
+"      "
 
 #: templates/core/project_downloads.html:49
 #, python-format
@@ -1151,7 +1225,10 @@ msgid ""
 "\n"
 "        %(version)s Dash docset\n"
 "      "
-msgstr "\n        %(version)s Dash docset\n      "
+msgstr ""
+"\n"
+"        %(version)s Dash docset\n"
+"      "
 
 #: templates/core/project_downloads.html:59
 #, python-format
@@ -1159,7 +1236,10 @@ msgid ""
 "\n"
 "        %(version)s Dash feed\n"
 "      "
-msgstr "\n        %(version)s ссылка для Dash\n      "
+msgstr ""
+"\n"
+"        %(version)s ссылка для Dash\n"
+"      "
 
 #: templates/core/project_downloads.html:67
 msgid "No downloads for this project."
@@ -1218,9 +1298,11 @@ msgstr "Выберите редирект для \"%(djangome_term)s\""
 #: templates/djangome/choices.html:7
 #, python-format
 msgid ""
-"Choose a redirect for <kbd>%(djangome_term)s on <a "
-"href=\"http://%(slug)s.readthedocs.org\">%(slug)s.readthedocs.org</a></kbd>"
-msgstr "Выберите редирект для <kbd>%(djangome_term)s на <a href=\"http://%(slug)s.readthedocs.org\">%(slug)s.readthedocs.org</a></kbd>"
+"Choose a redirect for <kbd>%(djangome_term)s on <a href=\"http://%(slug)s."
+"readthedocs.org\">%(slug)s.readthedocs.org</a></kbd>"
+msgstr ""
+"Выберите редирект для <kbd>%(djangome_term)s на <a href=\"http://%(slug)s."
+"readthedocs.org\">%(slug)s.readthedocs.org</a></kbd>"
 
 #: templates/djangome/choices.html:28
 msgid "Save &amp; go &rarr;"
@@ -1275,8 +1357,11 @@ msgstr "То, что вы говорите:"
 
 #: templates/flagging/flag_confirm.html:21
 #, python-format
-msgid "Are you sure you want to flag \"%(object)s\" as \"%(flag_type.title)s\"?"
-msgstr "Вы уверены, что хотите пометить \"%(object)s\" флагом \"%(flag_type.title)s\"?"
+msgid ""
+"Are you sure you want to flag \"%(object)s\" as \"%(flag_type.title)s\"?"
+msgstr ""
+"Вы уверены, что хотите пометить \"%(object)s\" флагом \"%(flag_type.title)s"
+"\"?"
 
 #: templates/flagging/flag_confirm.html:23
 #, python-format
@@ -1344,7 +1429,9 @@ msgstr "Добавить домашнюю страницу"
 
 #: templates/profiles/profile_detail.html:85
 msgid "Press enter to save your changes, or escape to discard them"
-msgstr "Нажмите Enter, чтобы сохранить ваши изменения, либо Esc, чтобы отказаться от них"
+msgstr ""
+"Нажмите Enter, чтобы сохранить ваши изменения, либо Esc, чтобы отказаться от "
+"них"
 
 #: templates/profiles/profile_list.html:5
 #: templates/profiles/profile_list.html:8
@@ -1459,7 +1546,9 @@ msgstr "Создать новый проект"
 msgid ""
 "Create new documentation here. If you already have docs in a public "
 "repository,"
-msgstr "Если у вас уже есть документация в общедоступном репозитории, создайте её и здесь."
+msgstr ""
+"Если у вас уже есть документация в общедоступном репозитории, создайте её и "
+"здесь."
 
 #: templates/projects/project_create.html:38
 msgid "import an existing project"
@@ -1480,9 +1569,15 @@ msgstr "Мои проекты"
 #: templates/projects/project_dashboard.html:83
 #, python-format
 msgid ""
-"You don't have any projects.  You should <a href=\"%(projects_import_url)s\">create new docs</a> on the site.<br>\n"
-"          Check out the <a href=\"%(getting_started_url)s\">Getting Started</a> documentation for information about how to get going."
-msgstr "У вас нет ни одного проекта.  Для размещения новой документации на сайте вам следует <a href=\"%(projects_import_url)s\">создать её</a>.<br>\n          Для того, чтобы узнать, как двинуться дальше, обратитесь к разделу документации: <a href=\"%(getting_started_url)s\">с чего начать?</a>."
+"You don't have any projects.  You should <a href=\"%(projects_import_url)s"
+"\">create new docs</a> on the site.<br>\n"
+"          Check out the <a href=\"%(getting_started_url)s\">Getting Started</"
+"a> documentation for information about how to get going."
+msgstr ""
+"У вас нет ни одного проекта.  Для размещения новой документации на сайте вам "
+"следует <a href=\"%(projects_import_url)s\">создать её</a>.<br>\n"
+"          Для того, чтобы узнать, как двинуться дальше, обратитесь к разделу "
+"документации: <a href=\"%(getting_started_url)s\">с чего начать?</a>."
 
 #: templates/projects/project_delete.html:4
 #: templates/projects/project_delete.html:6
@@ -1585,9 +1680,11 @@ msgstr "Редактировать подпроекты"
 
 #: templates/projects/project_subprojects.html:16
 msgid ""
-"This allows you to add subprojects to your project. This allows them to live"
-" in the same namespace in the URLConf for a subdomain or CNAME."
-msgstr "Здесь можно добавить к вашему проекту подпроекты. Это позволит им находиться в том же пространстве имён в URLConf для поддомена или CNAME."
+"This allows you to add subprojects to your project. This allows them to live "
+"in the same namespace in the URLConf for a subdomain or CNAME."
+msgstr ""
+"Здесь можно добавить к вашему проекту подпроекты. Это позволит им находиться "
+"в том же пространстве имён в URLConf для поддомена или CNAME."
 
 #: templates/projects/project_subprojects.html:19
 msgid "Existing Subprojects"
@@ -1605,7 +1702,9 @@ msgstr "Редактировать переводы"
 msgid ""
 "This allows you to add translations to your project. Select the project "
 "below that is a translation of your current project."
-msgstr "Здесь можно добавить к вашему проекту переводы. Выберите, какой из нижеперечисленных проектов является переводом вашего проекта."
+msgstr ""
+"Здесь можно добавить к вашему проекту переводы. Выберите, какой из "
+"нижеперечисленных проектов является переводом вашего проекта."
 
 #: templates/projects/project_translations.html:19
 msgid "Existing Translations"
@@ -1623,7 +1722,9 @@ msgstr "Редактировать кураторов"
 msgid ""
 "This allows you to add maintainers to your project. It gives them admin "
 "access to the project, so be careful!"
-msgstr "Здесь вы можете назначить вашему проекту кураторов. Это даст им административный доступ к проекту, поэтому будьте осмотрительны!"
+msgstr ""
+"Здесь вы можете назначить вашему проекту кураторов. Это даст им "
+"административный доступ к проекту, поэтому будьте осмотрительны!"
 
 #: templates/projects/project_users.html:15
 msgid "Existing Maintainers"
@@ -1687,14 +1788,15 @@ msgstr "Загрузить на сервер HTML"
 msgid ""
 "Use this to upload pre-existing HTML documentation for versions that don't "
 "build correctly anymore."
-msgstr "Используйте эту возможность для загрузки на сервер уже существующей HTML-документации для тех версий, которые больше уже никогда не будут собраны."
+msgstr ""
+"Используйте эту возможность для загрузки на сервер уже существующей HTML-"
+"документации для тех версий, которые больше уже никогда не будут собраны."
 
 #: templates/projects/upload_html.html:15
 msgid "Upload"
 msgstr "Загрузить"
 
-#. Translators: After 'Flag this project as' follows either 'Inappropriate',
-#. 'Spam' and/or 'Duplicate'
+#. Translators: After 'Flag this project as' follows either 'Inappropriate', 'Spam' and/or 'Duplicate'
 #: templates/projects/includes/flagging.html:7
 msgid "Flag this project as"
 msgstr "Пометить этот проект как"
@@ -1734,19 +1836,25 @@ msgstr "Ошибка активации учётной записи"
 msgid ""
 "The activation key \"%(activation_key)s\" is invalid and cannot be used to "
 "activate this account."
-msgstr "Ключ активации \"%(activation_key)s\" недействителен и не может быть использован для активации этой учётной записи."
+msgstr ""
+"Ключ активации \"%(activation_key)s\" недействителен и не может быть "
+"использован для активации этой учётной записи."
 
 #: templates/registration/activate.html:18
 #, python-format
 msgid ""
 "Did you really think activation key \"%(activation_key)s\" was going to "
 "work?!"
-msgstr "Вы на самом деле думаете, что ключ активации \"%(activation_key)s\" пригоден?!"
+msgstr ""
+"Вы на самом деле думаете, что ключ активации \"%(activation_key)s\" "
+"пригоден?!"
 
 #: templates/registration/activate.html:21
 msgid ""
 "We're not sure how you got that key, but would you mind registering again"
-msgstr "Нам сложно понять, откуда у вас этот ключ, будьте так любезны пройти регистрацию заново."
+msgstr ""
+"Нам сложно понять, откуда у вас этот ключ, будьте так любезны пройти "
+"регистрацию заново."
 
 #: templates/registration/activate.html:21
 #: templates/registration/activation_complete.html:17
@@ -1779,8 +1887,18 @@ msgid ""
 "\n"
 "This page will expire in %(expiration_days)s days.\n"
 "\n"
-"If you didn't register this account you can simply delete this email and we won't bother you again."
-msgstr "Спасибо, что зарегистрировались на %(domain)s.\nДля активации вашей регистрации проследуйте пожалуйста по следующей ссылке:\n\nhttp://%(domain)s%(activation_url)s\n\nСсылка устареет через %(expiration_days)s дней.\n\nЕсли вы не создавали никаких учётных записей, то можете просто удалить это письмо и мы вас больше не побеспокоим."
+"If you didn't register this account you can simply delete this email and we "
+"won't bother you again."
+msgstr ""
+"Спасибо, что зарегистрировались на %(domain)s.\n"
+"Для активации вашей регистрации проследуйте пожалуйста по следующей ссылке:\n"
+"\n"
+"http://%(domain)s%(activation_url)s\n"
+"\n"
+"Ссылка устареет через %(expiration_days)s дней.\n"
+"\n"
+"Если вы не создавали никаких учётных записей, то можете просто удалить это "
+"письмо и мы вас больше не побеспокоим."
 
 #: templates/registration/activation_email_subject.txt:1
 #, python-format
@@ -1797,15 +1915,18 @@ msgstr "регистрация"
 
 #: templates/registration/login.html:30
 msgid ""
-"If you forgot your password, <a href=\"/accounts/password/reset/\">reset "
-"it.</a>"
-msgstr "Если вы забыли свой пароль, <a href=\"/accounts/password/reset/\">сбросьте его.</a>"
+"If you forgot your password, <a href=\"/accounts/password/reset/\">reset it."
+"</a>"
+msgstr ""
+"Если вы забыли свой пароль, <a href=\"/accounts/password/reset/\">сбросьте "
+"его.</a>"
 
 #: templates/registration/login.html:33
 msgid ""
 "Don't have an account?  <a href=\"/accounts/register/\">Register</a> a new "
 "one."
-msgstr "Нет учётной записи? <a href=\"/accounts/register/\">Создайте</a> новую."
+msgstr ""
+"Нет учётной записи? <a href=\"/accounts/register/\">Создайте</a> новую."
 
 #: templates/registration/logout.html:11
 msgid "You've logged out."
@@ -1818,9 +1939,11 @@ msgstr "Рады видеть вас!"
 #: templates/registration/logout.html:21
 #, python-format
 msgid ""
-"If you are looking to log in again, you can do that <a "
-"href=\"%(login_url)s\">here</a>"
-msgstr "Если вам будет необходимо войти ещё раз, перейдите сюда <a href=\"%(login_url)s\">here</a>"
+"If you are looking to log in again, you can do that <a href=\"%(login_url)s"
+"\">here</a>"
+msgstr ""
+"Если вам будет необходимо войти ещё раз, перейдите сюда <a href="
+"\"%(login_url)s\">here</a>"
 
 #: templates/registration/password_change_done.html:4
 #: templates/registration/password_change_done.html:10
@@ -1845,9 +1968,11 @@ msgstr[2] "Пожалуйста, исправьте ниже ошибки."
 
 #: templates/registration/password_change_form.html:26
 msgid ""
-"Please enter your old password, for security's sake, and then enter your new"
-" password twice so we can verify you typed it in correctly."
-msgstr "В целях безопасности введите, пожалуйста, старый пароль, а затем новый дважды, чтобы избежать опечаток."
+"Please enter your old password, for security's sake, and then enter your new "
+"password twice so we can verify you typed it in correctly."
+msgstr ""
+"В целях безопасности введите, пожалуйста, старый пароль, а затем новый "
+"дважды, чтобы избежать опечаток."
 
 #: templates/registration/password_change_form.html:30
 msgid "Old password"
@@ -1896,7 +2021,8 @@ msgstr "Введите новый пароль"
 msgid ""
 "Please enter your new password twice so we can verify you typed it in "
 "correctly."
-msgstr "Пожалуйста, введите ваш новый пароль дважды - чтобы избежать в нём опечаток."
+msgstr ""
+"Пожалуйста, введите ваш новый пароль дважды - чтобы избежать в нём опечаток."
 
 #: templates/registration/password_reset_confirm.html:20
 msgid "New password:"
@@ -1914,7 +2040,9 @@ msgstr "Неудачный сброс пароля"
 msgid ""
 "The password reset link was invalid, possibly because it has already been "
 "used.  Please request a new password reset."
-msgstr "Неверная ссылка для сброса пароля, возможно из-за её повторного использования. Пожалуйста, запросите новый сброс пароля."
+msgstr ""
+"Неверная ссылка для сброса пароля, возможно из-за её повторного "
+"использования. Пожалуйста, запросите новый сброс пароля."
 
 #: templates/registration/password_reset_done.html:8
 #: templates/registration/password_reset_done.html:12
@@ -1925,7 +2053,9 @@ msgstr "Пароль успешно сброшен"
 msgid ""
 "We've e-mailed you instructions for setting your password to the e-mail "
 "address you submitted. You should be receiving it shortly."
-msgstr "Мы выслали по e-mail на указанный вами адрес инструкции о том, как задать новый пароль. Вскоре вы их получите."
+msgstr ""
+"Мы выслали по e-mail на указанный вами адрес инструкции о том, как задать "
+"новый пароль. Вскоре вы их получите."
 
 #: templates/registration/password_reset_email.html:2
 msgid "You're receiving this e-mail because you requested a password reset"
@@ -1957,7 +2087,9 @@ msgstr "Команда %(site_name)s"
 msgid ""
 "Forgotten your password? Enter your e-mail address below, and we'll e-mail "
 "instructions for setting a new one."
-msgstr "Забыли пароль? Введите ниже ваш e-mail адрес, и мы вышлем на него инструкции, как задать новый пароль."
+msgstr ""
+"Забыли пароль? Введите ниже ваш e-mail адрес, и мы вышлем на него "
+"инструкции, как задать новый пароль."
 
 #: templates/registration/password_reset_form.html:19
 msgid "E-mail address:"
@@ -1980,7 +2112,10 @@ msgid ""
 " You registered a long time ago.\n"
 "    We aren't sure if you are a robot or if \n"
 "    something got lost or what."
-msgstr " Вы регистрировались очень давно.\n    Мы подозреваем, что вы робот, а может \n    что-то пропало и т. п."
+msgstr ""
+" Вы регистрировались очень давно.\n"
+"    Мы подозреваем, что вы робот, а может \n"
+"    что-то пропало и т. п."
 
 #: templates/registration/registration_closed.html:20
 msgid "Please try"
@@ -2007,7 +2142,9 @@ msgstr "Теперь вам необходимо активировать учё
 msgid ""
 "We will be sending you an email with an activation link.\n"
 "    Visit the link to verify this account."
-msgstr "Мы вышлем вам e-mail со ссылкой для активации.\n    Перейдите по этой ссылке для подтверждения учётной записи."
+msgstr ""
+"Мы вышлем вам e-mail со ссылкой для активации.\n"
+"    Перейдите по этой ссылке для подтверждения учётной записи."
 
 #: templates/registration/registration_complete.html:22
 msgid "Check your email.  We'll wait."
@@ -2121,6 +2258,9 @@ msgstr "Результаты поиска"
 
 #: templates/sphinx/sphinx_rtd_theme/search.html:35
 msgid ""
-"Your search did not match any documents. Please make sure that all words are"
-" spelled correctly and that you've selected enough categories."
-msgstr "В результате этого поиска документов не найдено. Пожалуйста, убедитесь, что все слова написаны правильно, и что вы выбрали достаточное количество категорий."
+"Your search did not match any documents. Please make sure that all words are "
+"spelled correctly and that you've selected enough categories."
+msgstr ""
+"В результате этого поиска документов не найдено. Пожалуйста, убедитесь, что "
+"все слова написаны правильно, и что вы выбрали достаточное количество "
+"категорий."
