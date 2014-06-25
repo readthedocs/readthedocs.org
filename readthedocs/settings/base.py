@@ -118,7 +118,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "core.context_processors.readthedocs_processor",
 )
 
-INSTALLED_APPS = [
+INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.admin',
     'django.contrib.contenttypes',
@@ -157,7 +157,7 @@ INSTALLED_APPS = [
     'rtd_tests',
     'websupport',
     'restapi',
-]
+)
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAdminUser',),
@@ -166,7 +166,7 @@ REST_FRAMEWORK = {
 }
 
 if DEBUG:
-    INSTALLED_APPS.append('django_extensions')
+    INSTALLED_APPS = INSTALLED_APPS + ('django_extensions',)
 
 #CARROT_BACKEND = "ghettoq.taproot.Database"
 CELERY_ALWAYS_EAGER = True
