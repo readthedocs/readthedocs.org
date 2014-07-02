@@ -7,4 +7,5 @@ Talks about Read the Docs
 * OS Bridge, June 2011
 * OSCON, July 2011
 * Djangocon, July 2011
+* OS Bridge, June 2014
 
