@@ -59,6 +59,10 @@ def queue_depth(request):
     r = redis.Redis(**settings.REDIS)
     return HttpResponse(r.llen('celery'))
 
+def donate(request):
+    return render_to_response('donate.html',
+                           context_instance=RequestContext(request))
+
 def queue_info(request):
     i = inspect()
     active_pks = []
