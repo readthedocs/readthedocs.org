@@ -8,8 +8,9 @@ Installing RTD is pretty simple. Here is a step by step plan on how to do it.
 First, obtain Python_ and virtualenv_ if you do not already have them. Using a
 virtual environment will make the installation easier, and will help to avoid
 clutter in your system-wide libraries. You will also need Git_ in order to
-clone the repository and texlive-latex-base_ texlive-latex-recommended_ (debian)
-packages for PDF generating.
+clone the repository and texlive-latex-base_ texlive-latex-recommended_ 
+texlive-fonts-recommended_ and texlive-latex-extra_ (debian) packages for PDF 
+generating.
 
 
 .. _Python: http://www.python.org/
