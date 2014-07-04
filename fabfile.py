@@ -5,12 +5,13 @@ import os
 import time
 
 env.runtime = 'production'
-env.hosts = ['chimera-lts.readthedocs.com',
-             'build-lts.readthedocs.com',
-             'build-lts-2.readthedocs.com',
-             'newchimera.readthedocs.com',
-             'newasgard.readthedocs.com',
-             'asgard-lts.readthedocs.com']
+env.hosts = [
+ 'asgard-lts.readthedocs.com',
+ 'chimera-lts.readthedocs.com',
+ 'hydra-lts.readthedocs.com',
+ 'build-lts.readthedocs.com',
+ 'build-lts-2.readthedocs.com',
+]
 env.user = 'docs'
 env.code_dir = '/home/docs/checkouts/readthedocs.org'
 env.virtualenv = '/home/docs/'
@@ -37,7 +38,7 @@ def update_requirements():
     "Update requirements in the virtualenv."
     run("%s/bin/pip install -r %s/deploy_requirements.txt" % (env.virtualenv, env.code_dir))
 
-@hosts(['asgard-lts.readthedocs.com', 'chimera-lts.readthedocs.com', 'newchimera.readthedocs.com', 'newasgard.readthedocs.com'])
+@hosts(['asgard-lts.readthedocs.com', 'chimera-lts.readthedocs.com', 'hydra-lts.readthedocs.com'])
 def restart():
     "Restart (or just start) the server"
     env.user = "docs"
@@ -53,7 +54,7 @@ def celery():
 # Other bits
 
 
-@hosts(['chimera-lts.readthedocs.com', 'asgard-lts.readthedocs.com'])
+@hosts(['asgard-lts.readthedocs.com', 'chimera-lts.readthedocs.com', 'hydra-lts.readthedocs.com'])
 def remove_project(project):
     """
     Removes a project from the web servers.
@@ -76,7 +77,7 @@ def wheelhouse():
 
 ## Logging Awesomeness
 
-@hosts(['asgard-lts.readthedocs.com', 'chimera-lts.readthedocs.com', 'newchimera.readthedocs.com', 'newasgard.readthedocs.com'])
+@hosts(['asgard-lts.readthedocs.com', 'chimera-lts.readthedocs.com', 'hydra-lts.readthedocs.com'])
 def nginx_logs():
     env.user = "root"
     run("tail -F /var/log/nginx/*.log")
@@ -90,27 +91,27 @@ def celery_logs():
     env.user = "docs"
     run("tail -F ~/log/celery.err")
 
-@hosts(['asgard-lts.readthedocs.com', 'chimera-lts.readthedocs.com', 'newchimera.readthedocs.com', 'newasgard.readthedocs.com'])
+@hosts(['asgard-lts.readthedocs.com', 'chimera-lts.readthedocs.com', 'hydra-lts.readthedocs.com'])
 def logs():
     env.user = "docs"
     run("tail -F %s/logs/*.log" % env.code_dir)
 
-@hosts(['asgard-lts.readthedocs.com', 'chimera-lts.readthedocs.com'])
+@hosts(['asgard-lts.readthedocs.com', 'chimera-lts.readthedocs.com', 'hydra-lts.readthedocs.com'])
 def postcommit_logs():
     env.user = "docs"
     run("tail -F %s/logs/postcommit.log" % env.code_dir)
 
-@hosts(['asgard-lts.readthedocs.com', 'chimera-lts.readthedocs.com'])
+@hosts(['asgard-lts.readthedocs.com', 'chimera-lts.readthedocs.com', 'hydra-lts.readthedocs.com'])
 def cat_postcommit_logs():
     env.user = "docs"
     run("cat %s/logs/postcommit.log" % env.code_dir)
 
-@hosts(['asgard-lts.readthedocs.com', 'chimera-lts.readthedocs.com'])
+@hosts(['asgard-lts.readthedocs.com', 'chimera-lts.readthedocs.com', 'hydra-lts.readthedocs.com'])
 def api_logs():
     env.user = "docs"
     run("tail -F %s/logs/api.log" % env.code_dir)
 
-@hosts(['asgard-lts.readthedocs.com', 'chimera-lts.readthedocs.com'])
+@hosts(['asgard-lts.readthedocs.com', 'chimera-lts.readthedocs.com', 'hydra-lts.readthedocs.com'])
 def web_logs(type):
     """
     Get logs from the web servers::
