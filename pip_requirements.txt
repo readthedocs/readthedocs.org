@@ -1,66 +1,66 @@
 # Hack around bzr hosting
 
 --allow-external bzr
---allow-unverified bzr 
+--allow-unverified bzr
 --allow-external launchpadlib
---allow-unverified launchpadlib 
+--allow-unverified launchpadlib
 --allow-external lazr.authentication
 --allow-unverified lazr.authentication
 
 # Basic tools
-virtualenv==1.11.1
+virtualenv==1.11.6
 docutils==0.11
-pip==1.5.1
+pip==1.5.6
 Sphinx==1.2.2
-django==1.4.13
-south==0.7.6
-redis==2.7.1
-hiredis==0.1.2
-requests==2.0
+django==1.6.5
+south==1.0
+redis==2.10.1
+hiredis==0.1.4
+requests==2.3.0
 slumber==0.6
-celery==3.0.24
-django-celery==3.0.23
-mkdocs==0.4
+celery==3.01.12
+django-celery==3.1.10
+mkdocs==0.9
 
 # VCS
-bzr==2.5b4
+bzr==2.6.0
 mercurial==2.6.3
-github2==0.5.2
-httplib2==0.7.7
+github2==0.6.2
+httplib2==0.9
 
 # Search
-elasticsearch==0.4.3
+elasticsearch==1.1.0
 celery-haystack==0.6.2
-pyquery==1.2.2
+pyquery==1.2.8
 
 
 # Utils
-django-gravatar2==1.0.6
-doc2dash==1.1.0
-lxml==3.0.2
-pytz==2013b
-beautifulsoup4==4.1.3
-Unipath==0.2.1
-django-extensions==0.7.1
-django-guardian==1.0.4
+django-gravatar2==1.1.4
+doc2dash==1.2.0
+lxml==3.3.5
+pytz==2014.4
+beautifulsoup4==4.3.2
+Unipath==1.0
+django-extensions==1.3.8
+django-guardian==1.2.2
 django-kombu==0.9.4
-django-nose==1.1
+django-nose==1.2
 django-profiles==0.2
-django-secure==0.1.2
+django-secure==1.0
 mimeparse==0.1.3
 mock==1.0.1
-simplejson==2.3.0
+simplejson==3.5.3
 
 # Docs
 sphinx-http-domain==0.2
 
 # Version comparison stuff
-Distutils2==1.0a3
-distlib==0.1.2
+Distutils2==1.0a4
+distlib==0.1.9
 
 # Commenting stuff
-djangorestframework==2.3.6
-django-cors-headers==0.11
+djangorestframework==2.3.14
+django-cors-headers==0.12
 
 # Pegged git requirements
 git+https://github.com/toastdriven/django-haystack@259274e4127f723d76b893c87a82777f9490b960#egg=django_haystack
