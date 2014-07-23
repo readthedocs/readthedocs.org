@@ -31,6 +31,7 @@ class Backend(BaseVCS):
         return update_output
 
     def clone(self):
+        self.make_clean_working_dir()
         output = self.run('hg', 'clone', self.repo_url, '.')
         if output[0] != 0:
             raise ProjectImportError(
