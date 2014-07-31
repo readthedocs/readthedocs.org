@@ -57,6 +57,9 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 # Lock builds for 10 minutes
 REPO_LOCK_SECONDS = 300
 
+# Don't re-confirm existing accounts
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+
 try:
     from local_settings import *  # noqa
 except ImportError:
