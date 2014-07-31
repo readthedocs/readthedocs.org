@@ -39,10 +39,10 @@ class NoProjectException(Exception):
 def homepage(request):
     #latest = Project.objects.public(request.user).order_by('-modified_date')[:10]
     latest_builds = Build.objects.order_by('-date')[:100]
-    latest = set()
+    latest = []
     for build in latest_builds:
         if build.project not in latest and len(latest) < 10:
-            latest.add(build.project)
+            latest.append(build.project)
     featured = Project.objects.filter(featured=True)
     return render_to_response('homepage.html',
                               {'project_list': latest,
