@@ -10,7 +10,7 @@
   <p class="help_text">
     {% trans "Use this to upload pre-existing HTML documentation for versions that don't build correctly anymore." %}
   </p>
-  <form enctype="multipart/form-data" method="post" action="{% url projects_upload_html project.slug %}"> {% csrf_token %}
+  <form enctype="multipart/form-data" method="post" action="{% url "projects_upload_html" project.slug %}"> {% csrf_token %}
     {{ form.as_p }}
     <p><input type="submit" value="{% trans "Upload" %}" /></p>
   </form>

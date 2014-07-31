@@ -2,7 +2,7 @@ import logging
 import json
 
 from django.contrib.auth.models import User
-from django.conf.urls.defaults import url
+from django.conf.urls import url
 from django.shortcuts import get_object_or_404
 
 from tastypie import fields
@@ -18,7 +18,7 @@ from projects.utils import highest_version, mkversion, slugify_uniquely
 from projects import tasks
 from djangome import views as djangome
 
-from .utils import SearchMixin, PostAuthentication, EnhancedModelResource
+from .utils import SearchMixin, PostAuthentication 
 
 log = logging.getLogger(__name__)
 
@@ -57,14 +57,14 @@ class ProjectResource(ModelResource, SearchMixin):
         If a new resource is created, return ``HttpCreated`` (201 Created).
         """
         deserialized = self.deserialize(
-            request, request.raw_post_data,
+            request, request.body,
             format=request.META.get('CONTENT_TYPE', 'application/json')
         )
 
         # Force this in an ugly way, at least should do "reverse"
         deserialized["users"] = ["/api/v1/user/%s/" % request.user.id]
-        bundle = self.build_bundle(data=dict_strip_unicode_keys(deserialized))
-        self.is_valid(bundle, request)
+        bundle = self.build_bundle(data=dict_strip_unicode_keys(deserialized), request=request)
+        self.is_valid(bundle)
         updated_bundle = self.obj_create(bundle, request=request)
         return HttpCreated(location=self.get_resource_uri(updated_bundle))
 
@@ -79,7 +79,7 @@ class ProjectResource(ModelResource, SearchMixin):
         project = get_object_or_404(Project, pk=kwargs['pk'])
         try:
             post_data = self.deserialize(
-                request, request.raw_post_data,
+                request, request.body,
                 format=request.META.get('CONTENT_TYPE', 'application/json')
             )
             data = json.loads(post_data)
@@ -115,11 +115,10 @@ class ProjectResource(ModelResource, SearchMixin):
         ]
 
 
-class VersionResource(EnhancedModelResource):
+class VersionResource(ModelResource):
     project = fields.ForeignKey(ProjectResource, 'project', full=True)
 
     class Meta:
-        queryset = Version.objects.all()
         allowed_methods = ['get', 'put', 'post']
         always_return_data = True
         queryset = Version.objects.public()
@@ -204,7 +203,7 @@ class VersionResource(EnhancedModelResource):
         ]
 
 
-class BuildResource(EnhancedModelResource):
+class BuildResource(ModelResource):
     project = fields.ForeignKey('api.base.ProjectResource', 'project')
     version = fields.ForeignKey('api.base.VersionResource', 'version')
 
@@ -235,7 +234,7 @@ class BuildResource(EnhancedModelResource):
         ]
 
 
-class FileResource(EnhancedModelResource, SearchMixin):
+class FileResource(ModelResource, SearchMixin):
     project = fields.ForeignKey(ProjectResource, 'project', full=True)
 
     class Meta:

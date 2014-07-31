@@ -10,7 +10,7 @@
   <link rel="icon" type="image/png" href="{{ MEDIA_URL }}images/favicon.png">
 
   <!-- title -->
-  <title>{% block title %}{% endblock %} | {% block branding %}{% trans "Read the Docs" %} {% endblock %}</title>
+  <title>{% block title %}{% endblock %}{% block head_title %}{% endblock %} | {% block branding %}{% trans "Read the Docs" %} {% endblock %}</title>
 
   <!-- css -->
   <link rel="stylesheet" href="{{ MEDIA_URL }}css/core.css">
@@ -146,7 +146,7 @@
   })();
 
   $('.rtfd-header-search input:text').autocomplete({
-    source: '{% url search_autocomplete %}',
+    source: '{% url "search_autocomplete" %}',
     minLength: 2,
     open: function(event, ui) {
       ac_top = $('.ui-autocomplete').css('top');

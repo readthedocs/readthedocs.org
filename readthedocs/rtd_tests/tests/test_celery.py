@@ -1,7 +1,7 @@
 from os.path import exists
 import shutil
 from tempfile import mkdtemp
-from django.contrib.admin.models import User
+from django.contrib.auth.models import User
 import json
 
 from projects.models import Project

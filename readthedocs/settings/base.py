@@ -100,6 +100,16 @@ MIDDLEWARE_CLASSES = (
     #'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
 )
 
+AUTHENTICATION_BACKENDS = (
+    # Needed to login by username in Django admin, regardless of `allauth`
+    "django.contrib.auth.backends.ModelBackend",
+    # `allauth` specific authentication methods, such as login by e-mail
+    "allauth.account.auth_backends.AuthenticationBackend",
+)
+
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+
 CORS_ORIGIN_REGEX_WHITELIST = ('^http://(.+)\.readthedocs\.org$', '^https://(.+)\.readthedocs\.org$')
 # So people can post to their accounts
 CORS_ALLOW_CREDENTIALS = True
@@ -115,25 +125,26 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.i18n",
     "django.core.context_processors.media",
     "django.core.context_processors.request",
+    # Read the Docs processor
     "core.context_processors.readthedocs_processor",
+    # allauth specific context processors
+    "allauth.account.context_processors.account",
+    "allauth.socialaccount.context_processors.socialaccount",
 )
 
 INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.admin',
     'django.contrib.contenttypes',
-    'django.contrib.markup',
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.staticfiles',
 
     # third party apps
     'pagination',
-    'registration',
     'profiles',
     'taggit',
     'south',
-    'basic.flagging',
     'djangosecure',
     'guardian',
     'django_gravatar',
@@ -149,15 +160,28 @@ INSTALLED_APPS = [
     'haystack',
     'tastypie',
 
+
+
     # our apps
     'projects',
     'builds',
     'core',
     'doc_builder',
     'rtd_tests',
-    'websupport',
     'restapi',
+
+    # allauth
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount', 
+    #'allauth.socialaccount.providers.github',
+    #'allauth.socialaccount.providers.bitbucket',
+    #'allauth.socialaccount.providers.twitter',
 ]
+
+SOUTH_MIGRATION_MODULES = {
+    'taggit': 'taggit.south_migrations',
+}
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAdminUser',),
@@ -175,6 +199,7 @@ CELERY_SEND_TASK_ERROR_EMAILS = False
 CELERYD_HIJACK_ROOT_LOGGER = False
 # Don't queue a bunch of tasks in the workers
 CELERYD_PREFETCH_MULTIPLIER = 1
+HAYSTACK_SIGNAL_PROCESSOR = 'celery_haystack.signals.CelerySignalProcessor'
 
 CELERY_ROUTES = {
     'celery_haystack.tasks.CeleryHaystackSignalHandler': {
@@ -236,6 +261,11 @@ LOGGING = {
             'datefmt': "%d/%b/%Y %H:%M:%S"
         },
     },
+    'filters': {
+         'require_debug_false': {
+             '()': 'django.utils.log.RequireDebugFalse'
+         }
+     },
     'handlers': {
         'null': {
             'level': 'DEBUG',
@@ -291,6 +321,7 @@ LOGGING = {
         },
         'mail_admins': {
             'level': 'ERROR',
+             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler',
         },
         'console': {

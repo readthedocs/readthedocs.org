@@ -130,9 +130,12 @@ def move_files(version, results):
             core_utils.copy(from_path, to_path)
         # Always move PDF's because the return code lies.
         if 'pdf' in results:
-            from_path = version.project.artifact_path(version=version.slug, type='sphinx_pdf')
-            to_path = os.path.join(settings.MEDIA_ROOT, 'pdf', version.project.slug, version.slug)
-            core_utils.copy(from_path, to_path)
+            try:
+                from_path = version.project.artifact_path(version=version.slug, type='sphinx_pdf')
+                to_path = os.path.join(settings.MEDIA_ROOT, 'pdf', version.project.slug, version.slug)
+                core_utils.copy(from_path, to_path)
+            except:
+                pass
         if 'epub' in results and results['epub'][0] == 0:
             from_path = version.project.artifact_path(version=version.slug, type='sphinx_epub')
             to_path = os.path.join(settings.MEDIA_ROOT, 'epub', version.project.slug, version.slug)
@@ -549,6 +552,7 @@ def create_build(version, api, record):
             version='/api/v1/version/%s/' % version.pk,
             type='html',
             state='triggered',
+            success=True,
         ))
     else:
         build = {}

@@ -27,7 +27,7 @@
                 <p class="build-success">&nbsp;</p>
             {% endif %}
           {% else %}
-            <p class="build-missing">{% trans "There are no builds for this project" %}.{% if request.user in project.users.all %} <a href="{% url projects_edit project.slug %}">{% trans "Is the repo correct?" %}</a>{% endif %}</p>
+            <p class="build-missing">{% trans "There are no builds for this project" %}.{% if request.user in project.users.all %} <a href="{% url "projects_edit" project.slug %}">{% trans "Is the repo correct?" %}</a>{% endif %}</p>
           {% endif %}
 
           <ul>
@@ -36,14 +36,14 @@
               <li><a href="{{ project.get_docs_url }}">{% trans "View Docs" %}</a></li>
             {% endif %}
 
-            <li class="{{ downloads_active }}"><a href="{% url project_downloads project.slug %}" rel="nofollow,noindex">{% trans "Downloads" %}</a></li>
+            <li class="{{ downloads_active }}"><a href="{% url "project_downloads" project.slug %}" rel="nofollow,noindex">{% trans "Downloads" %}</a></li>
 
             {% if project.get_latest_build %}
               <li class="{{ builds_active }}"><a href="{{ project.get_builds_url }}">{% trans "Builds" %}</a></li>
             {% endif %}
 
             {% if request.user in project.users.all %}
-              <li class="{{ edit_active }}"><a href="{% url projects_edit project.slug %}"><i class="gear"></i>{% trans "Admin" %}</a></li>
+              <li class="{{ edit_active }}"><a href="{% url "projects_edit" project.slug %}"><i class="gear"></i>{% trans "Admin" %}</a></li>
             {% endif %}
 
 
