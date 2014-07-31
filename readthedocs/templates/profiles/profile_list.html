@@ -10,6 +10,6 @@
 
 {% block content %}
   {% for profile in object_list %}
-    <p><a href="{% url profiles_profile_detail profile.user %}">{{ profile }}</a></p>
+    <p><a href="{% url "profiles_profile_detail" profile.user %}">{{ profile }}</a></p>
   {% endfor %}
 {% endblock %}

@@ -9,7 +9,7 @@
       {% endif %}
       {% if request.user in project.users.all %}
         <ul class="module-item-menu">
-          <li><a href="{% url project_version_detail project.slug version.slug %}">{% trans "Add tags" %}</a></li>
+          <li><a href="{% url "project_version_detail" project.slug version.slug %}">{% trans "Add tags" %}</a></li>
         </ul>
       {% endif %}
     </li>

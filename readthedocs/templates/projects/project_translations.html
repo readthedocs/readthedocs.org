@@ -23,7 +23,7 @@
         <li>
         <a href="{{ lang_project.get_absolute_url }}">{{ lang_project }}</a>
         ({{ lang_project.language }})
-        (<a href="{% url projects_translations_delete project.slug lang_project.slug  %}">{% trans "Remove" %}</a>)
+        (<a href="{% url "projects_translations_delete" project.slug lang_project.slug  %}">{% trans "Remove" %}</a>)
         </li>
     {% endfor %}
     </ul>
@@ -41,7 +41,7 @@
 
 {% block footerjs %}
       $('#id_project').autocomplete({
-    source: '{% url search_autocomplete %}',
+    source: '{% url "search_autocomplete" %}',
     minLength: 2,
     open: function(event, ui) {
       ac_top = $('.ui-autocomplete').css('top');

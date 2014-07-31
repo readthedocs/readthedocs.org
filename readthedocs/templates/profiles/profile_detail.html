@@ -20,7 +20,7 @@
   {% with profile.get_form as form %}
 
   {% if profile.user.pk == user.pk %}
-    <form id="edit_form" method="POST" action="{% url profiles_profile_edit %}"> 
+    <form id="edit_form" method="POST" action="{% url "profiles_profile_edit" %}"> 
   {% endif %}
 
   <div class="navigable">

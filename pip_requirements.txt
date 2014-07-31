@@ -7,20 +7,33 @@
 --allow-external lazr.authentication
 --allow-unverified lazr.authentication
 
-# Basic tools
-virtualenv==1.11.1
+## Upgraded packages
+pip==1.5.6
+virtualenv==1.11.6
 docutils==0.11
-pip==1.5.1
 Sphinx==1.2.2
-django==1.4.13
-south==0.7.6
+
+django>=1.6
+django-tastypie==0.11.1
+django-haystack==2.1.0
+celery-haystack==0.7.2
+django-guardian==1.2.0
+django-extensions==1.3.8
+South==0.8.4
+djangorestframework==2.3.14 
+django-nose==1.2
+
+requests==2.3.0
+slumber==0.6.0
+lxml==3.3.5
+
+# Basic tools
 redis==2.7.1
 hiredis==0.1.2
-requests==2.0
-slumber==0.6
 celery==3.0.24
 django-celery==3.0.23
 mkdocs==0.4
+django-allauth==0.16.1
 
 # VCS
 bzr==2.5b4
@@ -30,22 +43,16 @@ httplib2==0.7.7
 
 # Search
 elasticsearch==0.4.3
-celery-haystack==0.6.2
 pyquery==1.2.2
 
 
 # Utils
 django-gravatar2==1.0.6
 doc2dash==1.1.0
-lxml==3.0.2
 pytz==2013b
 beautifulsoup4==4.1.3
 Unipath==0.2.1
-django-extensions==0.7.1
-django-guardian==1.0.4
 django-kombu==0.9.4
-django-nose==1.1
-django-profiles==0.2
 django-secure==0.1.2
 mimeparse==0.1.3
 mock==1.0.1
@@ -59,18 +66,12 @@ Distutils2==1.0a3
 distlib==0.1.2
 
 # Commenting stuff
-djangorestframework==2.3.6
 django-cors-headers==0.11
 
 # Pegged git requirements
-git+https://github.com/toastdriven/django-haystack@259274e4127f723d76b893c87a82777f9490b960#egg=django_haystack
 git+https://github.com/alex/django-filter.git#egg=django-filter
-git+https://github.com/alex/django-taggit.git@36f6dabcf10e27c7d9442a94243d4189f2a4f121#egg=django_taggit-dev
 git+https://github.com/ericflo/django-pagination.git@e5f669036c#egg=django_pagination-dev
-git+https://github.com/nathanborror/django-basic-apps.git@171fdbe21a0dbbb38919a383cc265cb3cbc73771#egg=django_basic_apps-dev
-git+https://github.com/nathanborror/django-registration.git@dc0b564b7bfb79f58592fe8ad836729a85ec17ae#egg=django_registration-dev
-git+https://github.com/toastdriven/django-tastypie.git@c5451b90b18b0cb64841b2276d543230d5f58231#egg=django_tastypie-dev
 git+https://github.com/ericholscher/readthedocs-sphinx-ext#egg=readthedocs_ext
 
-# Websupport
-git+https://github.com/ericholscher/django-sphinx-websupport#egg=websupport
+git+https://github.com/alex/django-taggit.git#egg=django_taggit-dev
+

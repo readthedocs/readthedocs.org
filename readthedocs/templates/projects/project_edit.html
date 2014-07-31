@@ -37,7 +37,7 @@
       <input style="display: inline;" type="submit" value="{% trans "Submit" %}">
       {% comment %}Translators: The 'or' here is in between 'Submit' and 'delete'.{% endcomment %}
       {% trans "or" %}
-       <a href="{% url projects_delete project.slug %}">{% trans "delete" %}</a>
+       <a href="{% url "projects_delete" project.slug %}">{% trans "delete" %}</a>
     </p>
   </form>
 {% endblock %}
