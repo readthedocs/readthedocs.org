@@ -37,7 +37,6 @@ class NoProjectException(Exception):
     pass
 
 def homepage(request):
-    #latest = Project.objects.public(request.user).order_by('-modified_date')[:10]
     latest_builds = Build.objects.order_by('-date')[:100]
     latest = []
     for build in latest_builds:

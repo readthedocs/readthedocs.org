@@ -101,7 +101,7 @@
   {% endif %}
 
   <h3>{% trans "Last Built" %}</h3>
-  <p>{{ project.modified_date|timesince }} ago</p>
+  <p>{{ project.builds.all.0.date|timesince }} ago</p>
 
   {% if project.project_url %}
     <h3>{% trans "Home Page" %}</h3>
