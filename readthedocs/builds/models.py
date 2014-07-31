@@ -299,7 +299,7 @@ class Build(models.Model):
     state = models.CharField(_('State'), max_length=55, choices=BUILD_STATE,
                              default='finished')
     date = models.DateTimeField(_('Date'), auto_now_add=True)
-    success = models.BooleanField(_('Success'))
+    success = models.BooleanField(_('Success'), default=True)
     
     setup = models.TextField(_('Setup'), null=True, blank=True)
     setup_error = models.TextField(_('Setup error'), null=True, blank=True)
