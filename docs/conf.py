@@ -4,9 +4,8 @@ import os
 import sys
 
 sys.path.insert(0, os.path.abspath('../readthedocs'))
-import settings.sqlite
-from django.core.management import setup_environ
-setup_environ(settings.sqlite)
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "settings.sqlite")
+from django.conf import settings
 
 
 sys.path.append(os.path.abspath('_ext'))
