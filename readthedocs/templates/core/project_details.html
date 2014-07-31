@@ -1,5 +1,5 @@
 {% load i18n %}
-{% load core_tags %}
+{% load markup %}
 
 {% if project.description %}
   <h3>{% trans "Description" %}</h3>
@@ -12,7 +12,7 @@
 
 <!-- BEGIN search bar -->
 <div class="search">
-  <form action="{% url "haystack_project" %}" method="GET">
+  <form action="{% url haystack_project %}" method="GET">
     <input type="text" name="q" value="" placeholder="{% blocktrans %}Search {{ project }}{% endblocktrans %}" id="id_site_search">
     <input type="hidden" name="selected_facets" value="project_exact:{{ project.name }}">
     <input type="submit" value="{% trans "Search" %}">
@@ -57,7 +57,7 @@
         {% endif %}
           {% if request.user in project.users.all %}
             <ul class="module-item-menu">
-              <li><a href="{% url "project_version_detail" project.slug version.slug %}">{% trans "Edit" %}</a></li>
+              <li><a href="{% url project_version_detail project.slug version.slug %}">{% trans "Edit" %}</a></li>
             </ul>
           {% endif %}
         </li>
@@ -69,7 +69,7 @@
   <div class="build_a_version">
     <h3>{% trans "Build a version" %}</h3>
     <div style="float: left; margin-right: 5px;" class="version_right">
-      <form method="post" action="{% url "generic_build" project.pk %}">
+      <form method="post" action="{% url generic_build project.pk %}">
         <select id="id_version" name="version_slug">
         {% for version in project.ordered_active_versions %}
           <option value="{{ version.slug }}">{{ version.slug }}</option>
@@ -93,7 +93,7 @@
     <h3>{% trans "Tags" %}</h3>
     <p>
       {% for tag in project.tags.all %}
-        <a href="{% url "projects_tag_detail" tag.slug %}">{{ tag.name }}</a>{% if forloop.last %}{% else %}, {% endif %}
+        <a href="{% url projects_tag_detail tag.slug %}">{{ tag.name }}</a>{% if forloop.last %}{% else %}, {% endif %}
       {% empty %}
         <span class="quiet">{% trans "No tags" %}</span>
       {% endfor %}
@@ -157,7 +157,7 @@
 {% if request.user in project.users.all %}
   <h3>{% trans "Post Commit Hook" %}</h3>
     <p>
-        curl -X POST http://{{ PRODUCTION_DOMAIN }}{% url "generic_build" project.slug %}
+        curl -X POST http://{{ PRODUCTION_DOMAIN }}{% url generic_build project.slug %}
     </p>
 
 {% endif %}

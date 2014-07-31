@@ -7,7 +7,7 @@
 {% block content %}
   <ul>
   {% for tag in tag_list %}
-    <li><a href="{% url "projects_tag_detail" tag.slug %}">{{ tag.name }}</a></li>
+    <li><a href="{% url projects_tag_detail tag.slug %}">{{ tag.name }}</a></li>
   {% endfor %}
   </ul>
 {% endblock %}

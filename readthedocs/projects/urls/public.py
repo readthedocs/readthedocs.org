@@ -1,43 +1,49 @@
-from django.conf.urls import patterns, url
-
-from projects.views.public import ProjectIndex
+from django.conf.urls.defaults import patterns, url
 
 urlpatterns = patterns(
     # base view, flake8 complains if it is on the previous line.
-    '',
+    'projects.views.public',
     url(r'^$',
-        ProjectIndex.as_view(),
+        'project_index',
         name='projects_list'),
 
+    url(r'^tags/$',
+        'tag_index',
+        name='projects_tag_list'),
+
+    url(r'^search/$',
+        'search',
+        name='project_search'),
+
     url(r'^search/autocomplete/$',
-        'projects.views.public.search_autocomplete',
+        'search_autocomplete',
         name='search_autocomplete'),
 
     url(r'^autocomplete/version/(?P<project_slug>[-\w]+)/$',
-        'projects.views.public.version_autocomplete',
+        'version_autocomplete',
         name='version_autocomplete'),
 
     url(r'^autocomplete/filter/version/(?P<project_slug>[-\w]+)/$',
-        'projects.views.public.version_filter_autocomplete',
+        'version_filter_autocomplete',
         name='version_filter_autocomplete'),
 
     url(r'^tags/(?P<tag>[-\w]+)/$',
-        ProjectIndex.as_view(),
+        'project_index',
         name='projects_tag_detail'),
 
     url(r'^(?P<project_slug>[-\w]+)/$',
-        'projects.views.public.project_detail',
+        'project_detail',
         name='projects_detail'),
 
     url(r'^(?P<project_slug>[-\w]+)/downloads/$',
-        'projects.views.public.project_downloads',
+        'project_downloads',
         name='project_downloads'),
 
     url(r'^(?P<project_slug>[-\w]+)/badge/$',
-        'projects.views.public.project_badge',
+        'project_badge',
         name='project_badge'),
 
     url(r'^(?P<username>\w+)/$',
-        'projects.views.public.project_index',
+        'project_index',
         name='projects_user_list'),
 )

@@ -53,6 +53,7 @@ class PrivacyTests(TestCase):
              'num_minor': 2, 'num_major': 2, 'num_point': 2,
              'version_privacy_level': version_privacy_level,
              'documentation_type': 'sphinx'})
+        #import ipdb; ipdb.set_trace()
 
         self.assertAlmostEqual(Project.objects.count(), 1)
         r = self.client.get('/projects/django-kong/')

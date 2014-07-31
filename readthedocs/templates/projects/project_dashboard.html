@@ -63,9 +63,9 @@
                   <ul>
                     {% for project in project_list %}
                       <li class="module-item col-span">
-                        <a href="{% url "projects_manage" project.slug %}">{{ project.name }}</a>
+                        <a href="{% url projects_manage project.slug %}">{{ project.name }}</a>
                         <ul class="module-item-menu">
-                          <li><a href="{% url "projects_edit" project.slug %}"><i class="gear"></i>{% trans "Admin" %}</a></li>
+                          <li><a href="{% url projects_edit project.slug %}"><i class="gear"></i>{% trans "Admin" %}</a></li>
                           <li>&nbsp;&nbsp;</li>
                           <li><a href="{{ project.get_docs_url }}">{% trans "View Docs" %}</a></li>
                         </ul>
@@ -78,7 +78,7 @@
             </div>
           </div>
           {% else %}
-          {% url "projects_import" as projects_import_url %}
+          {% url projects_import as projects_import_url %}
           <p class="empty">
           {% blocktrans with "https://read-the-docs.readthedocs.org/en/latest/getting_started.html" as getting_started_url %}You don't have any projects.  You should <a href="{{ projects_import_url }}">create new docs</a> on the site.<br>
           Check out the <a href="{{ getting_started_url }}">Getting Started</a> documentation for information about how to get going.{% endblocktrans %}</p>
@@ -91,7 +91,7 @@
           <div class="module">
             <div class="module-wrapper">
               <div class="module-header">
-                <h3>{% trans "Recently Bookmarked Docs" %} <span class="small_head"><a href="{% url "user_bookmarks" %}">{% trans "(All My Bookmarks)" %}</a></span></h3>
+                <h3>{% trans "Recently Bookmarked Docs" %} <span class="small_head"><a href="{% url user_bookmarks %}">{% trans "(All My Bookmarks)" %}</a></span></h3>
               </div>
 
               <div class="module-list">

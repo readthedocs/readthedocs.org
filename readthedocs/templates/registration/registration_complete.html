@@ -1,0 +1,24 @@
+{% extends "registration/base_registration.html" %}
+
+{% load i18n %}
+
+
+{% block title %}{% trans "Registration complete" %}{% endblock %}
+{% block body_class %}{{ block.super }} registration_complete{% endblock %}
+
+
+{% block content-header %}
+  <h1>{% trans "Registration complete" %}</h1>
+{% endblock %}
+
+
+{% block content %}
+  <h3>{% trans "Now activate your account." %}</h3>
+  <p>
+    {% blocktrans %}We will be sending you an email with an activation link.
+    Visit the link to verify this account.{% endblocktrans %}
+  </p>
+  <p>
+    {% trans "Check your email.  We'll wait." %}
+  </p>
+{% endblock %}

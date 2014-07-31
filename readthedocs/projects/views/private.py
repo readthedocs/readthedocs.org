@@ -9,14 +9,13 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
-from django.views.generic import ListView
-from django.utils.decorators import method_decorator
+from django.views.generic.list_detail import object_list
 
 from guardian.shortcuts import assign
 
 from builds.forms import AliasForm, VersionForm
 from builds.filters import VersionFilter
-from builds.models import VersionAlias, Version
+from builds.models import Version
 from projects.forms import (ImportProjectForm, build_versions_form,
                             build_upload_html_form, SubprojectForm,
                             UserForm, EmailHookForm, TranslationForm,
@@ -25,28 +24,25 @@ from projects.models import Project, EmailHook
 from projects import constants
 
 
-class ProjectDashboard(ListView):
+@login_required
+def project_dashboard(request):
     """
     A dashboard!  If you aint know what that means you aint need to.
     Essentially we show you an overview of your content.
     """
-    model = Project
-    template_name='projects/project_dashboard.html'
-
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super(ProjectDashboard, self).dispatch(*args, **kwargs)
-
-    def get_queryset(self):
-        return self.request.user.projects.live()
-
-    def get_context_data(self, **kwargs):
-        context = super(ProjectDashboard, self).get_context_data(**kwargs)
-        qs = (Version.objects.active(user=self.request.user)
-              .filter(project__users__in=[self.request.user]))
-        filter = VersionFilter(constants.IMPORTANT_VERSION_FILTERS, queryset=self.get_queryset())
-        context['filter'] = filter
-        return context
+    qs = (Version.objects.active(user=request.user)
+          .filter(project__users__in=[request.user]))
+    filter = VersionFilter(constants.IMPORTANT_VERSION_FILTERS, queryset=qs)
+    return object_list(
+        request,
+        queryset=request.user.projects.live(),
+        page=int(request.GET.get('page', 1)),
+        template_object_name='project',
+        template_name='projects/project_dashboard.html',
+        extra_context={
+            'filter': filter,
+        }
+    )
 
 
 @login_required
@@ -220,18 +216,15 @@ def edit_alias(request, project_slug, id=None):
     )
 
 
-class AliasList(ListView):
-    model = VersionAlias
-    template_context_name = 'alias'
-    template_name='projects/alias_list.html',
-
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super(AliasList, self).dispatch(*args, **kwargs)
-
-    def get_queryset(self):
-        self.project = get_object_or_404(Project.objects.all(), slug=self.kwargs.get('project_slug'))
-        return self.project.aliases.all()
+@login_required
+def list_alias(request, project_slug):
+    proj = get_object_or_404(Project.objects.all(), slug=project_slug)
+    return object_list(
+        request,
+        queryset=proj.aliases.all(),
+        template_object_name='alias',
+        template_name='projects/alias_list.html',
+    )
 
 
 @login_required

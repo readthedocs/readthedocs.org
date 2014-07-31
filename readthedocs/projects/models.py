@@ -111,9 +111,11 @@ class Project(models.Model):
     repo_type = models.CharField(_('Repository type'), max_length=10,
                                  choices=constants.REPO_CHOICES, default='git')
     project_url = models.URLField(_('Project URL'), blank=True,
-                                  help_text=_('The project\'s homepage'))
+                                  help_text=_('The project\'s homepage'),
+                                  verify_exists=False)
     canonical_url = models.URLField(_('Canonical URL'), blank=True,
-                                  help_text=_('The official URL that the docs live at. This can be at readthedocs.org, or somewhere else. Ex. http://docs.fabfile.org'))
+                                  help_text=_('The official URL that the docs live at. This can be at readthedocs.org, or somewhere else. Ex. http://docs.fabfile.org'),
+                                  verify_exists=False)
     version = models.CharField(_('Version'), max_length=100, blank=True,
                                help_text=_('Project version these docs apply '
                                            'to, i.e. 1.0a'))
@@ -165,15 +167,13 @@ class Project(models.Model):
         help_text=_('Path from project root to conf.py file (ex. docs/conf.py)'
                     '. Leave blank if you want us to find it for you.'))
 
-    featured = models.BooleanField(_('Featured'), default=False)
-    skip = models.BooleanField(_('Skip'), default=False)
+    featured = models.BooleanField(_('Featured'))
+    skip = models.BooleanField(_('Skip'))
     mirror = models.BooleanField(_('Mirror'), default=False)
     use_virtualenv = models.BooleanField(
         _('Use virtualenv'),
         help_text=_("Install your project inside a virtualenv using setup.py "
-                    "install"),
-        default=False
-    )
+                    "install"))
 
     # This model attribute holds the python interpreter used to create the
     # virtual environment
@@ -188,9 +188,7 @@ class Project(models.Model):
     use_system_packages = models.BooleanField(
         _('Use system packages'),
         help_text=_("Give the virtual environment access to the global "
-                    "site-packages dir."),
-        default=False
-        )
+                    "site-packages dir."))
     django_packages_url = models.CharField(_('Django Packages URL'),
                                            max_length=255, blank=True)
     privacy_level = models.CharField(
@@ -220,9 +218,9 @@ class Project(models.Model):
                                               related_name='translations',
                                               blank=True, null=True)
 
-    # Version State
+    # Version State 
     num_major = models.IntegerField(
-        _('Number of Major versions'),
+        _('Number of Major versions'), 
         max_length=3,
         default=2,
         null=True,
@@ -230,7 +228,7 @@ class Project(models.Model):
         help_text=_("2 means supporting 3.X.X and 2.X.X, but not 1.X.X")
     )
     num_minor = models.IntegerField(
-        _('Number of Minor versions'),
+        _('Number of Minor versions'), 
         max_length=3,
         default=2,
         null=True,
@@ -238,7 +236,7 @@ class Project(models.Model):
         help_text=_("2 means supporting 2.2.X and 2.1.X, but not 2.0.X")
     )
     num_point = models.IntegerField(
-        _('Number of Point versions'),
+        _('Number of Point versions'), 
         max_length=3,
         default=2,
         null=True,
@@ -483,7 +481,7 @@ class Project(models.Model):
 
     #
     # Paths for symlinks in project doc_path.
-    #
+    # 
     def cnames_symlink_path(self, domain):
         """
         Path in the doc_path that we symlink cnames
@@ -589,7 +587,7 @@ class Project(models.Model):
         The path to the static metadata JSON settings file
         """
         return os.path.join(self.doc_path, 'metadata.json')
-
+        
     def conf_file(self, version='latest'):
         if self.conf_py_file:
             log.debug('Inserting conf.py file path from model')
@@ -842,7 +840,7 @@ class EmailHook(Notification):
 
 
 class WebHook(Notification):
-    url = models.URLField(blank=True,
+    url = models.URLField(blank=True, verify_exists=False,
                           help_text=_('URL to send the webhook to'))
 
     def __unicode__(self):

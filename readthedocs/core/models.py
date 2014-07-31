@@ -13,7 +13,7 @@ class UserProfile (models.Model):
     """
     user = models.ForeignKey(User, verbose_name=_('User'), unique=True,
                              related_name='profile')
-    whitelisted = models.BooleanField(_('Whitelisted'), default=False)
+    whitelisted = models.BooleanField(_('Whitelisted'))
     homepage = models.CharField(_('Homepage'), max_length=100, blank=True)
     allow_email = models.BooleanField(_('Allow email'),
                                       help_text=_('Show your email on VCS '
@@ -55,6 +55,6 @@ class UserProfile (models.Model):
 def create_profile(sender, **kwargs):
     if kwargs['created'] is True:
         try:
-            UserProfile.objects.create(user_id=kwargs['instance'].id, whitelisted=False)
+            UserProfile.objects.create(user_id=kwargs['instance'].id)
         except DatabaseError:
             pass

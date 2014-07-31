@@ -1,6 +1,6 @@
 from os.path import exists
 
-from django.contrib.auth.models import User
+from django.contrib.admin.models import User
 
 from projects.models import Project
 from rtd_tests.base import RTDTestCase

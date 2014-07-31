@@ -148,7 +148,7 @@ class PostAuthentication(BasicAuthentication):
 
 
 class EnhancedModelResource(ModelResource):
-    def obj_get_list(self, request=None, *args, **kwargs):
+    def obj_get_list(self, request=None, **kwargs):
         """
         A ORM-specific implementation of ``obj_get_list``.
 
