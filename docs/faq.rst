@@ -37,7 +37,7 @@ This happens because our build system doesn't have the dependencies for building
 You can mock out the imports for these modules in your ``conf.py`` with the following snippet::
 
     import sys
-    from unittest.mock import MagickMock as Mock
+    from unittest.mock import MagicMock as Mock
 
     MOCK_MODULES = ['pygtk', 'gtk', 'gobject', 'argparse', 'numpy', 'pandas']
     sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
