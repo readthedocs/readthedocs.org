@@ -11,7 +11,7 @@ If you are still seeing errors because of C library dependencies, please see the
 How do I change behavior for Read the Docs?
 -------------------------------------------
 
-When RTD builds your project, it sets the `READTHEDOCS` environment variable to the string `True`. So within your Sphinx's conf.py file, you can vary the behavior based on this. For example::
+When RTD builds your project, it sets the `READTHEDOCS` environment variable to the string `True`. So within your Sphinx's ``conf.py`` file, you can vary the behavior based on this. For example::
 
     import os
     on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
@@ -34,36 +34,21 @@ I get import errors on libraries that depend on C modules
 
 This happens because our build system doesn't have the dependencies for building your project. This happens with things like libevent and mysql, and other python things that depend on C libraries. We can't support installing random C binaries on our system, so there is another way to fix these imports.
 
-You can mock out the imports for these modules in your conf.py with the following snippet::
+You can mock out the imports for these modules in your ``conf.py`` with the following snippet::
 
     import sys
+    from unittest.mock import MagickMock as Mock
 
-    class Mock(object):
-        
-        __all__ = []
-       
-        def __init__(self, *args, **kwargs):
-            pass
-
-        def __call__(self, *args, **kwargs):
-            return Mock()
-
-        @classmethod
-        def __getattr__(cls, name):
-            if name in ('__file__', '__path__'):
-                return '/dev/null'
-            elif name[0] == name[0].upper():
-                mockType = type(name, (), {})
-                mockType.__module__ = __name__
-                return mockType
-            else:
-                return Mock()
-
-    MOCK_MODULES = ['pygtk', 'gtk', 'gobject', 'argparse']
-    for mod_name in MOCK_MODULES:
-        sys.modules[mod_name] = Mock()
+    MOCK_MODULES = ['pygtk', 'gtk', 'gobject', 'argparse', 'numpy', 'pandas']
+    sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
 Of course, replacing `MOCK_MODULES` with the modules that you want to mock out.
+
+.. Tip:: The library ``unittest.mock`` was introduced on python 3.3. On earlier versions install the ``mock`` library
+    from PyPI with (ie ``pip install mock``) and replace the above import with::
+
+        from mock import Mock
+
 
 Can I make search engines only see one version of my docs?
 ----------------------------------------------------------
