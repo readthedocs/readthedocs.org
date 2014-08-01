@@ -1,7 +1,7 @@
 import hashlib
 import logging
 
-from rest_framework import decorators, permissions, viewsets, status
+from rest_framework import decorators, permissions, status
 from rest_framework.renderers import JSONPRenderer, JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 import requests
@@ -11,7 +11,9 @@ from djangome import views as djangome
 from search.indexes import PageIndex, ProjectIndex, SectionIndex
 from projects.models import Project
 
+
 log = logging.getLogger(__name__)
+
 
 @decorators.api_view(['GET'])
 @decorators.permission_classes((permissions.AllowAny,))
@@ -55,7 +57,7 @@ def index_search(request):
         'lang': project.language,
         'author': [user.username for user in project.users.all()],
         'url': project.get_absolute_url(),
-        '_boost': project_scale,
+        'weight': project_scale,
     })
 
     index_list = []
@@ -72,7 +74,7 @@ def index_search(request):
             'title': page['title'],
             'headers': page['headers'],
             'content': page['content'],
-            '_boost': page_scale + project_scale,
+            'weight': page_scale + project_scale,
             })
         for section in page['sections']:
             section_index_list.append({
@@ -83,7 +85,7 @@ def index_search(request):
                 'page_id': section['id'],
                 'title': section['title'],
                 'content': section['content'],
-                '_boost': page_scale,
+                'weight': page_scale,
             })
         section_obj.bulk_index(section_index_list, parent=page_id,
                                routing=project.slug)
@@ -104,12 +106,22 @@ def search(request):
     kwargs = {}
     body = {
         "query": {
-            "bool": {
-                "should": [
-                    {"match": {"title": {"query": query, "boost": 10}}},
-                    {"match": {"headers": {"query": query, "boost": 5}}},
-                    {"match": {"content": {"query": query}}},
-                ]
+            "function_score": {
+                # TODO: Update to use `field_value_factor` when
+                # the backend Elasticsearch version supports it.
+                # "field_value_factor": {"field": "weight"}
+                "script_score": {
+                    "script": "_score * doc['weight'].value"
+                },
+                "query": {
+                    "bool": {
+                        "should": [
+                            {"match": {"title": {"query": query, "boost": 10}}},
+                            {"match": {"headers": {"query": query, "boost": 5}}},
+                            {"match": {"content": {"query": query}}},
+                        ]
+                    }
+                }
             }
         },
         "highlight": {
@@ -147,18 +159,29 @@ def project_search(request):
     log.debug("(API Project Search) %s" % (query))
     body = {
         "query": {
-            "bool": {
-                "should": [
-                    {"match": {"name": {"query": query, "boost": 10}}},
-                    {"match": {"description": {"query": query}}},
-                ]
-            },
+            "function_score": {
+                # TODO: Update to use `field_value_factor` when
+                # the backend Elasticsearch version supports it.
+                # "field_value_factor": {"field": "weight"}
+                "script_score": {
+                    "script": "_score * doc['weight'].value"
+                },
+                "query": {
+                    "bool": {
+                        "should": [
+                            {"match": {"name": {"query": query, "boost": 10}}},
+                            {"match": {"description": {"query": query}}},
+                        ]
+                    }
+                }
+            }
         },
         "fields": ["name", "slug", "description", "lang"]
     }
     results = ProjectIndex().search(body)
 
     return Response({'results': results})
+
 
 @decorators.api_view(['GET'])
 @decorators.permission_classes((permissions.AllowAny,))
@@ -210,11 +233,21 @@ def section_search(request):
     kwargs = {}
     body = {
         "query": {
-            "bool": {
-                "should": [
-                    {"match": {"title": {"query": query, "boost": 10}}},
-                    {"match": {"content": {"query": query}}},
-                ]
+            "function_score": {
+                # TODO: Update to use `field_value_factor` when
+                # the backend Elasticsearch version supports it.
+                # "field_value_factor": {"field": "weight"}
+                "script_score": {
+                    "script": "_score * doc['weight'].value"
+                },
+                "query": {
+                    "bool": {
+                        "should": [
+                            {"match": {"title": {"query": query, "boost": 10}}},
+                            {"match": {"content": {"query": query}}},
+                        ]
+                    }
+                }
             }
         },
         "facets": {
@@ -222,7 +255,7 @@ def section_search(request):
                 "terms": {"field": "project"},
                 "facet_filter": {
                     "term": {"version": version_slug},
-                } 
+                }
             },
         },
         "highlight": {
@@ -242,11 +275,11 @@ def section_search(request):
                 {"term": {"version": version_slug}},
             ]
         }
-        body["facets"]['path'] = {
+        body['facets']['path'] = {
             "terms": {"field": "path"},
             "facet_filter": {
                 "term": {"project": project_slug},
-            } 
+            }
         },
         # Add routing to optimize search by hitting the right shard.
         kwargs['routing'] = project_slug
@@ -257,13 +290,12 @@ def section_search(request):
                 {"term": {"path": path_slug}},
             ]
         }
-        
+
     if path_slug and not project_slug:
         # Show facets when we only have a path
-        body["facets"]['path'] = {
+        body['facets']['path'] = {
             "terms": {"field": "path"}
         }
-
 
     results = SectionIndex().search(body, **kwargs)
 

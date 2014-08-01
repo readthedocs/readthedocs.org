@@ -206,8 +206,6 @@ class ProjectIndex(Index):
             self._type: {
                 # Disable _all field to reduce index size.
                 '_all': {'enabled': False},
-                # Add a boost field to enhance relevancy of a document.
-                '_boost': {'name': '_boost', 'null_value': 1.0},
                 'properties': {
                     'id': {'type': 'long'},
                     'name': {'type': 'string', 'analyzer': 'default_icu'},
@@ -217,6 +215,8 @@ class ProjectIndex(Index):
                     'lang': {'type': 'string', 'index': 'not_analyzed'},
                     'author': {'type': 'string', 'analyzer': 'default_icu'},
                     'url': {'type': 'string', 'index': 'not_analyzed'},
+                    # Add a weight field to enhance relevancy scoring.
+                    'weight': {'type': 'float'},
                 }
             }
         }
@@ -231,7 +231,7 @@ class ProjectIndex(Index):
             doc[attr] = data.get(attr, '')
 
         # Add project boost.
-        doc['_boost'] = data.get('_boost', 1.0)
+        doc['weight'] = data.get('weight', 1.0)
 
         return doc
 
@@ -246,8 +246,6 @@ class PageIndex(Index):
             self._type: {
                 # Disable _all field to reduce index size.
                 '_all': {'enabled': False},
-                # Add a boost field to enhance relevancy of a document.
-                '_boost': {'name': '_boost', 'null_value': 1.0},
                 # Associate a page with a project.
                 '_parent': {'type': self._parent},
                 'properties': {
@@ -258,6 +256,8 @@ class PageIndex(Index):
                     'title': {'type': 'string', 'analyzer': 'default_icu'},
                     'headers': {'type': 'string', 'analyzer': 'default_icu'},
                     'content': {'type': 'string', 'analyzer': 'default_icu'},
+                    # Add a weight field to enhance relevancy scoring.
+                    'weight': {'type': 'float'},
                 }
             }
         }
@@ -273,7 +273,7 @@ class PageIndex(Index):
             doc[attr] = data.get(attr, '')
 
         # Add page boost.
-        doc['_boost'] = data.get('_boost', 1.0)
+        doc['weight'] = data.get('weight', 1.0)
 
         return doc
 
@@ -287,8 +287,6 @@ class SectionIndex(Index):
             self._type: {
                 # Disable _all field to reduce index size.
                 '_all': {'enabled': False},
-                # Add a boost field to enhance relevancy of a document.
-                '_boost': {'name': '_boost', 'null_value': 1.0},
                 # Associate a section with a page.
                 '_parent': {'type': self._parent},
                 'properties': {
@@ -299,6 +297,8 @@ class SectionIndex(Index):
                     'page_id': {'type': 'string', 'index': 'not_analyzed'},
                     'title': {'type': 'string', 'analyzer': 'default_icu'},
                     'content': {'type': 'string', 'analyzer': 'default_icu'},
+                    # Add a weight field to enhance relevancy scoring.
+                    'weight': {'type': 'float'},
                 }
             }
         }
@@ -314,6 +314,6 @@ class SectionIndex(Index):
             doc[attr] = data.get(attr, '')
 
         # Add page boost.
-        doc['_boost'] = data.get('_boost', 1.0)
+        doc['weight'] = data.get('weight', 1.0)
 
         return doc
