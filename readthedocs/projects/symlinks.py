@@ -120,5 +120,5 @@ def remove_symlink_single_version(version):
         msg="Removing symlink for single_version")
     )
     symlink = version.project.single_version_symlink_path()
-    run_on_app_servers('rm %s' % symlink)
+    run_on_app_servers('rm -f %s' % symlink)
 
