@@ -36,7 +36,7 @@ class BaseSphinx(BaseBuilder):
         os.chdir(project.conf_dir(self.version.slug))
         force_str = " -E " if self._force else ""
         if project.use_virtualenv:
-            build_command = "%s %s -b %s -D language=%s . %s " % (
+            build_command = "%s -T %s -b %s -D language=%s . %s " % (
                 project.venv_bin(version=self.version.slug,
                                  bin='sphinx-build'),
                 force_str,
@@ -45,7 +45,7 @@ class BaseSphinx(BaseBuilder):
                 self.sphinx_build_dir,
                 )
         else:
-            build_command = ("sphinx-build %s -b %s -D language=%s . %s"
+            build_command = ("sphinx-build -T %s -b %s -D language=%s . %s"
                              % (
                                 force_str, 
                                 self.sphinx_builder,
