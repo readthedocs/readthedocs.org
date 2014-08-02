@@ -9,6 +9,8 @@ There are two different things that we support:
 * A single project written in another language
 * A project with translations into multiple languages
 
+.. note:: You must commit the ``.mo`` files for Read the Docs to translate your documentation.
+
 Single project in another language
 ----------------------------------
 
@@ -44,3 +46,4 @@ This has the results of serving:
 It also gets included in the Read the Docs flyout:
 
 .. image:: /img/translation_bar.png
+
