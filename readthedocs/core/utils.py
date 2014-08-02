@@ -3,7 +3,6 @@ import logging
 import os
 import shutil
 
-from dns import resolver
 from urlparse import urlparse
 
 from django.conf import settings
@@ -139,6 +138,7 @@ def clean_url(url):
     return netloc
 
 def cname_to_slug(host):
+    from dns import resolver
     answer = [ans for ans in resolver.query(host, 'CNAME')][0]
     domain = answer.target.to_unicode()
     slug = domain.split('.')[0]
