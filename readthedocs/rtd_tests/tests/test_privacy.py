@@ -67,8 +67,6 @@ class PrivacyTests(TestCase):
         self._create_kong('private', 'private')
 
         self.client.login(username='eric', password='test')
-        r = self.client.get('/')
-        self.assertTrue('Django Kong' in r.content)
         r = self.client.get('/projects/django-kong/')
         self.assertEqual(r.status_code, 200)
         r = self.client.get('/builds/django-kong/')
@@ -94,8 +92,6 @@ class PrivacyTests(TestCase):
         self._create_kong('protected', 'protected')
 
         self.client.login(username='eric', password='test')
-        r = self.client.get('/')
-        self.assertTrue('Django Kong' in r.content)
         r = self.client.get('/projects/')
         self.assertTrue('Django Kong' in r.content)
         r = self.client.get('/projects/django-kong/')
@@ -125,8 +121,6 @@ class PrivacyTests(TestCase):
         self._create_kong('public', 'public')
 
         self.client.login(username='eric', password='test')
-        r = self.client.get('/')
-        self.assertTrue('Django Kong' in r.content)
         r = self.client.get('/projects/django-kong/')
         self.assertEqual(r.status_code, 200)
         r = self.client.get('/builds/django-kong/')
@@ -135,8 +129,6 @@ class PrivacyTests(TestCase):
         self.assertEqual(r.status_code, 200)
 
         self.client.login(username='tester', password='test')
-        r = self.client.get('/')
-        self.assertTrue('Django Kong' in r.content)
         r = self.client.get('/projects/django-kong/')
         self.assertEqual(r.status_code, 200)
         r = self.client.get('/builds/django-kong/')
