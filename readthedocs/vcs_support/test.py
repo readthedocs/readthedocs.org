@@ -1,5 +1,4 @@
 import mock
-from nose.tools import ok_
 import os
 import shutil
 import unittest
@@ -33,14 +32,14 @@ class TestNonBlockingLock(unittest.TestCase):
     def test_simplelock(self):
         with utils.NonBlockingLock(project=self.project_mock,
                                    version=self.version_mock) as f_lock:
-            ok_(os.path.exists(f_lock.fpath))
+            self.assertTrue(os.path.exists(f_lock.fpath))
 
     def test_simplelock_cleanup(self):
         lock_path = None
         with utils.NonBlockingLock(project=self.project_mock,
                                    version=self.version_mock) as f_lock:
             lock_path = f_lock.fpath
-        ok_(lock_path is not None and not os.path.exists(lock_path))
+        self.assertTrueok_(lock_path is not None and not os.path.exists(lock_path))
 
     def test_nonreentrant(self):
         with utils.NonBlockingLock(project=self.project_mock,
