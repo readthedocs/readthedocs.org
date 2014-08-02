@@ -37,7 +37,12 @@ This happens because our build system doesn't have the dependencies for building
 You can mock out the imports for these modules in your ``conf.py`` with the following snippet::
 
     import sys
-    from unittest.mock import MagicMock as Mock
+    from unittest.mock import MagicMock
+
+    class Mock(MagicMock):
+        @classmethod
+        def __getattr__(cls, name):
+                return Mock()
 
     MOCK_MODULES = ['pygtk', 'gtk', 'gobject', 'argparse', 'numpy', 'pandas']
     sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
@@ -45,9 +50,9 @@ You can mock out the imports for these modules in your ``conf.py`` with the foll
 Of course, replacing `MOCK_MODULES` with the modules that you want to mock out.
 
 .. Tip:: The library ``unittest.mock`` was introduced on python 3.3. On earlier versions install the ``mock`` library
-    from PyPI with (ie ``pip install mock``) and replace the above import with::
+    from PyPI with (ie ``pip install mock``) and replace the above import::
 
-        from mock import Mock
+        from mock import Mock as MagicMock
 
 
 Can I make search engines only see one version of my docs?
