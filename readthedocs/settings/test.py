@@ -2,8 +2,6 @@ import os.path
 
 from .sqlite import *  # noqa
 
-TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
-
 SLUMBER_USERNAME = 'test'
 SLUMBER_PASSWORD = 'test'
 SLUMBER_API_HOST = 'http://localhost:8000'

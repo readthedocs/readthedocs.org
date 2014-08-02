@@ -24,8 +24,6 @@ SESSION_COOKIE_DOMAIN = None
 SESSION_COOKIE_HTTPONLY = False
 CACHE_BACKEND = 'dummy://'
 
-TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
-
 SLUMBER_USERNAME = 'test'
 SLUMBER_PASSWORD = 'test'
 SLUMBER_API_HOST = 'http://localhost:8000'

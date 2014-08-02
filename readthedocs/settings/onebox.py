@@ -41,8 +41,6 @@ SLUMBER_API_HOST = 'http://localhost:8000'
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTOCOL", "https")
 SESSION_COOKIE_DOMAIN = None
 
-TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
-
 SLUMBER_USERNAME = 'test'
 SLUMBER_PASSWORD = 'test'
 SLUMBER_API_HOST = 'http://localhost:8000'

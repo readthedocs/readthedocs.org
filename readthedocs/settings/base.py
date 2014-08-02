@@ -148,7 +148,6 @@ INSTALLED_APPS = [
     'djangosecure',
     'guardian',
     'django_gravatar',
-    'django_nose',
     'rest_framework',
     'corsheaders',
 

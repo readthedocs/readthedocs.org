@@ -44,8 +44,6 @@ SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_DOMAIN = 'localhost'
 CSRF_COOKIE_SECURE = False
 
-TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
-
 SLUMBER_USERNAME = 'test'
 SLUMBER_PASSWORD = 'test'
 SLUMBER_API_HOST = 'http://localhost:8000'
