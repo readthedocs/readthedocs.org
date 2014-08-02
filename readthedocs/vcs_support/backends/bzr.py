@@ -34,6 +34,7 @@ class Backend(BaseVCS):
         return up_output
 
     def clone(self):
+        self.make_clean_working_dir()
         retcode = self.run('bzr', 'checkout', self.repo_url, '.')[0]
         if retcode != 0:
             raise ProjectImportError(

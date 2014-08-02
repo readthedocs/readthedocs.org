@@ -46,6 +46,7 @@ class Backend(BaseVCS):
             )
 
     def co(self, identifier=None):
+        self.make_clean_working_dir()
         if identifier:
             url = self.base_url + identifier
         else:

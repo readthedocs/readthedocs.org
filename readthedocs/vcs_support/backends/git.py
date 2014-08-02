@@ -136,6 +136,7 @@ class Backend(BaseVCS):
             self.set_remote_url(self.repo_url)
             self.fetch()
         else:
+            self.make_clean_working_dir()
             self.clone()
 
         # Find proper identifier

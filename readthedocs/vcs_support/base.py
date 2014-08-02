@@ -2,6 +2,7 @@ import logging
 from collections import namedtuple
 import os
 from os.path import basename
+import shutil
 import subprocess
 
 from django.template.defaultfilters import slugify
@@ -95,6 +96,11 @@ class BaseVCS(BaseCLI):
     def check_working_dir(self):
         if not os.path.exists(self.working_dir):
             os.makedirs(self.working_dir)
+
+    def make_clean_working_dir(self):
+        "Ensures that the working dir exists and is empty"
+        shutil.rmtree(self.working_dir, ignore_errors=True)
+        self.check_working_dir()
 
     def update(self):
         """
