@@ -20,9 +20,10 @@ from builds.models import VersionAlias, Version
 from projects.forms import (ImportProjectForm, build_versions_form,
                             build_upload_html_form, SubprojectForm,
                             UserForm, EmailHookForm, TranslationForm,
-                            AdvancedProjectForm)
+                            AdvancedProjectForm, RedirectForm)
 from projects.models import Project, EmailHook
 from projects import constants
+from redirects.models import Redirect
 
 
 class ProjectDashboard(ListView):
@@ -364,4 +365,41 @@ def project_translations_delete(request, project_slug, child_slug):
     subproj = get_object_or_404(Project.objects.public(), slug=child_slug)
     project.translations.remove(subproj)
     project_dashboard = reverse('projects_translations', args=[project.slug])
+    return HttpResponseRedirect(project_dashboard)
+
+
+@login_required
+def project_redirects(request, project_slug):
+    project = get_object_or_404(request.user.projects.live(),
+                                slug=project_slug)
+
+    form = RedirectForm(data=request.POST or None, project=project)
+
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        project_dashboard = reverse('projects_redirects', args=[project.slug])
+        return HttpResponseRedirect(project_dashboard)
+
+    redirects = project.redirects.all()
+
+    return render_to_response(
+        'projects/project_redirects.html',
+        {'form': form, 'project': project, 'redirects': redirects},
+        context_instance=RequestContext(request)
+    )
+
+
+@login_required
+def project_redirects_delete(request, project_slug):
+    if request.method != 'POST':
+        raise Http404
+    project = get_object_or_404(request.user.projects.live(),
+                                slug=project_slug)
+    redirect = get_object_or_404(Redirect.objects.all(),
+                             pk=request.POST.get('pk'))
+    if redirect.project == project:
+        redirect.delete()
+    else:
+        raise Http404
+    project_dashboard = reverse('projects_redirects', args=[project.slug])
     return HttpResponseRedirect(project_dashboard)

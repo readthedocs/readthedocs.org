@@ -22,6 +22,7 @@ from builds.models import Version
 from core.forms import FacetedSearchForm
 from projects.models import Project, ImportedFile, ProjectRelationship
 from projects.tasks import update_docs, remove_dir
+from redirects.models import Redirect
 
 import json
 import mimetypes
@@ -425,7 +426,7 @@ def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
 
     # Serve file
     log.info('Serving %s for %s' % (filename, proj))
-    if not settings.DEBUG:
+    if not settings.DEBUG and not getattr(settings, 'SERVE_MEDIA', False):
         fullpath = os.path.join(basepath, filename)
         mimetype, encoding = mimetypes.guess_type(fullpath)
         mimetype = mimetype or 'application/octet-stream'
@@ -470,6 +471,20 @@ def server_error_404(request, template_name='404.html'):
     """
     A simple 404 handler so we get media
     """
+    full_path = request.get_full_path()
+    if hasattr(request, 'slug'):
+        project_slug = request.slug
+    elif full_path.startswith('/docs/'):
+        project_slug = full_path.split('/')[2]
+
+    if project_slug:
+        project = get_object_or_404(Project, slug=project_slug)
+        for redirect in project.redirects.all():
+            from_frag = redirect.from_url.replace('$path', '')
+            if request.path.startswith(from_frag):
+                log.debug('Redirecting %s' % redirect)
+                to = redirect.to_url.replace('$path', full_path)
+                return HttpResponseRedirect(to)
     r = render_to_response(template_name,
                            context_instance=RequestContext(request))
     r.status_code = 404

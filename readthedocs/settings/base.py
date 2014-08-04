@@ -162,10 +162,11 @@ INSTALLED_APPS = [
 
 
     # our apps
-    'projects',
     'builds',
     'core',
     'doc_builder',
+    'projects',
+    'redirects',
     'rtd_tests',
     'restapi',
 
@@ -223,6 +224,8 @@ HAYSTACK_CONNECTIONS = {
 ES_HOSTS = ['127.0.0.1:9200']
 ES_DEFAULT_NUM_REPLICAS = 0
 ES_DEFAULT_NUM_SHARDS = 5
+
+ALLOWED_HOSTS = ['*']
 
 AUTH_PROFILE_MODULE = "core.UserProfile"
 SOUTH_TESTS_MIGRATE = False

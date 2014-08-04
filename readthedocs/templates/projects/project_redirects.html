@@ -1,0 +1,65 @@
+{% extends "projects/project_edit_base.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans "Edit Redirects" %}{% endblock %}
+
+{% block project-redirects-active %}active{% endblock %}
+{% block project_edit_content_header %}{{ project.name }} <small class="quiet">{% trans "Redirects" %}</small>{% endblock %}
+
+{% block project_edit_content %}
+  <p class="help_text">
+    {% trans "Add redirects for your project. This allows you to fix links to old pages that are 404ing." %}
+  </p>
+
+  <h3>{% trans "Existing Redirects" %}</h3>
+  <p>
+    <ul>
+    {% for redirect in redirects %}
+        <li>
+        {{ redirect }}
+        </a>
+        </li>
+    {% endfor %}
+    </ul>
+
+  {% if redirects|length >= 1 %}
+  <h3>{% trans "Remove Redirect" %}</h3>
+    <p>
+        <form method="post" action="{% url "projects_redirects_delete" project.slug %}">
+            {% csrf_token %}
+          <select id="id_pk" name="pk">
+          {% for redirect in redirects %}
+            <option value="{{ redirect.pk }}">{{ redirect }}</option>
+          {% endfor %}
+          </select>
+          <input type="submit" value="Remove">
+        </form>
+    </p>
+  {% endif %}
+
+  <h3>{% trans "Add Redirect" %}</h3>
+  <p>
+    {% trans "Add new redirects. These will only happen on <b>404 Page Not Found</b> requests." %}
+  </p>
+  <p>
+    {% trans "This is mainly used to support migration from old doc systems. If you used to serve your docs at <b>/docs/</b>, you will do:" %}
+  </p>
+  <pre>
+    From URL: /docs/$path
+    To URL: /en/latest/$path
+  </pre>
+  <p>
+    {% trans "If you used to serve your docs at <b>/</b>, you will do:" %}
+  </p>
+  <pre>
+    From URL: /$path
+    To URL: /en/latest/$path
+  </pre>
+  <form method="post" action=".">{% csrf_token %}
+    {{ form.as_p }}
+    <p>
+      <input style="display: inline;" type="submit" value="{% trans "Submit" %}">
+    </p>
+  </form>
+{% endblock %}

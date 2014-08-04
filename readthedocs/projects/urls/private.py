@@ -80,4 +80,12 @@ urlpatterns = patterns(
     url(r'^(?P<project_slug>[-\w]+)/translations/delete/(?P<child_slug>[-\w]+)/$',  # noqa
         'projects.views.private.project_translations_delete',
         name='projects_translations_delete'),
+
+    url(r'^(?P<project_slug>[-\w]+)/redirects/$',
+        'projects.views.private.project_redirects',
+        name='projects_redirects'),
+
+    url(r'^(?P<project_slug>[-\w]+)/redirects/delete/$',
+        'projects.views.private.project_redirects_delete',
+        name='projects_redirects_delete'),
 )
