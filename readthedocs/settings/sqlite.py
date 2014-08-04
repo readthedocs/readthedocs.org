@@ -51,8 +51,6 @@ CORS_ORIGIN_WHITELIST = (
     'test:8000',
 )
 
-SERVE_MEDIA = True
-
 try:
     from local_settings import *  # noqa
 except ImportError:
