@@ -7,6 +7,29 @@
 {% block project-redirects-active %}active{% endblock %}
 {% block project_edit_content_header %}{{ project.name }} <small class="quiet">{% trans "Redirects" %}</small>{% endblock %}
 
+{% block extra_scripts %}
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('#id_from_url').parent().hide()
+      $('#id_to_url').parent().hide()
+     $('#id_redirect_type').on('change', function() {
+        if (this.value == 'prefix') {
+            $('#id_from_url').parent().show()
+            $('#id_to_url').parent().hide()
+        }
+        if (this.value == 'sphinx_html' || this.value == 'sphinx_htmldir') {
+            $('#id_from_url').parent().hide()
+            $('#id_to_url').parent().hide()
+        }
+        if (this.value == 'advanced') {
+            $('#id_from_url').parent().show()
+            $('#id_to_url').parent().show()
+        }
+    }); 
+    });
+  </script>
+{% endblock %}
+
 {% block project_edit_content %}
   <p class="help_text">
     {% trans "Add redirects for your project. This allows you to fix links to old pages that are 404ing." %}
@@ -46,15 +69,8 @@
     {% trans "This is mainly used to support migration from old doc systems. If you used to serve your docs at <b>/docs/</b>, you will do:" %}
   </p>
   <pre>
-    From URL: /docs/$path
-    To URL: /en/latest/$path
-  </pre>
-  <p>
-    {% trans "If you used to serve your docs at <b>/</b>, you will do:" %}
-  </p>
-  <pre>
-    From URL: /$path
-    To URL: /en/latest/$path
+    Type: Prefix Redirect
+    From URL: /docs/
   </pre>
   <form method="post" action=".">{% csrf_token %}
     {{ form.as_p }}

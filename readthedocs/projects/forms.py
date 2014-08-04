@@ -316,7 +316,7 @@ class RedirectForm(forms.ModelForm):
 
     class Meta:
         model = Redirect
-        fields = ['from_url', 'to_url']
+        fields = ['redirect_type', 'from_url', 'to_url']
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)
@@ -325,6 +325,7 @@ class RedirectForm(forms.ModelForm):
     def save(self, *args, **kwargs):
         redirect = Redirect.objects.create(
             project=self.project,
+            redirect_type=self.cleaned_data['redirect_type'],
             from_url=self.cleaned_data['from_url'],
             to_url=self.cleaned_data['to_url'],
         )

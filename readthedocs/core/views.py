@@ -23,6 +23,7 @@ from core.forms import FacetedSearchForm
 from projects.models import Project, ImportedFile, ProjectRelationship
 from projects.tasks import update_docs, remove_dir
 from redirects.models import Redirect
+from redirects.utils import redirect_filename
 
 import json
 import mimetypes
@@ -480,11 +481,24 @@ def server_error_404(request, template_name='404.html'):
     if project_slug:
         project = get_object_or_404(Project, slug=project_slug)
         for redirect in project.redirects.all():
-            from_frag = redirect.from_url.replace('$path', '')
-            if request.path.startswith(from_frag):
-                log.debug('Redirecting %s' % redirect)
-                to = redirect.to_url.replace('$path', full_path)
-                return HttpResponseRedirect(to)
+            if redirect.redirect_type == 'prefix':
+                import ipdb; ipdb.set_trace()
+                if full_path.startswith(redirect.from_url):
+                    log.debug('Redirecting %s' % redirect)
+                    cut_path = re.sub('^%s' % redirect.from_url, '', full_path)
+                    to = redirect_filename(project=project, filename=cut_path)
+                    return HttpResponseRedirect(to)
+            if redirect.redirect_type == 'sphinx_html':
+                if full_path.endswith('/'):
+                    log.debug('Redirecting %s' % redirect)
+                    to = re.sub('/$', '.html', full_path)
+                    to = redirect_filename(project, cut_path)
+                    return HttpResponseRedirect(to)
+            if redirect.redirect_type == 'sphinx_htmldir':
+                if full_path.endswith('.html'):
+                    log.debug('Redirecting %s' % redirect)
+                    to = re.sub('.html$', '/', full_path)
+                    return HttpResponseRedirect(to)
     r = render_to_response(template_name,
                            context_instance=RequestContext(request))
     r.status_code = 404
