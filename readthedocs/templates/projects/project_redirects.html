@@ -35,6 +35,7 @@
     {% trans "Add redirects for your project. This allows you to fix links to old pages that are 404ing." %}
   </p>
 
+  {% if redirects|length >= 1 %}
   <h3>{% trans "Existing Redirects" %}</h3>
   <p>
     <ul>
@@ -45,6 +46,7 @@
         </li>
     {% endfor %}
     </ul>
+  {% endif %}
 
   {% if redirects|length >= 1 %}
   <h3>{% trans "Remove Redirect" %}</h3>
@@ -70,7 +72,8 @@
   </p>
   <pre>
     Type: Prefix Redirect
-    From URL: /docs/
+    From URL: 
+    Outcome: /docs/faq.html -> /$lang/$version/faq.html
   </pre>
   <form method="post" action=".">{% csrf_token %}
     {{ form.as_p }}
