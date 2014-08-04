@@ -477,6 +477,8 @@ def server_error_404(request, template_name='404.html'):
         project_slug = request.slug
     elif full_path.startswith('/docs/'):
         project_slug = full_path.split('/')[2]
+    else:
+        project_slug = None
 
     if project_slug:
         project = get_object_or_404(Project, slug=project_slug)
