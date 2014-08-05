@@ -6,7 +6,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponseRedirect, HttpResponseNotAllowed, Http404
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
 from django.views.generic import ListView
@@ -392,7 +392,7 @@ def project_redirects(request, project_slug):
 @login_required
 def project_redirects_delete(request, project_slug):
     if request.method != 'POST':
-        raise Http404
+        return HttpResponseNotAllowed('Only POST is allowed')
     project = get_object_or_404(request.user.projects.live(),
                                 slug=project_slug)
     redirect = get_object_or_404(Redirect.objects.all(),

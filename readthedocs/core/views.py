@@ -477,8 +477,9 @@ def server_error_404(request, template_name='404.html'):
     if hasattr(request, 'slug'):
         project_slug = request.slug
     elif full_path.startswith('/docs/'):
-        project_slug = full_path.split('/')[2]
-
+        split = full_path.split('/')
+        if len(split) > 2:
+            project_slug = split[2]
     if project_slug:
         try:
             project = Project.objects.get(slug=project_slug)
