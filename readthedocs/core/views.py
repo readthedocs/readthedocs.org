@@ -22,6 +22,8 @@ from builds.models import Version
 from core.forms import FacetedSearchForm
 from projects.models import Project, ImportedFile, ProjectRelationship
 from projects.tasks import update_docs, remove_dir
+from redirects.models import Redirect
+from redirects.utils import redirect_filename
 
 import json
 import mimetypes
@@ -31,10 +33,12 @@ import redis
 import re
 
 log = logging.getLogger(__name__)
-pc_log = logging.getLogger(__name__+'.post_commit')
+pc_log = logging.getLogger(__name__ + '.post_commit')
+
 
 class NoProjectException(Exception):
     pass
+
 
 def homepage(request):
     latest_builds = Build.objects.order_by('-date')[:100]
@@ -61,9 +65,11 @@ def queue_depth(request):
     r = redis.Redis(**settings.REDIS)
     return HttpResponse(r.llen('celery'))
 
+
 def donate(request):
     return render_to_response('donate.html',
-                           context_instance=RequestContext(request))
+                              context_instance=RequestContext(request))
+
 
 def queue_info(request):
     i = inspect()
@@ -92,8 +98,9 @@ def queue_info(request):
             resp += reserved_resp
         except Exception, e:
             resp += str(e)
-        
+
     return HttpResponse(resp)
+
 
 def live_builds(request):
     builds = Build.objects.filter(state='building')[:5]
@@ -115,12 +122,14 @@ def wipe_version(request, project_slug, version_slug):
                                 slug=version_slug)
     if request.user not in version.project.users.all():
         raise Http404("You must own this project to wipe it.")
-    del_dirs = [version.project.checkout_path(version.slug), version.project.venv_path(version.slug)]
+    del_dirs = [version.project.checkout_path(
+        version.slug), version.project.venv_path(version.slug)]
     for del_dir in del_dirs:
         remove_dir.delay(del_dir)
     return render_to_response('wipe_version.html',
                               {'del_dir': del_dir},
                               context_instance=RequestContext(request))
+
 
 def _build_version(project, slug, already_built=()):
     default = project.default_branch or (project.vcs_repo().fallback_branch)
@@ -129,28 +138,31 @@ def _build_version(project, slug, already_built=()):
         # these will build at "latest", and thus won't be
         # active
         latest_version = project.versions.get(slug='latest')
-        update_docs.delay(pk=project.pk, version_pk=latest_version.pk, force=True)
+        update_docs.delay(
+            pk=project.pk, version_pk=latest_version.pk, force=True)
         pc_log.info(("(Version build) Building %s:%s"
-                  % (project.slug, latest_version.slug)))
+                     % (project.slug, latest_version.slug)))
         if project.versions.exclude(active=False).filter(slug=slug).exists():
             # Handle the case where we want to build the custom branch too
             slug_version = project.versions.get(slug=slug)
-            update_docs.delay(pk=project.pk, version_pk=slug_version.pk, force=True)
+            update_docs.delay(
+                pk=project.pk, version_pk=slug_version.pk, force=True)
             pc_log.info(("(Version build) Building %s:%s"
-                      % (project.slug, slug_version.slug)))
+                         % (project.slug, slug_version.slug)))
         return "latest"
     elif project.versions.exclude(active=True).filter(slug=slug).exists():
-        pc_log.info(("(Version build) Not Building %s"% slug))
+        pc_log.info(("(Version build) Not Building %s" % slug))
         return None
     elif slug not in already_built:
         version = project.versions.get(slug=slug)
         update_docs.delay(pk=project.pk, version_pk=version.pk, force=True)
         pc_log.info(("(Version build) Building %s:%s"
-                  % (project.slug, version.slug)))
+                     % (project.slug, version.slug)))
         return slug
     else:
-        pc_log.info(("(Version build) Not Building %s"% slug))
+        pc_log.info(("(Version build) Not Building %s" % slug))
         return None
+
 
 def _build_branches(project, branch_list):
     for branch in branch_list:
@@ -159,14 +171,14 @@ def _build_branches(project, branch_list):
         not_building = set()
         for version in versions:
             pc_log.info(("(Branch Build) Processing %s:%s"
-                      % (project.slug, version.slug)))
-            ret =  _build_version(project, version.slug, already_built=to_build)
+                         % (project.slug, version.slug)))
+            ret = _build_version(project, version.slug, already_built=to_build)
             if ret:
                 to_build.add(ret)
             else:
                 not_building.add(version.slug)
     return (to_build, not_building)
-    
+
 
 def _build_url(url, branches):
     try:
@@ -178,11 +190,13 @@ def _build_url(url, branches):
         for project in projects:
             (to_build, not_building) = _build_branches(project, branches)
         if to_build:
-            msg = '(URL Build) Build Started: %s [%s]' % (url, ' '.join(to_build))
+            msg = '(URL Build) Build Started: %s [%s]' % (
+                url, ' '.join(to_build))
             pc_log.info(msg)
             return HttpResponse(msg)
         else:
-            msg = '(URL Build) Not Building: %s [%s]' % (url, ' '.join(not_building))
+            msg = '(URL Build) Not Building: %s [%s]' % (
+                url, ' '.join(not_building))
             pc_log.info(msg)
             return HttpResponse(msg)
     except Exception, e:
@@ -243,13 +257,16 @@ def bitbucket_build(request):
         obj = json.loads(payload)
         rep = obj['repository']
         branches = [rec.get('branch', '') for rec in obj['commits']]
-        ghetto_url = "%s%s" % ("bitbucket.org",  rep['absolute_url'].rstrip('/'))
-        pc_log.info("(Incoming Bitbucket Build) %s [%s]" % (ghetto_url, ' '.join(branches)))
+        ghetto_url = "%s%s" % (
+            "bitbucket.org",  rep['absolute_url'].rstrip('/'))
+        pc_log.info("(Incoming Bitbucket Build) %s [%s]" % (
+            ghetto_url, ' '.join(branches)))
         pc_log.info("(Incoming Bitbucket Build) JSON: \n\n%s\n\n" % obj)
         try:
             return _build_url(ghetto_url, branches)
         except NoProjectException:
-            pc_log.error("(Incoming Bitbucket Build) Repo not found:  %s" % ghetto_url)
+            pc_log.error(
+                "(Incoming Bitbucket Build) Repo not found:  %s" % ghetto_url)
             return HttpResponseNotFound('Repo not found: %s' % ghetto_url)
     else:
         return HttpResponse("You must POST to this resource.")
@@ -265,14 +282,17 @@ def generic_build(request, pk=None):
     if request.method == 'POST':
         slug = request.POST.get('version_slug', None)
         if slug:
-            pc_log.info("(Incoming Generic Build) %s [%s]" % (project.slug, slug))
+            pc_log.info(
+                "(Incoming Generic Build) %s [%s]" % (project.slug, slug))
             _build_version(project, slug)
         else:
-            pc_log.info("(Incoming Generic Build) %s [%s]" % (project.slug, 'latest'))
+            pc_log.info(
+                "(Incoming Generic Build) %s [%s]" % (project.slug, 'latest'))
             update_docs.delay(pk=pk, force=True)
     else:
         return HttpResponse("You must POST to this resource.")
     return redirect('builds_project_list', project.slug)
+
 
 def subproject_list(request):
     project_slug = request.slug
@@ -283,6 +303,7 @@ def subproject_list(request):
         {'project_list': subprojects},
         context_instance=RequestContext(request)
     )
+
 
 def subproject_serve_docs(request, project_slug, lang_slug=None,
                           version_slug=None, filename=''):
@@ -308,6 +329,7 @@ def subproject_serve_docs(request, project_slug, lang_slug=None,
         log.info('Subproject lookup failed: %s:%s' % (project_slug,
                                                       parent_slug))
         raise Http404("Subproject does not exist")
+
 
 def default_docs_kwargs(request, project_slug=None):
     """
@@ -356,12 +378,14 @@ def default_docs_kwargs(request, project_slug=None):
         del kwargs['project_slug']
     return kwargs
 
+
 def redirect_lang_slug(request, lang_slug, project_slug=None):
     """Redirect /en/ to /en/latest/."""
     kwargs = default_docs_kwargs(request, project_slug)
     kwargs['lang_slug'] = lang_slug
     url = reverse(serve_docs, kwargs=kwargs)
     return HttpResponseRedirect(url)
+
 
 def redirect_version_slug(request, version_slug, project_slug=None):
     """Redirect /latest/ to /en/latest/."""
@@ -370,11 +394,13 @@ def redirect_version_slug(request, version_slug, project_slug=None):
     url = reverse(serve_docs, kwargs=kwargs)
     return HttpResponseRedirect(url)
 
+
 def redirect_project_slug(request, project_slug=None):
     """Redirect / to /en/latest/."""
     kwargs = default_docs_kwargs(request, project_slug)
     url = reverse(serve_docs, kwargs=kwargs)
     return HttpResponseRedirect(url)
+
 
 def redirect_page_with_filename(request, filename, project_slug=None):
     """Redirect /page/file.html to /en/latest/file.html."""
@@ -383,15 +409,17 @@ def redirect_page_with_filename(request, filename, project_slug=None):
     url = reverse(serve_docs, kwargs=kwargs)
     return HttpResponseRedirect(url)
 
+
 def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
     if not project_slug:
         project_slug = request.slug
     try:
         proj = Project.objects.get(slug=project_slug)
-        ver  = Version.objects.get(project__slug=project_slug, slug=version_slug)
+        ver = Version.objects.get(
+            project__slug=project_slug, slug=version_slug)
     except (Project.DoesNotExist, Version.DoesNotExist):
         proj = None
-        ver  = None
+        ver = None
     if not proj or not ver:
         return server_helpful_404(request, project_slug, lang_slug, version_slug, filename)
 
@@ -470,6 +498,41 @@ def server_error_404(request, template_name='404.html'):
     """
     A simple 404 handler so we get media
     """
+    full_path = request.get_full_path()
+    project = project_slug = None
+    
+    if hasattr(request, 'slug'):
+        project_slug = request.slug
+    elif full_path.startswith('/docs/'):
+        split = full_path.split('/')
+        if len(split) > 2:
+            project_slug = split[2]
+
+    if project_slug:
+        try:
+            project = Project.objects.get(slug=project_slug)
+        except Project.DoesNotExist:
+            project = None
+
+    if project:
+        for redirect in project.redirects.all():
+            if redirect.redirect_type == 'prefix':
+                if full_path.startswith(redirect.from_url):
+                    log.debug('Redirecting %s' % redirect)
+                    cut_path = re.sub('^%s' % redirect.from_url, '', full_path)
+                    to = redirect_filename(project=project, filename=cut_path)
+                    return HttpResponseRedirect(to)
+            if redirect.redirect_type == 'sphinx_html':
+                if full_path.endswith('/'):
+                    log.debug('Redirecting %s' % redirect)
+                    to = re.sub('/$', '.html', full_path)
+                    return HttpResponseRedirect(to)
+            if redirect.redirect_type == 'sphinx_htmldir':
+                if full_path.endswith('.html'):
+                    log.debug('Redirecting %s' % redirect)
+                    to = re.sub('.html$', '/', full_path)
+                    return HttpResponseRedirect(to)
+
     r = render_to_response(template_name,
                            context_instance=RequestContext(request))
     r.status_code = 404
@@ -477,8 +540,10 @@ def server_error_404(request, template_name='404.html'):
 
 
 def server_helpful_404(request, project_slug=None, lang_slug=None, version_slug=None, filename=None, template_name='404.html'):
-    pagename = re.sub(r'/index$', r'', re.sub(r'\.html$', r'', re.sub(r'/$', r'', filename)))
-    suggestion = get_suggestion(project_slug, lang_slug, version_slug, pagename, request.user)
+    pagename = re.sub(
+        r'/index$', r'', re.sub(r'\.html$', r'', re.sub(r'/$', r'', filename)))
+    suggestion = get_suggestion(
+        project_slug, lang_slug, version_slug, pagename, request.user)
     r = render_to_response(template_name,
                            {'suggestion': suggestion},
                            context_instance=RequestContext(request))
@@ -506,57 +571,65 @@ def get_suggestion(project_slug, lang_slug, version_slug, pagename, user):
             if not lang_slug:
                 lang_slug = proj.language
             try:
-                ver = Version.objects.get(project__slug=project_slug, slug=version_slug)
+                ver = Version.objects.get(
+                    project__slug=project_slug, slug=version_slug)
             except Version.DoesNotExist:
                 ver = None
 
-            if ver: # if requested version is available on main project
-                if  lang_slug != proj.language:
+            if ver:  # if requested version is available on main project
+                if lang_slug != proj.language:
                     try:
-                        translations = proj.translations.filter(language=lang_slug)
+                        translations = proj.translations.filter(
+                            language=lang_slug)
                         if translations:
-                            ver = Version.objects.get(project__slug=translations[0].slug, slug=version_slug)
+                            ver = Version.objects.get(
+                                project__slug=translations[0].slug, slug=version_slug)
                         else:
                             ver = None
                     except Version.DoesNotExist:
                         ver = None
-                if ver: #if requested version is available on translation project too
+                # if requested version is available on translation project too
+                if ver:
                     # Case #8: Show a link to top-level page of the version
                     suggestion['type'] = 'top'
                     suggestion['message'] = "What are you looking for?"
                     suggestion['href'] = proj.get_docs_url(ver.slug, lang_slug)
-                else: # requested version is available but not in requested language
+                # requested version is available but not in requested language
+                else:
                     # Case #7: Show available translations of the version
                     suggestion['type'] = 'list'
-                    suggestion['message'] = "Requested page seems not to be translated in requested language. But it's available in these languages."
+                    suggestion[
+                        'message'] = "Requested page seems not to be translated in requested language. But it's available in these languages."
                     suggestion['list'] = []
                     suggestion['list'].append({
-                        'label':proj.language,
+                        'label': proj.language,
                         'project': proj,
                         'version_slug': version_slug,
                         'pagename': pagename
-                        })
+                    })
                     for t in proj.translations.all():
                         try:
-                            Version.objects.get(project__slug=t.slug, slug=version_slug)
+                            Version.objects.get(
+                                project__slug=t.slug, slug=version_slug)
                             suggestion['list'].append({
-                                'label':t.language,
+                                'label': t.language,
                                 'project': t,
                                 'version_slug': version_slug,
                                 'pagename': pagename
-                                })
+                            })
                         except Version.DoesNotExist:
                             pass
-            else: # requested version does not exist on main project
+            else:  # requested version does not exist on main project
                 if lang_slug == proj.language:
                     trans = proj
                 else:
                     translations = proj.translations.filter(language=lang_slug)
                     trans = translations[0] if translations else None
-                if trans: # requested language is available
+                if trans:  # requested language is available
                     # Case #6: Show available versions of the translation
                     suggestion['type'] = 'list'
-                    suggestion['message'] = "Requested version seems not to have been built yet. But these versions are available."
+                    suggestion[
+                        'message'] = "Requested version seems not to have been built yet. But these versions are available."
                     suggestion['list'] = []
                     for v in Version.objects.public(user, trans, True):
                         suggestion['list'].append({
@@ -564,19 +637,24 @@ def get_suggestion(project_slug, lang_slug, version_slug, pagename, user):
                             'project': trans,
                             'version_slug': v.slug,
                             'pagename': pagename
-                            })
-                else: # requested project exists but requested version and language are not available.
-                    # Case #5: Show a link to top-level page of default version of main project
+                        })
+                # requested project exists but requested version and language
+                # are not available.
+                else:
+                    # Case #5: Show a link to top-level page of default version
+                    # of main project
                     suggestion['type'] = 'top'
                     suggestion['message'] = 'What are you looking for??'
                     suggestion['href'] = proj.get_docs_url()
         except Project.DoesNotExist:
             # Case #1-4: Show error mssage
             suggestion['type'] = 'none'
-            suggestion['message'] = "We're sorry, we don't know what you're looking for"
+            suggestion[
+                'message'] = "We're sorry, we don't know what you're looking for"
     else:
         suggestion['type'] = 'none'
-        suggestion['message'] = "We're sorry, we don't know what you're looking for"
+        suggestion[
+            'message'] = "We're sorry, we don't know what you're looking for"
 
     return suggestion
 

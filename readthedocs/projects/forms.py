@@ -6,6 +6,7 @@ from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
 
+from redirects.models import Redirect
 from projects import constants
 from projects.models import Project, EmailHook
 from projects.tasks import update_docs
@@ -31,15 +32,16 @@ class ImportProjectForm(ProjectForm):
                            help_text=_(u'URL for your code (hg or git). Ex. '
                                        u'http://github.com/ericholscher/django'
                                        u'-kong.git'))
+
     class Meta:
         model = Project
         fields = (
             # Important
-            'name', 'repo', 'repo_type', 
+            'name', 'repo', 'repo_type',
             # Not as important
-            'description', 
-            'language', 
-            'documentation_type', 
+            'description',
+            'language',
+            'documentation_type',
             'project_url',
             'canonical_url',
             'tags',
@@ -76,20 +78,20 @@ class AdvancedProjectForm(ProjectForm):
         model = Project
         fields = (
             # Standard build edits
-            'use_virtualenv', 
+            'use_virtualenv',
             'requirements_file',
-            'single_version', 
+            'single_version',
             'conf_py_file',
-            'default_branch', 
+            'default_branch',
             'default_version',
             # Privacy
-            'privacy_level', 
+            'privacy_level',
             # 'version_privacy_level',
             # Python specific
             'use_system_packages',
             'python_interpreter',
             # Fringe
-            'analytics_code', 
+            'analytics_code',
             # Version Support
             'num_major', 'num_minor', 'num_point',
         )
@@ -111,7 +113,9 @@ class AdvancedProjectForm(ProjectForm):
 
         return project
 
+
 class DualCheckboxWidget(forms.CheckboxInput):
+
     def __init__(self, version, attrs=None, check_test=bool):
         super(DualCheckboxWidget, self).__init__(attrs, check_test)
         self.version = version
@@ -132,6 +136,7 @@ class DualCheckboxWidget(forms.CheckboxInput):
 
 
 class BaseVersionsForm(forms.Form):
+
     def save(self):
         versions = self.project.versions.all()
         for version in versions:
@@ -203,7 +208,7 @@ class BaseUploadHTMLForm(forms.Form):
         file = self.request.FILES['content']
         version = self.project.versions.get(slug=version_slug)
 
-        #Validation
+        # Validation
         if version.active and not self.cleaned_data.get('overwrite', False):
             raise forms.ValidationError(_("That version is already active!"))
         if not file.name.endswith('zip'):
@@ -305,3 +310,23 @@ class TranslationForm(forms.Form):
     def save(self):
         project = self.parent.translations.add(self.subproject)
         return project
+
+
+class RedirectForm(forms.ModelForm):
+
+    class Meta:
+        model = Redirect
+        fields = ['redirect_type', 'from_url', 'to_url']
+
+    def __init__(self, *args, **kwargs):
+        self.project = kwargs.pop('project', None)
+        super(RedirectForm, self).__init__(*args, **kwargs)
+
+    def save(self, *args, **kwargs):
+        redirect = Redirect.objects.create(
+            project=self.project,
+            redirect_type=self.cleaned_data['redirect_type'],
+            from_url=self.cleaned_data['from_url'],
+            to_url=self.cleaned_data['to_url'],
+        )
+        return redirect
