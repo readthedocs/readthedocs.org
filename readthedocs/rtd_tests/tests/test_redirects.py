@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.test.utils import override_settings
 
 from builds.models import Version
 from projects.models import Project
@@ -184,7 +185,6 @@ class RedirectAppTests(TestCase):
     fixtures = ["eric", "test_data"]
 
     def setUp(self):
-        logging.disable(logging.DEBUG)
         self.client.login(username='eric', password='test')
         self.client.post(
             '/dashboard/import/',
@@ -203,12 +203,29 @@ class RedirectAppTests(TestCase):
                                verbose_name='latest', slug='latest',
                                active=True)
 
+    @override_settings(USE_SUBDOMAIN=True)
     def test_redirect_root(self):
-        """
         Redirect.objects.create(
             project=self.pip, redirect_type='prefix', from_url='/woot/')
-        r = self.client.get('/', HTTP_HOST='pip.readthedocs.org')
+        r = self.client.get('/woot/faq.html', HTTP_HOST='pip.readthedocs.org')
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
             r['Location'], 'http://pip.readthedocs.org/en/latest/faq.html')
-        """
+
+    @override_settings(USE_SUBDOMAIN=True, PYTHON_MEDIA=True)
+    def test_redirect_html(self):
+        Redirect.objects.create(
+            project=self.pip, redirect_type='sphinx_html')
+        r = self.client.get('/en/latest/faq/', HTTP_HOST='pip.readthedocs.org')
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'], 'http://pip.readthedocs.org/en/latest/faq.html')
+
+    @override_settings(USE_SUBDOMAIN=True, PYTHON_MEDIA=True)
+    def test_redirect_htmldir(self):
+        Redirect.objects.create(
+            project=self.pip, redirect_type='sphinx_htmldir')
+        r = self.client.get('/en/latest/faq.html', HTTP_HOST='pip.readthedocs.org')
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'], 'http://pip.readthedocs.org/en/latest/faq/')
