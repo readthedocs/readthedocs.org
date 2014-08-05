@@ -37,13 +37,14 @@ class Backend(BaseVCS):
                 ("Failed to get code from '%s' (svn revert): %s"
                  % (self.repo_url, retcode))
             )
-        retcode = self.run('svn', 'up', '--accept', 'theirs-full',
-                           '--trust-server-cert', '--non-interactive')[0]
+        retcode, out, err = self.run('svn', 'up', '--accept', 'theirs-full',
+                           '--trust-server-cert', '--non-interactive')
         if retcode != 0:
             raise ProjectImportError(
                 "Failed to get code from '%s' (svn up): %s" % (self.repo_url,
                                                                retcode)
             )
+        return retcode, out, err
 
     def co(self, identifier=None):
         self.make_clean_working_dir()
@@ -51,12 +52,13 @@ class Backend(BaseVCS):
             url = self.base_url + identifier
         else:
             url = self.repo_url
-        retcode = self.run('svn', 'checkout', '--quiet', url, '.')[0]
+        retcode, out, err = self.run('svn', 'checkout', '--quiet', url, '.')
         if retcode != 0:
             raise ProjectImportError(
                 "Failed to get code from '%s' (svn checkout): %s" % (url,
                                                                      retcode)
             )
+        return retcode, out, err
 
     @property
     def tags(self):
@@ -90,6 +92,8 @@ class Backend(BaseVCS):
         super(Backend, self).checkout()
         retcode = self.run('svn', 'info')[0]
         if retcode == 0:
-            self.up()
+            result = self.up()
         else:
-            self.co(identifier)
+            result = self.co(identifier)
+        # result is (return_code, stdout, stderr)
+        return result
