@@ -473,17 +473,18 @@ def server_error_404(request, template_name='404.html'):
     A simple 404 handler so we get media
     """
     full_path = request.get_full_path()
+    project_slug = None
     if hasattr(request, 'slug'):
         project_slug = request.slug
     elif full_path.startswith('/docs/'):
         project_slug = full_path.split('/')[2]
 
-    try:
-        project = Project.objects.get(slug=project_slug)
-    except Project.DoesNotExist:
-        project = None
+    if project_slug:
+        try:
+            project = Project.objects.get(slug=project_slug)
+        except Project.DoesNotExist:
+            project = None
 
-    if project:
         for redirect in project.redirects.all():
             if redirect.redirect_type == 'prefix':
                 if full_path.startswith(redirect.from_url):
