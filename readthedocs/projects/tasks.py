@@ -226,7 +226,7 @@ def ensure_version(api, project, version_pk):
             version_data['identifier'] = branch
             to_save = True
         if to_save:
-            version_data['project'] = ("/api/v1/version/%s/"
+            version_data['project'] = ("/api/v1/project/%s/"
                                        % version_data['project'].pk)
             api.version(version.pk).put(version_data)
 
