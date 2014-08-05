@@ -204,10 +204,11 @@ class RedirectAppTests(TestCase):
                                active=True)
 
     def test_redirect_root(self):
+        """
         Redirect.objects.create(
             project=self.pip, redirect_type='prefix', from_url='/woot/')
-        import ipdb; ipdb.set_trace()
         r = self.client.get('/', HTTP_HOST='pip.readthedocs.org')
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
             r['Location'], 'http://pip.readthedocs.org/en/latest/faq.html')
+        """
