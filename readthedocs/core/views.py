@@ -493,10 +493,8 @@ def server_error(request, template_name='500.html'):
     r.status_code = 500
     return r
 
-def _try_redirect(request):
-    full_path = request.get_full_path()
+def _try_redirect(request, full_path=None):
     project = project_slug = None
-    
     if hasattr(request, 'slug'):
         project_slug = request.slug
     elif full_path.startswith('/docs/'):
@@ -536,7 +534,7 @@ def server_error_404(request, template_name='404.html'):
     """
     A simple 404 handler so we get media
     """
-    response = _try_redirect(request)
+    response = _try_redirect(request, full_path=request.get_full_path())
     if response:
         return response
     r = render_to_response(template_name,
@@ -546,7 +544,7 @@ def server_error_404(request, template_name='404.html'):
 
 
 def server_helpful_404(request, project_slug=None, lang_slug=None, version_slug=None, filename=None, template_name='404.html'):
-    response = _try_redirect(request)
+    response = _try_redirect(request, full_path=filename)
     if response:
         return response
     pagename = re.sub(
