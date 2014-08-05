@@ -493,11 +493,7 @@ def server_error(request, template_name='500.html'):
     r.status_code = 500
     return r
 
-
-def server_error_404(request, template_name='404.html'):
-    """
-    A simple 404 handler so we get media
-    """
+def _try_redirect(request):
     full_path = request.get_full_path()
     project = project_slug = None
     
@@ -507,12 +503,14 @@ def server_error_404(request, template_name='404.html'):
         split = full_path.split('/')
         if len(split) > 2:
             project_slug = split[2]
+    else:
+        return None
 
     if project_slug:
         try:
             project = Project.objects.get(slug=project_slug)
         except Project.DoesNotExist:
-            project = None
+            return None
 
     if project:
         for redirect in project.redirects.all():
@@ -532,7 +530,15 @@ def server_error_404(request, template_name='404.html'):
                     log.debug('Redirecting %s' % redirect)
                     to = re.sub('.html$', '/', full_path)
                     return HttpResponseRedirect(to)
+    return None
 
+def server_error_404(request, template_name='404.html'):
+    """
+    A simple 404 handler so we get media
+    """
+    response = _try_redirect(request)
+    if response:
+        return response
     r = render_to_response(template_name,
                            context_instance=RequestContext(request))
     r.status_code = 404
@@ -540,6 +546,9 @@ def server_error_404(request, template_name='404.html'):
 
 
 def server_helpful_404(request, project_slug=None, lang_slug=None, version_slug=None, filename=None, template_name='404.html'):
+    response = _try_redirect(request)
+    if response:
+        return response
     pagename = re.sub(
         r'/index$', r'', re.sub(r'\.html$', r'', re.sub(r'/$', r'', filename)))
     suggestion = get_suggestion(
