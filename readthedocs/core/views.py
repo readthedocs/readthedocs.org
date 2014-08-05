@@ -497,7 +497,6 @@ def server_error_404(request, template_name='404.html'):
                 if full_path.endswith('/'):
                     log.debug('Redirecting %s' % redirect)
                     to = re.sub('/$', '.html', full_path)
-                    to = redirect_filename(project, cut_path)
                     return HttpResponseRedirect(to)
             if redirect.redirect_type == 'sphinx_htmldir':
                 if full_path.endswith('.html'):
