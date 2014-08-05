@@ -499,7 +499,8 @@ def server_error_404(request, template_name='404.html'):
     A simple 404 handler so we get media
     """
     full_path = request.get_full_path()
-    project_slug = None
+    project = project_slug = None
+    
     if hasattr(request, 'slug'):
         project_slug = request.slug
     elif full_path.startswith('/docs/'):
