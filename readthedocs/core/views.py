@@ -453,7 +453,7 @@ def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
 
     # Serve file
     log.info('Serving %s for %s' % (filename, proj))
-    if not settings.DEBUG:
+    if not settings.DEBUG and not getattr(settings, 'PYTHON_MEDIA', False):
         fullpath = os.path.join(basepath, filename)
         mimetype, encoding = mimetypes.guess_type(fullpath)
         mimetype = mimetype or 'application/octet-stream'
