@@ -63,12 +63,12 @@ urlpatterns = patterns(
         name='docs_detail'),
 
     # Handle fallbacks
-    url(r'^user_builds/(?P<project_slug>[-\w]+)/rtd-builds/(?P<version_slug>[-._\w]+?)/(?P<filename>.*)$',
-        'core.views.server_helpful_404',
-        name='user_buils_fallback'),
-    url(r'^user_builds/(?P<project_slug>[-\w]+)/translations/(?P<lang_slug>%s)/(?P<version_slug>[-._\w]+?)/(?P<filename>.*)$' % LANGUAGES_REGEX,
-        'core.views.server_helpful_404',
-        name='user_builds_fallback_translations'),
+    # url(r'^user_builds/(?P<project_slug>[-\w]+)/rtd-builds/(?P<version_slug>[-._\w]+?)/(?P<filename>.*)$',
+    #     'core.views.server_helpful_404',
+    #     name='user_buils_fallback'),
+    # url(r'^user_builds/(?P<project_slug>[-\w]+)/translations/(?P<lang_slug>%s)/(?P<version_slug>[-._\w]+?)/(?P<filename>.*)$' % LANGUAGES_REGEX,
+    #     'core.views.server_helpful_404',
+    #     name='user_builds_fallback_translations'),
 
     url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r'^projects/', include('projects.urls.public')),
