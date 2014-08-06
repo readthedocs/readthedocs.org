@@ -26,7 +26,7 @@
                 {# consistent between pages. #}
                 <p class="build-success">&nbsp;</p>
             {% endif %}
-          {% else %}
+          {% elif not request.GET.docs_not_built %}
             <p class="build-missing">{% trans "There are no builds for this project" %}.{% if request.user in project.users.all %} <a href="{% url "projects_edit" project.slug %}">{% trans "Is the repo correct?" %}</a>{% endif %}</p>
           {% endif %}
 
