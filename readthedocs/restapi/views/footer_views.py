@@ -26,8 +26,19 @@ def footer_html(request):
     version = project.versions.get(slug=version_slug)
     main_project = project.main_language_project or project
 
+    if page_slug and page_slug != "index":
+        if main_project.documentation_type == "sphinx_htmldir":
+            path =  page_slug + "/"
+        elif main_project.documentation_type == "sphinx_singlehtml":
+            path = "index.html#document-" + page_slug
+        else:
+            path =  page_slug + ".html"
+    else:
+        path = ""
+
     context = Context({
         'project': project,
+        'path': path,
         'downloads': version.get_downloads(pretty=True),
         'current_version': version.slug,
         'versions': project.ordered_active_versions(),
