@@ -501,7 +501,7 @@ def finish_build(version, build, results):
             log.warning(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Failed HTML Build"))
 
 
-
+@task
 def update_static_metadata(project_pk):
     """Update static metadata JSON file
 
@@ -519,6 +519,11 @@ def update_static_metadata(project_pk):
     project_base = apiv2.project(project_pk)
     project_data = project_base.get()
     project = make_api_project(project_data)
+    log.info(LOG_TEMPLATE.format(
+        project=project.slug,
+        version='',
+        msg='Updating static metadata',
+    ))
     translations = project_base.translations.get()['translations']
     languages = set([
         translation['language']
