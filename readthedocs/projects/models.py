@@ -296,7 +296,7 @@ class Project(models.Model):
         except Exception, e:
             log.error('failed to symlink project', exc_info=True)
         try:
-            update_static_metadata.delay(project_pk=self.pk)
+            update_static_metadata(project_pk=self.pk)
         except Exception:
             log.error('failed to update static metadata', exc_info=True)
         return obj
