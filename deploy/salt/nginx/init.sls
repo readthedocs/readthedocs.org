@@ -10,7 +10,7 @@ nginx:
 
 /etc/nginx/nginx.conf:
   file.managed:
-    - source: salt://nginx/nginx.conf
+    - source: salt://nginx/conf/nginx.all.conf
     - mode: 0640
 
 /etc/nginx/sites-enabled/default:

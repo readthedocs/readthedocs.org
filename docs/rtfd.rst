@@ -65,11 +65,13 @@ Domain
 
 Load Balancer (nginx)
 ~~~~~~~~~~~~~~~~~~~~~
-    * Asgard
+    * Valhalla
 
 Important Files
 ```````````````
-    * ``/etc/nginx/sites-enabled/lb``
+    * ``/etc/nginx/nginx.conf`` - The main nginx configuration file.
+    * ``/etc/nginx/sites-enabled/lb`` - This is the main configuration file for the load balancer.
+    * ``/etc/fstab`` - We have a custom storage volume on the machine for logs, so we can use a smaller instance.
 
 Important Services
 ``````````````````
@@ -78,6 +80,8 @@ Important Services
 Restart
 ```````
 
+``/etc/init.d/nginx reload``
+or 
 ``/etc/init.d/nginx restart``
 
 Web
