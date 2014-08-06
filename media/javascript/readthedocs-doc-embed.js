@@ -110,13 +110,11 @@ $(document).ready(function () {
 
     /// Add Grok the Docs Client
 
-    /*
     $.ajax({
         url: "https://api.grokthedocs.com/static/javascript/bundle-client.js",
         crossDomain: true,
         dataType: "script",
     });
-    */
 
 
 

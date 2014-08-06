@@ -39,7 +39,6 @@ def update_static_metadata(project_pk):
     This is here to avoid circular imports in models.py
     """
     from projects import tasks
-    log.info("Updating static metadata")
     tasks.update_static_metadata.delay(project_pk)
 
 def find_file(file):
