@@ -131,6 +131,15 @@ class BaseVCS(BaseCLI):
         """
         raise NotImplementedError
 
+    
+    @property
+    def commit(self):
+        """
+        Returns a string representing the current commit.
+        """
+        raise NotImplementedError
+
+
     def checkout(self, identifier=None):
         """
         Set the state to the given identifier.

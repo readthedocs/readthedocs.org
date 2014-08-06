@@ -70,7 +70,8 @@ def update_docs(pk, version_pk=None, record=True, docker=False,
     try:
         record_build(api=api, build=build, record=record, results=results, state='cloning')
         vcs_results = setup_vcs(version, build, api)
-        results.update(vcs_results)
+        if vcs_results:
+            results.update(vcs_results)
 
         if docker:
             record_build(api=api, build=build, record=record, results=results, state='building')
@@ -242,6 +243,9 @@ def setup_vcs(version, build, api):
     log.info(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg='Updating docs from VCS'))
     try:
         update_output = update_imported_docs(version.pk, api)
+        commit = version.project.vcs_repo(version.slug).commit
+        if commit:
+            build['commit'] = commit
     except ProjectImportError, err:
         log.error(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg='Failed to import project; skipping build'), exc_info=True)
         build['state'] = 'finished'

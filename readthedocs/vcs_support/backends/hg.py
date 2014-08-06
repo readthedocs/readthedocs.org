@@ -93,6 +93,11 @@ class Backend(BaseVCS):
             vcs_tags.append(VCSVersion(self, commit_hash, name))
         return vcs_tags
 
+    @property
+    def commit(self):
+        retcode, stdout = self.run('hg', 'id', '-i')[:2]
+        return stdout
+
     def checkout(self, identifier=None):
         super(Backend, self).checkout()
         if not identifier:

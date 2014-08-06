@@ -76,6 +76,11 @@ class Backend(BaseVCS):
                 vcs_tags.append(VCSVersion(self, commit, name))
         return vcs_tags
 
+    @property
+    def commit(self):
+        retcode, stdout = self.run('bzr', 'revno')[:2]
+        return stdout
+
     def checkout(self, identifier=None):
         super(Backend, self).checkout()
         self.update()

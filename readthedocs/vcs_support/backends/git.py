@@ -128,6 +128,11 @@ class Backend(BaseVCS):
                     clean_branches.append(VCSVersion(self, branch, slug))
         return clean_branches
 
+    @property
+    def commit(self):
+        retcode, stdout, err = self.run('git', 'rev-parse', 'HEAD')
+        return stdout
+
     def checkout(self, identifier=None):
         self.check_working_dir()
 

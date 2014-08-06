@@ -88,6 +88,11 @@ class Backend(BaseVCS):
             vcs_tags.append(VCSVersion(self, '/tags/%s/' % name, name))
         return vcs_tags
 
+    @property
+    def commit(self):
+        retcode, stdout = self.run('svnversion')[:2]
+        return stdout
+
     def checkout(self, identifier=None):
         super(Backend, self).checkout()
         retcode = self.run('svn', 'info')[0]

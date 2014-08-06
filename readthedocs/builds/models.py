@@ -307,6 +307,7 @@ class Build(models.Model):
     error = models.TextField(_('Error'), default='', blank=True)
     exit_code = models.IntegerField(_('Exit code'), max_length=3, null=True,
                                     blank=True)
+    commit = models.CharField(_('Commit'), max_length=255, null=True, blank=True) 
 
     class Meta:
         ordering = ['-date']
