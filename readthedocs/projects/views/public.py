@@ -78,7 +78,7 @@ def project_badge(request, project_slug):
     color = 'green'
     if not last_build.success:
         color = 'red'
-    url = 'http://img.shields.io/badge/Docs-%s-%s.svg' % (version.slug, color)
+    url = 'http://img.shields.io/badge/Docs-%s-%s.svg' % (version.slug.replace('-', '--'), color)
     response = requests.get(url)
     return HttpResponse(response.content, mimetype="image/svg+xml")
 
