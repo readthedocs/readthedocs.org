@@ -89,12 +89,10 @@
     <p>{{ project.repo|urlize }}</p>
   {% endif %}
 
-
     <h3>{% trans "Badge" %}</h3>
       <a href="{% url "project_badge" project.slug %}?version={{ project.get_default_version }}">
         <img src="{% url "project_badge" project.slug %}?version={{ project.get_default_version }}" />
       </a>
-
 
   {% if project.tags.count %}
     <h3>{% trans "Tags" %}</h3>
