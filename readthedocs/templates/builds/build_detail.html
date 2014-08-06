@@ -35,6 +35,10 @@
 
     <p>{% trans "Type:" %} <b>{{ build.type }}</b></p>
 
+    {% if build.commit %}
+    <p>{% trans "Commit" %}: <b>{{ build.commit }}</b></p>
+    {% endif %}
+
     <h3>{% trans "Sphinx Standard Output" %}</h3>
     <pre class="build-output"><span id="build-output">{{ build.output }}</span></pre>
 
