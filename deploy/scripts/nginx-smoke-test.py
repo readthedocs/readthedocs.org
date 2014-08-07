@@ -10,6 +10,7 @@ import requests
 TESTS = 0
 FAILS = 0
 
+
 def served_by_nginx(url):
     """Return True if url returns 200 and is served by Nginx."""
     r = requests.get(url, allow_redirects=False)
@@ -17,17 +18,27 @@ def served_by_nginx(url):
     nginx = ('x-served' in r.headers and r.headers['x-served'] == 'Nginx')
     return all([status, nginx])
 
+
 def served_by_django(url):
     """Return True if url returns 200 and is served by Django. (NOT Nginx)"""
     r = requests.get(url, allow_redirects=False)
     status = (r.status_code == 200)
-    django = ('x-served' not in r.headers)
+    django = ('x-served' not in r.headers or r.headers['x-served'] == 'nginx-via-django')
     return all([status, django])
+
+def served_by_perl(url):
+    """Return True if url returns 200 and is served by Perl."""
+    r = requests.get(url, allow_redirects=False)
+    status = (r.status_code == 302)
+    perl = ('x-perl-redirect' in r.headers and r.headers['x-perl-redirect'] == 'True')
+    return all([status, perl])
+
 
 def served(url):
     """Return True if url returns 200."""
     r = requests.get(url, allow_redirects=False)
     return r.status_code == 200
+
 
 def redirected(url, location):
     """Return True if url is redirected to location."""
@@ -35,6 +46,7 @@ def redirected(url, location):
     status = (r.status_code in (301, 302))
     redirect = ('location' in r.headers and r.headers['location'] == location)
     return all([status, redirect])
+
 
 def count(fn):
     def wrapped(*args, **kwargs):
@@ -46,6 +58,7 @@ def count(fn):
         return result
     return wrapped
 
+
 @count
 def run_test(fn, *args):
     """Run test and print result."""
@@ -55,11 +68,13 @@ def run_test(fn, *args):
     print "{url: <65} ...  {result}".format(url=url, result=result)
     return ret_value
 
+
 def header(msg):
     """Give each test a sexy header."""
     print
     print msg
     print "-----------------------------"
+
 
 def summary_results(num_tests, num_fails):
     results = ['\n']
@@ -78,7 +93,7 @@ def main():
     header('Served by Nginx')
     nginx_urls = (
         subdomain_urls + cname_urls + translation_urls +
-        single_version_urls + project_urls 
+        single_version_urls + project_urls
     )
     for url in nginx_urls:
         run_test(served_by_nginx, url)
@@ -86,6 +101,10 @@ def main():
     header('Served by Django')
     for url in rtd_urls:
         run_test(served_by_django, url)
+
+    header('Served by Perl')
+    for url in perl_urls:
+        run_test(served_by_perl, url)
 
     header('Served')
     for url in other_urls:
@@ -112,9 +131,7 @@ if __name__ == '__main__':
 
     cname_urls = [
         'http://docs.fabfile.org/en/latest/',
-        'http://docs.fabfile.org/en/latest/faq.html',
-        'http://www.pip-installer.org/en/latest/',
-        'http://www.pip-installer.org/en/latest/news.html',
+        'http://docs.fabfile.org/en/latest/usage/execution.html',
     ]
 
     translation_urls = [
@@ -123,9 +140,12 @@ if __name__ == '__main__':
         "http://phpmyadmin.readthedocs.org/en/latest/",
     ]
 
-    single_version_urls = [
+    perl_urls = [
         'https://ericholschercom.readthedocs.org',
         'https://ericholschercom.readthedocs.org/',
+    ]
+
+    single_version_urls = [
         'https://ericholschercom.readthedocs.org/en/latest/',
         'https://ericholschercom.readthedocs.org/about/',
         'https://ericholschercom.readthedocs.org/en/latest/about/'
@@ -134,8 +154,8 @@ if __name__ == '__main__':
     project_urls = [
         'http://docs.pylonsproject.org/projects/pyramid/en/latest/',
         'http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/install.html',
-        'http://docs.pylonsproject.org/projects/pyramid_amon/en/latest/',
-        'http://docs.pylonsproject.org/projects/pyramid_amon/en/latest/genindex.html',
+        'http://docs.pylonsproject.org/projects/pyramid-amon/en/latest/',
+        'http://docs.pylonsproject.org/projects/pyramid-amon/en/latest/genindex.html',
         'http://edx.readthedocs.org/projects/devdata/en/latest/',
         'http://edx.readthedocs.org/projects/devdata/en/latest/course_data_formats/course_xml.html',
     ]
@@ -147,6 +167,8 @@ if __name__ == '__main__':
         'https://readthedocs.org/accounts/login/',
         'https://readthedocs.org/security/',
         'https://readthedocs.org/profiles/Wraithan/',
+        'https://pip.pypa.io/en/latest/',
+        'https://pip.pypa.io/en/latest/news.html',
     ]
 
     other_urls = [
@@ -163,7 +185,7 @@ if __name__ == '__main__':
     redirected_urls = [
         [
             'https://pip.readthedocs.org/',
-            'https://pip.readthedocs.org/en/latest/'
+            '/en/latest/'
         ],
         [
             'https://pip.readthedocs.org/en/',
@@ -171,11 +193,11 @@ if __name__ == '__main__':
         ],
         [
             'https://pip.readthedocs.org/en/latest',
-            'https://pip.readthedocs.org/en/latest/'
+            'http://pip.readthedocs.org/en/latest/'
         ],
         [
             'https://pip.readthedocs.org/en/develop',
-            'https://pip.readthedocs.org/en/develop/'
+            'http://pip.readthedocs.org/en/develop/'
         ],
         [
             'https://pip.readthedocs.org/latest/',
@@ -187,7 +209,7 @@ if __name__ == '__main__':
         ],
         [
             'https://readthedocs.org/docs/pip/en/latest/',
-            'https://pip.readthedocs.org/en/latest/'
+            'http://pip.readthedocs.org/en/latest/'
         ],
         [
             'https://readthedocs.org/docs/pip/latest/',
@@ -199,11 +221,11 @@ if __name__ == '__main__':
         ],
         [
             'http://django_compressor.readthedocs.org/',
-            'http://django-compressor.readthedocs.org/',
+            '/en/latest/',
         ],
         [
             'http://django-compressor.readthedocs.org/',
-            'http://django-compressor.readthedocs.org/en/latest/',
+            '/en/latest/',
         ],
     ]
 
