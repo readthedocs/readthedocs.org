@@ -582,7 +582,8 @@ def update_static_metadata(project_pk):
     metadata = {
         'version': project.default_version,
         'language': project.language,
-        'languages': list(languages)
+        'languages': list(languages),
+        'single_version': project.single_version,
     }
     try:
         path = project.static_metadata_path()
