@@ -84,6 +84,19 @@
         </dd>
       </dl>
       {% endif %}
+
+      <dl>
+        <dt>Search (Beta)</dt>
+        <dd>
+          <div style="padding: 6px;">
+            <form id="flyout-search-form" class="wy-form" target="_blank" action="http://searchthedocs.org/section" method="get">
+              <input type="text" name="q" placeholder="Search docs">
+              <input type="hidden" name="project" value="{{ project.slug }}">
+              </form>
+          </div>
+        </dd>
+      </dl>
+
       <hr/>
       Free document hosting provided by <a href="https://readthedocs.org">Read the Docs</a>. Support us on <a href="https://www.gittip.com/readthedocs/">Gittip</a>.
 
