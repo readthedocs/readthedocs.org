@@ -67,7 +67,7 @@ def process_file(filename):
             h1_id = div.attr('id')
             h1_content = ""
             next_p = body('h1').next()
-            while next_p and 'class' in next_p[0].attrib and  'section' in next_p[0].attrib['class']:
+            while next_p and 'class' in next_p[0].attrib and 'section' not in next_p[0].attrib['class']:
                 h1_content += next_p.text()
                 next_p = next_p.next()
             if h1_content:
