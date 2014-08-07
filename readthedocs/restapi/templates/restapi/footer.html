@@ -69,11 +69,14 @@
           <a href="//{{ settings.PRODUCTION_DOMAIN }}/projects/{{ project.slug }}/downloads/">Downloads</a>
         </dd>
       </dl>
-      {% if github_url %}
+      {% if github_edit_url %}
       <dl>
         <dt>On GitHub</dt>
         <dd>
-          <a href="{{ github_url }}">Edit</a>
+          <a href="{{ github_view_url }}">View</a>
+        </dd>
+        <dd>
+          <a href="{{ github_edit_url }}">Edit</a>
         </dd>
       </dl>
       {% elif bitbucket_url %}
