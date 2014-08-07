@@ -207,19 +207,24 @@ class Version(models.Model):
             return path
         return None
 
-    def get_github_url(self, docroot, filename, source_suffix='.rst'):
+    def get_github_url(self, docroot, filename, source_suffix='.rst', action='view'):
         GITHUB_REGEXS = [
             re.compile('github.com/(.+)/(.+)(?:\.git){1}'),
             re.compile('github.com/(.+)/(.+)'),
             re.compile('github.com:(.+)/(.+).git'),
         ]
-        GITHUB_URL = 'https://github.com/{user}/{repo}/blob/{version}{docroot}{path}{source_suffix}'
+        GITHUB_URL = 'https://github.com/{user}/{repo}/{action}/{version}{docroot}{path}{source_suffix}'
 
         repo_url = self.project.repo
         if 'github' not in repo_url:
             return ''
         if not docroot:
             return ''
+
+        if action == 'view':
+            action_string = 'blob'
+        elif action == 'edit':
+            action_string = 'edit'
 
         for regex in GITHUB_REGEXS:
             match = regex.search(repo_url)
@@ -237,6 +242,7 @@ class Version(models.Model):
             docroot=docroot,
             path=filename,
             source_suffix=source_suffix,
+            action=action_string,
             )
 
     def get_bitbucket_url(self, docroot, filename, source_suffix='.rst'):
