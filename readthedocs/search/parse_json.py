@@ -11,11 +11,14 @@ import logging
 log = logging.getLogger(__name__)
 
 
-def process_all_json_files(version):
+def process_all_json_files(version, build_dir=True):
     """
     Return a list of pages to index
     """
-    full_path = version.project.full_json_path(version.slug)
+    if build_dir:
+        full_path = version.project.full_json_path(version.slug)
+    else:
+        full_path = version.project.get_json_path(version.slug)
     html_files = []
     for root, dirs, files in os.walk(full_path):
         for filename in fnmatch.filter(files, '*.fjson'):

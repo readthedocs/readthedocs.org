@@ -429,6 +429,14 @@ class Project(models.Model):
                             '%s.xml' % self.doc_name)
         return path
 
+    def get_json_path(self, version_slug='latest'):
+        path = os.path.join(settings.MEDIA_URL,
+                            'json',
+                            self.slug,
+                            version_slug,
+                            )
+        return path
+
     def get_downloads(self, version_slug='latest'):
         downloads = {}
         downloads['htmlzip'] = self.get_htmlzip_url()

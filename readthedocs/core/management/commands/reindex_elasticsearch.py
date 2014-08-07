@@ -36,7 +36,7 @@ class Command(BaseCommand):
         for version in queryset:
             log.info("Reindexing %s" % version)
             try:
-                page_list = parse_json.process_all_json_files(version)
+                page_list = parse_json.process_all_json_files(version, build_dir=False)
                 index_search_request(version=version, page_list=page_list)
             except Exception:
                 log.error('Build failed for %s' % version, exc_info=True)
