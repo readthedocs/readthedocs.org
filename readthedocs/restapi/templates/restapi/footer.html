@@ -9,7 +9,7 @@
       <span class="fa fa-caret-down"></span>
     </span>
     <div class="rst-other-versions">
-  {% endif %}
+      {% endif %}
 
       {% if translations %}
       <dl>
@@ -23,13 +23,13 @@
         {# regroup to make language_list unique per language #}
         {% regroup translations by language as language_list %}
         {% for group in language_list %}
-            {% for translation in group.list %}
-              {% if translation.language != main_project.language %}
-                  {% if translation.language == current_language %} <strong> {% endif %}
-                  <dd><a href="{{ translation.get_translation_url }}{{ path }}">{{ translation.language }}</a></dd>
-                  {% if translation.language == current_language %} </strong> {% endif %}
-              {% endif %}
-            {% endfor %}
+        {% for translation in group.list %}
+        {% if translation.language != main_project.language %}
+        {% if translation.language == current_language %} <strong> {% endif %}
+        <dd><a href="{{ translation.get_translation_url }}{{ path }}">{{ translation.language }}</a></dd>
+        {% if translation.language == current_language %} </strong> {% endif %}
+        {% endif %}
+        {% endfor %}
         {% endfor %}
 
       </dl>
@@ -38,13 +38,13 @@
       <dl>
         <dt>Versions</dt>
         {% for version in versions %}
-          {% if version.slug == current_version %} <strong> {% endif %}
-              {% if subproject %}
-              <dd><a href="{{ version.get_subproject_url }}{{ path }}">{{ version.slug }}</a></dd>
-              {% else %}
-              <dd><a href="{{ version.get_subdomain_url }}{{ path }}">{{ version.slug }}</a></dd>
-              {% endif %}
-          {% if version.slug == current_version %} </strong> {% endif %}
+        {% if version.slug == current_version %} <strong> {% endif %}
+        {% if subproject %}
+        <dd><a href="{{ version.get_subproject_url }}{{ path }}">{{ version.slug }}</a></dd>
+        {% else %}
+        <dd><a href="{{ version.get_subdomain_url }}{{ path }}">{{ version.slug }}</a></dd>
+        {% endif %}
+        {% if version.slug == current_version %} </strong> {% endif %}
         {% endfor %}
       </dl>
       {% endif %}
@@ -52,42 +52,58 @@
       <dl>
         <dt>Downloads</dt>
         {% for name, url in downloads.items %}
-          <dd><a href="{{ url }}">{{ name }}</a></dd>
+        <dd><a href="{{ url }}">{{ name }}</a></dd>
         {% endfor %}
       </dl>
       {% endif %}
       <dl>
         <!-- These are kept as relative links for internal installs that are http -->
         <dt>On Read the Docs</dt>
-          <dd>
-            <a href="//{{ settings.PRODUCTION_DOMAIN }}/projects/{{ project.slug }}/?fromdocs={{ project.slug }}">Project Home</a>
-          </dd>
-          <dd>
-            <a href="//{{ settings.PRODUCTION_DOMAIN }}/builds/{{ project.slug }}/?fromdocs={{ project.slug }}">Builds</a>
-          </dd>
-          <dd>
-            <a href="//{{ settings.PRODUCTION_DOMAIN }}/projects/{{ project.slug }}/downloads/">Downloads</a>
-          </dd>
+        <dd>
+          <a href="//{{ settings.PRODUCTION_DOMAIN }}/projects/{{ project.slug }}/?fromdocs={{ project.slug }}">Project Home</a>
+        </dd>
+        <dd>
+          <a href="//{{ settings.PRODUCTION_DOMAIN }}/builds/{{ project.slug }}/?fromdocs={{ project.slug }}">Builds</a>
+        </dd>
+        <dd>
+          <a href="//{{ settings.PRODUCTION_DOMAIN }}/projects/{{ project.slug }}/downloads/">Downloads</a>
+        </dd>
       </dl>
-      {% if github_url %}
+      {% if github_edit_url %}
       <dl>
         <dt>On GitHub</dt>
-          <dd>
-            <a href="{{ github_url }}">Edit</a>
-          </dd>
+        <dd>
+          <a href="{{ github_view_url }}">View</a>
+        </dd>
+        <dd>
+          <a href="{{ github_edit_url }}">Edit</a>
+        </dd>
       </dl>
       {% elif bitbucket_url %}
       <dl>
         <dt>On Bitbucket</dt>
-          <dd>
-            <a href="{{ bitbucket_url }}">Edit</a>
-          </dd>
+        <dd>
+          <a href="{{ bitbucket_url }}">Edit</a>
+        </dd>
       </dl>
       {% endif %}
+
+      <dl>
+        <dt>Search (Beta)</dt>
+        <dd>
+          <div style="padding: 6px;">
+            <form id="flyout-search-form" class="wy-form" target="_blank" action="http://searchthedocs.org/section" method="get">
+              <input type="text" name="q" placeholder="Search docs">
+              <input type="hidden" name="project" value="{{ project.slug }}">
+              </form>
+          </div>
+        </dd>
+      </dl>
+
       <hr/>
       Free document hosting provided by <a href="https://readthedocs.org">Read the Docs</a>. Support us on <a href="https://www.gittip.com/readthedocs/">Gittip</a>.
 
-  {% if not new_theme %}
+      {% if not new_theme %}
     </div>
   </div>
   {% endif %}
