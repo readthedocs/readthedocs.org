@@ -1,4 +1,3 @@
-import hashlib
 import logging
 
 from rest_framework import decorators, permissions, viewsets, status
@@ -10,6 +9,7 @@ from builds.models import Version
 from djangome import views as djangome
 from search.indexes import PageIndex, ProjectIndex, SectionIndex
 from projects.models import Project
+from restapi import utils
 
 log = logging.getLogger(__name__)
 
@@ -34,61 +34,12 @@ def quick_search(request):
 @decorators.permission_classes((permissions.IsAdminUser,))
 @decorators.renderer_classes((JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
 def index_search(request):
-    page_obj = PageIndex()
-    section_obj = SectionIndex()
     data = request.DATA['data']
-    page_list = data['page_list']
     project_pk = data['project_pk']
     version_pk = data['version_pk']
     project = Project.objects.get(pk=project_pk)
     version = Version.objects.get(pk=version_pk)
-    resp = requests.get('https://api.grokthedocs.com/api/v1/index/1/heatmap/', params={'project': project.slug, 'compare': True})
-    ret_json = resp.json()
-    project_scale = ret_json.get('scaled_project', {}).get(project.slug)
-
-    project_obj = ProjectIndex()
-    project_obj.index_document({
-        'id': project.pk,
-        'name': project.name,
-        'slug': project.slug,
-        'description': project.description,
-        'lang': project.language,
-        'author': [user.username for user in project.users.all()],
-        'url': project.get_absolute_url(),
-        '_boost': project_scale,
-    })
-
-    index_list = []
-    section_index_list = []
-    for page in page_list:
-        log.debug("(API Index) %s:%s" % (project.slug, page['path']))
-        page_scale = ret_json.get('scaled_page', {}).get(page['path'], 1)
-        page_id = hashlib.md5('%s-%s-%s' % (project.slug, version.slug, page['path'])).hexdigest()
-        index_list.append({
-            'id': page_id,
-            'project': project.slug,
-            'version': version.slug,
-            'path': page['path'],
-            'title': page['title'],
-            'headers': page['headers'],
-            'content': page['content'],
-            '_boost': page_scale + project_scale,
-            })
-        for section in page['sections']:
-            section_index_list.append({
-                'id': hashlib.md5('%s-%s-%s-%s' % (project.slug, version.slug, page['path'], section['id'])).hexdigest(),
-                'project': project.slug,
-                'version': version.slug,
-                'path': page['path'],
-                'page_id': section['id'],
-                'title': section['title'],
-                'content': section['content'],
-                '_boost': page_scale,
-            })
-        section_obj.bulk_index(section_index_list, parent=page_id,
-                               routing=project.slug)
-
-    page_obj.bulk_index(index_list, parent=project.slug)
+    utils.index_search_request(version=version, page_list=data['page_list'])
     return Response({'indexed': True})
 
 
