@@ -430,7 +430,7 @@ class Project(models.Model):
         return path
 
     def get_json_path(self, version_slug='latest'):
-        path = os.path.join(settings.MEDIA_URL,
+        path = os.path.join(settings.MEDIA_ROOT,
                             'json',
                             self.slug,
                             version_slug,

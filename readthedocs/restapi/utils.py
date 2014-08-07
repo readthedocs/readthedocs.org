@@ -84,7 +84,7 @@ def delete_versions(project, version_data):
 
 def index_search_request(version, page_list):
     log_msg = ' '.join([page['path'] for page in page_list])
-    log.info("(Search Index) Indexing Pages: %s [%s]" % (
+    log.info("(Server Search) Indexing Pages: %s [%s]" % (
         version.project.slug, log_msg))
     project = version.project
     page_obj = PageIndex()
