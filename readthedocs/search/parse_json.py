@@ -56,7 +56,25 @@ def process_file(filename):
     if 'body' in data:
         body = PyQuery(data['body'])
         body_content = body.text().replace(u'¶', '')
-        # Section stuff from inside the body
+        # Capture text inside h1 before the first h2
+        h1_section = body('.section > h1')
+        if h1_section:
+            div = h1_section.parent()
+            h1_title = h1_section.text().replace(u'¶', '').strip()
+            h1_id = div.attr('id')
+            h1_content = ""
+            next_p = body('h1').next()
+            while next_p and 'class' in next_p[0].attrib and  'section' in next_p[0].attrib['class']:
+                h1_content += next_p.text()
+                next_p = next_p.next()
+            if h1_content:
+                sections.append({
+                    'id': h1_id,
+                    'title': h1_title,
+                    'content': h1_content,
+                })
+
+        # Capture text inside h2's
         section_list = body('.section > h2')
         for num in range(len(section_list)):
             div = section_list.eq(num).parent()
