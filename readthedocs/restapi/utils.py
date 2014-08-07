@@ -88,7 +88,7 @@ def index_search_request(version, page_list):
     section_obj = SectionIndex()
     resp = requests.get('https://api.grokthedocs.com/api/v1/index/1/heatmap/', params={'project': project.slug, 'compare': True})
     ret_json = resp.json()
-    project_scale = ret_json.get('scaled_project', {}).get(project.slug)
+    project_scale = ret_json.get('scaled_project', {}).get(project.slug, 1)
 
     project_obj = ProjectIndex()
     project_obj.index_document({
