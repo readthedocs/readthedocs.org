@@ -1,7 +1,7 @@
 Welcome to Read The Docs
 ========================
 
-|build-status| |docs|
+|build-status| |coverage-status| |docs|
 
 Purpose
 -------
@@ -53,9 +53,13 @@ when you push to Github.
 
 
 .. |build-status| image:: https://travis-ci.org/rtfd/readthedocs.org.png?branch=master
-    :alt: status
+    :alt: build status
     :scale: 100%
     :target: https://travis-ci.org/rtfd/readthedocs.org
+
+.. |coverage-status| image:: https://coveralls.io/repos/rtfd/readthedocs.org/badge.png
+    :alt: coverage status
+    :target: https://coveralls.io/r/readthedocs.org
 
 .. |docs| image:: https://readthedocs.org/projects/docs/badge/?version=latest
     :alt: status
