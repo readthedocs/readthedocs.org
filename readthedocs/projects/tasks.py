@@ -526,21 +526,26 @@ def finish_build(version, build, results):
         if ret == 0:
             log.info(LOG_TEMPLATE.format(
                 project=version.project.slug, version=version.slug, msg="Successful Build"))
-            update_search(version)
             # fileify.delay(version.pk)
             symlinks.symlink_cnames(version)
             symlinks.symlink_translations(version)
             symlinks.symlink_subprojects(version)
 
-            try:
-                update_static_metadata(version.project.pk)
-            except Exception:
-                log.error("Unable to post a new build", exc_info=True)
 
             if version.project.single_version:
                 symlinks.symlink_single_version(version)
             else:
                 symlinks.remove_symlink_single_version(version)
+                
+            try:
+                update_search(version)
+            except Exception:
+                log.error("Unable to index search", exc_info=True)
+
+            try:
+                update_static_metadata(version.project.pk)
+            except Exception:
+                log.error("Unable to post a new build", exc_info=True)
 
             # This requires database access, must disable it for now.
             #send_notifications(version, build)
