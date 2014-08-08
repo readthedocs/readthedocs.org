@@ -1,15 +1,7 @@
 Welcome to Read The Docs
 ========================
 
-.. image:: https://travis-ci.org/rtfd/readthedocs.org.png?branch=master
-    :alt: status
-    :scale: 100%
-    :target: https://travis-ci.org/rtfd/readthedocs.org
-
-.. image:: https://readthedocs.org/projects/docs/badge/?version=latest
-    :alt: status
-    :scale: 100%
-    :target: https://readthedocs.org/builds/docs/
+|build-status| |docs|
 
 Purpose
 -------
@@ -60,3 +52,12 @@ when you push to Github.
 #. All done.  Commit away and your project will auto update.
 
 
+.. |build-status| image:: https://travis-ci.org/rtfd/readthedocs.org.png?branch=master
+    :alt: status
+    :scale: 100%
+    :target: https://travis-ci.org/rtfd/readthedocs.org
+
+.. |docs| image:: https://readthedocs.org/projects/docs/badge/?version=latest
+    :alt: status
+    :scale: 100%
+    :target: https://readthedocs.org/builds/docs/
