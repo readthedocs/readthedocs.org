@@ -39,11 +39,11 @@
     <p>{% trans "Commit" %}: <b>{{ build.commit }}</b></p>
     {% endif %}
 
-    <h3>{% trans "Sphinx Standard Output" %}</h3>
+    <h3>{% trans "Build Standard Output" %}</h3>
     <pre class="build-output"><span id="build-output">{{ build.output }}</span></pre>
 
     {% if build.error %}
-    <h3>{% trans "Sphinx Standard Error" %}</h3>
+    <h3>{% trans "Build Standard Error" %}</h3>
     <pre class="build-error"><span id="build-error">{{ build.error }}</span></pre>
     {% endif %}
 
