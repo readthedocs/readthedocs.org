@@ -27,3 +27,4 @@ whoosh_index
 xml_output
 .idea
 .vagrant
+node_modules
