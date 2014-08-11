@@ -62,7 +62,7 @@ If you have any more trouble, don't hesitate to reach out to us. The :doc:`suppo
 .. _Sphinx: http://sphinx-doc.org/
 .. _reStructuredText: http://sphinx-doc.org/rest.html
 .. _this template: http://docs.writethedocs.org/en/latest/writing/beginners-guide-to-docs/#id1
-.. _Sign up: http://readthedocs.org/accounts/register
+.. _Sign up: http://readthedocs.org/accounts/signup
 .. _log in: http://readthedocs.org/accounts/login
 .. _dashboard: http://readthedocs.org/dashboard
 .. _Import: http://readthedocs.org/dashboard/import
