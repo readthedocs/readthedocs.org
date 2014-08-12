@@ -6,7 +6,13 @@ This document will show you how to get up and running with Read the Docs.
 If you are already using Sphinx_ for your docs, skip ahead to
 :ref:`import-docs`.
 
-There is `a screencast`_ that will help you get started if you prefer.
+There is a screencast that will help you get started if you prefer:
+
+.. raw:: html
+
+    <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; height: auto;">
+        <iframe src="//www.youtube.com/embed/oJsUvBQyHBs" frameborder="0" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe>
+    </div>
 
 Write Your Docs
 ---------------
@@ -58,7 +64,6 @@ If you want to keep your code updated as you commit, configure your code reposit
 
 If you have any more trouble, don't hesitate to reach out to us. The :doc:`support` page has more information on getting in touch.
 
-.. _a screencast: https://www.youtube.com/watch?feature=player_embedded&v=oJsUvBQyHBs
 .. _Sphinx: http://sphinx-doc.org/
 .. _reStructuredText: http://sphinx-doc.org/rest.html
 .. _this template: http://docs.writethedocs.org/en/latest/writing/beginners-guide-to-docs/#id1
