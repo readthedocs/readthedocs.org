@@ -73,7 +73,7 @@ LOCALE_PATHS = [
 USE_I18N = True
 USE_L10N = True
 SITE_ID = 1
-SECRET_KEY = 'asciidick'
+SECRET_KEY = 'replace-this-please'
 
 ACCOUNT_ACTIVATION_DAYS = 7
 
@@ -174,7 +174,7 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount', 
-    #'allauth.socialaccount.providers.github',
+    'allauth.socialaccount.providers.github',
     #'allauth.socialaccount.providers.bitbucket',
     #'allauth.socialaccount.providers.twitter',
 ]
