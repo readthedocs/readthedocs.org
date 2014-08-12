@@ -12,7 +12,9 @@ from django.template import RequestContext
 from django.views.generic import ListView
 from django.utils.decorators import method_decorator
 
+from allauth.socialaccount.models import SocialToken
 from guardian.shortcuts import assign
+from requests_oauthlib import OAuth2Session
 
 from builds.forms import AliasForm, VersionForm
 from builds.filters import VersionFilter
@@ -21,18 +23,19 @@ from projects.forms import (ImportProjectForm, build_versions_form,
                             build_upload_html_form, SubprojectForm,
                             UserForm, EmailHookForm, TranslationForm,
                             AdvancedProjectForm, RedirectForm, WebHookForm)
-from projects.models import Project, EmailHook, WebHook
+from projects.models import Project, EmailHook, GithubProject, WebHook
 from projects import constants
 from redirects.models import Redirect
 
 
 class ProjectDashboard(ListView):
+
     """
     A dashboard!  If you aint know what that means you aint need to.
     Essentially we show you an overview of your content.
     """
     model = Project
-    template_name='projects/project_dashboard.html'
+    template_name = 'projects/project_dashboard.html'
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
@@ -45,7 +48,8 @@ class ProjectDashboard(ListView):
         context = super(ProjectDashboard, self).get_context_data(**kwargs)
         qs = (Version.objects.active(user=self.request.user)
               .filter(project__users__in=[self.request.user]))
-        filter = VersionFilter(constants.IMPORTANT_VERSION_FILTERS, queryset=self.get_queryset())
+        filter = VersionFilter(
+            constants.IMPORTANT_VERSION_FILTERS, queryset=self.get_queryset())
         context['filter'] = filter
         return context
 
@@ -61,6 +65,7 @@ def project_manage(request, project_slug):
     """
     return HttpResponseRedirect(reverse('projects_detail',
                                         args=[project_slug]))
+
 
 @login_required
 def project_edit(request, project_slug):
@@ -86,6 +91,7 @@ def project_edit(request, project_slug):
         context_instance=RequestContext(request)
     )
 
+
 @login_required
 def project_advanced(request, project_slug):
     """
@@ -95,7 +101,8 @@ def project_advanced(request, project_slug):
     project = get_object_or_404(request.user.projects.live(),
                                 slug=project_slug)
     form_class = AdvancedProjectForm
-    form = form_class(instance=project, data=request.POST or None, initial={'num_minor': 2, 'num_major': 2, 'num_point': 2})
+    form = form_class(instance=project, data=request.POST or None, initial={
+                      'num_minor': 2, 'num_major': 2, 'num_point': 2})
 
     if request.method == 'POST' and form.is_valid():
         form.save()
@@ -224,14 +231,15 @@ def edit_alias(request, project_slug, id=None):
 class AliasList(ListView):
     model = VersionAlias
     template_context_name = 'alias'
-    template_name='projects/alias_list.html',
+    template_name = 'projects/alias_list.html',
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super(AliasList, self).dispatch(*args, **kwargs)
 
     def get_queryset(self):
-        self.project = get_object_or_404(Project.objects.all(), slug=self.kwargs.get('project_slug'))
+        self.project = get_object_or_404(
+            Project.objects.all(), slug=self.kwargs.get('project_slug'))
         return self.project.aliases.all()
 
 
@@ -244,7 +252,8 @@ def project_subprojects(request, project_slug):
 
     if request.method == 'POST' and form.is_valid():
         form.save()
-        project_dashboard = reverse('projects_subprojects', args=[project.slug])
+        project_dashboard = reverse(
+            'projects_subprojects', args=[project.slug])
         return HttpResponseRedirect(project_dashboard)
 
     subprojects = project.subprojects.all()
@@ -412,10 +421,68 @@ def project_redirects_delete(request, project_slug):
     project = get_object_or_404(request.user.projects.live(),
                                 slug=project_slug)
     redirect = get_object_or_404(Redirect.objects.all(),
-                             pk=request.POST.get('pk'))
+                                 pk=request.POST.get('pk'))
     if redirect.project == project:
         redirect.delete()
     else:
         raise Http404
     project_dashboard = reverse('projects_redirects', args=[project.slug])
     return HttpResponseRedirect(project_dashboard)
+
+
+@login_required
+def project_import_github(request, repo_type='public', sync=True):
+    """
+    Integrate with GitHub to pull repos from there.
+
+    Params:
+
+    repo_type - The type of accounts to get for a user. ``private`` or ``public``
+    """
+    tokens = SocialToken.objects.filter(
+        account__user__username=request.user.username, app__provider='github')
+    if tokens.exists():
+        github_connected = True
+        if sync:
+            repos = []
+            token = tokens[0]
+            session = OAuth2Session(
+                client_id=token.app.client_id,
+                token={
+                    'access_token': str(token.token),
+                    'token_type': 'bearer'
+                }
+            )
+            resp = session.get(
+                'https://api.github.com/user/repos?per_page=100&type=%s' % repo_type)
+            for repo in resp.json():
+                project, created = GithubProject.objects.get_or_create(
+                    user=request.user,
+                    name=repo['name'],
+                    full_name=repo['full_name'],
+                    description=repo['description'],
+                    git_url=repo['git_url'],
+                    ssh_url=repo['ssh_url'],
+                    html_url=repo['html_url'],
+                    json=repo,
+                )
+    else:
+        github_connected = False
+
+    repos = GithubProject.objects.filter(user=request.user)
+    for repo in repos:
+        ghetto_repo = repo.git_url.replace('git://', '').replace('.git', '')
+        projects = Project.objects.filter(repo__endswith=ghetto_repo) | Project.objects.filter(repo__endswith=ghetto_repo + '.git')
+        if projects:
+            repo.matches = [project.slug for project in projects]
+        else:
+            repo.matches = []
+
+    return render_to_response(
+        'projects/project_import_github.html',
+        {
+            'repos': repos,
+            'github_connected': github_connected,
+        },
+        context_instance=RequestContext(request)
+    )

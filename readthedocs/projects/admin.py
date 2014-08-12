@@ -6,7 +6,7 @@ from builds.models import Version
 from django.contrib import admin
 from redirects.models import Redirect
 from projects.models import (Project, ImportedFile, ProjectRelationship,
-                             EmailHook, WebHook)
+                             EmailHook, WebHook, GithubProject)
 from guardian.admin import GuardedModelAdmin
 
 
@@ -40,3 +40,4 @@ admin.site.register(Project, ProjectAdmin)
 admin.site.register(ImportedFile, ImportedFileAdmin)
 admin.site.register(EmailHook)
 admin.site.register(WebHook)
+admin.site.register(GithubProject)

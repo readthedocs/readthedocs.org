@@ -854,3 +854,25 @@ class WebHook(Notification):
 
     def __unicode__(self):
         return self.url
+
+
+class GithubProject(models.Model):
+    #Auto fields
+    pub_date = models.DateTimeField(_('Publication date'), auto_now_add=True)
+    modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
+
+    user = models.ForeignKey(User, verbose_name=_('User'),
+                                   related_name='github_projects')
+    name = models.CharField(_('Name'), max_length=255)
+    full_name = models.CharField(_('Full Name'), max_length=255, unique=True)
+    description = models.TextField(_('Description'), blank=True,
+                                   help_text=_('The reStructuredText '
+                                               'description of the project'))
+    git_url = models.CharField(_('Git URL'), max_length=200, blank=True)
+    ssh_url = models.CharField(_('SSH URL'), max_length=200, blank=True)
+    html_url = models.URLField(_('HTML URL'), max_length=200, null=True, blank=True)
+    active = models.BooleanField(_('Active'), default=False)
+    json = models.TextField('JSON')
+
+    def __unicode__(self):
+        return "%s -> %s" % (self.user, self.html_url)

@@ -13,6 +13,7 @@
 
           <ul>
             <li class="first last {{ import_active }}"><a href="{% url "projects_import" %}">{% trans "Import" %}</a></li>
+            <li class="first last {{ import_github_active }}"><a href="{% url "projects_import_github" %}">{% trans "GitHub" %}</a></li>
           </ul>
 
           <ul>
@@ -25,8 +26,11 @@
                 <a href="{{ profiles_profile_create }}">{% trans "Create Profile" %}</a>
               </li>
             {% endif %}
+            <li class="{{ connections_active }}">
+              <a href="{% url 'socialaccount_connections' %}">{% trans "Social Accounts" %}</a>
+            </li>
             <li class="last {{ change_password_active }}">
-              <a href="/accounts/password/change/">{% trans "Change Password" %}</a>
+              <a href="{% url 'account_set_password' %}">{% trans "Change Password" %}</a>
             </li>
           </ul>
 
