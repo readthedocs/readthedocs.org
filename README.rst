@@ -59,7 +59,7 @@ when you push to Github.
 
 .. |coverage-status| image:: https://coveralls.io/repos/rtfd/readthedocs.org/badge.png
     :alt: coverage status
-    :target: https://coveralls.io/r/readthedocs.org
+    :target: https://coveralls.io/r/rtfd/readthedocs.org
 
 .. |docs| image:: https://readthedocs.org/projects/docs/badge/?version=latest
     :alt: status
