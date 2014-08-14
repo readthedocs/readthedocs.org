@@ -1,0 +1,30 @@
+<div id="badge_markup" style="display: none;">
+    <ul class="">
+        <div class="rst">
+            <h4>
+                Rst
+            </h4>
+            <div class="rst code">
+                    .. image:: {{ badge_url }}
+                    :target: {{ site_url }}
+                    :alt: Documentation Status
+            </div>
+        </div>
+        <div class="markdown">
+            <h4>
+                Markdown
+            </h4>
+            <div class="markdown code">
+                    [![Documentation Status]({{ badge_url }})]({{ site_url }})
+            </div>
+        </div>
+        <div class="html">
+            <h4>
+                HTML
+            </h4>
+            <div class="html code">
+                    &lt;a href='{{ site_url }}'&gt;&lt;img src='{{ badge_url }}' alt='Documentation Status' /&gt;&lt;/a&gt;
+            </div>
+        </div>
+    </ul>
+</div>

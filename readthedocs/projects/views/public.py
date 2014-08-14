@@ -1,5 +1,6 @@
 import json
 
+from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.http import HttpResponse, HttpResponseRedirect, Http404
@@ -50,18 +51,35 @@ def project_detail(request, project_slug):
     queryset = Project.objects.protected(request.user)
     project = get_object_or_404(queryset, slug=project_slug)
     versions = project.versions.public(request.user, project)
-    filter = VersionSlugFilter(request.GET, queryset=versions)
+    # filter = VersionSlugFilter(request.GET, queryset=versions)
+    if request.is_secure():
+        protocol = 'https'
+    else:
+        protocol = 'http'
+    badge_url = "%s://%s%s?version=%s" % (
+        protocol, 
+        settings.PRODUCTION_DOMAIN,
+        reverse('project_badge', args=[project.slug]),
+        project.get_default_version()
+    )
+    site_url = "%s://%s%s" % (
+        protocol,
+        settings.PRODUCTION_DOMAIN,
+        reverse('projects_detail', args=[project.slug]),
+    )
     return render_to_response(
         'projects/project_detail.html',
         {
             'project': project,
             'versions': versions,
             'filter': filter,
+            'badge_url': badge_url,
+            'site_url': site_url,
         },
         context_instance=RequestContext(request),
     )
 
-def project_badge(request, project_slug):
+def project_badge(request, project_slug, redirect=False):
     """
     Return a sweet badge for the project
     """
@@ -71,16 +89,18 @@ def project_badge(request, project_slug):
     version_builds = version.builds.filter(type='html', state='finished').order_by('-date')
     if not version_builds.exists():
         url = 'http://img.shields.io/badge/Docs-No%20Builds-yellow.svg'
-        response = requests.get(url)
-        return HttpResponse(response.content, mimetype="image/svg+xml")
     else:
         last_build = version_builds[0]
-    color = 'green'
-    if not last_build.success:
-        color = 'red'
-    url = 'http://img.shields.io/badge/Docs-%s-%s.svg' % (version.slug.replace('-', '--'), color)
-    response = requests.get(url)
-    return HttpResponse(response.content, mimetype="image/svg+xml")
+        if last_build.success:
+            color = 'green'
+        else:
+            color = 'red'
+        url = 'http://img.shields.io/badge/Docs-%s-%s.svg' % (version.slug.replace('-', '--'), color)
+    if redirect:
+        return HttpResponseRedirect(url)
+    else:
+        response = requests.get(url)
+        return HttpResponse(response.content, mimetype="image/svg+xml")
 
 def project_downloads(request, project_slug):
     """
