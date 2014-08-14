@@ -58,6 +58,6 @@ when you push to Github.
     :target: https://travis-ci.org/rtfd/readthedocs.org
 
 .. |docs| image:: https://readthedocs.org/projects/docs/badge/?version=latest
-    :alt: status
+    :alt: Documentation Status
     :scale: 100%
-    :target: https://readthedocs.org/builds/docs/
+    :target: https://readthedocs.org/projects/docs/
