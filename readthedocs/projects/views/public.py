@@ -79,28 +79,34 @@ def project_detail(request, project_slug):
         context_instance=RequestContext(request),
     )
 
-def project_badge(request, project_slug, redirect=False):
-    """
-    Return a sweet badge for the project
-    """
-    version_slug = request.GET.get('version', 'latest')
-    version = get_object_or_404(Version, project__slug=project_slug,
-                                slug=version_slug)
-    version_builds = version.builds.filter(type='html', state='finished').order_by('-date')
-    if not version_builds.exists():
-        url = 'http://img.shields.io/badge/Docs-No%20Builds-yellow.svg'
-    else:
-        last_build = version_builds[0]
-        if last_build.success:
-            color = 'green'
-        else:
-            color = 'red'
-        url = 'http://img.shields.io/badge/Docs-%s-%s.svg' % (version.slug.replace('-', '--'), color)
+def _badge_return(redirect, url):
     if redirect:
         return HttpResponseRedirect(url)
     else:
         response = requests.get(url)
         return HttpResponse(response.content, mimetype="image/svg+xml")
+
+def project_badge(request, project_slug, redirect=False):
+    """
+    Return a sweet badge for the project
+    """
+    version_slug = request.GET.get('version', 'latest')
+    try:
+        version = Version.objects.get(project__slug=project_slug, slug=version_slug)
+    except Version.DoesNotExist:
+        url = 'http://img.shields.io/badge/Docs-Unknown%20Version-yellow.svg'
+        return _badge_return(redirect, url)
+    version_builds = version.builds.filter(type='html', state='finished').order_by('-date')
+    if not version_builds.exists():
+        url = 'http://img.shields.io/badge/Docs-No%20Builds-yellow.svg'
+        return _badge_return(redirect, url)
+    last_build = version_builds[0]
+    if last_build.success:
+        color = 'green'
+    else:
+        color = 'red'
+    url = 'http://img.shields.io/badge/Docs-%s-%s.svg' % (version.slug.replace('-', '--'), color)
+    return _badge_return(redirect, url)
 
 def project_downloads(request, project_slug):
     """
