@@ -2,29 +2,31 @@
     <ul>
         <li class="rst">
             <h4>
-                Rst
+                reStructuredText
             </h4>
-                <code>
-                    .. image:: {{ badge_url }}
-                    :target: {{ site_url }}
-                    :alt: Documentation Status
-                </code>
+                <pre>
+.. image:: {{ badge_url }}
+:target: {{ site_url }}
+:alt: Documentation Status
+                </pre>
         </li>
         <li class="markdown">
             <h4>
                 Markdown
             </h4>
-                <code>
-                    [![Documentation Status]({{ badge_url }})]({{ site_url }})
-                </code>
+                <pre>
+[![Documentation Status]({{ badge_url }})]({{ site_url }})
+                </pre>
         </li>
         <li class="html">
             <h4>
                 HTML
             </h4>
-                <code> 
-                    &lt;a href='{{ site_url }}'&gt;&lt;img src='{{ badge_url }}' alt='Documentation Status' /&gt;&lt;/a&gt;
-                </code>
+                <pre> 
+&lt;a href='{{ site_url }}'&gt;
+    &lt;img src='{{ badge_url }}' alt='Documentation Status' /&gt;
+&lt;/a&gt;
+                </pre>
         </li>
     </ul>
 </div>
