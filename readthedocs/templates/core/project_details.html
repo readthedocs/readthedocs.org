@@ -90,7 +90,7 @@
   {% endif %}
 
     <h3>{% trans "Badge" %}</h3>
-      <a href="{{ site_url }}" onclick="$('#badge_markup').toggle(); return false;">
+      <a href="{{ site_url }}" style="text-decoration: none;" onclick="$('#badge_markup').toggle(); return false;">
         <img src="{{ badge_url }}" />
       </a>
       {% include "core/badge_markup.html" with badge_url=badge_url site_url=site_url %}
