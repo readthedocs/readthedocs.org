@@ -60,12 +60,13 @@ def project_detail(request, project_slug):
         protocol, 
         settings.PRODUCTION_DOMAIN,
         reverse('project_badge', args=[project.slug]),
-        project.get_default_version()
+        project.get_default_version(),
     )
-    site_url = "%s://%s%s" % (
+    site_url = "%s://%s%s?badge=%s" % (
         protocol,
         settings.PRODUCTION_DOMAIN,
         reverse('projects_detail', args=[project.slug]),
+        project.get_default_version(),
     )
     return render_to_response(
         'projects/project_detail.html',
