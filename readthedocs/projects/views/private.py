@@ -415,14 +415,12 @@ def project_redirects_delete(request, project_slug):
 
 
 @login_required
-def project_import_github(request, repo_type='public', sync=True):
+def project_import_github(request, sync=True):
     """
     Integrate with GitHub to pull repos from there.
 
-    Params:
-
-    repo_type - The type of accounts to get for a user. ``private`` or ``public``
     """
+    repo_type = getattr(settings, 'GITHUB_PRIVACY', 'public')
     tokens = SocialToken.objects.filter(
         account__user__username=request.user.username, app__provider='github')
     if tokens.exists():
