@@ -20,6 +20,7 @@ from celery.task.control import inspect
 from builds.models import Build
 from builds.models import Version
 from core.forms import FacetedSearchForm
+from projects import constants
 from projects.models import Project, ImportedFile, ProjectRelationship
 from projects.tasks import update_docs, remove_dir
 from redirects.models import Redirect
@@ -44,7 +45,9 @@ def homepage(request):
     latest_builds = Build.objects.order_by('-date')[:100]
     latest = []
     for build in latest_builds:
-        if build.project not in latest and len(latest) < 10:
+        if build.project.privacy_level == constants.PUBLIC
+        and build.project not in latest 
+        and len(latest) < 10:
             latest.append(build.project)
     featured = Project.objects.filter(featured=True)
     return render_to_response('homepage.html',
