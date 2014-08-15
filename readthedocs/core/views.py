@@ -440,7 +440,8 @@ def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
           and ".png" not in filename
           and ".jpg" not in filename
           and "_images" not in filename
-          and "html" not in filename
+          and ".html" not in filename
+          and "font" not in filename
           and not "inv" in filename):
         filename += "index.html"
     else:
