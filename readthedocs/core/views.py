@@ -432,9 +432,13 @@ def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
         filename = "index.html"
     # This is required because we're forming the filenames outselves instead of
     # letting the web server do it.
-    elif (proj.documentation_type == 'sphinx_htmldir'
-          or proj.documentation_type == 'mkdocs'
+    elif (
+         (proj.documentation_type == 'sphinx_htmldir' or proj.documentation_type == 'mkdocs') 
           and "_static" not in filename
+          and ".css" not in filename
+          and ".js" not in filename
+          and ".png" not in filename
+          and ".jpg" not in filename
           and "_images" not in filename
           and "html" not in filename
           and not "inv" in filename):
