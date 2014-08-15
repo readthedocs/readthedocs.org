@@ -52,7 +52,7 @@ when you push to Github.
 #. All done.  Commit away and your project will auto update.
 
 
-.. |build-status| image:: https://travis-ci.org/rtfd/readthedocs.org.png?branch=master
+.. |build-status| image:: https://travis-ci.org/rtfd/readthedocs.org.svg?branch=master
     :alt: build status
     :scale: 100%
     :target: https://travis-ci.org/rtfd/readthedocs.org
