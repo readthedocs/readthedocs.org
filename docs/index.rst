@@ -50,6 +50,7 @@ Features
     :maxdepth: 2
 
     webhooks
+    badges
     alternate_domains
     localization
     vcs
