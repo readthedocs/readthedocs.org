@@ -79,9 +79,16 @@
           </div>
           {% else %}
           {% url "projects_import" as projects_import_url %}
+          {% url "socialaccount_connections" as social_accounts %}
+          {% with getting_started_url="http://docs.readthedocs.org/en/latest/getting_started.html" %}
           <p class="empty">
-          {% blocktrans with "https://read-the-docs.readthedocs.org/en/latest/getting_started.html" as getting_started_url %}You don't have any projects.  You should <a href="{{ projects_import_url }}">create new docs</a> on the site.<br>
-          Check out the <a href="{{ getting_started_url }}">Getting Started</a> documentation for information about how to get going.{% endblocktrans %}</p>
+          You don't have any projects. You can <a href="{{ projects_import_url }}">create new docs</a> on the site.
+          <br>
+          If you have a GitHub account, you can <a href="{{ social_accounts }}">connect it</a> and import projects from there.
+          <br>
+          Check out the <a href="{{ getting_started_url }}">Getting Started</a> documentation for information about how to get going.
+          </p>
+          {% endwith %}
           {% endif %}
           <!-- END your projects list -->
 
