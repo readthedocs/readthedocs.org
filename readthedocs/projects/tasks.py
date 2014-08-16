@@ -596,7 +596,7 @@ def update_static_metadata(project_pk):
         json.dump(metadata, fh)
         fh.close()
         copy_file_to_app_servers(path, path)
-    except IOError as e:
+    except (AttributeError, IOError) as e:
         log.debug(LOG_TEMPLATE.format(
             project=project.slug,
             version='',
