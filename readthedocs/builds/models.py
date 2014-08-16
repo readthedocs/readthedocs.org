@@ -79,6 +79,8 @@ class VersionManager(models.Manager):
         return queryset.filter(*args, **kwargs)
 
 
+DEFAULT_VERSION_PRIVACY_LEVEL = getattr(settings, 'DEFAULT_VERSION_PRIVACY_LEVEL', 'public')
+
 class Version(models.Model):
     project = models.ForeignKey(Project, verbose_name=_('Project'),
                                 related_name='versions')
@@ -98,7 +100,7 @@ class Version(models.Model):
     uploaded = models.BooleanField(_('Uploaded'), default=False)
     privacy_level = models.CharField(
         _('Privacy Level'), max_length=20, choices=constants.PRIVACY_CHOICES,
-        default='public', help_text=_("Level of privacy for this Version.")
+        default=DEFAULT_VERSION_PRIVACY_LEVEL, help_text=_("Level of privacy for this Version.")
     )
     tags = TaggableManager(blank=True)
     objects = VersionManager()

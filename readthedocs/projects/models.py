@@ -90,6 +90,8 @@ class ProjectRelationship(models.Model):
         return ("http://%s.readthedocs.org/projects/%s/%s/latest/"
                 % (self.parent.slug, self.child.slug, self.child.language))
 
+DEFAULT_PRIVACY_LEVEL = getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public')
+DEFAULT_VERSION_PRIVACY_LEVEL = getattr(settings, 'DEFAULT_VERSION_PRIVACY_LEVEL', 'public')
 
 class Project(models.Model):
     #Auto fields
@@ -195,12 +197,12 @@ class Project(models.Model):
                                            max_length=255, blank=True)
     privacy_level = models.CharField(
         _('Privacy Level'), max_length=20, choices=constants.PRIVACY_CHOICES,
-        default='public',
+        default=DEFAULT_PRIVACY_LEVEL,
         help_text=_("(Beta) Level of privacy that you want on the repository. "
                     "Protected means public but not in listings."))
     version_privacy_level = models.CharField(
         _('Version Privacy Level'), max_length=20,
-        choices=constants.PRIVACY_CHOICES, default='public',
+        choices=constants.PRIVACY_CHOICES, default=DEFAULT_VERSION_PRIVACY_LEVEL,
         help_text=_("(Beta) Default level of privacy you want on built "
                     "versions of documentation."))
 
