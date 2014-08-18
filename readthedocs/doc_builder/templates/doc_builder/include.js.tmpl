@@ -1,0 +1,21 @@
+// RTD Analytics Code
+
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', '{{ global_analytics_code }}']);
+_gaq.push(['_trackPageview']);
+
+{% if user_analytics_code %}
+// User Analytics Code
+_gaq.push(['user._setAccount', '{{ user_analytics_code }}']);
+_gaq.push(['user._trackPageview']);
+// End User Analytics Code
+{% endif %}
+
+(function() {
+var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();
+
+// end RTD Analytics Code
+

@@ -30,7 +30,7 @@ class Builder(BaseBuilder):
         os.chdir(project.checkout_path(self.version.slug))
         user_config = yaml.safe_load(open('mkdocs.yml', 'r'))
         docs_dir = user_config.get('docs_dir', 'docs')
-        
+
         READTHEDOCS_DATA = {
             'project': project.slug,
             'version': self.version.slug,
@@ -41,31 +41,45 @@ class Builder(BaseBuilder):
             'source_suffix': ".md",
             'api_host': getattr(settings, 'SLUMBER_API_HOST', 'https://readthedocs.org'),
         }
-        rtd_json = json.dumps(READTHEDOCS_DATA, indent=4)
-        rtd_ctx = Context({
-            'rtd_json': rtd_json,
-            'analytics_code': project.analytics_code,
+        data_json = json.dumps(READTHEDOCS_DATA, indent=4)
+        data_ctx = Context({
+            'data_json': data_json,
         })
-        rtd_string = template_loader.get_template(
+        data_string = template_loader.get_template(
             'doc_builder/data.js.tmpl'
-        ).render(rtd_ctx)
+        ).render(data_ctx)
 
-        data_file = open(os.path.join(docs_dir, 'data.js'), 'w+')
-        data_file.write(rtd_string)
+        data_file = open(os.path.join(docs_dir, 'readthedocs-data.js'), 'w+')
+        data_file.write(data_string)
         data_file.close()
+
+        include_ctx = Context({
+            'global_analytics_code': getattr(settings, 'GLOBAL_ANALYTICS_CODE', 'UA-17997319-1'),
+            'user_analytics_code': project.analytics_code,
+        })
+        include_string = template_loader.get_template(
+            'doc_builder/include.js.tmpl'
+        ).render(include_ctx)
+        include_file = open(
+            os.path.join(docs_dir, 'readthedocs-dynamic-include.js'), 'w+')
+        include_file.write(include_string)
+        include_file.close()
 
         MEDIA_URL = getattr(
             settings, 'MEDIA_URL', 'https://media.readthedocs.org')
         if 'extra_javascript' in user_config:
             user_config['extra_javascript'].append(
                 '%sjavascript/jquery/jquery-2.0.3.min.js' % MEDIA_URL)
-            user_config['extra_javascript'].append('data.js')
+            user_config['extra_javascript'].append('readthedocs-data.js')
+            user_config['extra_javascript'].append(
+                'readthedocs-dynamic-include.js')
             user_config['extra_javascript'].append(
                 '%sjavascript/readthedocs-doc-embed.js' % MEDIA_URL)
         else:
             user_config['extra_javascript'] = [
                 '%sjavascript/jquery/jquery-2.0.3.min.js' % MEDIA_URL,
-                'data.js',
+                'readthedocs-data.js',
+                'readthedocs-dynamic-include.js',
                 '%sjavascript/readthedocs-doc-embed.js' % MEDIA_URL,
             ]
         if 'extra_css' in user_config:
