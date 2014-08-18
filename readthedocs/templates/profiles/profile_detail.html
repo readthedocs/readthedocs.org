@@ -19,162 +19,163 @@
 {% block content %}
   {% with profile.get_form as form %}
 
-  {% if profile.user.pk == user.pk %}
-    <form id="edit_form" method="POST" action="{% url "profiles_profile_edit" %}"> 
-  {% endif %}
+  <div id="profile">
+    {% if profile.user.pk == user.pk %}
+      <form id="edit_form" method="POST" action="{% url "profiles_profile_edit" %}"> 
+    {% endif %}
 
-  <div class="navigable">
+    <div class="navigable">
 
-  <ul>
-      <li>
-          <div class="profile_image">
-              {% gravatar profile.user.email 184 %}
-          </div>
-      </li>
-      <li>
-          <div>
-          {% if profile.user.pk == user.pk %}
-            <label for="edit_name" class="edit"><span>{% trans "Edit" %}</span></label>                      
-          {% endif %}
-
-          <input type="checkbox" id="edit_name" class="edit-toggle" />
-          <h3 {% if profile.user.pk == user.pk %}class="editable"{% endif %}>
-            {% if profile.user.pk == user.pk %}
-                {% if not profile.user.first_name and not profile.user.last_name %}
-                  <span class="edit-target"><em>{% trans "Add Your Name" %}</em></span>
-                  <span class="edit-input">{{ form.first_name }}</span>
-                  <span class="edit-target"></span>
-                  <span class="edit-input">{{ form.last_name }}</span>
-                {% else %}
-                  <span class="edit-target">{{ profile.user.first_name }}</span>
-                  <span class="edit-input">{{ form.first_name }}</span>
-                  <span class="edit-target">{{ profile.user.last_name }}</span>
-                  <span class="edit-input">{{ form.last_name }}</span>
-                {% endif %}
-            {% else %}
-                <span class="edit-target">{{ profile.user.first_name }}</span>
-                <span class="edit-target">{{ profile.user.last_name }}</span>
-            {% endif %}
-            <small class="quiet">({{ profile.user }})</small>
-          </h3>
-          </div>
-      </li>
-
-
-      {% if profile.homepage or profile.user.pk == user.pk %}
-      <li>
-        <div>
-          {% if profile.user.pk == user.pk %}
-            <label for="edit_homepage" class="edit"><span>{% trans "Edit" %}</span></label> 
-          {% endif %}
-
-          <input type="checkbox" id="edit_homepage" class="edit-toggle" />
-          <small {% if profile.user.pk == user.pk %}class="editable"{% endif %}>
-            {% if profile.homepage %}
-              <a class="edit-target" href="{{ profile.homepage }}" rel="nofollow">{{ profile.homepage }}</a>
-            {% else %}
-              <em class="edit-target">{% trans "Add a Homepage" %}</em>
-            {% endif %}
-            <span class="edit-input">{{ form.homepage }}</span>
-          </small>
-        </div>
-      </li>
-      {% endif %}
-      {% if profile.user.pk == user.pk %}
-        <li class="when-editing">
-          <small class="quiet">{% trans "Press enter to save your changes, or escape to discard them" %}</small>
-        </li>
-      {% endif %}
-  </ul>
-
-  <div>
-    {% with profile.user.projects.live as project_list %}
-          <!-- BEGIN projects list -->
-          <div class="module">
-            <div class="module-wrapper">
-
-              <div class="module-list">
-                <div class="module-list-wrapper">
-
-                  <ul>
-                    {% include "core/project_list_detailed.html" with omit=profile.user %}
-                  </ul>
-
-                </div>
-              </div>
-
+    <ul>
+        <li>
+            <div class="profile_image">
+                {% gravatar profile.user.email 184 %}
             </div>
+        </li>
+        <li>
+            <div {% if profile.user.pk == user.pk %}class="edit-field"{% endif %}>
+            {% if profile.user.pk == user.pk %}
+              <label for="edit_name" class="edit"><span>{% trans "Edit" %}</span></label>
+            {% endif %}
+
+            <input type="checkbox" id="edit_name" class="edit-toggle" />
+            <h3 {% if profile.user.pk == user.pk %}class="editable"{% endif %}>
+              {% if profile.user.pk == user.pk %}
+                  {% if not profile.user.first_name and not profile.user.last_name %}
+                    <span class="edit-target"><em>{% trans "Add Your Name" %}</em></span>
+                    <span class="edit-input">{{ form.first_name }}</span>
+                    <span class="edit-target"></span>
+                    <span class="edit-input">{{ form.last_name }}</span>
+                  {% else %}
+                    <span class="edit-target">{{ profile.user.first_name }}</span>
+                    <span class="edit-input">{{ form.first_name }}</span>
+                    <span class="edit-target">{{ profile.user.last_name }}</span>
+                    <span class="edit-input">{{ form.last_name }}</span>
+                  {% endif %}
+              {% else %}
+                  <span class="edit-target">{{ profile.user.first_name }}</span>
+                  <span class="edit-target">{{ profile.user.last_name }}</span>
+              {% endif %}
+              <small class="quiet">({{ profile.user }})</small>
+            </h3>
+            </div>
+        </li>
+
+
+        {% if profile.homepage or profile.user.pk == user.pk %}
+        <li>
+          <div {% if profile.user.pk == user.pk %}class="edit-field"{% endif %}>
+            {% if profile.user.pk == user.pk %}
+              <label for="edit_homepage" class="edit"><span>{% trans "Edit" %}</span></label> 
+            {% endif %}
+
+            <input type="checkbox" id="edit_homepage" class="edit-toggle" />
+            <small {% if profile.user.pk == user.pk %}class="editable"{% endif %}>
+              {% if profile.homepage %}
+                <a class="edit-target" href="{{ profile.homepage }}" rel="nofollow">{{ profile.homepage }}</a>
+              {% else %}
+                <em class="edit-target">{% trans "Add a Homepage" %}</em>
+              {% endif %}
+              <span class="edit-input">{{ form.homepage }}</span>
+            </small>
           </div>
-          <!-- END projects list -->
-    {% endwith %}
+        </li>
+        {% endif %}
+        {% if profile.user.pk == user.pk %}
+          <li class="when-editing">
+            <small class="quiet">{% trans "Press enter to save your changes, or escape to discard them" %}</small>
+          </li>
+        {% endif %}
+    </ul>
+
+    <div>
+      {% with profile.user.projects.live as project_list %}
+            <!-- BEGIN projects list -->
+            <div class="module">
+              <div class="module-wrapper">
+
+                <div class="module-list">
+                  <div class="module-list-wrapper">
+
+                    <ul>
+                      {% include "core/project_list_detailed.html" with omit=profile.user %}
+                    </ul>
+
+                  </div>
+                </div>
+
+              </div>
+            </div>
+            <!-- END projects list -->
+      {% endwith %}
+      </div>
     </div>
-  </div>
-  {% if profile.user.pk == user.pk %}
-  <script type="text/javascript">
-    (function() {
-      var checkboxen = $('.edit-toggle')
-        , form = $('#edit_form')
-        , body = $('body')
+    {% if profile.user.pk == user.pk %}
+    <script type="text/javascript">
+      (function() {
+        var checkboxen = $('.edit-toggle')
+          , form = $('#edit_form')
+          , body = $('body')
 
-      body.on('change', '.edit-toggle', toggle_editing)
+        body.on('change', '.edit-toggle', toggle_editing)
 
-      toggle_editing()
+        toggle_editing()
 
-      body.on('click', 'label.edit', function(ev) {
-        var target = $(this)
+        body.on('click', 'label.edit', function(ev) {
+          var target = $(this)
 
-        setTimeout(function() {
-          target
-            .parent()
-            .find('.editable input')
-            .eq(0).focus()
-        }, 0) 
-      })
-
-      body.on('keyup', 'input', function(ev) {
-        if(ev.keyCode == 27) {
-          checkboxen.attr('checked', false)
-          toggle_editing()
-        } else if(ev.keyCode == 13 && form) {
-          submit()
-        }
-      })
-
-      body.on('change', '#id_allow_email', function(ev) {
-        submit()
-      })
-
-      function toggle_editing(ev) {
-        if($('.edit-toggle:checked').length) {
-          body.addClass('editing')
-        } else {
-          body.removeClass('editing')
-        }
-      }
-
-      function submit() {
-        $('.edit-input').each(function(i, el) {
-          el = $(el)
-
-          el.prev().text(el.find('input').val())
+          setTimeout(function() {
+            target
+              .parent()
+              .find('.editable input')
+              .eq(0).focus()
+          }, 0) 
         })
-        checkboxen.attr('checked', false)
 
-        $.post(form.attr('action'), form.serialize(), function() {
+        body.on('keyup', 'input', function(ev) {
+          if(ev.keyCode == 27) {
+            checkboxen.attr('checked', false)
+            toggle_editing()
+          } else if(ev.keyCode == 13 && form) {
+            submit()
+          }
+        })
 
-        }) 
-      }
-    })()
-  </script>
+        body.on('change', '#id_allow_email', function(ev) {
+          submit()
+        })
 
-    {% csrf_token %}
-    <input type="submit" value="submit" style="display:none" />
-    <noscript>
-      <input type="submit" value="submit"  />
-  
-    </noscript>
-    </form>
-  {% endif %}
+        function toggle_editing(ev) {
+          if($('.edit-toggle:checked').length) {
+            body.addClass('editing')
+          } else {
+            body.removeClass('editing')
+          }
+        }
+
+        function submit() {
+          $('.edit-input').each(function(i, el) {
+            el = $(el)
+
+            el.prev().text(el.find('input').val())
+          })
+          checkboxen.attr('checked', false)
+
+          $.post(form.attr('action'), form.serialize(), function() {
+
+          }) 
+        }
+      })()
+    </script>
+
+      {% csrf_token %}
+      <input type="submit" value="submit" style="display:none" />
+      <noscript>
+        <input type="submit" value="submit"  />
+
+      </noscript>
+      </form>
+    {% endif %}
+  </div>
   {% endwith %}
-
 {% endblock %}
