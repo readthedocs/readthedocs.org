@@ -1,14 +1,19 @@
 {% load i18n %}
 {% load core_tags %}
 
-{% if project.description %}
-  <h3>{% trans "Description" %}</h3>
-  <div id="project_description">
-  <p>
-    {{ project.description|restructuredtext }}
-  </p>
-  </div>
-{% endif %}
+<div id="project_details">
+  <div class="wrapper">
+
+    <div id="project_description">
+    {% if project.description %}
+      <h3>{% trans "Description" %}</h3>
+      <div id="project_description">
+      <p>
+        {{ project.description|restructuredtext }}
+      </p>
+      </div>
+    {% endif %}
+    </div>
 
 <!-- BEGIN search bar -->
 <div class="search">
@@ -21,8 +26,8 @@
 <br>
 <!-- END search bar -->
 
-{% if versions %}
 <div class="module">
+{% if versions %}
   <div class="module-header">
     <h3>{% trans "Versions" %}</h3>
   </div>
@@ -68,7 +73,7 @@
 
   <div class="build_a_version">
     <h3>{% trans "Build a version" %}</h3>
-    <div style="float: left; margin-right: 5px;" class="version_right">
+    <div class="version_right">
       <form method="post" action="{% url "generic_build" project.pk %}">
         <select id="id_version" name="version_slug">
         {% for version in project.ordered_active_versions %}
@@ -79,8 +84,8 @@
       </form>
     </div>
   </div>
-</div>{# END .module #}
 {% endif %}
+</div>{# END .module #}
 
 <div class="project_details">
 
@@ -190,3 +195,6 @@
   <!-- END projects list -->
   {% endif %}
 </div>{# END .project_details #}
+
+  </div>
+</div>

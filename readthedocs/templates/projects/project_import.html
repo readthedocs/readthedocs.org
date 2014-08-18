@@ -28,13 +28,17 @@
 {% block content-header %}<h1>{% trans "Import an existing project" %}</h1>{% endblock %}
 
 {% block content %}
-  <form method="post" action=".">{% csrf_token %}
-    <p><input type="submit" value="{% trans "Create" %}" /></p>
-    {{ form.as_p }}
-    <p class="empty">
-      You can change how your project is built in your <em>Advanced Settings</em> once your project has been created.
-    </p>
+  <div id="project_import">
+    <div class="wrapper">
+      <form method="post" action=".">{% csrf_token %}
+        <p><input type="submit" value="{% trans "Create" %}" /></p>
+        {{ form.as_p }}
+        <p class="empty">
+          You can change how your project is built in your <em>Advanced Settings</em> once your project has been created.
+        </p>
 
-    <p><input type="submit" value="{% trans "Create" %}" /></p>
-  </form>
+        <p><input type="submit" value="{% trans "Create" %}" /></p>
+      </form>
+    </div>
+  </div>
 {% endblock %}
