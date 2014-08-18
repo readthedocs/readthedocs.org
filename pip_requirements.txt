@@ -73,5 +73,5 @@ git+https://github.com/ericflo/django-pagination.git@e5f669036c#egg=django_pagin
 git+https://github.com/ericholscher/readthedocs-sphinx-ext#egg=readthedocs_ext
 
 git+https://github.com/alex/django-taggit.git#egg=django_taggit-dev
-git+https://github.com/rtfd/mkdocs.git#egg=mkdocs
+git+https://github.com/tomchristie/mkdocs.git#egg=mkdocs
 
