@@ -35,7 +35,7 @@ class Builder(BaseBuilder):
             'project': project.slug,
             'version': self.version.slug,
             'language': project.language,
-            'page': "None",
+            'page': None,
             'theme': "readthedocs",
             'docroot': docs_dir,
             'source_suffix': ".md",
