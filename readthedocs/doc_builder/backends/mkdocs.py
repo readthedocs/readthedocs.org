@@ -98,11 +98,11 @@ class Builder(BaseBuilder):
             ]
         yaml.dump(user_config, open('mkdocs.yml', 'w'))
         if project.use_virtualenv:
-            build_command = "%s build --theme=readthedocs" % (
+            build_command = "%s build --theme=mkdocs" % (
                 project.venv_bin(version=self.version.slug,
                                  bin='mkdocs')
             )
         else:
-            build_command = "mkdocs build --theme=readthedocs"
+            build_command = "mkdocs build --theme=mkdocs"
         results = run(build_command, shell=True)
         return results
