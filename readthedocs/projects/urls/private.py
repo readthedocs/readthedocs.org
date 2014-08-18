@@ -13,6 +13,10 @@ urlpatterns = patterns(
         'projects.views.private.project_import',
         name='projects_import'),
 
+    url(r'^import/github/$',
+        'projects.views.private.project_import_github',
+        name='projects_import_github'),
+
     url(r'^(?P<project_slug>[-\w]+)/$',
         'projects.views.private.project_manage',
         name='projects_manage'),

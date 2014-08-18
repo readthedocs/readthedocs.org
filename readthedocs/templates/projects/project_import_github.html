@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Import a GitHub project" %}{% endblock %}
+
+{% block extra_links %}
+<link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}lib/markitup/skins/simple/style.css" />
+<link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}lib/markitup/sets/sphinx/editor.css" />
+{% endblock %}
+
+{% block extra_scripts %}
+<script type="text/javascript" src="{{ MEDIA_URL }}javascript/rtd-import.js"></script>
+<script type="text/javascript" src="{{ MEDIA_URL }}lib/markitup/jquery.markitup.pack.js"></script>
+<script type="text/javascript" src="{{ MEDIA_URL }}lib/markitup/sets/sphinx/editor.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() {
+      $("#id_description").markItUp(SphinxDocsSettings); // .markItUp(mySettings);
+    });
+</script>
+{% endblock %}
+
+{% block dashboard_bar %}
+{% with import_github_active="active" %}
+{% include "dashboard/dashboard_bar.html" %}
+{% endwith %}
+{% endblock %}
+
+{% block content-header %}<h1>{% trans "Import a GitHub project" %}</h1>{% endblock %}
+
+{% block content %}
+{% if github_connected %}
+<div class="module">
+  <div class="module-wrapper">
+    <div class="module-list">
+      <div class="module-list-wrapper">
+        <ul>
+          {% for repo in repos %}
+          <li class="module-item">
+
+            <a class="module-item-title" href="{{ repo.html_url }}">{{ repo.name }}</a>
+            {# ({{ repo.git_url }}) #}
+
+            <form method="post" action="{% url 'projects_import' %}">
+              {% csrf_token %}
+              <input name="name" type="hidden" value="{{ repo.name }}" />
+              <input name="repo" type="hidden" value="{{ repo.git_url }}" />
+              <input name="repo_type" type="hidden" value="git" />
+              <input name="description" type="hidden" value="{{ repo.description }}" />
+              <input name="language" type="hidden" value="en" />
+              <input name="project_url" type="hidden" value="{{ repo.homepage }}" />
+              <input name="documentation_type" type="hidden" value="sphinx" />
+
+              {% if repo.matches %}
+              <span class="dropdown" style="position:absolute; right:0px; top:0px;">
+                <span>
+                  <a href="{% url 'projects_detail' repo.matches.0 %}">{% trans "View Docs" %}</a>
+                  <a href="#">&#x25BC;</a>
+                </span>
+                <ul>
+                  {% for match in repo.matches %}
+                      <li><a href="{% url 'projects_detail' match %}">{{ match }}</a></li>
+                  {% endfor %}
+                </ul> 
+              </span>
+
+              {% else %}
+              <ul class="module-item-menu">
+                <span>
+                  <input type="submit" value="Create" style="margin: 3px;" />
+                </span>
+              </ul>
+              {% endif %}
+
+            </form>
+          </li>
+          {% empty %}
+          You don't have any public GitHub repositories. Please add some and check back.
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% else %}
+You don't have any GitHub repositories connected. 
+Go to your <a href="{% url 'socialaccount_connections' %}">Social Accounts</a> to set one up.
+{% endif %}
+{% endblock %}

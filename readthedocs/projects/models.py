@@ -90,6 +90,8 @@ class ProjectRelationship(models.Model):
         return ("http://%s.readthedocs.org/projects/%s/%s/latest/"
                 % (self.parent.slug, self.child.slug, self.child.language))
 
+DEFAULT_PRIVACY_LEVEL = getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public')
+DEFAULT_VERSION_PRIVACY_LEVEL = getattr(settings, 'DEFAULT_VERSION_PRIVACY_LEVEL', 'public')
 
 class Project(models.Model):
     #Auto fields
@@ -195,12 +197,12 @@ class Project(models.Model):
                                            max_length=255, blank=True)
     privacy_level = models.CharField(
         _('Privacy Level'), max_length=20, choices=constants.PRIVACY_CHOICES,
-        default='public',
+        default=DEFAULT_PRIVACY_LEVEL,
         help_text=_("(Beta) Level of privacy that you want on the repository. "
                     "Protected means public but not in listings."))
     version_privacy_level = models.CharField(
         _('Version Privacy Level'), max_length=20,
-        choices=constants.PRIVACY_CHOICES, default='public',
+        choices=constants.PRIVACY_CHOICES, default=DEFAULT_VERSION_PRIVACY_LEVEL,
         help_text=_("(Beta) Default level of privacy you want on built "
                     "versions of documentation."))
 
@@ -854,3 +856,25 @@ class WebHook(Notification):
 
     def __unicode__(self):
         return self.url
+
+
+class GithubProject(models.Model):
+    #Auto fields
+    pub_date = models.DateTimeField(_('Publication date'), auto_now_add=True)
+    modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
+
+    user = models.ForeignKey(User, verbose_name=_('User'),
+                                   related_name='github_projects')
+    name = models.CharField(_('Name'), max_length=255)
+    full_name = models.CharField(_('Full Name'), max_length=255, unique=True)
+    description = models.TextField(_('Description'), blank=True,
+                                   help_text=_('The reStructuredText '
+                                               'description of the project'))
+    git_url = models.CharField(_('Git URL'), max_length=200, blank=True)
+    ssh_url = models.CharField(_('SSH URL'), max_length=200, blank=True)
+    html_url = models.URLField(_('HTML URL'), max_length=200, null=True, blank=True)
+    active = models.BooleanField(_('Active'), default=False)
+    json = models.TextField('JSON')
+
+    def __unicode__(self):
+        return "%s -> %s" % (self.user, self.html_url)
