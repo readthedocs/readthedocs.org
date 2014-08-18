@@ -252,6 +252,8 @@ ANONYMOUS_USER_ID = -1
 REPO_LOCK_SECONDS = 30
 ALLOW_PRIVATE_REPOS = False
 
+GLOBAL_ANALYTICS_CODE = 'UA-17997319-1'
+
 LOG_FORMAT = "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s"
 
 LOGGING = {

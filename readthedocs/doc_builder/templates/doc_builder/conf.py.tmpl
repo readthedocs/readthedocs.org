@@ -83,6 +83,8 @@ context = {
     'using_theme': (html_theme == "default"),
     'new_theme': (html_theme == "sphinx_rtd_theme"),
     'source_suffix': SUFFIX,
+    'user_analytics_code': '{{ project.analytics_code|default_if_none:'' }}',
+    'global_analytics_code': '{{ settings.GLOBAL_ANALYTICS_CODE }}',
 }
 if 'html_context' in globals():
     html_context.update(context)

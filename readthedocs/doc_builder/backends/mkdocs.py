@@ -44,6 +44,10 @@ class Builder(BaseBuilder):
         data_json = json.dumps(READTHEDOCS_DATA, indent=4)
         data_ctx = Context({
             'data_json': data_json,
+            'current_version': READTHEDOCS_DATA['version'],
+            'slug': READTHEDOCS_DATA['project'],
+            'html_theme': READTHEDOCS_DATA['theme'],
+            'pagename': None,
         })
         data_string = template_loader.get_template(
             'doc_builder/data.js.tmpl'
