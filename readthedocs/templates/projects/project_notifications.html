@@ -16,40 +16,66 @@
     {% trans "Configure Notifications to be sent on build failures." %}
   </p>
 
-  <h3>{% trans "Existing Notifications" %}</h3>
-  <p>
-    <ul>
-    {% for email in emails %}
-        <li>
-        {{ email }}
-        </li>
-    {% endfor %}
-    </ul>
-
-  {% if emails|length > 0 %}
-  <h3>{% trans "Remove Notifications" %}</h3>
+  {% if emails or urls %}
+    <h3>{% trans "Existing Notifications" %}</h3>
     <p>
-        <form method="post" action="{% url "projects_notification_delete" project.slug %}">
-            {% csrf_token %}
-          <select id="id_email" name="email">
-          {% for email in emails %}
-            <option value="{{ email.email }}">{{ email }}</option>
-          {% endfor %}
-          </select>
-          <input type="submit" value="{% trans "Remove" %}">
-        </form>
-    </p>
+      {% if emails %}
+      <ul>
+        <h2> Emails </h2>
+        {% for email in emails %}
+            <li>
+            {{ email }}
+            </li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+
+      {% if urls %}
+      <ul>
+        <h2> Webhooks </h2>
+        {% for url in urls %}
+            <li>
+            {{ url }}
+            </li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+
+    <h3>{% trans "Remove Notifications" %}</h3>
+      <p>
+          <form method="post" action="{% url "projects_notification_delete" project.slug %}">
+              {% csrf_token %}
+            <select id="id_email" name="email">
+            {% for email in emails %}
+              <option value="{{ email.email }}">{{ email }}</option>
+            {% endfor %}
+            {% for url in urls %}
+              <option value="{{ url.url }}">{{ url }}</option>
+            {% endfor %}
+            </select>
+            <input type="submit" value="{% trans "Remove" %}">
+          </form>
+      </p>
   {% endif %}
 
 
-  <h3>{% trans "New Notifications" %}</h3>
+  <h3>{% trans "New Email Notifications" %}</h3>
   <p>
     {% trans "Add an email address to notify" %}
   </p>
   <form method="post" action=".">{% csrf_token %}
-    {{ form.email.label_tag }}
-    {{ form.email.errors }}
-    {{ form.email }}
+    {{ email_form }}
+    <p>
+      <input style="display: inline;" type="submit" value="{% trans "Submit" %}">
+    </p>
+  </form>
+
+  <h3>{% trans "New Webhook Notifications" %}</h3>
+  <p>
+    {% trans "Add an URL to notify" %}
+  </p>
+  <form method="post" action=".">{% csrf_token %}
+    {{ webhook_form }}
     <p>
       <input style="display: inline;" type="submit" value="{% trans "Submit" %}">
     </p>

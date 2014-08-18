@@ -8,7 +8,7 @@ from django.utils.safestring import mark_safe
 
 from redirects.models import Redirect
 from projects import constants
-from projects.models import Project, EmailHook
+from projects.models import Project, EmailHook, WebHook
 from projects.tasks import update_docs
 
 
@@ -290,6 +290,22 @@ class EmailHookForm(forms.Form):
         self.project.emailhook_notifications.add(self.email)
         return self.project
 
+
+class WebHookForm(forms.Form):
+    url = forms.URLField()
+
+    def __init__(self, *args, **kwargs):
+        self.project = kwargs.pop('project', None)
+        super(WebHookForm, self).__init__(*args, **kwargs)
+
+    def clean_url(self):
+        self.webhook = WebHook.objects.get_or_create(
+            url=self.cleaned_data['url'], project=self.project)[0]
+        return self.webhook
+
+    def save(self):
+        self.project.webhook_notifications.add(self.webhook)
+        return self.project
 
 class TranslationForm(forms.Form):
     project = forms.CharField()

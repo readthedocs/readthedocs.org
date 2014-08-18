@@ -20,8 +20,8 @@ from builds.models import VersionAlias, Version
 from projects.forms import (ImportProjectForm, build_versions_form,
                             build_upload_html_form, SubprojectForm,
                             UserForm, EmailHookForm, TranslationForm,
-                            AdvancedProjectForm, RedirectForm)
-from projects.models import Project, EmailHook
+                            AdvancedProjectForm, RedirectForm, WebHookForm)
+from projects.models import Project, EmailHook, WebHook
 from projects import constants
 from redirects.models import Redirect
 
@@ -307,19 +307,31 @@ def project_users_delete(request, project_slug):
 def project_notifications(request, project_slug):
     project = get_object_or_404(request.user.projects.live(),
                                 slug=project_slug)
-    form = EmailHookForm(data=request.POST or None, project=project)
 
-    if request.method == 'POST' and form.is_valid():
-        form.save()
+    email_form = EmailHookForm(data=request.POST or None, project=project)
+    webhook_form = WebHookForm(data=request.POST or None, project=project)
+
+    if request.method == 'POST':
+        if email_form.is_valid():
+            email_form.save()
+        if webhook_form.is_valid():
+            webhook_form.save()
         project_dashboard = reverse('projects_notifications',
                                     args=[project.slug])
         return HttpResponseRedirect(project_dashboard)
 
     emails = project.emailhook_notifications.all()
+    urls = project.webhook_notifications.all()
 
     return render_to_response(
         'projects/project_notifications.html',
-        {'form': form, 'project': project, 'emails': emails},
+        {
+            'email_form': email_form, 
+            'webhook_form': webhook_form, 
+            'project': project, 
+            'emails': emails,
+            'urls': urls,
+        },
         context_instance=RequestContext(request)
     )
 
@@ -330,9 +342,13 @@ def project_notifications_delete(request, project_slug):
         raise Http404
     project = get_object_or_404(request.user.projects.live(),
                                 slug=project_slug)
-    notification = get_object_or_404(EmailHook.objects.all(),
-                                     email=request.POST.get('email'))
-    notification.delete()
+    try:
+        project.emailhook_notifications.get(email=request.POST.get('email')).delete()
+    except EmailHook.DoesNotExist:
+        try:
+            project.webhook_notifications.get(url=request.POST.get('email')).delete()
+        except WebHook.DoesNotExist:
+            raise Http404
     project_dashboard = reverse('projects_notifications', args=[project.slug])
     return HttpResponseRedirect(project_dashboard)
 
