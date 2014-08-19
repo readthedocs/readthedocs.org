@@ -5,7 +5,7 @@
 {% block title %}{% blocktrans %}Search: {{ query }}{% endblocktrans %}{% endblock %}
 
 {% block project_editing %}
-    {% with overview_active="active" %}
+    {% with search_active="active" %}
         {% include "core/project_bar.html" %}
     {% endwith %}
 {% endblock %}
@@ -16,7 +16,7 @@
           <div class="wide-search-bar-wrapper clearfix">
             <form action="." method="GET">
               <div class="text-input-wrapper">
-                <input type="text" name="q" value="{{ query }}" id="id_site_search">
+                <input type="text" name="q" value="{{ query|default:"" }}" id="id_site_search">
               </div>
               <div class="submit-input-wrapper">
                 {% comment %}Translators: This is about starting a search{% endcomment %}

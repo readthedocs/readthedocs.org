@@ -219,38 +219,42 @@ def elastic_project_search(request, project_slug):
     query = request.GET.get('q', None)
     log.debug("(API Search) %s" % query)
 
-    kwargs = {}
-    body = {
-        "query": {
-            "bool": {
-                "should": [
-                    {"match": {"title": {"query": query, "boost": 10}}},
-                    {"match": {"headers": {"query": query, "boost": 5}}},
-                    {"match": {"content": {"query": query}}},
+    if query:
+
+        kwargs = {}
+        body = {
+            "query": {
+                "bool": {
+                    "should": [
+                        {"match": {"title": {"query": query, "boost": 10}}},
+                        {"match": {"headers": {"query": query, "boost": 5}}},
+                        {"match": {"content": {"query": query}}},
+                    ]
+                }
+            },
+            "highlight": {
+                "fields": {
+                    "title": {},
+                    "headers": {},
+                    "content": {},
+                }
+            },
+            "fields": ["title", "project", "version", "path"],
+            "filter": {
+                "and": [
+                    {"term": {"project": project_slug}},
+                    {"term": {"version": version_slug}},
                 ]
-            }
-        },
-        "highlight": {
-            "fields": {
-                "title": {},
-                "headers": {},
-                "content": {},
-            }
-        },
-        "fields": ["title", "project", "version", "path"],
-        "filter": {
-            "and": [
-                {"term": {"project": project_slug}},
-                {"term": {"version": version_slug}},
-            ]
-        },
-        "size": 50  # TODO: Support pagination.
-    }
+            },
+            "size": 50  # TODO: Support pagination.
+        }
 
-    # Add routing to optimize search by hitting the right shard.
-    kwargs['routing'] = project_slug
+        # Add routing to optimize search by hitting the right shard.
+        kwargs['routing'] = project_slug
 
-    results = PageIndex().search(body, **kwargs)
+        results = PageIndex().search(body, **kwargs)
+    else:
+        results = {}
 
     return render_to_response(
         'search/elastic_project_search.html',

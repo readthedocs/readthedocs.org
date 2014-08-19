@@ -34,6 +34,9 @@ def quick_search(request):
 @decorators.permission_classes((permissions.IsAdminUser,))
 @decorators.renderer_classes((JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
 def index_search(request):
+    """
+    Add things to the search index.
+    """
     data = request.DATA['data']
     project_pk = data['project_pk']
     version_pk = data['version_pk']

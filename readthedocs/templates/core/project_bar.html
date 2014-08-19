@@ -38,6 +38,8 @@
 
             <li class="{{ downloads_active }}"><a href="{% url "project_downloads" project.slug %}" rel="nofollow,noindex">{% trans "Downloads" %}</a></li>
 
+            <li class="{{ search_active }}"><a href="{% url "elastic_project_search" project.slug %}" rel="nofollow,noindex">{% trans "Search" %}</a></li>
+
             {% if project.get_latest_build %}
               <li class="{{ builds_active }}"><a href="{{ project.get_builds_url }}">{% trans "Builds" %}</a></li>
             {% endif %}
