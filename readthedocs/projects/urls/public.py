@@ -37,6 +37,10 @@ urlpatterns = patterns(
         'projects.views.public.project_badge',
         name='project_badge'),
 
+    url(r'^(?P<project_slug>[-\w]+)/search/$',
+        'projects.views.public.elastic_project_search',
+        name='elastic_project_search'),
+
     url(r'^(?P<username>\w+)/$',
         'projects.views.public.project_index',
         name='projects_user_list'),

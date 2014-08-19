@@ -1,4 +1,5 @@
 import json
+import logging
 
 from django.core.urlresolvers import reverse
 from django.conf import settings
@@ -15,7 +16,9 @@ import requests
 from builds.filters import VersionSlugFilter
 from builds.models import Version
 from projects.models import Project
+from search.indexes import PageIndex
 
+log = logging.getLogger(__name__)
 
 class ProjectIndex(ListView):
     model = Project
@@ -205,3 +208,57 @@ def version_filter_autocomplete(request, project_slug):
         )
     else:
         raise HttpResponse(status=400)
+
+def elastic_project_search(request, project_slug):
+    """
+    Use elastic search to search in a project.
+    """
+    queryset = Project.objects.protected(request.user)
+    project = get_object_or_404(queryset, slug=project_slug)
+    version_slug = request.GET.get('version', 'latest')
+    query = request.GET.get('q', None)
+    log.debug("(API Search) %s" % query)
+
+    kwargs = {}
+    body = {
+        "query": {
+            "bool": {
+                "should": [
+                    {"match": {"title": {"query": query, "boost": 10}}},
+                    {"match": {"headers": {"query": query, "boost": 5}}},
+                    {"match": {"content": {"query": query}}},
+                ]
+            }
+        },
+        "highlight": {
+            "fields": {
+                "title": {},
+                "headers": {},
+                "content": {},
+            }
+        },
+        "fields": ["title", "project", "version", "path"],
+        "filter": {
+            "and": [
+                {"term": {"project": project_slug}},
+                {"term": {"version": version_slug}},
+            ]
+        },
+        "size": 50  # TODO: Support pagination.
+    }
+
+    # Add routing to optimize search by hitting the right shard.
+    kwargs['routing'] = project_slug
+
+    results = PageIndex().search(body, **kwargs)
+
+    return render_to_response(
+        'search/elastic_project_search.html',
+        {
+            'project': project,
+            'query': query,
+            'results': results,
+        },
+        context_instance=RequestContext(request),
+    )
+
