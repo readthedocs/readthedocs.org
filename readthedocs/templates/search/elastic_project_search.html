@@ -1,6 +1,6 @@
 {% extends "projects/base_project.html" %}
 
-{% load i18n highlight  %}
+{% load core_tags i18n highlight  %}
 
 {% block title %}{% blocktrans %}Search: {{ query }}{% endblocktrans %}{% endblock %}
 
@@ -44,7 +44,7 @@
                   {% for result in results.hits.hits %}
                         <li class="module-item">
                           <p class="module-item-title">
-                            <a href="{{ result.fields.path }}?highlight={{ query }}">{{ result.fields.project.0 }} - {{ result.fields.title.0 }}</a>
+                            <a href="{% doc_url project result.fields.version.0 result.fields.path.0 %}?highlight={{ query }}">{{ result.fields.project.0 }} - {{ result.fields.title.0|safe }}</a>
                           </p>
                           <p>
                             {{ result.highlight.content.0|safe }}
