@@ -40,6 +40,13 @@ since it will stay up to date with your Read the Docs project::
 
     https://readthedocs.org/projects/pip/badge/
 
+Style
+-----
+
+If you pass the ``style`` GET argument,
+we will pass it along to shields.io as is.
+This will allow you to have custom style badges.
+
 
 .. _Read the Docs README: https://github.com/rtfd/readthedocs.org/blob/master/README.rst
 .. _project page: https://readthedocs.org/projects/pip/

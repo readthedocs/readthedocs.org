@@ -92,21 +92,22 @@ def project_badge(request, project_slug, redirect=False):
     Return a sweet badge for the project
     """
     version_slug = request.GET.get('version', 'latest')
+    style = request.GET.get('style', '')
     try:
         version = Version.objects.get(project__slug=project_slug, slug=version_slug)
     except Version.DoesNotExist:
-        url = 'http://img.shields.io/badge/Docs-Unknown%20Version-yellow.svg'
+        url = 'http://img.shields.io/badge/Docs-Unknown%20Version-yellow.svg?style=' % style
         return _badge_return(redirect, url)
     version_builds = version.builds.filter(type='html', state='finished').order_by('-date')
     if not version_builds.exists():
-        url = 'http://img.shields.io/badge/Docs-No%20Builds-yellow.svg'
+        url = 'http://img.shields.io/badge/Docs-No%20Builds-yellow.svg%s' % style
         return _badge_return(redirect, url)
     last_build = version_builds[0]
     if last_build.success:
         color = 'green'
     else:
         color = 'red'
-    url = 'http://img.shields.io/badge/Docs-%s-%s.svg' % (version.slug.replace('-', '--'), color)
+    url = 'http://img.shields.io/badge/Docs-%s-%s.svg?style=%s' % (version.slug.replace('-', '--'), color, style)
     return _badge_return(redirect, url)
 
 def project_downloads(request, project_slug):
