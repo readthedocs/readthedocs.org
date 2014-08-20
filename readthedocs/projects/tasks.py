@@ -718,7 +718,7 @@ def fileify(version_pk):
         version_data = api.version(version_pk).get()
         version = make_api_version(version_data)
     else:
-        version = Version.objects.get(pk=verion_pk)
+        version = Version.objects.get(pk=version_pk)
     project = version.project
     path = project.rtd_build_path(version.slug)
     log.info(LOG_TEMPLATE.format(
