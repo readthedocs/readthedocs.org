@@ -160,9 +160,14 @@ def search_autocomplete(request):
     queryset = (Project.objects.public(request.user)
                 .filter(name__icontains=term)[:20])
 
-    project_names = queryset.values_list('name', flat=True)
-    json_response = json.dumps(list(project_names))
+    ret_list = []
+    for project in queryset:
+        ret_list.append({
+            'label': project.name,
+            'value': project.slug,
+            })
 
+    json_response = json.dumps(ret_list)
     return HttpResponse(json_response, mimetype='text/javascript')
 
 
