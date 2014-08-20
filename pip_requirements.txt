@@ -13,7 +13,7 @@ virtualenv==1.11.6
 docutils==0.11
 Sphinx==1.2.2
 
-django>=1.6
+django==1.6.6
 django-tastypie==0.11.1
 django-haystack==2.1.0
 celery-haystack==0.7.2
