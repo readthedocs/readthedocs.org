@@ -10,13 +10,40 @@
     {% endwith %}
 {% endblock %}
 
+{% block extra_scripts %}
+<script type="text/javascript">
+
+$(document).ready(function() {
+    input_div = $('#id_elastic_project_search')
+
+    $('#id_elastic_project_search').autocomplete({
+    source: '/projects/search/autocomplete/',
+    minLength: 2,
+    open: function(event, ui) {
+      ac_top = $('.ui-autocomplete').css('top');
+      input_width = parseInt(input_div.css('width'))
+      input_padding = parseInt(input_div.css('padding')) 
+      $('.ui-autocomplete').css({'cursor': 'pointer', 'width': input_width, 'padding': input_padding, 'top': ac_top + 10 });
+    },
+    select: function( event, ui ) {
+      event.preventDefault()
+      window.location.replace('/projects/' + ui.item.value)
+    }
+    });
+
+})
+</script>
+
+
+{% endblock %}
+
 {% block content %}
         <!-- BEGIN search form -->
         <div class="wide-search-bar">
           <div class="wide-search-bar-wrapper clearfix">
             <form action="." method="GET">
               <div class="text-input-wrapper">
-                <input type="text" name="q" value="{{ query|default:"" }}" id="id_site_search">
+                <input type="text" name="q" value="{{ query|default:"" }}" id="id_elastic_project_search">
               </div>
               <div class="submit-input-wrapper">
                 {% comment %}Translators: This is about starting a search{% endcomment %}
