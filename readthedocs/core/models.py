@@ -2,7 +2,7 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.db.utils import DatabaseError
 from django.dispatch import receiver
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, AnonymousUser
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 STANDARD_EMAIL = "anonymous@readthedocs.org"
@@ -58,3 +58,24 @@ def create_profile(sender, **kwargs):
             UserProfile.objects.create(user_id=kwargs['instance'].id, whitelisted=False)
         except DatabaseError:
             pass
+
+
+class AuthenticatedAnonymousUser(AnonymousUser):
+    '''Anonymous user that is authenticated
+
+    This user model is used to fool
+    :py:func:`django.contrib.auth.decorators.login_required` and
+    :py:func:`django.contrib.auth.login` calls. This will be more useful if we
+    provide anonymous access to areas of the site that require authorization.
+    '''
+
+    def is_authenticated(self):
+        return True
+
+    def save(self, *_, **__):
+        '''Override user save to allow login
+
+        :py:func:`django.contrib.auth.login` will fail on a call to super's
+        `save`, so we override it here, as it's not important.
+        '''
+        pass

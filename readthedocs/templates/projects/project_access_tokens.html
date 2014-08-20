@@ -1,0 +1,66 @@
+{% extends "projects/project_edit_base.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans "Access Tokens" %}{% endblock %}
+
+{% block project-access-tokens-active %}active{% endblock %}
+{% block project_edit_content_header %}{{ project.name }} <small class="quiet">{% trans "Access Tokens" %}</small>{% endblock %}
+
+{% block project_edit_content %}
+  <p class="help_text">
+    {% trans "Add access tokens to give out temporary access to a project" %}
+  </p>
+
+  <!-- BEGIN access token list -->
+  <div class="module">
+    <div class="module-wrapper">
+  {% for token in tokens %}
+      <div class="module-list">
+        <div class="module-list-wrapper">
+
+          <ul>
+            <li class="module-item">
+              <div>
+                {{ token.description }} ({{ token.access_level }})
+              </div>
+              <div>
+                <a href="{% url "token" token.token %}">{{ request.get_host }}{% url "token" token.token %}</a>
+              </div>
+
+              <div>
+                {% trans "expires" %} {{ token.expires }}
+              </div>
+
+              <!--
+              <span class="right-menu">
+                <form method="post" action="{% url "projects_access_tokens_delete" project.slug %}">
+                  {% csrf_token %}
+                  <input type="hidden" name="pk" value="{{ token.pk }}" />
+                  <input type="submit" value="Remove">
+                </form>
+              </span>
+              -->
+            </li>
+          </ul>
+
+        </div>
+      </div>
+  {% endfor %}
+
+      <div>
+        <h3>{% trans "Add Token" %}</h3>
+        <p>
+          {% trans "Add an access token for anonymous users." %}
+        </p>
+        <form method="post" action=".">
+          {% csrf_token %}
+          {{ form.as_p }}
+          <input type="submit" value="{% trans "Add Token" %}">
+        </form>
+      </div>
+
+    </div>
+  </div>
+  <!-- END access token list -->
+{% endblock %}

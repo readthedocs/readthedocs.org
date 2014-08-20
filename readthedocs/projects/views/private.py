@@ -22,8 +22,10 @@ from builds.models import VersionAlias, Version
 from projects.forms import (ImportProjectForm, build_versions_form,
                             build_upload_html_form, SubprojectForm,
                             UserForm, EmailHookForm, TranslationForm,
-                            AdvancedProjectForm, RedirectForm, WebHookForm)
-from projects.models import Project, EmailHook, GithubProject, WebHook
+                            AdvancedProjectForm, RedirectForm, WebHookForm,
+                            AccessTokenForm)
+from projects.models import (Project, EmailHook, WebHook, GithubProject,
+                             AccessToken)
 from projects import constants
 from redirects.models import Redirect
 
@@ -335,9 +337,9 @@ def project_notifications(request, project_slug):
     return render_to_response(
         'projects/project_notifications.html',
         {
-            'email_form': email_form, 
-            'webhook_form': webhook_form, 
-            'project': project, 
+            'email_form': email_form,
+            'webhook_form': webhook_form,
+            'project': project,
             'emails': emails,
             'urls': urls,
         },
@@ -427,6 +429,47 @@ def project_redirects_delete(request, project_slug):
     else:
         raise Http404
     project_dashboard = reverse('projects_redirects', args=[project.slug])
+
+
+@login_required
+def project_access_tokens(request, project_slug):
+    """
+    Form/POST for adding access tokens to projects
+    """
+    project = get_object_or_404(Project, slug=project_slug)
+
+    form = AccessTokenForm(data=request.POST or None, project=project)
+
+    if request.method == 'POST' and form.is_valid():
+        token = form.save()
+        project_dashboard = reverse('projects_access_tokens',
+                                    args=[project.slug])
+        return HttpResponseRedirect(project_dashboard)
+
+    tokens = project.access_tokens.all()
+
+    return render_to_response(
+        'projects/project_access_tokens.html',
+        {'form': form, 'project': project, 'tokens': tokens},
+        context_instance=RequestContext(request)
+    )
+
+
+@login_required
+def project_access_tokens_delete(request, project_slug):
+    """
+    Delete access token from project
+    """
+    if request.method != 'POST':
+        return HttpResponseNotAllowed('Only POST is allowed')
+    project = get_object_or_404(Project, slug=project_slug)
+    token = get_object_or_404(AccessToken.objects.all(),
+                              pk=request.POST.get('pk'))
+    if token.project == project:
+        token.delete()
+    else:
+        raise Http404
+    project_dashboard = reverse('projects_access_tokens', args=[project.slug])
     return HttpResponseRedirect(project_dashboard)
 
 

@@ -10,7 +10,7 @@ from guardian.shortcuts import assign
 
 from redirects.models import Redirect
 from projects import constants
-from projects.models import Project, EmailHook, WebHook
+from projects.models import Project, EmailHook, WebHook, AccessToken
 from projects.tasks import update_docs
 
 
@@ -350,3 +350,22 @@ class RedirectForm(forms.ModelForm):
             to_url=self.cleaned_data['to_url'],
         )
         return redirect
+
+
+class AccessTokenForm(forms.ModelForm):
+
+    class Meta:
+        model = AccessToken
+        fields = ['description', 'access_level']
+
+    def __init__(self, *args, **kwargs):
+        self.project = kwargs.pop('project', None)
+        super(AccessTokenForm, self).__init__(*args, **kwargs)
+
+    def save(self, *args, **kwargs):
+        token = AccessToken.objects.create(
+            project=self.project,
+            description=self.cleaned_data['description'],
+            access_level=self.cleaned_data['access_level'],
+        )
+        return token

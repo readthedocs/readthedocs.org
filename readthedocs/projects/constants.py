@@ -143,3 +143,10 @@ LANGUAGES_REGEX = "|".join(
 )
 
 LOG_TEMPLATE = u"(Build) [{project}:{version}] {msg}"
+
+# Token access
+ACCESS_READONLY = 'readonly'
+
+TOKEN_ACCESS_LEVELS = (
+    (ACCESS_READONLY, _('Read-only')),
+)

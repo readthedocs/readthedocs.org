@@ -19,9 +19,11 @@ from celery.task.control import inspect
 
 from builds.models import Build
 from builds.models import Version
+from core.decorators import token_access
 from core.forms import FacetedSearchForm
 from projects import constants
-from projects.models import Project, ImportedFile, ProjectRelationship
+from projects.models import (Project, ImportedFile, ProjectRelationship,
+                             AccessToken)
 from projects.tasks import update_docs, remove_dir
 from redirects.models import Redirect
 from redirects.utils import redirect_filename
@@ -46,7 +48,7 @@ def homepage(request):
     latest = []
     for build in latest_builds:
         if (build.project.privacy_level == constants.PUBLIC
-        and build.project not in latest 
+        and build.project not in latest
         and len(latest) < 10):
             latest.append(build.project)
     featured = Project.objects.filter(featured=True)
@@ -416,6 +418,7 @@ def redirect_page_with_filename(request, filename, project_slug=None):
     return HttpResponseRedirect(url)
 
 
+@token_access
 def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
     if not project_slug:
         project_slug = request.slug
@@ -427,13 +430,19 @@ def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
         proj = None
         ver = None
     if not proj or not ver:
-        return server_helpful_404(request, project_slug, lang_slug, version_slug, filename)
+        return server_helpful_404(request, project_slug, lang_slug, version_slug,
+                                  filename)
 
-    # Auth checks
+    # Check authorization of user for private version. Don't fail if a token is
+    # set and valid
     if ver not in proj.versions.public(request.user, proj, only_active=False):
         res = HttpResponse("You don't have access to this version.")
         res.status_code = 401
-        return res
+        if hasattr(request, 'token') and request.token is not None:
+            log.info('Access using token {0}'.format(request.token))
+        else:
+            log.error('Unauthorized access to {0} documentation'.format(ver))
+            return res
 
     # Figure out actual file to serve
     if not filename:
@@ -441,7 +450,7 @@ def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
     # This is required because we're forming the filenames outselves instead of
     # letting the web server do it.
     elif (
-         (proj.documentation_type == 'sphinx_htmldir' or proj.documentation_type == 'mkdocs') 
+         (proj.documentation_type == 'sphinx_htmldir' or proj.documentation_type == 'mkdocs')
           and "_static" not in filename
           and ".css" not in filename
           and ".js" not in filename
@@ -772,3 +781,13 @@ class SearchView(TemplateView):
         Fetches the results via the form.
         """
         return self.form.search()
+
+
+def token(request, token_id):
+    '''View to activate session from URL token'''
+    proj_token = AccessToken.get_validated_token(token_id)
+    if proj_token is not None:
+        request.session['access_token'] = token_id
+        request.session.modified = True
+        return redirect_project_slug(request, proj_token.project.slug)
+    raise Http404('Access token does not exist')
