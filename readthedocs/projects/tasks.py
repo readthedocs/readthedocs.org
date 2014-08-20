@@ -714,8 +714,11 @@ def fileify(version_pk):
     This is a prereq for indexing the docs for search.
     It also causes celery-haystack to kick off an index of the file.
     """
-    version_data = api.version(version_pk).get()
-    version = make_api_version(version_data)
+    if getattr(settings, 'DONT_HIT_DB', True):
+        version_data = api.version(version_pk).get()
+        version = make_api_version(version_data)
+    else:
+        version = Version.objects.get(pk=verion_pk)
     project = version.project
     path = project.rtd_build_path(version.slug)
     log.info(LOG_TEMPLATE.format(
