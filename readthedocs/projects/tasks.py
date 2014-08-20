@@ -706,6 +706,7 @@ def update_search(version):
     apiv2.index_search.post({'data': data})
 
 
+@task()
 def fileify(version_pk):
     """
     Create ImportedFile objects for all of a version's files.
