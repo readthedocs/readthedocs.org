@@ -138,12 +138,12 @@ class Builder(BaseBuilder):
         # Actual build
 
         if project.use_virtualenv:
-            build_command = "%s build --site-dir=site --theme=mkdocs" % (
+            build_command = "%s build --site-dir=site --theme=readthedocs" % (
                 project.venv_bin(version=self.version.slug,
                                  bin='mkdocs')
             )
         else:
-            build_command = "mkdocs build --site-dir=site --theme=mkdocs"
+            build_command = "mkdocs build --site-dir=site --theme=readthedocs"
         results = run(build_command, shell=True)
 
         # Index Search
