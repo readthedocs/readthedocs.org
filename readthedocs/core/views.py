@@ -214,7 +214,10 @@ def github_build(request):
     A post-commit hook for github.
     """
     if request.method == 'POST':
-        obj = json.loads(request.POST['payload'])
+        try:
+            obj = json.loads(request.POST['payload'])
+        except:
+            obj = json.loads(request.raw_post_data)
         url = obj['repository']['url']
         ghetto_url = url.replace('http://', '').replace('https://', '')
         branch = obj['ref'].replace('refs/heads/', '')
