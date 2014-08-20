@@ -217,7 +217,7 @@ def github_build(request):
         try:
             obj = json.loads(request.POST['payload'])
         except:
-            obj = json.loads(request.raw_post_data)
+            obj = json.loads(request.body)
         url = obj['repository']['url']
         ghetto_url = url.replace('http://', '').replace('https://', '')
         branch = obj['ref'].replace('refs/heads/', '')
