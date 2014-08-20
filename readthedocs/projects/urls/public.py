@@ -41,6 +41,11 @@ urlpatterns = patterns(
         'projects.views.public.elastic_project_search',
         name='elastic_project_search'),
 
+    url(r'^(?P<project_slug>[-\w]+)/autocomplete/file/$',
+        'projects.views.public.file_autocomplete',
+        name='file_autocomplete'),
+
+
     url(r'^(?P<username>\w+)/$',
         'projects.views.public.project_index',
         name='projects_user_list'),

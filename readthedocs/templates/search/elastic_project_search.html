@@ -17,7 +17,7 @@ $(document).ready(function() {
     input_div = $('#id_elastic_project_search')
 
     $('#id_elastic_project_search').autocomplete({
-    source: '/projects/search/autocomplete/',
+    source: '{% url "file_autocomplete" project.slug %}',
     minLength: 2,
     open: function(event, ui) {
       ac_top = $('.ui-autocomplete').css('top');
@@ -27,7 +27,7 @@ $(document).ready(function() {
     },
     select: function( event, ui ) {
       event.preventDefault()
-      window.location.replace('/projects/' + ui.item.value)
+      window.location.replace('/docs/' + '{{ project.slug }}' + '/en/latest/' + ui.item.value)
     }
     });
 

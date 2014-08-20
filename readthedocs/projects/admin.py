@@ -32,7 +32,7 @@ class ProjectAdmin(GuardedModelAdmin):
 
 
 class ImportedFileAdmin(admin.ModelAdmin):
-    list_display = ('name', 'version')
+    list_display = ('path', 'name', 'version')
     list_filter = ('project',)
 
 

@@ -688,7 +688,7 @@ def record_pdf(api, record, results, state, version):
             error=results['pdf'][2],
             exit_code=results['pdf'][0],
         ))
-    except Exception, e:
+    except Exception:
         log.error(LOG_TEMPLATE.format(project=version.project.slug,
                                       version=version.slug, msg="Unable to post a new build"), exc_info=True)
 
@@ -722,7 +722,7 @@ def fileify(version_pk):
     project = version.project
     path = project.rtd_build_path(version.slug)
     log.info(LOG_TEMPLATE.format(
-        project=project.slug, version=version.slug, msg='Indexing files'))
+        project=project.slug, version=version.slug, msg='Creating ImportedFiles'))
     if path:
         for root, dirnames, filenames in os.walk(path):
             for filename in filenames:

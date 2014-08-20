@@ -15,7 +15,7 @@ import requests
 
 from builds.filters import VersionSlugFilter
 from builds.models import Version
-from projects.models import Project
+from projects.models import Project, ImportedFile
 from search.indexes import PageIndex
 
 log = logging.getLogger(__name__)
@@ -213,6 +213,28 @@ def version_filter_autocomplete(request, project_slug):
         )
     else:
         raise HttpResponse(status=400)
+
+
+def file_autocomplete(request, project_slug):
+    """
+    return a json list of version names
+    """
+    if 'term' in request.GET:
+        term = request.GET['term']
+    else:
+        raise Http404
+    queryset = ImportedFile.objects.filter(project__slug=project_slug, path__icontains=term)[:20]
+
+    ret_list = []
+    for file in queryset:
+        ret_list.append({
+            'label': file.path,
+            'value': file.path,
+            })
+
+    json_response = json.dumps(ret_list)
+    return HttpResponse(json_response, mimetype='text/javascript')
+
 
 def elastic_project_search(request, project_slug):
     """
