@@ -526,7 +526,7 @@ def finish_build(version, build, results):
         if ret == 0:
             log.info(LOG_TEMPLATE.format(
                 project=version.project.slug, version=version.slug, msg="Successful Build"))
-            # fileify.delay(version.pk)
+            fileify.delay(version.pk)
             symlinks.symlink_cnames(version)
             symlinks.symlink_translations(version)
             symlinks.symlink_subprojects(version)
