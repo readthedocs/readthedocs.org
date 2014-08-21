@@ -1,3 +1,4 @@
+import re
 import fnmatch
 import os
 import logging
@@ -129,12 +130,13 @@ class Builder(BaseBuilder):
                 for filename in filenames:
                     if fnmatch.fnmatch(filename, '*.html'):
                         full_path = os.path.join(root, filename.lstrip('/'))
-                        relative_path = os.path.join(root.replace(site_path, '').lstrip('/'), filename.lstrip('/')).rstrip('.html')
+                        relative_path = os.path.join(root.replace(site_path, '').lstrip('/'), filename.lstrip('/'))
+                        relative_path = re.sub('.html$', '', relative_path)
                         html = parse_content_from_file(documentation_type='mkdocs', file_path=full_path)
                         headers = parse_headers_from_file(documentation_type='mkdocs', file_path=full_path)
                         sections = parse_sections_from_file(documentation_type='mkdocs', file_path=full_path)
                         page_list.append(
-                            {'content': html, 'path': relative_path, 'title': relative_path.rstrip('/index'), 'headers': headers, 'sections': sections}
+                            {'content': html, 'path': relative_path, 'title': sections[0]['title'], 'headers': headers, 'sections': sections}
                         )
 
             data = {
