@@ -103,6 +103,8 @@ MIDDLEWARE_CLASSES = (
 AUTHENTICATION_BACKENDS = (
     # Needed to login by username in Django admin, regardless of `allauth`
     "django.contrib.auth.backends.ModelBackend",
+    # Token access for projects
+    "readthedocs.acl.backend.TokenAccessBackend",
     # `allauth` specific authentication methods, such as login by e-mail
     "allauth.account.auth_backends.AuthenticationBackend",
 )
@@ -162,6 +164,7 @@ INSTALLED_APPS = [
 
 
     # our apps
+    'acl',
     'builds',
     'core',
     'doc_builder',
@@ -173,7 +176,7 @@ INSTALLED_APPS = [
     # allauth
     'allauth',
     'allauth.account',
-    'allauth.socialaccount', 
+    'allauth.socialaccount',
     'allauth.socialaccount.providers.github',
     #'allauth.socialaccount.providers.bitbucket',
     #'allauth.socialaccount.providers.twitter',
