@@ -6,7 +6,8 @@ from builds.models import Version
 from django.contrib import admin
 from redirects.models import Redirect
 from projects.models import (Project, ImportedFile, ProjectRelationship,
-                             EmailHook, WebHook, GithubProject, AccessToken)
+                             EmailHook, WebHook, GithubProject)
+from acl.models import ProjectAccessToken
 from guardian.admin import GuardedModelAdmin
 
 
@@ -36,7 +37,7 @@ class ImportedFileAdmin(admin.ModelAdmin):
     list_filter = ('project',)
 
 
-class AccessTokenAdmin(admin.ModelAdmin):
+class ProjectAccessTokenAdmin(admin.ModelAdmin):
     list_display = ('token', 'project', 'expires')
     list_filter = ('project',)
 
@@ -45,4 +46,4 @@ admin.site.register(ImportedFile, ImportedFileAdmin)
 admin.site.register(EmailHook)
 admin.site.register(WebHook)
 admin.site.register(GithubProject)
-admin.site.register(AccessToken, AccessTokenAdmin)
+admin.site.register(ProjectAccessToken, ProjectAccessTokenAdmin)

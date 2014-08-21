@@ -16,6 +16,7 @@ from allauth.socialaccount.models import SocialToken
 from guardian.shortcuts import assign
 from requests_oauthlib import OAuth2Session
 
+from acl.models import ProjectAccessToken
 from builds.forms import AliasForm, VersionForm
 from builds.filters import VersionFilter
 from builds.models import VersionAlias, Version
@@ -23,9 +24,8 @@ from projects.forms import (ImportProjectForm, build_versions_form,
                             build_upload_html_form, SubprojectForm,
                             UserForm, EmailHookForm, TranslationForm,
                             AdvancedProjectForm, RedirectForm, WebHookForm,
-                            AccessTokenForm)
-from projects.models import (Project, EmailHook, WebHook, GithubProject,
-                             AccessToken)
+                            ProjectAccessTokenForm)
+from projects.models import Project, EmailHook, WebHook, GithubProject
 from projects import constants
 from redirects.models import Redirect
 
@@ -438,7 +438,7 @@ def project_access_tokens(request, project_slug):
     """
     project = get_object_or_404(Project, slug=project_slug)
 
-    form = AccessTokenForm(data=request.POST or None, project=project)
+    form = ProjectAccessTokenForm(data=request.POST or None, project=project)
 
     if request.method == 'POST' and form.is_valid():
         token = form.save()
@@ -463,7 +463,7 @@ def project_access_tokens_delete(request, project_slug):
     if request.method != 'POST':
         return HttpResponseNotAllowed('Only POST is allowed')
     project = get_object_or_404(Project, slug=project_slug)
-    token = get_object_or_404(AccessToken.objects.all(),
+    token = get_object_or_404(ProjectAccessToken.objects.all(),
                               pk=request.POST.get('pk'))
     if token.project == project:
         token.delete()

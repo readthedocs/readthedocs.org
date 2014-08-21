@@ -3,7 +3,7 @@ import logging
 
 from django.contrib.auth import authenticate, login
 
-from projects.models import AccessToken
+from acl.models import ProjectAccessToken
 
 log = logging.getLogger(__name__)
 
@@ -18,7 +18,7 @@ def token_access(fn):
     @wraps(fn)
     def _wrapped(request, *args, **kwargs):
         token_id = request.session.get('access_token')
-        token = AccessToken.get_validated_token(token_id)
+        token = ProjectAccessToken.get_validated_token(token_id)
         if token is not None:
             request.token = token
             user = authenticate(token_id=token_id)

@@ -5,8 +5,8 @@ import logging
 from django.conf import settings
 
 from core.models import AuthenticatedAnonymousUser
-from projects.models import AccessToken
-from projects.constants import ACCESS_READONLY
+from acl.models import ProjectAccessToken
+from acl import constants
 
 log = logging.getLogger(__name__)
 
@@ -19,7 +19,7 @@ class TokenAccessBackend(object):
     '''
 
     def authenticate(self, token_id):
-        token = AccessToken.objects.get(token=token_id)
+        token = ProjectAccessToken.objects.get(token=token_id)
         if token and token.is_valid():
             user = AuthenticatedAnonymousUser()
             user.token = token
@@ -35,7 +35,7 @@ class TokenAccessBackend(object):
         if user.token is not None and user.token.is_valid():
             if user.token.project == obj:
                 if (perm == 'builds.view_version' and
-                        user.token.access_level == ACCESS_READONLY):
+                        user.token.access_level == constants.ACCESS_READONLY):
                     return True
             else:
                 log.error('Unauthorized token access with token {0}'

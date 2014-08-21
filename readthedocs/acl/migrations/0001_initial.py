@@ -8,8 +8,8 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding model 'AccessToken'
-        db.create_table(u'projects_accesstoken', (
+        # Adding model 'ProjectAccessToken'
+        db.create_table(u'acl_projectaccesstoken', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('project', self.gf('django.db.models.fields.related.ForeignKey')(related_name='access_tokens', to=orm['projects.Project'])),
             ('token', self.gf('django.db.models.fields.CharField')(max_length=64)),
@@ -17,15 +17,24 @@ class Migration(SchemaMigration):
             ('access_level', self.gf('django.db.models.fields.CharField')(default='readonly', max_length=10)),
             ('expires', self.gf('django.db.models.fields.DateTimeField')()),
         ))
-        db.send_create_signal(u'projects', ['AccessToken'])
+        db.send_create_signal(u'acl', ['ProjectAccessToken'])
 
 
     def backwards(self, orm):
-        # Deleting model 'AccessToken'
-        db.delete_table(u'projects_accesstoken')
+        # Deleting model 'ProjectAccessToken'
+        db.delete_table(u'acl_projectaccesstoken')
 
 
     models = {
+        u'acl.projectaccesstoken': {
+            'Meta': {'object_name': 'ProjectAccessToken'},
+            'access_level': ('django.db.models.fields.CharField', [], {'default': "'readonly'", 'max_length': '10'}),
+            'description': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
+            'expires': ('django.db.models.fields.DateTimeField', [], {}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'project': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'access_tokens'", 'to': u"orm['projects.Project']"}),
+            'token': ('django.db.models.fields.CharField', [], {'max_length': '64'})
+        },
         u'auth.group': {
             'Meta': {'object_name': 'Group'},
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
@@ -55,51 +64,12 @@ class Migration(SchemaMigration):
             'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "u'user_set'", 'blank': 'True', 'to': u"orm['auth.Permission']"}),
             'username': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '30'})
         },
-        u'builds.version': {
-            'Meta': {'ordering': "['-verbose_name']", 'unique_together': "[('project', 'slug')]", 'object_name': 'Version'},
-            'active': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'built': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'identifier': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'privacy_level': ('django.db.models.fields.CharField', [], {'default': "'public'", 'max_length': '20'}),
-            'project': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'versions'", 'to': u"orm['projects.Project']"}),
-            'slug': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'supported': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'type': ('django.db.models.fields.CharField', [], {'default': "'unknown'", 'max_length': '20'}),
-            'uploaded': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'verbose_name': ('django.db.models.fields.CharField', [], {'max_length': '255'})
-        },
         u'contenttypes.contenttype': {
             'Meta': {'ordering': "('name',)", 'unique_together': "(('app_label', 'model'),)", 'object_name': 'ContentType', 'db_table': "'django_content_type'"},
             'app_label': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
-        },
-        u'projects.accesstoken': {
-            'Meta': {'object_name': 'AccessToken'},
-            'access_level': ('django.db.models.fields.CharField', [], {'default': "'readonly'", 'max_length': '10'}),
-            'description': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'expires': ('django.db.models.fields.DateTimeField', [], {}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'project': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'access_tokens'", 'to': u"orm['projects.Project']"}),
-            'token': ('django.db.models.fields.CharField', [], {'max_length': '64'})
-        },
-        u'projects.emailhook': {
-            'Meta': {'object_name': 'EmailHook'},
-            'email': ('django.db.models.fields.EmailField', [], {'max_length': '75'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'project': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'emailhook_notifications'", 'to': u"orm['projects.Project']"})
-        },
-        u'projects.importedfile': {
-            'Meta': {'object_name': 'ImportedFile'},
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'md5': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'path': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'project': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'imported_files'", 'to': u"orm['projects.Project']"}),
-            'slug': ('django.db.models.fields.SlugField', [], {'max_length': '50'}),
-            'version': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'imported_filed'", 'null': 'True', 'to': u"orm['builds.Version']"})
         },
         u'projects.project': {
             'Meta': {'ordering': "('slug',)", 'object_name': 'Project'},
@@ -147,13 +117,7 @@ class Migration(SchemaMigration):
             'child': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'superprojects'", 'to': u"orm['projects.Project']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'parent': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'subprojects'", 'to': u"orm['projects.Project']"})
-        },
-        u'projects.webhook': {
-            'Meta': {'object_name': 'WebHook'},
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'project': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'webhook_notifications'", 'to': u"orm['projects.Project']"}),
-            'url': ('django.db.models.fields.URLField', [], {'max_length': '200', 'blank': 'True'})
         }
     }
 
-    complete_apps = ['projects']
+    complete_apps = ['acl']

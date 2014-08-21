@@ -19,14 +19,13 @@ from celery.task.control import inspect
 
 from builds.models import Build
 from builds.models import Version
-from core.decorators import token_access
 from core.forms import FacetedSearchForm
 from projects import constants
-from projects.models import (Project, ImportedFile, ProjectRelationship,
-                             AccessToken)
+from projects.models import Project, ImportedFile, ProjectRelationship
 from projects.tasks import update_docs, remove_dir
 from redirects.models import Redirect
 from redirects.utils import redirect_filename
+from acl.decorators import token_access
 
 import json
 import mimetypes
@@ -781,13 +780,3 @@ class SearchView(TemplateView):
         Fetches the results via the form.
         """
         return self.form.search()
-
-
-def token(request, token_id):
-    '''View to activate session from URL token'''
-    proj_token = AccessToken.get_validated_token(token_id)
-    if proj_token is not None:
-        request.session['access_token'] = token_id
-        request.session.modified = True
-        return redirect_project_slug(request, proj_token.project.slug)
-    raise Http404('Access token does not exist')
