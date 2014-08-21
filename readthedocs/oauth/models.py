@@ -43,4 +43,4 @@ class GithubProject(models.Model):
     json = models.TextField('JSON')
 
     def __unicode__(self):
-        return "GitHub Project: %s -> %s" % (self.user, self.html_url)
+        return "GitHub Project: %s" % (self.html_url)
