@@ -1,3 +1,4 @@
+import re
 import logging
 import csv
 import os
@@ -24,12 +25,13 @@ class Backend(BaseVCS):
 
     def _get_clone_url(self):
         if '://' in self.repo_url:
-            hacked_url = self.repo_url.split('://')[1].rstrip('.git')
+            hacked_url = self.repo_url.split('://')[1]
+            hacked_url = re.sub('.git$', '', hacked_url)
             clone_url = 'https://%s' % hacked_url
             if self.token:
                 clone_url = 'https://%s@%s' % (self.token, hacked_url)
             else:
-                clone_url = 'https://%s' % (hacked_url)
+                clone_url = 'git://%s' % (hacked_url)
             return clone_url
         return self.repo_url
 
