@@ -16,6 +16,7 @@ from allauth.socialaccount.models import SocialToken
 from guardian.shortcuts import assign, get_objects_for_user
 
 from betterversion.better import version_windows, BetterVersion
+from oauth import utils as oauth_utils
 from projects import constants
 from projects.exceptions import ProjectImportError
 from projects.templatetags.projects_tags import sort_version_aware
@@ -664,15 +665,7 @@ class Project(models.Model):
         return False
 
     def vcs_repo(self, version='latest'):
-        token = None
-        try:
-            for user in self.users.all():
-                tokens = SocialToken.objects.filter(account__user__username=user.username, app__provider='github')
-                if tokens.exists():
-                    token = tokens[0].token
-        except Exception:
-            log.error('Failed to get token for user', exc_info=True)
-
+        token = oauth_utils.get_token_for_project(self)
         backend = backend_cls.get(self.repo_type)
         if not backend:
             repo = None

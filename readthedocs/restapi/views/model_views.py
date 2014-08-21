@@ -8,6 +8,7 @@ from rest_framework.response import Response
 
 from builds.models import Version
 from builds.filters import VersionFilter
+from oauth import utils as oauth_utils
 from projects.models import Project, EmailHook
 from projects.filters import ProjectFilter
 
@@ -70,6 +71,14 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
         children = [rel.child for rel in rels]
         return Response({
             'subprojects': ProjectSerializer(children, many=True).data
+        })
+
+    @decorators.link(permission_classes=[permissions.IsAdminUser])
+    def tokens(self, request, **kwargs):
+        project = get_object_or_404(Project, pk=kwargs['pk'])
+        token = oauth_utils.get_token_for_project(project, force_local=True)
+        return Response({
+            'token': token
         })
 
     @decorators.action(permission_classes=[permissions.IsAdminUser])

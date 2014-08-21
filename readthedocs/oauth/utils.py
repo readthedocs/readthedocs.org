@@ -1,6 +1,11 @@
 import logging
 
+from allauth.socialaccount.models import SocialToken
+
+from django.conf import settings
+
 from .models import GithubProject, GithubOrganization
+from tastyapi import apiv2
 
 log = logging.getLogger(__name__)
 
@@ -37,3 +42,17 @@ def make_github_organization(user, org_json):
     org.json = org_json
     org.users.add(user)
     return org
+
+def get_token_for_project(project, force_local=False):
+    token = None
+    try:
+        if getattr(settings, 'DONT_HIT_DB', True) and not force_local:
+            token = apiv2.project(project.pk).token().get()
+        else:
+            for user in project.users.all():
+                tokens = SocialToken.objects.filter(account__user__username=user.username, app__provider='github')
+                if tokens.exists():
+                    token = tokens[0].token
+    except Exception:
+        log.error('Failed to get token for user', exc_info=True)
+    return token
