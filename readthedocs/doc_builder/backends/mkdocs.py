@@ -121,28 +121,31 @@ class Builder(BaseBuilder):
             build_command = "mkdocs build --site-dir=site --theme=mkdocs"
         results = run(build_command, shell=True)
 
-        # Index Search
-        page_list = []
-        log.info(LOG_TEMPLATE.format(project=self.version.project.slug, version=self.version.slug, msg='Indexing files'))
-        for root, dirnames, filenames in os.walk(site_path):
-            for filename in filenames:
-                if fnmatch.fnmatch(filename, '*.html'):
-                    full_path = os.path.join(root, filename.lstrip('/'))
-                    relative_path = os.path.join(root.replace(site_path, '').lstrip('/'), filename.lstrip('/')).rstrip('.html')
-                    html = parse_content_from_file(documentation_type='mkdocs', file_path=full_path)
-                    headers = parse_headers_from_file(documentation_type='mkdocs', file_path=full_path)
-                    sections = parse_sections_from_file(documentation_type='mkdocs', file_path=full_path)
-                    page_list.append(
-                        {'content': html, 'path': relative_path, 'title': relative_path.rstrip('/index'), 'headers': headers, 'sections': sections}
-                    )
+        try:
+            # Index Search
+            page_list = []
+            log.info(LOG_TEMPLATE.format(project=self.version.project.slug, version=self.version.slug, msg='Indexing files'))
+            for root, dirnames, filenames in os.walk(site_path):
+                for filename in filenames:
+                    if fnmatch.fnmatch(filename, '*.html'):
+                        full_path = os.path.join(root, filename.lstrip('/'))
+                        relative_path = os.path.join(root.replace(site_path, '').lstrip('/'), filename.lstrip('/')).rstrip('.html')
+                        html = parse_content_from_file(documentation_type='mkdocs', file_path=full_path)
+                        headers = parse_headers_from_file(documentation_type='mkdocs', file_path=full_path)
+                        sections = parse_sections_from_file(documentation_type='mkdocs', file_path=full_path)
+                        page_list.append(
+                            {'content': html, 'path': relative_path, 'title': relative_path.rstrip('/index'), 'headers': headers, 'sections': sections}
+                        )
 
-        data = {
-            'page_list': page_list,
-            'version_pk': self.version.pk,
-            'project_pk': self.version.project.pk
-        }
-        log_msg = ' '.join([page['path'] for page in page_list])
-        log.info("(Search Index) Sending Data: %s [%s]" % (self.version.project.slug, log_msg))
-        apiv2.index_search.post({'data': data})
+            data = {
+                'page_list': page_list,
+                'version_pk': self.version.pk,
+                'project_pk': self.version.project.pk
+            }
+            log_msg = ' '.join([page['path'] for page in page_list])
+            log.info("(Search Index) Sending Data: %s [%s]" % (self.version.project.slug, log_msg))
+            apiv2.index_search.post({'data': data})
+        except:
+            log.error('Search indexing failed')
 
         return results
