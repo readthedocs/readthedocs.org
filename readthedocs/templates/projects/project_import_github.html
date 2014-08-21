@@ -37,13 +37,13 @@
           {% for repo in repos %}
           <li class="module-item">
 
-            <a class="module-item-title" href="{{ repo.html_url }}">{{ repo.name }}</a>
+            <a class="module-item-title" href="{{ repo.html_url }}">{{ repo.full_name }}</a>
             {# ({{ repo.git_url }}) #}
 
             <form method="post" action="{% url 'projects_import' %}">
               {% csrf_token %}
               <input name="name" type="hidden" value="{{ repo.name }}" />
-              <input name="repo" type="hidden" value="{{ repo.git_url }}" />
+              <input name="repo" type="hidden" value="{{ repo.html_url }}" />
               <input name="repo_type" type="hidden" value="git" />
               <input name="description" type="hidden" value="{{ repo.description }}" />
               <input name="language" type="hidden" value="en" />

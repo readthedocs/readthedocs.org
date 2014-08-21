@@ -13,6 +13,7 @@ from django.conf import settings
 import redis
 import slumber
 import tastyapi
+from allauth.socialaccount.models import SocialToken
 
 from builds.models import Build, Version
 from doc_builder import loading as builder_loading
@@ -328,8 +329,8 @@ def update_imported_docs(version_pk, api=None):
             version_slug = version.slug
             version_repo = project.vcs_repo(version_slug)
             ret_dict['checkout'] = version_repo.checkout(
-                version.identifier
-            )
+                version.identifier,
+        )
         else:
             # Does this ever get called?
             log.info(LOG_TEMPLATE.format(

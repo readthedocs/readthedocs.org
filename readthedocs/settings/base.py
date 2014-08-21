@@ -168,6 +168,7 @@ INSTALLED_APPS = [
     'builds',
     'core',
     'doc_builder',
+    'oauth',
     'projects',
     'redirects',
     'rtd_tests',

@@ -16,6 +16,27 @@ class Backend(BaseVCS):
     contribution_backends = [GithubContributionBackend]
     fallback_branch = 'master'  # default branch
 
+
+    def __init__(self, *args, **kwargs):
+        super(Backend, self).__init__(*args, **kwargs)
+        self.token = kwargs.get('token', None)
+        self.repo_url = self._get_clone_url()
+
+    def _get_clone_url(self):
+        user_repo_url = self.repo_url
+        if '://' in user_repo_url:
+            hacked_url = user_repo_url.split('://')[1].rstrip('.git')
+        else:
+            raise ProjectImportError(
+                "Invalid project url: %s" % user_repo_url
+            )
+
+        clone_url = 'https://%s' % hacked_url
+        if self.token:
+            clone_url = 'https://%s@%s' % (self.token, hacked_url)
+
+        return clone_url
+
     def set_remote_url(self, url):
         return self.run('git', 'remote', 'set-url', 'origin', url)
 

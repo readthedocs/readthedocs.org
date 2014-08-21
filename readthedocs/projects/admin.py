@@ -5,9 +5,8 @@ and related models.
 from builds.models import Version
 from django.contrib import admin
 from redirects.models import Redirect
-from projects.models import (Project, ImportedFile, ProjectRelationship,
-                             EmailHook, WebHook, GithubProject)
 from acl.models import ProjectAccessToken
+from projects.models import (Project, ImportedFile, ProjectRelationship, EmailHook, WebHook)
 from guardian.admin import GuardedModelAdmin
 
 
@@ -45,5 +44,4 @@ admin.site.register(Project, ProjectAdmin)
 admin.site.register(ImportedFile, ImportedFileAdmin)
 admin.site.register(EmailHook)
 admin.site.register(WebHook)
-admin.site.register(GithubProject)
 admin.site.register(ProjectAccessToken, ProjectAccessTokenAdmin)

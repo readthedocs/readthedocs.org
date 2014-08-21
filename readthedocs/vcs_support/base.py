@@ -87,7 +87,7 @@ class BaseVCS(BaseCLI):
     # General methods
     #==========================================================================
 
-    def __init__(self, project, version):
+    def __init__(self, project, version, **kwargs):
         self.default_branch = project.default_branch
         self.name = project.name
         self.repo_url = project.repo_url

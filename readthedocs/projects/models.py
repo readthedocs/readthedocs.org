@@ -12,6 +12,7 @@ from django.db import models
 from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext_lazy as _
 
+from allauth.socialaccount.models import SocialToken
 from guardian.shortcuts import assign, get_objects_for_user
 
 from betterversion.better import version_windows, BetterVersion
@@ -663,16 +664,18 @@ class Project(models.Model):
         return False
 
     def vcs_repo(self, version='latest'):
-        #if hasattr(self, '_vcs_repo'):
-            #return self._vcs_repo
+        token = None
+        for user in self.users.all():
+            tokens = SocialToken.objects.filter(account__user__username=user.username, app__provider='github')
+            if tokens.exists():
+                token = tokens[0].token
+
         backend = backend_cls.get(self.repo_type)
         if not backend:
             repo = None
         else:
-            proj = VCSProject(self.name, self.default_branch,
-                              self.checkout_path(version), self.clean_repo)
-            repo = backend(proj, version)
-        #self._vcs_repo = repo
+            proj = VCSProject(self.name, self.default_branch, self.checkout_path(version), self.clean_repo)
+            repo = backend(proj, version, token=token)
         return repo
 
     @property
@@ -857,25 +860,3 @@ class WebHook(Notification):
 
     def __unicode__(self):
         return self.url
-
-
-class GithubProject(models.Model):
-    #Auto fields
-    pub_date = models.DateTimeField(_('Publication date'), auto_now_add=True)
-    modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
-
-    user = models.ForeignKey(User, verbose_name=_('User'),
-                                   related_name='github_projects')
-    name = models.CharField(_('Name'), max_length=255)
-    full_name = models.CharField(_('Full Name'), max_length=255, unique=True)
-    description = models.TextField(_('Description'), blank=True,
-                                   help_text=_('The reStructuredText '
-                                               'description of the project'))
-    git_url = models.CharField(_('Git URL'), max_length=200, blank=True)
-    ssh_url = models.CharField(_('SSH URL'), max_length=200, blank=True)
-    html_url = models.URLField(_('HTML URL'), max_length=200, null=True, blank=True)
-    active = models.BooleanField(_('Active'), default=False)
-    json = models.TextField('JSON')
-
-    def __unicode__(self):
-        return "%s -> %s" % (self.user, self.html_url)

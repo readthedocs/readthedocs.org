@@ -1,3 +1,4 @@
+import logging
 import os
 import shutil
 import zipfile
@@ -21,15 +22,18 @@ from acl.models import ProjectAccessToken
 from builds.forms import AliasForm, VersionForm
 from builds.filters import VersionFilter
 from builds.models import VersionAlias, Version
+from oauth.models import GithubProject, GithubOrganization
+from oauth import utils as oauth_utils
 from projects.forms import (ImportProjectForm, build_versions_form,
                             build_upload_html_form, SubprojectForm,
                             UserForm, EmailHookForm, TranslationForm,
                             AdvancedProjectForm, RedirectForm, WebHookForm,
                             ProjectAccessTokenForm)
-from projects.models import Project, EmailHook, WebHook, GithubProject
+from projects.models import Project, EmailHook, WebHook
 from projects import constants
 from redirects.models import Redirect
 
+log = logging.getLogger(__name__)
 
 class ProjectDashboard(ListView):
 
@@ -484,6 +488,7 @@ def project_import_github(request, sync=True):
     repo_type = getattr(settings, 'GITHUB_PRIVACY', 'public')
     tokens = SocialToken.objects.filter(
         account__user__username=request.user.username, app__provider='github')
+    github_connected = False
     if tokens.exists():
         github_connected = True
         if sync:
@@ -496,21 +501,21 @@ def project_import_github(request, sync=True):
                     'token_type': 'bearer'
                 }
             )
-            resp = session.get(
-                'https://api.github.com/user/repos?per_page=100&type=%s' % repo_type)
-            for repo in resp.json():
-                project, created = GithubProject.objects.get_or_create(
-                    user=request.user,
-                    name=repo['name'],
-                    full_name=repo['full_name'],
-                    description=repo['description'],
-                    git_url=repo['git_url'],
-                    ssh_url=repo['ssh_url'],
-                    html_url=repo['html_url'],
-                    json=repo,
-                )
-    else:
-        github_connected = False
+            # Get user repos
+            owner_resp = session.get('https://api.github.com/user/repos?per_page=100')
+            for repo in owner_resp.json():
+                log.info('Trying %s' % repo['full_name'])
+                oauth_utils.make_github_project(user=request.user, org=None, privacy=repo_type, repo_json=repo)
+
+            # Get org repos
+            resp = session.get('https://api.github.com/user/orgs')
+            for org_json in resp.json():
+                org_resp = session.get('https://api.github.com/orgs/%s' % org_json['login'])
+                org_obj = oauth_utils.make_github_organization(user=request.user, org_json=org_resp.json())
+                # Add repos
+                org_repos_resp = session.get('https://api.github.com/orgs/%s/repos?type=%s' % (org_json['login'], repo_type))
+                for repo in org_repos_resp.json():
+                    oauth_utils.make_github_project(user=request.user, org=org_obj, privacy=repo_type, repo_json=repo)
 
     repos = GithubProject.objects.filter(user=request.user)
     for repo in repos:
