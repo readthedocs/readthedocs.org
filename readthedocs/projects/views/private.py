@@ -517,7 +517,7 @@ def project_import_github(request, sync=True):
                 for repo in org_repos_resp.json():
                     oauth_utils.make_github_project(user=request.user, org=org_obj, privacy=repo_type, repo_json=repo)
 
-    repos = GithubProject.objects.filter(user=request.user)
+    repos = GithubProject.objects.filter(users__in=[request.user])
     for repo in repos:
         ghetto_repo = repo.git_url.replace('git://', '').replace('.git', '')
         projects = Project.objects.filter(repo__endswith=ghetto_repo) | Project.objects.filter(repo__endswith=ghetto_repo + '.git')

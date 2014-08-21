@@ -36,7 +36,6 @@ class Migration(SchemaMigration):
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('pub_date', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
             ('modified_date', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
-            ('user', self.gf('django.db.models.fields.related.ForeignKey')(related_name='github_projects', to=orm['auth.User'])),
             ('organization', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='projects', null=True, to=orm['oauth.GithubOrganization'])),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=255)),
             ('full_name', self.gf('django.db.models.fields.CharField')(unique=True, max_length=255)),
@@ -49,6 +48,15 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal(u'oauth', ['GithubProject'])
 
+        # Adding M2M table for field users on 'GithubProject'
+        m2m_table_name = db.shorten_name(u'oauth_githubproject_users')
+        db.create_table(m2m_table_name, (
+            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
+            ('githubproject', models.ForeignKey(orm[u'oauth.githubproject'], null=False)),
+            ('user', models.ForeignKey(orm[u'auth.user'], null=False))
+        ))
+        db.create_unique(m2m_table_name, ['githubproject_id', 'user_id'])
+
 
     def backwards(self, orm):
         # Deleting model 'GithubOrganization'
@@ -59,6 +67,9 @@ class Migration(SchemaMigration):
 
         # Deleting model 'GithubProject'
         db.delete_table(u'oauth_githubproject')
+
+        # Removing M2M table for field users on 'GithubProject'
+        db.delete_table(db.shorten_name(u'oauth_githubproject_users'))
 
 
     models = {
@@ -125,7 +136,7 @@ class Migration(SchemaMigration):
             'organization': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'projects'", 'null': 'True', 'to': u"orm['oauth.GithubOrganization']"}),
             'pub_date': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'ssh_url': ('django.db.models.fields.CharField', [], {'max_length': '200', 'blank': 'True'}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'github_projects'", 'to': u"orm['auth.User']"})
+            'users': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'github_projects'", 'symmetrical': 'False', 'to': u"orm['auth.User']"})
         }
     }
 

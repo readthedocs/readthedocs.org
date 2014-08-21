@@ -30,10 +30,10 @@ def make_github_project(user, org, privacy, repo_json):
 def make_github_organization(user, org_json):
     org, created = GithubOrganization.objects.get_or_create(
         login=org_json.get('login'),
-        html_url=org_json.get('html_url'),
-        name=org_json.get('name'),
-        email=org_json.get('email'),
-        json=org_json,
     )
+    org.html_url = org_json.get('html_url')
+    org.name = org_json.get('name')
+    org.email = org_json.get('email')
+    org.json = org_json
     org.users.add(user)
     return org
