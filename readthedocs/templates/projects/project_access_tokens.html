@@ -15,40 +15,36 @@
   <!-- BEGIN access token list -->
   <div class="module">
     <div class="module-wrapper">
-  {% for token in tokens %}
       <div class="module-list">
         <div class="module-list-wrapper">
 
           <ul>
+  {% for token in tokens %}
             <li class="module-item">
-              <div>
-                {{ token.description }} ({{ token.access_level }})
-              </div>
-              <div>
-                <a href="{% url "token" token.token %}">{{ request.get_host }}{% url "token" token.token %}</a>
-              </div>
-
-              <div>
-                {% trans "expires" %} {{ token.expires }}
-              </div>
-
-              <!--
-              <span class="right-menu">
-                <form method="post" action="{% url "projects_access_tokens_delete" project.slug %}">
-                  {% csrf_token %}
-                  <input type="hidden" name="pk" value="{{ token.pk }}" />
-                  <input type="submit" value="Remove">
-                </form>
-              </span>
-              -->
+              <ul>
+                <li>{{ token.description }} ({{ token.access_level }})</li>
+                <li><a href="{% url "token" token.token %}">{{ request.get_host }}{% url "token" token.token %}</a></li>
+                <li><span>expires {{ token.expires }}</span></li>
+                <li>
+                  <ul class="module-item-menu">
+                    <li>
+                      <form method="post" action="{% url "projects_access_tokens_delete" project.slug %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="pk" value="{{ token.pk }}" />
+                        <input type="submit" value="Remove">
+                      </form>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
             </li>
+  {% endfor %}
           </ul>
 
         </div>
       </div>
-  {% endfor %}
 
-      <div>
+      <div class="module-item">
         <h3>{% trans "Add Token" %}</h3>
         <p>
           {% trans "Add an access token for anonymous users." %}
