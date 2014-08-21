@@ -215,8 +215,10 @@ def github_build(request):
     """
     if request.method == 'POST':
         try:
+            # GitHub RTD integration
             obj = json.loads(request.POST['payload'])
         except:
+            # Generic post-commit hook
             obj = json.loads(request.body)
         url = obj['repository']['url']
         ghetto_url = url.replace('http://', '').replace('https://', '')

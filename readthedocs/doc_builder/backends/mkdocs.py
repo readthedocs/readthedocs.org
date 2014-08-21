@@ -1,4 +1,3 @@
-import codecs
 import fnmatch
 import os
 import logging
@@ -9,6 +8,7 @@ from django.conf import settings
 from django.template import Context, loader as template_loader
 
 from doc_builder.base import BaseBuilder, restoring_chdir
+from search.utils import parse_content_from_file, parse_headers_from_file, parse_sections_from_file
 from projects.utils import run
 from projects.constants import LOG_TEMPLATE
 from tastyapi import apiv2
@@ -27,31 +27,6 @@ class Builder(BaseBuilder):
         super(Builder, self).__init__(*args, **kwargs)
         self.old_artifact_path = os.path.join(
             self.version.project.checkout_path(self.version.slug), 'site')
-
-    def _parse_html(self, file_path):
-        """
-        Prepare the text of the html file.
-        """
-        from pyquery import PyQuery
-        try:
-            with codecs.open(file_path, encoding='utf-8', mode='r') as f:
-                content = f.read()
-        except IOError as e:
-            log.info('(Search Index) Unable to index file: %s, error :%s' % (file_path, e))
-            return ''
-        log.debug('(Search Index) Indexing %s' % (file_path))
-        DOCUMENT_MKDOCS_PATH = getattr(settings, 'DOCUMENT_MKDOCS_PATH', 'div[role="main"]')
-        try:
-            to_index = PyQuery(content)(DOCUMENT_MKDOCS_PATH).text()
-        except ValueError:
-            #Pyquery returns ValueError if div.document doesn't exist.
-            return ''
-        if not to_index:
-            log.info('(Search Index) Unable to index file: %s, empty file' % (file_path))
-        else:
-            log.debug('(Search Index) %s length: %s' % (file_path, len(to_index)))
-
-        return to_index
 
     @restoring_chdir
     def build(self, **kwargs):
@@ -154,9 +129,11 @@ class Builder(BaseBuilder):
                 if fnmatch.fnmatch(filename, '*.html'):
                     full_path = os.path.join(root, filename.lstrip('/'))
                     relative_path = os.path.join(root.replace(site_path, '').lstrip('/'), filename.lstrip('/')).rstrip('.html')
-                    html = self._parse_html(full_path)
+                    html = parse_content_from_file(documentation_type='mkdocs', file_path=full_path)
+                    headers = parse_headers_from_file(documentation_type='mkdocs', file_path=full_path)
+                    sections = parse_sections_from_file(documentation_type='mkdocs', file_path=full_path)
                     page_list.append(
-                        {'content': html, 'path': relative_path, 'title': relative_path.rstrip('/index'), 'headers': [], 'sections': []}
+                        {'content': html, 'path': relative_path, 'title': relative_path.rstrip('/index'), 'headers': headers, 'sections': sections}
                     )
 
         data = {
