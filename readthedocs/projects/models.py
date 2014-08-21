@@ -665,10 +665,13 @@ class Project(models.Model):
 
     def vcs_repo(self, version='latest'):
         token = None
-        for user in self.users.all():
-            tokens = SocialToken.objects.filter(account__user__username=user.username, app__provider='github')
-            if tokens.exists():
-                token = tokens[0].token
+        try:
+            for user in self.users.all():
+                tokens = SocialToken.objects.filter(account__user__username=user.username, app__provider='github')
+                if tokens.exists():
+                    token = tokens[0].token
+        except Exception:
+            log.error('Failed to get token for user', exc_info=True)
 
         backend = backend_cls.get(self.repo_type)
         if not backend:
