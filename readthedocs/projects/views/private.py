@@ -1,6 +1,7 @@
 import os
 import shutil
 import zipfile
+from datetime import datetime
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -446,7 +447,8 @@ def project_access_tokens(request, project_slug):
                                     args=[project.slug])
         return HttpResponseRedirect(project_dashboard)
 
-    tokens = project.access_tokens.all()
+    # Only show fresh tokens, replication expiration check of token.is_valid()
+    tokens = project.access_tokens.filter(expires__gte=datetime.now())
 
     return render_to_response(
         'projects/project_access_tokens.html',
