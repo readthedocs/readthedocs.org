@@ -10,13 +10,12 @@ def make_github_project(user, org, privacy, repo_json):
         project, created = GithubProject.objects.get_or_create(
             full_name=repo_json['full_name'],
         )
-        if project.user != user:
-            log.debug('Not importing %s because mismatched user' % repo_json['name'])
-            return None
         if project.organization and project.organization != org:
             log.debug('Not importing %s because mismatched orgs' % repo_json['name'])
             return None
-        project.organization=org
+        else:
+            project.organization = org
+        project.users.add(user)
         project.name = repo_json['name']
         project.description = repo_json['description']
         project.git_url = repo_json['git_url']

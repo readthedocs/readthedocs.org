@@ -7,7 +7,7 @@ class GithubOrganization(models.Model):
     pub_date = models.DateTimeField(_('Publication date'), auto_now_add=True)
     modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
 
-    users = models.ManyToManyField(User, verbose_name=_('User'),
+    users = models.ManyToManyField(User, verbose_name=_('Users'),
                                    related_name='github_organizations')
 
     login = models.CharField(_('Login'), max_length=255, unique=True)
@@ -28,8 +28,8 @@ class GithubProject(models.Model):
     pub_date = models.DateTimeField(_('Publication date'), auto_now_add=True)
     modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
 
-    user = models.ForeignKey(User, verbose_name=_('Users'),
-                             related_name='github_projects')
+    users = models.ManyToManyField(User, verbose_name=_('Users'),
+                                   related_name='github_projects')
     organization = models.ForeignKey(GithubOrganization, verbose_name=_('Organization'),
                                      related_name='projects', null=True, blank=True)
     name = models.CharField(_('Name'), max_length=255)
