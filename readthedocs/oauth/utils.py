@@ -8,10 +8,15 @@ def make_github_project(user, org, privacy, repo_json):
     if (repo_json['private'] is True and privacy == 'private' or 
            repo_json['private'] is False and privacy == 'public'):
         project, created = GithubProject.objects.get_or_create(
-            user=user,
-            organization=org,
             full_name=repo_json['full_name'],
         )
+        if project.user != user:
+            log.debug('Not importing %s because mismatched user' % repo_json['name'])
+            return None
+        if project.organization and project.organization != org:
+            log.debug('Not importing %s because mismatched orgs' % repo_json['name'])
+            return None
+        project.organization=org
         project.name = repo_json['name']
         project.description = repo_json['description']
         project.git_url = repo_json['git_url']
