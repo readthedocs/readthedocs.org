@@ -74,7 +74,7 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
         })
 
     @decorators.link(permission_classes=[permissions.IsAdminUser])
-    def tokens(self, request, **kwargs):
+    def token(self, request, **kwargs):
         project = get_object_or_404(Project, pk=kwargs['pk'])
         token = oauth_utils.get_token_for_project(project, force_local=True)
         return Response({
