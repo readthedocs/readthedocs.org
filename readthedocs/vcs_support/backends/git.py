@@ -23,19 +23,15 @@ class Backend(BaseVCS):
         self.repo_url = self._get_clone_url()
 
     def _get_clone_url(self):
-        user_repo_url = self.repo_url
-        if '://' in user_repo_url:
-            hacked_url = user_repo_url.split('://')[1].rstrip('.git')
-        else:
-            raise ProjectImportError(
-                "Invalid project url: %s" % user_repo_url
-            )
-
-        clone_url = 'https://%s' % hacked_url
-        if self.token:
-            clone_url = 'https://%s@%s' % (self.token, hacked_url)
-
-        return clone_url
+        if '://' in self.repo_url:
+            hacked_url = self.repo_url.split('://')[1].rstrip('.git')
+            clone_url = 'https://%s' % hacked_url
+            if self.token:
+                clone_url = 'https://%s@%s' % (self.token, hacked_url)
+            else:
+                clone_url = 'https://%s' % (hacked_url)
+            return clone_url
+        return self.repo_url
 
     def set_remote_url(self, url):
         return self.run('git', 'remote', 'set-url', 'origin', url)
