@@ -516,12 +516,17 @@ def _try_redirect(request, full_path=None):
                     cut_path = re.sub('^%s' % redirect.from_url, '', full_path)
                     to = redirect_filename(project=project, filename=cut_path)
                     return HttpResponseRedirect(to)
-            if redirect.redirect_type == 'sphinx_html':
+            elif redirect.redirect_type == 'page':
+                if full_path == redirect.from_url:
+                    log.debug('Redirecting %s' % redirect)
+                    to = redirect_filename(project=project, filename=redirect.to_url.lstrip('/'))
+                    return HttpResponseRedirect(to)
+            elif redirect.redirect_type == 'sphinx_html':
                 if full_path.endswith('/'):
                     log.debug('Redirecting %s' % redirect)
                     to = re.sub('/$', '.html', full_path)
                     return HttpResponseRedirect(to)
-            if redirect.redirect_type == 'sphinx_htmldir':
+            elif redirect.redirect_type == 'sphinx_htmldir':
                 if full_path.endswith('.html'):
                     log.debug('Redirecting %s' % redirect)
                     to = re.sub('.html$', '/', full_path)
