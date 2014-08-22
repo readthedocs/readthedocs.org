@@ -15,6 +15,10 @@
           </div>
           {% endif %}
 
+        </div>
+
+        <div class="options">
+
           {% if project.get_latest_build %}
             {% if not project.get_latest_build.success and project.get_latest_build.state == 'finished' %}
                 <p class="build-failure">{% blocktrans with project.get_builds_url as url %}Build failed (<a href="{{ url }}">why</a>){% endblocktrans %}</p>
@@ -22,9 +26,6 @@
           {% elif not request.GET.docs_not_built %}
             <p class="build-missing">{% trans "There are no builds for this project" %}.{% if request.user in project.users.all %} <a href="{% url "projects_edit" project.slug %}">{% trans "Is the repo correct?" %}</a>{% endif %}</p>
           {% endif %}
-        </div>
-
-        <div class="options">
 
           <ul>
               <li class="{{ overview_active }}"><a href="{{ project.get_absolute_url }}">{% trans "Overview" %}</a></li>
