@@ -47,7 +47,7 @@ def get_token_for_project(project, force_local=False):
     token = None
     try:
         if getattr(settings, 'DONT_HIT_DB', True) and not force_local:
-            token = apiv2.project(project.pk).token().get()
+            token = apiv2.project(project.pk).token().get()['token']
         else:
             for user in project.users.all():
                 tokens = SocialToken.objects.filter(account__user__username=user.username, app__provider='github')
