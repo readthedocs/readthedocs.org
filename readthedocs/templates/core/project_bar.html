@@ -1,4 +1,6 @@
 {% load i18n %}
+{% load core_tags %}
+{% load gravatar %}
 
     <!-- BEGIN project bar -->
     <div id="project_bar">
@@ -6,29 +8,23 @@
 
         <div class="project-title">
           <h1><a href="{{ project.get_absolute_url }}">{{ project }}</a></h1>
-          (
-          {% for user in project.users.all %}
-          <a href="{{ user.get_absolute_url }}" class="quiet">{{ user }}</a>{% if not forloop.last %}, {% endif %}
-          {% endfor %}
-          )
-          {% comment %}
-          {% if project.version %}<span class="quiet">version {{ project.version }} </span>{% endif %}
-          {% endcomment %}
-        </div>
 
-        <div class="options">
+          {% if project.description %}
+          <div id="project_description">
+            {{ project.description|restructuredtext:True }}
+          </div>
+          {% endif %}
 
           {% if project.get_latest_build %}
             {% if not project.get_latest_build.success and project.get_latest_build.state == 'finished' %}
                 <p class="build-failure">{% blocktrans with project.get_builds_url as url %}Build failed (<a href="{{ url }}">why</a>){% endblocktrans %}</p>
-            {% else %}
-                {# always keep an empty <p> around to keep spacing #}
-                {# consistent between pages. #}
-                <p class="build-success">&nbsp;</p>
             {% endif %}
           {% elif not request.GET.docs_not_built %}
             <p class="build-missing">{% trans "There are no builds for this project" %}.{% if request.user in project.users.all %} <a href="{% url "projects_edit" project.slug %}">{% trans "Is the repo correct?" %}</a>{% endif %}</p>
           {% endif %}
+        </div>
+
+        <div class="options">
 
           <ul>
               <li class="{{ overview_active }}"><a href="{{ project.get_absolute_url }}">{% trans "Overview" %}</a></li>
