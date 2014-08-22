@@ -1,5 +1,5 @@
-Redirects
-=========
+Automatic Redirects
+===================
 
 Read the Docs supports redirecting certain URLs automatically.
 This is an overview of the set of redirects that are fully supported and will work into the future.
