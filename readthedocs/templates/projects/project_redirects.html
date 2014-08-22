@@ -79,6 +79,16 @@
     From URL: /docs/
     Outcome: /docs/faq.html -> /$lang/$version/faq.html
   </pre>
+  <p>
+    {% trans "You can also redirect a specific page, like so:" %}
+  </p>
+  <pre>
+    Type: Page Redirect
+    From URL: /example.html
+    To URL: /examples/intro.html
+    Outcome: /$lang/$version/example.html -> /$lang/$version/examples/intro.html
+  </pre>
+
   <form method="post" action=".">{% csrf_token %}
     {{ form.as_p }}
     <p>
