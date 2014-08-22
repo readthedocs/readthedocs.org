@@ -1,0 +1,12 @@
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="{{ homepage_url }}">Docs</a> &raquo;</li>
+    <li>{{ current_page.title }}</li>
+      <li class="wy-breadcrumbs-aside">
+        {% if repo_url %}
+          <a href="{{ repo_url }}" class="icon icon-github"> Edit on GitHub</a>
+        {% endif %}
+      </li>
+  </ul>
+  <hr/>
+</div>

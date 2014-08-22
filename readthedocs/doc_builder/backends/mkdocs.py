@@ -16,6 +16,8 @@ from tastyapi import apiv2
 
 log = logging.getLogger(__name__)
 
+TEMPLATE_DIR = '%s/readthedocs/templates/mkdocs/readthedocs' % settings.SITE_ROOT
+OVERRIDE_TEMPLATE_DIR = '%s/readthedocs/templates/mkdocs/overrides' % settings.SITE_ROOT
 
 class Builder(BaseBuilder):
 
@@ -70,6 +72,18 @@ class Builder(BaseBuilder):
                 'https://media.readthedocs.org/css/badge_only.css',
                 'https://media.readthedocs.org/css/readthedocs-doc-embed.css',
             ]
+
+        # mkdocs doesn't support multiple theme_dir's sanely yet
+        '''
+        if 'theme_dir' in user_config:
+            user_config['theme_dir'].prepend(OVERRIDE_TEMPLATE_DIR)
+        else:
+            user_config['theme_dir'] = [
+            OVERRIDE_TEMPLATE_DIR,
+                TEMPLATE_DIR,
+            ]
+        '''
+
         yaml.dump(user_config, open('mkdocs.yml', 'w'))
 
         # RTD javascript writing
@@ -114,12 +128,12 @@ class Builder(BaseBuilder):
         # Actual build
 
         if project.use_virtualenv:
-            build_command = "%s build --site-dir=site --theme=mkdocs" % (
+            build_command = "%s build --site-dir=site" % (
                 project.venv_bin(version=self.version.slug,
                                  bin='mkdocs')
             )
         else:
-            build_command = "mkdocs build --site-dir=site --theme=mkdocs"
+            build_command = "mkdocs build --site-dir=site"
         results = run(build_command, shell=True)
 
         try:
