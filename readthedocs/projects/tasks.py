@@ -695,16 +695,17 @@ def record_pdf(api, record, results, state, version):
 
 
 def update_search(version):
-    page_list = process_all_json_files(version)
-    data = {
-        'page_list': page_list,
-        'version_pk': version.pk,
-        'project_pk': version.project.pk
-    }
-    log_msg = ' '.join([page['path'] for page in page_list])
-    log.info("(Search Index) Sending Data: %s [%s]" % (
-        version.project.slug, log_msg))
-    apiv2.index_search.post({'data': data})
+    if 'sphinx' in version.project.documentation_type:
+        page_list = process_all_json_files(version)
+        data = {
+            'page_list': page_list,
+            'version_pk': version.pk,
+            'project_pk': version.project.pk
+        }
+        log_msg = ' '.join([page['path'] for page in page_list])
+        log.info("(Search Index) Sending Data: %s [%s]" % (
+            version.project.slug, log_msg))
+        apiv2.index_search.post({'data': data})
 
 
 @task()
