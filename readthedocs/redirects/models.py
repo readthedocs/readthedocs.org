@@ -15,8 +15,9 @@ STATUS_CHOICES = (
 
 TYPE_CHOICES = (
     ('prefix', _('Prefix Redirect')),
-    ('sphinx_html', _('Sphinx HTMLDir -> HTML')),
-    ('sphinx_htmldir', _('Sphinx HTML -> HTMLDir')),
+    ('page', _('Page Redirect')),
+    # ('sphinx_html', _('Sphinx HTMLDir -> HTML')),
+    # ('sphinx_htmldir', _('Sphinx HTML -> HTMLDir')),
     # ('advanced', _('Advanced')),
 )
 
