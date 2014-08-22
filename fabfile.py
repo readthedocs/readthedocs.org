@@ -6,11 +6,11 @@ import time
 
 env.runtime = 'production'
 env.hosts = [
- 'asgard-lts.readthedocs.com',
- 'chimera-lts.readthedocs.com',
- 'hydra-lts.readthedocs.com',
- 'build-lts.readthedocs.com',
- 'build-lts-2.readthedocs.com',
+ 'asgard-lts',
+ 'chimera-lts',
+ 'hydra-lts',
+ 'build-lts',
+ 'build-lts-2',
 ]
 env.user = 'docs'
 env.code_dir = '/home/docs/checkouts/readthedocs.org'
@@ -38,7 +38,7 @@ def update_requirements():
     "Update requirements in the virtualenv."
     run("%s/bin/pip install -r %s/deploy_requirements.txt" % (env.virtualenv, env.code_dir))
 
-@hosts(['asgard-lts.readthedocs.com', 'chimera-lts.readthedocs.com', 'hydra-lts.readthedocs.com'])
+@hosts(['asgard-lts', 'chimera-lts', 'hydra-lts'])
 def restart():
     "Restart (or just start) the server"
     env.user = "docs"
@@ -46,7 +46,7 @@ def restart():
     #so it has time to reload
     time.sleep(3)
 
-@hosts(['build-lts.readthedocs.com', 'build-lts-2.readthedocs.com'])
+@hosts(['build-lts', 'build-lts-2'])
 def celery():
     "Restart (or just start) the server"
     run("supervisorctl restart celery")
@@ -54,7 +54,7 @@ def celery():
 # Other bits
 
 
-@hosts(['asgard-lts.readthedocs.com', 'chimera-lts.readthedocs.com', 'hydra-lts.readthedocs.com'])
+@hosts(['asgard-lts', 'chimera-lts', 'hydra-lts'])
 def remove_project(project):
     """
     Removes a project from the web servers.
@@ -72,46 +72,46 @@ def ntpdate():
     run('ntpdate-debian')
 
 def wheelhouse():
-    for host in ['chimera-lts.readthedocs.com', 'asgard-lts.readthedocs.com']:
+    for host in ['chimera-lts', 'asgard-lts']:
         run('rsync -av wheelhouse/ root@%s:/home/docs/checkouts/readthedocs.org/media/wheelhouse/' % host)
 
 ## Logging Awesomeness
 
-@hosts(['asgard-lts.readthedocs.com', 'chimera-lts.readthedocs.com', 'hydra-lts.readthedocs.com'])
+@hosts(['asgard-lts', 'chimera-lts', 'hydra-lts'])
 def nginx_logs():
     env.user = "root"
     run("tail -F /var/log/nginx/*.log")
 
-@hosts(['asgard-lts.readthedocs.com', 'chimera-lts.readthedocs.com'])
+@hosts(['asgard-lts', 'chimera-lts'])
 def nginxlogs():
     run("tail -F /var/log/nginx/*.log")
 
-@hosts(['build-lts.readthedocs.com', 'build-lts-2.readthedocs.com'])
+@hosts(['build-lts', 'build-lts-2'])
 def celery_logs():
     env.user = "docs"
     run("tail -F ~/log/celery.err")
 
-@hosts(['asgard-lts.readthedocs.com', 'chimera-lts.readthedocs.com', 'hydra-lts.readthedocs.com'])
+@hosts(['asgard-lts', 'chimera-lts', 'hydra-lts'])
 def logs():
     env.user = "docs"
     run("tail -F %s/logs/*.log" % env.code_dir)
 
-@hosts(['asgard-lts.readthedocs.com', 'chimera-lts.readthedocs.com', 'hydra-lts.readthedocs.com'])
+@hosts(['asgard-lts', 'chimera-lts', 'hydra-lts'])
 def postcommit_logs():
     env.user = "docs"
     run("tail -F %s/logs/postcommit.log" % env.code_dir)
 
-@hosts(['asgard-lts.readthedocs.com', 'chimera-lts.readthedocs.com', 'hydra-lts.readthedocs.com'])
+@hosts(['asgard-lts', 'chimera-lts', 'hydra-lts'])
 def cat_postcommit_logs():
     env.user = "docs"
     run("cat %s/logs/postcommit.log" % env.code_dir)
 
-@hosts(['asgard-lts.readthedocs.com', 'chimera-lts.readthedocs.com', 'hydra-lts.readthedocs.com'])
+@hosts(['asgard-lts', 'chimera-lts', 'hydra-lts'])
 def api_logs():
     env.user = "docs"
     run("tail -F %s/logs/api.log" % env.code_dir)
 
-@hosts(['asgard-lts.readthedocs.com', 'chimera-lts.readthedocs.com', 'hydra-lts.readthedocs.com'])
+@hosts(['asgard-lts', 'chimera-lts', 'hydra-lts'])
 def web_logs(type):
     """
     Get logs from the web servers::
@@ -144,23 +144,23 @@ def i18n_docs():
 
 
 
-@hosts(['chimera-lts.readthedocs.com'])
+@hosts(['chimera-lts'])
 def migrate(project=None):
     if project:
         run('django-admin.py migrate %s' % project)
     else:
         run('django-admin.py migrate')
 
-@hosts(['chimera-lts.readthedocs.com'])
+@hosts(['chimera-lts'])
 def syncdb(project=None):
     run('django-admin.py syncdb')
 
-@hosts(['chimera-lts.readthedocs.com', 'asgard-lts.readthedocs.com'])
+@hosts(['chimera-lts', 'asgard-lts'])
 def static():
     "Restart (or just start) the server"
     run('django-admin.py collectstatic --noinput')
 
-@hosts(['chimera-lts.readthedocs.com', 'asgard-lts.readthedocs.com'])
+@hosts(['chimera-lts', 'asgard-lts'])
 def reload():
     "Reload (or just start) the server"
     run("supervisorctl update")
@@ -253,12 +253,12 @@ def full_deploy():
     #celery()
 
 
-@hosts(['chimera-lts.readthedocs.com'])
+@hosts(['chimera-lts'])
 def uptime():
     run('uptime')
 
 
-@hosts(['chimera-lts.readthedocs.com'])
+@hosts(['chimera-lts'])
 def update_index():
     run('django-admin.py update_index')
 
