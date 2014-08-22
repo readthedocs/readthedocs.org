@@ -17,6 +17,10 @@
             $('#id_from_url').parent().show()
             $('#id_to_url').parent().hide()
         }
+        if (this.value == 'page') {
+            $('#id_from_url').parent().show()
+            $('#id_to_url').parent().show()
+        }
         if (this.value == 'sphinx_html' || this.value == 'sphinx_htmldir') {
             $('#id_from_url').parent().hide()
             $('#id_to_url').parent().hide()
