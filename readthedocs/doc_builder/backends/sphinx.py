@@ -32,6 +32,7 @@ class BaseSphinx(BaseBuilder):
 
     @restoring_chdir
     def build(self, **kwargs):
+        self.clean()
         project = self.version.project
         os.chdir(project.conf_dir(self.version.slug))
         force_str = " -E " if self._force else ""
@@ -176,6 +177,7 @@ class PdfBuilder(BaseSphinx):
 
     @restoring_chdir
     def build(self, **kwargs):
+        self.clean()
         project = self.version.project
         os.chdir(project.conf_dir(self.version.slug))
         #Default to this so we can return it always.
