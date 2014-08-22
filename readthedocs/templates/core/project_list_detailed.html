@@ -22,7 +22,12 @@
         {% endif %}
       {% endif %}
     {% endwith %}
+
+    {% if project.has_good_build %}
     <span class="right-menu quiet">{% blocktrans with date=project.builds.all.0.date|timesince %}{{ date }} ago{% endblocktrans %}</span>
+    {% else %}
+    <span class="right-menu quiet">{% trans "No builds" %}</span>
+    {% endif %}
 
     {% if project.has_good_build %}
     <span class="dropdown" style="position:absolute; right:0px; top:0px;">
