@@ -70,6 +70,15 @@ class Builder(BaseBuilder):
                 'https://media.readthedocs.org/css/badge_only.css',
                 'https://media.readthedocs.org/css/readthedocs-doc-embed.css',
             ]
+
+        if 'pages' not in user_config:
+            user_config['pages'] = []
+            for root, dirnames, filenames in os.walk(docs_dir):
+                for filename in filenames:
+                    if fnmatch.fnmatch(filename, '*.md'):
+                        full_path = os.path.join(root.replace(docs_dir, ''), filename.lstrip('/')).lstrip('/')
+                        user_config['pages'].append([full_path])
+
         yaml.dump(user_config, open('mkdocs.yml', 'w'))
 
         # RTD javascript writing
