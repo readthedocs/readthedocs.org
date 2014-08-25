@@ -25,7 +25,6 @@ from projects.models import Project, ImportedFile, ProjectRelationship
 from projects.tasks import update_docs, remove_dir
 from redirects.models import Redirect
 from redirects.utils import redirect_filename
-from acl.decorators import token_access
 
 import json
 import mimetypes
@@ -417,7 +416,6 @@ def redirect_page_with_filename(request, filename, project_slug=None):
     return HttpResponseRedirect(url)
 
 
-@token_access
 def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
     if not project_slug:
         project_slug = request.slug
