@@ -21,7 +21,7 @@ The main documentation for the site is organized into a couple sections:
 * :ref:`feature-docs`
 * :ref:`about-docs`
 
-Information about development and running your own instance is also available:
+Information about development is also available:
 
 * :ref:`dev-docs`
 * :ref:`design-docs`
@@ -102,8 +102,6 @@ About Read the Docs
 
 
 .. Things that need more love before getting upgraded to the above list.
-
-.. _custom-docs:
 
 .. _ops-docs:
 
