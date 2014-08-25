@@ -283,6 +283,12 @@ def elastic_project_search(request, project_slug):
     else:
         results = {}
 
+    # pre and post 1.0 compat
+    for num, hit in enumerate(results['hits']['hits']):
+        for key, val in hit['fields'].items():
+            if isinstance(val, list):
+                results['hits']['hits'][num]['fields'][key] = val[0]
+
     return render_to_response(
         'search/elastic_project_search.html',
         {
