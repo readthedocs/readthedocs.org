@@ -6,6 +6,7 @@ from django.db import models
 from django.utils.http import int_to_base36
 from django.utils.translation import ugettext_lazy as _
 
+from projects.models import Project
 from acl import constants
 
 log = logging.getLogger(__name__)
