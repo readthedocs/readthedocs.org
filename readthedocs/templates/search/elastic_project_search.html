@@ -2,7 +2,7 @@
 
 {% load core_tags i18n highlight  %}
 
-{% block title %}{% blocktrans %}Search: {{ query }}{% endblocktrans %}{% endblock %}
+{% block title %}{% blocktrans with query=query|default:"" %}Search: {{ query }} {% endblocktrans %}{% endblock %}
 
 {% block project_editing %}
     {% with search_active="active" %}
@@ -43,7 +43,7 @@ $(document).ready(function() {
           <div class="wide-search-bar-wrapper clearfix">
             <form action="." method="GET">
               <div class="text-input-wrapper">
-                <input type="text" name="q" value="{{ query|default:"" }}" id="id_elastic_project_search">
+                <input type="text" name="q" value="{{ query|default_if_none:"" }}" id="id_elastic_project_search">
               </div>
               <div class="submit-input-wrapper">
                 {% comment %}Translators: This is about starting a search{% endcomment %}
@@ -61,7 +61,7 @@ $(document).ready(function() {
           <div class="module-wrapper">
 
             <div class="module-header">
-              <h3>{% blocktrans %}Results for {{ query }}{% endblocktrans %}</h3>
+              <h3>{% blocktrans with query=query|default:"" %}Results for {{ query }}{% endblocktrans %}</h3>
             </div>
 
             <div class="module-list">
