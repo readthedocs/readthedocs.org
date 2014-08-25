@@ -101,6 +101,7 @@ class BaseSphinx(BaseBuilder):
             'bitbucket_repo': bitbucket_info[1],
             'bitbucket_version':  remote_version,
             'display_bitbucket': display_bitbucket,
+            'commit': self.version.project.vcs_repo(self.version.slug).commit,
         })
         rtd_string = template_loader.get_template('doc_builder/conf.py.tmpl').render(rtd_ctx)
         outfile.write(rtd_string)

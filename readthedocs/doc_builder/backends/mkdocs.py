@@ -92,6 +92,7 @@ class Builder(BaseBuilder):
             'docroot': docs_dir,
             'source_suffix': ".md",
             'api_host': getattr(settings, 'SLUMBER_API_HOST', 'https://readthedocs.org'),
+            'commit': self.version.project.vcs_repo(self.version.slug).commit,
         }
         data_json = json.dumps(READTHEDOCS_DATA, indent=4)
         data_ctx = Context({
