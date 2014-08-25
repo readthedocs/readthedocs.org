@@ -89,12 +89,11 @@
       {% endif %}
 
       <dl>
-        <dt>Search (Beta)</dt>
+        <dt>Search</dt>
         <dd>
           <div style="padding: 6px;">
-            <form id="flyout-search-form" class="wy-form" target="_blank" action="http://searchthedocs.org/section" method="get">
+            <form id="flyout-search-form" class="wy-form" target="_blank" action="{% url 'elastic_project_search' project.slug %}" method="get">
               <input type="text" name="q" placeholder="Search docs">
-              <input type="hidden" name="project" value="{{ project.slug }}">
               </form>
           </div>
         </dd>
