@@ -17,6 +17,10 @@
             $('#id_from_url').parent().show()
             $('#id_to_url').parent().hide()
         }
+        if (this.value == 'page') {
+            $('#id_from_url').parent().show()
+            $('#id_to_url').parent().show()
+        }
         if (this.value == 'sphinx_html' || this.value == 'sphinx_htmldir') {
             $('#id_from_url').parent().hide()
             $('#id_to_url').parent().hide()
@@ -75,6 +79,16 @@
     From URL: /docs/
     Outcome: /docs/faq.html -> /$lang/$version/faq.html
   </pre>
+  <p>
+    {% trans "You can also redirect a specific page, like so:" %}
+  </p>
+  <pre>
+    Type: Page Redirect
+    From URL: example.html
+    To URL: examples/intro.html
+    Outcome: /$lang/$version/example.html -> /$lang/$version/examples/intro.html
+  </pre>
+
   <form method="post" action=".">{% csrf_token %}
     {{ form.as_p }}
     <p>

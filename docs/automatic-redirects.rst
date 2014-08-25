@@ -1,11 +1,8 @@
-Redirects
-=========
+Automatic Redirects
+===================
 
-Read the Docs supports redirecting certain URLs explicitly.
+Read the Docs supports redirecting certain URLs automatically.
 This is an overview of the set of redirects that are fully supported and will work into the future.
-
-.. warning:: All redirects not mentioned on this page are likely accidental,
-             and subject to breaking without warning.
 
 Root URL
 --------
@@ -63,6 +60,4 @@ This allows you to create links that are always up to date.
 
 Another way to handle this is the *latest* version.
 You can set your ``latest`` version to a specific version and just always link to latest.
-
-
 

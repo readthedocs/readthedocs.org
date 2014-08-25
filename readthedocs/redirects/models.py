@@ -15,16 +15,17 @@ STATUS_CHOICES = (
 
 TYPE_CHOICES = (
     ('prefix', _('Prefix Redirect')),
+    ('page', _('Page Redirect')),
     ('sphinx_html', _('Sphinx HTMLDir -> HTML')),
     ('sphinx_htmldir', _('Sphinx HTML -> HTMLDir')),
     # ('advanced', _('Advanced')),
 )
 
 from_url_helptext = _('Absolute path, excluding the domain.'
-                      'Example: <b>/docs/</b> .'
+                      'Example: <b>/docs/</b>  or <b>/install.html</b>.'
                       )
 to_url_helptext = _('Absolute or relative url. Examples: '
-                    '\'http://www.example.com/$path\', \'/en/latest/$path\'. '
+                    '<b>/tutorial/install.html.</b>'
                     )
 redirect_type_helptext = _('The type of redirect you wish to use.')
 
@@ -56,5 +57,7 @@ class Redirect(models.Model):
     def __unicode__(self):
         if self.redirect_type == 'prefix':
             return _('Redirect: %s ->' % self.from_url)
+        elif self.redirect_type == 'page':
+            return _('Redirect: %s -> %s' % (self.from_url, self.to_url))
         else:
             return _('Redirect: %s' % self.get_redirect_type_display())

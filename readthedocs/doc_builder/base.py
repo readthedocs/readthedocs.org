@@ -58,3 +58,11 @@ class BaseBuilder(object):
             shutil.copytree(self.old_artifact_path, self.target)
         else:
             log.warning("Not moving docs, because the build dir is unknown.")
+
+    def clean(self, **kwargs):
+        """
+        Clean the path where documentation will be built
+        """
+        if os.path.exists(self.old_artifact_path):
+            shutil.rmtree(self.old_artifact_path)
+            log.info("Removing old artifact path: %s" % self.old_artifact_path)
