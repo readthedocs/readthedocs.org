@@ -9,9 +9,10 @@ from tastyapi import apiv2
 
 log = logging.getLogger(__name__)
 
+
 def make_github_project(user, org, privacy, repo_json):
-    if (repo_json['private'] is True and privacy == 'private' or 
-           repo_json['private'] is False and privacy == 'public'):
+    if (repo_json['private'] is True and privacy == 'private' or
+            repo_json['private'] is False and privacy == 'public'):
         project, created = GithubProject.objects.get_or_create(
             full_name=repo_json['full_name'],
         )
@@ -32,6 +33,7 @@ def make_github_project(user, org, privacy, repo_json):
     else:
         log.debug('Not importing %s because mismatched type' % repo_json['name'])
 
+
 def make_github_organization(user, org_json):
     org, created = GithubOrganization.objects.get_or_create(
         login=org_json.get('login'),
@@ -41,7 +43,9 @@ def make_github_organization(user, org_json):
     org.email = org_json.get('email')
     org.json = org_json
     org.users.add(user)
+    org.save()
     return org
+
 
 def get_token_for_project(project, force_local=False):
     token = None
