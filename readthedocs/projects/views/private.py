@@ -480,7 +480,7 @@ def project_access_tokens_delete(request, project_slug):
 
 
 @login_required
-def project_import_github(request, sync=True):
+def project_import_github(request, sync=False):
     """
     Integrate with GitHub to pull repos from there.
 
@@ -531,6 +531,7 @@ def project_import_github(request, sync=True):
         {
             'repos': repos,
             'github_connected': github_connected,
+            'sync': sync,
         },
         context_instance=RequestContext(request)
     )

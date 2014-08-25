@@ -29,6 +29,15 @@
 
 {% block content %}
 {% if github_connected %}
+{% if not sync %}
+<p class="empty">
+  Showing your GitHub projects. <a href="{% url 'projects_sync_github' %}">Sync your GitHub projects</a> to update them.
+</p>
+{% else %}
+<p class="empty">
+  GitHub projects are now up to date.
+</p>
+{% endif %}
 <div class="module">
   <div class="module-wrapper">
     <div class="module-list">
@@ -38,7 +47,6 @@
           <li class="module-item">
 
             <a class="module-item-title" href="{{ repo.html_url }}">{{ repo.full_name }}</a>
-            {# ({{ repo.git_url }}) #}
 
             <form method="post" action="{% url 'projects_import' %}">
               {% csrf_token %}
@@ -53,7 +61,7 @@
               {% if repo.matches %}
               <span class="dropdown" style="position:absolute; right:0px; top:0px;">
                 <span>
-                  <a href="{% url 'projects_detail' repo.matches.0 %}">{% trans "View Docs" %}</a>
+                  <a href="{% url 'projects_detail' repo.matches.0 %}">{% trans "View Project" %}</a>
                   <a href="#">&#x25BC;</a>
                 </span>
                 <ul>

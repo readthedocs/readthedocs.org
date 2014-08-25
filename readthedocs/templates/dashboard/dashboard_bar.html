@@ -26,9 +26,11 @@
                 <a href="{{ profiles_profile_create }}">{% trans "Create Profile" %}</a>
               </li>
             {% endif %}
+            <!--
             <li class="{{ connections_active }}">
               <a href="{% url 'socialaccount_connections' %}">{% trans "Social Accounts" %}</a>
             </li>
+            -->
             <li class="last {{ change_password_active }}">
               <a href="{% url 'account_set_password' %}">{% trans "Change Password" %}</a>
             </li>

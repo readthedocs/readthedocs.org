@@ -15,7 +15,13 @@ urlpatterns = patterns(
 
     url(r'^import/github/$',
         'projects.views.private.project_import_github',
+        {'sync': False},
         name='projects_import_github'),
+
+    url(r'^import/github/sync/$',
+        'projects.views.private.project_import_github',
+        {'sync': True},
+        name='projects_sync_github'),
 
     url(r'^(?P<project_slug>[-\w]+)/$',
         'projects.views.private.project_manage',
