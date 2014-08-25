@@ -220,8 +220,14 @@ class Version(models.Model):
         repo_url = self.project.repo
         if 'github' not in repo_url:
             return ''
+
         if not docroot:
             return ''
+        else:
+            if docroot[0] != '/':
+                docroot = "/%s" % docroot
+            if docroot[-1] != '/':
+                docroot = "%s/" % docroot
 
         if action == 'view':
             action_string = 'blob'
