@@ -98,12 +98,4 @@ urlpatterns = patterns(
     url(r'^(?P<project_slug>[-\w]+)/redirects/delete/$',
         'projects.views.private.project_redirects_delete',
         name='projects_redirects_delete'),
-
-    url(r'^(?P<project_slug>[-\w]+)/tokens/$',
-        'projects.views.private.project_access_tokens',
-        name='projects_access_tokens'),
-
-    url(r'^(?P<project_slug>[-\w]+)/tokens/delete/$',
-        'projects.views.private.project_access_tokens_delete',
-        name='projects_access_tokens_delete'),
 )
