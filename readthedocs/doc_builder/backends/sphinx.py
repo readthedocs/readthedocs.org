@@ -1,17 +1,14 @@
+import re
 import os
-import shutil
 import codecs
 from glob import glob
 import logging
 import zipfile
 
-from django.template import Template, Context, loader as template_loader
-from django.contrib.auth.models import SiteProfileNotAvailable
-from django.core.exceptions import ObjectDoesNotExist
+from django.template import Context, loader as template_loader
 from django.conf import settings
 
 from builds import utils as version_utils
-from core.utils import copy_to_app_servers, copy_file_to_app_servers
 from doc_builder.base import BaseBuilder, restoring_chdir
 from projects.utils import run
 from tastyapi import apiv2
@@ -20,8 +17,11 @@ log = logging.getLogger(__name__)
 
 TEMPLATE_DIR = '%s/readthedocs/templates/sphinx' % settings.SITE_ROOT
 STATIC_DIR = '%s/_static' % TEMPLATE_DIR
+PDF_RE = re.compile('Output written on (.*?)')
+
 
 class BaseSphinx(BaseBuilder):
+
     """
     The parent for most sphinx builders.
     """
@@ -44,26 +44,24 @@ class BaseSphinx(BaseBuilder):
                 self.sphinx_builder,
                 project.language,
                 self.sphinx_build_dir,
-                )
+            )
         else:
             build_command = ("sphinx-build -T %s -b %s -D language=%s . %s"
                              % (
-                                force_str, 
-                                self.sphinx_builder,
-                                project.language,
-                                self.sphinx_build_dir,
-                                )
+                                 force_str,
+                                 self.sphinx_builder,
+                                 project.language,
+                                 self.sphinx_build_dir,
+                             )
                              )
         results = run(build_command, shell=True)
         return results
-
-
 
     def append_conf(self, **kwargs):
         """Modify the given ``conf.py`` file from a whitelisted user's project.
         """
         project = self.version.project
-        #Open file for appending.
+        # Open file for appending.
         outfile = codecs.open(project.conf_file(self.version.slug),
                               encoding='utf-8', mode='a')
         outfile.write("\n")
@@ -127,7 +125,7 @@ class SearchBuilder(BaseSphinx):
     sphinx_builder = 'json'
     sphinx_build_dir = '_build/json'
 
-    
+
 class LocalMediaBuilder(BaseSphinx):
     type = 'sphinx_localmedia'
     sphinx_builder = 'readthedocssinglehtmllocalmedia'
@@ -171,21 +169,23 @@ class EpubBuilder(BaseSphinx):
             to_file = os.path.join(self.target, "%s.epub" % self.version.project.slug)
             run('mv -f %s %s' % (from_file, to_file))
 
+
 class PdfBuilder(BaseSphinx):
     type = 'sphinx_pdf'
     sphinx_build_dir = '_build/latex'
+    pdf_file_name = None
 
     @restoring_chdir
     def build(self, **kwargs):
         self.clean()
         project = self.version.project
         os.chdir(project.conf_dir(self.version.slug))
-        #Default to this so we can return it always.
+        # Default to this so we can return it always.
         results = {}
         if project.use_virtualenv:
             latex_results = run('%s -b latex -D language=%s -d _build/doctrees . _build/latex'
                                 % (project.venv_bin(version=self.version.slug,
-                                                   bin='sphinx-build'), project.language))
+                                                    bin='sphinx-build'), project.language))
         else:
             latex_results = run('sphinx-build -b latex -D language=%s -d _build/doctrees '
                                 '. _build/latex' % project.language)
@@ -197,7 +197,7 @@ class PdfBuilder(BaseSphinx):
             if tex_files:
                 # Run LaTeX -> PDF conversions
                 pdflatex_cmds = [('pdflatex -interaction=nonstopmode %s'
-                                 % tex_file) for tex_file in tex_files]
+                                  % tex_file) for tex_file in tex_files]
                 # Run twice because of https://github.com/rtfd/readthedocs.org/issues/749
                 pdf_results = run(*pdflatex_cmds)
                 pdf_results = run(*pdflatex_cmds)
@@ -209,6 +209,9 @@ class PdfBuilder(BaseSphinx):
                 latex_results[1] + pdf_results[1],
                 latex_results[2] + pdf_results[2],
             ]
+            pdf_match = PDF_RE.search(results[1])
+            if pdf_match:
+                self.pdf_file_name = pdf_match.group(1).strip()
         else:
             results = latex_results
         return results
@@ -220,6 +223,8 @@ class PdfBuilder(BaseSphinx):
         exact = os.path.join(self.old_artifact_path, "%s.pdf" % self.version.project.slug)
         exact_upper = os.path.join(self.old_artifact_path, "%s.pdf" % self.version.project.slug.capitalize())
 
+        if os.path.exists(self.pdf_file_name):
+            from_file = self.pdf_file_name
         if os.path.exists(exact):
             from_file = exact
         elif os.path.exists(exact_upper):
@@ -233,4 +238,3 @@ class PdfBuilder(BaseSphinx):
         if from_file:
             to_file = os.path.join(self.target, "%s.pdf" % self.version.project.slug)
             run('mv -f %s %s' % (from_file, to_file))
-
