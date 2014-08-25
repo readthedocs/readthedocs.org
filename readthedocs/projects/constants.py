@@ -143,4 +143,3 @@ LANGUAGES_REGEX = "|".join(
 )
 
 LOG_TEMPLATE = u"(Build) [{project}:{version}] {msg}"
-
