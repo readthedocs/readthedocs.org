@@ -72,7 +72,7 @@ $(document).ready(function() {
                   {% for result in results.hits.hits %}
                         <li class="module-item">
                           <p class="module-item-title">
-                            <a href="{% doc_url project result.fields.version.0 result.fields.path.0 %}?highlight={{ query }}">{{ result.fields.project.0 }} - {{ result.fields.title.0|safe }}</a>
+                            <a href="{% doc_url project result.fields.version result.fields.path %}?highlight={{ query }}">{{ result.fields.project }} - {{ result.fields.title|safe }}</a>
                           </p>
                           <p>
                             {{ result.highlight.content.0|safe }}
