@@ -22,7 +22,7 @@ from builds.models import Version
 from core.forms import FacetedSearchForm
 from projects import constants
 from projects.models import Project, ImportedFile, ProjectRelationship
-from projects.tasks import update_docs, remove_dir
+from projects.tasks import update_docs, remove_dir, update_imported_docs
 from redirects.models import Redirect
 from redirects.utils import redirect_filename
 
@@ -190,6 +190,10 @@ def _build_url(url, branches):
             raise NoProjectException()
         for project in projects:
             (to_build, not_building) = _build_branches(project, branches)
+            if not to_build:
+                update_imported_docs(project.versions.get(slug='latest').pk)
+                msg = '(URL Build) Syncing versions for %s' % project.slug
+                pc_log.info(msg)
         if to_build:
             msg = '(URL Build) Build Started: %s [%s]' % (
                 url, ' '.join(to_build))
@@ -199,6 +203,7 @@ def _build_url(url, branches):
             msg = '(URL Build) Not Building: %s [%s]' % (
                 url, ' '.join(not_building))
             pc_log.info(msg)
+            update_imported_docs()
             return HttpResponse(msg)
     except Exception, e:
         if e.__class__ == NoProjectException:
