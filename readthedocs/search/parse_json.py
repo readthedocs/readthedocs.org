@@ -56,7 +56,7 @@ def process_file(filename):
             headers.append(recurse_while_none(element))
         if None in headers:
             log.error('Unable to index file headers for: %s' % filename)
-    if 'body' in data:
+    if 'body' in data and len(data['body']):
         body = PyQuery(data['body'])
         body_content = body.text().replace(u'¶', '')
         # Capture text inside h1 before the first h2
