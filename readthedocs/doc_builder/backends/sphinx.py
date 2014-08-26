@@ -224,7 +224,7 @@ class PdfBuilder(BaseSphinx):
         exact = os.path.join(self.old_artifact_path, "%s.pdf" % self.version.project.slug)
         exact_upper = os.path.join(self.old_artifact_path, "%s.pdf" % self.version.project.slug.capitalize())
 
-        if os.path.exists(self.pdf_file_name):
+        if self.pdf_file_name and os.path.exists(self.pdf_file_name):
             from_file = self.pdf_file_name
         if os.path.exists(exact):
             from_file = exact
