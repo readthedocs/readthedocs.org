@@ -191,7 +191,7 @@ def _build_url(url, branches):
         for project in projects:
             (to_build, not_building) = _build_branches(project, branches)
             if not to_build:
-                update_imported_docs(project.versions.get(slug='latest').pk)
+                update_imported_docs.delay(project.versions.get(slug='latest').pk)
                 msg = '(URL Build) Syncing versions for %s' % project.slug
                 pc_log.info(msg)
         if to_build:
