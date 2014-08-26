@@ -150,7 +150,7 @@ class Backend(BaseVCS):
     @property
     def commit(self):
         retcode, stdout, err = self.run('git', 'rev-parse', 'HEAD')
-        return stdout
+        return stdout.strip()
 
     def checkout(self, identifier=None):
         self.check_working_dir()

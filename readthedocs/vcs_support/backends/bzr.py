@@ -79,7 +79,7 @@ class Backend(BaseVCS):
     @property
     def commit(self):
         retcode, stdout = self.run('bzr', 'revno')[:2]
-        return stdout
+        return stdout.strip()
 
     def checkout(self, identifier=None):
         super(Backend, self).checkout()

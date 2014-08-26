@@ -96,7 +96,7 @@ class Backend(BaseVCS):
     @property
     def commit(self):
         retcode, stdout = self.run('hg', 'id', '-i')[:2]
-        return stdout
+        return stdout.strip()
 
     def checkout(self, identifier=None):
         super(Backend, self).checkout()
