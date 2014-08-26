@@ -203,7 +203,6 @@ def _build_url(url, branches):
             msg = '(URL Build) Not Building: %s [%s]' % (
                 url, ' '.join(not_building))
             pc_log.info(msg)
-            update_imported_docs()
             return HttpResponse(msg)
     except Exception, e:
         if e.__class__ == NoProjectException:
