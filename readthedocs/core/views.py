@@ -209,7 +209,7 @@ def _build_url(url, branches):
         if e.__class__ == NoProjectException:
             raise
         msg = "(URL Build) Failed: %s:%s" % (url, e)
-        pc_log.error(msg)
+        pc_log.error(msg, exc_info=True)
         return HttpResponse(msg)
 
 
