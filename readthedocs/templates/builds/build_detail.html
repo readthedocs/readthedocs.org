@@ -14,7 +14,7 @@
 {% block content-header %}<h1>{% blocktrans with build.project.name as project_name %}Build for {{ project_name }}{% endblocktrans %}</h1>{% endblock %}
 
 {% block content %}
-  <div id="build-{{ build.id }}">
+  <div id="build-{{ build.id }}" class="build">
     <p>{% blocktrans with build.date|date:"N j, Y. P" as build_date %}Built: {{ build_date }}{% endblocktrans %}</p>
 
     <p>{% trans "State:" %} <b><span id="build-state">{{ build.get_state_display }}</span></b>
