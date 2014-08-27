@@ -41,14 +41,26 @@ def make_document_url(project, version=None, page=None):
     return base_url + path
 
 @register.filter(is_safe=True)
-def restructuredtext(value):
+def restructuredtext(value, short=False):
     try:
         from docutils.core import publish_parts
     except ImportError:
         if settings.DEBUG:
-            raise template.TemplateSyntaxError("Error in 'restructuredtext' filter: The Python docutils library isn't installed.")
+            raise template.TemplateSyntaxError(
+                "Error in 'restructuredtext' filter: "
+                "The Python docutils library isn't installed."
+            )
         return force_text(value)
     else:
-        docutils_settings = getattr(settings, "RESTRUCTUREDTEXT_FILTER_SETTINGS", {})
-        parts = publish_parts(source=force_bytes(value), writer_name="html4css1", settings_overrides=docutils_settings)
-        return mark_safe(force_text(parts["fragment"]))
+        docutils_settings = getattr(settings, "RESTRUCTUREDTEXT_FILTER_SETTINGS",
+                                    {})
+        parts = publish_parts(source=force_bytes(value), writer_name="html4css1",
+                              settings_overrides=docutils_settings)
+        out = force_text(parts["fragment"])
+        try:
+            if short:
+                out = out.split("\n")[0]
+        except IndexError:
+            pass
+        finally:
+            return mark_safe(out)
