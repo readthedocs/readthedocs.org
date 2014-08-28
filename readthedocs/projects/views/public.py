@@ -107,7 +107,7 @@ def project_badge(request, project_slug, redirect=False):
         return _badge_return(redirect, url)
     last_build = version_builds[0]
     if last_build.success:
-        color = 'green'
+        color = 'brightgreen'
     else:
         color = 'red'
     url = 'http://img.shields.io/badge/Docs-%s-%s.svg?style=%s' % (version.slug.replace('-', '--'), color, style)
