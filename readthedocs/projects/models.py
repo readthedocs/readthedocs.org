@@ -215,10 +215,10 @@ class Project(models.Model):
         symmetrical=False, through=ProjectRelationship)
 
     # Language bits
-    language = models.CharField('Language', max_length=20, default='en',
-                                help_text="The language the project "
+    language = models.CharField(_('Language'), max_length=20, default='en',
+                                help_text=_("The language the project "
                                 "documentation is rendered in. "
-                                "Note: this affects your project's URL.",
+                                "Note: this affects your project's URL."),
                                 choices=constants.LANGUAGES)
     # A subproject pointed at it's main language, so it can be tracked
     main_language_project = models.ForeignKey('self',
