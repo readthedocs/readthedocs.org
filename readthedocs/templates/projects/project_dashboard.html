@@ -20,7 +20,9 @@
             <div class="module-wrapper">
 
               <p class="empty">
-                Check out the <a href="http://docs.readthedocs.org/en/latest/index.html">documentation for Read the Docs</a>. It contains lots of information about how to get the most out of RTD.
+              {% blocktrans with url="http://docs.readthedocs.org/en/latest/index.html" %}
+              Check out the <a href="{{ url }}">documentation for Read the Docs</a>. It contains lots of information about how to get the most out of RTD.
+              {% endblocktrans %}
               </p>
 
               {% if filter|length > 0 %}
