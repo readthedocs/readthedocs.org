@@ -1,25 +1,25 @@
 {% extends "base.html" %}
 
-{% block title %}Donate{% endblock %}
+{% block title %}{% trans "Donate" %}{% endblock %}
 
 
 {% block content %}
 
 <p>
-Read the Docs is funded through donations from our users. You can donate money a couple of ways:
+{% blocktrans %}Read the Docs is funded through donations from our users. You can donate money a couple of ways:{% endblocktrans %}
 <p>
 
 <ul>
 <li>
-<a href="https://app.moonclerk.com/pay/27n2xc745yw">Credit Card</a>
+<a href="https://app.moonclerk.com/pay/27n2xc745yw">{% trans "Credit Card" %}</a>
 </li>
 <li>
 <a href="https://www.gittip.com/readthedocs">Gittip</a>
 </li>
 </ul>
-
+{% blocktrans %}
 You can read more about the ongoing efforts to improve the documentation ecosystem here:
-
+{% endblocktrans %}
 <a href="http://ericholscher.com/blog/2013/sep/25/help-me-improve-documentation/">http://ericholscher.com/blog/2013/sep/25/help-me-improve-documentation/</a>
 
 
