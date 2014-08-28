@@ -30,9 +30,10 @@ class Backend(BaseVCS):
             clone_url = 'https://%s' % hacked_url
             if self.token:
                 clone_url = 'https://%s@%s' % (self.token, hacked_url)
-            else:
-                clone_url = 'git://%s' % (hacked_url)
-            return clone_url
+                return clone_url
+            # Don't edit URL because all hosts aren't the same
+            #else:
+                #clone_url = 'git://%s' % (hacked_url)
         return self.repo_url
 
     def set_remote_url(self, url):
