@@ -31,7 +31,8 @@
 {% if github_connected %}
 {% if not sync %}
 <p class="empty">
-  Showing your GitHub projects. <a href="{% url 'projects_sync_github' %}">Sync your GitHub projects</a> to update them.
+  {% url 'projects_sync_github' as sync_github_url %}
+  {% blocktrans %}Showing your GitHub projects. <a href="{{ sync_github_url }}">Sync your GitHub projects</a> to update them.{% endblocktrans %}
 </p>
 {% else %}
 <p class="empty">
