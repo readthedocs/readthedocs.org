@@ -36,7 +36,7 @@
 </p>
 {% else %}
 <p class="empty">
-  GitHub projects are now up to date.
+  {% blocktrans %}GitHub projects are now up to date.{% endblocktrans %}
 </p>
 {% endif %}
 <div class="module">
@@ -89,7 +89,9 @@
   </div>
 </div>
 {% else %}
-You don't have any GitHub repositories connected. 
-Go to your <a href="{% url 'socialaccount_connections' %}">Social Accounts</a> to set one up.
+  {% url 'socialaccount_connections' as social_url %}
+  {% blocktrans %}You don't have any GitHub repositories connected. 
+  Go to your <a href="{{ social_url }}">Social Accounts</a> to set one up.
+  {% endblocktrans %}
 {% endif %}
 {% endblock %}
