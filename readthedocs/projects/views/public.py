@@ -1,5 +1,6 @@
 import json
 import logging
+import md5
 
 from django.core.urlresolvers import reverse
 from django.conf import settings
@@ -88,6 +89,8 @@ def _badge_return(redirect, url):
         return HttpResponseRedirect(url)
     else:
         response = requests.get(url)
+        response['Cache-Control'] = 'no-cache'
+        response['Etag'] = md5.new(url)
         return HttpResponse(response.content, mimetype="image/svg+xml")
 
 def project_badge(request, project_slug, redirect=False):
