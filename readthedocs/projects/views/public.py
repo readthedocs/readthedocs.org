@@ -89,9 +89,10 @@ def _badge_return(redirect, url):
         return HttpResponseRedirect(url)
     else:
         response = requests.get(url)
-        response['Cache-Control'] = 'no-cache'
-        response['Etag'] = md5.new(url)
-        return HttpResponse(response.content, mimetype="image/svg+xml")
+        http_response =  HttpResponse(response.content, mimetype="image/svg+xml")
+        http_response['Cache-Control'] = 'no-cache'
+        http_response['Etag'] = md5.new(url)
+        return http_response
 
 def project_badge(request, project_slug, redirect=False):
     """
