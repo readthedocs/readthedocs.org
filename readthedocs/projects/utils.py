@@ -33,10 +33,6 @@ def symlink(project, version='latest'):
     symlinks.symlink_subprojects(v)
     symlinks.symlink_cnames(v)
     symlinks.symlink_translations(v)
-    if project.single_version:
-        symlinks.symlink_single_version(version)
-    else:
-        symlinks.remove_symlink_single_version(version)
 
 def update_static_metadata(project_pk):
     """
