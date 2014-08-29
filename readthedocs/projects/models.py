@@ -388,16 +388,19 @@ class Project(models.Model):
         """
         Get the URL for downloading a specific media file.
         """
-        if DEFAULT_PRIVACY_LEVEL == 'public':
-            path = os.path.join(settings.MEDIA_URL, type, self.slug, version_slug,
-                                '%s.%s' % (self.slug, type))
-        else:
-            path = reverse('project_download_media', kwargs={
-                'project_slug': self.slug,
-                'type': type,
-                'version_slug': version_slug,
-            })
+        path = reverse('project_download_media', kwargs={
+            'project_slug': self.slug,
+            'type': type,
+            'version_slug': version_slug,
+        })
         return path
+
+    def get_downloads(self):
+        downloads = {}
+        downloads['htmlzip'] = self.get_production_media_url('htmlzip', self.get_default_version())
+        downloads['epub'] = self.get_production_media_url('htmlzip', self.get_default_version())
+        downloads['pdf'] = self.get_production_media_url('htmlzip', self.get_default_version())
+        return downloads
 
     @property
     def canonical_domain(self):

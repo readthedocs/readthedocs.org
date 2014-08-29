@@ -75,7 +75,7 @@ class PrivacyTests(TestCase):
         self.assertEqual(r.status_code, 200)
 
         r = self.client.get('/projects/django-kong/download/pdf/latest/')
-        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.status_code, 302)
 
         self.client.login(username='tester', password='test')
         r = self.client.get('/')
@@ -299,5 +299,5 @@ class PrivacyTests(TestCase):
         r = self.client.get('/projects/django-kong/downloads/')
         self.assertEqual(r.status_code, 200)
         r = self.client.get('/projects/django-kong/download/pdf/latest/')
-        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.status_code, 302)
         self.assertEqual(r._headers['x-accel-redirect'][1], '/prod_artifacts/pdf/django-kong/latest/django-kong.pdf')
