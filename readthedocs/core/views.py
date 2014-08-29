@@ -393,7 +393,7 @@ def redirect_lang_slug(request, lang_slug, project_slug=None):
     """Redirect /en/ to /en/latest/."""
     kwargs = default_docs_kwargs(request, project_slug)
     kwargs['lang_slug'] = lang_slug
-    url = reverse(serve_docs, kwargs=kwargs)
+    url = reverse('docs_detail', kwargs=kwargs)
     return HttpResponseRedirect(url)
 
 
@@ -401,14 +401,14 @@ def redirect_version_slug(request, version_slug, project_slug=None):
     """Redirect /latest/ to /en/latest/."""
     kwargs = default_docs_kwargs(request, project_slug)
     kwargs['version_slug'] = version_slug
-    url = reverse(serve_docs, kwargs=kwargs)
+    url = reverse('docs_detail', kwargs=kwargs)
     return HttpResponseRedirect(url)
 
 
 def redirect_project_slug(request, project_slug=None):
     """Redirect / to /en/latest/."""
     kwargs = default_docs_kwargs(request, project_slug)
-    url = reverse(serve_docs, kwargs=kwargs)
+    url = reverse('docs_detail', kwargs=kwargs)
     return HttpResponseRedirect(url)
 
 
@@ -416,7 +416,7 @@ def redirect_page_with_filename(request, filename, project_slug=None):
     """Redirect /page/file.html to /en/latest/file.html."""
     kwargs = default_docs_kwargs(request, project_slug)
     kwargs['filename'] = filename
-    url = reverse(serve_docs, kwargs=kwargs)
+    url = reverse('docs_detail', kwargs=kwargs)
     return HttpResponseRedirect(url)
 
 
