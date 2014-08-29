@@ -26,6 +26,10 @@ UPLOAD_ROOT = os.path.join(SITE_ROOT, 'user_uploads')
 CNAME_ROOT = os.path.join(SITE_ROOT, 'cnames')
 LOGS_ROOT = os.path.join(SITE_ROOT, 'logs')
 
+# A new base for production files
+PRODUCTION_ROOT = os.path.join(SITE_ROOT, 'prod_artifacts')
+PRODUCTION_MEDIA_ARTIFACTS = os.path.join(PRODUCTION_ROOT, 'media')
+
 MEDIA_ROOT = '%s/media/' % (SITE_ROOT)
 MEDIA_URL = '/media/'
 ADMIN_MEDIA_PREFIX = '/media/admin/'

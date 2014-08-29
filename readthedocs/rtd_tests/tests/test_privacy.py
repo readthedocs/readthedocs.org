@@ -74,6 +74,9 @@ class PrivacyTests(TestCase):
         r = self.client.get('/projects/django-kong/downloads/')
         self.assertEqual(r.status_code, 200)
 
+        r = self.client.get('/projects/django-kong/download/pdf/latest/')
+        self.assertEqual(r.status_code, 200)
+
         self.client.login(username='tester', password='test')
         r = self.client.get('/')
         self.assertTrue('Django Kong' not in r.content)
@@ -280,3 +283,21 @@ class PrivacyTests(TestCase):
         self.client.login(username='tester', password='test')
         r = self.client.get('/docs/django-kong/en/test-slug/')
         self.assertEqual(r.status_code, 401)
+
+    def test_private_repo_downloading(self):
+        """Check that private projects don't show up in: builds, downloads,
+        detail, homepage
+
+        """
+        self._create_kong('private', 'private')
+
+        self.client.login(username='eric', password='test')
+        r = self.client.get('/projects/django-kong/')
+        self.assertEqual(r.status_code, 200)
+        r = self.client.get('/builds/django-kong/')
+        self.assertEqual(r.status_code, 200)
+        r = self.client.get('/projects/django-kong/downloads/')
+        self.assertEqual(r.status_code, 200)
+        r = self.client.get('/projects/django-kong/download/pdf/latest/')
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r._headers['x-accel-redirect'][1], '/prod_artifacts/pdf/django-kong/latest/django-kong.pdf')

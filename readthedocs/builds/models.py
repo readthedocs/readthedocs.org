@@ -175,23 +175,18 @@ class Version(models.Model):
         data = {}
         if pretty:
             if project.has_pdf(self.slug):
-                data['PDF'] = project.get_pdf_url(self.slug)
+                data['PDF'] = project.get_production_media_url('pdf', self.slug)
             if project.has_htmlzip(self.slug):
-                data['HTML'] = project.get_htmlzip_url(self.slug)
+                data['HTML'] = project.get_production_media_url('htmlzip', self.slug)
             if project.has_epub(self.slug):
-                data['Epub'] = project.get_epub_url(self.slug)
+                data['Epub'] = project.get_production_media_url('epub', self.slug)
         else:
             if project.has_pdf(self.slug):
-                data['pdf_url'] = project.get_pdf_url(self.slug)
+                data['pdf_url'] = project.get_production_media_url('pdf', self.slug)
             if project.has_htmlzip(self.slug):
-                data['htmlzip_url'] = project.get_htmlzip_url(self.slug)
+                data['htmlzip_url'] = project.get_production_media_url('htmlzip', self.slug)
             if project.has_epub(self.slug):
-                data['epub_url'] = project.get_epub_url(self.slug)
-            #if project.has_manpage(self.slug):
-                #data['manpage_url'] = project.get_manpage_url(self.slug)
-            if project.has_dash(self.slug):
-                data['dash_url'] = project.get_dash_url(self.slug)
-                data['dash_feed_url'] = project.get_dash_feed_url(self.slug)
+                data['epub_url'] = project.get_production_media_url('epub', self.slug)
         return data
 
     def get_conf_py_path(self):

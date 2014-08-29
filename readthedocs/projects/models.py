@@ -371,89 +371,33 @@ class Project(models.Model):
             'project_slug': self.slug,
         })
 
-    def get_pdf_url(self, version_slug='latest'):
-        path = os.path.join(settings.MEDIA_URL, 'pdf', self.slug, version_slug,
-                            '%s.pdf' % self.slug)
+    def get_production_media_path(self, type, version_slug, include_file=True):
+        """
+        Get file path for media files in production.
+        This is used to see if these files exist so we can offer them for download.
+        """
+        if DEFAULT_PRIVACY_LEVEL == 'public':
+            path = os.path.join(settings.MEDIA_ROOT, 'pdf', self.slug, version_slug)
+        else:
+            path = os.path.join(settings.PRODUCTION_MEDIA_ARTIFACTS, type, self.slug, version_slug)
+        if include_file:
+            path = os.path.join(path, '%s.%s' % (self.slug, type))
         return path
 
-    def get_pdf_path(self, version_slug='latest'):
-        path = os.path.join(settings.MEDIA_ROOT, 'pdf', self.slug,
-                            version_slug, '%s.pdf' % self.slug)
+    def get_production_media_url(self, type, version_slug):
+        """
+        Get the URL for downloading a specific media file.
+        """
+        if DEFAULT_PRIVACY_LEVEL == 'public':
+            path = os.path.join(settings.MEDIA_URL, type, self.slug, version_slug,
+                                '%s.%s' % (self.slug, type))
+        else:
+            path = reverse('project_download_media', kwargs={
+                'project_slug': self.slug,
+                'type': type,
+                'version_slug': version_slug,
+            })
         return path
-
-    def get_epub_url(self, version_slug='latest'):
-        path = os.path.join(settings.MEDIA_URL, 'epub', self.slug,
-                            version_slug, '%s.epub' % self.slug)
-        return path
-
-    def get_epub_path(self, version_slug='latest'):
-        path = os.path.join(settings.MEDIA_ROOT, 'epub', self.slug,
-                            version_slug, '%s.epub' % self.slug)
-        return path
-
-    def get_manpage_url(self, version_slug='latest'):
-        path = os.path.join(settings.MEDIA_URL, 'man', self.slug, version_slug,
-                            '%s.1' % self.slug)
-        return path
-
-    def get_manpage_path(self, version_slug='latest'):
-        path = os.path.join(settings.MEDIA_ROOT, 'man', self.slug,
-                            version_slug, '%s.1' % self.slug)
-        return path
-
-    def get_htmlzip_url(self, version_slug='latest'):
-        path = os.path.join(settings.MEDIA_URL, 'htmlzip', self.slug,
-                            version_slug, '%s.zip' % self.slug)
-        return path
-
-    def get_htmlzip_path(self, version_slug='latest'):
-        path = os.path.join(settings.MEDIA_ROOT, 'htmlzip', self.slug,
-                            version_slug, '%s.zip' % self.slug)
-        return path
-
-    def get_dash_url(self, version_slug='latest'):
-        path = os.path.join(settings.MEDIA_URL, 'dash', self.slug,
-                            version_slug, '%s.tgz' % self.doc_name)
-        return path
-
-    def get_dash_path(self, version_slug='latest'):
-        path = os.path.join(settings.MEDIA_ROOT, 'dash', self.slug,
-                            version_slug, '%s.tgz' % self.doc_name)
-        return path
-
-    def get_dash_feed_path(self, version_slug='latest'):
-        path = os.path.join(settings.MEDIA_ROOT, 'dash', self.slug,
-                            version_slug, '%s.xml' % self.doc_name)
-        return path
-
-    def get_dash_feed_url(self, version_slug='latest'):
-        path = os.path.join(settings.MEDIA_URL,
-                            'dash',
-                            self.slug,
-                            version_slug,
-                            '%s.xml' % self.doc_name)
-        return path
-
-    def get_json_path(self, version_slug='latest'):
-        path = os.path.join(settings.MEDIA_ROOT,
-                            'json',
-                            self.slug,
-                            version_slug,
-                            )
-        return path
-
-    def get_downloads(self, version_slug='latest'):
-        downloads = {}
-        downloads['htmlzip'] = self.get_htmlzip_url()
-        downloads['epub'] = self.get_epub_url()
-        downloads['pdf'] = self.get_pdf_url()
-        downloads['manpage'] = self.get_manpage_url()
-        downloads['dash'] = self.get_dash_url()
-        return downloads
-
-    @property
-    def doc_name(self):
-        return self.slug.replace('_', '-')
 
     @property
     def canonical_domain(self):
@@ -646,19 +590,13 @@ class Project(models.Model):
         return self.aliases.exists()
 
     def has_pdf(self, version_slug='latest'):
-        return os.path.exists(self.get_pdf_path(version_slug))
-
-    def has_manpage(self, version_slug='latest'):
-        return os.path.exists(self.get_manpage_path(version_slug))
+        return os.path.exists(self.get_production_media_path(type='pdf', version_slug=version_slug))
 
     def has_epub(self, version_slug='latest'):
-        return os.path.exists(self.get_epub_path(version_slug))
-
-    def has_dash(self, version_slug='latest'):
-        return os.path.exists(self.get_dash_path(version_slug))
+        return os.path.exists(self.get_production_media_path(type='epub', version_slug=version_slug))
 
     def has_htmlzip(self, version_slug='latest'):
-        return os.path.exists(self.get_htmlzip_path(version_slug))
+        return os.path.exists(self.get_production_media_path(type='htmlzip', version_slug=version_slug))
 
     @property
     def sponsored(self):

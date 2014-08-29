@@ -26,6 +26,7 @@ readthedocs/rtd_tests/builds
 readthedocs/rtd_tests/tests/builds
 user_builds
 user_uploads
+prod_artifacts
 wheelhouse
 whoosh_index
 xml_output
