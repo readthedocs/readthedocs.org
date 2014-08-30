@@ -6,7 +6,7 @@
         python_path="${python_path}:${PYTHONPATH}"
     fi
     export PYTHONPATH=$python_path
-    export DJANGO_SETTINGS_MODULE=readthedocsinc.settings.test
+    export DJANGO_SETTINGS_MODULE=settings.test
 
     cd readthedocs
     rm -rf rtd_tests/builds/
