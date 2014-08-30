@@ -1,5 +1,6 @@
 import json
 import logging
+import md5
 
 from django.core.urlresolvers import reverse
 from django.conf import settings
@@ -88,7 +89,10 @@ def _badge_return(redirect, url):
         return HttpResponseRedirect(url)
     else:
         response = requests.get(url)
-        return HttpResponse(response.content, mimetype="image/svg+xml")
+        http_response =  HttpResponse(response.content, mimetype="image/svg+xml")
+        http_response['Cache-Control'] = 'no-cache'
+        http_response['Etag'] = md5.new(url)
+        return http_response
 
 def project_badge(request, project_slug, redirect=False):
     """
@@ -107,7 +111,7 @@ def project_badge(request, project_slug, redirect=False):
         return _badge_return(redirect, url)
     last_build = version_builds[0]
     if last_build.success:
-        color = 'green'
+        color = 'brightgreen'
     else:
         color = 'red'
     url = 'http://img.shields.io/badge/Docs-%s-%s.svg?style=%s' % (version.slug.replace('-', '--'), color, style)

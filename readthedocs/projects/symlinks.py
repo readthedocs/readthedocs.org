@@ -101,7 +101,7 @@ def symlink_single_version(version):
     Link from HOME/user_builds/<project>/single_version ->
               HOME/user_builds/<project>/rtd-builds/<default_version>/
     """
-    default_version = version.project.default_version
+    default_version = version.project.get_default_version()
     log.debug(LOG_TEMPLATE.format(project=version.project.slug, version=default_version, msg="Symlinking single_version"))
 
     # The single_version directory
@@ -116,7 +116,7 @@ def remove_symlink_single_version(version):
     """Remove single_version symlink"""
     log.debug(LOG_TEMPLATE.format(
         project=version.project.slug,
-        version=version.project.default_version,
+        version=version.project.get_default_version(),
         msg="Removing symlink for single_version")
     )
     symlink = version.project.single_version_symlink_path()
