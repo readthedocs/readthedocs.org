@@ -434,24 +434,29 @@ def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
         return server_helpful_404(request, project_slug, lang_slug, version_slug,
                                   filename)
 
-    # Check authorization of user for private version. Don't fail if a token is
-    # set and valid
     if ver not in proj.versions.public(request.user, proj, only_active=False):
         res = HttpResponse("You don't have access to this version.")
         res.status_code = 401
-        if hasattr(request, 'token') and request.token is not None:
-            log.info('Access using token {0}'.format(request.token))
-        else:
-            log.error('Unauthorized access to {0} documentation'.format(ver))
-            return res
+        return res
+    return _serve_docs(request, project=proj, version=ver, filename=filename,
+                       lang_slug=lang_slug, version_slug=version_slug,
+                       project_slug=project_slug)
 
+
+def _serve_docs(request, project, version, filename, lang_slug=None,
+                version_slug=None, project_slug=None):
+    '''Actually serve the built documentation files
+
+    This is not called directly, but is wrapped by :py:func:`serve_docs` so that
+    authentication can be manipulated.
+    '''
     # Figure out actual file to serve
     if not filename:
         filename = "index.html"
     # This is required because we're forming the filenames outselves instead of
     # letting the web server do it.
     elif (
-         (proj.documentation_type == 'sphinx_htmldir' or proj.documentation_type == 'mkdocs')
+         (project.documentation_type == 'sphinx_htmldir' or project.documentation_type == 'mkdocs')
           and "_static" not in filename
           and ".css" not in filename
           and ".js" not in filename
@@ -467,14 +472,14 @@ def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
     # Use the old paths if we're on our old location.
     # Otherwise use the new language symlinks.
     # This can be removed once we have 'en' symlinks for every project.
-    if lang_slug == proj.language:
-        basepath = proj.rtd_build_path(version_slug)
+    if lang_slug == project.language:
+        basepath = project.rtd_build_path(version_slug)
     else:
-        basepath = proj.translations_symlink_path(lang_slug)
+        basepath = project.translations_symlink_path(lang_slug)
         basepath = os.path.join(basepath, version_slug)
 
     # Serve file
-    log.info('Serving %s for %s' % (filename, proj))
+    log.info('Serving %s for %s' % (filename, project))
     if not settings.DEBUG and not getattr(settings, 'PYTHON_MEDIA', False):
         fullpath = os.path.join(basepath, filename)
         mimetype, encoding = mimetypes.guess_type(fullpath)
