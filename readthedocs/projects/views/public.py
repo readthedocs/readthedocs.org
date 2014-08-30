@@ -1,5 +1,7 @@
+import os
 import json
 import logging
+import mimetypes
 import md5
 
 from django.core.urlresolvers import reverse
@@ -10,6 +12,7 @@ from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
 from django.views.generic import ListView
 from django.utils.datastructures import SortedDict
+from django.views.static import serve
 
 from taggit.models import Tag
 import requests
@@ -151,6 +154,33 @@ def project_downloads(request, project_slug):
         },
         context_instance=RequestContext(request),
     )
+
+
+def project_download_media(request, project_slug, type, version_slug):
+    """
+    Download a specific piece of media.
+    Perform an auth check if serving in private mode.
+    """
+    DEFAULT_PRIVACY_LEVEL = getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public')
+    if DEFAULT_PRIVACY_LEVEL == 'public' or settings.DEBUG:
+        path = os.path.join(settings.MEDIA_URL, type, project_slug, version_slug,
+                            '%s.%s' % (project_slug, type))
+        return HttpResponseRedirect(path)
+    else:
+        # Do private project auth checks
+        queryset = Project.objects.private(request.user).filter(slug=project_slug)
+        if queryset.exists():
+            path = os.path.join("/prod_artifacts/", type, project_slug, version_slug, '%s.%s' % (project_slug, type))
+            mimetype, encoding = mimetypes.guess_type(path)
+            mimetype = mimetype or 'application/octet-stream'
+            response = HttpResponse(mimetype=mimetype)
+            if encoding:
+                response["Content-Encoding"] = encoding
+            response['X-Accel-Redirect'] = path
+            return response
+        else:
+            raise Http404
+
 
 
 def search_autocomplete(request):

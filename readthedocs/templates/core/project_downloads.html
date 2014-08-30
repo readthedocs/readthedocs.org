@@ -1,4 +1,5 @@
 {% load i18n %}
+
 {% for version, dict in version_data.items %}
   {% if dict.pdf_url %}
   <li class="module-item col-span">
@@ -30,37 +31,6 @@
   </li>
   {% endif %}
 
-  {% comment %}
-  {% if dict.manpage_url %}
-  <li class="module-item col-span">
-    <a class="module-item-title" href="{{ dict.manpage_url }}">
-      {% blocktrans %}
-        {{ version }} Manpage
-      {% endblocktrans %}
-    </a>
-  </li>
-  {% endif %}
-  {% endcomment %}
-
-  {% if dict.dash_url %}
-  <li class="module-item col-span">
-    <a class="module-item-title" href="{{ dict.dash_url }}">
-      {% blocktrans %}
-        {{ version }} Dash docset
-      {% endblocktrans %}
-    </a>
-  </li>
-  {% endif %}
-
-  {% if dict.dash_feed_url %}
-  <li class="module-item col-span">
-    <a class="module-item-title" href="dash-feed://{% filter urlencode %}{{ media_url_prefix }}{{ dict.dash_feed_url }}{% endfilter %}">
-      {% blocktrans %}
-        {{ version }} Dash feed
-      {% endblocktrans %}
-    </a>
-  </li>
-  {% endif %}
 {% empty %}
   <li class="module-item col-span">
     {% trans "No downloads for this project." %}

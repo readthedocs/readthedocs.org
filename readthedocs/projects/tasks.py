@@ -141,30 +141,26 @@ def move_files(version, results):
         if 'localmedia' in results and results['localmedia'][0] == 0:
             from_path = version.project.artifact_path(
                 version=version.slug, type='sphinx_localmedia')
-            to_path = os.path.join(
-                settings.MEDIA_ROOT, 'htmlzip', version.project.slug, version.slug)
+            to_path = version.project.get_production_media_path(type='htmlzip', version_slug=version.slug, include_file=False)
             core_utils.copy(from_path, to_path)
         if 'search' in results and results['search'][0] == 0:
             from_path = version.project.artifact_path(
                 version=version.slug, type='sphinx_search')
-            to_path = os.path.join(
-                settings.MEDIA_ROOT, 'json', version.project.slug, version.slug)
+            to_path = version.project.get_production_media_path(type='json', version_slug=version.slug, include_file=False)
             core_utils.copy(from_path, to_path)
         # Always move PDF's because the return code lies.
         if 'pdf' in results:
             try:
                 from_path = version.project.artifact_path(
                     version=version.slug, type='sphinx_pdf')
-                to_path = os.path.join(
-                    settings.MEDIA_ROOT, 'pdf', version.project.slug, version.slug)
+                to_path = version.project.get_production_media_path(type='pdf', version_slug=version.slug, include_file=False)
                 core_utils.copy(from_path, to_path)
             except:
                 pass
         if 'epub' in results and results['epub'][0] == 0:
             from_path = version.project.artifact_path(
                 version=version.slug, type='sphinx_epub')
-            to_path = os.path.join(
-                settings.MEDIA_ROOT, 'epub', version.project.slug, version.slug)
+            to_path = version.project.get_production_media_path(type='epub', version_slug=version.slug, include_file=False)
             core_utils.copy(from_path, to_path)
 
 
