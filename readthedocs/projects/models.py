@@ -378,7 +378,7 @@ class Project(models.Model):
         else:
             path = os.path.join(settings.PRODUCTION_MEDIA_ARTIFACTS, type, self.slug, version_slug)
         if include_file:
-            path = os.path.join(path, '%s.%s' % (self.slug, type))
+            path = os.path.join(path, '%s.%s' % (self.slug, type.replace('htmlzip', 'zip')))
         return path
 
     def get_production_media_url(self, type, version_slug):
