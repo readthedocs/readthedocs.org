@@ -177,7 +177,7 @@ def project_download_media(request, project_slug, type, version_slug):
             # if encoding:
             #     response["Content-Encoding"] = encoding
             response = HttpResponse()
-             response['X-Accel-Redirect'] = path
+            response['X-Accel-Redirect'] = path
             return response
         else:
             raise Http404
