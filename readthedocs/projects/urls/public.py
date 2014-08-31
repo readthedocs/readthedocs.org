@@ -33,7 +33,7 @@ urlpatterns = patterns(
         'projects.views.public.project_downloads',
         name='project_downloads'),
 
-    url(r'^(?P<project_slug>[-\w]+)/download/(?P<type>[-\w]+)/(?P<version_slug>[-\w.]+)/$',
+    url(r'^(?P<project_slug>[-\w]+)/downloads/(?P<type>[-\w]+)/(?P<version_slug>[-\w.]+)/$',
         'projects.views.public.project_download_media',
         name='project_download_media'),
 
