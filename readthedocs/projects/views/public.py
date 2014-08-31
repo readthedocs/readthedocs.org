@@ -174,7 +174,7 @@ def project_download_media(request, project_slug, type, version_slug):
     DEFAULT_PRIVACY_LEVEL = getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public')
     if DEFAULT_PRIVACY_LEVEL == 'public' or settings.DEBUG:
         path = os.path.join(settings.MEDIA_URL, type, project_slug, version_slug,
-                            '%s.%s' % (project_slug, type))
+                            '%s.%s' % (project_slug, type.replace('htmlzip', 'zip')))
         return HttpResponseRedirect(path)
     else:
         # Get relative media path
