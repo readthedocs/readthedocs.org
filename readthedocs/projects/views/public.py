@@ -25,6 +25,7 @@ from search.indexes import PageIndex
 log = logging.getLogger(__name__)
 mimetypes.add_type("application/epub+zip", ".epub")
 
+
 class ProjectIndex(ListView):
     model = Project
 
@@ -52,6 +53,7 @@ class ProjectIndex(ListView):
 
 project_index = ProjectIndex.as_view()
 
+
 def project_detail(request, project_slug):
     """
     A detail view for a project with various dataz
@@ -65,7 +67,7 @@ def project_detail(request, project_slug):
     else:
         protocol = 'http'
     badge_url = "%s://%s%s?version=%s" % (
-        protocol, 
+        protocol,
         settings.PRODUCTION_DOMAIN,
         reverse('project_badge', args=[project.slug]),
         project.get_default_version(),
@@ -88,15 +90,17 @@ def project_detail(request, project_slug):
         context_instance=RequestContext(request),
     )
 
+
 def _badge_return(redirect, url):
     if redirect:
         return HttpResponseRedirect(url)
     else:
         response = requests.get(url)
-        http_response =  HttpResponse(response.content, mimetype="image/svg+xml")
+        http_response = HttpResponse(response.content, mimetype="image/svg+xml")
         http_response['Cache-Control'] = 'no-cache'
         http_response['Etag'] = md5.new(url)
         return http_response
+
 
 def project_badge(request, project_slug, redirect=False):
     """
@@ -120,6 +124,7 @@ def project_badge(request, project_slug, redirect=False):
         color = 'red'
     url = 'http://img.shields.io/badge/Docs-%s-%s.svg?style=%s' % (version.slug.replace('-', '--'), color, style)
     return _badge_return(redirect, url)
+
 
 def project_downloads(request, project_slug):
     """
@@ -173,16 +178,19 @@ def project_download_media(request, project_slug, type, version_slug):
         return HttpResponseRedirect(path)
     else:
         # Get relative media path
-        path = queryset[0].get_production_media_path(type=type, version_slug=version_slug).replace(settings.PRODUCTION_ROOT, '/prod_artifacts')
+        path = queryset[0].get_production_media_path(type=type, version_slug=version_slug).replace(
+            settings.PRODUCTION_ROOT, '/prod_artifacts'
+        )
         mimetype, encoding = mimetypes.guess_type(path)
         mimetype = mimetype or 'application/octet-stream'
         response = HttpResponse(mimetype=mimetype)
         if encoding:
             response["Content-Encoding"] = encoding
         response['X-Accel-Redirect'] = path
-        response['Content-Disposition'] = 'filename=%s' % os.path.basename(path)
+        # Include version in filename; this fixes a long-standing bug
+        filename = "%s-%s.%s" % (project_slug, version_slug, path.split('.')[-1])
+        response['Content-Disposition'] = 'filename=%s' % filename
         return response
-
 
 
 def search_autocomplete(request):
@@ -201,7 +209,7 @@ def search_autocomplete(request):
         ret_list.append({
             'label': project.name,
             'value': project.slug,
-            })
+        })
 
     json_response = json.dumps(ret_list)
     return HttpResponse(json_response, mimetype='text/javascript')
@@ -266,7 +274,7 @@ def file_autocomplete(request, project_slug):
         ret_list.append({
             'label': file.path,
             'value': file.path,
-            })
+        })
 
     json_response = json.dumps(ret_list)
     return HttpResponse(json_response, mimetype='text/javascript')
@@ -335,4 +343,3 @@ def elastic_project_search(request, project_slug):
         },
         context_instance=RequestContext(request),
     )
-
