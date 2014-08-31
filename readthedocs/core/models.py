@@ -2,7 +2,6 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.db.utils import DatabaseError
 from django.dispatch import receiver
-from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 STANDARD_EMAIL = "anonymous@readthedocs.org"
@@ -11,7 +10,7 @@ STANDARD_EMAIL = "anonymous@readthedocs.org"
 class UserProfile (models.Model):
     """Additional information about a User.
     """
-    user = models.ForeignKey(User, verbose_name=_('User'), unique=True,
+    user = models.ForeignKey('auth.User', verbose_name=_('User'), unique=True,
                              related_name='profile')
     whitelisted = models.BooleanField(_('Whitelisted'), default=False)
     homepage = models.CharField(_('Homepage'), max_length=100, blank=True)
@@ -51,7 +50,7 @@ class UserProfile (models.Model):
         return (name, email)
 
 
-@receiver(post_save, sender=User)
+@receiver(post_save, sender='auth.User')
 def create_profile(sender, **kwargs):
     if kwargs['created'] is True:
         try:
