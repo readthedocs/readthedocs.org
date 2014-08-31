@@ -374,7 +374,7 @@ class Project(models.Model):
         This is used to see if these files exist so we can offer them for download.
         """
         if getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public') == 'public':
-            path = os.path.join(settings.MEDIA_ROOT, 'pdf', self.slug, version_slug)
+            path = os.path.join(settings.MEDIA_ROOT, type, self.slug, version_slug)
         else:
             path = os.path.join(settings.PRODUCTION_MEDIA_ARTIFACTS, type, self.slug, version_slug)
         if include_file:
