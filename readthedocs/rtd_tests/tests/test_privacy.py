@@ -286,6 +286,14 @@ class PrivacyTests(TestCase):
     def test_private_repo_downloading(self):
         self._create_kong('private', 'private')
 
+        # Unauth'd user
+        self.client.login(username='tester', password='test')
+        r = self.client.get('/projects/django-kong/downloads/')
+        self.assertEqual(r.status_code, 404)
+        r = self.client.get('/projects/django-kong/download/pdf/latest/')
+        self.assertEqual(r.status_code, 404)
+
+        # Auth'd user
         self.client.login(username='eric', password='test')
         r = self.client.get('/projects/django-kong/downloads/')
         self.assertEqual(r.status_code, 200)
@@ -297,6 +305,15 @@ class PrivacyTests(TestCase):
     def test_private_public_repo_downloading(self):
         self._create_kong('public', 'public')
 
+        # Unauth'd user
+        self.client.login(username='tester', password='test')
+        r = self.client.get('/projects/django-kong/downloads/')
+        self.assertEqual(r.status_code, 200)
+        r = self.client.get('/projects/django-kong/download/pdf/latest/')
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r._headers['x-accel-redirect'][1], '/prod_artifacts/media/pdf/django-kong/latest/django-kong.pdf')
+
+        # Auth'd user
         self.client.login(username='eric', password='test')
         r = self.client.get('/projects/django-kong/downloads/')
         self.assertEqual(r.status_code, 200)
@@ -308,6 +325,15 @@ class PrivacyTests(TestCase):
     def test_public_repo_downloading(self):
         self._create_kong('public', 'public')
 
+        # Unauth'd user
+        self.client.login(username='tester', password='test')
+        r = self.client.get('/projects/django-kong/downloads/')
+        self.assertEqual(r.status_code, 200)
+        r = self.client.get('/projects/django-kong/download/pdf/latest/')
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(r._headers['location'][1], 'http://testserver/media/pdf/django-kong/latest/django-kong.pdf')
+
+        # Auth'd user
         self.client.login(username='eric', password='test')
         r = self.client.get('/projects/django-kong/downloads/')
         self.assertEqual(r.status_code, 200)
@@ -317,13 +343,20 @@ class PrivacyTests(TestCase):
 
     @override_settings(DEFAULT_PRIVACY_LEVEL='public')
     def test_public_private_repo_downloading(self):
-        # Note this is leaking possible information on the public site.
-        # However, it is kept this way for now to maintain backwards compatability.
         self._create_kong('private', 'private')
 
+        # Unauth'd user
+        self.client.login(username='tester', password='test')
+        r = self.client.get('/projects/django-kong/downloads/')
+        self.assertEqual(r.status_code, 404)
+        r = self.client.get('/projects/django-kong/download/pdf/latest/')
+        self.assertEqual(r.status_code, 404)
+
+        # Auth'd user
         self.client.login(username='eric', password='test')
         r = self.client.get('/projects/django-kong/downloads/')
         self.assertEqual(r.status_code, 200)
         r = self.client.get('/projects/django-kong/download/pdf/latest/')
         self.assertEqual(r.status_code, 302)
         self.assertEqual(r._headers['location'][1], 'http://testserver/media/pdf/django-kong/latest/django-kong.pdf')
+

@@ -162,26 +162,25 @@ def project_download_media(request, project_slug, type, version_slug):
     Download a specific piece of media.
     Perform an auth check if serving in private mode.
     """
+    # Do private project auth checks
+    queryset = Project.objects.protected(request.user).filter(slug=project_slug)
+    if not queryset.exists():
+        raise Http404
     DEFAULT_PRIVACY_LEVEL = getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public')
     if DEFAULT_PRIVACY_LEVEL == 'public' or settings.DEBUG:
         path = os.path.join(settings.MEDIA_URL, type, project_slug, version_slug,
                             '%s.%s' % (project_slug, type))
         return HttpResponseRedirect(path)
     else:
-        # Do private project auth checks
-        queryset = Project.objects.protected(request.user).filter(slug=project_slug)
-        if queryset.exists():
-            # Get relative media path
-            path = queryset[0].get_production_media_path(type=type, version_slug=version_slug).replace(settings.PRODUCTION_ROOT, '/prod_artifacts')
-            mimetype, encoding = mimetypes.guess_type(path)
-            mimetype = mimetype or 'application/octet-stream'
-            response = HttpResponse(mimetype=mimetype)
-            if encoding:
-                response["Content-Encoding"] = encoding
-            response['X-Accel-Redirect'] = path
-            return response
-        else:
-            raise Http404
+        # Get relative media path
+        path = queryset[0].get_production_media_path(type=type, version_slug=version_slug).replace(settings.PRODUCTION_ROOT, '/prod_artifacts')
+        mimetype, encoding = mimetypes.guess_type(path)
+        mimetype = mimetype or 'application/octet-stream'
+        response = HttpResponse(mimetype=mimetype)
+        if encoding:
+            response["Content-Encoding"] = encoding
+        response['X-Accel-Redirect'] = path
+        return response
 
 
 
