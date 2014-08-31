@@ -39,6 +39,13 @@ Default: `undefined`
 
 This is a list of application servers that built documentation is copied to. This allows you to run an independent build server, and then have it rsync your built documentation across multiple front end documentation/app servers.
 
+DEFAULT_PRIVACY_LEVEL
+---------------------
+
+Default: `public`
+
+What privacy projects default to having. Generally set to `public`. Also acts as a proxy setting for blocking certain historically insecure options, like serving generated artifacts directly from the media server.
+
 INDEX_ONLY_LATEST
 -----------------
 
