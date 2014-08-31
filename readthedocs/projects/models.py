@@ -93,9 +93,6 @@ class ProjectRelationship(models.Model):
         return ("http://%s.readthedocs.org/projects/%s/%s/latest/"
                 % (self.parent.slug, self.child.slug, self.child.language))
 
-DEFAULT_PRIVACY_LEVEL = getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public')
-DEFAULT_VERSION_PRIVACY_LEVEL = getattr(settings, 'DEFAULT_VERSION_PRIVACY_LEVEL', 'public')
-
 class Project(models.Model):
     #Auto fields
     pub_date = models.DateTimeField(_('Publication date'), auto_now_add=True)
@@ -200,12 +197,12 @@ class Project(models.Model):
                                            max_length=255, blank=True)
     privacy_level = models.CharField(
         _('Privacy Level'), max_length=20, choices=constants.PRIVACY_CHOICES,
-        default=DEFAULT_PRIVACY_LEVEL,
+        default=getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public'),
         help_text=_("(Beta) Level of privacy that you want on the repository. "
                     "Protected means public but not in listings."))
     version_privacy_level = models.CharField(
         _('Version Privacy Level'), max_length=20,
-        choices=constants.PRIVACY_CHOICES, default=DEFAULT_VERSION_PRIVACY_LEVEL,
+        choices=constants.PRIVACY_CHOICES, default=getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public'),
         help_text=_("(Beta) Default level of privacy you want on built "
                     "versions of documentation."))
 
@@ -376,7 +373,7 @@ class Project(models.Model):
         Get file path for media files in production.
         This is used to see if these files exist so we can offer them for download.
         """
-        if DEFAULT_PRIVACY_LEVEL == 'public':
+        if getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public') == 'public':
             path = os.path.join(settings.MEDIA_ROOT, 'pdf', self.slug, version_slug)
         else:
             path = os.path.join(settings.PRODUCTION_MEDIA_ARTIFACTS, type, self.slug, version_slug)
