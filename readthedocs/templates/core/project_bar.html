@@ -8,13 +8,6 @@
 
         <div class="project-title">
           <h1><a href="{{ project.get_absolute_url }}">{{ project }}</a></h1>
-
-          {% if project.description %}
-          <div id="project_description">
-            {{ project.description|restructuredtext:True }}
-          </div>
-          {% endif %}
-
         </div>
 
         <div class="options">

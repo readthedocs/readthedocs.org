@@ -75,6 +75,18 @@
     </div>
   </div>
 {% endif %}
+
+<div id="project_description">
+{% if project.description %}
+  <h3>{% trans "Description" %}</h3>
+  <div id="project_description">
+  <p>
+    {{ project.description|restructuredtext }}
+  </p>
+  </div>
+{% endif %}
+</div>
+
 </div>{# END .module #}
 
 <div class="project_details">
