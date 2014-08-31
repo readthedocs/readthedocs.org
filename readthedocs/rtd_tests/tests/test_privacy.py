@@ -282,6 +282,8 @@ class PrivacyTests(TestCase):
         r = self.client.get('/docs/django-kong/en/test-slug/')
         self.assertEqual(r.status_code, 401)
 
+### Private download tests
+
     @override_settings(DEFAULT_PRIVACY_LEVEL='private')
     def test_private_repo_downloading(self):
         self._create_kong('private', 'private')
@@ -320,6 +322,19 @@ class PrivacyTests(TestCase):
         r = self.client.get('/projects/django-kong/download/pdf/latest/')
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r._headers['x-accel-redirect'][1], '/prod_artifacts/media/pdf/django-kong/latest/django-kong.pdf')
+
+    @override_settings(DEFAULT_PRIVACY_LEVEL='private')
+    def test_private_download_filename(self):
+        self._create_kong('private', 'private')
+
+        self.client.login(username='eric', password='test')
+        r = self.client.get('/projects/django-kong/download/pdf/latest/')
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r._headers['x-accel-redirect'][1], '/prod_artifacts/media/pdf/django-kong/latest/django-kong.pdf')
+        self.assertEqual(r._headers['content-disposition'][1], 'attachment; filename=django-kong.pdf')
+
+
+### Public download tests
 
     @override_settings(DEFAULT_PRIVACY_LEVEL='public')
     def test_public_repo_downloading(self):
