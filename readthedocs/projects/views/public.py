@@ -169,7 +169,7 @@ def project_download_media(request, project_slug, type, version_slug):
         return HttpResponseRedirect(path)
     else:
         # Do private project auth checks
-        queryset = Project.objects.private(request.user).filter(slug=project_slug)
+        queryset = Project.objects.protected(request.user).filter(slug=project_slug)
         if queryset.exists():
             # Get relative media path
             path = queryset[0].get_production_media_path(type=type, version_slug=version_slug).replace(settings.PRODUCTION_ROOT, '/prod_artifacts')
