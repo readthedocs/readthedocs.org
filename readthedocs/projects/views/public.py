@@ -170,7 +170,8 @@ def project_download_media(request, project_slug, type, version_slug):
         # Do private project auth checks
         queryset = Project.objects.private(request.user).filter(slug=project_slug)
         if queryset.exists():
-            path = queryset[0].get_production_media_path(type=type, version_slug=version_slug)
+            # Get relative media path
+            path = queryset[0].get_production_media_path(type=type, version_slug=version_slug).replace(settings.PRODUCTION_ROOT, '/prod_artifacts')
             mimetype, encoding = mimetypes.guess_type(path)
             mimetype = mimetype or 'application/octet-stream'
             response = HttpResponse(mimetype=mimetype)
