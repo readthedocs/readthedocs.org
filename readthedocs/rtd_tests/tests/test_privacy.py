@@ -331,7 +331,7 @@ class PrivacyTests(TestCase):
         r = self.client.get('/projects/django-kong/download/pdf/latest/')
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r._headers['x-accel-redirect'][1], '/prod_artifacts/media/pdf/django-kong/latest/django-kong.pdf')
-        self.assertEqual(r._headers['content-disposition'][1], 'attachment; filename=django-kong.pdf')
+        self.assertEqual(r._headers['content-disposition'][1], 'filename=django-kong.pdf')
 
 
 ### Public download tests

@@ -180,7 +180,7 @@ def project_download_media(request, project_slug, type, version_slug):
         if encoding:
             response["Content-Encoding"] = encoding
         response['X-Accel-Redirect'] = path
-        response['Content-Disposition'] = 'attachment; filename=%s' % os.path.basename(path)
+        response['Content-Disposition'] = 'filename=%s' % os.path.basename(path)
         return response
 
 
