@@ -172,12 +172,12 @@ def project_download_media(request, project_slug, type, version_slug):
         if queryset.exists():
             # Get relative media path
             path = queryset[0].get_production_media_path(type=type, version_slug=version_slug).replace(settings.PRODUCTION_ROOT, '/prod_artifacts')
-            mimetype, encoding = mimetypes.guess_type(path)
-            mimetype = mimetype or 'application/octet-stream'
-            response = HttpResponse(mimetype=mimetype)
-            if encoding:
-                response["Content-Encoding"] = encoding
-            response['X-Accel-Redirect'] = path
+            # mimetype, encoding = mimetypes.guess_type(path)
+            # mimetype = mimetype or 'application/octet-stream'
+            response = HttpResponse()
+            # if encoding:
+            #     response["Content-Encoding"] = encoding
+            # response['X-Accel-Redirect'] = path
             return response
         else:
             raise Http404
