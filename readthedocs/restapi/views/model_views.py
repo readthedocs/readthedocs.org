@@ -34,7 +34,7 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
         Optionally restricts the returned purchases to a given project,
         by filtering against a `slug` query parameter in the URL.
         """
-        queryset = Project.objects.all()
+        queryset = Project.objects.protected(self.request.user)
         mirror = self.request.QUERY_PARAMS.get('mirror', False)
         if mirror:
             queryset = queryset.filter(mirror=True)
