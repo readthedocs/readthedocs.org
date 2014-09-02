@@ -381,7 +381,7 @@ class Project(models.Model):
             path = os.path.join(path, '%s.%s' % (self.slug, type.replace('htmlzip', 'zip')))
         return path
 
-    def get_production_media_url(self, type, version_slug):
+    def get_production_media_url(self, type, version_slug, full_path=True):
         """
         Get the URL for downloading a specific media file.
         """
@@ -390,6 +390,8 @@ class Project(models.Model):
             'type': type,
             'version_slug': version_slug,
         })
+        if full_path:
+            path = 'https://%s%s' % (settings.PRODUCTION_DOMAIN, path)
         return path
 
     def get_downloads(self):
