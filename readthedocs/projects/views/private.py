@@ -28,6 +28,7 @@ from projects.forms import (ImportProjectForm, build_versions_form,
                             UserForm, EmailHookForm, TranslationForm,
                             AdvancedProjectForm, RedirectForm, WebHookForm)
 from projects.models import Project, EmailHook, WebHook
+from projects.utils import github_paginate
 from projects import constants
 from redirects.models import Redirect
 
@@ -457,7 +458,7 @@ def project_import_github(request, sync=False):
                 }
             )
             # Get user repos
-            owner_resp = session.get('https://api.github.com/user/repos?per_page=100')
+            owner_resp = github_paginate(session, 'https://api.github.com/user/repos?per_page=100')
             for repo in owner_resp.json():
                 log.info('Trying %s' % repo['full_name'])
                 oauth_utils.make_github_project(user=request.user, org=None, privacy=repo_type, repo_json=repo)
@@ -465,10 +466,10 @@ def project_import_github(request, sync=False):
             # Get org repos
             resp = session.get('https://api.github.com/user/orgs')
             for org_json in resp.json():
-                org_resp = session.get('https://api.github.com/orgs/%s' % org_json['login'])
+                org_resp = github_paginate(session, 'https://api.github.com/orgs/%s' % org_json['login'])
                 org_obj = oauth_utils.make_github_organization(user=request.user, org_json=org_resp.json())
                 # Add repos
-                org_repos_resp = session.get('https://api.github.com/orgs/%s/repos?type=%s' % (org_json['login'], repo_type))
+                org_repos_resp = github_paginate(session, 'https://api.github.com/orgs/%s/repos?type=%s' % (org_json['login'], repo_type))
                 for repo in org_repos_resp.json():
                     oauth_utils.make_github_project(user=request.user, org=org_obj, privacy=repo_type, repo_json=repo)
 
