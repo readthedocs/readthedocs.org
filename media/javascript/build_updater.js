@@ -3,7 +3,7 @@
     // An updater that renders details about a build.
     this.BuildUpdater = function(buildId) {
         this.buildId = buildId;
-        this.buildUrl = '/api/v1/build/' + this.buildId;
+        this.buildUrl = '/api/v1/build/' + this.buildId + '/';
         this.buildDiv = 'div#build-' + this.buildId;
         this.buildLoadingImg = this.buildDiv + ' img.build-loading';
         this.intervalId = null;
