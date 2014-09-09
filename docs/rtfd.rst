@@ -36,6 +36,11 @@ To reload nginx after the configs have been updated::
 Elastic Search Setup
 --------------------
 
+You need to install the ICU plugin to make ES work::
+
+        # Use the correct path to the plugin executable that ships with ES.
+	/usr/share/elasticsearch/bin/plugin -install elasticsearch/elasticsearch-analysis-icu/2.3.0
+
 ::
 
     from search.indexes import Index, PageIndex, ProjectIndex, SectionIndex
