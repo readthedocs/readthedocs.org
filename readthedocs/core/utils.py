@@ -54,7 +54,7 @@ def copy_to_app_servers(full_build_path, target, mkdir=True):
     A helper to copy a directory across app servers
     """
     log.info("Copying %s to %s" % (full_build_path, target))
-    for server in settings.MULTIPLE_APP_SERVERS:
+    for server in getattr(settings, 'MULTIPLE_APP_SERVERS', []):
         mkdir_cmd = ("ssh %s@%s mkdir -p %s" % (SYNC_USER, server, target))
         ret = os.system(mkdir_cmd)
         if ret != 0:
@@ -75,7 +75,7 @@ def copy_file_to_app_servers(from_file, to_file):
     """
     log.info("Copying %s to %s" % (from_file, to_file))
     to_path = os.path.dirname(to_file)
-    for server in settings.MULTIPLE_APP_SERVERS:
+    for server in getattr(settings, 'MULTIPLE_APP_SERVERS', []):
         mkdir_cmd = ("ssh %s@%s mkdir -p %s" % (SYNC_USER, server, to_path))
         ret = os.system(mkdir_cmd)
         if ret != 0:
