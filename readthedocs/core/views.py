@@ -435,9 +435,10 @@ def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
                                   filename)
 
     if ver not in proj.versions.public(request.user, proj, only_active=False):
-        res = HttpResponse("You don't have access to this version.")
-        res.status_code = 401
-        return res
+        r = render_to_response('401.html',
+                               context_instance=RequestContext(request))
+        r.status_code = 401
+        return r
     return _serve_docs(request, project=proj, version=ver, filename=filename,
                        lang_slug=lang_slug, version_slug=version_slug,
                        project_slug=project_slug)
