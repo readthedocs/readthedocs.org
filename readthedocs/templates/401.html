@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load core_tags %}
+{% load i18n %}
+
+{% block title %}
+  {% trans "Maze Found" %}
+{% endblock %}
+
+{% block header-wrapper %}
+  {% include "error_header.html" %}
+{% endblock %}
+
+{% block content %}
+<h3>Permission Denied</h3>
+<p>
+You don't have the proper permissions to view this page. Please contact the owner of this project to request permission.
+</p>
+{% endblock %}
