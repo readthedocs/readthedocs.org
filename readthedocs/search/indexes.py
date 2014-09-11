@@ -215,7 +215,17 @@ class ProjectIndex(Index):
                     'description': {'type': 'string',
                                     'analyzer': 'default_icu'},
                     'lang': {'type': 'string', 'index': 'not_analyzed'},
-                    'author': {'type': 'string', 'analyzer': 'default_icu'},
+                    'tags': {'type': 'string', 'index': 'not_analyzed'},
+                    'author': {
+                        'type': 'string',
+                        'analyzer': 'default_icu',
+                        'fields': {
+                            'raw': {
+                                'type': 'string',
+                                'index': 'not_analyzed',
+                            },
+                        },
+                    },
                     'url': {'type': 'string', 'index': 'not_analyzed'},
                 }
             }
@@ -252,12 +262,14 @@ class PageIndex(Index):
                 '_parent': {'type': self._parent},
                 'properties': {
                     'id': {'type': 'string', 'index': 'not_analyzed'},
+                    'sha': {'type': 'string', 'index': 'not_analyzed'},
                     'project': {'type': 'string', 'index': 'not_analyzed'},
                     'version': {'type': 'string', 'index': 'not_analyzed'},
                     'path': {'type': 'string', 'index': 'not_analyzed'},
                     'title': {'type': 'string', 'analyzer': 'default_icu'},
                     'headers': {'type': 'string', 'analyzer': 'default_icu'},
                     'content': {'type': 'string', 'analyzer': 'default_icu'},
+                    'type': {'type': 'string', 'analyzer': 'not_analyzed'},
                 }
             }
         }
@@ -291,6 +303,13 @@ class SectionIndex(Index):
                 '_boost': {'name': '_boost', 'null_value': 1.0},
                 # Associate a section with a page.
                 '_parent': {'type': self._parent},
+                # 'suggest': {
+                #     'foo, bar'
+                #     'payload': {
+                #         url
+                #         pk
+                #     }
+                # }
                 'properties': {
                     'id': {'type': 'string', 'index': 'not_analyzed'},
                     'project': {'type': 'string', 'index': 'not_analyzed'},
@@ -299,6 +318,14 @@ class SectionIndex(Index):
                     'page_id': {'type': 'string', 'index': 'not_analyzed'},
                     'title': {'type': 'string', 'analyzer': 'default_icu'},
                     'content': {'type': 'string', 'analyzer': 'default_icu'},
+                    'blocks': {
+                        'type': 'object',
+                        'properties': {
+                            'code': {
+                                {'type': 'string', 'analyzer': 'default_icu'}
+                            }
+                        }
+                    }
                 }
             }
         }
