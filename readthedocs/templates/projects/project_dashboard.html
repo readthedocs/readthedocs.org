@@ -13,109 +13,138 @@
 {% block dash-nav-projects %}active{% endblock %}
 
 {% block content %}
+  {% with profile=request.user.profile.first %}
+  {% endwith %}
 
-          <!-- BEGIN your projects list -->
-          {% if project_list %}
-          <div class="module">
-            <div class="module-wrapper">
+  <!-- BEGIN your projects list -->
+  {% if project_list %}
+    <div class="module">
+      <div class="module-wrapper">
 
-              <p class="empty">
-                Check out the <a href="http://docs.readthedocs.org/en/latest/index.html">documentation for Read the Docs</a>. It contains lots of information about how to get the most out of RTD.
-              </p>
+        {% if filter|length > 0 %}
 
-              {% if filter|length > 0 %}
+          <div class="module-header">
+            <h3>{% trans "Important Versions" %}</h3>
+          </div>
 
-                <div class="module-header">
-                  <h3>{% trans "Important Versions" %}</h3>
-                </div>
+          <div class="filter">
+            {% autopaginate filter 15 %}
 
-                <div class="filter">
-                  {% autopaginate filter 15 %}
+            <!-- BEGIN filter list -->
+            <div class="module">
+              <div class="module-wrapper">
 
-                  <!-- BEGIN filter list -->
-                  <div class="module">
-                    <div class="module-wrapper">
-
-                      <div class="module-list">
-                        <div class="module-list-wrapper">
-                          <ul>
-                            {% include "core/filter_list.html" %}
-                          </ul>
-                        </div>
-                      </div>
-
-                    </div>
+                <div class="module-list">
+                  <div class="module-list-wrapper">
+                    <ul>
+                      {% include "core/filter_list.html" %}
+                    </ul>
                   </div>
-                  <!-- END filter list -->
-
-                  {% paginate %}
                 </div>
 
-              {% endif %}
-
-              <div class="module-header">
-                <h3>{% trans "My Projects" %}</h3>
-              </div>
-
-              <div class="module-list">
-                <div class="module-list-wrapper">
-
-                  <ul>
-                    {% for project in project_list %}
-                      <li class="module-item col-span">
-                        <a href="{% url "projects_manage" project.slug %}">{{ project.name }}</a>
-                        <ul class="module-item-menu">
-                          <li><a href="{% url "projects_edit" project.slug %}"><i class="gear"></i>{% trans "Admin" %}</a></li>
-                          <li>&nbsp;&nbsp;</li>
-                          <li><a href="{{ project.get_docs_url }}">{% trans "View Docs" %}</a></li>
-                        </ul>
-                      </li>
-                    {% endfor %}
-                  </ul>
-
-                </div>
               </div>
             </div>
+            <!-- END filter list -->
+
+            {% paginate %}
           </div>
-          {% else %}
-          {% url "projects_import" as projects_import_url %}
-          {% url "socialaccount_connections" as social_accounts %}
-          {% with getting_started_url="http://docs.readthedocs.org/en/latest/getting_started.html" %}
-          <p class="empty">
-          {% blocktrans %}
-          You don't have any projects. You can <a href="{{ projects_import_url }}">create new docs</a> on the site.
-          <br>
-          If you have a GitHub account, you can <a href="{{ social_accounts }}">connect it</a> and import projects from there.
-          <br>
-          Check out the <a href="{{ getting_started_url }}">Getting Started</a> documentation for information about how to get going.
-          </p> 
-          {% endblocktrans %}
-          {% endwith %}
-          {% endif %}
-          <!-- END your projects list -->
 
-          {% comment %}
-          {% if bookmark_list %}
-          <!-- BEGIN marks list -->
-          <div class="module">
-            <div class="module-wrapper">
-              <div class="module-header">
-                <h3>{% trans "Recently Bookmarked Docs" %} <span class="small_head"><a href="{% url "user_bookmarks" %}">{% trans "(All My Bookmarks)" %}</a></span></h3>
-              </div>
+        {% endif %}
 
-              <div class="module-list">
-                <div class="module-list-wrapper">
-                  <ul>
-                    {% include "core/bookmark_list_detailed.html" %}
+        <div class="module-header">
+          <h3>{% trans "My Projects" %}</h3>
+        </div>
+
+        <div class="module-list">
+          <div class="module-list-wrapper">
+
+            <ul>
+              {% for project in project_list %}
+                <li class="module-item col-span">
+                  <a href="{% url "projects_manage" project.slug %}">{{ project.name }}</a>
+                  <ul class="module-item-menu">
+                    <li><a href="{% url "projects_edit" project.slug %}"><i class="gear"></i>{% trans "Admin" %}</a></li>
+                    <li>&nbsp;&nbsp;</li>
+                    <li><a href="{{ project.get_docs_url }}">{% trans "View Docs" %}</a></li>
                   </ul>
-                </div>
-              </div>
+                </li>
+              {% endfor %}
+            </ul>
 
-            </div>
           </div>
-          <!-- END marks list -->
-          {% endif %}
-          {% endcomment %}
+        </div>
+      </div>
+    </div>
+
+    <p>
+      Check out the <a href="http://docs.readthedocs.org/en/latest/index.html">documentation for Read the Docs</a>. It contains lots of information about how to get the most out of RTD.
+    </p>
+
+  {% else %}
+    {% url "projects_import" as projects_import_url %}
+    {% url "socialaccount_connections" as social_accounts %}
+
+    <!-- BEGIN onboarding -->
+    <div class="onboard onboard-project">
+      <h2 class="question">Ready to share your documentation, {{ request.user.first_name }}?</h2>
+
+      {% with getting_started_url="http://docs.readthedocs.org/en/latest/getting_started.html" %}
+        <div class="action action-focus action-import">
+          <form method="get" action="{{ projects_import_url }}">
+            <p>
+              {% blocktrans %}
+                You don't have any projects yet, but you can start building documentation by importing one.
+                Not sure how to start documenting your project?
+                Check out the <a href="{{ getting_started_url }}">Getting Started Guide</a> to learn how.
+              {% endblocktrans %}
+            </p>
+
+            <input type="submit" value="Import a Project" />
+          </form>
+        </div>
+
+        <div class="action action-connect">
+          <h3>Connect your account</h3>
+          <form method="get" action="{{ social_accounts }}">
+            <p>
+              {% blocktrans %}
+                Have a Github account? Connect your account and import your existing projects automatically.
+              {% endblocktrans %}
+            </p>
+
+            <input type="submit" value="Connect to Github" />
+          </form>
+        </div>
+
+      {% endwith %}
+    </div>
+    <!-- END onboarding -->
+
+  {% endif %}
+  <!-- END your projects list -->
+
+  {% comment %}
+  {% if bookmark_list %}
+  <!-- BEGIN marks list -->
+  <div class="module">
+    <div class="module-wrapper">
+      <div class="module-header">
+        <h3>{% trans "Recently Bookmarked Docs" %} <span class="small_head"><a href="{% url "user_bookmarks" %}">{% trans "(All My Bookmarks)" %}</a></span></h3>
+      </div>
+
+      <div class="module-list">
+        <div class="module-list-wrapper">
+          <ul>
+            {% include "core/bookmark_list_detailed.html" %}
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <!-- END marks list -->
+  {% endif %}
+  {% endcomment %}
 
 
 {% endblock %}
