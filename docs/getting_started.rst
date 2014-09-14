@@ -11,7 +11,11 @@ There is `a screencast`_ that will help you get started if you prefer.
 Write Your Docs
 ---------------
 
-Install Sphinx_, and create a directory inside your project to hold your docs::
+Install Sphinx_::
+
+    $ pip install sphinx
+
+Create a directory inside your project to hold your docs::
 
     $ cd /path/to/project
     $ mkdir docs
