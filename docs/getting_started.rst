@@ -11,7 +11,8 @@ There is `a screencast`_ that will help you get started if you prefer.
 Write Your Docs
 ---------------
 
-Install Sphinx_::
+Sphinx_ is a tool that makes it easy to create intelligent and beautiful documentation.
+Assuming you have Python_ already, `install Sphinx`_::
 
     $ pip install sphinx
 
@@ -63,7 +64,9 @@ If you want to keep your code updated as you commit, configure your code reposit
 If you have any more trouble, don't hesitate to reach out to us. The :doc:`support` page has more information on getting in touch.
 
 .. _a screencast: https://www.youtube.com/watch?feature=player_embedded&v=oJsUvBQyHBs
+.. _Python: https://www.python.org/
 .. _Sphinx: http://sphinx-doc.org/
+.. _install Sphinx: http://sphinx-doc.org/latest/install.html
 .. _reStructuredText: http://sphinx-doc.org/rest.html
 .. _this template: http://docs.writethedocs.org/en/latest/writing/beginners-guide-to-docs/#id1
 .. _Sign up: http://readthedocs.org/accounts/signup
