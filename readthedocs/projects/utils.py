@@ -229,3 +229,21 @@ def make_api_project(project_data):
     project = Project(**project_data)
     project.save = _new_save
     return project
+
+
+def github_paginate(client, url):
+    """
+    Scans trough all github paginates results and returns the concatenated
+    list of results.
+
+    :param client: requests client instance
+    :param url: start url to get the data from.
+
+    See https://developer.github.com/v3/#pagination
+    """
+    result = []
+    while url:
+        r = session.get(url)
+        result.extend(r.json())
+        url = r.links.get('next')
+    return result
