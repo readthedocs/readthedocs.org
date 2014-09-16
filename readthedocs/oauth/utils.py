@@ -12,6 +12,7 @@ log = logging.getLogger(__name__)
 
 
 def make_github_project(user, org, privacy, repo_json):
+    log.info('Trying GitHub: %s' % repo_json['full_name'])
     if (repo_json['private'] is True and privacy == 'private' or
             repo_json['private'] is False and privacy == 'public'):
         project, created = GithubProject.objects.get_or_create(
@@ -104,9 +105,8 @@ def import_github(user, sync):
                 }
             )
             # Get user repos
-            owner_resp = github_paginate(session, 'https://api.github.com/user/repos?per_page=10')
+            owner_resp = github_paginate(session, 'https://api.github.com/user/repos?per_page=100')
             for repo in owner_resp:
-                log.info('Trying %s' % repo['full_name'])
                 make_github_project(user=user, org=None, privacy=repo_type, repo_json=repo)
 
             # Get org repos
@@ -115,7 +115,7 @@ def import_github(user, sync):
                 org_resp = session.get('https://api.github.com/orgs/%s' % org_json['login'])
                 org_obj = make_github_organization(user=user, org_json=org_resp.json())
                 # Add repos
-                org_repos_resp = github_paginate(session, 'https://api.github.com/orgs/%s/repos?type=%s' % (org_json['login'], repo_type))
+                org_repos_resp = github_paginate(session, 'https://api.github.com/orgs/%s/repos?per_page=100' % org_json['login'])
                 for repo in org_repos_resp:
                     make_github_project(user=user, org=org_obj, privacy=repo_type, repo_json=repo)
 
