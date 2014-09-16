@@ -442,6 +442,8 @@ def project_import_github(request, sync=False):
     github_connected = oauth_utils.import_github(user=request.user, sync=sync)
 
     repos = GithubProject.objects.filter(users__in=[request.user])
+    
+    # Find existing projects that match a repo url
     for repo in repos:
         ghetto_repo = repo.git_url.replace('git://', '').replace('.git', '')
         projects = Project.objects.filter(repo__endswith=ghetto_repo) | Project.objects.filter(repo__endswith=ghetto_repo + '.git')
