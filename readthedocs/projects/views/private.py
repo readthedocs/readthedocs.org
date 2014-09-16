@@ -14,21 +14,18 @@ from django.template import RequestContext
 from django.views.generic import ListView
 from django.utils.decorators import method_decorator
 
-from allauth.socialaccount.models import SocialToken
 from guardian.shortcuts import assign
-from requests_oauthlib import OAuth2Session
 
 from builds.forms import AliasForm, VersionForm
 from builds.filters import VersionFilter
 from builds.models import VersionAlias, Version
-from oauth.models import GithubProject, GithubOrganization
+from oauth.models import GithubProject
 from oauth import utils as oauth_utils
 from projects.forms import (ImportProjectForm, build_versions_form,
                             build_upload_html_form, SubprojectForm,
                             UserForm, EmailHookForm, TranslationForm,
                             AdvancedProjectForm, RedirectForm, WebHookForm)
 from projects.models import Project, EmailHook, WebHook
-from projects.utils import github_paginate
 from projects import constants
 from redirects.models import Redirect
 
@@ -441,37 +438,8 @@ def project_import_github(request, sync=False):
     Integrate with GitHub to pull repos from there.
 
     """
-    repo_type = getattr(settings, 'GITHUB_PRIVACY', 'public')
-    tokens = SocialToken.objects.filter(
-        account__user__username=request.user.username, app__provider='github')
-    github_connected = False
-    if tokens.exists():
-        github_connected = True
-        if sync:
-            repos = []
-            token = tokens[0]
-            session = OAuth2Session(
-                client_id=token.app.client_id,
-                token={
-                    'access_token': str(token.token),
-                    'token_type': 'bearer'
-                }
-            )
-            # Get user repos
-            owner_resp = github_paginate(session, 'https://api.github.com/user/repos?per_page=100')
-            for repo in owner_resp.json():
-                log.info('Trying %s' % repo['full_name'])
-                oauth_utils.make_github_project(user=request.user, org=None, privacy=repo_type, repo_json=repo)
 
-            # Get org repos
-            resp = session.get('https://api.github.com/user/orgs')
-            for org_json in resp.json():
-                org_resp = github_paginate(session, 'https://api.github.com/orgs/%s' % org_json['login'])
-                org_obj = oauth_utils.make_github_organization(user=request.user, org_json=org_resp.json())
-                # Add repos
-                org_repos_resp = github_paginate(session, 'https://api.github.com/orgs/%s/repos?type=%s' % (org_json['login'], repo_type))
-                for repo in org_repos_resp.json():
-                    oauth_utils.make_github_project(user=request.user, org=org_obj, privacy=repo_type, repo_json=repo)
+    github_connected = oauth_utils.import_github(user=request.user, sync=sync)
 
     repos = GithubProject.objects.filter(users__in=[request.user])
     for repo in repos:
