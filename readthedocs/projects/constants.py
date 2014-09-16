@@ -130,6 +130,7 @@ LANGUAGES = (
     ("sl", "Slovenian"),
     ("sv", "Swedish"),
     ("tr", "Turkish"),
+    ("vi", "Vietnamese"),
     # Try these to test our non-2 letter language support
     ("nb_NO", "Norwegian Bokmal"),
     ("pt_BR", "Brazilian Portuguese"),
