@@ -1,3 +1,5 @@
+from random import choice
+
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -28,12 +30,26 @@ class ProjectForm(forms.ModelForm):
 
         return name
 
+    def get_rand_repo(self):
+        return choice([
+            'http://github.com/ericholscher/django-kong.git',
+            'https://bitbucket.org/django/django',
+        ])
+
+    def get_rand_project_url(self):
+        return choice([
+            'http://docs.fabfile.org',
+        ])
 
 class ImportProjectForm(ProjectForm):
-    repo = forms.CharField(required=True,
-                           help_text=_(u'URL for your code (hg or git). Ex. '
-                                       u'http://github.com/ericholscher/django'
-                                       u'-kong.git'))
+    repo = forms.CharField(
+        label='Repository URL', required=True,
+        help_text=_(u'URL for your code repository'))
+    canonical_url = forms.CharField(
+        label='Documentation URL',
+        help_text='URL that documentation is expected to serve from')
+
+
 
     class Meta:
         model = Project
@@ -48,6 +64,15 @@ class ImportProjectForm(ProjectForm):
             'canonical_url',
             'tags',
         )
+
+    def __init__(self, *args, **kwargs):
+        super(ImportProjectForm, self).__init__(*args, **kwargs)
+        placeholders = {
+            'repo': self.get_rand_repo(),
+            'canonical_url': self.get_rand_project_url(),
+        }
+        for (field, value) in placeholders.items():
+            self.fields[field].widget.attrs['placeholder'] = value
 
     def clean_repo(self):
         repo = self.cleaned_data.get('repo', '').strip()

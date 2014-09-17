@@ -112,7 +112,7 @@ class Project(models.Model):
                                         'ericholscher/django-kong.git'))
     repo_type = models.CharField(_('Repository type'), max_length=10,
                                  choices=constants.REPO_CHOICES, default='git')
-    project_url = models.URLField(_('Project URL'), blank=True,
+    project_url = models.URLField(_('Project homepage'), blank=True,
                                   help_text=_('The project\'s homepage'))
     canonical_url = models.URLField(_('Canonical URL'), blank=True,
                                   help_text=_('The official URL that the docs live at. This can be slug.readthedocs.org, or somewhere else. Ex. http://docs.fabfile.org'))
