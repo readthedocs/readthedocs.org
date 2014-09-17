@@ -335,7 +335,7 @@
             "privacy_level": "public",
             "supported": false,
             "project": 6,
-            "active": false,
+            "active": true,
             "identifier": "2404a34eba4ee9c48cc8bc4055b99a48354f4950",
             "verbose_name": "0.8",
             "slug": "0.8"
@@ -351,7 +351,7 @@
             "privacy_level": "public",
             "supported": false,
             "project": 6,
-            "active": false,
+            "active": true,
             "identifier": "f55c28e560c92cafb6e6451f8084232b6d717603",
             "verbose_name": "0.8.1",
             "slug": "0.8.1"

@@ -49,8 +49,8 @@ class APITests(TestCase):
                                 HTTP_AUTHORIZATION='Basic %s' % super_auth)
         self.assertEqual(resp.status_code, 201)
         self.assertEqual(resp['location'],
-                         'http://testserver/api/v1/project/23/')
-        resp = self.client.get('/api/v1/project/23/', data={'format': 'json'},
+                         'http://testserver/api/v1/project/24/')
+        resp = self.client.get('/api/v1/project/24/', data={'format': 'json'},
                                HTTP_AUTHORIZATION='Basic %s' % eric_auth)
         self.assertEqual(resp.status_code, 200)
         obj = json.loads(resp.content)
