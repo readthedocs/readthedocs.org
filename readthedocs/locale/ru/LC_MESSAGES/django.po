@@ -775,7 +775,7 @@ msgstr "Ошибка сервера"
 #: templates/base.html:13 templates/error_header.html:12
 #: templates/core/header.html:10 templates/core/home-header.html:9
 msgid "Read the Docs"
-msgstr "Читайте документацию"
+msgstr "Read the Docs"
 
 #: templates/base.html:61
 msgid ""
@@ -846,7 +846,7 @@ msgstr "Начало"
 
 #: templates/homepage.html:44
 msgid "What is this place?"
-msgstr "Где я?"
+msgstr "Что это такое?"
 
 #: templates/homepage.html:46
 msgid ""
@@ -861,16 +861,16 @@ msgid ""
 "readthedocs.org/en/latest/features.html\">full list of features</a> is "
 "available."
 msgstr ""
-"Read the Docs служит для размещения документации, делает её доступной для "
-"полноценного поиска и позволяет легко найти её заново.\n"
-"Вы можете импортировать ваши документы с использованием наиболее известных "
-"систем контроля версий, включая Mercurial, Git, Subversion и Bazaar.\n"
+"Read the Docs служит для хранения документации, позволяет легко в ней ориентироваться "
+"и делает её доступной для полноценного поиска.\n"
+"Вы можете импортировать документацию из вашего проекта, используя любую известную "
+"систему контроля версий: Mercurial, Git, Subversion или Bazaar.\n"
 "Мы поддерживаем <a href=\"http://read-the-docs.readthedocs.org/en/latest/"
-"webhooks.html\">webhooks</a> , так что ваша документация может быть "
-"пересобрана сразу после внесения в репозиторий нового кода.\n"
-"Также, у нас есть поддержка различных версий, поэтому вы можете собирать "
-"документацию по меткам или тем веткам, которые у вас есть репозитории. Здесь "
-"перечислен <a href=\"http://read-the-docs.readthedocs.org/en/latest/features."
+"webhooks.html\">webhooks</a>, так что документация может быть "
+"обновлена сразу после добавления в репозиторий нового кода.\n"
+"Также у нас есть поддержка версий, поэтому вы можете собирать отдельные варианты "
+"документации для тэгов или тех веток, которые есть у вас в репозитории. Смотрите "
+"также <a href=\"http://read-the-docs.readthedocs.org/en/latest/features."
 "html\">полный список возможностей</a>."
 
 #: templates/homepage.html:52
@@ -1028,7 +1028,7 @@ msgstr "Панель инструментов"
 
 #: templates/core/home-header.html:10
 msgid "Create, host, and browse documentation."
-msgstr "Создать, сохранить на сайте и просмотреть документацию."
+msgstr "Создавайте, храните и читайте документацию."
 
 #. Translators: Note, the full sentence goes 'Sign up' 'or' 'Log in'. But unfortunately the three bits have to be separate.
 #: templates/core/home-header.html:17
