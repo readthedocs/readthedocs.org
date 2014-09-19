@@ -3,7 +3,7 @@ How we use symlinks
 
 Read the Docs stays highly available by serving all documentation pages out of nginx.
 This means that they never hit our Python layer,
-meaning that they never hit out database.
+meaning that they never hit our database.
 This reduces the total number of servers to serve a request to 1,
 each of which is redundant.
 
