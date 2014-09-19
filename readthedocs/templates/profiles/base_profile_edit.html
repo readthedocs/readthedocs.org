@@ -1,0 +1,25 @@
+{% extends "profiles/base_profile.html" %}
+
+{% load i18n %}
+
+{% block profile-bar-admin %}active{% endblock %}
+
+{% block content %}
+<div id="project_edit" class="module">
+  <div class="wrapper">
+    <div class="navigable">
+      <ul>
+        <li class="{% block profile-admin-details %}{% endblock %}"><a href="{% url 'profiles_profile_edit' %}">{% trans "Details" %}</a></li>
+        <li class="{% block profile-admin-social-accounts %}{% endblock %}"><a href="{% url 'socialaccount_connections' %}">{% trans "Social Accounts" %}</a></li>
+        <li class="{% block profile-admin-change-password %}{% endblock %}"><a href="{% url 'account_change_password' %}">{% trans "Change Password" %}</a></li>
+        <li class="{% block profile-admin-change-email %}{% endblock %}"><a href="{% url 'account_email' %}">{% trans "Change Email" %}</a></li>
+      </ul>
+      <div>
+        <h2>{% block edit_content_header %}{% endblock %}</h2>
+        {% block edit_content %}
+        {% endblock %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

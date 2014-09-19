@@ -1,0 +1,36 @@
+{% extends "profiles/base_profile.html" %}
+
+{% load i18n %}
+
+{% block title %}{% blocktrans with profile.user as user %}{{ user }}'s profile{% endblocktrans %}{% endblock %}
+
+{% block profile-bar-profile %}active{% endblock %}
+
+{% block content %}
+  {% with profile.get_form as form %}
+
+  <div id="profile">
+    <div>
+      {% with profile.user.projects.public as project_list %}
+            <!-- BEGIN projects list -->
+            <div class="module">
+              <div class="module-wrapper">
+
+                <div class="module-list">
+                  <div class="module-list-wrapper">
+
+                    <ul>
+                      {% include "core/project_list_detailed.html" with omit=profile.user %}
+                    </ul>
+
+                  </div>
+                </div>
+
+              </div>
+            </div>
+            <!-- END projects list -->
+      {% endwith %}
+      </div>
+  </div>
+  {% endwith %}
+{% endblock %}
