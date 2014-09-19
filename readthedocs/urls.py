@@ -8,7 +8,6 @@ from tastypie.api import Api
 from api.base import (ProjectResource, UserResource, BuildResource,
                       VersionResource, FileResource)
 from builds.filters import VersionFilter
-from core.forms import UserProfileForm
 from core.views import SearchView
 from projects.feeds import LatestProjectsFeed, NewProjectsFeed
 from projects.filters import ProjectFilter
@@ -73,7 +72,6 @@ urlpatterns = patterns(
     url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r'^projects/', include('projects.urls.public')),
     url(r'^builds/', include('builds.urls')),
-    url(r'^accounts/', include('allauth.urls')),
     url(r'^search/project/', SearchView.as_view(), name='haystack_project'),
     url(r'^search/', include('haystack.urls')),
     url(r'^admin/', include(admin.site.urls)),
@@ -103,13 +101,10 @@ urlpatterns = patterns(
     url(r'^wipe/(?P<project_slug>[-\w]+)/(?P<version_slug>[\w]{1}[-\w\.]+)/$',
         'core.views.wipe_version',
         name='wipe_version'),
-    url(r'^profiles/create/', 'profiles.views.create_profile',
-        {'form_class': UserProfileForm},
-        name='profiles_profile_create'),
-    url(r'^profiles/edit/', 'profiles.views.edit_profile',
-        {'form_class': UserProfileForm},
-        name='profiles_profile_edit'),
-    url(r'^profiles/', include('profiles.urls')),
+
+    url(r'^profiles/', include('profiles.urls.public')),
+    url(r'^accounts/', include('profiles.urls.private')),
+    url(r'^accounts/', include('allauth.urls')),
     url(r'^api/', include(v1_api.urls)),
     url(r'^api/v2/', include('restapi.urls')),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
