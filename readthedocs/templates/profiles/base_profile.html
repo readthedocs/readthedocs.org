@@ -22,7 +22,7 @@
     <div class="options">
 
       <ul>
-        <li class="{% block profile-bar-profile %}{% endblock %}"><a href="{{ profile.get_absolute_url }}">{% trans "Profile" %}</a></li>
+        <li class="{% block profile-bar-profile %}{% endblock %}"><a href="{{ user.get_profile.get_absolute_url }}">{% trans "Profile" %}</a></li>
         {% if request.user == user %}
         <li class="{% block profile-bar-admin %}{% endblock %}"><a href="{% url "profiles_profile_edit" %}"><i class="gear"></i>{% trans "Admin" %}</a></li>
         {% endif %}
