@@ -75,6 +75,6 @@ $host would be ``docs.fabfile.org``:
         error_page 500 = @fallback;
     }
 
-Notice that nowhere in the above path is the projects slug mentioned.
+Notice that nowhere in the above path is the project's slug mentioned.
 It is simply there in the symlink in the cnames directory,
 and the docs are served from there.
