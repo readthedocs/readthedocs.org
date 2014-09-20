@@ -1,6 +1,7 @@
 {% load i18n %}
+{% load gravatar %}
     <!-- BEGIN header-->
-    <div id="rtfd-header">
+    <div id="rtfd-header" style="overflow: visible;">
       <div class="wrapper">
 
         <!-- BEGIN header title-->
@@ -12,45 +13,31 @@
         </div>
         <!-- END header title -->
 
-        <!-- BEGIN global search -->
-        <div class="rtfd-header-search">
-          <form action="{% url "haystack_project" %}" method="GET">
-            <input type="text" name="q" value="{{ term }}" id="id_site_search">
-            <input type="submit" value="{% trans "Go" %}">
-          </form>
-        </div>
-        <!-- END global search -->
-
-        {% comment %}
-        {% if do_bookmarking and request.user.is_authenticated %}
-        <!-- BEGIN bookmark -->
-        {% if request.META.PATH_INFO != '/' %}
-        <div class="rtfd-header-bookmark">
-          {% if has_bookmark %}
-            <a href="{% url "bookmarks_remove" request.META.PATH_INFO %}" class="rtfd-header-bookmark-icon active">{% trans "Remove bookmark" %}</a>
-          {% else %}
-            <a href="{% url "bookmarks_add" request.META.PATH_INFO %}" class="rtfd-header-bookmark-icon">{% trans "Bookmark this URL" %}</a>
-          {% endif %}
-        </div>
-        {% endif %}
-        <!-- END bookmark -->
-        {% endif %}
-        {% endcomment %}
-
         <!-- BEGIN header nav -->
+        {% if request.user.is_authenticated %}
+            <span class="dropdown" style="position:absolute; right:0px; top:0px;">
+              <span>
+                  <a href="{{ request.user.get_profile.get_absolute_url }}">
+                  {% gravatar request.user.email 20 %}
+                  {{ request.user }}</a>
+                <a href="#">▼</a>
+              </span>
+              <ul>
+                <span>
+                  <li style="text-align: center;"> <a style="color: white; " href="/dashboard/">Dashboard</a></li>
+                  <li style="text-align: center;"> <a style="color: white; " href="{% url 'profiles_profile_edit' %}">Profile</a></li>
+                  <li style="text-align: center;"> <a style="color: white; " href="{% url 'account_logout' %}">{% trans "Log Out" %}</a></li>
+                  <hr>
+                  <li style="text-align: center;"> <a style="color: white; " href="{% url 'donate' %}">Donate</a></li>
+                </span>
+              </ul> 
+            </span>
+
+        {% else %}
         <div class="rtfd-header-nav">
-          <ul>
-            {% if request.user.is_authenticated %}
-              <li class="{{ dashboard_active }}"><a href="{% url "projects_dashboard" %}">{% trans "Dashboard" %}</a></li>
-              <li><a href="{% url "account_logout" %}">{% trans "Log Out" %}</a></li>
-            {% else %}
-              <li><a href="{% url "account_login" %}">{% trans "Log in" %}</a></li>
-            {% endif %}
-              <li><a href="{% url "donate" %}">{% trans "Donate" %}</a></li>
-
-
-          </ul>
+         <ul><li><a href="{% url 'account_login' %}">{% trans "Log In" %}</a></li></ul>
         </div>
+        {% endif %}
         <!-- END header nav -->
 
       </div>
