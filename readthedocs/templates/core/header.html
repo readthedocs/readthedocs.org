@@ -24,10 +24,11 @@
               </span>
               <ul>
                 <span>
-                  <li style="text-align: center;"> <a style="color: white; " href="/dashboard/">Dashboard</a></li>
-                  <li style="text-align: center;"> <a style="color: white; " href="{% url 'profiles_profile_edit' %}">Profile</a></li>
-                  <li style="text-align: center;"> <a style="color: white; " href="{% url 'account_logout' %}">{% trans "Log Out" %}</a></li>
+                  <li style="text-align: center;"> <a style="color: white; " href="{% url 'projects_dashboard' %}">Dashboard</a></li>
+                  <li style="text-align: center;"> <a style="color: white; " href="{% url 'projects_import' %}">Import Project</a></li>
+                  <li style="text-align: center;"> <a style="color: white; " href="{% url 'profiles_profile_edit' %}">Settings</a></li>
                   <hr>
+                  <li style="text-align: center;"> <a style="color: white; " href="{% url 'account_logout' %}">{% trans "Log Out" %}</a></li>
                   <li style="text-align: center;"> <a style="color: white; " href="{% url 'donate' %}">Donate</a></li>
                 </span>
               </ul> 
