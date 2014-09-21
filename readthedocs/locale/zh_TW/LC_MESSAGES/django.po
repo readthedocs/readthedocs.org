@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-06-25 00:25-0500\n"
+"POT-Creation-Date: 2014-09-21 14:17-0500\n"
 "PO-Revision-Date: 2014-04-24 21:43+0000\n"
 "Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
 "Language-Team: Chinese (Taiwan) (http://www.transifex.com/projects/p/"
@@ -31,16 +31,16 @@ msgstr "抱歉，在那個頁面上沒有結果。"
 msgid "Invalid resource lookup data provided (mismatched type).: %(error)s"
 msgstr ""
 
-#: bookmarks/models.py:9 builds/models.py:83 builds/models.py:277
-#: builds/models.py:293 projects/models.py:809
+#: bookmarks/models.py:9 builds/models.py:85 builds/models.py:280
+#: builds/models.py:296 projects/models.py:760 redirects/models.py:34
 msgid "Project"
 msgstr "計畫"
 
-#: bookmarks/models.py:11 core/models.py:14 projects/models.py:100
+#: bookmarks/models.py:11 core/models.py:13 projects/models.py:102
 msgid "User"
 msgstr "使用者"
 
-#: bookmarks/models.py:13 builds/models.py:301
+#: bookmarks/models.py:13 builds/models.py:304
 msgid "Date"
 msgstr "日期"
 
@@ -48,8 +48,8 @@ msgstr "日期"
 msgid "URL"
 msgstr "網址"
 
-#: bookmarks/models.py:15 projects/models.py:104
-#: templates/core/project_details.html:5
+#: bookmarks/models.py:15 oauth/models.py:37 projects/models.py:106
+#: templates/core/project_details.html:82
 msgid "Description"
 msgstr "說明"
 
@@ -114,8 +114,9 @@ msgstr "未知"
 msgid "Any"
 msgstr "任何"
 
-#: builds/filters.py:17 builds/filters.py:29 projects/filters.py:31
-#: projects/models.py:102 projects/models.py:813
+#: builds/filters.py:17 builds/filters.py:29 oauth/models.py:17
+#: oauth/models.py:35 projects/filters.py:31 projects/models.py:104
+#: projects/models.py:764
 msgid "Name"
 msgstr "名稱"
 
@@ -127,109 +128,114 @@ msgstr "構建日期"
 msgid "Build Type"
 msgstr "構建類型"
 
-#: builds/models.py:86 builds/models.py:297
+#: builds/models.py:88 builds/models.py:300
 msgid "Type"
 msgstr "類型"
 
-#: builds/models.py:90
+#: builds/models.py:92
 msgid "Identifier"
 msgstr "標識符"
 
-#: builds/models.py:92
+#: builds/models.py:94
 msgid "Verbose Name"
 msgstr "長名字"
 
-#: builds/models.py:93 projects/filters.py:33 projects/models.py:103
-#: projects/models.py:814
+#: builds/models.py:95 projects/filters.py:33 projects/models.py:105
+#: projects/models.py:765
 msgid "Slug"
 msgstr "Slug"
 
-#: builds/models.py:95
+#: builds/models.py:97
 msgid "Supported"
 msgstr "支持的"
 
-#: builds/models.py:96 templates/projects/project_versions.html:46
+#: builds/models.py:98 oauth/models.py:19 oauth/models.py:42
+#: redirects/models.py:12 templates/projects/project_versions.html:46
 msgid "Active"
 msgstr "激活"
 
-#: builds/models.py:97 templates/projects/includes/icon_built.html:4
+#: builds/models.py:99 templates/projects/includes/icon_built.html:4
 msgid "Built"
 msgstr "構建"
 
-#: builds/models.py:98 templates/projects/includes/icon_built.html:7
+#: builds/models.py:100 templates/projects/includes/icon_built.html:7
 msgid "Uploaded"
 msgstr "已上傳"
 
-#: builds/models.py:100 projects/models.py:195
+#: builds/models.py:102 projects/models.py:199
 msgid "Privacy Level"
 msgstr "隱私級別"
 
-#: builds/models.py:101
+#: builds/models.py:103
 msgid "Level of privacy for this Version."
 msgstr "當前版本的隱私級別。"
 
 #. Translators: Permission around whether a user can view the
 #. version
-#: builds/models.py:112
+#: builds/models.py:114
 msgid "View Version"
 msgstr "查看版本"
 
-#: builds/models.py:116
+#: builds/models.py:118
 #, python-format
 msgid "Version %(version)s of %(project)s (%(pk)s)"
 msgstr "%(project)s 的 %(version)s 版本 (%(pk)s)"
 
-#: builds/models.py:279
+#: builds/models.py:282
 msgid "From slug"
 msgstr "來自縮略名"
 
-#: builds/models.py:280
+#: builds/models.py:283
 msgid "To slug"
 msgstr "轉成縮略名"
 
-#: builds/models.py:282
+#: builds/models.py:285
 msgid "Largest"
 msgstr "最大"
 
-#: builds/models.py:285
+#: builds/models.py:288
 #, python-format
 msgid "Alias for %(project)s: %(from)s -> %(to)s"
 msgstr "%(project)s 的別名: %(from)s -> %(to)s"
 
-#: builds/models.py:295 projects/models.py:119 projects/models.py:811
+#: builds/models.py:298 projects/models.py:119 projects/models.py:762
 #: templates/djangome/oneoffs.html:11
 msgid "Version"
 msgstr "版本"
 
-#: builds/models.py:299
+#: builds/models.py:302
 msgid "State"
 msgstr "狀態"
 
-#: builds/models.py:302
+#: builds/models.py:305
 msgid "Success"
 msgstr "成功"
 
-#: builds/models.py:304
+#: builds/models.py:307
 msgid "Setup"
 msgstr "安裝"
 
-#: builds/models.py:305
+#: builds/models.py:308
 msgid "Setup error"
 msgstr "安裝錯誤"
 
-#: builds/models.py:306
+#: builds/models.py:309
 msgid "Output"
 msgstr "輸出"
 
-#: builds/models.py:307
+#: builds/models.py:310
 msgid "Error"
 msgstr "錯誤"
 
-#: builds/models.py:308
+#: builds/models.py:311
 msgid "Exit code"
 msgstr "退出碼"
 
-#: builds/models.py:316
+#: builds/models.py:313 templates/builds/build_detail.html:39
+msgid "Commit"
+msgstr ""
+
+#: builds/models.py:320
 #, python-format
 msgid "Build %(project)s for %(usernames)s (%(pk)s)"
 msgstr "為 %(usernames)s 構建 %(project)s (%(pk)s)"
@@ -246,23 +252,23 @@ msgstr "姓氏"
 msgid "Invalid hostname"
 msgstr "主機名無效"
 
-#: core/models.py:16
+#: core/models.py:15
 msgid "Whitelisted"
 msgstr "已列入白名單"
 
-#: core/models.py:17
+#: core/models.py:16
 msgid "Homepage"
 msgstr "主頁"
 
-#: core/models.py:18
+#: core/models.py:17
 msgid "Allow email"
 msgstr "允許 Email 地址"
 
-#: core/models.py:19
+#: core/models.py:18
 msgid "Show your email on VCS contributions."
 msgstr "在版本庫的貢獻者名單中顯示你的 Email 地址。"
 
-#: core/models.py:24
+#: core/models.py:23
 #, python-format
 msgid "%(username)s's profile"
 msgstr "%(username)s 的資料"
@@ -271,6 +277,54 @@ msgstr "%(username)s 的資料"
 #, python-format
 msgid "Please enter a valid URL on %s"
 msgstr "請在 %s 上輸入一個有效的 URL"
+
+#: oauth/models.py:7 oauth/models.py:28 projects/models.py:98
+msgid "Publication date"
+msgstr "發佈日期"
+
+#: oauth/models.py:8 oauth/models.py:29 projects/models.py:99
+msgid "Modified date"
+msgstr "修改日期"
+
+#: oauth/models.py:10 oauth/models.py:31
+#, fuzzy
+msgid "Users"
+msgstr "使用者"
+
+#: oauth/models.py:13
+msgid "Login"
+msgstr ""
+
+#: oauth/models.py:15
+msgid "Email"
+msgstr ""
+
+#: oauth/models.py:18 oauth/models.py:41
+#, fuzzy
+msgid "HTML URL"
+msgstr "HTML"
+
+#: oauth/models.py:33
+#, fuzzy
+msgid "Organization"
+msgstr "翻譯"
+
+#: oauth/models.py:36
+#, fuzzy
+msgid "Full Name"
+msgstr "名稱"
+
+#: oauth/models.py:38 projects/models.py:107
+msgid "The reStructuredText description of the project"
+msgstr "reStructuredText 格式的專案說明"
+
+#: oauth/models.py:39
+msgid "Git URL"
+msgstr ""
+
+#: oauth/models.py:40
+msgid "SSH URL"
+msgstr ""
 
 #: projects/constants.py:18
 msgid "Sphinx Html"
@@ -361,7 +415,7 @@ msgstr "CPython 3.x"
 msgid "Created Date"
 msgstr "創建日期"
 
-#: projects/filters.py:36 projects/models.py:107
+#: projects/filters.py:36 projects/models.py:109
 msgid "Repository URL"
 msgstr "代碼庫地址"
 
@@ -369,92 +423,80 @@ msgstr "代碼庫地址"
 msgid "Repository Type"
 msgstr "代碼庫類型"
 
-#: projects/forms.py:23
+#: projects/forms.py:26
 msgid "A project with that name exists already!"
 msgstr "已存在相同的專案名稱！"
 
-#: projects/forms.py:31
+#: projects/forms.py:34
 msgid ""
 "URL for your code (hg or git). Ex. http://github.com/ericholscher/django-"
 "kong.git"
 msgstr ""
 "原始碼 URL (hg 或 git)。例如：http://github.com/ericholscher/django-kong.git"
 
-#: projects/forms.py:52
+#: projects/forms.py:56
 msgid "Invalid character in repo name"
 msgstr "倉庫名稱中包含無效字符"
 
-#: projects/forms.py:55
+#: projects/forms.py:59
 msgid ""
 "It looks like you entered a private repo - please use the public (http:// or "
 "git://) clone url"
 msgstr ""
 "看來您誤闖了一個私有的文件庫，請使用公開 (http:// or git://) clone 的網址連線"
 
-#: projects/forms.py:72 projects/models.py:185
+#: projects/forms.py:76 projects/models.py:187
 msgid "(Beta) The Python interpreter used to create the virtual environment."
 msgstr "(Beta) 用於創建虛擬環境的 Python 解釋器。"
 
-#: projects/forms.py:101
+#: projects/forms.py:105
 msgid ""
 "Your configuration file is invalid, make sure it contains conf.py in it."
 msgstr "您的配置文件無效，請確認包含 conf.py 文件。"
 
-#: projects/forms.py:170 templates/core/project_details.html:152
+#: projects/forms.py:177 templates/core/project_details.html:172
 msgid "Default Version"
 msgstr "默認版本"
 
-#: projects/forms.py:193
+#: projects/forms.py:200
 msgid "Zip file of HTML"
 msgstr "所有 HTML 文件的 Zip 壓縮包"
 
-#: projects/forms.py:195
+#: projects/forms.py:202
 msgid "Overwrite existing HTML?"
 msgstr "覆蓋已存在的 HTML 文件？"
 
-#: projects/forms.py:208
+#: projects/forms.py:215
 msgid "That version is already active!"
 msgstr "這個版本已激活！"
 
-#: projects/forms.py:210
+#: projects/forms.py:217
 msgid "Must upload a zip file."
 msgstr "必須上傳一個 zip 文件。"
 
-#: projects/forms.py:224
+#: projects/forms.py:231
 msgid "Version of the project you are uploading HTML for"
 msgstr "您要上傳 HTML 的專案版本是"
 
-#: projects/forms.py:241 projects/forms.py:300
+#: projects/forms.py:248 projects/forms.py:325
 #, python-format
 msgid "Project %(name)s does not exist"
 msgstr "專案 %(name)s 不存在"
 
-#: projects/forms.py:262
+#: projects/forms.py:269
 #, python-format
 msgid "User %(name)s does not exist"
 msgstr "用戶 %(name)s 不存在"
 
-#: projects/models.py:80
+#: projects/models.py:83
 msgid "Parent"
 msgstr "父"
 
-#: projects/models.py:82
+#: projects/models.py:85
 msgid "Child"
 msgstr "子"
 
-#: projects/models.py:96
-msgid "Publication date"
-msgstr "發佈日期"
-
-#: projects/models.py:97
-msgid "Modified date"
-msgstr "修改日期"
-
-#: projects/models.py:105
-msgid "The reStructuredText description of the project"
-msgstr "reStructuredText 格式的專案說明"
-
-#: projects/models.py:108
+#: projects/models.py:110
 msgid ""
 "Checkout URL for your code (hg, git, etc.). Ex. http://github.com/"
 "ericholscher/django-kong.git"
@@ -462,25 +504,26 @@ msgstr ""
 "該專案原始碼倉庫的位址 (hg、git 等)。例如：http://github.com/ericholscher/"
 "django-kong.git"
 
-#: projects/models.py:111
+#: projects/models.py:113
 msgid "Repository type"
 msgstr "代碼庫類型"
 
-#: projects/models.py:113
+#: projects/models.py:115
 msgid "Project URL"
 msgstr "專案網址"
 
-#: projects/models.py:114
+#: projects/models.py:116
 msgid "The project's homepage"
 msgstr "專案的首頁"
 
-#: projects/models.py:116
+#: projects/models.py:117
 msgid "Canonical URL"
 msgstr "標準 URL"
 
-#: projects/models.py:117
+#: projects/models.py:118
+#, fuzzy
 msgid ""
-"The official URL that the docs live at. This can be at readthedocs.org, or "
+"The official URL that the docs live at. This can be slug.readthedocs.org, or "
 "somewhere else. Ex. http://docs.fabfile.org"
 msgstr ""
 "文檔的官方 URL 。可以在 readthedocs.org 上，或其他地方。比如：http://docs."
@@ -578,7 +621,7 @@ msgid ""
 "page loads."
 msgstr "Google 分析追蹤 ID (例如：UA-22345342-1)。這可能導致頁面載入變慢。"
 
-#: projects/models.py:163 projects/models.py:815
+#: projects/models.py:163 projects/models.py:766
 msgid "Path"
 msgstr "路徑"
 
@@ -618,132 +661,230 @@ msgstr "使用 virtualenv"
 msgid "Install your project inside a virtualenv using setup.py install"
 msgstr "在 virtualenv 中使用 setup.py install 來安裝您的專案"
 
-#: projects/models.py:181
+#: projects/models.py:183
 msgid "Python Interpreter"
 msgstr "Python 解釋器"
 
-#: projects/models.py:189
+#: projects/models.py:191
 msgid "Use system packages"
 msgstr "使用系統包"
 
-#: projects/models.py:190
+#: projects/models.py:192
 msgid "Give the virtual environment access to the global site-packages dir."
 msgstr "讓虛擬環境可以訪問全局 site-packages 目錄。"
 
-#: projects/models.py:192
+#: projects/models.py:196
 msgid "Django Packages URL"
 msgstr "Django 包 URL"
 
-#: projects/models.py:197
+#: projects/models.py:201
 msgid ""
 "(Beta) Level of privacy that you want on the repository. Protected means "
 "public but not in listings."
 msgstr "(Beta) 倉庫的隱私級別。 “保護的”意味著公開但不被顯示在列表中。"
 
-#: projects/models.py:200
+#: projects/models.py:204
 msgid "Version Privacy Level"
 msgstr "版本隱私級別"
 
-#: projects/models.py:202
+#: projects/models.py:206
 msgid ""
 "(Beta) Default level of privacy you want on built versions of documentation."
 msgstr "(Beta) 構建不同版本的文檔時的預設隱私級別。"
 
-#: projects/models.py:207
+#: projects/models.py:211
 msgid "Related projects"
 msgstr "相關專案"
 
-#: projects/models.py:223
+#: projects/models.py:215
+msgid "Language"
+msgstr ""
+
+#: projects/models.py:216
+msgid ""
+"The language the project documentation is rendered in. Note: this affects "
+"your project's URL."
+msgstr ""
+
+#: projects/models.py:227
 msgid "Number of Major versions"
 msgstr "主版本號"
 
-#: projects/models.py:228
+#: projects/models.py:232
 msgid "2 means supporting 3.X.X and 2.X.X, but not 1.X.X"
 msgstr "2 意味著支持 3.X.X 和 2.X.X, 但是不支持 1.X.X"
 
-#: projects/models.py:231
+#: projects/models.py:235
 msgid "Number of Minor versions"
 msgstr "小版本號"
 
-#: projects/models.py:236
+#: projects/models.py:240
 msgid "2 means supporting 2.2.X and 2.1.X, but not 2.0.X"
 msgstr "2 意味著支持 2.2.X 和 2.1.X, 但是不支持 2.0.X"
 
-#: projects/models.py:239
+#: projects/models.py:243
 msgid "Number of Point versions"
 msgstr "點版本號"
 
-#: projects/models.py:244
+#: projects/models.py:248
 msgid "2 means supporting 2.2.2 and 2.2.1, but not 2.2.0"
 msgstr "2 意味著支持 2.2.2 和 2.2.1, 但是不支持 2.2.0"
 
 #. Translators: Permission around whether a user can view the
 #. project
-#: projects/models.py:255
+#: projects/models.py:259 templates/projects/project_import_github.html:65
 msgid "View Project"
 msgstr "檢視專案"
 
-#: projects/models.py:282
+#: projects/models.py:286
 msgid "Model must have slug"
 msgstr "Model 必須有個縮略名"
 
-#: projects/models.py:816
+#: projects/models.py:767
 msgid "MD5 checksum"
 msgstr "MD5 校驗碼"
 
-#: projects/models.py:844
+#: projects/models.py:795
 msgid "URL to send the webhook to"
 msgstr "URL 用來發送 webhook 到"
 
-#: settings/base.py:55
+#: redirects/models.py:7
+msgid "301 - Permanent Redirect"
+msgstr ""
+
+#: redirects/models.py:8
+msgid "302 - Temporary Redirect"
+msgstr ""
+
+#: redirects/models.py:13
+#, fuzzy
+msgid "Inactive"
+msgstr "激活"
+
+#: redirects/models.py:17
+msgid "Prefix Redirect"
+msgstr ""
+
+#: redirects/models.py:18
+msgid "Page Redirect"
+msgstr ""
+
+#: redirects/models.py:19
+#, fuzzy
+msgid "Sphinx HTMLDir -> HTML"
+msgstr "Sphinx單頁HTML"
+
+#: redirects/models.py:20
+#, fuzzy
+msgid "Sphinx HTML -> HTMLDir"
+msgstr "Sphinx HtmlDir"
+
+#: redirects/models.py:24
+msgid ""
+"Absolute path, excluding the domain.Example: <b>/docs/</b>  or <b>/install."
+"html</b>."
+msgstr ""
+
+#: redirects/models.py:27
+msgid "Absolute or relative url. Examples: <b>/tutorial/install.html.</b>"
+msgstr ""
+
+#: redirects/models.py:30
+msgid "The type of redirect you wish to use."
+msgstr ""
+
+#: redirects/models.py:36
+#, fuzzy
+msgid "Redirect Type"
+msgstr "代碼庫類型"
+
+#: redirects/models.py:38
+#, fuzzy
+msgid "From URL"
+msgstr "專案網址"
+
+#: redirects/models.py:41
+#, fuzzy
+msgid "To URL"
+msgstr "短網址"
+
+#: redirects/models.py:44
+msgid "HTTP Status"
+msgstr ""
+
+#: redirects/models.py:53
+msgid "redirect"
+msgstr ""
+
+#: redirects/models.py:54
+#, fuzzy
+msgid "redirects"
+msgstr "精選專案"
+
+#: redirects/models.py:59
+#, python-format
+msgid "Redirect: %s ->"
+msgstr ""
+
+#: redirects/models.py:61
+#, python-format
+msgid "Redirect: %s -> %s"
+msgstr ""
+
+#: redirects/models.py:63
+#, python-format
+msgid "Redirect: %s"
+msgstr ""
+
+#: settings/base.py:59
 msgid "English"
 msgstr "英語"
 
-#: settings/base.py:56
+#: settings/base.py:60
 msgid "Spanish"
 msgstr "西班牙語"
 
-#: settings/base.py:57
+#: settings/base.py:61
 msgid "Norwegian Bokmål"
 msgstr "挪威語"
 
-#: settings/base.py:58
+#: settings/base.py:62
 msgid "French"
 msgstr "法語"
 
-#: settings/base.py:59
+#: settings/base.py:63
 msgid "Russian"
 msgstr "俄語"
 
-#: settings/base.py:60
+#: settings/base.py:64
 msgid "German"
 msgstr "德語"
 
-#: settings/base.py:61
+#: settings/base.py:65
 msgid "Galician"
 msgstr "Galician"
 
-#: settings/base.py:62
+#: settings/base.py:66
 msgid "Vietnamese"
 msgstr "越南語"
 
-#: settings/base.py:63
+#: settings/base.py:67
 msgid "Chinese"
 msgstr "華語"
 
-#: settings/base.py:64
+#: settings/base.py:68
 msgid "Taiwanese"
 msgstr "國語"
 
-#: settings/base.py:65
+#: settings/base.py:69
 msgid "Japanese"
 msgstr "日文"
 
-#: settings/base.py:66
+#: settings/base.py:70
 msgid "Ukrainian"
 msgstr "烏克蘭語"
 
-#: templates/404.html:6
+#: templates/401.html:6 templates/404.html:6
 msgid "Maze Found"
 msgstr "發現迷宮"
 
@@ -794,19 +935,37 @@ msgstr ""
 msgid "Filter"
 msgstr "過濾"
 
+#: templates/donate.html:3 templates/core/header.html:50
+msgid "Donate"
+msgstr ""
+
+#: templates/donate.html:9
+msgid ""
+"Read the Docs is funded through donations from our users. You can donate "
+"money a couple of ways:"
+msgstr ""
+
+#: templates/donate.html:14
+msgid "Credit Card"
+msgstr ""
+
+#: templates/donate.html:20
+msgid ""
+"\n"
+"You can read more about the ongoing efforts to improve the documentation "
+"ecosystem here:\n"
+msgstr ""
+
 #: templates/error_header.html:22 templates/core/header.html:19
 msgid "Go"
 msgstr "搜索"
 
 #: templates/error_header.html:32 templates/core/header.html:46
-#: templates/registration/logout.html:6
 msgid "Log Out"
 msgstr "退出"
 
 #: templates/error_header.html:36 templates/core/header.html:48
-#: templates/core/home-header.html:19 templates/registration/login.html:6
-#: templates/registration/login.html:20 templates/registration/login.html:27
-#: templates/registration/password_reset_complete.html:16
+#: templates/core/home-header.html:19
 msgid "Log in"
 msgstr "登錄"
 
@@ -815,10 +974,6 @@ msgid "Filtered Results"
 msgstr "過濾的結果"
 
 #: templates/homepage.html:7
-#: templates/registration/password_reset_complete.html:6
-#: templates/registration/password_reset_confirm.html:6
-#: templates/registration/password_reset_done.html:6
-#: templates/registration/password_reset_form.html:7
 msgid "Home"
 msgstr "首頁"
 
@@ -880,6 +1035,33 @@ msgid ""
 "for us to update your doc changes automatically."
 msgstr ""
 
+#: templates/account/login.html:7 templates/account/login.html.py:11
+#: templates/account/login.html:22
+#, fuzzy
+msgid "Sign In"
+msgstr "註冊"
+
+#: templates/account/login.html:13
+#, python-format
+msgid ""
+"If you have not created an account yet, then please\n"
+"<a href=\"%(signup_url)s\">sign up</a> first."
+msgstr ""
+
+#: templates/account/login.html:23
+msgid ""
+"If you forgot your password, <a href=\"/accounts/password/reset/\">reset it."
+"</a>"
+msgstr ""
+"若您忘記了密碼，可以<a href=\"/accounts/password/reset/\">重設密碼</a>。"
+
+#: templates/account/password_change.html:6
+#: templates/account/password_change.html:15
+#: templates/account/password_change.html:20
+#: templates/dashboard/dashboard_bar.html:36
+msgid "Change Password"
+msgstr "修改密碼"
+
 #: templates/archive/index.html:5
 msgid "Read the Docs Archive"
 msgstr "Read the Docs 檔案"
@@ -936,19 +1118,21 @@ msgstr "版本："
 msgid "Type:"
 msgstr "類型："
 
-#: templates/builds/build_detail.html:38
-msgid "Sphinx Standard Output"
+#: templates/builds/build_detail.html:42
+#, fuzzy
+msgid "Build Standard Output"
 msgstr "Sphinx 標準輸出"
 
-#: templates/builds/build_detail.html:42
-msgid "Sphinx Standard Error"
+#: templates/builds/build_detail.html:46
+#, fuzzy
+msgid "Build Standard Error"
 msgstr "Sphinx 標準錯誤"
 
-#: templates/builds/build_detail.html:47
+#: templates/builds/build_detail.html:51
 msgid "Setup Output"
 msgstr "設置輸出"
 
-#: templates/builds/build_detail.html:52
+#: templates/builds/build_detail.html:56
 msgid "Environment Standard Error"
 msgstr "環境標準錯誤"
 
@@ -971,7 +1155,7 @@ msgid "version %(slug)s (%(type)s)"
 msgstr "%(slug)s 版本 (%(type)s)"
 
 #: templates/core/build_list_detailed.html:8
-#: templates/core/project_list_detailed.html:25
+#: templates/core/project_list_detailed.html:27
 #, python-format
 msgid "%(date)s ago"
 msgstr "%(date)s 前"
@@ -1002,51 +1186,37 @@ msgstr "註冊"
 msgid "or"
 msgstr "或"
 
-#: templates/core/project_bar.html:24
+#: templates/core/project_bar.html:17
 #, python-format
 msgid "Build failed (<a href=\"%(url)s\">why</a>)"
 msgstr "構建失敗（<a href=\"%(url)s\">找找原因</a>）"
 
-#: templates/core/project_bar.html:31
+#: templates/core/project_bar.html:20
 msgid "There are no builds for this project"
 msgstr "本專案尚未建構"
 
-#: templates/core/project_bar.html:31
+#: templates/core/project_bar.html:20
 msgid "Is the repo correct?"
 msgstr "代碼庫對嗎？"
 
-#: templates/core/project_bar.html:35
+#: templates/core/project_bar.html:24
 msgid "Overview"
 msgstr "概況"
 
-#: templates/core/project_bar.html:37
-#: templates/core/project_list_detailed.html:30
+#: templates/core/project_bar.html:26
+#: templates/core/project_list_detailed.html:35
 #: templates/core/project_list_featured.html:13
-#: templates/projects/project_dashboard.html:70
+#: templates/projects/project_dashboard.html:72
 msgid "View Docs"
 msgstr "閱讀文檔"
 
-#: templates/core/project_bar.html:40
+#: templates/core/project_bar.html:29
 #: templates/projects/project_downloads.html:22
 msgid "Downloads"
 msgstr "下載"
 
-#: templates/core/project_bar.html:43
-msgid "Builds"
-msgstr "構建"
-
-#: templates/core/project_bar.html:47
-#: templates/projects/project_dashboard.html:68
-msgid "Admin"
-msgstr "管理"
-
-#: templates/core/project_details.html:16
-#, python-format
-msgid "Search %(project)s"
-msgstr "搜索 %(project)s"
-
-#: templates/core/project_details.html:18
-#: templates/core/project_list_detailed.html:34
+#: templates/core/project_bar.html:31 templates/core/project_details.html:13
+#: templates/core/project_list_detailed.html:39
 #: templates/core/project_list_featured.html:17
 #: templates/sphinx/sphinx_rtd_theme/layout.html:55
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:137
@@ -1054,99 +1224,121 @@ msgstr "搜索 %(project)s"
 msgid "Search"
 msgstr "搜索"
 
-#: templates/core/project_details.html:27
-#: templates/projects/project_edit_base.html:18
+#: templates/core/project_bar.html:34
+msgid "Builds"
+msgstr "構建"
+
+#: templates/core/project_bar.html:38
+#: templates/projects/project_dashboard.html:70
+msgid "Admin"
+msgstr "管理"
+
+#: templates/core/project_details.html:11
+#, python-format
+msgid "Search %(project)s"
+msgstr "搜索 %(project)s"
+
+#: templates/core/project_details.html:22
+#: templates/projects/project_edit_base.html:19
 #: templates/projects/project_versions.html:9
 #: templates/projects/upload_html.html:7
 msgid "Versions"
 msgstr "版本"
 
-#: templates/core/project_details.html:49
+#: templates/core/project_details.html:44
 #, python-format
 msgid " %(slug)s "
 msgstr " %(slug)s "
 
-#: templates/core/project_details.html:56
+#: templates/core/project_details.html:51
 #, python-format
 msgid " %(slug)s (Build Failed)"
 msgstr " %(slug)s (構建失敗)"
 
-#: templates/core/project_details.html:61
-#: templates/profiles/profile_detail.html:37
-#: templates/profiles/profile_detail.html:68
+#: templates/core/project_details.html:56
+#: templates/profiles/profile_detail.html:38
+#: templates/profiles/profile_detail.html:69
 msgid "Edit"
 msgstr "編輯"
 
-#: templates/core/project_details.html:71
+#: templates/core/project_details.html:66
 msgid "Build a version"
 msgstr "構建一個版本"
 
-#: templates/core/project_details.html:79
+#: templates/core/project_details.html:74
 msgid "Build"
 msgstr "構建"
 
-#: templates/core/project_details.html:89
+#: templates/core/project_details.html:96
 msgid "Repository"
 msgstr "代碼庫"
 
-#: templates/core/project_details.html:94
+#: templates/core/project_details.html:100
+msgid "Badge"
+msgstr ""
+
+#: templates/core/project_details.html:106
+msgid "Owners"
+msgstr ""
+
+#: templates/core/project_details.html:114
 msgid "Tags"
 msgstr "標籤"
 
-#: templates/core/project_details.html:99
+#: templates/core/project_details.html:119
 msgid "No tags"
 msgstr "無標籤"
 
-#: templates/core/project_details.html:104
+#: templates/core/project_details.html:124
 msgid "Last Built"
 msgstr "上次構建"
 
-#: templates/core/project_details.html:108
+#: templates/core/project_details.html:128
 msgid "Home Page"
 msgstr "首頁"
 
-#: templates/core/project_details.html:114
+#: templates/core/project_details.html:134
 msgid "Project Privacy Level"
 msgstr "專案保密層級"
 
-#: templates/core/project_details.html:121
+#: templates/core/project_details.html:141
 msgid "Short URLs"
 msgstr "短網址"
 
-#: templates/core/project_details.html:130
+#: templates/core/project_details.html:150
 msgid "Open Comparison"
 msgstr ""
 
-#: templates/core/project_details.html:131
+#: templates/core/project_details.html:151
 #, python-format
 msgid ""
 "This project has more information available about it on <a href=\"%(url)s"
 "\">Open Comparison!</a>"
 msgstr ""
 
-#: templates/core/project_details.html:135
-#: templates/projects/project_edit_base.html:19
+#: templates/core/project_details.html:155
+#: templates/projects/project_edit_base.html:22
 #: templates/projects/project_translations.html:12
 msgid "Translations"
 msgstr "翻譯"
 
-#: templates/core/project_details.html:144
+#: templates/core/project_details.html:164
 msgid "Sub Projects"
 msgstr "子專案"
 
-#: templates/core/project_details.html:155
+#: templates/core/project_details.html:175
 msgid "'latest' Version"
 msgstr "'latest' 版本"
 
-#: templates/core/project_details.html:159
+#: templates/core/project_details.html:179
 msgid "Post Commit Hook"
 msgstr ""
 
-#: templates/core/project_details.html:172
+#: templates/core/project_details.html:192
 msgid "Most viewed pages for this project"
 msgstr "本專案被瀏覽最多的頁面"
 
-#: templates/core/project_downloads.html:6
+#: templates/core/project_downloads.html:7
 #, python-format
 msgid ""
 "\n"
@@ -1157,7 +1349,7 @@ msgstr ""
 "        %(version)s PDF\n"
 "      "
 
-#: templates/core/project_downloads.html:16
+#: templates/core/project_downloads.html:17
 #, python-format
 msgid ""
 "\n"
@@ -1168,7 +1360,7 @@ msgstr ""
 "        %(version)s HTMLZip\n"
 "      "
 
-#: templates/core/project_downloads.html:26
+#: templates/core/project_downloads.html:27
 #, python-format
 msgid ""
 "\n"
@@ -1179,38 +1371,21 @@ msgstr ""
 "        %(version)s Epub\n"
 "      "
 
-#: templates/core/project_downloads.html:49
-#, python-format
-msgid ""
-"\n"
-"        %(version)s Dash docset\n"
-"      "
-msgstr ""
-"\n"
-"        %(version)s Dash docset\n"
-"      "
-
-#: templates/core/project_downloads.html:59
-#, python-format
-msgid ""
-"\n"
-"        %(version)s Dash feed\n"
-"      "
-msgstr ""
-"\n"
-"        %(version)s Dash feed\n"
-"      "
-
-#: templates/core/project_downloads.html:67
+#: templates/core/project_downloads.html:36
 msgid "No downloads for this project."
 msgstr "當前專案無可下載的內容。"
 
-#: templates/core/project_list_detailed.html:42
+#: templates/core/project_list_detailed.html:29
+#, fuzzy
+msgid "No builds"
+msgstr "未構建"
+
+#: templates/core/project_list_detailed.html:47
 #: templates/core/project_list_featured.html:25
 msgid "No Docs"
 msgstr "沒有文檔"
 
-#: templates/core/project_list_detailed.html:49
+#: templates/core/project_list_detailed.html:54
 #: templates/core/project_list_featured.html:32
 msgid "No projects found"
 msgstr "未找到專案"
@@ -1238,17 +1413,21 @@ msgstr "專案"
 msgid "Import"
 msgstr "導入"
 
-#: templates/dashboard/dashboard_bar.html:22
+#: templates/dashboard/dashboard_bar.html:17
+msgid "GitHub"
+msgstr ""
+
+#: templates/dashboard/dashboard_bar.html:23
 msgid "Profile"
 msgstr "個人資料"
 
-#: templates/dashboard/dashboard_bar.html:26
+#: templates/dashboard/dashboard_bar.html:27
 msgid "Create Profile"
 msgstr "創建資料"
 
-#: templates/dashboard/dashboard_bar.html:30
-msgid "Change Password"
-msgstr "修改密碼"
+#: templates/dashboard/dashboard_bar.html:32
+msgid "Social Accounts"
+msgstr ""
 
 #: templates/djangome/choices.html:4
 #, python-format
@@ -1375,15 +1554,15 @@ msgstr "保存！"
 msgid "%(user)s's profile"
 msgstr "%(user)s 的資料"
 
-#: templates/profiles/profile_detail.html:44
+#: templates/profiles/profile_detail.html:45
 msgid "Add Your Name"
 msgstr "添加您的名字"
 
-#: templates/profiles/profile_detail.html:76
+#: templates/profiles/profile_detail.html:77
 msgid "Add a Homepage"
 msgstr "添加一個首頁"
 
-#: templates/profiles/profile_detail.html:85
+#: templates/profiles/profile_detail.html:86
 msgid "Press enter to save your changes, or escape to discard them"
 msgstr "按下倒退鍵保存更改，或者 Esc 鍵取消更改"
 
@@ -1402,8 +1581,8 @@ msgstr "新增專案版本別名"
 
 #: templates/projects/alias_edit.html:16
 #: templates/projects/project_create.html:42
-#: templates/projects/project_import.html:32
-#: templates/projects/project_import.html:38
+#: templates/projects/project_import.html:34
+#: templates/projects/project_import.html:40
 msgid "Create"
 msgstr "創建"
 
@@ -1474,13 +1653,15 @@ msgid "Edit Advanced Project Settings"
 msgstr "編輯進階專案設定"
 
 #: templates/projects/project_advanced.html:28
-#: templates/projects/project_edit_base.html:16
+#: templates/projects/project_edit_base.html:18
 msgid "Advanced Settings"
 msgstr "進階設置"
 
 #: templates/projects/project_advanced.html:34
 #: templates/projects/project_edit.html:37
-#: templates/projects/project_notifications.html:54
+#: templates/projects/project_notifications.html:69
+#: templates/projects/project_notifications.html:80
+#: templates/projects/project_redirects.html:95
 #: templates/projects/project_subprojects.html:37
 #: templates/projects/project_translations.html:36
 #: templates/projects/project_users.html:51
@@ -1510,21 +1691,38 @@ msgstr "導入現有專案"
 msgid "Project Dashboard"
 msgstr "專案控制面板"
 
-#: templates/projects/project_dashboard.html:29
+#: templates/projects/project_dashboard.html:23
+#, python-format
+msgid ""
+"\n"
+"              Check out the <a href=\"%(url)s\">documentation for Read the "
+"Docs</a>. It contains lots of information about how to get the most out of "
+"RTD.\n"
+"              "
+msgstr ""
+
+#: templates/projects/project_dashboard.html:31
 msgid "Important Versions"
 msgstr "重要版本"
 
-#: templates/projects/project_dashboard.html:57
+#: templates/projects/project_dashboard.html:59
 msgid "My Projects"
 msgstr "我的專案"
 
-#: templates/projects/project_dashboard.html:83
-#, python-format
+#: templates/projects/project_dashboard.html:87
+#, fuzzy, python-format
 msgid ""
-"You don't have any projects.  You should <a href=\"%(projects_import_url)s"
-"\">create new docs</a> on the site.<br>\n"
+"\n"
+"          You don't have any projects. You can <a href="
+"\"%(projects_import_url)s\">create new docs</a> on the site.\n"
+"          <br>\n"
+"          If you have a GitHub account, you can <a href=\"%(social_accounts)s"
+"\">connect it</a> and import projects from there.\n"
+"          <br>\n"
 "          Check out the <a href=\"%(getting_started_url)s\">Getting Started</"
-"a> documentation for information about how to get going."
+"a> documentation for information about how to get going.\n"
+"          </p> \n"
+"          "
 msgstr ""
 "您目前沒有任何專案。您可以在網站上<a href=\"%(projects_import_url)s\">建立新"
 "文件</a> <br>\n"
@@ -1550,7 +1748,7 @@ msgid "Edit Project"
 msgstr "編輯專案"
 
 #: templates/projects/project_edit.html:28
-#: templates/projects/project_edit_base.html:15
+#: templates/projects/project_edit_base.html:17
 msgid "Settings"
 msgstr "設置"
 
@@ -1558,17 +1756,23 @@ msgstr "設置"
 msgid "delete"
 msgstr "刪除"
 
-#: templates/projects/project_edit_base.html:17
+#: templates/projects/project_edit_base.html:20
 #: templates/projects/project_users.html:8
 msgid "Maintainers"
 msgstr "維護者"
 
-#: templates/projects/project_edit_base.html:20
+#: templates/projects/project_edit_base.html:21
+#: templates/projects/project_redirects.html:8
+#, fuzzy
+msgid "Redirects"
+msgstr "相關專案"
+
+#: templates/projects/project_edit_base.html:23
 #: templates/projects/project_subprojects.html:12
 msgid "Subprojects"
 msgstr "子專案"
 
-#: templates/projects/project_edit_base.html:21
+#: templates/projects/project_edit_base.html:24
 #: templates/projects/project_notifications.html:12
 msgid "Notifications"
 msgstr "通知"
@@ -1577,6 +1781,37 @@ msgstr "通知"
 #: templates/projects/project_import.html:28
 msgid "Import an existing project"
 msgstr "導入現有專案"
+
+#: templates/projects/project_import.html:37
+msgid ""
+"You can change how your project is built in your <em>Advanced Settings</em> "
+"once your project has been created."
+msgstr ""
+
+#: templates/projects/project_import_github.html:4
+#: templates/projects/project_import_github.html:28
+#, fuzzy
+msgid "Import a GitHub project"
+msgstr "導入現有專案"
+
+#: templates/projects/project_import_github.html:35
+#, python-format
+msgid ""
+"Showing your GitHub projects. <a href=\"%(sync_github_url)s\">Sync your "
+"GitHub projects</a> to update them."
+msgstr ""
+
+#: templates/projects/project_import_github.html:39
+msgid "GitHub projects are now up to date."
+msgstr ""
+
+#: templates/projects/project_import_github.html:93
+#, python-format
+msgid ""
+"You don't have any GitHub repositories connected. \n"
+"  Go to your <a href=\"%(social_url)s\">Social Accounts</a> to set one up.\n"
+"  "
+msgstr ""
 
 #: templates/projects/project_list.html:9
 #: templates/projects/project_list.html:27
@@ -1604,27 +1839,79 @@ msgstr "編輯通知"
 msgid "Configure Notifications to be sent on build failures."
 msgstr "配置構建失敗時要發送的通知"
 
-#: templates/projects/project_notifications.html:19
+#: templates/projects/project_notifications.html:20
 msgid "Existing Notifications"
 msgstr "已存在的通知"
 
-#: templates/projects/project_notifications.html:30
+#: templates/projects/project_notifications.html:44
 msgid "Remove Notifications"
 msgstr "移除通知"
 
-#: templates/projects/project_notifications.html:39
+#: templates/projects/project_notifications.html:56
 #: templates/projects/project_subprojects.html:27
 #: templates/projects/project_translations.html:26
+#: templates/socialaccount/connections.html:42
 msgid "Remove"
 msgstr "移除"
 
-#: templates/projects/project_notifications.html:45
-msgid "New Notifications"
+#: templates/projects/project_notifications.html:62
+#, fuzzy
+msgid "New Email Notifications"
 msgstr "新建通知"
 
-#: templates/projects/project_notifications.html:47
+#: templates/projects/project_notifications.html:64
 msgid "Add an email address to notify"
 msgstr "新增一個用於通知的 email 地址"
+
+#: templates/projects/project_notifications.html:73
+#, fuzzy
+msgid "New Webhook Notifications"
+msgstr "新建通知"
+
+#: templates/projects/project_notifications.html:75
+#, fuzzy
+msgid "Add a URL to notify"
+msgstr "新增一個用於通知的 email 地址"
+
+#: templates/projects/project_redirects.html:5
+#, fuzzy
+msgid "Edit Redirects"
+msgstr "編輯專案"
+
+#: templates/projects/project_redirects.html:39
+msgid ""
+"Add redirects for your project. This allows you to fix links to old pages "
+"that are 404ing."
+msgstr ""
+
+#: templates/projects/project_redirects.html:43
+#, fuzzy
+msgid "Existing Redirects"
+msgstr "現有子專案"
+
+#: templates/projects/project_redirects.html:56
+msgid "Remove Redirect"
+msgstr ""
+
+#: templates/projects/project_redirects.html:70
+msgid "Add Redirect"
+msgstr ""
+
+#: templates/projects/project_redirects.html:72
+msgid ""
+"Add new redirects. These will only happen on <b>404 Page Not Found</b> "
+"requests."
+msgstr ""
+
+#: templates/projects/project_redirects.html:75
+msgid ""
+"This is mainly used to support migration from old doc systems. If you used "
+"to serve your docs at <b>/docs/</b>, you will do:"
+msgstr ""
+
+#: templates/projects/project_redirects.html:83
+msgid "You can also redirect a specific page, like so:"
+msgstr ""
 
 #: templates/projects/project_subprojects.html:5
 msgid "Edit Subprojects"
@@ -1773,327 +2060,16 @@ msgstr "在此描述如何準備並啟動您的計畫"
 msgid "Here is where you can describe how to install %(name)s"
 msgstr "在此描述如何安裝 %(name)s"
 
-#: templates/registration/activate.html:6
-#: templates/registration/activate.html:11
-msgid "Account activation error"
-msgstr "帳號啟動錯誤"
-
-#: templates/registration/activate.html:17
-#, python-format
-msgid ""
-"The activation key \"%(activation_key)s\" is invalid and cannot be used to "
-"activate this account."
-msgstr "啟動碼 \"%(activation_key)s\" 無效，無法啟動此帳戶。"
-
-#: templates/registration/activate.html:18
-#, python-format
-msgid ""
-"Did you really think activation key \"%(activation_key)s\" was going to "
-"work?!"
-msgstr ""
-
-#: templates/registration/activate.html:21
-msgid ""
-"We're not sure how you got that key, but would you mind registering again"
-msgstr "我們不能確定您從那邊得到這個啟動碼，請重新註冊"
-
-#: templates/registration/activate.html:21
-#: templates/registration/activation_complete.html:17
-msgid "here"
-msgstr "這兒"
-
-#: templates/registration/activation_complete.html:6
-msgid "Account activation complete"
-msgstr "帳號啟動完成"
-
-#: templates/registration/activation_complete.html:11
-msgid "Account activation complete, woo!"
-msgstr "帳號啟動完成。"
-
-#: templates/registration/activation_complete.html:16
-msgid "Your account has been activated."
-msgstr "帳號已啟動。"
-
-#: templates/registration/activation_complete.html:17
-msgid "Log in with the username and password you just created,"
-msgstr "使用您剛註冊的用戶名和密碼登錄。"
-
-#: templates/registration/activation_email.txt:1
-#, python-format
-msgid ""
-"Thank you for registering an account at %(domain)s.\n"
-"To activate your registration, please visit the following page:\n"
-"\n"
-"http://%(domain)s%(activation_url)s\n"
-"\n"
-"This page will expire in %(expiration_days)s days.\n"
-"\n"
-"If you didn't register this account you can simply delete this email and we "
-"won't bother you again."
-msgstr ""
-"感謝您在 %(domain)s 上註冊帳號。\n"
-"為了啟動您的帳號，請訪問以下頁面：\n"
-"\n"
-"http://%(domain)s%(activation_url)s\n"
-"\n"
-"這個頁面 %(expiration_days)s 天後過期。\n"
-"\n"
-"如果您沒有註冊這個帳號，您可以刪除這封郵件。我們不會再打擾您。"
-
-#: templates/registration/activation_email_subject.txt:1
-#, python-format
-msgid "%(site_name)s - activate your account"
-msgstr "%(site_name)s - 啟動您的帳號"
-
-#: templates/registration/base_registration.html:5
-msgid "Registration"
-msgstr "註冊"
-
-#: templates/registration/base_registration.html:6
-msgid "registration"
-msgstr "註冊"
-
-#: templates/registration/login.html:30
-msgid ""
-"If you forgot your password, <a href=\"/accounts/password/reset/\">reset it."
-"</a>"
-msgstr ""
-"若您忘記了密碼，可以<a href=\"/accounts/password/reset/\">重設密碼</a>。"
-
-#: templates/registration/login.html:33
-msgid ""
-"Don't have an account?  <a href=\"/accounts/register/\">Register</a> a new "
-"one."
-msgstr "您還沒有帳號？ 趕快 <a href=\"/accounts/register/\">註冊</a> 一個吧。"
-
-#: templates/registration/logout.html:11
-msgid "You've logged out."
-msgstr "您已退出。"
-
-#: templates/registration/logout.html:17
-msgid "Thanks for visiting!"
-msgstr "謝謝訪問！"
-
-#: templates/registration/logout.html:21
-#, python-format
-msgid ""
-"If you are looking to log in again, you can do that <a href=\"%(login_url)s"
-"\">here</a>"
-msgstr "若您想重新登錄，您可以點擊<a href=\"%(login_url)s\">這裡</a>"
-
-#: templates/registration/password_change_done.html:4
-#: templates/registration/password_change_done.html:10
-msgid "Password change successful"
-msgstr "已成功修改密碼"
-
-#: templates/registration/password_change_done.html:12
-msgid "Your password was changed."
-msgstr "您的密碼已修改。"
-
-#: templates/registration/password_change_form.html:4
-#: templates/registration/password_change_form.html:24
-msgid "Password change"
-msgstr "修改密碼"
-
-#: templates/registration/password_change_form.html:20
-msgid "Please correct the error below."
-msgid_plural "Please correct the errors below."
-msgstr[0] "請改正下列錯誤。"
-
-#: templates/registration/password_change_form.html:26
-msgid ""
-"Please enter your old password, for security's sake, and then enter your new "
-"password twice so we can verify you typed it in correctly."
-msgstr ""
-"為保證安全，請先輸入您的舊密碼。然後輸入兩次您的新密碼，用於兩次輸入驗證是否"
-"一致。"
-
-#: templates/registration/password_change_form.html:30
-msgid "Old password"
-msgstr "原密碼"
-
-#: templates/registration/password_change_form.html:35
-msgid "New password"
-msgstr "新密碼"
-
-#: templates/registration/password_change_form.html:40
-msgid "Password (again)"
-msgstr "重復新密碼"
-
-#: templates/registration/password_change_form.html:44
-#: templates/registration/password_reset_confirm.html:23
-msgid "Change my password"
-msgstr "修改我的密碼"
-
-#: templates/registration/password_reset_complete.html:6
-#: templates/registration/password_reset_confirm.html:8
-#: templates/registration/password_reset_done.html:6
-#: templates/registration/password_reset_form.html:7
-#: templates/registration/password_reset_form.html:9
-#: templates/registration/password_reset_form.html:13
-msgid "Password reset"
-msgstr "重設密碼"
-
-#: templates/registration/password_reset_complete.html:8
-#: templates/registration/password_reset_complete.html:12
-msgid "Password reset complete"
-msgstr "密碼已重設"
-
-#: templates/registration/password_reset_complete.html:14
-msgid "Your password has been set.  You may go ahead and log in now."
-msgstr "密碼已重設。現在可以登錄了。"
-
-#: templates/registration/password_reset_confirm.html:6
-msgid "Password reset confirmation"
-msgstr "確認重設密碼"
-
-#: templates/registration/password_reset_confirm.html:14
-msgid "Enter new password"
-msgstr "輸入新密碼"
-
-#: templates/registration/password_reset_confirm.html:16
-msgid ""
-"Please enter your new password twice so we can verify you typed it in "
-"correctly."
-msgstr "請輸入兩次您的新密碼，用於驗證兩次輸入是否一致。"
-
-#: templates/registration/password_reset_confirm.html:20
-msgid "New password:"
-msgstr "新密碼："
-
-#: templates/registration/password_reset_confirm.html:22
-msgid "Confirm password:"
-msgstr "重復新密碼："
-
-#: templates/registration/password_reset_confirm.html:28
-msgid "Password reset unsuccessful"
-msgstr "重設密碼失敗"
-
-#: templates/registration/password_reset_confirm.html:30
-msgid ""
-"The password reset link was invalid, possibly because it has already been "
-"used.  Please request a new password reset."
-msgstr "密碼重設連結無效，可能是因為已經使用過了。請重新申請重設密碼。"
-
-#: templates/registration/password_reset_done.html:8
-#: templates/registration/password_reset_done.html:12
-msgid "Password reset successful"
-msgstr "重設密碼成功"
-
-#: templates/registration/password_reset_done.html:14
-msgid ""
-"We've e-mailed you instructions for setting your password to the e-mail "
-"address you submitted. You should be receiving it shortly."
-msgstr "我們已向您設定的 email 發送密碼重置的郵件。請稍等。"
-
-#: templates/registration/password_reset_email.html:2
-msgid "You're receiving this e-mail because you requested a password reset"
-msgstr "您會收到此 email 的原因是因為您提出了重設密碼的請求"
-
-#: templates/registration/password_reset_email.html:3
-#, python-format
-msgid "for your user account at %(site_name)s"
-msgstr "您在 %(site_name)s 的賬號"
-
-#: templates/registration/password_reset_email.html:5
-msgid "Please go to the following page and choose a new password:"
-msgstr "請訪問以下頁面並輸入一個新的密碼："
-
-#: templates/registration/password_reset_email.html:9
-msgid "Your username, in case you've forgotten:"
-msgstr "您的用戶名，防止您忘記了："
-
-#: templates/registration/password_reset_email.html:11
-msgid "Thanks for using our site!"
-msgstr "感謝您使用我們的網站！"
-
-#: templates/registration/password_reset_email.html:13
-#, python-format
-msgid "The %(site_name)s team"
-msgstr "%(site_name)s 團隊"
-
-#: templates/registration/password_reset_form.html:15
-msgid ""
-"Forgotten your password? Enter your e-mail address below, and we'll e-mail "
-"instructions for setting a new one."
-msgstr ""
-"忘記您的密碼了？ 請在下方輸入您的 email 地址，我們將給您發送一封密碼重置郵"
-"件。"
-
-#: templates/registration/password_reset_form.html:19
-msgid "E-mail address:"
-msgstr "email 地址："
-
-#: templates/registration/password_reset_form.html:19
-msgid "Reset my password"
-msgstr "重設我的密碼"
-
-#: templates/registration/registration_closed.html:6
-msgid "Registration closed"
-msgstr "註冊已關閉"
-
-#: templates/registration/registration_closed.html:11
-msgid "Eh... Registration closed."
-msgstr "呃 (\"▔□▔)... 註冊已關閉。"
-
-#: templates/registration/registration_closed.html:17
-msgid ""
-" You registered a long time ago.\n"
-"    We aren't sure if you are a robot or if \n"
-"    something got lost or what."
-msgstr ""
-" 您是很久前註冊的。\n"
-"    我們需要確認您的身份。"
-
-#: templates/registration/registration_closed.html:20
-msgid "Please try"
-msgstr "請嘗試"
-
-#: templates/registration/registration_closed.html:20
-msgid "registering again"
-msgstr "重新註冊"
-
-#: templates/registration/registration_closed.html:23
-msgid "We hope that isn't too inconvenient."
-msgstr "我們希望這不會太麻煩。"
-
-#: templates/registration/registration_complete.html:6
-#: templates/registration/registration_complete.html:11
-msgid "Registration complete"
-msgstr "註冊完成"
-
-#: templates/registration/registration_complete.html:16
-msgid "Now activate your account."
-msgstr "現在啟動您的帳號。"
-
-#: templates/registration/registration_complete.html:18
-msgid ""
-"We will be sending you an email with an activation link.\n"
-"    Visit the link to verify this account."
-msgstr ""
-"我們將給您發送一封包含啟動連結的郵件。\n"
-"   請打開這個連結來啟動當前帳號。"
-
-#: templates/registration/registration_complete.html:22
-msgid "Check your email.  We'll wait."
-msgstr "請檢查您的郵件。"
-
-#: templates/registration/registration_form.html:6
-#: templates/registration/registration_form.html:20
-msgid "Register for an account"
-msgstr "註冊新帳號"
-
-#: templates/registration/registration_form.html:27
-msgid "Send me the activation link."
-msgstr "發送啟動連結給我。"
-
 #: templates/search/base_facet.html:5 templates/search/search.html:5
 #, python-format
 msgid "Search: %(query)s"
 msgstr "搜索：%(query)s"
 
 #. Translators: This is about starting a search
-#: templates/search/base_facet.html:27 templates/search/search.html:17
+#. Translators: This is about starting a search
+#: templates/search/base_facet.html:27
+#: templates/search/elastic_project_search.html:51
+#: templates/search/search.html:17
 msgid "Go crazy."
 msgstr "搜索"
 
@@ -2107,9 +2083,33 @@ msgid "File:"
 msgstr "文件："
 
 #: templates/search/base_search.html:24
+#: templates/search/elastic_project_search.html:82
 #: templates/search/faceted_results.html:63
 msgid "No results found. Bummer."
 msgstr "沒有發現相關結果。~( ＞﹏＜)"
+
+#: templates/search/elastic_project_search.html:5
+#, fuzzy, python-format
+msgid "Search: %(query)s "
+msgstr "搜索：%(query)s"
+
+#: templates/search/elastic_project_search.html:65
+#: templates/search/search.html:31
+#, python-format
+msgid "Results for %(query)s"
+msgstr "與 %(query)s 相關的結果"
+
+#: templates/search/elastic_project_search.html:98
+#: templates/search/elastic_project_search.html:100
+#: templates/search/search.html:52 templates/search/search.html.py:54
+msgid "Previous"
+msgstr "上一頁"
+
+#: templates/search/elastic_project_search.html:104
+#: templates/search/elastic_project_search.html:106
+#: templates/search/search.html:58 templates/search/search.html.py:60
+msgid "Next"
+msgstr "下一頁"
 
 #: templates/search/faceted_author.html:8
 msgid "By Author"
@@ -2153,18 +2153,26 @@ msgstr ""
 msgid "File"
 msgstr "文件"
 
-#: templates/search/search.html:31
-#, python-format
-msgid "Results for %(query)s"
-msgstr "與 %(query)s 相關的結果"
+#: templates/socialaccount/connections.html:6
+#: templates/socialaccount/connections.html:15
+#, fuzzy
+msgid "Account Connections"
+msgstr "帳號啟動錯誤"
 
-#: templates/search/search.html:52 templates/search/search.html.py:54
-msgid "Previous"
-msgstr "上一頁"
+#: templates/socialaccount/connections.html:18
+msgid ""
+"You can sign in to your account using any of the following third party "
+"accounts:"
+msgstr ""
 
-#: templates/search/search.html:58 templates/search/search.html.py:60
-msgid "Next"
-msgstr "下一頁"
+#: templates/socialaccount/connections.html:50
+msgid ""
+"You currently have no social network accounts connected to this account."
+msgstr ""
+
+#: templates/socialaccount/connections.html:53
+msgid "Add a 3rd Party Account"
+msgstr ""
 
 #: templates/sphinx/sphinx_rtd_theme/layout.html:47
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:131
@@ -2190,3 +2198,241 @@ msgid ""
 "spelled correctly and that you've selected enough categories."
 msgstr ""
 "您的搜索未匹配任何文檔。請確保所有的單詞都拼寫正確並且選中了足夠多的分類。"
+
+#~ msgid ""
+#~ "\n"
+#~ "        %(version)s Dash docset\n"
+#~ "      "
+#~ msgstr ""
+#~ "\n"
+#~ "        %(version)s Dash docset\n"
+#~ "      "
+
+#~ msgid ""
+#~ "\n"
+#~ "        %(version)s Dash feed\n"
+#~ "      "
+#~ msgstr ""
+#~ "\n"
+#~ "        %(version)s Dash feed\n"
+#~ "      "
+
+#~ msgid ""
+#~ "The activation key \"%(activation_key)s\" is invalid and cannot be used "
+#~ "to activate this account."
+#~ msgstr "啟動碼 \"%(activation_key)s\" 無效，無法啟動此帳戶。"
+
+#~ msgid ""
+#~ "We're not sure how you got that key, but would you mind registering again"
+#~ msgstr "我們不能確定您從那邊得到這個啟動碼，請重新註冊"
+
+#~ msgid "here"
+#~ msgstr "這兒"
+
+#~ msgid "Account activation complete"
+#~ msgstr "帳號啟動完成"
+
+#~ msgid "Account activation complete, woo!"
+#~ msgstr "帳號啟動完成。"
+
+#~ msgid "Your account has been activated."
+#~ msgstr "帳號已啟動。"
+
+#~ msgid "Log in with the username and password you just created,"
+#~ msgstr "使用您剛註冊的用戶名和密碼登錄。"
+
+#~ msgid ""
+#~ "Thank you for registering an account at %(domain)s.\n"
+#~ "To activate your registration, please visit the following page:\n"
+#~ "\n"
+#~ "http://%(domain)s%(activation_url)s\n"
+#~ "\n"
+#~ "This page will expire in %(expiration_days)s days.\n"
+#~ "\n"
+#~ "If you didn't register this account you can simply delete this email and "
+#~ "we won't bother you again."
+#~ msgstr ""
+#~ "感謝您在 %(domain)s 上註冊帳號。\n"
+#~ "為了啟動您的帳號，請訪問以下頁面：\n"
+#~ "\n"
+#~ "http://%(domain)s%(activation_url)s\n"
+#~ "\n"
+#~ "這個頁面 %(expiration_days)s 天後過期。\n"
+#~ "\n"
+#~ "如果您沒有註冊這個帳號，您可以刪除這封郵件。我們不會再打擾您。"
+
+#~ msgid "%(site_name)s - activate your account"
+#~ msgstr "%(site_name)s - 啟動您的帳號"
+
+#~ msgid "Registration"
+#~ msgstr "註冊"
+
+#~ msgid "registration"
+#~ msgstr "註冊"
+
+#~ msgid ""
+#~ "Don't have an account?  <a href=\"/accounts/register/\">Register</a> a "
+#~ "new one."
+#~ msgstr ""
+#~ "您還沒有帳號？ 趕快 <a href=\"/accounts/register/\">註冊</a> 一個吧。"
+
+#~ msgid "You've logged out."
+#~ msgstr "您已退出。"
+
+#~ msgid "Thanks for visiting!"
+#~ msgstr "謝謝訪問！"
+
+#~ msgid ""
+#~ "If you are looking to log in again, you can do that <a href="
+#~ "\"%(login_url)s\">here</a>"
+#~ msgstr "若您想重新登錄，您可以點擊<a href=\"%(login_url)s\">這裡</a>"
+
+#~ msgid "Password change successful"
+#~ msgstr "已成功修改密碼"
+
+#~ msgid "Your password was changed."
+#~ msgstr "您的密碼已修改。"
+
+#~ msgid "Password change"
+#~ msgstr "修改密碼"
+
+#~ msgid "Please correct the error below."
+#~ msgid_plural "Please correct the errors below."
+#~ msgstr[0] "請改正下列錯誤。"
+
+#~ msgid ""
+#~ "Please enter your old password, for security's sake, and then enter your "
+#~ "new password twice so we can verify you typed it in correctly."
+#~ msgstr ""
+#~ "為保證安全，請先輸入您的舊密碼。然後輸入兩次您的新密碼，用於兩次輸入驗證是"
+#~ "否一致。"
+
+#~ msgid "Old password"
+#~ msgstr "原密碼"
+
+#~ msgid "New password"
+#~ msgstr "新密碼"
+
+#~ msgid "Password (again)"
+#~ msgstr "重復新密碼"
+
+#~ msgid "Change my password"
+#~ msgstr "修改我的密碼"
+
+#~ msgid "Password reset"
+#~ msgstr "重設密碼"
+
+#~ msgid "Password reset complete"
+#~ msgstr "密碼已重設"
+
+#~ msgid "Your password has been set.  You may go ahead and log in now."
+#~ msgstr "密碼已重設。現在可以登錄了。"
+
+#~ msgid "Password reset confirmation"
+#~ msgstr "確認重設密碼"
+
+#~ msgid "Enter new password"
+#~ msgstr "輸入新密碼"
+
+#~ msgid ""
+#~ "Please enter your new password twice so we can verify you typed it in "
+#~ "correctly."
+#~ msgstr "請輸入兩次您的新密碼，用於驗證兩次輸入是否一致。"
+
+#~ msgid "New password:"
+#~ msgstr "新密碼："
+
+#~ msgid "Confirm password:"
+#~ msgstr "重復新密碼："
+
+#~ msgid "Password reset unsuccessful"
+#~ msgstr "重設密碼失敗"
+
+#~ msgid ""
+#~ "The password reset link was invalid, possibly because it has already been "
+#~ "used.  Please request a new password reset."
+#~ msgstr "密碼重設連結無效，可能是因為已經使用過了。請重新申請重設密碼。"
+
+#~ msgid "Password reset successful"
+#~ msgstr "重設密碼成功"
+
+#~ msgid ""
+#~ "We've e-mailed you instructions for setting your password to the e-mail "
+#~ "address you submitted. You should be receiving it shortly."
+#~ msgstr "我們已向您設定的 email 發送密碼重置的郵件。請稍等。"
+
+#~ msgid "You're receiving this e-mail because you requested a password reset"
+#~ msgstr "您會收到此 email 的原因是因為您提出了重設密碼的請求"
+
+#~ msgid "for your user account at %(site_name)s"
+#~ msgstr "您在 %(site_name)s 的賬號"
+
+#~ msgid "Please go to the following page and choose a new password:"
+#~ msgstr "請訪問以下頁面並輸入一個新的密碼："
+
+#~ msgid "Your username, in case you've forgotten:"
+#~ msgstr "您的用戶名，防止您忘記了："
+
+#~ msgid "Thanks for using our site!"
+#~ msgstr "感謝您使用我們的網站！"
+
+#~ msgid "The %(site_name)s team"
+#~ msgstr "%(site_name)s 團隊"
+
+#~ msgid ""
+#~ "Forgotten your password? Enter your e-mail address below, and we'll e-"
+#~ "mail instructions for setting a new one."
+#~ msgstr ""
+#~ "忘記您的密碼了？ 請在下方輸入您的 email 地址，我們將給您發送一封密碼重置郵"
+#~ "件。"
+
+#~ msgid "E-mail address:"
+#~ msgstr "email 地址："
+
+#~ msgid "Reset my password"
+#~ msgstr "重設我的密碼"
+
+#~ msgid "Registration closed"
+#~ msgstr "註冊已關閉"
+
+#~ msgid "Eh... Registration closed."
+#~ msgstr "呃 (\"▔□▔)... 註冊已關閉。"
+
+#~ msgid ""
+#~ " You registered a long time ago.\n"
+#~ "    We aren't sure if you are a robot or if \n"
+#~ "    something got lost or what."
+#~ msgstr ""
+#~ " 您是很久前註冊的。\n"
+#~ "    我們需要確認您的身份。"
+
+#~ msgid "Please try"
+#~ msgstr "請嘗試"
+
+#~ msgid "registering again"
+#~ msgstr "重新註冊"
+
+#~ msgid "We hope that isn't too inconvenient."
+#~ msgstr "我們希望這不會太麻煩。"
+
+#~ msgid "Registration complete"
+#~ msgstr "註冊完成"
+
+#~ msgid "Now activate your account."
+#~ msgstr "現在啟動您的帳號。"
+
+#~ msgid ""
+#~ "We will be sending you an email with an activation link.\n"
+#~ "    Visit the link to verify this account."
+#~ msgstr ""
+#~ "我們將給您發送一封包含啟動連結的郵件。\n"
+#~ "   請打開這個連結來啟動當前帳號。"
+
+#~ msgid "Check your email.  We'll wait."
+#~ msgstr "請檢查您的郵件。"
+
+#~ msgid "Register for an account"
+#~ msgstr "註冊新帳號"
+
+#~ msgid "Send me the activation link."
+#~ msgstr "發送啟動連結給我。"
