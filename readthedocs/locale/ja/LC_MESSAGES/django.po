@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-06-25 00:24-0500\n"
+"POT-Creation-Date: 2014-09-21 14:17-0500\n"
 "PO-Revision-Date: 2014-04-24 21:43+0000\n"
 "Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
 "Language-Team: Japanese (http://www.transifex.com/projects/p/readthedocs/"
@@ -29,16 +29,16 @@ msgstr ""
 msgid "Invalid resource lookup data provided (mismatched type).: %(error)s"
 msgstr "無効なリソース検索データです(種類の不整合): %(error)s"
 
-#: bookmarks/models.py:9 builds/models.py:83 builds/models.py:277
-#: builds/models.py:293 projects/models.py:809
+#: bookmarks/models.py:9 builds/models.py:85 builds/models.py:280
+#: builds/models.py:296 projects/models.py:760 redirects/models.py:34
 msgid "Project"
 msgstr "プロジェクト"
 
-#: bookmarks/models.py:11 core/models.py:14 projects/models.py:100
+#: bookmarks/models.py:11 core/models.py:13 projects/models.py:102
 msgid "User"
 msgstr "ユーザー"
 
-#: bookmarks/models.py:13 builds/models.py:301
+#: bookmarks/models.py:13 builds/models.py:304
 msgid "Date"
 msgstr "日付"
 
@@ -46,8 +46,8 @@ msgstr "日付"
 msgid "URL"
 msgstr "URL"
 
-#: bookmarks/models.py:15 projects/models.py:104
-#: templates/core/project_details.html:5
+#: bookmarks/models.py:15 oauth/models.py:37 projects/models.py:106
+#: templates/core/project_details.html:82
 msgid "Description"
 msgstr "説明"
 
@@ -112,8 +112,9 @@ msgstr "不明"
 msgid "Any"
 msgstr "すべて"
 
-#: builds/filters.py:17 builds/filters.py:29 projects/filters.py:31
-#: projects/models.py:102 projects/models.py:813
+#: builds/filters.py:17 builds/filters.py:29 oauth/models.py:17
+#: oauth/models.py:35 projects/filters.py:31 projects/models.py:104
+#: projects/models.py:764
 msgid "Name"
 msgstr "名前"
 
@@ -125,109 +126,114 @@ msgstr "ビルド時刻"
 msgid "Build Type"
 msgstr "ビルド種類"
 
-#: builds/models.py:86 builds/models.py:297
+#: builds/models.py:88 builds/models.py:300
 msgid "Type"
 msgstr "種類"
 
-#: builds/models.py:90
+#: builds/models.py:92
 msgid "Identifier"
 msgstr "識別子"
 
-#: builds/models.py:92
+#: builds/models.py:94
 msgid "Verbose Name"
 msgstr "長い名前"
 
-#: builds/models.py:93 projects/filters.py:33 projects/models.py:103
-#: projects/models.py:814
+#: builds/models.py:95 projects/filters.py:33 projects/models.py:105
+#: projects/models.py:765
 msgid "Slug"
 msgstr "スラグ"
 
-#: builds/models.py:95
+#: builds/models.py:97
 msgid "Supported"
 msgstr "サポートされている"
 
-#: builds/models.py:96 templates/projects/project_versions.html:46
+#: builds/models.py:98 oauth/models.py:19 oauth/models.py:42
+#: redirects/models.py:12 templates/projects/project_versions.html:46
 msgid "Active"
 msgstr "有効"
 
-#: builds/models.py:97 templates/projects/includes/icon_built.html:4
+#: builds/models.py:99 templates/projects/includes/icon_built.html:4
 msgid "Built"
 msgstr "ビルド済み"
 
-#: builds/models.py:98 templates/projects/includes/icon_built.html:7
+#: builds/models.py:100 templates/projects/includes/icon_built.html:7
 msgid "Uploaded"
 msgstr "アップロード"
 
-#: builds/models.py:100 projects/models.py:195
+#: builds/models.py:102 projects/models.py:199
 msgid "Privacy Level"
 msgstr "プライバシーレベル"
 
-#: builds/models.py:101
+#: builds/models.py:103
 msgid "Level of privacy for this Version."
 msgstr "このバージョンのプライバシーレベル"
 
 #. Translators: Permission around whether a user can view the
 #. version
-#: builds/models.py:112
+#: builds/models.py:114
 msgid "View Version"
 msgstr "バージョンを見る"
 
-#: builds/models.py:116
+#: builds/models.py:118
 #, python-format
 msgid "Version %(version)s of %(project)s (%(pk)s)"
 msgstr "%(project)s (%(pk)s)　のバージョン %(version)s"
 
-#: builds/models.py:279
+#: builds/models.py:282
 msgid "From slug"
 msgstr "スラグから"
 
-#: builds/models.py:280
+#: builds/models.py:283
 msgid "To slug"
 msgstr "スラグへ"
 
-#: builds/models.py:282
+#: builds/models.py:285
 msgid "Largest"
 msgstr "最大"
 
-#: builds/models.py:285
+#: builds/models.py:288
 #, python-format
 msgid "Alias for %(project)s: %(from)s -> %(to)s"
 msgstr "%(project)s の別名: %(from)s -> %(to)s"
 
-#: builds/models.py:295 projects/models.py:119 projects/models.py:811
+#: builds/models.py:298 projects/models.py:119 projects/models.py:762
 #: templates/djangome/oneoffs.html:11
 msgid "Version"
 msgstr "バージョン"
 
-#: builds/models.py:299
+#: builds/models.py:302
 msgid "State"
 msgstr "状態"
 
-#: builds/models.py:302
+#: builds/models.py:305
 msgid "Success"
 msgstr "成功"
 
-#: builds/models.py:304
+#: builds/models.py:307
 msgid "Setup"
 msgstr "設定"
 
-#: builds/models.py:305
+#: builds/models.py:308
 msgid "Setup error"
 msgstr "設定エラー"
 
-#: builds/models.py:306
+#: builds/models.py:309
 msgid "Output"
 msgstr "出力"
 
-#: builds/models.py:307
+#: builds/models.py:310
 msgid "Error"
 msgstr "エラー"
 
-#: builds/models.py:308
+#: builds/models.py:311
 msgid "Exit code"
 msgstr "終了コード"
 
-#: builds/models.py:316
+#: builds/models.py:313 templates/builds/build_detail.html:39
+msgid "Commit"
+msgstr ""
+
+#: builds/models.py:320
 #, python-format
 msgid "Build %(project)s for %(usernames)s (%(pk)s)"
 msgstr "%(usernames)s (%(pk)s)  の %(project)s をビルドする"
@@ -244,23 +250,23 @@ msgstr "姓"
 msgid "Invalid hostname"
 msgstr "不正なホスト名"
 
-#: core/models.py:16
+#: core/models.py:15
 msgid "Whitelisted"
 msgstr "ホワイトリスト"
 
-#: core/models.py:17
+#: core/models.py:16
 msgid "Homepage"
 msgstr "ホームページ"
 
-#: core/models.py:18
+#: core/models.py:17
 msgid "Allow email"
 msgstr "メールアドレスを許可"
 
-#: core/models.py:19
+#: core/models.py:18
 msgid "Show your email on VCS contributions."
 msgstr "VCSの貢献者にメールアドレスを公開する"
 
-#: core/models.py:24
+#: core/models.py:23
 #, python-format
 msgid "%(username)s's profile"
 msgstr "%(username)s のプロファイル"
@@ -269,6 +275,54 @@ msgstr "%(username)s のプロファイル"
 #, python-format
 msgid "Please enter a valid URL on %s"
 msgstr "正しいURLを %s に入力してください"
+
+#: oauth/models.py:7 oauth/models.py:28 projects/models.py:98
+msgid "Publication date"
+msgstr "公開時刻"
+
+#: oauth/models.py:8 oauth/models.py:29 projects/models.py:99
+msgid "Modified date"
+msgstr "変更時刻"
+
+#: oauth/models.py:10 oauth/models.py:31
+#, fuzzy
+msgid "Users"
+msgstr "ユーザー"
+
+#: oauth/models.py:13
+msgid "Login"
+msgstr ""
+
+#: oauth/models.py:15
+msgid "Email"
+msgstr ""
+
+#: oauth/models.py:18 oauth/models.py:41
+#, fuzzy
+msgid "HTML URL"
+msgstr "HTML"
+
+#: oauth/models.py:33
+#, fuzzy
+msgid "Organization"
+msgstr "翻訳"
+
+#: oauth/models.py:36
+#, fuzzy
+msgid "Full Name"
+msgstr "名前"
+
+#: oauth/models.py:38 projects/models.py:107
+msgid "The reStructuredText description of the project"
+msgstr "このプロジェクトの説明をreStructuredTextで書きます。"
+
+#: oauth/models.py:39
+msgid "Git URL"
+msgstr ""
+
+#: oauth/models.py:40
+msgid "SSH URL"
+msgstr ""
 
 #: projects/constants.py:18
 msgid "Sphinx Html"
@@ -359,7 +413,7 @@ msgstr "CPython 3.x"
 msgid "Created Date"
 msgstr "作成日付"
 
-#: projects/filters.py:36 projects/models.py:107
+#: projects/filters.py:36 projects/models.py:109
 msgid "Repository URL"
 msgstr "リポジトリURL"
 
@@ -367,11 +421,11 @@ msgstr "リポジトリURL"
 msgid "Repository Type"
 msgstr "リポジトリの種類"
 
-#: projects/forms.py:23
+#: projects/forms.py:26
 msgid "A project with that name exists already!"
 msgstr "同じ名前のプロジェクトがすでにあります!"
 
-#: projects/forms.py:31
+#: projects/forms.py:34
 msgid ""
 "URL for your code (hg or git). Ex. http://github.com/ericholscher/django-"
 "kong.git"
@@ -379,11 +433,11 @@ msgstr ""
 "あなたのコード(hgかgit)のURL。 例: http://github.com/ericholscher/django-"
 "kong.git"
 
-#: projects/forms.py:52
+#: projects/forms.py:56
 msgid "Invalid character in repo name"
 msgstr "リポジトリ名に不正な文字が含まれています"
 
-#: projects/forms.py:55
+#: projects/forms.py:59
 msgid ""
 "It looks like you entered a private repo - please use the public (http:// or "
 "git://) clone url"
@@ -391,70 +445,58 @@ msgstr ""
 "プライベートリポジトリを指定されています。パブリック(http:// か git://) な"
 "clone URLを指定してください。"
 
-#: projects/forms.py:72 projects/models.py:185
+#: projects/forms.py:76 projects/models.py:187
 msgid "(Beta) The Python interpreter used to create the virtual environment."
 msgstr "(Beta) virtual環境を作成する時に使うPythonの種類。"
 
-#: projects/forms.py:101
+#: projects/forms.py:105
 msgid ""
 "Your configuration file is invalid, make sure it contains conf.py in it."
 msgstr "不正な設定ファイルです。conf.pyが含まれているかどうか確認して下さい。"
 
-#: projects/forms.py:170 templates/core/project_details.html:152
+#: projects/forms.py:177 templates/core/project_details.html:172
 msgid "Default Version"
 msgstr "デフォルトのバージョン"
 
-#: projects/forms.py:193
+#: projects/forms.py:200
 msgid "Zip file of HTML"
 msgstr "HTMLのZipファイル"
 
-#: projects/forms.py:195
+#: projects/forms.py:202
 msgid "Overwrite existing HTML?"
 msgstr "既存のHTMLを上書きしますか？"
 
-#: projects/forms.py:208
+#: projects/forms.py:215
 msgid "That version is already active!"
 msgstr "そのバージョンはすでに有効化されています!"
 
-#: projects/forms.py:210
+#: projects/forms.py:217
 msgid "Must upload a zip file."
 msgstr "zipファイルをアップロードしてください"
 
-#: projects/forms.py:224
+#: projects/forms.py:231
 msgid "Version of the project you are uploading HTML for"
 msgstr "HTMLをアップロードするプロジェクトのバージョン"
 
-#: projects/forms.py:241 projects/forms.py:300
+#: projects/forms.py:248 projects/forms.py:325
 #, python-format
 msgid "Project %(name)s does not exist"
 msgstr "プロジェクト %(name)s はありません"
 
-#: projects/forms.py:262
+#: projects/forms.py:269
 #, python-format
 msgid "User %(name)s does not exist"
 msgstr "%(name)s というユーザーは存在しません"
 
-#: projects/models.py:80
+#: projects/models.py:83
 msgid "Parent"
 msgstr "親"
 
-#: projects/models.py:82
+#: projects/models.py:85
 msgid "Child"
 msgstr "子"
 
-#: projects/models.py:96
-msgid "Publication date"
-msgstr "公開時刻"
-
-#: projects/models.py:97
-msgid "Modified date"
-msgstr "変更時刻"
-
-#: projects/models.py:105
-msgid "The reStructuredText description of the project"
-msgstr "このプロジェクトの説明をreStructuredTextで書きます。"
-
-#: projects/models.py:108
+#: projects/models.py:110
 msgid ""
 "Checkout URL for your code (hg, git, etc.). Ex. http://github.com/"
 "ericholscher/django-kong.git"
@@ -462,25 +504,26 @@ msgstr ""
 "あなたのコード (hgやgitなど) のチェックアウトURL 例: http://github.com/"
 "ericholscher/django-kong.git"
 
-#: projects/models.py:111
+#: projects/models.py:113
 msgid "Repository type"
 msgstr "リポジトリの種類"
 
-#: projects/models.py:113
+#: projects/models.py:115
 msgid "Project URL"
 msgstr "プロジェクトURL"
 
-#: projects/models.py:114
+#: projects/models.py:116
 msgid "The project's homepage"
 msgstr "プロジェクトのホームページ"
 
-#: projects/models.py:116
+#: projects/models.py:117
 msgid "Canonical URL"
 msgstr "Canonical URL"
 
-#: projects/models.py:117
+#: projects/models.py:118
+#, fuzzy
 msgid ""
-"The official URL that the docs live at. This can be at readthedocs.org, or "
+"The official URL that the docs live at. This can be slug.readthedocs.org, or "
 "somewhere else. Ex. http://docs.fabfile.org"
 msgstr ""
 "このドキュメントが置かれる正式なURLです。これは readthedocs.org でも他のURLで"
@@ -582,7 +625,7 @@ msgstr ""
 "Google AnalyticsのトラッキングID(例: UA-22345342-1)。 これはページの読み込み"
 "を遅くする場合があります。"
 
-#: projects/models.py:163 projects/models.py:815
+#: projects/models.py:163 projects/models.py:766
 msgid "Path"
 msgstr "パス"
 
@@ -623,25 +666,25 @@ msgid "Install your project inside a virtualenv using setup.py install"
 msgstr ""
 "setup.py installでvirtualenv環境の内部にこのプロジェクトをインストールする"
 
-#: projects/models.py:181
+#: projects/models.py:183
 msgid "Python Interpreter"
 msgstr "Python"
 
-#: projects/models.py:189
+#: projects/models.py:191
 msgid "Use system packages"
 msgstr "システムパッケージを使う"
 
-#: projects/models.py:190
+#: projects/models.py:192
 msgid "Give the virtual environment access to the global site-packages dir."
 msgstr ""
 "グローバルのsite packagesディレクトリに対してvirtual environmentのアクセスを"
 "与える"
 
-#: projects/models.py:192
+#: projects/models.py:196
 msgid "Django Packages URL"
 msgstr "DjangoパッケージURL"
 
-#: projects/models.py:197
+#: projects/models.py:201
 msgid ""
 "(Beta) Level of privacy that you want on the repository. Protected means "
 "public but not in listings."
@@ -649,45 +692,55 @@ msgstr ""
 "(Beta) リポジトリに対するプライバシーのレベルです. 非公開とは公開されているけ"
 "れども、リストには出ていない状態です。"
 
-#: projects/models.py:200
+#: projects/models.py:204
 msgid "Version Privacy Level"
 msgstr "バージョンのプライバシーレベル"
 
-#: projects/models.py:202
+#: projects/models.py:206
 msgid ""
 "(Beta) Default level of privacy you want on built versions of documentation."
 msgstr ""
 "(Beta) ドキュメントのビルドしたバージョンに設定する初期プライバシーレベル"
 
-#: projects/models.py:207
+#: projects/models.py:211
 msgid "Related projects"
 msgstr "関連するプロジェクト"
 
-#: projects/models.py:223
+#: projects/models.py:215
+msgid "Language"
+msgstr ""
+
+#: projects/models.py:216
+msgid ""
+"The language the project documentation is rendered in. Note: this affects "
+"your project's URL."
+msgstr ""
+
+#: projects/models.py:227
 msgid "Number of Major versions"
 msgstr "メジャーバージョンの数"
 
-#: projects/models.py:228
+#: projects/models.py:232
 msgid "2 means supporting 3.X.X and 2.X.X, but not 1.X.X"
 msgstr ""
 "例えば2を指定した場合、3.X.Xと2.X.Xをサポートしますが、1.X.Xはサポートしませ"
 "ん"
 
-#: projects/models.py:231
+#: projects/models.py:235
 msgid "Number of Minor versions"
 msgstr "マイナーバージョンの数"
 
-#: projects/models.py:236
+#: projects/models.py:240
 msgid "2 means supporting 2.2.X and 2.1.X, but not 2.0.X"
 msgstr ""
 "例えば2を指定した場合、2.2.Xと2.1.Xをサポートしますが、2.0.Xはサポートしませ"
 "ん"
 
-#: projects/models.py:239
+#: projects/models.py:243
 msgid "Number of Point versions"
 msgstr "ポイントバージョンの数"
 
-#: projects/models.py:244
+#: projects/models.py:248
 msgid "2 means supporting 2.2.2 and 2.2.1, but not 2.2.0"
 msgstr ""
 "例えば2を指定した場合、2.2.2と2.2.1をサポートしますが、2.2.0はサポートしませ"
@@ -695,71 +748,159 @@ msgstr ""
 
 #. Translators: Permission around whether a user can view the
 #. project
-#: projects/models.py:255
+#: projects/models.py:259 templates/projects/project_import_github.html:65
 msgid "View Project"
 msgstr "プロジェクトを見る"
 
-#: projects/models.py:282
+#: projects/models.py:286
 msgid "Model must have slug"
 msgstr "モデルはスラグを持つ必要があります。"
 
-#: projects/models.py:816
+#: projects/models.py:767
 msgid "MD5 checksum"
 msgstr "MD5チェックサム"
 
-#: projects/models.py:844
+#: projects/models.py:795
 msgid "URL to send the webhook to"
 msgstr "webhookを送るURL"
 
-#: settings/base.py:55
+#: redirects/models.py:7
+msgid "301 - Permanent Redirect"
+msgstr ""
+
+#: redirects/models.py:8
+msgid "302 - Temporary Redirect"
+msgstr ""
+
+#: redirects/models.py:13
+#, fuzzy
+msgid "Inactive"
+msgstr "有効"
+
+#: redirects/models.py:17
+msgid "Prefix Redirect"
+msgstr ""
+
+#: redirects/models.py:18
+msgid "Page Redirect"
+msgstr ""
+
+#: redirects/models.py:19
+#, fuzzy
+msgid "Sphinx HTMLDir -> HTML"
+msgstr "Sphinx 単一ページ HTML"
+
+#: redirects/models.py:20
+#, fuzzy
+msgid "Sphinx HTML -> HTMLDir"
+msgstr "Sphinx HtmlDir"
+
+#: redirects/models.py:24
+msgid ""
+"Absolute path, excluding the domain.Example: <b>/docs/</b>  or <b>/install."
+"html</b>."
+msgstr ""
+
+#: redirects/models.py:27
+msgid "Absolute or relative url. Examples: <b>/tutorial/install.html.</b>"
+msgstr ""
+
+#: redirects/models.py:30
+msgid "The type of redirect you wish to use."
+msgstr ""
+
+#: redirects/models.py:36
+#, fuzzy
+msgid "Redirect Type"
+msgstr "リポジトリの種類"
+
+#: redirects/models.py:38
+#, fuzzy
+msgid "From URL"
+msgstr "プロジェクトURL"
+
+#: redirects/models.py:41
+#, fuzzy
+msgid "To URL"
+msgstr "短いURL"
+
+#: redirects/models.py:44
+msgid "HTTP Status"
+msgstr ""
+
+#: redirects/models.py:53
+msgid "redirect"
+msgstr ""
+
+#: redirects/models.py:54
+#, fuzzy
+msgid "redirects"
+msgstr "注目のプロジェクト"
+
+#: redirects/models.py:59
+#, python-format
+msgid "Redirect: %s ->"
+msgstr ""
+
+#: redirects/models.py:61
+#, python-format
+msgid "Redirect: %s -> %s"
+msgstr ""
+
+#: redirects/models.py:63
+#, python-format
+msgid "Redirect: %s"
+msgstr ""
+
+#: settings/base.py:59
 msgid "English"
 msgstr "英語"
 
-#: settings/base.py:56
+#: settings/base.py:60
 msgid "Spanish"
 msgstr "スペイン語"
 
-#: settings/base.py:57
+#: settings/base.py:61
 msgid "Norwegian Bokmål"
 msgstr "ノルウェー語"
 
-#: settings/base.py:58
+#: settings/base.py:62
 msgid "French"
 msgstr "フランス語"
 
-#: settings/base.py:59
+#: settings/base.py:63
 msgid "Russian"
 msgstr "ロシア語"
 
-#: settings/base.py:60
+#: settings/base.py:64
 msgid "German"
 msgstr "ドイツ語"
 
-#: settings/base.py:61
+#: settings/base.py:65
 msgid "Galician"
 msgstr "ガリシア語"
 
-#: settings/base.py:62
+#: settings/base.py:66
 msgid "Vietnamese"
 msgstr "ベトナム語"
 
-#: settings/base.py:63
+#: settings/base.py:67
 msgid "Chinese"
 msgstr "中国語"
 
-#: settings/base.py:64
+#: settings/base.py:68
 msgid "Taiwanese"
 msgstr "台湾語"
 
-#: settings/base.py:65
+#: settings/base.py:69
 msgid "Japanese"
 msgstr "日本語"
 
-#: settings/base.py:66
+#: settings/base.py:70
 msgid "Ukrainian"
 msgstr "ウクライナ語"
 
-#: templates/404.html:6
+#: templates/401.html:6 templates/404.html:6
 msgid "Maze Found"
 msgstr "迷宮に迷い込んでしまいました"
 
@@ -811,19 +952,37 @@ msgstr ""
 msgid "Filter"
 msgstr "絞り込む"
 
+#: templates/donate.html:3 templates/core/header.html:50
+msgid "Donate"
+msgstr ""
+
+#: templates/donate.html:9
+msgid ""
+"Read the Docs is funded through donations from our users. You can donate "
+"money a couple of ways:"
+msgstr ""
+
+#: templates/donate.html:14
+msgid "Credit Card"
+msgstr ""
+
+#: templates/donate.html:20
+msgid ""
+"\n"
+"You can read more about the ongoing efforts to improve the documentation "
+"ecosystem here:\n"
+msgstr ""
+
 #: templates/error_header.html:22 templates/core/header.html:19
 msgid "Go"
 msgstr "検索"
 
 #: templates/error_header.html:32 templates/core/header.html:46
-#: templates/registration/logout.html:6
 msgid "Log Out"
 msgstr "ログアウト"
 
 #: templates/error_header.html:36 templates/core/header.html:48
-#: templates/core/home-header.html:19 templates/registration/login.html:6
-#: templates/registration/login.html:20 templates/registration/login.html:27
-#: templates/registration/password_reset_complete.html:16
+#: templates/core/home-header.html:19
 msgid "Log in"
 msgstr "ログイン"
 
@@ -832,10 +991,6 @@ msgid "Filtered Results"
 msgstr "検索結果"
 
 #: templates/homepage.html:7
-#: templates/registration/password_reset_complete.html:6
-#: templates/registration/password_reset_confirm.html:6
-#: templates/registration/password_reset_done.html:6
-#: templates/registration/password_reset_form.html:7
 msgid "Home"
 msgstr "トップページ"
 
@@ -909,6 +1064,34 @@ msgstr ""
 "これはコミット後フック(post-commit hook)です。ドキュメントを自動的に更新する"
 "ために、あなたのプロジェクトでここにPOSTするように設定してください。"
 
+#: templates/account/login.html:7 templates/account/login.html.py:11
+#: templates/account/login.html:22
+#, fuzzy
+msgid "Sign In"
+msgstr "登録"
+
+#: templates/account/login.html:13
+#, python-format
+msgid ""
+"If you have not created an account yet, then please\n"
+"<a href=\"%(signup_url)s\">sign up</a> first."
+msgstr ""
+
+#: templates/account/login.html:23
+msgid ""
+"If you forgot your password, <a href=\"/accounts/password/reset/\">reset it."
+"</a>"
+msgstr ""
+"もしパスワードを忘れた場合、<a href=\"/accounts/password/reset/\">リセット</"
+"a>してください。"
+
+#: templates/account/password_change.html:6
+#: templates/account/password_change.html:15
+#: templates/account/password_change.html:20
+#: templates/dashboard/dashboard_bar.html:36
+msgid "Change Password"
+msgstr "パスワードの変更"
+
 #: templates/archive/index.html:5
 msgid "Read the Docs Archive"
 msgstr "Read the Docs アーカイブ"
@@ -965,19 +1148,21 @@ msgstr "バージョン:"
 msgid "Type:"
 msgstr "種類:"
 
-#: templates/builds/build_detail.html:38
-msgid "Sphinx Standard Output"
+#: templates/builds/build_detail.html:42
+#, fuzzy
+msgid "Build Standard Output"
 msgstr "Sphinxの標準出力"
 
-#: templates/builds/build_detail.html:42
-msgid "Sphinx Standard Error"
+#: templates/builds/build_detail.html:46
+#, fuzzy
+msgid "Build Standard Error"
 msgstr "Sphinxの標準エラー出力"
 
-#: templates/builds/build_detail.html:47
+#: templates/builds/build_detail.html:51
 msgid "Setup Output"
 msgstr "設定出力"
 
-#: templates/builds/build_detail.html:52
+#: templates/builds/build_detail.html:56
 msgid "Environment Standard Error"
 msgstr "環境の標準エラー"
 
@@ -1000,7 +1185,7 @@ msgid "version %(slug)s (%(type)s)"
 msgstr "バージョン %(slug)s (%(type)s)"
 
 #: templates/core/build_list_detailed.html:8
-#: templates/core/project_list_detailed.html:25
+#: templates/core/project_list_detailed.html:27
 #, python-format
 msgid "%(date)s ago"
 msgstr "%(date)s 前"
@@ -1031,51 +1216,37 @@ msgstr "登録"
 msgid "or"
 msgstr "または"
 
-#: templates/core/project_bar.html:24
+#: templates/core/project_bar.html:17
 #, python-format
 msgid "Build failed (<a href=\"%(url)s\">why</a>)"
 msgstr "ビルド失敗 (<a href=\"%(url)s\">理由</a>)"
 
-#: templates/core/project_bar.html:31
+#: templates/core/project_bar.html:20
 msgid "There are no builds for this project"
 msgstr "このプロジェクトのビルドはありません"
 
-#: templates/core/project_bar.html:31
+#: templates/core/project_bar.html:20
 msgid "Is the repo correct?"
 msgstr "リポジトリは正しいですか？"
 
-#: templates/core/project_bar.html:35
+#: templates/core/project_bar.html:24
 msgid "Overview"
 msgstr "概要"
 
-#: templates/core/project_bar.html:37
-#: templates/core/project_list_detailed.html:30
+#: templates/core/project_bar.html:26
+#: templates/core/project_list_detailed.html:35
 #: templates/core/project_list_featured.html:13
-#: templates/projects/project_dashboard.html:70
+#: templates/projects/project_dashboard.html:72
 msgid "View Docs"
 msgstr "開く"
 
-#: templates/core/project_bar.html:40
+#: templates/core/project_bar.html:29
 #: templates/projects/project_downloads.html:22
 msgid "Downloads"
 msgstr "ダウンロード"
 
-#: templates/core/project_bar.html:43
-msgid "Builds"
-msgstr "ビルド"
-
-#: templates/core/project_bar.html:47
-#: templates/projects/project_dashboard.html:68
-msgid "Admin"
-msgstr "管理"
-
-#: templates/core/project_details.html:16
-#, python-format
-msgid "Search %(project)s"
-msgstr "%(project)s の検索"
-
-#: templates/core/project_details.html:18
-#: templates/core/project_list_detailed.html:34
+#: templates/core/project_bar.html:31 templates/core/project_details.html:13
+#: templates/core/project_list_detailed.html:39
 #: templates/core/project_list_featured.html:17
 #: templates/sphinx/sphinx_rtd_theme/layout.html:55
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:137
@@ -1083,70 +1254,92 @@ msgstr "%(project)s の検索"
 msgid "Search"
 msgstr "検索"
 
-#: templates/core/project_details.html:27
-#: templates/projects/project_edit_base.html:18
+#: templates/core/project_bar.html:34
+msgid "Builds"
+msgstr "ビルド"
+
+#: templates/core/project_bar.html:38
+#: templates/projects/project_dashboard.html:70
+msgid "Admin"
+msgstr "管理"
+
+#: templates/core/project_details.html:11
+#, python-format
+msgid "Search %(project)s"
+msgstr "%(project)s の検索"
+
+#: templates/core/project_details.html:22
+#: templates/projects/project_edit_base.html:19
 #: templates/projects/project_versions.html:9
 #: templates/projects/upload_html.html:7
 msgid "Versions"
 msgstr "バージョン"
 
-#: templates/core/project_details.html:49
+#: templates/core/project_details.html:44
 #, python-format
 msgid " %(slug)s "
 msgstr " %(slug)s "
 
-#: templates/core/project_details.html:56
+#: templates/core/project_details.html:51
 #, python-format
 msgid " %(slug)s (Build Failed)"
 msgstr " %(slug)s (ビルド失敗)"
 
-#: templates/core/project_details.html:61
-#: templates/profiles/profile_detail.html:37
-#: templates/profiles/profile_detail.html:68
+#: templates/core/project_details.html:56
+#: templates/profiles/profile_detail.html:38
+#: templates/profiles/profile_detail.html:69
 msgid "Edit"
 msgstr "編集"
 
-#: templates/core/project_details.html:71
+#: templates/core/project_details.html:66
 msgid "Build a version"
 msgstr "ビルドしたバージョン"
 
-#: templates/core/project_details.html:79
+#: templates/core/project_details.html:74
 msgid "Build"
 msgstr "ビルド"
 
-#: templates/core/project_details.html:89
+#: templates/core/project_details.html:96
 msgid "Repository"
 msgstr "リポジトリ"
 
-#: templates/core/project_details.html:94
+#: templates/core/project_details.html:100
+msgid "Badge"
+msgstr ""
+
+#: templates/core/project_details.html:106
+msgid "Owners"
+msgstr ""
+
+#: templates/core/project_details.html:114
 msgid "Tags"
 msgstr "タグ"
 
-#: templates/core/project_details.html:99
+#: templates/core/project_details.html:119
 msgid "No tags"
 msgstr "タグはありません"
 
-#: templates/core/project_details.html:104
+#: templates/core/project_details.html:124
 msgid "Last Built"
 msgstr "最後のビルド"
 
-#: templates/core/project_details.html:108
+#: templates/core/project_details.html:128
 msgid "Home Page"
 msgstr "ホームページ"
 
-#: templates/core/project_details.html:114
+#: templates/core/project_details.html:134
 msgid "Project Privacy Level"
 msgstr "プロジェクトのプライバシーレベル"
 
-#: templates/core/project_details.html:121
+#: templates/core/project_details.html:141
 msgid "Short URLs"
 msgstr "短いURL"
 
-#: templates/core/project_details.html:130
+#: templates/core/project_details.html:150
 msgid "Open Comparison"
 msgstr "比較対象を開く"
 
-#: templates/core/project_details.html:131
+#: templates/core/project_details.html:151
 #, python-format
 msgid ""
 "This project has more information available about it on <a href=\"%(url)s"
@@ -1155,29 +1348,29 @@ msgstr ""
 "このプロジェクトに関してもっと見たい場合は<a href=\"%(url)s\">比較対象を開い"
 "</a>ください。"
 
-#: templates/core/project_details.html:135
-#: templates/projects/project_edit_base.html:19
+#: templates/core/project_details.html:155
+#: templates/projects/project_edit_base.html:22
 #: templates/projects/project_translations.html:12
 msgid "Translations"
 msgstr "翻訳"
 
-#: templates/core/project_details.html:144
+#: templates/core/project_details.html:164
 msgid "Sub Projects"
 msgstr "サブプロジェクト"
 
-#: templates/core/project_details.html:155
+#: templates/core/project_details.html:175
 msgid "'latest' Version"
 msgstr "'最新' バージョン"
 
-#: templates/core/project_details.html:159
+#: templates/core/project_details.html:179
 msgid "Post Commit Hook"
 msgstr "コミット後フック(post-commit hook)"
 
-#: templates/core/project_details.html:172
+#: templates/core/project_details.html:192
 msgid "Most viewed pages for this project"
 msgstr "このプロジェクトで最も見られているページ"
 
-#: templates/core/project_downloads.html:6
+#: templates/core/project_downloads.html:7
 #, python-format
 msgid ""
 "\n"
@@ -1188,7 +1381,7 @@ msgstr ""
 "        %(version)s PDF\n"
 "      "
 
-#: templates/core/project_downloads.html:16
+#: templates/core/project_downloads.html:17
 #, python-format
 msgid ""
 "\n"
@@ -1199,7 +1392,7 @@ msgstr ""
 "        %(version)s HTMLZip\n"
 "      "
 
-#: templates/core/project_downloads.html:26
+#: templates/core/project_downloads.html:27
 #, python-format
 msgid ""
 "\n"
@@ -1210,38 +1403,21 @@ msgstr ""
 "        %(version)s Epub\n"
 "      "
 
-#: templates/core/project_downloads.html:49
-#, python-format
-msgid ""
-"\n"
-"        %(version)s Dash docset\n"
-"      "
-msgstr ""
-"\n"
-"        %(version)s Dash docset\n"
-"      "
-
-#: templates/core/project_downloads.html:59
-#, python-format
-msgid ""
-"\n"
-"        %(version)s Dash feed\n"
-"      "
-msgstr ""
-"\n"
-"        %(version)s Dash feed\n"
-"      "
-
-#: templates/core/project_downloads.html:67
+#: templates/core/project_downloads.html:36
 msgid "No downloads for this project."
 msgstr "このプロジェクトにはダウンロードできるファイルはありません"
 
-#: templates/core/project_list_detailed.html:42
+#: templates/core/project_list_detailed.html:29
+#, fuzzy
+msgid "No builds"
+msgstr "未ビルド"
+
+#: templates/core/project_list_detailed.html:47
 #: templates/core/project_list_featured.html:25
 msgid "No Docs"
 msgstr "ドキュメントがありません"
 
-#: templates/core/project_list_detailed.html:49
+#: templates/core/project_list_detailed.html:54
 #: templates/core/project_list_featured.html:32
 msgid "No projects found"
 msgstr "プロジェクトが見つかりません"
@@ -1269,17 +1445,21 @@ msgstr "プロジェクト"
 msgid "Import"
 msgstr "インポート"
 
-#: templates/dashboard/dashboard_bar.html:22
+#: templates/dashboard/dashboard_bar.html:17
+msgid "GitHub"
+msgstr ""
+
+#: templates/dashboard/dashboard_bar.html:23
 msgid "Profile"
 msgstr "プロファイル"
 
-#: templates/dashboard/dashboard_bar.html:26
+#: templates/dashboard/dashboard_bar.html:27
 msgid "Create Profile"
 msgstr "プロファイルの作成"
 
-#: templates/dashboard/dashboard_bar.html:30
-msgid "Change Password"
-msgstr "パスワードの変更"
+#: templates/dashboard/dashboard_bar.html:32
+msgid "Social Accounts"
+msgstr ""
 
 #: templates/djangome/choices.html:4
 #, python-format
@@ -1410,15 +1590,15 @@ msgstr "OK、保存して!"
 msgid "%(user)s's profile"
 msgstr "%(user)sのプロファイル"
 
-#: templates/profiles/profile_detail.html:44
+#: templates/profiles/profile_detail.html:45
 msgid "Add Your Name"
 msgstr "名前を追加"
 
-#: templates/profiles/profile_detail.html:76
+#: templates/profiles/profile_detail.html:77
 msgid "Add a Homepage"
 msgstr "ホームページを追加"
 
-#: templates/profiles/profile_detail.html:85
+#: templates/profiles/profile_detail.html:86
 msgid "Press enter to save your changes, or escape to discard them"
 msgstr ""
 "変更を保存するにはEnterキーを、保存しないならばescキーを押してください。"
@@ -1438,8 +1618,8 @@ msgstr "プロジェクトのバージョンに対する別名を追加"
 
 #: templates/projects/alias_edit.html:16
 #: templates/projects/project_create.html:42
-#: templates/projects/project_import.html:32
-#: templates/projects/project_import.html:38
+#: templates/projects/project_import.html:34
+#: templates/projects/project_import.html:40
 msgid "Create"
 msgstr "作成"
 
@@ -1510,13 +1690,15 @@ msgid "Edit Advanced Project Settings"
 msgstr "高度なプロジェクト設定を編集"
 
 #: templates/projects/project_advanced.html:28
-#: templates/projects/project_edit_base.html:16
+#: templates/projects/project_edit_base.html:18
 msgid "Advanced Settings"
 msgstr "高度な設定"
 
 #: templates/projects/project_advanced.html:34
 #: templates/projects/project_edit.html:37
-#: templates/projects/project_notifications.html:54
+#: templates/projects/project_notifications.html:69
+#: templates/projects/project_notifications.html:80
+#: templates/projects/project_redirects.html:95
 #: templates/projects/project_subprojects.html:37
 #: templates/projects/project_translations.html:36
 #: templates/projects/project_users.html:51
@@ -1548,21 +1730,38 @@ msgstr "既存のプロジェクトをインポート"
 msgid "Project Dashboard"
 msgstr "プロジェクトダッシュボード"
 
-#: templates/projects/project_dashboard.html:29
+#: templates/projects/project_dashboard.html:23
+#, python-format
+msgid ""
+"\n"
+"              Check out the <a href=\"%(url)s\">documentation for Read the "
+"Docs</a>. It contains lots of information about how to get the most out of "
+"RTD.\n"
+"              "
+msgstr ""
+
+#: templates/projects/project_dashboard.html:31
 msgid "Important Versions"
 msgstr "重要なバージョン"
 
-#: templates/projects/project_dashboard.html:57
+#: templates/projects/project_dashboard.html:59
 msgid "My Projects"
 msgstr "自分のプロジェクト"
 
-#: templates/projects/project_dashboard.html:83
-#, python-format
+#: templates/projects/project_dashboard.html:87
+#, fuzzy, python-format
 msgid ""
-"You don't have any projects.  You should <a href=\"%(projects_import_url)s"
-"\">create new docs</a> on the site.<br>\n"
+"\n"
+"          You don't have any projects. You can <a href="
+"\"%(projects_import_url)s\">create new docs</a> on the site.\n"
+"          <br>\n"
+"          If you have a GitHub account, you can <a href=\"%(social_accounts)s"
+"\">connect it</a> and import projects from there.\n"
+"          <br>\n"
 "          Check out the <a href=\"%(getting_started_url)s\">Getting Started</"
-"a> documentation for information about how to get going."
+"a> documentation for information about how to get going.\n"
+"          </p> \n"
+"          "
 msgstr ""
 "プロジェクトがありません。 まずはこのサイトで<a href="
 "\"%(projects_import_url)s\">ドキュメントの作成</a>する必要があります。\n"
@@ -1588,7 +1787,7 @@ msgid "Edit Project"
 msgstr "プロジェクトの編集"
 
 #: templates/projects/project_edit.html:28
-#: templates/projects/project_edit_base.html:15
+#: templates/projects/project_edit_base.html:17
 msgid "Settings"
 msgstr "設定"
 
@@ -1596,17 +1795,23 @@ msgstr "設定"
 msgid "delete"
 msgstr "削除"
 
-#: templates/projects/project_edit_base.html:17
+#: templates/projects/project_edit_base.html:20
 #: templates/projects/project_users.html:8
 msgid "Maintainers"
 msgstr "メンテナー"
 
-#: templates/projects/project_edit_base.html:20
+#: templates/projects/project_edit_base.html:21
+#: templates/projects/project_redirects.html:8
+#, fuzzy
+msgid "Redirects"
+msgstr "関連するプロジェクト"
+
+#: templates/projects/project_edit_base.html:23
 #: templates/projects/project_subprojects.html:12
 msgid "Subprojects"
 msgstr "サブプロジェクト"
 
-#: templates/projects/project_edit_base.html:21
+#: templates/projects/project_edit_base.html:24
 #: templates/projects/project_notifications.html:12
 msgid "Notifications"
 msgstr "通知"
@@ -1615,6 +1820,37 @@ msgstr "通知"
 #: templates/projects/project_import.html:28
 msgid "Import an existing project"
 msgstr "既存のプロジェクトをインポート"
+
+#: templates/projects/project_import.html:37
+msgid ""
+"You can change how your project is built in your <em>Advanced Settings</em> "
+"once your project has been created."
+msgstr ""
+
+#: templates/projects/project_import_github.html:4
+#: templates/projects/project_import_github.html:28
+#, fuzzy
+msgid "Import a GitHub project"
+msgstr "既存のプロジェクトをインポート"
+
+#: templates/projects/project_import_github.html:35
+#, python-format
+msgid ""
+"Showing your GitHub projects. <a href=\"%(sync_github_url)s\">Sync your "
+"GitHub projects</a> to update them."
+msgstr ""
+
+#: templates/projects/project_import_github.html:39
+msgid "GitHub projects are now up to date."
+msgstr ""
+
+#: templates/projects/project_import_github.html:93
+#, python-format
+msgid ""
+"You don't have any GitHub repositories connected. \n"
+"  Go to your <a href=\"%(social_url)s\">Social Accounts</a> to set one up.\n"
+"  "
+msgstr ""
 
 #: templates/projects/project_list.html:9
 #: templates/projects/project_list.html:27
@@ -1642,27 +1878,79 @@ msgstr "通知を編集"
 msgid "Configure Notifications to be sent on build failures."
 msgstr "ビルド失敗時の通知を設定"
 
-#: templates/projects/project_notifications.html:19
+#: templates/projects/project_notifications.html:20
 msgid "Existing Notifications"
 msgstr "今ある通知"
 
-#: templates/projects/project_notifications.html:30
+#: templates/projects/project_notifications.html:44
 msgid "Remove Notifications"
 msgstr "通知を削除"
 
-#: templates/projects/project_notifications.html:39
+#: templates/projects/project_notifications.html:56
 #: templates/projects/project_subprojects.html:27
 #: templates/projects/project_translations.html:26
+#: templates/socialaccount/connections.html:42
 msgid "Remove"
 msgstr "削除"
 
-#: templates/projects/project_notifications.html:45
-msgid "New Notifications"
+#: templates/projects/project_notifications.html:62
+#, fuzzy
+msgid "New Email Notifications"
 msgstr "新しい通知"
 
-#: templates/projects/project_notifications.html:47
+#: templates/projects/project_notifications.html:64
 msgid "Add an email address to notify"
 msgstr "通知先のメールアドレスを追加"
+
+#: templates/projects/project_notifications.html:73
+#, fuzzy
+msgid "New Webhook Notifications"
+msgstr "新しい通知"
+
+#: templates/projects/project_notifications.html:75
+#, fuzzy
+msgid "Add a URL to notify"
+msgstr "通知先のメールアドレスを追加"
+
+#: templates/projects/project_redirects.html:5
+#, fuzzy
+msgid "Edit Redirects"
+msgstr "プロジェクトの編集"
+
+#: templates/projects/project_redirects.html:39
+msgid ""
+"Add redirects for your project. This allows you to fix links to old pages "
+"that are 404ing."
+msgstr ""
+
+#: templates/projects/project_redirects.html:43
+#, fuzzy
+msgid "Existing Redirects"
+msgstr "今あるサブプロジェクト"
+
+#: templates/projects/project_redirects.html:56
+msgid "Remove Redirect"
+msgstr ""
+
+#: templates/projects/project_redirects.html:70
+msgid "Add Redirect"
+msgstr ""
+
+#: templates/projects/project_redirects.html:72
+msgid ""
+"Add new redirects. These will only happen on <b>404 Page Not Found</b> "
+"requests."
+msgstr ""
+
+#: templates/projects/project_redirects.html:75
+msgid ""
+"This is mainly used to support migration from old doc systems. If you used "
+"to serve your docs at <b>/docs/</b>, you will do:"
+msgstr ""
+
+#: templates/projects/project_redirects.html:83
+msgid "You can also redirect a specific page, like so:"
+msgstr ""
 
 #: templates/projects/project_subprojects.html:5
 msgid "Edit Subprojects"
@@ -1816,343 +2104,16 @@ msgstr "ここはあなたのプロジェクトの起動・動作方法を記述
 msgid "Here is where you can describe how to install %(name)s"
 msgstr "%(name)s のインストール方法を説明する場所です。"
 
-#: templates/registration/activate.html:6
-#: templates/registration/activate.html:11
-msgid "Account activation error"
-msgstr "アカウント有効化でエラー"
-
-#: templates/registration/activate.html:17
-#, python-format
-msgid ""
-"The activation key \"%(activation_key)s\" is invalid and cannot be used to "
-"activate this account."
-msgstr ""
-"アクティベーションのキー \"%(activation_key)s\" は無効で、このアカウントで有"
-"効化できませんでした。"
-
-#: templates/registration/activate.html:18
-#, python-format
-msgid ""
-"Did you really think activation key \"%(activation_key)s\" was going to "
-"work?!"
-msgstr ""
-"アクティベーションキー  \"%(activation_key)s\" は本当に有効なのでしょうか？"
-
-#: templates/registration/activate.html:21
-msgid ""
-"We're not sure how you got that key, but would you mind registering again"
-msgstr ""
-"そのキーをどこから手に入れたか分かりませんが、もう一度登録して頂けませんか。"
-
-#: templates/registration/activate.html:21
-#: templates/registration/activation_complete.html:17
-msgid "here"
-msgstr "ここです"
-
-#: templates/registration/activation_complete.html:6
-msgid "Account activation complete"
-msgstr "アカウントの有効化が完了"
-
-#: templates/registration/activation_complete.html:11
-msgid "Account activation complete, woo!"
-msgstr "アカウントを有効にしました。やった！"
-
-#: templates/registration/activation_complete.html:16
-msgid "Your account has been activated."
-msgstr "あなたのアカウントは有効になりました。"
-
-#: templates/registration/activation_complete.html:17
-msgid "Log in with the username and password you just created,"
-msgstr "今作成したユーザー名とパスワードでログインしてください。"
-
-#: templates/registration/activation_email.txt:1
-#, python-format
-msgid ""
-"Thank you for registering an account at %(domain)s.\n"
-"To activate your registration, please visit the following page:\n"
-"\n"
-"http://%(domain)s%(activation_url)s\n"
-"\n"
-"This page will expire in %(expiration_days)s days.\n"
-"\n"
-"If you didn't register this account you can simply delete this email and we "
-"won't bother you again."
-msgstr ""
-"%(domain)s でのアカウントを登録ありがとうございます。\n"
-"このアカウントを有効にするためには以下のページを開いてください。\n"
-"\n"
-"http://%(domain)s%(activation_url)s\n"
-"\n"
-"このページは %(expiration_days)s 日後に使えなくなります。\n"
-"\n"
-"もし登録した覚えがないのであれば、お手数ですがこのメールを削除してください。"
-
-#: templates/registration/activation_email_subject.txt:1
-#, python-format
-msgid "%(site_name)s - activate your account"
-msgstr "%(site_name)s - あなたのアカウントを有効化します"
-
-#: templates/registration/base_registration.html:5
-msgid "Registration"
-msgstr "アカウント登録"
-
-#: templates/registration/base_registration.html:6
-msgid "registration"
-msgstr "アカウント登録"
-
-#: templates/registration/login.html:30
-msgid ""
-"If you forgot your password, <a href=\"/accounts/password/reset/\">reset it."
-"</a>"
-msgstr ""
-"もしパスワードを忘れた場合、<a href=\"/accounts/password/reset/\">リセット</"
-"a>してください。"
-
-#: templates/registration/login.html:33
-msgid ""
-"Don't have an account?  <a href=\"/accounts/register/\">Register</a> a new "
-"one."
-msgstr ""
-"アカウントを持っていませんか？  アカウントを<a href=\"/accounts/register/\">"
-"登録</a>してください。"
-
-#: templates/registration/logout.html:11
-msgid "You've logged out."
-msgstr "ログアウトしました"
-
-#: templates/registration/logout.html:17
-msgid "Thanks for visiting!"
-msgstr "来てくれてありがとう！"
-
-#: templates/registration/logout.html:21
-#, python-format
-msgid ""
-"If you are looking to log in again, you can do that <a href=\"%(login_url)s"
-"\">here</a>"
-msgstr ""
-"もしもう一度ログインする方法を探しているのなら、 <a href=\"%(login_url)s\">こ"
-"ちら</a>からできます。"
-
-#: templates/registration/password_change_done.html:4
-#: templates/registration/password_change_done.html:10
-msgid "Password change successful"
-msgstr "パスワード変更成功"
-
-#: templates/registration/password_change_done.html:12
-msgid "Your password was changed."
-msgstr "パスワードを変更しました"
-
-#: templates/registration/password_change_form.html:4
-#: templates/registration/password_change_form.html:24
-msgid "Password change"
-msgstr "パスワード変更"
-
-#: templates/registration/password_change_form.html:20
-msgid "Please correct the error below."
-msgid_plural "Please correct the errors below."
-msgstr[0] "以下のエラーを修正してください"
-
-#: templates/registration/password_change_form.html:26
-msgid ""
-"Please enter your old password, for security's sake, and then enter your new "
-"password twice so we can verify you typed it in correctly."
-msgstr ""
-"セキュリティのため、古いパスワードを入力し、新しいパスワードを二回入力してく"
-"ださい。"
-
-#: templates/registration/password_change_form.html:30
-msgid "Old password"
-msgstr "古いパスワード"
-
-#: templates/registration/password_change_form.html:35
-msgid "New password"
-msgstr "新しいパスワード"
-
-#: templates/registration/password_change_form.html:40
-msgid "Password (again)"
-msgstr "新しいパスワード(確認)"
-
-#: templates/registration/password_change_form.html:44
-#: templates/registration/password_reset_confirm.html:23
-msgid "Change my password"
-msgstr "パスワードを変更"
-
-#: templates/registration/password_reset_complete.html:6
-#: templates/registration/password_reset_confirm.html:8
-#: templates/registration/password_reset_done.html:6
-#: templates/registration/password_reset_form.html:7
-#: templates/registration/password_reset_form.html:9
-#: templates/registration/password_reset_form.html:13
-msgid "Password reset"
-msgstr "パスワードリセット"
-
-#: templates/registration/password_reset_complete.html:8
-#: templates/registration/password_reset_complete.html:12
-msgid "Password reset complete"
-msgstr "パスワードをリセットしました。"
-
-#: templates/registration/password_reset_complete.html:14
-msgid "Your password has been set.  You may go ahead and log in now."
-msgstr "パスワードが設定されました。次へ進み、ログインしてください。"
-
-#: templates/registration/password_reset_confirm.html:6
-msgid "Password reset confirmation"
-msgstr "パスワードのリセット確認"
-
-#: templates/registration/password_reset_confirm.html:14
-msgid "Enter new password"
-msgstr "新しいパスワードを入力してください"
-
-#: templates/registration/password_reset_confirm.html:16
-msgid ""
-"Please enter your new password twice so we can verify you typed it in "
-"correctly."
-msgstr ""
-"新しいパスワードを二回入力してください。これにより正しく入力できているか確認"
-"できます。"
-
-#: templates/registration/password_reset_confirm.html:20
-msgid "New password:"
-msgstr "新しいパスワード:"
-
-#: templates/registration/password_reset_confirm.html:22
-msgid "Confirm password:"
-msgstr "パスワードの確認:"
-
-#: templates/registration/password_reset_confirm.html:28
-msgid "Password reset unsuccessful"
-msgstr "パスワードのリセットは成功していません"
-
-#: templates/registration/password_reset_confirm.html:30
-msgid ""
-"The password reset link was invalid, possibly because it has already been "
-"used.  Please request a new password reset."
-msgstr ""
-"パスワードリセットのURLが不正です。もしかしたらすでに使われている可能性があり"
-"ます。もう一度パスワードリセットをしてください。"
-
-#: templates/registration/password_reset_done.html:8
-#: templates/registration/password_reset_done.html:12
-msgid "Password reset successful"
-msgstr "パスワードをリセットしました。"
-
-#: templates/registration/password_reset_done.html:14
-msgid ""
-"We've e-mailed you instructions for setting your password to the e-mail "
-"address you submitted. You should be receiving it shortly."
-msgstr ""
-"あなたが登録したメールアドレスにパスワードの設定方法に関する説明を送信しまし"
-"た。"
-
-#: templates/registration/password_reset_email.html:2
-msgid "You're receiving this e-mail because you requested a password reset"
-msgstr "パスワードリセットの要求があったため、このメールを送信しました。"
-
-#: templates/registration/password_reset_email.html:3
-#, python-format
-msgid "for your user account at %(site_name)s"
-msgstr " %(site_name)s のユーザーアカウントに対するメールです。"
-
-#: templates/registration/password_reset_email.html:5
-msgid "Please go to the following page and choose a new password:"
-msgstr "以下のページを開、新しいパスワードを入力してください:"
-
-#: templates/registration/password_reset_email.html:9
-msgid "Your username, in case you've forgotten:"
-msgstr "もし忘れていれば、あなたのユーザー名です:"
-
-#: templates/registration/password_reset_email.html:11
-msgid "Thanks for using our site!"
-msgstr "私達のサイトを使ってくれてありがとう！"
-
-#: templates/registration/password_reset_email.html:13
-#, python-format
-msgid "The %(site_name)s team"
-msgstr "%(site_name)s チーム"
-
-#: templates/registration/password_reset_form.html:15
-msgid ""
-"Forgotten your password? Enter your e-mail address below, and we'll e-mail "
-"instructions for setting a new one."
-msgstr ""
-"パスワードを忘れましたか？以下にメールアドレスを入力してください。新しいパス"
-"ワードの設定方法をメールします。"
-
-#: templates/registration/password_reset_form.html:19
-msgid "E-mail address:"
-msgstr "メールアドレス:"
-
-#: templates/registration/password_reset_form.html:19
-msgid "Reset my password"
-msgstr "パスワードリセット"
-
-#: templates/registration/registration_closed.html:6
-msgid "Registration closed"
-msgstr "登録は終了しました"
-
-#: templates/registration/registration_closed.html:11
-msgid "Eh... Registration closed."
-msgstr "えっ…登録が終了してしまいました。"
-
-#: templates/registration/registration_closed.html:17
-msgid ""
-" You registered a long time ago.\n"
-"    We aren't sure if you are a robot or if \n"
-"    something got lost or what."
-msgstr ""
-"あなたはかなり以前に登録しました。\n"
-"あなたがロボットなのかあるいは\n"
-"なにかをなくしたのかそれとも別の理由があるのか分かりません。"
-
-#: templates/registration/registration_closed.html:20
-msgid "Please try"
-msgstr "試してください"
-
-#: templates/registration/registration_closed.html:20
-msgid "registering again"
-msgstr "再度登録する"
-
-#: templates/registration/registration_closed.html:23
-msgid "We hope that isn't too inconvenient."
-msgstr "不便じゃなければと思っています。"
-
-#: templates/registration/registration_complete.html:6
-#: templates/registration/registration_complete.html:11
-msgid "Registration complete"
-msgstr "登録完了"
-
-#: templates/registration/registration_complete.html:16
-msgid "Now activate your account."
-msgstr "アカウントを有効にしました。"
-
-#: templates/registration/registration_complete.html:18
-msgid ""
-"We will be sending you an email with an activation link.\n"
-"    Visit the link to verify this account."
-msgstr ""
-"有効化するためのURLをメールしました。そのリンクを開き、アカウントを確認して下"
-"さい。"
-
-#: templates/registration/registration_complete.html:22
-msgid "Check your email.  We'll wait."
-msgstr "メールを確認して下さい。私達は待っています。"
-
-#: templates/registration/registration_form.html:6
-#: templates/registration/registration_form.html:20
-msgid "Register for an account"
-msgstr "アカウントの登録"
-
-#: templates/registration/registration_form.html:27
-msgid "Send me the activation link."
-msgstr "登録URLを送る"
-
 #: templates/search/base_facet.html:5 templates/search/search.html:5
 #, python-format
 msgid "Search: %(query)s"
 msgstr "検索: %(query)s"
 
 #. Translators: This is about starting a search
-#: templates/search/base_facet.html:27 templates/search/search.html:17
+#. Translators: This is about starting a search
+#: templates/search/base_facet.html:27
+#: templates/search/elastic_project_search.html:51
+#: templates/search/search.html:17
 msgid "Go crazy."
 msgstr ""
 
@@ -2166,9 +2127,33 @@ msgid "File:"
 msgstr "ファイル:"
 
 #: templates/search/base_search.html:24
+#: templates/search/elastic_project_search.html:82
 #: templates/search/faceted_results.html:63
 msgid "No results found. Bummer."
 msgstr "なにも見つかりませんでした。まいったよ。"
+
+#: templates/search/elastic_project_search.html:5
+#, fuzzy, python-format
+msgid "Search: %(query)s "
+msgstr "検索: %(query)s"
+
+#: templates/search/elastic_project_search.html:65
+#: templates/search/search.html:31
+#, python-format
+msgid "Results for %(query)s"
+msgstr "%(query)s の結果"
+
+#: templates/search/elastic_project_search.html:98
+#: templates/search/elastic_project_search.html:100
+#: templates/search/search.html:52 templates/search/search.html.py:54
+msgid "Previous"
+msgstr "前へ"
+
+#: templates/search/elastic_project_search.html:104
+#: templates/search/elastic_project_search.html:106
+#: templates/search/search.html:58 templates/search/search.html.py:60
+msgid "Next"
+msgstr "次へ"
 
 #: templates/search/faceted_author.html:8
 msgid "By Author"
@@ -2212,18 +2197,26 @@ msgstr ""
 msgid "File"
 msgstr "ファイル"
 
-#: templates/search/search.html:31
-#, python-format
-msgid "Results for %(query)s"
-msgstr "%(query)s の結果"
+#: templates/socialaccount/connections.html:6
+#: templates/socialaccount/connections.html:15
+#, fuzzy
+msgid "Account Connections"
+msgstr "アカウント有効化でエラー"
 
-#: templates/search/search.html:52 templates/search/search.html.py:54
-msgid "Previous"
-msgstr "前へ"
+#: templates/socialaccount/connections.html:18
+msgid ""
+"You can sign in to your account using any of the following third party "
+"accounts:"
+msgstr ""
 
-#: templates/search/search.html:58 templates/search/search.html.py:60
-msgid "Next"
-msgstr "次へ"
+#: templates/socialaccount/connections.html:50
+msgid ""
+"You currently have no social network accounts connected to this account."
+msgstr ""
+
+#: templates/socialaccount/connections.html:53
+msgid "Add a 3rd Party Account"
+msgstr ""
 
 #: templates/sphinx/sphinx_rtd_theme/layout.html:47
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:131
@@ -2250,3 +2243,263 @@ msgid ""
 msgstr ""
 "検索はどのドキュメントにも一致しませんでした。文字が正確に入力されているか、"
 "十分なカテゴリーを選択しているか確認して下さい。"
+
+#~ msgid ""
+#~ "\n"
+#~ "        %(version)s Dash docset\n"
+#~ "      "
+#~ msgstr ""
+#~ "\n"
+#~ "        %(version)s Dash docset\n"
+#~ "      "
+
+#~ msgid ""
+#~ "\n"
+#~ "        %(version)s Dash feed\n"
+#~ "      "
+#~ msgstr ""
+#~ "\n"
+#~ "        %(version)s Dash feed\n"
+#~ "      "
+
+#~ msgid ""
+#~ "The activation key \"%(activation_key)s\" is invalid and cannot be used "
+#~ "to activate this account."
+#~ msgstr ""
+#~ "アクティベーションのキー \"%(activation_key)s\" は無効で、このアカウントで"
+#~ "有効化できませんでした。"
+
+#~ msgid ""
+#~ "Did you really think activation key \"%(activation_key)s\" was going to "
+#~ "work?!"
+#~ msgstr ""
+#~ "アクティベーションキー  \"%(activation_key)s\" は本当に有効なのでしょう"
+#~ "か？"
+
+#~ msgid ""
+#~ "We're not sure how you got that key, but would you mind registering again"
+#~ msgstr ""
+#~ "そのキーをどこから手に入れたか分かりませんが、もう一度登録して頂けません"
+#~ "か。"
+
+#~ msgid "here"
+#~ msgstr "ここです"
+
+#~ msgid "Account activation complete"
+#~ msgstr "アカウントの有効化が完了"
+
+#~ msgid "Account activation complete, woo!"
+#~ msgstr "アカウントを有効にしました。やった！"
+
+#~ msgid "Your account has been activated."
+#~ msgstr "あなたのアカウントは有効になりました。"
+
+#~ msgid "Log in with the username and password you just created,"
+#~ msgstr "今作成したユーザー名とパスワードでログインしてください。"
+
+#~ msgid ""
+#~ "Thank you for registering an account at %(domain)s.\n"
+#~ "To activate your registration, please visit the following page:\n"
+#~ "\n"
+#~ "http://%(domain)s%(activation_url)s\n"
+#~ "\n"
+#~ "This page will expire in %(expiration_days)s days.\n"
+#~ "\n"
+#~ "If you didn't register this account you can simply delete this email and "
+#~ "we won't bother you again."
+#~ msgstr ""
+#~ "%(domain)s でのアカウントを登録ありがとうございます。\n"
+#~ "このアカウントを有効にするためには以下のページを開いてください。\n"
+#~ "\n"
+#~ "http://%(domain)s%(activation_url)s\n"
+#~ "\n"
+#~ "このページは %(expiration_days)s 日後に使えなくなります。\n"
+#~ "\n"
+#~ "もし登録した覚えがないのであれば、お手数ですがこのメールを削除してくださ"
+#~ "い。"
+
+#~ msgid "%(site_name)s - activate your account"
+#~ msgstr "%(site_name)s - あなたのアカウントを有効化します"
+
+#~ msgid "Registration"
+#~ msgstr "アカウント登録"
+
+#~ msgid "registration"
+#~ msgstr "アカウント登録"
+
+#~ msgid ""
+#~ "Don't have an account?  <a href=\"/accounts/register/\">Register</a> a "
+#~ "new one."
+#~ msgstr ""
+#~ "アカウントを持っていませんか？  アカウントを<a href=\"/accounts/register/"
+#~ "\">登録</a>してください。"
+
+#~ msgid "You've logged out."
+#~ msgstr "ログアウトしました"
+
+#~ msgid "Thanks for visiting!"
+#~ msgstr "来てくれてありがとう！"
+
+#~ msgid ""
+#~ "If you are looking to log in again, you can do that <a href="
+#~ "\"%(login_url)s\">here</a>"
+#~ msgstr ""
+#~ "もしもう一度ログインする方法を探しているのなら、 <a href=\"%(login_url)s"
+#~ "\">こちら</a>からできます。"
+
+#~ msgid "Password change successful"
+#~ msgstr "パスワード変更成功"
+
+#~ msgid "Your password was changed."
+#~ msgstr "パスワードを変更しました"
+
+#~ msgid "Password change"
+#~ msgstr "パスワード変更"
+
+#~ msgid "Please correct the error below."
+#~ msgid_plural "Please correct the errors below."
+#~ msgstr[0] "以下のエラーを修正してください"
+
+#~ msgid ""
+#~ "Please enter your old password, for security's sake, and then enter your "
+#~ "new password twice so we can verify you typed it in correctly."
+#~ msgstr ""
+#~ "セキュリティのため、古いパスワードを入力し、新しいパスワードを二回入力して"
+#~ "ください。"
+
+#~ msgid "Old password"
+#~ msgstr "古いパスワード"
+
+#~ msgid "New password"
+#~ msgstr "新しいパスワード"
+
+#~ msgid "Password (again)"
+#~ msgstr "新しいパスワード(確認)"
+
+#~ msgid "Change my password"
+#~ msgstr "パスワードを変更"
+
+#~ msgid "Password reset"
+#~ msgstr "パスワードリセット"
+
+#~ msgid "Password reset complete"
+#~ msgstr "パスワードをリセットしました。"
+
+#~ msgid "Your password has been set.  You may go ahead and log in now."
+#~ msgstr "パスワードが設定されました。次へ進み、ログインしてください。"
+
+#~ msgid "Password reset confirmation"
+#~ msgstr "パスワードのリセット確認"
+
+#~ msgid "Enter new password"
+#~ msgstr "新しいパスワードを入力してください"
+
+#~ msgid ""
+#~ "Please enter your new password twice so we can verify you typed it in "
+#~ "correctly."
+#~ msgstr ""
+#~ "新しいパスワードを二回入力してください。これにより正しく入力できているか確"
+#~ "認できます。"
+
+#~ msgid "New password:"
+#~ msgstr "新しいパスワード:"
+
+#~ msgid "Confirm password:"
+#~ msgstr "パスワードの確認:"
+
+#~ msgid "Password reset unsuccessful"
+#~ msgstr "パスワードのリセットは成功していません"
+
+#~ msgid ""
+#~ "The password reset link was invalid, possibly because it has already been "
+#~ "used.  Please request a new password reset."
+#~ msgstr ""
+#~ "パスワードリセットのURLが不正です。もしかしたらすでに使われている可能性が"
+#~ "あります。もう一度パスワードリセットをしてください。"
+
+#~ msgid "Password reset successful"
+#~ msgstr "パスワードをリセットしました。"
+
+#~ msgid ""
+#~ "We've e-mailed you instructions for setting your password to the e-mail "
+#~ "address you submitted. You should be receiving it shortly."
+#~ msgstr ""
+#~ "あなたが登録したメールアドレスにパスワードの設定方法に関する説明を送信しま"
+#~ "した。"
+
+#~ msgid "You're receiving this e-mail because you requested a password reset"
+#~ msgstr "パスワードリセットの要求があったため、このメールを送信しました。"
+
+#~ msgid "for your user account at %(site_name)s"
+#~ msgstr " %(site_name)s のユーザーアカウントに対するメールです。"
+
+#~ msgid "Please go to the following page and choose a new password:"
+#~ msgstr "以下のページを開、新しいパスワードを入力してください:"
+
+#~ msgid "Your username, in case you've forgotten:"
+#~ msgstr "もし忘れていれば、あなたのユーザー名です:"
+
+#~ msgid "Thanks for using our site!"
+#~ msgstr "私達のサイトを使ってくれてありがとう！"
+
+#~ msgid "The %(site_name)s team"
+#~ msgstr "%(site_name)s チーム"
+
+#~ msgid ""
+#~ "Forgotten your password? Enter your e-mail address below, and we'll e-"
+#~ "mail instructions for setting a new one."
+#~ msgstr ""
+#~ "パスワードを忘れましたか？以下にメールアドレスを入力してください。新しいパ"
+#~ "スワードの設定方法をメールします。"
+
+#~ msgid "E-mail address:"
+#~ msgstr "メールアドレス:"
+
+#~ msgid "Reset my password"
+#~ msgstr "パスワードリセット"
+
+#~ msgid "Registration closed"
+#~ msgstr "登録は終了しました"
+
+#~ msgid "Eh... Registration closed."
+#~ msgstr "えっ…登録が終了してしまいました。"
+
+#~ msgid ""
+#~ " You registered a long time ago.\n"
+#~ "    We aren't sure if you are a robot or if \n"
+#~ "    something got lost or what."
+#~ msgstr ""
+#~ "あなたはかなり以前に登録しました。\n"
+#~ "あなたがロボットなのかあるいは\n"
+#~ "なにかをなくしたのかそれとも別の理由があるのか分かりません。"
+
+#~ msgid "Please try"
+#~ msgstr "試してください"
+
+#~ msgid "registering again"
+#~ msgstr "再度登録する"
+
+#~ msgid "We hope that isn't too inconvenient."
+#~ msgstr "不便じゃなければと思っています。"
+
+#~ msgid "Registration complete"
+#~ msgstr "登録完了"
+
+#~ msgid "Now activate your account."
+#~ msgstr "アカウントを有効にしました。"
+
+#~ msgid ""
+#~ "We will be sending you an email with an activation link.\n"
+#~ "    Visit the link to verify this account."
+#~ msgstr ""
+#~ "有効化するためのURLをメールしました。そのリンクを開き、アカウントを確認し"
+#~ "て下さい。"
+
+#~ msgid "Check your email.  We'll wait."
+#~ msgstr "メールを確認して下さい。私達は待っています。"
+
+#~ msgid "Register for an account"
+#~ msgstr "アカウントの登録"
+
+#~ msgid "Send me the activation link."
+#~ msgstr "登録URLを送る"

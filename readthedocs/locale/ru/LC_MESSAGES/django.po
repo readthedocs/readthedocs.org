@@ -4,14 +4,16 @@
 #
 # Translators:
 # ferm32 <ferm32@gmail.com>, 2013-2014
+# Igor Starikov <idlesign@yandex.ru>, 2014
 # pentusha <pentusha@gmail.com>, 2014
+# vlad <vlad39w@gmail.com>, 2014
 msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-06-25 00:25-0500\n"
-"PO-Revision-Date: 2014-05-04 12:00+0000\n"
-"Last-Translator: ferm32 <ferm32@gmail.com>\n"
+"POT-Creation-Date: 2014-09-21 14:17-0500\n"
+"PO-Revision-Date: 2014-09-21 18:40+0000\n"
+"Last-Translator: vlad <vlad39w@gmail.com>\n"
 "Language-Team: Russian (http://www.transifex.com/projects/p/readthedocs/"
 "language/ru/)\n"
 "Language: ru\n"
@@ -32,16 +34,16 @@ msgstr ""
 "Для просмотра ресурса предоставлены неверные данные (не совпадает тип): "
 "%(error)s"
 
-#: bookmarks/models.py:9 builds/models.py:83 builds/models.py:277
-#: builds/models.py:293 projects/models.py:809
+#: bookmarks/models.py:9 builds/models.py:85 builds/models.py:280
+#: builds/models.py:296 projects/models.py:760 redirects/models.py:34
 msgid "Project"
 msgstr "Проект"
 
-#: bookmarks/models.py:11 core/models.py:14 projects/models.py:100
+#: bookmarks/models.py:11 core/models.py:13 projects/models.py:102
 msgid "User"
 msgstr "Пользователь"
 
-#: bookmarks/models.py:13 builds/models.py:301
+#: bookmarks/models.py:13 builds/models.py:304
 msgid "Date"
 msgstr "Дата"
 
@@ -49,8 +51,8 @@ msgstr "Дата"
 msgid "URL"
 msgstr "URL"
 
-#: bookmarks/models.py:15 projects/models.py:104
-#: templates/core/project_details.html:5
+#: bookmarks/models.py:15 oauth/models.py:37 projects/models.py:106
+#: templates/core/project_details.html:82
 msgid "Description"
 msgstr "Описание"
 
@@ -105,7 +107,7 @@ msgstr "Ветка"
 
 #: builds/constants.py:21 builds/filters.py:19
 msgid "Tag"
-msgstr "Тэг"
+msgstr "Метка"
 
 #: builds/constants.py:22
 msgid "Unknown"
@@ -115,8 +117,9 @@ msgstr "Неизв."
 msgid "Any"
 msgstr "Любой"
 
-#: builds/filters.py:17 builds/filters.py:29 projects/filters.py:31
-#: projects/models.py:102 projects/models.py:813
+#: builds/filters.py:17 builds/filters.py:29 oauth/models.py:17
+#: oauth/models.py:35 projects/filters.py:31 projects/models.py:104
+#: projects/models.py:764
 msgid "Name"
 msgstr "Имя"
 
@@ -128,109 +131,114 @@ msgstr "Дата сборки"
 msgid "Build Type"
 msgstr "Тип сборки"
 
-#: builds/models.py:86 builds/models.py:297
+#: builds/models.py:88 builds/models.py:300
 msgid "Type"
 msgstr "Тип"
 
-#: builds/models.py:90
+#: builds/models.py:92
 msgid "Identifier"
 msgstr "Идентификатор"
 
-#: builds/models.py:92
+#: builds/models.py:94
 msgid "Verbose Name"
 msgstr "Подробное наименование"
 
-#: builds/models.py:93 projects/filters.py:33 projects/models.py:103
-#: projects/models.py:814
+#: builds/models.py:95 projects/filters.py:33 projects/models.py:105
+#: projects/models.py:765
 msgid "Slug"
 msgstr "Идёт с трудом"
 
-#: builds/models.py:95
+#: builds/models.py:97
 msgid "Supported"
 msgstr "Поддерживается"
 
-#: builds/models.py:96 templates/projects/project_versions.html:46
+#: builds/models.py:98 oauth/models.py:19 oauth/models.py:42
+#: redirects/models.py:12 templates/projects/project_versions.html:46
 msgid "Active"
 msgstr "Активно"
 
-#: builds/models.py:97 templates/projects/includes/icon_built.html:4
+#: builds/models.py:99 templates/projects/includes/icon_built.html:4
 msgid "Built"
 msgstr "Сформировано"
 
-#: builds/models.py:98 templates/projects/includes/icon_built.html:7
+#: builds/models.py:100 templates/projects/includes/icon_built.html:7
 msgid "Uploaded"
 msgstr "Загружено"
 
-#: builds/models.py:100 projects/models.py:195
+#: builds/models.py:102 projects/models.py:199
 msgid "Privacy Level"
 msgstr "Уровень приватности"
 
-#: builds/models.py:101
+#: builds/models.py:103
 msgid "Level of privacy for this Version."
 msgstr "Уровень приватности для этой версии."
 
 #. Translators: Permission around whether a user can view the
 #. version
-#: builds/models.py:112
+#: builds/models.py:114
 msgid "View Version"
 msgstr "Просмотреть версию"
 
-#: builds/models.py:116
+#: builds/models.py:118
 #, python-format
 msgid "Version %(version)s of %(project)s (%(pk)s)"
 msgstr "%(project)s (%(pk)s), версия %(version)s"
 
-#: builds/models.py:279
+#: builds/models.py:282
 msgid "From slug"
 msgstr "Из slug"
 
-#: builds/models.py:280
+#: builds/models.py:283
 msgid "To slug"
 msgstr "В slug"
 
-#: builds/models.py:282
+#: builds/models.py:285
 msgid "Largest"
 msgstr "Самый большой"
 
-#: builds/models.py:285
+#: builds/models.py:288
 #, python-format
 msgid "Alias for %(project)s: %(from)s -> %(to)s"
 msgstr "Псевдоним для %(project)s: %(from)s -> %(to)s"
 
-#: builds/models.py:295 projects/models.py:119 projects/models.py:811
+#: builds/models.py:298 projects/models.py:119 projects/models.py:762
 #: templates/djangome/oneoffs.html:11
 msgid "Version"
 msgstr "Версия"
 
-#: builds/models.py:299
+#: builds/models.py:302
 msgid "State"
 msgstr "Страна"
 
-#: builds/models.py:302
+#: builds/models.py:305
 msgid "Success"
 msgstr "Успешно"
 
-#: builds/models.py:304
+#: builds/models.py:307
 msgid "Setup"
 msgstr "Настройка"
 
-#: builds/models.py:305
+#: builds/models.py:308
 msgid "Setup error"
 msgstr "Ошибка настройки"
 
-#: builds/models.py:306
+#: builds/models.py:309
 msgid "Output"
 msgstr "Вывод"
 
-#: builds/models.py:307
+#: builds/models.py:310
 msgid "Error"
 msgstr "Ошибка"
 
-#: builds/models.py:308
+#: builds/models.py:311
 msgid "Exit code"
 msgstr "Код завершения"
 
-#: builds/models.py:316
+#: builds/models.py:313 templates/builds/build_detail.html:39
+msgid "Commit"
+msgstr ""
+
+#: builds/models.py:320
 #, python-format
 msgid "Build %(project)s for %(usernames)s (%(pk)s)"
 msgstr "Сформировать %(project)s для %(usernames)s (%(pk)s)"
@@ -247,23 +255,23 @@ msgstr "Фамилия"
 msgid "Invalid hostname"
 msgstr "Неверное имя хоста"
 
-#: core/models.py:16
+#: core/models.py:15
 msgid "Whitelisted"
 msgstr "Внесено в белый список"
 
-#: core/models.py:17
+#: core/models.py:16
 msgid "Homepage"
 msgstr "Домашняя страница"
 
-#: core/models.py:18
+#: core/models.py:17
 msgid "Allow email"
 msgstr "Разрешить использование e-mail"
 
-#: core/models.py:19
+#: core/models.py:18
 msgid "Show your email on VCS contributions."
 msgstr "Показывать в списке контрибьютеров ваш e-mail"
 
-#: core/models.py:24
+#: core/models.py:23
 #, python-format
 msgid "%(username)s's profile"
 msgstr "Профиль %(username)s"
@@ -272,6 +280,54 @@ msgstr "Профиль %(username)s"
 #, python-format
 msgid "Please enter a valid URL on %s"
 msgstr "Пожалуйста, введите для %s верный URL"
+
+#: oauth/models.py:7 oauth/models.py:28 projects/models.py:98
+msgid "Publication date"
+msgstr "Дата публикации"
+
+#: oauth/models.py:8 oauth/models.py:29 projects/models.py:99
+msgid "Modified date"
+msgstr "Дата последнего изменения"
+
+#: oauth/models.py:10 oauth/models.py:31
+#, fuzzy
+msgid "Users"
+msgstr "Пользователь"
+
+#: oauth/models.py:13
+msgid "Login"
+msgstr ""
+
+#: oauth/models.py:15
+msgid "Email"
+msgstr ""
+
+#: oauth/models.py:18 oauth/models.py:41
+#, fuzzy
+msgid "HTML URL"
+msgstr "HTML"
+
+#: oauth/models.py:33
+#, fuzzy
+msgid "Organization"
+msgstr "Переводы"
+
+#: oauth/models.py:36
+#, fuzzy
+msgid "Full Name"
+msgstr "Имя"
+
+#: oauth/models.py:38 projects/models.py:107
+msgid "The reStructuredText description of the project"
+msgstr "Описание проекта в формате reStructuredText"
+
+#: oauth/models.py:39
+msgid "Git URL"
+msgstr ""
+
+#: oauth/models.py:40
+msgid "SSH URL"
+msgstr ""
 
 #: projects/constants.py:18
 msgid "Sphinx Html"
@@ -362,7 +418,7 @@ msgstr "CPython 3.x"
 msgid "Created Date"
 msgstr "Дата создания"
 
-#: projects/filters.py:36 projects/models.py:107
+#: projects/filters.py:36 projects/models.py:109
 msgid "Repository URL"
 msgstr "URL репозитория"
 
@@ -370,11 +426,11 @@ msgstr "URL репозитория"
 msgid "Repository Type"
 msgstr "Тип репозитория"
 
-#: projects/forms.py:23
+#: projects/forms.py:26
 msgid "A project with that name exists already!"
 msgstr "Проект с таким названием уже существует!"
 
-#: projects/forms.py:31
+#: projects/forms.py:34
 msgid ""
 "URL for your code (hg or git). Ex. http://github.com/ericholscher/django-"
 "kong.git"
@@ -382,11 +438,11 @@ msgstr ""
 "URL вашего кода (hg или git). Например, http://github.com/ericholscher/"
 "django-kong.git"
 
-#: projects/forms.py:52
+#: projects/forms.py:56
 msgid "Invalid character in repo name"
 msgstr "Неверный символ в имени репозитория"
 
-#: projects/forms.py:55
+#: projects/forms.py:59
 msgid ""
 "It looks like you entered a private repo - please use the public (http:// or "
 "git://) clone url"
@@ -394,73 +450,61 @@ msgstr ""
 "Похоже, вы указали приватный репозиторий - пожалуйста, используйте "
 "общедоступный для клонирования (http:// или git://) url"
 
-#: projects/forms.py:72 projects/models.py:185
+#: projects/forms.py:76 projects/models.py:187
 msgid "(Beta) The Python interpreter used to create the virtual environment."
 msgstr ""
 "(Beta) Интерпретатор Python, используемый для создания виртуального "
 "окружения virtualenv."
 
-#: projects/forms.py:101
+#: projects/forms.py:105
 msgid ""
 "Your configuration file is invalid, make sure it contains conf.py in it."
 msgstr ""
 "У вас неверный конфигурационный файл, убедитесь, что он содержит conf.py."
 
-#: projects/forms.py:170 templates/core/project_details.html:152
+#: projects/forms.py:177 templates/core/project_details.html:172
 msgid "Default Version"
 msgstr "Версия по умолчанию"
 
-#: projects/forms.py:193
+#: projects/forms.py:200
 msgid "Zip file of HTML"
 msgstr "Zip-файл или HTML"
 
-#: projects/forms.py:195
+#: projects/forms.py:202
 msgid "Overwrite existing HTML?"
 msgstr "Перезаписать существующий HTML?"
 
-#: projects/forms.py:208
+#: projects/forms.py:215
 msgid "That version is already active!"
 msgstr "Эта версия и так активна!"
 
-#: projects/forms.py:210
+#: projects/forms.py:217
 msgid "Must upload a zip file."
 msgstr "Необходимо загрузить zip-файл."
 
-#: projects/forms.py:224
+#: projects/forms.py:231
 msgid "Version of the project you are uploading HTML for"
 msgstr "Версия проекта, для которой вы загрузили HTML"
 
-#: projects/forms.py:241 projects/forms.py:300
+#: projects/forms.py:248 projects/forms.py:325
 #, python-format
 msgid "Project %(name)s does not exist"
 msgstr "Проекта %(name)s не существует"
 
-#: projects/forms.py:262
+#: projects/forms.py:269
 #, python-format
 msgid "User %(name)s does not exist"
 msgstr "Пользователя %(name)s не существует"
 
-#: projects/models.py:80
+#: projects/models.py:83
 msgid "Parent"
 msgstr "Родительский"
 
-#: projects/models.py:82
+#: projects/models.py:85
 msgid "Child"
 msgstr "Дочерний"
 
-#: projects/models.py:96
-msgid "Publication date"
-msgstr "Дата публикации"
-
-#: projects/models.py:97
-msgid "Modified date"
-msgstr "Дата последнего изменения"
-
-#: projects/models.py:105
-msgid "The reStructuredText description of the project"
-msgstr "Описание проекта в формате reStructuredText"
-
-#: projects/models.py:108
+#: projects/models.py:110
 msgid ""
 "Checkout URL for your code (hg, git, etc.). Ex. http://github.com/"
 "ericholscher/django-kong.git"
@@ -468,25 +512,26 @@ msgstr ""
 "URL, по которому будет проверяться ваш код (hg, git, etc.). Напр. http://"
 "github.com/ericholscher/django-kong.git"
 
-#: projects/models.py:111
+#: projects/models.py:113
 msgid "Repository type"
 msgstr "Тип репозитория"
 
-#: projects/models.py:113
+#: projects/models.py:115
 msgid "Project URL"
 msgstr "URL проекта"
 
-#: projects/models.py:114
+#: projects/models.py:116
 msgid "The project's homepage"
 msgstr "Домашняя страница проекта"
 
-#: projects/models.py:116
+#: projects/models.py:117
 msgid "Canonical URL"
 msgstr "Канонический URL"
 
-#: projects/models.py:117
+#: projects/models.py:118
+#, fuzzy
 msgid ""
-"The official URL that the docs live at. This can be at readthedocs.org, or "
+"The official URL that the docs live at. This can be slug.readthedocs.org, or "
 "somewhere else. Ex. http://docs.fabfile.org"
 msgstr ""
 "Официальный URL для документации. Он может быть и на readthedocs.org, и где-"
@@ -591,7 +636,7 @@ msgstr ""
 "Google Analytics Tracking ID (напр. UA-22345342-1). Может замедлить загрузку "
 "ваших страниц."
 
-#: projects/models.py:163 projects/models.py:815
+#: projects/models.py:163 projects/models.py:766
 msgid "Path"
 msgstr "Путь"
 
@@ -632,25 +677,25 @@ msgid "Install your project inside a virtualenv using setup.py install"
 msgstr ""
 "Развернуть ваш проект внутри virtualenv с использованием setup.py install"
 
-#: projects/models.py:181
+#: projects/models.py:183
 msgid "Python Interpreter"
 msgstr "Интерпретатор Python"
 
-#: projects/models.py:189
+#: projects/models.py:191
 msgid "Use system packages"
 msgstr "Использовать пакеты системы"
 
-#: projects/models.py:190
+#: projects/models.py:192
 msgid "Give the virtual environment access to the global site-packages dir."
 msgstr ""
 "Дать виртуальному окружению доступ к общесистемной папке с пакетами site-"
 "packages."
 
-#: projects/models.py:192
+#: projects/models.py:196
 msgid "Django Packages URL"
 msgstr "URL пакетов Django"
 
-#: projects/models.py:197
+#: projects/models.py:201
 msgid ""
 "(Beta) Level of privacy that you want on the repository. Protected means "
 "public but not in listings."
@@ -658,112 +703,210 @@ msgstr ""
 "(Beta) Желаемый уровень приватности репозитория. Защищённый означает "
 "общедоступный, но не присутствующий в списках."
 
-#: projects/models.py:200
+#: projects/models.py:204
 msgid "Version Privacy Level"
 msgstr "Уровень приватности версии"
 
-#: projects/models.py:202
+#: projects/models.py:206
 msgid ""
 "(Beta) Default level of privacy you want on built versions of documentation."
 msgstr ""
 "(Beta) Уровень желаемой приватности по умолчанию для формируемых версий "
 "документации."
 
-#: projects/models.py:207
+#: projects/models.py:211
 msgid "Related projects"
 msgstr "Связанные проекты"
 
-#: projects/models.py:223
+#: projects/models.py:215
+msgid "Language"
+msgstr ""
+
+#: projects/models.py:216
+msgid ""
+"The language the project documentation is rendered in. Note: this affects "
+"your project's URL."
+msgstr ""
+
+#: projects/models.py:227
 msgid "Number of Major versions"
 msgstr "Количество мажорных версий"
 
-#: projects/models.py:228
+#: projects/models.py:232
 msgid "2 means supporting 3.X.X and 2.X.X, but not 1.X.X"
 msgstr "2 означает поддержку 3.X.X и 2.X.X, но не 1.X.X"
 
-#: projects/models.py:231
+#: projects/models.py:235
 msgid "Number of Minor versions"
 msgstr "Количество минорных версий"
 
-#: projects/models.py:236
+#: projects/models.py:240
 msgid "2 means supporting 2.2.X and 2.1.X, but not 2.0.X"
 msgstr "2 означает поддержку 2.2.X и 2.1.X, но не 2.0.X"
 
-#: projects/models.py:239
+#: projects/models.py:243
 msgid "Number of Point versions"
 msgstr "Количество версий с точками"
 
-#: projects/models.py:244
+#: projects/models.py:248
 msgid "2 means supporting 2.2.2 and 2.2.1, but not 2.2.0"
 msgstr "2 означает поддержку 2.2.2 и 2.2.1, но не 2.2.0"
 
 #. Translators: Permission around whether a user can view the
 #. project
-#: projects/models.py:255
+#: projects/models.py:259 templates/projects/project_import_github.html:65
 msgid "View Project"
 msgstr "Просмотреть проект"
 
-#: projects/models.py:282
+#: projects/models.py:286
 msgid "Model must have slug"
 msgstr "В модели должен быть slug"
 
-#: projects/models.py:816
+#: projects/models.py:767
 msgid "MD5 checksum"
 msgstr "Контрольная сумма MD5"
 
-#: projects/models.py:844
+#: projects/models.py:795
 msgid "URL to send the webhook to"
 msgstr "URL, на которые следует отправлять webhook"
 
-#: settings/base.py:55
+#: redirects/models.py:7
+msgid "301 - Permanent Redirect"
+msgstr ""
+
+#: redirects/models.py:8
+msgid "302 - Temporary Redirect"
+msgstr ""
+
+#: redirects/models.py:13
+#, fuzzy
+msgid "Inactive"
+msgstr "Активно"
+
+#: redirects/models.py:17
+msgid "Prefix Redirect"
+msgstr ""
+
+#: redirects/models.py:18
+msgid "Page Redirect"
+msgstr ""
+
+#: redirects/models.py:19
+#, fuzzy
+msgid "Sphinx HTMLDir -> HTML"
+msgstr "Одностраничный документ HTML Sphinx"
+
+#: redirects/models.py:20
+#, fuzzy
+msgid "Sphinx HTML -> HTMLDir"
+msgstr "Sphinx HtmlDir"
+
+#: redirects/models.py:24
+msgid ""
+"Absolute path, excluding the domain.Example: <b>/docs/</b>  or <b>/install."
+"html</b>."
+msgstr ""
+
+#: redirects/models.py:27
+msgid "Absolute or relative url. Examples: <b>/tutorial/install.html.</b>"
+msgstr ""
+
+#: redirects/models.py:30
+msgid "The type of redirect you wish to use."
+msgstr ""
+
+#: redirects/models.py:36
+#, fuzzy
+msgid "Redirect Type"
+msgstr "Тип репозитория"
+
+#: redirects/models.py:38
+#, fuzzy
+msgid "From URL"
+msgstr "URL проекта"
+
+#: redirects/models.py:41
+#, fuzzy
+msgid "To URL"
+msgstr "Короткие URL"
+
+#: redirects/models.py:44
+msgid "HTTP Status"
+msgstr ""
+
+#: redirects/models.py:53
+msgid "redirect"
+msgstr ""
+
+#: redirects/models.py:54
+#, fuzzy
+msgid "redirects"
+msgstr "Известные проекты"
+
+#: redirects/models.py:59
+#, python-format
+msgid "Redirect: %s ->"
+msgstr ""
+
+#: redirects/models.py:61
+#, python-format
+msgid "Redirect: %s -> %s"
+msgstr ""
+
+#: redirects/models.py:63
+#, python-format
+msgid "Redirect: %s"
+msgstr ""
+
+#: settings/base.py:59
 msgid "English"
 msgstr "Английский"
 
-#: settings/base.py:56
+#: settings/base.py:60
 msgid "Spanish"
 msgstr "Испанский"
 
-#: settings/base.py:57
+#: settings/base.py:61
 msgid "Norwegian Bokmål"
 msgstr "Норвежский"
 
-#: settings/base.py:58
+#: settings/base.py:62
 msgid "French"
 msgstr "Французский"
 
-#: settings/base.py:59
+#: settings/base.py:63
 msgid "Russian"
 msgstr "Русский"
 
-#: settings/base.py:60
+#: settings/base.py:64
 msgid "German"
 msgstr "Немецкий"
 
-#: settings/base.py:61
+#: settings/base.py:65
 msgid "Galician"
 msgstr "Галисийский"
 
-#: settings/base.py:62
+#: settings/base.py:66
 msgid "Vietnamese"
 msgstr "Вьетнамский"
 
-#: settings/base.py:63
+#: settings/base.py:67
 msgid "Chinese"
 msgstr "Китайский"
 
-#: settings/base.py:64
+#: settings/base.py:68
 msgid "Taiwanese"
 msgstr "Тайваньский"
 
-#: settings/base.py:65
+#: settings/base.py:69
 msgid "Japanese"
 msgstr "Японский"
 
-#: settings/base.py:66
+#: settings/base.py:70
 msgid "Ukrainian"
 msgstr "Украинский"
 
-#: templates/404.html:6
+#: templates/401.html:6 templates/404.html:6
 msgid "Maze Found"
 msgstr "Страница не найдена"
 
@@ -775,7 +918,7 @@ msgstr "Ошибка сервера"
 #: templates/base.html:13 templates/error_header.html:12
 #: templates/core/header.html:10 templates/core/home-header.html:9
 msgid "Read the Docs"
-msgstr "Читайте документацию"
+msgstr "Read the Docs"
 
 #: templates/base.html:61
 msgid ""
@@ -816,19 +959,37 @@ msgstr ""
 msgid "Filter"
 msgstr "Фильтр"
 
+#: templates/donate.html:3 templates/core/header.html:50
+msgid "Donate"
+msgstr ""
+
+#: templates/donate.html:9
+msgid ""
+"Read the Docs is funded through donations from our users. You can donate "
+"money a couple of ways:"
+msgstr ""
+
+#: templates/donate.html:14
+msgid "Credit Card"
+msgstr ""
+
+#: templates/donate.html:20
+msgid ""
+"\n"
+"You can read more about the ongoing efforts to improve the documentation "
+"ecosystem here:\n"
+msgstr ""
+
 #: templates/error_header.html:22 templates/core/header.html:19
 msgid "Go"
 msgstr "Искать"
 
 #: templates/error_header.html:32 templates/core/header.html:46
-#: templates/registration/logout.html:6
 msgid "Log Out"
 msgstr "Выйти"
 
 #: templates/error_header.html:36 templates/core/header.html:48
-#: templates/core/home-header.html:19 templates/registration/login.html:6
-#: templates/registration/login.html:20 templates/registration/login.html:27
-#: templates/registration/password_reset_complete.html:16
+#: templates/core/home-header.html:19
 msgid "Log in"
 msgstr "Войти"
 
@@ -837,16 +998,12 @@ msgid "Filtered Results"
 msgstr "Отфильтрованные результаты"
 
 #: templates/homepage.html:7
-#: templates/registration/password_reset_complete.html:6
-#: templates/registration/password_reset_confirm.html:6
-#: templates/registration/password_reset_done.html:6
-#: templates/registration/password_reset_form.html:7
 msgid "Home"
 msgstr "Начало"
 
 #: templates/homepage.html:44
 msgid "What is this place?"
-msgstr "Где я?"
+msgstr "Что это такое?"
 
 #: templates/homepage.html:46
 msgid ""
@@ -861,17 +1018,17 @@ msgid ""
 "readthedocs.org/en/latest/features.html\">full list of features</a> is "
 "available."
 msgstr ""
-"Read the Docs служит для размещения документации, делает её доступной для "
-"полноценного поиска и позволяет легко найти её заново.\n"
-"Вы можете импортировать ваши документы с использованием наиболее известных "
-"систем контроля версий, включая Mercurial, Git, Subversion и Bazaar.\n"
+"Read the Docs служит для хранения документации, позволяет легко в ней "
+"ориентироваться и делает её доступной для полноценного поиска.\n"
+"Вы можете импортировать документацию из вашего проекта, используя любую "
+"известную систему контроля версий: Mercurial, Git, Subversion и Bazaar.\n"
 "Мы поддерживаем <a href=\"http://read-the-docs.readthedocs.org/en/latest/"
-"webhooks.html\">webhooks</a> , так что ваша документация может быть "
-"пересобрана сразу после внесения в репозиторий нового кода.\n"
-"Также, у нас есть поддержка различных версий, поэтому вы можете собирать "
-"документацию по меткам или тем веткам, которые у вас есть репозитории. Здесь "
-"перечислен <a href=\"http://read-the-docs.readthedocs.org/en/latest/features."
-"html\">полный список возможностей</a>."
+"webhooks.html\">webhooks</a> , так что документация может быть обновлена "
+"сразу после добавления в репозиторий нового кода.\n"
+"Также у нас есть поддержка версий, поэтому вы можете собирать отдельные "
+"варианты документации для тэгов и веток, которые есть у вас в репозитории. "
+"Смотрите также <a href=\"http://read-the-docs.readthedocs.org/en/latest/"
+"features.html\">полный список возможностей</a>."
 
 #: templates/homepage.html:52
 #, python-format
@@ -918,6 +1075,34 @@ msgstr ""
 "commit. Чтобы ваша документация обновлялась после внесения изменений, "
 "установите его в админ-панели вашего проекта и укажите здесь."
 
+#: templates/account/login.html:7 templates/account/login.html.py:11
+#: templates/account/login.html:22
+#, fuzzy
+msgid "Sign In"
+msgstr "Регистрация"
+
+#: templates/account/login.html:13
+#, python-format
+msgid ""
+"If you have not created an account yet, then please\n"
+"<a href=\"%(signup_url)s\">sign up</a> first."
+msgstr ""
+
+#: templates/account/login.html:23
+msgid ""
+"If you forgot your password, <a href=\"/accounts/password/reset/\">reset it."
+"</a>"
+msgstr ""
+"Если вы забыли свой пароль, <a href=\"/accounts/password/reset/\">сбросьте "
+"его.</a>"
+
+#: templates/account/password_change.html:6
+#: templates/account/password_change.html:15
+#: templates/account/password_change.html:20
+#: templates/dashboard/dashboard_bar.html:36
+msgid "Change Password"
+msgstr "Сменить пароль"
+
 #: templates/archive/index.html:5
 msgid "Read the Docs Archive"
 msgstr "Архив Read the Docs"
@@ -955,7 +1140,7 @@ msgstr "Ещё не завершён"
 #: templates/builds/build_detail.html:27
 #: templates/core/build_list_detailed.html:6
 msgid "Passed"
-msgstr "Успешно,"
+msgstr "Прошла"
 
 #: templates/builds/build_detail.html:27
 #: templates/core/build_list_detailed.html:6
@@ -974,34 +1159,36 @@ msgstr "Версия:"
 msgid "Type:"
 msgstr "Тип:"
 
-#: templates/builds/build_detail.html:38
-msgid "Sphinx Standard Output"
+#: templates/builds/build_detail.html:42
+#, fuzzy
+msgid "Build Standard Output"
 msgstr "Результат работы Sphinx"
 
-#: templates/builds/build_detail.html:42
-msgid "Sphinx Standard Error"
+#: templates/builds/build_detail.html:46
+#, fuzzy
+msgid "Build Standard Error"
 msgstr "Ошибки, выведенные в ходе работы Sphinx"
 
-#: templates/builds/build_detail.html:47
+#: templates/builds/build_detail.html:51
 msgid "Setup Output"
 msgstr "Вывод команды setup"
 
-#: templates/builds/build_detail.html:52
+#: templates/builds/build_detail.html:56
 msgid "Environment Standard Error"
 msgstr "Ошибка, возвращённая через переменную окружения"
 
 #: templates/builds/build_list.html:37
 msgid "Build Version:"
-msgstr "Версия сборки:"
+msgstr "Собрать версию:"
 
 #: templates/builds/build_list.html:49
 msgid "Recent Builds"
-msgstr "Сформированы недавно"
+msgstr "Свежие сборки"
 
 #: templates/builds/tag_list.html:5 templates/projects/tag_list.html:4
 #: templates/projects/tag_list.html.py:7
 msgid "Popular tags"
-msgstr "Популярные тэги"
+msgstr "Популярные метки"
 
 #: templates/core/build_list_detailed.html:8
 #, python-format
@@ -1009,7 +1196,7 @@ msgid "version %(slug)s (%(type)s)"
 msgstr "версия %(slug)s (%(type)s)"
 
 #: templates/core/build_list_detailed.html:8
-#: templates/core/project_list_detailed.html:25
+#: templates/core/project_list_detailed.html:27
 #, python-format
 msgid "%(date)s ago"
 msgstr "%(date)s назад"
@@ -1024,11 +1211,11 @@ msgstr "Не найдено ни одного объекта"
 
 #: templates/core/header.html:45
 msgid "Dashboard"
-msgstr "Панель инструментов"
+msgstr "Управление"
 
 #: templates/core/home-header.html:10
 msgid "Create, host, and browse documentation."
-msgstr "Создать, сохранить на сайте и просмотреть документацию."
+msgstr "Создавайте, храните и читайте документацию."
 
 #. Translators: Note, the full sentence goes 'Sign up' 'or' 'Log in'. But unfortunately the three bits have to be separate.
 #: templates/core/home-header.html:17
@@ -1040,51 +1227,37 @@ msgstr "Регистрация"
 msgid "or"
 msgstr "или"
 
-#: templates/core/project_bar.html:24
+#: templates/core/project_bar.html:17
 #, python-format
 msgid "Build failed (<a href=\"%(url)s\">why</a>)"
 msgstr "Закончилось неудачей (<a href=\"%(url)s\">почему</a>)"
 
-#: templates/core/project_bar.html:31
+#: templates/core/project_bar.html:20
 msgid "There are no builds for this project"
 msgstr "Для этого проекта ещё ничего не формировалось"
 
-#: templates/core/project_bar.html:31
+#: templates/core/project_bar.html:20
 msgid "Is the repo correct?"
 msgstr "Верно ли указан репозиторий?"
 
-#: templates/core/project_bar.html:35
+#: templates/core/project_bar.html:24
 msgid "Overview"
 msgstr "Обзор"
 
-#: templates/core/project_bar.html:37
-#: templates/core/project_list_detailed.html:30
+#: templates/core/project_bar.html:26
+#: templates/core/project_list_detailed.html:35
 #: templates/core/project_list_featured.html:13
-#: templates/projects/project_dashboard.html:70
+#: templates/projects/project_dashboard.html:72
 msgid "View Docs"
 msgstr "Просмотр"
 
-#: templates/core/project_bar.html:40
+#: templates/core/project_bar.html:29
 #: templates/projects/project_downloads.html:22
 msgid "Downloads"
 msgstr "Скачать"
 
-#: templates/core/project_bar.html:43
-msgid "Builds"
-msgstr "Сборки"
-
-#: templates/core/project_bar.html:47
-#: templates/projects/project_dashboard.html:68
-msgid "Admin"
-msgstr "Админ"
-
-#: templates/core/project_details.html:16
-#, python-format
-msgid "Search %(project)s"
-msgstr "Поиск в %(project)s"
-
-#: templates/core/project_details.html:18
-#: templates/core/project_list_detailed.html:34
+#: templates/core/project_bar.html:31 templates/core/project_details.html:13
+#: templates/core/project_list_detailed.html:39
 #: templates/core/project_list_featured.html:17
 #: templates/sphinx/sphinx_rtd_theme/layout.html:55
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:137
@@ -1092,70 +1265,92 @@ msgstr "Поиск в %(project)s"
 msgid "Search"
 msgstr "Поиск"
 
-#: templates/core/project_details.html:27
-#: templates/projects/project_edit_base.html:18
+#: templates/core/project_bar.html:34
+msgid "Builds"
+msgstr "Сборки"
+
+#: templates/core/project_bar.html:38
+#: templates/projects/project_dashboard.html:70
+msgid "Admin"
+msgstr "Админ"
+
+#: templates/core/project_details.html:11
+#, python-format
+msgid "Search %(project)s"
+msgstr "Поиск в %(project)s"
+
+#: templates/core/project_details.html:22
+#: templates/projects/project_edit_base.html:19
 #: templates/projects/project_versions.html:9
 #: templates/projects/upload_html.html:7
 msgid "Versions"
 msgstr "Версии"
 
-#: templates/core/project_details.html:49
+#: templates/core/project_details.html:44
 #, python-format
 msgid " %(slug)s "
 msgstr " %(slug)s "
 
-#: templates/core/project_details.html:56
+#: templates/core/project_details.html:51
 #, python-format
 msgid " %(slug)s (Build Failed)"
 msgstr " %(slug)s (сбой в процессе сборки)"
 
-#: templates/core/project_details.html:61
-#: templates/profiles/profile_detail.html:37
-#: templates/profiles/profile_detail.html:68
+#: templates/core/project_details.html:56
+#: templates/profiles/profile_detail.html:38
+#: templates/profiles/profile_detail.html:69
 msgid "Edit"
-msgstr "Править"
+msgstr "Редактировать"
 
-#: templates/core/project_details.html:71
+#: templates/core/project_details.html:66
 msgid "Build a version"
 msgstr "Запустить сборку версии"
 
-#: templates/core/project_details.html:79
+#: templates/core/project_details.html:74
 msgid "Build"
 msgstr "Сборка"
 
-#: templates/core/project_details.html:89
+#: templates/core/project_details.html:96
 msgid "Repository"
 msgstr "Репозиторий"
 
-#: templates/core/project_details.html:94
+#: templates/core/project_details.html:100
+msgid "Badge"
+msgstr ""
+
+#: templates/core/project_details.html:106
+msgid "Owners"
+msgstr ""
+
+#: templates/core/project_details.html:114
 msgid "Tags"
-msgstr "Тэги"
+msgstr "Метки"
 
-#: templates/core/project_details.html:99
+#: templates/core/project_details.html:119
 msgid "No tags"
-msgstr "Нет тэгов"
+msgstr "Метки отсутствуют"
 
-#: templates/core/project_details.html:104
+#: templates/core/project_details.html:124
 msgid "Last Built"
 msgstr "Последняя сборка"
 
-#: templates/core/project_details.html:108
+#: templates/core/project_details.html:128
 msgid "Home Page"
 msgstr "Домашняя страница"
 
-#: templates/core/project_details.html:114
+#: templates/core/project_details.html:134
 msgid "Project Privacy Level"
 msgstr "Уровень приватности проекта"
 
-#: templates/core/project_details.html:121
+#: templates/core/project_details.html:141
 msgid "Short URLs"
-msgstr "Короткие URL-адреса"
+msgstr "Короткие URL"
 
-#: templates/core/project_details.html:130
+#: templates/core/project_details.html:150
 msgid "Open Comparison"
 msgstr "Открытое сравнение"
 
-#: templates/core/project_details.html:131
+#: templates/core/project_details.html:151
 #, python-format
 msgid ""
 "This project has more information available about it on <a href=\"%(url)s"
@@ -1164,29 +1359,29 @@ msgstr ""
 "Есть дополнительная информация об этом проекте по ссылке <a href=\"%(url)s"
 "\">Открытое Сравнение!</a>"
 
-#: templates/core/project_details.html:135
-#: templates/projects/project_edit_base.html:19
+#: templates/core/project_details.html:155
+#: templates/projects/project_edit_base.html:22
 #: templates/projects/project_translations.html:12
 msgid "Translations"
 msgstr "Переводы"
 
-#: templates/core/project_details.html:144
+#: templates/core/project_details.html:164
 msgid "Sub Projects"
 msgstr "Подпроекты"
 
-#: templates/core/project_details.html:155
+#: templates/core/project_details.html:175
 msgid "'latest' Version"
-msgstr "'последняя' версия"
+msgstr "Свежая версия (latest)"
 
-#: templates/core/project_details.html:159
+#: templates/core/project_details.html:179
 msgid "Post Commit Hook"
-msgstr "\"Крючок\" после фиксации изменений"
+msgstr "Оповещение о коммите"
 
-#: templates/core/project_details.html:172
+#: templates/core/project_details.html:192
 msgid "Most viewed pages for this project"
 msgstr "Наиболее часто просматриваемые страницы этого проекта"
 
-#: templates/core/project_downloads.html:6
+#: templates/core/project_downloads.html:7
 #, python-format
 msgid ""
 "\n"
@@ -1197,7 +1392,7 @@ msgstr ""
 "        %(version)s PDF\n"
 "      "
 
-#: templates/core/project_downloads.html:16
+#: templates/core/project_downloads.html:17
 #, python-format
 msgid ""
 "\n"
@@ -1208,7 +1403,7 @@ msgstr ""
 "        %(version)s HTMLZip\n"
 "      "
 
-#: templates/core/project_downloads.html:26
+#: templates/core/project_downloads.html:27
 #, python-format
 msgid ""
 "\n"
@@ -1219,45 +1414,28 @@ msgstr ""
 "        %(version)s Epub\n"
 "      "
 
-#: templates/core/project_downloads.html:49
-#, python-format
-msgid ""
-"\n"
-"        %(version)s Dash docset\n"
-"      "
-msgstr ""
-"\n"
-"        %(version)s Dash docset\n"
-"      "
-
-#: templates/core/project_downloads.html:59
-#, python-format
-msgid ""
-"\n"
-"        %(version)s Dash feed\n"
-"      "
-msgstr ""
-"\n"
-"        %(version)s ссылка для Dash\n"
-"      "
-
-#: templates/core/project_downloads.html:67
+#: templates/core/project_downloads.html:36
 msgid "No downloads for this project."
 msgstr "Для этого проекта скачивать нечего."
 
-#: templates/core/project_list_detailed.html:42
+#: templates/core/project_list_detailed.html:29
+#, fuzzy
+msgid "No builds"
+msgstr "Не сформировано"
+
+#: templates/core/project_list_detailed.html:47
 #: templates/core/project_list_featured.html:25
 msgid "No Docs"
 msgstr "Пусто"
 
-#: templates/core/project_list_detailed.html:49
+#: templates/core/project_list_detailed.html:54
 #: templates/core/project_list_featured.html:32
 msgid "No projects found"
 msgstr "Не найдено ни одного проекта"
 
 #: templates/core/version_list.html:12
 msgid "Add tags"
-msgstr "Добавить тэги"
+msgstr "Добавить метки"
 
 #: templates/core/widesearchbar.html:4
 msgid "Search all the docs."
@@ -1278,17 +1456,21 @@ msgstr "Проекты"
 msgid "Import"
 msgstr "Импортировать"
 
-#: templates/dashboard/dashboard_bar.html:22
+#: templates/dashboard/dashboard_bar.html:17
+msgid "GitHub"
+msgstr ""
+
+#: templates/dashboard/dashboard_bar.html:23
 msgid "Profile"
 msgstr "Мой профиль"
 
-#: templates/dashboard/dashboard_bar.html:26
+#: templates/dashboard/dashboard_bar.html:27
 msgid "Create Profile"
 msgstr "Создать профиль"
 
-#: templates/dashboard/dashboard_bar.html:30
-msgid "Change Password"
-msgstr "Сменить пароль"
+#: templates/dashboard/dashboard_bar.html:32
+msgid "Social Accounts"
+msgstr ""
 
 #: templates/djangome/choices.html:4
 #, python-format
@@ -1408,7 +1590,7 @@ msgstr "Создать его!"
 #: templates/profiles/edit_profile.html:5
 #: templates/profiles/edit_profile.html:15
 msgid "Edit your profile"
-msgstr "Править профиль"
+msgstr "Редактировать профиль"
 
 #: templates/profiles/edit_profile.html:21
 msgid "OK, save it!"
@@ -1419,15 +1601,15 @@ msgstr "OK, сохранить!"
 msgid "%(user)s's profile"
 msgstr "Профиль %(user)s"
 
-#: templates/profiles/profile_detail.html:44
+#: templates/profiles/profile_detail.html:45
 msgid "Add Your Name"
 msgstr "Добавить Ваше имя"
 
-#: templates/profiles/profile_detail.html:76
+#: templates/profiles/profile_detail.html:77
 msgid "Add a Homepage"
 msgstr "Добавить домашнюю страницу"
 
-#: templates/profiles/profile_detail.html:85
+#: templates/profiles/profile_detail.html:86
 msgid "Press enter to save your changes, or escape to discard them"
 msgstr ""
 "Нажмите Enter, чтобы сохранить ваши изменения, либо Esc, чтобы отказаться от "
@@ -1448,8 +1630,8 @@ msgstr "Добавить для версии проекта другое наз�
 
 #: templates/projects/alias_edit.html:16
 #: templates/projects/project_create.html:42
-#: templates/projects/project_import.html:32
-#: templates/projects/project_import.html:38
+#: templates/projects/project_import.html:34
+#: templates/projects/project_import.html:40
 msgid "Create"
 msgstr "Создать"
 
@@ -1520,13 +1702,15 @@ msgid "Edit Advanced Project Settings"
 msgstr "Редактировать расширенные настройки проекта"
 
 #: templates/projects/project_advanced.html:28
-#: templates/projects/project_edit_base.html:16
+#: templates/projects/project_edit_base.html:18
 msgid "Advanced Settings"
 msgstr "Расширенные настройки"
 
 #: templates/projects/project_advanced.html:34
 #: templates/projects/project_edit.html:37
-#: templates/projects/project_notifications.html:54
+#: templates/projects/project_notifications.html:69
+#: templates/projects/project_notifications.html:80
+#: templates/projects/project_redirects.html:95
 #: templates/projects/project_subprojects.html:37
 #: templates/projects/project_translations.html:36
 #: templates/projects/project_users.html:51
@@ -1556,23 +1740,40 @@ msgstr "импортировать существующий проект"
 
 #: templates/projects/project_dashboard.html:5
 msgid "Project Dashboard"
-msgstr "Панель управления проекта"
+msgstr "Управление проектом"
 
-#: templates/projects/project_dashboard.html:29
+#: templates/projects/project_dashboard.html:23
+#, python-format
+msgid ""
+"\n"
+"              Check out the <a href=\"%(url)s\">documentation for Read the "
+"Docs</a>. It contains lots of information about how to get the most out of "
+"RTD.\n"
+"              "
+msgstr ""
+
+#: templates/projects/project_dashboard.html:31
 msgid "Important Versions"
 msgstr "Важные версии"
 
-#: templates/projects/project_dashboard.html:57
+#: templates/projects/project_dashboard.html:59
 msgid "My Projects"
 msgstr "Мои проекты"
 
-#: templates/projects/project_dashboard.html:83
-#, python-format
+#: templates/projects/project_dashboard.html:87
+#, fuzzy, python-format
 msgid ""
-"You don't have any projects.  You should <a href=\"%(projects_import_url)s"
-"\">create new docs</a> on the site.<br>\n"
+"\n"
+"          You don't have any projects. You can <a href="
+"\"%(projects_import_url)s\">create new docs</a> on the site.\n"
+"          <br>\n"
+"          If you have a GitHub account, you can <a href=\"%(social_accounts)s"
+"\">connect it</a> and import projects from there.\n"
+"          <br>\n"
 "          Check out the <a href=\"%(getting_started_url)s\">Getting Started</"
-"a> documentation for information about how to get going."
+"a> documentation for information about how to get going.\n"
+"          </p> \n"
+"          "
 msgstr ""
 "У вас нет ни одного проекта.  Для размещения новой документации на сайте вам "
 "следует <a href=\"%(projects_import_url)s\">создать её</a>.<br>\n"
@@ -1598,7 +1799,7 @@ msgid "Edit Project"
 msgstr "Редактировать проект"
 
 #: templates/projects/project_edit.html:28
-#: templates/projects/project_edit_base.html:15
+#: templates/projects/project_edit_base.html:17
 msgid "Settings"
 msgstr "Настройки"
 
@@ -1606,17 +1807,23 @@ msgstr "Настройки"
 msgid "delete"
 msgstr "удалить"
 
-#: templates/projects/project_edit_base.html:17
+#: templates/projects/project_edit_base.html:20
 #: templates/projects/project_users.html:8
 msgid "Maintainers"
 msgstr "Кураторы"
 
-#: templates/projects/project_edit_base.html:20
+#: templates/projects/project_edit_base.html:21
+#: templates/projects/project_redirects.html:8
+#, fuzzy
+msgid "Redirects"
+msgstr "Связанные проекты"
+
+#: templates/projects/project_edit_base.html:23
 #: templates/projects/project_subprojects.html:12
 msgid "Subprojects"
 msgstr "Подпроекты"
 
-#: templates/projects/project_edit_base.html:21
+#: templates/projects/project_edit_base.html:24
 #: templates/projects/project_notifications.html:12
 msgid "Notifications"
 msgstr "Уведомления"
@@ -1626,11 +1833,42 @@ msgstr "Уведомления"
 msgid "Import an existing project"
 msgstr "Импортировать существующий проект"
 
+#: templates/projects/project_import.html:37
+msgid ""
+"You can change how your project is built in your <em>Advanced Settings</em> "
+"once your project has been created."
+msgstr ""
+
+#: templates/projects/project_import_github.html:4
+#: templates/projects/project_import_github.html:28
+#, fuzzy
+msgid "Import a GitHub project"
+msgstr "Импортировать существующий проект"
+
+#: templates/projects/project_import_github.html:35
+#, python-format
+msgid ""
+"Showing your GitHub projects. <a href=\"%(sync_github_url)s\">Sync your "
+"GitHub projects</a> to update them."
+msgstr ""
+
+#: templates/projects/project_import_github.html:39
+msgid "GitHub projects are now up to date."
+msgstr ""
+
+#: templates/projects/project_import_github.html:93
+#, python-format
+msgid ""
+"You don't have any GitHub repositories connected. \n"
+"  Go to your <a href=\"%(social_url)s\">Social Accounts</a> to set one up.\n"
+"  "
+msgstr ""
+
 #: templates/projects/project_list.html:9
 #: templates/projects/project_list.html:27
 #, python-format
 msgid "Projects by %(username)s tagged with %(tag)s"
-msgstr "Проект автора %(username)s с тэгами %(tag)s"
+msgstr "Проект автора %(username)s, метки %(tag)s"
 
 #: templates/projects/project_list.html:11
 #: templates/projects/project_list.html:29
@@ -1642,7 +1880,7 @@ msgstr "Проект автора %(username)s"
 #: templates/projects/project_list.html:33
 #, python-format
 msgid "Projects tagged with %(tag)s"
-msgstr "Проект помечен тэгом %(tag)s"
+msgstr "Проекты с метками %(tag)s"
 
 #: templates/projects/project_notifications.html:5
 msgid "Edit Notifications"
@@ -1652,27 +1890,79 @@ msgstr "Редактировать уведомления"
 msgid "Configure Notifications to be sent on build failures."
 msgstr "Настроить уведомления при сбоях в процессе сборки."
 
-#: templates/projects/project_notifications.html:19
+#: templates/projects/project_notifications.html:20
 msgid "Existing Notifications"
 msgstr "Существующие уведомления"
 
-#: templates/projects/project_notifications.html:30
+#: templates/projects/project_notifications.html:44
 msgid "Remove Notifications"
 msgstr "Удалить уведомления"
 
-#: templates/projects/project_notifications.html:39
+#: templates/projects/project_notifications.html:56
 #: templates/projects/project_subprojects.html:27
 #: templates/projects/project_translations.html:26
+#: templates/socialaccount/connections.html:42
 msgid "Remove"
 msgstr "Удалить"
 
-#: templates/projects/project_notifications.html:45
-msgid "New Notifications"
+#: templates/projects/project_notifications.html:62
+#, fuzzy
+msgid "New Email Notifications"
 msgstr "Новые уведомления"
 
-#: templates/projects/project_notifications.html:47
+#: templates/projects/project_notifications.html:64
 msgid "Add an email address to notify"
 msgstr "Добавить адрес e-mail для получения уведомлений"
+
+#: templates/projects/project_notifications.html:73
+#, fuzzy
+msgid "New Webhook Notifications"
+msgstr "Новые уведомления"
+
+#: templates/projects/project_notifications.html:75
+#, fuzzy
+msgid "Add a URL to notify"
+msgstr "Добавить адрес e-mail для получения уведомлений"
+
+#: templates/projects/project_redirects.html:5
+#, fuzzy
+msgid "Edit Redirects"
+msgstr "Редактировать проект"
+
+#: templates/projects/project_redirects.html:39
+msgid ""
+"Add redirects for your project. This allows you to fix links to old pages "
+"that are 404ing."
+msgstr ""
+
+#: templates/projects/project_redirects.html:43
+#, fuzzy
+msgid "Existing Redirects"
+msgstr "Существующие подпроекты"
+
+#: templates/projects/project_redirects.html:56
+msgid "Remove Redirect"
+msgstr ""
+
+#: templates/projects/project_redirects.html:70
+msgid "Add Redirect"
+msgstr ""
+
+#: templates/projects/project_redirects.html:72
+msgid ""
+"Add new redirects. These will only happen on <b>404 Page Not Found</b> "
+"requests."
+msgstr ""
+
+#: templates/projects/project_redirects.html:75
+msgid ""
+"This is mainly used to support migration from old doc systems. If you used "
+"to serve your docs at <b>/docs/</b>, you will do:"
+msgstr ""
+
+#: templates/projects/project_redirects.html:83
+msgid "You can also redirect a specific page, like so:"
+msgstr ""
 
 #: templates/projects/project_subprojects.html:5
 msgid "Edit Subprojects"
@@ -1826,346 +2116,16 @@ msgstr "Здесь можно описать, как поднять и запу�
 msgid "Here is where you can describe how to install %(name)s"
 msgstr "Здесь вы можете описать процесс инсталляции %(name)s"
 
-#: templates/registration/activate.html:6
-#: templates/registration/activate.html:11
-msgid "Account activation error"
-msgstr "Ошибка активации учётной записи"
-
-#: templates/registration/activate.html:17
-#, python-format
-msgid ""
-"The activation key \"%(activation_key)s\" is invalid and cannot be used to "
-"activate this account."
-msgstr ""
-"Ключ активации \"%(activation_key)s\" недействителен и не может быть "
-"использован для активации этой учётной записи."
-
-#: templates/registration/activate.html:18
-#, python-format
-msgid ""
-"Did you really think activation key \"%(activation_key)s\" was going to "
-"work?!"
-msgstr ""
-"Вы на самом деле думаете, что ключ активации \"%(activation_key)s\" "
-"пригоден?!"
-
-#: templates/registration/activate.html:21
-msgid ""
-"We're not sure how you got that key, but would you mind registering again"
-msgstr ""
-"Нам сложно понять, откуда у вас этот ключ, будьте так любезны пройти "
-"регистрацию заново."
-
-#: templates/registration/activate.html:21
-#: templates/registration/activation_complete.html:17
-msgid "here"
-msgstr "здесь"
-
-#: templates/registration/activation_complete.html:6
-msgid "Account activation complete"
-msgstr "Активация учётной записи выполнена."
-
-#: templates/registration/activation_complete.html:11
-msgid "Account activation complete, woo!"
-msgstr "Активация учётной записи выполнена, так-то!"
-
-#: templates/registration/activation_complete.html:16
-msgid "Your account has been activated."
-msgstr "Ваша учётная запись теперь активна."
-
-#: templates/registration/activation_complete.html:17
-msgid "Log in with the username and password you just created,"
-msgstr "Войдите под именем пользователя и паролем, которые только что создали."
-
-#: templates/registration/activation_email.txt:1
-#, python-format
-msgid ""
-"Thank you for registering an account at %(domain)s.\n"
-"To activate your registration, please visit the following page:\n"
-"\n"
-"http://%(domain)s%(activation_url)s\n"
-"\n"
-"This page will expire in %(expiration_days)s days.\n"
-"\n"
-"If you didn't register this account you can simply delete this email and we "
-"won't bother you again."
-msgstr ""
-"Спасибо, что зарегистрировались на %(domain)s.\n"
-"Для активации вашей регистрации проследуйте пожалуйста по следующей ссылке:\n"
-"\n"
-"http://%(domain)s%(activation_url)s\n"
-"\n"
-"Ссылка устареет через %(expiration_days)s дней.\n"
-"\n"
-"Если вы не создавали никаких учётных записей, то можете просто удалить это "
-"письмо и мы вас больше не побеспокоим."
-
-#: templates/registration/activation_email_subject.txt:1
-#, python-format
-msgid "%(site_name)s - activate your account"
-msgstr "%(site_name)s - активируйте вашу учётную запись"
-
-#: templates/registration/base_registration.html:5
-msgid "Registration"
-msgstr "Регистрация"
-
-#: templates/registration/base_registration.html:6
-msgid "registration"
-msgstr "регистрация"
-
-#: templates/registration/login.html:30
-msgid ""
-"If you forgot your password, <a href=\"/accounts/password/reset/\">reset it."
-"</a>"
-msgstr ""
-"Если вы забыли свой пароль, <a href=\"/accounts/password/reset/\">сбросьте "
-"его.</a>"
-
-#: templates/registration/login.html:33
-msgid ""
-"Don't have an account?  <a href=\"/accounts/register/\">Register</a> a new "
-"one."
-msgstr ""
-"Нет учётной записи? <a href=\"/accounts/register/\">Создайте</a> новую."
-
-#: templates/registration/logout.html:11
-msgid "You've logged out."
-msgstr "Вы вышли."
-
-#: templates/registration/logout.html:17
-msgid "Thanks for visiting!"
-msgstr "Рады видеть вас!"
-
-#: templates/registration/logout.html:21
-#, python-format
-msgid ""
-"If you are looking to log in again, you can do that <a href=\"%(login_url)s"
-"\">here</a>"
-msgstr ""
-"Если вам будет необходимо войти ещё раз, перейдите сюда <a href="
-"\"%(login_url)s\">here</a>"
-
-#: templates/registration/password_change_done.html:4
-#: templates/registration/password_change_done.html:10
-msgid "Password change successful"
-msgstr "Смена пароля прошла успешно"
-
-#: templates/registration/password_change_done.html:12
-msgid "Your password was changed."
-msgstr "Ваш пароль был сменён."
-
-#: templates/registration/password_change_form.html:4
-#: templates/registration/password_change_form.html:24
-msgid "Password change"
-msgstr "Смена пароля"
-
-#: templates/registration/password_change_form.html:20
-msgid "Please correct the error below."
-msgid_plural "Please correct the errors below."
-msgstr[0] "Пожалуйста, исправьте ниже ошибку."
-msgstr[1] "Пожалуйста, исправьте ниже ошибки."
-msgstr[2] "Пожалуйста, исправьте ниже ошибки."
-
-#: templates/registration/password_change_form.html:26
-msgid ""
-"Please enter your old password, for security's sake, and then enter your new "
-"password twice so we can verify you typed it in correctly."
-msgstr ""
-"В целях безопасности введите, пожалуйста, старый пароль, а затем новый "
-"дважды, чтобы избежать опечаток."
-
-#: templates/registration/password_change_form.html:30
-msgid "Old password"
-msgstr "Старый пароль"
-
-#: templates/registration/password_change_form.html:35
-msgid "New password"
-msgstr "Новый пароль"
-
-#: templates/registration/password_change_form.html:40
-msgid "Password (again)"
-msgstr "Пароль (ещё раз)"
-
-#: templates/registration/password_change_form.html:44
-#: templates/registration/password_reset_confirm.html:23
-msgid "Change my password"
-msgstr "Сменить мой пароль"
-
-#: templates/registration/password_reset_complete.html:6
-#: templates/registration/password_reset_confirm.html:8
-#: templates/registration/password_reset_done.html:6
-#: templates/registration/password_reset_form.html:7
-#: templates/registration/password_reset_form.html:9
-#: templates/registration/password_reset_form.html:13
-msgid "Password reset"
-msgstr "Сброс пароля"
-
-#: templates/registration/password_reset_complete.html:8
-#: templates/registration/password_reset_complete.html:12
-msgid "Password reset complete"
-msgstr "Сброс пароля прошёл успешно"
-
-#: templates/registration/password_reset_complete.html:14
-msgid "Your password has been set.  You may go ahead and log in now."
-msgstr "Ваш пароль установлен. Теперь можно войти заново."
-
-#: templates/registration/password_reset_confirm.html:6
-msgid "Password reset confirmation"
-msgstr "Подтверждение сброса пароля"
-
-#: templates/registration/password_reset_confirm.html:14
-msgid "Enter new password"
-msgstr "Введите новый пароль"
-
-#: templates/registration/password_reset_confirm.html:16
-msgid ""
-"Please enter your new password twice so we can verify you typed it in "
-"correctly."
-msgstr ""
-"Пожалуйста, введите ваш новый пароль дважды - чтобы избежать в нём опечаток."
-
-#: templates/registration/password_reset_confirm.html:20
-msgid "New password:"
-msgstr "Новый пароль:"
-
-#: templates/registration/password_reset_confirm.html:22
-msgid "Confirm password:"
-msgstr "Пароль ещё раз:"
-
-#: templates/registration/password_reset_confirm.html:28
-msgid "Password reset unsuccessful"
-msgstr "Неудачный сброс пароля"
-
-#: templates/registration/password_reset_confirm.html:30
-msgid ""
-"The password reset link was invalid, possibly because it has already been "
-"used.  Please request a new password reset."
-msgstr ""
-"Неверная ссылка для сброса пароля, возможно из-за её повторного "
-"использования. Пожалуйста, запросите новый сброс пароля."
-
-#: templates/registration/password_reset_done.html:8
-#: templates/registration/password_reset_done.html:12
-msgid "Password reset successful"
-msgstr "Пароль успешно сброшен"
-
-#: templates/registration/password_reset_done.html:14
-msgid ""
-"We've e-mailed you instructions for setting your password to the e-mail "
-"address you submitted. You should be receiving it shortly."
-msgstr ""
-"Мы выслали по e-mail на указанный вами адрес инструкции о том, как задать "
-"новый пароль. Вскоре вы их получите."
-
-#: templates/registration/password_reset_email.html:2
-msgid "You're receiving this e-mail because you requested a password reset"
-msgstr "Вы получили это письмо, так как запросили сброс пароля"
-
-#: templates/registration/password_reset_email.html:3
-#, python-format
-msgid "for your user account at %(site_name)s"
-msgstr "для вашей учётной записи на %(site_name)s"
-
-#: templates/registration/password_reset_email.html:5
-msgid "Please go to the following page and choose a new password:"
-msgstr "Пожалуйста, перейдите по ссылке и введите там ваш новый пароль:"
-
-#: templates/registration/password_reset_email.html:9
-msgid "Your username, in case you've forgotten:"
-msgstr "Если вы забыли, вот ваше имя пользователя:"
-
-#: templates/registration/password_reset_email.html:11
-msgid "Thanks for using our site!"
-msgstr "Спасибо, что используете наш сайт!"
-
-#: templates/registration/password_reset_email.html:13
-#, python-format
-msgid "The %(site_name)s team"
-msgstr "Команда %(site_name)s"
-
-#: templates/registration/password_reset_form.html:15
-msgid ""
-"Forgotten your password? Enter your e-mail address below, and we'll e-mail "
-"instructions for setting a new one."
-msgstr ""
-"Забыли пароль? Введите ниже ваш e-mail адрес, и мы вышлем на него "
-"инструкции, как задать новый пароль."
-
-#: templates/registration/password_reset_form.html:19
-msgid "E-mail address:"
-msgstr "Адрес e-mail:"
-
-#: templates/registration/password_reset_form.html:19
-msgid "Reset my password"
-msgstr "Сбросить мой пароль"
-
-#: templates/registration/registration_closed.html:6
-msgid "Registration closed"
-msgstr "Регистрация закрыта"
-
-#: templates/registration/registration_closed.html:11
-msgid "Eh... Registration closed."
-msgstr "Эх... Регистрация закрыта."
-
-#: templates/registration/registration_closed.html:17
-msgid ""
-" You registered a long time ago.\n"
-"    We aren't sure if you are a robot or if \n"
-"    something got lost or what."
-msgstr ""
-" Вы регистрировались очень давно.\n"
-"    Мы подозреваем, что вы робот, а может \n"
-"    что-то пропало и т. п."
-
-#: templates/registration/registration_closed.html:20
-msgid "Please try"
-msgstr "Попробуйте, пожалуйста"
-
-#: templates/registration/registration_closed.html:20
-msgid "registering again"
-msgstr "зарегистрироваться заново"
-
-#: templates/registration/registration_closed.html:23
-msgid "We hope that isn't too inconvenient."
-msgstr "Мы надеемся, это не доставит много хлопот."
-
-#: templates/registration/registration_complete.html:6
-#: templates/registration/registration_complete.html:11
-msgid "Registration complete"
-msgstr "Регистрация завершена."
-
-#: templates/registration/registration_complete.html:16
-msgid "Now activate your account."
-msgstr "Теперь вам необходимо активировать учётную запись."
-
-#: templates/registration/registration_complete.html:18
-msgid ""
-"We will be sending you an email with an activation link.\n"
-"    Visit the link to verify this account."
-msgstr ""
-"Мы вышлем вам e-mail со ссылкой для активации.\n"
-"    Перейдите по этой ссылке для подтверждения учётной записи."
-
-#: templates/registration/registration_complete.html:22
-msgid "Check your email.  We'll wait."
-msgstr "Проверьте вашу почту. Мы подождём."
-
-#: templates/registration/registration_form.html:6
-#: templates/registration/registration_form.html:20
-msgid "Register for an account"
-msgstr "Зарегистрировать учётную запись"
-
-#: templates/registration/registration_form.html:27
-msgid "Send me the activation link."
-msgstr "Выслать ссылку для активации."
-
 #: templates/search/base_facet.html:5 templates/search/search.html:5
 #, python-format
 msgid "Search: %(query)s"
 msgstr "Поиск: %(query)s"
 
 #. Translators: This is about starting a search
-#: templates/search/base_facet.html:27 templates/search/search.html:17
+#. Translators: This is about starting a search
+#: templates/search/base_facet.html:27
+#: templates/search/elastic_project_search.html:51
+#: templates/search/search.html:17
 msgid "Go crazy."
 msgstr "С ума сойти."
 
@@ -2179,9 +2139,33 @@ msgid "File:"
 msgstr "Файл:"
 
 #: templates/search/base_search.html:24
+#: templates/search/elastic_project_search.html:82
 #: templates/search/faceted_results.html:63
 msgid "No results found. Bummer."
 msgstr "Облом. Ничего не найдено."
+
+#: templates/search/elastic_project_search.html:5
+#, fuzzy, python-format
+msgid "Search: %(query)s "
+msgstr "Поиск: %(query)s"
+
+#: templates/search/elastic_project_search.html:65
+#: templates/search/search.html:31
+#, python-format
+msgid "Results for %(query)s"
+msgstr "Результаты для %(query)s"
+
+#: templates/search/elastic_project_search.html:98
+#: templates/search/elastic_project_search.html:100
+#: templates/search/search.html:52 templates/search/search.html.py:54
+msgid "Previous"
+msgstr "Назад"
+
+#: templates/search/elastic_project_search.html:104
+#: templates/search/elastic_project_search.html:106
+#: templates/search/search.html:58 templates/search/search.html.py:60
+msgid "Next"
+msgstr "Вперёд"
 
 #: templates/search/faceted_author.html:8
 msgid "By Author"
@@ -2225,18 +2209,26 @@ msgstr "Нет деталей о проекте."
 msgid "File"
 msgstr "Файл"
 
-#: templates/search/search.html:31
-#, python-format
-msgid "Results for %(query)s"
-msgstr "Результаты для %(query)s"
+#: templates/socialaccount/connections.html:6
+#: templates/socialaccount/connections.html:15
+#, fuzzy
+msgid "Account Connections"
+msgstr "Ошибка активации учётной записи"
 
-#: templates/search/search.html:52 templates/search/search.html.py:54
-msgid "Previous"
-msgstr "Назад"
+#: templates/socialaccount/connections.html:18
+msgid ""
+"You can sign in to your account using any of the following third party "
+"accounts:"
+msgstr ""
 
-#: templates/search/search.html:58 templates/search/search.html.py:60
-msgid "Next"
-msgstr "Вперёд"
+#: templates/socialaccount/connections.html:50
+msgid ""
+"You currently have no social network accounts connected to this account."
+msgstr ""
+
+#: templates/socialaccount/connections.html:53
+msgid "Add a 3rd Party Account"
+msgstr ""
 
 #: templates/sphinx/sphinx_rtd_theme/layout.html:47
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:131
@@ -2264,3 +2256,266 @@ msgstr ""
 "В результате этого поиска документов не найдено. Пожалуйста, убедитесь, что "
 "все слова написаны правильно, и что вы выбрали достаточное количество "
 "категорий."
+
+#~ msgid ""
+#~ "\n"
+#~ "        %(version)s Dash docset\n"
+#~ "      "
+#~ msgstr ""
+#~ "\n"
+#~ "        %(version)s Dash docset\n"
+#~ "      "
+
+#~ msgid ""
+#~ "\n"
+#~ "        %(version)s Dash feed\n"
+#~ "      "
+#~ msgstr ""
+#~ "\n"
+#~ "        %(version)s ссылка для Dash\n"
+#~ "      "
+
+#~ msgid ""
+#~ "The activation key \"%(activation_key)s\" is invalid and cannot be used "
+#~ "to activate this account."
+#~ msgstr ""
+#~ "Ключ активации \"%(activation_key)s\" недействителен и не может быть "
+#~ "использован для активации этой учётной записи."
+
+#~ msgid ""
+#~ "Did you really think activation key \"%(activation_key)s\" was going to "
+#~ "work?!"
+#~ msgstr ""
+#~ "Вы на самом деле думаете, что ключ активации \"%(activation_key)s\" "
+#~ "пригоден?!"
+
+#~ msgid ""
+#~ "We're not sure how you got that key, but would you mind registering again"
+#~ msgstr ""
+#~ "Нам сложно понять, откуда у вас этот ключ, будьте так любезны пройти "
+#~ "регистрацию заново."
+
+#~ msgid "here"
+#~ msgstr "здесь"
+
+#~ msgid "Account activation complete"
+#~ msgstr "Активация учётной записи выполнена."
+
+#~ msgid "Account activation complete, woo!"
+#~ msgstr "Активация учётной записи выполнена, так-то!"
+
+#~ msgid "Your account has been activated."
+#~ msgstr "Ваша учётная запись теперь активна."
+
+#~ msgid "Log in with the username and password you just created,"
+#~ msgstr ""
+#~ "Войдите под именем пользователя и паролем, которые только что создали."
+
+#~ msgid ""
+#~ "Thank you for registering an account at %(domain)s.\n"
+#~ "To activate your registration, please visit the following page:\n"
+#~ "\n"
+#~ "http://%(domain)s%(activation_url)s\n"
+#~ "\n"
+#~ "This page will expire in %(expiration_days)s days.\n"
+#~ "\n"
+#~ "If you didn't register this account you can simply delete this email and "
+#~ "we won't bother you again."
+#~ msgstr ""
+#~ "Спасибо, что зарегистрировались на %(domain)s.\n"
+#~ "Для активации вашей регистрации проследуйте пожалуйста по следующей "
+#~ "ссылке:\n"
+#~ "\n"
+#~ "http://%(domain)s%(activation_url)s\n"
+#~ "\n"
+#~ "Ссылка устареет через %(expiration_days)s дней.\n"
+#~ "\n"
+#~ "Если вы не создавали никаких учётных записей, то можете просто удалить "
+#~ "это письмо и мы вас больше не побеспокоим."
+
+#~ msgid "%(site_name)s - activate your account"
+#~ msgstr "%(site_name)s - активируйте вашу учётную запись"
+
+#~ msgid "Registration"
+#~ msgstr "Регистрация"
+
+#~ msgid "registration"
+#~ msgstr "регистрация"
+
+#~ msgid ""
+#~ "Don't have an account?  <a href=\"/accounts/register/\">Register</a> a "
+#~ "new one."
+#~ msgstr ""
+#~ "Нет учётной записи? <a href=\"/accounts/register/\">Создайте</a> новую."
+
+#~ msgid "You've logged out."
+#~ msgstr "Вы вышли."
+
+#~ msgid "Thanks for visiting!"
+#~ msgstr "Рады видеть вас!"
+
+#~ msgid ""
+#~ "If you are looking to log in again, you can do that <a href="
+#~ "\"%(login_url)s\">here</a>"
+#~ msgstr ""
+#~ "Если вам будет необходимо войти ещё раз, перейдите сюда <a href="
+#~ "\"%(login_url)s\">here</a>"
+
+#~ msgid "Password change successful"
+#~ msgstr "Смена пароля прошла успешно"
+
+#~ msgid "Your password was changed."
+#~ msgstr "Ваш пароль был сменён."
+
+#~ msgid "Password change"
+#~ msgstr "Смена пароля"
+
+#~ msgid "Please correct the error below."
+#~ msgid_plural "Please correct the errors below."
+#~ msgstr[0] "Пожалуйста, исправьте ниже ошибку."
+#~ msgstr[1] "Пожалуйста, исправьте ниже ошибки."
+#~ msgstr[2] "Пожалуйста, исправьте ниже ошибки."
+
+#~ msgid ""
+#~ "Please enter your old password, for security's sake, and then enter your "
+#~ "new password twice so we can verify you typed it in correctly."
+#~ msgstr ""
+#~ "В целях безопасности введите, пожалуйста, старый пароль, а затем новый "
+#~ "дважды, чтобы избежать опечаток."
+
+#~ msgid "Old password"
+#~ msgstr "Старый пароль"
+
+#~ msgid "New password"
+#~ msgstr "Новый пароль"
+
+#~ msgid "Password (again)"
+#~ msgstr "Пароль (ещё раз)"
+
+#~ msgid "Change my password"
+#~ msgstr "Сменить мой пароль"
+
+#~ msgid "Password reset"
+#~ msgstr "Сброс пароля"
+
+#~ msgid "Password reset complete"
+#~ msgstr "Сброс пароля прошёл успешно"
+
+#~ msgid "Your password has been set.  You may go ahead and log in now."
+#~ msgstr "Ваш пароль установлен. Теперь можно войти заново."
+
+#~ msgid "Password reset confirmation"
+#~ msgstr "Подтверждение сброса пароля"
+
+#~ msgid "Enter new password"
+#~ msgstr "Введите новый пароль"
+
+#~ msgid ""
+#~ "Please enter your new password twice so we can verify you typed it in "
+#~ "correctly."
+#~ msgstr ""
+#~ "Пожалуйста, введите ваш новый пароль дважды - чтобы избежать в нём "
+#~ "опечаток."
+
+#~ msgid "New password:"
+#~ msgstr "Новый пароль:"
+
+#~ msgid "Confirm password:"
+#~ msgstr "Пароль ещё раз:"
+
+#~ msgid "Password reset unsuccessful"
+#~ msgstr "Неудачный сброс пароля"
+
+#~ msgid ""
+#~ "The password reset link was invalid, possibly because it has already been "
+#~ "used.  Please request a new password reset."
+#~ msgstr ""
+#~ "Неверная ссылка для сброса пароля, возможно из-за её повторного "
+#~ "использования. Пожалуйста, запросите новый сброс пароля."
+
+#~ msgid "Password reset successful"
+#~ msgstr "Пароль успешно сброшен"
+
+#~ msgid ""
+#~ "We've e-mailed you instructions for setting your password to the e-mail "
+#~ "address you submitted. You should be receiving it shortly."
+#~ msgstr ""
+#~ "Мы выслали по e-mail на указанный вами адрес инструкции о том, как задать "
+#~ "новый пароль. Вскоре вы их получите."
+
+#~ msgid "You're receiving this e-mail because you requested a password reset"
+#~ msgstr "Вы получили это письмо, так как запросили сброс пароля"
+
+#~ msgid "for your user account at %(site_name)s"
+#~ msgstr "для вашей учётной записи на %(site_name)s"
+
+#~ msgid "Please go to the following page and choose a new password:"
+#~ msgstr "Пожалуйста, перейдите по ссылке и введите там ваш новый пароль:"
+
+#~ msgid "Your username, in case you've forgotten:"
+#~ msgstr "Если вы забыли, вот ваше имя пользователя:"
+
+#~ msgid "Thanks for using our site!"
+#~ msgstr "Спасибо, что используете наш сайт!"
+
+#~ msgid "The %(site_name)s team"
+#~ msgstr "Команда %(site_name)s"
+
+#~ msgid ""
+#~ "Forgotten your password? Enter your e-mail address below, and we'll e-"
+#~ "mail instructions for setting a new one."
+#~ msgstr ""
+#~ "Забыли пароль? Введите ниже ваш e-mail адрес, и мы вышлем на него "
+#~ "инструкции, как задать новый пароль."
+
+#~ msgid "E-mail address:"
+#~ msgstr "Адрес e-mail:"
+
+#~ msgid "Reset my password"
+#~ msgstr "Сбросить мой пароль"
+
+#~ msgid "Registration closed"
+#~ msgstr "Регистрация закрыта"
+
+#~ msgid "Eh... Registration closed."
+#~ msgstr "Эх... Регистрация закрыта."
+
+#~ msgid ""
+#~ " You registered a long time ago.\n"
+#~ "    We aren't sure if you are a robot or if \n"
+#~ "    something got lost or what."
+#~ msgstr ""
+#~ " Вы регистрировались очень давно.\n"
+#~ "    Мы подозреваем, что вы робот, а может \n"
+#~ "    что-то пропало и т. п."
+
+#~ msgid "Please try"
+#~ msgstr "Попробуйте, пожалуйста"
+
+#~ msgid "registering again"
+#~ msgstr "зарегистрироваться заново"
+
+#~ msgid "We hope that isn't too inconvenient."
+#~ msgstr "Мы надеемся, это не доставит много хлопот."
+
+#~ msgid "Registration complete"
+#~ msgstr "Регистрация завершена."
+
+#~ msgid "Now activate your account."
+#~ msgstr "Теперь вам необходимо активировать учётную запись."
+
+#~ msgid ""
+#~ "We will be sending you an email with an activation link.\n"
+#~ "    Visit the link to verify this account."
+#~ msgstr ""
+#~ "Мы вышлем вам e-mail со ссылкой для активации.\n"
+#~ "    Перейдите по этой ссылке для подтверждения учётной записи."
+
+#~ msgid "Check your email.  We'll wait."
+#~ msgstr "Проверьте вашу почту. Мы подождём."
+
+#~ msgid "Register for an account"
+#~ msgstr "Зарегистрировать учётную запись"
+
+#~ msgid "Send me the activation link."
+#~ msgstr "Выслать ссылку для активации."
