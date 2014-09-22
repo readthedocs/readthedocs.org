@@ -262,6 +262,9 @@ ANONYMOUS_USER_ID = -1
 REPO_LOCK_SECONDS = 30
 ALLOW_PRIVATE_REPOS = False
 
+PROJECT_MANAGER = 'privacy.backend.ProjectManager'
+VERSION_MANAGER = 'privacy.backend.VersionManager'
+
 GLOBAL_ANALYTICS_CODE = 'UA-17997319-1'
 
 GRAVATAR_DEFAULT_IMAGE = 'identicon'
