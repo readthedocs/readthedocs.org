@@ -19,12 +19,6 @@
 </script>
 {% endblock %}
 
-{% block dashboard_bar %}
-{% with import_github_active="active" %}
-{% include "dashboard/dashboard_bar.html" %}
-{% endwith %}
-{% endblock %}
-
 {% block content-header %}<h1>{% trans "Import a GitHub project" %}</h1>{% endblock %}
 
 {% block content %}
