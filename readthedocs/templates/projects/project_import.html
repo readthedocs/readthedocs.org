@@ -19,12 +19,6 @@
   </script>
 {% endblock %}
 
-{% block dashboard_bar %}
-  {% with import_active="active" %}
-    {% include "dashboard/dashboard_bar.html" %}
-  {% endwith %}
-{% endblock %}
-
 {% block content-header %}<h1>{% trans "Import an existing project" %}</h1>{% endblock %}
 
 {% block content %}

@@ -8,14 +8,6 @@
 
 {% block dash-nav-create %}active{% endblock %}
 
-{% block dashboard_bar %}
-  {% with dash_nav_create="active" %}
-    {% include "dashboard/dashboard_bar.html" %}
-  {% endwith %}
-{% endblock %}
-
-
-
 {% block extra_scripts %}
   <script type="text/javascript" src="{{ MEDIA_URL }}lib/markitup/jquery.markitup.pack.js"></script>
   <script type="text/javascript" src="{{ MEDIA_URL }}lib/markitup/sets/sphinx/editor.js"></script>

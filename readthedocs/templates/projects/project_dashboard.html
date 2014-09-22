@@ -4,12 +4,6 @@
 
 {% block title %}{% trans "Project Dashboard" %}{% endblock %}
 
-{% block dashboard_bar %}
-  {% with projects_active="active" %}
-    {% include "dashboard/dashboard_bar.html" %}
-  {% endwith %}
-{% endblock %}
-
 {% block dash-nav-projects %}active{% endblock %}
 
 {% block content %}
