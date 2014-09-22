@@ -5,8 +5,9 @@ from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.db import models
 from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.module_loading import import_by_path
 
-from guardian.shortcuts import assign, get_objects_for_user
+from guardian.shortcuts import assign
 from taggit.managers import TaggableManager
 
 from projects.models import Project
@@ -14,72 +15,9 @@ from projects import constants
 from .constants import BUILD_STATE, BUILD_TYPES, VERSION_TYPES
 
 
-class VersionManager(models.Manager):
-    def _filter_queryset(self, user, project, privacy_level, only_active):
-        if isinstance(privacy_level, basestring):
-            privacy_level = (privacy_level,)
-        queryset = Version.objects.filter(privacy_level__in=privacy_level)
-        # Remove this so we can use public() for all active public projects
-        #if not user and not project:
-            #return queryset
-        if user and user.is_authenticated():
-            # Add in possible user-specific views
-            user_queryset = get_objects_for_user(user, 'builds.view_version')
-            queryset = user_queryset | queryset
-        elif user:
-            # Hack around get_objects_for_user not supporting global perms
-            global_access = user.has_perm('builds.view_version')
-            if global_access:
-                queryset = Version.objects.all()
-        if project:
-            # Filter by project if requested
-            queryset = queryset.filter(project=project)
-        if only_active:
-            queryset = queryset.filter(active=True)
-        return queryset
-
-    def active(self, user=None, project=None, *args, **kwargs):
-        queryset = self._filter_queryset(
-            user,
-            project,
-            privacy_level=(constants.PUBLIC, constants.PROTECTED,
-                           constants.PRIVATE),
-            only_active=True,
-        )
-        return queryset.filter(*args, **kwargs)
-
-    def public(self, user=None, project=None, only_active=True, *args,
-               **kwargs):
-        queryset = self._filter_queryset(
-            user,
-            project,
-            privacy_level=(constants.PUBLIC),
-            only_active=only_active
-        )
-        return queryset.filter(*args, **kwargs)
-
-    def protected(self, user=None, project=None, only_active=True, *args,
-                  **kwargs):
-        queryset = self._filter_queryset(
-            user,
-            project,
-            privacy_level=(constants.PUBLIC, constants.PROTECTED),
-            only_active=only_active
-        )
-        return queryset.filter(*args, **kwargs)
-
-    def private(self, user=None, project=None, only_active=True, *args,
-                **kwargs):
-        queryset = self._filter_queryset(
-            user,
-            project,
-            privacy_level=(constants.PRIVATE),
-            only_active=only_active
-        )
-        return queryset.filter(*args, **kwargs)
-
-
 DEFAULT_VERSION_PRIVACY_LEVEL = getattr(settings, 'DEFAULT_VERSION_PRIVACY_LEVEL', 'public')
+VersionManager = import_by_path(getattr(settings, 'VERSION_MANAGER', 'privacy.backend.VersionManager'))
+
 
 class Version(models.Model):
     project = models.ForeignKey(Project, verbose_name=_('Project'),

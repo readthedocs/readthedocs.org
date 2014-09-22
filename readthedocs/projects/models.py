@@ -1,7 +1,6 @@
 import fnmatch
 import logging
 import os
-import datetime
 from urlparse import urlparse
 
 from distlib.version import UnsupportedVersionError
@@ -11,9 +10,9 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext_lazy as _
+from django.utils.module_loading import import_by_path
 
-from allauth.socialaccount.models import SocialToken
-from guardian.shortcuts import assign, get_objects_for_user
+from guardian.shortcuts import assign
 
 from betterversion.better import version_windows, BetterVersion
 from oauth import utils as oauth_utils
@@ -32,51 +31,7 @@ from vcs_support.utils import Lock, NonBlockingLock
 
 log = logging.getLogger(__name__)
 
-
-class ProjectManager(models.Manager):
-    def _filter_queryset(self, user, privacy_level):
-        if isinstance(privacy_level, basestring):
-            privacy_level = (privacy_level,)
-        queryset = Project.objects.filter(privacy_level__in=privacy_level)
-        if not user:
-            return queryset
-        else:
-            # Hack around get_objects_for_user not supporting global perms
-            global_access = user.has_perm('projects.view_project')
-            if global_access:
-                queryset = Project.objects.all()
-        if user.is_authenticated():
-            # Add in possible user-specific views
-            user_queryset = get_objects_for_user(user, 'projects.view_project')
-            queryset = user_queryset | queryset
-        return queryset.filter()
-
-    def live(self, *args, **kwargs):
-        base_qs = self.filter(skip=False)
-        return base_qs.filter(*args, **kwargs)
-
-    def public(self, user=None, *args, **kwargs):
-        """
-        Query for projects, privacy_level == public
-        """
-        queryset = self._filter_queryset(user, privacy_level=constants.PUBLIC)
-        return queryset.filter(*args, **kwargs)
-
-    def protected(self, user=None, *args, **kwargs):
-        """
-        Query for projects, privacy_level != private
-        """
-        queryset = self._filter_queryset(user,
-                                         privacy_level=(constants.PUBLIC,
-                                                        constants.PROTECTED))
-        return queryset.filter(*args, **kwargs)
-
-    def private(self, user=None, *args, **kwargs):
-        """
-        Query for projects, privacy_level != private
-        """
-        queryset = self._filter_queryset(user, privacy_level=constants.PRIVATE)
-        return queryset.filter(*args, **kwargs)
+ProjectManager = import_by_path(getattr(settings, 'PROJECT_MANAGER', 'privacy.backend.ProjectManager'))
 
 
 class ProjectRelationship(models.Model):
@@ -92,6 +47,7 @@ class ProjectRelationship(models.Model):
     def get_absolute_url(self):
         return ("http://%s.readthedocs.org/projects/%s/%s/latest/"
                 % (self.parent.slug, self.child.slug, self.child.language))
+
 
 class Project(models.Model):
     #Auto fields
