@@ -302,5 +302,59 @@
             "slug": "haystack",
             "name": "Haystack"
         }
+    },
+    {
+        "pk": 23,
+        "model": "projects.project",
+        "fields": {
+            "modified_date": "2014-09-10T11:58:01.277",
+            "description": "",
+            "project_url": "",
+            "repo": "https://github.com/bogususer/non-existing-repo",
+            "version": "",
+            "pub_date": "2014-09-10 11:58:01",
+            "slug": "test_project",
+            "name": "test_project"
+        }
+    },
+    {
+        "pk": 1,
+        "model": "projects.projectrelationship",
+        "fields": {
+            "parent": 6,
+            "child": 23
+        }
+    },
+    {
+        "pk": 18,
+        "model": "builds.version",
+        "fields": {
+            "uploaded": false,
+            "built": false,
+            "type": "tag",
+            "privacy_level": "public",
+            "supported": false,
+            "project": 6,
+            "active": true,
+            "identifier": "2404a34eba4ee9c48cc8bc4055b99a48354f4950",
+            "verbose_name": "0.8",
+            "slug": "0.8"
+        }
+    },
+    {
+        "pk": 19,
+        "model": "builds.version",
+        "fields": {
+            "uploaded": false,
+            "built": false,
+            "type": "tag",
+            "privacy_level": "public",
+            "supported": false,
+            "project": 6,
+            "active": true,
+            "identifier": "f55c28e560c92cafb6e6451f8084232b6d717603",
+            "verbose_name": "0.8.1",
+            "slug": "0.8.1"
+        }
     }
 ]
