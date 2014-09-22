@@ -107,15 +107,13 @@ class Project(models.Model):
                                    help_text=_('The reStructuredText '
                                                'description of the project'))
     repo = models.CharField(_('Repository URL'), max_length=100, blank=True,
-                            help_text=_('Checkout URL for your code (hg, git, '
-                                        'etc.). Ex. http://github.com/'
-                                        'ericholscher/django-kong.git'))
+                            help_text=_('Hosted documentation repository URL'))
     repo_type = models.CharField(_('Repository type'), max_length=10,
                                  choices=constants.REPO_CHOICES, default='git')
     project_url = models.URLField(_('Project homepage'), blank=True,
                                   help_text=_('The project\'s homepage'))
-    canonical_url = models.URLField(_('Canonical URL'), blank=True,
-                                  help_text=_('The official URL that the docs live at. This can be slug.readthedocs.org, or somewhere else. Ex. http://docs.fabfile.org'))
+    canonical_url = models.URLField(_('Base URL'), blank=True,
+                                  help_text=_('Base URL that documentation is expected to serve from'))
     version = models.CharField(_('Version'), max_length=100, blank=True,
                                help_text=_('Project version these docs apply '
                                            'to, i.e. 1.0a'))
