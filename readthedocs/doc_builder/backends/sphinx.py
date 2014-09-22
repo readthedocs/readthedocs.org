@@ -199,16 +199,18 @@ class PdfBuilder(BaseSphinx):
                 # Run LaTeX -> PDF conversions
                 pdflatex_cmds = [('pdflatex -interaction=nonstopmode %s'
                                   % tex_file) for tex_file in tex_files]
-                # Run twice because of https://github.com/rtfd/readthedocs.org/issues/749
+                makeindex_cmds = [('makeindex -s python.ist %s.idx'
+                                  % os.path.splitext(tex_file)[0]) for tex_file in tex_files]
                 pdf_results = run(*pdflatex_cmds)
+                ind_results = run(*makeindex_cmds)
                 pdf_results = run(*pdflatex_cmds)
             else:
                 pdf_results = (0, "No tex files found", "No tex files found")
 
             results = [
-                latex_results[0] + pdf_results[0],
-                latex_results[1] + pdf_results[1],
-                latex_results[2] + pdf_results[2],
+                latex_results[0] + ind_results[0] + pdf_results[0],
+                latex_results[1] + ind_results[1] + pdf_results[1],
+                latex_results[2] + ind_results[2] + pdf_results[2],
             ]
             pdf_match = PDF_RE.search(results[1])
             if pdf_match:
