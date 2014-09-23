@@ -102,4 +102,28 @@ $(function() {
     select.after(framing)
 
   }
+
+  // Install events handlers user menu button the window, to open the menu and
+  // close it if it loses click focus.
+  (function () {
+    var menu = $('.menu-user'),
+        menu_button = menu.find('div.menu-button'),
+        menu_dropdown = menu.find('div.menu-dropdown');
+
+    menu_button.on('click', function (ev) {
+      ev.stopPropagation();
+      if (menu_dropdown.hasClass('menu-dropped')) {
+        menu_dropdown.removeClass('menu-dropped');
+      }
+      else {
+        $('html').on('click', function () {
+          menu_dropdown.removeClass('menu-dropped');
+        });
+        menu_dropdown.on('click', function (ev) {
+          ev.stopPropagation();
+        });
+        menu_dropdown.addClass('menu-dropped');
+      }
+    });
+  })();
 })
