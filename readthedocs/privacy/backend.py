@@ -120,3 +120,10 @@ class VersionManager(models.Manager):
             only_active=only_active
         )
         return queryset.filter(*args, **kwargs)
+
+
+class AdminPermission(object):
+
+    @classmethod
+    def is_admin(cls, user, project):
+        return user in project.users.all()

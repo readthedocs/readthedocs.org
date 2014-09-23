@@ -5,18 +5,17 @@ from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.db import models
 from django.utils.translation import ugettext_lazy as _, ugettext
-from django.utils.module_loading import import_by_path
 
 from guardian.shortcuts import assign
 from taggit.managers import TaggableManager
 
+from privacy.loader import VersionManager
 from projects.models import Project
 from projects import constants
 from .constants import BUILD_STATE, BUILD_TYPES, VERSION_TYPES
 
 
 DEFAULT_VERSION_PRIVACY_LEVEL = getattr(settings, 'DEFAULT_VERSION_PRIVACY_LEVEL', 'public')
-VersionManager = import_by_path(getattr(settings, 'VERSION_MANAGER', 'privacy.backend.VersionManager'))
 
 
 class Version(models.Model):
