@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load core_tags %}
+{% load privacy_tags %}
 {% load gravatar %}
 
     <!-- BEGIN project bar -->
@@ -34,7 +35,7 @@
               <li class="{{ builds_active }}"><a href="{{ project.get_builds_url }}">{% trans "Builds" %}</a></li>
             {% endif %}
 
-            {% if request.user in project.users.all %}
+            {% if request.user|is_admin:project %}
               <li class="{{ edit_active }}"><a href="{% url "projects_edit" project.slug %}"><i class="gear"></i>{% trans "Admin" %}</a></li>
             {% endif %}
 

@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load core_tags %}
+{% load privacy_tags %}
 {% load gravatar %}
 
 <div id="project_details">
@@ -50,7 +51,7 @@
             {% blocktrans with version.slug as slug %} {{ slug }} (Build Failed){% endblocktrans %}
           </a>
         {% endif %}
-          {% if request.user in project.users.all %}
+          {% if request.user|is_admin:project %}
             <ul class="module-item-menu">
               <li><a href="{% url "project_version_detail" project.slug version.slug %}">{% trans "Edit" %}</a></li>
             </ul>

@@ -10,12 +10,12 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext_lazy as _
-from django.utils.module_loading import import_by_path
 
 from guardian.shortcuts import assign
 
 from betterversion.better import version_windows, BetterVersion
 from oauth import utils as oauth_utils
+from privacy.loader import ProjectManager
 from projects import constants
 from projects.exceptions import ProjectImportError
 from projects.templatetags.projects_tags import sort_version_aware
@@ -30,8 +30,6 @@ from vcs_support.utils import Lock, NonBlockingLock
 
 
 log = logging.getLogger(__name__)
-
-ProjectManager = import_by_path(getattr(settings, 'PROJECT_MANAGER', 'privacy.backend.ProjectManager'))
 
 
 class ProjectRelationship(models.Model):

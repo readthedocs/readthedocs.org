@@ -177,6 +177,7 @@ INSTALLED_APPS = [
     'redirects',
     'rtd_tests',
     'restapi',
+    'privacy',
 
     # allauth
     'allauth',
@@ -259,9 +260,6 @@ ANONYMOUS_USER_ID = -1
 # RTD Settings
 REPO_LOCK_SECONDS = 30
 ALLOW_PRIVATE_REPOS = False
-
-PROJECT_MANAGER = 'privacy.backend.ProjectManager'
-VERSION_MANAGER = 'privacy.backend.VersionManager'
 
 GLOBAL_ANALYTICS_CODE = 'UA-17997319-1'
 
