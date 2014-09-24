@@ -1,46 +1,49 @@
 {% load i18n %}
 {% load gravatar %}
-    <!-- BEGIN header-->
-    <div id="rtfd-header" style="overflow: visible;">
-      <div class="wrapper">
 
-        <!-- BEGIN header title-->
-        <div class="rtfd-header-title">
-            <h1>
-                {% comment %}Translators: Name of the website{% endcomment %}
-                <a href="{% url "core.views.homepage" %}">{% trans "Read the Docs" %}</a>
-            </h1>
-        </div>
-        <!-- END header title -->
+<!-- BEGIN header-->
+<div id="rtfd-header">
+  <div class="wrapper">
 
-        <!-- BEGIN header nav -->
-        {% if request.user.is_authenticated %}
-            <span class="dropdown" style="position:absolute; right:0px; top:0px;">
-              <span>
-                  <a href="{{ request.user.get_profile.get_absolute_url }}">
-                  {% gravatar request.user.email 20 %}
-                  {{ request.user }}</a>
-                <a href="#">▼</a>
-              </span>
-              <ul>
-                <span>
-                  <li style="text-align: center;"> <a style="color: white; " href="{% url 'projects_dashboard' %}">Dashboard</a></li>
-                  <li style="text-align: center;"> <a style="color: white; " href="{% url 'projects_import' %}">Import Project</a></li>
-                  <li style="text-align: center;"> <a style="color: white; " href="{% url 'profiles_profile_edit' %}">Settings</a></li>
-                  <hr>
-                  <li style="text-align: center;"> <a style="color: white; " href="{% url 'account_logout' %}">{% trans "Log Out" %}</a></li>
-                  <li style="text-align: center;"> <a style="color: white; " href="{% url 'donate' %}">Donate</a></li>
-                </span>
-              </ul> 
-            </span>
+    <!-- BEGIN header title-->
+    <div class="rtfd-header-title">
+      <h1>
+        {% comment %}Translators: Name of the website{% endcomment %}
+        <a href="{% url "core.views.homepage" %}">{% trans "Read the Docs" %}</a>
+      </h1>
+    </div>
+    <!-- END header title -->
 
-        {% else %}
-        <div class="rtfd-header-nav">
-         <ul><li><a href="{% url 'account_login' %}">{% trans "Log In" %}</a></li></ul>
-        </div>
-        {% endif %}
-        <!-- END header nav -->
-
+    <!-- BEGIN header nav -->
+    {% if request.user.is_authenticated %}
+    <div class="menu menu-user" id="subnav-user-menu">
+      <div class="menu-button">
+        <a href="{{ request.user.get_profile.get_absolute_url }}">
+          {% gravatar request.user.email 24 %}
+          {{ request.user }}</a>
+        <button class="menu-drop">▼</button>
+      </div>
+      <div class="menu-dropdown">
+        <ul>
+          <ul>
+            <li><a href="{% url 'projects_dashboard' %}">{% trans "Projects" %}</a></li>
+            <li><a href="{% url 'projects_import' %}">{% trans "Add Project" %}</a></li>
+            <li><a href="{% url 'profiles_profile_edit' %}">{% trans "Edit Profile" %}</a></li>
+          </ul>
+          <ul>
+            <li><a href="{% url 'account_logout' %}">{% trans "Log Out" %}</a></li>
+            <li><a href="{% url 'donate' %}">{% trans "Donate" %}</a></li>
+          </ul>
+        </ul>
       </div>
     </div>
-    <!-- END header-->
+    {% else %}
+    <div class="rtfd-header-nav">
+      <ul><li><a href="{% url 'account_login' %}">{% trans "Log In" %}</a></li></ul>
+    </div>
+    {% endif %}
+    <!-- END header nav -->
+
+  </div>
+</div>
+<!-- END header-->
