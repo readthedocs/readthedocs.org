@@ -7,7 +7,12 @@
       <div class="wrapper">
 
         <div class="project-title">
-          <h1><a href="{{ project.get_absolute_url }}">{{ project }}</a></h1>
+          <h1>
+            <span class="project-breadcrumb quiet">
+              <a href="{% url "projects_dashboard" %}">{% trans "Projects" %}</a>
+            </span>
+            <a href="{{ project.get_absolute_url }}">{{ project }}</a>
+          </h1>
         </div>
 
         <div class="options">
