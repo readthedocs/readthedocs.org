@@ -18,7 +18,7 @@ from profiles import utils
 
 
 def create_profile(request, form_class=None, success_url=None,
-                   template_name='profiles/create_profile.html',
+                   template_name='profiles/private/create_profile.html',
                    extra_context=None):
     """
     Create a profile for the current user, if one doesn't already
@@ -121,7 +121,7 @@ create_profile = login_required(create_profile)
 
 
 def edit_profile(request, form_class=None, success_url=None,
-                 template_name='profiles/edit_profile.html',
+                 template_name='profiles/private/edit_profile.html',
                  extra_context=None):
     """
     Edit the current user's profile.
@@ -179,7 +179,7 @@ def edit_profile(request, form_class=None, success_url=None,
     try:
         profile_obj = request.user.get_profile()
     except ObjectDoesNotExist:
-        return HttpResponseRedirect(reverse('profiles_create_profile'))
+        return HttpResponseRedirect(reverse('profiles_profile_create'))
 
     #
     # See the comment in create_profile() for discussion of why
@@ -216,7 +216,7 @@ edit_profile = login_required(edit_profile)
 
 
 def profile_detail(request, username, public_profile_field=None,
-                   template_name='profiles/profile_detail.html',
+                   template_name='profiles/public/profile_detail.html',
                    extra_context=None):
     """
     Detail view of a user's profile.
