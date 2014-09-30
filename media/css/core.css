@@ -27,6 +27,10 @@ div.wrapper > div.col-major {
     margin-right: 20px;
 }
 
+div.wrapper > div.col-minor {
+    overflow: auto;
+}
+
 /* typography */
 
 body { font: 16px/24px "ff-meta-web-pro", "ff-meta-web-pro-1","ff-meta-web-pro-2", Arial, "Helvetica Neue", sans-serif; color: #444; }
