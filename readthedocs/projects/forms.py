@@ -32,13 +32,16 @@ class ProjectForm(forms.ModelForm):
 
     def placehold_repo(self):
         return choice([
-            'https://bitbucket.org/django/django',
+            'https://bitbucket.org/cherrypy/cherrypy',
             'https://bitbucket.org/birkenfeld/sphinx',
+            'https://bitbucket.org/hpk42/tox',
+            'https://github.com/zzzeek/sqlalchemy.git',
+            'https://github.com/django/django.git',
             'https://github.com/fabric/fabric.git',
             'https://github.com/ericholscher/django-kong.git',
         ])
 
-    def placehold_project_url(self):
+    def placehold_canonical_url(self):
         return choice([
             'http://docs.fabfile.org',
             'http://example.readthedocs.org',
@@ -65,7 +68,7 @@ class ImportProjectForm(ProjectForm):
         super(ImportProjectForm, self).__init__(*args, **kwargs)
         placeholders = {
             'repo': self.placehold_repo(),
-            'canonical_url': self.placehold_project_url(),
+            'canonical_url': self.placehold_canonical_url(),
         }
         for (field, value) in placeholders.items():
             self.fields[field].widget.attrs['placeholder'] = value

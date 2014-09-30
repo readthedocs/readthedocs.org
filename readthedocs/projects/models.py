@@ -112,8 +112,8 @@ class Project(models.Model):
                                  choices=constants.REPO_CHOICES, default='git')
     project_url = models.URLField(_('Project homepage'), blank=True,
                                   help_text=_('The project\'s homepage'))
-    canonical_url = models.URLField(_('Base URL'), blank=True,
-                                  help_text=_('Base URL that documentation is expected to serve from'))
+    canonical_url = models.URLField(_('Canonical URL'), blank=True,
+                                  help_text=_('URL that documentation is expected to serve from'))
     version = models.CharField(_('Version'), max_length=100, blank=True,
                                help_text=_('Project version these docs apply '
                                            'to, i.e. 1.0a'))
