@@ -283,6 +283,11 @@ p.build-missing { font-size: .8em; color: #9d9a55; margin: 0 0 3px; }
 
 .notification { padding: 30px 0; color: #a55; }
 
+
+/* warning banner */
+
+.banner { padding: 5px; }
+
 /* sidebar + main content */
 
 .navigable { width: 100%; }
