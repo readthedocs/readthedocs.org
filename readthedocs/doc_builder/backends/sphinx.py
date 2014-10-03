@@ -206,6 +206,7 @@ class PdfBuilder(BaseSphinx):
                 pdf_results = run(*pdflatex_cmds)
             else:
                 pdf_results = (0, "No tex files found", "No tex files found")
+                ind_results = (0, "No tex files found", "No tex files found")
 
             results = [
                 latex_results[0] + ind_results[0] + pdf_results[0],
