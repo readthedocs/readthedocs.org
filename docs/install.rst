@@ -88,48 +88,6 @@ with the name of any added project::
 
    ./manage.py update_repos pip
 
-
-Solr (Search) Setup
--------------------
-
-Apache Solr is used to index and search documents.
-This is an optional requirement,
-and only necessary if you want to develop or use search.
-
-Additional python requirements necessary to use Solr::
-
-    pip install pysolr
-    pip install pyquery
-
-Fetch and unpack Solr::
-
-    curl -O http://archive.apache.org/dist/lucene/solr/3.5.0/apache-solr-3.5.0.tgz
-    tar xvzf apache-solr-3.5.0.tgz && SOLR_PATH=`pwd`/apache-solr-3.5.0/example
-
-Generate the schema.xml file::
-
-    ./manage.py build_solr_schema > $SOLR_PATH/solr/conf/schema.xml
-
-Start the server::
-
-    cd $SOLR_PATH && java -jar start.jar
-
-Index the data::
-
-    ./manage.py build_files # creates database objects referencing project files
-    ./manage.py update_index
-
-.. note::
-
-    For production environments, you'll want to run Solr in a more permanent
-    servelet container, such as Tomcat or Jetty. Ubuntu distributions include
-    prepackaged Solr installations. Try ``aptitude install solr-tomcat`` or
-    ``aptitude install solr-jetty.``
-
-    See /etc/[solr|tomcat6|jetty] for configuration options.  The ``schema.xml``
-    file must be replaced with the version built by django-haystack.
-
-
 What's available
 ----------------
 
