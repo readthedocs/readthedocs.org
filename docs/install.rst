@@ -3,7 +3,8 @@
 Installation
 =============
 
-Installing RTD is pretty simple. Here is a step by step plan on how to do it.
+Here is a step by step plan on how to install Read the Docs. 
+It will get you to a point of having a local running instance.
 
 First, obtain Python_ and virtualenv_ if you do not already have them. Using a
 virtual environment will make the installation easier, and will help to avoid
