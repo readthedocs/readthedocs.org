@@ -52,6 +52,20 @@ Next, install the dependencies using ``pip`` (included with virtualenv_)::
         LDFLAGS=-L/usr/local/opt/libxml2/lib \
         pip install -r pip_requirements.txt
 
+.. note::
+
+    Linux users may find they need to install a few additional packages
+    in order to successfully execute ``pip-install -r pip_requirements.txt``.
+    For example, a clean install of Ubuntu 14.04 LTS will require the
+    following packages::
+
+        sudo apt-get install build-essential
+        sudo apt-get install python-dev
+        sudo apt-get install libxml2-dev libxslt1-dev zlib1g-dev
+
+    Users of other Linux distributions may need to install the equivalent
+    packages, depending on their system configuration.
+
 .. _Homebrew: http://brew.sh/
 
 This may take a while, so go grab a beverage. When it's done, build your
