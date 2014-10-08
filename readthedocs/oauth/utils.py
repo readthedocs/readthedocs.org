@@ -50,6 +50,8 @@ def make_github_organization(user, org_json):
 
 
 def get_token_for_project(project, force_local=False):
+    if not getattr(settings, 'ALLOW_PRIVATE_REPOS', False):
+        return None
     token = None
     try:
         if getattr(settings, 'DONT_HIT_DB', True) and not force_local:
