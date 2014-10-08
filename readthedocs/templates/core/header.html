@@ -56,3 +56,13 @@
       </div>
     </div>
     <!-- END header-->
+
+    <!-- BEGIN queue depth warning -->
+    {% if BUILD_QUEUE_DEPTH > 10 %}
+    <div class='banner'>
+      {% blocktrans with BUILD_QUEUE_DEPTH as queue_length %}
+        Whoa! The build queue is {{ queue_length }} long, new builds may take a while.
+      {% endblocktrans %}
+    </div>
+    {% endif %}
+    <!-- END queue depth warning -->
