@@ -1,7 +1,6 @@
 import fnmatch
 import logging
 import os
-import datetime
 from urlparse import urlparse
 
 from distlib.version import UnsupportedVersionError
@@ -12,11 +11,11 @@ from django.db import models
 from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext_lazy as _
 
-from allauth.socialaccount.models import SocialToken
-from guardian.shortcuts import assign, get_objects_for_user
+from guardian.shortcuts import assign
 
 from betterversion.better import version_windows, BetterVersion
 from oauth import utils as oauth_utils
+from privacy.loader import ProjectManager
 from projects import constants
 from projects.exceptions import ProjectImportError
 from projects.templatetags.projects_tags import sort_version_aware
@@ -33,52 +32,6 @@ from vcs_support.utils import Lock, NonBlockingLock
 log = logging.getLogger(__name__)
 
 
-class ProjectManager(models.Manager):
-    def _filter_queryset(self, user, privacy_level):
-        if isinstance(privacy_level, basestring):
-            privacy_level = (privacy_level,)
-        queryset = Project.objects.filter(privacy_level__in=privacy_level)
-        if not user:
-            return queryset
-        else:
-            # Hack around get_objects_for_user not supporting global perms
-            global_access = user.has_perm('projects.view_project')
-            if global_access:
-                queryset = Project.objects.all()
-        if user.is_authenticated():
-            # Add in possible user-specific views
-            user_queryset = get_objects_for_user(user, 'projects.view_project')
-            queryset = user_queryset | queryset
-        return queryset.filter()
-
-    def live(self, *args, **kwargs):
-        base_qs = self.filter(skip=False)
-        return base_qs.filter(*args, **kwargs)
-
-    def public(self, user=None, *args, **kwargs):
-        """
-        Query for projects, privacy_level == public
-        """
-        queryset = self._filter_queryset(user, privacy_level=constants.PUBLIC)
-        return queryset.filter(*args, **kwargs)
-
-    def protected(self, user=None, *args, **kwargs):
-        """
-        Query for projects, privacy_level != private
-        """
-        queryset = self._filter_queryset(user,
-                                         privacy_level=(constants.PUBLIC,
-                                                        constants.PROTECTED))
-        return queryset.filter(*args, **kwargs)
-
-    def private(self, user=None, *args, **kwargs):
-        """
-        Query for projects, privacy_level != private
-        """
-        queryset = self._filter_queryset(user, privacy_level=constants.PRIVATE)
-        return queryset.filter(*args, **kwargs)
-
-
 class ProjectRelationship(models.Model):
     parent = models.ForeignKey('Project', verbose_name=_('Parent'),
                                related_name='subprojects')
@@ -92,6 +45,7 @@ class ProjectRelationship(models.Model):
     def get_absolute_url(self):
         return ("http://%s.readthedocs.org/projects/%s/%s/latest/"
                 % (self.parent.slug, self.child.slug, self.child.language))
+
 
 class Project(models.Model):
     #Auto fields
@@ -107,15 +61,13 @@ class Project(models.Model):
                                    help_text=_('The reStructuredText '
                                                'description of the project'))
     repo = models.CharField(_('Repository URL'), max_length=100, blank=True,
-                            help_text=_('Checkout URL for your code (hg, git, '
-                                        'etc.). Ex. http://github.com/'
-                                        'ericholscher/django-kong.git'))
+                            help_text=_('Hosted documentation repository URL'))
     repo_type = models.CharField(_('Repository type'), max_length=10,
                                  choices=constants.REPO_CHOICES, default='git')
-    project_url = models.URLField(_('Project URL'), blank=True,
+    project_url = models.URLField(_('Project homepage'), blank=True,
                                   help_text=_('The project\'s homepage'))
     canonical_url = models.URLField(_('Canonical URL'), blank=True,
-                                  help_text=_('The official URL that the docs live at. This can be slug.readthedocs.org, or somewhere else. Ex. http://docs.fabfile.org'))
+                                  help_text=_('URL that documentation is expected to serve from'))
     version = models.CharField(_('Version'), max_length=100, blank=True,
                                help_text=_('Project version these docs apply '
                                            'to, i.e. 1.0a'))

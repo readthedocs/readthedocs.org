@@ -1,58 +1,49 @@
 {% load i18n %}
-    <!-- BEGIN header-->
-    <div id="rtfd-header">
-      <div class="wrapper">
+{% load gravatar %}
 
-        <!-- BEGIN header title-->
-        <div class="rtfd-header-title">
-            <h1>
-                {% comment %}Translators: Name of the website{% endcomment %}
-                <a href="{% url "core.views.homepage" %}">{% trans "Read the Docs" %}</a>
-            </h1>
-        </div>
-        <!-- END header title -->
+<!-- BEGIN header-->
+<div id="rtfd-header">
+  <div class="wrapper">
 
-        <!-- BEGIN global search -->
-        <div class="rtfd-header-search">
-          <form action="{% url "haystack_project" %}" method="GET">
-            <input type="text" name="q" value="{{ term }}" id="id_site_search">
-            <input type="submit" value="{% trans "Go" %}">
-          </form>
-        </div>
-        <!-- END global search -->
+    <!-- BEGIN header title-->
+    <div class="rtfd-header-title">
+      <h1>
+        {% comment %}Translators: Name of the website{% endcomment %}
+        <a href="{% url "core.views.homepage" %}">{% trans "Read the Docs" %}</a>
+      </h1>
+    </div>
+    <!-- END header title -->
 
-        {% comment %}
-        {% if do_bookmarking and request.user.is_authenticated %}
-        <!-- BEGIN bookmark -->
-        {% if request.META.PATH_INFO != '/' %}
-        <div class="rtfd-header-bookmark">
-          {% if has_bookmark %}
-            <a href="{% url "bookmarks_remove" request.META.PATH_INFO %}" class="rtfd-header-bookmark-icon active">{% trans "Remove bookmark" %}</a>
-          {% else %}
-            <a href="{% url "bookmarks_add" request.META.PATH_INFO %}" class="rtfd-header-bookmark-icon">{% trans "Bookmark this URL" %}</a>
-          {% endif %}
-        </div>
-        {% endif %}
-        <!-- END bookmark -->
-        {% endif %}
-        {% endcomment %}
-
-        <!-- BEGIN header nav -->
-        <div class="rtfd-header-nav">
+    <!-- BEGIN header nav -->
+    {% if request.user.is_authenticated %}
+    <div class="menu menu-user" id="subnav-user-menu">
+      <div class="menu-button">
+        <a href="{{ request.user.get_profile.get_absolute_url }}">
+          {% gravatar request.user.email 24 %}
+          {{ request.user }}</a>
+        <button class="menu-drop">▼</button>
+      </div>
+      <div class="menu-dropdown">
+        <ul>
           <ul>
-            {% if request.user.is_authenticated %}
-              <li class="{{ dashboard_active }}"><a href="{% url "projects_dashboard" %}">{% trans "Dashboard" %}</a></li>
-              <li><a href="{% url "account_logout" %}">{% trans "Log Out" %}</a></li>
-            {% else %}
-              <li><a href="{% url "account_login" %}">{% trans "Log in" %}</a></li>
-            {% endif %}
-              <li><a href="{% url "donate" %}">{% trans "Donate" %}</a></li>
-
-
+            <li><a href="{% url 'projects_dashboard' %}">{% trans "Projects" %}</a></li>
+            <li><a href="{% url 'projects_import' %}">{% trans "Add Project" %}</a></li>
+            <li><a href="{% url 'profiles_profile_edit' %}">{% trans "Edit Profile" %}</a></li>
           </ul>
-        </div>
-        <!-- END header nav -->
-
+          <ul>
+            <li><a href="{% url 'account_logout' %}">{% trans "Log Out" %}</a></li>
+            <li><a href="{% url 'donate' %}">{% trans "Donate" %}</a></li>
+          </ul>
+        </ul>
       </div>
     </div>
-    <!-- END header-->
+    {% else %}
+    <div class="rtfd-header-nav">
+      <ul><li><a href="{% url 'account_login' %}">{% trans "Log In" %}</a></li></ul>
+    </div>
+    {% endif %}
+    <!-- END header nav -->
+
+  </div>
+</div>
+<!-- END header-->

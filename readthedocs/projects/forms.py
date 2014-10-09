@@ -1,3 +1,5 @@
+from random import choice
+
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -28,12 +30,25 @@ class ProjectForm(forms.ModelForm):
 
         return name
 
+    def placehold_repo(self):
+        return choice([
+            'https://bitbucket.org/cherrypy/cherrypy',
+            'https://bitbucket.org/birkenfeld/sphinx',
+            'https://bitbucket.org/hpk42/tox',
+            'https://github.com/zzzeek/sqlalchemy.git',
+            'https://github.com/django/django.git',
+            'https://github.com/fabric/fabric.git',
+            'https://github.com/ericholscher/django-kong.git',
+        ])
+
+    def placehold_canonical_url(self):
+        return choice([
+            'http://docs.fabfile.org',
+            'http://example.readthedocs.org',
+        ])
+
 
 class ImportProjectForm(ProjectForm):
-    repo = forms.CharField(required=True,
-                           help_text=_(u'URL for your code (hg or git). Ex. '
-                                       u'http://github.com/ericholscher/django'
-                                       u'-kong.git'))
 
     class Meta:
         model = Project
@@ -48,6 +63,15 @@ class ImportProjectForm(ProjectForm):
             'canonical_url',
             'tags',
         )
+
+    def __init__(self, *args, **kwargs):
+        super(ImportProjectForm, self).__init__(*args, **kwargs)
+        placeholders = {
+            'repo': self.placehold_repo(),
+            'canonical_url': self.placehold_canonical_url(),
+        }
+        for (field, value) in placeholders.items():
+            self.fields[field].widget.attrs['placeholder'] = value
 
     def clean_repo(self):
         repo = self.cleaned_data.get('repo', '').strip()

@@ -1,1 +1,37 @@
-{% extends "dashboard/base_dashboard.html" %}
+{% extends "base.html" %}
+
+{% load i18n %}
+{% load core_tags %}
+{% load gravatar %}
+
+{% block subnav-bar %}
+<!-- BEGIN project bar -->
+<div id="project_bar">
+  <div class="wrapper">
+
+    <div class="project-title">
+      <h2>
+      {% gravatar user.email 30 %}
+      {{ user }} 
+      {% if user.get_full_name %}
+        ({{ user.get_full_name}})
+      {% endif %}
+      </h2>
+    </div>
+
+    <div class="options">
+
+      <ul>
+        <li class="{% block profile-bar-profile %}{% endblock %}"><a href="{{ user.get_profile.get_absolute_url }}">{% trans "Profile" %}</a></li>
+        {% if request.user == user %}
+        <li class="{% block profile-bar-admin %}{% endblock %}"><a href="{% url "profiles_profile_edit" %}"><i class="gear"></i>{% trans "Admin" %}</a></li>
+        {% endif %}
+
+      </ul>
+    </div>
+
+  </div>
+</div>
+<!-- END project bar -->
+
+{% endblock %}

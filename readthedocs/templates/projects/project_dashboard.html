@@ -4,120 +4,173 @@
 
 {% block title %}{% trans "Project Dashboard" %}{% endblock %}
 
-{% block dashboard_bar %}
-  {% with projects_active="active" %}
-    {% include "dashboard/dashboard_bar.html" %}
-  {% endwith %}
-{% endblock %}
-
 {% block dash-nav-projects %}active{% endblock %}
 
 {% block content %}
+  {% url "projects_import" as projects_import_url %}
+  {% url "socialaccount_connections" as social_accounts %}
 
-          <!-- BEGIN your projects list -->
-          {% if project_list %}
+  <!-- BEGIN your projects list -->
+  <div class="col-major project-dashboard-right">
+    {% if project_list %}
+
+      {% if filter|length > 0 %}
+        <div class="module-header">
+          <h3>{% trans "Important Versions" %}</h3>
+        </div>
+
+        <div class="filter">
+          {% autopaginate filter 15 %}
+
+          <!-- BEGIN filter list -->
           <div class="module">
             <div class="module-wrapper">
 
-              <p class="empty">
-              {% blocktrans with url="http://docs.readthedocs.org/en/latest/index.html" %}
-              Check out the <a href="{{ url }}">documentation for Read the Docs</a>. It contains lots of information about how to get the most out of RTD.
+              <div class="module-list">
+                <div class="module-list-wrapper">
+                  <ul>
+                    {% include "core/filter_list.html" %}
+                  </ul>
+                </div>
+              </div>
+
+            </div>
+          </div>
+          <!-- END filter list -->
+
+          {% paginate %}
+
+        </div>
+      {% endif %}
+
+      <div class="module">
+        <div class="module-wrapper">
+
+          <div class="module-header">
+            <form method="get" action="{{ projects_import_url }}">
+              <input type="submit" value="Import a Project" />
+            </form>
+            <h3>{% trans "Projects" %}</h3>
+          </div>
+
+          <div class="module-list">
+            <div class="module-list-wrapper">
+
+              <ul>
+                {% for project in project_list %}
+                  <li class="module-item col-span">
+                    <a href="{% url "projects_manage" project.slug %}">
+                      {{ project.name }}
+                      {% with builds=project.builds.count %}
+                        {% if builds == 0 %}
+                          <span class="right quiet">
+                            {% trans "No builds yet" %}
+                          </span>
+                        {% else %}
+                          <span class="right quiet">
+                            <span class="build-count">
+                              {% if builds == 1 %}
+                                {% trans "1 build" %}
+                              {% else %}
+                                {{ builds }} {% trans "builds" %}
+                              {% endif %}
+                            </span>
+                            {% with build=project.get_latest_build %}
+                              {% if build.success %}
+                                <span class="build-state build-state-passing">{% trans "passing" %}</span>
+                              {% else %}
+                                <span class="build-state build-state-failing">{% trans "failing" %}</span>
+                              {% endif %}
+                            {% endwith %}
+                          </span>
+                        {% endif %}
+                      {% endwith %}
+                    </a>
+                  </li>
+                {% endfor %}
+              </ul>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+    {% else %}
+
+      <!-- BEGIN onboard import project -->
+      <div class="module onboard onboard-import-project">
+        <h2>Ready to share your documentation{% if request.user.first_name %}, {{ request.user.first_name }}{% endif %}?</h2>
+
+        {% with getting_started_url="http://docs.readthedocs.org/en/latest/getting_started.html" %}
+          <form method="get" action="{{ projects_import_url }}">
+            <p>
+              {% blocktrans %}
+                You don't have any projects yet, but you can start building documentation by importing one.
+                Not sure how to start documenting your project?
+                Check out the <a href="{{ getting_started_url }}">Getting Started Guide</a> to learn how.
               {% endblocktrans %}
-              </p>
+            </p>
 
-              {% if filter|length > 0 %}
+            <input type="submit" value="Import a Project" />
+          </form>
+        {% endwith %}
+      </div>
+      <!-- END onboard import project -->
 
-                <div class="module-header">
-                  <h3>{% trans "Important Versions" %}</h3>
-                </div>
+    {% endif %}
+  </div>
+  <!-- END your projects list -->
 
-                <div class="filter">
-                  {% autopaginate filter 15 %}
+  <!-- BEGIN project side bar -->
+  <div class="col-minor project-dashboard-right">
 
-                  <!-- BEGIN filter list -->
-                  <div class="module">
-                    <div class="module-wrapper">
+    <div class="module onboard onbard-accounts">
 
-                      <div class="module-list">
-                        <div class="module-list-wrapper">
-                          <ul>
-                            {% include "core/filter_list.html" %}
-                          </ul>
-                        </div>
-                      </div>
+      {% if request.user.socialaccount_set.count == 0 %}
+        <h3>Connect your Accounts</h3>
 
-                    </div>
-                  </div>
-                  <!-- END filter list -->
-
-                  {% paginate %}
-                </div>
-
-              {% endif %}
-
-              <div class="module-header">
-                <h3>{% trans "My Projects" %}</h3>
-              </div>
-
-              <div class="module-list">
-                <div class="module-list-wrapper">
-
-                  <ul>
-                    {% for project in project_list %}
-                      <li class="module-item col-span">
-                        <a href="{% url "projects_manage" project.slug %}">{{ project.name }}</a>
-                        <ul class="module-item-menu">
-                          <li><a href="{% url "projects_edit" project.slug %}"><i class="gear"></i>{% trans "Admin" %}</a></li>
-                          <li>&nbsp;&nbsp;</li>
-                          <li><a href="{{ project.get_docs_url }}">{% trans "View Docs" %}</a></li>
-                        </ul>
-                      </li>
-                    {% endfor %}
-                  </ul>
-
-                </div>
-              </div>
-            </div>
-          </div>
-          {% else %}
-          {% url "projects_import" as projects_import_url %}
-          {% url "socialaccount_connections" as social_accounts %}
-          {% with getting_started_url="http://docs.readthedocs.org/en/latest/getting_started.html" %}
-          <p class="empty">
+        <p>
           {% blocktrans %}
-          You don't have any projects. You can <a href="{{ projects_import_url }}">create new docs</a> on the site.
-          <br>
-          If you have a GitHub account, you can <a href="{{ social_accounts }}">connect it</a> and import projects from there.
-          <br>
-          Check out the <a href="{{ getting_started_url }}">Getting Started</a> documentation for information about how to get going.
-          </p> 
+            Have a Github account? Connect your account and import your existing projects automatically.
           {% endblocktrans %}
-          {% endwith %}
-          {% endif %}
-          <!-- END your projects list -->
+        </p>
 
-          {% comment %}
-          {% if bookmark_list %}
-          <!-- BEGIN marks list -->
-          <div class="module">
-            <div class="module-wrapper">
-              <div class="module-header">
-                <h3>{% trans "Recently Bookmarked Docs" %} <span class="small_head"><a href="{% url "user_bookmarks" %}">{% trans "(All My Bookmarks)" %}</a></span></h3>
-              </div>
+        <form method="get" action="{{ social_accounts }}">
+          <input type="submit" value="Connect to Github" />
+        </form>
+      </div>
+    {% endif %}
 
-              <div class="module-list">
-                <div class="module-list-wrapper">
-                  <ul>
-                    {% include "core/bookmark_list_detailed.html" %}
-                  </ul>
-                </div>
-              </div>
+    <div class="module info info-docs">
+      <p>
+        Check out the <a href="http://docs.readthedocs.org/en/latest/index.html">documentation for Read the Docs</a>.
+        It contains lots of information about how to get the most out of RTD.
+      </p>
+    </div>
+  </div>
+  <!-- END project side bar -->
 
-            </div>
-          </div>
-          <!-- END marks list -->
-          {% endif %}
-          {% endcomment %}
+  {% comment %}
+  {% if bookmark_list %}
+  <!-- BEGIN marks list -->
+  <div class="module">
+    <div class="module-wrapper">
+      <div class="module-header">
+        <h3>{% trans "Recently Bookmarked Docs" %} <span class="small_head"><a href="{% url "user_bookmarks" %}">{% trans "(All My Bookmarks)" %}</a></span></h3>
+      </div>
 
+      <div class="module-list">
+        <div class="module-list-wrapper">
+          <ul>
+            {% include "core/bookmark_list_detailed.html" %}
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <!-- END marks list -->
+  {% endif %}
+  {% endcomment %}
 
 {% endblock %}

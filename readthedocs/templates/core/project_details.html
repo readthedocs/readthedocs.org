@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load core_tags %}
+{% load privacy_tags %}
 {% load gravatar %}
 
 <div id="project_details">
@@ -50,7 +51,7 @@
             {% blocktrans with version.slug as slug %} {{ slug }} (Build Failed){% endblocktrans %}
           </a>
         {% endif %}
-          {% if request.user in project.users.all %}
+          {% if request.user|is_admin:project %}
             <ul class="module-item-menu">
               <li><a href="{% url "project_version_detail" project.slug version.slug %}">{% trans "Edit" %}</a></li>
             </ul>
@@ -93,14 +94,24 @@
 
   {% if project.repo %}
     <h3>{% trans "Repository" %}</h3>
-    <p>{{ project.repo|urlize }}</p>
+    <p class="detail-long">{{ project.repo }}</p>
   {% endif %}
 
-    <h3>{% trans "Badge" %}</h3>
-      <a href="{{ site_url }}" style="text-decoration: none;" onclick="$('#badge_markup').toggle(); return false;">
-        <img src="{{ badge_url }}" />
-      </a>
-      {% include "core/badge_markup.html" with badge_url=badge_url site_url=site_url %}
+  <h3>{% trans "Last Built" %}</h3>
+  <p>
+    {% if project.builds.count > 0 %}
+      {% with build=project.get_latest_build %}
+        {{ build.date|timesince }} ago
+        {% if build.success %}
+          <span class="build-state build-state-passing">{% trans "passed" %}</span>
+        {% else %}
+          <span class="build-state build-state-failing">{% trans "failed" %}</span>
+        {% endif %}
+      {% endwith %}
+    {% else %}
+      No builds yet
+    {% endif %}
+  </p>
 
     <h3>{% trans "Owners" %}</h3>
     <p>
@@ -108,6 +119,13 @@
       <a href="{% url "profiles_profile_detail" user.username %}">{% gravatar user.email 32 user.email %}</a>
       {% endfor %}
     </p>
+
+    <h3>{% trans "Badge" %}</h3>
+      <a href="{{ site_url }}" style="text-decoration: none;" onclick="$('#badge_markup').toggle(); return false;">
+        <img src="{{ badge_url }}" />
+      </a>
+      {% include "core/badge_markup.html" with badge_url=badge_url site_url=site_url %}
+
 
   {% if project.tags.count %}
     <h3>{% trans "Tags" %}</h3>
@@ -119,9 +137,6 @@
       {% endfor %}
     </p>
   {% endif %}
-
-  <h3>{% trans "Last Built" %}</h3>
-  <p>{{ project.builds.all.0.date|timesince }} ago</p>
 
   {% if project.project_url %}
     <h3>{% trans "Home Page" %}</h3>
@@ -176,7 +191,7 @@
 
 {% if request.user in project.users.all %}
   <h3>{% trans "Post Commit Hook" %}</h3>
-    <p>
+    <p class="detail-long">
         curl -X POST http://{{ PRODUCTION_DOMAIN }}{% url "generic_build" project.slug %}
     </p>
 
