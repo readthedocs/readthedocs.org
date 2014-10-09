@@ -18,12 +18,6 @@
 
         <div class="options">
 
-          {% if project.get_latest_build %}
-            {% if not project.get_latest_build.success and project.get_latest_build.state == 'finished' %}
-                <p class="build-failure">{% blocktrans with project.get_builds_url as url %}Build failed (<a href="{{ url }}">why</a>){% endblocktrans %}</p>
-            {% endif %}
-          {% endif %}
-
           <ul>
               <li class="{{ overview_active }}"><a href="{{ project.get_absolute_url }}">{% trans "Overview" %}</a></li>
             {% if project.has_good_build %}
