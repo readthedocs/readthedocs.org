@@ -2,7 +2,7 @@ $(function() {
   $('body')
     .on('click', '.dropdown > span > a:last-child', open_dropdown)
     .on('keyup', '.dropdown input[type=search]', filter_dropdown_results)
-    .click(hide_dropdown) 
+    .click(hide_dropdown)
 
   $('select.dropdown').each(function(i, e) { build_dropdown_from_select($(e)) })
 
@@ -26,7 +26,7 @@ $(function() {
       , value = this.value
 
     dropdown.find('li').show()
-   
+
     if(value.length) {
       dropdown.find('li').hide()
       dropdown.find('li').filter(function(i, el) {
@@ -46,7 +46,7 @@ $(function() {
       el.val('')
       dropdown.find('li').show()
     }
-  } 
+  }
 
   function hide_dropdown(ev) {
     if(!$(ev.target).parents('.dropdown').length) {
@@ -107,7 +107,7 @@ $(function() {
   // close it if it loses click focus.
   (function () {
     var menu = $('.menu-user'),
-        menu_button = menu.find('div.menu-button'),
+        menu_button = menu.find('.menu-drop'),
         menu_dropdown = menu.find('div.menu-dropdown');
 
     menu_button.on('click', function (ev) {
