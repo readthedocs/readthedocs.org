@@ -56,11 +56,14 @@
     <div id="content">
       <div class="wrapper">
 
-        {% if request.GET.docs_not_built %}
-          <div class="notification">
-            <p>{% trans "Your docs are currently being built.  It may take a moment for them to appear." %}</p>
-            <p>{% trans "Read the Docs thanks you for your continued patience." %}</p>
-          </div>
+        {% if messages %}
+          <ul class="notifications">
+            {% for message in messages %}
+              <li class="notification notification-{{ message.level }}">
+                {{ message }}
+              </li>
+            {% endfor %}
+          </ul>
         {% endif %}
 
         {% block content-header %}

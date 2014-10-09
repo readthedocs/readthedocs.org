@@ -7,12 +7,14 @@ from datetime import datetime
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponseNotAllowed, Http404
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
 from django.views.generic import ListView
 from django.utils.decorators import method_decorator
+from django.utils.translation import ugettext_lazy as _
 
 from guardian.shortcuts import assign
 
@@ -85,6 +87,7 @@ def project_edit(request, project_slug):
 
     if request.method == 'POST' and form.is_valid():
         form.save()
+        messages.success(request, _('Project settings updated'))
         project_dashboard = reverse('projects_detail', args=[project.slug])
         return HttpResponseRedirect(project_dashboard)
 
@@ -109,6 +112,7 @@ def project_advanced(request, project_slug):
 
     if request.method == 'POST' and form.is_valid():
         form.save()
+        messages.success(request, _('Project settings updated'))
         project_dashboard = reverse('projects_detail', args=[project.slug])
         return HttpResponseRedirect(project_dashboard)
 
@@ -137,6 +141,7 @@ def project_versions(request, project_slug):
 
     if request.method == 'POST' and form.is_valid():
         form.save()
+        messages.success(request, _('Project versions updated'))
         project_dashboard = reverse('projects_detail', args=[project.slug])
         return HttpResponseRedirect(project_dashboard)
 
@@ -181,6 +186,7 @@ def project_delete(request, project_slug):
         shutil.rmtree(project.doc_path, ignore_errors=True)
         # Delete the project and everything related to it
         project.delete()
+        messages.success(request, _('Project deleted'))
         project_dashboard = reverse('projects_dashboard')
         return HttpResponseRedirect(project_dashboard)
 
@@ -203,7 +209,9 @@ def project_import(request):
         form.instance.users.add(request.user)
         assign('view_project', request.user, project)
         project_manage = reverse('projects_detail', args=[project.slug])
-        return HttpResponseRedirect(project_manage + '?docs_not_built=True')
+        messages.info(request, _("Your docs are currently being built. "
+                                 "It may take a moment for them to appear."))
+        return HttpResponseRedirect(project_manage)
 
     return render_to_response(
         'projects/project_import.html',
@@ -272,11 +280,9 @@ def project_subprojects(request, project_slug):
 def project_subprojects_delete(request, project_slug, child_slug):
     parent = get_object_or_404(request.user.projects.live(), slug=project_slug)
     child = get_object_or_404(Project.objects.all(), slug=child_slug)
-
     parent.remove_subproject(child)
-
-    project_dashboard = reverse('projects_detail', args=[parent.slug])
-    return HttpResponseRedirect(project_dashboard)
+    return HttpResponseRedirect(reverse('projects_subprojects',
+                                        args=[parent.slug]))
 
 
 @login_required
@@ -429,7 +435,8 @@ def project_redirects_delete(request, project_slug):
         redirect.delete()
     else:
         raise Http404
-    project_dashboard = reverse('projects_redirects', args=[project.slug])
+    return HttpResponseRedirect(reverse('projects_redirects',
+                                        args=[project.slug]))
 
 
 @login_required
@@ -442,7 +449,7 @@ def project_import_github(request, sync=False):
     github_connected = oauth_utils.import_github(user=request.user, sync=sync)
 
     repos = GithubProject.objects.filter(users__in=[request.user])
-    
+
     # Find existing projects that match a repo url
     for repo in repos:
         ghetto_repo = repo.git_url.replace('git://', '').replace('.git', '')
