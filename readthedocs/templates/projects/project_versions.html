@@ -6,7 +6,7 @@
 {% block project-versions-active %}active{% endblock %}
 {% block editing-option-edit-proj %}class="active"{% endblock %}
 
-{% block project_edit_content_header %}{{ project.name }} <small class="quiet">{% trans "Versions" %}</small>{% endblock %}
+{% block project_edit_content_header %}{% trans "Versions" %}{% endblock %}
 
 {% block project_edit_content %}
   <form method="post" action=".">{% csrf_token %}
