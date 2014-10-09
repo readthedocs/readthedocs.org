@@ -11,7 +11,7 @@
 
   <div id="profile">
     <div>
-      {% with profile.user.projects.public as project_list %}
+      {% with profile.user.projects.live as project_list %}
             <!-- BEGIN projects list -->
             <div class="module">
               <div class="module-wrapper">
@@ -20,7 +20,7 @@
                   <div class="module-list-wrapper">
 
                     <ul>
-                    {# {% include "core/project_list_detailed.html" with omit=profile.user %} #}
+                    {% include "core/project_list_detailed.html" with omit=profile.user %}
                     </ul>
 
                   </div>
