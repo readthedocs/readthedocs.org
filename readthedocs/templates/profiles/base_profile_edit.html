@@ -1,8 +1,43 @@
-{% extends "profiles/base_profile.html" %}
+{% extends "base.html" %}
 
 {% load i18n %}
+{% load core_tags %}
+{% load gravatar %}
 
 {% block profile-bar-admin %}active{% endblock %}
+
+{# This is included here instead of subclassing base_profile because we don't control all the views, and can't set the `profile` variable reliably #}
+{% block subnav-bar %}
+<!-- BEGIN project bar -->
+<div id="project_bar">
+  <div class="wrapper">
+
+    <div class="project-title">
+      <h2>
+        <a href="{{ user.get_profile.get_absolute_url }}">
+        {% gravatar user.email 30 %}
+        </a>
+        {{ user }}
+        {% if user.get_full_name %}
+          ({{ user.get_full_name}})
+        {% endif %}
+      </h2>
+    </div>
+
+    <div class="options">
+
+      <ul>
+        <li class="{% block profile-bar-profile %}{% endblock %}"><a href="{{ user.get_profile.get_absolute_url }}">{% trans "Profile" %}</a></li>
+        <li class="active"><a href="{% url "profiles_profile_edit" %}"><i class="gear"></i>{% trans "Admin" %}</a></li>
+
+      </ul>
+    </div>
+
+  </div>
+</div>
+<!-- END project bar -->
+
+{% endblock %}
 
 {% block content %}
 <div id="project_edit" class="module">
@@ -23,3 +58,6 @@
   </div>
 </div>
 {% endblock %}
+
+
+
