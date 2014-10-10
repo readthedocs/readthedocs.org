@@ -11,12 +11,22 @@
 
     <div class="project-title">
       <h2>
-      <a href="{{ user.get_profile.get_absolute_url }}">
-      {% gravatar user.email 30 %}
-      </a>
-      {{ user }}
-      {% if user.get_full_name %}
-        ({{ user.get_full_name}})
+      {% if profile %}
+        <a href="{{ profile.get_absolute_url }}">
+        {% gravatar profile.user.email 30 %}
+        </a>
+        {{ profile.user }}
+        {% if profile.user.get_full_name %}
+          ({{ profile.user.get_full_name}})
+        {% endif %}
+      {% else %}
+        <a href="{{ user.get_profile.get_absolute_url }}">
+        {% gravatar user.email 30 %}
+        </a>
+        {{ user }}
+        {% if user.get_full_name %}
+          ({{ user.get_full_name}})
+        {% endif %}
       {% endif %}
       </h2>
     </div>
