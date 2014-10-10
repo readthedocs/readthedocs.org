@@ -75,32 +75,26 @@ def update_docs(pk, version_pk=None, record=True, docker=False,
     results = {}
 
     try:
-        record_build(
-            api=api, build=build, record=record, results=results, state='cloning')
+        record_build(api=api, build=build, record=record, results=results, state='cloning')
         vcs_results = setup_vcs(version, build, api)
         if vcs_results:
             results.update(vcs_results)
 
         if docker:
-            record_build(
-                api=api, build=build, record=record, results=results, state='building')
+            record_build(api=api, build=build, record=record, results=results, state='building')
             build_results = run_docker(version)
             results.update(build_results)
         else:
-            record_build(
-                api=api, build=build, record=record, results=results, state='installing')
+            record_build(api=api, build=build, record=record, results=results, state='installing')
             setup_results = setup_environment(version)
             results.update(setup_results)
 
-            record_build(
-                api=api, build=build, record=record, results=results, state='building')
-            build_results = build_docs(
-                version, force, pdf, man, epub, dash, search, localmedia)
+            record_build(api=api, build=build, record=record, results=results, state='building')
+            build_results = build_docs(version, force, pdf, man, epub, dash, search, localmedia)
             results.update(build_results)
 
         move_files(version, results)
-        record_pdf(api=api, record=record, results=results,
-                   state='finished', version=version)
+        record_pdf(api=api, record=record, results=results, state='finished', version=version)
         finish_build(version=version, build=build, results=results)
 
         if results['html'][0] == 0:
@@ -794,7 +788,7 @@ def webhook_notification(project, build, hook_url):
         'build': {
             'id': build.id,
             'success': build.success,
-            'date': build.date.strftime('%Y-%m-%dT%H:%M:%S'),
+            'date': build.date.strftime('%Y-%m-%d %H:%M:%S'),
         }
     })
     log.debug(LOG_TEMPLATE.format(project=project.slug, version='', msg='sending notification to: %s' % hook_url))
