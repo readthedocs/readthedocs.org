@@ -139,6 +139,13 @@
           <input type="submit" value="Connect to Github" />
         </form>
       </div>
+    {% else %}
+        <p>
+          <form method="get" action="{% url 'projects_import_github' %}">
+            <input type="submit" value="Import from GitHub" />
+          </form>
+        </p>
+
     {% endif %}
 
     <div class="module info info-docs">
