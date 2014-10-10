@@ -265,7 +265,7 @@ ALLOW_PRIVATE_REPOS = False
 
 GLOBAL_ANALYTICS_CODE = 'UA-17997319-1'
 
-GRAVATAR_DEFAULT_IMAGE = 'identicon'
+GRAVATAR_DEFAULT_IMAGE = 'http://media.readthedocs.org/images/silhouette.png'
 
 LOG_FORMAT = "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s"
 

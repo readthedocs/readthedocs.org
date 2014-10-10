@@ -18,7 +18,7 @@
     {% if request.user.is_authenticated %}
     <div class="menu menu-user" id="subnav-user-menu">
       <div class="menu-button">
-        <a href="{{ request.user.get_profile.get_absolute_url }}">
+        <a href="{% url 'projects_dashboard' %}">
           {% gravatar request.user.email 24 %}
           {{ request.user }}</a>
         <button class="menu-drop">▼</button>
