@@ -4,7 +4,7 @@ Running tests
 Currently RTD isn't well tested. This is a problem, and it is being worked on. However, we do have a basic test suite. To run the tests, you need simply need to run::
 
     pip install coverage 
-    ./runtests/sh
+    ./runtests.sh
 
 This should spit out a bunch of information and eventually pass.
 
