@@ -8,6 +8,9 @@ def redirect_filename(project, filename=None):
     to avoid content warnings.
     """
     protocol = "http"
+    # Handle explicit http redirects
+    if filename.startswith(protocol):
+        return filename
     version = project.get_default_version()
     lang = project.language
     use_subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
