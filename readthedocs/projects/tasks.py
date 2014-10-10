@@ -16,7 +16,7 @@ import tastyapi
 from allauth.socialaccount.models import SocialToken
 
 from builds.models import Build, Version
-from doc_builder import loading as builder_loading
+from doc_builder.loader import loading as builder_loading
 from doc_builder.base import restoring_chdir
 from projects.exceptions import ProjectImportError
 from projects.models import ImportedFile, Project
@@ -326,7 +326,7 @@ def update_imported_docs(version_pk, api=None):
             version_repo = project.vcs_repo(version_slug)
             ret_dict['checkout'] = version_repo.checkout(
                 version.identifier,
-        )
+            )
         else:
             # Does this ever get called?
             log.info(LOG_TEMPLATE.format(
@@ -528,12 +528,11 @@ def finish_build(version, build, results):
             symlinks.symlink_translations(version)
             symlinks.symlink_subprojects(version)
 
-
             if version.project.single_version:
                 symlinks.symlink_single_version(version)
             else:
                 symlinks.remove_symlink_single_version(version)
-                
+
             try:
                 update_search(version)
             except Exception:
