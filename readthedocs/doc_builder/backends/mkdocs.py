@@ -39,13 +39,30 @@ class Builder(BaseBuilder):
         os.chdir(checkout_path)
 
         # Pull mkdocs config data
-        user_config = yaml.safe_load(open('mkdocs.yml', 'r'))
-        docs_dir = user_config.get('docs_dir', 'docs')
+        try:
+            user_config = yaml.safe_load(open('mkdocs.yml', 'r'))
+        except IOError:
+            user_config = {
+                'site_name': project.name,
+                #'site_url': project.canonical_url,
+            }
+
+        docs_dir = user_config.get('docs_dir')
+
+        if not docs_dir:
+            for possible_path in ['docs', 'doc', 'Doc', 'book']:
+                if os.path.exists(os.path.join(checkout_path, '%s' % possible_path)):
+                    docs_dir = possible_path
+                    continue
+
+        if not docs_dir:
+            docs_dir = '.'
+        user_config['docs_dir'] = docs_dir
 
         # Set mkdocs config values
 
-        MEDIA_URL = getattr(
-            settings, 'MEDIA_URL', 'https://media.readthedocs.org')
+        MEDIA_URL = getattr(settings, 'MEDIA_URL', 'https://media.readthedocs.org')
+
         if 'extra_javascript' in user_config:
             user_config['extra_javascript'].append(
                 '%sjavascript/jquery/jquery-2.0.3.min.js' % MEDIA_URL)
@@ -74,7 +91,6 @@ class Builder(BaseBuilder):
             ]
 
         # mkdocs doesn't support multiple theme_dir's sanely yet
-        '''
         if 'theme_dir' in user_config:
             user_config['theme_dir'].prepend(OVERRIDE_TEMPLATE_DIR)
         else:
@@ -82,8 +98,17 @@ class Builder(BaseBuilder):
             OVERRIDE_TEMPLATE_DIR,
                 TEMPLATE_DIR,
             ]
-        '''
+        """
+        if 'pages' not in user_config:
+            user_config['pages'] = []
+            for root, dirnames, filenames in os.walk(checkout_path):
+                for filename in filenames:
+                    if fnmatch.fnmatch(filename, '*.md'):
+                        full_path = os.path.join(root.replace(checkout_path, ''), filename.lstrip('/')).lstrip('/')
+                        user_config['pages'].append([full_path])
+        """
 
+        # Write out the config again
         yaml.dump(user_config, open('mkdocs.yml', 'w'))
 
         # RTD javascript writing
@@ -133,7 +158,7 @@ class Builder(BaseBuilder):
                                  bin='mkdocs')
             )
         else:
-            build_command = "mkdocs build --site-dir=site"
+            build_command = "mkdocs build --site-dir=site --theme=readthedocs"
         results = run(build_command, shell=True)
 
         try:
@@ -150,7 +175,8 @@ class Builder(BaseBuilder):
                         headers = parse_headers_from_file(documentation_type='mkdocs', file_path=full_path)
                         sections = parse_sections_from_file(documentation_type='mkdocs', file_path=full_path)
                         page_list.append(
-                            {'content': html, 'path': relative_path, 'title': sections[0]['title'], 'headers': headers, 'sections': sections}
+                            {'content': html, 'path': relative_path, 'title': sections[
+                                0]['title'], 'headers': headers, 'sections': sections}
                         )
 
             data = {
