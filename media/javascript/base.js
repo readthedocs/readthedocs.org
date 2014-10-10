@@ -107,7 +107,7 @@ $(function() {
   // close it if it loses click focus.
   (function () {
     var menu = $('.menu-user'),
-        menu_button = menu.find('.menu-drop'),
+        menu_button = menu.find('div.menu-drop'),
         menu_dropdown = menu.find('div.menu-dropdown');
 
     menu_button.on('click', function (ev) {
