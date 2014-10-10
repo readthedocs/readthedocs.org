@@ -9,8 +9,12 @@ import logging
 import uuid
 
 from celery import task
+from django.core.mail import send_mail
 from django.conf import settings
+from django.template import Context, loader as template_loader
+from django.utils.translation import ugettext_lazy as _
 import redis
+import requests
 import slumber
 import tastyapi
 from allauth.socialaccount.models import SocialToken
@@ -543,11 +547,12 @@ def finish_build(version, build, results):
             except Exception:
                 log.error("Unable to post a new build", exc_info=True)
 
-            # This requires database access, must disable it for now.
-            #send_notifications(version, build)
         else:
             log.warning(LOG_TEMPLATE.format(
                 project=version.project.slug, version=version.slug, msg="Failed HTML Build"))
+
+    # Send notifications from the web heads
+    send_notifications.delay(version.pk, build['id'])
 
 
 @task
@@ -754,6 +759,48 @@ def remove_dir(path):
     log.info("Removing %s" % path)
     shutil.rmtree(path)
 
+# Web tasks
+
+
+@task(queue='web')
+def send_notifications(version_pk, build_pk):
+    version = Version.objects.get(pk=version_pk)
+    build = Build.objects.get(pk=build_pk)
+
+    for hook in version.project.webhook_notifications.all():
+        webhook_notification(version.project, build, hook.url)
+    for email in version.project.emailhook_notifications.all().values_list('email', flat=True):
+        email_notification(version.project, build, email)
+
+
+def email_notification(project, build, email):
+    subject = (_('(ReadTheDocs) Building docs for %s failed') % project.name)
+    template = 'projects/notification_email.txt'
+    context = {
+        'project': project.name,
+        'build_url': 'http://%s%s' % (getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'), build.get_absolute_url())
+    }
+    message = template_loader.get_template(template).render(Context(context))
+
+    log.debug(LOG_TEMPLATE.format(project=project.slug, version='', msg='sending email to: %s' % email))
+    send_mail(subject=subject, message=message,
+              from_email=settings.DEFAULT_FROM_EMAIL, recipient_list=(email,))
+
+
+def webhook_notification(project, build, hook_url):
+    data = json.dumps({
+        'name': project.name,
+        'slug': project.slug,
+        'build': {
+            'id': build.id,
+            'success': build.success,
+            'date': build.date.strftime('%Y-%m-%dT%H:%M:%S'),
+        }
+    })
+    log.debug(LOG_TEMPLATE.format(project=project.slug, version='', msg='sending notification to: %s' % hook_url))
+    requests.post(hook_url, data=data)
+
+
 # @task()
 # def update_config_from_json(version_pk):
 #     """
@@ -798,49 +845,6 @@ def remove_dir(path):
 #         log.error(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg='Failure in config parsing code: %s ' % e.message))
 
 
-# def send_notifications(version, build):
-# zenircbot_notification(version.id)
-#     for hook in version.project.webhook_notifications.all():
-#         webhook_notification.delay(version.project.id, build, hook.url)
-#     emails = (version.project.emailhook_notifications.all()
-#               .values_list('email', flat=True))
-#     for email in emails:
-#         email_notification(version.project.id, build, email)
-
-
-# @task()
-# def email_notification(project_id, build, email):
-#     if build['success']:
-#         return
-#     project = Project.objects.get(id=project_id)
-#     build_obj = Build.objects.get(id=build['id'])
-#     subject = (_('(ReadTheDocs) Building docs for %s failed') % project.name)
-#     template = 'projects/notification_email.txt'
-#     context = {
-#         'project': project.name,
-#         'build_url': 'http://%s%s' % (Site.objects.get_current().domain,
-#                                       build_obj.get_absolute_url())
-#     }
-#     message = get_template(template).render(Context(context))
-
-#     send_mail(subject=subject, message=message,
-# from_email=settings.DEFAULT_FROM_EMAIL, recipient_list=(email,))
-
-
-# @task()
-# def webhook_notification(project_id, build, hook_url):
-#     project = Project.objects.get(id=project_id)
-#     data = json.dumps({
-#         'name': project.name,
-#         'slug': project.slug,
-#         'build': {
-#             'id': build['id'],
-#             'success': build['success'],
-#             'date': build['date']
-#         }
-#     })
-#     log.debug(LOG_TEMPLATE.format(project=project.slug, version='', msg='sending notification to: %s' % hook_url))
-#     requests.post(hook_url, data=data)
 
 # @task()
 # def zenircbot_notification(version_id):
