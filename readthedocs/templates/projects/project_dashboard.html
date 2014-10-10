@@ -64,10 +64,16 @@
                       {% with builds=project.builds.count %}
                         {% if builds == 0 %}
                           <span class="right quiet">
+                            <a href="{% url 'projects_edit' project.slug %}">
+                                <img src="{{ MEDIA_URL }}images/gearblack.png" />
+                            </a>
                             {% trans "No builds yet" %}
                           </span>
                         {% else %}
                           <span class="right quiet">
+                            <a href="{% url 'projects_edit' project.slug %}">
+                              <img src="{{ MEDIA_URL }}gearblack.png" />
+                            </a>
                             <span class="build-count">
                               {% if builds == 1 %}
                                 {% trans "1 build" %}
