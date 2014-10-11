@@ -3,9 +3,10 @@ Running tests
 
 Currently RTD isn't well tested. This is a problem, and it is being worked on. However, we do have a basic test suite. To run the tests, you need simply need to run::
 
-    ./manage.py test rtd_tests
+    pip install coverage 
+    ./runtests.sh
 
-This should spit out a bunch of info, build a couple projects, and eventually pass.
+This should spit out a bunch of information and eventually pass.
 
 Continuous Integration
 ----------------------
