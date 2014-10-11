@@ -212,10 +212,10 @@ class ProjectIndex(Index):
                     'id': {'type': 'long'},
                     'name': {'type': 'string', 'analyzer': 'default_icu'},
                     'slug': {'type': 'string', 'index': 'not_analyzed'},
-                    'description': {'type': 'string',
-                                    'analyzer': 'default_icu'},
+                    'description': {'type': 'string', 'analyzer': 'default_icu'},
                     'lang': {'type': 'string', 'index': 'not_analyzed'},
                     'tags': {'type': 'string', 'index': 'not_analyzed'},
+                    'privacy': {'type': 'string', 'index': 'not_analyzed'},
                     'author': {
                         'type': 'string',
                         'analyzer': 'default_icu',
@@ -236,7 +236,7 @@ class ProjectIndex(Index):
     def extract_document(self, data):
         doc = {}
 
-        attrs = ('id', 'name', 'description', 'author', 'url')
+        attrs = ('id', 'name', 'slug', 'description', 'lang', 'tags', 'author', 'url')
         for attr in attrs:
             doc[attr] = data.get(attr, '')
 
@@ -269,7 +269,7 @@ class PageIndex(Index):
                     'title': {'type': 'string', 'analyzer': 'default_icu'},
                     'headers': {'type': 'string', 'analyzer': 'default_icu'},
                     'content': {'type': 'string', 'analyzer': 'default_icu'},
-                    'type': {'type': 'string', 'analyzer': 'not_analyzed'},
+                    'taxonomy': {'type': 'string', 'analyzer': 'not_analyzed'},
                 }
             }
         }
@@ -279,8 +279,7 @@ class PageIndex(Index):
     def extract_document(self, data):
         doc = {}
 
-        attrs = ('id', 'project', 'title', 'headers', 'version', 'path',
-                 'content')
+        attrs = ('id', 'project', 'title', 'headers', 'version', 'path', 'content', 'taxonomy')
         for attr in attrs:
             doc[attr] = data.get(attr, '')
 

@@ -126,6 +126,24 @@
 
     <div class="module onboard onbard-accounts">
 
+        <!-- BEGIN search form -->
+            <form action="{% url 'elastic_search' %}" method="GET">
+              <div class="text-input-wrapper">
+                <input type="text" name="q" style="width: 10em;" id="id_elastic_project_search">
+                {% if type %}
+                <input type="hidden" name="type" value="{{ type }}">
+                {% endif %}
+                {% if taxonomy %}
+                <input type="hidden" name="taxonomy" value="{{ taxonomy }}">
+                {% endif %}
+              </div>
+              <div class="submit-input-wrapper">
+                {% comment %}Translators: This is about starting a search{% endcomment %}
+                <input type="submit" value="{% trans "Search" %}">
+              </div>
+            </form>
+        <!-- END search form -->
+
       {% if request.user.socialaccount_set.count == 0 %}
         <h3>Connect your Accounts</h3>
 

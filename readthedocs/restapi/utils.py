@@ -11,7 +11,8 @@ from betterversion.better import version_windows, BetterVersion
 
 log = logging.getLogger(__name__)
 
-def sync_versions(project, versions, type): 
+
+def sync_versions(project, versions, type):
     """
     Update the database with the current versions from the repository.
     """
@@ -46,16 +47,17 @@ def sync_versions(project, versions, type):
             # New Version
             slug = slugify_uniquely(Version, version['verbose_name'], 'slug', 255, project=project)
             Version.objects.create(
-                    project=project,
-                    slug=slug,
-                    type=type,
-                    identifier=version['identifier'],
-                    verbose_name=version['verbose_name'],
-                )
+                project=project,
+                slug=slug,
+                type=type,
+                identifier=version['identifier'],
+                verbose_name=version['verbose_name'],
+            )
             added.add(slug)
     if added:
         log.info("(Sync Versions) Added Versions: [%s] " % ' '.join(added))
     return added
+
 
 def delete_versions(project, version_data):
     """
@@ -69,11 +71,11 @@ def delete_versions(project, version_data):
         for version in version_data['branches']:
             current_versions.append(version['identifier'])
     to_delete_qs = project.versions.exclude(
-            identifier__in=current_versions).exclude(
-            uploaded=True).exclude(
-            active=True).exclude(
-            slug='latest')
-            
+        identifier__in=current_versions).exclude(
+        uploaded=True).exclude(
+        active=True).exclude(
+        slug='latest')
+
     if to_delete_qs.count():
         ret_val = {obj.slug for obj in to_delete_qs}
         log.info("(Sync Versions) Deleted Versions: [%s]" % ' '.join(ret_val))
@@ -81,6 +83,8 @@ def delete_versions(project, version_data):
         return ret_val
     else:
         return set()
+
+
 
 def index_search_request(version, page_list):
     log_msg = ' '.join([page['path'] for page in page_list])
@@ -93,8 +97,15 @@ def index_search_request(version, page_list):
     ret_json = resp.json()
     project_scale = ret_json.get('scaled_project', {}).get(project.slug, 1)
 
+    tags = []
+    for tag in project.tags.all():
+        tags.append({
+            'slug': tag.slug,
+            'name': tag.name,
+        })
+
     project_obj = ProjectIndex()
-    project_obj.index_document({
+    project_obj.index_document(data={
         'id': project.pk,
         'name': project.name,
         'slug': project.slug,
@@ -102,6 +113,7 @@ def index_search_request(version, page_list):
         'lang': project.language,
         'author': [user.username for user in project.users.all()],
         'url': project.get_absolute_url(),
+        'tags': tags,
         '_boost': project_scale,
     })
 
@@ -119,8 +131,9 @@ def index_search_request(version, page_list):
             'title': page['title'],
             'headers': page['headers'],
             'content': page['content'],
+            'taxonomy': None,
             '_boost': page_scale + project_scale,
-            })
+        })
         for section in page['sections']:
             section_index_list.append({
                 'id': hashlib.md5('%s-%s-%s-%s' % (project.slug, version.slug, page['path'], section['id'])).hexdigest(),
