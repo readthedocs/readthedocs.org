@@ -396,30 +396,17 @@ def setup_environment(version):
         ignore_option = ''
 
     wheeldir = os.path.join(settings.SITE_ROOT, 'deploy', 'wheels')
-    if project.python_interpreter != 'python3':
-        ret_dict['sphinx'] = run(
-            (
-                '{cmd} install --no-index --use-wheel --find-links={wheeldir} -U {ignore_option} sphinx==1.2.2 '
-                'virtualenv==1.10.1 setuptools==1.1 '
-                'docutils==0.11 readthedocs-sphinx-ext==0.4.3'
-            ).format(
-                cmd=project.venv_bin(version=version.slug, bin='pip'),
-                ignore_option=ignore_option,
-                wheeldir=wheeldir,
-            )
+    ret_dict['sphinx'] = run(
+        (
+            '{cmd} install --no-index --use-wheel --find-links={wheeldir} -U {ignore_option} sphinx==1.2.2 '
+            'virtualenv==1.10.1 setuptools==1.1 '
+            'docutils==0.11 readthedocs-sphinx-ext==0.4.3'
+        ).format(
+            cmd=project.venv_bin(version=version.slug, bin='pip'),
+            ignore_option=ignore_option,
+            wheeldir=wheeldir,
         )
-    else:
-        # python 3 specific hax
-        ret_dict['sphinx'] = run(
-            (
-                '{cmd} install --no-index --use-wheel --find-links={wheeldir} -U {ignore_option} sphinx==1.2.2'
-                 'virtualenv==1.9.1 docutils==0.11 readthedocs-sphinx-ext==0.4.3'
-             ).format(
-                cmd=project.venv_bin(version=version.slug, bin='pip'),
-                ignore_option=ignore_option,
-                wheeldir=wheeldir,
-            )
-        )
+    )
 
     if project.requirements_file:
         os.chdir(project.checkout_path(version.slug))
