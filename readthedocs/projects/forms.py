@@ -104,7 +104,7 @@ class AdvancedProjectForm(ProjectForm):
         model = Project
         fields = (
             # Standard build edits
-            'use_virtualenv',
+            #'use_virtualenv',
             'requirements_file',
             'single_version',
             'conf_py_file',

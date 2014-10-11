@@ -36,24 +36,14 @@ class BaseSphinx(BaseBuilder):
         project = self.version.project
         os.chdir(project.conf_dir(self.version.slug))
         force_str = " -E " if self._force else ""
-        if project.use_virtualenv:
-            build_command = "%s -T %s -b %s -D language=%s . %s " % (
-                project.venv_bin(version=self.version.slug,
-                                 bin='sphinx-build'),
-                force_str,
-                self.sphinx_builder,
-                project.language,
-                self.sphinx_build_dir,
-            )
-        else:
-            build_command = ("sphinx-build -T %s -b %s -D language=%s . %s"
-                             % (
-                                 force_str,
-                                 self.sphinx_builder,
-                                 project.language,
-                                 self.sphinx_build_dir,
-                             )
-                             )
+        build_command = "%s -T %s -b %s -D language=%s . %s " % (
+            project.venv_bin(version=self.version.slug,
+                             bin='sphinx-build'),
+            force_str,
+            self.sphinx_builder,
+            project.language,
+            self.sphinx_build_dir,
+        )
         results = run(build_command, shell=True)
         return results
 
@@ -183,13 +173,9 @@ class PdfBuilder(BaseSphinx):
         os.chdir(project.conf_dir(self.version.slug))
         # Default to this so we can return it always.
         results = {}
-        if project.use_virtualenv:
-            latex_results = run('%s -b latex -D language=%s -d _build/doctrees . _build/latex'
-                                % (project.venv_bin(version=self.version.slug,
-                                                    bin='sphinx-build'), project.language))
-        else:
-            latex_results = run('sphinx-build -b latex -D language=%s -d _build/doctrees '
-                                '. _build/latex' % project.language)
+        latex_results = run('%s -b latex -D language=%s -d _build/doctrees . _build/latex'
+                            % (project.venv_bin(version=self.version.slug,
+                                                bin='sphinx-build'), project.language))
 
         if latex_results[0] == 0:
             os.chdir('_build/latex')
