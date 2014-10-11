@@ -363,14 +363,14 @@ def update_imported_docs(version_pk, api=None):
 def setup_environment(version):
     """
     Build the virtualenv and install the project into it.
+
+    Always build projects with a virtualenv.
     """
     ret_dict = {}
     project = version.project
-    build_dir = os.path.join(
-        project.venv_path(version=version.slug), 'build')
+    build_dir = os.path.join(project.venv_path(version=version.slug), 'build')
     if os.path.exists(build_dir):
-        log.info(LOG_TEMPLATE.format(
-            project=project.slug, version=version.slug, msg='Removing existing build dir'))
+        log.info(LOG_TEMPLATE.format(project=project.slug, version=version.slug, msg='Removing existing build dir'))
         shutil.rmtree(build_dir)
     if project.use_system_packages:
         site_packages = '--system-site-packages'
@@ -394,21 +394,32 @@ def setup_environment(version):
         ignore_option = '-I'
     else:
         ignore_option = ''
-    sphinx = 'sphinx==1.2.2'
+
+    wheeldir = os.path.join(settings.SITE_ROOT, 'deploy', 'wheels')
     if project.python_interpreter != 'python3':
         ret_dict['sphinx'] = run(
-            ('{cmd} install -U {ignore_option} {sphinx} '
-             'virtualenv==1.10.1 setuptools==1.1 '
-             'docutils==0.11 git+git://github.com/ericholscher/readthedocs-sphinx-ext#egg=readthedocs_ext').format(
+            (
+                '{cmd} install --no-index --use-wheel --find-links={wheeldir} -U {ignore_option} sphinx==1.2.2 '
+                'virtualenv==1.10.1 setuptools==1.1 '
+                'docutils==0.11 readthedocs-sphinx-ext==0.4.3'
+            ).format(
                 cmd=project.venv_bin(version=version.slug, bin='pip'),
-                sphinx=sphinx, ignore_option=ignore_option))
+                ignore_option=ignore_option,
+                wheeldir=wheeldir,
+            )
+        )
     else:
         # python 3 specific hax
         ret_dict['sphinx'] = run(
-            ('{cmd} install -U {ignore_option} {sphinx} '
-             'virtualenv==1.9.1 docutils==0.11 git+git://github.com/ericholscher/readthedocs-sphinx-ext#egg=readthedocs_ext').format(
+            (
+                '{cmd} install --no-index --use-wheel --find-links={wheeldir} -U {ignore_option} sphinx==1.2.2'
+                 'virtualenv==1.9.1 docutils==0.11 readthedocs-sphinx-ext==0.4.3'
+             ).format(
                 cmd=project.venv_bin(version=version.slug, bin='pip'),
-                sphinx=sphinx, ignore_option=ignore_option))
+                ignore_option=ignore_option,
+                wheeldir=wheeldir,
+            )
+        )
 
     if project.requirements_file:
         os.chdir(project.checkout_path(version.slug))
