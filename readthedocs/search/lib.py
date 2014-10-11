@@ -6,14 +6,8 @@ from django.conf import settings
 
 from search.indexes import ProjectIndex, PageIndex
 
-from elasticsearch_dsl import Search, Q
-
 
 def search_project(query):
-    s = Search(using=Elasticsearch(settings.ES_HOSTS)).index('readthedocs').doc_type('project')
-    s.query("match", name=query, boost=10)
-    s.query("match", description=query)
-    s.fields(["name", "slug", "description", "lang"])
 
     body = {
         "query": {
