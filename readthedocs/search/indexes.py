@@ -270,6 +270,7 @@ class PageIndex(Index):
                     'headers': {'type': 'string', 'analyzer': 'default_icu'},
                     'content': {'type': 'string', 'analyzer': 'default_icu'},
                     'taxonomy': {'type': 'string', 'analyzer': 'not_analyzed'},
+                    'commit': {'type': 'string', 'analyzer': 'not_analyzed'},
                 }
             }
         }
@@ -317,6 +318,7 @@ class SectionIndex(Index):
                     'page_id': {'type': 'string', 'index': 'not_analyzed'},
                     'title': {'type': 'string', 'analyzer': 'default_icu'},
                     'content': {'type': 'string', 'analyzer': 'default_icu'},
+                    'commit': {'type': 'string', 'analyzer': 'not_analyzed'},
                     'blocks': {
                         'type': 'object',
                         'properties': {

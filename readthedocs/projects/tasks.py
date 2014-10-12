@@ -534,7 +534,7 @@ def finish_build(version, build, results):
                 symlinks.remove_symlink_single_version(version)
 
             try:
-                update_search(version)
+                update_search(version, build)
             except Exception:
                 log.error("Unable to index search", exc_info=True)
 
@@ -689,13 +689,14 @@ def record_pdf(api, record, results, state, version):
                                       version=version.slug, msg="Unable to post a new build"), exc_info=True)
 
 
-def update_search(version):
+def update_search(version, build):
     if 'sphinx' in version.project.documentation_type:
         page_list = process_all_json_files(version)
         data = {
             'page_list': page_list,
             'version_pk': version.pk,
-            'project_pk': version.project.pk
+            'project_pk': version.project.pk,
+            'commit': build.get('commit'),
         }
         log_msg = ' '.join([page['path'] for page in page_list])
         log.info("(Search Index) Sending Data: %s [%s]" % (

@@ -86,7 +86,7 @@ def delete_versions(project, version_data):
 
 
 
-def index_search_request(version, page_list):
+def index_search_request(version, page_list, commit):
     log_msg = ' '.join([page['path'] for page in page_list])
     log.info("(Server Search) Indexing Pages: %s [%s]" % (
         version.project.slug, log_msg))
@@ -132,6 +132,7 @@ def index_search_request(version, page_list):
             'headers': page['headers'],
             'content': page['content'],
             'taxonomy': None,
+            'commit': commit,
             '_boost': page_scale + project_scale,
         })
         for section in page['sections']:
@@ -143,6 +144,7 @@ def index_search_request(version, page_list):
                 'page_id': section['id'],
                 'title': section['title'],
                 'content': section['content'],
+                'commit': commit,
                 '_boost': page_scale,
             })
         section_obj.bulk_index(section_index_list, parent=page_id,

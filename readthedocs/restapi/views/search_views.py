@@ -40,9 +40,10 @@ def index_search(request):
     data = request.DATA['data']
     project_pk = data['project_pk']
     version_pk = data['version_pk']
+    commit = data['commit']
     project = Project.objects.get(pk=project_pk)
     version = Version.objects.get(pk=version_pk)
-    utils.index_search_request(version=version, page_list=data['page_list'])
+    utils.index_search_request(version=version, page_list=data['page_list'], commit=commit)
     return Response({'indexed': True})
 
 
