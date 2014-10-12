@@ -96,12 +96,11 @@
             <form action="." method="GET">
               <div class="text-input-wrapper">
                 <input type="text" name="q" value="{{ query|default_if_none:"" }}" id="id_elastic_project_search">
-                {% if type %}
-                <input type="hidden" name="type" value="{{ type }}">
-                {% endif %}
-                {% if taxonomy %}
-                <input type="hidden" name="taxonomy" value="{{ taxonomy }}">
-                {% endif %}
+                {% if type %} <input type="hidden" name="type" value="{{ type }}"> {% endif %}
+                {% if project %} <input type="hidden" name="project" value="{{ project }}"> {% endif %}
+                {% if taxonomy %} <input type="hidden" name="taxonomy" value="{{ taxonomy }}"> {% endif %}
+                {% if version %} <input type="hidden" name="version" value="{{ version }}"> {% endif %}
+                {% if language %} <input type="hidden" name="language" value="{{ language }}"> {% endif %}
               </div>
               <div class="submit-input-wrapper">
                 {% comment %}Translators: This is about starting a search{% endcomment %}
