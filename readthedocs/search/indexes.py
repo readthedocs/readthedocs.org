@@ -152,6 +152,18 @@ class Index(object):
             kwargs['routing'] = routing
         self.es.index(**kwargs)
 
+    def delete_document(self, body, index=None, parent=None, routing=None):
+        kwargs = {
+            'index': index or self._index,
+            'doc_type': self._type,
+            'body': body,
+        }
+        if parent:
+            kwargs['parent'] = parent
+        if routing:
+            kwargs['routing'] = routing
+        self.es.delete_by_query(**kwargs)
+
     def get_mapping(self):
         """
         Returns the mapping for this _index and _type.

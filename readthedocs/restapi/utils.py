@@ -127,3 +127,22 @@ def index_search_request(version, page_list, commit):
         })
 
     page_obj.bulk_index(index_list, parent=project.slug)
+
+    """
+    # Figure this out later
+    page_obj.delete_document(body={
+        "query": {
+            "term": {
+                "project": project.slug,
+                "version": version.slug,
+            }
+        },
+        "filter": {
+            "not": {
+                "term": {
+                    "commit": commit
+                }
+            },
+        },
+    })
+    """
