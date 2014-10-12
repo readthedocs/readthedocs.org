@@ -138,15 +138,24 @@
                         <li class="module-item">
                           <p class="module-item-title">
                             {% if result.fields.name %} 
+
+                              {# Project #}
                               <a href="{{ result.fields.url }}">{{ result.fields.name }}</a>
                               <p>
-                              {{ result.fields.description }}
+                              {{ result.highlight.description.0|safe }}
                               </p>
+                              {# End Project #}
+
                             {% elif result.fields.path %}
+
+                              {# File #}
                               <a href="{% doc_url result.fields.project|get_project result.fields.version result.fields.path %}?highlight={{ query }}">{{ result.fields.project }} - {{ result.fields.title|safe }}</a>
+                              }
                             </p>
                             <p>
                               {{ result.highlight.content.0|safe }}
+                              {# End File #}
+
                             {% endif %}
                           </p>
                         </li>

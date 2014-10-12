@@ -23,6 +23,12 @@ def search_project(query, language):
                 "terms": {"field": "lang"},
             },
         },
+        "highlight": {
+            "fields": {
+                "name": {},
+                "description": {},
+            }
+        },
         "fields": ["name", "slug", "description", "lang", "url"],
         "size": 50  # TODO: Support pagination.
     }
