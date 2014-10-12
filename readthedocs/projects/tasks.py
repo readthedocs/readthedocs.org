@@ -363,73 +363,70 @@ def update_imported_docs(version_pk, api=None):
 def setup_environment(version):
     """
     Build the virtualenv and install the project into it.
+
+    Always build projects with a virtualenv.
     """
     ret_dict = {}
     project = version.project
-    if project.use_virtualenv:
-        build_dir = os.path.join(
-            project.venv_path(version=version.slug), 'build')
-        if os.path.exists(build_dir):
-            log.info(LOG_TEMPLATE.format(
-                project=project.slug, version=version.slug, msg='Removing existing build dir'))
-            shutil.rmtree(build_dir)
-        if project.use_system_packages:
-            site_packages = '--system-site-packages'
-        else:
-            site_packages = '--no-site-packages'
-        # Here the command has been modified to support different
-        # interpreters.
-        ret_dict['venv'] = run(
-            '{cmd} {site_packages} {path}'.format(
-                cmd='virtualenv-2.7 -p {interpreter}'.format(
-                    interpreter=project.python_interpreter),
-                site_packages=site_packages,
-                path=project.venv_path(version=version.slug)
-            )
+    build_dir = os.path.join(project.venv_path(version=version.slug), 'build')
+    if os.path.exists(build_dir):
+        log.info(LOG_TEMPLATE.format(project=project.slug, version=version.slug, msg='Removing existing build dir'))
+        shutil.rmtree(build_dir)
+    if project.use_system_packages:
+        site_packages = '--system-site-packages'
+    else:
+        site_packages = '--no-site-packages'
+    # Here the command has been modified to support different
+    # interpreters.
+    ret_dict['venv'] = run(
+        '{cmd} {site_packages} {path}'.format(
+            cmd='virtualenv-2.7 -p {interpreter}'.format(
+                interpreter=project.python_interpreter),
+            site_packages=site_packages,
+            path=project.venv_path(version=version.slug)
         )
-        # Other code expects sphinx-build to be installed inside the
-        # virtualenv.  Using the -I option makes sure it gets installed
-        # even if it is already installed system-wide (and
-        # --system-site-packages is used)
-        if project.use_system_packages:
-            ignore_option = '-I'
-        else:
-            ignore_option = ''
-        sphinx = 'sphinx==1.2.2'
-        if project.python_interpreter != 'python3':
-            ret_dict['sphinx'] = run(
-                ('{cmd} install -U {ignore_option} {sphinx} '
-                 'virtualenv==1.10.1 setuptools==1.1 '
-                 'docutils==0.11 git+git://github.com/ericholscher/readthedocs-sphinx-ext#egg=readthedocs_ext').format(
-                    cmd=project.venv_bin(version=version.slug, bin='pip'),
-                    sphinx=sphinx, ignore_option=ignore_option))
-        else:
-            # python 3 specific hax
-            ret_dict['sphinx'] = run(
-                ('{cmd} install -U {ignore_option} {sphinx} '
-                 'virtualenv==1.9.1 docutils==0.11 git+git://github.com/ericholscher/readthedocs-sphinx-ext#egg=readthedocs_ext').format(
-                    cmd=project.venv_bin(version=version.slug, bin='pip'),
-                    sphinx=sphinx, ignore_option=ignore_option))
+    )
+    # Other code expects sphinx-build to be installed inside the
+    # virtualenv.  Using the -I option makes sure it gets installed
+    # even if it is already installed system-wide (and
+    # --system-site-packages is used)
+    if project.use_system_packages:
+        ignore_option = '-I'
+    else:
+        ignore_option = ''
 
-        if project.requirements_file:
-            os.chdir(project.checkout_path(version.slug))
-            ret_dict['requirements'] = run(
-                '{cmd} install --exists-action=w -r {requirements}'.format(
-                    cmd=project.venv_bin(version=version.slug, bin='pip'),
-                    requirements=project.requirements_file))
+    wheeldir = os.path.join(settings.SITE_ROOT, 'deploy', 'wheels')
+    ret_dict['sphinx'] = run(
+        (
+            '{cmd} install --no-index --use-wheel --find-links={wheeldir} -U {ignore_option} sphinx==1.2.2 '
+            'virtualenv==1.10.1 setuptools==1.1 '
+            'docutils==0.11 readthedocs-sphinx-ext==0.4.3'
+        ).format(
+            cmd=project.venv_bin(version=version.slug, bin='pip'),
+            ignore_option=ignore_option,
+            wheeldir=wheeldir,
+        )
+    )
+
+    if project.requirements_file:
         os.chdir(project.checkout_path(version.slug))
-        if os.path.isfile("setup.py"):
-            if getattr(settings, 'USE_PIP_INSTALL', False):
-                ret_dict['install'] = run(
-                    '{cmd} install --ignore-installed .'.format(
-                        cmd=project.venv_bin(version=version.slug, bin='pip')))
-            else:
-                ret_dict['install'] = run(
-                    '{cmd} setup.py install --force'.format(
-                        cmd=project.venv_bin(version=version.slug,
-                                             bin='python')))
+        ret_dict['requirements'] = run(
+            '{cmd} install --exists-action=w -r {requirements}'.format(
+                cmd=project.venv_bin(version=version.slug, bin='pip'),
+                requirements=project.requirements_file))
+    os.chdir(project.checkout_path(version.slug))
+    if os.path.isfile("setup.py"):
+        if getattr(settings, 'USE_PIP_INSTALL', False):
+            ret_dict['install'] = run(
+                '{cmd} install --ignore-installed .'.format(
+                    cmd=project.venv_bin(version=version.slug, bin='pip')))
         else:
-            ret_dict['install'] = (999, "", "No setup.py, skipping install")
+            ret_dict['install'] = run(
+                '{cmd} setup.py install --force'.format(
+                    cmd=project.venv_bin(version=version.slug,
+                                         bin='python')))
+    else:
+        ret_dict['install'] = (999, "", "No setup.py, skipping install")
     return ret_dict
 
 
@@ -534,7 +531,7 @@ def finish_build(version, build, results):
                 symlinks.remove_symlink_single_version(version)
 
             try:
-                update_search(version)
+                update_search(version, build)
             except Exception:
                 log.error("Unable to index search", exc_info=True)
 
@@ -689,13 +686,14 @@ def record_pdf(api, record, results, state, version):
                                       version=version.slug, msg="Unable to post a new build"), exc_info=True)
 
 
-def update_search(version):
+def update_search(version, build):
     if 'sphinx' in version.project.documentation_type:
         page_list = process_all_json_files(version)
         data = {
             'page_list': page_list,
             'version_pk': version.pk,
-            'project_pk': version.project.pk
+            'project_pk': version.project.pk,
+            'commit': build.get('commit'),
         }
         log_msg = ' '.join([page['path'] for page in page_list])
         log.info("(Search Index) Sending Data: %s [%s]" % (

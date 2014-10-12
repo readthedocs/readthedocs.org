@@ -11,7 +11,8 @@ from betterversion.better import version_windows, BetterVersion
 
 log = logging.getLogger(__name__)
 
-def sync_versions(project, versions, type): 
+
+def sync_versions(project, versions, type):
     """
     Update the database with the current versions from the repository.
     """
@@ -46,16 +47,17 @@ def sync_versions(project, versions, type):
             # New Version
             slug = slugify_uniquely(Version, version['verbose_name'], 'slug', 255, project=project)
             Version.objects.create(
-                    project=project,
-                    slug=slug,
-                    type=type,
-                    identifier=version['identifier'],
-                    verbose_name=version['verbose_name'],
-                )
+                project=project,
+                slug=slug,
+                type=type,
+                identifier=version['identifier'],
+                verbose_name=version['verbose_name'],
+            )
             added.add(slug)
     if added:
         log.info("(Sync Versions) Added Versions: [%s] " % ' '.join(added))
     return added
+
 
 def delete_versions(project, version_data):
     """
@@ -69,11 +71,11 @@ def delete_versions(project, version_data):
         for version in version_data['branches']:
             current_versions.append(version['identifier'])
     to_delete_qs = project.versions.exclude(
-            identifier__in=current_versions).exclude(
-            uploaded=True).exclude(
-            active=True).exclude(
-            slug='latest')
-            
+        identifier__in=current_versions).exclude(
+        uploaded=True).exclude(
+        active=True).exclude(
+        slug='latest')
+
     if to_delete_qs.count():
         ret_val = {obj.slug for obj in to_delete_qs}
         log.info("(Sync Versions) Deleted Versions: [%s]" % ' '.join(ret_val))
@@ -82,19 +84,19 @@ def delete_versions(project, version_data):
     else:
         return set()
 
-def index_search_request(version, page_list):
+
+def index_search_request(version, page_list, commit):
     log_msg = ' '.join([page['path'] for page in page_list])
     log.info("(Server Search) Indexing Pages: %s [%s]" % (
         version.project.slug, log_msg))
     project = version.project
     page_obj = PageIndex()
-    section_obj = SectionIndex()
-    resp = requests.get('https://api.grokthedocs.com/api/v1/index/1/heatmap/', params={'project': project.slug, 'compare': True})
-    ret_json = resp.json()
-    project_scale = ret_json.get('scaled_project', {}).get(project.slug, 1)
+    project_scale = 1
+
+    tags = [tag.name for tag in project.tags.all()]
 
     project_obj = ProjectIndex()
-    project_obj.index_document({
+    project_obj.index_document(data={
         'id': project.pk,
         'name': project.name,
         'slug': project.slug,
@@ -102,14 +104,14 @@ def index_search_request(version, page_list):
         'lang': project.language,
         'author': [user.username for user in project.users.all()],
         'url': project.get_absolute_url(),
+        'tags': tags,
         '_boost': project_scale,
     })
 
     index_list = []
-    section_index_list = []
     for page in page_list:
         log.debug("(API Index) %s:%s" % (project.slug, page['path']))
-        page_scale = ret_json.get('scaled_page', {}).get(page['path'], 1)
+        page_scale = 1
         page_id = hashlib.md5('%s-%s-%s' % (project.slug, version.slug, page['path'])).hexdigest()
         index_list.append({
             'id': page_id,
@@ -119,20 +121,28 @@ def index_search_request(version, page_list):
             'title': page['title'],
             'headers': page['headers'],
             'content': page['content'],
+            'taxonomy': None,
+            'commit': commit,
             '_boost': page_scale + project_scale,
-            })
-        for section in page['sections']:
-            section_index_list.append({
-                'id': hashlib.md5('%s-%s-%s-%s' % (project.slug, version.slug, page['path'], section['id'])).hexdigest(),
-                'project': project.slug,
-                'version': version.slug,
-                'path': page['path'],
-                'page_id': section['id'],
-                'title': section['title'],
-                'content': section['content'],
-                '_boost': page_scale,
-            })
-        section_obj.bulk_index(section_index_list, parent=page_id,
-                               routing=project.slug)
+        })
 
     page_obj.bulk_index(index_list, parent=project.slug)
+
+    """
+    # Figure this out later
+    page_obj.delete_document(body={
+        "query": {
+            "term": {
+                "project": project.slug,
+                "version": version.slug,
+            }
+        },
+        "filter": {
+            "not": {
+                "term": {
+                    "commit": commit
+                }
+            },
+        },
+    })
+    """

@@ -74,6 +74,7 @@ urlpatterns = patterns(
     url(r'^builds/', include('builds.urls')),
     url(r'^search/project/', SearchView.as_view(), name='haystack_project'),
     url(r'^search/', include('haystack.urls')),
+    url(r'^elasticsearch/$', 'search.views.elastic_search', name='elastic_search'),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^dashboard/', include('projects.urls.private')),
     url(r'^github', 'core.views.github_build', name='github_build'),

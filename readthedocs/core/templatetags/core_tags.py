@@ -6,6 +6,9 @@ from django.conf import settings
 from django.utils.safestring import mark_safe
 from django.utils.encoding import force_bytes, force_text
 
+from builds.models import Version
+from projects.models import Project
+
 register = template.Library()
 
 
@@ -23,22 +26,24 @@ def gravatar(email, size=48):
     return ('<img src="%s" width="%s" height="%s" alt="gravatar" '
             'class="gravatar" border="0" />' % (url, size, size))
 
+
 @register.simple_tag(name="doc_url")
 def make_document_url(project, version=None, page=None):
     if project.main_language_project:
-        base_url =  project.get_translation_url(version)
+        base_url = project.get_translation_url(version)
     else:
         base_url = project.get_docs_url(version)
     if page and page != "index":
         if project.documentation_type == "sphinx_htmldir":
-            path =  page + "/"
+            path = page + "/"
         elif project.documentation_type == "sphinx_singlehtml":
             path = "index.html#document-" + page
         else:
-            path =  page + ".html"
+            path = page + ".html"
     else:
         path = ""
     return base_url + path
+
 
 @register.filter(is_safe=True)
 def restructuredtext(value, short=False):
@@ -64,3 +69,21 @@ def restructuredtext(value, short=False):
             pass
         finally:
             return mark_safe(out)
+
+
+@register.filter
+def get_project(slug):
+    return Project.objects.get(slug=slug)
+
+
+@register.filter
+def get_version(slug):
+    return Version.objects.get(slug=slug)
+
+
+@register.simple_tag
+def url_replace(request, field, value):
+    dict_ = request.GET.copy()
+    dict_[field] = value
+    return dict_.urlencode()
+

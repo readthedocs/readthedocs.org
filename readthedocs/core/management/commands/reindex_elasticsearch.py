@@ -36,7 +36,12 @@ class Command(BaseCommand):
         for version in queryset:
             log.info("Reindexing %s" % version)
             try:
+                commit = version.project.vcs_repo(version.slug).commit
+            except:
+                # This will happen on prod
+                commit = None
+            try:
                 page_list = parse_json.process_all_json_files(version, build_dir=False)
-                index_search_request(version=version, page_list=page_list)
+                index_search_request(version=version, page_list=page_list, commit=commit)
             except Exception:
                 log.error('Build failed for %s' % version, exc_info=True)

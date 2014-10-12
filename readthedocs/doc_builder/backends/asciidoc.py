@@ -21,12 +21,9 @@ class Builder(BaseBuilder):
         project = self.version.project
         os.chdir(project.checkout_path(self.version.slug))
         results = {}
-        if project.use_virtualenv:
-            build_command = "%s build " % (
-                project.venv_bin(version=self.version.slug,
-                                 bin='asciidoctor')
-                )
-        else:
-            build_command = "asciidoctor build"
+        build_command = "%s build " % (
+            project.venv_bin(version=self.version.slug,
+                             bin='asciidoctor')
+            )
         results['html'] = run(build_command, shell=True)
         return results
