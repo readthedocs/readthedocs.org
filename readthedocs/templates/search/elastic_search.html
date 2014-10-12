@@ -8,8 +8,10 @@
 
 <div class="navigable">
 <ul>
-    <li class="{% if type == 'project' %}active{% endif %}"><a href="?{% url_replace request 'type' 'project' %}">Projects</a></li>
-    <li class="{% if type == 'file' %}active{% endif %}"><a href="?{% url_replace request 'type' 'file' %}">Files</a></li>
+    <li style="border-bottom: 0;" class="{% if type == 'project' %}active{% endif %}"><a href="?{% url_replace request 'type' 'project' %}">Projects</a></li>
+    <li style="border-bottom: 0;" class="{% if type == 'file' %}active{% endif %}"><a href="?{% url_replace request 'type' 'file' %}">Files</a></li>
+
+    <hr>
 
     {% if type == 'project' %}
 
