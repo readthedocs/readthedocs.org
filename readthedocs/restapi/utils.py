@@ -85,24 +85,15 @@ def delete_versions(project, version_data):
         return set()
 
 
-
 def index_search_request(version, page_list, commit):
     log_msg = ' '.join([page['path'] for page in page_list])
     log.info("(Server Search) Indexing Pages: %s [%s]" % (
         version.project.slug, log_msg))
     project = version.project
     page_obj = PageIndex()
-    section_obj = SectionIndex()
-    resp = requests.get('https://api.grokthedocs.com/api/v1/index/1/heatmap/', params={'project': project.slug, 'compare': True})
-    ret_json = resp.json()
-    project_scale = ret_json.get('scaled_project', {}).get(project.slug, 1)
+    project_scale = 1
 
-    tags = []
-    for tag in project.tags.all():
-        tags.append({
-            'slug': tag.slug,
-            'name': tag.name,
-        })
+    tags = [tag.name for tag in project.tags.all()]
 
     project_obj = ProjectIndex()
     project_obj.index_document(data={
@@ -118,10 +109,9 @@ def index_search_request(version, page_list, commit):
     })
 
     index_list = []
-    section_index_list = []
     for page in page_list:
         log.debug("(API Index) %s:%s" % (project.slug, page['path']))
-        page_scale = ret_json.get('scaled_page', {}).get(page['path'], 1)
+        page_scale = 1
         page_id = hashlib.md5('%s-%s-%s' % (project.slug, version.slug, page['path'])).hexdigest()
         index_list.append({
             'id': page_id,
@@ -135,19 +125,5 @@ def index_search_request(version, page_list, commit):
             'commit': commit,
             '_boost': page_scale + project_scale,
         })
-        for section in page['sections']:
-            section_index_list.append({
-                'id': hashlib.md5('%s-%s-%s-%s' % (project.slug, version.slug, page['path'], section['id'])).hexdigest(),
-                'project': project.slug,
-                'version': version.slug,
-                'path': page['path'],
-                'page_id': section['id'],
-                'title': section['title'],
-                'content': section['content'],
-                'commit': commit,
-                '_boost': page_scale,
-            })
-        section_obj.bulk_index(section_index_list, parent=page_id,
-                               routing=project.slug)
 
     page_obj.bulk_index(index_list, parent=project.slug)

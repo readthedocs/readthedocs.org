@@ -211,8 +211,9 @@ class ProjectIndex(Index):
                 'properties': {
                     'id': {'type': 'long'},
                     'name': {'type': 'string', 'analyzer': 'default_icu'},
-                    'slug': {'type': 'string', 'index': 'not_analyzed'},
                     'description': {'type': 'string', 'analyzer': 'default_icu'},
+
+                    'slug': {'type': 'string', 'index': 'not_analyzed'},
                     'lang': {'type': 'string', 'index': 'not_analyzed'},
                     'tags': {'type': 'string', 'index': 'not_analyzed'},
                     'privacy': {'type': 'string', 'index': 'not_analyzed'},
@@ -266,11 +267,12 @@ class PageIndex(Index):
                     'project': {'type': 'string', 'index': 'not_analyzed'},
                     'version': {'type': 'string', 'index': 'not_analyzed'},
                     'path': {'type': 'string', 'index': 'not_analyzed'},
+                    'taxonomy': {'type': 'string', 'index': 'not_analyzed'},
+                    'commit': {'type': 'string', 'index': 'not_analyzed'},
+
                     'title': {'type': 'string', 'analyzer': 'default_icu'},
                     'headers': {'type': 'string', 'analyzer': 'default_icu'},
                     'content': {'type': 'string', 'analyzer': 'default_icu'},
-                    'taxonomy': {'type': 'string', 'analyzer': 'not_analyzed'},
-                    'commit': {'type': 'string', 'analyzer': 'not_analyzed'},
                 }
             }
         }
@@ -280,7 +282,7 @@ class PageIndex(Index):
     def extract_document(self, data):
         doc = {}
 
-        attrs = ('id', 'project', 'title', 'headers', 'version', 'path', 'content', 'taxonomy')
+        attrs = ('id', 'project', 'title', 'headers', 'version', 'path', 'content', 'taxonomy', 'commit')
         for attr in attrs:
             doc[attr] = data.get(attr, '')
 
@@ -316,15 +318,14 @@ class SectionIndex(Index):
                     'version': {'type': 'string', 'index': 'not_analyzed'},
                     'path': {'type': 'string', 'index': 'not_analyzed'},
                     'page_id': {'type': 'string', 'index': 'not_analyzed'},
+                    'commit': {'type': 'string', 'index': 'not_analyzed'},
+
                     'title': {'type': 'string', 'analyzer': 'default_icu'},
                     'content': {'type': 'string', 'analyzer': 'default_icu'},
-                    'commit': {'type': 'string', 'analyzer': 'not_analyzed'},
                     'blocks': {
                         'type': 'object',
                         'properties': {
-                            'code': {
-                                {'type': 'string', 'analyzer': 'default_icu'}
-                            }
+                            'code': {'type': 'string', 'analyzer': 'default_icu'}
                         }
                     }
                 }
@@ -336,8 +337,7 @@ class SectionIndex(Index):
     def extract_document(self, data):
         doc = {}
 
-        attrs = ('id', 'project', 'title', 'page_id', 'version', 'path',
-                 'content')
+        attrs = ('id', 'project', 'title', 'page_id', 'version', 'path', 'content', 'commit')
         for attr in attrs:
             doc[attr] = data.get(attr, '')
 
