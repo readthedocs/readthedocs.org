@@ -303,6 +303,7 @@ class PageIndex(Index):
 
         return doc
 
+
 class SectionIndex(Index):
 
     _type = 'section'
@@ -317,13 +318,12 @@ class SectionIndex(Index):
                 '_boost': {'name': '_boost', 'null_value': 1.0},
                 # Associate a section with a page.
                 '_parent': {'type': self._parent},
-                # 'suggest': {
-                #     'foo, bar'
-                #     'payload': {
-                #         url
-                #         pk
-                #     }
-                # }
+                'suggest': {
+                    "type": "completion",
+                    "index_analyzer": "simple",
+                    "search_analyzer": "simple",
+                    "payloads": True,
+                },
                 'properties': {
                     'id': {'type': 'string', 'index': 'not_analyzed'},
                     'project': {'type': 'string', 'index': 'not_analyzed'},
@@ -331,7 +331,6 @@ class SectionIndex(Index):
                     'path': {'type': 'string', 'index': 'not_analyzed'},
                     'page_id': {'type': 'string', 'index': 'not_analyzed'},
                     'commit': {'type': 'string', 'index': 'not_analyzed'},
-
                     'title': {'type': 'string', 'analyzer': 'default_icu'},
                     'content': {'type': 'string', 'analyzer': 'default_icu'},
                     'blocks': {

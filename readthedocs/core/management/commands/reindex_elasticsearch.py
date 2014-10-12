@@ -37,7 +37,8 @@ class Command(BaseCommand):
             log.info("Reindexing %s" % version)
             try:
                 commit = version.project.vcs_repo(version.slug).commit
-            except OSError:
+            except:
+                # This will happen on prod
                 commit = None
             try:
                 page_list = parse_json.process_all_json_files(version, build_dir=False)
