@@ -150,7 +150,6 @@
 
                               {# File #}
                               <a href="{% doc_url result.fields.project|get_project result.fields.version result.fields.path %}?highlight={{ query }}">{{ result.fields.project }} - {{ result.fields.title|safe }}</a>
-                              }
                             </p>
                             <p>
                               {{ result.highlight.content.0|safe }}
