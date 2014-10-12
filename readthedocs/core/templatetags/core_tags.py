@@ -73,12 +73,18 @@ def restructuredtext(value, short=False):
 
 @register.filter
 def get_project(slug):
-    return Project.objects.get(slug=slug)
+    try:
+        return Project.objects.get(slug=slug)
+    except:
+        return None
 
 
 @register.filter
 def get_version(slug):
-    return Version.objects.get(slug=slug)
+    try:
+        return  Project.objects.get(slug=slug)
+    except:
+        return None
 
 
 @register.simple_tag
