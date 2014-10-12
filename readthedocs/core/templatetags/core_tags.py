@@ -29,6 +29,8 @@ def gravatar(email, size=48):
 
 @register.simple_tag(name="doc_url")
 def make_document_url(project, version=None, page=None):
+    if not project:
+        return ""
     if project.main_language_project:
         base_url = project.get_translation_url(version)
     else:
