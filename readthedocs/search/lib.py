@@ -7,7 +7,7 @@ from django.conf import settings
 from search.indexes import ProjectIndex, PageIndex
 
 
-def search_project(query):
+def search_project(query, language):
 
     body = {
         "query": {
@@ -25,9 +25,11 @@ def search_project(query):
         },
         "fields": ["name", "slug", "description", "lang"]
     }
-    results = ProjectIndex().search(body)
-    #results = s.execute().to_dict()
-    return results
+
+    if language:
+        body['facets']['language']['facet_filter'] = {"term": {"lang": language}}
+
+    return ProjectIndex().search(body)
 
 
 def search_file(query, project=None, version='latest', taxonomy=None):

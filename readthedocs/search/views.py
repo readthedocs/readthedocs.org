@@ -44,7 +44,7 @@ def elastic_search(request):
 
     if query:
         if type == 'project':
-            results = search_lib.search_project(query)
+            results = search_lib.search_project(query, language=language)
         elif type == 'file':
             results = search_lib.search_file(query, project=project, version=version, taxonomy=taxonomy)
 
