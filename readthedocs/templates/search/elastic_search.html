@@ -4,12 +4,21 @@
 
 {% block title %}{% blocktrans with query=query|default:"" %}Search: {{ query }} {% endblocktrans %}{% endblock %}
 
+{% block extra_links %}
+{{ super }}
+
+<style>
+.navigable > ul > li { border-bottom: 0; }
+</style>
+
+{% endblock %}
+
 {% block content %}
 
 <div class="navigable">
 <ul>
-    <li style="border-bottom: 0;" class="{% if type == 'project' %}active{% endif %}"><a href="?{% url_replace request 'type' 'project' %}">Projects</a></li>
-    <li style="border-bottom: 0;" class="{% if type == 'file' %}active{% endif %}"><a href="?{% url_replace request 'type' 'file' %}">Files</a></li>
+    <li class="{% if type == 'project' %}active{% endif %}"><a href="?{% url_replace request 'type' 'project' %}">Projects</a></li>
+    <li class="{% if type == 'file' %}active{% endif %}"><a href="?{% url_replace request 'type' 'file' %}">Files</a></li>
 
     <hr>
 
@@ -89,7 +98,7 @@
   {% endif %}
 </ul>
   <div>
-        <h2 class="quiet">Search</h2>
+        <h2>Search <span class="quiet">Beta</span></h2>
         <!-- BEGIN search form -->
         <div class="wide-search-bar">
           <div class="wide-search-bar-wrapper clearfix">
