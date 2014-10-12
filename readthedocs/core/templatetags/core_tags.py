@@ -84,7 +84,7 @@ def get_project(slug):
 @register.filter
 def get_version(slug):
     try:
-        return  Project.objects.get(slug=slug)
+        return Project.objects.get(slug=slug)
     except:
         return None
 

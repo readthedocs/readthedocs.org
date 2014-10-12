@@ -23,7 +23,7 @@ def search_project(query, language):
                 "terms": {"field": "lang"},
             },
         },
-        "fields": ["name", "slug", "description", "lang"]
+        "fields": ["name", "slug", "description", "lang", "url"]
     }
 
     if language:
