@@ -1,4 +1,5 @@
 from pprint import pprint
+import collections
 import os
 import json
 import logging
@@ -34,7 +35,7 @@ def elastic_search(request):
     type = request.GET.get('type', 'project')
     # File Facets
     project = request.GET.get('project')
-    version = request.GET.get('version')
+    version = request.GET.get('version', 'latest')
     taxonomy = request.GET.get('taxonomy')
     language = request.GET.get('language')
     results = ""
@@ -59,7 +60,7 @@ def elastic_search(request):
         if 'facets' in results:
             for facet_type in ['project', 'version', 'taxonomy', 'language']:
                 if facet_type in results['facets']:
-                    facets[facet_type] = {}
+                    facets[facet_type] = collections.OrderedDict()
                     for term in results['facets'][facet_type]['terms']:
                         facets[facet_type][term['term']] = term['count']
 
