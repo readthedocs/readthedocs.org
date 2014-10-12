@@ -28,6 +28,7 @@ def search_project(query, language):
 
     if language:
         body['facets']['language']['facet_filter'] = {"term": {"lang": language}}
+        body['filter'] =  {"term": {"lang": language}}
 
     return ProjectIndex().search(body)
 
