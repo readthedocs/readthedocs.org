@@ -23,7 +23,8 @@ def search_project(query, language):
                 "terms": {"field": "lang"},
             },
         },
-        "fields": ["name", "slug", "description", "lang", "url"]
+        "fields": ["name", "slug", "description", "lang", "url"],
+        "size": 50  # TODO: Support pagination.
     }
 
     if language:
