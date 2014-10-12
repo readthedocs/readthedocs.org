@@ -26,6 +26,8 @@ from search.indexes import PageIndex
 from search import lib as search_lib
 
 
+log = logging.getLogger(__name__)
+
 def elastic_search(request):
     """
     Use elastic search for global search
@@ -49,8 +51,6 @@ def elastic_search(request):
             results = search_lib.search_file(query, project=project, version=version, taxonomy=taxonomy)
 
     if results:
-        if settings.DEBUG:
-            print pprint(results)
         # pre and post 1.0 compat
         for num, hit in enumerate(results['hits']['hits']):
             for key, val in hit['fields'].items():
@@ -64,8 +64,19 @@ def elastic_search(request):
                     for term in results['facets'][facet_type]['terms']:
                         facets[facet_type][term['term']] = term['count']
 
-    if settings.DEBUG:
-        print pprint(facets)
+    # if settings.DEBUG:
+        # print pprint(results)
+        # print pprint(facets)
+
+    LOG_TEMPLATE = u"(Elastic Search) [{type}] [{project}:{version}:{language}] {msg}"
+    log.info(LOG_TEMPLATE.format(
+        project=project or '',
+        type=type or '',
+        version=version or '',
+        language=language or '',
+        msg=query or '',
+    ))
+
     return render_to_response(
         'search/elastic_search.html',
         {

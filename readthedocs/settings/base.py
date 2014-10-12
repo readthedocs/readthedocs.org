@@ -336,6 +336,14 @@ LOGGING = {
             'backupCount': backup_count,
             'formatter': 'standard',
         },
+        'search': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(LOGS_ROOT, "search.log"),
+            'maxBytes': maxBytes,
+            'backupCount': backup_count,
+            'formatter': 'standard',
+        },
         'mail_admins': {
             'level': 'ERROR',
              'filters': ['require_debug_false'],
@@ -376,6 +384,11 @@ LOGGING = {
         'django.request': {
             'handlers': ['exceptionlog'],
             'level': 'ERROR',
+            'propagate': False,
+        },
+        'search': {
+            'handlers': ['search'],
+            'level': 'DEBUG',
             'propagate': False,
         },
         # Uncomment if you want to see Elasticsearch queries in the console.
