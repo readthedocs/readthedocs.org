@@ -66,22 +66,24 @@ def search_file(query, project=None, version='latest', taxonomy=None):
     }
 
     if project or version or taxonomy:
-        body['filter'] = {"and": []}
+        final_filter = {"and": []}
 
-    if project:
-        body['filter']['and'].append({'term': {'project': project}})
-        body['facets']['project']['facet_filter'] = {'term': {'project': project}}
+        if project:
+            final_filter['and'].append({'term': {'project': project}})
 
-        # Add routing to optimize search by hitting the right shard.
-        kwargs['routing'] = project
+            # Add routing to optimize search by hitting the right shard.
+            kwargs['routing'] = project
 
-    if version:
-        body['filter']['and'].append({'term': {'version': version}})
-        body['facets']['version']['facet_filter'] = {'term': {'version': version}}
+        if version:
+            final_filter['and'].append({'term': {'version': version}})
 
-    if taxonomy:
-        body['filter']['and'].append({'term': {'taxonomy': taxonomy}})
-        body['facets']['taxonomy']['facet_filter'] = {'term': {'taxonomy': taxonomy}}
+        if taxonomy:
+            final_filter['and'].append({'term': {'taxonomy': taxonomy}})
+
+        body['filter'] = final_filter
+        body['facets']['project']['facet_filter'] = final_filter
+        body['facets']['version']['facet_filter'] = final_filter
+        body['facets']['taxonomy']['facet_filter'] = final_filter
 
     results = PageIndex().search(body, **kwargs)
     return results
