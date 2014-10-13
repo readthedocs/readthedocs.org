@@ -21,8 +21,10 @@ from builds.filters import VersionSlugFilter
 from builds.models import Version
 from projects.models import Project, ImportedFile
 from search.indexes import PageIndex
+from search.views import LOG_TEMPLATE
 
 log = logging.getLogger(__name__)
+search_log = logging.getLogger(__name__ + '.search')
 mimetypes.add_type("application/epub+zip", ".epub")
 
 
@@ -288,7 +290,15 @@ def elastic_project_search(request, project_slug):
     project = get_object_or_404(queryset, slug=project_slug)
     version_slug = request.GET.get('version', 'latest')
     query = request.GET.get('q', None)
-    log.debug("(API Search) %s" % query)
+    if query:
+        search_log.info(LOG_TEMPLATE.format(
+            user=request.user or '',
+            project=project or '',
+            type='inproject',
+            version=version_slug or '',
+            language='',
+            msg=query or '',
+        ))
 
     if query:
 

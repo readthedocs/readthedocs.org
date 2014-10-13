@@ -386,6 +386,11 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': False,
         },
+        'projects.views.public.search': {
+            'handlers': ['search'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
         'search': {
             'handlers': ['search'],
             'level': 'DEBUG',
