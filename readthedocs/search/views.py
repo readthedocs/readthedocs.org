@@ -70,13 +70,13 @@ def elastic_search(request):
         # print pprint(facets)
 
         if query:
-        log.info(LOG_TEMPLATE.format(
-            project=project or '',
-            type=type or '',
-            version=version or '',
-            language=language or '',
-            msg=query or '',
-        ))
+            log.info(LOG_TEMPLATE.format(
+                project=project or '',
+                type=type or '',
+                version=version or '',
+                language=language or '',
+                msg=query or '',
+            ))
 
     return render_to_response(
         'search/elastic_search.html',
