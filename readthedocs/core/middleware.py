@@ -71,6 +71,10 @@ class SubdomainMiddleware(object):
         # Google was finding crazy www.blah.readthedocs.org domains.
         # Block these explicitly after trying CNAME logic.
         if len(domain_parts) > 3:
+            # Stop www.fooo.readthedocs.org
+            if domain_parts[0] == 'www':
+                log.debug(LOG_TEMPLATE.format(msg='404ing long domain', **log_kwargs))
+                raise Http404(_('Invalid hostname'))
             log.debug(LOG_TEMPLATE.format(msg='Allowing long domain name', **log_kwargs))
             #raise Http404(_('Invalid hostname'))
         # Normal request.
