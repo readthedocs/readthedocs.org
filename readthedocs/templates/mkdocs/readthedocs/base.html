@@ -14,6 +14,10 @@
   <link href="{{ path }}" rel="stylesheet">
   {%- endfor %}
 
+  <script>
+    // Current page data
+    var mkdocs_page_name = "{{ current_page.input_path.replace('.md', '') }}" 
+  </script>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
   {%- for path in extra_javascript %}
