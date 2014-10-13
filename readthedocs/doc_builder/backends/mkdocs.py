@@ -16,6 +16,8 @@ from tastyapi import apiv2
 
 log = logging.getLogger(__name__)
 
+TEMPLATE_DIR = '%s/readthedocs/templates/mkdocs/readthedocs' % settings.SITE_ROOT
+OVERRIDE_TEMPLATE_DIR = '%s/readthedocs/templates/mkdocs/overrides' % settings.SITE_ROOT
 
 class BaseMkdocs(BaseBuilder):
 
@@ -33,11 +35,30 @@ class BaseMkdocs(BaseBuilder):
         """
 
         # Pull mkdocs config data
-        user_config = yaml.safe_load(open('mkdocs.yml', 'r'))
-        docs_dir = user_config.get('docs_dir', 'docs')
+        try:
+            user_config = yaml.safe_load(open('mkdocs.yml', 'r'))
+        except IOError:
+            user_config = {
+                'site_name': project.name,
+                #'site_url': project.canonical_url,
+            }
 
-        MEDIA_URL = getattr(
-            settings, 'MEDIA_URL', 'https://media.readthedocs.org')
+        docs_dir = user_config.get('docs_dir')
+
+        if not docs_dir:
+            for possible_path in ['docs', 'doc', 'Doc', 'book']:
+                if os.path.exists(os.path.join(checkout_path, '%s' % possible_path)):
+                    docs_dir = possible_path
+                    continue
+
+        if not docs_dir:
+            docs_dir = '.'
+        user_config['docs_dir'] = docs_dir
+
+        # Set mkdocs config values
+
+        MEDIA_URL = getattr(settings, 'MEDIA_URL', 'https://media.readthedocs.org')
+
         if 'extra_javascript' in user_config:
             user_config['extra_javascript'].append(
                 '%sjavascript/jquery/jquery-2.0.3.min.js' % MEDIA_URL)
@@ -72,6 +93,15 @@ class BaseMkdocs(BaseBuilder):
                     if fnmatch.fnmatch(filename, '*.md'):
                         full_path = os.path.join(root.replace(docs_dir, ''), filename.lstrip('/')).lstrip('/')
                         user_config['pages'].append([full_path])
+
+        # mkdocs doesn't support multiple theme_dir's sanely yet
+        if 'theme_dir' in user_config:
+            user_config['theme_dir'].prepend(OVERRIDE_TEMPLATE_DIR)
+        else:
+            user_config['theme_dir'] = [
+            OVERRIDE_TEMPLATE_DIR,
+                TEMPLATE_DIR,
+            ]
 
         yaml.dump(user_config, open('mkdocs.yml', 'w'))
 
@@ -129,7 +159,6 @@ class BaseMkdocs(BaseBuilder):
         )
         results = run(build_command, shell=True)
         return results
-
 
 class MkdocsHTML(BaseMkdocs):
     type = 'mkdocs'
