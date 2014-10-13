@@ -141,18 +141,23 @@
 
                               {# Project #}
                               <a href="{{ result.fields.url }}">{{ result.fields.name }}</a>
-                              <p>
-                              {{ result.highlight.description.0|safe }}
-                              </p>
+                              {% for fragment in result.highlight.description|slice:":3" %}
+                                <p>
+                                ...{{ fragment|safe }}...
+                                </p>
+                                <br>
+                              {% endfor %}
                               {# End Project #}
 
                             {% elif result.fields.path %}
 
                               {# File #}
                               <a href="{% doc_url result.fields.project|get_project result.fields.version result.fields.path %}?highlight={{ query }}">{{ result.fields.project }} - {{ result.fields.title|safe }}</a>
-                            </p>
-                            <p>
-                              {{ result.highlight.content.0|safe }}
+                              {% for fragment in result.highlight.content|slice:":3" %}
+                                <p>
+                                ...{{ fragment|safe }}...
+                                </p>
+                              {% endfor %}
                               {# End File #}
 
                             {% endif %}
