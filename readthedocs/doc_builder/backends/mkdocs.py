@@ -16,34 +16,57 @@ from tastyapi import apiv2
 
 log = logging.getLogger(__name__)
 
+TEMPLATE_DIR = '%s/readthedocs/templates/mkdocs/readthedocs' % settings.SITE_ROOT
+OVERRIDE_TEMPLATE_DIR = '%s/readthedocs/templates/mkdocs/overrides' % settings.SITE_ROOT
 
-class Builder(BaseBuilder):
+
+class BaseMkdocs(BaseBuilder):
 
     """
     Mkdocs builder
     """
-    type = 'mkdocs'
 
     def __init__(self, *args, **kwargs):
-        super(Builder, self).__init__(*args, **kwargs)
-        self.old_artifact_path = os.path.join(
-            self.version.project.checkout_path(self.version.slug), 'site')
+        super(BaseMkdocs, self).__init__(*args, **kwargs)
+        self.old_artifact_path = os.path.join(self.version.project.checkout_path(self.version.slug), self.build_dir)
 
-    @restoring_chdir
-    def build(self, **kwargs):
-        project = self.version.project
-        checkout_path = project.checkout_path(self.version.slug)
-        site_path = os.path.join(checkout_path, 'site')
-        os.chdir(checkout_path)
+    def append_conf(self, **kwargs):
+        """
+        Set mkdocs config values
+        """
+        checkout_path = self.version.project.checkout_path(self.version.slug)
 
         # Pull mkdocs config data
-        user_config = yaml.safe_load(open('mkdocs.yml', 'r'))
-        docs_dir = user_config.get('docs_dir', 'docs')
+        try:
+            user_config = yaml.safe_load(open('mkdocs.yml', 'r'))
+        except IOError:
+            user_config = {
+                'site_name': self.version.project.name,
+                #'site_url': project.canonical_url,
+            }
+
+        # Handle custom docs dirs
+
+        docs_dir = user_config.get('docs_dir')
+
+        if not docs_dir:
+            for possible_path in ['docs', 'doc', 'Doc', 'book']:
+                if os.path.exists(os.path.join(checkout_path, '%s' % possible_path)):
+                    docs_dir = possible_path
+                    break
+
+        if not docs_dir:
+            docs_dir = '.'
+        user_config['docs_dir'] = docs_dir
 
         # Set mkdocs config values
 
-        MEDIA_URL = getattr(
-            settings, 'MEDIA_URL', 'https://media.readthedocs.org')
+        MEDIA_URL = getattr(settings, 'MEDIA_URL', 'https://media.readthedocs.org')
+
+        # Mkdocs needs a full domain here because it tries to link to local media files
+        if not MEDIA_URL.startswith('http'):
+            MEDIA_URL = 'http://localhost:8000' + MEDIA_URL
+
         if 'extra_javascript' in user_config:
             user_config['extra_javascript'].append(
                 '%sjavascript/jquery/jquery-2.0.3.min.js' % MEDIA_URL)
@@ -79,14 +102,17 @@ class Builder(BaseBuilder):
                         full_path = os.path.join(root.replace(docs_dir, ''), filename.lstrip('/')).lstrip('/')
                         user_config['pages'].append([full_path])
 
+        # Set our custom theme dir for mkdocs
+        user_config['theme_dir'] = TEMPLATE_DIR
+
         yaml.dump(user_config, open('mkdocs.yml', 'w'))
 
         # RTD javascript writing
 
         READTHEDOCS_DATA = {
-            'project': project.slug,
+            'project': self.version.project.slug,
             'version': self.version.slug,
-            'language': project.language,
+            'language': self.version.project.language,
             'page': None,
             'theme': "readthedocs",
             'docroot': docs_dir,
@@ -108,11 +134,12 @@ class Builder(BaseBuilder):
 
         data_file = open(os.path.join(docs_dir, 'readthedocs-data.js'), 'w+')
         data_file.write(data_string)
+        data_file.write('\nREADTHEDOCS_DATA["page"] = mkdocs_page_name')
         data_file.close()
 
         include_ctx = Context({
             'global_analytics_code': getattr(settings, 'GLOBAL_ANALYTICS_CODE', 'UA-17997319-1'),
-            'user_analytics_code': project.analytics_code,
+            'user_analytics_code': self.version.project.analytics_code,
         })
         include_string = template_loader.get_template(
             'doc_builder/include.js.tmpl'
@@ -121,40 +148,28 @@ class Builder(BaseBuilder):
         include_file.write(include_string)
         include_file.close()
 
+    @restoring_chdir
+    def build(self, **kwargs):
+        checkout_path = self.version.project.checkout_path(self.version.slug)
+        #site_path = os.path.join(checkout_path, 'site')
+        os.chdir(checkout_path)
         # Actual build
-
-        build_command = "%s build --site-dir=site --theme=mkdocs" % (
-            project.venv_bin(version=self.version.slug,
-                             bin='mkdocs')
+        build_command = "{command} {builder} --site-dir={build_dir} --theme=readthedocs".format(
+            command=self.version.project.venv_bin(version=self.version.slug, bin='mkdocs'),
+            builder=self.builder,
+            build_dir=self.build_dir,
         )
         results = run(build_command, shell=True)
-
-        try:
-            # Index Search
-            page_list = []
-            log.info(LOG_TEMPLATE.format(project=self.version.project.slug, version=self.version.slug, msg='Indexing files'))
-            for root, dirnames, filenames in os.walk(site_path):
-                for filename in filenames:
-                    if fnmatch.fnmatch(filename, '*.html'):
-                        full_path = os.path.join(root, filename.lstrip('/'))
-                        relative_path = os.path.join(root.replace(site_path, '').lstrip('/'), filename.lstrip('/'))
-                        relative_path = re.sub('.html$', '', relative_path)
-                        html = parse_content_from_file(documentation_type='mkdocs', file_path=full_path)
-                        headers = parse_headers_from_file(documentation_type='mkdocs', file_path=full_path)
-                        sections = parse_sections_from_file(documentation_type='mkdocs', file_path=full_path)
-                        page_list.append(
-                            {'content': html, 'path': relative_path, 'title': sections[0]['title'], 'headers': headers, 'sections': sections}
-                        )
-
-            data = {
-                'page_list': page_list,
-                'version_pk': self.version.pk,
-                'project_pk': self.version.project.pk
-            }
-            log_msg = ' '.join([page['path'] for page in page_list])
-            log.info("(Search Index) Sending Data: %s [%s]" % (self.version.project.slug, log_msg))
-            apiv2.index_search.post({'data': data})
-        except:
-            log.error('Search indexing failed')
-
         return results
+
+
+class MkdocsHTML(BaseMkdocs):
+    type = 'mkdocs'
+    builder = 'build'
+    build_dir = '_build/html'
+
+
+class MkdocsJSON(BaseMkdocs):
+    type = 'mkdocs_json'
+    builder = 'json'
+    build_dir = '_build/json'

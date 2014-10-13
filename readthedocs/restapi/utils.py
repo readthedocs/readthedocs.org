@@ -93,7 +93,7 @@ def index_search_request(version, page_list, commit):
     page_obj = PageIndex()
     project_scale = 1
 
-    tags = [tag.name for tag in project.tags.all()]
+    #tags = [tag.name for tag in project.tags.all()]
 
     project_obj = ProjectIndex()
     project_obj.index_document(data={
@@ -104,7 +104,7 @@ def index_search_request(version, page_list, commit):
         'lang': project.language,
         'author': [user.username for user in project.users.all()],
         'url': project.get_absolute_url(),
-        'tags': tags,
+        'tags': None,
         '_boost': project_scale,
     })
 

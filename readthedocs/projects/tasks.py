@@ -29,6 +29,7 @@ from core.utils import (copy_to_app_servers, copy_file_to_app_servers,
                         run_on_app_servers)
 from core import utils as core_utils
 from search.parse_json import process_all_json_files
+from search.utils import process_mkdocs_json
 from vcs_support import utils as vcs_support_utils
 
 log = logging.getLogger(__name__)
@@ -396,11 +397,11 @@ def setup_environment(version):
         ignore_option = ''
 
     wheeldir = os.path.join(settings.SITE_ROOT, 'deploy', 'wheels')
-    ret_dict['sphinx'] = run(
+    ret_dict['doc_builder'] = run(
         (
             '{cmd} install --no-index --use-wheel --find-links={wheeldir} -U {ignore_option} sphinx==1.2.2 '
             'virtualenv==1.10.1 setuptools==1.1 '
-            'docutils==0.11 readthedocs-sphinx-ext==0.4.3'
+            'docutils==0.11 readthedocs-sphinx-ext==0.4.3 mkdocs'
         ).format(
             cmd=project.venv_bin(version=version.slug, bin='pip'),
             ignore_option=ignore_option,
@@ -451,15 +452,24 @@ def build_docs(version, force, pdf, man, epub, dash, search, localmedia):
         html_builder = builder_loading.get(project.documentation_type)(version)
         if force:
             html_builder.force()
-        # html_builder.clean()
-        if 'sphinx' in project.documentation_type:
-            html_builder.append_conf()
+        html_builder.append_conf()
         results['html'] = html_builder.build()
         if results['html'][0] == 0:
             html_builder.move()
 
         fake_results = (999, "Project Skipped, Didn't build",
                         "Project Skipped, Didn't build")
+        if 'mkdocs' in project.documentation_type:
+            if search:
+                try:
+                    search_builder = builder_loading.get('mkdocs_json')(version)
+                    results['search'] = search_builder.build()
+                    if results['search'][0] == 0:
+                        search_builder.move()
+                except:
+                    log.error(LOG_TEMPLATE.format(
+                        project=project.slug, version=version.slug, msg="JSON Build Error"), exc_info=True)
+
         if 'sphinx' in project.documentation_type:
             # Search builder. Creates JSON from docs and sends it to the
             # server.
@@ -627,7 +637,7 @@ def record_build(api, record, build, results, state):
     if not record:
         return None
 
-    setup_steps = ['checkout', 'venv', 'sphinx', 'requirements', 'install']
+    setup_steps = ['checkout', 'venv', 'doc_builder', 'requirements', 'install']
     output_steps = ['html']
     all_steps = setup_steps + output_steps
 
@@ -662,24 +672,33 @@ def record_build(api, record, build, results, state):
             build['error'] += "\n\n%s\n-----\n\n" % step
             build['error'] += results.get(step)[2]
     try:
-        ret = api.build(build['id']).put(build)
-    except Exception, e:
+        api.build(build['id']).put(build)
+    except Exception:
         log.error("Unable to post a new build", exc_info=True)
 
 
 def record_pdf(api, record, results, state, version):
-    if not record:
+    if not record or 'sphinx' not in version.project.documentation_type:
         return None
     try:
+        if 'pdf' in results:
+            pdf_exit = results['pdf'][0]
+            pdf_success = pdf_exit == 0
+            pdf_output = results['pdf'][1]
+            pdf_error = results['pdf'][2]
+        else:
+            pdf_exit = 999
+            pdf_success = False
+            pdf_output = pdf_error = "PDF Failed"
         api.build.post(dict(
             state=state,
             project='/api/v1/project/%s/' % version.project.pk,
             version='/api/v1/version/%s/' % version.pk,
-            success=results['pdf'][0] == 0,
+            success=pdf_success,
             type='pdf',
-            output=results['pdf'][1],
-            error=results['pdf'][2],
-            exit_code=results['pdf'][0],
+            output=pdf_output,
+            error=pdf_error,
+            exit_code=pdf_exit,
         ))
     except Exception:
         log.error(LOG_TEMPLATE.format(project=version.project.slug,
@@ -689,16 +708,18 @@ def record_pdf(api, record, results, state, version):
 def update_search(version, build):
     if 'sphinx' in version.project.documentation_type:
         page_list = process_all_json_files(version)
-        data = {
-            'page_list': page_list,
-            'version_pk': version.pk,
-            'project_pk': version.project.pk,
-            'commit': build.get('commit'),
-        }
-        log_msg = ' '.join([page['path'] for page in page_list])
-        log.info("(Search Index) Sending Data: %s [%s]" % (
-            version.project.slug, log_msg))
-        apiv2.index_search.post({'data': data})
+    if 'mkdocs' in version.project.documentation_type:
+        page_list = process_mkdocs_json(version)
+
+    data = {
+        'page_list': page_list,
+        'version_pk': version.pk,
+        'project_pk': version.project.pk,
+        'commit': build.get('commit'),
+    }
+    log_msg = ' '.join([page['path'] for page in page_list])
+    log.info("(Search Index) Sending Data: %s [%s]" % (version.project.slug, log_msg))
+    apiv2.index_search.post({'data': data})
 
 
 @task()

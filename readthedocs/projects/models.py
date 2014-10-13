@@ -480,7 +480,10 @@ class Project(models.Model):
         """
         The path to the build json docs in the project.
         """
-        return os.path.join(self.conf_dir(version), "_build", "json")
+        if 'sphinx' in self.documentation_type:
+            return os.path.join(self.conf_dir(version), "_build", "json")
+        elif 'mkdocs' in self.documentation_type:
+            return os.path.join(self.checkout_path(version), "_build", "json")
 
     def full_singlehtml_path(self, version='latest'):
         """

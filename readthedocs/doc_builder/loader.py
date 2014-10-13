@@ -16,5 +16,6 @@ loading = {
     'sphinx_search': sphinx.SearchBuilder,
     'sphinx_singlehtmllocalmedia': sphinx.LocalMediaBuilder,
     # Other markup
-    'mkdocs': mkdocs.Builder,
+    'mkdocs': mkdocs.MkdocsHTML,
+    'mkdocs_json': mkdocs.MkdocsJSON,
 }
