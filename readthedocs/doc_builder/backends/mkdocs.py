@@ -94,6 +94,7 @@ class BaseMkdocs(BaseBuilder):
                 'https://media.readthedocs.org/css/readthedocs-doc-embed.css',
             ]
 
+        """
         if 'pages' not in user_config:
             user_config['pages'] = []
             for root, dirnames, filenames in os.walk(docs_dir):
@@ -101,6 +102,7 @@ class BaseMkdocs(BaseBuilder):
                     if fnmatch.fnmatch(filename, '*.md'):
                         full_path = os.path.join(root.replace(docs_dir, ''), filename.lstrip('/')).lstrip('/')
                         user_config['pages'].append([full_path])
+        """
 
         # Set our custom theme dir for mkdocs
         user_config['theme_dir'] = TEMPLATE_DIR
