@@ -397,7 +397,7 @@ def setup_environment(version):
         ignore_option = ''
 
     wheeldir = os.path.join(settings.SITE_ROOT, 'deploy', 'wheels')
-    ret_dict['sphinx'] = run(
+    ret_dict['doc_builder'] = run(
         (
             '{cmd} install --no-index --use-wheel --find-links={wheeldir} -U {ignore_option} sphinx==1.2.2 '
             'virtualenv==1.10.1 setuptools==1.1 '
@@ -637,7 +637,7 @@ def record_build(api, record, build, results, state):
     if not record:
         return None
 
-    setup_steps = ['checkout', 'venv', 'sphinx', 'requirements', 'install']
+    setup_steps = ['checkout', 'venv', 'doc_builder', 'requirements', 'install']
     output_steps = ['html']
     all_steps = setup_steps + output_steps
 
@@ -672,24 +672,33 @@ def record_build(api, record, build, results, state):
             build['error'] += "\n\n%s\n-----\n\n" % step
             build['error'] += results.get(step)[2]
     try:
-        ret = api.build(build['id']).put(build)
-    except Exception, e:
+        api.build(build['id']).put(build)
+    except Exception:
         log.error("Unable to post a new build", exc_info=True)
 
 
 def record_pdf(api, record, results, state, version):
-    if not record:
+    if not record or 'sphinx' not in version.project.documentation_type:
         return None
     try:
+        if 'pdf' in results:
+            pdf_exit = results['pdf'][0]
+            pdf_success = pdf_exit == 0
+            pdf_output = results['pdf'][1]
+            pdf_error = results['pdf'][2]
+        else:
+            pdf_exit = 999
+            pdf_success = False
+            pdf_output = pdf_error = "PDF Failed"
         api.build.post(dict(
             state=state,
             project='/api/v1/project/%s/' % version.project.pk,
             version='/api/v1/version/%s/' % version.pk,
-            success=results['pdf'][0] == 0,
+            success=pdf_success,
             type='pdf',
-            output=results['pdf'][1],
-            error=results['pdf'][2],
-            exit_code=results['pdf'][0],
+            output=pdf_output,
+            error=pdf_error,
+            exit_code=pdf_exit,
         ))
     except Exception:
         log.error(LOG_TEMPLATE.format(project=version.project.slug,
