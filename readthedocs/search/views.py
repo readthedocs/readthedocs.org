@@ -27,6 +27,7 @@ from search import lib as search_lib
 
 
 log = logging.getLogger(__name__)
+LOG_TEMPLATE = u"(Elastic Search) [{type}] [{project}:{version}:{language}] {msg}"
 
 def elastic_search(request):
     """
@@ -68,14 +69,14 @@ def elastic_search(request):
         # print pprint(results)
         # print pprint(facets)
 
-    LOG_TEMPLATE = u"(Elastic Search) [{type}] [{project}:{version}:{language}] {msg}"
-    log.info(LOG_TEMPLATE.format(
-        project=project or '',
-        type=type or '',
-        version=version or '',
-        language=language or '',
-        msg=query or '',
-    ))
+        if query:
+        log.info(LOG_TEMPLATE.format(
+            project=project or '',
+            type=type or '',
+            version=version or '',
+            language=language or '',
+            msg=query or '',
+        ))
 
     return render_to_response(
         'search/elastic_search.html',
