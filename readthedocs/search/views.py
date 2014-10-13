@@ -70,8 +70,11 @@ def elastic_search(request):
         print pprint(facets)
 
     if query:
+        user = ''
+        if request.user.is_authenticated():
+            user = request.user
         log.info(LOG_TEMPLATE.format(
-            user=request.user or '',
+            user=user,
             project=project or '',
             type=type or '',
             version=version or '',

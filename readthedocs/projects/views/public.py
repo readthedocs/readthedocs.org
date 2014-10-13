@@ -291,8 +291,11 @@ def elastic_project_search(request, project_slug):
     version_slug = request.GET.get('version', 'latest')
     query = request.GET.get('q', None)
     if query:
-        search_log.info(LOG_TEMPLATE.format(
-            user=request.user or '',
+        user = ''
+        if request.user.is_authenticated():
+            user = request.user
+        log.info(LOG_TEMPLATE.format(
+            user=user,
             project=project or '',
             type='inproject',
             version=version_slug or '',
