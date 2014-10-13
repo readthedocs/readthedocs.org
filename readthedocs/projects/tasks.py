@@ -164,6 +164,12 @@ def move_files(version, results):
             to_path = version.project.get_production_media_path(type='epub', version_slug=version.slug, include_file=False)
             core_utils.copy(from_path, to_path)
 
+    if 'mkdocs' in version.project.documentation_type:
+        if 'search' in results and results['search'][0] == 0:
+            from_path = version.project.artifact_path(version=version.slug, type='mkdocs_json')
+            to_path = version.project.get_production_media_path(type='json', version_slug=version.slug, include_file=False)
+            core_utils.copy(from_path, to_path)
+
 
 def run_docker(version):
     serialized_path = os.path.join(version.project.doc_path, 'build.json')
