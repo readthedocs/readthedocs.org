@@ -29,6 +29,7 @@ from core.utils import (copy_to_app_servers, copy_file_to_app_servers,
                         run_on_app_servers)
 from core import utils as core_utils
 from search.parse_json import process_all_json_files
+from search.utils import process_mkdocs_json
 from vcs_support import utils as vcs_support_utils
 
 log = logging.getLogger(__name__)
@@ -451,15 +452,24 @@ def build_docs(version, force, pdf, man, epub, dash, search, localmedia):
         html_builder = builder_loading.get(project.documentation_type)(version)
         if force:
             html_builder.force()
-        # html_builder.clean()
-        if 'sphinx' in project.documentation_type:
-            html_builder.append_conf()
+        html_builder.append_conf()
         results['html'] = html_builder.build()
         if results['html'][0] == 0:
             html_builder.move()
 
         fake_results = (999, "Project Skipped, Didn't build",
                         "Project Skipped, Didn't build")
+        if 'mkdocs' in project.documentation_type:
+            if search:
+                try:
+                    search_builder = builder_loading.get('mkdocs_json')(version)
+                    results['search'] = search_builder.build()
+                    if results['search'][0] == 0:
+                        search_builder.move()
+                except:
+                    log.error(LOG_TEMPLATE.format(
+                        project=project.slug, version=version.slug, msg="JSON Build Error"), exc_info=True)
+
         if 'sphinx' in project.documentation_type:
             # Search builder. Creates JSON from docs and sends it to the
             # server.
@@ -689,16 +699,18 @@ def record_pdf(api, record, results, state, version):
 def update_search(version, build):
     if 'sphinx' in version.project.documentation_type:
         page_list = process_all_json_files(version)
-        data = {
-            'page_list': page_list,
-            'version_pk': version.pk,
-            'project_pk': version.project.pk,
-            'commit': build.get('commit'),
-        }
-        log_msg = ' '.join([page['path'] for page in page_list])
-        log.info("(Search Index) Sending Data: %s [%s]" % (
-            version.project.slug, log_msg))
-        apiv2.index_search.post({'data': data})
+    if 'mkdocs' in version.project.documentation_type:
+        page_list = process_mkdocs_json(version)
+
+    data = {
+        'page_list': page_list,
+        'version_pk': version.pk,
+        'project_pk': version.project.pk,
+        'commit': build.get('commit'),
+    }
+    log_msg = ' '.join([page['path'] for page in page_list])
+    log.info("(Search Index) Sending Data: %s [%s]" % (version.project.slug, log_msg))
+    apiv2.index_search.post({'data': data})
 
 
 @task()
