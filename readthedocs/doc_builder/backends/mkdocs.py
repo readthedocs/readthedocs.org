@@ -19,6 +19,7 @@ log = logging.getLogger(__name__)
 TEMPLATE_DIR = '%s/readthedocs/templates/mkdocs/readthedocs' % settings.SITE_ROOT
 OVERRIDE_TEMPLATE_DIR = '%s/readthedocs/templates/mkdocs/overrides' % settings.SITE_ROOT
 
+
 class BaseMkdocs(BaseBuilder):
 
     """
@@ -33,15 +34,18 @@ class BaseMkdocs(BaseBuilder):
         """
         Set mkdocs config values
         """
+        checkout_path = self.version.project.checkout_path(self.version.slug)
 
         # Pull mkdocs config data
         try:
             user_config = yaml.safe_load(open('mkdocs.yml', 'r'))
         except IOError:
             user_config = {
-                'site_name': project.name,
+                'site_name': self.version.project.name,
                 #'site_url': project.canonical_url,
             }
+
+        # Handle custom docs dirs
 
         docs_dir = user_config.get('docs_dir')
 
@@ -49,7 +53,7 @@ class BaseMkdocs(BaseBuilder):
             for possible_path in ['docs', 'doc', 'Doc', 'book']:
                 if os.path.exists(os.path.join(checkout_path, '%s' % possible_path)):
                     docs_dir = possible_path
-                    continue
+                    break
 
         if not docs_dir:
             docs_dir = '.'
@@ -58,6 +62,10 @@ class BaseMkdocs(BaseBuilder):
         # Set mkdocs config values
 
         MEDIA_URL = getattr(settings, 'MEDIA_URL', 'https://media.readthedocs.org')
+
+        # Mkdocs needs a full domain here because it tries to link to local media files
+        if not MEDIA_URL.startswith('http'):
+            MEDIA_URL = 'http://localhost:8000' + MEDIA_URL
 
         if 'extra_javascript' in user_config:
             user_config['extra_javascript'].append(
@@ -94,14 +102,8 @@ class BaseMkdocs(BaseBuilder):
                         full_path = os.path.join(root.replace(docs_dir, ''), filename.lstrip('/')).lstrip('/')
                         user_config['pages'].append([full_path])
 
-        # mkdocs doesn't support multiple theme_dir's sanely yet
-        if 'theme_dir' in user_config:
-            user_config['theme_dir'].prepend(OVERRIDE_TEMPLATE_DIR)
-        else:
-            user_config['theme_dir'] = [
-            OVERRIDE_TEMPLATE_DIR,
-                TEMPLATE_DIR,
-            ]
+        # Set our custom theme dir for mkdocs
+        user_config['theme_dir'] = TEMPLATE_DIR
 
         yaml.dump(user_config, open('mkdocs.yml', 'w'))
 
@@ -132,6 +134,7 @@ class BaseMkdocs(BaseBuilder):
 
         data_file = open(os.path.join(docs_dir, 'readthedocs-data.js'), 'w+')
         data_file.write(data_string)
+        data_file.write('\nREADTHEDOCS_DATA["page"] = mkdocs_page_name')
         data_file.close()
 
         include_ctx = Context({
@@ -150,15 +153,15 @@ class BaseMkdocs(BaseBuilder):
         checkout_path = self.version.project.checkout_path(self.version.slug)
         #site_path = os.path.join(checkout_path, 'site')
         os.chdir(checkout_path)
-        self.append_conf()
         # Actual build
-        build_command = "{command} {builder} --site-dir={build_dir} --theme=mkdocs".format(
+        build_command = "{command} {builder} --site-dir={build_dir} --theme=readthedocs".format(
             command=self.version.project.venv_bin(version=self.version.slug, bin='mkdocs'),
             builder=self.builder,
             build_dir=self.build_dir,
         )
         results = run(build_command, shell=True)
         return results
+
 
 class MkdocsHTML(BaseMkdocs):
     type = 'mkdocs'
