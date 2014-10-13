@@ -27,7 +27,7 @@ from search import lib as search_lib
 
 
 log = logging.getLogger(__name__)
-LOG_TEMPLATE = u"(Elastic Search) [{type}] [{project}:{version}:{language}] {msg}"
+LOG_TEMPLATE = u"(Elastic Search) [{user}:{type}] [{project}:{version}:{language}] {msg}"
 
 def elastic_search(request):
     """
@@ -65,18 +65,19 @@ def elastic_search(request):
                     for term in results['facets'][facet_type]['terms']:
                         facets[facet_type][term['term']] = term['count']
 
-    # if settings.DEBUG:
-        # print pprint(results)
-        # print pprint(facets)
+    if settings.DEBUG:
+        print pprint(results)
+        print pprint(facets)
 
-        if query:
-            log.info(LOG_TEMPLATE.format(
-                project=project or '',
-                type=type or '',
-                version=version or '',
-                language=language or '',
-                msg=query or '',
-            ))
+    if query:
+        log.info(LOG_TEMPLATE.format(
+            user=request.user or '',
+            project=project or '',
+            type=type or '',
+            version=version or '',
+            language=language or '',
+            msg=query or '',
+        ))
 
     return render_to_response(
         'search/elastic_search.html',
