@@ -55,16 +55,19 @@
 
           <div class="module-list">
             <div class="module-list-wrapper">
-
               <ul>
                 {% for project in project_list %}
                   <li class="module-item col-span">
                     <a href="{% url "projects_manage" project.slug %}">
                       {{ project.name }}
+                    </a>
                       {% with builds=project.builds.count %}
                         {% if builds == 0 %}
                           <span class="right quiet">
                             {% trans "No builds yet" %}
+                            <a href="{% url 'projects_edit' project.slug %}">
+                                <img src="{{ MEDIA_URL }}images/gearblack.png" />
+                            </a>
                           </span>
                         {% else %}
                           <span class="right quiet">
@@ -82,10 +85,12 @@
                                 <span class="build-state build-state-failing">{% trans "failing" %}</span>
                               {% endif %}
                             {% endwith %}
+                            <a href="{% url 'projects_edit' project.slug %}">
+                                <img src="{{ MEDIA_URL }}images/gearblack.png" />
+                            </a>
                           </span>
                         {% endif %}
                       {% endwith %}
-                    </a>
                   </li>
                 {% endfor %}
               </ul>
