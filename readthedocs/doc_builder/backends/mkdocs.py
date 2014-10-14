@@ -127,6 +127,7 @@ class BaseMkdocs(BaseBuilder):
             'language': self.version.project.language,
             'page': None,
             'theme': "readthedocs",
+            'builder': "mkdocs",
             'docroot': docs_dir,
             'source_suffix': ".md",
             'api_host': getattr(settings, 'SLUMBER_API_HOST', 'https://readthedocs.org'),

@@ -150,6 +150,29 @@ $(document).ready(function () {
         body.prepend(warning);
       }
 
+
+    // Hijack search on mkdocs
+    if ("builder" in READTHEDOCS_DATA && READTHEDOCS_DATA["builder"] == "mkdocs") {
+      $('<input>').attr({
+          type: 'hidden',
+          name: 'project',
+          value: READTHEDOCS_DATA["project"]
+      }).appendTo('#rtd-search-form');
+      $('<input>').attr({
+          type: 'hidden',
+          name: 'version',
+          value: READTHEDOCS_DATA["version"]
+      }).appendTo('#rtd-search-form');
+      $('<input>').attr({
+          type: 'hidden',
+          name: 'type',
+          value: 'file'
+      }).appendTo('#rtd-search-form');
+
+      $("#rtd-search-form").prop("action", API_HOST + "/elasticsearch/")
+    }
+
+
     /// Search
     /// Here be dragons, this is beta quality code. Beware.
 
