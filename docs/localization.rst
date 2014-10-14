@@ -3,6 +3,8 @@
 Localization of Documentation
 =============================
 
+.. note:: This feature only applies to Sphinx documentation. We are working to bring it to our other documentation backends.
+
 Read the Docs supports hosting your docs in multiple languages.
 There are two different things that we support:
 

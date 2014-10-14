@@ -3,6 +3,7 @@
 Internationalization
 ====================
 
+
 This document covers the details regarding internationalization and
 localization that are applied in Read the Docs. The guidelines described are
 mostly based on `Kitsune's localization documentation

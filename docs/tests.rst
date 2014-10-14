@@ -1,12 +1,14 @@
 Running tests
 =============
 
-Currently RTD isn't well tested. This is a problem, and it is being worked on. However, we do have a basic test suite. To run the tests, you need simply need to run::
+Read the Docs ships with a test suite that tests the application. You should run these tests when you are doing development before committing code.
+
+They can be run easily::
 
     pip install coverage 
     ./runtests.sh
 
-This should spit out a bunch of information and eventually pass.
+This should print out a bunch of information and pass with 0 errors.
 
 Continuous Integration
 ----------------------

@@ -1,6 +1,8 @@
 Read the Docs Theme
 ===================
 
+.. note:: This feature only applies to Sphinx documentation. We are working to bring it to our other documentation backends.
+
 .. image:: /img/screen_mobile.png
 
 By default, Read the Docs will use its own custom sphinx theme unless you set one yourself
