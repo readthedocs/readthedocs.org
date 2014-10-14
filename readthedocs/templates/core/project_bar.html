@@ -28,9 +28,7 @@
 
             <li class="{{ search_active }}"><a href="{% url "elastic_project_search" project.slug %}" rel="nofollow,noindex">{% trans "Search" %}</a></li>
 
-            {% if project.get_latest_build %}
-              <li class="{{ builds_active }}"><a href="{{ project.get_builds_url }}">{% trans "Builds" %}</a></li>
-            {% endif %}
+            <li class="{{ builds_active }}"><a href="{{ project.get_builds_url }}">{% trans "Builds" %}</a></li>
 
             {% if request.user|is_admin:project %}
               <li class="{{ edit_active }}"><a href="{% url "projects_edit" project.slug %}"><i class="gear"></i>{% trans "Admin" %}</a></li>
