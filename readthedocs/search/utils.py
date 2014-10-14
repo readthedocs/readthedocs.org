@@ -28,8 +28,12 @@ def process_mkdocs_json(version, build_dir=True):
         html = parse_content_from_file(documentation_type='mkdocs', file_path=filename)
         headers = parse_headers_from_file(documentation_type='mkdocs', file_path=filename)
         sections = parse_sections_from_file(documentation_type='mkdocs', file_path=filename)
+        try:
+            title = sections[0]['title']
+        except IndexError:
+            title = relative_path
         page_list.append(
-            {'content': html, 'path': relative_path, 'title': sections[0]['title'], 'headers': headers, 'sections': sections}
+            {'content': html, 'path': relative_path, 'title': title, 'headers': headers, 'sections': sections}
         )
     return page_list
 
