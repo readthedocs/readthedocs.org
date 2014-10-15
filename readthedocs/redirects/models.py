@@ -21,11 +21,13 @@ TYPE_CHOICES = (
     # ('advanced', _('Advanced')),
 )
 
-from_url_helptext = _('Absolute path, excluding the domain.'
+from_url_helptext = _('Absolute path, excluding the domain. '
                       'Example: <b>/docs/</b>  or <b>/install.html</b>.'
+                      '</br><b>Outcome</b>: /docs/faq.html -> /$lang/$version/faq.html'
                       )
 to_url_helptext = _('Absolute or relative url. Examples: '
                     '<b>/tutorial/install.html.</b>'
+                    '</br><b>Outcome</b>: /$lang/$version/example.html --> /$lang/$version/examples/intro.htm'
                     )
 redirect_type_helptext = _('The type of redirect you wish to use.')
 
@@ -33,8 +35,10 @@ redirect_type_helptext = _('The type of redirect you wish to use.')
 class Redirect(models.Model):
     project = models.ForeignKey(Project, verbose_name=_('Project'),
                                 related_name='redirects')
+
     redirect_type = models.CharField(_('Redirect Type'), max_length=255, choices=TYPE_CHOICES,
                                      help_text=redirect_type_helptext)
+
     from_url = models.CharField(_('From URL'), max_length=255,
                                 db_index=True, help_text=from_url_helptext, blank=True)
 
@@ -54,6 +58,7 @@ class Redirect(models.Model):
         verbose_name_plural = _('redirects')
         ordering = ('-update_dt',)
 
+    # This shows the different types of forms 
     def __unicode__(self):
         if self.redirect_type == 'prefix':
             return _('Redirect: %s ->' % self.from_url)
