@@ -405,9 +405,8 @@ def setup_environment(version):
     wheeldir = os.path.join(settings.SITE_ROOT, 'deploy', 'wheels')
     ret_dict['doc_builder'] = run(
         (
-            '{cmd} install --no-index --use-wheel --find-links={wheeldir} -U {ignore_option} sphinx==1.2.2 '
-            'virtualenv==1.10.1 setuptools==1.1 '
-            'docutils==0.11 readthedocs-sphinx-ext==0.4.3 mkdocs'
+            '{cmd} install --no-index --use-wheel --find-links={wheeldir} -U {ignore_option} '
+            'sphinx virtualenv setuptools docutils readthedocs-sphinx-ext mkdocs mock'
         ).format(
             cmd=project.venv_bin(version=version.slug, bin='pip'),
             ignore_option=ignore_option,
