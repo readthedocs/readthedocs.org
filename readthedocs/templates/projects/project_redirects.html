@@ -67,28 +67,6 @@
     </p>
   {% endif %}
 
-  <h3>{% trans "Add Redirect" %}</h3>
-  <p>
-    {% trans "Add new redirects. These will only happen on <b>404 Page Not Found</b> requests." %}
-  </p>
-  <p>
-    {% trans "This is mainly used to support migration from old doc systems. If you used to serve your docs at <b>/docs/</b>, you will do:" %}
-  </p>
-  <pre>
-    Type: Prefix Redirect
-    From URL: /docs/
-    Outcome: /docs/faq.html -> /$lang/$version/faq.html
-  </pre>
-  <p>
-    {% trans "You can also redirect a specific page, like so:" %}
-  </p>
-  <pre>
-    Type: Page Redirect
-    From URL: example.html
-    To URL: examples/intro.html
-    Outcome: /$lang/$version/example.html -> /$lang/$version/examples/intro.html
-  </pre>
-
   <form method="post" action=".">{% csrf_token %}
     {{ form.as_p }}
     <p>
