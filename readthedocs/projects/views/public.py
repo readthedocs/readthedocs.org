@@ -109,7 +109,7 @@ def project_badge(request, project_slug, redirect=False):
     Return a sweet badge for the project
     """
     version_slug = request.GET.get('version', 'latest')
-    style = request.GET.get('style', '')
+    style = request.GET.get('style', 'flat')
     try:
         version = Version.objects.get(project__slug=project_slug, slug=version_slug)
     except Version.DoesNotExist:
