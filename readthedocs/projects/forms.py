@@ -89,8 +89,9 @@ class ImportProjectForm(ProjectForm):
         # save the project
         project = super(ImportProjectForm, self).save(*args, **kwargs)
 
-        # kick off the celery job
-        update_docs.delay(pk=project.pk)
+        if kwargs.get('commit', True):
+            # kick off the celery job
+            update_docs.delay(pk=project.pk)
 
         return project
 
