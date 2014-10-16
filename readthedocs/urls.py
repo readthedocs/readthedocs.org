@@ -74,6 +74,7 @@ urlpatterns = patterns(
     url(r'^builds/', include('builds.urls')),
     # Ship elastic search
     url(r'^search/$', 'search.views.elastic_search', name='search'),
+    url(r'^elasticsearch/$', 'search.views.elastic_search', name='elastic_search'),
     url(r'^search/project/', SearchView.as_view(), name='haystack_project'),
     #url(r'^search/', include('haystack.urls')),
     url(r'^admin/', include(admin.site.urls)),
