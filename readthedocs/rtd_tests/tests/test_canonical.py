@@ -30,7 +30,10 @@ class TestCanonical(TestCase):
         self.p.canonical_url = "https://foo.djangokong.com//"
         self.assertEqual(self.p.clean_canonical_url, "https://foo.djangokong.com/")
 
+    """
+    # Turn this feature off for now, until we fix the UI.
     def test_canonical_subdomain(self):
         self.p.canonical_url = "https://djangokong.com//"
         with self.settings(USE_SUBDOMAIN=True):
             self.assertEqual(self.p.get_docs_url(), "http://djangokong.com/en/latest/")
+    """
