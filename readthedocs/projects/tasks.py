@@ -121,6 +121,8 @@ def update_docs(pk, version_pk=None, record=True, docker=False,
         # http://celery.readthedocs.org/en/3.0/userguide/tasks.html#retrying
         # Should completely retry the task for us until max_retries is exceeded
         update_docs.retry(exc=e, throw=False)
+    except ProjectImportError, e:
+        pass
     except Exception, e:
         log.error(LOG_TEMPLATE.format(project=version.project.slug,
                                       version=version.slug, msg="Top-level Build Failure"), exc_info=True)
