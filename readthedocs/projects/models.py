@@ -217,11 +217,11 @@ class Project(models.Model):
     @property
     def subdomain(self):
         prod_domain = getattr(settings, 'PRODUCTION_DOMAIN')
-        if self.canonical_domain:
-            return self.canonical_domain
-        else:
-            subdomain_slug = self.slug.replace('_', '-')
-            return "%s.%s" % (subdomain_slug, prod_domain)
+        # if self.canonical_domain:
+        #     return self.canonical_domain
+        # else:
+        subdomain_slug = self.slug.replace('_', '-')
+        return "%s.%s" % (subdomain_slug, prod_domain)
 
     def sync_supported_versions(self):
         supported = self.supported_versions(flat=True)
