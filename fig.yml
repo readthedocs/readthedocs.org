@@ -1,0 +1,62 @@
+
+
+#
+# main application
+#
+webapp:
+    build: .
+    environment:
+        DJANGO_SETTINGS_MODULE: 'webapp_settings'
+    volumes_from:
+        - configs
+    volumes:
+        - './user_builds:/rtd/user_builds'
+    ports:
+        - 8080:8000
+    links:
+        - database
+        - redis
+        - search
+
+#
+# data volume container with a dev version of django settings
+#
+configs:
+    build: dockerfiles/configs
+
+#
+# database for the webapp
+#
+database:
+    build: dockerfiles/database
+
+#
+# task queue broker, and cache
+#
+redis:
+    image: redis:latest
+
+#
+# search index for documentation and projects
+#
+search:
+    build: readthedocs/search
+    ports: 
+        - 8081:9200
+
+#
+# task workers for building documentation
+#
+builder:
+    build: dockerfiles/builder
+    environment:
+        DJANGO_SETTINGS_MODULE: 'webapp_settings'
+    volumes_from:
+        - configs
+    volumes:
+        - './user_builds:/rtd/user_builds'
+    links:
+        - redis
+        - webapp
+        - database # see github.com/rtfd/readthedocs.org/issues/987
+
