@@ -289,8 +289,7 @@ def setup_vcs(version, build, api):
             'Failed to import project; skipping build.\n'
             '\nError\n-----\n\n%s' % err.message
         )
-        api.build(build['id']).put(build)
-        return False
+        raise
     return update_output
 
 
@@ -660,8 +659,11 @@ def record_build(api, record, build, results, state):
 
     build['exit_code'] = max([results.get(step, [0])[0] for step in all_steps])
 
-    build['setup'] = build['setup_error'] = ""
-    build['output'] = build['error'] = ""
+    build['setup'] = build.get('setup', '')
+    build['setup_error'] = build.get('setup_error', '')
+
+    build['output'] = build.get('output', '')
+    build['error'] = build.get('error', '')
 
     for step in setup_steps:
         if step in results:
