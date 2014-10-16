@@ -198,11 +198,11 @@ def project_delete(request, project_slug):
 
 
 @login_required
-def project_import(request):
+def project_import(request, form_class=ImportProjectForm):
     """
     Import docs from an repo
     """
-    form = ImportProjectForm(request.POST or None)
+    form = form_class(request.POST or None, user=request.user)
 
     if request.method == 'POST' and form.is_valid():
         project = form.save()

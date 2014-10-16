@@ -57,14 +57,15 @@ class ImportProjectForm(ProjectForm):
             'name', 'repo', 'repo_type',
             # Not as important
             'description',
-            'language',
             'documentation_type',
+            'language',
             'project_url',
             'canonical_url',
             'tags',
         )
 
     def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
         super(ImportProjectForm, self).__init__(*args, **kwargs)
         placeholders = {
             'repo': self.placehold_repo(),
