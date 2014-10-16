@@ -13,3 +13,9 @@
 .rst-other-versions dl {
 	margin: 0;
 }
+
+/* Fix Mkdocs sidebar */
+
+nav.stickynav {
+	position: absolute;
+}
