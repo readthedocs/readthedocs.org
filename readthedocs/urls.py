@@ -72,9 +72,10 @@ urlpatterns = patterns(
     url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r'^projects/', include('projects.urls.public')),
     url(r'^builds/', include('builds.urls')),
+    # Ship elastic search
+    url(r'^search/$', 'search.views.elastic_search', name='search'),
     url(r'^search/project/', SearchView.as_view(), name='haystack_project'),
-    url(r'^search/', include('haystack.urls')),
-    url(r'^elasticsearch/$', 'search.views.elastic_search', name='elastic_search'),
+    #url(r'^search/', include('haystack.urls')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^dashboard/', include('projects.urls.private')),
     url(r'^github', 'core.views.github_build', name='github_build'),
