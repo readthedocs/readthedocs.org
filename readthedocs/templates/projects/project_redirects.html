@@ -33,52 +33,23 @@
     }); 
     });
 
-    $(document).ready(function() { 
-      var msg_from = new Array();
-      var index = -1; 
-      $('#id_from_url').keydown(function(event) { 
-
-        switch(event.keyCode) {
-            case 8: //delete to the left or backspace 
-                if (msg_from.length != 0 && index != -1 ) {
-                    msg_from.splice(index, 1); 
-                    index = index - 1; 
-                }
-                break; 
-            case 46: //delete to the right or forward backspace 
-                if (msg_from.length != 0 && index != msg_from.length - 1) { 
-                  msg_from.splice(index+1, 1);
-                }
-                break; 
-            case 37: //move one space to the left 
-                if (index != -1 ) { index = index - 1; }
-                break; 
-            case 39: //move one space to the right 
-                if (index != msg_from.length - 1 ) { index = index + 1; } 
-                break; 
-            case 190: 
-                msg_from.push("."); 
-                index = index + 1 
-                break;
-            case 191: 
-                msg_from.push("/"); 
-                index = index + 1 
-                break;  
-            default: 
-                var letter = String.fromCharCode(event.which); 
-                msg_from.push(letter.toLowerCase()); 
-                index = index + 1;  
-        }
-        console.log("Outcome:" + msg_from.join("") + "faq.html -> /$lang/$version/faq.html"); 
-      }); 
-
-      // $('#id_to_url').keydown(function(event) { 
-      //   var letter = String.fromCharCode(event.which); 
-      //   msg_to = msg_to + letter; 
-      //   word = msg_to.split("/")
-      //   // console.log("Outcome: /$lang/$version/" + msg_from " --> /$lang/$version/" + word[0] + "/" + word[1] + ".html"); 
-      // }); 
+    $(document).ready(function() {
+        var from = "" 
+        var to = "" 
+        
+        $('#id_from_url').keyup(function(event) { 
+            var option = $('#id_redirect_type option:selected').text() 
+            from = $('#id_from_url').val() 
+            if (option === "Prefix Redirect") { 
+                console.log("Outcome:" + from + "faq.html -> /$lang/$version/faq.html"); 
+            }
+        }); 
+        $('#id_to_url').keyup(function(event) {
+            to = $('#id_to_url').val()
+            console.log("Outcome: /$lang/$version/" + from + "--> /$lang/$version/" + to); 
+        }); 
     }); 
+
   </script>
 {% endblock %}
 
