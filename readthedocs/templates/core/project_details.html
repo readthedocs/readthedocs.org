@@ -48,7 +48,7 @@
           </a>
         {% else %}
           <a class="module-item-title" href="{{ version.project.get_builds_url }}">
-            {% blocktrans with version.slug as slug %} {{ slug }} (Build Failed){% endblocktrans %}
+            {% blocktrans with version.slug as slug %} {{ slug }}{% endblocktrans %}
           </a>
         {% endif %}
           {% if request.user|is_admin:project %}
