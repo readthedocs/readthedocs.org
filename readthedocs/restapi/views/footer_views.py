@@ -6,7 +6,9 @@ from rest_framework import decorators, permissions, viewsets, status
 from rest_framework.renderers import JSONPRenderer, JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 
+from bookmarks.models import Bookmark
 from projects.models import Project
+
 
 @decorators.api_view(['GET'])
 @decorators.permission_classes((permissions.AllowAny,))
@@ -28,15 +30,26 @@ def footer_html(request):
 
     if page_slug and page_slug != "index":
         if main_project.documentation_type == "sphinx_htmldir":
-            path =  page_slug + "/"
+            path = page_slug + "/"
         elif main_project.documentation_type == "sphinx_singlehtml":
             path = "index.html#document-" + page_slug
         else:
-            path =  page_slug + ".html"
+            path = page_slug + ".html"
     else:
         path = ""
 
+    try:
+        bookmark = Bookmark.objects.get(
+            user=request.user,
+            project=project,
+            version=version,
+            page=page_slug,
+        )
+    except (Bookmark.DoesNotExist, Bookmark.MultipleObjectsReturned):
+        bookmark = None
+
     context = Context({
+        'bookmark': bookmark,
         'project': project,
         'path': path,
         'downloads': version.get_downloads(pretty=True),
@@ -56,7 +69,7 @@ def footer_html(request):
 
     html = template_loader.get_template('restapi/footer.html').render(context)
     return Response({
-        'html': html, 
+        'html': html,
         'version_active': version.active,
         'version_supported': version.supported,
     })

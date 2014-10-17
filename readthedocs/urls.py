@@ -72,6 +72,7 @@ urlpatterns = patterns(
     url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r'^projects/', include('projects.urls.public')),
     url(r'^builds/', include('builds.urls')),
+    url(r'^bookmarks/', include('bookmarks.urls')),
     # Ship elastic search
     url(r'^search/$', 'search.views.elastic_search', name='search'),
     url(r'^elasticsearch/$', 'search.views.elastic_search', name='elastic_search'),
@@ -104,6 +105,7 @@ urlpatterns = patterns(
     url(r'^wipe/(?P<project_slug>[-\w]+)/(?P<version_slug>[\w]{1}[-\w\.]+)/$',
         'core.views.wipe_version',
         name='wipe_version'),
+
 
     url(r'^profiles/', include('profiles.urls.public')),
     url(r'^accounts/', include('profiles.urls.private')),

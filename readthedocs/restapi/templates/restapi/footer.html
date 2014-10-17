@@ -99,6 +99,24 @@
         </dd>
       </dl>
 
+      <dl>
+        <dt>Bookmark</dt>
+        <dd>
+
+          <div id="bookmark">
+          {% if bookmark %}
+          <a id="bookmark_icon_remove" token="{% csrf_token %}" href="#">
+            <img src="/media/images/bookmark-icon-active.png">
+          </a>
+          {% else %}
+          <a id="bookmark_icon_add" token="{% csrf_token %}" href="#">
+            <img src="/media/images/bookmark-icon-default.png">
+          </a>
+          {% endif %}
+          </div>
+        </dd>
+      </dl>
+
       <hr/>
       Free document hosting provided by <a href="https://readthedocs.org">Read the Docs</a>. Support us on <a href="https://www.gittip.com/readthedocs/">Gittip</a>.
 

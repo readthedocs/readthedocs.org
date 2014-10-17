@@ -8,11 +8,11 @@ urlpatterns = patterns(
         'bookmark_list',
         name='bookmarks_list'),
 
-    url(r'^add/(?P<url>.*)/$',
+    url(r'^add/$',
         'bookmark_add',
         name='bookmarks_add'),
 
-    url(r'^remove/(?P<url>.*)/$',
+    url(r'^remove/$',
         'bookmark_remove',
         name='bookmarks_remove'),
 )

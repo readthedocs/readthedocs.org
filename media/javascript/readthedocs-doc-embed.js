@@ -124,6 +124,70 @@ $(document).ready(function () {
                 $("[data-toggle='rst-versions']").addClass("shift-up");
               }
             }
+
+            // using jQuery
+            function getCookie(name) {
+                var cookieValue = null;
+                if (document.cookie && document.cookie != '') {
+                    var cookies = document.cookie.split(';');
+                    for (var i = 0; i < cookies.length; i++) {
+                        var cookie = jQuery.trim(cookies[i]);
+                        // Does this cookie string begin with the name we want?
+                        if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+
+            // Bookmark Handling
+            $("#bookmark").on('click', function (event) {
+              data = {
+                  project: READTHEDOCS_DATA['project'],
+                  version: READTHEDOCS_DATA['version'],
+                  page: READTHEDOCS_DATA['page'],
+                  url: document.location.origin + document.location.pathname
+              }
+
+              function csrfSafeMethod(method) {
+                  // these HTTP methods do not require CSRF protection
+                  return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+              }
+              var csrftoken = getCookie('csrftoken');
+              $.ajaxSetup({
+                  beforeSend: function(xhr, settings) {
+                      if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                          xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                      }
+                  }
+              });
+
+                var img = $("#bookmark").find('img')
+                src = img.attr("src")
+                var bookmarked = (src == "/media/images/bookmark-icon-active.png")
+
+              if (bookmarked) {
+                  $.ajax({
+                    type: "POST",
+                    url: API_HOST + "/bookmarks/remove/",
+                    data: JSON.stringify(data),
+                    })
+                  var bookmarked = false
+                  var img = $("#bookmark").find('img')
+                  img.attr("src", "/media/images/bookmark-icon-default.png")
+              } else {
+                  $.ajax({
+                    type: "POST",
+                    url: API_HOST + "/bookmarks/add/",
+                    data: JSON.stringify(data),
+                    })
+                  var bookmarked = true
+                  var img = $("#bookmark").find('img')
+                  img.attr("src", "/media/images/bookmark-icon-active.png")
+              }
+            })
       },
       error: function () {
           console.log('Error loading Read the Docs footer')
