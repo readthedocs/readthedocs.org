@@ -1,0 +1,19 @@
+{% extends "core/email/base.html" %}
+{% block content %}
+  <p>
+    Unfortunately, we have to inform you that your docs have failed to build. You
+    can see what went wrong at:
+  </p>
+
+  <p>
+    <a href="{{ build_url }}">{{ build_url }}</a>
+  </p>
+
+  <p>
+    If you have questions, a good place to start is the FAQ:
+  </p>
+
+  <p>
+    <a href="http://read-the-docs.readthedocs.org/en/latest/faq.html">http://read-the-docs.readthedocs.org/en/latest/faq.html</a>
+  </p>
+{% endblock %}

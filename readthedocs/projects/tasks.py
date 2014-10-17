@@ -9,9 +9,7 @@ import logging
 import uuid
 
 from celery import task
-from django.core.mail import send_mail
 from django.conf import settings
-from django.template import Context, loader as template_loader
 from django.utils.translation import ugettext_lazy as _
 import redis
 import requests
@@ -30,7 +28,7 @@ from projects.constants import LOG_TEMPLATE
 from projects import symlinks
 from tastyapi import api, apiv2
 from core.utils import (copy_to_app_servers, copy_file_to_app_servers,
-                        run_on_app_servers)
+                        run_on_app_servers, send_email)
 from core import utils as core_utils
 from search.parse_json import process_all_json_files
 from vcs_support import utils as vcs_support_utils
@@ -768,17 +766,18 @@ def send_notifications(version_pk, build_pk):
 
 
 def email_notification(project, build, email):
-    subject = (_('(ReadTheDocs) Building docs for %s failed') % project.name)
-    template = 'projects/notification_email.txt'
-    context = {
-        'project': project.name,
-        'build_url': 'http://%s%s' % (getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'), build.get_absolute_url())
-    }
-    message = template_loader.get_template(template).render(Context(context))
-
-    log.debug(LOG_TEMPLATE.format(project=project.slug, version='', msg='sending email to: %s' % email))
-    send_mail(subject=subject, message=message,
-              from_email=settings.DEFAULT_FROM_EMAIL, recipient_list=(email,))
+    log.debug(LOG_TEMPLATE.format(project=project.slug, version='',
+                                  msg='sending email to: %s' % email))
+    send_email(
+        email,
+        (_('(ReadTheDocs) Building docs for %s failed') % project.name),
+        template = 'projects/email/build_failed.txt',
+        template_html = 'projects/email/build_failed.html',
+        context = {'project': project.name,
+                   'build_url': 'https://{0}{1}'.format(
+                       getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'),
+                       build.get_absolute_url())},
+    )
 
 
 def webhook_notification(project, build, hook_url):

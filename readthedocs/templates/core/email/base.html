@@ -1,0 +1,104 @@
+{% load i18n %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% trans "Read the Docs" %}</title>
+
+  <style type="text/css">
+/* Styles */
+a img { border: none; }
+table { border-collapse: collapse !important; }
+#outlook a { padding:0; }
+.ReadMsgBody { width: 100%; }
+.ExternalClass {width:100%;}
+table td {border-collapse: collapse;}
+.ExternalClass * {line-height: 115%;}
+
+@media (max-width: 600px), (max-device-width: 600px) {
+  #content-wrapper {
+    width: 100%;
+  }
+}
+  </style>
+</head>
+<body offset="0" style="padding:0; margin:0; display:block; background:#ececec; font-family: Courier New, monospace; font-size: 16px;" bgcolor="#ececec">
+  <table id="content-wrapper" align="center" cellpadding="0" cellspacing="0" width="600">
+    <!-- BEGIN top spacing -->
+    <tr>
+      <td>
+        <table align="center" width="100%" height="64" cellpadding="0" cellspacing="0" style="margin-bottom: 8px; color: #acacac;">
+          <tr>
+            <td style="text-align: right;" valign="bottom">
+              {% block top-right %}{% endblock %}
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    <!-- END top spacing -->
+
+    <!-- BEGIN content -->
+    <tr>
+      <td>
+        <table align="center" width="100%" cellpadding="0" cellspacing="0" style="background-color: #ffffff; margin-bottom: 64px;" bgcolor="#ffffff">
+          <!-- BEGIN header -->
+          <tr>
+            <td>
+              {% include "core/email/header.html" %}
+            </td>
+          </tr>
+          <!-- END header -->
+
+          <tr>
+            <td style="padding: 8px;">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td>
+                    {% block salutation %}
+                      {% trans "Hello!" %}
+                    {% endblock %}
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding-top: 16px; padding-bottom: 16px;">
+              {% block content %}
+              {% endblock %}
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    {% block signature %}
+                      {% trans "Keep documenting," %}<br />
+                      {% trans "Read the Docs" %}
+                    {% endblock %}
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- BEGIN footer -->
+          <tr>
+            <td>
+              <table align="center" width="100%" height="64" cellpadding="0" cellspacing="0" style="background-color: #443; color: #aa9;">
+                <tr>
+                  <td align="left" valign="top" style="padding: 8px;">
+                    {% block footer %}
+                      Read&nbsp;the&nbsp;Docs<br/>
+                      <a href="https://readthedocs.com" style="color: #bba;">https://readthedocs.com</a><br/>
+                    {% endblock %}
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <!-- END footer -->
+        </table>
+      </td>
+    </tr>
+    <!-- END content -->
+  </table>
+</body>
+</html>
