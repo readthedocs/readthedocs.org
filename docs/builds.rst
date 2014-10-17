@@ -1,6 +1,11 @@
 Build Process
 =============
 
+Files: `tasks.py`_ - `doc_builder/`_
+
+.. _tasks.py: https://github.com/rtfd/readthedocs.org/blob/master/readthedocs/projects/tasks.py
+.. _doc_builder/: https://github.com/rtfd/readthedocs.org/tree/master/readthedocs/doc_builder
+
 Understanding what's going on
 -----------------------------
 
@@ -20,12 +25,12 @@ An example in code:
 
 .. code-block:: python
 
-    update_imported_docs(project, version)
-    if project.use_virtualenv:
+    update_imported_docs(version)
+    if exists('setup.py'):
         run('python setup.py install')
-        if project.requirements_file:
-            run('pip install -r %s' % project.requirements_file)
-    build_docs(version=version, pdf=pdf, man=man, epub=epub, dash=dash)
+    if project.requirements_file:
+        run('pip install -r %s' % project.requirements_file)
+    build_docs(version=version)
     copy_files(artifact_dir)
     
 
