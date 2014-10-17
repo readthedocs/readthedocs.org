@@ -323,6 +323,29 @@ div.menu-user div.menu-dropdown.menu-dropped {
   /* Success Model Item */
   .module-item .success { float: right; }
 
+/* dashboard */
+div.module.search-dashboard {
+    overflow: auto;
+    border: 0px;
+    margin-bottom: 24px;
+}
+
+div.module.search-dashboard div.search {
+    border: 0px;
+}
+
+div.module.search-dashboard input {
+    display: block;
+    padding-left: 40px;
+    height: 2.5em;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    background-image: url('../images/search.png');
+    background-repeat: no-repeat;
+    background-position: 8px center;
+    background-size: 24px 24px;
+}
 
 /* project bar */
 
@@ -339,10 +362,6 @@ div.menu-user div.menu-dropdown.menu-dropped {
     display: block;
     font-size: .6em;
     line-height: 1em;
-  }
-
-  #project_bar .project-title span.project-breadcrumb:after {
-    content: " \bb";
   }
 
   /* options */

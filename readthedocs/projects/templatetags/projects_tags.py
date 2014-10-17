@@ -14,3 +14,11 @@ def sort_version_aware(versions):
     return sorted(versions,
                   key=lambda v: (mkversion(v) or fallback),
                   reverse=True)
+
+
+@register.filter
+def is_project_user(user, project):
+    """
+    Return if user is a member of project.users
+    """
+    return user in project.users.all()

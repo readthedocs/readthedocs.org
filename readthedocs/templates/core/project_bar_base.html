@@ -1,0 +1,42 @@
+{% load i18n %}
+{% load core_tags %}
+{% load privacy_tags %}
+{% load gravatar %}
+
+<!-- BEGIN project bar -->
+<div id="project_bar">
+  <div class="wrapper">
+
+    <div class="project-title">
+      <h1>
+        <span class="project-breadcrumb quiet">
+          {% block project-breadcrumb %}
+            <a href="{% url "projects_dashboard" %}">{% trans "Projects" %}</a>&nbsp;&gt;
+          {% endblock %}
+        </span>
+        <a href="{{ project.get_absolute_url }}">{{ project }}</a>
+      </h1>
+    </div>
+
+    <div class="options">
+      <ul>
+        <li class="{{ overview_active }}"><a href="{{ project.get_absolute_url }}">{% trans "Overview" %}</a></li>
+        {% if project.has_good_build %}
+          <li><a href="{{ project.get_docs_url }}">{% trans "View Docs" %}</a></li>
+        {% endif %}
+
+        <li class="{{ downloads_active }}"><a href="{% url "project_downloads" project.slug %}" rel="nofollow,noindex">{% trans "Downloads" %}</a></li>
+
+        <li class="{{ search_active }}"><a href="{% url "elastic_project_search" project.slug %}" rel="nofollow,noindex">{% trans "Search" %}</a></li>
+
+        <li class="{{ builds_active }}"><a href="{{ project.get_builds_url }}">{% trans "Builds" %}</a></li>
+
+        {% if request.user|is_admin:project %}
+          <li class="{{ edit_active }}"><a href="{% url "projects_edit" project.slug %}"><i class="gear"></i>{% trans "Admin" %}</a></li>
+        {% endif %}
+      </ul>
+    </div>
+
+  </div>
+</div>
+<!-- END project bar -->
