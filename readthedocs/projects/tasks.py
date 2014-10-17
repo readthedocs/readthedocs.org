@@ -98,7 +98,11 @@ def update_docs(pk, version_pk=None, record=True, docker=False,
         move_files(version, results)
         record_pdf(api=api, record=record, results=results,
                    state='finished', version=version)
-        finish_build(version=version, build=build, results=results)
+        try:
+            finish_build(version=version, build=build, results=results)
+        except:
+            log.error(LOG_TEMPLATE.format(project=version.project.slug,
+                                          version=version.slug, msg="Finish Build Error"), exc_info=True)
 
         if results['html'][0] == 0:
             # Mark version active on the site
