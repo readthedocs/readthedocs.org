@@ -12,12 +12,11 @@ from celery import task
 from django.conf import settings
 import socket
 from django.utils.translation import ugettext_lazy as _
-import redis
 import requests
-import slumber
 import tastyapi
 
-from builds.models import Version
+from builds.models import Build, Version
+from core.utils import send_email
 from doc_builder.loader import loading as builder_loading
 from doc_builder.base import restoring_chdir
 from projects.exceptions import ProjectImportError
@@ -28,7 +27,7 @@ from projects import symlinks
 from privacy.loader import Syncer
 from tastyapi import api, apiv2
 from search.parse_json import process_all_json_files
-from search.utils import process_mkdocs_json
+from search.utils import process_mkdocs_json, index_search_request
 from vcs_support import utils as vcs_support_utils
 
 log = logging.getLogger(__name__)
@@ -111,24 +110,9 @@ def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
 
     # App Servery stuff
     hostname = socket.gethostname()
-    move_files(version, results, hostname)
-    finish_build(version=version, build=build, results=results)
+    move_files.delay(version=version, results=results, hostname=hostname)
+    finish_build.delay(version=version, build=build, results=results)
 
-    if results['html'][0] == 0:
-        finish_build(version=version, build=build, results=results)
-
-        # Mark version active on the site
-        version_data = api.version(version.pk).get()
-        version_data['active'] = True
-        version_data['built'] = True
-        # Need to delete this because a bug in tastypie breaks on the users
-        # list.
-        del version_data['project']
-        try:
-            api.version(version.pk).put(version_data)
-        except Exception, e:
-            log.error(LOG_TEMPLATE.format(project=version.project.slug,
-                                          version=version.slug, msg="Unable to put a new version"), exc_info=True)
 
 
 def ensure_version(api, project, version_pk):
@@ -475,45 +459,33 @@ def build_docs(version, force, pdf, man, epub, dash, search, localmedia):
     return results
 
 
+@task(queue='web')
 def finish_build(version, build, results):
     """
     Build Finished, do house keeping bits
     """
+    if results['html'][0] == 0:
+        version.active = True
+        version.built = True
+        version.save()
 
-    (ret, out, err) = results['html']
+    log.info(LOG_TEMPLATE.format(
+        project=version.project.slug, version=version.slug, msg="Successful Build"))
 
-    if 'no targets are out of date.' in out:
-        log.info(LOG_TEMPLATE.format(
-            project=version.project.slug, version=version.slug, msg="Build Unchanged"))
+    symlinks.symlink_cnames(version)
+    symlinks.symlink_translations(version)
+    symlinks.symlink_subprojects(version)
+    if version.project.single_version:
+        symlinks.symlink_single_version(version)
     else:
-        if ret == 0:
-            log.info(LOG_TEMPLATE.format(
-                project=version.project.slug, version=version.slug, msg="Successful Build"))
-            fileify.delay(version.pk)
-            symlinks.symlink_cnames(version)
-            symlinks.symlink_translations(version)
-            symlinks.symlink_subprojects(version)
+        symlinks.remove_symlink_single_version(version)
+    try:
+        update_static_metadata(version.project.pk)
+    except Exception:
+        log.error("Unable to post a new build", exc_info=True)
 
-            if version.project.single_version:
-                symlinks.symlink_single_version(version)
-            else:
-                symlinks.remove_symlink_single_version(version)
-
-            try:
-                update_search(version, build)
-            except Exception:
-                log.error("Unable to index search", exc_info=True)
-
-            try:
-                update_static_metadata(version.project.pk)
-            except Exception:
-                log.error("Unable to post a new build", exc_info=True)
-
-        else:
-            log.warning(LOG_TEMPLATE.format(
-                project=version.project.slug, version=version.slug, msg="Failed HTML Build"))
-
-    # Send notifications from the web heads
+    fileify.delay(version.pk)
+    update_search.delay(version.pk, build['commit'])
     send_notifications.delay(version.pk, build['id'])
 
 
@@ -662,24 +634,25 @@ def record_pdf(api, record, results, state, version):
                                       version=version.slug, msg="Unable to post a new build"), exc_info=True)
 
 
-def update_search(version, build):
+@task(queue='web')
+def update_search(version, commit):
     if 'sphinx' in version.project.documentation_type:
-        page_list = process_all_json_files(version)
+        page_list = process_all_json_files(version, build_dir=False)
     if 'mkdocs' in version.project.documentation_type:
-        page_list = process_mkdocs_json(version)
+        page_list = process_mkdocs_json(version, build_dir=False)
 
     data = {
         'page_list': page_list,
         'version_pk': version.pk,
         'project_pk': version.project.pk,
-        'commit': build.get('commit'),
+        'commit': commit,
     }
     log_msg = ' '.join([page['path'] for page in page_list])
     log.info("(Search Index) Sending Data: %s [%s]" % (version.project.slug, log_msg))
-    apiv2.index_search.post({'data': data})
+    index_search_request(version=version, page_list=data['page_list'], commit=data['commit'])
 
 
-@task()
+@task(queue='web')
 def fileify(version_pk):
     """
     Create ImportedFile objects for all of a version's files.
@@ -755,9 +728,9 @@ def email_notification(project, build, email):
     send_email(
         email,
         _('Building docs for {project} failed').format(**context),
-        template = 'projects/email/build_failed.txt',
-        template_html = 'projects/email/build_failed.html',
-        context = context
+        template='projects/email/build_failed.txt',
+        template_html='projects/email/build_failed.html',
+        context=context
     )
 
 
