@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 class LocalSyncer(object):
 
     @classmethod
-    def copy(path, target, file=False):
+    def copy(path, target, file=False, **kwargs):
         """
         A copy command that works with files or directories.
         """
@@ -29,7 +29,7 @@ class LocalSyncer(object):
 class RemoteSyncer(object):
 
     @classmethod
-    def copy(path, target, file=False):
+    def copy(path, target, file=False, **kwargs):
         """
         A better copy command that works with files or directories.
 
@@ -61,3 +61,63 @@ class RemoteSyncer(object):
                 if ret != 0:
                     log.error("COPY ERROR to app servers.")
                     log.error(sync_cmd)
+
+
+class DoubleRemoteSyncer(object):
+
+    @classmethod
+    def copy(path, target, host, file=False, **kwargs):
+        """
+        A better copy command that works from the webs.
+
+        Respects the ``MULTIPLE_APP_SERVERS`` setting when copying.
+        """
+        SYNC_USER = getattr(settings, 'SYNC_USER', getpass.getuser())
+        MULTIPLE_APP_SERVERS = getattr(settings, 'MULTIPLE_APP_SERVERS', [])
+        if not file:
+            path += "/"
+        log.info("Remote Copy %s to %s" % (path, target))
+        for server in MULTIPLE_APP_SERVERS:
+            mkdir_cmd = "ssh {user}@{server} mkdir -p {target}".format(
+                user=SYNC_USER, server=server, target=target
+            )
+            ret = os.system(mkdir_cmd)
+            if ret != 0:
+                log.error("MKDIR ERROR to app servers:")
+            # Add a slash when copying directories
+            sync_cmd = "ssh {user}@{server} rsync -e 'ssh -T' -av --delete {user}@{host}:{path} {target}".format(
+                host=host,
+                path=path,
+                user=SYNC_USER,
+                server=server,
+                target=target,
+            )
+            ret = os.system(sync_cmd)
+            if ret != 0:
+                log.error("COPY ERROR to app servers.")
+
+
+class RemotePuller(object):
+
+    @classmethod
+    def copy(path, target, host, file=False, **kwargs):
+        """
+        A better copy command that works from the webs.
+
+        Respects the ``MULTIPLE_APP_SERVERS`` setting when copying.
+        """
+        SYNC_USER = getattr(settings, 'SYNC_USER', getpass.getuser())
+        if not file:
+            path += "/"
+        log.info("Local Copy %s to %s" % (path, target))
+        os.makedirs(target)
+        # Add a slash when copying directories
+        sync_cmd = "rsync -e 'ssh -T' -av --delete {user}@{host}:{path} {target}".format(
+            host=host,
+            path=path,
+            user=SYNC_USER,
+            target=target,
+        )
+        ret = os.system(sync_cmd)
+        if ret != 0:
+            log.error("COPY ERROR to app servers.")

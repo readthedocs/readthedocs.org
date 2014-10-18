@@ -10,7 +10,7 @@ import uuid
 
 from celery import task
 from django.conf import settings
-import slumber
+import socket
 import tastyapi
 
 from builds.models import Version
@@ -65,48 +65,26 @@ def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
     build = create_build(build_pk)
     results = {}
 
+    # Build Servery stuff
     try:
-        record_build(
-            api=api, build=build, record=record, results=results, state='cloning')
+        record_build(api=api, build=build, record=record, results=results, state='cloning')
         vcs_results = setup_vcs(version, build, api)
         if vcs_results:
             results.update(vcs_results)
 
         if docker:
-            record_build(
-                api=api, build=build, record=record, results=results, state='building')
+            record_build(api=api, build=build, record=record, results=results, state='building')
             build_results = run_docker(version)
             results.update(build_results)
         else:
-            record_build(
-                api=api, build=build, record=record, results=results, state='installing')
+            record_build(api=api, build=build, record=record, results=results, state='installing')
             setup_results = setup_environment(version)
             results.update(setup_results)
 
-            record_build(
-                api=api, build=build, record=record, results=results, state='building')
-            build_results = build_docs(
-                version, force, pdf, man, epub, dash, search, localmedia)
+            record_build(api=api, build=build, record=record, results=results, state='building')
+            build_results = build_docs(version, force, pdf, man, epub, dash, search, localmedia)
             results.update(build_results)
 
-        move_files(version, results)
-        record_pdf(api=api, record=record, results=results,
-                   state='finished', version=version)
-        finish_build(version=version, build=build, results=results)
-
-        if results['html'][0] == 0:
-            # Mark version active on the site
-            version_data = api.version(version.pk).get()
-            version_data['active'] = True
-            version_data['built'] = True
-            # Need to delete this because a bug in tastypie breaks on the users
-            # list.
-            del version_data['project']
-            try:
-                api.version(version.pk).put(version_data)
-            except Exception, e:
-                log.error(LOG_TEMPLATE.format(project=version.project.slug,
-                                              version=version.slug, msg="Unable to put a new version"), exc_info=True)
     except vcs_support_utils.LockTimeout, e:
         results['checkout'] = (
             999, "", "Version locked, retrying in 5 minutes.")
@@ -116,15 +94,37 @@ def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
         # Should completely retry the task for us until max_retries is exceeded
         update_docs.retry(exc=e, throw=False)
     except ProjectImportError, e:
+        # Close out build in finally with error.
         pass
     except Exception, e:
         log.error(LOG_TEMPLATE.format(project=version.project.slug,
                                       version=version.slug, msg="Top-level Build Failure"), exc_info=True)
     finally:
-        record_build(
-            api=api, build=build, record=record, results=results, state='finished')
+        record_build(api=api, build=build, record=record, results=results, state='finished')
+        record_pdf(api=api, record=record, results=results, state='finished', version=version)
         log.info(LOG_TEMPLATE.format(
             project=version.project.slug, version='', msg='Build finished'))
+
+    # App Servery stuff
+    hostname = socket.gethostname()
+    move_files(version, results, hostname)
+    finish_build(version=version, build=build, results=results)
+
+    if results['html'][0] == 0:
+        finish_build(version=version, build=build, results=results)
+
+        # Mark version active on the site
+        version_data = api.version(version.pk).get()
+        version_data['active'] = True
+        version_data['built'] = True
+        # Need to delete this because a bug in tastypie breaks on the users
+        # list.
+        del version_data['project']
+        try:
+            api.version(version.pk).put(version_data)
+        except Exception, e:
+            log.error(LOG_TEMPLATE.format(project=version.project.slug,
+                                          version=version.slug, msg="Unable to put a new version"), exc_info=True)
 
 
 def ensure_version(api, project, version_pk):
@@ -140,44 +140,39 @@ def ensure_version(api, project, version_pk):
     return version
 
 
-def move_files(version, results):
+def move_files(version, results, hostname):
     if results['html'][0] == 0:
-        from_path = version.project.artifact_path(
-            version=version.slug, type=version.project.documentation_type)
+        from_path = version.project.artifact_path(version=version.slug, type=version.project.documentation_type)
         target = version.project.rtd_build_path(version.slug)
-        Syncer.copy(from_path, target)
+        Syncer.copy(from_path, target, host=hostname)
 
     if 'sphinx' in version.project.documentation_type:
         if 'localmedia' in results and results['localmedia'][0] == 0:
-            from_path = version.project.artifact_path(
-                version=version.slug, type='sphinx_localmedia')
+            from_path = version.project.artifact_path(version=version.slug, type='sphinx_localmedia')
             to_path = version.project.get_production_media_path(type='htmlzip', version_slug=version.slug, include_file=False)
-            Syncer.copy(from_path, to_path)
+            Syncer.copy(from_path, to_path, host=hostname)
         if 'search' in results and results['search'][0] == 0:
-            from_path = version.project.artifact_path(
-                version=version.slug, type='sphinx_search')
+            from_path = version.project.artifact_path(version=version.slug, type='sphinx_search')
             to_path = version.project.get_production_media_path(type='json', version_slug=version.slug, include_file=False)
-            Syncer.copy(from_path, to_path)
+            Syncer.copy(from_path, to_path, host=hostname)
         # Always move PDF's because the return code lies.
         if 'pdf' in results:
             try:
-                from_path = version.project.artifact_path(
-                    version=version.slug, type='sphinx_pdf')
+                from_path = version.project.artifact_path(version=version.slug, type='sphinx_pdf')
                 to_path = version.project.get_production_media_path(type='pdf', version_slug=version.slug, include_file=False)
-                Syncer.copy(from_path, to_path)
+                Syncer.copy(from_path, to_path, host=hostname)
             except:
                 pass
         if 'epub' in results and results['epub'][0] == 0:
-            from_path = version.project.artifact_path(
-                version=version.slug, type='sphinx_epub')
+            from_path = version.project.artifact_path(version=version.slug, type='sphinx_epub')
             to_path = version.project.get_production_media_path(type='epub', version_slug=version.slug, include_file=False)
-            Syncer.copy(from_path, to_path)
+            Syncer.copy(from_path, to_path, host=hostname)
 
     if 'mkdocs' in version.project.documentation_type:
         if 'search' in results and results['search'][0] == 0:
             from_path = version.project.artifact_path(version=version.slug, type='mkdocs_json')
             to_path = version.project.get_production_media_path(type='json', version_slug=version.slug, include_file=False)
-            Syncer.copy(from_path, to_path)
+            Syncer.copy(from_path, to_path, host=hostname)
 
 
 def run_docker(version):
