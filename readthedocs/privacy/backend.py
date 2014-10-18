@@ -1,3 +1,4 @@
+
 from django.db import models
 
 from guardian.shortcuts import get_objects_for_user
@@ -127,3 +128,5 @@ class AdminPermission(object):
     @classmethod
     def is_admin(cls, user, project):
         return user in project.users.all()
+
+
