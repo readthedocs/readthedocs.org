@@ -106,13 +106,18 @@ def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
     finally:
         record_build(api=api, build=build, record=record, results=results, state='finished')
         record_pdf(api=api, record=record, results=results, state='finished', version=version)
-        log.info(LOG_TEMPLATE.format(
-            project=version.project.slug, version='', msg='Build finished'))
+        log.info(LOG_TEMPLATE.format(project=version.project.slug, version='', msg='Build finished'))
 
-    # App Servery stuff
-    hostname = socket.gethostname()
-    move_files.delay(version=version.pk, results=results, hostname=hostname)
-    finish_build.delay(version=version.pk, build=build, results=results)
+    # Web Server Tasks
+    finish_build.delay(
+        version_pk=version.pk,
+        build_pk=build['id'],
+        html=results.get('html', [404])[0] == 0,
+        localmedia=results.get('localmedia', [404])[0] == 0,
+        search=results.get('search', [404])[0] == 0,
+        pdf=results.get('pdf', [404])[0] == 0,
+        epub=results.get('epub', [404])[0] == 0,
+    )
 
 
 def ensure_version(api, project, version_pk):
@@ -527,55 +532,27 @@ def record_pdf(api, record, results, state, version):
 
 
 @task(queue='web')
-def move_files(version, results, hostname):
-    version = Version.objects.get(pk=version)
-    if results['html'][0] == 0:
-        from_path = version.project.artifact_path(version=version.slug, type=version.project.documentation_type)
-        target = version.project.rtd_build_path(version.slug)
-        Syncer.copy(from_path, target, host=hostname)
-
-    if 'sphinx' in version.project.documentation_type:
-        if 'localmedia' in results and results['localmedia'][0] == 0:
-            from_path = version.project.artifact_path(version=version.slug, type='sphinx_localmedia')
-            to_path = version.project.get_production_media_path(type='htmlzip', version_slug=version.slug, include_file=False)
-            Syncer.copy(from_path, to_path, host=hostname)
-        if 'search' in results and results['search'][0] == 0:
-            from_path = version.project.artifact_path(version=version.slug, type='sphinx_search')
-            to_path = version.project.get_production_media_path(type='json', version_slug=version.slug, include_file=False)
-            Syncer.copy(from_path, to_path, host=hostname)
-        # Always move PDF's because the return code lies.
-        if 'pdf' in results:
-            try:
-                from_path = version.project.artifact_path(version=version.slug, type='sphinx_pdf')
-                to_path = version.project.get_production_media_path(type='pdf', version_slug=version.slug, include_file=False)
-                Syncer.copy(from_path, to_path, host=hostname)
-            except:
-                pass
-        if 'epub' in results and results['epub'][0] == 0:
-            from_path = version.project.artifact_path(version=version.slug, type='sphinx_epub')
-            to_path = version.project.get_production_media_path(type='epub', version_slug=version.slug, include_file=False)
-            Syncer.copy(from_path, to_path, host=hostname)
-
-    if 'mkdocs' in version.project.documentation_type:
-        if 'search' in results and results['search'][0] == 0:
-            from_path = version.project.artifact_path(version=version.slug, type='mkdocs_json')
-            to_path = version.project.get_production_media_path(type='json', version_slug=version.slug, include_file=False)
-            Syncer.copy(from_path, to_path, host=hostname)
-
-
-@task(queue='web')
-def finish_build(version, build, results):
+def finish_build(version_pk, build_pk, html=True, localmedia=True, search=True, pdf=True, epub=True):
     """
     Build Finished, do house keeping bits
     """
-    version = Version.objects.get(pk=version)
-    if results['html'][0] == 0:
+    version = Version.objects.get(pk=version_pk)
+    build = Build.objects.get(pk=build_pk)
+
+    if html:
         version.active = True
         version.built = True
         version.save()
 
-    log.info(LOG_TEMPLATE.format(
-        project=version.project.slug, version=version.slug, msg="Successful Build"))
+    move_files(
+        version=version,
+        hostname=socket.gethostname(),
+        html=html,
+        localmedia=localmedia,
+        search=search,
+        pdf=pdf,
+        epub=epub,
+    )
 
     symlinks.symlink_cnames(version)
     symlinks.symlink_translations(version)
@@ -584,14 +561,44 @@ def finish_build(version, build, results):
         symlinks.symlink_single_version(version)
     else:
         symlinks.remove_symlink_single_version(version)
-    try:
-        update_static_metadata(version.project.pk)
-    except Exception:
-        log.error("Static Media Fail", exc_info=True)
 
+    # Delayed tasks
+    update_static_metadata.delay(version.project.pk)
     fileify.delay(version.pk)
-    update_search.delay(version.pk, build['commit'])
-    send_notifications.delay(version.pk, build['id'])
+    update_search.delay(version.pk, commit=build['commit'])
+    send_notifications.delay(version.pk, build_pk=build['id'])
+
+
+def move_files(version, hostname, html, localmedia, search, pdf, epub):
+    if html:
+        from_path = version.project.artifact_path(version=version.slug, type=version.project.documentation_type)
+        target = version.project.rtd_build_path(version.slug)
+        Syncer.copy(from_path, target, host=hostname)
+
+    if 'sphinx' in version.project.documentation_type:
+        if localmedia:
+            from_path = version.project.artifact_path(version=version.slug, type='sphinx_localmedia')
+            to_path = version.project.get_production_media_path(type='htmlzip', version_slug=version.slug, include_file=False)
+            Syncer.copy(from_path, to_path, host=hostname)
+        if search:
+            from_path = version.project.artifact_path(version=version.slug, type='sphinx_search')
+            to_path = version.project.get_production_media_path(type='json', version_slug=version.slug, include_file=False)
+            Syncer.copy(from_path, to_path, host=hostname)
+        # Always move PDF's because the return code lies.
+        if pdf:
+            from_path = version.project.artifact_path(version=version.slug, type='sphinx_pdf')
+            to_path = version.project.get_production_media_path(type='pdf', version_slug=version.slug, include_file=False)
+            Syncer.copy(from_path, to_path, host=hostname)
+        if epub:
+            from_path = version.project.artifact_path(version=version.slug, type='sphinx_epub')
+            to_path = version.project.get_production_media_path(type='epub', version_slug=version.slug, include_file=False)
+            Syncer.copy(from_path, to_path, host=hostname)
+
+    if 'mkdocs' in version.project.documentation_type:
+        if search:
+            from_path = version.project.artifact_path(version=version.slug, type='mkdocs_json')
+            to_path = version.project.get_production_media_path(type='json', version_slug=version.slug, include_file=False)
+            Syncer.copy(from_path, to_path, host=hostname)
 
 
 @task(queue='web')
@@ -695,7 +702,7 @@ def webhook_notification(project, build, hook_url):
     requests.post(hook_url, data=data)
 
 
-@task
+@task(queue='web')
 def update_static_metadata(project_pk):
     """Update static metadata JSON file
 
