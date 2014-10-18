@@ -90,14 +90,14 @@ def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
             results.update(build_results)
 
     except vcs_support_utils.LockTimeout, e:
-        results['checkout'] = (
-            999, "", "Version locked, retrying in 5 minutes.")
+        results['checkout'] = (999, "", "Version locked, retrying in 5 minutes.")
         log.info(LOG_TEMPLATE.format(project=version.project.slug,
                                      version=version.slug, msg="Unable to lock, will retry"))
         # http://celery.readthedocs.org/en/3.0/userguide/tasks.html#retrying
         # Should completely retry the task for us until max_retries is exceeded
         update_docs.retry(exc=e, throw=False)
     except ProjectImportError, e:
+        results['checkout'] = (999, "", 'Failed to import project; skipping build.\n\nError\n-----\n\n%s' % e.message)
         # Close out build in finally with error.
         pass
     except Exception, e:
@@ -190,14 +190,9 @@ def setup_vcs(version, build, api):
         commit = version.project.vcs_repo(version.slug).commit
         if commit:
             build['commit'] = commit
-    except ProjectImportError, err:
+    except ProjectImportError:
         log.error(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug,
                                       msg='Failed to import project; skipping build'), exc_info=True)
-        build['state'] = 'finished'
-        build['setup_error'] = (
-            'Failed to import project; skipping build.\n'
-            '\nError\n-----\n\n%s' % err.message
-        )
         raise
     return update_output
 
@@ -222,8 +217,7 @@ def update_imported_docs(version_pk, api=None):
     with project.repo_nonblockinglock(version=version,
                                       max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
         if not project.vcs_repo():
-            raise ProjectImportError(("Repo type '{0}' unknown"
-                                      .format(project.repo_type)))
+            raise ProjectImportError(("Repo type '{0}' unknown".format(project.repo_type)))
 
         # Get the actual code on disk
         if version:
@@ -473,11 +467,8 @@ def record_build(api, record, build, results, state):
 
     build['exit_code'] = max([results.get(step, [0])[0] for step in all_steps])
 
-    build['setup'] = build.get('setup', '')
-    build['setup_error'] = build.get('setup_error', '')
-
-    build['output'] = build.get('output', '')
-    build['error'] = build.get('error', '')
+    build['setup'] = build['setup_error'] = ""
+    build['output'] = build['error'] = ""
 
     for step in setup_steps:
         if step in results:
