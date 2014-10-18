@@ -6,7 +6,6 @@ from urlparse import urlparse
 
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
-from django.utils.translation import ugettext_lazy as _
 from django.template.loader import get_template
 from django.template import Context
 

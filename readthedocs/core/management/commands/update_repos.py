@@ -5,6 +5,7 @@ from django.core.management.base import BaseCommand
 from projects import tasks
 from projects.models import Project
 from builds.models import Version
+from core.utils import trigger_build
 
 log = logging.getLogger(__name__)
 
@@ -63,7 +64,7 @@ class Command(BaseCommand):
                 else:
                     p = Project.objects.get(slug=slug)
                     log.info("Building %s" % p)
-                    tasks.update_docs(pk=p.pk, pdf=make_pdf, force=force)
+                    trigger_build(project=p, force=force)
         else:
             if version == "all":
                 log.info("Updating all versions")

@@ -27,7 +27,8 @@ from projects import symlinks
 from privacy.loader import Syncer
 from tastyapi import api, apiv2
 from search.parse_json import process_all_json_files
-from search.utils import process_mkdocs_json, index_search_request
+from search.utils import process_mkdocs_json
+from restapi.utils import index_search_request
 from vcs_support import utils as vcs_support_utils
 
 log = logging.getLogger(__name__)
@@ -110,8 +111,8 @@ def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
 
     # App Servery stuff
     hostname = socket.gethostname()
-    move_files.delay(version=version, results=results, hostname=hostname)
-    finish_build.delay(version=version, build=build, results=results)
+    move_files.delay(version=version.pk, results=results, hostname=hostname)
+    finish_build.delay(version=version.pk, build=build, results=results)
 
 
 def ensure_version(api, project, version_pk):
@@ -323,6 +324,7 @@ def setup_environment(version):
                 cmd=project.venv_bin(version=version.slug, bin='pip'),
                 requirements=project.requirements_file))
     os.chdir(project.checkout_path(version.slug))
+    """
     if os.path.isfile("setup.py"):
         if getattr(settings, 'USE_PIP_INSTALL', False):
             ret_dict['install'] = run(
@@ -335,6 +337,7 @@ def setup_environment(version):
                                          bin='python')))
     else:
         ret_dict['install'] = (999, "", "No setup.py, skipping install")
+    """
     return ret_dict
 
 
@@ -518,7 +521,6 @@ def record_pdf(api, record, results, state, version):
                                       version=version.slug, msg="Unable to post a new build"), exc_info=True)
 
 
-
 ###########
 # Web tasks
 ###########
@@ -526,6 +528,7 @@ def record_pdf(api, record, results, state, version):
 
 @task(queue='web')
 def move_files(version, results, hostname):
+    version = Version.objects.get(pk=version)
     if results['html'][0] == 0:
         from_path = version.project.artifact_path(version=version.slug, type=version.project.documentation_type)
         target = version.project.rtd_build_path(version.slug)
@@ -565,6 +568,7 @@ def finish_build(version, build, results):
     """
     Build Finished, do house keeping bits
     """
+    version = Version.objects.get(pk=version)
     if results['html'][0] == 0:
         version.active = True
         version.built = True
@@ -583,7 +587,7 @@ def finish_build(version, build, results):
     try:
         update_static_metadata(version.project.pk)
     except Exception:
-        log.error("Unable to post a new build", exc_info=True)
+        log.error("Static Media Fail", exc_info=True)
 
     fileify.delay(version.pk)
     update_search.delay(version.pk, build['commit'])
@@ -706,20 +710,22 @@ def update_static_metadata(project_pk):
     languages
       List of languages built by linked translation projects.
     """
-    project_base = apiv2.project(project_pk)
-    project_data = project_base.get()
-    project = make_api_project(project_data)
+    if getattr(settings, 'DONT_HIT_DB', True):
+        project_base = apiv2.project(project_pk)
+        project_data = project_base.get()
+        project = make_api_project(project_data)
+    else:
+        project = Project.objects.get(pk=project_pk)
     log.info(LOG_TEMPLATE.format(
         project=project.slug,
         version='',
         msg='Updating static metadata',
     ))
-    translations = project_base.translations.get()['translations']
-    languages = set([
-        translation['language']
-        for translation in translations
-        if 'language' in translation
-    ])
+    if getattr(settings, 'DONT_HIT_DB', True):
+        translations = [trans['language'] for trans in apiv2.project(project.pk).translations.get()['translations']]
+    else:
+        translations = [trans.language for trans in project.translations.all()]
+    languages = set(translations)
     # Convert to JSON safe types
     metadata = {
         'version': project.default_version,

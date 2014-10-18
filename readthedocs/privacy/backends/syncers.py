@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 class LocalSyncer(object):
 
     @classmethod
-    def copy(path, target, file=False, **kwargs):
+    def copy(cls, path, target, file=False, **kwargs):
         """
         A copy command that works with files or directories.
         """
@@ -29,7 +29,7 @@ class LocalSyncer(object):
 class RemoteSyncer(object):
 
     @classmethod
-    def copy(path, target, file=False, **kwargs):
+    def copy(cls, path, target, file=False, **kwargs):
         """
         A better copy command that works with files or directories.
 
@@ -66,7 +66,7 @@ class RemoteSyncer(object):
 class DoubleRemoteSyncer(object):
 
     @classmethod
-    def copy(path, target, host, file=False, **kwargs):
+    def copy(cls, path, target, host, file=False, **kwargs):
         """
         A better copy command that works from the webs.
 
@@ -100,7 +100,7 @@ class DoubleRemoteSyncer(object):
 class RemotePuller(object):
 
     @classmethod
-    def copy(path, target, host, file=False, **kwargs):
+    def copy(cls, path, target, host, file=False, **kwargs):
         """
         A better copy command that works from the webs.
 
