@@ -114,7 +114,6 @@ def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
     finish_build.delay(version=version, build=build, results=results)
 
 
-
 def ensure_version(api, project, version_pk):
     """
     Ensure we're using a sane version.
@@ -126,41 +125,6 @@ def ensure_version(api, project, version_pk):
         version_data = api.version(project.slug).get(slug='latest')['objects'][0]
     version = make_api_version(version_data)
     return version
-
-
-def move_files(version, results, hostname):
-    if results['html'][0] == 0:
-        from_path = version.project.artifact_path(version=version.slug, type=version.project.documentation_type)
-        target = version.project.rtd_build_path(version.slug)
-        Syncer.copy(from_path, target, host=hostname)
-
-    if 'sphinx' in version.project.documentation_type:
-        if 'localmedia' in results and results['localmedia'][0] == 0:
-            from_path = version.project.artifact_path(version=version.slug, type='sphinx_localmedia')
-            to_path = version.project.get_production_media_path(type='htmlzip', version_slug=version.slug, include_file=False)
-            Syncer.copy(from_path, to_path, host=hostname)
-        if 'search' in results and results['search'][0] == 0:
-            from_path = version.project.artifact_path(version=version.slug, type='sphinx_search')
-            to_path = version.project.get_production_media_path(type='json', version_slug=version.slug, include_file=False)
-            Syncer.copy(from_path, to_path, host=hostname)
-        # Always move PDF's because the return code lies.
-        if 'pdf' in results:
-            try:
-                from_path = version.project.artifact_path(version=version.slug, type='sphinx_pdf')
-                to_path = version.project.get_production_media_path(type='pdf', version_slug=version.slug, include_file=False)
-                Syncer.copy(from_path, to_path, host=hostname)
-            except:
-                pass
-        if 'epub' in results and results['epub'][0] == 0:
-            from_path = version.project.artifact_path(version=version.slug, type='sphinx_epub')
-            to_path = version.project.get_production_media_path(type='epub', version_slug=version.slug, include_file=False)
-            Syncer.copy(from_path, to_path, host=hostname)
-
-    if 'mkdocs' in version.project.documentation_type:
-        if 'search' in results and results['search'][0] == 0:
-            from_path = version.project.artifact_path(version=version.slug, type='mkdocs_json')
-            to_path = version.project.get_production_media_path(type='json', version_slug=version.slug, include_file=False)
-            Syncer.copy(from_path, to_path, host=hostname)
 
 
 def run_docker(version):
@@ -459,86 +423,6 @@ def build_docs(version, force, pdf, man, epub, dash, search, localmedia):
     return results
 
 
-@task(queue='web')
-def finish_build(version, build, results):
-    """
-    Build Finished, do house keeping bits
-    """
-    if results['html'][0] == 0:
-        version.active = True
-        version.built = True
-        version.save()
-
-    log.info(LOG_TEMPLATE.format(
-        project=version.project.slug, version=version.slug, msg="Successful Build"))
-
-    symlinks.symlink_cnames(version)
-    symlinks.symlink_translations(version)
-    symlinks.symlink_subprojects(version)
-    if version.project.single_version:
-        symlinks.symlink_single_version(version)
-    else:
-        symlinks.remove_symlink_single_version(version)
-    try:
-        update_static_metadata(version.project.pk)
-    except Exception:
-        log.error("Unable to post a new build", exc_info=True)
-
-    fileify.delay(version.pk)
-    update_search.delay(version.pk, build['commit'])
-    send_notifications.delay(version.pk, build['id'])
-
-
-@task
-def update_static_metadata(project_pk):
-    """Update static metadata JSON file
-
-    Metadata settings include the following project settings:
-
-    version
-      The default version for the project, default: `latest`
-
-    language
-      The default language for the project, default: `en`
-
-    languages
-      List of languages built by linked translation projects.
-    """
-    project_base = apiv2.project(project_pk)
-    project_data = project_base.get()
-    project = make_api_project(project_data)
-    log.info(LOG_TEMPLATE.format(
-        project=project.slug,
-        version='',
-        msg='Updating static metadata',
-    ))
-    translations = project_base.translations.get()['translations']
-    languages = set([
-        translation['language']
-        for translation in translations
-        if 'language' in translation
-    ])
-    # Convert to JSON safe types
-    metadata = {
-        'version': project.default_version,
-        'language': project.language,
-        'languages': list(languages),
-        'single_version': project.single_version,
-    }
-    try:
-        path = project.static_metadata_path()
-        fh = open(path, 'w')
-        json.dump(metadata, fh)
-        fh.close()
-        Syncer.copy(path, path, file=True)
-    except (AttributeError, IOError) as e:
-        log.debug(LOG_TEMPLATE.format(
-            project=project.slug,
-            version='',
-            msg='Cannot write to metadata.json: {0}'.format(e)
-        ))
-
-
 def create_build(build_pk):
     """
     Old placeholder for build creation. Now it just gets it from the database.
@@ -634,6 +518,78 @@ def record_pdf(api, record, results, state, version):
                                       version=version.slug, msg="Unable to post a new build"), exc_info=True)
 
 
+
+###########
+# Web tasks
+###########
+
+
+@task(queue='web')
+def move_files(version, results, hostname):
+    if results['html'][0] == 0:
+        from_path = version.project.artifact_path(version=version.slug, type=version.project.documentation_type)
+        target = version.project.rtd_build_path(version.slug)
+        Syncer.copy(from_path, target, host=hostname)
+
+    if 'sphinx' in version.project.documentation_type:
+        if 'localmedia' in results and results['localmedia'][0] == 0:
+            from_path = version.project.artifact_path(version=version.slug, type='sphinx_localmedia')
+            to_path = version.project.get_production_media_path(type='htmlzip', version_slug=version.slug, include_file=False)
+            Syncer.copy(from_path, to_path, host=hostname)
+        if 'search' in results and results['search'][0] == 0:
+            from_path = version.project.artifact_path(version=version.slug, type='sphinx_search')
+            to_path = version.project.get_production_media_path(type='json', version_slug=version.slug, include_file=False)
+            Syncer.copy(from_path, to_path, host=hostname)
+        # Always move PDF's because the return code lies.
+        if 'pdf' in results:
+            try:
+                from_path = version.project.artifact_path(version=version.slug, type='sphinx_pdf')
+                to_path = version.project.get_production_media_path(type='pdf', version_slug=version.slug, include_file=False)
+                Syncer.copy(from_path, to_path, host=hostname)
+            except:
+                pass
+        if 'epub' in results and results['epub'][0] == 0:
+            from_path = version.project.artifact_path(version=version.slug, type='sphinx_epub')
+            to_path = version.project.get_production_media_path(type='epub', version_slug=version.slug, include_file=False)
+            Syncer.copy(from_path, to_path, host=hostname)
+
+    if 'mkdocs' in version.project.documentation_type:
+        if 'search' in results and results['search'][0] == 0:
+            from_path = version.project.artifact_path(version=version.slug, type='mkdocs_json')
+            to_path = version.project.get_production_media_path(type='json', version_slug=version.slug, include_file=False)
+            Syncer.copy(from_path, to_path, host=hostname)
+
+
+@task(queue='web')
+def finish_build(version, build, results):
+    """
+    Build Finished, do house keeping bits
+    """
+    if results['html'][0] == 0:
+        version.active = True
+        version.built = True
+        version.save()
+
+    log.info(LOG_TEMPLATE.format(
+        project=version.project.slug, version=version.slug, msg="Successful Build"))
+
+    symlinks.symlink_cnames(version)
+    symlinks.symlink_translations(version)
+    symlinks.symlink_subprojects(version)
+    if version.project.single_version:
+        symlinks.symlink_single_version(version)
+    else:
+        symlinks.remove_symlink_single_version(version)
+    try:
+        update_static_metadata(version.project.pk)
+    except Exception:
+        log.error("Unable to post a new build", exc_info=True)
+
+    fileify.delay(version.pk)
+    update_search.delay(version.pk, build['commit'])
+    send_notifications.delay(version.pk, build['id'])
+
+
 @task(queue='web')
 def update_search(version, commit):
     if 'sphinx' in version.project.documentation_type:
@@ -667,9 +623,9 @@ def fileify(version_pk):
         version = Version.objects.get(pk=version_pk)
     project = version.project
     path = project.rtd_build_path(version.slug)
-    log.info(LOG_TEMPLATE.format(
-        project=project.slug, version=version.slug, msg='Creating ImportedFiles'))
     if path:
+        log.info(LOG_TEMPLATE.format(
+            project=project.slug, version=version.slug, msg='Creating ImportedFiles'))
         for root, dirnames, filenames in os.walk(path):
             for filename in filenames:
                 if fnmatch.fnmatch(filename, '*.html'):
@@ -689,21 +645,8 @@ def fileify(version_pk):
                             name=filename)
                         if not created:
                             obj.save()
-    # End
-
-
-@task()
-def remove_dir(path):
-    """
-    Remove a directory on the build/celery server.
-
-    This is mainly a wrapper around shutil.rmtree so that app servers
-    can kill things on the build server.
-    """
-    log.info("Removing %s" % path)
-    shutil.rmtree(path)
-
-# Web tasks
+    else:
+        log.info(LOG_TEMPLATE.format(project=project.slug, version=version.slug, msg='No ImportedFile files'))
 
 
 @task(queue='web')
@@ -746,6 +689,73 @@ def webhook_notification(project, build, hook_url):
     })
     log.debug(LOG_TEMPLATE.format(project=project.slug, version='', msg='sending notification to: %s' % hook_url))
     requests.post(hook_url, data=data)
+
+
+@task
+def update_static_metadata(project_pk):
+    """Update static metadata JSON file
+
+    Metadata settings include the following project settings:
+
+    version
+      The default version for the project, default: `latest`
+
+    language
+      The default language for the project, default: `en`
+
+    languages
+      List of languages built by linked translation projects.
+    """
+    project_base = apiv2.project(project_pk)
+    project_data = project_base.get()
+    project = make_api_project(project_data)
+    log.info(LOG_TEMPLATE.format(
+        project=project.slug,
+        version='',
+        msg='Updating static metadata',
+    ))
+    translations = project_base.translations.get()['translations']
+    languages = set([
+        translation['language']
+        for translation in translations
+        if 'language' in translation
+    ])
+    # Convert to JSON safe types
+    metadata = {
+        'version': project.default_version,
+        'language': project.language,
+        'languages': list(languages),
+        'single_version': project.single_version,
+    }
+    try:
+        path = project.static_metadata_path()
+        fh = open(path, 'w')
+        json.dump(metadata, fh)
+        fh.close()
+        Syncer.copy(path, path, file=True)
+    except (AttributeError, IOError) as e:
+        log.debug(LOG_TEMPLATE.format(
+            project=project.slug,
+            version='',
+            msg='Cannot write to metadata.json: {0}'.format(e)
+        ))
+
+
+##############
+# Random Tasks
+##############
+
+
+@task()
+def remove_dir(path):
+    """
+    Remove a directory on the build/celery server.
+
+    This is mainly a wrapper around shutil.rmtree so that app servers
+    can kill things on the build server.
+    """
+    log.info("Removing %s" % path)
+    shutil.rmtree(path)
 
 
 # @task()
