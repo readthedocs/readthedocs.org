@@ -10,18 +10,15 @@ import uuid
 
 from celery import task
 from django.conf import settings
-import redis
 import slumber
 import tastyapi
-from allauth.socialaccount.models import SocialToken
 
-from builds.models import Build, Version
+from builds.models import Version
 from doc_builder.loader import loading as builder_loading
 from doc_builder.base import restoring_chdir
 from projects.exceptions import ProjectImportError
-from projects.models import ImportedFile, Project
-from projects.utils import (purge_version, run,
-                            make_api_version, make_api_project)
+from projects.models import ImportedFile
+from projects.utils import run, make_api_version, make_api_project
 from projects.constants import LOG_TEMPLATE
 from projects import symlinks
 from privacy.loader import Syncer
@@ -63,8 +60,7 @@ def update_docs(pk, version_pk=None, record=True, docker=False,
 
     project_data = api.project(pk).get()
     project = make_api_project(project_data)
-    log.info(LOG_TEMPLATE.format(
-        project=project.slug, version='', msg='Building'))
+    log.info(LOG_TEMPLATE.format(project=project.slug, version='', msg='Building'))
     version = ensure_version(api, project, version_pk)
     build = create_build(version, api, record)
     results = {}
@@ -129,6 +125,19 @@ def update_docs(pk, version_pk=None, record=True, docker=False,
             api=api, build=build, record=record, results=results, state='finished')
         log.info(LOG_TEMPLATE.format(
             project=version.project.slug, version='', msg='Build finished'))
+
+
+def ensure_version(api, project, version_pk):
+    """
+    Ensure we're using a sane version.
+    """
+
+    if version_pk:
+        version_data = api.version(version_pk).get()
+    else:
+        version_data = api.version(project.slug).get(slug='latest')['objects'][0]
+    version = make_api_version(version_data)
+    return version
 
 
 def move_files(version, results):
@@ -213,59 +222,6 @@ def docker_build(version_pk, pdf=True, man=True, epub=True, dash=True, search=Tr
         ))
         return None
     return number
-
-
-def ensure_version(api, project, version_pk):
-    """
-    Ensure we're using a sane version.
-    This also creates the "latest" version if it doesn't exist.
-    """
-
-    if version_pk:
-        version_data = api.version(version_pk).get()
-    else:
-        branch = project.default_branch or project.vcs_repo().fallback_branch
-        try:
-            # Use latest version
-            version_data = (api.version(project.slug)
-                            .get(slug='latest')['objects'][0])
-        except (slumber.exceptions.HttpClientError, IndexError):
-            # Create the latest version since it doesn't exist
-            version_data = dict(
-                project='/api/v1/project/%s/' % project.pk,
-                slug='latest',
-                type='branch',
-                active=True,
-                verbose_name='latest',
-                identifier=branch,
-            )
-            try:
-                version_data = api.version.post(version_data)
-            except Exception as e:
-                log.info(LOG_TEMPLATE.format(
-                    project=project.slug, version='', msg='Exception in creating version: %s' % e))
-                raise e
-
-    version = make_api_version(version_data)
-
-    if not version_pk:
-        # Lots of course correction.
-        to_save = False
-        if not version.verbose_name:
-            version_data['verbose_name'] = 'latest'
-            to_save = True
-        if not version.active:
-            version_data['active'] = True
-            to_save = True
-        if version.identifier != branch:
-            version_data['identifier'] = branch
-            to_save = True
-        if to_save:
-            version_data['project'] = ("/api/v1/project/%s/"
-                                       % version_data['project'].pk)
-            api.version(version.pk).put(version_data)
-
-    return version
 
 
 def setup_vcs(version, build, api):

@@ -233,27 +233,36 @@ class Project(models.Model):
     def save(self, *args, **kwargs):
         if not self.slug:
             # Subdomains can't have underscores in them.
-            self.slug = slugify(self.name).replace('_','-')
+            self.slug = slugify(self.name).replace('_', '-')
             if self.slug == '':
                 raise Exception(_("Model must have slug"))
-        obj = super(Project, self).save(*args, **kwargs)
+        project = super(Project, self).save(*args, **kwargs)
         for owner in self.users.all():
             assign('view_project', owner, self)
 
         # Add exceptions here for safety
         try:
             self.sync_supported_versions()
-        except Exception, e:
+        except Exception:
             log.error('failed to sync supported versions', exc_info=True)
         try:
             symlink(project=self.slug)
-        except Exception, e:
+        except Exception:
             log.error('failed to symlink project', exc_info=True)
         try:
             update_static_metadata(project_pk=self.pk)
         except Exception:
             log.error('failed to update static metadata', exc_info=True)
-        return obj
+        try:
+            if not project.versions.filter(slug='latest').exists():
+                branch = project.default_branch or project.vcs_repo().fallback_branch
+                project.versions.create(slug='latest', verbose_name='latest', type='branch', active=True, identifier=branch)
+            # if not project.versions.filter(slug='stable').exists():
+            #     branch = project.default_branch or project.vcs_repo().fallback_branch
+            #     project.versions.create(slug='stable', verbose_name='stable', type='branch', active=True, identifier=branch)
+        except Exception:
+            log.error('Error creating default branches', exc_info=True)
+        return project
 
     def get_absolute_url(self):
         return reverse('projects_detail', args=[self.slug])
