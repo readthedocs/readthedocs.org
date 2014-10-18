@@ -20,9 +20,10 @@ from celery.task.control import inspect
 from builds.models import Build
 from builds.models import Version
 from core.forms import FacetedSearchForm
+from core.utils import trigger_build
 from projects import constants
 from projects.models import Project, ImportedFile, ProjectRelationship
-from projects.tasks import update_docs, remove_dir, update_imported_docs
+from projects.tasks import remove_dir, update_imported_docs
 from redirects.models import Redirect
 from redirects.utils import redirect_filename
 
@@ -141,15 +142,13 @@ def _build_version(project, slug, already_built=()):
         # these will build at "latest", and thus won't be
         # active
         latest_version = project.versions.get(slug='latest')
-        update_docs.delay(
-            pk=project.pk, version_pk=latest_version.pk, force=True)
+        trigger_build(project=project, version=latest_version, force=True)
         pc_log.info(("(Version build) Building %s:%s"
                      % (project.slug, latest_version.slug)))
         if project.versions.exclude(active=False).filter(slug=slug).exists():
             # Handle the case where we want to build the custom branch too
             slug_version = project.versions.get(slug=slug)
-            update_docs.delay(
-                pk=project.pk, version_pk=slug_version.pk, force=True)
+            trigger_build(project=project, version=slug_version, force=True)
             pc_log.info(("(Version build) Building %s:%s"
                          % (project.slug, slug_version.slug)))
         return "latest"
@@ -158,7 +157,7 @@ def _build_version(project, slug, already_built=()):
         return None
     elif slug not in already_built:
         version = project.versions.get(slug=slug)
-        update_docs.delay(pk=project.pk, version_pk=version.pk, force=True)
+        trigger_build(project=project, version=version, force=True)
         pc_log.info(("(Version build) Building %s:%s"
                      % (project.slug, version.slug)))
         return slug
@@ -248,7 +247,7 @@ def github_build(request):
                 )
                 proj.users.add(user)
                 # Version doesn't exist yet, so use classic build method
-                update_docs.delay(pk=proj.pk)
+                trigger_build(project=proj)
                 pc_log.info("Created new project %s" % (proj))
             except Exception, e:
                 pc_log.error("Error creating new project %s: %s" % (name, e))
@@ -298,7 +297,7 @@ def generic_build(request, pk=None):
         else:
             pc_log.info(
                 "(Incoming Generic Build) %s [%s]" % (project.slug, 'latest'))
-            update_docs.delay(pk=pk, force=True)
+            trigger_build(project=project, force=True)
     else:
         return HttpResponse("You must POST to this resource.")
     return redirect('builds_project_list', project.slug)

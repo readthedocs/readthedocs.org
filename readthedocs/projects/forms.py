@@ -10,10 +10,10 @@ from django.utils.safestring import mark_safe
 
 from guardian.shortcuts import assign
 
+from core.utils import trigger_build
 from redirects.models import Redirect
 from projects import constants
 from projects.models import Project, EmailHook, WebHook
-from projects.tasks import update_docs
 
 
 class ProjectForm(forms.ModelForm):
@@ -91,7 +91,7 @@ class ImportProjectForm(ProjectForm):
 
         if kwargs.get('commit', True):
             # kick off the celery job
-            update_docs.delay(pk=project.pk)
+            trigger_build(project=project)
 
         return project
 
@@ -137,7 +137,7 @@ class AdvancedProjectForm(ProjectForm):
         project = super(AdvancedProjectForm, self).save(*args, **kwargs)
 
         # kick off the celery job
-        update_docs.delay(pk=project.pk)
+        trigger_build(project=project)
 
         return project
 
@@ -187,8 +187,7 @@ class BaseVersionsForm(forms.Form):
         version.privacy_level = privacy_level
         version.save()
         if version.active and not version.built and not version.uploaded:
-            update_docs.delay(self.project.pk, record=True,
-                              version_pk=version.pk)
+            trigger_build(project=self.project, version=version)
 
 
 def build_versions_form(project):

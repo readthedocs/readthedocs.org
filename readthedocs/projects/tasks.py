@@ -34,7 +34,7 @@ HTML_ONLY = getattr(settings, 'HTML_ONLY_PROJECTS', ())
 
 @task(default_retry_delay=7 * 60, max_retries=5)
 @restoring_chdir
-def update_docs(pk, version_pk=None, record=True, docker=False,
+def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
                 pdf=True, man=True, epub=True, dash=True,
                 search=True, force=False, intersphinx=True, localmedia=True,
                 api=None, **kwargs):
@@ -62,7 +62,7 @@ def update_docs(pk, version_pk=None, record=True, docker=False,
     project = make_api_project(project_data)
     log.info(LOG_TEMPLATE.format(project=project.slug, version='', msg='Building'))
     version = ensure_version(api, project, version_pk)
-    build = create_build(version, api, record)
+    build = create_build(build_pk)
     results = {}
 
     try:
@@ -567,21 +567,15 @@ def update_static_metadata(project_pk):
         ))
 
 
-def create_build(version, api, record):
+def create_build(build_pk):
     """
-    Create the build object.
-    If we're recording it, save it to the DB.
-    Otherwise just use an empty hash.
+    Old placeholder for build creation. Now it just gets it from the database.
     """
-    if record:
-        # Create Build Object.
-        build = api.build.post(dict(
-            project='/api/v1/project/%s/' % version.project.pk,
-            version='/api/v1/version/%s/' % version.pk,
-            type='html',
-            state='triggered',
-            success=True,
-        ))
+    if build_pk:
+        build = api.build(build_pk).get()
+        for key in ['project', 'version', 'resource_uri', 'absolute_uri']:
+            if key in build:
+                del build[key]
     else:
         build = {}
     return build

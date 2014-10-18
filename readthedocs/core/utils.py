@@ -6,6 +6,8 @@ from urlparse import urlparse
 
 from django.conf import settings
 
+from builds.models import Build
+
 log = logging.getLogger(__name__)
 
 SYNC_USER = getattr(settings, 'SYNC_USER', getpass.getuser())
@@ -64,3 +66,29 @@ def cname_to_slug(host):
     domain = answer.target.to_unicode()
     slug = domain.split('.')[0]
     return slug
+
+
+def trigger_build(project, version=None, record=True, force=False):
+    """
+    An API to wrap the triggering of a build.
+    """
+    # Avoid circular import
+    from projects.tasks import update_docs
+
+    if not version:
+        version = project.versions.get(slug='latest')
+
+    if record:
+        build = Build.objects.create(
+            project=project,
+            version=version,
+            type='html',
+            state='triggered',
+            success=True,
+        )
+        update_docs.delay(pk=project.pk, version_pk=version.pk, record=record, force=force, build_pk=build.pk)
+    else:
+        build = None
+        update_docs.delay(pk=project.pk, version_pk=version.pk, record=record, force=force)
+
+    return build
