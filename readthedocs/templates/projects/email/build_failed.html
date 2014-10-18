@@ -1,4 +1,7 @@
 {% extends "core/email/base.html" %}
+{% block top-right %}
+  {{ project }} build #{{ build_id }}
+{% endblock %}
 {% block content %}
   <p>
     Unfortunately, we have to inform you that your docs have failed to build. You
@@ -6,7 +9,8 @@
   </p>
 
   <p>
-    <a href="{{ build_url }}">{{ build_url }}</a>
+    <a href="{{ build_url }}">{{ project }} build #{{ build_id }}</a>
+    <span style="color: #ff7040;">failed</a>
   </p>
 
   <p>

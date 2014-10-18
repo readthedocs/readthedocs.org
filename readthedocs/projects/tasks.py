@@ -768,15 +768,17 @@ def send_notifications(version_pk, build_pk):
 def email_notification(project, build, email):
     log.debug(LOG_TEMPLATE.format(project=project.slug, version='',
                                   msg='sending email to: %s' % email))
+    context = {'project': project.name,
+               'build_id': build.pk,
+               'build_url': 'https://{0}{1}'.format(
+                   getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'),
+                   build.get_absolute_url())}
     send_email(
         email,
-        (_('(ReadTheDocs) Building docs for %s failed') % project.name),
+        _('Building docs for {project} failed').format(**context),
         template = 'projects/email/build_failed.txt',
         template_html = 'projects/email/build_failed.html',
-        context = {'project': project.name,
-                   'build_url': 'https://{0}{1}'.format(
-                       getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'),
-                       build.get_absolute_url())},
+        context = context
     )
 
 

@@ -21,16 +21,27 @@ table td {border-collapse: collapse;}
     width: 100%;
   }
 }
+
+a {
+  color: #465158;
+}
+
+p {
+  color: #443 !important;
+}
+
+{% block extra-styles %}{% endblock %}
+
   </style>
 </head>
-<body offset="0" style="padding:0; margin:0; display:block; background:#ececec; font-family: Courier New, monospace; font-size: 16px;" bgcolor="#ececec">
+<body offset="0" style="padding:0; margin:0; display:block; background:#ececec; font-family: Helvetica, Arial, sans-serif; font-size: 14px; color: #443;" bgcolor="#ececec">
   <table id="content-wrapper" align="center" cellpadding="0" cellspacing="0" width="600">
     <!-- BEGIN top spacing -->
     <tr>
       <td>
-        <table align="center" width="100%" height="64" cellpadding="0" cellspacing="0" style="margin-bottom: 8px; color: #acacac;">
+        <table align="center" width="100%" height="64" cellpadding="0" cellspacing="0" style="width: 100% !important; padding: 8px; color: #acacac;">
           <tr>
-            <td style="text-align: right;" valign="bottom">
+            <td width="100%" align="right" style="text-align: right;" valign="bottom">
               {% block top-right %}{% endblock %}
             </td>
           </tr>
@@ -52,19 +63,19 @@ table td {border-collapse: collapse;}
           <!-- END header -->
 
           <tr>
-            <td style="padding: 8px;">
+            <td style="padding: 8px; padding-top: 16px;">
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
-                  <td>
+                  <td style="font-weight: bold;">
                     {% block salutation %}
                       {% trans "Hello!" %}
                     {% endblock %}
                   </td>
                 </tr>
                 <tr>
-                  <td style="padding-top: 16px; padding-bottom: 16px;">
-              {% block content %}
-              {% endblock %}
+                  <td style="padding-top: 16px; padding-bottom: 16px; color: #443 !important;">
+                    {% block content %}
+                    {% endblock %}
                   </td>
                 </tr>
                 <tr>
@@ -81,8 +92,8 @@ table td {border-collapse: collapse;}
 
           <!-- BEGIN footer -->
           <tr>
-            <td>
-              <table align="center" width="100%" height="64" cellpadding="0" cellspacing="0" style="background-color: #443; color: #aa9;">
+            <td style="background: red;">
+              <table align="center" width="100%" height="64" cellpadding="0" cellspacing="0" style="width: 100% !important; background-color: #443; color: #aa9;">
                 <tr>
                   <td align="left" valign="top" style="padding: 8px;">
                     {% block footer %}
