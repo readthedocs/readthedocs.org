@@ -20,7 +20,7 @@ from core.utils import send_email
 from doc_builder.loader import loading as builder_loading
 from doc_builder.base import restoring_chdir
 from projects.exceptions import ProjectImportError
-from projects.models import ImportedFile
+from projects.models import ImportedFile, Project
 from projects.utils import run, make_api_version, make_api_project
 from projects.constants import LOG_TEMPLATE
 from projects import symlinks
@@ -564,8 +564,8 @@ def finish_build(version_pk, build_pk, html=True, localmedia=True, search=True, 
 
     # Delayed tasks
     update_static_metadata.delay(version.project.pk)
-    fileify.delay(version.pk)
-    update_search.delay(version.pk, commit=build['commit'])
+    fileify.delay(version.pk, commit=build.commit)
+    update_search.delay(version.pk, commit=build.commit)
     send_notifications.delay(version.pk, build_pk=build['id'])
 
 
@@ -602,36 +602,29 @@ def move_files(version, hostname, html, localmedia, search, pdf, epub):
 
 
 @task(queue='web')
-def update_search(version, commit):
+def update_search(version_pk, commit):
+
+    version = Version.objects.get(pk=version_pk)
+
     if 'sphinx' in version.project.documentation_type:
         page_list = process_all_json_files(version, build_dir=False)
     if 'mkdocs' in version.project.documentation_type:
         page_list = process_mkdocs_json(version, build_dir=False)
 
-    data = {
-        'page_list': page_list,
-        'version_pk': version.pk,
-        'project_pk': version.project.pk,
-        'commit': commit,
-    }
     log_msg = ' '.join([page['path'] for page in page_list])
     log.info("(Search Index) Sending Data: %s [%s]" % (version.project.slug, log_msg))
-    index_search_request(version=version, page_list=data['page_list'], commit=data['commit'])
+    index_search_request(version=version, page_list=page_list, commit=commit)
 
 
 @task(queue='web')
-def fileify(version_pk):
+def fileify(version_pk, commit):
     """
     Create ImportedFile objects for all of a version's files.
 
     This is a prereq for indexing the docs for search.
     It also causes celery-haystack to kick off an index of the file.
     """
-    if getattr(settings, 'DONT_HIT_DB', True):
-        version_data = api.version(version_pk).get()
-        version = make_api_version(version_data)
-    else:
-        version = Version.objects.get(pk=version_pk)
+    version = Version.objects.get(pk=version_pk)
     project = version.project
     path = project.rtd_build_path(version.slug)
     if path:
@@ -642,20 +635,17 @@ def fileify(version_pk):
                 if fnmatch.fnmatch(filename, '*.html'):
                     dirpath = os.path.join(root.replace(path, '').lstrip('/'),
                                            filename.lstrip('/'))
-                    if getattr(settings, 'DONT_HIT_DB', True):
-                        api.file.post(dict(
-                            project="/api/v1/project/%s/" % project.pk,
-                            version="/api/v1/version/%s/" % version.pk,
-                            path=dirpath,
-                            name=filename))
-                    else:
-                        obj, created = ImportedFile.objects.get_or_create(
-                            project=project,
-                            version=version,
-                            path=dirpath,
-                            name=filename)
-                        if not created:
-                            obj.save()
+                    obj, created = ImportedFile.objects.get_or_create(
+                        project=project,
+                        version=version,
+                        path=dirpath,
+                        name=filename,
+                        commit=commit,
+                    )
+                    if not created:
+                        obj.save()
+        # Delete ImportedFiles from previous versions
+        ImportedFile.objects.filter(project=project, version=version, commit__ne=commit).delete()
     else:
         log.info(LOG_TEMPLATE.format(project=project.slug, version=version.slug, msg='No ImportedFile files'))
 
@@ -717,21 +707,13 @@ def update_static_metadata(project_pk):
     languages
       List of languages built by linked translation projects.
     """
-    if getattr(settings, 'DONT_HIT_DB', True):
-        project_base = apiv2.project(project_pk)
-        project_data = project_base.get()
-        project = make_api_project(project_data)
-    else:
-        project = Project.objects.get(pk=project_pk)
+    project = Project.objects.get(pk=project_pk)
     log.info(LOG_TEMPLATE.format(
         project=project.slug,
         version='',
         msg='Updating static metadata',
     ))
-    if getattr(settings, 'DONT_HIT_DB', True):
-        translations = [trans['language'] for trans in apiv2.project(project.pk).translations.get()['translations']]
-    else:
-        translations = [trans.language for trans in project.translations.all()]
+    translations = [trans.language for trans in project.translations.all()]
     languages = set(translations)
     # Convert to JSON safe types
     metadata = {
