@@ -24,10 +24,8 @@ from projects.utils import (purge_version, run,
                             make_api_version, make_api_project)
 from projects.constants import LOG_TEMPLATE
 from projects import symlinks
+from privacy.loader import Syncer
 from tastyapi import api, apiv2
-from core.utils import (copy_to_app_servers, copy_file_to_app_servers,
-                        run_on_app_servers)
-from core import utils as core_utils
 from search.parse_json import process_all_json_files
 from search.utils import process_mkdocs_json
 from vcs_support import utils as vcs_support_utils
@@ -138,39 +136,39 @@ def move_files(version, results):
         from_path = version.project.artifact_path(
             version=version.slug, type=version.project.documentation_type)
         target = version.project.rtd_build_path(version.slug)
-        core_utils.copy(from_path, target)
+        Syncer.copy(from_path, target)
 
     if 'sphinx' in version.project.documentation_type:
         if 'localmedia' in results and results['localmedia'][0] == 0:
             from_path = version.project.artifact_path(
                 version=version.slug, type='sphinx_localmedia')
             to_path = version.project.get_production_media_path(type='htmlzip', version_slug=version.slug, include_file=False)
-            core_utils.copy(from_path, to_path)
+            Syncer.copy(from_path, to_path)
         if 'search' in results and results['search'][0] == 0:
             from_path = version.project.artifact_path(
                 version=version.slug, type='sphinx_search')
             to_path = version.project.get_production_media_path(type='json', version_slug=version.slug, include_file=False)
-            core_utils.copy(from_path, to_path)
+            Syncer.copy(from_path, to_path)
         # Always move PDF's because the return code lies.
         if 'pdf' in results:
             try:
                 from_path = version.project.artifact_path(
                     version=version.slug, type='sphinx_pdf')
                 to_path = version.project.get_production_media_path(type='pdf', version_slug=version.slug, include_file=False)
-                core_utils.copy(from_path, to_path)
+                Syncer.copy(from_path, to_path)
             except:
                 pass
         if 'epub' in results and results['epub'][0] == 0:
             from_path = version.project.artifact_path(
                 version=version.slug, type='sphinx_epub')
             to_path = version.project.get_production_media_path(type='epub', version_slug=version.slug, include_file=False)
-            core_utils.copy(from_path, to_path)
+            Syncer.copy(from_path, to_path)
 
     if 'mkdocs' in version.project.documentation_type:
         if 'search' in results and results['search'][0] == 0:
             from_path = version.project.artifact_path(version=version.slug, type='mkdocs_json')
             to_path = version.project.get_production_media_path(type='json', version_slug=version.slug, include_file=False)
-            core_utils.copy(from_path, to_path)
+            Syncer.copy(from_path, to_path)
 
 
 def run_docker(version):
@@ -604,7 +602,7 @@ def update_static_metadata(project_pk):
         fh = open(path, 'w')
         json.dump(metadata, fh)
         fh.close()
-        copy_file_to_app_servers(path, path)
+        Syncer.copy(path, path, file=True)
     except (AttributeError, IOError) as e:
         log.debug(LOG_TEMPLATE.format(
             project=project.slug,
