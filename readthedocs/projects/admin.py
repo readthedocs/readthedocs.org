@@ -12,6 +12,7 @@ from guardian.admin import GuardedModelAdmin
 class ProjectRelationshipInline(admin.TabularInline):
     model = ProjectRelationship
     fk_name = 'parent'
+    raw_id_fields = ('child',)
 
 
 class VersionInline(admin.TabularInline):
@@ -27,7 +28,7 @@ class ProjectAdmin(GuardedModelAdmin):
     list_editable = ('featured',)
     search_fields = ('slug', 'repo')
     inlines = [ProjectRelationshipInline, RedirectInline, VersionInline]
-    raw_id_fields = ('users',)
+    raw_id_fields = ('users', 'main_language_project')
 
 
 class ImportedFileAdmin(admin.ModelAdmin):
