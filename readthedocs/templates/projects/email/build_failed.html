@@ -1,0 +1,23 @@
+{% extends "core/email/base.html" %}
+{% block top-right %}
+  {{ project }} build #{{ build_id }}
+{% endblock %}
+{% block content %}
+  <p>
+    Unfortunately, we have to inform you that your docs have failed to build. You
+    can see what went wrong at:
+  </p>
+
+  <p>
+    <a href="{{ build_url }}">{{ project }} build #{{ build_id }}</a>
+    -&nbsp;<span style="color: #ff7040;">failed</a>
+  </p>
+
+  <p>
+    If you have questions, a good place to start is the FAQ:
+  </p>
+
+  <p>
+    <a href="http://read-the-docs.readthedocs.org/en/latest/faq.html">http://read-the-docs.readthedocs.org/en/latest/faq.html</a>
+  </p>
+{% endblock %}

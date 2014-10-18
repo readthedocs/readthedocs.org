@@ -5,6 +5,11 @@ import os
 from urlparse import urlparse
 
 from django.conf import settings
+from django.core.mail import EmailMultiAlternatives
+from django.utils.translation import ugettext_lazy as _
+from django.template.loader import get_template
+from django.template import Context
+
 
 from builds.models import Build
 
@@ -92,3 +97,33 @@ def trigger_build(project, version=None, record=True, force=False):
         update_docs.delay(pk=project.pk, version_pk=version.pk, record=record, force=force)
 
     return build
+
+
+def send_email(recipient, subject, template, template_html, context=None):
+    '''
+    Send multipart email
+
+    recipient
+        Email recipient address
+
+    subject
+        Email subject header
+
+    template
+        Plain text template to send
+
+    template_html
+        HTML template to send as new message part
+
+    context
+        A dictionary to pass into the template calls
+    '''
+    ctx = Context(context)
+    msg = EmailMultiAlternatives(
+        subject,
+        get_template(template).render(ctx),
+        settings.DEFAULT_FROM_EMAIL,
+        [recipient]
+    )
+    msg.attach_alternative(get_template(template_html).render(ctx), 'text/html')
+    msg.send()

@@ -217,7 +217,10 @@ CELERY_ROUTES = {
         'queue': 'celery_haystack',
     },
     'projects.tasks.fileify': {
-        'queue': 'celery_haystack',
+        'queue': 'web',
+    },
+    'projects.tasks.send_notifications': {
+        'queue': 'web',
     },
 }
 
