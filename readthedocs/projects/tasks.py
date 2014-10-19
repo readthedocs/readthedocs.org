@@ -560,7 +560,7 @@ def finish_build(version_pk, build_pk, hostname=None, html=False, localmedia=Fal
         symlinks.remove_symlink_single_version(version)
 
     # Delayed tasks
-    update_static_metadata.delay(version.project.pk, hostname=hostname)
+    update_static_metadata.delay(version.project.pk)
     fileify.delay(version.pk, commit=build.commit)
     update_search.delay(version.pk, commit=build.commit)
     send_notifications.delay(version.pk, build_pk=build.pk)
@@ -693,7 +693,7 @@ def webhook_notification(project, build, hook_url):
 
 
 @task(queue='web')
-def update_static_metadata(project_pk, hostname=None):
+def update_static_metadata(project_pk):
     """Update static metadata JSON file
 
     Metadata settings include the following project settings:
@@ -727,7 +727,7 @@ def update_static_metadata(project_pk, hostname=None):
         fh = open(path, 'w')
         json.dump(metadata, fh)
         fh.close()
-        Syncer.copy(path, path, host=hostname, file=True)
+        Syncer.copy(path, path, host=socket.gethostname(), file=True)
     except (AttributeError, IOError) as e:
         log.debug(LOG_TEMPLATE.format(
             project=project.slug,
