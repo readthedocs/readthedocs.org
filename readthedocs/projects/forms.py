@@ -206,8 +206,12 @@ def build_versions_form(project):
     for version in versions_qs:
         field_name = 'version-%s' % version.slug
         privacy_name = 'privacy-%s' % version.slug
+        if version.type == 'tag':
+            label = "%s (%s)" % (version.verbose_name, version.identifier[:8])
+        else:
+            label = version.verbose_name
         attrs[field_name] = forms.BooleanField(
-            label="%s (%s)" % (version.verbose_name, version.identifier),
+            label=label,
             widget=DualCheckboxWidget(version),
             initial=version.active,
             required=False,
