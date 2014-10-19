@@ -20,6 +20,11 @@ table td {border-collapse: collapse;}
   #content-wrapper {
     width: 100%;
   }
+
+  td.header img {
+    width: 100%;
+    height: auto;
+  }
 }
 
 a {
@@ -56,7 +61,7 @@ p {
         <table align="center" width="100%" cellpadding="0" cellspacing="0" style="background-color: #ffffff; margin-bottom: 64px;" bgcolor="#ffffff">
           <!-- BEGIN header -->
           <tr>
-            <td>
+            <td class="header">
               {% block header %}
               <img src='https://media.readthedocs.org/readthedocsbranding.jpg' width="100%" style="" />
               {% endblock %}
