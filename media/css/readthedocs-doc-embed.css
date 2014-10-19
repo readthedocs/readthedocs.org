@@ -2,6 +2,10 @@
 
 /* Fix badge on RTD Theme */
 
+.rst-versions.rst-badge {
+    display: block;
+}
+
 .rst-other-versions {
 	text-align: left;
 }
