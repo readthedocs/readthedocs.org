@@ -536,7 +536,7 @@ def finish_build(version_pk, build_pk, html=True, localmedia=True, search=True, 
         version.save()
 
     move_files(
-        version=version,
+        version=version_pk,
         hostname=socket.gethostname(),
         html=html,
         localmedia=localmedia,
@@ -557,10 +557,13 @@ def finish_build(version_pk, build_pk, html=True, localmedia=True, search=True, 
     update_static_metadata.delay(version.project.pk)
     fileify.delay(version.pk, commit=build.commit)
     update_search.delay(version.pk, commit=build.commit)
-    send_notifications.delay(version.pk, build_pk=build['id'])
+    send_notifications.delay(version.pk, build_pk=build.pk)
 
 
-def move_files(version, hostname, html, localmedia, search, pdf, epub):
+@task(queue='web')
+def move_files(version_pk, hostname, html, localmedia, search, pdf, epub):
+    version = Version.objects.get(pk=version_pk)
+
     if html:
         from_path = version.project.artifact_path(version=version.slug, type=version.project.documentation_type)
         target = version.project.rtd_build_path(version.slug)
@@ -636,7 +639,7 @@ def fileify(version_pk, commit):
                     if not created:
                         obj.save()
         # Delete ImportedFiles from previous versions
-        ImportedFile.objects.filter(project=project, version=version, commit__ne=commit).delete()
+        ImportedFile.objects.filter(project=project, version=version).exclude(commit=commit).delete()
     else:
         log.info(LOG_TEMPLATE.format(project=project.slug, version=version.slug, msg='No ImportedFile files'))
 
