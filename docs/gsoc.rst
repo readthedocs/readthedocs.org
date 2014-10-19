@@ -4,6 +4,8 @@ Google Summer of Code
 Read the Docs is hoping to participate in the Google Summer of Code in 2014.
 This page will contain all the information for students and anyone else interested in helping.
 
+.. note:: We are currently not planning on working on GSOC this year.
+
 Required Skills
 ---------------
 
