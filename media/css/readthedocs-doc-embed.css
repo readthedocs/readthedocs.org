@@ -2,6 +2,7 @@
 
 /* Fix badge on RTD Theme */
 
+/* Please keep RTD badge displayed on your site */
 .rst-versions.rst-badge {
     display: block;
 }
