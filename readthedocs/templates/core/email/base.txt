@@ -13,4 +13,4 @@ http://read-the-docs.readthedocs.org/en/latest/faq.html
 {% block signature %}Keep documenting,
 Read the Docs{% endblock %}
 --
-http://readthedocs.com
+http://readthedocs.org
