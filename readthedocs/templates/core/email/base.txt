@@ -6,4 +6,4 @@
 {% block signature %}Keep documenting,
 Read the Docs{% endblock %}
 --
-http://readthedocs.org
+{% block footer %}http://readthedocs.org{% endblock %}
