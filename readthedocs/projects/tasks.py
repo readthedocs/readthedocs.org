@@ -667,7 +667,7 @@ def email_notification(project, build, email):
                                   msg='sending email to: %s' % email))
     context = {'project': project.name,
                'build_id': build.pk,
-               'commit': build.commit,
+               'commit': build.commit[:8],
                'build_url': 'https://{0}{1}'.format(
                    getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'),
                    build.get_absolute_url())}
