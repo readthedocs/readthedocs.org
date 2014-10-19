@@ -57,7 +57,9 @@ p {
           <!-- BEGIN header -->
           <tr>
             <td>
-              {% include "core/email/header.html" %}
+              {% block header %}
+              <img src='https://media.readthedocs.org/readthedocsbranding.jpg' width="100%" style="" />
+              {% endblock %}
             </td>
           </tr>
           <!-- END header -->
