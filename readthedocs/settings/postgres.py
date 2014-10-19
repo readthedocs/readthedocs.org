@@ -60,7 +60,7 @@ REPO_LOCK_SECONDS = 300
 # Don't re-confirm existing accounts
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 
-FILE_SYNCER = 'privacy.backends.syncers.RemoteSyncer'
+FILE_SYNCER = 'privacy.backends.syncers.DoubleRemotePuller'
 
 # set GitHub scope
 SOCIALACCOUNT_PROVIDERS = {
