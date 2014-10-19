@@ -7,13 +7,13 @@ import shutil
 import json
 import logging
 import uuid
+import socket
+import requests
 
 from celery import task
 from django.conf import settings
-import socket
+from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
-import requests
-import tastyapi
 
 from builds.models import Build, Version
 from core.utils import send_email
@@ -30,6 +30,7 @@ from search.parse_json import process_all_json_files
 from search.utils import process_mkdocs_json
 from restapi.utils import index_search_request
 from vcs_support import utils as vcs_support_utils
+import tastyapi
 
 log = logging.getLogger(__name__)
 
@@ -670,7 +671,12 @@ def email_notification(version, build, email):
                'build': build,
                'build_url': 'https://{0}{1}'.format(
                    getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'),
-                   build.get_absolute_url())}
+                   build.get_absolute_url()),
+               'unsub_url': 'https://{0}{1}'.format(
+                   getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'),
+                   reverse('projects_notifications', args=[version.project.slug])),
+               }
+
     if build.commit:
         title = _('Failed: {project.name} ({commit})').format(commit=build.commit[:8], **context)
     else:
