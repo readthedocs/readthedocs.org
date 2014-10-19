@@ -27,9 +27,12 @@ def process_all_json_files(version, build_dir=True):
             html_files.append(os.path.join(root, filename))
     page_list = []
     for filename in html_files:
-        result = process_file(filename)
-        if result:
-            page_list.append(result)
+        try:
+            result = process_file(filename)
+            if result:
+                page_list.append(result)
+        except:
+            pass
     return page_list
 
 
