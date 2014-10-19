@@ -112,6 +112,7 @@ def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
     finish_build.delay(
         version_pk=version.pk,
         build_pk=build['id'],
+        hostname=socket.gethostname(),
         html=results.get('html', [404])[0] == 0,
         localmedia=results.get('localmedia', [404])[0] == 0,
         search=results.get('search', [404])[0] == 0,
@@ -528,7 +529,7 @@ def record_pdf(api, record, results, state, version):
 
 
 @task(queue='web')
-def finish_build(version_pk, build_pk, html=False, localmedia=False, search=False, pdf=False, epub=False):
+def finish_build(version_pk, build_pk, hostname=None, html=False, localmedia=False, search=False, pdf=False, epub=False):
     """
     Build Finished, do house keeping bits
     """
@@ -542,7 +543,7 @@ def finish_build(version_pk, build_pk, html=False, localmedia=False, search=Fals
 
     move_files(
         version_pk=version_pk,
-        hostname=socket.gethostname(),
+        hostname=hostname,
         html=html,
         localmedia=localmedia,
         search=search,
@@ -559,7 +560,7 @@ def finish_build(version_pk, build_pk, html=False, localmedia=False, search=Fals
         symlinks.remove_symlink_single_version(version)
 
     # Delayed tasks
-    update_static_metadata.delay(version.project.pk)
+    update_static_metadata.delay(version.project.pk, hostname=hostname)
     fileify.delay(version.pk, commit=build.commit)
     update_search.delay(version.pk, commit=build.commit)
     send_notifications.delay(version.pk, build_pk=build.pk)
@@ -692,7 +693,7 @@ def webhook_notification(project, build, hook_url):
 
 
 @task(queue='web')
-def update_static_metadata(project_pk):
+def update_static_metadata(project_pk, hostname=None):
     """Update static metadata JSON file
 
     Metadata settings include the following project settings:
@@ -726,7 +727,7 @@ def update_static_metadata(project_pk):
         fh = open(path, 'w')
         json.dump(metadata, fh)
         fh.close()
-        Syncer.copy(path, path, file=True)
+        Syncer.copy(path, path, host=hostname, file=True)
     except (AttributeError, IOError) as e:
         log.debug(LOG_TEMPLATE.format(
             project=project.slug,

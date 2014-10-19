@@ -63,7 +63,7 @@ class RemoteSyncer(object):
                     log.error(sync_cmd)
 
 
-class DoubleRemoteSyncer(object):
+class DoubleRemotePuller(object):
 
     @classmethod
     def copy(cls, path, target, host, file=False, **kwargs):
@@ -84,6 +84,7 @@ class DoubleRemoteSyncer(object):
             ret = os.system(mkdir_cmd)
             if ret != 0:
                 log.error("MKDIR ERROR to app servers:")
+                log.error(mkdir_cmd)
             # Add a slash when copying directories
             sync_cmd = "ssh {user}@{server} rsync -e 'ssh -T' -av --delete {user}@{host}:{path} {target}".format(
                 host=host,
@@ -95,6 +96,7 @@ class DoubleRemoteSyncer(object):
             ret = os.system(sync_cmd)
             if ret != 0:
                 log.error("COPY ERROR to app servers.")
+                log.error(sync_cmd)
 
 
 class RemotePuller(object):
