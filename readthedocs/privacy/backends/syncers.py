@@ -86,7 +86,7 @@ class DoubleRemotePuller(object):
                 log.error("MKDIR ERROR to app servers:")
                 log.error(mkdir_cmd)
             # Add a slash when copying directories
-            sync_cmd = "ssh {user}@{server} rsync -e 'ssh -T' -av --delete {user}@{host}:{path} {target}".format(
+            sync_cmd = "ssh {user}@{server} \"rsync -av --delete {user}@{host}:{path} {target}\"".format(
                 host=host,
                 path=path,
                 user=SYNC_USER,
