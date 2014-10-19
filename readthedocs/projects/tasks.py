@@ -667,12 +667,13 @@ def email_notification(project, build, email):
                                   msg='sending email to: %s' % email))
     context = {'project': project.name,
                'build_id': build.pk,
+               'commit': build.commit,
                'build_url': 'https://{0}{1}'.format(
                    getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'),
                    build.get_absolute_url())}
     send_email(
         email,
-        _('Failed: {project}').format(**context),
+        _('Failed: {project} ({commit})').format(**context),
         template='projects/email/build_failed.txt',
         template_html='projects/email/build_failed.html',
         context=context
