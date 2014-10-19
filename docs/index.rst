@@ -41,6 +41,7 @@ User Documentation
     :maxdepth: 2
 
     getting_started
+    versions
     builds
     features
     support
@@ -61,7 +62,6 @@ Features
     vcs
     canonical
     redirects
-    versions
     single_version
     privacy
 
