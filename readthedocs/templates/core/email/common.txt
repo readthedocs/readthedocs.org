@@ -1,0 +1,1 @@
+{% extends 'core/email/base.txt' %}

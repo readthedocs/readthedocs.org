@@ -1,4 +1,4 @@
-{% extends "core/email/base.txt" %}
+{% extends "core/email/common.txt" %}
 {% block content %}Unfortunately, we have to inform you that your docs have failed to build.
 You can see what went wrong at:
 {{ build_url }}
