@@ -563,7 +563,7 @@ def finish_build(version_pk, build_pk, hostname=None, html=False, localmedia=Fal
     update_static_metadata.delay(version.project.pk)
     fileify.delay(version.pk, commit=build.commit)
     update_search.delay(version.pk, commit=build.commit)
-    if not html:
+    if not html and version.slug != 'stable':
         send_notifications.delay(version.pk, build_pk=build.pk)
 
 
