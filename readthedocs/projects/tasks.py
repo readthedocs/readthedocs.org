@@ -671,7 +671,7 @@ def email_notification(project, build, email):
                    build.get_absolute_url())}
     send_email(
         email,
-        _('Building docs for {project} failed').format(**context),
+        _('Failed: {project}').format(**context),
         template='projects/email/build_failed.txt',
         template_html='projects/email/build_failed.html',
         context=context
