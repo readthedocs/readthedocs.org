@@ -91,14 +91,14 @@ def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
             results.update(build_results)
 
     except vcs_support_utils.LockTimeout, e:
-        results['checkout'] = (999, "", "Version locked, retrying in 5 minutes.")
+        results['checkout'] = (423, "", "Version locked, retrying in 5 minutes.")
         log.info(LOG_TEMPLATE.format(project=version.project.slug,
                                      version=version.slug, msg="Unable to lock, will retry"))
         # http://celery.readthedocs.org/en/3.0/userguide/tasks.html#retrying
         # Should completely retry the task for us until max_retries is exceeded
         update_docs.retry(exc=e, throw=False)
     except ProjectImportError, e:
-        results['checkout'] = (999, "", 'Failed to import project; skipping build.\n\nError\n-----\n\n%s' % e.message)
+        results['checkout'] = (404, "", 'Failed to import project; skipping build.\n\nError\n-----\n\n%s' % e.message)
         # Close out build in finally with error.
         pass
     except Exception, e:
@@ -564,7 +564,7 @@ def finish_build(version_pk, build_pk, hostname=None, html=False, localmedia=Fal
     update_static_metadata.delay(version.project.pk)
     fileify.delay(version.pk, commit=build.commit)
     update_search.delay(version.pk, commit=build.commit)
-    if not html and version.slug != 'stable':
+    if not html and version.slug != 'stable' and build.exit_code != 423:
         send_notifications.delay(version.pk, build_pk=build.pk)
 
 
