@@ -5,11 +5,13 @@ from django.core.management.base import BaseCommand
 from projects import tasks
 from projects.models import Project
 from builds.models import Version
+from core.utils import trigger_build
 
 log = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
+
     """Custom management command to rebuild documentation for all projects on
     the site. Invoked via ``./manage.py update_repos``.
     """
@@ -45,12 +47,8 @@ class Command(BaseCommand):
             for slug in args:
                 if version and version != "all":
                     log.info("Updating version %s for %s" % (version, slug))
-                    for version in Version.objects.filter(project__slug=slug,
-                                                          slug=version):
-                        tasks.update_docs(version.project_id,
-                                          pdf=make_pdf,
-                                          record=False,
-                                          version_pk=version.pk)
+                    for version in Version.objects.filter(project__slug=slug, slug=version):
+                        trigger_build(project=version.project, version=version)
                 elif version == "all":
                     log.info("Updating all versions for %s" % slug)
                     for version in Version.objects.filter(project__slug=slug,
@@ -63,7 +61,7 @@ class Command(BaseCommand):
                 else:
                     p = Project.objects.get(slug=slug)
                     log.info("Building %s" % p)
-                    tasks.update_docs(pk=p.pk, pdf=make_pdf, force=force)
+                    trigger_build(project=p, force=force)
         else:
             if version == "all":
                 log.info("Updating all versions")

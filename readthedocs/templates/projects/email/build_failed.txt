@@ -1,0 +1,7 @@
+{% extends "core/email/common.txt" %}
+{% block content %}Unfortunately, we have to inform you that your docs have failed to build.
+You can see what went wrong at:
+{{ build_url }}
+
+If you have questions, a good place to start is the FAQ:
+http://read-the-docs.readthedocs.org/en/latest/faq.html{% endblock %}

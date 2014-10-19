@@ -1,0 +1,9 @@
+{% load i18n %}
+{% block salutation %}Hello!{% endblock %}
+
+{% block content %}{% endblock %}
+
+{% block signature %}Keep documenting,
+Read the Docs{% endblock %}
+--
+{% block footer %}http://readthedocs.org{% endblock %}

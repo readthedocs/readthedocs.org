@@ -13,9 +13,9 @@ from tastypie.http import HttpCreated, HttpApplicationError
 from tastypie.utils import dict_strip_unicode_keys, trailing_slash
 
 from builds.models import Build, Version
+from core.utils import trigger_build
 from projects.models import Project, ImportedFile
 from projects.utils import highest_version, mkversion, slugify_uniquely
-from projects import tasks
 from djangome import views as djangome
 
 from .utils import SearchMixin, PostAuthentication 
@@ -173,7 +173,7 @@ class VersionResource(ModelResource):
         project = get_object_or_404(Project, slug=kwargs['project_slug'])
         version = kwargs.get('version_slug', 'latest')
         version_obj = project.versions.get(slug=version)
-        tasks.update_docs.delay(pk=project.pk, version_pk=version_obj.pk)
+        trigger_build(project=project, version=version_obj)
         return self.create_response(request, {'building': True})
 
     def override_urls(self):

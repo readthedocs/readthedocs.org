@@ -41,18 +41,18 @@ class ProjectRelationship(models.Model):
     def __unicode__(self):
         return "%s -> %s" % (self.parent, self.child)
 
-    #HACK
+    # HACK
     def get_absolute_url(self):
         return ("http://%s.readthedocs.org/projects/%s/%s/latest/"
                 % (self.parent.slug, self.child.slug, self.child.language))
 
 
 class Project(models.Model):
-    #Auto fields
+    # Auto fields
     pub_date = models.DateTimeField(_('Publication date'), auto_now_add=True)
     modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
 
-    #Generally from conf.py
+    # Generally from conf.py
     users = models.ManyToManyField(User, verbose_name=_('User'),
                                    related_name='projects')
     name = models.CharField(_('Name'), max_length=255)
@@ -67,7 +67,7 @@ class Project(models.Model):
     project_url = models.URLField(_('Project homepage'), blank=True,
                                   help_text=_('The project\'s homepage'))
     canonical_url = models.URLField(_('Canonical URL'), blank=True,
-                                  help_text=_('URL that documentation is expected to serve from'))
+                                    help_text=_('URL that documentation is expected to serve from'))
     version = models.CharField(_('Version'), max_length=100, blank=True,
                                help_text=_('Project version these docs apply '
                                            'to, i.e. 1.0a'))
@@ -144,7 +144,7 @@ class Project(models.Model):
         help_text=_("Give the virtual environment access to the global "
                     "site-packages dir."),
         default=False
-        )
+    )
     django_packages_url = models.CharField(_('Django Packages URL'),
                                            max_length=255, blank=True)
     privacy_level = models.CharField(
@@ -166,8 +166,8 @@ class Project(models.Model):
     # Language bits
     language = models.CharField(_('Language'), max_length=20, default='en',
                                 help_text=_("The language the project "
-                                "documentation is rendered in. "
-                                "Note: this affects your project's URL."),
+                                            "documentation is rendered in. "
+                                            "Note: this affects your project's URL."),
                                 choices=constants.LANGUAGES)
     # A subproject pointed at it's main language, so it can be tracked
     main_language_project = models.ForeignKey('self',
@@ -233,27 +233,34 @@ class Project(models.Model):
     def save(self, *args, **kwargs):
         if not self.slug:
             # Subdomains can't have underscores in them.
-            self.slug = slugify(self.name).replace('_','-')
+            self.slug = slugify(self.name).replace('_', '-')
             if self.slug == '':
                 raise Exception(_("Model must have slug"))
-        obj = super(Project, self).save(*args, **kwargs)
+        super(Project, self).save(*args, **kwargs)
         for owner in self.users.all():
             assign('view_project', owner, self)
 
         # Add exceptions here for safety
         try:
             self.sync_supported_versions()
-        except Exception, e:
+        except Exception:
             log.error('failed to sync supported versions', exc_info=True)
         try:
             symlink(project=self.slug)
-        except Exception, e:
+        except Exception:
             log.error('failed to symlink project', exc_info=True)
         try:
             update_static_metadata(project_pk=self.pk)
         except Exception:
             log.error('failed to update static metadata', exc_info=True)
-        return obj
+        try:
+            branch = self.default_branch or self.vcs_repo().fallback_branch
+            if not self.versions.filter(slug='latest').exists():
+                self.versions.create(slug='latest', verbose_name='latest', machine=True, type='branch', active=True, identifier=branch)
+            # if not self.versions.filter(slug='stable').exists():
+            #     self.versions.create(slug='stable', verbose_name='stable', type='branch', active=True, identifier=branch)
+        except Exception:
+            log.error('Error creating default branches', exc_info=True)
 
     def get_absolute_url(self):
         return reverse('projects_detail', args=[self.slug])
@@ -378,8 +385,8 @@ class Project(models.Model):
             return self.repo.replace('http://github.com', 'https://github.com')
         return self.repo
 
-    #Doc PATH:
-    #MEDIA_ROOT/slug/checkouts/version/<repo>
+    # Doc PATH:
+    # MEDIA_ROOT/slug/checkouts/version/<repo>
 
     @property
     def doc_path(self):
@@ -437,7 +444,7 @@ class Project(models.Model):
         for possible_path in ['docs', 'doc', 'Doc']:
             if os.path.exists(os.path.join(doc_base, '%s' % possible_path)):
                 return os.path.join(doc_base, '%s' % possible_path)
-        #No docs directory, docs are at top-level.
+        # No docs directory, docs are at top-level.
         return doc_base
 
     def artifact_path(self, type, version='latest'):
@@ -674,6 +681,7 @@ class Project(models.Model):
             self.versions.filter(identifier='remotes/origin/%s' % branch) |
             self.versions.filter(identifier='origin/%s' % branch)
         )
+
     def get_default_version(self):
         """
         Get the default version (slug).
@@ -711,6 +719,7 @@ class Project(models.Model):
         ProjectRelationship.objects.filter(parent=self, child=child).delete()
         return
 
+
 class ImportedFile(models.Model):
     project = models.ForeignKey('Project', verbose_name=_('Project'),
                                 related_name='imported_files')
@@ -720,6 +729,7 @@ class ImportedFile(models.Model):
     slug = models.SlugField(_('Slug'))
     path = models.CharField(_('Path'), max_length=255)
     md5 = models.CharField(_('MD5 checksum'), max_length=255)
+    commit = models.CharField(_('Commit'), max_length=255)
 
     @models.permalink
     def get_absolute_url(self):

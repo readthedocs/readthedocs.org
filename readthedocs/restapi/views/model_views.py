@@ -8,6 +8,7 @@ from rest_framework.response import Response
 
 from builds.models import Version
 from builds.filters import VersionFilter
+from core.utils import trigger_build
 from oauth import utils as oauth_utils
 from projects.models import Project, EmailHook
 from projects.filters import ProjectFilter
@@ -50,11 +51,11 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
             return Response({'error': 'Project does not support point version control'}, status=status.HTTP_400_BAD_REQUEST)
         version_strings = project.supported_versions(flat=True)
         # Disable making old versions inactive for now.
-        #project.versions.exclude(verbose_name__in=version_strings).update(active=False)
+        # project.versions.exclude(verbose_name__in=version_strings).update(active=False)
         project.versions.filter(verbose_name__in=version_strings).update(active=True)
         return Response({
             'flat': version_strings,
-            })
+        })
 
     @decorators.link()
     def translations(self, request, **kwargs):
@@ -90,6 +91,7 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
         """
         project = get_object_or_404(Project, pk=kwargs['pk'])
         try:
+            # Update All Versions
             data = request.DATA
             added_versions = set()
             if 'tags' in data:
@@ -99,13 +101,33 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
                 ret_set = api_utils.sync_versions(project=project, versions=data['branches'], type='branch')
                 added_versions.update(ret_set)
             deleted_versions = api_utils.delete_versions(project, data)
-            return Response({
-                'added_versions': added_versions,
-                'deleted_versions': deleted_versions,
-            })
         except Exception, e:
             log.exception("Sync Versions Error: %s" % e.message)
             return Response({'error': e.message}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            # Update Stable Version
+            version_strings = project.supported_versions(flat=True)
+            if version_strings:
+                new_stable = version_strings[-1]
+                new_stable = project.versions.get(verbose_name=new_stable)
+                stable = project.versions.filter(slug='stable')
+                if stable.exists():
+                    stable_obj = stable[0]
+                    if (new_stable.identifier != stable_obj.identifier) and (stable_obj.machine is True):
+                        stable_obj.identifier = new_stable.identifier
+                        stable_obj.save()
+                        trigger_build(project=project, version=stable_obj)
+                else:
+                    version = project.versions.create(slug='stable', verbose_name='stable', machine=True, type=new_stable.type, active=True, identifier=new_stable.identifier)
+                    trigger_build(project=project, version=version)
+        except:
+            log.exception("Supported Versions Failure", exc_info=True)
+
+        return Response({
+            'added_versions': added_versions,
+            'deleted_versions': deleted_versions,
+        })
 
 
 class NotificationViewSet(viewsets.ReadOnlyModelViewSet):
@@ -139,7 +161,6 @@ class VersionViewSet(viewsets.ReadOnlyModelViewSet):
         queryset = Version.objects.all()
         project = self.request.QUERY_PARAMS.get('project', None)
         return queryset
-
 
     @decorators.link()
     def downloads(self, request, **kwargs):

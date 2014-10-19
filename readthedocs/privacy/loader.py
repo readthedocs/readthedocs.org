@@ -7,3 +7,6 @@ VersionManager = import_by_path(getattr(settings, 'VERSION_MANAGER', 'privacy.ba
 
 # Permissions
 AdminPermission = import_by_path(getattr(settings, 'ADMIN_PERMISSION', 'privacy.backend.AdminPermission'))
+
+# Syncers
+Syncer = import_by_path(getattr(settings, 'FILE_SYNCER', 'privacy.backends.syncers.LocalSyncer'))

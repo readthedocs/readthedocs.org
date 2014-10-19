@@ -43,6 +43,7 @@ NGINX_X_ACCEL_REDIRECT = True
 
 CELERY_ALWAYS_EAGER = True
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+FILE_SYNCER = 'privacy.backends.syncers.LocalSyncer'
 
 # For testing locally. Put this in your /etc/hosts:
 # 127.0.0.1 test 

@@ -10,26 +10,25 @@ import uuid
 
 from celery import task
 from django.conf import settings
-import redis
-import slumber
+import socket
+from django.utils.translation import ugettext_lazy as _
+import requests
 import tastyapi
-from allauth.socialaccount.models import SocialToken
 
 from builds.models import Build, Version
+from core.utils import send_email
 from doc_builder.loader import loading as builder_loading
 from doc_builder.base import restoring_chdir
 from projects.exceptions import ProjectImportError
 from projects.models import ImportedFile, Project
-from projects.utils import (purge_version, run,
-                            make_api_version, make_api_project)
+from projects.utils import run, make_api_version, make_api_project
 from projects.constants import LOG_TEMPLATE
 from projects import symlinks
+from privacy.loader import Syncer
 from tastyapi import api, apiv2
-from core.utils import (copy_to_app_servers, copy_file_to_app_servers,
-                        run_on_app_servers)
-from core import utils as core_utils
 from search.parse_json import process_all_json_files
 from search.utils import process_mkdocs_json
+from restapi.utils import index_search_request
 from vcs_support import utils as vcs_support_utils
 
 log = logging.getLogger(__name__)
@@ -39,7 +38,7 @@ HTML_ONLY = getattr(settings, 'HTML_ONLY_PROJECTS', ())
 
 @task(default_retry_delay=7 * 60, max_retries=5)
 @restoring_chdir
-def update_docs(pk, version_pk=None, record=True, docker=False,
+def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
                 pdf=True, man=True, epub=True, dash=True,
                 search=True, force=False, intersphinx=True, localmedia=True,
                 api=None, **kwargs):
@@ -65,116 +64,74 @@ def update_docs(pk, version_pk=None, record=True, docker=False,
 
     project_data = api.project(pk).get()
     project = make_api_project(project_data)
-    log.info(LOG_TEMPLATE.format(
-        project=project.slug, version='', msg='Building'))
+    log.info(LOG_TEMPLATE.format(project=project.slug, version='', msg='Building'))
     version = ensure_version(api, project, version_pk)
-    build = create_build(version, api, record)
+    build = create_build(build_pk)
     results = {}
 
+    # Build Servery stuff
     try:
-        record_build(
-            api=api, build=build, record=record, results=results, state='cloning')
+        record_build(api=api, build=build, record=record, results=results, state='cloning')
         vcs_results = setup_vcs(version, build, api)
         if vcs_results:
             results.update(vcs_results)
 
         if docker:
-            record_build(
-                api=api, build=build, record=record, results=results, state='building')
+            record_build(api=api, build=build, record=record, results=results, state='building')
             build_results = run_docker(version)
             results.update(build_results)
         else:
-            record_build(
-                api=api, build=build, record=record, results=results, state='installing')
+            record_build(api=api, build=build, record=record, results=results, state='installing')
             setup_results = setup_environment(version)
             results.update(setup_results)
 
-            record_build(
-                api=api, build=build, record=record, results=results, state='building')
-            build_results = build_docs(
-                version, force, pdf, man, epub, dash, search, localmedia)
+            record_build(api=api, build=build, record=record, results=results, state='building')
+            build_results = build_docs(version, force, pdf, man, epub, dash, search, localmedia)
             results.update(build_results)
 
-        move_files(version, results)
-        record_pdf(api=api, record=record, results=results,
-                   state='finished', version=version)
-        try:
-            finish_build(version=version, build=build, results=results)
-        except:
-            log.error(LOG_TEMPLATE.format(project=version.project.slug,
-                                          version=version.slug, msg="Finish Build Error"), exc_info=True)
-
-        if results['html'][0] == 0:
-            # Mark version active on the site
-            version_data = api.version(version.pk).get()
-            version_data['active'] = True
-            version_data['built'] = True
-            # Need to delete this because a bug in tastypie breaks on the users
-            # list.
-            del version_data['project']
-            try:
-                api.version(version.pk).put(version_data)
-            except Exception, e:
-                log.error(LOG_TEMPLATE.format(project=version.project.slug,
-                                              version=version.slug, msg="Unable to put a new version"), exc_info=True)
     except vcs_support_utils.LockTimeout, e:
-        results['checkout'] = (
-            999, "", "Version locked, retrying in 5 minutes.")
+        results['checkout'] = (999, "", "Version locked, retrying in 5 minutes.")
         log.info(LOG_TEMPLATE.format(project=version.project.slug,
                                      version=version.slug, msg="Unable to lock, will retry"))
         # http://celery.readthedocs.org/en/3.0/userguide/tasks.html#retrying
         # Should completely retry the task for us until max_retries is exceeded
         update_docs.retry(exc=e, throw=False)
     except ProjectImportError, e:
+        results['checkout'] = (999, "", 'Failed to import project; skipping build.\n\nError\n-----\n\n%s' % e.message)
+        # Close out build in finally with error.
         pass
     except Exception, e:
         log.error(LOG_TEMPLATE.format(project=version.project.slug,
                                       version=version.slug, msg="Top-level Build Failure"), exc_info=True)
     finally:
-        record_build(
-            api=api, build=build, record=record, results=results, state='finished')
-        log.info(LOG_TEMPLATE.format(
-            project=version.project.slug, version='', msg='Build finished'))
+        record_build(api=api, build=build, record=record, results=results, state='finished')
+        record_pdf(api=api, record=record, results=results, state='finished', version=version)
+        log.info(LOG_TEMPLATE.format(project=version.project.slug, version='', msg='Build finished'))
+
+    # Web Server Tasks
+    finish_build.delay(
+        version_pk=version.pk,
+        build_pk=build['id'],
+        hostname=socket.gethostname(),
+        html=results.get('html', [404])[0] == 0,
+        localmedia=results.get('localmedia', [404])[0] == 0,
+        search=results.get('search', [404])[0] == 0,
+        pdf=results.get('pdf', [404])[0] == 0,
+        epub=results.get('epub', [404])[0] == 0,
+    )
 
 
-def move_files(version, results):
-    if results['html'][0] == 0:
-        from_path = version.project.artifact_path(
-            version=version.slug, type=version.project.documentation_type)
-        target = version.project.rtd_build_path(version.slug)
-        core_utils.copy(from_path, target)
+def ensure_version(api, project, version_pk):
+    """
+    Ensure we're using a sane version.
+    """
 
-    if 'sphinx' in version.project.documentation_type:
-        if 'localmedia' in results and results['localmedia'][0] == 0:
-            from_path = version.project.artifact_path(
-                version=version.slug, type='sphinx_localmedia')
-            to_path = version.project.get_production_media_path(type='htmlzip', version_slug=version.slug, include_file=False)
-            core_utils.copy(from_path, to_path)
-        if 'search' in results and results['search'][0] == 0:
-            from_path = version.project.artifact_path(
-                version=version.slug, type='sphinx_search')
-            to_path = version.project.get_production_media_path(type='json', version_slug=version.slug, include_file=False)
-            core_utils.copy(from_path, to_path)
-        # Always move PDF's because the return code lies.
-        if 'pdf' in results:
-            try:
-                from_path = version.project.artifact_path(
-                    version=version.slug, type='sphinx_pdf')
-                to_path = version.project.get_production_media_path(type='pdf', version_slug=version.slug, include_file=False)
-                core_utils.copy(from_path, to_path)
-            except:
-                pass
-        if 'epub' in results and results['epub'][0] == 0:
-            from_path = version.project.artifact_path(
-                version=version.slug, type='sphinx_epub')
-            to_path = version.project.get_production_media_path(type='epub', version_slug=version.slug, include_file=False)
-            core_utils.copy(from_path, to_path)
-
-    if 'mkdocs' in version.project.documentation_type:
-        if 'search' in results and results['search'][0] == 0:
-            from_path = version.project.artifact_path(version=version.slug, type='mkdocs_json')
-            to_path = version.project.get_production_media_path(type='json', version_slug=version.slug, include_file=False)
-            core_utils.copy(from_path, to_path)
+    if version_pk:
+        version_data = api.version(version_pk).get()
+    else:
+        version_data = api.version(project.slug).get(slug='latest')['objects'][0]
+    version = make_api_version(version_data)
+    return version
 
 
 def run_docker(version):
@@ -221,59 +178,6 @@ def docker_build(version_pk, pdf=True, man=True, epub=True, dash=True, search=Tr
     return number
 
 
-def ensure_version(api, project, version_pk):
-    """
-    Ensure we're using a sane version.
-    This also creates the "latest" version if it doesn't exist.
-    """
-
-    if version_pk:
-        version_data = api.version(version_pk).get()
-    else:
-        branch = project.default_branch or project.vcs_repo().fallback_branch
-        try:
-            # Use latest version
-            version_data = (api.version(project.slug)
-                            .get(slug='latest')['objects'][0])
-        except (slumber.exceptions.HttpClientError, IndexError):
-            # Create the latest version since it doesn't exist
-            version_data = dict(
-                project='/api/v1/project/%s/' % project.pk,
-                slug='latest',
-                type='branch',
-                active=True,
-                verbose_name='latest',
-                identifier=branch,
-            )
-            try:
-                version_data = api.version.post(version_data)
-            except Exception as e:
-                log.info(LOG_TEMPLATE.format(
-                    project=project.slug, version='', msg='Exception in creating version: %s' % e))
-                raise e
-
-    version = make_api_version(version_data)
-
-    if not version_pk:
-        # Lots of course correction.
-        to_save = False
-        if not version.verbose_name:
-            version_data['verbose_name'] = 'latest'
-            to_save = True
-        if not version.active:
-            version_data['active'] = True
-            to_save = True
-        if version.identifier != branch:
-            version_data['identifier'] = branch
-            to_save = True
-        if to_save:
-            version_data['project'] = ("/api/v1/project/%s/"
-                                       % version_data['project'].pk)
-            api.version(version.pk).put(version_data)
-
-    return version
-
-
 def setup_vcs(version, build, api):
     """
     Update the checkout of the repo to make sure it's the latest.
@@ -287,14 +191,9 @@ def setup_vcs(version, build, api):
         commit = version.project.vcs_repo(version.slug).commit
         if commit:
             build['commit'] = commit
-    except ProjectImportError, err:
+    except ProjectImportError:
         log.error(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug,
                                       msg='Failed to import project; skipping build'), exc_info=True)
-        build['state'] = 'finished'
-        build['setup_error'] = (
-            'Failed to import project; skipping build.\n'
-            '\nError\n-----\n\n%s' % err.message
-        )
         raise
     return update_output
 
@@ -319,8 +218,7 @@ def update_imported_docs(version_pk, api=None):
     with project.repo_nonblockinglock(version=version,
                                       max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
         if not project.vcs_repo():
-            raise ProjectImportError(("Repo type '{0}' unknown"
-                                      .format(project.repo_type)))
+            raise ProjectImportError(("Repo type '{0}' unknown".format(project.repo_type)))
 
         # Get the actual code on disk
         if version:
@@ -426,6 +324,7 @@ def setup_environment(version):
                 cmd=project.venv_bin(version=version.slug, bin='pip'),
                 requirements=project.requirements_file))
     os.chdir(project.checkout_path(version.slug))
+    """
     if os.path.isfile("setup.py"):
         if getattr(settings, 'USE_PIP_INSTALL', False):
             ret_dict['install'] = run(
@@ -438,6 +337,7 @@ def setup_environment(version):
                                          bin='python')))
     else:
         ret_dict['install'] = (999, "", "No setup.py, skipping install")
+    """
     return ret_dict
 
 
@@ -466,6 +366,11 @@ def build_docs(version, force, pdf, man, epub, dash, search, localmedia):
         results['html'] = html_builder.build()
         if results['html'][0] == 0:
             html_builder.move()
+        move_files.delay(
+            version_pk=version.pk,
+            html=True,
+            hostname=socket.gethostname(),
+        )
 
         fake_results = (999, "Project Skipped, Didn't build",
                         "Project Skipped, Didn't build")
@@ -526,112 +431,15 @@ def build_docs(version, force, pdf, man, epub, dash, search, localmedia):
     return results
 
 
-def finish_build(version, build, results):
+def create_build(build_pk):
     """
-    Build Finished, do house keeping bits
+    Old placeholder for build creation. Now it just gets it from the database.
     """
-
-    (ret, out, err) = results['html']
-
-    if 'no targets are out of date.' in out:
-        log.info(LOG_TEMPLATE.format(
-            project=version.project.slug, version=version.slug, msg="Build Unchanged"))
-    else:
-        if ret == 0:
-            log.info(LOG_TEMPLATE.format(
-                project=version.project.slug, version=version.slug, msg="Successful Build"))
-            fileify.delay(version.pk)
-            symlinks.symlink_cnames(version)
-            symlinks.symlink_translations(version)
-            symlinks.symlink_subprojects(version)
-
-            if version.project.single_version:
-                symlinks.symlink_single_version(version)
-            else:
-                symlinks.remove_symlink_single_version(version)
-
-            try:
-                update_search(version, build)
-            except Exception:
-                log.error("Unable to index search", exc_info=True)
-
-            try:
-                update_static_metadata(version.project.pk)
-            except Exception:
-                log.error("Unable to post a new build", exc_info=True)
-
-            # This requires database access, must disable it for now.
-            #send_notifications(version, build)
-        else:
-            log.warning(LOG_TEMPLATE.format(
-                project=version.project.slug, version=version.slug, msg="Failed HTML Build"))
-
-
-@task
-def update_static_metadata(project_pk):
-    """Update static metadata JSON file
-
-    Metadata settings include the following project settings:
-
-    version
-      The default version for the project, default: `latest`
-
-    language
-      The default language for the project, default: `en`
-
-    languages
-      List of languages built by linked translation projects.
-    """
-    project_base = apiv2.project(project_pk)
-    project_data = project_base.get()
-    project = make_api_project(project_data)
-    log.info(LOG_TEMPLATE.format(
-        project=project.slug,
-        version='',
-        msg='Updating static metadata',
-    ))
-    translations = project_base.translations.get()['translations']
-    languages = set([
-        translation['language']
-        for translation in translations
-        if 'language' in translation
-    ])
-    # Convert to JSON safe types
-    metadata = {
-        'version': project.default_version,
-        'language': project.language,
-        'languages': list(languages),
-        'single_version': project.single_version,
-    }
-    try:
-        path = project.static_metadata_path()
-        fh = open(path, 'w')
-        json.dump(metadata, fh)
-        fh.close()
-        copy_file_to_app_servers(path, path)
-    except (AttributeError, IOError) as e:
-        log.debug(LOG_TEMPLATE.format(
-            project=project.slug,
-            version='',
-            msg='Cannot write to metadata.json: {0}'.format(e)
-        ))
-
-
-def create_build(version, api, record):
-    """
-    Create the build object.
-    If we're recording it, save it to the DB.
-    Otherwise just use an empty hash.
-    """
-    if record:
-        # Create Build Object.
-        build = api.build.post(dict(
-            project='/api/v1/project/%s/' % version.project.pk,
-            version='/api/v1/version/%s/' % version.pk,
-            type='html',
-            state='triggered',
-            success=True,
-        ))
+    if build_pk:
+        build = api.build(build_pk).get()
+        for key in ['project', 'version', 'resource_uri', 'absolute_uri']:
+            if key in build:
+                del build[key]
     else:
         build = {}
     return build
@@ -665,11 +473,8 @@ def record_build(api, record, build, results, state):
 
     build['exit_code'] = max([results.get(step, [0])[0] for step in all_steps])
 
-    build['setup'] = build.get('setup', '')
-    build['setup_error'] = build.get('setup_error', '')
-
-    build['output'] = build.get('output', '')
-    build['error'] = build.get('error', '')
+    build['setup'] = build['setup_error'] = ""
+    build['output'] = build['error'] = ""
 
     for step in setup_steps:
         if step in results:
@@ -718,61 +523,222 @@ def record_pdf(api, record, results, state, version):
                                       version=version.slug, msg="Unable to post a new build"), exc_info=True)
 
 
-def update_search(version, build):
-    if 'sphinx' in version.project.documentation_type:
-        page_list = process_all_json_files(version)
-    if 'mkdocs' in version.project.documentation_type:
-        page_list = process_mkdocs_json(version)
+###########
+# Web tasks
+###########
 
-    data = {
-        'page_list': page_list,
-        'version_pk': version.pk,
-        'project_pk': version.project.pk,
-        'commit': build.get('commit'),
-    }
+
+@task(queue='web')
+def finish_build(version_pk, build_pk, hostname=None, html=False, localmedia=False, search=False, pdf=False, epub=False):
+    """
+    Build Finished, do house keeping bits
+    """
+    version = Version.objects.get(pk=version_pk)
+    build = Build.objects.get(pk=build_pk)
+
+    if html:
+        version.active = True
+        version.built = True
+        version.save()
+
+    move_files(
+        version_pk=version_pk,
+        hostname=hostname,
+        html=html,
+        localmedia=localmedia,
+        search=search,
+        pdf=pdf,
+        epub=epub,
+    )
+
+    symlinks.symlink_cnames(version)
+    symlinks.symlink_translations(version)
+    symlinks.symlink_subprojects(version)
+    if version.project.single_version:
+        symlinks.symlink_single_version(version)
+    else:
+        symlinks.remove_symlink_single_version(version)
+
+    # Delayed tasks
+    update_static_metadata.delay(version.project.pk, hostname=hostname)
+    fileify.delay(version.pk, commit=build.commit)
+    update_search.delay(version.pk, commit=build.commit)
+    send_notifications.delay(version.pk, build_pk=build.pk)
+
+
+@task(queue='web')
+def move_files(version_pk, hostname, html=False, localmedia=False, search=False, pdf=False, epub=False):
+    version = Version.objects.get(pk=version_pk)
+
+    if html:
+        from_path = version.project.artifact_path(version=version.slug, type=version.project.documentation_type)
+        target = version.project.rtd_build_path(version.slug)
+        Syncer.copy(from_path, target, host=hostname)
+
+    if 'sphinx' in version.project.documentation_type:
+        if localmedia:
+            from_path = version.project.artifact_path(version=version.slug, type='sphinx_localmedia')
+            to_path = version.project.get_production_media_path(type='htmlzip', version_slug=version.slug, include_file=False)
+            Syncer.copy(from_path, to_path, host=hostname)
+        if search:
+            from_path = version.project.artifact_path(version=version.slug, type='sphinx_search')
+            to_path = version.project.get_production_media_path(type='json', version_slug=version.slug, include_file=False)
+            Syncer.copy(from_path, to_path, host=hostname)
+        # Always move PDF's because the return code lies.
+        if pdf:
+            from_path = version.project.artifact_path(version=version.slug, type='sphinx_pdf')
+            to_path = version.project.get_production_media_path(type='pdf', version_slug=version.slug, include_file=False)
+            Syncer.copy(from_path, to_path, host=hostname)
+        if epub:
+            from_path = version.project.artifact_path(version=version.slug, type='sphinx_epub')
+            to_path = version.project.get_production_media_path(type='epub', version_slug=version.slug, include_file=False)
+            Syncer.copy(from_path, to_path, host=hostname)
+
+    if 'mkdocs' in version.project.documentation_type:
+        if search:
+            from_path = version.project.artifact_path(version=version.slug, type='mkdocs_json')
+            to_path = version.project.get_production_media_path(type='json', version_slug=version.slug, include_file=False)
+            Syncer.copy(from_path, to_path, host=hostname)
+
+
+@task(queue='web')
+def update_search(version_pk, commit):
+
+    version = Version.objects.get(pk=version_pk)
+
+    if 'sphinx' in version.project.documentation_type:
+        page_list = process_all_json_files(version, build_dir=False)
+    if 'mkdocs' in version.project.documentation_type:
+        page_list = process_mkdocs_json(version, build_dir=False)
+
     log_msg = ' '.join([page['path'] for page in page_list])
     log.info("(Search Index) Sending Data: %s [%s]" % (version.project.slug, log_msg))
-    apiv2.index_search.post({'data': data})
+    index_search_request(version=version, page_list=page_list, commit=commit)
 
 
-@task()
-def fileify(version_pk):
+@task(queue='web')
+def fileify(version_pk, commit):
     """
     Create ImportedFile objects for all of a version's files.
 
     This is a prereq for indexing the docs for search.
     It also causes celery-haystack to kick off an index of the file.
     """
-    if getattr(settings, 'DONT_HIT_DB', True):
-        version_data = api.version(version_pk).get()
-        version = make_api_version(version_data)
-    else:
-        version = Version.objects.get(pk=version_pk)
+    version = Version.objects.get(pk=version_pk)
     project = version.project
     path = project.rtd_build_path(version.slug)
-    log.info(LOG_TEMPLATE.format(
-        project=project.slug, version=version.slug, msg='Creating ImportedFiles'))
     if path:
+        log.info(LOG_TEMPLATE.format(
+            project=project.slug, version=version.slug, msg='Creating ImportedFiles'))
         for root, dirnames, filenames in os.walk(path):
             for filename in filenames:
                 if fnmatch.fnmatch(filename, '*.html'):
                     dirpath = os.path.join(root.replace(path, '').lstrip('/'),
                                            filename.lstrip('/'))
-                    if getattr(settings, 'DONT_HIT_DB', True):
-                        api.file.post(dict(
-                            project="/api/v1/project/%s/" % project.pk,
-                            version="/api/v1/version/%s/" % version.pk,
-                            path=dirpath,
-                            name=filename))
-                    else:
-                        obj, created = ImportedFile.objects.get_or_create(
-                            project=project,
-                            version=version,
-                            path=dirpath,
-                            name=filename)
-                        if not created:
-                            obj.save()
-    # End
+                    obj, created = ImportedFile.objects.get_or_create(
+                        project=project,
+                        version=version,
+                        path=dirpath,
+                        name=filename,
+                        commit=commit,
+                    )
+                    if not created:
+                        obj.save()
+        # Delete ImportedFiles from previous versions
+        ImportedFile.objects.filter(project=project, version=version).exclude(commit=commit).delete()
+    else:
+        log.info(LOG_TEMPLATE.format(project=project.slug, version=version.slug, msg='No ImportedFile files'))
+
+
+@task(queue='web')
+def send_notifications(version_pk, build_pk):
+    version = Version.objects.get(pk=version_pk)
+    build = Build.objects.get(pk=build_pk)
+
+    for hook in version.project.webhook_notifications.all():
+        webhook_notification(version.project, build, hook.url)
+    for email in version.project.emailhook_notifications.all().values_list('email', flat=True):
+        email_notification(version.project, build, email)
+
+
+def email_notification(project, build, email):
+    log.debug(LOG_TEMPLATE.format(project=project.slug, version='',
+                                  msg='sending email to: %s' % email))
+    context = {'project': project.name,
+               'build_id': build.pk,
+               'build_url': 'https://{0}{1}'.format(
+                   getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'),
+                   build.get_absolute_url())}
+    send_email(
+        email,
+        _('Building docs for {project} failed').format(**context),
+        template='projects/email/build_failed.txt',
+        template_html='projects/email/build_failed.html',
+        context=context
+    )
+
+
+def webhook_notification(project, build, hook_url):
+    data = json.dumps({
+        'name': project.name,
+        'slug': project.slug,
+        'build': {
+            'id': build.id,
+            'success': build.success,
+            'date': build.date.strftime('%Y-%m-%d %H:%M:%S'),
+        }
+    })
+    log.debug(LOG_TEMPLATE.format(project=project.slug, version='', msg='sending notification to: %s' % hook_url))
+    requests.post(hook_url, data=data)
+
+
+@task(queue='web')
+def update_static_metadata(project_pk, hostname=None):
+    """Update static metadata JSON file
+
+    Metadata settings include the following project settings:
+
+    version
+      The default version for the project, default: `latest`
+
+    language
+      The default language for the project, default: `en`
+
+    languages
+      List of languages built by linked translation projects.
+    """
+    project = Project.objects.get(pk=project_pk)
+    log.info(LOG_TEMPLATE.format(
+        project=project.slug,
+        version='',
+        msg='Updating static metadata',
+    ))
+    translations = [trans.language for trans in project.translations.all()]
+    languages = set(translations)
+    # Convert to JSON safe types
+    metadata = {
+        'version': project.default_version,
+        'language': project.language,
+        'languages': list(languages),
+        'single_version': project.single_version,
+    }
+    try:
+        path = project.static_metadata_path()
+        fh = open(path, 'w')
+        json.dump(metadata, fh)
+        fh.close()
+        Syncer.copy(path, path, host=hostname, file=True)
+    except (AttributeError, IOError) as e:
+        log.debug(LOG_TEMPLATE.format(
+            project=project.slug,
+            version='',
+            msg='Cannot write to metadata.json: {0}'.format(e)
+        ))
+
+
+##############
+# Random Tasks
+##############
 
 
 @task()
@@ -785,6 +751,7 @@ def remove_dir(path):
     """
     log.info("Removing %s" % path)
     shutil.rmtree(path)
+
 
 # @task()
 # def update_config_from_json(version_pk):
@@ -830,49 +797,6 @@ def remove_dir(path):
 #         log.error(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg='Failure in config parsing code: %s ' % e.message))
 
 
-# def send_notifications(version, build):
-# zenircbot_notification(version.id)
-#     for hook in version.project.webhook_notifications.all():
-#         webhook_notification.delay(version.project.id, build, hook.url)
-#     emails = (version.project.emailhook_notifications.all()
-#               .values_list('email', flat=True))
-#     for email in emails:
-#         email_notification(version.project.id, build, email)
-
-
-# @task()
-# def email_notification(project_id, build, email):
-#     if build['success']:
-#         return
-#     project = Project.objects.get(id=project_id)
-#     build_obj = Build.objects.get(id=build['id'])
-#     subject = (_('(ReadTheDocs) Building docs for %s failed') % project.name)
-#     template = 'projects/notification_email.txt'
-#     context = {
-#         'project': project.name,
-#         'build_url': 'http://%s%s' % (Site.objects.get_current().domain,
-#                                       build_obj.get_absolute_url())
-#     }
-#     message = get_template(template).render(Context(context))
-
-#     send_mail(subject=subject, message=message,
-# from_email=settings.DEFAULT_FROM_EMAIL, recipient_list=(email,))
-
-
-# @task()
-# def webhook_notification(project_id, build, hook_url):
-#     project = Project.objects.get(id=project_id)
-#     data = json.dumps({
-#         'name': project.name,
-#         'slug': project.slug,
-#         'build': {
-#             'id': build['id'],
-#             'success': build['success'],
-#             'date': build['date']
-#         }
-#     })
-#     log.debug(LOG_TEMPLATE.format(project=project.slug, version='', msg='sending notification to: %s' % hook_url))
-#     requests.post(hook_url, data=data)
 
 # @task()
 # def zenircbot_notification(version_id):
