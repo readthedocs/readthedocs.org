@@ -256,7 +256,7 @@ class Project(models.Model):
         try:
             branch = self.default_branch or self.vcs_repo().fallback_branch
             if not self.versions.filter(slug='latest').exists():
-                self.versions.create(slug='latest', verbose_name='latest', type='branch', active=True, identifier=branch)
+                self.versions.create(slug='latest', verbose_name='latest', machine=True, type='branch', active=True, identifier=branch)
             # if not self.versions.filter(slug='stable').exists():
             #     self.versions.create(slug='stable', verbose_name='stable', type='branch', active=True, identifier=branch)
         except Exception:

@@ -11,6 +11,7 @@ log = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
+
     """Custom management command to rebuild documentation for all projects on
     the site. Invoked via ``./manage.py update_repos``.
     """
@@ -46,12 +47,8 @@ class Command(BaseCommand):
             for slug in args:
                 if version and version != "all":
                     log.info("Updating version %s for %s" % (version, slug))
-                    for version in Version.objects.filter(project__slug=slug,
-                                                          slug=version):
-                        tasks.update_docs(version.project_id,
-                                          pdf=make_pdf,
-                                          record=False,
-                                          version_pk=version.pk)
+                    for version in Version.objects.filter(project__slug=slug, slug=version):
+                        trigger_build(project=version.project, version=version)
                 elif version == "all":
                     log.info("Updating all versions for %s" % slug)
                     for version in Version.objects.filter(project__slug=slug,

@@ -40,6 +40,7 @@ class Version(models.Model):
         default=DEFAULT_VERSION_PRIVACY_LEVEL, help_text=_("Level of privacy for this Version.")
     )
     tags = TaggableManager(blank=True)
+    machine = models.BooleanField(_('Machine Created'), default=False)
     objects = VersionManager()
 
     class Meta:
