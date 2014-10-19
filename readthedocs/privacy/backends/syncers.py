@@ -78,13 +78,14 @@ class DoubleRemotePuller(object):
             path += "/"
         log.info("Remote Copy %s to %s" % (path, target))
         for server in MULTIPLE_APP_SERVERS:
-            mkdir_cmd = "ssh {user}@{server} mkdir -p {target}".format(
-                user=SYNC_USER, server=server, target=target
-            )
-            ret = os.system(mkdir_cmd)
-            if ret != 0:
-                log.error("MKDIR ERROR to app servers:")
-                log.error(mkdir_cmd)
+            if not file:
+                mkdir_cmd = "ssh {user}@{server} mkdir -p {target}".format(
+                    user=SYNC_USER, server=server, target=target
+                )
+                ret = os.system(mkdir_cmd)
+                if ret != 0:
+                    log.error("MKDIR ERROR to app servers:")
+                    log.error(mkdir_cmd)
             # Add a slash when copying directories
             sync_cmd = "ssh {user}@{server} 'rsync -av --delete {user}@{host}:{path} {target}'".format(
                 host=host,
