@@ -1,14 +1,20 @@
 {% extends "core/email/common.html" %}
+
 {% block top-right %}
-  {{ project }} build #{{ build_id }}
+  {{ project.name }} build #{{ build.pk }}
 {% endblock %}
+
+{% block salutation %}
+Build Failed for {{ project.name }} ({{ version.verbose_name }})
+{% endblock %}
+
 {% block content %}
   <p>
     You can see what went wrong here:
   </p>
 
   <p>
-    <a href="{{ build_url }}">{{ project }} build #{{ build_id }}</a>
+    <a href="{{ build_url }}">{{ project.name }} build #{{ build.pk }}</a>
     -&nbsp;<span style="color: #ff7040;">failed</a>
   </p>
 

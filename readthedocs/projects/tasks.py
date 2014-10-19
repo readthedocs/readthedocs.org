@@ -657,30 +657,35 @@ def send_notifications(version_pk, build_pk):
     build = Build.objects.get(pk=build_pk)
 
     for hook in version.project.webhook_notifications.all():
-        webhook_notification(version.project, build, hook.url)
+        webhook_notification(version, build, hook.url)
     for email in version.project.emailhook_notifications.all().values_list('email', flat=True):
-        email_notification(version.project, build, email)
+        email_notification(version, build, email)
 
 
-def email_notification(project, build, email):
-    log.debug(LOG_TEMPLATE.format(project=project.slug, version='',
+def email_notification(version, build, email):
+    log.debug(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug,
                                   msg='sending email to: %s' % email))
-    context = {'project': project.name,
-               'build_id': build.pk,
-               'commit': build.commit[:8],
+    context = {'version': version,
+               'project': version.project,
+               'build': build,
                'build_url': 'https://{0}{1}'.format(
                    getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'),
                    build.get_absolute_url())}
+    if build.commit:
+        title = _('Failed: {project.name} ({commit})').format(commit=build.commit[:8], **context)
+    else:
+        title = _('Failed: {project.name} ({version.verbose_name})').format(**context)
+
     send_email(
         email,
-        _('Failed: {project} ({commit})').format(**context),
+        title,
         template='projects/email/build_failed.txt',
         template_html='projects/email/build_failed.html',
         context=context
     )
 
 
-def webhook_notification(project, build, hook_url):
+def webhook_notification(version, build, hook_url):
     data = json.dumps({
         'name': project.name,
         'slug': project.slug,

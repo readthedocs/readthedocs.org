@@ -1,8 +1,14 @@
 {% extends "core/email/common.txt" %}
+{% block salutation %}Build Failed for {{ project.name }} ({{ version.verbose_name }}){% endblock %}
 {% block content %}
+
+
+
+
 You can see what went wrong here:
 {{ build_url }}
 
 If you have questions, a good place to start is the FAQ:
 https://docs.readthedocs.org/en/latest/faq.html
+
 {% endblock %}
