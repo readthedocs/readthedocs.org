@@ -57,7 +57,9 @@ p {
           <!-- BEGIN header -->
           <tr>
             <td>
-              {% include "core/email/header.html" %}
+              {% block header %}
+              <img src='https://media.readthedocs.org/readthedocsbranding.jpg' width="100%" style="" />
+              {% endblock %}
             </td>
           </tr>
           <!-- END header -->
@@ -98,7 +100,7 @@ p {
                   <td align="left" valign="top" style="padding: 8px;">
                     {% block footer %}
                       Read&nbsp;the&nbsp;Docs<br/>
-                      <a href="https://readthedocs.com" style="color: #bba;">https://readthedocs.com</a><br/>
+                      <a href="https://readthedocs.org" style="color: #bba;">https://readthedocs.org</a><br/>
                     {% endblock %}
                   </td>
                 </tr>
