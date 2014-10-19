@@ -365,6 +365,11 @@ def build_docs(version, force, pdf, man, epub, dash, search, localmedia):
         results['html'] = html_builder.build()
         if results['html'][0] == 0:
             html_builder.move()
+        move_files.delay(
+            version_pk=version.pk,
+            html=True,
+            hostname=socket.gethostname(),
+        )
 
         fake_results = (999, "Project Skipped, Didn't build",
                         "Project Skipped, Didn't build")
@@ -523,7 +528,7 @@ def record_pdf(api, record, results, state, version):
 
 
 @task(queue='web')
-def finish_build(version_pk, build_pk, html=True, localmedia=True, search=True, pdf=True, epub=True):
+def finish_build(version_pk, build_pk, html=False, localmedia=False, search=False, pdf=False, epub=False):
     """
     Build Finished, do house keeping bits
     """
@@ -536,7 +541,7 @@ def finish_build(version_pk, build_pk, html=True, localmedia=True, search=True, 
         version.save()
 
     move_files(
-        version=version_pk,
+        version_pk=version_pk,
         hostname=socket.gethostname(),
         html=html,
         localmedia=localmedia,
@@ -561,7 +566,7 @@ def finish_build(version_pk, build_pk, html=True, localmedia=True, search=True, 
 
 
 @task(queue='web')
-def move_files(version_pk, hostname, html, localmedia, search, pdf, epub):
+def move_files(version_pk, hostname, html=False, localmedia=False, search=False, pdf=False, epub=False):
     version = Version.objects.get(pk=version_pk)
 
     if html:
