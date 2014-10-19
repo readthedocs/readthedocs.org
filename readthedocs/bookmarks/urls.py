@@ -6,7 +6,8 @@ urlpatterns = patterns(
     'bookmarks.views',
     url(r'^$',
         'bookmark_list',
-        name='bookmarks_list'),
+        # name='bookmarks_list'),
+        name='user_bookmarks'),
 
     url(r'^add/$',
         'bookmark_add',

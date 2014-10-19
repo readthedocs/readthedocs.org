@@ -12,6 +12,32 @@
 
   <!-- BEGIN your projects list -->
   <div class="col-major project-dashboard-right">
+    {% if recent_bookmark_list %}
+    <!-- BEGIN marks list -->
+      <h1>BOOKMARKS!</h1>
+    <div class="module">
+      <div class="module-wrapper">
+        <div class="module-header bookmarks-list">
+          <h3>{% trans "Recently Bookmarked Docs" %} <span class="small_head"><a href="{% url 'user_bookmarks' %}">{% trans "(All My Bookmarks)" %}</a></span></h3>
+        </div>
+
+        <div class="module-list">
+          <div class="module-list-wrapper">
+            <ul>
+              {% include "core/recent_bookmark_list_detailed.html" %}
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    {% else %}
+      <h1>NOOOO BOOKMARKS!</h1>
+    <!-- END marks list -->
+    {% endif %}
+
+
+
     {% if project_list %}
 
       {% if filter|length > 0 %}
@@ -176,27 +202,8 @@
   </div>
   <!-- END project side bar -->
 
-  {% comment %}
-  {% if bookmark_list %}
-  <!-- BEGIN marks list -->
-  <div class="module">
-    <div class="module-wrapper">
-      <div class="module-header">
-        <h3>{% trans "Recently Bookmarked Docs" %} <span class="small_head"><a href="{% url "user_bookmarks" %}">{% trans "(All My Bookmarks)" %}</a></span></h3>
-      </div>
 
-      <div class="module-list">
-        <div class="module-list-wrapper">
-          <ul>
-            {% include "core/bookmark_list_detailed.html" %}
-          </ul>
-        </div>
-      </div>
 
-    </div>
-  </div>
-  <!-- END marks list -->
-  {% endif %}
-  {% endcomment %}
+  <!-- bookmarks were here JUSTIN -->
 
 {% endblock %}

@@ -31,6 +31,8 @@ from projects.models import Project, EmailHook, WebHook
 from projects import constants
 from redirects.models import Redirect
 
+from bookmarks.models import Bookmark
+
 log = logging.getLogger(__name__)
 
 class ProjectDashboard(ListView):
@@ -56,6 +58,13 @@ class ProjectDashboard(ListView):
         filter = VersionFilter(
             constants.IMPORTANT_VERSION_FILTERS, queryset=self.get_queryset())
         context['filter'] = filter
+
+        try:
+            bookmarks = Bookmark.objects.filter(user=self.request.user, )
+        except (Bookmark.DoesNotExist):
+            bookmark = None
+        context['recent_bookmark_list'] = bookmarks[:3]
+
         return context
 
 
