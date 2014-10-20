@@ -9,45 +9,57 @@
 
 {% block extra_scripts %}
   <script type="text/javascript">
+    var result = ""
+
     $(document).ready(function() {
       $('#id_from_url').parent().hide()
       $('#id_to_url').parent().hide()
+      $('#dynamic-redirect').hide()
     
       $('#id_redirect_type').on('change', function() {
         if (this.value == 'prefix') {
             $('#id_from_url').parent().show()
             $('#id_to_url').parent().hide()
+            $('#dynamic-redirect').show()
         }
         if (this.value == 'page') {
             $('#id_from_url').parent().show()
             $('#id_to_url').parent().show()
+            $('#dynamic-redirect').show()
         }
         if (this.value == 'sphinx_html' || this.value == 'sphinx_htmldir') {
             $('#id_from_url').parent().hide()
             $('#id_to_url').parent().hide()
+            $('#dynamic-redirect').hide()
         }
         if (this.value == 'advanced') {
             $('#id_from_url').parent().show()
             $('#id_to_url').parent().show()
+            $('#dynamic-redirect').hide()
         }
     }); 
     });
 
     $(document).ready(function() {
-        var from = "" 
-        var to = "" 
-        
-        $('#id_from_url').keyup(function(event) { 
-            var option = $('#id_redirect_type option:selected').text() 
-            from = $('#id_from_url').val() 
-            if (option === "Prefix Redirect") { 
-                console.log("Outcome:" + from + "faq.html -> /$lang/$version/faq.html"); 
-            }
-        }); 
-        $('#id_to_url').keyup(function(event) {
-            to = $('#id_to_url').val()
-            console.log("Outcome: /$lang/$version/" + from + "--> /$lang/$version/" + to); 
-        }); 
+      var from = "" 
+      var to = "" 
+
+      $('#id_from_url').keyup(function(event) { 
+        var option = $('#id_redirect_type option:selected').text()    
+        from = $('#id_from_url').val() 
+        if (option === "Prefix Redirect") { 
+          result = "Outcome:" + from + "faq.html -> /$lang/$version/faq.html" 
+        } else { 
+          result = "Outcome: /$lang/$version/" + from + "--> /$lang/$version/" + to 
+        }
+        $('#dynamic-redirect').show().text(result)
+      }); 
+
+      $('#id_to_url').keyup(function(event) {
+        to = $('#id_to_url').val() 
+        result = "Outcome: /$lang/$version/" + from + "--> /$lang/$version/" + to 
+        $('#dynamic-redirect').show().text(result)
+      }); 
     }); 
 
   </script>
@@ -88,6 +100,7 @@
 
   <form method="post" action=".">{% csrf_token %}
     {{ form.as_p }}
+    <div id="dynamic-redirect" class="empty"></div>
     <p>
       <input style="display: inline;" type="submit" value="{% trans "Submit" %}">
     </p>
