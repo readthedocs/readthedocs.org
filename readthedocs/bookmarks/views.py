@@ -1,8 +1,11 @@
 import simplejson
 
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404, render_to_response
 from django.views.generic import ListView
+from django.core.urlresolvers import reverse
+from django.template import RequestContext
 
 from django.views.decorators.csrf import csrf_exempt
 
@@ -46,29 +49,43 @@ def bookmark_add(request):
     else:
         return HttpResponse(simplejson.dumps({'error': 'You must POST!'}), mimetype='text/javascript')
 
-
 @login_required
-@csrf_exempt
-def bookmark_remove(request):
-    """Remove the current user's bookmark to ``url``.
+def bookmark_remove(request, **kwargs):
+    """Delete a previously-saved bookmark
     """
+    bookmark = get_object_or_404(Bookmark, pk = kwargs['bookmark_pk'])
+
+    if request.user != bookmark.user:
+        return HttpResponseRedirect(reverse('user_bookmarks'))
+
     if request.method == 'POST':
-        post_json = simplejson.loads(request.body)
-        project = post_json['project']
-        version = post_json['version']
-        page = post_json['page']
-        try:
-            bookmark = Bookmark.objects.get(
-                user=request.user,
-                project__slug=project,
-                version__slug=version,
-                page=page,
-            )
-        except Bookmark.DoesNotExist:
-            payload = simplejson.dumps({'removed': False})
-        else:
-            bookmark.delete()
-            payload = simplejson.dumps({'removed': True})
-        return HttpResponse(payload, mimetype='text/javascript')
-    else:
-        return HttpResponse(simplejson.dumps({'error': 'You must POST!'}), mimetype='text/javascript')
+        bookmark.delete()
+        return HttpResponseRedirect(reverse('user_bookmarks'))
+
+    return render_to_response('bookmarks/bookmark_delete.html',
+                            # {'bookmark_pk': bookmark.pk},
+                            context_instance=RequestContext(request))
+
+    #
+    #
+    #
+    # if request.method == 'POST':
+    #     post_json = simplejson.loads(request.body)
+    #     project = post_json['project']
+    #     version = post_json['version']
+    #     page = post_json['page']
+    #     try:
+    #         bookmark = Bookmark.objects.get(
+    #             user=request.user,
+    #             project__slug=project,
+    #             version__slug=version,
+    #             page=page,
+    #         )
+    #     except Bookmark.DoesNotExist:
+    #         payload = simplejson.dumps({'removed': False})
+    #     else:
+    #         bookmark.delete()
+    #         payload = simplejson.dumps({'removed': True})
+    #     return HttpResponse(payload, mimetype='text/javascript')
+    # else:
+    #     return HttpResponse(simplejson.dumps({'error': 'You must POST!'}), mimetype='text/javascript')
