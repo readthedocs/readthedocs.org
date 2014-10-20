@@ -14,7 +14,6 @@
   <div class="col-major project-dashboard-right">
     {% if bookmark_list %}
     <!-- BEGIN marks list -->
-      <h1>BOOKMARKS!</h1>
     <div class="module">
       <div class="module-wrapper">
         <div class="module-header bookmarks-list">
@@ -32,7 +31,8 @@
       </div>
     </div>
     {% else %}
-      <h1>NOOOO BOOKMARKS!</h1>
+        <h3>{% trans "You have not added any bookmarks" %}</h3>
+        <p>If you add some bookmarks, they will show up here.</p>
     <!-- END marks list -->
     {% endif %}
 

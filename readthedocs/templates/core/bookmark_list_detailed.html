@@ -1,6 +1,10 @@
-{% for bookmark in bookmark_list %}
-  <li class="module-item">
-    <a class="module-item-title" href="{{ bookmark.get_absolute_url }}">{{ bookmark.project }} - {{ bookmark.page }}</a>
-    <span class="quiet right">{% if bookmark.project.version %}version {{ bookmark.project.version }} -{% endif %} {{ bookmark.date|timesince }} ago</span>
-  </li>
-{% endfor %}
+{% if bookmark_list %}
+    {% for bookmark in bookmark_list %}
+      <li class="module-item">
+        <a class="module-item-title" href="{{ bookmark.get_absolute_url }}">{{ bookmark.project }} - {{ bookmark.page }}</a>
+        <span class="quiet right">{% if bookmark.project.version %}version {{ bookmark.project.version }} -{% endif %} {{ bookmark.date|timesince }} ago</span>
+      </li>
+    {% endfor %}
+{% else %}
+    <li class="module-item"><span class="quiet">No bookmarks added yet</span></li>
+{% endif %}
