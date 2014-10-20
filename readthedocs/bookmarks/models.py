@@ -17,7 +17,6 @@ class Bookmark(models.Model):
 
     date = models.DateTimeField(_('Date'), auto_now_add=True)
     url = models.CharField(_('URL'), max_length=255, null=True, blank=True)
-    desc = models.TextField(_('Description'), null=True, blank=True)
 
     class Meta:
         ordering = ['-date']
