@@ -9,13 +9,7 @@ class CoreTagsTests(TestCase):
     def setUp(self):
         self.client.login(username='eric', password='test')
         self.pip = Project.objects.get(slug='pip')
-        self.latest = Version.objects.create(project=self.pip, identifier='latest',
-                               verbose_name='latest', slug='latest',
-                               active=True)
         self.pip_fr = Project.objects.create(name="PIP-FR", slug='pip-fr', language='fr', main_language_project=self.pip)
-        self.latest_fr = Version.objects.create(project=self.pip_fr, identifier='latest',
-                               verbose_name='latest', slug='latest',
-                               active=True)
 
     def test_project_only(self):
         proj = Project.objects.get(slug='pip')

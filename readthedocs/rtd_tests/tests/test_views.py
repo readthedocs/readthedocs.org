@@ -26,9 +26,6 @@ class Testmaker(TestCase):
             'documentation_type': 'sphinx'})
 
         kong = Project.objects.get(slug='django-kong')
-        Version.objects.create(project=kong, identifier='latest',
-                               verbose_name='latest', slug='latest',
-                               active=True)
         self.assertEqual(r.status_code, 302)
         r = self.client.get('/docs/django-kong/en/latest/', {})
         self.assertEqual(r.status_code, 200)

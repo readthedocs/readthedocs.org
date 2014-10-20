@@ -11,9 +11,6 @@ class RedirectSingleVersionTests(TestCase):
         self.pip = Project.objects.get(slug='pip')
         self.pip.single_version = True
         self.pip.save()
-        Version.objects.create(project=self.pip, identifier='latest',
-                       verbose_name='latest', slug='latest',
-                       active=True)
 
     def test_test_case_project_is_single_version(self):
         self.assertTrue(Project.objects.get(name='Pip').single_version)

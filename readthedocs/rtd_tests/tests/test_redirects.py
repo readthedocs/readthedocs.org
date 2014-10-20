@@ -168,9 +168,6 @@ class RedirectUnderscoreTests(TestCase):
         self.client.login(username='eric', password='test')
         whatup = Project.objects.create(
             slug='what_up', name='What Up Underscore')
-        Version.objects.create(project=whatup, identifier='latest',
-                               verbose_name='latest', slug='latest',
-                               active=True)
 
     # Test _ -> - slug lookup
     def test_underscore_redirect(self):

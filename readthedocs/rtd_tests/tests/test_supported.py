@@ -11,10 +11,6 @@ class TestSupportedVersions(TestCase):
     def setUp(self):
         self.client.login(username='eric', password='test')
         self.pip = Project.objects.create(name='Pip', slug='pip')
-        Version.objects.create(project=self.pip, identifier='latest',
-                               verbose_name='latest', slug='latest',
-                               type='branch',
-                               active=True)
         Version.objects.create(project=self.pip, identifier='0.1',
                                verbose_name='0.1', slug='0.1',
                                type='tag',

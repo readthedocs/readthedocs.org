@@ -142,12 +142,12 @@ class PrivacyTests(TestCase):
 
         self.client.login(username='eric', password='test')
         Version.objects.create(project=kong, identifier='test id',
-                               verbose_name='test verbose', slug='test-slug')
+                               verbose_name='test verbose', privacy_level='private', slug='test-slug')
         r = self.client.post('/dashboard/django-kong/versions/',
                              {'version-test-slug': 'on',
                               'privacy-test-slug': 'private'})
-        self.assertEqual(Version.objects.count(), 1)
-        self.assertEqual(Version.objects.all()[0].privacy_level, 'private')
+        self.assertEqual(Version.objects.count(), 2)
+        self.assertEqual(Version.objects.get(slug='test-slug').privacy_level, 'private')
         r = self.client.get('/projects/django-kong/')
         self.assertTrue('test-slug' in r.content)
 
@@ -165,8 +165,8 @@ class PrivacyTests(TestCase):
         r = self.client.post('/dashboard/django-kong/versions/',
                              {'version-test-slug': 'on',
                               'privacy-test-slug': 'protected'})
-        self.assertEqual(Version.objects.count(), 1)
-        self.assertEqual(Version.objects.all()[0].privacy_level, 'protected')
+        self.assertEqual(Version.objects.count(), 2)
+        self.assertEqual(Version.objects.get(slug='test-slug').privacy_level, 'protected')
         r = self.client.get('/projects/django-kong/')
         self.assertTrue('test-slug' in r.content)
 
@@ -184,7 +184,7 @@ class PrivacyTests(TestCase):
         r = self.client.post('/dashboard/django-kong/versions/',
                              {'version-test-slug': 'on',
                               'privacy-test-slug': 'public'})
-        self.assertEqual(Version.objects.count(), 1)
+        self.assertEqual(Version.objects.count(), 2)
         self.assertEqual(Version.objects.all()[0].privacy_level, 'public')
         r = self.client.get('/projects/django-kong/')
         self.assertTrue('test-slug' in r.content)

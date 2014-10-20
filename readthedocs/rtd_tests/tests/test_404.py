@@ -16,9 +16,6 @@ class Testmaker(TestCase):
                                verbose_name='latest', slug='latest',
                                active=True)
         self.pip_es = Project.objects.create(name="PIP-ES", slug='pip-es', language='es', main_language_project=self.pip)
-        self.latest_es = Version.objects.create(project=self.pip_es, identifier='latest',
-                               verbose_name='latest', slug='latest',
-                               active=True)
 
     def test_project_does_not_exist(self):
         # Case 1-4: Project doesn't exist

@@ -12,9 +12,6 @@ class TestSyncVersions(TestCase):
     def setUp(self):
         self.client.login(username='eric', password='test')
         self.pip = Project.objects.get(slug='pip')
-        Version.objects.create(project=self.pip, identifier='latest',
-                               verbose_name='latest', slug='latest',
-                               active=True)
         Version.objects.create(project=self.pip, identifier='origin/master',
                                verbose_name='master', slug='master',
                                active=True)
