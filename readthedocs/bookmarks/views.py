@@ -17,15 +17,6 @@ class BookmarkList(ListView):
     def get_queryset(self):
         return Bookmark.objects.filter(user=self.request.user)
 
-@login_required
-def user_bookmark_list(request):
-    """Show a list of the current user's bookmarks.
-    """
-    queryset = Bookmark.objects.filter(user=request.user)
-    queryset = queryset.filter(user=request.user)
-
-    return bookmark_list(request, queryset=queryset)
-
 
 @login_required
 @csrf_exempt
