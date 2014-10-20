@@ -1,8 +1,7 @@
 {% for bookmark in bookmark_list %}
   <li class="module-item">
-    <a class="module-item-title" href="{{ bookmark.get_absolute_url }}">{{ bookmark.url }}</a>
-    <a href="{% url "projects_user_list" bookmark.user.username %}" class="quiet">({{ bookmark.user }})</a>
-    <span class="quiet">{% if bookmark.project.version %}version {{ bookmark.project.version }} -{% endif %} {{ bookmark.date|timesince }} ago</span>
+    <a class="module-item-title" href="{{ bookmark.get_absolute_url }}">{{ bookmark.project }} - {{ bookmark.page }}</a>
+    <!-- <a href="{% url "projects_user_list" bookmark.user.username %}" class="quiet">({{ bookmark.user }})</a> -->
+    <span class="quiet right">{% if bookmark.project.version %}version {{ bookmark.project.version }} -{% endif %} {{ bookmark.date|timesince }} ago</span>
   </li>
 {% endfor %}
-

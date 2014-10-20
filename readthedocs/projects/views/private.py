@@ -63,7 +63,7 @@ class ProjectDashboard(ListView):
             bookmarks = Bookmark.objects.filter(user=self.request.user, )
         except (Bookmark.DoesNotExist):
             bookmark = None
-        context['recent_bookmark_list'] = bookmarks[:3]
+        context['bookmark_list'] = bookmarks[:3]
 
         return context
 
