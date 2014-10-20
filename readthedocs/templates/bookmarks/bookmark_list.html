@@ -17,7 +17,11 @@
             <div class="module-wrapper">
 
               <div class="module-header">
-                <h2>{% trans "All Bookmarks" %}</h2>
+                {% if bookmark_list %}
+                    <h2>{% trans "All Bookmarks" %}</h2>
+                {% else %}
+                    <h2>{% trans "No Bookmarks Yet" %}</h2>
+                {% endif %}
               </div>
 
               <div class="module-list">
