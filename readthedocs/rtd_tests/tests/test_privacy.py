@@ -142,10 +142,7 @@ class PrivacyTests(TestCase):
 
         self.client.login(username='eric', password='test')
         Version.objects.create(project=kong, identifier='test id',
-                               verbose_name='test verbose', privacy_level='private', slug='test-slug')
-        r = self.client.post('/dashboard/django-kong/versions/',
-                             {'version-test-slug': 'on',
-                              'privacy-test-slug': 'private'})
+                               verbose_name='test verbose', privacy_level='private', slug='test-slug', active=True)
         self.assertEqual(Version.objects.count(), 2)
         self.assertEqual(Version.objects.get(slug='test-slug').privacy_level, 'private')
         r = self.client.get('/projects/django-kong/')
@@ -161,10 +158,7 @@ class PrivacyTests(TestCase):
 
         self.client.login(username='eric', password='test')
         Version.objects.create(project=kong, identifier='test id',
-                               verbose_name='test verbose', slug='test-slug')
-        r = self.client.post('/dashboard/django-kong/versions/',
-                             {'version-test-slug': 'on',
-                              'privacy-test-slug': 'protected'})
+                               verbose_name='test verbose', privacy_level='protected', slug='test-slug')
         self.assertEqual(Version.objects.count(), 2)
         self.assertEqual(Version.objects.get(slug='test-slug').privacy_level, 'protected')
         r = self.client.get('/projects/django-kong/')
@@ -180,10 +174,7 @@ class PrivacyTests(TestCase):
 
         self.client.login(username='eric', password='test')
         Version.objects.create(project=kong, identifier='test id',
-                               verbose_name='test verbose', slug='test-slug')
-        r = self.client.post('/dashboard/django-kong/versions/',
-                             {'version-test-slug': 'on',
-                              'privacy-test-slug': 'public'})
+                               verbose_name='test verbose', slug='test-slug', active=True)
         self.assertEqual(Version.objects.count(), 2)
         self.assertEqual(Version.objects.all()[0].privacy_level, 'public')
         r = self.client.get('/projects/django-kong/')
@@ -269,7 +260,7 @@ class PrivacyTests(TestCase):
 
         self.client.login(username='eric', password='test')
         Version.objects.create(project=kong, identifier='test id',
-                               verbose_name='test verbose', slug='test-slug')
+                               verbose_name='test verbose', privacy_level='private', slug='test-slug', active=True)
         self.client.post('/dashboard/django-kong/versions/',
                          {'version-test-slug': 'on',
                           'privacy-test-slug': 'private'})
