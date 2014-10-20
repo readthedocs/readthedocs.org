@@ -67,7 +67,7 @@
     <div class="version_right">
       <form method="post" action="{% url "generic_build" project.pk %}">
         <select id="id_version" name="version_slug">
-        {% for version in project.ordered_active_versions %}
+        {% for version in filter %}
           <option value="{{ version.slug }}">{{ version.slug }}</option>
         {% endfor %}
         </select>

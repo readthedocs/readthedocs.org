@@ -158,7 +158,7 @@ class PrivacyTests(TestCase):
 
         self.client.login(username='eric', password='test')
         Version.objects.create(project=kong, identifier='test id',
-                               verbose_name='test verbose', privacy_level='protected', slug='test-slug')
+                               verbose_name='test verbose', privacy_level='protected', slug='test-slug', active=True)
         self.assertEqual(Version.objects.count(), 2)
         self.assertEqual(Version.objects.get(slug='test-slug').privacy_level, 'protected')
         r = self.client.get('/projects/django-kong/')
