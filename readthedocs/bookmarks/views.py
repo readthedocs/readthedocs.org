@@ -2,11 +2,9 @@ import simplejson
 
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
-#from core.generic.list_detail import object_list
 from django.views.generic import ListView
 
 from django.views.decorators.csrf import csrf_exempt
-
 
 from bookmarks.models import Bookmark
 from builds.models import Version
@@ -16,15 +14,16 @@ from projects.models import Project
 class BookmarkList(ListView):
     model = Bookmark
 
-bookmark_list = BookmarkList.as_view()
-
+    def get_queryset(self):
+        return Bookmark.objects.filter(user=self.request.user)
 
 @login_required
 def user_bookmark_list(request):
     """Show a list of the current user's bookmarks.
     """
-    queryset = Bookmark.objects.all()
+    queryset = Bookmark.objects.filter(user=request.user)
     queryset = queryset.filter(user=request.user)
+
     return bookmark_list(request, queryset=queryset)
 
 
