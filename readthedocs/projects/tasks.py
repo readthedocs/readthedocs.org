@@ -109,17 +109,19 @@ def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
         record_pdf(api=api, record=record, results=results, state='finished', version=version)
         log.info(LOG_TEMPLATE.format(project=version.project.slug, version='', msg='Build finished'))
 
+    build_id = build.get('id')
     # Web Server Tasks
-    finish_build.delay(
-        version_pk=version.pk,
-        build_pk=build['id'],
-        hostname=socket.gethostname(),
-        html=results.get('html', [404])[0] == 0,
-        localmedia=results.get('localmedia', [404])[0] == 0,
-        search=results.get('search', [404])[0] == 0,
-        pdf=results.get('pdf', [404])[0] == 0,
-        epub=results.get('epub', [404])[0] == 0,
-    )
+    if build_id:
+        finish_build.delay(
+            version_pk=version.pk,
+            build_pk=build_id,
+            hostname=socket.gethostname(),
+            html=results.get('html', [404])[0] == 0,
+            localmedia=results.get('localmedia', [404])[0] == 0,
+            search=results.get('search', [404])[0] == 0,
+            pdf=results.get('pdf', [404])[0] == 0,
+            epub=results.get('epub', [404])[0] == 0,
+        )
 
 
 def ensure_version(api, project, version_pk):
