@@ -2,6 +2,7 @@
 {% load core_tags %}
 {% load privacy_tags %}
 {% load gravatar %}
+{% load projects_tags %}
 
 <div id="project_details">
   <div class="wrapper">
@@ -67,7 +68,7 @@
     <div class="version_right">
       <form method="post" action="{% url "generic_build" project.pk %}">
         <select id="id_version" name="version_slug">
-        {% for version in filter %}
+        {% for version in filter|sort_version_aware %}
           <option value="{{ version.slug }}">{{ version.slug }}</option>
         {% endfor %}
         </select>
