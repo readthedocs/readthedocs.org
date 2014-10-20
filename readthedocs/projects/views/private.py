@@ -206,7 +206,7 @@ def project_import(request, form_class=ImportProjectForm):
 
     if request.method == 'POST' and form.is_valid():
         project = form.save()
-        form.instance.users.add(request.user)
+        project.users.add(request.user)
         assign('view_project', request.user, project)
         project_manage = reverse('projects_detail', args=[project.slug])
         messages.info(request, _("Your docs are currently being built. "
