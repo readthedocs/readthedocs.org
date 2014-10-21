@@ -327,7 +327,6 @@ def setup_environment(version):
                 cmd=project.venv_bin(version=version.slug, bin='pip'),
                 requirements=project.requirements_file))
     os.chdir(project.checkout_path(version.slug))
-    """
     if os.path.isfile("setup.py"):
         if getattr(settings, 'USE_PIP_INSTALL', False):
             ret_dict['install'] = run(
@@ -340,7 +339,6 @@ def setup_environment(version):
                                          bin='python')))
     else:
         ret_dict['install'] = (999, "", "No setup.py, skipping install")
-    """
     return ret_dict
 
 
