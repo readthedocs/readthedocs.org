@@ -65,27 +65,3 @@ def bookmark_remove(request, **kwargs):
     return render_to_response('bookmarks/bookmark_delete.html',
                             # {'bookmark_pk': bookmark.pk},
                             context_instance=RequestContext(request))
-
-    #
-    #
-    #
-    # if request.method == 'POST':
-    #     post_json = simplejson.loads(request.body)
-    #     project = post_json['project']
-    #     version = post_json['version']
-    #     page = post_json['page']
-    #     try:
-    #         bookmark = Bookmark.objects.get(
-    #             user=request.user,
-    #             project__slug=project,
-    #             version__slug=version,
-    #             page=page,
-    #         )
-    #     except Bookmark.DoesNotExist:
-    #         payload = simplejson.dumps({'removed': False})
-    #     else:
-    #         bookmark.delete()
-    #         payload = simplejson.dumps({'removed': True})
-    #     return HttpResponse(payload, mimetype='text/javascript')
-    # else:
-    #     return HttpResponse(simplejson.dumps({'error': 'You must POST!'}), mimetype='text/javascript')
