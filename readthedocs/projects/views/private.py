@@ -59,12 +59,13 @@ class ProjectDashboard(ListView):
             constants.IMPORTANT_VERSION_FILTERS, queryset=self.get_queryset())
         context['filter'] = filter
 
-        try:
-            bookmarks = Bookmark.objects.filter(user=self.request.user, )
-        except (Bookmark.DoesNotExist):
-            bookmark = None
-        context['bookmark_list'] = bookmarks[:3]
+        bookmarks = Bookmark.objects.filter(user=self.request.user)
 
+        if bookmarks.exists:
+            context['bookmark_list'] = bookmarks[:3]
+        else:
+            bookmarks = None
+            
         return context
 
 
