@@ -22,7 +22,6 @@ class BookmarkList(ListView):
 
 
 @login_required
-@csrf_exempt
 def bookmark_add(request):
     """Add a new bookmark for the current user to ``url``.
     """
