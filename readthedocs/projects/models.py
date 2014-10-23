@@ -239,6 +239,13 @@ class Project(models.Model):
         super(Project, self).save(*args, **kwargs)
         for owner in self.users.all():
             assign('view_project', owner, self)
+        try:
+            latest = self.versions.filter(slug='latest')
+            if latest.identifier != project.default_branch:
+                latest.identifier = project.default_branch
+                latest.save()
+        except Exception:
+            log.error('Failed to update latest identifier', exc_info=True)
 
         # Add exceptions here for safety
         try:
