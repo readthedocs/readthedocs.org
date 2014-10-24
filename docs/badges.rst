@@ -50,9 +50,9 @@ This will allow you to have custom style badges.
 
 .. _Read the Docs README: https://github.com/rtfd/readthedocs.org/blob/master/README.rst
 .. _project page: https://readthedocs.org/projects/pip/
-.. |green| image:: http://img.shields.io/badge/Docs-latest-green.svg
-.. |red| image:: http://img.shields.io/badge/Docs-release--1.6-red.svg
-.. |yellow| image:: http://img.shields.io/badge/Docs-No%20Builds-yellow.svg
+.. |green| image:: https://img.shields.io/badge/Docs-latest-brightgreen.svg?style=flat
+.. |red| image:: https://img.shields.io/badge/Docs-release--1.6-red.svg?style=flat
+.. |yellow| image:: https://img.shields.io/badge/Docs-No%20Builds-yellow.svg?style=flat
 .. |nbsp| unicode:: 0xA0 
    :trim:
 
