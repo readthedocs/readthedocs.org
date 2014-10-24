@@ -24,3 +24,9 @@
 nav.stickynav {
 	position: absolute;
 }
+
+/* Fix RTD theme bottom margin */
+
+.rst-content .line-block {
+	margin-bottom: 24px
+}
