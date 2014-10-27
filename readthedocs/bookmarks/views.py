@@ -23,7 +23,8 @@ class BookmarkList(ListView):
 
 @login_required
 def bookmark_add(request):
-    """Add a new bookmark for the current user to ``url``.
+    """Add a new bookmark for the current user to point at
+    ``project``, ``version``, ``page``, and ``url``.
     """
     if request.method == 'POST':
         post_json = simplejson.loads(request.body)
