@@ -7,8 +7,6 @@ from django.views.generic import ListView
 from django.core.urlresolvers import reverse
 from django.template import RequestContext
 
-from django.views.decorators.csrf import csrf_exempt
-
 from bookmarks.models import Bookmark
 from builds.models import Version
 from projects.models import Project
