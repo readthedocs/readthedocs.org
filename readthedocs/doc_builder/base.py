@@ -79,6 +79,8 @@ class BaseBuilder(object):
                 if os.path.exists(os.path.join(checkout_path, '%s' % possible_path)):
                     docs_dir = possible_path
                     break
+
+        if not docs_dir:
             # Fallback to defaulting to '.'
             docs_dir = '.'
 
