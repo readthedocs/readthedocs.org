@@ -550,6 +550,16 @@ def _try_redirect(request, full_path=None):
                     log.debug('Redirecting %s' % redirect)
                     to = redirect_filename(project=project, filename=redirect.to_url.lstrip('/'))
                     return HttpResponseRedirect(to)
+            elif redirect.redirect_type == 'exact':
+                if full_path == redirect.from_url:
+                    log.debug('Redirecting %s' % redirect)
+                    return HttpResponseRedirect(redirect.to_url)
+                # Handle full sub-level redirects
+                if '$rest' in redirect.from_url:
+                    match = redirect.from_url.split('$rest')[0]
+                    if full_path.startswith(match):
+                        cut_path = re.sub('^%s' % match, redirect.to_url, full_path)
+                        return HttpResponseRedirect(cut_path)
             elif redirect.redirect_type == 'sphinx_html':
                 if full_path.endswith('/'):
                     log.debug('Redirecting %s' % redirect)
