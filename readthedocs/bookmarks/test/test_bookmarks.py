@@ -6,6 +6,7 @@ import json
 from projects.models import Project
 from bookmarks.models import Bookmark
 
+
 class TestBookmarks(TestCase):
     fixtures = ['eric', 'test_data']
 
@@ -27,10 +28,10 @@ class TestBookmarks(TestCase):
         }
 
         return self.client.post(
-                    reverse('bookmarks_add'),
-                    data = json.dumps(post_data),
-                    content_type = "application/json"
-                )
+            reverse('bookmarks_add'),
+            data=json.dumps(post_data),
+            content_type="application/json"
+        )
 
     def test_add_bookmark(self):
         response = self.__add_bookmark()
@@ -40,3 +41,14 @@ class TestBookmarks(TestCase):
         self.assertEqual(Bookmark.objects.count(), 1)
         self.assertEqual(bookmark.user, self.user)
         self.assertEqual(bookmark.project.slug, self.project.slug)
+
+    def test_delete_bookmark(self):
+        response = self.__add_bookmark()
+        self.assertEqual(response.status_code, 201)
+
+        response = self.client.post(
+            reverse('bookmark_remove', kwargs={'bookmark_pk': '1'})
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(Bookmark.objects.count(), 0)
