@@ -54,6 +54,17 @@ Of course, replacing `MOCK_MODULES` with the modules that you want to mock out.
 
         from mock import Mock as MagicMock
 
+My server gives a 401 error when building documentation
+----------------------------------------------------------
+
+This error stems from the builder not having access to a database super user account. You can fix this by loading test data::
+
+    ./manage.py loaddata test_data
+
+If you'd prefer not to install the test data, you'll need to provide a database account for the builder to use. You can provide these credentials by editing the following settings::
+
+    SLUMBER_USERNAME = 'test'
+    SLUMBER_PASSWORD = 'test'
 
 Can I make search engines only see one version of my docs?
 ----------------------------------------------------------
