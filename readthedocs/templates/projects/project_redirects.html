@@ -9,7 +9,6 @@
 
 {% block extra_scripts %}
   <script type="text/javascript">
-    var result = ""
 
     $(document).ready(function() {
       $('#id_from_url').parent().hide()
@@ -37,31 +36,29 @@
             $('#id_to_url').parent().show()
             $('#dynamic-redirect').hide()
         }
-    }); 
+      }); 
     });
 
     $(document).ready(function() {
-      var from = "" 
-      var to = "" 
+      var field_from_url = $('#id_from_url');
+      var field_to_url = $('#id_to_url'); 
+      var result = ""
 
-      $('#id_from_url').keyup(function(event) { 
+      field_from_url.keyup(function(event) { 
         var option = $('#id_redirect_type option:selected').text()    
-        from = $('#id_from_url').val() 
         if (option === "Prefix Redirect") { 
-          result = "Outcome:" + from + "faq.html -> /$lang/$version/faq.html" 
+          result = "Outcome:" + field_from_url.val() + "faq.html -> /$lang/$version/faq.html" 
         } else { 
-          result = "Outcome: /$lang/$version/" + from + "--> /$lang/$version/" + to 
+          result = "Outcome: /$lang/$version/" + field_from_url.val() + " -> /$lang/$version/" + to 
         }
         $('#dynamic-redirect').show().text(result)
       }); 
 
       $('#id_to_url').keyup(function(event) {
-        to = $('#id_to_url').val() 
-        result = "Outcome: /$lang/$version/" + from + "--> /$lang/$version/" + to 
+        result = "Outcome: /$lang/$version/" + field_from_url.val() + " -> /$lang/$version/" + field_to_url.val()  
         $('#dynamic-redirect').show().text(result)
       }); 
     }); 
-
   </script>
 {% endblock %}
 
