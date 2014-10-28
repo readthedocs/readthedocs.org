@@ -16,41 +16,35 @@ class TestBookmarks(TestCase):
         self.user = User.objects.get(pk=1)
         self.project.users.add(self.user)
 
-    def tearDown(self):
-        pass
-
     def __add_bookmark(self):
         post_data = {
             "project": self.project.slug,
             "version": 'latest',
             "page": "",
-            "url": "",
+            "url": "http://read-the-docs.readthedocs.org/en/latest/faq.html",
         }
 
-        return self.client.post(
+        response = self.client.post(
             reverse('bookmarks_add'),
             data=json.dumps(post_data),
             content_type="application/json"
         )
 
-    def test_add_bookmark(self):
-        response = self.__add_bookmark()
         self.assertEqual(json.loads(response.content)['added'], True)
         self.assertEqual(response.status_code, 201)
+        return Bookmark.objects.get(pk=1)
 
-        bookmark = Bookmark.objects.get(pk=1)
-        self.assertEqual(Bookmark.objects.count(), 1)
+    def test_add_bookmark(self):
+        bookmark = self.__add_bookmark()
         self.assertEqual(bookmark.user, self.user)
         self.assertEqual(bookmark.project.slug, self.project.slug)
+        self.assertEqual(Bookmark.objects.count(), 1)
 
     def test_delete_bookmark(self):
-        response = self.__add_bookmark()
-        self.assertEqual(json.loads(response.content)['added'], True)
-        self.assertEqual(response.status_code, 201)
+        self.__add_bookmark()
 
         response = self.client.post(
             reverse('bookmark_remove', kwargs={'bookmark_pk': '1'})
         )
-
         self.assertRedirects(response, reverse('user_bookmarks'))
         self.assertEqual(Bookmark.objects.count(), 0)
