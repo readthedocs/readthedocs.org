@@ -4,7 +4,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  {% block htmltitle %}
   <title>{{ page_title }}</title>
+  {% endblock %}
 
   {# CSS #}
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
@@ -16,20 +18,22 @@
 
   <script>
     // Current page data
-    var mkdocs_page_name = "{{ current_page.input_path.replace('.md', '') }}" 
+    var mkdocs_page_name = "{{ current_page.input_path.replace('.md', '') }}"
   </script>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
   {%- for path in extra_javascript %}
   <script src="{{ path }}"></script>
   {%- endfor %}
-
 
   <style>
     body {font-size: 90%;}
     pre, code {font-size: 100%;}
     h3, h4, h5, h6 {color: #2980b9; font-weight: 300}
   </style>
+
+  {%- block extrahead %} {% endblock %}
 </head>
 
 <body class="wy-body-for-nav" role="document">
@@ -62,9 +66,13 @@
         <div class="rst-content">
           {% include "breadcrumbs.html" %}
           <div role="main">
-            {{ content }}
+            <div class="section">
+              {{ content }}
+            </div>
           </div>
+	  {%- block footer %} 
           {% include "footer.html" %}
+	  {% endblock %}
         </div>
       </div>
 
@@ -74,7 +82,11 @@
 
 <div class="rst-versions" role="note" style="cursor: pointer">
     <span class="rst-current-version" data-toggle="rst-current-version">
-      <a class="icon icon-github" style="float: left; color: #fcfcfc"> GitHub</a>
+        {% if repo_name == 'GitHub' %}
+            <a class="icon icon-github" style="float: left; color: #fcfcfc"> GitHub</a>
+        {% elif repo_name == 'Bitbucket' %}
+            <a class="icon icon-bitbucket" style="float: left; color: #fcfcfc"> BitBucket</a>
+        {% endif %}
       <span><a href="" style="color: #fcfcfc;">&laquo; Previous</a></span>
       <span style="margin-left: 15px"><a href="" style="color: #fcfcfc">Next &raquo;</a></span>
     </span>
