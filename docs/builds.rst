@@ -6,6 +6,41 @@ Files: `tasks.py`_ - `doc_builder/`_
 .. _tasks.py: https://github.com/rtfd/readthedocs.org/blob/master/readthedocs/projects/tasks.py
 .. _doc_builder/: https://github.com/rtfd/readthedocs.org/tree/master/readthedocs/doc_builder
 
+How we build documentation
+--------------------------
+
+When we import your documentation, we look at two things first: your *Repository URL* and the *Documentation Type*.
+We will clone your repository,
+and then build your documentation using the *Documentation Type* specified.
+
+Sphinx
+~~~~~~
+
+When you choose *Sphinx* as your *Documentation Type*,
+we will first look for a ``conf.py`` file in your repository.
+If we don't find one,
+we will generate one for you.
+We will look inside a ``doc`` or ``docs`` directory first,
+and then default to the top-level of your documentation.
+
+Then Sphinx will build any files with an ``.rst`` extension.
+If you have a ``README.rst``,
+it will be transformed into an ``index.rst`` automatically.
+
+Mkdocs
+~~~~~~
+
+When you choose *Mkdocs* as your *Documentation Type*,
+we will first look for a ``mkdocs.yml`` file in your repository.
+If we don't find one,
+we will generate one for you.
+We will look inside a ``doc`` or ``docs`` directory first,
+and then default to the top-level of your documentation.
+
+Then Sphinx will build any files with an ``.md`` extension.
+If you have a ``README.md``,
+it will be transformed into an ``index.md`` automatically.
+
 Understanding what's going on
 -----------------------------
 
