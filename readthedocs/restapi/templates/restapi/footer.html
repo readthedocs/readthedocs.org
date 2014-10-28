@@ -105,11 +105,11 @@
 
           <div id="bookmark">
           {% if bookmark %}
-          <a id="bookmark_icon_remove" token="{% csrf_token %}" href="#">
+          <a id="bookmark_icon_remove" token="{% csrf_token %}">
             <img src="/media/images/bookmark-icon-active.png">
           </a>
           {% else %}
-          <a id="bookmark_icon_add" token="{% csrf_token %}" href="#">
+          <a id="bookmark_icon_add" token="{% csrf_token %}">
             <img src="/media/images/bookmark-icon-default.png">
           </a>
           {% endif %}
