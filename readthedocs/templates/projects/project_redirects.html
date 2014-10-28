@@ -44,12 +44,17 @@
       var field_to_url = $('#id_to_url'); 
       var result = ""
 
+      $('#id_redirect_type').change(function() {
+        field_from_url.val(""); 
+        field_to_url.val(""); 
+      });
+
       field_from_url.keyup(function(event) { 
         var option = $('#id_redirect_type option:selected').text()    
         if (option === "Prefix Redirect") { 
           result = "Outcome:" + field_from_url.val() + "faq.html -> /$lang/$version/faq.html" 
         } else { 
-          result = "Outcome: /$lang/$version/" + field_from_url.val() + " -> /$lang/$version/" + to 
+          result = "Outcome: /$lang/$version/" + field_from_url.val() + " -> /$lang/$version/" + field_to_url.val() 
         }
         $('#dynamic-redirect').show().text(result)
       }); 
