@@ -18,7 +18,7 @@ class TestBookmarks(TestCase):
     def tearDown(self):
         pass
 
-    def test_add_bookmark(self):
+    def __add_bookmark(self):
         post_data = {
             "project": self.project.slug,
             "version": 'latest',
@@ -26,12 +26,17 @@ class TestBookmarks(TestCase):
             "url": "",
         }
 
-        response = self.client.post(reverse('bookmarks_add'),
+        return self.client.post(
+                    reverse('bookmarks_add'),
                     data = json.dumps(post_data),
                     content_type = "application/json"
-        )
+                )
+
+    def test_add_bookmark(self):
+        response = self.__add_bookmark()
+        self.assertEqual(response.status_code, 201)
 
         bookmark = Bookmark.objects.get(pk=1)
-        self.assertEqual(bookmark.project.slug, self.project.slug)
+        self.assertEqual(Bookmark.objects.count(), 1)
         self.assertEqual(bookmark.user, self.user)
-        self.assertEqual(response.status_code, 201)
+        self.assertEqual(bookmark.project.slug, self.project.slug)
