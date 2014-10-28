@@ -35,6 +35,7 @@ class TestBookmarks(TestCase):
 
     def test_add_bookmark(self):
         response = self.__add_bookmark()
+        self.assertEqual(json.loads(response.content)['added'], True)
         self.assertEqual(response.status_code, 201)
 
         bookmark = Bookmark.objects.get(pk=1)
@@ -44,11 +45,12 @@ class TestBookmarks(TestCase):
 
     def test_delete_bookmark(self):
         response = self.__add_bookmark()
+        self.assertEqual(json.loads(response.content)['added'], True)
         self.assertEqual(response.status_code, 201)
 
         response = self.client.post(
             reverse('bookmark_remove', kwargs={'bookmark_pk': '1'})
         )
 
-        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('user_bookmarks'))
         self.assertEqual(Bookmark.objects.count(), 0)
