@@ -104,15 +104,17 @@
         <dd>
 
           <div id="bookmark">
-          {% if bookmark %}
-          <a id="bookmark_icon_remove" token="{% csrf_token %}">
-            <img src="/media/images/bookmark-icon-active.png">
-          </a>
-          {% else %}
-          <a id="bookmark_icon_add" token="{% csrf_token %}">
-            <img src="/media/images/bookmark-icon-default.png">
-          </a>
-          {% endif %}
+              <div id="bookmark-active" {% if not bookmark %} style="display:none;"{% endif %}>
+                <a token="{% csrf_token %}">
+                  <img src="/media/images/bookmark-icon-active.png" />
+                </a>
+              </div>
+              <div id="bookmark-inactive" {% if bookmark %} style="display: none;"{% endif %}>
+                <a token="{% csrf_token %}">
+                  <img src="/media/images/bookmark-icon-default.png" />
+                </a>
+              </div>              
+              <div id="bookmark-added"></div>
           </div>
         </dd>
       </dl>

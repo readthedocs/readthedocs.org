@@ -164,30 +164,28 @@ $(document).ready(function () {
                   }
               });
 
-                var img = $("#bookmark").find('img')
-                src = img.attr("src")
-                var bookmarked = (src == "/media/images/bookmark-icon-active.png")
+              var bookmarked = $("#bookmark-active").is(':visible');
+
+              $("#bookmark-inactive").toggle();
+              $("#bookmark-active").toggle();              
 
               if (bookmarked) {
                   $.ajax({
                     type: "POST",
                     url: API_HOST + "/bookmarks/remove/",
                     data: JSON.stringify(data),
-                    })
-                  var bookmarked = false
-                  var img = $("#bookmark").find('img')
-                  img.attr("src", "/media/images/bookmark-icon-default.png")
+                    });
+                  $("#bookmark-added").hide();
               } else {
                   $.ajax({
                     type: "POST",
                     url: API_HOST + "/bookmarks/add/",
                     data: JSON.stringify(data),
-                    })
-                  var bookmarked = true
-                  var img = $("#bookmark").find('img')
-                  img.attr("src", "/media/images/bookmark-icon-active.png")
+                    });
+                    $("#bookmark-added").html("<p><a href='/bookmarks'>Bookmark</a> added</p>");
+                    $("#bookmark-added").show();
               }
-            })
+            });
       },
       error: function () {
           console.log('Error loading Read the Docs footer')

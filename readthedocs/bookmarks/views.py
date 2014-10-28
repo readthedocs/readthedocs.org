@@ -62,14 +62,31 @@ def bookmark_add(request):
 def bookmark_remove(request, **kwargs):
     """Delete a previously-saved bookmark
     """
-    bookmark = get_object_or_404(Bookmark, pk=kwargs['bookmark_pk'])
+    post_json = simplejson.loads(request.body)
+    
+    if 'bookmark_pk' in kwargs:
+        bookmark = get_object_or_404(Bookmark, pk=kwargs['bookmark_pk'])
+    else:
+        project = Project.objects.get(slug=post_json['project'])
+        version = project.versions.get(slug=post_json['version'])
 
-    if request.user != bookmark.user:
-        return HttpResponseRedirect(reverse('user_bookmarks'))
+        bookmark = get_object_or_404(
+            Bookmark, 
+            user=request.user,
+            url=post_json['url'],
+            project=project,
+            version=version,
+            page=post_json['page']
+        )
 
     if request.method == 'POST':
         bookmark.delete()
-        return HttpResponseRedirect(reverse('user_bookmarks'))
+        return HttpResponse(
+            simplejson.dumps({'removed': True}),
+            status=200,
+            mimetype="/text/javascript"
+        )
+        # return HttpResponseRedirect(reverse('user_bookmarks'))
 
     return render_to_response(
         'bookmarks/bookmark_delete.html',

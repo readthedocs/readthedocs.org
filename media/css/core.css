@@ -579,3 +579,7 @@ select.dropdown { display: none; }
 .badge > ul { margin-top: 3px; position:absolute; top:100%; background:#465158; padding:4px; border-radius:4px; z-index:1005; min-width:500; box-shadow: 0px 0px 8px 2px rgba(0,0,0,0.2); }
 .badge > ul > li { background: white; padding:8px 10px; border-bottom:1px solid #EEE; }
 .badge pre { font-size: 12px; }
+
+
+/* bookmarking */
+#bookmark-added {display: none;}
