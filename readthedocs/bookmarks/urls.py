@@ -1,5 +1,5 @@
 from django.conf.urls import patterns, url
-from bookmarks.views import BookmarkList, bookmark_add, bookmark_remove
+from bookmarks.views import BookmarkList
 
 urlpatterns = patterns(
     # base view, flake8 complains if it is on the previous line.
