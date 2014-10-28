@@ -6,11 +6,13 @@ import logging
 import zipfile
 
 from django.template import Context, loader as template_loader
+from django.template.loader import render_to_string
 from django.conf import settings
 
 from builds import utils as version_utils
 from doc_builder.base import BaseBuilder, restoring_chdir
-from projects.utils import run
+from projects.utils import run, safe_write
+from projects.exceptions import ProjectImportError
 from tastyapi import apiv2
 
 log = logging.getLogger(__name__)
@@ -28,32 +30,39 @@ class BaseSphinx(BaseBuilder):
 
     def __init__(self, *args, **kwargs):
         super(BaseSphinx, self).__init__(*args, **kwargs)
-        self.old_artifact_path = os.path.join(self.version.project.conf_dir(self.version.slug), self.sphinx_build_dir)
+        try:
+            self.old_artifact_path = os.path.join(self.version.project.conf_dir(self.version.slug), self.sphinx_build_dir)
+        except ProjectImportError:
+            docs_dir = self.docs_dir()
+            self.old_artifact_path = os.path.join(docs_dir, self.sphinx_build_dir)
 
-    @restoring_chdir
-    def build(self, **kwargs):
-        self.clean()
-        project = self.version.project
-        os.chdir(project.conf_dir(self.version.slug))
-        force_str = " -E " if self._force else ""
-        build_command = "%s -T %s -b %s -D language=%s . %s " % (
-            project.venv_bin(version=self.version.slug,
-                             bin='sphinx-build'),
-            force_str,
-            self.sphinx_builder,
-            project.language,
-            self.sphinx_build_dir,
-        )
-        results = run(build_command, shell=True)
-        return results
+    def _write_config(self):
+        """
+        Create ``conf.py`` if it doesn't exist.
+        """
+        docs_dir = self.docs_dir()
+        conf_template = render_to_string('sphinx/conf.py.conf',
+                                         {'project': self.version.project,
+                                          'version': self.version,
+                                          'template_dir': TEMPLATE_DIR,
+                                          })
+        conf_file = os.path.join(docs_dir, 'conf.py')
+        safe_write(conf_file, conf_template)
 
     def append_conf(self, **kwargs):
         """Modify the given ``conf.py`` file from a whitelisted user's project.
         """
+
+        # Pull mkdocs config data
+        try:
+            conf_py_path = version_utils.get_conf_py_path(self.version)
+        except ProjectImportError:
+            self._write_config()
+            self.create_index(extension='rst')
+
         project = self.version.project
         # Open file for appending.
-        outfile = codecs.open(project.conf_file(self.version.slug),
-                              encoding='utf-8', mode='a')
+        outfile = codecs.open(project.conf_file(self.version.slug), encoding='utf-8', mode='a')
         outfile.write("\n")
         conf_py_path = version_utils.get_conf_py_path(self.version)
         remote_version = version_utils.get_vcs_version_slug(self.version)
@@ -93,6 +102,23 @@ class BaseSphinx(BaseBuilder):
         })
         rtd_string = template_loader.get_template('doc_builder/conf.py.tmpl').render(rtd_ctx)
         outfile.write(rtd_string)
+
+    @restoring_chdir
+    def build(self, **kwargs):
+        self.clean()
+        project = self.version.project
+        os.chdir(project.conf_dir(self.version.slug))
+        force_str = " -E " if self._force else ""
+        build_command = "%s -T %s -b %s -D language=%s . %s " % (
+            project.venv_bin(version=self.version.slug,
+                             bin='sphinx-build'),
+            force_str,
+            self.sphinx_builder,
+            project.language,
+            self.sphinx_build_dir,
+        )
+        results = run(build_command, shell=True)
+        return results
 
 
 class HtmlBuilder(BaseSphinx):
@@ -186,7 +212,7 @@ class PdfBuilder(BaseSphinx):
                 pdflatex_cmds = [('pdflatex -interaction=nonstopmode %s'
                                   % tex_file) for tex_file in tex_files]
                 makeindex_cmds = [('makeindex -s python.ist %s.idx'
-                                  % os.path.splitext(tex_file)[0]) for tex_file in tex_files]
+                                   % os.path.splitext(tex_file)[0]) for tex_file in tex_files]
                 pdf_results = run(*pdflatex_cmds)
                 ind_results = run(*makeindex_cmds)
                 pdf_results = run(*pdflatex_cmds)

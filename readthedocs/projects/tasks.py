@@ -351,12 +351,6 @@ def build_docs(version, force, pdf, man, epub, dash, search, localmedia):
     project = version.project
     results = {}
 
-    if 'sphinx' in project.documentation_type:
-        try:
-            project.conf_file(version.slug)
-        except ProjectImportError:
-            results['html'] = (999, 'Conf file not found.', '')
-            return results
 
     with project.repo_nonblockinglock(version=version,
                                       max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
