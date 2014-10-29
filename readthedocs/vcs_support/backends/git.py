@@ -51,8 +51,8 @@ class Backend(BaseVCS):
         code, out, err = self.run('git', 'fetch', '--prune')
         if code != 0:
             raise ProjectImportError(
-                "Failed to get code from '%s' (git fetch): %s" % (
-                    self.repo_url, code)
+                "Failed to get code from '%s' (git fetch): %s\n\nStderr:\n\n%s\n\n" % (
+                    self.repo_url, code, err)
             )
 
     def checkout_revision(self, revision=None):
