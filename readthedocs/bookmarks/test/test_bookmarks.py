@@ -21,7 +21,7 @@ class TestBookmarks(TestCase):
             "project": self.project.slug,
             "version": 'latest',
             "page": "",
-            "url": "http://read-the-docs.readthedocs.org/en/latest/faq.html",
+            "url": "",
         }
 
         response = self.client.post(
@@ -40,12 +40,29 @@ class TestBookmarks(TestCase):
         self.assertEqual(bookmark.project.slug, self.project.slug)
         self.assertEqual(Bookmark.objects.count(), 1)
 
-    def test_delete_bookmark(self):
+    def test_delete_bookmark_with_url(self):
         self.__add_bookmark()
-
         response = self.client.post(
             reverse('bookmark_remove', kwargs={'bookmark_pk': '1'})
         )
+        self.assertRedirects(response, reverse('user_bookmarks'))
+        self.assertEqual(Bookmark.objects.count(), 0)
+
+    def test_delete_bookmark_with_json(self):
+        self.__add_bookmark()
+
+        post_data = {
+            "project": self.project.slug,
+            "version": 'latest',
+            "page": "",
+            "url": "",
+        }
+
+        response = self.client.post(
+            reverse('bookmark_remove_json'),
+            data=json.dumps(post_data),
+            content_type="application/json"
+        )
+
         self.assertEqual(response.status_code, 200)
-        # self.assertRedirects(response, reverse('user_bookmarks'))
         self.assertEqual(Bookmark.objects.count(), 0)

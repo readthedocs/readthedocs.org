@@ -12,10 +12,11 @@ urlpatterns = patterns(
         'bookmark_add',
         name='bookmarks_add'),
 
-    url(r'^remove/$',
-        'bookmark_remove'),
-    
     url(r'^remove/(?P<bookmark_pk>[-\w]+)/$',
         'bookmark_remove',
         name='bookmark_remove'),
+
+    url(r'^remove/$',
+        'bookmark_remove',
+        name='bookmark_remove_json'),
 )
