@@ -10,6 +10,16 @@
 {% block extra_scripts %}
   <script type="text/javascript">
 
+    var outcome = function(field_from_url, field_to_url, option) {       
+      var result="";       
+      if (option === "Prefix Redirect") { 
+        result = "Outcome:" + field_from_url.val() + "faq.html -> /$lang/$version/faq.html" 
+      } else { 
+        result = "Outcome: /$lang/$version/" + field_from_url.val() + " -> /$lang/$version/" + field_to_url.val()
+      }      
+      return result;  
+    }; 
+
     $(document).ready(function() {
       $('#id_from_url').parent().hide()
       $('#id_to_url').parent().hide()
@@ -40,30 +50,21 @@
     });
 
     $(document).ready(function() {
-      var field_from_url = $('#id_from_url');
-      var field_to_url = $('#id_to_url'); 
-      var result = ""
-
       $('#id_redirect_type').change(function() {
-        field_from_url.val(""); 
-        field_to_url.val(""); 
-      });
+        var field_from_url = $('#id_from_url').val(""); 
+        var field_to_url =  $('#id_to_url').val("");
+        var option = $('#id_redirect_type option:selected').text() 
 
-      field_from_url.keyup(function(event) { 
-        var option = $('#id_redirect_type option:selected').text()    
-        if (option === "Prefix Redirect") { 
-          result = "Outcome:" + field_from_url.val() + "faq.html -> /$lang/$version/faq.html" 
-        } else { 
-          result = "Outcome: /$lang/$version/" + field_from_url.val() + " -> /$lang/$version/" + field_to_url.val() 
-        }
-        $('#dynamic-redirect').show().text(result)
-      }); 
+        $('#id_from_url').keyup(function(event) {
+          $('#dynamic-redirect').text(outcome(field_from_url, field_to_url, option)); 
+        }); 
 
-      $('#id_to_url').keyup(function(event) {
-        result = "Outcome: /$lang/$version/" + field_from_url.val() + " -> /$lang/$version/" + field_to_url.val()  
-        $('#dynamic-redirect').show().text(result)
+        $('#id_to_url').keyup(function(event) {
+          $('#dynamic-redirect').text(outcome(field_from_url, field_to_url, option)); 
+        }); 
       }); 
     }); 
+
   </script>
 {% endblock %}
 
