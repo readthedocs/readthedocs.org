@@ -29,12 +29,10 @@
         if (this.value == 'prefix') {
             $('#id_from_url').parent().show()
             $('#id_to_url').parent().hide()
-            $('#dynamic-redirect').show()
         }
         if (this.value == 'page') {
             $('#id_from_url').parent().show()
             $('#id_to_url').parent().show()
-            $('#dynamic-redirect').show()
         }
         if (this.value == 'sphinx_html' || this.value == 'sphinx_htmldir') {
             $('#id_from_url').parent().hide()
@@ -54,13 +52,10 @@
         var field_from_url = $('#id_from_url').val(""); 
         var field_to_url =  $('#id_to_url').val("");
         var option = $('#id_redirect_type option:selected').text() 
+        $('#dynamic-redirect').hide()
 
-        $('#id_from_url').keyup(function(event) {
-          $('#dynamic-redirect').text(outcome(field_from_url, field_to_url, option)); 
-        }); 
-
-        $('#id_to_url').keyup(function(event) {
-          $('#dynamic-redirect').text(outcome(field_from_url, field_to_url, option)); 
+        $('#id_from_url, #id_to_url').keyup(function(event) {
+          $('#dynamic-redirect').show().text(outcome(field_from_url, field_to_url, option)); 
         }); 
       }); 
     }); 
