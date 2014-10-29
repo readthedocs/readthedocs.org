@@ -40,6 +40,14 @@ class TestBookmarks(TestCase):
         self.assertEqual(bookmark.project.slug, self.project.slug)
         self.assertEqual(Bookmark.objects.count(), 1)
 
+    def test_delete_bookmark_with_get_renders_confirmation_page(self):
+        self.__add_bookmark()
+        response = self.client.get(
+            reverse('bookmark_remove', kwargs={'bookmark_pk': '1'})
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'You sure? O_o')
+
     def test_delete_bookmark_with_url(self):
         self.__add_bookmark()
         response = self.client.post(
