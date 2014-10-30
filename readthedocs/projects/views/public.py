@@ -113,18 +113,18 @@ def project_badge(request, project_slug, redirect=False):
     try:
         version = Version.objects.get(project__slug=project_slug, slug=version_slug)
     except Version.DoesNotExist:
-        url = 'http://img.shields.io/badge/Docs-Unknown%20Version-yellow.svg?style={style}'.format(style=style)
+        url = 'http://img.shields.io/badge/docs-unknown%20version-yellow.svg?style={style}'.format(style=style)
         return _badge_return(redirect, url)
     version_builds = version.builds.filter(type='html', state='finished').order_by('-date')
     if not version_builds.exists():
-        url = 'http://img.shields.io/badge/Docs-No%20Builds-yellow.svg?style={style}'.format(style=style)
+        url = 'http://img.shields.io/badge/docs-no%20builds-yellow.svg?style={style}'.format(style=style)
         return _badge_return(redirect, url)
     last_build = version_builds[0]
     if last_build.success:
         color = 'brightgreen'
     else:
         color = 'red'
-    url = 'http://img.shields.io/badge/Docs-%s-%s.svg?style=%s' % (version.slug.replace('-', '--'), color, style)
+    url = 'http://img.shields.io/badge/docs-%s-%s.svg?style=%s' % (version.slug.replace('-', '--'), color, style)
     return _badge_return(redirect, url)
 
 
