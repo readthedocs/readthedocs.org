@@ -202,6 +202,7 @@ class Project(models.Model):
 
     tags = TaggableManager(blank=True)
     objects = ProjectManager()
+    all_objects = models.Manager()
 
     class Meta:
         ordering = ('slug',)
