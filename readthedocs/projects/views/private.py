@@ -394,8 +394,7 @@ def project_translations(request, project_slug):
 
 @login_required
 def project_translations_delete(request, project_slug, child_slug):
-    project = get_object_or_404(request.user.projects.live(),
-                                slug=project_slug)
+    project = get_object_or_404(request.user.projects.live(), slug=project_slug)
     subproj = get_object_or_404(Project.objects.public(), slug=child_slug)
     project.translations.remove(subproj)
     project_dashboard = reverse('projects_translations', args=[project.slug])
