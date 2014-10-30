@@ -484,6 +484,12 @@ def record_build(api, record, build, results, state):
             build['output'] += results.get(step)[1]
             build['error'] += "\n\n%s\n-----\n\n" % step
             build['error'] += results.get(step)[2]
+
+    # Attempt to stop unicode errors on build reporting
+    for key, val in build.items():
+        if isinstance(val, basestring):
+            build[key] = val.decode('utf-8', 'ignore')
+
     try:
         api.build(build['id']).put(build)
     except Exception:
@@ -503,6 +509,10 @@ def record_pdf(api, record, results, state, version):
             pdf_exit = 999
             pdf_success = False
             pdf_output = pdf_error = "PDF Failed"
+
+        pdf_output = pdf_output.decode('utf-8', 'ignore')
+        pdf_error = pdf_error.decode('utf-8', 'ignore')
+
         api.build.post(dict(
             state=state,
             project='/api/v1/project/%s/' % version.project.pk,
