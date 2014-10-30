@@ -349,7 +349,7 @@ class TranslationForm(forms.Form):
 
     def clean_project(self):
         subproject_name = self.cleaned_data['project']
-        subproject_qs = Project.objects.filter(name=subproject_name)
+        subproject_qs = Project.objects.filter(slug=subproject_name)
         if not subproject_qs.exists():
             raise forms.ValidationError((_("Project %(name)s does not exist")
                                          % {'name': subproject_name}))
