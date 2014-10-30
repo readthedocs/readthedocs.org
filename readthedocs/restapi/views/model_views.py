@@ -76,7 +76,7 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
 
     @decorators.link(permission_classes=[permissions.IsAdminUser])
     def token(self, request, **kwargs):
-        project = get_object_or_404(Project, pk=kwargs['pk'])
+        project = get_object_or_404(Project.all_objects.all(), pk=kwargs['pk'])
         token = oauth_utils.get_token_for_project(project, force_local=True)
         return Response({
             'token': token
@@ -89,7 +89,7 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
 
         Returns the identifiers for the versions that have been deleted.
         """
-        project = get_object_or_404(Project, pk=kwargs['pk'])
+        project = get_object_or_404(Project.all_objects.all(), pk=kwargs['pk'])
         try:
             # Update All Versions
             data = request.DATA
