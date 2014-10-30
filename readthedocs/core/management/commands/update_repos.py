@@ -59,7 +59,7 @@ class Command(BaseCommand):
                                           record=False,
                                           version_pk=version.pk)
                 else:
-                    p = Project.objects.get(slug=slug)
+                    p = Project.all_objects.get(slug=slug)
                     log.info("Building %s" % p)
                     trigger_build(project=p, force=force)
         else:

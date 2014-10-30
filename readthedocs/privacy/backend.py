@@ -8,6 +8,9 @@ from projects import constants
 
 class ProjectManager(models.Manager):
 
+    def get_query_set(self):
+        return super(CorporateProjectManager, self).get_query_set().filter(privacy_level='public')
+
     def _filter_queryset(self, user, privacy_level):
         # Avoid circular import
         from projects.models import Project
