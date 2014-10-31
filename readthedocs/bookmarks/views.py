@@ -26,10 +26,15 @@ def bookmark_add(request):
     """
     if request.method == 'POST':
         post_json = simplejson.loads(request.body)
-        project_slug = post_json['project']
-        version_slug = post_json['version']
-        page_slug = post_json['page']
-        url = post_json['url']
+        try:
+            project_slug = post_json['project']
+            version_slug = post_json['version']
+            page_slug = post_json['page']
+            url = post_json['url']
+        except KeyError:
+            return HttpResponse(simplejson.dumps(
+             {'error': "Invalid parameters"}   
+            ))
 
         project = Project.objects.get(slug=project_slug)
         version = project.versions.get(slug=version_slug)
@@ -43,12 +48,11 @@ def bookmark_add(request):
         )
 
         payload = simplejson.dumps({'added': True})
-        response = HttpResponse(
+        return HttpResponse(
             payload,
             status=201,
             mimetype='text/javascript'
         )
-        return response
     else:
         return HttpResponse(
             simplejson.dumps(
@@ -68,9 +72,14 @@ def bookmark_remove(request, **kwargs):
             bookmark.delete()
             return HttpResponseRedirect(reverse('bookmark_list'))
         else:
-            post_json = simplejson.loads(request.body)
-            project = Project.objects.get(slug=post_json['project'])
-            version = project.versions.get(slug=post_json['version'])
+            try:
+                post_json = simplejson.loads(request.body)
+                project = Project.objects.get(slug=post_json['project'])
+                version = project.versions.get(slug=post_json['version'])
+            except KeyError:
+                return HttpResponse(simplejson.dumps(
+                 {'error': "Invalid parameters"}   
+                ))
 
             bookmark = get_object_or_404(
                 Bookmark,

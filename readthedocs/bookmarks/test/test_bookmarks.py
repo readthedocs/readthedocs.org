@@ -74,3 +74,15 @@ class TestBookmarks(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Bookmark.objects.count(), 0)
+
+    def test_dont_delete_bookmarks_with_bad_json(self):
+        self.__add_bookmark()
+        post_data = {"project": self.project.slug}
+
+        response = self.client.post(
+            reverse('bookmark_remove_json'),
+            data=json.dumps(post_data),
+            content_type="application/json"
+        )
+        self.assertContains(response, 'Invalid parameters')
+        self.assertEqual(Bookmark.objects.count(), 1)
