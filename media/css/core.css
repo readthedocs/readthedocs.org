@@ -582,4 +582,4 @@ select.dropdown { display: none; }
 
 
 /* bookmarking */
-#bookmark-added {display: none;}
+.bookmark-added-msg {display: none;}
