@@ -60,7 +60,7 @@ class Project(models.Model):
     description = models.TextField(_('Description'), blank=True,
                                    help_text=_('The reStructuredText '
                                                'description of the project'))
-    repo = models.CharField(_('Repository URL'), max_length=100,
+    repo = models.CharField(_('Repository URL'), max_length=100, blank=True,
                             help_text=_('Hosted documentation repository URL'))
     repo_type = models.CharField(_('Repository type'), max_length=10,
                                  choices=constants.REPO_CHOICES, default='git')
