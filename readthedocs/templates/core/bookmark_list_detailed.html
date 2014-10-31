@@ -1,12 +1,18 @@
 {% if bookmark_list %}
-    {% for bookmark in bookmark_list %}
-      <li class="module-item">
-        <a class="module-item-title" href="{{ bookmark.get_absolute_url }}">{{ bookmark.project }} - {{ bookmark.page }}</a>
-        <span class="quiet right">{% if bookmark.project.version %}version {{ bookmark.project.version }} -{% endif %} {{ bookmark.date|timesince }} ago
-            <a href="{% url 'bookmark_remove' bookmark.pk %}"><img src="../media/images/bookmark-delete.png" alt="Delete This Bookmark" /></a>
-        </span>
-      </li>
-    {% endfor %}
+    <div class="module-list">
+      <div class="module-list-wrapper">
+        <ul>
+          {% for bookmark in bookmark_list %}
+            <li class="module-item">
+              <a class="module-item-title" href="{{ bookmark.get_absolute_url }}">{{ bookmark.project }} - {{ bookmark.page }}</a>
+              <span class="quiet right">{% if bookmark.project.version %}version {{ bookmark.project.version }} -{% endif %} {{ bookmark.date|timesince }} ago
+                  <a href="{% url 'bookmark_remove' bookmark.pk %}"><img src="../media/images/bookmark-delete.png" alt="Delete This Bookmark" /></a>
+              </span>
+            </li>
+          {% endfor %}
+          </ul>
+        </div>
+      </div>
 {% else %}
-    <li class="module-item"><span class="quiet">No bookmarks added yet</span></li>
+    <p>No bookmarks added yet!</p>
 {% endif %}
