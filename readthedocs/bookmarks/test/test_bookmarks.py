@@ -53,7 +53,7 @@ class TestBookmarks(TestCase):
         response = self.client.post(
             reverse('bookmark_remove', kwargs={'bookmark_pk': '1'})
         )
-        self.assertRedirects(response, reverse('user_bookmarks'))
+        self.assertRedirects(response, reverse('bookmark_list'))
         self.assertEqual(Bookmark.objects.count(), 0)
 
     def test_delete_bookmark_with_json(self):

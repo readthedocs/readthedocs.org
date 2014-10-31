@@ -66,7 +66,7 @@ def bookmark_remove(request, **kwargs):
         if 'bookmark_pk' in kwargs:
             bookmark = get_object_or_404(Bookmark, pk=kwargs['bookmark_pk'])
             bookmark.delete()
-            return HttpResponseRedirect(reverse('user_bookmarks'))
+            return HttpResponseRedirect(reverse('bookmark_list'))
         else:
             post_json = simplejson.loads(request.body)
             project = Project.objects.get(slug=post_json['project'])
