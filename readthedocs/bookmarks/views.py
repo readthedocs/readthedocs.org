@@ -1,30 +1,41 @@
-
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render_to_response
-from django.views.generic import ListView
+from django.views.generic import ListView, View
 from django.core.urlresolvers import reverse
 from django.template import RequestContext
+from django.utils.decorators import method_decorator
 import simplejson
-
 
 from bookmarks.models import Bookmark
 from projects.models import Project
 
 
-class BookmarkList(ListView):
+class BookmarkListView(ListView):
     model = Bookmark
 
     def get_queryset(self):
         return Bookmark.objects.filter(user=self.request.user)
 
 
-@login_required
-def bookmark_add(request):
-    """Add a new bookmark for the current user to point at
-    ``project``, ``version``, ``page``, and ``url``.
-    """
-    if request.method == 'POST':
+class BookmarkAddView(View):
+
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(BookmarkAddView, self).dispatch(*args, **kwargs)
+
+    def get(self, request):
+        return HttpResponse(
+            simplejson.dumps(
+                {'error': 'You must POST!'}
+            ),
+            mimetype='text/javascript'
+        )
+
+    def post(self, request, *args, **kwargs):
+        """Add a new bookmark for the current user to point at
+        ``project``, ``version``, ``page``, and ``url``.
+        """
         post_json = simplejson.loads(request.body)
         try:
             project_slug = post_json['project']
@@ -33,12 +44,11 @@ def bookmark_add(request):
             url = post_json['url']
         except KeyError:
             return HttpResponse(simplejson.dumps(
-             {'error': "Invalid parameters"}   
+                {'error': "Invalid parameters"}
             ))
 
         project = Project.objects.get(slug=project_slug)
         version = project.versions.get(slug=version_slug)
-
         Bookmark.objects.get_or_create(
             user=request.user,
             url=url,
@@ -46,27 +56,26 @@ def bookmark_add(request):
             version=version,
             page=page_slug,
         )
-
-        payload = simplejson.dumps({'added': True})
         return HttpResponse(
-            payload,
+            simplejson.dumps({'added': True}),
             status=201,
             mimetype='text/javascript'
         )
-    else:
-        return HttpResponse(
-            simplejson.dumps(
-                {'error': 'You must POST!'}
-            ),
-            mimetype='text/javascript'
+
+
+class BookmarkRemoveView(View):
+
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(BookmarkRemoveView, self).dispatch(*args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        return render_to_response(
+            'bookmarks/bookmark_delete.html',
+            context_instance=RequestContext(request)
         )
 
-
-@login_required
-def bookmark_remove(request, **kwargs):
-    """Delete a previously-saved bookmark
-    """
-    if request.method == 'POST':
+    def post(self, request, *args, **kwargs):
         if 'bookmark_pk' in kwargs:
             bookmark = get_object_or_404(Bookmark, pk=kwargs['bookmark_pk'])
             bookmark.delete()
@@ -78,7 +87,7 @@ def bookmark_remove(request, **kwargs):
                 version = project.versions.get(slug=post_json['version'])
             except KeyError:
                 return HttpResponse(simplejson.dumps(
-                 {'error': "Invalid parameters"}   
+                    {'error': "Invalid parameters"}
                 ))
 
             bookmark = get_object_or_404(
@@ -96,8 +105,3 @@ def bookmark_remove(request, **kwargs):
                 status=200,
                 mimetype="/text/javascript"
             )
-
-    return render_to_response(
-        'bookmarks/bookmark_delete.html',
-        context_instance=RequestContext(request)
-    )
