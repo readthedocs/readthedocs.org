@@ -14,6 +14,10 @@ from projects.models import Project
 class BookmarkListView(ListView):
     model = Bookmark
 
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(BookmarkListView, self).dispatch(*args, **kwargs)
+
     def get_queryset(self):
         return Bookmark.objects.filter(user=self.request.user)
 
@@ -91,7 +95,6 @@ class BookmarkRemoveView(View):
                 return HttpResponse(simplejson.dumps(
                     {'error': "Invalid parameters"}
                 ))
-
 
             bookmark = get_object_or_404(
                 Bookmark,
