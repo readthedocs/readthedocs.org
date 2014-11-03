@@ -60,13 +60,13 @@
         <!-- These are kept as relative links for internal installs that are http -->
         <dt>On Read the Docs</dt>
         <dd>
-          <a href="//{{ settings.PRODUCTION_DOMAIN }}/projects/{{ project.slug }}/?fromdocs={{ project.slug }}">Project Home</a>
+          <a href="//{{ settings.PRODUCTION_DOMAIN }}{% url 'projects_detail' project.slug %}">Project Home</a>
         </dd>
         <dd>
-          <a href="//{{ settings.PRODUCTION_DOMAIN }}/builds/{{ project.slug }}/?fromdocs={{ project.slug }}">Builds</a>
+          <a href="//{{ settings.PRODUCTION_DOMAIN }}{% url 'builds_project_list' project.slug %}">Builds</a>
         </dd>
         <dd>
-          <a href="//{{ settings.PRODUCTION_DOMAIN }}/projects/{{ project.slug }}/downloads/">Downloads</a>
+          <a href="//{{ settings.PRODUCTION_DOMAIN }}{% url 'project_downloads' project.slug %}">Downloads</a>
         </dd>
       </dl>
       {% if github_edit_url %}
