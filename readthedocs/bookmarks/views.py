@@ -85,18 +85,21 @@ class BookmarkRemoveView(View):
                 post_json = simplejson.loads(request.body)
                 project = Project.objects.get(slug=post_json['project'])
                 version = project.versions.get(slug=post_json['version'])
+                url = post_json['url']
+                page = post_json['page']
             except KeyError:
                 return HttpResponse(simplejson.dumps(
                     {'error': "Invalid parameters"}
                 ))
 
+
             bookmark = get_object_or_404(
                 Bookmark,
                 user=request.user,
-                url=post_json['url'],
+                url=url,
                 project=project,
                 version=version,
-                page=post_json['page']
+                page=page
             )
             bookmark.delete()
 
