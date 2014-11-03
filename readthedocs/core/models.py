@@ -1,3 +1,5 @@
+import logging
+
 from django.db import models
 from django.db.models.signals import post_save
 from django.db.utils import DatabaseError
@@ -6,6 +8,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 
 STANDARD_EMAIL = "anonymous@readthedocs.org"
 
+log = logging.getLogger(__name__)
 
 class UserProfile (models.Model):
     """Additional information about a User.
@@ -56,4 +59,4 @@ def create_profile(sender, **kwargs):
         try:
             UserProfile.objects.create(user_id=kwargs['instance'].id, whitelisted=False)
         except DatabaseError:
-            pass
+            log.error('Failed to create user profile', exc_info=True)
