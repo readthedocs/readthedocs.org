@@ -93,11 +93,6 @@
         </p>
         {% endblock %}
 
-        <p>
-        Change Site Language
-        </p>
-
-
         {% get_current_language as current_lang %}
         <form action="/i18n/setlang/" method="post">{% csrf_token %}
           <input name="next" type="hidden" value="/" />
@@ -118,18 +113,6 @@
         <br>
         <br>
 
-        <p>
-        Read the Docs Announcements
-        <!-- Begin MailChimp Signup Form -->
-        <div id="mc_embed_signup">
-        <form action="http://readthedocs.us3.list-manage2.com/subscribe/post?u=a6a22369cc2b356379cf789ca&amp;id=1759385fc5" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
-                <input  style="float: left; height: 20px;"type="email" value="" name="EMAIL" class="email" id="mce-EMAIL" placeholder="email address" required>
-                <input style="float: left; height: 33px; margin: 0px;" type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe">
-        </form>
-        </div>
-        </p>
-
-        <!--End mc_embed_signup-->
       </div>
     </div>
     <!-- END footer-->
