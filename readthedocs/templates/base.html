@@ -93,11 +93,6 @@
         </p>
         {% endblock %}
 
-        <p>
-        Change Site Language
-        </p>
-
-
         {% get_current_language as current_lang %}
         <form action="/i18n/setlang/" method="post">{% csrf_token %}
           <input name="next" type="hidden" value="/" />
