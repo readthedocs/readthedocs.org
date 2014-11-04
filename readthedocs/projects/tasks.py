@@ -19,6 +19,7 @@ from builds.models import Build, Version
 from core.utils import send_email
 from doc_builder.loader import loading as builder_loading
 from doc_builder.base import restoring_chdir
+from doc_builder.environments import DockerEnvironment
 from projects.exceptions import ProjectImportError
 from projects.models import ImportedFile, Project
 from projects.utils import run, make_api_version, make_api_project
@@ -77,9 +78,10 @@ def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
         if vcs_results:
             results.update(vcs_results)
 
-        if docker:
+        if docker or settings.DOCKER_ENABLE:
             record_build(api=api, build=build, record=record, results=results, state='building')
-            build_results = run_docker(version)
+            docker = DockerEnvironment(version)
+            build_results = docker.build()
             results.update(build_results)
         else:
             record_build(api=api, build=build, record=record, results=results, state='installing')
@@ -137,48 +139,16 @@ def ensure_version(api, project, version_pk):
     return version
 
 
-def run_docker(version):
-    serialized_path = os.path.join(version.project.doc_path, 'build.json')
-    if os.path.exists(serialized_path):
-        os.remove(serialized_path)
-    path = version.project.doc_path
-    docker_results = run('docker run -v %s:/home/docs/checkouts/readthedocs.org/user_builds/%s ericholscher/readthedocs-build /bin/bash /home/docs/run.sh %s' %
-                         (path, version.project.slug, version.project.slug))
-    path = os.path.join(version.project.doc_path, 'build.json')
-    if os.path.exists(path):
-        json_file = open(path)
-        serialized_results = json.load(json_file)
-        json_file.close()
-    else:
-        serialized_results = {}
-    return serialized_results
-
-
-def docker_build(version_pk, pdf=True, man=True, epub=True, dash=True, search=True, force=False, intersphinx=True, localmedia=True):
+def docker_build(version, pdf=True, man=True, epub=True, dash=True,
+                 search=True, force=False, intersphinx=True, localmedia=True):
     """
     The code that executes inside of docker
     """
-    version_data = api.version(version_pk).get()
-    version = make_api_version(version_data)
-
     environment_results = setup_environment(version)
     results = build_docs(version=version, force=force, pdf=pdf, man=man,
                          epub=epub, dash=dash, search=search, localmedia=localmedia)
     results.update(environment_results)
-    try:
-        number = uuid.uuid4()
-        path = os.path.join(version.project.doc_path, 'build.json')
-        fh = open(path, 'w')
-        json.dump(results, fh)
-        fh.close()
-    except IOError as e:
-        log.debug(LOG_TEMPLATE.format(
-            project=version.project.slug,
-            version='',
-            msg='Cannot write to build.json: {0}'.format(e)
-        ))
-        return None
-    return number
+    return results
 
 
 def setup_vcs(version, build, api):
@@ -361,11 +331,16 @@ def build_docs(version, force, pdf, man, epub, dash, search, localmedia):
         results['html'] = html_builder.build()
         if results['html'][0] == 0:
             html_builder.move()
-        move_files.delay(
-            version_pk=version.pk,
-            html=True,
-            hostname=socket.gethostname(),
-        )
+
+        # Gracefully attempt to move files via task on web workers.
+        try:
+            move_files.delay(
+                version_pk=version.pk,
+                html=True,
+                hostname=socket.gethostname(),
+            )
+        except socket.error:
+            pass
 
         fake_results = (999, "Project Skipped, Didn't build",
                         "Project Skipped, Didn't build")

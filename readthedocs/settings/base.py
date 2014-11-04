@@ -53,6 +53,10 @@ LOGIN_REDIRECT_URL = '/dashboard/'
 FORCE_WWW = False
 #APPEND_SLASH = False
 
+# Docker
+DOCKER_ENABLE = False
+DOCKER_IMAGE = 'rtfd-build'
+
 TIME_ZONE = 'America/Chicago'
 LANGUAGE_CODE = 'en-us'
 LANGUAGES = (
