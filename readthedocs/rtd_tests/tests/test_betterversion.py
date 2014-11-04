@@ -1,6 +1,6 @@
 import unittest
 
-from ..better import version_windows, BetterVersion 
+from betterversion.better import version_windows, BetterVersion 
 
 class TestSequenceFunctions(unittest.TestCase):
 
