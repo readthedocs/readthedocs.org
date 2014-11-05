@@ -31,10 +31,11 @@ class BookmarkAddView(View):
 
     def get(self, request):
         return HttpResponse(
-            simplejson.dumps(
+            content=simplejson.dumps(
                 {'error': 'You must POST!'}
             ),
-            mimetype='text/javascript'
+            content_type='text/javascript',
+            status=405
         )
 
     def post(self, request, *args, **kwargs):
@@ -94,8 +95,8 @@ class BookmarkRemoveView(View):
                 page = post_json['page']
             except KeyError:
                 return HttpResponseBadRequest(
-                    simplejson.dumps({'error': "Invalid parameters"}
-                ))
+                    simplejson.dumps({'error': "Invalid parameters"})
+                )
 
             bookmark = get_object_or_404(
                 Bookmark,

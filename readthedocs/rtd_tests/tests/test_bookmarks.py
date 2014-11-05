@@ -34,6 +34,11 @@ class TestBookmarks(TestCase):
         self.assertEqual(response.status_code, 201)
         return Bookmark.objects.get(pk=1)
 
+    def test_add_bookmark_denies_get_requests(self):
+        response = self.client.get(reverse('bookmarks_add'))
+        self.assertEqual(response.status_code, 405)
+        self.assertContains(response, 'You must POST!', status_code=405)
+
     def test_add_bookmark(self):
         bookmark = self.__add_bookmark()
         self.assertEqual(bookmark.user, self.user)
