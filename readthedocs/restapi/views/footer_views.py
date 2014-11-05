@@ -27,7 +27,7 @@ def footer_html(request):
     main_project = project.main_language_project or project
 
     if page_slug and page_slug != "index":
-        if main_project.documentation_type == "sphinx_htmldir":
+        if main_project.documentation_type == "sphinx_htmldir" or main_project.documentation_type == "mkdocs":
             path =  page_slug + "/"
         elif main_project.documentation_type == "sphinx_singlehtml":
             path = "index.html#document-" + page_slug
