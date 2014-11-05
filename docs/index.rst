@@ -65,6 +65,16 @@ Features
     single_version
     privacy
 
+.. _business-docs:
+
+Business Documentation
+----------------------
+
+.. toctree::
+    :maxdepth: 2
+
+   business/index
+
 .. _dev-docs:
 
 Developer Documentation
