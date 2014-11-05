@@ -14,6 +14,6 @@ this is our solution.
 
 .. toctree:: Contents
 
-   sharing
    organizations
+   sharing
    analytics
