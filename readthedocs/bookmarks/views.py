@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, render_to_response
 from django.views.generic import ListView, View
 from django.core.urlresolvers import reverse
@@ -92,8 +93,8 @@ class BookmarkRemoveView(View):
                 url = post_json['url']
                 page = post_json['page']
             except KeyError:
-                return HttpResponse(simplejson.dumps(
-                    {'error': "Invalid parameters"}
+                return HttpResponseBadRequest(
+                    simplejson.dumps({'error': "Invalid parameters"}
                 ))
 
             bookmark = get_object_or_404(

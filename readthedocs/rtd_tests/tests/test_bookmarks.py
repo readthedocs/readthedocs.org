@@ -84,5 +84,7 @@ class TestBookmarks(TestCase):
             data=json.dumps(post_data),
             content_type="application/json"
         )
-        self.assertContains(response, 'Invalid parameters')
+
+        self.assertEqual(response.status_code, 400)
         self.assertEqual(Bookmark.objects.count(), 1)
+        self.assertContains(response, "Invalid parameters", status_code=400)
