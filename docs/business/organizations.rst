@@ -11,9 +11,9 @@ some who need full access and some who just need access to one project.
 Member Types
 ~~~~~~~~~~~~
 
-* Owners -- Get full access to both view and edit the Organization and all Projects
-* Members -- Get access to a subset of the Organization projects
-* Teams -- Where you give members access to a set of projects.
+* **Owners** -- Get full access to both view and edit the Organization and all Projects
+* **Members** -- Get access to a subset of the Organization projects
+* **Teams** -- Where you give members access to a set of projects.
 
 The best way to think about this relationship is:
 
