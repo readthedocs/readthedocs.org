@@ -6,6 +6,7 @@ from django.views.generic import ListView, View
 from django.core.urlresolvers import reverse
 from django.template import RequestContext
 from django.utils.decorators import method_decorator
+from django.core.exceptions import ObjectDoesNotExist
 import simplejson
 
 from bookmarks.models import Bookmark
@@ -13,6 +14,7 @@ from projects.models import Project
 
 
 class BookmarkListView(ListView):
+    """ Displays all of a logged-in user's bookmarks """
     model = Bookmark
 
     @method_decorator(login_required)
@@ -24,6 +26,7 @@ class BookmarkListView(ListView):
 
 
 class BookmarkAddView(View):
+    """ Adds bookmarks in response to POST requests """
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
@@ -49,12 +52,20 @@ class BookmarkAddView(View):
             page_slug = post_json['page']
             url = post_json['url']
         except KeyError:
-            return HttpResponse(simplejson.dumps(
-                {'error': "Invalid parameters"}
-            ))
+            return HttpResponseBadRequest(
+                content=simplejson.dumps({'error': "Invalid parameters"})
+            )
 
-        project = Project.objects.get(slug=project_slug)
-        version = project.versions.get(slug=version_slug)
+        try:
+            project = Project.objects.get(slug=project_slug)
+            version = project.versions.get(slug=version_slug)
+        except ObjectDoesNotExist:
+            return HttpResponseBadRequest(
+                content=simplejson.dumps(
+                    {'error': "Project or Version does not exist"}
+                )
+            )
+
         Bookmark.objects.get_or_create(
             user=request.user,
             url=url,
@@ -70,6 +81,10 @@ class BookmarkAddView(View):
 
 
 class BookmarkRemoveView(View):
+    """
+    Deletes a user's bookmark in response to a POST request.
+    Renders a delete? confirmaton page in response to a GET request.
+    """
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
@@ -82,6 +97,10 @@ class BookmarkRemoveView(View):
         )
 
     def post(self, request, *args, **kwargs):
+        """
+        Will delete bookmark with a primary key from the url
+        or using json data in request.
+        """
         if 'bookmark_pk' in kwargs:
             bookmark = get_object_or_404(Bookmark, pk=kwargs['bookmark_pk'])
             bookmark.delete()
