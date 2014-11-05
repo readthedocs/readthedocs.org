@@ -266,6 +266,20 @@ GRAVATAR_DEFAULT_IMAGE = 'http://media.readthedocs.org/images/silhouette.png'
 
 LOG_FORMAT = "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s"
 
+RESTRUCTUREDTEXT_FILTER_SETTINGS = {
+    'cloak_email_addresses': True,
+    'file_insertion_enabled': False,
+    'raw_enabled': False,
+    'strip_comments': True,
+    'doctitle_xform': True,
+    'sectsubtitle_xform': True,
+    'initial_header_level': 2,
+    'report_level': 5,
+    'syntax_highlight' : 'none',
+    'math_output' : 'latex',
+    'field_name_limit': 50,
+}
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,
