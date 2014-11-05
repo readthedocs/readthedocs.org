@@ -16,3 +16,4 @@ this is our solution.
 
    sharing
    organizations
+   analytics
