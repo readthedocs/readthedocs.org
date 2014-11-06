@@ -7,12 +7,14 @@ from django.core.urlresolvers import reverse
 from django.template import RequestContext
 from django.utils.decorators import method_decorator
 from django.core.exceptions import ObjectDoesNotExist
+from django.views.decorators.csrf import csrf_exempt
 import simplejson
 
 from bookmarks.models import Bookmark
 from projects.models import Project
 
 
+@csrf_exempt
 def bookmark_exists(request):
     """
     Returns 200 response with exists = True in json if bookmark exists.
