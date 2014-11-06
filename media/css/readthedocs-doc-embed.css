@@ -19,3 +19,8 @@
 nav.stickynav {
 	position: absolute;
 }
+
+/* bookmark icon */
+.bookmark-added-msg {display: none;}
+.bookmark-active {display: none;}
+.bookmark-inactive {display: none;}
