@@ -18,7 +18,7 @@ from projects.models import Project, ImportedFile
 from projects.utils import highest_version, mkversion, slugify_uniquely
 from djangome import views as djangome
 
-from .utils import SearchMixin, PostAuthentication 
+from .utils import SearchMixin, PostAuthentication
 
 log = logging.getLogger(__name__)
 
@@ -68,8 +68,6 @@ class ProjectResource(ModelResource, SearchMixin):
         updated_bundle = self.obj_create(bundle, request=request)
         return HttpCreated(location=self.get_resource_uri(updated_bundle))
 
-
-
     def sync_versions(self, request, **kwargs):
         """
         Sync the version data in the repo (on the build server) with what we have in the database.
@@ -97,7 +95,6 @@ class ProjectResource(ModelResource, SearchMixin):
                 response_class=HttpApplicationError,
             )
         return self.create_response(request, deleted_versions)
-
 
     def override_urls(self):
         return [
@@ -138,8 +135,7 @@ class VersionResource(ModelResource):
     #     return bundle
 
     def get_object_list(self, request):
-        self._meta.queryset = Version.objects.public(user=request.user,
-                                                     only_active=False)
+        self._meta.queryset = Version.objects.public(user=request.user, only_active=False)
         return super(VersionResource, self).get_object_list(request)
 
     def version_compare(self, request, **kwargs):
@@ -211,7 +207,7 @@ class BuildResource(ModelResource):
         always_return_data = True
         include_absolute_url = True
         allowed_methods = ['get', 'post', 'put']
-        queryset = Build.objects.all()
+        queryset = Build.objects.public()
         authentication = PostAuthentication()
         authorization = DjangoAuthorization()
         filtering = {
@@ -220,6 +216,10 @@ class BuildResource(ModelResource):
             "type": ALL_WITH_RELATIONS,
             "state": ALL_WITH_RELATIONS,
         }
+
+    def get_object_list(self, request):
+        self._meta.queryset = Build.objects.public(user=request.user)
+        return super(VersionResource, self).get_object_list(request)
 
     def override_urls(self):
         return [
@@ -279,6 +279,7 @@ class FileResource(ModelResource, SearchMixin):
 
 
 class UserResource(ModelResource):
+
     class Meta:
         allowed_methods = ['get']
         queryset = User.objects.all()

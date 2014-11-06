@@ -12,7 +12,7 @@ class BuildList(ListView):
         self.project_slug = self.kwargs.get('project_slug', None)
 
         self.project = get_object_or_404(
-            Project.objects.protected(self.request.user),
+            Project.objects.public(self.request.user),
             slug=self.project_slug
         )
         queryset = Build.objects.filter(project=self.project)
@@ -37,7 +37,7 @@ class BuildDetail(DetailView):
         self.project_slug = self.kwargs.get('project_slug', None)
 
         self.project = get_object_or_404(
-            Project.objects.protected(self.request.user),
+            Project.objects.public(self.request.user),
             slug=self.project_slug
         )
         queryset = Build.objects.filter(project=self.project)

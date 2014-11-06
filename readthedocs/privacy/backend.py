@@ -8,64 +8,72 @@ from projects import constants
 
 class ProjectManager(models.Manager):
 
-    def _filter_queryset(self, user, privacy_level):
+    def _add_user_repos(self, queryset, user):
         # Avoid circular import
         from projects.models import Project
-        if isinstance(privacy_level, basestring):
-            privacy_level = (privacy_level,)
-        queryset = Project.objects.filter(privacy_level__in=privacy_level)
-        if not user:
-            return queryset
-        else:
-            # Hack around get_objects_for_user not supporting global perms
-            global_access = user.has_perm('projects.view_project')
-            if global_access:
-                queryset = Project.objects.all()
+        # Show all projects to super user
+        if user.has_perm('projects.view_project'):
+            return Project.objects.all()
+        # Show user projects to user
         if user.is_authenticated():
             # Add in possible user-specific views
             user_queryset = get_objects_for_user(user, 'projects.view_project')
-            queryset = user_queryset | queryset
-        return queryset.filter()
+            return user_queryset | queryset
+        # User has no special privs
+        return queryset
 
-    def live(self, *args, **kwargs):
-        base_qs = self.filter(skip=False)
-        return base_qs.filter(*args, **kwargs)
+    def for_user_and_viewer(self, user, viewer, *args, **kwargs):
+        """
+        Show projects that a user owns, that another user can see.
+        """
+        queryset = self.filter(privacy_level=constants.PUBLIC)
+        queryset = self._add_user_repos(queryset, viewer)
+        queryset = queryset.filter(users__in=[user])
+        return queryset
+
+    def for_admin_user(self, user=None, *args, **kwargs):
+        return self.filter(users__in=[user])
 
     def public(self, user=None, *args, **kwargs):
-        """
-        Query for projects, privacy_level == public
-        """
-        queryset = self._filter_queryset(user, privacy_level=constants.PUBLIC)
-        return queryset.filter(*args, **kwargs)
-
-    def protected(self, user=None, *args, **kwargs):
-        """
-        Query for projects, privacy_level != private
-        """
-        queryset = self._filter_queryset(user,
-                                         privacy_level=(constants.PUBLIC,
-                                                        constants.PROTECTED))
-        return queryset.filter(*args, **kwargs)
-
-    def private(self, user=None, *args, **kwargs):
-        """
-        Query for projects, privacy_level != private
-        """
-        queryset = self._filter_queryset(user, privacy_level=constants.PRIVATE)
-        return queryset.filter(*args, **kwargs)
+        queryset = self.filter(privacy_level=constants.PUBLIC)
+        if user:
+            return self._add_user_repos(queryset, user)
+        else:
+            return queryset
 
 
-class VersionManager(models.Manager):
+class RelatedProjectManager(models.Manager):
 
-    def _filter_queryset(self, user, project, privacy_level, only_active):
-        # Avoid circular import
-        from builds.models import Version
-        if isinstance(privacy_level, basestring):
-            privacy_level = (privacy_level,)
-        queryset = Version.objects.filter(privacy_level__in=privacy_level)
-        # Remove this so we can use public() for all active public projects
-        # if not user and not project:
-            # return queryset
+    def _add_user_repos(self, queryset, user=None, *args, **kwargs):
+        # Hack around get_objects_for_user not supporting global perms
+        if user.has_perm('projects.view_project'):
+            return self.get_queryset.all()
+        if user.is_authenticated():
+            # Add in possible user-specific views
+            project_qs = get_objects_for_user(user, 'projects.view_project')
+            pks = [p.pk for p in project_qs]
+            queryset = self.get_queryset().filter(project__pk__in=pks) | queryset
+        return queryset
+
+    def public(self, user=None, project=None, *args, **kwargs):
+        queryset = self.filter(project__privacy_level=constants.PUBLIC)
+        if user:
+            queryset = self._add_user_repos(queryset, user)
+        if project:
+            queryset = queryset.filter(project=project)
+        return queryset
+
+
+class VersionManager(RelatedProjectManager):
+
+    def public(self, user=None, project=None, only_active=True, *args, **kwargs):
+        queryset = super(VersionManager, self).public(user, project)
+        if only_active:
+            queryset = queryset.filter(active=True)
+        return queryset
+
+    def _add_user_repos(self, queryset, user=None, *args, **kwargs):
+        super(VersionManager, self)._add_user_repos(queryset, user)
         if user and user.is_authenticated():
             # Add in possible user-specific views
             user_queryset = get_objects_for_user(user, 'builds.view_version')
@@ -74,53 +82,8 @@ class VersionManager(models.Manager):
             # Hack around get_objects_for_user not supporting global perms
             global_access = user.has_perm('builds.view_version')
             if global_access:
-                queryset = Version.objects.all()
-        if project:
-            # Filter by project if requested
-            queryset = queryset.filter(project=project)
-        if only_active:
-            queryset = queryset.filter(active=True)
+                queryset = self.get_queryset().all()
         return queryset
-
-    def active(self, user=None, project=None, *args, **kwargs):
-        queryset = self._filter_queryset(
-            user,
-            project,
-            privacy_level=(constants.PUBLIC, constants.PROTECTED,
-                           constants.PRIVATE),
-            only_active=True,
-        )
-        return queryset.filter(*args, **kwargs)
-
-    def public(self, user=None, project=None, only_active=True, *args,
-               **kwargs):
-        queryset = self._filter_queryset(
-            user,
-            project,
-            privacy_level=(constants.PUBLIC),
-            only_active=only_active
-        )
-        return queryset.filter(*args, **kwargs)
-
-    def protected(self, user=None, project=None, only_active=True, *args,
-                  **kwargs):
-        queryset = self._filter_queryset(
-            user,
-            project,
-            privacy_level=(constants.PUBLIC, constants.PROTECTED),
-            only_active=only_active
-        )
-        return queryset.filter(*args, **kwargs)
-
-    def private(self, user=None, project=None, only_active=True, *args,
-                **kwargs):
-        queryset = self._filter_queryset(
-            user,
-            project,
-            privacy_level=(constants.PRIVATE),
-            only_active=only_active
-        )
-        return queryset.filter(*args, **kwargs)
 
 
 class AdminPermission(object):
@@ -128,5 +91,3 @@ class AdminPermission(object):
     @classmethod
     def is_admin(cls, user, project):
         return user in project.users.all()
-
-

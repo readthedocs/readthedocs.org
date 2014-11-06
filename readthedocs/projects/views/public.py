@@ -12,7 +12,6 @@ from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
 from django.views.generic import ListView
 from django.utils.datastructures import SortedDict
-from django.views.static import serve
 
 from taggit.models import Tag
 import requests
@@ -33,11 +32,6 @@ class ProjectIndex(ListView):
 
     def get_queryset(self):
         queryset = Project.objects.public(self.request.user)
-        if self.kwargs.get('username'):
-            self.user = get_object_or_404(User, username=self.kwargs.get('username'))
-            queryset = queryset.filter(user=self.user)
-        else:
-            self.user = None
 
         if self.kwargs.get('tag'):
             self.tag = get_object_or_404(Tag, slug=self.kwargs.get('tag'))
@@ -60,7 +54,7 @@ def project_detail(request, project_slug):
     """
     A detail view for a project with various dataz
     """
-    queryset = Project.objects.protected(request.user)
+    queryset = Project.objects.public(request.user)
     project = get_object_or_404(queryset, slug=project_slug)
     versions = project.versions.public(request.user, project)
     filter = VersionSlugFilter(request.GET, queryset=versions)
@@ -111,7 +105,7 @@ def project_badge(request, project_slug, redirect=False):
     version_slug = request.GET.get('version', 'latest')
     style = request.GET.get('style', 'flat')
     try:
-        version = Version.objects.get(project__slug=project_slug, slug=version_slug)
+        version = Version.objects.public(request.user).get(project__slug=project_slug, slug=version_slug)
     except Version.DoesNotExist:
         url = 'http://img.shields.io/badge/Docs-Unknown%20Version-yellow.svg?style={style}'.format(style=style)
         return _badge_return(redirect, url)
@@ -132,8 +126,7 @@ def project_downloads(request, project_slug):
     """
     A detail view for a project with various dataz
     """
-    project = get_object_or_404(Project.objects.protected(request.user),
-                                slug=project_slug)
+    project = get_object_or_404(Project.objects.public(request.user), slug=project_slug)
     versions = project.ordered_active_versions()
     version_data = SortedDict()
     for version in versions:
@@ -170,7 +163,7 @@ def project_download_media(request, project_slug, type, version_slug):
     Perform an auth check if serving in private mode.
     """
     # Do private project auth checks
-    queryset = Project.objects.protected(request.user).filter(slug=project_slug)
+    queryset = Project.objects.public(request.user).filter(slug=project_slug)
     if not queryset.exists():
         raise Http404
     DEFAULT_PRIVACY_LEVEL = getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public')
@@ -203,8 +196,7 @@ def search_autocomplete(request):
         term = request.GET['term']
     else:
         raise Http404
-    queryset = (Project.objects.public(request.user)
-                .filter(name__icontains=term)[:20])
+    queryset = (Project.objects.public(request.user).filter(name__icontains=term)[:20])
 
     ret_list = []
     for project in queryset:
@@ -221,7 +213,7 @@ def version_autocomplete(request, project_slug):
     """
     return a json list of version names
     """
-    queryset = Project.objects.protected(request.user)
+    queryset = Project.objects.public(request.user)
     get_object_or_404(queryset, slug=project_slug)
     versions = Version.objects.public(request.user)
     if 'term' in request.GET:
@@ -237,7 +229,7 @@ def version_autocomplete(request, project_slug):
 
 
 def version_filter_autocomplete(request, project_slug):
-    queryset = Project.objects.protected(request.user)
+    queryset = Project.objects.public(request.user)
     project = get_object_or_404(queryset, slug=project_slug)
     versions = Version.objects.public(request.user)
     filter = VersionSlugFilter(request.GET, queryset=versions)
@@ -286,7 +278,7 @@ def elastic_project_search(request, project_slug):
     """
     Use elastic search to search in a project.
     """
-    queryset = Project.objects.protected(request.user)
+    queryset = Project.objects.public(request.user)
     project = get_object_or_404(queryset, slug=project_slug)
     version_slug = request.GET.get('version', 'latest')
     query = request.GET.get('q', None)

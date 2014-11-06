@@ -4,6 +4,7 @@ from django.conf import settings
 # Managers
 ProjectManager = import_by_path(getattr(settings, 'PROJECT_MANAGER', 'privacy.backend.ProjectManager'))
 VersionManager = import_by_path(getattr(settings, 'VERSION_MANAGER', 'privacy.backend.VersionManager'))
+RelatedProjectManager = import_by_path(getattr(settings, 'RELATED_PROJECT_MANAGER', 'privacy.backend.RelatedProjectManager'))
 
 # Permissions
 AdminPermission = import_by_path(getattr(settings, 'ADMIN_PERMISSION', 'privacy.backend.AdminPermission'))

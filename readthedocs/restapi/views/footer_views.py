@@ -8,6 +8,7 @@ from rest_framework.response import Response
 
 from projects.models import Project
 
+
 @decorators.api_view(['GET'])
 @decorators.permission_classes((permissions.AllowAny,))
 @decorators.renderer_classes((JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
@@ -23,16 +24,16 @@ def footer_html(request):
     new_theme = (theme == "sphinx_rtd_theme")
     using_theme = (theme == "default")
     project = get_object_or_404(Project, slug=project_slug)
-    version = get_object_or_404(project.versions.all(), slug=version_slug)
+    version = get_object_or_404(project.versions.public(request.user), slug=version_slug)
     main_project = project.main_language_project or project
 
     if page_slug and page_slug != "index":
         if main_project.documentation_type == "sphinx_htmldir" or main_project.documentation_type == "mkdocs":
-            path =  page_slug + "/"
+            path = page_slug + "/"
         elif main_project.documentation_type == "sphinx_singlehtml":
             path = "index.html#document-" + page_slug
         else:
-            path =  page_slug + ".html"
+            path = page_slug + ".html"
     else:
         path = ""
 
@@ -56,7 +57,7 @@ def footer_html(request):
 
     html = template_loader.get_template('restapi/footer.html').render(context)
     return Response({
-        'html': html, 
+        'html': html,
         'version_active': version.active,
         'version_supported': version.supported,
     })

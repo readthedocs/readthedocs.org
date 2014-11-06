@@ -85,35 +85,6 @@ class PrivacyTests(TestCase):
         r = self.client.get('/projects/django-kong/downloads/')
         self.assertEqual(r.status_code, 404)
 
-    def test_protected_repo(self):
-        """Check that protected projects don't show up in: builds, downloads,
-        detail, project list
-
-        """
-        self._create_kong('protected', 'protected')
-
-        self.client.login(username='eric', password='test')
-        r = self.client.get('/projects/')
-        self.assertTrue('Django Kong' in r.content)
-        r = self.client.get('/projects/django-kong/')
-        self.assertEqual(r.status_code, 200)
-        r = self.client.get('/builds/django-kong/')
-        self.assertEqual(r.status_code, 200)
-        r = self.client.get('/projects/django-kong/downloads/')
-        self.assertEqual(r.status_code, 200)
-
-        self.client.login(username='tester', password='test')
-        r = self.client.get('/')
-        self.assertTrue('Django Kong' not in r.content)
-        r = self.client.get('/projects/')
-        self.assertTrue('Django Kong' not in r.content)
-        r = self.client.get('/projects/django-kong/')
-        self.assertEqual(r.status_code, 200)
-        r = self.client.get('/builds/django-kong/')
-        self.assertEqual(r.status_code, 200)
-        r = self.client.get('/projects/django-kong/downloads/')
-        self.assertEqual(r.status_code, 200)
-
     def test_public_repo(self):
         """Check that public projects show up in: builds, downloads, detail,
         homepage
@@ -145,22 +116,6 @@ class PrivacyTests(TestCase):
                                verbose_name='test verbose', privacy_level='private', slug='test-slug', active=True)
         self.assertEqual(Version.objects.count(), 2)
         self.assertEqual(Version.objects.get(slug='test-slug').privacy_level, 'private')
-        r = self.client.get('/projects/django-kong/')
-        self.assertTrue('test-slug' in r.content)
-
-        # Make sure it doesn't show up as tester
-        self.client.login(username='tester', password='test')
-        r = self.client.get('/projects/django-kong/')
-        self.assertTrue('test-slug' not in r.content)
-
-    def test_protected_branch(self):
-        kong = self._create_kong('public', 'protected')
-
-        self.client.login(username='eric', password='test')
-        Version.objects.create(project=kong, identifier='test id',
-                               verbose_name='test verbose', privacy_level='protected', slug='test-slug', active=True)
-        self.assertEqual(Version.objects.count(), 2)
-        self.assertEqual(Version.objects.get(slug='test-slug').privacy_level, 'protected')
         r = self.client.get('/projects/django-kong/')
         self.assertTrue('test-slug' in r.content)
 
@@ -206,32 +161,6 @@ class PrivacyTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         data = json.loads(resp.content)
         self.assertEqual(data['meta']['total_count'], 1)
-
-    def test_protected_repo_api(self):
-        self._create_kong('protected', 'protected')
-        self.client.login(username='eric', password='test')
-        resp = self.client.get("http://testserver/api/v1/project/django-kong/",
-                               data={"format": "json"})
-        self.assertEqual(resp.status_code, 200)
-        resp = self.client.get("http://testserver/api/v1/project/",
-                               data={"format": "json"})
-        data = json.loads(resp.content)
-        self.assertEqual(data['meta']['total_count'], 1)
-
-        self.client.login(username='tester', password='test')
-        resp = self.client.get("http://testserver/api/v1/project/",
-                               data={"format": "json"})
-        data = json.loads(resp.content)
-        self.assertEqual(data['meta']['total_count'], 0)
-
-        # Need to figure out how to properly filter the detail view in
-        # tastypie.  Protected stuff won't show up in detail pages on the API
-        # currently.
-        """
-        resp = self.client.get("http://testserver/api/v1/project/django-kong/",
-                               data={"format": "json"})
-        self.assertEqual(resp.status_code, 200)
-        """
 
     def test_private_repo_api(self):
         self._create_kong('private', 'private')
