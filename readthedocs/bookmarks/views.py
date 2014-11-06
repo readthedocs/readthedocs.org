@@ -13,6 +13,41 @@ from bookmarks.models import Bookmark
 from projects.models import Project
 
 
+def bookmark_exists(request):
+    """
+    Returns 200 response with exists = True in json if bookmark exists.
+    Returns 404 with exists = False in json if no matching bookmark is found.
+    Returns 400 if json data is missing any one of: project, version, page
+    """
+    post_json = simplejson.loads(request.body)
+    try:
+        project = post_json['project']
+        version = post_json['version']
+        page = post_json['page']
+    except KeyError:
+        return HttpResponseBadRequest(
+            content=simplejson.dumps({'error': 'Invalid parameters'})
+        )
+    try:
+        Bookmark.objects.get(
+            project__slug=project,
+            version__slug=version,
+            page=page
+        )
+    except ObjectDoesNotExist:
+        return HttpResponse(
+            content=simplejson.dumps({'exists': False}),
+            status=404,
+            mimetype="application/json"
+        )
+
+    return HttpResponse(
+        content=simplejson.dumps({'exists': True}),
+        status=200,
+        mimetype="application/json"
+    )
+
+
 class BookmarkListView(ListView):
     """ Displays all of a logged-in user's bookmarks """
     model = Bookmark
@@ -76,7 +111,7 @@ class BookmarkAddView(View):
         return HttpResponse(
             simplejson.dumps({'added': True}),
             status=201,
-            mimetype='text/javascript'
+            mimetype='application/json'
         )
 
 
@@ -130,5 +165,5 @@ class BookmarkRemoveView(View):
             return HttpResponse(
                 simplejson.dumps({'removed': True}),
                 status=200,
-                mimetype="/text/javascript"
+                mimetype="application/json"
             )

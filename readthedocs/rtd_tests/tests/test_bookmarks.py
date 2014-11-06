@@ -106,3 +106,32 @@ class TestBookmarks(TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(Bookmark.objects.count(), 1)
         self.assertContains(response, "Invalid parameters", status_code=400)
+
+    def test_bookmark_exists_true_when_exists(self):
+        bookmark = self.__add_bookmark()
+        post_data = {
+            'project': bookmark.project.slug,
+            'version': bookmark.version.slug,
+            'page': bookmark.page
+        }
+
+        response = self.client.post(
+            reverse('bookmark_exists'),
+            data=json.dumps(post_data),
+            content_type="application/json"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(json.loads(response.content)['exists'])
+
+    def test_bookmark_exists_false_when_does_not_exist(self):
+        response = self.client.post(
+            reverse('bookmark_exists'),
+            data=json.dumps(
+                {'project': 'dont-read-docs', 'version': '', 'page': ''}
+            ),
+            content_type="application/json"
+        )
+
+        self.assertEqual(response.status_code, 404)
+        self.assertFalse(json.loads(response.content)['exists'])
