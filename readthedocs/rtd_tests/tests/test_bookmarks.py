@@ -124,7 +124,7 @@ class TestBookmarks(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(json.loads(response.content)['exists'])
 
-    def test_bookmark_exists_false_when_does_not_exist(self):
+    def test_bookmark_exists_404_when_does_not_exist(self):
         response = self.client.post(
             reverse('bookmark_exists'),
             data=json.dumps(
