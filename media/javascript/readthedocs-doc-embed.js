@@ -142,15 +142,6 @@ $(document).ready(function () {
                 return cookieValue;
             }
 
-            // Bookmark Handling
-            $(".bookmark-icon").on('click', function (event) {
-              data = {
-                  project: READTHEDOCS_DATA['project'],
-                  version: READTHEDOCS_DATA['version'],
-                  page: READTHEDOCS_DATA['page'],
-                  url: document.location.origin + document.location.pathname
-              };
-
               function csrfSafeMethod(method) {
                   // these HTTP methods do not require CSRF protection
                   return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
@@ -163,8 +154,33 @@ $(document).ready(function () {
                       }
                   }
               });
-              
-              var bookmarked = ( $("div.bookmark-icon > a > img").attr('src') === "/media/images/bookmark-icon-active.png");
+
+            // Bookmark Handling
+            data = {
+                project: READTHEDOCS_DATA['project'],
+                version: READTHEDOCS_DATA['version'],
+                page: READTHEDOCS_DATA['page'],
+                url: document.location.origin + document.location.pathname
+            };
+
+            // ask the server if a bookmark exists for this page so we can show the proper icon
+            $.ajax({
+                    type: 'POST',
+                    url: API_HOST + "/bookmarks/exists/",
+                    data: JSON.stringify(data),
+                    success: function (data) {
+                      $(".bookmark-active").show();
+                    },
+                    error: function(data) {
+                      $(".bookmark-inactive").show();
+                    },
+                    dataType: 'json'
+            });
+
+            $(".bookmark-icon").on('click', function (event) {
+              var bookmarked = $('.bookmark-active').is(':visible');
+              $('div.bookmark-active').toggle();
+              $('div.bookmark-inactive').toggle();
 
               if (bookmarked) {
                   $.ajax({
@@ -172,7 +188,6 @@ $(document).ready(function () {
                     url: API_HOST + "/bookmarks/remove/",
                     data: JSON.stringify(data),
                     });
-                  $("div.bookmark-icon > a > img").attr('src', "/media/images/bookmark-icon-default.png");
                   $(".bookmark-added-msg").hide();
               } else {
                   $.ajax({
@@ -180,7 +195,6 @@ $(document).ready(function () {
                     url: API_HOST + "/bookmarks/add/",
                     data: JSON.stringify(data),
                     });
-                    $("div.bookmark-icon > a > img").attr('src', "/media/images/bookmark-icon-active.png");
                     $(".bookmark-added-msg").html("<p><a href='/bookmarks'>Bookmark</a> added</p>");
                     $(".bookmark-added-msg").show();
               }
