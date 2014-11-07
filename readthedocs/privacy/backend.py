@@ -91,7 +91,12 @@ class VersionManager(RelatedProjectManager):
         return queryset.distinct()
 
     def public(self, user=None, project=None, only_active=True, *args, **kwargs):
-        queryset = super(VersionManager, self).public(user, project)
+        queryset = self.filter(project__privacy_level=constants.PUBLIC, privacy_level=constants.PUBLIC)
+        if user:
+            queryset = self._add_user_repos(queryset, user)
+        if project:
+            queryset = queryset.filter(project=project)
+        return queryset
         if only_active:
             queryset = queryset.filter(active=True)
         return queryset
