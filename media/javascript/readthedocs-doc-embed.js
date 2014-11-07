@@ -77,7 +77,7 @@ $(document).ready(function () {
               var csrftoken = getCookie('csrftoken');
               $.ajaxSetup({
                   beforeSend: function(xhr, settings) {
-                      if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                      if (!csrfSafeMethod(settings.type)) {
                           xhr.setRequestHeader("X-CSRFToken", csrftoken);
                       }
                   }
@@ -96,7 +96,6 @@ $(document).ready(function () {
                     type: 'POST',
                     url: API_HOST + "/bookmarks/exists/",
                     data: JSON.stringify(data),
-                    headers: { 'X-CSRFToken': getCookie('csrftoken') },
                     success: function (data) {
                       $(".bookmark-active").show();
                     },
@@ -116,7 +115,6 @@ $(document).ready(function () {
                     type: "POST",
                     url: API_HOST + "/bookmarks/remove/",
                     data: JSON.stringify(data),
-                    headers: { 'X-CSRFToken': getCookie('csrftoken') },
                     });
                   //$(".bookmark-added-msg").hide();
               } else {
@@ -124,7 +122,6 @@ $(document).ready(function () {
                     type: "POST",
                     url: API_HOST + "/bookmarks/add/",
                     data: JSON.stringify(data),
-                    headers: { 'X-CSRFToken': getCookie('csrftoken') },
                     });
                     //$(".bookmark-added-msg").html("<p><a href='/bookmarks'>Bookmark</a> added</p>");
                     //$(".bookmark-added-msg").show();
