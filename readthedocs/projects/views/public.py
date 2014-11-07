@@ -56,7 +56,7 @@ def project_detail(request, project_slug):
     """
     queryset = Project.objects.protected(request.user)
     project = get_object_or_404(queryset, slug=project_slug)
-    versions = project.versions.public(request.user, project)
+    versions = Version.objects.public(user=request.user, project=project)
     filter = VersionSlugFilter(request.GET, queryset=versions)
     if request.is_secure():
         protocol = 'https'

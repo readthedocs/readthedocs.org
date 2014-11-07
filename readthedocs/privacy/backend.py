@@ -103,7 +103,6 @@ class VersionManager(RelatedProjectManager):
             queryset = self._add_user_repos(queryset, user)
         if project:
             queryset = queryset.filter(project=project)
-        return queryset
         if only_active:
             queryset = queryset.filter(active=True)
         return queryset

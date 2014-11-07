@@ -14,6 +14,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from guardian.shortcuts import assign
 
+from builds.models import Version
 from builds.forms import AliasForm, VersionForm
 from builds.filters import VersionFilter
 from builds.models import VersionAlias
@@ -148,7 +149,7 @@ def project_versions(request, project_slug):
 @login_required
 def project_version_detail(request, project_slug, version_slug):
     project = get_object_or_404(Project.objects.for_admin_user(request.user), slug=project_slug)
-    version = get_object_or_404(project.versions.public(request.user), slug=version_slug)
+    version = get_object_or_404(Version.objects.public(user=request.user, project=project), slug=version_slug)
 
     form = VersionForm(request.POST or None, instance=version)
 

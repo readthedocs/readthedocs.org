@@ -423,9 +423,8 @@ def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
     if not project_slug:
         project_slug = request.slug
     try:
-        proj = Project.objects.get(slug=project_slug)
-        ver = Version.objects.get(
-            project__slug=project_slug, slug=version_slug)
+        proj = Project.objects.protected(request.user).get(slug=project_slug)
+        ver = Version.objects.public(request.user).get(project__slug=project_slug, slug=version_slug)
     except (Project.DoesNotExist, Version.DoesNotExist):
         proj = None
         ver = None
