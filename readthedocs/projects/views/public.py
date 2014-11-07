@@ -54,7 +54,7 @@ def project_detail(request, project_slug):
     """
     A detail view for a project with various dataz
     """
-    queryset = Project.objects.public(request.user)
+    queryset = Project.objects.protected(request.user)
     project = get_object_or_404(queryset, slug=project_slug)
     versions = project.versions.public(request.user, project)
     filter = VersionSlugFilter(request.GET, queryset=versions)
@@ -126,7 +126,7 @@ def project_downloads(request, project_slug):
     """
     A detail view for a project with various dataz
     """
-    project = get_object_or_404(Project.objects.public(request.user), slug=project_slug)
+    project = get_object_or_404(Project.objects.protected(request.user), slug=project_slug)
     versions = project.ordered_active_versions()
     version_data = SortedDict()
     for version in versions:
@@ -163,7 +163,7 @@ def project_download_media(request, project_slug, type, version_slug):
     Perform an auth check if serving in private mode.
     """
     # Do private project auth checks
-    queryset = Project.objects.public(request.user).filter(slug=project_slug)
+    queryset = Project.objects.protected(request.user).filter(slug=project_slug)
     if not queryset.exists():
         raise Http404
     DEFAULT_PRIVACY_LEVEL = getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public')
@@ -278,7 +278,7 @@ def elastic_project_search(request, project_slug):
     """
     Use elastic search to search in a project.
     """
-    queryset = Project.objects.public(request.user)
+    queryset = Project.objects.protected(request.user)
     project = get_object_or_404(queryset, slug=project_slug)
     version_slug = request.GET.get('version', 'latest')
     query = request.GET.get('q', None)
