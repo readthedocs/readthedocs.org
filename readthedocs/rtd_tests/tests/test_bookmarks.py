@@ -135,3 +135,8 @@ class TestBookmarks(TestCase):
 
         self.assertEqual(response.status_code, 404)
         self.assertFalse(json.loads(response.content)['exists'])
+
+    def test_bookmark_exists_forbids_GET(self):
+        response = self.client.get(reverse('bookmark_exists'))
+        self.assertEqual(response.status_code, 405)
+        self.assertNotContains(response, 'exists', status_code=405)

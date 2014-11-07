@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, url
 from bookmarks.views import BookmarkListView
 from bookmarks.views import BookmarkAddView, BookmarkRemoveView
-from bookmarks.views import bookmark_exists
+from bookmarks.views import BookmarkExistsView
 
 urlpatterns = patterns(
     # base view, flake8 complains if it is on the previous line.
@@ -22,5 +22,7 @@ urlpatterns = patterns(
         BookmarkRemoveView.as_view(),
         name='bookmark_remove_json'),
 
-    url(r'^exists/$', bookmark_exists, name='bookmark_exists'),
+    url(r'^exists/$',
+        BookmarkExistsView.as_view(),
+        name='bookmark_exists'),
 )

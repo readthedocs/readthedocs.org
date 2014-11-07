@@ -14,40 +14,55 @@ from bookmarks.models import Bookmark
 from projects.models import Project
 
 
-@csrf_exempt
-def bookmark_exists(request):
-    """
-    Returns 200 response with exists = True in json if bookmark exists.
-    Returns 404 with exists = False in json if no matching bookmark is found.
-    Returns 400 if json data is missing any one of: project, version, page
-    """
-    post_json = simplejson.loads(request.body)
-    try:
-        project = post_json['project']
-        version = post_json['version']
-        page = post_json['page']
-    except KeyError:
-        return HttpResponseBadRequest(
-            content=simplejson.dumps({'error': 'Invalid parameters'})
-        )
-    try:
-        Bookmark.objects.get(
-            project__slug=project,
-            version__slug=version,
-            page=page
-        )
-    except ObjectDoesNotExist:
+class BookmarkExistsView(View):
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, *args, **kwargs):
+        return super(BookmarkExistsView, self).dispatch(*args, **kwargs)
+
+    def get(self, request):
         return HttpResponse(
-            content=simplejson.dumps({'exists': False}),
-            status=404,
-            mimetype="application/json"
+            content=simplejson.dumps(
+                {'error': 'You must POST!'}
+            ),
+            content_type='application/json',
+            status=405
         )
 
-    return HttpResponse(
-        content=simplejson.dumps({'exists': True}),
-        status=200,
-        mimetype="application/json"
-    )
+    def post(self, request, *args, **kwargs):
+        """
+        Returns:
+            200 response with exists = True in json if bookmark exists.
+            404 with exists = False in json if no matching bookmark is found.
+            400 if json data is missing any one of: project, version, page.
+        """
+        post_json = simplejson.loads(request.body)
+        try:
+            project = post_json['project']
+            version = post_json['version']
+            page = post_json['page']
+        except KeyError:
+            return HttpResponseBadRequest(
+                content=simplejson.dumps({'error': 'Invalid parameters'})
+            )
+        try:
+            Bookmark.objects.get(
+                project__slug=project,
+                version__slug=version,
+                page=page
+            )
+        except ObjectDoesNotExist:
+            return HttpResponse(
+                content=simplejson.dumps({'exists': False}),
+                status=404,
+                mimetype="application/json"
+            )
+
+        return HttpResponse(
+            content=simplejson.dumps({'exists': True}),
+            status=200,
+            mimetype="application/json"
+        )
 
 
 class BookmarkListView(ListView):
@@ -74,7 +89,7 @@ class BookmarkAddView(View):
             content=simplejson.dumps(
                 {'error': 'You must POST!'}
             ),
-            content_type='text/javascript',
+            content_type='application/json',
             status=405
         )
 
