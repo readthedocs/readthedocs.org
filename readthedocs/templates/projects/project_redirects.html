@@ -8,34 +8,57 @@
 {% block project_edit_content_header %}{% trans "Redirects" %}{% endblock %}
 
 {% block extra_scripts %}
-  <script type="text/javascript">
-    $(document).ready(function() {
-      $('#id_from_url').parent().hide()
-      $('#id_to_url').parent().hide()
-     $('#id_redirect_type').on('change', function() {
-        if (this.value == 'prefix') {
-            $('#id_from_url').parent().show()
-            $('#id_to_url').parent().hide()
-        }
-        if (this.value == 'page') {
-            $('#id_from_url').parent().show()
-            $('#id_to_url').parent().show()
-        }
-        if (this.value == 'exact') {
-            $('#id_from_url').parent().show()
-            $('#id_to_url').parent().show()
-        }
-        if (this.value == 'sphinx_html' || this.value == 'sphinx_htmldir') {
+    <script type="text/javascript">
+
+        var update_outcome = function(ev) {     
+            var field_from_url = $('#id_from_url'); 
+                field_to_url =  $('#id_to_url');
+                option = $('#id_redirect_type').val();  
+                redirect_from = ""; 
+                redirect_target = ""; 
+
+            if (option === "prefix") {
+                redirect_from = field_from_url.val() + "faq.html";
+                redirect_target = "/$lang/$version/faq.html";
+            }
+            else if (option === "page" ) {
+                redirect_from = "/$lang/$version/" + field_from_url.val();
+                redirect_target = "/$lang/$version/" + field_to_url.val();
+            }
+
+            if (redirect_from && redirect_target) { 
+                var result = "Outcome: " + redirect_from + " -> " + redirect_target; 
+                $('#dynamic-redirect').text(result).show(); 
+            } else { 
+                $('#dynamic-redirect').text("").hide(); 
+            }
+        }; 
+
+        $(document).ready(function() {
             $('#id_from_url').parent().hide()
             $('#id_to_url').parent().hide()
-        }
-        if (this.value == 'advanced') {
-            $('#id_from_url').parent().show()
-            $('#id_to_url').parent().show()
-        }
-    }); 
-    });
-  </script>
+            $('#dynamic-redirect').hide()
+
+            $('#id_redirect_type').bind('change click', function(ev) {
+                $('#id_from_url').val('');
+                $('#id_to_url').val('');
+                $('#id_from_url').parent().hide()
+                $('#id_to_url').parent().hide()
+
+                if (this.value == 'prefix') {
+                    $('#id_from_url').parent().show()
+                    $('#id_to_url').parent().hide()
+                }
+                else if (this.value == 'page') {
+                    $('#id_from_url').parent().show()
+                    $('#id_to_url').parent().show()
+                }
+            update_outcome(ev); 
+          }); 
+          $('#id_from_url, #id_to_url').keyup(update_outcome);
+        });
+
+    </script>
 {% endblock %}
 
 {% block project_edit_content %}
@@ -71,30 +94,9 @@
     </p>
   {% endif %}
 
-  <h3>{% trans "Add Redirect" %}</h3>
-  <p>
-    {% trans "Add new redirects. These will only happen on <b>404 Page Not Found</b> requests." %}
-  </p>
-  <p>
-    {% trans "This is mainly used to support migration from old doc systems. If you used to serve your docs at <b>/docs/</b>, you will do:" %}
-  </p>
-  <pre>
-    Type: Prefix Redirect
-    From URL: /docs/
-    Outcome: /docs/faq.html -> /$lang/$version/faq.html
-  </pre>
-  <p>
-    {% trans "You can also redirect a specific page, like so:" %}
-  </p>
-  <pre>
-    Type: Page Redirect
-    From URL: example.html
-    To URL: examples/intro.html
-    Outcome: /$lang/$version/example.html -> /$lang/$version/examples/intro.html
-  </pre>
-
   <form method="post" action=".">{% csrf_token %}
     {{ form.as_p }}
+    <div id="dynamic-redirect" class="empty"></div>
     <p>
       <input style="display: inline;" type="submit" value="{% trans "Submit" %}">
     </p>
