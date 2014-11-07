@@ -13,9 +13,13 @@ import simplejson
 from bookmarks.models import Bookmark
 from projects.models import Project
 
+# These views are CSRF exempt because of Django's CSRF middleware failing here
+# https://github.com/django/django/blob/stable/1.6.x/django/middleware/csrf.py#L135-L159
+# We don't have a valid referrer because we're on a subdomain
 
 class BookmarkExistsView(View):
 
+    @method_decorator(csrf_exempt)
     def dispatch(self, *args, **kwargs):
         return super(BookmarkExistsView, self).dispatch(*args, **kwargs)
 
@@ -80,6 +84,7 @@ class BookmarkAddView(View):
     """ Adds bookmarks in response to POST requests """
 
     @method_decorator(login_required)
+    @method_decorator(csrf_exempt)
     def dispatch(self, *args, **kwargs):
         return super(BookmarkAddView, self).dispatch(*args, **kwargs)
 
@@ -138,6 +143,7 @@ class BookmarkRemoveView(View):
     """
 
     @method_decorator(login_required)
+    @method_decorator(csrf_exempt)
     def dispatch(self, *args, **kwargs):
         return super(BookmarkRemoveView, self).dispatch(*args, **kwargs)
 
