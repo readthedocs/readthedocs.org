@@ -45,7 +45,7 @@ def footer_html(request):
             version=version,
             page=page_slug,
         )
-    except (Bookmark.DoesNotExist, Bookmark.MultipleObjectsReturned):
+    except (Bookmark.DoesNotExist, Bookmark.MultipleObjectsReturned, Exception):
         bookmark = None
 
     context = Context({
