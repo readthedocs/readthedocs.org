@@ -78,6 +78,7 @@ $(document).ready(function () {
                   beforeSend: function(xhr, settings) {
                       if (!csrfSafeMethod(settings.type)) {
                           xhr.setRequestHeader("X-CSRFToken", $('a.bookmark[token]').attr('token'));
+                          xhr.setRequestHeader("Referer", "https://readthedocs.com"); // Hack around django https referrer checking
                       }
                   }
               });
