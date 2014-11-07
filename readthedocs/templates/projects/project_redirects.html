@@ -25,6 +25,10 @@
                 redirect_from = "/$lang/$version/" + field_from_url.val();
                 redirect_target = "/$lang/$version/" + field_to_url.val();
             }
+            else if (option === "exact" ) {
+                redirect_from =  field_from_url.val();
+                redirect_target =  field_to_url.val();
+            }
 
             if (redirect_from && redirect_target) { 
                 var result = "Outcome: " + redirect_from + " -> " + redirect_target; 
@@ -39,7 +43,7 @@
             $('#id_to_url').parent().hide()
             $('#dynamic-redirect').hide()
 
-            $('#id_redirect_type').bind('change click', function(ev) {
+            $('#id_redirect_type').bind('change', function(ev) {
                 $('#id_from_url').val('');
                 $('#id_to_url').val('');
                 $('#id_from_url').parent().hide()
