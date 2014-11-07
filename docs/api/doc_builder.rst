@@ -6,6 +6,11 @@
 .. automodule:: doc_builder.base
     :members:
 
+:mod:`doc_builder.envrionments`
+-------------------------------
+.. automodule:: doc_builder.environments
+    :members:
+
 :mod:`doc_builder.backends`
 ----------------------------------
 
