@@ -77,7 +77,7 @@ $(document).ready(function () {
               var csrftoken = getCookie('csrftoken');
               $.ajaxSetup({
                   beforeSend: function(xhr, settings) {
-                      if (!csrfSafeMethod(settings.type)) {
+                      if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
                           xhr.setRequestHeader("X-CSRFToken", csrftoken);
                       }
                   }
@@ -95,6 +95,10 @@ $(document).ready(function () {
             $.ajax({
                     type: 'POST',
                     url: API_HOST + "/bookmarks/exists/",
+                    crossDomain: true,
+                    xhrFields: {
+                      withCredentials: true,
+                    },
                     data: JSON.stringify(data),
                     success: function (data) {
                       $(".bookmark-active").show();
@@ -113,6 +117,10 @@ $(document).ready(function () {
               if (bookmarked) {
                   $.ajax({
                     type: "POST",
+                    crossDomain: true,
+                    xhrFields: {
+                      withCredentials: true,
+                    },
                     url: API_HOST + "/bookmarks/remove/",
                     data: JSON.stringify(data),
                     });
@@ -120,6 +128,10 @@ $(document).ready(function () {
               } else {
                   $.ajax({
                     type: "POST",
+                    crossDomain: true,
+                    xhrFields: {
+                      withCredentials: true,
+                    },
                     url: API_HOST + "/bookmarks/add/",
                     data: JSON.stringify(data),
                     });
