@@ -53,6 +53,10 @@
                     $('#id_from_url').parent().show()
                     $('#id_to_url').parent().show()
                 }
+                else if (this.value == 'exact') {
+                    $('#id_from_url').parent().show()
+                    $('#id_to_url').parent().show()
+                }
             update_outcome(ev); 
           }); 
           $('#id_from_url, #id_to_url').keyup(update_outcome);
