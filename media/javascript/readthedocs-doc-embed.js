@@ -96,6 +96,7 @@ $(document).ready(function () {
                     type: 'POST',
                     url: API_HOST + "/bookmarks/exists/",
                     data: JSON.stringify(data),
+                    headers: { 'X-CSRFToken': getCookie('csrftoken') },
                     success: function (data) {
                       $(".bookmark-active").show();
                     },
@@ -115,6 +116,7 @@ $(document).ready(function () {
                     type: "POST",
                     url: API_HOST + "/bookmarks/remove/",
                     data: JSON.stringify(data),
+                    headers: { 'X-CSRFToken': getCookie('csrftoken') },
                     });
                   //$(".bookmark-added-msg").hide();
               } else {
@@ -122,6 +124,7 @@ $(document).ready(function () {
                     type: "POST",
                     url: API_HOST + "/bookmarks/add/",
                     data: JSON.stringify(data),
+                    headers: { 'X-CSRFToken': getCookie('csrftoken') },
                     });
                     //$(".bookmark-added-msg").html("<p><a href='/bookmarks'>Bookmark</a> added</p>");
                     //$(".bookmark-added-msg").show();
