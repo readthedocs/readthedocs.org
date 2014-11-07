@@ -50,7 +50,7 @@ class RelatedProjectManager(models.Manager):
     def _add_user_repos(self, queryset, user=None, *args, **kwargs):
         # Hack around get_objects_for_user not supporting global perms
         if user.has_perm('projects.view_project'):
-            return self.get_queryset.all()
+            return self.get_queryset().all()
         if user.is_authenticated():
             # Add in possible user-specific views
             project_qs = get_objects_for_user(user, 'projects.view_project')
