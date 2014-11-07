@@ -16,15 +16,12 @@ class Command(BaseCommand):
     args = '<files>'
 
     def handle(self, files=None, *args, **options):
-        if files is None:
-            files = '-'
 
         def _return_json(output):
             return json.dumps(output)
 
         try:
-            fh = fileinput.FileInput(files)
-            input_data = ''.join([line for line in fh])
+            input_data = self._get_input(files)
             version_data = json.loads(input_data)
             version = tasks.make_api_version(version_data)
             log.info('Building %s', version)
@@ -35,3 +32,9 @@ class Command(BaseCommand):
                                                            str(e)))})
         finally:
             print(output)
+
+    def _get_input(self, files=None):
+        if files is None:
+            files = '-'
+        fh = fileinput.FileInput(files)
+        return ''.join([line for line in fh])
