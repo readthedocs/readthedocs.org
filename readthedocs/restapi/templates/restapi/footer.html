@@ -56,6 +56,7 @@
         {% endfor %}
       </dl>
       {% endif %}
+
       <dl>
         <!-- These are kept as relative links for internal installs that are http -->
         <dt>On Read the Docs</dt>
@@ -69,6 +70,29 @@
           <a href="//{{ settings.PRODUCTION_DOMAIN }}{% url 'project_downloads' project.slug %}">Downloads</a>
         </dd>
       </dl>
+
+      <dl>
+        <dt>Bookmark</dt>
+        <dd>
+
+          <div class="bookmark-icon">
+            <div class='bookmark-inactive'>
+              <a token="{% csrf_token %}">
+                <img src="/media/images/bookmark-icon-default.png" />
+              </a>
+            </div>
+
+            <div class="bookmark-active">
+              <a token="{% csrf_token %}">
+                <img src="/media/images/bookmark-icon-active.png" />
+              </a>
+            </div>
+
+            <div class="bookmark-added-msg"></div>
+          </div>
+        </dd>
+      </dl>
+
       {% if github_edit_url %}
       <dl>
         <dt>On GitHub</dt>
@@ -99,27 +123,7 @@
         </dd>
       </dl>
 
-      <dl>
-        <dt>Bookmark</dt>
-        <dd>
 
-          <div class="bookmark-icon">
-            <div class='bookmark-inactive'>
-              <a token="{% csrf_token %}">
-                <img src="/media/images/bookmark-icon-default.png" />
-              </a>
-            </div>
-
-            <div class="bookmark-active">
-              <a token="{% csrf_token %}">
-                <img src="/media/images/bookmark-icon-active.png" />
-              </a>
-            </div>
-
-            <div class="bookmark-added-msg"></div>
-          </div>
-        </dd>
-      </dl>
 
       <hr/>
       Free document hosting provided by <a href="https://readthedocs.org">Read the Docs</a>. Support us on <a href="https://www.gittip.com/readthedocs/">Gittip</a>.
