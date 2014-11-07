@@ -1,6 +1,7 @@
 import os.path
 import shutil
 import uuid
+import re
 
 from django.test import TestCase
 from django.contrib.auth.models import User
@@ -82,7 +83,8 @@ class TestBuildCommand(TestCase):
         cmd = BuildCommand('/non-existant/foobar')
         with cmd:
             cmd.run()
-        self.assertIn('No such file or directory', cmd.error)
+        missing_re = re.compile(r'(?:No such file or directory|not found)')
+        self.assertRegexpMatches(cmd.error, missing_re)
 
     def test_input(self):
         '''Test input to command'''
