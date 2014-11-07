@@ -1,8 +1,5 @@
 '''
-Documentatiion Build Environments
-
-Developing Docker Containers
-----------------------------
+Documentation Builder Environments
 '''
 
 import os
@@ -27,8 +24,7 @@ class EnvironmentBase(object):
 
     Placeholder for reorganizing command execution.
 
-    version
-        Project version that is being built
+    :param version: Project version that is being built
     '''
 
     def __init__(self, version):
@@ -37,15 +33,15 @@ class EnvironmentBase(object):
     def response(self, cmd, step='doc_builder'):
         '''Render a response for reporting to the build command page
 
-        cmd
-            :py:cls:`BuildCommand` instance after executing run, or dict
+        :param cmd:
+            :py:class:`BuildCommand` instance after executing run, or dict
             containing the same keys to mock a cmd response.
 
-        step
+        :param step:
             Result step for output page
 
-        .. note:: This should return an actual object, or handle organizing
-            information to post to the API for per-process commands.
+        .. note:: In the future, this should return an actual object, or handle
+            organizing command return to the API on a per-command basis.
 
         '''
         resp = {'status': None, 'output': None, 'error': None}
@@ -72,8 +68,7 @@ class DockerEnvironment(EnvironmentBase):
     machine, walling off project builds from reading/writing other projects'
     data.
 
-    version
-        Project version to be building
+    :param version: Project version to be building
     '''
 
     def container_id(self):
@@ -93,8 +88,12 @@ class DockerEnvironment(EnvironmentBase):
         process, JSON is output on STDOUT and read by this command, converting
         it back into a results dictionary.
 
+        We also set environment settings to pass into the docker command, for
+        overriding settings in the subprocess django instance inside the
+        container.
+
         .. note:: This is a temporary hack.
-            We should need to pass JSON back and forth, but cutting off all
+            We shouldn't need to pass JSON back and forth, but cutting off all
             access to API and Celery is a necessary part of containing builds.
             In the future, builds should happen in a contained environment like
             LXC or Docker containers, but this code should managed build state
@@ -139,9 +138,13 @@ class DockerEnvironment(EnvironmentBase):
                                           'error': str(e)})
 
     def env_settings(self):
-        '''Get certain settings we want and make them into environment variables
+        '''Return local django settings as environment variables
 
-        Do not, not, not pass anything secure here.
+        This is used when passing in env variables to the subprocess management
+        command, instead of requiring docker containers have a settings file
+        installed with each build of the docker image.
+
+        .. warning:: Never, ever, pass secure data as an evironment variable.
         '''
         env = {}
         for key in ['SLUMBER_API_HOST', 'PRODUCTION_DOMAIN']:
@@ -151,14 +154,16 @@ class DockerEnvironment(EnvironmentBase):
 
 
 class BuildCommand(object):
-    """
-    Run one or more commands, and return ``(status, out, err)``.
-    If more than one command is given, then this is equivalent to
-    chaining them together with ``&&``; if all commands succeed, then
-    ``(status, out, err)`` will represent the last successful command.
-    If one command failed, then ``(status, out, err)`` will represent
-    the failed command.
-    """
+    '''Wrap command execution for execution in build environments
+
+    This wraps subprocess commands with some logic to handle exceptions,
+    logging, and setting up the env for the build command.
+
+    :param command: string or array of command parameters
+    :param cwd: current working path
+    :param shell: execute command in shell, default=True
+    :param environment: environment variables to add to environment
+    '''
 
     def __init__(self, command, cwd=None, shell=True, environment=None):
         self.command = command
@@ -184,6 +189,7 @@ class BuildCommand(object):
         self.environment.update(environment)
 
     def __exit__(self, exc_type, exc_value, tb):
+        '''Intercept exceptions for logging and let exception pass through'''
         if exc_type is not None:
             self.output = ''
             self.error = traceback.format_exc()
@@ -192,6 +198,12 @@ class BuildCommand(object):
                       exc_info=True)
 
     def run(self, cmd_input=None, combine_output=False):
+        '''Set up subprocess and execute command
+
+        :param cmd_input: input to pass to command in STDIN
+        :type cmd_input: str
+        :param combine_output: combine STDERR into STDOUT
+        '''
         log.info("Running: '%s' [%s]", self.get_command(), self.cwd)
 
         stdin = None
@@ -215,6 +227,7 @@ class BuildCommand(object):
         self.status = proc.returncode
 
     def get_command(self):
+        '''Flatten command'''
         if isinstance(self.command, list):
             return ' '.join(self.command)
         else:
@@ -232,25 +245,25 @@ class DockerBuildCommand(BuildCommand):
 
     Build command to execute in docker container
 
-    command
+    :param command:
         Command to run as a string or a lists of strings to be joined as
         space-separated.
 
-    image
+    :param image:
         Docker image to run a container from. This is set in settings as well
 
-    mounts
+    :param mounts:
         List of tuples defining pairs of paths to be mounted, the first
         element should be the host path, the second should be the
         container's path.
 
-    user
+    :param user:
         User to run command as
 
-    name
+    :param name:
         Container name
 
-    remove
+    :param remove:
         Automatically remove container after container command exits
     '''
 
