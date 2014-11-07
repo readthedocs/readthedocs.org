@@ -53,14 +53,6 @@ $(document).ready(function () {
                 //$('.rst-current-version').addClass('rst-active-old-version')
             }
 
-            /// Read the Docs theme code
-            if (docCookies.hasItem('menu')) {
-              menu_cookie = docCookies.getItem('menu');
-              if (menu_cookie == 'open') {
-                $("[data-toggle='rst-versions']").addClass("shift-up");
-              }
-            }
-
             // using jQuery
             function getCookie(name) {
                 var cookieValue = null;
@@ -124,15 +116,15 @@ $(document).ready(function () {
                     url: API_HOST + "/bookmarks/remove/",
                     data: JSON.stringify(data),
                     });
-                  $(".bookmark-added-msg").hide();
+                  //$(".bookmark-added-msg").hide();
               } else {
                   $.ajax({
                     type: "POST",
                     url: API_HOST + "/bookmarks/add/",
                     data: JSON.stringify(data),
                     });
-                    $(".bookmark-added-msg").html("<p><a href='/bookmarks'>Bookmark</a> added</p>");
-                    $(".bookmark-added-msg").show();
+                    //$(".bookmark-added-msg").html("<p><a href='/bookmarks'>Bookmark</a> added</p>");
+                    //$(".bookmark-added-msg").show();
               }
             });
       },
@@ -155,16 +147,6 @@ $(document).ready(function () {
     });
     $(document).on('click', "[data-toggle='rst-current-version']", function() {
       $("[data-toggle='rst-versions']").toggleClass("shift-up");
-      if (docCookies.hasItem('menu')) {
-        menu_cookie = docCookies.getItem('menu');
-        if (menu_cookie == 'open') {
-          docCookies.setItem('menu', 'close');
-        } else {
-          docCookies.setItem('menu', 'open');
-        }
-      } else {
-          docCookies.setItem('menu', 'open');
-        }
     });
     // Make tables responsive
     $("table.docutils:not(.field-list)").wrap("<div class='wy-table-responsive'></div>");
