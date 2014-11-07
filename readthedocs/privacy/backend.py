@@ -20,7 +20,7 @@ class ProjectManager(models.Manager):
             user_queryset = get_objects_for_user(user, 'projects.view_project')
             return user_queryset | queryset
         # User has no special privs
-        return queryset
+        return queryset.distinct()
 
     def for_user_and_viewer(self, user, viewer, *args, **kwargs):
         """
@@ -56,7 +56,7 @@ class RelatedProjectManager(models.Manager):
             project_qs = get_objects_for_user(user, 'projects.view_project')
             pks = [p.pk for p in project_qs]
             queryset = self.get_queryset().filter(project__pk__in=pks) | queryset
-        return queryset
+        return queryset.distinct()
 
     def public(self, user=None, project=None, *args, **kwargs):
         queryset = self.filter(project__privacy_level=constants.PUBLIC)
@@ -69,14 +69,8 @@ class RelatedProjectManager(models.Manager):
 
 class VersionManager(RelatedProjectManager):
 
-    def public(self, user=None, project=None, only_active=True, *args, **kwargs):
-        queryset = super(VersionManager, self).public(user, project)
-        if only_active:
-            queryset = queryset.filter(active=True)
-        return queryset
-
     def _add_user_repos(self, queryset, user=None, *args, **kwargs):
-        super(VersionManager, self)._add_user_repos(queryset, user)
+        queryset = super(VersionManager, self)._add_user_repos(queryset, user)
         if user and user.is_authenticated():
             # Add in possible user-specific views
             user_queryset = get_objects_for_user(user, 'builds.view_version')
@@ -86,6 +80,12 @@ class VersionManager(RelatedProjectManager):
             global_access = user.has_perm('builds.view_version')
             if global_access:
                 queryset = self.get_queryset().all()
+        return queryset.distinct()
+
+    def public(self, user=None, project=None, only_active=True, *args, **kwargs):
+        queryset = super(VersionManager, self).public(user, project)
+        if only_active:
+            queryset = queryset.filter(active=True)
         return queryset
 
 
