@@ -77,7 +77,7 @@ $(document).ready(function () {
               var csrftoken = getCookie('csrftoken');
               $.ajaxSetup({
                   beforeSend: function(xhr, settings) {
-                      if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                      if (!csrfSafeMethod(settings.type)) {
                           xhr.setRequestHeader("X-CSRFToken", csrftoken);
                       }
                   }
