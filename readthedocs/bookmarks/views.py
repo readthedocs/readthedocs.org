@@ -16,7 +16,6 @@ from projects.models import Project
 
 class BookmarkExistsView(View):
 
-    @method_decorator(csrf_exempt)
     def dispatch(self, *args, **kwargs):
         return super(BookmarkExistsView, self).dispatch(*args, **kwargs)
 
