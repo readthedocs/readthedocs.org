@@ -17,23 +17,14 @@
             <div class="module-wrapper">
 
               <div class="module-header">
-                <h2>{% trans "Recent Bookmarks" %}</h2>
+                  <h2>{% trans "All Bookmarks" %}</h2>
               </div>
-
-              <div class="module-list">
-                <div class="module-list-wrapper">
-
-                  <ul>
-                    {% include "core/bookmark_list_detailed.html" %}
-                  </ul>
-
-                </div>
-              </div>
-
             </div>
           </div>
           <!-- END builds list -->
 
+          {% include "core/bookmark_list_detailed.html" %}
+          
           {% paginate %}
 
 {% endblock %}

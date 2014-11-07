@@ -171,6 +171,7 @@ INSTALLED_APPS = [
 
 
     # our apps
+    'bookmarks',
     'builds',
     'core',
     'doc_builder',

@@ -30,3 +30,8 @@ nav.stickynav {
 .rst-content .line-block {
 	margin-bottom: 24px
 }
+
+/* bookmark icon */
+.bookmark-added-msg {display: none;}
+.bookmark-active {display: none;}
+.bookmark-inactive {display: none;}

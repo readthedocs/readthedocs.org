@@ -1,0 +1,14 @@
+{% extends "projects/base_project.html" %}
+{% load i18n %}
+
+{% block title %}{% blocktrans with bookmark.page as name %}Delete {{ name }}?{% endblocktrans %}{% endblock %}
+
+{% block content-header %}<h1>{% blocktrans with bookmark.page as name %}Delete {{ name }}?{% endblocktrans %}</h1>{% endblock %}
+
+{% block content %}
+  <p>{% trans "You sure?" %} O_o</p>
+
+  <form method="post" action=".">{% csrf_token %}
+    <input type="submit" value="{% trans "Delete forever" %}">
+  </form>
+{% endblock %}
