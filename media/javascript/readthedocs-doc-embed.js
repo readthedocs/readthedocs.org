@@ -77,7 +77,7 @@ $(document).ready(function () {
               $.ajaxSetup({
                   beforeSend: function(xhr, settings) {
                       if (!csrfSafeMethod(settings.type)) {
-                          xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+                          xhr.setRequestHeader("X-CSRFToken", $('a.bookmark[token]').attr('token'));
                       }
                   }
               });

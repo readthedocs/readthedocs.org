@@ -77,13 +77,13 @@
 
           <div class="bookmark-icon">
             <div class='bookmark-inactive'>
-              <a token="{% csrf_token %}">
+              <a class="bookmark" token="{{ csrf_token }}">
                 <img src="{{ settings.MEDIA_URL }}/images/bookmark-icon-default.png" />
               </a>
             </div>
 
             <div class="bookmark-active">
-              <a token="{% csrf_token %}">
+              <a class="bookmark" token="{{ csrf_token }}">
                 <img src="{{ settings.MEDIA_URL }}/images/bookmark-icon-active.png" />
               </a>
             </div>
