@@ -24,7 +24,7 @@ def footer_html(request):
     new_theme = (theme == "sphinx_rtd_theme")
     using_theme = (theme == "default")
     project = get_object_or_404(Project, slug=project_slug)
-    version = get_object_or_404(project.versions.public(request.user), slug=version_slug)
+    version = get_object_or_404(project.versions.public(request.user, only_active=False), slug=version_slug)
     main_project = project.main_language_project or project
 
     if page_slug and page_slug != "index":
