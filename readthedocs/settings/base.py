@@ -120,6 +120,16 @@ ACCOUNT_AUTHENTICATION_METHOD = "username_email"
 CORS_ORIGIN_REGEX_WHITELIST = ('^http://(.+)\.readthedocs\.org$', '^https://(.+)\.readthedocs\.org$')
 # So people can post to their accounts
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = (
+    'x-requested-with',
+    'content-type',
+    'accept',
+    'origin',
+    'authorization',
+    'x-csrftoken'
+)
+
+
 ROOT_URLCONF = 'urls'
 
 TEMPLATE_DIRS = (
