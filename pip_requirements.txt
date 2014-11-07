@@ -66,7 +66,7 @@ Distutils2==1.0a3
 distlib==0.1.2
 
 # Commenting stuff
-django-cors-headers==0.11
+django-cors-headers==0.13
 
 # Pegged git requirements
 git+https://github.com/alex/django-filter.git#egg=django-filter
