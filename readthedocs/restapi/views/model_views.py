@@ -31,14 +31,14 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
     max_paginate_by = 1000
 
     def get_queryset(self):
-        return self.model.objects.public(self.request.user)
+        return self.model.objects.api(self.request.user)
 
     @decorators.link()
     def valid_versions(self, request, **kwargs):
         """
         Maintain state of versions that are wanted.
         """
-        project = get_object_or_404(Project.objects.public(self.request.user), pk=kwargs['pk'])
+        project = get_object_or_404(Project.objects.api(self.request.user), pk=kwargs['pk'])
         if not project.num_major or not project.num_minor or not project.num_point:
             return Response({'error': 'Project does not support point version control'}, status=status.HTTP_400_BAD_REQUEST)
         version_strings = project.supported_versions(flat=True)
@@ -51,7 +51,7 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
 
     @decorators.link()
     def translations(self, request, **kwargs):
-        project = get_object_or_404(Project.objects.public(self.request.user), pk=kwargs['pk'])
+        project = get_object_or_404(Project.objects.api(self.request.user), pk=kwargs['pk'])
         queryset = project.translations.all()
         return Response({
             'translations': ProjectSerializer(queryset, many=True).data
@@ -59,7 +59,7 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
 
     @decorators.link()
     def subprojects(self, request, **kwargs):
-        project = get_object_or_404(Project.objects.public(self.request.user), pk=kwargs['pk'])
+        project = get_object_or_404(Project.objects.api(self.request.user), pk=kwargs['pk'])
         rels = project.subprojects.all()
         children = [rel.child for rel in rels]
         return Response({
@@ -68,7 +68,7 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
 
     @decorators.link(permission_classes=[permissions.IsAdminUser])
     def token(self, request, **kwargs):
-        project = get_object_or_404(Project.objects.public(self.request.user), pk=kwargs['pk'])
+        project = get_object_or_404(Project.objects.api(self.request.user), pk=kwargs['pk'])
         token = oauth_utils.get_token_for_project(project, force_local=True)
         return Response({
             'token': token
@@ -81,7 +81,7 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
 
         Returns the identifiers for the versions that have been deleted.
         """
-        project = get_object_or_404(Project.objects.public(self.request.user), pk=kwargs['pk'])
+        project = get_object_or_404(Project.objects.api(self.request.user), pk=kwargs['pk'])
         try:
             # Update All Versions
             data = request.DATA
@@ -130,11 +130,11 @@ class VersionViewSet(viewsets.ReadOnlyModelViewSet):
     model = Version
 
     def get_queryset(self):
-        return self.model.objects.public(self.request.user)
+        return self.model.objects.api(self.request.user)
 
     @decorators.link()
     def downloads(self, request, **kwargs):
-        version = get_object_or_404(Version.objects.public(self.request.user), pk=kwargs['pk'])
+        version = get_object_or_404(Version.objects.api(self.request.user), pk=kwargs['pk'])
         downloads = version.get_downloads(pretty=True)
         return Response({
             'downloads': downloads
@@ -148,7 +148,7 @@ class BuildViewSet(viewsets.ReadOnlyModelViewSet):
     model = Build
 
     def get_queryset(self):
-        return self.model.objects.public(self.request.user)
+        return self.model.objects.api(self.request.user)
 
 
 class NotificationViewSet(viewsets.ReadOnlyModelViewSet):
@@ -161,4 +161,4 @@ class NotificationViewSet(viewsets.ReadOnlyModelViewSet):
         This view should return a list of all the purchases
         for the currently authenticated user.
         """
-        return self.model.objects.public(self.request.user)
+        return self.model.objects.api(self.request.user)

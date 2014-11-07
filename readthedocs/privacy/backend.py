@@ -13,7 +13,7 @@ class ProjectManager(models.Manager):
         from projects.models import Project
         # Show all projects to super user
         if user.has_perm('projects.view_project'):
-            return Project.objects.all()
+            return Project.objects.all().distinct()
         # Show user projects to user
         if user.is_authenticated():
             # Add in possible user-specific views
@@ -34,9 +34,6 @@ class ProjectManager(models.Manager):
     def for_admin_user(self, user=None, *args, **kwargs):
         return self.filter(users__in=[user])
 
-    def dashboard(self, user=None, *args, **kwargs):
-        return self.for_admin_user(user)
-
     def public(self, user=None, *args, **kwargs):
         queryset = self.filter(privacy_level=constants.PUBLIC)
         if user:
@@ -44,13 +41,21 @@ class ProjectManager(models.Manager):
         else:
             return queryset
 
+    # Aliases
+
+    def dashboard(self, user=None, *args, **kwargs):
+        return self.for_admin_user(user)
+
+    def api(self, user=None, *args, **kwargs):
+        return self.public(user)
+
 
 class RelatedProjectManager(models.Manager):
 
     def _add_user_repos(self, queryset, user=None, *args, **kwargs):
         # Hack around get_objects_for_user not supporting global perms
         if user.has_perm('projects.view_project'):
-            return self.get_queryset().all()
+            return self.get_queryset().all().distinct()
         if user.is_authenticated():
             # Add in possible user-specific views
             project_qs = get_objects_for_user(user, 'projects.view_project')
@@ -66,6 +71,9 @@ class RelatedProjectManager(models.Manager):
             queryset = queryset.filter(project=project)
         return queryset
 
+    def api(self, user=None, *args, **kwargs):
+        return self.public(user)
+
 
 class VersionManager(RelatedProjectManager):
 
@@ -74,12 +82,12 @@ class VersionManager(RelatedProjectManager):
         if user and user.is_authenticated():
             # Add in possible user-specific views
             user_queryset = get_objects_for_user(user, 'builds.view_version')
-            queryset = user_queryset | queryset
+            queryset = user_queryset.distinct() | queryset
         elif user:
             # Hack around get_objects_for_user not supporting global perms
             global_access = user.has_perm('builds.view_version')
             if global_access:
-                queryset = self.get_queryset().all()
+                queryset = self.get_queryset().all().distinct()
         return queryset.distinct()
 
     def public(self, user=None, project=None, only_active=True, *args, **kwargs):

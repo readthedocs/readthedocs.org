@@ -29,7 +29,7 @@ class ProjectResource(ModelResource, SearchMixin):
     class Meta:
         include_absolute_url = True
         allowed_methods = ['get', 'post', 'put']
-        queryset = Project.objects.public()
+        queryset = Project.objects.api()
         authentication = PostAuthentication()
         authorization = DjangoAuthorization()
         excludes = ['path', 'featured']
@@ -39,7 +39,7 @@ class ProjectResource(ModelResource, SearchMixin):
         }
 
     def get_object_list(self, request):
-        self._meta.queryset = Project.objects.public(user=request.user)
+        self._meta.queryset = Project.objects.api(user=request.user)
         return super(ProjectResource, self).get_object_list(request)
 
     def dehydrate(self, bundle):
@@ -118,7 +118,7 @@ class VersionResource(ModelResource):
     class Meta:
         allowed_methods = ['get', 'put', 'post']
         always_return_data = True
-        queryset = Version.objects.public()
+        queryset = Version.objects.api()
         authentication = PostAuthentication()
         authorization = DjangoAuthorization()
         filtering = {
@@ -135,7 +135,7 @@ class VersionResource(ModelResource):
     #     return bundle
 
     def get_object_list(self, request):
-        self._meta.queryset = Version.objects.public(user=request.user, only_active=False)
+        self._meta.queryset = Version.objects.api(user=request.user, only_active=False)
         return super(VersionResource, self).get_object_list(request)
 
     def version_compare(self, request, **kwargs):
@@ -207,7 +207,7 @@ class BuildResource(ModelResource):
         always_return_data = True
         include_absolute_url = True
         allowed_methods = ['get', 'post', 'put']
-        queryset = Build.objects.public()
+        queryset = Build.objects.api()
         authentication = PostAuthentication()
         authorization = DjangoAuthorization()
         filtering = {
@@ -218,8 +218,8 @@ class BuildResource(ModelResource):
         }
 
     def get_object_list(self, request):
-        self._meta.queryset = Build.objects.public(user=request.user)
-        return super(VersionResource, self).get_object_list(request)
+        self._meta.queryset = Build.objects.api(user=request.user)
+        return super(BuildResource, self).get_object_list(request)
 
     def override_urls(self):
         return [
