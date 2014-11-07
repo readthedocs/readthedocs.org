@@ -43,7 +43,7 @@ class ProjectDashboard(ListView):
         return super(ProjectDashboard, self).dispatch(*args, **kwargs)
 
     def get_queryset(self):
-        return Project.objects.for_admin_user(self.request.user)
+        return Project.objects.dashboard(self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super(ProjectDashboard, self).get_context_data(**kwargs)

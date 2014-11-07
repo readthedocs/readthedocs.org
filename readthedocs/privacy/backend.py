@@ -34,6 +34,9 @@ class ProjectManager(models.Manager):
     def for_admin_user(self, user=None, *args, **kwargs):
         return self.filter(users__in=[user])
 
+    def dashboard(self, user=None, *args, **kwargs):
+        return self.for_admin_user(user)
+
     def public(self, user=None, *args, **kwargs):
         queryset = self.filter(privacy_level=constants.PUBLIC)
         if user:
