@@ -54,14 +54,22 @@ Of course, replacing `MOCK_MODULES` with the modules that you want to mock out.
 
         from mock import Mock as MagicMock
 
-My server gives a 401 error when building documentation
-----------------------------------------------------------
+`Client Error 401` when building documentation
+----------------------------------------------
 
-This error stems from the builder not having access to a database super user account. You can fix this by loading test data::
+If you did not install the `test_data` fixture during the installation
+instructions, you will get the following error::
+
+    slumber.exceptions.HttpClientError: Client Error 401: http://localhost:8000/api/v1/version/
+
+This is because the API admin user does not exist, and so cannot authenticate.
+You can fix this by loading the test_data::
 
     ./manage.py loaddata test_data
 
-If you'd prefer not to install the test data, you'll need to provide a database account for the builder to use. You can provide these credentials by editing the following settings::
+If you'd prefer not to install the test data, you'll need to provide a database
+account for the builder to use. You can provide these credentials by editing the
+following settings::
 
     SLUMBER_USERNAME = 'test'
     SLUMBER_PASSWORD = 'test'
