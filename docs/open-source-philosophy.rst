@@ -29,7 +29,7 @@ because it doesn't further our goal of promoting documentation in the Open Sourc
 
 We do not support:
 
-* Specific usage of Sphinx and Mkdocs, that don't effort our hosting
+* Specific usage of Sphinx and Mkdocs, that don't effect our hosting
 * Custom installations of Read the Docs at your company
 * Installation of Read the Docs on other platforms
 * Any installation issues outside of the Read the Docs Python Code
