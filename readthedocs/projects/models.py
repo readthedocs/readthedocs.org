@@ -169,6 +169,10 @@ class Project(models.Model):
                                             "documentation is rendered in. "
                                             "Note: this affects your project's URL."),
                                 choices=constants.LANGUAGES)
+
+    programming_language = models.CharField(_('Programming Language'), max_length=20, default='words',
+                                help_text=_("The primary programming language the project is written in."),
+                                choices=constants.PROGRAMMING_LANGUAGES)
     # A subproject pointed at it's main language, so it can be tracked
     main_language_project = models.ForeignKey('self',
                                               related_name='translations',

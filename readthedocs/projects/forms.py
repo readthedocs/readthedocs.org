@@ -58,7 +58,7 @@ class ImportProjectForm(ProjectForm):
             # Not as important
             'description',
             'documentation_type',
-            'language',
+            'language', 'programming_language',
             'project_url',
             'canonical_url',
             'tags',
