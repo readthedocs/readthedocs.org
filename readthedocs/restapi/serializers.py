@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from builds.models import Version
+from builds.models import Build, Version
 from projects.models import Project
 
 
@@ -21,6 +21,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 
 class ProjectFullSerializer(ProjectSerializer):
+
     '''Serializer for all fields on project model'''
 
     class Meta:
@@ -37,10 +38,27 @@ class VersionSerializer(serializers.ModelSerializer):
             'project', 'slug',
             'identifier', 'verbose_name',
             'active', 'built',
-            )
+        )
+
+
+class BuildSerializer(serializers.ModelSerializer):
+    project = ProjectSerializer()
+
+    class Meta:
+        model = Build
+        fields = (
+            'id',
+            'project',
+            'commit',
+            'type',
+            'date',
+            'success',
+
+        )
 
 
 class VersionFullSerializer(VersionSerializer):
+
     '''Serializer for all fields on version model'''
 
     project = ProjectFullSerializer()

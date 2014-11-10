@@ -9,7 +9,7 @@ class LatestProjectsFeed(Feed):
     description = "Recently updated documentation on Read the Docs"
 
     def items(self):
-        return Project.objects.order_by('-modified_date')[:10]
+        return Project.objects.public().order_by('-modified_date')[:10]
 
     def item_title(self, item):
         return item.name
@@ -24,7 +24,7 @@ class NewProjectsFeed(Feed):
     description = "Recently created documentation on Read the Docs"
 
     def items(self):
-        return Project.objects.all().order_by('-pk')[:10]
+        return Project.objects.public().order_by('-pk')[:10]
 
     def item_title(self, item):
         return item.name

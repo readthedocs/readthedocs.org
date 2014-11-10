@@ -6,14 +6,14 @@ from rest_framework import decorators, permissions, viewsets, status
 from rest_framework.renderers import JSONPRenderer, JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 
-from builds.models import Version
+from builds.models import Build, Version
 from builds.filters import VersionFilter
 from core.utils import trigger_build
 from oauth import utils as oauth_utils
 from projects.models import Project, EmailHook
 from projects.filters import ProjectFilter
 
-from restapi.serializers import ProjectSerializer, VersionSerializer
+from restapi.serializers import BuildSerializer, ProjectSerializer, VersionSerializer
 from restapi.permissions import RelatedProjectIsOwner
 import restapi.utils as api_utils
 
@@ -31,22 +31,14 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
     max_paginate_by = 1000
 
     def get_queryset(self):
-        """
-        Optionally restricts the returned purchases to a given project,
-        by filtering against a `slug` query parameter in the URL.
-        """
-        queryset = Project.objects.protected(self.request.user)
-        mirror = self.request.QUERY_PARAMS.get('mirror', False)
-        if mirror:
-            queryset = queryset.filter(mirror=True)
-        return queryset
+        return self.model.objects.api(self.request.user)
 
     @decorators.link()
     def valid_versions(self, request, **kwargs):
         """
         Maintain state of versions that are wanted.
         """
-        project = get_object_or_404(Project, pk=kwargs['pk'])
+        project = get_object_or_404(Project.objects.api(self.request.user), pk=kwargs['pk'])
         if not project.num_major or not project.num_minor or not project.num_point:
             return Response({'error': 'Project does not support point version control'}, status=status.HTTP_400_BAD_REQUEST)
         version_strings = project.supported_versions(flat=True)
@@ -59,7 +51,7 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
 
     @decorators.link()
     def translations(self, request, **kwargs):
-        project = get_object_or_404(Project, pk=kwargs['pk'])
+        project = get_object_or_404(Project.objects.api(self.request.user), pk=kwargs['pk'])
         queryset = project.translations.all()
         return Response({
             'translations': ProjectSerializer(queryset, many=True).data
@@ -67,7 +59,7 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
 
     @decorators.link()
     def subprojects(self, request, **kwargs):
-        project = get_object_or_404(Project, pk=kwargs['pk'])
+        project = get_object_or_404(Project.objects.api(self.request.user), pk=kwargs['pk'])
         rels = project.subprojects.all()
         children = [rel.child for rel in rels]
         return Response({
@@ -76,7 +68,7 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
 
     @decorators.link(permission_classes=[permissions.IsAdminUser])
     def token(self, request, **kwargs):
-        project = get_object_or_404(Project.all_objects.all(), pk=kwargs['pk'])
+        project = get_object_or_404(Project.objects.api(self.request.user), pk=kwargs['pk'])
         token = oauth_utils.get_token_for_project(project, force_local=True)
         return Response({
             'token': token
@@ -89,7 +81,7 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
 
         Returns the identifiers for the versions that have been deleted.
         """
-        project = get_object_or_404(Project.all_objects.all(), pk=kwargs['pk'])
+        project = get_object_or_404(Project.objects.api(self.request.user), pk=kwargs['pk'])
         try:
             # Update All Versions
             data = request.DATA
@@ -130,6 +122,35 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
         })
 
 
+class VersionViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    renderer_classes = (JSONRenderer, BrowsableAPIRenderer)
+    serializer_class = VersionSerializer
+    filter_class = VersionFilter
+    model = Version
+
+    def get_queryset(self):
+        return self.model.objects.api(self.request.user)
+
+    @decorators.link()
+    def downloads(self, request, **kwargs):
+        version = get_object_or_404(Version.objects.api(self.request.user), pk=kwargs['pk'])
+        downloads = version.get_downloads(pretty=True)
+        return Response({
+            'downloads': downloads
+        })
+
+
+class BuildViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    renderer_classes = (JSONRenderer, BrowsableAPIRenderer)
+    serializer_class = BuildSerializer
+    model = Build
+
+    def get_queryset(self):
+        return self.model.objects.api(self.request.user)
+
+
 class NotificationViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = (permissions.IsAuthenticated, RelatedProjectIsOwner)
     renderer_classes = (JSONRenderer, BrowsableAPIRenderer)
@@ -140,32 +161,4 @@ class NotificationViewSet(viewsets.ReadOnlyModelViewSet):
         This view should return a list of all the purchases
         for the currently authenticated user.
         """
-        user = self.request.user
-        if user.is_superuser:
-            return self.model.objects.all()
-        return self.model.objects.filter(project__users__in=[user.pk])
-
-
-class VersionViewSet(viewsets.ReadOnlyModelViewSet):
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    renderer_classes = (JSONRenderer, BrowsableAPIRenderer)
-    serializer_class = VersionSerializer
-    filter_class = VersionFilter
-    model = Version
-
-    def get_queryset(self):
-        """
-        Optionally restricts the returned purchases to a given project,
-        by filtering against a `project` query parameter in the URL.
-        """
-        queryset = Version.objects.all()
-        project = self.request.QUERY_PARAMS.get('project', None)
-        return queryset
-
-    @decorators.link()
-    def downloads(self, request, **kwargs):
-        version = get_object_or_404(Version, pk=kwargs['pk'])
-        downloads = version.get_downloads(pretty=True)
-        return Response({
-            'downloads': downloads
-        })
+        return self.model.objects.api(self.request.user)

@@ -1,10 +1,6 @@
 import logging
-import os
 import shutil
-import zipfile
-from datetime import datetime
 
-from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
@@ -18,22 +14,23 @@ from django.utils.translation import ugettext_lazy as _
 
 from guardian.shortcuts import assign
 
+from builds.models import Version
 from builds.forms import AliasForm, VersionForm
 from builds.filters import VersionFilter
-from builds.models import VersionAlias, Version
+from builds.models import VersionAlias
 from oauth.models import GithubProject
 from oauth import utils as oauth_utils
 from projects.forms import (ImportProjectForm, build_versions_form,
-                            build_upload_html_form, SubprojectForm,
+                            SubprojectForm,
                             UserForm, EmailHookForm, TranslationForm,
                             AdvancedProjectForm, RedirectForm, WebHookForm)
 from projects.models import Project, EmailHook, WebHook
 from projects import constants
-from redirects.models import Redirect
 
 from bookmarks.models import Bookmark
 
 log = logging.getLogger(__name__)
+
 
 class ProjectDashboard(ListView):
 
@@ -49,14 +46,11 @@ class ProjectDashboard(ListView):
         return super(ProjectDashboard, self).dispatch(*args, **kwargs)
 
     def get_queryset(self):
-        return self.request.user.projects.live()
+        return Project.objects.dashboard(self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super(ProjectDashboard, self).get_context_data(**kwargs)
-        qs = (Version.objects.active(user=self.request.user)
-              .filter(project__users__in=[self.request.user]))
-        filter = VersionFilter(
-            constants.IMPORTANT_VERSION_FILTERS, queryset=self.get_queryset())
+        filter = VersionFilter(constants.IMPORTANT_VERSION_FILTERS, queryset=self.get_queryset())
         context['filter'] = filter
 
         bookmarks = Bookmark.objects.filter(user=self.request.user)
@@ -88,7 +82,7 @@ def project_edit(request, project_slug):
     Edit an existing project - depending on what type of project is being
     edited (created or imported) a different form will be displayed
     """
-    project = get_object_or_404(request.user.projects.live(),
+    project = get_object_or_404(Project.objects.for_admin_user(request.user),
                                 slug=project_slug)
 
     form_class = ImportProjectForm
@@ -114,7 +108,7 @@ def project_advanced(request, project_slug):
     Edit an existing project - depending on what type of project is being
     edited (created or imported) a different form will be displayed
     """
-    project = get_object_or_404(request.user.projects.live(),
+    project = get_object_or_404(Project.objects.for_admin_user(request.user),
                                 slug=project_slug)
     form_class = AdvancedProjectForm
     form = form_class(instance=project, data=request.POST or None, initial={
@@ -139,7 +133,7 @@ def project_versions(request, project_slug):
     Shows the available versions and lets the user choose which ones he would
     like to have built.
     """
-    project = get_object_or_404(request.user.projects.live(),
+    project = get_object_or_404(Project.objects.for_admin_user(request.user),
                                 slug=project_slug)
 
     if not project.is_imported:
@@ -164,9 +158,8 @@ def project_versions(request, project_slug):
 
 @login_required
 def project_version_detail(request, project_slug, version_slug):
-    project = get_object_or_404(request.user.projects.live(),
-                                slug=project_slug)
-    version = get_object_or_404(project.versions.all(), slug=version_slug)
+    project = get_object_or_404(Project.objects.for_admin_user(request.user), slug=project_slug)
+    version = get_object_or_404(Version.objects.public(user=request.user, project=project), slug=version_slug)
 
     form = VersionForm(request.POST or None, instance=version)
 
@@ -188,7 +181,7 @@ def project_delete(request, project_slug):
     Make a project as deleted on POST, otherwise show a form asking for
     confirmation of delete.
     """
-    project = get_object_or_404(request.user.projects.live(),
+    project = get_object_or_404(Project.objects.for_admin_user(request.user),
                                 slug=project_slug)
 
     if request.method == 'POST':
@@ -232,7 +225,7 @@ def project_import(request, form_class=ImportProjectForm):
 
 @login_required
 def edit_alias(request, project_slug, id=None):
-    proj = get_object_or_404(Project.objects.all(), slug=project_slug)
+    proj = get_object_or_404(Project.objects.for_admin_user(request.user), slug=project_slug)
     if id:
         alias = proj.aliases.get(pk=id)
         form = AliasForm(instance=alias, data=request.POST or None)
@@ -259,14 +252,13 @@ class AliasList(ListView):
         return super(AliasList, self).dispatch(*args, **kwargs)
 
     def get_queryset(self):
-        self.project = get_object_or_404(
-            Project.objects.all(), slug=self.kwargs.get('project_slug'))
+        self.project = get_object_or_404(Project.objects.for_admin_user(self.request.user), slug=self.kwargs.get('project_slug'))
         return self.project.aliases.all()
 
 
 @login_required
 def project_subprojects(request, project_slug):
-    project = get_object_or_404(request.user.projects.live(),
+    project = get_object_or_404(Project.objects.for_admin_user(request.user),
                                 slug=project_slug)
 
     form = SubprojectForm(data=request.POST or None, parent=project)
@@ -288,8 +280,8 @@ def project_subprojects(request, project_slug):
 
 @login_required
 def project_subprojects_delete(request, project_slug, child_slug):
-    parent = get_object_or_404(request.user.projects.live(), slug=project_slug)
-    child = get_object_or_404(Project.objects.all(), slug=child_slug)
+    parent = get_object_or_404(Project.objects.for_admin_user(request.user), slug=project_slug)
+    child = get_object_or_404(Project.objects.for_admin_user(request.user), slug=child_slug)
     parent.remove_subproject(child)
     return HttpResponseRedirect(reverse('projects_subprojects',
                                         args=[parent.slug]))
@@ -297,7 +289,7 @@ def project_subprojects_delete(request, project_slug, child_slug):
 
 @login_required
 def project_users(request, project_slug):
-    project = get_object_or_404(request.user.projects.live(),
+    project = get_object_or_404(Project.objects.for_admin_user(request.user),
                                 slug=project_slug)
 
     form = UserForm(data=request.POST or None, project=project)
@@ -320,10 +312,8 @@ def project_users(request, project_slug):
 def project_users_delete(request, project_slug):
     if request.method != 'POST':
         raise Http404
-    project = get_object_or_404(request.user.projects.live(),
-                                slug=project_slug)
-    user = get_object_or_404(User.objects.all(),
-                             username=request.POST.get('username'))
+    project = get_object_or_404(Project.objects.for_admin_user(request.user), slug=project_slug)
+    user = get_object_or_404(User.objects.all(), username=request.POST.get('username'))
     if user == request.user:
         raise Http404
     project.users.remove(user)
@@ -333,7 +323,7 @@ def project_users_delete(request, project_slug):
 
 @login_required
 def project_notifications(request, project_slug):
-    project = get_object_or_404(request.user.projects.live(),
+    project = get_object_or_404(Project.objects.for_admin_user(request.user),
                                 slug=project_slug)
 
     email_form = EmailHookForm(data=request.POST or None, project=project)
@@ -368,7 +358,7 @@ def project_notifications(request, project_slug):
 def project_notifications_delete(request, project_slug):
     if request.method != 'POST':
         raise Http404
-    project = get_object_or_404(request.user.projects.live(),
+    project = get_object_or_404(Project.objects.for_admin_user(request.user),
                                 slug=project_slug)
     try:
         project.emailhook_notifications.get(email=request.POST.get('email')).delete()
@@ -383,7 +373,7 @@ def project_notifications_delete(request, project_slug):
 
 @login_required
 def project_translations(request, project_slug):
-    project = get_object_or_404(request.user.projects.live(),
+    project = get_object_or_404(Project.objects.for_admin_user(request.user),
                                 slug=project_slug)
     form = TranslationForm(data=request.POST or None, parent=project)
 
@@ -404,8 +394,8 @@ def project_translations(request, project_slug):
 
 @login_required
 def project_translations_delete(request, project_slug, child_slug):
-    project = get_object_or_404(request.user.projects.live(), slug=project_slug)
-    subproj = get_object_or_404(Project.objects.public(), slug=child_slug)
+    project = get_object_or_404(Project.objects.for_admin_user(request.user), slug=project_slug)
+    subproj = get_object_or_404(Project.objects.for_admin_user(request.user), slug=child_slug)
     project.translations.remove(subproj)
     project_dashboard = reverse('projects_translations', args=[project.slug])
     return HttpResponseRedirect(project_dashboard)
@@ -413,7 +403,7 @@ def project_translations_delete(request, project_slug, child_slug):
 
 @login_required
 def project_redirects(request, project_slug):
-    project = get_object_or_404(request.user.projects.live(),
+    project = get_object_or_404(Project.objects.for_admin_user(request.user),
                                 slug=project_slug)
 
     form = RedirectForm(data=request.POST or None, project=project)
@@ -436,9 +426,9 @@ def project_redirects(request, project_slug):
 def project_redirects_delete(request, project_slug):
     if request.method != 'POST':
         return HttpResponseNotAllowed('Only POST is allowed')
-    project = get_object_or_404(request.user.projects.live(),
+    project = get_object_or_404(Project.objects.for_admin_user(request.user),
                                 slug=project_slug)
-    redirect = get_object_or_404(Redirect.objects.all(),
+    redirect = get_object_or_404(Project.objects.for_admin_user(request.user),
                                  pk=request.POST.get('pk'))
     if redirect.project == project:
         redirect.delete()
@@ -452,7 +442,6 @@ def project_redirects_delete(request, project_slug):
 def project_import_github(request, sync=False):
     """
     Integrate with GitHub to pull repos from there.
-
     """
 
     github_connected = oauth_utils.import_github(user=request.user, sync=sync)
@@ -462,7 +451,7 @@ def project_import_github(request, sync=False):
     # Find existing projects that match a repo url
     for repo in repos:
         ghetto_repo = repo.git_url.replace('git://', '').replace('.git', '')
-        projects = Project.objects.filter(repo__endswith=ghetto_repo) | Project.objects.filter(repo__endswith=ghetto_repo + '.git')
+        projects = Project.objects.public(request.user).filter(repo__endswith=ghetto_repo) | Project.objects.public(request.user).filter(repo__endswith=ghetto_repo + '.git')
         if projects:
             repo.matches = [project.slug for project in projects]
         else:

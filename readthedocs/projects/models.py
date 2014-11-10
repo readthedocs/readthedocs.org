@@ -15,7 +15,7 @@ from guardian.shortcuts import assign
 
 from betterversion.better import version_windows, BetterVersion
 from oauth import utils as oauth_utils
-from privacy.loader import ProjectManager
+from privacy.loader import RelatedProjectManager, ProjectManager
 from projects import constants
 from projects.exceptions import ProjectImportError
 from projects.templatetags.projects_tags import sort_version_aware
@@ -658,7 +658,7 @@ class Project(models.Model):
         if not self.num_major or not self.num_minor or not self.num_point:
             return None
         versions = []
-        for ver in self.versions.all():
+        for ver in self.versions.public():
             try:
                 versions.append(BetterVersion(ver.verbose_name))
             except UnsupportedVersionError:
@@ -752,6 +752,7 @@ class ImportedFile(models.Model):
 class Notification(models.Model):
     project = models.ForeignKey(Project,
                                 related_name='%(class)s_notifications')
+    objects = RelatedProjectManager()
 
     class Meta:
         abstract = True

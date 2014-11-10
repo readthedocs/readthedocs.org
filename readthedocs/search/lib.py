@@ -7,7 +7,7 @@ except:
     from search.signals import before_file_search
 
 
-def search_project(query, language):
+def search_project(request, query, language):
 
     body = {
         "query": {
@@ -37,12 +37,12 @@ def search_project(query, language):
         body['facets']['language']['facet_filter'] = {"term": {"lang": language}}
         body['filter'] = {"term": {"lang": language}}
 
-    before_project_search.send(sender=ProjectIndex, body=body)
+    before_project_search.send(request=request, sender=ProjectIndex, body=body)
 
     return ProjectIndex().search(body)
 
 
-def search_file(query, project=None, version='latest', taxonomy=None):
+def search_file(request, query, project=None, version='latest', taxonomy=None):
 
     kwargs = {}
     body = {
@@ -97,7 +97,7 @@ def search_file(query, project=None, version='latest', taxonomy=None):
         body['facets']['version']['facet_filter'] = final_filter
         body['facets']['taxonomy']['facet_filter'] = final_filter
 
-    before_file_search.send(sender=PageIndex, body=body)
+    before_file_search.send(request=request, sender=PageIndex, body=body)
 
     results = PageIndex().search(body, **kwargs)
     return results
