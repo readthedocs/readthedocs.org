@@ -112,6 +112,7 @@ About Read the Docs
 .. toctree::
     :maxdepth: 2
 
+    open-source-philosophy
     sponsors
     talks
 
