@@ -176,7 +176,6 @@ INSTALLED_APPS = [
 
     # Celery bits
     'djcelery',
-    'celery_haystack',
 
     # daniellindsleyrocksdahouse
     'haystack',
@@ -225,14 +224,6 @@ CELERY_SEND_TASK_ERROR_EMAILS = False
 CELERYD_HIJACK_ROOT_LOGGER = False
 # Don't queue a bunch of tasks in the workers
 CELERYD_PREFETCH_MULTIPLIER = 1
-HAYSTACK_SIGNAL_PROCESSOR = 'celery_haystack.signals.CelerySignalProcessor'
-
-CELERY_ROUTES = {
-    'celery_haystack.tasks.CeleryHaystackSignalHandler': {
-        'queue': 'celery_haystack',
-    },
-}
-
 
 DEFAULT_FROM_EMAIL = "no-reply@readthedocs.org"
 SESSION_COOKIE_DOMAIN = 'readthedocs.org'
