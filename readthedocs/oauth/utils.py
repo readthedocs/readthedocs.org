@@ -108,17 +108,24 @@ def import_github(user, sync):
             )
             # Get user repos
             owner_resp = github_paginate(session, 'https://api.github.com/user/repos?per_page=100')
-            for repo in owner_resp:
-                make_github_project(user=user, org=None, privacy=repo_type, repo_json=repo)
+            try:
+                for repo in owner_resp:
+                    make_github_project(user=user, org=None, privacy=repo_type, repo_json=repo)
+            except TypeError, e:
+                print e
 
             # Get org repos
-            resp = session.get('https://api.github.com/user/orgs')
-            for org_json in resp.json():
-                org_resp = session.get('https://api.github.com/orgs/%s' % org_json['login'])
-                org_obj = make_github_organization(user=user, org_json=org_resp.json())
-                # Add repos
-                org_repos_resp = github_paginate(session, 'https://api.github.com/orgs/%s/repos?per_page=100' % org_json['login'])
-                for repo in org_repos_resp:
-                    make_github_project(user=user, org=org_obj, privacy=repo_type, repo_json=repo)
+            try:
+                resp = session.get('https://api.github.com/user/orgs')
+                for org_json in resp.json():
+                    org_resp = session.get('https://api.github.com/orgs/%s' % org_json['login'])
+                    org_obj = make_github_organization(user=user, org_json=org_resp.json())
+                    # Add repos
+                    org_repos_resp = github_paginate(session, 'https://api.github.com/orgs/%s/repos?per_page=100' % org_json['login'])
+                    for repo in org_repos_resp:
+                        make_github_project(user=user, org=org_obj, privacy=repo_type, repo_json=repo)
+            except TypeError, e:
+                print e
+                    
 
     return github_connected
