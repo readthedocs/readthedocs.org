@@ -39,17 +39,24 @@ def footer_html(request):
     else:
         path = ""
 
-    try:
-        bookmark = Bookmark.objects.get(
-            user=request.user,
-            project=project,
-            version=version,
-            page=page_slug,
-        )
-    except (Bookmark.DoesNotExist, Bookmark.MultipleObjectsReturned, Exception):
+    host = request.get_host()
+    if settings.PRODUCTION_DOMAIN in host and request.user.is_authenticated():
+        show_bookmarks = True
+        try:
+            bookmark = Bookmark.objects.get(
+                user=request.user,
+                project=project,
+                version=version,
+                page=page_slug,
+            )
+        except (Bookmark.DoesNotExist, Bookmark.MultipleObjectsReturned, Exception):
+            bookmark = None
+    else:
+        show_bookmarks = False
         bookmark = None
 
     context = Context({
+        'show_bookmarks': show_bookmarks,
         'bookmark': bookmark,
         'project': project,
         'path': path,
