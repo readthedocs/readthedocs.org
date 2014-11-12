@@ -54,13 +54,11 @@ class BaseSphinx(BaseBuilder):
         """
 
         # Pull config data
-        """
         try:
             conf_py_path = version_utils.get_conf_py_path(self.version)
         except ProjectImportError:
             self._write_config()
             self.create_index(extension='rst')
-        """
 
         project = self.version.project
         # Open file for appending.
