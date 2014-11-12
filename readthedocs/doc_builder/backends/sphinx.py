@@ -79,8 +79,13 @@ class BaseSphinx(BaseBuilder):
         else:
             display_bitbucket = True
 
+        if setttings.DOCKER:
+            versions = project.activate_versions()
+        else:
+            versions = project.api_versions()
+
         rtd_ctx = Context({
-            'versions': project.active_versions(),
+            'versions': versions,
             'downloads': self.version.get_downloads(pretty=True),
             'current_version': self.version.slug,
             'project': project,
