@@ -53,6 +53,10 @@ LOGIN_REDIRECT_URL = '/dashboard/'
 FORCE_WWW = False
 #APPEND_SLASH = False
 
+# Docker
+DOCKER_ENABLE = False
+DOCKER_IMAGE = 'rtfd-build'
+
 TIME_ZONE = 'America/Chicago'
 LANGUAGE_CODE = 'en-us'
 LANGUAGES = (
@@ -172,7 +176,6 @@ INSTALLED_APPS = [
 
     # Celery bits
     'djcelery',
-    'celery_haystack',
 
     # daniellindsleyrocksdahouse
     'haystack',
@@ -221,14 +224,6 @@ CELERY_SEND_TASK_ERROR_EMAILS = False
 CELERYD_HIJACK_ROOT_LOGGER = False
 # Don't queue a bunch of tasks in the workers
 CELERYD_PREFETCH_MULTIPLIER = 1
-HAYSTACK_SIGNAL_PROCESSOR = 'celery_haystack.signals.CelerySignalProcessor'
-
-CELERY_ROUTES = {
-    'celery_haystack.tasks.CeleryHaystackSignalHandler': {
-        'queue': 'celery_haystack',
-    },
-}
-
 
 DEFAULT_FROM_EMAIL = "no-reply@readthedocs.org"
 SESSION_COOKIE_DOMAIN = 'readthedocs.org'
@@ -276,6 +271,20 @@ GLOBAL_ANALYTICS_CODE = 'UA-17997319-1'
 GRAVATAR_DEFAULT_IMAGE = 'http://media.readthedocs.org/images/silhouette.png'
 
 LOG_FORMAT = "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s"
+
+RESTRUCTUREDTEXT_FILTER_SETTINGS = {
+    'cloak_email_addresses': True,
+    'file_insertion_enabled': False,
+    'raw_enabled': False,
+    'strip_comments': True,
+    'doctitle_xform': True,
+    'sectsubtitle_xform': True,
+    'initial_header_level': 2,
+    'report_level': 5,
+    'syntax_highlight' : 'none',
+    'math_output' : 'latex',
+    'field_name_limit': 50,
+}
 
 LOGGING = {
     'version': 1,

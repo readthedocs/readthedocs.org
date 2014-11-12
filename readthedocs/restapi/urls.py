@@ -2,16 +2,17 @@ from django.conf.urls import url, patterns, include
 
 from rest_framework import routers
 
-from .views.model_views import ProjectViewSet, NotificationViewSet, VersionViewSet
+from .views.model_views import BuildViewSet, ProjectViewSet, NotificationViewSet, VersionViewSet
 
 router = routers.DefaultRouter()
+router.register(r'build', BuildViewSet)
 router.register(r'version', VersionViewSet)
 router.register(r'project', ProjectViewSet)
 router.register(r'notification', NotificationViewSet)
 
 urlpatterns = patterns(
     '',
-	url(r'^', include(router.urls)),
+    url(r'^', include(router.urls)),
     url(r'cname/', 'restapi.views.core_views.cname', name='cname'),
     url(r'footer_html/', 'restapi.views.footer_views.footer_html', name='footer_html'),
     url(r'quick_search/', 'restapi.views.search_views.quick_search', name='quick_search'),

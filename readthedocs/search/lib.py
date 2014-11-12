@@ -1,13 +1,13 @@
+from .indexes import ProjectIndex, PageIndex
 
-from elasticsearch import Elasticsearch, exceptions
-from elasticsearch.helpers import bulk_index
+# Hack around django requiring a specific import path for signals >:x
+try:
+    from readthedocs.search.signals import before_project_search, before_file_search
+except:
+    from search.signals import before_file_search
 
-from django.conf import settings
 
-from search.indexes import ProjectIndex, PageIndex
-
-
-def search_project(query, language):
+def search_project(request, query, language):
 
     body = {
         "query": {
@@ -35,12 +35,14 @@ def search_project(query, language):
 
     if language:
         body['facets']['language']['facet_filter'] = {"term": {"lang": language}}
-        body['filter'] =  {"term": {"lang": language}}
+        body['filter'] = {"term": {"lang": language}}
+
+    before_project_search.send(request=request, sender=ProjectIndex, body=body)
 
     return ProjectIndex().search(body)
 
 
-def search_file(query, project=None, version='latest', taxonomy=None):
+def search_file(request, query, project=None, version='latest', taxonomy=None):
 
     kwargs = {}
     body = {
@@ -94,6 +96,8 @@ def search_file(query, project=None, version='latest', taxonomy=None):
         body['facets']['project']['facet_filter'] = final_filter
         body['facets']['version']['facet_filter'] = final_filter
         body['facets']['taxonomy']['facet_filter'] = final_filter
+
+    before_file_search.send(request=request, sender=PageIndex, body=body)
 
     results = PageIndex().search(body, **kwargs)
     return results

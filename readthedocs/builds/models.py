@@ -9,7 +9,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from guardian.shortcuts import assign
 from taggit.managers import TaggableManager
 
-from privacy.loader import VersionManager
+from privacy.loader import VersionManager, RelatedProjectManager
 from projects.models import Project
 from projects import constants
 from .constants import BUILD_STATE, BUILD_TYPES, VERSION_TYPES
@@ -74,8 +74,7 @@ class Version(models.Model):
         self.project.sync_supported_versions()
         return obj
 
-
-    @property 
+    @property
     def remote_slug(self):
         if self.slug == 'latest':
             if self.project.default_branch:
@@ -84,7 +83,6 @@ class Version(models.Model):
                 return self.project.vcs_repo().fallback_branch
         else:
             return self.slug
-
 
     def get_subdomain_url(self):
         use_subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
@@ -184,7 +182,7 @@ class Version(models.Model):
             path=filename,
             source_suffix=source_suffix,
             action=action_string,
-            )
+        )
 
     def get_bitbucket_url(self, docroot, filename, source_suffix='.rst'):
         BB_REGEXS = [
@@ -216,8 +214,7 @@ class Version(models.Model):
             docroot=docroot,
             path=filename,
             source_suffix=source_suffix,
-            )
-
+        )
 
 
 class VersionAlias(models.Model):
@@ -247,14 +244,18 @@ class Build(models.Model):
                              default='finished')
     date = models.DateTimeField(_('Date'), auto_now_add=True)
     success = models.BooleanField(_('Success'), default=True)
-    
+
     setup = models.TextField(_('Setup'), null=True, blank=True)
     setup_error = models.TextField(_('Setup error'), null=True, blank=True)
     output = models.TextField(_('Output'), default='', blank=True)
     error = models.TextField(_('Error'), default='', blank=True)
     exit_code = models.IntegerField(_('Exit code'), max_length=3, null=True,
                                     blank=True)
-    commit = models.CharField(_('Commit'), max_length=255, null=True, blank=True) 
+    commit = models.CharField(_('Commit'), max_length=255, null=True, blank=True)
+
+    # Manager
+
+    objects = RelatedProjectManager()
 
     class Meta:
         ordering = ['-date']

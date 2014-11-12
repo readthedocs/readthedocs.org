@@ -47,9 +47,9 @@ def elastic_search(request):
 
     if query:
         if type == 'project':
-            results = search_lib.search_project(query, language=language)
+            results = search_lib.search_project(request, query, language=language)
         elif type == 'file':
-            results = search_lib.search_file(query, project=project, version=version, taxonomy=taxonomy)
+            results = search_lib.search_file(request, query, project=project, version=version, taxonomy=taxonomy)
 
     if results:
         # pre and post 1.0 compat

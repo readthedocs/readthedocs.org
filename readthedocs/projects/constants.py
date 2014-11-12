@@ -251,4 +251,21 @@ LANGUAGES_REGEX = "|".join(
     [re.escape(code[0]) for code in LANGUAGES]
 )
 
+PROGRAMMING_LANGUAGES = (
+    ("words", "Only Words"),
+    ("py", "Python"),
+    ("js", "Javascript"),
+    ("php", "PHP"),
+    ("ruby", "Ruby"),
+    ("perl", "Perl"),
+    ("java", "Java"),
+    ("go", "Go"),
+    ("julia", "Julia"),
+    ("c", "C"),
+    ("csharp", "C#"),
+    ("cpp", "C++"),
+    ("objc", "Objective-C"),
+    ("other", "Other"),
+)
+
 LOG_TEMPLATE = u"(Build) [{project}:{version}] {msg}"

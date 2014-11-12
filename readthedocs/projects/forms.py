@@ -58,7 +58,7 @@ class ImportProjectForm(ProjectForm):
             # Not as important
             'description',
             'documentation_type',
-            'language',
+            'language', 'programming_language',
             'project_url',
             'canonical_url',
             'tags',
@@ -166,7 +166,7 @@ class DualCheckboxWidget(forms.CheckboxInput):
 class BaseVersionsForm(forms.Form):
 
     def save(self):
-        versions = self.project.versions.all()
+        versions = self.project.versions.public()
         for version in versions:
             self.save_version(version)
         default_version = self.cleaned_data.get('default-version', None)
@@ -194,7 +194,7 @@ def build_versions_form(project):
     attrs = {
         'project': project,
     }
-    versions_qs = project.versions.all()
+    versions_qs = project.versions.all() # Admin page, so show all versions
     active = versions_qs.filter(active=True)
     if active.exists():
         choices = [(version.slug, version.verbose_name) for version in active]
@@ -252,7 +252,7 @@ def build_upload_html_form(project):
     attrs = {
         'project': project,
     }
-    active = project.versions.all()
+    active = project.versions.public()
     if active.exists():
         choices = []
         choices += [(version.slug, version.verbose_name) for version in active]

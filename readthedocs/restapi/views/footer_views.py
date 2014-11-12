@@ -8,6 +8,7 @@ from rest_framework.renderers import JSONPRenderer, JSONRenderer, BrowsableAPIRe
 from rest_framework.response import Response
 
 from bookmarks.models import Bookmark
+from builds.models import Version
 from projects.models import Project
 
 
@@ -26,11 +27,11 @@ def footer_html(request):
     new_theme = (theme == "sphinx_rtd_theme")
     using_theme = (theme == "default")
     project = get_object_or_404(Project, slug=project_slug)
-    version = get_object_or_404(project.versions.all(), slug=version_slug)
+    version = get_object_or_404(Version.objects.public(request.user, project=project, only_active=False), slug=version_slug)
     main_project = project.main_language_project or project
 
     if page_slug and page_slug != "index":
-        if main_project.documentation_type == "sphinx_htmldir":
+        if main_project.documentation_type == "sphinx_htmldir" or main_project.documentation_type == "mkdocs":
             path = page_slug + "/"
         elif main_project.documentation_type == "sphinx_singlehtml":
             path = "index.html#document-" + page_slug

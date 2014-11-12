@@ -78,7 +78,7 @@ class BaseSphinx(BaseBuilder):
             display_bitbucket = True
 
         rtd_ctx = Context({
-            'versions': project.api_versions(),
+            'versions': project.active_versions(),
             'downloads': self.version.get_downloads(pretty=True),
             'current_version': self.version.slug,
             'project': project,
@@ -86,7 +86,6 @@ class BaseSphinx(BaseBuilder):
             'static_path': STATIC_DIR,
             'template_path': TEMPLATE_DIR,
             'conf_py_path': conf_py_path,
-            'downloads': apiv2.version(self.version.pk).downloads.get()['downloads'],
             'api_host': getattr(settings, 'SLUMBER_API_HOST', 'https://readthedocs.org'),
             # GitHub
             'github_user': github_info[0],

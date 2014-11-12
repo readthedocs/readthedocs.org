@@ -1,6 +1,7 @@
 {% extends "profiles/base_profile.html" %}
 
 {% load i18n %}
+{% load privacy_tags %}
 
 {% block title %}{% blocktrans with profile.user as user %}{{ user }}'s profile{% endblocktrans %}{% endblock %}
 
@@ -11,7 +12,8 @@
 
   <div id="profile">
     <div>
-      {% with profile.user.projects.live as project_list %}
+    {% get_public_projects profile.user %}
+      {% with public_projects as project_list %}
             <!-- BEGIN projects list -->
             <div class="module">
               <div class="module-wrapper">

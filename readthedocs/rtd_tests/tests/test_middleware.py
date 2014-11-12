@@ -20,6 +20,7 @@ class MiddlewareTests(unittest.TestCase):
             self.middleware.process_request(request)
         self.assertEqual(request.cname, True)
 
+    @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
     def test_proper_subdomain(self):
         request = self.factory.get(self.url, HTTP_HOST='pip.readthedocs.org')
         self.middleware.process_request(request)

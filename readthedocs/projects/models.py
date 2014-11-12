@@ -15,7 +15,7 @@ from guardian.shortcuts import assign
 
 from betterversion.better import version_windows, BetterVersion
 from oauth import utils as oauth_utils
-from privacy.loader import ProjectManager
+from privacy.loader import RelatedProjectManager, ProjectManager
 from projects import constants
 from projects.exceptions import ProjectImportError
 from projects.templatetags.projects_tags import sort_version_aware
@@ -169,6 +169,10 @@ class Project(models.Model):
                                             "documentation is rendered in. "
                                             "Note: this affects your project's URL."),
                                 choices=constants.LANGUAGES)
+
+    programming_language = models.CharField(_('Programming Language'), max_length=20, default='words',
+                                help_text=_("The primary programming language the project is written in."),
+                                choices=constants.PROGRAMMING_LANGUAGES, blank=True)
     # A subproject pointed at it's main language, so it can be tracked
     main_language_project = models.ForeignKey('self',
                                               related_name='translations',
@@ -202,6 +206,7 @@ class Project(models.Model):
 
     tags = TaggableManager(blank=True)
     objects = ProjectManager()
+    all_objects = models.Manager()
 
     class Meta:
         ordering = ('slug',)
@@ -657,7 +662,7 @@ class Project(models.Model):
         if not self.num_major or not self.num_minor or not self.num_point:
             return None
         versions = []
-        for ver in self.versions.all():
+        for ver in self.versions.public():
             try:
                 versions.append(BetterVersion(ver.verbose_name))
             except UnsupportedVersionError:
@@ -751,6 +756,7 @@ class ImportedFile(models.Model):
 class Notification(models.Model):
     project = models.ForeignKey(Project,
                                 related_name='%(class)s_notifications')
+    objects = RelatedProjectManager()
 
     class Meta:
         abstract = True

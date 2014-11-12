@@ -30,7 +30,6 @@ class ProjectAdmin(GuardedModelAdmin):
     inlines = [ProjectRelationshipInline, RedirectInline, VersionInline]
     raw_id_fields = ('users', 'main_language_project')
 
-
 class ImportedFileAdmin(admin.ModelAdmin):
     list_display = ('path', 'name', 'version')
     list_filter = ('project',)
