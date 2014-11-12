@@ -43,7 +43,7 @@ class ProjectIndex(ListView):
 
     def get_context_data(self, **kwargs):
         context = super(ProjectIndex, self).get_context_data(**kwargs)
-        context['person'] = self.user
+        context['person'] = self.request.user
         context['tag'] = self.tag
         return context
 
