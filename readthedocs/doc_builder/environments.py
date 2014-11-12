@@ -147,7 +147,7 @@ class DockerEnvironment(EnvironmentBase):
         .. warning:: Never, ever, pass secure data as an evironment variable.
         '''
         env = {}
-        for key in ['SLUMBER_API_HOST', 'PRODUCTION_DOMAIN']:
+        for key in ['SLUMBER_API_HOST', 'PRODUCTION_DOMAIN', 'MEDIA_URL']:
             val = getattr(settings, key)
             env['RTD_DOCKER_{0}'.format(key)] = val
         return env
