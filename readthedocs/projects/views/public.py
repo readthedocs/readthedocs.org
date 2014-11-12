@@ -39,11 +39,17 @@ class ProjectIndex(ListView):
         else:
             self.tag = None
 
+        if self.kwargs.get('username'):
+            self.user = get_object_or_404(User, username=self.kwargs.get('username'))
+            queryset = queryset.filter(user=self.user)
+        else:
+            self.user = None
+
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super(ProjectIndex, self).get_context_data(**kwargs)
-        context['person'] = self.request.user
+        context['person'] = self.user
         context['tag'] = self.tag
         return context
 
