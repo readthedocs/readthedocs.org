@@ -21,7 +21,6 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 
 class ProjectFullSerializer(ProjectSerializer):
-
     '''Serializer for all fields on project model'''
 
     class Meta:
@@ -58,7 +57,6 @@ class BuildSerializer(serializers.ModelSerializer):
 
 
 class VersionFullSerializer(VersionSerializer):
-
     '''Serializer for all fields on version model'''
 
     project = ProjectFullSerializer()
