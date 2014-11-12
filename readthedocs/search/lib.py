@@ -4,7 +4,7 @@ from .indexes import ProjectIndex, PageIndex
 try:
     from readthedocs.search.signals import before_project_search, before_file_search
 except:
-    from search.signals import before_file_search
+    from search.signals import before_project_search, before_file_search
 
 
 def search_project(request, query, language):
