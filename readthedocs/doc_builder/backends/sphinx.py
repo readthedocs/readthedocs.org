@@ -80,7 +80,7 @@ class BaseSphinx(BaseBuilder):
             display_bitbucket = True
 
         if setttings.DOCKER:
-            versions = project.activate_versions()
+            versions = project.active_versions()
         else:
             versions = project.api_versions()
 
