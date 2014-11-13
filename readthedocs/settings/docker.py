@@ -36,6 +36,7 @@ HAYSTACK_CONNECTIONS = {'default': {}}
 
 IMPORT_EXTERNAL_DATA = False
 DONT_HIT_DB = True
+DONT_HIT_API = True
 NGINX_X_ACCEL_REDIRECT = True
 
 FILE_SYNCER = 'privacy.backends.syncers.LocalSyncer'

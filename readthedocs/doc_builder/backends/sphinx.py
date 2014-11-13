@@ -77,14 +77,7 @@ class BaseSphinx(BaseBuilder):
         else:
             display_bitbucket = True
 
-        if getattr(settings, 'DOCKER', False):
-            versions = project.active_versions()
-        else:
-            versions = project.api_versions()
-
         rtd_ctx = Context({
-            'versions': versions,
-            'downloads': self.version.get_downloads(pretty=True),
             'current_version': self.version.slug,
             'project': project,
             'settings': settings,
@@ -104,6 +97,16 @@ class BaseSphinx(BaseBuilder):
             'display_bitbucket': display_bitbucket,
             'commit': self.version.project.vcs_repo(self.version.slug).commit,
         })
+
+        # Avoid hitting database and API if using Docker build environment
+        if getattr(settings, 'DONT_HIT_API', False):
+            rtd_ctx['versions'] = project.active_versions()
+            rtd_ctx['downloads'] = self.version.get_downloads(pretty=True)
+        else:
+            rtd_ctx['versions'] = project.api_versions()
+            rtd_ctx['downloads'] = (apiv2.version(self.version.pk)
+                                    .downloads.get()['downloads'])
+
         rtd_string = template_loader.get_template('doc_builder/conf.py.tmpl').render(rtd_ctx)
         outfile.write(rtd_string)
 
