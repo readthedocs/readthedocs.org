@@ -166,7 +166,7 @@ class DualCheckboxWidget(forms.CheckboxInput):
 class BaseVersionsForm(forms.Form):
 
     def save(self):
-        versions = self.project.versions.public()
+        versions = self.project.versions.all()
         for version in versions:
             self.save_version(version)
         default_version = self.cleaned_data.get('default-version', None)
