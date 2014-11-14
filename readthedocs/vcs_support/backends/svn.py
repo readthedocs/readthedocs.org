@@ -9,7 +9,7 @@ class Backend(BaseVCS):
     supports_tags = False
     fallback_branch = '/trunk/'
 
-    def __init__(self, project, version):
+    def __init__(self, project, version, **kwargs):
         super(Backend, self).__init__(project, version)
         if self.repo_url[-1] != '/':
             self.base_url = self.repo_url
