@@ -167,6 +167,22 @@
     {% block dashboard-onboard-extra %}
     {% endblock %}
 
+    <!-- BEGIN bookmarks list -->
+    <div class="module bookmarks-list">
+      <h3>{% trans "Recent Bookmarks" %}</h3>
+
+      {% if bookmark_list %}
+        {% include "core/bookmark_list_detailed.html" %}
+
+        <p>
+          <a href="{% url 'bookmark_list' %}">{% trans "All My Bookmarks" %}</a>
+        </p>
+      {% else %}
+        <p>{% trans "You have not added any bookmarks" %}</p>
+      {% endif %}
+    </div>
+    <!-- END bookmarks list -->
+
     <div class="module info info-docs">
       <p>
         Check out the <a href="http://docs.readthedocs.org/en/latest/index.html">documentation for Read the Docs</a>.
@@ -175,32 +191,4 @@
     </div>
   </div>
   <!-- END project side bar -->
-
-
-<div class="col-major project-dashboard-right">
-    {% if bookmark_list %}
-    <!-- BEGIN marks list -->
-    <div class="module">
-      <div class="module-wrapper">
-        <div class="module-header bookmarks-list">
-          <h3>{% trans "Recently Bookmarked Docs" %} <span class="small_head"><a href="{% url 'bookmark_list' %}">{% trans "(All My Bookmarks)" %}</a></span></h3>
-        </div>
-
-        <div class="module-list">
-          <div class="module-list-wrapper">
-            <ul>
-              {% include "core/bookmark_list_detailed.html" %}
-            </ul>
-          </div>
-        </div>
-
-      </div>
-    </div>
-    {% else %}
-        <h3>{% trans "You have not added any bookmarks" %}</h3>
-        <p>If you add some bookmarks, they will show up here.</p>
-    <!-- END marks list -->
-    {% endif %}
-</div>
-
 {% endblock %}
