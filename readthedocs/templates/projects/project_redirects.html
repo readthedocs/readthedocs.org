@@ -10,10 +10,10 @@
 {% block extra_scripts %}
     <script type="text/javascript">
 
-        var update_outcome = function(ev) {     
-            var field_from_url = $('#id_from_url'); 
+        var update_outcome = function(ev) {
+            var field_from_url = $('#id_from_url');
                 field_to_url =  $('#id_to_url');
-                option = $('#id_redirect_type').val();  
+                option = $('#id_redirect_type').val();
                 redirect_from = ""; 
                 redirect_target = ""; 
 
@@ -30,13 +30,13 @@
                 redirect_target =  field_to_url.val();
             }
 
-            if (redirect_from && redirect_target) { 
-                var result = "Outcome: " + redirect_from + " -> " + redirect_target; 
-                $('#dynamic-redirect').text(result).show(); 
+            if (redirect_from && redirect_target) {
+                var result = "Outcome: " + redirect_from + " -> " + redirect_target;
+                $('#dynamic-redirect').text(result).show();
             } else { 
-                $('#dynamic-redirect').text("").hide(); 
+                $('#dynamic-redirect').text("").hide();
             }
-        }; 
+        };
 
         $(document).ready(function() {
             $('#id_from_url').parent().hide()
@@ -61,8 +61,8 @@
                     $('#id_from_url').parent().show()
                     $('#id_to_url').parent().show()
                 }
-            update_outcome(ev); 
-          }); 
+            update_outcome(ev);
+          });
           $('#id_from_url, #id_to_url').keyup(update_outcome);
         });
 
@@ -74,32 +74,32 @@
     {% trans "Add redirects for your project. This allows you to fix links to old pages that are 404ing." %}
   </p>
 
-  {% if redirects|length >= 1 %}
-  <h3>{% trans "Existing Redirects" %}</h3>
-  <p>
-    <ul>
-    {% for redirect in redirects %}
-        <li>
-        {{ redirect }}
-        </a>
-        </li>
-    {% endfor %}
-    </ul>
-  {% endif %}
-
-  {% if redirects|length >= 1 %}
-  <h3>{% trans "Remove Redirect" %}</h3>
-    <p>
-        <form method="post" action="{% url "projects_redirects_delete" project.slug %}">
-            {% csrf_token %}
-          <select id="id_pk" name="pk">
-          {% for redirect in redirects %}
-            <option value="{{ redirect.pk }}">{{ redirect }}</option>
-          {% endfor %}
-          </select>
-          <input type="submit" value="Remove">
-        </form>
-    </p>
+  {% if redirects|length > 0 %}
+    <h3>{% trans "Redirects" %}</h3>
+    <div class="module">
+      <div class="module-list">
+        <div class="module-list-wrapper">
+          <ul>
+            {% for redirect in redirects %}
+              <li class="module-item">
+                <span>
+                  {{ redirect }}
+                </span>
+                <ul class="module-item-menu">
+                  <li>
+                    <form method="post" action="{% url "projects_redirects_delete" project.slug %}">
+                      {% csrf_token %}
+                      <input type="hidden" name="id_pk" value="{{ redirect.pk }}" />
+                      <input type="submit" value="{% trans "Remove" %}">
+                    </form>
+                  </li>
+                </ul>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
   {% endif %}
 
   <form method="post" action=".">{% csrf_token %}

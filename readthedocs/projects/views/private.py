@@ -59,7 +59,7 @@ class ProjectDashboard(ListView):
             context['bookmark_list'] = bookmarks[:3]
         else:
             bookmarks = None
-            
+
         return context
 
 
@@ -428,8 +428,8 @@ def project_redirects_delete(request, project_slug):
         return HttpResponseNotAllowed('Only POST is allowed')
     project = get_object_or_404(Project.objects.for_admin_user(request.user),
                                 slug=project_slug)
-    redirect = get_object_or_404(Project.objects.for_admin_user(request.user),
-                                 pk=request.POST.get('pk'))
+    redirect = get_object_or_404(project.redirects,
+                                 pk=request.POST.get('id_pk'))
     if redirect.project == project:
         redirect.delete()
     else:
