@@ -247,11 +247,15 @@ class ImportWizardView(SessionWizardView):
         other side effects for now, by signalling a save without commit. Then,
         finish by added the members to the project and saving.
         '''
-        project = {}
-        for form in form_list[1:]:
-            project = form.save(commit=False)
+        # expect the first two forms
+        (_, basics_form) = form_list[:2]
+        # Save the basics form to create the project instance, then alter
+        # attributes directly from other forms
+        project = basics_form.save()
+        for form in form_list[2:]:
+            for (field, value) in form.cleaned_data.items():
+                setattr(project, field, value)
         project.save()
-        project.users.add(self.request.user)
         trigger_build(project)
         return HttpResponseRedirect(reverse('projects_detail',
                                             args=[project.slug]))

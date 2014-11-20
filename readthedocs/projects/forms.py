@@ -100,6 +100,12 @@ class ProjectBasicsForm(ProjectForm):
             'https://github.com/ericholscher/django-kong.git',
         ])
 
+    def save(self, commit=True):
+        project = super(ProjectBasicsForm, self).save(commit)
+        if commit:
+            project.users.add(self.user)
+        return project
+
 
 class ProjectExtraForm(ProjectForm):
 
