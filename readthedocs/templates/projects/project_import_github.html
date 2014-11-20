@@ -43,15 +43,13 @@
 
             <a class="module-item-title" href="{{ repo.html_url }}">{{ repo.full_name }}</a>
 
-            <form method="post" action="{% url 'projects_import' %}">
+            <form method="post" action="{% url "projects_import" %}">
               {% csrf_token %}
               <input name="name" type="hidden" value="{{ repo.name }}" />
               <input name="repo" type="hidden" value="{{ repo.html_url }}" />
               <input name="repo_type" type="hidden" value="git" />
               <input name="description" type="hidden" value="{{ repo.description }}" />
-              <input name="language" type="hidden" value="en" />
               <input name="project_url" type="hidden" value="{{ repo.homepage }}" />
-              <input name="documentation_type" type="hidden" value="sphinx" />
 
               {% if repo.matches %}
               <span class="dropdown" style="position:absolute; right:0px; top:0px;">

@@ -6,9 +6,10 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotAllowed, Http404
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
-from django.views.generic import ListView
+from django.views.generic import ListView, TemplateView
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.formtools.wizard.views import SessionWizardView
@@ -206,8 +207,7 @@ def project_delete(request, project_slug):
 class ImportWizardView(SessionWizardView):
     '''Project import wizard'''
 
-    form_list = [('backend', ProjectBackendForm),
-                 ('basics', ProjectBasicsForm),
+    form_list = [('basics', ProjectBasicsForm),
                  ('extra', ProjectExtraForm),
                  ('advanced', ProjectAdvancedForm)]
     condition_dict = {'extra': lambda self: self.is_advanced(),
@@ -216,8 +216,7 @@ class ImportWizardView(SessionWizardView):
     def get_form_kwargs(self, step):
         '''Get args to pass into form instantiation'''
         kwargs = {}
-        if step != 'backend':
-            kwargs['user'] = self.request.user
+        kwargs['user'] = self.request.user
         if step == 'basics':
             kwargs['show_advanced'] = True
         if step == 'extra':
@@ -247,12 +246,12 @@ class ImportWizardView(SessionWizardView):
         other side effects for now, by signalling a save without commit. Then,
         finish by added the members to the project and saving.
         '''
-        # expect the first two forms
-        (_, basics_form) = form_list[:2]
+        # expect the first form
+        basics_form = form_list[0]
         # Save the basics form to create the project instance, then alter
         # attributes directly from other forms
         project = basics_form.save()
-        for form in form_list[2:]:
+        for form in form_list[1:]:
             for (field, value) in form.cleaned_data.items():
                 setattr(project, field, value)
         project.save()
@@ -266,27 +265,27 @@ class ImportWizardView(SessionWizardView):
         return data.get('advanced', True)
 
 
-@login_required
-def project_import(request, form_class=UpdateProjectForm):
-    """
-    Import docs from an repo
-    """
-    form = form_class(request.POST or None, user=request.user)
+class ImportView(TemplateView):
+    '''On GET, show the source select template, on POST, mock out a wizard
 
-    if request.method == 'POST' and form.is_valid():
-        project = form.save()
-        form.instance.users.add(request.user)
-        assign('view_project', request.user, project)
-        project_manage = reverse('projects_detail', args=[project.slug])
-        messages.info(request, _("Your docs are currently being built. "
-                                 "It may take a moment for them to appear."))
-        return HttpResponseRedirect(project_manage)
+    If we are accepting POST data, use the fields to seed the initial data in
+    :py:cls:`ImportWizardView`.  The import templates will redirect the form to
+    `/dashboard/import`
+    '''
 
-    return render_to_response(
-        'projects/project_import.html',
-        {'form': form},
-        context_instance=RequestContext(request)
-    )
+    template_name = 'projects/project_import.html'
+    wizard_class = ImportWizardView
+
+    def post(self, request, *args, **kwargs):
+        initial_data = {}
+        initial_data['basics'] = {}
+        for key in ['name', 'repo', 'repo_type']:
+            initial_data['basics'][key] = request.POST.get(key)
+        initial_data['extra'] = {}
+        for key in ['description', 'project_url']:
+            initial_data['extra'][key] = request.POST.get(key)
+        request.method = 'GET'
+        return self.wizard_class.as_view(initial_dict=initial_data)(request)
 
 
 @login_required
@@ -506,18 +505,18 @@ def project_redirects_delete(request, project_slug):
 
 @login_required
 def project_import_github(request, sync=False):
-    """
-    Integrate with GitHub to pull repos from there.
-    """
-
+    '''Show form that prefills import form with data from GitHub'''
     github_connected = oauth_utils.import_github(user=request.user, sync=sync)
-
     repos = GithubProject.objects.filter(users__in=[request.user])
 
     # Find existing projects that match a repo url
     for repo in repos:
         ghetto_repo = repo.git_url.replace('git://', '').replace('.git', '')
-        projects = Project.objects.public(request.user).filter(repo__endswith=ghetto_repo) | Project.objects.public(request.user).filter(repo__endswith=ghetto_repo + '.git')
+        projects = (Project
+                    .objects
+                    .public(request.user)
+                    .filter(Q(repo__endswith=ghetto_repo) |
+                            Q(repo__endswith=ghetto_repo + '.git')))
         if projects:
             repo.matches = [project.slug for project in projects]
         else:

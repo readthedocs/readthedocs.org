@@ -5,7 +5,7 @@
 
 {% block content %}
   <div class="wizard wizard-project">
-    <form action="" method="post">
+    <form action="{% url "projects_import_manual" %}" method="post">
 
       {% csrf_token %}
       {{ wizard.management_form }}
