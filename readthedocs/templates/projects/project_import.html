@@ -15,7 +15,7 @@
   {% get_social_accounts request.user as accounts %}
 
   <div class="row">
-    <div class="col col-bisect">
+    <div class="col col-trisect">
       <h3>{% trans "From GitHub" %}</h3>
 
       {% if accounts.github.0 %}
@@ -40,26 +40,26 @@
       {% endif %}
     </div>
 
-    <div class="col col-bisect">
+    <div class="col col-trisect">
       <h3>From Bitbucket</h3>
 
       <p>
         Coming soon, import your Bitbucket repositories!
       </p>
     </div>
-  </div>
 
-  <div class="row project-import project-import-manual">
-    <h3>{% trans "Manually Import a Public Repository" %}</h3>
+    <div class="col col-trisect">
+      <h3>{% trans "Manually Import" %}</h3>
 
-    <p class="info">
-      {% blocktrans %}
-        Public repositories can be imported manually from GitHub or Bitbucket.
-      {% endblocktrans %}
-    </p>
+      <p class="info">
+        {% blocktrans %}
+          Public repositories can be imported manually from GitHub or Bitbucket.
+        {% endblocktrans %}
+      </p>
 
-    <form action="{% url "projects_import_manual" %}" method="get">
-      <input type="submit" value="{% trans "Manually Import Project" %}"/>
-    </form>
+      <form action="{% url "projects_import_manual" %}" method="get">
+        <input type="submit" value="{% trans "Manually Import Project" %}"/>
+      </form>
+    </div>
   </div>
 {% endblock %}
