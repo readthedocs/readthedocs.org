@@ -5,12 +5,13 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect, HttpResponseNotAllowed, Http404
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotAllowed, Http404
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
 from django.views.generic import ListView
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.formtools.wizard.views import SessionWizardView
 
 from guardian.shortcuts import assign
 
@@ -18,12 +19,14 @@ from builds.models import Version
 from builds.forms import AliasForm, VersionForm
 from builds.filters import VersionFilter
 from builds.models import VersionAlias
+from core.utils import trigger_build
 from oauth.models import GithubProject
 from oauth import utils as oauth_utils
-from projects.forms import (ImportProjectForm, build_versions_form,
-                            SubprojectForm,
-                            UserForm, EmailHookForm, TranslationForm,
-                            AdvancedProjectForm, RedirectForm, WebHookForm)
+from projects.forms import (ProjectBackendForm, ProjectBasicsForm,
+                            ProjectExtraForm, ProjectAdvancedForm,
+                            UpdateProjectForm, SubprojectForm,
+                            build_versions_form, UserForm, EmailHookForm,
+                            TranslationForm, RedirectForm, WebHookForm)
 from projects.models import Project, EmailHook, WebHook
 from projects import constants
 
@@ -85,7 +88,7 @@ def project_edit(request, project_slug):
     project = get_object_or_404(Project.objects.for_admin_user(request.user),
                                 slug=project_slug)
 
-    form_class = ImportProjectForm
+    form_class = UpdateProjectForm
 
     form = form_class(instance=project, data=request.POST or None)
 
@@ -110,7 +113,7 @@ def project_advanced(request, project_slug):
     """
     project = get_object_or_404(Project.objects.for_admin_user(request.user),
                                 slug=project_slug)
-    form_class = AdvancedProjectForm
+    form_class = ProjectAdvancedForm
     form = form_class(instance=project, data=request.POST or None, initial={
                       'num_minor': 2, 'num_major': 2, 'num_point': 2})
 
@@ -200,8 +203,67 @@ def project_delete(request, project_slug):
     )
 
 
+class ImportWizardView(SessionWizardView):
+    '''Project import wizard'''
+
+    form_list = [('backend', ProjectBackendForm),
+                 ('basics', ProjectBasicsForm),
+                 ('extra', ProjectExtraForm),
+                 ('advanced', ProjectAdvancedForm)]
+    condition_dict = {'extra': lambda self: self.is_advanced(),
+                      'advanced': lambda self: self.is_advanced()}
+
+    def get_form_kwargs(self, step):
+        '''Get args to pass into form instantiation'''
+        kwargs = {}
+        if step != 'backend':
+            kwargs['user'] = self.request.user
+        if step == 'basics':
+            kwargs['show_advanced'] = True
+        if step == 'extra':
+            extra_form = self.get_form_from_step('basics')
+            project = extra_form.save(commit=False)
+            kwargs['instance'] = project
+        if step == 'advanced':
+            adv_form = self.get_form_from_step('extra')
+            project = adv_form.save(commit=False)
+            kwargs['instance'] = project
+        return kwargs
+
+    def get_form_from_step(self, step):
+        return self.form_list[step](
+            data=self.get_cleaned_data_for_step(step),
+            **self.get_form_kwargs(step)
+        )
+
+    def get_template_names(self):
+        '''Return template names based on step name'''
+        return 'projects/import_{0}.html'.format(self.steps.current, 'base')
+
+    def done(self, form_list, **kwargs):
+        '''Save form data as object instance
+
+        Don't save form data directly, instead bypass documentation building and
+        other side effects for now, by signalling a save without commit. Then,
+        finish by added the members to the project and saving.
+        '''
+        project = {}
+        for form in form_list[1:]:
+            project = form.save(commit=False)
+        project.save()
+        project.users.add(self.request.user)
+        trigger_build(project)
+        return HttpResponseRedirect(reverse('projects_detail',
+                                            args=[project.slug]))
+
+    def is_advanced(self):
+        '''Determine if the user selected the `show advanced` field'''
+        data = self.get_cleaned_data_for_step('basics') or {}
+        return data.get('advanced', True)
+
+
 @login_required
-def project_import(request, form_class=ImportProjectForm):
+def project_import(request, form_class=UpdateProjectForm):
     """
     Import docs from an repo
     """

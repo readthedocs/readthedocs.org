@@ -19,60 +19,64 @@ from projects.models import Project, EmailHook, WebHook
 class ProjectForm(forms.ModelForm):
     required_css_class = "required"
 
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super(ProjectForm, self).__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        project = super(ProjectForm, self).save(commit)
+        if commit and self.user:
+            if not project.users.filter(pk=self.user.pk).exists():
+                project.users.add(self.user)
+        return project
+
+
+class ProjectTriggerBuildMixin(object):
+    '''Mixin to trigger build on form save
+
+    This should be replaced with signals instead of calling trigger_build
+    explicitly.
+    '''
+
+    def save(self, commit=True):
+        '''Trigger build on commit save'''
+        project = super(ProjectTriggerBuildMixin, self).save(commit)
+        if commit:
+            trigger_build(project=project)
+        return project
+
+
+class ProjectBackendForm(forms.Form):
+    '''Get the import backend'''
+    backend = forms.CharField()
+
+
+class ProjectBasicsForm(ProjectForm):
+    '''Form for basic project fields'''
+
+    class Meta:
+        model = Project
+        fields = ('name', 'repo', 'repo_type')
+
+    def __init__(self, *args, **kwargs):
+        show_advanced = kwargs.pop('show_advanced', False)
+        super(ProjectBasicsForm, self).__init__(*args, **kwargs)
+        if show_advanced:
+            self.fields['advanced'] = forms.BooleanField(
+                required=False,
+                label=_('Edit advanced project options')
+            )
+        self.fields['repo'].widget.attrs['placeholder'] = self.placehold_repo()
+        self.fields['repo'].widget.attrs['required'] = True
+
     def clean_name(self):
         name = self.cleaned_data.get('name', '')
         if not self.instance.pk:
             potential_slug = slugify(name)
-            if Project.objects.filter(slug=potential_slug).count():
+            if Project.objects.filter(slug=potential_slug).exists():
                 raise forms.ValidationError(
-                    _('A project with that name exists already!')
-                )
-
+                    _('Invalid project name, a project already exists with that name'))
         return name
-
-    def placehold_repo(self):
-        return choice([
-            'https://bitbucket.org/cherrypy/cherrypy',
-            'https://bitbucket.org/birkenfeld/sphinx',
-            'https://bitbucket.org/hpk42/tox',
-            'https://github.com/zzzeek/sqlalchemy.git',
-            'https://github.com/django/django.git',
-            'https://github.com/fabric/fabric.git',
-            'https://github.com/ericholscher/django-kong.git',
-        ])
-
-    def placehold_canonical_url(self):
-        return choice([
-            'http://docs.fabfile.org',
-            'http://example.readthedocs.org',
-        ])
-
-
-class ImportProjectForm(ProjectForm):
-
-    class Meta:
-        model = Project
-        fields = (
-            # Important
-            'name', 'repo', 'repo_type',
-            # Not as important
-            'description',
-            'documentation_type',
-            'language', 'programming_language',
-            'project_url',
-            'canonical_url',
-            'tags',
-        )
-
-    def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop('user', None)
-        super(ImportProjectForm, self).__init__(*args, **kwargs)
-        placeholders = {
-            'repo': self.placehold_repo(),
-            'canonical_url': self.placehold_canonical_url(),
-        }
-        for (field, value) in placeholders.items():
-            self.fields[field].widget.attrs['placeholder'] = value
 
     def clean_repo(self):
         repo = self.cleaned_data.get('repo', '').strip()
@@ -85,18 +89,43 @@ class ImportProjectForm(ProjectForm):
                   u'public (http:// or git://) clone url'))
         return repo
 
-    def save(self, *args, **kwargs):
-        # save the project
-        project = super(ImportProjectForm, self).save(*args, **kwargs)
+    def placehold_repo(self):
+        return choice([
+            'https://bitbucket.org/cherrypy/cherrypy',
+            'https://bitbucket.org/birkenfeld/sphinx',
+            'https://bitbucket.org/hpk42/tox',
+            'https://github.com/zzzeek/sqlalchemy.git',
+            'https://github.com/django/django.git',
+            'https://github.com/fabric/fabric.git',
+            'https://github.com/ericholscher/django-kong.git',
+        ])
 
-        if kwargs.get('commit', True):
-            # kick off the celery job
-            trigger_build(project=project)
 
-        return project
+class ProjectExtraForm(ProjectForm):
+
+    class Meta:
+        model = Project
+        fields = (
+            'description',
+            'documentation_type',
+            'language', 'programming_language',
+            'project_url',
+            'canonical_url',
+            'tags',
+        )
+
+    def __init__(self, *args, **kwargs):
+        super(ProjectExtraForm, self).__init__(*args, **kwargs)
+        self.fields['canonical_url'].widget.attrs['placeholder'] = self.placehold_canonical_url()
+
+    def placehold_canonical_url(self):
+        return choice([
+            'http://docs.fabfile.org',
+            'http://example.readthedocs.org',
+        ])
 
 
-class AdvancedProjectForm(ProjectForm):
+class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
     python_interpreter = forms.ChoiceField(
         choices=constants.PYTHON_CHOICES, initial='python',
         help_text=_("(Beta) The Python interpreter used to create the virtual "
@@ -132,14 +161,27 @@ class AdvancedProjectForm(ProjectForm):
                   'conf.py in it.'))
         return file
 
-    def save(self, *args, **kwargs):
-        # save the project
-        project = super(AdvancedProjectForm, self).save(*args, **kwargs)
 
-        # kick off the celery job
-        trigger_build(project=project)
+class UpdateProjectForm(ProjectTriggerBuildMixin, ProjectBasicsForm,
+                        ProjectExtraForm):
 
-        return project
+    class Meta:
+        model = Project
+        fields = (
+            # Basics
+            'name', 'repo', 'repo_type',
+            # Extra
+            'description',
+            'documentation_type',
+            'language', 'programming_language',
+            'project_url',
+            'canonical_url',
+            'tags',
+        )
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super(UpdateProjectForm, self).__init__(*args, **kwargs)
 
 
 class DualCheckboxWidget(forms.CheckboxInput):

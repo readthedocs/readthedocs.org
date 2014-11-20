@@ -1,6 +1,8 @@
 from django.conf.urls import patterns, url
 
 from projects.views.private import AliasList, ProjectDashboard
+from projects.views import ImportWizardView
+
 
 urlpatterns = patterns(
     # base view, flake8 complains if it is on the previous line.
@@ -10,7 +12,7 @@ urlpatterns = patterns(
         name='projects_dashboard'),
 
     url(r'^import/$',
-        'projects.views.private.project_import',
+        ImportWizardView.as_view(),
         name='projects_import'),
 
     url(r'^import/github/$',

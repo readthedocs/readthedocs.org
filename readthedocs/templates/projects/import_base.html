@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Add a Project" %}{% endblock %}
+
+{% block content %}
+  <div class="wizard wizard-project">
+    <form action="" method="post">
+
+      {% csrf_token %}
+      {{ wizard.management_form }}
+
+      {% block wizard-form %}
+        {% if wizard.form.forms %}
+          {{ wizard.form.management_form }}
+          {% for form in wizard.form.forms %}
+            {{ form }}
+          {% endfor %}
+        {% else %}
+          {{ wizard.form }}
+        {% endif %}
+      {% endblock %}
+
+      <div class="actions wizard-actions">
+        {% if wizard.steps.next %}
+          <input class="action action-primary" type="submit" value="{% trans "Next" %}" />
+        {% else %}
+          <input class="action action-primary" type="submit" value="{% trans "Finish" %}" />
+        {% endif %}
+
+        {% if wizard.steps.prev %}
+          <button class="action action-secondary" name="wizard_goto_step" type="submit" value="{{ wizard.steps.prev }}">{% trans "Previous" %}</button>
+        {% endif %}
+      </div>
+
+    </form>
+  </div>
+{% endblock %}

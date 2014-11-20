@@ -1,0 +1,14 @@
+{% extends "projects/import_base.html" %}
+{% load i18n %}
+
+{% block content %}
+  <h3>{% trans "Import a Project" %}</h3>
+
+  <p class="info">
+    {% blocktrans %}
+      Import a project now.
+    {% endblocktrans %}
+  </p>
+
+  {{ block.super }}
+{% endblock %}
