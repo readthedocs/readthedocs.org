@@ -21,17 +21,19 @@
         {% endif %}
       {% endblock %}
 
-      <div class="actions wizard-actions">
-        {% if wizard.steps.next %}
-          <input class="action action-primary" type="submit" value="{% trans "Next" %}" />
-        {% else %}
-          <input class="action action-primary" type="submit" value="{% trans "Finish" %}" />
-        {% endif %}
+      {% block wizard-actions %}
+        <div class="actions wizard-actions">
+          {% if wizard.steps.next %}
+            <input class="action action-primary" type="submit" value="{% trans "Next" %}" />
+          {% else %}
+            <input class="action action-primary" type="submit" value="{% trans "Finish" %}" />
+          {% endif %}
 
-        {% if wizard.steps.prev %}
-          <button class="action action-secondary" name="wizard_goto_step" type="submit" value="{{ wizard.steps.prev }}">{% trans "Previous" %}</button>
-        {% endif %}
-      </div>
+          {% if wizard.steps.prev %}
+            <button class="action action-secondary" name="wizard_goto_step" type="submit" value="{{ wizard.steps.prev }}">{% trans "Previous" %}</button>
+          {% endif %}
+        </div>
+      {% endblock%}
 
     </form>
   </div>

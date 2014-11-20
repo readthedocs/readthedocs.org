@@ -2,7 +2,7 @@
 {% load i18n %}
 
 {% block content %}
-  <h3>{% trans "Import a Project" %}</h3>
+  <h1>{% trans "Import a Project" %}</h1>
 
   <p class="info">
     {% blocktrans %}
@@ -12,3 +12,13 @@
 
   {{ block.super }}
 {% endblock %}
+
+{% block wizard-form %}
+  <form action="" method="post" id="form-backend">
+    {% csrf_token %}
+    {{ wizard.form.management_form }}
+    <input id="id_backend-backend" name="backend-backend" value="" type="hidden" />
+  </form>
+{% endblock %}
+
+{% block wizard-actions %}{% endblock %}
