@@ -116,7 +116,9 @@ class BaseSphinx(BaseBuilder):
         project = self.version.project
         os.chdir(project.conf_dir(self.version.slug))
         force_str = " -E " if self._force else ""
-        build_command = "%s -T %s -b %s -D language=%s . %s " % (
+        build_command = "%s -O %s -T %s -b %s -D language=%s . %s " % (
+            project.venv_bin(version='latest',
+                             bin='python'),
             project.venv_bin(version=self.version.slug,
                              bin='sphinx-build'),
             force_str,
@@ -206,9 +208,12 @@ class PdfBuilder(BaseSphinx):
         os.chdir(project.conf_dir(self.version.slug))
         # Default to this so we can return it always.
         results = {}
-        latex_results = run('%s -b latex -D language=%s -d _build/doctrees . _build/latex'
-                            % (project.venv_bin(version=self.version.slug,
-                                                bin='sphinx-build'), project.language))
+        latex_results = run('%s -O %s -b latex -D language=%s -d _build/doctrees . _build/latex'
+                            % (project.venv_bin(version='latest',
+                                                bin='python'),
+                               project.venv_bin(version=self.version.slug,
+                                                bin='sphinx-build'),
+                               project.language))
 
         if latex_results[0] == 0:
             os.chdir('_build/latex')
