@@ -1,0 +1,17 @@
+{% extends "projects/import_base.html" %}
+{% load i18n %}
+
+{% block content %}
+  <h3>{% trans "Project Details" %}</h3>
+
+  <p class="info">
+    {% blocktrans %}
+      To import a project,
+      start by entering a few details about your repository.
+      More advanced project options can be configured
+      if you select <b>Edit advanced project options</b>.
+    {% endblocktrans %}
+  </p>
+
+  {{ block.super }}
+{% endblock %}

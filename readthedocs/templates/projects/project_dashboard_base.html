@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load pagination_tags %}
+{% load socialaccount %}
 
 {% block title %}{% trans "Project Dashboard" %}{% endblock %}
 
@@ -142,8 +143,10 @@
     </div>
     <!-- END search form -->
 
+    <!-- BEGIN social account onboard -->
+    {% get_social_accounts request.user as accounts %}
     <div class="module onboard onboard-accounts">
-      {% if request.user.socialaccount_set.count == 0 %}
+      {% if not accounts.github.0 %}
         <h3>Connect your Accounts</h3>
 
         <p>
@@ -155,14 +158,9 @@
         <form method="get" action="{{ social_accounts }}">
           <input type="submit" value="Connect to Github" />
         </form>
-      {% else %}
-        <p>
-          <form method="get" action="{% url 'projects_import_github' %}">
-            <input type="submit" value="Import from GitHub" />
-          </form>
-        </p>
       {% endif %}
     </div>
+    <!-- END social account onboard -->
 
     {% block dashboard-onboard-extra %}
     {% endblock %}

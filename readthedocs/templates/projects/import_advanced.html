@@ -1,0 +1,15 @@
+{% extends "projects/import_base.html" %}
+{% load i18n %}
+
+{% block content %}
+  <h3>{% trans "Advanced Details" %}</h3>
+
+  <p class="info">
+    {% blocktrans %}
+      These are advanced options that you may need to change if you
+      are having problems building your project's documentation.
+    {% endblocktrans %}
+  </p>
+
+  {{ block.super }}
+{% endblock %}
