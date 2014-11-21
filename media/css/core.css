@@ -527,6 +527,18 @@ p.build-missing { font-size: .8em; color: #9d9a55; margin: 0 0 3px; }
   font-size: 16px;
 }
 
+/* Form Wizards */
+div.actions.wizard-actions button.action-primary,
+div.actions.wizard-actions input.action-primary {
+    display: inline-block;
+}
+
+div.actions.wizard-actions button.action-secondary,
+div.actions.wizard-actions input.action-secondary {
+    float: left;
+    font-size: 100%;
+}
+
 /* Build state */
 span.build-state {
     padding: .2em .4em;

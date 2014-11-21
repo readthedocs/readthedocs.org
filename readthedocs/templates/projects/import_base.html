@@ -4,7 +4,7 @@
 {% block title %}{% trans "Add a Project" %}{% endblock %}
 
 {% block content %}
-  <div class="wizard wizard-project">
+  <div class="module wizard wizard-project">
     <form action="{% url "projects_import_manual" %}" method="post">
 
       {% csrf_token %}
@@ -14,10 +14,10 @@
         {% if wizard.form.forms %}
           {{ wizard.form.management_form }}
           {% for form in wizard.form.forms %}
-            {{ form }}
+            {{ form.as_p }}
           {% endfor %}
         {% else %}
-          {{ wizard.form }}
+          {{ wizard.form.as_p }}
         {% endif %}
       {% endblock %}
 
