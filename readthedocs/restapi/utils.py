@@ -131,18 +131,19 @@ def index_search_request(version, page_list, commit):
     log.info("(Server Search) Deleting files not in commit: %s" % commit)
     # Figure this out later
     delete_query = {
-        "query": {
-            "bool": {
-                "must": [
-                    {"term": {"project": project.slug, }},
-                    {"term": {"version": version.slug, }},
-                ],
-                "must_not": {
-                    "term": {
-                        "commit": commit
-                    }
+        # ES .90 doesn't wrap this 
+        #"query": {
+        "bool": {
+            "must": [
+                {"term": {"project": project.slug, }},
+                {"term": {"version": version.slug, }},
+            ],
+            "must_not": {
+                "term": {
+                    "commit": commit
                 }
             }
         }
+        #}
     }
     page_obj.delete_document(body=delete_query)
