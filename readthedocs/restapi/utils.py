@@ -133,14 +133,10 @@ def index_search_request(version, page_list, commit):
     delete_query = {
         "query": {
             "bool": {
-                "must": {
-                    "term": {
-                        "project": project.slug,
-                    },
-                    "term": {
-                        "version": version.slug,
-                    }
-                },
+                "must": [
+                    {"term": {"project": project.slug, }},
+                    {"term": {"version": version.slug, }},
+                ],
                 "must_not": {
                     "term": {
                         "commit": commit
