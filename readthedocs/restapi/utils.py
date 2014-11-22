@@ -128,6 +128,7 @@ def index_search_request(version, page_list, commit):
 
     page_obj.bulk_index(index_list, parent=project.slug)
 
+    log.info("(Server Search) Deleting files not in commit: %s" % commit)
     # Figure this out later
     delete_query = {
         "query": {
