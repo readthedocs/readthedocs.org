@@ -101,8 +101,10 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
             # Update Stable Version
             version_strings = project.supported_versions(flat=True)
             if version_strings:
-                new_stable = version_strings[-1]
-                new_stable = project.versions.get(verbose_name=new_stable)
+                new_stable_slug = version_strings[-1]
+                new_stable = project.versions.get(verbose_name=new_stable_slug)
+
+                # Update stable version
                 stable = project.versions.filter(slug='stable')
                 if stable.exists():
                     stable_obj = stable[0]
@@ -113,6 +115,16 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
                 else:
                     version = project.versions.create(slug='stable', verbose_name='stable', machine=True, type=new_stable.type, active=True, identifier=new_stable.identifier)
                     trigger_build(project=project, version=version)
+
+                # Build new tag if enabled
+                old_largest_slug = version_strings[-2]
+                old_largest = project.versions.get(verbose_name=old_largest_slug)
+                if old_largest.active and new_stable_slug in added_versions:
+                    new_stable.active = True
+                    new_stable.save()
+                    trigger_build(project=project, version=new_stable)
+
+
         except:
             log.exception("Supported Versions Failure", exc_info=True)
 

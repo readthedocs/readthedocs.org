@@ -662,7 +662,7 @@ class Project(models.Model):
         if not self.num_major or not self.num_minor or not self.num_point:
             return None
         versions = []
-        for ver in self.versions.public():
+        for ver in self.versions.public(only_active=False):
             try:
                 versions.append(BetterVersion(ver.verbose_name))
             except UnsupportedVersionError:
