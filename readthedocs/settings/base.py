@@ -14,8 +14,8 @@ PRODUCTION_DOMAIN = 'readthedocs.org'
 USE_SUBDOMAIN = False
 
 ADMINS = (
-    ('Eric Holscher', 'eric@ericholscher.com'),
-    ('Anthony Johnson', 'aj@ohess.org'),
+    ('Eric Holscher', 'eric@readthedocs.org'),
+    ('Anthony Johnson', 'anthony@readthedocs.org'),
 )
 
 MANAGERS = ADMINS
@@ -227,6 +227,7 @@ CELERYD_HIJACK_ROOT_LOGGER = False
 CELERYD_PREFETCH_MULTIPLIER = 1
 
 DEFAULT_FROM_EMAIL = "no-reply@readthedocs.org"
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
 SESSION_COOKIE_DOMAIN = 'readthedocs.org'
 
 HAYSTACK_CONNECTIONS = {
