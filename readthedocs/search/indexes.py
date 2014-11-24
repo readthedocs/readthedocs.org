@@ -162,7 +162,7 @@ class Index(object):
             kwargs['parent'] = parent
         if routing:
             kwargs['routing'] = routing
-        self.es.delete_by_query(**kwargs)
+        return self.es.delete_by_query(**kwargs)
 
     def get_mapping(self):
         """

@@ -14,8 +14,8 @@ PRODUCTION_DOMAIN = 'readthedocs.org'
 USE_SUBDOMAIN = False
 
 ADMINS = (
-    ('Charlie Leifer', 'coleifer@gmail.com'),
     ('Eric Holscher', 'eric@ericholscher.com'),
+    ('Anthony Johnson', 'aj@ohess.org'),
 )
 
 MANAGERS = ADMINS
@@ -220,7 +220,7 @@ if DEBUG:
 
 #CARROT_BACKEND = "ghettoq.taproot.Database"
 CELERY_ALWAYS_EAGER = True
-CELERYD_TASK_TIME_LIMIT = 60*60  # 60 minutes
+CELERYD_TASK_TIME_LIMIT = 60 * 60  # 60 minutes
 CELERY_SEND_TASK_ERROR_EMAILS = False
 CELERYD_HIJACK_ROOT_LOGGER = False
 # Don't queue a bunch of tasks in the workers
@@ -282,8 +282,8 @@ RESTRUCTUREDTEXT_FILTER_SETTINGS = {
     'sectsubtitle_xform': True,
     'initial_header_level': 2,
     'report_level': 5,
-    'syntax_highlight' : 'none',
-    'math_output' : 'latex',
+    'syntax_highlight': 'none',
+    'math_output': 'latex',
     'field_name_limit': 50,
 }
 
@@ -297,10 +297,10 @@ LOGGING = {
         },
     },
     'filters': {
-         'require_debug_false': {
-             '()': 'django.utils.log.RequireDebugFalse'
-         }
-     },
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse'
+        }
+    },
     'handlers': {
         'null': {
             'level': 'DEBUG',
@@ -364,7 +364,7 @@ LOGGING = {
         },
         'mail_admins': {
             'level': 'ERROR',
-             'filters': ['require_debug_false'],
+            'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler',
         },
         'console': {
