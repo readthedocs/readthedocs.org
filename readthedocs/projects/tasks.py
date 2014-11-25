@@ -290,12 +290,29 @@ def setup_environment(version):
         )
     )
 
-    if project.requirements_file:
-        os.chdir(project.checkout_path(version.slug))
+    # Handle requirements
+
+    requirements_file_path = project.requirements_file
+    if not requirements_file_path:
+        docs_dir = builder_loading.get(project.documentation_type)(version).docs_dir()
+        checkout_path = project.checkout_path(version.slug)
+        for path in [docs_dir, '']:
+            for req_file in ['pip_requirements.txt', 'requirements.txt']:
+                test_path = os.path.join(checkout_path, path, req_file)
+                print('Testing %s' % test_path)
+                if os.path.exists(test_path):
+                    requirements_file_path = test_path
+                    break
+
+    if requirements_file_path:
+        os.chdir(checkout_path)
         ret_dict['requirements'] = run(
             '{cmd} install --exists-action=w -r {requirements}'.format(
                 cmd=project.venv_bin(version=version.slug, bin='pip'),
-                requirements=project.requirements_file))
+                requirements=requirements_file_path))
+
+    # Handle setup.py
+
     os.chdir(project.checkout_path(version.slug))
     if os.path.isfile("setup.py"):
         if getattr(settings, 'USE_PIP_INSTALL', False):
@@ -320,7 +337,6 @@ def build_docs(version, force, pdf, man, epub, dash, search, localmedia):
 
     project = version.project
     results = {}
-
 
     with project.repo_nonblockinglock(version=version,
                                       max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
