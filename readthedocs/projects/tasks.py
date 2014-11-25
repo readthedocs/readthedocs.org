@@ -6,7 +6,6 @@ import os
 import shutil
 import json
 import logging
-import uuid
 import socket
 import requests
 
@@ -32,6 +31,12 @@ from search.utils import process_mkdocs_json
 from restapi.utils import index_search_request
 from vcs_support import utils as vcs_support_utils
 import tastyapi
+
+try:
+    from readthedocs.projects.signals import before_vcs, after_vcs, before_build, after_build
+except:
+    from projects.signals import before_vcs, after_vcs, before_build, after_build
+
 
 log = logging.getLogger(__name__)
 
@@ -164,6 +169,7 @@ def update_documentation_type(version, api):
     api.project(version.project.pk).put(project_data)
     version.project.documentation_type = ret
 
+
 def docker_build(version, pdf=True, man=True, epub=True, dash=True,
                  search=True, force=False, intersphinx=True, localmedia=True):
     """
@@ -213,11 +219,13 @@ def update_imported_docs(version_pk, api=None):
     if not os.path.exists(project.doc_path):
         os.makedirs(project.doc_path)
 
+    if not project.vcs_repo():
+        raise ProjectImportError(("Repo type '{0}' unknown".format(project.repo_type)))
+
     with project.repo_nonblockinglock(version=version,
                                       max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
-        if not project.vcs_repo():
-            raise ProjectImportError(("Repo type '{0}' unknown".format(project.repo_type)))
 
+        before_vcs.send(sender=version)
         # Get the actual code on disk
         if version:
             log.info(
@@ -242,6 +250,8 @@ def update_imported_docs(version_pk, api=None):
             version_slug = 'latest'
             version_repo = project.vcs_repo(version_slug)
             ret_dict['checkout'] = version_repo.update()
+
+        after_vcs.send(sender=version)
 
         # Update tags/version
 
@@ -363,6 +373,8 @@ def build_docs(version, force, pdf, man, epub, dash, search, localmedia):
     project = version.project
     results = {}
 
+    before_build.send(sender=version)
+
     with project.repo_nonblockinglock(version=version,
                                       max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
         html_builder = builder_loading.get(project.documentation_type)(version)
@@ -439,6 +451,9 @@ def build_docs(version, force, pdf, man, epub, dash, search, localmedia):
                         epub_builder.move()
                 else:
                     results['epub'] = fake_results
+
+    after_build.send(sender=version)
+    
     return results
 
 
