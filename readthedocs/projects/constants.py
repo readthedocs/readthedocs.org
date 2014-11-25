@@ -15,6 +15,7 @@ THEME_NATURE = 'nature'
 THEME_HAIKU = 'haiku'
 
 DOCUMENTATION_CHOICES = (
+    ('auto', _('Automatically Choose')),
     ('sphinx', _('Sphinx Html')),
     ('mkdocs', _('Mkdocs (Markdown)')),
     ('sphinx_htmldir', _('Sphinx HtmlDir')),

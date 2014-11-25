@@ -78,6 +78,9 @@ def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
         if vcs_results:
             results.update(vcs_results)
 
+        if project.documentation_type == 'auto':
+            update_documentation_type(version, api)
+
         if docker or settings.DOCKER_ENABLE:
             record_build(api=api, build=build, record=record, results=results, state='building')
             docker = DockerEnvironment(version)
@@ -138,6 +141,28 @@ def ensure_version(api, project, version_pk):
     version = make_api_version(version_data)
     return version
 
+
+def update_documentation_type(version, api):
+    """
+    Automatically determine the doc type for a user.
+    """
+
+    checkout_path = version.project.checkout_path(version.slug)
+    os.chdir(checkout_path)
+    files = run('find .')[1].split('\n')
+    markdown = sphinx = 0
+    for filename in files:
+        if fnmatch.fnmatch(filename, '*.md') or fnmatch.fnmatch(filename, '*.markdown'):
+            markdown += 1
+        elif fnmatch.fnmatch(filename, '*.rst'):
+            sphinx += 1
+    ret = 'sphinx'
+    if markdown > sphinx:
+        ret = 'mkdocs'
+    project_data = api.project(version.project.pk).get()
+    project_data['documentation_type'] = ret
+    api.project(version.project.pk).put(project_data)
+    version.project.documentation_type = ret
 
 def docker_build(version, pdf=True, man=True, epub=True, dash=True,
                  search=True, force=False, intersphinx=True, localmedia=True):
