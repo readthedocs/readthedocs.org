@@ -25,7 +25,7 @@ class ProjectForm(forms.ModelForm):
 
     def save(self, commit=True):
         project = super(ProjectForm, self).save(commit)
-        if commit and self.user:
+        if commit:
             if not project.users.filter(pk=self.user.pk).exists():
                 project.users.add(self.user)
         return project

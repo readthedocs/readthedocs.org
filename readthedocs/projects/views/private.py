@@ -91,7 +91,8 @@ def project_edit(request, project_slug):
 
     form_class = UpdateProjectForm
 
-    form = form_class(instance=project, data=request.POST or None)
+    form = form_class(instance=project, data=request.POST or None,
+                      user=request.user)
 
     if request.method == 'POST' and form.is_valid():
         form.save()
