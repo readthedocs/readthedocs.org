@@ -330,7 +330,7 @@ def build_docs(version, force, pdf, man, epub, dash, search, localmedia):
     project = version.project
     results = {}
 
-    before_build.send(sender=verison)
+    before_build.send(sender=version)
     with project.repo_nonblockinglock(version=version,
                                       max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
         html_builder = builder_loading.get(project.documentation_type)(version)
@@ -407,7 +407,7 @@ def build_docs(version, force, pdf, man, epub, dash, search, localmedia):
                         epub_builder.move()
                 else:
                     results['epub'] = fake_results
-    after_build.send(sender=verison)
+    after_build.send(sender=version)
     return results
 
 
