@@ -102,7 +102,7 @@ class ProjectBasicsForm(ProjectForm):
 
     def save(self, commit=True):
         project = super(ProjectBasicsForm, self).save(commit)
-        if commit and self.user not in project.users.all():
+        if commit and self.user and self.user not in project.users.all():
             project.users.add(self.user)
         return project
 
