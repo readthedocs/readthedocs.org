@@ -43,7 +43,7 @@ HTML_ONLY = getattr(settings, 'HTML_ONLY_PROJECTS', ())
 def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
                 pdf=True, man=True, epub=True, dash=True,
                 search=True, force=False, intersphinx=True, localmedia=True,
-                api=None, **kwargs):
+                api=None, basic=False, **kwargs):
     """
     The main entry point for updating documentation.
 

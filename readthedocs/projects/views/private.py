@@ -255,8 +255,10 @@ class ImportWizardView(SessionWizardView):
         for form in form_list[1:]:
             for (field, value) in form.cleaned_data.items():
                 setattr(project, field, value)
+        else:
+            basic_only = True
         project.save()
-        trigger_build(project)
+        trigger_build(project, basic=basic_only)
         return HttpResponseRedirect(reverse('projects_detail',
                                             args=[project.slug]))
 
