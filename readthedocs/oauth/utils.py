@@ -5,7 +5,7 @@ from allauth.socialaccount.models import SocialToken
 from django.conf import settings
 from requests_oauthlib import OAuth2Session
 
-from .models import GithubProject, GithubOrganization
+from .models import GithubProject, GithubOrganization, BitbucketProject, BitbucketTeam
 from tastyapi import apiv2
 
 log = logging.getLogger(__name__)
@@ -160,7 +160,7 @@ def make_bitbucket_project(user, org, privacy, repo_json):
     log.info('Trying Bitbucket: %s' % repo_json['full_name'])
     if (repo_json['is_private'] is True and privacy == 'private' or
             repo_json['is_private'] is False and privacy == 'public'):
-        project, created = GithubProject.objects.get_or_create(
+        project, created = BitbucketProject.objects.get_or_create(
             full_name=repo_json['full_name'],
         )
         if project.organization and project.organization != org:
@@ -174,6 +174,7 @@ def make_bitbucket_project(user, org, privacy, repo_json):
         project.git_url = repo_json['links']['clone'][0]['href']
         project.ssh_url = repo_json['links']['clone'][1]['href']
         project.html_url = repo_json['links']['html']['href']
+        project.vcs = repo_json['scm']
         project.json = repo_json
         project.save()
         return project
@@ -213,9 +214,9 @@ def import_bitbucket(user, sync):
             process_bitbucket_json(user, owner_resp, repo_type)
 
             # Get org repos
-            resp = session.get('https://bitbucket.org/api/1.0/user/privileges/')
-            for team in resp.json()['teams'].keys():
-                org_resp = bitbucket_paginate(session, 'https://bitbucket.org/api/2.0/teams/{teamname}/repositories' % team)
-                process_bitbucket_json(user, org_resp, repo_type)
+            # resp = session.get('https://bitbucket.org/api/1.0/user/privileges/')
+            # for team in resp.json()['teams'].keys():
+            #     org_resp = bitbucket_paginate(session, 'https://bitbucket.org/api/2.0/teams/{teamname}/repositories' % team)
+            #     process_bitbucket_json(user, org_resp, repo_type)
 
     return bitbucket_connected
