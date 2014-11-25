@@ -102,7 +102,7 @@ class ProjectBasicsForm(ProjectForm):
 
     def save(self, commit=True):
         project = super(ProjectBasicsForm, self).save(commit)
-        if commit:
+        if commit and self.user not in project.users.all():
             project.users.add(self.user)
         return project
 
@@ -184,10 +184,6 @@ class UpdateProjectForm(ProjectTriggerBuildMixin, ProjectBasicsForm,
             'canonical_url',
             'tags',
         )
-
-    def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop('user', None)
-        super(UpdateProjectForm, self).__init__(*args, **kwargs)
 
 
 class DualCheckboxWidget(forms.CheckboxInput):
