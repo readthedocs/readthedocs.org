@@ -126,6 +126,96 @@ def import_github(user, sync):
                         make_github_project(user=user, org=org_obj, privacy=repo_type, repo_json=repo)
             except TypeError, e:
                 print e
-                    
 
     return github_connected
+
+
+###
+### Bitbucket
+###
+
+
+def bitbucket_paginate(session, url):
+    """
+    Scans trough all github paginates results and returns the concatenated
+    list of results.
+
+    :param session: requests client instance
+    :param url: start url to get the data from.
+
+    """
+    result = []
+    while url:
+        r = session.get(url)
+        result.extend([r.json()])
+        next_url = r.json().get('next')
+        if next_url:
+            url = next_url
+        else:
+            url = None
+    return result
+
+
+def make_bitbucket_project(user, org, privacy, repo_json):
+    log.info('Trying Bitbucket: %s' % repo_json['full_name'])
+    if (repo_json['is_private'] is True and privacy == 'private' or
+            repo_json['is_private'] is False and privacy == 'public'):
+        project, created = GithubProject.objects.get_or_create(
+            full_name=repo_json['full_name'],
+        )
+        if project.organization and project.organization != org:
+            log.debug('Not importing %s because mismatched orgs' % repo_json['name'])
+            return None
+        else:
+            project.organization = org
+        project.users.add(user)
+        project.name = repo_json['name']
+        project.description = repo_json['description']
+        project.git_url = repo_json['links']['clone'][0]['href']
+        project.ssh_url = repo_json['links']['clone'][1]['href']
+        project.html_url = repo_json['links']['html']['href']
+        project.json = repo_json
+        project.save()
+        return project
+    else:
+        log.debug('Not importing %s because mismatched type' % repo_json['name'])
+
+
+def process_bitbucket_json(user, json, repo_type):
+    try:
+        for page in json:
+            for repo in page['values']:
+                make_bitbucket_project(user=user, org=None, privacy=repo_type, repo_json=repo)
+    except TypeError, e:
+        print e
+
+
+def import_bitbucket(user, sync):
+    """ Do the actual github import """
+
+    repo_type = getattr(settings, 'GITHUB_PRIVACY', 'public')
+    tokens = SocialToken.objects.filter(
+        account__user__username=user.username, app__provider='bitbucket')
+    bitbucket_connected = False
+    if tokens.exists():
+        bitbucket_connected = True
+        if sync:
+            token = tokens[0]
+            session = OAuth2Session(
+                client_id=token.app.client_id,
+                token={
+                    'access_token': str(token.token),
+                    'token_type': 'bearer'
+                }
+            )
+            # Get user repos
+            owner_resp = bitbucket_paginate(session, 'https://bitbucket.org/api/2.0/repositories/{owner}'.format(owner=token.account.uid))
+            process_bitbucket_json(user, owner_resp, repo_type)
+
+            # Get org repos
+            resp = session.get('https://bitbucket.org/api/1.0/user/privileges/')
+            for team in resp.json()['teams'].keys():
+                org_resp = bitbucket_paginate(session, 'https://bitbucket.org/api/2.0/teams/{teamname}/repositories' % team)
+                process_bitbucket_json(user, org_resp, repo_type)
+
+    return bitbucket_connected

@@ -532,3 +532,33 @@ def project_import_github(request, sync=False):
         },
         context_instance=RequestContext(request)
     )
+
+@login_required
+def project_import_bitbucket(request, sync=False):
+    '''Show form that prefills import form with data from BitBucket'''
+
+    bitbucket_connected = oauth_utils.import_bitbucket(user=request.user, sync=sync)
+    repos = GithubProject.objects.filter(users__in=[request.user])
+
+    # Find existing projects that match a repo url
+    for repo in repos:
+        ghetto_repo = repo.git_url.replace('git://', '').replace('.git', '')
+        projects = (Project
+                    .objects
+                    .public(request.user)
+                    .filter(Q(repo__endswith=ghetto_repo) |
+                            Q(repo__endswith=ghetto_repo + '.git')))
+        if projects:
+            repo.matches = [project.slug for project in projects]
+        else:
+            repo.matches = []
+
+    return render_to_response(
+        'projects/project_import_bitbucket.html',
+        {
+            'repos': repos,
+            'bitbucket_connected': bitbucket_connected,
+            'sync': sync,
+        },
+        context_instance=RequestContext(request)
+    )

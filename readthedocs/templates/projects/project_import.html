@@ -43,9 +43,26 @@
     <div class="col col-trisect">
       <h3>From Bitbucket</h3>
 
-      <p>
-        Coming soon, import your Bitbucket repositories!
-      </p>
+      {% if accounts.bitbucket.0 %}
+        <p>
+          {% blocktrans %}
+            Import one of your <b>public Bitbucket repositories</b> to start using your documentation.
+          {% endblocktrans %}
+        </p>
+
+        <form method="get" action="{% url "projects_import_bitbucket" %}">
+          <input type="submit" value="{% trans "Import from Bitbucket" %}"/>
+        </form>
+      {% else %}
+        <p>
+          {% blocktrans %}
+            Once your account is connected to your Bitbucket account,
+            you will be able to automatically import and configure your <b>public Bitbucket repositories</b>.
+          {% endblocktrans %}
+          <a href="{% provider_login_url "bitbucket" process="connect" next="/dashboard/import/" %}">Connect to Bitbucket</a>
+          {% trans "to import your first repository." %}
+        </p>
+      {% endif %}
     </div>
 
     <div class="col col-trisect">

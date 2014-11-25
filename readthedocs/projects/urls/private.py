@@ -29,6 +29,16 @@ urlpatterns = patterns(
         'projects.views.private.project_import_github',
         {'sync': True},
         name='projects_sync_github'),
+    
+    url(r'^import/bitbucket/$',
+        'projects.views.private.project_import_bitbucket',
+        {'sync': False},
+        name='projects_import_bitbucket'),
+
+    url(r'^import/bitbucket/sync/$',
+        'projects.views.private.project_import_bitbucket',
+        {'sync': True},
+        name='projects_sync_bitbucket'),
 
     url(r'^(?P<project_slug>[-\w]+)/$',
         'projects.views.private.project_manage',
