@@ -26,7 +26,7 @@ class ProjectForm(forms.ModelForm):
     def save(self, commit=True):
         project = super(ProjectForm, self).save(commit)
         if commit:
-            if not project.users.filter(pk=self.user.pk).exists():
+            if self.user and not project.users.filter(pk=self.user.pk).exists():
                 project.users.add(self.user)
         return project
 
@@ -99,12 +99,6 @@ class ProjectBasicsForm(ProjectForm):
             'https://github.com/fabric/fabric.git',
             'https://github.com/ericholscher/django-kong.git',
         ])
-
-    def save(self, commit=True):
-        project = super(ProjectBasicsForm, self).save(commit)
-        if commit and self.user and self.user not in project.users.all():
-            project.users.add(self.user)
-        return project
 
 
 class ProjectExtraForm(ProjectForm):
