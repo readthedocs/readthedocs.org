@@ -580,13 +580,12 @@ class Project(models.Model):
         return False
 
     def vcs_repo(self, version='latest'):
-        token = oauth_utils.get_token_for_project(self)
         backend = backend_cls.get(self.repo_type)
         if not backend:
             repo = None
         else:
             proj = VCSProject(self.name, self.default_branch, self.checkout_path(version), self.clean_repo)
-            repo = backend(proj, version, token=token)
+            repo = backend(proj, version)
         return repo
 
     @property
