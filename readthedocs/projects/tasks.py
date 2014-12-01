@@ -296,7 +296,7 @@ def setup_environment(version):
             '{cmd} install --exists-action=w -r {requirements}'.format(
                 cmd=project.venv_bin(version=version.slug, bin='pip'),
                 requirements=project.requirements_file))
-    os.chdir(project.checkout_path(version.slug))
+    os.chdir(os.path.join(project.checkout_path(version.slug), project.setup_dir))
     if os.path.isfile("setup.py"):
         if getattr(settings, 'USE_PIP_INSTALL', False):
             ret_dict['install'] = run(
