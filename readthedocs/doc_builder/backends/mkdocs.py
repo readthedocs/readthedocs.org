@@ -85,7 +85,7 @@ class BaseMkdocs(BaseBuilder):
             user_config['pages'] = []
             for root, dirnames, filenames in os.walk(docs_dir):
                 for filename in filenames:
-                    if fnmatch.fnmatch(filename, '*.md'):
+                    if fnmatch.fnmatch(filename, '*.md') or fnmatch.fnmatch(filename, '*.markdown'):
                         if docs_dir != '.':
                             root_path = root.replace(docs_dir, '')
                             full_path = os.path.join(root_path, filename.lstrip('/')).lstrip('/')
