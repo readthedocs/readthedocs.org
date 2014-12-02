@@ -31,6 +31,7 @@ class WizardTestCase(TestCase):
     wizard_class_slug = None
 
     @patch('projects.views.private.trigger_build', lambda x: None)
+    @patch('readthedocs.projects.views.private.trigger_build', lambda x: None)
     def post_step(self, step, **data):
         '''Post step form data to `url`, using supplimentary `kwargs`
 
@@ -63,7 +64,6 @@ class WizardTestCase(TestCase):
             except (TypeError, KeyError):
                 pass
             self.assertEqual(response.status_code, 302)
-            self.assertIsNone(response.context)
         else:
             self.assertIn('wizard', response.context)
             wizard = response.context['wizard']
@@ -95,4 +95,4 @@ class WizardTestCase(TestCase):
         self.assertIn(field, response.context['wizard']['form'].errors)
         if match is not None:
             error = response.context['wizard']['form'].errors[field]
-            self.assertRegexpMatches(error, match)
+            self.assertRegexpMatches(unicode(error), match)

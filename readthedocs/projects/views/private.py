@@ -231,10 +231,12 @@ class ImportWizardView(SessionWizardView):
         return kwargs
 
     def get_form_from_step(self, step):
-        return self.form_list[step](
+        form = self.form_list[step](
             data=self.get_cleaned_data_for_step(step),
             **self.get_form_kwargs(step)
         )
+        form.full_clean()
+        return form
 
     def get_template_names(self):
         '''Return template names based on step name'''

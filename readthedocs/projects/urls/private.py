@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, url
 
 from projects.views.private import AliasList, ProjectDashboard, ImportView
-from projects.views import ImportWizardView
+from projects.backends.views import ImportWizardView
 
 
 urlpatterns = patterns(
