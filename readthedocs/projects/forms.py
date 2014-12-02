@@ -136,6 +136,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
         fields = (
             # Standard build edits
             'use_virtualenv',
+            'setup_dir',
             'requirements_file',
             'single_version',
             'conf_py_file',
@@ -417,4 +418,3 @@ class RedirectForm(forms.ModelForm):
             to_url=self.cleaned_data['to_url'],
         )
         return redirect
-
