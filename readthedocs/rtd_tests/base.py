@@ -30,8 +30,8 @@ class WizardTestCase(TestCase):
     url = None
     wizard_class_slug = None
 
-    @patch('projects.views.private.trigger_build', lambda x: None)
-    @patch('readthedocs.projects.views.private.trigger_build', lambda x: None)
+    @patch('projects.views.private.trigger_build', lambda x, basic: None)
+    @patch('readthedocs.projects.views.private.trigger_build', lambda x, basic: None)
     def post_step(self, step, **data):
         '''Post step form data to `url`, using supplimentary `kwargs`
 
