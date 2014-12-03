@@ -42,7 +42,7 @@ urlpatterns = patterns(
         'core.views.redirect_version_slug',
         name='version_subdomain_handler'),
 
-    url(r'^$', 'core.views.redirect_project_slug'),
+    url(r'^$', 'core.views.redirect_project_slug', name='homepage'),
 )
 
 urlpatterns += main_patterns
