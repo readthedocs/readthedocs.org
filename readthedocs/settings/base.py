@@ -376,7 +376,7 @@ LOGGING = {
     },
     'loggers': {
         'django': {
-            'handlers': ['console', 'errorlog'],
+            'handlers': ['console', 'errorlog', 'mail_admins'],
             'propagate': True,
             'level': 'WARN',
         },
@@ -401,7 +401,7 @@ LOGGING = {
             'propagate': False,
         },
         'django.request': {
-            'handlers': ['exceptionlog'],
+            'handlers': ['exceptionlog', 'mail_admins'],
             'level': 'ERROR',
             'propagate': False,
         },
@@ -425,7 +425,7 @@ LOGGING = {
         # doesn't double-print the Django things as well. Not 100% sure how
         # logging works :)
         '': {
-            'handlers': ['console', 'errorlog'],
+            'handlers': ['console', 'errorlog', 'mail_admins'],
             'level': 'INFO',
         },
     }
