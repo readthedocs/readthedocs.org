@@ -328,9 +328,9 @@ def setup_environment(version):
     # Handle requirements
 
     requirements_file_path = project.requirements_file
+    checkout_path = project.checkout_path(version.slug)
     if not requirements_file_path:
         docs_dir = builder_loading.get(project.documentation_type)(version).docs_dir()
-        checkout_path = project.checkout_path(version.slug)
         for path in [docs_dir, '']:
             for req_file in ['pip_requirements.txt', 'requirements.txt']:
                 test_path = os.path.join(checkout_path, path, req_file)
