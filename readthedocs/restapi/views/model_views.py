@@ -20,8 +20,8 @@ import restapi.utils as api_utils
 log = logging.getLogger(__name__)
 
 
-class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+class ProjectViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAdminUser]
     renderer_classes = (JSONRenderer, JSONPRenderer, BrowsableAPIRenderer)
     serializer_class = ProjectSerializer
     filter_class = ProjectFilter
