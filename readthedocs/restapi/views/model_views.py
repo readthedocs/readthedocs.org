@@ -12,6 +12,7 @@ from core.utils import trigger_build
 from oauth import utils as oauth_utils
 from projects.models import Project, EmailHook
 from projects.filters import ProjectFilter
+from restapi.permissions import APIPermission
 
 from restapi.serializers import BuildSerializer, ProjectSerializer, VersionSerializer
 from restapi.permissions import RelatedProjectIsOwner
@@ -21,7 +22,7 @@ log = logging.getLogger(__name__)
 
 
 class ProjectViewSet(viewsets.ModelViewSet):
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [APIPermission]
     renderer_classes = (JSONRenderer, JSONPRenderer, BrowsableAPIRenderer)
     serializer_class = ProjectSerializer
     filter_class = ProjectFilter
