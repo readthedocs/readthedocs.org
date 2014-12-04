@@ -58,6 +58,7 @@ django-secure==0.1.2
 mimeparse==0.1.3
 mock==1.0.1
 simplejson==2.3.0
+factory-boy==2.4.1
 
 # Docs
 sphinx-http-domain==0.2
@@ -73,6 +74,8 @@ django-cors-headers==0.13
 git+https://github.com/alex/django-filter.git#egg=django-filter
 git+https://github.com/ericflo/django-pagination.git@e5f669036c#egg=django_pagination-dev
 git+https://github.com/ericholscher/readthedocs-sphinx-ext#egg=readthedocs_ext
+-e git+https://git@github.com/jMyles/sphinx-websupport2#egg=websupport2
+
 
 git+https://github.com/alex/django-taggit.git#egg=django_taggit-dev
 

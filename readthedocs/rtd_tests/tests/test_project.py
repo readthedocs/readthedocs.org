@@ -3,6 +3,7 @@ import json
 from django.test import TestCase
 
 from projects.models import Project
+from .projects_factories import ProjectFactory
 
 
 class TestProject(TestCase):
@@ -34,3 +35,21 @@ class TestProject(TestCase):
         resp = json.loads(r.content)
         self.assertEqual(r.status_code, 200)
         self.assertEqual(resp['token'], None)
+
+class ProjectCommentTests(TestCase):
+    
+    def test_commentable_project_uses_builder_with_commentable_versioning_method(self):
+        '''
+        Even though we show the user a boolean "commentable" option,
+        we compose this knowledge as a separate class, WebSupportBuilder.
+        '''
+        project = ProjectFactory(allow_comments=True,
+                                 documentation_type="sphinx")
+        builder = project.doc_builder()
+        self.assertEqual(getattr(builder, 'versioning_method', None), "commentable")
+        
+    def test_uncommentable_project_uses_builder_without_commentable_verioning_method(self):
+        project = ProjectFactory(allow_comments=False,
+                                 documentation_type="sphinx")
+        builder = project.doc_builder()
+        self.assertNotEqual(getattr(builder, 'versioning_method', None), "commentable")
