@@ -79,6 +79,9 @@ def trigger_build(project, version=None, record=True, force=False, basic=False):
     # Avoid circular import
     from projects.tasks import update_docs
 
+    if project.skip:
+        return None
+
     if not version:
         version = project.versions.get(slug='latest')
 
