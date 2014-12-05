@@ -74,7 +74,12 @@ def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
 
     project_data = api.project(pk).get()
     project = make_api_project(project_data)
-    log.info(LOG_TEMPLATE.format(project=project.slug, version='', msg='Building'))
+    # Don't build skipped projects
+    if project.skip:
+        log.info(LOG_TEMPLATE.format(project=project.slug, version='', msg='Skipping'))
+        return
+    else:
+        log.info(LOG_TEMPLATE.format(project=project.slug, version='', msg='Building'))
     version = ensure_version(api, project, version_pk)
     build = create_build(build_pk)
     results = {}
