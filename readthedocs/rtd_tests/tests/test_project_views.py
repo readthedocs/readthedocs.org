@@ -1,10 +1,8 @@
 import re
 
-from mock import patch
-from django.test import TestCase
-from django.contrib.messages import constants as MSG
+from django.contrib.messages import constants as message_const
 
-from rtd_tests.base import WizardTestCase
+from rtd_tests.base import WizardTestCase, MockBuildTestCase
 from projects.models import Project
 
 
@@ -103,9 +101,7 @@ class TestAdvancedForm(TestBasicsForm):
         self.assertWizardFailure(resp, 'python_interpreter')
 
 
-@patch('projects.views.private.trigger_build', lambda x, basic: None)
-@patch('readthedocs.projects.views.private.trigger_build', lambda x, basic: None)
-class TestImportDemoView(TestCase):
+class TestImportDemoView(MockBuildTestCase):
     '''Test project import demo view'''
 
     fixtures = ["eric"]
@@ -121,7 +117,7 @@ class TestImportDemoView(TestCase):
         resp_redir = self.client.get(resp['Location'])
         self.assertEqual(resp_redir.status_code, 200)
         messages = list(resp_redir.context['messages'])
-        self.assertEqual(messages[0].level, MSG.SUCCESS)
+        self.assertEqual(messages[0].level, message_const.SUCCESS)
 
     def test_import_demo_already_imported(self):
         '''Import demo project multiple times, expect failure 2nd post'''
@@ -136,7 +132,7 @@ class TestImportDemoView(TestCase):
         resp_redir = self.client.get(resp['Location'])
         self.assertEqual(resp_redir.status_code, 200)
         messages = list(resp_redir.context['messages'])
-        self.assertEqual(messages[0].level, MSG.SUCCESS)
+        self.assertEqual(messages[0].level, message_const.SUCCESS)
 
         self.assertEqual(project,
                          Project.objects.get(slug='eric-demo'))
@@ -156,7 +152,7 @@ class TestImportDemoView(TestCase):
         resp_redir = self.client.get(resp['Location'])
         self.assertEqual(resp_redir.status_code, 200)
         messages = list(resp_redir.context['messages'])
-        self.assertEqual(messages[0].level, MSG.SUCCESS)
+        self.assertEqual(messages[0].level, message_const.SUCCESS)
         self.assertRegexpMatches(messages[0].message,
                                  r'already imported')
 
@@ -183,7 +179,7 @@ class TestImportDemoView(TestCase):
         resp_redir = self.client.get(resp['Location'])
         self.assertEqual(resp_redir.status_code, 200)
         messages = list(resp_redir.context['messages'])
-        self.assertEqual(messages[0].level, MSG.ERROR)
+        self.assertEqual(messages[0].level, message_const.ERROR)
         self.assertRegexpMatches(messages[0].message,
                                  r'There was a problem')
 
