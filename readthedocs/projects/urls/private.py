@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, url
 
 from projects.views.private import AliasList, ProjectDashboard, ImportView
-from projects.backends.views import ImportWizardView
+from projects.backends.views import ImportWizardView, ImportDemoView
 
 
 urlpatterns = patterns(
@@ -20,6 +20,10 @@ urlpatterns = patterns(
         ImportWizardView.as_view(),
         name='projects_import_manual'),
 
+    url(r'^import/manual/demo/$',
+        ImportDemoView.as_view(),
+        name='projects_import_demo'),
+
     url(r'^import/github/$',
         'projects.views.private.project_import_github',
         {'sync': False},
@@ -29,7 +33,7 @@ urlpatterns = patterns(
         'projects.views.private.project_import_github',
         {'sync': True},
         name='projects_sync_github'),
-    
+
     url(r'^import/bitbucket/$',
         'projects.views.private.project_import_bitbucket',
         {'sync': False},
