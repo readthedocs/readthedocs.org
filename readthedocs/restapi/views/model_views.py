@@ -112,8 +112,10 @@ class ProjectViewSet(viewsets.ModelViewSet):
                     if (new_stable.identifier != stable_obj.identifier) and (stable_obj.machine is True):
                         stable_obj.identifier = new_stable.identifier
                         stable_obj.save()
+                        log.info("Triggering new stable build: {project}:{version}".format(project=project.slug, version=stable_obj.identifier))
                         trigger_build(project=project, version=stable_obj)
                 else:
+                    log.info("Creating new stable version: {project}:{version}".format(project=project.slug, version=stable_obj.identifier))
                     version = project.versions.create(slug='stable', verbose_name='stable', machine=True, type=new_stable.type, active=True, identifier=new_stable.identifier)
                     trigger_build(project=project, version=version)
 
@@ -124,7 +126,6 @@ class ProjectViewSet(viewsets.ModelViewSet):
                     new_stable.active = True
                     new_stable.save()
                     trigger_build(project=project, version=new_stable)
-
 
         except:
             log.exception("Supported Versions Failure", exc_info=True)
