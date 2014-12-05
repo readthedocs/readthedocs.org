@@ -41,6 +41,7 @@ def sync_versions(project, versions, type):
                 ).update(
                     identifier=version_id,
                     type=type,
+                    machine=False,
                 )
                 log.info("(Sync Versions) Updated Version: [%s=%s] " % (version['verbose_name'], version['identifier']))
         else:
