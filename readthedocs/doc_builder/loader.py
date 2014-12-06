@@ -7,7 +7,7 @@ sphinx = import_module(getattr(settings, 'SPHINX_BACKEND', 'doc_builder.backends
 
 loading = {
     # Possible HTML Builders
-    'sphinx': sphinx.HtmlBuilder,
+    'sphinx': sphinx.HtmlBuilderComments,
     'sphinx_htmldir': sphinx.HtmlDirBuilder,
     'sphinx_singlehtml': sphinx.SingleHtmlBuilder,
     # Other Sphinx Builders
