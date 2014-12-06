@@ -10,12 +10,13 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
-from django.views.generic import ListView
+from django.views.generic import ListView, DetailView
 from django.utils.datastructures import SortedDict
 
 from taggit.models import Tag
 import requests
 
+from .base import ProjectOnboardMixin
 from builds.filters import VersionSlugFilter
 from builds.models import Version
 from projects.models import Project, ImportedFile
@@ -56,41 +57,41 @@ class ProjectIndex(ListView):
 project_index = ProjectIndex.as_view()
 
 
-def project_detail(request, project_slug):
-    """
-    A detail view for a project with various dataz
-    """
-    queryset = Project.objects.protected(request.user)
-    project = get_object_or_404(queryset, slug=project_slug)
-    versions = Version.objects.public(user=request.user, project=project)
-    filter = VersionSlugFilter(request.GET, queryset=versions)
-    if request.is_secure():
-        protocol = 'https'
-    else:
+class ProjectDetailView(ProjectOnboardMixin, DetailView):
+    '''Display project onboard steps'''
+
+    model = Project
+    slug_url_kwarg = 'project_slug'
+
+    def get_queryset(self):
+        return Project.objects.protected(self.request.user)
+
+    def get_context_data(self, **kwargs):
+        context = super(ProjectDetailView, self).get_context_data(**kwargs)
+
+        project = self.get_object()
+        context['versions'] = Version.objects.public(
+            user=self.request.user, project=project)
+        context['filter'] = VersionSlugFilter(self.request.GET,
+                                              queryset=context['versions'])
+
         protocol = 'http'
-    badge_url = "%s://%s%s?version=%s" % (
-        protocol,
-        settings.PRODUCTION_DOMAIN,
-        reverse('project_badge', args=[project.slug]),
-        project.get_default_version(),
-    )
-    site_url = "%s://%s%s?badge=%s" % (
-        protocol,
-        settings.PRODUCTION_DOMAIN,
-        reverse('projects_detail', args=[project.slug]),
-        project.get_default_version(),
-    )
-    return render_to_response(
-        'projects/project_detail.html',
-        {
-            'project': project,
-            'versions': versions,
-            'filter': filter,
-            'badge_url': badge_url,
-            'site_url': site_url,
-        },
-        context_instance=RequestContext(request),
-    )
+        if self.request.is_secure():
+            protocol = 'https'
+
+        context['badge_url'] = "%s://%s%s?version=%s" % (
+            protocol,
+            settings.PRODUCTION_DOMAIN,
+            reverse('project_badge', args=[project.slug]),
+            project.get_default_version(),
+        )
+        context['site_url'] = "%s://%s%s?badge=%s" % (
+            protocol,
+            settings.PRODUCTION_DOMAIN,
+            reverse('projects_detail', args=[project.slug]),
+            project.get_default_version(),
+        )
+        return context
 
 
 def _badge_return(redirect, url):

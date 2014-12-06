@@ -104,7 +104,7 @@ class TestAdvancedForm(TestBasicsForm):
 class TestImportDemoView(MockBuildTestCase):
     '''Test project import demo view'''
 
-    fixtures = ["eric"]
+    fixtures = ['test_data', 'eric']
 
     def setUp(self):
         self.client.login(username='eric', password='test')
@@ -136,6 +136,23 @@ class TestImportDemoView(MockBuildTestCase):
 
         self.assertEqual(project,
                          Project.objects.get(slug='eric-demo'))
+
+    def test_import_demo_another_user_imported(self):
+        '''Import demo project after another user, expect success'''
+        self.test_import_demo_pass()
+        project = Project.objects.get(slug='eric-demo')
+
+        self.client.logout()
+        self.client.login(username='test', password='test')
+        resp = self.client.get('/dashboard/import/manual/demo/')
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp['Location'],
+                         'http://testserver/projects/test-demo/')
+
+        resp_redir = self.client.get(resp['Location'])
+        self.assertEqual(resp_redir.status_code, 200)
+        messages = list(resp_redir.context['messages'])
+        self.assertEqual(messages[0].level, message_const.SUCCESS)
 
     def test_import_demo_imported_renamed(self):
         '''If the demo project is renamed, don't import another'''

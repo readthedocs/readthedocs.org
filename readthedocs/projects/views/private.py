@@ -319,7 +319,8 @@ class ImportDemoView(View):
         self.kwargs = kwargs
 
         data = self.get_form_data()
-        project = Project.objects.filter(repo=data['repo']).first()
+        project = (Project.objects.for_admin_user(request.user)
+                   .filter(repo=data['repo']).first())
         if project is not None:
             messages.success(
                 request, _('The demo project is already imported!'))
