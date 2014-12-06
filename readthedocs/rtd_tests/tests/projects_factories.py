@@ -16,7 +16,9 @@ class ProjectFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Project
 
     name = factory.Sequence(lambda n: "Project %s" % n)
-    slug = factory.Sequence(lambda n: "project-%s" % n) 
+    slug = factory.Sequence(lambda n: "project-%s" % n)
+    documentation_type = "sphinx"
+    conf_py_file = "test_conf.py"
     
     version = factory.RelatedFactory(VersionFactory,
                                      'project',

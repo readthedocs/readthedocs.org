@@ -43,13 +43,11 @@ class ProjectCommentTests(TestCase):
         Even though we show the user a boolean "commentable" option,
         we compose this knowledge as a separate class, WebSupportBuilder.
         '''
-        project = ProjectFactory(allow_comments=True,
-                                 documentation_type="sphinx")
+        project = ProjectFactory(allow_comments=True)
         builder = project.doc_builder()
         self.assertEqual(getattr(builder, 'versioning_method', None), "commentable")
         
     def test_uncommentable_project_uses_builder_without_commentable_verioning_method(self):
-        project = ProjectFactory(allow_comments=False,
-                                 documentation_type="sphinx")
+        project = ProjectFactory(allow_comments=False)
         builder = project.doc_builder()
         self.assertNotEqual(getattr(builder, 'versioning_method', None), "commentable")
