@@ -181,6 +181,7 @@ INSTALLED_APPS = [
     # daniellindsleyrocksdahouse
     'haystack',
     'tastypie',
+    'websupport',
 
 
 

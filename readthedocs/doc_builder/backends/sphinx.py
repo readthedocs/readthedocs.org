@@ -134,9 +134,20 @@ class HtmlBuilder(BaseSphinx):
     sphinx_build_dir = '_build/html'
 
 
+class HtmlBuilderComments(BaseSphinx):
+    type = 'sphinx'
+    sphinx_builder = 'readthedocs-comments'
+    sphinx_build_dir = '_build/html'
+
+
 class HtmlDirBuilder(HtmlBuilder):
     type = 'sphinx_htmldir'
     sphinx_builder = 'readthedocsdirhtml'
+
+
+class HtmlDirBuilderComments(HtmlBuilder):
+    type = 'sphinx_htmldir'
+    sphinx_builder = 'readthedocsdirhtml-comments'
 
 
 class SingleHtmlBuilder(HtmlBuilder):
