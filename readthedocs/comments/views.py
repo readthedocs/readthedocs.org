@@ -9,22 +9,22 @@ from sphinx.websupport import WebSupport
 from rest_framework import permissions
 from rest_framework.renderers import JSONRenderer, JSONPRenderer, BrowsableAPIRenderer
 from rest_framework.decorators import (
-    api_view, 
+    api_view,
     authentication_classes,
-    permission_classes, 
+    permission_classes,
     renderer_classes,
-    )
+)
 from rest_framework.response import Response
 
 storage = DjangoStorage()
 
 support = WebSupport(
-        srcdir='/Users/eric/projects/readthedocs.org/docs',
-        builddir='/Users/eric/projects/readthedocs.org/docs/_build/websupport',
-        datadir='/Users/eric/projects/readthedocs.org/docs/_build/websupport/data',
-        storage=storage,
-        docroot='websupport',
-    )
+    srcdir='/Users/eric/projects/readthedocs.org/docs',
+    builddir='/Users/eric/projects/readthedocs.org/docs/_build/websupport',
+    datadir='/Users/eric/projects/readthedocs.org/docs/_build/websupport/data',
+    storage=storage,
+    docroot='websupport',
+)
 
 
 ########
@@ -43,11 +43,13 @@ def get_comments(request):
     else:
         return Response(status=404)
 
+
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticatedOrReadOnly])
 @renderer_classes((JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
 def get_options(request):
     return Response(support.base_comment_opts)
+
 
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticatedOrReadOnly])
@@ -59,6 +61,7 @@ def get_metadata(request):
     """
     document = request.GET.get('page', '')
     return Response(storage.get_metadata(docname=document))
+
 
 @api_view(['GET', 'POST'])
 @permission_classes([permissions.AllowAny])
@@ -72,7 +75,7 @@ def add_comment(request):
     username = None
     comment = support.add_comment(text=text, node_id=node_id,
                                   parent_id=parent_id,
-                                  username=username, proposal=proposal) 
+                                  username=username, proposal=proposal)
     return Response(comment)
 
 
@@ -82,6 +85,7 @@ def add_comment(request):
 
 def build(request):
     support.build()
+
 
 def serve_file(request, file):
     document = support.get_document(file)
@@ -94,6 +98,7 @@ def serve_file(request, file):
 # Called by Builder
 ######
 
+
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticatedOrReadOnly])
 def has_node(request):
@@ -104,6 +109,7 @@ def has_node(request):
     node_id = request.GET.get('node_id', '')
     exists = storage.has_node(node_id)
     return Response({'exists': exists})
+
 
 @api_view(['GET', 'POST'])
 @permission_classes([permissions.AllowAny])
