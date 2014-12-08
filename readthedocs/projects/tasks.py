@@ -68,10 +68,18 @@ def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
     # Dependency injection to allow for testing
     if api is None:
         api = tastyapi.api
+        apiv2 = tastyapi.apiv2
+    else:
+        apiv2 = api
 
     project_data = api.project(pk).get()
     project = make_api_project(project_data)
-    log.info(LOG_TEMPLATE.format(project=project.slug, version='', msg='Building'))
+    # Don't build skipped projects
+    if project.skip:
+        log.info(LOG_TEMPLATE.format(project=project.slug, version='', msg='Skipping'))
+        return
+    else:
+        log.info(LOG_TEMPLATE.format(project=project.slug, version='', msg='Building'))
     version = ensure_version(api, project, version_pk)
     build = create_build(build_pk)
     results = {}
@@ -84,7 +92,7 @@ def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
             results.update(vcs_results)
 
         if project.documentation_type == 'auto':
-            update_documentation_type(version, api)
+            update_documentation_type(version, apiv2)
 
         if docker or settings.DOCKER_ENABLE:
             record_build(api=api, build=build, record=record, results=results, state='building')
@@ -453,7 +461,7 @@ def build_docs(version, force, pdf, man, epub, dash, search, localmedia):
                     results['epub'] = fake_results
 
     after_build.send(sender=version)
-    
+
     return results
 
 

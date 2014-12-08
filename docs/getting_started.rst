@@ -98,7 +98,7 @@ you'd use to checkout, clone, or branch your code. Some examples:
 * Mercurial: ``https://bitbucket.org/ianb/pip``
 * Bazaar: ``lp:pasta``
 
-.. note:: Make sure to choose your *Documentation Type* correct as either Sphinx or Mkdocs.
+.. note:: Make sure to choose your *Documentation Type* correctly as either Sphinx or Mkdocs.
 
 Add an optional homepage URL and some tags, then click "Create".
 
