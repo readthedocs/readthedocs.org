@@ -73,9 +73,7 @@ django-cors-headers==0.13
 # Pegged git requirements
 git+https://github.com/alex/django-filter.git#egg=django-filter
 git+https://github.com/ericflo/django-pagination.git@e5f669036c#egg=django_pagination-dev
-git+https://github.com/ericholscher/readthedocs-sphinx-ext#egg=readthedocs_ext
--e git+https://git@github.com/jMyles/sphinx-websupport2#egg=websupport2
-
-
 git+https://github.com/alex/django-taggit.git#egg=django_taggit-dev
 
+
+git+https://github.com/ericholscher/readthedocs-sphinx-ext#egg=readthedocs_ext

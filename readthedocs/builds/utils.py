@@ -17,8 +17,10 @@ BB_REGEXS = [
     re.compile('bitbucket.org:(.+)/(.+)\.git'),
 ]
 
-def get_github_username_repo(version):
-    repo_url = version.project.repo
+
+def get_github_username_repo(version, repo_url=None):
+    if not repo_url:
+        repo_url = version.project.repo
     if 'github' in repo_url:
         for regex in GH_REGEXS:
             match = regex.search(repo_url)
@@ -26,14 +28,17 @@ def get_github_username_repo(version):
                 return match.groups()
     return (None, None)
 
-def get_bitbucket_username_repo(version):
-    repo_url = version.project.repo
+
+def get_bitbucket_username_repo(version, repo_url=None):
+    if not repo_url:
+        repo_url = version.project.repo
     if 'bitbucket' in repo_url:
         for regex in BB_REGEXS:
             match = regex.search(repo_url)
             if match:
                 return match.groups()
     return (None, None)
+
 
 def get_vcs_version_slug(version):
     slug = None
