@@ -27,6 +27,8 @@ from tastyapi.slum import api
 from vcs_support.base import VCSProject
 from vcs_support.backends import backend_cls
 from vcs_support.utils import Lock, NonBlockingLock
+from doc_builder.loader import loading
+from websupport2.websupport2 import Websupport2Builder
 
 
 log = logging.getLogger(__name__)
@@ -106,6 +108,7 @@ class Project(models.Model):
         help_text=_('Type of documentation you are building. <a href="http://'
                     'sphinx-doc.org/builders.html#sphinx.builders.html.'
                     'DirectoryHTMLBuilder">More info</a>.'))
+    allow_comments = models.BooleanField(_('Allow Comments'), default=False)
     analytics_code = models.CharField(
         _('Analytics code'), max_length=50, null=True, blank=True,
         help_text=_("Google Analytics Tracking ID (ex. UA-22345342-1). "
@@ -400,6 +403,15 @@ class Project(models.Model):
 
     # Doc PATH:
     # MEDIA_ROOT/slug/checkouts/version/<repo>
+    
+    def doc_builder(self):
+        builder_class_for_type = loading.get(self.documentation_type)
+        if self.allow_comments:
+            class BuilderClass(Websupport2Builder, builder_class_for_type):
+                pass 
+        else:
+            BuilderClass = builder_class_for_type
+        return BuilderClass
 
     @property
     def doc_path(self):
