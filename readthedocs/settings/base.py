@@ -181,13 +181,13 @@ INSTALLED_APPS = [
     # daniellindsleyrocksdahouse
     'haystack',
     'tastypie',
-    'websupport',
 
 
 
     # our apps
     'bookmarks',
     'builds',
+    'comments',
     'core',
     'doc_builder',
     'oauth',

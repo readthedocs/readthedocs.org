@@ -107,7 +107,7 @@ urlpatterns = patterns(
         name='wipe_version'),
 
 
-    url(r'^websupport/', include('websupport.urls')),
+    url(r'^websupport/', include('comments.urls')),
     url(r'^profiles/', include('profiles.urls.public')),
     url(r'^accounts/', include('profiles.urls.private')),
     url(r'^accounts/', include('allauth.urls')),
