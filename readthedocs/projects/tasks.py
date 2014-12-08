@@ -326,7 +326,7 @@ def setup_environment(version):
         (
             '{cmd} install --use-wheel --find-links={wheeldir} -U {ignore_option} '
             'sphinx==1.2.2 virtualenv==1.10.1 setuptools==1.1 docutils==0.11 mkdocs==0.11.1 mock==1.0.1 pillow==2.6.1'
-            ' git+https://github.com/ericholscher/sphinx-websupport2#egg=websupport2 git+https://github.com/rtfd/readthedocs-sphinx-ext@websupport#egg=readthedocs_ext'
+            ' git+https://github.com/rtfd/readthedocs-sphinx-ext@websupport#egg=readthedocs_ext'
 
         ).format(
             cmd=project.venv_bin(version=version.slug, bin='pip'),
