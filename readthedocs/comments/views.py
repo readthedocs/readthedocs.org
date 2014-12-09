@@ -110,17 +110,16 @@ def has_node(request):
     exists = storage.has_node(node_id)
     return Response({'exists': exists})
 
-
+  
 @api_view(['GET', 'POST'])
 @permission_classes([permissions.AllowAny])
 @authentication_classes([UnsafeSessionAuthentication])
 @renderer_classes((JSONRenderer,))
 def add_node(request):
     post_data = request.DATA
-    document = post_data.get('document', '')
+    page = post_data.get('document', '')
     id = post_data.get('id', '')
-    source = post_data.get('source', '')
     project = post_data.get('project', '')
     version = post_data.get('version', '')
-    created = storage.add_node(id, document, source, project=project, version=version)
+    created = storage.add_node(id, page, project=project, version=version)
     return Response({'created': created})
