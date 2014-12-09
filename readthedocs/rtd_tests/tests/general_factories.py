@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 class UserFactory(factory.Factory):
     FACTORY_FOR = User
 
-    username = 'joe'
+    username = factory.Sequence(lambda n: 'joe %s' % n) 
 
 
     @classmethod

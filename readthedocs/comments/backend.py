@@ -5,6 +5,7 @@ from sphinx.websupport.storage import StorageBackend
 
 from .models import DocumentComment, DocumentNode
 from projects.models import Project
+from comments.models import NodeSnapshot
 
 
 class DjangoStorage(StorageBackend):
@@ -16,15 +17,19 @@ class DjangoStorage(StorageBackend):
         return DocumentNode.objects.filter(hash=id).exists()
 
     def add_node(self, id, document, project, version):
-        project_obj = Project.objects.get(slug=project)
-        version_obj = project_obj.versions.get(slug=version)
-        node, created = DocumentNode.objects.get_or_create(
-            hash=id,
-            page=document,
-            project=project_obj,
-            version=version_obj,
-        )
-        return created
+        try:
+            node_snapshot = NodeSnapshot.objects.get(hash=id)
+            return False  # ie, no new node was created.
+        except NodeSnapshot.DoesNotExist:
+            project_obj = Project.objects.get(slug=project)
+            version_obj = project_obj.versions.get(slug=version)
+            DocumentNode.objects.create(
+                hash=id,
+                page=document,
+                project=project_obj,
+                version=version_obj,
+            )
+        return True  # ie, it's True that a new node was created.
 
     def get_metadata(self, docname, moderator=None):
         ret_dict = {}

@@ -1,9 +1,34 @@
 from django.test import TestCase
 from comments.views import add_node
 from django.test.client import RequestFactory
-from rtd_tests.tests.coments_factories import DocumentNodeFactory
+from rtd_tests.tests.coments_factories import DocumentNodeFactory, DocumentCommentFactory
 from rest_framework.test import APIRequestFactory
 from comments.models import DocumentNode
+from rtd_tests.tests.general_factories import UserFactory
+
+
+class ModerationTests(TestCase):
+
+    def test_approved_comments(self):
+        comment = DocumentCommentFactory()
+        
+        # This comment has never been approved...
+        self.assertFalse(comment.has_been_approved_since_most_recent_node_change())
+
+        user = UserFactory()
+        
+        # ...until now!
+        comment.moderate(user=user, approved=True)
+        self.assertTrue(comment.has_been_approved_since_most_recent_node_change())
+
+
+    def test_anchor_change_causes_reque(self):
+
+#         node = comment.node
+#         latest_snapshot = node.snapshots.latest()
+#         hash = latest_snapshot.hash
+
+        self.fail()
 
 
 class CommentViewsTests(TestCase):
@@ -19,7 +44,7 @@ class CommentViewsTests(TestCase):
 
         post_data = {
                      'document': node.page,
-                     'id': node.hash,
+                     'id': node.latest_hash(),
                      'project': node.project.slug,
                      'version': node.version.slug,
                      }

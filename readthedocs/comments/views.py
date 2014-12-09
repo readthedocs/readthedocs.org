@@ -110,7 +110,7 @@ def has_node(request):
     exists = storage.has_node(node_id)
     return Response({'exists': exists})
 
-  
+
 @api_view(['GET', 'POST'])
 @permission_classes([permissions.AllowAny])
 @authentication_classes([UnsafeSessionAuthentication])
