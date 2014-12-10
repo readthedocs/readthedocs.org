@@ -25,8 +25,8 @@ class ProjectForm(forms.ModelForm):
 
     def save(self, commit=True):
         project = super(ProjectForm, self).save(commit)
-        if commit and self.user:
-            if not project.users.filter(pk=self.user.pk).exists():
+        if commit:
+            if self.user and not project.users.filter(pk=self.user.pk).exists():
                 project.users.add(self.user)
         return project
 
@@ -99,12 +99,6 @@ class ProjectBasicsForm(ProjectForm):
             'https://github.com/fabric/fabric.git',
             'https://github.com/ericholscher/django-kong.git',
         ])
-
-    def save(self, commit=True):
-        project = super(ProjectBasicsForm, self).save(commit)
-        if commit:
-            project.users.add(self.user)
-        return project
 
 
 class ProjectExtraForm(ProjectForm):
@@ -184,10 +178,6 @@ class UpdateProjectForm(ProjectTriggerBuildMixin, ProjectBasicsForm,
             'canonical_url',
             'tags',
         )
-
-    def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop('user', None)
-        super(UpdateProjectForm, self).__init__(*args, **kwargs)
 
 
 class DualCheckboxWidget(forms.CheckboxInput):

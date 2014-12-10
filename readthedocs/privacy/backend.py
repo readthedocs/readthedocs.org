@@ -107,6 +107,8 @@ class VersionManager(RelatedProjectManager):
             queryset = queryset.filter(active=True)
         return queryset
 
+    def api(self, user=None, *args, **kwargs):
+        return self.public(user, only_active=False)
 
 class AdminPermission(object):
 

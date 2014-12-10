@@ -74,32 +74,38 @@ def symlink_translations(version):
     Link from HOME/user_builds/project/translations/<lang> ->
               HOME/user_builds/<project>/rtd-builds/
     """
+    translations = {}
+
     if getattr(settings, 'DONT_HIT_DB', True):
-        translations = [(trans['slug'], trans['language']) for trans in apiv2.project(version.project.pk).translations.get()['translations']]
+        for trans in (apiv2
+                      .project(version.project.pk)
+                      .translations.get()['translations']):
+            translations[trans['language']] = trans['slug']
     else:
-        translations = [(trans.slug, trans.language) for trans in version.project.translations.all()]
-    for slug, language in translations:
-        log.debug(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Symlinking translation: %s->%s" % (language, slug)))
+        for trans in version.project.translations.all():
+            translations[trans.language] = trans.slug
+
+    # Default language, and pointer for 'en'
+    version_slug = version.project.slug.replace('_', '-')
+    translations[version.project.language] = version_slug
+    if not translations.has_key('en'):
+        translations['en'] = version_slug
+
+    run_on_app_servers(
+        'mkdir -p {0}'
+        .format(os.path.join(version.project.doc_path, 'translations')))
+
+    for (language, slug) in translations.items():
+        log.debug(LOG_TEMPLATE.format(
+            project=version.project.slug,
+            version=version.slug,
+            msg="Symlinking translation: %s->%s" % (language, slug)
+        ))
 
         # The directory for this specific translation
         symlink = version.project.translations_symlink_path(language)
-        run_on_app_servers('mkdir -p %s' % '/'.join(symlink.split('/')[:-1]))
-
-        # Where the actual docs live
-        docs_dir = os.path.join(settings.DOCROOT, slug, 'rtd-builds')
-        run_on_app_servers('ln -nsf %s %s' % (docs_dir, symlink))
-
-    # Hack in the en version for backwards compat
-    symlink = version.project.translations_symlink_path('en')
-    run_on_app_servers('mkdir -p %s' % '/'.join(symlink.split('/')[:-1]))
-    docs_dir = os.path.join(version.project.doc_path, 'rtd-builds')
-    run_on_app_servers('ln -nsf %s %s' % (docs_dir, symlink))
-    # Add the main language project to nginx too
-    if version.project.language is not 'en':
-        symlink = version.project.translations_symlink_path(version.project.language)
-        run_on_app_servers('mkdir -p %s' % '/'.join(symlink.split('/')[:-1]))
-        docs_dir = os.path.join(settings.DOCROOT, version.project.slug.replace('_', '-'), 'rtd-builds')
-        run_on_app_servers('ln -nsf %s %s' % (docs_dir, symlink))
+        translation_path = os.path.join(settings.DOCROOT, slug, 'rtd-builds')
+        run_on_app_servers('ln -nsf {0} {1}'.format(translation_path, symlink))
 
 
 def symlink_single_version(version):

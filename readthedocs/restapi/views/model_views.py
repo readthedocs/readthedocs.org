@@ -12,6 +12,7 @@ from core.utils import trigger_build
 from oauth import utils as oauth_utils
 from projects.models import Project, EmailHook
 from projects.filters import ProjectFilter
+from restapi.permissions import APIPermission
 
 from restapi.serializers import BuildSerializer, ProjectSerializer, VersionSerializer
 from restapi.permissions import RelatedProjectIsOwner
@@ -20,8 +21,8 @@ import restapi.utils as api_utils
 log = logging.getLogger(__name__)
 
 
-class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+class ProjectViewSet(viewsets.ModelViewSet):
+    permission_classes = [APIPermission]
     renderer_classes = (JSONRenderer, JSONPRenderer, BrowsableAPIRenderer)
     serializer_class = ProjectSerializer
     filter_class = ProjectFilter
@@ -101,18 +102,31 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
             # Update Stable Version
             version_strings = project.supported_versions(flat=True)
             if version_strings:
-                new_stable = version_strings[-1]
-                new_stable = project.versions.get(verbose_name=new_stable)
+                new_stable_slug = version_strings[-1]
+                new_stable = project.versions.get(verbose_name=new_stable_slug)
+
+                # Update stable version
                 stable = project.versions.filter(slug='stable')
                 if stable.exists():
                     stable_obj = stable[0]
                     if (new_stable.identifier != stable_obj.identifier) and (stable_obj.machine is True):
                         stable_obj.identifier = new_stable.identifier
                         stable_obj.save()
+                        log.info("Triggering new stable build: {project}:{version}".format(project=project.slug, version=stable_obj.identifier))
                         trigger_build(project=project, version=stable_obj)
                 else:
+                    log.info("Creating new stable version: {project}:{version}".format(project=project.slug, version=stable_obj.identifier))
                     version = project.versions.create(slug='stable', verbose_name='stable', machine=True, type=new_stable.type, active=True, identifier=new_stable.identifier)
                     trigger_build(project=project, version=version)
+
+                # Build new tag if enabled
+                old_largest_slug = version_strings[-2]
+                old_largest = project.versions.get(verbose_name=old_largest_slug)
+                if old_largest.active and new_stable_slug in added_versions:
+                    new_stable.active = True
+                    new_stable.save()
+                    trigger_build(project=project, version=new_stable)
+
         except:
             log.exception("Supported Versions Failure", exc_info=True)
 

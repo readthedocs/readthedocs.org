@@ -19,6 +19,15 @@
     </div>
 
     <div class="options">
+
+    {% if project.skip %}
+      <p class="build-failure">
+            Your project is currently disabled for abuse of the system. 
+            Please make sure it isn't using unreasonable amounts of resources of triggering lots of builds in a short amount of time.
+            Please <a href="https://github.com/rtfd/readthedocs.org/issues">file a ticket</a> to get your project re-enabled.
+      </p>
+      <br>
+    {% endif %}
       <ul>
         <li class="{{ overview_active }}"><a href="{{ project.get_absolute_url }}">{% trans "Overview" %}</a></li>
         {% if project.has_good_build %}
@@ -36,6 +45,7 @@
         {% endif %}
       </ul>
     </div>
+
 
   </div>
 </div>

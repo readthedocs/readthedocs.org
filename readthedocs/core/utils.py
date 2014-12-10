@@ -72,12 +72,15 @@ def cname_to_slug(host):
     return slug
 
 
-def trigger_build(project, version=None, record=True, force=False):
+def trigger_build(project, version=None, record=True, force=False, basic=False):
     """
     An API to wrap the triggering of a build.
     """
     # Avoid circular import
     from projects.tasks import update_docs
+
+    if project.skip:
+        return None
 
     if not version:
         version = project.versions.get(slug='latest')
@@ -90,10 +93,10 @@ def trigger_build(project, version=None, record=True, force=False):
             state='triggered',
             success=True,
         )
-        update_docs.delay(pk=project.pk, version_pk=version.pk, record=record, force=force, build_pk=build.pk)
+        update_docs.delay(pk=project.pk, version_pk=version.pk, record=record, force=force, basic=basic, build_pk=build.pk)
     else:
         build = None
-        update_docs.delay(pk=project.pk, version_pk=version.pk, record=record, force=force)
+        update_docs.delay(pk=project.pk, version_pk=version.pk, record=record, force=force, basic=basic)
 
     return build
 

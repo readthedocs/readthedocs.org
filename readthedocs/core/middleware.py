@@ -13,7 +13,7 @@ import redis
 
 log = logging.getLogger(__name__)
 
-LOG_TEMPLATE = "(Middleware) {msg} [{host}{path}]"
+LOG_TEMPLATE = u"(Middleware) {msg} [{host}{path}]"
 
 class SubdomainMiddleware(object):
     def process_request(self, request):

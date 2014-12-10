@@ -21,7 +21,7 @@ from builds.forms import AliasForm, VersionForm
 from builds.filters import VersionFilter
 from builds.models import VersionAlias
 from core.utils import trigger_build
-from oauth.models import GithubProject
+from oauth.models import GithubProject, BitbucketProject
 from oauth import utils as oauth_utils
 from projects.forms import (ProjectBackendForm, ProjectBasicsForm,
                             ProjectExtraForm, ProjectAdvancedForm,
@@ -91,7 +91,8 @@ def project_edit(request, project_slug):
 
     form_class = UpdateProjectForm
 
-    form = form_class(instance=project, data=request.POST or None)
+    form = form_class(instance=project, data=request.POST or None,
+                      user=request.user)
 
     if request.method == 'POST' and form.is_valid():
         form.save()
@@ -205,6 +206,7 @@ def project_delete(request, project_slug):
 
 
 class ImportWizardView(SessionWizardView):
+
     '''Project import wizard'''
 
     form_list = [('basics', ProjectBasicsForm),
@@ -230,10 +232,12 @@ class ImportWizardView(SessionWizardView):
         return kwargs
 
     def get_form_from_step(self, step):
-        return self.form_list[step](
+        form = self.form_list[step](
             data=self.get_cleaned_data_for_step(step),
             **self.get_form_kwargs(step)
         )
+        form.full_clean()
+        return form
 
     def get_template_names(self):
         '''Return template names based on step name'''
@@ -254,8 +258,10 @@ class ImportWizardView(SessionWizardView):
         for form in form_list[1:]:
             for (field, value) in form.cleaned_data.items():
                 setattr(project, field, value)
+        else:
+            basic_only = True
         project.save()
-        trigger_build(project)
+        trigger_build(project, basic=basic_only)
         return HttpResponseRedirect(reverse('projects_detail',
                                             args=[project.slug]))
 
@@ -266,6 +272,7 @@ class ImportWizardView(SessionWizardView):
 
 
 class ImportView(TemplateView):
+
     '''On GET, show the source select template, on POST, mock out a wizard
 
     If we are accepting POST data, use the fields to seed the initial data in
@@ -527,6 +534,37 @@ def project_import_github(request, sync=False):
         {
             'repos': repos,
             'github_connected': github_connected,
+            'sync': sync,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@login_required
+def project_import_bitbucket(request, sync=False):
+    '''Show form that prefills import form with data from BitBucket'''
+
+    bitbucket_connected = oauth_utils.import_bitbucket(user=request.user, sync=sync)
+    repos = BitbucketProject.objects.filter(users__in=[request.user])
+
+    # Find existing projects that match a repo url
+    for repo in repos:
+        ghetto_repo = repo.git_url.replace('git://', '').replace('.git', '')
+        projects = (Project
+                    .objects
+                    .public(request.user)
+                    .filter(Q(repo__endswith=ghetto_repo) |
+                            Q(repo__endswith=ghetto_repo + '.git')))
+        if projects:
+            repo.matches = [project.slug for project in projects]
+        else:
+            repo.matches = []
+
+    return render_to_response(
+        'projects/project_import_bitbucket.html',
+        {
+            'repos': repos,
+            'bitbucket_connected': bitbucket_connected,
             'sync': sync,
         },
         context_instance=RequestContext(request)

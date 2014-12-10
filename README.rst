@@ -26,30 +26,30 @@ the Docs site`_.
 
 .. _the Read the Docs site: http://read-the-docs.readthedocs.org
 
-Quick start for Github hosted projects
---------------------------------------
+Quickstart for GitHub-Hosted Projects
+-------------------------------------
 
-By the end of this quick start you will have a new project automatically updated
-when you push to Github.
+By the end of this quickstart, you will have a new project automatically updated
+when you push to GitHub.
 
-#. Create an account on `Read the docs`_.  You will get an email verifying your
+#. Create an account on `Read the Docs`_.  You will get an email verifying your
    email address which you should accept within 7 days.
 
-#. Login and click on Import
+#. Log in and click on "Import".
 
-#. Give your project a name, add the HTTPS link for your Github project, and
+#. Give your project a name, add the HTTPS link for your GitHub project, and
    select Git as your repository type.
 
-#. Fill in the rest of the form as needed and click create.
+#. Fill in the rest of the form as needed and click "Create".
 
-#. On Github click on Settings.
+#. On GitHub, navigate to your repository and click on "Settings".
 
-#. In the sidebar click on "Web Hooks & Services" then find and click on the
-   ReadTheDocs service.
+#. In the sidebar, click on "Web Hooks & Services", then find and click on the
+   "ReadTheDocs" service.
 
-#. Check the Active setting and click "Update Settings"
+#. Check the "Active" setting and click "Update Settings".
 
-#. All done.  Commit away and your project will auto update.
+#. All done.  Commit away and your project will auto-update.
 
 
 .. |build-status| image:: https://img.shields.io/travis/rtfd/readthedocs.org.svg?style=flat

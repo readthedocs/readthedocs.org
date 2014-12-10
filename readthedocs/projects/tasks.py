@@ -6,7 +6,6 @@ import os
 import shutil
 import json
 import logging
-import uuid
 import socket
 import requests
 
@@ -33,6 +32,12 @@ from restapi.utils import index_search_request
 from vcs_support import utils as vcs_support_utils
 import tastyapi
 
+try:
+    from readthedocs.projects.signals import before_vcs, after_vcs, before_build, after_build
+except:
+    from projects.signals import before_vcs, after_vcs, before_build, after_build
+
+
 log = logging.getLogger(__name__)
 
 HTML_ONLY = getattr(settings, 'HTML_ONLY_PROJECTS', ())
@@ -43,7 +48,7 @@ HTML_ONLY = getattr(settings, 'HTML_ONLY_PROJECTS', ())
 def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
                 pdf=True, man=True, epub=True, dash=True,
                 search=True, force=False, intersphinx=True, localmedia=True,
-                api=None, **kwargs):
+                api=None, basic=False, **kwargs):
     """
     The main entry point for updating documentation.
 
@@ -63,10 +68,18 @@ def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
     # Dependency injection to allow for testing
     if api is None:
         api = tastyapi.api
+        apiv2 = tastyapi.apiv2
+    else:
+        apiv2 = api
 
     project_data = api.project(pk).get()
     project = make_api_project(project_data)
-    log.info(LOG_TEMPLATE.format(project=project.slug, version='', msg='Building'))
+    # Don't build skipped projects
+    if project.skip:
+        log.info(LOG_TEMPLATE.format(project=project.slug, version='', msg='Skipping'))
+        return
+    else:
+        log.info(LOG_TEMPLATE.format(project=project.slug, version='', msg='Building'))
     version = ensure_version(api, project, version_pk)
     build = create_build(build_pk)
     results = {}
@@ -77,6 +90,9 @@ def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
         vcs_results = setup_vcs(version, build, api)
         if vcs_results:
             results.update(vcs_results)
+
+        if project.documentation_type == 'auto':
+            update_documentation_type(version, apiv2)
 
         if docker or settings.DOCKER_ENABLE:
             record_build(api=api, build=build, record=record, results=results, state='building')
@@ -139,6 +155,29 @@ def ensure_version(api, project, version_pk):
     return version
 
 
+def update_documentation_type(version, api):
+    """
+    Automatically determine the doc type for a user.
+    """
+
+    checkout_path = version.project.checkout_path(version.slug)
+    os.chdir(checkout_path)
+    files = run('find .')[1].split('\n')
+    markdown = sphinx = 0
+    for filename in files:
+        if fnmatch.fnmatch(filename, '*.md') or fnmatch.fnmatch(filename, '*.markdown'):
+            markdown += 1
+        elif fnmatch.fnmatch(filename, '*.rst'):
+            sphinx += 1
+    ret = 'sphinx'
+    if markdown > sphinx:
+        ret = 'mkdocs'
+    project_data = api.project(version.project.pk).get()
+    project_data['documentation_type'] = ret
+    api.project(version.project.pk).put(project_data)
+    version.project.documentation_type = ret
+
+
 def docker_build(version, pdf=True, man=True, epub=True, dash=True,
                  search=True, force=False, intersphinx=True, localmedia=True):
     """
@@ -188,11 +227,13 @@ def update_imported_docs(version_pk, api=None):
     if not os.path.exists(project.doc_path):
         os.makedirs(project.doc_path)
 
+    if not project.vcs_repo():
+        raise ProjectImportError(("Repo type '{0}' unknown".format(project.repo_type)))
+
     with project.repo_nonblockinglock(version=version,
                                       max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
-        if not project.vcs_repo():
-            raise ProjectImportError(("Repo type '{0}' unknown".format(project.repo_type)))
 
+        before_vcs.send(sender=version)
         # Get the actual code on disk
         if version:
             log.info(
@@ -217,6 +258,8 @@ def update_imported_docs(version_pk, api=None):
             version_slug = 'latest'
             version_repo = project.vcs_repo(version_slug)
             ret_dict['checkout'] = version_repo.update()
+
+        after_vcs.send(sender=version)
 
         # Update tags/version
 
@@ -290,12 +333,29 @@ def setup_environment(version):
         )
     )
 
-    if project.requirements_file:
-        os.chdir(project.checkout_path(version.slug))
+    # Handle requirements
+
+    requirements_file_path = project.requirements_file
+    checkout_path = project.checkout_path(version.slug)
+    if not requirements_file_path:
+        docs_dir = builder_loading.get(project.documentation_type)(version).docs_dir()
+        for path in [docs_dir, '']:
+            for req_file in ['pip_requirements.txt', 'requirements.txt']:
+                test_path = os.path.join(checkout_path, path, req_file)
+                print('Testing %s' % test_path)
+                if os.path.exists(test_path):
+                    requirements_file_path = test_path
+                    break
+
+    if requirements_file_path:
+        os.chdir(checkout_path)
         ret_dict['requirements'] = run(
             '{cmd} install --exists-action=w -r {requirements}'.format(
                 cmd=project.venv_bin(version=version.slug, bin='pip'),
-                requirements=project.requirements_file))
+                requirements=requirements_file_path))
+
+    # Handle setup.py
+
     os.chdir(project.checkout_path(version.slug))
     if os.path.isfile("setup.py"):
         if getattr(settings, 'USE_PIP_INSTALL', False):
@@ -321,6 +381,7 @@ def build_docs(version, force, pdf, man, epub, dash, search, localmedia):
     project = version.project
     results = {}
 
+    before_build.send(sender=version)
 
     with project.repo_nonblockinglock(version=version,
                                       max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
@@ -398,6 +459,9 @@ def build_docs(version, force, pdf, man, epub, dash, search, localmedia):
                         epub_builder.move()
                 else:
                     results['epub'] = fake_results
+
+    after_build.send(sender=version)
+
     return results
 
 
