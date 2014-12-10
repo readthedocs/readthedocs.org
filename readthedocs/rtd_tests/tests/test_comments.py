@@ -1,5 +1,5 @@
 from django.test import TestCase
-from comments.views import add_node
+from comments.views import add_node, get_metadata
 from django.test.client import RequestFactory
 from rtd_tests.tests.coments_factories import DocumentNodeFactory, DocumentCommentFactory
 from rest_framework.test import APIRequestFactory
@@ -32,6 +32,38 @@ class ModerationTests(TestCase):
 
 
 class CommentViewsTests(TestCase):
+
+    def test_get_metadata(self):
+
+        node = DocumentNodeFactory()
+
+        request_factory = APIRequestFactory()
+        get_data = {
+                    'project': node.project.slug,
+                    'version': node.version.slug,
+                    'page': node.page
+                    }
+        request = request_factory.get('/_get_metadata/', get_data)
+        response = get_metadata(request)
+        response.render()
+
+        number_of_comments = response.data[node.latest_hash()]
+
+        # There haven't been any comments yet.
+        self.assertEqual(number_of_comments, 0)
+
+        # Now we'll make one.
+        comment = DocumentCommentFactory(node=node, text="Our first comment!")
+
+        second_request = request_factory.get('/_get_metadata/', get_data)
+        second_response = get_metadata(request)
+        second_response.render()
+
+        number_of_comments = second_response.data[node.latest_hash()]
+
+        # And sure enough - one comment.
+        self.assertEqual(number_of_comments, 1)
+
 
     def test_add_node_view(self):
 

@@ -16,7 +16,7 @@ class DocumentNodeFactory(factory.DjangoModelFactory):
 
     project = factory.SubFactory(ProjectFactory)
     version = factory.LazyAttribute(lambda a: a.project.versions.all()[0])
-    page = "A page about nothing."
+    page = "page-about-nothing"
 
     @classmethod
     def _create(self, *args, **kwargs):

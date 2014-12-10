@@ -33,8 +33,8 @@ class DjangoStorage(StorageBackend):
 
     def get_metadata(self, docname, moderator=None):
         ret_dict = {}
-        for node in DocumentNode.objects.filter(document=docname):
-            ret_dict[node.hash] = node.comments.count()
+        for node in DocumentNode.objects.filter(page=docname):
+            ret_dict[node.latest_hash()] = node.comments.count()
         return ret_dict
 
     def get_data(self, node_id, username, moderator=None):
