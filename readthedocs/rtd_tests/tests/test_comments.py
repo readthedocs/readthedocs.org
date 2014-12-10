@@ -1,38 +1,82 @@
-from django.test import TestCase
-from comments.views import add_node, get_metadata, get_comments, add_comment
-from django.test.client import RequestFactory
-from rtd_tests.tests.coments_factories import DocumentNodeFactory, DocumentCommentFactory
-from rest_framework.test import APIRequestFactory
-from comments.models import DocumentNode
-from rtd_tests.tests.general_factories import UserFactory
+from bamboo_boy.utils import with_canopy
 import random
 
+from django.test import TestCase
+from django.test.client import RequestFactory
+from rest_framework.test import APIRequestFactory
 
+from comments.models import DocumentNode
+from comments.views import add_node, get_metadata, get_comments, add_comment
+from rtd_tests.tests.coments_factories import DocumentNodeFactory, DocumentCommentFactory, ProjectsWithComments
+from rtd_tests.tests.general_factories import UserFactory
+from rtd_tests.tests.projects_factories import ProjectFactory
+from privacy.backend import AdminNotAuthorized
+
+
+@with_canopy(ProjectsWithComments)
 class ModerationTests(TestCase):
 
     def test_approved_comments(self):
-        comment = DocumentCommentFactory()
+        c = self.canopy.first_unmoderated_comment
 
         # This comment has never been approved...
-        self.assertFalse(comment.has_been_approved_since_most_recent_node_change())
-
-        user = UserFactory()
+        self.assertFalse(c.has_been_approved_since_most_recent_node_change())
 
         # ...until now!
-        comment.moderate(user=user, approved=True)
-        self.assertTrue(comment.has_been_approved_since_most_recent_node_change())
+        c.moderate(user=self.canopy.owner, approved=True)
+        self.assertTrue(c.has_been_approved_since_most_recent_node_change())
 
-    def test_new_node_snapshot_causes_requed(self):
+    def test_new_node_snapshot_causes_comment_to_show_as_not_approved_since_change(self):
 
-        comment = DocumentCommentFactory()
-        user = UserFactory()
-        comment.moderate(user=user, approved=True)
+        c = self.canopy.first_unmoderated_comment
+        c.moderate(user=self.canopy.owner, approved=True)
 
-        self.assertTrue(comment.has_been_approved_since_most_recent_node_change())
+        self.assertTrue(c.has_been_approved_since_most_recent_node_change())
+        c.node.snapshots.create(hash=random.getrandbits(128))
+        self.assertFalse(c.has_been_approved_since_most_recent_node_change())
 
-        comment.node.snapshots.create(hash=random.getrandbits(128))
+    def test_unmoderated_project_shows_all_comments(self):
 
-        self.assertFalse(comment.has_been_approved_since_most_recent_node_change())
+        visible_comments = self.canopy.unmoderated_node.visible_comments()
+
+        self.assertIn(self.canopy.first_unmoderated_comment, visible_comments)
+        self.assertIn(self.canopy.second_unmoderated_comment, visible_comments)
+
+    def test_moderated_project_does_not_show_unapproved_comment(self):
+
+        # We take a look at the visible comments and find that neither comment is among them.
+        visible_comments = self.canopy.moderated_node.visible_comments()
+        self.assertNotIn(self.canopy.first_moderated_comment, visible_comments)
+        self.assertNotIn(self.canopy.second_moderated_comment, visible_comments)
+
+    def test_moderated_project_with_unchanged_nodes_shows_only_approved_comment(self):
+        # Approve the first comment...
+        self.canopy.first_moderated_comment.moderate(user=self.canopy.owner, approved=True)
+
+        # ...and find that the first comment, but not the second one, is visible.
+        visible_comments = self.canopy.moderated_node.visible_comments()
+        self.assertIn(self.canopy.first_moderated_comment, visible_comments)
+        self.assertNotIn(self.canopy.second_moderated_comment, visible_comments)
+
+    def test_moderated_project_with_changed_nodes_dont_show_comments_that_havent_been_approved_since(self):
+        # Approve the first comment...
+        self.canopy.first_moderated_comment.moderate(user=self.canopy.owner, approved=True)
+
+        # ...but this time, change the node.
+        self.canopy.first_moderated_comment.node.snapshots.create(hash=random.getrandbits(128))
+
+        # Now it does not show as visible.
+        visible_comments = self.canopy.moderated_node.visible_comments()
+        self.assertNotIn(self.canopy.first_moderated_comment, visible_comments)
+
+    def test_stranger_is_not_allowed_to_moderate(self):
+        stranger = UserFactory()
+
+        self.assertRaises(
+            AdminNotAuthorized,
+            self.canopy.first_moderated_comment.moderate,
+            user=stranger,
+            approved=True)
 
 
 class CommentViewsTests(TestCase):

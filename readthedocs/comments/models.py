@@ -1,10 +1,11 @@
-from django.db import models
 from django.contrib.auth.models import User
+from django.db import models
 from django.utils.translation import ugettext_lazy as _
-
-from projects.models import Project
-from builds.models import Version
 from rest_framework import serializers
+
+from builds.models import Version
+from privacy.backend import AdminPermission, AdminNotAuthorized
+from projects.models import Project
 
 
 class DocumentNodeManager(models.Manager):
@@ -43,6 +44,19 @@ class DocumentNode(models.Model):
     def latest_hash(self):
         return self.snapshots.latest().hash
 
+    def visible_comments(self):
+        if not self.project.comment_moderation:
+            return self.comments.all()
+        else:
+            # non-optimal SQL warning.
+            decisions = ModerationAction.objects.filter(
+                comment__node=self,
+                approved=True,
+                date__gt=self.snapshots.latest().date
+            )
+            valid_comments = self.comments.filter(moderation_actions__in=decisions).distinct()
+            return valid_comments
+
 
 class NodeSnapshot(models.Model):
     date = models.DateTimeField('Publication date', auto_now_add=True)
@@ -67,6 +81,9 @@ class DocumentComment(models.Model):
         return "/%s" % self.node.latest_hash()
 
     def moderate(self, user, approved):
+        user_is_cool = AdminPermission.is_admin(user, self.node.project)
+        if not user_is_cool:
+            raise AdminNotAuthorized
         self.moderation_actions.create(user=user, approved=approved)
 
     def has_been_approved_since_most_recent_node_change(self):
