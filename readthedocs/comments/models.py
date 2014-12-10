@@ -4,6 +4,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from projects.models import Project
 from builds.models import Version
+from rest_framework import serializers
 
 
 class DocumentNodeManager(models.Manager):
@@ -62,6 +63,9 @@ class DocumentComment(models.Model):
     def __unicode__(self):
         return "%s - %s" % (self.text, self.node)
 
+    def get_absolute_url(self):
+        return "/%s" % self.node.latest_hash()
+
     def moderate(self, user, approved):
         self.moderation_actions.create(user=user, approved=approved)
 
@@ -80,6 +84,13 @@ class DocumentComment(models.Model):
             return latest_moderation_action.approved
         else:
             return False
+
+
+class DocumentCommentSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = DocumentComment
+        fields = ('date', 'user', 'text', 'node')
 
 
 class ModerationAction(models.Model):

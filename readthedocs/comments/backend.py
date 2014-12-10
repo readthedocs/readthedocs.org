@@ -39,7 +39,7 @@ class DjangoStorage(StorageBackend):
 
     def get_data(self, node_id, username, moderator=None):
         try:
-            node = DocumentNode.objects.get(hash=node_id)
+            node = DocumentNode.objects.get(snapshots__hash=node_id)
         except DocumentNode.DoesNotExist:
             return None
         ret_comments = []
@@ -52,13 +52,13 @@ class DjangoStorage(StorageBackend):
         return {'source': '',
                 'comments': ret_comments}
 
-    def add_comment(self, text, displayed, username, time,
+    def add_comment(self, text, username, time,
                     proposal, node_id, parent_id, moderator):
 
-        node = DocumentNode.objects.get(hash=node_id)
+        node = DocumentNode.objects.get(snapshots__hash=node_id)
         comment = DocumentComment.objects.create(node=node,
                                                  text=text,
-                                                 displayed=displayed, rating=0)
+                                                 rating=0)
 
         data = json.loads(serializers.serialize("json", [comment]))[0]['fields']
         return data

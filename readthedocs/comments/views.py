@@ -15,6 +15,8 @@ from rest_framework.decorators import (
     renderer_classes,
 )
 from rest_framework.response import Response
+from comments.models import DocumentComment, DocumentNode, NodeSnapshot, DocumentCommentSerializer
+from projects.models import Project
 
 storage = DjangoStorage()
 
@@ -68,15 +70,30 @@ def get_metadata(request):
 @authentication_classes([UnsafeSessionAuthentication])
 @renderer_classes((JSONRenderer, JSONPRenderer))
 def add_comment(request):
-    parent_id = request.POST.get('parent', '')
     node_id = request.POST.get('node', '')
+    try:
+        snapshot = NodeSnapshot.objects.get(hash=node_id)
+        node = snapshot.node
+        created = False
+    except NodeSnapshot.DoesNotExist:
+        project = Project.objects.get(slug=request.DATA['project'])
+        version = project.versions.get(slug=request.DATA['version'])
+        node = DocumentNode.objects.create(project=project,
+                                           version=version,
+                                           hash=node_id,
+                                           )
+        created = True
+
     text = request.POST.get('text', '')
-    proposal = request.POST.get('proposal', '')
-    username = None
-    comment = support.add_comment(text=text, node_id=node_id,
-                                  parent_id=parent_id,
-                                  username=username, proposal=proposal)
-    return Response(comment)
+    comment = DocumentComment.objects.create(text=text,
+                                             node=node,
+                                             user=request.user)
+
+    serialized_comment = DocumentCommentSerializer(comment)
+    response_dict = serialized_comment.data
+    response_dict['created'] = created
+
+    return Response(serialized_comment.data)
 
 
 #######
