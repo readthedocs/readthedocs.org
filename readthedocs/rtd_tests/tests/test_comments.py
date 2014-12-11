@@ -189,12 +189,13 @@ class CommentViewsTests(TestCase):
         commit = "COOLNEWGITCOMMITHASH"
 
         post_data = {
+            'old_hash': node.latest_hash(),
             'new_hash': new_hash,
             'commit': commit
         }
 
         request = self.request_factory.post('/_update_node/', post_data)
-        response = update_node(request, node.id)
+        response = update_node(request)
         response.render()
 
         self.assertEqual(response.data['current_hash'], new_hash)
