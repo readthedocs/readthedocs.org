@@ -9,7 +9,7 @@ from comments.models import DocumentNode
 from comments.views import add_node, get_metadata, get_comments, add_comment, update_node
 from privacy.backend import AdminNotAuthorized
 from rtd_tests.tests.coments_factories import DocumentNodeFactory, \
-                DocumentCommentFactory, ProjectsWithComments
+    DocumentCommentFactory, ProjectsWithComments
 from rtd_tests.tests.general_factories import UserFactory
 from rtd_tests.tests.projects_factories import ProjectFactory
 
@@ -111,10 +111,10 @@ class CommentViewsTests(TestCase):
         node = DocumentNodeFactory()
 
         get_data = {
-                    'project': node.project.slug,
-                    'version': node.version.slug,
-                    'page': node.page
-                    }
+            'project': node.project.slug,
+            'version': node.version.slug,
+            'page': node.page
+        }
         request = self.request_factory.get('/_get_metadata/', get_data)
         response = get_metadata(request)
         response.render()
@@ -136,7 +136,6 @@ class CommentViewsTests(TestCase):
         # And sure enough - one comment.
         self.assertEqual(number_of_comments, 1)
 
-
     def test_add_node_view(self):
 
         node = DocumentNodeFactory()
@@ -145,11 +144,11 @@ class CommentViewsTests(TestCase):
         self.assertEqual(DocumentNode.objects.count(), 1)
 
         post_data = {
-                     'document': node.page,
-                     'id': node.latest_hash(),
-                     'project': node.project.slug,
-                     'version': node.version.slug,
-                     }
+            'document': node.page,
+            'id': node.latest_hash(),
+            'project': node.project.slug,
+            'version': node.version.slug,
+        }
 
         request = self.request_factory.post('/_add_node/', post_data)
         response = add_node(request)
