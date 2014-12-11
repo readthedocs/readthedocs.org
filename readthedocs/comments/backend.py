@@ -9,12 +9,13 @@ from comments.models import NodeSnapshot
 
 
 class DjangoStorage(StorageBackend):
+
     """
     A Sphinx StorageBackend using Django.
     """
 
     def has_node(self, id):
-        return DocumentNode.objects.filter(hash=id).exists()
+        return NodeSnapshot.objects.filter(hash=id).exists()
 
     def add_node(self, id, document, project, version):
         try:
@@ -46,8 +47,8 @@ class DjangoStorage(StorageBackend):
         for comment in node.comments.all():
             json_data = json.loads(serializers.serialize("json", [comment]))[0]['fields']
             ret_comments.append(
-                    json_data
-                )
+                json_data
+            )
 
         return {'source': '',
                 'comments': ret_comments}
@@ -62,4 +63,3 @@ class DjangoStorage(StorageBackend):
 
         data = json.loads(serializers.serialize("json", [comment]))[0]['fields']
         return data
-

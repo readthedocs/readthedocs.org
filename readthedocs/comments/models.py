@@ -22,6 +22,9 @@ class DocumentNodeManager(models.Manager):
 
         return node
 
+    def from_hash(self, hash):
+        return NodeSnapshot.objects.get(hash=hash).node
+
 
 class DocumentNode(models.Model):
 
