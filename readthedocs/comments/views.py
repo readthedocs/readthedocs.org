@@ -6,7 +6,7 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 from sphinx.websupport import WebSupport
 
-from rest_framework import permissions
+from rest_framework import permissions, status
 from rest_framework.renderers import JSONRenderer, JSONPRenderer, BrowsableAPIRenderer
 from rest_framework.decorators import (
     api_view,
@@ -15,7 +15,8 @@ from rest_framework.decorators import (
     renderer_classes,
 )
 from rest_framework.response import Response
-from comments.models import DocumentComment, DocumentNode, NodeSnapshot, DocumentCommentSerializer
+from comments.models import DocumentComment, DocumentNode, NodeSnapshot, DocumentCommentSerializer,\
+    DocumentNodeSerializer
 from projects.models import Project
 
 storage = DjangoStorage()
@@ -140,3 +141,21 @@ def add_node(request):
     version = post_data.get('version', '')
     created = storage.add_node(id, page, project=project, version=version)
     return Response({'created': created})
+
+
+@api_view(['GET', 'POST'])
+@permission_classes([permissions.AllowAny])
+@authentication_classes([UnsafeSessionAuthentication])
+@renderer_classes((JSONRenderer,))
+def update_node(request, node_id):
+    post_data = request.DATA
+    try:
+        new_hash = post_data['new_hash']
+        commit = post_data['commit']
+        node = DocumentNode.objects.get(id=node_id)
+        node.update_hash(new_hash, commit)
+        return Response(DocumentNodeSerializer(node).data)
+    except KeyError:
+        return Response("You must include new_hash and commit in POST payload to this view.",
+                        status.HTTP_400_BAD_REQUEST)
+

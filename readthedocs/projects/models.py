@@ -28,7 +28,6 @@ from vcs_support.base import VCSProject
 from vcs_support.backends import backend_cls
 from vcs_support.utils import Lock, NonBlockingLock
 from doc_builder.loader import loading
-from websupport2.websupport2 import Websupport2Builder
 
 
 log = logging.getLogger(__name__)
@@ -109,6 +108,7 @@ class Project(models.Model):
                     'sphinx-doc.org/builders.html#sphinx.builders.html.'
                     'DirectoryHTMLBuilder">More info</a>.'))
     allow_comments = models.BooleanField(_('Allow Comments'), default=False)
+    comment_moderation = models.BooleanField(_('Comment Moderation)'), default=False)
     analytics_code = models.CharField(
         _('Analytics code'), max_length=50, null=True, blank=True,
         help_text=_("Google Analytics Tracking ID (ex. UA-22345342-1). "

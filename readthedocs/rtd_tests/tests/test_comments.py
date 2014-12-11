@@ -6,11 +6,12 @@ from django.test.client import RequestFactory
 from rest_framework.test import APIRequestFactory
 
 from comments.models import DocumentNode
-from comments.views import add_node, get_metadata, get_comments, add_comment
-from rtd_tests.tests.coments_factories import DocumentNodeFactory, DocumentCommentFactory, ProjectsWithComments
+from comments.views import add_node, get_metadata, get_comments, add_comment, update_node
+from privacy.backend import AdminNotAuthorized
+from rtd_tests.tests.coments_factories import DocumentNodeFactory, \
+                DocumentCommentFactory, ProjectsWithComments
 from rtd_tests.tests.general_factories import UserFactory
 from rtd_tests.tests.projects_factories import ProjectFactory
-from privacy.backend import AdminNotAuthorized
 
 
 @with_canopy(ProjectsWithComments)
@@ -177,6 +178,32 @@ class CommentViewsTests(TestCase):
 
         # We do now have exactly one Node.
         self.assertEqual(DocumentNode.objects.count(), 1)
+
+    def test_update_node_view(self):
+
+        node = DocumentNodeFactory()
+
+        # Our node has one snapshot.
+        self.assertEqual(node.snapshots.count(), 1)
+
+        new_hash = "CRAZYnewHASHtoUPDATEnode"
+        commit = "COOLNEWGITCOMMITHASH"
+
+        post_data = {
+            'new_hash': new_hash,
+            'commit': commit
+        }
+
+        request = self.request_factory.post('/_update_node/', post_data)
+        response = update_node(request, node.id)
+        response.render()
+
+        self.assertEqual(response.data['current_hash'], new_hash)
+
+        # We now have two snapshots.
+        self.assertEqual(node.snapshots.count(), 2)
+        # And the latest hash is the one we just set.
+        self.assertEqual(node.latest_hash(), new_hash)
 
     def test_add_comment_view_without_existing_hash(self):
 

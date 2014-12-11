@@ -77,5 +77,5 @@ git+https://github.com/alex/django-taggit.git#egg=django_taggit-dev
 
 git+https://github.com/ericholscher/readthedocs-sphinx-ext#egg=readthedocs_ext
 
-git+ssh://git@github.com/jMyles/bamboo_boy#egg=bamboo_boy
+git+https://git@github.com/jMyles/bamboo_boy#egg=bamboo_boy
 

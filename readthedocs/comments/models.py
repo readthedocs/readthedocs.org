@@ -31,7 +31,6 @@ class DocumentNode(models.Model):
                                 related_name='nodes', null=True)
     version = models.ForeignKey(Version, verbose_name=_('Version'),
                                 related_name='nodes', null=True)
-    commit = models.CharField(max_length=255)
     page = models.CharField(_('Path'), max_length=255)
 
     def __unicode__(self):
@@ -43,6 +42,12 @@ class DocumentNode(models.Model):
 
     def latest_hash(self):
         return self.snapshots.latest().hash
+
+    def latest_commit(self):
+        return self.snapshots.latest().commit
+
+    def snapshots_count(self):
+        return self.snapshots.count()
 
     def visible_comments(self):
         if not self.project.comment_moderation:
@@ -57,11 +62,25 @@ class DocumentNode(models.Model):
             valid_comments = self.comments.filter(moderation_actions__in=decisions).distinct()
             return valid_comments
 
+    def update_hash(self, new_hash, commit):
+        self.snapshots.create(hash=new_hash, commit=commit)
+
+
+class DocumentNodeSerializer(serializers.ModelSerializer):
+
+    current_hash = serializers.CharField(source='latest_hash')
+    last_commit = serializers.CharField(source='latest_commit')
+    snapshots_count = serializers.CharField(source='snapshots_count')
+
+    class Meta:
+        model = DocumentNode
+
 
 class NodeSnapshot(models.Model):
     date = models.DateTimeField('Publication date', auto_now_add=True)
     hash = models.CharField(_('Hash'), max_length=255)
     node = models.ForeignKey(DocumentNode, related_name="snapshots")
+    commit = models.CharField(max_length=255)
 
     class Meta:
         get_latest_by = 'date'
