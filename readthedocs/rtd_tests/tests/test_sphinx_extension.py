@@ -1,9 +1,9 @@
 from django.test import TestCase
 
 import mock
-from docutils import nodes
+from docutils import nodes, utils
 
-from readthedocs_ext.comments import hasher, translator
+from readthedocs_ext.comments import backend, hasher, translator
 
 
 def _pass(*args, **kwargs):
@@ -14,7 +14,6 @@ class TestBuildCommand(TestCase):
 
     '''Test Sphinx Extension'''
 
-    @mock.patch('readthedocs_ext.comments.translator.UUIDTranslator.__init__', _pass)
     def setUp(self):
         self.nodes = {
             u'nil-0-0104c4104242a022004402100860ac01886600192002010200e0800041804000': 0,
@@ -50,7 +49,8 @@ class TestBuildCommand(TestCase):
         self.builder.current_docname = 'foobar'
         self.builder.storage = mock.Mock()
         self.builder.storage.get_metadata = mock.MagicMock(return_value=self.nodes)
-        self.trans = translator.UUIDTranslator()
+        with mock.patch('readthedocs_ext.comments.translator.UUIDTranslator.__init__', _pass):
+            self.trans = translator.UUIDTranslator()
 
     def _compare_string_to_list(self, input, hash_list):
         mod_node = nodes.Text(input)
@@ -96,3 +96,30 @@ class TestBuildCommand(TestCase):
             document='foobar',
             id='nil-52902498441ac8b4280001045028818022aa48a04040c8118e4cac8440d1800a'
         )
+
+
+"""
+class TestBuildIntegration(TestCase):
+
+    '''Test Sphinx Integration'''
+
+    def setUp(self):
+
+        self.test_string = 'A new node for kong.'
+        self.test_node = nodes.Text(self.test_string)
+
+        with mock.patch('readthedocs_ext.comments.translator.UUIDTranslator.__init__', _pass):
+            self.builder = mock.MagicMock()
+            self.builder.project = 'kong'
+            self.builder.version = 'latest'
+            self.builder.current_docname = 'index'
+            self.builder.config.websupport2_base_url = 'http://localhost:8000/websupport/'
+            self.builder.storage = backend.WebStorage(builder=self.builder)
+            self.trans = translator.UUIDTranslator()
+
+    def test_update_node(self):
+        resp = self.trans.update_hash(self.test_node, self.builder)
+        self.assertTrue(resp.status_code == 200)
+        #self.assertTrue(resp.json()['created'])
+
+"""
