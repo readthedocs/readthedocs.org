@@ -3,9 +3,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 
-from builds.models import Version
 from privacy.backend import AdminPermission, AdminNotAuthorized
-from projects.models import Project
 
 
 class DocumentNodeManager(models.Manager):
@@ -27,9 +25,9 @@ class DocumentNode(models.Model):
 
     objects = DocumentNodeManager()
 
-    project = models.ForeignKey(Project, verbose_name=_('Project'),
+    project = models.ForeignKey('projects.Project', verbose_name=_('Project'),
                                 related_name='nodes', null=True)
-    version = models.ForeignKey(Version, verbose_name=_('Version'),
+    version = models.ForeignKey('builds.Version', verbose_name=_('Version'),
                                 related_name='nodes', null=True)
     page = models.CharField(_('Path'), max_length=255)
 

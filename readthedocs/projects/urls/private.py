@@ -29,7 +29,7 @@ urlpatterns = patterns(
         'projects.views.private.project_import_github',
         {'sync': True},
         name='projects_sync_github'),
-    
+
     url(r'^import/bitbucket/$',
         'projects.views.private.project_import_bitbucket',
         {'sync': False},
@@ -55,6 +55,10 @@ urlpatterns = patterns(
     url(r'^(?P<project_slug>[-\w]+)/alias/list/$',
         AliasList.as_view(),
         name='projects_alias_list'),
+
+    url(r'^(?P<project_slug>[-\w]+)/comments_moderation/$',
+        'projects.views.private.project_comments_moderation',
+        name='projects_comments_moderation'),
 
     url(r'^(?P<project_slug>[-\w]+)/edit/$',
         'projects.views.private.project_edit',
@@ -95,6 +99,10 @@ urlpatterns = patterns(
     url(r'^(?P<project_slug>[-\w]+)/notifications/$',
         'projects.views.private.project_notifications',
         name='projects_notifications'),
+
+    url(r'^(?P<project_slug>[-\w]+)/comments/$',
+        'projects.views.private.project_comments_settings',
+        name='projects_comments'),
 
     url(r'^(?P<project_slug>[-\w]+)/notifications/delete/$',
         'projects.views.private.project_notifications_delete',

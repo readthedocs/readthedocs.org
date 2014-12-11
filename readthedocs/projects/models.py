@@ -28,6 +28,7 @@ from vcs_support.base import VCSProject
 from vcs_support.backends import backend_cls
 from vcs_support.utils import Lock, NonBlockingLock
 from doc_builder.loader import loading
+from comments.models import ModerationAction, DocumentComment
 
 
 log = logging.getLogger(__name__)
@@ -742,6 +743,16 @@ class Project(models.Model):
     def remove_subproject(self, child):
         ProjectRelationship.objects.filter(parent=self, child=child).delete()
         return
+
+    def moderation_queue(self):
+        # non-optimal SQL warning.
+        queue = []
+        comments = DocumentComment.objects.filter(node__project=self)
+        for comment in comments:
+            if not comment.has_been_approved_since_most_recent_node_change():
+                queue.append(comment)
+
+        return queue
 
 
 class ImportedFile(models.Model):

@@ -12,6 +12,7 @@ from rtd_tests.tests.coments_factories import DocumentNodeFactory, \
                 DocumentCommentFactory, ProjectsWithComments
 from rtd_tests.tests.general_factories import UserFactory
 from rtd_tests.tests.projects_factories import ProjectFactory
+from projects.views.private import project_comments_moderation
 
 
 @with_canopy(ProjectsWithComments)
@@ -80,7 +81,19 @@ class ModerationTests(TestCase):
             approved=True)
 
 
-class CommentViewsTests(TestCase):
+@with_canopy(ProjectsWithComments)
+class CommentModerationViewsTests(TestCase):
+
+    def test_unmoderated_comments_are_listed_in_view(self):
+
+        request = RequestFactory()
+        request.user = self.canopy.owner
+        request.META = {}
+        response = project_comments_moderation(request, self.canopy.moderated_project.slug)
+
+        self.assertIn(self.canopy.first_moderated_comment.text, response.content)
+
+class CommentAPIViewsTests(TestCase):
 
     request_factory = APIRequestFactory()
 
