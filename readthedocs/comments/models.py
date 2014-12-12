@@ -12,11 +12,12 @@ class DocumentNodeManager(models.Manager):
 
         try:
             hash = kwargs.pop('hash')
+            commit = kwargs.pop('commit')
         except KeyError:
-            raise TypeError("You must provide a hash for the initial NodeSnapshot.")
+            raise TypeError("You must provide a hash and commit for the initial NodeSnapshot.")
 
         node = super(DocumentNodeManager, self).create(*args, **kwargs)
-        NodeSnapshot.objects.create(hash=hash, node=node)
+        NodeSnapshot.objects.create(commit=commit, hash=hash, node=node)
 
         return node
 
@@ -44,9 +45,6 @@ class DocumentNode(models.Model):
     def latest_commit(self):
         return self.snapshots.latest().commit
 
-    def snapshots_count(self):
-        return self.snapshots.count()
-
     def visible_comments(self):
         if not self.project.comment_moderation:
             return self.comments.all()
@@ -61,14 +59,18 @@ class DocumentNode(models.Model):
             return valid_comments
 
     def update_hash(self, new_hash, commit):
-        self.snapshots.create(hash=new_hash, commit=commit)
+        latest_snapshot = self.snapshots.latest()
+        if latest_snapshot.hash == new_hash and latest_snapshot.commit == commit:
+            return latest_snapshot
+        else:
+            return self.snapshots.create(hash=new_hash, commit=commit)
 
 
 class DocumentNodeSerializer(serializers.ModelSerializer):
 
     current_hash = serializers.CharField(source='latest_hash')
     last_commit = serializers.CharField(source='latest_commit')
-    snapshots_count = serializers.CharField(source='snapshots_count')
+    snapshots_count = serializers.CharField(source='snapshots.count')
 
     class Meta:
         model = DocumentNode
@@ -82,6 +84,10 @@ class NodeSnapshot(models.Model):
 
     class Meta:
         get_latest_by = 'date'
+        # Snapshots are *almost* unique_together just for node and hash,
+        # but for the possibility that a node's hash might change and then change back
+        # in a later commit.
+        unique_together = ("hash", "node", "commit")
 
 
 class DocumentComment(models.Model):
@@ -118,6 +124,9 @@ class DocumentComment(models.Model):
             return latest_moderation_action.approved
         else:
             return False
+
+    def is_orphaned(self):
+        self.node
 
 
 class DocumentCommentSerializer(serializers.ModelSerializer):

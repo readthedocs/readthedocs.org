@@ -18,7 +18,10 @@
             <div class="module-list-wrapper">
               <ul>
                 {% for comment in project.moderation_queue %}
-                    {{comment}}
+                    <li class="module-item">
+                        {{comment.user}}: {{comment.text}} (at {{comment.date}})
+                        <a href="#">Approve</a>
+                    </li>
                 {% endfor %}
               </ul>
             </div>

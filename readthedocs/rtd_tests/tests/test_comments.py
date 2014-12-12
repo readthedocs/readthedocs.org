@@ -44,7 +44,7 @@ class ModerationTests(TestCase):
         self.assertIn(self.canopy.first_unmoderated_comment, visible_comments)
         self.assertIn(self.canopy.second_unmoderated_comment, visible_comments)
 
-    def test_moderated_project_does_not_show_unapproved_comment(self):
+    def test_unapproved_comment_is_not_visible_on_moderated_project(self):
 
         # We take a look at the visible comments and find that neither comment is among them.
         visible_comments = self.canopy.moderated_node.visible_comments()
@@ -71,6 +71,17 @@ class ModerationTests(TestCase):
         visible_comments = self.canopy.moderated_node.visible_comments()
         self.assertNotIn(self.canopy.first_moderated_comment, visible_comments)
 
+    def test_unapproved_comments_appear_in_moderation_queue(self):
+        queue = self.canopy.moderated_project.moderation_queue()
+        self.assertIn(self.canopy.first_moderated_comment, queue)
+        self.assertIn(self.canopy.second_moderated_comment, queue)
+
+    def test_approved_comments_do_not_appear_in_moderation_queue(self):
+        self.canopy.first_moderated_comment.moderate(user=self.canopy.owner, approved=True)
+        queue = self.canopy.moderated_project.moderation_queue()
+        self.assertNotIn(self.canopy.first_moderated_comment, queue)
+        self.assertIn(self.canopy.second_moderated_comment, queue)
+
     def test_stranger_is_not_allowed_to_moderate(self):
         stranger = UserFactory()
 
@@ -79,6 +90,44 @@ class ModerationTests(TestCase):
             self.canopy.first_moderated_comment.moderate,
             user=stranger,
             approved=True)
+
+
+class NodeAndSnapshotTests(TestCase):
+
+    def test_update_with_same_hash_does_not_create_new_snapshot(self):
+        node = DocumentNodeFactory()
+
+        hash = "SOMEHASH"
+        commit = "SOMEGITCOMMIT"
+
+        # We initially have just one snapshot.
+        self.assertEqual(node.snapshots.count(), 1)
+
+        # ...but when we update the hash, we have two.
+        node.update_hash(hash, commit)
+        self.assertEqual(node.snapshots.count(), 2)
+
+        # If we update with the same exact hash and commit, it doesn't create a new snapshot.
+        node.update_hash(hash, commit)
+        self.assertEqual(node.snapshots.count(), 2)
+
+    def test_node_cannot_be_created_without_commit_and_hash(self):
+        project = ProjectFactory()
+        some_version = project.versions.all()[0]
+
+        self.assertRaises(TypeError,
+                          DocumentNode.objects.create,
+                          project=project,
+                          version=some_version,
+                          hash=random.getrandbits(128)
+                          )
+
+        self.assertRaises(TypeError,
+                          DocumentNode.objects.create,
+                          project=project,
+                          version=some_version,
+                          commit=random.getrandbits(128)
+                          )
 
 
 @with_canopy(ProjectsWithComments)
@@ -92,6 +141,7 @@ class CommentModerationViewsTests(TestCase):
         response = project_comments_moderation(request, self.canopy.moderated_project.slug)
 
         self.assertIn(self.canopy.first_moderated_comment.text, response.content)
+
 
 class CommentAPIViewsTests(TestCase):
 
@@ -162,6 +212,7 @@ class CommentAPIViewsTests(TestCase):
                      'id': node.latest_hash(),
                      'project': node.project.slug,
                      'version': node.version.slug,
+                     'commit': node.latest_commit(),
                      }
 
         request = self.request_factory.post('/_add_node/', post_data)
@@ -226,6 +277,7 @@ class CommentAPIViewsTests(TestCase):
 
         post_data = {
             'node': random.getrandbits(128),
+            'commit': random.getrandbits(128),
             'project': node.project.slug,
             'version': node.version.slug,
             'page': node.page,
@@ -235,6 +287,7 @@ class CommentAPIViewsTests(TestCase):
         request = self.request_factory.post('/_add_comment', post_data)
         request.user = user
         response = add_comment(request)
+        self.assertEqual(response.status_code, 200)
         response.render()
 
         self.assertTrue(response.data['created'])  # We created a new node.
@@ -248,6 +301,7 @@ class CommentAPIViewsTests(TestCase):
 
         post_data = {
             'node': node.latest_hash(),
+            'commit': node.latest_hash(),
             'project': node.project.slug,
             'version': node.version.slug,
             'page': node.page,

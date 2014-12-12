@@ -16,18 +16,25 @@ class DjangoStorage(StorageBackend):
     def has_node(self, id):
         return DocumentNode.objects.filter(hash=id).exists()
 
-    def add_node(self, id, document, project, version):
+    def add_node(self, id, document, project, version, commit):
+        project_obj = Project.objects.get(slug=project)
+        version_obj = project_obj.versions.get(slug=version)
         try:
-            node_snapshot = NodeSnapshot.objects.get(hash=id)
+            node_snapshot = NodeSnapshot.objects.get(
+                                hash=id,
+                                node__project=project_obj,
+                                node__version=version_obj,
+                                node__page=document,
+                                commit=commit
+                                )
             return False  # ie, no new node was created.
         except NodeSnapshot.DoesNotExist:
-            project_obj = Project.objects.get(slug=project)
-            version_obj = project_obj.versions.get(slug=version)
             DocumentNode.objects.create(
                 hash=id,
                 page=document,
                 project=project_obj,
                 version=version_obj,
+                commit=commit
             )
         return True  # ie, it's True that a new node was created.
 

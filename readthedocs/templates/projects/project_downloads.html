@@ -25,9 +25,7 @@
               <div class="module-list">
                 <div class="module-list-wrapper">
                   <ul>
-                    {% for comment in project.moderation_queue %}
-                        <li>{{comment.user}}: {{comment.text}} (at {{comment.date}})</li>
-                    {% endfor %}
+                    {% include "core/project_downloads.html" %}
                   </ul>
                 </div>
               </div>

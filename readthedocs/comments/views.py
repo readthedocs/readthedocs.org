@@ -71,9 +71,14 @@ def get_metadata(request):
 @authentication_classes([UnsafeSessionAuthentication])
 @renderer_classes((JSONRenderer, JSONPRenderer))
 def add_comment(request):
-    node_id = request.POST.get('node', '')
     try:
-        snapshot = NodeSnapshot.objects.get(hash=node_id)
+        hash = request.POST['node']
+        commit = request.POST['commit']
+    except KeyError:
+        return Response("You must provide a node (hash) and initial commit.",
+                        status=status.HTTP_400_BAD_REQUEST)
+    try:
+        snapshot = NodeSnapshot.objects.get(hash=hash)
         node = snapshot.node
         created = False
     except NodeSnapshot.DoesNotExist:
@@ -81,7 +86,8 @@ def add_comment(request):
         version = project.versions.get(slug=request.DATA['version'])
         node = DocumentNode.objects.create(project=project,
                                            version=version,
-                                           hash=node_id,
+                                           hash=hash,
+                                           commit=commit,
                                            )
         created = True
 
@@ -139,7 +145,8 @@ def add_node(request):
     id = post_data.get('id', '')
     project = post_data.get('project', '')
     version = post_data.get('version', '')
-    created = storage.add_node(id, page, project=project, version=version)
+    commit = post_data.get('commit', '')
+    created = storage.add_node(id, page, project=project, version=version, commit=commit)
     return Response({'created': created})
 
 
