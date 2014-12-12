@@ -15,6 +15,7 @@ def make_version(version):
             return NormalizedVersion('9999.0', error_on_huge_major_num=False)
         else:
             return NormalizedVersion('999.0', error_on_huge_major_num=False)
+    return ver
 
 
 @register.filter
