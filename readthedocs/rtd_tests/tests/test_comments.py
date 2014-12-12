@@ -9,7 +9,7 @@ from comments.models import DocumentNode
 from comments.views import add_node, get_metadata, get_comments, add_comment, update_node
 from privacy.backend import AdminNotAuthorized
 from rtd_tests.tests.coments_factories import DocumentNodeFactory, \
-                DocumentCommentFactory, ProjectsWithComments
+    DocumentCommentFactory, ProjectsWithComments
 from rtd_tests.tests.general_factories import UserFactory
 from rtd_tests.tests.projects_factories import ProjectFactory
 from projects.views.private import project_comments_moderation
@@ -174,10 +174,10 @@ class CommentAPIViewsTests(TestCase):
         node = DocumentNodeFactory()
 
         get_data = {
-                    'project': node.project.slug,
-                    'version': node.version.slug,
-                    'page': node.page
-                    }
+            'project': node.project.slug,
+            'version': node.version.slug,
+            'page': node.page
+        }
         request = self.request_factory.get('/_get_metadata/', get_data)
         response = get_metadata(request)
         response.render()
@@ -199,7 +199,6 @@ class CommentAPIViewsTests(TestCase):
         # And sure enough - one comment.
         self.assertEqual(number_of_comments, 1)
 
-
     def test_add_node_view(self):
 
         node = DocumentNodeFactory()
@@ -214,6 +213,7 @@ class CommentAPIViewsTests(TestCase):
                      'version': node.version.slug,
                      'commit': node.latest_commit(),
                      }
+
 
         request = self.request_factory.post('/_add_node/', post_data)
         response = add_node(request)
@@ -254,12 +254,13 @@ class CommentAPIViewsTests(TestCase):
         commit = "COOLNEWGITCOMMITHASH"
 
         post_data = {
+            'old_hash': node.latest_hash(),
             'new_hash': new_hash,
             'commit': commit
         }
 
         request = self.request_factory.post('/_update_node/', post_data)
-        response = update_node(request, node.id)
+        response = update_node(request)
         response.render()
 
         self.assertEqual(response.data['current_hash'], new_hash)

@@ -103,6 +103,23 @@ def add_comment(request):
     return Response(serialized_comment.data)
 
 
+@api_view(['GET', 'POST'])
+@permission_classes([permissions.AllowAny])
+@authentication_classes([UnsafeSessionAuthentication])
+@renderer_classes((JSONRenderer, JSONPRenderer))
+def attach_comment(request):
+    comment_id = request.POST.get('comment', '')
+    comment = DocumentComment.objects.get(pk=comment_id)
+
+    node_id = request.POST.get('node', '')
+    snapshot = NodeSnapshot.objects.get(hash=node_id)
+    comment.node = snapshot.node
+
+    serialized_comment = DocumentCommentSerializer(comment)
+    serialized_comment.data
+    return Response(serialized_comment.data)
+
+
 #######
 # Normal Views
 #######
@@ -154,15 +171,15 @@ def add_node(request):
 @permission_classes([permissions.AllowAny])
 @authentication_classes([UnsafeSessionAuthentication])
 @renderer_classes((JSONRenderer,))
-def update_node(request, node_id):
+def update_node(request):
     post_data = request.DATA
     try:
+        old_hash = post_data['old_hash']
         new_hash = post_data['new_hash']
         commit = post_data['commit']
-        node = DocumentNode.objects.get(id=node_id)
+        node = DocumentNode.objects.from_hash(hash=old_hash)
         node.update_hash(new_hash, commit)
         return Response(DocumentNodeSerializer(node).data)
     except KeyError:
         return Response("You must include new_hash and commit in POST payload to this view.",
                         status.HTTP_400_BAD_REQUEST)
-
