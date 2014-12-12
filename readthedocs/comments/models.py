@@ -21,8 +21,14 @@ class DocumentNodeManager(models.Manager):
 
         return node
 
-    def from_hash(self, hash):
-        return NodeSnapshot.objects.get(hash=hash).node
+    def from_hash(self, project, version, page, hash):
+        snapshot = NodeSnapshot.objects.filter(
+            hash=hash,
+            node__project=project,
+            node__version=version,
+            node__page=page,
+        )
+        return snapshot.latest().node
 
 
 class DocumentNode(models.Model):
