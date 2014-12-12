@@ -18,6 +18,7 @@ from rest_framework.response import Response
 from comments.models import DocumentComment, DocumentNode, NodeSnapshot, DocumentCommentSerializer,\
     DocumentNodeSerializer
 from projects.models import Project
+from django.http.response import HttpResponseRedirect
 
 storage = DjangoStorage()
 
@@ -183,3 +184,13 @@ def update_node(request):
     except KeyError:
         return Response("You must include new_hash and commit in POST payload to this view.",
                         status.HTTP_400_BAD_REQUEST)
+
+
+def moderate_comment(request, comment_id):
+    post_data = request.DATA
+    comment = DocumentComment.objects.get(id=comment_id)
+
+    decision = post_data['decision']
+    comment.moderate(request.user, decision)
+    return HttpResponseRedirect(comment.node.project.get_absolute_url())
+

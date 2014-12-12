@@ -55,7 +55,7 @@ class DocumentNode(models.Model):
             # non-optimal SQL warning.
             decisions = ModerationAction.objects.filter(
                 comment__node=self,
-                approved=True,
+                decision=1,
                 date__gt=self.snapshots.latest().date
             )
             valid_comments = self.comments.filter(moderation_actions__in=decisions).distinct()
@@ -106,11 +106,11 @@ class DocumentComment(models.Model):
     def get_absolute_url(self):
         return "/%s" % self.node.latest_hash()
 
-    def moderate(self, user, approved):
+    def moderate(self, user, decision):
         user_is_cool = AdminPermission.is_admin(user, self.node.project)
         if not user_is_cool:
             raise AdminNotAuthorized
-        self.moderation_actions.create(user=user, approved=approved)
+        self.moderation_actions.create(user=user, decision=decision)
 
     def has_been_approved_since_most_recent_node_change(self):
         try:
@@ -124,7 +124,7 @@ class DocumentComment(models.Model):
         if latest_moderation_action.date > most_recent_node_change:
             # If we do have an approval action which is newer than the most recent change,
             # we'll return True or False commensurate with its "approved" attribute.
-            return latest_moderation_action.approved
+            return latest_moderation_action.approved()
         else:
             return False
 
@@ -142,8 +142,15 @@ class DocumentCommentSerializer(serializers.ModelSerializer):
 class ModerationAction(models.Model):
     user = models.ForeignKey(User)
     comment = models.ForeignKey(DocumentComment, related_name="moderation_actions")
-    approved = models.BooleanField(default=True)
+    decision = models.IntegerField(choices=(
+                  (0, 'No Decision'),
+                  (1, 'Publish'),
+                  (2, 'Hide'),
+                  ))
     date = models.DateTimeField(_('Date'), auto_now_add=True)
 
     class Meta:
         get_latest_by = 'date'
+
+    def approved(self):
+        return self.decision == 1

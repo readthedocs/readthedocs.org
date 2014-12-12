@@ -6,7 +6,7 @@ from django.test.client import RequestFactory
 from rest_framework.test import APIRequestFactory
 
 from comments.models import DocumentNode
-from comments.views import add_node, get_metadata, get_comments, add_comment, update_node
+from comments.views import add_node, get_metadata, get_comments, add_comment, update_node, moderate_comment
 from privacy.backend import AdminNotAuthorized
 from rtd_tests.tests.coments_factories import DocumentNodeFactory, \
     DocumentCommentFactory, ProjectsWithComments
@@ -25,13 +25,13 @@ class ModerationTests(TestCase):
         self.assertFalse(c.has_been_approved_since_most_recent_node_change())
 
         # ...until now!
-        c.moderate(user=self.canopy.owner, approved=True)
+        c.moderate(user=self.canopy.owner, decision=1)
         self.assertTrue(c.has_been_approved_since_most_recent_node_change())
 
     def test_new_node_snapshot_causes_comment_to_show_as_not_approved_since_change(self):
 
         c = self.canopy.first_unmoderated_comment
-        c.moderate(user=self.canopy.owner, approved=True)
+        c.moderate(user=self.canopy.owner, decision=1)
 
         self.assertTrue(c.has_been_approved_since_most_recent_node_change())
         c.node.snapshots.create(hash=random.getrandbits(128))
@@ -53,7 +53,7 @@ class ModerationTests(TestCase):
 
     def test_moderated_project_with_unchanged_nodes_shows_only_approved_comment(self):
         # Approve the first comment...
-        self.canopy.first_moderated_comment.moderate(user=self.canopy.owner, approved=True)
+        self.canopy.first_moderated_comment.moderate(user=self.canopy.owner, decision=1)
 
         # ...and find that the first comment, but not the second one, is visible.
         visible_comments = self.canopy.moderated_node.visible_comments()
@@ -62,7 +62,7 @@ class ModerationTests(TestCase):
 
     def test_moderated_project_with_changed_nodes_dont_show_comments_that_havent_been_approved_since(self):
         # Approve the first comment...
-        self.canopy.first_moderated_comment.moderate(user=self.canopy.owner, approved=True)
+        self.canopy.first_moderated_comment.moderate(user=self.canopy.owner, decision=1)
 
         # ...but this time, change the node.
         self.canopy.first_moderated_comment.node.snapshots.create(hash=random.getrandbits(128))
@@ -77,7 +77,7 @@ class ModerationTests(TestCase):
         self.assertIn(self.canopy.second_moderated_comment, queue)
 
     def test_approved_comments_do_not_appear_in_moderation_queue(self):
-        self.canopy.first_moderated_comment.moderate(user=self.canopy.owner, approved=True)
+        self.canopy.first_moderated_comment.moderate(user=self.canopy.owner, decision=1)
         queue = self.canopy.moderated_project.moderation_queue()
         self.assertNotIn(self.canopy.first_moderated_comment, queue)
         self.assertIn(self.canopy.second_moderated_comment, queue)
@@ -89,7 +89,7 @@ class ModerationTests(TestCase):
             AdminNotAuthorized,
             self.canopy.first_moderated_comment.moderate,
             user=stranger,
-            approved=True)
+            decision=1)
 
 
 class NodeAndSnapshotTests(TestCase):
@@ -128,6 +128,7 @@ class NodeAndSnapshotTests(TestCase):
                           version=some_version,
                           commit=random.getrandbits(128)
                           )
+    
 
 
 @with_canopy(ProjectsWithComments)
@@ -315,3 +316,45 @@ class CommentAPIViewsTests(TestCase):
         response.render()
 
         self.assertFalse(response.data['created'])  # We didn't create a node.
+
+    def test_moderate_comment_with_approval(self):
+        user = UserFactory()
+        project = ProjectFactory()
+        project.users.add(user)
+        node = DocumentNodeFactory(project=project)
+
+        comment = DocumentCommentFactory(node=node)
+
+        post_data = {
+             'decision': 1,
+                     }
+
+        request = self.request_factory.post('/_moderate_comment/%s' % comment.id,
+                                            post_data
+                                            )
+        request.user = user
+
+        self.assertFalse(comment.has_been_approved_since_most_recent_node_change())
+        moderate_comment(request, comment.id)
+
+        self.assertTrue(comment.has_been_approved_since_most_recent_node_change())
+
+    def test_stranger_cannot_moderate_comments(self):
+
+        node = DocumentNodeFactory()
+        user = UserFactory()
+        comment = DocumentCommentFactory(node=node)
+
+        post_data = {
+                     'decision': 'approved',
+                     }
+
+        request = self.request_factory.post('/_moderate_comment/%s' % comment.id,
+                                            post_data
+                                            )
+        request.user = user
+        self.assertRaises(AdminNotAuthorized,
+                          moderate_comment,
+                          request,
+                          comment.id)
+
