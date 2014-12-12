@@ -102,7 +102,6 @@ def add_comment(request):
 @authentication_classes([UnsafeSessionAuthentication])
 @renderer_classes((JSONRenderer, JSONPRenderer))
 def attach_comment(request):
-    import ipdb; ipdb.set_trace()
     comment_id = request.POST.get('comment', '')
     comment = DocumentComment.objects.get(pk=comment_id)
 
