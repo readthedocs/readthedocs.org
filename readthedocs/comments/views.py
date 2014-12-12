@@ -97,6 +97,24 @@ def add_comment(request):
     return Response(serialized_comment.data)
 
 
+@api_view(['GET', 'POST'])
+@permission_classes([permissions.AllowAny])
+@authentication_classes([UnsafeSessionAuthentication])
+@renderer_classes((JSONRenderer, JSONPRenderer))
+def attach_comment(request):
+    import ipdb; ipdb.set_trace()
+    comment_id = request.POST.get('comment', '')
+    comment = DocumentComment.objects.get(pk=comment_id)
+
+    node_id = request.POST.get('node', '')
+    snapshot = NodeSnapshot.objects.get(hash=node_id)
+    comment.node = snapshot.node
+
+    serialized_comment = DocumentCommentSerializer(comment)
+    serialized_comment.data
+    return Response(serialized_comment.data)
+
+
 #######
 # Normal Views
 #######

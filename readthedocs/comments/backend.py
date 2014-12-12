@@ -45,9 +45,11 @@ class DjangoStorage(StorageBackend):
             return None
         ret_comments = []
         for comment in node.comments.all():
-            json_data = json.loads(serializers.serialize("json", [comment]))[0]['fields']
+            json_data = json.loads(serializers.serialize("json", [comment]))[0]
+            fields = json_data['fields']
+            fields['pk'] = json_data['pk']
             ret_comments.append(
-                json_data
+                fields
             )
 
         return {'source': '',
