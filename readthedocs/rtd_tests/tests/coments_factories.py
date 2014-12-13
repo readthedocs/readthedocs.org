@@ -61,6 +61,6 @@ class ProjectsWithComments(Clump):
         self.first_unmoderated_comment, self.second_unmoderated_comment = self.include_factory(
             DocumentCommentFactory, 2, node=self.unmoderated_node)
 
-        self.owner = self.include_factory(UserFactory, 1)[0]
+        self.owner = self.include_factory(UserFactory, 1, username="owner", password="test")[0]
         self.moderated_project.users.add(self.owner)
         self.unmoderated_project.users.add(self.owner)

@@ -4,6 +4,7 @@ from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 
 from privacy.backend import AdminPermission, AdminNotAuthorized
+from rest_framework.serializers import ModelSerializer
 
 
 class DocumentNodeManager(models.Manager):
@@ -11,24 +12,44 @@ class DocumentNodeManager(models.Manager):
     def create(self, *args, **kwargs):
 
         try:
-            hash = kwargs.pop('hash')
+            node_hash = kwargs.pop('hash')
             commit = kwargs.pop('commit')
         except KeyError:
             raise TypeError("You must provide a hash and commit for the initial NodeSnapshot.")
 
         node = super(DocumentNodeManager, self).create(*args, **kwargs)
-        NodeSnapshot.objects.create(commit=commit, hash=hash, node=node)
+        NodeSnapshot.objects.create(commit=commit, hash=node_hash, node=node)
 
         return node
 
-    def from_hash(self, project, version, page, hash):
-        snapshot = NodeSnapshot.objects.filter(
-            hash=hash,
-            node__project=project,
-            node__version=version,
-            node__page=page,
-        )
-        return snapshot.latest().node
+    def from_hash(self, version_slug, page, node_hash, project_slug=None):
+        snapshots = NodeSnapshot.objects.filter(hash=node_hash, node__version__slug=version_slug,node__page=page)
+
+        if project_slug:
+            snapshots = snapshots.filter(node__project__slug=project_slug)
+
+        if len(snapshots) == 0:
+            raise DocumentNode.DoesNotExist("No node exists on %s with a current hash of %s" % (page, node_hash))
+
+        if len(snapshots) == 1:
+            # If we have found only one snapshot, we know we have the correct node.
+            node = snapshots[0].node
+        else:
+            # IF we have found more than one snapshot...
+            number_of_nodes = len(set(snapshots.values_list('node')))
+            if number_of_nodes == 1:
+                # ...and they're all from the same node, then we know we have the proper node.
+                node = snapshots[0].node
+            else:
+                # On the other hand, if they're from different nodes, then we must
+                # have different nodes with the same hash (and thus the same content).
+                raise NotImplementedError(
+                '''
+                There is more than one node with this content on this page.
+                In the future, ReadTheDocs will implement an indexing feature
+                to allow unique identification of nodes on the same page with the same content.
+                ''')
+        return node
 
 
 class DocumentNode(models.Model):
@@ -99,6 +120,26 @@ class NodeSnapshot(models.Model):
         unique_together = ("hash", "node", "commit")
 
 
+# class DocumentCommentManager(models.Manager):
+#     
+#     def visible(self, inquiring_user=None, node=None):
+#         if node:
+# 
+#             decisions = ModerationAction.objects.filter(
+#                     comment__node=node,
+#                     decision=1,
+#                     date__gt=self.snapshots.latest().date
+#                 )
+#                 valid_comments = node.comments.filter(moderation_actions__in=decisions).distinct()
+#         
+#         if not self.project.comment_moderation:
+#             return self.comments.all()
+#         else:
+#             # non-optimal SQL warning.
+#             
+#             return valid_comments
+
+
 class DocumentComment(models.Model):
     date = models.DateTimeField(_('Date'), auto_now_add=True)
     rating = models.IntegerField(_('Rating'), default=0)
@@ -113,10 +154,7 @@ class DocumentComment(models.Model):
         return "/%s" % self.node.latest_hash()
 
     def moderate(self, user, decision):
-        user_is_cool = AdminPermission.is_admin(user, self.node.project)
-        if not user_is_cool:
-            raise AdminNotAuthorized
-        self.moderation_actions.create(user=user, decision=decision)
+        return self.moderation_actions.create(user=user, decision=decision)
 
     def has_been_approved_since_most_recent_node_change(self):
         try:
@@ -135,7 +173,7 @@ class DocumentComment(models.Model):
             return False
 
     def is_orphaned(self):
-        self.node
+        self.node # TODO
 
 
 class DocumentCommentSerializer(serializers.ModelSerializer):
@@ -143,6 +181,16 @@ class DocumentCommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = DocumentComment
         fields = ('date', 'user', 'text', 'node')
+
+    def perform_create(self):
+        pass
+
+
+class ModerationActionManager(models.Model):
+
+    def current_approvals(self):
+
+        most_recent_change = self.comment.node.snapshots.latest().date
 
 
 class ModerationAction(models.Model):
@@ -160,3 +208,10 @@ class ModerationAction(models.Model):
 
     def approved(self):
         return self.decision == 1
+
+
+class ModerationActionSerializer(ModelSerializer):
+    
+    class Meta:
+        model = ModerationAction
+    pass

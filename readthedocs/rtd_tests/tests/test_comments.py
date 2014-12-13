@@ -1,18 +1,21 @@
 from bamboo_boy.utils import with_canopy
 import random
+from unittest.case import expectedFailure
 
+from django.contrib.auth.decorators import login_required
 from django.test import TestCase
 from django.test.client import RequestFactory
-from rest_framework.test import APIRequestFactory
+from django.utils.decorators import method_decorator
+from rest_framework.test import APIRequestFactory, APITestCase
 
-from comments.models import DocumentNode
-from comments.views import add_node, get_metadata, get_comments, add_comment, update_node, moderate_comment
+from comments.models import DocumentNode, DocumentComment, NodeSnapshot
+from comments.views import add_node, get_metadata, update_node
 from privacy.backend import AdminNotAuthorized
+from projects.views.private import project_comments_moderation
 from rtd_tests.tests.coments_factories import DocumentNodeFactory, \
     DocumentCommentFactory, ProjectsWithComments
 from rtd_tests.tests.general_factories import UserFactory
 from rtd_tests.tests.projects_factories import ProjectFactory
-from projects.views.private import project_comments_moderation
 
 
 @with_canopy(ProjectsWithComments)
@@ -82,15 +85,6 @@ class ModerationTests(TestCase):
         self.assertNotIn(self.canopy.first_moderated_comment, queue)
         self.assertIn(self.canopy.second_moderated_comment, queue)
 
-    def test_stranger_is_not_allowed_to_moderate(self):
-        stranger = UserFactory()
-
-        self.assertRaises(
-            AdminNotAuthorized,
-            self.canopy.first_moderated_comment.moderate,
-            user=stranger,
-            decision=1)
-
 
 class NodeAndSnapshotTests(TestCase):
 
@@ -128,8 +122,51 @@ class NodeAndSnapshotTests(TestCase):
                           version=some_version,
                           commit=random.getrandbits(128)
                           )
-    
 
+    def test_node_can_be_sought_From_new_hash(self):
+
+        first_hash = "THEoriginalHASH"
+        second_hash = 'ANEWCRAZYHASH'
+
+        node = DocumentNodeFactory(hash=first_hash)
+        comnent = DocumentCommentFactory()
+        node.update_hash(second_hash, 'ANEWCRAZYCOMMIT')
+
+        node_from_orm = DocumentNode.objects.from_hash(node.version.slug,
+                                                       node.page,
+                                                       node.latest_hash(),
+                                                       project_slug=node.project.slug)
+        self.assertEqual(node, node_from_orm)
+
+        node.update_hash(first_hash, 'AthirdCommit')
+
+        node_from_orm2 = DocumentNode.objects.from_hash(node.version.slug, node.page, first_hash, node.project.slug)
+        self.assertEqual(node, node_from_orm2)
+
+    @expectedFailure
+    def test_nodes_with_same_hash_oddness(self):
+
+        node_hash = "AcommonHASH"
+        page = "somepage"
+        commit = "somecommit"
+        project = ProjectFactory()
+
+        project.add_node(node_hash=node_hash,
+                         page=page,
+                         version=project.versions.all()[0].slug,
+                         commit=commit,
+                         )
+
+        # A new commit with a second instance of the exact same content.
+        project.add_node(node_hash=node_hash,
+                         page=page,
+                         version=project.versions.all()[0].slug,
+                         commit="ANEWCOMMIT",
+                         )
+        try:
+            project.nodes.from_hash(project.versions.all()[0].slug, page, node_hash, project.slug)
+        except NotImplementedError:
+            self.fail("We don't have indexing yet.")
 
 @with_canopy(ProjectsWithComments)
 class CommentModerationViewsTests(TestCase):
@@ -143,32 +180,23 @@ class CommentModerationViewsTests(TestCase):
 
         self.assertIn(self.canopy.first_moderated_comment.text, response.content)
 
-
-class CommentAPIViewsTests(TestCase):
+@with_canopy(ProjectsWithComments)
+class CommentAPIViewsTests(APITestCase):
 
     request_factory = APIRequestFactory()
 
     def test_get_comments_view(self):
-        node = DocumentNodeFactory()
-        request = self.request_factory.get('/_get_comments', {'node': node.latest_hash()})
-        response = get_comments(request)
-        response.render()
 
-        comments = response.data['comments']
+        number_of_comments = DocumentComment.objects.count()  # (from the canopy)
 
-        # Since there are no comments, we expect and empty list.
-        self.assertEqual(comments, [])
+        response = self.client.get('/api/v2/comments/')
+        self.assertEqual(number_of_comments, response.data['count'])
 
-        comment_text = "Now our node has a comment!"
-        comment = DocumentCommentFactory(node=node, text=comment_text)
+        # moooore comments.
+        DocumentCommentFactory.create_batch(50)
 
-        second_request = self.request_factory.get('/_get_comments', {'node': node.latest_hash()})
-        second_response = get_comments(request)
-        second_response.render()
-
-        comment_as_retrived_from_api = second_response.data['comments'][0]['text']
-
-        self.assertEqual(comment_text, comment_as_retrived_from_api)
+        response = self.client.get('/api/v2/comments/')
+        self.assertEqual(number_of_comments + 50, response.data['count'])
 
     def test_get_metadata_view(self):
 
@@ -202,10 +230,7 @@ class CommentAPIViewsTests(TestCase):
 
     def test_add_node_view(self):
 
-        node = DocumentNodeFactory()
-
-        # There's just one DocumentNode.
-        self.assertEqual(DocumentNode.objects.count(), 1)
+        node = self.canopy.moderated_project.nodes.all()[0]
 
         post_data = {
                      'document': node.page,
@@ -215,31 +240,15 @@ class CommentAPIViewsTests(TestCase):
                      'commit': node.latest_commit(),
                      }
 
-
-        request = self.request_factory.post('/_add_node/', post_data)
-        response = add_node(request)
-
-        # Everything went, you know, OK.
-        self.assertEqual(response.status_code, 200)
-
-        response.render()
-
-        # We won't have created a new DocumentNode, since this one already existed.
-        self.assertFalse(response.data['created'])
-
         # Now let's delete the node....
-        node.delete()
+        DocumentNode.objects.all().delete()
 
         # ...we have no nodes.
         self.assertEqual(DocumentNode.objects.count(), 0)
 
         # Hit the API again.
-        second_request = self.request_factory.post('/_add_node/', post_data)
-        second_response = add_node(request)
-        second_response.render()
-
-        # ...and this time, we *will* have created a new node.
-        self.assertTrue(second_response.data['created'])
+        request = self.request_factory.post('/_add_node/', post_data)
+        response = add_node(request)
 
         # We do now have exactly one Node.
         self.assertEqual(DocumentNode.objects.count(), 1)
@@ -257,7 +266,10 @@ class CommentAPIViewsTests(TestCase):
         post_data = {
             'old_hash': node.latest_hash(),
             'new_hash': new_hash,
-            'commit': commit
+            'commit': commit,
+            'project': node.project.slug,
+            'version': node.version.slug,
+            'page': node.page
         }
 
         request = self.request_factory.post('/_update_node/', post_data)
@@ -275,29 +287,30 @@ class CommentAPIViewsTests(TestCase):
 
         comment_text = "Here's a comment added to a new hash."
         node = DocumentNodeFactory()
-        user = UserFactory()
+        UserFactory(username="test", password="test")
+
+        number_of_nodes = DocumentNode.objects.count()
 
         post_data = {
             'node': random.getrandbits(128),
             'commit': random.getrandbits(128),
             'project': node.project.slug,
             'version': node.version.slug,
-            'page': node.page,
+            'document_page': node.page,
             'text': comment_text
         }
 
-        request = self.request_factory.post('/_add_comment', post_data)
-        request.user = user
-        response = add_comment(request)
-        self.assertEqual(response.status_code, 200)
-        response.render()
+        self.client.login(username="test", password="test")
 
-        self.assertTrue(response.data['created'])  # We created a new node.
+        response = self.client.post('/api/v2/comments/', post_data)
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data['text'], comment_text)
+        self.assertEqual(DocumentNode.objects.count(), number_of_nodes + 1)  # We created a new node.
 
     def test_add_comment_view_with_existing_hash(self):
 
         node = DocumentNodeFactory()
-        user = UserFactory()
+        user = UserFactory(username="test", password="test")
 
         comment_text = "Here's a comment added through the comment view."
 
@@ -306,19 +319,60 @@ class CommentAPIViewsTests(TestCase):
             'commit': node.latest_hash(),
             'project': node.project.slug,
             'version': node.version.slug,
-            'page': node.page,
+            'document_page': node.page,
             'text': comment_text
         }
 
-        request = self.request_factory.post('/_add_comment', post_data)
-        request.user = user
-        response = add_comment(request)
-        response.render()
+        self.client.login(username="test", password="test")
+        response = self.client.post('/api/v2/comments/', post_data)
 
-        self.assertFalse(response.data['created'])  # We didn't create a node.
+        comment_from_orm = node.comments.filter(text=comment_text)
+        self.assertTrue(comment_from_orm.exists())
 
-    def test_moderate_comment_with_approval(self):
-        user = UserFactory()
+        self.assertEqual(comment_from_orm[0].node, node,
+                    "The comment exists, but lives in a different node!  Not supposed to happen.")
+
+    def test_add_comment_view_with_changed_hash(self):
+
+        first_hash = "THEoriginalHASH"
+        second_hash = 'ANEWCRAZYHASH'
+
+        comment_text = "This comment will follow its node despite hash changing."
+
+        # Create a comment on a node whose latest hash is the first one.
+        node = DocumentNodeFactory(hash=first_hash)
+        comnent = DocumentCommentFactory(node=node, text=comment_text)
+
+        # Now change the node's hash.
+        node.update_hash(second_hash, 'ANEWCRAZYCOMMIT')
+
+        node_from_orm = DocumentNode.objects.from_hash(version_slug=node.version.slug,
+                                                       page=node.page,
+                                                       node_hash=node.latest_hash(),
+                                                       project_slug=node.project.slug)
+
+        # It's the same node.
+        self.assertEqual(node, node_from_orm)
+
+        # Get all the comments with the second hash.
+        query_params = {'node': second_hash,
+                'document_page': node.page,
+                'project': node.project.slug,
+                'version': node.version.slug,
+                }
+
+        response = self.client.get('/api/v2/comments/', query_params)
+
+        self.assertEqual(response.data['results'][0]['text'], comment_text)
+
+    def test_retrieve_comment_on_old_hash(self):
+        pass
+
+    def test_post_comment_on_old_hash(self):
+        pass
+
+    def test_moderate_comment_by_approving(self):
+        user = UserFactory(username="test", password="test")
         project = ProjectFactory()
         project.users.add(user)
         node = DocumentNodeFactory(project=project)
@@ -329,14 +383,11 @@ class CommentAPIViewsTests(TestCase):
              'decision': 1,
                      }
 
-        request = self.request_factory.post('/_moderate_comment/%s' % comment.id,
-                                            post_data
-                                            )
-        request.user = user
-
         self.assertFalse(comment.has_been_approved_since_most_recent_node_change())
-        moderate_comment(request, comment.id)
 
+        self.client.login(username="test", password="test")
+        response = self.client.put('/api/v2/comments/%s/moderate/' % comment.id, post_data)
+        self.assertEqual(response.data['decision'], 1)
         self.assertTrue(comment.has_been_approved_since_most_recent_node_change())
 
     def test_stranger_cannot_moderate_comments(self):
@@ -346,15 +397,12 @@ class CommentAPIViewsTests(TestCase):
         comment = DocumentCommentFactory(node=node)
 
         post_data = {
-                     'decision': 'approved',
+                     'decision': 1,
                      }
 
-        request = self.request_factory.post('/_moderate_comment/%s' % comment.id,
+        response = self.client.put('/api/v2/comments/%s/moderate/' % comment.id,
                                             post_data
                                             )
-        request.user = user
-        self.assertRaises(AdminNotAuthorized,
-                          moderate_comment,
-                          request,
-                          comment.id)
+
+        self.assertEqual(response.status_code, 403)
 

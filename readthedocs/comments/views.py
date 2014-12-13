@@ -13,12 +13,22 @@ from rest_framework.decorators import (
     authentication_classes,
     permission_classes,
     renderer_classes,
+    detail_route
 )
 from rest_framework.response import Response
 from comments.models import DocumentComment, DocumentNode, NodeSnapshot, DocumentCommentSerializer,\
-    DocumentNodeSerializer
+    DocumentNodeSerializer, ModerationActionSerializer
 from projects.models import Project
 from django.http.response import HttpResponseRedirect
+from rest_framework.viewsets import ModelViewSet
+from restapi.permissions import IsOwner, CommentModeratorOrReadOnly
+from privacy.backend import AdminNotAuthorized
+from rest_framework.serializers import ModelSerializer, Serializer
+from rest_framework.permissions import IsAuthenticated
+from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required
+
+from rest_framework.exceptions import ParseError
 
 storage = DjangoStorage()
 
@@ -38,19 +48,6 @@ support = WebSupport(
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticatedOrReadOnly])
 @renderer_classes((JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
-def get_comments(request):
-    username = None
-    node_id = request.GET.get('node', '')
-    data = support.get_data(node_id, username=username)
-    if data:
-        return Response(data)
-    else:
-        return Response(status=404)
-
-
-@api_view(['GET'])
-@permission_classes([permissions.IsAuthenticatedOrReadOnly])
-@renderer_classes((JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
 def get_options(request):
     return Response(support.base_comment_opts)
 
@@ -65,43 +62,6 @@ def get_metadata(request):
     """
     document = request.GET.get('page', '')
     return Response(storage.get_metadata(docname=document))
-
-
-@api_view(['GET', 'POST'])
-@permission_classes([permissions.AllowAny])
-@authentication_classes([UnsafeSessionAuthentication])
-@renderer_classes((JSONRenderer, JSONPRenderer))
-def add_comment(request):
-    try:
-        hash = request.POST['node']
-        commit = request.POST['commit']
-    except KeyError:
-        return Response("You must provide a node (hash) and initial commit.",
-                        status=status.HTTP_400_BAD_REQUEST)
-    try:
-        snapshot = NodeSnapshot.objects.get(hash=hash)
-        node = snapshot.node
-        created = False
-    except NodeSnapshot.DoesNotExist:
-        project = Project.objects.get(slug=request.DATA['project'])
-        version = project.versions.get(slug=request.DATA['version'])
-        node = DocumentNode.objects.create(project=project,
-                                           version=version,
-                                           hash=hash,
-                                           commit=commit,
-                                           )
-        created = True
-
-    text = request.POST.get('text', '')
-    comment = DocumentComment.objects.create(text=text,
-                                             node=node,
-                                             user=request.user)
-
-    serialized_comment = DocumentCommentSerializer(comment)
-    response_dict = serialized_comment.data
-    response_dict['created'] = created
-
-    return Response(serialized_comment.data)
 
 
 @api_view(['GET', 'POST'])
@@ -159,13 +119,13 @@ def has_node(request):
 @renderer_classes((JSONRenderer,))
 def add_node(request):
     post_data = request.DATA
+    project = Project.objects.get(slug=post_data['project'])
     page = post_data.get('document', '')
-    id = post_data.get('id', '')
-    project = post_data.get('project', '')
+    node_hash = post_data.get('id', '')
     version = post_data.get('version', '')
     commit = post_data.get('commit', '')
-    created = storage.add_node(id, page, project=project, version=version, commit=commit)
-    return Response({'created': created})
+    project.add_node(node_hash, page, version=version, commit=commit)
+    return Response()
 
 
 @api_view(['GET', 'POST'])
@@ -178,7 +138,12 @@ def update_node(request):
         old_hash = post_data['old_hash']
         new_hash = post_data['new_hash']
         commit = post_data['commit']
-        node = DocumentNode.objects.from_hash(hash=old_hash)
+        project = post_data['project']
+        version = post_data['version']
+        page = post_data['page']
+
+        node = DocumentNode.objects.from_hash(node_hash=old_hash, project_slug=project, version_slug=version, page=page)
+
         node.update_hash(new_hash, commit)
         return Response(DocumentNodeSerializer(node).data)
     except KeyError:
@@ -186,11 +151,46 @@ def update_node(request):
                         status.HTTP_400_BAD_REQUEST)
 
 
-def moderate_comment(request, comment_id):
-    post_data = request.DATA
-    comment = DocumentComment.objects.get(id=comment_id)
+class CommentViewSet(ModelViewSet):
+    serializer_class = DocumentCommentSerializer
+    permission_classes = [CommentModeratorOrReadOnly, permissions.IsAuthenticatedOrReadOnly]
 
-    decision = post_data['decision']
-    comment.moderate(request.user, decision)
-    return HttpResponseRedirect(comment.node.project.get_absolute_url())
+    def get_queryset(self):
+        qp = self.request.QUERY_PARAMS
+        if qp.get('node'):
+            try:
+                node = DocumentNode.objects.from_hash(version_slug=qp['version'],
+                                           page=qp['document_page'],
+                                           node_hash=qp['node'],
+                                           project_slug=qp['project'])
+                queryset = DocumentComment.objects.filter(node=node)
+
+            except KeyError:
+                raise ParseError('To get comments by node, you must also provide page, version, and project.')
+        else:
+            queryset = DocumentComment.objects.all()
+        return queryset
+
+    @method_decorator(login_required)
+    def create(self, request):
+        project = Project.objects.get(slug=request.data['project'])
+        comment = project.add_comment(version_slug=request.data['version'],
+                            page=request.data['document_page'],
+                            hash=request.data['node'],
+                            commit=request.data['commit'],
+                            user=request.user,
+                            text=request.data['text'])
+
+        serializer = self.get_serializer(comment)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    @detail_route(methods=['put'])
+    def moderate(self, request, pk):
+        comment = self.get_object()
+        decision = request.DATA['decision']
+        moderation_action = comment.moderate(request.user, decision)
+
+        return Response(ModerationActionSerializer(moderation_action).data)
+
 

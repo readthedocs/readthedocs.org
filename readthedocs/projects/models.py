@@ -28,7 +28,8 @@ from vcs_support.base import VCSProject
 from vcs_support.backends import backend_cls
 from vcs_support.utils import Lock, NonBlockingLock
 from doc_builder.loader import loading
-from comments.models import ModerationAction, DocumentComment
+from comments.models import ModerationAction, DocumentComment, NodeSnapshot, DocumentNode
+
 
 
 log = logging.getLogger(__name__)
@@ -404,15 +405,9 @@ class Project(models.Model):
 
     # Doc PATH:
     # MEDIA_ROOT/slug/checkouts/version/<repo>
-    
+
     def doc_builder(self):
-        builder_class_for_type = loading.get(self.documentation_type)
-        if self.allow_comments:
-            class BuilderClass(Websupport2Builder, builder_class_for_type):
-                pass 
-        else:
-            BuilderClass = builder_class_for_type
-        return BuilderClass
+        return loading.get(self.documentation_type)
 
     @property
     def doc_path(self):
@@ -754,6 +749,29 @@ class Project(models.Model):
 
         return queue
 
+    def add_node(self, node_hash, page, version, commit):
+        project_obj = Project.objects.get(slug=self.slug)
+        version_obj = project_obj.versions.get(slug=version)
+        try:
+            node_snapshot = NodeSnapshot.objects.get(hash=node_hash, node__project=project_obj, node__version=version_obj, node__page=page, commit=commit)
+            return False  # ie, no new node was created.
+        except NodeSnapshot.DoesNotExist:
+            DocumentNode.objects.create(
+                hash=node_hash,
+                page=page,
+                project=project_obj,
+                version=version_obj,
+                commit=commit
+            )
+        return True  # ie, it's True that a new node was created.
+
+    def add_comment(self, version_slug, page, hash, commit, user, text):
+        try:
+            node = self.nodes.from_hash(version_slug, page, hash)
+        except DocumentNode.DoesNotExist:
+            version = self.versions.get(slug=version_slug)
+            node = self.nodes.create(version=version, page=page, hash=hash, commit=commit)
+        return node.comments.create(user=user, text=text)
 
 class ImportedFile(models.Model):
     project = models.ForeignKey('Project', verbose_name=_('Project'),
