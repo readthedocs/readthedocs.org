@@ -3,7 +3,6 @@ dnspython
 gunicorn
 #For resizing images
 pillow
-pyquery
 python-memcached
 whoosh
 django-redis
