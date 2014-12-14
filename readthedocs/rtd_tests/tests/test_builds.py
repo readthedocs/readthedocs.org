@@ -1,8 +1,10 @@
-from django.test import TestCase
-from projects.tasks import build_docs
-from rtd_tests.tests.projects_factories import ProjectFactory
-import mock
 import subprocess
+
+from django.test import TestCase
+import mock
+
+from projects.tasks import build_docs
+from rtd_tests.factories.projects_factories import ProjectFactory
 
 
 class MockProcess(object):
@@ -11,7 +13,7 @@ class MockProcess(object):
 
     def __init__(self, communicate_result):
         self.communicate_result = communicate_result
-    
+
     def communicate(self):
         return self.communicate_result
 
@@ -31,37 +33,34 @@ class BuildTests(TestCase):
     @mock.patch('os.chdir')
     @mock.patch('projects.models.Project.api_versions')
     @mock.patch('subprocess.Popen')
-    
     def test_build(self, mock_Popen, mock_api_versions, mock_chdir, mock_apiv2_downloads):
-        
+
         # subprocess mock logic
-        
+
         mock_process = mock.Mock()
         process_return_dict = {'communicate.return_value': ('SOMEGITHASH', '')}
         mock_process.configure_mock(**process_return_dict)
         mock_Popen.return_value = mock_process
         mock_Popen.side_effect = build_subprocess_side_effect
-        
-        
+
         project = ProjectFactory(allow_comments=True)
-        
+
         version = project.versions.all()[0]
         mock_api_versions.return_value = [version]
-        
+
         mock_apiv2_downloads.get.return_value = {'downloads': "no_url_here"}
-        
+
         with mock.patch('codecs.open', mock.mock_open(), create=True):
             built_docs = build_docs(version,
-                       False,
-                       False,
-                       False,
-                       False,
-                       False,
-                       False,
-                       False,
-                       )
-        
+                                    False,
+                                    False,
+                                    False,
+                                    False,
+                                    False,
+                                    False,
+                                    False,
+                                    )
+
         self.assertIn(project.doc_builder().sphinx_builder,
                       str(mock_Popen.call_args_list[1])
-                         )
-        
+                      )

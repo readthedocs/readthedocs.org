@@ -1,11 +1,14 @@
+from bamboo_boy.utils import with_canopy
 import json
-
 from django.test import TestCase
-
 from projects.models import Project
-from .projects_factories import ProjectFactory
+from rtd_tests.factories.projects_factories import OneProjectWithTranslationsOneWithout,\
+    ProjectFactory
+from rest_framework.reverse import reverse
+from restapi.serializers import ProjectSerializer, SimpleProjectSerializer
 
 
+@with_canopy(OneProjectWithTranslationsOneWithout)
 class TestProject(TestCase):
     fixtures = ["eric", "test_data"]
 
@@ -27,27 +30,23 @@ class TestProject(TestCase):
         self.assertEqual(resp['subprojects'][0]['id'], 23)
 
     def test_translations(self):
-        r = self.client.get('/api/v2/project/6/translations/', {})
-        self.assertEqual(r.status_code, 200)
+        p = self.canopy.project_with_translations
+        url = reverse('project-translations', [p.id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        translation_ids_from_api = [t['id']
+                                    for t in response.data['translations']]
+        translation_ids_from_orm = [t[0]
+                                    for t in p.translations.values_list('id')]
+
+        self.assertEqual(
+            set(translation_ids_from_api),
+            set(translation_ids_from_orm)
+        )
 
     def test_token(self):
         r = self.client.get('/api/v2/project/6/token/', {})
         resp = json.loads(r.content)
         self.assertEqual(r.status_code, 200)
         self.assertEqual(resp['token'], None)
-
-class ProjectCommentTests(TestCase):
-    
-    def test_commentable_project_uses_builder_with_commentable_versioning_method(self):
-        '''
-        Even though we show the user a boolean "commentable" option,
-        we compose this knowledge as a separate class, WebSupportBuilder.
-        '''
-        project = ProjectFactory(allow_comments=True)
-        builder = project.doc_builder()
-        self.assertEqual(getattr(builder, 'versioning_method', None), "commentable")
-        
-    def test_uncommentable_project_uses_builder_without_commentable_verioning_method(self):
-        project = ProjectFactory(allow_comments=False)
-        builder = project.doc_builder()
-        self.assertNotEqual(getattr(builder, 'versioning_method', None), "commentable")

@@ -14,10 +14,12 @@ from projects.models import Project, EmailHook
 from projects.filters import ProjectFilter
 from restapi.permissions import APIPermission
 
-from restapi.serializers import BuildSerializer, ProjectSerializer, VersionSerializer
+from restapi.serializers import BuildSerializer, ProjectSerializer, VersionSerializer,\
+    SimpleProjectSerializer
 from restapi.permissions import RelatedProjectIsOwner
 import restapi.utils as api_utils
 from docutils.utils.math.math2html import Link
+from rest_framework.decorators import detail_route
 
 log = logging.getLogger(__name__)
 
@@ -31,11 +33,11 @@ class ProjectViewSet(viewsets.ModelViewSet):
     paginate_by = 100
     paginate_by_param = 'page_size'
     max_paginate_by = 1000
- 
+
     def get_queryset(self):
         return self.model.objects.api(self.request.user)
 
-    @decorators.list_route()
+    @decorators.detail_route()
     def valid_versions(self, request, **kwargs):
         """
         Maintain state of versions that are wanted.
@@ -51,15 +53,14 @@ class ProjectViewSet(viewsets.ModelViewSet):
             'flat': version_strings,
         })
 
-    @decorators.list_route()
-    def translations(self, request, **kwargs):
-        project = get_object_or_404(Project.objects.api(self.request.user), pk=kwargs['pk'])
-        queryset = project.translations.all()
+    @detail_route()
+    def translations(self, request, pk):
+        translations = self.get_object().translations.all()
         return Response({
-            'translations': ProjectSerializer(queryset, many=True).data
+            'translations': ProjectSerializer(translations, many=True).data
         })
 
-    @decorators.list_route()
+    @detail_route()
     def subprojects(self, request, **kwargs):
         project = get_object_or_404(Project.objects.api(self.request.user), pk=kwargs['pk'])
         rels = project.subprojects.all()
@@ -68,7 +69,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
             'subprojects': ProjectSerializer(children, many=True).data
         })
 
-    @decorators.list_route(permission_classes=[permissions.IsAdminUser])
+    @decorators.detail_route(permission_classes=[permissions.IsAdminUser])
     def token(self, request, **kwargs):
         project = get_object_or_404(Project.objects.api(self.request.user), pk=kwargs['pk'])
         token = oauth_utils.get_token_for_project(project, force_local=True)
@@ -76,7 +77,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
             'token': token
         })
 
-    @decorators.detail_route(permission_classes=[permissions.IsAdminUser])
+    @decorators.detail_route(permission_classes=[permissions.IsAdminUser], methods=['post'])
     def sync_versions(self, request, **kwargs):
         """
         Sync the version data in the repo (on the build server) with what we have in the database.

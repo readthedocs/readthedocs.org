@@ -12,10 +12,10 @@ from comments.models import DocumentNode, DocumentComment, NodeSnapshot
 from comments.views import add_node, get_metadata, update_node
 from privacy.backend import AdminNotAuthorized
 from projects.views.private import project_comments_moderation
-from rtd_tests.tests.coments_factories import DocumentNodeFactory, \
+from rtd_tests.factories.comments_factories import DocumentNodeFactory, \
     DocumentCommentFactory, ProjectsWithComments
-from rtd_tests.tests.general_factories import UserFactory
-from rtd_tests.tests.projects_factories import ProjectFactory
+from rtd_tests.factories.general_factories import UserFactory
+from rtd_tests.factories.projects_factories import ProjectFactory
 
 
 @with_canopy(ProjectsWithComments)
