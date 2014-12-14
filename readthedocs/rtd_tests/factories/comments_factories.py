@@ -4,14 +4,15 @@ import random
 import factory
 
 from comments.models import DocumentComment, DocumentNode, NodeSnapshot
-from rtd_tests.tests.general_factories import UserFactory
-from rtd_tests.tests.projects_factories import ProjectFactory, VersionFactory
+from rtd_tests.factories.general_factories import UserFactory
+from rtd_tests.factories.projects_factories import ProjectFactory
 
 
 class SnapshotFactory(factory.DjangoModelFactory):
     FACTORY_FOR = NodeSnapshot
     hash = random.getrandbits(128)
-    node = factory.SubFactory('rtd_tests.test.comments_factories.DocumentNodeFactory')
+    node = factory.SubFactory(
+        'rtd_tests.test.comments_factories.DocumentNodeFactory')
 
 
 class DocumentNodeFactory(factory.DjangoModelFactory):
@@ -61,6 +62,7 @@ class ProjectsWithComments(Clump):
         self.first_unmoderated_comment, self.second_unmoderated_comment = self.include_factory(
             DocumentCommentFactory, 2, node=self.unmoderated_node)
 
-        self.owner = self.include_factory(UserFactory, 1, username="owner", password="test")[0]
+        self.owner = self.include_factory(
+            UserFactory, 1, username="owner", password="test")[0]
         self.moderated_project.users.add(self.owner)
         self.unmoderated_project.users.add(self.owner)

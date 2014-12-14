@@ -1,13 +1,11 @@
 import json
 
-from .backend import DjangoStorage
-from .session import UnsafeSessionAuthentication
+from django.contrib.auth.decorators import login_required
+from django.http.response import HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-from sphinx.websupport import WebSupport
-
+from django.utils.decorators import method_decorator
 from rest_framework import permissions, status
-from rest_framework.renderers import JSONRenderer, JSONPRenderer, BrowsableAPIRenderer
 from rest_framework.decorators import (
     api_view,
     authentication_classes,
@@ -15,21 +13,22 @@ from rest_framework.decorators import (
     renderer_classes,
     detail_route
 )
+from rest_framework.exceptions import ParseError
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.renderers import JSONRenderer, JSONPRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
+from rest_framework.serializers import ModelSerializer, Serializer
+from rest_framework.viewsets import ModelViewSet
+from sphinx.websupport import WebSupport
+
 from comments.models import DocumentComment, DocumentNode, NodeSnapshot, DocumentCommentSerializer,\
     DocumentNodeSerializer, ModerationActionSerializer
-from projects.models import Project
-from django.http.response import HttpResponseRedirect
-from rest_framework.viewsets import ModelViewSet
-from restapi.permissions import IsOwner, CommentModeratorOrReadOnly
 from privacy.backend import AdminNotAuthorized
-from rest_framework.serializers import ModelSerializer, Serializer
-from rest_framework.permissions import IsAuthenticated
-from django.utils.decorators import method_decorator
-from django.contrib.auth.decorators import login_required
+from projects.models import Project
+from restapi.permissions import IsOwner, CommentModeratorOrReadOnly
 
-from rest_framework.exceptions import ParseError
-
+from .backend import DjangoStorage
+from .session import UnsafeSessionAuthentication
 storage = DjangoStorage()
 
 support = WebSupport(

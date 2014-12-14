@@ -5,7 +5,7 @@ from projects.models import Project
 from rtd_tests.factories.projects_factories import OneProjectWithTranslationsOneWithout,\
     ProjectFactory
 from rest_framework.reverse import reverse
-from restapi.serializers import ProjectSerializer, SimpleProjectSerializer
+from restapi.serializers import ProjectSerializer
 
 
 @with_canopy(OneProjectWithTranslationsOneWithout)
