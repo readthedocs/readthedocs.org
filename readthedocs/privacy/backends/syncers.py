@@ -43,8 +43,8 @@ class RemoteSyncer(object):
                 mkdir_cmd = ("ssh %s@%s mkdir -p %s" % (SYNC_USER, server, target))
                 ret = os.system(mkdir_cmd)
                 if ret != 0:
-                    log.error("COPY ERROR to app servers:")
-                    log.error(mkdir_cmd)
+                    log.info("COPY ERROR to app servers:")
+                    log.info(mkdir_cmd)
                 if file:
                     slash = ""
                 else:
@@ -59,8 +59,8 @@ class RemoteSyncer(object):
                 )
                 ret = os.system(sync_cmd)
                 if ret != 0:
-                    log.error("COPY ERROR to app servers.")
-                    log.error(sync_cmd)
+                    log.info("COPY ERROR to app servers.")
+                    log.info(sync_cmd)
 
 
 class DoubleRemotePuller(object):
@@ -84,8 +84,8 @@ class DoubleRemotePuller(object):
                 )
                 ret = os.system(mkdir_cmd)
                 if ret != 0:
-                    log.error("MKDIR ERROR to app servers:")
-                    log.error(mkdir_cmd)
+                    log.info("MKDIR ERROR to app servers:")
+                    log.info(mkdir_cmd)
             # Add a slash when copying directories
             sync_cmd = "ssh {user}@{server} 'rsync -av --delete {user}@{host}:{path} {target}'".format(
                 host=host,
@@ -96,8 +96,8 @@ class DoubleRemotePuller(object):
             )
             ret = os.system(sync_cmd)
             if ret != 0:
-                log.error("COPY ERROR to app servers.")
-                log.error(sync_cmd)
+                log.info("COPY ERROR to app servers.")
+                log.info(sync_cmd)
 
 
 class RemotePuller(object):
@@ -123,4 +123,4 @@ class RemotePuller(object):
         )
         ret = os.system(sync_cmd)
         if ret != 0:
-            log.error("COPY ERROR to app servers.")
+            log.info("COPY ERROR to app servers.")

@@ -1,5 +1,6 @@
 import logging
 import shutil
+import json
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -14,8 +15,10 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.formtools.wizard.views import SessionWizardView
 
-from guardian.shortcuts import assign
+from allauth.socialaccount.models import SocialToken
+from requests_oauthlib import OAuth2Session
 
+from builds import utils as build_utils
 from builds.models import Version
 from builds.forms import AliasForm, VersionForm
 from builds.filters import VersionFilter
@@ -261,6 +264,52 @@ class ImportWizardView(SessionWizardView):
         else:
             basic_only = True
         project.save()
+        for provider in ['github', 'bitbucket']:
+            if provider in project.repo:
+                for user in project.users.all():
+                    tokens = SocialToken.objects.filter(account__user__username=user.username, app__provider=provider)
+                for token in tokens:
+                    session = OAuth2Session(
+                        client_id=token.app.client_id,
+                        token={
+                            'access_token': str(token.token),
+                            'token_type': 'bearer'
+                        }
+                    )
+
+                    if provider == 'github':
+                        try:
+                            owner, repo = build_utils.get_github_username_repo(version=None, repo_url=project.repo)
+                            data = json.dumps({
+                                'name': 'readthedocs',
+                                'active': True,
+                                'config': {'url': 'https://readthedocs.org/github'}
+                            })
+                            resp = session.post(
+                                'https://api.github.com/repos/{owner}/{repo}/hooks'.format(owner=owner, repo=repo),
+                                data=data,
+                                headers={'content-type': 'application/json'}
+                            )
+                            log.info("Creating GitHub webhook response code: {code}".format(code=resp.status_code))
+                            if resp.status_code == 201:
+                                messages.success(self.request, _('GitHub webhook activated'))
+                        except:
+                            log.exception('GitHub Hook creation failed', exc_info=True)
+                    elif provider == 'bitbucket':
+                        try:
+                            owner, repo = build_utils.get_bitbucket_username_repo(version=None, repo_url=project.repo)
+                            data = json.dumps({
+                                'name': 'read-the-docs',
+                            })
+                            resp = session.post(
+                                'https://api.bitbucket.org/1.0/repositories/{owner}/{repo}/services'.format(owner=owner, repo=repo),
+                                data=data,
+                                headers={'content-type': 'application/json'}
+                            )
+                            log.info("Creating BitBucket webhook response code: {code}".format(code=resp.status_code))
+                        except:
+                            log.exception('BitBucket Hook creation failed', exc_info=True)
+
         trigger_build(project, basic=basic_only)
         return HttpResponseRedirect(reverse('projects_detail',
                                             args=[project.slug]))
