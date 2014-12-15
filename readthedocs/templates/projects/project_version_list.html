@@ -1,0 +1,54 @@
+{% extends "projects/base_project.html" %}
+{% load i18n %}
+{% load privacy_tags %}
+
+{% load core_tags i18n highlight  %}
+
+{% block title %}
+Versions
+{% endblock title %}
+
+{% block project_editing %}
+    {% with versions_active="active" include_version_bar="True" %}
+        {% include "core/project_bar.html" %}
+    {% endwith %}
+{% endblock %}
+
+{% block content %}
+<h3>
+Filters
+</h3>
+<div class="navigable">
+<ul>
+        <form action="" method="get">
+            {{ filter.form.as_p }}
+            <input type="submit" value="Filter" />
+        </form>
+</ul>
+
+<div id="build_list">
+
+    <h1>{% trans "Versions" %}</h1>
+    <div class="module-list-wrapper">
+      <ul>
+      {% for version in filter %}
+        <li class="module-item col-span">
+          {# Link to the docs #}
+          <a class="module-item-title" href="#">
+            {% blocktrans with version.slug as slug %} {{ slug }} {% endblocktrans %}
+            <span class="quiet right">({{ version.identifier|truncatechars:12 }})</span>
+          </a>
+          {% if request.user|is_admin:project %}
+            <ul class="module-item-menu">
+              <li><a href="{% url "project_version_detail" project.slug version.slug %}">{% trans "Edit" %}</a></li>
+            </ul>
+          {% endif %}
+        </li>
+      {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}

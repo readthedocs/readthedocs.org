@@ -1,6 +1,6 @@
 {% load i18n %}
 
-          {% for build in build_list %}
+          {% for build in filter %}
           <li class="module-item col-span">
             <div id="build-{{ build.id }}">
                 <a href="{{ build.get_absolute_url }}"><span id="build-state">{% if build.state != 'finished' %}{{ build.get_state_display }} {% else %} {% if build.success %}{% trans "Passed" %}{% else %}{% trans "Failed" %}{% endif %}{% endif %}</span>

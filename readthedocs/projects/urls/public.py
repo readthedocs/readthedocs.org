@@ -42,6 +42,10 @@ urlpatterns = patterns(
         'projects.views.public.project_badge',
         name='project_badge'),
 
+    url(r'^(?P<project_slug>[-\w]+)/versions/$',
+        'projects.views.public.project_versions',
+        name='project_version_list'),
+
     url(r'^(?P<project_slug>[-\w]+)/search/$',
         'projects.views.public.elastic_project_search',
         name='elastic_project_search'),

@@ -13,16 +13,21 @@
 {% endblock %}
 
 {% block content %}
-<div id="build_list">
 
-        {% comment %}
+<div class="navigable">
+<h3>
+Filters
+</h3>
+<ul>
         <form action="" method="get">
             {{ filter.form.as_p }}
             <input type="submit" value="Filter" />
         </form>
-        {% endcomment %}
+</ul>
 
-        {% autopaginate build_list 15 %}
+<div id="build_list">
+
+        {% autopaginate filter 15 %}
 
         <!-- BEGIN builds list -->
         <div class="module">

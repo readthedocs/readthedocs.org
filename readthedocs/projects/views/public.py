@@ -355,3 +355,21 @@ def elastic_project_search(request, project_slug):
         },
         context_instance=RequestContext(request),
     )
+
+
+def project_versions(request, project_slug):
+    """
+    Shows the available versions and lets the user choose which ones he would
+    like to have built.
+    """
+    project = get_object_or_404(Project.objects.protected(request.user),
+                                slug=project_slug)
+
+    versions = Version.objects.public(user=request.user, project=project)
+    filter = VersionSlugFilter(request.GET, queryset=versions)
+
+    return render_to_response(
+        'projects/project_version_list.html',
+        {'filter': filter, 'project': project},
+        context_instance=RequestContext(request)
+    )
