@@ -11,18 +11,18 @@
 
   <h3>{% trans "Last Built" %}</h3>
   <p>
-    {% if project.builds.count > 0 %}
-      {% with build=project.get_latest_build %}
-        {{ build.date|timesince }} ago
-        {% if build.success %}
-          <span class="build-state build-state-passing">{% trans "passed" %}</span>
-        {% else %}
-          <span class="build-state build-state-failing">{% trans "failed" %}</span>
-        {% endif %}
-      {% endwith %}
-    {% else %}
-      No builds yet
-    {% endif %}
+    {% with build=project.get_latest_build %}
+      {% if build %}
+          {{ build.date|timesince }} ago
+          {% if build.success %}
+            <span class="build-state build-state-passing">{% trans "passed" %}</span>
+          {% else %}
+            <span class="build-state build-state-failing">{% trans "failed" %}</span>
+          {% endif %}
+      {% else %}
+        No builds yet
+      {% endif %}
+    {% endwith %}
   </p>
 
     <h3>{% trans "Owners" %}</h3>
