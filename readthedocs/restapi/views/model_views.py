@@ -106,16 +106,15 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 new_stable = project.versions.get(verbose_name=new_stable_slug)
 
                 # Update stable version
-                stable = project.versions.filter(slug='stable')
-                if stable.exists():
-                    stable_obj = stable[0]
-                    if (new_stable.identifier != stable_obj.identifier) and (stable_obj.machine is True):
-                        stable_obj.identifier = new_stable.identifier
-                        stable_obj.save()
-                        log.info("Triggering new stable build: {project}:{version}".format(project=project.slug, version=stable_obj.identifier))
-                        trigger_build(project=project, version=stable_obj)
+                stable = project.versions.filter(slug='stable').first()
+                if stable:
+                    if (new_stable.identifier != stable.identifier) and (stable.machine is True):
+                        stable.identifier = new_stable.identifier
+                        stable.save()
+                        log.info("Triggering new stable build: {project}:{version}".format(project=project.slug, version=stable.identifier))
+                        trigger_build(project=project, version=stable)
                 else:
-                    log.info("Creating new stable version: {project}:{version}".format(project=project.slug, version=stable_obj.identifier))
+                    log.info("Creating new stable version: {project}:{version}".format(project=project.slug, version=new_stable.identifier))
                     version = project.versions.create(slug='stable', verbose_name='stable', machine=True, type=new_stable.type, active=True, identifier=new_stable.identifier)
                     trigger_build(project=project, version=version)
 
