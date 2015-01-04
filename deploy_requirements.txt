@@ -7,6 +7,9 @@ launchpadlib==1.9.8
 django-redis-cache==0.9.5
 django-mailgun==0.2.2
 
+# Payments
+stripe==1.19.1
+
 #For resizing images
 pillow
 
