@@ -110,6 +110,7 @@ urlpatterns = patterns(
     url(r'^profiles/', include('profiles.urls.public')),
     url(r'^accounts/', include('profiles.urls.private')),
     url(r'^accounts/', include('allauth.urls')),
+    url(r'^accounts/gold/', include('gold.urls')),
     url(r'^api/', include(v1_api.urls)),
     url(r'^api/v2/', include('restapi.urls')),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
