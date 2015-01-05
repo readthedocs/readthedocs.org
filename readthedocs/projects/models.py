@@ -363,7 +363,7 @@ class Project(models.Model):
             'version_slug': version_slug,
         })
         if full_path:
-            path = 'https://%s%s' % (settings.PRODUCTION_DOMAIN, path)
+            path = '//%s%s' % (settings.PRODUCTION_DOMAIN, path)
         return path
 
     def get_downloads(self):
