@@ -8,7 +8,7 @@ build_projects = os.listdir('/home/docs/checkouts/readthedocs.org/user_builds/')
 
 final = []
 for slug in build_projects:
-    if slug not in slugs:
+    if slug not in slugs and slug.replace('_', '-') not in slugs:
         final.append(slug)
 
 print "To delete: %s" % len(final)
