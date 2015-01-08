@@ -8,7 +8,6 @@
           type;
 
       switch(true) {
-        case /bitbucket/.test(val):
         case /^hg/.test(val):
           type = 'hg';
         break;
