@@ -80,7 +80,7 @@ def handle_project_import(sender, **kwargs):
                             data=data,
                         )
                         log.info("Creating BitBucket webhook response code: {code}".format(code=resp.status_code))
-                        if resp.status_code == 201:
+                        if resp.status_code == 200:
                             messages.success(request, _('BitBucket webhook activated'))
                     except:
                         log.exception('BitBucket Hook creation failed', exc_info=True)
