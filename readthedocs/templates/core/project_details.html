@@ -89,6 +89,24 @@
 {% endif %}
 </div>
 
+{% if analytics %}
+
+<h3> {% trans "Pages" %} </h3>
+{% for page, count in analytics.page.items %}
+<ul>
+<li>{{ page }} - {{ count }}</li>
+</ul>
+{% endfor %}
+
+<h3> {% trans "Versions" %} </h3>
+{% for version, count in analytics.version.items %}
+<ul>
+<li>{{ version }} - {{ count }}</li>
+</ul>
+{% endfor %}
+
+{% endif %}
+
 </div>{# END .module #}
 
 <div class="project_details">

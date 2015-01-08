@@ -80,6 +80,14 @@ def project_detail(request, project_slug):
         reverse('projects_detail', args=[project.slug]),
         project.get_default_version(),
     )
+
+    try:
+        resp = requests.get('https://api.grokthedocs.com/api/v1/index/1/heatmap/', params={'project': project.slug, 'compare': True})
+        analytics = resp.json()
+    except:
+        analytics = None
+        pass
+
     return render_to_response(
         'projects/project_detail.html',
         {
@@ -88,6 +96,7 @@ def project_detail(request, project_slug):
             'filter': filter,
             'badge_url': badge_url,
             'site_url': site_url,
+            'analytics': analytics,
         },
         context_instance=RequestContext(request),
     )
