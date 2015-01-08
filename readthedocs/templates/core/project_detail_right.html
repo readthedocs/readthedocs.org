@@ -13,11 +13,15 @@
   <p>
     {% with build=project.get_latest_build %}
       {% if build %}
-          {{ build.date|timesince }} ago
-          {% if build.success %}
-            <span class="build-state build-state-passing">{% trans "passed" %}</span>
+          {% if build.date %}
+            {{ build.date|timesince }} ago
+            {% if build.success %}
+              <span class="build-state build-state-passing">{% trans "passed" %}</span>
+            {% else %}
+              <span class="build-state build-state-failing">{% trans "failed" %}</span>
+            {% endif %}
           {% else %}
-            <span class="build-state build-state-failing">{% trans "failed" %}</span>
+            Currently Building
           {% endif %}
       {% else %}
         No builds yet
