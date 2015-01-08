@@ -15,9 +15,6 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.formtools.wizard.views import SessionWizardView
 
-from allauth.socialaccount.models import SocialToken
-from requests_oauthlib import OAuth2Session
-
 from bookmarks.models import Bookmark
 from builds import utils as build_utils
 from builds.models import Version
