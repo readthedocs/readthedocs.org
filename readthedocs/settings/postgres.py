@@ -64,7 +64,7 @@ FILE_SYNCER = 'privacy.backends.syncers.DoubleRemotePuller'
 
 # set GitHub scope
 SOCIALACCOUNT_PROVIDERS = {
-    'github': { 'SCOPE': ['user:email', 'read:org', 'admin:repo_hook', 'repo:status']}
+    'github': {'SCOPE': ['user:email', 'read:org', 'admin:repo_hook', 'repo:status']}
 }
 
 try:
