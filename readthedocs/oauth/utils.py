@@ -3,7 +3,7 @@ import logging
 from allauth.socialaccount.models import SocialToken
 
 from django.conf import settings
-from requests_oauthlib import OAuth2Session
+from requests_oauthlib import OAuth1Session, OAuth2Session
 
 from .models import GithubProject, GithubOrganization, BitbucketProject, BitbucketTeam
 from tastyapi import apiv2
@@ -202,12 +202,11 @@ def import_bitbucket(user, sync):
         bitbucket_connected = True
         if sync:
             token = tokens[0]
-            session = OAuth2Session(
-                client_id=token.app.client_id,
-                token={
-                    'access_token': str(token.token),
-                    'token_type': 'bearer'
-                }
+            session = OAuth1Session(
+                token.app.client_id,
+                client_secret=token.app.secret,
+                resource_owner_key=token.token,
+                resource_owner_secret=token.token_secret
             )
             # Get user repos
             owner_resp = bitbucket_paginate(session, 'https://bitbucket.org/api/2.0/repositories/{owner}'.format(owner=token.account.uid))
