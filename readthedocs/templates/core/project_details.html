@@ -15,11 +15,17 @@
     <input type="submit" value="{% trans "Search" %}">
   </form>
 </div>
-<br>
 <!-- END search bar -->
 
 <div class="module">
+  {% if onboard %}
+  <!-- BEGIN onboard -->
+    {% include 'projects/onboard_detail.html' %}
+  <!-- END onboard -->
+  {% endif %}
+
 {% if versions %}
+
   <div class="module-header">
     <h3>{% trans "Versions" %}</h3>
   </div>
