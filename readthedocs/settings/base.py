@@ -186,11 +186,11 @@ INSTALLED_APPS = [
 
     # our apps
     'bookmarks',
+    'projects',
     'builds',
     'core',
     'doc_builder',
     'oauth',
-    'projects',
     'redirects',
     'rtd_tests',
     'restapi',
