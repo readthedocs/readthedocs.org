@@ -272,3 +272,8 @@ class Build(models.Model):
     @models.permalink
     def get_absolute_url(self):
         return ('builds_detail', [self.project.slug, self.pk])
+
+    @property
+    def finished(self):
+        '''Return if build has a finished state'''
+        return self.state == 'finished'

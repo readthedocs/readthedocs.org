@@ -23,6 +23,13 @@ class RTDTestCase(TestCase):
         shutil.rmtree(self.build_dir)
 
 
+@patch('projects.views.private.trigger_build', lambda x, basic: None)
+@patch('readthedocs.projects.views.private.trigger_build', lambda x, basic: None)
+class MockBuildTestCase(TestCase):
+    '''Mock build triggers for test cases'''
+    pass
+
+
 class WizardTestCase(TestCase):
     '''Test case for testing wizard forms'''
 

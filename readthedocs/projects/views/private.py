@@ -10,13 +10,10 @@ from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotAllow
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
-from django.views.generic import ListView, TemplateView
+from django.views.generic import View, ListView, TemplateView
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.formtools.wizard.views import SessionWizardView
-
-from allauth.socialaccount.models import SocialToken
-from requests_oauthlib import OAuth2Session
 
 from bookmarks.models import Bookmark
 from builds import utils as build_utils
@@ -302,6 +299,57 @@ class ImportView(TemplateView):
             initial_data['extra'][key] = request.POST.get(key)
         request.method = 'GET'
         return self.wizard_class.as_view(initial_dict=initial_data)(request)
+
+
+class ImportDemoView(View):
+    '''View to pass request on to import form to import demo project'''
+
+    form_class = ProjectBasicsForm
+    request = None
+    args = None
+    kwargs = None
+
+    def get(self, request, *args, **kwargs):
+        '''Process link request as a form post to the project import form'''
+        self.request = request
+        self.args = args
+        self.kwargs = kwargs
+
+        data = self.get_form_data()
+        project = (Project.objects.for_admin_user(request.user)
+                   .filter(repo=data['repo']).first())
+        if project is not None:
+            messages.success(
+                request, _('The demo project is already imported!'))
+        else:
+            kwargs = self.get_form_kwargs()
+            form = self.form_class(data=data, **kwargs)
+            if form.is_valid():
+                project = form.save()
+                project.save()
+                trigger_build(project, basic=True)
+                messages.success(
+                    request, _('Your demo project is currently being imported'))
+            else:
+                for (_f, msg) in form.errors.items():
+                    log.error(msg)
+                messages.error(request,
+                               _('There was a problem adding the demo project'))
+                return HttpResponseRedirect(reverse('projects_dashboard'))
+        return HttpResponseRedirect(reverse('projects_detail',
+                                            args=[project.slug]))
+
+    def get_form_data(self):
+        '''Get form data to post to import form'''
+        return {
+            'name': '{0}-demo'.format(self.request.user.username),
+            'repo_type': 'git',
+            'repo': 'https://github.com/readthedocs/template.git'
+        }
+
+    def get_form_kwargs(self):
+        '''Form kwargs passed in during instantiation'''
+        return {'user': self.request.user}
 
 
 @login_required

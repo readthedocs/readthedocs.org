@@ -625,11 +625,17 @@ class Project(models.Model):
                 matches.append(os.path.join(root, filename))
         return matches
 
-    def get_latest_build(self):
-        try:
-            return self.builds.filter(type='html', state='finished')[0]
-        except IndexError:
-            return None
+    def get_latest_build(self, finished=True):
+        """
+        Get latest build for project
+
+        finished
+            Return only builds that are in a finished state
+        """
+        kwargs = {'type': 'html'}
+        if finished:
+            kwargs['state'] = 'finished'
+        return self.builds.filter(**kwargs).first()
 
     def api_versions(self):
         ret = []

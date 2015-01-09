@@ -11,6 +11,32 @@ from tastyapi import apiv2
 log = logging.getLogger(__name__)
 
 
+def get_oauth_session(user, provider):
+
+    tokens = SocialToken.objects.filter(account__user__username=user.username, app__provider=provider)
+    if tokens.exists():
+        token = tokens[0]
+    else:
+        return None
+    if provider == 'github':
+        session = OAuth2Session(
+            client_id=token.app.client_id,
+            token={
+                'access_token': str(token.token),
+                'token_type': 'bearer'
+            }
+        )
+    elif provider == 'bitbucket':
+        session = OAuth1Session(
+            token.app.client_id,
+            client_secret=token.app.secret,
+            resource_owner_key=token.token,
+            resource_owner_secret=token.token_secret
+        )
+
+    return session or None
+
+
 def make_github_project(user, org, privacy, repo_json):
     log.info('Trying GitHub: %s' % repo_json['full_name'])
     if (repo_json['private'] is True and privacy == 'private' or
@@ -92,46 +118,34 @@ def import_github(user, sync):
     """ Do the actual github import """
 
     repo_type = getattr(settings, 'GITHUB_PRIVACY', 'public')
-    tokens = SocialToken.objects.filter(
-        account__user__username=user.username, app__provider='github')
-    github_connected = False
-    if tokens.exists():
-        github_connected = True
-        if sync:
-            token = tokens[0]
-            session = OAuth2Session(
-                client_id=token.app.client_id,
-                token={
-                    'access_token': str(token.token),
-                    'token_type': 'bearer'
-                }
-            )
-            # Get user repos
-            owner_resp = github_paginate(session, 'https://api.github.com/user/repos?per_page=100')
-            try:
-                for repo in owner_resp:
-                    make_github_project(user=user, org=None, privacy=repo_type, repo_json=repo)
-            except TypeError, e:
-                print e
+    session = get_oauth_session(user, provider='github')
+    if sync and session:
+        # Get user repos
+        owner_resp = github_paginate(session, 'https://api.github.com/user/repos?per_page=100')
+        try:
+            for repo in owner_resp:
+                make_github_project(user=user, org=None, privacy=repo_type, repo_json=repo)
+        except TypeError, e:
+            print e
 
-            # Get org repos
-            try:
-                resp = session.get('https://api.github.com/user/orgs')
-                for org_json in resp.json():
-                    org_resp = session.get('https://api.github.com/orgs/%s' % org_json['login'])
-                    org_obj = make_github_organization(user=user, org_json=org_resp.json())
-                    # Add repos
-                    org_repos_resp = github_paginate(session, 'https://api.github.com/orgs/%s/repos?per_page=100' % org_json['login'])
-                    for repo in org_repos_resp:
-                        make_github_project(user=user, org=org_obj, privacy=repo_type, repo_json=repo)
-            except TypeError, e:
-                print e
+        # Get org repos
+        try:
+            resp = session.get('https://api.github.com/user/orgs')
+            for org_json in resp.json():
+                org_resp = session.get('https://api.github.com/orgs/%s' % org_json['login'])
+                org_obj = make_github_organization(user=user, org_json=org_resp.json())
+                # Add repos
+                org_repos_resp = github_paginate(session, 'https://api.github.com/orgs/%s/repos?per_page=100' % org_json['login'])
+                for repo in org_repos_resp:
+                    make_github_project(user=user, org=org_obj, privacy=repo_type, repo_json=repo)
+        except TypeError, e:
+            print e
 
-    return github_connected
+    return session is not None
 
 
 ###
-### Bitbucket
+# Bitbucket
 ###
 
 
@@ -195,27 +209,19 @@ def import_bitbucket(user, sync):
     """ Do the actual github import """
 
     repo_type = getattr(settings, 'GITHUB_PRIVACY', 'public')
-    tokens = SocialToken.objects.filter(
-        account__user__username=user.username, app__provider='bitbucket')
-    bitbucket_connected = False
-    if tokens.exists():
-        bitbucket_connected = True
-        if sync:
-            token = tokens[0]
-            session = OAuth1Session(
-                token.app.client_id,
-                client_secret=token.app.secret,
-                resource_owner_key=token.token,
-                resource_owner_secret=token.token_secret
-            )
+    session = get_oauth_session(user, provider='bitbucket')
+    if sync and session:
             # Get user repos
-            owner_resp = bitbucket_paginate(session, 'https://bitbucket.org/api/2.0/repositories/{owner}'.format(owner=token.account.uid))
+        try:
+            owner_resp = bitbucket_paginate(session, 'https://bitbucket.org/api/2.0/repositories/{owner}'.format(owner=user.username))
             process_bitbucket_json(user, owner_resp, repo_type)
+        except TypeError, e:
+            print e
 
-            # Get org repos
-            # resp = session.get('https://bitbucket.org/api/1.0/user/privileges/')
-            # for team in resp.json()['teams'].keys():
-            #     org_resp = bitbucket_paginate(session, 'https://bitbucket.org/api/2.0/teams/{teamname}/repositories' % team)
-            #     process_bitbucket_json(user, org_resp, repo_type)
+        # Get org repos
+        # resp = session.get('https://bitbucket.org/api/1.0/user/privileges/')
+        # for team in resp.json()['teams'].keys():
+        #     org_resp = bitbucket_paginate(session, 'https://bitbucket.org/api/2.0/teams/{teamname}/repositories' % team)
+        #     process_bitbucket_json(user, org_resp, repo_type)
 
-    return bitbucket_connected
+    return session is not None

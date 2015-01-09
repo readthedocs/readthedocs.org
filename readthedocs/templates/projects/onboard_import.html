@@ -1,0 +1,25 @@
+{% load i18n %}
+
+<!-- BEGIN onboard import project -->
+<div class="onboard onboard-import-project">
+  <h2>Ready to share your documentation{% if request.user.first_name %}, {{ request.user.first_name }}{% endif %}?</h2>
+
+  {% with getting_started_url="http://docs.readthedocs.org/en/latest/getting_started.html" %}
+    <form method="get" action="{% url "projects_import" %}">
+      <p>
+        {% blocktrans %}
+          You don't have any projects yet, but you can start building documentation by importing one.
+          Not sure how to start documenting your project?
+          Check out the <a href="{{ getting_started_url }}">Getting Started Guide</a> to learn how.
+        {% endblocktrans %}
+      </p>
+
+      <p>
+        Want to try a demo? <a href="{% url "projects_import_demo" %}">Import our own demo project</a>.
+      </p>
+
+      <input type="submit" value="Import a Project" />
+    </form>
+  {% endwith %}
+</div>
+<!-- END onboard import project -->
