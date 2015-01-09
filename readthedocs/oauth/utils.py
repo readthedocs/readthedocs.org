@@ -13,7 +13,11 @@ log = logging.getLogger(__name__)
 
 def get_oauth_session(user, provider):
 
-    token = SocialToken.objects.filter(account__user__username=user.username, app__provider=provider)
+    tokens = SocialToken.objects.filter(account__user__username=user.username, app__provider=provider)
+    if tokens.exists():
+        token = tokens[0]
+    else:
+        return None
     if provider == 'github':
         session = OAuth2Session(
             client_id=token.app.client_id,
