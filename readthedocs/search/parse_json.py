@@ -52,13 +52,13 @@ def process_file(filename):
     if 'current_page_name' in data:
         path = data['current_page_name']
     else:
-        log.error('Unable to index file due to no name %s' % filename)
+        log.info('Unable to index file due to no name %s' % filename)
         return None
     if 'toc' in data:
         for element in PyQuery(data['toc'])('a'):
             headers.append(recurse_while_none(element))
         if None in headers:
-            log.error('Unable to index file headers for: %s' % filename)
+            log.info('Unable to index file headers for: %s' % filename)
     if 'body' in data and len(data['body']):
         body = PyQuery(data['body'])
         body_content = body.text().replace(u'¶', '')
@@ -99,13 +99,13 @@ def process_file(filename):
             log.debug("(Search Index) Section [%s:%s]: %s" % (section_id, title, content))
 
     else:
-        log.error('Unable to index content for: %s' % filename)
+        log.info('Unable to index content for: %s' % filename)
     if 'title' in data:
         title = data['title']
         if title.startswith('<'):
             title = PyQuery(data['title']).text()
     else:
-        log.error('Unable to index title for: %s' % filename)
+        log.info('Unable to index title for: %s' % filename)
 
     return {'headers': headers, 'content': body_content, 'path': path,
             'title': title, 'sections': sections}
