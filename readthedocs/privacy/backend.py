@@ -32,7 +32,10 @@ class ProjectManager(models.Manager):
         return queryset
 
     def for_admin_user(self, user=None, *args, **kwargs):
-        return self.filter(users__in=[user])
+        if user.is_authenticated():
+            return self.filter(users__in=[user])
+        else:
+            return self.none()
 
     def public(self, user=None, *args, **kwargs):
         queryset = self.filter(privacy_level=constants.PUBLIC)
