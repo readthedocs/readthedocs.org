@@ -9,7 +9,7 @@ Versions
 {% endblock title %}
 
 {% block project_editing %}
-    {% with versions_active="active" include_version_bar="True" %}
+    {% with versions_active="active" %}
         {% include "core/project_bar.html" %}
     {% endwith %}
 {% endblock %}
@@ -21,33 +21,60 @@ Filters
 <div class="navigable">
 <ul>
         <form action="" method="get">
-            {{ filter.form.as_p }}
+            {{ active_filter.form.as_p }}
             <input type="submit" value="Filter" />
         </form>
 </ul>
 
 <div id="build_list">
 
-    <h1>{% trans "Versions" %}</h1>
+    <h1>{% trans "Active Versions" %}</h1>
     <div class="module-list-wrapper">
       <ul>
-      {% for version in filter %}
-        <li class="module-item col-span">
-          {# Link to the docs #}
-          <a class="module-item-title" href="#">
-            {% blocktrans with version.slug as slug %} {{ slug }} {% endblocktrans %}
-            <span class="quiet right">({{ version.identifier|truncatechars:12 }})</span>
-          </a>
+      {% for version in active_filter %}
+      <li class="module-item">
+      {# Link to the docs #}
+      <a class="module-item-title" href="{{ version.get_absolute_url }}">{{ version.slug }}</a>
+      {% if request.user in project.users.all %}
+        <span class="right-menu">
+          {{ version.get_privacy_level_display }}
+        </span>
+        <span class="right-menu">{{ version.identifier|truncatechars:16 }}</span>
+      {% endif %}
           {% if request.user|is_admin:project %}
             <ul class="module-item-menu">
-              <li><a href="{% url "project_version_detail" project.slug version.slug %}">{% trans "Edit" %}</a></li>
+              <li><a href="{% url "project_version_detail" project.slug version.slug %}">{% trans "edit" %}</a></li>
             </ul>
           {% endif %}
-        </li>
+      </li>
+      {% endfor %}
+      </ul>
+    </div>
+
+    <h1>{% trans "Inactive Versions" %}</h1>
+    <div class="module-list-wrapper">
+      <ul>
+      {% for version in inactive_filter %}
+      <li class="module-item">
+      {# Link to the docs #}
+      <I>{{ version.slug }}</I>
+      {% if request.user in project.users.all %}
+        <span class="right-menu">
+          {{ version.get_privacy_level_display }}
+        </span>
+        <span class="right-menu">{{ version.identifier|truncatechars:16 }}</span>
+      {% endif %}
+          {% if request.user|is_admin:project %}
+            <ul class="module-item-menu">
+              <li><a href="{% url "project_version_detail" project.slug version.slug %}">{% trans "edit" %}</a></li>
+            </ul>
+          {% endif %}
+      </li>
       {% endfor %}
       </ul>
     </div>
   </div>
+</div>
 
 </div>
 
