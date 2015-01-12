@@ -15,6 +15,11 @@
           {% endblock %}
         </span>
         <a href="{{ project.get_absolute_url }}">{{ project }}</a>
+        {% if project.has_good_build %}
+          <div class="right">
+            <a href="{{ project.get_docs_url }}">{% trans "View Docs" %}</a>
+          </div>
+        {% endif %}
       </h1>
     </div>
 
@@ -30,9 +35,6 @@
     {% endif %}
       <ul>
         <li class="{{ overview_active }}"><a href="{{ project.get_absolute_url }}">{% trans "Overview" %}</a></li>
-        {% if project.has_good_build %}
-          <li><a href="{{ project.get_docs_url }}">{% trans "View Docs" %}</a></li>
-        {% endif %}
 
         <li class="{{ downloads_active }}"><a href="{% url "project_downloads" project.slug %}" rel="nofollow,noindex">{% trans "Downloads" %}</a></li>
 
