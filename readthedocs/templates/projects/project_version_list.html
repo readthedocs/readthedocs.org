@@ -9,9 +9,9 @@ Versions
 {% endblock title %}
 
 {% block project_editing %}
-    {% with versions_active="active" %}
-        {% include "core/project_bar.html" %}
-    {% endwith %}
+{% with versions_active="active" %}
+{% include "core/project_bar.html" %}
+{% endwith %}
 {% endblock %}
 
 {% block content %}
@@ -32,54 +32,58 @@ Filters
 
 <div id="build_list">
 
-    <h1>{% trans "Active Versions" %}</h1>
-    <div class="module-list-wrapper">
-      <ul>
-      {% for version in active_filter %}
-      <li class="module-item">
-      {# Link to the docs #}
-      <a class="module-item-title" href="{{ version.get_absolute_url }}">{{ version.slug }}</a>
-        <span class="right-menu">
-          {{ version.get_privacy_level_display }}
-        </span>
-        <span class="right-menu">{{ version.identifier|truncatechars:16 }}</span>
-      {% if request.user|is_admin:project %}
-        <ul class="module-item-menu">
-          <li><a href="{% url "project_version_detail" project.slug version.slug %}">{% trans "Edit" %}</a></li>
+  <div class="module">
+    <div class="module-wrapper">
+      <h1>{% trans "Active Versions" %}</h1>
+      <div class="module-list-wrapper">
+        <ul>
+          {% for version in active_filter %}
+          <li class="module-item">
+            {# Link to the docs #}
+            <a class="module-item-title" href="{{ version.get_absolute_url }}">{{ version.slug }}</a>
+            <span class="right-menu">
+              {{ version.get_privacy_level_display }}
+            </span>
+            <span class="right-menu">{{ version.identifier|truncatechars:16 }}</span>
+            {% if request.user|is_admin:project %}
+            <ul class="module-item-menu">
+              <li><a href="{% url "project_version_detail" project.slug version.slug %}">{% trans "Edit" %}</a></li>
+            </ul>
+            {% else %}
+            <ul class="module-item-menu">
+              <li><a href="{{ version.get_absolute_url }}">{% trans "View Docs" %}</a></li>
+            </ul>
+            {% endif %}
+          </li>
+          {% endfor %}
         </ul>
-      {% else %}
-        <ul class="module-item-menu">
-          <li><a href="{{ version.get_absolute_url }}">{% trans "View Docs" %}</a></li>
-        </ul>
-      {% endif %}
-      </li>
-      {% endfor %}
-      </ul>
-    </div>
+      </div>
 
-    <h1>{% trans "Inactive Versions" %}</h1>
-    <div class="module-list-wrapper">
-      <ul>
-      {% for version in inactive_filter %}
-      <li class="module-item">
-      {# Link to the docs #}
-      <I>{{ version.slug }}</I>
-        <span class="right-menu">
-          {{ version.get_privacy_level_display }}
-        </span>
-        <span class="right-menu">{{ version.identifier|truncatechars:16 }}</span>
-      {% if request.user|is_admin:project %}
-        <ul class="module-item-menu">
-          <li><a href="{% url "project_version_detail" project.slug version.slug %}">{% trans "Edit" %}</a></li>
+      {% if inactive_filter %}
+      <h1>{% trans "Inactive Versions" %}</h1>
+      <div class="module-list-wrapper">
+        <ul>
+          {% for version in inactive_filter %}
+          <li class="module-item">
+            {# Link to the docs #}
+            <I>{{ version.slug }}</I>
+            <span class="right-menu">
+              {{ version.get_privacy_level_display }}
+            </span>
+            <span class="right-menu">{{ version.identifier|truncatechars:16 }}</span>
+            {% if request.user|is_admin:project %}
+            <ul class="module-item-menu">
+              <li><a href="{% url "project_version_detail" project.slug version.slug %}">{% trans "Edit" %}</a></li>
+            </ul>
+            {% endif %}
+          </li>
+          {% endfor %}
         </ul>
+      </div>
       {% endif %}
-      </li>
-      {% endfor %}
-      </ul>
+      
     </div>
   </div>
-</div>
-
 </div>
 
 {% endblock %}
