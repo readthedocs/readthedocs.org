@@ -10,3 +10,5 @@ script:
  - ./runtests.sh
 after_success:
  - coveralls
+notifications:
+  slack: readthedocs:y3hjODOi7EIz1JAbD1Zb41sz

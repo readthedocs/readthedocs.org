@@ -650,7 +650,9 @@ class Project(models.Model):
                 self.versions.filter(active=True, uploaded=True))
 
     def ordered_active_versions(self):
-        return sort_version_aware(self.versions.filter(active=True))
+        from builds.models import Version
+        versions = Version.objects.public(project=self, only_active=True)
+        return sort_version_aware(versions)
 
     def all_active_versions(self):
         """A temporary workaround for active_versions filtering out things

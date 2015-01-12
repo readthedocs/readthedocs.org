@@ -9,7 +9,6 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import get_template
 from django.template import Context
 
-
 from builds.models import Build
 
 log = logging.getLogger(__name__)
@@ -101,7 +100,8 @@ def trigger_build(project, version=None, record=True, force=False, basic=False):
     return build
 
 
-def send_email(recipient, subject, template, template_html, context=None):
+def send_email(recipient, subject, template, template_html, context=None,
+               request=None):
     '''
     Send multipart email
 
@@ -119,7 +119,14 @@ def send_email(recipient, subject, template, template_html, context=None):
 
     context
         A dictionary to pass into the template calls
+
+    request
+        Request object for determining absolute URL
     '''
+    if request:
+        scheme = 'https' if request.is_secure() else 'http'
+        context['uri'] = '{scheme}://{host}'.format(scheme=scheme,
+                                                    host=request.get_host())
     ctx = Context(context)
     msg = EmailMultiAlternatives(
         subject,
