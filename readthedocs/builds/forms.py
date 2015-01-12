@@ -5,6 +5,7 @@ from projects.models import Project
 
 
 class AliasForm(forms.ModelForm):
+
     class Meta:
         model = VersionAlias
 

@@ -5,6 +5,7 @@ from builds.models import Build
 from builds.filters import BuildFilter
 from projects.models import Project
 
+
 class BuildList(ListView):
     model = Build
 
@@ -22,13 +23,14 @@ class BuildList(ListView):
     def get_context_data(self, **kwargs):
         context = super(BuildList, self).get_context_data(**kwargs)
 
-        filter = BuildFilter(self.request.GET, queryset=self.queryset)
+        filter = BuildFilter(self.request.GET, queryset=self.get_queryset())
         active_builds = self.get_queryset().exclude(state="finished").values('id')
 
         context['project'] = self.project
         context['filter'] = filter
         context['active_builds'] = active_builds
         return context
+
 
 class BuildDetail(DetailView):
     model = Build

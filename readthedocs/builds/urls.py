@@ -9,7 +9,7 @@ urlpatterns = patterns(
     url(r'^(?P<project_slug>[-\w]+)/(?P<pk>\d+)/$',
         BuildDetail.as_view(),
         name='builds_detail'),
-    
+
     url(r'^(?P<project_slug>[-\w]+)/$',
         BuildList.as_view(),
         name='builds_project_list'),

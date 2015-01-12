@@ -355,3 +355,28 @@ def elastic_project_search(request, project_slug):
         },
         context_instance=RequestContext(request),
     )
+
+
+def project_versions(request, project_slug):
+    """
+    Shows the available versions and lets the user choose which ones he would
+    like to have built.
+    """
+    project = get_object_or_404(Project.objects.protected(request.user),
+                                slug=project_slug)
+
+    versions = Version.objects.public(user=request.user, project=project, only_active=False)
+    active_versions = versions.filter(active=True)
+    inactive_versions = versions.filter(active=False)
+    inactive_filter = VersionSlugFilter(request.GET, queryset=inactive_versions)
+    active_filter = VersionSlugFilter(request.GET, queryset=active_versions)
+
+    return render_to_response(
+        'projects/project_version_list.html',
+        {
+            'inactive_filter': inactive_filter,
+            'active_filter': active_filter,
+            'project': project,
+        },
+        context_instance=RequestContext(request)
+    )

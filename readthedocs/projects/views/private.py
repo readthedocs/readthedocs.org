@@ -169,13 +169,13 @@ def project_versions(request, project_slug):
 @login_required
 def project_version_detail(request, project_slug, version_slug):
     project = get_object_or_404(Project.objects.for_admin_user(request.user), slug=project_slug)
-    version = get_object_or_404(Version.objects.public(user=request.user, project=project), slug=version_slug)
+    version = get_object_or_404(Version.objects.public(user=request.user, project=project, only_active=False), slug=version_slug)
 
     form = VersionForm(request.POST or None, instance=version)
 
     if request.method == 'POST' and form.is_valid():
         form.save()
-        url = reverse('projects_versions', args=[project.slug])
+        url = reverse('project_version_list', args=[project.slug])
         return HttpResponseRedirect(url)
 
     return render_to_response(

@@ -2,7 +2,7 @@
 
 {% load i18n %}
 
-{% block title %}{{ version.name }}{% endblock %}
+{% block title %}{{ version.slug }} - {{ version.project.name }}{% endblock %}
 
 
 {% block project_editing %}
@@ -14,7 +14,7 @@
 {% block content-header %}<h1>{% blocktrans with version.name as version_name %}{{ version_name }}{% endblocktrans %}</h1>{% endblock %}
 
 {% block content %}
-    <h3> {{ version.slug }} </h3>
+    <h2> Editing {{ version.slug }} </h2>
     <form method="post" action=".">
         {% csrf_token %}
         {{ form.as_p }}
