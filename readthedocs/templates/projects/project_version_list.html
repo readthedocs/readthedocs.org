@@ -39,17 +39,19 @@ Filters
       <li class="module-item">
       {# Link to the docs #}
       <a class="module-item-title" href="{{ version.get_absolute_url }}">{{ version.slug }}</a>
-      {% if request.user in project.users.all %}
         <span class="right-menu">
           {{ version.get_privacy_level_display }}
         </span>
         <span class="right-menu">{{ version.identifier|truncatechars:16 }}</span>
+      {% if request.user|is_admin:project %}
+        <ul class="module-item-menu">
+          <li><a href="{% url "project_version_detail" project.slug version.slug %}">{% trans "Edit" %}</a></li>
+        </ul>
+      {% else %}
+        <ul class="module-item-menu">
+          <li><a href="{{ version.get_absolute_url }}">{% trans "View Docs" %}</a></li>
+        </ul>
       {% endif %}
-          {% if request.user|is_admin:project %}
-            <ul class="module-item-menu">
-              <li><a href="{% url "project_version_detail" project.slug version.slug %}">{% trans "edit" %}</a></li>
-            </ul>
-          {% endif %}
       </li>
       {% endfor %}
       </ul>
@@ -62,17 +64,15 @@ Filters
       <li class="module-item">
       {# Link to the docs #}
       <I>{{ version.slug }}</I>
-      {% if request.user in project.users.all %}
         <span class="right-menu">
           {{ version.get_privacy_level_display }}
         </span>
         <span class="right-menu">{{ version.identifier|truncatechars:16 }}</span>
+      {% if request.user|is_admin:project %}
+        <ul class="module-item-menu">
+          <li><a href="{% url "project_version_detail" project.slug version.slug %}">{% trans "Edit" %}</a></li>
+        </ul>
       {% endif %}
-          {% if request.user|is_admin:project %}
-            <ul class="module-item-menu">
-              <li><a href="{% url "project_version_detail" project.slug version.slug %}">{% trans "edit" %}</a></li>
-            </ul>
-          {% endif %}
       </li>
       {% endfor %}
       </ul>
