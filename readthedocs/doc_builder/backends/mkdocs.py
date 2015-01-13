@@ -98,7 +98,8 @@ class BaseMkdocs(BaseBuilder):
                         user_config['pages'].append([full_path])
 
         # Set our custom theme dir for mkdocs
-        user_config['theme_dir'] = TEMPLATE_DIR
+        if 'theme_dir' not in user_config:
+            user_config['theme_dir'] = TEMPLATE_DIR
 
         yaml.dump(user_config, open('mkdocs.yml', 'w'))
 
