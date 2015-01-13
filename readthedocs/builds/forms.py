@@ -24,6 +24,6 @@ class VersionForm(forms.ModelForm):
         fields = ['active', 'privacy_level', 'tags']
 
     def save(self, *args, **kwargs):
-        super(VersionForm, self).save(*args, **kwargs)
-        if self.active and not self.built and not self.uploaded:
-            trigger_build(project=self.version.project, version=self.version)
+        obj = super(VersionForm, self).save(*args, **kwargs)
+        if obj.active and not obj.built and not obj.uploaded:
+            trigger_build(project=obj.project, version=obj)
