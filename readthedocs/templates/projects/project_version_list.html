@@ -38,17 +38,20 @@ Versions
               <li class="module-item">
                 {# Link to the docs #}
                 <a class="module-item-title" href="{{ version.get_absolute_url }}">{{ version.slug }}</a>
-                <span class="right-menu">
-                  {{ version.get_privacy_level_display }}
-                </span>
                 {% if not version.slug in version.identifier %}
                   <span class="right-menu quiet version-branch">{{ version.identifier_friendly|truncatechars:24 }}</span>
                 {% endif %}
                 {% if request.user|is_admin:project %}
+                  <span class="right-menu">
+                    {{ version.get_privacy_level_display }}
+                  </span>
                   <ul class="module-item-menu">
                     <li><a href="{% url "project_version_detail" project.slug version.slug %}">{% trans "Edit" %}</a></li>
                   </ul>
                 {% else %}
+                  <span class="right-menu">
+                    {{ version.get_privacy_level_display }}
+                  </span>
                   <ul class="module-item-menu">
                     <li><a href="{{ version.get_absolute_url }}">{% trans "View Docs" %}</a></li>
                   </ul>
@@ -60,6 +63,7 @@ Versions
       </div>
     </div>
 
+    {% if request.user|is_admin:project %}
     <div class="module project-versions-inactive">
       <div class="module-wrapper">
 
@@ -70,7 +74,7 @@ Versions
               {% for version in inactive_filter %}
                 <li class="module-item">
                   {# Link to the docs #}
-                  <i>{{ version.slug }}</i>
+                  <span class="quiet">{{ version.slug }}</span>
                   <span class="right-menu">
                     {{ version.get_privacy_level_display }}
                   </span>
@@ -90,5 +94,7 @@ Versions
 
       </div>
     </div>
+    {% endif %}
+
   </div>
 {% endblock %}
