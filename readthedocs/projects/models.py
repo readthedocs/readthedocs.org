@@ -532,14 +532,14 @@ class Project(models.Model):
             files = self.full_find('conf.py', version)
         if len(files) == 1:
             return files[0]
-        elif len(files) > 1:
-            for file in files:
-                if file.find('doc', 70) != -1:
-                    return file
-        else:
-            # Having this be translatable causes this odd error:
-            # ProjectImportError(<django.utils.functional.__proxy__ object at 0x1090cded0>,)
-            raise ProjectImportError(u"Conf File Missing. Please make sure you have a conf.py in your project.")
+        for file in files:
+            if file.find('doc', 70) != -1:
+                return file
+        # Having this be translatable causes this odd error:
+        # ProjectImportError(<django.utils.functional.__proxy__ object at
+        # 0x1090cded0>,)
+        raise ProjectImportError(
+            u"Conf File Missing. Please make sure you have a conf.py in your project.")
 
     def conf_dir(self, version='latest'):
         conf_file = self.conf_file(version)
