@@ -558,6 +558,10 @@ p.build-missing { font-size: .8em; color: #9d9a55; margin: 0 0 3px; }
   font-size: 16px;
 }
 
+div.project-version-list span.version-branch {
+    font-size: .9em;
+}
+
 /* Form Wizards */
 div.actions.wizard-actions button.action-primary,
 div.actions.wizard-actions input.action-primary {
