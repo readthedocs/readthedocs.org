@@ -42,7 +42,7 @@ Versions
                   {{ version.get_privacy_level_display }}
                 </span>
                 {% if not version.slug in version.identifier %}
-                  <span class="right-menu quiet version-branch">{{ version.identifier }}</span>
+                  <span class="right-menu quiet version-branch">{{ version.identifier_friendly|truncatechars:24 }}</span>
                 {% endif %}
                 {% if request.user|is_admin:project %}
                   <ul class="module-item-menu">
@@ -74,8 +74,8 @@ Versions
                   <span class="right-menu">
                     {{ version.get_privacy_level_display }}
                   </span>
-                  {% if not version.slug in version.identifier %}
-                    <span class="right-menu quiet version-branch">{{ version.identifier|truncatechars:24 }}</span>
+                  {% if not version.slug in version.identifier_friendly %}
+                    <span class="right-menu quiet version-branch">{{ version.identifier_friendly|truncatechars:24 }}</span>
                   {% endif %}
                   {% if request.user|is_admin:project %}
                     <ul class="module-item-menu">

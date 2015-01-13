@@ -84,6 +84,14 @@ class Version(models.Model):
         else:
             return self.slug
 
+    @property
+    def identifier_friendly(self):
+        '''Return display friendly identifier'''
+        re_sha = re.compile(r'^[0-9a-f]{40}$', re.I)
+        if re_sha.match(str(self.identifier)):
+            return self.identifier[:6]
+        return self.identifier
+
     def get_subdomain_url(self):
         use_subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
         if use_subdomain:
