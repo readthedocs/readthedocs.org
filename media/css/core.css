@@ -366,6 +366,33 @@ div.module.search-dashboard input {
 
   body.project-edit #project_bar > .wrapper { background: url(../images/project-bar-bg-admin.svg) scroll 100% 1.1em no-repeat; }
   /* editing dashboard toolbar */
+  div.project-bar div.project-view-docs {
+    float: right;
+    padding: .7em;
+  }
+
+  #project_bar div.project-view-docs > a {
+    display: block;
+    padding: 8px 15px;
+    border: 1px solid #bfbfbf;
+
+    background-color: #8ECC4C;
+    color: #fff;
+    border-color: #6B9939;
+    border-bottom-color: #50732B;
+    border-radius: 3px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    box-shadow: none;
+    -moz-box-shadow: none;
+    -webkit-box-shadow: none;
+
+    font-family: "ff-meta-web-pro", "ff-meta-web-pro-1", "ff-meta-web-pro-2", Arial, "Helvetica Neue", sans-serif;
+    font-weight: bold;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+    text-decoration: none;
+  }
+
   #project_bar .project-title { padding: 0; }
   #project_bar .project-title h1 { margin: 0 0 5px; padding: 0; }
   #project_bar .project-title span.project-breadcrumb {
