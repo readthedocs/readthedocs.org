@@ -47,7 +47,7 @@ Filters
                     </li>
                     <li style="display: inline-block">
                       <select id="id_version" name="version_slug">
-                      {% for version in project.ordered_active_versions %}
+                      {% for version in versions %}
                         <option value="{{ version.slug }}">{{ version.slug }}</option>
                       {% endfor %}
                       </select>

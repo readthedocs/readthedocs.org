@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, DetailView
 
-from builds.models import Build
+from builds.models import Build, Version
 from builds.filters import BuildFilter
 from projects.models import Project
 
@@ -29,6 +29,7 @@ class BuildList(ListView):
         context['project'] = self.project
         context['filter'] = filter
         context['active_builds'] = active_builds
+        context['versions'] = Version.objects.public(user=self.request.user, project=self.project)
         return context
 
 

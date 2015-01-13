@@ -134,7 +134,7 @@ def project_downloads(request, project_slug):
     A detail view for a project with various dataz
     """
     project = get_object_or_404(Project.objects.protected(request.user), slug=project_slug)
-    versions = project.ordered_active_versions()
+    versions = Version.objects.public(user=request.user, project=project)
     version_data = SortedDict()
     for version in versions:
         data = version.get_downloads()
