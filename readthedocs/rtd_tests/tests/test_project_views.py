@@ -49,19 +49,12 @@ class TestAdvancedForm(TestBasicsForm):
             'language': 'en',
             'documentation_type': 'sphinx',
         }
-        self.step_data['advanced'] = {
-            'default_version': 'latest',
-            'privacy_level': 'public',
-            'python_interpreter': 'python',
-        }
 
     def test_form_pass(self):
         '''Test all forms pass validation'''
         resp = self.post_step('basics')
         self.assertWizardResponse(resp, 'extra')
         resp = self.post_step('extra')
-        self.assertWizardResponse(resp, 'advanced')
-        resp = self.post_step('advanced')
         self.assertWizardResponse(resp)
 
         proj = Project.objects.get(name='foobar')
@@ -69,7 +62,6 @@ class TestAdvancedForm(TestBasicsForm):
         data = self.step_data['basics']
         del data['advanced']
         data.update(self.step_data['extra'])
-        data.update(self.step_data['advanced'])
         for (key, val) in data.items():
             self.assertEqual(getattr(proj, key), val)
 
@@ -84,21 +76,6 @@ class TestAdvancedForm(TestBasicsForm):
 
         self.assertWizardFailure(resp, 'language')
         self.assertWizardFailure(resp, 'documentation_type')
-
-    def test_form_missing_advanced(self):
-        '''Submit advanced form with missing data, expect to get failures'''
-        # Remove extra data to trigger validation errors
-        self.step_data['advanced'] = {}
-
-        resp = self.post_step('basics')
-        self.assertWizardResponse(resp, 'extra')
-        resp = self.post_step('extra')
-        self.assertWizardResponse(resp, 'advanced')
-        resp = self.post_step('advanced')
-
-        self.assertWizardFailure(resp, 'default_version')
-        self.assertWizardFailure(resp, 'privacy_level')
-        self.assertWizardFailure(resp, 'python_interpreter')
 
 
 class TestImportDemoView(MockBuildTestCase):
