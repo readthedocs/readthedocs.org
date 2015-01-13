@@ -154,7 +154,8 @@ class Project(models.Model):
                     "Protected means public but not in listings."))
     version_privacy_level = models.CharField(
         _('Version Privacy Level'), max_length=20,
-        choices=constants.PRIVACY_CHOICES, default=getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public'),
+        choices=constants.PRIVACY_CHOICES, default=getattr(
+            settings, 'DEFAULT_PRIVACY_LEVEL', 'public'),
         help_text=_("(Beta) Default level of privacy you want on built "
                     "versions of documentation."))
 
@@ -171,8 +172,9 @@ class Project(models.Model):
                                 choices=constants.LANGUAGES)
 
     programming_language = models.CharField(_('Programming Language'), max_length=20, default='words',
-                                help_text=_("The primary programming language the project is written in."),
-                                choices=constants.PROGRAMMING_LANGUAGES, blank=True)
+                                            help_text=_(
+                                                "The primary programming language the project is written in."),
+                                            choices=constants.PROGRAMMING_LANGUAGES, blank=True)
     # A subproject pointed at it's main language, so it can be tracked
     main_language_project = models.ForeignKey('self',
                                               related_name='translations',
@@ -231,8 +233,10 @@ class Project(models.Model):
     def sync_supported_versions(self):
         supported = self.supported_versions(flat=True)
         if supported:
-            self.versions.filter(verbose_name__in=supported).update(supported=True)
-            self.versions.exclude(verbose_name__in=supported).update(supported=False)
+            self.versions.filter(
+                verbose_name__in=supported).update(supported=True)
+            self.versions.exclude(
+                verbose_name__in=supported).update(supported=False)
             self.versions.filter(verbose_name='latest').update(supported=True)
 
     def save(self, *args, **kwargs):
@@ -269,7 +273,8 @@ class Project(models.Model):
         try:
             branch = self.default_branch or self.vcs_repo().fallback_branch
             if not self.versions.filter(slug='latest').exists():
-                self.versions.create(slug='latest', verbose_name='latest', machine=True, type='branch', active=True, identifier=branch)
+                self.versions.create(
+                    slug='latest', verbose_name='latest', machine=True, type='branch', active=True, identifier=branch)
             # if not self.versions.filter(slug='stable').exists():
             #     self.versions.create(slug='stable', verbose_name='stable', type='branch', active=True, identifier=branch)
         except Exception:
@@ -346,11 +351,14 @@ class Project(models.Model):
         This is used to see if these files exist so we can offer them for download.
         """
         if getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public') == 'public':
-            path = os.path.join(settings.MEDIA_ROOT, type, self.slug, version_slug)
+            path = os.path.join(
+                settings.MEDIA_ROOT, type, self.slug, version_slug)
         else:
-            path = os.path.join(settings.PRODUCTION_MEDIA_ARTIFACTS, type, self.slug, version_slug)
+            path = os.path.join(
+                settings.PRODUCTION_MEDIA_ARTIFACTS, type, self.slug, version_slug)
         if include_file:
-            path = os.path.join(path, '%s.%s' % (self.slug, type.replace('htmlzip', 'zip')))
+            path = os.path.join(
+                path, '%s.%s' % (self.slug, type.replace('htmlzip', 'zip')))
         return path
 
     def get_production_media_url(self, type, version_slug, full_path=True):
@@ -368,9 +376,12 @@ class Project(models.Model):
 
     def get_downloads(self):
         downloads = {}
-        downloads['htmlzip'] = self.get_production_media_url('htmlzip', self.get_default_version())
-        downloads['epub'] = self.get_production_media_url('htmlzip', self.get_default_version())
-        downloads['pdf'] = self.get_production_media_url('htmlzip', self.get_default_version())
+        downloads['htmlzip'] = self.get_production_media_url(
+            'htmlzip', self.get_default_version())
+        downloads['epub'] = self.get_production_media_url(
+            'htmlzip', self.get_default_version())
+        downloads['pdf'] = self.get_production_media_url(
+            'htmlzip', self.get_default_version())
         return downloads
 
     @property
@@ -584,7 +595,8 @@ class Project(models.Model):
         if not backend:
             repo = None
         else:
-            proj = VCSProject(self.name, self.default_branch, self.checkout_path(version), self.clean_repo)
+            proj = VCSProject(
+                self.name, self.default_branch, self.checkout_path(version), self.clean_repo)
             repo = backend(proj, version)
         return repo
 
