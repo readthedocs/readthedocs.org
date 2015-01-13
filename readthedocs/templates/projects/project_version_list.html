@@ -49,9 +49,6 @@ Versions
                     <li><a href="{% url "project_version_detail" project.slug version.slug %}">{% trans "Edit" %}</a></li>
                   </ul>
                 {% else %}
-                  <span class="right-menu">
-                    {{ version.get_privacy_level_display }}
-                  </span>
                   <ul class="module-item-menu">
                     <li><a href="{{ version.get_absolute_url }}">{% trans "View Docs" %}</a></li>
                   </ul>
