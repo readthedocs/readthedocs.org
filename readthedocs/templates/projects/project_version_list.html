@@ -38,13 +38,18 @@ Versions
               <li class="module-item">
                 {# Link to the docs #}
                 <a class="module-item-title" href="{{ version.get_absolute_url }}">{{ version.slug }}</a>
-                {% if not version.slug in version.identifier %}
-                  <span class="right-menu quiet version-branch">{{ version.identifier_friendly|truncatechars:24 }}</span>
-                {% endif %}
+
                 {% if request.user|is_admin:project %}
                   <span class="right-menu">
                     {{ version.get_privacy_level_display }}
                   </span>
+                {% endif %}
+
+                {% if not version.slug in version.identifier %}
+                  <span class="right-menu quiet version-branch">{{ version.identifier_friendly|truncatechars:24 }}</span>
+                {% endif %}
+
+                {% if request.user|is_admin:project %}
                   <ul class="module-item-menu">
                     <li><a href="{% url "project_version_detail" project.slug version.slug %}">{% trans "Edit" %}</a></li>
                   </ul>
@@ -53,6 +58,7 @@ Versions
                     <li><a href="{{ version.get_absolute_url }}">{% trans "View Docs" %}</a></li>
                   </ul>
                 {% endif %}
+
               </li>
             {% endfor %}
           </ul>
@@ -72,17 +78,24 @@ Versions
                 <li class="module-item">
                   {# Link to the docs #}
                   <span class="quiet">{{ version.slug }}</span>
-                  {% if not version.slug in version.identifier_friendly %}
-                    <span class="right-menu quiet version-branch">{{ version.identifier_friendly|truncatechars:24 }}</span>
-                  {% endif %}
+
+
                   {% if request.user|is_admin:project %}
                     <span class="right-menu">
                       {{ version.get_privacy_level_display }}
                     </span>
+                  {% endif %}
+
+                  {% if not version.slug in version.identifier_friendly %}
+                    <span class="right-menu quiet version-branch">{{ version.identifier_friendly|truncatechars:24 }}</span>
+                  {% endif %}
+
+                  {% if request.user|is_admin:project %}
                     <ul class="module-item-menu">
                       <li><a href="{% url "project_version_detail" project.slug version.slug %}">{% trans "Edit" %}</a></li>
                     </ul>
                   {% endif %}
+                  
                 </li>
               {% endfor %}
             </ul>
