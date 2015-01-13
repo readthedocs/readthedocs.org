@@ -72,13 +72,13 @@ Versions
                 <li class="module-item">
                   {# Link to the docs #}
                   <span class="quiet">{{ version.slug }}</span>
-                  <span class="right-menu">
-                    {{ version.get_privacy_level_display }}
-                  </span>
                   {% if not version.slug in version.identifier_friendly %}
                     <span class="right-menu quiet version-branch">{{ version.identifier_friendly|truncatechars:24 }}</span>
                   {% endif %}
                   {% if request.user|is_admin:project %}
+                    <span class="right-menu">
+                      {{ version.get_privacy_level_display }}
+                    </span>
                     <ul class="module-item-menu">
                       <li><a href="{% url "project_version_detail" project.slug version.slug %}">{% trans "Edit" %}</a></li>
                     </ul>
