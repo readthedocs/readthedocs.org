@@ -2,6 +2,7 @@ from django import forms
 
 from builds.models import VersionAlias, Version
 from projects.models import Project
+from core.utils import trigger_build
 
 
 class AliasForm(forms.ModelForm):
@@ -21,3 +22,8 @@ class VersionForm(forms.ModelForm):
     class Meta:
         model = Version
         fields = ['active', 'privacy_level', 'tags']
+
+    def save(self, *args, **kwargs):
+        super(VersionForm, self).save(*args, **kwargs)
+        if self.active and not self.built and not self.uploaded:
+            trigger_build(project=self.version.project, version=self.version)
