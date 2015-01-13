@@ -671,6 +671,11 @@ def fileify(version_pk, commit):
     """
     version = Version.objects.get(pk=version_pk)
     project = version.project
+
+    if not commit:
+        log.info(LOG_TEMPLATE.format(
+            project=project.slug, version=version.slug, msg='Imported File not being built because no commit information'))
+
     path = project.rtd_build_path(version.slug)
     if path:
         log.info(LOG_TEMPLATE.format(
