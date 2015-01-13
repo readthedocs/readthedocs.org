@@ -27,6 +27,8 @@ the redirects and interfaces that we wish to expose permanently.
 Commerical Support
 ------------------
 
-We offer commerical support for Read the Docs, 
+We offer commerical support for Read the Docs,
+commerical hosting,
 as well as consulting around all documentation systems.
-You can contact us at hello@readthedocs.com to learn more.
+You can contact us at hello@readthedocs.com to learn more,
+or visit us at https://readthedocs.com.
