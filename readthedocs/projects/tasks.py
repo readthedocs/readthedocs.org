@@ -653,8 +653,11 @@ def update_search(version_pk, commit):
 
     if 'sphinx' in version.project.documentation_type:
         page_list = process_all_json_files(version, build_dir=False)
-    if 'mkdocs' in version.project.documentation_type:
+    elif 'mkdocs' in version.project.documentation_type:
         page_list = process_mkdocs_json(version, build_dir=False)
+    else:
+        log.error('Unknown documentation type: %s' % version.project.documentation_type)
+        return
 
     log_msg = ' '.join([page['path'] for page in page_list])
     log.info("(Search Index) Sending Data: %s [%s]" % (version.project.slug, log_msg))
