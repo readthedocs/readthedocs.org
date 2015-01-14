@@ -240,6 +240,7 @@ class Project(models.Model):
             self.versions.filter(verbose_name='latest').update(supported=True)
 
     def save(self, *args, **kwargs):
+        first_save = self.pk is None
         if not self.slug:
             # Subdomains can't have underscores in them.
             self.slug = slugify(self.name).replace('_', '-')
@@ -263,7 +264,8 @@ class Project(models.Model):
         except Exception:
             log.error('failed to sync supported versions', exc_info=True)
         try:
-            symlink(project=self.slug)
+            if not first_save:
+                symlink(project=self.slug)
         except Exception:
             log.error('failed to symlink project', exc_info=True)
         try:
