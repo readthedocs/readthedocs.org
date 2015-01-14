@@ -215,10 +215,8 @@ class ImportWizardView(SessionWizardView):
     '''Project import wizard'''
 
     form_list = [('basics', ProjectBasicsForm),
-                 ('extra', ProjectExtraForm),
-                 ('advanced', ProjectAdvancedForm)]
-    condition_dict = {'extra': lambda self: self.is_advanced(),
-                      'advanced': lambda self: self.is_advanced()}
+                 ('extra', ProjectExtraForm)]
+    condition_dict = {'extra': lambda self: self.is_advanced()}
 
     def get_form_kwargs(self, step):
         '''Get args to pass into form instantiation'''
@@ -229,10 +227,6 @@ class ImportWizardView(SessionWizardView):
         if step == 'extra':
             extra_form = self.get_form_from_step('basics')
             project = extra_form.save(commit=False)
-            kwargs['instance'] = project
-        if step == 'advanced':
-            adv_form = self.get_form_from_step('extra')
-            project = adv_form.save(commit=False)
             kwargs['instance'] = project
         return kwargs
 

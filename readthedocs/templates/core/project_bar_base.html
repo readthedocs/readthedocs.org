@@ -4,8 +4,14 @@
 {% load gravatar %}
 
 <!-- BEGIN project bar -->
-<div id="project_bar">
+<div id="project_bar" class="project-bar">
   <div class="wrapper">
+
+    {% if project.has_good_build %}
+      <div class="project-view-docs">
+        <a href="{{ project.get_docs_url }}">{% trans "View Docs" %}</a>
+      </div>
+    {% endif %}
 
     <div class="project-title">
       <h1>
@@ -15,11 +21,6 @@
           {% endblock %}
         </span>
         <a href="{{ project.get_absolute_url }}">{{ project }}</a>
-        {% if project.has_good_build %}
-          <div class="right">
-            <a href="{{ project.get_docs_url }}">{% trans "View Docs" %}</a>
-          </div>
-        {% endif %}
       </h1>
     </div>
 
@@ -45,10 +46,8 @@
         <li class="{{ versions_active }}"><a href="{% url "project_version_list" project.slug %}">{% trans "Versions" %}</a></li>
 
         {% if request.user|is_admin:project %}
-          <li class="{{ edit_active }}"><a href="{% url "projects_edit" project.slug %}"><i class="gear"></i>{% trans "Admin" %}</a></li>
+          <li class="{{ edit_active }} project-admin"><a href="{% url "projects_edit" project.slug %}"><i class="gear"></i>{% trans "Admin" %}</a></li>
         {% endif %}
-
-
       </ul>
     </div>
 
