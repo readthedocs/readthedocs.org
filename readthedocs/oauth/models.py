@@ -46,6 +46,13 @@ class GithubProject(models.Model):
     def __unicode__(self):
         return "GitHub Project: %s" % (self.html_url)
 
+    def is_admin(self):
+        full_json = eval(self.json)
+        if 'permissions' in full_json:
+            return full_json['permissions']['admin']
+        return False
+
+
 
 class BitbucketTeam(models.Model):
     # Auto fields
