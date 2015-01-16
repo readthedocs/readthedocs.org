@@ -74,4 +74,17 @@ class RedirectOauth(TestCase):
         github_project_2 = make_github_project(user=User.objects.get(pk=2), org=self.org, privacy=self.privacy, repo_json=repo_json)
         self.assertIsInstance(github_project, GithubProject)
         self.assertIsInstance(github_project_2, GithubProject)
-        self.assertTrue(github_project_2 is not github_project)
+        self.assertNotEqual(github_project_2, github_project)
+
+        github_project_3 = make_github_project(user=self.user, org=self.org, privacy=self.privacy, repo_json=repo_json)
+        github_project_4 = make_github_project(user=User.objects.get(pk=2), org=self.org, privacy=self.privacy, repo_json=repo_json)
+        self.assertIsInstance(github_project_3, GithubProject)
+        self.assertIsInstance(github_project_4, GithubProject)
+        self.assertEqual(github_project, github_project_3)
+        self.assertEqual(github_project_2, github_project_4)
+
+        github_project_5 = make_github_project(user=self.user, org=self.org, privacy=self.privacy, repo_json=repo_json)
+        github_project_6 = make_github_project(user=User.objects.get(pk=2), org=self.org, privacy=self.privacy, repo_json=repo_json)
+        
+        self.assertEqual(github_project, github_project_5)
+        self.assertEqual(github_project_2, github_project_6)
