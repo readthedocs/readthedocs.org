@@ -43,7 +43,7 @@ def make_github_project(user, org, privacy, repo_json):
             repo_json['private'] is False and privacy == 'public'):
         project, created = GithubProject.objects.get_or_create(
             full_name=repo_json['full_name'],
-            users=user.pk,
+            users__pk=user.pk,
         )
         if project.organization and project.organization != org:
             log.debug('Not importing %s because mismatched orgs' % repo_json['name'])

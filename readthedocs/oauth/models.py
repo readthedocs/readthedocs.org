@@ -35,7 +35,7 @@ class GithubProject(models.Model):
     organization = models.ForeignKey(GithubOrganization, verbose_name=_('Organization'),
                                      related_name='projects', null=True, blank=True)
     name = models.CharField(_('Name'), max_length=255)
-    full_name = models.CharField(_('Full Name'), max_length=255, unique=True)
+    full_name = models.CharField(_('Full Name'), max_length=255)
     description = models.TextField(_('Description'), blank=True, null=True,
                                    help_text=_('The reStructuredText description of the project'))
     git_url = models.CharField(_('Git URL'), max_length=200, blank=True)
@@ -52,7 +52,6 @@ class GithubProject(models.Model):
         if 'permissions' in full_json:
             return full_json['permissions']['admin']
         return False
-
 
 
 class BitbucketTeam(models.Model):
