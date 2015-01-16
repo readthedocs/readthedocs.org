@@ -11,4 +11,8 @@ script:
 after_success:
  - coveralls
 notifications:
-  slack: readthedocs:y3hjODOi7EIz1JAbD1Zb41sz
+  slack:
+    rooms:
+      - readthedocs:y3hjODOi7EIz1JAbD1Zb41sz#general
+    on_success: [change]
+    on_failure: [always]
