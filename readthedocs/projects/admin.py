@@ -18,17 +18,20 @@ class ProjectRelationshipInline(admin.TabularInline):
 class VersionInline(admin.TabularInline):
     model = Version
 
+
 class RedirectInline(admin.TabularInline):
     model = Redirect
+
 
 class ProjectAdmin(GuardedModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
     list_display = ('name', 'repo', 'repo_type', 'featured', 'theme')
-    list_filter = ('repo_type', 'featured', 'privacy_level', 'documentation_type')
+    list_filter = ('repo_type', 'featured', 'privacy_level', 'documentation_type', 'programming_language')
     list_editable = ('featured',)
     search_fields = ('slug', 'repo')
     inlines = [ProjectRelationshipInline, RedirectInline, VersionInline]
     raw_id_fields = ('users', 'main_language_project')
+
 
 class ImportedFileAdmin(admin.ModelAdmin):
     list_display = ('path', 'name', 'version')
