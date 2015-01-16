@@ -29,6 +29,7 @@ class GithubProject(models.Model):
     pub_date = models.DateTimeField(_('Publication date'), auto_now_add=True)
     modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
 
+    # This should now be a OneToOne
     users = models.ManyToManyField(User, verbose_name=_('Users'),
                                    related_name='github_projects')
     organization = models.ForeignKey(GithubOrganization, verbose_name=_('Organization'),
