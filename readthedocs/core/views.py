@@ -227,31 +227,7 @@ def github_build(request):
         ghetto_url = url.replace('http://', '').replace('https://', '')
         branch = obj['ref'].replace('refs/heads/', '')
         pc_log.info("(Incoming Github Build) %s [%s]" % (ghetto_url, branch))
-        try:
-            return _build_url(ghetto_url, [branch])
-        except NoProjectException:
-            try:
-                name = obj['repository']['name']
-                desc = obj['repository']['description']
-                homepage = obj['repository']['homepage']
-                repo = obj['repository']['url']
-
-                email = obj['repository']['owner']['email']
-                user = User.objects.get(email=email)
-
-                proj = Project.objects.create(
-                    name=name,
-                    description=desc,
-                    project_url=homepage,
-                    repo=repo,
-                )
-                proj.users.add(user)
-                # Version doesn't exist yet, so use classic build method
-                trigger_build(project=proj)
-                pc_log.info("Created new project %s" % (proj))
-            except Exception, e:
-                pc_log.error("Error creating new project %s: %s" % (name, e))
-                return HttpResponseNotFound('Repo not found')
+        return _build_url(ghetto_url, [branch])
     else:
         return HttpResponse("You must POST to this resource.")
 
