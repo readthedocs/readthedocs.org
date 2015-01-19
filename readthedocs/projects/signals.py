@@ -2,6 +2,7 @@ import logging
 import json
 
 import django.dispatch
+from django.conf import settings
 from django.contrib import messages
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
@@ -39,7 +40,7 @@ def handle_project_import(sender, **kwargs):
                     data = json.dumps({
                         'name': 'readthedocs',
                         'active': True,
-                        'config': {'url': 'https://readthedocs.org/github'}
+                        'config': {'url': 'https://{domain}/github'.format(domain=settings.PRODUCTION_DOMAIN)}
                     })
                     resp = session.post(
                         'https://api.github.com/repos/{owner}/{repo}/hooks'.format(owner=owner, repo=repo),
@@ -55,7 +56,8 @@ def handle_project_import(sender, **kwargs):
                 try:
                     owner, repo = build_utils.get_bitbucket_username_repo(version=None, repo_url=project.repo)
                     data = {
-                        'type': 'Read the Docs',
+                        'type': 'POST',
+                        'url': 'https://{domain}/bitbucket'.format(domain=settings.PRODUCTION_DOMAIN),
                     }
                     resp = session.post(
                         'https://api.bitbucket.org/1.0/repositories/{owner}/{repo}/services'.format(owner=owner, repo=repo),
