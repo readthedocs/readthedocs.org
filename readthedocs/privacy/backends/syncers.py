@@ -17,6 +17,9 @@ class LocalSyncer(object):
         """
         log.info("Local Copy %s to %s" % (path, target))
         if file:
+            if path == target:
+                # Don't copy the same file over itself
+                return
             if os.path.exists(target):
                 os.remove(target)
             shutil.copy2(path, target)
