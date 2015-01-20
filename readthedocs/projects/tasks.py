@@ -13,6 +13,7 @@ from celery import task
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
+from slumber.exceptions import HttpClientError
 
 from builds.models import Build, Version
 from core.utils import send_email
@@ -64,7 +65,6 @@ def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
         from the shell, for example.
 
     """
-
     # Dependency injection to allow for testing
     if api is None:
         api = tastyapi.api
@@ -72,7 +72,10 @@ def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
     else:
         apiv2 = api
 
-    project_data = api.project(pk).get()
+    try:
+        project_data = api.project(pk).get()
+    except HttpClientError:
+        log.exception(LOG_TEMPLATE.format(project=pk, version='', msg='Failed to get project data on build. Erroring.'))
     project = make_api_project(project_data)
     # Don't build skipped projects
     if project.skip:
@@ -757,7 +760,7 @@ def webhook_notification(version, build, hook_url):
 
 
 @task(queue='web')
-def update_static_metadata(project_pk):
+def update_static_metadata(project_pk, path=None):
     """Update static metadata JSON file
 
     Metadata settings include the following project settings:
@@ -772,6 +775,9 @@ def update_static_metadata(project_pk):
       List of languages built by linked translation projects.
     """
     project = Project.objects.get(pk=project_pk)
+    if not path:
+        path = project.static_metadata_path()
+
     log.info(LOG_TEMPLATE.format(
         project=project.slug,
         version='',
@@ -787,8 +793,7 @@ def update_static_metadata(project_pk):
         'single_version': project.single_version,
     }
     try:
-        path = project.static_metadata_path()
-        fh = open(path, 'w')
+        fh = open(path, 'w+')
         json.dump(metadata, fh)
         fh.close()
         Syncer.copy(path, path, host=socket.gethostname(), file=True)
