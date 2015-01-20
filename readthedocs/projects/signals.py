@@ -34,6 +34,8 @@ def handle_project_import(sender, **kwargs):
     for provider in ['github', 'bitbucket']:
         if provider in project.repo:
             session = oauth_utils.get_oauth_session(user=request.user, provider=provider)
+            if not session:
+                break
             if provider == 'github':
                 try:
                     owner, repo = build_utils.get_github_username_repo(version=None, repo_url=project.repo)
