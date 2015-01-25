@@ -1,15 +1,12 @@
 #
-# readthedocs.org - database 
+# readthedocs.org - database image
 #
 
-# TODO: It would be nice to not have to install all the python stuff
-# just to run ./manage.py syncdb/migration
-FROM    rtd_webapp
-MAINTAINER  dnephin@gmail.com
+FROM    readthedocs/base
 
 RUN     apt-get update && apt-get install -y \
-            postgresql-9.3 \
-            postgresql-contrib-9.3
+            postgresql-9.4 \
+            postgresql-contrib-9.4
 
 ADD     local_settings.py /rtd/readthedocs/local_settings.py
 ADD     create_superuser.py /rtd/readthedocs/create_superuser.py
@@ -28,12 +25,12 @@ RUN     /etc/init.d/postgresql start && \
         ../venv/bin/python ./manage.py loaddata test_data && \
         /etc/init.d/postgresql stop
 
-ADD     etc/pg_hba.conf /etc/postgresql/9.3/main/pg_hba.conf
-RUN     echo "listen_addresses='*'" >> /etc/postgresql/9.3/main/postgresql.conf
+ADD     etc/pg_hba.conf /etc/postgresql/9.4/main/pg_hba.conf
+RUN     echo "listen_addresses='*'" >> /etc/postgresql/9.4/main/postgresql.conf
 
 # Add VOLUMEs to allow backup of config, logs and databases
 VOLUME  ["/etc/postgresql", "/var/log/postgresql", "/var/lib/postgresql"]
 
 EXPOSE  5432
-CMD ["/usr/lib/postgresql/9.3/bin/postgres", "-D", "/var/lib/postgresql/9.3/main", "-c", "config_file=/etc/postgresql/9.3/main/postgresql.conf"]
+CMD ["/usr/lib/postgresql/9.4/bin/postgres", "-D", "/var/lib/postgresql/9.4/main", "-c", "config_file=/etc/postgresql/9.4/main/postgresql.conf"]
 

@@ -1,4 +1,6 @@
-
+#
+# readthedocs.org - configs image
+#
 
 FROM    busybox:latest
 ADD     . /rtd/readthedocs/webapp_settings/

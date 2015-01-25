@@ -4,7 +4,7 @@
 # main application
 #
 webapp:
-    build: .
+    image: readthedocs/webapp
     environment:
         DJANGO_SETTINGS_MODULE: 'webapp_settings'
     volumes_from:
@@ -22,13 +22,13 @@ webapp:
 # data volume container with a dev version of django settings
 #
 configs:
-    build: dockerfiles/configs
+    image: readthedocs/configs
 
 #
 # database for the webapp
 #
 database:
-    build: dockerfiles/database
+    image: readthedocs/database
 
 #
 # task queue broker, and cache
@@ -40,7 +40,7 @@ redis:
 # search index for documentation and projects
 #
 search:
-    build: readthedocs/search
+    image: readthedocs/search
     ports: 
         - 8081:9200
 
@@ -48,7 +48,7 @@ search:
 # task workers for building documentation
 #
 builder:
-    build: dockerfiles/builder
+    image: readthedocs/builder
     environment:
         DJANGO_SETTINGS_MODULE: 'webapp_settings'
     volumes_from:

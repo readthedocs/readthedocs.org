@@ -1,6 +1,6 @@
 
 
-FROM    dockerfile/elasticsearch
+FROM    dockerfile/elasticsearch:latest
 
 RUN     apt-get update && apt-get install -y \
             python-virtualenv \

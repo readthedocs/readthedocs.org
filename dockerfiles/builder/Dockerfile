@@ -1,8 +1,8 @@
+#
+# readthedocs.org - documentation builder image
+#
 
-
-# TODO: It would be nice to have a separate code repo for the task workers, or
-# a common base image for python dependencies
-FROM    rtd_webapp
+FROM    readthedocs/base
 
 # For some reason the task running runs virtualenv-2.7
 RUN     ln -s /usr/bin/virtualenv /usr/bin/virtualenv-2.7

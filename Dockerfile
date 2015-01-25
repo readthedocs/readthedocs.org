@@ -1,5 +1,5 @@
 #
-# readthedocs.org - webapp
+# readthedocs.org - base image
 #
 
 FROM    ubuntu:14.10
@@ -28,10 +28,5 @@ ADD     .   /rtd
 RUN     mkdir /rtd/user_builds
 RUN     mkdir /rtd/readthedocs/webapp_settings/
 
-EXPOSE  8000
-
 ENV     PYTHONPATH  /rtd/
 WORKDIR /rtd/readthedocs
-
-# TODO: use gunicorn
-CMD     ../venv/bin/python ./manage.py runserver 0.0.0.0:8000
