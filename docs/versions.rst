@@ -7,7 +7,7 @@ we will create a ``latest`` version.
 This will point at the default branch for your VCS control: ``master``, ``default``, or ``trunk``.
 
 We also create a ``stable`` version,
-if your project has any releases.
+if your project has any tagged releases.
 ``stable`` will be automatically kept up to date to point at your highest version.
 
 How we envision versions working
