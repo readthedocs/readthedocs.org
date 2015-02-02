@@ -37,7 +37,7 @@ we will generate one for you.
 We will look inside a ``doc`` or ``docs`` directory first,
 and then default to the top-level of your documentation.
 
-Then Sphinx will build any files with an ``.md`` extension.
+Then Mkdocs will build any files with an ``.md`` extension.
 If you have a ``README.md``,
 it will be transformed into an ``index.md`` automatically.
 
