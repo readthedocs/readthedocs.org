@@ -1,0 +1,130 @@
+{% extends "projects/base_project.html" %}
+{% load i18n %}
+{% load privacy_tags %}
+{% load core_tags highlight  %}
+
+{% block title %}
+Tools
+{% endblock title %}
+
+{% block project_editing %}
+  {% with tools_active="active" %}
+    {% include "core/project_bar.html" %}
+  {% endwith %}
+{% endblock %}
+
+
+{% block extra_scripts %}
+    <script type="text/javascript">
+      function reloadSection(project, doc) {
+        var options = $("#id_section");
+        options.empty()
+        options.append($("<option />").val('Loading..').text('Loading..'));
+              $.ajax({
+                type: 'GET',
+                url: 'http://localhost:5555/api/v1/content/',
+                //url: 'https://api.grokthedocs.com/api/v1/content/',
+                crossDomain: true,
+                data: {
+                  project: project,
+                  doc: doc,
+                },
+                success: function(data, textStatus, request) {
+                  options.empty()
+                  options.append($("<option />").val('').text('Select a Section'));
+                  $.each(data['headers'], function() {
+                      options.append($("<option />").val(this).text(this));
+                  });
+                },
+              });
+      }
+
+      function clearIframe(text) {
+        $('#results').contents().find('html').html(text)
+      }
+
+        $(document).ready(function() {
+              var project = '{{ project.slug }}';
+
+            $('#id_file').bind('change', function(ev) {
+              var file = $('#id_file').val()
+              reloadSection(project, file)
+              clearIframe()
+
+            })
+
+            $('#id_section').bind('change', function(ev) {
+                var file = $('#id_file').val()
+                var section = $('#id_section').val()
+                clearIframe('Loading...')
+
+                $.ajax({
+                  type: 'GET',
+                  url: 'http://localhost:5555/api/v1/content/',
+                  //url: 'https://api.grokthedocs.com/api/v1/content/',
+                  crossDomain: true,
+                  xhrFields: {
+                    withCredentials: true,
+                  },
+                  data: {
+                    project: project,
+                    doc: file,
+                    section: section
+                  },
+                  success: function(data, textStatus, request) {
+                    console.log("Sent Click data")
+                    if (data['content'][0] == null)
+                      $('#results').contents().find('html').html('<h1>Section Not Found</h1>')
+                    else {
+                      $('#results').contents().find('html').html(data['content'])
+                      $('#results_raw').text(data['content'])
+                    }
+                    var link = $('<a>', {
+                      text: this.url,
+                      href: this.url,
+                    })
+                    $('#id_url').html(link)
+                  },
+                  error: function(request, textStatus, error) {
+                    $('#results').contents().find('html').html('<h1>Section Not Found</h1>')
+                    console.log(error)
+                  }
+                });
+          });
+        });
+
+    </script>
+{% endblock %}
+
+
+{% block content %}
+
+  <h1> Embed API </h1>
+
+  <p class="help_text">
+    {% trans "Embed content into any site on the internet dynamically." %}
+  </p>
+
+    <h3>{% trans "File" %}</h3>
+    <select id="id_file" name="file">
+      <option value="">Select a File</option>
+    {% for file in files %}
+      <option value="{{ file.path|cut:".html" }}">{{ file.path }}</option>
+    {% endfor %}
+    </select>
+  <h2>Section</h2>
+    <select id="id_section">
+    </select>
+
+  <h4>API</h4>
+   <div id="id_url">
+     &nbsp;
+   </div>
+
+  <h2>Results</h2>
+  <h3>Rendered</h3>
+  <iframe id='results' width="100%" height="400px"><html></html></iframe>
+  <h3>Raw</h3>
+  <pre id="results_raw"></pre>
+
+{% endblock %}

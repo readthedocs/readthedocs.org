@@ -58,6 +58,7 @@ project_index = ProjectIndex.as_view()
 
 
 class ProjectDetailView(ProjectOnboardMixin, DetailView):
+
     '''Display project onboard steps'''
 
     model = Project
@@ -377,6 +378,25 @@ def project_versions(request, project_slug):
             'inactive_filter': inactive_filter,
             'active_filter': active_filter,
             'project': project,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+def project_tools(request, project_slug):
+    """
+    Have a content API placeholder
+    """
+    project = get_object_or_404(Project.objects.protected(request.user),
+                                slug=project_slug)
+    version = project.versions.get(slug='latest')
+    files = version.imported_files.order_by('path')
+
+    return render_to_response(
+        'projects/project_tools.html',
+        {
+            'project': project,
+            'files': files,
         },
         context_instance=RequestContext(request)
     )
