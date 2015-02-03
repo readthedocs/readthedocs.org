@@ -92,6 +92,8 @@ class ProjectDetailView(ProjectOnboardMixin, DetailView):
             reverse('projects_detail', args=[project.slug]),
             project.get_default_version(),
         )
+
+
         return context
 
 
@@ -392,11 +394,18 @@ def project_tools(request, project_slug):
     version = project.versions.get(slug='latest')
     files = version.imported_files.order_by('path')
 
+    try:
+        resp = requests.get('https://api.grokthedocs.com/api/v1/index/1/heatmap/', params={'project': project.slug, 'compare': True})
+        analytics = resp.json()
+    except:
+        analytics = None
+
     return render_to_response(
         'projects/project_tools.html',
         {
             'project': project,
             'files': files,
+            'analytics': analytics,
         },
         context_instance=RequestContext(request)
     )
