@@ -22,7 +22,7 @@ Tools
         options.append($("<option />").val('Loading..').text('Loading..'));
               $.ajax({
                 type: 'GET',
-                url: 'http://localhost:5555/api/v1/content/',
+                url: 'http://localhost:5555/api/v1/embed/',
                 //url: 'https://api.grokthedocs.com/api/v1/content/',
                 crossDomain: true,
                 data: {
@@ -60,7 +60,7 @@ Tools
 
                 $.ajax({
                   type: 'GET',
-                  url: 'http://localhost:5555/api/v1/content/',
+                  url: 'http://localhost:5555/api/v1/embed/',
                   //url: 'https://api.grokthedocs.com/api/v1/content/',
                   crossDomain: true,
                   xhrFields: {
@@ -99,32 +99,58 @@ Tools
 
 {% block content %}
 
-  <h1> Embed API </h1>
 
-  <p class="help_text">
-    {% trans "Embed content into any site on the internet dynamically." %}
-  </p>
+{% if analytics %}
 
-    <h3>{% trans "File" %}</h3>
-    <select id="id_file" name="file">
-      <option value="">Select a File</option>
-    {% for file in files %}
-      <option value="{{ file.path|cut:".html" }}">{{ file.path }}</option>
-    {% endfor %}
-    </select>
-  <h2>Section</h2>
-    <select id="id_section">
-    </select>
+  <h1> {% trans "Analytics" %} </h1>
+  <div class="navigable">
 
-  <h4>API</h4>
-   <div id="id_url">
-     &nbsp;
-   </div>
+        <ul>
+        <h3> {% trans "Pages" %} </h3>
+        {% for page, count in analytics.page.items %}
+        <li>{{ page }} - {{ count }}</li>
+        {% endfor %}
 
-  <h2>Results</h2>
-  <h3>Rendered</h3>
-  <iframe id='results' width="100%" height="400px"><html></html></iframe>
-  <h3>Raw</h3>
-  <pre id="results_raw"></pre>
+        <h3> {% trans "Versions" %} </h3>
+        {% for version, count in analytics.version.items %}
+        <li>{{ version }} - {{ count }}</li>
+        {% endfor %}
+        </ul>
+
+
+{% endif %}
+
+  <div class="project-version-list">
+        <h1> Embed API </h1>
+
+        <p class="help_text">
+          {% trans "Embed content into any site on the internet dynamically." %}
+        </p>
+
+          <h3>{% trans "File" %}</h3>
+          <select id="id_file" name="file">
+            <option value="">Select a File</option>
+          {% for file in files %}
+            <option value="{{ file.path|cut:".html" }}">{{ file.path }}</option>
+          {% endfor %}
+          </select>
+        <h2>Section</h2>
+          <select id="id_section">
+          </select>
+
+        <h4>API</h4>
+         <div id="id_url">
+           &nbsp;
+         </div>
+
+        <h2>Results</h2>
+        <h3>Rendered</h3>
+        <iframe id='results' width="100%" height="400px"><html></html></iframe>
+        <h3>Raw</h3>
+        <pre id="results_raw"></pre>
+
+  </div>
+
+  </div>
 
 {% endblock %}
