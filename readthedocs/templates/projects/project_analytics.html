@@ -1,0 +1,84 @@
+{% extends "projects/base_project.html" %}
+{% load i18n %}
+{% load privacy_tags %}
+{% load core_tags highlight  %}
+
+{% block title %}
+Tools
+{% endblock title %}
+
+{% block project_editing %}
+{% with tools_active="active" %}
+{% include "core/project_bar.html" %}
+{% endwith %}
+{% endblock %}
+
+{% block extra_scripts %}
+<link rel="stylesheet" href="http://localhost:5555/static/css/public.css">
+<script type="text/javascript">
+  var READTHEDOCS_EMBED = {
+    'project': 'docs',
+    'version': 'latest',
+    'doc': 'business/analytics',
+    'section': 'viewing'
+  }
+</script>
+<script type="text/javascript" src="http://localhost:5555/static/javascript/bundle-public.js"></script>
+{% endblock %}
+
+{% block content %}
+
+<div class="navigable">
+
+  <ul>
+    <li class="active">
+      <a href="{% url 'project_analytics' project.slug %}">Analytics</a>
+    </li>
+    <li>
+      <a href="{% url 'project_embed' project.slug %}">Embed</a>
+    </li>
+  </ul>
+
+
+  <div>
+    <div id="help_container">
+      <a href="#" class="quiet readthedocs-help-embed">(Help)</a>
+    </div>
+
+    <h1> {% trans "Analytics" %} </h1>
+
+
+    <p class="help_text">
+      {% trans "This shows the last 7 days of data from your project." %}
+    </p>
+
+    <h3> {% trans "Pages" %} </h3>
+    <ul class="chartlist">
+      {% for page, count in page_list %}
+      <li>
+        <a href="{% doc_url project project.default_version page %}">{{ page }}</a> 
+        <span class="count">{{ count }}</span>
+        <span class="index" style="width: {{ analytics.scaled_page|key:page }}%">({{ analytics.scaled_page|key:page }}%)</span>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>  
+
+
+  <div style="float: right;">
+    <h3> {% trans "Versions" %} </h3>
+    <ul class="chartlist">
+      {% for version, count in version_list %}
+      <li>
+        <a href="{% doc_url project version %}">{{ version }}</a> 
+        <span class="count">{{ count }}</span>
+        <span class="index" style="width: {{ analytics.scaled_version|key:version }}%">({{ analytics.scaled_version|key:version }}%)</span>
+      </li>
+      {% endfor %}
+    </ul>
+
+  </div>
+
+</div>
+
+{% endblock %}

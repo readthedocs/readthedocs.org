@@ -95,3 +95,7 @@ def url_replace(request, field, value):
     dict_[field] = value
     return dict_.urlencode()
 
+
+@register.filter
+def key(d, key_name):
+    return d[key_name]

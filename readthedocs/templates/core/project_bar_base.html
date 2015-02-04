@@ -45,7 +45,7 @@
 
         <li class="{{ versions_active }}"><a href="{% url "project_version_list" project.slug %}">{% trans "Versions" %}</a></li>
 
-        <li class="{{ tools_active }}"><a href="{% url "project_tools" project.slug %}">{% trans "Tools" %}</a></li>
+        <li class="{{ tools_active }}"><a href="{% url 'project_embed' project.slug %}">{% trans "Tools" %}</a></li>
 
         {% if request.user|is_admin:project %}
           <li class="{{ edit_active }} project-admin"><a href="{% url "projects_edit" project.slug %}"><i class="gear"></i>{% trans "Admin" %}</a></li>

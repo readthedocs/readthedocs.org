@@ -13,6 +13,19 @@ Versions
   {% endwith %}
 {% endblock %}
 
+{% block extra_scripts %}
+    <link rel="stylesheet" href="http://localhost:5555/static/css/public.css">
+    <script type="text/javascript">
+      var READTHEDOCS_EMBED = {
+        'project': 'docs',
+        'version': 'latest',
+        'doc': 'versions',
+        'section': 'Versions'
+      }
+    </script>
+    <script type="text/javascript" src="http://localhost:5555/static/javascript/bundle-public.js"></script>
+{% endblock %}
+
 {% block content %}
 
   {% comment %}
@@ -28,6 +41,10 @@ Versions
   {% endcomment %}
 
   <div class="project-version-list">
+
+        <div id="help_container">
+          <a href="#" class="quiet readthedocs-help-embed">(Help)</a>
+        </div>
 
     <div class="module project-versions-active">
       <div class="module-wrapper">

@@ -1,3 +1,5 @@
+import collections
+import operator
 import os
 import json
 import logging
@@ -5,6 +7,7 @@ import mimetypes
 import md5
 
 from django.core.urlresolvers import reverse
+from django.core.cache import cache
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.http import HttpResponse, HttpResponseRedirect, Http404
@@ -92,7 +95,6 @@ class ProjectDetailView(ProjectOnboardMixin, DetailView):
             reverse('projects_detail', args=[project.slug]),
             project.get_default_version(),
         )
-
 
         return context
 
@@ -385,7 +387,42 @@ def project_versions(request, project_slug):
     )
 
 
-def project_tools(request, project_slug):
+def project_analytics(request, project_slug):
+    """
+    Have a analytics API placeholder
+    """
+    project = get_object_or_404(Project.objects.protected(request.user),
+                                slug=project_slug)
+    analytics_cache = cache.get('analytics:%s' % project_slug)
+    if analytics_cache:
+        analytics = json.loads(analytics_cache)
+    else:
+        try:
+            resp = requests.get('https://api.grokthedocs.com/api/v1/index/1/heatmap/', params={'project': project.slug, 'days': 7, 'compare': True})
+            analytics = resp.json()
+        except:
+            analytics = None
+
+    if analytics:
+        page_list = reversed(sorted(analytics['page'].items(), key=operator.itemgetter(1)))
+        version_list = reversed(sorted(analytics['version'].items(), key=operator.itemgetter(1)))
+    else:
+        page_list = []
+        version_list = []
+
+    return render_to_response(
+        'projects/project_analytics.html',
+        {
+            'project': project,
+            'analytics': analytics,
+            'page_list': page_list,
+            'version_list': version_list,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+def project_embed(request, project_slug):
     """
     Have a content API placeholder
     """
@@ -394,18 +431,11 @@ def project_tools(request, project_slug):
     version = project.versions.get(slug='latest')
     files = version.imported_files.order_by('path')
 
-    try:
-        resp = requests.get('https://api.grokthedocs.com/api/v1/index/1/heatmap/', params={'project': project.slug, 'compare': True})
-        analytics = resp.json()
-    except:
-        analytics = None
-
     return render_to_response(
-        'projects/project_tools.html',
+        'projects/project_embed.html',
         {
             'project': project,
             'files': files,
-            'analytics': analytics,
         },
         context_instance=RequestContext(request)
     )

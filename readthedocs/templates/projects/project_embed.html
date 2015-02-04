@@ -15,10 +15,26 @@ Tools
 
 
 {% block extra_scripts %}
+    <script type="text/javascript" src="http://localhost:5555/static/javascript/bundle-public.js"></script>
+
     <script type="text/javascript">
+
+      function clearAll() {
+        $('#results').contents().find('html').html('')
+        $('#id_section').empty()
+        $('#results_raw').empty()
+      }
+
+      function showHelp() {
+        ReadTheDocs.embed.into('docs', 'versions', 'How we envision versions working', function (data) {
+          $("#id_help").html(data['content'])
+          $('#id_help').toggle()
+        })
+      }
+
       function reloadSection(project, doc) {
+        clearAll()
         var options = $("#id_section");
-        options.empty()
         options.append($("<option />").val('Loading..').text('Loading..'));
               $.ajax({
                 type: 'GET',
@@ -32,9 +48,16 @@ Tools
                 success: function(data, textStatus, request) {
                   options.empty()
                   options.append($("<option />").val('').text('Select a Section'));
-                  $.each(data['headers'], function() {
-                      options.append($("<option />").val(this).text(this));
-                  });
+                  $.each(data['headers'], function(index) {
+
+                    $.each(data['headers'][index], function (key, val) {
+                      if (val != '#') {
+                        options.append($("<option />").val(key).text(key));
+                      }
+                    })
+
+                  })
+
                 },
               });
       }
@@ -100,28 +123,27 @@ Tools
 {% block content %}
 
 
-{% if analytics %}
 
-  <h1> {% trans "Analytics" %} </h1>
   <div class="navigable">
 
         <ul>
-        <h3> {% trans "Pages" %} </h3>
-        {% for page, count in analytics.page.items %}
-        <li>{{ page }} - {{ count }}</li>
-        {% endfor %}
-
-        <h3> {% trans "Versions" %} </h3>
-        {% for version, count in analytics.version.items %}
-        <li>{{ version }} - {{ count }}</li>
-        {% endfor %}
+        <li>
+          <a href="{% url 'project_analytics' project.slug %}">Analytics</a>
+        </li>
+        <li class="active">
+          <a href="{% url 'project_embed' project.slug %}">Embed</a>
+        </li>
         </ul>
 
 
-{% endif %}
-
   <div class="project-version-list">
+        <div id="help_container">
+          <a class="quiet" href="javascript:showHelp()">(Help)</a>
+          <div id="id_help" class="help" style="display: none;"></div>
+        </div>
+
         <h1> Embed API </h1>
+
 
         <p class="help_text">
           {% trans "Embed content into any site on the internet dynamically." %}
