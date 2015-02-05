@@ -48,6 +48,7 @@
         <li class="{% block profile-admin-social-accounts %}{% endblock %}"><a href="{% url 'socialaccount_connections' %}">{% trans "Social Accounts" %}</a></li>
         <li class="{% block profile-admin-change-password %}{% endblock %}"><a href="{% url 'account_change_password' %}">{% trans "Change Password" %}</a></li>
         <li class="{% block profile-admin-change-email %}{% endblock %}"><a href="{% url 'account_email' %}">{% trans "Change Email" %}</a></li>
+        <li class="{% block profile-admin-gold-edit %}{% endblock %}"><a href="{% url 'gold_register' %}">{% trans "Gold" %}</a></li>
       </ul>
       <div>
         <h2>{% block edit_content_header %}{% endblock %}</h2>

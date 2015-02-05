@@ -1,0 +1,14 @@
+            {% if form.is_bound and not form.is_valid %}
+            <div class="alert-message block-message error">
+              <div class="errors">
+              {% for field in form.visible_fields %}
+                {% for error in field.errors %}
+                <p>{{ field.label }}: {{ error }}</p>
+                {% endfor %}
+              {% endfor %}
+              {% for error in form.non_field_errors %}
+                <p>{{ error }}</p>
+              {% endfor %}
+              </div>
+            </div>
+            {% endif %}

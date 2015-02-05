@@ -195,6 +195,7 @@ INSTALLED_APPS = [
     'rtd_tests',
     'restapi',
     'privacy',
+    'gold',
 
     # allauth
     'allauth',
