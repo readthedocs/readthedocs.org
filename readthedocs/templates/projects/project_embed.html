@@ -100,6 +100,8 @@ Tools
                       $('#results').contents().find('html').html('<h1>Section Not Found</h1>')
                     else {
                       $('#results').contents().find('html').html(data['content'])
+                      $('#results').contents().find('html').prepend('<link rel="stylesheet" href="http://localhost:5555/static/css/public.css">')
+                      $('#results').contents().find('html').prepend('<link rel="stylesheet" href="http://mkdocs.readthedocs.org/en/latest/css/theme.css">')
                       $('#results_raw').text(data['content'])
                     }
                     var link = $('<a>', {

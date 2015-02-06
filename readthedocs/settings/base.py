@@ -34,6 +34,8 @@ MEDIA_ROOT = '%s/media/' % (SITE_ROOT)
 MEDIA_URL = '/media/'
 ADMIN_MEDIA_PREFIX = '/media/admin/'
 
+GROK_API_HOST = 'https://api.grokthedocs.com'
+
 # For 1.4
 STATIC_ROOT = os.path.join(SITE_ROOT, 'media/static/')
 STATIC_URL = '/static/'

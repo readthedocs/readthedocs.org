@@ -398,17 +398,26 @@ def project_analytics(request, project_slug):
         analytics = json.loads(analytics_cache)
     else:
         try:
-            resp = requests.get('https://api.grokthedocs.com/api/v1/index/1/heatmap/', params={'project': project.slug, 'days': 7, 'compare': True})
+            resp = requests.get(
+                '{host}/api/v1/index/1/heatmap/'.format(host=settings.GROK_API_HOST),
+                params={'project': project.slug, 'days': 7, 'compare': True}
+            )
             analytics = resp.json()
+            cache.set('analytics:%s' % project_slug, resp.content, 1800)
         except:
             analytics = None
 
     if analytics:
-        page_list = reversed(sorted(analytics['page'].items(), key=operator.itemgetter(1)))
-        version_list = reversed(sorted(analytics['version'].items(), key=operator.itemgetter(1)))
+        page_list = list(reversed(sorted(analytics['page'].items(), key=operator.itemgetter(1))))
+        version_list = list(reversed(sorted(analytics['version'].items(), key=operator.itemgetter(1))))
     else:
         page_list = []
         version_list = []
+
+    full = request.GET.get('full')
+    if not full:
+        page_list = page_list[:20]
+        version_list = version_list[:20]
 
     return render_to_response(
         'projects/project_analytics.html',
@@ -417,6 +426,7 @@ def project_analytics(request, project_slug):
             'analytics': analytics,
             'page_list': page_list,
             'version_list': version_list,
+            'full': full,
         },
         context_instance=RequestContext(request)
     )
