@@ -3,7 +3,7 @@
 {% block profile-admin-gold-edit %}active{% endblock %}
 
 {% block title %}
-Edit Gold
+One-time Payment
 {% endblock %}
 
 {% block extra_scripts %}
@@ -67,11 +67,11 @@ $(function() {
         </div>
       </div>
       <div class="page-header">
-        <h1>Change credit card</h1>
+        <h1>Give money to Read the Docs once</h1>
       </div>
       <div class="row">
         <div class="span6 columns">
-          <form id="user_form" accept-charset="UTF-8" action="{% url "gold_edit" %}" class="form-stacked"  method="post">
+          <form id="user_form" accept-charset="UTF-8" action="{% url "gold_once" %}" class="form-stacked"  method="post">
             {% csrf_token %}
                         {% include "gold/errors.html" %}
             {% for field in form.visible_fields %}

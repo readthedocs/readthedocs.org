@@ -25,3 +25,14 @@ class CardForm(forms.Form):
 
     def addError(self, message):
         self._errors[NON_FIELD_ERRORS] = self.error_class([message])
+
+
+class OnceCardForm(CardForm):
+    dollars = forms.IntegerField(
+        required=True,
+    )
+    # Hide level
+    level = forms.CharField(
+        required=False,
+        widget=forms.HiddenInput()
+    )

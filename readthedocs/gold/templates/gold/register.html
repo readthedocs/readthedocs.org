@@ -2,85 +2,100 @@
 
 {% block profile-admin-gold-edit %}active{% endblock %}
 
+{% block title %}
+Gold Status
+{% endblock %}
+
 {% block extra_scripts %}
-    <script src="https://js.stripe.com/v1/" type="text/javascript"></script>
-    <script type="text/javascript">
+<script src="https://js.stripe.com/v1/" type="text/javascript"></script>
+<script type="text/javascript">
         //<![CDATA[
         Stripe.publishableKey = '{{ publishable }}';
         //]]>
-    </script>
-   
-    <script type="text/javascript">
-$(function() {
+      </script>
 
-  $("#user_form").submit(function() {
-    if ( $("#credit-card").is(":visible")) {
-      var form = this;
-      var card = {
-        number:   $("#credit_card_number").val(),
-        expMonth: $("#expiry_month").val(),
-        expYear:  $("#expiry_year").val(),
-        cvc:      $("#cvv").val()
-      };
+      <script type="text/javascript">
+        $(function() {
 
-      Stripe.createToken(card, function(status, response) {
-        if (status === 200) {
-          console.log(status, response);
-          $("#credit-card-errors").hide();
-          $("#last_4_digits").val(response.card.last4);
-          $("#stripe_token").val(response.id);
-          form.submit();
-        } else {
-          $("#stripe-error-message").text(response.error.message);
-          $("#credit-card-errors").show();
-          $("#user_submit").attr("disabled", false);
-        }
-      });
-      
-      return false;
-      
-    } 
-    
-    return true
-    
-  });
+          $("#user_form").submit(function() {
+            if ( $("#credit-card").is(":visible")) {
+              var form = this;
+              var card = {
+                number:   $("#credit_card_number").val(),
+                expMonth: $("#expiry_month").val(),
+                expYear:  $("#expiry_year").val(),
+                cvc:      $("#cvv").val()
+              };
 
-  $("#change-card a").click(function() {
-    $("#change-card").hide();
-    $("#credit-card").show();
-    $("#credit_card_number").focus();
-    return false;
-  });
+              Stripe.createToken(card, function(status, response) {
+                if (status === 200) {
+                  console.log(status, response);
+                  $("#credit-card-errors").hide();
+                  $("#last_4_digits").val(response.card.last4);
+                  $("#stripe_token").val(response.id);
+                  form.submit();
+                } else {
+                  $("#stripe-error-message").text(response.error.message);
+                  $("#credit-card-errors").show();
+                  $("#user_submit").attr("disabled", false);
+                }
+              });
+
+              return false;
+
+            } 
+
+            return true
+
+          });
+
+$("#change-card a").click(function() {
+  $("#change-card").hide();
+  $("#credit-card").show();
+  $("#credit_card_number").focus();
+  return false;
+});
 
 });
-    </script>
+</script>
 {% endblock %}
 
 {% block edit_content %}
-      <div class="page-header">
-        <h1>Gold Status</h1>
-      </div>
-      {% if gold_user.subscribed %}
-      <p>
-              Level: {{ gold_user.get_level_display }}
-              </p>
-              <p>
-                Card: Ends with {{ gold_user.last_4_digits }}
-                (<a href="{% url "gold_edit" %}">change</a>)
-              </p>
-      {% else %}
-      <div class="row">
-        <div class="span6 columns">
-          <form id="user_form" accept-charset="UTF-8" action="{% url "gold_register" %}" class="form-stacked"  method="post">
-            {% csrf_token %}
-            {% include "gold/errors.html" %}
-            {% for field in form.visible_fields %}
-              {% include "gold/field.html" %}
-            {% endfor %}
-            
-            {% include "gold/cardform.html" %}
-          </form>
-        </div>
-      </div>  
-      {% endif %}
+<div class="page-header">
+  <h1>Gold Status</h1>
+</div>
+{% if gold_user.subscribed %}
+<p>
+Thanks for supporting Read the Docs! It really means a lot to us.
+</p>
+<p>
+  Level: {{ gold_user.get_level_display }}
+</p>
+<p>
+  Card: Ends with {{ gold_user.last_4_digits }}
+</p>
+<h3>Changes</h3>
+<p>
+  <a href="{% url "gold_cancel" %}">Cancel</a> or <a href="{% url "gold_edit" %}">Change</a> your subscription.
+</p>
+{% else %}
+<p>
+Supporting Read the Docs lets us work more on features that people love.
+Your money will go directly to maintenance and development of the product.
+</p>
+<h3> Become a Gold member</h3>
+<div class="row">
+  <div class="span6 columns">
+    <form id="user_form" accept-charset="UTF-8" action="{% url "gold_register" %}" class="form-stacked"  method="post">
+      {% csrf_token %}
+      {% include "gold/errors.html" %}
+      {% for field in form.visible_fields %}
+      {% include "gold/field.html" %}
+      {% endfor %}
+
+      {% include "gold/cardform.html" %}
+    </form>
+  </div>
+</div>  
+{% endif %}
 {% endblock %}
