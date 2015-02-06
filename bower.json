@@ -1,0 +1,21 @@
+{
+  "name": "readthedocs",
+  "version": "0.0.0",
+  "authors": [
+    "Anthony Johnson <anthony@readthedocs.com>"
+  ],
+  "description": "Read the Docs - Frontend",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "*",
+    "underscore": "~1.7.0",
+    "waypoints": "~3.1.1"
+  }
+}

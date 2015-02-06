@@ -1,3 +1,5 @@
+var ads = require('./ads');
+
 $(document).ready(function () {
 
     get_data = {
@@ -443,4 +445,6 @@ $(document).ready(function () {
       });
     }
 
+    var ad_test = new ads.Ad('Like reading the docs? Come join fellow developers and technical writers at Write the Docs NA 2015', 'http://writethedocs.org', function () { alert('asldgkh'); return False });
+    ad_test.display_ad();
 });

@@ -8,6 +8,7 @@
 .vagrant
 _build
 cnames
+bower_components/
 deploy/.vagrant
 doc_root
 local_settings.py
@@ -24,6 +25,7 @@ media/static
 node_modules
 readthedocs/rtd_tests/builds
 readthedocs/rtd_tests/tests/builds
+readthedocs/*/static/
 user_builds
 user_uploads
 prod_artifacts
