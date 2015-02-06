@@ -69,7 +69,22 @@ def docurl(request):
 @decorators.renderer_classes((JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
 def embed(request):
     """
-    Embed a section of content into another.
+    Embed a section of content from any Read the Docs page.
+
+    Returns headers and content that matches the queried section.
+
+    ### Arguments
+
+        * project (requied)
+        * doc (required)
+        * version (default latest)
+        * section
+
+    ### Example
+
+        GET https://readthedocs.org/api/v2/embed/?project=requests&doc=index&section=User%20Guide
+
+    # Current Request
     """
     project = request.GET.get('project')
     version = request.GET.get('version', 'latest')
