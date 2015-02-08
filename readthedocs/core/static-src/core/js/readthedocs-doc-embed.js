@@ -1,6 +1,9 @@
-var ads = require('./ads');
+var sponsorship = require('./sponsorship'),
+    doc = require('./doc');
 
 $(document).ready(function () {
+
+    var build = new doc.Build(READTHEDOCS_DATA);
 
     get_data = {
         project: READTHEDOCS_DATA['project'],
@@ -10,10 +13,9 @@ $(document).ready(function () {
         format: "jsonp",
     };
 
+
     // Crappy heuristic, but people change the theme name on us.
     // So we have to do some duck typing.
-    var USING_RTD_THEME = (READTHEDOCS_DATA['theme'] == 'sphinx_rtd_theme') || $('div.rst-other-versions').length == 1;
-
     if ("docroot" in READTHEDOCS_DATA) {
       get_data['docroot'] = READTHEDOCS_DATA['docroot'];
     }
@@ -43,7 +45,7 @@ $(document).ready(function () {
       success: function (data) {
             // If the theme looks like ours, update the existing badge
             // otherwise throw a a full one into the page.
-            if (USING_RTD_THEME) {
+            if (build.is_rtd_theme()) {
               $("div.rst-other-versions").html(data['html']);
             } else {
               $("body").append(data['html']);
@@ -146,6 +148,7 @@ $(document).ready(function () {
       }
     });
 
+
     /// Read the Docs Sphinx theme code
     if (!("builder" in READTHEDOCS_DATA) || "builder" in READTHEDOCS_DATA && READTHEDOCS_DATA["builder"] != "mkdocs") {
       // Shift nav in mobile when clicking the menu.
@@ -164,6 +167,15 @@ $(document).ready(function () {
       // Make tables responsive
       $("table.docutils:not(.field-list)").wrap("<div class='wy-table-responsive'></div>");
 
+      // Promos
+      // TODO don't hardcode this
+      if (build.is_rtd_theme()) {
+          var promo = new sponsorship.Promo(
+              'Enjoy reading the docs? Join developers and tech writers at Write the Docs NA 2015',
+              'http://writethedocs.org/conf/na/2015/'
+          );
+      }
+
       window.SphinxRtdTheme = (function (jquery) {
           var stickyNav = (function () {
               var navBar,
@@ -172,8 +184,14 @@ $(document).ready(function () {
                   applyStickNav = function () {
                       if (navBar.height() <= win.height()) {
                           navBar.addClass(stickyNavCssClass);
+                          if (promo) {
+                              promo.display(false);
+                          }
                       } else {
                           navBar.removeClass(stickyNavCssClass);
+                          if (promo) {
+                              promo.display(true);
+                          }
                       }
                   },
                   enable = function () {
@@ -197,8 +215,7 @@ $(document).ready(function () {
     }
 
 
-    /// Add Grok the Docs Client
-
+    // Add Grok the Docs Client
     $.ajax({
         url: "https://api.grokthedocs.com/static/javascript/bundle-client.js",
         crossDomain: true,
@@ -263,7 +280,7 @@ $(document).ready(function () {
     /// Search
     /// Here be dragons, this is beta quality code. Beware.
 
-    if (USING_RTD_THEME) {
+    if (build.is_rtd_theme()) {
       searchLanding();
     }
 
@@ -417,7 +434,6 @@ $(document).ready(function () {
               }
           }
           if (hide) {
-            //console.log("Hiding " + el)
             $(el).hide();
           }
 
@@ -438,13 +454,9 @@ $(document).ready(function () {
       $.each($(".toctree-l1 > a"), function (index, el) {
         var el = $(el);
         if (empty) {
-          //console.log('Clearing ' + el.next())
           el.parent().removeClass('current');
           el.next().empty();
         }
       });
     }
-
-    var ad_test = new ads.Ad('Like reading the docs? Come join fellow developers and technical writers at Write the Docs NA 2015', 'http://writethedocs.org', function () { alert('asldgkh'); return False });
-    ad_test.display_ad();
 });
