@@ -24,7 +24,7 @@ the redirects and interfaces that we wish to expose permanently.
 .. _mailing list: https://groups.google.com/forum/#!forum/read-the-docs
 
 
-Commerical Support
+Commercial Support
 ------------------
 
 We offer commerical support for Read the Docs,
