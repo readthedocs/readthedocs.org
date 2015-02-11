@@ -800,6 +800,20 @@ def update_static_metadata(project_pk):
         ))
 
 
+#@periodic_task(run_every=crontab(hour="*", minute="*/5", day_of_week="*"))
+def update_docs_pull(record=False, pdf=False, man=False, force=False):
+    """
+    A high-level interface that will update all of the projects.
+
+    This is mainly used from a cronjob or management command.
+    """
+    for version in Version.objects.filter(built=True):
+        try:
+            update_docs(
+                pk=version.project.pk, version_pk=version.pk, record=record, pdf=pdf, man=man)
+        except Exception, e:
+            log.error("update_docs_pull failed", exc_info=True)
+
 ##############
 # Random Tasks
 ##############
