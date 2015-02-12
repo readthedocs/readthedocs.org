@@ -9,6 +9,7 @@
 _build
 cnames
 deploy/.vagrant
+dist/*
 doc_root
 local_settings.py
 locks/*
