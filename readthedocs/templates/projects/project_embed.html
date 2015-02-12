@@ -64,6 +64,7 @@ Tools
 
       function clearIframe(text) {
         $('#results').contents().find('html').html(text)
+        $('#id_url').html('')
       }
 
         $(document).ready(function() {
@@ -73,7 +74,6 @@ Tools
               var file = $('#id_file').val()
               reloadSection(project, file)
               clearIframe()
-
             })
 
             $('#id_section').bind('change', function(ev) {
@@ -129,11 +129,11 @@ Tools
   <div class="navigable">
 
         <ul>
-        <li>
-          <a href="{% url 'project_analytics' project.slug %}">Analytics</a>
-        </li>
         <li class="active">
           <a href="{% url 'project_embed' project.slug %}">Embed</a>
+        </li>
+        <li>
+          <a href="{% url 'project_analytics' project.slug %}">Analytics</a>
         </li>
         </ul>
 
