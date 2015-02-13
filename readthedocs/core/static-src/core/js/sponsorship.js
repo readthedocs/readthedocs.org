@@ -34,7 +34,7 @@ Promo.prototype.create = function () {
         var promo_about = $('<div />')
             .attr('class', 'rst-pro-about');
         var promo_about_link = $('<a />')
-            .attr('href', 'http://docs.readthedocs.org/')
+            .attr('href', 'http://docs.readthedocs.org/en/latest/sponsors.html#sponsorship-information')
             .appendTo(promo_about);
         var promo_about_icon = $('<i />')
             .attr('class', 'fa fa-info-circle')

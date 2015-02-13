@@ -1,5 +1,6 @@
 var sponsorship = require('./sponsorship'),
-    doc = require('./doc');
+    doc = require('./doc'),
+    util = require('./util');
 
 $(document).ready(function () {
 
@@ -168,10 +169,13 @@ $(document).ready(function () {
       $("table.docutils:not(.field-list)").wrap("<div class='wy-table-responsive'></div>");
 
       // Promos
-      // TODO don't hardcode this
-      if (build.is_rtd_theme()) {
+      // TODO don't hardcode this promo and remove the util function to hide the
+      // ad
+      var show_promo = util.get_param('promo'),
+          promo = null;
+      if (build.is_rtd_theme() && show_promo) {
           var promo = new sponsorship.Promo(
-              'Enjoy reading the docs? Join developers and tech writers at Write the Docs NA 2015',
+              'Enjoy reading the docs? Join developers and tech writers at Write the Docs NA 2015!',
               'http://writethedocs.org/conf/na/2015/'
           );
       }
