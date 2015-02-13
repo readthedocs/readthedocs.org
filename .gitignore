@@ -8,6 +8,7 @@
 .vagrant
 _build
 cnames
+bower_components/
 deploy/.vagrant
 dist/*
 doc_root
