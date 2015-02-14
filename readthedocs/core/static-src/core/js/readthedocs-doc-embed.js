@@ -188,14 +188,13 @@ $(document).ready(function () {
                   applyStickNav = function () {
                       if (navBar.height() <= win.height()) {
                           navBar.addClass(stickyNavCssClass);
-                          if (promo) {
-                              promo.display(false);
-                          }
                       } else {
                           navBar.removeClass(stickyNavCssClass);
-                          if (promo) {
-                              promo.display(true);
-                          }
+                      }
+
+                      if (promo) {
+                          promo.display();
+                          promo.waypoint.trigger('up');
                       }
                   },
                   enable = function () {
