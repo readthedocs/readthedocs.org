@@ -226,7 +226,7 @@ $(document).ready(function () {
 
                       if (promo) {
                           promo.display();
-                          promo.waypoint.trigger('up');
+                          promo.waypoint.trigger(['up']);
                       }
                   },
                   enable = function () {
