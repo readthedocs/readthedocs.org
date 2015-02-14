@@ -33,22 +33,14 @@
 
 /* Read the Docs promotional block, only applicable to RTD.org */
 div.wy-menu.rst-pro {
-    padding: .5em;
-    margin: 1em 0em 3em 0em;
-    background: rgba(255, 255, 255, .06);
-}
-
-div.rst-pro.rst-pro-fixed {
+    display: none;
     position: fixed;
-    margin-bottom: 1em;
     bottom: 60px;
     width: 300px;
-}
+    padding: .5em;
+    margin: 1em 0em 1em 0em;
 
-div.rst-pro.rst-pro-static {
-    position: static;
-    width: auto;
-    margin-bottom: 3em;
+    background: rgba(255, 255, 255, .06);
 }
 
 @media (max-width: 768px) {

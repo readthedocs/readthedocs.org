@@ -220,14 +220,13 @@ $(document).ready(function () {
                   applyStickNav = function () {
                       if (navBar.height() <= win.height()) {
                           navBar.addClass(stickyNavCssClass);
-                          if (promo) {
-                              promo.display(false);
-                          }
                       } else {
                           navBar.removeClass(stickyNavCssClass);
-                          if (promo) {
-                              promo.display(true);
-                          }
+                      }
+
+                      if (promo) {
+                          promo.display();
+                          promo.waypoint.trigger('up');
                       }
                   },
                   enable = function () {
@@ -543,25 +542,16 @@ Promo.prototype.create = function () {
 
         promo.appendTo(nav_side);
 
+        promo.wrapper = $('<div />')
+            .attr('class', 'rst-pro-wrapper')
+            .appendTo(nav_side);
+
         return promo;
     }
 }
 
-// Position class management
-Promo.prototype.display_fixed = function () {
-    this.promo
-        .removeClass('rst-pro-static')
-        .addClass('rst-pro-fixed');
-}
-
-Promo.prototype.display_static = function () {
-    this.promo
-        .removeClass('rst-pro-fixed')
-        .addClass('rst-pro-static');
-}
-
 // Position promo
-Promo.prototype.display = function (sliding) {
+Promo.prototype.display = function () {
     var promo = this.promo,
         self = this;
 
@@ -569,30 +559,21 @@ Promo.prototype.display = function (sliding) {
         promo = this.promo = this.create();
     }
 
-    if (sliding) {
-        Waypoint.destroyAll();
-        this.waypoint = new Waypoint({
-            element: promo.get(0),
-            offset: function () {
-                return $(window).height() - promo.height() - 80;
-            },
-            handler: function (direction) {
-                if (direction == 'down') {
-                    self.display_fixed();
-                }
-                else if (direction == 'up') {
-                    self.display_static();
-                }
+    Waypoint.destroyAll();
+    this.waypoint = new Waypoint({
+        element: promo.wrapper.get(0),
+        offset: function () {
+            return $(window).height() - promo.height() - 80;
+        },
+        handler: function (direction) {
+            if (direction == 'down') {
+                self.promo.fadeIn(50);
             }
-        });
-    }
-    else {
-        if (this.waypoint) {
-            this.waypoint.remove();
-            this.waypoint = null;
+            else if (direction == 'up') {
+                self.promo.fadeOut(50);
+            }
         }
-        this.display_fixed();
-    }
+    });
 }
 
 },{"./../../../../../bower_components/waypoints/lib/noframework.waypoints.min.js":1}],5:[function(require,module,exports){
