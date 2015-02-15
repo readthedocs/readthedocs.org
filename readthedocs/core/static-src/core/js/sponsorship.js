@@ -16,7 +16,8 @@ function Promo (text, link) {
 }
 
 Promo.prototype.create = function () {
-    var nav_side = $('nav.wy-nav-side');
+    var self = this,
+        nav_side = $('nav.wy-nav-side');
 
     if (nav_side.length) {
         // Add elements
@@ -27,6 +28,18 @@ Promo.prototype.create = function () {
         var promo_link = $('<a />')
             .attr('class', 'rst-pro-link')
             .attr('href', this.link)
+            .attr('target', '_blank')
+            .on('click', function (ev) {
+                if (_gaq) {
+                    _gaq.push([
+                        '_trackEvent',
+                        'Promo',
+                        'Click',
+                        'wtdna2015',
+                        self.variant
+                    ]);
+                }
+            })
             .html(this.text)
             .appendTo(promo);
 
@@ -76,3 +89,40 @@ Promo.prototype.display = function () {
         }
     });
 }
+
+// Experiment factory method
+Promo.from_experiment = function (experiment_id, variants, link, callback) {
+    // Support for arguments as obj
+    if (arguments.length == 1) {
+        var opts = arguments[0];
+        experiment_id = opts.experiment_id || null;
+        variants = opts.variants || [];
+        link = opts.link || '';
+        callback = opts.callback || opts.cb || function () {};
+    }
+
+    // Scope promo so later creation will still be available without callbacks
+    var promo;
+
+    $.ajax({
+        url: '//www.google-analytics.com/cx/api.js?experiment=' + experiment_id,
+        dataType: "script",
+        success: function () {
+            // Hack domain in
+            window.cxApi.setDomainName('docs.readthedocs.org');
+
+            // Don't show on 0
+            var chosen = cxApi.chooseVariation();
+            console.log(chosen);
+            console.log(variants.length);
+            if (chosen > 0 && chosen <= variants.length) {
+                var text = variants[--chosen];
+                promo = new Promo(text, link);
+                promo.variant = chosen;
+                callback(promo);
+            }
+        }
+    });
+
+    return promo;
+};
