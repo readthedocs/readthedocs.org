@@ -113,8 +113,6 @@ Promo.from_experiment = function (experiment_id, variants, link, callback) {
 
             // Don't show on 0
             var chosen = cxApi.chooseVariation();
-            console.log(chosen);
-            console.log(variants.length);
             if (chosen > 0 && chosen <= variants.length) {
                 var text = variants[--chosen];
                 promo = new Promo(text, link);
