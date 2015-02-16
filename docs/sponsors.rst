@@ -9,10 +9,8 @@ supporting us.
 Current sponsors
 ----------------
 
-* `Rackspace`_ - They cover all of our hosting expenses every month. 
-                This is a pretty large sum of money,
-                and we are really grateful to have them as a sponsor.
-* You? (Gittip)
+* `Rackspace`_ - They cover all of our hosting expenses every month.  This is a pretty large sum of money, and we are really grateful to have them as a sponsor.
+* You? (Email us at hello@readthedocs.com for more info)
 
 If you appreciate the service,
 please consider helping support development on `Gittip`_.
