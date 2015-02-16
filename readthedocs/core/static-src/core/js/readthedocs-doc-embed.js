@@ -172,19 +172,17 @@ $(document).ready(function () {
       // ad
       var promo = null;
       if (build.is_rtd_theme()) {
-          var promo = sponsorship.Promo.from_experiment({
-              experiment_id: 'Q8yssnbeR3O8qRwS2-9cSA',
-              variants: [
-                  'Enjoy reading the docs? Join fellow developers and tech writers at Write the Docs!',
-                  'Love docs as much as we do? Come join the community at the Write The Docs conference',
-                  'Tickets are now on sale for Write the Docs, a community conference about documentation!',
-                  'Come join us at Write the Docs, a community conference about documentation.'
-              ],
-              link: 'http://writethedocs.org/conf/na/2015/',
-              callback: function (p) {
-                  p.display();
+          var promo = sponsorship.Promo.from_variants([
+              {
+                  id: 'wtdna2015-v1',
+                  text: 'Come join us at Write the Docs, a community conference about documentation.',
+                  link: 'http://writethedocs.org/conf/na/2015/'
               }
-          });
+              //'Enjoy reading the docs? Join fellow developers and tech writers at Write the Docs!',
+              //'Love docs as much as we do? Come join the community at the Write The Docs conference',
+              //'Tickets are now on sale for Write the Docs, a community conference about documentation!',
+          ]);
+          promo.display();
       }
 
       window.SphinxRtdTheme = (function (jquery) {
@@ -199,7 +197,7 @@ $(document).ready(function () {
                           navBar.removeClass(stickyNavCssClass);
                       }
 
-                      if (promo) {
+                      if (promo && typeof(promo.waypoint.refresh) != 'undefined') {
                           promo.waypoint.refresh();
                       }
                   },
