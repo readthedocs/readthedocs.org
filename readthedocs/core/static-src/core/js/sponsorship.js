@@ -31,13 +31,10 @@ Promo.prototype.create = function () {
             .attr('target', '_blank')
             .on('click', function (ev) {
                 if (_gaq) {
-                    _gaq.push([
-                        '_trackEvent',
-                        'Promo',
-                        'Click',
-                        'wtdna2015',
-                        self.variant
-                    ]);
+                    _gaq.push(
+                        ['rtfd._setAccount', 'UA-17997319-1'],
+                        ['rtfd._trackEvent', 'Promo', 'Click', self.variant]
+                    );
                 }
             })
             .html(this.text)
@@ -90,39 +87,14 @@ Promo.prototype.display = function () {
     });
 }
 
-// Experiment factory method
-Promo.from_experiment = function (experiment_id, variants, link, callback) {
-    // Support for arguments as obj
-    if (arguments.length == 1) {
-        var opts = arguments[0];
-        experiment_id = opts.experiment_id || null;
-        variants = opts.variants || [];
-        link = opts.link || '';
-        callback = opts.callback || opts.cb || function () {};
-    }
-
-    // Scope promo so later creation will still be available without callbacks
-    var promo;
-
-    $.ajax({
-        url: '//www.google-analytics.com/cx/api.js?experiment=' + experiment_id,
-        dataType: "script",
-        success: function () {
-            // Hack domain in
-            window.cxApi.setDomainName('docs.readthedocs.org');
-
-            // Don't show on 0
-            var chosen = cxApi.chooseVariation();
-            console.log(chosen);
-            console.log(variants.length);
-            if (chosen > 0 && chosen <= variants.length) {
-                var text = variants[--chosen];
-                promo = new Promo(text, link);
-                promo.variant = chosen;
-                callback(promo);
-            }
-        }
-    });
-
+// Variant factory method
+Promo.from_variants = function (variants) {
+    var chosen = Math.floor(Math.random() * variants.length),
+        variant = variants[chosen],
+        text = variant.text,
+        link = variant.link,
+        id = variant.id,
+        promo = new Promo(text, link);
+    promo.variant = id
     return promo;
 };

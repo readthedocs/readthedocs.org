@@ -1,6 +1,5 @@
 var sponsorship = require('./sponsorship'),
-    doc = require('./doc'),
-    util = require('./util');
+    doc = require('./doc');
 
 $(document).ready(function () {
 
@@ -171,22 +170,19 @@ $(document).ready(function () {
       // Promos
       // TODO don't hardcode this promo and remove the util function to hide the
       // ad
-      var show_promo = util.get_param('promo'),
-          promo = null;
-      if (build.is_rtd_theme() && show_promo) {
-          var promo = sponsorship.Promo.from_experiment({
-              experiment_id: '1PV0r2DbQrespD6x6Paxzw',
-              variants: [
-                  'Enjoy reading the docs? Join developers and tech writers at Write the Docs NA 2015!',
-                  '<3 documentation? Join fellow developers and tech writers at Write the Docs NA 2015!',
-                  'Tickets for Write the Docs NA 2015 are now on sale!',
-                  'Write the Docs NA 2015 CFP is open and tickets are on sale'
-              ],
-              link: 'http://writethedocs.org/conf/na/2015/',
-              callback: function (p) {
-                  p.display();
+      var promo = null;
+      if (build.is_rtd_theme()) {
+          var promo = sponsorship.Promo.from_variants([
+              {
+                  id: 'wtdna2015-v1',
+                  text: 'Come join us at Write the Docs, a community conference about documentation.',
+                  link: 'http://writethedocs.org/conf/na/2015/'
               }
-          });
+              //'Enjoy reading the docs? Join fellow developers and tech writers at Write the Docs!',
+              //'Love docs as much as we do? Come join the community at the Write The Docs conference',
+              //'Tickets are now on sale for Write the Docs, a community conference about documentation!',
+          ]);
+          promo.display();
       }
 
       window.SphinxRtdTheme = (function (jquery) {
@@ -201,7 +197,7 @@ $(document).ready(function () {
                           navBar.removeClass(stickyNavCssClass);
                       }
 
-                      if (promo) {
+                      if (promo && typeof(promo.waypoint.refresh) != 'undefined') {
                           promo.waypoint.refresh();
                       }
                   },
