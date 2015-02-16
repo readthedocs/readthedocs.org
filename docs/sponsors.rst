@@ -9,11 +9,15 @@ supporting us.
 Current sponsors
 ----------------
 
-* `Rackspace`_
+* `Rackspace`_ - They cover all of our hosting expenses every month. 
+                This is a pretty large sum of money,
+                and we are really grateful to have them as a sponsor.
 * You? (Gittip)
 
 If you appreciate the service,
 please consider helping support development on `Gittip`_.
+It  helps provide support for development,
+as well as ongoing monetary stability in case of sponsorship changes.
 
 Past sponsors
 -------------
@@ -36,14 +40,15 @@ Past sponsors
 Sponsorship Information
 -----------------------
 
-Contact us at hello@readthedocs.com for more information on sponsoring Read the Docs.
-We'll be publishing more information on our sponsorship plans here soon,
-but we're happy to accommodate anyone that shares our vision of open information for everyone.
-
-Promotions
-~~~~~~~~~~
-
 We are currently testing out small text based promotions for in-house services and sponsors of Read the Docs.
 The promotional space will show on the bottom of the navigation menu on all built documentation.
 It will only show if the navigation menu is short,
 or the reader has scrolled down on the page past the end of the menu.
+
+Sponsor Us
+~~~~~~~~~~
+
+Contact us at hello@readthedocs.com for more information on sponsoring Read the Docs.
+We'll be publishing more information on our sponsorship plans here soon,
+but we're happy to accommodate anyone that shares our vision of open information for everyone.
+
