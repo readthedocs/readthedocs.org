@@ -177,12 +177,10 @@ $(document).ready(function () {
           var promo = sponsorship.Promo.from_experiment({
               experiment_id: '1PV0r2DbQrespD6x6Paxzw',
               variants: [
-                  'Enjoy reading the docs? Join other developers and tech writers at Write the Docs!',
-                  '<3 documentation? Join fellow developers and tech writers at Write the Docs!',
-                  'Love docs as much as we do? Come join the community at the Write The Docs conference',
-                  'Doing amazing things with docs? Submit a talk to Write the Docs, a conference about docs.',
-                  'Tickets for Write the Docs, a community conference about docs, are now on sale!',
-                  'Come join us at Write the Docs, a community conference about documentation.'
+                  'Enjoy reading the docs? Join developers and tech writers at Write the Docs NA 2015!',
+                  '<3 documentation? Join fellow developers and tech writers at Write the Docs NA 2015!',
+                  'Tickets for Write the Docs NA 2015 are now on sale!',
+                  'Write the Docs NA 2015 CFP is open and tickets are on sale'
               ],
               link: 'http://writethedocs.org/conf/na/2015/',
               callback: function (p) {
