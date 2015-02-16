@@ -31,7 +31,8 @@ Build.prototype.is_rtd_theme = function () {
 
 },{}],3:[function(require,module,exports){
 var sponsorship = require('./sponsorship'),
-    doc = require('./doc');
+    doc = require('./doc'),
+    util = require('./util');
 
 $(document).ready(function () {
 
@@ -202,15 +203,16 @@ $(document).ready(function () {
       // Promos
       // TODO don't hardcode this promo and remove the util function to hide the
       // ad
-      var promo = null;
-      if (build.is_rtd_theme()) {
+      var show_promo = util.get_param('promo'),
+          promo = null;
+      if (build.is_rtd_theme() && show_promo) {
           var promo = sponsorship.Promo.from_experiment({
-              experiment_id: 'Q8yssnbeR3O8qRwS2-9cSA',
+              experiment_id: '1PV0r2DbQrespD6x6Paxzw',
               variants: [
-                  'Enjoy reading the docs? Join fellow developers and tech writers at Write the Docs!',
-                  'Love docs as much as we do? Come join the community at the Write The Docs conference',
-                  'Tickets are now on sale for Write the Docs, a community conference about documentation!',
-                  'Come join us at Write the Docs, a community conference about documentation.'
+                  'Enjoy reading the docs? Join developers and tech writers at Write the Docs NA 2015!',
+                  '<3 documentation? Join fellow developers and tech writers at Write the Docs NA 2015!',
+                  'Tickets for Write the Docs NA 2015 are now on sale!',
+                  'Write the Docs NA 2015 CFP is open and tickets are on sale'
               ],
               link: 'http://writethedocs.org/conf/na/2015/',
               callback: function (p) {
@@ -502,7 +504,7 @@ $(document).ready(function () {
     }
 });
 
-},{"./doc":2,"./sponsorship":4}],4:[function(require,module,exports){
+},{"./doc":2,"./sponsorship":4,"./util":5}],4:[function(require,module,exports){
 /* Read the Docs - Documentation promotions */
 
 var $ = window.$,
@@ -540,7 +542,8 @@ Promo.prototype.create = function () {
                         '_trackEvent',
                         'Promo',
                         'Click',
-                        'wtdna2015-' + self.variant
+                        'wtdna2015',
+                        self.variant
                     ]);
                 }
             })
@@ -629,4 +632,22 @@ Promo.from_experiment = function (experiment_id, variants, link, callback) {
     return promo;
 };
 
-},{"./../../../../../bower_components/waypoints/lib/noframework.waypoints.min.js":1}]},{},[3])
+},{"./../../../../../bower_components/waypoints/lib/noframework.waypoints.min.js":1}],5:[function(require,module,exports){
+/* UGGGGH at javascript */
+
+exports.get_param = function (name) {
+    var url = window.location.search.substring(1),
+    vars = url.split('&');
+
+    for (n in vars) {
+        var param = vars[n].split('='),
+            param_name = param[0],
+            param_val = param[1];
+        if (name == param_name) {
+            return param_val;
+        }
+    }
+    return false
+}
+
+},{}]},{},[3])

@@ -1,5 +1,6 @@
 var sponsorship = require('./sponsorship'),
-    doc = require('./doc');
+    doc = require('./doc'),
+    util = require('./util');
 
 $(document).ready(function () {
 
@@ -170,14 +171,17 @@ $(document).ready(function () {
       // Promos
       // TODO don't hardcode this promo and remove the util function to hide the
       // ad
-      var promo = null;
-      if (build.is_rtd_theme()) {
+      var show_promo = util.get_param('promo'),
+          promo = null;
+      if (build.is_rtd_theme() && show_promo) {
           var promo = sponsorship.Promo.from_experiment({
-              experiment_id: 'Q8yssnbeR3O8qRwS2-9cSA',
+              experiment_id: '1PV0r2DbQrespD6x6Paxzw',
               variants: [
-                  'Enjoy reading the docs? Join fellow developers and tech writers at Write the Docs!',
+                  'Enjoy reading the docs? Join other developers and tech writers at Write the Docs!',
+                  '<3 documentation? Join fellow developers and tech writers at Write the Docs!',
                   'Love docs as much as we do? Come join the community at the Write The Docs conference',
-                  'Tickets are now on sale for Write the Docs, a community conference about documentation!',
+                  'Doing amazing things with docs? Submit a talk to Write the Docs, a conference about docs.',
+                  'Tickets for Write the Docs, a community conference about docs, are now on sale!',
                   'Come join us at Write the Docs, a community conference about documentation.'
               ],
               link: 'http://writethedocs.org/conf/na/2015/',

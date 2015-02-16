@@ -35,7 +35,8 @@ Promo.prototype.create = function () {
                         '_trackEvent',
                         'Promo',
                         'Click',
-                        'wtdna2015-' + self.variant
+                        'wtdna2015',
+                        self.variant
                     ]);
                 }
             })
