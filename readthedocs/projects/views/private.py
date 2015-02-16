@@ -30,7 +30,7 @@ from projects.forms import (ProjectBackendForm, ProjectBasicsForm,
                             build_versions_form, UserForm, EmailHookForm,
                             TranslationForm, RedirectForm, WebHookForm)
 from projects.models import Project, EmailHook, WebHook
-from projects import constants
+from projects import constants, tasks
 
 
 try:
@@ -620,3 +620,17 @@ def project_import_bitbucket(request, sync=False):
         },
         context_instance=RequestContext(request)
     )
+
+
+@login_required
+def project_version_delete_html(request, project_slug, version_slug):
+    project = get_object_or_404(Project.objects.for_admin_user(request.user), slug=project_slug)
+    version = get_object_or_404(Version.objects.public(user=request.user, project=project, only_active=False), slug=version_slug)
+
+    if not version.active:
+        version.built = False
+        version.save()
+        tasks.clear_artifacts.delay(version.pk)
+    else:
+        raise Http404
+    return HttpResponseRedirect(reverse('project_version_list', kwargs={'project_slug': project_slug}))

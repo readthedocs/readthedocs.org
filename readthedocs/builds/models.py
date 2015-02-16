@@ -61,7 +61,10 @@ class Version(models.Model):
 
     def get_absolute_url(self):
         if not self.built and not self.uploaded:
-            return ''
+            return reverse('project_version_detail', kwargs={
+                'project_slug': self.project.slug,
+                'version_slug': self.slug,
+            })
         return self.project.get_docs_url(version_slug=self.slug)
 
     def save(self, *args, **kwargs):

@@ -15,7 +15,7 @@ from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from builds.models import Build, Version
-from core.utils import send_email
+from core.utils import send_email, run_on_app_servers
 from doc_builder.loader import loading as builder_loading
 from doc_builder.base import restoring_chdir
 from doc_builder.environments import DockerEnvironment
@@ -830,6 +830,16 @@ def remove_dir(path):
     log.info("Removing %s" % path)
     shutil.rmtree(path)
 
+
+@task(queue='web')
+def clear_artifacts(version_pk):
+    """ Remove artifacts from the build server. """
+    import ipdb; ipdb.set_trace()
+    version = Version.objects.get(pk=version_pk)
+    run_on_app_servers('rm -rf %s' % version.project.get_production_media_path(type='pdf', version_slug=version.slug))
+    run_on_app_servers('rm -rf %s' % version.project.get_production_media_path(type='epub', version_slug=version.slug))
+    run_on_app_servers('rm -rf %s' % version.project.get_production_media_path(type='htmlzip', version_slug=version.slug))
+    run_on_app_servers('rm -rf %s' % version.project.rtd_build_path(version=version.slug))
 
 # @task()
 # def update_config_from_json(version_pk):
