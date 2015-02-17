@@ -220,9 +220,9 @@ def import_bitbucket(user, sync):
             print e
 
         # Get org repos
-        # resp = session.get('https://bitbucket.org/api/1.0/user/privileges/')
-        # for team in resp.json()['teams'].keys():
-        #     org_resp = bitbucket_paginate(session, 'https://bitbucket.org/api/2.0/teams/{teamname}/repositories' % team)
-        #     process_bitbucket_json(user, org_resp, repo_type)
+        resp = session.get('https://bitbucket.org/api/1.0/user/privileges/')
+        for team in resp.json()['teams'].keys():
+            org_resp = bitbucket_paginate(session, 'https://bitbucket.org/api/2.0/teams/{team}/repositories'.format(team=team))
+            process_bitbucket_json(user, org_resp, repo_type)
 
     return session is not None

@@ -15,7 +15,7 @@ from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from builds.models import Build, Version
-from core.utils import send_email
+from core.utils import send_email, run_on_app_servers
 from doc_builder.loader import loading as builder_loading
 from doc_builder.base import restoring_chdir
 from doc_builder.environments import DockerEnvironment
@@ -800,6 +800,20 @@ def update_static_metadata(project_pk):
         ))
 
 
+#@periodic_task(run_every=crontab(hour="*", minute="*/5", day_of_week="*"))
+def update_docs_pull(record=False, pdf=False, man=False, force=False):
+    """
+    A high-level interface that will update all of the projects.
+
+    This is mainly used from a cronjob or management command.
+    """
+    for version in Version.objects.filter(built=True):
+        try:
+            update_docs(
+                pk=version.project.pk, version_pk=version.pk, record=record, pdf=pdf, man=man)
+        except Exception, e:
+            log.error("update_docs_pull failed", exc_info=True)
+
 ##############
 # Random Tasks
 ##############
@@ -816,6 +830,15 @@ def remove_dir(path):
     log.info("Removing %s" % path)
     shutil.rmtree(path)
 
+
+@task(queue='web')
+def clear_artifacts(version_pk):
+    """ Remove artifacts from the web servers. """
+    version = Version.objects.get(pk=version_pk)
+    run_on_app_servers('rm -rf %s' % version.project.get_production_media_path(type='pdf', version_slug=version.slug))
+    run_on_app_servers('rm -rf %s' % version.project.get_production_media_path(type='epub', version_slug=version.slug))
+    run_on_app_servers('rm -rf %s' % version.project.get_production_media_path(type='htmlzip', version_slug=version.slug))
+    run_on_app_servers('rm -rf %s' % version.project.rtd_build_path(version=version.slug))
 
 # @task()
 # def update_config_from_json(version_pk):
