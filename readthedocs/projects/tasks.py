@@ -833,8 +833,7 @@ def remove_dir(path):
 
 @task(queue='web')
 def clear_artifacts(version_pk):
-    """ Remove artifacts from the build server. """
-    import ipdb; ipdb.set_trace()
+    """ Remove artifacts from the web servers. """
     version = Version.objects.get(pk=version_pk)
     run_on_app_servers('rm -rf %s' % version.project.get_production_media_path(type='pdf', version_slug=version.slug))
     run_on_app_servers('rm -rf %s' % version.project.get_production_media_path(type='epub', version_slug=version.slug))
