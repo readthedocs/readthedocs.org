@@ -262,7 +262,7 @@ $(document).ready(function () {
       }
 
 
-    // Hijack search on mkdocs
+    // Override MkDocs styles
     if ("builder" in READTHEDOCS_DATA && READTHEDOCS_DATA["builder"] == "mkdocs") {
       $('<input>').attr({
           type: 'hidden',
@@ -281,6 +281,20 @@ $(document).ready(function () {
       }).appendTo('#rtd-search-form');
 
       $("#rtd-search-form").prop("action", API_HOST + "/elasticsearch/");
+
+      // Apply stickynav to mkdocs builds
+      var nav_bar = $('nav.wy-nav-side:first'),
+          win = $(window),
+          sticky_nav_class = 'stickynav',
+          apply_stickynav = function () {
+              if (nav_bar.height() <= win.height()) {
+                  nav_bar.addClass(sticky_nav_class);
+              } else {
+                  nav_bar.removeClass(sticky_nav_class);
+              }
+          };
+      win.on('resize', apply_stickynav);
+      apply_stickynav();
     }
 
 
