@@ -264,6 +264,9 @@ class Build(models.Model):
                                     blank=True)
     commit = models.CharField(_('Commit'), max_length=255, null=True, blank=True)
 
+    length = models.IntegerField(_('Build Length'), max_length=10, null=True,
+                                 blank=True)
+
     # Manager
 
     objects = RelatedProjectManager()

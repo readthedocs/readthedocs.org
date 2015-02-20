@@ -8,6 +8,7 @@ import json
 import logging
 import socket
 import requests
+import datetime
 
 from celery import task
 from django.conf import settings
@@ -72,6 +73,8 @@ def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
     else:
         apiv2 = api
 
+    start_time = datetime.datetime.utcnow()
+
     project_data = api.project(pk).get()
     project = make_api_project(project_data)
     # Don't build skipped projects
@@ -123,8 +126,8 @@ def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
         log.error(LOG_TEMPLATE.format(project=version.project.slug,
                                       version=version.slug, msg="Top-level Build Failure"), exc_info=True)
     finally:
-        record_build(api=api, build=build, record=record, results=results, state='finished')
-        record_pdf(api=api, record=record, results=results, state='finished', version=version)
+        record_build(api=api, build=build, record=record, results=results, state='finished', start_time=start_time)
+        record_pdf(api=api, record=record, results=results, state='finished', version=version, start_time=start_time)
         log.info(LOG_TEMPLATE.format(project=version.project.slug, version='', msg='Build finished'))
 
     build_id = build.get('id')
@@ -479,7 +482,7 @@ def create_build(build_pk):
     return build
 
 
-def record_build(api, record, build, results, state):
+def record_build(api, record, build, results, state, start_time=None):
     """
     Record a build by hitting the API.
 
@@ -509,6 +512,9 @@ def record_build(api, record, build, results, state):
 
     build['setup'] = build['setup_error'] = ""
     build['output'] = build['error'] = ""
+
+    if start_time:
+        build['length'] = (datetime.datetime.utcnow() - start_time).total_seconds()
 
     for step in setup_steps:
         if step in results:
@@ -882,7 +888,6 @@ def clear_artifacts(version_pk):
 #     except Exception, e:
 # Never kill the build, but log the error
 #         log.error(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg='Failure in config parsing code: %s ' % e.message))
-
 
 
 # @task()
