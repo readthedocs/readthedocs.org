@@ -1,9 +1,9 @@
 {% load i18n %}
 
 {% for version, dict in version_data.items %}
-  {% if dict.pdf_url %}
+  {% if dict.pdf %}
   <li class="module-item col-span">
-    <a class="module-item-title" href="{{ dict.pdf_url }}">
+    <a class="module-item-title" href="{{ dict.pdf }}">
       {% blocktrans %}
         {{ version }} PDF
       {% endblocktrans %}
@@ -11,9 +11,9 @@
   </li>
   {% endif %}
 
-  {% if dict.htmlzip_url %}
+  {% if dict.htmlzip %}
   <li class="module-item col-span">
-    <a class="module-item-title" href="{{ dict.htmlzip_url }}">
+    <a class="module-item-title" href="{{ dict.htmlzip }}">
       {% blocktrans %}
         {{ version }} HTMLZip
       {% endblocktrans %}
@@ -21,9 +21,9 @@
   </li>
   {% endif %}
 
-  {% if dict.epub_url %}
+  {% if dict.epub %}
   <li class="module-item col-span">
-    <a class="module-item-title" href="{{ dict.epub_url }}">
+    <a class="module-item-title" href="{{ dict.epub }}">
       {% blocktrans %}
         {{ version }} Epub
       {% endblocktrans %}
