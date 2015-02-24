@@ -186,12 +186,12 @@ INSTALLED_APPS = [
 
     # our apps
     'bookmarks',
+    'projects',
     'builds',
     'comments',
     'core',
     'doc_builder',
     'oauth',
-    'projects',
     'redirects',
     'rtd_tests',
     'restapi',
@@ -377,7 +377,7 @@ LOGGING = {
     },
     'loggers': {
         'django': {
-            'handlers': ['console', 'errorlog', 'mail_admins'],
+            'handlers': ['console', 'errorlog'],
             'propagate': True,
             'level': 'WARN',
         },
@@ -402,7 +402,7 @@ LOGGING = {
             'propagate': False,
         },
         'django.request': {
-            'handlers': ['exceptionlog', 'mail_admins'],
+            'handlers': ['exceptionlog'],
             'level': 'ERROR',
             'propagate': False,
         },
@@ -426,7 +426,7 @@ LOGGING = {
         # doesn't double-print the Django things as well. Not 100% sure how
         # logging works :)
         '': {
-            'handlers': ['console', 'errorlog', 'mail_admins'],
+            'handlers': ['console', 'errorlog'],
             'level': 'INFO',
         },
     }

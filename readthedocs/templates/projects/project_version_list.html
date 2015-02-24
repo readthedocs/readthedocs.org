@@ -1,0 +1,114 @@
+{% extends "projects/base_project.html" %}
+{% load i18n %}
+{% load privacy_tags %}
+{% load core_tags highlight  %}
+
+{% block title %}
+Versions
+{% endblock title %}
+
+{% block project_editing %}
+  {% with versions_active="active" %}
+    {% include "core/project_bar.html" %}
+  {% endwith %}
+{% endblock %}
+
+{% block content %}
+
+  {% comment %}
+  <h3>Filters</h3>
+
+  <div class="navigable">
+    <ul>
+      <form action="" method="get">
+        {{ active_filter.form.as_p }}
+        <input type="submit" value="Filter" />
+      </form>
+    </ul>
+  {% endcomment %}
+
+  <div class="project-version-list">
+
+    <div class="module project-versions-active">
+      <div class="module-wrapper">
+        <h1>{% trans "Active Versions" %}</h1>
+        <div class="module-list-wrapper">
+          <ul>
+            {% for version in active_filter %}
+              <li class="module-item">
+                {# Link to the docs #}
+                <a class="module-item-title" href="{{ version.get_absolute_url }}">{{ version.slug }}</a>
+
+                {% if request.user|is_admin:project %}
+                  <span class="right-menu">
+                    {{ version.get_privacy_level_display }}
+                  </span>
+                {% endif %}
+
+                {% if not version.slug in version.identifier %}
+                  <span class="right-menu quiet version-branch">{{ version.identifier_friendly|truncatechars:24 }}</span>
+                {% endif %}
+
+                {% if request.user|is_admin:project %}
+                  <ul class="module-item-menu">
+                    <li><a href="{% url "project_version_detail" project.slug version.slug %}">{% trans "Edit" %}</a></li>
+                  </ul>
+                {% else %}
+                  <ul class="module-item-menu">
+                    <li><a href="{{ version.get_absolute_url }}">{% trans "View Docs" %}</a></li>
+                  </ul>
+                {% endif %}
+
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    {% if request.user|is_admin:project %}
+    <div class="module project-versions-inactive">
+      <div class="module-wrapper">
+
+        {% if inactive_filter %}
+          <h1>{% trans "Inactive Versions" %}</h1>
+          <div class="module-list-wrapper">
+            <ul>
+              {% for version in inactive_filter %}
+                <li class="module-item">
+                  {# Link to the docs #}
+                  <span class="quiet">{{ version.slug }}</span>
+
+
+                  {% if request.user|is_admin:project %}
+                    <span class="right-menu">
+                      {{ version.get_privacy_level_display }}
+                    </span>
+                  {% endif %}
+
+                  {% if not version.slug in version.identifier_friendly %}
+                    <span class="right-menu quiet version-branch">{{ version.identifier_friendly|truncatechars:24 }}</span>
+                  {% endif %}
+
+                  {% if request.user|is_admin:project %}
+                    <ul class="module-item-menu">
+                      {% if version.built %}
+                          <li><a href="{% url "project_version_delete_html" project.slug version.slug %}">{% trans "Clean" %}</a></li>
+                      {% endif %}
+                      <li><a href="{% url "project_version_detail" project.slug version.slug %}">{% trans "Edit" %}</a></li>
+                    </ul>
+                  {% endif %}
+
+                  
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
+
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+{% endblock %}

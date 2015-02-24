@@ -230,28 +230,9 @@ def github_build(request):
         try:
             return _build_url(ghetto_url, [branch])
         except NoProjectException:
-            try:
-                name = obj['repository']['name']
-                desc = obj['repository']['description']
-                homepage = obj['repository']['homepage']
-                repo = obj['repository']['url']
-
-                email = obj['repository']['owner']['email']
-                user = User.objects.get(email=email)
-
-                proj = Project.objects.create(
-                    name=name,
-                    description=desc,
-                    project_url=homepage,
-                    repo=repo,
-                )
-                proj.users.add(user)
-                # Version doesn't exist yet, so use classic build method
-                trigger_build(project=proj)
-                pc_log.info("Created new project %s" % (proj))
-            except Exception, e:
-                pc_log.error("Error creating new project %s: %s" % (name, e))
-                return HttpResponseNotFound('Repo not found')
+            pc_log.error(
+                "(Incoming GitHub Build) Repo not found:  %s" % ghetto_url)
+            return HttpResponseNotFound('Repo not found: %s' % ghetto_url)
     else:
         return HttpResponse("You must POST to this resource.")
 
@@ -287,7 +268,12 @@ def generic_build(request, pk=None):
         project = Project.objects.get(pk=pk)
     # Allow slugs too
     except (Project.DoesNotExist, ValueError):
-        project = Project.objects.get(slug=pk)
+        try:
+            project = Project.objects.get(slug=pk)
+        except (Project.DoesNotExist, ValueError):
+            pc_log.error(
+                "(Incoming Generic Build) Repo not found:  %s" % pk)
+            return HttpResponseNotFound('Repo not found: %s' % pk)
     if request.method == 'POST':
         slug = request.POST.get('version_slug', None)
         if slug:

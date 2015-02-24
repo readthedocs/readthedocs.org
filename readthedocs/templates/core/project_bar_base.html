@@ -4,8 +4,14 @@
 {% load gravatar %}
 
 <!-- BEGIN project bar -->
-<div id="project_bar">
+<div id="project_bar" class="project-bar">
   <div class="wrapper">
+
+    {% if project.has_good_build %}
+      <div class="project-view-docs">
+        <a href="{{ project.get_docs_url }}">{% trans "View Docs" %}</a>
+      </div>
+    {% endif %}
 
     <div class="project-title">
       <h1>
@@ -30,9 +36,6 @@
     {% endif %}
       <ul>
         <li class="{{ overview_active }}"><a href="{{ project.get_absolute_url }}">{% trans "Overview" %}</a></li>
-        {% if project.has_good_build %}
-          <li><a href="{{ project.get_docs_url }}">{% trans "View Docs" %}</a></li>
-        {% endif %}
 
         <li class="{{ downloads_active }}"><a href="{% url "project_downloads" project.slug %}" rel="nofollow,noindex">{% trans "Downloads" %}</a></li>
 
@@ -40,9 +43,11 @@
 
         <li class="{{ builds_active }}"><a href="{{ project.get_builds_url }}">{% trans "Builds" %}</a></li>
 
+        <li class="{{ versions_active }}"><a href="{% url "project_version_list" project.slug %}">{% trans "Versions" %}</a></li>
+
         {% if request.user|is_admin:project %}
           <li class="{{ comments_active }}"><a href="{% url "projects_comments_moderation" project.slug %}">{% trans "Comments" %}</a></li>
-          <li class="{{ edit_active }}"><a href="{% url "projects_edit" project.slug %}"><i class="gear"></i>{% trans "Admin" %}</a></li>
+          <li class="{{ edit_active }} project-admin"><a href="{% url "projects_edit" project.slug %}"><i class="gear"></i>{% trans "Admin" %}</a></li>
         {% endif %}
       </ul>
     </div>

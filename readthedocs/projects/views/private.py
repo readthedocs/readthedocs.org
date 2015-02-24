@@ -10,7 +10,7 @@ from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotAllow
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, render_to_response, render
 from django.template import RequestContext
-from django.views.generic import ListView, TemplateView
+from django.views.generic import View, ListView, TemplateView
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.formtools.wizard.views import SessionWizardView
@@ -18,6 +18,7 @@ from django.contrib.formtools.wizard.views import SessionWizardView
 from allauth.socialaccount.models import SocialToken
 from requests_oauthlib import OAuth2Session
 
+from bookmarks.models import Bookmark
 from builds import utils as build_utils
 from builds.models import Version
 from builds.forms import AliasForm, VersionForm
@@ -32,9 +33,13 @@ from projects.forms import (ProjectBackendForm, ProjectBasicsForm,
                             build_versions_form, UserForm, EmailHookForm,
                             TranslationForm, RedirectForm, WebHookForm)
 from projects.models import Project, EmailHook, WebHook
-from projects import constants
+from projects import constants, tasks
 
-from bookmarks.models import Bookmark
+
+try:
+    from readthedocs.projects.signals import project_import
+except:
+    from projects.signals import project_import
 
 log = logging.getLogger(__name__)
 
@@ -178,13 +183,13 @@ def project_versions(request, project_slug):
 @login_required
 def project_version_detail(request, project_slug, version_slug):
     project = get_object_or_404(Project.objects.for_admin_user(request.user), slug=project_slug)
-    version = get_object_or_404(Version.objects.public(user=request.user, project=project), slug=version_slug)
+    version = get_object_or_404(Version.objects.public(user=request.user, project=project, only_active=False), slug=version_slug)
 
     form = VersionForm(request.POST or None, instance=version)
 
     if request.method == 'POST' and form.is_valid():
         form.save()
-        url = reverse('projects_versions', args=[project.slug])
+        url = reverse('project_version_list', args=[project.slug])
         return HttpResponseRedirect(url)
 
     return render_to_response(
@@ -224,10 +229,8 @@ class ImportWizardView(SessionWizardView):
     '''Project import wizard'''
 
     form_list = [('basics', ProjectBasicsForm),
-                 ('extra', ProjectExtraForm),
-                 ('advanced', ProjectAdvancedForm)]
-    condition_dict = {'extra': lambda self: self.is_advanced(),
-                      'advanced': lambda self: self.is_advanced()}
+                 ('extra', ProjectExtraForm)]
+    condition_dict = {'extra': lambda self: self.is_advanced()}
 
     def get_form_kwargs(self, step):
         '''Get args to pass into form instantiation'''
@@ -238,10 +241,6 @@ class ImportWizardView(SessionWizardView):
         if step == 'extra':
             extra_form = self.get_form_from_step('basics')
             project = extra_form.save(commit=False)
-            kwargs['instance'] = project
-        if step == 'advanced':
-            adv_form = self.get_form_from_step('extra')
-            project = adv_form.save(commit=False)
             kwargs['instance'] = project
         return kwargs
 
@@ -275,52 +274,7 @@ class ImportWizardView(SessionWizardView):
         else:
             basic_only = True
         project.save()
-        for provider in ['github', 'bitbucket']:
-            if provider in project.repo:
-                for user in project.users.all():
-                    tokens = SocialToken.objects.filter(account__user__username=user.username, app__provider=provider)
-                for token in tokens:
-                    session = OAuth2Session(
-                        client_id=token.app.client_id,
-                        token={
-                            'access_token': str(token.token),
-                            'token_type': 'bearer'
-                        }
-                    )
-
-                    if provider == 'github':
-                        try:
-                            owner, repo = build_utils.get_github_username_repo(version=None, repo_url=project.repo)
-                            data = json.dumps({
-                                'name': 'readthedocs',
-                                'active': True,
-                                'config': {'url': 'https://readthedocs.org/github'}
-                            })
-                            resp = session.post(
-                                'https://api.github.com/repos/{owner}/{repo}/hooks'.format(owner=owner, repo=repo),
-                                data=data,
-                                headers={'content-type': 'application/json'}
-                            )
-                            log.info("Creating GitHub webhook response code: {code}".format(code=resp.status_code))
-                            if resp.status_code == 201:
-                                messages.success(self.request, _('GitHub webhook activated'))
-                        except:
-                            log.exception('GitHub Hook creation failed', exc_info=True)
-                    elif provider == 'bitbucket':
-                        try:
-                            owner, repo = build_utils.get_bitbucket_username_repo(version=None, repo_url=project.repo)
-                            data = json.dumps({
-                                'name': 'read-the-docs',
-                            })
-                            resp = session.post(
-                                'https://api.bitbucket.org/1.0/repositories/{owner}/{repo}/services'.format(owner=owner, repo=repo),
-                                data=data,
-                                headers={'content-type': 'application/json'}
-                            )
-                            log.info("Creating BitBucket webhook response code: {code}".format(code=resp.status_code))
-                        except:
-                            log.exception('BitBucket Hook creation failed', exc_info=True)
-
+        project_import.send(sender=project, request=self.request)
         trigger_build(project, basic=basic_only)
         return HttpResponseRedirect(reverse('projects_detail',
                                             args=[project.slug]))
@@ -353,6 +307,57 @@ class ImportView(TemplateView):
             initial_data['extra'][key] = request.POST.get(key)
         request.method = 'GET'
         return self.wizard_class.as_view(initial_dict=initial_data)(request)
+
+
+class ImportDemoView(View):
+    '''View to pass request on to import form to import demo project'''
+
+    form_class = ProjectBasicsForm
+    request = None
+    args = None
+    kwargs = None
+
+    def get(self, request, *args, **kwargs):
+        '''Process link request as a form post to the project import form'''
+        self.request = request
+        self.args = args
+        self.kwargs = kwargs
+
+        data = self.get_form_data()
+        project = (Project.objects.for_admin_user(request.user)
+                   .filter(repo=data['repo']).first())
+        if project is not None:
+            messages.success(
+                request, _('The demo project is already imported!'))
+        else:
+            kwargs = self.get_form_kwargs()
+            form = self.form_class(data=data, **kwargs)
+            if form.is_valid():
+                project = form.save()
+                project.save()
+                trigger_build(project, basic=True)
+                messages.success(
+                    request, _('Your demo project is currently being imported'))
+            else:
+                for (_f, msg) in form.errors.items():
+                    log.error(msg)
+                messages.error(request,
+                               _('There was a problem adding the demo project'))
+                return HttpResponseRedirect(reverse('projects_dashboard'))
+        return HttpResponseRedirect(reverse('projects_detail',
+                                            args=[project.slug]))
+
+    def get_form_data(self):
+        '''Get form data to post to import form'''
+        return {
+            'name': '{0}-demo'.format(self.request.user.username),
+            'repo_type': 'git',
+            'repo': 'https://github.com/readthedocs/template.git'
+        }
+
+    def get_form_kwargs(self):
+        '''Form kwargs passed in during instantiation'''
+        return {'user': self.request.user}
 
 
 @login_required
@@ -643,3 +648,17 @@ def project_import_bitbucket(request, sync=False):
         },
         context_instance=RequestContext(request)
     )
+
+
+@login_required
+def project_version_delete_html(request, project_slug, version_slug):
+    project = get_object_or_404(Project.objects.for_admin_user(request.user), slug=project_slug)
+    version = get_object_or_404(Version.objects.public(user=request.user, project=project, only_active=False), slug=version_slug)
+
+    if not version.active:
+        version.built = False
+        version.save()
+        tasks.clear_artifacts.delay(version.pk)
+    else:
+        raise Http404
+    return HttpResponseRedirect(reverse('project_version_list', kwargs={'project_slug': project_slug}))

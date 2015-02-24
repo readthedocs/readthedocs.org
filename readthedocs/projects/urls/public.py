@@ -1,6 +1,7 @@
 from django.conf.urls import patterns, url
 
-from projects.views.public import ProjectIndex
+from projects.views.public import ProjectIndex, ProjectDetailView
+
 
 urlpatterns = patterns(
     # base view, flake8 complains if it is on the previous line.
@@ -26,7 +27,7 @@ urlpatterns = patterns(
         name='projects_tag_detail'),
 
     url(r'^(?P<project_slug>[-\w]+)/$',
-        'projects.views.public.project_detail',
+        ProjectDetailView.as_view(),
         name='projects_detail'),
 
     url(r'^(?P<project_slug>[-\w]+)/downloads/$',
@@ -40,6 +41,10 @@ urlpatterns = patterns(
     url(r'^(?P<project_slug>[-\w]+)/badge/$',
         'projects.views.public.project_badge',
         name='project_badge'),
+
+    url(r'^(?P<project_slug>[-\w]+)/versions/$',
+        'projects.views.public.project_versions',
+        name='project_version_list'),
 
     url(r'^(?P<project_slug>[-\w]+)/search/$',
         'projects.views.public.elastic_project_search',

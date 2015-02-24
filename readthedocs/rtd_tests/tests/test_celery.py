@@ -1,3 +1,4 @@
+import os
 from os.path import exists
 import shutil
 from tempfile import mkdtemp
@@ -13,6 +14,7 @@ from rtd_tests.mocks.mock_api import MockApi
 
 
 class TestCeleryBuilding(RTDTestCase):
+
     """These tests run the build functions directly. They don't use celery"""
     fixtures = ['eric.json']
 
@@ -24,7 +26,7 @@ class TestCeleryBuilding(RTDTestCase):
         self.project = Project.objects.create(
             name="Test Project",
             repo_type="git",
-            #Our top-level checkout
+            # Our top-level checkout
             repo=repo,
         )
         self.project.users.add(self.eric)
@@ -40,12 +42,28 @@ class TestCeleryBuilding(RTDTestCase):
         self.assertTrue(result.successful())
         self.assertFalse(exists(directory))
 
+    def test_clear_artifacts(self):
+        version = self.project.versions.all()[0]
+        directory = self.project.get_production_media_path(type='pdf', version_slug=version.slug)
+        os.makedirs(directory)
+        self.assertTrue(exists(directory))
+        result = tasks.clear_artifacts.delay(version_pk=version.pk)
+        self.assertTrue(result.successful())
+        self.assertFalse(exists(directory))
+
+        directory = version.project.rtd_build_path(version=version.slug)
+        os.makedirs(directory)
+        self.assertTrue(exists(directory))
+        result = tasks.clear_artifacts.delay(version_pk=version.pk)
+        self.assertTrue(result.successful())
+        self.assertFalse(exists(directory))
+
     def test_update_docs(self):
         result = tasks.update_docs.delay(self.project.pk, record=False,
-            intersphinx=False, api=MockApi(self.repo))
+                                         intersphinx=False, api=MockApi(self.repo))
         self.assertTrue(result.successful())
 
     def test_update_imported_doc(self):
         result = tasks.update_imported_docs.delay(self.project.pk,
-            api=MockApi(self.repo))
+                                                  api=MockApi(self.repo))
         self.assertTrue(result.successful())

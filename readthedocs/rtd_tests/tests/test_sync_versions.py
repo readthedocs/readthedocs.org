@@ -15,9 +15,6 @@ class TestSyncVersions(TestCase):
         Version.objects.create(project=self.pip, identifier='origin/master',
                                verbose_name='master', slug='master',
                                active=True, machine=True)
-        Version.objects.create(project=self.pip, identifier='stable',
-                               verbose_name='stable', slug='stable',
-                               machine=True, active=True)
         Version.objects.create(project=self.pip, identifier='to_delete',
                                verbose_name='to_delete', slug='to_delete',
                                active=False)
@@ -69,10 +66,11 @@ class TestSyncVersions(TestCase):
             ]
         }
 
-        version_stable = Version.objects.get(slug='stable')
-        # from setUp
-        self.assertEqual(version_stable.identifier, 'stable')
-
+        self.assertRaises(
+            Version.DoesNotExist,
+            Version.objects.get,
+            slug='stable'
+        )
         self.client.post(
             '/api/v2/project/%s/sync_versions/' % self.pip.pk,
             data=json.dumps(version_post_data),

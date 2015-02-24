@@ -39,6 +39,10 @@
     <p>{% trans "Commit" %}: <b>{{ build.commit }}</b></p>
     {% endif %}
 
+    {% if build.length %}
+    <p>{% trans "Length:" %} <b>{{ build.length }}</b> seconds</p>
+    {% endif %}
+
     <h3>{% trans "Build Standard Output" %}</h3>
     <pre class="build-output"><span id="build-output">{{ build.output }}</span></pre>
 

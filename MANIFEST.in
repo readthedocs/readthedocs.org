@@ -1,0 +1,10 @@
+include AUTHORS.rst
+include CONTRIBUTING.rst
+include README.rst
+include CHANGES
+include LICENSE.mit
+include MANIFEST.in
+include pip_requirements.txt
+recursive-include docs *
+recursive-include readthedocs *
+recursive-exclude readthedocs *.pyc

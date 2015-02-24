@@ -13,16 +13,38 @@
 {% endblock %}
 
 {% block content %}
-<div id="build_list">
 
-        {% comment %}
+{% comment %}
+
+<div class="navigable">
+<h3>
+Filters
+</h3>
+<ul>
         <form action="" method="get">
             {{ filter.form.as_p }}
             <input type="submit" value="Filter" />
         </form>
-        {% endcomment %}
+</ul>
 
-        {% autopaginate build_list 15 %}
+{% endcomment %}
+
+
+<!-- BEGIN queue depth warning -->
+{% if BUILD_QUEUE_DEPTH > 10 %}
+<div>
+  <p>
+  {% blocktrans with BUILD_QUEUE_DEPTH as queue_length %}
+    Whoa! The build queue is {{ queue_length }} tasks long, new builds may take a while.
+  {% endblocktrans %}
+  </p>
+</div>
+{% endif %}
+
+
+<div id="build_list">
+
+        {% autopaginate filter 15 %}
 
         <!-- BEGIN builds list -->
         <div class="module">
@@ -37,7 +59,7 @@
                     </li>
                     <li style="display: inline-block">
                       <select id="id_version" name="version_slug">
-                      {% for version in project.ordered_active_versions %}
+                      {% for version in versions %}
                         <option value="{{ version.slug }}">{{ version.slug }}</option>
                       {% endfor %}
                       </select>

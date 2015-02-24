@@ -61,7 +61,10 @@ class Version(models.Model):
 
     def get_absolute_url(self):
         if not self.built and not self.uploaded:
-            return ''
+            return reverse('project_version_detail', kwargs={
+                'project_slug': self.project.slug,
+                'version_slug': self.slug,
+            })
         return self.project.get_docs_url(version_slug=self.slug)
 
     def save(self, *args, **kwargs):
@@ -83,6 +86,14 @@ class Version(models.Model):
                 return self.project.vcs_repo().fallback_branch
         else:
             return self.slug
+
+    @property
+    def identifier_friendly(self):
+        '''Return display friendly identifier'''
+        re_sha = re.compile(r'^[0-9a-f]{40}$', re.I)
+        if re_sha.match(str(self.identifier)):
+            return self.identifier[:8]
+        return self.identifier
 
     def get_subdomain_url(self):
         use_subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
@@ -118,11 +129,11 @@ class Version(models.Model):
                 data['Epub'] = project.get_production_media_url('epub', self.slug)
         else:
             if project.has_pdf(self.slug):
-                data['pdf_url'] = project.get_production_media_url('pdf', self.slug)
+                data['pdf'] = project.get_production_media_url('pdf', self.slug)
             if project.has_htmlzip(self.slug):
-                data['htmlzip_url'] = project.get_production_media_url('htmlzip', self.slug)
+                data['htmlzip'] = project.get_production_media_url('htmlzip', self.slug)
             if project.has_epub(self.slug):
-                data['epub_url'] = project.get_production_media_url('epub', self.slug)
+                data['epub'] = project.get_production_media_url('epub', self.slug)
         return data
 
     def get_conf_py_path(self):
@@ -253,6 +264,9 @@ class Build(models.Model):
                                     blank=True)
     commit = models.CharField(_('Commit'), max_length=255, null=True, blank=True)
 
+    length = models.IntegerField(_('Build Length'), max_length=10, null=True,
+                                 blank=True)
+
     # Manager
 
     objects = RelatedProjectManager()
@@ -272,3 +286,8 @@ class Build(models.Model):
     @models.permalink
     def get_absolute_url(self):
         return ('builds_detail', [self.project.slug, self.pk])
+
+    @property
+    def finished(self):
+        '''Return if build has a finished state'''
+        return self.state == 'finished'

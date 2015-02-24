@@ -63,7 +63,7 @@ class Project(models.Model):
     description = models.TextField(_('Description'), blank=True,
                                    help_text=_('The reStructuredText '
                                                'description of the project'))
-    repo = models.CharField(_('Repository URL'), max_length=100, blank=True,
+    repo = models.CharField(_('Repository URL'), max_length=100,
                             help_text=_('Hosted documentation repository URL'))
     repo_type = models.CharField(_('Repository type'), max_length=10,
                                  choices=constants.REPO_CHOICES, default='git')
@@ -159,7 +159,8 @@ class Project(models.Model):
                     "Protected means public but not in listings."))
     version_privacy_level = models.CharField(
         _('Version Privacy Level'), max_length=20,
-        choices=constants.PRIVACY_CHOICES, default=getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public'),
+        choices=constants.PRIVACY_CHOICES, default=getattr(
+            settings, 'DEFAULT_PRIVACY_LEVEL', 'public'),
         help_text=_("(Beta) Default level of privacy you want on built "
                     "versions of documentation."))
 
@@ -176,8 +177,9 @@ class Project(models.Model):
                                 choices=constants.LANGUAGES)
 
     programming_language = models.CharField(_('Programming Language'), max_length=20, default='words',
-                                help_text=_("The primary programming language the project is written in."),
-                                choices=constants.PROGRAMMING_LANGUAGES, blank=True)
+                                            help_text=_(
+                                                "The primary programming language the project is written in."),
+                                            choices=constants.PROGRAMMING_LANGUAGES, blank=True)
     # A subproject pointed at it's main language, so it can be tracked
     main_language_project = models.ForeignKey('self',
                                               related_name='translations',
@@ -236,11 +238,14 @@ class Project(models.Model):
     def sync_supported_versions(self):
         supported = self.supported_versions(flat=True)
         if supported:
-            self.versions.filter(verbose_name__in=supported).update(supported=True)
-            self.versions.exclude(verbose_name__in=supported).update(supported=False)
+            self.versions.filter(
+                verbose_name__in=supported).update(supported=True)
+            self.versions.exclude(
+                verbose_name__in=supported).update(supported=False)
             self.versions.filter(verbose_name='latest').update(supported=True)
 
     def save(self, *args, **kwargs):
+        first_save = self.pk is None
         if not self.slug:
             # Subdomains can't have underscores in them.
             self.slug = slugify(self.name).replace('_', '-')
@@ -264,7 +269,8 @@ class Project(models.Model):
         except Exception:
             log.error('failed to sync supported versions', exc_info=True)
         try:
-            symlink(project=self.slug)
+            if not first_save:
+                symlink(project=self.slug)
         except Exception:
             log.error('failed to symlink project', exc_info=True)
         try:
@@ -274,7 +280,8 @@ class Project(models.Model):
         try:
             branch = self.default_branch or self.vcs_repo().fallback_branch
             if not self.versions.filter(slug='latest').exists():
-                self.versions.create(slug='latest', verbose_name='latest', machine=True, type='branch', active=True, identifier=branch)
+                self.versions.create(
+                    slug='latest', verbose_name='latest', machine=True, type='branch', active=True, identifier=branch)
             # if not self.versions.filter(slug='stable').exists():
             #     self.versions.create(slug='stable', verbose_name='stable', type='branch', active=True, identifier=branch)
         except Exception:
@@ -351,11 +358,14 @@ class Project(models.Model):
         This is used to see if these files exist so we can offer them for download.
         """
         if getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public') == 'public':
-            path = os.path.join(settings.MEDIA_ROOT, type, self.slug, version_slug)
+            path = os.path.join(
+                settings.MEDIA_ROOT, type, self.slug, version_slug)
         else:
-            path = os.path.join(settings.PRODUCTION_MEDIA_ARTIFACTS, type, self.slug, version_slug)
+            path = os.path.join(
+                settings.PRODUCTION_MEDIA_ARTIFACTS, type, self.slug, version_slug)
         if include_file:
-            path = os.path.join(path, '%s.%s' % (self.slug, type.replace('htmlzip', 'zip')))
+            path = os.path.join(
+                path, '%s.%s' % (self.slug, type.replace('htmlzip', 'zip')))
         return path
 
     def get_production_media_url(self, type, version_slug, full_path=True):
@@ -368,14 +378,17 @@ class Project(models.Model):
             'version_slug': version_slug,
         })
         if full_path:
-            path = 'https://%s%s' % (settings.PRODUCTION_DOMAIN, path)
+            path = '//%s%s' % (settings.PRODUCTION_DOMAIN, path)
         return path
 
     def get_downloads(self):
         downloads = {}
-        downloads['htmlzip'] = self.get_production_media_url('htmlzip', self.get_default_version())
-        downloads['epub'] = self.get_production_media_url('htmlzip', self.get_default_version())
-        downloads['pdf'] = self.get_production_media_url('htmlzip', self.get_default_version())
+        downloads['htmlzip'] = self.get_production_media_url(
+            'htmlzip', self.get_default_version())
+        downloads['epub'] = self.get_production_media_url(
+            'epub', self.get_default_version())
+        downloads['pdf'] = self.get_production_media_url(
+            'pdf', self.get_default_version())
         return downloads
 
     @property
@@ -540,14 +553,14 @@ class Project(models.Model):
             files = self.full_find('conf.py', version)
         if len(files) == 1:
             return files[0]
-        elif len(files) > 1:
-            for file in files:
-                if file.find('doc', 70) != -1:
-                    return file
-        else:
-            # Having this be translatable causes this odd error:
-            # ProjectImportError(<django.utils.functional.__proxy__ object at 0x1090cded0>,)
-            raise ProjectImportError(u"Conf File Missing. Please make sure you have a conf.py in your project.")
+        for file in files:
+            if file.find('doc', 70) != -1:
+                return file
+        # Having this be translatable causes this odd error:
+        # ProjectImportError(<django.utils.functional.__proxy__ object at
+        # 0x1090cded0>,)
+        raise ProjectImportError(
+            u"Conf File Missing. Please make sure you have a conf.py in your project.")
 
     def conf_dir(self, version='latest'):
         conf_file = self.conf_file(version)
@@ -592,7 +605,8 @@ class Project(models.Model):
         if not backend:
             repo = None
         else:
-            proj = VCSProject(self.name, self.default_branch, self.checkout_path(version), self.clean_repo)
+            proj = VCSProject(
+                self.name, self.default_branch, self.checkout_path(version), self.clean_repo)
             repo = backend(proj, version)
         return repo
 
@@ -633,11 +647,17 @@ class Project(models.Model):
                 matches.append(os.path.join(root, filename))
         return matches
 
-    def get_latest_build(self):
-        try:
-            return self.builds.filter(type='html', state='finished')[0]
-        except IndexError:
-            return None
+    def get_latest_build(self, finished=True):
+        """
+        Get latest build for project
+
+        finished
+            Return only builds that are in a finished state
+        """
+        kwargs = {'type': 'html'}
+        if finished:
+            kwargs['state'] = 'finished'
+        return self.builds.filter(**kwargs).first()
 
     def api_versions(self):
         ret = []
@@ -648,11 +668,15 @@ class Project(models.Model):
         return sort_version_aware(ret)
 
     def active_versions(self):
-        return (self.versions.filter(built=True, active=True) |
-                self.versions.filter(active=True, uploaded=True))
+        from builds.models import Version
+        versions = Version.objects.public(project=self, only_active=True)
+        return (versions.filter(built=True, active=True) |
+                versions.filter(active=True, uploaded=True))
 
     def ordered_active_versions(self):
-        return sort_version_aware(self.versions.filter(active=True))
+        from builds.models import Version
+        versions = Version.objects.public(project=self, only_active=True)
+        return sort_version_aware(versions)
 
     def all_active_versions(self):
         """A temporary workaround for active_versions filtering out things

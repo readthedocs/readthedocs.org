@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, url
 
 from projects.views.private import AliasList, ProjectDashboard, ImportView
-from projects.backends.views import ImportWizardView
+from projects.backends.views import ImportWizardView, ImportDemoView
 
 
 urlpatterns = patterns(
@@ -19,6 +19,10 @@ urlpatterns = patterns(
     url(r'^import/manual/$',
         ImportWizardView.as_view(),
         name='projects_import_manual'),
+
+    url(r'^import/manual/demo/$',
+        ImportDemoView.as_view(),
+        name='projects_import_demo'),
 
     url(r'^import/github/$',
         'projects.views.private.project_import_github',
@@ -67,6 +71,10 @@ urlpatterns = patterns(
     url(r'^(?P<project_slug>[-\w]+)/advanced/$',
         'projects.views.private.project_advanced',
         name='projects_advanced'),
+
+    url(r'^(?P<project_slug>[-\w]+)/version/(?P<version_slug>[-\w.]+)/delete_html/$',
+        'projects.views.private.project_version_delete_html',
+        name='project_version_delete_html'),
 
     url(r'^(?P<project_slug>[-\w]+)/version/(?P<version_slug>[-\w.]+)/$',
         'projects.views.private.project_version_detail',
