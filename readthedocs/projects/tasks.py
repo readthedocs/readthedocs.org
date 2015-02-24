@@ -127,7 +127,7 @@ def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
                                       version=version.slug, msg="Top-level Build Failure"), exc_info=True)
     finally:
         record_build(api=api, build=build, record=record, results=results, state='finished', start_time=start_time)
-        record_pdf(api=api, record=record, results=results, state='finished', version=version, start_time=start_time)
+        record_pdf(api=api, record=record, results=results, state='finished', version=version)
         log.info(LOG_TEMPLATE.format(project=version.project.slug, version='', msg='Build finished'))
 
     build_id = build.get('id')
