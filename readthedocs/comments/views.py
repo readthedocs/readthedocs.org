@@ -48,7 +48,10 @@ support = WebSupport(
 @permission_classes([permissions.IsAuthenticatedOrReadOnly])
 @renderer_classes((JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
 def get_options(request):
-    return Response(support.base_comment_opts)
+    base_opts = support.base_comment_opts
+    base_opts['addCommentURL'] = '/api/v2/comments/'
+    base_opts['getCommentsURL'] = '/api/v2/comments/'
+    return Response(base_opts)
 
 
 @api_view(['GET'])
@@ -159,9 +162,9 @@ class CommentViewSet(ModelViewSet):
         if qp.get('node'):
             try:
                 node = DocumentNode.objects.from_hash(version_slug=qp['version'],
-                                           page=qp['document_page'],
-                                           node_hash=qp['node'],
-                                           project_slug=qp['project'])
+                                                      page=qp['document_page'],
+                                                      node_hash=qp['node'],
+                                                      project_slug=qp['project'])
                 queryset = DocumentComment.objects.filter(node=node)
 
             except KeyError:
@@ -174,11 +177,11 @@ class CommentViewSet(ModelViewSet):
     def create(self, request):
         project = Project.objects.get(slug=request.data['project'])
         comment = project.add_comment(version_slug=request.data['version'],
-                            page=request.data['document_page'],
-                            hash=request.data['node'],
-                            commit=request.data['commit'],
-                            user=request.user,
-                            text=request.data['text'])
+                                      page=request.data['document_page'],
+                                      hash=request.data['node'],
+                                      commit=request.data['commit'],
+                                      user=request.user,
+                                      text=request.data['text'])
 
         serializer = self.get_serializer(comment)
         headers = self.get_success_headers(serializer.data)
@@ -191,5 +194,3 @@ class CommentViewSet(ModelViewSet):
         moderation_action = comment.moderate(request.user, decision)
 
         return Response(ModerationActionSerializer(moderation_action).data)
-
-

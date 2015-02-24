@@ -23,7 +23,7 @@ class DocumentNodeManager(models.Manager):
         return node
 
     def from_hash(self, version_slug, page, node_hash, project_slug=None):
-        snapshots = NodeSnapshot.objects.filter(hash=node_hash, node__version__slug=version_slug,node__page=page)
+        snapshots = NodeSnapshot.objects.filter(hash=node_hash, node__version__slug=version_slug, node__page=page)
 
         if project_slug:
             snapshots = snapshots.filter(node__project__slug=project_slug)
@@ -44,7 +44,7 @@ class DocumentNodeManager(models.Manager):
                 # On the other hand, if they're from different nodes, then we must
                 # have different nodes with the same hash (and thus the same content).
                 raise NotImplementedError(
-                '''
+                    '''
                 There is more than one node with this content on this page.
                 In the future, ReadTheDocs will implement an indexing feature
                 to allow unique identification of nodes on the same page with the same content.
@@ -121,22 +121,22 @@ class NodeSnapshot(models.Model):
 
 
 # class DocumentCommentManager(models.Manager):
-#     
+#
 #     def visible(self, inquiring_user=None, node=None):
 #         if node:
-# 
+#
 #             decisions = ModerationAction.objects.filter(
 #                     comment__node=node,
 #                     decision=1,
 #                     date__gt=self.snapshots.latest().date
 #                 )
 #                 valid_comments = node.comments.filter(moderation_actions__in=decisions).distinct()
-#         
+#
 #         if not self.project.comment_moderation:
 #             return self.comments.all()
 #         else:
-#             # non-optimal SQL warning.
-#             
+# non-optimal SQL warning.
+#
 #             return valid_comments
 
 
@@ -173,7 +173,7 @@ class DocumentComment(models.Model):
             return False
 
     def is_orphaned(self):
-        self.node # TODO
+        self.node  # TODO
 
 
 class DocumentCommentSerializer(serializers.ModelSerializer):
@@ -197,10 +197,10 @@ class ModerationAction(models.Model):
     user = models.ForeignKey(User)
     comment = models.ForeignKey(DocumentComment, related_name="moderation_actions")
     decision = models.IntegerField(choices=(
-                  (0, 'No Decision'),
-                  (1, 'Publish'),
-                  (2, 'Hide'),
-                  ))
+        (0, 'No Decision'),
+        (1, 'Publish'),
+        (2, 'Hide'),
+    ))
     date = models.DateTimeField(_('Date'), auto_now_add=True)
 
     class Meta:
@@ -211,7 +211,7 @@ class ModerationAction(models.Model):
 
 
 class ModerationActionSerializer(ModelSerializer):
-    
+
     class Meta:
         model = ModerationAction
     pass

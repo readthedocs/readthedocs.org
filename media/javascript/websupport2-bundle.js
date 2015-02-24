@@ -11,7 +11,7 @@ $(document).ready(function () {
 })
 
 
-},{"./lib/comm":2,"./lib/display":3,"./lib/events":4}],2:[function(require,module,exports){
+},{"./lib/comm":2,"./lib/display":3,"./lib/events":5}],2:[function(require,module,exports){
 module.exports = {
   initMetaData: initMetaData,
   addComment: addComment,
@@ -21,15 +21,16 @@ module.exports = {
 }
 
 settings = require('./settings')
-page = require('./page')
+docpage = require('./docpage')
 display = require('./display')
 
 function getServerData(format) {
   return {
-    "project": page.project,
-    "version":  page.version,
-    "page": page.page,
-    "commit": page.commit
+    "project": docpage.project,
+    "version":  docpage.version,
+    "document_page": docpage.page,
+    "page": docpage.page,
+    "commit": docpage.commit
   }
 }
 
@@ -199,7 +200,7 @@ function attachComment(form) {
 
 
 
-},{"./display":3,"./page":5,"./settings":6}],3:[function(require,module,exports){
+},{"./display":3,"./docpage":4,"./settings":6}],3:[function(require,module,exports){
 module.exports = {
     initDisplay: initDisplay,
     displayComments: displayComments,
@@ -224,10 +225,11 @@ function displayComments(id) {
     'node': id
   }
   var post_data = $.extend(get_data, server_data)
+  delete post_data['page']
 
   $.ajax({
    type: 'GET',
-   url: settings.opts.getCommentsURL,
+   url: 'http://localhost:8000/api/v2/comments/',
    data: post_data,
    crossDomain: true,
    xhrFields: {
@@ -341,6 +343,34 @@ function setUpPageslide() {
 }
 */
 },{"./comm":2}],4:[function(require,module,exports){
+// Module exporting page-level variables for easy use
+module.exports = {
+	project: READTHEDOCS_DATA['project'],
+	version: READTHEDOCS_DATA['version'],
+	page: getPageName(),
+	commit: getCommit()
+}
+
+function getPageName() {
+	if ('page' in READTHEDOCS_DATA) {
+	  return READTHEDOCS_DATA['page']
+	} else {
+	  stripped = window.location.pathname.substring(1)
+	  stripped = stripped.replace(".html", "")
+	  stripped = stripped.replace(/\/$/, "")
+	  return stripped
+	}
+}
+
+function getCommit() {
+	if ('commit' in READTHEDOCS_DATA) {
+	  return READTHEDOCS_DATA['commit']
+	} else {
+		return "unknown-commit"
+	}
+}
+
+},{}],5:[function(require,module,exports){
 module.exports = {
 	initEvents: initEvents
 }
@@ -369,40 +399,13 @@ function initEvents() {
 }
 
 
-},{"./display":3}],5:[function(require,module,exports){
-// Module exporting page-level variables for easy use
-module.exports = {
-	project: READTHEDOCS_DATA['project'],
-	version: READTHEDOCS_DATA['version'],
-	page: getPageName(),
-	commit: getCommit()
-}
-
-function getPageName() {
-	if ('page' in READTHEDOCS_DATA) {
-	  return READTHEDOCS_DATA['page']
-	} else {
-	  stripped = window.location.pathname.substring(1)
-	  stripped = stripped.replace(".html", "")
-	  stripped = stripped.replace(/\/$/, "")
-	  return stripped
-	}
-}
-
-function getCommit() {
-	if ('comment' in READTHEDOCS_DATA) {
-	  return READTHEDOCS_DATA['comment']
-	} else {
-		return "unknown-commit"
-	}
-}
-
-},{}],6:[function(require,module,exports){
+},{"./display":3}],6:[function(require,module,exports){
 var baseURL = "{{ websupport2_base_url }}";
 var staticURL = "{{ websupport2_static_url }}";
 
 // Template rendering failed
 if (baseURL.lastIndexOf("{{", 0) === 0) {
+  var rootURL = "http://localhost:8000";
   var baseURL = "http://localhost:8000/websupport";
   var staticURL = "http://localhost:8000/static";
 }
@@ -412,9 +415,9 @@ var metadata = {}
 var opts = {
   // Dynamic Content
   processVoteURL: baseURL + '/_process_vote',
-  addCommentURL: baseURL + '/_add_comment',
+  addCommentURL: rootURL + '/api/v2/comments/',
   attachCommentURL: baseURL + '/_attach_comment',
-  getCommentsURL: baseURL + '/_get_comments',
+  getCommentsURL: rootURL + '/api/v2/comments/',
   acceptCommentURL: baseURL + '/_accept_comment',
   deleteCommentURL: baseURL + '/_delete_comment',
   metadataURL: baseURL + '/_get_metadata',

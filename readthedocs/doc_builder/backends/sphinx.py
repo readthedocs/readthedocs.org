@@ -105,7 +105,7 @@ class BaseSphinx(BaseBuilder):
         else:
             rtd_ctx['versions'] = project.api_versions()
             rtd_ctx['downloads'] = (apiv2.version(self.version.pk)
-                                    .downloads.get()['downloads'])
+                                    .get()['downloads'])
 
         rtd_string = template_loader.get_template('doc_builder/conf.py.tmpl').render(rtd_ctx)
         outfile.write(rtd_string)
