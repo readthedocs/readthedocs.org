@@ -168,6 +168,7 @@ class NodeAndSnapshotTests(TestCase):
         except NotImplementedError:
             self.fail("We don't have indexing yet.")
 
+
 @with_canopy(ProjectsWithComments)
 class CommentModerationViewsTests(TestCase):
 
@@ -179,6 +180,7 @@ class CommentModerationViewsTests(TestCase):
         response = project_comments_moderation(request, self.canopy.moderated_project.slug)
 
         self.assertIn(self.canopy.first_moderated_comment.text, response.content)
+
 
 @with_canopy(ProjectsWithComments)
 class CommentAPIViewsTests(APITestCase):
@@ -233,12 +235,12 @@ class CommentAPIViewsTests(APITestCase):
         node = self.canopy.moderated_project.nodes.all()[0]
 
         post_data = {
-                     'document': node.page,
-                     'id': node.latest_hash(),
-                     'project': node.project.slug,
-                     'version': node.version.slug,
-                     'commit': node.latest_commit(),
-                     }
+            'document': node.page,
+            'id': node.latest_hash(),
+            'project': node.project.slug,
+            'version': node.version.slug,
+            'commit': node.latest_commit(),
+        }
 
         # Now let's delete the node....
         DocumentNode.objects.all().delete()
@@ -330,7 +332,7 @@ class CommentAPIViewsTests(APITestCase):
         self.assertTrue(comment_from_orm.exists())
 
         self.assertEqual(comment_from_orm[0].node, node,
-                    "The comment exists, but lives in a different node!  Not supposed to happen.")
+                         "The comment exists, but lives in a different node!  Not supposed to happen.")
 
     def test_add_comment_view_with_changed_hash(self):
 
@@ -356,10 +358,10 @@ class CommentAPIViewsTests(APITestCase):
 
         # Get all the comments with the second hash.
         query_params = {'node': second_hash,
-                'document_page': node.page,
-                'project': node.project.slug,
-                'version': node.version.slug,
-                }
+                        'document_page': node.page,
+                        'project': node.project.slug,
+                        'version': node.version.slug,
+                        }
 
         response = self.client.get('/api/v2/comments/', query_params)
 
@@ -380,8 +382,8 @@ class CommentAPIViewsTests(APITestCase):
         comment = DocumentCommentFactory(node=node)
 
         post_data = {
-             'decision': 1,
-                     }
+            'decision': 1,
+        }
 
         self.assertFalse(comment.has_been_approved_since_most_recent_node_change())
 
@@ -397,12 +399,11 @@ class CommentAPIViewsTests(APITestCase):
         comment = DocumentCommentFactory(node=node)
 
         post_data = {
-                     'decision': 1,
-                     }
+            'decision': 1,
+        }
 
         response = self.client.put('/api/v2/comments/%s/moderate/' % comment.id,
-                                            post_data
-                                            )
+                                   post_data
+                                   )
 
         self.assertEqual(response.status_code, 403)
-
