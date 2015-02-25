@@ -169,6 +169,11 @@ class CommentViewSet(ModelViewSet):
 
             except KeyError:
                 raise ParseError('To get comments by node, you must also provide page, version, and project.')
+            except DocumentNode.DoesNotExist:
+                queryset = DocumentComment.objects.none()
+        elif qp.get('project'):
+            queryset = DocumentComment.objects.filter(node__project__slug=qp['project'])
+
         else:
             queryset = DocumentComment.objects.all()
         return queryset

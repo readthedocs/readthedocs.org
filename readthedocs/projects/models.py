@@ -28,8 +28,6 @@ from vcs_support.base import VCSProject
 from vcs_support.backends import backend_cls
 from vcs_support.utils import Lock, NonBlockingLock
 from doc_builder.loader import loading
-from comments.models import ModerationAction, DocumentComment, NodeSnapshot, DocumentNode
-
 
 
 log = logging.getLogger(__name__)
@@ -765,6 +763,7 @@ class Project(models.Model):
 
     def moderation_queue(self):
         # non-optimal SQL warning.
+        from comments.models import DocumentComment
         queue = []
         comments = DocumentComment.objects.filter(node__project=self)
         for comment in comments:
@@ -774,10 +773,11 @@ class Project(models.Model):
         return queue
 
     def add_node(self, node_hash, page, version, commit):
+        from comments.models import NodeSnapshot, DocumentNode
         project_obj = Project.objects.get(slug=self.slug)
         version_obj = project_obj.versions.get(slug=version)
         try:
-            node_snapshot = NodeSnapshot.objects.get(hash=node_hash, node__project=project_obj, node__version=version_obj, node__page=page, commit=commit)
+            NodeSnapshot.objects.get(hash=node_hash, node__project=project_obj, node__version=version_obj, node__page=page, commit=commit)
             return False  # ie, no new node was created.
         except NodeSnapshot.DoesNotExist:
             DocumentNode.objects.create(
@@ -790,6 +790,7 @@ class Project(models.Model):
         return True  # ie, it's True that a new node was created.
 
     def add_comment(self, version_slug, page, hash, commit, user, text):
+        from comments.models import DocumentNode
         try:
             node = self.nodes.from_hash(version_slug, page, hash)
         except DocumentNode.DoesNotExist:

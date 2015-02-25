@@ -4,7 +4,7 @@ from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 
 from privacy.backend import AdminPermission, AdminNotAuthorized
-from rest_framework.serializers import ModelSerializer
+from restapi.serializers import VersionSerializer
 
 
 class DocumentNodeManager(models.Manager):
@@ -62,6 +62,8 @@ class DocumentNode(models.Model):
                                 related_name='nodes', null=True)
     page = models.CharField(_('Path'), max_length=255)
 
+    raw_source = models.TextField(_('Raw Source'))
+
     def __unicode__(self):
         return "node %s on %s for %s" % (self.id, self.page, self.project)
 
@@ -97,6 +99,7 @@ class DocumentNode(models.Model):
 
 
 class DocumentNodeSerializer(serializers.ModelSerializer):
+    version = VersionSerializer()
 
     current_hash = serializers.CharField(source='latest_hash')
     last_commit = serializers.CharField(source='latest_commit')
@@ -177,6 +180,7 @@ class DocumentComment(models.Model):
 
 
 class DocumentCommentSerializer(serializers.ModelSerializer):
+    node = DocumentNodeSerializer()
 
     class Meta:
         model = DocumentComment
@@ -210,7 +214,7 @@ class ModerationAction(models.Model):
         return self.decision == 1
 
 
-class ModerationActionSerializer(ModelSerializer):
+class ModerationActionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ModerationAction

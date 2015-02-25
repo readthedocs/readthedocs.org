@@ -86,6 +86,16 @@ function displayCommentIcon() {
       var addcls = count == 0 ? ' nocomment' : '';
       addCommentIcon(id, title, image, addcls)
   }
+  $.each($('.sphinx-has-comment'), function () {
+    count = 0
+    id = $(this).attr('id')
+    if (!(id in settings.metadata)) {
+      var title = count + ' comment' + (count == 1 ? '' : 's');
+      var image = count > 0 ? settings.opts.commentBrightImage : settings.opts.commentImage;
+      var addcls = count == 0 ? ' nocomment' : '';
+      addCommentIcon(id, title, image, addcls)
+    }
+  })
 }
 
 function addCommentIcon(id, title, image, addcls) {
@@ -229,7 +239,7 @@ function displayComments(id) {
 
   $.ajax({
    type: 'GET',
-   url: 'http://localhost:8000/api/v2/comments/',
+   url: settings.opts.getCommentsURL,
    data: post_data,
    crossDomain: true,
    xhrFields: {
@@ -248,7 +258,7 @@ function displayComments(id) {
 
 
 function handleComments(id, data) {
-    showComments(id, data.comments)
+    showComments(id, data.results)
 }
 
 
