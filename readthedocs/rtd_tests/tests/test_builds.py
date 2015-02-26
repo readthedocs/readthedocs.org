@@ -61,6 +61,25 @@ class BuildTests(TestCase):
                                     False,
                                     )
 
-        self.assertIn(project.doc_builder().sphinx_builder,
+        builder = project.doc_builder()(version)
+        self.assertIn(builder.sphinx_builder,
                       str(mock_Popen.call_args_list[1])
                       )
+
+        # We are using the comment builder
+
+    def test_builder_comments(self):
+
+        # Normal build
+        project = ProjectFactory(allow_comments=True)
+        version = project.versions.all()[0]
+        builder = project.doc_builder()(version)
+        self.assertEqual(builder.sphinx_builder, 'readthedocs-comments')
+
+    def test_builder_no_comments(self):
+
+        # Normal build
+        project = ProjectFactory(allow_comments=False)
+        version = project.versions.all()[0]
+        builder = project.doc_builder()(version)
+        self.assertEqual(builder.sphinx_builder, 'readthedocs')
