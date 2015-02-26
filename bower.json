@@ -16,6 +16,7 @@
   "dependencies": {
     "jquery": "*",
     "underscore": "~1.7.0",
-    "waypoints": "~3.1.1"
+    "waypoints": "~3.1.1",
+    "readthedocs-client": "https://github.com/agjohnson/readthedocs-client-js.git"
   }
 }
