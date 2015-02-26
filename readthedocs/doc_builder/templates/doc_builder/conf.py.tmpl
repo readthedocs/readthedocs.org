@@ -50,6 +50,15 @@ if globals().get('source_suffix', False):
 else:
     SUFFIX = '.rst'
 
+
+if globals().get('websupport2_base_url', False):
+    websupport2_base_url = '{{ api_host }}/websupport'
+    if 'http' not in settings.MEDIA_URL:
+        websupport2_static_url = '{{ settings.STATIC_URL }}'
+    else:
+        websupport2_static_url = '{{ settings.MEDIA_URL }}/static'
+
+
 #Add project information to the template context.
 context = {
     'using_theme': using_rtd_theme,
