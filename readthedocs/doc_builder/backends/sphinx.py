@@ -130,24 +130,25 @@ class BaseSphinx(BaseBuilder):
 
 class HtmlBuilder(BaseSphinx):
     type = 'sphinx'
-    sphinx_builder = 'readthedocs'
     sphinx_build_dir = '_build/html'
 
-
-class HtmlBuilderComments(BaseSphinx):
-    type = 'sphinx'
-    sphinx_builder = 'readthedocs-comments'
-    sphinx_build_dir = '_build/html'
+    def __init__(self, *args, **kwargs):
+        super(HtmlBuilder, self).__init__(*args, **kwargs)
+        if self.version.project.allow_comments:
+            self.sphinx_builder = 'readthedocs-comments'
+        else:
+            self.sphinx_builder = 'readthedocs'
 
 
 class HtmlDirBuilder(HtmlBuilder):
     type = 'sphinx_htmldir'
-    sphinx_builder = 'readthedocsdirhtml'
 
-
-class HtmlDirBuilderComments(HtmlBuilder):
-    type = 'sphinx_htmldir'
-    sphinx_builder = 'readthedocsdirhtml-comments'
+    def __init__(self, *args, **kwargs):
+        super(HtmlDirBuilder, self).__init__(*args, **kwargs)
+        if self.version.project.allow_comments:
+            self.sphinx_builder = 'readthedocs-comments'
+        else:
+            self.sphinx_builder = 'readthedocs'
 
 
 class SingleHtmlBuilder(HtmlBuilder):
