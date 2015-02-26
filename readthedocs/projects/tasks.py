@@ -8,6 +8,7 @@ import json
 import logging
 import socket
 import requests
+import datetime
 
 from celery import task
 from django.conf import settings
@@ -16,7 +17,7 @@ from django.utils.translation import ugettext_lazy as _
 from slumber.exceptions import HttpClientError
 
 from builds.models import Build, Version
-from core.utils import send_email
+from core.utils import send_email, run_on_app_servers
 from doc_builder.loader import loading as builder_loading
 from doc_builder.base import restoring_chdir
 from doc_builder.environments import DockerEnvironment
@@ -72,6 +73,7 @@ def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
     else:
         apiv2 = api
 
+    start_time = datetime.datetime.utcnow()
     try:
         project_data = api.project(pk).get()
     except HttpClientError:
@@ -126,7 +128,7 @@ def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
         log.error(LOG_TEMPLATE.format(project=version.project.slug,
                                       version=version.slug, msg="Top-level Build Failure"), exc_info=True)
     finally:
-        record_build(api=api, build=build, record=record, results=results, state='finished')
+        record_build(api=api, build=build, record=record, results=results, state='finished', start_time=start_time)
         record_pdf(api=api, record=record, results=results, state='finished', version=version)
         log.info(LOG_TEMPLATE.format(project=version.project.slug, version='', msg='Build finished'))
 
@@ -482,7 +484,7 @@ def create_build(build_pk):
     return build
 
 
-def record_build(api, record, build, results, state):
+def record_build(api, record, build, results, state, start_time=None):
     """
     Record a build by hitting the API.
 
@@ -512,6 +514,9 @@ def record_build(api, record, build, results, state):
 
     build['setup'] = build['setup_error'] = ""
     build['output'] = build['error'] = ""
+
+    if start_time:
+        build['length'] = (datetime.datetime.utcnow() - start_time).total_seconds()
 
     for step in setup_steps:
         if step in results:
@@ -805,6 +810,20 @@ def update_static_metadata(project_pk, path=None):
         ))
 
 
+#@periodic_task(run_every=crontab(hour="*", minute="*/5", day_of_week="*"))
+def update_docs_pull(record=False, pdf=False, man=False, force=False):
+    """
+    A high-level interface that will update all of the projects.
+
+    This is mainly used from a cronjob or management command.
+    """
+    for version in Version.objects.filter(built=True):
+        try:
+            update_docs(
+                pk=version.project.pk, version_pk=version.pk, record=record, pdf=pdf, man=man)
+        except Exception, e:
+            log.error("update_docs_pull failed", exc_info=True)
+
 ##############
 # Random Tasks
 ##############
@@ -821,6 +840,15 @@ def remove_dir(path):
     log.info("Removing %s" % path)
     shutil.rmtree(path)
 
+
+@task(queue='web')
+def clear_artifacts(version_pk):
+    """ Remove artifacts from the web servers. """
+    version = Version.objects.get(pk=version_pk)
+    run_on_app_servers('rm -rf %s' % version.project.get_production_media_path(type='pdf', version_slug=version.slug))
+    run_on_app_servers('rm -rf %s' % version.project.get_production_media_path(type='epub', version_slug=version.slug))
+    run_on_app_servers('rm -rf %s' % version.project.get_production_media_path(type='htmlzip', version_slug=version.slug))
+    run_on_app_servers('rm -rf %s' % version.project.rtd_build_path(version=version.slug))
 
 # @task()
 # def update_config_from_json(version_pk):
@@ -864,7 +892,6 @@ def remove_dir(path):
 #     except Exception, e:
 # Never kill the build, but log the error
 #         log.error(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg='Failure in config parsing code: %s ' % e.message))
-
 
 
 # @task()

@@ -19,14 +19,8 @@
 	margin: 0;
 }
 
-/* Fix Mkdocs sidebar */
-
-nav.stickynav {
-	position: absolute;
-}
 
 /* Fix RTD theme bottom margin */
-
 .rst-content .line-block {
 	margin-bottom: 24px
 }
@@ -35,3 +29,40 @@ nav.stickynav {
 .bookmark-added-msg {display: none;}
 .bookmark-active {display: none;}
 .bookmark-inactive {display: none;}
+
+
+/* Read the Docs promotional block, only applicable to RTD.org */
+div.wy-menu.rst-pro {
+    display: none;
+    position: fixed;
+    bottom: 60px;
+    width: 300px;
+    padding: .5em;
+    margin: 1em 0em 1em 0em;
+
+    background: rgba(255, 255, 255, .06);
+}
+
+@media (max-width: 768px) {
+    div.wy-menu.rst-pro {
+        display: none;
+    }
+}
+
+div.wy-menu.rst-pro a:link,
+div.wy-menu.rst-pro a:visited { color: #b3b3b3; }
+
+div.wy-menu.rst-pro a:hover,
+div.wy-menu.rst-pro a:active { color: #c3c3c3; }
+
+div.wy-menu.rst-pro a.rst-pro-link {
+    display: block;
+    text-align: center;
+    font-size: 90%;
+}
+
+div.wy-menu.rst-pro div.rst-pro-about {
+    text-align: right;
+    color: white;
+    font-size: 90%;
+}

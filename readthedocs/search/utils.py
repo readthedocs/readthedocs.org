@@ -55,7 +55,14 @@ def parse_path_from_file(documentation_type, file_path):
 
     page_json = json.loads(content)
     path = page_json['url']
+
+    # The URLs here should be of the form "path/index". So we need to
+    # convert:
+    #   "path/" => "path/index"
+    #   "path/index.html" => "path/index"
+    #   "/path/index" => "path/index"
     path = re.sub('/$', '/index', path)
+    path = re.sub('\.html$', '', path)
     path = re.sub('^/', '', path)
 
     return path

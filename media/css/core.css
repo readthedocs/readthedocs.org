@@ -483,6 +483,11 @@ p.build-missing { font-size: .8em; color: #9d9a55; margin: 0 0 3px; }
   color: #5a5;
 }
 
+
+/* warning banner */
+
+.banner { padding: 5px; }
+
 /* sidebar + main content */
 
 .navigable { width: 100%; }

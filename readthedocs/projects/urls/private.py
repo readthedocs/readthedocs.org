@@ -68,6 +68,10 @@ urlpatterns = patterns(
         'projects.views.private.project_advanced',
         name='projects_advanced'),
 
+    url(r'^(?P<project_slug>[-\w]+)/version/(?P<version_slug>[-\w.]+)/delete_html/$',
+        'projects.views.private.project_version_delete_html',
+        name='project_version_delete_html'),
+
     url(r'^(?P<project_slug>[-\w]+)/version/(?P<version_slug>[-\w.]+)/$',
         'projects.views.private.project_version_detail',
         name='project_version_detail'),

@@ -30,6 +30,18 @@ Filters
 {% endcomment %}
 
 
+<!-- BEGIN queue depth warning -->
+{% if BUILD_QUEUE_DEPTH > 10 %}
+<div>
+  <p>
+  {% blocktrans with BUILD_QUEUE_DEPTH as queue_length %}
+    Whoa! The build queue is {{ queue_length }} tasks long, new builds may take a while.
+  {% endblocktrans %}
+  </p>
+</div>
+{% endif %}
+
+
 <div id="build_list">
 
         {% autopaginate filter 15 %}

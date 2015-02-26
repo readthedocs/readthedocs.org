@@ -60,7 +60,7 @@ class Project(models.Model):
     description = models.TextField(_('Description'), blank=True,
                                    help_text=_('The reStructuredText '
                                                'description of the project'))
-    repo = models.CharField(_('Repository URL'), max_length=100, blank=True,
+    repo = models.CharField(_('Repository URL'), max_length=100,
                             help_text=_('Hosted documentation repository URL'))
     repo_type = models.CharField(_('Repository type'), max_length=10,
                                  choices=constants.REPO_CHOICES, default='git')
@@ -381,9 +381,9 @@ class Project(models.Model):
         downloads['htmlzip'] = self.get_production_media_url(
             'htmlzip', self.get_default_version())
         downloads['epub'] = self.get_production_media_url(
-            'htmlzip', self.get_default_version())
+            'epub', self.get_default_version())
         downloads['pdf'] = self.get_production_media_url(
-            'htmlzip', self.get_default_version())
+            'pdf', self.get_default_version())
         return downloads
 
     @property
