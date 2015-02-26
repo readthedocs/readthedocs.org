@@ -381,9 +381,9 @@ class Project(models.Model):
         downloads['htmlzip'] = self.get_production_media_url(
             'htmlzip', self.get_default_version())
         downloads['epub'] = self.get_production_media_url(
-            'htmlzip', self.get_default_version())
+            'epub', self.get_default_version())
         downloads['pdf'] = self.get_production_media_url(
-            'htmlzip', self.get_default_version())
+            'pdf', self.get_default_version())
         return downloads
 
     @property

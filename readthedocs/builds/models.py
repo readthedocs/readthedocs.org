@@ -129,11 +129,11 @@ class Version(models.Model):
                 data['Epub'] = project.get_production_media_url('epub', self.slug)
         else:
             if project.has_pdf(self.slug):
-                data['pdf_url'] = project.get_production_media_url('pdf', self.slug)
+                data['pdf'] = project.get_production_media_url('pdf', self.slug)
             if project.has_htmlzip(self.slug):
-                data['htmlzip_url'] = project.get_production_media_url('htmlzip', self.slug)
+                data['htmlzip'] = project.get_production_media_url('htmlzip', self.slug)
             if project.has_epub(self.slug):
-                data['epub_url'] = project.get_production_media_url('epub', self.slug)
+                data['epub'] = project.get_production_media_url('epub', self.slug)
         return data
 
     def get_conf_py_path(self):
@@ -263,6 +263,9 @@ class Build(models.Model):
     exit_code = models.IntegerField(_('Exit code'), max_length=3, null=True,
                                     blank=True)
     commit = models.CharField(_('Commit'), max_length=255, null=True, blank=True)
+
+    length = models.IntegerField(_('Build Length'), max_length=10, null=True,
+                                 blank=True)
 
     # Manager
 
