@@ -95,6 +95,15 @@
       </dl>
       {% endif %}
 
+      {% if print_url %}
+      <dl>
+        <dt>Print</dt>
+        <dd>
+          <a href="{{ print_url }}">Print this Version</a>
+        </dd>
+      </dl>
+      {% endif %}
+
       {% if github_edit_url %}
       <dl>
         <dt>On GitHub</dt>
