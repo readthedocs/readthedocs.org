@@ -56,7 +56,7 @@ def footer_html(request):
         show_bookmarks = False
         bookmark = None
 
-    if version.type == 'tag':
+    if version.type == 'tag' and version.project.has_pdf(version.slug):
         print_url = 'https://keminglabs.com/print-the-docs/quote?project={project}&version={version}'.format(
             project=project.slug,
             version=version.slug,
