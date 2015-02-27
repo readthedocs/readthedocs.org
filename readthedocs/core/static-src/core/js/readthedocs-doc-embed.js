@@ -171,7 +171,7 @@ $(document).ready(function () {
       // TODO don't hardcode this promo and remove the util function to hide the
       // ad
       var promo = null;
-      if (build.is_rtd_theme()) {
+      if (build.is_rtd_theme() && build.show_promo()) {
           var promo = sponsorship.Promo.from_variants([
               {
                   id: 'wtdna2015-v1',

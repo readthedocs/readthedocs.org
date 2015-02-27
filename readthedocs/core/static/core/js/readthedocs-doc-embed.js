@@ -23,10 +23,19 @@ function Build (config) {
             this.config['theme'] = 'sphinx_rtd_theme';
         }
     }
+
+    if (this.config['api_host'] == undefined) {
+        this.config['api_host'] = 'https://readthedocs.org';
+    }
 }
 
 Build.prototype.is_rtd_theme = function () {
     return (this.config['theme'] == 'sphinx_rtd_theme');
+};
+
+Build.prototype.show_promo = function () {
+    // TODO don't do this.
+    return (this.config['api_host'] != 'https://readthedocs.com');
 };
 
 },{}],3:[function(require,module,exports){
@@ -203,7 +212,7 @@ $(document).ready(function () {
       // TODO don't hardcode this promo and remove the util function to hide the
       // ad
       var promo = null;
-      if (build.is_rtd_theme()) {
+      if (build.is_rtd_theme() && build.show_promo()) {
           var promo = sponsorship.Promo.from_variants([
               {
                   id: 'wtdna2015-v1',
