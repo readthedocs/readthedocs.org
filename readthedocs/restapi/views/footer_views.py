@@ -57,7 +57,7 @@ def footer_html(request):
         bookmark = None
 
     if version.type == 'tag':
-        print_url = 'https://keminglabs.com/print-the-docs/?project={project}&version={version}'.format(
+        print_url = 'https://keminglabs.com/print-the-docs/quote?project={project}&version={version}'.format(
             project=project.slug,
             version=version.slug,
         )
