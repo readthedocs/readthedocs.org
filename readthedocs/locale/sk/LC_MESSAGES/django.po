@@ -1,22 +1,22 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-#
+# 
 # Translators:
 # Juraj Bubniak <translations@jbub.eu>, 2014
+# Veronika Kabatova <veronicca114@gmail.com>, 2015
 msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-09-21 14:17-0500\n"
-"PO-Revision-Date: 2014-04-24 21:43+0000\n"
-"Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
-"Language-Team: Slovak (http://www.transifex.com/projects/p/readthedocs/"
-"language/sk/)\n"
-"Language: sk\n"
+"PO-Revision-Date: 2015-02-13 17:41+0000\n"
+"Last-Translator: Veronika Kabatova <veronicca114@gmail.com>\n"
+"Language-Team: Slovak (http://www.transifex.com/projects/p/readthedocs/language/sk/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: sk\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
 
 #: api/utils.py:86
@@ -53,7 +53,7 @@ msgstr "Popis"
 #: bookmarks/models.py:21
 #, python-format
 msgid "Bookmark %(url)s for %(user)s (%(pk)s)"
-msgstr ""
+msgstr "Záložka %(url)s pre %(user)s (%(pk)s)"
 
 #: builds/constants.py:4
 msgid "Triggered"
@@ -65,7 +65,7 @@ msgstr ""
 
 #: builds/constants.py:6
 msgid "Installing"
-msgstr ""
+msgstr "Inštalácia prebieha"
 
 #: builds/constants.py:7
 msgid "Building"
@@ -73,7 +73,7 @@ msgstr ""
 
 #: builds/constants.py:8
 msgid "Finished"
-msgstr ""
+msgstr "Dokončený"
 
 #: builds/constants.py:12
 msgid "HTML"
@@ -97,7 +97,7 @@ msgstr ""
 
 #: builds/constants.py:20
 msgid "Branch"
-msgstr ""
+msgstr "Vetva"
 
 #: builds/constants.py:21 builds/filters.py:19
 msgid "Tag"
@@ -105,7 +105,7 @@ msgstr ""
 
 #: builds/constants.py:22
 msgid "Unknown"
-msgstr ""
+msgstr "Neznámy"
 
 #: builds/filters.py:10 projects/filters.py:9
 msgid "Any"
@@ -144,7 +144,7 @@ msgstr "Slug"
 
 #: builds/models.py:97
 msgid "Supported"
-msgstr ""
+msgstr "Podporovaný"
 
 #: builds/models.py:98 oauth/models.py:19 oauth/models.py:42
 #: redirects/models.py:12 templates/projects/project_versions.html:46
@@ -161,17 +161,17 @@ msgstr "Odoslaný"
 
 #: builds/models.py:102 projects/models.py:199
 msgid "Privacy Level"
-msgstr ""
+msgstr "Úroveň súkromia"
 
 #: builds/models.py:103
 msgid "Level of privacy for this Version."
-msgstr ""
+msgstr "Úroveň súkromia pre túto verziu"
 
 #. Translators: Permission around whether a user can view the
 #. version
 #: builds/models.py:114
 msgid "View Version"
-msgstr ""
+msgstr "Zobraziť verziu"
 
 #: builds/models.py:118
 #, python-format
@@ -206,15 +206,15 @@ msgstr "Stav"
 
 #: builds/models.py:305
 msgid "Success"
-msgstr ""
+msgstr "Úspech"
 
 #: builds/models.py:307
 msgid "Setup"
-msgstr ""
+msgstr "Nastavenia"
 
 #: builds/models.py:308
 msgid "Setup error"
-msgstr ""
+msgstr "Chyba pri nastavení"
 
 #: builds/models.py:309
 msgid "Output"
@@ -226,7 +226,7 @@ msgstr "Chyba"
 
 #: builds/models.py:311
 msgid "Exit code"
-msgstr ""
+msgstr "Ukončovací kód"
 
 #: builds/models.py:313 templates/builds/build_detail.html:39
 msgid "Commit"
@@ -284,32 +284,28 @@ msgid "Modified date"
 msgstr "Dátum úpravy"
 
 #: oauth/models.py:10 oauth/models.py:31
-#, fuzzy
 msgid "Users"
-msgstr "Používateľ"
+msgstr "Užívatelia"
 
 #: oauth/models.py:13
 msgid "Login"
-msgstr ""
+msgstr "Prihlasovacie meno"
 
 #: oauth/models.py:15
 msgid "Email"
-msgstr ""
+msgstr "Email"
 
 #: oauth/models.py:18 oauth/models.py:41
-#, fuzzy
 msgid "HTML URL"
-msgstr "HTML"
+msgstr "HTML URL"
 
 #: oauth/models.py:33
-#, fuzzy
 msgid "Organization"
-msgstr "Navigácia"
+msgstr "Organizácia"
 
 #: oauth/models.py:36
-#, fuzzy
 msgid "Full Name"
-msgstr "Názov"
+msgstr "Meno a priezvisko"
 
 #: oauth/models.py:38 projects/models.py:107
 msgid "The reStructuredText description of the project"
@@ -390,23 +386,23 @@ msgstr "Bazaar"
 
 #: projects/constants.py:84
 msgid "Public"
-msgstr ""
+msgstr "Verejný"
 
 #: projects/constants.py:85
 msgid "Protected"
-msgstr ""
+msgstr "Chránený"
 
 #: projects/constants.py:86
 msgid "Private"
-msgstr ""
+msgstr "Súkromný"
 
 #: projects/constants.py:97
 msgid "CPython 2.x"
-msgstr ""
+msgstr "CPython 2.x"
 
 #: projects/constants.py:98
 msgid "CPython 3.x"
-msgstr ""
+msgstr "CPython 3.x"
 
 #: projects/filters.py:34
 msgid "Created Date"
@@ -418,7 +414,7 @@ msgstr "URL Repozitára"
 
 #: projects/filters.py:39
 msgid "Repository Type"
-msgstr ""
+msgstr "Typ repozitára"
 
 #: projects/forms.py:26
 msgid "A project with that name exists already!"
@@ -428,9 +424,7 @@ msgstr "Projekt s týmto názvom už existuje!"
 msgid ""
 "URL for your code (hg or git). Ex. http://github.com/ericholscher/django-"
 "kong.git"
-msgstr ""
-"URL adresa vášho kódu (hg alebo git). Napr. http://github.com/ericholscher/"
-"django-kong.git"
+msgstr "URL adresa vášho kódu (hg alebo git). Napr. http://github.com/ericholscher/django-kong.git"
 
 #: projects/forms.py:56
 msgid "Invalid character in repo name"
@@ -438,11 +432,9 @@ msgstr "Neplatný znak v názve repozitára"
 
 #: projects/forms.py:59
 msgid ""
-"It looks like you entered a private repo - please use the public (http:// or "
-"git://) clone url"
-msgstr ""
-"Vypadá to, že ste zadali súkromný repozitár - použite prosím verejnú "
-"(http:// alebo git://) url adresu pre klonovanie"
+"It looks like you entered a private repo - please use the public (http:// or"
+" git://) clone url"
+msgstr "Vyzerá to, že ste zadali súkromný repozitár - použite prosím verejnú (http:// alebo git://) url adresu pre klonovanie"
 
 #: projects/forms.py:76 projects/models.py:187
 msgid "(Beta) The Python interpreter used to create the virtual environment."
@@ -455,7 +447,7 @@ msgstr "Váš konfiguračný súbor je neplatný, uistite sa, že obsahuje conf.
 
 #: projects/forms.py:177 templates/core/project_details.html:172
 msgid "Default Version"
-msgstr ""
+msgstr "Štandardná verzia"
 
 #: projects/forms.py:200
 msgid "Zip file of HTML"
@@ -485,7 +477,7 @@ msgstr "Projekt %(name)s neexistuje"
 #: projects/forms.py:269
 #, python-format
 msgid "User %(name)s does not exist"
-msgstr ""
+msgstr "Používateľ  %(name)s neexistuje"
 
 #: projects/models.py:83
 msgid "Parent"
@@ -497,11 +489,9 @@ msgstr "Potomok"
 
 #: projects/models.py:110
 msgid ""
-"Checkout URL for your code (hg, git, etc.). Ex. http://github.com/"
-"ericholscher/django-kong.git"
-msgstr ""
-"URL adresa pre získanie vášho kódu (hg, git, atď.). Napr. http://github.com/"
-"ericholscher/django-kong.git"
+"Checkout URL for your code (hg, git, etc.). Ex. "
+"http://github.com/ericholscher/django-kong.git"
+msgstr "URL adresa pre získanie vášho kódu (hg, git, atď.). Napr. http://github.com/ericholscher/django-kong.git"
 
 #: projects/models.py:113
 msgid "Repository type"
@@ -521,9 +511,9 @@ msgstr ""
 
 #: projects/models.py:118
 msgid ""
-"The official URL that the docs live at. This can be slug.readthedocs.org, or "
-"somewhere else. Ex. http://docs.fabfile.org"
-msgstr ""
+"The official URL that the docs live at. This can be slug.readthedocs.org, or"
+" somewhere else. Ex. http://docs.fabfile.org"
+msgstr "Oficiálna URL dokumentácie. Môže byť slug.readthedocs.org alebo iné. Napr. hhtp://docs.fabfile.org"
 
 #: projects/models.py:120
 msgid "Project version these docs apply to, i.e. 1.0a"
@@ -577,9 +567,7 @@ msgstr "Štandardná vetva"
 msgid ""
 "What branch \"latest\" points to. Leave empty to use the default value for "
 "your VCS (eg. trunk or master)."
-msgstr ""
-"Ktorá vetva smeruje na \"latest\". Ponechajte prázdne pre použitie "
-"štandardnej hodnoty vášho VCS (napr. trunk alebo master)."
+msgstr "Ktorá vetva smeruje na \"latest\". Ponechajte prázdne pre použitie štandardnej hodnoty vášho VCS (napr. trunk alebo master)."
 
 #: projects/models.py:145
 msgid "Requirements file"
@@ -587,9 +575,10 @@ msgstr "Súbor závislostí"
 
 #: projects/models.py:147
 msgid ""
-"Requires Virtualenv. A <a href=\"http://www.pip-installer.org/en/latest/"
-"cookbook.html#requirements-files\">pip requirements file</a> needed to build "
-"your documentation. Path from the root of your project."
+"Requires Virtualenv. A <a href=\"http://www.pip-"
+"installer.org/en/latest/cookbook.html#requirements-files\">pip requirements "
+"file</a> needed to build your documentation. Path from the root of your "
+"project."
 msgstr ""
 
 #: projects/models.py:152
@@ -598,8 +587,9 @@ msgstr "Typ dokumentácie"
 
 #: projects/models.py:154
 msgid ""
-"Type of documentation you are building. <a href=\"http://sphinx-doc.org/"
-"builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More info</a>."
+"Type of documentation you are building. <a href=\"http://sphinx-"
+"doc.org/builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More "
+"info</a>."
 msgstr ""
 
 #: projects/models.py:158
@@ -610,9 +600,7 @@ msgstr "Analytics kód"
 msgid ""
 "Google Analytics Tracking ID (ex. UA-22345342-1). This may slow down your "
 "page loads."
-msgstr ""
-"Google Analytics Tracking ID (napr. UA-22345342-1). Toto môže spomaliť "
-"načítanie vašej stránky."
+msgstr "Google Analytics Tracking ID (napr. UA-22345342-1). Toto môže spomaliť načítanie vašej stránky."
 
 #: projects/models.py:163 projects/models.py:766
 msgid "Path"
@@ -630,9 +618,7 @@ msgstr "Python konfiguračný súbor"
 msgid ""
 "Path from project root to conf.py file (ex. docs/conf.py). Leave blank if "
 "you want us to find it for you."
-msgstr ""
-"Cesta z koreňového adresára na súbor conf.py (napr. docs/conf.py). "
-"Ponechajte prázdne, ak chcete, aby sme ju našli za vás."
+msgstr "Cesta z koreňového adresára na súbor conf.py (napr. docs/conf.py). Ponechajte prázdne, ak chcete, aby sme ju našli za vás."
 
 #: projects/models.py:170
 msgid "Featured"
@@ -656,11 +642,11 @@ msgstr "Nainštalujte váš projekt vo virtuelenve pomocou setup.py install"
 
 #: projects/models.py:183
 msgid "Python Interpreter"
-msgstr ""
+msgstr "Interpret Pythonu"
 
 #: projects/models.py:191
 msgid "Use system packages"
-msgstr ""
+msgstr "Použiť systémové balíčky"
 
 #: projects/models.py:192
 msgid "Give the virtual environment access to the global site-packages dir."
@@ -668,7 +654,7 @@ msgstr "Povoliť virtualenvu prístup do globálneho adresára site-packages."
 
 #: projects/models.py:196
 msgid "Django Packages URL"
-msgstr ""
+msgstr "URL Django balíčkov"
 
 #: projects/models.py:201
 msgid ""
@@ -691,7 +677,7 @@ msgstr ""
 
 #: projects/models.py:215
 msgid "Language"
-msgstr ""
+msgstr "Jazyk"
 
 #: projects/models.py:216
 msgid ""
@@ -750,9 +736,8 @@ msgid "302 - Temporary Redirect"
 msgstr ""
 
 #: redirects/models.py:13
-#, fuzzy
 msgid "Inactive"
-msgstr "Aktívny"
+msgstr "Neaktívny"
 
 #: redirects/models.py:17
 msgid "Prefix Redirect"
@@ -763,19 +748,17 @@ msgid "Page Redirect"
 msgstr ""
 
 #: redirects/models.py:19
-#, fuzzy
 msgid "Sphinx HTMLDir -> HTML"
-msgstr "Sphinx HtmlDir"
+msgstr ""
 
 #: redirects/models.py:20
-#, fuzzy
 msgid "Sphinx HTML -> HTMLDir"
-msgstr "Sphinx HtmlDir"
+msgstr ""
 
 #: redirects/models.py:24
 msgid ""
-"Absolute path, excluding the domain.Example: <b>/docs/</b>  or <b>/install."
-"html</b>."
+"Absolute path, excluding the domain.Example: <b>/docs/</b>  or "
+"<b>/install.html</b>."
 msgstr ""
 
 #: redirects/models.py:27
@@ -791,9 +774,8 @@ msgid "Redirect Type"
 msgstr ""
 
 #: redirects/models.py:38
-#, fuzzy
 msgid "From URL"
-msgstr "URL Adresa Projektu"
+msgstr ""
 
 #: redirects/models.py:41
 msgid "To URL"
@@ -805,12 +787,11 @@ msgstr ""
 
 #: redirects/models.py:53
 msgid "redirect"
-msgstr ""
+msgstr "presmerovať"
 
 #: redirects/models.py:54
-#, fuzzy
 msgid "redirects"
-msgstr "Vybrané Projekty"
+msgstr ""
 
 #: redirects/models.py:59
 #, python-format
@@ -841,15 +822,15 @@ msgstr ""
 
 #: settings/base.py:62
 msgid "French"
-msgstr ""
+msgstr "Francúzština"
 
 #: settings/base.py:63
 msgid "Russian"
-msgstr ""
+msgstr "Ruština"
 
 #: settings/base.py:64
 msgid "German"
-msgstr ""
+msgstr "Nemčina"
 
 #: settings/base.py:65
 msgid "Galician"
@@ -857,23 +838,23 @@ msgstr ""
 
 #: settings/base.py:66
 msgid "Vietnamese"
-msgstr ""
+msgstr "Vietnamčina"
 
 #: settings/base.py:67
 msgid "Chinese"
-msgstr ""
+msgstr "Čínština"
 
 #: settings/base.py:68
 msgid "Taiwanese"
-msgstr ""
+msgstr "Tajvančina"
 
 #: settings/base.py:69
 msgid "Japanese"
-msgstr ""
+msgstr "Japončina"
 
 #: settings/base.py:70
 msgid "Ukrainian"
-msgstr ""
+msgstr "Ukrajinčina"
 
 #: templates/401.html:6 templates/404.html:6
 msgid "Maze Found"
@@ -881,7 +862,7 @@ msgstr ""
 
 #: templates/500.html:5
 msgid "Server Error"
-msgstr ""
+msgstr "Chyba serveru"
 
 #. Translators: Name of the website
 #: templates/base.html:13 templates/error_header.html:12
@@ -902,8 +883,8 @@ msgstr "Read the Docs vám ďakuje za vašu trpezlivosť."
 #: templates/base.html:84
 #, python-format
 msgid ""
-"Copyright 2010-2013. Created by %(eric)s, %(charles)s, and %(bobby)s for the "
-"2010 %(djangodash)s."
+"Copyright 2010-2013. Created by %(eric)s, %(charles)s, and %(bobby)s for the"
+" 2010 %(djangodash)s."
 msgstr ""
 
 #: templates/base.html:86
@@ -912,13 +893,11 @@ msgstr ""
 
 #: templates/base.html:88
 msgid ""
-"Made by <a href=\"https://github.com/rtfd/readthedocs.org/graphs/contributors"
-"\">humans</a>. Funded by <a href=\"https://www.gittip.com/readthedocs/"
-"\">readers like you</a>."
-msgstr ""
-"Vyrobené <a href=\"https://github.com/rtfd/readthedocs.org/graphs/"
-"contributors\">ľudmi</a>. Financované <a href=\"https://www.gittip.com/"
-"readthedocs/\">čitateľmi ako ste vy</a>."
+"Made by <a "
+"href=\"https://github.com/rtfd/readthedocs.org/graphs/contributors\">humans</a>."
+" Funded by <a href=\"https://www.gittip.com/readthedocs/\">readers like "
+"you</a>."
+msgstr "Vyrobené <a href=\"https://github.com/rtfd/readthedocs.org/graphs/contributors\">ľudmi</a>. Financované <a href=\"https://www.gittip.com/readthedocs/\">čitateľmi ako ste vy</a>."
 
 #: templates/base_filter.html:14 templates/core/filter_bar.html:8
 msgid "Filter"
@@ -936,13 +915,12 @@ msgstr ""
 
 #: templates/donate.html:14
 msgid "Credit Card"
-msgstr ""
+msgstr "Kreditná karta"
 
 #: templates/donate.html:20
 msgid ""
 "\n"
-"You can read more about the ongoing efforts to improve the documentation "
-"ecosystem here:\n"
+"You can read more about the ongoing efforts to improve the documentation ecosystem here:\n"
 msgstr ""
 
 #: templates/error_header.html:22 templates/core/header.html:19
@@ -972,16 +950,10 @@ msgstr "Čo je toto za miesto?"
 
 #: templates/homepage.html:46
 msgid ""
-"Read the Docs hosts documentation, making it fully searchable and easy to "
-"find.\n"
-"You can import your docs using any major version control system, including "
-"Mercurial, Git, Subversion, and Bazaar.\n"
-"We support <a href=\"http://read-the-docs.readthedocs.org/en/latest/webhooks."
-"html\">webhooks</a> so your docs get built when you commit code.\n"
-"There's also support for versioning so you can build docs from tags and "
-"branches of your code in your repository. A <a href=\"http://read-the-docs."
-"readthedocs.org/en/latest/features.html\">full list of features</a> is "
-"available."
+"Read the Docs hosts documentation, making it fully searchable and easy to find.\n"
+"You can import your docs using any major version control system, including Mercurial, Git, Subversion, and Bazaar.\n"
+"We support <a href=\"http://read-the-docs.readthedocs.org/en/latest/webhooks.html\">webhooks</a> so your docs get built when you commit code.\n"
+"There's also support for versioning so you can build docs from tags and branches of your code in your repository. A <a href=\"http://read-the-docs.readthedocs.org/en/latest/features.html\">full list of features</a> is available."
 msgstr ""
 
 #: templates/homepage.html:52
@@ -1022,16 +994,12 @@ msgstr ""
 msgid ""
 "This is a post-commit hook. Set it up in your project admin to POST here, "
 "for us to update your doc changes automatically."
-msgstr ""
-"Toto je post-commit hook. Nastavte ho v administrácii vášho projektu tak, "
-"aby naň vykonával POST požiadavku, čo bude pre nás znamenať automatickú "
-"aktualizáciu vašej dokumentácie."
+msgstr "Toto je post-commit hook. Nastavte ho v administrácii vášho projektu tak, aby naň vykonával POST požiadavku, čo bude pre nás znamenať automatickú aktualizáciu vašej dokumentácie."
 
 #: templates/account/login.html:7 templates/account/login.html.py:11
 #: templates/account/login.html:22
-#, fuzzy
 msgid "Sign In"
-msgstr "Zaregistrovať sa"
+msgstr ""
 
 #: templates/account/login.html:13
 #, python-format
@@ -1042,8 +1010,8 @@ msgstr ""
 
 #: templates/account/login.html:23
 msgid ""
-"If you forgot your password, <a href=\"/accounts/password/reset/\">reset it."
-"</a>"
+"If you forgot your password, <a href=\"/accounts/password/reset/\">reset "
+"it.</a>"
 msgstr ""
 
 #: templates/account/password_change.html:6
@@ -1051,11 +1019,11 @@ msgstr ""
 #: templates/account/password_change.html:20
 #: templates/dashboard/dashboard_bar.html:36
 msgid "Change Password"
-msgstr ""
+msgstr "Zmeniť heslo"
 
 #: templates/archive/index.html:5
 msgid "Read the Docs Archive"
-msgstr ""
+msgstr "Archív Read the Docs"
 
 #: templates/bookmarks/bookmark_list.html:7
 msgid "Bookmarks"
@@ -1085,7 +1053,7 @@ msgstr "Výsledok:"
 
 #: templates/builds/build_detail.html:27
 msgid "Not yet finished"
-msgstr ""
+msgstr "Nedokončené"
 
 #: templates/builds/build_detail.html:27
 #: templates/core/build_list_detailed.html:6
@@ -1103,21 +1071,19 @@ msgstr ""
 
 #: templates/builds/build_detail.html:33
 msgid "Version:"
-msgstr ""
+msgstr "Verzia:"
 
 #: templates/builds/build_detail.html:36
 msgid "Type:"
 msgstr "Typ:"
 
 #: templates/builds/build_detail.html:42
-#, fuzzy
 msgid "Build Standard Output"
-msgstr "Sphinx Štandardný Výstup"
+msgstr ""
 
 #: templates/builds/build_detail.html:46
-#, fuzzy
 msgid "Build Standard Error"
-msgstr "Sphinx Štandardný Chybový Výstup"
+msgstr ""
 
 #: templates/builds/build_detail.html:51
 msgid "Setup Output"
@@ -1157,7 +1123,7 @@ msgstr ""
 
 #: templates/core/filter_list.html:12
 msgid "No objects found"
-msgstr ""
+msgstr "Žiadne objekty nenájdené"
 
 #: templates/core/header.html:45
 msgid "Dashboard"
@@ -1167,7 +1133,8 @@ msgstr ""
 msgid "Create, host, and browse documentation."
 msgstr ""
 
-#. Translators: Note, the full sentence goes 'Sign up' 'or' 'Log in'. But unfortunately the three bits have to be separate.
+#. Translators: Note, the full sentence goes 'Sign up' 'or' 'Log in'. But
+#. unfortunately the three bits have to be separate.
 #: templates/core/home-header.html:17
 msgid "Sign up"
 msgstr "Zaregistrovať sa"
@@ -1204,7 +1171,7 @@ msgstr ""
 #: templates/core/project_bar.html:29
 #: templates/projects/project_downloads.html:22
 msgid "Downloads"
-msgstr ""
+msgstr "Stiahnuté"
 
 #: templates/core/project_bar.html:31 templates/core/project_details.html:13
 #: templates/core/project_list_detailed.html:39
@@ -1213,7 +1180,7 @@ msgstr ""
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:137
 #: templates/sphinx/sphinx_rtd_theme/search.html:11
 msgid "Search"
-msgstr ""
+msgstr "Vyhľadať"
 
 #: templates/core/project_bar.html:34
 msgid "Builds"
@@ -1222,7 +1189,7 @@ msgstr ""
 #: templates/core/project_bar.html:38
 #: templates/projects/project_dashboard.html:70
 msgid "Admin"
-msgstr ""
+msgstr "Administrátor"
 
 #: templates/core/project_details.html:11
 #, python-format
@@ -1234,7 +1201,7 @@ msgstr ""
 #: templates/projects/project_versions.html:9
 #: templates/projects/upload_html.html:7
 msgid "Versions"
-msgstr ""
+msgstr "Verzie"
 
 #: templates/core/project_details.html:44
 #, python-format
@@ -1262,15 +1229,15 @@ msgstr ""
 
 #: templates/core/project_details.html:96
 msgid "Repository"
-msgstr ""
+msgstr "Repozitár"
 
 #: templates/core/project_details.html:100
 msgid "Badge"
-msgstr ""
+msgstr "Odznak"
 
 #: templates/core/project_details.html:106
 msgid "Owners"
-msgstr ""
+msgstr "Vlastník"
 
 #: templates/core/project_details.html:114
 msgid "Tags"
@@ -1290,7 +1257,7 @@ msgstr ""
 
 #: templates/core/project_details.html:134
 msgid "Project Privacy Level"
-msgstr ""
+msgstr "Úroveň súkromia projektu"
 
 #: templates/core/project_details.html:141
 msgid "Short URLs"
@@ -1303,8 +1270,8 @@ msgstr ""
 #: templates/core/project_details.html:151
 #, python-format
 msgid ""
-"This project has more information available about it on <a href=\"%(url)s"
-"\">Open Comparison!</a>"
+"This project has more information available about it on <a "
+"href=\"%(url)s\">Open Comparison!</a>"
 msgstr ""
 
 #: templates/core/project_details.html:155
@@ -1392,15 +1359,15 @@ msgstr "Projekty"
 
 #: templates/dashboard/dashboard_bar.html:16
 msgid "Import"
-msgstr ""
+msgstr "Importovať"
 
 #: templates/dashboard/dashboard_bar.html:17
 msgid "GitHub"
-msgstr ""
+msgstr "GitHub"
 
 #: templates/dashboard/dashboard_bar.html:23
 msgid "Profile"
-msgstr ""
+msgstr "Profil"
 
 #: templates/dashboard/dashboard_bar.html:27
 msgid "Create Profile"
@@ -1418,8 +1385,8 @@ msgstr ""
 #: templates/djangome/choices.html:7
 #, python-format
 msgid ""
-"Choose a redirect for <kbd>%(djangome_term)s on <a href=\"http://%(slug)s."
-"readthedocs.org\">%(slug)s.readthedocs.org</a></kbd>"
+"Choose a redirect for <kbd>%(djangome_term)s on <a "
+"href=\"http://%(slug)s.readthedocs.org\">%(slug)s.readthedocs.org</a></kbd>"
 msgstr ""
 
 #: templates/djangome/choices.html:28
@@ -1436,7 +1403,7 @@ msgstr ""
 
 #: templates/djangome/oneoffs.html:13
 msgid "Target"
-msgstr ""
+msgstr "Cieľ"
 
 #: templates/djangome/oneoffs.html:27
 msgid "kill"
@@ -1444,7 +1411,7 @@ msgstr ""
 
 #: templates/djangome/oneoffs.html:37
 msgid "add"
-msgstr ""
+msgstr "pridať"
 
 #: templates/djangome/show.html:4
 #, python-format
@@ -1475,18 +1442,17 @@ msgstr ""
 
 #: templates/flagging/flag_confirm.html:21
 #, python-format
-msgid ""
-"Are you sure you want to flag \"%(object)s\" as \"%(flag_type.title)s\"?"
+msgid "Are you sure you want to flag \"%(object)s\" as \"%(flag_type.title)s\"?"
 msgstr ""
 
 #: templates/flagging/flag_confirm.html:23
 #, python-format
 msgid "Yes, this is %(title)s"
-msgstr ""
+msgstr "Áno, toto je %(title)s"
 
 #: templates/flagging/flag_confirm.html:24
 msgid "cancel"
-msgstr ""
+msgstr "zrušiť"
 
 #: templates/flagging/flag_success.html:6
 #: templates/flagging/flag_success.html:11
@@ -1505,30 +1471,30 @@ msgstr ""
 #: templates/pagination/pagination.html:6
 #: templates/pagination/pagination.html:8
 msgid "previous"
-msgstr ""
+msgstr "predchádzajúci"
 
 #: templates/pagination/pagination.html:22
 #: templates/pagination/pagination.html:24
 msgid "next"
-msgstr ""
+msgstr "ďalší"
 
 #: templates/profiles/create_profile.html:5
 #: templates/profiles/create_profile.html:10
 msgid "Create your profile"
-msgstr ""
+msgstr "Vytvoriť vlastný profil"
 
 #: templates/profiles/create_profile.html:16
 msgid "Create it!"
-msgstr ""
+msgstr "Vytovriť!"
 
 #: templates/profiles/edit_profile.html:5
 #: templates/profiles/edit_profile.html:15
 msgid "Edit your profile"
-msgstr ""
+msgstr "Upraviť svoj profil"
 
 #: templates/profiles/edit_profile.html:21
 msgid "OK, save it!"
-msgstr ""
+msgstr "OK, uložiť!"
 
 #: templates/profiles/profile_detail.html:6
 #, python-format
@@ -1537,15 +1503,15 @@ msgstr ""
 
 #: templates/profiles/profile_detail.html:45
 msgid "Add Your Name"
-msgstr ""
+msgstr "Pridajte svoje meno"
 
 #: templates/profiles/profile_detail.html:77
 msgid "Add a Homepage"
-msgstr ""
+msgstr "Pridajte domácu stránku"
 
 #: templates/profiles/profile_detail.html:86
 msgid "Press enter to save your changes, or escape to discard them"
-msgstr ""
+msgstr "Stlačte enter pre uloženie zmien, alebo escape pre zrušenie"
 
 #: templates/profiles/profile_list.html:5
 #: templates/profiles/profile_list.html:8
@@ -1676,9 +1642,7 @@ msgstr "Nástenka projektu"
 #, python-format
 msgid ""
 "\n"
-"              Check out the <a href=\"%(url)s\">documentation for Read the "
-"Docs</a>. It contains lots of information about how to get the most out of "
-"RTD.\n"
+"              Check out the <a href=\"%(url)s\">documentation for Read the Docs</a>. It contains lots of information about how to get the most out of RTD.\n"
 "              "
 msgstr ""
 
@@ -1694,14 +1658,11 @@ msgstr "Moje Projekty"
 #, python-format
 msgid ""
 "\n"
-"          You don't have any projects. You can <a href="
-"\"%(projects_import_url)s\">create new docs</a> on the site.\n"
+"          You don't have any projects. You can <a href=\"%(projects_import_url)s\">create new docs</a> on the site.\n"
 "          <br>\n"
-"          If you have a GitHub account, you can <a href=\"%(social_accounts)s"
-"\">connect it</a> and import projects from there.\n"
+"          If you have a GitHub account, you can <a href=\"%(social_accounts)s\">connect it</a> and import projects from there.\n"
 "          <br>\n"
-"          Check out the <a href=\"%(getting_started_url)s\">Getting Started</"
-"a> documentation for information about how to get going.\n"
+"          Check out the <a href=\"%(getting_started_url)s\">Getting Started</a> documentation for information about how to get going.\n"
 "          </p> \n"
 "          "
 msgstr ""
@@ -1722,12 +1683,12 @@ msgstr "Vymazať navždy"
 
 #: templates/projects/project_edit.html:23
 msgid "Edit Project"
-msgstr ""
+msgstr "Upraviť projekt"
 
 #: templates/projects/project_edit.html:28
 #: templates/projects/project_edit_base.html:17
 msgid "Settings"
-msgstr ""
+msgstr "Nastavenia"
 
 #: templates/projects/project_edit.html:40
 msgid "delete"
@@ -1751,12 +1712,12 @@ msgstr ""
 #: templates/projects/project_edit_base.html:24
 #: templates/projects/project_notifications.html:12
 msgid "Notifications"
-msgstr ""
+msgstr "Upozornenia"
 
 #: templates/projects/project_import.html:4
 #: templates/projects/project_import.html:28
 msgid "Import an existing project"
-msgstr ""
+msgstr "Importovať existujúci projekt"
 
 #: templates/projects/project_import.html:37
 msgid ""
@@ -1808,7 +1769,7 @@ msgstr ""
 
 #: templates/projects/project_notifications.html:5
 msgid "Edit Notifications"
-msgstr ""
+msgstr "Upraviť upozornenia"
 
 #: templates/projects/project_notifications.html:16
 msgid "Configure Notifications to be sent on build failures."
@@ -1816,11 +1777,11 @@ msgstr ""
 
 #: templates/projects/project_notifications.html:20
 msgid "Existing Notifications"
-msgstr ""
+msgstr "Existujúce upozornenia"
 
 #: templates/projects/project_notifications.html:44
 msgid "Remove Notifications"
-msgstr ""
+msgstr "Zrušiť upozornenia"
 
 #: templates/projects/project_notifications.html:56
 #: templates/projects/project_subprojects.html:27
@@ -1831,11 +1792,11 @@ msgstr "Odstrániť"
 
 #: templates/projects/project_notifications.html:62
 msgid "New Email Notifications"
-msgstr ""
+msgstr "Nové emailové upozornenia"
 
 #: templates/projects/project_notifications.html:64
 msgid "Add an email address to notify"
-msgstr ""
+msgstr "Pridajte emailovú adresu pre upozornenia"
 
 #: templates/projects/project_notifications.html:73
 msgid "New Webhook Notifications"
@@ -1856,9 +1817,8 @@ msgid ""
 msgstr ""
 
 #: templates/projects/project_redirects.html:43
-#, fuzzy
 msgid "Existing Redirects"
-msgstr "Existujúci Správcovia"
+msgstr ""
 
 #: templates/projects/project_redirects.html:56
 msgid "Remove Redirect"
@@ -1890,8 +1850,8 @@ msgstr ""
 
 #: templates/projects/project_subprojects.html:16
 msgid ""
-"This allows you to add subprojects to your project. This allows them to live "
-"in the same namespace in the URLConf for a subdomain or CNAME."
+"This allows you to add subprojects to your project. This allows them to live"
+" in the same namespace in the URLConf for a subdomain or CNAME."
 msgstr ""
 
 #: templates/projects/project_subprojects.html:19
@@ -1928,9 +1888,7 @@ msgstr "Upraviť Správcov"
 msgid ""
 "This allows you to add maintainers to your project. It gives them admin "
 "access to the project, so be careful!"
-msgstr ""
-"Toto vám umožňuje pridať správcov do vášho projektu. Bude im pridelený "
-"administrátorský prístup do projektu, takže pozor!"
+msgstr "Toto vám umožňuje pridať správcov do vášho projektu. Bude im pridelený administrátorský prístup do projektu, takže pozor!"
 
 #: templates/projects/project_users.html:15
 msgid "Existing Maintainers"
@@ -2000,7 +1958,8 @@ msgstr ""
 msgid "Upload"
 msgstr ""
 
-#. Translators: After 'Flag this project as' follows either 'Inappropriate', 'Spam' and/or 'Duplicate'
+#. Translators: After 'Flag this project as' follows either 'Inappropriate',
+#. 'Spam' and/or 'Duplicate'
 #: templates/projects/includes/flagging.html:7
 msgid "Flag this project as"
 msgstr ""
@@ -2163,47 +2122,6 @@ msgstr "Výsledky Vyhľadávania"
 
 #: templates/sphinx/sphinx_rtd_theme/search.html:35
 msgid ""
-"Your search did not match any documents. Please make sure that all words are "
-"spelled correctly and that you've selected enough categories."
-msgstr ""
-"Pre vaše vyhľadávanie sa nenašli žiadne dokumenty. Uistite sa prosím, že je "
-"každé slovo napísané správne a že ste označili dosť kategórií. "
-
-#~ msgid ""
-#~ "Thank you for registering an account at %(domain)s.\n"
-#~ "To activate your registration, please visit the following page:\n"
-#~ "\n"
-#~ "http://%(domain)s%(activation_url)s\n"
-#~ "\n"
-#~ "This page will expire in %(expiration_days)s days.\n"
-#~ "\n"
-#~ "If you didn't register this account you can simply delete this email and "
-#~ "we won't bother you again."
-#~ msgstr ""
-#~ "Ďakujeme vám za registráciu účtu na %(domain)s.\n"
-#~ "Pre aktiváciu vašej registrácie prosím navštívte nasledujúcu adresu:\n"
-#~ "\n"
-#~ "http://%(domain)s%(activation_url)s\n"
-#~ "\n"
-#~ "Táto stránka expiruje za %(expiration_days)s dní.\n"
-#~ "\n"
-#~ "Ak ste si nezaregistrovali tento účet môžete jednoducho zmazať tento "
-#~ "email a my vás už nebudeme obťažovať."
-
-#~ msgid "%(site_name)s - activate your account"
-#~ msgstr "%(site_name)s - aktivujte si váš účet"
-
-#~ msgid ""
-#~ "Don't have an account?  <a href=\"/accounts/register/\">Register</a> a "
-#~ "new one."
-#~ msgstr ""
-#~ "Nemáte účet?  <a href=\"/accounts/register/\">Zaregistrovať</a> nový účet."
-
-#~ msgid "Old password"
-#~ msgstr "Staré heslo"
-
-#~ msgid "New password"
-#~ msgstr "Nové heslo"
-
-#~ msgid "Password (again)"
-#~ msgstr "Heslo (znova)"
+"Your search did not match any documents. Please make sure that all words are"
+" spelled correctly and that you've selected enough categories."
+msgstr "Pre vaše vyhľadávanie sa nenašli žiadne dokumenty. Uistite sa prosím, že je každé slovo napísané správne a že ste označili dosť kategórií. "
