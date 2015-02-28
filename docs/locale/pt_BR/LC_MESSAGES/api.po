@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: readthedocs-docs\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-03-26 11:17+0100\n"
-"PO-Revision-Date: 2014-09-21 19:40+0000\n"
-"Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
-"Language-Team: Norwegian Bokmål (http://www.transifex.com/projects/p/readthedocs-docs/language/nb/)\n"
+"PO-Revision-Date: 2014-03-01 09:58+0000\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Portuguese (Brazil) (http://www.transifex.com/projects/p/readthedocs-docs/language/pt_BR/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: nb\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: pt_BR\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 # ac4435557ec54a0698a7652375e52cea
 #: ../../api.rst:2
@@ -96,7 +96,7 @@ msgstr ""
 # f4891dae130e47e59b06bea32d59cd2f
 #: ../../api.rst:117
 msgid "Builds"
-msgstr ""
+msgstr "Builds"
 
 # 8546f8d134d74994ad138614d4268c3f
 #: ../../api.rst:135
@@ -136,7 +136,7 @@ msgstr ""
 # 42aa7c3b40d948a5a6c66ca3097dded6
 #: ../../api.rst:144
 msgid "Build"
-msgstr ""
+msgstr "Build"
 
 # 119aa8a5ac124969a4831f83385c04ea
 #: ../../api.rst:147
@@ -441,7 +441,7 @@ msgstr ""
 # e9c76ece62754d2888ef0ac4fc2e0571
 #: ../../api.rst:333
 msgid "Users"
-msgstr "Brukere"
+msgstr "Usuários"
 
 # f7629aa3942a47b6b44de8096567791b
 #: ../../api.rst:351
@@ -511,7 +511,7 @@ msgstr ""
 # e626db1a66094a7d965e794c6b0db78f
 #: ../../api.rst:387
 msgid "Versions"
-msgstr ""
+msgstr "Versões"
 
 # 6858d2545b434b35aa5004a6a5abe96e
 #: ../../api.rst:406

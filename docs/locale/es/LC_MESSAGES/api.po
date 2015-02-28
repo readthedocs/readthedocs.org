@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs-docs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-01 22:07+0800\n"
-"PO-Revision-Date: 2014-03-01 13:42+0000\n"
+"POT-Creation-Date: 2014-03-26 11:17+0100\n"
+"PO-Revision-Date: 2014-09-07 06:11+0000\n"
 "Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
 "Language-Team: Spanish (http://www.transifex.com/projects/p/readthedocs-docs/language/es/)\n"
 "MIME-Version: 1.0\n"
@@ -326,7 +326,7 @@ msgstr ""
 # 80abb8cd54d945979da68ac02b2baa5b
 #: ../../api.rst:307
 msgid "Copyright"
-msgstr ""
+msgstr "Derechos de autor"
 
 # 4336364a50664071b0f65b0d807742ca
 #: ../../api.rst:308
