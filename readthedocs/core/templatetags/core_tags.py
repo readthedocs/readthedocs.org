@@ -35,11 +35,13 @@ def make_document_url(project, version=None, page=None):
         base_url = project.get_translation_url(version)
     else:
         base_url = project.get_docs_url(version)
-    if page and page != "index":
+    if page and (page != "index") and (page != "index.html"):
         if project.documentation_type == "sphinx_htmldir":
             path = page + "/"
         elif project.documentation_type == "sphinx_singlehtml":
             path = "index.html#document-" + page
+        elif page.endswith(".html"):
+            path = page
         else:
             path = page + ".html"
     else:
