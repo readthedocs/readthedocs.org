@@ -149,3 +149,27 @@ class CoreTagsTests(TestCase):
         url = core_tags.make_document_url(proj, 'abc', 'index')
         self.assertEqual(url, '/docs/pip/fr/abc/')
 
+    def test_mkdocs(self):
+        proj = Project.objects.get(slug='pip')
+        proj.documentation_type = 'mkdocs'
+        url = core_tags.make_document_url(proj, 'latest', 'document')
+        self.assertEqual(url, '/docs/pip/en/latest/document.html')
+
+    def test_mkdocs_no_directory_urls(self):
+        proj = Project.objects.get(slug='pip')
+        proj.documentation_type = 'mkdocs'
+        url = core_tags.make_document_url(proj, 'latest', 'document.html')
+        self.assertEqual(url, '/docs/pip/en/latest/document.html')
+
+    def test_mkdocs_index(self):
+        proj = Project.objects.get(slug='pip')
+        proj.documentation_type = 'mkdocs'
+        url = core_tags.make_document_url(proj, 'latest', 'index')
+        self.assertEqual(url, '/docs/pip/en/latest/')
+
+    def test_mkdocs_index_no_directory_urls(self):
+        proj = Project.objects.get(slug='pip')
+        proj.documentation_type = 'mkdocs'
+        url = core_tags.make_document_url(proj, 'latest', 'index.html')
+        self.assertEqual(url, '/docs/pip/en/latest/')
+
