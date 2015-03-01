@@ -520,16 +520,28 @@ def record_build(api, record, build, results, state, start_time=None):
     for step in setup_steps:
         if step in results:
             build['setup'] += "\n\n%s\n-----\n\n" % step
-            build['setup'] += results.get(step)[1]
+            try:
+                build['setup'] += results.get(step)[1]
+            except IndexError, TypeError:
+                pass
             build['setup_error'] += "\n\n%s\n-----\n\n" % step
-            build['setup_error'] += results.get(step)[2]
+            try:
+                build['setup_error'] += results.get(step)[2]
+            except IndexError, TypeError:
+                pass
 
     for step in output_steps:
         if step in results:
             build['output'] += "\n\n%s\n-----\n\n" % step
-            build['output'] += results.get(step)[1]
+            try:
+                build['output'] += results.get(step)[1]
+            except IndexError, TypeError:
+                pass
             build['error'] += "\n\n%s\n-----\n\n" % step
-            build['error'] += results.get(step)[2]
+            try:
+                build['error'] += results.get(step)[2]
+            except IndexError, TypeError:
+                pass
 
     # Attempt to stop unicode errors on build reporting
     for key, val in build.items():
