@@ -522,12 +522,12 @@ def record_build(api, record, build, results, state, start_time=None):
             build['setup'] += "\n\n%s\n-----\n\n" % step
             try:
                 build['setup'] += results.get(step)[1]
-            except IndexError, TypeError:
+            except (IndexError, TypeError):
                 pass
             build['setup_error'] += "\n\n%s\n-----\n\n" % step
             try:
                 build['setup_error'] += results.get(step)[2]
-            except IndexError, TypeError:
+            except (IndexError, TypeError):
                 pass
 
     for step in output_steps:
@@ -535,12 +535,12 @@ def record_build(api, record, build, results, state, start_time=None):
             build['output'] += "\n\n%s\n-----\n\n" % step
             try:
                 build['output'] += results.get(step)[1]
-            except IndexError, TypeError:
+            except (IndexError, TypeError):
                 pass
             build['error'] += "\n\n%s\n-----\n\n" % step
             try:
                 build['error'] += results.get(step)[2]
-            except IndexError, TypeError:
+            except (IndexError, TypeError):
                 pass
 
     # Attempt to stop unicode errors on build reporting
