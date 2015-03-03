@@ -150,7 +150,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             # Fringe
             'analytics_code',
             # Version Support
-            'num_major', 'num_minor', 'num_point',
+            # 'num_major', 'num_minor', 'num_point',
         )
 
     def clean_conf_py_file(self):
