@@ -64,6 +64,8 @@ $(document).ready(function () {
         <select id="id_section" data-bind="enable: has_sections, options: sections, value: section, optionsCaption: 'Choose a Section', optionsText: 'title', optionsValue: 'id'"></select>
       </div>
 
+      <p data-bind="text: help, visible: help != null"></p>
+
       <div data-bind="visible: has_section">
         <h3>API</h3>
         <div id="id_url" data-bind="text: api_example"></div>

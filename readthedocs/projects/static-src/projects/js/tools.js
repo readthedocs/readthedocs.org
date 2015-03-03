@@ -27,10 +27,12 @@ function EmbedView (config) {
     self.sections = ko.observableArray();
     ko.computed(function () {
         var file = self.file();
+        self.sections.removeAll();
         if (! file) {
-            self.sections.removeAll();
             return;
         }
+        self.help('Loading');
+        self.section(null);
 
         $.ajax({
             type: 'GET',
@@ -43,9 +45,10 @@ function EmbedView (config) {
         })
         .done(function(data, text_status, request) {
             self.sections.removeAll();
+            self.help(null);
+            var sections_data = [];
             for (n in data.headers) {
-                var section = data.headers[n],
-                    sections_data = [];
+                var section = data.headers[n];
                 $.each(section, function (title, id) {
                     sections_data.push({
                         title: title,
@@ -56,8 +59,7 @@ function EmbedView (config) {
             self.sections(sections_data);
         })
         .fail(function(data, text_status, error) {
-            self.sections.removeAll();
-            console.log('FAIL: ' + JSON.stringify(data));
+            self.help('There was a problem retrieving data from the API');
         });
     });
 
@@ -78,6 +80,8 @@ function EmbedView (config) {
         if (file == null || section == null) {
             return self.response(null);
         }
+        self.help('Loading');
+        self.response(null);
 
         $.ajax({
             type: 'GET',
@@ -93,10 +97,11 @@ function EmbedView (config) {
             },
         })
         .done(function (data, text_status, request) {
+            self.help(null);
             self.response(data.content);
         })
         .fail(function(request, text_status, error) {
-            console.log('Error: ' + JSON.stringify(request));
+            self.help('There was a problem retrieving data from the API');
         })
     });
 
