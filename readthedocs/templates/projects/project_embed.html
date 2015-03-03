@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load privacy_tags %}
 {% load core_tags highlight  %}
+{% load static %}
 
 {% block title %}
 Tools
@@ -15,166 +16,75 @@ Tools
 
 
 {% block extra_scripts %}
-    <script type="text/javascript" src="http://localhost:5555/static/javascript/bundle-public.js"></script>
-
-    <script type="text/javascript">
-
-      function clearAll() {
-        $('#results').contents().find('html').html('')
-        $('#id_section').empty()
-        $('#results_raw').empty()
-      }
-
-      function showHelp() {
-        ReadTheDocs.embed.into('docs', 'versions', 'How we envision versions working', function (data) {
-          $("#id_help").html(data['content'])
-          $('#id_help').toggle()
-        })
-      }
-
-      function reloadSection(project, doc) {
-        clearAll()
-        var options = $("#id_section");
-        options.append($("<option />").val('Loading..').text('Loading..'));
-              $.ajax({
-                type: 'GET',
-                url: 'http://localhost:5555/api/v1/embed/',
-                //url: 'https://api.grokthedocs.com/api/v1/content/',
-                crossDomain: true,
-                data: {
-                  project: project,
-                  doc: doc,
-                },
-                success: function(data, textStatus, request) {
-                  options.empty()
-                  options.append($("<option />").val('').text('Select a Section'));
-                  $.each(data['headers'], function(index) {
-
-                    $.each(data['headers'][index], function (key, val) {
-                      if (val != '#') {
-                        options.append($("<option />").val(key).text(key));
-                      }
-                    })
-
-                  })
-
-                },
-              });
-      }
-
-      function clearIframe(text) {
-        $('#results').contents().find('html').html(text)
-        $('#id_url').html('')
-      }
-
-        $(document).ready(function() {
-              var project = '{{ project.slug }}';
-
-            $('#id_file').bind('change', function(ev) {
-              var file = $('#id_file').val()
-              reloadSection(project, file)
-              clearIframe()
-            })
-
-            $('#id_section').bind('change', function(ev) {
-                var file = $('#id_file').val()
-                var section = $('#id_section').val()
-                clearIframe('Loading...')
-
-                $.ajax({
-                  type: 'GET',
-                  url: 'http://localhost:5555/api/v1/embed/',
-                  //url: 'https://api.grokthedocs.com/api/v1/content/',
-                  crossDomain: true,
-                  xhrFields: {
-                    withCredentials: true,
-                  },
-                  data: {
-                    project: project,
-                    doc: file,
-                    section: section
-                  },
-                  success: function(data, textStatus, request) {
-                    console.log("Sent Click data")
-                    if (data['content'][0] == null)
-                      $('#results').contents().find('html').html('<h1>Section Not Found</h1>')
-                    else {
-                      $('#results').contents().find('html').html(data['content'])
-                      $('#results').contents().find('html').prepend('<link rel="stylesheet" href="http://localhost:5555/static/css/public.css">')
-                      $('#results').contents().find('html').prepend('<link rel="stylesheet" href="http://mkdocs.readthedocs.org/en/latest/css/theme.css">')
-                      $('#results_raw').text(data['content'])
-                    }
-                    var link = $('<a>', {
-                      text: this.url,
-                      href: this.url,
-                    })
-                    $('#id_url').html(link)
-                  },
-                  error: function(request, textStatus, error) {
-                    $('#results').contents().find('html').html('<h1>Section Not Found</h1>')
-                    console.log(error)
-                  }
-                });
-          });
-        });
-
-    </script>
+  <script type="text/javascript" src="{% static 'projects/js/tools.js' %}"></script>
+  <script type="text/javascript">
+$(document).ready(function () {
+    tools.init_embed({
+        api_host: 'http://127.0.0.1:8888'
+    })
+});
+  </script>
 {% endblock %}
 
 
 {% block content %}
-
-
-
   <div class="navigable">
+    <ul>
+      <li class="active">
+        <a href="{% url 'project_embed' project.slug %}">Embed</a>
+      </li>
+      <li>
+        <a href="{% url 'project_analytics' project.slug %}">Analytics</a>
+      </li>
+    </ul>
 
-        <ul>
-        <li class="active">
-          <a href="{% url 'project_embed' project.slug %}">Embed</a>
-        </li>
-        <li>
-          <a href="{% url 'project_analytics' project.slug %}">Analytics</a>
-        </li>
-        </ul>
+    <div id='tool-embed'>
 
+      <div id="help_container">
+        <a class="quiet" href="javascript:showHelp()">(Help)</a>
+        <div id="id_help" class="help" style="display: none;"></div>
+      </div>
 
-  <div class="project-version-list">
-        <div id="help_container">
-          <a class="quiet" href="javascript:showHelp()">(Help)</a>
-          <div id="id_help" class="help" style="display: none;"></div>
-        </div>
+      <h1>Embed API</h1>
 
-        <h1> Embed API </h1>
+      <p class="help_text">
+        {% trans "Embed content into any site on the internet dynamically." %}
+      </p>
 
+      <h3>{% trans "File" %}</h3>
+      <select id="id_file" name="file" data-bind="value: file">
+        <option value="">Select a File</option>
+        {% for file in files %}
+          <option value="{{ file.path|cut:".html" }}">{{ file.path }}</option>
+        {% endfor %}
+      </select>
 
-        <p class="help_text">
-          {% trans "Embed content into any site on the internet dynamically." %}
-        </p>
+      <div data-bind="visible: has_sections">
+        <h3>Section</h3>
+        <select id="id_section" data-bind="enable: has_sections, options: sections, value: section, optionsCaption: 'Choose a Section', optionsText: 'title', optionsValue: 'id'"></select>
+      </div>
 
-          <h3>{% trans "File" %}</h3>
-          <select id="id_file" name="file">
-            <option value="">Select a File</option>
-          {% for file in files %}
-            <option value="{{ file.path|cut:".html" }}">{{ file.path }}</option>
-          {% endfor %}
-          </select>
-        <h2>Section</h2>
-          <select id="id_section">
-          </select>
+      <p data-bind="text: help, visible: help != null"></p>
 
-        <h4>API</h4>
-         <div id="id_url">
-           &nbsp;
-         </div>
+      <div data-bind="visible: has_section">
+        <h3>API</h3>
+        <div id="id_url" data-bind="text: api_example"></div>
+      </div>
 
-        <h2>Results</h2>
-        <h3>Rendered</h3>
-        <iframe id='results' width="100%" height="400px"><html></html></iframe>
-        <h3>Raw</h3>
-        <pre id="results_raw"></pre>
+      <div data-bind="visible: has_response">
+        <h3>Results</h3>
 
+        <h4>Rendered</h4>
+        <div data-bind="html: response"></div>
+        <iframe id='results' width="100%" height="400px">
+          <html>
+          </html>
+        </iframe>
+
+        <h4>Raw</h4>
+        <pre id="results_raw" data-bind="text: response"></pre>
+      </div>
+
+    </div>
   </div>
-
-  </div>
-
 {% endblock %}

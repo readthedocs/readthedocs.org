@@ -74,7 +74,6 @@ def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
         apiv2 = api
 
     start_time = datetime.datetime.utcnow()
-    
     try:
         project_data = api.project(pk).get()
     except HttpClientError:
