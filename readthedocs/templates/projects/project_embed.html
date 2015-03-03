@@ -20,8 +20,8 @@ Tools
   <script type="text/javascript">
 $(document).ready(function () {
     tools.init_embed({
-        api_host: 'http://127.0.0.1:8888'
-    })
+        api_host: '{{ settings.GROK_API_HOST }}'
+    });
 });
   </script>
 {% endblock %}

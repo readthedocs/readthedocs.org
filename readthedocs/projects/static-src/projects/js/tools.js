@@ -52,7 +52,7 @@ function EmbedView (config) {
                 $.each(section, function (title, id) {
                     sections_data.push({
                         title: title,
-                        id: id
+                        id: title
                     });
                 });
             }
