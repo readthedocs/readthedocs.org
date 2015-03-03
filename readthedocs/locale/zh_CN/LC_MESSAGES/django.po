@@ -1,24 +1,24 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-#
+# 
 # Translators:
 # wlbksy <kookbond@gmail.com>, 2014
 # mozillazg <opensource.mozillazg@gmail.com>, 2014
 # rimy <Siramizu@gmail.com>, 2013
+# YF <yfdyh000@gmail.com>, 2015
 msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-09-21 14:17-0500\n"
-"PO-Revision-Date: 2014-06-02 12:00+0000\n"
-"Last-Translator: mozillazg <opensource.mozillazg@gmail.com>\n"
-"Language-Team: Chinese (China) (http://www.transifex.com/projects/p/"
-"readthedocs/language/zh_CN/)\n"
-"Language: zh_CN\n"
+"PO-Revision-Date: 2015-02-16 15:54+0000\n"
+"Last-Translator: YF <yfdyh000@gmail.com>\n"
+"Language-Team: Chinese (China) (http://www.transifex.com/projects/p/readthedocs/language/zh_CN/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: zh_CN\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
 #: api/utils.py:86
@@ -137,16 +137,16 @@ msgstr "标识符"
 
 #: builds/models.py:94
 msgid "Verbose Name"
-msgstr "长名字"
+msgstr "长名称"
 
 #: builds/models.py:95 projects/filters.py:33 projects/models.py:105
 #: projects/models.py:765
 msgid "Slug"
-msgstr "Slug"
+msgstr "网址标识"
 
 #: builds/models.py:97
 msgid "Supported"
-msgstr "支持的"
+msgstr "支持"
 
 #: builds/models.py:98 oauth/models.py:19 oauth/models.py:42
 #: redirects/models.py:12 templates/projects/project_versions.html:46
@@ -167,7 +167,7 @@ msgstr "隐私级别"
 
 #: builds/models.py:103
 msgid "Level of privacy for this Version."
-msgstr "当前版本的隐私级别。"
+msgstr "此版本的隐私级别。"
 
 #. Translators: Permission around whether a user can view the
 #. version
@@ -190,7 +190,7 @@ msgstr "到 slug"
 
 #: builds/models.py:285
 msgid "Largest"
-msgstr "最大"
+msgstr "较大"
 
 #: builds/models.py:288
 #, python-format
@@ -232,7 +232,7 @@ msgstr "退出码"
 
 #: builds/models.py:313 templates/builds/build_detail.html:39
 msgid "Commit"
-msgstr ""
+msgstr "提交"
 
 #: builds/models.py:320
 #, python-format
@@ -261,11 +261,11 @@ msgstr "主页"
 
 #: core/models.py:17
 msgid "Allow email"
-msgstr "允许 Email 地址"
+msgstr "允许电子邮件地址"
 
 #: core/models.py:18
 msgid "Show your email on VCS contributions."
-msgstr "在版本库的贡献者名单中显示你的 Email 地址。"
+msgstr "在版本库的贡献者名单中显示您的电子邮件地址。"
 
 #: core/models.py:23
 #, python-format
@@ -286,32 +286,28 @@ msgid "Modified date"
 msgstr "修改日期"
 
 #: oauth/models.py:10 oauth/models.py:31
-#, fuzzy
 msgid "Users"
 msgstr "用户"
 
 #: oauth/models.py:13
 msgid "Login"
-msgstr ""
+msgstr "登录"
 
 #: oauth/models.py:15
 msgid "Email"
-msgstr ""
+msgstr "电子邮件"
 
 #: oauth/models.py:18 oauth/models.py:41
-#, fuzzy
 msgid "HTML URL"
-msgstr "HTML"
+msgstr "HTML URL"
 
 #: oauth/models.py:33
-#, fuzzy
 msgid "Organization"
-msgstr "翻译"
+msgstr "组织"
 
 #: oauth/models.py:36
-#, fuzzy
 msgid "Full Name"
-msgstr "名称"
+msgstr "全名"
 
 #: oauth/models.py:38 projects/models.py:107
 msgid "The reStructuredText description of the project"
@@ -319,11 +315,11 @@ msgstr "reStructuredText 格式的项目说明"
 
 #: oauth/models.py:39
 msgid "Git URL"
-msgstr ""
+msgstr "Git URL"
 
 #: oauth/models.py:40
 msgid "SSH URL"
-msgstr ""
+msgstr "SSH URL"
 
 #: projects/constants.py:18
 msgid "Sphinx Html"
@@ -424,35 +420,32 @@ msgstr "代码库类型"
 
 #: projects/forms.py:26
 msgid "A project with that name exists already!"
-msgstr "已存在相同的项目名称！"
+msgstr "已存在相同名称的项目！"
 
 #: projects/forms.py:34
 msgid ""
 "URL for your code (hg or git). Ex. http://github.com/ericholscher/django-"
 "kong.git"
-msgstr ""
-"代码仓库 URL (hg 或 git). 例如. http://github.com/ericholscher/django-kong."
-"git"
+msgstr "您的代码库的 URL (hg 或 git)。例如: http://github.com/ericholscher/django-kong.git"
 
 #: projects/forms.py:56
 msgid "Invalid character in repo name"
-msgstr "仓库名称中包含无效字符"
+msgstr "代码库名称中含有无效字符"
 
 #: projects/forms.py:59
 msgid ""
-"It looks like you entered a private repo - please use the public (http:// or "
-"git://) clone url"
-msgstr ""
-"看起来您似乎输入了一个私有仓库 - 请使用公开的 (http:// or git://) 克隆 url"
+"It looks like you entered a private repo - please use the public (http:// or"
+" git://) clone url"
+msgstr "您似乎输入了一个私有代码库 - 请使用公开的 (http:// 或 git://) 克隆 URL"
 
 #: projects/forms.py:76 projects/models.py:187
 msgid "(Beta) The Python interpreter used to create the virtual environment."
-msgstr "(Beta) 用于创建虚拟环境的 Python 解释器。"
+msgstr "(测试版) 用于创建虚拟环境的 Python 解释器。"
 
 #: projects/forms.py:105
 msgid ""
 "Your configuration file is invalid, make sure it contains conf.py in it."
-msgstr "您的配置文件无效，请确认包含 conf.py 文件。"
+msgstr "您的配置文件无效，请确认它是否包含 conf.py 文件。"
 
 #: projects/forms.py:177 templates/core/project_details.html:172
 msgid "Default Version"
@@ -460,7 +453,7 @@ msgstr "默认版本"
 
 #: projects/forms.py:200
 msgid "Zip file of HTML"
-msgstr "所有 HTML 文件的 Zip 压缩包"
+msgstr "HTML 文件的 Zip 压缩包"
 
 #: projects/forms.py:202
 msgid "Overwrite existing HTML?"
@@ -468,7 +461,7 @@ msgstr "覆盖已存在的 HTML 文件？"
 
 #: projects/forms.py:215
 msgid "That version is already active!"
-msgstr "这个版本已激活！"
+msgstr "这个版本已经激活！"
 
 #: projects/forms.py:217
 msgid "Must upload a zip file."
@@ -498,11 +491,9 @@ msgstr "子"
 
 #: projects/models.py:110
 msgid ""
-"Checkout URL for your code (hg, git, etc.). Ex. http://github.com/"
-"ericholscher/django-kong.git"
-msgstr ""
-"该项目代码库的地址（hg、git 等）。如：http://github.com/ericholscher/django-"
-"kong.git"
+"Checkout URL for your code (hg, git, etc.). Ex. "
+"http://github.com/ericholscher/django-kong.git"
+msgstr "您的代码库的检出地址（hg、git 等）。例如: http://github.com/ericholscher/django-kong.git"
 
 #: projects/models.py:113
 msgid "Repository type"
@@ -518,20 +509,17 @@ msgstr "项目的主页"
 
 #: projects/models.py:117
 msgid "Canonical URL"
-msgstr "标准 URL"
+msgstr "权威网址"
 
 #: projects/models.py:118
-#, fuzzy
 msgid ""
-"The official URL that the docs live at. This can be slug.readthedocs.org, or "
-"somewhere else. Ex. http://docs.fabfile.org"
-msgstr ""
-"文档的官方 URL 。可以在 readthedocs.org 上，或其他地方。比如：http://docs."
-"fabfile.org"
+"The official URL that the docs live at. This can be slug.readthedocs.org, or"
+" somewhere else. Ex. http://docs.fabfile.org"
+msgstr "文档的官方网址。它可以是 slug.readthedocs.org 上的地址，也可以是其他地方。例如：http://docs.fabfile.org"
 
 #: projects/models.py:120
 msgid "Project version these docs apply to, i.e. 1.0a"
-msgstr "这些文档应用的项目版本, 比如：1.0a"
+msgstr "这些文档要应用的项目版本，比如：1.0a"
 
 #: projects/models.py:122 templates/sphinx/sphinx_rtd_theme/layout.html:58
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:140
@@ -563,9 +551,7 @@ msgid ""
 "A single version site has no translations and only your \"latest\" version, "
 "served at the root of the domain. Use this with caution, only turn it on if "
 "you will <b>never</b> have multiple versions of your docs."
-msgstr ""
-"单一版本的站点不含翻译版本，只包含 \"latest\" 版本，使用根域名进行服务。谨慎"
-"使用。仅在您<b>没有</b>多版本时使用。"
+msgstr "单一版本的站点不含多个翻译版本，只有一个“latest”版本，使用根域名进行托管。请谨慎使用，仅在您的文档<b>永远不会用到</b>多版本时使用它。"
 
 #: projects/models.py:135
 msgid "Default version"
@@ -583,9 +569,7 @@ msgstr "默认分支"
 msgid ""
 "What branch \"latest\" points to. Leave empty to use the default value for "
 "your VCS (eg. trunk or master)."
-msgstr ""
-"“latest” 分支所实际指向的分支。留空则根据您的版本控制系统决定（如：trunk 或 "
-"master）。"
+msgstr "“latest” 分支所实际指向的分支。留空则根据您的版本控制系统决定（例如 trunk 或 master）。"
 
 #: projects/models.py:145
 msgid "Requirements file"
@@ -593,13 +577,11 @@ msgstr "所需求的文件"
 
 #: projects/models.py:147
 msgid ""
-"Requires Virtualenv. A <a href=\"http://www.pip-installer.org/en/latest/"
-"cookbook.html#requirements-files\">pip requirements file</a> needed to build "
-"your documentation. Path from the root of your project."
-msgstr ""
-"需要 Virtualenv. 需要一个 <a href=\"http://www.pip-installer.org/en/latest/"
-"cookbook.html#requirements-files\">pip requirements 文件</a> 用来构建您的文"
-"档。 路径相对于您的项目根目录。"
+"Requires Virtualenv. A <a href=\"http://www.pip-"
+"installer.org/en/latest/cookbook.html#requirements-files\">pip requirements "
+"file</a> needed to build your documentation. Path from the root of your "
+"project."
+msgstr "需要 Virtualenv。需要一个 <a href=\"http://www.pip-installer.org/en/latest/cookbook.html#requirements-files\">pip requirements 文件</a> 用来构建您的文档。路径为您的项目的根目录。"
 
 #: projects/models.py:152
 msgid "Documentation type"
@@ -607,11 +589,10 @@ msgstr "文档类型"
 
 #: projects/models.py:154
 msgid ""
-"Type of documentation you are building. <a href=\"http://sphinx-doc.org/"
-"builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More info</a>."
-msgstr ""
-"您要构建的文档类型。 <a href=\"http://sphinx-doc.org/builders.html#sphinx."
-"builders.html.DirectoryHTMLBuilder\">更多信息</a> 。"
+"Type of documentation you are building. <a href=\"http://sphinx-"
+"doc.org/builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More "
+"info</a>."
+msgstr "您要构建的文档类型。<a href=\"http://sphinx-doc.org/builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">更多信息</a>。"
 
 #: projects/models.py:158
 msgid "Analytics code"
@@ -621,7 +602,7 @@ msgstr "分析代码"
 msgid ""
 "Google Analytics Tracking ID (ex. UA-22345342-1). This may slow down your "
 "page loads."
-msgstr "Google 分析追踪 ID（如：UA-22345342-1）。这可能导致页面加载变慢。"
+msgstr "Google 分析追踪 ID（如：UA-22345342-1）。这可能导致您的页面加载变慢。"
 
 #: projects/models.py:163 projects/models.py:766
 msgid "Path"
@@ -639,8 +620,7 @@ msgstr "Python 配置文件"
 msgid ""
 "Path from project root to conf.py file (ex. docs/conf.py). Leave blank if "
 "you want us to find it for you."
-msgstr ""
-"相对项目根目录的 conf.py 文件路径（如：docs/conf.py）。留空则自动查找。"
+msgstr "相对项目根目录的 conf.py 文件路径（如：docs/conf.py）。留空则自动查找。"
 
 #: projects/models.py:170
 msgid "Featured"
@@ -682,7 +662,7 @@ msgstr "Django 包 URL"
 msgid ""
 "(Beta) Level of privacy that you want on the repository. Protected means "
 "public but not in listings."
-msgstr "(Beta) 仓库的隐私级别。 “保护的”意味着公开但不被显示在列表中。"
+msgstr "(测试版) 代码库的隐私级别。“保护”意味着公开但不被显示在列表中。"
 
 #: projects/models.py:204
 msgid "Version Privacy Level"
@@ -691,7 +671,7 @@ msgstr "版本隐私级别"
 #: projects/models.py:206
 msgid ""
 "(Beta) Default level of privacy you want on built versions of documentation."
-msgstr "(Beta) 构建不同版本的文档时的默认隐私级别。"
+msgstr "(测试版) 构建不同版本的文档时的默认隐私级别。"
 
 #: projects/models.py:211
 msgid "Related projects"
@@ -699,13 +679,13 @@ msgstr "相关项目"
 
 #: projects/models.py:215
 msgid "Language"
-msgstr ""
+msgstr "语言"
 
 #: projects/models.py:216
 msgid ""
 "The language the project documentation is rendered in. Note: this affects "
 "your project's URL."
-msgstr ""
+msgstr "该项目的文档所呈现的语言。注意：这影响您的项目的 URL。"
 
 #: projects/models.py:227
 msgid "Number of Major versions"
@@ -713,7 +693,7 @@ msgstr "主版本号"
 
 #: projects/models.py:232
 msgid "2 means supporting 3.X.X and 2.X.X, but not 1.X.X"
-msgstr "2 意味着支持 3.X.X 和 2.X.X, 但是不支持 1.X.X"
+msgstr "2 意味着支持 3.X.X 和 2.X.X，但是不支持 1.X.X"
 
 #: projects/models.py:235
 msgid "Number of Minor versions"
@@ -721,7 +701,7 @@ msgstr "小版本号"
 
 #: projects/models.py:240
 msgid "2 means supporting 2.2.X and 2.1.X, but not 2.0.X"
-msgstr "2 意味着支持 2.2.X 和 2.1.X, 但是不支持 2.0.X"
+msgstr "2 意味着支持 2.2.X 和 2.1.X，但是不支持 2.0.X"
 
 #: projects/models.py:243
 msgid "Number of Point versions"
@@ -729,7 +709,7 @@ msgstr "点版本号"
 
 #: projects/models.py:248
 msgid "2 means supporting 2.2.2 and 2.2.1, but not 2.2.0"
-msgstr "2 意味着支持 2.2.2 和 2.2.1, 但是不支持 2.2.0"
+msgstr "2 意味着支持 2.2.2 和 2.2.1，但是不支持 2.2.0"
 
 #. Translators: Permission around whether a user can view the
 #. project
@@ -747,95 +727,88 @@ msgstr "MD5 校验码"
 
 #: projects/models.py:795
 msgid "URL to send the webhook to"
-msgstr "URL 用来发送 webhook 到"
+msgstr "发送 webhook 到"
 
 #: redirects/models.py:7
 msgid "301 - Permanent Redirect"
-msgstr ""
+msgstr "301 - 永久重定向"
 
 #: redirects/models.py:8
 msgid "302 - Temporary Redirect"
-msgstr ""
+msgstr "302 - 临时重定向"
 
 #: redirects/models.py:13
-#, fuzzy
 msgid "Inactive"
-msgstr "激活"
+msgstr "未启用"
 
 #: redirects/models.py:17
 msgid "Prefix Redirect"
-msgstr ""
+msgstr "前缀重定向"
 
 #: redirects/models.py:18
 msgid "Page Redirect"
-msgstr ""
+msgstr "页面重定向"
 
 #: redirects/models.py:19
-#, fuzzy
 msgid "Sphinx HTMLDir -> HTML"
-msgstr "Sphinx Single Page HTML"
+msgstr "Sphinx HTMLDir -> HTML"
 
 #: redirects/models.py:20
-#, fuzzy
 msgid "Sphinx HTML -> HTMLDir"
-msgstr "Sphinx HtmlDir"
+msgstr "Sphinx HTML -> HTMLDir"
 
 #: redirects/models.py:24
 msgid ""
-"Absolute path, excluding the domain.Example: <b>/docs/</b>  or <b>/install."
-"html</b>."
-msgstr ""
+"Absolute path, excluding the domain.Example: <b>/docs/</b>  or "
+"<b>/install.html</b>."
+msgstr "绝对路径，不包括域名。例如：<b>/docs/</b> 或者 <b>/install.html</b>。"
 
 #: redirects/models.py:27
 msgid "Absolute or relative url. Examples: <b>/tutorial/install.html.</b>"
-msgstr ""
+msgstr "绝对或相对 URL。例如：<b>/tutorial/install.html</b>。"
 
 #: redirects/models.py:30
 msgid "The type of redirect you wish to use."
-msgstr ""
+msgstr "您希望使用的重定向类型。"
 
 #: redirects/models.py:36
-#, fuzzy
 msgid "Redirect Type"
-msgstr "代码库类型"
+msgstr "重定向类型"
 
 #: redirects/models.py:38
-#, fuzzy
 msgid "From URL"
-msgstr "项目网址"
+msgstr "从 URL"
 
 #: redirects/models.py:41
-#, fuzzy
 msgid "To URL"
-msgstr "短网址"
+msgstr "至 URL"
 
 #: redirects/models.py:44
 msgid "HTTP Status"
-msgstr ""
+msgstr "HTTP 状态"
 
 #: redirects/models.py:53
 msgid "redirect"
-msgstr ""
+msgstr "重定向"
 
 #: redirects/models.py:54
-#, fuzzy
 msgid "redirects"
-msgstr "精选项目"
+msgstr "重定向"
 
 #: redirects/models.py:59
 #, python-format
 msgid "Redirect: %s ->"
-msgstr ""
+msgstr "重定向: %s ->"
 
 #: redirects/models.py:61
 #, python-format
 msgid "Redirect: %s -> %s"
-msgstr ""
+msgstr "重定向: %s -> %s"
 
 #: redirects/models.py:63
 #, python-format
 msgid "Redirect: %s"
-msgstr ""
+msgstr "重定向: %s"
 
 #: settings/base.py:59
 msgid "English"
@@ -859,11 +832,11 @@ msgstr "俄语"
 
 #: settings/base.py:64
 msgid "German"
-msgstr "German"
+msgstr "德语"
 
 #: settings/base.py:65
 msgid "Galician"
-msgstr "Galician"
+msgstr "加利西亚语"
 
 #: settings/base.py:66
 msgid "Vietnamese"
@@ -907,16 +880,14 @@ msgstr "您的文档当前正在构建中。可能需要一段时间才会出现
 
 #: templates/base.html:62
 msgid "Read the Docs thanks you for your continued patience."
-msgstr "本网站感谢您的耐心。"
+msgstr "Read the Docs 感谢您的耐心等待。"
 
 #: templates/base.html:84
 #, python-format
 msgid ""
-"Copyright 2010-2013. Created by %(eric)s, %(charles)s, and %(bobby)s for the "
-"2010 %(djangodash)s."
-msgstr ""
-"Copyright 2010-2013. Created by %(eric)s, %(charles)s, and %(bobby)s for the "
-"2010 %(djangodash)s."
+"Copyright 2010-2013. Created by %(eric)s, %(charles)s, and %(bobby)s for the"
+" 2010 %(djangodash)s."
+msgstr "版权所有 2010-2013。创建者：%(eric)s、%(charles)s，及 %(bobby)s 在 2010 %(djangodash)s。"
 
 #: templates/base.html:86
 msgid "Docs"
@@ -924,13 +895,11 @@ msgstr "文档"
 
 #: templates/base.html:88
 msgid ""
-"Made by <a href=\"https://github.com/rtfd/readthedocs.org/graphs/contributors"
-"\">humans</a>. Funded by <a href=\"https://www.gittip.com/readthedocs/"
-"\">readers like you</a>."
-msgstr ""
-"由 <a href=\"https://github.com/rtfd/readthedocs.org/graphs/contributors\">贡"
-"献者</a>建立。由<a href=\"https://www.gittip.com/readthedocs/\">像您一样的读"
-"者</a>资助。"
+"Made by <a "
+"href=\"https://github.com/rtfd/readthedocs.org/graphs/contributors\">humans</a>."
+" Funded by <a href=\"https://www.gittip.com/readthedocs/\">readers like "
+"you</a>."
+msgstr "由<a href=\"https://github.com/rtfd/readthedocs.org/graphs/contributors\">多名贡献者</a>建立。由<a href=\"https://www.gittip.com/readthedocs/\">像您一样的读者</a>资助。"
 
 #: templates/base_filter.html:14 templates/core/filter_bar.html:8
 msgid "Filter"
@@ -938,24 +907,23 @@ msgstr "过滤"
 
 #: templates/donate.html:3 templates/core/header.html:50
 msgid "Donate"
-msgstr ""
+msgstr "捐助"
 
 #: templates/donate.html:9
 msgid ""
 "Read the Docs is funded through donations from our users. You can donate "
 "money a couple of ways:"
-msgstr ""
+msgstr "Read the Docs 是依赖于我们的用户捐赠。您可以通过下列方式捐款："
 
 #: templates/donate.html:14
 msgid "Credit Card"
-msgstr ""
+msgstr "信用卡"
 
 #: templates/donate.html:20
 msgid ""
 "\n"
-"You can read more about the ongoing efforts to improve the documentation "
-"ecosystem here:\n"
-msgstr ""
+"You can read more about the ongoing efforts to improve the documentation ecosystem here:\n"
+msgstr "\n您可以阅读更多有关如何不断努力改善文档生态系统的信息：\n"
 
 #: templates/error_header.html:22 templates/core/header.html:19
 msgid "Go"
@@ -984,32 +952,18 @@ msgstr "这是哪里？"
 
 #: templates/homepage.html:46
 msgid ""
-"Read the Docs hosts documentation, making it fully searchable and easy to "
-"find.\n"
-"You can import your docs using any major version control system, including "
-"Mercurial, Git, Subversion, and Bazaar.\n"
-"We support <a href=\"http://read-the-docs.readthedocs.org/en/latest/webhooks."
-"html\">webhooks</a> so your docs get built when you commit code.\n"
-"There's also support for versioning so you can build docs from tags and "
-"branches of your code in your repository. A <a href=\"http://read-the-docs."
-"readthedocs.org/en/latest/features.html\">full list of features</a> is "
-"available."
-msgstr ""
-"Read the Docs 托管文档， 让文档可以被搜索和更易查找。您可以导入您使用版本控制"
-"系统托管的文档，包括 Mercurial, Git, Subversion, 和 Bazaar。我们支持 <a href="
-"\"http://read-the-docs.readthedocs.org/en/latest/webhooks.html\">webhooks</"
-"a> 因此可以在您提交代码时自动构建文档。并且同样也支持版本功能，因此您可以构建"
-"来自您代码仓库中某个标签或分支的文档。 <a href=\"http://read-the-docs."
-"readthedocs.org/en/latest/features.html\">查看全部的特性列表</a> 。 "
+"Read the Docs hosts documentation, making it fully searchable and easy to find.\n"
+"You can import your docs using any major version control system, including Mercurial, Git, Subversion, and Bazaar.\n"
+"We support <a href=\"http://read-the-docs.readthedocs.org/en/latest/webhooks.html\">webhooks</a> so your docs get built when you commit code.\n"
+"There's also support for versioning so you can build docs from tags and branches of your code in your repository. A <a href=\"http://read-the-docs.readthedocs.org/en/latest/features.html\">full list of features</a> is available."
+msgstr "Read the Docs 托管文档，让文档可以被全文搜索和更易查找。您可以导入您使用任何常用的版本控制系统管理的文档，包括 Mercurial、Git、Subversion 和 Bazaar。\n我们支持 <a href=\"http://read-the-docs.readthedocs.org/en/latest/webhooks.html\">webhooks</a>，因此可以在您提交代码时自动构建文档。并且同样也支持版本功能，因此您可以构建来自您代码仓库中某个标签或分支的文档。<a href=\"http://read-the-docs.readthedocs.org/en/latest/features.html\">查看完整的功能列表</a> 。"
 
 #: templates/homepage.html:52
 #, python-format
 msgid ""
 "It's free and simple.  Read the <a href=\"%(getting_started_url)s\">Getting "
 "Started</a> guide to get going!"
-msgstr ""
-"它既简单又免费。从阅读 <a href=\"%(getting_started_url)s\">开始</a> 向导出发"
-"吧！"
+msgstr "它既简单又免费。从阅读<a href=\"%(getting_started_url)s\">入门</a>向导开始吧！"
 
 #: templates/homepage.html:68
 msgid "Featured Projects"
@@ -1036,46 +990,42 @@ msgstr "正在构建 %(project)s。"
 #: templates/post_commit.html:12
 #, python-format
 msgid "Check it out <a href=\"%(project_url)s\">over here</a>."
-msgstr "来这儿<a href=\"%(project_url)s\">这儿</a>看看。"
+msgstr "来<a href=\"%(project_url)s\">这儿</a>看看吧。"
 
 #: templates/post_commit.html:14
 msgid ""
 "This is a post-commit hook. Set it up in your project admin to POST here, "
 "for us to update your doc changes automatically."
-msgstr ""
-"这是个 post-commit 钩子。在您的项目管理面板中设置一下，向它发送 POST 请求， "
-"这样我们就可以自动更新您的文档变更。"
+msgstr "这是个 post-commit 钩子。在您的项目管理面板中设置一下，向它发送 POST 请求， 这样我们就可以自动更新您的文档变更。"
 
 #: templates/account/login.html:7 templates/account/login.html.py:11
 #: templates/account/login.html:22
-#, fuzzy
 msgid "Sign In"
-msgstr "注册"
+msgstr "登录"
 
 #: templates/account/login.html:13
 #, python-format
 msgid ""
 "If you have not created an account yet, then please\n"
 "<a href=\"%(signup_url)s\">sign up</a> first."
-msgstr ""
+msgstr "如果您还未创建一个账户，请先\n<a href=\"%(signup_url)s\">注册</a>。"
 
 #: templates/account/login.html:23
 msgid ""
-"If you forgot your password, <a href=\"/accounts/password/reset/\">reset it."
-"</a>"
-msgstr ""
-"若您忘记了密码，可以<a href=\"/accounts/password/reset/\">重设密码</a>。"
+"If you forgot your password, <a href=\"/accounts/password/reset/\">reset "
+"it.</a>"
+msgstr "如果您忘记了密码，可以<a href=\"/accounts/password/reset/\">重置密码</a>。"
 
 #: templates/account/password_change.html:6
 #: templates/account/password_change.html:15
 #: templates/account/password_change.html:20
 #: templates/dashboard/dashboard_bar.html:36
 msgid "Change Password"
-msgstr "修改密码"
+msgstr "更改密码"
 
 #: templates/archive/index.html:5
 msgid "Read the Docs Archive"
-msgstr "Read the Docs 档案"
+msgstr "Read the Docs 存档"
 
 #: templates/bookmarks/bookmark_list.html:7
 msgid "Bookmarks"
@@ -1083,7 +1033,7 @@ msgstr "书签"
 
 #: templates/bookmarks/bookmark_list.html:20
 msgid "Recent Bookmarks"
-msgstr "最新书签"
+msgstr "最近书签"
 
 #: templates/builds/build_detail.html:14
 #, python-format
@@ -1110,12 +1060,12 @@ msgstr "还没完成"
 #: templates/builds/build_detail.html:27
 #: templates/core/build_list_detailed.html:6
 msgid "Passed"
-msgstr "已通过"
+msgstr "通过"
 
 #: templates/builds/build_detail.html:27
 #: templates/core/build_list_detailed.html:6
 msgid "Failed"
-msgstr "已失败"
+msgstr "失败"
 
 #: templates/builds/build_detail.html:27
 msgid "Status Code:"
@@ -1130,18 +1080,16 @@ msgid "Type:"
 msgstr "类型："
 
 #: templates/builds/build_detail.html:42
-#, fuzzy
 msgid "Build Standard Output"
-msgstr "Sphinx 标准输出"
+msgstr "构建系统标准输出"
 
 #: templates/builds/build_detail.html:46
-#, fuzzy
 msgid "Build Standard Error"
-msgstr "Sphinx 标准错误"
+msgstr "构建系统标准错误"
 
 #: templates/builds/build_detail.html:51
 msgid "Setup Output"
-msgstr "设置输出"
+msgstr "安装输出"
 
 #: templates/builds/build_detail.html:56
 msgid "Environment Standard Error"
@@ -1185,9 +1133,10 @@ msgstr "控制面板"
 
 #: templates/core/home-header.html:10
 msgid "Create, host, and browse documentation."
-msgstr "创建、托管并浏览文档。"
+msgstr "创建、托管和浏览文档。"
 
-#. Translators: Note, the full sentence goes 'Sign up' 'or' 'Log in'. But unfortunately the three bits have to be separate.
+#. Translators: Note, the full sentence goes 'Sign up' 'or' 'Log in'. But
+#. unfortunately the three bits have to be separate.
 #: templates/core/home-header.html:17
 msgid "Sign up"
 msgstr "注册"
@@ -1204,7 +1153,7 @@ msgstr "构建失败（<a href=\"%(url)s\">找找原因</a>）"
 
 #: templates/core/project_bar.html:20
 msgid "There are no builds for this project"
-msgstr "本项目未构建"
+msgstr "本项目尚无构建"
 
 #: templates/core/project_bar.html:20
 msgid "Is the repo correct?"
@@ -1286,11 +1235,11 @@ msgstr "代码库"
 
 #: templates/core/project_details.html:100
 msgid "Badge"
-msgstr ""
+msgstr "徽章"
 
 #: templates/core/project_details.html:106
 msgid "Owners"
-msgstr ""
+msgstr "所有者"
 
 #: templates/core/project_details.html:114
 msgid "Tags"
@@ -1323,10 +1272,9 @@ msgstr "Open Comparison"
 #: templates/core/project_details.html:151
 #, python-format
 msgid ""
-"This project has more information available about it on <a href=\"%(url)s"
-"\">Open Comparison!</a>"
-msgstr ""
-"可以在 <a href=\"%(url)s\">Open Comparison</a> 上查看此项目的更多信息！"
+"This project has more information available about it on <a "
+"href=\"%(url)s\">Open Comparison!</a>"
+msgstr "可以在 <a href=\"%(url)s\">Open Comparison</a> 上查看此项目的更多信息！"
 
 #: templates/core/project_details.html:155
 #: templates/projects/project_edit_base.html:22
@@ -1340,7 +1288,7 @@ msgstr "子项目"
 
 #: templates/core/project_details.html:175
 msgid "'latest' Version"
-msgstr "'latest' 版本"
+msgstr "最新版本"
 
 #: templates/core/project_details.html:179
 msgid "Post Commit Hook"
@@ -1356,10 +1304,7 @@ msgid ""
 "\n"
 "        %(version)s PDF\n"
 "      "
-msgstr ""
-"\n"
-"        %(version)s PDF\n"
-"      "
+msgstr "\n        %(version)s PDF\n      "
 
 #: templates/core/project_downloads.html:17
 #, python-format
@@ -1367,10 +1312,7 @@ msgid ""
 "\n"
 "        %(version)s HTMLZip\n"
 "      "
-msgstr ""
-"\n"
-"        %(version)s HTMLZip\n"
-"      "
+msgstr "\n        %(version)s HTMLZip\n      "
 
 #: templates/core/project_downloads.html:27
 #, python-format
@@ -1378,19 +1320,15 @@ msgid ""
 "\n"
 "        %(version)s Epub\n"
 "      "
-msgstr ""
-"\n"
-"        %(version)s Epub\n"
-"      "
+msgstr "\n        %(version)s Epub\n      "
 
 #: templates/core/project_downloads.html:36
 msgid "No downloads for this project."
-msgstr "当前项目无可下载项。"
+msgstr "本项目没有下载项。"
 
 #: templates/core/project_list_detailed.html:29
-#, fuzzy
 msgid "No builds"
-msgstr "未构建"
+msgstr "没有构建"
 
 #: templates/core/project_list_detailed.html:47
 #: templates/core/project_list_featured.html:25
@@ -1427,7 +1365,7 @@ msgstr "导入"
 
 #: templates/dashboard/dashboard_bar.html:17
 msgid "GitHub"
-msgstr ""
+msgstr "GitHub"
 
 #: templates/dashboard/dashboard_bar.html:23
 msgid "Profile"
@@ -1439,21 +1377,19 @@ msgstr "创建资料"
 
 #: templates/dashboard/dashboard_bar.html:32
 msgid "Social Accounts"
-msgstr ""
+msgstr "社会化账号"
 
 #: templates/djangome/choices.html:4
 #, python-format
 msgid "Choose a redirect for \"%(djangome_term)s\""
-msgstr "为 \"%(djangome_term)s\" 选择一个重定向"
+msgstr "为“%(djangome_term)s”选择一个重定向"
 
 #: templates/djangome/choices.html:7
 #, python-format
 msgid ""
-"Choose a redirect for <kbd>%(djangome_term)s on <a href=\"http://%(slug)s."
-"readthedocs.org\">%(slug)s.readthedocs.org</a></kbd>"
-msgstr ""
-"为<kbd><a href=\"http://%(slug)s.readthedocs.org\">%(slug)s.readthedocs.org</"
-"a> 上的 %(djangome_term)s </kbd> 选择一个重定向"
+"Choose a redirect for <kbd>%(djangome_term)s on <a "
+"href=\"http://%(slug)s.readthedocs.org\">%(slug)s.readthedocs.org</a></kbd>"
+msgstr "为 <kbd><a href=\"http://%(slug)s.readthedocs.org\">%(slug)s.readthedocs.org</a> 上的 %(djangome_term)s </kbd> 选择一个重定向"
 
 #: templates/djangome/choices.html:28
 msgid "Save &amp; go &rarr;"
@@ -1461,11 +1397,11 @@ msgstr "保存 &amp; 到 &rarr;"
 
 #: templates/djangome/oneoffs.html:4
 msgid "One-offs"
-msgstr "One-offs"
+msgstr ""
 
 #: templates/djangome/oneoffs.html:12
 msgid "Term"
-msgstr "条目"
+msgstr ""
 
 #: templates/djangome/oneoffs.html:13
 msgid "Target"
@@ -1487,7 +1423,7 @@ msgstr "关于 %(term)s 的统计"
 #: templates/djangome/show.html:5
 #, python-format
 msgid "Statistics for <kbd>%(term)s</kbd>:"
-msgstr "关于 <kbd>%(term)s</kbd> 的统计:"
+msgstr "<kbd>%(term)s</kbd> 的统计信息："
 
 #: templates/djangome/show.html:13
 msgid "Clicks"
@@ -1508,9 +1444,8 @@ msgstr "您说的是："
 
 #: templates/flagging/flag_confirm.html:21
 #, python-format
-msgid ""
-"Are you sure you want to flag \"%(object)s\" as \"%(flag_type.title)s\"?"
-msgstr "您确定要将 \"%(object)s\" 标记为 \"%(flag_type.title)s\"?"
+msgid "Are you sure you want to flag \"%(object)s\" as \"%(flag_type.title)s\"?"
+msgstr "您确定要将“%(object)s”标记为“%(flag_type.title)s”吗？"
 
 #: templates/flagging/flag_confirm.html:23
 #, python-format
@@ -1529,11 +1464,11 @@ msgstr "标记成功"
 #: templates/flagging/flag_success.html:16
 #, python-format
 msgid "You have successfully flagged \"%(object)s\" as \"%(flag_type.title)s\""
-msgstr "您已成功将 \"%(object)s\" 标记为 \"%(flag_type.title)s\""
+msgstr "您已成功将“%(object)s”标记为“%(flag_type.title)s”"
 
 #: templates/flagging/flag_success.html:18
 msgid "Thank you for contributing to the quality of this site!"
-msgstr "感谢您对此网站的贡献！"
+msgstr "感谢您对本网站的贡献！"
 
 #: templates/pagination/pagination.html:6
 #: templates/pagination/pagination.html:8
@@ -1552,7 +1487,7 @@ msgstr "创建您的资料"
 
 #: templates/profiles/create_profile.html:16
 msgid "Create it!"
-msgstr "创建！"
+msgstr "创建"
 
 #: templates/profiles/edit_profile.html:5
 #: templates/profiles/edit_profile.html:15
@@ -1561,7 +1496,7 @@ msgstr "编辑您的资料"
 
 #: templates/profiles/edit_profile.html:21
 msgid "OK, save it!"
-msgstr "保存！"
+msgstr "保存"
 
 #: templates/profiles/profile_detail.html:6
 #, python-format
@@ -1664,7 +1599,7 @@ msgstr "reStructuredText Primer"
 
 #: templates/projects/project_advanced.html:23
 msgid "Edit Advanced Project Settings"
-msgstr "编辑高级项目设置"
+msgstr "编辑项目的高级设置"
 
 #: templates/projects/project_advanced.html:28
 #: templates/projects/project_edit_base.html:18
@@ -1695,7 +1630,7 @@ msgstr "创建新项目"
 msgid ""
 "Create new documentation here. If you already have docs in a public "
 "repository,"
-msgstr "在此创建新文档。如果你在公共仓库中已经有文档，"
+msgstr "在这里创建新文档。如果您已经在一个公共代码库中存放了文档，"
 
 #: templates/projects/project_create.html:38
 msgid "import an existing project"
@@ -1709,11 +1644,9 @@ msgstr "项目控制面板"
 #, python-format
 msgid ""
 "\n"
-"              Check out the <a href=\"%(url)s\">documentation for Read the "
-"Docs</a>. It contains lots of information about how to get the most out of "
-"RTD.\n"
+"              Check out the <a href=\"%(url)s\">documentation for Read the Docs</a>. It contains lots of information about how to get the most out of RTD.\n"
 "              "
-msgstr ""
+msgstr "\n              查阅<a href=\"%(url)s\">有关 Read the Docs 的文档</a>。它包括大量如何更好的使用本系统的信息。\n              "
 
 #: templates/projects/project_dashboard.html:31
 msgid "Important Versions"
@@ -1724,30 +1657,23 @@ msgid "My Projects"
 msgstr "我的项目"
 
 #: templates/projects/project_dashboard.html:87
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "\n"
-"          You don't have any projects. You can <a href="
-"\"%(projects_import_url)s\">create new docs</a> on the site.\n"
+"          You don't have any projects. You can <a href=\"%(projects_import_url)s\">create new docs</a> on the site.\n"
 "          <br>\n"
-"          If you have a GitHub account, you can <a href=\"%(social_accounts)s"
-"\">connect it</a> and import projects from there.\n"
+"          If you have a GitHub account, you can <a href=\"%(social_accounts)s\">connect it</a> and import projects from there.\n"
 "          <br>\n"
-"          Check out the <a href=\"%(getting_started_url)s\">Getting Started</"
-"a> documentation for information about how to get going.\n"
+"          Check out the <a href=\"%(getting_started_url)s\">Getting Started</a> documentation for information about how to get going.\n"
 "          </p> \n"
 "          "
-msgstr ""
-"您没有项目。您可以在网站上<a href=\"%(projects_import_url)s\">创建新文档</a> "
-"<br>\n"
-"          阅读 <a href=\"%(getting_started_url)s\">打这儿开始</a> 这份文档来"
-"看看如何开始。"
+msgstr "\n          您还没有任何项目。您可以在本站上<a href=\"%(projects_import_url)s\">创建一个新文档</a>。\n          <br>\n          如果您有一个 GitHub 账号，您可以<a href=\"%(social_accounts)s\">连接</a>并从它那里导入项目。\n          <br>\n          查阅<a href=\"%(getting_started_url)s\">入门</a>文档了解持续发展的有关信息。\n          </p> \n          "
 
 #: templates/projects/project_delete.html:4
 #: templates/projects/project_delete.html:6
 #, python-format
 msgid "Delete %(name)s?"
-msgstr "删除 %(name)s ？"
+msgstr "删除 %(name)s？"
 
 #: templates/projects/project_delete.html:9
 msgid "You sure?"
@@ -1777,9 +1703,8 @@ msgstr "维护者"
 
 #: templates/projects/project_edit_base.html:21
 #: templates/projects/project_redirects.html:8
-#, fuzzy
 msgid "Redirects"
-msgstr "相关项目"
+msgstr "重定向"
 
 #: templates/projects/project_edit_base.html:23
 #: templates/projects/project_subprojects.html:12
@@ -1800,24 +1725,23 @@ msgstr "导入现有项目"
 msgid ""
 "You can change how your project is built in your <em>Advanced Settings</em> "
 "once your project has been created."
-msgstr ""
+msgstr "在您的项目创建后，您可以在您的<em>高级设置</em>中更改您的项目该如何构建。"
 
 #: templates/projects/project_import_github.html:4
 #: templates/projects/project_import_github.html:28
-#, fuzzy
 msgid "Import a GitHub project"
-msgstr "导入现有项目"
+msgstr "导入一个 GitHub 项目"
 
 #: templates/projects/project_import_github.html:35
 #, python-format
 msgid ""
 "Showing your GitHub projects. <a href=\"%(sync_github_url)s\">Sync your "
 "GitHub projects</a> to update them."
-msgstr ""
+msgstr "展示您的 GitHub 项目。<a href=\"%(sync_github_url)s\">同步您的 GitHub 项目</a>来更新它们。"
 
 #: templates/projects/project_import_github.html:39
 msgid "GitHub projects are now up to date."
-msgstr ""
+msgstr "GitHub 项目已是最新版本。"
 
 #: templates/projects/project_import_github.html:93
 #, python-format
@@ -1825,13 +1749,13 @@ msgid ""
 "You don't have any GitHub repositories connected. \n"
 "  Go to your <a href=\"%(social_url)s\">Social Accounts</a> to set one up.\n"
 "  "
-msgstr ""
+msgstr "您还没有连接任何 GitHub 版本库。\n转到您的<a href=\"%(social_url)s\">社会化账号</a>设置一个吧。\n  "
 
 #: templates/projects/project_list.html:9
 #: templates/projects/project_list.html:27
 #, python-format
 msgid "Projects by %(username)s tagged with %(tag)s"
-msgstr "由 %(username)s 创建并且打上 %(tag)s 标签的项目"
+msgstr "由 %(username)s 创建并且标有 %(tag)s 标签的项目"
 
 #: templates/projects/project_list.html:11
 #: templates/projects/project_list.html:29
@@ -1843,7 +1767,7 @@ msgstr "由 %(username)s 创建的项目"
 #: templates/projects/project_list.html:33
 #, python-format
 msgid "Projects tagged with %(tag)s"
-msgstr "打上 %(tag)s 标签的项目"
+msgstr "标有 %(tag)s 标签的项目"
 
 #: templates/projects/project_notifications.html:5
 msgid "Edit Notifications"
@@ -1851,11 +1775,11 @@ msgstr "编辑通知"
 
 #: templates/projects/project_notifications.html:16
 msgid "Configure Notifications to be sent on build failures."
-msgstr "配置构建失败时要发送的通知"
+msgstr "配置构建失败时要发送的通知。"
 
 #: templates/projects/project_notifications.html:20
 msgid "Existing Notifications"
-msgstr "已存在的通知"
+msgstr "现有的通知"
 
 #: templates/projects/project_notifications.html:44
 msgid "Remove Notifications"
@@ -1869,63 +1793,58 @@ msgid "Remove"
 msgstr "移除"
 
 #: templates/projects/project_notifications.html:62
-#, fuzzy
 msgid "New Email Notifications"
-msgstr "新建通知"
+msgstr "新建电子邮件通知"
 
 #: templates/projects/project_notifications.html:64
 msgid "Add an email address to notify"
-msgstr "添加一个用于通知的 email 地址"
+msgstr "添加一个要被通知的电子邮件地址"
 
 #: templates/projects/project_notifications.html:73
-#, fuzzy
 msgid "New Webhook Notifications"
-msgstr "新建通知"
+msgstr "新建 Webhook 通知"
 
 #: templates/projects/project_notifications.html:75
-#, fuzzy
 msgid "Add a URL to notify"
-msgstr "添加一个用于通知的 email 地址"
+msgstr "添加一个要被通知的 URL"
 
 #: templates/projects/project_redirects.html:5
-#, fuzzy
 msgid "Edit Redirects"
-msgstr "编辑项目"
+msgstr "编辑重定向"
 
 #: templates/projects/project_redirects.html:39
 msgid ""
 "Add redirects for your project. This allows you to fix links to old pages "
 "that are 404ing."
-msgstr ""
+msgstr "为您的项目添加重定向。这允许您修正到旧页面的链接以避免出现 404。"
 
 #: templates/projects/project_redirects.html:43
-#, fuzzy
 msgid "Existing Redirects"
-msgstr "现有子项目"
+msgstr "已有重定向"
 
 #: templates/projects/project_redirects.html:56
 msgid "Remove Redirect"
-msgstr ""
+msgstr "移除重定向"
 
 #: templates/projects/project_redirects.html:70
 msgid "Add Redirect"
-msgstr ""
+msgstr "添加重定向"
 
 #: templates/projects/project_redirects.html:72
 msgid ""
 "Add new redirects. These will only happen on <b>404 Page Not Found</b> "
 "requests."
-msgstr ""
+msgstr "添加新的重定向。这些只会发生在 <b>404 页面未找到</b> 的请求上。"
 
 #: templates/projects/project_redirects.html:75
 msgid ""
 "This is mainly used to support migration from old doc systems. If you used "
 "to serve your docs at <b>/docs/</b>, you will do:"
-msgstr ""
+msgstr "这主要是用来支持从旧的文档系统迁移。如果您用来满足您自己在 <b>/docs/</b> 的文档，您需要："
 
 #: templates/projects/project_redirects.html:83
 msgid "You can also redirect a specific page, like so:"
-msgstr ""
+msgstr "您也可以重定向一个特定页面，例如："
 
 #: templates/projects/project_subprojects.html:5
 msgid "Edit Subprojects"
@@ -1933,11 +1852,9 @@ msgstr "编辑子项目"
 
 #: templates/projects/project_subprojects.html:16
 msgid ""
-"This allows you to add subprojects to your project. This allows them to live "
-"in the same namespace in the URLConf for a subdomain or CNAME."
-msgstr ""
-"它允许您为您的项目增加子项目。这将允许它们在 URLConf 中使用相同的命名空间，用"
-"于子域名或 CNAME 。"
+"This allows you to add subprojects to your project. This allows them to live"
+" in the same namespace in the URLConf for a subdomain or CNAME."
+msgstr "它允许您为您的项目增加子项目。这将允许它们在 URLConf 中使用相同的命名空间，用于子域名或 CNAME。"
 
 #: templates/projects/project_subprojects.html:19
 msgid "Existing Subprojects"
@@ -1945,26 +1862,25 @@ msgstr "现有子项目"
 
 #: templates/projects/project_subprojects.html:32
 msgid "Choose which project you would like to add as a subproject."
-msgstr "请选择您希望将哪个项目添加为翻译的项目。"
+msgstr "请选择您希望将哪个项目添加为子项目。"
 
 #: templates/projects/project_translations.html:5
 msgid "Edit Translations"
-msgstr "编辑翻译"
+msgstr "编辑翻译版本"
 
 #: templates/projects/project_translations.html:16
 msgid ""
 "This allows you to add translations to your project. Select the project "
 "below that is a translation of your current project."
-msgstr ""
-"这将允许您给您的项目添加翻译。请从下面选择用于作为您当前项目翻译的项目。"
+msgstr "这将允许您给您的项目添加翻译版本。请在下面选择是您当前项目的翻译版本的项目。"
 
 #: templates/projects/project_translations.html:19
 msgid "Existing Translations"
-msgstr "已存在的翻译"
+msgstr "现有的翻译版本"
 
 #: templates/projects/project_translations.html:31
 msgid "Choose which project you would like to add as a translation."
-msgstr "请选择您希望将哪个项目添加为翻译的项目。"
+msgstr "请选择您希望将哪个项目添加为翻译版本。"
 
 #: templates/projects/project_users.html:5
 msgid "Edit Maintainers"
@@ -1974,13 +1890,11 @@ msgstr "编辑维护者"
 msgid ""
 "This allows you to add maintainers to your project. It gives them admin "
 "access to the project, so be careful!"
-msgstr ""
-"这将允许您给您的项目添加维护者。维护者将拥有项目的管理员权限，所以请务必小"
-"心！"
+msgstr "这允许您给您的项目添加维护者。维护者将拥有项目的管理员权限，所以请谨慎！"
 
 #: templates/projects/project_users.html:15
 msgid "Existing Maintainers"
-msgstr "已存在的维护者"
+msgstr "现有的维护者"
 
 #: templates/projects/project_users.html:28
 msgid "Remove Maintainer"
@@ -2013,7 +1927,7 @@ msgstr "选择激活的版本"
 
 #: templates/projects/project_versions.html:29
 msgid "Active versions below will show up on the site."
-msgstr "下面激活的版本将在站点上显示。"
+msgstr "下列激活的版本将在站点上显示。"
 
 #: templates/projects/search.html:6 templates/projects/search.html.py:20
 #, python-format
@@ -2046,10 +1960,11 @@ msgstr "使用这个为构建失败的版本上传已存在的 HTML 文档。"
 msgid "Upload"
 msgstr "上传"
 
-#. Translators: After 'Flag this project as' follows either 'Inappropriate', 'Spam' and/or 'Duplicate'
+#. Translators: After 'Flag this project as' follows either 'Inappropriate',
+#. 'Spam' and/or 'Duplicate'
 #: templates/projects/includes/flagging.html:7
 msgid "Flag this project as"
-msgstr "标记该项目为"
+msgstr "标记此项目为"
 
 #: templates/projects/includes/flagging.html:8
 msgid "Inappropriate"
@@ -2057,7 +1972,7 @@ msgstr "不恰当"
 
 #: templates/projects/includes/flagging.html:9
 msgid "Spam"
-msgstr "垃圾"
+msgstr "垃圾信息"
 
 #: templates/projects/includes/flagging.html:10
 msgid "Duplicate"
@@ -2069,12 +1984,12 @@ msgstr "未构建"
 
 #: templates/projects/samples/getting_started.rst.html:3
 msgid "Here's a place to describe how to get up and running with your project"
-msgstr "这里用于描述如何获取和运行您的项目"
+msgstr "这里描述了如何开始和运行您的项目"
 
 #: templates/projects/samples/installation.rst.html:3
 #, python-format
 msgid "Here is where you can describe how to install %(name)s"
-msgstr "在此描述如何安装 %(name)s"
+msgstr "这里描述了如何安装 %(name)s"
 
 #: templates/search/base_facet.html:5 templates/search/search.html:5
 #, python-format
@@ -2105,9 +2020,9 @@ msgid "No results found. Bummer."
 msgstr "没有发现相关结果。~( ＞﹏＜)"
 
 #: templates/search/elastic_project_search.html:5
-#, fuzzy, python-format
+#, python-format
 msgid "Search: %(query)s "
-msgstr "搜索：%(query)s"
+msgstr "搜索：%(query)s "
 
 #: templates/search/elastic_project_search.html:65
 #: templates/search/search.html:31
@@ -2146,7 +2061,7 @@ msgstr "%(count)s 条与 %(query)s 相关的结果"
 
 #: templates/search/faceted_results.html:7
 msgid "No search term entered"
-msgstr "未输入搜索项"
+msgstr "未输入搜索内容"
 
 #. Translators: The refers to filtering a search by using facets
 #: templates/search/faceted_results.html:15
@@ -2171,24 +2086,23 @@ msgstr "文件"
 
 #: templates/socialaccount/connections.html:6
 #: templates/socialaccount/connections.html:15
-#, fuzzy
 msgid "Account Connections"
-msgstr "账户激活错误"
+msgstr "账号连接"
 
 #: templates/socialaccount/connections.html:18
 msgid ""
 "You can sign in to your account using any of the following third party "
 "accounts:"
-msgstr ""
+msgstr "您可以使用下列任意第三方账号登录您的账号："
 
 #: templates/socialaccount/connections.html:50
 msgid ""
 "You currently have no social network accounts connected to this account."
-msgstr ""
+msgstr "您当前没有连接社会化网络账号到此账户。"
 
 #: templates/socialaccount/connections.html:53
 msgid "Add a 3rd Party Account"
-msgstr ""
+msgstr "添加第三方账号"
 
 #: templates/sphinx/sphinx_rtd_theme/layout.html:47
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:131
@@ -2210,250 +2124,6 @@ msgstr "搜索结果"
 
 #: templates/sphinx/sphinx_rtd_theme/search.html:35
 msgid ""
-"Your search did not match any documents. Please make sure that all words are "
-"spelled correctly and that you've selected enough categories."
-msgstr ""
-"您的搜索未匹配任何文档。请确保所有的单词都拼写正确并且选中了足够多的分类。"
-
-#~ msgid ""
-#~ "\n"
-#~ "        %(version)s Dash docset\n"
-#~ "      "
-#~ msgstr ""
-#~ "\n"
-#~ "        %(version)s Dash docset\n"
-#~ "      "
-
-#~ msgid ""
-#~ "\n"
-#~ "        %(version)s Dash feed\n"
-#~ "      "
-#~ msgstr ""
-#~ "\n"
-#~ "        %(version)s Dash feed\n"
-#~ "      "
-
-#~ msgid ""
-#~ "The activation key \"%(activation_key)s\" is invalid and cannot be used "
-#~ "to activate this account."
-#~ msgstr "激活码 \"%(activation_key)s\" 无效，无法激活此账户。"
-
-#~ msgid ""
-#~ "Did you really think activation key \"%(activation_key)s\" was going to "
-#~ "work?!"
-#~ msgstr "您真的任务激活码 \"%(activation_key)s\" 是有效的?!"
-
-#~ msgid ""
-#~ "We're not sure how you got that key, but would you mind registering again"
-#~ msgstr "此激活码有错，请重新注册"
-
-#~ msgid "here"
-#~ msgstr "这儿"
-
-#~ msgid "Account activation complete"
-#~ msgstr "账户激活完成"
-
-#~ msgid "Account activation complete, woo!"
-#~ msgstr "账户激活完成。"
-
-#~ msgid "Your account has been activated."
-#~ msgstr "账户已激活。"
-
-#~ msgid "Log in with the username and password you just created,"
-#~ msgstr "使用您刚注册的用户名和密码登录。"
-
-#~ msgid ""
-#~ "Thank you for registering an account at %(domain)s.\n"
-#~ "To activate your registration, please visit the following page:\n"
-#~ "\n"
-#~ "http://%(domain)s%(activation_url)s\n"
-#~ "\n"
-#~ "This page will expire in %(expiration_days)s days.\n"
-#~ "\n"
-#~ "If you didn't register this account you can simply delete this email and "
-#~ "we won't bother you again."
-#~ msgstr ""
-#~ "感谢您在 %(domain)s 上注册帐号。\n"
-#~ "为了激活您的帐号，请访问以下页面：\n"
-#~ "\n"
-#~ "http://%(domain)s%(activation_url)s\n"
-#~ "\n"
-#~ "这个页面 %(expiration_days)s 天后过期。\n"
-#~ "\n"
-#~ "如果您没有注册这个帐号，您可以删除这封邮件。我们不会再打扰您的。"
-
-#~ msgid "%(site_name)s - activate your account"
-#~ msgstr "%(site_name)s - 激活您的帐号"
-
-#~ msgid "Registration"
-#~ msgstr "注册"
-
-#~ msgid "registration"
-#~ msgstr "注册"
-
-#~ msgid ""
-#~ "Don't have an account?  <a href=\"/accounts/register/\">Register</a> a "
-#~ "new one."
-#~ msgstr ""
-#~ "您还没有帐号？ 赶快 <a href=\"/accounts/register/\">注册</a> 一个吧。"
-
-#~ msgid "You've logged out."
-#~ msgstr "您已退出。"
-
-#~ msgid "Thanks for visiting!"
-#~ msgstr "谢谢访问！"
-
-#~ msgid ""
-#~ "If you are looking to log in again, you can do that <a href="
-#~ "\"%(login_url)s\">here</a>"
-#~ msgstr "若您想重新登录，您可以点击<a href=\"%(login_url)s\">这里</a>"
-
-#~ msgid "Password change successful"
-#~ msgstr "已成功修改密码"
-
-#~ msgid "Your password was changed."
-#~ msgstr "您的密码已修改。"
-
-#~ msgid "Password change"
-#~ msgstr "修改密码"
-
-#~ msgid "Please correct the error below."
-#~ msgid_plural "Please correct the errors below."
-#~ msgstr[0] "请改正下列错误。"
-
-#~ msgid ""
-#~ "Please enter your old password, for security's sake, and then enter your "
-#~ "new password twice so we can verify you typed it in correctly."
-#~ msgstr ""
-#~ "为保证安全，请先输入你的旧密码。然后输入两次你的新密码，用于两次输入验证是"
-#~ "否一致。"
-
-#~ msgid "Old password"
-#~ msgstr "原密码"
-
-#~ msgid "New password"
-#~ msgstr "新密码"
-
-#~ msgid "Password (again)"
-#~ msgstr "重复新密码"
-
-#~ msgid "Change my password"
-#~ msgstr "修改我的密码"
-
-#~ msgid "Password reset"
-#~ msgstr "重设密码"
-
-#~ msgid "Password reset complete"
-#~ msgstr "密码已重设"
-
-#~ msgid "Your password has been set.  You may go ahead and log in now."
-#~ msgstr "密码已重设。现在可以登录了。"
-
-#~ msgid "Password reset confirmation"
-#~ msgstr "确认重设密码"
-
-#~ msgid "Enter new password"
-#~ msgstr "输入新密码"
-
-#~ msgid ""
-#~ "Please enter your new password twice so we can verify you typed it in "
-#~ "correctly."
-#~ msgstr "请输入两次你的新密码，用于验证两次输入是否一致。"
-
-#~ msgid "New password:"
-#~ msgstr "新密码："
-
-#~ msgid "Confirm password:"
-#~ msgstr "重复新密码："
-
-#~ msgid "Password reset unsuccessful"
-#~ msgstr "重设密码失败"
-
-#~ msgid ""
-#~ "The password reset link was invalid, possibly because it has already been "
-#~ "used.  Please request a new password reset."
-#~ msgstr "密码重设链接无效，可能是因为已经使用过了。请重新申请重设密码。"
-
-#~ msgid "Password reset successful"
-#~ msgstr "重设密码成功"
-
-#~ msgid ""
-#~ "We've e-mailed you instructions for setting your password to the e-mail "
-#~ "address you submitted. You should be receiving it shortly."
-#~ msgstr "我们已向您设置的邮箱发送密码重置的邮件。请稍等。"
-
-#~ msgid "You're receiving this e-mail because you requested a password reset"
-#~ msgstr "您之所以收到这份邮件是因为您请求进行密码重置"
-
-#~ msgid "for your user account at %(site_name)s"
-#~ msgstr "您在 %(site_name)s 的账号"
-
-#~ msgid "Please go to the following page and choose a new password:"
-#~ msgstr "请访问以下页面并输入一个新的密码："
-
-#~ msgid "Your username, in case you've forgotten:"
-#~ msgstr "您的用户名，防止您忘记了："
-
-#~ msgid "Thanks for using our site!"
-#~ msgstr "感谢您使用我们的网站！"
-
-#~ msgid "The %(site_name)s team"
-#~ msgstr "%(site_name)s 团队"
-
-#~ msgid ""
-#~ "Forgotten your password? Enter your e-mail address below, and we'll e-"
-#~ "mail instructions for setting a new one."
-#~ msgstr ""
-#~ "忘记您的密码了？ 请在下方输入您的 email 地址，我们将给您发送一封密码重置邮"
-#~ "件。"
-
-#~ msgid "E-mail address:"
-#~ msgstr "email 地址："
-
-#~ msgid "Reset my password"
-#~ msgstr "重设我的密码"
-
-#~ msgid "Registration closed"
-#~ msgstr "注册已关闭"
-
-#~ msgid "Eh... Registration closed."
-#~ msgstr "呃 (\"▔□▔)... 注册已关闭。"
-
-#~ msgid ""
-#~ " You registered a long time ago.\n"
-#~ "    We aren't sure if you are a robot or if \n"
-#~ "    something got lost or what."
-#~ msgstr ""
-#~ " 您是很久前注册的。\n"
-#~ "    我们需要确认您的身份。"
-
-#~ msgid "Please try"
-#~ msgstr "请尝试"
-
-#~ msgid "registering again"
-#~ msgstr "重新注册"
-
-#~ msgid "We hope that isn't too inconvenient."
-#~ msgstr "我们希望这不会太麻烦。"
-
-#~ msgid "Registration complete"
-#~ msgstr "注册完成"
-
-#~ msgid "Now activate your account."
-#~ msgstr "现在激活您的帐号。"
-
-#~ msgid ""
-#~ "We will be sending you an email with an activation link.\n"
-#~ "    Visit the link to verify this account."
-#~ msgstr ""
-#~ "我们将给您发送一封包含激活链接的邮件。\n"
-#~ "   请打开这个链接来激活当前帐号。"
-
-#~ msgid "Check your email.  We'll wait."
-#~ msgstr "请检查您的邮件。"
-
-#~ msgid "Register for an account"
-#~ msgstr "注册新帐号"
-
-#~ msgid "Send me the activation link."
-#~ msgstr "给我发送激活链接。"
+"Your search did not match any documents. Please make sure that all words are"
+" spelled correctly and that you've selected enough categories."
+msgstr "您的搜索未匹配任何文档。请确保所有的单词都拼写正确并且选中了足够多的分类。"

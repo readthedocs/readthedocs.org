@@ -27,6 +27,7 @@ from tastyapi.slum import api
 from vcs_support.base import VCSProject
 from vcs_support.backends import backend_cls
 from vcs_support.utils import Lock, NonBlockingLock
+from doc_builder.loader import loading
 
 
 log = logging.getLogger(__name__)
@@ -60,7 +61,7 @@ class Project(models.Model):
     description = models.TextField(_('Description'), blank=True,
                                    help_text=_('The reStructuredText '
                                                'description of the project'))
-    repo = models.CharField(_('Repository URL'), max_length=100, blank=True,
+    repo = models.CharField(_('Repository URL'), max_length=100,
                             help_text=_('Hosted documentation repository URL'))
     repo_type = models.CharField(_('Repository type'), max_length=10,
                                  choices=constants.REPO_CHOICES, default='git')
@@ -106,6 +107,8 @@ class Project(models.Model):
         help_text=_('Type of documentation you are building. <a href="http://'
                     'sphinx-doc.org/builders.html#sphinx.builders.html.'
                     'DirectoryHTMLBuilder">More info</a>.'))
+    allow_comments = models.BooleanField(_('Allow Comments'), default=False)
+    comment_moderation = models.BooleanField(_('Comment Moderation)'), default=False)
     analytics_code = models.CharField(
         _('Analytics code'), max_length=50, null=True, blank=True,
         help_text=_("Google Analytics Tracking ID (ex. UA-22345342-1). "
@@ -381,9 +384,9 @@ class Project(models.Model):
         downloads['htmlzip'] = self.get_production_media_url(
             'htmlzip', self.get_default_version())
         downloads['epub'] = self.get_production_media_url(
-            'htmlzip', self.get_default_version())
+            'epub', self.get_default_version())
         downloads['pdf'] = self.get_production_media_url(
-            'htmlzip', self.get_default_version())
+            'pdf', self.get_default_version())
         return downloads
 
     @property
@@ -413,6 +416,9 @@ class Project(models.Model):
 
     # Doc PATH:
     # MEDIA_ROOT/slug/checkouts/version/<repo>
+
+    def doc_builder(self):
+        return loading.get(self.documentation_type)
 
     @property
     def doc_path(self):
@@ -685,7 +691,7 @@ class Project(models.Model):
         if not self.num_major or not self.num_minor or not self.num_point:
             return None
         versions = []
-        for ver in self.versions.public(only_active=False):
+        for ver in self.versions.filter(only_active=False):
             try:
                 versions.append(BetterVersion(ver.verbose_name))
             except UnsupportedVersionError:
@@ -755,6 +761,42 @@ class Project(models.Model):
         ProjectRelationship.objects.filter(parent=self, child=child).delete()
         return
 
+    def moderation_queue(self):
+        # non-optimal SQL warning.
+        from comments.models import DocumentComment
+        queue = []
+        comments = DocumentComment.objects.filter(node__project=self)
+        for comment in comments:
+            if not comment.has_been_approved_since_most_recent_node_change():
+                queue.append(comment)
+
+        return queue
+
+    def add_node(self, node_hash, page, version, commit):
+        from comments.models import NodeSnapshot, DocumentNode
+        project_obj = Project.objects.get(slug=self.slug)
+        version_obj = project_obj.versions.get(slug=version)
+        try:
+            NodeSnapshot.objects.get(hash=node_hash, node__project=project_obj, node__version=version_obj, node__page=page, commit=commit)
+            return False  # ie, no new node was created.
+        except NodeSnapshot.DoesNotExist:
+            DocumentNode.objects.create(
+                hash=node_hash,
+                page=page,
+                project=project_obj,
+                version=version_obj,
+                commit=commit
+            )
+        return True  # ie, it's True that a new node was created.
+
+    def add_comment(self, version_slug, page, hash, commit, user, text):
+        from comments.models import DocumentNode
+        try:
+            node = self.nodes.from_hash(version_slug, page, hash)
+        except DocumentNode.DoesNotExist:
+            version = self.versions.get(slug=version_slug)
+            node = self.nodes.create(version=version, page=page, hash=hash, commit=commit)
+        return node.comments.create(user=user, text=text)
 
 class ImportedFile(models.Model):
     project = models.ForeignKey('Project', verbose_name=_('Project'),

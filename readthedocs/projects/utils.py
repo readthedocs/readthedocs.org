@@ -209,7 +209,7 @@ def _new_save(*args, **kwargs):
 
 def make_api_version(version_data):
     from builds.models import Version
-    for key in ['resource_uri', 'absolute_url']:
+    for key in ['resource_uri', 'absolute_url', 'downloads']:
         if key in version_data:
             del version_data[key]
     project_data = version_data['project']

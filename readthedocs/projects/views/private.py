@@ -8,12 +8,15 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotAllowed, Http404
 from django.db.models import Q
-from django.shortcuts import get_object_or_404, render_to_response
+from django.shortcuts import get_object_or_404, render_to_response, render
 from django.template import RequestContext
 from django.views.generic import View, ListView, TemplateView
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.formtools.wizard.views import SessionWizardView
+
+from allauth.socialaccount.models import SocialToken
+from requests_oauthlib import OAuth2Session
 
 from bookmarks.models import Bookmark
 from builds import utils as build_utils
@@ -30,7 +33,7 @@ from projects.forms import (ProjectBackendForm, ProjectBasicsForm,
                             build_versions_form, UserForm, EmailHookForm,
                             TranslationForm, RedirectForm, WebHookForm)
 from projects.models import Project, EmailHook, WebHook
-from projects import constants
+from projects import constants, tasks
 
 
 try:
@@ -83,6 +86,17 @@ def project_manage(request, project_slug):
     """
     return HttpResponseRedirect(reverse('projects_detail',
                                         args=[project_slug]))
+
+
+@login_required
+def project_comments_moderation(request, project_slug):
+    project = get_object_or_404(Project.objects.for_admin_user(request.user),
+                            slug=project_slug)
+    return render(
+        request,
+        'projects/project_comments_moderation.html',
+        {'project': project}
+        )
 
 
 @login_required
@@ -478,6 +492,20 @@ def project_notifications(request, project_slug):
 
 
 @login_required
+def project_comments_settings(request, project_slug):
+    project = get_object_or_404(Project.objects.for_admin_user(request.user),
+                                slug=project_slug)
+
+    return render_to_response(
+        'projects/project_comments_settings.html',
+        {
+            'project': project,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@login_required
 def project_notifications_delete(request, project_slug):
     if request.method != 'POST':
         raise Http404
@@ -620,3 +648,17 @@ def project_import_bitbucket(request, sync=False):
         },
         context_instance=RequestContext(request)
     )
+
+
+@login_required
+def project_version_delete_html(request, project_slug, version_slug):
+    project = get_object_or_404(Project.objects.for_admin_user(request.user), slug=project_slug)
+    version = get_object_or_404(Version.objects.public(user=request.user, project=project, only_active=False), slug=version_slug)
+
+    if not version.active:
+        version.built = False
+        version.save()
+        tasks.clear_artifacts.delay(version.pk)
+    else:
+        raise Http404
+    return HttpResponseRedirect(reverse('project_version_list', kwargs={'project_slug': project_slug}))

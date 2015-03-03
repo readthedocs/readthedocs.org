@@ -190,6 +190,7 @@ INSTALLED_APPS = [
     'bookmarks',
     'projects',
     'builds',
+    'comments',
     'core',
     'doc_builder',
     'oauth',

@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs-docs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-01 22:07+0800\n"
-"PO-Revision-Date: 2014-03-01 13:41+0000\n"
+"POT-Creation-Date: 2014-03-26 11:17+0100\n"
+"PO-Revision-Date: 2014-09-21 19:50+0000\n"
 "Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
 "Language-Team: Norwegian Bokmål (http://www.transifex.com/projects/p/readthedocs-docs/language/nb/)\n"
 "MIME-Version: 1.0\n"
@@ -20,7 +20,7 @@ msgstr ""
 # 6010c848b44d44d3ad4bf3073648ba4b
 #: ../../redirects.rst:2
 msgid "Redirects"
-msgstr ""
+msgstr "Videresendinger"
 
 # 42e4f362359441998a3bc4416b357c94
 #: ../../redirects.rst:4

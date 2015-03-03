@@ -5,7 +5,6 @@ from projects.models import Project
 
 
 class ProjectSerializer(serializers.ModelSerializer):
-    downloads = serializers.CharField(source='get_downloads', read_only=True)
 
     class Meta:
         model = Project
@@ -16,7 +15,6 @@ class ProjectSerializer(serializers.ModelSerializer):
             'default_version', 'default_branch',
             'documentation_type',
             'users',
-            'downloads',
         )
 
 
@@ -29,6 +27,7 @@ class ProjectFullSerializer(ProjectSerializer):
 
 class VersionSerializer(serializers.ModelSerializer):
     project = ProjectSerializer()
+    downloads = serializers.DictField(source='get_downloads', read_only=True)
 
     class Meta:
         model = Version
@@ -37,6 +36,7 @@ class VersionSerializer(serializers.ModelSerializer):
             'project', 'slug',
             'identifier', 'verbose_name',
             'active', 'built',
+            'downloads',
         )
 
 

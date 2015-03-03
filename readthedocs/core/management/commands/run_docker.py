@@ -20,6 +20,7 @@ class Command(BaseCommand):
         def _return_json(output):
             return json.dumps(output)
 
+        output = None
         try:
             input_data = self._get_input(files)
             version_data = json.loads(input_data)
@@ -27,6 +28,7 @@ class Command(BaseCommand):
             log.info('Building %s', version)
             output = _return_json(tasks.docker_build(version))
         except Exception as e:
+            log.exception('Error starting docker build')
             output = _return_json(
                 {'doc_builder': (-1, '', '{0}: {1}'.format(type(e).__name__,
                                                            str(e)))})

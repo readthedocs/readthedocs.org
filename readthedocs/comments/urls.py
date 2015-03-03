@@ -1,0 +1,30 @@
+from django.conf.urls import url, patterns, include
+
+urlpatterns = patterns(
+    # base view, flake8 complains if it is on the previous line.
+    '',
+    url(r'build',
+        'comments.views.build',
+        name='build'),
+    url(r'_has_node',
+        'comments.views.has_node',
+        name='has_node'),
+    url(r'_add_node',
+        'comments.views.add_node',
+        name='add_node'),
+    url(r'_update_node',
+        'comments.views.update_node',
+        name='update_node'),
+    url(r'_attach_comment',
+        'comments.views.attach_comment',
+        name='attach_comment'),
+    url(r'_get_metadata',
+        'comments.views.get_metadata',
+        name='get_metadata'),
+    url(r'_get_options',
+        'comments.views.get_options',
+        name='get_options'),
+    url(r'(?P<file>.*)',
+        'comments.views.serve_file',
+        name='serve_file'),
+)

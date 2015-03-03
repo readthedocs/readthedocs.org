@@ -25,12 +25,15 @@ class VersionSlugFilter(django_filters.FilterSet):
 
 class VersionFilter(django_filters.FilterSet):
     project = django_filters.CharFilter(name='project__slug')
+    # Allow filtering on slug= or version=
     slug = django_filters.CharFilter(label=_("Name"), name='slug',
-                                     lookup_type='icontains')
+                                     lookup_type='exact')
+    version = django_filters.CharFilter(label=_("Version"), name='slug',
+                                        lookup_type='exact')
 
     class Meta:
         model = Version
-        fields = ['project', 'slug']
+        fields = ['project', 'slug', 'version']
 
 
 class BuildFilter(django_filters.FilterSet):

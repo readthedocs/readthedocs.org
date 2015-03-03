@@ -95,6 +95,15 @@
       </dl>
       {% endif %}
 
+      {% if print_url %}
+      <dl>
+        <dt>Paperback</dt>
+        <dd>
+          <a href="{{ print_url }}">Buy this as a paperback</a>
+        </dd>
+      </dl>
+      {% endif %}
+
       {% if github_edit_url %}
       <dl>
         <dt>On GitHub</dt>

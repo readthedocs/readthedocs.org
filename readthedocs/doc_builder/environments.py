@@ -110,7 +110,9 @@ class DockerEnvironment(EnvironmentBase):
             mounts=[(self.version.project.doc_path,
                      ('/home/docs/checkouts/readthedocs.org/'
                       'user_builds/{project}'
-                      .format(project=self.version.project.slug)))]
+                      .format(project=self.version.project.slug))),
+                    (settings.LOGS_ROOT,
+                     '/home/docs/checkouts/readthedocs.org/logs/')]
         )
         with cmd:
             try:

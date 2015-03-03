@@ -113,8 +113,14 @@ class VersionManager(RelatedProjectManager):
     def api(self, user=None, *args, **kwargs):
         return self.public(user, only_active=False)
 
+
 class AdminPermission(object):
 
     @classmethod
     def is_admin(cls, user, project):
         return user in project.users.all()
+
+
+class AdminNotAuthorized(ValueError):
+    pass
+

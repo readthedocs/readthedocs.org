@@ -105,7 +105,7 @@ class BaseSphinx(BaseBuilder):
         else:
             rtd_ctx['versions'] = project.api_versions()
             rtd_ctx['downloads'] = (apiv2.version(self.version.pk)
-                                    .downloads.get()['downloads'])
+                                    .get()['downloads'])
 
         rtd_string = template_loader.get_template('doc_builder/conf.py.tmpl').render(rtd_ctx)
         outfile.write(rtd_string)
@@ -130,13 +130,25 @@ class BaseSphinx(BaseBuilder):
 
 class HtmlBuilder(BaseSphinx):
     type = 'sphinx'
-    sphinx_builder = 'readthedocs'
     sphinx_build_dir = '_build/html'
+
+    def __init__(self, *args, **kwargs):
+        super(HtmlBuilder, self).__init__(*args, **kwargs)
+        if self.version.project.allow_comments:
+            self.sphinx_builder = 'readthedocs-comments'
+        else:
+            self.sphinx_builder = 'readthedocs'
 
 
 class HtmlDirBuilder(HtmlBuilder):
     type = 'sphinx_htmldir'
-    sphinx_builder = 'readthedocsdirhtml'
+
+    def __init__(self, *args, **kwargs):
+        super(HtmlDirBuilder, self).__init__(*args, **kwargs)
+        if self.version.project.allow_comments:
+            self.sphinx_builder = 'readthedocsdirhtml-comments'
+        else:
+            self.sphinx_builder = 'readthedocsdirhtml'
 
 
 class SingleHtmlBuilder(HtmlBuilder):
