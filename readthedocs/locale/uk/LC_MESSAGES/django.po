@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-09-21 14:17-0500\n"
+"POT-Creation-Date: 2015-03-03 17:36-0600\n"
 "PO-Revision-Date: 2014-04-24 21:43+0000\n"
 "Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
 "Language-Team: Ukrainian (http://www.transifex.com/projects/p/readthedocs/"
@@ -30,29 +30,37 @@ msgstr "Вибачте, на тій сторінці немає результа
 msgid "Invalid resource lookup data provided (mismatched type).: %(error)s"
 msgstr ""
 
-#: bookmarks/models.py:9 builds/models.py:85 builds/models.py:280
-#: builds/models.py:296 projects/models.py:760 redirects/models.py:34
-msgid "Project"
-msgstr "Проект"
-
-#: bookmarks/models.py:11 core/models.py:13 projects/models.py:102
+#: bookmarks/models.py:10 core/models.py:16 projects/models.py:57
 msgid "User"
 msgstr "Користувач"
 
-#: bookmarks/models.py:13 builds/models.py:304
+#: bookmarks/models.py:12 builds/models.py:22 builds/models.py:232
+#: builds/models.py:248 comments/models.py:59 projects/models.py:802
+#: redirects/models.py:35
+msgid "Project"
+msgstr "Проект"
+
+#: bookmarks/models.py:14 builds/filters.py:31 builds/models.py:250
+#: comments/models.py:61 projects/models.py:72 projects/models.py:804
+#: templates/djangome/oneoffs.html:11
+msgid "Version"
+msgstr "Версія"
+
+#: bookmarks/models.py:16
+#, fuzzy
+msgid "Page"
+msgstr "Домашня сторінка"
+
+#: bookmarks/models.py:18 builds/models.py:256 comments/models.py:147
+#: comments/models.py:208
 msgid "Date"
 msgstr "Дата"
 
-#: bookmarks/models.py:14 templates/djangome/show.html:12
+#: bookmarks/models.py:19 templates/djangome/show.html:12
 msgid "URL"
 msgstr "URL"
 
-#: bookmarks/models.py:15 oauth/models.py:37 projects/models.py:106
-#: templates/core/project_details.html:82
-msgid "Description"
-msgstr "Опис"
-
-#: bookmarks/models.py:21
+#: bookmarks/models.py:26
 #, python-format
 msgid "Bookmark %(url)s for %(user)s (%(pk)s)"
 msgstr "Закладка %(url)s для %(user)s (%(pk)s)"
@@ -101,7 +109,7 @@ msgstr ""
 msgid "Branch"
 msgstr "Гілка"
 
-#: builds/constants.py:21 builds/filters.py:19
+#: builds/constants.py:21
 msgid "Tag"
 msgstr ""
 
@@ -113,130 +121,156 @@ msgstr ""
 msgid "Any"
 msgstr ""
 
-#: builds/filters.py:17 builds/filters.py:29 oauth/models.py:17
-#: oauth/models.py:35 projects/filters.py:31 projects/models.py:104
-#: projects/models.py:764
+#: builds/filters.py:29 oauth/models.py:18 oauth/models.py:37
+#: oauth/models.py:69 oauth/models.py:87 projects/filters.py:33
+#: projects/models.py:59 projects/models.py:806
 msgid "Name"
 msgstr "Ім’я"
 
-#: builds/filters.py:38
+#: builds/filters.py:40
 msgid "Build Date"
 msgstr ""
 
-#: builds/filters.py:39
+#: builds/filters.py:41
 msgid "Build Type"
 msgstr ""
 
-#: builds/models.py:88 builds/models.py:300
+#: builds/models.py:25 builds/models.py:252
 msgid "Type"
 msgstr "Тип"
 
-#: builds/models.py:92
+#: builds/models.py:29
 msgid "Identifier"
 msgstr "Ідентифікатор"
 
-#: builds/models.py:94
+#: builds/models.py:31
 msgid "Verbose Name"
 msgstr "Детальне ім’я"
 
-#: builds/models.py:95 projects/filters.py:33 projects/models.py:105
-#: projects/models.py:765
+#: builds/models.py:32 projects/filters.py:35 projects/models.py:60
+#: projects/models.py:807
 msgid "Slug"
 msgstr ""
 
-#: builds/models.py:97
+#: builds/models.py:34
 msgid "Supported"
 msgstr ""
 
-#: builds/models.py:98 oauth/models.py:19 oauth/models.py:42
-#: redirects/models.py:12 templates/projects/project_versions.html:46
+#: builds/models.py:35 oauth/models.py:20 oauth/models.py:44
+#: oauth/models.py:71 oauth/models.py:95 redirects/models.py:12
+#: templates/projects/project_versions.html:46
 msgid "Active"
 msgstr "Активний"
 
-#: builds/models.py:99 templates/projects/includes/icon_built.html:4
+#: builds/models.py:36 templates/projects/includes/icon_built.html:4
 msgid "Built"
 msgstr "Збудований"
 
-#: builds/models.py:100 templates/projects/includes/icon_built.html:7
+#: builds/models.py:37 templates/projects/includes/icon_built.html:7
 msgid "Uploaded"
 msgstr "Завантажено"
 
-#: builds/models.py:102 projects/models.py:199
+#: builds/models.py:39 projects/models.py:154
 msgid "Privacy Level"
 msgstr ""
 
-#: builds/models.py:103
+#: builds/models.py:40
 msgid "Level of privacy for this Version."
+msgstr ""
+
+#: builds/models.py:43
+msgid "Machine Created"
 msgstr ""
 
 #. Translators: Permission around whether a user can view the
 #. version
-#: builds/models.py:114
+#: builds/models.py:52
 msgid "View Version"
 msgstr ""
 
-#: builds/models.py:118
+#: builds/models.py:56
 #, python-format
 msgid "Version %(version)s of %(project)s (%(pk)s)"
 msgstr "Версія %(version)s проекту %(project)s (%(pk)s)"
 
-#: builds/models.py:282
+#: builds/models.py:234
 msgid "From slug"
 msgstr ""
 
-#: builds/models.py:283
+#: builds/models.py:235
 msgid "To slug"
 msgstr ""
 
-#: builds/models.py:285
+#: builds/models.py:237
 msgid "Largest"
 msgstr "Найбільший"
 
-#: builds/models.py:288
+#: builds/models.py:240
 #, python-format
 msgid "Alias for %(project)s: %(from)s -> %(to)s"
 msgstr "Псевдонім для %(project)s: %(from)s -> %(to)s"
 
-#: builds/models.py:298 projects/models.py:119 projects/models.py:762
-#: templates/djangome/oneoffs.html:11
-msgid "Version"
-msgstr "Версія"
-
-#: builds/models.py:302
+#: builds/models.py:254
 msgid "State"
 msgstr "Стан"
 
-#: builds/models.py:305
+#: builds/models.py:257
 msgid "Success"
 msgstr "Успішно"
 
-#: builds/models.py:307
+#: builds/models.py:259
 msgid "Setup"
 msgstr "Установка"
 
-#: builds/models.py:308
+#: builds/models.py:260
 msgid "Setup error"
 msgstr "Помилка установки"
 
-#: builds/models.py:309
+#: builds/models.py:261
 msgid "Output"
 msgstr "Вивід"
 
-#: builds/models.py:310
+#: builds/models.py:262
 msgid "Error"
 msgstr "Помилка"
 
-#: builds/models.py:311
+#: builds/models.py:263
 msgid "Exit code"
 msgstr ""
 
-#: builds/models.py:313 templates/builds/build_detail.html:39
+#: builds/models.py:265 projects/models.py:810
+#: templates/builds/build_detail.html:39
 msgid "Commit"
 msgstr ""
 
-#: builds/models.py:320
+#: builds/models.py:267
+#, fuzzy
+msgid "Build Length"
+msgstr "Будується"
+
+#: builds/models.py:279
 #, python-format
 msgid "Build %(project)s for %(usernames)s (%(pk)s)"
+msgstr ""
+
+#: comments/models.py:63 projects/models.py:118 projects/models.py:808
+msgid "Path"
+msgstr "Шлях"
+
+#: comments/models.py:65
+msgid "Raw Source"
+msgstr ""
+
+#: comments/models.py:114
+msgid "Hash"
+msgstr ""
+
+#: comments/models.py:148
+msgid "Rating"
+msgstr ""
+
+#: comments/models.py:149
+msgid "Text"
 msgstr ""
 
 #: core/forms.py:14
@@ -247,27 +281,27 @@ msgstr "Ім’я"
 msgid "Last name"
 msgstr "Прізвище"
 
-#: core/middleware.py:70
+#: core/middleware.py:72 core/middleware.py:79
 msgid "Invalid hostname"
 msgstr "Неправильний хостнейм"
 
-#: core/models.py:15
+#: core/models.py:18
 msgid "Whitelisted"
 msgstr "Перенесено в білий список"
 
-#: core/models.py:16
+#: core/models.py:19
 msgid "Homepage"
 msgstr "Домашня сторінка"
 
-#: core/models.py:17
+#: core/models.py:20
 msgid "Allow email"
 msgstr "Дозволити email"
 
-#: core/models.py:18
+#: core/models.py:21
 msgid "Show your email on VCS contributions."
 msgstr "Показувати ваш email на внеску з СКВ."
 
-#: core/models.py:23
+#: core/models.py:26
 #, python-format
 msgid "%(username)s's profile"
 msgstr "профіль користувача %(username)s"
@@ -277,168 +311,179 @@ msgstr "профіль користувача %(username)s"
 msgid "Please enter a valid URL on %s"
 msgstr "Будь-ласка введіть коректний URL на %s"
 
-#: oauth/models.py:7 oauth/models.py:28 projects/models.py:98
+#: oauth/models.py:8 oauth/models.py:29 oauth/models.py:59 oauth/models.py:80
+#: projects/models.py:53
 msgid "Publication date"
 msgstr "Дата публікації"
 
-#: oauth/models.py:8 oauth/models.py:29 projects/models.py:99
+#: oauth/models.py:9 oauth/models.py:30 oauth/models.py:60 oauth/models.py:81
+#: projects/models.py:54
 msgid "Modified date"
 msgstr "Модифікована дата"
 
-#: oauth/models.py:10 oauth/models.py:31
+#: oauth/models.py:11 oauth/models.py:33 oauth/models.py:62 oauth/models.py:83
 #, fuzzy
 msgid "Users"
 msgstr "Користувач"
 
-#: oauth/models.py:13
+#: oauth/models.py:14 oauth/models.py:65
 msgid "Login"
 msgstr ""
 
-#: oauth/models.py:15
+#: oauth/models.py:16 oauth/models.py:67
 msgid "Email"
 msgstr ""
 
-#: oauth/models.py:18 oauth/models.py:41
+#: oauth/models.py:19 oauth/models.py:43 oauth/models.py:70 oauth/models.py:94
 #, fuzzy
 msgid "HTML URL"
 msgstr "HTML"
 
-#: oauth/models.py:33
+#: oauth/models.py:35 oauth/models.py:85
 #, fuzzy
 msgid "Organization"
 msgstr "Переклади"
 
-#: oauth/models.py:36
+#: oauth/models.py:38 oauth/models.py:88
 #, fuzzy
 msgid "Full Name"
 msgstr "Ім’я"
 
-#: oauth/models.py:38 projects/models.py:107
+#: oauth/models.py:39 oauth/models.py:89 projects/models.py:61
+#: templates/core/project_details.html:90
+msgid "Description"
+msgstr "Опис"
+
+#: oauth/models.py:40 oauth/models.py:90 projects/models.py:62
 msgid "The reStructuredText description of the project"
 msgstr "Опис проекту в reStructuredText"
 
-#: oauth/models.py:39
+#: oauth/models.py:41 oauth/models.py:92
 msgid "Git URL"
 msgstr ""
 
-#: oauth/models.py:40
+#: oauth/models.py:42 oauth/models.py:93
 msgid "SSH URL"
 msgstr ""
 
+#: oauth/models.py:91
+msgid "vcs"
+msgstr ""
+
 #: projects/constants.py:18
+msgid "Automatically Choose"
+msgstr ""
+
+#: projects/constants.py:19
 msgid "Sphinx Html"
 msgstr "Sphinx Html"
 
-#: projects/constants.py:19
-msgid "Sphinx HtmlDir"
-msgstr "Sphinx HtmlDir"
-
 #: projects/constants.py:20
-msgid "Sphinx Single Page HTML"
+msgid "Mkdocs (Markdown)"
 msgstr ""
 
 #: projects/constants.py:21
-msgid "Mkdocs"
+msgid "Sphinx HtmlDir"
+msgstr "Sphinx HtmlDir"
+
+#: projects/constants.py:22
+msgid "Sphinx Single Page HTML"
 msgstr ""
 
 #. Translators: This is a name of a Sphinx theme.
-#: projects/constants.py:29
+#: projects/constants.py:30
 msgid "Default"
 msgstr "Стандартна"
 
 #. Translators: This is a name of a Sphinx theme.
-#: projects/constants.py:31
+#: projects/constants.py:32
 msgid "Sphinx Docs"
 msgstr "Документи Sphinx"
 
 #. Translators: This is a name of a Sphinx theme.
-#: projects/constants.py:35
+#: projects/constants.py:36
 msgid "Traditional"
 msgstr "Традиційна"
 
 #. Translators: This is a name of a Sphinx theme.
-#: projects/constants.py:37
+#: projects/constants.py:38
 msgid "Nature"
 msgstr "Природа"
 
 #. Translators: This is a name of a Sphinx theme.
-#: projects/constants.py:39
+#: projects/constants.py:40
 msgid "Haiku"
 msgstr "Хайку"
 
-#: projects/constants.py:68
+#: projects/constants.py:69
 msgid "Live"
 msgstr "Наживо"
 
-#: projects/constants.py:69
+#: projects/constants.py:70
 msgid "Deleted"
 msgstr "Видалено"
 
-#: projects/constants.py:73
+#: projects/constants.py:74
 msgid "Git"
 msgstr "Git"
 
-#: projects/constants.py:74
+#: projects/constants.py:75
 msgid "Subversion"
 msgstr "Subversion"
 
-#: projects/constants.py:75
+#: projects/constants.py:76
 msgid "Mercurial"
 msgstr "Mercurial"
 
-#: projects/constants.py:76
+#: projects/constants.py:77
 msgid "Bazaar"
 msgstr "Bazaar"
 
-#: projects/constants.py:84
+#: projects/constants.py:85
 msgid "Public"
 msgstr ""
 
-#: projects/constants.py:85
+#: projects/constants.py:86
 msgid "Protected"
 msgstr ""
 
-#: projects/constants.py:86
+#: projects/constants.py:87
 msgid "Private"
 msgstr ""
 
-#: projects/constants.py:97
+#: projects/constants.py:98
 msgid "CPython 2.x"
 msgstr "CPython 2.x"
 
-#: projects/constants.py:98
+#: projects/constants.py:99
 msgid "CPython 3.x"
 msgstr "CPython 3.x"
 
-#: projects/filters.py:34
+#: projects/filters.py:36
 msgid "Created Date"
 msgstr ""
 
-#: projects/filters.py:36 projects/models.py:109
+#: projects/filters.py:38 projects/models.py:64
 msgid "Repository URL"
 msgstr "URL репозиторію"
 
-#: projects/filters.py:39
+#: projects/filters.py:41
 msgid "Repository Type"
 msgstr ""
 
-#: projects/forms.py:26
-msgid "A project with that name exists already!"
-msgstr "Проект з таким іменем вже існує!"
-
-#: projects/forms.py:34
-msgid ""
-"URL for your code (hg or git). Ex. http://github.com/ericholscher/django-"
-"kong.git"
+#: projects/forms.py:67
+msgid "Edit advanced project options"
 msgstr ""
-"URL для вашого коду (hg чи git). Напр.: http://github.com/ericholscher/"
-"django-kong.git"
 
-#: projects/forms.py:56
+#: projects/forms.py:78
+msgid "Invalid project name, a project already exists with that name"
+msgstr ""
+
+#: projects/forms.py:85
 msgid "Invalid character in repo name"
 msgstr "Недозволений символ в назві репозиторію"
 
-#: projects/forms.py:59
+#: projects/forms.py:88
 msgid ""
 "It looks like you entered a private repo - please use the public (http:// or "
 "git://) clone url"
@@ -446,139 +491,134 @@ msgstr ""
 "Схоже що ви ввели приватний репозиторій. Будь-ласка використайте публічний "
 "(http:// чи git://) URL для клонування."
 
-#: projects/forms.py:76 projects/models.py:187
+#: projects/forms.py:131 projects/models.py:142
 msgid "(Beta) The Python interpreter used to create the virtual environment."
 msgstr ""
 "(бета) Інтерпретатор Python що використовується для створення віртуального "
 "оточення."
 
-#: projects/forms.py:105
+#: projects/forms.py:160
 msgid ""
 "Your configuration file is invalid, make sure it contains conf.py in it."
 msgstr ""
 "Файл конфігурації помилковий, переконайтесь що він містить в собі conf.py"
 
-#: projects/forms.py:177 templates/core/project_details.html:172
+#: projects/forms.py:242 templates/core/project_detail_right.html:102
 msgid "Default Version"
 msgstr ""
 
-#: projects/forms.py:200
+#: projects/forms.py:269
 msgid "Zip file of HTML"
 msgstr "Zip архів чи HTML"
 
-#: projects/forms.py:202
+#: projects/forms.py:271
 msgid "Overwrite existing HTML?"
 msgstr "Переписати існуючий HTML?"
 
-#: projects/forms.py:215
+#: projects/forms.py:284
 msgid "That version is already active!"
 msgstr "Ця версія вже активна!"
 
-#: projects/forms.py:217
+#: projects/forms.py:286
 msgid "Must upload a zip file."
 msgstr "Треба завантажити zip архів."
 
-#: projects/forms.py:231
+#: projects/forms.py:300
 msgid "Version of the project you are uploading HTML for"
 msgstr "Версія проекту для якої ви завантажуєте HTML."
 
-#: projects/forms.py:248 projects/forms.py:325
+#: projects/forms.py:317 projects/forms.py:394
 #, python-format
 msgid "Project %(name)s does not exist"
 msgstr "Проект %(name)s не існує."
 
-#: projects/forms.py:269
+#: projects/forms.py:338
 #, python-format
 msgid "User %(name)s does not exist"
 msgstr ""
 
-#: projects/models.py:83
+#: projects/models.py:37
 msgid "Parent"
 msgstr "Батько"
 
-#: projects/models.py:85
+#: projects/models.py:39
 msgid "Child"
 msgstr "Дитина"
 
-#: projects/models.py:110
-msgid ""
-"Checkout URL for your code (hg, git, etc.). Ex. http://github.com/"
-"ericholscher/django-kong.git"
+#: projects/models.py:65
+msgid "Hosted documentation repository URL"
 msgstr ""
-"URL для чекауту вашого коду (hg, git, і т.п.). Напр. http://github.com/"
-"ericholscher/django-kong.git"
 
-#: projects/models.py:113
+#: projects/models.py:66
 msgid "Repository type"
 msgstr "Тип репозиторію"
 
-#: projects/models.py:115
-msgid "Project URL"
-msgstr "URL проекту"
+#: projects/models.py:68
+#, fuzzy
+msgid "Project homepage"
+msgstr "Домашня сторінка проекту"
 
-#: projects/models.py:116
+#: projects/models.py:69
 msgid "The project's homepage"
 msgstr "Домашня сторінка проекту"
 
-#: projects/models.py:117
+#: projects/models.py:70
 msgid "Canonical URL"
 msgstr "Канонічний URL"
 
-#: projects/models.py:118
-msgid ""
-"The official URL that the docs live at. This can be slug.readthedocs.org, or "
-"somewhere else. Ex. http://docs.fabfile.org"
+#: projects/models.py:71
+msgid "URL that documentation is expected to serve from"
 msgstr ""
 
-#: projects/models.py:120
+#: projects/models.py:73
 msgid "Project version these docs apply to, i.e. 1.0a"
 msgstr "Версія проекту для якої актуальна ця документація, напр. 1.0a"
 
-#: projects/models.py:122 templates/sphinx/sphinx_rtd_theme/layout.html:58
+#: projects/models.py:75 templates/sphinx/sphinx_rtd_theme/layout.html:58
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:140
 msgid "Copyright"
 msgstr "Копірайт"
 
-#: projects/models.py:123
+#: projects/models.py:76
 msgid "Project copyright information"
 msgstr "Інформація про копірайти проекту"
 
-#: projects/models.py:125
+#: projects/models.py:78
 msgid "Theme"
 msgstr "Тема"
 
-#: projects/models.py:128
+#: projects/models.py:81
 msgid "Examples"
 msgstr "Приклади"
 
-#: projects/models.py:129
+#: projects/models.py:82
 msgid "Suffix"
 msgstr "Суфікс"
 
-#: projects/models.py:132
+#: projects/models.py:85
 msgid "Single version"
 msgstr ""
 
-#: projects/models.py:133
+#: projects/models.py:86
 msgid ""
 "A single version site has no translations and only your \"latest\" version, "
 "served at the root of the domain. Use this with caution, only turn it on if "
 "you will <b>never</b> have multiple versions of your docs."
 msgstr ""
 
-#: projects/models.py:135
+#: projects/models.py:88
 msgid "Default version"
 msgstr "Версія за замовчуванням"
 
-#: projects/models.py:136
+#: projects/models.py:89
 msgid "The version of your project that / redirects to"
 msgstr "Версія проекту на яку перенаправляє /"
 
-#: projects/models.py:140
+#: projects/models.py:93
 msgid "Default branch"
 msgstr "Гілка за замовчуванням"
 
-#: projects/models.py:141
+#: projects/models.py:94
 msgid ""
 "What branch \"latest\" points to. Leave empty to use the default value for "
 "your VCS (eg. trunk or master)."
@@ -586,32 +626,40 @@ msgstr ""
 "Яка гілка вказує на \"останню\" версію. Залиште порожнім щоб використати "
 "значення за замовчуванням для вашої СКВ (trunk чи master)."
 
-#: projects/models.py:145
+#: projects/models.py:98
 msgid "Requirements file"
 msgstr "Файл вимог"
 
-#: projects/models.py:147
+#: projects/models.py:100
 msgid ""
-"Requires Virtualenv. A <a href=\"http://www.pip-installer.org/en/latest/"
-"cookbook.html#requirements-files\">pip requirements file</a> needed to build "
-"your documentation. Path from the root of your project."
+"Requires Virtualenv. A <a href=\"https://pip.pypa.io/en/latest/user_guide."
+"html#requirements-files\">pip requirements file</a> needed to build your "
+"documentation. Path from the root of your project."
 msgstr ""
 
-#: projects/models.py:152
+#: projects/models.py:105
 msgid "Documentation type"
 msgstr "Тип документації"
 
-#: projects/models.py:154
+#: projects/models.py:107
 msgid ""
 "Type of documentation you are building. <a href=\"http://sphinx-doc.org/"
 "builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More info</a>."
 msgstr ""
 
-#: projects/models.py:158
+#: projects/models.py:110
+msgid "Allow Comments"
+msgstr ""
+
+#: projects/models.py:111
+msgid "Comment Moderation)"
+msgstr ""
+
+#: projects/models.py:113
 msgid "Analytics code"
 msgstr "Код аналітики"
 
-#: projects/models.py:159
+#: projects/models.py:114
 msgid ""
 "Google Analytics Tracking ID (ex. UA-22345342-1). This may slow down your "
 "page loads."
@@ -619,19 +667,15 @@ msgstr ""
 "Google Analytics Tracking ID (ex. UA-22345342-1). Це може сповільнити "
 "завантаження сторінок."
 
-#: projects/models.py:163 projects/models.py:766
-msgid "Path"
-msgstr "Шлях"
-
-#: projects/models.py:164
+#: projects/models.py:119
 msgid "The directory where conf.py lives"
 msgstr "Директорія в якій знаходиться conf.py"
 
-#: projects/models.py:166
+#: projects/models.py:121
 msgid "Python configuration file"
 msgstr "Файл конфігурації Python"
 
-#: projects/models.py:167
+#: projects/models.py:122
 msgid ""
 "Path from project root to conf.py file (ex. docs/conf.py). Leave blank if "
 "you want us to find it for you."
@@ -639,111 +683,165 @@ msgstr ""
 "Шлях від кореня вашого проекту до файлу conf.py (напр. docs/conf.py). "
 "Залиште порожнім якщо хочете щоб ми знайшли його за вас."
 
-#: projects/models.py:170
+#: projects/models.py:125
 msgid "Featured"
 msgstr "Обране"
 
-#: projects/models.py:171
+#: projects/models.py:126
 msgid "Skip"
 msgstr "Пропустити"
 
-#: projects/models.py:172
+#: projects/models.py:127
 msgid "Mirror"
 msgstr ""
 
-#: projects/models.py:174
+#: projects/models.py:129
 msgid "Use virtualenv"
 msgstr "Використати virtualenv"
 
-#: projects/models.py:175
+#: projects/models.py:130
 msgid "Install your project inside a virtualenv using setup.py install"
 msgstr "Встановіть ваш проект в virtualenv використовуючи setup.py"
 
-#: projects/models.py:183
+#: projects/models.py:138
 msgid "Python Interpreter"
 msgstr "Інтерпретатор Python"
 
-#: projects/models.py:191
+#: projects/models.py:146
 msgid "Use system packages"
 msgstr ""
 
-#: projects/models.py:192
+#: projects/models.py:147
 msgid "Give the virtual environment access to the global site-packages dir."
 msgstr ""
 
-#: projects/models.py:196
+#: projects/models.py:151
 msgid "Django Packages URL"
 msgstr "URL пакетів Django"
 
-#: projects/models.py:201
+#: projects/models.py:156
 msgid ""
 "(Beta) Level of privacy that you want on the repository. Protected means "
 "public but not in listings."
 msgstr ""
 
-#: projects/models.py:204
+#: projects/models.py:159
 msgid "Version Privacy Level"
 msgstr ""
 
-#: projects/models.py:206
+#: projects/models.py:162
 msgid ""
 "(Beta) Default level of privacy you want on built versions of documentation."
 msgstr ""
 
-#: projects/models.py:211
+#: projects/models.py:167
 msgid "Related projects"
 msgstr "Пов’язані проекти"
 
-#: projects/models.py:215
+#: projects/models.py:171
 msgid "Language"
 msgstr ""
 
-#: projects/models.py:216
+#: projects/models.py:172
 msgid ""
 "The language the project documentation is rendered in. Note: this affects "
 "your project's URL."
 msgstr ""
 
-#: projects/models.py:227
+#: projects/models.py:177
+msgid "Programming Language"
+msgstr ""
+
+#: projects/models.py:179
+msgid "The primary programming language the project is written in."
+msgstr ""
+
+#: projects/models.py:188
 msgid "Number of Major versions"
 msgstr ""
 
-#: projects/models.py:232
+#: projects/models.py:193
 msgid "2 means supporting 3.X.X and 2.X.X, but not 1.X.X"
 msgstr ""
 
-#: projects/models.py:235
+#: projects/models.py:196
 msgid "Number of Minor versions"
 msgstr ""
 
-#: projects/models.py:240
+#: projects/models.py:201
 msgid "2 means supporting 2.2.X and 2.1.X, but not 2.0.X"
 msgstr ""
 
-#: projects/models.py:243
+#: projects/models.py:204
 msgid "Number of Point versions"
 msgstr ""
 
-#: projects/models.py:248
+#: projects/models.py:209
 msgid "2 means supporting 2.2.2 and 2.2.1, but not 2.2.0"
 msgstr ""
 
 #. Translators: Permission around whether a user can view the
 #. project
-#: projects/models.py:259 templates/projects/project_import_github.html:65
+#: projects/models.py:221 templates/projects/project_import_bitbucket.html:57
+#: templates/projects/project_import_github.html:57
 msgid "View Project"
 msgstr ""
 
-#: projects/models.py:286
+#: projects/models.py:251
 msgid "Model must have slug"
 msgstr "Модель повинна мати slug"
 
-#: projects/models.py:767
+#: projects/models.py:809
 msgid "MD5 checksum"
 msgstr "Чексума MD5"
 
-#: projects/models.py:795
+#: projects/models.py:839
 msgid "URL to send the webhook to"
+msgstr ""
+
+#: projects/signals.py:52
+msgid "GitHub webhook activated"
+msgstr ""
+
+#: projects/signals.py:68
+msgid "BitBucket webhook activated"
+msgstr ""
+
+#: projects/tasks.py:751
+#, python-brace-format
+msgid "Failed: {project.name} ({commit})"
+msgstr ""
+
+#: projects/tasks.py:753
+#, python-brace-format
+msgid "Failed: {project.name} ({version.verbose_name})"
+msgstr ""
+
+#: projects/views/private.py:118 projects/views/private.py:143
+msgid "Project settings updated"
+msgstr ""
+
+#: projects/views/private.py:172
+#, fuzzy
+msgid "Project versions updated"
+msgstr "Версія проекту для якої актуальна ця документація, напр. 1.0a"
+
+#: projects/views/private.py:216
+#, fuzzy
+msgid "Project deleted"
+msgstr "Псевдонім проекту"
+
+#: projects/views/private.py:331
+#, fuzzy
+msgid "The demo project is already imported!"
+msgstr "Ця версія вже активна!"
+
+#: projects/views/private.py:340
+msgid "Your demo project is currently being imported"
+msgstr ""
+
+#: projects/views/private.py:345
+msgid "There was a problem adding the demo project"
 msgstr ""
 
 #: redirects/models.py:7
@@ -769,115 +867,120 @@ msgstr ""
 
 #: redirects/models.py:19
 #, fuzzy
+msgid "Exact Redirect"
+msgstr "Редагувати проект"
+
+#: redirects/models.py:20
+#, fuzzy
 msgid "Sphinx HTMLDir -> HTML"
 msgstr "Sphinx HtmlDir"
 
-#: redirects/models.py:20
+#: redirects/models.py:21
 #, fuzzy
 msgid "Sphinx HTML -> HTMLDir"
 msgstr "Sphinx HtmlDir"
 
-#: redirects/models.py:24
+#: redirects/models.py:25
 msgid ""
-"Absolute path, excluding the domain.Example: <b>/docs/</b>  or <b>/install."
-"html</b>."
+"Absolute path, excluding the domain. Example: <b>/docs/</b>  or <b>/install."
+"html</b>"
 msgstr ""
 
-#: redirects/models.py:27
-msgid "Absolute or relative url. Examples: <b>/tutorial/install.html.</b>"
+#: redirects/models.py:28
+msgid "Absolute or relative url. Examples: <b>/tutorial/install.html</b>"
 msgstr ""
 
-#: redirects/models.py:30
+#: redirects/models.py:31
 msgid "The type of redirect you wish to use."
 msgstr ""
 
-#: redirects/models.py:36
+#: redirects/models.py:38
 msgid "Redirect Type"
 msgstr ""
 
-#: redirects/models.py:38
+#: redirects/models.py:41
 #, fuzzy
 msgid "From URL"
 msgstr "URL проекту"
 
-#: redirects/models.py:41
+#: redirects/models.py:44
 #, fuzzy
 msgid "To URL"
 msgstr "Короткі URL"
 
-#: redirects/models.py:44
+#: redirects/models.py:47
 msgid "HTTP Status"
 msgstr ""
 
-#: redirects/models.py:53
+#: redirects/models.py:56
 msgid "redirect"
 msgstr ""
 
-#: redirects/models.py:54
+#: redirects/models.py:57
 #, fuzzy
 msgid "redirects"
 msgstr "Вибрані проекти"
 
-#: redirects/models.py:59
+#: redirects/models.py:62
+#, fuzzy, python-format
+msgid "Prefix Redirect: %s ->"
+msgstr "Редагувати проект"
+
+#: redirects/models.py:64
 #, python-format
-msgid "Redirect: %s ->"
+msgid "Page Redirect: %s -> %s"
 msgstr ""
 
-#: redirects/models.py:61
-#, python-format
-msgid "Redirect: %s -> %s"
-msgstr ""
-
-#: redirects/models.py:63
+#: redirects/models.py:66
 #, python-format
 msgid "Redirect: %s"
 msgstr ""
 
-#: settings/base.py:59
+#: settings/base.py:63
 msgid "English"
 msgstr "Англійська"
 
-#: settings/base.py:60
+#: settings/base.py:64
 msgid "Spanish"
 msgstr "Іспанська"
 
-#: settings/base.py:61
+#: settings/base.py:65
 msgid "Norwegian Bokmål"
 msgstr "Норвезька (букмол)"
 
-#: settings/base.py:62
+#: settings/base.py:66
 msgid "French"
 msgstr "Французька"
 
-#: settings/base.py:63
+#: settings/base.py:67
 msgid "Russian"
 msgstr "Російська"
 
-#: settings/base.py:64
+#: settings/base.py:68
 msgid "German"
 msgstr "Німецька"
 
-#: settings/base.py:65
+#: settings/base.py:69
 msgid "Galician"
 msgstr "Галісійська"
 
-#: settings/base.py:66
+#: settings/base.py:70
 msgid "Vietnamese"
 msgstr "В’єтнамська"
 
-#: settings/base.py:67
+#: settings/base.py:71
 msgid "Chinese"
 msgstr "Китайська"
 
-#: settings/base.py:68
+#: settings/base.py:72
 msgid "Taiwanese"
 msgstr ""
 
-#: settings/base.py:69
+#: settings/base.py:73
 msgid "Japanese"
 msgstr ""
 
-#: settings/base.py:70
+#: settings/base.py:74
 msgid "Ukrainian"
 msgstr ""
 
@@ -891,35 +994,27 @@ msgstr "Помилка сервера"
 
 #. Translators: Name of the website
 #: templates/base.html:13 templates/error_header.html:12
-#: templates/core/header.html:10 templates/core/home-header.html:9
+#: templates/core/header.html:12 templates/core/home-header.html:9
+#: templates/core/email/base.html:7 templates/core/email/base.html.py:92
 msgid "Read the Docs"
 msgstr "Read the Docs"
 
-#: templates/base.html:61
-msgid ""
-"Your docs are currently being built.  It may take a moment for them to "
-"appear."
-msgstr ""
-
-#: templates/base.html:62
-msgid "Read the Docs thanks you for your continued patience."
-msgstr "Read the Docs дякує вам за ваше подальше терпіння."
-
-#: templates/base.html:84
+#: templates/base.html:88
 #, python-format
 msgid ""
-"Copyright 2010-2013. Created by %(eric)s, %(charles)s, and %(bobby)s for the "
+"Copyright 2010-2015. Created by %(eric)s, %(charles)s, and %(bobby)s for the "
 "2010 %(djangodash)s."
 msgstr ""
 
-#: templates/base.html:86
+#: templates/base.html:90
 msgid "Docs"
 msgstr "Документація"
 
-#: templates/base.html:88
+#: templates/base.html:92
+#, fuzzy
 msgid ""
 "Made by <a href=\"https://github.com/rtfd/readthedocs.org/graphs/contributors"
-"\">humans</a>. Funded by <a href=\"https://www.gittip.com/readthedocs/"
+"\">humans</a>. Funded by <a href=\"https://gratipay.com/readthedocs/"
 "\">readers like you</a>."
 msgstr ""
 "Зроблено <a href=\"https://github.com/rtfd/readthedocs.org/graphs/"
@@ -930,37 +1025,32 @@ msgstr ""
 msgid "Filter"
 msgstr ""
 
-#: templates/donate.html:3 templates/core/header.html:50
+#: templates/donate.html:5 templates/core/header.html:36
 msgid "Donate"
 msgstr ""
 
-#: templates/donate.html:9
+#: templates/donate.html:11
 msgid ""
 "Read the Docs is funded through donations from our users. You can donate "
 "money a couple of ways:"
 msgstr ""
 
-#: templates/donate.html:14
+#: templates/donate.html:16
 msgid "Credit Card"
 msgstr ""
 
-#: templates/donate.html:20
+#: templates/donate.html:22
 msgid ""
 "\n"
 "You can read more about the ongoing efforts to improve the documentation "
 "ecosystem here:\n"
 msgstr ""
 
-#: templates/error_header.html:22 templates/core/header.html:19
-msgid "Go"
-msgstr "Пішли!"
-
-#: templates/error_header.html:32 templates/core/header.html:46
+#: templates/error_header.html:24 templates/core/header.html:35
 msgid "Log Out"
 msgstr "Вийти"
 
-#: templates/error_header.html:36 templates/core/header.html:48
-#: templates/core/home-header.html:19
+#: templates/error_header.html:28 templates/core/home-header.html:19
 msgid "Log in"
 msgstr "Увійти"
 
@@ -1032,6 +1122,68 @@ msgstr ""
 "Це пост-комміт хук. Встановіть його в адмінці свого проекту щоб він робив "
 "POST запит сюди, і аби ми оновлювали зміни в документації автоматично."
 
+#: templates/account/email.html:6 templates/account/email.html.py:10
+#: templates/profiles/base_profile_edit.html:50
+#, fuzzy
+msgid "Change Email"
+msgstr "Змінити мій пароль"
+
+#: templates/account/email.html:14
+msgid "The following e-mail addresses are associated with your account:"
+msgstr ""
+
+#: templates/account/email.html:28
+msgid "Verified"
+msgstr ""
+
+#: templates/account/email.html:30
+msgid "Unverified"
+msgstr ""
+
+#: templates/account/email.html:32
+msgid "Primary"
+msgstr ""
+
+#: templates/account/email.html:38
+msgid "Make Primary"
+msgstr ""
+
+#: templates/account/email.html:39
+msgid "Re-send Verification"
+msgstr ""
+
+#: templates/account/email.html:40
+#: templates/projects/project_notifications.html:56
+#: templates/projects/project_redirects.html:93
+#: templates/projects/project_subprojects.html:27
+#: templates/projects/project_translations.html:26
+#: templates/socialaccount/connections.html:38
+msgid "Remove"
+msgstr "Вилучити"
+
+#: templates/account/email.html:47
+msgid "Warning:"
+msgstr ""
+
+#: templates/account/email.html:47
+msgid ""
+"You currently do not have any e-mail address set up. You should really add "
+"an e-mail address so you can receive notifications, reset your password, etc."
+msgstr ""
+
+#: templates/account/email.html:52
+#, fuzzy
+msgid "Add E-mail Address"
+msgstr "Адреса e-mail:"
+
+#: templates/account/email.html:57
+msgid "Add E-mail"
+msgstr ""
+
+#: templates/account/email.html:66
+msgid "Do you really want to remove the selected e-mail address?"
+msgstr ""
+
 #: templates/account/login.html:7 templates/account/login.html.py:11
 #: templates/account/login.html:22
 #, fuzzy
@@ -1053,10 +1205,10 @@ msgstr ""
 "Якщо ви забули ваш пароль, <a href=\"/accounts/password/reset/\">скиньте "
 "його.</a>"
 
-#: templates/account/password_change.html:6
+#: templates/account/password_change.html:5
+#: templates/account/password_change.html:9
 #: templates/account/password_change.html:15
-#: templates/account/password_change.html:20
-#: templates/dashboard/dashboard_bar.html:36
+#: templates/profiles/base_profile_edit.html:49
 msgid "Change Password"
 msgstr "Змінити пароль"
 
@@ -1064,13 +1216,32 @@ msgstr "Змінити пароль"
 msgid "Read the Docs Archive"
 msgstr ""
 
-#: templates/bookmarks/bookmark_list.html:7
+#: templates/bookmarks/bookmark_delete.html:4
+#: templates/bookmarks/bookmark_delete.html:6
+#: templates/projects/project_delete.html:4
+#: templates/projects/project_delete.html:6
+#, python-format
+msgid "Delete %(name)s?"
+msgstr "Видалити %(name)s?"
+
+#: templates/bookmarks/bookmark_delete.html:9
+#: templates/projects/project_delete.html:9
+msgid "You sure?"
+msgstr "Ви впевнені?"
+
+#: templates/bookmarks/bookmark_delete.html:12
+#: templates/projects/project_delete.html:12
+msgid "Delete forever"
+msgstr "Видалити назавжди"
+
+#: templates/bookmarks/bookmark_list.html:7 templates/core/header.html:32
 msgid "Bookmarks"
 msgstr "Закладки"
 
 #: templates/bookmarks/bookmark_list.html:20
-msgid "Recent Bookmarks"
-msgstr "Недавні закладки"
+#, fuzzy
+msgid "All Bookmarks"
+msgstr "Закладки"
 
 #: templates/builds/build_detail.html:14
 #, python-format
@@ -1116,29 +1287,42 @@ msgstr "Версія:"
 msgid "Type:"
 msgstr "Тип:"
 
-#: templates/builds/build_detail.html:42
+#: templates/builds/build_detail.html:43
+msgid "Length:"
+msgstr ""
+
+#: templates/builds/build_detail.html:46
 #, fuzzy
 msgid "Build Standard Output"
 msgstr "Стандартний вивід Sphinx"
 
-#: templates/builds/build_detail.html:46
+#: templates/builds/build_detail.html:50
 #, fuzzy
 msgid "Build Standard Error"
 msgstr "Sphinx Standard Error"
 
-#: templates/builds/build_detail.html:51
+#: templates/builds/build_detail.html:55
 msgid "Setup Output"
 msgstr "Setup Output"
 
-#: templates/builds/build_detail.html:56
+#: templates/builds/build_detail.html:60
 msgid "Environment Standard Error"
 msgstr "Environment Standard Error"
 
 #: templates/builds/build_list.html:37
+#, python-format
+msgid ""
+"\n"
+"    Whoa! The build queue is %(queue_length)s tasks long, new builds may "
+"take a while.\n"
+"  "
+msgstr ""
+
+#: templates/builds/build_list.html:58
 msgid "Build Version:"
 msgstr ""
 
-#: templates/builds/build_list.html:49
+#: templates/builds/build_list.html:70
 msgid "Recent Builds"
 msgstr "Недавні білди"
 
@@ -1166,9 +1350,28 @@ msgstr ""
 msgid "No objects found"
 msgstr ""
 
-#: templates/core/header.html:45
-msgid "Dashboard"
-msgstr "Панель керування"
+#: templates/core/header.html:29 templates/core/project_bar.html:7
+#: templates/core/project_bar_base.html:20
+#: templates/projects/project_dashboard_base.html:54
+#: templates/projects/project_list.html:17
+#: templates/projects/project_list.html:35
+msgid "Projects"
+msgstr "Проекти"
+
+#: templates/core/header.html:30
+#, fuzzy
+msgid "Add Project"
+msgstr "Редагувати проект"
+
+#: templates/core/header.html:31
+#, fuzzy
+msgid "Edit Profile"
+msgstr "Відредагуйте свій профіль."
+
+#: templates/core/header.html:43
+#, fuzzy
+msgid "Log In"
+msgstr "Увійти"
 
 #: templates/core/home-header.html:10
 msgid "Create, host, and browse documentation."
@@ -1184,36 +1387,24 @@ msgstr "Зареєструватись"
 msgid "or"
 msgstr "чи"
 
-#: templates/core/project_bar.html:17
-#, python-format
-msgid "Build failed (<a href=\"%(url)s\">why</a>)"
-msgstr "Білд провалився (<a href=\"%(url)s\">чому</a>)"
-
-#: templates/core/project_bar.html:20
-msgid "There are no builds for this project"
-msgstr "Немає білдів цього проекту"
-
-#: templates/core/project_bar.html:20
-msgid "Is the repo correct?"
-msgstr "Цей репозиторій правильний?"
-
-#: templates/core/project_bar.html:24
-msgid "Overview"
-msgstr ""
-
-#: templates/core/project_bar.html:26
+#: templates/core/project_bar_base.html:12
 #: templates/core/project_list_detailed.html:35
 #: templates/core/project_list_featured.html:13
-#: templates/projects/project_dashboard.html:72
+#: templates/projects/project_version_list.html:59
 msgid "View Docs"
 msgstr "Переглянути документацію"
 
-#: templates/core/project_bar.html:29
+#: templates/core/project_bar_base.html:38
+msgid "Overview"
+msgstr ""
+
+#: templates/core/project_bar_base.html:40
 #: templates/projects/project_downloads.html:22
 msgid "Downloads"
 msgstr "Завантаження"
 
-#: templates/core/project_bar.html:31 templates/core/project_details.html:13
+#: templates/core/project_bar_base.html:42
+#: templates/core/project_details.html:15
 #: templates/core/project_list_detailed.html:39
 #: templates/core/project_list_featured.html:17
 #: templates/sphinx/sphinx_rtd_theme/layout.html:55
@@ -1222,119 +1413,136 @@ msgstr "Завантаження"
 msgid "Search"
 msgstr ""
 
-#: templates/core/project_bar.html:34
+#: templates/core/project_bar_base.html:44
 msgid "Builds"
 msgstr "Білди"
 
-#: templates/core/project_bar.html:38
-#: templates/projects/project_dashboard.html:70
-msgid "Admin"
-msgstr "Адмін"
-
-#: templates/core/project_details.html:11
-#, python-format
-msgid "Search %(project)s"
-msgstr ""
-
-#: templates/core/project_details.html:22
+#: templates/core/project_bar_base.html:46
+#: templates/core/project_details.html:30
 #: templates/projects/project_edit_base.html:19
 #: templates/projects/project_versions.html:9
 #: templates/projects/upload_html.html:7
 msgid "Versions"
 msgstr "Версії"
 
-#: templates/core/project_details.html:44
-#, python-format
-msgid " %(slug)s "
-msgstr "%(slug)s"
-
-#: templates/core/project_details.html:51
-#, python-format
-msgid " %(slug)s (Build Failed)"
+#: templates/core/project_bar_base.html:49
+#: templates/projects/project_edit_base.html:26
+msgid "Comments"
 msgstr ""
 
-#: templates/core/project_details.html:56
-#: templates/profiles/profile_detail.html:38
-#: templates/profiles/profile_detail.html:69
-msgid "Edit"
-msgstr "Редагувати"
+#: templates/core/project_bar_base.html:50
+#: templates/profiles/base_profile.html:29
+#: templates/profiles/base_profile_edit.html:31
+msgid "Admin"
+msgstr "Адмін"
 
-#: templates/core/project_details.html:66
-msgid "Build a version"
-msgstr ""
-
-#: templates/core/project_details.html:74
-msgid "Build"
-msgstr ""
-
-#: templates/core/project_details.html:96
+#: templates/core/project_detail_right.html:8
 msgid "Repository"
 msgstr "Репозиторій"
 
-#: templates/core/project_details.html:100
-msgid "Badge"
-msgstr ""
-
-#: templates/core/project_details.html:106
-msgid "Owners"
-msgstr ""
-
-#: templates/core/project_details.html:114
-msgid "Tags"
-msgstr "Теги"
-
-#: templates/core/project_details.html:119
-msgid "No tags"
-msgstr "Нема тегів"
-
-#: templates/core/project_details.html:124
+#: templates/core/project_detail_right.html:12
 msgid "Last Built"
 msgstr "Останній білд"
 
-#: templates/core/project_details.html:128
+#: templates/core/project_detail_right.html:19
+#, fuzzy
+msgid "passed"
+msgstr "Пройдено"
+
+#: templates/core/project_detail_right.html:21
+#, fuzzy
+msgid "failed"
+msgstr "Провалено"
+
+#: templates/core/project_detail_right.html:32
+msgid "Owners"
+msgstr ""
+
+#: templates/core/project_detail_right.html:39
+msgid "Badge"
+msgstr ""
+
+#: templates/core/project_detail_right.html:47
+msgid "Tags"
+msgstr "Теги"
+
+#: templates/core/project_detail_right.html:52
+msgid "No tags"
+msgstr "Нема тегів"
+
+#: templates/core/project_detail_right.html:58
 msgid "Home Page"
 msgstr "Домашня сторінка"
 
-#: templates/core/project_details.html:134
+#: templates/core/project_detail_right.html:64
 msgid "Project Privacy Level"
 msgstr ""
 
-#: templates/core/project_details.html:141
+#: templates/core/project_detail_right.html:71
 msgid "Short URLs"
 msgstr "Короткі URL"
 
-#: templates/core/project_details.html:150
+#: templates/core/project_detail_right.html:80
 msgid "Open Comparison"
 msgstr "Відкрите порівняння"
 
-#: templates/core/project_details.html:151
+#: templates/core/project_detail_right.html:81
 #, python-format
 msgid ""
 "This project has more information available about it on <a href=\"%(url)s"
 "\">Open Comparison!</a>"
 msgstr ""
 
-#: templates/core/project_details.html:155
+#: templates/core/project_detail_right.html:85
 #: templates/projects/project_edit_base.html:22
 #: templates/projects/project_translations.html:12
 msgid "Translations"
 msgstr "Переклади"
 
-#: templates/core/project_details.html:164
+#: templates/core/project_detail_right.html:94
 msgid "Sub Projects"
 msgstr ""
 
-#: templates/core/project_details.html:175
+#: templates/core/project_detail_right.html:105
 msgid "'latest' Version"
 msgstr "'остання' версія"
 
-#: templates/core/project_details.html:179
+#: templates/core/project_detail_right.html:109
 msgid "Post Commit Hook"
 msgstr "Пост-комміт хук"
 
-#: templates/core/project_details.html:192
+#: templates/core/project_detail_right.html:122
 msgid "Most viewed pages for this project"
 msgstr "Сторінки цього проекту що мають найбільше переглядів."
+
+#: templates/core/project_details.html:13
+#, python-format
+msgid "Search %(project)s"
+msgstr ""
+
+#: templates/core/project_details.html:52
+#, python-format
+msgid " %(slug)s "
+msgstr "%(slug)s"
+
+#: templates/core/project_details.html:59
+#, fuzzy, python-format
+msgid " %(slug)s"
+msgstr "%(slug)s"
+
+#: templates/core/project_details.html:64
+#: templates/projects/project_version_list.html:55
+#: templates/projects/project_version_list.html:99
+msgid "Edit"
+msgstr "Редагувати"
+
+#: templates/core/project_details.html:74
+msgid "Build a version"
+msgstr ""
+
+#: templates/core/project_details.html:82
+msgid "Build"
+msgstr ""
 
 #: templates/core/project_downloads.html:7
 #, python-format
@@ -1392,30 +1600,12 @@ msgstr "Пошук по всій документації."
 msgid "Let's do this."
 msgstr "Давайте!"
 
-#: templates/dashboard/dashboard_bar.html:8
-#: templates/projects/project_list.html:17
-#: templates/projects/project_list.html:35
-msgid "Projects"
-msgstr "Проекти"
-
-#: templates/dashboard/dashboard_bar.html:16
-msgid "Import"
-msgstr "Імпорт"
-
-#: templates/dashboard/dashboard_bar.html:17
-msgid "GitHub"
+#: templates/core/email/base.html:78
+msgid "Hello!"
 msgstr ""
 
-#: templates/dashboard/dashboard_bar.html:23
-msgid "Profile"
-msgstr ""
-
-#: templates/dashboard/dashboard_bar.html:27
-msgid "Create Profile"
-msgstr "Створити профіль"
-
-#: templates/dashboard/dashboard_bar.html:32
-msgid "Social Accounts"
+#: templates/core/email/base.html:91
+msgid "Keep documenting,"
 msgstr ""
 
 #: templates/djangome/choices.html:4
@@ -1523,45 +1713,43 @@ msgstr "попередній"
 msgid "next"
 msgstr "наступний"
 
-#: templates/profiles/create_profile.html:5
-#: templates/profiles/create_profile.html:10
+#: templates/profiles/base_profile.html:27
+#: templates/profiles/base_profile_edit.html:30
+msgid "Profile"
+msgstr ""
+
+#: templates/profiles/base_profile_edit.html:47
+msgid "Details"
+msgstr ""
+
+#: templates/profiles/base_profile_edit.html:48
+#: templates/socialaccount/connections.html:6
+#: templates/socialaccount/connections.html:8
+msgid "Social Accounts"
+msgstr ""
+
+#: templates/profiles/private/create_profile.html:5
+#: templates/profiles/private/create_profile.html:10
 msgid "Create your profile"
 msgstr "Створіть свій профіль"
 
-#: templates/profiles/create_profile.html:16
+#: templates/profiles/private/create_profile.html:16
 msgid "Create it!"
 msgstr "Створити його!"
 
-#: templates/profiles/edit_profile.html:5
-#: templates/profiles/edit_profile.html:15
+#: templates/profiles/private/edit_profile.html:5
+#: templates/profiles/private/edit_profile.html:9
 msgid "Edit your profile"
 msgstr "Відредагуйте свій профіль."
 
-#: templates/profiles/edit_profile.html:21
+#: templates/profiles/private/edit_profile.html:14
 msgid "OK, save it!"
 msgstr "Гаразд, зберегти!"
 
-#: templates/profiles/profile_detail.html:6
+#: templates/profiles/public/profile_detail.html:6
 #, python-format
 msgid "%(user)s's profile"
 msgstr "Профіль користувача %(user)s"
-
-#: templates/profiles/profile_detail.html:45
-msgid "Add Your Name"
-msgstr "Додайте своє ім’я"
-
-#: templates/profiles/profile_detail.html:77
-msgid "Add a Homepage"
-msgstr "Додайте домашню сторінку"
-
-#: templates/profiles/profile_detail.html:86
-msgid "Press enter to save your changes, or escape to discard them"
-msgstr "Натисніть enter щоб зберегти ваші зміни, чи escape щоб відкинути їх."
-
-#: templates/profiles/profile_list.html:5
-#: templates/profiles/profile_list.html:8
-msgid "User profiles"
-msgstr "Профілі користувачів"
 
 #: templates/projects/alias_edit.html:4 templates/projects/alias_edit.html:7
 msgid "Project Alias"
@@ -1572,9 +1760,7 @@ msgid "Add an alias for a project version."
 msgstr "Додайте псевдонім для версії проекту."
 
 #: templates/projects/alias_edit.html:16
-#: templates/projects/project_create.html:42
-#: templates/projects/project_import.html:34
-#: templates/projects/project_import.html:40
+#: templates/projects/project_create.html:34
 msgid "Create"
 msgstr "Створити"
 
@@ -1586,6 +1772,60 @@ msgstr "Псевдоніми"
 #: templates/projects/project_list.html:48
 msgid "Browse projects"
 msgstr "Перегляд проектів"
+
+#: templates/projects/import_base.html:4
+#, fuzzy
+msgid "Add a Project"
+msgstr "Редагувати проект"
+
+#: templates/projects/import_base.html:27
+#: templates/search/elastic_project_search.html:123
+#: templates/search/elastic_project_search.html:125
+#: templates/search/elastic_search.html:189
+#: templates/search/elastic_search.html:191 templates/search/search.html:58
+#: templates/search/search.html.py:60
+msgid "Next"
+msgstr "Наступний"
+
+#: templates/projects/import_base.html:29
+#, fuzzy
+msgid "Finish"
+msgstr "Завершено"
+
+#: templates/projects/import_base.html:33
+#: templates/search/elastic_project_search.html:117
+#: templates/search/elastic_project_search.html:119
+#: templates/search/elastic_search.html:183
+#: templates/search/elastic_search.html:185 templates/search/search.html:52
+#: templates/search/search.html.py:54
+msgid "Previous"
+msgstr "Попередній"
+
+#: templates/projects/import_basics.html:5
+#, fuzzy
+msgid "Project Details"
+msgstr "Псевдонім проекту"
+
+#: templates/projects/import_basics.html:8
+msgid ""
+"\n"
+"      To import a project,\n"
+"      start by entering a few details about your repository.\n"
+"      More advanced project options can be configured\n"
+"      if you select <b>Edit advanced project options</b>.\n"
+"    "
+msgstr ""
+
+#: templates/projects/import_extra.html:20
+msgid "Project Extra Details"
+msgstr ""
+
+#: templates/projects/import_extra.html:23
+msgid ""
+"\n"
+"      Here are a few more project options that you may need to configure.\n"
+"    "
+msgstr ""
 
 #: templates/projects/legend.html:4
 msgid "External Links"
@@ -1640,6 +1880,82 @@ msgstr ""
 msgid "reStructuredText Primer"
 msgstr "Азбука reStructuredText"
 
+#: templates/projects/onboard_detail.html:9
+msgid "Start building your documentation"
+msgstr ""
+
+#: templates/projects/onboard_detail.html:11
+msgid ""
+"\n"
+"          This project has not been built yet.\n"
+"          Try building the latest version now,\n"
+"          or if you would like to build a specific verison,\n"
+"          select the version below and your documentation build will be "
+"triggered.\n"
+"        "
+msgstr ""
+
+#: templates/projects/onboard_detail.html:21
+#, fuzzy
+msgid "Build latest version"
+msgstr "'остання' версія"
+
+#: templates/projects/onboard_detail.html:29
+msgid "Your documentation is ready to use"
+msgstr ""
+
+#: templates/projects/onboard_detail.html:33
+msgid ""
+"\n"
+"              Your documentation has been built.\n"
+"              Ensure your documentation is kept up to date with every commit "
+"to\n"
+"              your respository, by\n"
+"              <a href=\"http://docs.readthedocs.org/en/latest/webhooks.html"
+"\">setting up a webhook</a>.\n"
+"            "
+msgstr ""
+
+#: templates/projects/onboard_detail.html:46
+msgid "Your documentation failed to build"
+msgstr ""
+
+#: templates/projects/onboard_detail.html:50
+msgid ""
+"\n"
+"              There was a problem building your documentation,\n"
+"              you can see what went wrong in the build output.\n"
+"              If you need more help, check out some of the\n"
+"              <a href=\"http://docs.readthedocs.org/en/latest/faq.html"
+"\">problems frequently encountered</a>\n"
+"              during builds.\n"
+"            "
+msgstr ""
+
+#: templates/projects/onboard_detail.html:63
+msgid "Your documentation is building"
+msgstr ""
+
+#: templates/projects/onboard_detail.html:66
+msgid ""
+"\n"
+"          You'll be able to view your documentation in a minute or two,\n"
+"          once your project is done building.\n"
+"        "
+msgstr ""
+
+#: templates/projects/onboard_import.html:10
+#, python-format
+msgid ""
+"\n"
+"          You don't have any projects yet, but you can start building "
+"documentation by importing one.\n"
+"          Not sure how to start documenting your project?\n"
+"          Check out the <a href=\"%(getting_started_url)s\">Getting Started "
+"Guide</a> to learn how.\n"
+"        "
+msgstr ""
+
 #: templates/projects/project_advanced.html:23
 msgid "Edit Advanced Project Settings"
 msgstr ""
@@ -1653,7 +1969,7 @@ msgstr ""
 #: templates/projects/project_edit.html:37
 #: templates/projects/project_notifications.html:69
 #: templates/projects/project_notifications.html:80
-#: templates/projects/project_redirects.html:95
+#: templates/projects/project_redirects.html:109
 #: templates/projects/project_subprojects.html:37
 #: templates/projects/project_translations.html:36
 #: templates/projects/project_users.html:51
@@ -1661,15 +1977,25 @@ msgstr ""
 msgid "Submit"
 msgstr "Відправити"
 
-#: templates/projects/project_create.html:29
+#: templates/projects/project_comments_settings.html:5
+#: templates/projects/project_comments_settings.html:12
+#, fuzzy
+msgid "Comments Settings"
+msgstr "Налаштування"
+
+#: templates/projects/project_comments_settings.html:16
+msgid "Settings for comments and moderation."
+msgstr ""
+
+#: templates/projects/project_create.html:21
 msgid "Create a new project"
 msgstr "Створити новий проект"
 
-#: templates/projects/project_create.html:32
+#: templates/projects/project_create.html:24
 msgid "Create a New Project"
 msgstr "Створити Новий проект"
 
-#: templates/projects/project_create.html:37
+#: templates/projects/project_create.html:29
 msgid ""
 "Create new documentation here. If you already have docs in a public "
 "repository,"
@@ -1677,61 +2003,61 @@ msgstr ""
 "Створіть ному документацію тут. Якщо ви вже маєте документацію в публічному "
 "репозиторії."
 
-#: templates/projects/project_create.html:38
+#: templates/projects/project_create.html:30
 msgid "import an existing project"
 msgstr "імпортувати існуючий проект"
 
-#: templates/projects/project_dashboard.html:5
+#: templates/projects/project_dashboard_base.html:6
 msgid "Project Dashboard"
 msgstr "Панель керування проектом"
 
-#: templates/projects/project_dashboard.html:23
-#, python-format
-msgid ""
-"\n"
-"              Check out the <a href=\"%(url)s\">documentation for Read the "
-"Docs</a>. It contains lots of information about how to get the most out of "
-"RTD.\n"
-"              "
-msgstr ""
-
-#: templates/projects/project_dashboard.html:31
+#: templates/projects/project_dashboard_base.html:20
 msgid "Important Versions"
 msgstr ""
 
-#: templates/projects/project_dashboard.html:59
-msgid "My Projects"
-msgstr "Мої проекти"
+#: templates/projects/project_dashboard_base.html:70
+#, fuzzy
+msgid "No builds yet"
+msgstr "Білди"
 
-#: templates/projects/project_dashboard.html:87
-#, python-format
+#: templates/projects/project_dashboard_base.html:76
+#, fuzzy
+msgid "1 build"
+msgstr "Білди"
+
+#: templates/projects/project_dashboard_base.html:78
+#, fuzzy
+msgid "builds"
+msgstr "Білди"
+
+#: templates/projects/project_dashboard_base.html:83
+msgid "passing"
+msgstr ""
+
+#: templates/projects/project_dashboard_base.html:85
+msgid "failing"
+msgstr ""
+
+#: templates/projects/project_dashboard_base.html:135
 msgid ""
 "\n"
-"          You don't have any projects. You can <a href="
-"\"%(projects_import_url)s\">create new docs</a> on the site.\n"
-"          <br>\n"
-"          If you have a GitHub account, you can <a href=\"%(social_accounts)s"
-"\">connect it</a> and import projects from there.\n"
-"          <br>\n"
-"          Check out the <a href=\"%(getting_started_url)s\">Getting Started</"
-"a> documentation for information about how to get going.\n"
-"          </p> \n"
+"            Have a Github account? Connect your account and import your "
+"existing projects automatically.\n"
 "          "
 msgstr ""
 
-#: templates/projects/project_delete.html:4
-#: templates/projects/project_delete.html:6
-#, python-format
-msgid "Delete %(name)s?"
-msgstr "Видалити %(name)s?"
+#: templates/projects/project_dashboard_base.html:152
+msgid "Recent Bookmarks"
+msgstr "Недавні закладки"
 
-#: templates/projects/project_delete.html:9
-msgid "You sure?"
-msgstr "Ви впевнені?"
+#: templates/projects/project_dashboard_base.html:158
+#, fuzzy
+msgid "All My Bookmarks"
+msgstr "Закладки"
 
-#: templates/projects/project_delete.html:12
-msgid "Delete forever"
-msgstr "Видалити назавжди"
+#: templates/projects/project_dashboard_base.html:161
+msgid "You have not added any bookmarks"
+msgstr ""
 
 #: templates/projects/project_edit.html:23
 msgid "Edit Project"
@@ -1753,6 +2079,7 @@ msgstr ""
 
 #: templates/projects/project_edit_base.html:21
 #: templates/projects/project_redirects.html:8
+#: templates/projects/project_redirects.html:78
 #, fuzzy
 msgid "Redirects"
 msgstr "Пов’язані проекти"
@@ -1767,35 +2094,130 @@ msgstr "Підпроекти"
 msgid "Notifications"
 msgstr ""
 
-#: templates/projects/project_import.html:4
-#: templates/projects/project_import.html:28
-msgid "Import an existing project"
+#: templates/projects/project_import.html:6
+#, fuzzy
+msgid "Import a Project"
 msgstr "Імпортувати існуючий проект"
 
-#: templates/projects/project_import.html:37
+#: templates/projects/project_import.html:9
 msgid ""
-"You can change how your project is built in your <em>Advanced Settings</em> "
-"once your project has been created."
+"\n"
+"      Import a project, using one of the methods below.\n"
+"      The project will be added to your dashboard and automatically built "
+"for the first time.\n"
+"    "
+msgstr ""
+
+#: templates/projects/project_import.html:19
+msgid "From GitHub"
+msgstr ""
+
+#: templates/projects/project_import.html:23
+msgid ""
+"\n"
+"            Import one of your public GitHub repositories to start using "
+"your documentation.\n"
+"          "
+msgstr ""
+
+#: templates/projects/project_import.html:29
+#, fuzzy
+msgid "Import from GitHub"
+msgstr "Імпортувати існуючий проект"
+
+#: templates/projects/project_import.html:33
+msgid ""
+"\n"
+"            Once your account is connected to your GitHub account,\n"
+"            you will be able to automatically import and configure your "
+"public GitHub repositories.\n"
+"          "
+msgstr ""
+
+#: templates/projects/project_import.html:38
+#: templates/projects/project_import.html:63
+msgid "to import your first repository."
+msgstr ""
+
+#: templates/projects/project_import.html:48
+msgid ""
+"\n"
+"            Import one of your public Bitbucket repositories to start using "
+"your documentation.\n"
+"          "
+msgstr ""
+
+#: templates/projects/project_import.html:54
+msgid "Import from Bitbucket"
+msgstr ""
+
+#: templates/projects/project_import.html:58
+msgid ""
+"\n"
+"            Once your account is connected to your Bitbucket account,\n"
+"            you will be able to automatically import and configure your "
+"<b>public Bitbucket repositories</b>.\n"
+"          "
+msgstr ""
+
+#: templates/projects/project_import.html:69
+msgid "Manually Import"
+msgstr ""
+
+#: templates/projects/project_import.html:72
+msgid ""
+"\n"
+"          Public repositories can be imported manually from anywhere.\n"
+"        "
+msgstr ""
+
+#: templates/projects/project_import.html:78
+msgid "Manually Import Project"
+msgstr ""
+
+#: templates/projects/project_import_bitbucket.html:4
+#: templates/projects/project_import_bitbucket.html:22
+#, fuzzy
+msgid "Import a BitBucket project"
+msgstr "Імпортувати існуючий проект"
+
+#: templates/projects/project_import_bitbucket.html:29
+#, python-format
+msgid ""
+"Showing your BitBucket projects. <a href=\"%(sync_bitbucket_url)s\">Sync "
+"your BitBucket projects</a> to update them."
+msgstr ""
+
+#: templates/projects/project_import_bitbucket.html:33
+msgid "BitBucket projects are now up to date."
+msgstr ""
+
+#: templates/projects/project_import_bitbucket.html:85
+#, python-format
+msgid ""
+"You don't have any BitBucket repositories connected. \n"
+"  Go to your <a href=\"%(social_url)s\">Social Accounts</a> to set one up.\n"
+"  "
 msgstr ""
 
 #: templates/projects/project_import_github.html:4
-#: templates/projects/project_import_github.html:28
+#: templates/projects/project_import_github.html:22
 #, fuzzy
 msgid "Import a GitHub project"
 msgstr "Імпортувати існуючий проект"
 
-#: templates/projects/project_import_github.html:35
+#: templates/projects/project_import_github.html:29
 #, python-format
 msgid ""
 "Showing your GitHub projects. <a href=\"%(sync_github_url)s\">Sync your "
 "GitHub projects</a> to update them."
 msgstr ""
 
-#: templates/projects/project_import_github.html:39
+#: templates/projects/project_import_github.html:33
 msgid "GitHub projects are now up to date."
 msgstr ""
 
-#: templates/projects/project_import_github.html:93
+#: templates/projects/project_import_github.html:85
 #, python-format
 msgid ""
 "You don't have any GitHub repositories connected. \n"
@@ -1837,13 +2259,6 @@ msgstr ""
 msgid "Remove Notifications"
 msgstr ""
 
-#: templates/projects/project_notifications.html:56
-#: templates/projects/project_subprojects.html:27
-#: templates/projects/project_translations.html:26
-#: templates/socialaccount/connections.html:42
-msgid "Remove"
-msgstr "Вилучити"
-
 #: templates/projects/project_notifications.html:62
 msgid "New Email Notifications"
 msgstr ""
@@ -1865,39 +2280,10 @@ msgstr ""
 msgid "Edit Redirects"
 msgstr "Редагувати проект"
 
-#: templates/projects/project_redirects.html:39
+#: templates/projects/project_redirects.html:74
 msgid ""
 "Add redirects for your project. This allows you to fix links to old pages "
 "that are 404ing."
-msgstr ""
-
-#: templates/projects/project_redirects.html:43
-#, fuzzy
-msgid "Existing Redirects"
-msgstr "Існуючі підпроекти"
-
-#: templates/projects/project_redirects.html:56
-msgid "Remove Redirect"
-msgstr ""
-
-#: templates/projects/project_redirects.html:70
-msgid "Add Redirect"
-msgstr ""
-
-#: templates/projects/project_redirects.html:72
-msgid ""
-"Add new redirects. These will only happen on <b>404 Page Not Found</b> "
-"requests."
-msgstr ""
-
-#: templates/projects/project_redirects.html:75
-msgid ""
-"This is mainly used to support migration from old doc systems. If you used "
-"to serve your docs at <b>/docs/</b>, you will do:"
-msgstr ""
-
-#: templates/projects/project_redirects.html:83
-msgid "You can also redirect a specific page, like so:"
 msgstr ""
 
 #: templates/projects/project_subprojects.html:5
@@ -1966,6 +2352,20 @@ msgstr ""
 #, python-format
 msgid "%(version_name)s"
 msgstr "%(version_name)s"
+
+#: templates/projects/project_version_list.html:35
+#, fuzzy
+msgid "Active Versions"
+msgstr "Версії"
+
+#: templates/projects/project_version_list.html:75
+#, fuzzy
+msgid "Inactive Versions"
+msgstr "'остання' версія"
+
+#: templates/projects/project_version_list.html:97
+msgid "Clean"
+msgstr ""
 
 #: templates/projects/project_versions.html:4
 msgid "Edit Project Versions"
@@ -2051,9 +2451,10 @@ msgstr "Пошук: %(query)s"
 
 #. Translators: This is about starting a search
 #. Translators: This is about starting a search
+#. Translators: This is about starting a search
 #: templates/search/base_facet.html:27
-#: templates/search/elastic_project_search.html:51
-#: templates/search/search.html:17
+#: templates/search/elastic_project_search.html:70
+#: templates/search/elastic_search.html:116 templates/search/search.html:17
 msgid "Go crazy."
 msgstr "Сказитися."
 
@@ -2067,33 +2468,23 @@ msgid "File:"
 msgstr "Файл:"
 
 #: templates/search/base_search.html:24
-#: templates/search/elastic_project_search.html:82
+#: templates/search/elastic_project_search.html:101
+#: templates/search/elastic_search.html:167
 #: templates/search/faceted_results.html:63
 msgid "No results found. Bummer."
 msgstr ""
 
 #: templates/search/elastic_project_search.html:5
+#: templates/search/elastic_search.html:5
 #, fuzzy, python-format
 msgid "Search: %(query)s "
 msgstr "Пошук: %(query)s"
 
-#: templates/search/elastic_project_search.html:65
-#: templates/search/search.html:31
+#: templates/search/elastic_project_search.html:84
+#: templates/search/elastic_search.html:130 templates/search/search.html:31
 #, python-format
 msgid "Results for %(query)s"
 msgstr "Результати для %(query)s"
-
-#: templates/search/elastic_project_search.html:98
-#: templates/search/elastic_project_search.html:100
-#: templates/search/search.html:52 templates/search/search.html.py:54
-msgid "Previous"
-msgstr "Попередній"
-
-#: templates/search/elastic_project_search.html:104
-#: templates/search/elastic_project_search.html:106
-#: templates/search/search.html:58 templates/search/search.html.py:60
-msgid "Next"
-msgstr "Наступний"
 
 #: templates/search/faceted_author.html:8
 msgid "By Author"
@@ -2137,24 +2528,18 @@ msgstr ""
 msgid "File"
 msgstr ""
 
-#: templates/socialaccount/connections.html:6
 #: templates/socialaccount/connections.html:15
-#, fuzzy
-msgid "Account Connections"
-msgstr "Помилка активації аккаунту"
-
-#: templates/socialaccount/connections.html:18
 msgid ""
 "You can sign in to your account using any of the following third party "
 "accounts:"
 msgstr ""
 
-#: templates/socialaccount/connections.html:50
+#: templates/socialaccount/connections.html:46
 msgid ""
 "You currently have no social network accounts connected to this account."
 msgstr ""
 
-#: templates/socialaccount/connections.html:53
+#: templates/socialaccount/connections.html:49
 msgid "Add a 3rd Party Account"
 msgstr ""
 
@@ -2181,6 +2566,77 @@ msgid ""
 "Your search did not match any documents. Please make sure that all words are "
 "spelled correctly and that you've selected enough categories."
 msgstr ""
+
+#~ msgid "A project with that name exists already!"
+#~ msgstr "Проект з таким іменем вже існує!"
+
+#~ msgid ""
+#~ "URL for your code (hg or git). Ex. http://github.com/ericholscher/django-"
+#~ "kong.git"
+#~ msgstr ""
+#~ "URL для вашого коду (hg чи git). Напр.: http://github.com/ericholscher/"
+#~ "django-kong.git"
+
+#~ msgid ""
+#~ "Checkout URL for your code (hg, git, etc.). Ex. http://github.com/"
+#~ "ericholscher/django-kong.git"
+#~ msgstr ""
+#~ "URL для чекауту вашого коду (hg, git, і т.п.). Напр. http://github.com/"
+#~ "ericholscher/django-kong.git"
+
+#~ msgid "Project URL"
+#~ msgstr "URL проекту"
+
+#~ msgid "Read the Docs thanks you for your continued patience."
+#~ msgstr "Read the Docs дякує вам за ваше подальше терпіння."
+
+#~ msgid "Go"
+#~ msgstr "Пішли!"
+
+#~ msgid "Dashboard"
+#~ msgstr "Панель керування"
+
+#~ msgid "Build failed (<a href=\"%(url)s\">why</a>)"
+#~ msgstr "Білд провалився (<a href=\"%(url)s\">чому</a>)"
+
+#~ msgid "There are no builds for this project"
+#~ msgstr "Немає білдів цього проекту"
+
+#~ msgid "Is the repo correct?"
+#~ msgstr "Цей репозиторій правильний?"
+
+#~ msgid "Import"
+#~ msgstr "Імпорт"
+
+#~ msgid "Create Profile"
+#~ msgstr "Створити профіль"
+
+#~ msgid "Add Your Name"
+#~ msgstr "Додайте своє ім’я"
+
+#~ msgid "Add a Homepage"
+#~ msgstr "Додайте домашню сторінку"
+
+#~ msgid "Press enter to save your changes, or escape to discard them"
+#~ msgstr ""
+#~ "Натисніть enter щоб зберегти ваші зміни, чи escape щоб відкинути їх."
+
+#~ msgid "User profiles"
+#~ msgstr "Профілі користувачів"
+
+#~ msgid "My Projects"
+#~ msgstr "Мої проекти"
+
+#~ msgid "Import an existing project"
+#~ msgstr "Імпортувати існуючий проект"
+
+#, fuzzy
+#~ msgid "Existing Redirects"
+#~ msgstr "Існуючі підпроекти"
+
+#, fuzzy
+#~ msgid "Account Connections"
+#~ msgstr "Помилка активації аккаунту"
 
 #~ msgid "here"
 #~ msgstr "тут"
@@ -2235,9 +2691,6 @@ msgstr ""
 #~ msgid "Password (again)"
 #~ msgstr "Пароль (знову)"
 
-#~ msgid "Change my password"
-#~ msgstr "Змінити мій пароль"
-
 #~ msgid "Password reset"
 #~ msgstr "Скидання пароля"
 
@@ -2277,9 +2730,6 @@ msgstr ""
 
 #~ msgid "The %(site_name)s team"
 #~ msgstr "Команда %(site_name)s"
-
-#~ msgid "E-mail address:"
-#~ msgstr "Адреса e-mail:"
 
 #~ msgid "Reset my password"
 #~ msgstr "Скинути мій пароль"
