@@ -10172,8 +10172,9 @@ function EmbedView (config) {
         }
         self.help('Loading');
         self.response(null);
+        self.api_example(null);
 
-        $.ajax({
+        var req = $.ajax({
             type: 'GET',
             url: self.config.api_host + '/api/v1/embed/',
             crossDomain: true,
@@ -10188,6 +10189,7 @@ function EmbedView (config) {
         })
         .done(function (data, text_status, request) {
             self.help(null);
+            self.api_example(this.url);
             self.response(data.content);
         })
         .fail(function(request, text_status, error) {
