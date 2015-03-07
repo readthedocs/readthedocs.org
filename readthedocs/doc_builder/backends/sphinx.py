@@ -1,5 +1,6 @@
 import re
 import os
+import sys
 import codecs
 from glob import glob
 import logging
@@ -62,7 +63,11 @@ class BaseSphinx(BaseBuilder):
 
         project = self.version.project
         # Open file for appending.
-        outfile = codecs.open(project.conf_file(self.version.slug), encoding='utf-8', mode='a')
+        try:
+            outfile = codecs.open(project.conf_file(self.version.slug), encoding='utf-8', mode='a')
+        except IOError:
+            trace = sys.exc_info()[2]
+            raise ProjectImportError('Conf file not found'), None, trace
         outfile.write("\n")
         conf_py_path = version_utils.get_conf_py_path(self.version)
         remote_version = version_utils.get_vcs_version_slug(self.version)

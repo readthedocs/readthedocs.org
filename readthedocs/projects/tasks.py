@@ -125,6 +125,7 @@ def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
     except Exception, e:
         log.error(LOG_TEMPLATE.format(project=version.project.slug,
                                       version=version.slug, msg="Top-level Build Failure"), exc_info=True)
+        results['checkout'] = (404, "", 'Top-level Build Failure: %s' % e.message)
     finally:
         record_build(api=api, build=build, record=record, results=results, state='finished', start_time=start_time)
         record_pdf(api=api, record=record, results=results, state='finished', version=version)
