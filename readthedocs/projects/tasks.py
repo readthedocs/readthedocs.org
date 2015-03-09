@@ -330,7 +330,7 @@ def setup_environment(version):
         (
             '{cmd} install --use-wheel --find-links={wheeldir} -U {ignore_option} '
             'sphinx==1.2.2 virtualenv==1.10.1 setuptools==1.1 docutils==0.11 mkdocs==0.11.1 mock==1.0.1 pillow==2.6.1'
-            ' readthedocs-sphinx-ext==0.4.4'
+            ' readthedocs-sphinx-ext==0.4.4 sphinx-rtd-theme==0.1.6 '
         ).format(
             cmd=project.venv_bin(version=version.slug, bin='pip'),
             ignore_option=ignore_option,
