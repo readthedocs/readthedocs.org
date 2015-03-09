@@ -1,9 +1,12 @@
 from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, DetailView
+from django.conf import settings
 
 from builds.models import Build, Version
 from builds.filters import BuildFilter
 from projects.models import Project
+
+from redis import Redis, ConnectionError
 
 
 class BuildList(ListView):
@@ -30,6 +33,13 @@ class BuildList(ListView):
         context['filter'] = filter
         context['active_builds'] = active_builds
         context['versions'] = Version.objects.public(user=self.request.user, project=self.project)
+
+        try:
+            redis = Redis(**settings.REDIS)
+            context['queue_length'] = redis.llen('celery')
+        except ConnectionError:
+            context['queue_length'] = None
+
         return context
 
 
