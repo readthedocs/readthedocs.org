@@ -42,6 +42,10 @@
     <link rel="stylesheet" href="{{ pathto(cssfile, 1) }}" type="text/css" />
   {% endfor %}
 
+  {% for cssfile in extra_css_files %}
+    <link rel="stylesheet" href="{{ pathto(cssfile, 1) }}" type="text/css" />
+  {% endfor %}
+
   {%- block linktags %}
     {%- if hasdoc('about') %}
         <link rel="author" title="{{ _('About these documents') }}"
