@@ -20,8 +20,9 @@ function EmbedView (config) {
     }
 
     self.help = ko.observable(null);
+    self.error = ko.observable(null);
 
-    self.project = ko.observable('blog');
+    self.project = ko.observable(project);
     self.file = ko.observable(null);
 
     self.sections = ko.observableArray();
@@ -31,36 +32,34 @@ function EmbedView (config) {
         if (! file) {
             return;
         }
-        self.help('Loading');
+        self.help('Loading...');
+        self.error(null);
         self.section(null);
 
-        $.ajax({
-            type: 'GET',
-            url: self.config.api_host + '/api/v1/embed/',
-            crossDomain: true,
-            data: {
-                project: project,
-                doc: file
-            }
-        })
-        .done(function(data, text_status, request) {
-            self.sections.removeAll();
-            self.help(null);
-            var sections_data = [];
-            for (n in data.headers) {
-                var section = data.headers[n];
-                $.each(section, function (title, id) {
-                    sections_data.push({
-                        title: title,
-                        id: title
+        var embed = new rtd.Embed(self.config);
+        embed.page(
+            self.project(), 'latest', self.file(),
+            function (page) {
+                self.sections.removeAll();
+                self.help(null);
+                self.error(null);
+                var sections_data = [];
+                for (n in page.sections) {
+                    var section = page.sections[n];
+                    $.each(section, function (title, id) {
+                        sections_data.push({
+                            title: title,
+                            id: title
+                        });
                     });
-                });
+                }
+                self.sections(sections_data);
+            },
+            function (error) {
+                self.help(null);
+                self.error('There was a problem retrieving data from the API');
             }
-            self.sections(sections_data);
-        })
-        .fail(function(data, text_status, error) {
-            self.help('There was a problem retrieving data from the API');
-        });
+        );
     });
 
     self.has_sections = ko.computed(function () {
@@ -80,31 +79,33 @@ function EmbedView (config) {
         if (file == null || section == null) {
             return self.response(null);
         }
-        self.help('Loading');
+        self.help('Loading...');
+        self.error(null);
         self.response(null);
         self.api_example(null);
 
-        var req = $.ajax({
-            type: 'GET',
-            url: self.config.api_host + '/api/v1/embed/',
-            crossDomain: true,
-            xhrFields: {
-                withCredentials: true,
+        var embed = new rtd.Embed(self.config);
+        embed.section(
+            self.project(), 'latest', self.file(), self.section(),
+            function (section) {
+                self.help(null);
+                self.error(null);
+                self.api_example(
+                    "var embed = Embed();\n" +
+                    "embed.section(\n" +
+                    "    '" + self.project() + "', 'latest', '" + self.file() + "', '" + self.section() + "',\n" +
+                    "    function (section) {\n" +
+                    "        section.insertContent($('#help'));\n" +
+                    "    }\n" +
+                    ");\n"
+                );
+                self.response(section);
             },
-            data: {
-                project: project,
-                doc: file,
-                section: section
-            },
-        })
-        .done(function (data, text_status, request) {
-            self.help(null);
-            self.api_example(this.url);
-            self.response(data.content);
-        })
-        .fail(function(request, text_status, error) {
-            self.help('There was a problem retrieving data from the API');
-        })
+            function (error) {
+                self.help(null);
+                self.error('There was a problem retrieving data from the API');
+            }
+        );
     });
 
     self.has_response = ko.computed(function () {
@@ -112,10 +113,43 @@ function EmbedView (config) {
     });
 
     self.api_example = ko.observable(null);
+
+    self.show_help = function () {
+        var embed = new rtd.Embed();
+        embed.section(
+            'docs', 'latest', 'versions', 'How we envision versions working',
+            _show_modal
+        );
+    };
+
+    self.show_embed = function () {
+        var embed = new rtd.Embed();
+        _show_modal(self.response());
+    };
+}
+
+function _show_modal (section) {
+    var embed_container = $('#embed-container');
+    if (!embed_container.length) {
+        embed_container = $('<div id="embed-container" class="modal modal-help" />');
+        $('body').append(embed_container);
+    }
+
+    // Add iframe
+    var iframe = section.insertContent(embed_container);
+    $(iframe).show();
+    embed_container.show();
+
+    // Handle click out of modal
+    $(document).click(function (ev) {
+        if(!$(ev.target).closest('#embed-container').length) {
+            $(iframe).remove();
+            embed_container.remove();
+        }
+    });
 }
 
 module.exports.init_embed = function (config) {
-    // Update embed view with manually populated select
     var view = new EmbedView(config);
     ko.applyBindings(view, $('#tool-embed')[0]);
 }
@@ -125,10 +159,4 @@ if (typeof(window) != 'undefined') {
 }
 
 /*
-      function showHelp() {
-        ReadTheDocs.embed.into('docs', 'versions', 'How we envision versions working', function (data) {
-          $("#id_help").html(data['content'])
-          $('#id_help').toggle()
-        })
-      }
 */

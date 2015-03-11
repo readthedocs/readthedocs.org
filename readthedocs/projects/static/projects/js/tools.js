@@ -9325,136 +9325,174 @@ a+" })()) }}"};this.addTemplate=function(a,b){w.write("<script type='text/html' 
 },{}],3:[function(require,module,exports){
 // Document response
 
-var Section = function (data) {
-    if (typeof data == 'undefined') {
-        return;
-    }
+// Page
+var Page = function (project, version, doc) {
+    this.project = project;
+    this.version = version;
+    this.doc = doc;
 
-    this.content = data.content;
-    this.wrapped = data.wrapped;
-    this.project = data.meta.project;
-    this.version = data.meta.version;
-    this.doc = data.meta.doc;
-    this.section = data.meta.section;
-}
-
-Section.prototype.appendTo = function (elem, unwrapped) {
-    var content = $('<div />');
-    if (unwrapped) {
-        content.html(this.content);
-    }
-    else {
-        content.html(this.wrapped);
-    }
-    elem.append(content);
+    this.url = null;
+    this.sections = [];
 };
 
-exports.Section = Section;
+Page.prototype.section = function (section) {
+    return new Section(this.project, this.version, this.doc, section);
+};
 
-},{}],4:[function(require,module,exports){
-/* Read the Docs Embed functions */
-
-var Section = require('./doc').Section;
-
-
-var Embed = function (project, version, doc, section, config) {
-    // Build state
+// Section
+var Section = function (project, version, doc, section) {
     this.project = project;
     this.version = version;
     this.doc = doc;
     this.section = section;
 
-    this.api_host = 'https://api.grokthedocs.com';
+    this.url = null;
+    this.content = null;
+    this.wrapped = null;
+}
+
+// Add iframe with returned content to page
+Section.prototype.insertContent = function (elem) {
+    var iframe = document.createElement('iframe'),
+        self = this;
+
+    iframe.style.display = 'none';
+
+    if (window.jQuery && elem instanceof window.jQuery) {
+        elem = elem.get(0);
+    }
+
+    if (typeof(elem) != 'undefined') {
+        while (elem.children.length > 0) {
+            elem.firstChild.remove();
+        }
+        elem.appendChild(iframe);
+    }
+
+    var win = iframe.contentWindow;
+
+    win.document.open();
+    win.document.write(this.content);
+    win.document.close();
+
+    var head = win.document.head,
+        body = win.document.body,
+        base = null;
+
+    if (head) {
+        base = win.document.createElement('base');
+        base.target = '_parent';
+        base.href = this.url;
+        head.appendChild(base);
+
+        // Copy linked stylesheets from parent
+        var link_elems = document.head.getElementsByTagName('link');
+        for (var n = 0; n < link_elems.length; n++) {
+            var link = link_elems[n];
+            if (link.rel == 'stylesheet') {
+                head.appendChild(link.cloneNode());
+            }
+        }
+    }
+
+    win.onload = function () {
+        iframe.style.display = 'inline-block';
+    };
+
+    return iframe;
+};
+
+
+exports.Section = Section;
+exports.Page = Page;
+
+},{}],4:[function(require,module,exports){
+/* Read the Docs Embed functions */
+
+var doc = require('./doc'),
+    Section = doc.Section,
+    Page = doc.Page;
+
+
+var Embed = function (config) {
+    this._api_host = 'https://api.grokthedocs.com';
     if (typeof config == 'object') {
         if ('api_host' in config) {
-            this.api_host = config['api_host'];
+            this._api_host = config['api_host'];
         }
     }
 };
 
-// Factory methods for constructing Embed instances
-Embed.from_global = function () {
-    try {
-        return new Embed(
-            window.READTHEDOCS_EMBED['project'],
-            window.READTHEDOCS_EMBED['version'],
-            window.READTHEDOCS_EMBED['doc'],
-            window.READTHEDOCS_EMBED['section']
-        );
-    }
-    catch (error) {
-        if (error instanceof ReferenceError) {
-            throw new ReferenceError('Global object missing required keys');
-        }
-        throw new Error('Problem with global object READTHEDOCS_EMBED');
-    }
-}
+Embed.prototype.section = function (project, version, doc, section,
+        callback, error_callback) {
+    callback = callback || function () {};
+    error_callback = error_callback || function () {};
 
-// Create modal with generated documentation
-Embed.prototype.show_modal = function () {
-    var modal = document.getElementById('rtd-documentation-embed');
-    if (typeof modal == 'undefined') {
-        modal.style.display = 'none';
-    }
-    else {
-        var body = document.getElementsByTagName('body')[0];
-        modal = document.createElement('div');
-        modal.id = 'rtd-documentation-embed';
-        modal.style.display = 'none';
-        body.appendChild(modal);
-    }
-    this.fetch(function (section) {
-        modal.innerHTML = section.wrapped;
-        modal.style.display = 'block';
-    });
+    var self = this,
+        data = {
+            'project': project,
+            'version': version,
+            'doc': doc,
+            'section': section
+        };
+
+    this._getObject(
+        data,
+        function (resp) {
+            var section_ret = new Section(project, version, doc, section);
+            section_ret.url = resp.url;
+            section_ret.content = resp.content;
+            section_ret.wrapped = resp.wrapped;
+            callback(section_ret);
+        },
+        function (error, msg) {
+            error_callback(error);
+        }
+    );
 };
 
-Embed.prototype.fetch = function (callback, error_callback) {
+Embed.prototype.page = function (project, version, doc, callback,
+        error_callback) {
+
+    var self = this,
+        data = {
+            'project': project,
+            'version': version,
+            'doc': doc,
+        };
+
+    this._getObject(
+        data,
+        function (resp) {
+            var page = new Page(project, version, doc);
+            page.url = resp.url;
+            // TODO headers is misleading here, rename it on the API
+            page.sections = resp.headers;
+            callback(page);
+        },
+        function (error, msg) {
+            error_callback(error);
+        }
+    )
+};
+
+Embed.prototype._getObject = function (data, callback, error_callback) {
     var self = this,
         reqwest = require("./../../reqwest/reqwest.js");
+    callback = callback || function () {};
+    error_callback = error_callback || function () {};
 
-    // Default error handler
-    if (typeof error_callback == 'undefined') {
-        error_callback = function (error) {
-            console.log('Embed failure: ' + error);
-        }
-    }
-
-    // Emit cached response to callback if we have it
-    if (typeof this.cache != 'undefined') {
-        callback(this.cache)
-    }
-    else {
-        reqwest({
-            url: this.api_host + '/api/v1/embed/',
-            method: 'get',
-            contentType: 'application/json',
-            crossDomain: true,
-            headers: {'Accept': 'application/json'},
-            data: {
-                project: this.project,
-                version: this.version,
-                doc: this.doc,
-                section: this.section,
-            },
-            success: function(resp) {
-                self.cache = new Section(resp);
-                callback(self.cache);
-            },
-            error: function(error) {
-                self.cache = null;
-                error_callback(error);
-            }
-        })
-    }
+    return reqwest({
+        url: this._api_host + '/api/v1/embed/',
+        method: 'get',
+        contentType: 'application/json',
+        crossDomain: true,
+        headers: {'Accept': 'application/json'},
+        data: data,
+        success: callback,
+        error: error_callback
+    });
 };
-
-Embed.prototype.link_stylesheet = function () {
-    var css_link = document.createElement('link');
-    css_link.rel = 'stylesheet';
-    css_link.href = 'https://media.readthedocs.org/css/sphinx_rtd_theme.css';
-    document.getElementsByTagName('head')[0].appendChild(css_link);
-}
 
 exports.Embed = Embed;
 
@@ -10110,8 +10148,9 @@ function EmbedView (config) {
     }
 
     self.help = ko.observable(null);
+    self.error = ko.observable(null);
 
-    self.project = ko.observable('blog');
+    self.project = ko.observable(project);
     self.file = ko.observable(null);
 
     self.sections = ko.observableArray();
@@ -10121,36 +10160,34 @@ function EmbedView (config) {
         if (! file) {
             return;
         }
-        self.help('Loading');
+        self.help('Loading...');
+        self.error(null);
         self.section(null);
 
-        $.ajax({
-            type: 'GET',
-            url: self.config.api_host + '/api/v1/embed/',
-            crossDomain: true,
-            data: {
-                project: project,
-                doc: file
-            }
-        })
-        .done(function(data, text_status, request) {
-            self.sections.removeAll();
-            self.help(null);
-            var sections_data = [];
-            for (n in data.headers) {
-                var section = data.headers[n];
-                $.each(section, function (title, id) {
-                    sections_data.push({
-                        title: title,
-                        id: title
+        var embed = new rtd.Embed(self.config);
+        embed.page(
+            self.project(), 'latest', self.file(),
+            function (page) {
+                self.sections.removeAll();
+                self.help(null);
+                self.error(null);
+                var sections_data = [];
+                for (n in page.sections) {
+                    var section = page.sections[n];
+                    $.each(section, function (title, id) {
+                        sections_data.push({
+                            title: title,
+                            id: title
+                        });
                     });
-                });
+                }
+                self.sections(sections_data);
+            },
+            function (error) {
+                self.help(null);
+                self.error('There was a problem retrieving data from the API');
             }
-            self.sections(sections_data);
-        })
-        .fail(function(data, text_status, error) {
-            self.help('There was a problem retrieving data from the API');
-        });
+        );
     });
 
     self.has_sections = ko.computed(function () {
@@ -10170,31 +10207,33 @@ function EmbedView (config) {
         if (file == null || section == null) {
             return self.response(null);
         }
-        self.help('Loading');
+        self.help('Loading...');
+        self.error(null);
         self.response(null);
         self.api_example(null);
 
-        var req = $.ajax({
-            type: 'GET',
-            url: self.config.api_host + '/api/v1/embed/',
-            crossDomain: true,
-            xhrFields: {
-                withCredentials: true,
+        var embed = new rtd.Embed(self.config);
+        embed.section(
+            self.project(), 'latest', self.file(), self.section(),
+            function (section) {
+                self.help(null);
+                self.error(null);
+                self.api_example(
+                    "var embed = Embed();\n" +
+                    "embed.section(\n" +
+                    "    '" + self.project() + "', 'latest', '" + self.file() + "', '" + self.section() + "',\n" +
+                    "    function (section) {\n" +
+                    "        section.insertContent($('#help'));\n" +
+                    "    }\n" +
+                    ");\n"
+                );
+                self.response(section);
             },
-            data: {
-                project: project,
-                doc: file,
-                section: section
-            },
-        })
-        .done(function (data, text_status, request) {
-            self.help(null);
-            self.api_example(this.url);
-            self.response(data.content);
-        })
-        .fail(function(request, text_status, error) {
-            self.help('There was a problem retrieving data from the API');
-        })
+            function (error) {
+                self.help(null);
+                self.error('There was a problem retrieving data from the API');
+            }
+        );
     });
 
     self.has_response = ko.computed(function () {
@@ -10202,10 +10241,43 @@ function EmbedView (config) {
     });
 
     self.api_example = ko.observable(null);
+
+    self.show_help = function () {
+        var embed = new rtd.Embed();
+        embed.section(
+            'docs', 'latest', 'versions', 'How we envision versions working',
+            _show_modal
+        );
+    };
+
+    self.show_embed = function () {
+        var embed = new rtd.Embed();
+        _show_modal(self.response());
+    };
+}
+
+function _show_modal (section) {
+    var embed_container = $('#embed-container');
+    if (!embed_container.length) {
+        embed_container = $('<div id="embed-container" class="modal modal-help" />');
+        $('body').append(embed_container);
+    }
+
+    // Add iframe
+    var iframe = section.insertContent(embed_container);
+    $(iframe).show();
+    embed_container.show();
+
+    // Handle click out of modal
+    $(document).click(function (ev) {
+        if(!$(ev.target).closest('#embed-container').length) {
+            $(iframe).remove();
+            embed_container.remove();
+        }
+    });
 }
 
 module.exports.init_embed = function (config) {
-    // Update embed view with manually populated select
     var view = new EmbedView(config);
     ko.applyBindings(view, $('#tool-embed')[0]);
 }
@@ -10215,12 +10287,6 @@ if (typeof(window) != 'undefined') {
 }
 
 /*
-      function showHelp() {
-        ReadTheDocs.embed.into('docs', 'versions', 'How we envision versions working', function (data) {
-          $("#id_help").html(data['content'])
-          $('#id_help').toggle()
-        })
-      }
 */
 
 },{"./../../../../../bower_components/jquery/dist/jquery.js":1,"./../../../../../bower_components/knockout/dist/knockout.js":2,"./../../../../../bower_components/readthedocs-client/lib/readthedocs.js":5}]},{},[7])

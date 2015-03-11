@@ -86,6 +86,18 @@ input[type="hidden"] { display: none; }
 input[type="checkbox"], input[type="radio"] { display: inline; }
 label { display: block; margin-bottom: 4px; font-weight: bold; color: #444; }
 
+h2 > span.link-help,
+h3 > span.link-help,
+label > span.link-help {
+    color: #999;
+    font-size: 16px;
+    font-weight: normal;
+}
+
+h2 > span.link-help,
+h3 > span.link-help {
+    float: right;
+}
 
 /* content */
 
@@ -638,9 +650,30 @@ select.dropdown { display: none; }
 .badge > ul > li { background: white; padding:8px 10px; border-bottom:1px solid #EEE; }
 .badge pre { font-size: 12px; }
 
-#help_container > a { float:right; }
+/* Modals */
+.modal {
+    position: fixed;
+    display: none;
+    top: 15%;
+    bottom: 15%;
+    left: 20%;
+    right: 20%;
+    padding: 1.5em;
 
+    border: 1px solid #999;
+    background: white;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    box-shadow: 0 0 0 3px rgba(0,0,0,.1);
+    -moz-box-shadow: 0 0 0 3px rgba(0,0,0,.1);
+    -webkit-box-shadow: 0 0 0 3px rgba(0,0,0,.1);
+}
 
+.modal > iframe {
+    width: 100%;
+    height: 100%;
+}
 
     /* CHART LISTS */
     .chartlist { 

@@ -447,7 +447,8 @@ def project_embed(request, project_slug):
             'project': project,
             'files': files,
             'settings': {
-                'GROK_API_HOST': settings.GROK_API_HOST
+                'GROK_API_HOST': settings.GROK_API_HOST,
+                'URI': request.build_absolute_uri(location='/').rstrip('/')
             }
         },
         context_instance=RequestContext(request)
