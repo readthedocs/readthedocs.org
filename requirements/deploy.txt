@@ -1,4 +1,4 @@
--r pip_requirements.txt
+-r pip.txt
 psycopg2==2.4
 gunicorn==19.1.0
 pysolr==2.0.13

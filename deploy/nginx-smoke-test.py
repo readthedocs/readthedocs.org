@@ -26,6 +26,7 @@ def served_by_django(url):
     django = ('x-served' not in r.headers or r.headers['x-served'] == 'nginx-via-django')
     return all([status, django])
 
+
 def served_by_perl(url):
     """Return True if url returns 200 and is served by Perl."""
     r = requests.get(url, allow_redirects=False)

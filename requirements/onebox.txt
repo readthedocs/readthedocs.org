@@ -1,4 +1,4 @@
--r pip_requirements.txt
+-r pip.txt
 dnspython
 gunicorn
 #For resizing images
