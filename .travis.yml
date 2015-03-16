@@ -2,8 +2,13 @@ language: python
 python:
  - "2.7"
 install:
+<<<<<<< HEAD
  - pip install flake8 stripe
  - pip install --allow-all-external --allow-unverified bzr --allow-unverified launchpadlib --allow-unverified lazr.authentication -r requirements/pip.txt
+=======
+ - pip install flake8
+ - pip install --allow-all-external --allow-unverified bzr --allow-unverified launchpadlib --allow-unverified lazr.authentication -r requirements.txt
+>>>>>>> Added top-level requirements file
  - pip install coveralls
 script:
  #- flake8 `find . -iname "*.py" -not -ipath "*migration*"`

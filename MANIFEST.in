@@ -4,6 +4,7 @@ include README.rst
 include CHANGES
 include LICENSE.mit
 include MANIFEST.in
+include requirements.txt
 recursive-include requirements *.txt
 recursive-include docs *
 recursive-include readthedocs *

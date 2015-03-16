@@ -41,7 +41,7 @@ Create a folder in here, and clone the repository::
 Next, install the dependencies using ``pip`` (included with virtualenv_)::
 
     cd readthedocs.org
-    pip install -r requirements/pip.txt
+    pip install -r requirements.txt
 
 .. note::
 
@@ -51,12 +51,12 @@ Next, install the dependencies using ``pip`` (included with virtualenv_)::
 
         CFLAGS=-I/usr/local/opt/libxml2/include/libxml2 \
         LDFLAGS=-L/usr/local/opt/libxml2/lib \
-        pip install -r requirements/pip.txt
+        pip install -r requirements.txt
 
 .. note::
 
     Linux users may find they need to install a few additional packages
-    in order to successfully execute ``pip-install -r requirements/pip.txt``.
+    in order to successfully execute ``pip-install -r requirements.txt``.
     For example, a clean install of Ubuntu 14.04 LTS will require the
     following packages::
 
