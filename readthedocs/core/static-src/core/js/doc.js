@@ -25,6 +25,8 @@ Build.prototype.is_rtd_theme = function () {
 };
 
 Build.prototype.show_promo = function () {
+    // Turn off until the UI is fixed
+    return false;
     // TODO don't do this.
-    return (this.config['api_host'] != 'https://readthedocs.com');
+    // return (this.config['api_host'] != 'https://readthedocs.com');
 };
