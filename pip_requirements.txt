@@ -8,7 +8,7 @@
 --allow-unverified lazr.authentication
 
 ## Upgraded packages
-pip==1.5.6
+pip==6.0.8
 virtualenv==1.11.6
 docutils==0.11
 Sphinx==1.2.2
