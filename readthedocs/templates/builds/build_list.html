@@ -88,6 +88,8 @@ Filters
 
 {% endblock %}
 
+{% comment %}
+
 {% block extra_scripts %}
 {{ block.super }}
   <script type="text/javascript" src="{{ MEDIA_URL }}javascript/build_updater.js"></script>
@@ -101,3 +103,5 @@ Filters
     });
   </script>
 {% endblock %}
+
+{% endcomment %}
