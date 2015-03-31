@@ -493,7 +493,7 @@ class Project(models.Model):
 
     def full_latex_path(self, version='latest'):
         """
-        The path to the build latex docs in the project.
+        The path to the build LaTeX docs in the project.
         """
         return os.path.join(self.conf_dir(version), "_build", "latex")
 
