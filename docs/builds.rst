@@ -84,7 +84,7 @@ Packages installed in the build environment
 
 The build server does have a select number of C libraries installed, because they are used across a wide array of python projects. We can't install every C library out there, but we try and support the major ones. We currently have the following libraries installed:
 
-    * Latex (texlive-full)
+    * LaTeX (texlive-full)
     * libevent (libevent-dev)
     * dvipng
     * graphviz
