@@ -4,7 +4,8 @@ include README.rst
 include CHANGES
 include LICENSE.mit
 include MANIFEST.in
-include pip_requirements.txt
+include requirements.txt
+recursive-include requirements *.txt
 recursive-include docs *
 recursive-include readthedocs *
 recursive-exclude readthedocs *.pyc
