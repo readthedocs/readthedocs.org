@@ -14,7 +14,7 @@ docutils==0.11
 Sphinx==1.2.2
 mkdocs==0.11.1
 
-django==1.6.10
+django==1.6.11
 django-tastypie==0.11.1
 django-haystack==2.1.0
 celery-haystack==0.7.2
