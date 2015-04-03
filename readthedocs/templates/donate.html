@@ -7,22 +7,89 @@
 
 {% block content %}
 
-<p>
-{% blocktrans %}Read the Docs is funded through donations from our users. You can donate money a couple of ways:{% endblocktrans %}
-<p>
+<h2> About Read the Docs </h2>
 
-<ul>
-<li>
-<a href="https://app.moonclerk.com/pay/27n2xc745yw">{% trans "Credit Card" %}</a>
-</li>
-<li>
-<a href="https://www.gittip.com/readthedocs">Gittip</a>
-</li>
-</ul>
-{% blocktrans %}
-You can read more about the ongoing efforts to improve the documentation ecosystem here:
-{% endblocktrans %}
-<a href="http://ericholscher.com/blog/2013/sep/25/help-me-improve-documentation/">http://ericholscher.com/blog/2013/sep/25/help-me-improve-documentation/</a>
+Read the Docs has <a href="http://www.alexa.com/siteinfo/readthedocs.org">grown</a> over the past 4 years of it's life.
+Today, we serve over 14 Million pages of documentation every month.
+We have over 10 servers and serve over 2 TB of documentation a month.
+There are over 18,000 projects and 25,000 users.
+This is a large service by any measure.
 
+<br><br>
+
+As the site has grown,
+the operational and support load has <a href="https://github.com/rtfd/readthedocs.org/search?utf8=%E2%9C%93&q=created%3A%3E%3D2014-01-01&type=Issues">increased</a>,
+but the contributor base <a href="https://github.com/rtfd/readthedocs.org/graphs/contributors?from=2014-01-01&to=2015-04-01&type=c">hasn't</a>.
+This entire ecosystem is effectively supported by two people who are paid less than $2,000 each a month.
+We are asking for your money to help offer better operational support and customer support for these users.
+
+<br><br>
+
+Read the Docs is much harder to support than a typical Open Source project.
+We have to keep the servers running,
+wear pagers,
+debug build failures,
+and a lot more that takes constant small amounts of time.
+
+<br><br>
+
+<h3> Support us </h3>
+
+If you use Read the Docs on a daily basis,
+you should support us.
+There is a good chance you use it every day,
+even if you don't notice.
+We host documentation for every programming language and community.
+
+<br><br>
+
+We are hoping to raise $24,000, to support us over the next three months.
+We will add $2,000/mo to each out our income, bringing it to $4,000/mo each.
+This will allow us to spend more of our time working on Read the Docs,
+instead of doing other things to make money.
+We will also contract a part time support engineer to help with customer support.
+If you are interested in filling this position,
+please <a href="mailto:hello@readthedocs.org">email us</a>.
+
+<br><br>
+
+When we reach our goal of $24,000,
+Read the Docs should be in a much more sustainable place.
+However,
+that is only covering the most basic of services.
+We hope to be able to increase the support from the community over time by adding premium features.
+This will help us do feature development and make the site better,
+instead of simply being able to support the existing platform.
+
+<br><br>
+
+<h3> Existing Support </h3>
+
+Our servers are graciously sponsored by Rackspace at a cost of $2,000 every month.
+They are our single largest sponsor,
+and Read the Docs wouldn't be possible without their generous support.
+
+<br><br>
+
+We have used <a href="https://gratipay.com/readthedocs/">Gittip</a> for sustaining donations of this kind previously.
+We are moving off of this platform,
+and will be looking into a more sustainable model after the initial three months of this program.
+
+<br><br>
+
+<h3> Read the Docs Patrons </h3>
+
+Below is a list of all the fantastic people who have supported our vision.
+
+{% for folk in folks %}
+
+{{ folk }}
+
+{% endfor %}
+
+<h3> Thanks </h3>
+
+This program is modeled after the fantastic <a href="https://www.djangoproject.com/fundraising/">Django Fellowship</a>.
+Thanks for the inspiration.
 
 {% endblock %}
