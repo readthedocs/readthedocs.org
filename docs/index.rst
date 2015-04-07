@@ -54,6 +54,7 @@ Features
 
 .. toctree::
     :maxdepth: 2
+    :glob:
 
     webhooks
     badges
@@ -64,6 +65,7 @@ Features
     redirects
     single_version
     privacy
+    features/*
 
 .. _business-docs:
 
