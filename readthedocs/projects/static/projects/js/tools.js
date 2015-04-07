@@ -10244,7 +10244,7 @@ function EmbedView (config) {
     self.show_help = function () {
         var embed = new rtd.Embed();
         embed.section(
-            'docs', 'latest', 'versions', 'How we envision versions working',
+            'docs', 'latest', 'features/embed', 'Content Embedding',
             _show_modal
         );
     };
