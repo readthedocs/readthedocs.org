@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% load i18n %}
+{% load gravatar %}
 
 {% block title %}{% trans "Donate" %}{% endblock %}
 
@@ -124,9 +125,15 @@ Sharing this fundraiser with your friends would also help us out.
 
 Below is a list of all the fantastic people who have supported our vision.
 
-{% for folk in folks %}
+<br><br>
 
-{{ folk }}
+{% for user in users %}
+<p>
+{% gravatar user.email %}
+{{ user.name }}
+</p>
+
+<br><br>
 
 {% endfor %}
 
