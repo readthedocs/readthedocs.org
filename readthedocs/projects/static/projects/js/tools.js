@@ -10138,8 +10138,7 @@ else {
 }
 
 function EmbedView (config) {
-    var self = this,
-        project = 'rtfd';
+    var self = this;
 
     // Normalize config
     self.config = config || {};
@@ -10150,7 +10149,7 @@ function EmbedView (config) {
     self.help = ko.observable(null);
     self.error = ko.observable(null);
 
-    self.project = ko.observable(project);
+    self.project = ko.observable(self.config.project);
     self.file = ko.observable(null);
 
     self.sections = ko.observableArray();
@@ -10256,6 +10255,36 @@ function EmbedView (config) {
     };
 }
 
+module.exports.init_embed = function (config) {
+    var view = new EmbedView(config);
+    ko.applyBindings(view, $('#tool-embed')[0]);
+}
+
+// Analytics
+function AnalyticsView (config) {
+    var self = this;
+
+    // Normalize config
+    self.config = config || {};
+    if (typeof(self.config.api_host) == 'undefined') {
+        self.config.api_host = 'https://readthedocs.org'
+    }
+
+    self.show_help = function () {
+        var embed = new rtd.Embed();
+        embed.section(
+            'docs', 'latest', 'business/analytics', 'Analytics',
+            _show_modal
+        );
+    };
+}
+
+module.exports.init_analytics = function (config) {
+    var view = new AnalyticsView(config);
+    ko.applyBindings(view, $('#tool-analytics')[0]);
+}
+
+// Modal display
 function _show_modal (section) {
     var embed_container = $('#embed-container');
     if (!embed_container.length) {
@@ -10277,16 +10306,8 @@ function _show_modal (section) {
     });
 }
 
-module.exports.init_embed = function (config) {
-    var view = new EmbedView(config);
-    ko.applyBindings(view, $('#tool-embed')[0]);
-}
-
 if (typeof(window) != 'undefined') {
     window.tools = module.exports;
 }
-
-/*
-*/
 
 },{"./../../../../../bower_components/jquery/dist/jquery.js":1,"./../../../../../bower_components/knockout/dist/knockout.js":2,"./../../../../../bower_components/readthedocs-client/lib/readthedocs.js":5}]},{},[7])

@@ -2,32 +2,32 @@
 {% load i18n %}
 {% load privacy_tags %}
 {% load core_tags highlight  %}
+{% load static %}
 
 {% block title %}
 Tools
 {% endblock title %}
 
 {% block project_editing %}
-{% with tools_active="active" %}
-{% include "core/project_bar.html" %}
-{% endwith %}
+  {% with tools_active="active" %}
+    {% include "core/project_bar.html" %}
+  {% endwith %}
 {% endblock %}
 
 {% block extra_scripts %}
-<link rel="stylesheet" href="http://localhost:5555/static/css/public.css">
-<script type="text/javascript">
-  var READTHEDOCS_EMBED = {
-    'project': 'docs',
-    'version': 'latest',
-    'doc': 'business/analytics',
-    'section': 'viewing'
-  }
-</script>
-<script type="text/javascript" src="http://localhost:5555/static/javascript/bundle-public.js"></script>
+  <script type="text/javascript" src="{% static 'projects/js/tools.js' %}"></script>
+  <script type="text/javascript">
+$(document).ready(function () {
+    tools.init_analytics({
+        api_host: '{{ settings.GROK_API_HOST }}',
+        uri: '{{ settings.URI }}',
+        project: '{{ project.slug }}'
+    });
+});
+  </script>
 {% endblock %}
 
 {% block content %}
-
 <div class="navigable">
 
   <ul>
@@ -39,56 +39,51 @@ Tools
     </li>
   </ul>
 
+  <div id='tool-analytics'>
+    <h2>
+      <span class="link-help">
+        (<a href="/" data-bind="click: show_help, clickBubble: false">Help</a>)
+      </span>
+      {% trans "Analytics" %}
+    </h2>
 
-  <div>
-    <div id="help_container">
-      <a href="#" class="quiet readthedocs-help-embed">(Help)</a>
-    </div>
-
-    <h1> {% trans "Analytics" %} </h1>
-
-
-    <p class="help_text">
+    <p>
       {% trans "This shows the last 7 days of data from your project." %}
     </p>
-      {% if not full %}
-        <p class="help_text">
+
+    {% if not full %}
+      <p>
         Showing only top 20 results. See <a href="?full=True">full listing</a>
-        </p>
-      {% else %}
-        <p class="help_text">
-        Showing all results.
-        </p>
+      </p>
+    {% else %}
+      <p>Showing all results.</p>
+    {% endif %}
 
-      {% endif %}
+    <div class="analytics-column">
+      <h3>{% trans "Pages" %}</h3>
+      <ul class="chartlist">
+        {% for page, count in page_list %}
+          <li>
+            <a href="{% doc_url project project.default_version page %}?analytics=True">{{ page }}</a> 
+            <span class="count">{{ count }}</span>
+            <span class="index" style="width: {{ analytics.scaled_page|key:page }}%">({{ analytics.scaled_page|key:page }}%)</span>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
 
-    <h3> {% trans "Pages" %} </h3>
-    <ul class="chartlist">
-      {% for page, count in page_list %}
-      <li>
-        <a href="{% doc_url project project.default_version page %}?analytics=True">{{ page }}</a> 
-        <span class="count">{{ count }}</span>
-        <span class="index" style="width: {{ analytics.scaled_page|key:page }}%">({{ analytics.scaled_page|key:page }}%)</span>
-      </li>
-      {% endfor %}
-    </ul>
-  </div>  
-
-
-  <div style="float: right;">
-    <h3> {% trans "Versions" %} </h3>
-    <ul class="chartlist">
-      {% for version, count in version_list %}
-      <li>
-        <a href="{% doc_url project version %}?analytics=True">{{ version }}</a> 
-        <span class="count">{{ count }}</span>
-        <span class="index" style="width: {{ analytics.scaled_version|key:version }}%">({{ analytics.scaled_version|key:version }}%)</span>
-      </li>
-      {% endfor %}
-    </ul>
-
+    <div class="analytics-column">
+      <h3>{% trans "Versions" %}</h3>
+      <ul class="chartlist">
+        {% for version, count in version_list %}
+        <li>
+          <a href="{% doc_url project version %}?analytics=True">{{ version }}</a> 
+          <span class="count">{{ count }}</span>
+          <span class="index" style="width: {{ analytics.scaled_version|key:version }}%">({{ analytics.scaled_version|key:version }}%)</span>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
   </div>
-
 </div>
-
 {% endblock %}

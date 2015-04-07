@@ -21,7 +21,8 @@ Tools
 $(document).ready(function () {
     tools.init_embed({
         api_host: '{{ settings.GROK_API_HOST }}',
-        uri: '{{ settings.URI }}'
+        uri: '{{ settings.URI }}',
+        project: '{{ project.slug }}'
     });
 });
   </script>
