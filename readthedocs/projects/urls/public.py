@@ -50,10 +50,6 @@ urlpatterns = patterns(
         'projects.views.public.project_embed',
         name='project_embed'),
 
-    url(r'^(?P<project_slug>[-\w]+)/tools/analytics/$',
-        'projects.views.public.project_analytics',
-        name='project_analytics'),
-
     url(r'^(?P<project_slug>[-\w]+)/search/$',
         'projects.views.public.elastic_project_search',
         name='elastic_project_search'),
