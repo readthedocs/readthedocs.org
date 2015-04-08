@@ -89,10 +89,16 @@ def donate(request):
     else:
         form = CardForm()
 
+    dollars = sum([user.dollars for user in OnceUser.objects.all()])
+    count = OnceUser.objects.count()
+    percent = dollars / 24000
     users = OnceUser.objects.filter(public=True)
     return render_to_response('donate.html',
                               {
                                   'users': users,
+                                  'dollars': dollars,
+                                  'percent': percent,
+                                  'count': count,
                                   'form': form,
                                   'publishable': settings.STRIPE_PUBLISHABLE,
                                   'soon': soon(),
