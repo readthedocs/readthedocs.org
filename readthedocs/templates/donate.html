@@ -52,7 +52,7 @@ $(document).ready(function () {
     </p>
 
     <h3>Donate</h3>
-    <form accept-charset="UTF-8" action="{% url "gold_register" %}" method="post" id="gold-register">
+    <form accept-charset="UTF-8" action="{% url "donate" %}" method="post" id="gold-register">
       {% csrf_token %}
       {% for field in form %}
         {{ field }}

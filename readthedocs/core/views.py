@@ -16,6 +16,7 @@ from django.views.generic import TemplateView
 from haystack.query import EmptySearchQuerySet
 from haystack.query import SearchQuerySet
 from celery.task.control import inspect
+import stripe
 
 from builds.models import Build
 from builds.models import Version
