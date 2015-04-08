@@ -10,7 +10,7 @@
   <ul>
     <li><b>{{ percent }}%</b> funded</li>
     <li><b>${{ dollars }} donated</b> of $24,000 goal</li>
-    <li><b>{{ count }} Supporters</b></li>
+    <li><b>{{ count }} <a href="#supporters">Supporters</a></b></li>
   </ul>
 
   <form action="{% url 'donate_add' %}" method="get">
@@ -80,20 +80,30 @@
     <button>{% trans 'Donate Now' %}</button>
   </form>
 
-  <h2>Read the Docs Supporters</h2>
+  <a name="supporters"></a>
+  <h2>Our Supporters</h2>
 
   <p>
     Below is a list of all the fantastic people who have supported our vision.
   </p>
 
-  <ul class="donate-supporters">
-    {% for user in supporters %}
+  <ul class="donate-supporters donate-supporters-large">
+    {% for user in supporters|slice:"0:50" %}
       <li>
-        <span class="supporter-gravater">{% gravatar user.email %}</span>
-        <span class="supporter-name">{{ user.name }}</span>
+        <div class="supporter-gravatar">{% gravatar user.email 128 %}</div>
+        <div class="supporter-name">{{ user.name|truncatechars:50 }}</div>
       </li>
     {% endfor %}
   </ul>
+  {% if supporters|length > 20 %}
+    <ul class="donate-supporters donate-supporters-small">
+      {% for user in supporters|slice:"50:" %}
+        <li>
+          <div class="supporter-name">{{ user.name|truncatechars:50 }}</div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
 
   <h3>Thanks</h3>
 

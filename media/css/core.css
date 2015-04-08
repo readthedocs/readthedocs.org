@@ -584,6 +584,47 @@ div.project-version-list span.version-branch {
     font-size: .9em;
 }
 
+/* Donate */
+ul.donate-supporters {
+    overflow: auto;
+    clear: both;
+}
+
+ul.donate-supporters.donate-supporters-small > li,
+ul.donate-supporters.donate-supporters-large > li {
+    float: left;
+    position: relative;
+}
+
+ul.donate-supporters.donate-supporters-small {
+    width: 100%;
+    text-align: center;
+}
+
+ul.donate-supporters.donate-supporters-small > li {
+    width: 20%;
+    height: 64px;
+}
+
+ul.donate-supporters.donate-supporters-large > li {
+    width: 20%;
+    height: 195px;
+    text-align: center;
+    overflow: hidden;
+}
+
+ul.donate-supporters div.supporter-name {
+    padding: 4px;
+    overflow: hidden;
+    font-color: #999;
+}
+
+ul.donate-supporters.donate-supporters-large div.supporter-name {
+    height: 48px;
+    font-style: italic;
+    font-size: .9em;
+}
+
 /* Form Wizards */
 div.actions.wizard-actions button.action-primary,
 div.actions.wizard-actions input.action-primary {
