@@ -69,8 +69,6 @@ def register(request):
             'publishable': settings.STRIPE_PUBLISHABLE,
             'soon': soon(),
             'user': user,
-            'months': range(1, 13),
-            'years': range(2011, 2036),
         },
         context_instance=RequestContext(request)
     )
@@ -85,6 +83,7 @@ def edit(request):
 
             customer = stripe.Customer.retrieve(user.stripe_id)
             customer.card = form.cleaned_data['stripe_token']
+            customer.plan = form.cleaned_data['level']
             customer.save()
 
             user.last_4_digits = form.cleaned_data['last_4_digits']
@@ -104,8 +103,6 @@ def edit(request):
             'form': form,
             'publishable': settings.STRIPE_PUBLISHABLE,
             'soon': soon(),
-            'months': range(1, 13),
-            'years': range(2011, 2036)
         },
         context_instance=RequestContext(request)
     )
