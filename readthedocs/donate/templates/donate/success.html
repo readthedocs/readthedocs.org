@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Donate" %}{% endblock %}
+
+{% block content %}
+  <h2>Thanks for your support!</h2>
+
+  <p>
+    We are extremely grateful of your contribution, thank you for showing your
+    support of Read the Docs.  Your help will go a long ways towards making us
+    a more sustainable host for open source documentation.
+  </p>
+
+  <h3>Help us get the word out</h3>
+  <p>
+    You can help us get more contributions by spreading news of our campaign
+    and sharing the following link:
+  </p>
+  <p>
+    <a href="{% url 'donate' %}">Help Support Read the Docs</a>
+  </p>
+
+{% endblock %}

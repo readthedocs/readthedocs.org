@@ -4,11 +4,12 @@ Donation views
 
 import logging
 
-from django.views.generic import CreateView, ListView
+from django.views.generic import CreateView, ListView, TemplateView
 from django.core.urlresolvers import reverse
 from django.db.models import Sum
 from django.http import HttpResponseRedirect
 from django.contrib.messages.views import SuccessMessageMixin
+from django.utils.translation import ugettext_lazy as _
 
 from readthedocs.core.mixins import StripeMixin
 from .models import Supporter
@@ -21,11 +22,15 @@ class DonateCreateView(SuccessMessageMixin, StripeMixin, CreateView):
     '''Create a donation locally and in Stripe'''
 
     form_class = SupporterForm
-    success_message = 'Your donation has been added. <3'
+    success_message = _('Your contribution has been received')
     template_name = 'donate/create.html'
 
     def get_success_url(self):
-        return reverse('donate')
+        return reverse('donate_success')
+
+
+class DonateSuccessView(TemplateView):
+    template_name = 'donate/success.html'
 
 
 class DonateListView(ListView):
