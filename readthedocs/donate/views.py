@@ -2,20 +2,17 @@
 Donation views
 '''
 
+import logging
+
 from django.views.generic import CreateView, ListView
 from django.core.urlresolvers import reverse
 from django.db.models import Sum
-from django.conf import settings
 from django.http import HttpResponseRedirect
 from django.contrib.messages.views import SuccessMessageMixin
-
-import stripe
 
 from readthedocs.core.mixins import StripeMixin
 from .models import OnceUser
 from .forms import SupporterForm
-
-import logging
 
 log = logging.getLogger(__name__)
 
@@ -29,17 +26,6 @@ class DonateCreateView(SuccessMessageMixin, StripeMixin, CreateView):
 
     def get_success_url(self):
         return reverse('donate')
-
-    def form_valid(self, form):
-        supporter = form.save()
-        stripe.api_key = settings.STRIPE_SECRET
-        stripe.Charge.create(
-            amount=int(form.cleaned_data['dollars']) * 100,
-            currency="usd",
-            source=form.cleaned_data['stripe_id'],
-            description="Read the Docs Sustained Engineering",
-        )
-        return HttpResponseRedirect(self.get_success_url())
 
 
 class DonateListView(ListView):
