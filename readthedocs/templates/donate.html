@@ -2,8 +2,27 @@
 
 {% load i18n %}
 {% load gravatar %}
+{% load static %}
 
 {% block title %}{% trans "Donate" %}{% endblock %}
+
+{% block extra_scripts %}
+  <script src="https://js.stripe.com/v2/" type="text/javascript"></script>
+  <script type="text/javascript" src="{% static 'gold/js/payment.js' %}"></script>
+  <script type="text/javascript">
+$(document).ready(function () {
+    var key;
+    //<![CDATA[
+    key = '{{ publishable }}';
+    //]]>
+
+    var view = payment.GoldView.init({
+      key: key,
+      form: $('form#gold-register')
+    });
+});
+  </script>
+{% endblock %}
 
 
 {% block content %}
@@ -26,6 +45,21 @@
 
 <br> <br>
 
+    <p>
+      Supporting Read the Docs lets us work more on features that people
+      love.  Your money will go directly to maintenance and development of
+      the product.
+    </p>
+
+    <h3>Become a Gold Member</h3>
+    <form accept-charset="UTF-8" action="{% url "gold_register" %}" method="post" id="gold-register">
+      {% csrf_token %}
+      {% for field in form %}
+        {{ field }}
+      {% endfor %}
+      {% include "gold/cardform.html" %}
+    </form>
+
 <h2> About Read the Docs </h2>
 
 Read the Docs has <a href="http://www.alexa.com/siteinfo/readthedocs.org">grown</a> over the past 4 years of it's life.
@@ -45,8 +79,6 @@ We are asking for your money to help offer better operational support and custom
 
 <h3> Support us </h3>
 
-<br><br>
-
 We are hoping to initially raise $24,000 to use money to make sure work on Read the Docs gets done.
 This will allow us to provide for 40 hours a week at $50/hr to get work done.
 This money will likely be spread across operations and support tasks each week,
@@ -55,8 +87,6 @@ and across multiple people willing to do the work.
 <br><br>
 
 <h3>Vision</h3>
-
-<br><br>
 
 When we reach our goal of $24,000,
 Read the Docs will be in a much more sustainable place.

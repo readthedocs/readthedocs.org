@@ -159,7 +159,6 @@ def cancel(request):
     )
 
 
-@login_required
 def thanks(request):
     return render_to_response(
         'gold/thanks.html',

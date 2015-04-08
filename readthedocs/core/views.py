@@ -21,6 +21,9 @@ from builds.models import Build
 from builds.models import Version
 from core.forms import FacetedSearchForm
 from core.utils import trigger_build
+from gold.forms import OnceCardForm
+from gold.models import OnceUser
+from gold.views import soon
 from projects import constants
 from projects.models import Project, ImportedFile, ProjectRelationship
 from projects.tasks import remove_dir, update_imported_docs
@@ -71,11 +74,29 @@ def queue_depth(request):
 
 
 def donate(request):
-    from gold.models import OnceUser
+    if request.method == 'POST':
+        form = OnceCardForm(request.POST)
+        if form.is_valid():
+
+            stripe.Charge.create(
+                amount=int(form.cleaned_data['dollars']) * 100,
+                currency="usd",
+                card=form.cleaned_data['stripe_token'],
+                description="Read the Docs Sustaining Engineering",
+            )
+            return HttpResponseRedirect(reverse('gold_thanks'))
+    else:
+        form = OnceCardForm()
+
     users = OnceUser.objects.filter(public=True)
     return render_to_response('donate.html',
                               {
                                   'users': users,
+                                  'form': form,
+                                  'publishable': settings.STRIPE_PUBLISHABLE,
+                                  'soon': soon(),
+                                  'months': range(1, 13),
+                                  'years': range(2011, 2036)
                               },
                               context_instance=RequestContext(request),
                               )
