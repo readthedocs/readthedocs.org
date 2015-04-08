@@ -74,6 +74,11 @@ input:-moz-placeholder { color: #ccc; opacity: 1; }
 input::-moz-placeholder { color: #ccc; opacity: 1; }
 input:-ms-input-placeholder { color: #ccc; }
 
+textarea.field-error,
+input[type="text"].field-error {
+    border: 1px solid red;
+}
+
 .navigable select { width: 150px;}
 select { display: block; max-height: 300px; width: 250px; margin-bottom: 10px; font: 16/20px "inconsolata", "inconsolata-1", "inconsolata-2", 'bitstream vera sans mono', 'andale mono', 'lucida console', monospace; }
 textarea { background: #fff; width: 435px; height: 150px; }

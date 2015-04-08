@@ -11,6 +11,9 @@ var sources = {
     ],
     'readthedocs/projects': [
         'readthedocs/projects/static-src/**/tools.js'
+    ],
+    'readthedocs/gold': [
+        'readthedocs/gold/static-src/**/payment.js'
     ]
 };
 

@@ -1,47 +1,19 @@
-            <input type="hidden" name="last_4_digits" id="last_4_digits" value="{{ form.last_4_digits.value }}">
-            <input type="hidden" name="stripe_token" id="stripe_token" value="{{ form.stripe_token.value }}">
-            <noscript>
-              &lt;p&gt;
-                This form requires Javascript to use
-              &lt;/p&gt;
-            </noscript>
-            <div id="credit-card"{% if form.last_4_digits.value %} style="display: none"{% endif %}>
-              <div id="credit-card-errors" style="display:none">
-                <div class="alert-message block-message error" id="stripe-error-message"></div>
-              </div>
-              <!-- these fields have no names, so they are not submitted to django -->
-              <div class="clearfix">
-                <label for="credit_card_number">Credit card number</label>
-                <div class="input">
-                  <input class="field" id="credit_card_number" type="text">
-                </div>
-              </div>
-              <div class="clearfix">
-                <label for="cvv">Security code (CVV)</label>
-                <div class="input">
-                  <input class="small" id="cvv" type="text">
-                </div>
-              </div>
-              <div class="clearfix">
-                <label for="expiry_date">Expiry date</label>
-                <div class="input">
-                  <select class="small" id="expiry_month">
-                  {% for month in months %}
-                    <option value="{{ month }}"{% if soon.month == month %} selected{% endif %}>{{ month }}</option>
-                  {% endfor %}
-                  </select>
-                  <select class="small" id="expiry_year">
-                  {% for year in years %}
-                    <option value="{{ year }}"{% if soon.year == year %} selected{% endif %}>{{ year }}</option>
-                  {% endfor %}
-                  </select>
-                </div>
-                <!-- empty -->
-              </div>
-              <span class="note">
-                Your credit card details will be sent directly to Stripe, our payment processor.
-              </span>
-            </div>
-            <div class="actions">
-              <input class="btn primary" id="user_submit" name="commit" type="submit" value="Register">
-            </div>
+{% load i18n %}
+
+<div id="payment-form">
+  <label for="cc-number">{% trans "Card Number" %}</label>
+  <input id="cc-number" type="text" data-bind="value: cc_number, css: { 'field-error': cc_error_number() != null}">
+  <p class="error" data-bind="text: cc_error_number, visible: cc_error_number() != null"></p>
+
+  <label for="cc-expiry">{% trans "Card Expiry" %}</label>
+  <input id="cc-expiry" type="text" data-bind="value: cc_expiry, css: { 'field-error': cc_error_expiry() != null}">
+  <p class="error" data-bind="text: cc_error_expiry, visible: cc_error_expiry() != null"></p>
+
+  <label for="cc-cvv">{% trans "Security code (CVV)" %}</label>
+  <input id="cc-cvv" type="text" autocomplete="off" data-bind="value: cc_cvv, css: { 'field-error': cc_error_cvv() != null}">
+  <p class="error" data-bind="text: cc_error_cvv, visible: cc_error_cvv() != null"></p>
+
+  <div class="error" data-bind="text: error"></div>
+
+  <input type="submit" value="Sign Up" data-bind="click: process_form">
+</div>
