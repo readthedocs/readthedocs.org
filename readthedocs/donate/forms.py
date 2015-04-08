@@ -6,7 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 
 import stripe
 
-from .models import OnceUser
+from .models import Supporter
 
 log = logging.getLogger(__name__)
 
@@ -14,7 +14,7 @@ log = logging.getLogger(__name__)
 class SupporterForm(forms.ModelForm):
 
     class Meta:
-        model = OnceUser
+        model = Supporter
         fields = (
             'last_4_digits',
             'stripe_id',

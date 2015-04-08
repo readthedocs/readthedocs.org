@@ -14,7 +14,7 @@ AMOUNT_CHOICES = (
 )
 
 
-class OnceUser(models.Model):
+class Supporter(models.Model):
     pub_date = models.DateTimeField(_('Publication date'), auto_now_add=True)
     modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
     public = models.BooleanField(_('Public'), default=True)
@@ -29,6 +29,3 @@ class OnceUser(models.Model):
     last_4_digits = models.CharField(max_length=4)
     stripe_id = models.CharField(max_length=255)
     subscribed = models.BooleanField(default=False)
-
-    class Meta:
-        db_table = 'gold_onceuser'

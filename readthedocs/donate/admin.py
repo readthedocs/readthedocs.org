@@ -1,4 +1,4 @@
 from django.contrib import admin
-from .models import OnceUser
+from .models import Supporter
 
-admin.site.register(OnceUser)
+admin.site.register(Supporter)

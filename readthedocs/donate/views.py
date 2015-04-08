@@ -11,7 +11,7 @@ from django.http import HttpResponseRedirect
 from django.contrib.messages.views import SuccessMessageMixin
 
 from readthedocs.core.mixins import StripeMixin
-from .models import OnceUser
+from .models import Supporter
 from .forms import SupporterForm
 
 log = logging.getLogger(__name__)
@@ -32,11 +32,11 @@ class DonateListView(ListView):
     '''Donation list and detail view'''
 
     template_name = 'donate/list.html'
-    model = OnceUser
+    model = Supporter
     context_object_name = 'supporters'
 
     def get_queryset(self):
-        return OnceUser.objects.filter(public=True)
+        return Supporter.objects.filter(public=True)
 
     def get_template_names(self):
         return [self.template_name]
@@ -47,7 +47,7 @@ class DonateListView(ListView):
                 .objects.all()
                 .aggregate(dollars=Sum('dollars')))
         dollars = sums['dollars'] or 0
-        count = OnceUser.objects.count()
+        count = Supporter.objects.count()
         percent = int((float(dollars) / 24000.0) * 100.0)
         context.update({
             'dollars': dollars,
