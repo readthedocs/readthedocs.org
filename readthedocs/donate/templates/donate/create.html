@@ -27,6 +27,11 @@ $(document).ready(function () {
 {% block content %}
   <h2>Donate to Read the Docs</h2>
 
+  <p>
+    Contributions will be listed on our donation page, with your name and
+    photo (from Gravatar). You can choose to donate privately if you do not wish to be listed.
+  </p>
+
   <form accept-charset="UTF-8" action="" method="post" id="donate-payment">
     {% csrf_token %}
     {{ form.as_p }}

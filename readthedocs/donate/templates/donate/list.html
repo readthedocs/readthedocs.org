@@ -6,17 +6,36 @@
 {% block title %}{% trans "Donate" %}{% endblock %}
 
 {% block content %}
-  <h1>Help Support Read the Docs</h1>
-  <ul>
-    <li><b>{{ percent }}%</b> funded</li>
-    <li><b>${{ dollars }} donated</b> of $24,000 goal</li>
-    <li><b>{{ count }} <a href="#supporters">Supporters</a></b></li>
-  </ul>
+  <div class="donate-stats">
+    <h2>Help Support Read the Docs</h2>
+    <div class="donate-stats-lg">
+      <p>
+        Read the Docs is community supported and volunteer run.  In an effort
+        to make operating the service <em>indepenently sustainable</em>, and
+        to improve community support, we are asking the community for
+        contributions.  If you have found Read the Docs is a useful service,
+        and would like to see it continue to grow, <em>consider pitching
+        in</em> to help cover the cost of host the world's documentation.
+      </p>
+    </div>
+    <div class="donate-stats-sm">
+      <ul>
+        <li>
+          <div class="donate-progress">
+            <div class="donate-progress-inner" style="width: {% if percent > 100 %}100{% else %}{{ percent }}{% endif %}%;">
+            </div>
+          </div>
+        </li>
+        <li><b>{{ percent }}%</b> funded</li>
+        <li><b>${{ dollars }} donated</b> of $24,000 goal</li>
+        <li><b>{{ count }} <a href="#supporters">Supporters</a></b></li>
+      </ul>
 
-  <form action="{% url 'donate_add' %}" method="get">
-    <button>{% trans 'Donate Now' %}</button>
-  </form>
-
+      <form action="{% url 'donate_add' %}" method="get" class="donate-form">
+        <button>{% trans 'Donate Now' %}</button>
+      </form>
+    </div>
+  </div>
 
   <h2>About Read the Docs</h2>
 
@@ -76,7 +95,7 @@
     We plan on that being a recurring payment model that will allow us to forecast and sustain a standard amount of billable hours per month.
   </p>
 
-  <form action="{% url 'donate_add' %}" method="get">
+  <form action="{% url 'donate_add' %}" method="get" class="donate-form">
     <button>{% trans 'Donate Now' %}</button>
   </form>
 

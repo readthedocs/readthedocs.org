@@ -74,6 +74,11 @@ input:-moz-placeholder { color: #ccc; opacity: 1; }
 input::-moz-placeholder { color: #ccc; opacity: 1; }
 input:-ms-input-placeholder { color: #ccc; }
 
+input[type="radio"] + span.helptext,
+input[type="checkbox"] + span.helptext {
+    color: #444;
+}
+
 textarea.field-error,
 input[type="text"].field-error {
     border: 1px solid red;
@@ -585,6 +590,89 @@ div.project-version-list span.version-branch {
 }
 
 /* Donate */
+div.donate-stats {
+    padding: 2em;
+    margin-bottom: 2em;
+    overflow: auto;
+
+    border: 1px solid #999;
+    border-radius: 6px;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    background: #e0e0e0;
+}
+
+div.donate-stats li {
+    text-align: right;
+}
+
+div.donate-stats h2 {
+    text-align: center;
+    margin: .5em 0em 1.5em 0em;
+}
+
+div.donate-stats-sm form {
+    text-align: center;
+}
+
+div.donate-stats div.donate-stats-sm,
+div.donate-stats div.donate-stats-lg {
+    float: left;
+}
+
+div.donate-stats div.donate-stats-sm { width: 40%; }
+div.donate-stats div.donate-stats-lg { width: 60%; }
+
+div.donate-stats div.donate-stats-lg p {
+    padding-right: 2em;
+}
+
+form.donate-form button {
+    display: inline-block;
+    font-size: 1.1em;
+    color: #fff;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+    background-color: #8ECC4C;
+    border-color: #6B9939;
+    border-bottom-color: #50732B;
+}
+form.donate-form button:hover {
+    background-color: #9EdC5C;
+}
+
+form#donate-payment p label { font-weight: bold; }
+
+div.donate-progress {
+    height: 24px;
+    margin: .3em 0em .3em 0em;
+    padding: 4px;
+    position: relative;
+    overflow: hidden;
+
+    background: #fff;
+    border: 1px solid #bbb;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+}
+
+div.donate-progress-inner {
+    height: 24px;
+
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+
+    background-color: #8ECC4C;
+    border: 1px solid;
+    border-color: #6B9939;
+    border-bottom-color: #50732B;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+}
+
+
 ul.donate-supporters {
     overflow: auto;
     clear: both;
