@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Donate" %}{% endblock %}
+
+{% block extra_scripts %}
+  <script src="https://js.stripe.com/v2/" type="text/javascript"></script>
+  <script type="text/javascript" src="{% static 'gold/js/payment.js' %}"></script>
+  <script type="text/javascript">
+$(document).ready(function () {
+    var key;
+    //<![CDATA[
+    key = '{{ publishable }}';
+    //]]>
+
+    var view = payment.GoldView.init({
+      key: key,
+      form: $('form#donate-payment')
+    });
+});
+  </script>
+{% endblock %}
+
+
+{% block content %}
+  <h2>Donate to Read the Docs</h2>
+
+  <form accept-charset="UTF-8" action="" method="post" id="donate-payment">
+    {% csrf_token %}
+    {{ form.as_p }}
+    {% include "gold/cardform.html" %}
+  </form>
+{% endblock %}

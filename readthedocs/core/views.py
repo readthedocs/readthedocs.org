@@ -22,9 +22,6 @@ from builds.models import Build
 from builds.models import Version
 from core.forms import FacetedSearchForm
 from core.utils import trigger_build
-from gold.forms import OnceCardForm, CardForm
-from gold.models import OnceUser
-from gold.views import soon
 from projects import constants
 from projects.models import Project, ImportedFile, ProjectRelationship
 from projects.tasks import remove_dir, update_imported_docs
@@ -72,41 +69,6 @@ def random_page(request, project=None):
 def queue_depth(request):
     r = redis.Redis(**settings.REDIS)
     return HttpResponse(r.llen('celery'))
-
-
-def donate(request):
-    if request.method == 'POST':
-        form = CardForm(request.POST)
-        if form.is_valid():
-
-            stripe.Charge.create(
-                amount=int(form.cleaned_data['level']) * 100,
-                currency="usd",
-                card=form.cleaned_data['stripe_token'],
-                description="Read the Docs Sustaining Engineering",
-            )
-            return HttpResponseRedirect(reverse('gold_thanks'))
-    else:
-        form = CardForm()
-
-    dollars = sum([user.dollars for user in OnceUser.objects.all()])
-    count = OnceUser.objects.count()
-    percent = dollars / 24000
-    users = OnceUser.objects.filter(public=True)
-    return render_to_response('donate.html',
-                              {
-                                  'users': users,
-                                  'dollars': dollars,
-                                  'percent': percent,
-                                  'count': count,
-                                  'form': form,
-                                  'publishable': settings.STRIPE_PUBLISHABLE,
-                                  'soon': soon(),
-                                  'months': range(1, 13),
-                                  'years': range(2011, 2036)
-                              },
-                              context_instance=RequestContext(request),
-                              )
 
 
 def queue_info(request):

@@ -1,5 +1,4 @@
 from django.contrib import admin
-from .models import GoldUser, OnceUser
+from .models import GoldUser
 
 admin.site.register(GoldUser)
-admin.site.register(OnceUser)

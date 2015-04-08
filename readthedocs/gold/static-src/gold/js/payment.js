@@ -74,7 +74,7 @@ function GoldView (config) {
             if (status === 200) {
                 // Update form fields that are actually sent to 
                 var cc_last_digits = self.form.find('#id_last_4_digits'),
-                    token = self.form.find('#id_stripe_token');
+                    token = self.form.find('#id_stripe_id,#id_stripe_token');
                 cc_last_digits.val(response.card.last4);
                 token.val(response.id);
                 self.form.submit();

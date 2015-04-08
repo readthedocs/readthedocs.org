@@ -199,6 +199,7 @@ INSTALLED_APPS = [
     'restapi',
     'privacy',
     'gold',
+    'donate',
 
     # allauth
     'allauth',
