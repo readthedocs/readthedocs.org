@@ -39,6 +39,17 @@
       </ul>
 
       <form action="{% url 'donate_add' %}" method="get" class="donate-form">
+        <select id="id_dollars" name="dollars">
+          <option value="5">$5</option>
+          <option value="10">$10</option>
+          <option value="25">$25</option>
+          <option value="50" selected="selected">1 Hour ($50)</option>
+          <option value="100">2 Hours ($100)</option>
+          <option value="200">4 Hours ($200)</option>
+          <option value="400">1 Day ($400)</option>
+          <option value="800">2 Days ($800)</option>
+          <option value="2000">5 Days ($2000)</option>
+        </select>
         <button>{% trans 'Donate Now' %}</button>
       </form>
     </div>

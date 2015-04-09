@@ -632,8 +632,19 @@ div.donate-stats div.donate-stats-lg p {
     padding-right: 2em;
 }
 
+form.donate-form {
+    margin: 2em 0em 1em 0em;
+    clear: both;
+}
+
+form.donate-form select {
+    display: inline-block;
+    width: 200px;
+}
+
 form.donate-form button {
     display: inline-block;
+    margin: .3em 0em;
     font-size: 1.1em;
     color: #fff;
     text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);

@@ -28,6 +28,9 @@ class DonateCreateView(SuccessMessageMixin, StripeMixin, CreateView):
     def get_success_url(self):
         return reverse('donate_success')
 
+    def get_initial(self):
+        return {'dollars': self.request.GET.get('dollars', 50)}
+
 
 class DonateSuccessView(TemplateView):
     template_name = 'donate/success.html'
