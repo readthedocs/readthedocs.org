@@ -6,7 +6,7 @@ import logging
 
 from django.views.generic import CreateView, ListView, TemplateView
 from django.core.urlresolvers import reverse
-from django.db.models import Sum
+from django.db.models import Avg, Sum
 from django.http import HttpResponseRedirect
 from django.contrib.messages.views import SuccessMessageMixin
 from django.utils.translation import ugettext_lazy as _
@@ -53,14 +53,17 @@ class DonateListView(ListView):
 
     def get_context_data(self):
         context = super(DonateListView, self).get_context_data()
-        sums = (self.model
-                .objects.all()
+        sums = (self.model.objects.all()
                 .aggregate(dollars=Sum('dollars')))
-        dollars = sums['dollars'] or 0
+        avgs = (self.model.objects.all()
+                .aggregate(dollars=Avg('dollars')))
+        dollars = sums.get('dollars', 0)
+        avg = int(avgs.get('dollars', 0))
         count = Supporter.objects.count()
         percent = int((float(dollars) / 24000.0) * 100.0)
         context.update({
             'dollars': dollars,
+            'avg': avg,
             'percent': percent,
             'count': count,
         })
