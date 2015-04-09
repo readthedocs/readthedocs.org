@@ -57,8 +57,8 @@ class DonateListView(ListView):
                 .aggregate(dollars=Sum('dollars')))
         avgs = (self.model.objects.all()
                 .aggregate(dollars=Avg('dollars')))
-        dollars = sums.get('dollars', 0)
-        avg = int(avgs.get('dollars', 0))
+        dollars = sums.get('dollars', None) or 0
+        avg = int(avgs.get('dollars', None) or 0)
         count = Supporter.objects.count()
         percent = int((float(dollars) / 24000.0) * 100.0)
         context.update({
