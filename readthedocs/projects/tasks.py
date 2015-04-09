@@ -141,7 +141,7 @@ def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
             html=results.get('html', [404])[0] == 0,
             localmedia=results.get('localmedia', [404])[0] == 0,
             search=results.get('search', [404])[0] == 0,
-            pdf=results.get('pdf', [404])[0] == 0,
+            pdf=True,
             epub=results.get('epub', [404])[0] == 0,
         )
 
