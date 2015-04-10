@@ -34,6 +34,8 @@ MEDIA_ROOT = '%s/media/' % (SITE_ROOT)
 MEDIA_URL = '/media/'
 ADMIN_MEDIA_PREFIX = '/media/admin/'
 
+GROK_API_HOST = 'https://api.grokthedocs.com'
+
 # For 1.4
 STATIC_ROOT = os.path.join(SITE_ROOT, 'media/static/')
 STATIC_URL = '/static/'
@@ -196,6 +198,8 @@ INSTALLED_APPS = [
     'rtd_tests',
     'restapi',
     'privacy',
+    'gold',
+    'donate',
 
     # allauth
     'allauth',
@@ -264,6 +268,10 @@ if LOG_DEBUG:
 # Guardian Settings
 GUARDIAN_RAISE_403 = True
 ANONYMOUS_USER_ID = -1
+
+# Stripe
+STRIPE_SECRET = None
+STRIPE_PUBLISHABLE = None
 
 # RTD Settings
 REPO_LOCK_SECONDS = 30

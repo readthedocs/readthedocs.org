@@ -239,10 +239,7 @@ $(document).ready(function () {
                       } else {
                           navBar.removeClass(stickyNavCssClass);
                       }
-
-                      if (promo && typeof(promo.waypoint.refresh) != 'undefined') {
-                          promo.waypoint.refresh();
-                      }
+                      promo.waypoint.refresh();
                   },
                   enable = function () {
                       init();
@@ -602,7 +599,8 @@ Promo.prototype.display = function () {
     this.waypoint = new Waypoint({
         element: promo.wrapper.get(0),
         offset: function () {
-            return $(window).height() - promo.height() - 80;
+            console.log($(window).height() - promo.height() - 80);
+            return ($(window).height() - promo.height() - 80);
         },
         handler: function (direction) {
             if (direction == 'down') {
@@ -613,6 +611,10 @@ Promo.prototype.display = function () {
             }
         }
     });
+}
+
+Promo.prototype.disable = function () {
+    Waypoint.destroyAll();
 }
 
 // Variant factory method

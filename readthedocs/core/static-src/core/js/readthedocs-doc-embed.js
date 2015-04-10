@@ -196,10 +196,7 @@ $(document).ready(function () {
                       } else {
                           navBar.removeClass(stickyNavCssClass);
                       }
-
-                      if (promo && typeof(promo.waypoint.refresh) != 'undefined') {
-                          promo.waypoint.refresh();
-                      }
+                      promo.waypoint.refresh();
                   },
                   enable = function () {
                       init();

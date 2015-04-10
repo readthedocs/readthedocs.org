@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+{% load gravatar %}
+
+{% block title %}{% trans "Sustainability" %}{% endblock %}
+
+{% block content %}
+  <div class="donate-stats">
+    <h2>Help Support Read the Docs</h2>
+    <div class="donate-stats-lg">
+      <p>
+        Since it's inception over four years ago, Read the Docs has grown
+        into a massive resource that developers rely on daily.  To
+        make Read the Docs <b>independently sustainable</b>, and to
+        improve support our users and readers, we are asking the community
+        for contributions.
+      </p>
+      <p>
+        <b>
+          If you consider Read the Docs to be a useful service, and would
+          like to see it continue to grow, <b>consider pitching in</b> to
+          help cover the cost of bringing free and open documentation to
+          everyone.
+        </b>
+      </p>
+    </div>
+    <div class="donate-stats-sm">
+      <ul>
+        <li>
+          <div class="donate-progress">
+            <div class="donate-progress-inner" style="width: {% if percent > 100 %}100{% else %}{{ percent }}{% endif %}%;">
+            </div>
+          </div>
+        </li>
+        <li><b>${{ dollars }}</b> contributed to $24,000 goal</li>
+        <li><b>{{ percent }}%</b> funded</li>
+        <li><b>${{ avg }}</b> average contribution</li>
+        <li><b>{{ count }}</b> <a href="#supporters">Supporters</a></li>
+      </ul>
+
+      <form action="{% url 'donate_add' %}" method="get" class="donate-form">
+        <select id="id_dollars" name="dollars">
+          <option value="5">$5</option>
+          <option value="10">$10</option>
+          <option value="25">$25</option>
+          <option value="50" selected="selected">1 Hour ($50)</option>
+          <option value="100">2 Hours ($100)</option>
+          <option value="200">4 Hours ($200)</option>
+          <option value="400">1 Day ($400)</option>
+          <option value="800">2 Days ($800)</option>
+          <option value="2000">5 Days ($2000)</option>
+        </select>
+        <button>{% trans 'Donate Now' %}</button>
+      </form>
+    </div>
+  </div>
+
+  <h2>About Read the Docs</h2>
+
+  <p>
+    Read the Docs has <a href="http://www.alexa.com/siteinfo/readthedocs.org">grown substantially</a>
+    since its beginning as a weekend project.
+    Today, we:
+  </p>
+
+  <ul class="donate-about">
+    <li>Serve over <b>14 million pages</b> of documentation a month</li>
+    <li>Have 10 servers and serve over <b>2 TB</b> of documentation a month</li>
+    <li>Host over <b>18,000 projects</b> and support <b>25,000 users</b></li>
+    <li>Are supported by two dedicated engineers</li>
+  </ul>
+
+  <p>
+    Because of the growth and popularity of the service, the associated
+    techincal and operational support demands a good deal of labor.
+    Where development can be sustained with community contributions,
+    consistent support for users, maintenance, and on-call procedures
+    require <b>accountability</b> and <b>dedicated engineers</b>.
+    These types of roles are hard to accomplish on a volunteer basis.
+  </p>
+
+  <p>
+    To make sure these roles were filled, we decided to treat the project as
+    a job &ndash; we formed a company and dedicated ourselves full-time to
+    the project.
+    Now, we would like to make sure that the service is <b>sustainable</b>
+    and its costs are fully covered.
+  </p>
+
+  <p>
+    <b>We are asking for your contributions to ensure continued operational
+      and technical support for our community, as well as continued
+      development.</b>
+  </p>
+
+  <p>
+    Our primary goal is to cover the costs of supporting and maintaining
+    Read the Docs for the <b>next three months</b>.
+    We hope to account for the cost of <b>at least one</b> full-time,
+    <b>independent</b> engineer, which, at the rate of $50/hour, would
+    cost $24,000 over the next three months.
+    Covering labor costs would allow us to spend time supporting the site
+    instead of seeking income elsewhere.
+  </p>
+
+  <form action="{% url 'donate_add' %}" method="get" class="donate-form">
+    <button>{% trans 'Donate Now' %}</button>
+  </form>
+
+
+  <h3>Sponsors</h3>
+
+  <p>
+    Our servers are graciously sponsored by <a href="http://www.rackspace.com/">Rackspace</a>, at a value of $2,000 each month.
+    They are our single largest sponsor,
+    and Read the Docs wouldn't be possible without their generous support.
+    You can view the full list of <a href="http://docs.readthedocs.org/en/latest/sponsors.html#past-sponsors">past sponsors</a> in our documentation.
+  </p>
+
+  <p>
+    If you are a company that shares our passion for documentation,
+    or if you want to support our mission,
+    <a href="mailto:hello@readthedocs.org">contact us for more information</a> on sponsoring Read the Docs.
+  </p>
+
+
+  <a name="supporters"></a>
+  <h2>Our Supporters</h2>
+
+  <p>
+    Below is a list of all the wonderful people who have supported our
+    vision.
+  </p>
+
+  <ul class="donate-supporters donate-supporters-large">
+    {% for user in supporters|slice:"0:50" %}
+      <li>
+        <div class="supporter-gravatar">{% gravatar user.email 128 %}</div>
+        <div class="supporter-name">{{ user.name|truncatechars:50 }}</div>
+      </li>
+    {% endfor %}
+  </ul>
+  {% if supporters|length > 20 %}
+    <ul class="donate-supporters donate-supporters-small">
+      {% for user in supporters|slice:"50:" %}
+        <li>
+          <div class="supporter-name">{{ user.name|truncatechars:50 }}</div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <h3>Thanks</h3>
+
+  <p>
+    This program is modeled after the fantastic <a href="https://www.djangoproject.com/fundraising/">Django Fellowship</a>.
+    Thanks for the inspiration.
+  </p>
+
+{% endblock %}

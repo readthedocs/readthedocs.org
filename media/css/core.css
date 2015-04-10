@@ -74,6 +74,16 @@ input:-moz-placeholder { color: #ccc; opacity: 1; }
 input::-moz-placeholder { color: #ccc; opacity: 1; }
 input:-ms-input-placeholder { color: #ccc; }
 
+input[type="radio"] + span.helptext,
+input[type="checkbox"] + span.helptext {
+    color: #444;
+}
+
+textarea.field-error,
+input[type="text"].field-error {
+    border: 1px solid red;
+}
+
 .navigable select { width: 150px;}
 select { display: block; max-height: 300px; width: 250px; margin-bottom: 10px; font: 16/20px "inconsolata", "inconsolata-1", "inconsolata-2", 'bitstream vera sans mono', 'andale mono', 'lucida console', monospace; }
 textarea { background: #fff; width: 435px; height: 150px; }
@@ -86,6 +96,18 @@ input[type="hidden"] { display: none; }
 input[type="checkbox"], input[type="radio"] { display: inline; }
 label { display: block; margin-bottom: 4px; font-weight: bold; color: #444; }
 
+h2 > span.link-help,
+h3 > span.link-help,
+label > span.link-help {
+    color: #999;
+    font-size: 16px;
+    font-weight: normal;
+}
+
+h2 > span.link-help,
+h3 > span.link-help {
+    float: right;
+}
 
 /* content */
 
@@ -567,6 +589,148 @@ div.project-version-list span.version-branch {
     font-size: .9em;
 }
 
+/* Donate */
+div.donate-stats {
+    padding: 2em;
+    margin-bottom: 2em;
+    overflow: auto;
+
+    border: 1px solid #999;
+    border-radius: 6px;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    background: #e0e0e0;
+}
+
+div.donate-stats li {
+    text-align: right;
+}
+
+div.donate-stats h2 {
+    text-align: center;
+    margin: .5em 0em 1.5em 0em;
+}
+
+ul.donate-about li {
+    margin-left: 1em;
+    list-style: inside;
+}
+
+div.donate-stats-sm form {
+    text-align: center;
+}
+
+div.donate-stats div.donate-stats-sm,
+div.donate-stats div.donate-stats-lg {
+    float: left;
+}
+
+div.donate-stats div.donate-stats-sm { width: 40%; }
+div.donate-stats div.donate-stats-lg { width: 60%; }
+
+div.donate-stats div.donate-stats-lg p {
+    padding-right: 2em;
+}
+
+form.donate-form {
+    margin: 2em 0em 1em 0em;
+    clear: both;
+}
+
+form.donate-form select {
+    display: inline-block;
+    width: 200px;
+}
+
+form.donate-form button {
+    display: inline-block;
+    margin: .3em 0em;
+    font-size: 1.1em;
+    color: #fff;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+    background-color: #8ECC4C;
+    border-color: #6B9939;
+    border-bottom-color: #50732B;
+}
+form.donate-form button:hover {
+    background-color: #9EdC5C;
+}
+
+form#donate-payment p label { font-weight: bold; }
+
+div.donate-progress {
+    height: 24px;
+    margin: .3em 0em .3em 0em;
+    padding: 4px;
+    position: relative;
+    overflow: hidden;
+
+    background-color: #ccc;
+    border: 1px solid;
+    border-color: #bbb;
+    border-bottom-color: #aaa;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+}
+
+div.donate-progress-inner {
+    height: 24px;
+
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+
+    background-color: #8ECC4C;
+    border: 1px solid;
+    border-color: #6B9939;
+    border-bottom-color: #50732B;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+}
+
+
+ul.donate-supporters {
+    overflow: auto;
+    clear: both;
+}
+
+ul.donate-supporters.donate-supporters-small > li,
+ul.donate-supporters.donate-supporters-large > li {
+    float: left;
+    position: relative;
+}
+
+ul.donate-supporters.donate-supporters-small {
+    width: 100%;
+    text-align: center;
+}
+
+ul.donate-supporters.donate-supporters-small > li {
+    width: 20%;
+    height: 64px;
+}
+
+ul.donate-supporters.donate-supporters-large > li {
+    width: 20%;
+    height: 195px;
+    text-align: center;
+    overflow: hidden;
+}
+
+ul.donate-supporters div.supporter-name {
+    padding: 4px;
+    overflow: hidden;
+    font-color: #999;
+}
+
+ul.donate-supporters.donate-supporters-large div.supporter-name {
+    height: 48px;
+    font-style: italic;
+    font-size: .9em;
+}
+
 /* Form Wizards */
 div.actions.wizard-actions button.action-primary,
 div.actions.wizard-actions input.action-primary {
@@ -637,3 +801,75 @@ select.dropdown { display: none; }
 .badge > ul { margin-top: 3px; position:absolute; top:100%; background:#465158; padding:4px; border-radius:4px; z-index:1005; min-width:500; box-shadow: 0px 0px 8px 2px rgba(0,0,0,0.2); }
 .badge > ul > li { background: white; padding:8px 10px; border-bottom:1px solid #EEE; }
 .badge pre { font-size: 12px; }
+
+/* Modals */
+.modal {
+    position: fixed;
+    display: none;
+    top: 15%;
+    bottom: 15%;
+    left: 20%;
+    right: 20%;
+    padding: 1.5em;
+
+    border: 1px solid #999;
+    background: white;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    box-shadow: 0 0 0 3px rgba(0,0,0,.1);
+    -moz-box-shadow: 0 0 0 3px rgba(0,0,0,.1);
+    -webkit-box-shadow: 0 0 0 3px rgba(0,0,0,.1);
+}
+
+.modal > iframe {
+    width: 100%;
+    height: 100%;
+}
+
+    /* CHART LISTS */
+    .chartlist { 
+      float: left; 
+      border-top: 1px solid #EEE; 
+      width: 15em;
+    }
+    .chartlist li { 
+      position: relative;
+      display: block;  
+      border-bottom: 1px solid #EEE; 
+      _zoom: 1;
+    }
+    .chartlist li a { 
+      display: block; 
+      padding: 0.4em 4.5em 0.4em 0.5em;
+      position: relative; 
+      z-index: 2; 
+    }
+    .chartlist .count { 
+      display: block; 
+      position: absolute; 
+      top: 0; 
+      right: 0; 
+      margin: 0 0.3em; 
+      text-align: right; 
+      color: #999; 
+      font-weight: bold; 
+      font-size: 0.875em; 
+      line-height: 2em; 
+      z-index: 5; 
+    }
+    .chartlist .index { 
+      display: block; 
+      position: absolute; 
+      top: 0; 
+      left: 0; 
+      height: 100%; 
+      background: #B8E4F5; 
+      text-indent: -9999px; 
+      overflow: hidden; 
+      line-height: 2em;
+      z-index: 1; 
+    }
+    .chartlist li:hover { 
+      background: #EFEFEF; 
+    }

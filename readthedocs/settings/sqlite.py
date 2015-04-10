@@ -27,6 +27,7 @@ CACHE_BACKEND = 'dummy://'
 SLUMBER_USERNAME = 'test'
 SLUMBER_PASSWORD = 'test'
 SLUMBER_API_HOST = 'http://localhost:8000'
+#GROK_API_HOST = 'http://localhost:5555'
 PRODUCTION_DOMAIN = 'localhost:8000'
 
 WEBSOCKET_HOST = 'localhost:8088'

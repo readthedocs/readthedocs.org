@@ -691,7 +691,7 @@ class Project(models.Model):
         if not self.num_major or not self.num_minor or not self.num_point:
             return None
         versions = []
-        for ver in self.versions.public(only_active=False):
+        for ver in self.versions.all():
             try:
                 versions.append(BetterVersion(ver.verbose_name))
             except UnsupportedVersionError:
@@ -802,7 +802,7 @@ class ImportedFile(models.Model):
     project = models.ForeignKey('Project', verbose_name=_('Project'),
                                 related_name='imported_files')
     version = models.ForeignKey('builds.Version', verbose_name=_('Version'),
-                                related_name='imported_filed', null=True)
+                                related_name='imported_files', null=True)
     name = models.CharField(_('Name'), max_length=255)
     slug = models.SlugField(_('Slug'))
     path = models.CharField(_('Path'), max_length=255)
