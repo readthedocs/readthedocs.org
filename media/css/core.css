@@ -665,8 +665,10 @@ div.donate-progress {
     position: relative;
     overflow: hidden;
 
-    background: #fff;
-    border: 1px solid #bbb;
+    background-color: #ccc;
+    border: 1px solid;
+    border-color: #bbb;
+    border-bottom-color: #aaa;
     border-radius: 5px;
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
