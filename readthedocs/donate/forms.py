@@ -38,9 +38,10 @@ class SupporterForm(forms.ModelForm):
             stripe.api_key = settings.STRIPE_SECRET
             stripe.Charge.create(
                 amount=int(self.cleaned_data['dollars']) * 100,
-                currency="usd",
+                currency='usd',
                 source=self.cleaned_data['stripe_id'],
-                description="Read the Docs Sustained Engineering",
+                description='Read the Docs Sustained Engineering',
+                receipt_email=self.cleaned_data['email']
             )
         except stripe.error.CardError, e:
             stripe_error = e.json_body['error']
