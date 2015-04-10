@@ -46,7 +46,7 @@ class DonateListView(ListView):
     def get_queryset(self):
         return (Supporter.objects
                 .filter(public=True)
-                .order_by('-dollars'))
+                .order_by('-dollars', '-pub_date'))
 
     def get_template_names(self):
         return [self.template_name]
