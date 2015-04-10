@@ -21,29 +21,10 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal(u'gold', ['GoldUser'])
 
-        # Adding model 'OnceUser'
-        db.create_table(u'gold_onceuser', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('pub_date', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('modified_date', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
-            ('public', self.gf('django.db.models.fields.BooleanField')(default=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=200, blank=True)),
-            ('email', self.gf('django.db.models.fields.EmailField')(max_length=200, blank=True)),
-            ('user', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='goldonce', null=True, to=orm['auth.User'])),
-            ('dollars', self.gf('django.db.models.fields.IntegerField')(default=50, max_length=30)),
-            ('last_4_digits', self.gf('django.db.models.fields.CharField')(max_length=4)),
-            ('stripe_id', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('subscribed', self.gf('django.db.models.fields.BooleanField')(default=False)),
-        ))
-        db.send_create_signal(u'gold', ['OnceUser'])
-
 
     def backwards(self, orm):
         # Deleting model 'GoldUser'
         db.delete_table(u'gold_golduser')
-
-        # Deleting model 'OnceUser'
-        db.delete_table(u'gold_onceuser')
 
 
     models = {
@@ -93,20 +74,6 @@ class Migration(SchemaMigration):
             'stripe_id': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'subscribed': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'gold'", 'unique': 'True', 'to': u"orm['auth.User']"})
-        },
-        u'gold.onceuser': {
-            'Meta': {'object_name': 'OnceUser'},
-            'dollars': ('django.db.models.fields.IntegerField', [], {'default': '50', 'max_length': '30'}),
-            'email': ('django.db.models.fields.EmailField', [], {'max_length': '200', 'blank': 'True'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'last_4_digits': ('django.db.models.fields.CharField', [], {'max_length': '4'}),
-            'modified_date': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '200', 'blank': 'True'}),
-            'pub_date': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'public': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'stripe_id': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'subscribed': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'goldonce'", 'null': 'True', 'to': u"orm['auth.User']"})
         }
     }
 

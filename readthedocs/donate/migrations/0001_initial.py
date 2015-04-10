@@ -8,22 +8,25 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        db.rename_table('gold_onceuser', 'donate_supporter')
-
-        if not db.dry_run:
-            orm['contenttypes.contenttype'].objects.filter(
-                app_label='gold', model='onceuser'
-            ).update(
-                app_label='donate', model='supporter')
+        # Adding model 'Supporter'
+        db.create_table(u'donate_supporter', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('pub_date', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
+            ('modified_date', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
+            ('public', self.gf('django.db.models.fields.BooleanField')(default=True)),
+            ('name', self.gf('django.db.models.fields.CharField')(max_length=200, blank=True)),
+            ('email', self.gf('django.db.models.fields.EmailField')(max_length=200, blank=True)),
+            ('user', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='goldonce', null=True, to=orm['auth.User'])),
+            ('dollars', self.gf('django.db.models.fields.IntegerField')(default=50, max_length=30)),
+            ('last_4_digits', self.gf('django.db.models.fields.CharField')(max_length=4)),
+            ('stripe_id', self.gf('django.db.models.fields.CharField')(max_length=255)),
+            ('subscribed', self.gf('django.db.models.fields.BooleanField')(default=False)),
+        ))
+        db.send_create_signal(u'donate', ['Supporter'])
 
     def backwards(self, orm):
-        db.rename_table('donate_supporter', 'gold_onceuser')
-
-        if not db.dry_run:
-            orm['contenttypes.contenttype'].objects.filter(
-                app_label='donate', model='supporter'
-            ).update(
-                app_label='gold', model='onceuser')
+        # Deleting model 'Supporter'
+        db.delete_table(u'donate_supporter')
 
     models = {
         u'auth.group': {
