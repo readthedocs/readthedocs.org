@@ -89,7 +89,7 @@ urlpatterns = patterns(
         'core.views.random_page',
         name='random_page'),
     url(r'^random/$', 'core.views.random_page', name='random_page'),
-    url(r'^donate/', include('donate.urls')),
+    url(r'^sustainability/', include('donate.urls')),
     url(r'^depth/$', 'core.views.queue_depth', name='queue_depth'),
     url(r'^queue_info/$', 'core.views.queue_info', name='queue_info'),
     url(r'^live/$', 'core.views.live_builds', name='live_builds'),
