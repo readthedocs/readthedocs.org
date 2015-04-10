@@ -3,7 +3,7 @@
 {% load i18n %}
 {% load gravatar %}
 
-{% block title %}{% trans "Donate" %}{% endblock %}
+{% block title %}{% trans "Sustainability" %}{% endblock %}
 
 {% block content %}
   <div class="donate-stats">
@@ -33,10 +33,10 @@
             </div>
           </div>
         </li>
-        <li><b>${{ dollars }} donated</b> of $24,000 goal</li>
+        <li><b>${{ dollars }}</b> contributed to $24,000 goal</li>
         <li><b>{{ percent }}%</b> funded</li>
         <li><b>${{ avg }}</b> average contribution</li>
-        <li><b>{{ count }} <a href="#supporters">Supporters</a></b></li>
+        <li><b>{{ count }}</b> <a href="#supporters">Supporters</a></li>
       </ul>
 
       <form action="{% url 'donate_add' %}" method="get" class="donate-form">
