@@ -731,6 +731,28 @@ ul.donate-supporters.donate-supporters-large div.supporter-name {
     font-size: .9em;
 }
 
+div#payment-form div.cc-type {
+    height: 23px;
+    margin: 3px 0px 10px;
+    background: url('/static/donate/img/creditcard.png');
+    background-repeat: no-repeat;
+}
+div#payment-form input#cc-number.visa + div.cc-type {
+    background-position: 0px -23px;
+}
+div#payment-form input#cc-number.mastercard + div.cc-type {
+    background-position: 0px -46px;
+}
+div#payment-form input#cc-number.amex + div.cc-type {
+    background-position: 0px -69px;
+}
+div#payment-form input#cc-number.discover + div.cc-type {
+    background-position: 0px -92px;
+}
+
+div#payment-form input#cc-expiry { width: 150px; }
+div#payment-form input#cc-cvv { width: 100px; }
+
 /* Form Wizards */
 div.actions.wizard-actions button.action-primary,
 div.actions.wizard-actions input.action-primary {

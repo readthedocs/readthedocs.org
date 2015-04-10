@@ -30,6 +30,8 @@ $(document).ready(function () {
   <p>
     Contributions will be listed on our donation page, with your name and
     photo (from Gravatar). You can choose to donate privately if you do not wish to be listed.
+    We do not store your credit card details,
+    payment is processed directly through <a href="https://stripe.com">Stripe</a>.
   </p>
 
   <form accept-charset="UTF-8" action="" method="post" id="donate-payment">
@@ -37,7 +39,4 @@ $(document).ready(function () {
     {{ form.as_p }}
     {% include "gold/cardform.html" %}
   </form>
-<p>
-Payments process with Stripe.
-</p>
 {% endblock %}
