@@ -23,6 +23,7 @@ from builds.models import Build
 from builds.models import Version
 from core.forms import FacetedSearchForm
 from core.utils import trigger_build
+from donate.mixins import DonateProgressMixin
 from projects import constants
 from projects.models import Project, ImportedFile, ProjectRelationship
 from projects.tasks import remove_dir, update_imported_docs
@@ -44,7 +45,7 @@ class NoProjectException(Exception):
     pass
 
 
-class HomepageView(ListView):
+class HomepageView(DonateProgressMixin, ListView):
 
     template_name = 'homepage.html'
     model = Project

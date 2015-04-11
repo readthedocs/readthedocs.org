@@ -6,7 +6,6 @@ import logging
 
 from django.views.generic import CreateView, ListView, TemplateView
 from django.core.urlresolvers import reverse
-from django.db.models import Avg, Sum
 from django.http import HttpResponseRedirect
 from django.contrib.messages.views import SuccessMessageMixin
 from django.utils.translation import ugettext_lazy as _
@@ -14,6 +13,7 @@ from django.utils.translation import ugettext_lazy as _
 from core.mixins import StripeMixin
 from .models import Supporter
 from .forms import SupporterForm
+from .mixins import DonateProgressMixin
 
 log = logging.getLogger(__name__)
 
@@ -36,7 +36,7 @@ class DonateSuccessView(TemplateView):
     template_name = 'donate/success.html'
 
 
-class DonateListView(ListView):
+class DonateListView(DonateProgressMixin, ListView):
     '''Donation list and detail view'''
 
     template_name = 'donate/list.html'
@@ -50,21 +50,3 @@ class DonateListView(ListView):
 
     def get_template_names(self):
         return [self.template_name]
-
-    def get_context_data(self):
-        context = super(DonateListView, self).get_context_data()
-        sums = (self.model.objects.all()
-                .aggregate(dollars=Sum('dollars')))
-        avgs = (self.model.objects.all()
-                .aggregate(dollars=Avg('dollars')))
-        dollars = sums.get('dollars', None) or 0
-        avg = int(avgs.get('dollars', None) or 0)
-        count = Supporter.objects.count()
-        percent = int((float(dollars) / 24000.0) * 100.0)
-        context.update({
-            'dollars': dollars,
-            'avg': avg,
-            'percent': percent,
-            'count': count,
-        })
-        return context
