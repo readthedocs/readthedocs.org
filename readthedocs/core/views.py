@@ -8,10 +8,11 @@ from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect, Http404, HttpResponseNotFound
 from django.shortcuts import render_to_response, get_object_or_404, redirect
+from django.db.models import Max, F
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_exempt
 from django.views.static import serve
-from django.views.generic import TemplateView
+from django.views.generic import ListView, TemplateView
 
 from haystack.query import EmptySearchQuerySet
 from haystack.query import SearchQuerySet
@@ -43,19 +44,31 @@ class NoProjectException(Exception):
     pass
 
 
-def homepage(request):
-    latest_builds = Build.objects.order_by('-date')[:100]
-    latest = []
-    for build in latest_builds:
-        if (build.project.privacy_level == constants.PUBLIC
-                and build.project not in latest
-                and len(latest) < 10):
-            latest.append(build.project)
-    featured = Project.objects.filter(featured=True)
-    return render_to_response('homepage.html',
-                              {'project_list': latest,
-                               'featured_list': featured},
-                              context_instance=RequestContext(request))
+class HomepageView(ListView):
+
+    template_name = 'homepage.html'
+    model = Project
+
+    def get_queryset(self):
+        return (self.model.objects
+                .annotate(latest_build=Max('builds__date'))
+                .filter(
+                    privacy_level=constants.PUBLIC,
+                    builds__date=F('latest_build')
+                )
+                .order_by('-latest_build')[:10])
+
+    def get_context_data(self, **kwargs):
+        '''Add featured projects
+
+        This feature is unused at the moment, but we hope to bring it back soon
+        '''
+        context = super(HomepageView, self).get_context_data(**kwargs)
+        context['featured'] = Project.objects.filter(featured=True)
+        return context
+
+    def get_template_names(self):
+        return [self.template_name]
 
 
 def random_page(request, project=None):

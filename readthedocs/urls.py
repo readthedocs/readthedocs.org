@@ -8,7 +8,7 @@ from tastypie.api import Api
 from api.base import (ProjectResource, UserResource, BuildResource,
                       VersionResource, FileResource)
 from builds.filters import VersionFilter
-from core.views import SearchView
+from core.views import HomepageView, SearchView
 from projects.feeds import LatestProjectsFeed, NewProjectsFeed
 from projects.filters import ProjectFilter
 from projects.constants import LANGUAGES_REGEX
@@ -27,7 +27,7 @@ handler404 = 'core.views.server_error_404'
 
 urlpatterns = patterns(
     '',  # base view, flake8 complains if it is on the previous line.
-    url(r'^$', 'core.views.homepage'),
+    url(r'^$', HomepageView.as_view(), name='homepage'),
     url(r'^security/', TemplateView.as_view(template_name='security.html')),
 
     # For serving docs locally and when nginx isn't
