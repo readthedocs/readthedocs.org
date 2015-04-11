@@ -18,6 +18,12 @@
         everyone.
       </b>
     </p>
+
+    {% if read_more %}
+      <p>
+        <b><a href="{% url 'donate' %}#about">{% trans 'Read More' %}</a></b>
+      </p>
+    {% endif %}
   </div>
   <div class="donate-stats-sm">
     <ul>
@@ -30,7 +36,7 @@
       <li><b>${{ donate_amount }}</b> contributed to $24,000 goal</li>
       <li><b>{{ donate_percent }}%</b> funded</li>
       <li><b>${{ donate_avg }}</b> average contribution</li>
-      <li><b>{{ donate_count }}</b> <a href="#supporters">Supporters</a></li>
+      <li><b>{{ donate_count }}</b> <a href="{% url 'donate' %}#supporters">Supporters</a></li>
     </ul>
 
     <form action="{% url 'donate_add' %}" method="get" class="donate-form">
