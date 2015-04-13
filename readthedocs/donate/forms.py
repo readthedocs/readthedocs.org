@@ -33,6 +33,10 @@ class SupporterForm(forms.ModelForm):
     last_4_digits = forms.CharField(widget=forms.HiddenInput(), required=True)
     stripe_id = forms.CharField(widget=forms.HiddenInput(), required=True)
 
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user')
+        super(SupporterForm, self).__init__(*args, **kwargs)
+
     def clean(self):
         try:
             stripe.api_key = settings.STRIPE_SECRET
@@ -50,3 +54,10 @@ class SupporterForm(forms.ModelForm):
                 _('There was a problem processing your card: %(message)s'),
                 params=stripe_error)
         return self.cleaned_data
+
+    def save(self, commit=True):
+        supporter = super(SupporterForm, self).save(commit)
+        if commit:
+            supporter.user = self.user
+            supporter.save()
+        return supporter

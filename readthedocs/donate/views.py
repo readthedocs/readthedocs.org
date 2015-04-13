@@ -31,6 +31,11 @@ class DonateCreateView(SuccessMessageMixin, StripeMixin, CreateView):
     def get_initial(self):
         return {'dollars': self.request.GET.get('dollars', 50)}
 
+    def get_form_kwargs(self):
+        kwargs = super(DonateCreateView, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
 
 class DonateSuccessView(TemplateView):
     template_name = 'donate/success.html'
