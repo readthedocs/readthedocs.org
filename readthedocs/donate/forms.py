@@ -57,7 +57,7 @@ class SupporterForm(forms.ModelForm):
 
     def save(self, commit=True):
         supporter = super(SupporterForm, self).save(commit)
-        if commit:
+        if commit and self.user is not None and self.user.is_authenticated():
             supporter.user = self.user
             supporter.save()
         return supporter
