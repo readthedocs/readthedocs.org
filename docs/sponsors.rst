@@ -47,6 +47,19 @@ Sponsor Us
 ~~~~~~~~~~
 
 Contact us at hello@readthedocs.com for more information on sponsoring Read the Docs.
-We'll be publishing more information on our sponsorship plans here soon,
-but we're happy to accommodate anyone that shares our vision of open information for everyone.
 
+Doc Page Promotion
+~~~~~~~~~~~~~~~~~~
+
+This is our best offering,
+and shows your logo on every documentation page with the Read the Docs or Alabaster theme.
+This covers over 10,000,000 pageviews every month.
+Only *1* company has a Doc Page Promotion at a time.
+
+Footer Logo Promotion
+~~~~~~~~~~~~~~~~~~~~~
+
+Footer Logo Promotion shows the logo of your company in our page footer.
+It will be a rotation of all logos from companies that support us,
+so will vary in pageviews based on the number of supporting companies.
+We will never have more than *10* companies in this promotion at any time.

@@ -32,3 +32,12 @@ commerical hosting,
 as well as consulting around all documentation systems.
 You can contact us at hello@readthedocs.com to learn more,
 or visit us at https://readthedocs.com.
+
+Named Support Contact
+~~~~~~~~~~~~~~~~~~~~~
+
+This level of support gives you priority access to our time.
+Your support requests will be processed in our Priority Support Queue,
+and you will have access to a dedicated support person at Read the Docs.
+
+
