@@ -103,7 +103,7 @@
   </p>
 
   <ul class="donate-supporters donate-supporters-large">
-    {% for user in supporters|slice:"0:50" %}
+    {% for user in supporters|slice:"0:75" %}
       <li>
         {% if user.logo_url %}
           <div class="supporter-logo">
@@ -116,9 +116,9 @@
       </li>
     {% endfor %}
   </ul>
-  {% if supporters|length > 20 %}
+  {% if supporters|length > 75 %}
     <ul class="donate-supporters donate-supporters-small">
-      {% for user in supporters|slice:"50:" %}
+      {% for user in supporters|slice:"75:" %}
         <li>
           <div class="supporter-name">{{ user.name|truncatechars:50 }}</div>
         </li>
