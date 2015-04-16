@@ -7,7 +7,7 @@
 
 {% block extra_scripts %}
   <script src="https://js.stripe.com/v2/" type="text/javascript"></script>
-  <script type="text/javascript" src="{% static 'gold/js/payment.js' %}"></script>
+  <script type="text/javascript" src="{% static 'donate/js/donate.js' %}"></script>
   <script type="text/javascript">
 $(document).ready(function () {
     var key;
@@ -15,7 +15,7 @@ $(document).ready(function () {
     key = '{{ publishable }}';
     //]]>
 
-    var view = payment.GoldView.init({
+    var view = donate.DonateView.init({
       key: key,
       form: $('form#donate-payment')
     });

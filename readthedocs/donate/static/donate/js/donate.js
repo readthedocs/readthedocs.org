@@ -9936,13 +9936,13 @@ if (typeof(window) != 'undefined' && typeof(window.Stripe) != 'undefined') {
     stripe = window.Stripe || {};
 }
 
-function GoldView (config) {
+function PaymentView (config) {
     var self = this,
         config = config || {};
 
     // Config
     stripe.publishableKey = self.stripe_key = config.key;
-    self.form = config.form || $('form#gold-payment');
+    self.form = config.form;
 
     // Credit card parameters
     self.cc_number = ko.observable(null);
@@ -10004,7 +10004,7 @@ function GoldView (config) {
     };
 }
 
-GoldView.prototype.initialize_form = function () {
+PaymentView.prototype.initialize_form = function () {
     var cc_number = $('input#cc-number'),
         cc_cvv = $('input#cc-cvv'),
         cc_expiry = $('input#cc-expiry');
@@ -10014,18 +10014,65 @@ GoldView.prototype.initialize_form = function () {
     cc_cvv.payment('formatCardCVC');
 };
 
-GoldView.init = function (config, obj) {
+PaymentView.init = function (config, obj) {
     var view = new GoldView(config),
         obj = obj || $('#payment-form')[0];
     ko.applyBindings(view, obj);
     return view;
 }
 
-module.exports.GoldView = GoldView;
+module.exports.PaymentView = PaymentView;
 
 
 if (typeof(window) != 'undefined') {
     window.payment = module.exports;
 }
 
-},{"./../../../../../bower_components/jquery.payment/lib/jquery.payment.js":1,"./../../../../../bower_components/jquery/dist/jquery.js":2,"./../../../../../bower_components/knockout/dist/knockout.js":3}]},{},[4])
+},{"./../../../../../bower_components/jquery.payment/lib/jquery.payment.js":1,"./../../../../../bower_components/jquery/dist/jquery.js":2,"./../../../../../bower_components/knockout/dist/knockout.js":3}],5:[function(require,module,exports){
+// Donate payment views
+
+var payment = require('../../../../core/static-src/core/js/payment'),
+    ko = require("./../../../../../bower_components/knockout/dist/knockout.js");
+
+function DonateView (config) {
+    var self = this,
+        config = config || {};
+
+    ko.utils.extend(self, new payment.PaymentView(config));
+
+    self.dollars = ko.observable();
+    self.logo_url = ko.observable();
+    self.site_url = ko.observable();
+    ko.computed(function () {
+        var input_logo = window.$('input#id_logo_url').closest('p'),
+            input_site = window.$('input#id_site_url').closest('p');
+        if (self.dollars() < 400) {
+            self.logo_url(null);
+            self.site_url(null);
+            input_logo.hide();
+            input_site.hide();
+        }
+        else {
+            input_logo.show();
+            input_site.show();
+        }
+    });
+    self.urls_enabled = ko.computed(function () {
+        return (self.dollars() >= 400);
+    });
+}
+
+DonateView.init = function (config, obj) {
+    var view = new DonateView(config),
+        obj = obj || $('#donate-payment')[0];
+    ko.applyBindings(view, obj);
+    return view;
+}
+
+module.exports.DonateView = DonateView;
+
+if (typeof(window) != 'undefined') {
+    window.donate = module.exports;
+}
+
+},{"../../../../core/static-src/core/js/payment":4,"./../../../../../bower_components/knockout/dist/knockout.js":3}]},{},[5])

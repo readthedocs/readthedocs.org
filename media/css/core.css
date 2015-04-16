@@ -719,6 +719,20 @@ ul.donate-supporters.donate-supporters-large > li {
     overflow: hidden;
 }
 
+ul.donate-supporters div.supporter-logo {
+    height: 128px;
+    overflow: hidden;
+    line-height: 64px;
+    text-align: center;
+}
+
+ul.donate-supporters div.supporter-logo img {
+    display: inline;
+    width: 128px;
+    max-height: 128px;
+    vertical-align: bottom;
+}
+
 ul.donate-supporters div.supporter-name {
     padding: 4px;
     overflow: hidden;

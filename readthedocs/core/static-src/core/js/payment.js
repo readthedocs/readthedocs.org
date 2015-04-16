@@ -18,13 +18,13 @@ if (typeof(window) != 'undefined' && typeof(window.Stripe) != 'undefined') {
     stripe = window.Stripe || {};
 }
 
-function GoldView (config) {
+function PaymentView (config) {
     var self = this,
         config = config || {};
 
     // Config
     stripe.publishableKey = self.stripe_key = config.key;
-    self.form = config.form || $('form#gold-payment');
+    self.form = config.form;
 
     // Credit card parameters
     self.cc_number = ko.observable(null);
@@ -86,7 +86,7 @@ function GoldView (config) {
     };
 }
 
-GoldView.prototype.initialize_form = function () {
+PaymentView.prototype.initialize_form = function () {
     var cc_number = $('input#cc-number'),
         cc_cvv = $('input#cc-cvv'),
         cc_expiry = $('input#cc-expiry');
@@ -96,14 +96,14 @@ GoldView.prototype.initialize_form = function () {
     cc_cvv.payment('formatCardCVC');
 };
 
-GoldView.init = function (config, obj) {
+PaymentView.init = function (config, obj) {
     var view = new GoldView(config),
         obj = obj || $('#payment-form')[0];
     ko.applyBindings(view, obj);
     return view;
 }
 
-module.exports.GoldView = GoldView;
+module.exports.PaymentView = PaymentView;
 
 
 if (typeof(window) != 'undefined') {

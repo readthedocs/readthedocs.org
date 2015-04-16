@@ -105,7 +105,13 @@
   <ul class="donate-supporters donate-supporters-large">
     {% for user in supporters|slice:"0:50" %}
       <li>
-        <div class="supporter-gravatar">{% gravatar user.email 128 %}</div>
+        {% if user.logo_url %}
+          <div class="supporter-logo">
+            <a href="{{ user.site_url }}"><img src="{{ user.logo_url }}" alt="{{ user.name }}" /></a>
+          </div>
+        {% else %}
+          <div class="supporter-gravatar">{% gravatar user.email 128 %}</div>
+        {% endif %}
         <div class="supporter-name">{{ user.name|truncatechars:50 }}</div>
       </li>
     {% endfor %}

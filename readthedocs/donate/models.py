@@ -27,6 +27,10 @@ class Supporter(models.Model):
                              related_name='goldonce', blank=True, null=True)
     dollars = models.IntegerField(_('Amount'), max_length=30,
                                   choices=AMOUNT_CHOICES, default=50)
+    logo_url = models.URLField(_('Logo URL'), max_length=255, blank=True,
+                               null=True)
+    site_url = models.URLField(_('Site URL'), max_length=255, blank=True,
+                               null=True)
 
     last_4_digits = models.CharField(max_length=4)
     stripe_id = models.CharField(max_length=255)
