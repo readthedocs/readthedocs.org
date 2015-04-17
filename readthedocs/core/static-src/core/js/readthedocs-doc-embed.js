@@ -196,7 +196,7 @@ $(document).ready(function () {
                       } else {
                           navBar.removeClass(stickyNavCssClass);
                       }
-                      promo.waypoint.refresh();
+                      // promo.waypoint.refresh();
                   },
                   enable = function () {
                       init();
