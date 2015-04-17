@@ -239,7 +239,9 @@ $(document).ready(function () {
                       } else {
                           navBar.removeClass(stickyNavCssClass);
                       }
-                      // promo.waypoint.refresh();
+                      if (promo) {
+                          promo.waypoint.refresh();
+                      }
                   },
                   enable = function () {
                       init();
@@ -599,7 +601,6 @@ Promo.prototype.display = function () {
     this.waypoint = new Waypoint({
         element: promo.wrapper.get(0),
         offset: function () {
-            console.log($(window).height() - promo.height() - 80);
             return ($(window).height() - promo.height() - 80);
         },
         handler: function (direction) {
