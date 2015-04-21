@@ -12,6 +12,7 @@ pip==6.1.1
 virtualenv==1.11.6
 docutils==0.11
 Sphinx==1.2.2
+Pygments==2.0.2
 mkdocs==0.11.1
 
 django==1.6.11
