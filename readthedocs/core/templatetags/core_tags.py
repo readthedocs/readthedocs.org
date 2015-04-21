@@ -61,8 +61,11 @@ def restructuredtext(value, short=False):
             )
         return force_text(value)
     else:
-        docutils_settings = getattr(settings, "RESTRUCTUREDTEXT_FILTER_SETTINGS",
-                                    {})
+        docutils_settings = {
+            'raw_enabled': False,
+            'file_insertion_enabled': False,
+        }
+        docutils_settings.update(getattr(settings, 'RESTRUCTUREDTEXT_FILTER_SETTINGS', {}))
         parts = publish_parts(source=force_bytes(value), writer_name="html4css1",
                               settings_overrides=docutils_settings)
         out = force_text(parts["fragment"])
