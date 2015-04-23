@@ -2,8 +2,12 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 LEVEL_CHOICES = (
-    ('v1-org-patron', '$5'),
-    ('v1-org-supporter', '$10'),
+    ('v1-org-5', '$5/mo'),
+    ('v1-org-10', '$10/mo'),
+    ('v1-org-15', '$15/mo'),
+    ('v1-org-20', '$20/mo'),
+    ('v1-org-50', '$50/mo'),
+    ('v1-org-100', '$100/mo'),
 )
 
 
