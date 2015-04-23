@@ -51,6 +51,9 @@ $(document).ready(function () {
       love.  Your money will go directly to maintenance and development of
       the product.
     </p>
+    <p>
+      You can make one-time donations on our <a href="https://readthedocs.org/sustainability/">sustainability</a> page.
+    </p>
 
     <h3>Become a Gold Member</h3>
     <form accept-charset="UTF-8" action="{% url "gold_register" %}" method="post" id="gold-register">
@@ -59,6 +62,7 @@ $(document).ready(function () {
         {{ field }}
       {% endfor %}
       {% include "gold/cardform.html" %}
+    <em>All information is submitted directly to Stripe.</em>
     </form>
   {% endif %}
 {% endblock %}
