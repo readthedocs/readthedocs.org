@@ -13,6 +13,9 @@ AMOUNT_CHOICES = (
     (1200, '3 Days ($1200)'),
     (1600, '4 Days ($1600)'),
     (2000, '5 Days ($2000)'),
+    (4000, '2 Weeks ($4000)'),
+    (6000, '3 Weeks ($6000)'),
+    (8000, '4 Weeks ($8000)'),
 )
 
 
@@ -25,8 +28,7 @@ class Supporter(models.Model):
     email = models.EmailField(_('Email'), max_length=200, blank=True)
     user = models.ForeignKey('auth.User', verbose_name=_('User'),
                              related_name='goldonce', blank=True, null=True)
-    dollars = models.IntegerField(_('Amount'), max_length=30,
-                                  choices=AMOUNT_CHOICES, default=50)
+    dollars = models.IntegerField(_('Amount'), max_length=30, default=50)
     logo_url = models.URLField(_('Logo URL'), max_length=255, blank=True,
                                null=True)
     site_url = models.URLField(_('Site URL'), max_length=255, blank=True,
