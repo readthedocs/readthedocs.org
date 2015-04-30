@@ -26,7 +26,7 @@ Past sponsors
 * `Django Software Foundation`_
 * Lab305_
 
-.. _Gittip: https://www.gittip.com/readthedocs/
+.. _Gittip: https://gratipay.com/readthedocs/
 .. _Revsys: http://www.revsys.com/
 .. _Python Software Foundation: http://python.org/psf/
 .. _Mozilla Web Dev: http://blog.mozilla.com/webdev/
