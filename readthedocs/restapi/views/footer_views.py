@@ -64,6 +64,11 @@ def footer_html(request):
     else:
         print_url = None
 
+    show_promo = True
+    if request.user.is_authenticated():
+        if request.user.gold.count() or request.user.goldonce.count():
+            show_promo = False
+
     context = Context({
         'show_bookmarks': show_bookmarks,
         'bookmark': bookmark,
@@ -91,4 +96,5 @@ def footer_html(request):
         'html': html,
         'version_active': version.active,
         'version_supported': version.supported,
+        'promo': show_promo,
     })
