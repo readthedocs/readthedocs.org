@@ -1,8 +1,6 @@
 /* Read the Docs - Documentation promotions */
 
-var $ = window.$,
-    waypoint = require('waypoints'),
-    Waypoint = window.Waypoint;
+var $ = window.$;
 
 module.exports = {
     Promo: Promo
@@ -12,7 +10,6 @@ function Promo (text, link) {
     this.text = text;
     this.link = link;
     this.promo = null;
-    this.waypoint = null;
 }
 
 Promo.prototype.create = function () {
@@ -69,26 +66,10 @@ Promo.prototype.display = function () {
     if (! promo) {
         promo = this.promo = this.create();
     }
-
-    Waypoint.destroyAll();
-    this.waypoint = new Waypoint({
-        element: promo.wrapper.get(0),
-        offset: function () {
-            return ($(window).height() - promo.height() - 80);
-        },
-        handler: function (direction) {
-            if (direction == 'down') {
-                self.promo.fadeIn(50);
-            }
-            else if (direction == 'up') {
-                self.promo.fadeOut(50);
-            }
-        }
-    });
+    promo.show();
 }
 
 Promo.prototype.disable = function () {
-    Waypoint.destroyAll();
 }
 
 // Variant factory method

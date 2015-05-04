@@ -12,6 +12,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
+  {{ metatags }}
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   {% block htmltitle %}
   <title>{{ title|striptags|e }}{{ titlesuffix }}</title>
@@ -23,7 +24,6 @@
   {% endif %}
 
   {# CSS #}
-  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
 
   {# OPENSEARCH #}
   {% if not embedded %}
@@ -75,7 +75,7 @@
   {%- block extrahead %} {% endblock %}
 
   {# Keep modernizr in head - http://modernizr.com/docs/#installing #}
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+  <script src="_static/js/modernizr.min.js"></script>
 
 </head>
 
@@ -87,14 +87,27 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-nav-search">
         {% block sidebartitle %}
-          <a href="{{ pathto(master_doc) }}" class="fa fa-home"> {{ project }}</a>
-        {% endblock %}
+
+        {% if logo and theme_logo_only %}
+          <a href="{{ pathto(master_doc) }}">
+        {% else %}
+          <a href="{{ pathto(master_doc) }}" class="icon icon-home"> {{ project }}
+        {% endif %}
+
+        {% if logo %}
+          {# Not strictly valid HTML, but it's the only way to display/scale it properly, without weird scripting or heaps of work #}
+          <img src="{{ pathto('_static/' + logo, 1) }}" class="logo" />
+        {% endif %}
+        </a>
+
         {% include "searchbox.html" %}
+
+        {% endblock %}
       </div>
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
         {% block menu %}
-          {% set toctree = toctree(maxdepth=2, collapse=False, includehidden=True) %}
+          {% set toctree = toctree(maxdepth=4, collapse=False, includehidden=True) %}
           {% if toctree %}
               {{ toctree }}
           {% else %}
