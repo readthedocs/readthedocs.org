@@ -13,7 +13,7 @@ Current sponsors
 * You? (Email us at hello@readthedocs.com for more info)
 
 If you appreciate the service,
-please consider helping support development on `Gittip`_.
+please consider helping support development on `Gratipay`_.
 It  helps provide support for development,
 as well as ongoing monetary stability in case of sponsorship changes.
 
@@ -26,7 +26,7 @@ Past sponsors
 * `Django Software Foundation`_
 * Lab305_
 
-.. _Gittip: https://gratipay.com/readthedocs/
+.. _Gratipay: https://gratipay.com/readthedocs/
 .. _Revsys: http://www.revsys.com/
 .. _Python Software Foundation: http://python.org/psf/
 .. _Mozilla Web Dev: http://blog.mozilla.com/webdev/
