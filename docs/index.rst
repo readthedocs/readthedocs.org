@@ -22,7 +22,7 @@ The code is open source, and `available on github`_.
 
 The main documentation for the site is organized into a couple sections:
 
-* :ref:`site-docs`
+* :ref:`user-docs`
 * :ref:`feature-docs`
 * :ref:`about-docs`
 
@@ -32,101 +32,89 @@ Information about development is also available:
 * :ref:`design-docs`
 * :ref:`ops-docs`
 
-.. _site-docs:
-
-User Documentation
-------------------
+.. _user-docs:
 
 .. toctree::
-    :maxdepth: 2
+   :maxdepth: 2
+   :caption: User Documentation
 
-    getting_started
-    versions
-    builds
-    features
-    support
-    faq
+   getting_started
+   versions
+   builds
+   features
+   support
+   faq
+
 
 .. _feature-docs:
 
-Features
-~~~~~~~~
-
 .. toctree::
-    :maxdepth: 2
-    :glob:
+   :maxdepth: 2
+   :glob:
+   :caption: Feature Documentation
 
-    webhooks
-    badges
-    alternate_domains
-    localization
-    vcs
-    canonical
-    redirects
-    single_version
-    privacy
-    features/*
+   webhooks
+   badges
+   alternate_domains
+   localization
+   vcs
+   canonical
+   single_version
+   privacy
+   user-defined-redirects
+   automatic-redirects
+   features/*
 
-.. _business-docs:
-
-Business Documentation
-----------------------
-
-.. toctree::
-    :maxdepth: 2
-
-   business/index
 
 .. _dev-docs:
 
-Developer Documentation
------------------------
+.. toctree::
+   :maxdepth: 2
+   :caption: Developer Documentation
+
+   install
+   contribute
+   tests
+   architecture
+   symlinks
+   settings
+   i18n
+   api
+
+.. _business-docs:
 
 .. toctree::
-    :maxdepth: 2
+   :maxdepth: 2
+   :caption: Business Documentation
 
-    install
-    contribute
-    tests
-    architecture
-    symlinks
-    settings
-    i18n
-    api
-    api/index
+   business/index
+
 
 .. _design-docs:
 
-Designer Documentation
-----------------------
-
 .. toctree::
-    :maxdepth: 2
+   :maxdepth: 2
+   :caption: Designer Documentation
 
-    design
-    theme
+   design
+   theme
+
 
 .. _about-docs:
 
-About Read the Docs
--------------------
-
 .. toctree::
-    :maxdepth: 2
+   :maxdepth: 2
+   :caption: About Read the Docs
 
-    open-source-philosophy
-    sponsors
-    talks
+   open-source-philosophy
+   sponsors
+   talks
 
-
-.. Things that need more love before getting upgraded to the above list.
 
 .. _ops-docs:
 
-Operations Documentation
-------------------------
-
 .. toctree::
-    :maxdepth: 2
+   :maxdepth: 2
+   :caption: Operations Documentation
 
-    rtfd
+   rtfd

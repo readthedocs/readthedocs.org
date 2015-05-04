@@ -12,7 +12,7 @@ The largest feature that is different is that documentation on readthedocs.com i
 If you have private code that you want documentation for,
 this is our solution.
 
-.. toctree:: Contents
+.. toctree:: 
 
    organizations
    sharing
