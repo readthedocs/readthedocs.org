@@ -272,7 +272,7 @@ class PdfBuilder(BaseSphinx):
         else:
             from_globs = glob(os.path.join(self.old_artifact_path, "*.pdf"))
             if from_globs:
-                from_file = from_globs[0]
+                from_file = max(from_globs, key=os.path.getmtime)
             else:
                 from_file = None
         if from_file:
