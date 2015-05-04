@@ -33,8 +33,7 @@
 
 /* Read the Docs promotional block, only applicable to RTD.org */
 div.wy-menu.rst-pro {
-    display: none;
-    position: fixed;
+    display: block;
     bottom: 60px;
     width: 300px;
     padding: .5em;
