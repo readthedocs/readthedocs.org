@@ -103,7 +103,7 @@ $(document).ready(function () {
                             id: 'twilio-signal',
                             text: 'Twilio presents <a>Signal</a> - Developer Conference for Communications',
                             link: 'http://signal.twilio.com/?utm_medium=banner&utm_source=readthedocs&utm_campaign=signal_ads_1',
-                            image: '//fe8b662c5498dd80a666-7c4f8fef8f0aad53b9488757bc3dab78.r8.cf5.rackcdn.com/signal.png'
+                            image: 'https://media.readthedocs.org/images/signal.png'
                         }
                 ]);
                 promo.display();
