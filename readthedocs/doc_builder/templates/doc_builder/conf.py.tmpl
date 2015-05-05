@@ -1,4 +1,33 @@
 {% load projects_tags %}
+
+from recommonmark.parser import CommonMarkParser
+
+# Markdown Support
+if 'source_suffix' in globals():
+    if isinstance(source_suffix, basestring) and source_suffix != '.md':
+        source_suffix = [source_suffix, '.md']
+    elif '.md' not in source_suffix:
+        source_suffix.append('.md')
+else:
+    source_suffix = ['.rst', '.md']
+
+if 'source_parsers' in globals():
+    source_parsers['.md'] = CommonMarkParser
+else:
+    source_parsers = {
+        '.md': CommonMarkParser,
+    }
+
+if globals().get('source_suffix', False):
+    if isinstance(source_suffix, basestring):
+        SUFFIX = source_suffix
+    else:
+        SUFFIX = source_suffix[0]
+else:
+    SUFFIX = '.rst'
+
+
+
 #Add RTD Template Path.
 if 'templates_path' in globals():
     templates_path.insert(0, '{{ template_path }}')
@@ -44,12 +73,6 @@ if globals().get('RTD_NEW_THEME', False):
 if globals().get('RTD_OLD_THEME', False):
     html_style = 'rtd.css'
     html_theme = 'default'
-
-if globals().get('source_suffix', False):
-    SUFFIX = source_suffix
-else:
-    SUFFIX = '.rst'
-
 
 if globals().get('websupport2_base_url', False):
     websupport2_base_url = '{{ api_host }}/websupport'
