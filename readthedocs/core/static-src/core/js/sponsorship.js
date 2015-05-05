@@ -6,7 +6,8 @@ module.exports = {
     Promo: Promo
 };
 
-function Promo (text, link, image) {
+function Promo (id, text, link, image) {
+    this.id = id;
     this.text = text;
     this.link = link;
     this.image = image;
@@ -37,30 +38,30 @@ Promo.prototype.create = function () {
         if (self.image) {
             var promo_image_link = $('<a />')
                 .attr('class', 'rst-pro-image-wrapper')
-                .attr('href', this.link);
+                .attr('href', self.link);
             var promo_image = $('<img />')
                 .attr('class', 'rst-pro-image')
-                .attr('src', this.image)
+                .attr('src', self.image)
                 .appendTo(promo_image_link);
             promo.append(promo_image_link);
         }
 
         // Create link with callback
         var promo_text = $('<span />')
-            .html(this.text);
+            .html(self.text);
         $(promo_text).find('a').each(function () {
             $(this)
                 .attr('class', 'rst-pro-link')
-                .attr('href', this.link)
+                .attr('href', self.link)
                 .attr('target', '_blank')
                 .on('click', function (ev) {
                     if (_gaq) {
                         _gaq.push(
                             ['rtfd._setAccount', 'UA-17997319-1'],
-                            ['rtfd._trackEvent', 'Promo', 'Click', self.variant]
+                            ['rtfd._trackEvent', 'Promo', 'Click', self.id]
                         );
                     }
-                })
+                });
         });
         promo.append(promo_text);
 
@@ -95,8 +96,6 @@ Promo.from_variants = function (variants) {
         text = variant.text,
         link = variant.link,
         image = variant.image,
-        id = variant.id,
-        promo = new Promo(text, link, image);
-    promo.variant = id
-    return promo;
+        id = variant.id;
+    return new Promo(id, text, link, image);
 };
