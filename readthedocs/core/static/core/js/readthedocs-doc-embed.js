@@ -25,11 +25,14 @@ Build.prototype.is_rtd_theme = function () {
     return (this.config['theme'] == 'sphinx_rtd_theme');
 };
 
+Build.prototype.is_sphinx_builder = function () {
+    return (!('builder' in this.config) || this.config['builder'] != 'mkdocs');
+};
+
 Build.prototype.show_promo = function () {
-    // Turn off until the UI is fixed
-    return false;
-    // TODO don't do this.
-    // return (this.config['api_host'] != 'https://readthedocs.com');
+    return (this.config['api_host'] != 'https://readthedocs.com'
+            && this.is_sphinx_builder()
+            && this.is_rtd_theme());
 };
 
 },{}],2:[function(require,module,exports){
@@ -90,6 +93,20 @@ $(document).ready(function () {
                 $('.rst-current-version').addClass('rst-out-of-date');
             } else if (!data['version_supported']) {
                 //$('.rst-current-version').addClass('rst-active-old-version')
+            }
+
+            // Show promo selectively
+            if (data.promo && build.show_promo()) {
+                // TODO don't hardcode this promo
+                var promo = sponsorship.Promo.from_variants([
+                        {
+                            id: 'twilio-signal',
+                            text: 'Twilio presents <a>Signal</a> - Developer Conference for Communications',
+                            link: 'https://signal.twilio.com/?utm_medium=banner&utm_source=readthedocs&utm_campaign=signal_ads_1',
+                            image: '//fe8b662c5498dd80a666-7c4f8fef8f0aad53b9488757bc3dab78.r8.cf5.rackcdn.com/signal.png'
+                        }
+                ]);
+                promo.display();
             }
 
             // using jQuery
@@ -228,24 +245,6 @@ $(document).ready(function () {
             });
             link.prepend(expand);
         });
-
-        // Promos
-        // TODO don't hardcode this promo and remove the util function to hide the
-        // ad
-        var promo = null;
-        if (build.is_rtd_theme() && build.show_promo()) {
-            var promo = sponsorship.Promo.from_variants([
-                    {
-                        id: 'wtdna2015-v1',
-                        text: 'Come join us at Write the Docs, a community conference about documentation.',
-                        link: 'http://writethedocs.org/conf/na/2015/'
-                    }
-                    //'Enjoy reading the docs? Join fellow developers and tech writers at Write the Docs!',
-                    //'Love docs as much as we do? Come join the community at the Write The Docs conference',
-                    //'Tickets are now on sale for Write the Docs, a community conference about documentation!',
-            ]);
-            promo.display();
-        }
 
         // Sphinx theme state
         window.SphinxRtdTheme = (function (jquery) {
@@ -586,9 +585,10 @@ module.exports = {
     Promo: Promo
 };
 
-function Promo (text, link) {
+function Promo (text, link, image) {
     this.text = text;
     this.link = link;
+    this.image = image;
     this.promo = null;
 }
 
@@ -601,22 +601,6 @@ Promo.prototype.create = function () {
         promo = $('<div />')
             .attr('class', 'wy-menu rst-pro');
 
-        // Create link with callback
-        var promo_link = $('<a />')
-            .attr('class', 'rst-pro-link')
-            .attr('href', this.link)
-            .attr('target', '_blank')
-            .on('click', function (ev) {
-                if (_gaq) {
-                    _gaq.push(
-                        ['rtfd._setAccount', 'UA-17997319-1'],
-                        ['rtfd._trackEvent', 'Promo', 'Click', self.variant]
-                    );
-                }
-            })
-            .html(this.text)
-            .appendTo(promo);
-
         // Promo info
         var promo_about = $('<div />')
             .attr('class', 'rst-pro-about');
@@ -627,6 +611,37 @@ Promo.prototype.create = function () {
             .attr('class', 'fa fa-info-circle')
             .appendTo(promo_about_link);
         promo_about.appendTo(promo);
+
+        // Promo image
+        if (self.image) {
+            var promo_image_link = $('<a />')
+                .attr('class', 'rst-pro-image-wrapper')
+                .attr('href', this.link);
+            var promo_image = $('<img />')
+                .attr('class', 'rst-pro-image')
+                .attr('src', this.image)
+                .appendTo(promo_image_link);
+            promo.append(promo_image_link);
+        }
+
+        // Create link with callback
+        var promo_text = $('<span />')
+            .html(this.text);
+        $(promo_text).find('a').each(function () {
+            $(this)
+                .attr('class', 'rst-pro-link')
+                .attr('href', this.link)
+                .attr('target', '_blank')
+                .on('click', function (ev) {
+                    if (_gaq) {
+                        _gaq.push(
+                            ['rtfd._setAccount', 'UA-17997319-1'],
+                            ['rtfd._trackEvent', 'Promo', 'Click', self.variant]
+                        );
+                    }
+                })
+        });
+        promo.append(promo_text);
 
         promo.appendTo(nav_side);
 
@@ -658,8 +673,9 @@ Promo.from_variants = function (variants) {
         variant = variants[chosen],
         text = variant.text,
         link = variant.link,
+        image = variant.image,
         id = variant.id,
-        promo = new Promo(text, link);
+        promo = new Promo(text, link, image);
     promo.variant = id
     return promo;
 };

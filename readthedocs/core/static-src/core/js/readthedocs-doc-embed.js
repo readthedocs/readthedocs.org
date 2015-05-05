@@ -57,6 +57,20 @@ $(document).ready(function () {
                 //$('.rst-current-version').addClass('rst-active-old-version')
             }
 
+            // Show promo selectively
+            if (data.promo && build.show_promo()) {
+                // TODO don't hardcode this promo
+                var promo = sponsorship.Promo.from_variants([
+                        {
+                            id: 'twilio-signal',
+                            text: 'Twilio presents <a>Signal</a> - Developer Conference for Communications',
+                            link: 'https://signal.twilio.com/?utm_medium=banner&utm_source=readthedocs&utm_campaign=signal_ads_1',
+                            image: '//fe8b662c5498dd80a666-7c4f8fef8f0aad53b9488757bc3dab78.r8.cf5.rackcdn.com/signal.png'
+                        }
+                ]);
+                promo.display();
+            }
+
             // using jQuery
             function getCookie(name) {
                 var cookieValue = null;
@@ -193,24 +207,6 @@ $(document).ready(function () {
             });
             link.prepend(expand);
         });
-
-        // Promos
-        // TODO don't hardcode this promo and remove the util function to hide the
-        // ad
-        var promo = null;
-        if (build.is_rtd_theme() && build.show_promo()) {
-            var promo = sponsorship.Promo.from_variants([
-                    {
-                        id: 'wtdna2015-v1',
-                        text: 'Come join us at Write the Docs, a community conference about documentation.',
-                        link: 'http://writethedocs.org/conf/na/2015/'
-                    }
-                    //'Enjoy reading the docs? Join fellow developers and tech writers at Write the Docs!',
-                    //'Love docs as much as we do? Come join the community at the Write The Docs conference',
-                    //'Tickets are now on sale for Write the Docs, a community conference about documentation!',
-            ]);
-            promo.display();
-        }
 
         // Sphinx theme state
         window.SphinxRtdTheme = (function (jquery) {
