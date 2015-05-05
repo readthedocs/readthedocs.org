@@ -24,7 +24,7 @@ Documentation for RTD
 You will find complete documentation for setting up your project at `the Read
 the Docs site`_.
 
-.. _the Read the Docs site: http://read-the-docs.readthedocs.org
+.. _the Read the Docs site: https://docs.readthedocs.org/
 
 Quickstart for GitHub-Hosted Projects
 -------------------------------------
