@@ -77,6 +77,5 @@ nilsimsa==0.2.0
 git+https://github.com/alex/django-filter.git#egg=django-filter
 git+https://github.com/ericflo/django-pagination.git@e5f669036c#egg=django_pagination-dev
 git+https://github.com/alex/django-taggit.git#egg=django_taggit-dev
-git+https://github.com/rtfd/readthedocs-sphinx-ext#egg=readthedocs_ext
 git+https://github.com/jMyles/bamboo_boy#egg=bamboo_boy
 
