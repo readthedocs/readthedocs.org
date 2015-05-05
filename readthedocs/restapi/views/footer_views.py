@@ -68,6 +68,8 @@ def footer_html(request):
     if request.user.is_authenticated():
         if request.user.gold.count() or request.user.goldonce.count():
             show_promo = False
+    if project.slug in getattr(settings, 'DISABLE_PROMO_PROJECTS', []):
+        show_promo = False
 
     context = Context({
         'show_bookmarks': show_bookmarks,
