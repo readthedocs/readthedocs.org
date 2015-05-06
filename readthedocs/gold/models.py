@@ -1,6 +1,8 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
+from projects.models import Project
+
 LEVEL_CHOICES = (
     ('v1-org-5', '$5/mo'),
     ('v1-org-10', '$10/mo'),
@@ -17,6 +19,9 @@ class GoldUser(models.Model):
 
     user = models.ForeignKey('auth.User', verbose_name=_('User'), unique=True, related_name='gold')
     level = models.CharField(_('Level'), max_length=20, choices=LEVEL_CHOICES, default='supporter')
+    projects = models.ManyToManyField(Project, verbose_name=_('Projects'),
+                                   related_name='gold_owners')
+
 
     last_4_digits = models.CharField(max_length=4)
     stripe_id = models.CharField(max_length=255)

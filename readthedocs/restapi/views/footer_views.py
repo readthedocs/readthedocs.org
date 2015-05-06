@@ -65,10 +65,15 @@ def footer_html(request):
         print_url = None
 
     show_promo = True
+    # User is a gold user, no promos for them!
     if request.user.is_authenticated():
         if request.user.gold.count() or request.user.goldonce.count():
             show_promo = False
+    # Explicit promo disabling
     if project.slug in getattr(settings, 'DISABLE_PROMO_PROJECTS', []):
+        show_promo = False
+    # A GoldUser has mapped this project
+    if project.gold_owners.count():
         show_promo = False
 
     context = Context({
