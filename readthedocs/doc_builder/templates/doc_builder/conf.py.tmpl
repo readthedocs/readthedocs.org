@@ -1,10 +1,14 @@
 {% load projects_tags %}
 
+import sys
+from six import string_types
+
+
 from recommonmark.parser import CommonMarkParser
 
 # Markdown Support
 if 'source_suffix' in globals():
-    if isinstance(source_suffix, basestring) and source_suffix != '.md':
+    if isinstance(source_suffix, string_types) and source_suffix != '.md':
         source_suffix = [source_suffix, '.md']
     elif '.md' not in source_suffix:
         source_suffix.append('.md')
@@ -19,7 +23,7 @@ else:
     }
 
 if globals().get('source_suffix', False):
-    if isinstance(source_suffix, basestring):
+    if isinstance(source_suffix, string_types):
         SUFFIX = source_suffix
     else:
         SUFFIX = source_suffix[0]
