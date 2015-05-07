@@ -18,10 +18,12 @@
   <link href="{{ path }}" rel="stylesheet">
   {%- endfor %}
 
+  {% if current_page %}
   <script>
     // Current page data
     var mkdocs_page_name = "{{ current_page.input_path.replace('.md', '') }}"
   </script>
+  {% endif %}
 
   <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
