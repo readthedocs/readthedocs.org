@@ -544,11 +544,17 @@ class Project(models.Model):
 
     def conf_file(self, version='latest'):
         if self.conf_py_file:
-            log.debug('Inserting conf.py file path from model')
-            return os.path.join(self.checkout_path(version), self.conf_py_file)
+            conf_path = os.path.join(self.checkout_path(version), self.conf_py_file)
+            if os.path.exists(conf_path):
+                log.info('Inserting conf.py file path from model')
+                return conf_path
+            else:
+                log.warning("Conf file specified on model doesn't exist")
         files = self.find('conf.py', version)
+        print files
         if not files:
             files = self.full_find('conf.py', version)
+        print files
         if len(files) == 1:
             return files[0]
         for file in files:
