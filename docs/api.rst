@@ -27,7 +27,7 @@ You can use `Slumber <http://slumber.readthedocs.org/>`_ to build basic API wrap
     else:
         print(json.dumps(val, indent=4))
     
-Alternatively you can try with the following value:
+Alternatively you can try with the following value::
 
     # fetch project project pip without metadata.
     val = api.project('pip').get()
@@ -54,6 +54,7 @@ You can use the api to add user to a project,
 to authenticate with `slumber`, use the following:
 
 ::
+
     from __future__ import print_function
     import slumber
 
@@ -67,6 +68,7 @@ to authenticate with `slumber`, use the following:
 
 
 ::
+
     from __future__ import print_function
 
     project = api.project.get(slug=project_slug)
