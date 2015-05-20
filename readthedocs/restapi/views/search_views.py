@@ -1,6 +1,6 @@
 import logging
 
-from rest_framework import decorators, permissions, viewsets, status
+from rest_framework import decorators, permissions, status
 from rest_framework.renderers import JSONPRenderer, JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 import requests
@@ -11,7 +11,9 @@ from search.indexes import PageIndex, ProjectIndex, SectionIndex
 from projects.models import Project
 from restapi import utils
 
+
 log = logging.getLogger(__name__)
+
 
 @decorators.api_view(['GET'])
 @decorators.permission_classes((permissions.AllowAny,))
@@ -43,7 +45,14 @@ def index_search(request):
     commit = data.get('commit')
     project = Project.objects.get(pk=project_pk)
     version = Version.objects.get(pk=version_pk)
-    utils.index_search_request(version=version, page_list=data['page_list'], commit=commit)
+
+    resp = requests.get('https://api.grokthedocs.com/api/v1/index/1/heatmap/', params={'project': project.slug, 'compare': True})
+    ret_json = resp.json()
+    project_scale = ret_json.get('scaled_project', {}).get(project.slug)
+    page_scale = ret_json.get('scaled_page', {}).get(page['path'], 1)
+
+    utils.index_search_request(version=version, page_list=data['page_list'], commit=commit, project_scale=project_scale, page_scale=page_scale)
+
     return Response({'indexed': True})
 
 
@@ -59,12 +68,17 @@ def search(request):
     kwargs = {}
     body = {
         "query": {
-            "bool": {
-                "should": [
-                    {"match": {"title": {"query": query, "boost": 10}}},
-                    {"match": {"headers": {"query": query, "boost": 5}}},
-                    {"match": {"content": {"query": query}}},
-                ]
+            "function_score": {
+                "field_value_factor": {"field": "weight"},
+                "query": {
+                    "bool": {
+                        "should": [
+                            {"match": {"title": {"query": query, "boost": 10}}},
+                            {"match": {"headers": {"query": query, "boost": 5}}},
+                            {"match": {"content": {"query": query}}},
+                        ]
+                    }
+                }
             }
         },
         "highlight": {
@@ -102,18 +116,24 @@ def project_search(request):
     log.debug("(API Project Search) %s" % (query))
     body = {
         "query": {
-            "bool": {
-                "should": [
-                    {"match": {"name": {"query": query, "boost": 10}}},
-                    {"match": {"description": {"query": query}}},
-                ]
-            },
+            "function_score": {
+                "field_value_factor": {"field": "weight"},
+                "query": {
+                    "bool": {
+                        "should": [
+                            {"match": {"name": {"query": query, "boost": 10}}},
+                            {"match": {"description": {"query": query}}},
+                        ]
+                    }
+                }
+            }
         },
         "fields": ["name", "slug", "description", "lang"]
     }
     results = ProjectIndex().search(body)
 
     return Response({'results': results})
+
 
 @decorators.api_view(['GET'])
 @decorators.permission_classes((permissions.AllowAny,))
@@ -165,11 +185,16 @@ def section_search(request):
     kwargs = {}
     body = {
         "query": {
-            "bool": {
-                "should": [
-                    {"match": {"title": {"query": query, "boost": 10}}},
-                    {"match": {"content": {"query": query}}},
-                ]
+            "function_score": {
+                "field_value_factor": {"field": "weight"},
+                "query": {
+                    "bool": {
+                        "should": [
+                            {"match": {"title": {"query": query, "boost": 10}}},
+                            {"match": {"content": {"query": query}}},
+                        ]
+                    }
+                }
             }
         },
         "facets": {
@@ -177,7 +202,7 @@ def section_search(request):
                 "terms": {"field": "project"},
                 "facet_filter": {
                     "term": {"version": version_slug},
-                } 
+                }
             },
         },
         "highlight": {
@@ -197,11 +222,11 @@ def section_search(request):
                 {"term": {"version": version_slug}},
             ]
         }
-        body["facets"]['path'] = {
+        body['facets']['path'] = {
             "terms": {"field": "path"},
             "facet_filter": {
                 "term": {"project": project_slug},
-            } 
+            }
         },
         # Add routing to optimize search by hitting the right shard.
         kwargs['routing'] = project_slug
@@ -212,13 +237,12 @@ def section_search(request):
                 {"term": {"path": path_slug}},
             ]
         }
-        
+
     if path_slug and not project_slug:
         # Show facets when we only have a path
-        body["facets"]['path'] = {
+        body['facets']['path'] = {
             "terms": {"field": "path"}
         }
-
 
     results = SectionIndex().search(body, **kwargs)
 

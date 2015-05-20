@@ -107,7 +107,7 @@ class Index(object):
 
     def put_mapping(self, index=None):
         index = index or self._index
-        self.es.indices.put_mapping(index, self._type, self.get_mapping())
+        self.es.indices.put_mapping(self._type, self.get_mapping(), index)
 
     def bulk_index(self, data, index=None, chunk_size=500, parent=None,
                    routing=None):
@@ -136,6 +136,7 @@ class Index(object):
                 doc['_routing'] = routing
             docs.append(doc)
 
+        # TODO: This doesn't work with the new ES setup.
         bulk_index(self.es, docs, chunk_size=chunk_size)
 
     def index_document(self, data, index=None, parent=None, routing=None):
@@ -218,8 +219,6 @@ class ProjectIndex(Index):
             self._type: {
                 # Disable _all field to reduce index size.
                 '_all': {'enabled': False},
-                # Add a boost field to enhance relevancy of a document.
-                '_boost': {'name': '_boost', 'null_value': 1.0},
                 'properties': {
                     'id': {'type': 'long'},
                     'name': {'type': 'string', 'analyzer': 'default_icu'},
@@ -240,6 +239,8 @@ class ProjectIndex(Index):
                         },
                     },
                     'url': {'type': 'string', 'index': 'not_analyzed'},
+                    # Add a weight field to enhance relevancy scoring.
+                    'weight': {'type': 'float'},
                 }
             }
         }
@@ -254,7 +255,7 @@ class ProjectIndex(Index):
             doc[attr] = data.get(attr, '')
 
         # Add project boost.
-        doc['_boost'] = data.get('_boost', 1.0)
+        doc['weight'] = data.get('weight', 1.0)
 
         return doc
 
@@ -269,8 +270,6 @@ class PageIndex(Index):
             self._type: {
                 # Disable _all field to reduce index size.
                 '_all': {'enabled': False},
-                # Add a boost field to enhance relevancy of a document.
-                '_boost': {'name': '_boost', 'null_value': 1.0},
                 # Associate a page with a project.
                 '_parent': {'type': self._parent},
                 'properties': {
@@ -285,6 +284,8 @@ class PageIndex(Index):
                     'title': {'type': 'string', 'analyzer': 'default_icu'},
                     'headers': {'type': 'string', 'analyzer': 'default_icu'},
                     'content': {'type': 'string', 'analyzer': 'default_icu'},
+                    # Add a weight field to enhance relevancy scoring.
+                    'weight': {'type': 'float'},
                 }
             }
         }
@@ -299,7 +300,7 @@ class PageIndex(Index):
             doc[attr] = data.get(attr, '')
 
         # Add page boost.
-        doc['_boost'] = data.get('_boost', 1.0)
+        doc['weight'] = data.get('weight', 1.0)
 
         return doc
 
@@ -314,8 +315,6 @@ class SectionIndex(Index):
             self._type: {
                 # Disable _all field to reduce index size.
                 '_all': {'enabled': False},
-                # Add a boost field to enhance relevancy of a document.
-                '_boost': {'name': '_boost', 'null_value': 1.0},
                 # Associate a section with a page.
                 '_parent': {'type': self._parent},
                 'suggest': {
@@ -338,7 +337,9 @@ class SectionIndex(Index):
                         'properties': {
                             'code': {'type': 'string', 'analyzer': 'default_icu'}
                         }
-                    }
+                    },
+                    # Add a weight field to enhance relevancy scoring.
+                    'weight': {'type': 'float'},
                 }
             }
         }
@@ -353,6 +354,6 @@ class SectionIndex(Index):
             doc[attr] = data.get(attr, '')
 
         # Add page boost.
-        doc['_boost'] = data.get('_boost', 1.0)
+        doc['weight'] = data.get('weight', 1.0)
 
         return doc
