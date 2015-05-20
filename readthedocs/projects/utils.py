@@ -69,6 +69,10 @@ def run(*commands, **kwargs):
         del environment['DJANGO_SETTINGS_MODULE']
     if 'PYTHONPATH' in environment:
         del environment['PYTHONPATH']
+    # Remove PYTHONHOME env variable if set, otherwise pip install of requirements
+    # into virtualenv will install incorrectly
+    if 'PYTHONHOME' in environment:
+        del environment['PYTHONHOME']
     cwd = os.getcwd()
     if not commands:
         raise ValueError("run() requires one or more command-line strings")
