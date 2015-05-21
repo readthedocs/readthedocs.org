@@ -1,3 +1,4 @@
+import os
 import subprocess
 
 from django.test import TestCase
@@ -50,16 +51,25 @@ class BuildTests(TestCase):
 
         mock_apiv2_downloads.get.return_value = {'downloads': "no_url_here"}
 
+        original_exists = os.path.exists
+        conf_path = os.path.join(project.checkout_path(version.slug), project.conf_py_file)
+
+        def patched_exists(path):
+            if path == conf_path:
+                return True
+            return original_exists(path)
+
         with mock.patch('codecs.open', mock.mock_open(), create=True):
-            built_docs = build_docs(version,
-                                    False,
-                                    False,
-                                    False,
-                                    False,
-                                    False,
-                                    False,
-                                    False,
-                                    )
+            with mock.patch.object(os.path, 'exists', patched_exists):
+                built_docs = build_docs(version,
+                                        False,
+                                        False,
+                                        False,
+                                        False,
+                                        False,
+                                        False,
+                                        False,
+                                        )
 
         builder = project.doc_builder()(version)
         self.assertIn(builder.sphinx_builder,
