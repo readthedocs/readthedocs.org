@@ -56,7 +56,7 @@ Next, install the dependencies using ``pip`` (included with virtualenv_)::
 .. note::
 
     Linux users may find they need to install a few additional packages
-    in order to successfully execute ``pip-install -r requirements.txt``.
+    in order to successfully execute ``pip install -r requirements.txt``.
     For example, a clean install of Ubuntu 14.04 LTS will require the
     following packages::
 
