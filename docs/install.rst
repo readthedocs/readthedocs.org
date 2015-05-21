@@ -6,13 +6,13 @@ Installation
 Here is a step by step plan on how to install Read the Docs.
 It will get you to a point of having a local running instance.
 
-First, obtain Python_ and virtualenv_ if you do not already have them. Using a
+First, obtain `Python 2.7`_ and virtualenv_ if you do not already have them. Using a
 virtual environment will make the installation easier, and will help to avoid
 clutter in your system-wide libraries. You will also need Git_ in order to
 clone the repository.
 
 
-.. _Python: http://www.python.org/
+.. _Python 2.7: http://www.python.org/
 .. _virtualenv: http://pypi.python.org/pypi/virtualenv
 .. _Git: http://git-scm.com/
 
