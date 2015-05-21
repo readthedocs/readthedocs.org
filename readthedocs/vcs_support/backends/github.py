@@ -1,11 +1,13 @@
 import logging
-from django.conf import settings
-from github2.client import Github
-from vcs_support.base import BaseContributionBackend
 import base64
 import os
 import urllib
 import urllib2
+
+from django.conf import settings
+from github2.client import Github
+
+from vcs_support.base import BaseContributionBackend
 
 log = logging.getLogger(__name__)
 

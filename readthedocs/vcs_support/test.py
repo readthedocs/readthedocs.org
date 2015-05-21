@@ -1,7 +1,8 @@
-import mock
 import os
 import shutil
 import unittest
+
+import mock
 
 from django.conf import settings
 
