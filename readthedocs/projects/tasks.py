@@ -330,16 +330,30 @@ def setup_environment(version):
     else:
         ignore_option = ''
 
+    requirements = ' '.join([
+        'sphinx==1.3.1',
+        'Pygments==2.0.2',
+        'virtualenv==1.10.1',
+        'setuptools==1.1',
+        'docutils==0.11',
+        'mkdocs==0.11.1',
+        'mock==1.0.1',
+        'pillow==2.6.1',
+        'readthedocs-sphinx-ext==0.4.4',
+        'sphinx-rtd-theme==0.1.8',
+        'recommonmark==0.1.1',
+    ])
+
     wheeldir = os.path.join(settings.SITE_ROOT, 'deploy', 'wheels')
     ret_dict['doc_builder'] = run(
         (
-            '{cmd} install --use-wheel --find-links={wheeldir} -U {ignore_option} '
-            'sphinx==1.3.1 Pygments==2.0.2 virtualenv==1.10.1 setuptools==1.1 docutils==0.11 mkdocs==0.11.1 mock==1.0.1 pillow==2.6.1'
-            ' readthedocs-sphinx-ext==0.4.4 sphinx-rtd-theme==0.1.8 recommonmark==0.1.1 '
+            '{cmd} install --use-wheel --find-links={wheeldir} -U '
+            '{ignore_option} {requirements}'
         ).format(
             cmd=project.venv_bin(version=version.slug, bin='pip'),
             ignore_option=ignore_option,
             wheeldir=wheeldir,
+            requirements=requirements,
         )
     )
 
