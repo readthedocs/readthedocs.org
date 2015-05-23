@@ -91,6 +91,9 @@ Promo.prototype.disable = function () {
 
 // Variant factory method
 Promo.from_variants = function (variants) {
+    if (variants.length == 0) {
+        return null;
+    }
     var chosen = Math.floor(Math.random() * variants.length),
         variant = variants[chosen],
         text = variant.text,

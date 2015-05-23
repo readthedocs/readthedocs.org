@@ -61,14 +61,18 @@ $(document).ready(function () {
             if (data.promo && build.show_promo()) {
                 // TODO don't hardcode this promo
                 var promo = sponsorship.Promo.from_variants([
-                        {
-                            id: 'twilio-signal',
-                            text: 'Twilio presents <a>Signal</a> - Developer Conference for Communications',
-                            link: 'http://signal.twilio.com/?utm_medium=banner&utm_source=readthedocs&utm_campaign=signal_ads_1',
-                            image: 'https://media.readthedocs.org/images/signal.png'
-                        }
+                    /*
+                    {
+                        id: '',
+                        text: 'Example <a>linked</a> text',
+                        link: '',
+                        image: ''
+                    }
+                    */
                 ]);
-                promo.display();
+                if (promo) {
+                    promo.display();
+                }
             }
 
             // using jQuery
