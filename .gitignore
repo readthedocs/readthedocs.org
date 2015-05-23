@@ -5,6 +5,7 @@
 .DS_Store
 .coverage
 .idea
+.tox/
 .vagrant
 _build
 cnames

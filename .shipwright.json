@@ -1,0 +1,11 @@
+{
+    "version": 1.0,
+    "namespace": "readthedocs",
+    "names": {
+        "/": "readthedocs/base",
+        "/dockerfiles/builder":  "readthedocs/builder",
+        "/dockerfiles/configs":  "readthedocs/configs",
+        "/dockerfiles/database": "readthedocs/database",
+        "/dockerfiles/webapp":   "readthedocs/webapp"
+    }
+}

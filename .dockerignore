@@ -1,0 +1,9 @@
+.git
+.gitignore
+.tox
+tox.ini
+.shipwright.json
+acceptance
+docs
+dockerfiles
+user_builds

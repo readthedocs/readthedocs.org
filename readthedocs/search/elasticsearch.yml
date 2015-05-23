@@ -1,0 +1,8 @@
+
+path:
+    # TODO: /data is being cleared after steps
+    # maybe because of VOLUME # ["/data/"]
+    data: /searchindex
+    logs: /data/logs
+    plugins: /elasticsearch/plugins
+    work: /data/work

@@ -311,6 +311,8 @@ def setup_environment(version):
         site_packages = '--system-site-packages'
     else:
         site_packages = '--no-site-packages'
+
+    # TODO: why is this virtualenv-2.7?
     # Here the command has been modified to support different
     # interpreters.
     ret_dict['venv'] = run(
