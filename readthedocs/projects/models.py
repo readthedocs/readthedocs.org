@@ -406,6 +406,8 @@ class Project(models.Model):
             scheme, netloc = "http", parsed.netloc
         else:
             scheme, netloc = "http", parsed.path
+        if self.superprojects.count() and parsed.path:
+            netloc = netloc + parsed.path
         return "%s://%s/" % (scheme, netloc)
 
     @property
