@@ -86,7 +86,7 @@ def delete_versions(project, version_data):
         return set()
 
 
-def index_search_request(version, page_list, commit, project_scale, page_scale, section=True):
+def index_search_request(version, page_list, commit, project_scale, page_scale, section=True, delete=True):
     log_msg = ' '.join([page['path'] for page in page_list])
     log.info("(Server Search) Indexing Pages: %s [%s]" % (
         version.project.slug, log_msg))
@@ -142,21 +142,22 @@ def index_search_request(version, page_list, commit, project_scale, page_scale, 
 
     page_obj.bulk_index(index_list, parent=project.slug)
 
-    log.info("(Server Search) Deleting files not in commit: %s" % commit)
-    # TODO: AK Make sure this works
-    delete_query = {
-        "query": {
-            "bool": {
-                "must": [
-                    {"term": {"project": project.slug, }},
-                    {"term": {"version": version.slug, }},
-                ],
-                "must_not": {
-                    "term": {
-                        "commit": commit
+    if delete:
+        log.info("(Server Search) Deleting files not in commit: %s" % commit)
+        # TODO: AK Make sure this works
+        delete_query = {
+            "query": {
+                "bool": {
+                    "must": [
+                        {"term": {"project": project.slug, }},
+                        {"term": {"version": version.slug, }},
+                    ],
+                    "must_not": {
+                        "term": {
+                            "commit": commit
+                        }
                     }
                 }
             }
         }
-    }
-    page_obj.delete_document(body=delete_query)
+        page_obj.delete_document(body=delete_query)
