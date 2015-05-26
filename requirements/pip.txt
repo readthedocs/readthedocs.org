@@ -43,7 +43,7 @@ github2==0.5.2
 httplib2==0.7.7
 
 # Search
-elasticsearch==0.4.3
+elasticsearch==1.5.0
 pyelasticsearch==0.7.1
 pyquery==1.2.2
 

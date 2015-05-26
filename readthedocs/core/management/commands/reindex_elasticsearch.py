@@ -42,6 +42,6 @@ class Command(BaseCommand):
                 commit = None
             try:
                 page_list = parse_json.process_all_json_files(version, build_dir=False)
-                index_search_request(version=version, page_list=page_list, commit=commit)
+                index_search_request(version=version, page_list=page_list, commit=commit, project_scale=0, page_scale=0, section=False, delete=False)
             except Exception:
                 log.error('Build failed for %s' % version, exc_info=True)

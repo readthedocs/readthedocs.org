@@ -700,7 +700,7 @@ def update_search(version_pk, commit):
 
     log_msg = ' '.join([page['path'] for page in page_list])
     log.info("(Search Index) Sending Data: %s [%s]" % (version.project.slug, log_msg))
-    index_search_request(version=version, page_list=page_list, commit=commit)
+    index_search_request(version=version, page_list=page_list, commit=commit, project_scale=0, page_scale=0)
 
 
 @task(queue='web')
