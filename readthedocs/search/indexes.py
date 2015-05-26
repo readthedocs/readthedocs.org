@@ -317,12 +317,13 @@ class SectionIndex(Index):
                 '_all': {'enabled': False},
                 # Associate a section with a page.
                 '_parent': {'type': self._parent},
-                'suggest': {
-                    "type": "completion",
-                    "index_analyzer": "simple",
-                    "search_analyzer": "simple",
-                    "payloads": True,
-                },
+                # Commenting this out until we need it.
+                # 'suggest': {
+                #     "type": "completion",
+                #     "index_analyzer": "simple",
+                #     "search_analyzer": "simple",
+                #     "payloads": True,
+                # },
                 'properties': {
                     'id': {'type': 'string', 'index': 'not_analyzed'},
                     'project': {'type': 'string', 'index': 'not_analyzed'},
