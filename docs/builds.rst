@@ -111,5 +111,5 @@ The :doc:`api/doc_builder` API explains the higher level parts of the API that y
 Deleting a stale or broken build environment
 --------------------------------------------
 
-RTD doesn't expose this in the UI, but it is possible to remove the build directory of your project. If you want to remove a build environment for your project, hit http://readthedocs.org/wipe/<project_slug>/<version_slug>/. You must be logged in to do this.
+If you're having trouble getting your version to build, try wiping out the existing build/environment files.  On your version list page ``/projects/[project]/versions`` there is a "Wipe" button that will remove all of the files associated with your documentation build, but not the documentation itself.
 

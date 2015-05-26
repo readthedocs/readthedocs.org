@@ -9,6 +9,7 @@ import md5
 from django.core.urlresolvers import reverse
 from django.core.cache import cache
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.models import User
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, render_to_response
@@ -378,6 +379,13 @@ def project_versions(request, project_slug):
     inactive_versions = versions.filter(active=False)
     inactive_filter = VersionSlugFilter(request.GET, queryset=inactive_versions)
     active_filter = VersionSlugFilter(request.GET, queryset=active_versions)
+
+    # If there's a wiped query string, check the string against the versions list and display a success message.
+    # Deleting directories doesn't know how to fail.  :)
+    wiped = request.GET.get('wipe', '')
+    wiped_version = versions.filter(slug=wiped)
+    if wiped and wiped_version.count():
+        messages.success(request, 'Version wiped: ' + wiped)
 
     return render_to_response(
         'projects/project_version_list.html',
