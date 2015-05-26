@@ -401,9 +401,9 @@ class Project(models.Model):
             return ""
         parsed = urlparse(self.canonical_url)
         if parsed.scheme:
-            scheme, netloc = parsed.scheme, parsed.netloc
+            scheme, netloc = parsed.scheme, parsed.netloc + parsed.path
         elif parsed.netloc:
-            scheme, netloc = "http", parsed.netloc
+            scheme, netloc = "http", parsed.netloc + parsed.path
         else:
             scheme, netloc = "http", parsed.path
         if self.superprojects.count() and parsed.path:
