@@ -86,7 +86,7 @@ def delete_versions(project, version_data):
         return set()
 
 
-def index_search_request(version, page_list, commit, project_scale, page_scale):
+def index_search_request(version, page_list, commit, project_scale, page_scale, section=True):
     log_msg = ' '.join([page['path'] for page in page_list])
     log.info("(Server Search) Indexing Pages: %s [%s]" % (
         version.project.slug, log_msg))
@@ -126,18 +126,19 @@ def index_search_request(version, page_list, commit, project_scale, page_scale):
             'commit': commit,
             'weight': page_scale + project_scale,
         })
-        for section in page['sections']:
-            section_index_list.append({
-                'id': hashlib.md5('%s-%s-%s-%s' % (project.slug, version.slug, page['path'], section['id'])).hexdigest(),
-                'project': project.slug,
-                'version': version.slug,
-                'path': page['path'],
-                'page_id': section['id'],
-                'title': section['title'],
-                'content': section['content'],
-                'weight': page_scale,
-            })
-        section_obj.bulk_index(section_index_list, parent=page_id, routing=project.slug)
+        if section:
+            for section in page['sections']:
+                section_index_list.append({
+                    'id': hashlib.md5('%s-%s-%s-%s' % (project.slug, version.slug, page['path'], section['id'])).hexdigest(),
+                    'project': project.slug,
+                    'version': version.slug,
+                    'path': page['path'],
+                    'page_id': section['id'],
+                    'title': section['title'],
+                    'content': section['content'],
+                    'weight': page_scale,
+                })
+            section_obj.bulk_index(section_index_list, parent=page_id, routing=project.slug)
 
     page_obj.bulk_index(index_list, parent=project.slug)
 
