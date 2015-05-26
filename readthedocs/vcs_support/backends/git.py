@@ -48,7 +48,7 @@ class Backend(BaseVCS):
         return code == 0
 
     def fetch(self):
-        code, out, err = self.run('git', 'fetch', '--prune')
+        code, out, err = self.run('git', 'fetch', '--tags', '--prune')
         if code != 0:
             raise ProjectImportError(
                 "Failed to get code from '%s' (git fetch): %s\n\nStderr:\n\n%s\n\n" % (
