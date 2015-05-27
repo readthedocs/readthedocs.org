@@ -83,7 +83,7 @@ Versions
       </div>
     </div>
 
-    {% if request.user|is_admin:project %}
+    {% if request.user|is_admin:project or request.user.is_staff %}
     <div class="module project-versions-inactive">
       <div class="module-wrapper">
 
