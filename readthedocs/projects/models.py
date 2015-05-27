@@ -406,8 +406,12 @@ class Project(models.Model):
             scheme, netloc = "http", parsed.netloc
         else:
             scheme, netloc = "http", parsed.path
-        if self.superprojects.count() and parsed.path:
-            netloc = netloc + parsed.path
+        if getattr(settings, 'DONT_HIT_DB', True):
+            if parsed.path:
+                netloc = netloc + parsed.path
+        else:
+            if self.superprojects.count() and parsed.path:
+                netloc = netloc + parsed.path
         return "%s://%s/" % (scheme, netloc)
 
     @property
