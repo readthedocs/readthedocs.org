@@ -8,8 +8,8 @@ First, you should check out the Builds tab of your project. That records all of 
 
 If you are still seeing errors because of C library dependencies, please see the below section about that.
 
-How do I change my slug (the URL your docs are served at)
----------------------------------------------------------
+How do I change my slug (the URL your docs are served at)?
+----------------------------------------------------------
 
 We don't support allowing folks to change the slug for their project.
 You can update the name which is shown on the site,
