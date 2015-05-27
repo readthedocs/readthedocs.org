@@ -602,6 +602,7 @@ def record_pdf(api, record, results, state, version):
             output=pdf_output,
             error=pdf_error,
             exit_code=pdf_exit,
+            builder=socket.gethostbyname(),
         ))
     except Exception:
         log.error(LOG_TEMPLATE.format(project=version.project.slug,
