@@ -8,6 +8,18 @@ First, you should check out the Builds tab of your project. That records all of 
 
 If you are still seeing errors because of C library dependencies, please see the below section about that.
 
+How do I change my slug (the URL your docs are served at)
+---------------------------------------------------------
+
+We don't support allowing folks to change the slug for their project.
+You can update the name which is shown on the site,
+but not the actual URL that documentation is served.
+
+The main reason for this is that all existing URL's to the content will break.
+You can delete and re-create the project with the proper name to get a new slug,
+but you really shouldn't do this if you have existing inbound links,
+as it breaks the internet.
+
 How do I change behavior for Read the Docs?
 -------------------------------------------
 
