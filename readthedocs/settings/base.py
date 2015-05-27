@@ -283,7 +283,7 @@ GLOBAL_ANALYTICS_CODE = 'UA-17997319-1'
 
 GRAVATAR_DEFAULT_IMAGE = 'http://media.readthedocs.org/images/silhouette.png'
 
-COPY_START_YEAR = 20010
+COPY_START_YEAR = 2010
 
 LOG_FORMAT = "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s"
 
