@@ -85,7 +85,12 @@
 
 
         {% block footer-content %}
-        <p>{% blocktrans with "<a href='http://ericholscher.com/'>Eric Holscher</a>" as eric and "<a href='http://charlesleifer.com/'>Charles Leifer<a>" as charles and "<a href='http://bobbygrace.info/'>Bobby Grace</a>" as bobby and "<a href='http://djangodash.com/'>Django Dash</a>" as djangodash %}Copyright {% getCopyrightYears %}. Created by {{ eric }}, {{ charles }}, and {{ bobby }} for the 2010 {{ djangodash }}.{% endblocktrans %}
+        <p>
+        Copyright {% getCopyrightYears %}. 
+
+        {% blocktrans with "<a href='http://ericholscher.com/'>Eric Holscher</a>" as eric and "<a href='http://charlesleifer.com/'>Charles Leifer<a>" as charles and "<a href='http://bobbygrace.info/'>Bobby Grace</a>" as bobby and "<a href='http://djangodash.com/'>Django Dash</a>" as djangodash %}
+          Created by {{ eric }}, {{ charles }}, and {{ bobby }} for the 2010 {{ djangodash }}.
+        {% endblocktrans %}
         </p>
         <a href="https://github.com/rtfd/readthedocs.org">Github</a> | <a href="http://docs.readthedocs.org">{%  trans "Docs" %}</a>.
 
