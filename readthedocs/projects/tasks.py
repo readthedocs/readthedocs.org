@@ -513,6 +513,8 @@ def record_build(api, record, build, results, state, start_time=None):
     if not record:
         return None
 
+    build['builder'] = socket.gethostname()
+
     setup_steps = ['checkout', 'venv', 'doc_builder', 'requirements', 'install']
     output_steps = ['html']
     all_steps = setup_steps + output_steps

@@ -43,6 +43,10 @@
     <p>{% trans "Length:" %} <b>{{ build.length }}</b> seconds</p>
     {% endif %}
 
+    {% if build.builder %}
+    <p>{% trans "Builder:" %} <b>{{ build.builder }}</b></p>
+    {% endif %}
+
     <h3>{% trans "Build Standard Output" %}</h3>
     <pre class="build-output"><span id="build-output">{{ build.output }}</span></pre>
 

@@ -267,6 +267,8 @@ class Build(models.Model):
     length = models.IntegerField(_('Build Length'), max_length=10, null=True,
                                  blank=True)
 
+    builder = models.CharField(_('Builder'), max_length=255, null=True, blank=True)
+
     # Manager
 
     objects = RelatedProjectManager()
