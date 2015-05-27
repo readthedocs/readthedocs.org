@@ -18,7 +18,7 @@ but not the actual URL that documentation is served.
 The main reason for this is that all existing URL's to the content will break.
 You can delete and re-create the project with the proper name to get a new slug,
 but you really shouldn't do this if you have existing inbound links,
-as it breaks the internet.
+as it `breaks the internet <http://www.w3.org/Provider/Style/URI.html>`_.
 
 How do I change behavior for Read the Docs?
 -------------------------------------------
