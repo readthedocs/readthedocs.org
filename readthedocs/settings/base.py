@@ -177,7 +177,8 @@ INSTALLED_APPS = [
     'django_gravatar',
     'rest_framework',
     'corsheaders',
-
+    'copyright',
+    
     # Celery bits
     'djcelery',
 
@@ -281,6 +282,8 @@ ALLOW_PRIVATE_REPOS = False
 GLOBAL_ANALYTICS_CODE = 'UA-17997319-1'
 
 GRAVATAR_DEFAULT_IMAGE = 'http://media.readthedocs.org/images/silhouette.png'
+
+COPY_START_YEAR = 20010
 
 LOG_FORMAT = "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s"
 
