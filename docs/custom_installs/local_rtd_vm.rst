@@ -1,8 +1,8 @@
 Local VM Install
-################
+================
 
 Assumptions and Prerequisites
-=============================
+-----------------------------
 
 * Debian VM provisioned with python 2.7.x
 * All python dependencies and setup tools are installed ::
@@ -26,10 +26,10 @@ Assumptions and Prerequisites
 .. note:: Not using sudo may prevent access. “error: could not create '/usr/local/lib/python2.7/dist-packages/markupsafe': Permission denied” 
 
 Local RTD Setup
-================
+---------------
 
 1. Install RTD.
----------------
+~~~~~~~~~~~~~~~
 
 To host your documentation on a local RTD installation, set it up in your VM. ::
 
@@ -40,7 +40,7 @@ To host your documentation on a local RTD installation, set it up in your VM. ::
     $ sudo pip install -r pip_requirements.txt
     
 Possible Error and Resolution
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`````````````````````````````
 
 **Error**: ``error: command 'gcc' failed with exit status 1``
 
@@ -51,7 +51,7 @@ Possible Error and Resolution
     $ sudo apt-get build-dep python-imaging --fix-missing 
 
 2. Configure the RTD Server and Superuser.
-------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 1. Run the following commands. ::
 
@@ -69,7 +69,7 @@ Possible Error and Resolution
     $ ./manage.py migrate
 
 3. RTD Server Administration.
------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Navigate to the ``../checkouts/readthedocs.org/readthedocs`` folder in your VM and run the following command. :: 
 
@@ -92,7 +92,7 @@ git.corp.company.com:/git/docs/documentation.git
 This generates the HTML documentation site using the default Sphinx theme. Verify the output in your local documentation folder under ``../build/html``
 
 Possible Error and Resolution
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`````````````````````````````
 
 **Error**: Couldn't access Git Corp from VM.
 
@@ -122,12 +122,12 @@ SSH to the VM using the ``-A`` directive. ::
 This provides all permissions for that particular remote session, which are revoked when you logout.
 
 4. Build Documentation on Local RTD Instance.
----------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Log into http://[VM IP ADDRESS]:[PORT] using the django superuser creds and follow these steps.	
 
 For a new project
-~~~~~~~~~~~~~~~~~
+`````````````````
 
 1. Select **<username> > Add Project** from the user menu.
 2. Click **Manually Import Project**.
@@ -141,7 +141,7 @@ For a new project
 5. Click **Next**.
 
 For an existing project
-~~~~~~~~~~~~~~~~~~~~~~~
+```````````````````````
 
 1. Select **<username> > Projects** from the user menu.
 2. Select the relevant project from the **Projects** list.
@@ -149,6 +149,6 @@ For an existing project
 4. Click **Build**. This will take you to the Builds tab where the progress status is displayed. This may take some time.
 
 Tips
-========================
+----
 
 * If the installation doesn't work on VM using your login/LDAP credentials, try running the operations as root (su).
