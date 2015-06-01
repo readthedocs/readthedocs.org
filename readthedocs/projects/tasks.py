@@ -315,7 +315,7 @@ def setup_environment(version):
     # interpreters.
     ret_dict['venv'] = run(
         '{cmd} {site_packages} {path}'.format(
-            cmd='virtualenv-2.7 -p {interpreter}'.format(
+            cmd='{interpreter} -m virtualenv'.format(
                 interpreter=project.python_interpreter),
             site_packages=site_packages,
             path=project.venv_path(version=version.slug)
