@@ -89,6 +89,13 @@ Information about development is also available:
 
    business/index
 
+.. _custom-docs:
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Custom Install Documentation
+
+   custom_installs/index
 
 .. _design-docs:
 
