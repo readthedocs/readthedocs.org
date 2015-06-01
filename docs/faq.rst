@@ -15,7 +15,7 @@ We don't support allowing folks to change the slug for their project.
 You can update the name which is shown on the site,
 but not the actual URL that documentation is served.
 
-The main reason for this is that all existing URL's to the content will break.
+The main reason for this is that all existing URLs to the content will break.
 You can delete and re-create the project with the proper name to get a new slug,
 but you really shouldn't do this if you have existing inbound links,
 as it `breaks the internet <http://www.w3.org/Provider/Style/URI.html>`_.
@@ -23,7 +23,7 @@ as it `breaks the internet <http://www.w3.org/Provider/Style/URI.html>`_.
 How do I change behavior for Read the Docs?
 -------------------------------------------
 
-When RTD builds your project, it sets the `READTHEDOCS` environment variable to the string `True`. So within your Sphinx's ``conf.py`` file, you can vary the behavior based on this. For example::
+When RTD builds your project, it sets the `READTHEDOCS` environment variable to the string `True`. So within your Sphinx ``conf.py`` file, you can vary the behavior based on this. For example::
 
     import os
     on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
@@ -125,7 +125,7 @@ so you can access it on the `celery.readthedocs.org` domain:
 
 http://celery.readthedocs.org/projects/kombu/en/latest/
 
-This also works the same for CNAME's:
+This also works the same for CNAMEs:
 
 http://docs.celeryproject.org/projects/kombu/en/latest/
 
