@@ -1,6 +1,8 @@
 # encoding: utf-8
 import os
 import djcelery
+from kombu.common import Broadcast
+
 djcelery.setup_loader()
 
 _ = gettext = lambda s: s
@@ -178,7 +180,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'copyright',
-    
+
     # Celery bits
     'djcelery',
 
@@ -232,6 +234,11 @@ CELERY_SEND_TASK_ERROR_EMAILS = False
 CELERYD_HIJACK_ROOT_LOGGER = False
 # Don't queue a bunch of tasks in the workers
 CELERYD_PREFETCH_MULTIPLIER = 1
+
+
+CELERY_QUEUES = (
+    Broadcast('build_broadcast_tasks'),
+)
 
 DEFAULT_FROM_EMAIL = "no-reply@readthedocs.org"
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
