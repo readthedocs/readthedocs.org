@@ -133,9 +133,11 @@ def wipe_version(request, project_slug, version_slug):
         del_dirs = [version.project.checkout_path(
             version.slug), version.project.venv_path(version.slug)]
         for del_dir in del_dirs:
-            remove_dir.apply_async(
-                args=[del_dir],
-                queue='build_broadcast_tasks'
+            for server in getattr(settings, "MULTIPLE_BUILD_SERVERS", ['celery']):
+                log.info('Removing files on %s' % server)
+                remove_dir.apply_async(
+                    args=[del_dir],
+                    queue=server,
                 )
         return redirect('project_version_list', project_slug)
     else:
