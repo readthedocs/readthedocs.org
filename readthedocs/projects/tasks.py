@@ -336,7 +336,7 @@ def setup_environment(version):
         'virtualenv==1.10.1',
         'setuptools==1.1',
         'docutils==0.11',
-        'mkdocs==0.13.2',
+        'mkdocs==0.13.3',
         'mock==1.0.1',
         'pillow==2.6.1',
         'readthedocs-sphinx-ext==0.4.4',
