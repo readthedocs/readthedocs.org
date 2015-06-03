@@ -128,13 +128,22 @@ def wipe_version(request, project_slug, version_slug):
                                 slug=version_slug)
     if request.user not in version.project.users.all():
         raise Http404("You must own this project to wipe it.")
-    del_dirs = [version.project.checkout_path(
-        version.slug), version.project.venv_path(version.slug)]
-    for del_dir in del_dirs:
-        remove_dir.delay(del_dir)
-    return render_to_response('wipe_version.html',
-                              {'del_dir': del_dir},
-                              context_instance=RequestContext(request))
+
+    if request.method == 'POST':
+        del_dirs = [version.project.checkout_path(
+            version.slug), version.project.venv_path(version.slug)]
+        for del_dir in del_dirs:
+            # Support hacky "broadcast" with MULTIPLE_BUILD_SERVERS setting, otherwise put in normal celery queue
+            for server in getattr(settings, "MULTIPLE_BUILD_SERVERS", ['celery']):
+                log.info('Removing files on %s' % server)
+                remove_dir.apply_async(
+                    args=[del_dir],
+                    queue=server,
+                )
+        return redirect('project_version_list', project_slug)
+    else:
+        return render_to_response('wipe_version.html',
+                                  context_instance=RequestContext(request))
 
 
 def _build_version(project, slug, already_built=()):

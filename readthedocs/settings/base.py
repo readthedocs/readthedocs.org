@@ -1,6 +1,9 @@
 # encoding: utf-8
 import os
 import djcelery
+from kombu.common import Broadcast
+from kombu import Exchange, Queue
+
 djcelery.setup_loader()
 
 _ = gettext = lambda s: s
@@ -178,7 +181,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'copyright',
-    
+
     # Celery bits
     'djcelery',
 
@@ -225,13 +228,19 @@ REST_FRAMEWORK = {
 if DEBUG:
     INSTALLED_APPS.append('django_extensions')
 
-#CARROT_BACKEND = "ghettoq.taproot.Database"
 CELERY_ALWAYS_EAGER = True
 CELERYD_TASK_TIME_LIMIT = 60 * 60  # 60 minutes
 CELERY_SEND_TASK_ERROR_EMAILS = False
 CELERYD_HIJACK_ROOT_LOGGER = False
 # Don't queue a bunch of tasks in the workers
 CELERYD_PREFETCH_MULTIPLIER = 1
+CELERY_CREATE_MISSING_QUEUES = True
+
+CELERY_DEFAULT_QUEUE = 'celery'
+CELERY_QUEUES = (
+    Queue('celery', Exchange('celery'), routing_key='celery'),
+    Broadcast('build_broadcast_tasks'),
+)
 
 DEFAULT_FROM_EMAIL = "no-reply@readthedocs.org"
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
