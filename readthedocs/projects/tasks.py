@@ -593,6 +593,9 @@ def record_pdf(api, record, results, state, version):
         pdf_output = pdf_output.decode('utf-8', 'ignore')
         pdf_error = pdf_error.decode('utf-8', 'ignore')
 
+        if 'Output written on' in pdf_output:
+            pdf_success = True
+
         api.build.post(dict(
             state=state,
             project='/api/v1/project/%s/' % version.project.pk,
