@@ -61,14 +61,12 @@ $(document).ready(function () {
             if (data.promo && build.show_promo()) {
                 // TODO don't hardcode this promo
                 var promo = sponsorship.Promo.from_variants([
-                    /*
                     {
-                        id: '',
-                        text: 'Example <a>linked</a> text',
-                        link: '',
-                        image: ''
+                        id: 'wtd-eu-cfp',
+                        text: 'Write the Docs Europe, in Prague Aug 31 - Sep 1. <a>Submit your talk today!</a>',
+                        link: 'http://www.writethedocs.org/conf/eu/2015/cfp/',
+                        image: 'https://70247537a87b983da006-a47a8cc3edeb6b00d7ff1d6a25af0fda.ssl.cf5.rackcdn.com/wtd-promo.png'
                     }
-                    */
                 ]);
                 if (promo) {
                     promo.display();
