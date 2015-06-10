@@ -130,7 +130,7 @@ class BaseMkdocs(BaseBuilder):
         #site_path = os.path.join(checkout_path, 'site')
         os.chdir(checkout_path)
         # Actual build
-        build_command = "{command} {builder} --site-dir={build_dir} --theme=readthedocs".format(
+        build_command = "{command} {builder} --clean --site-dir={build_dir} --theme=readthedocs".format(
             command=self.version.project.venv_bin(version=self.version.slug, bin='mkdocs'),
             builder=self.builder,
             build_dir=self.build_dir,
