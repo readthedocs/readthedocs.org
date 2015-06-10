@@ -7,13 +7,13 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        
+
         # Adding field 'Project.skip'
         db.add_column('projects_project', 'skip', self.gf('django.db.models.fields.BooleanField')(default=False), keep_default=False)
 
 
     def backwards(self, orm):
-        
+
         # Deleting field 'Project.skip'
         db.delete_column('projects_project', 'skip')
 

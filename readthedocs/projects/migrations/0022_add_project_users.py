@@ -8,7 +8,7 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        
+
         db.alter_column('projects_project', 'user_id', models.ForeignKey(orm['auth.User'], null=True, blank=True))
         # Adding M2M table for field users on 'Project'
         db.create_table('projects_project_users', (
@@ -21,7 +21,7 @@ class Migration(SchemaMigration):
         db.execute('INSERT INTO projects_project_users (project_id, user_id) SELECT id, user_id FROM projects_project')
 
     def backwards(self, orm):
-        
+
         # Removing M2M table for field users on 'Project'
         db.delete_table('projects_project_users')
 

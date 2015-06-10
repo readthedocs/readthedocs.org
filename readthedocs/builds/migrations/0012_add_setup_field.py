@@ -8,7 +8,7 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        
+
         # Adding field 'Build.setup'
         db.add_column('builds_build', 'setup', self.gf('django.db.models.fields.TextField')(null=True, blank=True), keep_default=False)
 
@@ -16,7 +16,7 @@ class Migration(SchemaMigration):
         db.add_column('builds_build', 'setup_error', self.gf('django.db.models.fields.TextField')(null=True, blank=True), keep_default=False)
 
     def backwards(self, orm):
-        
+
         # Deleting field 'Build.setup'
         db.delete_column('builds_build', 'setup')
 

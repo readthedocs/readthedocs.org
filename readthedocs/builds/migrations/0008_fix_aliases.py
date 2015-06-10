@@ -7,12 +7,12 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        
+
         # Changing field 'VersionAlias.slug'
         db.alter_column('builds_versionalias', 'slug', self.gf('django.db.models.fields.TextField')(max_length=255))
 
     def backwards(self, orm):
-        
+
         # Changing field 'VersionAlias.slug'
         db.alter_column('builds_versionalias', 'slug', self.gf('django.db.models.fields.SlugField')(max_length=50))
 

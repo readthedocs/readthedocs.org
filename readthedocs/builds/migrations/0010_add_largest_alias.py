@@ -7,13 +7,13 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        
+
         # Adding field 'VersionAlias.largest'
         db.add_column('builds_versionalias', 'largest', self.gf('django.db.models.fields.BooleanField')(default=False), keep_default=False)
 
 
     def backwards(self, orm):
-        
+
         # Deleting field 'VersionAlias.largest'
         db.delete_column('builds_versionalias', 'largest')
 

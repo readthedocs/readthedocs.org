@@ -35,7 +35,7 @@ class RedirectSingleVersionTests(TestCase):
         self.assertEqual(r.status_code, 404)
 
     def test_docs_url_generation(self):
-        
+
         self.pip.single_version = True
         with self.settings(USE_SUBDOMAIN=False):
             self.assertEqual(self.pip.get_docs_url(), '/docs/pip/')

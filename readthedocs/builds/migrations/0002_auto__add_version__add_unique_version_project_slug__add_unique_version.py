@@ -7,7 +7,7 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        
+
         # Adding model 'Version'
         db.create_table('builds_version', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
@@ -28,7 +28,7 @@ class Migration(SchemaMigration):
 
 
     def backwards(self, orm):
-        
+
         # Removing unique constraint on 'Version', fields ['project', 'identifier']
         db.delete_unique('builds_version', ['project_id', 'identifier'])
 

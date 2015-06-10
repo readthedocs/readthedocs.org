@@ -7,7 +7,7 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        
+
         # Deleting field 'VersionAlias.slug'
         db.delete_column('builds_versionalias', 'slug')
 
@@ -22,7 +22,7 @@ class Migration(SchemaMigration):
 
 
     def backwards(self, orm):
-        
+
         # User chose to not deal with backwards NULL issues for 'VersionAlias.slug'
         raise RuntimeError("Cannot reverse this migration. 'VersionAlias.slug' and its values cannot be restored.")
 

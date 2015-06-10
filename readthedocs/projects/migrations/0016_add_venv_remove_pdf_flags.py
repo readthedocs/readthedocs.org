@@ -7,7 +7,7 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        
+
         # Deleting field 'Project.build_pdf'
         db.delete_column('projects_project', 'build_pdf')
 
@@ -16,7 +16,7 @@ class Migration(SchemaMigration):
 
 
     def backwards(self, orm):
-        
+
         # Adding field 'Project.build_pdf'
         db.add_column('projects_project', 'build_pdf', self.gf('django.db.models.fields.BooleanField')(default=False), keep_default=False)
 
