@@ -70,7 +70,7 @@ Limited to *1* company per month.
 Footer Logo Promotion
 ~~~~~~~~~~~~~~~~~~~~~
 
-This promotion displays the name of your company in the footer of docuentation pages.
+This promotion displays the name of your company in the footer of documentation pages.
 It is a rotation of all sponsors,
 so will vary in pageviews based on the number of supporting companies.
 We will never have more than *10* companies in this promotion at any time.

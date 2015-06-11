@@ -40,7 +40,7 @@ We do not support:
 Rationale
 ~~~~~~~~~
 
-Read the Docs was founded to improve documentation in the Open Souce Community.
+Read the Docs was founded to improve documentation in the Open Source Community.
 We fully recognize and allow the code to be used for internal installs at companies,
 but we will not spend our time supporting it.
 Our time is limited,
