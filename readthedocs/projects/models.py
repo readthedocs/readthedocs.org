@@ -114,6 +114,16 @@ class Project(models.Model):
         help_text=_("Google Analytics Tracking ID (ex. UA-22345342-1). "
                     "This may slow down your page loads."))
 
+    # Sphinx specific build options.
+    sphinx_enable_epub_build = models.BooleanField(
+        _('Enable EPUB build'), default=True,
+        help_text=_(
+            'Create a EPUB version of your documentation with each build.'))
+    sphinx_enable_pdf_build = models.BooleanField(
+        _('Enable PDF build'), default=True,
+        help_text=_(
+            'Create a PDF version of your documentation with each build.'))
+
     # Other model data.
     path = models.CharField(_('Path'), max_length=255, editable=False,
                             help_text=_("The directory where conf.py lives"))

@@ -399,6 +399,10 @@ def build_docs(version, force, pdf, man, epub, dash, search, localmedia):
     This handles the actual building of the documentation
     """
 
+    # Arguments ``pdf``, ``man``, ``epub``, ``dash`` arguments are currently
+    # ignored. Besides HTML only builds for pdf/epub are supported but those
+    # are configured in the project model.
+
     project = version.project
     results = {}
 
@@ -465,7 +469,7 @@ def build_docs(version, force, pdf, man, epub, dash, search, localmedia):
 
             # Optional build steps
             if version.project.slug not in HTML_ONLY and not project.skip:
-                if pdf:
+                if project.sphinx_enable_pdf_build:
                     pdf_builder = builder_loading.get('sphinx_pdf')(version)
                     results['pdf'] = pdf_builder.build()
                     # Always move pdf results even when there's an error.
@@ -473,7 +477,7 @@ def build_docs(version, force, pdf, man, epub, dash, search, localmedia):
                     pdf_builder.move()
                 else:
                     results['pdf'] = fake_results
-                if epub:
+                if project.sphinx_enable_epub_build:
                     epub_builder = builder_loading.get('sphinx_epub')(version)
                     results['epub'] = epub_builder.build()
                     if results['epub'][0] == 0:
