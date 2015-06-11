@@ -7,13 +7,13 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        
+
         # Adding field 'Project.whitelisted'
         db.add_column('projects_project', 'whitelisted', self.gf('django.db.models.fields.BooleanField')(default=False), keep_default=False)
 
 
     def backwards(self, orm):
-        
+
         # Deleting field 'Project.whitelisted'
         db.delete_column('projects_project', 'whitelisted')
 

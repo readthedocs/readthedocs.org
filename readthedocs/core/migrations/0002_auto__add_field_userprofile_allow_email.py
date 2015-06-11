@@ -7,13 +7,13 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        
+
         # Adding field 'UserProfile.allow_email'
         db.add_column('core_userprofile', 'allow_email', self.gf('django.db.models.fields.BooleanField')(default=True), keep_default=False)
 
 
     def backwards(self, orm):
-        
+
         # Deleting field 'UserProfile.allow_email'
         db.delete_column('core_userprofile', 'allow_email')
 

@@ -7,13 +7,13 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        
+
         # Adding field 'Project.repo_type'
         db.add_column('projects_project', 'repo_type', self.gf('django.db.models.fields.CharField')(default='git', max_length=10), keep_default=False)
 
 
     def backwards(self, orm):
-        
+
         # Deleting field 'Project.repo_type'
         db.delete_column('projects_project', 'repo_type')
 

@@ -7,13 +7,13 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        
+
         # Adding field 'Project.analytics_code'
         db.add_column('projects_project', 'analytics_code', self.gf('django.db.models.fields.CharField')(max_length=50, null=True, blank=True), keep_default=False)
 
 
     def backwards(self, orm):
-        
+
         # Deleting field 'Project.analytics_code'
         db.delete_column('projects_project', 'analytics_code')
 
