@@ -10,5 +10,4 @@ django-mailgun==0.2.2
 #For resizing images
 pillow
 
-#Uncomment this if you want to index things in solr.
 cssselect==0.7.1
