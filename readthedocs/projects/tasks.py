@@ -336,7 +336,7 @@ def setup_environment(version):
         'mkdocs==0.13.3',
         'mock==1.0.1',
         'pillow==2.6.1',
-        'readthedocs-sphinx-ext==0.5.3',
+        'readthedocs-sphinx-ext==0.5.4',
         'sphinx-rtd-theme==0.1.8',
         'recommonmark==0.1.1',
     ])

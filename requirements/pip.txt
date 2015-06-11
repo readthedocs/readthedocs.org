@@ -72,7 +72,7 @@ distlib==0.1.2
 
 # Commenting stuff
 django-cors-headers==0.13
-nilsimsa==0.2.0
+nilsimsa==0.3.7
 
 # Pegged git requirements
 git+https://github.com/alex/django-filter.git#egg=django-filter
