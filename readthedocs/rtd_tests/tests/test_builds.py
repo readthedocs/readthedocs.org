@@ -6,6 +6,7 @@ import mock
 
 from projects.tasks import build_docs
 from rtd_tests.factories.projects_factories import ProjectFactory
+from doc_builder.loader import get_builder_class
 
 
 class MockProcess(object):
@@ -81,7 +82,8 @@ class BuildTests(TestCase):
                                         False,
                                         )
 
-        builder = project.doc_builder()(version)
+        builder_class = get_builder_class(project.documentation_type)
+        builder = builder_class(version)
         self.assertIn(builder.sphinx_builder,
                       str(mock_Popen.call_args_list[1])
                       )
@@ -93,7 +95,8 @@ class BuildTests(TestCase):
         # Normal build
         project = ProjectFactory(allow_comments=True)
         version = project.versions.all()[0]
-        builder = project.doc_builder()(version)
+        builder_class = get_builder_class(project.documentation_type)
+        builder = builder_class(version)
         self.assertEqual(builder.sphinx_builder, 'readthedocs-comments')
 
     def test_builder_no_comments(self):
@@ -101,5 +104,6 @@ class BuildTests(TestCase):
         # Normal build
         project = ProjectFactory(allow_comments=False)
         version = project.versions.all()[0]
-        builder = project.doc_builder()(version)
+        builder_class = get_builder_class(project.documentation_type)
+        builder = builder_class(version)
         self.assertEqual(builder.sphinx_builder, 'readthedocs')

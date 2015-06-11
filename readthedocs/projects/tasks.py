@@ -18,7 +18,7 @@ from slumber.exceptions import HttpClientError
 
 from builds.models import Build, Version
 from core.utils import send_email, run_on_app_servers
-from doc_builder.loader import loading as builder_loading
+from doc_builder.loader import get_builder_class
 from doc_builder.base import restoring_chdir
 from doc_builder.environments import DockerEnvironment
 from projects.exceptions import ProjectImportError
@@ -359,7 +359,8 @@ def setup_environment(version):
     requirements_file_path = project.requirements_file
     checkout_path = project.checkout_path(version.slug)
     if not requirements_file_path:
-        docs_dir = builder_loading.get(project.documentation_type)(version).docs_dir()
+        builder_class = get_builder_class(project.documentation_type)
+        docs_dir = builder_class(version).docs_dir()
         for path in [docs_dir, '']:
             for req_file in ['pip_requirements.txt', 'requirements.txt']:
                 test_path = os.path.join(checkout_path, path, req_file)
@@ -410,7 +411,7 @@ def build_docs(version, force, pdf, man, epub, dash, search, localmedia):
 
     with project.repo_nonblockinglock(version=version,
                                       max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
-        html_builder = builder_loading.get(project.documentation_type)(version)
+        html_builder = get_builder_class(project.documentation_type)(version)
         if force:
             html_builder.force()
         html_builder.append_conf()
@@ -433,7 +434,7 @@ def build_docs(version, force, pdf, man, epub, dash, search, localmedia):
         if 'mkdocs' in project.documentation_type:
             if search:
                 try:
-                    search_builder = builder_loading.get('mkdocs_json')(version)
+                    search_builder = get_builder_class('mkdocs_json')(version)
                     results['search'] = search_builder.build()
                     if results['search'][0] == 0:
                         search_builder.move()
@@ -446,8 +447,7 @@ def build_docs(version, force, pdf, man, epub, dash, search, localmedia):
             # server.
             if search:
                 try:
-                    search_builder = builder_loading.get(
-                        'sphinx_search')(version)
+                    search_builder = get_builder_class('sphinx_search')(version)
                     results['search'] = search_builder.build()
                     if results['search'][0] == 0:
                         # Copy json for safe keeping
@@ -458,8 +458,7 @@ def build_docs(version, force, pdf, man, epub, dash, search, localmedia):
             # Local media builder for singlepage HTML download archive
             if localmedia:
                 try:
-                    localmedia_builder = builder_loading.get(
-                        'sphinx_singlehtmllocalmedia')(version)
+                    localmedia_builder = get_builder_class('sphinx_singlehtmllocalmedia')(version)
                     results['localmedia'] = localmedia_builder.build()
                     if results['localmedia'][0] == 0:
                         localmedia_builder.move()
@@ -470,7 +469,7 @@ def build_docs(version, force, pdf, man, epub, dash, search, localmedia):
             # Optional build steps
             if version.project.slug not in HTML_ONLY and not project.skip:
                 if project.sphinx_enable_pdf_build:
-                    pdf_builder = builder_loading.get('sphinx_pdf')(version)
+                    pdf_builder = get_builder_class('sphinx_pdf')(version)
                     results['pdf'] = pdf_builder.build()
                     # Always move pdf results even when there's an error.
                     # if pdf_results[0] == 0:
@@ -478,7 +477,7 @@ def build_docs(version, force, pdf, man, epub, dash, search, localmedia):
                 else:
                     results['pdf'] = fake_results
                 if project.sphinx_enable_epub_build:
-                    epub_builder = builder_loading.get('sphinx_epub')(version)
+                    epub_builder = get_builder_class('sphinx_epub')(version)
                     results['epub'] = epub_builder.build()
                     if results['epub'][0] == 0:
                         epub_builder.move()

@@ -27,7 +27,6 @@ from tastyapi.slum import api
 from vcs_support.base import VCSProject
 from vcs_support.backends import backend_cls
 from vcs_support.utils import Lock, NonBlockingLock
-from doc_builder.loader import loading
 
 
 log = logging.getLogger(__name__)
@@ -432,9 +431,6 @@ class Project(models.Model):
 
     # Doc PATH:
     # MEDIA_ROOT/slug/checkouts/version/<repo>
-
-    def doc_builder(self):
-        return loading.get(self.documentation_type)
 
     @property
     def doc_path(self):
