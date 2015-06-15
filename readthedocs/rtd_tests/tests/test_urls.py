@@ -2,6 +2,7 @@ from django.core.urlresolvers import reverse
 from django.core.urlresolvers import NoReverseMatch
 from django.test import TestCase
 
+from builds.constants import LATEST
 import core.views
 
 class SubdomainUrlTests(TestCase):
@@ -13,7 +14,7 @@ class SubdomainUrlTests(TestCase):
 
     def test_sub_lang_version(self):
         url = reverse('docs_detail', urlconf='core.subdomain_urls',
-            kwargs={'lang_slug': 'en', 'version_slug': 'latest'})
+            kwargs={'lang_slug': 'en', 'version_slug': LATEST})
         self.assertEqual(url, '/en/latest/')
 
     def test_sub_lang_version_filename(self):
@@ -25,7 +26,7 @@ class SubdomainUrlTests(TestCase):
         url = reverse('subproject_docs_detail',
             urlconf='core.subdomain_urls',
             kwargs={'project_slug':'pyramid', 'lang_slug': 'en',
-                    'version_slug':'latest', 'filename': 'index.html'})
+                    'version_slug': LATEST, 'filename': 'index.html'})
         self.assertEqual(url, '/projects/pyramid/en/latest/index.html')
 
     def test_sub_project_slug_only(self):

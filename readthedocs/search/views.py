@@ -19,6 +19,7 @@ from django.views.static import serve
 from taggit.models import Tag
 import requests
 
+from builds.constants import LATEST
 from builds.filters import VersionSlugFilter
 from builds.models import Version
 from projects.models import Project, ImportedFile
@@ -38,7 +39,7 @@ def elastic_search(request):
     type = request.GET.get('type', 'project')
     # File Facets
     project = request.GET.get('project')
-    version = request.GET.get('version', 'latest')
+    version = request.GET.get('version', LATEST)
     taxonomy = request.GET.get('taxonomy')
     language = request.GET.get('language')
     results = ""

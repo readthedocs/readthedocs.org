@@ -14,6 +14,8 @@ from django.utils.translation import ugettext_lazy as _
 from guardian.shortcuts import assign
 
 from betterversion.better import version_windows, BetterVersion
+from builds.constants import LATEST
+from builds.constants import LATEST_VERBOSE_NAME
 from oauth import utils as oauth_utils
 from privacy.loader import RelatedProjectManager, ProjectManager
 from projects import constants
@@ -84,7 +86,7 @@ class Project(models.Model):
         _('Single version'), default=False,
         help_text=_('A single version site has no translations and only your "latest" version, served at the root of the domain. Use this with caution, only turn it on if you will <b>never</b> have multiple versions of your docs.'))
     default_version = models.CharField(
-        _('Default version'), max_length=255, default='latest',
+        _('Default version'), max_length=255, default=LATEST,
         help_text=_('The version of your project that / redirects to'))
     # In default_branch, None max_lengtheans the backend should choose the
     # appropraite branch. Eg 'master' for git
@@ -252,7 +254,7 @@ class Project(models.Model):
                 verbose_name__in=supported).update(supported=True)
             self.versions.exclude(
                 verbose_name__in=supported).update(supported=False)
-            self.versions.filter(verbose_name='latest').update(supported=True)
+            self.versions.filter(verbose_name=LATEST_VERBOSE_NAME).update(supported=True)
 
     def save(self, *args, **kwargs):
         first_save = self.pk is None
@@ -266,7 +268,7 @@ class Project(models.Model):
             assign('view_project', owner, self)
         try:
             if self.default_branch:
-                latest = self.versions.get(slug='latest')
+                latest = self.versions.get(slug=LATEST)
                 if latest.identifier != self.default_branch:
                     latest.identifier = self.default_branch
                     latest.save()
@@ -289,9 +291,9 @@ class Project(models.Model):
             log.error('failed to update static metadata', exc_info=True)
         try:
             branch = self.default_branch or self.vcs_repo().fallback_branch
-            if not self.versions.filter(slug='latest').exists():
+            if not self.versions.filter(slug=LATEST).exists():
                 self.versions.create(
-                    slug='latest', verbose_name='latest', machine=True, type='branch', active=True, identifier=branch)
+                    slug=LATEST, verbose_name=LATEST_VERBOSE_NAME, machine=True, type='branch', active=True, identifier=branch)
             # if not self.versions.filter(slug=STABLE).exists():
             #     self.versions.create_stable(type='branch', identifier=branch)
         except Exception:
@@ -439,10 +441,10 @@ class Project(models.Model):
     def doc_path(self):
         return os.path.join(settings.DOCROOT, self.slug.replace('_', '-'))
 
-    def checkout_path(self, version='latest'):
+    def checkout_path(self, version=LATEST):
         return os.path.join(self.doc_path, 'checkouts', version)
 
-    def venv_path(self, version='latest'):
+    def venv_path(self, version=LATEST):
         return os.path.join(self.doc_path, 'envs', version)
 
     #
@@ -480,10 +482,10 @@ class Project(models.Model):
     # End symlink paths
     #
 
-    def venv_bin(self, version='latest', bin='python'):
+    def venv_bin(self, version=LATEST, bin='python'):
         return os.path.join(self.venv_path(version), 'bin', bin)
 
-    def full_doc_path(self, version='latest'):
+    def full_doc_path(self, version=LATEST):
         """
         The path to the documentation root in the project.
         """
@@ -494,25 +496,24 @@ class Project(models.Model):
         # No docs directory, docs are at top-level.
         return doc_base
 
-    def artifact_path(self, type, version='latest'):
+    def artifact_path(self, type, version=LATEST):
         """
         The path to the build html docs in the project.
         """
         return os.path.join(self.doc_path, "artifacts", version, type)
 
-    def full_build_path(self, version='latest'):
+    def full_build_path(self, version=LATEST):
         """
         The path to the build html docs in the project.
         """
         return os.path.join(self.conf_dir(version), "_build", "html")
 
-    def full_latex_path(self, version='latest'):
+    def full_latex_path(self, version=LATEST):
         """
         The path to the build LaTeX docs in the project.
         """
         return os.path.join(self.conf_dir(version), "_build", "latex")
 
-    def full_epub_path(self, version='latest'):
         """
         The path to the build epub docs in the project.
         """
@@ -522,19 +523,19 @@ class Project(models.Model):
     # the support there for existing projects. They might have already existing
     # legacy builds.
 
-    def full_man_path(self, version='latest'):
+    def full_man_path(self, version=LATEST):
         """
         The path to the build man docs in the project.
         """
         return os.path.join(self.conf_dir(version), "_build", "man")
 
-    def full_dash_path(self, version='latest'):
+    def full_dash_path(self, version=LATEST):
         """
         The path to the build dash docs in the project.
         """
         return os.path.join(self.conf_dir(version), "_build", "dash")
 
-    def full_json_path(self, version='latest'):
+    def full_json_path(self, version=LATEST):
         """
         The path to the build json docs in the project.
         """
@@ -543,13 +544,13 @@ class Project(models.Model):
         elif 'mkdocs' in self.documentation_type:
             return os.path.join(self.checkout_path(version), "_build", "json")
 
-    def full_singlehtml_path(self, version='latest'):
+    def full_singlehtml_path(self, version=LATEST):
         """
         The path to the build singlehtml docs in the project.
         """
         return os.path.join(self.conf_dir(version), "_build", "singlehtml")
 
-    def rtd_build_path(self, version="latest"):
+    def rtd_build_path(self, version=LATEST):
         """
         The destination path where the built docs are copied.
         """
@@ -561,7 +562,7 @@ class Project(models.Model):
         """
         return os.path.join(self.doc_path, 'metadata.json')
 
-    def conf_file(self, version='latest'):
+    def conf_file(self, version=LATEST):
         if self.conf_py_file:
             conf_path = os.path.join(self.checkout_path(version), self.conf_py_file)
             if os.path.exists(conf_path):
@@ -585,7 +586,7 @@ class Project(models.Model):
         raise ProjectImportError(
             u"Conf File Missing. Please make sure you have a conf.py in your project.")
 
-    def conf_dir(self, version='latest'):
+    def conf_dir(self, version=LATEST):
         conf_file = self.conf_file(version)
         if conf_file:
             return conf_file.replace('/conf.py', '')
@@ -610,20 +611,20 @@ class Project(models.Model):
     def has_aliases(self):
         return self.aliases.exists()
 
-    def has_pdf(self, version_slug='latest'):
+    def has_pdf(self, version_slug=LATEST):
         return os.path.exists(self.get_production_media_path(type='pdf', version_slug=version_slug))
 
-    def has_epub(self, version_slug='latest'):
+    def has_epub(self, version_slug=LATEST):
         return os.path.exists(self.get_production_media_path(type='epub', version_slug=version_slug))
 
-    def has_htmlzip(self, version_slug='latest'):
+    def has_htmlzip(self, version_slug=LATEST):
         return os.path.exists(self.get_production_media_path(type='htmlzip', version_slug=version_slug))
 
     @property
     def sponsored(self):
         return False
 
-    def vcs_repo(self, version='latest'):
+    def vcs_repo(self, version=LATEST):
         backend = backend_cls.get(self.repo_type)
         if not backend:
             repo = None
@@ -757,7 +758,7 @@ class Project(models.Model):
         exists (is built and published). Otherwise returns 'latest'.
         """
         # latest is a special case where we don't have to check if it exists
-        if self.default_version == 'latest':
+        if self.default_version == LATEST:
             return self.default_version
         # check if the default_version exists
         version_qs = self.versions.filter(
@@ -765,7 +766,7 @@ class Project(models.Model):
         )
         if version_qs.exists():
             return self.default_version
-        return 'latest'
+        return LATEST
 
     def get_default_branch(self):
         """

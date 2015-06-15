@@ -5,6 +5,7 @@ from rest_framework.renderers import JSONPRenderer, JSONRenderer, BrowsableAPIRe
 from rest_framework.response import Response
 import requests
 
+from builds.constants import LATEST
 from builds.models import Version
 from djangome import views as djangome
 from search.indexes import PageIndex, ProjectIndex, SectionIndex
@@ -20,7 +21,7 @@ log = logging.getLogger(__name__)
 @decorators.renderer_classes((JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
 def quick_search(request):
     project_slug = request.GET.get('project', None)
-    version_slug = request.GET.get('version', 'latest')
+    version_slug = request.GET.get('version', LATEST)
     query = request.GET.get('q', None)
     redis_data = djangome.r.keys('redirects:v4:en:%s:%s:*%s*' % (version_slug, project_slug, query))
     ret_dict = {}
@@ -61,7 +62,7 @@ def index_search(request):
 @decorators.renderer_classes((JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
 def search(request):
     project_slug = request.GET.get('project', None)
-    version_slug = request.GET.get('version', 'latest')
+    version_slug = request.GET.get('version', LATEST)
     query = request.GET.get('q', None)
     log.debug("(API Search) %s" % query)
 
@@ -177,7 +178,7 @@ def section_search(request):
         return Response({'error': 'Search term required. Use the "q" GET arg to search. '}, status=status.HTTP_400_BAD_REQUEST)
 
     project_slug = request.GET.get('project', None)
-    version_slug = request.GET.get('version', 'latest')
+    version_slug = request.GET.get('version', LATEST)
     path_slug = request.GET.get('path', None)
 
     log.debug("(API Section Search) [%s:%s] %s" % (project_slug, version_slug, query))

@@ -1,6 +1,8 @@
 from django.test import TestCase
 from django.test.utils import override_settings
 
+from builds.constants import LATEST
+from builds.constants import LATEST_VERBOSE_NAME
 from builds.models import Version
 from projects.models import Project
 from redirects.models import Redirect
@@ -21,14 +23,14 @@ class RedirectTests(TestCase):
              'project_url': 'http://pip.rtfd.org',
              'repo': 'https://github.com/fail/sauce',
              'csrfmiddlewaretoken': '34af7c8a5ba84b84564403a280d9a9be',
-             'default_version': 'latest',
+             'default_version': LATEST,
              'privacy_level': 'public',
              'version_privacy_level': 'public',
              'description': 'wat',
              'documentation_type': 'sphinx'})
         pip = Project.objects.get(slug='pip')
-        Version.objects.create(project=pip, identifier='latest',
-                               verbose_name='latest', slug='latest',
+        Version.objects.create(project=pip, identifier=LATEST,
+                               verbose_name=LATEST_VERBOSE_NAME, slug=LATEST,
                                active=True)
 
     def test_proper_url_no_slash(self):
@@ -190,14 +192,14 @@ class RedirectAppTests(TestCase):
              'project_url': 'http://pip.rtfd.org',
              'repo': 'https://github.com/fail/sauce',
              'csrfmiddlewaretoken': '34af7c8a5ba84b84564403a280d9a9be',
-             'default_version': 'latest',
+             'default_version': LATEST,
              'privacy_level': 'public',
              'version_privacy_level': 'public',
              'description': 'wat',
              'documentation_type': 'sphinx'})
         self.pip = Project.objects.get(slug='pip')
-        Version.objects.create(project=self.pip, identifier='latest',
-                               verbose_name='latest', slug='latest',
+        Version.objects.create(project=self.pip, identifier=LATEST,
+                               verbose_name=LATEST_VERBOSE_NAME, slug=LATEST,
                                active=True)
 
     @override_settings(USE_SUBDOMAIN=True)

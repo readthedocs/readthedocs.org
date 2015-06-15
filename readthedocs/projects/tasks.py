@@ -16,6 +16,7 @@ from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 from slumber.exceptions import HttpClientError
 
+from builds.constants import LATEST
 from builds.models import Build, Version
 from core.utils import send_email, run_on_app_servers
 from doc_builder.loader import get_builder_class
@@ -156,7 +157,7 @@ def ensure_version(api, project, version_pk):
     if version_pk:
         version_data = api.version(version_pk).get()
     else:
-        version_data = api.version(project.slug).get(slug='latest')['objects'][0]
+        version_data = api.version(project.slug).get(slug=LATEST)['objects'][0]
     version = make_api_version(version_data)
     return version
 
@@ -261,7 +262,7 @@ def update_imported_docs(version_pk, api=None):
             # Does this ever get called?
             log.info(LOG_TEMPLATE.format(
                 project=project.slug, version=version.slug, msg='Updating to latest revision'))
-            version_slug = 'latest'
+            version_slug = LATEST
             version_repo = project.vcs_repo(version_slug)
             ret_dict['checkout'] = version_repo.update()
 

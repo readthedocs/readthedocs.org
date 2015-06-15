@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
 
+from builds.constants import LATEST
 from projects.models import Project
 from projects.forms import UpdateProjectForm
 
@@ -24,7 +25,7 @@ class Testmaker(TestCase):
             'language': 'en',
             'default_branch': '',
             'project_url': 'http://django-kong.rtfd.org',
-            'default_version': 'latest',
+            'default_version': LATEST,
             'privacy_level': 'public',
             'version_privacy_level': 'public',
             'python_interpreter': 'python',

@@ -10,6 +10,7 @@ from django.core.cache import cache
 from django.shortcuts import get_object_or_404
 
 from core.utils import clean_url, cname_to_slug
+from builds.constants import LATEST
 from builds.models import Version
 from projects.models import Project
 from core.templatetags.core_tags import make_document_url
@@ -54,7 +55,7 @@ def docurl(request):
 
     """
     project = request.GET.get('project')
-    version = request.GET.get('version', 'latest')
+    version = request.GET.get('version', LATEST)
     doc = request.GET.get('doc', 'index')
 
     project = get_object_or_404(Project, slug=project)
@@ -87,7 +88,7 @@ def embed(request):
     # Current Request
     """
     project = request.GET.get('project')
-    version = request.GET.get('version', 'latest')
+    version = request.GET.get('version', LATEST)
     doc = request.GET.get('doc')
     section = request.GET.get('section')
 

@@ -3,6 +3,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 import json
 
+from builds.constants import LATEST
 from projects.models import Project
 from bookmarks.models import Bookmark
 
@@ -19,7 +20,7 @@ class TestBookmarks(TestCase):
     def __add_bookmark(self):
         post_data = {
             "project": self.project.slug,
-            "version": 'latest',
+            "version": LATEST,
             "page": "",
             "url": "",
         }
