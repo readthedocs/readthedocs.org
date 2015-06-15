@@ -3,6 +3,8 @@ from django.db import models
 
 from guardian.shortcuts import get_objects_for_user
 
+from builds.constants import STABLE
+from builds.constants import STABLE_VERBOSE_NAME
 from projects import constants
 
 
@@ -112,6 +114,18 @@ class VersionManager(RelatedProjectManager):
 
     def api(self, user=None, *args, **kwargs):
         return self.public(user, only_active=False)
+
+    def create_stable(self, **kwargs):
+        defaults = {
+            'slug': STABLE,
+            'verbose_name': STABLE_VERBOSE_NAME,
+            'machine': True,
+            'active': True,
+            'identifier': STABLE,
+            'type': 'branch',
+        }
+        defaults.update(kwargs)
+        return self.create(**kwargs)
 
 
 class AdminPermission(object):

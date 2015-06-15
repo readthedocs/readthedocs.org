@@ -121,7 +121,8 @@ class ProjectViewSet(viewsets.ModelViewSet):
                         trigger_build(project=project, version=stable)
                 else:
                     log.info("Creating new stable version: {project}:{version}".format(project=project.slug, version=new_stable.identifier))
-                    version = project.versions.create(slug=STABLE, verbose_name=STABLE_VERBOSE_NAME, machine=True, type=new_stable.type, active=True, identifier=new_stable.identifier)
+                    version = project.versions.create_stable(
+                        type=new_stable.type, identifier=new_stable.identifier)
                     trigger_build(project=project, version=version)
 
                 # Build new tag if enabled
