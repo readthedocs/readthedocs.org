@@ -127,8 +127,8 @@ class Project(models.Model):
     mirror = models.BooleanField(_('Mirror'), default=False)
     use_virtualenv = models.BooleanField(
         _('Use virtualenv'),
-        help_text=_("Install your project inside a virtualenv using setup.py "
-                    "install"),
+        help_text=_("Install your project inside a virtualenv using <code>setup.py "
+                    "install</code>"),
         default=False
     )
 
