@@ -2,9 +2,6 @@ import json
 
 from django.test import TestCase
 
-from builds.constants import LATEST
-from builds.constants import LATEST_VERBOSE_NAME
-from builds.models import Version
 from projects.models import Project
 
 
@@ -14,9 +11,7 @@ class Testmaker(TestCase):
     def setUp(self):
         self.client.login(username='eric', password='test')
         self.pip = Project.objects.get(slug='pip')
-        self.latest = Version.objects.create(project=self.pip, identifier=LATEST,
-                               verbose_name=LATEST_VERBOSE_NAME, slug=LATEST,
-                               active=True)
+        self.latest = self.pip.versions.create_latest()
 
     def test_footer(self):
         r = self.client.get('/api/v2/footer_html/?project=pip&version=latest&page=index', {})

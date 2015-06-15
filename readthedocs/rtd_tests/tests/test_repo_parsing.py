@@ -2,9 +2,6 @@ import json
 
 from django.test import TestCase
 
-from builds.constants import LATEST
-from builds.constants import LATEST_VERBOSE_NAME
-from builds.models import Version
 from projects.models import Project
 
 
@@ -14,9 +11,7 @@ class TestRepoParsing(TestCase):
     def setUp(self):
         self.client.login(username='eric', password='test')
         self.pip = Project.objects.get(slug='pip')
-        self.version = Version.objects.create(project=self.pip, identifier=LATEST,
-                               verbose_name=LATEST_VERBOSE_NAME, slug=LATEST,
-                               active=True)
+        self.version = self.pip.versions.create_latest()
 
     def test_github(self):
         self.pip.repo = 'https://github.com/user/repo'

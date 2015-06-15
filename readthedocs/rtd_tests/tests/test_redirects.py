@@ -2,8 +2,6 @@ from django.test import TestCase
 from django.test.utils import override_settings
 
 from builds.constants import LATEST
-from builds.constants import LATEST_VERBOSE_NAME
-from builds.models import Version
 from projects.models import Project
 from redirects.models import Redirect
 
@@ -29,9 +27,7 @@ class RedirectTests(TestCase):
              'description': 'wat',
              'documentation_type': 'sphinx'})
         pip = Project.objects.get(slug='pip')
-        Version.objects.create(project=pip, identifier=LATEST,
-                               verbose_name=LATEST_VERBOSE_NAME, slug=LATEST,
-                               active=True)
+        pip.versions.create_latest()
 
     def test_proper_url_no_slash(self):
         r = self.client.get('/docs/pip')
@@ -198,9 +194,7 @@ class RedirectAppTests(TestCase):
              'description': 'wat',
              'documentation_type': 'sphinx'})
         self.pip = Project.objects.get(slug='pip')
-        Version.objects.create(project=self.pip, identifier=LATEST,
-                               verbose_name=LATEST_VERBOSE_NAME, slug=LATEST,
-                               active=True)
+        self.pip.versions.create_latest()
 
     @override_settings(USE_SUBDOMAIN=True)
     def test_redirect_root(self):

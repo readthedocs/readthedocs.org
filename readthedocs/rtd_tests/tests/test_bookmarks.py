@@ -81,7 +81,7 @@ class TestBookmarks(TestCase):
 
         post_data = {
             "project": self.project.slug,
-            "version": 'latest',
+            "version": LATEST,
             "page": "",
             "url": "",
         }
