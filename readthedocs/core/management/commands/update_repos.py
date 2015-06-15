@@ -17,11 +17,6 @@ class Command(BaseCommand):
     """
 
     option_list = BaseCommand.option_list + (
-        make_option('-p',
-                    action='store_true',
-                    dest='pdf',
-                    default=False,
-                    help='Make a pdf'),
         make_option('-r',
                     action='store_true',
                     dest='record',
@@ -39,7 +34,6 @@ class Command(BaseCommand):
     )
 
     def handle(self, *args, **options):
-        make_pdf = options['pdf']
         record = options['record']
         force = options['force']
         version = options['version']
@@ -55,7 +49,6 @@ class Command(BaseCommand):
                                                           active=True,
                                                           uploaded=False):
                         tasks.update_docs(pk=version.project_id,
-                                          pdf=make_pdf,
                                           record=False,
                                           version_pk=version.pk)
                 else:
@@ -68,14 +61,12 @@ class Command(BaseCommand):
                 for version in Version.objects.filter(active=True,
                                                       uploaded=False):
                     tasks.update_docs(pk=version.project_id,
-                                      pdf=make_pdf,
                                       record=record,
                                       force=force,
                                       version_pk=version.pk)
             else:
                 log.info("Updating all docs")
-                tasks.update_docs_pull(pdf=make_pdf,
-                                       record=record,
+                tasks.update_docs_pull(record=record,
                                        force=force)
 
     @property
