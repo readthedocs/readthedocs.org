@@ -307,6 +307,8 @@ div.menu-user div.menu-dropdown.menu-dropped {
 .filter dd { display: inline-block; margin-right: 0.75em; }
 .filter dd small { opacity: 0.7; }
 
+div.search-sponsored { margin-top: 50px; }
+
 #search_module .pagination { float: right; margin-top: 1em; }
 
 
