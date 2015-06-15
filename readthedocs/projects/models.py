@@ -292,8 +292,8 @@ class Project(models.Model):
             if not self.versions.filter(slug='latest').exists():
                 self.versions.create(
                     slug='latest', verbose_name='latest', machine=True, type='branch', active=True, identifier=branch)
-            # if not self.versions.filter(slug='stable').exists():
-            #     self.versions.create(slug='stable', verbose_name='stable', type='branch', active=True, identifier=branch)
+            # if not self.versions.filter(slug=STABLE).exists():
+            #     self.versions.create_stable(type='branch', identifier=branch)
         except Exception:
             log.error('Error creating default branches', exc_info=True)
 

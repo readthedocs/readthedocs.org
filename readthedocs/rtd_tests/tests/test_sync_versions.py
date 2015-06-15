@@ -3,6 +3,7 @@ import json
 from django.test import TestCase
 
 from builds.models import Version
+from builds.constants import STABLE
 from projects.models import Project
 
 
@@ -69,14 +70,14 @@ class TestSyncVersions(TestCase):
         self.assertRaises(
             Version.DoesNotExist,
             Version.objects.get,
-            slug='stable'
+            slug=STABLE
         )
         self.client.post(
             '/api/v2/project/%s/sync_versions/' % self.pip.pk,
             data=json.dumps(version_post_data),
             content_type='application/json',
         )
-        version_stable = Version.objects.get(slug='stable')
+        version_stable = Version.objects.get(slug=STABLE)
         self.assertTrue(version_stable.active)
         self.assertEqual(version_stable.identifier, '0.9')
 

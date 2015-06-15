@@ -25,6 +25,7 @@ from projects.exceptions import ProjectImportError
 from projects.models import ImportedFile, Project
 from projects.utils import run, make_api_version, make_api_project
 from projects.constants import LOG_TEMPLATE
+from builds.constants import STABLE
 from projects import symlinks
 from privacy.loader import Syncer
 from tastyapi import api, apiv2
@@ -650,7 +651,7 @@ def finish_build(version_pk, build_pk, hostname=None, html=False,
     update_static_metadata.delay(version.project.pk)
     fileify.delay(version.pk, commit=build.commit)
     update_search.delay(version.pk, commit=build.commit)
-    if not html and version.slug != 'stable' and build.exit_code != 423:
+    if not html and version.slug != STABLE and build.exit_code != 423:
         send_notifications.delay(version.pk, build_pk=build.pk)
 
 

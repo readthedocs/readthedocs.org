@@ -24,3 +24,6 @@ VERSION_TYPES = (
     ('tag', _('Tag')),
     ('unknown', _('Unknown')),
 )
+
+STABLE = 'stable'
+STABLE_VERBOSE_NAME = 'stable'
