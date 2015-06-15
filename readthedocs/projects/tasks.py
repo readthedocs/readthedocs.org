@@ -579,6 +579,8 @@ def record_build(api, record, build, results, state, start_time=None):
 def record_pdf(api, record, results, state, version):
     if not record or 'sphinx' not in version.project.documentation_type:
         return None
+    if not version.project.sphinx_enable_pdf_build:
+        return None
     try:
         if 'pdf' in results:
             pdf_exit = results['pdf'][0]
