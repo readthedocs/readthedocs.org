@@ -93,7 +93,7 @@ class Project(models.Model):
         _('Default branch'), max_length=255, default=None, null=True,
         blank=True, help_text=_('What branch "latest" points to. Leave empty '
                                 'to use the default value for your VCS (eg. '
-                                'trunk or master).'))
+                                '<code>trunk</code> or <code>master</code>).'))
     requirements_file = models.CharField(
         _('Requirements file'), max_length=255, default=None, null=True,
         blank=True, help_text=_(
@@ -111,16 +111,19 @@ class Project(models.Model):
     comment_moderation = models.BooleanField(_('Comment Moderation)'), default=False)
     analytics_code = models.CharField(
         _('Analytics code'), max_length=50, null=True, blank=True,
-        help_text=_("Google Analytics Tracking ID (ex. UA-22345342-1). "
+        help_text=_("Google Analytics Tracking ID "
+                    "(ex. <code>UA-22345342-1</code>). "
                     "This may slow down your page loads."))
 
     # Other model data.
     path = models.CharField(_('Path'), max_length=255, editable=False,
-                            help_text=_("The directory where conf.py lives"))
+                            help_text=_("The directory where "
+                                        "<code>conf.py</code> lives"))
     conf_py_file = models.CharField(
         _('Python configuration file'), max_length=255, default='', blank=True,
-        help_text=_('Path from project root to conf.py file (ex. docs/conf.py)'
-                    '. Leave blank if you want us to find it for you.'))
+        help_text=_('Path from project root to <code>conf.py</code> file '
+                    '(ex. <code>docs/conf.py</code>).'
+                    'Leave blank if you want us to find it for you.'))
 
     featured = models.BooleanField(_('Featured'), default=False)
     skip = models.BooleanField(_('Skip'), default=False)
