@@ -77,10 +77,6 @@ class BuildTests(TestCase):
                                         False,
                                         False,
                                         False,
-                                        False,
-                                        False,
-                                        False,
-                                        False,
                                         )
 
         builder_class = get_builder_class(project.documentation_type)
@@ -145,10 +141,6 @@ class BuildTests(TestCase):
                                         False,
                                         False,
                                         False,
-                                        False,
-                                        False,
-                                        False,
-                                        False,
                                         )
 
         # The HTML and the PDF format were built.
@@ -190,10 +182,6 @@ class BuildTests(TestCase):
         with mock.patch('codecs.open', mock.mock_open(), create=True):
             with fake_paths(conf_path):
                 built_docs = build_docs(version,
-                                        False,
-                                        False,
-                                        False,
-                                        False,
                                         False,
                                         False,
                                         False,

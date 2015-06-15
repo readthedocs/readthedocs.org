@@ -48,7 +48,6 @@ HTML_ONLY = getattr(settings, 'HTML_ONLY_PROJECTS', ())
 @task(default_retry_delay=7 * 60, max_retries=5)
 @restoring_chdir
 def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
-                pdf=True, epub=True,
                 search=True, force=False, intersphinx=True, localmedia=True,
                 api=None, basic=False, **kwargs):
     """
@@ -110,7 +109,7 @@ def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
             results.update(setup_results)
 
             record_build(api=api, build=build, record=record, results=results, state='building')
-            build_results = build_docs(version, force, pdf, epub, search, localmedia)
+            build_results = build_docs(version, force, search, localmedia)
             results.update(build_results)
 
     except vcs_support_utils.LockTimeout, e:
@@ -143,8 +142,8 @@ def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
             html=results.get('html', [404])[0] == 0,
             localmedia=results.get('localmedia', [404])[0] == 0,
             search=results.get('search', [404])[0] == 0,
-            pdf=True,
-            epub=results.get('epub', [404])[0] == 0,
+            pdf=version.project.sphinx_enable_pdf_build,
+            epub=version.project.sphinx_enable_epub_build,
         )
 
 
@@ -184,14 +183,14 @@ def update_documentation_type(version, api):
     version.project.documentation_type = ret
 
 
-def docker_build(version, pdf=True, epub=True,
-                 search=True, force=False, intersphinx=True, localmedia=True):
+def docker_build(version, search=True, force=False, intersphinx=True,
+                 localmedia=True):
     """
     The code that executes inside of docker
     """
     environment_results = setup_environment(version)
-    results = build_docs(version=version, force=force, pdf=pdf,
-                         epub=epub, search=search, localmedia=localmedia)
+    results = build_docs(version=version, force=force, search=search,
+                         localmedia=localmedia)
     results.update(environment_results)
     return results
 
@@ -395,14 +394,10 @@ def setup_environment(version):
 
 
 @task()
-def build_docs(version, force, pdf, epub, search, localmedia):
+def build_docs(version, force, search, localmedia):
     """
     This handles the actual building of the documentation
     """
-
-    # Arguments ``pdf``, ``epub``, arguments are currently
-    # ignored. Besides HTML only builds for pdf/epub are supported but those
-    # are configured in the project model.
 
     project = version.project
     results = {}
@@ -620,7 +615,8 @@ def record_pdf(api, record, results, state, version):
 
 
 @task(queue='web')
-def finish_build(version_pk, build_pk, hostname=None, html=False, localmedia=False, search=False, pdf=False, epub=False):
+def finish_build(version_pk, build_pk, hostname=None, html=False,
+                 localmedia=False, search=False, pdf=False, epub=False):
     """
     Build Finished, do house keeping bits
     """
@@ -850,7 +846,7 @@ def update_static_metadata(project_pk, path=None):
 
 
 #@periodic_task(run_every=crontab(hour="*", minute="*/5", day_of_week="*"))
-def update_docs_pull(record=False, pdf=False, force=False):
+def update_docs_pull(record=False, force=False):
     """
     A high-level interface that will update all of the projects.
 
@@ -859,7 +855,7 @@ def update_docs_pull(record=False, pdf=False, force=False):
     for version in Version.objects.filter(built=True):
         try:
             update_docs(
-                pk=version.project.pk, version_pk=version.pk, record=record, pdf=pdf)
+                pk=version.project.pk, version_pk=version.pk, record=record)
         except Exception, e:
             log.error("update_docs_pull failed", exc_info=True)
 
