@@ -100,9 +100,9 @@ $(document).ready(function () {
                 // TODO don't hardcode this promo
                 var promo = sponsorship.Promo.from_variants([
                     {
-                        id: 'wtd-eu-cfp',
-                        text: 'Write the Docs Europe, in Prague Aug 31 - Sep 1. <a>Submit your talk today!</a>',
-                        link: 'http://www.writethedocs.org/conf/eu/2015/cfp/',
+                        id: 'wtd-eu',
+                        text: 'Write the Docs Europe, in Prague Aug 31 - Sep 1. <a>Buy your ticket now!</a>',
+                        link: 'http://www.writethedocs.org/conf/eu/2015/',
                         image: 'https://70247537a87b983da006-a47a8cc3edeb6b00d7ff1d6a25af0fda.ssl.cf5.rackcdn.com/wtd-promo.png'
                     }
                 ]);
