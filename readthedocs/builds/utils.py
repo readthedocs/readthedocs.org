@@ -2,7 +2,7 @@ import re
 import logging
 from shutil import rmtree
 
-from builds.constants import LATEST
+from builds.constants import NON_REPOSITORY_VERSIONS
 
 
 log = logging.getLogger(__name__)
@@ -45,7 +45,7 @@ def get_bitbucket_username_repo(version, repo_url=None):
 
 def get_vcs_version_slug(version):
     slug = None
-    if version.slug == LATEST:
+    if version.slug in NON_REPOSITORY_VERSIONS:
         if version.project.default_branch:
             slug = version.project.default_branch
         else:
