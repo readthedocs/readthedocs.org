@@ -8,23 +8,23 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding field 'Project.sphinx_enable_epub_build'
-        db.add_column(u'projects_project', 'sphinx_enable_epub_build',
+        # Adding field 'Project.enable_epub_build'
+        db.add_column(u'projects_project', 'enable_epub_build',
                       self.gf('django.db.models.fields.BooleanField')(default=True),
                       keep_default=False)
 
-        # Adding field 'Project.sphinx_enable_pdf_build'
-        db.add_column(u'projects_project', 'sphinx_enable_pdf_build',
+        # Adding field 'Project.enable_pdf_build'
+        db.add_column(u'projects_project', 'enable_pdf_build',
                       self.gf('django.db.models.fields.BooleanField')(default=True),
                       keep_default=False)
 
 
     def backwards(self, orm):
-        # Deleting field 'Project.sphinx_enable_epub_build'
-        db.delete_column(u'projects_project', 'sphinx_enable_epub_build')
+        # Deleting field 'Project.enable_epub_build'
+        db.delete_column(u'projects_project', 'enable_epub_build')
 
-        # Deleting field 'Project.sphinx_enable_pdf_build'
-        db.delete_column(u'projects_project', 'sphinx_enable_pdf_build')
+        # Deleting field 'Project.enable_pdf_build'
+        db.delete_column(u'projects_project', 'enable_pdf_build')
 
 
     models = {
@@ -132,8 +132,8 @@ class Migration(SchemaMigration):
             'single_version': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'skip': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'slug': ('django.db.models.fields.SlugField', [], {'unique': 'True', 'max_length': '255'}),
-            'sphinx_enable_epub_build': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'sphinx_enable_pdf_build': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
+            'enable_epub_build': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
+            'enable_pdf_build': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'suffix': ('django.db.models.fields.CharField', [], {'default': "'.rst'", 'max_length': '10'}),
             'theme': ('django.db.models.fields.CharField', [], {'default': "'default'", 'max_length': '20'}),
             'use_system_packages': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),

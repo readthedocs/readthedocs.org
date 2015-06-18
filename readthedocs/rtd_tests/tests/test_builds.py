@@ -128,8 +128,8 @@ class BuildTests(TestCase):
         mock_Popen.side_effect = build_subprocess_side_effect
 
         project = ProjectFactory(
-            sphinx_enable_pdf_build=True,
-            sphinx_enable_epub_build=False)
+            enable_pdf_build=True,
+            enable_epub_build=False)
         version = project.versions.all()[0]
 
         conf_path = os.path.join(project.checkout_path(version.slug), project.conf_py_file)
@@ -172,8 +172,8 @@ class BuildTests(TestCase):
         mock_Popen.side_effect = build_subprocess_side_effect
 
         project = ProjectFactory(
-            sphinx_enable_pdf_build=False,
-            sphinx_enable_epub_build=True)
+            enable_pdf_build=False,
+            enable_epub_build=True)
         version = project.versions.all()[0]
 
         conf_path = os.path.join(project.checkout_path(version.slug), project.conf_py_file)

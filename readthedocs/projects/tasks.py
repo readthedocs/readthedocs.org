@@ -142,8 +142,8 @@ def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
             html=results.get('html', [404])[0] == 0,
             localmedia=results.get('localmedia', [404])[0] == 0,
             search=results.get('search', [404])[0] == 0,
-            pdf=version.project.sphinx_enable_pdf_build,
-            epub=version.project.sphinx_enable_epub_build,
+            pdf=version.project.enable_pdf_build,
+            epub=version.project.enable_epub_build,
         )
 
 
@@ -463,7 +463,7 @@ def build_docs(version, force, search, localmedia):
 
             # Optional build steps
             if version.project.slug not in HTML_ONLY and not project.skip:
-                if project.sphinx_enable_pdf_build:
+                if project.enable_pdf_build:
                     pdf_builder = get_builder_class('sphinx_pdf')(version)
                     results['pdf'] = pdf_builder.build()
                     # Always move pdf results even when there's an error.
@@ -471,7 +471,7 @@ def build_docs(version, force, search, localmedia):
                     pdf_builder.move()
                 else:
                     results['pdf'] = fake_results
-                if project.sphinx_enable_epub_build:
+                if project.enable_epub_build:
                     epub_builder = get_builder_class('sphinx_epub')(version)
                     results['epub'] = epub_builder.build()
                     if results['epub'][0] == 0:
@@ -574,7 +574,7 @@ def record_build(api, record, build, results, state, start_time=None):
 def record_pdf(api, record, results, state, version):
     if not record or 'sphinx' not in version.project.documentation_type:
         return None
-    if not version.project.sphinx_enable_pdf_build:
+    if not version.project.enable_pdf_build:
         return None
     try:
         if 'pdf' in results:

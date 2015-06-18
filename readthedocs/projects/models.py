@@ -114,11 +114,11 @@ class Project(models.Model):
                     "This may slow down your page loads."))
 
     # Sphinx specific build options.
-    sphinx_enable_epub_build = models.BooleanField(
+    enable_epub_build = models.BooleanField(
         _('Enable EPUB build'), default=True,
         help_text=_(
             'Create a EPUB version of your documentation with each build.'))
-    sphinx_enable_pdf_build = models.BooleanField(
+    enable_pdf_build = models.BooleanField(
         _('Enable PDF build'), default=True,
         help_text=_(
             'Create a PDF version of your documentation with each build.'))
