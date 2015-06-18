@@ -6,6 +6,7 @@ import mock
 
 from projects.tasks import build_docs
 from rtd_tests.factories.projects_factories import ProjectFactory
+from doc_builder.loader import get_builder_class
 
 
 class MockProcess(object):
@@ -26,6 +27,22 @@ def build_subprocess_side_effect(*args, **kwargs):
         return MockProcess(("Here's where our build report goes.", "Here's our error message."))
     else:
         return subprocess.Popen(*args, **kwargs)
+
+
+def fake_paths(*paths):
+    """
+    Returns a context manager that patches ``os.path.exists`` to return
+    ``True`` for the given ``paths``.
+    """
+
+    original_exists = os.path.exists
+
+    def patched_exists(path):
+        if path in paths:
+            return True
+        return original_exists(path)
+
+    return mock.patch.object(os.path, 'exists', patched_exists)
 
 
 class BuildTests(TestCase):
@@ -51,27 +68,19 @@ class BuildTests(TestCase):
 
         mock_apiv2_downloads.get.return_value = {'downloads': "no_url_here"}
 
-        original_exists = os.path.exists
         conf_path = os.path.join(project.checkout_path(version.slug), project.conf_py_file)
 
-        def patched_exists(path):
-            if path == conf_path:
-                return True
-            return original_exists(path)
-
+        # Mock open to simulate existing conf.py file
         with mock.patch('codecs.open', mock.mock_open(), create=True):
-            with mock.patch.object(os.path, 'exists', patched_exists):
+            with fake_paths(conf_path):
                 built_docs = build_docs(version,
-                                        False,
-                                        False,
-                                        False,
-                                        False,
                                         False,
                                         False,
                                         False,
                                         )
 
-        builder = project.doc_builder()(version)
+        builder_class = get_builder_class(project.documentation_type)
+        builder = builder_class(version)
         self.assertIn(builder.sphinx_builder,
                       str(mock_Popen.call_args_list[1])
                       )
@@ -83,7 +92,8 @@ class BuildTests(TestCase):
         # Normal build
         project = ProjectFactory(allow_comments=True)
         version = project.versions.all()[0]
-        builder = project.doc_builder()(version)
+        builder_class = get_builder_class(project.documentation_type)
+        builder = builder_class(version)
         self.assertEqual(builder.sphinx_builder, 'readthedocs-comments')
 
     def test_builder_no_comments(self):
@@ -91,5 +101,94 @@ class BuildTests(TestCase):
         # Normal build
         project = ProjectFactory(allow_comments=False)
         version = project.versions.all()[0]
-        builder = project.doc_builder()(version)
+        builder_class = get_builder_class(project.documentation_type)
+        builder = builder_class(version)
         self.assertEqual(builder.sphinx_builder, 'readthedocs')
+
+    @mock.patch('slumber.Resource')
+    @mock.patch('os.chdir')
+    @mock.patch('subprocess.Popen')
+    @mock.patch('doc_builder.backends.sphinx.HtmlBuilder.build')
+    @mock.patch('doc_builder.backends.sphinx.PdfBuilder.build')
+    @mock.patch('doc_builder.backends.sphinx.EpubBuilder.build')
+    def test_build_respects_pdf_flag(self,
+                                     EpubBuilder_build,
+                                     PdfBuilder_build,
+                                     HtmlBuilder_build,
+                                     mock_Popen,
+                                     mock_chdir,
+                                     mock_apiv2_downloads):
+
+        # subprocess mock logic
+
+        mock_process = mock.Mock()
+        process_return_dict = {'communicate.return_value': ('SOMEGITHASH', '')}
+        mock_process.configure_mock(**process_return_dict)
+        mock_Popen.return_value = mock_process
+        mock_Popen.side_effect = build_subprocess_side_effect
+
+        project = ProjectFactory(
+            enable_pdf_build=True,
+            enable_epub_build=False)
+        version = project.versions.all()[0]
+
+        conf_path = os.path.join(project.checkout_path(version.slug), project.conf_py_file)
+
+        # Mock open to simulate existing conf.py file
+        with mock.patch('codecs.open', mock.mock_open(), create=True):
+            with fake_paths(conf_path):
+                built_docs = build_docs(version,
+                                        False,
+                                        False,
+                                        False,
+                                        )
+
+        # The HTML and the PDF format were built.
+        self.assertEqual(HtmlBuilder_build.call_count, 1)
+        self.assertEqual(PdfBuilder_build.call_count, 1)
+        # Epub however was disabled and therefore not built.
+        self.assertEqual(EpubBuilder_build.call_count, 0)
+
+    @mock.patch('slumber.Resource')
+    @mock.patch('os.chdir')
+    @mock.patch('subprocess.Popen')
+    @mock.patch('doc_builder.backends.sphinx.HtmlBuilder.build')
+    @mock.patch('doc_builder.backends.sphinx.PdfBuilder.build')
+    @mock.patch('doc_builder.backends.sphinx.EpubBuilder.build')
+    def test_build_respects_epub_flag(self,
+                                      EpubBuilder_build,
+                                      PdfBuilder_build,
+                                      HtmlBuilder_build,
+                                      mock_Popen,
+                                      mock_chdir,
+                                      mock_apiv2_downloads):
+
+        # subprocess mock logic
+
+        mock_process = mock.Mock()
+        process_return_dict = {'communicate.return_value': ('SOMEGITHASH', '')}
+        mock_process.configure_mock(**process_return_dict)
+        mock_Popen.return_value = mock_process
+        mock_Popen.side_effect = build_subprocess_side_effect
+
+        project = ProjectFactory(
+            enable_pdf_build=False,
+            enable_epub_build=True)
+        version = project.versions.all()[0]
+
+        conf_path = os.path.join(project.checkout_path(version.slug), project.conf_py_file)
+
+        # Mock open to simulate existing conf.py file
+        with mock.patch('codecs.open', mock.mock_open(), create=True):
+            with fake_paths(conf_path):
+                built_docs = build_docs(version,
+                                        False,
+                                        False,
+                                        False,
+                                        )
+
+        # The HTML and the Epub format were built.
+        self.assertEqual(HtmlBuilder_build.call_count, 1)
+        self.assertEqual(EpubBuilder_build.call_count, 1)
+        # PDF however was disabled and therefore not built.
+        self.assertEqual(PdfBuilder_build.call_count, 0)

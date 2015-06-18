@@ -21,7 +21,6 @@ DOCUMENTATION_CHOICES = (
     ('sphinx_htmldir', _('Sphinx HtmlDir')),
     ('sphinx_singlehtml', _('Sphinx Single Page HTML')),
     #('sphinx_websupport2', _('Sphinx Websupport')),
-    #('sphinx_man', 'Sphinx Man'),
     #('rdoc', 'Rdoc'),
 )
 

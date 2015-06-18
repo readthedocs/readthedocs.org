@@ -18,7 +18,7 @@ from slumber.exceptions import HttpClientError
 
 from builds.models import Build, Version
 from core.utils import send_email, run_on_app_servers
-from doc_builder.loader import loading as builder_loading
+from doc_builder.loader import get_builder_class
 from doc_builder.base import restoring_chdir
 from doc_builder.environments import DockerEnvironment
 from projects.exceptions import ProjectImportError
@@ -48,7 +48,6 @@ HTML_ONLY = getattr(settings, 'HTML_ONLY_PROJECTS', ())
 @task(default_retry_delay=7 * 60, max_retries=5)
 @restoring_chdir
 def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
-                pdf=True, man=True, epub=True, dash=True,
                 search=True, force=False, intersphinx=True, localmedia=True,
                 api=None, basic=False, **kwargs):
     """
@@ -110,7 +109,7 @@ def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
             results.update(setup_results)
 
             record_build(api=api, build=build, record=record, results=results, state='building')
-            build_results = build_docs(version, force, pdf, man, epub, dash, search, localmedia)
+            build_results = build_docs(version, force, search, localmedia)
             results.update(build_results)
 
     except vcs_support_utils.LockTimeout, e:
@@ -143,8 +142,8 @@ def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
             html=results.get('html', [404])[0] == 0,
             localmedia=results.get('localmedia', [404])[0] == 0,
             search=results.get('search', [404])[0] == 0,
-            pdf=True,
-            epub=results.get('epub', [404])[0] == 0,
+            pdf=version.project.enable_pdf_build,
+            epub=version.project.enable_epub_build,
         )
 
 
@@ -184,14 +183,14 @@ def update_documentation_type(version, api):
     version.project.documentation_type = ret
 
 
-def docker_build(version, pdf=True, man=True, epub=True, dash=True,
-                 search=True, force=False, intersphinx=True, localmedia=True):
+def docker_build(version, search=True, force=False, intersphinx=True,
+                 localmedia=True):
     """
     The code that executes inside of docker
     """
     environment_results = setup_environment(version)
-    results = build_docs(version=version, force=force, pdf=pdf, man=man,
-                         epub=epub, dash=dash, search=search, localmedia=localmedia)
+    results = build_docs(version=version, force=force, search=search,
+                         localmedia=localmedia)
     results.update(environment_results)
     return results
 
@@ -359,7 +358,8 @@ def setup_environment(version):
     requirements_file_path = project.requirements_file
     checkout_path = project.checkout_path(version.slug)
     if not requirements_file_path:
-        docs_dir = builder_loading.get(project.documentation_type)(version).docs_dir()
+        builder_class = get_builder_class(project.documentation_type)
+        docs_dir = builder_class(version).docs_dir()
         for path in [docs_dir, '']:
             for req_file in ['pip_requirements.txt', 'requirements.txt']:
                 test_path = os.path.join(checkout_path, path, req_file)
@@ -394,7 +394,7 @@ def setup_environment(version):
 
 
 @task()
-def build_docs(version, force, pdf, man, epub, dash, search, localmedia):
+def build_docs(version, force, search, localmedia):
     """
     This handles the actual building of the documentation
     """
@@ -406,7 +406,7 @@ def build_docs(version, force, pdf, man, epub, dash, search, localmedia):
 
     with project.repo_nonblockinglock(version=version,
                                       max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
-        html_builder = builder_loading.get(project.documentation_type)(version)
+        html_builder = get_builder_class(project.documentation_type)(version)
         if force:
             html_builder.force()
         html_builder.append_conf()
@@ -429,7 +429,7 @@ def build_docs(version, force, pdf, man, epub, dash, search, localmedia):
         if 'mkdocs' in project.documentation_type:
             if search:
                 try:
-                    search_builder = builder_loading.get('mkdocs_json')(version)
+                    search_builder = get_builder_class('mkdocs_json')(version)
                     results['search'] = search_builder.build()
                     if results['search'][0] == 0:
                         search_builder.move()
@@ -442,8 +442,7 @@ def build_docs(version, force, pdf, man, epub, dash, search, localmedia):
             # server.
             if search:
                 try:
-                    search_builder = builder_loading.get(
-                        'sphinx_search')(version)
+                    search_builder = get_builder_class('sphinx_search')(version)
                     results['search'] = search_builder.build()
                     if results['search'][0] == 0:
                         # Copy json for safe keeping
@@ -454,8 +453,7 @@ def build_docs(version, force, pdf, man, epub, dash, search, localmedia):
             # Local media builder for singlepage HTML download archive
             if localmedia:
                 try:
-                    localmedia_builder = builder_loading.get(
-                        'sphinx_singlehtmllocalmedia')(version)
+                    localmedia_builder = get_builder_class('sphinx_singlehtmllocalmedia')(version)
                     results['localmedia'] = localmedia_builder.build()
                     if results['localmedia'][0] == 0:
                         localmedia_builder.move()
@@ -465,16 +463,16 @@ def build_docs(version, force, pdf, man, epub, dash, search, localmedia):
 
             # Optional build steps
             if version.project.slug not in HTML_ONLY and not project.skip:
-                if pdf:
-                    pdf_builder = builder_loading.get('sphinx_pdf')(version)
+                if project.enable_pdf_build:
+                    pdf_builder = get_builder_class('sphinx_pdf')(version)
                     results['pdf'] = pdf_builder.build()
                     # Always move pdf results even when there's an error.
                     # if pdf_results[0] == 0:
                     pdf_builder.move()
                 else:
                     results['pdf'] = fake_results
-                if epub:
-                    epub_builder = builder_loading.get('sphinx_epub')(version)
+                if project.enable_epub_build:
+                    epub_builder = get_builder_class('sphinx_epub')(version)
                     results['epub'] = epub_builder.build()
                     if results['epub'][0] == 0:
                         epub_builder.move()
@@ -576,6 +574,8 @@ def record_build(api, record, build, results, state, start_time=None):
 def record_pdf(api, record, results, state, version):
     if not record or 'sphinx' not in version.project.documentation_type:
         return None
+    if not version.project.enable_pdf_build:
+        return None
     try:
         if 'pdf' in results:
             pdf_exit = results['pdf'][0]
@@ -615,7 +615,8 @@ def record_pdf(api, record, results, state, version):
 
 
 @task(queue='web')
-def finish_build(version_pk, build_pk, hostname=None, html=False, localmedia=False, search=False, pdf=False, epub=False):
+def finish_build(version_pk, build_pk, hostname=None, html=False,
+                 localmedia=False, search=False, pdf=False, epub=False):
     """
     Build Finished, do house keeping bits
     """
@@ -845,7 +846,7 @@ def update_static_metadata(project_pk, path=None):
 
 
 #@periodic_task(run_every=crontab(hour="*", minute="*/5", day_of_week="*"))
-def update_docs_pull(record=False, pdf=False, man=False, force=False):
+def update_docs_pull(record=False, force=False):
     """
     A high-level interface that will update all of the projects.
 
@@ -854,7 +855,7 @@ def update_docs_pull(record=False, pdf=False, man=False, force=False):
     for version in Version.objects.filter(built=True):
         try:
             update_docs(
-                pk=version.project.pk, version_pk=version.pk, record=record, pdf=pdf, man=man)
+                pk=version.project.pk, version_pk=version.pk, record=record)
         except Exception, e:
             log.error("update_docs_pull failed", exc_info=True)
 

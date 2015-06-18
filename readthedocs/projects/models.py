@@ -27,7 +27,6 @@ from tastyapi.slum import api
 from vcs_support.base import VCSProject
 from vcs_support.backends import backend_cls
 from vcs_support.utils import Lock, NonBlockingLock
-from doc_builder.loader import loading
 
 
 log = logging.getLogger(__name__)
@@ -114,6 +113,16 @@ class Project(models.Model):
         help_text=_("Google Analytics Tracking ID "
                     "(ex. <code>UA-22345342-1</code>). "
                     "This may slow down your page loads."))
+
+    # Sphinx specific build options.
+    enable_epub_build = models.BooleanField(
+        _('Enable EPUB build'), default=True,
+        help_text=_(
+            'Create a EPUB version of your documentation with each build.'))
+    enable_pdf_build = models.BooleanField(
+        _('Enable PDF build'), default=True,
+        help_text=_(
+            'Create a PDF version of your documentation with each build.'))
 
     # Other model data.
     path = models.CharField(_('Path'), max_length=255, editable=False,
@@ -426,9 +435,6 @@ class Project(models.Model):
     # Doc PATH:
     # MEDIA_ROOT/slug/checkouts/version/<repo>
 
-    def doc_builder(self):
-        return loading.get(self.documentation_type)
-
     @property
     def doc_path(self):
         return os.path.join(settings.DOCROOT, self.slug.replace('_', '-'))
@@ -506,17 +512,21 @@ class Project(models.Model):
         """
         return os.path.join(self.conf_dir(version), "_build", "latex")
 
-    def full_man_path(self, version='latest'):
-        """
-        The path to the build man docs in the project.
-        """
-        return os.path.join(self.conf_dir(version), "_build", "man")
-
     def full_epub_path(self, version='latest'):
         """
         The path to the build epub docs in the project.
         """
         return os.path.join(self.conf_dir(version), "_build", "epub")
+
+    # There is currently no support for building man/dash formats, but we keep
+    # the support there for existing projects. They might have already existing
+    # legacy builds.
+
+    def full_man_path(self, version='latest'):
+        """
+        The path to the build man docs in the project.
+        """
+        return os.path.join(self.conf_dir(version), "_build", "man")
 
     def full_dash_path(self, version='latest'):
         """
