@@ -8,8 +8,6 @@ from builds.models import Version
 from projects.utils import slugify_uniquely
 from search.indexes import PageIndex, ProjectIndex, SectionIndex
 
-from betterversion.better import version_windows, BetterVersion
-
 log = logging.getLogger(__name__)
 
 

@@ -13,7 +13,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from guardian.shortcuts import assign
 
-from betterversion.better import version_windows, BetterVersion
+from betterversion.better import version_windows, VersionIdentifier
 from builds.constants import LATEST
 from builds.constants import LATEST_VERBOSE_NAME
 from oauth import utils as oauth_utils
@@ -716,15 +716,15 @@ class Project(models.Model):
         """
         if not self.num_major or not self.num_minor or not self.num_point:
             return None
-        versions = []
-        for ver in self.versions.all():
+        version_identifiers = []
+        for version in self.versions.all():
             try:
-                versions.append(BetterVersion(ver.verbose_name))
+                version_identifiers.append(VersionIdentifier(version.verbose_name))
             except UnsupportedVersionError:
                 # Probably a branch
                 pass
         active_versions = version_windows(
-            versions,
+            version_identifiers,
             major=self.num_major,
             minor=self.num_minor,
             point=self.num_point,
