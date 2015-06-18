@@ -81,6 +81,116 @@ class TestSyncVersions(TestCase):
         self.assertTrue(version_stable.active)
         self.assertEqual(version_stable.identifier, '0.9')
 
+    def test_update_stable_version(self):
+        version_post_data = {
+            'branches': [
+                {
+                    'identifier': 'origin/master',
+                    'verbose_name': 'master',
+                },
+            ],
+            'tags': [
+                {
+                    'identifier': '0.9',
+                    'verbose_name': '0.9',
+                },
+                {
+                    'identifier': '0.8',
+                    'verbose_name': '0.8',
+                },
+            ]
+        }
+
+        self.client.post(
+            '/api/v2/project/%s/sync_versions/' % self.pip.pk,
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+
+        version_stable = Version.objects.get(slug=STABLE)
+        self.assertTrue(version_stable.active)
+        self.assertEqual(version_stable.identifier, '0.9')
+
+        version_post_data = {
+            'tags': [
+                {
+                    'identifier': '1.0.0',
+                    'verbose_name': '1.0.0',
+                },
+            ]
+        }
+
+        self.client.post(
+            '/api/v2/project/%s/sync_versions/' % self.pip.pk,
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+
+        version_stable = Version.objects.get(slug=STABLE)
+        self.assertTrue(version_stable.active)
+        self.assertEqual(version_stable.identifier, '1.0.0')
+
+        version_post_data = {
+            'tags': [
+                {
+                    'identifier': '0.7',
+                    'verbose_name': '0.7',
+                },
+            ]
+        }
+
+        self.client.post(
+            '/api/v2/project/%s/sync_versions/' % self.pip.pk,
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+
+        version_stable = Version.objects.get(slug=STABLE)
+        self.assertTrue(version_stable.active)
+        self.assertEqual(version_stable.identifier, '1.0.0')
+
+    def test_update_inactive_stable_version(self):
+        version_post_data = {
+            'branches': [
+                {
+                    'identifier': 'origin/master',
+                    'verbose_name': 'master',
+                },
+            ],
+            'tags': [
+                {
+                    'identifier': '0.9',
+                    'verbose_name': '0.9',
+                },
+            ]
+        }
+
+        self.client.post(
+            '/api/v2/project/%s/sync_versions/' % self.pip.pk,
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+
+        version_stable = Version.objects.get(slug=STABLE)
+        self.assertEqual(version_stable.identifier, '0.9')
+        version_stable.active = False
+        version_stable.save()
+
+        version_post_data['tags'].append({
+            'identifier': '1.0.0',
+            'verbose_name': '1.0.0',
+        })
+
+        self.client.post(
+            '/api/v2/project/%s/sync_versions/' % self.pip.pk,
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+
+        version_stable = Version.objects.get(slug=STABLE)
+        self.assertFalse(version_stable.active)
+        self.assertEqual(version_stable.identifier, '1.0.0')
+
     def test_new_tag_update_active(self):
 
         Version.objects.create(project=self.pip, identifier='0.8.3',
