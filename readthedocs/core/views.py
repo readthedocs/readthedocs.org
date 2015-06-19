@@ -65,12 +65,12 @@ class HomepageView(DonateProgressMixin, TemplateView):
         return context
 
 
-def random_page(request, project=None):
-    imp_file = ImportedFile.objects.order_by('?')
+def random_page(request, project_slug=None):
+    imported_file = ImportedFile.objects.order_by('?')
     if project:
-        return HttpResponseRedirect((imp_file.filter(project__slug=project)[0]
-                                             .get_absolute_url()))
-    return HttpResponseRedirect(imp_file[0].get_absolute_url())
+        imported_file = imported_file.filter(project__slug=project_slug)
+    url = imported_file.first().get_absolute_url()
+    return HttpResponseRedirect(url)
 
 
 def queue_depth(request):
@@ -275,17 +275,19 @@ def bitbucket_build(request):
 
 
 @csrf_exempt
-def generic_build(request, pk=None):
+def generic_build(request, project_id_or_slug=None):
     try:
-        project = Project.objects.get(pk=pk)
+        project = Project.objects.get(pk=project_id_or_slug)
     # Allow slugs too
     except (Project.DoesNotExist, ValueError):
         try:
-            project = Project.objects.get(slug=pk)
+            project = Project.objects.get(slug=project_id_or_slug)
         except (Project.DoesNotExist, ValueError):
             pc_log.error(
-                "(Incoming Generic Build) Repo not found:  %s" % pk)
-            return HttpResponseNotFound('Repo not found: %s' % pk)
+                "(Incoming Generic Build) Repo not found:  %s" % (
+                    project_id_or_slug))
+            return HttpResponseNotFound(
+                'Repo not found: %s' % project_id_or_slug)
     if request.method == 'POST':
         slug = request.POST.get('version_slug', None)
         if slug:
