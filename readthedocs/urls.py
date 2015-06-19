@@ -8,10 +8,12 @@ from tastypie.api import Api
 from api.base import (ProjectResource, UserResource, BuildResource,
                       VersionResource, FileResource)
 from builds.filters import VersionFilter
+from builds.version_slug import VERSION_SLUG_REGEX
 from core.views import HomepageView, SearchView
 from projects.feeds import LatestProjectsFeed, NewProjectsFeed
 from projects.filters import ProjectFilter
 from projects.constants import LANGUAGES_REGEX
+from projects.constants import PROJECT_SLUG_REGEX
 
 v1_api = Api(api_name='v1')
 v1_api.register(BuildResource())
@@ -25,47 +27,65 @@ admin.autodiscover()
 handler500 = 'core.views.server_error'
 handler404 = 'core.views.server_error_404'
 
+
+pattern_opts = {
+    'project_slug': PROJECT_SLUG_REGEX,
+    'lang_slug': LANGUAGES_REGEX,
+    'version_slug': VERSION_SLUG_REGEX,
+    'filename_slug': '(?:.*)',
+}
+
+
 urlpatterns = patterns(
     '',  # base view, flake8 complains if it is on the previous line.
     url(r'^$', HomepageView.as_view(), name='homepage'),
     url(r'^security/', TemplateView.as_view(template_name='security.html')),
 
     # For serving docs locally and when nginx isn't
-    url((r'^docs/(?P<project_slug>[-\w]+)/(?P<lang_slug>%s)/(?P<version_slug>'
-         r'[-._\w]+?)/(?P<filename>.*)$') % LANGUAGES_REGEX,
+    url((r'^docs/(?P<project_slug>{project_slug})/(?P<lang_slug>{lang_slug})/'
+         r'(?P<version_slug>{version_slug})/'
+         r'(?P<filename>{filename_slug})$'.format(**pattern_opts)),
         'core.views.serve_docs',
         name='docs_detail'),
 
     # Redirect to default version, if only lang_slug is set.
-    url((r'^docs/(?P<project_slug>[-\w]+)/(?P<lang_slug>%s)/$') % LANGUAGES_REGEX,
+    url((r'^docs/(?P<project_slug>{project_slug})/'
+         r'(?P<lang_slug>{lang_slug})/$'.format(**pattern_opts)),
         'core.views.redirect_lang_slug',
         name='docs_detail'),
 
     # Redirect to default version, if only version_slug is set.
-    url(r'^docs/(?P<project_slug>[-\w]+)/(?P<version_slug>[-._\w]+)/$',
+    url((r'^docs/(?P<project_slug>{project_slug})/'
+         r'(?P<version_slug>{version_slug})/$'.format(**pattern_opts)),
         'core.views.redirect_version_slug',
         name='docs_detail'),
 
     # Redirect to default version.
-    url(r'^docs/(?P<project_slug>[-\w]+)/$',
+    url(r'^docs/(?P<project_slug>{project_slug})/$'.format(**pattern_opts),
         'core.views.redirect_project_slug',
         name='docs_detail'),
 
     # Handle /page/<path> redirects for explicit "latest" version goodness.
-    url(r'^docs/(?P<project_slug>[-\w]+)/page/(?P<filename>.*)$',
+    url((r'^docs/(?P<project_slug>{project_slug})/page/'
+         r'(?P<filename>{filename_slug})$'.format(**pattern_opts)),
         'core.views.redirect_page_with_filename',
         name='docs_detail'),
 
     # Handle single version URLs
-    url(r'^docs/(?P<project_slug>[-\w]+)/(?P<filename>.*)$',
+    url((r'^docs/(?P<project_slug>{project_slug})/'
+         r'(?P<filename>{filename_slug})$'.format(**pattern_opts)),
         'core.views.serve_single_version_docs',
         name='docs_detail'),
 
     # Handle fallbacks
-    url(r'^user_builds/(?P<project_slug>[-\w]+)/rtd-builds/(?P<version_slug>[-._\w]+?)/(?P<filename>.*)$',
+    url((r'^user_builds/(?P<project_slug>{project_slug})/rtd-builds/'
+         r'(?P<version_slug>{version_slug})/'
+         r'(?P<filename>{filename_slug})$'.format(**pattern_opts)),
         'core.views.server_helpful_404',
         name='user_buils_fallback'),
-    url(r'^user_builds/(?P<project_slug>[-\w]+)/translations/(?P<lang_slug>%s)/(?P<version_slug>[-._\w]+?)/(?P<filename>.*)$' % LANGUAGES_REGEX,
+    url((r'^user_builds/(?P<project_slug>{project_slug})/translations/'
+         r'(?P<lang_slug>{lang_slug})/(?P<version_slug>{version_slug})/'
+         r'(?P<filename>{filename_slug})$'.format(**pattern_opts)),
         'core.views.server_helpful_404',
         name='user_builds_fallback_translations'),
 
@@ -82,10 +102,11 @@ urlpatterns = patterns(
     url(r'^dashboard/', include('projects.urls.private')),
     url(r'^github', 'core.views.github_build', name='github_build'),
     url(r'^bitbucket', 'core.views.bitbucket_build', name='bitbucket_build'),
-    url(r'^build/(?P<project_id_or_slug>[-\w]+)',
+    url((r'^build/'
+         r'(?P<project_id_or_slug>{project_slug})'.format(**pattern_opts)),
         'core.views.generic_build',
         name='generic_build'),
-    url(r'^random/(?P<project_slug>[\w-]+)',
+    url(r'^random/(?P<project_slug>{project_slug})'.format(**pattern_opts),
         'core.views.random_page',
         name='random_page'),
     url(r'^random/$', 'core.views.random_page', name='random_page'),
@@ -102,7 +123,8 @@ urlpatterns = patterns(
         'django_filters.views.object_filter',
         {'filter_class': ProjectFilter, 'template_name': 'filter.html'},
         name='filter_project'),
-    url(r'^wipe/(?P<project_slug>[-\w]+)/(?P<version_slug>[\w]{1}[-\w\.]+)/$',
+    url((r'^wipe/(?P<project_slug>{project_slug})/'
+         r'(?P<version_slug>{version_slug})/$'.format(**pattern_opts)),
         'core.views.wipe_version',
         name='wipe_version'),
 
@@ -121,7 +143,8 @@ urlpatterns = patterns(
     url(r'^feeds/latest/$',
         LatestProjectsFeed(),
         name="latest_feed"),
-    url(r'^mlt/(?P<project_slug>[-\w]+)/(?P<filename>.*)$',
+    url((r'^mlt/(?P<project_slug>{project_slug})/'
+         r'(?P<filename>{filename_slug})$'.format(**pattern_opts)),
         'core.views.morelikethis',
         name='morelikethis'),
 

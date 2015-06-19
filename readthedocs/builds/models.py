@@ -30,6 +30,10 @@ class Version(models.Model):
     identifier = models.CharField(_('Identifier'), max_length=255)
 
     verbose_name = models.CharField(_('Verbose Name'), max_length=255)
+
+    # TODO: Refactor this to be validate against the VERSION_SLUG_REGEX
+    # and stripping automatically all invalid characters while providing
+    # uniqueness.
     slug = models.CharField(_('Slug'), max_length=255)
 
     supported = models.BooleanField(_('Supported'), default=True)
