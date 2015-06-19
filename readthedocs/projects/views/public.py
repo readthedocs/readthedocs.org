@@ -22,6 +22,7 @@ from taggit.models import Tag
 import requests
 
 from .base import ProjectOnboardMixin
+from builds.constants import LATEST
 from builds.filters import VersionSlugFilter
 from builds.models import Version
 from projects.models import Project, ImportedFile
@@ -118,7 +119,7 @@ def project_badge(request, project_slug, redirect=False):
     """
     Return a sweet badge for the project
     """
-    version_slug = request.GET.get('version', 'latest')
+    version_slug = request.GET.get('version', LATEST)
     style = request.GET.get('style', 'flat')
     try:
         version = Version.objects.public(request.user).get(project__slug=project_slug, slug=version_slug)
@@ -296,7 +297,7 @@ def elastic_project_search(request, project_slug):
     """
     queryset = Project.objects.protected(request.user)
     project = get_object_or_404(queryset, slug=project_slug)
-    version_slug = request.GET.get('version', 'latest')
+    version_slug = request.GET.get('version', LATEST)
     query = request.GET.get('q', None)
     if query:
         user = ''
@@ -449,7 +450,7 @@ def project_embed(request, project_slug):
     """
     project = get_object_or_404(Project.objects.protected(request.user),
                                 slug=project_slug)
-    version = project.versions.get(slug='latest')
+    version = project.versions.get(slug=LATEST)
     files = version.imported_files.order_by('path')
 
     return render_to_response(

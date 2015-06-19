@@ -3,11 +3,10 @@ import logging
 
 import requests
 
+from builds.constants import LATEST
 from builds.models import Version
 from projects.utils import slugify_uniquely
 from search.indexes import PageIndex, ProjectIndex, SectionIndex
-
-from betterversion.better import version_windows, BetterVersion
 
 log = logging.getLogger(__name__)
 
@@ -75,7 +74,7 @@ def delete_versions(project, version_data):
         identifier__in=current_versions).exclude(
         uploaded=True).exclude(
         active=True).exclude(
-        slug='latest')
+        slug=LATEST)
 
     if to_delete_qs.count():
         ret_val = {obj.slug for obj in to_delete_qs}

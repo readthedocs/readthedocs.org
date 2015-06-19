@@ -24,3 +24,9 @@ VERSION_TYPES = (
     ('tag', _('Tag')),
     ('unknown', _('Unknown')),
 )
+
+LATEST = 'latest'
+LATEST_VERBOSE_NAME = 'latest'
+
+STABLE = 'stable'
+STABLE_VERBOSE_NAME = 'stable'

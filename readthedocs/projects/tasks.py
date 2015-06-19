@@ -16,6 +16,7 @@ from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 from slumber.exceptions import HttpClientError
 
+from builds.constants import LATEST
 from builds.models import Build, Version
 from core.utils import send_email, run_on_app_servers
 from doc_builder.loader import get_builder_class
@@ -25,6 +26,7 @@ from projects.exceptions import ProjectImportError
 from projects.models import ImportedFile, Project
 from projects.utils import run, make_api_version, make_api_project
 from projects.constants import LOG_TEMPLATE
+from builds.constants import STABLE
 from projects import symlinks
 from privacy.loader import Syncer
 from tastyapi import api, apiv2
@@ -155,7 +157,7 @@ def ensure_version(api, project, version_pk):
     if version_pk:
         version_data = api.version(version_pk).get()
     else:
-        version_data = api.version(project.slug).get(slug='latest')['objects'][0]
+        version_data = api.version(project.slug).get(slug=LATEST)['objects'][0]
     version = make_api_version(version_data)
     return version
 
@@ -260,7 +262,7 @@ def update_imported_docs(version_pk, api=None):
             # Does this ever get called?
             log.info(LOG_TEMPLATE.format(
                 project=project.slug, version=version.slug, msg='Updating to latest revision'))
-            version_slug = 'latest'
+            version_slug = LATEST
             version_repo = project.vcs_repo(version_slug)
             ret_dict['checkout'] = version_repo.update()
 
@@ -650,7 +652,7 @@ def finish_build(version_pk, build_pk, hostname=None, html=False,
     update_static_metadata.delay(version.project.pk)
     fileify.delay(version.pk, commit=build.commit)
     update_search.delay(version.pk, commit=build.commit)
-    if not html and version.slug != 'stable' and build.exit_code != 423:
+    if not html and version.slug != STABLE and build.exit_code != 423:
         send_notifications.delay(version.pk, build_pk=build.pk)
 
 

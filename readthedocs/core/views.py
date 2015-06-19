@@ -24,6 +24,7 @@ from builds.models import Version
 from core.forms import FacetedSearchForm
 from core.utils import trigger_build
 from donate.mixins import DonateProgressMixin
+from builds.constants import LATEST
 from projects import constants
 from projects.models import Project, ImportedFile, ProjectRelationship
 from projects.tasks import remove_dir, update_imported_docs
@@ -152,7 +153,7 @@ def _build_version(project, slug, already_built=()):
         # short circuit versions that are default
         # these will build at "latest", and thus won't be
         # active
-        latest_version = project.versions.get(slug='latest')
+        latest_version = project.versions.get(slug=LATEST)
         trigger_build(project=project, version=latest_version, force=True)
         pc_log.info(("(Version build) Building %s:%s"
                      % (project.slug, latest_version.slug)))
@@ -162,7 +163,7 @@ def _build_version(project, slug, already_built=()):
             trigger_build(project=project, version=slug_version, force=True)
             pc_log.info(("(Version build) Building %s:%s"
                          % (project.slug, slug_version.slug)))
-        return "latest"
+        return LATEST
     elif project.versions.exclude(active=True).filter(slug=slug).exists():
         pc_log.info(("(Version build) Not Building %s" % slug))
         return None
@@ -201,7 +202,7 @@ def _build_url(url, branches):
         for project in projects:
             (to_build, not_building) = _build_branches(project, branches)
             if not to_build:
-                update_imported_docs.delay(project.versions.get(slug='latest').pk)
+                update_imported_docs.delay(project.versions.get(slug=LATEST).pk)
                 msg = '(URL Build) Syncing versions for %s' % project.slug
                 pc_log.info(msg)
         if to_build:
@@ -293,7 +294,7 @@ def generic_build(request, pk=None):
             _build_version(project, slug)
         else:
             pc_log.info(
-                "(Incoming Generic Build) %s [%s]" % (project.slug, 'latest'))
+                "(Incoming Generic Build) %s [%s]" % (project.slug, LATEST))
             trigger_build(project=project, force=True)
     else:
         return HttpResponse("You must POST to this resource.")

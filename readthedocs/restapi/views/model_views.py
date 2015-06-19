@@ -11,6 +11,7 @@ from builds.filters import VersionFilter
 from builds.models import Build, Version
 from core.utils import trigger_build
 from oauth import utils as oauth_utils
+from builds.constants import STABLE
 from projects.filters import ProjectFilter
 from projects.models import Project, EmailHook
 from restapi.permissions import APIPermission
@@ -111,7 +112,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 new_stable = project.versions.get(verbose_name=new_stable_slug)
 
                 # Update stable version
-                stable = project.versions.filter(slug='stable').first()
+                stable = project.versions.filter(slug=STABLE).first()
                 if stable:
                     if (new_stable.identifier != stable.identifier) and (stable.machine is True):
                         stable.identifier = new_stable.identifier
@@ -120,7 +121,8 @@ class ProjectViewSet(viewsets.ModelViewSet):
                         trigger_build(project=project, version=stable)
                 else:
                     log.info("Creating new stable version: {project}:{version}".format(project=project.slug, version=new_stable.identifier))
-                    version = project.versions.create(slug='stable', verbose_name='stable', machine=True, type=new_stable.type, active=True, identifier=new_stable.identifier)
+                    version = project.versions.create_stable(
+                        type=new_stable.type, identifier=new_stable.identifier)
                     trigger_build(project=project, version=version)
 
                 # Build new tag if enabled

@@ -9,6 +9,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from guardian.shortcuts import assign
 from taggit.managers import TaggableManager
 
+from builds.constants import LATEST
 from privacy.loader import VersionManager, RelatedProjectManager
 from projects.models import Project
 from projects import constants
@@ -79,7 +80,7 @@ class Version(models.Model):
 
     @property
     def remote_slug(self):
-        if self.slug == 'latest':
+        if self.slug == LATEST:
             if self.project.default_branch:
                 return self.project.default_branch
             else:

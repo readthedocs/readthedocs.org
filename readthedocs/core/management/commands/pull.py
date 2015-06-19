@@ -3,6 +3,7 @@ import logging
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
+from builds.constants import LATEST
 from projects import tasks, utils
 
 import redis
@@ -14,5 +15,5 @@ class Command(BaseCommand):
         if len(args):
             for slug in args:
                 tasks.update_imported_docs(
-                    utils.version_from_slug(slug, 'latest').pk
+                    utils.version_from_slug(slug, LATEST).pk
                 )

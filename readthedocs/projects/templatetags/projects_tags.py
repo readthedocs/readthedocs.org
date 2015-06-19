@@ -2,6 +2,8 @@ from django import template
 
 from distutils2.version import NormalizedVersion
 from projects.utils import mkversion
+from builds.constants import LATEST
+from builds.constants import STABLE
 
 register = template.Library()
 
@@ -9,9 +11,9 @@ register = template.Library()
 def make_version(version):
     ver = mkversion(version)
     if not ver:
-        if version.slug == 'latest':
+        if version.slug == LATEST:
             return NormalizedVersion('99999.0', error_on_huge_major_num=False)
-        elif version.slug == 'stable':
+        elif version.slug == STABLE:
             return NormalizedVersion('9999.0', error_on_huge_major_num=False)
         else:
             return NormalizedVersion('999.0', error_on_huge_major_num=False)
