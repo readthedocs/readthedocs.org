@@ -105,14 +105,14 @@ class SingleVersionMiddleware(object):
         slug = None
         if hasattr(request, 'slug'):
             # Handle subdomains and CNAMEs.
-            slug = request.slug
+            slug = request.slug.lower()
         else:
             # Handle '/docs/<project>/' URLs
             path = request.get_full_path()
             path_parts = path.split('/')
             if len(path_parts) > 2 and path_parts[1] == 'docs':
-                slug = path_parts[2]
-        return slug.lower()
+                slug = path_parts[2].lower()
+        return slug
 
     def process_request(self, request):
         slug = self._get_slug(request)
