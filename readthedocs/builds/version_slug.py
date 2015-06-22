@@ -25,12 +25,12 @@ from django.utils.encoding import force_text
 
 
 # Regex breakdown:
-#   \w -- start with alphanumeric value
-#   [-._\w] -- allow dash, dot, underscore, digit, lowercase ascii
+#   [a-z0-9] -- start with alphanumeric value
+#   [-._a-z0-9] -- allow dash, dot, underscore, digit, lowercase ascii
 #   +? -- allow multiple of those, but be not greedy about the matching
 #   (?: ... ) -- wrap everything so that the pattern cannot escape when used in
 #                regexes.
-VERSION_SLUG_REGEX = '(?:\w[-._\w]+?)'
+VERSION_SLUG_REGEX = '(?:[a-z0-9][-._a-z0-9]+?)'
 
 
 version_slug_regex = re.compile(VERSION_SLUG_REGEX)
