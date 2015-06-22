@@ -46,7 +46,7 @@ class MiddlewareTests(unittest.TestCase):
 
     @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
     def test_proper_cname_uppercase(self):
-        cache.get = lambda x: x
+        cache.get = lambda x: x.split('.')[0]
         request = self.factory.get(self.url, HTTP_HOST='PIP.RANDOM.COM')
         self.middleware.process_request(request)
         self.assertEqual(request.urlconf, 'core.subdomain_urls')
