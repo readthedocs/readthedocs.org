@@ -14,6 +14,7 @@ from privacy.loader import VersionManager, RelatedProjectManager
 from projects.models import Project
 from projects import constants
 from .constants import BUILD_STATE, BUILD_TYPES, VERSION_TYPES
+from .version_slug import VersionSlugField
 
 
 DEFAULT_VERSION_PRIVACY_LEVEL = getattr(settings, 'DEFAULT_VERSION_PRIVACY_LEVEL', 'public')
@@ -31,10 +32,8 @@ class Version(models.Model):
 
     verbose_name = models.CharField(_('Verbose Name'), max_length=255)
 
-    # TODO: Refactor this to be validate against the VERSION_SLUG_REGEX
-    # and stripping automatically all invalid characters while providing
-    # uniqueness.
-    slug = models.CharField(_('Slug'), max_length=255)
+    slug = VersionSlugField(_('Slug'), max_length=255,
+                            populate_from='verbose_name')
 
     supported = models.BooleanField(_('Supported'), default=True)
     active = models.BooleanField(_('Active'), default=False)
