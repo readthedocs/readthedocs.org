@@ -42,10 +42,7 @@ class VersionSlugField(models.CharField):
     """
 
     allowed_chars = string.lowercase + string.digits + '-._'
-    replacements = {
-        '/': '__',
-        'default': '-',
-    }
+    placeholder = '-'
 
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('db_index', True)
@@ -68,10 +65,8 @@ class VersionSlugField(models.CharField):
             return ''
         slugified = ''
         for char in content:
-            if char in self.replacements:
-                slugified += self.replacements[char]
-            elif char not in self.allowed_chars:
-                slugified += self.replacements['default']
+            if char not in self.allowed_chars:
+                slugified += self.placeholder
             else:
                 slugified += char
         return slugified
