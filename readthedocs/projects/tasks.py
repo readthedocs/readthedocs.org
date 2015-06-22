@@ -339,6 +339,7 @@ def setup_environment(version):
         'pillow==2.6.1',
         'readthedocs-sphinx-ext==0.5.4',
         'sphinx-rtd-theme==0.1.8',
+        'alabaster>=0.7,<0.8,!=0.7.5',
         'recommonmark==0.1.1',
     ])
 
