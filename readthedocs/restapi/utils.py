@@ -5,7 +5,6 @@ import requests
 
 from builds.constants import LATEST
 from builds.models import Version
-from projects.utils import slugify_uniquely
 from search.indexes import PageIndex, ProjectIndex, SectionIndex
 
 log = logging.getLogger(__name__)
