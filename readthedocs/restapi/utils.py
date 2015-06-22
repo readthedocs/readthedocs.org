@@ -45,15 +45,13 @@ def sync_versions(project, versions, type):
                 log.info("(Sync Versions) Updated Version: [%s=%s] " % (version['verbose_name'], version['identifier']))
         else:
             # New Version
-            slug = slugify_uniquely(Version, version['verbose_name'], 'slug', 255, project=project)
-            Version.objects.create(
+            created_version = Version.objects.create(
                 project=project,
-                slug=slug,
                 type=type,
                 identifier=version['identifier'],
                 verbose_name=version['verbose_name'],
             )
-            added.add(slug)
+            added.add(created_version.slug)
     if added:
         log.info("(Sync Versions) Added Versions: [%s] " % ' '.join(added))
     return added

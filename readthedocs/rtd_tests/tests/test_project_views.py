@@ -194,7 +194,7 @@ class TestPrivateViews(MockBuildTestCase):
         # Test if the versions page works with a version that contains a slash.
         # That broke in the past, see issue #1176.
         pip = Project.objects.get(slug='pip')
-        pip.versions.create(slug='1.0/with-slash')
+        pip.versions.create(verbose_name='1.0/with-slash')
 
         response = self.client.get('/projects/pip/versions/')
         self.assertEqual(response.status_code, 200)
