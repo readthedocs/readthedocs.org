@@ -44,6 +44,23 @@ class MiddlewareTests(unittest.TestCase):
         self.assertEqual(request.rtdheader, True)
         self.assertEqual(request.slug, 'pip')
 
+    @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
+    def test_proper_cname_uppercase(self):
+        cache.get = lambda x: x.split('.')[0]
+        request = self.factory.get(self.url, HTTP_HOST='PIP.RANDOM.COM')
+        self.middleware.process_request(request)
+        self.assertEqual(request.urlconf, 'core.subdomain_urls')
+        self.assertEqual(request.cname, True)
+        self.assertEqual(request.slug, 'pip')
+
+    def test_request_header_uppercase(self):
+        request = self.factory.get(self.url, HTTP_HOST='some.random.com', HTTP_X_RTD_SLUG='PIP')
+        self.middleware.process_request(request)
+        self.assertEqual(request.urlconf, 'core.subdomain_urls')
+        self.assertEqual(request.cname, True)
+        self.assertEqual(request.rtdheader, True)
+        self.assertEqual(request.slug, 'pip')
+
     @override_settings(DEBUG=True)
     def test_debug_on(self):
         request = self.factory.get(self.url, HTTP_HOST='doesnt.really.matter')
