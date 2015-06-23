@@ -562,6 +562,9 @@ class Project(models.Model):
         """
         return os.path.join(self.doc_path, 'metadata.json')
 
+    def readthedocs_yml_file(self, version):
+        return os.path.join(self.checkout_path(version), 'readthedocs.yml')
+
     def conf_file(self, version=LATEST):
         if self.conf_py_file:
             conf_path = os.path.join(self.checkout_path(version), self.conf_py_file)
@@ -571,7 +574,6 @@ class Project(models.Model):
             else:
                 log.warning("Conf file specified on model doesn't exist")
         files = self.find('conf.py', version)
-        print files
         if not files:
             files = self.full_find('conf.py', version)
         print files

@@ -10,6 +10,7 @@ BUILDER_BY_NAME = {
     'sphinx': sphinx.HtmlBuilder,
     'sphinx_htmldir': sphinx.HtmlDirBuilder,
     'sphinx_singlehtml': sphinx.SingleHtmlBuilder,
+    'yaml': sphinx.ConfigBuilder,
     # Other Sphinx Builders
     'sphinx_pdf': sphinx.PdfBuilder,
     'sphinx_epub': sphinx.EpubBuilder,
