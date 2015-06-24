@@ -19,7 +19,7 @@ LOG_TEMPLATE = u"(Middleware) {msg} [{host}{path}]"
 class SubdomainMiddleware(object):
 
     def process_request(self, request):
-        host = request.get_host()
+        host = request.get_host().lower()
         path = request.get_full_path()
         log_kwargs = dict(host=host, path=path)
         if settings.DEBUG:
@@ -45,7 +45,7 @@ class SubdomainMiddleware(object):
            'testserver' not in host:
             request.cname = True
             try:
-                request.slug = request.META['HTTP_X_RTD_SLUG']
+                request.slug = request.META['HTTP_X_RTD_SLUG'].lower()
                 request.urlconf = 'core.subdomain_urls'
                 request.rtdheader = True
                 log.debug(LOG_TEMPLATE.format(msg='X-RTD-Slug header detetected: %s' % request.slug, **log_kwargs))
@@ -57,7 +57,7 @@ class SubdomainMiddleware(object):
                         redis_conn = redis.Redis(**settings.REDIS)
                         from dns import resolver
                         answer = [ans for ans in resolver.query(host, 'CNAME')][0]
-                        domain = answer.target.to_unicode()
+                        domain = answer.target.lower().to_unicode()
                         slug = domain.split('.')[0]
                         cache.set(host, slug, 60 * 60)
                         # Cache the slug -> host mapping permanently.
@@ -105,13 +105,13 @@ class SingleVersionMiddleware(object):
         slug = None
         if hasattr(request, 'slug'):
             # Handle subdomains and CNAMEs.
-            slug = request.slug
+            slug = request.slug.lower()
         else:
             # Handle '/docs/<project>/' URLs
             path = request.get_full_path()
             path_parts = path.split('/')
             if len(path_parts) > 2 and path_parts[1] == 'docs':
-                slug = path_parts[2]
+                slug = path_parts[2].lower()
         return slug
 
     def process_request(self, request):
