@@ -145,8 +145,8 @@ msgstr "The path to the build json docs in the project."
 # 94129d075c35418e906f8333b963343f
 #: ../../../readthedocs/projects/models.pydocstring of
 #: projects.models.Project.full_latex_path:1
-msgid "The path to the build latex docs in the project."
-msgstr "The path to the build latex docs in the project."
+msgid "The path to the build LaTeX docs in the project."
+msgstr "The path to the build LaTeX docs in the project."
 
 # ee1eb04bb2ec469bb928c1f112f1cee0
 #: ../../../readthedocs/projects/models.pydocstring of

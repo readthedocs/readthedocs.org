@@ -7,7 +7,7 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        
+
         # Deleting field 'Project.docs_directory'
         db.delete_column('projects_project', 'docs_directory')
 
@@ -16,7 +16,7 @@ class Migration(SchemaMigration):
 
 
     def backwards(self, orm):
-        
+
         # Adding field 'Project.docs_directory'
         db.add_column('projects_project', 'docs_directory', self.gf('django.db.models.fields.CharField')(default='', max_length=255, blank=True), keep_default=False)
 

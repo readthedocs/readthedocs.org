@@ -1,5 +1,6 @@
 from django.test import TestCase
 
+from builds.constants import LATEST
 from builds.models import Version
 from projects.models import Project
 
@@ -16,7 +17,7 @@ class RedirectSingleVersionTests(TestCase):
         self.assertTrue(Project.objects.get(name='Pip').single_version)
 
     def test_test_case_version_exists(self):
-        self.assertTrue(Version.objects.filter(project__name__exact='Pip').get(slug='latest'))
+        self.assertTrue(Version.objects.filter(project__name__exact='Pip').get(slug=LATEST))
 
     def test_proper_single_version_url_full_with_filename(self):
         r = self.client.get('/docs/pip/usage.html')
@@ -35,7 +36,7 @@ class RedirectSingleVersionTests(TestCase):
         self.assertEqual(r.status_code, 404)
 
     def test_docs_url_generation(self):
-        
+
         self.pip.single_version = True
         with self.settings(USE_SUBDOMAIN=False):
             self.assertEqual(self.pip.get_docs_url(), '/docs/pip/')

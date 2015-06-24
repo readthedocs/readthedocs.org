@@ -35,7 +35,7 @@ class TestGitBackend(RTDTestCase):
         """
 
         expected_ids = [
-            ('develop', 'develop'), 
+            ('develop', 'develop'),
             ('master', 'master'),
             ('release/2.0.0', 'release-2.0.0'),
             ('origin/2.0.X', '2.0.X'),

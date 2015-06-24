@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Sustainability" %}{% endblock %}
+
+{% block content %}
+  <h2>Thanks for your support</h2>
+
+  <p>
+    We appreciate your contribution greatly, thank you for showing your support!
+    Your help will go a long ways towards making the service more sustainable.
+  </p>
+
+  <h3>Help us get the word out</h3>
+  <p>
+    You can help us get more contributions by spreading news of our campaign
+    and sharing the following link:
+  </p>
+  <p>
+    <a href="{% url 'donate' %}">Help Support Read the Docs</a>
+  </p>
+
+  <a href="https://twitter.com/share" class="twitter-share-button" data-url="https://readthedocs.org/sustainability/" data-text="Help make Read the Docs more sustainable" data-via="readthedocs" data-size="large" data-dnt="true">Tweet</a>
+  <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+
+{% endblock %}

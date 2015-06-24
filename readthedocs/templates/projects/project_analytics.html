@@ -1,0 +1,89 @@
+{% extends "projects/base_project.html" %}
+{% load i18n %}
+{% load privacy_tags %}
+{% load core_tags highlight  %}
+{% load static %}
+
+{% block title %}
+Tools
+{% endblock title %}
+
+{% block project_editing %}
+  {% with tools_active="active" %}
+    {% include "core/project_bar.html" %}
+  {% endwith %}
+{% endblock %}
+
+{% block extra_scripts %}
+  <script type="text/javascript" src="{% static 'projects/js/tools.js' %}"></script>
+  <script type="text/javascript">
+$(document).ready(function () {
+    tools.init_analytics({
+        api_host: '{{ settings.GROK_API_HOST }}',
+        uri: '{{ settings.URI }}',
+        project: '{{ project.slug }}'
+    });
+});
+  </script>
+{% endblock %}
+
+{% block content %}
+<div class="navigable">
+
+  <ul>
+    <li>
+      <a href="{% url 'project_embed' project.slug %}">Embed</a>
+    </li>
+    <li class="active">
+      <a href="{% url 'project_analytics' project.slug %}">Analytics</a>
+    </li>
+  </ul>
+
+  <div id='tool-analytics'>
+    <h2>
+      <span class="link-help">
+        (<a href="/" data-bind="click: show_help, clickBubble: false">Help</a>)
+      </span>
+      {% trans "Analytics" %}
+    </h2>
+
+    <p>
+      {% trans "This shows the last 7 days of data from your project." %}
+    </p>
+
+    {% if not full %}
+      <p>
+        Showing only top 20 results. See <a href="?full=True">full listing</a>
+      </p>
+    {% else %}
+      <p>Showing all results.</p>
+    {% endif %}
+
+    <div class="analytics-column">
+      <h3>{% trans "Pages" %}</h3>
+      <ul class="chartlist">
+        {% for page, count in page_list %}
+          <li>
+            <a href="{% doc_url project project.default_version page %}?analytics=True">{{ page }}</a> 
+            <span class="count">{{ count }}</span>
+            <span class="index" style="width: {{ analytics.scaled_page|key:page }}%">({{ analytics.scaled_page|key:page }}%)</span>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="analytics-column">
+      <h3>{% trans "Versions" %}</h3>
+      <ul class="chartlist">
+        {% for version, count in version_list %}
+        <li>
+          <a href="{% doc_url project version %}?analytics=True">{{ version }}</a> 
+          <span class="count">{{ count }}</span>
+          <span class="index" style="width: {{ analytics.scaled_version|key:version }}%">({{ analytics.scaled_version|key:version }}%)</span>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}

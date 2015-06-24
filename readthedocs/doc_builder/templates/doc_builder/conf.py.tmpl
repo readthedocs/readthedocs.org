@@ -1,4 +1,41 @@
 {% load projects_tags %}
+
+import sys
+from six import string_types
+
+from sphinx import version_info
+
+from recommonmark.parser import CommonMarkParser
+
+# Only Sphinx 1.3+
+if version_info[0] == 1 and version_info[1] > 2:
+
+    # Markdown Support
+    if 'source_suffix' in globals():
+        if isinstance(source_suffix, string_types) and source_suffix != '.md':
+            source_suffix = [source_suffix, '.md']
+        elif '.md' not in source_suffix:
+            source_suffix.append('.md')
+    else:
+        source_suffix = ['.rst', '.md']
+
+    if 'source_parsers' in globals():
+        source_parsers['.md'] = CommonMarkParser
+    else:
+        source_parsers = {
+            '.md': CommonMarkParser,
+        }
+
+if globals().get('source_suffix', False):
+    if isinstance(source_suffix, string_types):
+        SUFFIX = source_suffix
+    else:
+        SUFFIX = source_suffix[0]
+else:
+    SUFFIX = '.rst'
+
+
+
 #Add RTD Template Path.
 if 'templates_path' in globals():
     templates_path.insert(0, '{{ template_path }}')
@@ -45,10 +82,13 @@ if globals().get('RTD_OLD_THEME', False):
     html_style = 'rtd.css'
     html_theme = 'default'
 
-if globals().get('source_suffix', False):
-    SUFFIX = source_suffix
-else:
-    SUFFIX = '.rst'
+if globals().get('websupport2_base_url', False):
+    websupport2_base_url = '{{ api_host }}/websupport'
+    if 'http' not in settings.MEDIA_URL:
+        websupport2_static_url = '{{ settings.STATIC_URL }}'
+    else:
+        websupport2_static_url = '{{ settings.MEDIA_URL }}/static'
+
 
 #Add project information to the template context.
 context = {

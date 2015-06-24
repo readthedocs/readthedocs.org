@@ -27,6 +27,7 @@ CACHE_BACKEND = 'dummy://'
 SLUMBER_USERNAME = 'test'
 SLUMBER_PASSWORD = 'test'
 SLUMBER_API_HOST = 'http://localhost:8000'
+#GROK_API_HOST = 'http://localhost:5555'
 PRODUCTION_DOMAIN = 'localhost:8000'
 
 WEBSOCKET_HOST = 'localhost:8088'
@@ -46,7 +47,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 FILE_SYNCER = 'privacy.backends.syncers.LocalSyncer'
 
 # For testing locally. Put this in your /etc/hosts:
-# 127.0.0.1 test 
+# 127.0.0.1 test
 # and navigate to http://test:8000
 CORS_ORIGIN_WHITELIST = (
     'test:8000',

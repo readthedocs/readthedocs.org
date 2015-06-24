@@ -57,6 +57,22 @@ $(document).ready(function () {
                 //$('.rst-current-version').addClass('rst-active-old-version')
             }
 
+            // Show promo selectively
+            if (data.promo && build.show_promo()) {
+                // TODO don't hardcode this promo
+                var promo = sponsorship.Promo.from_variants([
+                    {
+                        id: 'wtd-eu',
+                        text: 'Write the Docs Europe, in Prague Aug 31 - Sep 1. <a>Buy your ticket now!</a>',
+                        link: 'http://www.writethedocs.org/conf/eu/2015/',
+                        image: 'https://70247537a87b983da006-a47a8cc3edeb6b00d7ff1d6a25af0fda.ssl.cf5.rackcdn.com/wtd-promo.png'
+                    }
+                ]);
+                if (promo) {
+                    promo.display();
+                }
+            }
+
             // using jQuery
             function getCookie(name) {
                 var cookieValue = null;
@@ -151,76 +167,118 @@ $(document).ready(function () {
 
     /// Read the Docs Sphinx theme code
     if (!("builder" in READTHEDOCS_DATA) || "builder" in READTHEDOCS_DATA && READTHEDOCS_DATA["builder"] != "mkdocs") {
-      // Shift nav in mobile when clicking the menu.
-      $(document).on('click', "[data-toggle='wy-nav-top']", function() {
-        $("[data-toggle='wy-nav-shift']").toggleClass("shift");
-        $("[data-toggle='rst-versions']").toggleClass("shift");
-      });
-      // Close menu when you click a link.
-      $(document).on('click', ".wy-menu-vertical .current ul li a", function() {
-        $("[data-toggle='wy-nav-shift']").removeClass("shift");
-        $("[data-toggle='rst-versions']").toggleClass("shift");
-      });
-      $(document).on('click', "[data-toggle='rst-current-version']", function() {
-        $("[data-toggle='rst-versions']").toggleClass("shift-up");
-      });
-      // Make tables responsive
-      $("table.docutils:not(.field-list)").wrap("<div class='wy-table-responsive'></div>");
+        function toggleCurrent (elem) {
+            var parent_li = elem.closest('li');
+            parent_li.siblings('li.current').removeClass('current');
+            parent_li.siblings().find('li.current').removeClass('current');
+            parent_li.find('> ul li.current').removeClass('current');
+            parent_li.toggleClass('current');
+        }
 
-      // Promos
-      // TODO don't hardcode this promo and remove the util function to hide the
-      // ad
-      var promo = null;
-      if (build.is_rtd_theme() && build.show_promo()) {
-          var promo = sponsorship.Promo.from_variants([
-              {
-                  id: 'wtdna2015-v1',
-                  text: 'Come join us at Write the Docs, a community conference about documentation.',
-                  link: 'http://writethedocs.org/conf/na/2015/'
-              }
-              //'Enjoy reading the docs? Join fellow developers and tech writers at Write the Docs!',
-              //'Love docs as much as we do? Come join the community at the Write The Docs conference',
-              //'Tickets are now on sale for Write the Docs, a community conference about documentation!',
-          ]);
-          promo.display();
-      }
+        // Shift nav in mobile when clicking the menu.
+        $(document).on('click', "[data-toggle='wy-nav-top']", function() {
+            $("[data-toggle='wy-nav-shift']").toggleClass("shift");
+            $("[data-toggle='rst-versions']").toggleClass("shift");
+        });
+        // Nav menu link click operations
+        $(document).on('click', ".wy-menu-vertical .current ul li a", function() {
+            var target = $(this);
+            // Close menu when you click a link.
+            $("[data-toggle='wy-nav-shift']").removeClass("shift");
+            $("[data-toggle='rst-versions']").toggleClass("shift");
+            // Handle dynamic display of l3 and l4 nav lists
+            toggleCurrent(target);
+            if (typeof(window.SphinxRtdTheme) != 'undefined') {
+                window.SphinxRtdTheme.StickyNav.hashChange();
+            }
+        });
+        $(document).on('click', "[data-toggle='rst-current-version']", function() {
+            $("[data-toggle='rst-versions']").toggleClass("shift-up");
+        });
+        // Make tables responsive
+        $("table.docutils:not(.field-list)").wrap("<div class='wy-table-responsive'></div>");
 
-      window.SphinxRtdTheme = (function (jquery) {
-          var stickyNav = (function () {
-              var navBar,
-                  win,
-                  stickyNavCssClass = 'stickynav',
-                  applyStickNav = function () {
-                      if (navBar.height() <= win.height()) {
-                          navBar.addClass(stickyNavCssClass);
-                      } else {
-                          navBar.removeClass(stickyNavCssClass);
-                      }
+        // Add expand links to all parents of nested ul
+        $('.wy-menu-vertical ul').siblings('a').each(function () {
+            var link = $(this);
+                expand = $('<span class="toctree-expand"></span>');
+            expand.on('click', function (ev) {
+                toggleCurrent(link);
+                ev.stopPropagation();
+                return false;
+            });
+            link.prepend(expand);
+        });
 
-                      if (promo && typeof(promo.waypoint.refresh) != 'undefined') {
-                          promo.waypoint.refresh();
-                      }
-                  },
-                  enable = function () {
-                      init();
-                      applyStickNav();
-                      win.on('resize', applyStickNav);
-                  },
-                  init = function () {
-                      navBar = jquery('nav.wy-nav-side:first');
-                      win    = jquery(window);
-                  };
-              jquery(init);
-              return {
-                  enable : enable
-              };
-          }());
-          return {
-              StickyNav : stickyNav
-          };
-      }($));
+        // Sphinx theme state
+        window.SphinxRtdTheme = (function (jquery) {
+            var stickyNav = (function () {
+                var navBar,
+                    win,
+                    winScroll = false,
+                    linkScroll = false,
+                    winPosition = 0,
+                    enable = function () {
+                        init();
+                        reset();
+                        win.on('hashchange', reset);
+
+                        // Set scrolling
+                        win.on('scroll', function () {
+                            if (!linkScroll) {
+                                winScroll = true;
+                            }
+                        });
+                        setInterval(function () {
+                            if (winScroll) {
+                                winScroll = false;
+                                var newWinPosition = win.scrollTop(),
+                                    navPosition = navBar.scrollTop(),
+                                    newNavPosition = navPosition + (newWinPosition - winPosition);
+                                navBar.scrollTop(newNavPosition);
+                                winPosition = newWinPosition;
+                            }
+                        }, 25);
+                    },
+                    init = function () {
+                        navBar = jquery('nav.wy-nav-side:first');
+                        win = jquery(window);
+                    },
+                    reset = function () {
+                        // Get anchor from URL and open up nested nav
+                        var anchor = encodeURI(window.location.hash);
+                        if (anchor) {
+                            try {
+                                var link = $('.wy-menu-vertical')
+                                    .find('[href="' + anchor + '"]');
+                                $('.wy-menu-vertical li.toctree-l1 li.current')
+                                    .removeClass('current');
+                                link.closest('li.toctree-l2').addClass('current');
+                                link.closest('li.toctree-l3').addClass('current');
+                                link.closest('li.toctree-l4').addClass('current');
+                            }
+                            catch (err) {
+                                console.log("Error expanding nav for anchor", err);
+                            }
+                        }
+                    },
+                    hashChange = function () {
+                        linkScroll = true;
+                        win.one('hashchange', function () {
+                            linkScroll = false;
+                        });
+                    };
+                jquery(init);
+                return {
+                    enable: enable,
+                    hashChange: hashChange
+                };
+            }());
+            return {
+                StickyNav: stickyNav
+            };
+        }($));
     }
-
 
     // Add Grok the Docs Client
     $.ajax({

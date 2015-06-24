@@ -7,13 +7,13 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        
+
         # Adding field 'Build.version'
         db.add_column('builds_build', 'version', self.gf('django.db.models.fields.related.OneToOneField')(related_name='build', unique=True, null=True, to=orm['builds.Version']), keep_default=False)
 
 
     def backwards(self, orm):
-        
+
         # Deleting field 'Build.version'
         db.delete_column('builds_build', 'version_id')
 

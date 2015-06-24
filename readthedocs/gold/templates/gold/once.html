@@ -1,0 +1,84 @@
+{% extends "profiles/base_profile_edit.html" %}
+
+{% block profile-admin-gold-edit %}active{% endblock %}
+
+{% block title %}
+One-time Payment
+{% endblock %}
+
+{% block extra_scripts %}
+    <script src="https://js.stripe.com/v1/" type="text/javascript"></script>
+    <script type="text/javascript">
+        //<![CDATA[
+        Stripe.publishableKey = '{{ publishable }}';
+        //]]>
+    </script>
+   
+    <script type="text/javascript">
+$(function() {
+
+  $("#user_form").submit(function() {
+    if ( $("#credit-card").is(":visible")) {
+      var form = this;
+      var card = {
+        number:   $("#credit_card_number").val(),
+        expMonth: $("#expiry_month").val(),
+        expYear:  $("#expiry_year").val(),
+        cvc:      $("#cvv").val()
+      };
+
+      Stripe.createToken(card, function(status, response) {
+        if (status === 200) {
+          console.log(status, response);
+          $("#credit-card-errors").hide();
+          $("#last_4_digits").val(response.card.last4);
+          $("#stripe_token").val(response.id);
+          form.submit();
+        } else {
+          $("#stripe-error-message").text(response.error.message);
+          $("#credit-card-errors").show();
+          $("#user_submit").attr("disabled", false);
+        }
+      });
+      
+      return false;
+      
+    } 
+    
+    return true
+    
+  });
+
+  $("#change-card a").click(function() {
+    $("#change-card").hide();
+    $("#credit-card").show();
+    $("#credit_card_number").focus();
+    return false;
+  });
+
+});
+    </script>
+{% endblock %}
+
+
+{% block edit_content %}
+      <div class="row">
+        <div class="span6 columns">
+        </div>
+      </div>
+      <div class="page-header">
+        <h1>Give money to Read the Docs once</h1>
+      </div>
+      <div class="row">
+        <div class="span6 columns">
+          <form id="user_form" accept-charset="UTF-8" action="{% url "gold_once" %}" class="form-stacked"  method="post">
+            {% csrf_token %}
+                        {% include "gold/errors.html" %}
+            {% for field in form.visible_fields %}
+              {% include "gold/field.html" %}
+            {% endfor %}
+            {% include "gold/cardform.html" %}
+          </form>
+        </div>
+      </div>  
+{% endblock %}

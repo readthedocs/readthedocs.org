@@ -1,7 +1,7 @@
 {% load i18n %}
 
 {% for version, dict in version_data.items %}
-  {% if dict.pdf %}
+  {% if dict.pdf and version.project.enable_pdf_build %}
   <li class="module-item col-span">
     <a class="module-item-title" href="{{ dict.pdf }}">
       {% blocktrans %}
@@ -21,7 +21,7 @@
   </li>
   {% endif %}
 
-  {% if dict.epub %}
+  {% if dict.epub and version.project.enable_epub_build %}
   <li class="module-item col-span">
     <a class="module-item-title" href="{{ dict.epub }}">
       {% blocktrans %}

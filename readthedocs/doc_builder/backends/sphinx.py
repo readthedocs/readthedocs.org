@@ -1,5 +1,6 @@
 import re
 import os
+import sys
 import codecs
 from glob import glob
 import logging
@@ -62,7 +63,11 @@ class BaseSphinx(BaseBuilder):
 
         project = self.version.project
         # Open file for appending.
-        outfile = codecs.open(project.conf_file(self.version.slug), encoding='utf-8', mode='a')
+        try:
+            outfile = codecs.open(project.conf_file(self.version.slug), encoding='utf-8', mode='a')
+        except IOError:
+            trace = sys.exc_info()[2]
+            raise ProjectImportError('Conf file not found'), None, trace
         outfile.write("\n")
         conf_py_path = version_utils.get_conf_py_path(self.version)
         remote_version = version_utils.get_vcs_version_slug(self.version)
@@ -105,7 +110,7 @@ class BaseSphinx(BaseBuilder):
         else:
             rtd_ctx['versions'] = project.api_versions()
             rtd_ctx['downloads'] = (apiv2.version(self.version.pk)
-                                    .downloads.get()['downloads'])
+                                    .get()['downloads'])
 
         rtd_string = template_loader.get_template('doc_builder/conf.py.tmpl').render(rtd_ctx)
         outfile.write(rtd_string)
@@ -130,13 +135,25 @@ class BaseSphinx(BaseBuilder):
 
 class HtmlBuilder(BaseSphinx):
     type = 'sphinx'
-    sphinx_builder = 'readthedocs'
     sphinx_build_dir = '_build/html'
+
+    def __init__(self, *args, **kwargs):
+        super(HtmlBuilder, self).__init__(*args, **kwargs)
+        if self.version.project.allow_comments:
+            self.sphinx_builder = 'readthedocs-comments'
+        else:
+            self.sphinx_builder = 'readthedocs'
 
 
 class HtmlDirBuilder(HtmlBuilder):
     type = 'sphinx_htmldir'
-    sphinx_builder = 'readthedocsdirhtml'
+
+    def __init__(self, *args, **kwargs):
+        super(HtmlDirBuilder, self).__init__(*args, **kwargs)
+        if self.version.project.allow_comments:
+            self.sphinx_builder = 'readthedocsdirhtml-comments'
+        else:
+            self.sphinx_builder = 'readthedocsdirhtml'
 
 
 class SingleHtmlBuilder(HtmlBuilder):
@@ -255,7 +272,7 @@ class PdfBuilder(BaseSphinx):
         else:
             from_globs = glob(os.path.join(self.old_artifact_path, "*.pdf"))
             if from_globs:
-                from_file = from_globs[0]
+                from_file = max(from_globs, key=os.path.getmtime)
             else:
                 from_file = None
         if from_file:

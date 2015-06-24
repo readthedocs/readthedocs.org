@@ -4,6 +4,7 @@ from optparse import make_option
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
+from builds.constants import LATEST
 from builds.models import Version
 from search import parse_json
 from restapi.utils import index_search_request
@@ -30,7 +31,7 @@ class Command(BaseCommand):
             queryset = Version.objects.public(project__slug=project)
             log.info("Building all versions for %s" % project)
         elif getattr(settings, 'INDEX_ONLY_LATEST', True):
-            queryset = Version.objects.public().filter(slug='latest')
+            queryset = Version.objects.public().filter(slug=LATEST)
         else:
             queryset = Version.objects.public()
         for version in queryset:
@@ -42,6 +43,6 @@ class Command(BaseCommand):
                 commit = None
             try:
                 page_list = parse_json.process_all_json_files(version, build_dir=False)
-                index_search_request(version=version, page_list=page_list, commit=commit)
+                index_search_request(version=version, page_list=page_list, commit=commit, project_scale=0, page_scale=0, section=False, delete=False)
             except Exception:
                 log.error('Build failed for %s' % version, exc_info=True)

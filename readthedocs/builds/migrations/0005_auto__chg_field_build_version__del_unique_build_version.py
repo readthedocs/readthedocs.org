@@ -7,7 +7,7 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        
+
         # Removing unique constraint on 'Build', fields ['version']
         db.delete_unique('builds_build', ['version_id'])
 
@@ -16,7 +16,7 @@ class Migration(SchemaMigration):
 
 
     def backwards(self, orm):
-        
+
         # Changing field 'Build.version'
         db.alter_column('builds_build', 'version_id', self.gf('django.db.models.fields.related.OneToOneField')(unique=True, null=True, to=orm['builds.Version']))
 

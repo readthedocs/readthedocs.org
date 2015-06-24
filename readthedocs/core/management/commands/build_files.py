@@ -5,6 +5,7 @@ from django.core.management.base import BaseCommand
 from django.conf import settings
 
 from projects import tasks
+from builds.constants import LATEST
 from builds.models import Version
 
 log = logging.getLogger(__name__)
@@ -35,7 +36,7 @@ class Command(BaseCommand):
             queryset = Version.objects.public(project__slug=project)
             log.info("Building all versions for %s" % project)
         elif getattr(settings, 'INDEX_ONLY_LATEST', True):
-            queryset = Version.objects.filter(slug='latest')
+            queryset = Version.objects.filter(slug=LATEST)
         else:
             queryset = Version.objects.public()
         for v in queryset:

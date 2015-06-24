@@ -25,8 +25,8 @@ class RedirectInline(admin.TabularInline):
 
 class ProjectAdmin(GuardedModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
-    list_display = ('name', 'repo', 'repo_type', 'featured', 'theme')
-    list_filter = ('repo_type', 'featured', 'privacy_level', 'documentation_type', 'programming_language')
+    list_display = ('name', 'repo', 'repo_type', 'allow_comments', 'featured', 'theme')
+    list_filter = ('repo_type', 'allow_comments', 'featured', 'privacy_level', 'documentation_type', 'programming_language')
     list_editable = ('featured',)
     search_fields = ('slug', 'repo')
     inlines = [ProjectRelationshipInline, RedirectInline, VersionInline]

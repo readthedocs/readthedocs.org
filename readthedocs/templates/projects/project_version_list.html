@@ -13,6 +13,7 @@ Versions
   {% endwith %}
 {% endblock %}
 
+
 {% block content %}
 
   {% comment %}
@@ -28,6 +29,10 @@ Versions
   {% endcomment %}
 
   <div class="project-version-list">
+
+        <div id="help_container">
+          <a href="#" class="quiet readthedocs-help-embed">(Help)</a>
+        </div>
 
     <div class="module project-versions-active">
       <div class="module-wrapper">
@@ -51,6 +56,7 @@ Versions
 
                 {% if request.user|is_admin:project %}
                   <ul class="module-item-menu">
+                    <li><a href="{% url "wipe_version" project.slug version.slug %}">{% trans "Wipe" %}</a></li>
                     <li><a href="{% url "project_version_detail" project.slug version.slug %}">{% trans "Edit" %}</a></li>
                   </ul>
                 {% else %}
@@ -66,7 +72,7 @@ Versions
       </div>
     </div>
 
-    {% if request.user|is_admin:project %}
+    {% if request.user|is_admin:project or request.user.is_staff %}
     <div class="module project-versions-inactive">
       <div class="module-wrapper">
 
@@ -95,6 +101,7 @@ Versions
                       {% if version.built %}
                           <li><a href="{% url "project_version_delete_html" project.slug version.slug %}">{% trans "Clean" %}</a></li>
                       {% endif %}
+                      <li><a href="{% url "wipe_version" project.slug version.slug %}">{% trans "Wipe" %}</a></li>
                       <li><a href="{% url "project_version_detail" project.slug version.slug %}">{% trans "Edit" %}</a></li>
                     </ul>
                   {% endif %}

@@ -95,6 +95,15 @@
       </dl>
       {% endif %}
 
+      {% if print_url %}
+      <dl>
+        <dt>Paperback</dt>
+        <dd>
+          <a href="{{ print_url }}">Buy this as a paperback</a>
+        </dd>
+      </dl>
+      {% endif %}
+
       {% if github_edit_url %}
       <dl>
         <dt>On GitHub</dt>
@@ -128,7 +137,7 @@
 
 
       <hr/>
-      Free document hosting provided by <a href="https://readthedocs.org">Read the Docs</a>. Support us on <a href="https://www.gittip.com/readthedocs/">Gittip</a>.
+      Free document hosting provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
       {% if not new_theme %}
     </div>

@@ -7,13 +7,13 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        
+
         # Adding field 'Project.django_packages_url'
         db.add_column('projects_project', 'django_packages_url', self.gf('django.db.models.fields.CharField')(default='', max_length=255, blank=True), keep_default=False)
 
 
     def backwards(self, orm):
-        
+
         # Deleting field 'Project.django_packages_url'
         db.delete_column('projects_project', 'django_packages_url')
 

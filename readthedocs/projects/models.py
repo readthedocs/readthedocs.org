@@ -13,7 +13,9 @@ from django.utils.translation import ugettext_lazy as _
 
 from guardian.shortcuts import assign
 
-from betterversion.better import version_windows, BetterVersion
+from betterversion.better import version_windows, VersionIdentifier
+from builds.constants import LATEST
+from builds.constants import LATEST_VERBOSE_NAME
 from oauth import utils as oauth_utils
 from privacy.loader import RelatedProjectManager, ProjectManager
 from projects import constants
@@ -60,7 +62,7 @@ class Project(models.Model):
     description = models.TextField(_('Description'), blank=True,
                                    help_text=_('The reStructuredText '
                                                'description of the project'))
-    repo = models.CharField(_('Repository URL'), max_length=100,
+    repo = models.CharField(_('Repository URL'), max_length=255,
                             help_text=_('Hosted documentation repository URL'))
     repo_type = models.CharField(_('Repository type'), max_length=10,
                                  choices=constants.REPO_CHOICES, default='git')
@@ -84,7 +86,7 @@ class Project(models.Model):
         _('Single version'), default=False,
         help_text=_('A single version site has no translations and only your "latest" version, served at the root of the domain. Use this with caution, only turn it on if you will <b>never</b> have multiple versions of your docs.'))
     default_version = models.CharField(
-        _('Default version'), max_length=255, default='latest',
+        _('Default version'), max_length=255, default=LATEST,
         help_text=_('The version of your project that / redirects to'))
     # In default_branch, None max_lengtheans the backend should choose the
     # appropraite branch. Eg 'master' for git
@@ -92,7 +94,7 @@ class Project(models.Model):
         _('Default branch'), max_length=255, default=None, null=True,
         blank=True, help_text=_('What branch "latest" points to. Leave empty '
                                 'to use the default value for your VCS (eg. '
-                                'trunk or master).'))
+                                '<code>trunk</code> or <code>master</code>).'))
     requirements_file = models.CharField(
         _('Requirements file'), max_length=255, default=None, null=True,
         blank=True, help_text=_(
@@ -106,26 +108,41 @@ class Project(models.Model):
         help_text=_('Type of documentation you are building. <a href="http://'
                     'sphinx-doc.org/builders.html#sphinx.builders.html.'
                     'DirectoryHTMLBuilder">More info</a>.'))
+    allow_comments = models.BooleanField(_('Allow Comments'), default=False)
+    comment_moderation = models.BooleanField(_('Comment Moderation)'), default=False)
     analytics_code = models.CharField(
         _('Analytics code'), max_length=50, null=True, blank=True,
-        help_text=_("Google Analytics Tracking ID (ex. UA-22345342-1). "
+        help_text=_("Google Analytics Tracking ID "
+                    "(ex. <code>UA-22345342-1</code>). "
                     "This may slow down your page loads."))
+
+    # Sphinx specific build options.
+    enable_epub_build = models.BooleanField(
+        _('Enable EPUB build'), default=True,
+        help_text=_(
+            'Create a EPUB version of your documentation with each build.'))
+    enable_pdf_build = models.BooleanField(
+        _('Enable PDF build'), default=True,
+        help_text=_(
+            'Create a PDF version of your documentation with each build.'))
 
     # Other model data.
     path = models.CharField(_('Path'), max_length=255, editable=False,
-                            help_text=_("The directory where conf.py lives"))
+                            help_text=_("The directory where "
+                                        "<code>conf.py</code> lives"))
     conf_py_file = models.CharField(
         _('Python configuration file'), max_length=255, default='', blank=True,
-        help_text=_('Path from project root to conf.py file (ex. docs/conf.py)'
-                    '. Leave blank if you want us to find it for you.'))
+        help_text=_('Path from project root to <code>conf.py</code> file '
+                    '(ex. <code>docs/conf.py</code>).'
+                    'Leave blank if you want us to find it for you.'))
 
     featured = models.BooleanField(_('Featured'), default=False)
     skip = models.BooleanField(_('Skip'), default=False)
     mirror = models.BooleanField(_('Mirror'), default=False)
     use_virtualenv = models.BooleanField(
         _('Use virtualenv'),
-        help_text=_("Install your project inside a virtualenv using setup.py "
-                    "install"),
+        help_text=_("Install your project inside a virtualenv using <code>setup.py "
+                    "install</code>"),
         default=False
     )
 
@@ -237,7 +254,7 @@ class Project(models.Model):
                 verbose_name__in=supported).update(supported=True)
             self.versions.exclude(
                 verbose_name__in=supported).update(supported=False)
-            self.versions.filter(verbose_name='latest').update(supported=True)
+            self.versions.filter(verbose_name=LATEST_VERBOSE_NAME).update(supported=True)
 
     def save(self, *args, **kwargs):
         first_save = self.pk is None
@@ -251,7 +268,7 @@ class Project(models.Model):
             assign('view_project', owner, self)
         try:
             if self.default_branch:
-                latest = self.versions.get(slug='latest')
+                latest = self.versions.get(slug=LATEST)
                 if latest.identifier != self.default_branch:
                     latest.identifier = self.default_branch
                     latest.save()
@@ -274,11 +291,11 @@ class Project(models.Model):
             log.error('failed to update static metadata', exc_info=True)
         try:
             branch = self.default_branch or self.vcs_repo().fallback_branch
-            if not self.versions.filter(slug='latest').exists():
+            if not self.versions.filter(slug=LATEST).exists():
                 self.versions.create(
-                    slug='latest', verbose_name='latest', machine=True, type='branch', active=True, identifier=branch)
-            # if not self.versions.filter(slug='stable').exists():
-            #     self.versions.create(slug='stable', verbose_name='stable', type='branch', active=True, identifier=branch)
+                    slug=LATEST, verbose_name=LATEST_VERBOSE_NAME, machine=True, type='branch', active=True, identifier=branch)
+            # if not self.versions.filter(slug=STABLE).exists():
+            #     self.versions.create_stable(type='branch', identifier=branch)
         except Exception:
             log.error('Error creating default branches', exc_info=True)
 
@@ -403,6 +420,12 @@ class Project(models.Model):
             scheme, netloc = "http", parsed.netloc
         else:
             scheme, netloc = "http", parsed.path
+        if getattr(settings, 'DONT_HIT_DB', True):
+            if parsed.path:
+                netloc = netloc + parsed.path
+        else:
+            if self.superprojects.count() and parsed.path:
+                netloc = netloc + parsed.path
         return "%s://%s/" % (scheme, netloc)
 
     @property
@@ -418,10 +441,10 @@ class Project(models.Model):
     def doc_path(self):
         return os.path.join(settings.DOCROOT, self.slug.replace('_', '-'))
 
-    def checkout_path(self, version='latest'):
+    def checkout_path(self, version=LATEST):
         return os.path.join(self.doc_path, 'checkouts', version)
 
-    def venv_path(self, version='latest'):
+    def venv_path(self, version=LATEST):
         return os.path.join(self.doc_path, 'envs', version)
 
     #
@@ -459,10 +482,10 @@ class Project(models.Model):
     # End symlink paths
     #
 
-    def venv_bin(self, version='latest', bin='python'):
+    def venv_bin(self, version=LATEST, bin='python'):
         return os.path.join(self.venv_path(version), 'bin', bin)
 
-    def full_doc_path(self, version='latest'):
+    def full_doc_path(self, version=LATEST):
         """
         The path to the documentation root in the project.
         """
@@ -473,43 +496,46 @@ class Project(models.Model):
         # No docs directory, docs are at top-level.
         return doc_base
 
-    def artifact_path(self, type, version='latest'):
+    def artifact_path(self, type, version=LATEST):
         """
         The path to the build html docs in the project.
         """
         return os.path.join(self.doc_path, "artifacts", version, type)
 
-    def full_build_path(self, version='latest'):
+    def full_build_path(self, version=LATEST):
         """
         The path to the build html docs in the project.
         """
         return os.path.join(self.conf_dir(version), "_build", "html")
 
-    def full_latex_path(self, version='latest'):
+    def full_latex_path(self, version=LATEST):
         """
-        The path to the build latex docs in the project.
+        The path to the build LaTeX docs in the project.
         """
         return os.path.join(self.conf_dir(version), "_build", "latex")
 
-    def full_man_path(self, version='latest'):
-        """
-        The path to the build man docs in the project.
-        """
-        return os.path.join(self.conf_dir(version), "_build", "man")
-
-    def full_epub_path(self, version='latest'):
         """
         The path to the build epub docs in the project.
         """
         return os.path.join(self.conf_dir(version), "_build", "epub")
 
-    def full_dash_path(self, version='latest'):
+    # There is currently no support for building man/dash formats, but we keep
+    # the support there for existing projects. They might have already existing
+    # legacy builds.
+
+    def full_man_path(self, version=LATEST):
+        """
+        The path to the build man docs in the project.
+        """
+        return os.path.join(self.conf_dir(version), "_build", "man")
+
+    def full_dash_path(self, version=LATEST):
         """
         The path to the build dash docs in the project.
         """
         return os.path.join(self.conf_dir(version), "_build", "dash")
 
-    def full_json_path(self, version='latest'):
+    def full_json_path(self, version=LATEST):
         """
         The path to the build json docs in the project.
         """
@@ -518,13 +544,13 @@ class Project(models.Model):
         elif 'mkdocs' in self.documentation_type:
             return os.path.join(self.checkout_path(version), "_build", "json")
 
-    def full_singlehtml_path(self, version='latest'):
+    def full_singlehtml_path(self, version=LATEST):
         """
         The path to the build singlehtml docs in the project.
         """
         return os.path.join(self.conf_dir(version), "_build", "singlehtml")
 
-    def rtd_build_path(self, version="latest"):
+    def rtd_build_path(self, version=LATEST):
         """
         The destination path where the built docs are copied.
         """
@@ -536,13 +562,19 @@ class Project(models.Model):
         """
         return os.path.join(self.doc_path, 'metadata.json')
 
-    def conf_file(self, version='latest'):
+    def conf_file(self, version=LATEST):
         if self.conf_py_file:
-            log.debug('Inserting conf.py file path from model')
-            return os.path.join(self.checkout_path(version), self.conf_py_file)
+            conf_path = os.path.join(self.checkout_path(version), self.conf_py_file)
+            if os.path.exists(conf_path):
+                log.info('Inserting conf.py file path from model')
+                return conf_path
+            else:
+                log.warning("Conf file specified on model doesn't exist")
         files = self.find('conf.py', version)
+        print files
         if not files:
             files = self.full_find('conf.py', version)
+        print files
         if len(files) == 1:
             return files[0]
         for file in files:
@@ -554,7 +586,7 @@ class Project(models.Model):
         raise ProjectImportError(
             u"Conf File Missing. Please make sure you have a conf.py in your project.")
 
-    def conf_dir(self, version='latest'):
+    def conf_dir(self, version=LATEST):
         conf_file = self.conf_file(version)
         if conf_file:
             return conf_file.replace('/conf.py', '')
@@ -579,20 +611,20 @@ class Project(models.Model):
     def has_aliases(self):
         return self.aliases.exists()
 
-    def has_pdf(self, version_slug='latest'):
+    def has_pdf(self, version_slug=LATEST):
         return os.path.exists(self.get_production_media_path(type='pdf', version_slug=version_slug))
 
-    def has_epub(self, version_slug='latest'):
+    def has_epub(self, version_slug=LATEST):
         return os.path.exists(self.get_production_media_path(type='epub', version_slug=version_slug))
 
-    def has_htmlzip(self, version_slug='latest'):
+    def has_htmlzip(self, version_slug=LATEST):
         return os.path.exists(self.get_production_media_path(type='htmlzip', version_slug=version_slug))
 
     @property
     def sponsored(self):
         return False
 
-    def vcs_repo(self, version='latest'):
+    def vcs_repo(self, version=LATEST):
         backend = backend_cls.get(self.repo_type)
         if not backend:
             repo = None
@@ -684,15 +716,15 @@ class Project(models.Model):
         """
         if not self.num_major or not self.num_minor or not self.num_point:
             return None
-        versions = []
-        for ver in self.versions.public(only_active=False):
+        version_identifiers = []
+        for version in self.versions.all():
             try:
-                versions.append(BetterVersion(ver.verbose_name))
+                version_identifiers.append(VersionIdentifier(version.verbose_name))
             except UnsupportedVersionError:
                 # Probably a branch
                 pass
         active_versions = version_windows(
-            versions,
+            version_identifiers,
             major=self.num_major,
             minor=self.num_minor,
             point=self.num_point,
@@ -726,7 +758,7 @@ class Project(models.Model):
         exists (is built and published). Otherwise returns 'latest'.
         """
         # latest is a special case where we don't have to check if it exists
-        if self.default_version == 'latest':
+        if self.default_version == LATEST:
             return self.default_version
         # check if the default_version exists
         version_qs = self.versions.filter(
@@ -734,7 +766,7 @@ class Project(models.Model):
         )
         if version_qs.exists():
             return self.default_version
-        return 'latest'
+        return LATEST
 
     def get_default_branch(self):
         """
@@ -755,12 +787,48 @@ class Project(models.Model):
         ProjectRelationship.objects.filter(parent=self, child=child).delete()
         return
 
+    def moderation_queue(self):
+        # non-optimal SQL warning.
+        from comments.models import DocumentComment
+        queue = []
+        comments = DocumentComment.objects.filter(node__project=self)
+        for comment in comments:
+            if not comment.has_been_approved_since_most_recent_node_change():
+                queue.append(comment)
+
+        return queue
+
+    def add_node(self, node_hash, page, version, commit):
+        from comments.models import NodeSnapshot, DocumentNode
+        project_obj = Project.objects.get(slug=self.slug)
+        version_obj = project_obj.versions.get(slug=version)
+        try:
+            NodeSnapshot.objects.get(hash=node_hash, node__project=project_obj, node__version=version_obj, node__page=page, commit=commit)
+            return False  # ie, no new node was created.
+        except NodeSnapshot.DoesNotExist:
+            DocumentNode.objects.create(
+                hash=node_hash,
+                page=page,
+                project=project_obj,
+                version=version_obj,
+                commit=commit
+            )
+        return True  # ie, it's True that a new node was created.
+
+    def add_comment(self, version_slug, page, hash, commit, user, text):
+        from comments.models import DocumentNode
+        try:
+            node = self.nodes.from_hash(version_slug, page, hash)
+        except DocumentNode.DoesNotExist:
+            version = self.versions.get(slug=version_slug)
+            node = self.nodes.create(version=version, page=page, hash=hash, commit=commit)
+        return node.comments.create(user=user, text=text)
 
 class ImportedFile(models.Model):
     project = models.ForeignKey('Project', verbose_name=_('Project'),
                                 related_name='imported_files')
     version = models.ForeignKey('builds.Version', verbose_name=_('Version'),
-                                related_name='imported_filed', null=True)
+                                related_name='imported_files', null=True)
     name = models.CharField(_('Name'), max_length=255)
     slug = models.SlugField(_('Slug'))
     path = models.CharField(_('Path'), max_length=255)

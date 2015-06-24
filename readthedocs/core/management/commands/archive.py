@@ -15,19 +15,19 @@ class Command(BaseCommand):
     """
 
     def handle(self, *args, **options):
-		doc_index = {}
+        doc_index = {}
 
-		os.chdir(settings.DOCROOT)
-		for directory in glob("*"):
-			doc_index[directory] = []
-			path = os.path.join(directory, 'rtd-builds')
-			for version in glob(os.path.join(path, "*")):
-				v = version.replace(path + '/', '')
-				doc_index[directory].append(v)
+        os.chdir(settings.DOCROOT)
+        for directory in glob("*"):
+            doc_index[directory] = []
+            path = os.path.join(directory, 'rtd-builds')
+            for version in glob(os.path.join(path, "*")):
+                v = version.replace(path + '/', '')
+                doc_index[directory].append(v)
 
-		context = Context({
-			'doc_index': doc_index,
-			'MEDIA_URL': settings.MEDIA_URL,
-		})
-		html = template_loader.get_template('archive/index.html').render(context)
-		print html
+        context = Context({
+            'doc_index': doc_index,
+            'MEDIA_URL': settings.MEDIA_URL,
+        })
+        html = template_loader.get_template('archive/index.html').render(context)
+        print html

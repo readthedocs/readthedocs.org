@@ -9,6 +9,8 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import get_template
 from django.template import Context
 
+from builds.constants import LATEST
+from builds.constants import LATEST_VERBOSE_NAME
 from builds.models import Build
 
 log = logging.getLogger(__name__)
@@ -44,10 +46,10 @@ def make_latest(project):
     branch = project.default_branch or project.vcs_repo().fallback_branch
     version_data, created = Version.objects.get_or_create(
         project=project,
-        slug='latest',
+        slug=LATEST,
         type='branch',
         active=True,
-        verbose_name='latest',
+        verbose_name=LATEST_VERBOSE_NAME,
         identifier=branch,
     )
 
@@ -82,7 +84,7 @@ def trigger_build(project, version=None, record=True, force=False, basic=False):
         return None
 
     if not version:
-        version = project.versions.get(slug='latest')
+        version = project.versions.get(slug=LATEST)
 
     if record:
         build = Build.objects.create(

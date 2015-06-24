@@ -1,9 +1,9 @@
 import logging
-from collections import namedtuple
 import os
-from os.path import basename
 import shutil
 import subprocess
+from collections import namedtuple
+from os.path import basename
 
 from django.template.defaultfilters import slugify
 
@@ -131,7 +131,7 @@ class BaseVCS(BaseCLI):
         """
         raise NotImplementedError
 
-    
+
     @property
     def commit(self):
         """

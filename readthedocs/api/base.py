@@ -12,6 +12,7 @@ from tastypie.resources import ModelResource
 from tastypie.http import HttpCreated, HttpApplicationError
 from tastypie.utils import dict_strip_unicode_keys, trailing_slash
 
+from builds.constants import LATEST
 from builds.models import Build, Version
 from core.utils import trigger_build
 from projects.models import Project, ImportedFile
@@ -150,7 +151,7 @@ class VersionResource(ModelResource):
         if highest[0]:
             ret_val['url'] = highest[0].get_absolute_url()
             ret_val['slug'] = highest[0].slug,
-        if base and base != 'latest':
+        if base and base != LATEST:
             try:
                 ver_obj = project.versions.get(slug=base)
                 base_ver = mkversion(ver_obj)
@@ -167,7 +168,7 @@ class VersionResource(ModelResource):
 
     def build_version(self, request, **kwargs):
         project = get_object_or_404(Project, slug=kwargs['project_slug'])
-        version = kwargs.get('version_slug', 'latest')
+        version = kwargs.get('version_slug', LATEST)
         version_obj = project.versions.get(slug=version)
         trigger_build(project=project, version=version_obj)
         return self.create_response(request, {'building': True})

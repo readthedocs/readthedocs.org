@@ -1,15 +1,15 @@
 {% extends "base.html" %}
 
-{% block title %}Wipe a version {% endblock %}
+{% block title %}Wipe the build directories for a version {% endblock %}
 
 {% block content %}
 
 {% if deleted %}
 Your project environment has been wiped.<br><br>
 {% else %}
-This is a page to delete a directory. Only POST to it if you wish to refresh a project on RTD's build servers.
+Having trouble getting your documentation build to complete?  By clicking on the button below you'll clean out your build checkouts and environment, but not your generated documentation.
 
-<form method="post" action=".">
+<form method="post" action="#">
   <input type="submit" value="Wipe version">
 </form>
 {% endif %}

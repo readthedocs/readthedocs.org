@@ -9,13 +9,10 @@ supporting us.
 Current sponsors
 ----------------
 
+* `Twilio`_ - Twilio, a user of Read the Docs, is organizing `Signal`_, a
+  developer conference for communications, held May 19-20th.
 * `Rackspace`_ - They cover all of our hosting expenses every month.  This is a pretty large sum of money, and we are really grateful to have them as a sponsor.
 * You? (Email us at hello@readthedocs.com for more info)
-
-If you appreciate the service,
-please consider helping support development on `Gittip`_.
-It  helps provide support for development,
-as well as ongoing monetary stability in case of sponsorship changes.
 
 Past sponsors
 -------------
@@ -26,7 +23,6 @@ Past sponsors
 * `Django Software Foundation`_
 * Lab305_
 
-.. _Gittip: https://www.gittip.com/readthedocs/
 .. _Revsys: http://www.revsys.com/
 .. _Python Software Foundation: http://python.org/psf/
 .. _Mozilla Web Dev: http://blog.mozilla.com/webdev/
@@ -34,19 +30,47 @@ Past sponsors
 .. _Lab305: http://www.lab305.com/
 .. _Rackspace: http://www.rackspace.com/
 
+.. _Twilio: http://twilio.com/
+.. _Signal: http://signal.twilio.com/
+
 
 Sponsorship Information
 -----------------------
 
-We are currently testing out small text based promotions for in-house services and sponsors of Read the Docs.
-The promotional space will show on the bottom of the navigation menu on all built documentation.
-It will only show if the navigation menu is short,
-or the reader has scrolled down on the page past the end of the menu.
+As part of increasing sustainability, Read the Docs is testing out several spots
+for promoting sponsors on documentation pages. We are only seeking sponsors that
+are users of the service or are at least very familiar with the service.
 
 Sponsor Us
 ~~~~~~~~~~
 
 Contact us at hello@readthedocs.com for more information on sponsoring Read the Docs.
-We'll be publishing more information on our sponsorship plans here soon,
-but we're happy to accommodate anyone that shares our vision of open information for everyone.
 
+Doc Page Promotion
+~~~~~~~~~~~~~~~~~~
+
+This promotion is our best offering, it will display on the bottom of the
+navigation menu on all built documentation.  This space includes a 120x90 image
+and supporting ad text on every documentation page using the Read the Docs
+theme, which is over 10,000,000 pageviews every month.
+
+User experience on documentation pages is paramount, and any sponsored ads are
+strictly image and text -- no dynamic components, animations, or tracking pixels
+are allowed. This space will not interfere with the navigation menu, and will
+only show if the menu is short enough, or the reader has scrolled down on the
+page past the end of the menu.  This promotion is not displayed for users with
+gold status, or users that have donated in the past.
+
+Limited to *1* company per month.
+
+`Contact us`_ for more specifications on this promotion spot.
+
+.. _`Contact us`: mailto:hello@readthedocs.com
+
+Footer Logo Promotion
+~~~~~~~~~~~~~~~~~~~~~
+
+This promotion displays the name of your company in the footer of documentation pages.
+It is a rotation of all sponsors,
+so will vary in pageviews based on the number of supporting companies.
+We will never have more than *10* companies in this promotion at any time.

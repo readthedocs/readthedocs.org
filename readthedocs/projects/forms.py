@@ -141,6 +141,8 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             'conf_py_file',
             'default_branch',
             'default_version',
+            'enable_pdf_build',
+            'enable_epub_build',
             # Privacy
             'privacy_level',
             # 'version_privacy_level',
@@ -150,7 +152,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             # Fringe
             'analytics_code',
             # Version Support
-            'num_major', 'num_minor', 'num_point',
+            # 'num_major', 'num_minor', 'num_point',
         )
 
     def clean_conf_py_file(self):
@@ -171,6 +173,8 @@ class UpdateProjectForm(ProjectTriggerBuildMixin, ProjectBasicsForm,
             # Basics
             'name', 'repo', 'repo_type',
             # Extra
+            #'allow_comments',
+            #'comment_moderation',
             'description',
             'documentation_type',
             'language', 'programming_language',

@@ -13,5 +13,6 @@
     cd readthedocs
     rm -rf rtd_tests/builds/
 
+    LANG=C \
     coverage run -m pytest $*
 )

@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.test.utils import override_settings
 
-from builds.models import Version
+from builds.constants import LATEST
 from projects.models import Project
 from redirects.models import Redirect
 
@@ -21,15 +21,13 @@ class RedirectTests(TestCase):
              'project_url': 'http://pip.rtfd.org',
              'repo': 'https://github.com/fail/sauce',
              'csrfmiddlewaretoken': '34af7c8a5ba84b84564403a280d9a9be',
-             'default_version': 'latest',
+             'default_version': LATEST,
              'privacy_level': 'public',
              'version_privacy_level': 'public',
              'description': 'wat',
              'documentation_type': 'sphinx'})
         pip = Project.objects.get(slug='pip')
-        Version.objects.create(project=pip, identifier='latest',
-                               verbose_name='latest', slug='latest',
-                               active=True)
+        pip.versions.create_latest()
 
     def test_proper_url_no_slash(self):
         r = self.client.get('/docs/pip')
@@ -190,15 +188,13 @@ class RedirectAppTests(TestCase):
              'project_url': 'http://pip.rtfd.org',
              'repo': 'https://github.com/fail/sauce',
              'csrfmiddlewaretoken': '34af7c8a5ba84b84564403a280d9a9be',
-             'default_version': 'latest',
+             'default_version': LATEST,
              'privacy_level': 'public',
              'version_privacy_level': 'public',
              'description': 'wat',
              'documentation_type': 'sphinx'})
         self.pip = Project.objects.get(slug='pip')
-        Version.objects.create(project=self.pip, identifier='latest',
-                               verbose_name='latest', slug='latest',
-                               active=True)
+        self.pip.versions.create_latest()
 
     @override_settings(USE_SUBDOMAIN=True)
     def test_redirect_root(self):

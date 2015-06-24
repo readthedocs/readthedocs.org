@@ -1,5 +1,3 @@
-import re
-import fnmatch
 import os
 import logging
 import json
@@ -9,10 +7,7 @@ from django.conf import settings
 from django.template import Context, loader as template_loader
 
 from doc_builder.base import BaseBuilder, restoring_chdir
-from search.utils import parse_content_from_file, parse_headers_from_file, parse_sections_from_file
 from projects.utils import run
-from projects.constants import LOG_TEMPLATE
-from tastyapi import apiv2
 
 log = logging.getLogger(__name__)
 
@@ -81,22 +76,6 @@ class BaseMkdocs(BaseBuilder):
                 '%scss/readthedocs-doc-embed.css' % MEDIA_URL,
             ]
 
-        if 'pages' not in user_config:
-            user_config['pages'] = []
-            for root, dirnames, filenames in os.walk(docs_dir):
-                for filename in filenames:
-                    if fnmatch.fnmatch(filename, '*.md') or fnmatch.fnmatch(filename, '*.markdown'):
-                        if docs_dir != '.':
-                            root_path = root.replace(docs_dir, '')
-                            full_path = os.path.join(root_path, filename.lstrip('/')).lstrip('/')
-                        else:
-                            if root == '.':
-                                root_path = ''
-                            else:
-                                root_path = re.sub('^./', '', root)
-                            full_path = os.path.join(root_path, filename.lstrip('/')).lstrip('/')
-                        user_config['pages'].append([full_path])
-
         # Set our custom theme dir for mkdocs
         if 'theme_dir' not in user_config:
             user_config['theme_dir'] = TEMPLATE_DIR
@@ -151,7 +130,7 @@ class BaseMkdocs(BaseBuilder):
         #site_path = os.path.join(checkout_path, 'site')
         os.chdir(checkout_path)
         # Actual build
-        build_command = "{command} {builder} --site-dir={build_dir} --theme=readthedocs".format(
+        build_command = "{command} {builder} --clean --site-dir={build_dir} --theme=readthedocs".format(
             command=self.version.project.venv_bin(version=self.version.slug, bin='mkdocs'),
             builder=self.builder,
             build_dir=self.build_dir,

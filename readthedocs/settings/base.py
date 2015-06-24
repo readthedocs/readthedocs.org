@@ -1,6 +1,9 @@
 # encoding: utf-8
 import os
 import djcelery
+from kombu.common import Broadcast
+from kombu import Exchange, Queue
+
 djcelery.setup_loader()
 
 _ = gettext = lambda s: s
@@ -33,6 +36,8 @@ PRODUCTION_MEDIA_ARTIFACTS = os.path.join(PRODUCTION_ROOT, 'media')
 MEDIA_ROOT = '%s/media/' % (SITE_ROOT)
 MEDIA_URL = '/media/'
 ADMIN_MEDIA_PREFIX = '/media/admin/'
+
+GROK_API_HOST = 'https://api.grokthedocs.com'
 
 # For 1.4
 STATIC_ROOT = os.path.join(SITE_ROOT, 'media/static/')
@@ -72,6 +77,7 @@ LANGUAGES = (
     ('zh-tw', gettext('Taiwanese')),
     ('ja', gettext('Japanese')),
     ('uk', gettext('Ukrainian')),
+    ('it', gettext('Italian')),
 )
 LOCALE_PATHS = [
     os.path.join(SITE_ROOT, 'readthedocs', 'locale'),
@@ -174,6 +180,7 @@ INSTALLED_APPS = [
     'django_gravatar',
     'rest_framework',
     'corsheaders',
+    'copyright',
 
     # Celery bits
     'djcelery',
@@ -188,6 +195,7 @@ INSTALLED_APPS = [
     'bookmarks',
     'projects',
     'builds',
+    'comments',
     'core',
     'doc_builder',
     'oauth',
@@ -195,6 +203,8 @@ INSTALLED_APPS = [
     'rtd_tests',
     'restapi',
     'privacy',
+    'gold',
+    'donate',
 
     # allauth
     'allauth',
@@ -218,13 +228,19 @@ REST_FRAMEWORK = {
 if DEBUG:
     INSTALLED_APPS.append('django_extensions')
 
-#CARROT_BACKEND = "ghettoq.taproot.Database"
 CELERY_ALWAYS_EAGER = True
 CELERYD_TASK_TIME_LIMIT = 60 * 60  # 60 minutes
 CELERY_SEND_TASK_ERROR_EMAILS = False
 CELERYD_HIJACK_ROOT_LOGGER = False
 # Don't queue a bunch of tasks in the workers
 CELERYD_PREFETCH_MULTIPLIER = 1
+CELERY_CREATE_MISSING_QUEUES = True
+
+CELERY_DEFAULT_QUEUE = 'celery'
+CELERY_QUEUES = (
+    Queue('celery', Exchange('celery'), routing_key='celery'),
+    Broadcast('build_broadcast_tasks'),
+)
 
 DEFAULT_FROM_EMAIL = "no-reply@readthedocs.org"
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
@@ -264,6 +280,10 @@ if LOG_DEBUG:
 GUARDIAN_RAISE_403 = True
 ANONYMOUS_USER_ID = -1
 
+# Stripe
+STRIPE_SECRET = None
+STRIPE_PUBLISHABLE = None
+
 # RTD Settings
 REPO_LOCK_SECONDS = 30
 ALLOW_PRIVATE_REPOS = False
@@ -271,6 +291,8 @@ ALLOW_PRIVATE_REPOS = False
 GLOBAL_ANALYTICS_CODE = 'UA-17997319-1'
 
 GRAVATAR_DEFAULT_IMAGE = 'http://media.readthedocs.org/images/silhouette.png'
+
+COPY_START_YEAR = 2010
 
 LOG_FORMAT = "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s"
 

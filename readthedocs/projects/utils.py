@@ -12,6 +12,8 @@ from django.conf import settings
 from distutils2.version import NormalizedVersion, suggest_normalized_version
 import redis
 
+from builds.constants import LATEST
+
 
 log = logging.getLogger(__name__)
 
@@ -26,7 +28,7 @@ def version_from_slug(slug, version):
         v = Version.objects.get(project__slug=slug, slug=version)
     return v
 
-def symlink(project, version='latest'):
+def symlink(project, version=LATEST):
     from projects import symlinks
     v = version_from_slug(project, version)
     log.info("Symlinking %s" % v)

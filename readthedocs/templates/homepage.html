@@ -36,6 +36,8 @@
 
 {% block content %}
 
+        {% include 'donate/progress.html' with read_more=True done=True %}
+
         {% if not request.user.is_authenticated %}
           <div class="module">
             <div class="module-wrapper">

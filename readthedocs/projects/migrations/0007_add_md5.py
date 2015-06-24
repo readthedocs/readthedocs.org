@@ -7,7 +7,7 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        
+
         # Deleting field 'ImportedFile.content'
         db.delete_column('projects_importedfile', 'content')
 
@@ -16,7 +16,7 @@ class Migration(SchemaMigration):
 
 
     def backwards(self, orm):
-        
+
         # We cannot add back in field 'ImportedFile.content'
         raise RuntimeError(
             "Cannot reverse this migration. 'ImportedFile.content' and its values cannot be restored.")

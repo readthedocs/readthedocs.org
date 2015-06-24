@@ -35,11 +35,13 @@ def make_document_url(project, version=None, page=None):
         base_url = project.get_translation_url(version)
     else:
         base_url = project.get_docs_url(version)
-    if page and page != "index":
+    if page and (page != "index") and (page != "index.html"):
         if project.documentation_type == "sphinx_htmldir":
             path = page + "/"
         elif project.documentation_type == "sphinx_singlehtml":
             path = "index.html#document-" + page
+        elif page.endswith(".html"):
+            path = page
         else:
             path = page + ".html"
     else:
@@ -59,8 +61,11 @@ def restructuredtext(value, short=False):
             )
         return force_text(value)
     else:
-        docutils_settings = getattr(settings, "RESTRUCTUREDTEXT_FILTER_SETTINGS",
-                                    {})
+        docutils_settings = {
+            'raw_enabled': False,
+            'file_insertion_enabled': False,
+        }
+        docutils_settings.update(getattr(settings, 'RESTRUCTUREDTEXT_FILTER_SETTINGS', {}))
         parts = publish_parts(source=force_bytes(value), writer_name="html4css1",
                               settings_overrides=docutils_settings)
         out = force_text(parts["fragment"])
@@ -95,3 +100,7 @@ def url_replace(request, field, value):
     dict_[field] = value
     return dict_.urlencode()
 
+
+@register.filter
+def key(d, key_name):
+    return d[key_name]

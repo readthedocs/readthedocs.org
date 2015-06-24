@@ -1,18 +1,17 @@
 /* Read the Docs - Documentation promotions */
 
-var $ = window.$,
-    waypoint = require('waypoints'),
-    Waypoint = window.Waypoint;
+var $ = window.$;
 
 module.exports = {
     Promo: Promo
 };
 
-function Promo (text, link) {
+function Promo (id, text, link, image) {
+    this.id = id;
     this.text = text;
     this.link = link;
+    this.image = image;
     this.promo = null;
-    this.waypoint = null;
 }
 
 Promo.prototype.create = function () {
@@ -24,22 +23,6 @@ Promo.prototype.create = function () {
         promo = $('<div />')
             .attr('class', 'wy-menu rst-pro');
 
-        // Create link with callback
-        var promo_link = $('<a />')
-            .attr('class', 'rst-pro-link')
-            .attr('href', this.link)
-            .attr('target', '_blank')
-            .on('click', function (ev) {
-                if (_gaq) {
-                    _gaq.push(
-                        ['rtfd._setAccount', 'UA-17997319-1'],
-                        ['rtfd._trackEvent', 'Promo', 'Click', self.variant]
-                    );
-                }
-            })
-            .html(this.text)
-            .appendTo(promo);
-
         // Promo info
         var promo_about = $('<div />')
             .attr('class', 'rst-pro-about');
@@ -50,6 +33,37 @@ Promo.prototype.create = function () {
             .attr('class', 'fa fa-info-circle')
             .appendTo(promo_about_link);
         promo_about.appendTo(promo);
+
+        // Promo image
+        if (self.image) {
+            var promo_image_link = $('<a />')
+                .attr('class', 'rst-pro-image-wrapper')
+                .attr('href', self.link);
+            var promo_image = $('<img />')
+                .attr('class', 'rst-pro-image')
+                .attr('src', self.image)
+                .appendTo(promo_image_link);
+            promo.append(promo_image_link);
+        }
+
+        // Create link with callback
+        var promo_text = $('<span />')
+            .html(self.text);
+        $(promo_text).find('a').each(function () {
+            $(this)
+                .attr('class', 'rst-pro-link')
+                .attr('href', self.link)
+                .attr('target', '_blank')
+                .on('click', function (ev) {
+                    if (_gaq) {
+                        _gaq.push(
+                            ['rtfd._setAccount', 'UA-17997319-1'],
+                            ['rtfd._trackEvent', 'Promo', 'Click', self.id]
+                        );
+                    }
+                });
+        });
+        promo.append(promo_text);
 
         promo.appendTo(nav_side);
 
@@ -69,32 +83,22 @@ Promo.prototype.display = function () {
     if (! promo) {
         promo = this.promo = this.create();
     }
+    promo.show();
+}
 
-    Waypoint.destroyAll();
-    this.waypoint = new Waypoint({
-        element: promo.wrapper.get(0),
-        offset: function () {
-            return $(window).height() - promo.height() - 80;
-        },
-        handler: function (direction) {
-            if (direction == 'down') {
-                self.promo.fadeIn(50);
-            }
-            else if (direction == 'up') {
-                self.promo.fadeOut(50);
-            }
-        }
-    });
+Promo.prototype.disable = function () {
 }
 
 // Variant factory method
 Promo.from_variants = function (variants) {
+    if (variants.length == 0) {
+        return null;
+    }
     var chosen = Math.floor(Math.random() * variants.length),
         variant = variants[chosen],
         text = variant.text,
         link = variant.link,
-        id = variant.id,
-        promo = new Promo(text, link);
-    promo.variant = id
-    return promo;
+        image = variant.image,
+        id = variant.id;
+    return new Promo(id, text, link, image);
 };

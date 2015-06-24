@@ -3,7 +3,7 @@ from django.template import Context, loader as template_loader
 from django.conf import settings
 from django.core.context_processors import csrf
 
-from rest_framework import decorators, permissions, viewsets, status
+from rest_framework import decorators, permissions
 from rest_framework.renderers import JSONPRenderer, JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 
@@ -56,6 +56,26 @@ def footer_html(request):
         show_bookmarks = False
         bookmark = None
 
+    if version.type == 'tag' and version.project.has_pdf(version.slug):
+        print_url = 'https://keminglabs.com/print-the-docs/quote?project={project}&version={version}'.format(
+            project=project.slug,
+            version=version.slug,
+        )
+    else:
+        print_url = None
+
+    show_promo = True
+    # User is a gold user, no promos for them!
+    if request.user.is_authenticated():
+        if request.user.gold.count() or request.user.goldonce.count():
+            show_promo = False
+    # Explicit promo disabling
+    if project.slug in getattr(settings, 'DISABLE_PROMO_PROJECTS', []):
+        show_promo = False
+    # A GoldUser has mapped this project
+    if project.gold_owners.count():
+        show_promo = False
+
     context = Context({
         'show_bookmarks': show_bookmarks,
         'bookmark': bookmark,
@@ -63,7 +83,7 @@ def footer_html(request):
         'path': path,
         'downloads': version.get_downloads(pretty=True),
         'current_version': version.slug,
-        'versions':  Version.objects.public(user=request.user, project=project),
+        'versions': project.ordered_active_versions(),
         'main_project': main_project,
         'translations': main_project.translations.all(),
         'current_language': project.language,
@@ -71,6 +91,7 @@ def footer_html(request):
         'new_theme': new_theme,
         'settings': settings,
         'subproject': subproject,
+        'print_url': print_url,
         'github_edit_url': version.get_github_url(docroot, page_slug, source_suffix, 'edit'),
         'github_view_url': version.get_github_url(docroot, page_slug, source_suffix, 'view'),
         'bitbucket_url': version.get_bitbucket_url(docroot, page_slug, source_suffix),
@@ -82,4 +103,5 @@ def footer_html(request):
         'html': html,
         'version_active': version.active,
         'version_supported': version.supported,
+        'promo': show_promo,
     })

@@ -14,16 +14,19 @@ from celery import task
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
+from slumber.exceptions import HttpClientError
 
+from builds.constants import LATEST
 from builds.models import Build, Version
 from core.utils import send_email, run_on_app_servers
-from doc_builder.loader import loading as builder_loading
+from doc_builder.loader import get_builder_class
 from doc_builder.base import restoring_chdir
 from doc_builder.environments import DockerEnvironment
 from projects.exceptions import ProjectImportError
 from projects.models import ImportedFile, Project
 from projects.utils import run, make_api_version, make_api_project
 from projects.constants import LOG_TEMPLATE
+from builds.constants import STABLE
 from projects import symlinks
 from privacy.loader import Syncer
 from tastyapi import api, apiv2
@@ -47,7 +50,6 @@ HTML_ONLY = getattr(settings, 'HTML_ONLY_PROJECTS', ())
 @task(default_retry_delay=7 * 60, max_retries=5)
 @restoring_chdir
 def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
-                pdf=True, man=True, epub=True, dash=True,
                 search=True, force=False, intersphinx=True, localmedia=True,
                 api=None, basic=False, **kwargs):
     """
@@ -65,7 +67,6 @@ def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
         from the shell, for example.
 
     """
-
     # Dependency injection to allow for testing
     if api is None:
         api = tastyapi.api
@@ -74,8 +75,10 @@ def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
         apiv2 = api
 
     start_time = datetime.datetime.utcnow()
-
-    project_data = api.project(pk).get()
+    try:
+        project_data = api.project(pk).get()
+    except HttpClientError:
+        log.exception(LOG_TEMPLATE.format(project=pk, version='', msg='Failed to get project data on build. Erroring.'))
     project = make_api_project(project_data)
     # Don't build skipped projects
     if project.skip:
@@ -108,7 +111,7 @@ def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
             results.update(setup_results)
 
             record_build(api=api, build=build, record=record, results=results, state='building')
-            build_results = build_docs(version, force, pdf, man, epub, dash, search, localmedia)
+            build_results = build_docs(version, force, search, localmedia)
             results.update(build_results)
 
     except vcs_support_utils.LockTimeout, e:
@@ -125,6 +128,7 @@ def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
     except Exception, e:
         log.error(LOG_TEMPLATE.format(project=version.project.slug,
                                       version=version.slug, msg="Top-level Build Failure"), exc_info=True)
+        results['checkout'] = (404, "", 'Top-level Build Failure: %s' % e.message)
     finally:
         record_build(api=api, build=build, record=record, results=results, state='finished', start_time=start_time)
         record_pdf(api=api, record=record, results=results, state='finished', version=version)
@@ -140,8 +144,8 @@ def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
             html=results.get('html', [404])[0] == 0,
             localmedia=results.get('localmedia', [404])[0] == 0,
             search=results.get('search', [404])[0] == 0,
-            pdf=results.get('pdf', [404])[0] == 0,
-            epub=results.get('epub', [404])[0] == 0,
+            pdf=version.project.enable_pdf_build,
+            epub=version.project.enable_epub_build,
         )
 
 
@@ -153,7 +157,7 @@ def ensure_version(api, project, version_pk):
     if version_pk:
         version_data = api.version(version_pk).get()
     else:
-        version_data = api.version(project.slug).get(slug='latest')['objects'][0]
+        version_data = api.version(project.slug).get(slug=LATEST)['objects'][0]
     version = make_api_version(version_data)
     return version
 
@@ -181,14 +185,14 @@ def update_documentation_type(version, api):
     version.project.documentation_type = ret
 
 
-def docker_build(version, pdf=True, man=True, epub=True, dash=True,
-                 search=True, force=False, intersphinx=True, localmedia=True):
+def docker_build(version, search=True, force=False, intersphinx=True,
+                 localmedia=True):
     """
     The code that executes inside of docker
     """
     environment_results = setup_environment(version)
-    results = build_docs(version=version, force=force, pdf=pdf, man=man,
-                         epub=epub, dash=dash, search=search, localmedia=localmedia)
+    results = build_docs(version=version, force=force, search=search,
+                         localmedia=localmedia)
     results.update(environment_results)
     return results
 
@@ -258,7 +262,7 @@ def update_imported_docs(version_pk, api=None):
             # Does this ever get called?
             log.info(LOG_TEMPLATE.format(
                 project=project.slug, version=version.slug, msg='Updating to latest revision'))
-            version_slug = 'latest'
+            version_slug = LATEST
             version_repo = project.vcs_repo(version_slug)
             ret_dict['checkout'] = version_repo.update()
 
@@ -309,7 +313,7 @@ def setup_environment(version):
     # interpreters.
     ret_dict['venv'] = run(
         '{cmd} {site_packages} {path}'.format(
-            cmd='virtualenv-2.7 -p {interpreter}'.format(
+            cmd='{interpreter} -m virtualenv'.format(
                 interpreter=project.python_interpreter),
             site_packages=site_packages,
             path=project.venv_path(version=version.slug)
@@ -324,15 +328,31 @@ def setup_environment(version):
     else:
         ignore_option = ''
 
+    requirements = ' '.join([
+        'sphinx==1.3.1',
+        'Pygments==2.0.2',
+        'virtualenv==1.10.1',
+        'setuptools==1.1',
+        'docutils==0.11',
+        'mkdocs==0.13.3',
+        'mock==1.0.1',
+        'pillow==2.6.1',
+        'readthedocs-sphinx-ext==0.5.4',
+        'sphinx-rtd-theme==0.1.8',
+        'alabaster>=0.7,<0.8,!=0.7.5',
+        'recommonmark==0.1.1',
+    ])
+
     wheeldir = os.path.join(settings.SITE_ROOT, 'deploy', 'wheels')
     ret_dict['doc_builder'] = run(
         (
-            '{cmd} install --use-wheel --find-links={wheeldir} -U {ignore_option} '
-            'sphinx==1.2.2 virtualenv==1.10.1 setuptools==1.1 docutils==0.11 readthedocs-sphinx-ext==0.4.4 mkdocs==0.11.1 mock==1.0.1 pillow==2.6.1'
+            '{cmd} install --use-wheel --find-links={wheeldir} -U '
+            '{ignore_option} {requirements}'
         ).format(
             cmd=project.venv_bin(version=version.slug, bin='pip'),
             ignore_option=ignore_option,
             wheeldir=wheeldir,
+            requirements=requirements,
         )
     )
 
@@ -341,7 +361,8 @@ def setup_environment(version):
     requirements_file_path = project.requirements_file
     checkout_path = project.checkout_path(version.slug)
     if not requirements_file_path:
-        docs_dir = builder_loading.get(project.documentation_type)(version).docs_dir()
+        builder_class = get_builder_class(project.documentation_type)
+        docs_dir = builder_class(version).docs_dir()
         for path in [docs_dir, '']:
             for req_file in ['pip_requirements.txt', 'requirements.txt']:
                 test_path = os.path.join(checkout_path, path, req_file)
@@ -376,7 +397,7 @@ def setup_environment(version):
 
 
 @task()
-def build_docs(version, force, pdf, man, epub, dash, search, localmedia):
+def build_docs(version, force, search, localmedia):
     """
     This handles the actual building of the documentation
     """
@@ -388,7 +409,7 @@ def build_docs(version, force, pdf, man, epub, dash, search, localmedia):
 
     with project.repo_nonblockinglock(version=version,
                                       max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
-        html_builder = builder_loading.get(project.documentation_type)(version)
+        html_builder = get_builder_class(project.documentation_type)(version)
         if force:
             html_builder.force()
         html_builder.append_conf()
@@ -411,7 +432,7 @@ def build_docs(version, force, pdf, man, epub, dash, search, localmedia):
         if 'mkdocs' in project.documentation_type:
             if search:
                 try:
-                    search_builder = builder_loading.get('mkdocs_json')(version)
+                    search_builder = get_builder_class('mkdocs_json')(version)
                     results['search'] = search_builder.build()
                     if results['search'][0] == 0:
                         search_builder.move()
@@ -424,8 +445,7 @@ def build_docs(version, force, pdf, man, epub, dash, search, localmedia):
             # server.
             if search:
                 try:
-                    search_builder = builder_loading.get(
-                        'sphinx_search')(version)
+                    search_builder = get_builder_class('sphinx_search')(version)
                     results['search'] = search_builder.build()
                     if results['search'][0] == 0:
                         # Copy json for safe keeping
@@ -436,8 +456,7 @@ def build_docs(version, force, pdf, man, epub, dash, search, localmedia):
             # Local media builder for singlepage HTML download archive
             if localmedia:
                 try:
-                    localmedia_builder = builder_loading.get(
-                        'sphinx_singlehtmllocalmedia')(version)
+                    localmedia_builder = get_builder_class('sphinx_singlehtmllocalmedia')(version)
                     results['localmedia'] = localmedia_builder.build()
                     if results['localmedia'][0] == 0:
                         localmedia_builder.move()
@@ -447,16 +466,16 @@ def build_docs(version, force, pdf, man, epub, dash, search, localmedia):
 
             # Optional build steps
             if version.project.slug not in HTML_ONLY and not project.skip:
-                if pdf:
-                    pdf_builder = builder_loading.get('sphinx_pdf')(version)
+                if project.enable_pdf_build:
+                    pdf_builder = get_builder_class('sphinx_pdf')(version)
                     results['pdf'] = pdf_builder.build()
                     # Always move pdf results even when there's an error.
                     # if pdf_results[0] == 0:
                     pdf_builder.move()
                 else:
                     results['pdf'] = fake_results
-                if epub:
-                    epub_builder = builder_loading.get('sphinx_epub')(version)
+                if project.enable_epub_build:
+                    epub_builder = get_builder_class('sphinx_epub')(version)
                     results['epub'] = epub_builder.build()
                     if results['epub'][0] == 0:
                         epub_builder.move()
@@ -491,6 +510,8 @@ def record_build(api, record, build, results, state, start_time=None):
 
     if not record:
         return None
+
+    build['builder'] = socket.gethostname()
 
     setup_steps = ['checkout', 'venv', 'doc_builder', 'requirements', 'install']
     output_steps = ['html']
@@ -556,6 +577,8 @@ def record_build(api, record, build, results, state, start_time=None):
 def record_pdf(api, record, results, state, version):
     if not record or 'sphinx' not in version.project.documentation_type:
         return None
+    if not version.project.enable_pdf_build:
+        return None
     try:
         if 'pdf' in results:
             pdf_exit = results['pdf'][0]
@@ -570,6 +593,9 @@ def record_pdf(api, record, results, state, version):
         pdf_output = pdf_output.decode('utf-8', 'ignore')
         pdf_error = pdf_error.decode('utf-8', 'ignore')
 
+        if 'Output written on' in pdf_output:
+            pdf_success = True
+
         api.build.post(dict(
             state=state,
             project='/api/v1/project/%s/' % version.project.pk,
@@ -579,6 +605,7 @@ def record_pdf(api, record, results, state, version):
             output=pdf_output,
             error=pdf_error,
             exit_code=pdf_exit,
+            builder=socket.gethostname(),
         ))
     except Exception:
         log.error(LOG_TEMPLATE.format(project=version.project.slug,
@@ -591,7 +618,8 @@ def record_pdf(api, record, results, state, version):
 
 
 @task(queue='web')
-def finish_build(version_pk, build_pk, hostname=None, html=False, localmedia=False, search=False, pdf=False, epub=False):
+def finish_build(version_pk, build_pk, hostname=None, html=False,
+                 localmedia=False, search=False, pdf=False, epub=False):
     """
     Build Finished, do house keeping bits
     """
@@ -625,7 +653,7 @@ def finish_build(version_pk, build_pk, hostname=None, html=False, localmedia=Fal
     update_static_metadata.delay(version.project.pk)
     fileify.delay(version.pk, commit=build.commit)
     update_search.delay(version.pk, commit=build.commit)
-    if not html and version.slug != 'stable' and build.exit_code != 423:
+    if not html and version.slug != STABLE and build.exit_code != 423:
         send_notifications.delay(version.pk, build_pk=build.pk)
 
 
@@ -679,7 +707,16 @@ def update_search(version_pk, commit):
 
     log_msg = ' '.join([page['path'] for page in page_list])
     log.info("(Search Index) Sending Data: %s [%s]" % (version.project.slug, log_msg))
-    index_search_request(version=version, page_list=page_list, commit=commit)
+    index_search_request(
+        version=version,
+        page_list=page_list,
+        commit=commit,
+        project_scale=0,
+        page_scale=0,
+        # Don't index sections to speed up indexing.
+        # They aren't currently exposed anywhere.
+        section=False,
+    )
 
 
 @task(queue='web')
@@ -775,7 +812,7 @@ def webhook_notification(version, build, hook_url):
 
 
 @task(queue='web')
-def update_static_metadata(project_pk):
+def update_static_metadata(project_pk, path=None):
     """Update static metadata JSON file
 
     Metadata settings include the following project settings:
@@ -790,6 +827,9 @@ def update_static_metadata(project_pk):
       List of languages built by linked translation projects.
     """
     project = Project.objects.get(pk=project_pk)
+    if not path:
+        path = project.static_metadata_path()
+
     log.info(LOG_TEMPLATE.format(
         project=project.slug,
         version='',
@@ -805,8 +845,7 @@ def update_static_metadata(project_pk):
         'single_version': project.single_version,
     }
     try:
-        path = project.static_metadata_path()
-        fh = open(path, 'w')
+        fh = open(path, 'w+')
         json.dump(metadata, fh)
         fh.close()
         Syncer.copy(path, path, host=socket.gethostname(), file=True)
@@ -819,7 +858,7 @@ def update_static_metadata(project_pk):
 
 
 #@periodic_task(run_every=crontab(hour="*", minute="*/5", day_of_week="*"))
-def update_docs_pull(record=False, pdf=False, man=False, force=False):
+def update_docs_pull(record=False, force=False):
     """
     A high-level interface that will update all of the projects.
 
@@ -828,7 +867,7 @@ def update_docs_pull(record=False, pdf=False, man=False, force=False):
     for version in Version.objects.filter(built=True):
         try:
             update_docs(
-                pk=version.project.pk, version_pk=version.pk, record=record, pdf=pdf, man=man)
+                pk=version.project.pk, version_pk=version.pk, record=record)
         except Exception, e:
             log.error("update_docs_pull failed", exc_info=True)
 
@@ -857,93 +896,3 @@ def clear_artifacts(version_pk):
     run_on_app_servers('rm -rf %s' % version.project.get_production_media_path(type='epub', version_slug=version.slug))
     run_on_app_servers('rm -rf %s' % version.project.get_production_media_path(type='htmlzip', version_slug=version.slug))
     run_on_app_servers('rm -rf %s' % version.project.rtd_build_path(version=version.slug))
-
-# @task()
-# def update_config_from_json(version_pk):
-#     """
-#     Check out or update the given project's repository.
-#     """
-# Remove circular import
-#     from projects.forms import ImportProjectForm
-#     version_data = api.version(version_pk).get()
-#     version = make_api_version(version_data)
-#     project = version.project
-#     log.debug(LOG_TEMPLATE.format(project=project.slug, version=version.slug, msg="Checking for json config"))
-#     try:
-#         rtd_json = open(os.path.join(
-#             project.checkout_path(version.slug),
-#             '.rtd.json'
-#         ))
-#         json_obj = json.load(rtd_json)
-#         for key in json_obj.keys():
-# Treat the defined fields on the Import form as
-# the canonical list of allowed user editable fields.
-# This is in essense just another UI for that form.
-#             if key not in ImportProjectForm._meta.fields:
-#                 del json_obj[key]
-#     except IOError:
-#         log.debug(LOG_TEMPLATE.format(project=project.slug, version=version.slug, msg="No rtd.json found."))
-#         return None
-
-#     project_data = api.project(project.pk).get()
-#     project_data.update(json_obj)
-#     api.project(project.pk).put(project_data)
-#     log.debug(LOG_TEMPLATE.format(project=project.slug, version=version.slug, msg="Updated from JSON."))
-
-# def update_state(version):
-#     """
-#     Keep state between the repo and the database
-#     """
-#     log.debug(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg='Setting config values from .rtd.yml'))
-#     try:
-#         update_config_from_json(version.pk)
-#     except Exception, e:
-# Never kill the build, but log the error
-#         log.error(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg='Failure in config parsing code: %s ' % e.message))
-
-
-# @task()
-# def zenircbot_notification(version_id):
-#     version = version.objects.get(id=version_id)
-#     message = "build of %s successful" % version
-#     redis_obj = redis.redis(**settings.redis)
-# irc = getattr(settings, 'irc_channel', '#readthedocs-build')
-#     try:
-#         redis_obj.publish('out',
-#                           json.dumps({
-#                               'version': 1,
-#                               'type': 'privmsg',
-#                               'data': {
-#                                   'to': irc,
-#                                   'message': message,
-#                               }
-#                           }))
-#     except redis.connectionerror:
-#         return
-
-# @task()
-# def clear_artifacts(version_pk):
-#     """ Remove artifacts from the build server. """
-# Stop doing this for now as it causes 403s if people build things back to
-# back some times because of a race condition
-#     version_data = api.version(version_pk).get()
-#     version = make_api_version(version_data)
-#     run('rm -rf %s' % version.project.full_epub_path(version.slug))
-#     run('rm -rf %s' % version.project.full_man_path(version.slug))
-#     run('rm -rf %s' % version.project.full_build_path(version.slug))
-#     run('rm -rf %s' % version.project.full_latex_path(version.slug))
-
-# @periodic_task(run_every=crontab(hour="*/12", minute="*", day_of_week="*"))
-# def update_mirror_docs():
-#     """
-#     A periodic task used to update all projects that we mirror.
-#     """
-#     record = False
-#     current = datetime.datetime.now()
-# Only record one build a day, at midnight.
-#     if current.hour == 0 and current.minute == 0:
-#         record = True
-#     data = apiv2.project().get(mirror=True, page_size=500)
-#     for project_data in data['results']:
-#         p = make_api_project(project_data)
-#         update_docs(pk=p.pk, record=record)

@@ -8,7 +8,7 @@ from tastypie.api import Api
 from api.base import (ProjectResource, UserResource, BuildResource,
                       VersionResource, FileResource)
 from builds.filters import VersionFilter
-from core.views import SearchView
+from core.views import HomepageView, SearchView
 from projects.feeds import LatestProjectsFeed, NewProjectsFeed
 from projects.filters import ProjectFilter
 from projects.constants import LANGUAGES_REGEX
@@ -27,7 +27,7 @@ handler404 = 'core.views.server_error_404'
 
 urlpatterns = patterns(
     '',  # base view, flake8 complains if it is on the previous line.
-    url(r'^$', 'core.views.homepage'),
+    url(r'^$', HomepageView.as_view(), name='homepage'),
     url(r'^security/', TemplateView.as_view(template_name='security.html')),
 
     # For serving docs locally and when nginx isn't
@@ -89,7 +89,7 @@ urlpatterns = patterns(
         'core.views.random_page',
         name='random_page'),
     url(r'^random/$', 'core.views.random_page', name='random_page'),
-    url(r'^donate/$', 'core.views.donate', name='donate'),
+    url(r'^sustainability/', include('donate.urls')),
     url(r'^depth/$', 'core.views.queue_depth', name='queue_depth'),
     url(r'^queue_info/$', 'core.views.queue_info', name='queue_info'),
     url(r'^live/$', 'core.views.live_builds', name='live_builds'),
@@ -107,9 +107,11 @@ urlpatterns = patterns(
         name='wipe_version'),
 
 
+    url(r'^websupport/', include('comments.urls')),
     url(r'^profiles/', include('profiles.urls.public')),
     url(r'^accounts/', include('profiles.urls.private')),
     url(r'^accounts/', include('allauth.urls')),
+    url(r'^accounts/gold/', include('gold.urls')),
     url(r'^api/', include(v1_api.urls)),
     url(r'^api/v2/', include('restapi.urls')),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),

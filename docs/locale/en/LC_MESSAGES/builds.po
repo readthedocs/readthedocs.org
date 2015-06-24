@@ -96,8 +96,8 @@ msgstr "The build server does have a select number of C libraries installed, bec
 
 # 68d042505a7e4e65a9acc42a896a1c77
 #: ../../builds.rst:36
-msgid "Latex (texlive-full)"
-msgstr "Latex (texlive-full)"
+msgid "LaTeX (texlive-full)"
+msgstr "LaTeX (texlive-full)"
 
 # c76432f795c24fc298e68ad9032ac29b
 #: ../../builds.rst:37

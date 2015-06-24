@@ -60,6 +60,10 @@ urlpatterns = patterns(
         AliasList.as_view(),
         name='projects_alias_list'),
 
+    url(r'^(?P<project_slug>[-\w]+)/comments_moderation/$',
+        'projects.views.private.project_comments_moderation',
+        name='projects_comments_moderation'),
+
     url(r'^(?P<project_slug>[-\w]+)/edit/$',
         'projects.views.private.project_edit',
         name='projects_edit'),
@@ -68,11 +72,11 @@ urlpatterns = patterns(
         'projects.views.private.project_advanced',
         name='projects_advanced'),
 
-    url(r'^(?P<project_slug>[-\w]+)/version/(?P<version_slug>[-\w.]+)/delete_html/$',
+    url(r'^(?P<project_slug>[-\w]+)/version/(?P<version_slug>[^/]+)/delete_html/$',
         'projects.views.private.project_version_delete_html',
         name='project_version_delete_html'),
 
-    url(r'^(?P<project_slug>[-\w]+)/version/(?P<version_slug>[-\w.]+)/$',
+    url(r'^(?P<project_slug>[-\w]+)/version/(?P<version_slug>[^/]+)/$',
         'projects.views.private.project_version_detail',
         name='project_version_detail'),
 
@@ -103,6 +107,10 @@ urlpatterns = patterns(
     url(r'^(?P<project_slug>[-\w]+)/notifications/$',
         'projects.views.private.project_notifications',
         name='projects_notifications'),
+
+    url(r'^(?P<project_slug>[-\w]+)/comments/$',
+        'projects.views.private.project_comments_settings',
+        name='projects_comments'),
 
     url(r'^(?P<project_slug>[-\w]+)/notifications/delete/$',
         'projects.views.private.project_notifications_delete',

@@ -31,7 +31,7 @@ def pip_requirements():
     """Install pip requirements"""
     with cd(env.code_dir):
         with prefix("source %s/bin/activate" % (env.virtualenv)):
-            run("pip install -r pip_requirements.txt")
+            run("pip install -r requirements/pip.txt")
 
 
 def build_db():

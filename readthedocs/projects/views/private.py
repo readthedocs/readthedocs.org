@@ -8,12 +8,15 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotAllowed, Http404
 from django.db.models import Q
-from django.shortcuts import get_object_or_404, render_to_response
+from django.shortcuts import get_object_or_404, render_to_response, render
 from django.template import RequestContext
 from django.views.generic import View, ListView, TemplateView
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.formtools.wizard.views import SessionWizardView
+
+from allauth.socialaccount.models import SocialToken
+from requests_oauthlib import OAuth2Session
 
 from bookmarks.models import Bookmark
 from builds import utils as build_utils
@@ -83,6 +86,17 @@ def project_manage(request, project_slug):
     """
     return HttpResponseRedirect(reverse('projects_detail',
                                         args=[project_slug]))
+
+
+@login_required
+def project_comments_moderation(request, project_slug):
+    project = get_object_or_404(Project.objects.for_admin_user(request.user),
+                            slug=project_slug)
+    return render(
+        request,
+        'projects/project_comments_moderation.html',
+        {'project': project}
+        )
 
 
 @login_required
@@ -472,6 +486,20 @@ def project_notifications(request, project_slug):
             'project': project,
             'emails': emails,
             'urls': urls,
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@login_required
+def project_comments_settings(request, project_slug):
+    project = get_object_or_404(Project.objects.for_admin_user(request.user),
+                                slug=project_slug)
+
+    return render_to_response(
+        'projects/project_comments_settings.html',
+        {
+            'project': project,
         },
         context_instance=RequestContext(request)
     )

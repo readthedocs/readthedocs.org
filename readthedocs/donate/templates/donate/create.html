@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Sustainability" %}{% endblock %}
+
+{% block extra_scripts %}
+  <script src="https://js.stripe.com/v2/" type="text/javascript"></script>
+  <script type="text/javascript" src="{% static 'donate/js/donate.js' %}"></script>
+  <script type="text/javascript">
+$(document).ready(function () {
+    var key;
+    //<![CDATA[
+    key = '{{ publishable }}';
+    //]]>
+
+    var view = donate.DonateView.init({
+      key: key,
+      form: $('form#donate-payment')
+    });
+});
+  </script>
+{% endblock %}
+
+
+{% block content %}
+  <h2>Donate to Read the Docs</h2>
+
+  <p>
+    Contributions will be listed on our donation page, with your name and
+    photo (from Gravatar). You can choose to donate privately if you do not wish to be listed.
+    We do not store your credit card details,
+    payment is processed directly through <a href="https://stripe.com">Stripe</a>.
+  </p>
+
+  <form accept-charset="UTF-8" action="" method="post" id="donate-payment">
+    {% csrf_token %}
+    {{ form.as_p }}
+    {% include "gold/cardform.html" %}
+  </form>
+{% endblock %}

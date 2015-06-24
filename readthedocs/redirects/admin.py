@@ -3,6 +3,6 @@ from models import Redirect
 
 
 class RedirectAdmin(admin.ModelAdmin):
-    list_display = ['project', 'redirect_type', 'from_url', 'to_url'] 
+    list_display = ['project', 'redirect_type', 'from_url', 'to_url']
 
 admin.site.register(Redirect, RedirectAdmin)

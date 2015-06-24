@@ -27,7 +27,7 @@ class ProjectFullSerializer(ProjectSerializer):
 
 class VersionSerializer(serializers.ModelSerializer):
     project = ProjectSerializer()
-    downloads = serializers.CharField(source='get_downloads', read_only=True)
+    downloads = serializers.DictField(source='get_downloads', read_only=True)
 
     class Meta:
         model = Version

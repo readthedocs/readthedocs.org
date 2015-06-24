@@ -1,0 +1,8 @@
+-r pip.txt
+dnspython
+gunicorn
+#For resizing images
+pillow
+python-memcached
+whoosh
+django-redis

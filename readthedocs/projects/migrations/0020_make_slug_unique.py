@@ -7,13 +7,13 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        
+
         # Adding unique constraint on 'Project', fields ['slug']
         db.create_unique('projects_project', ['slug'])
 
 
     def backwards(self, orm):
-        
+
         # Removing unique constraint on 'Project', fields ['slug']
         db.delete_unique('projects_project', ['slug'])
 

@@ -3,14 +3,14 @@
 # This file is distributed under the same license as the PACKAGE package.
 #
 # Translators:
-# Joan Queralt <jqueralt@gmail.com>, 2014
+# Joan Queralt <jqueralt@gmail.com>, 2014-2015
 msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-09-21 14:17-0500\n"
-"PO-Revision-Date: 2014-04-24 21:43+0000\n"
-"Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
+"POT-Creation-Date: 2015-03-03 17:36-0600\n"
+"PO-Revision-Date: 2015-02-17 21:38+0000\n"
+"Last-Translator: Joan Queralt <jqueralt@gmail.com>\n"
 "Language-Team: Catalan (http://www.transifex.com/projects/p/readthedocs/"
 "language/ca/)\n"
 "Language: ca\n"
@@ -30,29 +30,37 @@ msgstr ""
 "Les dades de recerca de recursos proporcionades no són vàlides (tipus no "
 "coincident): %(error)s"
 
-#: bookmarks/models.py:9 builds/models.py:85 builds/models.py:280
-#: builds/models.py:296 projects/models.py:760 redirects/models.py:34
-msgid "Project"
-msgstr "Projecte"
-
-#: bookmarks/models.py:11 core/models.py:13 projects/models.py:102
+#: bookmarks/models.py:10 core/models.py:16 projects/models.py:57
 msgid "User"
 msgstr "Usuari"
 
-#: bookmarks/models.py:13 builds/models.py:304
+#: bookmarks/models.py:12 builds/models.py:22 builds/models.py:232
+#: builds/models.py:248 comments/models.py:59 projects/models.py:802
+#: redirects/models.py:35
+msgid "Project"
+msgstr "Projecte"
+
+#: bookmarks/models.py:14 builds/filters.py:31 builds/models.py:250
+#: comments/models.py:61 projects/models.py:72 projects/models.py:804
+#: templates/djangome/oneoffs.html:11
+msgid "Version"
+msgstr "Versió"
+
+#: bookmarks/models.py:16
+#, fuzzy
+msgid "Page"
+msgstr "Pàgina inicial"
+
+#: bookmarks/models.py:18 builds/models.py:256 comments/models.py:147
+#: comments/models.py:208
 msgid "Date"
 msgstr "Data"
 
-#: bookmarks/models.py:14 templates/djangome/show.html:12
+#: bookmarks/models.py:19 templates/djangome/show.html:12
 msgid "URL"
 msgstr "URL"
 
-#: bookmarks/models.py:15 oauth/models.py:37 projects/models.py:106
-#: templates/core/project_details.html:82
-msgid "Description"
-msgstr "Descripció"
-
-#: bookmarks/models.py:21
+#: bookmarks/models.py:26
 #, python-format
 msgid "Bookmark %(url)s for %(user)s (%(pk)s)"
 msgstr "Marcador %(url)s de %(user)s (%(pk)s)"
@@ -101,7 +109,7 @@ msgstr "Guió"
 msgid "Branch"
 msgstr "Branca"
 
-#: builds/constants.py:21 builds/filters.py:19
+#: builds/constants.py:21
 msgid "Tag"
 msgstr "Etiqueta"
 
@@ -113,131 +121,157 @@ msgstr "Desconegut"
 msgid "Any"
 msgstr "Qualsevol"
 
-#: builds/filters.py:17 builds/filters.py:29 oauth/models.py:17
-#: oauth/models.py:35 projects/filters.py:31 projects/models.py:104
-#: projects/models.py:764
+#: builds/filters.py:29 oauth/models.py:18 oauth/models.py:37
+#: oauth/models.py:69 oauth/models.py:87 projects/filters.py:33
+#: projects/models.py:59 projects/models.py:806
 msgid "Name"
 msgstr "Nom"
 
-#: builds/filters.py:38
+#: builds/filters.py:40
 msgid "Build Date"
 msgstr "Data de construcció"
 
-#: builds/filters.py:39
+#: builds/filters.py:41
 msgid "Build Type"
 msgstr "Tipus de construcció"
 
-#: builds/models.py:88 builds/models.py:300
+#: builds/models.py:25 builds/models.py:252
 msgid "Type"
 msgstr "Tipus"
 
-#: builds/models.py:92
+#: builds/models.py:29
 msgid "Identifier"
 msgstr "Identificador"
 
-#: builds/models.py:94
+#: builds/models.py:31
 msgid "Verbose Name"
 msgstr "Nom detallat"
 
-#: builds/models.py:95 projects/filters.py:33 projects/models.py:105
-#: projects/models.py:765
+#: builds/models.py:32 projects/filters.py:35 projects/models.py:60
+#: projects/models.py:807
 msgid "Slug"
 msgstr "Slug"
 
-#: builds/models.py:97
+#: builds/models.py:34
 msgid "Supported"
 msgstr "Suportat"
 
-#: builds/models.py:98 oauth/models.py:19 oauth/models.py:42
-#: redirects/models.py:12 templates/projects/project_versions.html:46
+#: builds/models.py:35 oauth/models.py:20 oauth/models.py:44
+#: oauth/models.py:71 oauth/models.py:95 redirects/models.py:12
+#: templates/projects/project_versions.html:46
 msgid "Active"
 msgstr "Actiu"
 
-#: builds/models.py:99 templates/projects/includes/icon_built.html:4
+#: builds/models.py:36 templates/projects/includes/icon_built.html:4
 msgid "Built"
 msgstr "Construït"
 
-#: builds/models.py:100 templates/projects/includes/icon_built.html:7
+#: builds/models.py:37 templates/projects/includes/icon_built.html:7
 msgid "Uploaded"
 msgstr "Carregat"
 
-#: builds/models.py:102 projects/models.py:199
+#: builds/models.py:39 projects/models.py:154
 msgid "Privacy Level"
 msgstr "Nivell privat"
 
-#: builds/models.py:103
+#: builds/models.py:40
 msgid "Level of privacy for this Version."
 msgstr "Nivell de provacitat d'aquesta Versió."
 
+#: builds/models.py:43
+msgid "Machine Created"
+msgstr ""
+
 #. Translators: Permission around whether a user can view the
 #. version
-#: builds/models.py:114
+#: builds/models.py:52
 msgid "View Version"
 msgstr "Veure la Versió"
 
-#: builds/models.py:118
+#: builds/models.py:56
 #, python-format
 msgid "Version %(version)s of %(project)s (%(pk)s)"
 msgstr "Versió %(version)s de %(project)s (%(pk)s)"
 
-#: builds/models.py:282
+#: builds/models.py:234
 msgid "From slug"
 msgstr "From slug"
 
-#: builds/models.py:283
+#: builds/models.py:235
 msgid "To slug"
 msgstr "To slug"
 
-#: builds/models.py:285
+#: builds/models.py:237
 msgid "Largest"
 msgstr "El més gran"
 
-#: builds/models.py:288
+#: builds/models.py:240
 #, python-format
 msgid "Alias for %(project)s: %(from)s -> %(to)s"
 msgstr "Àlies per %(project)s: %(from)s -> %(to)s"
 
-#: builds/models.py:298 projects/models.py:119 projects/models.py:762
-#: templates/djangome/oneoffs.html:11
-msgid "Version"
-msgstr "Versió"
-
-#: builds/models.py:302
+#: builds/models.py:254
 msgid "State"
 msgstr "Estat"
 
-#: builds/models.py:305
+#: builds/models.py:257
 msgid "Success"
 msgstr "Amb èxit"
 
-#: builds/models.py:307
+#: builds/models.py:259
 msgid "Setup"
 msgstr "Configuració"
 
-#: builds/models.py:308
+#: builds/models.py:260
 msgid "Setup error"
 msgstr "Error de configuració"
 
-#: builds/models.py:309
+#: builds/models.py:261
 msgid "Output"
 msgstr "Sortida"
 
-#: builds/models.py:310
+#: builds/models.py:262
 msgid "Error"
 msgstr "Error"
 
-#: builds/models.py:311
+#: builds/models.py:263
 msgid "Exit code"
 msgstr "Codi de sortida"
 
-#: builds/models.py:313 templates/builds/build_detail.html:39
+#: builds/models.py:265 projects/models.py:810
+#: templates/builds/build_detail.html:39
 msgid "Commit"
-msgstr ""
+msgstr "publica"
 
-#: builds/models.py:320
+#: builds/models.py:267
+#, fuzzy
+msgid "Build Length"
+msgstr "Construint"
+
+#: builds/models.py:279
 #, python-format
 msgid "Build %(project)s for %(usernames)s (%(pk)s)"
 msgstr "Construeix %(project)s de %(usernames)s (%(pk)s)"
+
+#: comments/models.py:63 projects/models.py:118 projects/models.py:808
+msgid "Path"
+msgstr "Camí"
+
+#: comments/models.py:65
+msgid "Raw Source"
+msgstr ""
+
+#: comments/models.py:114
+msgid "Hash"
+msgstr ""
+
+#: comments/models.py:148
+msgid "Rating"
+msgstr ""
+
+#: comments/models.py:149
+msgid "Text"
+msgstr ""
 
 #: core/forms.py:14
 msgid "First name"
@@ -247,27 +281,27 @@ msgstr "Nom"
 msgid "Last name"
 msgstr "Cognoms"
 
-#: core/middleware.py:70
+#: core/middleware.py:72 core/middleware.py:79
 msgid "Invalid hostname"
 msgstr "Nom del servidor no vàlid"
 
-#: core/models.py:15
+#: core/models.py:18
 msgid "Whitelisted"
 msgstr "A la llista blanca"
 
-#: core/models.py:16
+#: core/models.py:19
 msgid "Homepage"
 msgstr "Pàgina d'inici"
 
-#: core/models.py:17
+#: core/models.py:20
 msgid "Allow email"
 msgstr "Permet el correu electrònic"
 
-#: core/models.py:18
+#: core/models.py:21
 msgid "Show your email on VCS contributions."
 msgstr "Mostra el vostre correu a les contribucions VCS"
 
-#: core/models.py:23
+#: core/models.py:26
 #, python-format
 msgid "%(username)s's profile"
 msgstr "Perfil de %(username)s"
@@ -277,168 +311,176 @@ msgstr "Perfil de %(username)s"
 msgid "Please enter a valid URL on %s"
 msgstr "Escriviu una URL vàlida a %s"
 
-#: oauth/models.py:7 oauth/models.py:28 projects/models.py:98
+#: oauth/models.py:8 oauth/models.py:29 oauth/models.py:59 oauth/models.py:80
+#: projects/models.py:53
 msgid "Publication date"
 msgstr "Data de publicació"
 
-#: oauth/models.py:8 oauth/models.py:29 projects/models.py:99
+#: oauth/models.py:9 oauth/models.py:30 oauth/models.py:60 oauth/models.py:81
+#: projects/models.py:54
 msgid "Modified date"
 msgstr "Data de modificació"
 
-#: oauth/models.py:10 oauth/models.py:31
-#, fuzzy
+#: oauth/models.py:11 oauth/models.py:33 oauth/models.py:62 oauth/models.py:83
 msgid "Users"
-msgstr "Usuari"
+msgstr "Usuaris"
 
-#: oauth/models.py:13
+#: oauth/models.py:14 oauth/models.py:65
 msgid "Login"
-msgstr ""
+msgstr "Inici de sessió"
 
-#: oauth/models.py:15
+#: oauth/models.py:16 oauth/models.py:67
 msgid "Email"
-msgstr ""
+msgstr "Correu electrònic"
 
-#: oauth/models.py:18 oauth/models.py:41
-#, fuzzy
+#: oauth/models.py:19 oauth/models.py:43 oauth/models.py:70 oauth/models.py:94
 msgid "HTML URL"
-msgstr "HTML"
+msgstr "URL HTML"
 
-#: oauth/models.py:33
-#, fuzzy
+#: oauth/models.py:35 oauth/models.py:85
 msgid "Organization"
-msgstr "Traduccions"
+msgstr "Organització"
 
-#: oauth/models.py:36
-#, fuzzy
+#: oauth/models.py:38 oauth/models.py:88
 msgid "Full Name"
-msgstr "Nom"
+msgstr "Nom complet"
 
-#: oauth/models.py:38 projects/models.py:107
+#: oauth/models.py:39 oauth/models.py:89 projects/models.py:61
+#: templates/core/project_details.html:90
+msgid "Description"
+msgstr "Descripció"
+
+#: oauth/models.py:40 oauth/models.py:90 projects/models.py:62
 msgid "The reStructuredText description of the project"
 msgstr "La descripció del projecte en reStructuredText"
 
-#: oauth/models.py:39
+#: oauth/models.py:41 oauth/models.py:92
 msgid "Git URL"
-msgstr ""
+msgstr "URL a Git"
 
-#: oauth/models.py:40
+#: oauth/models.py:42 oauth/models.py:93
 msgid "SSH URL"
+msgstr "URL SSH"
+
+#: oauth/models.py:91
+msgid "vcs"
 msgstr ""
 
 #: projects/constants.py:18
+msgid "Automatically Choose"
+msgstr ""
+
+#: projects/constants.py:19
 msgid "Sphinx Html"
 msgstr "Html Sphinx"
 
-#: projects/constants.py:19
+#: projects/constants.py:20
+msgid "Mkdocs (Markdown)"
+msgstr ""
+
+#: projects/constants.py:21
 msgid "Sphinx HtmlDir"
 msgstr "HtmlDir Sphinx "
 
-#: projects/constants.py:20
+#: projects/constants.py:22
 msgid "Sphinx Single Page HTML"
 msgstr "Sphinx HTML en pàgina única"
 
-#: projects/constants.py:21
-msgid "Mkdocs"
-msgstr "Mkdocs"
-
 #. Translators: This is a name of a Sphinx theme.
-#: projects/constants.py:29
+#: projects/constants.py:30
 msgid "Default"
 msgstr "Per defecte"
 
 #. Translators: This is a name of a Sphinx theme.
-#: projects/constants.py:31
+#: projects/constants.py:32
 msgid "Sphinx Docs"
 msgstr "Docs d'Sphinx "
 
 #. Translators: This is a name of a Sphinx theme.
-#: projects/constants.py:35
+#: projects/constants.py:36
 msgid "Traditional"
 msgstr "Tradicional"
 
 #. Translators: This is a name of a Sphinx theme.
-#: projects/constants.py:37
+#: projects/constants.py:38
 msgid "Nature"
 msgstr "Nature"
 
 #. Translators: This is a name of a Sphinx theme.
-#: projects/constants.py:39
+#: projects/constants.py:40
 msgid "Haiku"
 msgstr "Haiku"
 
-#: projects/constants.py:68
+#: projects/constants.py:69
 msgid "Live"
 msgstr "Live"
 
-#: projects/constants.py:69
+#: projects/constants.py:70
 msgid "Deleted"
 msgstr "Eliminat"
 
-#: projects/constants.py:73
+#: projects/constants.py:74
 msgid "Git"
 msgstr "Git"
 
-#: projects/constants.py:74
+#: projects/constants.py:75
 msgid "Subversion"
 msgstr "Subversion"
 
-#: projects/constants.py:75
+#: projects/constants.py:76
 msgid "Mercurial"
 msgstr "Mercurial"
 
-#: projects/constants.py:76
+#: projects/constants.py:77
 msgid "Bazaar"
 msgstr "Bazaar"
 
-#: projects/constants.py:84
+#: projects/constants.py:85
 msgid "Public"
 msgstr "Públic"
 
-#: projects/constants.py:85
+#: projects/constants.py:86
 msgid "Protected"
 msgstr "Protegit"
 
-#: projects/constants.py:86
+#: projects/constants.py:87
 msgid "Private"
 msgstr "Privat"
 
-#: projects/constants.py:97
+#: projects/constants.py:98
 msgid "CPython 2.x"
 msgstr "CPython 2.x"
 
-#: projects/constants.py:98
+#: projects/constants.py:99
 msgid "CPython 3.x"
 msgstr "CPython 3.x"
 
-#: projects/filters.py:34
+#: projects/filters.py:36
 msgid "Created Date"
 msgstr "Data de creació"
 
-#: projects/filters.py:36 projects/models.py:109
+#: projects/filters.py:38 projects/models.py:64
 msgid "Repository URL"
 msgstr "URL del repositori"
 
-#: projects/filters.py:39
+#: projects/filters.py:41
 msgid "Repository Type"
 msgstr "Tipus de repositori"
 
-#: projects/forms.py:26
-msgid "A project with that name exists already!"
-msgstr "Ja existeix un projecte amb aquest nom"
+#: projects/forms.py:67
+#, fuzzy
+msgid "Edit advanced project options"
+msgstr "Edita la configuració avançada del projecte"
 
-#: projects/forms.py:34
-msgid ""
-"URL for your code (hg or git). Ex. http://github.com/ericholscher/django-"
-"kong.git"
+#: projects/forms.py:78
+msgid "Invalid project name, a project already exists with that name"
 msgstr ""
-"URL del vostre codi (hg or git). Ex. http://github.com/ericholscher/django-"
-"kong.git"
 
-#: projects/forms.py:56
+#: projects/forms.py:85
 msgid "Invalid character in repo name"
 msgstr "Hi ha un caràcter no vàlid al nom del repositori"
 
-#: projects/forms.py:59
+#: projects/forms.py:88
 msgid ""
 "It looks like you entered a private repo - please use the public (http:// or "
 "git://) clone url"
@@ -446,121 +488,113 @@ msgstr ""
 "Sembla que heu entrat un repositori privat - cal que utilitzeu la url del "
 "clon públic (http:// or git://)"
 
-#: projects/forms.py:76 projects/models.py:187
+#: projects/forms.py:131 projects/models.py:142
 msgid "(Beta) The Python interpreter used to create the virtual environment."
 msgstr "(Beta) L'intèrpret Python utilitzat per crear l'entorn virtual."
 
-#: projects/forms.py:105
+#: projects/forms.py:160
 msgid ""
 "Your configuration file is invalid, make sure it contains conf.py in it."
 msgstr ""
 "El vostre fitxer de configuració no és vàlid, assegureu-vos que conté conf.py"
 
-#: projects/forms.py:177 templates/core/project_details.html:172
+#: projects/forms.py:242 templates/core/project_detail_right.html:102
 msgid "Default Version"
 msgstr "Versió per defecte"
 
-#: projects/forms.py:200
+#: projects/forms.py:269
 msgid "Zip file of HTML"
 msgstr "Fitxer Zip comprimit de l'HTML"
 
-#: projects/forms.py:202
+#: projects/forms.py:271
 msgid "Overwrite existing HTML?"
 msgstr "Voleu sobreescriure l'HTML existent?"
 
-#: projects/forms.py:215
+#: projects/forms.py:284
 msgid "That version is already active!"
 msgstr "Aquesta versió ja és activa"
 
-#: projects/forms.py:217
+#: projects/forms.py:286
 msgid "Must upload a zip file."
 msgstr "Cal que carregueu un fitxer comprimit zip."
 
-#: projects/forms.py:231
+#: projects/forms.py:300
 msgid "Version of the project you are uploading HTML for"
 msgstr "Versió del projecte al qual hi esteu carregant HTML"
 
-#: projects/forms.py:248 projects/forms.py:325
+#: projects/forms.py:317 projects/forms.py:394
 #, python-format
 msgid "Project %(name)s does not exist"
 msgstr "El projecte %(name)s no existeix"
 
-#: projects/forms.py:269
+#: projects/forms.py:338
 #, python-format
 msgid "User %(name)s does not exist"
 msgstr "No existeix l'usuari %(name)s "
 
-#: projects/models.py:83
+#: projects/models.py:37
 msgid "Parent"
 msgstr "Pare"
 
-#: projects/models.py:85
+#: projects/models.py:39
 msgid "Child"
 msgstr "Fill"
 
-#: projects/models.py:110
-msgid ""
-"Checkout URL for your code (hg, git, etc.). Ex. http://github.com/"
-"ericholscher/django-kong.git"
+#: projects/models.py:65
+msgid "Hosted documentation repository URL"
 msgstr ""
-"Comproveu la URL del vostre codi (hg, git, etc.). Ex. http://github.com/"
-"ericholscher/django-kong.git"
 
-#: projects/models.py:113
+#: projects/models.py:66
 msgid "Repository type"
 msgstr "Tipus de repositori"
 
-#: projects/models.py:115
-msgid "Project URL"
-msgstr "URL del projecte"
+#: projects/models.py:68
+#, fuzzy
+msgid "Project homepage"
+msgstr "Pàgina inicial del projecte"
 
-#: projects/models.py:116
+#: projects/models.py:69
 msgid "The project's homepage"
 msgstr "Pàgina inicial del projecte"
 
-#: projects/models.py:117
+#: projects/models.py:70
 msgid "Canonical URL"
 msgstr "URL canònica"
 
-#: projects/models.py:118
-#, fuzzy
-msgid ""
-"The official URL that the docs live at. This can be slug.readthedocs.org, or "
-"somewhere else. Ex. http://docs.fabfile.org"
+#: projects/models.py:71
+msgid "URL that documentation is expected to serve from"
 msgstr ""
-"La URL oficial on viu la documentació. Pot ser a readthedocs.org o un altre "
-"lloc, ex: http://docs.elmeulloc.org"
 
-#: projects/models.py:120
+#: projects/models.py:73
 msgid "Project version these docs apply to, i.e. 1.0a"
 msgstr "Versió del projecte a la qual s'aplica aquesta documentació, p.ex 1.0a"
 
-#: projects/models.py:122 templates/sphinx/sphinx_rtd_theme/layout.html:58
+#: projects/models.py:75 templates/sphinx/sphinx_rtd_theme/layout.html:58
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:140
 msgid "Copyright"
 msgstr "Copyright"
 
-#: projects/models.py:123
+#: projects/models.py:76
 msgid "Project copyright information"
 msgstr "Informació sobre el copyright del projecte"
 
-#: projects/models.py:125
+#: projects/models.py:78
 msgid "Theme"
 msgstr "Tema"
 
-#: projects/models.py:128
+#: projects/models.py:81
 msgid "Examples"
 msgstr "Exemples"
 
-#: projects/models.py:129
+#: projects/models.py:82
 msgid "Suffix"
 msgstr "Sufix"
 
-#: projects/models.py:132
+#: projects/models.py:85
 msgid "Single version"
 msgstr "Versió senzilla"
 
-#: projects/models.py:133
+#: projects/models.py:86
 msgid ""
 "A single version site has no translations and only your \"latest\" version, "
 "served at the root of the domain. Use this with caution, only turn it on if "
@@ -570,19 +604,19 @@ msgstr ""
 "versió a l'arrel del domini. Useu-lo amb precaució i activeu-lo només si "
 "<b>mai</b> voleu tenir diverses versions dels vostres documents."
 
-#: projects/models.py:135
+#: projects/models.py:88
 msgid "Default version"
 msgstr "Versió per defecte"
 
-#: projects/models.py:136
+#: projects/models.py:89
 msgid "The version of your project that / redirects to"
 msgstr "La versió del vostre projecte que / redirigeix a "
 
-#: projects/models.py:140
+#: projects/models.py:93
 msgid "Default branch"
 msgstr "Branca per defecte"
 
-#: projects/models.py:141
+#: projects/models.py:94
 msgid ""
 "What branch \"latest\" points to. Leave empty to use the default value for "
 "your VCS (eg. trunk or master)."
@@ -590,36 +624,47 @@ msgstr ""
 "A quina branca apunta \"el darrer\". Deixeu-ho buit si voleu utilitzar el "
 "valor per defecte del vostre VCS (p.ex: trunk o master)."
 
-#: projects/models.py:145
+#: projects/models.py:98
 msgid "Requirements file"
 msgstr "Fitxer de requeriments"
 
-#: projects/models.py:147
+#: projects/models.py:100
+#, fuzzy
 msgid ""
-"Requires Virtualenv. A <a href=\"http://www.pip-installer.org/en/latest/"
-"cookbook.html#requirements-files\">pip requirements file</a> needed to build "
-"your documentation. Path from the root of your project."
+"Requires Virtualenv. A <a href=\"https://pip.pypa.io/en/latest/user_guide."
+"html#requirements-files\">pip requirements file</a> needed to build your "
+"documentation. Path from the root of your project."
 msgstr ""
 "Requereix Virtualenv. Un <a href=\"http://www.pip-installer.org/en/latest/"
 "cookbook.html#requirements-files\">fitxer de requeriments pip</a> necessari "
 "per construir la vostra documentació. Camí des de l'arrel del vostre "
 "projecte."
 
-#: projects/models.py:152
+#: projects/models.py:105
 msgid "Documentation type"
 msgstr "Tipus de documentació"
 
-#: projects/models.py:154
+#: projects/models.py:107
 msgid ""
 "Type of documentation you are building. <a href=\"http://sphinx-doc.org/"
 "builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More info</a>."
 msgstr ""
+"Escriviu la documentació que voleu construir. <a href=\"http://sphinx-doc."
+"org/builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">Més info</a>."
 
-#: projects/models.py:158
+#: projects/models.py:110
+msgid "Allow Comments"
+msgstr ""
+
+#: projects/models.py:111
+msgid "Comment Moderation)"
+msgstr ""
+
+#: projects/models.py:113
 msgid "Analytics code"
 msgstr "Codi d'Analytics"
 
-#: projects/models.py:159
+#: projects/models.py:114
 msgid ""
 "Google Analytics Tracking ID (ex. UA-22345342-1). This may slow down your "
 "page loads."
@@ -627,19 +672,15 @@ msgstr ""
 "ID de seguiment de Google Analytics (ex. UA-22345342-1). Això, però, pot "
 "alentir la càrrega de la vostra pàgina."
 
-#: projects/models.py:163 projects/models.py:766
-msgid "Path"
-msgstr "Camí"
-
-#: projects/models.py:164
+#: projects/models.py:119
 msgid "The directory where conf.py lives"
 msgstr "El directori on hi ha conf.py"
 
-#: projects/models.py:166
+#: projects/models.py:121
 msgid "Python configuration file"
 msgstr "Fitxer de configuració de Python"
 
-#: projects/models.py:167
+#: projects/models.py:122
 msgid ""
 "Path from project root to conf.py file (ex. docs/conf.py). Leave blank if "
 "you want us to find it for you."
@@ -647,46 +688,46 @@ msgstr ""
 "Camí des projecte al fitxer conf.py  (ex. docs/conf.py). Deixeu-ho en blanc "
 "si voleu que el trobem per vós."
 
-#: projects/models.py:170
+#: projects/models.py:125
 msgid "Featured"
 msgstr "Destacat"
 
-#: projects/models.py:171
+#: projects/models.py:126
 msgid "Skip"
 msgstr "Salta"
 
-#: projects/models.py:172
+#: projects/models.py:127
 msgid "Mirror"
 msgstr "Mirall"
 
-#: projects/models.py:174
+#: projects/models.py:129
 msgid "Use virtualenv"
 msgstr "Usa virtualenv"
 
-#: projects/models.py:175
+#: projects/models.py:130
 msgid "Install your project inside a virtualenv using setup.py install"
 msgstr ""
 "Instal·leu el vostre projecte dins virtualenv usant la instal·lació de setup."
 "py"
 
-#: projects/models.py:183
+#: projects/models.py:138
 msgid "Python Interpreter"
 msgstr "Intèrpret Python"
 
-#: projects/models.py:191
+#: projects/models.py:146
 msgid "Use system packages"
 msgstr "Usa els paquets del sistema"
 
-#: projects/models.py:192
+#: projects/models.py:147
 msgid "Give the virtual environment access to the global site-packages dir."
 msgstr ""
 "Doneu accés a l'entorn virtual al directori global de paquets del lloc."
 
-#: projects/models.py:196
+#: projects/models.py:151
 msgid "Django Packages URL"
 msgstr "URL dels paquets de Django"
 
-#: projects/models.py:201
+#: projects/models.py:156
 msgid ""
 "(Beta) Level of privacy that you want on the repository. Protected means "
 "public but not in listings."
@@ -694,206 +735,264 @@ msgstr ""
 "(Beta) Nivell de privacitat que desitgeu en el repositori. Protegit "
 "significa Públic, però no en els llistats."
 
-#: projects/models.py:204
+#: projects/models.py:159
 msgid "Version Privacy Level"
 msgstr "Nivell de privacitat de la versió"
 
-#: projects/models.py:206
+#: projects/models.py:162
 msgid ""
 "(Beta) Default level of privacy you want on built versions of documentation."
 msgstr ""
 "(Beta) Nivell de privacitat per defecte que desitgeu en les versions "
 "construïdes de la documentació."
 
-#: projects/models.py:211
+#: projects/models.py:167
 msgid "Related projects"
 msgstr "Projectes relacionats"
 
-#: projects/models.py:215
+#: projects/models.py:171
 msgid "Language"
-msgstr ""
+msgstr "Idioma"
 
-#: projects/models.py:216
+#: projects/models.py:172
 msgid ""
 "The language the project documentation is rendered in. Note: this affects "
 "your project's URL."
 msgstr ""
+"L'idioma en què es publicarà la documentació del projecte. Nota: això "
+"afectarà la URL del projecte"
 
-#: projects/models.py:227
+#: projects/models.py:177
+msgid "Programming Language"
+msgstr ""
+
+#: projects/models.py:179
+msgid "The primary programming language the project is written in."
+msgstr ""
+
+#: projects/models.py:188
 msgid "Number of Major versions"
 msgstr "Nombre de versions majors"
 
-#: projects/models.py:232
+#: projects/models.py:193
 msgid "2 means supporting 3.X.X and 2.X.X, but not 1.X.X"
 msgstr "2 significa donar suport a 3.X.X i 2.X.X, però no a 1.X.X"
 
-#: projects/models.py:235
+#: projects/models.py:196
 msgid "Number of Minor versions"
 msgstr "Nombre de versions menors"
 
-#: projects/models.py:240
+#: projects/models.py:201
 msgid "2 means supporting 2.2.X and 2.1.X, but not 2.0.X"
 msgstr "2 significa donar suport a 2.2.X i 2.1.X, però no a 2.0.X"
 
-#: projects/models.py:243
+#: projects/models.py:204
 msgid "Number of Point versions"
 msgstr "Nombre de versions amb punts"
 
-#: projects/models.py:248
+#: projects/models.py:209
 msgid "2 means supporting 2.2.2 and 2.2.1, but not 2.2.0"
 msgstr "2 significa donar suport a  2.2.2 i 2.2.1, però no a 2.2.0"
 
 #. Translators: Permission around whether a user can view the
 #. project
-#: projects/models.py:259 templates/projects/project_import_github.html:65
+#: projects/models.py:221 templates/projects/project_import_bitbucket.html:57
+#: templates/projects/project_import_github.html:57
 msgid "View Project"
 msgstr "Mostra el Projecte"
 
-#: projects/models.py:286
+#: projects/models.py:251
 msgid "Model must have slug"
 msgstr "El model ha de tenir un slug"
 
-#: projects/models.py:767
+#: projects/models.py:809
 msgid "MD5 checksum"
 msgstr "MD5 checksum"
 
-#: projects/models.py:795
+#: projects/models.py:839
 msgid "URL to send the webhook to"
 msgstr "URL on enviar el webhook"
 
+#: projects/signals.py:52
+msgid "GitHub webhook activated"
+msgstr ""
+
+#: projects/signals.py:68
+msgid "BitBucket webhook activated"
+msgstr ""
+
+#: projects/tasks.py:751
+#, python-brace-format
+msgid "Failed: {project.name} ({commit})"
+msgstr ""
+
+#: projects/tasks.py:753
+#, python-brace-format
+msgid "Failed: {project.name} ({version.verbose_name})"
+msgstr ""
+
+#: projects/views/private.py:118 projects/views/private.py:143
+msgid "Project settings updated"
+msgstr ""
+
+#: projects/views/private.py:172
+#, fuzzy
+msgid "Project versions updated"
+msgstr "Edita les versions del Projecte"
+
+#: projects/views/private.py:216
+#, fuzzy
+msgid "Project deleted"
+msgstr "Àlies del projecte"
+
+#: projects/views/private.py:331
+#, fuzzy
+msgid "The demo project is already imported!"
+msgstr "Aquesta versió ja és activa"
+
+#: projects/views/private.py:340
+msgid "Your demo project is currently being imported"
+msgstr ""
+
+#: projects/views/private.py:345
+msgid "There was a problem adding the demo project"
+msgstr ""
+
 #: redirects/models.py:7
 msgid "301 - Permanent Redirect"
-msgstr ""
+msgstr "301 - Redirecció permanent"
 
 #: redirects/models.py:8
 msgid "302 - Temporary Redirect"
-msgstr ""
+msgstr "302 - Redirecció temporal"
 
 #: redirects/models.py:13
-#, fuzzy
 msgid "Inactive"
-msgstr "Actiu"
+msgstr "Inactiu"
 
 #: redirects/models.py:17
 msgid "Prefix Redirect"
-msgstr ""
+msgstr "Redirecciona el prefix"
 
 #: redirects/models.py:18
 msgid "Page Redirect"
-msgstr ""
+msgstr "Redirecciona la pàgina"
 
 #: redirects/models.py:19
 #, fuzzy
-msgid "Sphinx HTMLDir -> HTML"
-msgstr "Sphinx HTML en pàgina única"
+msgid "Exact Redirect"
+msgstr "Edita les redireccions"
 
 #: redirects/models.py:20
-#, fuzzy
+msgid "Sphinx HTMLDir -> HTML"
+msgstr "Sphinx HTMLDir -> HTML"
+
+#: redirects/models.py:21
 msgid "Sphinx HTML -> HTMLDir"
-msgstr "HtmlDir Sphinx "
+msgstr "Sphinx HTML -> HTMLDir"
 
-#: redirects/models.py:24
-msgid ""
-"Absolute path, excluding the domain.Example: <b>/docs/</b>  or <b>/install."
-"html</b>."
-msgstr ""
-
-#: redirects/models.py:27
-msgid "Absolute or relative url. Examples: <b>/tutorial/install.html.</b>"
-msgstr ""
-
-#: redirects/models.py:30
-msgid "The type of redirect you wish to use."
-msgstr ""
-
-#: redirects/models.py:36
+#: redirects/models.py:25
 #, fuzzy
-msgid "Redirect Type"
-msgstr "Tipus de repositori"
+msgid ""
+"Absolute path, excluding the domain. Example: <b>/docs/</b>  or <b>/install."
+"html</b>"
+msgstr ""
+"Camí absolut, excloent el domini. Exemple: <b>/docs/</b> or <b>/install."
+"html</b>."
+
+#: redirects/models.py:28
+#, fuzzy
+msgid "Absolute or relative url. Examples: <b>/tutorial/install.html</b>"
+msgstr "URL absoluta o relativa. Exemple: <b>/tutorial/install.html.</b>"
+
+#: redirects/models.py:31
+msgid "The type of redirect you wish to use."
+msgstr "Tipus de redirecció que vulgueu usar."
 
 #: redirects/models.py:38
-#, fuzzy
-msgid "From URL"
-msgstr "URL del projecte"
+msgid "Redirect Type"
+msgstr "Tipus de redirecció"
 
 #: redirects/models.py:41
-#, fuzzy
-msgid "To URL"
-msgstr "URLs curtes"
+msgid "From URL"
+msgstr "URL origen"
 
 #: redirects/models.py:44
+msgid "To URL"
+msgstr "URL destí"
+
+#: redirects/models.py:47
 msgid "HTTP Status"
-msgstr ""
+msgstr "Estat HTTP"
 
-#: redirects/models.py:53
+#: redirects/models.py:56
 msgid "redirect"
-msgstr ""
+msgstr "redirecciona"
 
-#: redirects/models.py:54
-#, fuzzy
+#: redirects/models.py:57
 msgid "redirects"
-msgstr "Projectes destacats"
+msgstr "redirecciona"
 
-#: redirects/models.py:59
-#, python-format
-msgid "Redirect: %s ->"
-msgstr ""
+#: redirects/models.py:62
+#, fuzzy, python-format
+msgid "Prefix Redirect: %s ->"
+msgstr "Redirecciona el prefix"
 
-#: redirects/models.py:61
-#, python-format
-msgid "Redirect: %s -> %s"
-msgstr ""
+#: redirects/models.py:64
+#, fuzzy, python-format
+msgid "Page Redirect: %s -> %s"
+msgstr "Redirigeix: %s -> %s"
 
-#: redirects/models.py:63
+#: redirects/models.py:66
 #, python-format
 msgid "Redirect: %s"
-msgstr ""
+msgstr "Redirecciona: %s"
 
-#: settings/base.py:59
+#: settings/base.py:63
 msgid "English"
 msgstr "Anglès"
 
-#: settings/base.py:60
+#: settings/base.py:64
 msgid "Spanish"
 msgstr "Castellà"
 
-#: settings/base.py:61
+#: settings/base.py:65
 msgid "Norwegian Bokmål"
 msgstr "Norueg"
 
-#: settings/base.py:62
+#: settings/base.py:66
 msgid "French"
 msgstr "Francès"
 
-#: settings/base.py:63
+#: settings/base.py:67
 msgid "Russian"
 msgstr "Rus"
 
-#: settings/base.py:64
+#: settings/base.py:68
 msgid "German"
 msgstr "Alemany"
 
-#: settings/base.py:65
+#: settings/base.py:69
 msgid "Galician"
 msgstr "Gallec"
 
-#: settings/base.py:66
+#: settings/base.py:70
 msgid "Vietnamese"
 msgstr "Vietnamita"
 
-#: settings/base.py:67
+#: settings/base.py:71
 msgid "Chinese"
 msgstr "Xinès"
 
-#: settings/base.py:68
+#: settings/base.py:72
 msgid "Taiwanese"
 msgstr "Taiwanès"
 
-#: settings/base.py:69
+#: settings/base.py:73
 msgid "Japanese"
 msgstr "Japonès"
 
-#: settings/base.py:70
+#: settings/base.py:74
 msgid "Ukrainian"
 msgstr "Ucranià"
 
@@ -907,39 +1006,29 @@ msgstr "Error del servidor"
 
 #. Translators: Name of the website
 #: templates/base.html:13 templates/error_header.html:12
-#: templates/core/header.html:10 templates/core/home-header.html:9
+#: templates/core/header.html:12 templates/core/home-header.html:9
+#: templates/core/email/base.html:7 templates/core/email/base.html.py:92
 msgid "Read the Docs"
 msgstr "Read the Docs"
 
-#: templates/base.html:61
+#: templates/base.html:88
+#, fuzzy, python-format
 msgid ""
-"Your docs are currently being built.  It may take a moment for them to "
-"appear."
-msgstr ""
-"Ara mateix s'està construint la vostra documentació. Trigarà encara uns "
-"moments en aparèixer."
-
-#: templates/base.html:62
-msgid "Read the Docs thanks you for your continued patience."
-msgstr "Read the Docs us agraeix la vostra paciència infinita."
-
-#: templates/base.html:84
-#, python-format
-msgid ""
-"Copyright 2010-2013. Created by %(eric)s, %(charles)s, and %(bobby)s for the "
+"Copyright 2010-2015. Created by %(eric)s, %(charles)s, and %(bobby)s for the "
 "2010 %(djangodash)s."
 msgstr ""
 "Copyright 2010-2013. Creat per %(eric)s, %(charles)s, i %(bobby)s pel 2010 "
 "%(djangodash)s."
 
-#: templates/base.html:86
+#: templates/base.html:90
 msgid "Docs"
 msgstr "Documents"
 
-#: templates/base.html:88
+#: templates/base.html:92
+#, fuzzy
 msgid ""
 "Made by <a href=\"https://github.com/rtfd/readthedocs.org/graphs/contributors"
-"\">humans</a>. Funded by <a href=\"https://www.gittip.com/readthedocs/"
+"\">humans</a>. Funded by <a href=\"https://gratipay.com/readthedocs/"
 "\">readers like you</a>."
 msgstr ""
 "Fet per <a href=\"https://github.com/rtfd/readthedocs.org/graphs/contributors"
@@ -950,37 +1039,37 @@ msgstr ""
 msgid "Filter"
 msgstr "Filtra"
 
-#: templates/donate.html:3 templates/core/header.html:50
+#: templates/donate.html:5 templates/core/header.html:36
 msgid "Donate"
-msgstr ""
+msgstr "Dóna"
 
-#: templates/donate.html:9
+#: templates/donate.html:11
 msgid ""
 "Read the Docs is funded through donations from our users. You can donate "
 "money a couple of ways:"
 msgstr ""
+"Read the Docs es financia amb donacions dels seus usuaris. Podeu donar "
+"diners de diferents maneres:"
 
-#: templates/donate.html:14
+#: templates/donate.html:16
 msgid "Credit Card"
-msgstr ""
+msgstr "Targeta de crèdit"
 
-#: templates/donate.html:20
+#: templates/donate.html:22
 msgid ""
 "\n"
 "You can read more about the ongoing efforts to improve the documentation "
 "ecosystem here:\n"
 msgstr ""
+"\n"
+"Aquí podeu llegir més sobre els esforços en curs que fem per millorar "
+"l'ecosistema de la documentació:\n"
 
-#: templates/error_header.html:22 templates/core/header.html:19
-msgid "Go"
-msgstr "Vés"
-
-#: templates/error_header.html:32 templates/core/header.html:46
+#: templates/error_header.html:24 templates/core/header.html:35
 msgid "Log Out"
 msgstr "Sortida"
 
-#: templates/error_header.html:36 templates/core/header.html:48
-#: templates/core/home-header.html:19
+#: templates/error_header.html:28 templates/core/home-header.html:19
 msgid "Log in"
 msgstr "Entrada"
 
@@ -1066,11 +1155,73 @@ msgstr ""
 "poder fer POST aquí i perquè nosaltres puguem modificar automàticament els "
 "canvis dels vostres  documents."
 
+#: templates/account/email.html:6 templates/account/email.html.py:10
+#: templates/profiles/base_profile_edit.html:50
+msgid "Change Email"
+msgstr ""
+
+#: templates/account/email.html:14
+msgid "The following e-mail addresses are associated with your account:"
+msgstr ""
+
+#: templates/account/email.html:28
+msgid "Verified"
+msgstr ""
+
+#: templates/account/email.html:30
+msgid "Unverified"
+msgstr ""
+
+#: templates/account/email.html:32
+msgid "Primary"
+msgstr ""
+
+#: templates/account/email.html:38
+msgid "Make Primary"
+msgstr ""
+
+#: templates/account/email.html:39
+#, fuzzy
+msgid "Re-send Verification"
+msgstr "Elimina les notificacions"
+
+#: templates/account/email.html:40
+#: templates/projects/project_notifications.html:56
+#: templates/projects/project_redirects.html:93
+#: templates/projects/project_subprojects.html:27
+#: templates/projects/project_translations.html:26
+#: templates/socialaccount/connections.html:38
+msgid "Remove"
+msgstr "Elimina"
+
+#: templates/account/email.html:47
+msgid "Warning:"
+msgstr ""
+
+#: templates/account/email.html:47
+msgid ""
+"You currently do not have any e-mail address set up. You should really add "
+"an e-mail address so you can receive notifications, reset your password, etc."
+msgstr ""
+
+#: templates/account/email.html:52
+#, fuzzy
+msgid "Add E-mail Address"
+msgstr "Afeigiu una adreça de correu on enviar les notificacions"
+
+#: templates/account/email.html:57
+#, fuzzy
+msgid "Add E-mail"
+msgstr "Correu electrònic"
+
+#: templates/account/email.html:66
+msgid "Do you really want to remove the selected e-mail address?"
+msgstr ""
+
 #: templates/account/login.html:7 templates/account/login.html.py:11
 #: templates/account/login.html:22
-#, fuzzy
 msgid "Sign In"
-msgstr "Registreu-vos"
+msgstr "Inicia la sessió"
 
 #: templates/account/login.html:13
 #, python-format
@@ -1078,6 +1229,8 @@ msgid ""
 "If you have not created an account yet, then please\n"
 "<a href=\"%(signup_url)s\">sign up</a> first."
 msgstr ""
+"Si encara no heu creat un compte, primer cal que\n"
+"<a href=\"%(signup_url)s\">us registreu al lloc</a> ."
 
 #: templates/account/login.html:23
 msgid ""
@@ -1087,10 +1240,10 @@ msgstr ""
 "Si heu oblidat la vostra contrasenya, <a href=\"/accounts/password/reset/"
 "\">reinicieu-la.</a>"
 
-#: templates/account/password_change.html:6
+#: templates/account/password_change.html:5
+#: templates/account/password_change.html:9
 #: templates/account/password_change.html:15
-#: templates/account/password_change.html:20
-#: templates/dashboard/dashboard_bar.html:36
+#: templates/profiles/base_profile_edit.html:49
 msgid "Change Password"
 msgstr "Canvia la contrasenya"
 
@@ -1098,13 +1251,32 @@ msgstr "Canvia la contrasenya"
 msgid "Read the Docs Archive"
 msgstr "Arxiu Read the Docs"
 
-#: templates/bookmarks/bookmark_list.html:7
+#: templates/bookmarks/bookmark_delete.html:4
+#: templates/bookmarks/bookmark_delete.html:6
+#: templates/projects/project_delete.html:4
+#: templates/projects/project_delete.html:6
+#, python-format
+msgid "Delete %(name)s?"
+msgstr "Voleu eliminar %(name)s?"
+
+#: templates/bookmarks/bookmark_delete.html:9
+#: templates/projects/project_delete.html:9
+msgid "You sure?"
+msgstr "Esteu segur?"
+
+#: templates/bookmarks/bookmark_delete.html:12
+#: templates/projects/project_delete.html:12
+msgid "Delete forever"
+msgstr "Elimina permanentment"
+
+#: templates/bookmarks/bookmark_list.html:7 templates/core/header.html:32
 msgid "Bookmarks"
 msgstr "Marcadors"
 
 #: templates/bookmarks/bookmark_list.html:20
-msgid "Recent Bookmarks"
-msgstr "Marcadors recents"
+#, fuzzy
+msgid "All Bookmarks"
+msgstr "Marcadors"
 
 #: templates/builds/build_detail.html:14
 #, python-format
@@ -1150,29 +1322,40 @@ msgstr "Versió:"
 msgid "Type:"
 msgstr "Tipus:"
 
-#: templates/builds/build_detail.html:42
-#, fuzzy
-msgid "Build Standard Output"
-msgstr "Sortida estàndard d'Sphinx"
+#: templates/builds/build_detail.html:43
+msgid "Length:"
+msgstr ""
 
 #: templates/builds/build_detail.html:46
-#, fuzzy
-msgid "Build Standard Error"
-msgstr "Error estàndard d'Sphinx"
+msgid "Build Standard Output"
+msgstr "Construeix la sortida estàndard"
 
-#: templates/builds/build_detail.html:51
+#: templates/builds/build_detail.html:50
+msgid "Build Standard Error"
+msgstr "Construeix l'error estàndard"
+
+#: templates/builds/build_detail.html:55
 msgid "Setup Output"
 msgstr "Configuració de la sortida"
 
-#: templates/builds/build_detail.html:56
+#: templates/builds/build_detail.html:60
 msgid "Environment Standard Error"
 msgstr "Error estàndard d'entorn"
 
 #: templates/builds/build_list.html:37
+#, python-format
+msgid ""
+"\n"
+"    Whoa! The build queue is %(queue_length)s tasks long, new builds may "
+"take a while.\n"
+"  "
+msgstr ""
+
+#: templates/builds/build_list.html:58
 msgid "Build Version:"
 msgstr "Versió de la construcció:"
 
-#: templates/builds/build_list.html:49
+#: templates/builds/build_list.html:70
 msgid "Recent Builds"
 msgstr "Construccions recents"
 
@@ -1200,9 +1383,28 @@ msgstr "No s'ha trobat cap construcció"
 msgid "No objects found"
 msgstr "No s'ha trobat cap objecte"
 
-#: templates/core/header.html:45
-msgid "Dashboard"
-msgstr "Consola"
+#: templates/core/header.html:29 templates/core/project_bar.html:7
+#: templates/core/project_bar_base.html:20
+#: templates/projects/project_dashboard_base.html:54
+#: templates/projects/project_list.html:17
+#: templates/projects/project_list.html:35
+msgid "Projects"
+msgstr "Projectes"
+
+#: templates/core/header.html:30
+#, fuzzy
+msgid "Add Project"
+msgstr "Edita el Projecte"
+
+#: templates/core/header.html:31
+#, fuzzy
+msgid "Edit Profile"
+msgstr "Editeu el vostre perfil"
+
+#: templates/core/header.html:43
+#, fuzzy
+msgid "Log In"
+msgstr "Entrada"
 
 #: templates/core/home-header.html:10
 msgid "Create, host, and browse documentation."
@@ -1218,36 +1420,24 @@ msgstr "Registreu-vos"
 msgid "or"
 msgstr "o"
 
-#: templates/core/project_bar.html:17
-#, python-format
-msgid "Build failed (<a href=\"%(url)s\">why</a>)"
-msgstr "Ha fallat la construcció  (<a href=\"%(url)s\">per què</a>)"
-
-#: templates/core/project_bar.html:20
-msgid "There are no builds for this project"
-msgstr "No hi ha cap construcció per aquest projecte"
-
-#: templates/core/project_bar.html:20
-msgid "Is the repo correct?"
-msgstr "És el repositori correcte?"
-
-#: templates/core/project_bar.html:24
-msgid "Overview"
-msgstr "Visió de conjunt"
-
-#: templates/core/project_bar.html:26
+#: templates/core/project_bar_base.html:12
 #: templates/core/project_list_detailed.html:35
 #: templates/core/project_list_featured.html:13
-#: templates/projects/project_dashboard.html:72
+#: templates/projects/project_version_list.html:59
 msgid "View Docs"
 msgstr "Visualització de documents"
 
-#: templates/core/project_bar.html:29
+#: templates/core/project_bar_base.html:38
+msgid "Overview"
+msgstr "Visió de conjunt"
+
+#: templates/core/project_bar_base.html:40
 #: templates/projects/project_downloads.html:22
 msgid "Downloads"
 msgstr "Descàrregues"
 
-#: templates/core/project_bar.html:31 templates/core/project_details.html:13
+#: templates/core/project_bar_base.html:42
+#: templates/core/project_details.html:15
 #: templates/core/project_list_detailed.html:39
 #: templates/core/project_list_featured.html:17
 #: templates/sphinx/sphinx_rtd_theme/layout.html:55
@@ -1256,92 +1446,81 @@ msgstr "Descàrregues"
 msgid "Search"
 msgstr "Cerca"
 
-#: templates/core/project_bar.html:34
+#: templates/core/project_bar_base.html:44
 msgid "Builds"
 msgstr "Construccions"
 
-#: templates/core/project_bar.html:38
-#: templates/projects/project_dashboard.html:70
-msgid "Admin"
-msgstr "Admin"
-
-#: templates/core/project_details.html:11
-#, python-format
-msgid "Search %(project)s"
-msgstr "Cerca %(project)s"
-
-#: templates/core/project_details.html:22
+#: templates/core/project_bar_base.html:46
+#: templates/core/project_details.html:30
 #: templates/projects/project_edit_base.html:19
 #: templates/projects/project_versions.html:9
 #: templates/projects/upload_html.html:7
 msgid "Versions"
 msgstr "Versions"
 
-#: templates/core/project_details.html:44
-#, python-format
-msgid " %(slug)s "
-msgstr " %(slug)s "
+#: templates/core/project_bar_base.html:49
+#: templates/projects/project_edit_base.html:26
+#, fuzzy
+msgid "Comments"
+msgstr "publica"
 
-#: templates/core/project_details.html:51
-#, python-format
-msgid " %(slug)s (Build Failed)"
-msgstr " %(slug)s (Errors de construcció)"
+#: templates/core/project_bar_base.html:50
+#: templates/profiles/base_profile.html:29
+#: templates/profiles/base_profile_edit.html:31
+msgid "Admin"
+msgstr "Admin"
 
-#: templates/core/project_details.html:56
-#: templates/profiles/profile_detail.html:38
-#: templates/profiles/profile_detail.html:69
-msgid "Edit"
-msgstr "Edita"
-
-#: templates/core/project_details.html:66
-msgid "Build a version"
-msgstr "Construeix una versió"
-
-#: templates/core/project_details.html:74
-msgid "Build"
-msgstr "Construeix"
-
-#: templates/core/project_details.html:96
+#: templates/core/project_detail_right.html:8
 msgid "Repository"
 msgstr "Repositori"
 
-#: templates/core/project_details.html:100
-msgid "Badge"
-msgstr ""
-
-#: templates/core/project_details.html:106
-msgid "Owners"
-msgstr ""
-
-#: templates/core/project_details.html:114
-msgid "Tags"
-msgstr "Etiquetes"
-
-#: templates/core/project_details.html:119
-msgid "No tags"
-msgstr "No hi ha etiquetes"
-
-#: templates/core/project_details.html:124
+#: templates/core/project_detail_right.html:12
 msgid "Last Built"
 msgstr "Darrera construcció"
 
-#: templates/core/project_details.html:128
+#: templates/core/project_detail_right.html:19
+#, fuzzy
+msgid "passed"
+msgstr "Passat"
+
+#: templates/core/project_detail_right.html:21
+#, fuzzy
+msgid "failed"
+msgstr "Ha fallat"
+
+#: templates/core/project_detail_right.html:32
+msgid "Owners"
+msgstr "Propietaris"
+
+#: templates/core/project_detail_right.html:39
+msgid "Badge"
+msgstr "Insígnia"
+
+#: templates/core/project_detail_right.html:47
+msgid "Tags"
+msgstr "Etiquetes"
+
+#: templates/core/project_detail_right.html:52
+msgid "No tags"
+msgstr "No hi ha etiquetes"
+
+#: templates/core/project_detail_right.html:58
 msgid "Home Page"
 msgstr "Pàgina inicial"
 
-#: templates/core/project_details.html:134
+#: templates/core/project_detail_right.html:64
 msgid "Project Privacy Level"
 msgstr "Nivell de privacitat del Projecte"
 
-#: templates/core/project_details.html:141
+#: templates/core/project_detail_right.html:71
 msgid "Short URLs"
 msgstr "URLs curtes"
 
-#: templates/core/project_details.html:150
+#: templates/core/project_detail_right.html:80
 msgid "Open Comparison"
 msgstr "Open Comparison"
 
-#: templates/core/project_details.html:151
+#: templates/core/project_detail_right.html:81
 #, python-format
 msgid ""
 "This project has more information available about it on <a href=\"%(url)s"
@@ -1350,27 +1529,56 @@ msgstr ""
 "Aquest projecte té disponible més informació a <a href=\"%(url)s\">Open "
 "Comparison!</a>"
 
-#: templates/core/project_details.html:155
+#: templates/core/project_detail_right.html:85
 #: templates/projects/project_edit_base.html:22
 #: templates/projects/project_translations.html:12
 msgid "Translations"
 msgstr "Traduccions"
 
-#: templates/core/project_details.html:164
+#: templates/core/project_detail_right.html:94
 msgid "Sub Projects"
 msgstr "Sub Projectes"
 
-#: templates/core/project_details.html:175
+#: templates/core/project_detail_right.html:105
 msgid "'latest' Version"
 msgstr "'darrera' versió"
 
-#: templates/core/project_details.html:179
+#: templates/core/project_detail_right.html:109
 msgid "Post Commit Hook"
 msgstr "Post Commit Hook"
 
-#: templates/core/project_details.html:192
+#: templates/core/project_detail_right.html:122
 msgid "Most viewed pages for this project"
 msgstr "Pàgines d'aquest projecte més vistes"
+
+#: templates/core/project_details.html:13
+#, python-format
+msgid "Search %(project)s"
+msgstr "Cerca %(project)s"
+
+#: templates/core/project_details.html:52
+#, python-format
+msgid " %(slug)s "
+msgstr " %(slug)s "
+
+#: templates/core/project_details.html:59
+#, fuzzy, python-format
+msgid " %(slug)s"
+msgstr " %(slug)s "
+
+#: templates/core/project_details.html:64
+#: templates/projects/project_version_list.html:55
+#: templates/projects/project_version_list.html:99
+msgid "Edit"
+msgstr "Edita"
+
+#: templates/core/project_details.html:74
+msgid "Build a version"
+msgstr "Construeix una versió"
+
+#: templates/core/project_details.html:82
+msgid "Build"
+msgstr "Construeix"
 
 #: templates/core/project_downloads.html:7
 #, python-format
@@ -1410,9 +1618,8 @@ msgid "No downloads for this project."
 msgstr "No hi ha cap descàrrega d'aquest projecte."
 
 #: templates/core/project_list_detailed.html:29
-#, fuzzy
 msgid "No builds"
-msgstr "No construït"
+msgstr "Cap construcció"
 
 #: templates/core/project_list_detailed.html:47
 #: templates/core/project_list_featured.html:25
@@ -1437,30 +1644,12 @@ msgstr "Cerca a tots els documents"
 msgid "Let's do this."
 msgstr "Anem a fer-ho"
 
-#: templates/dashboard/dashboard_bar.html:8
-#: templates/projects/project_list.html:17
-#: templates/projects/project_list.html:35
-msgid "Projects"
-msgstr "Projectes"
-
-#: templates/dashboard/dashboard_bar.html:16
-msgid "Import"
-msgstr "Importa"
-
-#: templates/dashboard/dashboard_bar.html:17
-msgid "GitHub"
+#: templates/core/email/base.html:78
+msgid "Hello!"
 msgstr ""
 
-#: templates/dashboard/dashboard_bar.html:23
-msgid "Profile"
-msgstr "Perfil"
-
-#: templates/dashboard/dashboard_bar.html:27
-msgid "Create Profile"
-msgstr "Crea perfil"
-
-#: templates/dashboard/dashboard_bar.html:32
-msgid "Social Accounts"
+#: templates/core/email/base.html:91
+msgid "Keep documenting,"
 msgstr ""
 
 #: templates/djangome/choices.html:4
@@ -1568,45 +1757,43 @@ msgstr "previ"
 msgid "next"
 msgstr "següent"
 
-#: templates/profiles/create_profile.html:5
-#: templates/profiles/create_profile.html:10
+#: templates/profiles/base_profile.html:27
+#: templates/profiles/base_profile_edit.html:30
+msgid "Profile"
+msgstr "Perfil"
+
+#: templates/profiles/base_profile_edit.html:47
+msgid "Details"
+msgstr ""
+
+#: templates/profiles/base_profile_edit.html:48
+#: templates/socialaccount/connections.html:6
+#: templates/socialaccount/connections.html:8
+msgid "Social Accounts"
+msgstr "Comptes socials"
+
+#: templates/profiles/private/create_profile.html:5
+#: templates/profiles/private/create_profile.html:10
 msgid "Create your profile"
 msgstr "Creeu el vostre perfil"
 
-#: templates/profiles/create_profile.html:16
+#: templates/profiles/private/create_profile.html:16
 msgid "Create it!"
 msgstr "Crea'l"
 
-#: templates/profiles/edit_profile.html:5
-#: templates/profiles/edit_profile.html:15
+#: templates/profiles/private/edit_profile.html:5
+#: templates/profiles/private/edit_profile.html:9
 msgid "Edit your profile"
 msgstr "Editeu el vostre perfil"
 
-#: templates/profiles/edit_profile.html:21
+#: templates/profiles/private/edit_profile.html:14
 msgid "OK, save it!"
 msgstr "D'acord, desa'l"
 
-#: templates/profiles/profile_detail.html:6
+#: templates/profiles/public/profile_detail.html:6
 #, python-format
 msgid "%(user)s's profile"
 msgstr "Perfil de %(user)s"
-
-#: templates/profiles/profile_detail.html:45
-msgid "Add Your Name"
-msgstr "Afegiu el vostre nom"
-
-#: templates/profiles/profile_detail.html:77
-msgid "Add a Homepage"
-msgstr "Afegiu una pàgina d'inici"
-
-#: templates/profiles/profile_detail.html:86
-msgid "Press enter to save your changes, or escape to discard them"
-msgstr "Cliqueu Entra per desar els canvis o Escapa per descartar-los"
-
-#: templates/profiles/profile_list.html:5
-#: templates/profiles/profile_list.html:8
-msgid "User profiles"
-msgstr "Perfils d'usuari"
 
 #: templates/projects/alias_edit.html:4 templates/projects/alias_edit.html:7
 msgid "Project Alias"
@@ -1617,9 +1804,7 @@ msgid "Add an alias for a project version."
 msgstr "Afegiu un àlies a la versió del projecte."
 
 #: templates/projects/alias_edit.html:16
-#: templates/projects/project_create.html:42
-#: templates/projects/project_import.html:34
-#: templates/projects/project_import.html:40
+#: templates/projects/project_create.html:34
 msgid "Create"
 msgstr "Crea"
 
@@ -1631,6 +1816,61 @@ msgstr "Àlies"
 #: templates/projects/project_list.html:48
 msgid "Browse projects"
 msgstr "Navega pels projectes"
+
+#: templates/projects/import_base.html:4
+#, fuzzy
+msgid "Add a Project"
+msgstr "Edita el Projecte"
+
+#: templates/projects/import_base.html:27
+#: templates/search/elastic_project_search.html:123
+#: templates/search/elastic_project_search.html:125
+#: templates/search/elastic_search.html:189
+#: templates/search/elastic_search.html:191 templates/search/search.html:58
+#: templates/search/search.html.py:60
+msgid "Next"
+msgstr "Següent"
+
+#: templates/projects/import_base.html:29
+#, fuzzy
+msgid "Finish"
+msgstr "Acabat"
+
+#: templates/projects/import_base.html:33
+#: templates/search/elastic_project_search.html:117
+#: templates/search/elastic_project_search.html:119
+#: templates/search/elastic_search.html:183
+#: templates/search/elastic_search.html:185 templates/search/search.html:52
+#: templates/search/search.html.py:54
+msgid "Previous"
+msgstr "Previ"
+
+#: templates/projects/import_basics.html:5
+#, fuzzy
+msgid "Project Details"
+msgstr "Àlies del projecte"
+
+#: templates/projects/import_basics.html:8
+msgid ""
+"\n"
+"      To import a project,\n"
+"      start by entering a few details about your repository.\n"
+"      More advanced project options can be configured\n"
+"      if you select <b>Edit advanced project options</b>.\n"
+"    "
+msgstr ""
+
+#: templates/projects/import_extra.html:20
+#, fuzzy
+msgid "Project Extra Details"
+msgstr "Nivell de privacitat del Projecte"
+
+#: templates/projects/import_extra.html:23
+msgid ""
+"\n"
+"      Here are a few more project options that you may need to configure.\n"
+"    "
+msgstr ""
 
 #: templates/projects/legend.html:4
 msgid "External Links"
@@ -1685,6 +1925,82 @@ msgstr "sagnat real del codi"
 msgid "reStructuredText Primer"
 msgstr "reStructuredText Primer"
 
+#: templates/projects/onboard_detail.html:9
+msgid "Start building your documentation"
+msgstr ""
+
+#: templates/projects/onboard_detail.html:11
+msgid ""
+"\n"
+"          This project has not been built yet.\n"
+"          Try building the latest version now,\n"
+"          or if you would like to build a specific verison,\n"
+"          select the version below and your documentation build will be "
+"triggered.\n"
+"        "
+msgstr ""
+
+#: templates/projects/onboard_detail.html:21
+#, fuzzy
+msgid "Build latest version"
+msgstr "Construeix una versió"
+
+#: templates/projects/onboard_detail.html:29
+msgid "Your documentation is ready to use"
+msgstr ""
+
+#: templates/projects/onboard_detail.html:33
+msgid ""
+"\n"
+"              Your documentation has been built.\n"
+"              Ensure your documentation is kept up to date with every commit "
+"to\n"
+"              your respository, by\n"
+"              <a href=\"http://docs.readthedocs.org/en/latest/webhooks.html"
+"\">setting up a webhook</a>.\n"
+"            "
+msgstr ""
+
+#: templates/projects/onboard_detail.html:46
+msgid "Your documentation failed to build"
+msgstr ""
+
+#: templates/projects/onboard_detail.html:50
+msgid ""
+"\n"
+"              There was a problem building your documentation,\n"
+"              you can see what went wrong in the build output.\n"
+"              If you need more help, check out some of the\n"
+"              <a href=\"http://docs.readthedocs.org/en/latest/faq.html"
+"\">problems frequently encountered</a>\n"
+"              during builds.\n"
+"            "
+msgstr ""
+
+#: templates/projects/onboard_detail.html:63
+msgid "Your documentation is building"
+msgstr ""
+
+#: templates/projects/onboard_detail.html:66
+msgid ""
+"\n"
+"          You'll be able to view your documentation in a minute or two,\n"
+"          once your project is done building.\n"
+"        "
+msgstr ""
+
+#: templates/projects/onboard_import.html:10
+#, python-format
+msgid ""
+"\n"
+"          You don't have any projects yet, but you can start building "
+"documentation by importing one.\n"
+"          Not sure how to start documenting your project?\n"
+"          Check out the <a href=\"%(getting_started_url)s\">Getting Started "
+"Guide</a> to learn how.\n"
+"        "
+msgstr ""
+
 #: templates/projects/project_advanced.html:23
 msgid "Edit Advanced Project Settings"
 msgstr "Edita la configuració avançada del projecte"
@@ -1698,7 +2014,7 @@ msgstr "Configuració avançada"
 #: templates/projects/project_edit.html:37
 #: templates/projects/project_notifications.html:69
 #: templates/projects/project_notifications.html:80
-#: templates/projects/project_redirects.html:95
+#: templates/projects/project_redirects.html:109
 #: templates/projects/project_subprojects.html:37
 #: templates/projects/project_translations.html:36
 #: templates/projects/project_users.html:51
@@ -1706,15 +2022,25 @@ msgstr "Configuració avançada"
 msgid "Submit"
 msgstr "Envia"
 
-#: templates/projects/project_create.html:29
+#: templates/projects/project_comments_settings.html:5
+#: templates/projects/project_comments_settings.html:12
+#, fuzzy
+msgid "Comments Settings"
+msgstr "Configuració"
+
+#: templates/projects/project_comments_settings.html:16
+msgid "Settings for comments and moderation."
+msgstr ""
+
+#: templates/projects/project_create.html:21
 msgid "Create a new project"
 msgstr "Creeu un nou projecte"
 
-#: templates/projects/project_create.html:32
+#: templates/projects/project_create.html:24
 msgid "Create a New Project"
 msgstr "Crea un nou projecte"
 
-#: templates/projects/project_create.html:37
+#: templates/projects/project_create.html:29
 msgid ""
 "Create new documentation here. If you already have docs in a public "
 "repository,"
@@ -1722,65 +2048,61 @@ msgstr ""
 "Creeu aquí documentació nova. En cas que ja tingueu documents en un "
 "repositori públic"
 
-#: templates/projects/project_create.html:38
+#: templates/projects/project_create.html:30
 msgid "import an existing project"
 msgstr "importa un projecte existent"
 
-#: templates/projects/project_dashboard.html:5
+#: templates/projects/project_dashboard_base.html:6
 msgid "Project Dashboard"
 msgstr "Consola del projecte"
 
-#: templates/projects/project_dashboard.html:23
-#, python-format
-msgid ""
-"\n"
-"              Check out the <a href=\"%(url)s\">documentation for Read the "
-"Docs</a>. It contains lots of information about how to get the most out of "
-"RTD.\n"
-"              "
-msgstr ""
-
-#: templates/projects/project_dashboard.html:31
+#: templates/projects/project_dashboard_base.html:20
 msgid "Important Versions"
 msgstr "Versions importants"
 
-#: templates/projects/project_dashboard.html:59
-msgid "My Projects"
-msgstr "Els meus projectes"
+#: templates/projects/project_dashboard_base.html:70
+#, fuzzy
+msgid "No builds yet"
+msgstr "Cap construcció"
 
-#: templates/projects/project_dashboard.html:87
-#, fuzzy, python-format
+#: templates/projects/project_dashboard_base.html:76
+#, fuzzy
+msgid "1 build"
+msgstr "Cap construcció"
+
+#: templates/projects/project_dashboard_base.html:78
+#, fuzzy
+msgid "builds"
+msgstr "Construccions"
+
+#: templates/projects/project_dashboard_base.html:83
+msgid "passing"
+msgstr ""
+
+#: templates/projects/project_dashboard_base.html:85
+msgid "failing"
+msgstr ""
+
+#: templates/projects/project_dashboard_base.html:135
 msgid ""
 "\n"
-"          You don't have any projects. You can <a href="
-"\"%(projects_import_url)s\">create new docs</a> on the site.\n"
-"          <br>\n"
-"          If you have a GitHub account, you can <a href=\"%(social_accounts)s"
-"\">connect it</a> and import projects from there.\n"
-"          <br>\n"
-"          Check out the <a href=\"%(getting_started_url)s\">Getting Started</"
-"a> documentation for information about how to get going.\n"
-"          </p> \n"
+"            Have a Github account? Connect your account and import your "
+"existing projects automatically.\n"
 "          "
 msgstr ""
-"No teniu cap projecte. Podeu <a href=\"%(projects_import_url)s\">crear "
-"documentació nova</a> al lloc.<br>\n"
-"Llegiu la documentació <a href=\"%(getting_started_url)s\">Getting Started</"
-"a> per més informació sobre com començar."
 
-#: templates/projects/project_delete.html:4
-#: templates/projects/project_delete.html:6
-#, python-format
-msgid "Delete %(name)s?"
-msgstr "Voleu eliminar %(name)s?"
+#: templates/projects/project_dashboard_base.html:152
+msgid "Recent Bookmarks"
+msgstr "Marcadors recents"
 
-#: templates/projects/project_delete.html:9
-msgid "You sure?"
-msgstr "Esteu segur?"
+#: templates/projects/project_dashboard_base.html:158
+#, fuzzy
+msgid "All My Bookmarks"
+msgstr "Marcadors"
 
-#: templates/projects/project_delete.html:12
-msgid "Delete forever"
-msgstr "Elimina permanentment"
+#: templates/projects/project_dashboard_base.html:161
+msgid "You have not added any bookmarks"
+msgstr ""
 
 #: templates/projects/project_edit.html:23
 msgid "Edit Project"
@@ -1802,9 +2124,9 @@ msgstr "Mantenidors"
 
 #: templates/projects/project_edit_base.html:21
 #: templates/projects/project_redirects.html:8
-#, fuzzy
+#: templates/projects/project_redirects.html:78
 msgid "Redirects"
-msgstr "Projectes relacionats"
+msgstr "Redirecciona"
 
 #: templates/projects/project_edit_base.html:23
 #: templates/projects/project_subprojects.html:12
@@ -1816,41 +2138,149 @@ msgstr "Subprojectes"
 msgid "Notifications"
 msgstr "Notificacions"
 
-#: templates/projects/project_import.html:4
-#: templates/projects/project_import.html:28
-msgid "Import an existing project"
-msgstr "Importa un projecte existent"
+#: templates/projects/project_import.html:6
+#, fuzzy
+msgid "Import a Project"
+msgstr "Importa un projecte de GitHub"
 
-#: templates/projects/project_import.html:37
+#: templates/projects/project_import.html:9
 msgid ""
-"You can change how your project is built in your <em>Advanced Settings</em> "
-"once your project has been created."
+"\n"
+"      Import a project, using one of the methods below.\n"
+"      The project will be added to your dashboard and automatically built "
+"for the first time.\n"
+"    "
 msgstr ""
 
-#: templates/projects/project_import_github.html:4
-#: templates/projects/project_import_github.html:28
+#: templates/projects/project_import.html:19
 #, fuzzy
-msgid "Import a GitHub project"
-msgstr "Importa un projecte existent"
+msgid "From GitHub"
+msgstr "GitHub"
 
-#: templates/projects/project_import_github.html:35
+#: templates/projects/project_import.html:23
+msgid ""
+"\n"
+"            Import one of your public GitHub repositories to start using "
+"your documentation.\n"
+"          "
+msgstr ""
+
+#: templates/projects/project_import.html:29
+#, fuzzy
+msgid "Import from GitHub"
+msgstr "Importa un projecte de GitHub"
+
+#: templates/projects/project_import.html:33
+msgid ""
+"\n"
+"            Once your account is connected to your GitHub account,\n"
+"            you will be able to automatically import and configure your "
+"public GitHub repositories.\n"
+"          "
+msgstr ""
+
+#: templates/projects/project_import.html:38
+#: templates/projects/project_import.html:63
+msgid "to import your first repository."
+msgstr ""
+
+#: templates/projects/project_import.html:48
+msgid ""
+"\n"
+"            Import one of your public Bitbucket repositories to start using "
+"your documentation.\n"
+"          "
+msgstr ""
+
+#: templates/projects/project_import.html:54
+msgid "Import from Bitbucket"
+msgstr ""
+
+#: templates/projects/project_import.html:58
+msgid ""
+"\n"
+"            Once your account is connected to your Bitbucket account,\n"
+"            you will be able to automatically import and configure your "
+"<b>public Bitbucket repositories</b>.\n"
+"          "
+msgstr ""
+
+#: templates/projects/project_import.html:69
+msgid "Manually Import"
+msgstr ""
+
+#: templates/projects/project_import.html:72
+msgid ""
+"\n"
+"          Public repositories can be imported manually from anywhere.\n"
+"        "
+msgstr ""
+
+#: templates/projects/project_import.html:78
+msgid "Manually Import Project"
+msgstr ""
+
+#: templates/projects/project_import_bitbucket.html:4
+#: templates/projects/project_import_bitbucket.html:22
+#, fuzzy
+msgid "Import a BitBucket project"
+msgstr "Importa un projecte de GitHub"
+
+#: templates/projects/project_import_bitbucket.html:29
+#, fuzzy, python-format
+msgid ""
+"Showing your BitBucket projects. <a href=\"%(sync_bitbucket_url)s\">Sync "
+"your BitBucket projects</a> to update them."
+msgstr ""
+"Es mostren els vostres projectes a GitHub. <a href=\"%(sync_github_url)s"
+"\">Sincronitzeu els vostres projectes a GitHub</a> per actualitzar-los."
+
+#: templates/projects/project_import_bitbucket.html:33
+#, fuzzy
+msgid "BitBucket projects are now up to date."
+msgstr "Els projectes a GitHub ara estan actualitzats."
+
+#: templates/projects/project_import_bitbucket.html:85
+#, fuzzy, python-format
+msgid ""
+"You don't have any BitBucket repositories connected. \n"
+"  Go to your <a href=\"%(social_url)s\">Social Accounts</a> to set one up.\n"
+"  "
+msgstr ""
+"No teniu connectat cap repositori de GitHub. \n"
+"  Aneu als vostres <a href=\"%(social_url)s\">Comptes socials</a> per "
+"configurar-ne un.\n"
+"  "
+
+#: templates/projects/project_import_github.html:4
+#: templates/projects/project_import_github.html:22
+msgid "Import a GitHub project"
+msgstr "Importa un projecte de GitHub"
+
+#: templates/projects/project_import_github.html:29
 #, python-format
 msgid ""
 "Showing your GitHub projects. <a href=\"%(sync_github_url)s\">Sync your "
 "GitHub projects</a> to update them."
 msgstr ""
+"Es mostren els vostres projectes a GitHub. <a href=\"%(sync_github_url)s"
+"\">Sincronitzeu els vostres projectes a GitHub</a> per actualitzar-los."
 
-#: templates/projects/project_import_github.html:39
+#: templates/projects/project_import_github.html:33
 msgid "GitHub projects are now up to date."
-msgstr ""
+msgstr "Els projectes a GitHub ara estan actualitzats."
 
-#: templates/projects/project_import_github.html:93
+#: templates/projects/project_import_github.html:85
 #, python-format
 msgid ""
 "You don't have any GitHub repositories connected. \n"
 "  Go to your <a href=\"%(social_url)s\">Social Accounts</a> to set one up.\n"
 "  "
 msgstr ""
+"No teniu connectat cap repositori de GitHub. \n"
+"  Aneu als vostres <a href=\"%(social_url)s\">Comptes socials</a> per "
+"configurar-ne un.\n"
+"  "
 
 #: templates/projects/project_list.html:9
 #: templates/projects/project_list.html:27
@@ -1888,71 +2318,33 @@ msgstr "Notificacions existents"
 msgid "Remove Notifications"
 msgstr "Elimina les notificacions"
 
-#: templates/projects/project_notifications.html:56
-#: templates/projects/project_subprojects.html:27
-#: templates/projects/project_translations.html:26
-#: templates/socialaccount/connections.html:42
-msgid "Remove"
-msgstr "Elimina"
-
 #: templates/projects/project_notifications.html:62
-#, fuzzy
 msgid "New Email Notifications"
-msgstr "Notificacions noves"
+msgstr "Noves notificacions de correu"
 
 #: templates/projects/project_notifications.html:64
 msgid "Add an email address to notify"
 msgstr "Afeigiu una adreça de correu on enviar les notificacions"
 
 #: templates/projects/project_notifications.html:73
-#, fuzzy
 msgid "New Webhook Notifications"
-msgstr "Notificacions noves"
+msgstr "Noves notificacions Webhook"
 
 #: templates/projects/project_notifications.html:75
-#, fuzzy
 msgid "Add a URL to notify"
-msgstr "Afeigiu una adreça de correu on enviar les notificacions"
+msgstr "Afegiu una URL a notificar"
 
 #: templates/projects/project_redirects.html:5
-#, fuzzy
 msgid "Edit Redirects"
-msgstr "Edita el Projecte"
+msgstr "Edita les redireccions"
 
-#: templates/projects/project_redirects.html:39
+#: templates/projects/project_redirects.html:74
 msgid ""
 "Add redirects for your project. This allows you to fix links to old pages "
 "that are 404ing."
 msgstr ""
-
-#: templates/projects/project_redirects.html:43
-#, fuzzy
-msgid "Existing Redirects"
-msgstr "Subprojectes existents"
-
-#: templates/projects/project_redirects.html:56
-msgid "Remove Redirect"
-msgstr ""
-
-#: templates/projects/project_redirects.html:70
-msgid "Add Redirect"
-msgstr ""
-
-#: templates/projects/project_redirects.html:72
-msgid ""
-"Add new redirects. These will only happen on <b>404 Page Not Found</b> "
-"requests."
-msgstr ""
-
-#: templates/projects/project_redirects.html:75
-msgid ""
-"This is mainly used to support migration from old doc systems. If you used "
-"to serve your docs at <b>/docs/</b>, you will do:"
-msgstr ""
-
-#: templates/projects/project_redirects.html:83
-msgid "You can also redirect a specific page, like so:"
-msgstr ""
+"Afegiu redireccions al vostre projecte. Això us permetrà solucionar enllaços "
+"a pàgines antigues que estan donant Error 404."
 
 #: templates/projects/project_subprojects.html:5
 msgid "Edit Subprojects"
@@ -2026,6 +2418,20 @@ msgstr "Trieu l'usuari que voleu afegir."
 #, python-format
 msgid "%(version_name)s"
 msgstr "%(version_name)s"
+
+#: templates/projects/project_version_list.html:35
+#, fuzzy
+msgid "Active Versions"
+msgstr "Trieu versions actives"
+
+#: templates/projects/project_version_list.html:75
+#, fuzzy
+msgid "Inactive Versions"
+msgstr "Trieu versions actives"
+
+#: templates/projects/project_version_list.html:97
+msgid "Clean"
+msgstr ""
 
 #: templates/projects/project_versions.html:4
 msgid "Edit Project Versions"
@@ -2115,9 +2521,10 @@ msgstr "Cerca: %(query)s"
 
 #. Translators: This is about starting a search
 #. Translators: This is about starting a search
+#. Translators: This is about starting a search
 #: templates/search/base_facet.html:27
-#: templates/search/elastic_project_search.html:51
-#: templates/search/search.html:17
+#: templates/search/elastic_project_search.html:70
+#: templates/search/elastic_search.html:116 templates/search/search.html:17
 msgid "Go crazy."
 msgstr "Tornar-se boig."
 
@@ -2131,33 +2538,23 @@ msgid "File:"
 msgstr "Fitxer:"
 
 #: templates/search/base_search.html:24
-#: templates/search/elastic_project_search.html:82
+#: templates/search/elastic_project_search.html:101
+#: templates/search/elastic_search.html:167
 #: templates/search/faceted_results.html:63
 msgid "No results found. Bummer."
 msgstr "No s'ha trobat cap resultat."
 
 #: templates/search/elastic_project_search.html:5
-#, fuzzy, python-format
+#: templates/search/elastic_search.html:5
+#, python-format
 msgid "Search: %(query)s "
-msgstr "Cerca: %(query)s"
+msgstr "Cerca: %(query)s "
 
-#: templates/search/elastic_project_search.html:65
-#: templates/search/search.html:31
+#: templates/search/elastic_project_search.html:84
+#: templates/search/elastic_search.html:130 templates/search/search.html:31
 #, python-format
 msgid "Results for %(query)s"
 msgstr "Resultats per %(query)s"
-
-#: templates/search/elastic_project_search.html:98
-#: templates/search/elastic_project_search.html:100
-#: templates/search/search.html:52 templates/search/search.html.py:54
-msgid "Previous"
-msgstr "Previ"
-
-#: templates/search/elastic_project_search.html:104
-#: templates/search/elastic_project_search.html:106
-#: templates/search/search.html:58 templates/search/search.html.py:60
-msgid "Next"
-msgstr "Següent"
 
 #: templates/search/faceted_author.html:8
 msgid "By Author"
@@ -2201,26 +2598,21 @@ msgstr "No hi ha facetes del projecte."
 msgid "File"
 msgstr "Fitxer"
 
-#: templates/socialaccount/connections.html:6
 #: templates/socialaccount/connections.html:15
-#, fuzzy
-msgid "Account Connections"
-msgstr "Error d'activació del compte"
-
-#: templates/socialaccount/connections.html:18
 msgid ""
 "You can sign in to your account using any of the following third party "
 "accounts:"
-msgstr ""
+msgstr "Podeu registrar-vos al compte utilitzant algun dels comptes següents:"
 
-#: templates/socialaccount/connections.html:50
+#: templates/socialaccount/connections.html:46
 msgid ""
 "You currently have no social network accounts connected to this account."
 msgstr ""
+"Actualment no teniu cap compte de xarxa social connectat a aquest compte."
 
-#: templates/socialaccount/connections.html:53
+#: templates/socialaccount/connections.html:49
 msgid "Add a 3rd Party Account"
-msgstr ""
+msgstr "Afegiu un compte de xarxa social 3"
 
 #: templates/sphinx/sphinx_rtd_theme/layout.html:47
 #: templates/sphinx/sphinx_rtd_theme/layout_old.html:131
@@ -2248,271 +2640,162 @@ msgstr ""
 "La vostra cerca no coincideix amb cap document. Assegureu-vos que les "
 "paraules estiguin ben escrites i que hàgiu seleccionat prou categories."
 
+#~ msgid "Mkdocs"
+#~ msgstr "Mkdocs"
+
+#~ msgid "A project with that name exists already!"
+#~ msgstr "Ja existeix un projecte amb aquest nom"
+
+#~ msgid ""
+#~ "URL for your code (hg or git). Ex. http://github.com/ericholscher/django-"
+#~ "kong.git"
+#~ msgstr ""
+#~ "URL del vostre codi (hg or git). Ex. http://github.com/ericholscher/"
+#~ "django-kong.git"
+
+#~ msgid ""
+#~ "Checkout URL for your code (hg, git, etc.). Ex. http://github.com/"
+#~ "ericholscher/django-kong.git"
+#~ msgstr ""
+#~ "Comproveu la URL del vostre codi (hg, git, etc.). Ex. http://github.com/"
+#~ "ericholscher/django-kong.git"
+
+#~ msgid "Project URL"
+#~ msgstr "URL del projecte"
+
+#~ msgid ""
+#~ "The official URL that the docs live at. This can be slug.readthedocs.org, "
+#~ "or somewhere else. Ex. http://docs.fabfile.org"
+#~ msgstr ""
+#~ "La URL oficial on viuen els documents. Pot ser laquesigui.readthedocs.org "
+#~ "o cosa semblant. Ex: http://docs.fabfile.org"
+
+#~ msgid "Redirect: %s ->"
+#~ msgstr "Redirecciona: %s ->"
+
+#~ msgid ""
+#~ "Your docs are currently being built.  It may take a moment for them to "
+#~ "appear."
+#~ msgstr ""
+#~ "Ara mateix s'està construint la vostra documentació. Trigarà encara uns "
+#~ "moments en aparèixer."
+
+#~ msgid "Read the Docs thanks you for your continued patience."
+#~ msgstr "Read the Docs us agraeix la vostra paciència infinita."
+
+#~ msgid "Go"
+#~ msgstr "Vés"
+
+#~ msgid "Dashboard"
+#~ msgstr "Consola"
+
+#~ msgid "Build failed (<a href=\"%(url)s\">why</a>)"
+#~ msgstr "Ha fallat la construcció  (<a href=\"%(url)s\">per què</a>)"
+
+#~ msgid "There are no builds for this project"
+#~ msgstr "No hi ha cap construcció per aquest projecte"
+
+#~ msgid "Is the repo correct?"
+#~ msgstr "És el repositori correcte?"
+
+#~ msgid " %(slug)s (Build Failed)"
+#~ msgstr " %(slug)s (Errors de construcció)"
+
+#~ msgid "Import"
+#~ msgstr "Importa"
+
+#~ msgid "Create Profile"
+#~ msgstr "Crea perfil"
+
+#~ msgid "Add Your Name"
+#~ msgstr "Afegiu el vostre nom"
+
+#~ msgid "Add a Homepage"
+#~ msgstr "Afegiu una pàgina d'inici"
+
+#~ msgid "Press enter to save your changes, or escape to discard them"
+#~ msgstr "Cliqueu Entra per desar els canvis o Escapa per descartar-los"
+
+#~ msgid "User profiles"
+#~ msgstr "Perfils d'usuari"
+
 #~ msgid ""
 #~ "\n"
-#~ "        %(version)s Dash docset\n"
-#~ "      "
+#~ "              Check out the <a href=\"%(url)s\">documentation for Read "
+#~ "the Docs</a>. It contains lots of information about how to get the most "
+#~ "out of RTD.\n"
+#~ "              "
 #~ msgstr ""
 #~ "\n"
-#~ "        %(version)s Dash docset\n"
-#~ "      "
+#~ "              Reviseu la <a href=\"%(url)s\">documentació de Read the "
+#~ "Docs</a>. Conté molta informació sobre com treure el màxim profit de "
+#~ "RTD.\n"
+#~ "              "
+
+#~ msgid "My Projects"
+#~ msgstr "Els meus projectes"
 
 #~ msgid ""
 #~ "\n"
-#~ "        %(version)s Dash feed\n"
-#~ "      "
+#~ "          You don't have any projects. You can <a href="
+#~ "\"%(projects_import_url)s\">create new docs</a> on the site.\n"
+#~ "          <br>\n"
+#~ "          If you have a GitHub account, you can <a href="
+#~ "\"%(social_accounts)s\">connect it</a> and import projects from there.\n"
+#~ "          <br>\n"
+#~ "          Check out the <a href=\"%(getting_started_url)s\">Getting "
+#~ "Started</a> documentation for information about how to get going.\n"
+#~ "          </p> \n"
+#~ "          "
 #~ msgstr ""
 #~ "\n"
-#~ "        %(version)s Dash feed\n"
-#~ "      "
+#~ "          No teniu cap projecte. Podeu <a href=\"%(projects_import_url)s"
+#~ "\">crear nova documentació</a> en aquest lloc.\n"
+#~ "          <br>\n"
+#~ "          Si teniu un compte a GitHub, podeu <a href=\"%(social_accounts)s"
+#~ "\">connectar-vos-hi</a> i importar projectes des d'allà.\n"
+#~ "          <br>\n"
+#~ "          Reviseu la documentació <a href=\"%(getting_started_url)s\">Per "
+#~ "començar</a> per informar-vos sobre com posar-vos en marxa.\n"
+#~ "          </p> \n"
+#~ "          "
+
+#~ msgid "Import an existing project"
+#~ msgstr "Importa un projecte existent"
 
 #~ msgid ""
-#~ "The activation key \"%(activation_key)s\" is invalid and cannot be used "
-#~ "to activate this account."
+#~ "You can change how your project is built in your <em>Advanced Settings</"
+#~ "em> once your project has been created."
 #~ msgstr ""
-#~ "La clau d'activació \"%(activation_key)s\" no és vàlida i no es pot "
-#~ "utilitzar per activar aquest compte."
+#~ "Podeu canviar la manera de construir el vostre projecte des de  "
+#~ "<em>Configuració Avançada</em> un cop hàgiu creat un projecte."
+
+#~ msgid "Existing Redirects"
+#~ msgstr "Redireccions existents"
+
+#~ msgid "Remove Redirect"
+#~ msgstr "Elimina redireccions"
+
+#~ msgid "Add Redirect"
+#~ msgstr "Afegeix redireccions"
 
 #~ msgid ""
-#~ "Did you really think activation key \"%(activation_key)s\" was going to "
-#~ "work?!"
+#~ "Add new redirects. These will only happen on <b>404 Page Not Found</b> "
+#~ "requests."
 #~ msgstr ""
-#~ "Crèieu realment que la clau d'activació \"%(activation_key)s\" "
-#~ "funcionaria?"
+#~ "Afegiu noves redireccions. Això només afectarà les peticions del tipus "
+#~ "<b>404 Pàgina No Trobada</b> ."
 
 #~ msgid ""
-#~ "We're not sure how you got that key, but would you mind registering again"
+#~ "This is mainly used to support migration from old doc systems. If you "
+#~ "used to serve your docs at <b>/docs/</b>, you will do:"
 #~ msgstr ""
-#~ "No estem segurs sobre com heu aconseguit aquesta clau, però val més que "
-#~ "us torneu a registrar un altre cop."
+#~ "Això és útil sobretot per donar suport a la migració des de sistemes de "
+#~ "documentació antics. Si ho utilitzeu per donar suport als vostres "
+#~ "documents a <b> /docs/ </ b>, heu de:"
 
-#~ msgid "here"
-#~ msgstr "aquí"
+#~ msgid "You can also redirect a specific page, like so:"
+#~ msgstr "Podeu redirigir una pàgina determinada, com ara:"
 
-#~ msgid "Account activation complete"
-#~ msgstr "S'ha completat l'activació del compte"
-
-#~ msgid "Account activation complete, woo!"
-#~ msgstr "S'ha completat l'activació del compte"
-
-#~ msgid "Your account has been activated."
-#~ msgstr "S'ha activat el vostre compte"
-
-#~ msgid "Log in with the username and password you just created,"
-#~ msgstr ""
-#~ "Registreu-vos amb el nom d'usuari i contrasenya que acabeu de crear."
-
-#~ msgid ""
-#~ "Thank you for registering an account at %(domain)s.\n"
-#~ "To activate your registration, please visit the following page:\n"
-#~ "\n"
-#~ "http://%(domain)s%(activation_url)s\n"
-#~ "\n"
-#~ "This page will expire in %(expiration_days)s days.\n"
-#~ "\n"
-#~ "If you didn't register this account you can simply delete this email and "
-#~ "we won't bother you again."
-#~ msgstr ""
-#~ "Gràcies per registrar-vos a %(domain)s.\n"
-#~ "Per activar el registre visiteu aquesta pàgina:\n"
-#~ "\n"
-#~ "http://%(domain)s%(activation_url)s\n"
-#~ "\n"
-#~ "Aquesta pàgina expirarà en %(expiration_days)s dies.\n"
-#~ "\n"
-#~ "Si no us heu registrat simplement esborreu aquest correu i no us "
-#~ "molestarem més."
-
-#~ msgid "%(site_name)s - activate your account"
-#~ msgstr "%(site_name)s - activeu elvostre compte"
-
-#~ msgid "Registration"
-#~ msgstr "Registre"
-
-#~ msgid "registration"
-#~ msgstr "registre"
-
-#~ msgid ""
-#~ "Don't have an account?  <a href=\"/accounts/register/\">Register</a> a "
-#~ "new one."
-#~ msgstr ""
-#~ "No teniu cap compte?  <a href=\"/accounts/register/\">Registreu-vos-hi</"
-#~ "a>."
-
-#~ msgid "You've logged out."
-#~ msgstr "Heu tancat la sessió."
-
-#~ msgid "Thanks for visiting!"
-#~ msgstr "Gràcies per la visita."
-
-#~ msgid ""
-#~ "If you are looking to log in again, you can do that <a href="
-#~ "\"%(login_url)s\">here</a>"
-#~ msgstr ""
-#~ "Si voleu tornar a registrar-vos, ho podeu fer <a href=\"%(login_url)s"
-#~ "\">aquí</a>"
-
-#~ msgid "Password change successful"
-#~ msgstr "S'ha canviat la contrasenya satisfactòriament"
-
-#~ msgid "Your password was changed."
-#~ msgstr "S'ha canviat la vostra contrasenya"
-
-#~ msgid "Password change"
-#~ msgstr "Canvi de contrasenya"
-
-#~ msgid "Please correct the error below."
-#~ msgid_plural "Please correct the errors below."
-#~ msgstr[0] "Corregiu l'error següent."
-#~ msgstr[1] "Corregiu els errors següents."
-
-#~ msgid ""
-#~ "Please enter your old password, for security's sake, and then enter your "
-#~ "new password twice so we can verify you typed it in correctly."
-#~ msgstr ""
-#~ "Per raons de seguretat escriviu primer la contrasenya antiga i, en "
-#~ "acabat, dos cops la nova de manera que es pugui verificar que l'heu "
-#~ "escrita correctament."
-
-#~ msgid "Old password"
-#~ msgstr "Contrasenya antiga"
-
-#~ msgid "New password"
-#~ msgstr "Contrasenya nova"
-
-#~ msgid "Password (again)"
-#~ msgstr "Contrasenya (un altre cop)"
-
-#~ msgid "Change my password"
-#~ msgstr "Canvia la meva contrasenya"
-
-#~ msgid "Password reset"
-#~ msgstr "Reinicia la contrasenya"
-
-#~ msgid "Password reset complete"
-#~ msgstr "S'ha completat el reinici de la contrasenya"
-
-#~ msgid "Your password has been set.  You may go ahead and log in now."
-#~ msgstr ""
-#~ "S'ha establert la vostra contrasenya. Ara podeu continuar i registrar-vos."
-
-#~ msgid "Password reset confirmation"
-#~ msgstr "Confirmació del reinici de la contrasenya"
-
-#~ msgid "Enter new password"
-#~ msgstr "Escriviu la nova contrasenya"
-
-#~ msgid ""
-#~ "Please enter your new password twice so we can verify you typed it in "
-#~ "correctly."
-#~ msgstr ""
-#~ "Escriviu la nova contrasenya dues vegades de manera que puguem verificar "
-#~ "que l'heu escrita correctament."
-
-#~ msgid "New password:"
-#~ msgstr "Contrasenya nova:"
-
-#~ msgid "Confirm password:"
-#~ msgstr "Confirmeu la contrasenya:"
-
-#~ msgid "Password reset unsuccessful"
-#~ msgstr "No s'ha pogut reiniciar correctament la contrasenya"
-
-#~ msgid ""
-#~ "The password reset link was invalid, possibly because it has already been "
-#~ "used.  Please request a new password reset."
-#~ msgstr ""
-#~ "L'enllaç pel reinici de la contrasenya no és vàlid, probablement perquè "
-#~ "ja s'ha utilitzat. Demaneu una contrasenya nova."
-
-#~ msgid "Password reset successful"
-#~ msgstr "S'ha reiniciat correctament la contrasenya"
-
-#~ msgid ""
-#~ "We've e-mailed you instructions for setting your password to the e-mail "
-#~ "address you submitted. You should be receiving it shortly."
-#~ msgstr ""
-#~ "Us hem enviat un missatge de correu amb instruccions per configurar la "
-#~ "vostra contrasenya a l'adreça que ens heu donat. El rebreu d'aquí a molt "
-#~ "poc."
-
-#~ msgid "You're receiving this e-mail because you requested a password reset"
-#~ msgstr ""
-#~ "Rebeu aquest missatge perquè heu demanat el reinici de la vostra "
-#~ "contrasenya"
-
-#~ msgid "for your user account at %(site_name)s"
-#~ msgstr "pel vostre compte d'usuari a %(site_name)s"
-
-#~ msgid "Please go to the following page and choose a new password:"
-#~ msgstr ""
-#~ "Si us plau, adreceu-vos a la pàgina següent i escolliu una contrasenya "
-#~ "nova:"
-
-#~ msgid "Your username, in case you've forgotten:"
-#~ msgstr "El vostre nom d'usuari, en cas que l'haguéssiu oblidat, és:"
-
-#~ msgid "Thanks for using our site!"
-#~ msgstr "Gràcies per utilitzar el nostre lloc."
-
-#~ msgid "The %(site_name)s team"
-#~ msgstr "L'equip %(site_name)s"
-
-#~ msgid ""
-#~ "Forgotten your password? Enter your e-mail address below, and we'll e-"
-#~ "mail instructions for setting a new one."
-#~ msgstr ""
-#~ "Heu oblidat la contrasenya? Escriviu la vostra adreça de correu a sota i "
-#~ "us hi enviarem instruccions per aconseguir-ne una de nova."
-
-#~ msgid "E-mail address:"
-#~ msgstr "Adreça de correu:"
-
-#~ msgid "Reset my password"
-#~ msgstr "Reinicia la meva contrasenya"
-
-#~ msgid "Registration closed"
-#~ msgstr "Registre tancat"
-
-#~ msgid "Eh... Registration closed."
-#~ msgstr "Registre tancat."
-
-#~ msgid ""
-#~ " You registered a long time ago.\n"
-#~ "    We aren't sure if you are a robot or if \n"
-#~ "    something got lost or what."
-#~ msgstr ""
-#~ "Us vareu registrar fa força temps.\n"
-#~ "No estem segurs si sou un robot o si\n"
-#~ "alguna cosa no funciona prou bé."
-
-#~ msgid "Please try"
-#~ msgstr "Proveu de"
-
-#~ msgid "registering again"
-#~ msgstr "registrar-vos un altre cop"
-
-#~ msgid "We hope that isn't too inconvenient."
-#~ msgstr "Esperem no causar molèsties"
-
-#~ msgid "Registration complete"
-#~ msgstr "Registre complet."
-
-#~ msgid "Now activate your account."
-#~ msgstr "Ara activeu el vostre compte."
-
-#~ msgid ""
-#~ "We will be sending you an email with an activation link.\n"
-#~ "    Visit the link to verify this account."
-#~ msgstr ""
-#~ "Us hem enviat un missatge de correu amb un enllaç d'activació.\n"
-#~ "Seguiu l'enllaç per verificar el compte."
-
-#~ msgid "Check your email.  We'll wait."
-#~ msgstr "Mireu el vostre correu. Esperarem."
-
-#~ msgid "Register for an account"
-#~ msgstr "Registreu-vos per obtenir un compte."
-
-#~ msgid "Send me the activation link."
-#~ msgstr "Envia'm un enllaç d'activació."
+#~ msgid "Account Connections"
+#~ msgstr "Connexions del compte"

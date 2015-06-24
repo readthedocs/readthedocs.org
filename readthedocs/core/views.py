@@ -8,6 +8,7 @@ from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect, Http404, HttpResponseNotFound
 from django.shortcuts import render_to_response, get_object_or_404, redirect
+from django.db.models import Max, F
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_exempt
 from django.views.static import serve
@@ -16,11 +17,14 @@ from django.views.generic import TemplateView
 from haystack.query import EmptySearchQuerySet
 from haystack.query import SearchQuerySet
 from celery.task.control import inspect
+import stripe
 
 from builds.models import Build
 from builds.models import Version
 from core.forms import FacetedSearchForm
 from core.utils import trigger_build
+from donate.mixins import DonateProgressMixin
+from builds.constants import LATEST
 from projects import constants
 from projects.models import Project, ImportedFile, ProjectRelationship
 from projects.tasks import remove_dir, update_imported_docs
@@ -42,19 +46,23 @@ class NoProjectException(Exception):
     pass
 
 
-def homepage(request):
-    latest_builds = Build.objects.order_by('-date')[:100]
-    latest = []
-    for build in latest_builds:
-        if (build.project.privacy_level == constants.PUBLIC
-        and build.project not in latest
-        and len(latest) < 10):
-            latest.append(build.project)
-    featured = Project.objects.filter(featured=True)
-    return render_to_response('homepage.html',
-                              {'project_list': latest,
-                               'featured_list': featured},
-                              context_instance=RequestContext(request))
+class HomepageView(DonateProgressMixin, TemplateView):
+
+    template_name = 'homepage.html'
+
+    def get_context_data(self, **kwargs):
+        '''Add latest builds and featured projects'''
+        context = super(HomepageView, self).get_context_data(**kwargs)
+        latest = []
+        latest_builds = Build.objects.order_by('-date')[:100]
+        for build in latest_builds:
+            if (build.project.privacy_level == constants.PUBLIC
+                    and build.project not in latest
+                    and len(latest) < 10):
+                latest.append(build.project)
+        context['project_list'] = latest
+        context['featured_list'] = Project.objects.filter(featured=True)
+        return context
 
 
 def random_page(request, project=None):
@@ -68,11 +76,6 @@ def random_page(request, project=None):
 def queue_depth(request):
     r = redis.Redis(**settings.REDIS)
     return HttpResponse(r.llen('celery'))
-
-
-def donate(request):
-    return render_to_response('donate.html',
-                              context_instance=RequestContext(request))
 
 
 def queue_info(request):
@@ -126,13 +129,22 @@ def wipe_version(request, project_slug, version_slug):
                                 slug=version_slug)
     if request.user not in version.project.users.all():
         raise Http404("You must own this project to wipe it.")
-    del_dirs = [version.project.checkout_path(
-        version.slug), version.project.venv_path(version.slug)]
-    for del_dir in del_dirs:
-        remove_dir.delay(del_dir)
-    return render_to_response('wipe_version.html',
-                              {'del_dir': del_dir},
-                              context_instance=RequestContext(request))
+
+    if request.method == 'POST':
+        del_dirs = [version.project.checkout_path(
+            version.slug), version.project.venv_path(version.slug)]
+        for del_dir in del_dirs:
+            # Support hacky "broadcast" with MULTIPLE_BUILD_SERVERS setting, otherwise put in normal celery queue
+            for server in getattr(settings, "MULTIPLE_BUILD_SERVERS", ['celery']):
+                log.info('Removing files on %s' % server)
+                remove_dir.apply_async(
+                    args=[del_dir],
+                    queue=server,
+                )
+        return redirect('project_version_list', project_slug)
+    else:
+        return render_to_response('wipe_version.html',
+                                  context_instance=RequestContext(request))
 
 
 def _build_version(project, slug, already_built=()):
@@ -141,7 +153,7 @@ def _build_version(project, slug, already_built=()):
         # short circuit versions that are default
         # these will build at "latest", and thus won't be
         # active
-        latest_version = project.versions.get(slug='latest')
+        latest_version = project.versions.get(slug=LATEST)
         trigger_build(project=project, version=latest_version, force=True)
         pc_log.info(("(Version build) Building %s:%s"
                      % (project.slug, latest_version.slug)))
@@ -151,7 +163,7 @@ def _build_version(project, slug, already_built=()):
             trigger_build(project=project, version=slug_version, force=True)
             pc_log.info(("(Version build) Building %s:%s"
                          % (project.slug, slug_version.slug)))
-        return "latest"
+        return LATEST
     elif project.versions.exclude(active=True).filter(slug=slug).exists():
         pc_log.info(("(Version build) Not Building %s" % slug))
         return None
@@ -190,7 +202,7 @@ def _build_url(url, branches):
         for project in projects:
             (to_build, not_building) = _build_branches(project, branches)
             if not to_build:
-                update_imported_docs.delay(project.versions.get(slug='latest').pk)
+                update_imported_docs.delay(project.versions.get(slug=LATEST).pk)
                 msg = '(URL Build) Syncing versions for %s' % project.slug
                 pc_log.info(msg)
         if to_build:
@@ -282,7 +294,7 @@ def generic_build(request, pk=None):
             _build_version(project, slug)
         else:
             pc_log.info(
-                "(Incoming Generic Build) %s [%s]" % (project.slug, 'latest'))
+                "(Incoming Generic Build) %s [%s]" % (project.slug, LATEST))
             trigger_build(project=project, force=True)
     else:
         return HttpResponse("You must POST to this resource.")
@@ -441,16 +453,16 @@ def _serve_docs(request, project, version, filename, lang_slug=None,
     # This is required because we're forming the filenames outselves instead of
     # letting the web server do it.
     elif (
-         (project.documentation_type == 'sphinx_htmldir' or project.documentation_type == 'mkdocs')
-          and "_static" not in filename
-          and ".css" not in filename
-          and ".js" not in filename
-          and ".png" not in filename
-          and ".jpg" not in filename
-          and "_images" not in filename
-          and ".html" not in filename
-          and "font" not in filename
-          and not "inv" in filename):
+        (project.documentation_type == 'sphinx_htmldir' or project.documentation_type == 'mkdocs')
+            and "_static" not in filename
+            and ".css" not in filename
+            and ".js" not in filename
+            and ".png" not in filename
+            and ".jpg" not in filename
+            and "_images" not in filename
+            and ".html" not in filename
+            and "font" not in filename
+            and not "inv" in filename):
         filename += "index.html"
     else:
         filename = filename.rstrip('/')
@@ -505,6 +517,7 @@ def server_error(request, template_name='500.html'):
     r.status_code = 500
     return r
 
+
 def _try_redirect(request, full_path=None):
     project = project_slug = None
     if hasattr(request, 'slug'):
@@ -556,6 +569,7 @@ def _try_redirect(request, full_path=None):
                     to = re.sub('.html$', '/', full_path)
                     return HttpResponseRedirect(to)
     return None
+
 
 def server_error_404(request, template_name='404.html'):
     """

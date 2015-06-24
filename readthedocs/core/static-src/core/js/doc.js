@@ -24,7 +24,12 @@ Build.prototype.is_rtd_theme = function () {
     return (this.config['theme'] == 'sphinx_rtd_theme');
 };
 
+Build.prototype.is_sphinx_builder = function () {
+    return (!('builder' in this.config) || this.config['builder'] != 'mkdocs');
+};
+
 Build.prototype.show_promo = function () {
-    // TODO don't do this.
-    return (this.config['api_host'] != 'https://readthedocs.com');
+    return (this.config['api_host'] != 'https://readthedocs.com'
+            && this.is_sphinx_builder()
+            && this.is_rtd_theme());
 };

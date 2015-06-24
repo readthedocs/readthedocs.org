@@ -4,16 +4,34 @@ var gulp = require('gulp'),
     run = require('gulp-run'),
     debowerify = require('debowerify');
 
+/* Applications with static sources */
+var sources = {
+    'readthedocs/core': [
+        'readthedocs/core/static-src/**/readthedocs-doc-embed.js'
+    ],
+    'readthedocs/projects': [
+        'readthedocs/projects/static-src/**/tools.js'
+    ],
+    'readthedocs/gold': [
+        'readthedocs/gold/static-src/**/gold.js'
+    ],
+    'readthedocs/donate': [
+        'readthedocs/donate/static-src/**/donate.js'
+    ]
+};
+
 /* Doc embed scripts */
 gulp.task('browserify', function () {
-    gulp.src(['readthedocs/core/static-src/core/js/readthedocs-doc-embed.js'])
-        .pipe(browserify({
-            transform: ['debowerify']
-        }))
-        .on('error', function (event) {
-            gulp_util.log(event.message);
-        })
-        .pipe(gulp.dest('readthedocs/core/static/core/js/'));
+    for (application in sources) {
+        gulp.src(sources[application])
+            .pipe(browserify({
+                transform: ['debowerify']
+            }))
+            .on('error', function (event) {
+                gulp_util.log(event.message);
+            })
+            .pipe(gulp.dest(application + '/static/'));
+    }
 });
 
 gulp.task('collect', function () {

@@ -1,3 +1,4 @@
+from builds.constants import LATEST
 from .indexes import ProjectIndex, PageIndex
 
 # Hack around django requiring a specific import path for signals >:x
@@ -42,7 +43,7 @@ def search_project(request, query, language):
     return ProjectIndex().search(body)
 
 
-def search_file(request, query, project=None, version='latest', taxonomy=None):
+def search_file(request, query, project=None, version=LATEST, taxonomy=None):
 
     kwargs = {}
     body = {
