@@ -345,9 +345,7 @@ class Project(models.Model):
         version = version_slug or parent.get_default_version()
         use_subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
         if use_subdomain:
-            return "%s://%s/%s/%s/" % (
-                protocol,
-                parent.canonical_domain,
+            return "/%s/%s/" % (
                 lang_slug,
                 version,
             )
