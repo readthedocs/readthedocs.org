@@ -347,7 +347,7 @@ class Project(models.Model):
         if use_subdomain:
             return "%s://%s/%s/%s/" % (
                 protocol,
-                parent.subdomain,
+                parent.canonical_domain,
                 lang_slug,
                 version,
             )
