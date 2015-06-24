@@ -57,7 +57,7 @@ class SubdomainMiddleware(object):
                         redis_conn = redis.Redis(**settings.REDIS)
                         from dns import resolver
                         answer = [ans for ans in resolver.query(host, 'CNAME')][0]
-                        domain = answer.target.lower().to_unicode()
+                        domain = answer.target.to_unicode().lower()
                         slug = domain.split('.')[0]
                         cache.set(host, slug, 60 * 60)
                         # Cache the slug -> host mapping permanently.
