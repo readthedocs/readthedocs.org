@@ -269,3 +269,6 @@ PROGRAMMING_LANGUAGES = (
 )
 
 LOG_TEMPLATE = u"(Build) [{project}:{version}] {msg}"
+
+PROJECT_PK_REGEX = '(?:[-\w]+)'
+PROJECT_SLUG_REGEX = '(?:[-\w]+)'

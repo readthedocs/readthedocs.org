@@ -83,7 +83,7 @@ class BaseSphinx(BaseBuilder):
             display_bitbucket = True
 
         rtd_ctx = Context({
-            'current_version': self.version.slug,
+            'current_version': self.version.verbose_name,
             'project': project,
             'settings': settings,
             'static_path': STATIC_DIR,

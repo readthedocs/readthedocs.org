@@ -55,8 +55,6 @@ class TestSupportedVersions(TestCase):
         self.assertEqual(self.pip.versions.get(slug='0.1').supported, False)
         self.assertEqual(self.pip.versions.get(slug='0.2').supported, True)
         Version.objects.create(project=self.pip, identifier='0.1.1',
-                               verbose_name='0.1.1', slug='0.1.1',
-                               type='tag',
-                               active=True)
+                               verbose_name='0.1.1', type='tag', active=True)
         # This gets set to False on creation.
         self.assertEqual(self.pip.versions.get(slug='0.1.1').supported, False)

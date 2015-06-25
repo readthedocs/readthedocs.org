@@ -37,9 +37,9 @@ class TestSymlinkTranslations(TestCase):
         self.project.translations.add(self.translation)
         self.translation.save()
         self.project.save()
-        Version.objects.create(verbose_name='master', slug='master',
+        Version.objects.create(verbose_name='master',
                                active=True, project=self.project)
-        Version.objects.create(verbose_name='master', slug='master',
+        Version.objects.create(verbose_name='master',
                                active=True, project=self.translation)
         self.args = {
             'project': self.project.doc_path,

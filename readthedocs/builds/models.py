@@ -10,16 +10,40 @@ from guardian.shortcuts import assign
 from taggit.managers import TaggableManager
 
 from builds.constants import LATEST
+from builds.constants import NON_REPOSITORY_VERSIONS
 from privacy.loader import VersionManager, RelatedProjectManager
 from projects.models import Project
 from projects import constants
 from .constants import BUILD_STATE, BUILD_TYPES, VERSION_TYPES
+from .version_slug import VersionSlugField
 
 
 DEFAULT_VERSION_PRIVACY_LEVEL = getattr(settings, 'DEFAULT_VERSION_PRIVACY_LEVEL', 'public')
 
 
 class Version(models.Model):
+    """
+    Attributes
+    ----------
+
+    ``identifier``
+        The identifier is the ID for the revision this is version is for. This
+        might be the revision number (e.g. in SVN), or the commit hash (e.g. in
+        Git). If the this version is pointing to a branch, then ``identifier``
+        will contain the branch name.
+
+    ``verbose_name``
+        This is the actual name that we got for the commit stored in
+        ``identifier``. This might be the tag or branch name like ``"v1.0.4"``.
+        However this might also hold special version names like ``"latest"``
+        and ``"stable"``.
+
+    ``slug``
+        The slug is the slugified version of ``verbose_name`` that can be used
+        in the URL to identify this version in a project. It's also used in the
+        filesystem to determine how the paths for this version are called. It
+        must not be used for any other identifying purposes.
+    """
     project = models.ForeignKey(Project, verbose_name=_('Project'),
                                 related_name='versions')
     type = models.CharField(
@@ -30,7 +54,9 @@ class Version(models.Model):
     identifier = models.CharField(_('Identifier'), max_length=255)
 
     verbose_name = models.CharField(_('Verbose Name'), max_length=255)
-    slug = models.CharField(_('Slug'), max_length=255)
+
+    slug = VersionSlugField(_('Slug'), max_length=255,
+                            populate_from='verbose_name')
 
     supported = models.BooleanField(_('Supported'), default=True)
     active = models.BooleanField(_('Active'), default=False)
@@ -59,6 +85,15 @@ class Version(models.Model):
             'project': self.project,
             'pk': self.pk
         })
+
+    @property
+    def commit_name(self):
+        """Return the branch name, the tag name or the revision identifier."""
+        if self.type == 'branch':
+            return self.identifier
+        if self.verbose_name in NON_REPOSITORY_VERSIONS:
+            return self.identifier
+        return self.verbose_name
 
     def get_absolute_url(self):
         if not self.built and not self.uploaded:
