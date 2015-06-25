@@ -71,10 +71,13 @@ class BaseSphinx(BaseBuilder):
         outfile.write("\n")
         conf_py_path = version_utils.get_conf_py_path(self.version)
         remote_version = version_utils.get_vcs_version_slug(self.version)
-        github_user, github_repo = version_utils.get_github_username_repo(url=self.version.project.repo)
-        bitbucket_user, bitbucket_repo = version_utils.get_bitbucket_username_repo(url=self.version.project.repo)
 
+        github_user, github_repo = version_utils.get_github_username_repo(url=self.version.project.repo)
+        github_version_is_editable = (self.version.type == 'branch')
         display_github = github_user is not None
+
+        bitbucket_user, bitbucket_repo = version_utils.get_bitbucket_username_repo(url=self.version.project.repo)
+        bitbucket_version_is_editable = (self.version.type == 'branch')
         display_bitbucket = bitbucket_user is not None
 
         rtd_ctx = Context({
@@ -88,12 +91,14 @@ class BaseSphinx(BaseBuilder):
             # GitHub
             'github_user': github_user,
             'github_repo': github_repo,
-            'github_version':  remote_version,
+            'github_version': remote_version,
+            'github_version_is_editable': github_version_is_editable,
             'display_github': display_github,
             # BitBucket
             'bitbucket_user': bitbucket_user,
             'bitbucket_repo': bitbucket_repo,
-            'bitbucket_version':  remote_version,
+            'bitbucket_version': remote_version,
+            'bitbucket_version_is_editable': bitbucket_version_is_editable,
             'display_bitbucket': display_bitbucket,
             'commit': self.version.project.vcs_repo(self.version.slug).commit,
         })
