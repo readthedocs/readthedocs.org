@@ -58,30 +58,26 @@ Once you have Sphinx documentation in a public repository, you can start using R
 In Markdown
 ~~~~~~~~~~~
 
-Mkdocs_ is a tool that makes it easy to create beautiful documentation.
-Assuming you have Python_ already, `install Mkdocs`_::
+You can use Markdown and reStructuredText in the same Sphinx project.
+We suppor this natively on Read the Docs, and you can do it locally::
 
-    $ pip install mkdocs
+    $ pip install recommonmark
 
-Create a directory inside your project to hold your docs::
+Then in your ``conf.py``:
 
-    $ cd /path/to/project
-    $ mkdocs new docs
+.. code-block:: python
 
-Create a ``README.md``::
+    from recommonmark.parser import CommonMarkParser
 
-    $ cd docs
+    source_parsers = {
+        '.md': CommonMarkParser,
+    }
 
-Now, edit your ``index.md`` and add some information about your project.
-Include as much detail as you like (refer to the Markdown_ syntax
-or `this template`_ if you need help). Build them to see how they look::
+    source_suffix = ['.rst', '.md']
 
-    $ mkdocs build
-
-.. note:: You can use mkdocs to auto-reload your docs. Run ``mkdocs serve`` instead.
-
-Edit your files and rebuild until you like what you see, then commit your changes and push to your public repository.
-Once you have Mkdocs documentation in a public repository, you can start using Read the Docs.
+.. note:: Markdown doesn't support a lot of the features of Sphinx,
+          like inline markup and directives.
+          However, it works for basic prose content.
 
 .. _import-docs:
 
@@ -97,8 +93,6 @@ you'd use to checkout, clone, or branch your code. Some examples:
 * Subversion: ``http://varnish-cache.org/svn/trunk``
 * Mercurial: ``https://bitbucket.org/ianb/pip``
 * Bazaar: ``lp:pasta``
-
-.. note:: Make sure to choose your *Documentation Type* correctly as either Sphinx or Mkdocs.
 
 Add an optional homepage URL and some tags, then click "Create".
 
