@@ -56,7 +56,7 @@ class BaseSphinx(BaseBuilder):
 
         # Pull config data
         try:
-            conf_py_path = version_utils.get_conf_py_path(self.version)
+            conf_py_path = self.version.get_conf_py_path()
         except ProjectImportError:
             self._write_config()
             self.create_index(extension='rst')
@@ -69,7 +69,7 @@ class BaseSphinx(BaseBuilder):
             trace = sys.exc_info()[2]
             raise ProjectImportError('Conf file not found'), None, trace
         outfile.write("\n")
-        conf_py_path = version_utils.get_conf_py_path(self.version)
+        conf_py_path = self.version.get_conf_py_path()
         remote_version = version_utils.get_vcs_version_slug(self.version)
 
         github_user, github_repo = version_utils.get_github_username_repo(url=self.version.project.repo)

@@ -57,13 +57,6 @@ def get_vcs_version_slug(version):
     return slug
 
 
-def get_conf_py_path(version):
-    conf_py_path = version.project.conf_file(version.slug)
-    conf_py_path = conf_py_path.replace(
-        version.project.checkout_path(version.slug), '')
-    return conf_py_path.replace('conf.py', '')
-
-
 def clean_build_path(version):
     '''Clean build path for project version
 
