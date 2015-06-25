@@ -1,5 +1,7 @@
+import logging
 import re
 import os.path
+from shutil import rmtree
 
 from django.core.urlresolvers import reverse
 from django.conf import settings
@@ -18,6 +20,9 @@ from .constants import BUILD_STATE, BUILD_TYPES, VERSION_TYPES
 
 
 DEFAULT_VERSION_PRIVACY_LEVEL = getattr(settings, 'DEFAULT_VERSION_PRIVACY_LEVEL', 'public')
+
+
+log = logging.getLogger(__name__)
 
 
 class Version(models.Model):
@@ -150,6 +155,21 @@ class Version(models.Model):
         if os.path.exists(path):
             return path
         return None
+
+    def clean_build_path(self):
+        '''Clean build path for project version
+
+        Ensure build path is clean for project version. Used to ensure stale
+        build checkouts for each project version are removed.
+        '''
+        try:
+            path = self.get_build_path()
+            if path is not None:
+                log.debug('Removing build path {0} for {1}'.format(
+                    path, self))
+                rmtree(path)
+        except OSError:
+            log.error('Build path cleanup failed', exc_info=True)
 
     def get_vcs_slug(self):
         slug = None
