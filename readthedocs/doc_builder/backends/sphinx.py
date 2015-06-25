@@ -71,16 +71,11 @@ class BaseSphinx(BaseBuilder):
         outfile.write("\n")
         conf_py_path = version_utils.get_conf_py_path(self.version)
         remote_version = version_utils.get_vcs_version_slug(self.version)
-        github_info = version_utils.get_github_username_repo(self.version)
-        bitbucket_info = version_utils.get_bitbucket_username_repo(self.version)
-        if github_info[0] is None:
-            display_github = False
-        else:
-            display_github = True
-        if bitbucket_info[0] is None:
-            display_bitbucket = False
-        else:
-            display_bitbucket = True
+        github_user, github_repo = version_utils.get_github_username_repo(url=self.version.project.repo)
+        bitbucket_user, bitbucket_repo = version_utils.get_bitbucket_username_repo(url=self.version.project.repo)
+
+        display_github = github_user is not None
+        display_bitbucket = bitbucket_user is not None
 
         rtd_ctx = Context({
             'current_version': self.version.slug,
@@ -91,13 +86,13 @@ class BaseSphinx(BaseBuilder):
             'conf_py_path': conf_py_path,
             'api_host': getattr(settings, 'SLUMBER_API_HOST', 'https://readthedocs.org'),
             # GitHub
-            'github_user': github_info[0],
-            'github_repo': github_info[1],
+            'github_user': github_user,
+            'github_repo': github_repo,
             'github_version':  remote_version,
             'display_github': display_github,
             # BitBucket
-            'bitbucket_user': bitbucket_info[0],
-            'bitbucket_repo': bitbucket_info[1],
+            'bitbucket_user': bitbucket_user,
+            'bitbucket_repo': bitbucket_repo,
             'bitbucket_version':  remote_version,
             'display_bitbucket': display_bitbucket,
             'commit': self.version.project.vcs_repo(self.version.slug).commit,

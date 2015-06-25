@@ -21,23 +21,19 @@ BB_REGEXS = [
 ]
 
 
-def get_github_username_repo(version, repo_url=None):
-    if not repo_url:
-        repo_url = version.project.repo
-    if 'github' in repo_url:
+def get_github_username_repo(url):
+    if 'github' in url:
         for regex in GH_REGEXS:
-            match = regex.search(repo_url)
+            match = regex.search(url)
             if match:
                 return match.groups()
     return (None, None)
 
 
-def get_bitbucket_username_repo(version, repo_url=None):
-    if not repo_url:
-        repo_url = version.project.repo
-    if 'bitbucket' in repo_url:
+def get_bitbucket_username_repo(url=None):
+    if 'bitbucket' in url:
         for regex in BB_REGEXS:
-            match = regex.search(repo_url)
+            match = regex.search(url)
             if match:
                 return match.groups()
     return (None, None)
