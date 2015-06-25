@@ -44,20 +44,12 @@ def get_bitbucket_username_repo(version, repo_url=None):
 
 
 def get_vcs_version_slug(version):
-    slug = None
     if version.slug == LATEST:
         if version.project.default_branch:
-            slug = version.project.default_branch
+            return version.project.default_branch
         else:
-            slug = version.project.vcs_repo().fallback_branch
-    else:
-        slug = version.slug
-    # https://github.com/rtfd/readthedocs.org/issues/561
-    # version identifiers with / characters in branch name need to un-slugify
-    # the branch name for remote links to work
-    if slug.replace('-', '/') in version.identifier:
-        slug = slug.replace('-', '/')
-    return slug
+            return version.project.vcs_repo().fallback_branch
+    return version.commit_name
 
 
 def get_conf_py_path(version):

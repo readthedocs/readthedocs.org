@@ -10,6 +10,7 @@ from guardian.shortcuts import assign
 from taggit.managers import TaggableManager
 
 from builds.constants import LATEST
+from builds.constants import NON_REPOSITORY_VERSIONS
 from privacy.loader import VersionManager, RelatedProjectManager
 from projects.models import Project
 from projects import constants
@@ -84,6 +85,15 @@ class Version(models.Model):
             'project': self.project,
             'pk': self.pk
         })
+
+    @property
+    def commit_name(self):
+        """Return the branch name, the tag name or the revision identifier."""
+        if self.type == 'branch':
+            return self.identifier
+        if self.verbose_name in NON_REPOSITORY_VERSIONS:
+            return self.identifier
+        return self.verbose_name
 
     def get_absolute_url(self):
         if not self.built and not self.uploaded:
