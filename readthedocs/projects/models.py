@@ -634,17 +634,6 @@ class Project(models.Model):
             repo = backend(proj, version)
         return repo
 
-    @property
-    def contribution_backend(self):
-        if hasattr(self, '_contribution_backend'):
-            return self._contribution_backend
-        if not self.vcs_repo:
-            cb = None
-        else:
-            cb = self.vcs_repo.get_contribution_backend()
-        self._contribution_backend = cb
-        return cb
-
     def repo_nonblockinglock(self, version, max_lock_age=5):
         return NonBlockingLock(project=self, version=version, max_lock_age=max_lock_age)
 
