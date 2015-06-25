@@ -1,12 +1,3 @@
-# Hack around bzr hosting
-
---allow-external bzr
---allow-unverified bzr
---allow-external launchpadlib
---allow-unverified launchpadlib
---allow-external lazr.authentication
---allow-unverified lazr.authentication
-
 ## Upgraded packages
 pip==6.1.1
 virtualenv==1.11.6
