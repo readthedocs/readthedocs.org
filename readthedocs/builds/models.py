@@ -21,6 +21,28 @@ DEFAULT_VERSION_PRIVACY_LEVEL = getattr(settings, 'DEFAULT_VERSION_PRIVACY_LEVEL
 
 
 class Version(models.Model):
+    """
+    Attributes
+    ----------
+
+    ``identifier``
+        The identifier is the ID for the revision this is version is for. This
+        might be the revision number (e.g. in SVN), or the commit hash (e.g. in
+        Git). If the this version is pointing to a branch, then ``identifier``
+        will contain the branch name.
+
+    ``verbose_name``
+        This is the actual name that we got for the commit stored in
+        ``identifier``. This might be the tag or branch name like ``"v1.0.4"``.
+        However this might also hold special version names like ``"latest"``
+        and ``"stable"``.
+
+    ``slug``
+        The slug is the slugified version of ``verbose_name`` that can be used
+        in the URL to identify this version in a project. It's also used in the
+        filesystem to determine how the paths for this version are called. It
+        must not be used for any other identifying purposes.
+    """
     project = models.ForeignKey(Project, verbose_name=_('Project'),
                                 related_name='versions')
     type = models.CharField(
