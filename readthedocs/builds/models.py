@@ -10,6 +10,7 @@ from guardian.shortcuts import assign
 from taggit.managers import TaggableManager
 
 from builds.constants import LATEST
+from builds.constants import STABLE
 from privacy.loader import VersionManager, RelatedProjectManager
 from projects.models import Project
 from projects import constants
@@ -149,6 +150,22 @@ class Version(models.Model):
         if os.path.exists(path):
             return path
         return None
+
+    def get_vcs_slug(self):
+        slug = None
+        if self.slug == LATEST:
+            if self.project.default_branch:
+                slug = self.project.default_branch
+            else:
+                slug = self.project.vcs_repo().fallback_branch
+        elif self.slug == STABLE:
+            return self.identifier
+        # https://github.com/rtfd/readthedocs.org/issues/561
+        # version identifiers with / characters in branch name need to un-slugify
+        # the branch name for remote links to work
+        if slug.replace('-', '/') in self.identifier:
+            slug = slug.replace('-', '/')
+        return slug
 
     def get_github_url(self, docroot, filename, source_suffix='.rst', action='view'):
         GITHUB_REGEXS = [

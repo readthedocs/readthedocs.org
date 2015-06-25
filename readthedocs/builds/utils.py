@@ -2,9 +2,6 @@ import re
 import logging
 from shutil import rmtree
 
-from builds.constants import LATEST
-from builds.constants import STABLE
-
 
 log = logging.getLogger(__name__)
 
@@ -38,23 +35,6 @@ def get_bitbucket_username_repo(url=None):
             if match:
                 return match.groups()
     return (None, None)
-
-
-def get_vcs_version_slug(version):
-    slug = None
-    if version.slug == LATEST:
-        if version.project.default_branch:
-            slug = version.project.default_branch
-        else:
-            slug = version.project.vcs_repo().fallback_branch
-    elif version.slug == STABLE:
-        return version.identifier
-    # https://github.com/rtfd/readthedocs.org/issues/561
-    # version identifiers with / characters in branch name need to un-slugify
-    # the branch name for remote links to work
-    if slug.replace('-', '/') in version.identifier:
-        slug = slug.replace('-', '/')
-    return slug
 
 
 def clean_build_path(version):

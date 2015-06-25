@@ -70,7 +70,7 @@ class BaseSphinx(BaseBuilder):
             raise ProjectImportError('Conf file not found'), None, trace
         outfile.write("\n")
         conf_py_path = self.version.get_conf_py_path()
-        remote_version = version_utils.get_vcs_version_slug(self.version)
+        remote_version = self.version.get_vcs_slug()
 
         github_user, github_repo = version_utils.get_github_username_repo(url=self.version.project.repo)
         github_version_is_editable = (self.version.type == 'branch')
