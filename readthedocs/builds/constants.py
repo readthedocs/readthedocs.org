@@ -31,4 +31,9 @@ LATEST_VERBOSE_NAME = 'latest'
 STABLE = 'stable'
 STABLE_VERBOSE_NAME = 'stable'
 
-NON_REPOSITORY_VERSIONS = (LATEST, STABLE)
+# Those names are specialcased version names. They do not correspond to
+# branches/tags in a project's repository.
+NON_REPOSITORY_VERSIONS = (
+    LATEST,
+    STABLE,
+)

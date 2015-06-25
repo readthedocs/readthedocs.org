@@ -1,5 +1,7 @@
+import logging
 import re
 import os.path
+from shutil import rmtree
 
 from django.core.urlresolvers import reverse
 from django.conf import settings
@@ -9,16 +11,20 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from guardian.shortcuts import assign
 from taggit.managers import TaggableManager
 
-from builds.constants import LATEST
-from builds.constants import NON_REPOSITORY_VERSIONS
 from privacy.loader import VersionManager, RelatedProjectManager
 from projects.models import Project
 from projects import constants
-from .constants import BUILD_STATE, BUILD_TYPES, VERSION_TYPES
+from .constants import (BUILD_STATE, BUILD_TYPES, VERSION_TYPES,
+                        LATEST, NON_REPOSITORY_VERSIONS, STABLE
+                        )
+
 from .version_slug import VersionSlugField
 
 
 DEFAULT_VERSION_PRIVACY_LEVEL = getattr(settings, 'DEFAULT_VERSION_PRIVACY_LEVEL', 'public')
+
+
+log = logging.getLogger(__name__)
 
 
 class Version(models.Model):
@@ -173,8 +179,6 @@ class Version(models.Model):
         return data
 
     def get_conf_py_path(self):
-        # Hack this for now.
-        return "/docs/"
         conf_py_path = self.project.conf_file(self.slug)
         conf_py_path = conf_py_path.replace(
             self.project.checkout_path(self.slug), '')
@@ -186,6 +190,37 @@ class Version(models.Model):
         if os.path.exists(path):
             return path
         return None
+
+    def clean_build_path(self):
+        '''Clean build path for project version
+
+        Ensure build path is clean for project version. Used to ensure stale
+        build checkouts for each project version are removed.
+        '''
+        try:
+            path = self.get_build_path()
+            if path is not None:
+                log.debug('Removing build path {0} for {1}'.format(
+                    path, self))
+                rmtree(path)
+        except OSError:
+            log.error('Build path cleanup failed', exc_info=True)
+
+    def get_vcs_slug(self):
+        slug = None
+        if self.slug == LATEST:
+            if self.project.default_branch:
+                slug = self.project.default_branch
+            else:
+                slug = self.project.vcs_repo().fallback_branch
+        elif self.slug == STABLE:
+            return self.identifier
+        # https://github.com/rtfd/readthedocs.org/issues/561
+        # version identifiers with / characters in branch name need to un-slugify
+        # the branch name for remote links to work
+        if slug.replace('-', '/') in self.identifier:
+            slug = slug.replace('-', '/')
+        return slug
 
     def get_github_url(self, docroot, filename, source_suffix='.rst', action='view'):
         GITHUB_REGEXS = [
