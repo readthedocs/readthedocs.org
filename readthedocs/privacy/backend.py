@@ -124,7 +124,7 @@ class VersionManager(RelatedProjectManager):
             'machine': True,
             'active': True,
             'identifier': STABLE,
-            'type': 'branch',
+            'type': 'tag',
         }
         defaults.update(kwargs)
         return self.create(**defaults)
