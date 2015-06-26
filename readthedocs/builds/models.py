@@ -215,6 +215,8 @@ class Version(models.Model):
                 slug = self.project.vcs_repo().fallback_branch
         elif self.slug == STABLE:
             return self.identifier
+        else:
+            slug = self.slug
         # https://github.com/rtfd/readthedocs.org/issues/561
         # version identifiers with / characters in branch name need to un-slugify
         # the branch name for remote links to work
