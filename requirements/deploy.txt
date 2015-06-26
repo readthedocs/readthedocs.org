@@ -3,7 +3,7 @@ psycopg2==2.4
 gunicorn==19.1.0
 pysolr==2.0.13
 dnspython==1.11.0
-launchpadlib==1.9.8
+launchpadlib==1.10.2
 django-redis-cache==0.9.5
 django-mailgun==0.2.2
 
