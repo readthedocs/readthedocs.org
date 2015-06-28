@@ -82,7 +82,7 @@ You can see this in action here:
 
 .. raw:: html
 
-    <script type="text/javascript" src="https://media.readthedocs.org/javascript/jquery/jquery-2.0.3.min.js"></script>
+    <script type="text/javascript" src="https://media.readthedocs.org/javascript/jquery/jquery-2.1.4.min.js"></script>
     <script type="text/javascript" src="https://media.readthedocs.org/javascript/jquery/jquery-migrate-1.2.1.min.js"></script>
     <link rel="stylesheet" href="http://localhost:5555/static/css/public.css">
     <script type="text/javascript" src="http://localhost:5555/static/javascript/bundle-public.js"></script>
