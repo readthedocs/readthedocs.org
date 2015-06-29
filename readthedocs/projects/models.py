@@ -19,8 +19,7 @@ from privacy.loader import RelatedProjectManager, ProjectManager
 from projects import constants
 from projects.exceptions import ProjectImportError
 from projects.templatetags.projects_tags import sort_version_aware
-from projects.utils import (highest_version as _highest, make_api_version,
-                            symlink, update_static_metadata)
+from projects.utils import make_api_version, symlink, update_static_metadata
 from projects.version_handling import version_windows
 from taggit.managers import TaggableManager
 from tastyapi.slum import api
@@ -588,10 +587,6 @@ class Project(models.Model):
         conf_file = self.conf_file(version)
         if conf_file:
             return conf_file.replace('/conf.py', '')
-
-    @property
-    def highest_version(self):
-        return _highest(self.api_versions())
 
     @property
     def is_imported(self):
