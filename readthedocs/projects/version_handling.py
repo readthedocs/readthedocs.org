@@ -1,8 +1,8 @@
 from collections import defaultdict
-from packaging.version import parse
-from packaging.version import LegacyVersion
-from packaging.version import InvalidVersion
 from packaging.version import Version
+from packaging.version import InvalidVersion
+
+from builds.constants import LATEST, STABLE
 
 
 def get_major(version):
@@ -66,11 +66,10 @@ def version_windows(versions, major=1, minor=1, point=1):
 
     version_identifiers = []
     for version_string in versions:
-        parsed = parse(version_string)
-        # We do not want to handle legacy versions as we don't know if they
-        # actually contain information about major, minor, point releases.
-        if not isinstance(parsed, LegacyVersion):
-            version_identifiers.append(parse(version_string))
+        try:
+            version_identifiers.append(Version(version_string))
+        except InvalidVersion:
+            pass
 
     major_version_window = major
     minor_version_window = minor
