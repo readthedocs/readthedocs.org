@@ -3,7 +3,6 @@ import logging
 import os
 from urlparse import urlparse
 
-from distlib.version import UnsupportedVersionError
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
@@ -703,21 +702,14 @@ class Project(models.Model):
         Returns a list of version strings.
         """
         if not self.num_major or not self.num_minor or not self.num_point:
-            return None
-        version_identifiers = []
-        for version in self.versions.all():
-            try:
-                version_identifiers.append(VersionIdentifier(version.verbose_name))
-            except UnsupportedVersionError:
-                # Probably a branch
-                pass
-        active_versions = version_windows(
+            return []
+        version_identifiers = self.versions.values_list('verbose_name', flat=True)
+        return version_windows(
             version_identifiers,
             major=self.num_major,
             minor=self.num_minor,
             point=self.num_point,
         )
-        return version_strings
 
     def version_from_branch_name(self, branch):
         try:

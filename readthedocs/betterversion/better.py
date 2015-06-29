@@ -1,4 +1,5 @@
 from distlib.version import AdaptiveVersion
+from distlib.version import UnsupportedVersionError
 from collections import defaultdict
 
 
@@ -62,12 +63,19 @@ def version_windows(versions, major=1, minor=1, point=1):
     # TODO: This needs some documentation on how VersionManager etc works and
     # some examples what the expected outcome is.
 
+    version_identifiers = []
+    for version_string in versions:
+        try:
+            version_identifiers.append(VersionIdentifier(version_string))
+        except UnsupportedVersionError:
+            pass
+
     major_version_window = major
     minor_version_window = minor
     point_version_window = point
 
     manager = VersionManager()
-    for v in versions:
+    for v in version_identifiers:
         manager.add(v)
     manager.prune_major(major_version_window)
     manager.prune_minor(minor_version_window)

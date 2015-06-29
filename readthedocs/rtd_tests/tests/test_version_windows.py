@@ -1,25 +1,25 @@
 import unittest
 
-from betterversion.better import version_windows, VersionIdentifier
+from betterversion.better import version_windows
 
 
 class TestVersionWindows(unittest.TestCase):
     def setUp(self):
         self.versions = [
-            VersionIdentifier("0.1.0"),
-            VersionIdentifier("0.2.0"),
-            VersionIdentifier("0.2.1"),
-            VersionIdentifier("0.3.0"),
-            VersionIdentifier("0.3.1"),
-            VersionIdentifier("1.1.0"),
-            VersionIdentifier("1.2.0"),
-            VersionIdentifier("1.3.0"),
-            VersionIdentifier("2.1.0"),
-            VersionIdentifier("2.2.0"),
-            VersionIdentifier("2.3.0"),
-            VersionIdentifier("2.3.1"),
-            VersionIdentifier("2.3.2"),
-            VersionIdentifier("2.3.3"),
+            '0.1.0',
+            '0.2.0',
+            '0.2.1',
+            '0.3.0',
+            '0.3.1',
+            '1.1.0',
+            '1.2.0',
+            '1.3.0',
+            '2.1.0',
+            '2.2.0',
+            '2.3.0',
+            '2.3.1',
+            '2.3.2',
+            '2.3.3',
         ]
 
     def test_major(self):
