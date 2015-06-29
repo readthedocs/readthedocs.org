@@ -2,7 +2,8 @@ from collections import defaultdict
 from packaging.version import Version
 from packaging.version import InvalidVersion
 
-from builds.constants import LATEST, STABLE
+from builds.constants import LATEST_VERBOSE_NAME
+from builds.constants import STABLE_VERBOSE_NAME
 
 
 def get_major(version):
@@ -89,3 +90,22 @@ def parse_version_failsafe(version_string):
         return Version(version_string)
     except InvalidVersion:
         return None
+
+
+def comparable_version(version_string):
+    """This can be used as ``key`` argument to ``sorted``.
+
+    The ``LATEST`` version shall always beat other versions in comparision.
+    ``STABLE`` should be listed second. If we cannot figure out the version
+    number then we still assume it's bigger than all other versions since we
+    cannot predict what it is."""
+
+    comparable = parse_version_failsafe(version_string)
+    if not comparable:
+        if version_string == LATEST_VERBOSE_NAME:
+            comparable = Version('99999.0')
+        elif version_string == STABLE_VERBOSE_NAME:
+            comparable = Version('9999.0')
+        else:
+            comparable = Version('999.0')
+    return comparable
