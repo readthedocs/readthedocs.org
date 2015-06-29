@@ -12,7 +12,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from guardian.shortcuts import assign
 
-from betterversion.better import version_windows, VersionIdentifier
+from betterversion.better import version_windows
 from builds.constants import LATEST
 from builds.constants import LATEST_VERBOSE_NAME
 from oauth import utils as oauth_utils

@@ -20,6 +20,7 @@ class TestVersionWindows(unittest.TestCase):
             '2.3.1',
             '2.3.2',
             '2.3.3',
+            'nonsense-version',
         ]
 
     def test_major(self):
@@ -82,6 +83,11 @@ class TestVersionWindows(unittest.TestCase):
         final_versions = version_windows(self.versions,
                                          major=1, minor=2, point=3)
         self.assertEqual(final_versions, ['2.2.0', '2.3.1', '2.3.2', '2.3.3'])
+
+        final_versions = version_windows(['2.3.2', '2.2.0', '2.3.0', '2.3.3', '2.3.1'],
+                                         major=1, minor=2, point=3)
+        self.assertEqual(final_versions, ['2.2.0', '2.3.1', '2.3.2', '2.3.3'])
+
 
 
 if __name__ == '__main__':

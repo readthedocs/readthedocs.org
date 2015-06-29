@@ -1,26 +1,17 @@
-from distlib.version import AdaptiveVersion
-from distlib.version import UnsupportedVersionError
 from collections import defaultdict
+from packaging.version import parse
+from packaging.version import LegacyVersion
 
 
-class VersionIdentifier(AdaptiveVersion):
-    """
-    An extended variant of ``distlib.version.AdaptiveVersion``. The constructor
-    takes a version string like ``0.7.3`` and the class then provides a nice
-    interface to access the different major/minor version numbers etc.
-    """
+def get_major(version):
+    return version._version.release[0]
 
-    @property
-    def major_version(self):
-        return self._parts[0][0]
 
-    @property
-    def minor_version(self):
-        # catch index error, maybe?
-        try:
-            return self._parts[0][1]
-        except IndexError, e:
-            return 0
+def get_minor(version):
+    try:
+        return version._version.release[1]
+    except IndexError:
+        return 0
 
 
 class VersionManager(object):
@@ -28,7 +19,7 @@ class VersionManager(object):
         self._state = defaultdict(lambda: defaultdict(list))
 
     def add(self, version):
-        self._state[version.major_version][version.minor_version].append(version)
+        self._state[get_major(version)][get_minor(version)].append(version)
 
     def prune_major(self, num_latest):
         all_keys = sorted(set(self._state.keys()))
@@ -58,6 +49,14 @@ class VersionManager(object):
                     # Raise these for now.
                     raise
 
+    def get_version_list(self):
+        versions = []
+        for major_val in self._state.values():
+            for version_list in major_val.values():
+                versions.extend(version_list)
+        versions = sorted(versions)
+        return [version.base_version for version in versions]
+
 
 def version_windows(versions, major=1, minor=1, point=1):
     # TODO: This needs some documentation on how VersionManager etc works and
@@ -65,10 +64,11 @@ def version_windows(versions, major=1, minor=1, point=1):
 
     version_identifiers = []
     for version_string in versions:
-        try:
-            version_identifiers.append(VersionIdentifier(version_string))
-        except UnsupportedVersionError:
-            pass
+        parsed = parse(version_string)
+        # We do not want to handle legacy versions as we don't know if they
+        # actually contain information about major, minor, point releases.
+        if not isinstance(parsed, LegacyVersion):
+            version_identifiers.append(parse(version_string))
 
     major_version_window = major
     minor_version_window = minor
@@ -80,11 +80,4 @@ def version_windows(versions, major=1, minor=1, point=1):
     manager.prune_major(major_version_window)
     manager.prune_minor(minor_version_window)
     manager.prune_point(point_version_window)
-
-    final_map = manager._state
-
-    ret = []
-    for major_val in final_map.values():
-        for version_list in major_val.values():
-            ret.extend(v._string for v in version_list)
-    return ret
+    return manager.get_version_list()
