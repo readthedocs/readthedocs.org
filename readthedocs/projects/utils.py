@@ -9,7 +9,6 @@ import logging
 from httplib2 import Http
 
 from django.conf import settings
-from distutils2.version import NormalizedVersion, suggest_normalized_version
 import redis
 
 from builds.constants import LATEST
@@ -109,21 +108,6 @@ def safe_write(filename, contents):
     with open(filename, 'w') as fh:
         fh.write(contents.encode('utf-8', 'ignore'))
         fh.close()
-
-
-def mkversion(version_obj):
-    try:
-        if hasattr(version_obj, 'slug'):
-            ver = NormalizedVersion(
-                suggest_normalized_version(version_obj.slug)
-            )
-        else:
-            ver = NormalizedVersion(
-                suggest_normalized_version(version_obj['slug'])
-            )
-        return ver
-    except TypeError:
-        return None
 
 
 def highest_version(version_list):
