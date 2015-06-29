@@ -1,6 +1,8 @@
 from collections import defaultdict
 from packaging.version import parse
 from packaging.version import LegacyVersion
+from packaging.version import InvalidVersion
+from packaging.version import Version
 
 
 def get_major(version):
@@ -81,3 +83,10 @@ def version_windows(versions, major=1, minor=1, point=1):
     manager.prune_minor(minor_version_window)
     manager.prune_point(point_version_window)
     return manager.get_version_list()
+
+
+def parse_version_failsafe(version_string):
+    try:
+        return Version(version_string)
+    except InvalidVersion:
+        return None

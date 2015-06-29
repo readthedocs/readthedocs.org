@@ -13,6 +13,7 @@ from distutils2.version import NormalizedVersion, suggest_normalized_version
 import redis
 
 from builds.constants import LATEST
+from projects.version_handling import parse_version_failsafe
 
 
 log = logging.getLogger(__name__)
@@ -126,19 +127,21 @@ def mkversion(version_obj):
 
 
 def highest_version(version_list):
-    highest = [None, None]
-    for version in version_list:
-        ver = mkversion(version)
-        if not ver:
-            continue
-        elif highest[1] and ver:
-            # If there's a highest, and no version, we don't need to set
-            # anything
-            if ver > highest[1]:
-                highest = [version, ver]
-        else:
-            highest = [version, ver]
-    return highest
+    versions = []
+    for version_obj in version_list:
+        version_slug = version_obj.verbose_name
+        comparable_version = parse_version_failsafe(version_slug)
+        if comparable_version:
+            versions.append((version_obj, comparable_version))
+
+    versions = list(sorted(
+        versions,
+        key=lambda version_info: version_info[1],
+        reverse=True))
+    if versions:
+        return versions[0]
+    else:
+        return [None, None]
 
 
 def purge_version(version, mainsite=False, subdomain=False, cname=False):
