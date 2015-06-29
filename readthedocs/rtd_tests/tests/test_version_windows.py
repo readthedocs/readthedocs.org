@@ -1,6 +1,6 @@
 import unittest
 
-from betterversion.better import version_windows
+from projects.version_handling import version_windows
 
 
 class TestVersionWindows(unittest.TestCase):

@@ -12,7 +12,6 @@ from django.utils.translation import ugettext_lazy as _
 
 from guardian.shortcuts import assign
 
-from betterversion.better import version_windows
 from builds.constants import LATEST
 from builds.constants import LATEST_VERBOSE_NAME
 from oauth import utils as oauth_utils
@@ -22,6 +21,7 @@ from projects.exceptions import ProjectImportError
 from projects.templatetags.projects_tags import sort_version_aware
 from projects.utils import (highest_version as _highest, make_api_version,
                             symlink, update_static_metadata)
+from projects.version_handling import version_windows
 from taggit.managers import TaggableManager
 from tastyapi.slum import api
 
