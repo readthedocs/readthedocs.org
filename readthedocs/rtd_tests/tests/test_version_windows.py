@@ -3,7 +3,7 @@ import unittest
 from betterversion.better import version_windows, VersionIdentifier
 
 
-class TestSequenceFunctions(unittest.TestCase):
+class TestVersionWindows(unittest.TestCase):
     def setUp(self):
         self.versions = [
             VersionIdentifier("0.1.0"),
