@@ -16,7 +16,8 @@ from builds.constants import LATEST
 from builds.models import Build, Version
 from core.utils import trigger_build
 from projects.models import Project, ImportedFile
-from projects.utils import highest_version, mkversion
+from projects.utils import highest_version
+from projects.version_handling import parse_version_failsafe
 from djangome import views as djangome
 
 from .utils import SearchMixin, PostAuthentication
@@ -141,25 +142,28 @@ class VersionResource(ModelResource):
 
     def version_compare(self, request, **kwargs):
         project = get_object_or_404(Project, slug=kwargs['project_slug'])
-        highest = highest_version(project.versions.filter(active=True))
+        highest_version_obj, highest_version_comparable = highest_version(
+            project.versions.filter(active=True))
         base = kwargs.get('base', None)
         ret_val = {
-            'project': highest[0],
-            'version': highest[1],
+            'project': highest_version_obj,
+            'version': highest_version_comparable,
             'is_highest': True,
         }
-        if highest[0]:
-            ret_val['url'] = highest[0].get_absolute_url()
-            ret_val['slug'] = highest[0].slug,
+        if highest_version_obj:
+            ret_val['url'] = highest_version_obj.get_absolute_url()
+            ret_val['slug'] = highest_version_obj.slug,
         if base and base != LATEST:
             try:
-                ver_obj = project.versions.get(slug=base)
-                base_ver = mkversion(ver_obj)
-                if base_ver:
+                base_version_obj = project.versions.get(slug=base)
+                base_version_comparable = parse_version_failsafe(
+                    base_version_obj.verbose_name)
+                if base_version_comparable:
                     # This is only place where is_highest can get set.  All
                     # error cases will be set to True, for non- standard
                     # versions.
-                    ret_val['is_highest'] = base_ver >= highest[1]
+                    ret_val['is_highest'] = (
+                        base_version_comparable >= highest_version_comparable)
                 else:
                     ret_val['is_highest'] = True
             except (Version.DoesNotExist, TypeError):
