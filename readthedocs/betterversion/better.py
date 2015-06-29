@@ -58,7 +58,7 @@ class VersionManager(object):
                     raise
 
 
-def version_windows(versions, major=1, minor=1, point=1, flat=False):
+def version_windows(versions, major=1, minor=1, point=1):
     # TODO: This needs some documentation on how VersionManager etc works and
     # some examples what the expected outcome is.
 
@@ -75,11 +75,8 @@ def version_windows(versions, major=1, minor=1, point=1, flat=False):
 
     final_map = manager._state
 
-    if flat:
-        ret = []
-        for major_val in final_map.values():
-            for version_list in major_val.values():
-                ret.extend(version_list)
-        return ret
-    else:
-        return final_map
+    ret = []
+    for major_val in final_map.values():
+        for version_list in major_val.values():
+            ret.extend(v._string for v in version_list)
+    return ret

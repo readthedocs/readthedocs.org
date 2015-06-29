@@ -248,7 +248,7 @@ class Project(models.Model):
         return "%s.%s" % (subdomain_slug, prod_domain)
 
     def sync_supported_versions(self):
-        supported = self.supported_versions(flat=True)
+        supported = self.supported_versions()
         if supported:
             self.versions.filter(
                 verbose_name__in=supported).update(supported=True)
@@ -697,7 +697,7 @@ class Project(models.Model):
         """
         return self.versions.filter(active=True)
 
-    def supported_versions(self, flat=True):
+    def supported_versions(self):
         """
         Get the list of supported versions.
         Returns a list of version strings.
@@ -716,9 +716,7 @@ class Project(models.Model):
             major=self.num_major,
             minor=self.num_minor,
             point=self.num_point,
-            flat=flat,
         )
-        version_strings = [v._string for v in active_versions]
         return version_strings
 
     def version_from_branch_name(self, branch):
