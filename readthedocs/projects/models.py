@@ -338,13 +338,20 @@ class Project(models.Model):
                     'filename': ''
                 })
 
-    def get_translation_url(self, version_slug=None):
+    def get_translation_url(self, version_slug=None, full=False):
         parent = self.main_language_project
         lang_slug = self.language
         protocol = "http"
         version = version_slug or parent.get_default_version()
         use_subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
-        if use_subdomain:
+        if use_subdomain and full:
+            return "%s://%s/%s/%s/" % (
+                protocol,
+                parent.subdomain,
+                lang_slug,
+                version,
+            )
+        elif use_subdomain and not full:
             return "/%s/%s/" % (
                 lang_slug,
                 version,
@@ -821,6 +828,7 @@ class Project(models.Model):
             version = self.versions.get(slug=version_slug)
             node = self.nodes.create(version=version, page=page, hash=hash, commit=commit)
         return node.comments.create(user=user, text=text)
+
 
 class ImportedFile(models.Model):
     project = models.ForeignKey('Project', verbose_name=_('Project'),
