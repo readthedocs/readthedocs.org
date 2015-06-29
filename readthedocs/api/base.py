@@ -16,7 +16,7 @@ from builds.constants import LATEST
 from builds.models import Build, Version
 from core.utils import trigger_build
 from projects.models import Project, ImportedFile
-from projects.utils import highest_version
+from projects.version_handling import highest_version
 from projects.version_handling import parse_version_failsafe
 from djangome import views as djangome
 

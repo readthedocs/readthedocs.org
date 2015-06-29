@@ -12,7 +12,6 @@ from django.conf import settings
 import redis
 
 from builds.constants import LATEST
-from projects.version_handling import parse_version_failsafe
 
 
 log = logging.getLogger(__name__)
@@ -108,24 +107,6 @@ def safe_write(filename, contents):
     with open(filename, 'w') as fh:
         fh.write(contents.encode('utf-8', 'ignore'))
         fh.close()
-
-
-def highest_version(version_list):
-    versions = []
-    for version_obj in version_list:
-        version_slug = version_obj.verbose_name
-        comparable_version = parse_version_failsafe(version_slug)
-        if comparable_version:
-            versions.append((version_obj, comparable_version))
-
-    versions = list(sorted(
-        versions,
-        key=lambda version_info: version_info[1],
-        reverse=True))
-    if versions:
-        return versions[0]
-    else:
-        return [None, None]
 
 
 def purge_version(version, mainsite=False, subdomain=False, cname=False):

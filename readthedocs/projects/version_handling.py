@@ -109,3 +109,21 @@ def comparable_version(version_string):
         else:
             comparable = Version('999.0')
     return comparable
+
+
+def highest_version(version_list):
+    versions = []
+    for version_obj in version_list:
+        version_slug = version_obj.verbose_name
+        comparable_version = parse_version_failsafe(version_slug)
+        if comparable_version:
+            versions.append((version_obj, comparable_version))
+
+    versions = list(sorted(
+        versions,
+        key=lambda version_info: version_info[1],
+        reverse=True))
+    if versions:
+        return versions[0]
+    else:
+        return [None, None]
