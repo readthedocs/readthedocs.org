@@ -732,11 +732,12 @@ def fileify(version_pk, commit):
                         version=version,
                         path=dirpath,
                         name=filename,
-                        commit=commit,
-                        md5=md5,
                     )
-                    if not created:
-                        obj.save()
+                    if obj.md5 != md5:
+                        obj.md5 = md5
+                    if obj.commit != commit:
+                        obj.commit = commit
+                    obj.save()
         # Delete ImportedFiles from previous versions
         ImportedFile.objects.filter(project=project, version=version).exclude(commit=commit).delete()
     else:
