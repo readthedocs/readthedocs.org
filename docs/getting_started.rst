@@ -59,7 +59,7 @@ In Markdown
 ~~~~~~~~~~~
 
 You can use Markdown and reStructuredText in the same Sphinx project.
-We suppor this natively on Read the Docs, and you can do it locally::
+We support this natively on Read the Docs, and you can do it locally::
 
     $ pip install recommonmark
 
