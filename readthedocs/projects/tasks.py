@@ -9,6 +9,7 @@ import logging
 import socket
 import requests
 import datetime
+import hashlib
 
 from celery import task
 from django.conf import settings
@@ -731,12 +732,15 @@ def fileify(version_pk, commit):
                 if fnmatch.fnmatch(filename, '*.html'):
                     dirpath = os.path.join(root.replace(path, '').lstrip('/'),
                                            filename.lstrip('/'))
+                    full_path = os.path.join(root, filename)
+                    md5 = hashlib.md5(open(full_path, 'rb').read()).hexdigest()
                     obj, created = ImportedFile.objects.get_or_create(
                         project=project,
                         version=version,
                         path=dirpath,
                         name=filename,
                         commit=commit,
+                        md5=md5,
                     )
                     if not created:
                         obj.save()
