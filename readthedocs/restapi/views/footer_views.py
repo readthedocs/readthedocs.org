@@ -64,7 +64,7 @@ def footer_html(request):
     else:
         print_url = None
 
-    show_promo = True
+    show_promo = getattr(settings, 'USE_PROMOS', True)
     # User is a gold user, no promos for them!
     if request.user.is_authenticated():
         if request.user.gold.count() or request.user.goldonce.count():
