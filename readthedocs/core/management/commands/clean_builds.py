@@ -6,7 +6,6 @@ from django.core.management.base import BaseCommand
 from django.db.models import Max
 
 from builds.models import Build, Version
-from builds.utils import clean_build_path
 
 log = logging.getLogger(__name__)
 
@@ -54,6 +53,6 @@ class Command(BaseCommand):
                          'at {1}, last used on {2}').format(
                             version, path, latest_build.date))
                     if not options['dryrun']:
-                        clean_build_path(version)
+                        version.clean_build_path()
             except Version.DoesNotExist:
                 pass

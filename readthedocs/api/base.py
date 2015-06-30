@@ -16,7 +16,7 @@ from builds.constants import LATEST
 from builds.models import Build, Version
 from core.utils import trigger_build
 from projects.models import Project, ImportedFile
-from projects.utils import highest_version, mkversion, slugify_uniquely
+from projects.utils import highest_version, mkversion
 from djangome import views as djangome
 
 from .utils import SearchMixin, PostAuthentication

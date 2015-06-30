@@ -179,3 +179,22 @@ class TestImportDemoView(MockBuildTestCase):
 
         self.assertEqual(project,
                          Project.objects.get(slug='eric-demo'))
+
+
+class TestPrivateViews(MockBuildTestCase):
+    fixtures = ['test_data', 'eric']
+
+    def setUp(self):
+        self.client.login(username='eric', password='test')
+
+    def test_versions_page(self):
+        response = self.client.get('/projects/pip/versions/')
+        self.assertEqual(response.status_code, 200)
+
+        # Test if the versions page works with a version that contains a slash.
+        # That broke in the past, see issue #1176.
+        pip = Project.objects.get(slug='pip')
+        pip.versions.create(verbose_name='1.0/with-slash')
+
+        response = self.client.get('/projects/pip/versions/')
+        self.assertEqual(response.status_code, 200)

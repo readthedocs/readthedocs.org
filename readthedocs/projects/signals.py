@@ -38,7 +38,7 @@ def handle_project_import(sender, **kwargs):
                 break
             if provider == 'github':
                 try:
-                    owner, repo = build_utils.get_github_username_repo(version=None, repo_url=project.repo)
+                    owner, repo = build_utils.get_github_username_repo(url=project.repo)
                     data = json.dumps({
                         'name': 'readthedocs',
                         'active': True,
@@ -56,7 +56,7 @@ def handle_project_import(sender, **kwargs):
                     log.exception('GitHub Hook creation failed', exc_info=True)
             elif provider == 'bitbucket':
                 try:
-                    owner, repo = build_utils.get_bitbucket_username_repo(version=None, repo_url=project.repo)
+                    owner, repo = build_utils.get_bitbucket_username_repo(url=project.repo)
                     data = {
                         'type': 'POST',
                         'url': 'https://{domain}/bitbucket'.format(domain=settings.PRODUCTION_DOMAIN),

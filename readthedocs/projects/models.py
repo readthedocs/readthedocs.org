@@ -292,8 +292,7 @@ class Project(models.Model):
         try:
             branch = self.default_branch or self.vcs_repo().fallback_branch
             if not self.versions.filter(slug=LATEST).exists():
-                self.versions.create(
-                    slug=LATEST, verbose_name=LATEST_VERBOSE_NAME, machine=True, type='branch', active=True, identifier=branch)
+                self.versions.create_latest(identifier=branch)
             # if not self.versions.filter(slug=STABLE).exists():
             #     self.versions.create_stable(type='branch', identifier=branch)
         except Exception:
@@ -633,17 +632,6 @@ class Project(models.Model):
                 self.name, self.default_branch, self.checkout_path(version), self.clean_repo)
             repo = backend(proj, version)
         return repo
-
-    @property
-    def contribution_backend(self):
-        if hasattr(self, '_contribution_backend'):
-            return self._contribution_backend
-        if not self.vcs_repo:
-            cb = None
-        else:
-            cb = self.vcs_repo.get_contribution_backend()
-        self._contribution_backend = cb
-        return cb
 
     def repo_nonblockinglock(self, version, max_lock_age=5):
         return NonBlockingLock(project=self, version=version, max_lock_age=max_lock_age)

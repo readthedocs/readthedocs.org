@@ -86,7 +86,7 @@ class BaseMkdocs(BaseBuilder):
 
         READTHEDOCS_DATA = {
             'project': self.version.project.slug,
-            'version': self.version.slug,
+            'version': self.version.verbose_name,
             'language': self.version.project.language,
             'page': None,
             'theme': "readthedocs",

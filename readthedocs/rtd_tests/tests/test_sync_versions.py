@@ -14,11 +14,10 @@ class TestSyncVersions(TestCase):
         self.client.login(username='eric', password='test')
         self.pip = Project.objects.get(slug='pip')
         Version.objects.create(project=self.pip, identifier='origin/master',
-                               verbose_name='master', slug='master',
-                               active=True, machine=True)
+                               verbose_name='master', active=True,
+                               machine=True)
         Version.objects.create(project=self.pip, identifier='to_delete',
-                               verbose_name='to_delete', slug='to_delete',
-                               active=False)
+                               verbose_name='to_delete', active=False)
 
     def test_proper_url_no_slash(self):
         version_post_data = {
@@ -194,8 +193,7 @@ class TestSyncVersions(TestCase):
     def test_new_tag_update_active(self):
 
         Version.objects.create(project=self.pip, identifier='0.8.3',
-                               verbose_name='0.8.3', slug='0-8-3',
-                               active=True)
+                               verbose_name='0.8.3', active=True)
 
         version_post_data = {
             'branches': [
@@ -232,8 +230,7 @@ class TestSyncVersions(TestCase):
     def test_new_tag_update_inactive(self):
 
         Version.objects.create(project=self.pip, identifier='0.8.3',
-                               verbose_name='0.8.3', slug='0-8-3',
-                               active=False)
+                               verbose_name='0.8.3', active=False)
 
         version_post_data = {
             'branches': [

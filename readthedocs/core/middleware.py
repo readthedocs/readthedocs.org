@@ -57,7 +57,7 @@ class SubdomainMiddleware(object):
                         redis_conn = redis.Redis(**settings.REDIS)
                         from dns import resolver
                         answer = [ans for ans in resolver.query(host, 'CNAME')][0]
-                        domain = answer.target.lower().to_unicode()
+                        domain = answer.target.to_unicode().lower()
                         slug = domain.split('.')[0]
                         cache.set(host, slug, 60 * 60)
                         # Cache the slug -> host mapping permanently.
@@ -68,7 +68,7 @@ class SubdomainMiddleware(object):
                     log.debug(LOG_TEMPLATE.format(msg='CNAME detetected: %s' % request.slug, **log_kwargs))
                 except:
                     # Some crazy person is CNAMEing to us. 404.
-                    log.debug(LOG_TEMPLATE.format(msg='CNAME 404', **log_kwargs))
+                    log.exception(LOG_TEMPLATE.format(msg='CNAME 404', **log_kwargs))
                     raise Http404(_('Invalid hostname'))
         # Google was finding crazy www.blah.readthedocs.org domains.
         # Block these explicitly after trying CNAME logic.
