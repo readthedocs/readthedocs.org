@@ -734,12 +734,16 @@ def fileify(version_pk, commit):
                                            filename.lstrip('/'))
                     full_path = os.path.join(root, filename)
                     md5 = hashlib.md5(open(full_path, 'rb').read()).hexdigest()
-                    obj, created = ImportedFile.objects.get_or_create(
-                        project=project,
-                        version=version,
-                        path=dirpath,
-                        name=filename,
-                    )
+                    try:
+                        obj, created = ImportedFile.objects.get_or_create(
+                            project=project,
+                            version=version,
+                            path=dirpath,
+                            name=filename,
+                        )
+                    except Exception:
+                        log.exception('Error creating ImportedFile')
+                        continue
                     if obj.md5 != md5:
                         obj.md5 = md5
                     if obj.commit != commit:
