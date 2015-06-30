@@ -35,7 +35,6 @@ class ProjectAdmin(GuardedModelAdmin):
 
 class ImportedFileAdmin(admin.ModelAdmin):
     list_display = ('path', 'name', 'version')
-    list_filter = ('project',)
 
 
 admin.site.register(Project, ProjectAdmin)
