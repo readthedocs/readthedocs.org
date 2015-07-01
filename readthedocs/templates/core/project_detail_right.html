@@ -6,7 +6,7 @@
 
   {% if project.repo %}
     <h3>{% trans "Repository" %}</h3>
-    <p class="detail-long">{{ project.repo }}</p>
+    <p class="detail-long">{{ project.repo|urlize }}</p>
   {% endif %}
 
   <h3>{% trans "Last Built" %}</h3>
