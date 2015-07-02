@@ -33,9 +33,6 @@ from django.utils.encoding import force_text
 VERSION_SLUG_REGEX = '(?:[a-z0-9][-._a-z0-9]+?)'
 
 
-version_slug_regex = re.compile(VERSION_SLUG_REGEX)
-
-
 class VersionSlugField(models.CharField):
     """
     Implementation inspired by ``django_extensions.db.fields.AutoSlugField``.
@@ -45,6 +42,7 @@ class VersionSlugField(models.CharField):
     allowed_chars = string.lowercase + string.digits + allowed_punctuation
     placeholder = '-'
     fallback_slug = 'unkown'
+    test_pattern = re.compile('^{pattern}$'.format(pattern=VERSION_SLUG_REGEX))
 
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('db_index', True)
@@ -154,6 +152,8 @@ class VersionSlugField(models.CharField):
             slug = slug + end
             kwargs[self.attname] = slug
             next += 1
+        assert self.test_pattern.match(slug), (
+            'Invalid generated slug: {slug}'.format(slug=slug))
         return slug
 
     def pre_save(self, model_instance, add):
