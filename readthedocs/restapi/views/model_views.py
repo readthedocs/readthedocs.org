@@ -14,6 +14,7 @@ from oauth import utils as oauth_utils
 from builds.constants import STABLE
 from projects.filters import ProjectFilter
 from projects.models import Project, EmailHook
+from projects.version_handling import determine_stable_version
 from restapi.permissions import APIPermission
 from restapi.permissions import RelatedProjectIsOwner
 from restapi.serializers import BuildSerializer, ProjectSerializer, VersionSerializer
@@ -87,6 +88,15 @@ class ProjectViewSet(viewsets.ModelViewSet):
         """
         project = get_object_or_404(
             Project.objects.api(self.request.user), pk=kwargs['pk'])
+
+        # If the currently highest non-prerelease version is active, then make
+        # the new latest version active as well.
+        old_highest_version = determine_stable_version(project.versions.all())
+        if old_highest_version is not None:
+            activate_new_stable = old_highest_version.active
+        else:
+            activate_new_stable = False
+
         try:
             # Update All Versions
             data = request.DATA
@@ -117,7 +127,9 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
                 # Marking the tag that is considered the new stable version as
                 # active and building it if it was just added.
-                if promoted_version.slug in added_versions:
+                if (
+                        activate_new_stable and
+                        promoted_version.slug in added_versions):
                     promoted_version.active = True
                     promoted_version.save()
                     trigger_build(project=project, version=promoted_version)
