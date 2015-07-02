@@ -707,12 +707,9 @@ class Project(models.Model):
         )
 
     def version_from_branch_name(self, branch):
+        versions = self.versions_from_branch_name(branch)
         try:
-            return (
-                self.versions.filter(identifier=branch) |
-                self.versions.filter(identifier=('remotes/origin/%s' % branch)) |
-                self.versions.filter(identifier=('origin/%s' % branch))
-            )[0]
+            return versions[0]
         except IndexError:
             return None
 
