@@ -3,7 +3,7 @@ import logging
 
 import requests
 
-from builds.constants import LATEST
+from builds.constants import NON_REPOSITORY_VERSIONS
 from builds.models import Version
 from search.indexes import PageIndex, ProjectIndex, SectionIndex
 
@@ -71,7 +71,7 @@ def delete_versions(project, version_data):
     to_delete_qs = to_delete_qs.exclude(identifier__in=current_versions)
     to_delete_qs = to_delete_qs.exclude(uploaded=True)
     to_delete_qs = to_delete_qs.exclude(active=True)
-    to_delete_qs = to_delete_qs.exclude(slug=LATEST)
+    to_delete_qs = to_delete_qs.exclude(slug__in=NON_REPOSITORY_VERSIONS)
 
     if to_delete_qs.count():
         ret_val = {obj.slug for obj in to_delete_qs}
