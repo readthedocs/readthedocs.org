@@ -201,6 +201,40 @@ class TestStableVersion(TestCase):
         self.assertTrue(version_stable.active)
         self.assertEqual(version_stable.identifier, '1.0.post1')
 
+    def test_invalid_version_numbers_are_not_stable(self):
+        self.pip.versions.all().delete()
+
+        version_post_data = {
+            'branches': [],
+            'tags': [
+                {'identifier': 'this.is.invalid', 'verbose_name': 'this.is.invalid'},
+            ]
+        }
+
+        self.client.post(
+            '/api/v2/project/%s/sync_versions/' % self.pip.pk,
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+        self.assertFalse(Version.objects.filter(slug=STABLE).exists())
+
+        version_post_data = {
+            'branches': [],
+            'tags': [
+                {'identifier': '1.0', 'verbose_name': '1.0'},
+                {'identifier': 'this.is.invalid', 'verbose_name': 'this.is.invalid'},
+            ]
+        }
+
+        self.client.post(
+            '/api/v2/project/%s/sync_versions/' % self.pip.pk,
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+        version_stable = Version.objects.get(slug=STABLE)
+        self.assertTrue(version_stable.active)
+        self.assertEqual(version_stable.identifier, '1.0')
+
     def test_update_stable_version(self):
         version_post_data = {
             'branches': [
