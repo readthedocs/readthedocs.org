@@ -22,12 +22,23 @@ You should push a **tag** for each version of your project.
 These tags should be numbered in a way that is consistent with `semantic versioning <http://semver.org/>`_.
 This will map to your ``stable`` branch by default.
 
+.. note::
+    We in fact are parsing your tag names against the rules given by
+    `PEP 440`_. This spec allows "normal" version numbers like ``1.4.2`` as
+    well as pre-releases. A alpha version or a release candidate are examples
+    of pre-releases and they look like this: ``2.0a1``.
+
+    We only consider non pre-releases for the ``stable`` version of your
+    documentation.
+
 If you have documentation changes on a **long-lived branch**,
 you can build those too.
 This will allow you to see how the new docs will be built in this branch of the code.
 Generally you won't have more than 1 active branch over a long period of time.
 The main exception here would be **release branches**,
 which are branches that are maintained over time for a specific release number.
+
+.. _PEP 440: https://www.python.org/dev/peps/pep-0440/
 
 Redirects on root URLs
 ----------------------
