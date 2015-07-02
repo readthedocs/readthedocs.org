@@ -41,8 +41,10 @@ class VersionSlugField(models.CharField):
     Implementation inspired by ``django_extensions.db.fields.AutoSlugField``.
     """
 
-    allowed_chars = string.lowercase + string.digits + '-._'
+    allowed_punctuation = '-._'
+    allowed_chars = string.lowercase + string.digits + allowed_punctuation
     placeholder = '-'
+    fallback_slug = 'unkown'
 
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('db_index', True)
@@ -70,6 +72,18 @@ class VersionSlugField(models.CharField):
                 slugified += self.placeholder
             else:
                 slugified += char
+
+        # Do not start and end in punctuation.
+        slug_length = len(slugified)
+        diff = 1
+        while diff > 0:
+            for char in self.allowed_punctuation:
+                slugified = slugified.strip(char)
+            diff = slug_length - len(slugified)
+            slug_length = len(slugified)
+
+        if not slugified:
+            return self.fallback_slug
         return slugified
 
     def uniquifying_suffix(self, iteration):

@@ -35,6 +35,23 @@ class VersionSlugFieldTests(TestCase):
             project=self.pip)
         self.assertEqual(version.slug, 'somestring-charclass')
 
+    def test_placeholder_as_name(self):
+        version = Version.objects.create(
+            verbose_name='-',
+            project=self.pip)
+        self.assertEqual(version.slug, 'unkown')
+
+    def test_multiple_empty_names(self):
+        version = Version.objects.create(
+            verbose_name='-',
+            project=self.pip)
+        self.assertEqual(version.slug, 'unkown')
+
+        version = Version.objects.create(
+            verbose_name='-./.-',
+            project=self.pip)
+        self.assertEqual(version.slug, 'unkown_a')
+
     def test_uniqueness(self):
         version = Version.objects.create(
             verbose_name='1!0',
