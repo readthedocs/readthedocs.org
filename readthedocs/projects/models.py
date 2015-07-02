@@ -14,12 +14,14 @@ from guardian.shortcuts import assign
 
 from builds.constants import LATEST
 from builds.constants import LATEST_VERBOSE_NAME
+from builds.constants import STABLE
 from oauth import utils as oauth_utils
 from privacy.loader import RelatedProjectManager, ProjectManager
 from projects import constants
 from projects.exceptions import ProjectImportError
 from projects.templatetags.projects_tags import sort_version_aware
 from projects.utils import make_api_version, symlink, update_static_metadata
+from projects.version_handling import determine_stable_version
 from projects.version_handling import version_windows
 from taggit.managers import TaggableManager
 from tastyapi.slum import api
@@ -705,6 +707,38 @@ class Project(models.Model):
             minor=self.num_minor,
             point=self.num_point,
         )
+
+    def get_stable_version(self):
+        return self.versions.filter(slug=STABLE).first()
+
+    def update_stable_version(self):
+        """
+        Returns the new stable version. It will return ``None`` if there is no
+        version on the project that can be considered stable.
+        """
+        versions = self.versions.all()
+        new_stable = determine_stable_version(versions)
+        if new_stable:
+            current_stable = self.get_stable_version()
+            if current_stable:
+                identifier_updated = (
+                    new_stable.identifier != current_stable.identifier)
+                if identifier_updated and current_stable.machine:
+                    log.info(
+                        "Update stable version: {project}:{version}".format(
+                            project=self.slug,
+                            version=new_stable.identifier))
+                    current_stable.identifier = new_stable.identifier
+                    current_stable.save()
+            else:
+                log.info(
+                    "Creating new stable version: {project}:{version}".format(
+                        project=self.slug,
+                        version=new_stable.identifier))
+                current_stable = self.versions.create_stable(
+                    type=new_stable.type,
+                    identifier=new_stable.identifier)
+            return current_stable
 
     def version_from_branch_name(self, branch):
         versions = self.versions_from_branch_name(branch)

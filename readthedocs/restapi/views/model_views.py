@@ -105,35 +105,16 @@ class ProjectViewSet(viewsets.ModelViewSet):
             return Response({'error': e.message}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            # Update Stable Version
-            version_strings = project.supported_versions()
-            if version_strings:
-                new_stable_slug = version_strings[-1]
-                new_stable = project.versions.get(verbose_name=new_stable_slug)
-
-                # Update stable version
-                stable = project.versions.filter(slug=STABLE).first()
-                if stable:
-                    if (new_stable.identifier != stable.identifier) and (stable.machine is True):
-                        stable.identifier = new_stable.identifier
-                        stable.save()
-                        log.info("Triggering new stable build: {project}:{version}".format(project=project.slug, version=stable.identifier))
-                        trigger_build(project=project, version=stable)
-                else:
-                    log.info("Creating new stable version: {project}:{version}".format(project=project.slug, version=new_stable.identifier))
-                    version = project.versions.create_stable(
-                        type=new_stable.type, identifier=new_stable.identifier)
-                    trigger_build(project=project, version=version)
-
-                # Build new tag if enabled
-                old_largest_slug = version_strings[-2]
-                old_largest = project.versions.get(
-                    verbose_name=old_largest_slug)
-                if old_largest.active and new_stable_slug in added_versions:
-                    new_stable.active = True
-                    new_stable.save()
-                    trigger_build(project=project, version=new_stable)
-
+            old_stable = project.get_stable_version()
+            new_stable = project.update_stable_version()
+            if (
+                    old_stable != new_stable or
+                    old_stable.identifier != new_stable.identifier):
+                log.info(
+                    "Triggering new stable build: {project}:{version}".format(
+                        project=project.slug,
+                        version=new_stable.identifier))
+                trigger_build(project=project, version=new_stable)
         except:
             log.exception("Supported Versions Failure", exc_info=True)
 
