@@ -713,7 +713,8 @@ class Project(models.Model):
 
     def update_stable_version(self):
         """
-        Returns the new stable version. It will return ``None`` if there is no
+        Returns the version that was promoited to be the new stable version.
+        It will return ``None`` if no update was mode or if there is no
         version on the project that can be considered stable.
         """
         versions = self.versions.all()
@@ -730,6 +731,7 @@ class Project(models.Model):
                             version=new_stable.identifier))
                     current_stable.identifier = new_stable.identifier
                     current_stable.save()
+                    return new_stable
             else:
                 log.info(
                     "Creating new stable version: {project}:{version}".format(
@@ -738,7 +740,7 @@ class Project(models.Model):
                 current_stable = self.versions.create_stable(
                     type=new_stable.type,
                     identifier=new_stable.identifier)
-            return current_stable
+                return new_stable
 
     def version_from_branch_name(self, branch):
         versions = self.versions_from_branch_name(branch)
