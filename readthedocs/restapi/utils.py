@@ -67,11 +67,11 @@ def delete_versions(project, version_data):
     if 'branches' in version_data:
         for version in version_data['branches']:
             current_versions.append(version['identifier'])
-    to_delete_qs = project.versions.exclude(
-        identifier__in=current_versions).exclude(
-        uploaded=True).exclude(
-        active=True).exclude(
-        slug=LATEST)
+    to_delete_qs = project.versions.all()
+    to_delete_qs = to_delete_qs.exclude(identifier__in=current_versions)
+    to_delete_qs = to_delete_qs.exclude(uploaded=True)
+    to_delete_qs = to_delete_qs.exclude(active=True)
+    to_delete_qs = to_delete_qs.exclude(slug=LATEST)
 
     if to_delete_qs.count():
         ret_val = {obj.slug for obj in to_delete_qs}
