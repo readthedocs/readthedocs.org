@@ -64,6 +64,7 @@ class VersionSlugField(models.CharField):
         if not content:
             return ''
         slugified = ''
+        content = content.lower()
         for char in content:
             if char not in self.allowed_chars:
                 slugified += self.placeholder

@@ -29,6 +29,12 @@ class VersionSlugFieldTests(TestCase):
             project=self.pip)
         self.assertEqual(version.slug, 'releases-1.0')
 
+    def test_uppercase(self):
+        version = Version.objects.create(
+            verbose_name='SomeString-charclass',
+            project=self.pip)
+        self.assertEqual(version.slug, 'somestring-charclass')
+
     def test_uniqueness(self):
         version = Version.objects.create(
             verbose_name='1!0',
