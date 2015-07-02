@@ -162,6 +162,27 @@ class TestStableVersion(TestCase):
         self.assertTrue(version_stable.active)
         self.assertEqual(version_stable.identifier, '0.9')
 
+    def test_pre_release_are_not_stable(self):
+        version_post_data = {
+            'branches': [],
+            'tags': [
+                {'identifier': '1.0a1', 'verbose_name': '1.0a1'},
+                {'identifier': '0.9', 'verbose_name': '0.9'},
+                {'identifier': '0.9b1', 'verbose_name': '0.9b1'},
+                {'identifier': '0.8', 'verbose_name': '0.8'},
+                {'identifier': '0.8rc2', 'verbose_name': '0.8rc2'},
+            ]
+        }
+
+        self.client.post(
+            '/api/v2/project/%s/sync_versions/' % self.pip.pk,
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+        version_stable = Version.objects.get(slug=STABLE)
+        self.assertTrue(version_stable.active)
+        self.assertEqual(version_stable.identifier, '0.9')
+
     def test_post_releases_are_stable(self):
         version_post_data = {
             'branches': [],

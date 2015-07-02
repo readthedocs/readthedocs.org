@@ -58,7 +58,10 @@ class VersionManager(object):
             for version_list in major_val.values():
                 versions.extend(version_list)
         versions = sorted(versions)
-        return [version.public for version in versions]
+        return [
+            version.public
+            for version in versions
+            if not version.is_prerelease]
 
 
 def version_windows(versions, major=1, minor=1, point=1):
