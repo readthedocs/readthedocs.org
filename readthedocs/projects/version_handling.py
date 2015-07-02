@@ -114,7 +114,14 @@ def comparable_version(version_string):
     return comparable
 
 
-def highest_version(version_list):
+def sort_versions(version_list):
+    """Takes a list of ``Version`` models and return a sorted list,
+
+    The returned value is a list of two-tuples. The first is the actual
+    ``Version`` model instance, the second is an instance of
+    ``packaging.version.Version``. They are ordered in descending order (latest
+    version first).
+    """
     versions = []
     for version_obj in version_list:
         version_slug = version_obj.verbose_name
@@ -122,11 +129,33 @@ def highest_version(version_list):
         if comparable_version:
             versions.append((version_obj, comparable_version))
 
-    versions = list(sorted(
+    return list(sorted(
         versions,
         key=lambda version_info: version_info[1],
         reverse=True))
+
+
+def highest_version(version_list, version_test=None):
+    versions = sort_versions(version_list)
     if versions:
         return versions[0]
     else:
-        return [None, None]
+        return (None, None)
+
+
+def determine_stable_version(version_list):
+    """
+    Takes a list of ``Version`` model instances and returns the version
+    instance which can be considered the most recent stable one. It will return
+    ``None`` if there is no stable version in the list.
+    """
+    versions = sort_versions(version_list)
+    versions = [
+        (version_obj, comparable)
+        for version_obj, comparable in versions
+        if not comparable.is_prerelease]
+    if versions:
+        version_obj, comparable = versions[0]
+        return version_obj
+    else:
+        return None
