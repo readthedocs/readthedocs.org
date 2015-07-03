@@ -41,7 +41,7 @@ class VersionSlugField(models.CharField):
     allowed_punctuation = '-._'
     allowed_chars = string.lowercase + string.digits + allowed_punctuation
     placeholder = '-'
-    fallback_slug = 'unkown'
+    fallback_slug = 'unknown'
     test_pattern = re.compile('^{pattern}$'.format(pattern=VERSION_SLUG_REGEX))
 
     def __init__(self, *args, **kwargs):
