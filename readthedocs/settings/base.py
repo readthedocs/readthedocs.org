@@ -92,6 +92,8 @@ SECRET_KEY = 'replace-this-please'
 ACCOUNT_ACTIVATION_DAYS = 7
 
 
+ATOMIC_REQUESTS = True
+
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
