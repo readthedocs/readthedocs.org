@@ -38,8 +38,8 @@ class VersionSlugField(models.CharField):
     Implementation inspired by ``django_extensions.db.fields.AutoSlugField``.
     """
 
-    allowed_punctuation = '-._'
-    allowed_chars = string.lowercase + string.digits + allowed_punctuation
+    invalid_chars_re = re.compile('[^-._a-z0-9]')
+    leading_punctuation_re = re.compile('^[-._]+')
     placeholder = '-'
     fallback_slug = 'unknown'
     test_pattern = re.compile('^{pattern}$'.format(pattern=VERSION_SLUG_REGEX))
@@ -63,22 +63,10 @@ class VersionSlugField(models.CharField):
     def slugify(self, content):
         if not content:
             return ''
-        slugified = ''
-        content = content.lower()
-        for char in content:
-            if char not in self.allowed_chars:
-                slugified += self.placeholder
-            else:
-                slugified += char
 
-        # Do not start and end in punctuation.
-        slug_length = len(slugified)
-        diff = 1
-        while diff > 0:
-            for char in self.allowed_punctuation:
-                slugified = slugified.strip(char)
-            diff = slug_length - len(slugified)
-            slug_length = len(slugified)
+        slugified = content.lower()
+        slugified = self.invalid_chars_re.sub(self.placeholder, slugified)
+        slugified = self.leading_punctuation_re.sub('', slugified)
 
         if not slugified:
             return self.fallback_slug
@@ -152,6 +140,7 @@ class VersionSlugField(models.CharField):
             slug = slug + end
             kwargs[self.attname] = slug
             next += 1
+
         assert self.test_pattern.match(slug), (
             'Invalid generated slug: {slug}'.format(slug=slug))
         return slug
