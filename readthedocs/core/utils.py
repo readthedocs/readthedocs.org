@@ -35,25 +35,6 @@ def run_on_app_servers(command):
         return ret
 
 
-def make_latest(project):
-    """
-    Useful for correcting versions with no latest, using the database.
-
-    >>> no_latest = Project.objects.exclude(versions__slug__in=['latest'])
-    >>> for project in no_latest:
-    >>>     make_latest(project)
-    """
-    branch = project.default_branch or project.vcs_repo().fallback_branch
-    version_data, created = Version.objects.get_or_create(
-        project=project,
-        slug=LATEST,
-        type='branch',
-        active=True,
-        verbose_name=LATEST_VERBOSE_NAME,
-        identifier=branch,
-    )
-
-
 def clean_url(url):
     parsed = urlparse(url)
     if parsed.scheme:
