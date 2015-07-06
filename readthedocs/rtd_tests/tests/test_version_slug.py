@@ -52,6 +52,12 @@ class VersionSlugFieldTests(TestCase):
             project=self.pip)
         self.assertEqual(version.slug, 'unknown_a')
 
+    def test_single_letter(self):
+        version = Version.objects.create(
+            verbose_name='v',
+            project=self.pip)
+        self.assertEqual(version.slug, 'v')
+
     def test_uniqueness(self):
         version = Version.objects.create(
             verbose_name='1!0',
