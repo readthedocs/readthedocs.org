@@ -3,7 +3,6 @@ import logging
 import os
 from urlparse import urlparse
 
-from distlib.version import UnsupportedVersionError
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
@@ -13,16 +12,17 @@ from django.utils.translation import ugettext_lazy as _
 
 from guardian.shortcuts import assign
 
-from betterversion.better import version_windows, VersionIdentifier
 from builds.constants import LATEST
 from builds.constants import LATEST_VERBOSE_NAME
+from builds.constants import STABLE
 from oauth import utils as oauth_utils
 from privacy.loader import RelatedProjectManager, ProjectManager
 from projects import constants
 from projects.exceptions import ProjectImportError
 from projects.templatetags.projects_tags import sort_version_aware
-from projects.utils import (highest_version as _highest, make_api_version,
-                            symlink, update_static_metadata)
+from projects.utils import make_api_version, symlink, update_static_metadata
+from projects.version_handling import determine_stable_version
+from projects.version_handling import version_windows
 from taggit.managers import TaggableManager
 from tastyapi.slum import api
 
@@ -248,7 +248,7 @@ class Project(models.Model):
         return "%s.%s" % (subdomain_slug, prod_domain)
 
     def sync_supported_versions(self):
-        supported = self.supported_versions(flat=True)
+        supported = self.supported_versions()
         if supported:
             self.versions.filter(
                 verbose_name__in=supported).update(supported=True)
@@ -591,10 +591,6 @@ class Project(models.Model):
             return conf_file.replace('/conf.py', '')
 
     @property
-    def highest_version(self):
-        return _highest(self.api_versions())
-
-    @property
     def is_imported(self):
         return bool(self.repo)
 
@@ -697,37 +693,59 @@ class Project(models.Model):
         """
         return self.versions.filter(active=True)
 
-    def supported_versions(self, flat=True):
+    def supported_versions(self):
         """
         Get the list of supported versions.
         Returns a list of version strings.
         """
         if not self.num_major or not self.num_minor or not self.num_point:
-            return None
-        version_identifiers = []
-        for version in self.versions.all():
-            try:
-                version_identifiers.append(VersionIdentifier(version.verbose_name))
-            except UnsupportedVersionError:
-                # Probably a branch
-                pass
-        active_versions = version_windows(
+            return []
+        version_identifiers = self.versions.values_list('verbose_name', flat=True)
+        return version_windows(
             version_identifiers,
             major=self.num_major,
             minor=self.num_minor,
             point=self.num_point,
-            flat=flat,
         )
-        version_strings = [v._string for v in active_versions]
-        return version_strings
+
+    def get_stable_version(self):
+        return self.versions.filter(slug=STABLE).first()
+
+    def update_stable_version(self):
+        """
+        Returns the version that was promoited to be the new stable version.
+        It will return ``None`` if no update was mode or if there is no
+        version on the project that can be considered stable.
+        """
+        versions = self.versions.all()
+        new_stable = determine_stable_version(versions)
+        if new_stable:
+            current_stable = self.get_stable_version()
+            if current_stable:
+                identifier_updated = (
+                    new_stable.identifier != current_stable.identifier)
+                if identifier_updated and current_stable.machine:
+                    log.info(
+                        "Update stable version: {project}:{version}".format(
+                            project=self.slug,
+                            version=new_stable.identifier))
+                    current_stable.identifier = new_stable.identifier
+                    current_stable.save()
+                    return new_stable
+            else:
+                log.info(
+                    "Creating new stable version: {project}:{version}".format(
+                        project=self.slug,
+                        version=new_stable.identifier))
+                current_stable = self.versions.create_stable(
+                    type=new_stable.type,
+                    identifier=new_stable.identifier)
+                return new_stable
 
     def version_from_branch_name(self, branch):
+        versions = self.versions_from_branch_name(branch)
         try:
-            return (
-                self.versions.filter(identifier=branch) |
-                self.versions.filter(identifier=('remotes/origin/%s' % branch)) |
-                self.versions.filter(identifier=('origin/%s' % branch))
-            )[0]
+            return versions[0]
         except IndexError:
             return None
 

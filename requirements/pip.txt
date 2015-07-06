@@ -58,7 +58,7 @@ sphinx-http-domain==0.2
 
 # Version comparison stuff
 Distutils2==1.0a3
-distlib==0.1.2
+packaging==15.2
 
 # Commenting stuff
 django-cors-headers==0.13
