@@ -1,8 +1,28 @@
+import re
 from django.test import TestCase
 
 from builds.models import Version
 from builds.version_slug import VersionSlugField
+from builds.version_slug import VERSION_SLUG_REGEX
 from projects.models import Project
+
+
+class VersionSlugPatternTests(TestCase):
+    pattern = re.compile('^{pattern}$'.format(pattern=VERSION_SLUG_REGEX))
+
+    def test_single_char(self):
+        self.assertTrue(self.pattern.match('v'))
+        self.assertFalse(self.pattern.match('.'))
+
+    def test_trailing_punctuation(self):
+        self.assertTrue(self.pattern.match('with_'))
+        self.assertTrue(self.pattern.match('with.'))
+        self.assertTrue(self.pattern.match('with-'))
+        self.assertFalse(self.pattern.match('with!'))
+
+    def test_multiple_words(self):
+        self.assertTrue(self.pattern.match('release-1.0'))
+        self.assertTrue(self.pattern.match('fix_this-and-that.'))
 
 
 class VersionSlugFieldTests(TestCase):
