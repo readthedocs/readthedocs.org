@@ -27,10 +27,10 @@ from django.utils.encoding import force_text
 # Regex breakdown:
 #   [a-z0-9] -- start with alphanumeric value
 #   [-._a-z0-9] -- allow dash, dot, underscore, digit, lowercase ascii
-#   +? -- allow multiple of those, but be not greedy about the matching
+#   *? -- allow multiple of those, but be not greedy about the matching
 #   (?: ... ) -- wrap everything so that the pattern cannot escape when used in
 #                regexes.
-VERSION_SLUG_REGEX = '(?:[a-z0-9][-._a-z0-9]+?)'
+VERSION_SLUG_REGEX = '(?:[a-z0-9][-._a-z0-9]*?)'
 
 
 class VersionSlugField(models.CharField):
