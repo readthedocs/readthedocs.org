@@ -98,15 +98,12 @@ $(document).ready(function () {
 
             // Show promo selectively
             if (data.promo && build.show_promo()) {
-                // TODO don't hardcode this promo
-                var promo = sponsorship.Promo.from_variants([
-                    {
-                        id: 'wtd-eu',
-                        text: 'Write the Docs Europe, in Prague Aug 31 - Sep 1. <a>Buy your ticket now!</a>',
-                        link: 'http://www.writethedocs.org/conf/eu/2015/',
-                        image: 'https://70247537a87b983da006-a47a8cc3edeb6b00d7ff1d6a25af0fda.ssl.cf5.rackcdn.com/wtd-promo.png'
-                    }
-                ]);
+                var promo = sponsorship.Promo.from_variant([
+                  id=data.promo_data.id,
+                  text=data.promo_data.text,
+                  image=data.promo_data.image,
+                  link=data.promo_data.link
+                ])
                 if (promo) {
                     promo.display();
                 }
