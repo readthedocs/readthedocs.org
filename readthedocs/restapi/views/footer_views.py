@@ -7,7 +7,6 @@ from rest_framework import decorators, permissions
 from rest_framework.renderers import JSONPRenderer, JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 
-from bookmarks.models import Bookmark
 from builds.models import Version
 from projects.models import Project
 
@@ -61,8 +60,6 @@ def footer_html(request):
         show_promo = False
 
     context = Context({
-        'show_bookmarks': False,
-        'bookmark': None,
         'project': project,
         'path': path,
         'downloads': version.get_downloads(pretty=True),
