@@ -88,6 +88,7 @@ def footer_html(request):
         'version_active': version.active,
         'version_supported': version.supported,
         'promo': show_promo,
-        'promo_data': promo_obj.as_dict(),
     }
+    if show_promo and promo_obj:
+        resp_data['promo_data'] = promo_obj.as_dict()
     return Response(resp_data)
