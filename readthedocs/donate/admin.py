@@ -11,8 +11,8 @@ class SupporterAdmin(admin.ModelAdmin):
 
 class SupporterPromoAdmin(admin.ModelAdmin):
     model = SupporterPromo
-    list_display = ('name', 'analytics_id', 'text', 'live')
-    list_filter = ('live',)
+    list_display = ('name', 'display_type', 'text', 'live')
+    list_filter = ('live', 'display_type')
 
 
 admin.site.register(Supporter, SupporterAdmin)
