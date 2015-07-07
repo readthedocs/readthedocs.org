@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Supporter
+from .models import Supporter, SupporterPromo
+
 
 class SupporterAdmin(admin.ModelAdmin):
     model = Supporter
@@ -7,5 +8,12 @@ class SupporterAdmin(admin.ModelAdmin):
     list_display = ('name', 'email', 'dollars', 'public')
     list_filter = ('name', 'email', 'dollars', 'public')
 
-admin.site.register(Supporter, SupporterAdmin)
 
+class SupporterPromoAdmin(admin.ModelAdmin):
+    model = SupporterPromo
+    list_display = ('name', 'analytics_id', 'text', 'live')
+    list_filter = ('live',)
+
+
+admin.site.register(Supporter, SupporterAdmin)
+admin.site.register(SupporterPromo, SupporterPromoAdmin)
