@@ -40,22 +40,6 @@ def footer_html(request):
     else:
         path = ""
 
-    host = request.get_host()
-    if settings.PRODUCTION_DOMAIN in host and request.user.is_authenticated():
-        show_bookmarks = True
-        try:
-            bookmark = Bookmark.objects.get(
-                user=request.user,
-                project=project,
-                version=version,
-                page=page_slug,
-            )
-        except (Bookmark.DoesNotExist, Bookmark.MultipleObjectsReturned, Exception):
-            bookmark = None
-    else:
-        show_bookmarks = False
-        bookmark = None
-
     if version.type == 'tag' and version.project.has_pdf(version.slug):
         print_url = 'https://keminglabs.com/print-the-docs/quote?project={project}&version={version}'.format(
             project=project.slug,
@@ -77,8 +61,8 @@ def footer_html(request):
         show_promo = False
 
     context = Context({
-        'show_bookmarks': show_bookmarks,
-        'bookmark': bookmark,
+        'show_bookmarks': False,
+        'bookmark': None,
         'project': project,
         'path': path,
         'downloads': version.get_downloads(pretty=True),

@@ -9,7 +9,6 @@ import logging
 from httplib2 import Http
 
 from django.conf import settings
-from distutils2.version import NormalizedVersion, suggest_normalized_version
 import redis
 
 from builds.constants import LATEST
@@ -69,6 +68,10 @@ def run(*commands, **kwargs):
         del environment['DJANGO_SETTINGS_MODULE']
     if 'PYTHONPATH' in environment:
         del environment['PYTHONPATH']
+    # Remove PYTHONHOME env variable if set, otherwise pip install of requirements
+    # into virtualenv will install incorrectly
+    if 'PYTHONHOME' in environment:
+        del environment['PYTHONHOME']
     cwd = os.getcwd()
     if not commands:
         raise ValueError("run() requires one or more command-line strings")
@@ -108,37 +111,6 @@ def safe_write(filename, contents):
     with open(filename, 'w') as fh:
         fh.write(contents.encode('utf-8', 'ignore'))
         fh.close()
-
-
-def mkversion(version_obj):
-    try:
-        if hasattr(version_obj, 'slug'):
-            ver = NormalizedVersion(
-                suggest_normalized_version(version_obj.slug)
-            )
-        else:
-            ver = NormalizedVersion(
-                suggest_normalized_version(version_obj['slug'])
-            )
-        return ver
-    except TypeError:
-        return None
-
-
-def highest_version(version_list):
-    highest = [None, None]
-    for version in version_list:
-        ver = mkversion(version)
-        if not ver:
-            continue
-        elif highest[1] and ver:
-            # If there's a highest, and no version, we don't need to set
-            # anything
-            if ver > highest[1]:
-                highest = [version, ver]
-        else:
-            highest = [version, ver]
-    return highest
 
 
 def purge_version(version, mainsite=False, subdomain=False, cname=False):

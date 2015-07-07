@@ -101,63 +101,6 @@ $(document).ready(function () {
                       }
                   }
               });
-
-            // Bookmark Handling
-            data = {
-                project: READTHEDOCS_DATA['project'],
-                version: READTHEDOCS_DATA['version'],
-                page: READTHEDOCS_DATA['page'],
-                url: document.location.origin + document.location.pathname
-            };
-
-            // ask the server if a bookmark exists for this page so we can show the proper icon
-            $.ajax({
-                    type: 'POST',
-                    url: API_HOST + "/bookmarks/exists/",
-                    crossDomain: true,
-                    xhrFields: {
-                      withCredentials: true,
-                    },
-                    data: JSON.stringify(data),
-                    success: function (data) {
-                      $(".bookmark-active").show();
-                    },
-                    error: function(data) {
-                      $(".bookmark-inactive").show();
-                    },
-                    dataType: 'json'
-            });
-
-            $(".bookmark-icon").on('click', function (event) {
-              var bookmarked = $('.bookmark-active').is(':visible');
-              $('div.bookmark-active').toggle();
-              $('div.bookmark-inactive').toggle();
-
-              if (bookmarked) {
-                  $.ajax({
-                    type: "POST",
-                    crossDomain: true,
-                    xhrFields: {
-                      withCredentials: true,
-                    },
-                    url: API_HOST + "/bookmarks/remove/",
-                    data: JSON.stringify(data),
-                    });
-                  //$(".bookmark-added-msg").hide();
-              } else {
-                  $.ajax({
-                    type: "POST",
-                    crossDomain: true,
-                    xhrFields: {
-                      withCredentials: true,
-                    },
-                    url: API_HOST + "/bookmarks/add/",
-                    data: JSON.stringify(data),
-                    });
-                    //$(".bookmark-added-msg").html("<p><a href='/bookmarks'>Bookmark</a> added</p>");
-                    //$(".bookmark-added-msg").show();
-              }
-            });
       },
       error: function () {
           console.log('Error loading Read the Docs footer');

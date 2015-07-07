@@ -31,5 +31,6 @@ Build.prototype.is_sphinx_builder = function () {
 Build.prototype.show_promo = function () {
     return (this.config['api_host'] != 'https://readthedocs.com'
             && this.is_sphinx_builder()
-            && this.is_rtd_theme());
+            && this.is_rtd_theme()
+           );
 };
