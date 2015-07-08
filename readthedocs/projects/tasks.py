@@ -719,6 +719,8 @@ def fileify(version_pk, commit):
     version = Version.objects.get(pk=version_pk)
     project = version.project
 
+    changed_files = set()
+
     if not commit:
         log.info(LOG_TEMPLATE.format(
             project=project.slug, version=version.slug, msg='Imported File not being built because no commit information'))
@@ -741,16 +743,20 @@ def fileify(version_pk, commit):
                             path=dirpath,
                             name=filename,
                         )
-                    except Exception:
+                    except ImportedFile.MultipleObjectsReturned:
                         log.exception('Error creating ImportedFile')
                         continue
                     if obj.md5 != md5:
                         obj.md5 = md5
+                        changed_files.add(dirpath)
                     if obj.commit != commit:
                         obj.commit = commit
                     obj.save()
         # Delete ImportedFiles from previous versions
         ImportedFile.objects.filter(project=project, version=version).exclude(commit=commit).delete()
+        # Purge Cache
+        from cdn.purge import purge
+        purge(project.cdn_id, changed_files)
     else:
         log.info(LOG_TEMPLATE.format(project=project.slug, version=version.slug, msg='No ImportedFile files'))
 
