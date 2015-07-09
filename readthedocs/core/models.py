@@ -13,8 +13,8 @@ log = logging.getLogger(__name__)
 class UserProfile (models.Model):
     """Additional information about a User.
     """
-    user = models.ForeignKey('auth.User', verbose_name=_('User'), unique=True,
-                             related_name='profile')
+    user = models.OneToOneField('auth.User', verbose_name=_('User'),
+                                related_name='profile')
     whitelisted = models.BooleanField(_('Whitelisted'), default=False)
     homepage = models.CharField(_('Homepage'), max_length=100, blank=True)
     allow_email = models.BooleanField(_('Allow email'),
