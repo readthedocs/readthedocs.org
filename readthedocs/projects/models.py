@@ -200,7 +200,6 @@ class Project(models.Model):
     # Version State
     num_major = models.IntegerField(
         _('Number of Major versions'),
-        max_length=3,
         default=2,
         null=True,
         blank=True,
@@ -208,7 +207,6 @@ class Project(models.Model):
     )
     num_minor = models.IntegerField(
         _('Number of Minor versions'),
-        max_length=3,
         default=2,
         null=True,
         blank=True,
@@ -216,7 +214,6 @@ class Project(models.Model):
     )
     num_point = models.IntegerField(
         _('Number of Point versions'),
-        max_length=3,
         default=2,
         null=True,
         blank=True,
