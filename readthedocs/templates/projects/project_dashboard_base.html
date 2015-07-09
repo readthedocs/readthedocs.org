@@ -147,22 +147,6 @@
     {% block dashboard-onboard-extra %}
     {% endblock %}
 
-    <!-- BEGIN bookmarks list -->
-    <div class="module bookmarks-list">
-      <h3>{% trans "Recent Bookmarks" %}</h3>
-
-      {% if bookmark_list %}
-        {% include "core/bookmark_list_detailed.html" %}
-
-        <p>
-          <a href="{% url 'bookmark_list' %}">{% trans "All My Bookmarks" %}</a>
-        </p>
-      {% else %}
-        <p>{% trans "You have not added any bookmarks" %}</p>
-      {% endif %}
-    </div>
-    <!-- END bookmarks list -->
-
     <div class="module info info-docs">
       <p>
         Check out the <a href="http://docs.readthedocs.org/en/latest/index.html">documentation for Read the Docs</a>.

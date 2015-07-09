@@ -7,9 +7,9 @@ from rest_framework import decorators, permissions
 from rest_framework.renderers import JSONPRenderer, JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 
-from bookmarks.models import Bookmark
 from builds.models import Version
 from projects.models import Project
+from donate.models import SupporterPromo
 
 
 @decorators.api_view(['GET'])
@@ -60,9 +60,9 @@ def footer_html(request):
     if project.gold_owners.count():
         show_promo = False
 
+    promo_obj = SupporterPromo.objects.filter(live=True, display_type='doc').order_by('?').first()
+
     context = Context({
-        'show_bookmarks': False,
-        'bookmark': None,
         'project': project,
         'path': path,
         'downloads': version.get_downloads(pretty=True),
@@ -83,9 +83,12 @@ def footer_html(request):
 
     context.update(csrf(request))
     html = template_loader.get_template('restapi/footer.html').render(context)
-    return Response({
+    resp_data = {
         'html': html,
         'version_active': version.active,
         'version_supported': version.supported,
         'promo': show_promo,
-    })
+    }
+    if show_promo and promo_obj:
+        resp_data['promo_data'] = promo_obj.as_dict()
+    return Response(resp_data)
