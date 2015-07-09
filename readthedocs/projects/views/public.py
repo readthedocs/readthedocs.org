@@ -128,8 +128,10 @@ def project_badge(request, project_slug, redirect=True):
         return _badge_return(redirect, url)
         
     # HACK 
-    url = 'https://img.shields.io/badge/docs-%s-%s.svg?style=%s' % (version.slug.replace('-', '--'), 'brightgreen', style)
+    url = 'https://img.shields.io/badge/docs-unknown%20version-yellow.svg?style={style}'.format(style=style)
     return _badge_return(redirect, url)
+
+    # Old code
 
     version_builds = version.builds.filter(type='html', state='finished').order_by('-date')
     if not version_builds.exists():
