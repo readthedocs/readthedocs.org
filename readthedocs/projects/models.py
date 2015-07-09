@@ -178,7 +178,7 @@ class Project(models.Model):
 
     # Subprojects
     related_projects = models.ManyToManyField(
-        'self', verbose_name=_('Related projects'), blank=True, null=True,
+        'self', verbose_name=_('Related projects'), blank=True,
         symmetrical=False, through=ProjectRelationship)
 
     # Language bits
