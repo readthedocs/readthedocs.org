@@ -115,7 +115,7 @@ def _badge_return(redirect, url):
 
 # TODO remove this, it's a temporary fix to heavy database usage
 @cache_page(60 * 30)
-def project_badge(request, project_slug, redirect=False):
+def project_badge(request, project_slug, redirect=True):
     """
     Return a sweet badge for the project
     """
