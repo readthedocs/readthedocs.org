@@ -13,22 +13,16 @@ from django.shortcuts import get_object_or_404
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 
-from profiles import utils
 
-
-def create_profile(request, form_class=None, success_url=None,
+def create_profile(request, form_class, success_url=None,
                    template_name='profiles/private/create_profile.html',
                    extra_context=None):
     """
     Create a profile for the current user, if one doesn't already
     exist.
 
-    If the user already has a profile, as determined by
-    ``request.user.get_profile()``, a redirect will be issued to the
-    :view:`profiles.views.edit_profile` view. If no profile model has
-    been specified in the ``AUTH_PROFILE_MODULE`` setting,
-    ``django.contrib.auth.models.SiteProfileNotAvailable`` will be
-    raised.
+    If the user already has a profile, a redirect will be issued to the
+    :view:`profiles.views.edit_profile` view.
 
     **Optional arguments:**
 
@@ -48,10 +42,6 @@ def create_profile(request, form_class=None, success_url=None,
         established by ``ModelForm`` of using a method named
         ``save_m2m()`` will be used, and so your form class should
         also define this method.
-
-        If this argument is not supplied, this view will use a
-        ``ModelForm`` automatically generated from the model specified
-        by ``AUTH_PROFILE_MODULE``.
 
     ``success_url``
         The URL to redirect to after successful profile creation. If
@@ -76,7 +66,7 @@ def create_profile(request, form_class=None, success_url=None,
 
     """
     try:
-        profile_obj = request.user.get_profile()
+        profile_obj = request.user.profile
         return HttpResponseRedirect(reverse('profiles_edit_profile'))
     except ObjectDoesNotExist:
         pass
@@ -93,8 +83,6 @@ def create_profile(request, form_class=None, success_url=None,
     if success_url is None:
         success_url = reverse('profiles_profile_detail',
                               kwargs={'username': request.user.username})
-    if form_class is None:
-        form_class = utils.get_profile_form()
     if request.method == 'POST':
         form = form_class(data=request.POST, files=request.FILES)
         if form.is_valid():
@@ -119,18 +107,14 @@ def create_profile(request, form_class=None, success_url=None,
 create_profile = login_required(create_profile)
 
 
-def edit_profile(request, form_class=None, success_url=None,
+def edit_profile(request, form_class, success_url=None,
                  template_name='profiles/private/edit_profile.html',
                  extra_context=None):
     """
     Edit the current user's profile.
 
-    If the user does not already have a profile (as determined by
-    ``User.get_profile()``), a redirect will be issued to the
-    :view:`profiles.views.create_profile` view; if no profile model
-    has been specified in the ``AUTH_PROFILE_MODULE`` setting,
-    ``django.contrib.auth.models.SiteProfileNotAvailable`` will be
-    raised.
+    If the user does not already have a profile, a redirect will be issued to
+    the :view:`profiles.views.create_profile` view.
 
     **Optional arguments:**
 
@@ -145,10 +129,7 @@ def edit_profile(request, form_class=None, success_url=None,
         Django ``ModelForm`` in that it must accept an instance of the
         object to be edited as the keyword argument ``instance`` to
         its constructor, and it must implement a method named
-        ``save()`` which will save the updates to the object. If this
-        argument is not specified, this view will use a ``ModelForm``
-        generated from the model specified in the
-        ``AUTH_PROFILE_MODULE`` setting.
+        ``save()`` which will save the updates to the object.
 
     ``success_url``
         The URL to redirect to following a successful edit. If not
@@ -176,21 +157,13 @@ def edit_profile(request, form_class=None, success_url=None,
 
     """
     try:
-        profile_obj = request.user.get_profile()
+        profile_obj = request.user.profile
     except ObjectDoesNotExist:
         return HttpResponseRedirect(reverse('profiles_profile_create'))
-
-    #
-    # See the comment in create_profile() for discussion of why
-    # success_url is set up here, rather than as a default value for
-    # the argument.
-    #
 
     if success_url is None:
         success_url = reverse('profiles_profile_detail',
                               kwargs={'username': request.user.username})
-    if form_class is None:
-        form_class = utils.get_profile_form()
     if request.method == 'POST':
         form = form_class(data=request.POST, files=request.FILES, instance=profile_obj)
         if form.is_valid():
@@ -219,11 +192,6 @@ def profile_detail(request, username, public_profile_field=None,
                    extra_context=None):
     """
     Detail view of a user's profile.
-
-    If no profile model has been specified in the
-    ``AUTH_PROFILE_MODULE`` setting,
-    ``django.contrib.auth.models.SiteProfileNotAvailable`` will be
-    raised.
 
     If the user has not yet created a profile, ``Http404`` will be
     raised.
@@ -270,7 +238,7 @@ def profile_detail(request, username, public_profile_field=None,
     """
     user = get_object_or_404(User, username=username)
     try:
-        profile_obj = user.get_profile()
+        profile_obj = user.profile
     except ObjectDoesNotExist:
         raise Http404
     if public_profile_field is not None and \

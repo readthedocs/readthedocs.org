@@ -256,8 +256,6 @@ ES_DEFAULT_NUM_SHARDS = 5
 
 ALLOWED_HOSTS = ['*']
 
-AUTH_PROFILE_MODULE = "core.UserProfile"
-
 ABSOLUTE_URL_OVERRIDES = {
     'auth.user': lambda o: "/profiles/%s/" % o.username
 }
