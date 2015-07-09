@@ -153,12 +153,7 @@ class VersionSlugField(models.CharField):
             setattr(model_instance, self.attname, value)
         return value
 
-    def south_field_triple(self):
-        "Returns a suitable description of this field for South."
-        from south.modelsinspector import introspector
-        field_class = '%s.VersionSlugField' % self.__module__
-        args, kwargs = introspector(self)
-        kwargs.update({
-            'populate_from': repr(self._populate_from),
-        })
-        return (field_class, args, kwargs)
+    def deconstruct(self):
+        name, path, args, kwargs = super(VersionSlugField, self).deconstruct()
+        kwargs['populate_from'] = self._populate_from
+        return name, path, args, kwargs
