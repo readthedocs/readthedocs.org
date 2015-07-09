@@ -174,7 +174,6 @@ INSTALLED_APPS = [
 
     # third party apps
     'pagination',
-    'profiles',
     'taggit',
     'djangosecure',
     'guardian',
