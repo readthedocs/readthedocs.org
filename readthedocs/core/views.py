@@ -481,9 +481,9 @@ def _serve_docs(request, project, version, filename, lang_slug=None,
     log.info('Serving %s for %s' % (filename, project))
     if not settings.DEBUG and not getattr(settings, 'PYTHON_MEDIA', False):
         fullpath = os.path.join(basepath, filename)
-        mimetype, encoding = mimetypes.guess_type(fullpath)
-        mimetype = mimetype or 'application/octet-stream'
-        response = HttpResponse(mimetype=mimetype)
+        content_type, encoding = mimetypes.guess_type(fullpath)
+        content_type = content_type or 'application/octet-stream'
+        response = HttpResponse(content_type=content_type)
         if encoding:
             response["Content-Encoding"] = encoding
         try:
@@ -724,7 +724,7 @@ def morelikethis(request, project_slug, filename):
     else:
         json_response = {"message": "Not Found"}
     jsonp = "%s(%s)" % (request.GET.get('callback'), json_response)
-    return HttpResponse(jsonp, mimetype='text/javascript')
+    return HttpResponse(jsonp, content_type='text/javascript')
 
 
 class SearchView(TemplateView):

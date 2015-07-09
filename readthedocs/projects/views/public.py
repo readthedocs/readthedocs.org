@@ -107,7 +107,8 @@ def _badge_return(redirect, url):
         return HttpResponseRedirect(url)
     else:
         response = requests.get(url)
-        http_response = HttpResponse(response.content, mimetype="image/svg+xml")
+        http_response = HttpResponse(response.content,
+                                     content_type="image/svg+xml")
         http_response['Cache-Control'] = 'no-cache'
         http_response['Etag'] = md5.new(url)
         return http_response
@@ -193,9 +194,9 @@ def project_download_media(request, project_slug, type, version_slug):
         path = queryset[0].get_production_media_path(type=type, version_slug=version_slug).replace(
             settings.PRODUCTION_ROOT, '/prod_artifacts'
         )
-        mimetype, encoding = mimetypes.guess_type(path)
-        mimetype = mimetype or 'application/octet-stream'
-        response = HttpResponse(mimetype=mimetype)
+        content_type, encoding = mimetypes.guess_type(path)
+        content_type = content_type or 'application/octet-stream'
+        response = HttpResponse(content_type=content_type)
         if encoding:
             response["Content-Encoding"] = encoding
         response['X-Accel-Redirect'] = path
@@ -223,7 +224,7 @@ def search_autocomplete(request):
         })
 
     json_response = json.dumps(ret_list)
-    return HttpResponse(json_response, mimetype='text/javascript')
+    return HttpResponse(json_response, content_type='text/javascript')
 
 
 def version_autocomplete(request, project_slug):
@@ -242,7 +243,7 @@ def version_autocomplete(request, project_slug):
     names = version_queryset.values_list('slug', flat=True)
     json_response = json.dumps(list(names))
 
-    return HttpResponse(json_response, mimetype='text/javascript')
+    return HttpResponse(json_response, content_type='text/javascript')
 
 
 def version_filter_autocomplete(request, project_slug):
@@ -255,7 +256,7 @@ def version_filter_autocomplete(request, project_slug):
     if format == 'json':
         names = filter.qs.values_list('slug', flat=True)
         json_response = json.dumps(list(names))
-        return HttpResponse(json_response, mimetype='text/javascript')
+        return HttpResponse(json_response, content_type='text/javascript')
     elif format == 'html':
         return render_to_response(
             'core/version_list.html',
@@ -288,7 +289,7 @@ def file_autocomplete(request, project_slug):
         })
 
     json_response = json.dumps(ret_list)
-    return HttpResponse(json_response, mimetype='text/javascript')
+    return HttpResponse(json_response, content_type='text/javascript')
 
 
 def elastic_project_search(request, project_slug):
