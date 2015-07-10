@@ -7,30 +7,12 @@ import requests
 
 from builds.constants import LATEST
 from builds.models import Version
-from djangome import views as djangome
 from search.indexes import PageIndex, ProjectIndex, SectionIndex
 from projects.models import Project
 from restapi import utils
 
 
 log = logging.getLogger(__name__)
-
-
-@decorators.api_view(['GET'])
-@decorators.permission_classes((permissions.AllowAny,))
-@decorators.renderer_classes((JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
-def quick_search(request):
-    project_slug = request.GET.get('project', None)
-    version_slug = request.GET.get('version', LATEST)
-    query = request.GET.get('q', None)
-    redis_data = djangome.r.keys('redirects:v4:en:%s:%s:*%s*' % (version_slug, project_slug, query))
-    ret_dict = {}
-    for data in redis_data:
-        if 'http://' in data or 'https://' in data:
-            key = data.split(':')[5]
-            value = ':'.join(data.split(':')[6:])
-            ret_dict[key] = value
-    return Response({"results": ret_dict})
 
 
 @decorators.api_view(['POST'])
