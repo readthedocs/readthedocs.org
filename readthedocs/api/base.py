@@ -1,7 +1,9 @@
 import logging
 import json
+import redis
 
 from django.contrib.auth.models import User
+from django.conf import settings
 from django.conf.urls import url
 from django.shortcuts import get_object_or_404
 
@@ -18,11 +20,13 @@ from core.utils import trigger_build
 from projects.models import Project, ImportedFile
 from projects.version_handling import highest_version
 from projects.version_handling import parse_version_failsafe
-from djangome import views as djangome
 
 from .utils import SearchMixin, PostAuthentication
 
 log = logging.getLogger(__name__)
+
+
+redis_client = redis.Redis(**settings.REDIS)
 
 
 class ProjectResource(ModelResource, SearchMixin):
@@ -273,7 +277,7 @@ class FileResource(ModelResource, SearchMixin):
         self.throttle_check(request)
 
         query = request.GET.get('q', '')
-        redis_data = djangome.r.keys("*redirects:v4*%s*" % query)
+        redis_data = redis_client.keys("*redirects:v4*%s*" % query)
         #-2 because http:
         urls = [''.join(data.split(':')[6:]) for data in redis_data
                 if 'http://' in data]
