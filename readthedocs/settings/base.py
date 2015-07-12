@@ -108,6 +108,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'pagination.middleware.PaginationMiddleware',
+    'maintenancemode.middleware.MaintenanceModeMiddleware',
     # Hack
     # 'core.underscore_middleware.UnderscoreMiddleware',
     'core.middleware.SubdomainMiddleware',
@@ -285,6 +286,11 @@ ANONYMOUS_USER_ID = -1
 # Stripe
 STRIPE_SECRET = None
 STRIPE_PUBLISHABLE = None
+
+# Maintenance
+MAINTENANCE_IGNORE_URLS = (
+    r'^/(?:static|media)/',
+)
 
 # RTD Settings
 REPO_LOCK_SECONDS = 30
