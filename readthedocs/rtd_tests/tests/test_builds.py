@@ -6,7 +6,7 @@ import mock
 
 from projects.tasks import build_docs
 from rtd_tests.factories.projects_factories import ProjectFactory
-from rtd_tests.mocks.paths import fake_paths
+from rtd_tests.mocks.paths import fake_paths_lookup
 from doc_builder.loader import get_builder_class
 
 
@@ -53,11 +53,13 @@ class BuildTests(TestCase):
 
         mock_apiv2_downloads.get.return_value = {'downloads': "no_url_here"}
 
-        conf_path = os.path.join(project.checkout_path(version.slug), project.conf_py_file)
+        conf_path = os.path.join(
+            project.checkout_path(version.slug),
+            project.conf_py_file)
 
         # Mock open to simulate existing conf.py file
         with mock.patch('codecs.open', mock.mock_open(), create=True):
-            with fake_paths(conf_path):
+            with fake_paths_lookup({conf_path: True}):
                 built_docs = build_docs(version,
                                         False,
                                         False,
@@ -121,7 +123,7 @@ class BuildTests(TestCase):
 
         # Mock open to simulate existing conf.py file
         with mock.patch('codecs.open', mock.mock_open(), create=True):
-            with fake_paths(conf_path):
+            with fake_paths_lookup({conf_path: True}):
                 built_docs = build_docs(version,
                                         False,
                                         False,
@@ -165,7 +167,7 @@ class BuildTests(TestCase):
 
         # Mock open to simulate existing conf.py file
         with mock.patch('codecs.open', mock.mock_open(), create=True):
-            with fake_paths(conf_path):
+            with fake_paths_lookup({conf_path: True}):
                 built_docs = build_docs(version,
                                         False,
                                         False,
