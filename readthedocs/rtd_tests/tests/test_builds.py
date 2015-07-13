@@ -6,6 +6,7 @@ import mock
 
 from projects.tasks import build_docs
 from rtd_tests.factories.projects_factories import ProjectFactory
+from rtd_tests.mocks.paths import fake_paths
 from doc_builder.loader import get_builder_class
 
 
@@ -27,22 +28,6 @@ def build_subprocess_side_effect(*args, **kwargs):
         return MockProcess(("Here's where our build report goes.", "Here's our error message."))
     else:
         return subprocess.Popen(*args, **kwargs)
-
-
-def fake_paths(*paths):
-    """
-    Returns a context manager that patches ``os.path.exists`` to return
-    ``True`` for the given ``paths``.
-    """
-
-    original_exists = os.path.exists
-
-    def patched_exists(path):
-        if path in paths:
-            return True
-        return original_exists(path)
-
-    return mock.patch.object(os.path, 'exists', patched_exists)
 
 
 class BuildTests(TestCase):

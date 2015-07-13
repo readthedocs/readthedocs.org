@@ -1,6 +1,9 @@
+import os
 from bamboo_boy.utils import with_canopy
 import json
+import mock
 from django.test import TestCase
+from builds.constants import LATEST
 from projects.models import Project
 from rtd_tests.factories.projects_factories import OneProjectWithTranslationsOneWithout,\
     ProjectFactory
