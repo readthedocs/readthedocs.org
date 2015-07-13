@@ -1,4 +1,5 @@
 import os
+import re
 import mock
 
 
@@ -32,4 +33,21 @@ def fake_paths_lookup(path_dict):
     """
     def check(path):
         return path_dict.get(path, None)
+    return fake_paths(check)
+
+
+def fake_paths_by_regex(pattern, exists=True):
+    """
+    >>> with fake_paths_by_regex('\.pdf$'):
+    ...     assert os.path.exists('my.pdf') == True
+    >>> with fake_paths_by_regex('\.pdf$', exists=False):
+    ...     assert os.path.exists('my.pdf') == False
+    """
+    regex = re.compile(pattern)
+
+    def check(path):
+        if regex.search(path):
+            return exists
+        return None
+
     return fake_paths(check)
