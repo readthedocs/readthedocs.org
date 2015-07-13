@@ -1,11 +1,13 @@
 from bamboo_boy.utils import with_canopy
 import json
 from django.test import TestCase
+from builds.constants import LATEST
 from projects.models import Project
 from rtd_tests.factories.projects_factories import OneProjectWithTranslationsOneWithout,\
     ProjectFactory
 from rest_framework.reverse import reverse
 from restapi.serializers import ProjectSerializer
+from rtd_tests.mocks.paths import fake_paths_by_regex
 
 
 @with_canopy(OneProjectWithTranslationsOneWithout)
@@ -50,3 +52,33 @@ class TestProject(TestCase):
         resp = json.loads(r.content)
         self.assertEqual(r.status_code, 200)
         self.assertEqual(resp['token'], None)
+
+    def test_has_pdf(self):
+        # The project has a pdf if the PDF file exists on disk.
+        with fake_paths_by_regex('\.pdf$'):
+            self.assertTrue(self.pip.has_pdf(LATEST))
+
+        # The project has no pdf if there is no file on disk.
+        with fake_paths_by_regex('\.pdf$', exists=False):
+            self.assertFalse(self.pip.has_pdf(LATEST))
+
+    def test_has_pdf_with_pdf_build_disabled(self):
+        # The project has NO pdf if pdf builds are disabled
+        self.pip.enable_pdf_build = False
+        with fake_paths_by_regex('\.pdf$'):
+            self.assertFalse(self.pip.has_pdf(LATEST))
+
+    def test_has_epub(self):
+        # The project has a epub if the PDF file exists on disk.
+        with fake_paths_by_regex('\.epub$'):
+            self.assertTrue(self.pip.has_epub(LATEST))
+
+        # The project has no epub if there is no file on disk.
+        with fake_paths_by_regex('\.epub$', exists=False):
+            self.assertFalse(self.pip.has_epub(LATEST))
+
+    def test_has_epub_with_epub_build_disabled(self):
+        # The project has NO epub if epub builds are disabled
+        self.pip.enable_epub_build = False
+        with fake_paths_by_regex('\.epub$'):
+            self.assertFalse(self.pip.has_epub(LATEST))

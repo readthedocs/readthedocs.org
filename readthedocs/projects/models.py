@@ -607,9 +607,13 @@ class Project(models.Model):
         return self.aliases.exists()
 
     def has_pdf(self, version_slug=LATEST):
+        if not self.enable_pdf_build:
+            return False
         return os.path.exists(self.get_production_media_path(type='pdf', version_slug=version_slug))
 
     def has_epub(self, version_slug=LATEST):
+        if not self.enable_epub_build:
+            return False
         return os.path.exists(self.get_production_media_path(type='epub', version_slug=version_slug))
 
     def has_htmlzip(self, version_slug=LATEST):
