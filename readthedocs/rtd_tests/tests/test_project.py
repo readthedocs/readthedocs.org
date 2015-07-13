@@ -62,6 +62,12 @@ class TestProject(TestCase):
         with fake_paths_by_regex('\.pdf$', exists=False):
             self.assertFalse(self.pip.has_pdf(LATEST))
 
+    def test_has_pdf_with_pdf_build_disabled(self):
+        # The project has NO pdf if pdf builds are disabled
+        self.pip.enable_pdf_build = False
+        with fake_paths_by_regex('\.pdf$'):
+            self.assertFalse(self.pip.has_pdf(LATEST))
+
     def test_has_epub(self):
         # The project has a epub if the PDF file exists on disk.
         with fake_paths_by_regex('\.epub$'):
@@ -69,4 +75,10 @@ class TestProject(TestCase):
 
         # The project has no epub if there is no file on disk.
         with fake_paths_by_regex('\.epub$', exists=False):
+            self.assertFalse(self.pip.has_epub(LATEST))
+
+    def test_has_epub_with_epub_build_disabled(self):
+        # The project has NO epub if epub builds are disabled
+        self.pip.enable_epub_build = False
+        with fake_paths_by_regex('\.epub$'):
             self.assertFalse(self.pip.has_epub(LATEST))
