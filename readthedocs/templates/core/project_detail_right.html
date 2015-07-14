@@ -85,7 +85,7 @@
     <h3>{% trans "Translations" %}</h3>
       <ul>
       {% for trans in project.translations.all %}
-          <li><a href="{{ trans.get_translation_url }}">{{ trans }}</a></li>
+          <li><a href="http://{{ project.slug}}.{{ PRODUCTION_DOMAIN }}{{ trans.get_translation_url }}">{{ trans }}</a></li>
       {% endfor %}
       </ul>
   {% endif %}
