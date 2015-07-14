@@ -2,11 +2,13 @@ language: python
 python:
  - "2.7"
 install:
- - pip install flake8 stripe
+ - pip install pep8 --quiet
+ - pip install stripe
  - pip install -r requirements.txt
  - pip install coveralls
+before_script:
+ - pep8 readthedocs/
 script:
- #- flake8 `find . -iname "*.py" -not -ipath "*migration*"`
  - ./runtests.sh
 after_success:
  - coveralls
