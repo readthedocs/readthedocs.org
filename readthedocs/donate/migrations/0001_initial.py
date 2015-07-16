@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
                 ('public', models.BooleanField(default=True, verbose_name='Public')),
                 ('name', models.CharField(max_length=200, verbose_name='name', blank=True)),
                 ('email', models.EmailField(max_length=200, verbose_name='Email', blank=True)),
-                ('dollars', models.IntegerField(default=50, max_length=30, verbose_name='Amount', choices=[(5, b'$5'), (10, b'$10'), (25, b'$25'), (50, b'1 Hour ($50)'), (100, b'2 Hours ($100)'), (200, b'4 Hours ($200)'), (400, b'1 Day ($400)'), (800, b'2 Days ($800)'), (1200, b'3 Days ($1200)'), (1600, b'4 Days ($1600)'), (2000, b'5 Days ($2000)'), (4000, b'2 Weeks ($4000)'), (6000, b'3 Weeks ($6000)'), (8000, b'4 Weeks ($8000)')])),
+                ('dollars', models.IntegerField(default=50, verbose_name='Amount', choices=[(5, b'$5'), (10, b'$10'), (25, b'$25'), (50, b'1 Hour ($50)'), (100, b'2 Hours ($100)'), (200, b'4 Hours ($200)'), (400, b'1 Day ($400)'), (800, b'2 Days ($800)'), (1200, b'3 Days ($1200)'), (1600, b'4 Days ($1600)'), (2000, b'5 Days ($2000)'), (4000, b'2 Weeks ($4000)'), (6000, b'3 Weeks ($6000)'), (8000, b'4 Weeks ($8000)')])),
                 ('logo_url', models.URLField(max_length=255, null=True, verbose_name='Logo URL', blank=True)),
                 ('site_url', models.URLField(max_length=255, null=True, verbose_name='Site URL', blank=True)),
                 ('last_4_digits', models.CharField(max_length=4)),
