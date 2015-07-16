@@ -96,7 +96,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='project',
             name='related_projects',
-            field=models.ManyToManyField(to='projects.Project', null=True, verbose_name='Related projects', through='projects.ProjectRelationship', blank=True),
+            field=models.ManyToManyField(to='projects.Project', verbose_name='Related projects', through='projects.ProjectRelationship', blank=True),
         ),
         migrations.AddField(
             model_name='project',
