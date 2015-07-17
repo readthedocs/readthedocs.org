@@ -5,9 +5,9 @@ from rest_framework import decorators, permissions
 from rest_framework.renderers import JSONPRenderer, JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 
-from rtd.utils.tasks import TaskNoPermission
-from rtd.utils.tasks import get_public_task_data
-import oauth.tasks
+from readthedocs.core.utils.tasks import TaskNoPermission
+from readthedocs.core.utils.tasks import get_public_task_data
+from readthedocs.oauth import tasks
 
 
 log = logging.getLogger(__name__)
@@ -48,7 +48,7 @@ def job_status(request, task_id):
 @decorators.renderer_classes(
     (JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
 def sync_github_repositories(request):
-    result = oauth.tasks.sync_github_repositories.delay(
+    result = tasks.sync_github_repositories.delay(
         user_id=request.user.id)
     task_id = result.task_id
     return Response({
@@ -62,7 +62,7 @@ def sync_github_repositories(request):
 @decorators.renderer_classes(
     (JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
 def sync_bitbucket_repositories(request):
-    result = oauth.tasks.sync_bitbucket_repositories.delay(
+    result = tasks.sync_bitbucket_repositories.delay(
         user_id=request.user.id)
     task_id = result.task_id
     return Response({
