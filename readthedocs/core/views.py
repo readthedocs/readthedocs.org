@@ -250,6 +250,31 @@ def github_build(request):
 
 
 @csrf_exempt
+def gitlab_build(request):
+    """
+    A post-commit hook for GitLab.
+    """
+    if request.method == 'POST':
+        try:
+            # GitLab RTD integration
+            obj = json.loads(request.POST['payload'])
+        except:
+            # Generic post-commit hook
+            obj = json.loads(request.body)
+        url = obj['repository']['homepage']
+        ghetto_url = url.replace('http://', '').replace('https://', '')
+        branch = obj['ref'].replace('refs/heads/', '')
+        pc_log.info("(Incoming GitLab Build) %s [%s]" % (ghetto_url, branch))
+        try:
+            return _build_url(ghetto_url, [branch])
+        except NoProjectException:
+            pc_log.error(
+                "(Incoming GitLab Build) Repo not found:  %s" % ghetto_url)
+            return HttpResponseNotFound('Repo not found: %s' % ghetto_url)
+    else:
+        return HttpResponse("You must POST to this resource.")
+
+@csrf_exempt
 def bitbucket_build(request):
     if request.method == 'POST':
         payload = request.POST.get('payload')

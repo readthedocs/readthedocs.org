@@ -101,6 +101,7 @@ urlpatterns = patterns(
     url(r'^admin/', include(admin.site.urls)),
     url(r'^dashboard/', include('projects.urls.private')),
     url(r'^github', 'core.views.github_build', name='github_build'),
+    url(r'^gitlab', 'core.views.gitlab_build', name='gitlab_build'),
     url(r'^bitbucket', 'core.views.bitbucket_build', name='bitbucket_build'),
     url((r'^build/'
          r'(?P<project_id_or_slug>{project_slug})'.format(**pattern_opts)),
