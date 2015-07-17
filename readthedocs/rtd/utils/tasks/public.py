@@ -1,10 +1,18 @@
 from celery import Task
 
+from .retrieve import TaskNotFound
+from .retrieve import get_task_data
 
-__all__ = ('PublicTask', 'permission_check')
+
+__all__ = (
+    'PublicTask', 'TaskNoPermission', 'permission_check',
+    'get_public_task_data')
 
 
 class PublicTask(Task):
+    """
+    See oauth.tasks for usage example.
+    """
     public_name = 'unknown'
 
     @classmethod
@@ -76,3 +84,36 @@ def permission_check(check):
         cls.check_permission = staticmethod(check)
         return cls
     return decorator
+
+
+class TaskNoPermission(Exception):
+    def __init__(self, task_id, *args, **kwargs):
+        message = 'No permission to access task with id {id}'.format(
+            id=task_id)
+        super(TaskNoPermission, self).__init__(message, *args, **kwargs)
+
+
+def get_public_task_data(request, task_id):
+    """
+    Return a 3-value tuple with the public name of the task, the current state
+    of the task and the data that can be displayed publicly about this task.
+
+    Will raise `TaskNoPermission` if `request` has no permission to access info
+    of the task with id `task_id`. This is also the case of no task with the
+    given id exists.
+    """
+    try:
+        task, state, info = get_task_data(task_id)
+    except TaskNotFound:
+        # No task info has been found act like we don't have permission to see
+        # the results.
+        raise TaskNoPermission(task_id)
+
+    if not hasattr(task, 'check_permission'):
+        raise TaskNoPermission(task_id)
+
+    context = info.get('context', {})
+    if not task.check_permission(request, state, context):
+        raise TaskNoPermission(task_id)
+    public_name = task.public_name
+    return public_name, state, info.get('public_data', {})
