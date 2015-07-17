@@ -9,6 +9,7 @@
 {% endblock %}
 
 {% block extra_scripts %}
+<script type="text/javascript" src="{{ MEDIA_URL }}javascript/django-csrf.js"></script>
 <script type="text/javascript" src="{{ MEDIA_URL }}javascript/rtd-import.js"></script>
 <script type="text/javascript" src="{{ MEDIA_URL }}lib/markitup/jquery.markitup.pack.js"></script>
 <script type="text/javascript" src="{{ MEDIA_URL }}lib/markitup/sets/sphinx/editor.js"></script>
@@ -23,17 +24,20 @@
 
 {% block content %}
 {% if bitbucket_connected %}
-{% if not sync %}
-<p class="empty">
-  {% url 'projects_sync_bitbucket' as sync_bitbucket_url %}
-  {% blocktrans %}Showing your BitBucket projects. <a href="{{ sync_bitbucket_url }}">Sync your BitBucket projects</a> to update them.{% endblocktrans %}
+<p class="empty sync-repositories">
+  {% url 'api_sync_bitbucket_repositories' as sync_url %}
+  {% blocktrans with button_attrs=' class="inline" data-sync-repositories="'|add:sync_url|add:'" data-target=".respository-list"'|safe %}Showing your BitBucket projects. <button {{ button_attrs }}>Sync your BitBucket projects</button> to update them.{% endblocktrans %}
 </p>
-{% else %}
-<p class="empty">
+<p class="empty sync-repositories-progress hide">
+  {% blocktrans %}Syncing ...{% endblocktrans %}
+</p>
+<p class="empty sync-repositories-success hide">
   {% blocktrans %}BitBucket projects are now up to date.{% endblocktrans %}
 </p>
-{% endif %}
-<div class="module">
+<p class="empty sync-repositories-error hide">
+  {% blocktrans %}Your BitBucket projects could not be synced. Please try again later.{% endblocktrans %}
+</p>
+<div class="module repository-list">
   <div class="module-wrapper">
     <div class="module-list">
       <div class="module-list-wrapper">
@@ -82,7 +86,7 @@
 </div>
 {% else %}
   {% url 'socialaccount_connections' as social_url %}
-  {% blocktrans %}You don't have any BitBucket repositories connected. 
+  {% blocktrans %}You don't have any BitBucket repositories connected.
   Go to your <a href="{{ social_url }}">Social Accounts</a> to set one up.
   {% endblocktrans %}
 {% endif %}
