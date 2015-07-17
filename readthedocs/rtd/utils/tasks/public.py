@@ -1,7 +1,7 @@
 from celery import Task
 
 
-__all__ = ('PublicTask')
+__all__ = ('PublicTask', 'permission_check')
 
 
 class PublicTask(Task):
@@ -59,3 +59,20 @@ class PublicTask(Task):
     def run_public(self, *args, **kwargs):
         raise NotImplementedError(
             'Public tasks must define the run_public method.')
+
+
+def permission_check(check):
+    """
+    Class decorator for subclasses of PublicTask to sprinkle in re-usable
+    permission checks::
+
+        @permission_check(user_id_matches)
+        class MyTask(PublicTask):
+            def run_public(self, user_id):
+                pass
+    """
+
+    def decorator(cls):
+        cls.check_permission = staticmethod(check)
+        return cls
+    return decorator
