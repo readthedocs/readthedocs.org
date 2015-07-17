@@ -1,11 +1,13 @@
 import logging
 
+from django.core.urlresolvers import reverse
 from rest_framework import decorators, permissions
 from rest_framework.renderers import JSONPRenderer, JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 
 from rtd.utils.tasks import TaskNoPermission
 from rtd.utils.tasks import get_public_task_data
+import oauth.tasks
 
 
 log = logging.getLogger(__name__)
@@ -39,3 +41,31 @@ def job_status(request, task_id):
             get_status_data('unknown', 'PENDING', {}))
     return Response(
         get_status_data(task_name, state, public_data))
+
+
+@decorators.api_view(['POST'])
+@decorators.permission_classes((permissions.IsAuthenticated,))
+@decorators.renderer_classes(
+    (JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
+def sync_github_repositories(request):
+    result = oauth.tasks.sync_github_repositories.delay(
+        user_id=request.user.id)
+    task_id = result.task_id
+    return Response({
+        'task_id': task_id,
+        'url': reverse('api_job_status', kwargs={'task_id': task_id}),
+    })
+
+
+@decorators.api_view(['POST'])
+@decorators.permission_classes((permissions.IsAuthenticated,))
+@decorators.renderer_classes(
+    (JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
+def sync_bitbucket_repositories(request):
+    result = oauth.tasks.sync_bitbucket_repositories.delay(
+        user_id=request.user.id)
+    task_id = result.task_id
+    return Response({
+        'task_id': task_id,
+        'url': reverse('api_job_status', kwargs={'task_id': task_id}),
+    })
