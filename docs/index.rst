@@ -76,6 +76,7 @@ Information about development is also available:
    contribute
    tests
    architecture
+   development
    symlinks
    settings
    i18n
