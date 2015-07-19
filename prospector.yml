@@ -1,0 +1,30 @@
+strictness: low
+
+test-warnings: false
+doc-warnings: true
+
+uses:
+  - django
+  - celery
+
+ignore-paths:
+  - projects
+  - builds
+  - docs
+
+ignore-patterns:
+  - /migrations/
+
+pep8:
+    full: true
+    options:
+        max-line-length: 100
+
+pylint:
+  max-line-length: 100
+
+mccabe:
+  run: false
+
+pep257:
+  run: false

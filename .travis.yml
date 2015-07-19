@@ -1,14 +1,16 @@
 language: python
 python:
- - "2.7"
+ - 2.7
 sudo: false
+env:
+ - TOX_ENV=py27
+ - TOX_ENV=docs
+ - TOX_ENV=lint
 install:
- - pip install flake8 stripe
- - pip install -r requirements.txt
+ - pip install tox
  - pip install coveralls
 script:
- #- flake8 `find . -iname "*.py" -not -ipath "*migration*"`
- - ./runtests.sh
+ - tox -e $TOX_ENV
 after_success:
  - coveralls
 notifications:
