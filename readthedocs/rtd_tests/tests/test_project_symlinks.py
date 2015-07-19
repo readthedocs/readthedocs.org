@@ -58,10 +58,12 @@ class TestSymlinkTranslations(TestCase):
             'ln -nsf {translation}/rtd-builds {project}/translations/de',
             'ln -nsf {builds} {project}/translations/en',
         ]
-        for (i, command) in enumerate(commands):
-            self.assertEqual(self.commands[i], command.format(**self.args),
-                             msg=('Command {0} mismatch, expecting {1}'
-                                  .format(i, self.commands[i])))
+
+        for command in commands:
+            self.assertIsNotNone(
+                self.commands.pop(
+                    self.commands.index(command.format(**self.args))
+                ))
 
     @patched
     def test_symlink_non_english(self):
@@ -80,10 +82,12 @@ class TestSymlinkTranslations(TestCase):
             'ln -nsf {project}/rtd-builds {project}/translations/de',
             'ln -nsf {translation}/rtd-builds {project}/translations/en',
         ]
-        for (i, command) in enumerate(commands):
-            self.assertEqual(self.commands[i], command.format(**self.args),
-                             msg=('Command {0} mismatch, expecting {1}'
-                                  .format(i, self.commands[i])))
+
+        for command in commands:
+            self.assertIsNotNone(
+                self.commands.pop(
+                    self.commands.index(command.format(**self.args))
+                ))
 
     @patched
     def test_symlink_no_english(self):
@@ -107,7 +111,9 @@ class TestSymlinkTranslations(TestCase):
             'ln -nsf {project}/rtd-builds {project}/translations/de',
             'ln -nsf {project}/rtd-builds {project}/translations/en',
         ]
-        for (i, command) in enumerate(commands):
-            self.assertEqual(self.commands[i], command.format(**self.args),
-                             msg=('Command {0} mismatch, expecting {1}'
-                                  .format(i, self.commands[i])))
+
+        for command in commands:
+            self.assertIsNotNone(
+                self.commands.pop(
+                    self.commands.index(command.format(**self.args))
+                ))
