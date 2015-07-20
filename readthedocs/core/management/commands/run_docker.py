@@ -5,7 +5,6 @@ import json
 from django.core.management.base import BaseCommand
 
 from projects import tasks
-from tastyapi import api
 
 log = logging.getLogger(__name__)
 

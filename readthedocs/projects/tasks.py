@@ -29,12 +29,12 @@ from projects.constants import LOG_TEMPLATE
 from builds.constants import STABLE
 from projects import symlinks
 from privacy.loader import Syncer
-from tastyapi import api, apiv2
 from search.parse_json import process_all_json_files
 from search.utils import process_mkdocs_json
 from restapi.utils import index_search_request
 from vcs_support import utils as vcs_support_utils
-import tastyapi
+import api.client
+import restapi.client
 
 try:
     from readthedocs.projects.signals import before_vcs, after_vcs, before_build, after_build
@@ -69,8 +69,8 @@ def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
     """
     # Dependency injection to allow for testing
     if api is None:
-        api = tastyapi.api
-        apiv2 = tastyapi.apiv2
+        api = api.client.api
+        apiv2 = restapi.client.api
     else:
         apiv2 = api
 
@@ -223,7 +223,7 @@ def update_imported_docs(version_pk, api=None):
     Check out or update the given project's repository.
     """
     if api is None:
-        api = tastyapi.api
+        api = api.client.api
 
     version_data = api.version(version_pk).get()
     version = make_api_version(version_data)

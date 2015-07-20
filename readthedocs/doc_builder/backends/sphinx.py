@@ -14,7 +14,7 @@ from builds import utils as version_utils
 from doc_builder.base import BaseBuilder, restoring_chdir
 from projects.utils import run, safe_write
 from projects.exceptions import ProjectImportError
-from tastyapi import apiv2
+from restapi.client import api
 
 log = logging.getLogger(__name__)
 
@@ -109,7 +109,7 @@ class BaseSphinx(BaseBuilder):
             rtd_ctx['downloads'] = self.version.get_downloads(pretty=True)
         else:
             rtd_ctx['versions'] = project.api_versions()
-            rtd_ctx['downloads'] = (apiv2.version(self.version.pk)
+            rtd_ctx['downloads'] = (api.version(self.version.pk)
                                     .get()['downloads'])
 
         rtd_string = template_loader.get_template('doc_builder/conf.py.tmpl').render(rtd_ctx)

@@ -6,7 +6,7 @@ import redis
 
 from core.utils import run_on_app_servers
 from projects.constants import LOG_TEMPLATE
-from tastyapi import apiv2
+from restapi.client import api
 
 log = logging.getLogger(__name__)
 
@@ -49,7 +49,7 @@ def symlink_subprojects(version):
     """
     # Subprojects
     if getattr(settings, 'DONT_HIT_DB', True):
-        subproject_slugs = [data['slug'] for data in apiv2.project(version.project.pk).subprojects.get()['subprojects']]
+        subproject_slugs = [data['slug'] for data in api.project(version.project.pk).subprojects.get()['subprojects']]
     else:
         rels = version.project.subprojects.all()
         subproject_slugs = [rel.child.slug for rel in rels]
@@ -77,7 +77,7 @@ def symlink_translations(version):
     translations = {}
 
     if getattr(settings, 'DONT_HIT_DB', True):
-        for trans in (apiv2
+        for trans in (api
                       .project(version.project.pk)
                       .translations.get()['translations']):
             translations[trans['language']] = trans['slug']

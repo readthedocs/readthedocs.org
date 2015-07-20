@@ -3,7 +3,7 @@ from optparse import make_option
 
 from django.core.management.base import BaseCommand
 from projects import tasks
-from tastyapi import api
+from api.client import api
 
 
 log = logging.getLogger(__name__)
