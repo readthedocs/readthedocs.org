@@ -97,7 +97,7 @@ function build_vendor_sources(data, cb_output) {
     bower_resolve.offline = true;
     bower_resolve.init(function () {
         var standalone_modules = standalone.map(function (module) {
-            return browserify()
+            return browserify({standalone: module})
                 .require(bower_resolve(module), {expose: module})
                 .bundle()
                 .pipe(vinyl_source(module + '.js'))
