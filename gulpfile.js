@@ -2,19 +2,17 @@ var gulp = require('gulp'),
     gulp_util = require('gulp-util'),
     watch = require('gulp-watch'),
     run = require('gulp-run'),
-    debowerify = require('debowerify'),
+    less = require('gulp-less'),
     bower_resolve = require('bower-resolve'),
     browserify = require('browserify'),
+    debowerify = require('debowerify'),
     uglify = require('gulp-uglify'),
     vinyl_source = require('vinyl-source-stream'),
     vinyl_buffer = require('vinyl-buffer'),
     es = require('event-stream'),
-    fs = require('fs'),
     path = require('path'),
-    less = require('gulp-less'),
     pkg_config = require('./package.json');
 
-/* Applications with static sources */
 // Applications with primary static sources. We define these here to avoid
 // picking up dependencies of the primary entry points and putting any
 // limitations on directory structure for entry points.
@@ -70,7 +68,7 @@ function build_app_sources (application, minify) {
         .pipe(gulp.dest(path.join(pkg_config.name, application, 'static')));
 }
 
-/* Doc embed scripts */
+// Browserify build
 function browserify_stream (file, cb_output) {
     bower_resolve.offline = true;
     bower_resolve.init(function () {
@@ -126,7 +124,7 @@ gulp.task('build', function (done) {
         }))
         .pipe(es.wait(function (err, body) {
             gulp_util.log('Collecting static files');
-            run('readthedocs/manage.py collectstatic --noinput')
+            run('django-admin.py collectstatic --noinput')
                 .exec('', function (err) { done(err); });
         }));
 });
