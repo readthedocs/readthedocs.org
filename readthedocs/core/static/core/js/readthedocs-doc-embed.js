@@ -101,8 +101,8 @@ $(document).ready(function () {
                 var promo = new sponsorship.Promo(
                   data.promo_data.id,
                   data.promo_data.text,
-                  data.promo_data.link
-                  data.promo_data.image,
+                  data.promo_data.link,
+                  data.promo_data.image
                 )
                 if (promo) {
                     promo.display();
