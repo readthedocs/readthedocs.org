@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load static %}
 
 {% block title %}{% trans "Import a BitBucket project" %}{% endblock %}
 
@@ -9,8 +10,7 @@
 {% endblock %}
 
 {% block extra_scripts %}
-<script type="text/javascript" src="{{ MEDIA_URL }}javascript/django-csrf.js"></script>
-<script type="text/javascript" src="{{ MEDIA_URL }}javascript/rtd-import.js"></script>
+<script type="text/javascript" src="{% static "core/js/projectimport.js" %}"></script>
 <script type="text/javascript" src="{{ MEDIA_URL }}lib/markitup/jquery.markitup.pack.js"></script>
 <script type="text/javascript" src="{{ MEDIA_URL }}lib/markitup/sets/sphinx/editor.js"></script>
 <script type="text/javascript">
