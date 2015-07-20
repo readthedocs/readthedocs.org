@@ -69,9 +69,7 @@
                 watchProgress(url);
               }
             },
-            error: function () {
-              watchProgress(url);
-            }
+            error: onError
           });
         }, 2000);
       }
