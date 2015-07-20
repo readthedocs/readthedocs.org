@@ -78,4 +78,8 @@ class Migration(migrations.Migration):
             name='version',
             unique_together=set([('project', 'slug')]),
         ),
+        migrations.AlterIndexTogether(
+            name='build',
+            index_together=set([('version', 'state', 'type')]),
+        ),
     ]
