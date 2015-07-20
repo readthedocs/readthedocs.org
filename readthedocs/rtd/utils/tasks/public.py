@@ -1,4 +1,5 @@
 from celery import Task
+from django.conf import settings
 
 from .retrieve import TaskNotFound
 from .retrieve import get_task_data
@@ -7,6 +8,9 @@ from .retrieve import get_task_data
 __all__ = (
     'PublicTask', 'TaskNoPermission', 'permission_check',
     'get_public_task_data')
+
+
+STATUS_UPDATES_ENABLED = not getattr(settings, 'CELERY_ALWAYS_EAGER', False)
 
 
 class PublicTask(Task):
@@ -37,7 +41,8 @@ class PublicTask(Task):
 
     def update_progress_data(self):
         state, info = self.get_task_data()
-        self.update_state(state=state, meta=info)
+        if STATUS_UPDATES_ENABLED:
+            self.update_state(state=state, meta=info)
 
     def set_permission_context(self, context):
         """
