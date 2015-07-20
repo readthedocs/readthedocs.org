@@ -1,9 +1,9 @@
 from django.contrib.auth.models import User
 from djcelery import celery as celery_app
 
-from rtd.utils.tasks import PublicTask
-from rtd.utils.tasks import permission_check
-from rtd.utils.tasks import user_id_matches
+from core.utils.tasks import PublicTask
+from core.utils.tasks import permission_check
+from core.utils.tasks import user_id_matches
 from .utils import import_bitbucket
 from .utils import import_github
 
