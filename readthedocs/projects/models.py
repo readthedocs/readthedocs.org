@@ -24,7 +24,7 @@ from projects.utils import make_api_version, symlink, update_static_metadata
 from projects.version_handling import determine_stable_version
 from projects.version_handling import version_windows
 from taggit.managers import TaggableManager
-from tastyapi.slum import api
+from api.client import api
 
 from vcs_support.base import VCSProject
 from vcs_support.backends import backend_cls
