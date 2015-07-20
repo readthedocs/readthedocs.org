@@ -2,6 +2,7 @@ import json
 
 from django.test import TestCase
 
+from rtd_tests.mocks.paths import fake_paths_by_regex
 from projects.models import Project
 
 
@@ -28,3 +29,30 @@ class Testmaker(TestCase):
         self.assertEqual(resp['version_active'], False)
         self.assertEqual(r.status_code, 200)
 
+    def test_pdf_build_mentioned_in_footer(self):
+        with fake_paths_by_regex('\.pdf$'):
+            response = self.client.get(
+                '/api/v2/footer_html/?project=pip&version=latest&page=index', {})
+        self.assertContains(response, 'pdf')
+
+    def test_pdf_not_mentioned_in_footer_when_build_is_disabled(self):
+        self.pip.enable_pdf_build = False
+        self.pip.save()
+        with fake_paths_by_regex('\.pdf$'):
+            response = self.client.get(
+                '/api/v2/footer_html/?project=pip&version=latest&page=index', {})
+        self.assertNotContains(response, 'pdf')
+
+    def test_epub_build_mentioned_in_footer(self):
+        with fake_paths_by_regex('\.epub$'):
+            response = self.client.get(
+                '/api/v2/footer_html/?project=pip&version=latest&page=index', {})
+        self.assertContains(response, 'epub')
+
+    def test_epub_not_mentioned_in_footer_when_build_is_disabled(self):
+        self.pip.enable_epub_build = False
+        self.pip.save()
+        with fake_paths_by_regex('\.epub$'):
+            response = self.client.get(
+                '/api/v2/footer_html/?project=pip&version=latest&page=index', {})
+        self.assertNotContains(response, 'epub')

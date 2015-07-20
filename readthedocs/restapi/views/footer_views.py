@@ -61,6 +61,8 @@ def footer_html(request):
         show_promo = False
 
     promo_obj = SupporterPromo.objects.filter(live=True, display_type='doc').order_by('?').first()
+    if not promo_obj:
+        show_promo = False
 
     context = Context({
         'project': project,

@@ -347,6 +347,9 @@ class Build(models.Model):
     class Meta:
         ordering = ['-date']
         get_latest_by = 'date'
+        index_together = [
+            ['version', 'state', 'type']
+        ]
 
     def __unicode__(self):
         return ugettext(u"Build %(project)s for %(usernames)s (%(pk)s)" % {

@@ -44,7 +44,17 @@ except:
 log = logging.getLogger(__name__)
 
 
-class ProjectDashboard(ListView):
+class LoginRequiredMixin(object):
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(LoginRequiredMixin, self).dispatch(*args, **kwargs)
+
+
+class PrivateViewMixin(LoginRequiredMixin):
+    pass
+
+
+class ProjectDashboard(PrivateViewMixin, ListView):
 
     """
     A dashboard!  If you aint know what that means you aint need to.
@@ -52,10 +62,6 @@ class ProjectDashboard(ListView):
     """
     model = Project
     template_name = 'projects/project_dashboard.html'
-
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super(ProjectDashboard, self).dispatch(*args, **kwargs)
 
     def get_queryset(self):
         return Project.objects.dashboard(self.request.user)
@@ -224,7 +230,7 @@ def project_delete(request, project_slug):
     )
 
 
-class ImportWizardView(SessionWizardView):
+class ImportWizardView(PrivateViewMixin, SessionWizardView):
 
     '''Project import wizard'''
 
@@ -285,7 +291,7 @@ class ImportWizardView(SessionWizardView):
         return data.get('advanced', True)
 
 
-class ImportView(TemplateView):
+class ImportView(PrivateViewMixin, TemplateView):
 
     '''On GET, show the source select template, on POST, mock out a wizard
 
@@ -309,7 +315,7 @@ class ImportView(TemplateView):
         return self.wizard_class.as_view(initial_dict=initial_data)(request)
 
 
-class ImportDemoView(View):
+class ImportDemoView(PrivateViewMixin, View):
     '''View to pass request on to import form to import demo project'''
 
     form_class = ProjectBasicsForm
@@ -379,14 +385,10 @@ def edit_alias(request, project_slug, id=None):
     )
 
 
-class AliasList(ListView):
+class AliasList(PrivateViewMixin, ListView):
     model = VersionAlias
     template_context_name = 'alias'
     template_name = 'projects/alias_list.html',
-
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super(AliasList, self).dispatch(*args, **kwargs)
 
     def get_queryset(self):
         self.project = get_object_or_404(Project.objects.for_admin_user(self.request.user), slug=self.kwargs.get('project_slug'))

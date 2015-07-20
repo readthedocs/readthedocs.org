@@ -32,7 +32,7 @@ def make_document_url(project, version=None, page=None):
     if not project:
         return ""
     if project.main_language_project:
-        base_url = project.get_translation_url(version)
+        base_url = project.get_translation_url(version, full=True)
     else:
         base_url = project.get_docs_url(version)
     if page and (page != "index") and (page != "index.html"):
