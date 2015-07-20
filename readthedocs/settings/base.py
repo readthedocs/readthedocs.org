@@ -270,8 +270,6 @@ ABSOLUTE_URL_OVERRIDES = {
 
 INTERNAL_IPS = ('127.0.0.1',)
 
-IMPORT_EXTERNAL_DATA = True
-
 backup_count = 1000
 maxBytes = 500 * 100 * 100
 if LOG_DEBUG:

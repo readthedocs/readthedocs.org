@@ -47,7 +47,6 @@ SLUMBER_API_HOST = 'http://localhost:8000'
 
 WEBSOCKET_HOST = 'localhost:8088'
 
-IMPORT_EXTERNAL_DATA = False
 DONT_HIT_DB = False
 #PRODUCTION_DOMAIN = 'readthedocs.org'
 #USE_SUBDOMAIN = True
