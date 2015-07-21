@@ -37,6 +37,107 @@ Guidelines set forth at `contribution-guide.org`_.
 .. _Sprintable: https://github.com/rtfd/readthedocs.org/issues?q=is%3Aopen+is%3Aissue+label%3ASprintable
 .. _contribution-guide.org: http://www.contribution-guide.org/#submitting-bugs
 
+Triaging tickets
+----------------
+
+Here is a brief explanation on how we triage incoming tickets to get a better
+sense of what needs to be done on what end.
+
+When sitting down to do some triaging work, we start with the `list of
+untriaged tickets`_. We consider all tickets that do not have a label as
+untriaged. The first step is to categorize the ticket into one of the
+following categories and either close the ticket or assign an appropriate
+label. The reported issue …
+
+… is not valid
+    If you think the ticket is invalid comment why you think it is invalid,
+    then close the ticket. Tickets might be invalid if they were already fixed
+    in the past or it was decided that the proposed feature will not be
+    implemented because it does not conform with the overall goal of Read the
+    Docs. Also if you happen to know that the problem was already reported,
+    label the ticket with **Status: duplicate**, reference the other ticket
+    that is already addressing the problem and close the duplicate.
+
+    Examples:
+
+    - *Builds fail when using matplotlib*:
+      If the described issue was already fixed, then explain and instruct to
+      re-trigger the build.
+    - *Provide way to upload arbitrary HTML files*:
+      It was already decided that Read the Docs is not a dull hosting platform
+      for HTML. So explain this and close the ticket.
+
+… does not provide enough information
+    Add the label **Needed: more information** if the reported issue does not
+    contain enough information to decide if it is valid or not and ask on the
+    ticket for the required information to go forward. We will re-triage all
+    tickets that have the label **Needed: more information** assigned. If the
+    original reporter left new information we can try to re-categorize the
+    ticket. If the reporter did not come back to provide more required
+    information after a long enough time, we will close the ticket (this will be
+    roughly about two weeks).
+
+    Examples:
+
+    - *My builds stopped working. Please help!*
+      Ask for a link to the build log and for which project is affected.
+
+… is a valid enhancement proposal
+    If the ticket contains an enhancement proposal that aligns with the goals
+    of Read the Docs, then add the label **Enhancement**. If the proposal
+    seems valid but requires further discussion between core contributors
+    because there might be different possibilities on how to implement the
+    enhancement, then also add the label **Needed: design decision**.
+
+    Examples:
+
+    - *Improve documentation about MKdocs integration*
+    - *Provide better integration with service XYZ*
+    - *Refactor module X for better readability*
+    - *Achieve world domination* (also needs the label **Needed: design
+      decision**)
+
+… is a valid problem within the code base:
+    If it's a valid bug, then add the label **Bug**. Try to reference related
+    issues if you come across any.
+
+    Examples:
+
+    - *Builds fail if conf.py contains non-ascii letters*
+
+… is a currently valid problem with the infrastructure:
+    Users might report about web server downtimes or that builds are not
+    triggered. If the ticket needs investigation on the servers, then add the
+    label **Operations**.
+
+    Examples:
+
+    - *Builds are not starting*
+
+… is a question and needs answering:
+    If the ticket contains a question about the Read the Docs platform or the
+    code, then add the label **Support**.
+
+    Examples:
+
+    - *My account was set inactive. Why?*
+    - *How to use C modules with Sphinx autodoc?*
+    - *Why are my builds failing?*
+
+… requires a one-time action on the server:
+    Tasks that require a one time action on the server should be assigned the
+    two labels **Support** and **Operations**.
+
+    Examples:
+
+    - *Please change my username*
+    - *Please set me as owner of this abondand project*
+
+After we finished the initial triaging of new tickets, no ticket should be left
+without a label.
+
+.. _list of untriaged tickets: https://github.com/rtfd/readthedocs.org/issues?q=is:issue+is:open+no:label
+
 Helping on translations
 -----------------------
 
