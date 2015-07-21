@@ -51,7 +51,7 @@ HTML_ONLY = getattr(settings, 'HTML_ONLY_PROJECTS', ())
 @restoring_chdir
 def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
                 search=True, force=False, intersphinx=True, localmedia=True,
-                api=None, basic=False, **kwargs):
+                basic=False, **kwargs):
     """
     The main entry point for updating documentation.
 
@@ -67,16 +67,9 @@ def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
         from the shell, for example.
 
     """
-    # Dependency injection to allow for testing
-    if api is None:
-        api = api_v1
-        apiv2 = api_v2
-    else:
-        apiv2 = api
-
     start_time = datetime.datetime.utcnow()
     try:
-        project_data = api.project(pk).get()
+        project_data = api_v1.project(pk).get()
     except HttpClientError:
         log.exception(LOG_TEMPLATE.format(project=pk, version='', msg='Failed to get project data on build. Erroring.'))
     project = make_api_project(project_data)
@@ -86,31 +79,31 @@ def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
         return
     else:
         log.info(LOG_TEMPLATE.format(project=project.slug, version='', msg='Building'))
-    version = ensure_version(api, project, version_pk)
+    version = ensure_version(api_v1, project, version_pk)
     build = create_build(build_pk)
     results = {}
 
     # Build Servery stuff
     try:
-        record_build(api=api, build=build, record=record, results=results, state='cloning')
-        vcs_results = setup_vcs(version, build, api)
+        record_build(api=api_v1, build=build, record=record, results=results, state='cloning')
+        vcs_results = setup_vcs(version, build, api_v1)
         if vcs_results:
             results.update(vcs_results)
 
         if project.documentation_type == 'auto':
-            update_documentation_type(version, apiv2)
+            update_documentation_type(version, api_v2)
 
         if docker or settings.DOCKER_ENABLE:
-            record_build(api=api, build=build, record=record, results=results, state='building')
+            record_build(api=api_v1, build=build, record=record, results=results, state='building')
             docker = DockerEnvironment(version)
             build_results = docker.build()
             results.update(build_results)
         else:
-            record_build(api=api, build=build, record=record, results=results, state='installing')
+            record_build(api=api_v1, build=build, record=record, results=results, state='installing')
             setup_results = setup_environment(version)
             results.update(setup_results)
 
-            record_build(api=api, build=build, record=record, results=results, state='building')
+            record_build(api=api_v1, build=build, record=record, results=results, state='building')
             build_results = build_docs(version, force, search, localmedia)
             results.update(build_results)
 
@@ -130,8 +123,8 @@ def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
                                       version=version.slug, msg="Top-level Build Failure"), exc_info=True)
         results['checkout'] = (404, "", 'Top-level Build Failure: %s' % e.message)
     finally:
-        record_build(api=api, build=build, record=record, results=results, state='finished', start_time=start_time)
-        record_pdf(api=api, record=record, results=results, state='finished', version=version)
+        record_build(api=api_v1, build=build, record=record, results=results, state='finished', start_time=start_time)
+        record_pdf(api=api_v1, record=record, results=results, state='finished', version=version)
         log.info(LOG_TEMPLATE.format(project=version.project.slug, version='', msg='Build finished'))
 
     build_id = build.get('id')
@@ -218,14 +211,11 @@ def setup_vcs(version, build, api):
 
 
 @task()
-def update_imported_docs(version_pk, api=None):
+def update_imported_docs(version_pk):
     """
     Check out or update the given project's repository.
     """
-    if api is None:
-        api = api_v1
-
-    version_data = api.version(version_pk).get()
+    version_data = api_v1.version(version_pk).get()
     version = make_api_version(version_data)
     project = version.project
     ret_dict = {}
@@ -287,7 +277,7 @@ def update_imported_docs(version_pk, api=None):
             ]
 
         try:
-            apiv2.project(project.pk).sync_versions.post(version_post_data)
+            api_v2.project(project.pk).sync_versions.post(version_post_data)
         except Exception, e:
             print "Sync Versions Exception: %s" % e.message
     return ret_dict
