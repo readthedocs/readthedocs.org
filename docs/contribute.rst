@@ -175,6 +175,31 @@ few more at hand to further categorize issues.
 .. _list of untriaged tickets: https://github.com/rtfd/readthedocs.org/issues?q=is:issue+is:open+no:label
 .. _milestone: https://github.com/rtfd/readthedocs.org/milestones
 
+Helpful links for triaging
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Here is a list for contributors that look for work:
+
+- `Untriaged tickets
+  <https://github.com/rtfd/readthedocs.org/issues?q=is:issue+is:open+no:label>`_:
+  Go and triage them!
+- `Tickets labelled with Needed: more information
+  <https://github.com/rtfd/readthedocs.org/issues?utf8=✓&q=is:open+is:issue+label:"Needed:+more+information">`_:
+  Come back to these tickets once in a while and close those that did not get
+  any new information from the reporter. If new information is available, go
+  and re-triage the ticket.
+- `Tickets labelled with Operations
+  <https://github.com/rtfd/readthedocs.org/issues?q=is:open+is:issue+label:Operations>`_:
+  These tickets are for contributors who have access to the servers.
+- `Tickets labelled with Support
+  <https://github.com/rtfd/readthedocs.org/issues?q=is:open+is:issue+label:Support>`_:
+  Experienced contributors or community members with a broad knowledge about
+  the project should handle those.
+- `Tickets labelled with Needed: design decision
+  <https://github.com/rtfd/readthedocs.org/issues?q=is:open+is:issue+label:"Needed:+design+decision">`_:
+  Project leaders must take actions on these tickets. Otherwise no other
+  contributor can go forward on them.
+
 Helping on translations
 -----------------------
 
