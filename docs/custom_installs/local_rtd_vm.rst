@@ -37,7 +37,7 @@ To host your documentation on a local RTD installation, set it up in your VM. ::
     $ cd checkouts
     $ git clone https://github.com/rtfd/readthedocs.org.git
     $ cd readthedocs.org
-    $ sudo pip install -r pip_requirements.txt
+    $ sudo pip install -r requirements.txt
     
 Possible Error and Resolution
 `````````````````````````````
