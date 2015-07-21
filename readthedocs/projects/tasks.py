@@ -33,8 +33,8 @@ from search.parse_json import process_all_json_files
 from search.utils import process_mkdocs_json
 from restapi.utils import index_search_request
 from vcs_support import utils as vcs_support_utils
-import api.client
-import restapi.client
+from api.client import api as api_v1
+from restapi.client import api as api_v2
 
 try:
     from readthedocs.projects.signals import before_vcs, after_vcs, before_build, after_build
@@ -69,8 +69,8 @@ def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
     """
     # Dependency injection to allow for testing
     if api is None:
-        api = api.client.api
-        apiv2 = restapi.client.api
+        api = api_v1
+        apiv2 = api_v2
     else:
         apiv2 = api
 
@@ -223,7 +223,7 @@ def update_imported_docs(version_pk, api=None):
     Check out or update the given project's repository.
     """
     if api is None:
-        api = api.client.api
+        api = api_v1
 
     version_data = api.version(version_pk).get()
     version = make_api_version(version_data)
