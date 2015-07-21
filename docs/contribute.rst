@@ -3,6 +3,17 @@
 Contributing to Read the Docs
 =============================
 
+You are here to help on Read the Docs? Awesome, feel welcome and read the
+following sections in order to know what and how to work on something. If you
+get stuck at any point, feel free to get in touch in our IRC channel
+`#readthedocs`_ on Freenode or create a `ticket on GitHub`_.
+
+.. _#readthedocs: irc://irc.freenode.net/readthedocs
+.. _ticket on GitHub: https://github.com/rtfd/readthedocs.org/issues
+
+Contributing to development
+---------------------------
+
 Read the Docs follows the standard Contribution Guidelines set forth at
 `contribution-guide.org`_. Please read that site and follow the instructions
 to make sure your patches will be accepted.
