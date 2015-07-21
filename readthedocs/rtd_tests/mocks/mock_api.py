@@ -1,4 +1,6 @@
+from contextlib import contextmanager
 import json
+import mock
 
 # Mock tastypi API.
 
@@ -73,3 +75,11 @@ class MockApi(object):
 
     def project(self, x):
         return ProjectData()
+
+
+@contextmanager
+def mock_api(repo):
+    api_mock = MockApi(repo)
+    with mock.patch('restapi.client.api', api_mock):
+        with mock.patch('api.client.api', api_mock):
+            yield api_mock
