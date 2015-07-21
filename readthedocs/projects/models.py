@@ -575,10 +575,8 @@ class Project(models.Model):
             else:
                 log.warning("Conf file specified on model doesn't exist")
         files = self.find('conf.py', version)
-        print files
         if not files:
             files = self.full_find('conf.py', version)
-        print files
         if len(files) == 1:
             return files[0]
         for file in files:
