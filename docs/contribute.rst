@@ -43,6 +43,9 @@ Triaging tickets
 Here is a brief explanation on how we triage incoming tickets to get a better
 sense of what needs to be done on what end.
 
+Initial triage
+~~~~~~~~~~~~~~
+
 When sitting down to do some triaging work, we start with the `list of
 untriaged tickets`_. We consider all tickets that do not have a label as
 untriaged. The first step is to categorize the ticket into one of the
@@ -136,7 +139,41 @@ label. The reported issue …
 After we finished the initial triaging of new tickets, no ticket should be left
 without a label.
 
+Additional labels for categorization
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Additionally to the labels already involved in the section above, we have a
+few more at hand to further categorize issues.
+
+*Priority: High*
+    If the issue is urgent, assign this label. In the best case also go forward to
+    resolve the ticket yourself as soon as possible.
+
+*Community Effort*
+    There are many valuable ideas in the issue tracker for future enhancements
+    of Read the Docs. Unfortunately to many for the core developers to handle
+    all of them. Therefore we assign the *Community Effort* label on all the
+    issues that we see as valid for the project but that we currently do not
+    have the resources for to work on. We encourage community members to work
+    on these tickets and to submit a pull request.
+
+*Good First Bug*
+    This label marks tickets that are easy to get started with. The ticket
+    should be ideal for beginners to dive into the code base. Better is if the
+    fix for the issue only involves touching one part of the code.
+
+*Sprintable*
+    Sprintable are all tickets that have the right amount of scope to be
+    handled during a sprint. They are very focused and encapsulated.
+
+*Feature Overview*
+    If a feature is too big to be tackled in one ticket and should be split
+    up, then we have a feature overview ticket explaining the overarching
+    idea. Those tickets related to one feature should also be grouped by a
+    `milestone`_.
+
 .. _list of untriaged tickets: https://github.com/rtfd/readthedocs.org/issues?q=is:issue+is:open+no:label
+.. _milestone: https://github.com/rtfd/readthedocs.org/milestones
 
 Helping on translations
 -----------------------
