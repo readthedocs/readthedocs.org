@@ -8,7 +8,7 @@ Assumptions and Prerequisites
 * All python dependencies and setup tools are installed ::
 
   $ sudo apt-get install python-setuptools
-  $ sudo apt-get install built-essential
+  $ sudo apt-get install build-essential
   $ sudo apt-get install python-dev
   $ sudo apt-get install libevent-dev
   $ sudo easy_install pip 
