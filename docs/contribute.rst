@@ -37,8 +37,8 @@ Guidelines set forth at `contribution-guide.org`_.
 .. _Sprintable: https://github.com/rtfd/readthedocs.org/issues?q=is%3Aopen+is%3Aissue+label%3ASprintable
 .. _contribution-guide.org: http://www.contribution-guide.org/#submitting-bugs
 
-Translations
-------------
+Helping on translations
+-----------------------
 
 If you wish to contribute translations, please do so on `Transifex`_.
 
