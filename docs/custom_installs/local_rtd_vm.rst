@@ -17,7 +17,11 @@ Assumptions and Prerequisites
 
   $ sudo apt-get install git
   
-* Git repo is ``git.corp.company.com:git/docs/documentation.git``
+* Git repo is 
+
+  * HTTPS: ``https://github.com/rtfd/readthedocs.org.git`` or
+  * SSH: ``git.corp.company.com:git/docs/documentation.git``
+
 * Source documents are in ``../docs/source``
 * Sphinx ::
 
