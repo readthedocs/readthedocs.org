@@ -76,9 +76,9 @@ Navigate to the ``../checkouts/readthedocs.org/readthedocs`` folder in your VM a
     $ ./manage.py runserver [VM IP ADDRESS]:8000
     $ curl -i http://[VM IP ADDRESS]:8000
 
-You should now be able to log into the admin interface from any PC in your LAN at http://[VM IP ADDRESS]:8000/admin using the superuser account created in django.
+You should now be able to log into the admin interface from any PC in your LAN at ``http://[VM IP ADDRESS]:8000/admin`` using the superuser account created in django.
 
-Go to the dashboard at  http://[VM IP ADDRESS]:8000/dashboard and follow these steps:
+Go to the dashboard at  ``http://[VM IP ADDRESS]:8000/dashboard`` and follow these steps:
 
 1. Point the repository to your corporate Git project where the documentation source is checked in. Example:
 git.corp.company.com:/git/docs/documentation.git
@@ -124,7 +124,7 @@ This provides all permissions for that particular remote session, which are revo
 4. Build Documentation on Local RTD Instance.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Log into http://[VM IP ADDRESS]:[PORT] using the django superuser creds and follow these steps.	
+Log into ``http://[VM IP ADDRESS]:[PORT]`` using the django superuser creds and follow these steps.	
 
 For a new project
 `````````````````
