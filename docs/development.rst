@@ -10,7 +10,7 @@ Background
 
 .. info::
 
-    Consider this the cononical resource for contributing Javascript and CSS. We
+    Consider this the canonical resource for contributing Javascript and CSS. We
     are currently in the process of modernizing our front end development
     procedures. You will see a lot of different styles around the code base for
     front end JavaScript and CSS.
@@ -74,7 +74,7 @@ Next, install front end dependencies::
     bower install
 
 The sources for our bundles are found in the per-application path
-``static-src``, which has the same directory strucutre as ``static``. Files in
+``static-src``, which has the same directory structure as ``static``. Files in
 ``static-src`` are compiled to ``static`` for static file collection in Django.
 Don't edit files in ``static`` directly, unless you are sure there isn't a
 source file that will compile over your changes.
