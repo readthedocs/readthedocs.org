@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}
+  {% trans "We'll be right back" %}
+{% endblock %}
+
+{% block header-wrapper %}
+  {% include "error_header.html" %}
+{% endblock %}
+
+{% block content %}
+<pre style="line-height: 1.25; white-space: pre;">
+              ____
+             ||o o|
+             ||===|
+           .-.`---'-.
+           | | o .o |
+           | | o:.o |
+           | |      |
+           `-".-.-.-'
+           _| | : |_
+          (oo oo)_)_)
+
+    We are busy performing some maintenance, check back shortly.
+
+</pre>
+{% endblock %}
