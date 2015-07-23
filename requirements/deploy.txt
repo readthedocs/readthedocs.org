@@ -1,5 +1,5 @@
 -r pip.txt
-psycopg2==2.4
+psycopg2==2.4.6
 gunicorn==19.1.0
 pysolr==2.0.13
 dnspython==1.11.0

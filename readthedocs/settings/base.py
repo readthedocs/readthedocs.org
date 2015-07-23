@@ -174,9 +174,7 @@ INSTALLED_APPS = [
 
     # third party apps
     'pagination',
-    'profiles',
     'taggit',
-    'south',
     'djangosecure',
     'guardian',
     'django_gravatar',
@@ -217,10 +215,6 @@ INSTALLED_APPS = [
     #'allauth.socialaccount.providers.twitter',
 ]
 
-SOUTH_MIGRATION_MODULES = {
-    'taggit': 'taggit.south_migrations',
-}
-
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAdminUser',),
     'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',),
@@ -260,9 +254,6 @@ ES_DEFAULT_NUM_REPLICAS = 0
 ES_DEFAULT_NUM_SHARDS = 5
 
 ALLOWED_HOSTS = ['*']
-
-AUTH_PROFILE_MODULE = "core.UserProfile"
-SOUTH_TESTS_MIGRATE = False
 
 ABSOLUTE_URL_OVERRIDES = {
     'auth.user': lambda o: "/profiles/%s/" % o.username

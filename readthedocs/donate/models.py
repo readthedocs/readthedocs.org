@@ -34,8 +34,8 @@ class Supporter(models.Model):
     email = models.EmailField(_('Email'), max_length=200, blank=True)
     user = models.ForeignKey('auth.User', verbose_name=_('User'),
                              related_name='goldonce', blank=True, null=True)
-    dollars = models.IntegerField(_('Amount'), max_length=30,
-                                  choices=AMOUNT_CHOICES, default=50)
+    dollars = models.IntegerField(_('Amount'), choices=AMOUNT_CHOICES,
+                                  default=50)
     logo_url = models.URLField(_('Logo URL'), max_length=255, blank=True,
                                null=True)
     site_url = models.URLField(_('Site URL'), max_length=255, blank=True,

@@ -7,6 +7,9 @@ sys.path.insert(0, os.path.abspath('../readthedocs'))
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "settings.sqlite")
 from django.conf import settings
 
+import django
+django.setup()
+
 
 sys.path.append(os.path.abspath('_ext'))
 extensions = [

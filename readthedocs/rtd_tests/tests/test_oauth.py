@@ -17,7 +17,7 @@ class RedirectOauth(TestCase):
         self.client.login(username='eric', password='test')
         self.user = User.objects.get(pk=1)
         self.project = Project.objects.get(slug='pip')
-        self.org = GithubOrganization()
+        self.org = GithubOrganization.objects.create(login='rtfd', json='')
         self.privacy = self.project.version_privacy_level
 
     def test_make_github_project_pass(self):

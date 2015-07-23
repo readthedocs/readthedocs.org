@@ -58,13 +58,13 @@ class BookmarkExistsView(View):
             return HttpResponse(
                 content=simplejson.dumps({'exists': False}),
                 status=404,
-                mimetype="application/json"
+                content_type="application/json"
             )
 
         return HttpResponse(
             content=simplejson.dumps({'exists': True}),
             status=200,
-            mimetype="application/json"
+            content_type="application/json"
         )
 
 
@@ -132,7 +132,7 @@ class BookmarkAddView(View):
         return HttpResponse(
             simplejson.dumps({'added': True}),
             status=201,
-            mimetype='application/json'
+            content_type='application/json'
         )
 
 
@@ -187,5 +187,5 @@ class BookmarkRemoveView(View):
             return HttpResponse(
                 simplejson.dumps({'removed': True}),
                 status=200,
-                mimetype="application/json"
+                content_type="application/json"
             )
