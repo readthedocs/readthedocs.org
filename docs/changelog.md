@@ -29,7 +29,7 @@ Also note, this document is a Markdown file. This is mainly to keep parity with 
 
 After you have updated the code and installed the new dependencies, you need to run these commands on the server:
 
-```
+```bash
 python manage.py migrate contenttypes
 python manage.py migrate projects 0002 --fake
 python manage.py migrate --fake-initial
@@ -43,7 +43,8 @@ Locally I had trouble in a test environment that pip did not update to the speci
 The readthedocs developers need to execute these commands when switching to this branch (or when this got merged into master):
 
 - **Before updating** please make sure that all migrations are applied:
-```
+
+```bash
 python manage.py syncdb
 python manage.py migrate
 ```
@@ -51,7 +52,8 @@ python manage.py migrate
 - Update the codebase: `git pull`
 - You need to update the requirements with `pip install -r requirements.txt`
 - Now you need to fake the initial migrations:
-```
+
+```bash
 python manage.py migrate contenttypes
 python manage.py migrate projects 0002 --fake
 python manage.py migrate --fake-initial
