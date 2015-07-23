@@ -3,6 +3,8 @@
 import os
 import sys
 
+from recommonmark.parser import CommonMarkParser
+
 sys.path.insert(0, os.path.abspath('../readthedocs'))
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "settings.sqlite")
 from django.conf import settings
@@ -19,7 +21,12 @@ extensions = [
     'djangodocs',
 ]
 templates_path = ['_templates']
-source_suffix = '.rst'
+
+source_suffix = ['.rst', '.md']
+source_parsers = {
+    '.md': CommonMarkParser,
+}
+
 master_doc = 'index'
 project = u'Read The Docs'
 copyright = u'2010, Eric Holscher, Charlie Leifer, Bobby Grace'

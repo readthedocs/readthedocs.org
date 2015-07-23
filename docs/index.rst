@@ -73,6 +73,7 @@ Information about development is also available:
    :caption: Developer Documentation
 
    install
+   changelog
    contribute
    tests
    architecture
