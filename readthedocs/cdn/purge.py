@@ -16,8 +16,8 @@ def purge(files):
 
 if CDN_USERNAME and CDN_KEY and CDN_SECET and CDN_ID:
     if CDN_SERVICE == 'maxcdn':
-        from maxcdn import MaxCDN as cdn_service
-        api = cdn_service(CDN_USERNAME, CDN_KEY, CDN_SECET)
+        from maxcdn import MaxCDN
+        api = MaxCDN(CDN_USERNAME, CDN_KEY, CDN_SECET)
 
         def purge(files):
             return api.purge(CDN_ID, files)
