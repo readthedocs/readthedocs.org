@@ -42,7 +42,7 @@ GROK_API_HOST = 'https://api.grokthedocs.com'
 # For 1.4
 STATIC_ROOT = os.path.join(SITE_ROOT, 'media/static/')
 STATIC_URL = '/static/'
-#STATICFILES_DIRS = ()
+STATICFILES_DIRS = [os.path.join(SITE_ROOT, 'readthedocs', 'static')]
 #STATICFILES_FINDERS = ()
 
 CACHES = {
