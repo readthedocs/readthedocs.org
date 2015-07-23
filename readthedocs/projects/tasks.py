@@ -727,27 +727,26 @@ def fileify(version_pk, commit):
             project=project.slug, version=version.slug, msg='Creating ImportedFiles'))
         for root, dirnames, filenames in os.walk(path):
             for filename in filenames:
-                if fnmatch.fnmatch(filename, '*.html'):
-                    dirpath = os.path.join(root.replace(path, '').lstrip('/'),
-                                           filename.lstrip('/'))
-                    full_path = os.path.join(root, filename)
-                    md5 = hashlib.md5(open(full_path, 'rb').read()).hexdigest()
-                    try:
-                        obj, created = ImportedFile.objects.get_or_create(
-                            project=project,
-                            version=version,
-                            path=dirpath,
-                            name=filename,
-                        )
-                    except ImportedFile.MultipleObjectsReturned:
-                        log.exception('Error creating ImportedFile')
-                        continue
-                    if obj.md5 != md5:
-                        obj.md5 = md5
-                        changed_files.add(dirpath)
-                    if obj.commit != commit:
-                        obj.commit = commit
-                    obj.save()
+                dirpath = os.path.join(root.replace(path, '').lstrip('/'),
+                                       filename.lstrip('/'))
+                full_path = os.path.join(root, filename)
+                md5 = hashlib.md5(open(full_path, 'rb').read()).hexdigest()
+                try:
+                    obj, created = ImportedFile.objects.get_or_create(
+                        project=project,
+                        version=version,
+                        path=dirpath,
+                        name=filename,
+                    )
+                except ImportedFile.MultipleObjectsReturned:
+                    log.exception('Error creating ImportedFile')
+                    continue
+                if obj.md5 != md5:
+                    obj.md5 = md5
+                    changed_files.add(dirpath)
+                if obj.commit != commit:
+                    obj.commit = commit
+                obj.save()
         # Delete ImportedFiles from previous versions
         ImportedFile.objects.filter(project=project, version=version).exclude(commit=commit).delete()
         # Purge Cache
