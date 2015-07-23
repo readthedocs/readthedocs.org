@@ -719,6 +719,9 @@ def fileify(version_pk, commit):
     version = Version.objects.get(pk=version_pk)
     project = version.project
 
+    if not project.cdn_enabled:
+        return
+
     changed_files = set()
 
     if not commit:
