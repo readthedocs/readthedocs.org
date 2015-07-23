@@ -9,7 +9,7 @@ Also note, this document is a Markdown file. This is mainly to keep parity with 
 
 * Django 1.8 Support Merged
 
-### Notes
+### Code Notes
 
 
 - Updated Django from `1.6.11` to `1.8.3`.
@@ -25,7 +25,7 @@ Also note, this document is a Markdown file. This is mainly to keep parity with 
 - Added `django.setup()` to `conf.py` to load django properly for doc builds.
 - Added migrations for all apps with models in the `readthedocs/` directory
 
-# Deployment Notes
+### Deployment Notes
 
 After you have updated the code and installed the new dependencies, you need to run these commands on the server:
 
@@ -38,7 +38,7 @@ python manage.py migrate --fake-initial
 Locally I had trouble in a test environment that pip did not update to the specified commit of tastypie. It might be required to use `pip install -U -r requirements/deploy.txt` during deployment.
 
 
-# Development Update Notes
+### Development Update Notes
 
 The readthedocs developers need to execute these commands when switching to this branch (or when this got merged into master):
 
@@ -58,7 +58,3 @@ python manage.py migrate contenttypes
 python manage.py migrate projects 0002 --fake
 python manage.py migrate --fake-initial
 ```
-
-You are ready to go now.
-
-btw, shall we document that somehow in the documentation? Or is a one-time post to the mailinglist sufficient?
