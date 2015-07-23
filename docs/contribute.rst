@@ -18,7 +18,7 @@ If you want to deep dive and help out with development on Read the Docs, then
 first get the project installed locally according to the
 :ref:`Installation Guide <installing-read-the-docs>`. After that is done we
 suggest you have a look at tickets in our issue tracker that are labelled `Good
-First Bug`_. These are a meant to be a great way to get a smooth start and
+First Bug`_. These are meant to be a great way to get a smooth start and
 won't put you in front of the most complex parts of the system.
 
 If you are up to more challenging tasks with a bigger scope, then there are a
@@ -154,7 +154,7 @@ few more at hand to further categorize issues.
     of Read the Docs. Unfortunately to many for the core developers to handle
     all of them. Therefore we assign the *Community Effort* label on all the
     issues that we see as valid for the project but that we currently do not
-    have the resources for to work on. We encourage community members to work
+    have the resources to work on. We encourage community members to work
     on these tickets and to submit a pull request.
 
 *Good First Bug*
