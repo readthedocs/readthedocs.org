@@ -20,11 +20,14 @@ class Command(BaseCommand):
         "issues with projects on the live site."
     )
 
+    def add_arguments(self, parser):
+        parser.add_argument('project_slug', nargs='+', type=str)
+
     def handle(self, *args, **options):
         api = slumber.API(base_url='http://readthedocs.org/api/v1/')
         user1 = User.objects.order_by('pk').first()
 
-        for slug in args:
+        for slug in options['project_slug']:
             self.stdout.write('Importing {slug} ...'.format(slug=slug))
 
             project_data = api.project.get(slug=slug)
