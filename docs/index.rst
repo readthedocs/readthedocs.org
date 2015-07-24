@@ -79,6 +79,7 @@ Information about development is also available:
    symlinks
    settings
    i18n
+   issue-labels
    api
 
 .. _business-docs:

@@ -70,6 +70,8 @@ label. The reported issue …
       It was already decided that Read the Docs is not a dull hosting platform
       for HTML. So explain this and close the ticket.
 
+.. _triage-not-enough-information:
+
 … does not provide enough information
     Add the label **Needed: more information** if the reported issue does not
     contain enough information to decide if it is valid or not and ask on the
@@ -117,6 +119,8 @@ label. The reported issue …
 
     - *Builds are not starting*
 
+.. _triage-support-tickets:
+
 … is a question and needs answering:
     If the ticket contains a question about the Read the Docs platform or the
     code, then add the label **Support**.
@@ -139,13 +143,15 @@ label. The reported issue …
 After we finished the initial triaging of new tickets, no ticket should be left
 without a label.
 
+.. _list of untriaged tickets: https://github.com/rtfd/readthedocs.org/issues?q=is:issue+is:open+no:label
+
 Additional labels for categorization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Additionally to the labels already involved in the section above, we have a
 few more at hand to further categorize issues.
 
-*Priority: High*
+*High Priority*
     If the issue is urgent, assign this label. In the best case also go forward to
     resolve the ticket yourself as soon as possible.
 
@@ -172,13 +178,15 @@ few more at hand to further categorize issues.
     idea. Those tickets related to one feature should also be grouped by a
     `milestone`_.
 
-.. _list of untriaged tickets: https://github.com/rtfd/readthedocs.org/issues?q=is:issue+is:open+no:label
 .. _milestone: https://github.com/rtfd/readthedocs.org/milestones
+
+For a full list of available labels and their meanings, see
+:ref:`issue-label-overview`.
 
 Helpful links for triaging
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Here is a list for contributors that look for work:
+Here is a list of links for contributors that look for work:
 
 - `Untriaged tickets
   <https://github.com/rtfd/readthedocs.org/issues?q=is:issue+is:open+no:label>`_:
