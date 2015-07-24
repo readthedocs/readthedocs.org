@@ -56,17 +56,13 @@ Possible Error and Resolution
 1. Run the following commands. ::
 
     $ cd readthedocs
-    $ ./manage.py syncdb
+    $ ./manage.py migrate
 
 2. This will prompt you to create a superuser account for Django. Enter appropriate details. For example: ::
 
     Username: monami.b
     Email address: monami.b@email.com
     Password: pa$$word
-
-3. Run the migrate command. ::
-
-    $ ./manage.py migrate
 
 3. RTD Server Administration.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
