@@ -52,7 +52,6 @@ simplejson==2.3.0
 stripe==1.20.2
 factory-boy==2.4.1
 django-copyright==1.0.0
-django-maintenancemode==0.10.1
 django-formtools==1.0
 
 # Docs
