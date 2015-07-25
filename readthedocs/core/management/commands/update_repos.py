@@ -48,9 +48,10 @@ class Command(BaseCommand):
                     for version in Version.objects.filter(project__slug=slug,
                                                           active=True,
                                                           uploaded=False):
-                        tasks.update_docs(pk=version.project_id,
-                                          record=False,
-                                          version_pk=version.pk)
+                        update_docs = tasks.UpdateDocsTask()
+                        update_docs.run(pk=version.project_id,
+                                        record=False,
+                                        version_pk=version.pk)
                 else:
                     p = Project.all_objects.get(slug=slug)
                     log.info("Building %s" % p)
@@ -60,14 +61,15 @@ class Command(BaseCommand):
                 log.info("Updating all versions")
                 for version in Version.objects.filter(active=True,
                                                       uploaded=False):
-                    tasks.update_docs(pk=version.project_id,
-                                      record=record,
-                                      force=force,
-                                      version_pk=version.pk)
+                    update_tasks = tasks.UpdateDocsTask()
+                    update_tasks.run(pk=version.project_id,
+                                     record=record,
+                                     force=force,
+                                     version_pk=version.pk)
             else:
                 log.info("Updating all docs")
-                tasks.update_docs_pull(record=record,
-                                       force=force)
+                update_docs = tasks.UpdateDocsTask()
+                update_docs.run(record=record, force=force)
 
     @property
     def help(self):

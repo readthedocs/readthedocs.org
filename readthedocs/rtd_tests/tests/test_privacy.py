@@ -15,24 +15,13 @@ log = logging.getLogger(__name__)
 
 
 class PrivacyTests(TestCase):
-    def tearDown(self):
-        tasks.update_docs = self.old_bd
+    fixtures = ["eric"]
 
     def setUp(self):
-        self.eric = User(username='eric')
-        self.eric.set_password('test')
-        self.eric.save()
-
-        self.tester = User(username='tester')
-        self.tester.set_password('test')
-        self.tester.save()
-
-        self.old_bd = tasks.update_docs
-
         def mock(*args, **kwargs):
             pass
-            #log.info("Mocking for great profit and speed.")
-        tasks.update_docs.delay = mock
+
+        tasks.UpdateDocsTask.delay = mock
 
     def _create_kong(self, privacy_level='private',
                      version_privacy_level='private'):

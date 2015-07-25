@@ -30,10 +30,16 @@ class BaseBuilder(object):
     _force = False
     # old_artifact_path = ..
 
-    def __init__(self, version, force=False):
+    def __init__(self, version, force=False, build_env=None):
+        self.project = build_env.project
+        # TODO do we really need to push the version in here?
         self.version = version
         self._force = force
-        self.target = self.version.project.artifact_path(version=self.version.slug, type=self.type)
+        self.target = self.version.project.artifact_path(
+            version=self.version.slug,
+            type=self.type
+        )
+        self.build_env = build_env
 
     def force(self, **kwargs):
         """
@@ -115,3 +121,7 @@ If you want to use another markup, choose a different builder in your settings.
 
                 index_file.write(index_text.format(dir=docs_dir, ext=extension))
                 index_file.close()
+
+    def run(self, *args, **kwargs):
+        '''Proxy run to build environment'''
+        self.build_env.run(*args, **kwargs)

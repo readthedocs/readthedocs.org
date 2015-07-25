@@ -61,8 +61,9 @@ class TestCeleryBuilding(RTDTestCase):
 
     def test_update_docs(self):
         with mock_api(self.repo):
-            result = tasks.update_docs.delay(self.project.pk, record=False,
-                                             intersphinx=False)
+            update_docs = tasks.UpdateDocsTask()
+            result = update_docs.delay(self.project.pk, record=False,
+                                       intersphinx=False)
         self.assertTrue(result.successful())
 
     def test_update_imported_doc(self):

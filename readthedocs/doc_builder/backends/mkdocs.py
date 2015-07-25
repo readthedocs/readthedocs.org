@@ -7,7 +7,6 @@ from django.conf import settings
 from django.template import Context, loader as template_loader
 
 from readthedocs.doc_builder.base import BaseBuilder, restoring_chdir
-from readthedocs.projects.utils import run
 
 log = logging.getLogger(__name__)
 
@@ -127,21 +126,18 @@ class BaseMkdocs(BaseBuilder):
         include_file.write(include_string)
         include_file.close()
 
-    @restoring_chdir
     def build(self, **kwargs):
         checkout_path = self.version.project.checkout_path(self.version.slug)
-        # site_path = os.path.join(checkout_path, 'site')
-        os.chdir(checkout_path)
-        # Actual build
-        build_command = (
-            "{command} {builder} --clean --site-dir={build_dir} --theme=readthedocs"
-            .format(
-                command=self.version.project.venv_bin(version=self.version.slug, bin='mkdocs'),
-                builder=self.builder,
-                build_dir=self.build_dir,
-            ))
-        results = run(build_command, shell=True)
-        return results
+        # TODO does this have the self.project?
+        # TODO --theme fails on the JSON builder
+        build_command = [
+            self.project.venv_bin(version=self.version.slug, bin='mkdocs'),
+            self.builder,
+            '--clean',
+            '--site-dir', self.build_dir,
+            '--theme', 'readthedocs',
+        ]
+        self.run(*build_command, cwd=checkout_path)
 
 
 class MkdocsHTML(BaseMkdocs):

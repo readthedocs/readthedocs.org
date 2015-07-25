@@ -59,7 +59,7 @@ def trigger_build(project, version=None, record=True, force=False, basic=False):
     An API to wrap the triggering of a build.
     """
     # Avoid circular import
-    from readthedocs.projects.tasks import update_docs
+    from readthedocs.projects.tasks import UpdateDocsTask
 
     if project.skip:
         return None
@@ -75,10 +75,12 @@ def trigger_build(project, version=None, record=True, force=False, basic=False):
             state='triggered',
             success=True,
         )
+        update_docs = UpdateDocsTask()
         update_docs.delay(pk=project.pk, version_pk=version.pk, record=record,
                           force=force, basic=basic, build_pk=build.pk)
     else:
         build = None
+        update_docs = UpdateDocsTask()
         update_docs.delay(pk=project.pk, version_pk=version.pk, record=record,
                           force=force, basic=basic)
 

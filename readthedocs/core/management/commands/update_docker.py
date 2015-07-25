@@ -20,4 +20,6 @@ class Command(BaseCommand):
                 project_data = api.project(slug).get()
                 p = tasks.make_api_project(project_data)
                 log.info("Building %s" % p)
-                tasks.update_docs(pk=p.pk, docker=True)
+                # TODO just move this to update_api.py
+                update_docs = tasks.UpdateDocsTask()
+                update_docs.run(pk=p.pk, docker=True)

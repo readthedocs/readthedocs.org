@@ -12,7 +12,7 @@ from django.conf import settings
 
 from readthedocs.builds import utils as version_utils
 from readthedocs.doc_builder.base import BaseBuilder, restoring_chdir
-from readthedocs.projects.utils import run, safe_write
+from readthedocs.projects.utils import safe_write
 from readthedocs.projects.exceptions import ProjectImportError
 from readthedocs.restapi.client import api
 
@@ -123,18 +123,20 @@ class BaseSphinx(BaseBuilder):
     def build(self, **kwargs):
         self.clean()
         project = self.version.project
-        os.chdir(project.conf_dir(self.version.slug))
-        force_str = " -E " if self._force else ""
-        build_command = "%s -T %s -b %s -d _build/doctrees -D language=%s . %s " % (
-            project.venv_bin(version=self.version.slug,
-                             bin='sphinx-build'),
-            force_str,
-            self.sphinx_builder,
-            project.language,
-            self.sphinx_build_dir,
-        )
-        results = run(build_command, shell=True)
-        return results
+        build_command = [
+            project.venv_bin(version=self.version.slug, bin='sphinx-build'),
+            '-T'
+        ]
+        if self._force:
+            build_command.append('-E')
+        build_command.extend([
+            '-b', self.sphinx_builder,
+            '-d', '_build/doctrees',
+            '-D', 'language={lang}'.format(lang=project.language),
+            '.',
+            self.sphinx_build_dir
+        ])
+        self.run(*build_command, cwd=project.conf_dir(self.version.slug))
 
 
 class HtmlBuilder(BaseSphinx):
@@ -212,7 +214,7 @@ class EpubBuilder(BaseSphinx):
         if from_globs:
             from_file = from_globs[0]
             to_file = os.path.join(self.target, "%s.epub" % self.version.project.slug)
-            run('mv -f %s %s' % (from_file, to_file))
+            self.run('mv', '-f', from_file, to_file)
 
 
 class PdfBuilder(BaseSphinx):
@@ -223,42 +225,49 @@ class PdfBuilder(BaseSphinx):
     @restoring_chdir
     def build(self, **kwargs):
         self.clean()
-        project = self.version.project
-        os.chdir(project.conf_dir(self.version.slug))
+        cwd = self.project.conf_dir(self.version.slug)
         # Default to this so we can return it always.
-        results = {}
-        latex_results = run('%s -b latex -D language=%s -d _build/doctrees . _build/latex'
-                            % (project.venv_bin(version=self.version.slug,
-                                                bin='sphinx-build'), project.language))
+        self.run(
+            self.project.venv_bin(version=self.version.slug, bin='sphinx-build'),
+            '-b', 'latex',
+            '-D', 'language={lang}'.format(lang=self.project.language),
+            '-d' ,'_build/doctrees',
+            '.',
+            '_build/latex',
+            cwd=cwd
+        )
+        latex_cwd = os.path.join(cwd, '_build', 'latex')
+        tex_files = glob(os.path.join(latex_cwd, '*.tex'))
 
-        if latex_results[0] == 0:
-            os.chdir('_build/latex')
-            tex_files = glob('*.tex')
+        if not tex_files:
+            # TODO status code here
+            raise BuildEnvironmentError('No TeX files were found')
 
-            if tex_files:
-                # Run LaTeX -> PDF conversions
-                pdflatex_cmds = [('pdflatex -interaction=nonstopmode %s'
-                                  % tex_file) for tex_file in tex_files]
-                makeindex_cmds = [('makeindex -s python.ist %s.idx'
-                                   % os.path.splitext(tex_file)[0]) for tex_file in tex_files]
-                pdf_results = run(*pdflatex_cmds)
-                ind_results = run(*makeindex_cmds)
-                pdf_results = run(*pdflatex_cmds)
-            else:
-                pdf_results = (0, "No tex files found", "No tex files found")
-                ind_results = (0, "No tex files found", "No tex files found")
+        # Run LaTeX -> PDF conversions
+        pdflatex_cmds = [
+            ['pdflatex',
+                '-interaction=nonstopmode',
+                tex_file]
+            for tex_file in tex_files]
+        makeindex_cmds = [
+            ['makeindex',
+                '-s',
+                'python.ist',
+                '{0}.idx'.format(os.path.splitext(tex_file)[0])]
+            for tex_file in tex_files]
+        for cmd in pdflatex_cmds:
+            self.run(*cmd, cwd=latex_cwd)
+        for cmd in makeindex_cmds:
+            self.run(*cmd, cwd=latex_cwd)
+        for cmd in pdflatex_cmds:
+            self.run(*cmd, cwd=latex_cwd)
 
-            results = [
-                latex_results[0] + ind_results[0] + pdf_results[0],
-                latex_results[1] + ind_results[1] + pdf_results[1],
-                latex_results[2] + ind_results[2] + pdf_results[2],
-            ]
-            pdf_match = PDF_RE.search(results[1])
-            if pdf_match:
-                self.pdf_file_name = pdf_match.group(1).strip()
-        else:
-            results = latex_results
-        return results
+        # TODO this ain't going to work without having access to the command
+        # returned here. We should probably return the command from run
+        # TODO pdf_match = PDF_RE.search(results[1])
+        pdf_match = PDF_RE.search('')
+        if pdf_match:
+            self.pdf_file_name = pdf_match.group(1).strip()
 
     def move(self, **kwargs):
         if not os.path.exists(self.target):
@@ -283,4 +292,4 @@ class PdfBuilder(BaseSphinx):
                 from_file = None
         if from_file:
             to_file = os.path.join(self.target, "%s.pdf" % self.version.project.slug)
-            run('mv -f %s %s' % (from_file, to_file))
+            self.run('mv', '-f', from_file, to_file)

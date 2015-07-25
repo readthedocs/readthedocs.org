@@ -5,15 +5,18 @@ import re
 
 from django.test import TestCase
 from django.contrib.auth.models import User
+from mock import patch, Mock, PropertyMock
 
 from readthedocs.projects.models import Project
 from readthedocs.builds.models import Version
-from readthedocs.doc_builder.environments import (DockerEnvironment, DockerBuildCommand,
-                                      BuildCommand)
+from readthedocs.doc_builder.environments import (DockerEnvironment,
+                                                  DockerBuildCommand,
+                                                  BuildCommand)
 from readthedocs.rtd_tests.utils import make_test_git
 from readthedocs.rtd_tests.base import RTDTestCase
 
 
+# TODO mock out environment, don't need to call commands here, just mock return
 class TestBuilding(RTDTestCase):
     """These tests run the build functions directly. They don't use celery"""
 
@@ -28,7 +31,6 @@ class TestBuilding(RTDTestCase):
         self.project = Project.objects.create(
             name="Test Project",
             repo_type="git",
-            #Our top-level checkout
             repo=repo,
         )
         self.project.users.add(self.eric)
@@ -50,8 +52,8 @@ class TestDockerEnvironment(TestCase):
 
     def test_container_id(self):
         '''Test docker build command'''
-        docker = DockerEnvironment(self.version)
-        self.assertEqual(docker.container_id(),
+        docker = DockerEnvironment(version=self.version, project=self.project)
+        self.assertEqual(docker.container_id,
                          'version-foobar-of-pip-20')
 
 
@@ -69,111 +71,91 @@ class TestBuildCommand(TestCase):
     def test_result(self):
         '''Test result of output using unix true/false commands'''
         cmd = BuildCommand('true')
-        with cmd:
-            cmd.run()
-        self.assertTrue(cmd.successful())
+        cmd.run()
+        self.assertTrue(cmd.successful)
 
         cmd = BuildCommand('false')
-        with cmd:
-            cmd.run()
-        self.assertTrue(cmd.failed())
+        cmd.run()
+        self.assertTrue(cmd.failed)
 
     def test_missing_command(self):
         '''Test missing command'''
         path = os.path.join('non-existant', str(uuid.uuid4()))
         self.assertFalse(os.path.exists(path))
-        cmd = BuildCommand('/non-existant/foobar')
-        with cmd:
-            cmd.run()
+        cmd = BuildCommand(path)
+        cmd.run()
         missing_re = re.compile(r'(?:No such file or directory|not found)')
         self.assertRegexpMatches(cmd.error, missing_re)
 
     def test_input(self):
         '''Test input to command'''
-        cmd = BuildCommand('/bin/cat')
-        with cmd:
-            cmd.run(cmd_input="FOOBAR")
-        self.assertEqual(cmd.output, "FOOBAR")
+        cmd = BuildCommand('/bin/cat', input_data='FOOBAR')
+        cmd.run()
+        self.assertEqual(cmd.output, 'FOOBAR')
 
     def test_output(self):
         '''Test output command'''
-        cmd = BuildCommand('/bin/bash -c "echo -n FOOBAR"')
-        with cmd:
-            cmd.run()
+        cmd = BuildCommand(['/bin/bash',
+                            '-c', 'echo -n FOOBAR'])
+        cmd.run()
         self.assertEqual(cmd.output, "FOOBAR")
 
     def test_error_output(self):
         '''Test error output from command'''
-        cmd = BuildCommand('/bin/bash -c "echo -n FOOBAR 1>&2"')
-        with cmd:
-            cmd.run()
-        self.assertEqual(cmd.output, "")
-        self.assertEqual(cmd.error, "FOOBAR")
+        # Test default combined output/error streams
+        cmd = BuildCommand(['/bin/bash',
+                            '-c', 'echo -n FOOBAR 1>&2'])
+        cmd.run()
+        self.assertEqual(cmd.output, 'FOOBAR')
+        self.assertIsNone(cmd.error)
+        # Test non-combined streams
+        cmd = BuildCommand(['/bin/bash',
+                            '-c', 'echo -n FOOBAR 1>&2'],
+                           combine_output=False)
+        cmd.run()
+        self.assertEqual(cmd.output, '')
+        self.assertEqual(cmd.error, 'FOOBAR')
 
 
 class TestDockerBuildCommand(TestCase):
     '''Test docker build commands'''
 
-    def test_command_build(self):
-        '''Test building of command'''
-        cmd = DockerBuildCommand('/home/docs/run.sh pip')
-        with cmd:
-            self.assertEqual(
-                cmd.get_command(),
-                'docker run -i --rm=true rtfd-build /home/docs/run.sh pip')
+    def test_wrapped_command(self):
+        '''Test shell wrapping for Docker chdir'''
+        cmd = DockerBuildCommand(['/home/docs/run.sh', 'pip'],
+                                 cwd='/tmp/foobar')
+        self.assertEqual(
+            cmd.get_wrapped_command(),
+            ("/bin/sh -c "
+             "'cd /tmp/foobar && "
+             "/home/docs/run.sh pip'"))
 
-        cmd = DockerBuildCommand(['/home/docs/run.sh', 'pip'])
-        with cmd:
-            self.assertEqual(
-                cmd.get_command(),
-                'docker run -i --rm=true rtfd-build /home/docs/run.sh pip')
+    @patch.object(DockerEnvironment, 'container_id', new_callable=PropertyMock)
+    @patch.object(DockerEnvironment, 'get_client')
+    def test_command_execution(self, mock_get_client, mock_container_id):
+        '''Command execution through Docker'''
+        docker_client = Mock(**{'foobar.return_value': 'foobar'})
+        docker_client.exec_create.return_value = {'Id': 'container-foobar'}
+        docker_client.exec_start.return_value = 'This is the return'
+        docker_client.exec_inspect.return_value = {'ExitCode': 42}
+        mock_get_client.return_value = docker_client
+        mock_container_id.return_value = 'container-foobar'
 
-        cmd = DockerBuildCommand(
-            ['/home/docs/run.sh', 'pip'],
-            name='swayze-express',
-            mounts=[('/some/path/checkouts',
-                     '/home/docs/checkouts')]
+        build_env = DockerEnvironment()
+        cmd = DockerBuildCommand(['echo test'], build_env=build_env, cwd='/tmp')
+        cmd.run()
+
+        docker_client.exec_create.assert_called_with(
+            container='container-foobar',
+            cmd="/bin/sh -c 'cd /tmp && echo\\ test'",
+            stderr=True,
+            stdout=True
         )
-        with cmd:
-            self.assertEqual(
-                cmd.get_command(),
-                ('docker run -i -v /some/path/checkouts:/home/docs/checkouts '
-                 '--name=swayze-express --rm=true rtfd-build '
-                 '/home/docs/run.sh pip')
-            )
+        self.assertEqual(cmd.status, 42)
+        self.assertEqual(cmd.output, 'This is the return')
+        self.assertEqual(cmd.error, None)
 
-        cmd = DockerBuildCommand(
-            ['/home/docs/run.sh', 'pip'],
-            user='pswayze',
-            image='swayze-express',
-        )
-        with cmd:
-            self.assertEqual(
-                cmd.get_command(),
-                ('docker run -i --user=pswayze --rm=true swayze-express '
-                 '/home/docs/run.sh pip')
-            )
-
-        cmd = DockerBuildCommand(
-            ['/home/docs/run.sh', 'pip'],
-            user='pswayze',
-            image='swayze-express',
-            remove=False,
-        )
-        with cmd:
-            self.assertEqual(
-                cmd.get_command(),
-                ('docker run -i --user=pswayze swayze-express '
-                 '/home/docs/run.sh pip')
-            )
-
-    def test_command_exception(self):
-        '''Test exception in context manager'''
-        cmd = DockerBuildCommand('echo test')
-
-        def _inner():
-            with cmd:
-                raise Exception('FOOBAR EXCEPTION')
-
-        self.assertRaises(Exception, _inner)
-        self.assertIn('FOOBAR EXCEPTION', cmd.error)
+    # TODO
+    def test_wrapped_command(self):
+        """Proper shell wrapping of command"""
+        assert False

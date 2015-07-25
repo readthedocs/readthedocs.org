@@ -1,6 +1,7 @@
-from readthedocs.builds.models import Version
 from django.core.management.base import BaseCommand
-from readthedocs.projects.tasks import update_docs
+
+from readthedocs.builds.models import Version
+from readthedocs.projects.tasks import UpdateDocsTask
 
 
 class Command(BaseCommand):
@@ -10,5 +11,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         for version in Version.objects.filter(active=True, built=False):
-            update_docs(version.project_id, record=False,
-                        version_pk=version.pk)
+            update_docs = UpdateDocsTask()
+            update_docs.run(version.project_id, record=False,
+                            version_pk=version.pk)
