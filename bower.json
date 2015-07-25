@@ -14,7 +14,7 @@
     "tests"
   ],
   "dependencies": {
-    "jquery": "*",
+    "jquery": "~2.0.3",
     "underscore": "~1.7.0",
     "readthedocs-client": "https://github.com/agjohnson/readthedocs-client-js.git",
     "knockout": "~3.3.0",

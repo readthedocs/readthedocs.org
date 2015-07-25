@@ -19,7 +19,7 @@ log = logging.getLogger(__name__)
 def version_from_slug(slug, version):
     from projects import tasks
     from builds.models import Version
-    from tastyapi import apiv2 as api
+    from restapi.client import api
     if getattr(settings, 'DONT_HIT_DB', True):
         version_data = api.version().get(project=slug, slug=version)['results'][0]
         v = tasks.make_api_version(version_data)

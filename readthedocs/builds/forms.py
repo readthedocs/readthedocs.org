@@ -9,6 +9,12 @@ class AliasForm(forms.ModelForm):
 
     class Meta:
         model = VersionAlias
+        fields = (
+            'project',
+            'from_slug',
+            'to_slug',
+            'largest',
+        )
 
     def __init__(self, instance=None, *args, **kwargs):
         super(AliasForm, self).__init__(instance=instance, *args, **kwargs)

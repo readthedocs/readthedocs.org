@@ -19,7 +19,6 @@ urlpatterns = patterns(
     url(r'docurl/', 'restapi.views.core_views.docurl', name='docurl'),
     url(r'cname/', 'restapi.views.core_views.cname', name='cname'),
     url(r'footer_html/', 'restapi.views.footer_views.footer_html', name='footer_html'),
-    url(r'quick_search/', 'restapi.views.search_views.quick_search', name='quick_search'),
     url(r'index_search/', 'restapi.views.search_views.index_search', name='index_search'),
     url(r'search/$', 'restapi.views.search_views.search', name='api_search'),
     url(r'search/project/$', 'restapi.views.search_views.project_search', name='api_project_search'),

@@ -13,7 +13,7 @@ from django.template import RequestContext
 from django.views.generic import View, ListView, TemplateView
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.formtools.wizard.views import SessionWizardView
+from formtools.wizard.views import SessionWizardView
 
 from allauth.socialaccount.models import SocialToken
 from requests_oauthlib import OAuth2Session

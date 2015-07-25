@@ -1,14 +1,44 @@
-Running tests
-=============
+Testing
+=======
 
-Read the Docs ships with a test suite that tests the application. You should run these tests when you are doing development before committing code.
+Before contributing to Read the Docs, make sure your patch passes our test suite
+and your code style passes our code linting suite.
 
-They can be run easily::
+Read the Docs uses `Tox`_ to execute testing and linting procedures. Tox is the
+only dependency you need to run linting or our test suite, the remainder of our
+requirements will be installed by Tox into environment specific virtualenv
+paths. Before testing, make sure you have Tox installed::
 
-    pip install coverage 
-    ./runtests.sh
+    pip install tox
 
-This should print out a bunch of information and pass with 0 errors.
+To run the full test and lint suite against your changes, simply run Tox. Tox
+should return without any errors. You can run Tox against all of our
+environments by running::
+
+    tox
+
+To target a specific environment::
+
+    tox -e py27
+
+The ``tox`` configuration has the following environments configured. You can
+target a single environment to limit the test suite::
+
+    py27
+        Run our test suite using Python 2.7
+
+    lint
+        Run code linting using `Prospector`_. This currently runs `pylint`_,
+        `pyflakes`_, `pep8`_ and other linting tools.
+
+    docs
+        Test documentation compilation with Sphinx.
+
+.. _`Tox`: http://tox.readthedocs.org/en/latest/index.html
+.. _`Prospector`: http://prospector.readthedocs.org/en/master/
+.. _`pylint`: http://docs.pylint.org/
+.. _`pyflakes`: https://github.com/pyflakes/pyflakes
+.. _`pep8`: http://pep8.readthedocs.org/en/latest/index.html
 
 Continuous Integration
 ----------------------

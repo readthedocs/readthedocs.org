@@ -333,12 +333,10 @@ class Build(models.Model):
     setup_error = models.TextField(_('Setup error'), null=True, blank=True)
     output = models.TextField(_('Output'), default='', blank=True)
     error = models.TextField(_('Error'), default='', blank=True)
-    exit_code = models.IntegerField(_('Exit code'), max_length=3, null=True,
-                                    blank=True)
+    exit_code = models.IntegerField(_('Exit code'), null=True, blank=True)
     commit = models.CharField(_('Commit'), max_length=255, null=True, blank=True)
 
-    length = models.IntegerField(_('Build Length'), max_length=10, null=True,
-                                 blank=True)
+    length = models.IntegerField(_('Build Length'), null=True, blank=True)
 
     builder = models.CharField(_('Builder'), max_length=255, null=True, blank=True)
 

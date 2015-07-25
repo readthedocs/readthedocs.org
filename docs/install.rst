@@ -73,13 +73,11 @@ This may take a while, so go grab a beverage. When it's done, build your
 database::
 
     cd readthedocs
-    ./manage.py syncdb
-
-This will prompt you to create a superuser account for Django. Do that. Then::
-
     ./manage.py migrate
 
-Go ahead and load in a couple users and a test projects::
+This will prompt you to create a superuser account for Django. Do that.
+
+Then go ahead and load in a couple users and a test projects::
 
     ./manage.py loaddata test_data
 

@@ -1,13 +1,9 @@
+
 var rtd = require('readthedocs-client'),
     ko = require('knockout'),
-    $ = null;
+    jquery = require('jquery'),
+    $ = jquery;
 
-if (typeof(window) == 'undefined') {
-    require('jquery');
-}
-else {
-    $ = window.$;
-}
 
 function EmbedView (config) {
     var self = this;

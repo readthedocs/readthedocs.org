@@ -24,7 +24,7 @@ from projects.utils import make_api_version, symlink, update_static_metadata
 from projects.version_handling import determine_stable_version
 from projects.version_handling import version_windows
 from taggit.managers import TaggableManager
-from tastyapi.slum import api
+from api.client import api
 
 from vcs_support.base import VCSProject
 from vcs_support.backends import backend_cls
@@ -178,7 +178,7 @@ class Project(models.Model):
 
     # Subprojects
     related_projects = models.ManyToManyField(
-        'self', verbose_name=_('Related projects'), blank=True, null=True,
+        'self', verbose_name=_('Related projects'), blank=True,
         symmetrical=False, through=ProjectRelationship)
 
     # Language bits
@@ -200,7 +200,6 @@ class Project(models.Model):
     # Version State
     num_major = models.IntegerField(
         _('Number of Major versions'),
-        max_length=3,
         default=2,
         null=True,
         blank=True,
@@ -208,7 +207,6 @@ class Project(models.Model):
     )
     num_minor = models.IntegerField(
         _('Number of Minor versions'),
-        max_length=3,
         default=2,
         null=True,
         blank=True,
@@ -216,7 +214,6 @@ class Project(models.Model):
     )
     num_point = models.IntegerField(
         _('Number of Point versions'),
-        max_length=3,
         default=2,
         null=True,
         blank=True,
@@ -575,10 +572,8 @@ class Project(models.Model):
             else:
                 log.warning("Conf file specified on model doesn't exist")
         files = self.find('conf.py', version)
-        print files
         if not files:
             files = self.full_find('conf.py', version)
-        print files
         if len(files) == 1:
             return files[0]
         for file in files:
