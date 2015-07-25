@@ -17,7 +17,7 @@ hr { height: 1px; border: 0; border: none; width: 100%; background: #bfbfbf; col
 
 /* general layout */
 
-body { position: relative; text-align: center; z-index: 0; background: #fafafa url(../images/body-bg.png) top left repeat; }
+body { position: relative; text-align: center; z-index: 0; background: #fafafa url(../images/body-bg.svg) top left repeat; }
 .wrapper { position: relative; text-align: left; margin: 0 auto; padding: 0 10px; width: 800px; }
 
 div.wrapper > div.col-major {
@@ -265,7 +265,7 @@ div.menu-user div.menu-dropdown.menu-dropped {
 
 /* home */
 
-#home-header { background: url(../images/header-home-bg.png) top left repeat #465158; border-bottom: 1px solid #333; padding: 65px 0 35px 0; color: #fff; }
+#home-header { background: url(../images/header-home-bg.svg) top left repeat #465158; border-bottom: 1px solid #333; padding: 65px 0 35px 0; color: #fff; }
 .home.splash #content { padding-top: 80px; }
 
   /* title */
