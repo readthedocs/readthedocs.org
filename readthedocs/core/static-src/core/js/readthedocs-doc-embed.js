@@ -1,33 +1,29 @@
 var sponsorship = require('./sponsorship'),
     doc = require('./doc'),
-    grokthedocs = require('./doc-embed/grokthedocs-client');
+    grokthedocs = require('./doc-embed/grokthedocs-client'),
+    rtd = require('./doc-embed/rtd-data.js');
 
 $(document).ready(function () {
 
-    var build = new doc.Build(READTHEDOCS_DATA);
+    var build = new doc.Build(rtd);
 
     get_data = {
-        project: READTHEDOCS_DATA['project'],
-        version: READTHEDOCS_DATA['version'],
-        page: READTHEDOCS_DATA['page'],
-        theme: READTHEDOCS_DATA['theme'],
+        project: rtd['project'],
+        version: rtd['version'],
+        page: rtd['page'],
+        theme: rtd['theme'],
         format: "jsonp",
     };
 
 
     // Crappy heuristic, but people change the theme name on us.
     // So we have to do some duck typing.
-    if ("docroot" in READTHEDOCS_DATA) {
-      get_data['docroot'] = READTHEDOCS_DATA['docroot'];
+    if ("docroot" in rtd) {
+      get_data['docroot'] = rtd['docroot'];
     }
 
-    if ("source_suffix" in READTHEDOCS_DATA) {
-      get_data['source_suffix'] = READTHEDOCS_DATA['source_suffix'];
-    }
-
-    var API_HOST = READTHEDOCS_DATA['api_host'];
-    if (API_HOST === undefined) {
-      API_HOST = 'https://readthedocs.org';
+    if ("source_suffix" in rtd) {
+      get_data['source_suffix'] = rtd['source_suffix'];
     }
 
     if (window.location.pathname.indexOf('/projects/') === 0) {
@@ -36,7 +32,7 @@ $(document).ready(function () {
 
     // Theme popout code
     $.ajax({
-      url: API_HOST + "/api/v2/footer_html/",
+      url: rtd.api_host + "/api/v2/footer_html/",
       crossDomain: true,
       xhrFields: {
         withCredentials: true,
@@ -107,7 +103,7 @@ $(document).ready(function () {
 
 
     /// Read the Docs Sphinx theme code
-    if (!("builder" in READTHEDOCS_DATA) || "builder" in READTHEDOCS_DATA && READTHEDOCS_DATA["builder"] != "mkdocs") {
+    if (!("builder" in rtd) || "builder" in rtd && rtd["builder"] != "mkdocs") {
         function toggleCurrent (elem) {
             var parent_li = elem.closest('li');
             parent_li.siblings('li.current').removeClass('current');
@@ -225,8 +221,8 @@ $(document).ready(function () {
 
     /// Out of date message
 
-      var versionURL = [API_HOST + "/api/v1/version/", READTHEDOCS_DATA['project'],
-                        "/highest/", READTHEDOCS_DATA['version'], "/?callback=?"].join("");
+      var versionURL = [rtd.api_host + "/api/v1/version/", rtd['project'],
+                        "/highest/", rtd['version'], "/?callback=?"].join("");
 
       $.getJSON(versionURL, onData);
 
@@ -235,7 +231,7 @@ $(document).ready(function () {
           return;
         }
 
-        var currentURL = window.location.pathname.replace(READTHEDOCS_DATA['version'], data.slug),
+        var currentURL = window.location.pathname.replace(rtd['version'], data.slug),
             warning = $('<div class="admonition warning"> <p class="first \
                          admonition-title">Note</p> <p class="last"> \
                          You are not using the most up to date version \
@@ -256,16 +252,16 @@ $(document).ready(function () {
 
 
     // Override MkDocs styles
-    if ("builder" in READTHEDOCS_DATA && READTHEDOCS_DATA["builder"] == "mkdocs") {
+    if ("builder" in rtd && rtd["builder"] == "mkdocs") {
       $('<input>').attr({
           type: 'hidden',
           name: 'project',
-          value: READTHEDOCS_DATA["project"]
+          value: rtd["project"]
       }).appendTo('#rtd-search-form');
       $('<input>').attr({
           type: 'hidden',
           name: 'version',
-          value: READTHEDOCS_DATA["version"]
+          value: rtd["version"]
       }).appendTo('#rtd-search-form');
       $('<input>').attr({
           type: 'hidden',
@@ -273,7 +269,7 @@ $(document).ready(function () {
           value: 'file'
       }).appendTo('#rtd-search-form');
 
-      $("#rtd-search-form").prop("action", API_HOST + "/elasticsearch/");
+      $("#rtd-search-form").prop("action", rtd.api_host + "/elasticsearch/");
 
       // Apply stickynav to mkdocs builds
       var nav_bar = $('nav.wy-nav-side:first'),
@@ -289,5 +285,4 @@ $(document).ready(function () {
       win.on('resize', apply_stickynav);
       apply_stickynav();
     }
-    
 });
