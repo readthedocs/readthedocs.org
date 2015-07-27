@@ -10,7 +10,7 @@
 {% if github_connected %}
 <p class="empty sync-repositories">
   {% url 'api_sync_github_repositories' as sync_url %}
-  {% blocktrans with button_attrs=' class="inline" data-sync-repositories="'|add:sync_url|add:'" data-target=".respository-list"'|safe %}Showing your GitHub projects. <button {{ button_attrs }}>Sync your GitHub projects</button> to update them.{% endblocktrans %}
+  {% blocktrans with button_attrs=' class="inline" data-sync-repositories="'|add:sync_url|add:'" data-target=".repository-list"'|safe %}Showing your GitHub projects. <button {{ button_attrs }}>Sync your GitHub projects</button> to update them.{% endblocktrans %}
 </p>
 <p class="empty sync-repositories-progress hide">
   {% blocktrans %}Syncing ...{% endblocktrans %}
