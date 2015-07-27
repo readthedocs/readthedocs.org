@@ -3,7 +3,8 @@ var sponsorship = require('./sponsorship'),
     footer = require('./doc-embed/footer.js'),
     grokthedocs = require('./doc-embed/grokthedocs-client'),
     mkdocs = require('./doc-embed/mkdocs'),
-    rtd = require('./doc-embed/rtd-data');
+    rtd = require('./doc-embed/rtd-data'),
+    versionCompare = require('./doc-embed/version-compare');
 
 $(document).ready(function () {
 
@@ -128,38 +129,6 @@ $(document).ready(function () {
     }
 
     grokthedocs.init();
-
-    /// Out of date message
-
-      var versionURL = [rtd.api_host + "/api/v1/version/", rtd['project'],
-                        "/highest/", rtd['version'], "/?callback=?"].join("");
-
-      $.getJSON(versionURL, onData);
-
-      function onData (data) {
-        if (data.is_highest) {
-          return;
-        }
-
-        var currentURL = window.location.pathname.replace(rtd['version'], data.slug),
-            warning = $('<div class="admonition warning"> <p class="first \
-                         admonition-title">Note</p> <p class="last"> \
-                         You are not using the most up to date version \
-                         of the library. <a href="#"></a> is the newest version.</p>\
-                         </div>');
-
-        warning
-          .find('a')
-          .attr('href', currentURL)
-          .text(data.version);
-
-        body = $("div.body");
-        if (!body.length) {
-          body = $("div.document");
-        }
-        body.prepend(warning);
-      }
-
-
+    versionCompare.init();
     mkdocs.init();
 });
