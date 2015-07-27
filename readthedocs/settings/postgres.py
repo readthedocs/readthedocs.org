@@ -1,3 +1,5 @@
+import os
+
 from .base import *  # noqa
 
 
@@ -67,7 +69,8 @@ SOCIALACCOUNT_PROVIDERS = {
     'github': {'SCOPE': ['user:email', 'read:org', 'admin:repo_hook', 'repo:status']}
 }
 
-try:
-    from local_settings import *  # noqa
-except ImportError:
-    pass
+if not os.environ.get('DJANGO_SETTINGS_SKIP_LOCAL', False):
+    try:
+        from local_settings import *  # noqa
+    except ImportError:
+        pass

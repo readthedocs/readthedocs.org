@@ -1,3 +1,5 @@
+import os
+
 from .base import *  # noqa
 
 DATABASES = {
@@ -52,7 +54,8 @@ DONT_HIT_DB = False
 #USE_SUBDOMAIN = True
 
 
-try:
-    from local_settings import *  # noqa
-except ImportError:
-    pass
+if not os.environ.get('DJANGO_SETTINGS_SKIP_LOCAL', False):
+    try:
+        from local_settings import *  # noqa
+    except ImportError:
+        pass
