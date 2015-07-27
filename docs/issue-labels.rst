@@ -15,7 +15,7 @@ what they stand for.
 *Community Effort*
     Tickets with this label are valid issues that the core team thinks are
     worth to fix or implement in the future. However the core team's resources
-    are too scares to address these issues. Tickets marked with this label
+    are too scarce to address these issues. Tickets marked with this label
     are issues that the core team will **not** work on, but contributions
     from the community are very welcome.
 
