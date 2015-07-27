@@ -1,5 +1,6 @@
 var sponsorship = require('./sponsorship'),
-    doc = require('./doc');
+    doc = require('./doc'),
+    grokthedocs = require('./doc-embed/grokthedocs-client');
 
 $(document).ready(function () {
 
@@ -220,13 +221,7 @@ $(document).ready(function () {
         }($));
     }
 
-    // Add Grok the Docs Client
-    $.ajax({
-        url: "https://api.grokthedocs.com/static/javascript/bundle-client.js",
-        crossDomain: true,
-        dataType: "script",
-    });
-
+    grokthedocs.init();
 
     /// Out of date message
 
