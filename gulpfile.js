@@ -124,7 +124,7 @@ gulp.task('build', function (done) {
         }))
         .pipe(es.wait(function (err, body) {
             gulp_util.log('Collecting static files');
-            run('django-admin.py collectstatic --noinput')
+            run('readthedocs/manage.py collectstatic --noinput')
                 .exec('', function (err) { done(err); });
         }));
 });
@@ -147,7 +147,7 @@ gulp.task('dev', function (done) {
                 build_app_sources(application, false)
                     .pipe(es.wait(function (err, body) {
                         gulp_util.log('Collecting static files');
-                        run('./manage.py collectstatic --noinput').exec('');
+                        run('readthedocs/manage.py collectstatic --noinput').exec('');
                     }));
             });
         }))
