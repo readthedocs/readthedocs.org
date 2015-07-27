@@ -1,1 +1,534 @@
-!function t(e,o,r){function n(a,s){if(!o[a]){if(!e[a]){var c="function"==typeof require&&require;if(!s&&c)return c(a,!0);if(i)return i(a,!0);var d=new Error("Cannot find module '"+a+"'");throw d.code="MODULE_NOT_FOUND",d}var l=o[a]={exports:{}};e[a][0].call(l.exports,function(t){var o=e[a][1][t];return n(o?o:t)},l,l.exports,t,e,o,r)}return o[a].exports}for(var i="function"==typeof require&&require,a=0;a<r.length;a++)n(r[a]);return n}({1:[function(t,e,o){function r(t){var e={project:n.project,version:n.version,page:n.page,theme:n.theme,format:"jsonp"};"docroot"in n&&(e.docroot=n.docroot),"source_suffix"in n&&(e.source_suffix=n.source_suffix),0===window.location.pathname.indexOf("/projects/")&&(e.subproject=!0),$.ajax({url:n.api_host+"/api/v2/footer_html/",crossDomain:!0,xhrFields:{withCredentials:!0},dataType:"jsonp",data:e,success:function(e){function o(t){return/^(GET|HEAD|OPTIONS|TRACE)$/.test(t)}if(t.is_rtd_theme()?$("div.rst-other-versions").html(e.html):$("body").append(e.html),e.version_active?!e.version_supported:$(".rst-current-version").addClass("rst-out-of-date"),e.promo&&t.show_promo()){var r=new sponsorship.Promo(e.promo_data.id,e.promo_data.text,e.promo_data.link,e.promo_data.image);r&&r.display()}$.ajaxSetup({beforeSend:function(t,e){o(e.type)||t.setRequestHeader("X-CSRFToken",$("a.bookmark[token]").attr("token"))}})},error:function(){console.log("Error loading Read the Docs footer")}})}var n=t("./rtd-data");e.exports={init:r}},{"./rtd-data":4}],2:[function(t,e,o){function r(){$.ajax({url:"https://api.grokthedocs.com/static/javascript/bundle-client.js",crossDomain:!0,dataType:"script"})}e.exports={init:r}},{}],3:[function(t,e,o){function r(){if("builder"in n&&"mkdocs"==n.builder){$("<input>").attr({type:"hidden",name:"project",value:n.project}).appendTo("#rtd-search-form"),$("<input>").attr({type:"hidden",name:"version",value:n.version}).appendTo("#rtd-search-form"),$("<input>").attr({type:"hidden",name:"type",value:"file"}).appendTo("#rtd-search-form"),$("#rtd-search-form").prop("action",n.api_host+"/elasticsearch/");var t=$("nav.wy-nav-side:first"),e=$(window),o="stickynav",r=function(){t.height()<=e.height()?t.addClass(o):t.removeClass(o)};e.on("resize",r),r()}}var n=t("./rtd-data");e.exports={init:r}},{"./rtd-data":4}],4:[function(t,e,o){var r=READTHEDOCS_DATA;void 0===r.api_host&&(r.api_host="https://readthedocs.org"),e.exports=r},{}],5:[function(t,e,o){function r(t){function e(){var t=$.getQueryParameters(),e=t.q?t.q[0].split(/\s+/):[],r=!0;e.length&&(e=e.join(" "),console.log("Searching based on GET arg for: "+e),$("#rtd-search-form input[name='q']").val(e),o(e,r))}function o(t,e){var o={project:READTHEDOCS_DATA.project,version:READTHEDOCS_DATA.version,format:"jsonp",q:t};$.ajax({url:n.api_host+"/api/v2/search/section/",crossDomain:!0,xhrFields:{withCredentials:!0},dataType:"jsonp",data:o,success:function(o){s(e),hits=o.results.hits.hits,hits.length?i(hits,t):a()},error:function(){console.log("Error searching")}})}function r(t){var e=$(".rst-content");e.html(t)}function i(t,e){FIRSTRUN={},current=$(".toctree-l1.current > a");for(var o in t){var r=t[o],n=r.fields.path,i=r.fields.page_id,a=r.fields.title,s=r.fields.content,c=(r.highlight.content,r._score),d=$(".toctree-l1 > a[href^='"+n+"']"),l=d.next();console.log(n),FIRSTRUN[n]||(d.show(),d.attr("href",d.attr("href")+"?highlight="+e),d.parent().addClass("current"),d.append("<i style='position:absolute;right:30px;top:6px;' class='fa fa-search result-icon'></i>"),l.empty(),FIRSTRUN[n]=!0),FIRSTRUN[n+a]||(l.append('<li class="toctree-l2"><a class="reference internal search-result" pageId="'+i+'">'+a+'</a><span style="display: none;" class="data">'+s+"</span></li>"),c>1&&($(".toctree-l2 "),inserted=$('.toctree-l2 > [pageId="'+i+'"]'),inserted.append("<i style='position:absolute;right:30px;top:6px;' class='fa fa-fire'></i>")),FIRSTRUN[n+a]=!0)}$.each($(".toctree-l1 > a"),function(t,e){hide=!0,""===$(e).attr("href")&&(hide=!1);for(var o in FIRSTRUN)0===$(e).attr("href").indexOf(o)&&(hide=!1);hide&&$(e).hide()})}function a(){$.each($(".toctree-l1 > a"),function(t,e){var e=$(e);e.show(),e.parent().show()})}function s(t){$(".result-icon").remove(),$.each($(".toctree-l1 > a"),function(e,o){var o=$(o);t&&(o.parent().removeClass("current"),o.next().empty())})}t.is_rtd_theme()&&e(),$(document).on({mouseenter:function(t){var e=$(t.target).next();e.show()},mouseleave:function(t){var e=$(t.target).next();e.hide()}},".result-count"),$(document).on("submit","#rtd-search-form",function(t){s();var e=$("#rtd-search-form input[name='q']").val();o(e,!0)}),$(document).on("click",".search-result",function(t){t.preventDefault(),html=$(t.target).next().html(),r(html)})}var n=t("./rtd-data");e.exports={init:r}},{"./rtd-data":4}],6:[function(t,e,o){function r(){function t(t){if(!t.is_highest){var e=window.location.pathname.replace(n.version,t.slug),o=$('<div class="admonition warning"> <p class="first                          admonition-title">Note</p> <p class="last">                          You are not using the most up to date version                          of the library. <a href="#"></a> is the newest version.</p>                         </div>');o.find("a").attr("href",e).text(t.version),body=$("div.body"),body.length||(body=$("div.document")),body.prepend(o)}}var e=[n.api_host+"/api/v1/version/",n.project,"/highest/",n.version,"/?callback=?"].join("");$.getJSON(e,t)}var n=t("./rtd-data");e.exports={init:r}},{"./rtd-data":4}],7:[function(t,e,o){function r(t){this.config=t,"sphinx_rtd_theme"!=this.config.theme&&1==$("div.rst-other-versions").length&&(this.config.theme="sphinx_rtd_theme"),void 0==this.config.api_host&&(this.config.api_host="https://readthedocs.org")}e.exports={Build:r},r.prototype.is_rtd_theme=function(){return"sphinx_rtd_theme"==this.config.theme},r.prototype.is_sphinx_builder=function(){return!("builder"in this.config)||"mkdocs"!=this.config.builder},r.prototype.show_promo=function(){return"https://readthedocs.com"!=this.config.api_host&&this.is_sphinx_builder()&&this.is_rtd_theme()}},{}],8:[function(t,e,o){var r=(t("./sponsorship"),t("./doc")),n=t("./doc-embed/footer.js"),i=t("./doc-embed/grokthedocs-client"),a=t("./doc-embed/mkdocs"),s=t("./doc-embed/rtd-data"),c=t("./doc-embed/search"),d=t("./doc-embed/version-compare");$(document).ready(function(){function t(t){var e=t.closest("li");e.siblings("li.current").removeClass("current"),e.siblings().find("li.current").removeClass("current"),e.find("> ul li.current").removeClass("current"),e.toggleClass("current")}var e=new r.Build(s);n.init(e),(!("builder"in s)||"builder"in s&&"mkdocs"!=s.builder)&&($(document).on("click","[data-toggle='wy-nav-top']",function(){$("[data-toggle='wy-nav-shift']").toggleClass("shift"),$("[data-toggle='rst-versions']").toggleClass("shift")}),$(document).on("click",".wy-menu-vertical .current ul li a",function(){var e=$(this);$("[data-toggle='wy-nav-shift']").removeClass("shift"),$("[data-toggle='rst-versions']").toggleClass("shift"),t(e),"undefined"!=typeof window.SphinxRtdTheme&&window.SphinxRtdTheme.StickyNav.hashChange()}),$(document).on("click","[data-toggle='rst-current-version']",function(){$("[data-toggle='rst-versions']").toggleClass("shift-up")}),$("table.docutils:not(.field-list)").wrap("<div class='wy-table-responsive'></div>"),$(".wy-menu-vertical ul").siblings("a").each(function(){var e=$(this);expand=$('<span class="toctree-expand"></span>'),expand.on("click",function(o){return t(e),o.stopPropagation(),!1}),e.prepend(expand)}),window.SphinxRtdTheme=function(t){var e=function(){var e,o,r=!1,n=!1,i=0,a=function(){s(),c(),o.on("hashchange",c),o.on("scroll",function(){n||(r=!0)}),setInterval(function(){if(r){r=!1;var t=o.scrollTop(),n=e.scrollTop(),a=n+(t-i);e.scrollTop(a),i=t}},25)},s=function(){e=t("nav.wy-nav-side:first"),o=t(window)},c=function(){var t=encodeURI(window.location.hash);if(t)try{var e=$(".wy-menu-vertical").find('[href="'+t+'"]');$(".wy-menu-vertical li.toctree-l1 li.current").removeClass("current"),e.closest("li.toctree-l2").addClass("current"),e.closest("li.toctree-l3").addClass("current"),e.closest("li.toctree-l4").addClass("current")}catch(o){console.log("Error expanding nav for anchor",o)}},d=function(){n=!0,o.one("hashchange",function(){n=!1})};return t(s),{enable:a,hashChange:d}}();return{StickyNav:e}}($)),i.init(),d.init(),a.init(),c.init(e)})},{"./doc":7,"./doc-embed/footer.js":1,"./doc-embed/grokthedocs-client":2,"./doc-embed/mkdocs":3,"./doc-embed/rtd-data":4,"./doc-embed/search":5,"./doc-embed/version-compare":6,"./sponsorship":9}],9:[function(t,e,o){function r(t,e,o,r){this.id=t,this.text=e,this.link=o,this.image=r,this.promo=null}var n=window.$;e.exports={Promo:r},r.prototype.create=function(){var t=this,e=n("nav.wy-nav-side");if(e.length){promo=n("<div />").attr("class","wy-menu rst-pro");{var o=n("<div />").attr("class","rst-pro-about"),r=n("<a />").attr("href","http://docs.readthedocs.org/en/latest/sponsors.html#sponsorship-information").appendTo(o);n("<i />").attr("class","fa fa-info-circle").appendTo(r)}if(o.appendTo(promo),t.image){{var i=n("<a />").attr("class","rst-pro-image-wrapper").attr("href",t.link);n("<img />").attr("class","rst-pro-image").attr("src",t.image).appendTo(i)}promo.append(i)}var a=n("<span />").html(t.text);return n(a).find("a").each(function(){n(this).attr("class","rst-pro-link").attr("href",t.link).attr("target","_blank").on("click",function(e){_gaq&&_gaq.push(["rtfd._setAccount","UA-17997319-1"],["rtfd._trackEvent","Promo","Click",t.id])})}),promo.append(a),promo.appendTo(e),promo.wrapper=n("<div />").attr("class","rst-pro-wrapper").appendTo(e),promo}},r.prototype.display=function(){var t=this.promo;t||(t=this.promo=this.create()),t.show()},r.prototype.disable=function(){},r.from_variants=function(t){if(0==t.length)return null;var e=Math.floor(Math.random()*t.length),o=t[e],n=o.text,i=o.link,a=o.image,s=o.id;return new r(s,n,i,a)}},{}]},{},[8]);
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+var rtd = require('./rtd-data');
+
+
+function init(build) {
+
+    var get_data = {
+        project: rtd['project'],
+        version: rtd['version'],
+        page: rtd['page'],
+        theme: rtd['theme'],
+        format: "jsonp",
+    };
+
+
+    // Crappy heuristic, but people change the theme name on us.
+    // So we have to do some duck typing.
+    if ("docroot" in rtd) {
+        get_data['docroot'] = rtd['docroot'];
+    }
+
+    if ("source_suffix" in rtd) {
+        get_data['source_suffix'] = rtd['source_suffix'];
+    }
+
+    if (window.location.pathname.indexOf('/projects/') === 0) {
+        get_data['subproject'] = true;
+    }
+
+    // Theme popout code
+    $.ajax({
+        url: rtd.api_host + "/api/v2/footer_html/",
+        crossDomain: true,
+        xhrFields: {
+        withCredentials: true,
+        },
+        dataType: "jsonp",
+        data: get_data,
+        success: function (data) {
+            // If the theme looks like ours, update the existing badge
+            // otherwise throw a a full one into the page.
+            if (build.is_rtd_theme()) {
+                $("div.rst-other-versions").html(data['html']);
+            } else {
+                $("body").append(data['html']);
+            }
+
+            if (!data['version_active']) {
+                $('.rst-current-version').addClass('rst-out-of-date');
+            } else if (!data['version_supported']) {
+                //$('.rst-current-version').addClass('rst-active-old-version')
+            }
+
+            // Show promo selectively
+            if (data.promo && build.show_promo()) {
+                var promo = new sponsorship.Promo(
+                    data.promo_data.id,
+                    data.promo_data.text,
+                    data.promo_data.link,
+                    data.promo_data.image
+                )
+                if (promo) {
+                    promo.display();
+                }
+            }
+
+            // using jQuery
+            function getCookie(name) {
+                var cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    var cookies = document.cookie.split(';');
+                    for (var i = 0; i < cookies.length; i++) {
+                        var cookie = jQuery.trim(cookies[i]);
+                        // Does this cookie string begin with the name we want?
+                        if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+
+                function csrfSafeMethod(method) {
+                    // these HTTP methods do not require CSRF protection
+                    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+                }
+                $.ajaxSetup({
+                    beforeSend: function(xhr, settings) {
+                        if (!csrfSafeMethod(settings.type)) {
+                            xhr.setRequestHeader("X-CSRFToken", $('a.bookmark[token]').attr('token'));
+                        }
+                    }
+                });
+        },
+        error: function () {
+            console.log('Error loading Read the Docs footer');
+        }
+    });
+
+}
+
+module.exports = {
+    init: init
+};
+
+},{"./rtd-data":4}],2:[function(require,module,exports){
+function init() {
+    // Add Grok the Docs Client
+    $.ajax({
+        url: "https://api.grokthedocs.com/static/javascript/bundle-client.js",
+        crossDomain: true,
+        dataType: "script",
+    });
+}
+
+
+module.exports = {
+    init: init
+};
+
+},{}],3:[function(require,module,exports){
+/*
+ * Mkdocs specific JS code.
+ */
+
+
+var rtd = require('./rtd-data');
+
+
+function init() {
+
+    // Override MkDocs styles
+    if ("builder" in rtd && rtd["builder"] == "mkdocs") {
+      $('<input>').attr({
+          type: 'hidden',
+          name: 'project',
+          value: rtd["project"]
+      }).appendTo('#rtd-search-form');
+      $('<input>').attr({
+          type: 'hidden',
+          name: 'version',
+          value: rtd["version"]
+      }).appendTo('#rtd-search-form');
+      $('<input>').attr({
+          type: 'hidden',
+          name: 'type',
+          value: 'file'
+      }).appendTo('#rtd-search-form');
+
+      $("#rtd-search-form").prop("action", rtd.api_host + "/elasticsearch/");
+
+      // Apply stickynav to mkdocs builds
+      var nav_bar = $('nav.wy-nav-side:first'),
+          win = $(window),
+          sticky_nav_class = 'stickynav',
+          apply_stickynav = function () {
+              if (nav_bar.height() <= win.height()) {
+                  nav_bar.addClass(sticky_nav_class);
+              } else {
+                  nav_bar.removeClass(sticky_nav_class);
+              }
+          };
+      win.on('resize', apply_stickynav);
+      apply_stickynav();
+    }
+
+}
+
+
+module.exports = {
+    init: init
+};
+
+},{"./rtd-data":4}],4:[function(require,module,exports){
+/*
+ * This exposes data injected during the RTD build into the template. It's
+ * provided via the global READTHEDOCS_DATA variable and is exposed here as a
+ * module for cleaner usage.
+ */
+
+
+var data = READTHEDOCS_DATA;
+
+
+if (data.api_host === undefined) {
+    data.api_host = 'https://readthedocs.org';
+}
+
+
+module.exports = data;
+
+},{}],5:[function(require,module,exports){
+/*
+ * Sphinx builder specific JS code.
+ */
+
+
+var rtd = require('./rtd-data');
+
+
+function init() {
+
+    /// Read the Docs Sphinx theme code
+    if (!("builder" in rtd) || "builder" in rtd && rtd["builder"] != "mkdocs") {
+        function toggleCurrent (elem) {
+            var parent_li = elem.closest('li');
+            parent_li.siblings('li.current').removeClass('current');
+            parent_li.siblings().find('li.current').removeClass('current');
+            parent_li.find('> ul li.current').removeClass('current');
+            parent_li.toggleClass('current');
+        }
+
+        // Shift nav in mobile when clicking the menu.
+        $(document).on('click', "[data-toggle='wy-nav-top']", function() {
+            $("[data-toggle='wy-nav-shift']").toggleClass("shift");
+            $("[data-toggle='rst-versions']").toggleClass("shift");
+        });
+        // Nav menu link click operations
+        $(document).on('click', ".wy-menu-vertical .current ul li a", function() {
+            var target = $(this);
+            // Close menu when you click a link.
+            $("[data-toggle='wy-nav-shift']").removeClass("shift");
+            $("[data-toggle='rst-versions']").toggleClass("shift");
+            // Handle dynamic display of l3 and l4 nav lists
+            toggleCurrent(target);
+            if (typeof(window.SphinxRtdTheme) != 'undefined') {
+                window.SphinxRtdTheme.StickyNav.hashChange();
+            }
+        });
+        $(document).on('click', "[data-toggle='rst-current-version']", function() {
+            $("[data-toggle='rst-versions']").toggleClass("shift-up");
+        });
+        // Make tables responsive
+        $("table.docutils:not(.field-list)").wrap("<div class='wy-table-responsive'></div>");
+
+        // Add expand links to all parents of nested ul
+        $('.wy-menu-vertical ul').siblings('a').each(function () {
+            var link = $(this);
+                expand = $('<span class="toctree-expand"></span>');
+            expand.on('click', function (ev) {
+                toggleCurrent(link);
+                ev.stopPropagation();
+                return false;
+            });
+            link.prepend(expand);
+        });
+
+        // Sphinx theme state
+        window.SphinxRtdTheme = (function (jquery) {
+            var stickyNav = (function () {
+                var navBar,
+                    win,
+                    winScroll = false,
+                    linkScroll = false,
+                    winPosition = 0,
+                    enable = function () {
+                        init();
+                        reset();
+                        win.on('hashchange', reset);
+
+                        // Set scrolling
+                        win.on('scroll', function () {
+                            if (!linkScroll) {
+                                winScroll = true;
+                            }
+                        });
+                        setInterval(function () {
+                            if (winScroll) {
+                                winScroll = false;
+                                var newWinPosition = win.scrollTop(),
+                                    navPosition = navBar.scrollTop(),
+                                    newNavPosition = navPosition + (newWinPosition - winPosition);
+                                navBar.scrollTop(newNavPosition);
+                                winPosition = newWinPosition;
+                            }
+                        }, 25);
+                    },
+                    init = function () {
+                        navBar = jquery('nav.wy-nav-side:first');
+                        win = jquery(window);
+                    },
+                    reset = function () {
+                        // Get anchor from URL and open up nested nav
+                        var anchor = encodeURI(window.location.hash);
+                        if (anchor) {
+                            try {
+                                var link = $('.wy-menu-vertical')
+                                    .find('[href="' + anchor + '"]');
+                                $('.wy-menu-vertical li.toctree-l1 li.current')
+                                    .removeClass('current');
+                                link.closest('li.toctree-l2').addClass('current');
+                                link.closest('li.toctree-l3').addClass('current');
+                                link.closest('li.toctree-l4').addClass('current');
+                            }
+                            catch (err) {
+                                console.log("Error expanding nav for anchor", err);
+                            }
+                        }
+                    },
+                    hashChange = function () {
+                        linkScroll = true;
+                        win.one('hashchange', function () {
+                            linkScroll = false;
+                        });
+                    };
+                jquery(init);
+                return {
+                    enable: enable,
+                    hashChange: hashChange
+                };
+            }());
+            return {
+                StickyNav: stickyNav
+            };
+        }($));
+    }
+
+}
+
+
+module.exports = {
+    init: init
+};
+
+},{"./rtd-data":4}],6:[function(require,module,exports){
+var rtd = require('./rtd-data');
+
+
+function init() {
+
+    /// Out of date message
+
+      var versionURL = [rtd.api_host + "/api/v1/version/", rtd['project'],
+                        "/highest/", rtd['version'], "/?callback=?"].join("");
+
+      $.getJSON(versionURL, onData);
+
+      function onData (data) {
+        if (data.is_highest) {
+          return;
+        }
+
+        var currentURL = window.location.pathname.replace(rtd['version'], data.slug),
+            warning = $('<div class="admonition warning"> <p class="first \
+                         admonition-title">Note</p> <p class="last"> \
+                         You are not using the most up to date version \
+                         of the library. <a href="#"></a> is the newest version.</p>\
+                         </div>');
+
+        warning
+          .find('a')
+          .attr('href', currentURL)
+          .text(data.version);
+
+        body = $("div.body");
+        if (!body.length) {
+          body = $("div.document");
+        }
+        body.prepend(warning);
+      }
+
+}
+
+
+module.exports = {
+    init: init
+};
+
+},{"./rtd-data":4}],7:[function(require,module,exports){
+// Documentation build state
+
+module.exports = {
+    Build: Build
+};
+
+function Build (config) {
+    this.config = config;
+
+    // Crappy heuristic, but people change the theme name on us.  So we have to
+    // do some duck typing.
+    if (this.config['theme'] != 'sphinx_rtd_theme') {
+        if ($('div.rst-other-versions').length == 1) {
+            this.config['theme'] = 'sphinx_rtd_theme';
+        }
+    }
+
+    if (this.config['api_host'] == undefined) {
+        this.config['api_host'] = 'https://readthedocs.org';
+    }
+}
+
+Build.prototype.is_rtd_theme = function () {
+    return (this.config['theme'] == 'sphinx_rtd_theme');
+};
+
+Build.prototype.is_sphinx_builder = function () {
+    return (!('builder' in this.config) || this.config['builder'] != 'mkdocs');
+};
+
+Build.prototype.show_promo = function () {
+    return (this.config['api_host'] != 'https://readthedocs.com'
+            && this.is_sphinx_builder()
+            && this.is_rtd_theme()
+           );
+};
+
+},{}],8:[function(require,module,exports){
+var sponsorship = require('./sponsorship'),
+    doc = require('./doc'),
+    footer = require('./doc-embed/footer.js'),
+    grokthedocs = require('./doc-embed/grokthedocs-client'),
+    mkdocs = require('./doc-embed/mkdocs'),
+    rtd = require('./doc-embed/rtd-data'),
+    sphinx = require('./doc-embed/sphinx'),
+    versionCompare = require('./doc-embed/version-compare');
+
+$(document).ready(function () {
+    var build = new doc.Build(rtd);
+
+    footer.init(build);
+    sphinx.init();
+    grokthedocs.init();
+    versionCompare.init();
+    mkdocs.init();
+});
+
+},{"./doc":7,"./doc-embed/footer.js":1,"./doc-embed/grokthedocs-client":2,"./doc-embed/mkdocs":3,"./doc-embed/rtd-data":4,"./doc-embed/sphinx":5,"./doc-embed/version-compare":6,"./sponsorship":9}],9:[function(require,module,exports){
+/* Read the Docs - Documentation promotions */
+
+var $ = window.$;
+
+module.exports = {
+    Promo: Promo
+};
+
+function Promo (id, text, link, image) {
+    this.id = id;
+    this.text = text;
+    this.link = link;
+    this.image = image;
+    this.promo = null;
+}
+
+Promo.prototype.create = function () {
+    var self = this,
+        nav_side = $('nav.wy-nav-side');
+
+    if (nav_side.length) {
+        // Add elements
+        promo = $('<div />')
+            .attr('class', 'wy-menu rst-pro');
+
+        // Promo info
+        var promo_about = $('<div />')
+            .attr('class', 'rst-pro-about');
+        var promo_about_link = $('<a />')
+            .attr('href', 'http://docs.readthedocs.org/en/latest/sponsors.html#sponsorship-information')
+            .appendTo(promo_about);
+        var promo_about_icon = $('<i />')
+            .attr('class', 'fa fa-info-circle')
+            .appendTo(promo_about_link);
+        promo_about.appendTo(promo);
+
+        // Promo image
+        if (self.image) {
+            var promo_image_link = $('<a />')
+                .attr('class', 'rst-pro-image-wrapper')
+                .attr('href', self.link);
+            var promo_image = $('<img />')
+                .attr('class', 'rst-pro-image')
+                .attr('src', self.image)
+                .appendTo(promo_image_link);
+            promo.append(promo_image_link);
+        }
+
+        // Create link with callback
+        var promo_text = $('<span />')
+            .html(self.text);
+        $(promo_text).find('a').each(function () {
+            $(this)
+                .attr('class', 'rst-pro-link')
+                .attr('href', self.link)
+                .attr('target', '_blank')
+                .on('click', function (ev) {
+                    if (_gaq) {
+                        _gaq.push(
+                            ['rtfd._setAccount', 'UA-17997319-1'],
+                            ['rtfd._trackEvent', 'Promo', 'Click', self.id]
+                        );
+                    }
+                });
+        });
+        promo.append(promo_text);
+
+        promo.appendTo(nav_side);
+
+        promo.wrapper = $('<div />')
+            .attr('class', 'rst-pro-wrapper')
+            .appendTo(nav_side);
+
+        return promo;
+    }
+}
+
+// Position promo
+Promo.prototype.display = function () {
+    var promo = this.promo,
+        self = this;
+
+    if (! promo) {
+        promo = this.promo = this.create();
+    }
+    promo.show();
+}
+
+Promo.prototype.disable = function () {
+}
+
+// Variant factory method
+Promo.from_variants = function (variants) {
+    if (variants.length == 0) {
+        return null;
+    }
+    var chosen = Math.floor(Math.random() * variants.length),
+        variant = variants[chosen],
+        text = variant.text,
+        link = variant.link,
+        image = variant.image,
+        id = variant.id;
+    return new Promo(id, text, link, image);
+};
+
+},{}]},{},[8]);
