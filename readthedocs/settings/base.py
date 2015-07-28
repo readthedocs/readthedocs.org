@@ -143,7 +143,7 @@ CORS_ALLOW_HEADERS = (
 )
 
 
-ROOT_URLCONF = 'urls'
+ROOT_URLCONF = 'readthedocs.urls'
 
 TEMPLATE_DIRS = (
     '%s/readthedocs/templates/' % SITE_ROOT,
