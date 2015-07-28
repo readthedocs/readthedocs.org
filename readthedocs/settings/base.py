@@ -192,19 +192,19 @@ INSTALLED_APPS = [
 
 
     # our apps
-    'bookmarks',
-    'projects',
-    'builds',
-    'comments',
-    'core',
-    'doc_builder',
-    'oauth',
-    'redirects',
-    'rtd_tests',
-    'restapi',
-    'privacy',
-    'gold',
-    'donate',
+    'readthedocs.bookmarks',
+    'readthedocs.projects',
+    'readthedocs.builds',
+    'readthedocs.comments',
+    'readthedocs.core',
+    'readthedocs.doc_builder',
+    'readthedocs.oauth',
+    'readthedocs.redirects',
+    'readthedocs.rtd_tests',
+    'readthedocs.restapi',
+    'readthedocs.privacy',
+    'readthedocs.gold',
+    'readthedocs.donate',
 
     # allauth
     'allauth',
