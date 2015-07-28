@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
-import builds.version_slug
+import readthedocs.builds.version_slug
 import taggit.managers
 
 
@@ -44,7 +44,7 @@ class Migration(migrations.Migration):
                 ('type', models.CharField(default=b'unknown', max_length=20, verbose_name='Type', choices=[(b'branch', 'Branch'), (b'tag', 'Tag'), (b'unknown', 'Unknown')])),
                 ('identifier', models.CharField(max_length=255, verbose_name='Identifier')),
                 ('verbose_name', models.CharField(max_length=255, verbose_name='Verbose Name')),
-                ('slug', builds.version_slug.VersionSlugField(populate_from=b'verbose_name', max_length=255, verbose_name='Slug', db_index=True)),
+                ('slug', readthedocs.builds.version_slug.VersionSlugField(populate_from=b'verbose_name', max_length=255, verbose_name='Slug', db_index=True)),
                 ('supported', models.BooleanField(default=True, verbose_name='Supported')),
                 ('active', models.BooleanField(default=False, verbose_name='Active')),
                 ('built', models.BooleanField(default=False, verbose_name='Built')),
