@@ -22,12 +22,12 @@ from taggit.models import Tag
 import requests
 
 from .base import ProjectOnboardMixin
-from builds.constants import LATEST
-from builds.filters import VersionSlugFilter
-from builds.models import Version
-from projects.models import Project, ImportedFile
-from search.indexes import PageIndex
-from search.views import LOG_TEMPLATE
+from readthedocs.builds.constants import LATEST
+from readthedocs.builds.filters import VersionSlugFilter
+from readthedocs.builds.models import Version
+from readthedocs.projects.models import Project, ImportedFile
+from readthedocs.search.indexes import PageIndex
+from readthedocs.search.views import LOG_TEMPLATE
 
 log = logging.getLogger(__name__)
 search_log = logging.getLogger(__name__ + '.search')

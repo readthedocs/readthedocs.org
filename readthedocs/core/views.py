@@ -19,17 +19,17 @@ from haystack.query import SearchQuerySet
 from celery.task.control import inspect
 import stripe
 
-from builds.models import Build
-from builds.models import Version
-from core.forms import FacetedSearchForm
-from core.utils import trigger_build
-from donate.mixins import DonateProgressMixin
-from builds.constants import LATEST
-from projects import constants
-from projects.models import Project, ImportedFile, ProjectRelationship
-from projects.tasks import remove_dir, update_imported_docs
-from redirects.models import Redirect
-from redirects.utils import redirect_filename
+from readthedocs.builds.models import Build
+from readthedocs.builds.models import Version
+from readthedocs.core.forms import FacetedSearchForm
+from readthedocs.core.utils import trigger_build
+from readthedocs.donate.mixins import DonateProgressMixin
+from readthedocs.builds.constants import LATEST
+from readthedocs.projects import constants
+from readthedocs.projects.models import Project, ImportedFile, ProjectRelationship
+from readthedocs.projects.tasks import remove_dir, update_imported_docs
+from readthedocs.redirects.models import Redirect
+from readthedocs.redirects.utils import redirect_filename
 
 import json
 import mimetypes

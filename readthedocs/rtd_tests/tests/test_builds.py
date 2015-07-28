@@ -4,10 +4,10 @@ import subprocess
 from django.test import TestCase
 import mock
 
-from projects.tasks import build_docs
-from rtd_tests.factories.projects_factories import ProjectFactory
-from rtd_tests.mocks.paths import fake_paths_lookup
-from doc_builder.loader import get_builder_class
+from readthedocs.projects.tasks import build_docs
+from readthedocs.rtd_tests.factories.projects_factories import ProjectFactory
+from readthedocs.rtd_tests.mocks.paths import fake_paths_lookup
+from readthedocs.doc_builder.loader import get_builder_class
 
 
 class MockProcess(object):

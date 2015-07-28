@@ -21,11 +21,11 @@ from rest_framework.serializers import ModelSerializer, Serializer
 from rest_framework.viewsets import ModelViewSet
 from sphinx.websupport import WebSupport
 
-from comments.models import DocumentComment, DocumentNode, NodeSnapshot, DocumentCommentSerializer,\
+from readthedocs.comments.models import DocumentComment, DocumentNode, NodeSnapshot, DocumentCommentSerializer,\
     DocumentNodeSerializer, ModerationActionSerializer
-from privacy.backend import AdminNotAuthorized
-from projects.models import Project
-from restapi.permissions import IsOwner, CommentModeratorOrReadOnly
+from readthedocs.privacy.backend import AdminNotAuthorized
+from readthedocs.projects.models import Project
+from readthedocs.restapi.permissions import IsOwner, CommentModeratorOrReadOnly
 
 from .backend import DjangoStorage
 from .session import UnsafeSessionAuthentication

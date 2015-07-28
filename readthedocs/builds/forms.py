@@ -1,8 +1,8 @@
 from django import forms
 
-from builds.models import VersionAlias, Version
-from projects.models import Project
-from core.utils import trigger_build
+from readthedocs.builds.models import VersionAlias, Version
+from readthedocs.projects.models import Project
+from readthedocs.core.utils import trigger_build
 
 
 class AliasForm(forms.ModelForm):

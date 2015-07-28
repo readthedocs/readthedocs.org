@@ -7,7 +7,7 @@ from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.http import Http404
 
-from projects.models import Project
+from readthedocs.projects.models import Project
 
 import redis
 

@@ -3,7 +3,7 @@ import logging
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
-from projects import tasks, utils
+from readthedocs.projects import tasks, utils
 
 import redis
 

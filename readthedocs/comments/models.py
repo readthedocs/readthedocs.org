@@ -3,8 +3,8 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 
-from privacy.backend import AdminPermission, AdminNotAuthorized
-from restapi.serializers import VersionSerializer
+from readthedocs.privacy.backend import AdminPermission, AdminNotAuthorized
+from readthedocs.restapi.serializers import VersionSerializer
 
 
 class DocumentNodeManager(models.Manager):

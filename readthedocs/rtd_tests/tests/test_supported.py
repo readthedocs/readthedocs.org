@@ -2,8 +2,8 @@ import json
 
 from django.test import TestCase
 
-from builds.models import Version
-from projects.models import Project
+from readthedocs.builds.models import Version
+from readthedocs.projects.models import Project
 
 
 class TestSupportedVersions(TestCase):

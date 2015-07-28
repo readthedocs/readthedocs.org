@@ -1,8 +1,8 @@
 from django.test import TestCase
-from projects.models import Project
-from builds.constants import LATEST
-from builds.models import Version
-from core.templatetags import core_tags
+from readthedocs.projects.models import Project
+from readthedocs.builds.constants import LATEST
+from readthedocs.builds.models import Version
+from readthedocs.core.templatetags import core_tags
 
 class CoreTagsTests(TestCase):
     fixtures = ["eric", "test_data"]

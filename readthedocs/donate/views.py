@@ -10,7 +10,7 @@ from django.http import HttpResponseRedirect
 from django.contrib.messages.views import SuccessMessageMixin
 from django.utils.translation import ugettext_lazy as _
 
-from core.mixins import StripeMixin
+from readthedocs.core.mixins import StripeMixin
 from .models import Supporter
 from .forms import SupporterForm
 from .mixins import DonateProgressMixin

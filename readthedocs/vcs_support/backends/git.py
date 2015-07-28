@@ -4,8 +4,8 @@ import csv
 import os
 from StringIO import StringIO
 
-from projects.exceptions import ProjectImportError
-from vcs_support.base import BaseVCS, VCSVersion
+from readthedocs.projects.exceptions import ProjectImportError
+from readthedocs.vcs_support.base import BaseVCS, VCSVersion
 
 log = logging.getLogger(__name__)
 

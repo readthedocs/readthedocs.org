@@ -2,8 +2,8 @@ from django.core.urlresolvers import reverse
 from django.core.urlresolvers import NoReverseMatch
 from django.test import TestCase
 
-from builds.constants import LATEST
-import core.views
+from readthedocs.builds.constants import LATEST
+import readthedocs.core.views
 
 class SubdomainUrlTests(TestCase):
 

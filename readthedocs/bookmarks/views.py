@@ -10,8 +10,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.views.decorators.csrf import csrf_exempt
 import simplejson
 
-from bookmarks.models import Bookmark
-from projects.models import Project
+from readthedocs.bookmarks.models import Bookmark
+from readthedocs.projects.models import Project
 
 # These views are CSRF exempt because of Django's CSRF middleware failing here
 # https://github.com/django/django/blob/stable/1.6.x/django/middleware/csrf.py#L135-L159

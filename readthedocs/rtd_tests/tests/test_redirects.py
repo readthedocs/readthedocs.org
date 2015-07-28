@@ -1,9 +1,9 @@
 from django.test import TestCase
 from django.test.utils import override_settings
 
-from builds.constants import LATEST
-from projects.models import Project
-from redirects.models import Redirect
+from readthedocs.builds.constants import LATEST
+from readthedocs.projects.models import Project
+from readthedocs.redirects.models import Redirect
 
 import logging
 

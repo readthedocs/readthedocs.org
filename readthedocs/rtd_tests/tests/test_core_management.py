@@ -3,9 +3,9 @@ from StringIO import StringIO
 from django.test import TestCase
 from mock import patch
 
-from core.management.commands import run_docker
-from projects.models import Project
-from builds.models import Version
+from readthedocs.core.management.commands import run_docker
+from readthedocs.projects.models import Project
+from readthedocs.builds.models import Version
 
 
 class TestRunDocker(TestCase):

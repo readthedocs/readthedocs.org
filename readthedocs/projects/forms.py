@@ -10,10 +10,10 @@ from django.utils.safestring import mark_safe
 
 from guardian.shortcuts import assign
 
-from core.utils import trigger_build
-from redirects.models import Redirect
-from projects import constants
-from projects.models import Project, EmailHook, WebHook
+from readthedocs.core.utils import trigger_build
+from readthedocs.redirects.models import Redirect
+from readthedocs.projects import constants
+from readthedocs.projects.models import Project, EmailHook, WebHook
 
 
 class ProjectForm(forms.ModelForm):

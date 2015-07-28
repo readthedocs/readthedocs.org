@@ -2,7 +2,7 @@ import json
 
 from django.test import TestCase
 
-from projects.models import Project
+from readthedocs.projects.models import Project
 
 
 class TestRepoParsing(TestCase):

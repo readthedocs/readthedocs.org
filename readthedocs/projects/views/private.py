@@ -18,28 +18,28 @@ from formtools.wizard.views import SessionWizardView
 from allauth.socialaccount.models import SocialToken
 from requests_oauthlib import OAuth2Session
 
-from bookmarks.models import Bookmark
-from builds import utils as build_utils
-from builds.models import Version
-from builds.forms import AliasForm, VersionForm
-from builds.filters import VersionFilter
-from builds.models import VersionAlias
-from core.utils import trigger_build
-from oauth.models import GithubProject, BitbucketProject
-from oauth import utils as oauth_utils
-from projects.forms import (ProjectBackendForm, ProjectBasicsForm,
+from readthedocs.bookmarks.models import Bookmark
+from readthedocs.builds import utils as build_utils
+from readthedocs.builds.models import Version
+from readthedocs.builds.forms import AliasForm, VersionForm
+from readthedocs.builds.filters import VersionFilter
+from readthedocs.builds.models import VersionAlias
+from readthedocs.core.utils import trigger_build
+from readthedocs.oauth.models import GithubProject, BitbucketProject
+from readthedocs.oauth import utils as oauth_utils
+from readthedocs.projects.forms import (ProjectBackendForm, ProjectBasicsForm,
                             ProjectExtraForm, ProjectAdvancedForm,
                             UpdateProjectForm, SubprojectForm,
                             build_versions_form, UserForm, EmailHookForm,
                             TranslationForm, RedirectForm, WebHookForm)
-from projects.models import Project, EmailHook, WebHook
-from projects import constants, tasks
+from readthedocs.projects.models import Project, EmailHook, WebHook
+from readthedocs.projects import constants, tasks
 
 
 try:
     from readthedocs.projects.signals import project_import
 except:
-    from projects.signals import project_import
+    from readthedocs.projects.signals import project_import
 
 log = logging.getLogger(__name__)
 

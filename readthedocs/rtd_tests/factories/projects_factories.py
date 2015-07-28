@@ -1,6 +1,6 @@
 import factory
-from projects.models import Project
-from builds.models import Version
+from readthedocs.projects.models import Project
+from readthedocs.builds.models import Version
 from bamboo_boy.materials import Clump
 
 

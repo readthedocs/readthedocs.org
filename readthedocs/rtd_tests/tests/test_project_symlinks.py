@@ -4,9 +4,9 @@ from functools import wraps
 from mock import patch
 from django.test import TestCase
 
-from builds.models import Version
-from projects.models import Project
-from projects.symlinks import symlink_translations
+from readthedocs.builds.models import Version
+from readthedocs.projects.models import Project
+from readthedocs.projects.symlinks import symlink_translations
 
 
 def patched(fn):

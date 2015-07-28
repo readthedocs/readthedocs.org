@@ -1,9 +1,9 @@
 from django.test import TestCase
 from django.test.utils import override_settings
-from projects.models import Project
+from readthedocs.projects.models import Project
 from django.core.urlresolvers import reverse
 
-from redirects.utils import redirect_filename
+from readthedocs.redirects.utils import redirect_filename
 
 
 class RedirectFilenameTests(TestCase):

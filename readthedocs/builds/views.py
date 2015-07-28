@@ -2,9 +2,9 @@ from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, DetailView
 from django.conf import settings
 
-from builds.models import Build, Version
-from builds.filters import BuildFilter
-from projects.models import Project
+from readthedocs.builds.models import Build, Version
+from readthedocs.builds.filters import BuildFilter
+from readthedocs.projects.models import Project
 
 from redis import Redis, ConnectionError
 

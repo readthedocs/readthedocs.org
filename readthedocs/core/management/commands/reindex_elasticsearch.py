@@ -4,10 +4,10 @@ from optparse import make_option
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
-from builds.constants import LATEST
-from builds.models import Version
-from search import parse_json
-from restapi.utils import index_search_request
+from readthedocs.builds.constants import LATEST
+from readthedocs.builds.models import Version
+from readthedocs.search import parse_json
+from readthedocs.restapi.utils import index_search_request
 
 log = logging.getLogger(__name__)
 

@@ -9,9 +9,9 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import get_template
 from django.template import Context
 
-from builds.constants import LATEST
-from builds.constants import LATEST_VERBOSE_NAME
-from builds.models import Build
+from readthedocs.builds.constants import LATEST
+from readthedocs.builds.constants import LATEST_VERBOSE_NAME
+from readthedocs.builds.models import Build
 
 log = logging.getLogger(__name__)
 
@@ -59,7 +59,7 @@ def trigger_build(project, version=None, record=True, force=False, basic=False):
     An API to wrap the triggering of a build.
     """
     # Avoid circular import
-    from projects.tasks import update_docs
+    from readthedocs.projects.tasks import update_docs
 
     if project.skip:
         return None

@@ -14,12 +14,12 @@ from tastypie.resources import ModelResource
 from tastypie.http import HttpCreated, HttpApplicationError
 from tastypie.utils import dict_strip_unicode_keys, trailing_slash
 
-from builds.constants import LATEST
-from builds.models import Build, Version
-from core.utils import trigger_build
-from projects.models import Project, ImportedFile
-from projects.version_handling import highest_version
-from projects.version_handling import parse_version_failsafe
+from readthedocs.builds.constants import LATEST
+from readthedocs.builds.models import Build, Version
+from readthedocs.core.utils import trigger_build
+from readthedocs.projects.models import Project, ImportedFile
+from readthedocs.projects.version_handling import highest_version
+from readthedocs.projects.version_handling import parse_version_failsafe
 
 from .utils import SearchMixin, PostAuthentication
 

@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, url
 
-from projects.views.public import ProjectIndex, ProjectDetailView
+from readthedocs.projects.views.public import ProjectIndex, ProjectDetailView
 
 
 urlpatterns = patterns(
@@ -11,15 +11,15 @@ urlpatterns = patterns(
         name='projects_list'),
 
     url(r'^search/autocomplete/$',
-        'projects.views.public.search_autocomplete',
+        'readthedocs.projects.views.public.search_autocomplete',
         name='search_autocomplete'),
 
     url(r'^autocomplete/version/(?P<project_slug>[-\w]+)/$',
-        'projects.views.public.version_autocomplete',
+        'readthedocs.projects.views.public.version_autocomplete',
         name='version_autocomplete'),
 
     url(r'^autocomplete/filter/version/(?P<project_slug>[-\w]+)/$',
-        'projects.views.public.version_filter_autocomplete',
+        'readthedocs.projects.views.public.version_filter_autocomplete',
         name='version_filter_autocomplete'),
 
     url(r'^tags/(?P<tag>[-\w]+)/$',
@@ -31,35 +31,35 @@ urlpatterns = patterns(
         name='projects_detail'),
 
     url(r'^(?P<project_slug>[-\w]+)/downloads/$',
-        'projects.views.public.project_downloads',
+        'readthedocs.projects.views.public.project_downloads',
         name='project_downloads'),
 
     url(r'^(?P<project_slug>[-\w]+)/downloads/(?P<type>[-\w]+)/(?P<version_slug>[-\w.]+)/$',
-        'projects.views.public.project_download_media',
+        'readthedocs.projects.views.public.project_download_media',
         name='project_download_media'),
 
     url(r'^(?P<project_slug>[-\w]+)/badge/$',
-        'projects.views.public.project_badge',
+        'readthedocs.projects.views.public.project_badge',
         name='project_badge'),
 
     url(r'^(?P<project_slug>[-\w]+)/versions/$',
-        'projects.views.public.project_versions',
+        'readthedocs.projects.views.public.project_versions',
         name='project_version_list'),
 
     url(r'^(?P<project_slug>[-\w]+)/tools/embed/$',
-        'projects.views.public.project_embed',
+        'readthedocs.projects.views.public.project_embed',
         name='project_embed'),
 
     url(r'^(?P<project_slug>[-\w]+)/search/$',
-        'projects.views.public.elastic_project_search',
+        'readthedocs.projects.views.public.elastic_project_search',
         name='elastic_project_search'),
 
     url(r'^(?P<project_slug>[-\w]+)/autocomplete/file/$',
-        'projects.views.public.file_autocomplete',
+        'readthedocs.projects.views.public.file_autocomplete',
         name='file_autocomplete'),
 
 
     url(r'^(?P<username>\w+)/$',
-        'projects.views.public.project_index',
+        'readthedocs.projects.views.public.project_index',
         name='projects_user_list'),
 )
