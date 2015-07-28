@@ -110,8 +110,8 @@ MIDDLEWARE_CLASSES = (
     'pagination.middleware.PaginationMiddleware',
     # Hack
     # 'core.underscore_middleware.UnderscoreMiddleware',
-    'core.middleware.SubdomainMiddleware',
-    'core.middleware.SingleVersionMiddleware',
+    'readthedocs.core.middleware.SubdomainMiddleware',
+    'readthedocs.core.middleware.SingleVersionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     #'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
 )
@@ -157,7 +157,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.media",
     "django.core.context_processors.request",
     # Read the Docs processor
-    "core.context_processors.readthedocs_processor",
+    "readthedocs.core.context_processors.readthedocs_processor",
     # allauth specific context processors
     "allauth.account.context_processors.account",
     "allauth.socialaccount.context_processors.socialaccount",
@@ -398,7 +398,7 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': False,
         },
-        'core.views.post_commit': {
+        'readthedocs.core.views.post_commit': {
             'handlers': ['postcommit'],
             'level': 'DEBUG',
             'propagate': False,
@@ -418,7 +418,7 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': False,
         },
-        'projects.views.public.search': {
+        'readthedocs.projects.views.public.search': {
             'handlers': ['search'],
             'level': 'DEBUG',
             'propagate': False,
