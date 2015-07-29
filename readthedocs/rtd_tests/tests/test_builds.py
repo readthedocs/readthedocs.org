@@ -34,7 +34,7 @@ class BuildTests(TestCase):
 
     @mock.patch('slumber.Resource')
     @mock.patch('os.chdir')
-    @mock.patch('projects.models.Project.api_versions')
+    @mock.patch('readthedocs.projects.models.Project.api_versions')
     @mock.patch('subprocess.Popen')
     def test_build(self, mock_Popen, mock_api_versions, mock_chdir, mock_apiv2_downloads):
 
@@ -95,9 +95,9 @@ class BuildTests(TestCase):
     @mock.patch('slumber.Resource')
     @mock.patch('os.chdir')
     @mock.patch('subprocess.Popen')
-    @mock.patch('doc_builder.backends.sphinx.HtmlBuilder.build')
-    @mock.patch('doc_builder.backends.sphinx.PdfBuilder.build')
-    @mock.patch('doc_builder.backends.sphinx.EpubBuilder.build')
+    @mock.patch('readthedocs.doc_builder.backends.sphinx.HtmlBuilder.build')
+    @mock.patch('readthedocs.doc_builder.backends.sphinx.PdfBuilder.build')
+    @mock.patch('readthedocs.doc_builder.backends.sphinx.EpubBuilder.build')
     def test_build_respects_pdf_flag(self,
                                      EpubBuilder_build,
                                      PdfBuilder_build,
@@ -139,9 +139,9 @@ class BuildTests(TestCase):
     @mock.patch('slumber.Resource')
     @mock.patch('os.chdir')
     @mock.patch('subprocess.Popen')
-    @mock.patch('doc_builder.backends.sphinx.HtmlBuilder.build')
-    @mock.patch('doc_builder.backends.sphinx.PdfBuilder.build')
-    @mock.patch('doc_builder.backends.sphinx.EpubBuilder.build')
+    @mock.patch('readthedocs.doc_builder.backends.sphinx.HtmlBuilder.build')
+    @mock.patch('readthedocs.doc_builder.backends.sphinx.PdfBuilder.build')
+    @mock.patch('readthedocs.doc_builder.backends.sphinx.EpubBuilder.build')
     def test_build_respects_epub_flag(self,
                                       EpubBuilder_build,
                                       PdfBuilder_build,
