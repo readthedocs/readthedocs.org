@@ -18,7 +18,7 @@ def patched(fn):
         def _collect_commands(cmd):
             self.commands.append(cmd)
 
-        with.patch('readthedocs.projects.symlinks.run_on_app_servers', _collect_commands):
+        with patch('readthedocs.projects.symlinks.run_on_app_servers', _collect_commands):
             with patch('readthedocs.projects.symlinks.run_on_app_servers', _collect_commands):
                 return fn(self)
     return wrapper

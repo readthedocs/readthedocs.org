@@ -8,7 +8,7 @@ import readthedocs.core.views
 class SubdomainUrlTests(TestCase):
 
     def test_sub_index(self):
-        url = reverse(core.views.redirect_project_slug,
+        url = reverse(readthedocs.core.views.redirect_project_slug,
             urlconf='readthedocs.core.subdomain_urls')
         self.assertEqual(url, '/')
 
