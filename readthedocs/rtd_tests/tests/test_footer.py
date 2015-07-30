@@ -1,5 +1,4 @@
 import json
-import mock
 
 from django.test import TestCase
 
@@ -19,7 +18,6 @@ class Testmaker(TestCase):
         r = self.client.get('/api/v2/footer_html/?project=pip&version=latest&page=index', {})
         resp = json.loads(r.content)
         self.assertEqual(resp['version_active'], True)
-        self.assertEqual(resp['version_compare']['is_highest'], True)
         self.assertEqual(resp['version_supported'], True)
         self.assertEqual(r.context['main_project'], self.pip)
         self.assertEqual(r.status_code, 200)
@@ -30,19 +28,6 @@ class Testmaker(TestCase):
         resp = json.loads(r.content)
         self.assertEqual(resp['version_active'], False)
         self.assertEqual(r.status_code, 200)
-
-    def test_footer_uses_version_compare(self):
-        version_compare = 'restapi.views.footer_views.get_version_compare_data'
-        with mock.patch(version_compare) as get_version_compare_data:
-            get_version_compare_data.return_value = {
-                'MOCKED': True
-            }
-
-            r = self.client.get('/api/v2/footer_html/?project=pip&version=latest&page=index', {})
-            self.assertEqual(r.status_code, 200)
-
-            resp = json.loads(r.content)
-            self.assertEqual(resp['version_compare'], {'MOCKED': True})
 
     def test_pdf_build_mentioned_in_footer(self):
         with fake_paths_by_regex('\.pdf$'):
