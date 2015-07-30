@@ -621,6 +621,11 @@ def finish_build(version_pk, build_pk, hostname=None, html=False,
         version.built = True
         version.save()
 
+    if not pdf:
+        clear_pdf_artifacts(version)
+    if not epub:
+        clear_epub_artifacts(version)
+
     move_files(
         version_pk=version_pk,
         hostname=hostname,
@@ -661,19 +666,28 @@ def move_files(version_pk, hostname, html=False, localmedia=False, search=False,
             from_path = version.project.artifact_path(version=version.slug, type='sphinx_localmedia')
             to_path = version.project.get_production_media_path(type='htmlzip', version_slug=version.slug, include_file=False)
             Syncer.copy(from_path, to_path, host=hostname)
+
         if search:
             from_path = version.project.artifact_path(version=version.slug, type='sphinx_search')
             to_path = version.project.get_production_media_path(type='json', version_slug=version.slug, include_file=False)
             Syncer.copy(from_path, to_path, host=hostname)
+
         # Always move PDF's because the return code lies.
         if pdf:
             from_path = version.project.artifact_path(version=version.slug, type='sphinx_pdf')
             to_path = version.project.get_production_media_path(type='pdf', version_slug=version.slug, include_file=False)
             Syncer.copy(from_path, to_path, host=hostname)
+        elif not version.project.enable_pdf_build:
+            to_path = version.project.get_production_media_path(type='pdf', version_slug=version.slug, include_file=False)
+            Syncer.remove(to_path)
+
         if epub:
             from_path = version.project.artifact_path(version=version.slug, type='sphinx_epub')
             to_path = version.project.get_production_media_path(type='epub', version_slug=version.slug, include_file=False)
             Syncer.copy(from_path, to_path, host=hostname)
+        elif not version.project.enable_epub_build:
+            to_path = version.project.get_production_media_path(type='epub', version_slug=version.slug, include_file=False)
+            Syncer.remove(to_path)
 
     if 'mkdocs' in version.project.documentation_type:
         if search:
@@ -882,7 +896,23 @@ def remove_dir(path):
 def clear_artifacts(version_pk):
     """ Remove artifacts from the web servers. """
     version = Version.objects.get(pk=version_pk)
+    clear_pdf_artifacts(version)
+    clear_epub_artifacts(version)
+    clear_htmlzip_artifacts(version)
+    clear_html_artifacts(version)
+
+
+def clear_pdf_artifacts(version):
     run_on_app_servers('rm -rf %s' % version.project.get_production_media_path(type='pdf', version_slug=version.slug))
+
+
+def clear_epub_artifacts(version):
     run_on_app_servers('rm -rf %s' % version.project.get_production_media_path(type='epub', version_slug=version.slug))
+
+
+def clear_htmlzip_artifacts(version):
     run_on_app_servers('rm -rf %s' % version.project.get_production_media_path(type='htmlzip', version_slug=version.slug))
+
+
+def clear_html_artifacts(version):
     run_on_app_servers('rm -rf %s' % version.project.rtd_build_path(version=version.slug))
