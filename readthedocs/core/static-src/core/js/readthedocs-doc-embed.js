@@ -4,8 +4,7 @@ var sponsorship = require('./sponsorship'),
     grokthedocs = require('./doc-embed/grokthedocs-client'),
     mkdocs = require('./doc-embed/mkdocs'),
     rtd = require('./doc-embed/rtd-data'),
-    sphinx = require('./doc-embed/sphinx'),
-    versionCompare = require('./doc-embed/version-compare');
+    sphinx = require('./doc-embed/sphinx');
 
 $(document).ready(function () {
     var build = new doc.Build(rtd);
@@ -13,6 +12,5 @@ $(document).ready(function () {
     footer.init(build);
     sphinx.init();
     grokthedocs.init();
-    versionCompare.init();
     mkdocs.init();
 });

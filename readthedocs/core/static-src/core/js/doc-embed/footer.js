@@ -1,4 +1,5 @@
 var rtd = require('./rtd-data');
+var versionCompare = require('./version-compare');
 
 
 function init(build) {
@@ -36,6 +37,8 @@ function init(build) {
         dataType: "jsonp",
         data: get_data,
         success: function (data) {
+            versionCompare.init(data.version_compare);
+
             // If the theme looks like ours, update the existing badge
             // otherwise throw a a full one into the page.
             if (build.is_rtd_theme()) {
