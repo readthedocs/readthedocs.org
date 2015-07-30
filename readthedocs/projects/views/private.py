@@ -426,7 +426,7 @@ def project_subprojects(request, project_slug):
 @login_required
 def project_subprojects_delete(request, project_slug, child_slug):
     parent = get_object_or_404(Project.objects.for_admin_user(request.user), slug=project_slug)
-    child = get_object_or_404(Project.objects.for_admin_user(request.user), slug=child_slug)
+    child = get_object_or_404(Project.objects.all(), slug=child_slug)
     parent.remove_subproject(child)
     return HttpResponseRedirect(reverse('projects_subprojects',
                                         args=[parent.slug]))
