@@ -29,7 +29,7 @@ class TestBasicsForm(WizardTestCase):
         self.assertIsNotNone(proj)
         for (key, val) in self.step_data['basics'].items():
             self.assertEqual(getattr(proj, key), val)
-        self.assertEqual(proj.documentation_type, 'auto')
+        self.assertEqual(proj.documentation_type, 'sphinx')
 
     def test_form_missing(self):
         '''Submit form with missing data, expect to get failures'''
