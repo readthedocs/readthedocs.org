@@ -5,11 +5,11 @@ from rest_framework.renderers import JSONPRenderer, JSONRenderer, BrowsableAPIRe
 from rest_framework.response import Response
 import requests
 
-from builds.constants import LATEST
-from builds.models import Version
-from search.indexes import PageIndex, ProjectIndex, SectionIndex
-from projects.models import Project
-from restapi import utils
+from readthedocs.builds.constants import LATEST
+from readthedocs.builds.models import Version
+from readthedocs.search.indexes import PageIndex, ProjectIndex, SectionIndex
+from readthedocs.projects.models import Project
+from readthedocs.restapi import utils
 
 
 log = logging.getLogger(__name__)

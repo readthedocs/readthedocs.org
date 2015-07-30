@@ -7,18 +7,18 @@ from rest_framework.decorators import detail_route
 from rest_framework.renderers import JSONPRenderer, JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 
-from builds.filters import VersionFilter
-from builds.models import Build, Version
-from core.utils import trigger_build
-from oauth import utils as oauth_utils
-from builds.constants import STABLE
-from projects.filters import ProjectFilter
-from projects.models import Project, EmailHook
-from projects.version_handling import determine_stable_version
-from restapi.permissions import APIPermission
-from restapi.permissions import RelatedProjectIsOwner
-from restapi.serializers import BuildSerializer, ProjectSerializer, VersionSerializer
-import restapi.utils as api_utils
+from readthedocs.builds.filters import VersionFilter
+from readthedocs.builds.models import Build, Version
+from readthedocs.core.utils import trigger_build
+from readthedocs.oauth import utils as oauth_utils
+from readthedocs.builds.constants import STABLE
+from readthedocs.projects.filters import ProjectFilter
+from readthedocs.projects.models import Project, EmailHook
+from readthedocs.projects.version_handling import determine_stable_version
+from readthedocs.restapi.permissions import APIPermission
+from readthedocs.restapi.permissions import RelatedProjectIsOwner
+from readthedocs.restapi.serializers import BuildSerializer, ProjectSerializer, VersionSerializer
+import readthedocs.restapi.utils as api_utils
 log = logging.getLogger(__name__)
 
 

@@ -110,8 +110,8 @@ MIDDLEWARE_CLASSES = (
     'pagination.middleware.PaginationMiddleware',
     # Hack
     # 'core.underscore_middleware.UnderscoreMiddleware',
-    'core.middleware.SubdomainMiddleware',
-    'core.middleware.SingleVersionMiddleware',
+    'readthedocs.core.middleware.SubdomainMiddleware',
+    'readthedocs.core.middleware.SingleVersionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     #'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
 )
@@ -143,7 +143,7 @@ CORS_ALLOW_HEADERS = (
 )
 
 
-ROOT_URLCONF = 'urls'
+ROOT_URLCONF = 'readthedocs.urls'
 
 TEMPLATE_DIRS = (
     '%s/readthedocs/templates/' % SITE_ROOT,
@@ -157,7 +157,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.media",
     "django.core.context_processors.request",
     # Read the Docs processor
-    "core.context_processors.readthedocs_processor",
+    "readthedocs.core.context_processors.readthedocs_processor",
     # allauth specific context processors
     "allauth.account.context_processors.account",
     "allauth.socialaccount.context_processors.socialaccount",
@@ -192,19 +192,19 @@ INSTALLED_APPS = [
 
 
     # our apps
-    'bookmarks',
-    'projects',
-    'builds',
-    'comments',
-    'core',
-    'doc_builder',
-    'oauth',
-    'redirects',
-    'rtd_tests',
-    'restapi',
-    'privacy',
-    'gold',
-    'donate',
+    'readthedocs.bookmarks',
+    'readthedocs.projects',
+    'readthedocs.builds',
+    'readthedocs.comments',
+    'readthedocs.core',
+    'readthedocs.doc_builder',
+    'readthedocs.oauth',
+    'readthedocs.redirects',
+    'readthedocs.rtd_tests',
+    'readthedocs.restapi',
+    'readthedocs.privacy',
+    'readthedocs.gold',
+    'readthedocs.donate',
 
     # allauth
     'allauth',
@@ -398,7 +398,7 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': False,
         },
-        'core.views.post_commit': {
+        'readthedocs.core.views.post_commit': {
             'handlers': ['postcommit'],
             'level': 'DEBUG',
             'propagate': False,
@@ -418,7 +418,7 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': False,
         },
-        'projects.views.public.search': {
+        'readthedocs.projects.views.public.search': {
             'handlers': ['search'],
             'level': 'DEBUG',
             'propagate': False,

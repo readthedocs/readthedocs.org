@@ -8,14 +8,14 @@ from django.test.client import RequestFactory
 from django.utils.decorators import method_decorator
 from rest_framework.test import APIRequestFactory, APITestCase
 
-from comments.models import DocumentNode, DocumentComment, NodeSnapshot
-from comments.views import add_node, get_metadata, update_node
-from privacy.backend import AdminNotAuthorized
-from projects.views.private import project_comments_moderation
-from rtd_tests.factories.comments_factories import DocumentNodeFactory, \
+from readthedocs.comments.models import DocumentNode, DocumentComment, NodeSnapshot
+from readthedocs.comments.views import add_node, get_metadata, update_node
+from readthedocs.privacy.backend import AdminNotAuthorized
+from readthedocs.projects.views.private import project_comments_moderation
+from readthedocs.rtd_tests.factories.comments_factories import DocumentNodeFactory, \
     DocumentCommentFactory, ProjectsWithComments
-from rtd_tests.factories.general_factories import UserFactory
-from rtd_tests.factories.projects_factories import ProjectFactory
+from readthedocs.rtd_tests.factories.general_factories import UserFactory
+from readthedocs.rtd_tests.factories.projects_factories import ProjectFactory
 
 
 @with_canopy(ProjectsWithComments)

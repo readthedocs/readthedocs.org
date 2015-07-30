@@ -4,9 +4,9 @@ from optparse import make_option
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
-from projects import tasks
-from builds.constants import LATEST
-from builds.models import Version
+from readthedocs.projects import tasks
+from readthedocs.builds.constants import LATEST
+from readthedocs.builds.models import Version
 
 log = logging.getLogger(__name__)
 

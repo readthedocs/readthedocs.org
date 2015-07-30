@@ -3,9 +3,9 @@ import logging
 
 import requests
 
-from builds.constants import NON_REPOSITORY_VERSIONS
-from builds.models import Version
-from search.indexes import PageIndex, ProjectIndex, SectionIndex
+from readthedocs.builds.constants import NON_REPOSITORY_VERSIONS
+from readthedocs.builds.models import Version
+from readthedocs.search.indexes import PageIndex, ProjectIndex, SectionIndex
 
 log = logging.getLogger(__name__)
 

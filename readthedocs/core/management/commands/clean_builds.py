@@ -5,7 +5,7 @@ from optparse import make_option
 from django.core.management.base import BaseCommand
 from django.db.models import Max
 
-from builds.models import Build, Version
+from readthedocs.builds.models import Build, Version
 
 log = logging.getLogger(__name__)
 

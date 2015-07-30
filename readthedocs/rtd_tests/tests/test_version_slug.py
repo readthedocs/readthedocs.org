@@ -1,10 +1,10 @@
 import re
 from django.test import TestCase
 
-from builds.models import Version
-from builds.version_slug import VersionSlugField
-from builds.version_slug import VERSION_SLUG_REGEX
-from projects.models import Project
+from readthedocs.builds.models import Version
+from readthedocs.builds.version_slug import VersionSlugField
+from readthedocs.builds.version_slug import VERSION_SLUG_REGEX
+from readthedocs.projects.models import Project
 
 
 class VersionSlugPatternTests(TestCase):

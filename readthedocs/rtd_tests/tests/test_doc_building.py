@@ -6,12 +6,12 @@ import re
 from django.test import TestCase
 from django.contrib.auth.models import User
 
-from projects.models import Project
-from builds.models import Version
-from doc_builder.environments import (DockerEnvironment, DockerBuildCommand,
+from readthedocs.projects.models import Project
+from readthedocs.builds.models import Version
+from readthedocs.doc_builder.environments import (DockerEnvironment, DockerBuildCommand,
                                       BuildCommand)
-from rtd_tests.utils import make_test_git
-from rtd_tests.base import RTDTestCase
+from readthedocs.rtd_tests.utils import make_test_git
+from readthedocs.rtd_tests.base import RTDTestCase
 
 
 class TestBuilding(RTDTestCase):

@@ -6,7 +6,7 @@ from django.conf import settings
 from requests_oauthlib import OAuth1Session, OAuth2Session
 
 from .models import GithubProject, GithubOrganization, BitbucketProject, BitbucketTeam
-from restapi.client import api
+from readthedocs.restapi.client import api
 
 log = logging.getLogger(__name__)
 

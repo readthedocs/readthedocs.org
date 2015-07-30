@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from projects.models import Project
+from readthedocs.projects.models import Project
 
 LEVEL_CHOICES = (
     ('v1-org-5', '$5/mo'),

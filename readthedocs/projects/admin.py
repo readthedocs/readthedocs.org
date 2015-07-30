@@ -2,10 +2,10 @@
 and related models.
 """
 
-from builds.models import Version
+from readthedocs.builds.models import Version
 from django.contrib import admin
-from redirects.models import Redirect
-from projects.models import (Project, ImportedFile, ProjectRelationship, EmailHook, WebHook)
+from readthedocs.redirects.models import Redirect
+from readthedocs.projects.models import (Project, ImportedFile, ProjectRelationship, EmailHook, WebHook)
 from guardian.admin import GuardedModelAdmin
 
 

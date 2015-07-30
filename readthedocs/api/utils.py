@@ -13,7 +13,7 @@ from tastypie.exceptions import NotFound, ImmediateHttpResponse
 from tastypie import http
 from tastypie.utils.mime import build_content_type
 
-from core.forms import FacetedSearchForm
+from readthedocs.core.forms import FacetedSearchForm
 
 log = logging.getLogger(__name__)
 

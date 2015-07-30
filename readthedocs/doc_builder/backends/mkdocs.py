@@ -6,8 +6,8 @@ import yaml
 from django.conf import settings
 from django.template import Context, loader as template_loader
 
-from doc_builder.base import BaseBuilder, restoring_chdir
-from projects.utils import run
+from readthedocs.doc_builder.base import BaseBuilder, restoring_chdir
+from readthedocs.projects.utils import run
 
 log = logging.getLogger(__name__)
 

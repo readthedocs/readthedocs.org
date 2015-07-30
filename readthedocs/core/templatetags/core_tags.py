@@ -6,8 +6,8 @@ from django.conf import settings
 from django.utils.safestring import mark_safe
 from django.utils.encoding import force_bytes, force_text
 
-from builds.models import Version
-from projects.models import Project
+from readthedocs.builds.models import Version
+from readthedocs.projects.models import Project
 
 register = template.Library()
 

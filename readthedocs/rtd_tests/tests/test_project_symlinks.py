@@ -4,9 +4,9 @@ from functools import wraps
 from mock import patch
 from django.test import TestCase
 
-from builds.models import Version
-from projects.models import Project
-from projects.symlinks import symlink_translations
+from readthedocs.builds.models import Version
+from readthedocs.projects.models import Project
+from readthedocs.projects.symlinks import symlink_translations
 
 
 def patched(fn):
@@ -18,7 +18,7 @@ def patched(fn):
         def _collect_commands(cmd):
             self.commands.append(cmd)
 
-        with patch('projects.symlinks.run_on_app_servers', _collect_commands):
+        with patch('readthedocs.projects.symlinks.run_on_app_servers', _collect_commands):
             with patch('readthedocs.projects.symlinks.run_on_app_servers', _collect_commands):
                 return fn(self)
     return wrapper

@@ -3,9 +3,9 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.utils.six.moves.urllib.parse import urlsplit
 
-from builds.constants import LATEST
-from projects.models import Project
-from projects.forms import UpdateProjectForm
+from readthedocs.builds.constants import LATEST
+from readthedocs.projects.models import Project
+from readthedocs.projects.forms import UpdateProjectForm
 
 
 class Testmaker(TestCase):

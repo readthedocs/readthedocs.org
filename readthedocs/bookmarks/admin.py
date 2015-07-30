@@ -2,7 +2,7 @@
 """
 
 from django.contrib import admin
-from bookmarks.models import Bookmark
+from readthedocs.bookmarks.models import Bookmark
 
 
 class BookmarkAdmin(admin.ModelAdmin):

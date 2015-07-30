@@ -2,8 +2,8 @@ import re
 
 from django.contrib.messages import constants as message_const
 
-from rtd_tests.base import WizardTestCase, MockBuildTestCase
-from projects.models import Project
+from readthedocs.rtd_tests.base import WizardTestCase, MockBuildTestCase
+from readthedocs.projects.models import Project
 
 
 class TestBasicsForm(WizardTestCase):

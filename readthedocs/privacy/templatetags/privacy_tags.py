@@ -2,7 +2,7 @@ from django import template
 
 from ..loader import AdminPermission
 
-from projects.models import Project
+from readthedocs.projects.models import Project
 
 register = template.Library()
 

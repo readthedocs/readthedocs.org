@@ -2,8 +2,8 @@ from collections import defaultdict
 from packaging.version import Version
 from packaging.version import InvalidVersion
 
-from builds.constants import LATEST_VERBOSE_NAME
-from builds.constants import STABLE_VERBOSE_NAME
+from readthedocs.builds.constants import LATEST_VERBOSE_NAME
+from readthedocs.builds.constants import STABLE_VERBOSE_NAME
 
 
 def get_major(version):

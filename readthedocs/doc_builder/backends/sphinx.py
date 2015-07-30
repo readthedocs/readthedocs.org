@@ -10,11 +10,11 @@ from django.template import Context, loader as template_loader
 from django.template.loader import render_to_string
 from django.conf import settings
 
-from builds import utils as version_utils
-from doc_builder.base import BaseBuilder, restoring_chdir
-from projects.utils import run, safe_write
-from projects.exceptions import ProjectImportError
-from restapi.client import api
+from readthedocs.builds import utils as version_utils
+from readthedocs.doc_builder.base import BaseBuilder, restoring_chdir
+from readthedocs.projects.utils import run, safe_write
+from readthedocs.projects.exceptions import ProjectImportError
+from readthedocs.restapi.client import api
 
 log = logging.getLogger(__name__)
 

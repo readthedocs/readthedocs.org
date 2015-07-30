@@ -3,9 +3,9 @@ from StringIO import StringIO
 from django.test import TestCase
 from mock import patch
 
-from core.management.commands import run_docker
-from projects.models import Project
-from builds.models import Version
+from readthedocs.core.management.commands import run_docker
+from readthedocs.projects.models import Project
+from readthedocs.builds.models import Version
 
 
 class TestRunDocker(TestCase):
@@ -40,7 +40,7 @@ class TestRunDocker(TestCase):
             assert cmd._get_input() == '{"test": "foobar"}'
 
     @patch.object(run_docker.Command, '_get_input', _get_input)
-    @patch('projects.tasks.docker_build', _docker_build)
+    @patch('readthedocs.projects.tasks.docker_build', _docker_build)
     @patch('sys.stdout', new_callable=StringIO)
     def test_good_input(self, mock_output):
         '''Test docker build command'''
@@ -52,7 +52,7 @@ class TestRunDocker(TestCase):
             '{"html": [0, "DOCKER PASS", ""]}\n'
         )
 
-    @patch('projects.tasks.docker_build', _docker_build)
+    @patch('readthedocs.projects.tasks.docker_build', _docker_build)
     def test_bad_input(self):
         '''Test docker build command'''
         with patch.object(run_docker.Command, '_get_input') as mock_input:

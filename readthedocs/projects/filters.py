@@ -2,8 +2,8 @@ from django.utils.translation import ugettext_lazy as _
 
 import django_filters
 
-from projects import constants
-from projects.models import Project
+from readthedocs.projects import constants
+from readthedocs.projects.models import Project
 
 ANY_REPO = (
     ('', _('Any')),

@@ -11,9 +11,9 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from guardian.shortcuts import assign
 from taggit.managers import TaggableManager
 
-from privacy.loader import VersionManager, RelatedProjectManager
-from projects.models import Project
-from projects import constants
+from readthedocs.privacy.loader import VersionManager, RelatedProjectManager
+from readthedocs.projects.models import Project
+from readthedocs.projects import constants
 from .constants import (BUILD_STATE, BUILD_TYPES, VERSION_TYPES,
                         LATEST, NON_REPOSITORY_VERSIONS, STABLE
                         )

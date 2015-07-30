@@ -2,10 +2,10 @@ import logging
 from optparse import make_option
 
 from django.core.management.base import BaseCommand
-from projects import tasks
-from projects.models import Project
-from builds.models import Version
-from core.utils import trigger_build
+from readthedocs.projects import tasks
+from readthedocs.projects.models import Project
+from readthedocs.builds.models import Version
+from readthedocs.core.utils import trigger_build
 
 log = logging.getLogger(__name__)
 

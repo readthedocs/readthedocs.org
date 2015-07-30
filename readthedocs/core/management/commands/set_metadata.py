@@ -4,8 +4,8 @@ from optparse import make_option
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
-from projects import tasks
-from projects.models import Project
+from readthedocs.projects import tasks
+from readthedocs.projects.models import Project
 
 log = logging.getLogger(__name__)
 
