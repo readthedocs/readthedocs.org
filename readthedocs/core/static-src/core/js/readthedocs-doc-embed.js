@@ -104,6 +104,16 @@ $(document).ready(function () {
       }
     });
 
+    /// Click tracking on flyout
+    $(document).on('click', "[data-toggle='rst-current-version']", function() {
+      var flyout_state = $("[data-toggle='rst-versions']").hasClass('shift-up') ? 'was_open' : 'was_closed'
+      if (_gaq) {
+        _gaq.push(
+            ['rtfd._setAccount', 'UA-17997319-1'],
+            ['rtfd._trackEvent', 'Flyout', 'Click', flyout_state]
+        );
+      }
+    });
 
     /// Read the Docs Sphinx theme code
     if (!("builder" in READTHEDOCS_DATA) || "builder" in READTHEDOCS_DATA && READTHEDOCS_DATA["builder"] != "mkdocs") {
