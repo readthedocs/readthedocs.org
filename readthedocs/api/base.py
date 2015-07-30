@@ -30,7 +30,7 @@ redis_client = redis.Redis(**settings.REDIS)
 
 
 class ProjectResource(ModelResource, SearchMixin):
-    users = fields.ToManyField('api.base.UserResource', 'users')
+    users = fields.ToManyField('readthedocs.api.base.UserResource', 'users')
 
     class Meta:
         include_absolute_url = True
@@ -209,8 +209,8 @@ class VersionResource(ModelResource):
 
 
 class BuildResource(ModelResource):
-    project = fields.ForeignKey('api.base.ProjectResource', 'project')
-    version = fields.ForeignKey('api.base.VersionResource', 'version')
+    project = fields.ForeignKey('readthedocs.api.base.ProjectResource', 'project')
+    version = fields.ForeignKey('readthedocs.api.base.VersionResource', 'version')
 
     class Meta:
         always_return_data = True
