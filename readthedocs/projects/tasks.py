@@ -331,6 +331,7 @@ def setup_environment(version):
         'sphinx-rtd-theme==0.1.8',
         'alabaster>=0.7,<0.8,!=0.7.5',
         'recommonmark==0.1.1',
+        'git+https://github.com/rtfd/readthedocs-build',
     ])
 
     wheeldir = os.path.join(settings.SITE_ROOT, 'deploy', 'wheels')

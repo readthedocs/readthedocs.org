@@ -5,6 +5,7 @@ import codecs
 from glob import glob
 import logging
 import zipfile
+import yaml
 
 from django.template import Context, loader as template_loader
 from django.template.loader import render_to_string
@@ -278,3 +279,75 @@ class PdfBuilder(BaseSphinx):
         if from_file:
             to_file = os.path.join(self.target, "%s.pdf" % self.version.project.slug)
             run('mv -f %s %s' % (from_file, to_file))
+
+
+class ConfigBuilder(BaseSphinx):
+    type = 'yaml'
+    sphinx_build_dir = '_build/html'
+
+    def append_conf(self, **kwargs):
+        """Modify the given ``conf.py`` file from a whitelisted user's project.
+        """
+
+        project = self.version.project
+
+        # Pull config data
+        yml_file = project.readthedocs_yml_file(self.version.slug)
+        if os.path.exists(yml_file):
+            return ''
+
+        self.create_index(extension='rst')
+
+        # Open file for appending.
+        try:
+            outfile = codecs.open(project.readthedocs_yml_file(self.version.slug), encoding='utf-8', mode='a')
+        except IOError:
+            trace = sys.exc_info()[2]
+            raise ProjectImportError('Conf file not found'), None, trace
+
+        conf_py_path = version_utils.get_conf_py_path(self.version)
+        remote_version = version_utils.get_vcs_version_slug(self.version)
+        github_info = version_utils.get_github_username_repo(self.version)
+        bitbucket_info = version_utils.get_bitbucket_username_repo(self.version)
+        if github_info[0] is None:
+            display_github = False
+        else:
+            display_github = True
+        if bitbucket_info[0] is None:
+            display_bitbucket = False
+        else:
+            display_bitbucket = True
+
+        rtd_ctx = Context({
+            'current_version': self.version.slug,
+            'project': project,
+            'settings': settings,
+            'static_path': STATIC_DIR,
+            'template_path': TEMPLATE_DIR,
+            'conf_py_path': conf_py_path,
+            'api_host': getattr(settings, 'SLUMBER_API_HOST', 'https://readthedocs.org'),
+            # GitHub
+            'github_user': github_info[0],
+            'github_repo': github_info[1],
+            'github_version':  remote_version,
+            'display_github': display_github,
+            # BitBucket
+            'bitbucket_user': bitbucket_info[0],
+            'bitbucket_repo': bitbucket_info[1],
+            'bitbucket_version':  remote_version,
+            'display_bitbucket': display_bitbucket,
+            'commit': self.version.project.vcs_repo(self.version.slug).commit,
+        })
+
+        rtd_ctx['versions'] = project.api_versions()
+        rtd_ctx['downloads'] = (apiv2.version(self.version.pk).get()['downloads'])
+
+        outfile.write(yaml.dump(rtd_ctx))
+
+    @restoring_chdir
+    def build(self, **kwargs):
+        self.clean()
+        os.chdir(self.version.project.checkout_path(self.version.slug))
+        build_command = 'rtd-build --output={0}'.format(self.old_artifact_path)
+        results = run(build_command, shell=True)
+        return results

@@ -20,6 +20,7 @@ DOCUMENTATION_CHOICES = (
     ('mkdocs', _('Mkdocs (Markdown)')),
     ('sphinx_htmldir', _('Sphinx HtmlDir')),
     ('sphinx_singlehtml', _('Sphinx Single Page HTML')),
+    ('yaml', _('Sphinx YAML Builder')),
     #('sphinx_websupport2', _('Sphinx Websupport')),
     #('rdoc', 'Rdoc'),
 )
