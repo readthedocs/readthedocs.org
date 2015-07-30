@@ -138,11 +138,10 @@ gulp.task('dev', function (done) {
 
     es
         .merge(Object.keys(sources).map(function (application) {
-            var files = sources[application].map(function (n) {
-                return path.join(
-                    pkg_config.name, application, 'static-src', '**', n
-                );
-            });
+            var files = [
+                path.join(pkg_config.name, application, 'static-src', '**', '*.js'),
+                path.join(pkg_config.name, application, 'static-src', '**', '*.css')
+            ];
             return watch(files, {verbose: true, name: 'dev'}, function () {
                 build_app_sources(application, false)
                     .pipe(es.wait(function (err, body) {
