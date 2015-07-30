@@ -1,4 +1,4 @@
-import os.path
+import os
 
 from .base import *  # noqa
 
@@ -52,7 +52,8 @@ CORS_ORIGIN_WHITELIST = (
     'test:8000',
 )
 
-try:
-    from local_settings import *  # noqa
-except ImportError:
-    pass
+if not os.environ.get('DJANGO_SETTINGS_SKIP_LOCAL', False):
+    try:
+        from local_settings import *  # noqa
+    except ImportError:
+        pass
