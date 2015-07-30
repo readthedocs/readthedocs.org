@@ -1,6 +1,6 @@
 from django.conf.urls import url, patterns, include
 
-from gold import views
+from readthedocs.gold import views
 
 
 urlpatterns = patterns('',

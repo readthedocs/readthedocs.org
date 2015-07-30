@@ -5,12 +5,12 @@ from tempfile import mkdtemp
 from django.contrib.auth.models import User
 import json
 
-from projects.models import Project
-from projects import tasks
+from readthedocs.projects.models import Project
+from readthedocs.projects import tasks
 
-from rtd_tests.utils import make_test_git
-from rtd_tests.base import RTDTestCase
-from rtd_tests.mocks.mock_api import mock_api
+from readthedocs.rtd_tests.utils import make_test_git
+from readthedocs.rtd_tests.base import RTDTestCase
+from readthedocs.rtd_tests.mocks.mock_api import mock_api
 
 
 class TestCeleryBuilding(RTDTestCase):

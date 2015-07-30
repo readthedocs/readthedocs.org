@@ -1,13 +1,13 @@
 from bamboo_boy.utils import with_canopy
 import json
 from django.test import TestCase
-from builds.constants import LATEST
-from projects.models import Project
-from rtd_tests.factories.projects_factories import OneProjectWithTranslationsOneWithout,\
+from readthedocs.builds.constants import LATEST
+from readthedocs.projects.models import Project
+from readthedocs.rtd_tests.factories.projects_factories import OneProjectWithTranslationsOneWithout,\
     ProjectFactory
 from rest_framework.reverse import reverse
-from restapi.serializers import ProjectSerializer
-from rtd_tests.mocks.paths import fake_paths_by_regex
+from readthedocs.restapi.serializers import ProjectSerializer
+from readthedocs.rtd_tests.mocks.paths import fake_paths_by_regex
 
 
 @with_canopy(OneProjectWithTranslationsOneWithout)

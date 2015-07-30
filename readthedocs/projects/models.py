@@ -12,23 +12,23 @@ from django.utils.translation import ugettext_lazy as _
 
 from guardian.shortcuts import assign
 
-from builds.constants import LATEST
-from builds.constants import LATEST_VERBOSE_NAME
-from builds.constants import STABLE
-from oauth import utils as oauth_utils
-from privacy.loader import RelatedProjectManager, ProjectManager
-from projects import constants
-from projects.exceptions import ProjectImportError
-from projects.templatetags.projects_tags import sort_version_aware
-from projects.utils import make_api_version, symlink, update_static_metadata
-from projects.version_handling import determine_stable_version
-from projects.version_handling import version_windows
+from readthedocs.builds.constants import LATEST
+from readthedocs.builds.constants import LATEST_VERBOSE_NAME
+from readthedocs.builds.constants import STABLE
+from readthedocs.oauth import utils as oauth_utils
+from readthedocs.privacy.loader import RelatedProjectManager, ProjectManager
+from readthedocs.projects import constants
+from readthedocs.projects.exceptions import ProjectImportError
+from readthedocs.projects.templatetags.projects_tags import sort_version_aware
+from readthedocs.projects.utils import make_api_version, symlink, update_static_metadata
+from readthedocs.projects.version_handling import determine_stable_version
+from readthedocs.projects.version_handling import version_windows
 from taggit.managers import TaggableManager
-from api.client import api
+from readthedocs.api.client import api
 
-from vcs_support.base import VCSProject
-from vcs_support.backends import backend_cls
-from vcs_support.utils import Lock, NonBlockingLock
+from readthedocs.vcs_support.base import VCSProject
+from readthedocs.vcs_support.backends import backend_cls
+from readthedocs.vcs_support.utils import Lock, NonBlockingLock
 
 
 log = logging.getLogger(__name__)
@@ -680,13 +680,13 @@ class Project(models.Model):
         return sort_version_aware(ret)
 
     def active_versions(self):
-        from builds.models import Version
+        from readthedocs.builds.models import Version
         versions = Version.objects.public(project=self, only_active=True)
         return (versions.filter(built=True, active=True) |
                 versions.filter(active=True, uploaded=True))
 
     def ordered_active_versions(self):
-        from builds.models import Version
+        from readthedocs.builds.models import Version
         versions = Version.objects.public(project=self, only_active=True)
         return sort_version_aware(versions)
 
@@ -799,7 +799,7 @@ class Project(models.Model):
 
     def moderation_queue(self):
         # non-optimal SQL warning.
-        from comments.models import DocumentComment
+        from readthedocs.comments.models import DocumentComment
         queue = []
         comments = DocumentComment.objects.filter(node__project=self)
         for comment in comments:
@@ -809,7 +809,7 @@ class Project(models.Model):
         return queue
 
     def add_node(self, node_hash, page, version, commit):
-        from comments.models import NodeSnapshot, DocumentNode
+        from readthedocs.comments.models import NodeSnapshot, DocumentNode
         project_obj = Project.objects.get(slug=self.slug)
         version_obj = project_obj.versions.get(slug=version)
         try:
@@ -826,7 +826,7 @@ class Project(models.Model):
         return True  # ie, it's True that a new node was created.
 
     def add_comment(self, version_slug, page, hash, commit, user, text):
-        from comments.models import DocumentNode
+        from readthedocs.comments.models import DocumentNode
         try:
             node = self.nodes.from_hash(version_slug, page, hash)
         except DocumentNode.DoesNotExist:

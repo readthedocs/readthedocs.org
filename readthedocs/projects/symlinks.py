@@ -4,9 +4,9 @@ import logging
 from django.conf import settings
 import redis
 
-from core.utils import run_on_app_servers
-from projects.constants import LOG_TEMPLATE
-from restapi.client import api
+from readthedocs.core.utils import run_on_app_servers
+from readthedocs.projects.constants import LOG_TEMPLATE
+from readthedocs.restapi.client import api
 
 log = logging.getLogger(__name__)
 

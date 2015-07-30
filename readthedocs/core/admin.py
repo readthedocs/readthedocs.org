@@ -3,7 +3,7 @@
 
 from django.contrib import admin
 
-from core.models import UserProfile
+from readthedocs.core.models import UserProfile
 
 
 class UserProfileAdmin(admin.ModelAdmin):

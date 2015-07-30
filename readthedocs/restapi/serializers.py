@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
-from builds.models import Build, Version
-from projects.models import Project
+from readthedocs.builds.models import Build, Version
+from readthedocs.projects.models import Project
 
 
 class ProjectSerializer(serializers.ModelSerializer):

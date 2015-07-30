@@ -16,30 +16,30 @@ from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 from slumber.exceptions import HttpClientError
 
-from builds.constants import LATEST
-from builds.models import Build, Version
-from core.utils import send_email, run_on_app_servers
-from doc_builder.loader import get_builder_class
-from doc_builder.base import restoring_chdir
-from doc_builder.environments import DockerEnvironment
-from projects.exceptions import ProjectImportError
-from projects.models import ImportedFile, Project
-from projects.utils import run, make_api_version, make_api_project
-from projects.constants import LOG_TEMPLATE
-from builds.constants import STABLE
-from projects import symlinks
-from privacy.loader import Syncer
-from search.parse_json import process_all_json_files
-from search.utils import process_mkdocs_json
-from restapi.utils import index_search_request
-from vcs_support import utils as vcs_support_utils
-from api.client import api as api_v1
-from restapi.client import api as api_v2
+from readthedocs.builds.constants import LATEST
+from readthedocs.builds.models import Build, Version
+from readthedocs.core.utils import send_email, run_on_app_servers
+from readthedocs.doc_builder.loader import get_builder_class
+from readthedocs.doc_builder.base import restoring_chdir
+from readthedocs.doc_builder.environments import DockerEnvironment
+from readthedocs.projects.exceptions import ProjectImportError
+from readthedocs.projects.models import ImportedFile, Project
+from readthedocs.projects.utils import run, make_api_version, make_api_project
+from readthedocs.projects.constants import LOG_TEMPLATE
+from readthedocs.builds.constants import STABLE
+from readthedocs.projects import symlinks
+from readthedocs.privacy.loader import Syncer
+from readthedocs.search.parse_json import process_all_json_files
+from readthedocs.search.utils import process_mkdocs_json
+from readthedocs.restapi.utils import index_search_request
+from readthedocs.vcs_support import utils as vcs_support_utils
+from readthedocs.api.client import api as api_v1
+from readthedocs.restapi.client import api as api_v2
 
 try:
     from readthedocs.projects.signals import before_vcs, after_vcs, before_build, after_build
 except:
-    from projects.signals import before_vcs, after_vcs, before_build, after_build
+    from readthedocs.projects.signals import before_vcs, after_vcs, before_build, after_build
 
 
 log = logging.getLogger(__name__)

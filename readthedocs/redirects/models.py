@@ -2,7 +2,7 @@ from django.db import models
 from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy as _
 
-from projects.models import Project
+from readthedocs.projects.models import Project
 
 HTTP_STATUS_CHOICES = (
     (301, _('301 - Permanent Redirect')),

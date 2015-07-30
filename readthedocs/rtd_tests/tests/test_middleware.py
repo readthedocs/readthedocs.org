@@ -4,7 +4,7 @@ from django.utils import unittest
 from django.test.client import RequestFactory
 from django.test.utils import override_settings
 
-from core.middleware import SubdomainMiddleware
+from readthedocs.core.middleware import SubdomainMiddleware
 
 
 class MiddlewareTests(unittest.TestCase):

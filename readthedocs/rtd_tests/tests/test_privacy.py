@@ -5,11 +5,11 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django.contrib.auth.models import User
 
-from builds.constants import LATEST
-from builds.models import Version
-from projects.models import Project
-from projects.forms import UpdateProjectForm
-from projects import tasks
+from readthedocs.builds.constants import LATEST
+from readthedocs.builds.models import Version
+from readthedocs.projects.models import Project
+from readthedocs.projects.forms import UpdateProjectForm
+from readthedocs.projects import tasks
 
 log = logging.getLogger(__name__)
 

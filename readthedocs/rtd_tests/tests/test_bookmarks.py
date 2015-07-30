@@ -3,9 +3,9 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 import json
 
-from builds.constants import LATEST
-from projects.models import Project
-from bookmarks.models import Bookmark
+from readthedocs.builds.constants import LATEST
+from readthedocs.projects.models import Project
+from readthedocs.bookmarks.models import Bookmark
 
 
 class TestBookmarks(TestCase):

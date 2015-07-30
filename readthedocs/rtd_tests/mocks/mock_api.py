@@ -81,8 +81,8 @@ class MockApi(object):
 def mock_api(repo):
     api_mock = MockApi(repo)
     with (
-            mock.patch('restapi.client.api', api_mock) and
-            mock.patch('api.client.api', api_mock) and
-            mock.patch('projects.tasks.api_v2', api_mock) and
-            mock.patch('projects.tasks.api_v1', api_mock)):
+            mock.patch('readthedocs.restapi.client.api', api_mock) and
+            mock.patch('readthedocs.api.client.api', api_mock) and
+            mock.patch('readthedocs.projects.tasks.api_v2', api_mock) and
+            mock.patch('readthedocs.projects.tasks.api_v1', api_mock)):
         yield api_mock

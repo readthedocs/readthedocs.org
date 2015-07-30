@@ -7,8 +7,8 @@ from django.contrib import messages
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 
-from builds import utils as build_utils
-from oauth import utils as oauth_utils
+from readthedocs.builds import utils as build_utils
+from readthedocs.oauth import utils as oauth_utils
 
 before_vcs = django.dispatch.Signal(providing_args=["version"])
 after_vcs = django.dispatch.Signal(providing_args=["version"])

@@ -7,9 +7,9 @@ from rest_framework import decorators, permissions
 from rest_framework.renderers import JSONPRenderer, JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 
-from builds.models import Version
-from projects.models import Project
-from donate.models import SupporterPromo
+from readthedocs.builds.models import Version
+from readthedocs.projects.models import Project
+from readthedocs.donate.models import SupporterPromo
 
 
 @decorators.api_view(['GET'])

@@ -2,8 +2,8 @@ from django.test import TestCase
 import json
 import logging
 
-from projects.models import Project
-from projects import tasks
+from readthedocs.projects.models import Project
+from readthedocs.projects import tasks
 
 log = logging.getLogger(__name__)
 

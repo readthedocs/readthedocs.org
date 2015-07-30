@@ -1,6 +1,6 @@
 from django import template
 
-from projects.version_handling import comparable_version
+from readthedocs.projects.version_handling import comparable_version
 
 
 register = template.Library()

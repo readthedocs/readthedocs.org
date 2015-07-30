@@ -10,8 +10,8 @@ from django.utils.html import strip_tags
 from haystack import indexes
 from haystack.fields import CharField
 
-from projects import constants
-from projects.models import ImportedFile, Project
+from readthedocs.projects import constants
+from readthedocs.projects.models import ImportedFile, Project
 
 import logging
 log = logging.getLogger(__name__)

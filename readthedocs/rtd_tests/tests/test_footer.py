@@ -2,8 +2,8 @@ import json
 
 from django.test import TestCase
 
-from rtd_tests.mocks.paths import fake_paths_by_regex
-from projects.models import Project
+from readthedocs.rtd_tests.mocks.paths import fake_paths_by_regex
+from readthedocs.projects.models import Project
 
 
 class Testmaker(TestCase):

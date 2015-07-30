@@ -1,7 +1,7 @@
 from launchpadlib.launchpad import Launchpad
 
-from vcs_support.base import VCSVersion
-from vcs_support.backends import bzr
+from readthedocs.vcs_support.base import VCSVersion
+from readthedocs.vcs_support.backends import bzr
 
 
 class Backend(bzr.Backend):

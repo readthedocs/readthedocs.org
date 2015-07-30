@@ -2,10 +2,10 @@ from os.path import exists
 
 from django.contrib.auth.models import User
 
-from projects.models import Project
-from rtd_tests.base import RTDTestCase
+from readthedocs.projects.models import Project
+from readthedocs.rtd_tests.base import RTDTestCase
 
-from rtd_tests.utils import make_test_git, make_test_hg
+from readthedocs.rtd_tests.utils import make_test_git, make_test_hg
 
 
 class TestGitBackend(RTDTestCase):

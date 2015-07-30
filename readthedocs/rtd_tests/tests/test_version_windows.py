@@ -1,6 +1,6 @@
 import unittest
 
-from projects.version_handling import version_windows
+from readthedocs.projects.version_handling import version_windows
 
 
 class TestVersionWindows(unittest.TestCase):

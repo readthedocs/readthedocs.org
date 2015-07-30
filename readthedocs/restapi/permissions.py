@@ -1,5 +1,5 @@
 from rest_framework import permissions
-from privacy.backend import AdminPermission
+from readthedocs.privacy.backend import AdminPermission
 
 
 class IsOwner(permissions.BasePermission):

@@ -3,9 +3,9 @@ import random
 
 import factory
 
-from comments.models import DocumentComment, DocumentNode, NodeSnapshot
-from rtd_tests.factories.general_factories import UserFactory
-from rtd_tests.factories.projects_factories import ProjectFactory
+from readthedocs.comments.models import DocumentComment, DocumentNode, NodeSnapshot
+from readthedocs.rtd_tests.factories.general_factories import UserFactory
+from readthedocs.rtd_tests.factories.projects_factories import ProjectFactory
 
 
 class SnapshotFactory(factory.DjangoModelFactory):

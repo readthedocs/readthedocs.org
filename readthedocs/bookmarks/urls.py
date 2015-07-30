@@ -1,11 +1,11 @@
 from django.conf.urls import patterns, url
-from bookmarks.views import BookmarkListView
-from bookmarks.views import BookmarkAddView, BookmarkRemoveView
-from bookmarks.views import BookmarkExistsView
+from readthedocs.bookmarks.views import BookmarkListView
+from readthedocs.bookmarks.views import BookmarkAddView, BookmarkRemoveView
+from readthedocs.bookmarks.views import BookmarkExistsView
 
 urlpatterns = patterns(
     # base view, flake8 complains if it is on the previous line.
-    'bookmarks.views',
+    'readthedocs.bookmarks.views',
     url(r'^$',
         BookmarkListView.as_view(),
         name='bookmark_list'),
