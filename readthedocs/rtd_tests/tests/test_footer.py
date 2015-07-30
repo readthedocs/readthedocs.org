@@ -32,7 +32,7 @@ class Testmaker(TestCase):
         self.assertEqual(r.status_code, 200)
 
     def test_footer_uses_version_compare(self):
-        version_compare = 'restapi.views.footer_views.get_version_compare_data'
+        version_compare = 'readthedocs.restapi.views.footer_views.get_version_compare_data'
         with mock.patch(version_compare) as get_version_compare_data:
             get_version_compare_data.return_value = {
                 'MOCKED': True
