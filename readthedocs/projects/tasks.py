@@ -779,6 +779,8 @@ def email_notification(version, build, email):
 
 
 def webhook_notification(version, build, hook_url):
+    project = version.project
+
     data = json.dumps({
         'name': project.name,
         'slug': project.slug,
