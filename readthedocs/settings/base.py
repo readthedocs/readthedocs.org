@@ -43,7 +43,7 @@ GROK_API_HOST = 'https://api.grokthedocs.com'
 STATIC_ROOT = os.path.join(SITE_ROOT, 'media/static/')
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(SITE_ROOT, 'readthedocs', 'static')]
-#STATICFILES_FINDERS = ()
+# STATICFILES_FINDERS = ()
 
 CACHES = {
     'default': {
@@ -56,7 +56,7 @@ CACHE_MIDDLEWARE_SECONDS = 60
 
 LOGIN_REDIRECT_URL = '/dashboard/'
 FORCE_WWW = False
-#APPEND_SLASH = False
+# APPEND_SLASH = False
 
 # Docker
 DOCKER_ENABLE = False
@@ -87,7 +87,8 @@ LOCALE_PATHS = [
 USE_I18N = True
 USE_L10N = True
 SITE_ID = 1
-SECRET_KEY = 'replace-this-please'
+
+SECRET_KEY = 'replace-this-please'  # noqa: ignore dodgy check
 
 ACCOUNT_ACTIVATION_DAYS = 7
 
@@ -113,7 +114,7 @@ MIDDLEWARE_CLASSES = (
     'readthedocs.core.middleware.SubdomainMiddleware',
     'readthedocs.core.middleware.SingleVersionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
-    #'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
+    # 'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
 )
 
 AUTHENTICATION_BACKENDS = (
@@ -130,7 +131,9 @@ ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 ACCOUNT_AUTHENTICATION_METHOD = "username_email"
 SOCIALACCOUNT_EMAIL_VERIFICATION = "none"
 
-CORS_ORIGIN_REGEX_WHITELIST = ('^http://(.+)\.readthedocs\.org$', '^https://(.+)\.readthedocs\.org$')
+CORS_ORIGIN_REGEX_WHITELIST = (
+    '^http://(.+)\.readthedocs\.org$',
+    '^https://(.+)\.readthedocs\.org$')
 # So people can post to their accounts
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = (
@@ -212,7 +215,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.github',
     'allauth.socialaccount.providers.bitbucket',
-    #'allauth.socialaccount.providers.twitter',
+    # 'allauth.socialaccount.providers.twitter',
 ]
 
 REST_FRAMEWORK = {
@@ -429,10 +432,10 @@ LOGGING = {
             'propagate': False,
         },
         # Uncomment if you want to see Elasticsearch queries in the console.
-        #'elasticsearch.trace': {
-        #    'level': 'DEBUG',
-        #    'handlers': ['console'],
-        #},
+        # 'elasticsearch.trace': {
+        #     'level': 'DEBUG',
+        #     'handlers': ['console'],
+        # },
 
         # Default handler for everything that we're doing. Hopefully this
         # doesn't double-print the Django things as well. Not 100% sure how

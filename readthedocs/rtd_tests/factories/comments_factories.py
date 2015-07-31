@@ -23,12 +23,12 @@ class DocumentNodeFactory(factory.DjangoModelFactory):
     page = "page-about-nothing"
 
     @classmethod
-    def _create(self, *args, **kwargs):
+    def _create(cls, *args, **kwargs):
         if not kwargs.get('hash'):
             kwargs['hash'] = random.getrandbits(128)
         if not kwargs.get('commit'):
             kwargs['commit'] = random.getrandbits(128)
-        return super(DocumentNodeFactory, self)._create(*args, **kwargs)
+        return super(DocumentNodeFactory, cls)._create(*args, **kwargs)
 
 
 class DocumentCommentFactory(factory.DjangoModelFactory):

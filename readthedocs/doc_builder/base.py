@@ -97,7 +97,8 @@ class BaseBuilder(object):
         if not os.path.exists(index_filename):
             readme_filename = os.path.join(docs_dir, 'README.{ext}'.format(ext=extension))
             if os.path.exists(readme_filename):
-                os.system('mv {readme} {index}'.format(index=index_filename, readme=readme_filename))
+                os.system('mv {readme} {index}'.format(index=index_filename,
+                                                       readme=readme_filename))
             else:
                 index_file = open(index_filename, 'w+')
                 index_text = """

@@ -17,7 +17,7 @@ REDIS = {
 
 BROKER_URL = 'redis://localhost:6379/0'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
-#CELERY_ALWAYS_EAGER = False
+# CELERY_ALWAYS_EAGER = False
 
 
 SESSION_COOKIE_DOMAIN = None
@@ -25,9 +25,9 @@ SESSION_COOKIE_HTTPONLY = False
 CACHE_BACKEND = 'dummy://'
 
 SLUMBER_USERNAME = 'test'
-SLUMBER_PASSWORD = 'test'
+SLUMBER_PASSWORD = 'test'  # noqa: ignore dodgy check
 SLUMBER_API_HOST = 'http://localhost:8000'
-#GROK_API_HOST = 'http://localhost:5555'
+# GROK_API_HOST = 'http://localhost:5555'
 PRODUCTION_DOMAIN = 'localhost:8000'
 
 WEBSOCKET_HOST = 'localhost:8088'

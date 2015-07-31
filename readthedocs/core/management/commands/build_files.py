@@ -29,7 +29,8 @@ class Command(BaseCommand):
         Build/index all versions or a single project's version
         '''
         # Delete all existing as a cleanup for any deleted projects.
-        #ImportedFile.objects.all().delete()
+
+        # ImportedFile.objects.all().delete()
         project = options['project']
 
         if project:

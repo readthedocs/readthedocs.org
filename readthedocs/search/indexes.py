@@ -169,13 +169,13 @@ class Index(object):
         """
         Returns the mapping for this _index and _type.
         """
-        raise NotImplemented
+        raise NotImplementedError()
 
-    def extract_document(self, pk, obj):
+    def extract_document(self, data):
         """
         Extracts the Elasticsearch document for this object instance.
         """
-        raise NotImplemented
+        raise NotImplementedError()
 
     def update_aliases(self, new_index, delete=True):
         """
@@ -295,7 +295,8 @@ class PageIndex(Index):
     def extract_document(self, data):
         doc = {}
 
-        attrs = ('id', 'project', 'title', 'headers', 'version', 'path', 'content', 'taxonomy', 'commit')
+        attrs = ('id', 'project', 'title', 'headers', 'version', 'path',
+                 'content', 'taxonomy', 'commit')
         for attr in attrs:
             doc[attr] = data.get(attr, '')
 

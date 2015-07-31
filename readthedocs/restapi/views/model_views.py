@@ -43,7 +43,9 @@ class ProjectViewSet(viewsets.ModelViewSet):
         project = get_object_or_404(
             Project.objects.api(self.request.user), pk=kwargs['pk'])
         if not project.num_major or not project.num_minor or not project.num_point:
-            return Response({'error': 'Project does not support point version control'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {'error': 'Project does not support point version control'},
+                status=status.HTTP_400_BAD_REQUEST)
         version_strings = project.supported_versions()
         # Disable making old versions inactive for now.
         # project.versions.exclude(verbose_name__in=version_strings).update(active=False)

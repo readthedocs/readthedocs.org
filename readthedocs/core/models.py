@@ -10,6 +10,7 @@ STANDARD_EMAIL = "anonymous@readthedocs.org"
 
 log = logging.getLogger(__name__)
 
+
 class UserProfile (models.Model):
     """Additional information about a User.
     """

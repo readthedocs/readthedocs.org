@@ -45,7 +45,6 @@ class Command(BaseCommand):
                 if latest_build.date > max_date:
                     log.warn('{0} is newer than {1}'.format(
                         latest_build, max_date))
-                    next
                 path = version.get_build_path()
                 if path is not None:
                     log.info(

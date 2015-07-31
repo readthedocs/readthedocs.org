@@ -7,7 +7,7 @@ class ErrorlessImport(object):
         try:
             return imp.find_module(name, path)
         except ImportError:
-            #raise
+            # raise
             return FreeLoader()
 
 
@@ -25,7 +25,7 @@ class Mock(object):
         return Mock()
 
 
-class FreeLoader:
+class FreeLoader(object):
     def load_module(self, fullname):
         return Mock()
 
@@ -37,4 +37,4 @@ def patch_meta_path():
 
 def unpatch_meta_path():
     sys.meta_path.remove(FreeLoader._class)
-    #sys.meta_path = []
+    # sys.meta_path = []

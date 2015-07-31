@@ -23,13 +23,17 @@ class DocumentNodeManager(models.Manager):
         return node
 
     def from_hash(self, version_slug, page, node_hash, project_slug=None):
-        snapshots = NodeSnapshot.objects.filter(hash=node_hash, node__version__slug=version_slug, node__page=page)
+        snapshots = NodeSnapshot.objects.filter(hash=node_hash,
+                                                node__version__slug=version_slug,
+                                                node__page=page)
 
         if project_slug:
             snapshots = snapshots.filter(node__project__slug=project_slug)
 
         if len(snapshots) == 0:
-            raise DocumentNode.DoesNotExist("No node exists on %s with a current hash of %s" % (page, node_hash))
+            raise DocumentNode.DoesNotExist(
+                "No node exists on %s with a current hash of %s" % (
+                    page, node_hash))
 
         if len(snapshots) == 1:
             # If we have found only one snapshot, we know we have the correct node.
@@ -176,7 +180,7 @@ class DocumentComment(models.Model):
             return False
 
     def is_orphaned(self):
-        self.node  # TODO
+        raise NotImplementedError('TODO')
 
 
 class DocumentCommentSerializer(serializers.ModelSerializer):
