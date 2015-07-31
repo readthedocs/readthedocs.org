@@ -32,7 +32,7 @@ redis_client = redis.Redis(**settings.REDIS)
 class ProjectResource(ModelResource, SearchMixin):
     users = fields.ToManyField('readthedocs.api.base.UserResource', 'users')
 
-    class Meta:
+    class Meta(object):
         include_absolute_url = True
         allowed_methods = ['get', 'post', 'put']
         queryset = Project.objects.api()
@@ -121,7 +121,7 @@ class ProjectResource(ModelResource, SearchMixin):
 class VersionResource(ModelResource):
     project = fields.ForeignKey(ProjectResource, 'project', full=True)
 
-    class Meta:
+    class Meta(object):
         allowed_methods = ['get', 'put', 'post']
         always_return_data = True
         queryset = Version.objects.api()
@@ -212,7 +212,7 @@ class BuildResource(ModelResource):
     project = fields.ForeignKey('readthedocs.api.base.ProjectResource', 'project')
     version = fields.ForeignKey('readthedocs.api.base.VersionResource', 'version')
 
-    class Meta:
+    class Meta(object):
         always_return_data = True
         include_absolute_url = True
         allowed_methods = ['get', 'post', 'put']
@@ -246,7 +246,7 @@ class BuildResource(ModelResource):
 class FileResource(ModelResource, SearchMixin):
     project = fields.ForeignKey(ProjectResource, 'project', full=True)
 
-    class Meta:
+    class Meta(object):
         allowed_methods = ['get', 'post']
         queryset = ImportedFile.objects.all()
         excludes = ['md5', 'slug']
@@ -278,7 +278,7 @@ class FileResource(ModelResource, SearchMixin):
 
         query = request.GET.get('q', '')
         redis_data = redis_client.keys("*redirects:v4*%s*" % query)
-        #-2 because http:
+        # -2 because http:
         urls = [''.join(data.split(':')[6:]) for data in redis_data
                 if 'http://' in data]
         object_list = {'objects': urls}
@@ -289,7 +289,7 @@ class FileResource(ModelResource, SearchMixin):
 
 class UserResource(ModelResource):
 
-    class Meta:
+    class Meta(object):
         allowed_methods = ['get']
         queryset = User.objects.all()
         fields = ['username', 'first_name', 'last_name', 'last_login', 'id']
