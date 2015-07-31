@@ -1,51 +1,51 @@
-:mod:`projects`
-===============
+:mod:`readthedocs.projects`
+===========================
 
-:mod:`projects.admin`
-----------------------------------
-.. automodule:: projects.admin
+:mod:`readthedocs.projects.admin`
+---------------------------------
+.. automodule:: readthedocs.projects.admin
     :members:
 
-:mod:`projects.constants`
-----------------------------------
-.. automodule:: projects.constants
+:mod:`readthedocs.projects.constants`
+-------------------------------------
+.. automodule:: readthedocs.projects.constants
     :members:
 
-:mod:`projects.forms`
-----------------------------------
-.. automodule:: projects.forms
+:mod:`readthedocs.projects.forms`
+---------------------------------
+.. automodule:: readthedocs.projects.forms
     :members:
 
-:mod:`projects.models`
+:mod:`readthedocs.projects.models`
 ----------------------------------
-.. automodule:: projects.models
+.. automodule:: readthedocs.projects.models
     :members:
 
-:mod:`projects.search_indexes`
-----------------------------------
-.. automodule:: projects.search_indexes
+:mod:`readthedocs.projects.search_indexes`
+------------------------------------------
+.. automodule:: readthedocs.projects.search_indexes
     :members:
 
-:mod:`projects.tasks`
-----------------------------------
-.. automodule:: projects.tasks
+:mod:`readthedocs.projects.tasks`
+---------------------------------
+.. automodule:: readthedocs.projects.tasks
     :members:
 
-:mod:`projects.utils`
-----------------------------------
-.. automodule:: projects.utils
+:mod:`readthedocs.projects.utils`
+---------------------------------
+.. automodule:: readthedocs.projects.utils
     :members:
 
-:mod:`projects.views`
-----------------------------------
+:mod:`readthedocs.projects.views`
+---------------------------------
 
-:mod:`projects.views.public`
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-.. automodule:: projects.views.public
+:mod:`readthedocs.projects.views.public`
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. automodule:: readthedocs.projects.views.public
     :members:
 
-:mod:`projects.views.private`
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-.. automodule:: projects.views.private
+:mod:`readthedocs.projects.views.private`
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. automodule:: readthedocs.projects.views.private
     :members:
 
