@@ -668,17 +668,10 @@ def move_files(version_pk, hostname, html=False, localmedia=False, search=False,
             from_path = version.project.artifact_path(version=version.slug, type='sphinx_pdf')
             to_path = version.project.get_production_media_path(type='pdf', version_slug=version.slug, include_file=False)
             Syncer.copy(from_path, to_path, host=hostname)
-        elif not version.project.enable_pdf_build:
-            to_path = version.project.get_production_media_path(type='pdf', version_slug=version.slug, include_file=False)
-            Syncer.remove(to_path)
-
         if epub:
             from_path = version.project.artifact_path(version=version.slug, type='sphinx_epub')
             to_path = version.project.get_production_media_path(type='epub', version_slug=version.slug, include_file=False)
             Syncer.copy(from_path, to_path, host=hostname)
-        elif not version.project.enable_epub_build:
-            to_path = version.project.get_production_media_path(type='epub', version_slug=version.slug, include_file=False)
-            Syncer.remove(to_path)
 
     if 'mkdocs' in version.project.documentation_type:
         if search:
