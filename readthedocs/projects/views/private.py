@@ -27,11 +27,11 @@ from readthedocs.builds.models import VersionAlias
 from readthedocs.core.utils import trigger_build
 from readthedocs.oauth.models import GithubProject, BitbucketProject
 from readthedocs.oauth import utils as oauth_utils
-from readthedocs.projects.forms import (ProjectBackendForm, ProjectBasicsForm,
-                            ProjectExtraForm, ProjectAdvancedForm,
-                            UpdateProjectForm, SubprojectForm,
-                            build_versions_form, UserForm, EmailHookForm,
-                            TranslationForm, RedirectForm, WebHookForm)
+from readthedocs.projects.forms import (
+    ProjectBackendForm, ProjectBasicsForm, ProjectExtraForm,
+    ProjectAdvancedForm, UpdateProjectForm, SubprojectForm,
+    build_versions_form, UserForm, EmailHookForm, TranslationForm,
+    RedirectForm, WebHookForm)
 from readthedocs.projects.models import Project, EmailHook, WebHook
 from readthedocs.projects import constants, tasks
 
@@ -97,12 +97,11 @@ def project_manage(request, project_slug):
 @login_required
 def project_comments_moderation(request, project_slug):
     project = get_object_or_404(Project.objects.for_admin_user(request.user),
-                            slug=project_slug)
+                                slug=project_slug)
     return render(
         request,
         'projects/project_comments_moderation.html',
-        {'project': project}
-        )
+        {'project': project})
 
 
 @login_required
@@ -189,7 +188,9 @@ def project_versions(request, project_slug):
 @login_required
 def project_version_detail(request, project_slug, version_slug):
     project = get_object_or_404(Project.objects.for_admin_user(request.user), slug=project_slug)
-    version = get_object_or_404(Version.objects.public(user=request.user, project=project, only_active=False), slug=version_slug)
+    version = get_object_or_404(
+        Version.objects.public(user=request.user, project=project, only_active=False),
+        slug=version_slug)
 
     form = VersionForm(request.POST or None, instance=version)
 
@@ -260,7 +261,7 @@ class ImportWizardView(PrivateViewMixin, SessionWizardView):
 
     def get_template_names(self):
         '''Return template names based on step name'''
-        return 'projects/import_{0}.html'.format(self.steps.current, 'base')
+        return 'projects/import_{0}.html'.format(self.steps.current)
 
     def done(self, form_list, **kwargs):
         '''Save form data as object instance
@@ -277,8 +278,7 @@ class ImportWizardView(PrivateViewMixin, SessionWizardView):
         for form in form_list[1:]:
             for (field, value) in form.cleaned_data.items():
                 setattr(project, field, value)
-        else:
-            basic_only = True
+        basic_only = True
         project.save()
         project_import.send(sender=project, request=self.request)
         trigger_build(project, basic=basic_only)
@@ -391,7 +391,9 @@ class AliasList(PrivateViewMixin, ListView):
     template_name = 'projects/alias_list.html',
 
     def get_queryset(self):
-        self.project = get_object_or_404(Project.objects.for_admin_user(self.request.user), slug=self.kwargs.get('project_slug'))
+        self.project = get_object_or_404(
+            Project.objects.for_admin_user(self.request.user),
+            slug=self.kwargs.get('project_slug'))
         return self.project.aliases.all()
 
 
@@ -655,7 +657,9 @@ def project_import_bitbucket(request, sync=False):
 @login_required
 def project_version_delete_html(request, project_slug, version_slug):
     project = get_object_or_404(Project.objects.for_admin_user(request.user), slug=project_slug)
-    version = get_object_or_404(Version.objects.public(user=request.user, project=project, only_active=False), slug=version_slug)
+    version = get_object_or_404(
+        Version.objects.public(user=request.user, project=project, only_active=False),
+        slug=version_slug)
 
     if not version.active:
         version.built = False
@@ -663,4 +667,5 @@ def project_version_delete_html(request, project_slug, version_slug):
         tasks.clear_artifacts.delay(version.pk)
     else:
         raise Http404
-    return HttpResponseRedirect(reverse('project_version_list', kwargs={'project_slug': project_slug}))
+    return HttpResponseRedirect(
+        reverse('project_version_list', kwargs={'project_slug': project_slug}))

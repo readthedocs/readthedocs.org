@@ -34,7 +34,7 @@ class ProjectIndex(indexes.SearchIndex, indexes.Indexable):
     def get_model(self):
         return Project
 
-    def index_queryset(self):
+    def index_queryset(self, using=None):
         "Used when the entire index for model is updated."
         return self.get_model().objects.public()
 
@@ -93,7 +93,7 @@ class ImportedFileIndex(indexes.SearchIndex, indexes.Indexable):
     def get_model(self):
         return ImportedFile
 
-    def index_queryset(self):
+    def index_queryset(self, using=None):
         "Used when the entire index for model is updated."
         return (self.get_model().objects
                 .filter(project__privacy_level=constants.PUBLIC))
