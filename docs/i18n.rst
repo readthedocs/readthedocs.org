@@ -250,7 +250,7 @@ Updating Localization Files
 
 To update the translation source files (eg if you changed or added translatable
 strings in the templates or Python code) you should run ``python manage.py
-makemessages -l <language>`` in the ``readthedocs/`` directory (substitute
+makemessages -l <language>`` in the project's root directory (substitute
 ``<language>`` with a valid language code).
 
 The updated files can now be localized in a `PO editor

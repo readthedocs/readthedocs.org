@@ -55,7 +55,6 @@ Possible Error and Resolution
 
 1. Run the following commands. ::
 
-    $ cd readthedocs
     $ ./manage.py migrate
 
 2. This will prompt you to create a superuser account for Django. Enter appropriate details. For example: ::
@@ -67,7 +66,7 @@ Possible Error and Resolution
 3. RTD Server Administration.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Navigate to the ``../checkouts/readthedocs.org/readthedocs`` folder in your VM and run the following command. :: 
+Navigate to the ``../checkouts/readthedocs.org`` folder in your VM and run the following command. ::
 
     $ ./manage.py runserver [VM IP ADDRESS]:8000
     $ curl -i http://[VM IP ADDRESS]:8000
