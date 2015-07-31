@@ -4,6 +4,7 @@ from django.test import TestCase
 from django.utils.six.moves.urllib.parse import urlsplit
 
 from readthedocs.builds.constants import LATEST
+from readthedocs.projects.models import ImportedFile
 from readthedocs.projects.models import Project
 from readthedocs.projects.forms import UpdateProjectForm
 
@@ -168,3 +169,37 @@ class PrivateViewsAreProtectedTests(TestCase):
     def test_project_redirects_delete(self):
         response = self.client.get('/dashboard/pip/redirects/delete/')
         self.assertRedirectToLogin(response)
+
+
+class RandomPageTests(TestCase):
+    fixtures = ['eric', 'test_data']
+
+    def setUp(self):
+        self.pip = Project.objects.get(slug='pip')
+        self.pip_version = self.pip.versions.all()[0]
+        ImportedFile.objects.create(
+            project=self.pip,
+            version=self.pip_version,
+            name='File',
+            slug='file',
+            path='file.html',
+            md5='abcdef',
+            commit='1234567890abcdef')
+
+    def test_random_page_view_redirects(self):
+        response = self.client.get('/random/')
+        self.assertEqual(response.status_code, 302)
+
+    def test_takes_project_slug(self):
+        response = self.client.get('/random/pip/')
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue('/pip/' in response['Location'])
+
+    def test_404_for_unknown_project(self):
+        response = self.client.get('/random/not-existent/')
+        self.assertEqual(response.status_code, 404)
+
+    def test_404_for_with_no_imported_files(self):
+        ImportedFile.objects.all().delete()
+        response = self.client.get('/random/pip/')
+        self.assertEqual(response.status_code, 404)
