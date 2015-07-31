@@ -3,7 +3,7 @@ import datetime
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.db import IntegrityError
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
@@ -149,7 +149,7 @@ def projects(request):
         gold_user = GoldUser.objects.get(user=request.user)
         gold_projects = gold_user.projects.all()
     except:
-        raise Exception('Not Found')
+        raise Http404('Gold User not found')
 
     if request.method == 'POST':
         form = GoldProjectForm(request.POST)
@@ -181,7 +181,7 @@ def projects_remove(request, project_slug):
     try:
         gold_user = GoldUser.objects.get(user=request.user)
     except:
-        raise Exception('Not Found')
+        raise Http404('Gold User not found')
     project = get_object_or_404(Project.objects.all(), slug=project_slug)
     gold_user.projects.remove(project)
     return HttpResponseRedirect(reverse('gold_projects'))
