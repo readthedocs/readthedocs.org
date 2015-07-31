@@ -67,9 +67,12 @@ class HomepageView(DonateProgressMixin, TemplateView):
 
 def random_page(request, project_slug=None):
     imported_file = ImportedFile.objects.order_by('?')
-    if project:
+    if project_slug:
         imported_file = imported_file.filter(project__slug=project_slug)
-    url = imported_file.first().get_absolute_url()
+    imported_file = imported_file.first()
+    if imported_file is None:
+        raise Http404
+    url = imported_file.get_absolute_url()
     return HttpResponseRedirect(url)
 
 
