@@ -1,0 +1,54 @@
+{% extends "profiles/base_profile_edit.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block profile-admin-gold-edit %}active{% endblock %}
+
+{% block title %}
+Gold Projects
+{% endblock %}
+
+{% block edit_content %}
+
+  <p class="help_text">
+    {% trans "Choose projects that will have all promos removed, and extra features added to them. You get to pick one for every $5/mo you support Read the Docs with." %}
+  </p>
+
+  <h3> {% trans "Existing Projects" %} </h3>
+  <p>
+    <ul>
+    {% for project in projects %}
+        <li>
+        <a href="{{ project.get_absolute_url }}">
+        {{ project }}
+        </a>
+        (<a href="{% url "gold_projects_remove" project.slug %}">{% trans "Remove" %}</a>)
+        </li>
+    {% endfor %}
+    </ul>
+  </p>
+
+  <h3>{% trans "Gold Projects" %}</h3>
+  <p>
+    {% trans "Choose which project you would like to add as a project." %}
+  </p>
+  <form method="post" action=".">{% csrf_token %}
+    {{ form.as_p }}
+    <p>
+      <input style="display: inline;" type="submit" value="{% trans "Submit" %}">
+    </p>
+  </form>
+
+{% endblock %}
+
+
+{% block footerjs %}
+      $('#id_project').autocomplete({
+    source: '{% url "search_autocomplete" %}',
+    minLength: 2,
+    open: function(event, ui) {
+      ac_top = $('.ui-autocomplete').css('top');
+      $('.ui-autocomplete').css({'width': '233px', 'top': ac_top + 10 });
+    }
+  });
+{% endblock %}
