@@ -41,7 +41,8 @@ def sync_versions(project, versions, type):
                     type=type,
                     machine=False,
                 )
-                log.info("(Sync Versions) Updated Version: [%s=%s] " % (version['verbose_name'], version['identifier']))
+                log.info("(Sync Versions) Updated Version: [%s=%s] " % (
+                    version['verbose_name'], version['identifier']))
         else:
             # New Version
             created_version = Version.objects.create(
@@ -82,7 +83,8 @@ def delete_versions(project, version_data):
         return set()
 
 
-def index_search_request(version, page_list, commit, project_scale, page_scale, section=True, delete=True):
+def index_search_request(version, page_list, commit, project_scale, page_scale,
+                         section=True, delete=True):
     log_msg = ' '.join([page['path'] for page in page_list])
     log.info("(Server Search) Indexing Pages: %s [%s]" % (
         version.project.slug, log_msg))
@@ -90,7 +92,7 @@ def index_search_request(version, page_list, commit, project_scale, page_scale, 
     page_obj = PageIndex()
     section_obj = SectionIndex()
 
-    #tags = [tag.name for tag in project.tags.all()]
+    # tags = [tag.name for tag in project.tags.all()]
 
     project_obj = ProjectIndex()
     project_obj.index_document(data={
@@ -125,7 +127,10 @@ def index_search_request(version, page_list, commit, project_scale, page_scale, 
         if section:
             for section in page['sections']:
                 section_index_list.append({
-                    'id': hashlib.md5('%s-%s-%s-%s' % (project.slug, version.slug, page['path'], section['id'])).hexdigest(),
+                    'id': hashlib.md5(
+                        '%s-%s-%s-%s' % (project.slug, version.slug,
+                                         page['path'], section['id'])
+                    ).hexdigest(),
                     'project': project.slug,
                     'version': version.slug,
                     'path': page['path'],

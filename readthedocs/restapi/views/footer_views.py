@@ -27,11 +27,15 @@ def footer_html(request):
     new_theme = (theme == "sphinx_rtd_theme")
     using_theme = (theme == "default")
     project = get_object_or_404(Project, slug=project_slug)
-    version = get_object_or_404(Version.objects.public(request.user, project=project, only_active=False), slug=version_slug)
+    version = get_object_or_404(
+        Version.objects.public(request.user, project=project, only_active=False),
+        slug=version_slug)
     main_project = project.main_language_project or project
 
     if page_slug and page_slug != "index":
-        if main_project.documentation_type == "sphinx_htmldir" or main_project.documentation_type == "mkdocs":
+        if (
+                main_project.documentation_type == "sphinx_htmldir" or
+                main_project.documentation_type == "mkdocs"):
             path = page_slug + "/"
         elif main_project.documentation_type == "sphinx_singlehtml":
             path = "index.html#document-" + page_slug
@@ -41,10 +45,11 @@ def footer_html(request):
         path = ""
 
     if version.type == 'tag' and version.project.has_pdf(version.slug):
-        print_url = 'https://keminglabs.com/print-the-docs/quote?project={project}&version={version}'.format(
-            project=project.slug,
-            version=version.slug,
-        )
+        print_url = (
+            'https://keminglabs.com/print-the-docs/quote?project={project}&version={version}'
+            .format(
+                project=project.slug,
+                version=version.slug))
     else:
         print_url = None
 
