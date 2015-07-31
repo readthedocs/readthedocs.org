@@ -253,9 +253,6 @@ class Project(models.Model):
                 verbose_name__in=supported).update(supported=False)
             self.versions.filter(verbose_name=LATEST_VERBOSE_NAME).update(supported=True)
 
-    def user_is_admin(self, user):
-        return user in self.users.all()
-
     def save(self, *args, **kwargs):
         first_save = self.pk is None
         if not self.slug:

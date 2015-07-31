@@ -8,6 +8,7 @@ from django_dynamic_fixture import new
 from readthedocs.builds.constants import LATEST
 from readthedocs.projects.models import Project
 from readthedocs.projects.forms import UpdateProjectForm
+from readthedocs.privacy.loader import AdminPermission
 
 
 class Testmaker(TestCase):
@@ -200,7 +201,7 @@ class SubprojectViewTests(TestCase):
 
     def test_project_admins_can_delete_subprojects_that_they_are_not_admin_of(self):
         self.project.users.add(self.user)
-        self.assertFalse(self.subproject.user_is_admin(self.user))
+        self.assertFalse(AdminPermission.is_admin(self.user, self.subproject))
 
         response = self.client.get('/dashboard/my-mainproject/subprojects/delete/my-subproject/')
         self.assertEqual(response.status_code, 302)
