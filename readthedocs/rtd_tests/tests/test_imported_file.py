@@ -31,15 +31,15 @@ class ImportedFileTests(TestCase):
     def test_update_content(self):
         test_dir = os.path.join(base_dir, 'files')
         self.assertEqual(ImportedFile.objects.count(), 0)
+
+        with open(os.path.join(test_dir, 'test.html'), 'w+') as f:
+            f.write('Woo')
+
         _manage_imported_files(self.version, test_dir, 'commit01')
         self.assertEqual(ImportedFile.objects.get(name='test.html').md5, 'c7532f22a052d716f7b2310fb52ad981')
 
         with open(os.path.join(test_dir, 'test.html'), 'w+') as f:
-            contents = f.read()
             f.write('Something Else')
 
         _manage_imported_files(self.version, test_dir, 'commit02')
         self.assertNotEqual(ImportedFile.objects.get(name='test.html').md5, 'c7532f22a052d716f7b2310fb52ad981')
-
-        with open(os.path.join(test_dir, 'test.html'), 'w+') as f:
-            f.write(contents)
