@@ -5,12 +5,17 @@
  */
 
 
-var data = READTHEDOCS_DATA;
-
-
-if (data.api_host === undefined) {
-    data.api_host = 'https://readthedocs.org';
+/*
+ * Access READTHEDOCS_DATA on call, not on module load. The reason is that the
+ * READTHEDOCS_DATA might not be available during script load time.
+ */
+function get() {
+    return $.extend({
+        api_host: 'https://readthedocs.org'
+    }, window.READTHEDOCS_DATA);
 }
 
 
-module.exports = data;
+module.exports = {
+    get: get
+};

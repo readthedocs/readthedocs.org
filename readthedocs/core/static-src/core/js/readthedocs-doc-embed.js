@@ -3,11 +3,11 @@ var sponsorship = require('./sponsorship'),
     footer = require('./doc-embed/footer.js'),
     grokthedocs = require('./doc-embed/grokthedocs-client'),
     mkdocs = require('./doc-embed/mkdocs'),
-    rtd = require('./doc-embed/rtd-data'),
+    rtddata = require('./doc-embed/rtd-data'),
     sphinx = require('./doc-embed/sphinx');
 
 $(document).ready(function () {
-    var build = new doc.Build(rtd);
+    var build = new doc.Build(rtddata.get());
 
     footer.init(build);
     sphinx.init();

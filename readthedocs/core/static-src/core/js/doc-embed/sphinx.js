@@ -3,10 +3,11 @@
  */
 
 
-var rtd = require('./rtd-data');
+var rtddata = require('./rtd-data');
 
 
 function init() {
+    var rtd = rtddata.get();
 
     /// Click tracking on flyout
     $(document).on('click', "[data-toggle='rst-current-version']", function() {

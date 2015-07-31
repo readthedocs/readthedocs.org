@@ -3,10 +3,11 @@
  */
 
 
-var rtd = require('./rtd-data');
+var rtddata = require('./rtd-data');
 
 
 function init() {
+    var rtd = rtddata.get();
 
     // Override MkDocs styles
     if ("builder" in rtd && rtd["builder"] == "mkdocs") {

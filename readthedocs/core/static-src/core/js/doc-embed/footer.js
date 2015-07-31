@@ -1,8 +1,10 @@
-var rtd = require('./rtd-data');
+var rtddata = require('./rtd-data');
 var versionCompare = require('./version-compare');
 
 
 function init(build) {
+    var rtd = rtddata.get();
+
     var get_data = {
         project: rtd['project'],
         version: rtd['version'],

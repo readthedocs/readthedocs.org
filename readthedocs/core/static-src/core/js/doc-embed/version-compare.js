@@ -1,7 +1,9 @@
-var rtd = require('./rtd-data');
+var rtddata = require('./rtd-data');
 
 
 function init(data) {
+    var rtd = rtddata.get();
+
     /// Out of date message
 
     if (data.is_highest) {
