@@ -38,12 +38,12 @@ class RemoteSyncer(object):
 
         Respects the ``MULTIPLE_APP_SERVERS`` setting when copying.
         """
-        SYNC_USER = getattr(settings, 'SYNC_USER', getpass.getuser())
-        MULTIPLE_APP_SERVERS = getattr(settings, 'MULTIPLE_APP_SERVERS', [])
-        if MULTIPLE_APP_SERVERS:
+        sync_user = getattr(settings, 'SYNC_USER', getpass.getuser())
+        app_servers = getattr(settings, 'MULTIPLE_APP_SERVERS', [])
+        if app_servers:
             log.info("Remote Copy %s to %s" % (path, target))
-            for server in MULTIPLE_APP_SERVERS:
-                mkdir_cmd = ("ssh %s@%s mkdir -p %s" % (SYNC_USER, server, target))
+            for server in app_servers:
+                mkdir_cmd = ("ssh %s@%s mkdir -p %s" % (sync_user, server, target))
                 ret = os.system(mkdir_cmd)
                 if ret != 0:
                     log.info("COPY ERROR to app servers:")
@@ -53,13 +53,14 @@ class RemoteSyncer(object):
                 else:
                     slash = "/"
                 # Add a slash when copying directories
-                sync_cmd = "rsync -e 'ssh -T' -av --delete {path}{slash} {user}@{server}:{target}".format(
-                    path=path,
-                    slash=slash,
-                    user=SYNC_USER,
-                    server=server,
-                    target=target,
-                )
+                sync_cmd = (
+                    "rsync -e 'ssh -T' -av --delete {path}{slash} {user}@{server}:{target}"
+                    .format(
+                        path=path,
+                        slash=slash,
+                        user=sync_user,
+                        server=server,
+                        target=target))
                 ret = os.system(sync_cmd)
                 if ret != 0:
                     log.info("COPY ERROR to app servers.")
@@ -75,28 +76,29 @@ class DoubleRemotePuller(object):
 
         Respects the ``MULTIPLE_APP_SERVERS`` setting when copying.
         """
-        SYNC_USER = getattr(settings, 'SYNC_USER', getpass.getuser())
-        MULTIPLE_APP_SERVERS = getattr(settings, 'MULTIPLE_APP_SERVERS', [])
+        sync_user = getattr(settings, 'SYNC_USER', getpass.getuser())
+        app_servers = getattr(settings, 'MULTIPLE_APP_SERVERS', [])
         if not file:
             path += "/"
         log.info("Remote Copy %s to %s" % (path, target))
-        for server in MULTIPLE_APP_SERVERS:
+        for server in app_servers:
             if not file:
                 mkdir_cmd = "ssh {user}@{server} mkdir -p {target}".format(
-                    user=SYNC_USER, server=server, target=target
+                    user=sync_user, server=server, target=target
                 )
                 ret = os.system(mkdir_cmd)
                 if ret != 0:
                     log.info("MKDIR ERROR to app servers:")
                     log.info(mkdir_cmd)
             # Add a slash when copying directories
-            sync_cmd = "ssh {user}@{server} 'rsync -av --delete {user}@{host}:{path} {target}'".format(
-                host=host,
-                path=path,
-                user=SYNC_USER,
-                server=server,
-                target=target,
-            )
+            sync_cmd = (
+                "ssh {user}@{server} 'rsync -av --delete {user}@{host}:{path} {target}'"
+                .format(
+                    host=host,
+                    path=path,
+                    user=sync_user,
+                    server=server,
+                    target=target))
             ret = os.system(sync_cmd)
             if ret != 0:
                 log.info("COPY ERROR to app servers.")
@@ -112,7 +114,7 @@ class RemotePuller(object):
 
         Respects the ``MULTIPLE_APP_SERVERS`` setting when copying.
         """
-        SYNC_USER = getattr(settings, 'SYNC_USER', getpass.getuser())
+        sync_user = getattr(settings, 'SYNC_USER', getpass.getuser())
         if not file:
             path += "/"
         log.info("Local Copy %s to %s" % (path, target))
@@ -121,7 +123,7 @@ class RemotePuller(object):
         sync_cmd = "rsync -e 'ssh -T' -av --delete {user}@{host}:{path} {target}".format(
             host=host,
             path=path,
-            user=SYNC_USER,
+            user=sync_user,
             target=target,
         )
         ret = os.system(sync_cmd)
