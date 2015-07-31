@@ -17,7 +17,7 @@ from django.conf import settings
 from rest_framework.renderers import JSONRenderer
 from docker import Client
 from docker.utils import create_host_config
-from docker import errors as docker_errors
+from docker.errors import APIError as DockerAPIError, DockerException
 
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.projects.utils import run
@@ -25,7 +25,8 @@ from readthedocs.restapi.serializers import VersionFullSerializer
 from readthedocs.projects.constants import LOG_TEMPLATE
 from readthedocs.api.client import api as api_v1
 
-from .exceptions import BuildEnvironmentError
+from .exceptions import (BuildEnvironmentException, BuildEnvironmentError,
+                         BuildEnvironmentWarning)
 
 
 log = logging.getLogger(__name__)
@@ -180,7 +181,7 @@ class DockerBuildCommand(BuildCommand):
                                    for part in self.command]))))
 
 
-class EnvironmentBase(object):
+class BuildEnvironment(object):
     '''
     Base build environment
 
@@ -197,17 +198,32 @@ class EnvironmentBase(object):
         self.version = version
         self.build = build
         self.record = record
-        self.steps = []
         self.commands = []
+        self.failure = None
         self.start_time = datetime.datetime.utcnow()
-        self.state = None
 
     def __enter__(self):
-        self.state = None
         return self
 
     def __exit__(self, exc_type, exc_value, tb):
-        ret = None
+        ret = self.handle_exception(exc_type, exc_value, tb)
+        self.update_build(state=BUILD_STATE_FINISHED)
+        log.info(LOG_TEMPLATE.format(project=self.project.slug,
+                                     version=self.version.slug,
+                                     msg='Build finished'))
+        return ret
+
+    def handle_exception(self, exc_type, exc_value, tb):
+        """Exception handling for __enter__ and __exit__
+
+        This reports on the exception we're handling and special cases
+        subclasses of BuildEnvironmentException.  For
+        :py:cls:`BuildEnvironmentWarning`, exit this context gracefully, but
+        don't mark the build as a failure.  For :py:cls:`BuildEnvironmentError`,
+        exit gracefully, but mark the build as a failure.  For all other
+        exception classes, the build will be marked as a failure and an
+        exception will bubble up.
+        """
         if exc_type is not None:
             log.error(
                 LOG_TEMPLATE.format(
@@ -216,17 +232,14 @@ class EnvironmentBase(object):
                     msg=exc_value),
                 exc_info=True
             )
-            # TODO maybe catch a warning exception here, and just pass that
-            # through some how?
-            if issubclass(exc_type, BuildEnvironmentError):
-                ret = True
-        # TODO this should be one call or the other man
-        self.state = BUILD_STATE_FINISHED
-        self.update_build(state=BUILD_STATE_FINISHED)
-        log.info(LOG_TEMPLATE.format(project=self.project.slug,
-                                     version=self.version.slug,
-                                     msg='Build finished'))
-        return ret
+            if issubclass(exc_type, BuildEnvironmentWarning):
+                return True
+            else:
+                self.failure = exc_value
+                if issubclass(exc_type, BuildEnvironmentError):
+                    return True
+                return False
+
 
     def run(self, *cmd, **kwargs):
         '''Run command'''
@@ -234,31 +247,29 @@ class EnvironmentBase(object):
         cmd = self.command_class(cmd, **kwargs)
         self.commands.append(cmd)
         cmd.run()
-        # TODO handle this better, it should add some more information or
-        # maybe be a command output class
         if cmd.failed:
-            # TODO drop second line here if there is no output
             msg = 'Command {cmd} failed'.format(cmd=cmd.get_command())
 
             if cmd.output:
-                msg += ':\n{out}'.format()
-            raise BuildEnvironmentError('Command {cmd} failed:\n{out}'.format(
-                cmd=cmd.get_command(),
-                out=cmd.output
-            ))
+                msg += ':\n{out}'.format(out=cmd.output)
+            raise BuildEnvironmentError(msg)
         return cmd
 
     @property
     def successful(self):
-        return all(cmd.successful for cmd in self.commands)
+        # TODO should this include a check for finished state?
+        return (self.failure is None
+                and all(cmd.successful for cmd in self.commands))
 
     @property
     def failed(self):
-        return any(cmd.failed for cmd in self.commands)
+        return (self.failure is not None
+                or any(cmd.failed for cmd in self.commands))
 
     @property
     def done(self):
-        return self.state == BUILD_STATE_FINISHED
+        return (self.build is not None
+                and self.build.state == BUILD_STATE_FINISHED)
 
     def update_build(self, state=None):
         """
@@ -305,12 +316,12 @@ class EnvironmentBase(object):
             log.error("Unable to post a new build", exc_info=True)
 
 
-class LocalEnvironment(EnvironmentBase):
+class LocalEnvironment(BuildEnvironment):
     '''Local execution environment'''
     command_class = BuildCommand
 
 
-class DockerEnvironment(EnvironmentBase):
+class DockerEnvironment(BuildEnvironment):
     '''
     Docker build environment, uses docker to contain builds
 
@@ -342,41 +353,47 @@ class DockerEnvironment(EnvironmentBase):
         log.info('Creating container')
         try:
             self.create_container()
-        except (BuildEnvironmentError, docker_errors.APIError):
-            # TODO replace this with an internal exception. We should handle our
-            # own exceptions differently here.
-            if self.__exit__(*sys.exc_info()):
-                pass
-            else:
-                # TODO this should definitely do something to set an error state
-                # on the buildenv or build. If this is triggered during
-                # __enter__, there won't be any commands. Maybe we mock out
-                # commands here instead?
-                raise
+        except:
+            self.__exit__(*sys.exc_info())
+            raise
         return self
 
     def __exit__(self, exc_type, exc_value, tb):
         '''End of environment context'''
-        # TODO this should all provide some error checking or exception
-        # handling. we don't know if the container will exist at this point.
-        # Killing and removing might be mull operations that trigger 404 errors
         ret = super(DockerEnvironment, self).__exit__(exc_type, exc_value, tb)
         log.info('Removing container %s', self.container_id)
         client = self.get_client()
-        client.kill(self.container_id)
-        client.remove_container(self.container_id)
+        try:
+            client.kill(self.container_id)
+            client.remove_container(self.container_id)
+        except DockerAPIError as e:
+            log.error(LOG_TEMPLATE
+                      .format(
+                          project=self.project.slug,
+                          version=self.version.slug,
+                          msg="Couldn't remove container"),
+                      exc_info=True)
+
         self.container = None
         return ret
 
     def get_client(self):
         '''Create Docker client connection'''
-        # TODO catch exceptions here
-        if self.client is None:
-            self.client = Client(
-                base_url=self.docker_socket,
-                version=DOCKER_VERSION
-            )
-        return self.client
+        try:
+            if self.client is None:
+                self.client = Client(
+                    base_url=self.docker_socket,
+                    version=DOCKER_VERSION
+                )
+            return self.client
+        except DockerException as e:
+            log.error(LOG_TEMPLATE
+                      .format(
+                          project=self.project.slug,
+                          version=self.version.slug,
+                          msg=e),
+                      exc_info=True)
+            raise BuildEnvironmentError('Problem creating build environment')
 
     @property
     def container_id(self):
@@ -387,14 +404,8 @@ class DockerEnvironment(EnvironmentBase):
             return self.container.get('Id')
 
     def create_container(self):
-        '''
-        Create docker container
-        '''
+        '''Create docker container'''
         client = self.get_client()
-        # TODO check self.version more here or in __init__
-        # TODO this should check for a missing image first
-        # TODO this should catch failures and pass a better exception to the
-        # task processor
         try:
             self.container = client.create_container(
                 image=self.container_image,
@@ -411,7 +422,7 @@ class DockerEnvironment(EnvironmentBase):
                 mem_limit=self.container_mem_limit,
             )
             started = client.start(container=self.container_id)
-        except docker_errors.APIError as e:
+        except DockerAPIError as e:
             log.error(LOG_TEMPLATE
                       .format(
                           project=self.project.slug,
