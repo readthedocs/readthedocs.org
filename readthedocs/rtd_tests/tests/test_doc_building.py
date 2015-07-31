@@ -16,30 +16,6 @@ from readthedocs.rtd_tests.utils import make_test_git
 from readthedocs.rtd_tests.base import RTDTestCase
 
 
-# TODO mock out environment, don't need to call commands here, just mock return
-class TestBuilding(RTDTestCase):
-    """These tests run the build functions directly. They don't use celery"""
-
-    def setUp(self):
-        self.eric = User(username='eric')
-        self.eric.set_password('test')
-        self.eric.save()
-        repo = make_test_git()
-        self.repo = repo
-        super(TestBuilding, self).setUp()
-        self.eric = User.objects.get(username='eric')
-        self.project = Project.objects.create(
-            name="Test Project",
-            repo_type="git",
-            repo=repo,
-        )
-        self.project.users.add(self.eric)
-
-    def tearDown(self):
-        shutil.rmtree(self.repo)
-        super(TestBuilding, self).tearDown()
-
-
 class TestDockerEnvironment(TestCase):
     '''Test docker build environment'''
 
@@ -122,13 +98,20 @@ class TestDockerBuildCommand(TestCase):
 
     def test_wrapped_command(self):
         '''Test shell wrapping for Docker chdir'''
-        cmd = DockerBuildCommand(['/home/docs/run.sh', 'pip'],
+        cmd = DockerBuildCommand(['pip', 'install', 'requests'],
                                  cwd='/tmp/foobar')
         self.assertEqual(
             cmd.get_wrapped_command(),
             ("/bin/sh -c "
              "'cd /tmp/foobar && "
-             "/home/docs/run.sh pip'"))
+             "pip install requests'"))
+        cmd = DockerBuildCommand(['pip', 'install', 'Django>1.7'],
+                                 cwd='/tmp/foobar')
+        self.assertEqual(
+            cmd.get_wrapped_command(),
+            ("/bin/sh -c "
+             "'cd /tmp/foobar && "
+             "pip install Django\>1.7'"))
 
     @patch.object(DockerEnvironment, 'container_id', new_callable=PropertyMock)
     @patch.object(DockerEnvironment, 'get_client')
@@ -154,8 +137,3 @@ class TestDockerBuildCommand(TestCase):
         self.assertEqual(cmd.status, 42)
         self.assertEqual(cmd.output, 'This is the return')
         self.assertEqual(cmd.error, None)
-
-    # TODO
-    def test_wrapped_command(self):
-        """Proper shell wrapping of command"""
-        assert False
