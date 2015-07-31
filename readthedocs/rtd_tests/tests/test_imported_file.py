@@ -19,6 +19,8 @@ class ImportedFileTests(TestCase):
         self.assertEqual(ImportedFile.objects.count(), 0)
         _manage_imported_files(self.version, test_dir, 'commit01')
         self.assertEqual(ImportedFile.objects.count(), 2)
+        _manage_imported_files(self.version, test_dir, 'commit01')
+        self.assertEqual(ImportedFile.objects.count(), 2)
 
     def test_update_commit(self):
         test_dir = os.path.join(base_dir, 'files')
@@ -43,3 +45,5 @@ class ImportedFileTests(TestCase):
 
         _manage_imported_files(self.version, test_dir, 'commit02')
         self.assertNotEqual(ImportedFile.objects.get(name='test.html').md5, 'c7532f22a052d716f7b2310fb52ad981')
+
+        self.assertEqual(ImportedFile.objects.count(), 2)
