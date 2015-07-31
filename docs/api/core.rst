@@ -1,44 +1,44 @@
-:mod:`core`
-===========
+:mod:`readthedocs.core`
+=======================
 
-:mod:`core.admin`
-----------------------------------
-.. automodule:: core.admin
+:mod:`readthedocs.core.admin`
+-----------------------------
+.. automodule:: readthedocs.core.admin
     :members:
 
-:mod:`core.forms`
-----------------------------------
-.. automodule:: core.forms
+:mod:`readthedocs.core.forms`
+-----------------------------
+.. automodule:: readthedocs.core.forms
     :members:
 
-:mod:`core.middleware`
+:mod:`readthedocs.core.middleware`
 ----------------------------------
-.. automodule:: core.middleware
+.. automodule:: readthedocs.core.middleware
     :members:
 
-:mod:`core.models`
-----------------------------------
-.. automodule:: core.models
+:mod:`readthedocs.core.models`
+------------------------------
+.. automodule:: readthedocs.core.models
     :members:
 
-:mod:`core.search_sites`
-----------------------------------
-.. automodule:: core.search_sites
+:mod:`readthedocs.core.search_sites`
+------------------------------------
+.. automodule:: readthedocs.core.search_sites
     :members:
 
-:mod:`core.views`
-----------------------------------
-.. automodule:: core.views
+:mod:`readthedocs.core.views`
+-----------------------------
+.. automodule:: readthedocs.core.views
     :members:
 
 
-:mod:`core.management.commands`
-----------------------------------
+:mod:`readthedocs.core.management.commands`
+-------------------------------------------
 This is where custom ``manage.py`` commands are defined.
 
-.. automodule:: core.management.commands.build_files
+.. automodule:: readthedocs.core.management.commands.build_files
     :members:
 
-.. automodule:: core.management.commands.update_repos
+.. automodule:: readthedocs.core.management.commands.update_repos
     :members:
 
