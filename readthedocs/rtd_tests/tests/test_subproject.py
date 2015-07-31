@@ -1,9 +1,9 @@
 from django.contrib.auth.models import User
 from django.test import TestCase
-from projects.forms import SubprojectForm
 from django_dynamic_fixture import G
 
-from projects.models import Project
+from readthedocs.projects.forms import SubprojectForm
+from readthedocs.projects.models import Project
 
 
 class SubprojectFormTests(TestCase):
