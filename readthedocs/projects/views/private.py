@@ -400,13 +400,19 @@ def project_subprojects(request, project_slug):
     project = get_object_or_404(Project.objects.for_admin_user(request.user),
                                 slug=project_slug)
 
-    form = SubprojectForm(data=request.POST or None, parent=project)
-
-    if request.method == 'POST' and form.is_valid():
-        form.save()
-        project_dashboard = reverse(
-            'projects_subprojects', args=[project.slug])
-        return HttpResponseRedirect(project_dashboard)
+    form_kwargs = {
+        'parent': project,
+        'user': request.user,
+    }
+    if request.method == 'POST':
+        form = SubprojectForm(request.POST, **form_kwargs)
+        if form.is_valid():
+            form.save()
+            project_dashboard = reverse(
+                'projects_subprojects', args=[project.slug])
+            return HttpResponseRedirect(project_dashboard)
+    else:
+        form = SubprojectForm(**form_kwargs)
 
     subprojects = project.subprojects.all()
 
@@ -420,7 +426,7 @@ def project_subprojects(request, project_slug):
 @login_required
 def project_subprojects_delete(request, project_slug, child_slug):
     parent = get_object_or_404(Project.objects.for_admin_user(request.user), slug=project_slug)
-    child = get_object_or_404(Project.objects.for_admin_user(request.user), slug=child_slug)
+    child = get_object_or_404(Project.objects.all(), slug=child_slug)
     parent.remove_subproject(child)
     return HttpResponseRedirect(reverse('projects_subprojects',
                                         args=[parent.slug]))
