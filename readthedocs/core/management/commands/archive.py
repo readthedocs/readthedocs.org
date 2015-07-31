@@ -9,6 +9,7 @@ from django.template import Context, loader as template_loader
 
 log = logging.getLogger(__name__)
 
+
 class Command(BaseCommand):
     """Custom management command to rebuild documentation for all projects on
     the site. Invoked via ``./manage.py update_repos``.
