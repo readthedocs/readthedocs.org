@@ -1,5 +1,4 @@
 var sponsorship = require('./sponsorship'),
-    doc = require('./doc'),
     footer = require('./doc-embed/footer.js'),
     grokthedocs = require('./doc-embed/grokthedocs-client'),
     mkdocs = require('./doc-embed/mkdocs'),
@@ -7,9 +6,7 @@ var sponsorship = require('./sponsorship'),
     sphinx = require('./doc-embed/sphinx');
 
 $(document).ready(function () {
-    var build = new doc.Build(rtddata.get());
-
-    footer.init(build);
+    footer.init();
     sphinx.init();
     grokthedocs.init();
     mkdocs.init();

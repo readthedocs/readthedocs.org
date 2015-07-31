@@ -1,8 +1,9 @@
+var Build = require('./build').Build;
 var rtddata = require('./rtd-data');
 var versionCompare = require('./version-compare');
 
 
-function init(build) {
+function init() {
     var rtd = rtddata.get();
 
     var get_data = {
@@ -49,6 +50,8 @@ function init(build) {
 
 
 function injectFooter(data) {
+    var build = new Build(rtddata.get());
+
     // If the theme looks like ours, update the existing badge
     // otherwise throw a a full one into the page.
     if (build.is_rtd_theme()) {
