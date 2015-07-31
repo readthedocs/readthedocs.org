@@ -98,6 +98,3 @@ what they stand for.
     that only require a one time action on the server will have this label.
     See the documentation about our :ref:`triage process
     <triage-support-tickets>` for more information.
-
-
-.. include:: _includes/issue-labels.rst
