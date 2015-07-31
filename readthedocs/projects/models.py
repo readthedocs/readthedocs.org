@@ -515,6 +515,7 @@ class Project(models.Model):
         """
         return os.path.join(self.conf_dir(version), "_build", "latex")
 
+    def full_epub_path(self, version=LATEST):
         """
         The path to the build epub docs in the project.
         """
