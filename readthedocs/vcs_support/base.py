@@ -81,9 +81,9 @@ class BaseVCS(BaseCLI):
     supports_tags = False  # Whether this VCS supports tags or not.
     supports_branches = False  # Whether this VCS supports branches or not.
 
-    #==========================================================================
+    # =========================================================================
     # General methods
-    #==========================================================================
+    # =========================================================================
 
     def __init__(self, project, version, **kwargs):
         self.default_branch = project.default_branch
@@ -107,11 +107,11 @@ class BaseVCS(BaseCLI):
         """
         self.check_working_dir()
 
-    #==========================================================================
+    # =========================================================================
     # Tag / Branch related methods
     # These methods only apply if supports_tags = True and/or
     # support_branches = True
-    #==========================================================================
+    # =========================================================================
 
     @property
     def tags(self):
@@ -129,14 +129,12 @@ class BaseVCS(BaseCLI):
         """
         raise NotImplementedError
 
-
     @property
     def commit(self):
         """
         Returns a string representing the current commit.
         """
         raise NotImplementedError
-
 
     def checkout(self, identifier=None):
         """
