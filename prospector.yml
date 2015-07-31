@@ -22,6 +22,8 @@ pep8:
 
 pylint:
   max-line-length: 100
+  disable:
+      - logging-format-interpolation
 
 mccabe:
   run: false
