@@ -12,7 +12,6 @@ from django.utils.text import slugify
 from django.conf import settings
 from rest_framework.renderers import JSONRenderer
 
-from readthedocs.projects.utils import run
 from readthedocs.restapi.serializers import VersionFullSerializer
 
 log = logging.getLogger(__name__)

@@ -23,7 +23,9 @@ class BaseMkdocs(BaseBuilder):
 
     def __init__(self, *args, **kwargs):
         super(BaseMkdocs, self).__init__(*args, **kwargs)
-        self.old_artifact_path = os.path.join(self.version.project.checkout_path(self.version.slug), self.build_dir)
+        self.old_artifact_path = os.path.join(
+            self.version.project.checkout_path(self.version.slug),
+            self.build_dir)
 
     def append_conf(self, **kwargs):
         """
@@ -46,34 +48,34 @@ class BaseMkdocs(BaseBuilder):
 
         # Set mkdocs config values
 
-        MEDIA_URL = getattr(settings, 'MEDIA_URL', 'https://media.readthedocs.org')
+        media_url = getattr(settings, 'MEDIA_URL', 'https://media.readthedocs.org')
 
         # Mkdocs needs a full domain here because it tries to link to local media files
-        if not MEDIA_URL.startswith('http'):
-            MEDIA_URL = 'http://localhost:8000' + MEDIA_URL
+        if not media_url.startswith('http'):
+            media_url = 'http://localhost:8000' + media_url
 
         if 'extra_javascript' in user_config:
             user_config['extra_javascript'].append('readthedocs-data.js')
             user_config['extra_javascript'].append(
                 'readthedocs-dynamic-include.js')
             user_config['extra_javascript'].append(
-                '%sjavascript/readthedocs-doc-embed.js' % MEDIA_URL)
+                '%sjavascript/readthedocs-doc-embed.js' % media_url)
         else:
             user_config['extra_javascript'] = [
                 'readthedocs-data.js',
                 'readthedocs-dynamic-include.js',
-                '%sjavascript/readthedocs-doc-embed.js' % MEDIA_URL,
+                '%sjavascript/readthedocs-doc-embed.js' % media_url,
             ]
 
         if 'extra_css' in user_config:
             user_config['extra_css'].append(
-                '%s/css/badge_only.css' % MEDIA_URL)
+                '%s/css/badge_only.css' % media_url)
             user_config['extra_css'].append(
-                '%s/css/readthedocs-doc-embed.css' % MEDIA_URL)
+                '%s/css/readthedocs-doc-embed.css' % media_url)
         else:
             user_config['extra_css'] = [
-                '%scss/badge_only.css' % MEDIA_URL,
-                '%scss/readthedocs-doc-embed.css' % MEDIA_URL,
+                '%scss/badge_only.css' % media_url,
+                '%scss/readthedocs-doc-embed.css' % media_url,
             ]
 
         # Set our custom theme dir for mkdocs
@@ -84,7 +86,8 @@ class BaseMkdocs(BaseBuilder):
 
         # RTD javascript writing
 
-        READTHEDOCS_DATA = {
+        # Will be available in the JavaScript as READTHEDOCS_DATA.
+        readthedocs_data = {
             'project': self.version.project.slug,
             'version': self.version.verbose_name,
             'language': self.version.project.language,
@@ -96,12 +99,12 @@ class BaseMkdocs(BaseBuilder):
             'api_host': getattr(settings, 'SLUMBER_API_HOST', 'https://readthedocs.org'),
             'commit': self.version.project.vcs_repo(self.version.slug).commit,
         }
-        data_json = json.dumps(READTHEDOCS_DATA, indent=4)
+        data_json = json.dumps(readthedocs_data, indent=4)
         data_ctx = Context({
             'data_json': data_json,
-            'current_version': READTHEDOCS_DATA['version'],
-            'slug': READTHEDOCS_DATA['project'],
-            'html_theme': READTHEDOCS_DATA['theme'],
+            'current_version': readthedocs_data['version'],
+            'slug': readthedocs_data['project'],
+            'html_theme': readthedocs_data['theme'],
             'pagename': None,
         })
         data_string = template_loader.get_template(
@@ -127,14 +130,16 @@ class BaseMkdocs(BaseBuilder):
     @restoring_chdir
     def build(self, **kwargs):
         checkout_path = self.version.project.checkout_path(self.version.slug)
-        #site_path = os.path.join(checkout_path, 'site')
+        # site_path = os.path.join(checkout_path, 'site')
         os.chdir(checkout_path)
         # Actual build
-        build_command = "{command} {builder} --clean --site-dir={build_dir} --theme=readthedocs".format(
-            command=self.version.project.venv_bin(version=self.version.slug, bin='mkdocs'),
-            builder=self.builder,
-            build_dir=self.build_dir,
-        )
+        build_command = (
+            "{command} {builder} --clean --site-dir={build_dir} --theme=readthedocs"
+            .format(
+                command=self.version.project.venv_bin(version=self.version.slug, bin='mkdocs'),
+                builder=self.builder,
+                build_dir=self.build_dir,
+            ))
         results = run(build_command, shell=True)
         return results
 

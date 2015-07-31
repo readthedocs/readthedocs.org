@@ -32,7 +32,9 @@ class BaseSphinx(BaseBuilder):
     def __init__(self, *args, **kwargs):
         super(BaseSphinx, self).__init__(*args, **kwargs)
         try:
-            self.old_artifact_path = os.path.join(self.version.project.conf_dir(self.version.slug), self.sphinx_build_dir)
+            self.old_artifact_path = os.path.join(
+                self.version.project.conf_dir(self.version.slug),
+                self.sphinx_build_dir)
         except ProjectImportError:
             docs_dir = self.docs_dir()
             self.old_artifact_path = os.path.join(docs_dir, self.sphinx_build_dir)
@@ -72,11 +74,13 @@ class BaseSphinx(BaseBuilder):
         conf_py_path = self.version.get_conf_py_path()
         remote_version = self.version.get_vcs_slug()
 
-        github_user, github_repo = version_utils.get_github_username_repo(url=self.version.project.repo)
+        github_user, github_repo = version_utils.get_github_username_repo(
+            url=self.version.project.repo)
         github_version_is_editable = (self.version.type == 'branch')
         display_github = github_user is not None
 
-        bitbucket_user, bitbucket_repo = version_utils.get_bitbucket_username_repo(url=self.version.project.repo)
+        bitbucket_user, bitbucket_repo = version_utils.get_bitbucket_username_repo(
+            url=self.version.project.repo)
         bitbucket_version_is_editable = (self.version.type == 'branch')
         display_bitbucket = bitbucket_user is not None
 
@@ -261,7 +265,9 @@ class PdfBuilder(BaseSphinx):
             os.makedirs(self.target)
 
         exact = os.path.join(self.old_artifact_path, "%s.pdf" % self.version.project.slug)
-        exact_upper = os.path.join(self.old_artifact_path, "%s.pdf" % self.version.project.slug.capitalize())
+        exact_upper = os.path.join(
+            self.old_artifact_path,
+            "%s.pdf" % self.version.project.slug.capitalize())
 
         if self.pdf_file_name and os.path.exists(self.pdf_file_name):
             from_file = self.pdf_file_name
