@@ -1,3 +1,5 @@
+import math
+
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -28,3 +30,9 @@ class GoldUser(models.Model):
 
     def __unicode__(self):
         return 'Gold Level %s for %s' % (self.level, self.user)
+
+    @property
+    def num_supported_projects(self):
+        dollars = int(self.level.split('-')[-1])
+        num_projects = int(math.floor(dollars / 5))
+        return num_projects

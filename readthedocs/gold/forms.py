@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import LEVEL_CHOICES
+from .models import LEVEL_CHOICES, GoldUser
 
 
 class CardForm(forms.Form):
@@ -20,4 +20,10 @@ class CardForm(forms.Form):
     level = forms.ChoiceField(
         required=True,
         choices=LEVEL_CHOICES,
+    )
+
+
+class GoldProjectForm(forms.Form):
+    project = forms.CharField(
+        required=True,
     )
