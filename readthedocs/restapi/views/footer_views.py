@@ -11,8 +11,8 @@ from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
 from readthedocs.donate.models import SupporterPromo
 from readthedocs.projects.models import Project
-from projects.version_handling import highest_version
-from projects.version_handling import parse_version_failsafe
+from readthedocs.projects.version_handling import highest_version
+from readthedocs.projects.version_handling import parse_version_failsafe
 
 
 def get_version_compare_data(project, base_version=None):
