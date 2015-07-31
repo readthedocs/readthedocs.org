@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django.test import TestCase
-from django_dynamic_fixture import G
+from django_dynamic_fixture import get
 
 from readthedocs.projects.forms import SubprojectForm
 from readthedocs.projects.models import Project
@@ -8,8 +8,8 @@ from readthedocs.projects.models import Project
 
 class SubprojectFormTests(TestCase):
     def test_name_validation(self):
-        user = G(User)
-        project = G(Project, slug='mainproject')
+        user = get(User)
+        project = get(Project, slug='mainproject')
 
         form = SubprojectForm({},
                               parent=project, user=user)
@@ -25,10 +25,10 @@ class SubprojectFormTests(TestCase):
         # Make sure that a user cannot add a subproject that he is not the
         # admin of.
 
-        user = G(User)
-        project = G(Project, slug='mainproject')
+        user = get(User)
+        project = get(Project, slug='mainproject')
         project.users.add(user)
-        subproject = G(Project, slug='subproject')
+        subproject = get(Project, slug='subproject')
 
         form = SubprojectForm({'subproject': subproject.slug},
                               parent=project, user=user)
@@ -37,10 +37,10 @@ class SubprojectFormTests(TestCase):
         self.assertTrue('subproject' in form.errors)
 
     def test_admin_of_subproject_can_add_it(self):
-        user = G(User)
-        project = G(Project, slug='mainproject')
+        user = get(User)
+        project = get(Project, slug='mainproject')
         project.users.add(user)
-        subproject = G(Project, slug='subproject')
+        subproject = get(Project, slug='subproject')
         subproject.users.add(user)
 
         # Works now as user is admin of subproject.

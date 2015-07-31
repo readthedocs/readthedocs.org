@@ -2,7 +2,8 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.utils.six.moves.urllib.parse import urlsplit
-from django_dynamic_fixture import G, N
+from django_dynamic_fixture import get
+from django_dynamic_fixture import new
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.projects.models import Project
@@ -173,12 +174,12 @@ class PrivateViewsAreProtectedTests(TestCase):
 
 class SubprojectViewTests(TestCase):
     def setUp(self):
-        self.user = N(User, username='test')
+        self.user = new(User, username='test')
         self.user.set_password('test')
         self.user.save()
 
-        self.project = G(Project, slug='my-mainproject')
-        self.subproject = G(Project, slug='my-subproject')
+        self.project = get(Project, slug='my-mainproject')
+        self.subproject = get(Project, slug='my-subproject')
         self.project.add_subproject(self.subproject)
 
         self.client.login(username='test', password='test')
