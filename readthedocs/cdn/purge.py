@@ -4,11 +4,11 @@ from django.conf import settings
 
 log = logging.getLogger(__name__)
 
-CDN_SERVICE = getattr(settings, 'CDN_SERVICE')
-CDN_USERNAME = getattr(settings, 'CDN_USERNAME')
-CDN_KEY = getattr(settings, 'CDN_KEY')
-CDN_SECET = getattr(settings, 'CDN_SECET')
-CDN_ID = getattr(settings, 'CDN_ID')
+CDN_SERVICE = getattr(settings, 'CDN_SERVICE', None)
+CDN_USERNAME = getattr(settings, 'CDN_USERNAME', None)
+CDN_KEY = getattr(settings, 'CDN_KEY', None)
+CDN_SECET = getattr(settings, 'CDN_SECET', None)
+CDN_ID = getattr(settings, 'CDN_ID', None)
 
 
 def purge(files):
