@@ -24,13 +24,3 @@ class ProjectFactory(factory.DjangoModelFactory):
     version = factory.RelatedFactory(VersionFactory,
                                      'project',
                                      )
-
-
-class OneProjectWithTranslationsOneWithout(Clump):
-
-    def build_canopy(self):
-        self.project_with_translations = self.include_factory(
-            ProjectFactory, 1)[0]
-        self.first_translation = ProjectFactory(
-            main_language_project=self.project_with_translations)
-        pass

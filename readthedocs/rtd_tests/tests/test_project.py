@@ -1,16 +1,13 @@
-from bamboo_boy.utils import with_canopy
 import json
 from django.test import TestCase
 from readthedocs.builds.constants import LATEST
 from readthedocs.projects.models import Project
-from readthedocs.rtd_tests.factories.projects_factories import OneProjectWithTranslationsOneWithout,\
-    ProjectFactory
 from rest_framework.reverse import reverse
+from django_dynamic_fixture import get
 from readthedocs.restapi.serializers import ProjectSerializer
 from readthedocs.rtd_tests.mocks.paths import fake_paths_by_regex
 
 
-@with_canopy(OneProjectWithTranslationsOneWithout)
 class TestProject(TestCase):
     fixtures = ["eric", "test_data"]
 
@@ -32,15 +29,19 @@ class TestProject(TestCase):
         self.assertEqual(resp['subprojects'][0]['id'], 23)
 
     def test_translations(self):
-        p = self.canopy.project_with_translations
-        url = reverse('project-translations', [p.id])
+        main_project = get(Project)
+
+        # Create translation of ``main_project``.
+        get(Project, main_language_project=main_project)
+
+        url = reverse('project-translations', [main_project.id])
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
-        translation_ids_from_api = [t['id']
-                                    for t in response.data['translations']]
-        translation_ids_from_orm = [t[0]
-                                    for t in p.translations.values_list('id')]
+        translation_ids_from_api = [
+            t['id'] for t in response.data['translations']]
+        translation_ids_from_orm = [
+            t[0] for t in main_project.translations.values_list('id')]
 
         self.assertEqual(
             set(translation_ids_from_api),
