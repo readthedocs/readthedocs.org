@@ -18,7 +18,8 @@ def process_all_json_files(version, build_dir=True):
     if build_dir:
         full_path = version.project.full_json_path(version.slug)
     else:
-        full_path = version.project.get_production_media_path(type='json', version_slug=version.slug, include_file=False)
+        full_path = version.project.get_production_media_path(
+            type='json', version_slug=version.slug, include_file=False)
     html_files = []
     for root, dirs, files in os.walk(full_path):
         for filename in fnmatch.filter(files, '*.fjson'):
@@ -109,6 +110,7 @@ def process_file(filename):
 
     return {'headers': headers, 'content': body_content, 'path': path,
             'title': title, 'sections': sections}
+
 
 def recurse_while_none(element):
     if element.text is None:

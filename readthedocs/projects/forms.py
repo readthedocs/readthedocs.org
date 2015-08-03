@@ -14,6 +14,7 @@ from readthedocs.core.utils import trigger_build
 from readthedocs.redirects.models import Redirect
 from readthedocs.projects import constants
 from readthedocs.projects.models import Project, EmailHook, WebHook
+from readthedocs.privacy.loader import AdminPermission
 
 
 class ProjectForm(forms.ModelForm):
@@ -309,7 +310,8 @@ class SubprojectForm(forms.Form):
     subproject = forms.CharField()
 
     def __init__(self, *args, **kwargs):
-        self.parent = kwargs.pop('parent', None)
+        self.user = kwargs.pop('user')
+        self.parent = kwargs.pop('parent')
         super(SubprojectForm, self).__init__(*args, **kwargs)
 
     def clean_subproject(self):
@@ -318,11 +320,16 @@ class SubprojectForm(forms.Form):
         if not subproject_qs.exists():
             raise forms.ValidationError((_("Project %(name)s does not exist")
                                          % {'name': subproject_name}))
-        self.subproject = subproject_qs[0]
-        return subproject_name
+        subproject = subproject_qs.first()
+        if not AdminPermission.is_admin(self.user, subproject):
+            raise forms.ValidationError(_(
+                'You need to be admin of {name} in order to add it as '
+                'a subproject.'.format(name=subproject_name)))
+        return subproject
 
     def save(self):
-        relationship = self.parent.add_subproject(self.subproject)
+        relationship = self.parent.add_subproject(
+            self.cleaned_data['subproject'])
         return relationship
 
 

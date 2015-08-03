@@ -105,7 +105,8 @@ class VersionManager(RelatedProjectManager):
         return queryset.distinct()
 
     def public(self, user=None, project=None, only_active=True, *args, **kwargs):
-        queryset = self.filter(project__privacy_level=constants.PUBLIC, privacy_level=constants.PUBLIC)
+        queryset = self.filter(project__privacy_level=constants.PUBLIC,
+                               privacy_level=constants.PUBLIC)
         if user:
             queryset = self._add_user_repos(queryset, user)
         if project:
@@ -151,4 +152,3 @@ class AdminPermission(object):
 
 class AdminNotAuthorized(ValueError):
     pass
-

@@ -178,12 +178,11 @@ def edit_profile(request, form_class, success_url=None,
     for key, value in extra_context.items():
         context[key] = callable(value) and value() or value
 
-    return render_to_response(template_name,
-                              {'form': form,
-                               'profile': profile_obj,
-                               'user': profile_obj.user,
-                              },
-                              context_instance=context)
+    return render_to_response(template_name, {
+        'form': form,
+        'profile': profile_obj,
+        'user': profile_obj.user,
+    }, context_instance=context)
 edit_profile = login_required(edit_profile)
 
 

@@ -160,18 +160,9 @@ def update_documentation_type(version):
     Automatically determine the doc type for a user.
     """
 
-    checkout_path = version.project.checkout_path(version.slug)
-    os.chdir(checkout_path)
-    files = run('find .')[1].split('\n')
-    markdown = sphinx = 0
-    for filename in files:
-        if fnmatch.fnmatch(filename, '*.md') or fnmatch.fnmatch(filename, '*.markdown'):
-            markdown += 1
-        elif fnmatch.fnmatch(filename, '*.rst'):
-            sphinx += 1
+    # Keep this here for any 'auto' projects.
+
     ret = 'sphinx'
-    if markdown > sphinx:
-        ret = 'mkdocs'
     project_data = api_v2.project(version.project.pk).get()
     project_data['documentation_type'] = ret
     api_v2.project(version.project.pk).put(project_data)
@@ -621,6 +612,11 @@ def finish_build(version_pk, build_pk, hostname=None, html=False,
         version.built = True
         version.save()
 
+    if not pdf:
+        clear_pdf_artifacts(version)
+    if not epub:
+        clear_epub_artifacts(version)
+
     move_files(
         version_pk=version_pk,
         hostname=hostname,
@@ -661,10 +657,12 @@ def move_files(version_pk, hostname, html=False, localmedia=False, search=False,
             from_path = version.project.artifact_path(version=version.slug, type='sphinx_localmedia')
             to_path = version.project.get_production_media_path(type='htmlzip', version_slug=version.slug, include_file=False)
             Syncer.copy(from_path, to_path, host=hostname)
+
         if search:
             from_path = version.project.artifact_path(version=version.slug, type='sphinx_search')
             to_path = version.project.get_production_media_path(type='json', version_slug=version.slug, include_file=False)
             Syncer.copy(from_path, to_path, host=hostname)
+
         # Always move PDF's because the return code lies.
         if pdf:
             from_path = version.project.artifact_path(version=version.slug, type='sphinx_pdf')
@@ -788,6 +786,8 @@ def email_notification(version, build, email):
 
 
 def webhook_notification(version, build, hook_url):
+    project = version.project
+
     data = json.dumps({
         'name': project.name,
         'slug': project.slug,
@@ -882,7 +882,23 @@ def remove_dir(path):
 def clear_artifacts(version_pk):
     """ Remove artifacts from the web servers. """
     version = Version.objects.get(pk=version_pk)
+    clear_pdf_artifacts(version)
+    clear_epub_artifacts(version)
+    clear_htmlzip_artifacts(version)
+    clear_html_artifacts(version)
+
+
+def clear_pdf_artifacts(version):
     run_on_app_servers('rm -rf %s' % version.project.get_production_media_path(type='pdf', version_slug=version.slug))
+
+
+def clear_epub_artifacts(version):
     run_on_app_servers('rm -rf %s' % version.project.get_production_media_path(type='epub', version_slug=version.slug))
+
+
+def clear_htmlzip_artifacts(version):
     run_on_app_servers('rm -rf %s' % version.project.get_production_media_path(type='htmlzip', version_slug=version.slug))
+
+
+def clear_html_artifacts(version):
     run_on_app_servers('rm -rf %s' % version.project.rtd_build_path(version=version.slug))

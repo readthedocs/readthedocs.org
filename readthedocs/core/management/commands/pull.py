@@ -6,9 +6,9 @@ from django.conf import settings
 from readthedocs.builds.constants import LATEST
 from readthedocs.projects import tasks, utils
 
-import redis
 
 log = logging.getLogger(__name__)
+
 
 class Command(BaseCommand):
     def handle(self, *args, **options):

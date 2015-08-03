@@ -168,9 +168,7 @@ class EnhancedModelResource(ModelResource):
         except ValueError, e:
             raise NotFound(ugettext("Invalid resource lookup data provided "
                                     "(mismatched type).: %(error)s")
-                           % {
-                               'error': e
-                           })
+                           % {'error': e})
 
 
 class OwnerAuthorization(Authorization):

@@ -26,9 +26,11 @@ hiredis==0.1.2
 celery==3.1.18
 django-celery==3.1.16
 django-allauth==0.21.0
+dnspython==1.11.0
 
 # VCS
 bzr==2.6
+launchpadlib==1.10.2
 mercurial==2.6.3
 httplib2==0.7.7
 
@@ -53,6 +55,7 @@ stripe==1.20.2
 factory-boy==2.4.1
 django-copyright==1.0.0
 django-formtools==1.0
+django-dynamic-fixture==1.8.5
 
 # Docs
 sphinx-http-domain==0.2

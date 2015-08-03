@@ -30,6 +30,7 @@ from readthedocs.search import lib as search_lib
 log = logging.getLogger(__name__)
 LOG_TEMPLATE = u"(Elastic Search) [{user}:{type}] [{project}:{version}:{language}] {msg}"
 
+
 def elastic_search(request):
     """
     Use elastic search for global search
@@ -50,7 +51,9 @@ def elastic_search(request):
         if type == 'project':
             results = search_lib.search_project(request, query, language=language)
         elif type == 'file':
-            results = search_lib.search_file(request, query, project=project, version=version, taxonomy=taxonomy)
+            results = search_lib.search_file(request, query, project=project,
+                                             version=version,
+                                             taxonomy=taxonomy)
 
     if results:
         # pre and post 1.0 compat

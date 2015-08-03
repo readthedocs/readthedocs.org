@@ -123,20 +123,26 @@ def project_badge(request, project_slug, redirect=True):
     version_slug = request.GET.get('version', LATEST)
     style = request.GET.get('style', 'flat')
     try:
-        version = Version.objects.public(request.user).get(project__slug=project_slug, slug=version_slug)
+        version = Version.objects.public(request.user).get(
+            project__slug=project_slug, slug=version_slug)
     except Version.DoesNotExist:
-        url = 'https://img.shields.io/badge/docs-unknown%20version-yellow.svg?style={style}'.format(style=style)
+        url = (
+            'https://img.shields.io/badge/docs-unknown%20version-yellow.svg?style={style}'
+            .format(style=style))
         return _badge_return(redirect, url)
     version_builds = version.builds.filter(type='html', state='finished').order_by('-date')
     if not version_builds.exists():
-        url = 'https://img.shields.io/badge/docs-no%20builds-yellow.svg?style={style}'.format(style=style)
+        url = (
+            'https://img.shields.io/badge/docs-no%20builds-yellow.svg?style={style}'
+            .format(style=style))
         return _badge_return(redirect, url)
     last_build = version_builds[0]
     if last_build.success:
         color = 'brightgreen'
     else:
         color = 'red'
-    url = 'https://img.shields.io/badge/docs-%s-%s.svg?style=%s' % (version.slug.replace('-', '--'), color, style)
+    url = 'https://img.shields.io/badge/docs-%s-%s.svg?style=%s' % (
+        version.slug.replace('-', '--'), color, style)
     return _badge_return(redirect, url)
 
 
@@ -184,8 +190,8 @@ def project_download_media(request, project_slug, type, version_slug):
     queryset = Project.objects.protected(request.user).filter(slug=project_slug)
     if not queryset.exists():
         raise Http404
-    DEFAULT_PRIVACY_LEVEL = getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public')
-    if DEFAULT_PRIVACY_LEVEL == 'public' or settings.DEBUG:
+    privacy_level = getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public')
+    if privacy_level == 'public' or settings.DEBUG:
         path = os.path.join(settings.MEDIA_URL, type, project_slug, version_slug,
                             '%s.%s' % (project_slug, type.replace('htmlzip', 'zip')))
         return HttpResponseRedirect(path)
@@ -268,7 +274,7 @@ def version_filter_autocomplete(request, project_slug):
             context_instance=RequestContext(request),
         )
     else:
-        raise HttpResponse(status=400)
+        return HttpResponse(status=400)
 
 
 def file_autocomplete(request, project_slug):
@@ -382,8 +388,9 @@ def project_versions(request, project_slug):
     inactive_filter = VersionSlugFilter(request.GET, queryset=inactive_versions)
     active_filter = VersionSlugFilter(request.GET, queryset=active_versions)
 
-    # If there's a wiped query string, check the string against the versions list and display a success message.
-    # Deleting directories doesn't know how to fail.  :)
+    # If there's a wiped query string, check the string against the versions
+    # list and display a success message. Deleting directories doesn't know how
+    # to fail.  :)
     wiped = request.GET.get('wipe', '')
     wiped_version = versions.filter(slug=wiped)
     if wiped and wiped_version.count():
@@ -421,8 +428,10 @@ def project_analytics(request, project_slug):
             analytics = None
 
     if analytics:
-        page_list = list(reversed(sorted(analytics['page'].items(), key=operator.itemgetter(1))))
-        version_list = list(reversed(sorted(analytics['version'].items(), key=operator.itemgetter(1))))
+        page_list = list(reversed(sorted(analytics['page'].items(),
+                                         key=operator.itemgetter(1))))
+        version_list = list(reversed(sorted(analytics['version'].items(),
+                                            key=operator.itemgetter(1))))
     else:
         page_list = []
         version_list = []

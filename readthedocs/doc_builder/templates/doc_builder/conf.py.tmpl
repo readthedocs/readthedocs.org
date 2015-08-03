@@ -20,7 +20,8 @@ if version_info[0] == 1 and version_info[1] > 2:
         source_suffix = ['.rst', '.md']
 
     if 'source_parsers' in globals():
-        source_parsers['.md'] = CommonMarkParser
+        if '.md' not in source_parsers:
+            source_parsers['.md'] = CommonMarkParser
     else:
         source_parsers = {
             '.md': CommonMarkParser,

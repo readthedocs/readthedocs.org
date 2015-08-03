@@ -10,7 +10,9 @@ STANDARD_EMAIL = "anonymous@readthedocs.org"
 
 log = logging.getLogger(__name__)
 
+
 class UserProfile (models.Model):
+
     """Additional information about a User.
     """
     user = models.OneToOneField('auth.User', verbose_name=_('User'),
@@ -25,10 +27,6 @@ class UserProfile (models.Model):
     def __unicode__(self):
         return (ugettext("%(username)s's profile")
                 % {'username': self.user.username})
-
-    def get_form(self):
-        from .forms import UserProfileForm
-        return UserProfileForm(instance=self)
 
     def get_absolute_url(self):
         return ('profiles_profile_detail', (),

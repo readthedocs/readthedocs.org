@@ -15,7 +15,6 @@ class Backend(BaseVCS):
     supports_branches = True
     fallback_branch = 'master'  # default branch
 
-
     def __init__(self, *args, **kwargs):
         super(Backend, self).__init__(*args, **kwargs)
         self.token = kwargs.get('token', None)
@@ -30,8 +29,9 @@ class Backend(BaseVCS):
                 clone_url = 'https://%s@%s' % (self.token, hacked_url)
                 return clone_url
             # Don't edit URL because all hosts aren't the same
-            #else:
-                #clone_url = 'git://%s' % (hacked_url)
+
+            # else:
+                # clone_url = 'git://%s' % (hacked_url)
         return self.repo_url
 
     def set_remote_url(self, url):
@@ -168,7 +168,7 @@ class Backend(BaseVCS):
 
         identifier = self.find_ref(identifier)
 
-        #Checkout the correct identifier for this branch.
+        # Checkout the correct identifier for this branch.
         code, out, err = self.checkout_revision(identifier)
         if code != 0:
             return code, out, err

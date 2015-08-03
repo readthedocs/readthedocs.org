@@ -1,5 +1,6 @@
 from rest_framework.authentication import SessionAuthentication
 
+
 class UnsafeSessionAuthentication(SessionAuthentication):
 
     def authenticate(self, request):
@@ -7,6 +8,6 @@ class UnsafeSessionAuthentication(SessionAuthentication):
         user = getattr(http_request, 'user', None)
 
         if not user or not user.is_active:
-           return None
+            return None
 
         return (user, None)

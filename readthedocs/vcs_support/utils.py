@@ -5,6 +5,7 @@ import stat
 
 log = logging.getLogger(__name__)
 
+
 class LockTimeout(Exception):
     pass
 
@@ -94,4 +95,3 @@ class NonBlockingLock(object):
         except (IOError, OSError):
             log.error("Lock (%s): Failed to release, ignoring..." % self.name,
                       exc_info=True)
-

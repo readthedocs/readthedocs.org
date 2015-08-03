@@ -45,7 +45,6 @@ class Command(BaseCommand):
             except Project.DoesNotExist:
                 project = Project(slug=slug)
 
-            project.python_interpreter
             copy_attributes = (
                 'pub_date',
                 'modified_date',
@@ -86,7 +85,6 @@ class Command(BaseCommand):
 
             for attribute in copy_attributes:
                 setattr(project, attribute, project_data[attribute])
-            project.python_interpreter
             project.user = user1
             project.save()
             if user1:

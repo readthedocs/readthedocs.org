@@ -54,7 +54,7 @@ def register(request):
             try:
                 user.save()
             except IntegrityError:
-                form.addError(user.user.username + ' is already a member')
+                form.add_error(None, user.user.username + ' is already a member')
             else:
                 return HttpResponseRedirect(reverse('gold_thanks'))
 

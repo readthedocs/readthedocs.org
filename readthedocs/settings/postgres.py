@@ -69,6 +69,9 @@ SOCIALACCOUNT_PROVIDERS = {
     'github': {'SCOPE': ['user:email', 'read:org', 'admin:repo_hook', 'repo:status']}
 }
 
+# allauth settings
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https'
+
 if not os.environ.get('DJANGO_SETTINGS_SKIP_LOCAL', False):
     try:
         from local_settings import *  # noqa

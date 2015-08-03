@@ -1,23 +1,23 @@
-:mod:`builds`
-=============
+:mod:`readthedocs.builds`
+=========================
 
-:mod:`builds.admin`
-----------------------------------
-.. automodule:: builds.admin
+:mod:`readthedocs.builds.admin`
+-------------------------------
+.. automodule:: readthedocs.builds.admin
     :members:
 
-:mod:`builds.models`
-----------------------------------
-.. automodule:: builds.models
+:mod:`readthedocs.builds.models`
+--------------------------------
+.. automodule:: readthedocs.builds.models
     :members:
 
-:mod:`builds.urls`
-----------------------------------
-.. automodule:: builds.urls
+:mod:`readthedocs.builds.urls`
+------------------------------
+.. automodule:: readthedocs.builds.urls
     :members:
 
-:mod:`builds.views`
-----------------------------------
-.. automodule:: builds.views
+:mod:`readthedocs.builds.views`
+-------------------------------
+.. automodule:: readthedocs.builds.views
     :members:
 

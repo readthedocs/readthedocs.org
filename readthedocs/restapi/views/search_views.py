@@ -32,7 +32,9 @@ def index_search(request):
     project_scale = 1
     page_scale = 1
 
-    utils.index_search_request(version=version, page_list=data['page_list'], commit=commit, project_scale=project_scale, page_scale=page_scale)
+    utils.index_search_request(
+        version=version, page_list=data['page_list'], commit=commit,
+        project_scale=project_scale, page_scale=page_scale)
 
     return Response({'indexed': True})
 
@@ -133,8 +135,9 @@ def section_search(request):
     Facets
     ------
 
-    When you search, you will have a ``project`` facet, which includes the number of matching sections per project.
-    When you search inside a project, the ``path`` facet will show the number of matching sections per page.
+    When you search, you will have a ``project`` facet, which includes the
+    number of matching sections per project. When you search inside a project,
+    the ``path`` facet will show the number of matching sections per page.
 
     Possible GET args
     -----------------
@@ -155,7 +158,9 @@ def section_search(request):
     """
     query = request.GET.get('q', None)
     if not query:
-        return Response({'error': 'Search term required. Use the "q" GET arg to search. '}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {'error': 'Search term required. Use the "q" GET arg to search. '},
+            status=status.HTTP_400_BAD_REQUEST)
 
     project_slug = request.GET.get('project', None)
     version_slug = request.GET.get('version', LATEST)

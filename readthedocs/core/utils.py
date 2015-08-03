@@ -75,10 +75,12 @@ def trigger_build(project, version=None, record=True, force=False, basic=False):
             state='triggered',
             success=True,
         )
-        update_docs.delay(pk=project.pk, version_pk=version.pk, record=record, force=force, basic=basic, build_pk=build.pk)
+        update_docs.delay(pk=project.pk, version_pk=version.pk, record=record,
+                          force=force, basic=basic, build_pk=build.pk)
     else:
         build = None
-        update_docs.delay(pk=project.pk, version_pk=version.pk, record=record, force=force, basic=basic)
+        update_docs.delay(pk=project.pk, version_pk=version.pk, record=record,
+                          force=force, basic=basic)
 
     return build
 

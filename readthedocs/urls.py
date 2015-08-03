@@ -111,8 +111,6 @@ urlpatterns = patterns(
         name='random_page'),
     url(r'^random/$', 'readthedocs.core.views.random_page', name='random_page'),
     url(r'^sustainability/', include('readthedocs.donate.urls')),
-    url(r'^depth/$', 'readthedocs.core.views.queue_depth', name='queue_depth'),
-    url(r'^queue_info/$', 'readthedocs.core.views.queue_info', name='queue_info'),
     url(r'^live/$', 'readthedocs.core.views.live_builds', name='live_builds'),
     url(r'^500/$', 'readthedocs.core.views.divide_by_zero', name='divide_by_zero'),
     url(r'^filter/version/$',

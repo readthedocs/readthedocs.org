@@ -7,7 +7,6 @@ class UserFactory(factory.Factory):
 
     username = factory.Sequence(lambda n: 'joe %s' % n)
 
-
     @classmethod
     def _prepare(cls, create, password="password_sentinel", **kwargs):
         '''

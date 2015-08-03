@@ -59,7 +59,9 @@ def docurl(request):
     doc = request.GET.get('doc', 'index')
 
     project = get_object_or_404(Project, slug=project)
-    version = get_object_or_404(Version.objects.public(request.user, project=project, only_active=False), slug=version)
+    version = get_object_or_404(
+        Version.objects.public(request.user, project=project, only_active=False),
+        slug=version)
     return Response({
         'url': make_document_url(project=project, version=version.slug, page=doc)
     })
