@@ -9,11 +9,11 @@ from django.conf import settings
 from django.core.cache import cache
 from django.shortcuts import get_object_or_404
 
-from core.utils import clean_url, cname_to_slug
-from builds.constants import LATEST
-from builds.models import Version
-from projects.models import Project
-from core.templatetags.core_tags import make_document_url
+from readthedocs.core.utils import clean_url, cname_to_slug
+from readthedocs.builds.constants import LATEST
+from readthedocs.builds.models import Version
+from readthedocs.projects.models import Project
+from readthedocs.core.templatetags.core_tags import make_document_url
 
 
 @decorators.api_view(['GET'])
@@ -59,7 +59,9 @@ def docurl(request):
     doc = request.GET.get('doc', 'index')
 
     project = get_object_or_404(Project, slug=project)
-    version = get_object_or_404(Version.objects.public(request.user, project=project, only_active=False), slug=version)
+    version = get_object_or_404(
+        Version.objects.public(request.user, project=project, only_active=False),
+        slug=version)
     return Response({
         'url': make_document_url(project=project, version=version.slug, page=doc)
     })

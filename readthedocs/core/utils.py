@@ -9,9 +9,9 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import get_template
 from django.template import Context
 
-from builds.constants import LATEST
-from builds.constants import LATEST_VERBOSE_NAME
-from builds.models import Build
+from readthedocs.builds.constants import LATEST
+from readthedocs.builds.constants import LATEST_VERBOSE_NAME
+from readthedocs.builds.models import Build
 
 log = logging.getLogger(__name__)
 
@@ -33,25 +33,6 @@ def run_on_app_servers(command):
     else:
         ret = os.system(command)
         return ret
-
-
-def make_latest(project):
-    """
-    Useful for correcting versions with no latest, using the database.
-
-    >>> no_latest = Project.objects.exclude(versions__slug__in=['latest'])
-    >>> for project in no_latest:
-    >>>     make_latest(project)
-    """
-    branch = project.default_branch or project.vcs_repo().fallback_branch
-    version_data, created = Version.objects.get_or_create(
-        project=project,
-        slug=LATEST,
-        type='branch',
-        active=True,
-        verbose_name=LATEST_VERBOSE_NAME,
-        identifier=branch,
-    )
 
 
 def clean_url(url):
@@ -78,7 +59,7 @@ def trigger_build(project, version=None, record=True, force=False, basic=False):
     An API to wrap the triggering of a build.
     """
     # Avoid circular import
-    from projects.tasks import update_docs
+    from readthedocs.projects.tasks import update_docs
 
     if project.skip:
         return None
@@ -94,10 +75,12 @@ def trigger_build(project, version=None, record=True, force=False, basic=False):
             state='triggered',
             success=True,
         )
-        update_docs.delay(pk=project.pk, version_pk=version.pk, record=record, force=force, basic=basic, build_pk=build.pk)
+        update_docs.delay(pk=project.pk, version_pk=version.pk, record=record,
+                          force=force, basic=basic, build_pk=build.pk)
     else:
         build = None
-        update_docs.delay(pk=project.pk, version_pk=version.pk, record=record, force=force, basic=basic)
+        update_docs.delay(pk=project.pk, version_pk=version.pk, record=record,
+                          force=force, basic=basic)
 
     return build
 

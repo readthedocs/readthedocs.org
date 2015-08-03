@@ -5,7 +5,8 @@ from haystack.query import SearchQuerySet
 from django import forms
 from django.forms.fields import CharField
 from django.utils.translation import ugettext_lazy as _
-from models import UserProfile
+
+from .models import UserProfile
 
 log = logging.getLogger(__name__)
 
@@ -40,10 +41,12 @@ class UserProfileForm(forms.ModelForm):
 
 
 class FacetField(forms.MultipleChoiceField):
+
     '''
     For filtering searches on a facet, with validation for the format
     of facet values.
     '''
+
     def valid_value(self, value):
         '''
         Although this is a choice field, no choices need to be supplied.
@@ -56,6 +59,7 @@ class FacetField(forms.MultipleChoiceField):
 
 
 class FacetedSearchForm(SearchForm):
+
     '''
     Supports fetching faceted results with a corresponding query.
 

@@ -6,8 +6,8 @@ from django.conf import settings
 from django.utils.safestring import mark_safe
 from django.utils.encoding import force_bytes, force_text
 
-from builds.models import Version
-from projects.models import Project
+from readthedocs.builds.models import Version
+from readthedocs.projects.models import Project
 
 register = template.Library()
 
@@ -32,7 +32,7 @@ def make_document_url(project, version=None, page=None):
     if not project:
         return ""
     if project.main_language_project:
-        base_url = project.get_translation_url(version)
+        base_url = project.get_translation_url(version, full=True)
     else:
         base_url = project.get_docs_url(version)
     if page and (page != "index") and (page != "index.html"):

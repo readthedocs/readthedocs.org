@@ -5,32 +5,14 @@ from rest_framework.renderers import JSONPRenderer, JSONRenderer, BrowsableAPIRe
 from rest_framework.response import Response
 import requests
 
-from builds.constants import LATEST
-from builds.models import Version
-from djangome import views as djangome
-from search.indexes import PageIndex, ProjectIndex, SectionIndex
-from projects.models import Project
-from restapi import utils
+from readthedocs.builds.constants import LATEST
+from readthedocs.builds.models import Version
+from readthedocs.search.indexes import PageIndex, ProjectIndex, SectionIndex
+from readthedocs.projects.models import Project
+from readthedocs.restapi import utils
 
 
 log = logging.getLogger(__name__)
-
-
-@decorators.api_view(['GET'])
-@decorators.permission_classes((permissions.AllowAny,))
-@decorators.renderer_classes((JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
-def quick_search(request):
-    project_slug = request.GET.get('project', None)
-    version_slug = request.GET.get('version', LATEST)
-    query = request.GET.get('q', None)
-    redis_data = djangome.r.keys('redirects:v4:en:%s:%s:*%s*' % (version_slug, project_slug, query))
-    ret_dict = {}
-    for data in redis_data:
-        if 'http://' in data or 'https://' in data:
-            key = data.split(':')[5]
-            value = ':'.join(data.split(':')[6:])
-            ret_dict[key] = value
-    return Response({"results": ret_dict})
 
 
 @decorators.api_view(['POST'])
@@ -50,7 +32,9 @@ def index_search(request):
     project_scale = 1
     page_scale = 1
 
-    utils.index_search_request(version=version, page_list=data['page_list'], commit=commit, project_scale=project_scale, page_scale=page_scale)
+    utils.index_search_request(
+        version=version, page_list=data['page_list'], commit=commit,
+        project_scale=project_scale, page_scale=page_scale)
 
     return Response({'indexed': True})
 
@@ -151,8 +135,9 @@ def section_search(request):
     Facets
     ------
 
-    When you search, you will have a ``project`` facet, which includes the number of matching sections per project.
-    When you search inside a project, the ``path`` facet will show the number of matching sections per page.
+    When you search, you will have a ``project`` facet, which includes the
+    number of matching sections per project. When you search inside a project,
+    the ``path`` facet will show the number of matching sections per page.
 
     Possible GET args
     -----------------
@@ -173,7 +158,9 @@ def section_search(request):
     """
     query = request.GET.get('q', None)
     if not query:
-        return Response({'error': 'Search term required. Use the "q" GET arg to search. '}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {'error': 'Search term required. Use the "q" GET arg to search. '},
+            status=status.HTTP_400_BAD_REQUEST)
 
     project_slug = request.GET.get('project', None)
     version_slug = request.GET.get('version', LATEST)

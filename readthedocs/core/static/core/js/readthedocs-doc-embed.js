@@ -1,4 +1,4 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 // Documentation build state
 
 module.exports = {
@@ -32,179 +32,231 @@ Build.prototype.is_sphinx_builder = function () {
 Build.prototype.show_promo = function () {
     return (this.config['api_host'] != 'https://readthedocs.com'
             && this.is_sphinx_builder()
-            && this.is_rtd_theme());
+            && this.is_rtd_theme()
+           );
 };
 
 },{}],2:[function(require,module,exports){
-var sponsorship = require('./sponsorship'),
-    doc = require('./doc');
+var Build = require('./build').Build;
+var rtddata = require('./rtd-data');
+var versionCompare = require('./version-compare');
 
-$(document).ready(function () {
 
-    var build = new doc.Build(READTHEDOCS_DATA);
+function init() {
+    var rtd = rtddata.get();
 
-    get_data = {
-        project: READTHEDOCS_DATA['project'],
-        version: READTHEDOCS_DATA['version'],
-        page: READTHEDOCS_DATA['page'],
-        theme: READTHEDOCS_DATA['theme'],
+    var get_data = {
+        project: rtd['project'],
+        version: rtd['version'],
+        page: rtd['page'],
+        theme: rtd['theme'],
         format: "jsonp",
     };
 
-
     // Crappy heuristic, but people change the theme name on us.
     // So we have to do some duck typing.
-    if ("docroot" in READTHEDOCS_DATA) {
-      get_data['docroot'] = READTHEDOCS_DATA['docroot'];
+    if ("docroot" in rtd) {
+        get_data['docroot'] = rtd['docroot'];
     }
 
-    if ("source_suffix" in READTHEDOCS_DATA) {
-      get_data['source_suffix'] = READTHEDOCS_DATA['source_suffix'];
-    }
-
-    var API_HOST = READTHEDOCS_DATA['api_host'];
-    if (API_HOST === undefined) {
-      API_HOST = 'https://readthedocs.org';
+    if ("source_suffix" in rtd) {
+        get_data['source_suffix'] = rtd['source_suffix'];
     }
 
     if (window.location.pathname.indexOf('/projects/') === 0) {
-      get_data['subproject'] = true;
+        get_data['subproject'] = true;
     }
 
-    // Theme popout code
+    // Get footer HTML from API and inject it into the page.
     $.ajax({
-      url: API_HOST + "/api/v2/footer_html/",
-      crossDomain: true,
-      xhrFields: {
-        withCredentials: true,
-      },
-      dataType: "jsonp",
-      data: get_data,
-      success: function (data) {
-            // If the theme looks like ours, update the existing badge
-            // otherwise throw a a full one into the page.
-            if (build.is_rtd_theme()) {
-              $("div.rst-other-versions").html(data['html']);
-            } else {
-              $("body").append(data['html']);
+        url: rtd.api_host + "/api/v2/footer_html/",
+        crossDomain: true,
+        xhrFields: {
+            withCredentials: true,
+        },
+        dataType: "jsonp",
+        data: get_data,
+        success: function (data) {
+            versionCompare.init(data.version_compare);
+            injectFooter(data);
+            setupBookmarkCSRFToken();
+        },
+        error: function () {
+            console.error('Error loading Read the Docs footer');
+        }
+    });
+}
+
+
+function injectFooter(data) {
+    var build = new Build(rtddata.get());
+
+    // If the theme looks like ours, update the existing badge
+    // otherwise throw a a full one into the page.
+    if (build.is_rtd_theme()) {
+        $("div.rst-other-versions").html(data['html']);
+    } else {
+        $("body").append(data['html']);
+    }
+
+    if (!data['version_active']) {
+        $('.rst-current-version').addClass('rst-out-of-date');
+    } else if (!data['version_supported']) {
+        //$('.rst-current-version').addClass('rst-active-old-version')
+    }
+
+    // Show promo selectively
+    if (data.promo && build.show_promo()) {
+        var promo = new sponsorship.Promo(
+            data.promo_data.id,
+            data.promo_data.text,
+            data.promo_data.link,
+            data.promo_data.image
+        )
+        if (promo) {
+            promo.display();
+        }
+    }
+}
+
+
+function setupBookmarkCSRFToken() {
+    function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type)) {
+                xhr.setRequestHeader("X-CSRFToken", $('a.bookmark[token]').attr('token'));
             }
+        }
+    });
+}
 
-            if (!data['version_active']) {
-                $('.rst-current-version').addClass('rst-out-of-date');
-            } else if (!data['version_supported']) {
-                //$('.rst-current-version').addClass('rst-active-old-version')
-            }
 
-            // Show promo selectively
-            if (data.promo && build.show_promo()) {
-                // TODO don't hardcode this promo
-                var promo = sponsorship.Promo.from_variants([
-                    {
-                        id: 'wtd-eu',
-                        text: 'Write the Docs Europe, in Prague Aug 31 - Sep 1. <a>Buy your ticket now!</a>',
-                        link: 'http://www.writethedocs.org/conf/eu/2015/',
-                        image: 'https://70247537a87b983da006-a47a8cc3edeb6b00d7ff1d6a25af0fda.ssl.cf5.rackcdn.com/wtd-promo.png'
-                    }
-                ]);
-                if (promo) {
-                    promo.display();
-                }
-            }
+module.exports = {
+    init: init
+};
 
-            // using jQuery
-            function getCookie(name) {
-                var cookieValue = null;
-                if (document.cookie && document.cookie !== '') {
-                    var cookies = document.cookie.split(';');
-                    for (var i = 0; i < cookies.length; i++) {
-                        var cookie = jQuery.trim(cookies[i]);
-                        // Does this cookie string begin with the name we want?
-                        if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                            break;
-                        }
-                    }
-                }
-                return cookieValue;
-            }
+},{"./build":1,"./rtd-data":5,"./version-compare":7}],3:[function(require,module,exports){
+function init() {
+    // Add Grok the Docs Client
+    $.ajax({
+        url: "https://api.grokthedocs.com/static/javascript/bundle-client.js",
+        crossDomain: true,
+        dataType: "script",
+    });
+}
 
-              function csrfSafeMethod(method) {
-                  // these HTTP methods do not require CSRF protection
-                  return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-              }
-              $.ajaxSetup({
-                  beforeSend: function(xhr, settings) {
-                      if (!csrfSafeMethod(settings.type)) {
-                          xhr.setRequestHeader("X-CSRFToken", $('a.bookmark[token]').attr('token'));
-                      }
-                  }
-              });
 
-            // Bookmark Handling
-            data = {
-                project: READTHEDOCS_DATA['project'],
-                version: READTHEDOCS_DATA['version'],
-                page: READTHEDOCS_DATA['page'],
-                url: document.location.origin + document.location.pathname
-            };
+module.exports = {
+    init: init
+};
 
-            // ask the server if a bookmark exists for this page so we can show the proper icon
-            $.ajax({
-                    type: 'POST',
-                    url: API_HOST + "/bookmarks/exists/",
-                    crossDomain: true,
-                    xhrFields: {
-                      withCredentials: true,
-                    },
-                    data: JSON.stringify(data),
-                    success: function (data) {
-                      $(".bookmark-active").show();
-                    },
-                    error: function(data) {
-                      $(".bookmark-inactive").show();
-                    },
-                    dataType: 'json'
-            });
+},{}],4:[function(require,module,exports){
+/*
+ * Mkdocs specific JS code.
+ */
 
-            $(".bookmark-icon").on('click', function (event) {
-              var bookmarked = $('.bookmark-active').is(':visible');
-              $('div.bookmark-active').toggle();
-              $('div.bookmark-inactive').toggle();
 
-              if (bookmarked) {
-                  $.ajax({
-                    type: "POST",
-                    crossDomain: true,
-                    xhrFields: {
-                      withCredentials: true,
-                    },
-                    url: API_HOST + "/bookmarks/remove/",
-                    data: JSON.stringify(data),
-                    });
-                  //$(".bookmark-added-msg").hide();
+var rtddata = require('./rtd-data');
+
+
+function init() {
+    var rtd = rtddata.get();
+
+    // Override MkDocs styles
+    if ("builder" in rtd && rtd["builder"] == "mkdocs") {
+      $('<input>').attr({
+          type: 'hidden',
+          name: 'project',
+          value: rtd["project"]
+      }).appendTo('#rtd-search-form');
+      $('<input>').attr({
+          type: 'hidden',
+          name: 'version',
+          value: rtd["version"]
+      }).appendTo('#rtd-search-form');
+      $('<input>').attr({
+          type: 'hidden',
+          name: 'type',
+          value: 'file'
+      }).appendTo('#rtd-search-form');
+
+      $("#rtd-search-form").prop("action", rtd.api_host + "/elasticsearch/");
+
+      // Apply stickynav to mkdocs builds
+      var nav_bar = $('nav.wy-nav-side:first'),
+          win = $(window),
+          sticky_nav_class = 'stickynav',
+          apply_stickynav = function () {
+              if (nav_bar.height() <= win.height()) {
+                  nav_bar.addClass(sticky_nav_class);
               } else {
-                  $.ajax({
-                    type: "POST",
-                    crossDomain: true,
-                    xhrFields: {
-                      withCredentials: true,
-                    },
-                    url: API_HOST + "/bookmarks/add/",
-                    data: JSON.stringify(data),
-                    });
-                    //$(".bookmark-added-msg").html("<p><a href='/bookmarks'>Bookmark</a> added</p>");
-                    //$(".bookmark-added-msg").show();
+                  nav_bar.removeClass(sticky_nav_class);
               }
-            });
-      },
-      error: function () {
-          console.log('Error loading Read the Docs footer');
+          };
+      win.on('resize', apply_stickynav);
+      apply_stickynav();
+    }
+
+}
+
+
+module.exports = {
+    init: init
+};
+
+},{"./rtd-data":5}],5:[function(require,module,exports){
+/*
+ * This exposes data injected during the RTD build into the template. It's
+ * provided via the global READTHEDOCS_DATA variable and is exposed here as a
+ * module for cleaner usage.
+ */
+
+
+/*
+ * Access READTHEDOCS_DATA on call, not on module load. The reason is that the
+ * READTHEDOCS_DATA might not be available during script load time.
+ */
+function get() {
+    return $.extend({
+        api_host: 'https://readthedocs.org'
+    }, window.READTHEDOCS_DATA);
+}
+
+
+module.exports = {
+    get: get
+};
+
+},{}],6:[function(require,module,exports){
+/*
+ * Sphinx builder specific JS code.
+ */
+
+
+var rtddata = require('./rtd-data');
+
+
+function init() {
+    var rtd = rtddata.get();
+
+    /// Click tracking on flyout
+    $(document).on('click', "[data-toggle='rst-current-version']", function() {
+      var flyout_state = $("[data-toggle='rst-versions']").hasClass('shift-up') ? 'was_open' : 'was_closed'
+      if (_gaq) {
+        _gaq.push(
+            ['rtfd._setAccount', 'UA-17997319-1'],
+            ['rtfd._trackEvent', 'Flyout', 'Click', flyout_state]
+        );
       }
     });
 
-
     /// Read the Docs Sphinx theme code
-    if (!("builder" in READTHEDOCS_DATA) || "builder" in READTHEDOCS_DATA && READTHEDOCS_DATA["builder"] != "mkdocs") {
+    if (!("builder" in rtd) || "builder" in rtd && rtd["builder"] != "mkdocs") {
         function toggleCurrent (elem) {
             var parent_li = elem.closest('li');
             parent_li.siblings('li.current').removeClass('current');
@@ -318,267 +370,69 @@ $(document).ready(function () {
         }($));
     }
 
-    // Add Grok the Docs Client
-    $.ajax({
-        url: "https://api.grokthedocs.com/static/javascript/bundle-client.js",
-        crossDomain: true,
-        dataType: "script",
-    });
+}
 
+
+module.exports = {
+    init: init
+};
+
+},{"./rtd-data":5}],7:[function(require,module,exports){
+var rtddata = require('./rtd-data');
+
+
+function init(data) {
+    var rtd = rtddata.get();
 
     /// Out of date message
 
-      var versionURL = [API_HOST + "/api/v1/version/", READTHEDOCS_DATA['project'],
-                        "/highest/", READTHEDOCS_DATA['version'], "/?callback=?"].join("");
-
-      $.getJSON(versionURL, onData);
-
-      function onData (data) {
-        if (data.is_highest) {
-          return;
-        }
-
-        var currentURL = window.location.pathname.replace(READTHEDOCS_DATA['version'], data.slug),
-            warning = $('<div class="admonition warning"> <p class="first \
-                         admonition-title">Note</p> <p class="last"> \
-                         You are not using the most up to date version \
-                         of the library. <a href="#"></a> is the newest version.</p>\
-                         </div>');
-
-        warning
-          .find('a')
-          .attr('href', currentURL)
-          .text(data.version);
-
-        body = $("div.body");
-        if (!body.length) {
-          body = $("div.document");
-        }
-        body.prepend(warning);
-      }
-
-
-    // Override MkDocs styles
-    if ("builder" in READTHEDOCS_DATA && READTHEDOCS_DATA["builder"] == "mkdocs") {
-      $('<input>').attr({
-          type: 'hidden',
-          name: 'project',
-          value: READTHEDOCS_DATA["project"]
-      }).appendTo('#rtd-search-form');
-      $('<input>').attr({
-          type: 'hidden',
-          name: 'version',
-          value: READTHEDOCS_DATA["version"]
-      }).appendTo('#rtd-search-form');
-      $('<input>').attr({
-          type: 'hidden',
-          name: 'type',
-          value: 'file'
-      }).appendTo('#rtd-search-form');
-
-      $("#rtd-search-form").prop("action", API_HOST + "/elasticsearch/");
-
-      // Apply stickynav to mkdocs builds
-      var nav_bar = $('nav.wy-nav-side:first'),
-          win = $(window),
-          sticky_nav_class = 'stickynav',
-          apply_stickynav = function () {
-              if (nav_bar.height() <= win.height()) {
-                  nav_bar.addClass(sticky_nav_class);
-              } else {
-                  nav_bar.removeClass(sticky_nav_class);
-              }
-          };
-      win.on('resize', apply_stickynav);
-      apply_stickynav();
+    if (data.is_highest) {
+        return;
     }
 
+    var currentURL = window.location.pathname.replace(rtd['version'], data.slug);
+    var warning = $(
+        '<div class="admonition warning"> ' +
+        '<p class="first admonition-title">Note</p> ' +
+        '<p class="last"> ' +
+        'You are not using the most up to date version of the library. ' +
+        '<a href="#"></a> is the newest version.' +
+        '</p>' +
+        '</div>');
 
-    /// Search
-    /// Here be dragons, this is beta quality code. Beware.
+    warning
+      .find('a')
+      .attr('href', currentURL)
+      .text(data.version);
 
-    if (build.is_rtd_theme()) {
-      searchLanding();
+    var body = $("div.body");
+    if (!body.length) {
+        body = $("div.document");
     }
+    body.prepend(warning);
+}
 
-    $(document).on({
-      mouseenter: function(ev) {
-          var tooltip = $(ev.target).next();
-          tooltip.show();
-      },
-      mouseleave: function(ev) {
-          var tooltip = $(ev.target).next();
-          tooltip.hide();
-      }
-    }, '.result-count');
 
-    $(document).on('submit', '#rtd-search-form', function (ev) {
-      //ev.preventDefault();
-      clearSearch();
-      var query = $("#rtd-search-form input[name='q']").val();
-      getSearch(query, true);
-    });
+module.exports = {
+    init: init
+};
 
-    $(document).on('click', '.search-result', function (ev) {
-      ev.preventDefault();
-      //console.log(ev.target)
-      html = $(ev.target).next().html();
-      displayContent(html);
-    });
+},{"./rtd-data":5}],8:[function(require,module,exports){
+var sponsorship = require('./sponsorship'),
+    footer = require('./doc-embed/footer.js'),
+    grokthedocs = require('./doc-embed/grokthedocs-client'),
+    mkdocs = require('./doc-embed/mkdocs'),
+    rtddata = require('./doc-embed/rtd-data'),
+    sphinx = require('./doc-embed/sphinx');
 
-    function searchLanding() {
-      // Highlight based on highlight GET arg
-      var params = $.getQueryParameters();
-      var query = (params.q) ? params.q[0].split(/\s+/) : [];
-      var clear = true;
-      /* Don't "search" on highlight phrases
-      if (!query.length) {
-        // Only clear on q
-        clear = false
-        var query = (params.highlight) ? params.highlight[0].split(/\s+/) : [];
-      }
-      */
-      if (query.length) {
-        query = query.join(" ");
-        console.log("Searching based on GET arg for: " + query);
-        $("#rtd-search-form input[name='q']").val(query);
-        getSearch(query, clear);
-      }
-    }
-
-    function getSearch(query, clear) {
-      var get_data = {
-        project: READTHEDOCS_DATA['project'],
-        version: READTHEDOCS_DATA['version'],
-        format: "jsonp",
-        q: query
-      };
-
-      // Search results
-      $.ajax({
-        url: API_HOST + "/api/v2/search/section/",
-        crossDomain: true,
-        xhrFields: {
-          withCredentials: true,
-        },
-        dataType: "jsonp",
-        data: get_data,
-        success: function (data) {
-          clearSearch(clear);
-          hits = data.results.hits.hits;
-          if (!hits.length) {
-            resetState();
-          } else {
-            displaySearch(hits, query);
-          }
-        },
-        error: function () {
-            console.log('Error searching');
-        }
-      });
-    }
-
-    function displayContent(html) {
-        var content = $('.rst-content');
-        content.html(html);
-    }
-
-    function displaySearch(hits, query) {
-      FIRSTRUN = {};
-      current = $(".toctree-l1.current > a");
-      for (var index in hits) {
-        var hit = hits[index];
-        var path = hit.fields.path;
-        var pageId = hit.fields.page_id;
-        var title = hit.fields.title;
-        var content = hit.fields.content;
-        var highlight = hit.highlight.content;
-        var score = hit._score;
-
-        var li = $(".toctree-l1 > a[href^='" + path + "']");
-
-        /*
-        // This doesn't work :)
-        if (!li.length && $(current.next().children()[0]).text() == title) {
-            li = current
-            console.log("Current page: " + title)
-        } else {
-          console.log("Not: " + title)
-        }
-        */
-
-        var ul = li.next();
-
-        console.log(path);
-
-        // Display content for first result
-        if (index === 0) {
-          // Don't display content for now, so we show sphinx results
-          //displayContent(content)
-        }
-
-        // Clear out subheading with result content
-        if (!FIRSTRUN[path]) {
-          li.show();
-          li.attr("href", li.attr('href') + "?highlight=" + query);
-          li.parent().addClass("current");
-          li.append("<i style='position:absolute;right:30px;top:6px;' class='fa fa-search result-icon'></i>");
-          ul.empty();
-          FIRSTRUN[path] = true;
-        }
-
-        // Dedupe
-        if (!FIRSTRUN[path+title]) {
-          ul.append('<li class="toctree-l2">' + '<a class="reference internal search-result" pageId="' + pageId + '">' + title + '</a>' + '<span style="display: none;" class="data">' + content + '</span>' + '</li>');
-          if (score > 1) {
-            $(".toctree-l2 ");
-            inserted = $('.toctree-l2 > [pageId="' + pageId + '"]');
-            inserted.append("<i style='position:absolute;right:30px;top:6px;' class='fa fa-fire'></i>");
-          }
-          FIRSTRUN[path+title] = true;
-        }
-      }
-      // Hide non-showing bits
-      $.each($(".toctree-l1 > a"), function (index, el) {
-          hide = true;
-          if ($(el).attr('href') === "") {
-              // Current page
-              hide = false;
-          }
-          for (var key in FIRSTRUN) {
-              if ($(el).attr('href').indexOf(key) === 0) {
-                hide = false;
-              }
-          }
-          if (hide) {
-            $(el).hide();
-          }
-
-      });
-
-    }
-
-    function resetState() {
-      $.each($(".toctree-l1 > a"), function (index, el) {
-        var el = $(el);
-        el.show();
-        el.parent().show();
-      });
-
-    }
-    function clearSearch(empty) {
-      $('.result-icon').remove();
-      $.each($(".toctree-l1 > a"), function (index, el) {
-        var el = $(el);
-        if (empty) {
-          el.parent().removeClass('current');
-          el.next().empty();
-        }
-      });
-    }
+$(document).ready(function () {
+    footer.init();
+    sphinx.init();
+    grokthedocs.init();
+    mkdocs.init();
 });
 
-},{"./doc":1,"./sponsorship":3}],3:[function(require,module,exports){
+},{"./doc-embed/footer.js":2,"./doc-embed/grokthedocs-client":3,"./doc-embed/mkdocs":4,"./doc-embed/rtd-data":5,"./doc-embed/sphinx":6,"./sponsorship":9}],9:[function(require,module,exports){
 /* Read the Docs - Documentation promotions */
 
 var $ = window.$;
@@ -615,11 +469,23 @@ Promo.prototype.create = function () {
             .appendTo(promo_about_link);
         promo_about.appendTo(promo);
 
+        // On Click handler
+        function promo_click() {
+            if (_gaq) {
+                _gaq.push(
+                    ['rtfd._setAccount', 'UA-17997319-1'],
+                    ['rtfd._trackEvent', 'Promo', 'Click', self.id]
+                );
+            }
+        }
+
         // Promo image
         if (self.image) {
             var promo_image_link = $('<a />')
                 .attr('class', 'rst-pro-image-wrapper')
-                .attr('href', self.link);
+                .attr('href', self.link)
+                .attr('target', '_blank')
+                .on('click', promo_click);
             var promo_image = $('<img />')
                 .attr('class', 'rst-pro-image')
                 .attr('src', self.image)
@@ -635,14 +501,7 @@ Promo.prototype.create = function () {
                 .attr('class', 'rst-pro-link')
                 .attr('href', self.link)
                 .attr('target', '_blank')
-                .on('click', function (ev) {
-                    if (_gaq) {
-                        _gaq.push(
-                            ['rtfd._setAccount', 'UA-17997319-1'],
-                            ['rtfd._trackEvent', 'Promo', 'Click', self.id]
-                        );
-                    }
-                });
+                .on('click', promo_click);
         });
         promo.append(promo_text);
 
@@ -684,4 +543,4 @@ Promo.from_variants = function (variants) {
     return new Promo(id, text, link, image);
 };
 
-},{}]},{},[2])
+},{}]},{},[8]);

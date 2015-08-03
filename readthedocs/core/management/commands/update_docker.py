@@ -2,8 +2,8 @@ import logging
 from optparse import make_option
 
 from django.core.management.base import BaseCommand
-from projects import tasks
-from tastyapi import api
+from readthedocs.projects import tasks
+from readthedocs.api.client import api
 
 
 log = logging.getLogger(__name__)

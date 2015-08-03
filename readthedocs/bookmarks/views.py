@@ -10,12 +10,14 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.views.decorators.csrf import csrf_exempt
 import simplejson
 
-from bookmarks.models import Bookmark
-from projects.models import Project
+from readthedocs.bookmarks.models import Bookmark
+from readthedocs.projects.models import Project
+
 
 # These views are CSRF exempt because of Django's CSRF middleware failing here
 # https://github.com/django/django/blob/stable/1.6.x/django/middleware/csrf.py#L135-L159
 # We don't have a valid referrer because we're on a subdomain
+
 
 class BookmarkExistsView(View):
 
@@ -58,13 +60,13 @@ class BookmarkExistsView(View):
             return HttpResponse(
                 content=simplejson.dumps({'exists': False}),
                 status=404,
-                mimetype="application/json"
+                content_type="application/json"
             )
 
         return HttpResponse(
             content=simplejson.dumps({'exists': True}),
             status=200,
-            mimetype="application/json"
+            content_type="application/json"
         )
 
 
@@ -132,7 +134,7 @@ class BookmarkAddView(View):
         return HttpResponse(
             simplejson.dumps({'added': True}),
             status=201,
-            mimetype='application/json'
+            content_type='application/json'
         )
 
 
@@ -187,5 +189,5 @@ class BookmarkRemoveView(View):
             return HttpResponse(
                 simplejson.dumps({'removed': True}),
                 status=200,
-                mimetype="application/json"
+                content_type="application/json"
             )

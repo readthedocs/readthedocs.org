@@ -3,10 +3,10 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 from allauth.socialaccount.models import SocialToken
 
-from projects.models import Project
+from readthedocs.projects.models import Project
 
-from oauth.utils import make_github_project, make_github_organization, import_github
-from oauth.models import GithubOrganization, GithubProject
+from readthedocs.oauth.utils import make_github_project, make_github_organization, import_github
+from readthedocs.oauth.models import GithubOrganization, GithubProject
 
 
 class RedirectOauth(TestCase):
@@ -17,7 +17,7 @@ class RedirectOauth(TestCase):
         self.client.login(username='eric', password='test')
         self.user = User.objects.get(pk=1)
         self.project = Project.objects.get(slug='pip')
-        self.org = GithubOrganization()
+        self.org = GithubOrganization.objects.create(login='rtfd', json='')
         self.privacy = self.project.version_privacy_level
 
     def test_make_github_project_pass(self):

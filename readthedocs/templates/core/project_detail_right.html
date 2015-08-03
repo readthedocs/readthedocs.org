@@ -6,7 +6,7 @@
 
   {% if project.repo %}
     <h3>{% trans "Repository" %}</h3>
-    <p class="detail-long">{{ project.repo }}</p>
+    <p class="detail-long">{{ project.repo|urlize }}</p>
   {% endif %}
 
   <h3>{% trans "Last Built" %}</h3>
@@ -85,7 +85,7 @@
     <h3>{% trans "Translations" %}</h3>
       <ul>
       {% for trans in project.translations.all %}
-          <li><a href="{{ trans.get_translation_url }}">{{ trans }}</a></li>
+          <li><a href="http://{{ project.slug}}.{{ PRODUCTION_DOMAIN }}{{ trans.get_translation_url }}">{{ trans }}</a></li>
       {% endfor %}
       </ul>
   {% endif %}
@@ -108,7 +108,7 @@
 {% if request.user in project.users.all %}
   <h3>{% trans "Post Commit Hook" %}</h3>
     <p class="detail-long">
-        curl -X POST http://{{ PRODUCTION_DOMAIN }}{% url "generic_build" project.slug %}
+        curl -X POST https://{{ PRODUCTION_DOMAIN }}{% url "generic_build" project.slug %}
     </p>
 
 {% endif %}

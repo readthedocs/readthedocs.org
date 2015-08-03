@@ -11,9 +11,9 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from guardian.shortcuts import assign
 from taggit.managers import TaggableManager
 
-from privacy.loader import VersionManager, RelatedProjectManager
-from projects.models import Project
-from projects import constants
+from readthedocs.privacy.loader import VersionManager, RelatedProjectManager
+from readthedocs.projects.models import Project
+from readthedocs.projects import constants
 from .constants import (BUILD_STATE, BUILD_TYPES, VERSION_TYPES,
                         LATEST, NON_REPOSITORY_VERSIONS, STABLE
                         )
@@ -333,12 +333,10 @@ class Build(models.Model):
     setup_error = models.TextField(_('Setup error'), null=True, blank=True)
     output = models.TextField(_('Output'), default='', blank=True)
     error = models.TextField(_('Error'), default='', blank=True)
-    exit_code = models.IntegerField(_('Exit code'), max_length=3, null=True,
-                                    blank=True)
+    exit_code = models.IntegerField(_('Exit code'), null=True, blank=True)
     commit = models.CharField(_('Commit'), max_length=255, null=True, blank=True)
 
-    length = models.IntegerField(_('Build Length'), max_length=10, null=True,
-                                 blank=True)
+    length = models.IntegerField(_('Build Length'), null=True, blank=True)
 
     builder = models.CharField(_('Builder'), max_length=255, null=True, blank=True)
 
@@ -349,6 +347,9 @@ class Build(models.Model):
     class Meta:
         ordering = ['-date']
         get_latest_by = 'date'
+        index_together = [
+            ['version', 'state', 'type']
+        ]
 
     def __unicode__(self):
         return ugettext(u"Build %(project)s for %(usernames)s (%(pk)s)" % {

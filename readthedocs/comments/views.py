@@ -21,11 +21,12 @@ from rest_framework.serializers import ModelSerializer, Serializer
 from rest_framework.viewsets import ModelViewSet
 from sphinx.websupport import WebSupport
 
-from comments.models import DocumentComment, DocumentNode, NodeSnapshot, DocumentCommentSerializer,\
-    DocumentNodeSerializer, ModerationActionSerializer
-from privacy.backend import AdminNotAuthorized
-from projects.models import Project
-from restapi.permissions import IsOwner, CommentModeratorOrReadOnly
+from readthedocs.comments.models import (
+    DocumentComment, DocumentNode, NodeSnapshot, DocumentCommentSerializer,
+    DocumentNodeSerializer, ModerationActionSerializer)
+from readthedocs.privacy.backend import AdminNotAuthorized
+from readthedocs.projects.models import Project
+from readthedocs.restapi.permissions import IsOwner, CommentModeratorOrReadOnly
 
 from .backend import DjangoStorage
 from .session import UnsafeSessionAuthentication
@@ -79,7 +80,6 @@ def attach_comment(request):
     comment.node = snapshot.node
 
     serialized_comment = DocumentCommentSerializer(comment)
-    serialized_comment.data
     return Response(serialized_comment.data)
 
 
@@ -144,7 +144,9 @@ def update_node(request):
         version = post_data['version']
         page = post_data['page']
 
-        node = DocumentNode.objects.from_hash(node_hash=old_hash, project_slug=project, version_slug=version, page=page)
+        node = DocumentNode.objects.from_hash(
+            node_hash=old_hash, project_slug=project, version_slug=version,
+            page=page)
 
         node.update_hash(new_hash, commit)
         return Response(DocumentNodeSerializer(node).data)
@@ -168,7 +170,9 @@ class CommentViewSet(ModelViewSet):
                 queryset = DocumentComment.objects.filter(node=node)
 
             except KeyError:
-                raise ParseError('To get comments by node, you must also provide page, version, and project.')
+                raise ParseError(
+                    'To get comments by node, you must also provide page, '
+                    'version, and project.')
             except DocumentNode.DoesNotExist:
                 queryset = DocumentComment.objects.none()
         elif qp.get('project'):

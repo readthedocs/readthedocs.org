@@ -10,11 +10,13 @@ STANDARD_EMAIL = "anonymous@readthedocs.org"
 
 log = logging.getLogger(__name__)
 
+
 class UserProfile (models.Model):
+
     """Additional information about a User.
     """
-    user = models.ForeignKey('auth.User', verbose_name=_('User'), unique=True,
-                             related_name='profile')
+    user = models.OneToOneField('auth.User', verbose_name=_('User'),
+                                related_name='profile')
     whitelisted = models.BooleanField(_('Whitelisted'), default=False)
     homepage = models.CharField(_('Homepage'), max_length=100, blank=True)
     allow_email = models.BooleanField(_('Allow email'),
@@ -25,10 +27,6 @@ class UserProfile (models.Model):
     def __unicode__(self):
         return (ugettext("%(username)s's profile")
                 % {'username': self.user.username})
-
-    def get_form(self):
-        from .forms import UserProfileForm
-        return UserProfileForm(instance=self)
 
     def get_absolute_url(self):
         return ('profiles_profile_detail', (),

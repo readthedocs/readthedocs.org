@@ -1,5 +1,4 @@
 from django import forms
-from django.core.exceptions import NON_FIELD_ERRORS
 
 from .models import LEVEL_CHOICES
 
@@ -22,6 +21,3 @@ class CardForm(forms.Form):
         required=True,
         choices=LEVEL_CHOICES,
     )
-
-    def addError(self, message):
-        self._errors[NON_FIELD_ERRORS] = self.error_class([message])

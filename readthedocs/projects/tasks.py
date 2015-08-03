@@ -16,30 +16,30 @@ from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 from slumber.exceptions import HttpClientError
 
-from builds.constants import LATEST
-from builds.models import Build, Version
-from core.utils import send_email, run_on_app_servers
-from doc_builder.loader import get_builder_class
-from doc_builder.base import restoring_chdir
-from doc_builder.environments import DockerEnvironment
-from projects.exceptions import ProjectImportError
-from projects.models import ImportedFile, Project
-from projects.utils import run, make_api_version, make_api_project
-from projects.constants import LOG_TEMPLATE
-from builds.constants import STABLE
-from projects import symlinks
-from privacy.loader import Syncer
-from tastyapi import api, apiv2
-from search.parse_json import process_all_json_files
-from search.utils import process_mkdocs_json
-from restapi.utils import index_search_request
-from vcs_support import utils as vcs_support_utils
-import tastyapi
+from readthedocs.builds.constants import LATEST
+from readthedocs.builds.models import Build, Version
+from readthedocs.core.utils import send_email, run_on_app_servers
+from readthedocs.doc_builder.loader import get_builder_class
+from readthedocs.doc_builder.base import restoring_chdir
+from readthedocs.doc_builder.environments import DockerEnvironment
+from readthedocs.projects.exceptions import ProjectImportError
+from readthedocs.projects.models import ImportedFile, Project
+from readthedocs.projects.utils import run, make_api_version, make_api_project
+from readthedocs.projects.constants import LOG_TEMPLATE
+from readthedocs.builds.constants import STABLE
+from readthedocs.projects import symlinks
+from readthedocs.privacy.loader import Syncer
+from readthedocs.search.parse_json import process_all_json_files
+from readthedocs.search.utils import process_mkdocs_json
+from readthedocs.restapi.utils import index_search_request
+from readthedocs.vcs_support import utils as vcs_support_utils
+from readthedocs.api.client import api as api_v1
+from readthedocs.restapi.client import api as api_v2
 
 try:
     from readthedocs.projects.signals import before_vcs, after_vcs, before_build, after_build
 except:
-    from projects.signals import before_vcs, after_vcs, before_build, after_build
+    from readthedocs.projects.signals import before_vcs, after_vcs, before_build, after_build
 
 
 log = logging.getLogger(__name__)
@@ -51,7 +51,7 @@ HTML_ONLY = getattr(settings, 'HTML_ONLY_PROJECTS', ())
 @restoring_chdir
 def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
                 search=True, force=False, intersphinx=True, localmedia=True,
-                api=None, basic=False, **kwargs):
+                basic=False, **kwargs):
     """
     The main entry point for updating documentation.
 
@@ -67,16 +67,9 @@ def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
         from the shell, for example.
 
     """
-    # Dependency injection to allow for testing
-    if api is None:
-        api = tastyapi.api
-        apiv2 = tastyapi.apiv2
-    else:
-        apiv2 = api
-
     start_time = datetime.datetime.utcnow()
     try:
-        project_data = api.project(pk).get()
+        project_data = api_v1.project(pk).get()
     except HttpClientError:
         log.exception(LOG_TEMPLATE.format(project=pk, version='', msg='Failed to get project data on build. Erroring.'))
     project = make_api_project(project_data)
@@ -86,31 +79,31 @@ def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
         return
     else:
         log.info(LOG_TEMPLATE.format(project=project.slug, version='', msg='Building'))
-    version = ensure_version(api, project, version_pk)
+    version = ensure_version(project, version_pk)
     build = create_build(build_pk)
     results = {}
 
     # Build Servery stuff
     try:
-        record_build(api=api, build=build, record=record, results=results, state='cloning')
-        vcs_results = setup_vcs(version, build, api)
+        record_build(build=build, record=record, results=results, state='cloning')
+        vcs_results = setup_vcs(version, build)
         if vcs_results:
             results.update(vcs_results)
 
         if project.documentation_type == 'auto':
-            update_documentation_type(version, apiv2)
+            update_documentation_type(version)
 
         if docker or settings.DOCKER_ENABLE:
-            record_build(api=api, build=build, record=record, results=results, state='building')
+            record_build(build=build, record=record, results=results, state='building')
             docker = DockerEnvironment(version)
             build_results = docker.build()
             results.update(build_results)
         else:
-            record_build(api=api, build=build, record=record, results=results, state='installing')
+            record_build(build=build, record=record, results=results, state='installing')
             setup_results = setup_environment(version)
             results.update(setup_results)
 
-            record_build(api=api, build=build, record=record, results=results, state='building')
+            record_build(build=build, record=record, results=results, state='building')
             build_results = build_docs(version, force, search, localmedia)
             results.update(build_results)
 
@@ -130,8 +123,8 @@ def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
                                       version=version.slug, msg="Top-level Build Failure"), exc_info=True)
         results['checkout'] = (404, "", 'Top-level Build Failure: %s' % e.message)
     finally:
-        record_build(api=api, build=build, record=record, results=results, state='finished', start_time=start_time)
-        record_pdf(api=api, record=record, results=results, state='finished', version=version)
+        record_build(build=build, record=record, results=results, state='finished', start_time=start_time)
+        record_pdf(record=record, results=results, state='finished', version=version)
         log.info(LOG_TEMPLATE.format(project=version.project.slug, version='', msg='Build finished'))
 
     build_id = build.get('id')
@@ -149,39 +142,30 @@ def update_docs(pk, version_pk=None, build_pk=None, record=True, docker=False,
         )
 
 
-def ensure_version(api, project, version_pk):
+def ensure_version(project, version_pk):
     """
     Ensure we're using a sane version.
     """
 
     if version_pk:
-        version_data = api.version(version_pk).get()
+        version_data = api_v1.version(version_pk).get()
     else:
-        version_data = api.version(project.slug).get(slug=LATEST)['objects'][0]
+        version_data = api_v1.version(project.slug).get(slug=LATEST)['objects'][0]
     version = make_api_version(version_data)
     return version
 
 
-def update_documentation_type(version, api):
+def update_documentation_type(version):
     """
     Automatically determine the doc type for a user.
     """
 
-    checkout_path = version.project.checkout_path(version.slug)
-    os.chdir(checkout_path)
-    files = run('find .')[1].split('\n')
-    markdown = sphinx = 0
-    for filename in files:
-        if fnmatch.fnmatch(filename, '*.md') or fnmatch.fnmatch(filename, '*.markdown'):
-            markdown += 1
-        elif fnmatch.fnmatch(filename, '*.rst'):
-            sphinx += 1
+    # Keep this here for any 'auto' projects.
+
     ret = 'sphinx'
-    if markdown > sphinx:
-        ret = 'mkdocs'
-    project_data = api.project(version.project.pk).get()
+    project_data = api_v2.project(version.project.pk).get()
     project_data['documentation_type'] = ret
-    api.project(version.project.pk).put(project_data)
+    api_v2.project(version.project.pk).put(project_data)
     version.project.documentation_type = ret
 
 
@@ -197,7 +181,7 @@ def docker_build(version, search=True, force=False, intersphinx=True,
     return results
 
 
-def setup_vcs(version, build, api):
+def setup_vcs(version, build):
     """
     Update the checkout of the repo to make sure it's the latest.
     This also syncs versions in the DB.
@@ -206,7 +190,7 @@ def setup_vcs(version, build, api):
     log.info(LOG_TEMPLATE.format(project=version.project.slug,
                                  version=version.slug, msg='Updating docs from VCS'))
     try:
-        update_output = update_imported_docs(version.pk, api)
+        update_output = update_imported_docs(version.pk)
         commit = version.project.vcs_repo(version.slug).commit
         if commit:
             build['commit'] = commit
@@ -218,14 +202,11 @@ def setup_vcs(version, build, api):
 
 
 @task()
-def update_imported_docs(version_pk, api=None):
+def update_imported_docs(version_pk):
     """
     Check out or update the given project's repository.
     """
-    if api is None:
-        api = tastyapi.api
-
-    version_data = api.version(version_pk).get()
+    version_data = api_v1.version(version_pk).get()
     version = make_api_version(version_data)
     project = version.project
     ret_dict = {}
@@ -287,7 +268,7 @@ def update_imported_docs(version_pk, api=None):
             ]
 
         try:
-            apiv2.project(project.pk).sync_versions.post(version_post_data)
+            api_v2.project(project.pk).sync_versions.post(version_post_data)
         except Exception, e:
             print "Sync Versions Exception: %s" % e.message
     return ret_dict
@@ -331,8 +312,8 @@ def setup_environment(version):
     requirements = ' '.join([
         'sphinx==1.3.1',
         'Pygments==2.0.2',
-        'virtualenv==1.10.1',
-        'setuptools==1.1',
+        'virtualenv==13.1.0',
+        'setuptools==18.0.1',
         'docutils==0.11',
         'mkdocs==0.14.0',
         'mock==1.0.1',
@@ -340,7 +321,7 @@ def setup_environment(version):
         'readthedocs-sphinx-ext==0.5.4',
         'sphinx-rtd-theme==0.1.8',
         'alabaster>=0.7,<0.8,!=0.7.5',
-        'recommonmark==0.1.1',
+        'recommonmark==0.2.0',
     ])
 
     wheeldir = os.path.join(settings.SITE_ROOT, 'deploy', 'wheels')
@@ -492,7 +473,7 @@ def create_build(build_pk):
     Old placeholder for build creation. Now it just gets it from the database.
     """
     if build_pk:
-        build = api.build(build_pk).get()
+        build = api_v1.build(build_pk).get()
         for key in ['project', 'version', 'resource_uri', 'absolute_uri']:
             if key in build:
                 del build[key]
@@ -501,7 +482,7 @@ def create_build(build_pk):
     return build
 
 
-def record_build(api, record, build, results, state, start_time=None):
+def record_build(record, build, results, state, start_time=None):
     """
     Record a build by hitting the API.
 
@@ -569,12 +550,12 @@ def record_build(api, record, build, results, state, start_time=None):
             build[key] = val.decode('utf-8', 'ignore')
 
     try:
-        api.build(build['id']).put(build)
+        api_v1.build(build['id']).put(build)
     except Exception:
         log.error("Unable to post a new build", exc_info=True)
 
 
-def record_pdf(api, record, results, state, version):
+def record_pdf(record, results, state, version):
     if not record or 'sphinx' not in version.project.documentation_type:
         return None
     if not version.project.enable_pdf_build:
@@ -596,7 +577,7 @@ def record_pdf(api, record, results, state, version):
         if 'Output written on' in pdf_output:
             pdf_success = True
 
-        api.build.post(dict(
+        api_v1.build.post(dict(
             state=state,
             project='/api/v1/project/%s/' % version.project.pk,
             version='/api/v1/version/%s/' % version.pk,
@@ -630,6 +611,11 @@ def finish_build(version_pk, build_pk, hostname=None, html=False,
         version.active = True
         version.built = True
         version.save()
+
+    if not pdf:
+        clear_pdf_artifacts(version)
+    if not epub:
+        clear_epub_artifacts(version)
 
     move_files(
         version_pk=version_pk,
@@ -671,10 +657,12 @@ def move_files(version_pk, hostname, html=False, localmedia=False, search=False,
             from_path = version.project.artifact_path(version=version.slug, type='sphinx_localmedia')
             to_path = version.project.get_production_media_path(type='htmlzip', version_slug=version.slug, include_file=False)
             Syncer.copy(from_path, to_path, host=hostname)
+
         if search:
             from_path = version.project.artifact_path(version=version.slug, type='sphinx_search')
             to_path = version.project.get_production_media_path(type='json', version_slug=version.slug, include_file=False)
             Syncer.copy(from_path, to_path, host=hostname)
+
         # Always move PDF's because the return code lies.
         if pdf:
             from_path = version.project.artifact_path(version=version.slug, type='sphinx_pdf')
@@ -798,6 +786,8 @@ def email_notification(version, build, email):
 
 
 def webhook_notification(version, build, hook_url):
+    project = version.project
+
     data = json.dumps({
         'name': project.name,
         'slug': project.slug,
@@ -892,7 +882,23 @@ def remove_dir(path):
 def clear_artifacts(version_pk):
     """ Remove artifacts from the web servers. """
     version = Version.objects.get(pk=version_pk)
+    clear_pdf_artifacts(version)
+    clear_epub_artifacts(version)
+    clear_htmlzip_artifacts(version)
+    clear_html_artifacts(version)
+
+
+def clear_pdf_artifacts(version):
     run_on_app_servers('rm -rf %s' % version.project.get_production_media_path(type='pdf', version_slug=version.slug))
+
+
+def clear_epub_artifacts(version):
     run_on_app_servers('rm -rf %s' % version.project.get_production_media_path(type='epub', version_slug=version.slug))
+
+
+def clear_htmlzip_artifacts(version):
     run_on_app_servers('rm -rf %s' % version.project.get_production_media_path(type='htmlzip', version_slug=version.slug))
+
+
+def clear_html_artifacts(version):
     run_on_app_servers('rm -rf %s' % version.project.rtd_build_path(version=version.slug))

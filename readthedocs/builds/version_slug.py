@@ -27,13 +27,10 @@ from django.utils.encoding import force_text
 # Regex breakdown:
 #   [a-z0-9] -- start with alphanumeric value
 #   [-._a-z0-9] -- allow dash, dot, underscore, digit, lowercase ascii
-#   +? -- allow multiple of those, but be not greedy about the matching
+#   *? -- allow multiple of those, but be not greedy about the matching
 #   (?: ... ) -- wrap everything so that the pattern cannot escape when used in
 #                regexes.
-VERSION_SLUG_REGEX = '(?:[a-z0-9][-._a-z0-9]+?)'
-
-
-version_slug_regex = re.compile(VERSION_SLUG_REGEX)
+VERSION_SLUG_REGEX = '(?:[a-z0-9][-._a-z0-9]*?)'
 
 
 class VersionSlugField(models.CharField):
@@ -41,8 +38,11 @@ class VersionSlugField(models.CharField):
     Implementation inspired by ``django_extensions.db.fields.AutoSlugField``.
     """
 
-    allowed_chars = string.lowercase + string.digits + '-._'
+    invalid_chars_re = re.compile('[^-._a-z0-9]')
+    leading_punctuation_re = re.compile('^[-._]+')
     placeholder = '-'
+    fallback_slug = 'unknown'
+    test_pattern = re.compile('^{pattern}$'.format(pattern=VERSION_SLUG_REGEX))
 
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('db_index', True)
@@ -63,12 +63,13 @@ class VersionSlugField(models.CharField):
     def slugify(self, content):
         if not content:
             return ''
-        slugified = ''
-        for char in content:
-            if char not in self.allowed_chars:
-                slugified += self.placeholder
-            else:
-                slugified += char
+
+        slugified = content.lower()
+        slugified = self.invalid_chars_re.sub(self.placeholder, slugified)
+        slugified = self.leading_punctuation_re.sub('', slugified)
+
+        if not slugified:
+            return self.fallback_slug
         return slugified
 
     def uniquifying_suffix(self, iteration):
@@ -139,6 +140,9 @@ class VersionSlugField(models.CharField):
             slug = slug + end
             kwargs[self.attname] = slug
             next += 1
+
+        assert self.test_pattern.match(slug), (
+            'Invalid generated slug: {slug}'.format(slug=slug))
         return slug
 
     def pre_save(self, model_instance, add):
@@ -149,12 +153,7 @@ class VersionSlugField(models.CharField):
             setattr(model_instance, self.attname, value)
         return value
 
-    def south_field_triple(self):
-        "Returns a suitable description of this field for South."
-        from south.modelsinspector import introspector
-        field_class = '%s.VersionSlugField' % self.__module__
-        args, kwargs = introspector(self)
-        kwargs.update({
-            'populate_from': repr(self._populate_from),
-        })
-        return (field_class, args, kwargs)
+    def deconstruct(self):
+        name, path, args, kwargs = super(VersionSlugField, self).deconstruct()
+        kwargs['populate_from'] = self._populate_from
+        return name, path, args, kwargs

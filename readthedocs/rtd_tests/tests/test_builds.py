@@ -4,9 +4,10 @@ import subprocess
 from django.test import TestCase
 import mock
 
-from projects.tasks import build_docs
-from rtd_tests.factories.projects_factories import ProjectFactory
-from doc_builder.loader import get_builder_class
+from readthedocs.projects.tasks import build_docs
+from readthedocs.rtd_tests.factories.projects_factories import ProjectFactory
+from readthedocs.rtd_tests.mocks.paths import fake_paths_lookup
+from readthedocs.doc_builder.loader import get_builder_class
 
 
 class MockProcess(object):
@@ -29,27 +30,11 @@ def build_subprocess_side_effect(*args, **kwargs):
         return subprocess.Popen(*args, **kwargs)
 
 
-def fake_paths(*paths):
-    """
-    Returns a context manager that patches ``os.path.exists`` to return
-    ``True`` for the given ``paths``.
-    """
-
-    original_exists = os.path.exists
-
-    def patched_exists(path):
-        if path in paths:
-            return True
-        return original_exists(path)
-
-    return mock.patch.object(os.path, 'exists', patched_exists)
-
-
 class BuildTests(TestCase):
 
     @mock.patch('slumber.Resource')
     @mock.patch('os.chdir')
-    @mock.patch('projects.models.Project.api_versions')
+    @mock.patch('readthedocs.projects.models.Project.api_versions')
     @mock.patch('subprocess.Popen')
     def test_build(self, mock_Popen, mock_api_versions, mock_chdir, mock_apiv2_downloads):
 
@@ -68,11 +53,13 @@ class BuildTests(TestCase):
 
         mock_apiv2_downloads.get.return_value = {'downloads': "no_url_here"}
 
-        conf_path = os.path.join(project.checkout_path(version.slug), project.conf_py_file)
+        conf_path = os.path.join(
+            project.checkout_path(version.slug),
+            project.conf_py_file)
 
         # Mock open to simulate existing conf.py file
         with mock.patch('codecs.open', mock.mock_open(), create=True):
-            with fake_paths(conf_path):
+            with fake_paths_lookup({conf_path: True}):
                 built_docs = build_docs(version,
                                         False,
                                         False,
@@ -108,9 +95,9 @@ class BuildTests(TestCase):
     @mock.patch('slumber.Resource')
     @mock.patch('os.chdir')
     @mock.patch('subprocess.Popen')
-    @mock.patch('doc_builder.backends.sphinx.HtmlBuilder.build')
-    @mock.patch('doc_builder.backends.sphinx.PdfBuilder.build')
-    @mock.patch('doc_builder.backends.sphinx.EpubBuilder.build')
+    @mock.patch('readthedocs.doc_builder.backends.sphinx.HtmlBuilder.build')
+    @mock.patch('readthedocs.doc_builder.backends.sphinx.PdfBuilder.build')
+    @mock.patch('readthedocs.doc_builder.backends.sphinx.EpubBuilder.build')
     def test_build_respects_pdf_flag(self,
                                      EpubBuilder_build,
                                      PdfBuilder_build,
@@ -136,7 +123,7 @@ class BuildTests(TestCase):
 
         # Mock open to simulate existing conf.py file
         with mock.patch('codecs.open', mock.mock_open(), create=True):
-            with fake_paths(conf_path):
+            with fake_paths_lookup({conf_path: True}):
                 built_docs = build_docs(version,
                                         False,
                                         False,
@@ -152,9 +139,9 @@ class BuildTests(TestCase):
     @mock.patch('slumber.Resource')
     @mock.patch('os.chdir')
     @mock.patch('subprocess.Popen')
-    @mock.patch('doc_builder.backends.sphinx.HtmlBuilder.build')
-    @mock.patch('doc_builder.backends.sphinx.PdfBuilder.build')
-    @mock.patch('doc_builder.backends.sphinx.EpubBuilder.build')
+    @mock.patch('readthedocs.doc_builder.backends.sphinx.HtmlBuilder.build')
+    @mock.patch('readthedocs.doc_builder.backends.sphinx.PdfBuilder.build')
+    @mock.patch('readthedocs.doc_builder.backends.sphinx.EpubBuilder.build')
     def test_build_respects_epub_flag(self,
                                       EpubBuilder_build,
                                       PdfBuilder_build,
@@ -180,7 +167,7 @@ class BuildTests(TestCase):
 
         # Mock open to simulate existing conf.py file
         with mock.patch('codecs.open', mock.mock_open(), create=True):
-            with fake_paths(conf_path):
+            with fake_paths_lookup({conf_path: True}):
                 built_docs = build_docs(version,
                                         False,
                                         False,

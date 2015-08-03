@@ -1,4 +1,4 @@
-from projects.models import Project
+from readthedocs.projects.models import Project
 
 
 class ProjectOnboardMixin(object):

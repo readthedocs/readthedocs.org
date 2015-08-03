@@ -14,7 +14,7 @@
 
     <div class="project-title">
       <h2>
-        <a href="{{ user.get_profile.get_absolute_url }}">
+        <a href="{{ user.profile.get_absolute_url }}">
         {% gravatar user.email 30 %}
         </a>
         {{ user }}
@@ -27,7 +27,7 @@
     <div class="options">
 
       <ul>
-        <li class="{% block profile-bar-profile %}{% endblock %}"><a href="{{ user.get_profile.get_absolute_url }}">{% trans "Profile" %}</a></li>
+        <li class="{% block profile-bar-profile %}{% endblock %}"><a href="{{ user.profile.get_absolute_url }}">{% trans "Profile" %}</a></li>
         <li class="active"><a href="{% url "profiles_profile_edit" %}"><i class="gear"></i>{% trans "Admin" %}</a></li>
 
       </ul>

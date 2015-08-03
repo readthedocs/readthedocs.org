@@ -3,7 +3,6 @@ import logging
 import os
 from urlparse import urlparse
 
-from distlib.version import UnsupportedVersionError
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
@@ -13,22 +12,23 @@ from django.utils.translation import ugettext_lazy as _
 
 from guardian.shortcuts import assign
 
-from betterversion.better import version_windows, VersionIdentifier
-from builds.constants import LATEST
-from builds.constants import LATEST_VERBOSE_NAME
-from oauth import utils as oauth_utils
-from privacy.loader import RelatedProjectManager, ProjectManager
-from projects import constants
-from projects.exceptions import ProjectImportError
-from projects.templatetags.projects_tags import sort_version_aware
-from projects.utils import (highest_version as _highest, make_api_version,
-                            symlink, update_static_metadata)
+from readthedocs.builds.constants import LATEST
+from readthedocs.builds.constants import LATEST_VERBOSE_NAME
+from readthedocs.builds.constants import STABLE
+from readthedocs.oauth import utils as oauth_utils
+from readthedocs.privacy.loader import RelatedProjectManager, ProjectManager
+from readthedocs.projects import constants
+from readthedocs.projects.exceptions import ProjectImportError
+from readthedocs.projects.templatetags.projects_tags import sort_version_aware
+from readthedocs.projects.utils import make_api_version, symlink, update_static_metadata
+from readthedocs.projects.version_handling import determine_stable_version
+from readthedocs.projects.version_handling import version_windows
 from taggit.managers import TaggableManager
-from tastyapi.slum import api
+from readthedocs.api.client import api
 
-from vcs_support.base import VCSProject
-from vcs_support.backends import backend_cls
-from vcs_support.utils import Lock, NonBlockingLock
+from readthedocs.vcs_support.base import VCSProject
+from readthedocs.vcs_support.backends import backend_cls
+from readthedocs.vcs_support.utils import Lock, NonBlockingLock
 
 
 log = logging.getLogger(__name__)
@@ -104,7 +104,7 @@ class Project(models.Model):
             'Path from the root of your project.'))
     documentation_type = models.CharField(
         _('Documentation type'), max_length=20,
-        choices=constants.DOCUMENTATION_CHOICES, default='auto',
+        choices=constants.DOCUMENTATION_CHOICES, default='sphinx',
         help_text=_('Type of documentation you are building. <a href="http://'
                     'sphinx-doc.org/builders.html#sphinx.builders.html.'
                     'DirectoryHTMLBuilder">More info</a>.'))
@@ -178,7 +178,7 @@ class Project(models.Model):
 
     # Subprojects
     related_projects = models.ManyToManyField(
-        'self', verbose_name=_('Related projects'), blank=True, null=True,
+        'self', verbose_name=_('Related projects'), blank=True,
         symmetrical=False, through=ProjectRelationship)
 
     # Language bits
@@ -200,7 +200,6 @@ class Project(models.Model):
     # Version State
     num_major = models.IntegerField(
         _('Number of Major versions'),
-        max_length=3,
         default=2,
         null=True,
         blank=True,
@@ -208,7 +207,6 @@ class Project(models.Model):
     )
     num_minor = models.IntegerField(
         _('Number of Minor versions'),
-        max_length=3,
         default=2,
         null=True,
         blank=True,
@@ -216,7 +214,6 @@ class Project(models.Model):
     )
     num_point = models.IntegerField(
         _('Number of Point versions'),
-        max_length=3,
         default=2,
         null=True,
         blank=True,
@@ -248,7 +245,7 @@ class Project(models.Model):
         return "%s.%s" % (subdomain_slug, prod_domain)
 
     def sync_supported_versions(self):
-        supported = self.supported_versions(flat=True)
+        supported = self.supported_versions()
         if supported:
             self.versions.filter(
                 verbose_name__in=supported).update(supported=True)
@@ -337,16 +334,21 @@ class Project(models.Model):
                     'filename': ''
                 })
 
-    def get_translation_url(self, version_slug=None):
+    def get_translation_url(self, version_slug=None, full=False):
         parent = self.main_language_project
         lang_slug = self.language
         protocol = "http"
         version = version_slug or parent.get_default_version()
         use_subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
-        if use_subdomain:
+        if use_subdomain and full:
             return "%s://%s/%s/%s/" % (
                 protocol,
                 parent.subdomain,
+                lang_slug,
+                version,
+            )
+        elif use_subdomain and not full:
+            return "/%s/%s/" % (
                 lang_slug,
                 version,
             )
@@ -513,6 +515,7 @@ class Project(models.Model):
         """
         return os.path.join(self.conf_dir(version), "_build", "latex")
 
+    def full_epub_path(self, version=LATEST):
         """
         The path to the build epub docs in the project.
         """
@@ -570,10 +573,8 @@ class Project(models.Model):
             else:
                 log.warning("Conf file specified on model doesn't exist")
         files = self.find('conf.py', version)
-        print files
         if not files:
             files = self.full_find('conf.py', version)
-        print files
         if len(files) == 1:
             return files[0]
         for file in files:
@@ -589,10 +590,6 @@ class Project(models.Model):
         conf_file = self.conf_file(version)
         if conf_file:
             return conf_file.replace('/conf.py', '')
-
-    @property
-    def highest_version(self):
-        return _highest(self.api_versions())
 
     @property
     def is_imported(self):
@@ -611,9 +608,13 @@ class Project(models.Model):
         return self.aliases.exists()
 
     def has_pdf(self, version_slug=LATEST):
+        if not self.enable_pdf_build:
+            return False
         return os.path.exists(self.get_production_media_path(type='pdf', version_slug=version_slug))
 
     def has_epub(self, version_slug=LATEST):
+        if not self.enable_epub_build:
+            return False
         return os.path.exists(self.get_production_media_path(type='epub', version_slug=version_slug))
 
     def has_htmlzip(self, version_slug=LATEST):
@@ -680,13 +681,13 @@ class Project(models.Model):
         return sort_version_aware(ret)
 
     def active_versions(self):
-        from builds.models import Version
+        from readthedocs.builds.models import Version
         versions = Version.objects.public(project=self, only_active=True)
         return (versions.filter(built=True, active=True) |
                 versions.filter(active=True, uploaded=True))
 
     def ordered_active_versions(self):
-        from builds.models import Version
+        from readthedocs.builds.models import Version
         versions = Version.objects.public(project=self, only_active=True)
         return sort_version_aware(versions)
 
@@ -697,37 +698,59 @@ class Project(models.Model):
         """
         return self.versions.filter(active=True)
 
-    def supported_versions(self, flat=True):
+    def supported_versions(self):
         """
         Get the list of supported versions.
         Returns a list of version strings.
         """
         if not self.num_major or not self.num_minor or not self.num_point:
-            return None
-        version_identifiers = []
-        for version in self.versions.all():
-            try:
-                version_identifiers.append(VersionIdentifier(version.verbose_name))
-            except UnsupportedVersionError:
-                # Probably a branch
-                pass
-        active_versions = version_windows(
+            return []
+        version_identifiers = self.versions.values_list('verbose_name', flat=True)
+        return version_windows(
             version_identifiers,
             major=self.num_major,
             minor=self.num_minor,
             point=self.num_point,
-            flat=flat,
         )
-        version_strings = [v._string for v in active_versions]
-        return version_strings
+
+    def get_stable_version(self):
+        return self.versions.filter(slug=STABLE).first()
+
+    def update_stable_version(self):
+        """
+        Returns the version that was promoited to be the new stable version.
+        It will return ``None`` if no update was mode or if there is no
+        version on the project that can be considered stable.
+        """
+        versions = self.versions.all()
+        new_stable = determine_stable_version(versions)
+        if new_stable:
+            current_stable = self.get_stable_version()
+            if current_stable:
+                identifier_updated = (
+                    new_stable.identifier != current_stable.identifier)
+                if identifier_updated and current_stable.machine:
+                    log.info(
+                        "Update stable version: {project}:{version}".format(
+                            project=self.slug,
+                            version=new_stable.identifier))
+                    current_stable.identifier = new_stable.identifier
+                    current_stable.save()
+                    return new_stable
+            else:
+                log.info(
+                    "Creating new stable version: {project}:{version}".format(
+                        project=self.slug,
+                        version=new_stable.identifier))
+                current_stable = self.versions.create_stable(
+                    type=new_stable.type,
+                    identifier=new_stable.identifier)
+                return new_stable
 
     def version_from_branch_name(self, branch):
+        versions = self.versions_from_branch_name(branch)
         try:
-            return (
-                self.versions.filter(identifier=branch) |
-                self.versions.filter(identifier=('remotes/origin/%s' % branch)) |
-                self.versions.filter(identifier=('origin/%s' % branch))
-            )[0]
+            return versions[0]
         except IndexError:
             return None
 
@@ -777,7 +800,7 @@ class Project(models.Model):
 
     def moderation_queue(self):
         # non-optimal SQL warning.
-        from comments.models import DocumentComment
+        from readthedocs.comments.models import DocumentComment
         queue = []
         comments = DocumentComment.objects.filter(node__project=self)
         for comment in comments:
@@ -787,7 +810,7 @@ class Project(models.Model):
         return queue
 
     def add_node(self, node_hash, page, version, commit):
-        from comments.models import NodeSnapshot, DocumentNode
+        from readthedocs.comments.models import NodeSnapshot, DocumentNode
         project_obj = Project.objects.get(slug=self.slug)
         version_obj = project_obj.versions.get(slug=version)
         try:
@@ -804,13 +827,14 @@ class Project(models.Model):
         return True  # ie, it's True that a new node was created.
 
     def add_comment(self, version_slug, page, hash, commit, user, text):
-        from comments.models import DocumentNode
+        from readthedocs.comments.models import DocumentNode
         try:
             node = self.nodes.from_hash(version_slug, page, hash)
         except DocumentNode.DoesNotExist:
             version = self.versions.get(slug=version_slug)
             node = self.nodes.create(version=version, page=page, hash=hash, commit=commit)
         return node.comments.create(user=user, text=text)
+
 
 class ImportedFile(models.Model):
     project = models.ForeignKey('Project', verbose_name=_('Project'),

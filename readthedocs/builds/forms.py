@@ -1,14 +1,20 @@
 from django import forms
 
-from builds.models import VersionAlias, Version
-from projects.models import Project
-from core.utils import trigger_build
+from readthedocs.builds.models import VersionAlias, Version
+from readthedocs.projects.models import Project
+from readthedocs.core.utils import trigger_build
 
 
 class AliasForm(forms.ModelForm):
 
     class Meta:
         model = VersionAlias
+        fields = (
+            'project',
+            'from_slug',
+            'to_slug',
+            'largest',
+        )
 
     def __init__(self, instance=None, *args, **kwargs):
         super(AliasForm, self).__init__(instance=instance, *args, **kwargs)

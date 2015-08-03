@@ -6,7 +6,7 @@ import mock
 
 from django.conf import settings
 
-from vcs_support import utils
+from readthedocs.vcs_support import utils
 
 TEST_STATICS = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'test_statics')
 

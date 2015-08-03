@@ -7,17 +7,18 @@ from rest_framework.decorators import detail_route
 from rest_framework.renderers import JSONPRenderer, JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 
-from builds.filters import VersionFilter
-from builds.models import Build, Version
-from core.utils import trigger_build
-from oauth import utils as oauth_utils
-from builds.constants import STABLE
-from projects.filters import ProjectFilter
-from projects.models import Project, EmailHook
-from restapi.permissions import APIPermission
-from restapi.permissions import RelatedProjectIsOwner
-from restapi.serializers import BuildSerializer, ProjectSerializer, VersionSerializer
-import restapi.utils as api_utils
+from readthedocs.builds.filters import VersionFilter
+from readthedocs.builds.models import Build, Version
+from readthedocs.core.utils import trigger_build
+from readthedocs.oauth import utils as oauth_utils
+from readthedocs.builds.constants import STABLE
+from readthedocs.projects.filters import ProjectFilter
+from readthedocs.projects.models import Project, EmailHook
+from readthedocs.projects.version_handling import determine_stable_version
+from readthedocs.restapi.permissions import APIPermission
+from readthedocs.restapi.permissions import RelatedProjectIsOwner
+from readthedocs.restapi.serializers import BuildSerializer, ProjectSerializer, VersionSerializer
+import readthedocs.restapi.utils as api_utils
 log = logging.getLogger(__name__)
 
 
@@ -42,8 +43,10 @@ class ProjectViewSet(viewsets.ModelViewSet):
         project = get_object_or_404(
             Project.objects.api(self.request.user), pk=kwargs['pk'])
         if not project.num_major or not project.num_minor or not project.num_point:
-            return Response({'error': 'Project does not support point version control'}, status=status.HTTP_400_BAD_REQUEST)
-        version_strings = project.supported_versions(flat=True)
+            return Response(
+                {'error': 'Project does not support point version control'},
+                status=status.HTTP_400_BAD_REQUEST)
+        version_strings = project.supported_versions()
         # Disable making old versions inactive for now.
         # project.versions.exclude(verbose_name__in=version_strings).update(active=False)
         project.versions.filter(
@@ -87,6 +90,15 @@ class ProjectViewSet(viewsets.ModelViewSet):
         """
         project = get_object_or_404(
             Project.objects.api(self.request.user), pk=kwargs['pk'])
+
+        # If the currently highest non-prerelease version is active, then make
+        # the new latest version active as well.
+        old_highest_version = determine_stable_version(project.versions.all())
+        if old_highest_version is not None:
+            activate_new_stable = old_highest_version.active
+        else:
+            activate_new_stable = False
+
         try:
             # Update All Versions
             data = request.DATA
@@ -105,37 +117,26 @@ class ProjectViewSet(viewsets.ModelViewSet):
             return Response({'error': e.message}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            # Update Stable Version
-            version_strings = project.supported_versions(flat=True)
-            if version_strings:
-                new_stable_slug = version_strings[-1]
-                new_stable = project.versions.get(verbose_name=new_stable_slug)
+            old_stable = project.get_stable_version()
+            promoted_version = project.update_stable_version()
+            if promoted_version:
+                new_stable = project.get_stable_version()
+                log.info(
+                    "Triggering new stable build: {project}:{version}".format(
+                        project=project.slug,
+                        version=new_stable.identifier))
+                trigger_build(project=project, version=new_stable)
 
-                # Update stable version
-                stable = project.versions.filter(slug=STABLE).first()
-                if stable:
-                    if (new_stable.identifier != stable.identifier) and (stable.machine is True):
-                        stable.identifier = new_stable.identifier
-                        stable.save()
-                        log.info("Triggering new stable build: {project}:{version}".format(project=project.slug, version=stable.identifier))
-                        trigger_build(project=project, version=stable)
-                else:
-                    log.info("Creating new stable version: {project}:{version}".format(project=project.slug, version=new_stable.identifier))
-                    version = project.versions.create_stable(
-                        type=new_stable.type, identifier=new_stable.identifier)
-                    trigger_build(project=project, version=version)
-
-                # Build new tag if enabled
-                old_largest_slug = version_strings[-2]
-                old_largest = project.versions.get(
-                    verbose_name=old_largest_slug)
-                if old_largest.active and new_stable_slug in added_versions:
-                    new_stable.active = True
-                    new_stable.save()
-                    trigger_build(project=project, version=new_stable)
-
+                # Marking the tag that is considered the new stable version as
+                # active and building it if it was just added.
+                if (
+                        activate_new_stable and
+                        promoted_version.slug in added_versions):
+                    promoted_version.active = True
+                    promoted_version.save()
+                    trigger_build(project=project, version=promoted_version)
         except:
-            log.exception("Supported Versions Failure", exc_info=True)
+            log.exception("Stable Version Failure", exc_info=True)
 
         return Response({
             'added_versions': added_versions,

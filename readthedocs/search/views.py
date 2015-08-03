@@ -19,16 +19,17 @@ from django.views.static import serve
 from taggit.models import Tag
 import requests
 
-from builds.constants import LATEST
-from builds.filters import VersionSlugFilter
-from builds.models import Version
-from projects.models import Project, ImportedFile
-from search.indexes import PageIndex
-from search import lib as search_lib
+from readthedocs.builds.constants import LATEST
+from readthedocs.builds.filters import VersionSlugFilter
+from readthedocs.builds.models import Version
+from readthedocs.projects.models import Project, ImportedFile
+from readthedocs.search.indexes import PageIndex
+from readthedocs.search import lib as search_lib
 
 
 log = logging.getLogger(__name__)
 LOG_TEMPLATE = u"(Elastic Search) [{user}:{type}] [{project}:{version}:{language}] {msg}"
+
 
 def elastic_search(request):
     """
@@ -50,7 +51,9 @@ def elastic_search(request):
         if type == 'project':
             results = search_lib.search_project(request, query, language=language)
         elif type == 'file':
-            results = search_lib.search_file(request, query, project=project, version=version, taxonomy=taxonomy)
+            results = search_lib.search_file(request, query, project=project,
+                                             version=version,
+                                             taxonomy=taxonomy)
 
     if results:
         # pre and post 1.0 compat

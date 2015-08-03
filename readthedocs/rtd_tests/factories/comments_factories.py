@@ -3,9 +3,9 @@ import random
 
 import factory
 
-from comments.models import DocumentComment, DocumentNode, NodeSnapshot
-from rtd_tests.factories.general_factories import UserFactory
-from rtd_tests.factories.projects_factories import ProjectFactory
+from readthedocs.comments.models import DocumentComment, DocumentNode, NodeSnapshot
+from readthedocs.rtd_tests.factories.general_factories import UserFactory
+from readthedocs.rtd_tests.factories.projects_factories import ProjectFactory
 
 
 class SnapshotFactory(factory.DjangoModelFactory):
@@ -23,12 +23,12 @@ class DocumentNodeFactory(factory.DjangoModelFactory):
     page = "page-about-nothing"
 
     @classmethod
-    def _create(self, *args, **kwargs):
+    def _create(cls, *args, **kwargs):
         if not kwargs.get('hash'):
             kwargs['hash'] = random.getrandbits(128)
         if not kwargs.get('commit'):
             kwargs['commit'] = random.getrandbits(128)
-        return super(DocumentNodeFactory, self)._create(*args, **kwargs)
+        return super(DocumentNodeFactory, cls)._create(*args, **kwargs)
 
 
 class DocumentCommentFactory(factory.DjangoModelFactory):

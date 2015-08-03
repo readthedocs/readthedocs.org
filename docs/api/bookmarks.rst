@@ -1,24 +1,24 @@
-:mod:`bookmarks`
-================
+:mod:`readthedocs.bookmarks`
+============================
 
-:mod:`bookmarks.admin`
+:mod:`readthedocs.bookmarks.admin`
 ----------------------------------
-.. automodule:: bookmarks.admin
+.. automodule:: readthedocs.bookmarks.admin
     :members:
 
-:mod:`bookmarks.models`
-----------------------------------
-.. automodule:: bookmarks.models
+:mod:`readthedocs.bookmarks.models`
+-----------------------------------
+.. automodule:: readthedocs.bookmarks.models
     :members:
 
-:mod:`bookmarks.urls`
-----------------------------------
-.. automodule:: bookmarks.urls
+:mod:`readthedocs.bookmarks.urls`
+---------------------------------
+.. automodule:: readthedocs.bookmarks.urls
     :members:
 
-:mod:`bookmarks.views`
+:mod:`readthedocs.bookmarks.views`
 ----------------------------------
-.. automodule:: bookmarks.views
+.. automodule:: readthedocs.bookmarks.views
     :members:
 
 

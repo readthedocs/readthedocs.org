@@ -1,8 +1,8 @@
 import csv
 from StringIO import StringIO
 
-from projects.exceptions import ProjectImportError
-from vcs_support.base import BaseVCS, VCSVersion
+from readthedocs.projects.exceptions import ProjectImportError
+from readthedocs.vcs_support.base import BaseVCS, VCSVersion
 
 
 class Backend(BaseVCS):
@@ -37,8 +37,9 @@ class Backend(BaseVCS):
                 ("Failed to get code from '%s' (svn revert): %s"
                  % (self.repo_url, retcode))
             )
-        retcode, out, err = self.run('svn', 'up', '--accept', 'theirs-full',
-                           '--trust-server-cert', '--non-interactive')
+        retcode, out, err = self.run(
+            'svn', 'up', '--accept', 'theirs-full',
+            '--trust-server-cert', '--non-interactive')
         if retcode != 0:
             raise ProjectImportError(
                 "Failed to get code from '%s' (svn up): %s" % (self.repo_url,

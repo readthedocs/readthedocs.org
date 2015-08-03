@@ -75,7 +75,7 @@
   {%- block extrahead %} {% endblock %}
 
   {# Keep modernizr in head - http://modernizr.com/docs/#installing #}
-  <script src="_static/js/modernizr.min.js"></script>
+  <script src="{{ pathto('_static/js/modernizr.min.js', 1) }}"></script>
 
 </head>
 
@@ -100,6 +100,18 @@
         {% endif %}
         </a>
 
+        {% if theme_display_version %}
+          {%- set nav_version = version %}
+          {% if READTHEDOCS and current_version %}
+            {%- set nav_version = current_version %}
+          {% endif %}
+          {% if nav_version %}
+            <div class="version">
+              {{ nav_version }}
+            </div>
+          {% endif %}
+        {% endif %}
+
         {% include "searchbox.html" %}
 
         {% endblock %}
@@ -107,7 +119,7 @@
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
         {% block menu %}
-          {% set toctree = toctree(maxdepth=4, collapse=False, includehidden=True) %}
+          {% set toctree = toctree(maxdepth=4, collapse=theme_collapse_navigation, includehidden=True) %}
           {% if toctree %}
               {{ toctree }}
           {% else %}
@@ -132,8 +144,10 @@
       <div class="wy-nav-content">
         <div class="rst-content">
           {% include "breadcrumbs.html" %}
-          <div role="main" class="document">
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
             {% block body %}{% endblock %}
+           </div>
           </div>
           {% include "footer.html" %}
         </div>
