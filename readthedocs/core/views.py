@@ -16,7 +16,6 @@ from django.views.generic import TemplateView
 
 from haystack.query import EmptySearchQuerySet
 from haystack.query import SearchQuerySet
-from celery.task.control import inspect  # noqa: pylint false positive
 import stripe
 
 from readthedocs.builds.models import Build
@@ -35,7 +34,6 @@ import json
 import mimetypes
 import os
 import logging
-import redis
 import re
 
 log = logging.getLogger(__name__)
@@ -75,42 +73,6 @@ def random_page(request, project_slug=None):
         raise Http404
     url = imported_file.get_absolute_url()
     return HttpResponseRedirect(url)
-
-
-def queue_depth(request):
-    r = redis.Redis(**settings.REDIS)
-    return HttpResponse(r.llen('celery'))
-
-
-def queue_info(request):
-    i = inspect()
-    active_pks = []
-    reserved_pks = []
-    resp = ""
-
-    active = i.active()
-    if active:
-        try:
-            for obj in active['build']:
-                kwargs = eval(obj['kwargs'])
-                active_pks.append(str(kwargs['pk']))
-            active_resp = "Active: %s  " % " ".join(active_pks)
-            resp += active_resp
-        except Exception, e:
-            resp += str(e)
-
-    reserved = i.reserved()
-    if reserved:
-        try:
-            for obj in reserved['build']:
-                kwrags = eval(obj['kwargs'])
-                reserved_pks.append(str(kwargs['pk']))
-            reserved_resp = " | Reserved: %s" % " ".join(reserved_pks)
-            resp += reserved_resp
-        except Exception, e:
-            resp += str(e)
-
-    return HttpResponse(resp)
 
 
 def live_builds(request):
