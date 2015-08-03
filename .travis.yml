@@ -5,7 +5,7 @@ sudo: false
 env:
  - TOX_ENV=py27
  - TOX_ENV=docs
- #- TOX_ENV=lint
+ - TOX_ENV=lint
 install:
  - pip install tox
  - pip install coveralls
