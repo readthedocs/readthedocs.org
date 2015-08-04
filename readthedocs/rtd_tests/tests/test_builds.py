@@ -36,6 +36,17 @@ def build_subprocess_side_effect(*args, **kwargs):
 
 class BuildTests(TestCase):
 
+    def setUp(self):
+        self.patches = {}
+        self.mocks = {}
+        self.patches['update_build'] = mock.patch.object(LocalEnvironment,
+                                                         'update_build')
+        self.mocks['update_build'] = self.patches['update_build'].start()
+
+    def tearDown(self):
+        for patch in self.patches:
+            self.patches[patch].stop()
+
     @mock.patch('slumber.Resource')
     @mock.patch('os.chdir')
     @mock.patch('readthedocs.projects.models.Project.api_versions')
@@ -51,10 +62,12 @@ class BuildTests(TestCase):
         # subprocess mock logic
 
         mock_process = mock.Mock()
-        process_return_dict = {'communicate.return_value': ('SOMEGITHASH', '')}
+        process_return_dict = {
+            'communicate.return_value': ('SOMEGITHASH', ''),
+            'returncode': 0
+        }
         mock_process.configure_mock(**process_return_dict)
         mock_Popen.return_value = mock_process
-        mock_Popen.side_effect = build_subprocess_side_effect
 
         project = get(Project,
                       slug='project-1',
@@ -79,17 +92,14 @@ class BuildTests(TestCase):
         task.project = project
         with mock.patch('codecs.open', mock.mock_open(), create=True):
             with fake_paths_lookup({conf_path: True}):
-                built_docs = task.build_docs(version,
-                                             False,
-                                             False)
+                built_docs = task.build_docs_html(False)
 
-        builder_class = get_builder_class(project.documentation_type)
-        builder = builder_class(version)
+        with build_env:
+            builder_class = get_builder_class(project.documentation_type)
+            builder = builder_class(version)
         self.assertIn(builder.sphinx_builder,
                       str(mock_Popen.call_args_list[1])
                       )
-
-        # We are using the comment builder
 
     def test_builder_comments(self):
 

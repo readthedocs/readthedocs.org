@@ -19,7 +19,6 @@ def restoring_chdir(fn):
 
 
 class BaseBuilder(object):
-
     """
     The Base for all Builders. Defines the API for subclasses.
 
@@ -31,9 +30,9 @@ class BaseBuilder(object):
     # old_artifact_path = ..
 
     def __init__(self, version, force=False, build_env=None):
-        self.project = build_env.project
         # TODO do we really need to push the version in here?
         self.version = version
+        self.project = version.project
         self._force = force
         self.target = self.version.project.artifact_path(
             version=self.version.slug,

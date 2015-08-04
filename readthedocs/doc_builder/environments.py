@@ -20,7 +20,6 @@ from docker.utils import create_host_config
 from docker.errors import APIError as DockerAPIError, DockerException
 
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
-from readthedocs.projects.utils import run
 from readthedocs.restapi.serializers import VersionFullSerializer
 from readthedocs.projects.constants import LOG_TEMPLATE
 from readthedocs.api.client import api as api_v1
@@ -139,7 +138,7 @@ class DockerBuildCommand(BuildCommand):
     Build command to execute in docker container
     '''
 
-    def run(self, cmd_input=None, combine_output=True):
+    def run(self):
         '''Execute command in existing Docker container
 
         :param cmd_input: input to pass to command in STDIN
@@ -208,9 +207,10 @@ class BuildEnvironment(object):
     def __exit__(self, exc_type, exc_value, tb):
         ret = self.handle_exception(exc_type, exc_value, tb)
         self.update_build(state=BUILD_STATE_FINISHED)
-        log.info(LOG_TEMPLATE.format(project=self.project.slug,
-                                     version=self.version.slug,
-                                     msg='Build finished'))
+        log.info(LOG_TEMPLATE
+                 .format(project=self.project.slug,
+                         version=self.version.slug,
+                         msg='Build finished'))
         return ret
 
     def handle_exception(self, exc_type, exc_value, tb):
@@ -225,13 +225,11 @@ class BuildEnvironment(object):
         exception will bubble up.
         """
         if exc_type is not None:
-            log.error(
-                LOG_TEMPLATE.format(
-                    project=self.project.slug,
-                    version=self.version.slug,
-                    msg=exc_value),
-                exc_info=True
-            )
+            log.error(LOG_TEMPLATE
+                      .format(project=self.project.slug,
+                              version=self.version.slug,
+                              msg=exc_value),
+                      exc_info=True)
             if issubclass(exc_type, BuildEnvironmentWarning):
                 return True
             else:
@@ -239,7 +237,6 @@ class BuildEnvironment(object):
                 if issubclass(exc_type, BuildEnvironmentError):
                     return True
                 return False
-
 
     def run(self, *cmd, **kwargs):
         '''Run command'''
@@ -258,18 +255,18 @@ class BuildEnvironment(object):
     @property
     def successful(self):
         # TODO should this include a check for finished state?
-        return (self.failure is None
-                and all(cmd.successful for cmd in self.commands))
+        return (self.failure is None and
+                all(cmd.successful for cmd in self.commands))
 
     @property
     def failed(self):
-        return (self.failure is not None
-                or any(cmd.failed for cmd in self.commands))
+        return (self.failure is not None or
+                any(cmd.failed for cmd in self.commands))
 
     @property
     def done(self):
-        return (self.build is not None
-                and self.build.state == BUILD_STATE_FINISHED)
+        return (self.build is not None and
+                self.build['state'] == BUILD_STATE_FINISHED)
 
     def update_build(self, state=None):
         """
@@ -302,8 +299,8 @@ class BuildEnvironment(object):
 
         # TODO Replace this with per-command output tracking in the db
         self.build['output'] = '\n'.join([str(cmd)
-                                        for cmd in self.commands
-                                        if cmd is not None])
+                                          for cmd in self.commands
+                                          if cmd is not None])
 
         # Attempt to stop unicode errors on build reporting
         for key, val in self.build.items():

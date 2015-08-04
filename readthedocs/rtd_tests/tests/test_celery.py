@@ -1,9 +1,11 @@
 import os
-from os.path import exists
-import shutil
-from tempfile import mkdtemp
-from django.contrib.auth.models import User
 import json
+import shutil
+from os.path import exists
+from tempfile import mkdtemp
+
+from django.contrib.auth.models import User
+from mock import patch, MagicMock
 
 from readthedocs.projects.models import Project
 from readthedocs.projects import tasks
@@ -59,6 +61,10 @@ class TestCeleryBuilding(RTDTestCase):
         self.assertTrue(result.successful())
         self.assertFalse(exists(directory))
 
+    @patch('readthedocs.projects.tasks.UpdateDocsTask.build_docs',
+           new=MagicMock)
+    @patch('readthedocs.projects.tasks.UpdateDocsTask.setup_vcs',
+           new=MagicMock)
     def test_update_docs(self):
         with mock_api(self.repo):
             update_docs = tasks.UpdateDocsTask()

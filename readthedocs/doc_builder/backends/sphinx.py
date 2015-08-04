@@ -11,10 +11,13 @@ from django.template.loader import render_to_string
 from django.conf import settings
 
 from readthedocs.builds import utils as version_utils
-from readthedocs.doc_builder.base import BaseBuilder, restoring_chdir
 from readthedocs.projects.utils import safe_write
 from readthedocs.projects.exceptions import ProjectImportError
 from readthedocs.restapi.client import api
+
+from ..base import BaseBuilder, restoring_chdir
+from ..exceptions import BuildEnvironmentError
+
 
 log = logging.getLogger(__name__)
 
