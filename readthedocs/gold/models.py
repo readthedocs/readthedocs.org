@@ -14,6 +14,8 @@ LEVEL_CHOICES = (
     ('v1-org-100', '$100/mo'),
 )
 
+DOLLARS_PER_PROJECT = 5
+
 
 class GoldUser(models.Model):
     pub_date = models.DateTimeField(_('Publication date'), auto_now_add=True)
@@ -34,5 +36,5 @@ class GoldUser(models.Model):
     @property
     def num_supported_projects(self):
         dollars = int(self.level.split('-')[-1])
-        num_projects = int(math.floor(dollars / 5))
+        num_projects = int(math.floor(dollars / DOLLARS_PER_PROJECT))
         return num_projects

@@ -10,7 +10,7 @@ urlpatterns = patterns('',
                        url(r'^cancel/$', views.cancel, name='gold_cancel'),
                        url(r'^thanks/$', views.thanks, name='gold_thanks'),
                        url(r'^projects/$', views.projects, name='gold_projects'),
-                       url(r'^projects/remove/(?P<project_slug>{project_slug})$'.format(
+                       url(r'^projects/remove/(?P<project_slug>{project_slug})/$'.format(
                            project_slug=PROJECT_SLUG_REGEX
                        ),
                            views.projects_remove,

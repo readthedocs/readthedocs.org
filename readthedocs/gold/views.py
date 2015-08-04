@@ -152,14 +152,11 @@ def projects(request):
         raise Http404('Gold User not found')
 
     if request.method == 'POST':
-        form = GoldProjectForm(request.POST)
+        form = GoldProjectForm(data=request.POST, user=gold_user, projects=gold_projects)
         if form.is_valid():
-            if gold_projects.count() < gold_user.num_supported_projects:
-                to_add = Project.objects.get(slug=form.cleaned_data['project'])
-                gold_user.projects.add(to_add)
-                return HttpResponseRedirect(reverse('gold_projects'))
-            else:
-                form.add_error(None, 'You already have the max number of supported projects.')
+            to_add = Project.objects.get(slug=form.cleaned_data['project'])
+            gold_user.projects.add(to_add)
+            return HttpResponseRedirect(reverse('gold_projects'))
     else:
         form = GoldProjectForm()
 
