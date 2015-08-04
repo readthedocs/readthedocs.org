@@ -127,9 +127,7 @@ class BaseMkdocs(BaseBuilder):
         include_file.close()
 
     def build(self, **kwargs):
-        checkout_path = self.version.project.checkout_path(self.version.slug)
-        # TODO does this have the self.project?
-        # TODO --theme fails on the JSON builder
+        checkout_path = self.project.checkout_path(self.version.slug)
         build_command = [
             self.project.venv_bin(version=self.version.slug, bin='mkdocs'),
             self.builder,
@@ -150,3 +148,13 @@ class MkdocsJSON(BaseMkdocs):
     type = 'mkdocs_json'
     builder = 'json'
     build_dir = '_build/json'
+
+    def build(self, **kwargs):
+        checkout_path = self.project.checkout_path(self.version.slug)
+        build_command = [
+            self.project.venv_bin(version=self.version.slug, bin='mkdocs'),
+            self.builder,
+            '--clean',
+            '--site-dir', self.build_dir
+        ]
+        self.run(*build_command, cwd=checkout_path)
