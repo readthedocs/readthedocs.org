@@ -22,7 +22,8 @@ class GoldUser(models.Model):
     modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
 
     user = models.ForeignKey('auth.User', verbose_name=_('User'), unique=True, related_name='gold')
-    level = models.CharField(_('Level'), max_length=20, choices=LEVEL_CHOICES, default=LEVEL_CHOICES[0][0])
+    level = models.CharField(_('Level'), max_length=20,
+                             choices=LEVEL_CHOICES, default=LEVEL_CHOICES[0][0])
     projects = models.ManyToManyField(Project, verbose_name=_('Projects'),
                                       related_name='gold_owners')
 
