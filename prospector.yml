@@ -9,7 +9,6 @@ uses:
 
 ignore-paths:
   - projects
-  - builds
   - docs
 
 ignore-patterns:
@@ -19,6 +18,8 @@ pep8:
     full: true
     options:
         max-line-length: 100
+    disable:
+        - N806
 
 pylint:
   max-line-length: 100
