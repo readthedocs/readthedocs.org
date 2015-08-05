@@ -17,7 +17,7 @@ var gulp = require('gulp'),
 // picking up dependencies of the primary entry points and putting any
 // limitations on directory structure for entry points.
 var sources = {
-    core: ['js/readthedocs-doc-embed.js'],
+    core: ['js/readthedocs-doc-embed.js', 'js/autocomplete.js'],
     projects: ['js/tools.js'],
     gold: ['js/gold.js'],
     donate: ['js/donate.js']

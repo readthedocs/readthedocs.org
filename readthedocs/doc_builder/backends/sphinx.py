@@ -125,7 +125,7 @@ class BaseSphinx(BaseBuilder):
         project = self.version.project
         os.chdir(project.conf_dir(self.version.slug))
         force_str = " -E " if self._force else ""
-        build_command = "%s -T %s -b %s -D language=%s . %s " % (
+        build_command = "%s -T %s -b %s -d _build/doctrees -D language=%s . %s " % (
             project.venv_bin(version=self.version.slug,
                              bin='sphinx-build'),
             force_str,
