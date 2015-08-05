@@ -1,0 +1,55 @@
+{% extends "profiles/base_profile_edit.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block profile-admin-gold-edit %}active{% endblock %}
+
+{% block title %}
+Gold Projects
+{% endblock %}
+
+{% block extra_scripts %}
+  <script type="text/javascript" src="{% static 'core/js/autocomplete.js' %}"></script>
+  <script type="text/javascript">
+    $(document).ready(function () {
+      attach_project_autocomplete('#id_project', '{% url "search_autocomplete" %}');
+    });
+  </script>
+{% endblock %}
+
+{% block edit_content %}
+
+  <p class="help_text">
+    {% trans "Choose projects that will have all promos removed, and extra features added to them. You get to pick one for every $5/mo you support Read the Docs with." %}
+  </p>
+
+  <h3> {% trans "Existing Projects" %} </h3>
+  <p>
+    You can adopt {{ gold_user.num_supported_projects }} projects with your subscription.
+  </p>
+
+    <ul>
+    {% for project in projects %}
+        <li>
+        <a href="{{ project.get_absolute_url }}">
+        {{ project }}
+        </a>
+        (<a href="{% url "gold_projects_remove" project.slug %}">{% trans "Remove" %}</a>)
+        </li>
+    {% endfor %}
+    </ul>
+  </p>
+
+  <h3>{% trans "Add a project" %}</h3>
+  <p>
+    {% trans "Choose which project you would like to add." %}
+  </p>
+  <form method="post" action=".">{% csrf_token %}
+    {{ form.as_p }}
+    <p>
+      <input style="display: inline;" type="submit" value="{% trans "Submit" %}">
+    </p>
+  </form>
+
+{% endblock %}
+
