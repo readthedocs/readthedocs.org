@@ -28,6 +28,7 @@ log = logging.getLogger(__name__)
 
 
 class Version(models.Model):
+
     """
     Attributes
     ----------
@@ -230,7 +231,8 @@ class Version(models.Model):
             re.compile('github.com/(.+)/(.+)'),
             re.compile('github.com:(.+)/(.+).git'),
         ]
-        GITHUB_URL = 'https://github.com/{user}/{repo}/{action}/{version}{docroot}{path}{source_suffix}'
+        GITHUB_URL = ('https://github.com/{user}/{repo}/'
+                      '{action}/{version}{docroot}{path}{source_suffix}')
 
         repo_url = self.project.repo
         if 'github' not in repo_url:
