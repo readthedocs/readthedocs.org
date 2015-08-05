@@ -9,6 +9,7 @@ import logging
 import socket
 import requests
 import datetime
+import hashlib
 
 from celery import task
 from django.conf import settings
@@ -19,6 +20,7 @@ from slumber.exceptions import HttpClientError
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import send_email, run_on_app_servers
+from readthedocs.cdn.purge import purge
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.base import restoring_chdir
 from readthedocs.doc_builder.environments import DockerEnvironment
@@ -718,6 +720,9 @@ def fileify(version_pk, commit):
     version = Version.objects.get(pk=version_pk)
     project = version.project
 
+    if not project.cdn_enabled:
+        return
+
     if not commit:
         log.info(LOG_TEMPLATE.format(
             project=project.slug, version=version.slug, msg='Imported File not being built because no commit information'))
@@ -725,25 +730,40 @@ def fileify(version_pk, commit):
     path = project.rtd_build_path(version.slug)
     if path:
         log.info(LOG_TEMPLATE.format(
-            project=project.slug, version=version.slug, msg='Creating ImportedFiles'))
-        for root, dirnames, filenames in os.walk(path):
-            for filename in filenames:
-                if fnmatch.fnmatch(filename, '*.html'):
-                    dirpath = os.path.join(root.replace(path, '').lstrip('/'),
-                                           filename.lstrip('/'))
-                    obj, created = ImportedFile.objects.get_or_create(
-                        project=project,
-                        version=version,
-                        path=dirpath,
-                        name=filename,
-                        commit=commit,
-                    )
-                    if not created:
-                        obj.save()
-        # Delete ImportedFiles from previous versions
-        ImportedFile.objects.filter(project=project, version=version).exclude(commit=commit).delete()
+            project=version.project.slug, version=version.slug, msg='Creating ImportedFiles'))
+        _manage_imported_files(version, path, commit)
     else:
         log.info(LOG_TEMPLATE.format(project=project.slug, version=version.slug, msg='No ImportedFile files'))
+
+
+def _manage_imported_files(version, path, commit):
+    changed_files = set()
+    for root, dirnames, filenames in os.walk(path):
+        for filename in filenames:
+            dirpath = os.path.join(root.replace(path, '').lstrip('/'),
+                                   filename.lstrip('/'))
+            full_path = os.path.join(root, filename)
+            md5 = hashlib.md5(open(full_path, 'rb').read()).hexdigest()
+            try:
+                obj, created = ImportedFile.objects.get_or_create(
+                    project=version.project,
+                    version=version,
+                    path=dirpath,
+                    name=filename,
+                )
+            except ImportedFile.MultipleObjectsReturned:
+                log.exception('Error creating ImportedFile')
+                continue
+            if obj.md5 != md5:
+                obj.md5 = md5
+                changed_files.add(dirpath)
+            if obj.commit != commit:
+                obj.commit = commit
+            obj.save()
+    # Delete ImportedFiles from previous versions
+    ImportedFile.objects.filter(project=version.project, version=version).exclude(commit=commit).delete()
+    # Purge Cache
+    purge(changed_files)
 
 
 @task(queue='web')
