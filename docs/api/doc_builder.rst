@@ -6,7 +6,7 @@
 .. automodule:: readthedocs.doc_builder.base
     :members:
 
-:mod:`readthedocs.doc_builder.envrionments`
+:mod:`readthedocs.doc_builder.environments`
 -------------------------------------------
 .. automodule:: readthedocs.doc_builder.environments
     :members:
