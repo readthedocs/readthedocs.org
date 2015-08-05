@@ -8,6 +8,15 @@
 Gold Projects
 {% endblock %}
 
+{% block extra_scripts %}
+  <script type="text/javascript" src="{% static 'core/js/autocomplete.js' %}"></script>
+  <script type="text/javascript">
+    $(document).ready(function () {
+      attach_project_autocomplete('#id_project', '{% url "search_autocomplete" %}');
+    });
+  </script>
+{% endblock %}
+
 {% block edit_content %}
 
   <p class="help_text">
@@ -41,14 +50,3 @@ Gold Projects
 
 {% endblock %}
 
-
-{% block footerjs %}
-      $('#id_project').autocomplete({
-    source: '{% url "search_autocomplete" %}',
-    minLength: 2,
-    open: function(event, ui) {
-      ac_top = $('.ui-autocomplete').css('top');
-      $('.ui-autocomplete').css({'width': '233px', 'top': ac_top + 10 });
-    }
-  });
-{% endblock %}
