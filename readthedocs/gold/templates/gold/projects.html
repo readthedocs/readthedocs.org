@@ -25,6 +25,9 @@ Gold Projects
 
   <h3> {% trans "Existing Projects" %} </h3>
   <p>
+    You can adopt {{ gold_user.num_supported_projects }} projects with your subscription.
+  </p>
+
     <ul>
     {% for project in projects %}
         <li>
@@ -37,9 +40,9 @@ Gold Projects
     </ul>
   </p>
 
-  <h3>{% trans "Gold Projects" %}</h3>
+  <h3>{% trans "Add a project" %}</h3>
   <p>
-    {% trans "Choose which project you would like to add as a project." %}
+    {% trans "Choose which project you would like to add." %}
   </p>
   <form method="post" action=".">{% csrf_token %}
     {{ form.as_p }}
