@@ -29,16 +29,15 @@ class BaseBuilder(object):
     _force = False
     # old_artifact_path = ..
 
-    def __init__(self, version, force=False, build_env=None):
-        # TODO do we really need to push the version in here?
-        self.version = version
-        self.project = version.project
+    def __init__(self, build_env, force=False):
+        self.build_env = build_env
+        self.version = build_env.version
+        self.project = build_env.project
         self._force = force
-        self.target = self.version.project.artifact_path(
+        self.target = self.project.artifact_path(
             version=self.version.slug,
             type=self.type
         )
-        self.build_env = build_env
 
     def force(self, **kwargs):
         """
@@ -79,7 +78,7 @@ class BaseBuilder(object):
         """
 
         if not docs_dir:
-            checkout_path = self.version.project.checkout_path(self.version.slug)
+            checkout_path = self.project.checkout_path(self.version.slug)
             for possible_path in ['docs', 'doc', 'Doc', 'book']:
                 if os.path.exists(os.path.join(checkout_path, '%s' % possible_path)):
                     docs_dir = possible_path
@@ -123,4 +122,4 @@ If you want to use another markup, choose a different builder in your settings.
 
     def run(self, *args, **kwargs):
         '''Proxy run to build environment'''
-        self.build_env.run(*args, **kwargs)
+        return self.build_env.run(*args, **kwargs)

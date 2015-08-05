@@ -274,7 +274,7 @@ class UpdateDocsTask(Task):
         checkout_path = self.project.checkout_path(self.version.slug)
         if not requirements_file_path:
             builder_class = get_builder_class(self.project.documentation_type)
-            docs_dir = (builder_class(self.version, build_env=self.build_env)
+            docs_dir = (builder_class(self.build_env)
                         .docs_dir())
             for path in [docs_dir, '']:
                 for req_file in ['pip_requirements.txt', 'requirements.txt']:
@@ -336,7 +336,7 @@ class UpdateDocsTask(Task):
                 if localmedia:
                     self.build_docs_class('sphinx_singlehtmllocalmedia')
 
-                if (self.version.project.slug not in HTML_ONLY):
+                if (self.project.slug not in HTML_ONLY):
                     if self.project.enable_pdf_build:
                         self.build_docs_class('sphinx_pdf')
                     if self.project.enable_epub_build:
@@ -346,8 +346,7 @@ class UpdateDocsTask(Task):
 
     def build_docs_html(self, force=False):
         html_builder = get_builder_class(self.project.documentation_type)(
-            self.version,
-            build_env=self.build_env
+            self.build_env
         )
         if force:
             html_builder.force()
@@ -376,15 +375,10 @@ class UpdateDocsTask(Task):
         only raise a warning exception here. A hard error will halt the build
         process.
         """
-        builder = get_builder_class(builder_class)(self.version,
-                                                   build_env=self.build_env)
-        try:
-            builder.build()
-        except BuildEnvironmentError as exc:
-            (exc_type, exc_inst, exc_tb) = sys.exc_info()
-            raise BuildEnvironmentWarning, BuildEnvironmentWarning(exc), exc_tb
-        finally:
-            builder.move()
+        builder = get_builder_class(builder_class)(self.build_env)
+        builder.build()
+        builder.move()
+
 
 @task()
 def update_imported_docs(version_pk):

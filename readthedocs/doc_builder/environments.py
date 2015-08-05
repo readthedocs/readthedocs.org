@@ -239,7 +239,11 @@ class BuildEnvironment(object):
                 return False
 
     def run(self, *cmd, **kwargs):
-        '''Run command'''
+        '''Run command from environment
+
+        :param warn_only: Don't raise an exception on command failure
+        '''
+        warn_only = kwargs.pop('warn_only', False)
         kwargs['build_env'] = self
         cmd = self.command_class(cmd, **kwargs)
         self.commands.append(cmd)
@@ -249,7 +253,14 @@ class BuildEnvironment(object):
 
             if cmd.output:
                 msg += ':\n{out}'.format(out=cmd.output)
-            raise BuildEnvironmentError(msg)
+
+            if warn_only:
+                log.warn(LOG_TEMPLATE
+                         .format(project=self.project.slug,
+                                 version=self.version.slug,
+                                 msg=msg))
+            else:
+                raise BuildEnvironmentError(msg)
         return cmd
 
     @property
