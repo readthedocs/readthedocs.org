@@ -69,7 +69,8 @@ class Command(BaseCommand):
             else:
                 log.info("Updating all docs")
                 update_docs = tasks.UpdateDocsTask()
-                update_docs.run(record=record, force=force)
+                for project in Project.objects.all():
+                    update_docs.run(pk=project.pk, record=record, force=force)
 
     @property
     def help(self):

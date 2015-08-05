@@ -255,7 +255,7 @@ class PdfBuilder(BaseSphinx):
                 '-s',
                 'python.ist',
                 '{0}.idx'.format(
-                    os.path.splitext(os.path.relpath(tex_file, latex_cwd))[0]) ]
+                    os.path.splitext(os.path.relpath(tex_file, latex_cwd))[0])]
             for tex_file in tex_files]
 
         for cmd in pdflatex_cmds:
