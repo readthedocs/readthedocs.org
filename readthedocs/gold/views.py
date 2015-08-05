@@ -27,7 +27,7 @@ def register(request):
     user = request.user
     try:
         gold_user = GoldUser.objects.get(user=request.user)
-    except:
+    except GoldUser.DoesNotExist:
         gold_user = None
     if request.method == 'POST':
         form = CardForm(request.POST)
@@ -77,7 +77,7 @@ def register(request):
 
 @login_required
 def edit(request):
-    user = GoldUser.objects.get(user=request.user)
+    user = get_object_or_404(GoldUser, user=request.user)
     if request.method == 'POST':
         form = CardForm(request.POST)
         if form.is_valid():
@@ -111,7 +111,7 @@ def edit(request):
 
 @login_required
 def cancel(request):
-    user = GoldUser.objects.get(user=request.user)
+    user = get_object_or_404(GoldUser, user=request.user)
     if request.method == 'POST':
         customer = stripe.Customer.retrieve(user.stripe_id)
         customer.delete()
@@ -145,11 +145,8 @@ def thanks(request):
 
 @login_required
 def projects(request):
-    try:
-        gold_user = GoldUser.objects.get(user=request.user)
-        gold_projects = gold_user.projects.all()
-    except:
-        raise Http404('Gold User not found')
+    gold_user = get_object_or_404(GoldUser, user=request.user)
+    gold_projects = gold_user.projects.all()
 
     if request.method == 'POST':
         form = GoldProjectForm(data=request.POST, user=gold_user, projects=gold_projects)
@@ -175,10 +172,7 @@ def projects(request):
 
 @login_required
 def projects_remove(request, project_slug):
-    try:
-        gold_user = GoldUser.objects.get(user=request.user)
-    except:
-        raise Http404('Gold User not found')
+    gold_user = get_object_or_404(GoldUser, user=request.user)
     project = get_object_or_404(Project.objects.all(), slug=project_slug)
     gold_user.projects.remove(project)
     return HttpResponseRedirect(reverse('gold_projects'))
