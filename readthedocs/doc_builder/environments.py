@@ -325,6 +325,9 @@ class BuildEnvironment(object):
         self.build['output'] = '\n'.join([str(cmd)
                                           for cmd in self.commands
                                           if cmd is not None])
+        self.build['error'] = '\n'.join([str(cmd)
+                                         for cmd in self.commands
+                                         if cmd is not None and cmd.failed])
 
         # Attempt to stop unicode errors on build reporting
         for key, val in self.build.items():
