@@ -236,6 +236,7 @@ CELERYD_PREFETCH_MULTIPLIER = 1
 CELERY_CREATE_MISSING_QUEUES = True
 
 CELERY_DEFAULT_QUEUE = 'celery'
+# Wildcards not supported: https://github.com/celery/celery/issues/150
 CELERY_ROUTES = {
         'readthedocs.oauth.tasks.SyncBitBucketRepositories': {
             'queue': 'web',
