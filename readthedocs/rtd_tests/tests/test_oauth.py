@@ -5,7 +5,7 @@ from allauth.socialaccount.models import SocialToken
 
 from readthedocs.projects.models import Project
 
-from readthedocs.oauth.utils import make_github_project, make_github_organization, import_github
+from readthedocs.oauth.utils import import_github
 from readthedocs.oauth.models import GithubOrganization, GithubProject
 
 
@@ -30,7 +30,9 @@ class RedirectOauth(TestCase):
             "ssh_url": "",
             "html_url": "",
         }
-        github_project = make_github_project(user=self.user, org=self.org, privacy=self.privacy, repo_json=repo_json)
+        github_project = GithubProject.objects.create_from_api(
+            repo_json, user=self.user, organization=self.org,
+            privacy=self.privacy)
         self.assertIsInstance(github_project, GithubProject)
 
     def test_make_github_project_fail(self):
@@ -43,7 +45,9 @@ class RedirectOauth(TestCase):
             "ssh_url": "",
             "html_url": "",
         }
-        github_project = make_github_project(user=self.user, org=self.org, privacy=self.privacy, repo_json=repo_json)
+        github_project = GithubProject.objects.create_from_api(
+            repo_json, user=self.user, organization=self.org,
+            privacy=self.privacy)
         self.assertIsNone(github_project)
 
     def test_make_github_organization(self):
@@ -53,7 +57,8 @@ class RedirectOauth(TestCase):
             "email": "",
             "login": "",
         }
-        org = make_github_organization(self.user, org_json)
+        org = GithubOrganization.objects.create_from_api(
+            org_json, user=self.user)
         self.assertIsInstance(org, GithubOrganization)
 
     def test_import_github_with_no_token(self):
@@ -61,6 +66,7 @@ class RedirectOauth(TestCase):
         self.assertEqual(github_connected, False)
 
     def test_multiple_users_same_repo(self):
+        user2 = User.objects.get(pk=2)
         repo_json = {
             "name": "",
             "full_name": "testrepo/multiple",
@@ -70,21 +76,31 @@ class RedirectOauth(TestCase):
             "ssh_url": "",
             "html_url": "",
         }
-        github_project = make_github_project(user=self.user, org=self.org, privacy=self.privacy, repo_json=repo_json)
-        github_project_2 = make_github_project(user=User.objects.get(pk=2), org=self.org, privacy=self.privacy, repo_json=repo_json)
+
+        github_project = GithubProject.objects.create_from_api(
+            repo_json, user=self.user, organization=self.org,
+            privacy=self.privacy)
+        github_project_2 = GithubProject.objects.create_from_api(
+            repo_json, user=user2, organization=self.org, privacy=self.privacy)
         self.assertIsInstance(github_project, GithubProject)
         self.assertIsInstance(github_project_2, GithubProject)
         self.assertNotEqual(github_project_2, github_project)
 
-        github_project_3 = make_github_project(user=self.user, org=self.org, privacy=self.privacy, repo_json=repo_json)
-        github_project_4 = make_github_project(user=User.objects.get(pk=2), org=self.org, privacy=self.privacy, repo_json=repo_json)
+        github_project_3 = GithubProject.objects.create_from_api(
+            repo_json, user=self.user, organization=self.org,
+            privacy=self.privacy)
+        github_project_4 = GithubProject.objects.create_from_api(
+            repo_json, user=user2, organization=self.org, privacy=self.privacy)
         self.assertIsInstance(github_project_3, GithubProject)
         self.assertIsInstance(github_project_4, GithubProject)
         self.assertEqual(github_project, github_project_3)
         self.assertEqual(github_project_2, github_project_4)
 
-        github_project_5 = make_github_project(user=self.user, org=self.org, privacy=self.privacy, repo_json=repo_json)
-        github_project_6 = make_github_project(user=User.objects.get(pk=2), org=self.org, privacy=self.privacy, repo_json=repo_json)
+        github_project_5 = GithubProject.objects.create_from_api(
+            repo_json, user=self.user, organization=self.org,
+            privacy=self.privacy)
+        github_project_6 = GithubProject.objects.create_from_api(
+            repo_json, user=user2, organization=self.org, privacy=self.privacy)
 
         self.assertEqual(github_project, github_project_5)
         self.assertEqual(github_project_2, github_project_6)

@@ -600,9 +600,10 @@ def project_redirects_delete(request, project_slug):
 
 
 @login_required
-def project_import_github(request, sync=False):
+def project_import_github(request):
     '''Show form that prefills import form with data from GitHub'''
-    github_connected = oauth_utils.import_github(user=request.user, sync=sync)
+    github_connected = oauth_utils.import_github(
+        user=request.user, sync=False)
     repos = GithubProject.objects.filter(users__in=[request.user])
 
     # Find existing projects that match a repo url
@@ -623,17 +624,17 @@ def project_import_github(request, sync=False):
         {
             'repos': repos,
             'github_connected': github_connected,
-            'sync': sync,
         },
         context_instance=RequestContext(request)
     )
 
 
 @login_required
-def project_import_bitbucket(request, sync=False):
+def project_import_bitbucket(request):
     '''Show form that prefills import form with data from BitBucket'''
 
-    bitbucket_connected = oauth_utils.import_bitbucket(user=request.user, sync=sync)
+    bitbucket_connected = oauth_utils.import_bitbucket(
+        user=request.user, sync=False)
     repos = BitbucketProject.objects.filter(users__in=[request.user])
 
     # Find existing projects that match a repo url
@@ -654,7 +655,6 @@ def project_import_bitbucket(request, sync=False):
         {
             'repos': repos,
             'bitbucket_connected': bitbucket_connected,
-            'sync': sync,
         },
         context_instance=RequestContext(request)
     )

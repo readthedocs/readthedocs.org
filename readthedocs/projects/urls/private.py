@@ -26,23 +26,11 @@ urlpatterns = patterns(
 
     url(r'^import/github/$',
         'readthedocs.projects.views.private.project_import_github',
-        {'sync': False},
         name='projects_import_github'),
-
-    url(r'^import/github/sync/$',
-        'readthedocs.projects.views.private.project_import_github',
-        {'sync': True},
-        name='projects_sync_github'),
 
     url(r'^import/bitbucket/$',
         'readthedocs.projects.views.private.project_import_bitbucket',
-        {'sync': False},
         name='projects_import_bitbucket'),
-
-    url(r'^import/bitbucket/sync/$',
-        'readthedocs.projects.views.private.project_import_bitbucket',
-        {'sync': True},
-        name='projects_sync_bitbucket'),
 
     url(r'^(?P<project_slug>[-\w]+)/$',
         'readthedocs.projects.views.private.project_manage',
