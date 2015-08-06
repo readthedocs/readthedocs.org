@@ -13,7 +13,10 @@ from readthedocs.privacy.loader import AdminPermission
 
 
 class Testmaker(TestCase):
-    fixtures = ["eric"]
+    def setUp(self):
+        self.eric = User(username='eric')
+        self.eric.set_password('test')
+        self.eric.save()
 
     def test_imported_docs(self):
         # Test Import

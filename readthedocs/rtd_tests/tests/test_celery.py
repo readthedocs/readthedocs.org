@@ -16,13 +16,14 @@ from readthedocs.rtd_tests.mocks.mock_api import mock_api
 class TestCeleryBuilding(RTDTestCase):
 
     """These tests run the build functions directly. They don't use celery"""
-    fixtures = ['eric.json']
 
     def setUp(self):
         repo = make_test_git()
         self.repo = repo
         super(TestCeleryBuilding, self).setUp()
-        self.eric = User.objects.get(username='eric')
+        self.eric = User(username='eric')
+        self.eric.set_password('test')
+        self.eric.save()
         self.project = Project.objects.create(
             name="Test Project",
             repo_type="git",
