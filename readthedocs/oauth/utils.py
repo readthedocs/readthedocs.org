@@ -4,6 +4,7 @@ from allauth.socialaccount.models import SocialToken
 
 from django.conf import settings
 from requests_oauthlib import OAuth1Session, OAuth2Session
+from allauth.socialaccount.models import SocialAccount
 
 from .models import GithubProject, GithubOrganization, BitbucketProject
 from readthedocs.restapi.client import api
@@ -152,13 +153,17 @@ def import_bitbucket(user, sync):
     """ Do the actual github import """
 
     session = get_oauth_session(user, provider='bitbucket')
+    try:
+        social_account = user.socialaccount_set.get(provider='bitbucket')
+    except SocialAccount.DoesNotExist:
+        log.exception('User tried to import from Bitbucket without a Social Account')
     if sync and session:
             # Get user repos
         try:
             owner_resp = bitbucket_paginate(
                 session,
                 'https://bitbucket.org/api/2.0/repositories/{owner}'.format(
-                    owner=user.username))
+                    owner=social_account.uid))
             process_bitbucket_json(user, owner_resp)
         except TypeError, e:
             print e
