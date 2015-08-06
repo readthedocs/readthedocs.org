@@ -37,8 +37,14 @@ class BuildTests(TestCase):
     @mock.patch('slumber.Resource')
     @mock.patch('os.chdir')
     @mock.patch('readthedocs.projects.models.Project.api_versions')
+    @mock.patch('readthedocs.vcs_support.utils.NonBlockingLock.__enter__')
     @mock.patch('subprocess.Popen')
-    def test_build(self, mock_Popen, mock_api_versions, mock_chdir, mock_apiv2_downloads):
+    def test_build(self,
+                   mock_Popen,
+                   mock_NonBlockingLock_enter,
+                   mock_api_versions,
+                   mock_chdir,
+                   mock_apiv2_downloads):
 
         # subprocess mock logic
 
@@ -107,6 +113,7 @@ class BuildTests(TestCase):
     @mock.patch('slumber.Resource')
     @mock.patch('os.chdir')
     @mock.patch('subprocess.Popen')
+    @mock.patch('readthedocs.vcs_support.utils.NonBlockingLock.__enter__')
     @mock.patch('readthedocs.doc_builder.backends.sphinx.HtmlBuilder.build')
     @mock.patch('readthedocs.doc_builder.backends.sphinx.PdfBuilder.build')
     @mock.patch('readthedocs.doc_builder.backends.sphinx.EpubBuilder.build')
@@ -114,6 +121,7 @@ class BuildTests(TestCase):
                                      EpubBuilder_build,
                                      PdfBuilder_build,
                                      HtmlBuilder_build,
+                                     mock_NonBlockingLock_enter,
                                      mock_Popen,
                                      mock_chdir,
                                      mock_apiv2_downloads):
@@ -155,6 +163,7 @@ class BuildTests(TestCase):
     @mock.patch('slumber.Resource')
     @mock.patch('os.chdir')
     @mock.patch('subprocess.Popen')
+    @mock.patch('readthedocs.vcs_support.utils.NonBlockingLock.__enter__')
     @mock.patch('readthedocs.doc_builder.backends.sphinx.HtmlBuilder.build')
     @mock.patch('readthedocs.doc_builder.backends.sphinx.PdfBuilder.build')
     @mock.patch('readthedocs.doc_builder.backends.sphinx.EpubBuilder.build')
@@ -162,6 +171,7 @@ class BuildTests(TestCase):
                                       EpubBuilder_build,
                                       PdfBuilder_build,
                                       HtmlBuilder_build,
+                                      mock_NonBlockingLock_enter,
                                       mock_Popen,
                                       mock_chdir,
                                       mock_apiv2_downloads):
