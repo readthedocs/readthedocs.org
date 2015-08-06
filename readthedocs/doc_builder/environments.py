@@ -306,13 +306,14 @@ class BuildEnvironment(object):
         if self.done:
             self.build['success'] = self.successful
 
-        # TODO make this more intelligent, inspect all the steps here for failed
-        # I mean, really, this should be an intelligent error code that we can
-        # surface in the UI somehow, not just a meaningless number. Lets rather
-        # make this some mechanism that the front end can easily translate.
-        # XXX self.build['exit_code'] = max([results.get(step, [0])[0] for step in all_steps])
-        self.build['exit_code'] = 1
-        #
+            # TODO drop exit_code and provide a more meaningful UX for error
+            # reporting
+            if self.failure and isinstance(self.failure,
+                                           BuildEnvironmentException):
+                self.build['exit_code'] = self.failure.status_code
+            elif len(self.commands) > 0:
+                self.build['exit_code'] = max([cmd.status
+                                               for cmd in self.commands])
 
         self.build['setup'] = self.build['setup_error'] = ""
         self.build['output'] = self.build['error'] = ""
@@ -325,9 +326,12 @@ class BuildEnvironment(object):
         self.build['output'] = '\n'.join([str(cmd)
                                           for cmd in self.commands
                                           if cmd is not None])
-        self.build['error'] = '\n'.join([str(cmd)
-                                         for cmd in self.commands
-                                         if cmd is not None and cmd.failed])
+        errors = []
+        if self.failure is not None:
+            errors.append(str(self.failure))
+        errors.extend([str(cmd) for cmd in self.commands
+                        if cmd is not None and cmd.failed])
+        self.build['error'] = '\n'.join(errors)
 
         # Attempt to stop unicode errors on build reporting
         for key, val in self.build.items():
