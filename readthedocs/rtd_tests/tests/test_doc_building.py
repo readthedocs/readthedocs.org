@@ -16,9 +16,11 @@ from readthedocs.rtd_tests.base import RTDTestCase
 
 class TestBuilding(RTDTestCase):
     """These tests run the build functions directly. They don't use celery"""
-    fixtures = ['eric.json']
 
     def setUp(self):
+        self.eric = User(username='eric')
+        self.eric.set_password('test')
+        self.eric.save()
         repo = make_test_git()
         self.repo = repo
         super(TestBuilding, self).setUp()
