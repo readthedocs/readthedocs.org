@@ -1,9 +1,9 @@
-:mod:`vcs_support`
-==================
+:mod:`readthedocs.vcs_support`
+==============================
 
-:mod:`vcs_support.base`
------------------------
+:mod:`readthedocs.vcs_support.base`
+-----------------------------------
 
-.. automodule:: vcs_support.base
+.. automodule:: readthedocs.vcs_support.base
     :members:
 

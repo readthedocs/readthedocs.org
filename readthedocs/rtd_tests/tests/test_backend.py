@@ -2,19 +2,19 @@ from os.path import exists
 
 from django.contrib.auth.models import User
 
-from projects.models import Project
-from rtd_tests.base import RTDTestCase
+from readthedocs.projects.models import Project
+from readthedocs.rtd_tests.base import RTDTestCase
 
-from rtd_tests.utils import make_test_git, make_test_hg
+from readthedocs.rtd_tests.utils import make_test_git, make_test_hg
 
 
 class TestGitBackend(RTDTestCase):
-    fixtures = ['eric.json']
-
     def setUp(self):
         git_repo = make_test_git()
         super(TestGitBackend, self).setUp()
-        self.eric = User.objects.get(username='eric')
+        self.eric = User(username='eric')
+        self.eric.set_password('test')
+        self.eric.save()
         self.project = Project.objects.create(
             name="Test Project",
             repo_type="git",
@@ -75,12 +75,12 @@ class TestGitBackend(RTDTestCase):
 
 
 class TestHgBackend(RTDTestCase):
-    fixtures = ['eric.json']
-
     def setUp(self):
         hg_repo = make_test_hg()
         super(TestHgBackend, self).setUp()
-        self.eric = User.objects.get(username='eric')
+        self.eric = User(username='eric')
+        self.eric.set_password('test')
+        self.eric.save()
         self.project = Project.objects.create(
             name="Test Project",
             repo_type="hg",

@@ -1,18 +1,21 @@
 import re
 
+from django.contrib.auth.models import User
 from django.contrib.messages import constants as message_const
 
-from rtd_tests.base import WizardTestCase, MockBuildTestCase
-from projects.models import Project
+from readthedocs.rtd_tests.base import WizardTestCase, MockBuildTestCase
+from readthedocs.projects.models import Project
 
 
 class TestBasicsForm(WizardTestCase):
 
-    fixtures = ["eric"]
     wizard_class_slug = 'import_wizard_view'
     url = '/dashboard/import/manual/'
 
     def setUp(self):
+        self.eric = User(username='eric')
+        self.eric.set_password('test')
+        self.eric.save()
         self.client.login(username='eric', password='test')
         self.step_data['basics'] = {
             'name': 'foobar',
@@ -29,7 +32,7 @@ class TestBasicsForm(WizardTestCase):
         self.assertIsNotNone(proj)
         for (key, val) in self.step_data['basics'].items():
             self.assertEqual(getattr(proj, key), val)
-        self.assertEqual(proj.documentation_type, 'auto')
+        self.assertEqual(proj.documentation_type, 'sphinx')
 
     def test_form_missing(self):
         '''Submit form with missing data, expect to get failures'''

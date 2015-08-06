@@ -2,7 +2,7 @@ import os
 
 from django.test import TestCase
 
-from search.parse_json import process_file
+from readthedocs.search.parse_json import process_file
 
 base_dir = os.path.dirname(os.path.dirname(__file__))
 

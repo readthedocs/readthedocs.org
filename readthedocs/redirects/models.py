@@ -1,7 +1,8 @@
 from django.db import models
+from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy as _
 
-from projects.models import Project
+from readthedocs.projects.models import Project
 
 HTTP_STATUS_CHOICES = (
     (301, _('301 - Permanent Redirect')),
@@ -59,8 +60,10 @@ class Redirect(models.Model):
 
     def __unicode__(self):
         if self.redirect_type == 'prefix':
-            return _('Prefix Redirect: %s ->' % self.from_url)
+            return ugettext('Prefix Redirect: %s ->' % self.from_url)
         elif self.redirect_type == 'page':
-            return _('Page Redirect: %s -> %s' % (self.from_url, self.to_url))
+            return ugettext('Page Redirect: %s -> %s' % (
+                self.from_url,
+                self.to_url))
         else:
-            return _('Redirect: %s' % self.get_redirect_type_display())
+            return ugettext('Redirect: %s' % self.get_redirect_type_display())

@@ -7,7 +7,7 @@ from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.http import Http404
 
-from projects.models import Project
+from readthedocs.projects.models import Project
 
 import redis
 
@@ -48,7 +48,8 @@ class SubdomainMiddleware(object):
                 request.slug = request.META['HTTP_X_RTD_SLUG'].lower()
                 request.urlconf = 'core.subdomain_urls'
                 request.rtdheader = True
-                log.debug(LOG_TEMPLATE.format(msg='X-RTD-Slug header detetected: %s' % request.slug, **log_kwargs))
+                log.debug(LOG_TEMPLATE.format(
+                    msg='X-RTD-Slug header detetected: %s' % request.slug, **log_kwargs))
             except KeyError:
                 # Try header first, then DNS
                 try:
@@ -62,10 +63,14 @@ class SubdomainMiddleware(object):
                         cache.set(host, slug, 60 * 60)
                         # Cache the slug -> host mapping permanently.
                         redis_conn.sadd("rtd_slug:v1:%s" % slug, host)
-                        log.debug(LOG_TEMPLATE.format(msg='CNAME cached: %s->%s' % (slug, host), **log_kwargs))
+                        log.debug(LOG_TEMPLATE.format(
+                            msg='CNAME cached: %s->%s' % (slug, host),
+                            **log_kwargs))
                     request.slug = slug
                     request.urlconf = 'core.subdomain_urls'
-                    log.debug(LOG_TEMPLATE.format(msg='CNAME detetected: %s' % request.slug, **log_kwargs))
+                    log.debug(LOG_TEMPLATE.format(
+                        msg='CNAME detetected: %s' % request.slug,
+                        **log_kwargs))
                 except:
                     # Some crazy person is CNAMEing to us. 404.
                     log.exception(LOG_TEMPLATE.format(msg='CNAME 404', **log_kwargs))
@@ -78,7 +83,7 @@ class SubdomainMiddleware(object):
                 log.debug(LOG_TEMPLATE.format(msg='404ing long domain', **log_kwargs))
                 raise Http404(_('Invalid hostname'))
             log.debug(LOG_TEMPLATE.format(msg='Allowing long domain name', **log_kwargs))
-            #raise Http404(_('Invalid hostname'))
+            # raise Http404(_('Invalid hostname'))
         # Normal request.
         return None
 

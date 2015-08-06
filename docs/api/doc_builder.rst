@@ -1,21 +1,21 @@
-:mod:`doc_builder`
-==================
+:mod:`readthedocs.doc_builder`
+==============================
 
-:mod:`doc_builder.base`
-----------------------------------
-.. automodule:: doc_builder.base
+:mod:`readthedocs.doc_builder.base`
+-----------------------------------
+.. automodule:: readthedocs.doc_builder.base
     :members:
 
-:mod:`doc_builder.envrionments`
--------------------------------
-.. automodule:: doc_builder.environments
+:mod:`readthedocs.doc_builder.environments`
+-------------------------------------------
+.. automodule:: readthedocs.doc_builder.environments
     :members:
 
-:mod:`doc_builder.backends`
-----------------------------------
+:mod:`readthedocs.doc_builder.backends`
+---------------------------------------
 
 
-:mod:`doc_builder.backends.sphinx`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. automodule:: doc_builder.backends.sphinx
+:mod:`readthedocs.doc_builder.backends.sphinx`
+----------------------------------------------
+.. automodule:: readthedocs.doc_builder.backends.sphinx
     :members:

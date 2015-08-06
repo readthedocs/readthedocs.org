@@ -4,7 +4,7 @@ from django.core import serializers
 from sphinx.websupport.storage import StorageBackend
 
 from .models import DocumentNode
-from comments.models import NodeSnapshot
+from readthedocs.comments.models import NodeSnapshot
 
 
 class DjangoStorage(StorageBackend):

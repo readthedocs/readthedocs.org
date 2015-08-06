@@ -4,10 +4,10 @@ from optparse import make_option
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
-from builds.constants import LATEST
-from builds.models import Version
-from search import parse_json
-from restapi.utils import index_search_request
+from readthedocs.builds.constants import LATEST
+from readthedocs.builds.models import Version
+from readthedocs.search import parse_json
+from readthedocs.restapi.utils import index_search_request
 
 log = logging.getLogger(__name__)
 
@@ -43,6 +43,8 @@ class Command(BaseCommand):
                 commit = None
             try:
                 page_list = parse_json.process_all_json_files(version, build_dir=False)
-                index_search_request(version=version, page_list=page_list, commit=commit, project_scale=0, page_scale=0, section=False, delete=False)
+                index_search_request(
+                    version=version, page_list=page_list, commit=commit,
+                    project_scale=0, page_scale=0, section=False, delete=False)
             except Exception:
                 log.error('Build failed for %s' % version, exc_info=True)

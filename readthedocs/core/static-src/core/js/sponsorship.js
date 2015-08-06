@@ -34,11 +34,23 @@ Promo.prototype.create = function () {
             .appendTo(promo_about_link);
         promo_about.appendTo(promo);
 
+        // On Click handler
+        function promo_click() {
+            if (_gaq) {
+                _gaq.push(
+                    ['rtfd._setAccount', 'UA-17997319-1'],
+                    ['rtfd._trackEvent', 'Promo', 'Click', self.id]
+                );
+            }
+        }
+
         // Promo image
         if (self.image) {
             var promo_image_link = $('<a />')
                 .attr('class', 'rst-pro-image-wrapper')
-                .attr('href', self.link);
+                .attr('href', self.link)
+                .attr('target', '_blank')
+                .on('click', promo_click);
             var promo_image = $('<img />')
                 .attr('class', 'rst-pro-image')
                 .attr('src', self.image)
@@ -54,14 +66,7 @@ Promo.prototype.create = function () {
                 .attr('class', 'rst-pro-link')
                 .attr('href', self.link)
                 .attr('target', '_blank')
-                .on('click', function (ev) {
-                    if (_gaq) {
-                        _gaq.push(
-                            ['rtfd._setAccount', 'UA-17997319-1'],
-                            ['rtfd._trackEvent', 'Promo', 'Click', self.id]
-                        );
-                    }
-                });
+                .on('click', promo_click);
         });
         promo.append(promo_text);
 

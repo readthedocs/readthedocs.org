@@ -12,6 +12,7 @@ log = logging.getLogger(__name__)
 
 class RTDTestCase(TestCase):
     def setUp(self):
+        self.original_DOCROOT = settings.DOCROOT
         self.cwd = os.path.dirname(__file__)
         self.build_dir = os.path.join(self.cwd, 'builds')
         log.info("build dir: %s" % self.build_dir)
@@ -21,9 +22,10 @@ class RTDTestCase(TestCase):
 
     def tearDown(self):
         shutil.rmtree(self.build_dir)
+        settings.DOCROOT = self.original_DOCROOT
 
 
-@patch('projects.views.private.trigger_build', lambda x, basic: None)
+@patch('readthedocs.projects.views.private.trigger_build', lambda x, basic: None)
 @patch('readthedocs.projects.views.private.trigger_build', lambda x, basic: None)
 class MockBuildTestCase(TestCase):
     '''Mock build triggers for test cases'''
@@ -37,7 +39,7 @@ class WizardTestCase(TestCase):
     url = None
     wizard_class_slug = None
 
-    @patch('projects.views.private.trigger_build', lambda x, basic: None)
+    @patch('readthedocs.projects.views.private.trigger_build', lambda x, basic: None)
     @patch('readthedocs.projects.views.private.trigger_build', lambda x, basic: None)
     def post_step(self, step, **data):
         '''Post step form data to `url`, using supplimentary `kwargs`
@@ -61,7 +63,9 @@ class WizardTestCase(TestCase):
         self.assertIsNotNone(resp)
         return resp
 
-    def assertWizardResponse(self, response, step=None):
+    # We use camelCase on purpose here to conform with unittest's naming
+    # conventions.
+    def assertWizardResponse(self, response, step=None):  # noqa
         '''Assert successful wizard response'''
         # Is is the last form
         if step is None:
@@ -84,7 +88,9 @@ class WizardTestCase(TestCase):
             self.assertIn('{0}-current_step'.format(self.wizard_class_slug),
                           response.content)
 
-    def assertWizardFailure(self, response, field, match=None):
+    # We use camelCase on purpose here to conform with unittest's naming
+    # conventions.
+    def assertWizardFailure(self, response, field, match=None):  # noqa
         '''Assert field threw a validation error
 
         response

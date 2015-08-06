@@ -5,22 +5,28 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django.contrib.auth.models import User
 
-from builds.constants import LATEST
-from builds.models import Version
-from projects.models import Project
-from projects.forms import UpdateProjectForm
-from projects import tasks
+from readthedocs.builds.constants import LATEST
+from readthedocs.builds.models import Version
+from readthedocs.projects.models import Project
+from readthedocs.projects.forms import UpdateProjectForm
+from readthedocs.projects import tasks
 
 log = logging.getLogger(__name__)
 
 
 class PrivacyTests(TestCase):
-    fixtures = ["eric"]
-
     def tearDown(self):
         tasks.update_docs = self.old_bd
 
     def setUp(self):
+        self.eric = User(username='eric')
+        self.eric.set_password('test')
+        self.eric.save()
+
+        self.tester = User(username='tester')
+        self.tester.set_password('test')
+        self.tester.save()
+
         self.old_bd = tasks.update_docs
 
         def mock(*args, **kwargs):

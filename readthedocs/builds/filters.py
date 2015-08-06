@@ -2,8 +2,8 @@ from django.utils.translation import ugettext_lazy as _
 
 import django_filters
 
-from builds import constants
-from builds.models import Build, Version
+from readthedocs.builds import constants
+from readthedocs.builds.models import Build, Version
 
 
 ANY_REPO = (

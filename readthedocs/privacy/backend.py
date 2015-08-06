@@ -3,18 +3,18 @@ from django.db import models
 
 from guardian.shortcuts import get_objects_for_user
 
-from builds.constants import LATEST
-from builds.constants import LATEST_VERBOSE_NAME
-from builds.constants import STABLE
-from builds.constants import STABLE_VERBOSE_NAME
-from projects import constants
+from readthedocs.builds.constants import LATEST
+from readthedocs.builds.constants import LATEST_VERBOSE_NAME
+from readthedocs.builds.constants import STABLE
+from readthedocs.builds.constants import STABLE_VERBOSE_NAME
+from readthedocs.projects import constants
 
 
 class ProjectManager(models.Manager):
 
     def _add_user_repos(self, queryset, user):
         # Avoid circular import
-        from projects.models import Project
+        from readthedocs.projects.models import Project
         # Show all projects to super user
         if user.has_perm('projects.view_project'):
             return Project.objects.all().distinct()
@@ -105,7 +105,8 @@ class VersionManager(RelatedProjectManager):
         return queryset.distinct()
 
     def public(self, user=None, project=None, only_active=True, *args, **kwargs):
-        queryset = self.filter(project__privacy_level=constants.PUBLIC, privacy_level=constants.PUBLIC)
+        queryset = self.filter(project__privacy_level=constants.PUBLIC,
+                               privacy_level=constants.PUBLIC)
         if user:
             queryset = self._add_user_repos(queryset, user)
         if project:
@@ -151,4 +152,3 @@ class AdminPermission(object):
 
 class AdminNotAuthorized(ValueError):
     pass
-

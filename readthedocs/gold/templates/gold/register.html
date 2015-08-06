@@ -10,7 +10,8 @@ Gold Status
 
 {% block extra_scripts %}
   <script src="https://js.stripe.com/v2/" type="text/javascript"></script>
-  <script type="text/javascript" src="{% static 'gold/js/payment.js' %}"></script>
+  <script type="text/javascript" src="{% static 'vendor/knockout.js' %}"></script>
+  <script type="text/javascript" src="{% static 'gold/js/gold.js' %}"></script>
   <script type="text/javascript">
 $(document).ready(function () {
     var key;
@@ -41,10 +42,16 @@ $(document).ready(function () {
       Card: Ends with {{ gold_user.last_4_digits }}
     </p>
 
+    <h3>Projects</h3>
+    <p>
+      You can adopt {{ gold_user.num_supported_projects }} projects with your subscription. <a href="{% url "gold_projects" %}">Select Projects</a>
+    </p>
+
     <h3>Changes</h3>
     <p>
       <a href="{% url "gold_cancel" %}">Cancel</a> or <a href="{% url "gold_edit" %}">Change</a> your subscription.
     </p>
+
   {% else %}
     <p>
       Supporting Read the Docs lets us work more on features that people

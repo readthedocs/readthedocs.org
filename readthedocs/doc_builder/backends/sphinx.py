@@ -10,11 +10,11 @@ from django.template import Context, loader as template_loader
 from django.template.loader import render_to_string
 from django.conf import settings
 
-from builds import utils as version_utils
-from doc_builder.base import BaseBuilder, restoring_chdir
-from projects.utils import run, safe_write
-from projects.exceptions import ProjectImportError
-from tastyapi import apiv2
+from readthedocs.builds import utils as version_utils
+from readthedocs.doc_builder.base import BaseBuilder, restoring_chdir
+from readthedocs.projects.utils import run, safe_write
+from readthedocs.projects.exceptions import ProjectImportError
+from readthedocs.restapi.client import api
 
 log = logging.getLogger(__name__)
 
@@ -32,7 +32,9 @@ class BaseSphinx(BaseBuilder):
     def __init__(self, *args, **kwargs):
         super(BaseSphinx, self).__init__(*args, **kwargs)
         try:
-            self.old_artifact_path = os.path.join(self.version.project.conf_dir(self.version.slug), self.sphinx_build_dir)
+            self.old_artifact_path = os.path.join(
+                self.version.project.conf_dir(self.version.slug),
+                self.sphinx_build_dir)
         except ProjectImportError:
             docs_dir = self.docs_dir()
             self.old_artifact_path = os.path.join(docs_dir, self.sphinx_build_dir)
@@ -72,11 +74,13 @@ class BaseSphinx(BaseBuilder):
         conf_py_path = self.version.get_conf_py_path()
         remote_version = self.version.get_vcs_slug()
 
-        github_user, github_repo = version_utils.get_github_username_repo(url=self.version.project.repo)
+        github_user, github_repo = version_utils.get_github_username_repo(
+            url=self.version.project.repo)
         github_version_is_editable = (self.version.type == 'branch')
         display_github = github_user is not None
 
-        bitbucket_user, bitbucket_repo = version_utils.get_bitbucket_username_repo(url=self.version.project.repo)
+        bitbucket_user, bitbucket_repo = version_utils.get_bitbucket_username_repo(
+            url=self.version.project.repo)
         bitbucket_version_is_editable = (self.version.type == 'branch')
         display_bitbucket = bitbucket_user is not None
 
@@ -109,7 +113,7 @@ class BaseSphinx(BaseBuilder):
             rtd_ctx['downloads'] = self.version.get_downloads(pretty=True)
         else:
             rtd_ctx['versions'] = project.api_versions()
-            rtd_ctx['downloads'] = (apiv2.version(self.version.pk)
+            rtd_ctx['downloads'] = (api.version(self.version.pk)
                                     .get()['downloads'])
 
         rtd_string = template_loader.get_template('doc_builder/conf.py.tmpl').render(rtd_ctx)
@@ -121,7 +125,7 @@ class BaseSphinx(BaseBuilder):
         project = self.version.project
         os.chdir(project.conf_dir(self.version.slug))
         force_str = " -E " if self._force else ""
-        build_command = "%s -T %s -b %s -D language=%s . %s " % (
+        build_command = "%s -T %s -b %s -d _build/doctrees -D language=%s . %s " % (
             project.venv_bin(version=self.version.slug,
                              bin='sphinx-build'),
             force_str,
@@ -261,7 +265,9 @@ class PdfBuilder(BaseSphinx):
             os.makedirs(self.target)
 
         exact = os.path.join(self.old_artifact_path, "%s.pdf" % self.version.project.slug)
-        exact_upper = os.path.join(self.old_artifact_path, "%s.pdf" % self.version.project.slug.capitalize())
+        exact_upper = os.path.join(
+            self.old_artifact_path,
+            "%s.pdf" % self.version.project.slug.capitalize())
 
         if self.pdf_file_name and os.path.exists(self.pdf_file_name):
             from_file = self.pdf_file_name

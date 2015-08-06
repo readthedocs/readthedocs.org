@@ -1,5 +1,5 @@
 from rest_framework import permissions
-from privacy.backend import AdminPermission
+from readthedocs.privacy.backend import AdminPermission
 
 
 class IsOwner(permissions.BasePermission):
@@ -43,6 +43,3 @@ class APIPermission(permissions.IsAuthenticatedOrReadOnly):
         has_perm = super(APIPermission, self).has_object_permission(
             request, view, obj)
         return has_perm or (request.user and request.user.is_staff)
-
-
-

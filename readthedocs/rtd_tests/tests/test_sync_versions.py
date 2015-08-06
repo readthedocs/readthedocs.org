@@ -2,9 +2,9 @@ import json
 
 from django.test import TestCase
 
-from builds.models import Version
-from builds.constants import STABLE
-from projects.models import Project
+from readthedocs.builds.models import Version
+from readthedocs.builds.constants import STABLE
+from readthedocs.projects.models import Project
 
 
 class TestSyncVersions(TestCase):

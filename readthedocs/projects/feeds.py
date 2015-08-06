@@ -1,6 +1,6 @@
 from django.contrib.syndication.views import Feed
 
-from projects.models import Project
+from readthedocs.projects.models import Project
 
 
 class LatestProjectsFeed(Feed):

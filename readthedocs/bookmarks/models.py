@@ -2,8 +2,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from builds.models import Version
-from projects.models import Project
+from readthedocs.builds.models import Version
+from readthedocs.projects.models import Project
 
 
 class Bookmark(models.Model):

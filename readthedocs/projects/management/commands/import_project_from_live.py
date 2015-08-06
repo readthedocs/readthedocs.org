@@ -20,11 +20,14 @@ class Command(BaseCommand):
         "issues with projects on the live site."
     )
 
+    def add_arguments(self, parser):
+        parser.add_argument('project_slug', nargs='+', type=str)
+
     def handle(self, *args, **options):
         api = slumber.API(base_url='http://readthedocs.org/api/v1/')
         user1 = User.objects.order_by('pk').first()
 
-        for slug in args:
+        for slug in options['project_slug']:
             self.stdout.write('Importing {slug} ...'.format(slug=slug))
 
             project_data = api.project.get(slug=slug)
@@ -42,7 +45,6 @@ class Command(BaseCommand):
             except Project.DoesNotExist:
                 project = Project(slug=slug)
 
-            project.python_interpreter
             copy_attributes = (
                 'pub_date',
                 'modified_date',
@@ -83,7 +85,6 @@ class Command(BaseCommand):
 
             for attribute in copy_attributes:
                 setattr(project, attribute, project_data[attribute])
-            project.python_interpreter
             project.user = user1
             project.save()
             if user1:

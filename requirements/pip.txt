@@ -6,15 +6,15 @@ Sphinx==1.3.1
 Pygments==2.0.2
 mkdocs==0.14.0
 
-django==1.6.11
-django-tastypie==0.11.1
+django==1.8.3
+
+git+https://github.com/django-tastypie/django-tastypie.git@1e1aff3dd4dcd21669e9c68bd7681253b286b856#egg=django-tastypie
 django-haystack==2.1.0
 celery-haystack==0.7.2
-django-guardian==1.2.0
+django-guardian==1.3.0
 django-extensions==1.3.8
-South==1.0.2
 djangorestframework==3.0.4
-pytest-django==2.6.2
+pytest-django==2.8.0
 
 requests==2.3.0
 slumber==0.6.0
@@ -23,12 +23,14 @@ lxml==3.3.5
 # Basic tools
 redis==2.7.1
 hiredis==0.1.2
-celery==3.0.24
-django-celery==3.0.23
-django-allauth==0.16.1
+celery==3.1.18
+django-celery==3.1.16
+django-allauth==0.21.0
+dnspython==1.11.0
 
 # VCS
 bzr==2.6
+launchpadlib==1.10.2
 mercurial==2.6.3
 httplib2==0.7.7
 
@@ -50,11 +52,13 @@ mimeparse==0.1.3
 mock==1.0.1
 simplejson==2.3.0
 stripe==1.20.2
-factory-boy==2.4.1
 django-copyright==1.0.0
+django-formtools==1.0
+django-dynamic-fixture==1.8.5
 
 # Docs
 sphinx-http-domain==0.2
+recommonmark==0.1.1
 
 # Version comparison stuff
 Distutils2==1.0a3
@@ -68,5 +72,3 @@ nilsimsa==0.3.7
 git+https://github.com/alex/django-filter.git#egg=django-filter
 git+https://github.com/ericflo/django-pagination.git@e5f669036c#egg=django_pagination-dev
 git+https://github.com/alex/django-taggit.git#egg=django_taggit-dev
-git+https://github.com/jMyles/bamboo_boy#egg=bamboo_boy
-

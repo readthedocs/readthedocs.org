@@ -1,8 +1,8 @@
 from django.test import TestCase
 
-from builds.constants import LATEST
-from builds.models import Version
-from projects.models import Project
+from readthedocs.builds.constants import LATEST
+from readthedocs.builds.models import Version
+from readthedocs.projects.models import Project
 
 
 class RedirectSingleVersionTests(TestCase):

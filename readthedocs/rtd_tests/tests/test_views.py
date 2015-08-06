@@ -2,14 +2,21 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.utils.six.moves.urllib.parse import urlsplit
+from django_dynamic_fixture import get
+from django_dynamic_fixture import new
 
-from builds.constants import LATEST
-from projects.models import Project
-from projects.forms import UpdateProjectForm
+from readthedocs.builds.constants import LATEST
+from readthedocs.projects.models import ImportedFile
+from readthedocs.projects.models import Project
+from readthedocs.projects.forms import UpdateProjectForm
+from readthedocs.privacy.loader import AdminPermission
 
 
 class Testmaker(TestCase):
-    fixtures = ["eric"]
+    def setUp(self):
+        self.eric = User(username='eric')
+        self.eric.set_password('test')
+        self.eric.save()
 
     def test_imported_docs(self):
         # Test Import
@@ -78,14 +85,8 @@ class PrivateViewsAreProtectedTests(TestCase):
         response = self.client.get('/dashboard/import/github/')
         self.assertRedirectToLogin(response)
 
-        response = self.client.get('/dashboard/import/github/sync/')
-        self.assertRedirectToLogin(response)
-
     def test_import_bitbucket(self):
         response = self.client.get('/dashboard/import/bitbucket/')
-        self.assertRedirectToLogin(response)
-
-        response = self.client.get('/dashboard/import/bitbucket/sync/')
         self.assertRedirectToLogin(response)
 
     def test_projects_manage(self):
@@ -168,3 +169,71 @@ class PrivateViewsAreProtectedTests(TestCase):
     def test_project_redirects_delete(self):
         response = self.client.get('/dashboard/pip/redirects/delete/')
         self.assertRedirectToLogin(response)
+
+
+class RandomPageTests(TestCase):
+    fixtures = ['eric', 'test_data']
+
+    def setUp(self):
+        self.pip = Project.objects.get(slug='pip')
+        self.pip_version = self.pip.versions.all()[0]
+        ImportedFile.objects.create(
+            project=self.pip,
+            version=self.pip_version,
+            name='File',
+            slug='file',
+            path='file.html',
+            md5='abcdef',
+            commit='1234567890abcdef')
+
+    def test_random_page_view_redirects(self):
+        response = self.client.get('/random/')
+        self.assertEqual(response.status_code, 302)
+
+    def test_takes_project_slug(self):
+        response = self.client.get('/random/pip/')
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue('/pip/' in response['Location'])
+
+    def test_404_for_unknown_project(self):
+        response = self.client.get('/random/not-existent/')
+        self.assertEqual(response.status_code, 404)
+
+    def test_404_for_with_no_imported_files(self):
+        ImportedFile.objects.all().delete()
+        response = self.client.get('/random/pip/')
+        self.assertEqual(response.status_code, 404)
+
+class SubprojectViewTests(TestCase):
+    def setUp(self):
+        self.user = new(User, username='test')
+        self.user.set_password('test')
+        self.user.save()
+
+        self.project = get(Project, slug='my-mainproject')
+        self.subproject = get(Project, slug='my-subproject')
+        self.project.add_subproject(self.subproject)
+
+        self.client.login(username='test', password='test')
+
+    def test_deny_delete_for_non_project_admins(self):
+        response = self.client.get('/dashboard/my-mainproject/subprojects/delete/my-subproject/')
+        self.assertEqual(response.status_code, 404)
+
+        self.assertTrue(self.subproject in [r.child for r in self.project.subprojects.all()])
+
+    def test_admins_can_delete_subprojects(self):
+        self.project.users.add(self.user)
+        self.subproject.users.add(self.user)
+
+        response = self.client.get('/dashboard/my-mainproject/subprojects/delete/my-subproject/')
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(self.subproject not in [r.child for r in self.project.subprojects.all()])
+
+    def test_project_admins_can_delete_subprojects_that_they_are_not_admin_of(self):
+        self.project.users.add(self.user)
+        self.assertFalse(AdminPermission.is_admin(self.user, self.subproject))
+
+        response = self.client.get('/dashboard/my-mainproject/subprojects/delete/my-subproject/')
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(self.subproject not in [r.child for r in self.project.subprojects.all()])

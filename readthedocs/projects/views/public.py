@@ -22,12 +22,12 @@ from taggit.models import Tag
 import requests
 
 from .base import ProjectOnboardMixin
-from builds.constants import LATEST
-from builds.filters import VersionSlugFilter
-from builds.models import Version
-from projects.models import Project, ImportedFile
-from search.indexes import PageIndex
-from search.views import LOG_TEMPLATE
+from readthedocs.builds.constants import LATEST
+from readthedocs.builds.filters import VersionSlugFilter
+from readthedocs.builds.models import Version
+from readthedocs.projects.models import Project, ImportedFile
+from readthedocs.search.indexes import PageIndex
+from readthedocs.search.views import LOG_TEMPLATE
 
 log = logging.getLogger(__name__)
 search_log = logging.getLogger(__name__ + '.search')
@@ -107,7 +107,8 @@ def _badge_return(redirect, url):
         return HttpResponseRedirect(url)
     else:
         response = requests.get(url)
-        http_response = HttpResponse(response.content, mimetype="image/svg+xml")
+        http_response = HttpResponse(response.content,
+                                     content_type="image/svg+xml")
         http_response['Cache-Control'] = 'no-cache'
         http_response['Etag'] = md5.new(url)
         return http_response
@@ -122,20 +123,26 @@ def project_badge(request, project_slug, redirect=True):
     version_slug = request.GET.get('version', LATEST)
     style = request.GET.get('style', 'flat')
     try:
-        version = Version.objects.public(request.user).get(project__slug=project_slug, slug=version_slug)
+        version = Version.objects.public(request.user).get(
+            project__slug=project_slug, slug=version_slug)
     except Version.DoesNotExist:
-        url = 'https://img.shields.io/badge/docs-unknown%20version-yellow.svg?style={style}'.format(style=style)
+        url = (
+            'https://img.shields.io/badge/docs-unknown%20version-yellow.svg?style={style}'
+            .format(style=style))
         return _badge_return(redirect, url)
     version_builds = version.builds.filter(type='html', state='finished').order_by('-date')
     if not version_builds.exists():
-        url = 'https://img.shields.io/badge/docs-no%20builds-yellow.svg?style={style}'.format(style=style)
+        url = (
+            'https://img.shields.io/badge/docs-no%20builds-yellow.svg?style={style}'
+            .format(style=style))
         return _badge_return(redirect, url)
     last_build = version_builds[0]
     if last_build.success:
         color = 'brightgreen'
     else:
         color = 'red'
-    url = 'https://img.shields.io/badge/docs-%s-%s.svg?style=%s' % (version.slug.replace('-', '--'), color, style)
+    url = 'https://img.shields.io/badge/docs-%s-%s.svg?style=%s' % (
+        version.slug.replace('-', '--'), color, style)
     return _badge_return(redirect, url)
 
 
@@ -150,7 +157,7 @@ def project_downloads(request, project_slug):
         data = version.get_downloads()
         # Don't show ones that have no downloads.
         if data:
-            version_data[version.slug] = data
+            version_data[version] = data
 
     # in case the MEDIA_URL is a protocol relative URL we just assume
     # we want http as the protcol, so that Dash is able to handle the URL
@@ -183,8 +190,8 @@ def project_download_media(request, project_slug, type, version_slug):
     queryset = Project.objects.protected(request.user).filter(slug=project_slug)
     if not queryset.exists():
         raise Http404
-    DEFAULT_PRIVACY_LEVEL = getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public')
-    if DEFAULT_PRIVACY_LEVEL == 'public' or settings.DEBUG:
+    privacy_level = getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public')
+    if privacy_level == 'public' or settings.DEBUG:
         path = os.path.join(settings.MEDIA_URL, type, project_slug, version_slug,
                             '%s.%s' % (project_slug, type.replace('htmlzip', 'zip')))
         return HttpResponseRedirect(path)
@@ -193,9 +200,9 @@ def project_download_media(request, project_slug, type, version_slug):
         path = queryset[0].get_production_media_path(type=type, version_slug=version_slug).replace(
             settings.PRODUCTION_ROOT, '/prod_artifacts'
         )
-        mimetype, encoding = mimetypes.guess_type(path)
-        mimetype = mimetype or 'application/octet-stream'
-        response = HttpResponse(mimetype=mimetype)
+        content_type, encoding = mimetypes.guess_type(path)
+        content_type = content_type or 'application/octet-stream'
+        response = HttpResponse(content_type=content_type)
         if encoding:
             response["Content-Encoding"] = encoding
         response['X-Accel-Redirect'] = path
@@ -223,7 +230,7 @@ def search_autocomplete(request):
         })
 
     json_response = json.dumps(ret_list)
-    return HttpResponse(json_response, mimetype='text/javascript')
+    return HttpResponse(json_response, content_type='text/javascript')
 
 
 def version_autocomplete(request, project_slug):
@@ -242,7 +249,7 @@ def version_autocomplete(request, project_slug):
     names = version_queryset.values_list('slug', flat=True)
     json_response = json.dumps(list(names))
 
-    return HttpResponse(json_response, mimetype='text/javascript')
+    return HttpResponse(json_response, content_type='text/javascript')
 
 
 def version_filter_autocomplete(request, project_slug):
@@ -255,7 +262,7 @@ def version_filter_autocomplete(request, project_slug):
     if format == 'json':
         names = filter.qs.values_list('slug', flat=True)
         json_response = json.dumps(list(names))
-        return HttpResponse(json_response, mimetype='text/javascript')
+        return HttpResponse(json_response, content_type='text/javascript')
     elif format == 'html':
         return render_to_response(
             'core/version_list.html',
@@ -267,7 +274,7 @@ def version_filter_autocomplete(request, project_slug):
             context_instance=RequestContext(request),
         )
     else:
-        raise HttpResponse(status=400)
+        return HttpResponse(status=400)
 
 
 def file_autocomplete(request, project_slug):
@@ -288,7 +295,7 @@ def file_autocomplete(request, project_slug):
         })
 
     json_response = json.dumps(ret_list)
-    return HttpResponse(json_response, mimetype='text/javascript')
+    return HttpResponse(json_response, content_type='text/javascript')
 
 
 def elastic_project_search(request, project_slug):
@@ -381,8 +388,9 @@ def project_versions(request, project_slug):
     inactive_filter = VersionSlugFilter(request.GET, queryset=inactive_versions)
     active_filter = VersionSlugFilter(request.GET, queryset=active_versions)
 
-    # If there's a wiped query string, check the string against the versions list and display a success message.
-    # Deleting directories doesn't know how to fail.  :)
+    # If there's a wiped query string, check the string against the versions
+    # list and display a success message. Deleting directories doesn't know how
+    # to fail.  :)
     wiped = request.GET.get('wipe', '')
     wiped_version = versions.filter(slug=wiped)
     if wiped and wiped_version.count():
@@ -420,8 +428,10 @@ def project_analytics(request, project_slug):
             analytics = None
 
     if analytics:
-        page_list = list(reversed(sorted(analytics['page'].items(), key=operator.itemgetter(1))))
-        version_list = list(reversed(sorted(analytics['version'].items(), key=operator.itemgetter(1))))
+        page_list = list(reversed(sorted(analytics['page'].items(),
+                                         key=operator.itemgetter(1))))
+        version_list = list(reversed(sorted(analytics['version'].items(),
+                                            key=operator.itemgetter(1))))
     else:
         page_list = []
         version_list = []

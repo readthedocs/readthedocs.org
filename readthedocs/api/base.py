@@ -1,7 +1,9 @@
 import logging
 import json
+import redis
 
 from django.contrib.auth.models import User
+from django.conf import settings
 from django.conf.urls import url
 from django.shortcuts import get_object_or_404
 
@@ -12,23 +14,24 @@ from tastypie.resources import ModelResource
 from tastypie.http import HttpCreated, HttpApplicationError
 from tastypie.utils import dict_strip_unicode_keys, trailing_slash
 
-from builds.constants import LATEST
-from builds.models import Build, Version
-from core.utils import trigger_build
-from projects.models import Project, ImportedFile
-from projects.version_handling import highest_version
-from projects.version_handling import parse_version_failsafe
-from djangome import views as djangome
+from readthedocs.builds.constants import LATEST
+from readthedocs.builds.models import Build, Version
+from readthedocs.core.utils import trigger_build
+from readthedocs.projects.models import Project, ImportedFile
+from readthedocs.restapi.views.footer_views import get_version_compare_data
 
 from .utils import SearchMixin, PostAuthentication
 
 log = logging.getLogger(__name__)
 
 
-class ProjectResource(ModelResource, SearchMixin):
-    users = fields.ToManyField('api.base.UserResource', 'users')
+redis_client = redis.Redis(**settings.REDIS)
 
-    class Meta:
+
+class ProjectResource(ModelResource, SearchMixin):
+    users = fields.ToManyField('readthedocs.api.base.UserResource', 'users')
+
+    class Meta(object):
         include_absolute_url = True
         allowed_methods = ['get', 'post', 'put']
         queryset = Project.objects.api()
@@ -117,7 +120,7 @@ class ProjectResource(ModelResource, SearchMixin):
 class VersionResource(ModelResource):
     project = fields.ForeignKey(ProjectResource, 'project', full=True)
 
-    class Meta:
+    class Meta(object):
         allowed_methods = ['get', 'put', 'post']
         always_return_data = True
         queryset = Version.objects.api()
@@ -140,34 +143,16 @@ class VersionResource(ModelResource):
         self._meta.queryset = Version.objects.api(user=request.user, only_active=False)
         return super(VersionResource, self).get_object_list(request)
 
-    def version_compare(self, request, **kwargs):
-        project = get_object_or_404(Project, slug=kwargs['project_slug'])
-        highest_version_obj, highest_version_comparable = highest_version(
-            project.versions.filter(active=True))
-        base = kwargs.get('base', None)
-        ret_val = {
-            'project': highest_version_obj,
-            'version': highest_version_comparable,
-            'is_highest': True,
-        }
-        if highest_version_obj:
-            ret_val['url'] = highest_version_obj.get_absolute_url()
-            ret_val['slug'] = highest_version_obj.slug,
+    def version_compare(self, request, project_slug, base=None, **kwargs):
+        project = get_object_or_404(Project, slug=project_slug)
         if base and base != LATEST:
             try:
-                base_version_obj = project.versions.get(slug=base)
-                base_version_comparable = parse_version_failsafe(
-                    base_version_obj.verbose_name)
-                if base_version_comparable:
-                    # This is only place where is_highest can get set.  All
-                    # error cases will be set to True, for non- standard
-                    # versions.
-                    ret_val['is_highest'] = (
-                        base_version_comparable >= highest_version_comparable)
-                else:
-                    ret_val['is_highest'] = True
+                base_version = project.versions.get(slug=base)
             except (Version.DoesNotExist, TypeError):
-                ret_val['is_highest'] = True
+                base_version = None
+        else:
+            base_version = None
+        ret_val = get_version_compare_data(project, base_version)
         return self.create_response(request, ret_val)
 
     def build_version(self, request, **kwargs):
@@ -205,10 +190,10 @@ class VersionResource(ModelResource):
 
 
 class BuildResource(ModelResource):
-    project = fields.ForeignKey('api.base.ProjectResource', 'project')
-    version = fields.ForeignKey('api.base.VersionResource', 'version')
+    project = fields.ForeignKey('readthedocs.api.base.ProjectResource', 'project')
+    version = fields.ForeignKey('readthedocs.api.base.VersionResource', 'version')
 
-    class Meta:
+    class Meta(object):
         always_return_data = True
         include_absolute_url = True
         allowed_methods = ['get', 'post', 'put']
@@ -242,7 +227,7 @@ class BuildResource(ModelResource):
 class FileResource(ModelResource, SearchMixin):
     project = fields.ForeignKey(ProjectResource, 'project', full=True)
 
-    class Meta:
+    class Meta(object):
         allowed_methods = ['get', 'post']
         queryset = ImportedFile.objects.all()
         excludes = ['md5', 'slug']
@@ -273,8 +258,8 @@ class FileResource(ModelResource, SearchMixin):
         self.throttle_check(request)
 
         query = request.GET.get('q', '')
-        redis_data = djangome.r.keys("*redirects:v4*%s*" % query)
-        #-2 because http:
+        redis_data = redis_client.keys("*redirects:v4*%s*" % query)
+        # -2 because http:
         urls = [''.join(data.split(':')[6:]) for data in redis_data
                 if 'http://' in data]
         object_list = {'objects': urls}
@@ -285,7 +270,7 @@ class FileResource(ModelResource, SearchMixin):
 
 class UserResource(ModelResource):
 
-    class Meta:
+    class Meta(object):
         allowed_methods = ['get']
         queryset = User.objects.all()
         fields = ['username', 'first_name', 'last_name', 'last_login', 'id']

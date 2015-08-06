@@ -4,9 +4,7 @@
   {% if dict.pdf and version.project.enable_pdf_build %}
   <li class="module-item col-span">
     <a class="module-item-title" href="{{ dict.pdf }}">
-      {% blocktrans %}
-        {{ version }} PDF
-      {% endblocktrans %}
+        {{ version.slug }} PDF
     </a>
   </li>
   {% endif %}
@@ -14,9 +12,7 @@
   {% if dict.htmlzip %}
   <li class="module-item col-span">
     <a class="module-item-title" href="{{ dict.htmlzip }}">
-      {% blocktrans %}
-        {{ version }} HTMLZip
-      {% endblocktrans %}
+        {{ version.slug }} HTMLZip
     </a>
   </li>
   {% endif %}
@@ -24,9 +20,7 @@
   {% if dict.epub and version.project.enable_epub_build %}
   <li class="module-item col-span">
     <a class="module-item-title" href="{{ dict.epub }}">
-      {% blocktrans %}
-        {{ version }} Epub
-      {% endblocktrans %}
+        {{ version.slug }} Epub
     </a>
   </li>
   {% endif %}

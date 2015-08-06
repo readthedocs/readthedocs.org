@@ -1,40 +1,78 @@
-from bamboo_boy.utils import with_canopy
 import random
 from unittest.case import expectedFailure
 
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.client import RequestFactory
-from django.utils.decorators import method_decorator
+from django_dynamic_fixture import fixture
+from django_dynamic_fixture import get
+from django_dynamic_fixture import new
 from rest_framework.test import APIRequestFactory, APITestCase
 
-from comments.models import DocumentNode, DocumentComment, NodeSnapshot
-from comments.views import add_node, get_metadata, update_node
-from privacy.backend import AdminNotAuthorized
-from projects.views.private import project_comments_moderation
-from rtd_tests.factories.comments_factories import DocumentNodeFactory, \
-    DocumentCommentFactory, ProjectsWithComments
-from rtd_tests.factories.general_factories import UserFactory
-from rtd_tests.factories.projects_factories import ProjectFactory
+from readthedocs.builds.models import Version
+from readthedocs.comments.models import DocumentNode, DocumentComment
+from readthedocs.comments.models import NodeSnapshot
+from readthedocs.comments.views import add_node, get_metadata, update_node
+from readthedocs.projects.models import Project
+from readthedocs.projects.views.private import project_comments_moderation
 
 
-@with_canopy(ProjectsWithComments)
+def create_user(username, password):
+    user = new(User, username=username)
+    user.set_password(password)
+    user.save()
+    return user
+
+
+def create_node(hash=None, commit=None, **kwargs):
+    snapshot_kwargs = {}
+    if hash is not None:
+        snapshot_kwargs['hash'] = hash
+    if commit is not None:
+        snapshot_kwargs['commit'] = commit
+    node = get(DocumentNode, **kwargs)
+    get(NodeSnapshot, node=node, **snapshot_kwargs)
+    return node
+
+
 class ModerationTests(TestCase):
+    def setUp(self):
+        self.owner = create_user(username='owner', password='test')
+
+        self.moderated_project = get(Project, comment_moderation=True)
+        self.moderated_project.users.add(self.owner)
+
+        self.moderated_node = create_node(project=self.moderated_project)
+
+        self.first_moderated_comment = get(DocumentComment,
+                                           node=self.moderated_node)
+        self.second_moderated_comment = get(DocumentComment,
+                                            node=self.moderated_node)
+
+        self.unmoderated_project = get(Project, comment_moderation=False)
+        self.unmoderated_project.users.add(self.owner)
+
+        self.unmoderated_node = create_node(project=self.unmoderated_project)
+
+        self.first_unmoderated_comment = get(DocumentComment,
+                                             node=self.unmoderated_node)
+        self.second_unmoderated_comment = get(DocumentComment,
+                                              node=self.unmoderated_node)
 
     def test_approved_comments(self):
-        c = self.canopy.first_unmoderated_comment
+        c = self.first_unmoderated_comment
 
         # This comment has never been approved...
         self.assertFalse(c.has_been_approved_since_most_recent_node_change())
 
         # ...until now!
-        c.moderate(user=self.canopy.owner, decision=1)
+        c.moderate(user=self.owner, decision=1)
         self.assertTrue(c.has_been_approved_since_most_recent_node_change())
 
     def test_new_node_snapshot_causes_comment_to_show_as_not_approved_since_change(self):
 
-        c = self.canopy.first_unmoderated_comment
-        c.moderate(user=self.canopy.owner, decision=1)
+        c = self.first_unmoderated_comment
+        c.moderate(user=self.owner, decision=1)
 
         self.assertTrue(c.has_been_approved_since_most_recent_node_change())
         c.node.snapshots.create(hash=random.getrandbits(128))
@@ -42,54 +80,56 @@ class ModerationTests(TestCase):
 
     def test_unmoderated_project_shows_all_comments(self):
 
-        visible_comments = self.canopy.unmoderated_node.visible_comments()
+        visible_comments = self.unmoderated_node.visible_comments()
 
-        self.assertIn(self.canopy.first_unmoderated_comment, visible_comments)
-        self.assertIn(self.canopy.second_unmoderated_comment, visible_comments)
+        self.assertIn(self.first_unmoderated_comment, visible_comments)
+        self.assertIn(self.second_unmoderated_comment, visible_comments)
 
     def test_unapproved_comment_is_not_visible_on_moderated_project(self):
 
-        # We take a look at the visible comments and find that neither comment is among them.
-        visible_comments = self.canopy.moderated_node.visible_comments()
-        self.assertNotIn(self.canopy.first_moderated_comment, visible_comments)
-        self.assertNotIn(self.canopy.second_moderated_comment, visible_comments)
+        # We take a look at the visible comments and find that neither comment
+        # is among them.
+        visible_comments = self.moderated_node.visible_comments()
+        self.assertNotIn(self.first_moderated_comment, visible_comments)
+        self.assertNotIn(self.second_moderated_comment, visible_comments)
 
     def test_moderated_project_with_unchanged_nodes_shows_only_approved_comment(self):
         # Approve the first comment...
-        self.canopy.first_moderated_comment.moderate(user=self.canopy.owner, decision=1)
+        self.first_moderated_comment.moderate(user=self.owner, decision=1)
 
         # ...and find that the first comment, but not the second one, is visible.
-        visible_comments = self.canopy.moderated_node.visible_comments()
-        self.assertIn(self.canopy.first_moderated_comment, visible_comments)
-        self.assertNotIn(self.canopy.second_moderated_comment, visible_comments)
+        visible_comments = self.moderated_node.visible_comments()
+        self.assertIn(self.first_moderated_comment, visible_comments)
+        self.assertNotIn(self.second_moderated_comment, visible_comments)
 
     def test_moderated_project_with_changed_nodes_dont_show_comments_that_havent_been_approved_since(self):
         # Approve the first comment...
-        self.canopy.first_moderated_comment.moderate(user=self.canopy.owner, decision=1)
+        self.first_moderated_comment.moderate(user=self.owner, decision=1)
 
         # ...but this time, change the node.
-        self.canopy.first_moderated_comment.node.snapshots.create(hash=random.getrandbits(128))
+        self.first_moderated_comment.node.snapshots.create(hash=random.getrandbits(128))
 
         # Now it does not show as visible.
-        visible_comments = self.canopy.moderated_node.visible_comments()
-        self.assertNotIn(self.canopy.first_moderated_comment, visible_comments)
+        visible_comments = self.moderated_node.visible_comments()
+        self.assertNotIn(self.first_moderated_comment, visible_comments)
 
     def test_unapproved_comments_appear_in_moderation_queue(self):
-        queue = self.canopy.moderated_project.moderation_queue()
-        self.assertIn(self.canopy.first_moderated_comment, queue)
-        self.assertIn(self.canopy.second_moderated_comment, queue)
+        queue = self.moderated_project.moderation_queue()
+        self.assertIn(self.first_moderated_comment, queue)
+        self.assertIn(self.second_moderated_comment, queue)
 
     def test_approved_comments_do_not_appear_in_moderation_queue(self):
-        self.canopy.first_moderated_comment.moderate(user=self.canopy.owner, decision=1)
-        queue = self.canopy.moderated_project.moderation_queue()
-        self.assertNotIn(self.canopy.first_moderated_comment, queue)
-        self.assertIn(self.canopy.second_moderated_comment, queue)
+        self.first_moderated_comment.moderate(user=self.owner, decision=1)
+        queue = self.moderated_project.moderation_queue()
+        self.assertNotIn(self.first_moderated_comment, queue)
+        self.assertIn(self.second_moderated_comment, queue)
 
 
 class NodeAndSnapshotTests(TestCase):
 
     def test_update_with_same_hash_does_not_create_new_snapshot(self):
-        node = DocumentNodeFactory()
+        node = get(DocumentNode)
+        get(NodeSnapshot, node=node)
 
         hash = "SOMEHASH"
         commit = "SOMEGITCOMMIT"
@@ -106,7 +146,7 @@ class NodeAndSnapshotTests(TestCase):
         self.assertEqual(node.snapshots.count(), 2)
 
     def test_node_cannot_be_created_without_commit_and_hash(self):
-        project = ProjectFactory()
+        project = get(Project, versions=[fixture()])
         some_version = project.versions.all()[0]
 
         self.assertRaises(TypeError,
@@ -128,8 +168,8 @@ class NodeAndSnapshotTests(TestCase):
         first_hash = "THEoriginalHASH"
         second_hash = 'ANEWCRAZYHASH'
 
-        node = DocumentNodeFactory(hash=first_hash)
-        comnent = DocumentCommentFactory()
+        node = create_node(hash=first_hash)
+        get(DocumentComment)
         node.update_hash(second_hash, 'ANEWCRAZYCOMMIT')
 
         node_from_orm = DocumentNode.objects.from_hash(node.version.slug,
@@ -149,7 +189,7 @@ class NodeAndSnapshotTests(TestCase):
         node_hash = "AcommonHASH"
         page = "somepage"
         commit = "somecommit"
-        project = ProjectFactory()
+        project = get(Project, versions=[fixture()])
 
         project.add_node(node_hash=node_hash,
                          page=page,
@@ -169,40 +209,63 @@ class NodeAndSnapshotTests(TestCase):
             self.fail("We don't have indexing yet.")
 
 
-@with_canopy(ProjectsWithComments)
 class CommentModerationViewsTests(TestCase):
+    def setUp(self):
+        self.owner = create_user(username='owner', password='test')
+
+        self.moderated_project = get(Project, comment_moderation=True)
+        self.moderated_project.users.add(self.owner)
+
+        self.moderated_node = get(DocumentNode,
+                                  project=self.moderated_project)
+        get(NodeSnapshot, node=self.moderated_node)
+
+        self.moderated_comment = get(DocumentComment,
+                                     text='Some comment text.',
+                                     node=self.moderated_node)
 
     def test_unmoderated_comments_are_listed_in_view(self):
 
         request = RequestFactory()
-        request.user = self.canopy.owner
+        request.user = self.owner
         request.META = {}
-        response = project_comments_moderation(request, self.canopy.moderated_project.slug)
+        response = project_comments_moderation(request, self.moderated_project.slug)
 
-        self.assertIn(self.canopy.first_moderated_comment.text, response.content)
+        self.assertIn(self.moderated_comment.text, response.content)
 
 
-@with_canopy(ProjectsWithComments)
 class CommentAPIViewsTests(APITestCase):
 
     request_factory = APIRequestFactory()
 
+    def setUp(self):
+        self.owner = create_user(username='owner', password='test')
+
+        self.moderated_project = get(Project, comment_moderation=True)
+        self.moderated_project.users.add(self.owner)
+        self.moderated_version = get(Version, project=self.moderated_project)
+
+        self.moderated_node = get(DocumentNode,
+                                  project=self.moderated_project,
+                                  version=self.moderated_version)
+        get(NodeSnapshot, node=self.moderated_node)
+
     def test_get_comments_view(self):
 
-        number_of_comments = DocumentComment.objects.count()  # (from the canopy)
+        number_of_comments = DocumentComment.objects.count()
 
         response = self.client.get('/api/v2/comments/')
         self.assertEqual(number_of_comments, response.data['count'])
 
         # moooore comments.
-        DocumentCommentFactory.create_batch(50)
+        get(DocumentComment, n=50, node=self.moderated_node)
 
         response = self.client.get('/api/v2/comments/')
         self.assertEqual(number_of_comments + 50, response.data['count'])
 
     def test_get_metadata_view(self):
 
-        node = DocumentNodeFactory()
+        node = create_node()
 
         get_data = {
             'project': node.project.slug,
@@ -219,10 +282,10 @@ class CommentAPIViewsTests(APITestCase):
         self.assertEqual(number_of_comments, 0)
 
         # Now we'll make one.
-        comment = DocumentCommentFactory(node=node, text="Our first comment!")
+        get(DocumentComment, node=node, text="Our first comment!")
 
         second_request = self.request_factory.get('/_get_metadata/', get_data)
-        second_response = get_metadata(request)
+        second_response = get_metadata(second_request)
         second_response.render()
 
         number_of_comments = second_response.data[node.latest_hash()]
@@ -232,7 +295,7 @@ class CommentAPIViewsTests(APITestCase):
 
     def test_add_node_view(self):
 
-        node = self.canopy.moderated_project.nodes.all()[0]
+        node = self.moderated_project.nodes.all()[0]
 
         post_data = {
             'document': node.page,
@@ -257,7 +320,7 @@ class CommentAPIViewsTests(APITestCase):
 
     def test_update_node_view(self):
 
-        node = DocumentNodeFactory()
+        node = create_node()
 
         # Our node has one snapshot.
         self.assertEqual(node.snapshots.count(), 1)
@@ -288,8 +351,9 @@ class CommentAPIViewsTests(APITestCase):
     def test_add_comment_view_without_existing_hash(self):
 
         comment_text = "Here's a comment added to a new hash."
-        node = DocumentNodeFactory()
-        UserFactory(username="test", password="test")
+        version = get(Version, project=fixture())
+        node = create_node(project=version.project, version=version)
+        user = create_user(username='test', password='test')
 
         number_of_nodes = DocumentNode.objects.count()
 
@@ -311,8 +375,8 @@ class CommentAPIViewsTests(APITestCase):
 
     def test_add_comment_view_with_existing_hash(self):
 
-        node = DocumentNodeFactory()
-        user = UserFactory(username="test", password="test")
+        node = create_node()
+        user = create_user(username='test', password='test')
 
         comment_text = "Here's a comment added through the comment view."
 
@@ -342,8 +406,8 @@ class CommentAPIViewsTests(APITestCase):
         comment_text = "This comment will follow its node despite hash changing."
 
         # Create a comment on a node whose latest hash is the first one.
-        node = DocumentNodeFactory(hash=first_hash)
-        comnent = DocumentCommentFactory(node=node, text=comment_text)
+        node = create_node(hash=first_hash)
+        get(DocumentComment, node=node, text=comment_text)
 
         # Now change the node's hash.
         node.update_hash(second_hash, 'ANEWCRAZYCOMMIT')
@@ -374,12 +438,13 @@ class CommentAPIViewsTests(APITestCase):
         pass
 
     def test_moderate_comment_by_approving(self):
-        user = UserFactory(username="test", password="test")
-        project = ProjectFactory()
-        project.users.add(user)
-        node = DocumentNodeFactory(project=project)
+        user = create_user(username='test', password='test')
 
-        comment = DocumentCommentFactory(node=node)
+        project = get(Project, versions=[fixture()])
+        project.users.add(user)
+        node = create_node(project=project)
+
+        comment = get(DocumentComment, node=node)
 
         post_data = {
             'decision': 1,
@@ -394,9 +459,8 @@ class CommentAPIViewsTests(APITestCase):
 
     def test_stranger_cannot_moderate_comments(self):
 
-        node = DocumentNodeFactory()
-        user = UserFactory()
-        comment = DocumentCommentFactory(node=node)
+        node = create_node()
+        comment = get(DocumentComment, node=node)
 
         post_data = {
             'decision': 1,

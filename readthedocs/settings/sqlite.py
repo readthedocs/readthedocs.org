@@ -1,4 +1,4 @@
-import os.path
+import os
 
 from .base import *  # noqa
 
@@ -17,7 +17,7 @@ REDIS = {
 
 BROKER_URL = 'redis://localhost:6379/0'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
-#CELERY_ALWAYS_EAGER = False
+# CELERY_ALWAYS_EAGER = False
 
 
 SESSION_COOKIE_DOMAIN = None
@@ -25,9 +25,9 @@ SESSION_COOKIE_HTTPONLY = False
 CACHE_BACKEND = 'dummy://'
 
 SLUMBER_USERNAME = 'test'
-SLUMBER_PASSWORD = 'test'
+SLUMBER_PASSWORD = 'test'  # noqa: ignore dodgy check
 SLUMBER_API_HOST = 'http://localhost:8000'
-#GROK_API_HOST = 'http://localhost:5555'
+# GROK_API_HOST = 'http://localhost:5555'
 PRODUCTION_DOMAIN = 'localhost:8000'
 
 WEBSOCKET_HOST = 'localhost:8088'
@@ -38,13 +38,12 @@ HAYSTACK_CONNECTIONS = {
     },
 }
 
-IMPORT_EXTERNAL_DATA = False
 DONT_HIT_DB = False
 NGINX_X_ACCEL_REDIRECT = True
 
 CELERY_ALWAYS_EAGER = True
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-FILE_SYNCER = 'privacy.backends.syncers.LocalSyncer'
+FILE_SYNCER = 'readthedocs.privacy.backends.syncers.LocalSyncer'
 
 # For testing locally. Put this in your /etc/hosts:
 # 127.0.0.1 test
@@ -53,7 +52,8 @@ CORS_ORIGIN_WHITELIST = (
     'test:8000',
 )
 
-try:
-    from local_settings import *  # noqa
-except ImportError:
-    pass
+if not os.environ.get('DJANGO_SETTINGS_SKIP_LOCAL', False):
+    try:
+        from local_settings import *  # noqa
+    except ImportError:
+        pass

@@ -7,9 +7,39 @@ from rest_framework import decorators, permissions
 from rest_framework.renderers import JSONPRenderer, JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 
-from builds.models import Version
-from projects.models import Project
-from donate.models import SupporterPromo
+from readthedocs.builds.constants import LATEST
+from readthedocs.builds.models import Version
+from readthedocs.donate.models import SupporterPromo
+from readthedocs.projects.models import Project
+from readthedocs.projects.version_handling import highest_version
+from readthedocs.projects.version_handling import parse_version_failsafe
+
+
+def get_version_compare_data(project, base_version=None):
+    highest_version_obj, highest_version_comparable = highest_version(
+        project.versions.filter(active=True))
+    ret_val = {
+        'project': unicode(highest_version_obj),
+        'version': unicode(highest_version_comparable),
+        'is_highest': True,
+    }
+    if highest_version_obj:
+        ret_val['url'] = highest_version_obj.get_absolute_url()
+        ret_val['slug'] = highest_version_obj.slug,
+    if base_version and base_version.slug != LATEST:
+        try:
+            base_version_comparable = parse_version_failsafe(
+                base_version.verbose_name)
+            if base_version_comparable:
+                # This is only place where is_highest can get set. All error
+                # cases will be set to True, for non- standard versions.
+                ret_val['is_highest'] = (
+                    base_version_comparable >= highest_version_comparable)
+            else:
+                ret_val['is_highest'] = True
+        except (Version.DoesNotExist, TypeError):
+            ret_val['is_highest'] = True
+    return ret_val
 
 
 @decorators.api_view(['GET'])
@@ -27,11 +57,15 @@ def footer_html(request):
     new_theme = (theme == "sphinx_rtd_theme")
     using_theme = (theme == "default")
     project = get_object_or_404(Project, slug=project_slug)
-    version = get_object_or_404(Version.objects.public(request.user, project=project, only_active=False), slug=version_slug)
+    version = get_object_or_404(
+        Version.objects.public(request.user, project=project, only_active=False),
+        slug=version_slug)
     main_project = project.main_language_project or project
 
     if page_slug and page_slug != "index":
-        if main_project.documentation_type == "sphinx_htmldir" or main_project.documentation_type == "mkdocs":
+        if (
+                main_project.documentation_type == "sphinx_htmldir" or
+                main_project.documentation_type == "mkdocs"):
             path = page_slug + "/"
         elif main_project.documentation_type == "sphinx_singlehtml":
             path = "index.html#document-" + page_slug
@@ -41,10 +75,11 @@ def footer_html(request):
         path = ""
 
     if version.type == 'tag' and version.project.has_pdf(version.slug):
-        print_url = 'https://keminglabs.com/print-the-docs/quote?project={project}&version={version}'.format(
-            project=project.slug,
-            version=version.slug,
-        )
+        print_url = (
+            'https://keminglabs.com/print-the-docs/quote?project={project}&version={version}'
+            .format(
+                project=project.slug,
+                version=version.slug))
     else:
         print_url = None
 
@@ -63,6 +98,8 @@ def footer_html(request):
     promo_obj = SupporterPromo.objects.filter(live=True, display_type='doc').order_by('?').first()
     if not promo_obj:
         show_promo = False
+
+    version_compare_data = get_version_compare_data(project, version)
 
     context = Context({
         'project': project,
@@ -88,6 +125,7 @@ def footer_html(request):
     resp_data = {
         'html': html,
         'version_active': version.active,
+        'version_compare': version_compare_data,
         'version_supported': version.supported,
         'promo': show_promo,
     }

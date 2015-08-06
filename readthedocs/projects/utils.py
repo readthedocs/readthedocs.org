@@ -11,15 +11,15 @@ from httplib2 import Http
 from django.conf import settings
 import redis
 
-from builds.constants import LATEST
+from readthedocs.builds.constants import LATEST
 
 
 log = logging.getLogger(__name__)
 
 def version_from_slug(slug, version):
-    from projects import tasks
-    from builds.models import Version
-    from tastyapi import apiv2 as api
+    from readthedocs.projects import tasks
+    from readthedocs.builds.models import Version
+    from readthedocs.restapi.client import api
     if getattr(settings, 'DONT_HIT_DB', True):
         version_data = api.version().get(project=slug, slug=version)['results'][0]
         v = tasks.make_api_version(version_data)
@@ -28,7 +28,7 @@ def version_from_slug(slug, version):
     return v
 
 def symlink(project, version=LATEST):
-    from projects import symlinks
+    from readthedocs.projects import symlinks
     v = version_from_slug(project, version)
     log.info("Symlinking %s" % v)
     symlinks.symlink_subprojects(v)
@@ -39,7 +39,7 @@ def update_static_metadata(project_pk):
     """
     This is here to avoid circular imports in models.py
     """
-    from projects import tasks
+    from readthedocs.projects import tasks
     tasks.update_static_metadata.delay(project_pk)
 
 def find_file(file):
@@ -161,7 +161,7 @@ def _new_save(*args, **kwargs):
     return 0
 
 def make_api_version(version_data):
-    from builds.models import Version
+    from readthedocs.builds.models import Version
     for key in ['resource_uri', 'absolute_url', 'downloads']:
         if key in version_data:
             del version_data[key]
@@ -175,28 +175,10 @@ def make_api_version(version_data):
 
 
 def make_api_project(project_data):
-    from projects.models import Project
+    from readthedocs.projects.models import Project
     for key in ['users', 'resource_uri', 'absolute_url', 'downloads', 'main_language_project', 'related_projects']:
         if key in project_data:
             del project_data[key]
     project = Project(**project_data)
     project.save = _new_save
     return project
-
-
-def github_paginate(client, url):
-    """
-    Scans trough all github paginates results and returns the concatenated
-    list of results.
-
-    :param client: requests client instance
-    :param url: start url to get the data from.
-
-    See https://developer.github.com/v3/#pagination
-    """
-    result = []
-    while url:
-        r = session.get(url)
-        result.extend(r.json())
-        url = r.links.get('next')
-    return result

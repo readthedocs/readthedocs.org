@@ -6,6 +6,7 @@
 .coverage
 .idea
 .vagrant
+.tox
 _build
 cnames
 bower_components/

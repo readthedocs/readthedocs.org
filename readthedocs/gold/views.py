@@ -3,15 +3,16 @@ import datetime
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.db import IntegrityError
-from django.http import HttpResponseRedirect
-from django.shortcuts import render_to_response
+from django.http import HttpResponseRedirect, Http404
+from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
 
 import stripe
 
-from .forms import CardForm
+from .forms import CardForm, GoldProjectForm
 from .models import GoldUser
+from readthedocs.projects.models import Project
 
 stripe.api_key = settings.STRIPE_SECRET
 
@@ -26,7 +27,7 @@ def register(request):
     user = request.user
     try:
         gold_user = GoldUser.objects.get(user=request.user)
-    except:
+    except GoldUser.DoesNotExist:
         gold_user = None
     if request.method == 'POST':
         form = CardForm(request.POST)
@@ -54,7 +55,7 @@ def register(request):
             try:
                 user.save()
             except IntegrityError:
-                form.addError(user.user.username + ' is already a member')
+                form.add_error(None, user.user.username + ' is already a member')
             else:
                 return HttpResponseRedirect(reverse('gold_thanks'))
 
@@ -76,7 +77,7 @@ def register(request):
 
 @login_required
 def edit(request):
-    user = GoldUser.objects.get(user=request.user)
+    user = get_object_or_404(GoldUser, user=request.user)
     if request.method == 'POST':
         form = CardForm(request.POST)
         if form.is_valid():
@@ -110,7 +111,7 @@ def edit(request):
 
 @login_required
 def cancel(request):
-    user = GoldUser.objects.get(user=request.user)
+    user = get_object_or_404(GoldUser, user=request.user)
     if request.method == 'POST':
         customer = stripe.Customer.retrieve(user.stripe_id)
         customer.delete()
@@ -140,3 +141,38 @@ def thanks(request):
         },
         context_instance=RequestContext(request)
     )
+
+
+@login_required
+def projects(request):
+    gold_user = get_object_or_404(GoldUser, user=request.user)
+    gold_projects = gold_user.projects.all()
+
+    if request.method == 'POST':
+        form = GoldProjectForm(data=request.POST, user=gold_user, projects=gold_projects)
+        if form.is_valid():
+            to_add = Project.objects.get(slug=form.cleaned_data['project'])
+            gold_user.projects.add(to_add)
+            return HttpResponseRedirect(reverse('gold_projects'))
+    else:
+        form = GoldProjectForm()
+
+    return render_to_response(
+        'gold/projects.html',
+        {
+            'form': form,
+            'gold_user': gold_user,
+            'publishable': settings.STRIPE_PUBLISHABLE,
+            'user': request.user,
+            'projects': gold_projects
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@login_required
+def projects_remove(request, project_slug):
+    gold_user = get_object_or_404(GoldUser, user=request.user)
+    project = get_object_or_404(Project.objects.all(), slug=project_slug)
+    gold_user.projects.remove(project)
+    return HttpResponseRedirect(reverse('gold_projects'))
