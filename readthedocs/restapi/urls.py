@@ -29,4 +29,13 @@ urlpatterns = patterns(
     url(r'search/section/$',
         'readthedocs.restapi.views.search_views.section_search',
         name='api_section_search'),
+    url(r'jobs/status/(?P<task_id>[^/]+)/',
+        'readthedocs.restapi.views.task_views.job_status',
+        name='api_job_status'),
+    url(r'jobs/sync-github-repositories/',
+        'readthedocs.restapi.views.task_views.sync_github_repositories',
+        name='api_sync_github_repositories'),
+    url(r'jobs/sync-bitbucket-repositories/',
+        'readthedocs.restapi.views.task_views.sync_bitbucket_repositories',
+        name='api_sync_bitbucket_repositories'),
 )

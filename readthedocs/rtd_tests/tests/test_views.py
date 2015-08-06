@@ -85,14 +85,8 @@ class PrivateViewsAreProtectedTests(TestCase):
         response = self.client.get('/dashboard/import/github/')
         self.assertRedirectToLogin(response)
 
-        response = self.client.get('/dashboard/import/github/sync/')
-        self.assertRedirectToLogin(response)
-
     def test_import_bitbucket(self):
         response = self.client.get('/dashboard/import/bitbucket/')
-        self.assertRedirectToLogin(response)
-
-        response = self.client.get('/dashboard/import/bitbucket/sync/')
         self.assertRedirectToLogin(response)
 
     def test_projects_manage(self):

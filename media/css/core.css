@@ -96,6 +96,8 @@ input[type="hidden"] { display: none; }
 input[type="checkbox"], input[type="radio"] { display: inline; }
 label { display: block; margin-bottom: 4px; font-weight: bold; color: #444; }
 
+input[type="submit"].inline, input[type="button"].inline, button.inline, .button.inline { display: inline; }
+
 h2 > span.link-help,
 h3 > span.link-help,
 label > span.link-help {
