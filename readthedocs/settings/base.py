@@ -238,12 +238,12 @@ CELERY_CREATE_MISSING_QUEUES = True
 CELERY_DEFAULT_QUEUE = 'celery'
 # Wildcards not supported: https://github.com/celery/celery/issues/150
 CELERY_ROUTES = {
-        'readthedocs.oauth.tasks.SyncBitBucketRepositories': {
-            'queue': 'web',
-        },
-        'readthedocs.oauth.tasks.SyncGitHubRepositories': {
-            'queue': 'web',
-        },
+    'readthedocs.oauth.tasks.SyncBitBucketRepositories': {
+        'queue': 'web',
+    },
+    'readthedocs.oauth.tasks.SyncGitHubRepositories': {
+        'queue': 'web',
+    },
 }
 
 DEFAULT_FROM_EMAIL = "no-reply@readthedocs.org"
