@@ -236,10 +236,14 @@ CELERYD_PREFETCH_MULTIPLIER = 1
 CELERY_CREATE_MISSING_QUEUES = True
 
 CELERY_DEFAULT_QUEUE = 'celery'
-CELERY_QUEUES = (
-    Queue('celery', Exchange('celery'), routing_key='celery'),
-    Broadcast('build_broadcast_tasks'),
-)
+CELERY_ROUTES = {
+        'readthedocs.oauth.tasks.SyncBitBucketRepositories': {
+            'queue': 'web',
+        },
+        'readthedocs.oauth.tasks.SyncGitHubRepositories': {
+            'queue': 'web',
+        },
+}
 
 DEFAULT_FROM_EMAIL = "no-reply@readthedocs.org"
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
