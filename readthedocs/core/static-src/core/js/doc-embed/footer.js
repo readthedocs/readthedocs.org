@@ -1,4 +1,3 @@
-var Build = require('./build').Build;
 var rtddata = require('./rtd-data');
 var versionCompare = require('./version-compare');
 
@@ -10,7 +9,7 @@ function init() {
         project: rtd['project'],
         version: rtd['version'],
         page: rtd['page'],
-        theme: rtd['theme'],
+        theme: rtd.get_theme_name(),
         format: "jsonp",
     };
 
@@ -50,11 +49,11 @@ function init() {
 
 
 function injectFooter(data) {
-    var build = new Build(rtddata.get());
+    var config = rtddata.get();
 
     // If the theme looks like ours, update the existing badge
     // otherwise throw a a full one into the page.
-    if (build.is_rtd_theme()) {
+    if (config.is_rtd_theme()) {
         $("div.rst-other-versions").html(data['html']);
     } else {
         $("body").append(data['html']);
@@ -67,7 +66,7 @@ function injectFooter(data) {
     }
 
     // Show promo selectively
-    if (data.promo && build.show_promo()) {
+    if (data.promo && config.show_promo()) {
         var promo = new sponsorship.Promo(
             data.promo_data.id,
             data.promo_data.text,

@@ -1,14 +1,1 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-function attach_project_autocomplete(selector, url) {
-  $(selector).autocomplete({
-    source: url,
-    minLength: 2,
-    open: function(event, ui) {
-      ac_top = $('.ui-autocomplete').css('top');
-      $('.ui-autocomplete').css({'width': '233px', 'top': ac_top + 10 });
-    }
-  });
-}
-
-window.attach_project_autocomplete = attach_project_autocomplete
-},{}]},{},[1]);
+!function t(o,e,r){function n(i,c){if(!e[i]){if(!o[i]){var p="function"==typeof require&&require;if(!c&&p)return p(i,!0);if(u)return u(i,!0);var f=new Error("Cannot find module '"+i+"'");throw f.code="MODULE_NOT_FOUND",f}var a=e[i]={exports:{}};o[i][0].call(a.exports,function(t){var e=o[i][1][t];return n(e?e:t)},a,a.exports,t,o,e,r)}return e[i].exports}for(var u="function"==typeof require&&require,i=0;i<r.length;i++)n(r[i]);return n}({1:[function(t,o,e){function r(t,o){$(t).autocomplete({source:o,minLength:2,open:function(t,o){ac_top=$(".ui-autocomplete").css("top"),$(".ui-autocomplete").css({width:"233px",top:ac_top+10})}})}window.attach_project_autocomplete=r},{}]},{},[1]);
