@@ -2,10 +2,12 @@ import os
 import subprocess
 
 from django.test import TestCase
+from django_dynamic_fixture import get
+from django_dynamic_fixture import fixture
 import mock
 
+from readthedocs.projects.models import Project
 from readthedocs.projects.tasks import build_docs
-from readthedocs.rtd_tests.factories.projects_factories import ProjectFactory
 from readthedocs.rtd_tests.mocks.paths import fake_paths_lookup
 from readthedocs.doc_builder.loader import get_builder_class
 
@@ -35,8 +37,14 @@ class BuildTests(TestCase):
     @mock.patch('slumber.Resource')
     @mock.patch('os.chdir')
     @mock.patch('readthedocs.projects.models.Project.api_versions')
+    @mock.patch('readthedocs.vcs_support.utils.NonBlockingLock.__enter__')
     @mock.patch('subprocess.Popen')
-    def test_build(self, mock_Popen, mock_api_versions, mock_chdir, mock_apiv2_downloads):
+    def test_build(self,
+                   mock_Popen,
+                   mock_NonBlockingLock_enter,
+                   mock_api_versions,
+                   mock_chdir,
+                   mock_apiv2_downloads):
 
         # subprocess mock logic
 
@@ -46,7 +54,11 @@ class BuildTests(TestCase):
         mock_Popen.return_value = mock_process
         mock_Popen.side_effect = build_subprocess_side_effect
 
-        project = ProjectFactory(allow_comments=True)
+        project = get(Project,
+                      slug='project-1',
+                      documentation_type='sphinx',
+                      conf_py_file='test_conf.py',
+                      versions=[fixture()])
 
         version = project.versions.all()[0]
         mock_api_versions.return_value = [version]
@@ -77,7 +89,10 @@ class BuildTests(TestCase):
     def test_builder_comments(self):
 
         # Normal build
-        project = ProjectFactory(allow_comments=True)
+        project = get(Project,
+                      documentation_type='sphinx',
+                      allow_comments=True,
+                      versions=[fixture()])
         version = project.versions.all()[0]
         builder_class = get_builder_class(project.documentation_type)
         builder = builder_class(version)
@@ -86,7 +101,10 @@ class BuildTests(TestCase):
     def test_builder_no_comments(self):
 
         # Normal build
-        project = ProjectFactory(allow_comments=False)
+        project = get(Project,
+                      documentation_type='sphinx',
+                      allow_comments=False,
+                      versions=[fixture()])
         version = project.versions.all()[0]
         builder_class = get_builder_class(project.documentation_type)
         builder = builder_class(version)
@@ -95,6 +113,7 @@ class BuildTests(TestCase):
     @mock.patch('slumber.Resource')
     @mock.patch('os.chdir')
     @mock.patch('subprocess.Popen')
+    @mock.patch('readthedocs.vcs_support.utils.NonBlockingLock.__enter__')
     @mock.patch('readthedocs.doc_builder.backends.sphinx.HtmlBuilder.build')
     @mock.patch('readthedocs.doc_builder.backends.sphinx.PdfBuilder.build')
     @mock.patch('readthedocs.doc_builder.backends.sphinx.EpubBuilder.build')
@@ -102,6 +121,7 @@ class BuildTests(TestCase):
                                      EpubBuilder_build,
                                      PdfBuilder_build,
                                      HtmlBuilder_build,
+                                     mock_NonBlockingLock_enter,
                                      mock_Popen,
                                      mock_chdir,
                                      mock_apiv2_downloads):
@@ -114,9 +134,13 @@ class BuildTests(TestCase):
         mock_Popen.return_value = mock_process
         mock_Popen.side_effect = build_subprocess_side_effect
 
-        project = ProjectFactory(
-            enable_pdf_build=True,
-            enable_epub_build=False)
+        project = get(Project,
+                      slug='project-1',
+                      documentation_type='sphinx',
+                      conf_py_file='test_conf.py',
+                      enable_pdf_build=True,
+                      enable_epub_build=False,
+                      versions=[fixture()])
         version = project.versions.all()[0]
 
         conf_path = os.path.join(project.checkout_path(version.slug), project.conf_py_file)
@@ -139,6 +163,7 @@ class BuildTests(TestCase):
     @mock.patch('slumber.Resource')
     @mock.patch('os.chdir')
     @mock.patch('subprocess.Popen')
+    @mock.patch('readthedocs.vcs_support.utils.NonBlockingLock.__enter__')
     @mock.patch('readthedocs.doc_builder.backends.sphinx.HtmlBuilder.build')
     @mock.patch('readthedocs.doc_builder.backends.sphinx.PdfBuilder.build')
     @mock.patch('readthedocs.doc_builder.backends.sphinx.EpubBuilder.build')
@@ -146,6 +171,7 @@ class BuildTests(TestCase):
                                       EpubBuilder_build,
                                       PdfBuilder_build,
                                       HtmlBuilder_build,
+                                      mock_NonBlockingLock_enter,
                                       mock_Popen,
                                       mock_chdir,
                                       mock_apiv2_downloads):
@@ -158,9 +184,13 @@ class BuildTests(TestCase):
         mock_Popen.return_value = mock_process
         mock_Popen.side_effect = build_subprocess_side_effect
 
-        project = ProjectFactory(
-            enable_pdf_build=False,
-            enable_epub_build=True)
+        project = get(Project,
+                      slug='project-2',
+                      documentation_type='sphinx',
+                      conf_py_file='test_conf.py',
+                      enable_pdf_build=False,
+                      enable_epub_build=True,
+                      versions=[fixture()])
         version = project.versions.all()[0]
 
         conf_path = os.path.join(project.checkout_path(version.slug), project.conf_py_file)

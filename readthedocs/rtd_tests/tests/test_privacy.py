@@ -15,12 +15,18 @@ log = logging.getLogger(__name__)
 
 
 class PrivacyTests(TestCase):
-    fixtures = ["eric"]
-
     def tearDown(self):
         tasks.update_docs = self.old_bd
 
     def setUp(self):
+        self.eric = User(username='eric')
+        self.eric.set_password('test')
+        self.eric.save()
+
+        self.tester = User(username='tester')
+        self.tester.set_password('test')
+        self.tester.save()
+
         self.old_bd = tasks.update_docs
 
         def mock(*args, **kwargs):
