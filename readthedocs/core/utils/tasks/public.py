@@ -16,6 +16,8 @@ STATUS_UPDATES_ENABLED = not getattr(settings, 'CELERY_ALWAYS_EAGER', False)
 class PublicTask(Task):
     """
     See oauth.tasks for usage example.
+
+    Subclasses need to define a ``run_public`` method.
     """
     public_name = 'unknown'
 
@@ -68,10 +70,6 @@ class PublicTask(Task):
             self.set_public_data(result)
         state, info = self.get_task_data()
         return info
-
-    def run_public(self, *args, **kwargs):
-        raise NotImplementedError(
-            'Public tasks must define the run_public method.')
 
 
 def permission_check(check):
