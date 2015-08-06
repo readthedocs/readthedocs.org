@@ -62,6 +62,12 @@
 
             </form>
           </li>
+          {% empty %}
+          <li class="module-item">
+          <p class=" sync-repositories">
+          You don't have any GitHub repositories currently.
+          </p>  
+          </li>
           {% endfor %}
         </ul>
       </div>
