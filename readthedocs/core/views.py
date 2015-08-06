@@ -243,6 +243,7 @@ def gitlab_build(request):
     else:
         return HttpResponse("You must POST to this resource.")
 
+
 @csrf_exempt
 def bitbucket_build(request):
     if request.method == 'POST':
