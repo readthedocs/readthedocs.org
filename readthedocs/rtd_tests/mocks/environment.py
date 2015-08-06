@@ -1,6 +1,6 @@
 import mock
 
-from readthedocs.doc_builder.environments import LocalEnvironment
+from readthedocs.doc_builder.environments import BuildEnvironment
 
 
 class EnvironmentMockGroup(object):
@@ -35,7 +35,9 @@ class EnvironmentMockGroup(object):
                 'readthedocs.doc_builder.backends.sphinx.EpubBuilder.move'),
             'glob': mock.patch('readthedocs.doc_builder.backends.sphinx.glob'),
 
-            'update_build': mock.patch.object(LocalEnvironment, 'update_build'),
+            'update_build': mock.patch.object(BuildEnvironment, 'update_build'),
+            'docker': mock.patch('readthedocs.doc_builder.environments.Client'),
+            'docker_client': mock.Mock(),
         }
         self.mocks = {}
 
@@ -46,6 +48,7 @@ class EnvironmentMockGroup(object):
         self.mocks['process'].communicate.return_value = ('', '')
         self.mocks['process'].returncode = 0
         self.mocks['popen'].return_value = self.mocks['process']
+        self.mocks['docker'].return_value = self.mocks['docker_client']
         self.mocks['glob'].return_value = ['/tmp/rtd/foo.tex']
         self.mocks['conf_dir'].return_value = '/tmp/rtd'
 
@@ -56,9 +59,9 @@ class EnvironmentMockGroup(object):
             except RuntimeError:
                 pass
 
-    def configure_mock(self, mock, args):
+    def configure_mock(self, mock, kwargs):
         '''Configure object mocks'''
-        self.mocks[mock].configure_args(*args)
+        self.mocks[mock].configure_mock(**kwargs)
 
     def __getattr__(self, name):
         try:

@@ -68,7 +68,7 @@ class BuildCommand(object):
 
     def __str__(self):
         # TODO do we want to expose the full command here?
-        return '\n'.join([self.get_command(), self.output])
+        return '\n'.join([self.get_command(), self.output.encode('utf-8')])
 
     def run(self):
         '''Set up subprocess and execute command
@@ -108,8 +108,17 @@ class BuildCommand(object):
             cmd_input = None
             if self.input_data is not None:
                 cmd_input = self.input_data
+
             cmd_output = proc.communicate(input=cmd_input)
-            (self.output, self.error) = cmd_output
+            (cmd_stdout, cmd_stderr) = cmd_output
+            try:
+                self.output = cmd_stdout.decode('utf-8', 'replace')
+            except (TypeError, AttributeError):
+                self.output = None
+            try:
+                self.error = cmd_stderr.decode('utf-8', 'replace')
+            except (TypeError, AttributeError):
+                self.error = None
             self.status = proc.returncode
         except OSError:
             self.error = traceback.format_exc()
@@ -157,7 +166,11 @@ class DockerBuildCommand(BuildCommand):
         )
 
         # TODO split up stdout/stderr
-        self.output = client.exec_start(exec_id=exec_cmd['Id'], stream=False)
+        output = client.exec_start(exec_id=exec_cmd['Id'], stream=False)
+        try:
+            self.output = output.decode('utf-8', 'replace')
+        except (TypeError, AttributeError):
+            self.output = ''
 
         cmd_ret = client.exec_inspect(exec_id=exec_cmd['Id'])
         self.status = cmd_ret['ExitCode']
@@ -249,10 +262,10 @@ class BuildEnvironment(object):
         self.commands.append(cmd)
         cmd.run()
         if cmd.failed:
-            msg = 'Command {cmd} failed'.format(cmd=cmd.get_command())
+            msg = u'Command {cmd} failed'.format(cmd=cmd.get_command())
 
             if cmd.output:
-                msg += ':\n{out}'.format(out=cmd.output)
+                msg += u':\n{out}'.format(out=cmd.output)
 
             if warn_only:
                 log.warn(LOG_TEMPLATE
