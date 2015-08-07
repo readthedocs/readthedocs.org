@@ -13,6 +13,7 @@ import datetime
 import hashlib
 
 from celery import task, Task
+from djcelery import celery as celery_app
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
@@ -380,6 +381,9 @@ class UpdateDocsTask(Task):
         builder.move()
 
 
+update_docs = celery_app.tasks[UpdateDocsTask.name]
+
+
 @task()
 def update_imported_docs(version_pk):
     """
@@ -728,7 +732,6 @@ def update_docs_pull(record=False, force=False):
     """
     for version in Version.objects.filter(built=True):
         try:
-            update_docs = UpdateDocsTask
             update_docs.run(pk=version.project.pk, version_pk=version.pk,
                             record=record)
         except Exception, e:
