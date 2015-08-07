@@ -159,7 +159,7 @@ class TestDockerEnvironment(TestCase):
         self.mocks.configure_mock('docker_client', {
             'exec_create.return_value': {'Id': 'container-foobar'},
             'exec_start.return_value': 'This is the return',
-            'exec_inspect.return_value': {'ExitCode': 42},
+            'exec_inspect.return_value': {'ExitCode': 1},
         })
 
         build_env = DockerEnvironment(version=self.version, project=self.project,
@@ -173,7 +173,7 @@ class TestDockerEnvironment(TestCase):
             stderr=True,
             stdout=True
         )
-        self.assertEqual(build_env.commands[0].status, 42)
+        self.assertEqual(build_env.commands[0].status, 1)
         self.assertEqual(build_env.commands[0].output, 'This is the return')
         self.assertEqual(build_env.commands[0].error, None)
         self.assertTrue(build_env.failed)
@@ -203,8 +203,53 @@ class TestDockerEnvironment(TestCase):
 
     def test_container_already_exists(self):
         '''Docker container already exists'''
-        # TODO
-        pass
+        self.mocks.configure_mock('docker_client', {
+            'inspect_container.return_value': {'State': {'Running': True}},
+            'exec_create.return_value': {'Id': 'container-foobar'},
+            'exec_start.return_value': 'This is the return',
+            'exec_inspect.return_value': {'ExitCode': 0},
+        })
+
+        build_env = DockerEnvironment(version=self.version, project=self.project,
+                                      build={})
+        def _inner():
+            with build_env:
+                build_env.run('echo', 'test', cwd='/tmp')
+
+        self.assertRaises(BuildEnvironmentError, _inner)
+        self.assertEqual(
+            str(build_env.failure),
+            'A build environment is currently running for this version')
+        self.assertEqual(self.mocks.docker_client.exec_create.call_count, 0)
+        self.assertTrue(build_env.failed)
+
+    def test_container_timeout(self):
+        '''Docker container timeout and command failure'''
+        response = Mock(status_code=404, reason='Container not found')
+        self.mocks.configure_mock('docker_client', {
+            'inspect_container.side_effect': [
+                DockerAPIError(
+                    'No container found',
+                    response,
+                    'No container found',
+                ),
+                {'State': {'Running': False, 'ExitCode': 42}},
+            ],
+            'exec_create.return_value': {'Id': 'container-foobar'},
+            'exec_start.return_value': 'This is the return',
+            'exec_inspect.return_value': {'ExitCode': 0},
+        })
+
+        build_env = DockerEnvironment(version=self.version, project=self.project,
+                                      build={})
+        with build_env:
+            build_env.run('echo', 'test', cwd='/tmp')
+
+        self.assertEqual(
+            str(build_env.failure),
+            'Build exited due to time out')
+        self.assertEqual(self.mocks.docker_client.exec_create.call_count, 1)
+        self.assertTrue(build_env.failed)
 
 
 class TestBuildCommand(TestCase):
@@ -326,3 +371,19 @@ class TestDockerBuildCommand(TestCase):
         self.assertEqual(self.mocks.docker_client.exec_start.call_count, 1)
         self.assertEqual(self.mocks.docker_client.exec_create.call_count, 1)
         self.assertEqual(self.mocks.docker_client.exec_inspect.call_count, 1)
+
+    def test_command_oom_kill(self):
+        '''Command is OOM killed'''
+        self.mocks.configure_mock('docker_client', {
+            'exec_create.return_value': {'Id': 'container-foobar'},
+            'exec_start.return_value': b'Killed\n',
+            'exec_inspect.return_value': {'ExitCode': 137},
+        })
+        cmd = DockerBuildCommand(['echo', 'test'], cwd='/tmp/foobar')
+        cmd.build_env = Mock()
+        cmd.build_env.get_client.return_value = self.mocks.docker_client
+        type(cmd.build_env).container_id = PropertyMock(return_value='foo')
+        cmd.run()
+        self.assertEqual(
+            str(cmd.output),
+            u'Command killed due to excessive memory consumption\n')
