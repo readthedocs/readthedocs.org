@@ -10,10 +10,12 @@ class EnvironmentMockGroup(object):
         self.patches = {
             'popen': mock.patch('subprocess.Popen'),
             'process': mock.Mock(),
+            'api': mock.patch('slumber.Resource'),
 
             'api_versions': mock.patch(
                 'readthedocs.projects.models.Project.api_versions'),
-            'api': mock.patch('slumber.Resource'),
+            'non_blocking_lock': mock.patch(
+                'readthedocs.vcs_support.utils.NonBlockingLock.__enter__'),
 
             'append_conf': mock.patch(
                 'readthedocs.doc_builder.backends.sphinx.BaseSphinx.append_conf'),
