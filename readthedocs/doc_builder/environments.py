@@ -5,7 +5,6 @@ Documentation Builder Environments
 import os
 import re
 import sys
-import json
 import logging
 import subprocess
 import traceback
@@ -13,15 +12,12 @@ import datetime
 import socket
 
 from django.utils.text import slugify
-from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
-from rest_framework.renderers import JSONRenderer
 from docker import Client
 from docker.utils import create_host_config
 from docker.errors import APIError as DockerAPIError, DockerException
 
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
-from readthedocs.restapi.serializers import VersionFullSerializer
 from readthedocs.projects.constants import LOG_TEMPLATE
 from readthedocs.api.client import api as api_v1
 
@@ -135,11 +131,15 @@ class BuildCommand(object):
 
     @property
     def successful(self):
-        return self.status is not None and self.status == 0
+        '''Did the command exit with a successful exit code'''
+        return self.status == 0
 
     @property
     def failed(self):
-        return self.status is not None and self.status != 0
+        '''Did the command exit with a failing exit code
+
+        Helper for inverse of :py:meth:`successful`'''
+        return not self.successful
 
 
 class DockerBuildCommand(BuildCommand):
@@ -181,7 +181,7 @@ class DockerBuildCommand(BuildCommand):
                     self.output == 'Killed\n'):
                 self.output = _('Command killed due to excessive memory '
                                 'consumption\n')
-        except DockerAPIError as e:
+        except DockerAPIError:
             self.status = -1
             if self.output is None or not self.output:
                 self.output = _('Command exited abnormally')
@@ -237,7 +237,7 @@ class BuildEnvironment(object):
                          msg='Build finished'))
         return ret
 
-    def handle_exception(self, exc_type, exc_value, tb):
+    def handle_exception(self, exc_type, exc_value, _):
         """Exception handling for __enter__ and __exit__
 
         This reports on the exception we're handling and special cases
@@ -289,11 +289,13 @@ class BuildEnvironment(object):
 
     @property
     def successful(self):
+        '''Is build completed, without top level failures or failing commands'''
         return (self.done and self.failure is None and
                 all(cmd.successful for cmd in self.commands))
 
     @property
     def failed(self):
+        '''Is build completed, but has top level failure or failing commands'''
         return (self.done and (
             self.failure is not None or
             any(cmd.failed for cmd in self.commands)
@@ -301,6 +303,7 @@ class BuildEnvironment(object):
 
     @property
     def done(self):
+        '''Is build in finished state'''
         return (self.build is not None and
                 self.build['state'] == BUILD_STATE_FINISHED)
 
@@ -393,8 +396,13 @@ class DockerEnvironment(BuildEnvironment):
         '''Start of environment context'''
         log.info('Creating container')
         try:
+            self.get_container_state()
+        except DockerAPIError:
+            pass
+
+        try:
             self.create_container()
-        except:
+        except:  # pylint: disable=broad-except
             self.__exit__(*sys.exc_info())
             raise
         return self
@@ -409,12 +417,12 @@ class DockerEnvironment(BuildEnvironment):
         client = self.get_client()
         try:
             client.kill(self.container_id)
-        except DockerAPIError as e:
+        except DockerAPIError:
             pass
         try:
             log.info('Removing container %s', self.container_id)
             client.remove_container(self.container_id)
-        except DockerAPIError as e:
+        except DockerAPIError:
             log.error(LOG_TEMPLATE
                       .format(
                           project=self.project.slug,
@@ -506,7 +514,7 @@ class DockerEnvironment(BuildEnvironment):
                 detach=True,
                 mem_limit=self.container_mem_limit,
             )
-            started = client.start(container=self.container_id)
+            client.start(container=self.container_id)
         except DockerAPIError as e:
             log.error(LOG_TEMPLATE
                       .format(
