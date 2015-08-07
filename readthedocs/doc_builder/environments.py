@@ -14,6 +14,7 @@ import socket
 
 from django.utils.text import slugify
 from django.conf import settings
+from django.utils.translation import ugettext_lazy as _
 from rest_framework.renderers import JSONRenderer
 from docker import Client
 from docker.utils import create_host_config
@@ -26,14 +27,11 @@ from readthedocs.api.client import api as api_v1
 
 from .exceptions import (BuildEnvironmentException, BuildEnvironmentError,
                          BuildEnvironmentWarning)
-
+from .constants import (DOCKER_SOCKET, DOCKER_VERSION, DOCKER_IMAGE,
+                        DOCKER_LIMITS, DOCKER_TIMEOUT_EXIT_CODE,
+                        DOCKER_OOM_EXIT_CODE)
 
 log = logging.getLogger(__name__)
-
-DOCKER_SOCKET = getattr(settings, 'DOCKER_SOCKET', 'unix:///var/run/docker.sock')
-DOCKER_VERSION = getattr(settings, 'DOCKER_VERSION', 'auto')
-DOCKER_IMAGE = getattr(settings, 'DOCKER_IMAGE', 'rtfd-build')
-DOCKER_MEM_LIMIT = '200m'
 
 
 class BuildCommand(object):
@@ -68,7 +66,10 @@ class BuildCommand(object):
 
     def __str__(self):
         # TODO do we want to expose the full command here?
-        return '\n'.join([self.get_command(), self.output.encode('utf-8')])
+        output = u''
+        if self.output is not None:
+            output = self.output.encode('utf-8')
+        return '\n'.join([self.get_command(), output])
 
     def run(self):
         '''Set up subprocess and execute command
@@ -158,22 +159,32 @@ class DockerBuildCommand(BuildCommand):
                  self.build_env.container_id, self.get_command(), self.cwd)
 
         client = self.build_env.get_client()
-        exec_cmd = client.exec_create(
-            container=self.build_env.container_id,
-            cmd=self.get_wrapped_command(),
-            stdout=True,
-            stderr=True
-        )
-
-        # TODO split up stdout/stderr
-        output = client.exec_start(exec_id=exec_cmd['Id'], stream=False)
         try:
-            self.output = output.decode('utf-8', 'replace')
-        except (TypeError, AttributeError):
-            self.output = ''
+            exec_cmd = client.exec_create(
+                container=self.build_env.container_id,
+                cmd=self.get_wrapped_command(),
+                stdout=True,
+                stderr=True
+            )
 
-        cmd_ret = client.exec_inspect(exec_id=exec_cmd['Id'])
-        self.status = cmd_ret['ExitCode']
+            output = client.exec_start(exec_id=exec_cmd['Id'], stream=False)
+            try:
+                self.output = output.decode('utf-8', 'replace')
+            except (TypeError, AttributeError):
+                self.output = ''
+            cmd_ret = client.exec_inspect(exec_id=exec_cmd['Id'])
+            self.status = cmd_ret['ExitCode']
+
+            # Docker will exit with a special exit code to signify the command
+            # was killed due to memory usage, make the error code nicer.
+            if (self.status == DOCKER_OOM_EXIT_CODE and
+                    self.output == 'Killed\n'):
+                self.output = _('Command killed due to excessive memory '
+                                'consumption\n')
+        except DockerAPIError as e:
+            self.status = -1
+            if self.output is None or not self.output:
+                self.output = _('Command exited abnormally')
 
     def get_wrapped_command(self):
         """Escape special bash characters in command to wrap in shell
@@ -278,14 +289,15 @@ class BuildEnvironment(object):
 
     @property
     def successful(self):
-        # TODO should this include a check for finished state?
-        return (self.failure is None and
+        return (self.done and self.failure is None and
                 all(cmd.successful for cmd in self.commands))
 
     @property
     def failed(self):
-        return (self.failure is not None or
-                any(cmd.failed for cmd in self.commands))
+        return (self.done and (
+            self.failure is not None or
+            any(cmd.failed for cmd in self.commands)
+        ))
 
     @property
     def done(self):
@@ -330,7 +342,7 @@ class BuildEnvironment(object):
         if self.failure is not None:
             errors.append(str(self.failure))
         errors.extend([str(cmd) for cmd in self.commands
-                        if cmd is not None and cmd.failed])
+                       if cmd is not None and cmd.failed])
         self.build['error'] = '\n'.join(errors)
 
         # Attempt to stop unicode errors on build reporting
@@ -365,7 +377,8 @@ class DockerEnvironment(BuildEnvironment):
     '''
     command_class = DockerBuildCommand
     container_image = DOCKER_IMAGE
-    container_mem_limit = DOCKER_MEM_LIMIT
+    container_mem_limit = DOCKER_LIMITS.get('memory')
+    container_time_limit = DOCKER_LIMITS.get('time')
 
     def __init__(self, *args, **kwargs):
         self.docker_socket = kwargs.pop('docker_socket', DOCKER_SOCKET)
@@ -388,11 +401,18 @@ class DockerEnvironment(BuildEnvironment):
 
     def __exit__(self, exc_type, exc_value, tb):
         '''End of environment context'''
-        ret = super(DockerEnvironment, self).__exit__(exc_type, exc_value, tb)
-        log.info('Removing container %s', self.container_id)
+        ret = self.handle_exception(exc_type, exc_value, tb)
+
+        # Update buildenv state given any container error states first
+        self.update_build_from_container_state()
+
         client = self.get_client()
         try:
             client.kill(self.container_id)
+        except DockerAPIError as e:
+            pass
+        try:
+            log.info('Removing container %s', self.container_id)
             client.remove_container(self.container_id)
         except DockerAPIError as e:
             log.error(LOG_TEMPLATE
@@ -403,6 +423,11 @@ class DockerEnvironment(BuildEnvironment):
                       exc_info=True)
 
         self.container = None
+        self.update_build(state=BUILD_STATE_FINISHED)
+        log.info(LOG_TEMPLATE
+                 .format(project=self.project.slug,
+                         version=self.version.slug,
+                         msg='Build finished'))
         return ret
 
     def get_client(self):
@@ -431,13 +456,45 @@ class DockerEnvironment(BuildEnvironment):
         elif self.container is not None:
             return self.container.get('Id')
 
+    def container_state(self):
+        '''Get container state'''
+        client = self.get_client()
+        try:
+            info = client.inspect_container(self.container_id)
+            return info.get('State', {})
+        except DockerAPIError:
+            return None
+
+    def update_build_from_container_state(self):
+        '''Update buildenv state from container state
+
+        In the case of the parent command exiting before the exec commands
+        finish and the container is destroyed, or in the case of OOM on the
+        container, set a failure state and error message explaining the failure
+        on the buildenv.
+        '''
+        state = self.container_state()
+        if state is not None and state.get('Running') is False:
+            if state.get('ExitCode') == DOCKER_TIMEOUT_EXIT_CODE:
+                self.failure = BuildEnvironmentError(
+                    _('Build exited due to time out'))
+            elif state.get('OOMKilled', False):
+                self.failure = BuildEnvironmentError(
+                    _('Build exited due to excessive memory consumption'))
+            elif state.get('Error'):
+                self.failure = BuildEnvironmentError(
+                    (_('Build exited due to unknown error: {0}')
+                     .format(state.get('Error'))))
+
     def create_container(self):
         '''Create docker container'''
         client = self.get_client()
         try:
             self.container = client.create_container(
                 image=self.container_image,
-                command='/bin/sleep 600',
+                command=('/bin/sh -c "sleep {time}; exit {exit}"'
+                         .format(time=self.container_time_limit,
+                                 exit=DOCKER_TIMEOUT_EXIT_CODE)),
                 name=self.container_id,
                 hostname=self.container_id,
                 host_config=create_host_config(binds={
