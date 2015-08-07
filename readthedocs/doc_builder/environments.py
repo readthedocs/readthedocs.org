@@ -396,7 +396,28 @@ class DockerEnvironment(BuildEnvironment):
         '''Start of environment context'''
         log.info('Creating container')
         try:
-            self.get_container_state()
+            # Test for existing container. We remove any stale containers that
+            # are no longer running here if there is a collision. If the
+            # container is still running, this would be a failure of the version
+            # locking code, so we throw an exception.
+            state = self.container_state()
+            if state is not None:
+                if state.get('Running', False):
+                    exc = BuildEnvironmentError(
+                        _('A build environment is currently '
+                          'running for this version'))
+                    self.failure = exc
+                    self.update_build(state=BUILD_STATE_FINISHED)
+                    raise exc
+                else:
+                    log.warn(LOG_TEMPLATE
+                             .format(
+                                 project=self.project.slug,
+                                 version=self.version.slug,
+                                 msg=("Removing stale container {0}"
+                                      .format(self.container_id))))
+                    client = self.get_client()
+                    client.remove_container(self.container_id)
         except DockerAPIError:
             pass
 
