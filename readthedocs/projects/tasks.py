@@ -87,15 +87,15 @@ class UpdateDocsTask(Task):
         if docker or settings.DOCKER_ENABLE:
             env_cls = DockerEnvironment
 
-        # TODO Shouldn't this happen inside the build env? or which piece needs
-        # to track this state? The build env or this task. It should only be one
-        # of them. It does seem silly to have to require the build_env state
         self.project = self.get_project(pk)
         self.version = self.get_version(self.project, version_pk)
         self.build = self.get_build(build_pk)
         self.build_env = env_cls(project=self.project, version=self.version,
                                  build=self.build)
         with self.build_env:
+            if self.project.skip:
+                raise BuildEnvironmentError(
+                    _('Builds for this project are temporarily disabled'))
             try:
                 self.setup_vcs()
             except vcs_support_utils.LockTimeout, e:
@@ -113,9 +113,6 @@ class UpdateDocsTask(Task):
             build_id = self.build.get('id')
 
             # Web Server Tasks
-            # TODO state here should be if the list of commands run in the environment
-            # all passed. or maybe defer to a higher level concept here, on the build
-            # environment
             # TODO replace the results check we some less jank ass bull shit
             if build_id:
                 finish_build.delay(
@@ -137,15 +134,9 @@ class UpdateDocsTask(Task):
         """
         Get project from API
         """
-        try:
-            project_data = api_v1.project(project_pk).get()
-            project = make_api_project(project_data)
-            if project.skip:
-                # TODO more info on error here
-                raise BuildEnvironmentError('Skipping project.')
-            return project
-        except HttpClientError:
-            raise BuildEnvironmentError('Failed to get project data from API.')
+        project_data = api_v1.project(project_pk).get()
+        project = make_api_project(project_data)
+        return project
 
     @staticmethod
     def get_version(project, version_pk):

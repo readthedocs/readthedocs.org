@@ -43,10 +43,12 @@ class TestLocalEnvironment(TestCase):
             'communicate.return_value': ('This is okay', '')})
         type(self.mocks.process).returncode = PropertyMock(return_value=0)
 
-        build_env = LocalEnvironment(version=self.version, project=self.project)
+        build_env = LocalEnvironment(version=self.version, project=self.project,
+                                     build={})
         with build_env:
             build_env.run('echo', 'test')
         self.assertTrue(self.mocks.process.communicate.called)
+        self.assertTrue(build_env.done)
         self.assertTrue(build_env.successful)
         self.assertEqual(len(build_env.commands), 1)
         self.assertEqual(build_env.commands[0].output, u'This is okay')
@@ -57,29 +59,34 @@ class TestLocalEnvironment(TestCase):
             'communicate.return_value': ('This is not okay', '')})
         type(self.mocks.process).returncode = PropertyMock(return_value=1)
 
-        build_env = LocalEnvironment(version=self.version, project=self.project)
+        build_env = LocalEnvironment(version=self.version, project=self.project,
+                                     build={})
         with build_env:
             build_env.run('echo', 'test')
             self.fail('This should be unreachable')
         self.assertTrue(self.mocks.process.communicate.called)
+        self.assertTrue(build_env.done)
         self.assertTrue(build_env.failed)
         self.assertEqual(len(build_env.commands), 1)
         self.assertEqual(build_env.commands[0].output, u'This is not okay')
 
     def test_failing_execution_with_caught_exception(self):
         '''Build in failing state with BuildEnvironmentError exception'''
-        build_env = LocalEnvironment(version=self.version, project=self.project)
+        build_env = LocalEnvironment(version=self.version, project=self.project,
+                                     build={})
 
         with build_env:
             raise BuildEnvironmentError('Foobar')
 
         self.assertFalse(self.mocks.process.communicate.called)
         self.assertEqual(len(build_env.commands), 0)
+        self.assertTrue(build_env.done)
         self.assertTrue(build_env.failed)
 
     def test_failing_execution_with_uncaught_exception(self):
         '''Build in failing state with exception from code'''
-        build_env = LocalEnvironment(version=self.version, project=self.project)
+        build_env = LocalEnvironment(version=self.version, project=self.project,
+                                     build={})
 
         def _inner():
             with build_env:
@@ -87,6 +94,7 @@ class TestLocalEnvironment(TestCase):
 
         self.assertRaises(Exception, _inner)
         self.assertFalse(self.mocks.process.communicate.called)
+        self.assertTrue(build_env.done)
         self.assertTrue(build_env.failed)
 
 
@@ -107,7 +115,8 @@ class TestDockerEnvironment(TestCase):
 
     def test_container_id(self):
         '''Test docker build command'''
-        docker = DockerEnvironment(version=self.version, project=self.project)
+        docker = DockerEnvironment(version=self.version, project=self.project,
+                                   build={})
         self.assertEqual(docker.container_id,
                          'version-foobar-of-pip-20')
 
@@ -116,7 +125,8 @@ class TestDockerEnvironment(TestCase):
         self.mocks.configure_mock('docker', {
             'side_effect': DockerException
         })
-        build_env = DockerEnvironment(version=self.version, project=self.project)
+        build_env = DockerEnvironment(version=self.version, project=self.project,
+                                      build={})
 
         def _inner():
             with build_env:
@@ -135,7 +145,8 @@ class TestDockerEnvironment(TestCase):
             )
         })
 
-        build_env = DockerEnvironment(version=self.version, project=self.project)
+        build_env = DockerEnvironment(version=self.version, project=self.project,
+                                      build={})
 
         def _inner():
             with build_env:
@@ -151,7 +162,8 @@ class TestDockerEnvironment(TestCase):
             'exec_inspect.return_value': {'ExitCode': 42},
         })
 
-        build_env = DockerEnvironment(version=self.version, project=self.project)
+        build_env = DockerEnvironment(version=self.version, project=self.project,
+                                      build={})
         with build_env:
             build_env.run('echo test', cwd='/tmp')
 
@@ -180,7 +192,8 @@ class TestDockerEnvironment(TestCase):
             )
         })
 
-        build_env = DockerEnvironment(version=self.version, project=self.project)
+        build_env = DockerEnvironment(version=self.version, project=self.project,
+                                      build={})
         with build_env:
             build_env.run('echo', 'test', cwd='/tmp')
 

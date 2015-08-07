@@ -402,7 +402,7 @@ class DockerEnvironment(BuildEnvironment):
             # locking code, so we throw an exception.
             state = self.container_state()
             if state is not None:
-                if state.get('Running', False):
+                if state.get('Running') == True:
                     exc = BuildEnvironmentError(
                         _('A build environment is currently '
                           'running for this version'))

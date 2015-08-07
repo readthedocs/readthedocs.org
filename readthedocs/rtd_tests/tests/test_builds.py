@@ -39,7 +39,7 @@ class BuildEnvironmentTests(TestCase):
         })
         self.mocks.patches['html_build'].stop()
 
-        build_env = LocalEnvironment(project=project, version=version)
+        build_env = LocalEnvironment(project=project, version=version, build={})
         task = UpdateDocsTask()
         task.build_env = build_env
         task.version = version
@@ -59,7 +59,7 @@ class BuildEnvironmentTests(TestCase):
             enable_epub_build=False)
         version = project.versions.all()[0]
 
-        build_env = LocalEnvironment(project=project, version=version)
+        build_env = LocalEnvironment(project=project, version=version, build={})
         task = UpdateDocsTask()
         task.build_env = build_env
         task.version = version
@@ -80,7 +80,7 @@ class BuildEnvironmentTests(TestCase):
             enable_epub_build=True)
         version = project.versions.all()[0]
 
-        build_env = LocalEnvironment(project=project, version=version)
+        build_env = LocalEnvironment(project=project, version=version, build={})
         task = UpdateDocsTask()
         task.build_env = build_env
         task.version = version
@@ -101,7 +101,7 @@ class BuildEnvironmentTests(TestCase):
                       allow_comments=True,
                       versions=[fixture()])
         version = project.versions.all()[0]
-        build_env = LocalEnvironment(version=version, project=project)
+        build_env = LocalEnvironment(version=version, project=project, build={})
         builder_class = get_builder_class(project.documentation_type)
         builder = builder_class(build_env)
         self.assertEqual(builder.sphinx_builder, 'readthedocs-comments')
@@ -113,7 +113,7 @@ class BuildEnvironmentTests(TestCase):
                       allow_comments=False,
                       versions=[fixture()])
         version = project.versions.all()[0]
-        build_env = LocalEnvironment(version=version, project=project)
+        build_env = LocalEnvironment(version=version, project=project, build={})
         builder_class = get_builder_class(project.documentation_type)
         builder = builder_class(build_env)
         self.assertEqual(builder.sphinx_builder, 'readthedocs')
@@ -133,7 +133,7 @@ class BuildEnvironmentTests(TestCase):
         version = project.versions.all()[0]
         assert project.conf_dir() == '/tmp/rtd'
 
-        build_env = LocalEnvironment(project=project, version=version)
+        build_env = LocalEnvironment(project=project, version=version, build={})
         task = UpdateDocsTask()
         task.build_env = build_env
         task.version = version
@@ -174,7 +174,7 @@ class BuildEnvironmentTests(TestCase):
         version = project.versions.all()[0]
         assert project.conf_dir() == '/tmp/rtd'
 
-        build_env = LocalEnvironment(project=project, version=version)
+        build_env = LocalEnvironment(project=project, version=version, build={})
         task = UpdateDocsTask()
         task.build_env = build_env
         task.version = version
