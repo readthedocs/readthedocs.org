@@ -11,7 +11,6 @@ from readthedocs.doc_builder.environments import LocalEnvironment
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.projects.tasks import UpdateDocsTask
 
-from ..factories.projects_factories import ProjectFactory
 from ..mocks.paths import fake_paths_lookup
 from ..mocks.environment import EnvironmentMockGroup
 
@@ -51,9 +50,13 @@ class BuildEnvironmentTests(TestCase):
 
     def test_build_respects_pdf_flag(self):
         '''Build output format control'''
-        project = ProjectFactory(
-            enable_pdf_build=True,
-            enable_epub_build=False)
+        project = get(Project,
+                      slug='project-1',
+                      documentation_type='sphinx',
+                      conf_py_file='test_conf.py',
+                      enable_pdf_build=True,
+                      enable_epub_build=False,
+                      versions=[fixture()])
         version = project.versions.all()[0]
 
         build_env = LocalEnvironment(project=project, version=version, build={})
@@ -69,9 +72,13 @@ class BuildEnvironmentTests(TestCase):
 
     def test_build_respects_epub_flag(self):
         '''Test build with epub enabled'''
-        project = ProjectFactory(
-            enable_pdf_build=False,
-            enable_epub_build=True)
+        project = get(Project,
+                      slug='project-1',
+                      documentation_type='sphinx',
+                      conf_py_file='test_conf.py',
+                      enable_pdf_build=False,
+                      enable_epub_build=True,
+                      versions=[fixture()])
         version = project.versions.all()[0]
 
         build_env = LocalEnvironment(project=project, version=version, build={})
