@@ -19,6 +19,7 @@ class BaseMkdocs(BaseBuilder):
     """
     Mkdocs builder
     """
+    use_theme = True
 
     def __init__(self, *args, **kwargs):
         super(BaseMkdocs, self).__init__(*args, **kwargs)
@@ -133,8 +134,9 @@ class BaseMkdocs(BaseBuilder):
             self.builder,
             '--clean',
             '--site-dir', self.build_dir,
-            '--theme', 'readthedocs',
         ]
+        if self.use_theme:
+            build_command.extend(['--theme', 'readthedocs'])
         self.run(*build_command, cwd=checkout_path)
 
 
@@ -148,13 +150,4 @@ class MkdocsJSON(BaseMkdocs):
     type = 'mkdocs_json'
     builder = 'json'
     build_dir = '_build/json'
-
-    def build(self, **kwargs):
-        checkout_path = self.project.checkout_path(self.version.slug)
-        build_command = [
-            self.project.venv_bin(version=self.version.slug, bin='mkdocs'),
-            self.builder,
-            '--clean',
-            '--site-dir', self.build_dir
-        ]
-        self.run(*build_command, cwd=checkout_path)
+    use_theme = False
