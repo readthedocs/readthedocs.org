@@ -11,6 +11,7 @@ import socket
 import requests
 import datetime
 import hashlib
+from collections import defaultdict
 
 from celery import task, Task
 from djcelery import celery as celery_app
@@ -80,6 +81,22 @@ class UpdateDocsTask(Task):
     default_retry_delay=(7 * 60)
     name = 'update_docs'
 
+    def __init__(self, build_env=None, force=False, search=True, localmedia=True,
+                 build=None, project=None, version=None):
+        self.build_env = build_env
+        self.build_force = force
+        self.build_search = search
+        self.build_localmedia = localmedia
+        self.build = {}
+        if build is not None:
+            self.build = build
+        self.version = {}
+        if version is not None:
+            self.version = version
+        self.project = {}
+        if project is not None:
+            self.project = project
+
     def run(self, pk, version_pk=None, build_pk=None, record=True, docker=False,
             search=True, force=False, intersphinx=True, localmedia=True,
             basic=False, **kwargs):
@@ -90,8 +107,11 @@ class UpdateDocsTask(Task):
         self.project = self.get_project(pk)
         self.version = self.get_version(self.project, version_pk)
         self.build = self.get_build(build_pk)
+        self.build_search = search
+        self.build_localmedia = localmedia
+        self.build_force = force
         self.build_env = env_cls(project=self.project, version=self.version,
-                                 build=self.build)
+                                 build=self.build, record=record)
         with self.build_env:
             if self.project.skip:
                 raise BuildEnvironmentError(
@@ -108,25 +128,23 @@ class UpdateDocsTask(Task):
             if self.project.documentation_type == 'auto':
                 self.update_documentation_type()
             self.setup_environment()
-            self.build_docs(force=force, search=search, localmedia=localmedia)
 
+            # TODO the build object should have an idea of these states, extend
+            # the model to include an idea of these outcomes
+            outcomes = self.build_docs()
             build_id = self.build.get('id')
 
             # Web Server Tasks
-            # TODO replace the results check we some less jank ass bull shit
             if build_id:
                 finish_build.delay(
                     version_pk=self.version.pk,
                     build_pk=build_id,
                     hostname=socket.gethostname(),
-                    #html=results.get('html', [404])[0] == 0,
-                    #localmedia=results.get('localmedia', [404])[0] == 0,
-                    #search=results.get('search', [404])[0] == 0,
-                    html=True,
-                    localmedia=True,
-                    search=True,
-                    pdf=self.project.enable_pdf_build,
-                    epub=self.project.enable_epub_build,
+                    html=outcomes['html'],
+                    search=outcomes['search'],
+                    localmedia=outcomes['localmedia'],
+                    pdf=outcomes['pdf'],
+                    epub=outcomes['epub'],
                 )
 
     @staticmethod
@@ -307,46 +325,42 @@ class UpdateDocsTask(Task):
                     cwd=checkout_path
                 )
 
-    def build_docs(self, force, search, localmedia):
-        """
-        This handles the actual building of the documentation
+    def build_docs(self):
+        """Wrapper to all build functions
+
+        Executes the necessary builds for this task and returns whether the
+        build was successful or not.
+
+        :returns: Build outcomes with keys for html, search, localmedia, pdf,
+                  and epub
+        :rtype: dict
         """
         self.build_env.update_build(state=BUILD_STATE_BUILDING)
         before_build.send(sender=self.version)
 
+        outcomes = defaultdict(lambda: False)
         with self.project.repo_nonblockinglock(
                     version=self.version,
                     max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)
                 ):
-            self.build_docs_html(force=force)
-            if 'mkdocs' in self.project.documentation_type:
-                if search:
-                    self.build_docs_class('mkdocs_json')
-            if 'sphinx' in self.project.documentation_type:
-                if search:
-                    self.build_docs_class('sphinx_search')
-                if localmedia:
-                    self.build_docs_class('sphinx_singlehtmllocalmedia')
-
-                if (self.project.slug not in HTML_ONLY):
-                    if self.project.enable_pdf_build:
-                        self.build_docs_class('sphinx_pdf')
-                    if self.project.enable_epub_build:
-                        self.build_docs_class('sphinx_epub')
+            outcomes['html'] = self.build_docs_html()
+            outcomes['search'] = self.build_docs_search()
+            outcomes['localmedia'] = self.build_docs_localmedia()
+            outcomes['pdf'] = self.build_docs_pdf()
+            outcomes['epub'] = self.build_docs_epub()
 
         after_build.send(sender=self.version)
+        return outcomes
 
-    def build_docs_html(self, force=False):
+    def build_docs_html(self):
         html_builder = get_builder_class(self.project.documentation_type)(
             self.build_env
         )
-        if force:
+        if self.build_force:
             html_builder.force()
         html_builder.append_conf()
-        html_builder.build()
-
-        # TODO this should be moved up to the general task run
-        if self.build_env.successful:
+        success = html_builder.build()
+        if success:
             html_builder.move()
 
         # Gracefully attempt to move files via task on web workers.
@@ -360,6 +374,36 @@ class UpdateDocsTask(Task):
             # TODO do something here
             pass
 
+        return success
+
+    def build_docs_search(self):
+        '''Build search data with separate build'''
+        if self.build_search:
+            if 'mkdocs' in self.project.documentation_type:
+                return self.build_docs_class('mkdocs_json')
+            if 'sphinx' in self.project.documentation_type:
+                return self.build_docs_class('sphinx_search')
+        return False
+
+    def build_docs_localmedia(self):
+        '''Get local media files with separate build'''
+        if self.build_localmedia:
+            if 'sphinx' in self.project.documentation_type:
+                return self.build_docs_class('sphinx_singlehtmllocalmedia')
+        return False
+
+    def build_docs_pdf(self):
+        '''Build PDF docs'''
+        if self.project.slug in HTML_ONLY or not self.project.enable_pdf_build:
+            return False
+        return self.build_docs_class('sphinx_pdf')
+
+    def build_docs_epub(self):
+        '''Build ePub docs'''
+        if self.project.slug in HTML_ONLY or not self.project.enable_epub_build:
+            return False
+        return self.build_docs_class('sphinx_epub')
+
     def build_docs_class(self, builder_class):
         """Build docs with additional doc backends
 
@@ -368,8 +412,9 @@ class UpdateDocsTask(Task):
         process.
         """
         builder = get_builder_class(builder_class)(self.build_env)
-        builder.build()
+        success = builder.build()
         builder.move()
+        return success
 
 
 update_docs = celery_app.tasks[UpdateDocsTask.name]

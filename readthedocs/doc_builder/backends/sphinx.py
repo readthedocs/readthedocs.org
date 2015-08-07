@@ -138,7 +138,9 @@ class BaseSphinx(BaseBuilder):
             '.',
             self.sphinx_build_dir
         ])
-        self.run(*build_command, cwd=project.conf_dir(self.version.slug))
+        cmd_ret = self.run(*build_command,
+                           cwd=project.conf_dir(self.version.slug))
+        return cmd_ret.successful
 
 
 class HtmlBuilder(BaseSphinx):
@@ -258,20 +260,25 @@ class PdfBuilder(BaseSphinx):
                     os.path.splitext(os.path.relpath(tex_file, latex_cwd))[0])]
             for tex_file in tex_files]
 
+        pdf_commands = []
         for cmd in pdflatex_cmds:
             cmd_ret = self.run(*cmd, cwd=latex_cwd, warn_only=True)
             # Force LaTeX status code to be a little more optimistic. If LaTeX
             # reports an output file, let's just assume we're fine.
             if PDF_RE.search(cmd_ret.output):
                 cmd_ret.status = 0
+            pdf_commands.append(cmd_ret)
         for cmd in makeindex_cmds:
             cmd_ret = self.run(*cmd, cwd=latex_cwd, warn_only=True)
+            pdf_commands.append(cmd_ret)
         for cmd in pdflatex_cmds:
             cmd_ret = self.run(*cmd, cwd=latex_cwd, warn_only=True)
             pdf_match = PDF_RE.search(cmd_ret.output)
             if pdf_match:
                 cmd_ret.status = 0
                 self.pdf_file_name = pdf_match.group(1).strip()
+            pdf_commands.append(cmd_ret)
+        return all(cmd.successful for cmd in pdf_commands)
 
     def move(self, **kwargs):
         if not os.path.exists(self.target):

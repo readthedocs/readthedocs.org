@@ -40,12 +40,9 @@ class BuildEnvironmentTests(TestCase):
         self.mocks.patches['html_build'].stop()
 
         build_env = LocalEnvironment(project=project, version=version, build={})
-        task = UpdateDocsTask()
-        task.build_env = build_env
-        task.version = version
-        task.project = project
-
-        built_docs = task.build_docs(False, False, False)
+        task = UpdateDocsTask(build_env=build_env, version=version,
+                              project=project, search=False, localmedia=False)
+        built_docs = task.build_docs()
 
         # Get command and check first part of command list is a call to sphinx
         self.assertEqual(self.mocks.popen.call_count, 1)
@@ -60,12 +57,9 @@ class BuildEnvironmentTests(TestCase):
         version = project.versions.all()[0]
 
         build_env = LocalEnvironment(project=project, version=version, build={})
-        task = UpdateDocsTask()
-        task.build_env = build_env
-        task.version = version
-        task.project = project
-
-        built_docs = task.build_docs(False, False, False)
+        task = UpdateDocsTask(build_env=build_env, version=version,
+                              project=project, search=False, localmedia=False)
+        built_docs = task.build_docs()
 
         # The HTML and the Epub format were built.
         self.mocks.html_build.assert_called_once_with()
@@ -81,12 +75,9 @@ class BuildEnvironmentTests(TestCase):
         version = project.versions.all()[0]
 
         build_env = LocalEnvironment(project=project, version=version, build={})
-        task = UpdateDocsTask()
-        task.build_env = build_env
-        task.version = version
-        task.project = project
-
-        built_docs = task.build_docs(False, False, False)
+        task = UpdateDocsTask(build_env=build_env, project=project,
+                              version=version, search=False, localmedia=False)
+        built_docs = task.build_docs()
 
         # The HTML and the Epub format were built.
         self.mocks.html_build.assert_called_once_with()
@@ -134,10 +125,8 @@ class BuildEnvironmentTests(TestCase):
         assert project.conf_dir() == '/tmp/rtd'
 
         build_env = LocalEnvironment(project=project, version=version, build={})
-        task = UpdateDocsTask()
-        task.build_env = build_env
-        task.version = version
-        task.project = project
+        task = UpdateDocsTask(build_env=build_env, project=project,
+                              version=version, search=False, localmedia=False)
 
         # Mock out the separate calls to Popen using an iterable side_effect
         returns = [
@@ -155,7 +144,7 @@ class BuildEnvironmentTests(TestCase):
         self.mocks.popen.return_value = mock_obj
 
         with build_env:
-            built_docs = task.build_docs(False, False, False)
+            built_docs = task.build_docs()
         self.assertEqual(self.mocks.popen.call_count, 5)
         self.assertTrue(build_env.failed)
 
@@ -175,10 +164,8 @@ class BuildEnvironmentTests(TestCase):
         assert project.conf_dir() == '/tmp/rtd'
 
         build_env = LocalEnvironment(project=project, version=version, build={})
-        task = UpdateDocsTask()
-        task.build_env = build_env
-        task.version = version
-        task.project = project
+        task = UpdateDocsTask(build_env=build_env, project=project,
+                              version=version, search=False, localmedia=False)
 
         # Mock out the separate calls to Popen using an iterable side_effect
         returns = [
@@ -196,6 +183,6 @@ class BuildEnvironmentTests(TestCase):
         self.mocks.popen.return_value = mock_obj
 
         with build_env:
-            built_docs = task.build_docs(False, False, False)
+            built_docs = task.build_docs()
         self.assertEqual(self.mocks.popen.call_count, 5)
         self.assertTrue(build_env.successful)

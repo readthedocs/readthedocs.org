@@ -137,7 +137,8 @@ class BaseMkdocs(BaseBuilder):
         ]
         if self.use_theme:
             build_command.extend(['--theme', 'readthedocs'])
-        self.run(*build_command, cwd=checkout_path)
+        cmd_ret = self.run(*build_command, cwd=checkout_path)
+        return cmd_ret.successful
 
 
 class MkdocsHTML(BaseMkdocs):
