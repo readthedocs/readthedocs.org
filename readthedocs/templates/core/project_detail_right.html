@@ -4,11 +4,14 @@
 {% load gravatar %}
 {% load projects_tags %}
 
+{% block repo %}
   {% if project.repo %}
     <h3>{% trans "Repository" %}</h3>
     <p class="detail-long">{{ project.repo|urlize }}</p>
   {% endif %}
+{% endblock %}
 
+{% block last-built %}
   <h3>{% trans "Last Built" %}</h3>
   <p>
     {% with build=project.get_latest_build %}
@@ -28,21 +31,36 @@
       {% endif %}
     {% endwith %}
   </p>
+{% endblock %}
 
+{% block owners %}
     <h3>{% trans "Owners" %}</h3>
     <p>
       {% for user in project.users.all %}
       <a href="{% url "profiles_profile_detail" user.username %}">{% gravatar user.email 32 %}</a>
       {% endfor %}
     </p>
+{% endblock %}
 
+{% block homepage %}
+  {% if project.project_url %}
+    <h3>{% trans "Home Page" %}</h3>
+    <p>
+      <a href="{{ project.project_url }}" rel="nofollow,noindex">{{ project.project_url }}</a>
+    </p>
+  {% endif %}
+{% endblock %}
+
+{% block badge %}
     <h3>{% trans "Badge" %}</h3>
       <a href="{{ site_url }}" style="text-decoration: none;" onclick="$('#badge_markup').toggle(); return false;">
         <img src="{{ badge_url }}" />
       </a>
       {% include "core/badge_markup.html" with badge_url=badge_url site_url=site_url %}
+{% endblock %}
 
 
+{% block tags %}
   {% if project.tags.count %}
     <h3>{% trans "Tags" %}</h3>
     <p>
@@ -53,21 +71,18 @@
       {% endfor %}
     </p>
   {% endif %}
+{% endblock %}
 
-  {% if project.project_url %}
-    <h3>{% trans "Home Page" %}</h3>
-    <p>
-      <a href="{{ project.project_url }}" rel="nofollow,noindex">{{ project.project_url }}</a>
-    </p>
-  {% endif %}
-
+{% block privacy-level %}
   <h3>{% trans "Project Privacy Level" %}</h3>
   <div id="privacy_level">
     <p>
       {{ project.get_privacy_level_display }}
     </p>
   </div>
+{% endblock %}
 
+{% block short-urls %}
   <h3>{% trans "Short URLs" %}</h3>
   <p>
     <a href="http://{{ project.slug}}.{{ PRODUCTION_DOMAIN }}">{{ project.slug }}.{{ PRODUCTION_DOMAIN }}</a><br>
@@ -75,12 +90,9 @@
     <a href="http://{{ project.slug}}.rtfd.org">{{ project.slug }}.rtfd.org</a>
     {% endif %}
   </p>
+{% endblock %}
 
-  {% if project.django_packages_url %}
-  <h3>{% trans "Open Comparison" %}</h3>
-  <p>{% blocktrans with project.django_packages_url as url %}This project has more information available about it on <a href="{{ url }}">Open Comparison!</a>{% endblocktrans %}</p>
-  {% endif %}
-
+{% block translations %}
   {% if project.translations.exists %}
     <h3>{% trans "Translations" %}</h3>
       <ul>
@@ -89,7 +101,9 @@
       {% endfor %}
       </ul>
   {% endif %}
+{% endblock %}
 
+{% block subprojects %}
   {% if project.subprojects.exists %}
     <h3>{% trans "Sub Projects" %}</h3>
       <ul>
@@ -98,39 +112,22 @@
       {% endfor %}
       </ul>
   {% endif %}
+{% endblock %}
 
+{% block defaults %}
 <h3>{% trans "Default Version" %}</h3>
 <p> {{ project.get_default_version }}</p>
 
 <h3>{% trans "'latest' Version" %}</h3>
 <p> {{ project.get_default_branch }}</p>
+{% endblock %}
 
+{% block post-commit %}
 {% if request.user in project.users.all %}
   <h3>{% trans "Post Commit Hook" %}</h3>
     <p class="detail-long">
         curl -X POST https://{{ PRODUCTION_DOMAIN }}{% url "generic_build" project.slug %}
     </p>
-
 {% endif %}
+{% endblock %}
 
-  {% if pageview_list %}
-  <!-- BEGIN projects list -->
-  <div class="module">
-    <div class="module-wrapper">
-
-      <div class="module-header">
-        <h3>{% trans "Most viewed pages for this project" %}<span class="small_head"></span></h3>
-      </div>
-
-      <div class="module-list">
-        <div class="module-list-wrapper">
-          <ul>
-          {% include "core/pageview_list_detailed.html" %}
-          </ul>
-        </div>
-      </div>
-
-    </div>
-  </div>
-  <!-- END projects list -->
-  {% endif %}
