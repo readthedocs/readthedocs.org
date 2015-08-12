@@ -37,7 +37,7 @@ from readthedocs.doc_builder.exceptions import (BuildEnvironmentError,
                                                 BuildEnvironmentWarning)
 from readthedocs.projects.exceptions import ProjectImportError
 from readthedocs.projects.models import ImportedFile, Project
-from readthedocs.projects.utils import run, make_api_version, make_api_project
+from readthedocs.projects.utils import make_api_version, make_api_project
 from readthedocs.projects.constants import LOG_TEMPLATE
 from readthedocs.builds.constants import STABLE
 from readthedocs.projects import symlinks
@@ -77,8 +77,8 @@ class UpdateDocsTask(Task):
         from the shell, for example.
 
     """
-    max_retries=5
-    default_retry_delay=(7 * 60)
+    max_retries = 5
+    default_retry_delay = (7 * 60)
     name = 'update_docs'
 
     def __init__(self, build_env=None, force=False, search=True, localmedia=True,
@@ -343,9 +343,8 @@ class UpdateDocsTask(Task):
 
         outcomes = defaultdict(lambda: False)
         with self.project.repo_nonblockinglock(
-                    version=self.version,
-                    max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)
-                ):
+                version=self.version,
+                max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
             outcomes['html'] = self.build_docs_html()
             outcomes['search'] = self.build_docs_search()
             outcomes['localmedia'] = self.build_docs_localmedia()
@@ -444,9 +443,9 @@ def update_imported_docs(version_pk):
     if not project.vcs_repo():
         raise ProjectImportError(("Repo type '{0}' unknown".format(project.repo_type)))
 
-    with project.repo_nonblockinglock(version=version,
-                                      max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
-
+    with project.repo_nonblockinglock(
+            version=version,
+            max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
         before_vcs.send(sender=version)
         # Get the actual code on disk
         if version:
@@ -498,6 +497,7 @@ def update_imported_docs(version_pk):
         except Exception, e:
             print "Sync Versions Exception: %s" % e.message
     return ret_dict
+
 
 # Web tasks
 @task(queue='web')
