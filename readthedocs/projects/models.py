@@ -593,6 +593,16 @@ class Project(models.Model):
             return conf_file.replace('/conf.py', '')
 
     @property
+    def is_type_sphinx(self):
+        '''Is project type Sphinx'''
+        return 'sphinx' in self.documentation_type
+
+    @property
+    def is_type_mkdocs(self):
+        '''Is project type Mkdocs'''
+        return 'mkdocs' in self.documentation_type
+
+    @property
     def is_imported(self):
         return bool(self.repo)
 

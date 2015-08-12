@@ -382,28 +382,32 @@ class UpdateDocsTask(Task):
     def build_docs_search(self):
         '''Build search data with separate build'''
         if self.build_search:
-            if 'mkdocs' in self.project.documentation_type:
+            if self.project.is_type_mkdocs:
                 return self.build_docs_class('mkdocs_json')
-            if 'sphinx' in self.project.documentation_type:
+            if self.project.is_type_sphinx:
                 return self.build_docs_class('sphinx_search')
         return False
 
     def build_docs_localmedia(self):
         '''Get local media files with separate build'''
         if self.build_localmedia:
-            if 'sphinx' in self.project.documentation_type:
+            if self.project.is_type_sphinx:
                 return self.build_docs_class('sphinx_singlehtmllocalmedia')
         return False
 
     def build_docs_pdf(self):
         '''Build PDF docs'''
-        if self.project.slug in HTML_ONLY or not self.project.enable_pdf_build:
+        if (self.project.slug in HTML_ONLY or
+                not self.project.is_type_sphinx or
+                not self.project.enable_pdf_build):
             return False
         return self.build_docs_class('sphinx_pdf')
 
     def build_docs_epub(self):
         '''Build ePub docs'''
-        if self.project.slug in HTML_ONLY or not self.project.enable_epub_build:
+        if (self.project.slug in HTML_ONLY or
+                not self.project.is_type_sphinx or
+                not self.project.enable_epub_build):
             return False
         return self.build_docs_class('sphinx_epub')
 
@@ -583,9 +587,9 @@ def update_search(version_pk, commit):
 
     version = Version.objects.get(pk=version_pk)
 
-    if 'sphinx' in version.project.documentation_type:
+    if version.project.is_sphinx:
         page_list = process_all_json_files(version, build_dir=False)
-    elif 'mkdocs' in version.project.documentation_type:
+    elif version.project.is_mkdocs:
         page_list = process_mkdocs_json(version, build_dir=False)
     else:
         log.error('Unknown documentation type: %s' % version.project.documentation_type)
