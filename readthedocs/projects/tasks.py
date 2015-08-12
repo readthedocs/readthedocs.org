@@ -185,10 +185,13 @@ class UpdateDocsTask(Task):
 
     def update_documentation_type(self):
         """
-        Automatically determine the doc type for a user.
+        Force Sphinx for 'auto' documentation type
+
+        This used to determine the type and automatically set the documentation
+        type to Sphinx for rST and Mkdocs for markdown. It now just forces
+        Sphinx, due to markdown support.
         """
-        # Keep this here for 'auto' projects
-        ret = 'mkdocs'
+        ret = 'sphinx'
         project_data = api_v2.project(self.project.pk).get()
         project_data['documentation_type'] = ret
         api_v2.project(self.project.pk).put(project_data)
