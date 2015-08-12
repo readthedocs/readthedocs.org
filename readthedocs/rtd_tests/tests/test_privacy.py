@@ -1,5 +1,6 @@
 import logging
 import json
+import mock
 
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -15,8 +16,6 @@ log = logging.getLogger(__name__)
 
 
 class PrivacyTests(TestCase):
-    def tearDown(self):
-        tasks.update_docs = self.old_bd
 
     def setUp(self):
         self.eric = User(username='eric')
@@ -27,12 +26,7 @@ class PrivacyTests(TestCase):
         self.tester.set_password('test')
         self.tester.save()
 
-        self.old_bd = tasks.update_docs
-
-        def mock(*args, **kwargs):
-            pass
-            #log.info("Mocking for great profit and speed.")
-        tasks.update_docs.delay = mock
+        tasks.UpdateDocsTask.delay = mock.Mock()
 
     def _create_kong(self, privacy_level='private',
                      version_privacy_level='private'):

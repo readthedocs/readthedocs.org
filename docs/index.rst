@@ -77,7 +77,8 @@ Information about development is also available:
    contribute
    tests
    architecture
-   development
+   development/standards
+   development/buildenvironments
    symlinks
    settings
    i18n

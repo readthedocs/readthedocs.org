@@ -19,7 +19,6 @@ def restoring_chdir(fn):
 
 
 class BaseBuilder(object):
-
     """
     The Base for all Builders. Defines the API for subclasses.
 
@@ -30,10 +29,15 @@ class BaseBuilder(object):
     _force = False
     # old_artifact_path = ..
 
-    def __init__(self, version, force=False):
-        self.version = version
+    def __init__(self, build_env, force=False):
+        self.build_env = build_env
+        self.version = build_env.version
+        self.project = build_env.project
         self._force = force
-        self.target = self.version.project.artifact_path(version=self.version.slug, type=self.type)
+        self.target = self.project.artifact_path(
+            version=self.version.slug,
+            type=self.type
+        )
 
     def force(self, **kwargs):
         """
@@ -72,18 +76,15 @@ class BaseBuilder(object):
         """
         Handle creating a custom docs_dir if it doesn't exist.
         """
-
+        checkout_path = self.project.checkout_path(self.version.slug)
         if not docs_dir:
-            checkout_path = self.version.project.checkout_path(self.version.slug)
-            for possible_path in ['docs', 'doc', 'Doc', 'book']:
-                if os.path.exists(os.path.join(checkout_path, '%s' % possible_path)):
+            for doc_dir_name in ['docs', 'doc', 'Doc', 'book']:
+                possible_path = os.path.join(checkout_path, doc_dir_name)
+                if os.path.exists(possible_path):
                     docs_dir = possible_path
                     break
-
         if not docs_dir:
-            # Fallback to defaulting to '.'
-            docs_dir = '.'
-
+            docs_dir = checkout_path
         return docs_dir
 
     def create_index(self, extension='md', **kwargs):
@@ -115,3 +116,7 @@ If you want to use another markup, choose a different builder in your settings.
 
                 index_file.write(index_text.format(dir=docs_dir, ext=extension))
                 index_file.close()
+
+    def run(self, *args, **kwargs):
+        '''Proxy run to build environment'''
+        return self.build_env.run(*args, **kwargs)
