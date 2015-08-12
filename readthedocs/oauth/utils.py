@@ -1,12 +1,15 @@
 import logging
-
-from allauth.socialaccount.models import SocialToken
+import json
 
 from django.conf import settings
+from django.contrib import messages
+from django.utils.translation import ugettext_lazy as _
+
 from requests_oauthlib import OAuth1Session, OAuth2Session
-from allauth.socialaccount.models import SocialAccount
+from allauth.socialaccount.models import SocialToken, SocialAccount
 
 from .models import GithubProject, GithubOrganization, BitbucketProject
+from readthedocs.builds import utils as build_utils
 from readthedocs.restapi.client import api
 
 log = logging.getLogger(__name__)
@@ -113,6 +116,37 @@ def import_github(user, sync):
 
     return session is not None
 
+
+def add_github_webhook(session, project):
+    owner, repo = build_utils.get_github_username_repo(url=project.repo)
+    data = json.dumps({
+        'name': 'readthedocs',
+        'active': True,
+        'config': {'url': 'https://{domain}/github'.format(domain=settings.PRODUCTION_DOMAIN)}
+    })
+    resp = session.post(
+        'https://api.github.com/repos/{owner}/{repo}/hooks'.format(owner=owner, repo=repo),
+        data=data,
+        headers={'content-type': 'application/json'}
+    )
+    log.info("Creating GitHub webhook response code: {code}".format(code=resp.status_code))
+    return resp
+
+
+def add_bitbucket_webhook(session, project):
+    owner, repo = build_utils.get_bitbucket_username_repo(url=project.repo)
+    data = {
+        'type': 'POST',
+        'url': 'https://{domain}/bitbucket'.format(domain=settings.PRODUCTION_DOMAIN),
+    }
+    resp = session.post(
+        'https://api.bitbucket.org/1.0/repositories/{owner}/{repo}/services'.format(
+            owner=owner, repo=repo
+        ),
+        data=data,
+    )
+    log.info("Creating BitBucket webhook response code: {code}".format(code=resp.status_code))
+    return resp
 
 ###
 # Bitbucket

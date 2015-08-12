@@ -48,12 +48,7 @@ from readthedocs.restapi.utils import index_search_request
 from readthedocs.vcs_support import utils as vcs_support_utils
 from readthedocs.api.client import api as api_v1
 from readthedocs.restapi.client import api as api_v2
-
-
-try:
-    from readthedocs.projects.signals import before_vcs, after_vcs, before_build, after_build
-except:
-    from readthedocs.projects.signals import before_vcs, after_vcs, before_build, after_build
+from readthedocs.projects.signals import before_vcs, after_vcs, before_build, after_build
 
 
 log = logging.getLogger(__name__)

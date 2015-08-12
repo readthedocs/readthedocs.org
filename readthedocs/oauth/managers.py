@@ -7,13 +7,12 @@ from django.db import models
 logger = logging.getLogger(__name__)
 
 
-GITHUB_PRIVACY = getattr(settings, 'GITHUB_PRIVACY', 'public')
-BITBUCKET_PRIVACY = getattr(settings, 'BITBUCKET_PRIVACY', GITHUB_PRIVACY)
+DEFAULT_PRIVACY_LEVEL = getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public')
 
 
 class GithubProjectManager(models.Manager):
     def create_from_api(self, api_json, user, organization=None,
-                        privacy=GITHUB_PRIVACY):
+                        privacy=DEFAULT_PRIVACY_LEVEL):
         logger.info('Trying GitHub: %s' % api_json['full_name'])
         if (
                 (api_json['private'] is True and privacy == 'private') or
@@ -56,7 +55,7 @@ class GithubOrganizationManager(models.Manager):
 
 class BitbucketProjectManager(models.Manager):
     def create_from_api(self, api_json, user, organization=None,
-                        privacy=BITBUCKET_PRIVACY):
+                        privacy=DEFAULT_PRIVACY_LEVEL):
         logger.info('Trying Bitbucket: %s' % api_json['full_name'])
         if (api_json['is_private'] is True and privacy == 'private' or
                 api_json['is_private'] is False and privacy == 'public'):
