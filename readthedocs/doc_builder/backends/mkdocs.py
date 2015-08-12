@@ -141,7 +141,7 @@ class BaseMkdocs(BaseBuilder):
         cmd_ret = self.run(
             *build_command,
             cwd=checkout_path,
-            bin_path=self.project.venv_bin(version=self.version.slug, bin=None)
+            bin_path=self.project.venv_bin(version=self.version.slug)
         )
         return cmd_ret.successful
 

@@ -142,7 +142,7 @@ class BaseSphinx(BaseBuilder):
         cmd_ret = self.run(
             *build_command,
             cwd=project.conf_dir(self.version.slug),
-            bin_path=project.venv_bin(version=self.version.slug, bin=None)
+            bin_path=project.venv_bin(version=self.version.slug)
         )
         return cmd_ret.successful
 
@@ -244,7 +244,7 @@ class PdfBuilder(BaseSphinx):
             '.',
             '_build/latex',
             cwd=cwd,
-            bin_path=self.project.venv_bin(version=self.version.slug, bin=None)
+            bin_path=self.project.venv_bin(version=self.version.slug)
         )
         latex_cwd = os.path.join(cwd, '_build', 'latex')
         tex_files = glob(os.path.join(latex_cwd, '*.tex'))
