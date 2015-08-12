@@ -3,7 +3,7 @@ Build Environments
 ==================
 
 Read the Docs uses container virtualization to encapsulate documentation build
-processes. Each build spins up a new virtual machinge using our base image,
+processes. Each build spins up a new virtual machine using our base image,
 which is an image with the minimum necessary components required to build
 documentation. Virtual machines are limiting in CPU time and memory, which aims
 to reduce excessive usage of build resources.
@@ -37,32 +37,32 @@ Configuration
 
 There are several settings used to configure usage of virtual machines:
 
-    DOCKER_ENABLED
-        True/False value used to enable the Docker build environment. Default:
-        False
+DOCKER_ENABLED
+    True/False value used to enable the Docker build environment. Default:
+    False
 
-    DOCKER_LIMITS
-        A dictionary of limits to virtual machines. These limits include:
+DOCKER_LIMITS
+    A dictionary of limits to virtual machines. These limits include:
 
-            time
-                An integer representing the total allowed time limit (in
-                seconds) of build processes. This time limit affects the parent
-                process to the virtual machine and will force a virtual machine
-                to die if a build is still running after the alloted time
-                expires.
+        time
+            An integer representing the total allowed time limit (in
+            seconds) of build processes. This time limit affects the parent
+            process to the virtual machine and will force a virtual machine
+            to die if a build is still running after the alloted time
+            expires.
 
-            memory
-                The maximum memory allocated to the virtual machine. If this
-                limit is hit, build processes will be automatically killed.
-                Examples: '200m' for 200MB of total memory, or '2g' for 2GB of
-                total memory.
+        memory
+            The maximum memory allocated to the virtual machine. If this
+            limit is hit, build processes will be automatically killed.
+            Examples: '200m' for 200MB of total memory, or '2g' for 2GB of
+            total memory.
 
-    DOCKER_IMAGE
-        Tag of a Docker image to use as a base image.
+DOCKER_IMAGE
+    Tag of a Docker image to use as a base image.
 
-    DOCKER_SOCKET
-        URI of the socket to connect to the Docker daemon. Examples include:
-        ``unix:///var/run/docker.sock`` and ``tcp://127.0.0.1:2375``
+DOCKER_SOCKET
+    URI of the socket to connect to the Docker daemon. Examples include:
+    ``unix:///var/run/docker.sock`` and ``tcp://127.0.0.1:2375``
 
-    DOCKER_VERSION
-        Version of the API to use for the Docker API client.
+DOCKER_VERSION
+    Version of the API to use for the Docker API client.
