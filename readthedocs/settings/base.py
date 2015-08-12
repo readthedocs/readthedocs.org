@@ -24,6 +24,7 @@ ADMINS = (
 MANAGERS = ADMINS
 
 SITE_ROOT = '/'.join(os.path.dirname(os.path.realpath(__file__)).split('/')[0:-2])
+TEMPLATE_ROOT = os.path.join(SITE_ROOT, 'readthedocs', 'templates')
 DOCROOT = os.path.join(SITE_ROOT, 'user_builds')
 UPLOAD_ROOT = os.path.join(SITE_ROOT, 'user_uploads')
 CNAME_ROOT = os.path.join(SITE_ROOT, 'cnames')
@@ -149,7 +150,7 @@ CORS_ALLOW_HEADERS = (
 ROOT_URLCONF = 'readthedocs.urls'
 
 TEMPLATE_DIRS = (
-    '%s/readthedocs/templates/' % SITE_ROOT,
+    TEMPLATE_ROOT,
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
