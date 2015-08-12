@@ -1,5 +1,6 @@
 import logging
 import json
+import mock
 
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -15,13 +16,17 @@ log = logging.getLogger(__name__)
 
 
 class PrivacyTests(TestCase):
-    fixtures = ["eric"]
 
     def setUp(self):
-        def mock(*args, **kwargs):
-            pass
+        self.eric = User(username='eric')
+        self.eric.set_password('test')
+        self.eric.save()
 
-        tasks.UpdateDocsTask.delay = mock
+        self.tester = User(username='tester')
+        self.tester.set_password('test')
+        self.tester.save()
+
+        tasks.UpdateDocsTask.delay = mock.Mock()
 
     def _create_kong(self, privacy_level='private',
                      version_privacy_level='private'):
