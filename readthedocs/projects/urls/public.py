@@ -8,6 +8,18 @@ from readthedocs.constants import pattern_opts
 urlpatterns = patterns(
     # base view, flake8 complains if it is on the previous line.
     '',
+    url(r'^$',
+        ProjectIndex.as_view(),
+        name='projects_list'),
+
+    url(r'^search/autocomplete/$',
+        'readthedocs.projects.views.public.search_autocomplete',
+        name='search_autocomplete'),
+
+    url(r'^autocomplete/version/(?P<project_slug>[-\w]+)/$',
+        'readthedocs.projects.views.public.version_autocomplete',
+        name='version_autocomplete'),
+
     url(r'^(?P<project_slug>{project_slug})/$'.format(**pattern_opts),
         ProjectDetailView.as_view(),
         name='projects_detail'),
@@ -56,4 +68,5 @@ urlpatterns = patterns(
     url(r'^tags/(?P<tag>[-\w]+)/$',
         ProjectIndex.as_view(),
         name='projects_tag_detail'),
+
 )
