@@ -213,4 +213,4 @@ class PostCommitTest(TestCase):
         rtd.save()
         r = self.client.post('/build/%s' % rtd.pk, {'version_slug': 'master'})
         self.assertEqual(r.status_code, 302)
-        self.assertEqual(r._headers['location'][1], 'http://testserver/builds/read-the-docs/')
+        self.assertEqual(r._headers['location'][1], 'http://testserver/projects/read-the-docs/builds/')

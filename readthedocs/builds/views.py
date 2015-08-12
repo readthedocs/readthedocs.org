@@ -1,6 +1,9 @@
 from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, DetailView
+from django.http import HttpResponsePermanentRedirect
 from django.conf import settings
+from django.core.urlresolvers import reverse
+
 
 from readthedocs.builds.models import Build, Version
 from readthedocs.builds.filters import BuildFilter
@@ -61,3 +64,11 @@ class BuildDetail(DetailView):
         context = super(BuildDetail, self).get_context_data(**kwargs)
         context['project'] = self.project
         return context
+
+
+def builds_redirect_list(request, project_slug):
+    return HttpResponsePermanentRedirect(reverse('builds_project_list', args=[project_slug]))
+
+
+def builds_redirect_detail(request, project_slug, pk):
+    return HttpResponsePermanentRedirect(reverse('builds_detail', args=[project_slug, pk]))

@@ -15,10 +15,18 @@ router.register(r'comments', CommentViewSet, base_name="comments")
 urlpatterns = patterns(
     '',
     url(r'^', include(router.urls)),
+)
+
+function_urls = patterns(
+    '',
     url(r'embed/', 'readthedocs.restapi.views.core_views.embed', name='embed'),
     url(r'docurl/', 'readthedocs.restapi.views.core_views.docurl', name='docurl'),
     url(r'cname/', 'readthedocs.restapi.views.core_views.cname', name='cname'),
     url(r'footer_html/', 'readthedocs.restapi.views.footer_views.footer_html', name='footer_html'),
+)
+
+search_urls = patterns(
+    '',
     url(r'index_search/',
         'readthedocs.restapi.views.search_views.index_search',
         name='index_search'),
@@ -29,6 +37,10 @@ urlpatterns = patterns(
     url(r'search/section/$',
         'readthedocs.restapi.views.search_views.section_search',
         name='api_section_search'),
+)
+
+task_urls = patterns(
+    '',
     url(r'jobs/status/(?P<task_id>[^/]+)/',
         'readthedocs.restapi.views.task_views.job_status',
         name='api_job_status'),
@@ -39,3 +51,8 @@ urlpatterns = patterns(
         'readthedocs.restapi.views.task_views.sync_bitbucket_repositories',
         name='api_sync_bitbucket_repositories'),
 )
+
+
+urlpatterns += function_urls
+urlpatterns += search_urls
+urlpatterns += task_urls

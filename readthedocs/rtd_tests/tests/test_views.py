@@ -48,7 +48,7 @@ class Testmaker(TestCase):
         self.assertEqual(r.status_code, 200)
         r = self.client.get('/dashboard/django-kong/versions/', {})
         self.assertEqual(r.status_code, 200)
-        r = self.client.get('/builds/django-kong/')
+        r = self.client.get('/projects/django-kong/builds/')
         self.assertEqual(r.status_code, 200)
         r = self.client.get('/dashboard/django-kong/edit/', {})
         self.assertEqual(r.status_code, 200)
