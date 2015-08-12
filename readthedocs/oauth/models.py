@@ -62,6 +62,10 @@ class GithubProject(models.Model):
             return full_json['permissions']['admin']
         return False
 
+    def is_private(self):
+        full_json = eval(self.json)
+        return full_json['private']
+
 
 class BitbucketTeam(models.Model):
     # Auto fields
@@ -110,3 +114,7 @@ class BitbucketProject(models.Model):
 
     def __unicode__(self):
         return "Bitbucket Project: %s" % (self.html_url)
+
+    def is_private(self):
+        full_json = eval(self.json)
+        return full_json['is_private']
