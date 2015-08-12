@@ -587,9 +587,9 @@ def update_search(version_pk, commit):
 
     version = Version.objects.get(pk=version_pk)
 
-    if version.project.is_sphinx:
+    if version.project.is_type_sphinx:
         page_list = process_all_json_files(version, build_dir=False)
-    elif version.project.is_mkdocs:
+    elif version.project.is_type_mkdocs:
         page_list = process_mkdocs_json(version, build_dir=False)
     else:
         log.error('Unknown documentation type: %s' % version.project.documentation_type)
