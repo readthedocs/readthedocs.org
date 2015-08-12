@@ -44,7 +44,8 @@ class BuildCommand(object):
 
     # TODO add short name here for reporting
     def __init__(self, command, cwd=None, shell=False, environment=None,
-                 combine_output=True, input_data=None, build_env=None):
+                 combine_output=True, input_data=None, build_env=None,
+                 bin_path=None):
         self.command = command
         self.shell = shell
         if cwd is None:
@@ -55,6 +56,7 @@ class BuildCommand(object):
             self.environment.update(environment)
         self.combine_output = combine_output
         self.build_env = build_env
+        self.bin_path = bin_path
         self.status = None
         self.input_data = input_data
         self.output = None
@@ -91,6 +93,10 @@ class BuildCommand(object):
             del environment['DJANGO_SETTINGS_MODULE']
         if 'PYTHONPATH' in environment:
             del environment['PYTHONPATH']
+        if self.bin_path is not None:
+            env_paths = environment.get('PATH', '').split(':')
+            env_paths.insert(0, self.bin_path)
+            environment['PATH'] = ':'.join(env_paths)
 
         try:
             proc = subprocess.Popen(

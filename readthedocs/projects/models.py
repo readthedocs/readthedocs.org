@@ -484,8 +484,17 @@ class Project(models.Model):
     # End symlink paths
     #
 
-    def venv_bin(self, version=LATEST, bin='python'):
-        return os.path.join(self.venv_path(version), 'bin', bin)
+    def venv_bin(self, version=LATEST, bin=None):
+        """Return path to the virtualenv bin path, or a specific binary
+
+        If ``bin`` is :py:data:`None`, then return the path to the virtual env
+        path, otherwise, return the path to the executable ``bin`` in the
+        virtual env ``bin`` path
+        """
+        parts = [self.venv_path(version), 'bin']
+        if bin is not None:
+            parts.append(bin)
+        return os.path.join(*parts)
 
     def full_doc_path(self, version=LATEST):
         """

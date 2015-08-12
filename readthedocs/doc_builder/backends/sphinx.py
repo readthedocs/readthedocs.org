@@ -126,6 +126,7 @@ class BaseSphinx(BaseBuilder):
         self.clean()
         project = self.project
         build_command = [
+            'python',
             project.venv_bin(version=self.version.slug, bin='sphinx-build'),
             '-T'
         ]
@@ -138,8 +139,11 @@ class BaseSphinx(BaseBuilder):
             '.',
             self.sphinx_build_dir
         ])
-        cmd_ret = self.run(*build_command,
-                           cwd=project.conf_dir(self.version.slug))
+        cmd_ret = self.run(
+            *build_command,
+            cwd=project.conf_dir(self.version.slug),
+            bin_path=project.venv_bin(version=self.version.slug)
+        )
         return cmd_ret.successful
 
 
@@ -232,13 +236,15 @@ class PdfBuilder(BaseSphinx):
 
         # Default to this so we can return it always.
         self.run(
+            'python',
             self.project.venv_bin(version=self.version.slug, bin='sphinx-build'),
             '-b', 'latex',
             '-D', 'language={lang}'.format(lang=self.project.language),
             '-d', '_build/doctrees',
             '.',
             '_build/latex',
-            cwd=cwd
+            cwd=cwd,
+            bin_path=self.project.venv_bin(version=self.version.slug)
         )
         latex_cwd = os.path.join(cwd, '_build', 'latex')
         tex_files = glob(os.path.join(latex_cwd, '*.tex'))
