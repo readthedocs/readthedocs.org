@@ -76,18 +76,15 @@ class BaseBuilder(object):
         """
         Handle creating a custom docs_dir if it doesn't exist.
         """
-
+        checkout_path = self.project.checkout_path(self.version.slug)
         if not docs_dir:
-            checkout_path = self.project.checkout_path(self.version.slug)
-            for possible_path in ['docs', 'doc', 'Doc', 'book']:
-                if os.path.exists(os.path.join(checkout_path, '%s' % possible_path)):
+            for doc_dir_name in ['docs', 'doc', 'Doc', 'book']:
+                possible_path = os.path.join(checkout_path, doc_dir_name)
+                if os.path.exists(possible_path):
                     docs_dir = possible_path
                     break
-
         if not docs_dir:
-            # Fallback to defaulting to '.'
-            docs_dir = '.'
-
+            docs_dir = checkout_path
         return docs_dir
 
     def create_index(self, extension='md', **kwargs):
