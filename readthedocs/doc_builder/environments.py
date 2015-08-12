@@ -124,7 +124,7 @@ class BuildCommand(object):
 
     def get_command(self):
         '''Flatten command'''
-        if hasattr(self.command, '__iter__'):
+        if hasattr(self.command, '__iter__') and not isinstance(self.command, str):
             return ' '.join(self.command)
         else:
             return self.command
