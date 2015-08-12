@@ -46,7 +46,8 @@ class BuildEnvironmentTests(TestCase):
         # Get command and check first part of command list is a call to sphinx
         self.assertEqual(self.mocks.popen.call_count, 1)
         cmd = self.mocks.popen.call_args_list[0][0]
-        self.assertRegexpMatches(cmd[0][0], r'sphinx-build')
+        self.assertRegexpMatches(cmd[0][0], r'python')
+        self.assertRegexpMatches(cmd[0][1], r'sphinx-build')
 
     def test_build_respects_pdf_flag(self):
         '''Build output format control'''

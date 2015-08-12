@@ -267,6 +267,7 @@ class UpdateDocsTask(Task):
         ]
 
         cmd = [
+            'python',
             self.project.venv_bin(version=self.version.slug, bin='pip'),
             'install',
             '--use-wheel',
@@ -280,7 +281,10 @@ class UpdateDocsTask(Task):
             # --system-site-packages is used)
             cmd.append('-I')
         cmd.extend(requirements)
-        self.build_env.run(*cmd)
+        self.build_env.run(
+            *cmd,
+            bin_path=self.project.venv_bin(version=self.version.slug, bin=None)
+        )
 
         # Handle requirements
         requirements_file_path = self.project.requirements_file
@@ -298,11 +302,14 @@ class UpdateDocsTask(Task):
 
         if requirements_file_path:
             self.build_env.run(
+                'python',
                 self.project.venv_bin(version=self.version.slug, bin='pip'),
                 'install',
                 '--exists-action=w',
                 '-r{0}'.format(requirements_file_path),
-                cwd=checkout_path
+                cwd=checkout_path,
+                bin_path=self.project.venv_bin(version=self.version.slug,
+                                               bin=None)
             )
 
         # Handle setup.py
@@ -311,21 +318,24 @@ class UpdateDocsTask(Task):
         if os.path.isfile(setup_path):
             if getattr(settings, 'USE_PIP_INSTALL', False):
                 self.build_env.run(
-                    self.project.venv_bin(version=self.version.slug,
-                                          bin='pip'),
+                    'python',
+                    self.project.venv_bin(version=self.version.slug, bin='pip'),
                     'install',
                     '--ignore-installed',
                     '.',
-                    cwd=checkout_path
+                    cwd=checkout_path,
+                    bin_path=self.project.venv_bin(version=self.version.slug,
+                                                   bin=None)
                 )
             else:
                 self.build_env.run(
-                    self.project.venv_bin(version=self.version.slug,
-                                          bin='python'),
+                    'python',
                     'setup.py',
                     'install',
                     '--force',
-                    cwd=checkout_path
+                    cwd=checkout_path,
+                    bin_path=self.project.venv_bin(version=self.version.slug,
+                                                   bin=None)
                 )
 
     def build_docs(self):
