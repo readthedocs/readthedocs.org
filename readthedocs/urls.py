@@ -5,14 +5,13 @@ from django.views.generic.base import TemplateView
 
 from tastypie.api import Api
 
-from readthedocs.api.base import (ProjectResource, UserResource, BuildResource,
+from readthedocs.api.base import (ProjectResource, UserResource,
                                   VersionResource, FileResource)
 from readthedocs.core.views import HomepageView
 
 from readthedocs.core.urls import docs_urls, core_urls, deprecated_urls
 
 v1_api = Api(api_name='v1')
-v1_api.register(BuildResource())
 v1_api.register(UserResource())
 v1_api.register(ProjectResource())
 v1_api.register(VersionResource())
