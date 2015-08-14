@@ -19,8 +19,8 @@ from readthedocs.projects.version_handling import determine_stable_version
 from ..permissions import (APIPermission, APIRestrictedPermission,
                            RelatedProjectIsOwner)
 from ..serializers import (BuildSerializer, BuildSerializerLimited,
-                                  BuildCommandSerializer, ProjectSerializer,
-                                  VersionSerializer)
+                           BuildCommandSerializer, ProjectSerializer,
+                           VersionSerializer)
 from .. import utils as api_utils
 
 log = logging.getLogger(__name__)
