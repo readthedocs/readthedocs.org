@@ -11,13 +11,15 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from guardian.shortcuts import assign
 from taggit.managers import TaggableManager
 
-from readthedocs.privacy.loader import VersionManager, RelatedProjectManager
+from readthedocs.privacy.loader import (VersionManager, RelatedProjectManager,
+                                        RelatedBuildManager)
 from readthedocs.projects.models import Project
-from readthedocs.projects import constants
-from .constants import (BUILD_STATE, BUILD_TYPES, VERSION_TYPES,
-                        LATEST, NON_REPOSITORY_VERSIONS, STABLE
-                        )
+from readthedocs.projects.constants import (PRIVACY_CHOICES, REPO_TYPE_GIT,
+                                            REPO_TYPE_HG)
 
+from .constants import (BUILD_STATE, BUILD_TYPES, VERSION_TYPES,
+                        LATEST, NON_REPOSITORY_VERSIONS, STABLE,
+                        BUILD_STATE_FINISHED)
 from .version_slug import VersionSlugField
 
 
@@ -70,7 +72,7 @@ class Version(models.Model):
     built = models.BooleanField(_('Built'), default=False)
     uploaded = models.BooleanField(_('Uploaded'), default=False)
     privacy_level = models.CharField(
-        _('Privacy Level'), max_length=20, choices=constants.PRIVACY_CHOICES,
+        _('Privacy Level'), max_length=20, choices=PRIVACY_CHOICES,
         default=DEFAULT_VERSION_PRIVACY_LEVEL, help_text=_("Level of privacy for this Version.")
     )
     tags = TaggableManager(blank=True)
@@ -368,4 +370,54 @@ class Build(models.Model):
     @property
     def finished(self):
         '''Return if build has a finished state'''
-        return self.state == 'finished'
+        return self.state == BUILD_STATE_FINISHED
+
+
+class BuildCommandResultMixin(object):
+    '''Mixin for common command result methods/properties
+
+    Shared methods between the database model :py:cls:`BuildCommandResult` and
+    non-model respresentations of build command results from the API
+    '''
+
+    @property
+    def successful(self):
+        '''Did the command exit with a successful exit code'''
+        return self.exit_code == 0
+
+    @property
+    def failed(self):
+        '''Did the command exit with a failing exit code
+
+        Helper for inverse of :py:meth:`successful`'''
+        return not self.successful
+
+
+class BuildCommandResult(BuildCommandResultMixin, models.Model):
+    build = models.ForeignKey(Build, verbose_name=_('Build'),
+                              related_name='commands')
+
+    command = models.TextField(_('Command'))
+    description = models.TextField(_('Description'), null=True, blank=True)
+    output = models.TextField(_('Command output'), null=True, blank=True)
+    exit_code = models.IntegerField(_('Command exit code'), default=0)
+
+    start_time = models.DateTimeField(_('Start time'))
+    end_time = models.DateTimeField(_('End time'))
+
+    class Meta:
+        ordering = ['start_time']
+        get_latest_by = 'start_time'
+
+    objects = RelatedBuildManager()
+
+    def __unicode__(self):
+        return (ugettext(u'Build command {pk} for build {build}')
+                .format(pk=self.pk, build=self.build))
+
+    @property
+    def run_time(self):
+        """Total command runtime in seconds"""
+        if self.start_time is not None and self.end_time is not None:
+            diff = self.end_time - self.start_time
+            return diff.seconds
