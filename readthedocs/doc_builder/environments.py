@@ -8,18 +8,22 @@ import sys
 import logging
 import subprocess
 import traceback
-import datetime
 import socket
+from datetime import datetime
 
 from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
 from docker import Client
 from docker.utils import create_host_config
 from docker.errors import APIError as DockerAPIError, DockerException
+from rest_framework.renderers import JSONRenderer
 
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
+from readthedocs.builds.models import BuildCommandResultMixin
 from readthedocs.projects.constants import LOG_TEMPLATE
 from readthedocs.api.client import api as api_v1
+from readthedocs.restapi.client import api as api_v2
+from readthedocs.restapi.serializers import BuildCommandSerializer
 
 from .exceptions import (BuildEnvironmentException, BuildEnvironmentError,
                          BuildEnvironmentWarning)
@@ -30,22 +34,31 @@ from .constants import (DOCKER_SOCKET, DOCKER_VERSION, DOCKER_IMAGE,
 log = logging.getLogger(__name__)
 
 
-class BuildCommand(object):
+class BuildCommand(BuildCommandResultMixin):
     '''Wrap command execution for execution in build environments
 
     This wraps subprocess commands with some logic to handle exceptions,
     logging, and setting up the env for the build command.
 
+    This acts a mapping of sorts to the API reprensentation of the
+    :py:cls:`readthedocs.builds.models.BuildCommandResult` model.
+
     :param command: string or array of command parameters
-    :param cwd: current working path
-    :param shell: execute command in shell, default=True
+    :param cwd: current working path for the command
+    :param shell: execute command in shell, default=False
     :param environment: environment variables to add to environment
+    :type environment: dict
+    :param combine_output: combine stdout/stderr, default=True
+    :param input_data: data to pass in on stdin
+    :type input_data: str
+    :param build_env: build environment to use to execute commands
+    :param bin_path: binary path to add to PATH resolution
+    :param description: a more grokable description of the command being run
     '''
 
-    # TODO add short name here for reporting
     def __init__(self, command, cwd=None, shell=False, environment=None,
                  combine_output=True, input_data=None, build_env=None,
-                 bin_path=None):
+                 bin_path=None, description=None):
         self.command = command
         self.shell = shell
         if cwd is None:
@@ -54,13 +67,18 @@ class BuildCommand(object):
         self.environment = os.environ.copy()
         if environment is not None:
             self.environment.update(environment)
+
         self.combine_output = combine_output
-        self.build_env = build_env
-        self.bin_path = bin_path
-        self.status = None
         self.input_data = input_data
+        self.build_env = build_env
         self.output = None
         self.error = None
+        self.start_time = None
+        self.end_time = None
+
+        self.bin_path = bin_path
+        self.description = description
+        self.exit_code = None
 
     def __str__(self):
         # TODO do we want to expose the full command here?
@@ -78,6 +96,7 @@ class BuildCommand(object):
         '''
         log.info("Running: '%s' [%s]", self.get_command(), self.cwd)
 
+        self.start_time = datetime.utcnow()
         stdout = subprocess.PIPE
         stderr = subprocess.PIPE
         stdin = None
@@ -122,11 +141,13 @@ class BuildCommand(object):
                 self.error = cmd_stderr.decode('utf-8', 'replace')
             except (TypeError, AttributeError):
                 self.error = None
-            self.status = proc.returncode
+            self.exit_code = proc.returncode
         except OSError:
             self.error = traceback.format_exc()
             self.output = self.error
-            self.status = -1
+            self.exit_code = -1
+        finally:
+            self.end_time = datetime.utcnow()
 
     def get_command(self):
         '''Flatten command'''
@@ -135,17 +156,18 @@ class BuildCommand(object):
         else:
             return self.command
 
-    @property
-    def successful(self):
-        '''Did the command exit with a successful exit code'''
-        return self.status == 0
-
-    @property
-    def failed(self):
-        '''Did the command exit with a failing exit code
-
-        Helper for inverse of :py:meth:`successful`'''
-        return not self.successful
+    def save(self):
+        '''Save this command and result via the API'''
+        data = {
+            'build': self.build_env.build.get('id'),
+            'command': self.get_command(),
+            'description': self.description,
+            'output': self.output,
+            'exit_code': self.exit_code,
+            'start_time': self.start_time,
+            'end_time': self.end_time,
+        }
+        api_v2.command.post(data)
 
 
 class DockerBuildCommand(BuildCommand):
@@ -164,6 +186,7 @@ class DockerBuildCommand(BuildCommand):
         log.info("Running in container %s: '%s' [%s]",
                  self.build_env.container_id, self.get_command(), self.cwd)
 
+        self.start_time = datetime.utcnow()
         client = self.build_env.get_client()
         try:
             exec_cmd = client.exec_create(
@@ -179,18 +202,20 @@ class DockerBuildCommand(BuildCommand):
             except (TypeError, AttributeError):
                 self.output = ''
             cmd_ret = client.exec_inspect(exec_id=exec_cmd['Id'])
-            self.status = cmd_ret['ExitCode']
+            self.exit_code = cmd_ret['ExitCode']
 
             # Docker will exit with a special exit code to signify the command
             # was killed due to memory usage, make the error code nicer.
-            if (self.status == DOCKER_OOM_EXIT_CODE and
+            if (self.exit_code == DOCKER_OOM_EXIT_CODE and
                     self.output == 'Killed\n'):
                 self.output = _('Command killed due to excessive memory '
                                 'consumption\n')
         except DockerAPIError:
-            self.status = -1
+            self.exit_code = -1
             if self.output is None or not self.output:
                 self.output = _('Command exited abnormally')
+        finally:
+            self.end_time = datetime.utcnow()
 
     def get_wrapped_command(self):
         """Escape special bash characters in command to wrap in shell
@@ -203,9 +228,13 @@ class DockerBuildCommand(BuildCommand):
         """
         bash_escape_re = re.compile(r"([\t\ \!\"\#\$\&\'\(\)\*\:\;\<\>\?\@"
                                     r"\[\\\]\^\`\{\|\}\~])")
-        return ("/bin/sh -c 'cd {cwd} && {cmd}'"
+        prefix = ''
+        if self.bin_path:
+            prefix = 'PATH={0}:$PATH '.format(self.bin_path)
+        return ("/bin/sh -c 'cd {cwd} && {prefix}{cmd}'"
                 .format(
                     cwd=self.cwd,
+                    prefix=prefix,
                     cmd=(' '.join([bash_escape_re.sub(r'\\\1', part)
                                    for part in self.command]))))
 
@@ -229,7 +258,7 @@ class BuildEnvironment(object):
         self.record = record
         self.commands = []
         self.failure = None
-        self.start_time = datetime.datetime.utcnow()
+        self.start_time = datetime.utcnow()
 
     def __enter__(self):
         return self
@@ -278,6 +307,11 @@ class BuildEnvironment(object):
         cmd = self.command_class(cmd, **kwargs)
         self.commands.append(cmd)
         cmd.run()
+
+        # Save to database
+        if self.record:
+            cmd.save()
+
         if cmd.failed:
             msg = u'Command {cmd} failed'.format(cmd=cmd.get_command())
 
@@ -290,7 +324,7 @@ class BuildEnvironment(object):
                                  version=self.version.slug,
                                  msg=msg))
             else:
-                raise BuildEnvironmentError(msg)
+                raise BuildEnvironmentWarning(msg)
         return cmd
 
     @property
@@ -322,6 +356,8 @@ class BuildEnvironment(object):
         if not self.record:
             return None
 
+        self.build['project'] = self.project.pk
+        self.build['version'] = self.version.pk
         self.build['builder'] = socket.gethostname()
         self.build['state'] = state
         if self.done:
@@ -333,26 +369,18 @@ class BuildEnvironment(object):
                                            BuildEnvironmentException):
                 self.build['exit_code'] = self.failure.status_code
             elif len(self.commands) > 0:
-                self.build['exit_code'] = max([cmd.status
+                self.build['exit_code'] = max([cmd.exit_code
                                                for cmd in self.commands])
 
         self.build['setup'] = self.build['setup_error'] = ""
         self.build['output'] = self.build['error'] = ""
 
         if self.start_time:
-            build_length = (datetime.datetime.utcnow() - self.start_time)
+            build_length = (datetime.utcnow() - self.start_time)
             self.build['length'] = build_length.total_seconds()
 
-        # TODO Replace this with per-command output tracking in the db
-        self.build['output'] = '\n'.join([str(cmd)
-                                          for cmd in self.commands
-                                          if cmd is not None])
-        errors = []
         if self.failure is not None:
-            errors.append(str(self.failure))
-        errors.extend([str(cmd) for cmd in self.commands
-                       if cmd is not None and cmd.failed])
-        self.build['error'] = '\n'.join(errors)
+            self.build['error'] = str(self.failure)
 
         # Attempt to stop unicode errors on build reporting
         for key, val in self.build.items():
@@ -360,7 +388,7 @@ class BuildEnvironment(object):
                 self.build[key] = val.decode('utf-8', 'ignore')
 
         try:
-            api_v1.build(self.build['id']).put(self.build)
+            resp = api_v2.build(self.build['id']).put(self.build)
         except Exception:
             log.error("Unable to post a new build", exc_info=True)
 
