@@ -2,11 +2,14 @@ from django.conf.urls import url, patterns, include
 
 from rest_framework import routers
 
-from .views.model_views import BuildViewSet, ProjectViewSet, NotificationViewSet, VersionViewSet
+from .views.model_views import (BuildViewSet, BuildCommandViewSet,
+                                ProjectViewSet, NotificationViewSet,
+                                VersionViewSet)
 from readthedocs.comments.views import CommentViewSet
 
 router = routers.DefaultRouter()
 router.register(r'build', BuildViewSet)
+router.register(r'command', BuildCommandViewSet)
 router.register(r'version', VersionViewSet)
 router.register(r'project', ProjectViewSet)
 router.register(r'notification', NotificationViewSet)
