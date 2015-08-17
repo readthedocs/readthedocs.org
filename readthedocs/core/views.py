@@ -458,6 +458,7 @@ def _serve_docs(request, project, version, filename, lang_slug=None,
             ".js" not in filename and
             ".png" not in filename and
             ".jpg" not in filename and
+            ".svg" not in filename and
             "_images" not in filename and
             ".html" not in filename and
             "font" not in filename and
