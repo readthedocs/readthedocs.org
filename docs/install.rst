@@ -74,9 +74,11 @@ database::
 
     ./manage.py migrate
 
-This will prompt you to create a superuser account for Django. Do that.
+Then please create a superuser account for Django::
 
-Then go ahead and load in a couple users and a test projects::
+    ./manage.py createsuperuser
+
+By now, it is the right time to load in a couple users and a test projects::
 
     ./manage.py loaddata test_data
 
