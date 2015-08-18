@@ -89,6 +89,8 @@ class BuildCommand(object):
         environment = {}
         environment.update(self.environment)
         environment['READTHEDOCS'] = 'True'
+        if self.build_env is not None:
+            environment['RTD_VERSION_SLUG'] = self.build_env.version.slug
         if 'DJANGO_SETTINGS_MODULE' in environment:
             del environment['DJANGO_SETTINGS_MODULE']
         if 'PYTHONPATH' in environment:
