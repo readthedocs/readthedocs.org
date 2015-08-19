@@ -114,13 +114,13 @@ class ProjectExtraForm(ProjectForm):
             'documentation_type',
             'language', 'programming_language',
             'project_url',
-            'canonical_url',
+            #'canonical_url',
             'tags',
         )
 
     def __init__(self, *args, **kwargs):
         super(ProjectExtraForm, self).__init__(*args, **kwargs)
-        self.fields['canonical_url'].widget.attrs['placeholder'] = self.placehold_canonical_url()
+        #self.fields['canonical_url'].widget.attrs['placeholder'] = self.placehold_canonical_url()
 
     def placehold_canonical_url(self):
         return choice([
@@ -177,13 +177,13 @@ class UpdateProjectForm(ProjectTriggerBuildMixin, ProjectBasicsForm,
             # Basics
             'name', 'repo', 'repo_type',
             # Extra
-            #'allow_comments',
-            #'comment_moderation',
+            # 'allow_comments',
+            # 'comment_moderation',
             'description',
             'documentation_type',
             'language', 'programming_language',
             'project_url',
-            'canonical_url',
+            # 'canonical_url',
             'tags',
         )
 
