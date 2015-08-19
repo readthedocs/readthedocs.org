@@ -41,21 +41,21 @@ class BuildCommandSerializer(serializers.ModelSerializer):
 
 
 class BuildSerializer(serializers.ModelSerializer):
-    """Writeable Build instance serializer, for admin access by builders"""
+    """Readonly version of the build serializer, used for user facing display"""
 
     commands = BuildCommandSerializer(many=True, read_only=True)
     state_display = serializers.ReadOnlyField(source='get_state_display')
 
     class Meta:
         model = Build
+        exclude = ('builder',)
 
 
-class BuildSerializerLimited(BuildSerializer):
-    """Readonly version of the build serializer, used for user facing display"""
+class BuildSerializerFull(BuildSerializer):
+    """Writeable Build instance serializer, for admin access by builders"""
 
     class Meta:
         model = Build
-        exclude = ('builder',)
 
 
 class SearchIndexSerializer(serializers.Serializer):

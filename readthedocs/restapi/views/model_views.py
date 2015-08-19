@@ -18,7 +18,7 @@ from readthedocs.projects.version_handling import determine_stable_version
 
 from ..permissions import (APIPermission, APIRestrictedPermission,
                            RelatedProjectIsOwner)
-from ..serializers import (BuildSerializer, BuildSerializerLimited,
+from ..serializers import (BuildSerializerFull, BuildSerializer,
                            BuildCommandSerializer, ProjectSerializer,
                            VersionSerializer)
 from .. import utils as api_utils
@@ -183,8 +183,8 @@ class BuildViewSet(viewsets.ModelViewSet):
         and to not return those fields to non-admin users.
         """
         if self.request.user.is_staff:
-            return BuildSerializer
-        return BuildSerializerLimited
+            return BuildSerializerFull
+        return BuildSerializer
 
 
 class BuildCommandViewSet(viewsets.ModelViewSet):
