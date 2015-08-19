@@ -898,3 +898,18 @@ class WebHook(Notification):
 
     def __unicode__(self):
         return self.url
+
+
+class Domain(models.Model):
+    project = models.ForeignKey(Project, related_name='domains')
+    objects = RelatedProjectManager()
+
+    url = models.URLField(_('URL'), unique=True)
+    canonical = models.BooleanField(_('Canonical'), default=False,
+                                    help_text=_('This URL is where the documentation is served from.'))
+    active = models.BooleanField(
+        _('Active'), default=False,
+        help_text=_('This is an active domain for this project.'))
+
+    def __unicode__(self):
+        return "{url} pointed at {project}".format(url=self.url, project=self.project.name)

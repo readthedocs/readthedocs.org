@@ -5,7 +5,8 @@ and related models.
 from readthedocs.builds.models import Version
 from django.contrib import admin
 from readthedocs.redirects.models import Redirect
-from readthedocs.projects.models import (Project, ImportedFile, ProjectRelationship, EmailHook, WebHook)
+from .models import (Project, ImportedFile,
+                     ProjectRelationship, EmailHook, WebHook, Domain)
 from guardian.admin import GuardedModelAdmin
 
 
@@ -37,7 +38,12 @@ class ImportedFileAdmin(admin.ModelAdmin):
     list_display = ('path', 'name', 'version')
 
 
+class DomainAdmin(admin.ModelAdmin):
+    list_display = ('url', 'project')
+    model = Domain
+
 admin.site.register(Project, ProjectAdmin)
 admin.site.register(ImportedFile, ImportedFileAdmin)
+admin.site.register(Domain, DomainAdmin)
 admin.site.register(EmailHook)
 admin.site.register(WebHook)
