@@ -916,3 +916,14 @@ class Domain(models.Model):
 
     def __unicode__(self):
         return "{url} pointed at {project}".format(url=self.url, project=self.project.name)
+
+    def save(self, *args, **kwargs):
+        first_save = self.pk is None
+        if first_save:
+            parsed = urlparse(self.url)
+            if parsed.scheme or parsed.netloc:
+                netloc = parsed.netloc
+            else:
+                netloc = parsed.path
+            self.url = netloc
+        super(Domain, self).save(*args, **kwargs)

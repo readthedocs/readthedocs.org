@@ -2,7 +2,6 @@ import os
 import logging
 
 from django.conf import settings
-import redis
 
 from readthedocs.core.utils import run_on_app_servers
 from readthedocs.projects.constants import LOG_TEMPLATE
