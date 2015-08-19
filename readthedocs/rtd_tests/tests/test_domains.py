@@ -75,3 +75,39 @@ class ModelTests(TestCase):
         domain.url = 'www.google.com'
         domain.save()
         self.assertEqual(domain.clean_host, 'www.google.com')
+
+
+class TestCanonical(TestCase):
+
+    def setUp(self):
+        self.p = Project(
+            name='foo',
+            repo='http://github.com/ericholscher/django-kong',
+        )
+        self.p.save()
+        self.domain = self.p.domains.create(url='djangokong.com', canonical=True)
+
+    def test_canonical_clean(self):
+        # Only a url
+        self.p.canonical_url = "djangokong.com"
+        self.assertEqual(self.p.clean_canonical_url, "http://djangokong.com/")
+        # Extra bits in the URL
+        self.domain.url = "http://djangokong.com/en/latest/"
+        self.domain.save()
+        self.assertEqual(self.p.clean_canonical_url, "http://djangokong.com/")
+
+        self.domain.url = "http://djangokong.com//"
+        self.domain.save()
+        self.assertEqual(self.p.clean_canonical_url, "http://djangokong.com/")
+        # Subdomain
+        self.domain.url = "foo.djangokong.com"
+        self.domain.save()
+        self.assertEqual(self.p.clean_canonical_url, "http://foo.djangokong.com/")
+        # Https
+        self.domain.url = "https://djangokong.com//"
+        self.domain.save()
+        self.assertEqual(self.p.clean_canonical_url, "https://djangokong.com/")
+
+        self.domain.url = "https://foo.djangokong.com//"
+        self.domain.save()
+        self.assertEqual(self.p.clean_canonical_url, "https://foo.djangokong.com/")
