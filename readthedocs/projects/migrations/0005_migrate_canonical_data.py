@@ -11,7 +11,6 @@ def migrate_canonical(apps, schema_editor):
             domain = project.domains.create(
                 url=project.canonical_url,
                 canonical=True,
-                active=True,
             )
             print "Added {url} to {project}".format(url=domain.url, project=project.name)
 

@@ -438,7 +438,7 @@ class DomainForm(forms.ModelForm):
 
     class Meta:
         model = Domain
-        exclude = ['project', 'machine']
+        exclude = ['project', 'machine', 'cname', 'count']
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)

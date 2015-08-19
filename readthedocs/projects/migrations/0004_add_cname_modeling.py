@@ -19,11 +19,10 @@ class Migration(migrations.Migration):
                 ('machine', models.BooleanField(default=False, help_text='This URL was auto-created')),
                 ('cname', models.BooleanField(default=False, help_text='This URL is a CNAME for the project')),
                 ('canonical', models.BooleanField(default=False, help_text='This URL is the primary one where the documentation is served from.')),
-                ('active', models.BooleanField(default=False, help_text='This is an active domain for this project.')),
-                ('count', models.IntegerField(help_text='Number of times this domain has been hit.')),
+                ('count', models.IntegerField(default=0, help_text='Number of times this domain has been hit.')),
             ],
             options={
-                'ordering': ('-canonical', '-active', 'url'),
+                'ordering': ('-canonical', '-machine', 'url'),
             },
         ),
         migrations.AlterField(

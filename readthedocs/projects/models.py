@@ -922,14 +922,11 @@ class Domain(models.Model):
     canonical = models.BooleanField(
         default=False, help_text=_('This URL is the primary one where the documentation is served from.')
     )
-    active = models.BooleanField(
-        default=False, help_text=_('This is an active domain for this project.')
-    )
 
     count = models.IntegerField(default=0, help_text=_('Number of times this domain has been hit.'))
 
     class Meta:
-        ordering = ('-canonical', '-active', 'url')
+        ordering = ('-canonical', '-machine', 'url')
 
     def __unicode__(self):
         return "{url} pointed at {project}".format(url=self.url, project=self.project.name)

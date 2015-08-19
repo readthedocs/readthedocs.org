@@ -20,7 +20,7 @@
   <p>
     <ul>
     {% for domain in object_list %}
-        <li {% if not domain.active %}class="help_text"{% endif %}>
+        <li {% if domain.machine %}class="help_text"{% endif %}>
         {% if domain.canonical %}<strong>{% endif %}
         {{ domain.url }}
         {% if domain.canonical %}</strong>{% endif %}
