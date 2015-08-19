@@ -67,7 +67,7 @@ div.build-detail div.build-error p {
 }
 
 /* Build command list */
-div#build-commands {
+div.build-command-list {
     clear: right;
 }
 
