@@ -1,3 +1,5 @@
+import json
+
 from django.core.cache import cache
 from django.test import TestCase
 from django.test.client import RequestFactory
@@ -111,3 +113,16 @@ class TestCanonical(TestCase):
         self.domain.url = "https://foo.djangokong.com//"
         self.domain.save()
         self.assertEqual(self.p.clean_canonical_url, "https://foo.djangokong.com/")
+
+
+class TestAPI(TestCase):
+
+    def setUp(self):
+        self.project = get(Project)
+        self.domain = self.project.domains.create(url='djangokong.com', canonical=True)
+
+    def test_basic_api(self):
+        resp = self.client.get('/api/v2/domain/')
+        self.assertEqual(resp.status_code, 200)
+        obj = json.loads(resp.content)
+        self.assertEqual(obj['results'][0]['url'], 'djangokong.com')

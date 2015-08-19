@@ -83,5 +83,6 @@ class DomainSerializer(serializers.ModelSerializer):
             'project',
             'url',
             'canonical',
-            'active',
+            'machine',
+            'cname',
         )
