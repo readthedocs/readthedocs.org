@@ -73,7 +73,7 @@ class SubdomainMiddleware(object):
                         **log_kwargs))
                     try:
                         proj = Project.objects.get(slug=slug)
-                        domain = Domain.objects.get_or_create(
+                        domain, created = Domain.objects.get_or_create(
                             project=proj,
                             url=host,
                             machine=True,

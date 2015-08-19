@@ -919,7 +919,7 @@ class Domain(models.Model):
         default=False, help_text=_('This is an active domain for this project.')
     )
 
-    count = models.IntegerField(help_text=_('Number of times this domain has been hit.'))
+    count = models.IntegerField(default=0, help_text=_('Number of times this domain has been hit.'))
 
     class Meta:
         ordering = ('-canonical', '-active', 'url')

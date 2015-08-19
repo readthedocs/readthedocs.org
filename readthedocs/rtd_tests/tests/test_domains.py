@@ -39,6 +39,22 @@ class MiddlewareTests(TestCase):
         self.middleware.process_request(request)
         self.assertEqual(Domain.objects.count(), 0)
 
+    @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
+    def test_cname_count(self):
+        self.assertEqual(Domain.objects.count(), 0)
+        self.project = get(Project, slug='my_slug')
+        cache.get = lambda x: 'my_slug'
+        request = self.factory.get(self.url, HTTP_HOST='my.valid.hostname')
+
+        self.middleware.process_request(request)
+        self.assertEqual(Domain.objects.count(), 1)
+        self.assertEqual(Domain.objects.first().url, 'my.valid.hostname')
+        self.assertEqual(Domain.objects.first().count, 1)
+
+        self.middleware.process_request(request)
+        self.assertEqual(Domain.objects.count(), 1)
+        self.assertEqual(Domain.objects.first().count, 2)
+
 
 class ModelTests(TestCase):
 
@@ -47,7 +63,7 @@ class ModelTests(TestCase):
 
     def test_save_parsing(self):
         domain = get(Domain, url='http://google.com')
-        self.assertEqual(domain.url, 'google.com')
+        self.assertEqual(domain.url, 'http://google.com')
 
         domain.url = 'google.com'
         domain.save()
@@ -55,7 +71,7 @@ class ModelTests(TestCase):
 
         domain.url = 'https://google.com'
         domain.save()
-        self.assertEqual(domain.url, 'google.com')
+        self.assertEqual(domain.url, 'https://google.com')
 
         domain.url = 'www.google.com'
         domain.save()
