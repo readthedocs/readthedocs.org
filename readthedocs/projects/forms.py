@@ -114,19 +114,8 @@ class ProjectExtraForm(ProjectForm):
             'documentation_type',
             'language', 'programming_language',
             'project_url',
-            #'canonical_url',
             'tags',
         )
-
-    def __init__(self, *args, **kwargs):
-        super(ProjectExtraForm, self).__init__(*args, **kwargs)
-        #self.fields['canonical_url'].widget.attrs['placeholder'] = self.placehold_canonical_url()
-
-    def placehold_canonical_url(self):
-        return choice([
-            'http://docs.fabfile.org',
-            'http://example.readthedocs.org',
-        ])
 
 
 class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
@@ -183,7 +172,6 @@ class UpdateProjectForm(ProjectTriggerBuildMixin, ProjectBasicsForm,
             'documentation_type',
             'language', 'programming_language',
             'project_url',
-            # 'canonical_url',
             'tags',
         )
 
@@ -445,10 +433,10 @@ class DomainForm(forms.ModelForm):
         super(DomainForm, self).__init__(*args, **kwargs)
 
     def clean_canonical(self):
-        canonical = self.cleaned_data.get('canonical', False)
+        canonical = self.cleaned_data['canonical']
         if canonical and Domain.objects.filter(
             project=self.project, canonical=True
-        ).exclude(project__pk=self.project.pk).exists():
+        ).exclude(url=self.cleaned_data['url']).exists():
             raise forms.ValidationError(_(u'Only 1 Domain can be canonical at a time.'))
         return canonical
 
