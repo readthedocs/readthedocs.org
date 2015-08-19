@@ -127,6 +127,7 @@ class APIBuildTests(TestCase):
                 'build': build['id'],
                 'command': 'echo test',
                 'description': 'foo',
+                'exit_code': 0,
                 'start_time': str(now - datetime.timedelta(seconds=5)),
                 'end_time': str(now),
             },
