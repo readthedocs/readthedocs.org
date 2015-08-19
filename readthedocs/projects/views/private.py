@@ -680,22 +680,22 @@ def project_version_delete_html(request, project_slug, version_slug):
         reverse('project_version_list', kwargs={'project_slug': project_slug}))
 
 
-class DomainList(ProjectAdminMixin, ListViewWithForm):
-    template_name = 'projects/domain_list.html'
+class DomainMixin(ProjectAdminMixin, PrivateViewMixin):
     model = Domain
     form_class = DomainForm
 
 
-class DomainCreate(ProjectAdminMixin, CreateView):
-    model = Domain
-    form_class = DomainForm
+class DomainList(DomainMixin, ListViewWithForm):
+    pass
 
 
-class DomainUpdate(ProjectAdminMixin, UpdateView):
-    model = Domain
-    form_class = DomainForm
+class DomainCreate(DomainMixin, CreateView):
+    pass
 
 
-class DomainDelete(ProjectAdminMixin, DeleteView):
-    model = Domain
+class DomainUpdate(DomainMixin, UpdateView):
+    pass
 
+
+class DomainDelete(DomainMixin, DeleteView):
+    pass

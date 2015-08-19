@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse
 
-from readthedocs.projects.models import Project, Domain
+from readthedocs.projects.models import Project
 
 
 class ProjectOnboardMixin(object):
