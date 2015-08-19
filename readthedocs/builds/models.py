@@ -398,9 +398,9 @@ class BuildCommandResult(BuildCommandResultMixin, models.Model):
                               related_name='commands')
 
     command = models.TextField(_('Command'))
-    description = models.TextField(_('Description'), null=True, blank=True)
-    output = models.TextField(_('Command output'), null=True, blank=True)
-    exit_code = models.IntegerField(_('Command exit code'), default=0)
+    description = models.TextField(_('Description'), blank=True)
+    output = models.TextField(_('Command output'), blank=True)
+    exit_code = models.IntegerField(_('Command exit code'))
 
     start_time = models.DateTimeField(_('Start time'))
     end_time = models.DateTimeField(_('End time'))

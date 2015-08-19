@@ -17,9 +17,9 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('command', models.TextField(verbose_name='Command')),
-                ('description', models.TextField(null=True, verbose_name='Description', blank=True)),
-                ('output', models.TextField(null=True, verbose_name='Command output', blank=True)),
-                ('exit_code', models.IntegerField(default=0, verbose_name='Command exit code')),
+                ('description', models.TextField(verbose_name='Description', blank=True)),
+                ('output', models.TextField(verbose_name='Command output', blank=True)),
+                ('exit_code', models.IntegerField(verbose_name='Command exit code')),
                 ('start_time', models.DateTimeField(verbose_name='Start time')),
                 ('end_time', models.DateTimeField(verbose_name='End time')),
                 ('build', models.ForeignKey(related_name='commands', verbose_name='Build', to='builds.Build')),
