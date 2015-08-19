@@ -2,11 +2,13 @@ import os
 from functools import wraps
 
 from mock import patch
+from django.conf import settings
 from django.test import TestCase
+from django_dynamic_fixture import get
 
 from readthedocs.builds.models import Version
-from readthedocs.projects.models import Project
-from readthedocs.projects.symlinks import symlink_translations
+from readthedocs.projects.models import Project, Domain
+from readthedocs.projects.symlinks import symlink_translations, symlink_cnames
 
 
 def patched(fn):
@@ -24,23 +26,52 @@ def patched(fn):
     return wrapper
 
 
+class TestSymlinkCnames(TestCase):
+
+    def setUp(self):
+        self.project = get(Project, slug='kong')
+        self.version = get(Version, verbose_name='latest', active=True, project=self.project)
+        self.args = {
+            'project': self.project.doc_path,
+            'cnames_root': settings.CNAME_ROOT,
+            'new_cnames_root': os.path.join(getattr(settings, 'SITE_ROOT'), 'cnametoproject'),
+            'build_path': self.project.doc_path,
+        }
+        self.commands = []
+
+    @patched
+    def test_symlink_cname(self):
+        self.cname = get(Domain, project=self.project, url='http://woot.com', active=True)
+        symlink_cnames(self.project.versions.first())
+        self.args['cname'] = self.cname.url
+        commands = [
+            'mkdir -p {cnames_root}',
+            'ln -nsf {build_path}/rtd-builds {cnames_root}/{cname}',
+            'mkdir -p {new_cnames_root}',
+            'ln -nsf {build_path} {new_cnames_root}/{cname}'
+        ]
+
+        for command in commands:
+            self.assertIsNotNone(
+                self.commands.pop(
+                    self.commands.index(command.format(**self.args))
+                ))
+
+
 class TestSymlinkTranslations(TestCase):
 
-    fixtures = ['eric', 'test_data']
     commands = []
 
     def setUp(self):
-        self.project = Project.objects.get(slug='kong')
-        self.translation = Project.objects.get(slug='pip')
+        self.project = get(Project, slug='kong')
+        self.translation = get(Project, slug='pip')
         self.translation.language = 'de'
         self.translation.main_lanuage_project = self.project
         self.project.translations.add(self.translation)
         self.translation.save()
         self.project.save()
-        Version.objects.create(verbose_name='master',
-                               active=True, project=self.project)
-        Version.objects.create(verbose_name='master',
-                               active=True, project=self.translation)
+        get(Version, verbose_name='master', active=True, project=self.project)
+        get(Version, verbose_name='master', active=True, project=self.translation)
         self.args = {
             'project': self.project.doc_path,
             'translation': self.translation.doc_path,
