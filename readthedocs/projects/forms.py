@@ -444,6 +444,14 @@ class DomainForm(forms.ModelForm):
         self.project = kwargs.pop('project', None)
         super(DomainForm, self).__init__(*args, **kwargs)
 
+    def clean_canonical(self):
+        canonical = self.cleaned_data.get('canonical', False)
+        if canonical and Domain.objects.filter(
+            project=self.project, canonical=True
+        ).exclude(project__pk=self.project.pk).exists():
+            raise forms.ValidationError(_(u'Only 1 Domain can be canonical at a time.'))
+        return canonical
+
     def save(self, *args, **kwargs):
         kwargs['commit'] = False
         domain = super(DomainForm, self).save(*args, **kwargs)

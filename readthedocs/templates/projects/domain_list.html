@@ -20,8 +20,10 @@
   <p>
     <ul>
     {% for domain in object_list %}
-        <li>
-        {{ domain }}
+        <li {% if not domain.active %}class="help_text"{% endif %}>
+        {% if domain.canonical %}<strong>{% endif %}
+        {{ domain.url }}
+        {% if domain.canonical %}</strong>{% endif %}
         (<a href="{% url 'projects_domains_edit' project.slug domain.pk %}">{% trans "Edit" %}</a>)
         (<a href="{% url 'projects_domains_delete' project.slug domain.pk %}">{% trans "Remove" %}</a>)
         </li>

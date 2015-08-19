@@ -911,5 +911,8 @@ class Domain(models.Model):
         _('Active'), default=False,
         help_text=_('This is an active domain for this project.'))
 
+    class Meta:
+        ordering = ('-canonical', '-active', 'url')
+
     def __unicode__(self):
         return "{url} pointed at {project}".format(url=self.url, project=self.project.name)
