@@ -189,41 +189,6 @@ class VersionResource(ModelResource):
         ]
 
 
-class BuildResource(ModelResource):
-    project = fields.ForeignKey('readthedocs.api.base.ProjectResource', 'project')
-    version = fields.ForeignKey('readthedocs.api.base.VersionResource', 'version')
-
-    class Meta(object):
-        always_return_data = True
-        include_absolute_url = True
-        allowed_methods = ['get', 'post', 'put']
-        queryset = Build.objects.api()
-        authentication = PostAuthentication()
-        authorization = DjangoAuthorization()
-        filtering = {
-            "project": ALL_WITH_RELATIONS,
-            "slug": ALL_WITH_RELATIONS,
-            "type": ALL_WITH_RELATIONS,
-            "state": ALL_WITH_RELATIONS,
-        }
-
-    def get_object_list(self, request):
-        self._meta.queryset = Build.objects.api(user=request.user)
-        return super(BuildResource, self).get_object_list(request)
-
-    def override_urls(self):
-        return [
-            url(r"^(?P<resource_name>%s)/schema/$"
-                % self._meta.resource_name,
-                self.wrap_view('get_schema'),
-                name="api_get_schema"),
-            url(r"^(?P<resource_name>%s)/(?P<project__slug>[a-z-_]+)/$" %
-                self._meta.resource_name,
-                self.wrap_view('dispatch_list'),
-                name="build_list_detail"),
-        ]
-
-
 class FileResource(ModelResource, SearchMixin):
     project = fields.ForeignKey(ProjectResource, 'project', full=True)
 

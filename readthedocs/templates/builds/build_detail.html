@@ -1,99 +1,169 @@
 {% extends "projects/base_project.html" %}
 
 {% load i18n %}
+{% load static %}
 
 {% block title %}{{ build.project.name }}{% endblock %}
 
-
-{% block project_editing %}
-    {% with builds_active="active" %}
-        {% include "core/project_bar.html" %}
-    {% endwith %}
+{% block extra_scripts %}
+  <script type="text/javascript" src="{% static 'vendor/knockout.js' %}"></script>
+  <script type="text/javascript" src="{% static 'builds/js/detail.js' %}"></script>
+  <script type="text/javascript">
+$(document).ready(function () {
+    var view = build.BuildDetailView.init({{ build_json|safe }});
+});
+  </script>
 {% endblock %}
 
-{% block content-header %}<h1>{% blocktrans with build.project.name as project_name %}Build for {{ project_name }}{% endblocktrans %}</h1>{% endblock %}
+{% block extra_links %}
+  <link rel="stylesheet" href="{% static 'builds/css/detail.css' %}" />
+{% endblock %}
+
+{% block project_editing %}
+  {% with builds_active="active" %}
+    {% include "core/project_bar.html" %}
+  {% endwith %}
+{% endblock %}
 
 {% block content %}
-  <div id="build-{{ build.id }}" class="build">
-    <p>{% blocktrans with build.date|date:"N j, Y. P" as build_date %}Built: {{ build_date }}{% endblocktrans %}</p>
+  <div class="build build-detail" id="build-detail">
 
-    <p>{% trans "State:" %} <b><span id="build-state">{{ build.get_state_display }}</span></b>
-      <img src="{{ MEDIA_URL }}images/loader.gif" class="hide build-loading">
-    </p>
+    <!-- Build meta data -->
+    <ul class="build-meta">
+      <div data-bind="visible: finished()">
+        <li>
+          {% trans "Completed" %}
+          <span>{{ build.date|date:"N j, Y. P" }}</span>
+        </li>
 
-    <p>{% trans "Outcome:" %}
-      <b>
-        <span id="build-success">
-          {% if build.state != 'finished' %}{% trans "Not yet finished" %} {% else %} {% if build.success %}{% trans "Passed" %}{% else %}{% trans "Failed" %}{% endif %}{% endif %} {% if not build.success %} ({% trans "Status Code:" %} {{ build.exit_code }}){% endif %}
-        </span>
-      </b>
-    </p>
+        <li>
+          {% trans "Build took" %}
+          <span data-bind="text: length">
+            {{ build.length }}
+          </span>
+          {% trans "seconds" %}
+        </li>
+      </div>
 
-    {% if build.version %}
-    <p>{% trans "Version:" %} <b>{{ build.version.slug }}</b></p>
-    {% endif %}
-
-    <p>{% trans "Type:" %} <b>{{ build.type }}</b></p>
-
-    {% if build.commit %}
-    <p>{% trans "Commit" %}: <b>{{ build.commit }}</b></p>
-    {% endif %}
-
-    {% if build.length %}
-    <p>{% trans "Length:" %} <b>{{ build.length }}</b> seconds</p>
-    {% endif %}
-
-    {% if build.builder and request.user.is_staff %}
-    <p>{% trans "Builder:" %} <b>{{ build.builder }}</b></p>
-    {% endif %}
-
-    <p>
-      <button id="build-show-full-output">
-        {% trans "Show full build output" %}
-      </button>
-    </p>
-
-    <div id="build-output-wrapper" style="display: none;">
-      <h3>{% trans "Build Output" %}</h3>
-      <pre class="build-output"><span id="build-output">{{ build.output }}</span></pre>
-
-      {% if build.setup %}
-      <h3>{% trans "Setup Output" %}</h3>
-      <pre class="build-output"><span id="build-setup">{{ build.setup }}</span></pre>
+      {% if build.builder and request.user.is_staff %}
+        <li>
+          {% trans "Built on" %}
+          {{ build.builder }}
+        </li>
       {% endif %}
+    </ul>
 
-      {% if build.setup_error %}
-      <h3>{% trans "Environment Standard Error" %}</h3>
-      <pre class="build-error"><span id="build-setup_error">{{ build.setup_error }}</span></pre>
-      {% endif %}
+    <div class="build-id">
+      {% blocktrans with build_id=build.pk %}
+        Build #{{ build_id }}
+      {% endblocktrans %}
     </div>
 
-    {% if build.error %}
-    <h3>{% trans "Build Errors" %}</h3>
-    <pre class="build-error"><span id="build-error">{{ build.error }}</span></pre>
+    <div class="build-version">
+      <span class="build-version-slug">
+        {{ build.version.slug }}
+      </span>
+      <span class="build-commit"
+            data-bind="visible: commit">
+        (<span data-bind="text: commit">{{ build.commit }}</span>)
+      </span>
+    </div>
+
+    <div class="build-state">
+      <span>
+        <span data-bind="visible: !finished(), text: state_display"
+              style="display: none;">
+          {{ build.get_state_display }}
+        </span>
+        <img src="{{ MEDIA_URL }}images/loader.gif"
+            data-bind="visible: !finished()"
+            style="display: none;" />
+      </span>
+      <span class="build-state-successful"
+            data-bind="visible: finished() && success()"
+            style="display: none;">
+        {% trans "Build completed" %}
+      </span>
+      <span class="build-state-failed"
+            data-bind="visible: finished() && !success()"
+            style="display: none;">
+        {% trans "Build failed" %}
+      </span>
+    </div>
+
+    {% if build.output %}
+      {# If we have build output, this is an old build #}
+      <p>
+        <button data-bind="visible: !legacy_output(), click: show_legacy_output">
+          {% trans "Show full build output" %}
+        </button>
+      </p>
+
+      <div data-bind="visible: legacy_output"
+           style="display: none;">
+        <h3>{% trans "Build Output" %}</h3>
+        <pre class="build-output"><span id="build-output">{{ build.output }}</span></pre>
+
+        {% if build.setup %}
+          <h3>{% trans "Setup Output" %}</h3>
+          <pre class="build-output"><span id="build-setup">{{ build.setup }}</span></pre>
+        {% endif %}
+
+        {% if build.setup_error %}
+          <h3>{% trans "Environment Standard Error" %}</h3>
+          <pre class="build-error"><span id="build-setup_error">{{ build.setup_error }}</span></pre>
+        {% endif %}
+      </div>
+
+      {% if build.error %}
+        <h3>{% trans "Build Errors" %}</h3>
+        <pre class="build-error"><span id="build-error">{{ build.error }}</span></pre>
+      {% endif %}
+
+    {% else %}
+      {# Show new command output if lacking build.output #}
+
+      <div class="build-error"
+           data-bind="visible: error"
+           style="display: none;">
+        <h3>{% trans "Error" %}</h3>
+        <p class="build-error"
+           data-bind="text: error">
+          {{ build.error }}
+        </p>
+      </div>
+
+      <div id="build-commands"
+           class="build-command-list"
+           data-bind="visible: commands, foreach: display_commands"
+           style="display: none;">
+        <div class="build-command"
+             data-bind="css: command_status">
+          <div class="build-command-run" data-bind="click: toggleCommand">
+            <span data-bind="text: command"></span>
+          </div>
+          <div class="build-command-return"
+               data-bind="visible: is_showing">
+            <div class="build-command-output">
+              <span data-bind="text: output"></span>
+            </div>
+
+            <div class="build-command-meta">
+              <span class="build-command-time">
+                {% trans "Command time:" %}
+                <span data-bind="text: run_time">0</span>s
+              </span>
+
+              <span class="build-command-exit-code">
+                {% trans "Return" %}:
+                <span data-bind="text: exit_code"></span>
+              </span>
+            </div>
+
+          </div>
+        </div>
+      </div>
     {% endif %}
 
   </div>
-    <form id="form" style="display: none;">
-        <input type="submit">
-    </form>
-{% endblock %}
-
-{% block extra_scripts %}
-{{ block.super }}
-  <script type="text/javascript" src="{{ MEDIA_URL }}javascript/build_updater.js"></script>
-
-  <script type="text/javascript">
-    /* TODO Re-enable this, move to browserify module
-    $(function() {
-        new BuildUpdater({{ build.id }}).startPolling();
-    });
-     */
-    $(document).ready(function () {
-      $('#build-show-full-output').click(function (ev) {
-        $('#build-output-wrapper').show();
-        this.remove();
-      });
-    })
-  </script>
 {% endblock %}

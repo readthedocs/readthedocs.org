@@ -7,18 +7,19 @@ from rest_framework.renderers import JSONPRenderer, JSONRenderer, BrowsableAPIRe
 from rest_framework.response import Response
 
 from readthedocs.builds.filters import VersionFilter
-from readthedocs.builds.models import Build, Version
+from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.core.utils import trigger_build
 from readthedocs.oauth import utils as oauth_utils
 from readthedocs.projects.filters import ProjectFilter
 from readthedocs.projects.models import Project, EmailHook, Domain
 from readthedocs.projects.version_handling import determine_stable_version
-from readthedocs.restapi.permissions import APIPermission
-from readthedocs.restapi.permissions import RelatedProjectIsOwner
-from readthedocs.restapi.serializers import (
-    BuildSerializer, ProjectSerializer, VersionSerializer, DomainSerializer
-)
-import readthedocs.restapi.utils as api_utils
+
+from ..permissions import (APIPermission, APIRestrictedPermission,
+                           RelatedProjectIsOwner)
+from ..serializers import (BuildSerializerFull, BuildSerializer,
+                           BuildCommandSerializer, ProjectSerializer,
+                           VersionSerializer, DomainSerializer)
+
 log = logging.getLogger(__name__)
 
 
@@ -164,11 +165,30 @@ class VersionViewSet(viewsets.ReadOnlyModelViewSet):
         })
 
 
-class BuildViewSet(viewsets.ReadOnlyModelViewSet):
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+class BuildViewSet(viewsets.ModelViewSet):
+    permission_classes = [APIRestrictedPermission]
     renderer_classes = (JSONRenderer, BrowsableAPIRenderer)
-    serializer_class = BuildSerializer
     model = Build
+
+    def get_queryset(self):
+        return self.model.objects.api(self.request.user)
+
+    def get_serializer_class(self):
+        """Vary serializer class based on user status
+
+        This is used to allow write to write-only fields on Build by admin users
+        and to not return those fields to non-admin users.
+        """
+        if self.request.user.is_staff:
+            return BuildSerializerFull
+        return BuildSerializer
+
+
+class BuildCommandViewSet(viewsets.ModelViewSet):
+    permission_classes = [APIRestrictedPermission]
+    renderer_classes = [JSONRenderer, BrowsableAPIRenderer]
+    serializer_class = BuildCommandSerializer
+    model = BuildCommandResult
 
     def get_queryset(self):
         return self.model.objects.api(self.request.user)

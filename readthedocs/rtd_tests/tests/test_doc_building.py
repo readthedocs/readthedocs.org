@@ -173,7 +173,7 @@ class TestDockerEnvironment(TestCase):
             stderr=True,
             stdout=True
         )
-        self.assertEqual(build_env.commands[0].status, 1)
+        self.assertEqual(build_env.commands[0].exit_code, 1)
         self.assertEqual(build_env.commands[0].output, 'This is the return')
         self.assertEqual(build_env.commands[0].error, None)
         self.assertTrue(build_env.failed)
@@ -345,13 +345,15 @@ class TestDockerBuildCommand(TestCase):
             ("/bin/sh -c "
              "'cd /tmp/foobar && "
              "pip install requests'"))
-        cmd = DockerBuildCommand(['pip', 'install', 'Django>1.7'],
-                                 cwd='/tmp/foobar')
+        cmd = DockerBuildCommand(['python', '/tmp/foo/pip', 'install',
+                                  'Django>1.7'],
+                                 cwd='/tmp/foobar',
+                                 bin_path='/tmp/foo')
         self.assertEqual(
             cmd.get_wrapped_command(),
             ("/bin/sh -c "
-             "'cd /tmp/foobar && "
-             "pip install Django\>1.7'"))
+             "'cd /tmp/foobar && PATH=/tmp/foo:$PATH "
+             "python /tmp/foo/pip install Django\>1.7'"))
 
     def test_unicode_output(self):
         '''Unicode output from command'''
