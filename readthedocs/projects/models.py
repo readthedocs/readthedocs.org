@@ -905,11 +905,21 @@ class Domain(models.Model):
     objects = RelatedProjectManager()
 
     url = models.URLField(_('URL'), unique=True)
-    canonical = models.BooleanField(_('Canonical'), default=False,
-                                    help_text=_('This URL is where the documentation is served from.'))
+
+    machine = models.BooleanField(
+        default=False, help_text=_('This URL was auto-created')
+    )
+    cname = models.BooleanField(
+        default=False, help_text=_('This URL is a CNAME for the project')
+    )
+    canonical = models.BooleanField(
+        default=False, help_text=_('This URL is the primary one where the documentation is served from.')
+    )
     active = models.BooleanField(
-        _('Active'), default=False,
-        help_text=_('This is an active domain for this project.'))
+        default=False, help_text=_('This is an active domain for this project.')
+    )
+
+    count = models.IntegerField(help_text=_('Number of times this domain has been hit.'))
 
     class Meta:
         ordering = ('-canonical', '-active', 'url')
@@ -917,13 +927,10 @@ class Domain(models.Model):
     def __unicode__(self):
         return "{url} pointed at {project}".format(url=self.url, project=self.project.name)
 
-    def save(self, *args, **kwargs):
-        first_save = self.pk is None
-        if first_save:
-            parsed = urlparse(self.url)
-            if parsed.scheme or parsed.netloc:
-                netloc = parsed.netloc
-            else:
-                netloc = parsed.path
-            self.url = netloc
-        super(Domain, self).save(*args, **kwargs)
+    @property
+    def clean_host(self):
+        parsed = urlparse(self.url)
+        if parsed.scheme or parsed.netloc:
+            return parsed.netloc
+        else:
+            return parsed.path

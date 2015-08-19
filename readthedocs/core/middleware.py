@@ -14,7 +14,7 @@ import redis
 log = logging.getLogger(__name__)
 
 LOG_TEMPLATE = u"(Middleware) {msg} [{host}{path}]"
-
+MAX_DOMAIN_COUNT = 5000
 
 class SubdomainMiddleware(object):
 
@@ -76,7 +76,13 @@ class SubdomainMiddleware(object):
                         domain = Domain.objects.get_or_create(
                             project=proj,
                             url=host,
+                            machine=True,
+                            cname=True,
                         )
+                        if domain.count <= MAX_DOMAIN_COUNT:
+                            domain.count = domain.count + 1
+                            domain.save()
+
                     except (ObjectDoesNotExist, MultipleObjectsReturned):
                         log.debug(LOG_TEMPLATE.format(
                             msg='Project CNAME does not exist: %s' % slug,

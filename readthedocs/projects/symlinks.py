@@ -20,7 +20,7 @@ def symlink_cnames(version):
     Link from HOME/user_builds/cnametoproject/<cname> ->
               HOME/user_builds/<project>/
     """
-    domains = Domain.objects.filter(project=version.project, active=True)
+    domains = Domain.objects.filter(project=version.project, active=True, cname=True)
     for domain in domains:
         log.debug(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Symlinking CNAME: %s" % domain.url))
         docs_dir = version.project.rtd_build_path(version.slug)

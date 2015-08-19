@@ -15,10 +15,16 @@ class Migration(migrations.Migration):
             name='Domain',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('url', models.URLField(unique=True, verbose_name='Name')),
-                ('canonical', models.BooleanField(default=False, help_text='This URL is where the documentation is served from.', verbose_name='Canonical')),
-                ('active', models.BooleanField(default=False, help_text='This is an active domain for this project.', verbose_name='Default')),
+                ('url', models.URLField(unique=True, verbose_name='URL')),
+                ('machine', models.BooleanField(default=False, help_text='This URL was auto-created')),
+                ('cname', models.BooleanField(default=False, help_text='This URL is a CNAME for the project')),
+                ('canonical', models.BooleanField(default=False, help_text='This URL is the primary one where the documentation is served from.')),
+                ('active', models.BooleanField(default=False, help_text='This is an active domain for this project.')),
+                ('count', models.IntegerField(help_text='Number of times this domain has been hit.')),
             ],
+            options={
+                'ordering': ('-canonical', '-active', 'url'),
+            },
         ),
         migrations.AlterField(
             model_name='project',
