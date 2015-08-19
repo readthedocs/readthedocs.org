@@ -1,11 +1,10 @@
 from glob import glob
 import os
 import logging
-from optparse import make_option
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
-from django.template import Context, loader as template_loader
+from django.template import loader as template_loader
 
 log = logging.getLogger(__name__)
 
@@ -26,9 +25,9 @@ class Command(BaseCommand):
                 v = version.replace(path + '/', '')
                 doc_index[directory].append(v)
 
-        context = Context({
+        context = {
             'doc_index': doc_index,
             'MEDIA_URL': settings.MEDIA_URL,
-        })
+        }
         html = template_loader.get_template('archive/index.html').render(context)
         print html
