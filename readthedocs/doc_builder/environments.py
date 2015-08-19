@@ -77,7 +77,9 @@ class BuildCommand(BuildCommandResultMixin):
         self.end_time = None
 
         self.bin_path = bin_path
-        self.description = description
+        self.description = ''
+        if description is not None:
+            self.description = description
         self.exit_code = None
 
     def __str__(self):
