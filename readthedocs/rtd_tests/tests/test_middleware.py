@@ -1,13 +1,13 @@
 from django.http import Http404
 from django.core.cache import cache
-from django.utils import unittest
+from django.test import TestCase
 from django.test.client import RequestFactory
 from django.test.utils import override_settings
 
 from readthedocs.core.middleware import SubdomainMiddleware
 
 
-class MiddlewareTests(unittest.TestCase):
+class MiddlewareTests(TestCase):
 
     def setUp(self):
         self.factory = RequestFactory()

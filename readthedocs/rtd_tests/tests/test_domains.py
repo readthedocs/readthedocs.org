@@ -15,6 +15,10 @@ class MiddlewareTests(TestCase):
         self.factory = RequestFactory()
         self.middleware = SubdomainMiddleware()
         self.url = '/'
+        self.old_cache_get = cache.get
+
+    def tearDown(self):
+        cache.get = self.old_cache_get
 
     @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
     def test_cname_creation(self):
