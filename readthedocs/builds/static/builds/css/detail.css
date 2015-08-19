@@ -41,6 +41,7 @@ ul.build-meta {
     float: right;
     overflow: auto;
     font-size: .9em;
+    line-height: 1.5em;
     text-align: right;
 }
 
@@ -75,6 +76,7 @@ div.build-command {
     padding: .5em;
     margin: 5px;
     font-size: .9em;
+    line-height: 1.5em;
     background: #eee;
     color: #443;
     border: 1px solid #e4e4e4;
