@@ -82,47 +82,45 @@ class ModelTests(TestCase):
 class TestCanonical(TestCase):
 
     def setUp(self):
-        self.p = Project(
-            name='foo',
-            repo='http://github.com/ericholscher/django-kong',
-        )
-        self.p.save()
-        self.domain = self.p.domains.create(url='djangokong.com', canonical=True)
+        self.project = get(Project)
+        self.domain = self.project.domains.create(canonical=True)
 
     def test_canonical_clean(self):
         # Only a url
-        self.p.canonical_url = "djangokong.com"
-        self.assertEqual(self.p.clean_canonical_url, "http://djangokong.com/")
+        self.domain.url = "djangokong.com"
+        self.domain.save()
+        self.assertEqual(self.project.clean_canonical_url, "http://djangokong.com/")
         # Extra bits in the URL
         self.domain.url = "http://djangokong.com/en/latest/"
         self.domain.save()
-        self.assertEqual(self.p.clean_canonical_url, "http://djangokong.com/")
+        self.assertEqual(self.project.clean_canonical_url, "http://djangokong.com/")
 
         self.domain.url = "http://djangokong.com//"
         self.domain.save()
-        self.assertEqual(self.p.clean_canonical_url, "http://djangokong.com/")
+        self.assertEqual(self.project.clean_canonical_url, "http://djangokong.com/")
         # Subdomain
         self.domain.url = "foo.djangokong.com"
         self.domain.save()
-        self.assertEqual(self.p.clean_canonical_url, "http://foo.djangokong.com/")
+        self.assertEqual(self.project.clean_canonical_url, "http://foo.djangokong.com/")
         # Https
         self.domain.url = "https://djangokong.com//"
         self.domain.save()
-        self.assertEqual(self.p.clean_canonical_url, "https://djangokong.com/")
+        self.assertEqual(self.project.clean_canonical_url, "https://djangokong.com/")
 
         self.domain.url = "https://foo.djangokong.com//"
         self.domain.save()
-        self.assertEqual(self.p.clean_canonical_url, "https://foo.djangokong.com/")
+        self.assertEqual(self.project.clean_canonical_url, "https://foo.djangokong.com/")
 
 
 class TestAPI(TestCase):
 
     def setUp(self):
         self.project = get(Project)
-        self.domain = self.project.domains.create(url='djangokong.com', canonical=True)
+        self.domain = self.project.domains.create(url='djangokong.com')
 
     def test_basic_api(self):
         resp = self.client.get('/api/v2/domain/')
         self.assertEqual(resp.status_code, 200)
         obj = json.loads(resp.content)
         self.assertEqual(obj['results'][0]['url'], 'djangokong.com')
+        self.assertEqual(obj['results'][0]['canonical'], False)
