@@ -445,8 +445,8 @@ class DomainForm(forms.ModelForm):
         super(DomainForm, self).__init__(*args, **kwargs)
 
     def save(self, *args, **kwargs):
-        domain = Domain.objects.create(
-            project=self.project,
-            **self.cleaned_data
-        )
+        kwargs['commit'] = False
+        domain = super(DomainForm, self).save(*args, **kwargs)
+        domain.project = self.project
+        domain.save()
         return domain
