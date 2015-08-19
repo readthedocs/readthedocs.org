@@ -15,7 +15,9 @@ from readthedocs.projects.models import Project, EmailHook, Domain
 from readthedocs.projects.version_handling import determine_stable_version
 from readthedocs.restapi.permissions import APIPermission
 from readthedocs.restapi.permissions import RelatedProjectIsOwner
-from readthedocs.restapi.serializers import BuildSerializer, ProjectSerializer, VersionSerializer, DomainSerializer
+from readthedocs.restapi.serializers import (
+    BuildSerializer, ProjectSerializer, VersionSerializer, DomainSerializer
+)
 import readthedocs.restapi.utils as api_utils
 log = logging.getLogger(__name__)
 

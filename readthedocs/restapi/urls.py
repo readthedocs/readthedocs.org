@@ -2,7 +2,9 @@ from django.conf.urls import url, patterns, include
 
 from rest_framework import routers
 
-from .views.model_views import BuildViewSet, ProjectViewSet, NotificationViewSet, VersionViewSet, DomainViewSet
+from .views.model_views import (
+    BuildViewSet, ProjectViewSet, NotificationViewSet, VersionViewSet, DomainViewSet
+)
 from readthedocs.comments.views import CommentViewSet
 
 router = routers.DefaultRouter()
