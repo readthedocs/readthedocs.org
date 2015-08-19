@@ -41,9 +41,9 @@ class TestSymlinkCnames(TestCase):
 
     @patched
     def test_symlink_cname(self):
-        self.cname = get(Domain, project=self.project, url='http://woot.com', active=True)
+        self.cname = get(Domain, project=self.project, url='http://woot.com', cname=True)
         symlink_cnames(self.project.versions.first())
-        self.args['cname'] = self.cname.url
+        self.args['cname'] = self.cname.clean_host
         commands = [
             'mkdir -p {cnames_root}',
             'ln -nsf {build_path}/rtd-builds {cnames_root}/{cname}',
@@ -51,11 +51,8 @@ class TestSymlinkCnames(TestCase):
             'ln -nsf {build_path} {new_cnames_root}/{cname}'
         ]
 
-        for command in commands:
-            self.assertIsNotNone(
-                self.commands.pop(
-                    self.commands.index(command.format(**self.args))
-                ))
+        for index, command in enumerate(commands):
+            self.assertEqual(self.commands[index], command.format(**self.args))
 
 
 class TestSymlinkTranslations(TestCase):

@@ -16,6 +16,7 @@ log = logging.getLogger(__name__)
 LOG_TEMPLATE = u"(Middleware) {msg} [{host}{path}]"
 MAX_DOMAIN_COUNT = 5000
 
+
 class SubdomainMiddleware(object):
 
     def process_request(self, request):
@@ -79,6 +80,7 @@ class SubdomainMiddleware(object):
                             machine=True,
                             cname=True,
                         )
+                        # Track basic domain counts so we know which are heavily used
                         if domain.count <= MAX_DOMAIN_COUNT:
                             domain.count = domain.count + 1
                             domain.save()

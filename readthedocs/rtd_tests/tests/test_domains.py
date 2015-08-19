@@ -63,16 +63,15 @@ class ModelTests(TestCase):
 
     def test_save_parsing(self):
         domain = get(Domain, url='http://google.com')
-        self.assertEqual(domain.url, 'http://google.com')
+        self.assertEqual(domain.clean_host, 'google.com')
 
         domain.url = 'google.com'
-        domain.save()
-        self.assertEqual(domain.url, 'google.com')
+        self.assertEqual(domain.clean_host, 'google.com')
 
         domain.url = 'https://google.com'
         domain.save()
-        self.assertEqual(domain.url, 'https://google.com')
+        self.assertEqual(domain.clean_host, 'google.com')
 
         domain.url = 'www.google.com'
         domain.save()
-        self.assertEqual(domain.url, 'www.google.com')
+        self.assertEqual(domain.clean_host, 'www.google.com')
