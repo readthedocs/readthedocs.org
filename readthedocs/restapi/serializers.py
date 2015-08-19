@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from readthedocs.builds.models import Build, Version
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Project, Domain
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -70,3 +70,17 @@ class SearchIndexSerializer(serializers.Serializer):
     project = serializers.CharField(max_length=500, required=False)
     version = serializers.CharField(max_length=500, required=False)
     page = serializers.CharField(max_length=500, required=False)
+
+
+class DomainSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Domain
+        fields = (
+            'id',
+            'project',
+            'url',
+            'canonical',
+            'active',
+        )
+

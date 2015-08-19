@@ -1,6 +1,8 @@
 from django.conf.urls import patterns, url
 
-from readthedocs.projects.views.private import AliasList, ProjectDashboard, ImportView
+from readthedocs.projects.views.private import (
+    AliasList, ProjectDashboard, ImportView,
+    DomainList, DomainCreate, DomainDelete, DomainUpdate)
 from readthedocs.projects.backends.views import ImportWizardView, ImportDemoView
 
 
@@ -120,3 +122,21 @@ urlpatterns = patterns(
         'readthedocs.projects.views.private.project_redirects_delete',
         name='projects_redirects_delete'),
 )
+
+domain_urls = patterns(
+    '',
+    url(r'^(?P<project>[-\w]+)/domains/$',
+        DomainList.as_view(),
+        name='projects_domains'),
+    url(r'^(?P<project>[-\w]+)/domains/create/$',
+        DomainCreate.as_view(),
+        name='projects_domains_create'),
+    url(r'^(?P<project>[-\w]+)/domains/(?P<pk>[-\w]+)/edit/$',
+        DomainUpdate.as_view(),
+        name='projects_domains_edit'),
+    url(r'^(?P<project>[-\w]+)/domains/(?P<pk>[-\w]+)/delete/$',
+        DomainDelete.as_view(),
+        name='projects_domains_delete'),
+)
+
+urlpatterns += domain_urls

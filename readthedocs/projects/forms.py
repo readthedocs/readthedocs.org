@@ -13,7 +13,7 @@ from guardian.shortcuts import assign
 from readthedocs.core.utils import trigger_build
 from readthedocs.redirects.models import Redirect
 from readthedocs.projects import constants
-from readthedocs.projects.models import Project, EmailHook, WebHook
+from readthedocs.projects.models import Project, EmailHook, WebHook, Domain
 from readthedocs.privacy.loader import AdminPermission
 
 
@@ -33,6 +33,7 @@ class ProjectForm(forms.ModelForm):
 
 
 class ProjectTriggerBuildMixin(object):
+
     '''Mixin to trigger build on form save
 
     This should be replaced with signals instead of calling trigger_build
@@ -48,11 +49,13 @@ class ProjectTriggerBuildMixin(object):
 
 
 class ProjectBackendForm(forms.Form):
+
     '''Get the import backend'''
     backend = forms.CharField()
 
 
 class ProjectBasicsForm(ProjectForm):
+
     '''Form for basic project fields'''
 
     class Meta:
@@ -237,7 +240,7 @@ def build_versions_form(project):
     attrs = {
         'project': project,
     }
-    versions_qs = project.versions.all() # Admin page, so show all versions
+    versions_qs = project.versions.all()  # Admin page, so show all versions
     active = versions_qs.filter(active=True)
     if active.exists():
         choices = [(version.slug, version.verbose_name) for version in active]
@@ -389,6 +392,7 @@ class WebHookForm(forms.Form):
         self.project.webhook_notifications.add(self.webhook)
         return self.project
 
+
 class TranslationForm(forms.Form):
     project = forms.CharField()
 
@@ -429,3 +433,20 @@ class RedirectForm(forms.ModelForm):
         )
         return redirect
 
+
+class DomainForm(forms.ModelForm):
+
+    class Meta:
+        model = Domain
+        exclude = ['project']
+
+    def __init__(self, *args, **kwargs):
+        self.project = kwargs.pop('project', None)
+        super(DomainForm, self).__init__(*args, **kwargs)
+
+    def save(self, *args, **kwargs):
+        domain = Domain.objects.create(
+            project=self.project,
+            **self.cleaned_data
+        )
+        return domain

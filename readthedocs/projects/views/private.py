@@ -10,13 +10,15 @@ from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotAllow
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, render_to_response, render
 from django.template import RequestContext
-from django.views.generic import View, ListView, TemplateView
+from django.views.generic import View, TemplateView, ListView
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from formtools.wizard.views import SessionWizardView
 
 from allauth.socialaccount.models import SocialToken
 from requests_oauthlib import OAuth2Session
+from vanilla import CreateView, DeleteView, UpdateView
+
 
 from readthedocs.bookmarks.models import Bookmark
 from readthedocs.builds import utils as build_utils
@@ -25,14 +27,16 @@ from readthedocs.builds.forms import AliasForm, VersionForm
 from readthedocs.builds.filters import VersionFilter
 from readthedocs.builds.models import VersionAlias
 from readthedocs.core.utils import trigger_build
+from readthedocs.core.mixins import ListViewWithForm
 from readthedocs.oauth.models import GithubProject, BitbucketProject
 from readthedocs.oauth import utils as oauth_utils
 from readthedocs.projects.forms import (
     ProjectBackendForm, ProjectBasicsForm, ProjectExtraForm,
     ProjectAdvancedForm, UpdateProjectForm, SubprojectForm,
     build_versions_form, UserForm, EmailHookForm, TranslationForm,
-    RedirectForm, WebHookForm)
-from readthedocs.projects.models import Project, EmailHook, WebHook
+    RedirectForm, WebHookForm, DomainForm)
+from readthedocs.projects.models import Project, EmailHook, WebHook, Domain
+from readthedocs.projects.views.base import ProjectAdminMixin
 from readthedocs.projects import constants, tasks
 
 
@@ -42,6 +46,7 @@ log = logging.getLogger(__name__)
 
 
 class LoginRequiredMixin(object):
+
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super(LoginRequiredMixin, self).dispatch(*args, **kwargs)
@@ -313,6 +318,7 @@ class ImportView(PrivateViewMixin, TemplateView):
 
 
 class ImportDemoView(PrivateViewMixin, View):
+
     '''View to pass request on to import form to import demo project'''
 
     form_class = ProjectBasicsForm
@@ -672,3 +678,24 @@ def project_version_delete_html(request, project_slug, version_slug):
         raise Http404
     return HttpResponseRedirect(
         reverse('project_version_list', kwargs={'project_slug': project_slug}))
+
+
+class DomainList(ProjectAdminMixin, ListViewWithForm):
+    template_name = 'projects/domain_list.html'
+    model = Domain
+    form_class = DomainForm
+
+
+class DomainCreate(ProjectAdminMixin, CreateView):
+    model = Domain
+    form_class = DomainForm
+
+
+class DomainUpdate(ProjectAdminMixin, UpdateView):
+    model = Domain
+    form_class = DomainForm
+
+
+class DomainDelete(ProjectAdminMixin, DeleteView):
+    model = Domain
+
