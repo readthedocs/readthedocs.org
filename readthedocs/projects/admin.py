@@ -24,13 +24,17 @@ class RedirectInline(admin.TabularInline):
     model = Redirect
 
 
+class DomainInline(admin.TabularInline):
+    model = Domain
+
+
 class ProjectAdmin(GuardedModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
     list_display = ('name', 'repo', 'repo_type', 'allow_comments', 'featured', 'theme')
     list_filter = ('repo_type', 'allow_comments', 'featured', 'privacy_level', 'documentation_type', 'programming_language')
     list_editable = ('featured',)
     search_fields = ('slug', 'repo')
-    inlines = [ProjectRelationshipInline, RedirectInline, VersionInline]
+    inlines = [ProjectRelationshipInline, RedirectInline, VersionInline, DomainInline]
     raw_id_fields = ('users', 'main_language_project')
 
 
