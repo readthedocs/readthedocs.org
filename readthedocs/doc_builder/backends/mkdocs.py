@@ -132,7 +132,10 @@ class BaseMkdocs(BaseBuilder):
         include_string = template_loader.get_template(
             'doc_builder/include.js.tmpl'
         ).render(include_ctx)
-        include_file = open(os.path.join(self.root_path, docs_dir, 'readthedocs-dynamic-include.js'), 'w+')
+        include_file = open(
+            os.path.join(self.root_path, docs_dir, 'readthedocs-dynamic-include.js'),
+            'w+'
+        )
         include_file.write(include_string)
         include_file.close()
 
