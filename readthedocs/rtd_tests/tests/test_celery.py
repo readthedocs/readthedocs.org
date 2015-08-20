@@ -5,8 +5,10 @@ from os.path import exists
 from tempfile import mkdtemp
 
 from django.contrib.auth.models import User
+from django_dynamic_fixture import get
 from mock import patch, MagicMock
 
+from readthedocs.builds.models import Build
 from readthedocs.projects.models import Project
 from readthedocs.projects import tasks
 
@@ -66,10 +68,14 @@ class TestCeleryBuilding(RTDTestCase):
     @patch('readthedocs.projects.tasks.UpdateDocsTask.setup_vcs',
            new=MagicMock)
     def test_update_docs(self):
-        with mock_api(self.repo):
-            update_docs = tasks.UpdateDocsTask()
-            result = update_docs.delay(self.project.pk, record=False,
-                                       intersphinx=False)
+        build = get(Build, project=self.project,
+                    version=self.project.versions.first())
+        with mock_api(self.repo) as mapi:
+            result = tasks.update_docs.delay(
+                self.project.pk,
+                build_pk=build.pk,
+                record=False,
+                intersphinx=False)
         self.assertTrue(result.successful())
 
     def test_update_imported_doc(self):
