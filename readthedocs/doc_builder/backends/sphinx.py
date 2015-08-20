@@ -134,7 +134,7 @@ class BaseSphinx(BaseBuilder):
             build_command.append('-E')
         build_command.extend([
             '-b', self.sphinx_builder,
-            '-d', '_build/doctrees',
+            '-d', '_build/doctrees-{format}'.format(format=self.sphinx_builder),
             '-D', 'language={lang}'.format(lang=project.language),
             '.',
             self.sphinx_build_dir
