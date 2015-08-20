@@ -300,25 +300,31 @@ class BuildEnvironment(object):
                 return False
 
     def run(self, *cmd, **kwargs):
-        '''Run command from environment
+        '''Shortcut to run command from environment'''
+        return self.run_command_class(cls=self.command_class, cmd=cmd, **kwargs)
+
+    def run_command_class(self, cls, cmd, **kwargs):
+        '''Run command from this environment
+
+        Use ``cls`` to instantiate a command
 
         :param warn_only: Don't raise an exception on command failure
         '''
         warn_only = kwargs.pop('warn_only', False)
         kwargs['build_env'] = self
-        cmd = self.command_class(cmd, **kwargs)
-        self.commands.append(cmd)
-        cmd.run()
+        build_cmd = cls(cmd, **kwargs)
+        self.commands.append(build_cmd)
+        build_cmd.run()
 
         # Save to database
         if self.record:
-            cmd.save()
+            build_cmd.save()
 
-        if cmd.failed:
-            msg = u'Command {cmd} failed'.format(cmd=cmd.get_command())
+        if build_cmd.failed:
+            msg = u'Command {cmd} failed'.format(cmd=build_cmd.get_command())
 
-            if cmd.output:
-                msg += u':\n{out}'.format(out=cmd.output)
+            if build_cmd.output:
+                msg += u':\n{out}'.format(out=build_cmd.output)
 
             if warn_only:
                 log.warn(LOG_TEMPLATE
@@ -327,7 +333,7 @@ class BuildEnvironment(object):
                                  msg=msg))
             else:
                 raise BuildEnvironmentWarning(msg)
-        return cmd
+        return build_cmd
 
     @property
     def successful(self):
