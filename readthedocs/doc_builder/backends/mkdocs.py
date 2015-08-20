@@ -6,7 +6,7 @@ import yaml
 from django.conf import settings
 from django.template import Context, loader as template_loader
 
-from readthedocs.doc_builder.base import BaseBuilder, restoring_chdir
+from readthedocs.doc_builder.base import BaseBuilder
 
 log = logging.getLogger(__name__)
 
@@ -26,6 +26,7 @@ class BaseMkdocs(BaseBuilder):
         self.old_artifact_path = os.path.join(
             self.version.project.checkout_path(self.version.slug),
             self.build_dir)
+        self.root_path = self.version.project.checkout_path(self.version.slug)
 
     def append_conf(self, **kwargs):
         """
@@ -34,7 +35,9 @@ class BaseMkdocs(BaseBuilder):
 
         # Pull mkdocs config data
         try:
-            user_config = yaml.safe_load(open('mkdocs.yml', 'r'))
+            user_config = yaml.safe_load(
+                open(os.path.join(self.root_path, 'mkdocs.yml'), 'r')
+            )
         except IOError:
             user_config = {
                 'site_name': self.version.project.name,
@@ -79,10 +82,13 @@ class BaseMkdocs(BaseBuilder):
             ]
 
         # Set our custom theme dir for mkdocs
-        if 'theme_dir' not in user_config:
+        if 'theme_dir' not in user_config and self.use_theme:
             user_config['theme_dir'] = TEMPLATE_DIR
 
-        yaml.dump(user_config, open('mkdocs.yml', 'w'))
+        yaml.dump(
+            user_config,
+            open(os.path.join(self.root_path, 'mkdocs.yml'), 'w')
+        )
 
         # RTD javascript writing
 
@@ -157,3 +163,14 @@ class MkdocsJSON(BaseMkdocs):
     builder = 'json'
     build_dir = '_build/json'
     use_theme = False
+
+    def build(self, **kwargs):
+        user_config = yaml.safe_load(
+            open(os.path.join(self.root_path, 'mkdocs.yml'), 'r')
+        )
+        del user_config['theme_dir']
+        yaml.dump(
+            user_config,
+            open(os.path.join(self.root_path, 'mkdocs.yml'), 'w')
+        )
+        super(MkdocsJSON, self).build(**kwargs)
