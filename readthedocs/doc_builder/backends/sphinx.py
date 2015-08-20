@@ -6,7 +6,7 @@ from glob import glob
 import logging
 import zipfile
 
-from django.template import Context, loader as template_loader
+from django.template import loader as template_loader
 from django.template.loader import render_to_string
 from django.conf import settings
 
@@ -88,7 +88,7 @@ class BaseSphinx(BaseBuilder):
         bitbucket_version_is_editable = (self.version.type == 'branch')
         display_bitbucket = bitbucket_user is not None
 
-        rtd_ctx = Context({
+        rtd_ctx = {
             'current_version': self.version.verbose_name,
             'project': project,
             'settings': settings,
@@ -109,7 +109,7 @@ class BaseSphinx(BaseBuilder):
             'bitbucket_version_is_editable': bitbucket_version_is_editable,
             'display_bitbucket': display_bitbucket,
             'commit': self.project.vcs_repo(self.version.slug).commit,
-        })
+        }
 
         # Avoid hitting database and API if using Docker build environment
         if getattr(settings, 'DONT_HIT_API', False):

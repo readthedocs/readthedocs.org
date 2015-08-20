@@ -109,13 +109,13 @@ class BaseMkdocs(BaseBuilder):
             'commit': self.version.project.vcs_repo(self.version.slug).commit,
         }
         data_json = json.dumps(readthedocs_data, indent=4)
-        data_ctx = Context({
+        data_ctx = {
             'data_json': data_json,
             'current_version': readthedocs_data['version'],
             'slug': readthedocs_data['project'],
             'html_theme': readthedocs_data['theme'],
             'pagename': None,
-        })
+        }
         data_string = template_loader.get_template(
             'doc_builder/data.js.tmpl'
         ).render(data_ctx)
@@ -125,10 +125,10 @@ class BaseMkdocs(BaseBuilder):
         data_file.write('\nREADTHEDOCS_DATA["page"] = mkdocs_page_name')
         data_file.close()
 
-        include_ctx = Context({
+        include_ctx = {
             'global_analytics_code': getattr(settings, 'GLOBAL_ANALYTICS_CODE', 'UA-17997319-1'),
             'user_analytics_code': self.version.project.analytics_code,
-        })
+        }
         include_string = template_loader.get_template(
             'doc_builder/include.js.tmpl'
         ).render(include_ctx)

@@ -9,8 +9,14 @@ Build Failed for {{ project.name }} ({{ version.verbose_name }})
 {% endblock %}
 
 {% block content %}
+  {% if build.error %}
+    <p>
+      Error: {{ build.error }}
+    </p>
+  {% endif %}
+
   <p>
-    You can see what went wrong here:
+    You can find out more about this failure here:
   </p>
 
   <p>
