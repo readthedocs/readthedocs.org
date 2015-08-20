@@ -141,7 +141,7 @@ class Project(models.Model):
     skip = models.BooleanField(_('Skip'), default=False)
     mirror = models.BooleanField(_('Mirror'), default=False)
     use_virtualenv = models.BooleanField(
-        _('Use virtualenv'),
+        _('Install Project'),
         help_text=_("Install your project inside a virtualenv using <code>setup.py "
                     "install</code>"),
         default=False
@@ -484,8 +484,17 @@ class Project(models.Model):
     # End symlink paths
     #
 
-    def venv_bin(self, version=LATEST, bin='python'):
-        return os.path.join(self.venv_path(version), 'bin', bin)
+    def venv_bin(self, version=LATEST, bin=None):
+        """Return path to the virtualenv bin path, or a specific binary
+
+        If ``bin`` is :py:data:`None`, then return the path to the virtual env
+        path, otherwise, return the path to the executable ``bin`` in the
+        virtual env ``bin`` path
+        """
+        parts = [self.venv_path(version), 'bin']
+        if bin is not None:
+            parts.append(bin)
+        return os.path.join(*parts)
 
     def full_doc_path(self, version=LATEST):
         """
@@ -591,6 +600,16 @@ class Project(models.Model):
         conf_file = self.conf_file(version)
         if conf_file:
             return conf_file.replace('/conf.py', '')
+
+    @property
+    def is_type_sphinx(self):
+        '''Is project type Sphinx'''
+        return 'sphinx' in self.documentation_type
+
+    @property
+    def is_type_mkdocs(self):
+        '''Is project type Mkdocs'''
+        return 'mkdocs' in self.documentation_type
 
     @property
     def is_imported(self):

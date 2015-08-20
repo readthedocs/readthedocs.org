@@ -7,7 +7,6 @@ from django.conf import settings
 from django.template import Context, loader as template_loader
 
 from readthedocs.doc_builder.base import BaseBuilder, restoring_chdir
-from readthedocs.projects.utils import run
 
 log = logging.getLogger(__name__)
 
@@ -20,6 +19,7 @@ class BaseMkdocs(BaseBuilder):
     """
     Mkdocs builder
     """
+    use_theme = True
 
     def __init__(self, *args, **kwargs):
         super(BaseMkdocs, self).__init__(*args, **kwargs)
@@ -127,21 +127,23 @@ class BaseMkdocs(BaseBuilder):
         include_file.write(include_string)
         include_file.close()
 
-    @restoring_chdir
     def build(self, **kwargs):
-        checkout_path = self.version.project.checkout_path(self.version.slug)
-        # site_path = os.path.join(checkout_path, 'site')
-        os.chdir(checkout_path)
-        # Actual build
-        build_command = (
-            "{command} {builder} --clean --site-dir={build_dir} --theme=readthedocs"
-            .format(
-                command=self.version.project.venv_bin(version=self.version.slug, bin='mkdocs'),
-                builder=self.builder,
-                build_dir=self.build_dir,
-            ))
-        results = run(build_command, shell=True)
-        return results
+        checkout_path = self.project.checkout_path(self.version.slug)
+        build_command = [
+            'python',
+            self.project.venv_bin(version=self.version.slug, bin='mkdocs'),
+            self.builder,
+            '--clean',
+            '--site-dir', self.build_dir,
+        ]
+        if self.use_theme:
+            build_command.extend(['--theme', 'readthedocs'])
+        cmd_ret = self.run(
+            *build_command,
+            cwd=checkout_path,
+            bin_path=self.project.venv_bin(version=self.version.slug)
+        )
+        return cmd_ret.successful
 
 
 class MkdocsHTML(BaseMkdocs):
@@ -154,3 +156,4 @@ class MkdocsJSON(BaseMkdocs):
     type = 'mkdocs_json'
     builder = 'json'
     build_dir = '_build/json'
+    use_theme = False

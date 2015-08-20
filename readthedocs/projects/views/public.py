@@ -157,7 +157,7 @@ def project_downloads(request, project_slug):
         data = version.get_downloads()
         # Don't show ones that have no downloads.
         if data:
-            version_data[version.slug] = data
+            version_data[version] = data
 
     # in case the MEDIA_URL is a protocol relative URL we just assume
     # we want http as the protcol, so that Dash is able to handle the URL

@@ -38,34 +38,14 @@ def handle_project_import(sender, **kwargs):
                 break
             if provider == 'github':
                 try:
-                    owner, repo = build_utils.get_github_username_repo(url=project.repo)
-                    data = json.dumps({
-                        'name': 'readthedocs',
-                        'active': True,
-                        'config': {'url': 'https://{domain}/github'.format(domain=settings.PRODUCTION_DOMAIN)}
-                    })
-                    resp = session.post(
-                        'https://api.github.com/repos/{owner}/{repo}/hooks'.format(owner=owner, repo=repo),
-                        data=data,
-                        headers={'content-type': 'application/json'}
-                    )
-                    log.info("Creating GitHub webhook response code: {code}".format(code=resp.status_code))
+                    resp = oauth_utils.add_github_webhook(session, project)
                     if resp.status_code == 201:
                         messages.success(request, _('GitHub webhook activated'))
                 except:
                     log.exception('GitHub Hook creation failed', exc_info=True)
             elif provider == 'bitbucket':
                 try:
-                    owner, repo = build_utils.get_bitbucket_username_repo(url=project.repo)
-                    data = {
-                        'type': 'POST',
-                        'url': 'https://{domain}/bitbucket'.format(domain=settings.PRODUCTION_DOMAIN),
-                    }
-                    resp = session.post(
-                        'https://api.bitbucket.org/1.0/repositories/{owner}/{repo}/services'.format(owner=owner, repo=repo),
-                        data=data,
-                    )
-                    log.info("Creating BitBucket webhook response code: {code}".format(code=resp.status_code))
+                    resp = oauth_utils.add_bitbucket_webhook(session, project)
                     if resp.status_code == 200:
                         messages.success(request, _('BitBucket webhook activated'))
                 except:

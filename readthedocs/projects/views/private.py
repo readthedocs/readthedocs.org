@@ -36,10 +36,7 @@ from readthedocs.projects.models import Project, EmailHook, WebHook
 from readthedocs.projects import constants, tasks
 
 
-try:
-    from readthedocs.projects.signals import project_import
-except:
-    from readthedocs.projects.signals import project_import
+from readthedocs.projects.signals import project_import
 
 log = logging.getLogger(__name__)
 

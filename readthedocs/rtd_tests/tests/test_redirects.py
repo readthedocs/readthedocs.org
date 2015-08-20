@@ -1,6 +1,9 @@
 from django.test import TestCase
 from django.test.utils import override_settings
 
+from django_dynamic_fixture import get
+from django_dynamic_fixture import fixture
+
 from readthedocs.builds.constants import LATEST
 from readthedocs.projects.models import Project
 from readthedocs.redirects.models import Redirect
@@ -231,3 +234,25 @@ class RedirectAppTests(TestCase):
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
             r['Location'], 'http://pip.readthedocs.org/en/latest/faq/')
+
+class RedirectBuildTests(TestCase):
+    fixtures = ["eric", "test_data"]
+
+    def setUp(self):
+        self.project = get(Project,
+                      slug='project-1',
+                      documentation_type='sphinx',
+                      conf_py_file='test_conf.py',
+                      versions=[fixture()])
+        self.version = self.project.versions.all()[0]
+
+    def test_redirect_list(self):
+        r = self.client.get('/builds/project-1/')
+        self.assertEqual(r.status_code, 301)
+        self.assertEqual(r['Location'], 'http://testserver/projects/project-1/builds/')
+
+    def test_redirect_detail(self):
+        r = self.client.get('/builds/project-1/1337/')
+        self.assertEqual(r.status_code, 301)
+        self.assertEqual(r['Location'], 'http://testserver/projects/project-1/builds/1337/')
+
