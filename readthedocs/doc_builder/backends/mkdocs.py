@@ -45,7 +45,10 @@ class BaseMkdocs(BaseBuilder):
 
         # Handle custom docs dirs
 
-        docs_dir = self.docs_dir(docs_dir=user_config.get('docs_dir'))
+        user_docs_dir = user_config.get('docs_dir')
+        if user_docs_dir:
+            user_docs_dir = os.path.join(self.root_path, user_docs_dir)
+        docs_dir = self.docs_dir(docs_dir=user_docs_dir)
         self.create_index(extension='md')
         user_config['docs_dir'] = docs_dir
 
@@ -117,7 +120,7 @@ class BaseMkdocs(BaseBuilder):
             'doc_builder/data.js.tmpl'
         ).render(data_ctx)
 
-        data_file = open(os.path.join(docs_dir, 'readthedocs-data.js'), 'w+')
+        data_file = open(os.path.join(self.root_path, docs_dir, 'readthedocs-data.js'), 'w+')
         data_file.write(data_string)
         data_file.write('\nREADTHEDOCS_DATA["page"] = mkdocs_page_name')
         data_file.close()
@@ -129,7 +132,7 @@ class BaseMkdocs(BaseBuilder):
         include_string = template_loader.get_template(
             'doc_builder/include.js.tmpl'
         ).render(include_ctx)
-        include_file = open(os.path.join(docs_dir, 'readthedocs-dynamic-include.js'), 'w+')
+        include_file = open(os.path.join(self.root_path, docs_dir, 'readthedocs-dynamic-include.js'), 'w+')
         include_file.write(include_string)
         include_file.close()
 
