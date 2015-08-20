@@ -457,6 +457,10 @@ class DockerEnvironment(BuildEnvironment):
         except DockerAPIError:
             pass
 
+        # Create the checkout path if it doesn't exist to avoid Docker creation
+        if not os.path.exists(self.project.doc_path):
+            os.makedirs(self.project.doc_path)
+
         try:
             self.create_container()
         except:  # pylint: disable=broad-except
