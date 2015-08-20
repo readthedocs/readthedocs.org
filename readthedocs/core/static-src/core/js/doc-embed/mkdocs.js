@@ -27,7 +27,7 @@ function init() {
           value: 'file'
       }).appendTo('#rtd-search-form');
 
-      $("#rtd-search-form").prop("action", rtd.api_host + "/elasticsearch/");
+      $("#rtd-search-form").prop("action", rtd.api_host + "/search/");
 
       // Apply stickynav to mkdocs builds
       var nav_bar = $('nav.wy-nav-side:first'),
