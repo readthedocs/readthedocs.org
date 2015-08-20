@@ -141,7 +141,7 @@ class Project(models.Model):
     skip = models.BooleanField(_('Skip'), default=False)
     mirror = models.BooleanField(_('Mirror'), default=False)
     use_virtualenv = models.BooleanField(
-        _('Use virtualenv'),
+        _('Install Project'),
         help_text=_("Install your project inside a virtualenv using <code>setup.py "
                     "install</code>"),
         default=False
