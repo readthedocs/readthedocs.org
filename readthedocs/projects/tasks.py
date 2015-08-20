@@ -142,6 +142,9 @@ class UpdateDocsTask(Task):
                     epub=outcomes['epub'],
                 )
 
+        if self.build_env.failed:
+            self.send_notifications()
+
     @staticmethod
     def get_project(project_pk):
         """
@@ -424,6 +427,14 @@ class UpdateDocsTask(Task):
         builder.move()
         return success
 
+    def send_notifications(self):
+        """Send notifications on build failure
+
+        Don't send failure notices on ``stable`` version builds.
+        """
+        if self.version.slug != STABLE:
+            send_notifications.delay(self.version.pk, build_pk=self.build['id'])
+
 
 update_docs = celery_app.tasks[UpdateDocsTask.name]
 
@@ -543,8 +554,6 @@ def finish_build(version_pk, build_pk, hostname=None, html=False,
     update_static_metadata.delay(version.project.pk)
     fileify.delay(version.pk, commit=build.commit)
     update_search.delay(version.pk, commit=build.commit)
-    if not html and version.slug != STABLE and build.exit_code != 423:
-        send_notifications.delay(version.pk, build_pk=build.pk)
 
 
 @task(queue='web')
