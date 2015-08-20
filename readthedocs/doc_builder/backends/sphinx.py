@@ -17,6 +17,7 @@ from readthedocs.restapi.client import api
 
 from ..base import BaseBuilder, restoring_chdir
 from ..exceptions import BuildEnvironmentError
+from ..environments import BuildCommand
 
 
 log = logging.getLogger(__name__)
@@ -225,6 +226,17 @@ class EpubBuilder(BaseSphinx):
             self.run('mv', '-f', from_file, to_file)
 
 
+class LatexBuildCommand(BuildCommand):
+    '''Ignore LaTeX exit code if there was file output'''
+
+    def run(self):
+        super(LatexBuildCommand, self).run()
+        # Force LaTeX exit code to be a little more optimistic. If LaTeX
+        # reports an output file, let's just assume we're fine.
+        if PDF_RE.search(self.output):
+            self.exit_code = 0
+
+
 class PdfBuilder(BaseSphinx):
     type = 'sphinx_pdf'
     sphinx_build_dir = '_build/latex'
@@ -268,20 +280,18 @@ class PdfBuilder(BaseSphinx):
 
         pdf_commands = []
         for cmd in pdflatex_cmds:
-            cmd_ret = self.run(*cmd, cwd=latex_cwd, warn_only=True)
-            # Force LaTeX exit code to be a little more optimistic. If LaTeX
-            # reports an output file, let's just assume we're fine.
-            if PDF_RE.search(cmd_ret.output):
-                cmd_ret.exit_code = 0
+            cmd_ret = self.build_env.run_command_class(
+                cls=LatexBuildCommand, cmd=cmd, cwd=latex_cwd, warn_only=True)
             pdf_commands.append(cmd_ret)
         for cmd in makeindex_cmds:
-            cmd_ret = self.run(*cmd, cwd=latex_cwd, warn_only=True)
+            cmd_ret = self.build_env.run_command_class(
+                cls=LatexBuildCommand, cmd=cmd, cwd=latex_cwd, warn_only=True)
             pdf_commands.append(cmd_ret)
         for cmd in pdflatex_cmds:
-            cmd_ret = self.run(*cmd, cwd=latex_cwd, warn_only=True)
+            cmd_ret = self.build_env.run_command_class(
+                cls=LatexBuildCommand, cmd=cmd, cwd=latex_cwd, warn_only=True)
             pdf_match = PDF_RE.search(cmd_ret.output)
             if pdf_match:
-                cmd_ret.exit_code = 0
                 self.pdf_file_name = pdf_match.group(1).strip()
             pdf_commands.append(cmd_ret)
         return all(cmd.successful for cmd in pdf_commands)
