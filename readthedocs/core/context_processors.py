@@ -7,5 +7,6 @@ def readthedocs_processor(request):
         'PRODUCTION_DOMAIN': getattr(settings, 'PRODUCTION_DOMAIN', None),
         'USE_SUBDOMAINS': getattr(settings, 'USE_SUBDOMAINS', None),
         'GLOBAL_ANALYTICS_CODE': getattr(settings, 'GLOBAL_ANALYTICS_CODE', 'UA-17997319-1'),
+        'TEMPLATE_ROOT': getattr(settings, 'TEMPLATE_ROOT', None) + '/',
     }
     return exports

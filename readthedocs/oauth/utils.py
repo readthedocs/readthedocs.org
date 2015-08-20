@@ -1,11 +1,15 @@
 import logging
-
-from allauth.socialaccount.models import SocialToken
+import json
 
 from django.conf import settings
-from requests_oauthlib import OAuth1Session, OAuth2Session
+from django.contrib import messages
+from django.utils.translation import ugettext_lazy as _
 
-from .models import GithubProject, GithubOrganization, BitbucketProject, BitbucketTeam
+from requests_oauthlib import OAuth1Session, OAuth2Session
+from allauth.socialaccount.models import SocialToken, SocialAccount
+
+from .models import GithubProject, GithubOrganization, BitbucketProject
+from readthedocs.builds import utils as build_utils
 from readthedocs.restapi.client import api
 
 log = logging.getLogger(__name__)
@@ -36,45 +40,6 @@ def get_oauth_session(user, provider):
         )
 
     return session or None
-
-
-def make_github_project(user, org, privacy, repo_json):
-    log.info('Trying GitHub: %s' % repo_json['full_name'])
-    if (repo_json['private'] is True and privacy == 'private' or
-            repo_json['private'] is False and privacy == 'public'):
-        project, created = GithubProject.objects.get_or_create(
-            full_name=repo_json['full_name'],
-            users__pk=user.pk,
-        )
-        if project.organization and project.organization != org:
-            log.debug('Not importing %s because mismatched orgs' % repo_json['name'])
-            return None
-        else:
-            project.organization = org
-        project.users.add(user)
-        project.name = repo_json['name']
-        project.description = repo_json['description']
-        project.git_url = repo_json['git_url']
-        project.ssh_url = repo_json['ssh_url']
-        project.html_url = repo_json['html_url']
-        project.json = repo_json
-        project.save()
-        return project
-    else:
-        log.debug('Not importing %s because mismatched type' % repo_json['name'])
-
-
-def make_github_organization(user, org_json):
-    org, created = GithubOrganization.objects.get_or_create(
-        login=org_json.get('login'),
-    )
-    org.html_url = org_json.get('html_url')
-    org.name = org_json.get('name')
-    org.email = org_json.get('email')
-    org.json = org_json
-    org.users.add(user)
-    org.save()
-    return org
 
 
 def get_token_for_project(project, force_local=False):
@@ -121,14 +86,13 @@ def github_paginate(session, url):
 def import_github(user, sync):
     """ Do the actual github import """
 
-    repo_type = getattr(settings, 'GITHUB_PRIVACY', 'public')
     session = get_oauth_session(user, provider='github')
     if sync and session:
         # Get user repos
         owner_resp = github_paginate(session, 'https://api.github.com/user/repos?per_page=100')
         try:
             for repo in owner_resp:
-                make_github_project(user=user, org=None, privacy=repo_type, repo_json=repo)
+                GithubProject.objects.create_from_api(repo, user=user)
         except TypeError, e:
             print e
 
@@ -137,19 +101,52 @@ def import_github(user, sync):
             resp = session.get('https://api.github.com/user/orgs')
             for org_json in resp.json():
                 org_resp = session.get('https://api.github.com/orgs/%s' % org_json['login'])
-                org_obj = make_github_organization(user=user, org_json=org_resp.json())
+                org_obj = GithubOrganization.objects.create_from_api(
+                    org_resp.json(), user=user)
                 # Add repos
                 org_repos_resp = github_paginate(
                     session,
                     'https://api.github.com/orgs/%s/repos?per_page=100' % (
                         org_json['login']))
                 for repo in org_repos_resp:
-                    make_github_project(user=user, org=org_obj, privacy=repo_type, repo_json=repo)
+                    GithubProject.objects.create_from_api(
+                        repo, user=user, organization=org_obj)
         except TypeError, e:
             print e
 
     return session is not None
 
+
+def add_github_webhook(session, project):
+    owner, repo = build_utils.get_github_username_repo(url=project.repo)
+    data = json.dumps({
+        'name': 'readthedocs',
+        'active': True,
+        'config': {'url': 'https://{domain}/github'.format(domain=settings.PRODUCTION_DOMAIN)}
+    })
+    resp = session.post(
+        'https://api.github.com/repos/{owner}/{repo}/hooks'.format(owner=owner, repo=repo),
+        data=data,
+        headers={'content-type': 'application/json'}
+    )
+    log.info("Creating GitHub webhook response code: {code}".format(code=resp.status_code))
+    return resp
+
+
+def add_bitbucket_webhook(session, project):
+    owner, repo = build_utils.get_bitbucket_username_repo(url=project.repo)
+    data = {
+        'type': 'POST',
+        'url': 'https://{domain}/bitbucket'.format(domain=settings.PRODUCTION_DOMAIN),
+    }
+    resp = session.post(
+        'https://api.bitbucket.org/1.0/repositories/{owner}/{repo}/services'.format(
+            owner=owner, repo=repo
+        ),
+        data=data,
+    )
+    log.info("Creating BitBucket webhook response code: {code}".format(code=resp.status_code))
+    return resp
 
 ###
 # Bitbucket
@@ -177,37 +174,11 @@ def bitbucket_paginate(session, url):
     return result
 
 
-def make_bitbucket_project(user, org, privacy, repo_json):
-    log.info('Trying Bitbucket: %s' % repo_json['full_name'])
-    if (repo_json['is_private'] is True and privacy == 'private' or
-            repo_json['is_private'] is False and privacy == 'public'):
-        project, created = BitbucketProject.objects.get_or_create(
-            full_name=repo_json['full_name'],
-        )
-        if project.organization and project.organization != org:
-            log.debug('Not importing %s because mismatched orgs' % repo_json['name'])
-            return None
-        else:
-            project.organization = org
-        project.users.add(user)
-        project.name = repo_json['name']
-        project.description = repo_json['description']
-        project.git_url = repo_json['links']['clone'][0]['href']
-        project.ssh_url = repo_json['links']['clone'][1]['href']
-        project.html_url = repo_json['links']['html']['href']
-        project.vcs = repo_json['scm']
-        project.json = repo_json
-        project.save()
-        return project
-    else:
-        log.debug('Not importing %s because mismatched type' % repo_json['name'])
-
-
-def process_bitbucket_json(user, json, repo_type):
+def process_bitbucket_json(user, json):
     try:
         for page in json:
             for repo in page['values']:
-                make_bitbucket_project(user=user, org=None, privacy=repo_type, repo_json=repo)
+                BitbucketProject.objects.create_from_api(repo, user=user)
     except TypeError, e:
         print e
 
@@ -215,16 +186,19 @@ def process_bitbucket_json(user, json, repo_type):
 def import_bitbucket(user, sync):
     """ Do the actual github import """
 
-    repo_type = getattr(settings, 'GITHUB_PRIVACY', 'public')
     session = get_oauth_session(user, provider='bitbucket')
+    try:
+        social_account = user.socialaccount_set.get(provider='bitbucket')
+    except SocialAccount.DoesNotExist:
+        log.exception('User tried to import from Bitbucket without a Social Account')
     if sync and session:
             # Get user repos
         try:
             owner_resp = bitbucket_paginate(
                 session,
                 'https://bitbucket.org/api/2.0/repositories/{owner}'.format(
-                    owner=user.username))
-            process_bitbucket_json(user, owner_resp, repo_type)
+                    owner=social_account.uid))
+            process_bitbucket_json(user, owner_resp)
         except TypeError, e:
             print e
 
@@ -235,6 +209,6 @@ def import_bitbucket(user, sync):
                 session,
                 'https://bitbucket.org/api/2.0/teams/{team}/repositories'.format(
                     team=team))
-            process_bitbucket_json(user, org_resp, repo_type)
+            process_bitbucket_json(user, org_resp)
 
     return session is not None

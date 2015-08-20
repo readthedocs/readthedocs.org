@@ -8,7 +8,7 @@ from readthedocs.projects import tasks
 log = logging.getLogger(__name__)
 
 
-class PostCommitTest(TestCase):
+class GitLabWebHookTest(TestCase):
     fixtures = ["eric", "test_data"]
 
     def tearDown(self):
@@ -21,6 +21,97 @@ class PostCommitTest(TestCase):
             log.info("Mocking for great profit and speed.")
         tasks.update_docs = mock
         tasks.update_docs.delay = mock
+
+        self.client.login(username='eric', password='test')
+        self.payload = {
+            "object_kind": "push",
+            "before": "95790bf891e76fee5e1747ab589903a6a1f80f22",
+            "after": "da1560886d4f094c3e6c9ef40349f7d38b5d27d7",
+            "ref": "refs/heads/awesome",
+            "user_id": 4,
+            "user_name": "John Smith",
+            "user_email": "john@example.com",
+            "project_id": 15,
+            "repository": {
+                "name": "Diaspora",
+                "url": "git@github.com:rtfd/readthedocs.org.git",
+                "description": "",
+                "homepage": "http://github.com/rtfd/readthedocs.org",
+                "git_http_url": "http://github.com/rtfd/readthedocs.org.git",
+                "git_ssh_url": "git@github.com:rtfd/readthedocs.org.git",
+                "visibility_level":0
+            },
+            "commits": [
+                {
+                    "id": "b6568db1bc1dcd7f8b4d5a946b0b91f9dacd7327",
+                    "message": "Update Catalan translation to e38cb41.",
+                    "timestamp": "2011-12-12T14:27:31+02:00",
+                    "url": "http://github.com/mike/diaspora/commit/b6568db1bc1dcd7f8b4d5a946b0b91f9dacd7327",
+                    "author": {
+                        "name": "Jordi Mallach",
+                        "email": "jordi@softcatala.org"
+                    }
+                },
+                {
+                    "id": "da1560886d4f094c3e6c9ef40349f7d38b5d27d7",
+                    "message": "fixed readme",
+                    "timestamp": "2012-01-03T23:36:29+02:00",
+                    "url": "http://github.com/mike/diaspora/commit/da1560886d4f094c3e6c9ef40349f7d38b5d27d7",
+                    "author": {
+                        "name": "GitLab dev user",
+                        "email": "gitlabdev@dv6700.(none)"
+                    }
+                }
+            ],
+            "total_commits_count": 4
+        }
+
+    def test_gitlab_post_commit_hook_builds_branch_docs_if_it_should(self):
+        """
+        Test the github post commit hook to see if it will only build
+        versions that are set to be built if the branch they refer to
+        is updated. Otherwise it is no op.
+        """
+        r = self.client.post('/gitlab/', {'payload': json.dumps(self.payload)})
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.content, '(URL Build) Build Started: github.com/rtfd/readthedocs.org [awesome]')
+        self.payload['ref'] = 'refs/heads/not_ok'
+        r = self.client.post('/gitlab/', {'payload': json.dumps(self.payload)})
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.content, '(URL Build) Not Building: github.com/rtfd/readthedocs.org [not_ok]')
+        self.payload['ref'] = 'refs/heads/unknown'
+        r = self.client.post('/gitlab/', {'payload': json.dumps(self.payload)})
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.content, '(URL Build) Not Building: github.com/rtfd/readthedocs.org []')
+
+    def test_gitlab_post_commit_knows_default_branches(self):
+        """
+        Test the gitlab post commit hook so that the default branch
+        will be respected and built as the latest version.
+        """
+        rtd = Project.objects.get(slug='read-the-docs')
+        old_default = rtd.default_branch
+        rtd.default_branch = 'master'
+        rtd.save()
+        self.payload['ref'] = 'refs/heads/master'
+
+        r = self.client.post('/gitlab/', {'payload': json.dumps(self.payload)})
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.content, '(URL Build) Build Started: github.com/rtfd/readthedocs.org [latest]')
+
+        rtd.default_branch = old_default
+        rtd.save()
+
+
+class PostCommitTest(TestCase):
+    fixtures = ["eric", "test_data"]
+
+    def setUp(self):
+        def mock(*args, **kwargs):
+            pass
+
+        tasks.UpdateDocsTask.run = mock
+        tasks.UpdateDocsTask.delay = mock
 
         self.client.login(username='eric', password='test')
         self.payload = {
@@ -122,4 +213,4 @@ class PostCommitTest(TestCase):
         rtd.save()
         r = self.client.post('/build/%s' % rtd.pk, {'version_slug': 'master'})
         self.assertEqual(r.status_code, 302)
-        self.assertEqual(r._headers['location'][1], 'http://testserver/builds/read-the-docs/')
+        self.assertEqual(r._headers['location'][1], 'http://testserver/projects/read-the-docs/builds/')

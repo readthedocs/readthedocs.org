@@ -13,7 +13,10 @@ from readthedocs.privacy.loader import AdminPermission
 
 
 class Testmaker(TestCase):
-    fixtures = ["eric"]
+    def setUp(self):
+        self.eric = User(username='eric')
+        self.eric.set_password('test')
+        self.eric.save()
 
     def test_imported_docs(self):
         # Test Import
@@ -45,7 +48,7 @@ class Testmaker(TestCase):
         self.assertEqual(r.status_code, 200)
         r = self.client.get('/dashboard/django-kong/versions/', {})
         self.assertEqual(r.status_code, 200)
-        r = self.client.get('/builds/django-kong/')
+        r = self.client.get('/projects/django-kong/builds/')
         self.assertEqual(r.status_code, 200)
         r = self.client.get('/dashboard/django-kong/edit/', {})
         self.assertEqual(r.status_code, 200)
@@ -82,14 +85,8 @@ class PrivateViewsAreProtectedTests(TestCase):
         response = self.client.get('/dashboard/import/github/')
         self.assertRedirectToLogin(response)
 
-        response = self.client.get('/dashboard/import/github/sync/')
-        self.assertRedirectToLogin(response)
-
     def test_import_bitbucket(self):
         response = self.client.get('/dashboard/import/bitbucket/')
-        self.assertRedirectToLogin(response)
-
-        response = self.client.get('/dashboard/import/bitbucket/sync/')
         self.assertRedirectToLogin(response)
 
     def test_projects_manage(self):

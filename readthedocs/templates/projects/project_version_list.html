@@ -36,6 +36,7 @@ Versions
         <div class="module-list-wrapper">
           <ul>
             {% for version in active_filter %}
+              {% block active-versions %}
               <li class="module-item">
                 {# Link to the docs #}
                 <a class="module-item-title" href="{{ version.get_absolute_url }}">{{ version.slug }}</a>
@@ -62,6 +63,7 @@ Versions
                 {% endif %}
 
               </li>
+              {% endblock active-versions %}
             {% endfor %}
           </ul>
         </div>
@@ -77,6 +79,8 @@ Versions
           <div class="module-list-wrapper">
             <ul>
               {% for version in inactive_filter %}
+
+              {% block inactive-versions %}
                 <li class="module-item">
                   {# Link to the docs #}
                   <span class="quiet">{{ version.slug }}</span>
@@ -104,6 +108,8 @@ Versions
 
                   
                 </li>
+              {% endblock inactive-versions %}
+              
               {% endfor %}
             </ul>
           </div>

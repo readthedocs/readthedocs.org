@@ -89,6 +89,33 @@ class RelatedProjectManager(models.Manager):
         return self.public(user)
 
 
+class RelatedBuildManager(models.Manager):
+    '''For models with association to a project through :py:cls:`Build`'''
+
+    def _add_user_repos(self, queryset, user=None, *args, **kwargs):
+        # Hack around get_objects_for_user not supporting global perms
+        if user.has_perm('projects.view_project'):
+            return self.get_queryset().all().distinct()
+        if user.is_authenticated():
+            # Add in possible user-specific views
+            project_qs = get_objects_for_user(user, 'projects.view_project')
+            pks = [p.pk for p in project_qs]
+            queryset = (self.get_queryset()
+                        .filter(build__project__pk__in=pks) | queryset)
+        return queryset.distinct()
+
+    def public(self, user=None, project=None, *args, **kwargs):
+        queryset = self.filter(build__project__privacy_level=constants.PUBLIC)
+        if user:
+            queryset = self._add_user_repos(queryset, user)
+        if project:
+            queryset = queryset.filter(build__project=project)
+        return queryset
+
+    def api(self, user=None, *args, **kwargs):
+        return self.public(user)
+
+
 class VersionManager(RelatedProjectManager):
 
     def _add_user_repos(self, queryset, user=None, *args, **kwargs):

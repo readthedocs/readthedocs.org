@@ -1,9 +1,11 @@
 import os
-from os.path import exists
-import shutil
-from tempfile import mkdtemp
-from django.contrib.auth.models import User
 import json
+import shutil
+from os.path import exists
+from tempfile import mkdtemp
+
+from django.contrib.auth.models import User
+from mock import patch, MagicMock
 
 from readthedocs.projects.models import Project
 from readthedocs.projects import tasks
@@ -16,13 +18,14 @@ from readthedocs.rtd_tests.mocks.mock_api import mock_api
 class TestCeleryBuilding(RTDTestCase):
 
     """These tests run the build functions directly. They don't use celery"""
-    fixtures = ['eric.json']
 
     def setUp(self):
         repo = make_test_git()
         self.repo = repo
         super(TestCeleryBuilding, self).setUp()
-        self.eric = User.objects.get(username='eric')
+        self.eric = User(username='eric')
+        self.eric.set_password('test')
+        self.eric.save()
         self.project = Project.objects.create(
             name="Test Project",
             repo_type="git",
@@ -58,10 +61,15 @@ class TestCeleryBuilding(RTDTestCase):
         self.assertTrue(result.successful())
         self.assertFalse(exists(directory))
 
+    @patch('readthedocs.projects.tasks.UpdateDocsTask.build_docs',
+           new=MagicMock)
+    @patch('readthedocs.projects.tasks.UpdateDocsTask.setup_vcs',
+           new=MagicMock)
     def test_update_docs(self):
         with mock_api(self.repo):
-            result = tasks.update_docs.delay(self.project.pk, record=False,
-                                             intersphinx=False)
+            update_docs = tasks.UpdateDocsTask()
+            result = update_docs.delay(self.project.pk, record=False,
+                                       intersphinx=False)
         self.assertTrue(result.successful())
 
     def test_update_imported_doc(self):

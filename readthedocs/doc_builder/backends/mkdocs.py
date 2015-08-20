@@ -6,8 +6,7 @@ import yaml
 from django.conf import settings
 from django.template import Context, loader as template_loader
 
-from readthedocs.doc_builder.base import BaseBuilder, restoring_chdir
-from readthedocs.projects.utils import run
+from readthedocs.doc_builder.base import BaseBuilder
 
 log = logging.getLogger(__name__)
 
@@ -20,12 +19,14 @@ class BaseMkdocs(BaseBuilder):
     """
     Mkdocs builder
     """
+    use_theme = True
 
     def __init__(self, *args, **kwargs):
         super(BaseMkdocs, self).__init__(*args, **kwargs)
         self.old_artifact_path = os.path.join(
             self.version.project.checkout_path(self.version.slug),
             self.build_dir)
+        self.root_path = self.version.project.checkout_path(self.version.slug)
 
     def append_conf(self, **kwargs):
         """
@@ -34,7 +35,9 @@ class BaseMkdocs(BaseBuilder):
 
         # Pull mkdocs config data
         try:
-            user_config = yaml.safe_load(open('mkdocs.yml', 'r'))
+            user_config = yaml.safe_load(
+                open(os.path.join(self.root_path, 'mkdocs.yml'), 'r')
+            )
         except IOError:
             user_config = {
                 'site_name': self.version.project.name,
@@ -42,7 +45,10 @@ class BaseMkdocs(BaseBuilder):
 
         # Handle custom docs dirs
 
-        docs_dir = self.docs_dir(docs_dir=user_config.get('docs_dir'))
+        user_docs_dir = user_config.get('docs_dir')
+        if user_docs_dir:
+            user_docs_dir = os.path.join(self.root_path, user_docs_dir)
+        docs_dir = self.docs_dir(docs_dir=user_docs_dir)
         self.create_index(extension='md')
         user_config['docs_dir'] = docs_dir
 
@@ -79,10 +85,13 @@ class BaseMkdocs(BaseBuilder):
             ]
 
         # Set our custom theme dir for mkdocs
-        if 'theme_dir' not in user_config:
+        if 'theme_dir' not in user_config and self.use_theme:
             user_config['theme_dir'] = TEMPLATE_DIR
 
-        yaml.dump(user_config, open('mkdocs.yml', 'w'))
+        yaml.dump(
+            user_config,
+            open(os.path.join(self.root_path, 'mkdocs.yml'), 'w')
+        )
 
         # RTD javascript writing
 
@@ -111,7 +120,7 @@ class BaseMkdocs(BaseBuilder):
             'doc_builder/data.js.tmpl'
         ).render(data_ctx)
 
-        data_file = open(os.path.join(docs_dir, 'readthedocs-data.js'), 'w+')
+        data_file = open(os.path.join(self.root_path, docs_dir, 'readthedocs-data.js'), 'w+')
         data_file.write(data_string)
         data_file.write('\nREADTHEDOCS_DATA["page"] = mkdocs_page_name')
         data_file.close()
@@ -123,25 +132,30 @@ class BaseMkdocs(BaseBuilder):
         include_string = template_loader.get_template(
             'doc_builder/include.js.tmpl'
         ).render(include_ctx)
-        include_file = open(os.path.join(docs_dir, 'readthedocs-dynamic-include.js'), 'w+')
+        include_file = open(
+            os.path.join(self.root_path, docs_dir, 'readthedocs-dynamic-include.js'),
+            'w+'
+        )
         include_file.write(include_string)
         include_file.close()
 
-    @restoring_chdir
     def build(self, **kwargs):
-        checkout_path = self.version.project.checkout_path(self.version.slug)
-        # site_path = os.path.join(checkout_path, 'site')
-        os.chdir(checkout_path)
-        # Actual build
-        build_command = (
-            "{command} {builder} --clean --site-dir={build_dir} --theme=readthedocs"
-            .format(
-                command=self.version.project.venv_bin(version=self.version.slug, bin='mkdocs'),
-                builder=self.builder,
-                build_dir=self.build_dir,
-            ))
-        results = run(build_command, shell=True)
-        return results
+        checkout_path = self.project.checkout_path(self.version.slug)
+        build_command = [
+            'python',
+            self.project.venv_bin(version=self.version.slug, bin='mkdocs'),
+            self.builder,
+            '--clean',
+            '--site-dir', self.build_dir,
+        ]
+        if self.use_theme:
+            build_command.extend(['--theme', 'readthedocs'])
+        cmd_ret = self.run(
+            *build_command,
+            cwd=checkout_path,
+            bin_path=self.project.venv_bin(version=self.version.slug)
+        )
+        return cmd_ret.successful
 
 
 class MkdocsHTML(BaseMkdocs):
@@ -154,3 +168,15 @@ class MkdocsJSON(BaseMkdocs):
     type = 'mkdocs_json'
     builder = 'json'
     build_dir = '_build/json'
+    use_theme = False
+
+    def build(self, **kwargs):
+        user_config = yaml.safe_load(
+            open(os.path.join(self.root_path, 'mkdocs.yml'), 'r')
+        )
+        del user_config['theme_dir']
+        yaml.dump(
+            user_config,
+            open(os.path.join(self.root_path, 'mkdocs.yml'), 'w')
+        )
+        super(MkdocsJSON, self).build(**kwargs)

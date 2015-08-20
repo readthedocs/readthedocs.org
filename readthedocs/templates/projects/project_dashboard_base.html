@@ -111,7 +111,7 @@
 
     <!-- BEGIN search form -->
     <div class="module search search-dashboard">
-      <form action="{% url 'elastic_search' %}" method="GET">
+      <form action="{% url 'search' %}" method="GET">
         <div class="text-input-wrapper search search-dashboard">
           <input type="text" name="q" class="search">
           {% if type %}
@@ -127,8 +127,8 @@
 
     <!-- BEGIN social account onboard -->
     {% get_social_accounts request.user as accounts %}
-    <div class="module onboard onboard-accounts">
-      {% if not accounts.github.0 %}
+    {% if not accounts.github.0 %}
+      <div class="module onboard onboard-accounts">
         <h3>Connect your Accounts</h3>
 
         <p>
@@ -140,8 +140,8 @@
         <form method="get" action="{{ social_accounts }}">
           <input type="submit" value="Connect to Github" />
         </form>
-      {% endif %}
-    </div>
+      </div>
+    {% endif %}
     <!-- END social account onboard -->
 
     {% block dashboard-onboard-extra %}

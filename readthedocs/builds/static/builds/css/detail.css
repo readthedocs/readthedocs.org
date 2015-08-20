@@ -1,0 +1,145 @@
+/* Build detail styles */
+
+div.build-detail div.build-id {
+    font-size: 1.5em;
+}
+
+div.build-detail div.build-version {
+    line-height: 2em;
+}
+
+div.build-detail div.build-version span.build-commit {
+    color: #887;
+    font-style: italic;
+}
+
+div.build-detail div.build-state {
+    margin: .7em 0em 1em 0em;
+    font-size: 1.2em;
+}
+
+div.build-detail div.build-state > span.build-state-successful,
+div.build-detail div.build-state > span.build-state-failed {
+    padding: .3em .5em;
+    border-radius: .3em;
+    -moz-border-radius: .3em;
+    -ms-border-radius: .3em;
+    -webkit-border-radius: .3em;
+    color: white;
+}
+
+div.build-detail div.build-state > span.build-state-failed {
+    background: #a55;
+}
+div.build-detail div.build-state > span.build-state-successful {
+    background: #5a5;
+}
+
+ul.build-meta {
+    display: block;
+    width: 40%;
+    float: right;
+    overflow: auto;
+    font-size: .9em;
+    line-height: 1.5em;
+    text-align: right;
+}
+
+/* Error box */
+div.build-detail div.build-error {
+    padding: .3em .5em;
+    margin: .3em;
+    border: 2px solid #a55;
+    border-radius: .2em;
+    -moz-border-radius: .2em;
+    -ms-border-radius: .2em;
+    -webkit-border-radius: .2em;
+    color: #a55;
+}
+
+div.build-detail div.build-error h3 {
+    text-shadow: none;
+    font-weight: normal;
+    color: #a55;
+}
+
+div.build-detail div.build-error p {
+    margin-bottom: 0em;
+}
+
+/* Build command list */
+div.build-command-list {
+    clear: right;
+}
+
+div.build-command {
+    padding: .5em;
+    margin: 5px;
+    font-size: .9em;
+    line-height: 1.5em;
+    background: #eee;
+    color: #443;
+    border: 1px solid #e4e4e4;
+    border-bottom-color: #ddd;
+
+    border-radius: .3em;
+    -moz-border-radius: .3em;
+    -webkit-border-radius: .3em;
+    -ms-border-radius: .3em;
+}
+
+div.build-command.build-command-failed {
+    background: #a55;
+    color: white;
+}
+
+div.build-command div.build-command-run,
+div.build-command div.build-command-output {
+    display: block;
+    overflow: hidden;
+}
+
+div.build-command div.build-command-run {
+    cursor: pointer;
+}
+
+div.build-command div.build-command-output {
+    margin-top: .5em;
+}
+
+div.build-command div.build-command-run > span,
+div.build-command div.build-command-output > span {
+    display: block;
+    margin-bottom: -16px;
+    font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    white-space: pre;
+    overflow-x: scroll;
+    overflow-y: hidden;
+}
+
+div.build-command div.build-command-run > span::-webkit-scrollbar,
+div.build-command div.build-command-output > span::-webkit-scrollbar {
+    -webkit-appearance: none;
+    height: 15px;
+}
+
+div.build-command div.build-command-output > span {
+    padding: .5em;
+}
+
+div.build-command div.build-command-output,
+div.build-command div.build-command-meta {
+    background: #443;
+    color: #ffe;
+}
+
+div.build-command div.build-command-meta {
+    padding: .5em;
+    font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    text-align: right;
+    color: #bba;
+}
+
+div.build-command.build-command-failed div.build-command-meta {
+    color: #a55;
+}

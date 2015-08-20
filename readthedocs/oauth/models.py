@@ -2,6 +2,11 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 
+from .managers import BitbucketTeamManager
+from .managers import BitbucketProjectManager
+from .managers import GithubOrganizationManager
+from .managers import GithubProjectManager
+
 
 class GithubOrganization(models.Model):
     # Auto fields
@@ -19,6 +24,8 @@ class GithubOrganization(models.Model):
     html_url = models.URLField(_('HTML URL'), max_length=200, null=True, blank=True)
     active = models.BooleanField(_('Active'), default=False)
     json = models.TextField('JSON')
+
+    objects = GithubOrganizationManager()
 
     def __unicode__(self):
         return "GitHub Organization: %s" % (self.html_url)
@@ -44,6 +51,8 @@ class GithubProject(models.Model):
     active = models.BooleanField(_('Active'), default=False)
     json = models.TextField('JSON')
 
+    objects = GithubProjectManager()
+
     def __unicode__(self):
         return "GitHub Project: %s" % (self.html_url)
 
@@ -52,6 +61,10 @@ class GithubProject(models.Model):
         if 'permissions' in full_json:
             return full_json['permissions']['admin']
         return False
+
+    def is_private(self):
+        full_json = eval(self.json)
+        return full_json['private']
 
 
 class BitbucketTeam(models.Model):
@@ -70,6 +83,8 @@ class BitbucketTeam(models.Model):
     html_url = models.URLField(_('HTML URL'), max_length=200, null=True, blank=True)
     active = models.BooleanField(_('Active'), default=False)
     json = models.TextField('JSON')
+
+    objects = BitbucketTeamManager()
 
     def __unicode__(self):
         return "Bitbucket Team: %s" % (self.html_url)
@@ -95,5 +110,11 @@ class BitbucketProject(models.Model):
     active = models.BooleanField(_('Active'), default=False)
     json = models.TextField('JSON')
 
+    objects = BitbucketProjectManager()
+
     def __unicode__(self):
         return "Bitbucket Project: %s" % (self.html_url)
+
+    def is_private(self):
+        full_json = eval(self.json)
+        return full_json['is_private']
