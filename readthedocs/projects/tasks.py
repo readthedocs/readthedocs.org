@@ -428,12 +428,8 @@ class UpdateDocsTask(Task):
         return success
 
     def send_notifications(self):
-        """Send notifications on build failure
-
-        Don't send failure notices on ``stable`` version builds.
-        """
-        if self.version.slug != STABLE:
-            send_notifications.delay(self.version.pk, build_pk=self.build['id'])
+        """Send notifications on build failure"""
+        send_notifications.delay(self.version.pk, build_pk=self.build['id'])
 
 
 update_docs = celery_app.tasks[UpdateDocsTask.name]
