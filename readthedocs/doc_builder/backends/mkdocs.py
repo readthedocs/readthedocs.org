@@ -174,7 +174,8 @@ class MkdocsJSON(BaseMkdocs):
         user_config = yaml.safe_load(
             open(os.path.join(self.root_path, 'mkdocs.yml'), 'r')
         )
-        del user_config['theme_dir']
+        if user_config['theme_dir'] == TEMPLATE_DIR:
+            del user_config['theme_dir']
         yaml.dump(
             user_config,
             open(os.path.join(self.root_path, 'mkdocs.yml'), 'w')
