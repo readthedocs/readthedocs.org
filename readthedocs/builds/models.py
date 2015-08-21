@@ -15,7 +15,9 @@ from readthedocs.privacy.loader import (VersionManager, RelatedProjectManager,
                                         RelatedBuildManager)
 from readthedocs.projects.models import Project
 from readthedocs.projects.constants import (PRIVACY_CHOICES, REPO_TYPE_GIT,
-                                            REPO_TYPE_HG)
+                                            REPO_TYPE_HG, GITHUB_URL,
+                                            GITHUB_REGEXS, BITBUCKET_URL,
+                                            BITBUCKET_REGEXS)
 
 from .constants import (BUILD_STATE, BUILD_TYPES, VERSION_TYPES,
                         LATEST, NON_REPOSITORY_VERSIONS, STABLE,
@@ -228,14 +230,6 @@ class Version(models.Model):
         return slug
 
     def get_github_url(self, docroot, filename, source_suffix='.rst', action='view'):
-        GITHUB_REGEXS = [
-            re.compile('github.com/(.+)/(.+)(?:\.git){1}'),
-            re.compile('github.com/(.+)/(.+)'),
-            re.compile('github.com:(.+)/(.+).git'),
-        ]
-        GITHUB_URL = ('https://github.com/{user}/{repo}/'
-                      '{action}/{version}{docroot}{path}{source_suffix}')
-
         repo_url = self.project.repo
         if 'github' not in repo_url:
             return ''
@@ -273,20 +267,13 @@ class Version(models.Model):
         )
 
     def get_bitbucket_url(self, docroot, filename, source_suffix='.rst'):
-        BB_REGEXS = [
-            re.compile('bitbucket.org/(.+)/(.+).git'),
-            re.compile('bitbucket.org/(.+)/(.+)/'),
-            re.compile('bitbucket.org/(.+)/(.+)'),
-        ]
-        BB_URL = 'https://bitbucket.org/{user}/{repo}/src/{version}{docroot}{path}{source_suffix}'
-
         repo_url = self.project.repo
         if 'bitbucket' not in repo_url:
             return ''
         if not docroot:
             return ''
 
-        for regex in BB_REGEXS:
+        for regex in BITBUCKET_REGEXS:
             match = regex.search(repo_url)
             if match:
                 user, repo = match.groups()
@@ -295,7 +282,7 @@ class Version(models.Model):
             return ''
         repo = repo.rstrip('/')
 
-        return BB_URL.format(
+        return BITBUCKET_URL.format(
             user=user,
             repo=repo,
             version=self.remote_slug,

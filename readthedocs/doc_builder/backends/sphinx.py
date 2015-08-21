@@ -128,7 +128,7 @@ class BaseSphinx(BaseBuilder):
         project = self.project
         build_command = [
             'python',
-            project.venv_bin(version=self.version.slug, bin='sphinx-build'),
+            project.venv_bin(version=self.version.slug, filename='sphinx-build'),
             '-T'
         ]
         if self._force:
@@ -249,7 +249,8 @@ class PdfBuilder(BaseSphinx):
         # Default to this so we can return it always.
         self.run(
             'python',
-            self.project.venv_bin(version=self.version.slug, bin='sphinx-build'),
+            self.project.venv_bin(version=self.version.slug,
+                                  filename='sphinx-build'),
             '-b', 'latex',
             '-D', 'language={lang}'.format(lang=self.project.language),
             '-d', '_build/doctrees',

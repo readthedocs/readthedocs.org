@@ -36,7 +36,7 @@ class BaseBuilder(object):
         self._force = force
         self.target = self.project.artifact_path(
             version=self.version.slug,
-            type=self.type
+            type_=self.type
         )
 
     def force(self, **kwargs):

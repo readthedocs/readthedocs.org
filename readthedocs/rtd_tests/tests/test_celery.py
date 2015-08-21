@@ -49,7 +49,7 @@ class TestCeleryBuilding(RTDTestCase):
 
     def test_clear_artifacts(self):
         version = self.project.versions.all()[0]
-        directory = self.project.get_production_media_path(type='pdf', version_slug=version.slug)
+        directory = self.project.get_production_media_path(type_='pdf', version_slug=version.slug)
         os.makedirs(directory)
         self.assertTrue(exists(directory))
         result = tasks.clear_artifacts.delay(version_pk=version.pk)

@@ -8,23 +8,22 @@ uses:
   - celery
 
 ignore-paths:
-  - projects
   - docs
 
 ignore-patterns:
   - /migrations/
 
 pep8:
-    full: true
-    options:
-        max-line-length: 100
-    disable:
-        - N806
+  full: true
+  options:
+    max-line-length: 100
 
 pylint:
-  max-line-length: 100
+  options:
+    dummy-variables-rgx: '_$|__$|dummy'
+    max-line-length: 100
   disable:
-      - logging-format-interpolation
+    - logging-format-interpolation
 
 mccabe:
   run: false
