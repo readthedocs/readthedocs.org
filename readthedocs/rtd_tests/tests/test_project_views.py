@@ -1,9 +1,8 @@
-import re
-
 from django.contrib.auth.models import User
 from django.contrib.messages import constants as message_const
 from django_dynamic_fixture import get
 from django_dynamic_fixture import new
+from mock import patch
 
 from readthedocs.rtd_tests.base import WizardTestCase, MockBuildTestCase
 from readthedocs.projects.models import Project
@@ -206,3 +205,19 @@ class TestPrivateViews(MockBuildTestCase):
 
         response = self.client.get('/projects/pip/versions/')
         self.assertEqual(response.status_code, 200)
+
+    def test_delete_project(self):
+        project = get(Project, slug='pip', users=[self.user])
+
+        response = self.client.get('/dashboard/pip/delete/')
+        self.assertEqual(response.status_code, 200)
+
+        patcher = patch(
+            'readthedocs.projects.views.private.remove_path_from_web')
+        with patcher as remove_path_from_web:
+            response = self.client.post('/dashboard/pip/delete/')
+            self.assertEqual(response.status_code, 302)
+
+            self.assertFalse(Project.objects.filter(slug='pip').exists())
+            remove_path_from_web.delay.assert_called_with(
+                path=project.doc_path)
