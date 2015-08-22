@@ -825,3 +825,16 @@ def clear_htmlzip_artifacts(version):
 
 def clear_html_artifacts(version):
     run_on_app_servers('rm -rf %s' % version.project.rtd_build_path(version=version.slug))
+
+
+@task(queue='web')
+def remove_path_from_web(path):
+    """
+    Remove the given path from the web servers file system.
+    """
+    # Santity check  for spaces in the path since spaces would result in
+    # deleting unpredictable paths with "rm -rf".
+    assert ' ' not in path, "No spaces allowed in path"
+
+    # TODO: We need some proper escaping here for the given path.
+    run_on_app_servers('rm -rf {path}'.format(path=path))
