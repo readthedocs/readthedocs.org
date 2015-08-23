@@ -9,8 +9,9 @@
   <script type="text/javascript" src="{% static 'vendor/knockout.js' %}"></script>
   <script type="text/javascript" src="{% static 'builds/js/detail.js' %}"></script>
   <script type="text/javascript">
+var detail = require('detail');
 $(document).ready(function () {
-    var view = build.BuildDetailView.init({{ build_json|safe }});
+    var view = detail.BuildDetailView.init({{ build_json|safe }});
 });
   </script>
 {% endblock %}
