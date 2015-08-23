@@ -1,6 +1,6 @@
 /* Read the Docs - Documentation promotions */
 
-var $ = window.$;
+var $ = require('jquery');
 
 module.exports = {
     Promo: Promo
