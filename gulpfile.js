@@ -30,7 +30,7 @@ var sources = {
 
 // Standalone application to create vendor bundles for. These can be imported
 // with require in the browser or with Node during testing.
-var standalone = ['jquery', 'knockout'];
+var standalone = ['jquery', 'knockout', 'jquery-migrate', 'jquery-ui'];
 
 // Build application call, wraps building entry point files for a single
 // application. This is called by build and dev tasks.
@@ -77,13 +77,15 @@ function build_app_sources (application, minify) {
 function browserify_stream (file, cb_output) {
     bower_resolve.offline = true;
     bower_resolve.init(function () {
-        var bundle_stream = browserify(file.path)
+        var bundle_stream = browserify(),
+            module_name = path.basename(file.path, '.js');
 
         standalone.map(function (module) {
             bundle_stream = bundle_stream.external(module);
         });
 
         bundle_stream
+            .require(file.path, {expose: module_name})
             .transform('debowerify', {ignoreModules: standalone})
             .bundle()
             .on('error', function (ev) {
@@ -102,7 +104,7 @@ function build_vendor_sources(data, cb_output) {
     bower_resolve.offline = true;
     bower_resolve.init(function () {
         var standalone_modules = standalone.map(function (module) {
-            return browserify({standalone: module})
+            return browserify()
                 .require(bower_resolve(module), {expose: module})
                 .bundle()
                 .pipe(vinyl_source(module + '.js'))
