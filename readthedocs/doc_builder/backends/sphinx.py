@@ -1,4 +1,3 @@
-import re
 import os
 import sys
 import codecs
@@ -6,7 +5,7 @@ from glob import glob
 import logging
 import zipfile
 
-from django.template import Context, loader as template_loader
+from django.template import loader as template_loader
 from django.template.loader import render_to_string
 from django.conf import settings
 
@@ -18,13 +17,9 @@ from readthedocs.restapi.client import api
 from ..base import BaseBuilder, restoring_chdir
 from ..exceptions import BuildEnvironmentError
 from ..environments import BuildCommand
-
+from ..constants import TEMPLATE_DIR, STATIC_DIR, PDF_RE
 
 log = logging.getLogger(__name__)
-
-TEMPLATE_DIR = '%s/readthedocs/templates/sphinx' % settings.SITE_ROOT
-STATIC_DIR = '%s/_static' % TEMPLATE_DIR
-PDF_RE = re.compile('Output written on (.*?)')
 
 
 class BaseSphinx(BaseBuilder):
@@ -88,7 +83,7 @@ class BaseSphinx(BaseBuilder):
         bitbucket_version_is_editable = (self.version.type == 'branch')
         display_bitbucket = bitbucket_user is not None
 
-        rtd_ctx = Context({
+        rtd_ctx = {
             'current_version': self.version.verbose_name,
             'project': project,
             'settings': settings,
@@ -109,7 +104,7 @@ class BaseSphinx(BaseBuilder):
             'bitbucket_version_is_editable': bitbucket_version_is_editable,
             'display_bitbucket': display_bitbucket,
             'commit': self.project.vcs_repo(self.version.slug).commit,
-        })
+        }
 
         # Avoid hitting database and API if using Docker build environment
         if getattr(settings, 'DONT_HIT_API', False):

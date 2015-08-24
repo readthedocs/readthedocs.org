@@ -25,7 +25,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         api = slumber.API(base_url='http://readthedocs.org/api/v1/')
-        user1 = User.objects.order_by('pk').first()
+        user1 = User.objects.filter(pk__gt=0).order_by('pk').first()
 
         for slug in options['project_slug']:
             self.stdout.write('Importing {slug} ...'.format(slug=slug))

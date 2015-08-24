@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404
-from django.template import Context, loader as template_loader
+from django.template import loader as template_loader
 from django.conf import settings
 from django.core.context_processors import csrf
 
@@ -101,7 +101,7 @@ def footer_html(request):
 
     version_compare_data = get_version_compare_data(project, version)
 
-    context = Context({
+    context = {
         'project': project,
         'path': path,
         'downloads': version.get_downloads(pretty=True),
@@ -118,7 +118,7 @@ def footer_html(request):
         'github_edit_url': version.get_github_url(docroot, page_slug, source_suffix, 'edit'),
         'github_view_url': version.get_github_url(docroot, page_slug, source_suffix, 'view'),
         'bitbucket_url': version.get_bitbucket_url(docroot, page_slug, source_suffix),
-    })
+    }
 
     context.update(csrf(request))
     html = template_loader.get_template('restapi/footer.html').render(context)

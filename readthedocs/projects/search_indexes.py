@@ -26,7 +26,7 @@ class ProjectIndex(indexes.SearchIndex, indexes.Indexable):
     absolute_url = CharField()
 
     def prepare_author(self, obj):
-        return str(obj.users.first())
+        return obj.users.all()[0]
 
     def prepare_absolute_url(self, obj):
         return obj.get_absolute_url()
@@ -49,7 +49,7 @@ class ImportedFileIndex(indexes.SearchIndex, indexes.Indexable):
     absolute_url = CharField()
 
     def prepare_author(self, obj):
-        return str(obj.project.users.first())
+        return obj.project.users.all()[0]
 
     def prepare_title(self, obj):
         return obj.name.replace('.html', '').replace('_', ' ').title()
@@ -76,14 +76,11 @@ class ImportedFileIndex(indexes.SearchIndex, indexes.Indexable):
         log.debug('(Search Index) Indexing %s:%s' % (obj.project, obj.path))
         DOCUMENT_PYQUERY_PATH = getattr(settings, 'DOCUMENT_PYQUERY_PATH',
                                         'div.document')
-        if html_to_index:
-            to_index = strip_tags(html_to_index).replace(u'¶', '')
-        else:
-            # Pyquery returns None if it didn't find the query in the document
-	    log.info('(Search Index) Unable to index file: %s:%s, no matching'
-                      ' pyquery for %s' % (obj.project,
-                                           file_path,
-                                           DOCUMENT_PYQUERY_PATH))
+        try:
+            to_index = strip_tags(PyQuery(content)(
+                DOCUMENT_PYQUERY_PATH).html()).replace(u'¶', '')
+        except ValueError:
+            #Pyquery returns ValueError if div.document doesn't exist.
             return
         if not to_index:
             log.info('(Search Index) Unable to index file: %s:%s, empty file' % (obj.project,
