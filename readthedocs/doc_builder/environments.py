@@ -29,7 +29,7 @@ from .exceptions import (BuildEnvironmentException, BuildEnvironmentError,
                          BuildEnvironmentWarning)
 from .constants import (DOCKER_SOCKET, DOCKER_VERSION, DOCKER_IMAGE,
                         DOCKER_LIMITS, DOCKER_TIMEOUT_EXIT_CODE,
-                        DOCKER_OOM_EXIT_CODE)
+                        DOCKER_OOM_EXIT_CODE, TEMPLATE_DIR)
 
 log = logging.getLogger(__name__)
 
@@ -576,10 +576,14 @@ class DockerEnvironment(BuildEnvironment):
                 name=self.container_id,
                 hostname=self.container_id,
                 host_config=create_host_config(binds={
+                    TEMPLATE_DIR: {
+                        'bind': TEMPLATE_DIR,
+                        'mode': 'r'
+                    },
                     self.project.doc_path: {
                         'bind': self.project.doc_path,
                         'mode': 'rw'
-                    }
+                    },
                 }),
                 detach=True,
                 mem_limit=self.container_mem_limit,

@@ -1,4 +1,3 @@
-import re
 import os
 import sys
 import codecs
@@ -18,13 +17,9 @@ from readthedocs.restapi.client import api
 from ..base import BaseBuilder, restoring_chdir
 from ..exceptions import BuildEnvironmentError
 from ..environments import BuildCommand
-
+from ..constants import TEMPLATE_DIR, STATIC_DIR, PDF_RE
 
 log = logging.getLogger(__name__)
-
-TEMPLATE_DIR = '%s/readthedocs/templates/sphinx' % settings.SITE_ROOT
-STATIC_DIR = '%s/_static' % TEMPLATE_DIR
-PDF_RE = re.compile('Output written on (.*?)')
 
 
 class BaseSphinx(BaseBuilder):
