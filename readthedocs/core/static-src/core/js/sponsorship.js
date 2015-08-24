@@ -1,7 +1,5 @@
 /* Read the Docs - Documentation promotions */
 
-var $ = require('jquery');
-
 module.exports = {
     Promo: Promo
 };

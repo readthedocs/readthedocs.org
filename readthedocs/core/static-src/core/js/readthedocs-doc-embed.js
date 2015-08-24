@@ -3,8 +3,7 @@ var sponsorship = require('./sponsorship'),
     grokthedocs = require('./doc-embed/grokthedocs-client'),
     mkdocs = require('./doc-embed/mkdocs'),
     rtddata = require('./doc-embed/rtd-data'),
-    sphinx = require('./doc-embed/sphinx'),
-    $ = require('jquery');
+    sphinx = require('./doc-embed/sphinx');
 
 $(document).ready(function () {
     footer.init();
