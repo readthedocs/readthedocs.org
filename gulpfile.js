@@ -191,7 +191,7 @@ gulp.task('dev', function (done) {
         .merge(Object.keys(sources).map(function (application) {
             var files = [
                 path.join(pkg_config.name, application, 'static-src', '**', '*.js'),
-                path.join(pkg_config.name, application, 'static-src', '**', '*.css')
+                path.join(pkg_config.name, application, 'static-src', '**', '*.less')
             ];
             return watch(files, {verbose: true, name: 'dev'}, function () {
                 build_app_sources(application, false)
