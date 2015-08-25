@@ -30,7 +30,13 @@ var sources = {
 
 // Standalone application to create vendor bundles for. These can be imported
 // with require in the browser or with Node during testing.
-var standalone = ['jquery', 'knockout', 'jquery-migrate', 'jquery-ui'];
+var standalone = {
+    'jquery': {standalone: 'jquery'},
+    'knockout': {},
+    'jquery-migrate': {standalone: 'jquery-migrate'},
+    'jquery-ui': {standalone: 'jquery-ui'},
+    'underscore': {standalone: '_'}
+};
 
 // Build application call, wraps building entry point files for a single
 // application. This is called by build and dev tasks.
@@ -83,7 +89,7 @@ function browserify_stream (file, config, cb_output) {
     bower_resolve.init(function () {
         var bundle_stream = browserify();
 
-        standalone.map(function (module) {
+        Object.keys(standalone).map(function (module) {
             bundle_stream = bundle_stream.external(module);
         });
 
@@ -98,7 +104,7 @@ function browserify_stream (file, config, cb_output) {
         }
 
         bundle_stream
-            .transform('debowerify', {ignoreModules: standalone})
+            .transform('debowerify', {ignoreModules: Object.keys(standalone)})
             .bundle()
             .on('error', function (ev) {
                 gulp_util.beep();
@@ -115,14 +121,40 @@ function browserify_stream (file, config, cb_output) {
 function build_vendor_sources(data, cb_output) {
     bower_resolve.offline = true;
     bower_resolve.init(function () {
-        var standalone_modules = standalone.map(function (module) {
-            return browserify()
+        var standalone_modules = Object.keys(standalone).map(function (module) {
+            var vendor_options = standalone[module] || {},
+                vendor_bundles = [];
+
+            // Bundle vendor libs for import via require()
+            vendor_bundles.push(
+                browserify()
                 .require(bower_resolve(module), {expose: module})
                 .bundle()
                 .pipe(vinyl_source(module + '.js'))
                 .pipe(vinyl_buffer())
                 .pipe(uglify())
-                .pipe(gulp.dest(path.join(pkg_config.name, 'static', 'vendor')));
+                .pipe(gulp.dest(
+                    path.join(pkg_config.name, 'static', 'vendor')
+                ))
+            );
+
+            // Bundle standalone for legacy use. These should only be used on
+            // old documentation that does not yet use the new bundles
+            if (typeof(vendor_options.standalone) != 'undefined') {
+                vendor_bundles.push(
+                    browserify({standalone: vendor_options.standalone})
+                    .require(bower_resolve(module))
+                    .bundle()
+                    .pipe(vinyl_source(module + '-standalone.js'))
+                    .pipe(vinyl_buffer())
+                    .pipe(uglify())
+                    .pipe(gulp.dest(
+                        path.join(pkg_config.name, 'static', 'vendor')
+                    ))
+                );
+            }
+
+            return es.merge(vendor_bundles);
         });
 
         es
