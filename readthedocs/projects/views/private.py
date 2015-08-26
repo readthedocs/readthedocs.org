@@ -34,6 +34,7 @@ from readthedocs.projects.forms import (
     RedirectForm, WebHookForm)
 from readthedocs.projects.models import Project, EmailHook, WebHook
 from readthedocs.projects import constants, tasks
+from readthedocs.projects.tasks import remove_path_from_web
 
 
 from readthedocs.projects.signals import project_import
@@ -214,7 +215,8 @@ def project_delete(request, project_slug):
 
     if request.method == 'POST':
         # Remove the repository checkout
-        shutil.rmtree(project.doc_path, ignore_errors=True)
+        remove_path_from_web.delay(path=project.doc_path)
+
         # Delete the project and everything related to it
         project.delete()
         messages.success(request, _('Project deleted'))
