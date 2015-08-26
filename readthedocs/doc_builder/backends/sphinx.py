@@ -43,7 +43,7 @@ class BaseSphinx(BaseBuilder):
             docs_dir = self.docs_dir()
             self.old_artifact_path = os.path.join(docs_dir, self.sphinx_build_dir)
 
-    def _write_config(self):
+    def _write_config(self, master_doc='index'):
         """
         Create ``conf.py`` if it doesn't exist.
         """
@@ -52,6 +52,7 @@ class BaseSphinx(BaseBuilder):
                                          {'project': self.project,
                                           'version': self.version,
                                           'template_dir': TEMPLATE_DIR,
+                                          'master_doc': master_doc,
                                           })
         conf_file = os.path.join(docs_dir, 'conf.py')
         safe_write(conf_file, conf_template)
@@ -64,8 +65,8 @@ class BaseSphinx(BaseBuilder):
         try:
             conf_py_path = self.version.get_conf_py_path()
         except ProjectImportError:
-            self._write_config()
-            self.create_index(extension='rst')
+            master_doc = self.create_index(extension='rst')
+            self._write_config(master_doc=master_doc)
 
         project = self.project
         # Open file for appending.
