@@ -98,8 +98,7 @@ class BaseBuilder(object):
         if not os.path.exists(index_filename):
             readme_filename = os.path.join(docs_dir, 'README.{ext}'.format(ext=extension))
             if os.path.exists(readme_filename):
-                os.system('mv {readme} {index}'.format(index=index_filename,
-                                                       readme=readme_filename))
+                return 'README'
             else:
                 index_file = open(index_filename, 'w+')
                 index_text = """
@@ -116,6 +115,7 @@ If you want to use another markup, choose a different builder in your settings.
 
                 index_file.write(index_text.format(dir=docs_dir, ext=extension))
                 index_file.close()
+        return 'index'
 
     def run(self, *args, **kwargs):
         '''Proxy run to build environment'''
