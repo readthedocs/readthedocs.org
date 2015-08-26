@@ -143,7 +143,7 @@ class BaseMkdocs(BaseBuilder):
         checkout_path = self.project.checkout_path(self.version.slug)
         build_command = [
             'python',
-            self.project.venv_bin(version=self.version.slug, bin='mkdocs'),
+            self.project.venv_bin(version=self.version.slug, filename='mkdocs'),
             self.builder,
             '--clean',
             '--site-dir', self.build_dir,

@@ -1,8 +1,7 @@
-"""Utility functions used by projects.
-"""
+"""Utility functions used by projects"""
+
 import fnmatch
 import os
-import re
 import subprocess
 import traceback
 import logging
@@ -16,6 +15,7 @@ from readthedocs.builds.constants import LATEST
 
 log = logging.getLogger(__name__)
 
+
 def version_from_slug(slug, version):
     from readthedocs.projects import tasks
     from readthedocs.builds.models import Version
@@ -27,40 +27,45 @@ def version_from_slug(slug, version):
         v = Version.objects.get(project__slug=slug, slug=version)
     return v
 
+
 def symlink(project, version=LATEST):
     from readthedocs.projects import symlinks
-    v = version_from_slug(project, version)
-    log.info("Symlinking %s" % v)
-    symlinks.symlink_subprojects(v)
-    symlinks.symlink_cnames(v)
-    symlinks.symlink_translations(v)
+    version_obj = version_from_slug(project, version)
+    log.info("Symlinking %s", version_obj)
+    symlinks.symlink_subprojects(version_obj)
+    symlinks.symlink_cnames(version_obj)
+    symlinks.symlink_translations(version_obj)
+
 
 def update_static_metadata(project_pk):
-    """
-    This is here to avoid circular imports in models.py
-    """
+    """This is here to avoid circular imports in models.py"""
     from readthedocs.projects import tasks
     tasks.update_static_metadata.delay(project_pk)
 
-def find_file(file):
-    """Find matching filenames in the current directory and its subdirectories,
-    and return a list of matching filenames.
+
+def find_file(filename):
+    """Recursively find matching file from the current working path
+
+    :param file: Filename to match
+    :returns: A list of matching filenames.
     """
     matches = []
-    for root, dirnames, filenames in os.walk('.'):
-        for filename in fnmatch.filter(filenames, file):
+    for root, __, filenames in os.walk('.'):
+        for filename in fnmatch.filter(filenames, filename):
             matches.append(os.path.join(root, filename))
     return matches
 
 
 def run(*commands, **kwargs):
-    """
-    Run one or more commands, and return ``(status, out, err)``.
+    """Run one or more commands
+
     If more than one command is given, then this is equivalent to
     chaining them together with ``&&``; if all commands succeed, then
     ``(status, out, err)`` will represent the last successful command.
     If one command failed, then ``(status, out, err)`` will represent
     the failed command.
+
+    :returns: ``(status, out, err)``
     """
     environment = os.environ.copy()
     environment['READTHEDOCS'] = 'True'
@@ -83,7 +88,7 @@ def run(*commands, **kwargs):
             run_command = command
         else:
             run_command = command.split()
-        log.info("Running: '%s' [%s]" % (command, cwd))
+        log.info("Running: '%s' [%s]", command, cwd)
         try:
             p = subprocess.Popen(run_command, shell=shell, cwd=cwd,
                                  stdout=subprocess.PIPE,
@@ -91,7 +96,7 @@ def run(*commands, **kwargs):
 
             out, err = p.communicate()
             ret = p.returncode
-        except:
+        except OSError:
             out = ''
             err = traceback.format_exc()
             ret = -1
@@ -101,9 +106,14 @@ def run(*commands, **kwargs):
 
 
 def safe_write(filename, contents):
-    """Write ``contents`` to the given ``filename``. If the filename's
+    """Normalize and write to filename
+
+    Write ``contents`` to the given ``filename``. If the filename's
     directory does not exist, it is created. Contents are written as UTF-8,
     ignoring any characters that cannot be encoded as UTF-8.
+
+    :param filename: Filename to write to
+    :param contents: File contents to write to file
     """
     dirname = os.path.dirname(filename)
     if not os.path.exists(dirname):
@@ -119,22 +129,22 @@ def purge_version(version, mainsite=False, subdomain=False, cname=False):
     if varnish_servers:
         for server in varnish_servers:
             if subdomain:
-                #Send a request to the Server, to purge the URL of the Host.
+                # Send a request to the Server, to purge the URL of the Host.
                 host = "%s.readthedocs.org" % version.project.slug
                 headers = {'Host': host}
                 url = "/en/%s/*" % version.slug
                 to_purge = "http://%s%s" % (server, url)
-                log.info("Purging %s on %s" % (url, host))
+                log.info("Purging %s on %s", url, host)
                 h.request(to_purge, method="PURGE", headers=headers)
             if mainsite:
                 headers = {'Host': "readthedocs.org"}
                 url = "/docs/%s/en/%s/*" % (version.project.slug, version.slug)
                 to_purge = "http://%s%s" % (server, url)
-                log.info("Purging %s on readthedocs.org" % url)
+                log.info("Purging %s on readthedocs.org", url)
                 h.request(to_purge, method="PURGE", headers=headers)
                 root_url = "/docs/%s/" % version.project.slug
                 to_purge = "http://%s%s" % (server, root_url)
-                log.info("Purging %s on readthedocs.org" % root_url)
+                log.info("Purging %s on readthedocs.org", root_url)
                 h.request(to_purge, method="PURGE", headers=headers)
             if cname:
                 redis_conn = redis.Redis(**settings.REDIS)
@@ -143,11 +153,11 @@ def purge_version(version, mainsite=False, subdomain=False, cname=False):
                     headers = {'Host': cnamed}
                     url = "/en/%s/*" % version.slug
                     to_purge = "http://%s%s" % (server, url)
-                    log.info("Purging %s on %s" % (url, cnamed))
+                    log.info("Purging %s on %s", url, cnamed)
                     h.request(to_purge, method="PURGE", headers=headers)
                     root_url = "/"
                     to_purge = "http://%s%s" % (server, root_url)
-                    log.info("Purging %s on %s" % (root_url, cnamed))
+                    log.info("Purging %s on %s", root_url, cnamed)
                     h.request(to_purge, method="PURGE", headers=headers)
 
 
@@ -155,12 +165,15 @@ class DictObj(object):
     def __getattr__(self, attr):
         return self.__dict__.get(attr)
 
+
 # Prevent saving the temporary Project instance
-def _new_save(*args, **kwargs):
+def _new_save(*dummy_args, **dummy_kwargs):
     log.warning("Called save on a non-real object.")
     return 0
 
+
 def make_api_version(version_data):
+    """Make mock Version instance from API return"""
     from readthedocs.builds.models import Version
     for key in ['resource_uri', 'absolute_url', 'downloads']:
         if key in version_data:
@@ -175,8 +188,10 @@ def make_api_version(version_data):
 
 
 def make_api_project(project_data):
+    """Make mock Project instance from API return"""
     from readthedocs.projects.models import Project
-    for key in ['users', 'resource_uri', 'absolute_url', 'downloads', 'main_language_project', 'related_projects']:
+    for key in ['users', 'resource_uri', 'absolute_url', 'downloads',
+                'main_language_project', 'related_projects']:
         if key in project_data:
             del project_data[key]
     project = Project(**project_data)

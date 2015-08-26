@@ -1,9 +1,12 @@
+"""Project URLS for public users"""
+
 from django.conf.urls import patterns, url
 
 from readthedocs.projects.views.public import ProjectIndex, ProjectDetailView
 
 from readthedocs.builds import views as build_views
 from readthedocs.constants import pattern_opts
+
 
 urlpatterns = patterns(
     # base view, flake8 complains if it is on the previous line.
@@ -28,7 +31,7 @@ urlpatterns = patterns(
         'readthedocs.projects.views.public.project_downloads',
         name='project_downloads'),
 
-    url((r'^(?P<project_slug>{project_slug})/downloads/(?P<type>[-\w]+)/'
+    url((r'^(?P<project_slug>{project_slug})/downloads/(?P<type_>[-\w]+)/'
          r'(?P<version_slug>{version_slug})/$'.format(**pattern_opts)),
         'readthedocs.projects.views.public.project_download_media',
         name='project_download_media'),

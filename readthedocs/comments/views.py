@@ -187,7 +187,7 @@ class CommentViewSet(ModelViewSet):
         project = Project.objects.get(slug=request.data['project'])
         comment = project.add_comment(version_slug=request.data['version'],
                                       page=request.data['document_page'],
-                                      hash=request.data['node'],
+                                      content_hash=request.data['node'],
                                       commit=request.data['commit'],
                                       user=request.user,
                                       text=request.data['text'])
