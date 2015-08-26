@@ -19,9 +19,9 @@ Tools
   <script type="text/javascript" src="{% static 'vendor/knockout.js' %}"></script>
   <script type="text/javascript" src="{% static 'projects/js/tools.js' %}"></script>
   <script type="text/javascript">
-var tools = require('tools');
+var project_tools = require('projects/tools');
 $(document).ready(function () {
-    tools.init_embed({
+    project_tools.init_embed({
         api_host: '{{ settings.GROK_API_HOST }}',
         uri: '{{ settings.URI }}',
         project: '{{ project.slug }}'

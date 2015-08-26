@@ -13,14 +13,14 @@ Gold Status
   <script type="text/javascript" src="{% static 'vendor/knockout.js' %}"></script>
   <script type="text/javascript" src="{% static 'gold/js/gold.js' %}"></script>
   <script type="text/javascript">
-var gold = require('gold');
+var gold_views = require('gold/gold');
 $(document).ready(function () {
     var key;
     //<![CDATA[
     key = '{{ publishable }}';
     //]]>
 
-    var view = gold.GoldView.init({
+    var view = gold_views.GoldView.init({
       key: key,
       form: $('form#gold-register')
     });

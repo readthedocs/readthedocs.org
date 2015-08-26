@@ -19,7 +19,7 @@ var gulp = require('gulp'),
 var sources = {
     builds: {'js/detail.js': {}},
     core: {
-        'js/readthedocs-doc-embed.js': {create_module: false},
+        'js/readthedocs-doc-embed.js': {expose: false},
         'js/autocomplete.js': {},
         'js/projectimport.js': {},
     },
@@ -53,7 +53,19 @@ function build_app_sources (application, minify) {
             bundle = gulp
                 .src(bundle_path)
                 .pipe(es.map(function (file, cb) {
-                    return browserify_stream(file, bundle_config, cb);
+                    if (typeof(bundle_config.expose) == 'undefined') {
+                        var parts = [
+                            application,
+                            path.basename(file.path, '.js')
+                        ];
+                        bundle_config.expose = parts.join('/');
+                    }
+                    else if (bundle_config.expose === false) {
+                        bundle_config.expose = undefined;
+                    }
+                    return browserify_stream(
+                        file, bundle_config, cb
+                    );
                 }));
 
             if (minify) {
@@ -93,14 +105,13 @@ function browserify_stream (file, config, cb_output) {
             bundle_stream = bundle_stream.external(module);
         });
 
-        if (config.create_module === false) {
-            bundle_stream.add(file.path)
+        if (typeof(config.expose) == 'undefined') {
+            bundle_stream.add(file.path);
         }
         else {
-            var module_name = config.expose || path.basename(file.path, '.js');
             bundle_stream = bundle_stream.require(
-                file.path,
-                {expose: module_name})
+                file.path, {expose: config.expose}
+            );
         }
 
         bundle_stream
