@@ -1,4 +1,3 @@
-import re
 import os
 import sys
 import codecs
@@ -18,13 +17,9 @@ from readthedocs.restapi.client import api
 from ..base import BaseBuilder, restoring_chdir
 from ..exceptions import BuildEnvironmentError
 from ..environments import BuildCommand
-
+from ..constants import SPHINX_TEMPLATE_DIR, SPHINX_STATIC_DIR, PDF_RE
 
 log = logging.getLogger(__name__)
-
-TEMPLATE_DIR = '%s/readthedocs/templates/sphinx' % settings.SITE_ROOT
-STATIC_DIR = '%s/_static' % TEMPLATE_DIR
-PDF_RE = re.compile('Output written on (.*?)')
 
 
 class BaseSphinx(BaseBuilder):
@@ -51,7 +46,7 @@ class BaseSphinx(BaseBuilder):
         conf_template = render_to_string('sphinx/conf.py.conf',
                                          {'project': self.project,
                                           'version': self.version,
-                                          'template_dir': TEMPLATE_DIR,
+                                          'template_dir': SPHINX_TEMPLATE_DIR,
                                           'master_doc': master_doc,
                                           })
         conf_file = os.path.join(docs_dir, 'conf.py')
@@ -93,8 +88,8 @@ class BaseSphinx(BaseBuilder):
             'current_version': self.version.verbose_name,
             'project': project,
             'settings': settings,
-            'static_path': STATIC_DIR,
-            'template_path': TEMPLATE_DIR,
+            'static_path': SPHINX_STATIC_DIR,
+            'template_path': SPHINX_TEMPLATE_DIR,
             'conf_py_path': conf_py_path,
             'api_host': getattr(settings, 'SLUMBER_API_HOST', 'https://readthedocs.org'),
             # GitHub

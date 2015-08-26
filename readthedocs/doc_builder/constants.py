@@ -1,8 +1,17 @@
 '''Doc build constants'''
 
+import os
+import re
+
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
+
+SPHINX_TEMPLATE_DIR = os.path.join(settings.SITE_ROOT, 'readthedocs',
+                                   'templates', 'sphinx')
+SPHINX_STATIC_DIR = os.path.join(SPHINX_TEMPLATE_DIR, '_static')
+
+PDF_RE = re.compile('Output written on (.*?)')
 
 DOCKER_SOCKET = getattr(settings, 'DOCKER_SOCKET', 'unix:///var/run/docker.sock')
 DOCKER_VERSION = getattr(settings, 'DOCKER_VERSION', 'auto')
