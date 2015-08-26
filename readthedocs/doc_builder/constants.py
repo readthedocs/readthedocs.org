@@ -7,9 +7,9 @@ from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 
-TEMPLATE_DIR = os.path.join(settings.SITE_ROOT, 'readthedocs', 'templates',
-                            'sphinx')
-STATIC_DIR = os.path.join(TEMPLATE_DIR, '_static')
+SPHINX_TEMPLATE_DIR = os.path.join(settings.SITE_ROOT, 'readthedocs',
+                                   'templates', 'sphinx')
+SPHINX_STATIC_DIR = os.path.join(SPHINX_TEMPLATE_DIR, '_static')
 
 PDF_RE = re.compile('Output written on (.*?)')
 

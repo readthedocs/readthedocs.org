@@ -1,4 +1,5 @@
-import collections
+"""Public project views"""
+
 import operator
 import os
 import json
@@ -35,6 +36,9 @@ mimetypes.add_type("application/epub+zip", ".epub")
 
 
 class ProjectIndex(ListView):
+
+    """List view of public :py:cls:`Project` instances"""
+
     model = Project
 
     def get_queryset(self):
@@ -65,7 +69,7 @@ project_index = ProjectIndex.as_view()
 
 class ProjectDetailView(ProjectOnboardMixin, DetailView):
 
-    '''Display project onboard steps'''
+    """Display project onboard steps"""
 
     model = Project
     slug_url_kwarg = 'project_slug'
@@ -117,9 +121,7 @@ def _badge_return(redirect, url):
 # TODO remove this, it's a temporary fix to heavy database usage
 @cache_page(60 * 30)
 def project_badge(request, project_slug, redirect=True):
-    """
-    Return a sweet badge for the project
-    """
+    """Return a sweet badge for the project"""
     version_slug = request.GET.get('version', LATEST)
     style = request.GET.get('style', 'flat')
     try:
@@ -147,9 +149,7 @@ def project_badge(request, project_slug, redirect=True):
 
 
 def project_downloads(request, project_slug):
-    """
-    A detail view for a project with various dataz
-    """
+    """A detail view for a project with various dataz"""
     project = get_object_or_404(Project.objects.protected(request.user), slug=project_slug)
     versions = Version.objects.public(user=request.user, project=project)
     version_data = SortedDict()
@@ -181,9 +181,10 @@ def project_downloads(request, project_slug):
     )
 
 
-def project_download_media(request, project_slug, type, version_slug):
+def project_download_media(request, project_slug, type_, version_slug):
     """
     Download a specific piece of media.
+
     Perform an auth check if serving in private mode.
     """
     # Do private project auth checks
@@ -192,14 +193,15 @@ def project_download_media(request, project_slug, type, version_slug):
         raise Http404
     privacy_level = getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public')
     if privacy_level == 'public' or settings.DEBUG:
-        path = os.path.join(settings.MEDIA_URL, type, project_slug, version_slug,
-                            '%s.%s' % (project_slug, type.replace('htmlzip', 'zip')))
+        path = os.path.join(settings.MEDIA_URL, type_, project_slug, version_slug,
+                            '%s.%s' % (project_slug, type_.replace('htmlzip', 'zip')))
         return HttpResponseRedirect(path)
     else:
         # Get relative media path
-        path = queryset[0].get_production_media_path(type=type, version_slug=version_slug).replace(
-            settings.PRODUCTION_ROOT, '/prod_artifacts'
-        )
+        path = (queryset[0]
+                .get_production_media_path(
+                    type_=type_, version_slug=version_slug)
+                .replace(settings.PRODUCTION_ROOT, '/prod_artifacts'))
         content_type, encoding = mimetypes.guess_type(path)
         content_type = content_type or 'application/octet-stream'
         response = HttpResponse(content_type=content_type)
@@ -213,9 +215,7 @@ def project_download_media(request, project_slug, type, version_slug):
 
 
 def search_autocomplete(request):
-    """
-    return a json list of project names
-    """
+    """Return a json list of project names"""
     if 'term' in request.GET:
         term = request.GET['term']
     else:
@@ -234,9 +234,7 @@ def search_autocomplete(request):
 
 
 def version_autocomplete(request, project_slug):
-    """
-    return a json list of version names
-    """
+    """Return a json list of version names"""
     queryset = Project.objects.public(request.user)
     get_object_or_404(queryset, slug=project_slug)
     versions = Version.objects.public(request.user)
@@ -256,20 +254,20 @@ def version_filter_autocomplete(request, project_slug):
     queryset = Project.objects.public(request.user)
     project = get_object_or_404(queryset, slug=project_slug)
     versions = Version.objects.public(request.user)
-    filter = VersionSlugFilter(request.GET, queryset=versions)
-    format = request.GET.get('format', 'json')
+    version_filter = VersionSlugFilter(request.GET, queryset=versions)
+    resp_format = request.GET.get('format', 'json')
 
-    if format == 'json':
-        names = filter.qs.values_list('slug', flat=True)
+    if resp_format == 'json':
+        names = version_filter.qs.values_list('slug', flat=True)
         json_response = json.dumps(list(names))
         return HttpResponse(json_response, content_type='text/javascript')
-    elif format == 'html':
+    elif resp_format == 'html':
         return render_to_response(
             'core/version_list.html',
             {
                 'project': project,
                 'versions': versions,
-                'filter': filter,
+                'filter': version_filter,
             },
             context_instance=RequestContext(request),
         )
@@ -278,9 +276,7 @@ def version_filter_autocomplete(request, project_slug):
 
 
 def file_autocomplete(request, project_slug):
-    """
-    return a json list of version names
-    """
+    """Return a json list of file names"""
     if 'term' in request.GET:
         term = request.GET['term']
     else:
@@ -288,10 +284,10 @@ def file_autocomplete(request, project_slug):
     queryset = ImportedFile.objects.filter(project__slug=project_slug, path__icontains=term)[:20]
 
     ret_list = []
-    for file in queryset:
+    for filename in queryset:
         ret_list.append({
-            'label': file.path,
-            'value': file.path,
+            'label': filename.path,
+            'value': filename.path,
         })
 
     json_response = json.dumps(ret_list)
@@ -299,9 +295,7 @@ def file_autocomplete(request, project_slug):
 
 
 def elastic_project_search(request, project_slug):
-    """
-    Use elastic search to search in a project.
-    """
+    """Use elastic search to search in a project"""
     queryset = Project.objects.protected(request.user)
     project = get_object_or_404(queryset, slug=project_slug)
     version_slug = request.GET.get('version', LATEST)
@@ -375,9 +369,9 @@ def elastic_project_search(request, project_slug):
 
 
 def project_versions(request, project_slug):
-    """
-    Shows the available versions and lets the user choose which ones he would
-    like to have built.
+    """Project version list view
+
+    Shows the available versions and lets the user choose which ones to build.
     """
     project = get_object_or_404(Project.objects.protected(request.user),
                                 slug=project_slug)
@@ -408,9 +402,7 @@ def project_versions(request, project_slug):
 
 
 def project_analytics(request, project_slug):
-    """
-    Have a analytics API placeholder
-    """
+    """Have a analytics API placeholder"""
     project = get_object_or_404(Project.objects.protected(request.user),
                                 slug=project_slug)
     analytics_cache = cache.get('analytics:%s' % project_slug)
@@ -424,7 +416,7 @@ def project_analytics(request, project_slug):
             )
             analytics = resp.json()
             cache.set('analytics:%s' % project_slug, resp.content, 1800)
-        except:
+        except requests.exceptions.RequestException:
             analytics = None
 
     if analytics:
@@ -455,9 +447,7 @@ def project_analytics(request, project_slug):
 
 
 def project_embed(request, project_slug):
-    """
-    Have a content API placeholder
-    """
+    """Have a content API placeholder"""
     project = get_object_or_404(Project.objects.protected(request.user),
                                 slug=project_slug)
     version = project.versions.get(slug=LATEST)

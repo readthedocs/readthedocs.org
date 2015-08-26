@@ -29,7 +29,7 @@ from .exceptions import (BuildEnvironmentException, BuildEnvironmentError,
                          BuildEnvironmentWarning)
 from .constants import (DOCKER_SOCKET, DOCKER_VERSION, DOCKER_IMAGE,
                         DOCKER_LIMITS, DOCKER_TIMEOUT_EXIT_CODE,
-                        DOCKER_OOM_EXIT_CODE, TEMPLATE_DIR)
+                        DOCKER_OOM_EXIT_CODE, SPHINX_TEMPLATE_DIR)
 
 log = logging.getLogger(__name__)
 
@@ -564,17 +564,20 @@ class DockerEnvironment(BuildEnvironment):
     def create_container(self):
         '''Create docker container'''
         client = self.get_client()
+        image = self.container_image
+        if self.project.container_image is not None:
+            image = self.project.container_image
         try:
             self.container = client.create_container(
-                image=self.container_image,
+                image=image,
                 command=('/bin/sh -c "sleep {time}; exit {exit}"'
                          .format(time=self.container_time_limit,
                                  exit=DOCKER_TIMEOUT_EXIT_CODE)),
                 name=self.container_id,
                 hostname=self.container_id,
                 host_config=create_host_config(binds={
-                    TEMPLATE_DIR: {
-                        'bind': TEMPLATE_DIR,
+                    SPHINX_TEMPLATE_DIR: {
+                        'bind': SPHINX_TEMPLATE_DIR,
                         'mode': 'r'
                     },
                     self.project.doc_path: {
