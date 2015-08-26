@@ -108,6 +108,8 @@ class Project(models.Model):
         help_text=_('Type of documentation you are building. <a href="http://'
                     'sphinx-doc.org/builders.html#sphinx.builders.html.'
                     'DirectoryHTMLBuilder">More info</a>.'))
+
+    # Project features
     allow_comments = models.BooleanField(_('Allow Comments'), default=False)
     comment_moderation = models.BooleanField(_('Comment Moderation)'), default=False)
     cdn_enabled = models.BooleanField(_('CDN Enabled'), default=False)
@@ -116,6 +118,8 @@ class Project(models.Model):
         help_text=_("Google Analytics Tracking ID "
                     "(ex. <code>UA-22345342-1</code>). "
                     "This may slow down your page loads."))
+    container_image = models.CharField(
+        _('Alternative container image'), max_length=64, null=True, blank=True)
 
     # Sphinx specific build options.
     enable_epub_build = models.BooleanField(
