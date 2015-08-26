@@ -564,9 +564,12 @@ class DockerEnvironment(BuildEnvironment):
     def create_container(self):
         '''Create docker container'''
         client = self.get_client()
+        image = self.container_image
+        if self.project.container_image is not None:
+            image = self.project.container_image
         try:
             self.container = client.create_container(
-                image=self.container_image,
+                image=image,
                 command=('/bin/sh -c "sleep {time}; exit {exit}"'
                          .format(time=self.container_time_limit,
                                  exit=DOCKER_TIMEOUT_EXIT_CODE)),
