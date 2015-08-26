@@ -1,5 +1,4 @@
 -r pip.txt
-dnspython
 gunicorn
 #For resizing images
 pillow
