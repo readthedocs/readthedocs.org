@@ -115,7 +115,7 @@ If you want to use another markup, choose a different builder in your settings.
 
                 index_file.write(index_text.format(dir=docs_dir, ext=extension))
                 index_file.close()
-            return 'index'
+        return 'index'
 
     def run(self, *args, **kwargs):
         '''Proxy run to build environment'''
