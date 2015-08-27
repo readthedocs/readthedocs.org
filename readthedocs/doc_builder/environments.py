@@ -511,7 +511,8 @@ class DockerEnvironment(BuildEnvironment):
             if self.client is None:
                 self.client = Client(
                     base_url=self.docker_socket,
-                    version=DOCKER_VERSION
+                    version=DOCKER_VERSION,
+                    timeout=None
                 )
             return self.client
         except DockerException as e:
