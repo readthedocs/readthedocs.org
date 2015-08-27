@@ -34,7 +34,7 @@
 
       </dl>
       {% endif %}
-      {% if not project.single_version %} {# and versions|length > 1 #}
+      {% if not project.single_version and versions|length >= 1 #}
       <dl>
         <dt>Versions</dt>
         {% for version in versions %}
@@ -48,6 +48,7 @@
         {% endfor %}
       </dl>
       {% endif %}
+
       {% if downloads %}
       <dl>
         <dt>Downloads</dt>
@@ -70,15 +71,6 @@
           <a href="//{{ settings.PRODUCTION_DOMAIN }}{% url 'project_downloads' project.slug %}">Downloads</a>
         </dd>
       </dl>
-
-      {% if print_url %}
-      <dl>
-        <dt>Paperback</dt>
-        <dd>
-          <a href="{{ print_url }}">Buy this as a paperback</a>
-        </dd>
-      </dl>
-      {% endif %}
 
       {% if github_edit_url %}
       <dl>
