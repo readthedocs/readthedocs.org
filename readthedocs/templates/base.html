@@ -19,9 +19,11 @@
 
   <!-- jquery -->
   <script type="text/javascript" src="{% static 'vendor/jquery.js' %}"></script>
-
-  <script type="text/javascript" src="{{ MEDIA_URL }}javascript/jquery/jquery-migrate-1.2.1.min.js"></script>
-  <script type="text/javascript" src="{{ MEDIA_URL }}javascript/jquery/jquery-ui-1.8.24.custom.min.js"></script>
+  <script type="text/javascript" src="{% static 'vendor/jquery-migrate.js' %}"></script>
+  <script type="text/javascript" src="{% static 'vendor/jquery-ui.js' %}"></script>
+  <script type="text/javascript">
+    require('jquery');
+  </script>
 
   <script type="text/javascript" src="{{ MEDIA_URL }}javascript/instantsearch.js"></script>
   <script type="text/javascript" src="{{ MEDIA_URL }}javascript/base.js"></script>

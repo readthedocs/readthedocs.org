@@ -1,7 +1,7 @@
 // Build detail view
 
-var ko = window.knockout || require('knockout');
-var $ = window.jquery || require('jquery');
+var ko = require('knockout'),
+    $ = require('jquery');
 
 
 function BuildCommand (data) {
@@ -97,7 +97,3 @@ BuildDetailView.init = function (instance, domobj) {
 };
 
 module.exports.BuildDetailView = BuildDetailView;
-
-if (typeof(window) != 'undefined') {
-    window.build = module.exports;
-}

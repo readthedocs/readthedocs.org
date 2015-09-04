@@ -18,6 +18,8 @@
     "underscore": "~1.7.0",
     "readthedocs-client": "https://github.com/agjohnson/readthedocs-client-js.git",
     "knockout": "~3.3.0",
-    "jquery.payment": "~1.2.3"
+    "jquery.payment": "~1.2.3",
+    "jquery-migrate": "~1.2.1",
+    "jquery-ui": "1.8.23"
   }
 }
