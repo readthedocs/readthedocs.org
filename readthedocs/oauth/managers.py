@@ -15,7 +15,7 @@ class GithubProjectManager(models.Manager):
                         privacy=DEFAULT_PRIVACY_LEVEL):
         logger.info('Trying GitHub: %s' % api_json['full_name'])
         if (
-                (api_json['private'] is True and privacy == 'private') or
+                (privacy == 'private') or
                 (api_json['private'] is False and privacy == 'public')):
             project, created = self.get_or_create(
                 full_name=api_json['full_name'],
