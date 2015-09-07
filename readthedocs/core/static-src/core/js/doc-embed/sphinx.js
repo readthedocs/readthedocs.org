@@ -54,7 +54,7 @@ function init() {
         $("table.docutils:not(.field-list)").wrap("<div class='wy-table-responsive'></div>");
 
         // Add expand links to all parents of nested ul
-        $('.wy-menu-vertical ul').siblings('a').each(function () {
+        $('.wy-menu-vertical ul').not('.simple').siblings('a').each(function () {
             var link = $(this);
                 expand = $('<span class="toctree-expand"></span>');
             expand.on('click', function (ev) {
@@ -71,29 +71,30 @@ function init() {
                 var navBar,
                     win,
                     winScroll = false,
+                    winResize = false,
                     linkScroll = false,
                     winPosition = 0,
+                    winHeight,
+                    docHeight,
                     enable = function () {
                         init();
                         reset();
                         win.on('hashchange', reset);
 
-                        // Set scrolling
+                        // Set scroll monitor
                         win.on('scroll', function () {
                             if (!linkScroll) {
                                 winScroll = true;
                             }
                         });
-                        setInterval(function () {
-                            if (winScroll) {
-                                winScroll = false;
-                                var newWinPosition = win.scrollTop(),
-                                    navPosition = navBar.scrollTop(),
-                                    newNavPosition = navPosition + (newWinPosition - winPosition);
-                                navBar.scrollTop(newNavPosition);
-                                winPosition = newWinPosition;
-                            }
-                        }, 25);
+                        setInterval(function () { if (winScroll) scroll(); }, 25);
+
+                        // Set resize monitor
+                        win.on('resize', function () {
+                            winResize = true;
+                        });
+                        setInterval(function () { if (winResize) resize(); }, 25);
+                        resize();
                     },
                     init = function () {
                         navBar = jquery('nav.wy-nav-side:first');
@@ -116,6 +117,23 @@ function init() {
                                 console.log("Error expanding nav for anchor", err);
                             }
                         }
+                    },
+                    scroll = function () {
+                        winScroll = false;
+                        var newWinPosition = win.scrollTop(),
+                            winBottom = newWinPosition + winHeight,
+                            navPosition = navBar.scrollTop(),
+                            newNavPosition = navPosition + (newWinPosition - winPosition);
+                        if (newWinPosition < 0 || winBottom > docHeight) {
+                            return;
+                        }
+                        navBar.scrollTop(newNavPosition);
+                        winPosition = newWinPosition;
+                    },
+                    resize = function () {
+                        winResize = false;
+                        winHeight = win.height();
+                        docHeight = $(document).height();
                     },
                     hashChange = function () {
                         linkScroll = true;
