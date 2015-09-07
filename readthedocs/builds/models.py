@@ -184,10 +184,12 @@ class Version(models.Model):
         return data
 
     def get_conf_py_path(self):
-        conf_py_path = self.project.conf_file(self.slug)
-        conf_py_path = conf_py_path.replace(
-            self.project.checkout_path(self.slug), '')
-        return conf_py_path.replace('conf.py', '')
+        conf_py_path = self.project.conf_dir(self.slug)
+        if not conf_py_path.endswith('/'):
+            conf_py_path += '/'
+        checkout_prefix = self.project.checkout_path(self.slug)
+        conf_py_path = conf_py_path[len(checkout_prefix):]
+        return conf_py_path
 
     def get_build_path(self):
         '''Return version build path if path exists, otherwise `None`'''
