@@ -597,7 +597,7 @@ class Project(models.Model):
     def conf_dir(self, version=LATEST):
         conf_file = self.conf_file(version)
         if conf_file:
-            return conf_file.replace('/conf.py', '')
+            return os.path.dirname(conf_file)
 
     @property
     def is_type_sphinx(self):
