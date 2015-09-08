@@ -159,23 +159,12 @@ def project_downloads(request, project_slug):
         if data:
             version_data[version] = data
 
-    # in case the MEDIA_URL is a protocol relative URL we just assume
-    # we want http as the protcol, so that Dash is able to handle the URL
-    if settings.MEDIA_URL.startswith('//'):
-        media_url_prefix = u'http:'
-    # but in case we're in debug mode and the MEDIA_URL is just a path
-    # we prefix it with a hardcoded host name and protocol
-    elif settings.MEDIA_URL.startswith('/') and settings.DEBUG:
-        media_url_prefix = u'http://%s' % request.get_host()
-    else:
-        media_url_prefix = ''
     return render_to_response(
         'projects/project_downloads.html',
         {
             'project': project,
             'version_data': version_data,
             'versions': versions,
-            'media_url_prefix': media_url_prefix,
         },
         context_instance=RequestContext(request),
     )
