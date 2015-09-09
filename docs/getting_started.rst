@@ -76,7 +76,7 @@ Then in your ``conf.py``:
     source_suffix = ['.rst', '.md']
 
 .. note:: Markdown doesn't support a lot of the features of Sphinx,
-          like inline markup, directives, and automatic PDF generation.
+          like inline markup and directives.
           However, it works for basic prose content.
 
 .. _import-docs:
