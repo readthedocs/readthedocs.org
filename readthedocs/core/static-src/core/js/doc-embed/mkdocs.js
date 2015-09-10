@@ -4,6 +4,7 @@
 
 
 var rtddata = require('./rtd-data');
+var highlightSearchterm = require('../highlight-searchterm');
 
 
 function init() {
@@ -42,6 +43,9 @@ function init() {
           };
       win.on('resize', apply_stickynav);
       apply_stickynav();
+
+      // Init searchterm highlighting
+      highlightSearchterm.init();
     }
 
 }
