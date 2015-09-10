@@ -60,7 +60,7 @@ class ProjectManager(models.Manager):
     def dashboard(self, user=None, *args, **kwargs):
         return self.for_admin_user(user)
 
-    def api(self, user=None, *args, **kwargs):
+    def api(self, user=None):
         return self.public(user)
 
 
@@ -85,7 +85,7 @@ class RelatedProjectManager(models.Manager):
             queryset = queryset.filter(project=project)
         return queryset
 
-    def api(self, user=None, *args, **kwargs):
+    def api(self, user=None):
         return self.public(user)
 
 
@@ -112,7 +112,7 @@ class RelatedBuildManager(models.Manager):
             queryset = queryset.filter(build__project=project)
         return queryset
 
-    def api(self, user=None, *args, **kwargs):
+    def api(self, user=None):
         return self.public(user)
 
 
@@ -142,7 +142,7 @@ class VersionManager(RelatedProjectManager):
             queryset = queryset.filter(active=True)
         return queryset
 
-    def api(self, user=None, *args, **kwargs):
+    def api(self, user=None):
         return self.public(user, only_active=False)
 
     def create_stable(self, **kwargs):
