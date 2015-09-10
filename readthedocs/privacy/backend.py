@@ -41,7 +41,7 @@ class ProjectManager(models.Manager):
         else:
             return self.none()
 
-    def public(self, user=None, *args, **kwargs):
+    def public(self, user=None):
         queryset = self.filter(privacy_level=constants.PUBLIC)
         if user:
             return self._add_user_repos(queryset, user)
@@ -77,7 +77,7 @@ class RelatedProjectManager(models.Manager):
             queryset = self.get_queryset().filter(project__pk__in=pks) | queryset
         return queryset.distinct()
 
-    def public(self, user=None, project=None, *args, **kwargs):
+    def public(self, user=None, project=None):
         queryset = self.filter(project__privacy_level=constants.PUBLIC)
         if user:
             queryset = self._add_user_repos(queryset, user)
@@ -104,7 +104,7 @@ class RelatedBuildManager(models.Manager):
                         .filter(build__project__pk__in=pks) | queryset)
         return queryset.distinct()
 
-    def public(self, user=None, project=None, *args, **kwargs):
+    def public(self, user=None, project=None):
         queryset = self.filter(build__project__privacy_level=constants.PUBLIC)
         if user:
             queryset = self._add_user_repos(queryset, user)
@@ -131,7 +131,7 @@ class VersionManager(RelatedProjectManager):
                 queryset = self.get_queryset().all().distinct()
         return queryset.distinct()
 
-    def public(self, user=None, project=None, only_active=True, *args, **kwargs):
+    def public(self, user=None, project=None, only_active=True):
         queryset = self.filter(project__privacy_level=constants.PUBLIC,
                                privacy_level=constants.PUBLIC)
         if user:
