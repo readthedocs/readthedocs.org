@@ -1,6 +1,7 @@
 var gulp = require('gulp'),
     gulp_util = require('gulp-util'),
     watch = require('gulp-watch'),
+    rename = require('gulp-rename'),
     run = require('gulp-run'),
     less = require('gulp-less'),
     bower_resolve = require('bower-resolve'),
@@ -22,6 +23,8 @@ var sources = {
         'js/readthedocs-doc-embed.js': {expose: false},
         'js/autocomplete.js': {},
         'js/projectimport.js': {},
+        'css/badge_only.css': {src: 'bower_components/sphinx-rtd-theme/sphinx_rtd_theme/static/css/badge_only.css'},
+        'css/theme.css': {src: 'bower_components/sphinx-rtd-theme/sphinx_rtd_theme/static/css/theme.css'}
     },
     projects: {'js/tools.js': {}},
     gold: {'js/gold.js': {}},
@@ -42,10 +45,10 @@ var standalone = {
 // application. This is called by build and dev tasks.
 function build_app_sources (application, minify) {
     // Normalize file glob lists
-    var bundles = Object.keys(sources[application]).map(function (n) {
+    var bundles = Object.keys(sources[application]).map(function (entry_path) {
         var bundle_path = path.join(
-                pkg_config.name, application, 'static-src', '**', n),
-            bundle_config = sources[application][n] || {},
+                pkg_config.name, application, 'static-src', '**', entry_path),
+            bundle_config = sources[application][entry_path] || {},
             bundle;
 
         if (/\.js$/.test(bundle_path)) {
@@ -79,13 +82,26 @@ function build_app_sources (application, minify) {
             }
         }
         else if (/\.less$/.test(bundle_path)) {
-            // CSS sources
+            // LESS sources
             bundle = gulp.src(bundle_path)
                 .pipe(less({}))
                 .on('error', function (ev) {
                     gulp_util.beep();
                     gulp_util.log('LESS error:', ev.message);
                 });
+        }
+        else {
+            // Copy only sources, from bower_components/etc
+            var bundle = gulp;
+            if (bundle_config.src) {
+                bundle = bundle
+                    .src(bundle_config.src)
+                    .pipe(rename(application + path.sep + entry_path));
+            }
+            else {
+                bundle = bundle
+                    .src(bundle_path);
+            }
         }
 
         return bundle;
