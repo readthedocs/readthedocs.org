@@ -6,7 +6,7 @@
       {% endfor %}
     <li>{{ title }}</li>
       <li class="wy-breadcrumbs-aside">
-        {% if pagename != "search" %}
+        {% if hasdoc(pagename) %}
           {% if display_github %}
             <a href="https://{{ github_host|default("github.com") }}/{{ github_user }}/{{ github_repo }}/blob/{{ github_version }}{{ conf_py_path }}{{ pagename }}{{ source_suffix }}" class="fa fa-github"> Edit on GitHub</a>
           {% elif display_bitbucket %}
