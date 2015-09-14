@@ -120,7 +120,7 @@ def _badge_return(redirect, url):
 
 
 # TODO remove this, it's a temporary fix to heavy database usage
-@cache_page(60 * 30)
+@cache_page(60 * 5)
 @cache_control(no_cache=True)
 def project_badge(request, project_slug, redirect=True):
     """Return a sweet badge for the project"""
