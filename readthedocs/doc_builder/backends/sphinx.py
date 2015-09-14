@@ -10,6 +10,7 @@ from django.template.loader import render_to_string
 from django.conf import settings
 
 from readthedocs.builds import utils as version_utils
+from readthedocs.builds.constants import BRANCH
 from readthedocs.projects.utils import safe_write
 from readthedocs.projects.exceptions import ProjectImportError
 from readthedocs.restapi.client import api
@@ -76,12 +77,12 @@ class BaseSphinx(BaseBuilder):
 
         github_user, github_repo = version_utils.get_github_username_repo(
             url=self.project.repo)
-        github_version_is_editable = (self.version.type == 'branch')
+        github_version_is_editable = (self.version.type == BRANCH)
         display_github = github_user is not None
 
         bitbucket_user, bitbucket_repo = version_utils.get_bitbucket_username_repo(
             url=self.project.repo)
-        bitbucket_version_is_editable = (self.version.type == 'branch')
+        bitbucket_version_is_editable = (self.version.type == BRANCH)
         display_bitbucket = bitbucket_user is not None
 
         rtd_ctx = {

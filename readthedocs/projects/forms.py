@@ -12,6 +12,7 @@ from django.utils.safestring import mark_safe
 
 from guardian.shortcuts import assign
 
+from readthedocs.builds.constants import TAG
 from readthedocs.core.utils import trigger_build
 from readthedocs.redirects.models import Redirect
 from readthedocs.projects import constants
@@ -272,7 +273,7 @@ def build_versions_form(project):
     for version in versions_qs:
         field_name = 'version-%s' % version.slug
         privacy_name = 'privacy-%s' % version.slug
-        if version.type == 'tag':
+        if version.type == TAG:
             label = "%s (%s)" % (version.verbose_name, version.identifier[:8])
         else:
             label = version.verbose_name

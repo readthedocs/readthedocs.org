@@ -21,7 +21,7 @@ from readthedocs.projects.constants import (PRIVACY_CHOICES, REPO_TYPE_GIT,
 
 from .constants import (BUILD_STATE, BUILD_TYPES, VERSION_TYPES,
                         LATEST, NON_REPOSITORY_VERSIONS, STABLE,
-                        BUILD_STATE_FINISHED)
+                        BUILD_STATE_FINISHED, BRANCH)
 from .version_slug import VersionSlugField
 
 
@@ -100,7 +100,7 @@ class Version(models.Model):
     @property
     def commit_name(self):
         """Return the branch name, the tag name or the revision identifier."""
-        if self.type == 'branch':
+        if self.type == BRANCH:
             return self.identifier
         if self.verbose_name in NON_REPOSITORY_VERSIONS:
             return self.identifier

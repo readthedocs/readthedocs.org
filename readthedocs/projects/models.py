@@ -312,7 +312,7 @@ class Project(models.Model):
             if not self.versions.filter(slug=LATEST).exists():
                 self.versions.create_latest(identifier=branch)
             # if not self.versions.filter(slug=STABLE).exists():
-            #     self.versions.create_stable(type='branch', identifier=branch)
+            #     self.versions.create_stable(type=BRANCH, identifier=branch)
         except Exception:
             log.error('Error creating default branches', exc_info=True)
 

@@ -25,10 +25,14 @@ BUILD_TYPES = (
     ('dash', _('Dash')),
 )
 
+BRANCH = 'branch'
+TAG = 'tag'
+UNKNOWN = 'unknown'
+
 VERSION_TYPES = (
-    ('branch', _('Branch')),
-    ('tag', _('Tag')),
-    ('unknown', _('Unknown')),
+    (BRANCH, _('Branch')),
+    (TAG, _('Tag')),
+    (UNKNOWN, _('Unknown')),
 )
 
 LATEST = 'latest'
