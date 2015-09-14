@@ -3,6 +3,8 @@ from django.db import models
 
 from guardian.shortcuts import get_objects_for_user
 
+from readthedocs.builds.constants import BRANCH
+from readthedocs.builds.constants import TAG
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.constants import LATEST_VERBOSE_NAME
 from readthedocs.builds.constants import STABLE
@@ -152,7 +154,7 @@ class VersionManager(RelatedProjectManager):
             'machine': True,
             'active': True,
             'identifier': STABLE,
-            'type': 'tag',
+            'type': TAG,
         }
         defaults.update(kwargs)
         return self.create(**defaults)
@@ -164,7 +166,7 @@ class VersionManager(RelatedProjectManager):
             'machine': True,
             'active': True,
             'identifier': LATEST,
-            'type': 'branch',
+            'type': BRANCH,
         }
         defaults.update(kwargs)
         return self.create(**defaults)
