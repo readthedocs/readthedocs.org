@@ -60,4 +60,4 @@ when you push to GitHub.
 .. |docs| image:: https://readthedocs.org/projects/docs/badge/?version=latest
     :alt: Documentation Status
     :scale: 100%
-    :target: https://readthedocs.org/projects/docs/
+    :target: https://docs.readthedocs.org/en/latest/?badge=latest
