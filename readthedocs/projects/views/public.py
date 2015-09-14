@@ -180,7 +180,7 @@ def project_download_media(request, project_slug, type_, version_slug):
                  not the actual Project permissions.
 
     """
-    version = get_object_or_404(Version.objects.protected(user=request.user), project__slug=project_slug, slug=version_slug)
+    version = get_object_or_404(Version.objects.public(user=request.user), project__slug=project_slug, slug=version_slug)
     privacy_level = getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public')
     if privacy_level == 'public' or settings.DEBUG:
         path = os.path.join(settings.MEDIA_URL, type_, project_slug, version_slug,
