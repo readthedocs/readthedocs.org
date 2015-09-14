@@ -90,18 +90,17 @@ class ProjectDetailView(ProjectOnboardMixin, DetailView):
         if self.request.is_secure():
             protocol = 'https'
 
+        version_slug = project.get_default_version()
+
         context['badge_url'] = "%s://%s%s?version=%s" % (
             protocol,
             settings.PRODUCTION_DOMAIN,
             reverse('project_badge', args=[project.slug]),
             project.get_default_version(),
         )
-        context['site_url'] = "%s://%s%s?badge=%s" % (
-            protocol,
-            settings.PRODUCTION_DOMAIN,
-            reverse('projects_detail', args=[project.slug]),
-            project.get_default_version(),
-        )
+        context['site_url'] = "{url}?badge={version}".format(
+            url=project.get_docs_url(version_slug),
+            version=version_slug)
 
         return context
 
