@@ -451,7 +451,9 @@ def update_imported_docs(version_pk):
     with project.repo_nonblockinglock(
             version=version,
             max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
+
         before_vcs.send(sender=version)
+
         # Get the actual code on disk
         if version:
             log.info(
