@@ -65,8 +65,9 @@ class BaseSphinx(BaseBuilder):
 
         project = self.project
         # Open file for appending.
+        outfile_path = project.conf_file(self.version.slug)
         try:
-            outfile = codecs.open(project.conf_file(self.version.slug), encoding='utf-8', mode='a')
+            outfile = codecs.open(outfile_path, encoding='utf-8', mode='a')
         except IOError:
             trace = sys.exc_info()[2]
             raise ProjectImportError('Conf file not found'), None, trace
@@ -121,6 +122,13 @@ class BaseSphinx(BaseBuilder):
             outfile.write(rtd_string)
         finally:
             outfile.close()
+
+        # Print the contents of conf.py in order to make the rendered
+        # configfile visible in the build logs
+        self.run(
+            'cat', os.path.basename(outfile_path),
+            cwd=os.path.dirname(outfile_path),
+        )
 
     def build(self, **kwargs):
         self.clean()
