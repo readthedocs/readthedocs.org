@@ -30,6 +30,16 @@ class GithubOrganization(models.Model):
     def __unicode__(self):
         return "GitHub Organization: %s" % (self.html_url)
 
+    def serialized_field(self, key=None, default=None):
+        # TODO don't do this with eval!
+        data = eval(self.json)
+        if key is not None:
+            return data.get(key, default)
+        return data
+
+    def avatar_url(self):
+        return self.serialized_field('avatar_url')
+
 
 class GithubProject(models.Model):
     # Auto fields
@@ -53,18 +63,30 @@ class GithubProject(models.Model):
 
     objects = GithubProjectManager()
 
+    class Meta:
+        ordering = ['organization__name', 'name']
+
     def __unicode__(self):
         return "GitHub Project: %s" % (self.html_url)
 
+    def serialized_field(self, key=None, default=None):
+        # TODO don't do this with eval!
+        data = eval(self.json)
+        if key is not None:
+            return data.get(key, default)
+        return data
+
     def is_admin(self):
-        full_json = eval(self.json)
-        if 'permissions' in full_json:
-            return full_json['permissions']['admin']
-        return False
+        permissions = self.serialized_field('permissions', {})
+        return permissions.get('admin', False)
 
     def is_private(self):
-        full_json = eval(self.json)
-        return full_json['private']
+        return self.serialized_field('private')
+
+    def owner(self):
+        owner = self.serialized_field('owner', {})
+        return dict((key, val) for (key, val) in owner.items()
+                    if key in ['avatar_url', 'login', 'name'])
 
 
 class BitbucketTeam(models.Model):

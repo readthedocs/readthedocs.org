@@ -7,91 +7,99 @@
 {% block content-header %}<h1>{% trans "Import a GitHub project" %}</h1>{% endblock %}
 
 {% block content %}
-{% if github_connected %}
+  {% if github_connected %}
 
-{% block top_content %}
-<p class="empty sync-repositories">
-  {% url 'api_sync_github_repositories' as sync_url %}
-  {% blocktrans with button_attrs=' class="inline" data-sync-repositories="'|add:sync_url|add:'" data-target=".repository-list"'|safe %}Showing your GitHub projects. <button {{ button_attrs }}>Sync your GitHub projects</button> to update them.{% endblocktrans %}
-</p>
-{% endblock top_content %}
+    {% block top_content %}
+      {% url 'api_sync_github_repositories' as sync_url %}
+      <button data-bind="click: function() { sync_projects('{{ sync_url }}') }">
+        {% trans "Sync your GitHub organizations and projects" %}
+      </button>
+    {% endblock top_content %}
 
-<p class="empty sync-repositories-progress hide">
-  {% blocktrans %}Syncing ...{% endblocktrans %}
-</p>
-<p class="empty sync-repositories-success hide">
-  {% blocktrans %}GitHub projects are now up to date.{% endblocktrans %}
-</p>
-<p class="empty sync-repositories-error hide">
-  {% blocktrans %}Your GitHub projects could not be synced. Please try again later.{% endblocktrans %}
-</p>
+    <ul class="notifications">
+      <li class="notification notification-20"
+          data-bind="visible: is_syncing",
+          style="display: none;">
+        {% blocktrans %}Syncing ...{% endblocktrans %}
+      </li>
 
-{% block main_content %}
-<div class="module repository-list">
-  <div class="module-wrapper">
-    <div class="module-list">
-      <div class="module-list-wrapper">
-        <ul>
-          {% for repo in repos %}
-          <li class="module-item">
+      <li class="notification notification-40"
+          data-bind="show: error, text: error">
+      </li>
+    </ul>
 
-            <a class="module-item-title" href="{{ repo.html_url }}">{{ repo.full_name }}</a>
+    {% block main_content %}
+      <div class="col-major">
 
-            {% block form %}
-            <form method="post" action="{% url "projects_import" %}">
-              {% csrf_token %}
-              <input name="name" type="hidden" value="{{ repo.name }}" />
-              <input name="repo" type="hidden" value="{{ repo.html_url }}" />
-              <input name="repo_type" type="hidden" value="git" />
-              <input name="description" type="hidden" value="{{ repo.description }}" />
-              <input name="project_url" type="hidden" value="{{ repo.homepage }}" />
+        <p>
+          <a href="#" data-bind="visible: page_previous, click: previous_page">
+            Previous
+          </a>
+          <a href="#" data-bind="visible: page_next, click: next_page">
+            Next
+          </a>
+        </p>
 
-              {% if repo.matches %}
-              <span class="dropdown" style="position:absolute; right:0px; top:0px;">
-                <span>
-                  <a href="{% url 'projects_detail' repo.matches.0 %}">{% trans "View Project" %}</a>
-                  <a href="#">&#x25BC;</a>
-                </span>
-                <ul>
-                  {% for match in repo.matches %}
-                      <li><a href="{% url 'projects_detail' match %}">{{ match }}</a></li>
-                  {% endfor %}
-                </ul> 
-              </span>
+        <div class="module repository-list">
+          <div class="module-wrapper">
+            <div class="module-list">
+              <div class="module-list-wrapper">
 
-              {% else %}
-              <ul class="module-item-menu">
-                <span>
-                  <input type="submit" value="Create" style="margin: 3px;" />
-                </span>
-              </ul>
-              {% endif %}
+                <ul data-bind="foreach: projects">
+                  <li class="module-item">
 
-            </form>
-            {% endblock form %}
+                    <span data-bind="with: owner">
+                      <img data-bind="attr: {src: avatar_url}" height=24 />
+                    </span>
+
+                    <a data-bind="attr: {href: url}, text: name"></a>
+
+                    <ul class="module-item-menu">
+                      <button style="margin: 0px;">
+                        {% trans "Create" %}
+                      </button>
+                    </ul>
+
+                  </li>
+                </ul>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p>
+          <a href="#" data-bind="visible: page_previous, click: previous_page">
+            Previous
+          </a>
+          <a href="#" data-bind="visible: page_next, click: next_page">
+            Next
+          </a>
+        </p>
+
+      </div>
+    {% endblock main_content %}
+
+    {% block sidebar_content %}
+      <div class="col-minor">
+        <ul data-bind="foreach: organizations">
+          <li>
+            <img data-bind="attr: {src: avatar_url}" height=32 />
+            <a href="#" data-bind="text: display_name, click: function () { $root.filter_org(id()); }"></a>
           </li>
-          {% empty %}
-          <li class="module-item">
-          <p class=" sync-repositories">
-          You don't have any GitHub repositories currently.
-          </p>  
-          </li>
-          {% endfor %}
         </ul>
       </div>
-    </div>
-  </div>
-</div>
-{% endblock main_content %}
+    {% endblock %}
 
-{% else %}
+  {% else %}
 
-{% block empty %}
-  {% url 'socialaccount_connections' as social_url %}
-  {% blocktrans %}You don't have any GitHub repositories connected. 
-  Go to your <a href="{{ social_url }}">Social Accounts</a> to set one up.
-  {% endblocktrans %}
-{% endblock empty %}
+    {% block empty %}
+      {% url 'socialaccount_connections' as social_url %}
+      {% blocktrans %}
+        You don't have any GitHub repositories connected.
+        Go to your <a href="{{ social_url }}">Social Accounts</a> to set one up.
+      {% endblocktrans %}
+    {% endblock empty %}
 
-{% endif %}
+  {% endif %}
 {% endblock %}
