@@ -942,10 +942,7 @@ class WebHook(Notification):
 
 class Domain(models.Model):
     project = models.ForeignKey(Project, related_name='domains')
-    objects = RelatedProjectManager()
-
     url = models.URLField(_('URL'), unique=True)
-
     machine = models.BooleanField(
         default=False, help_text=_('This URL was auto-created')
     )
@@ -955,8 +952,9 @@ class Domain(models.Model):
     canonical = models.BooleanField(
         default=False, help_text=_('This URL is the primary one where the documentation is served from.')
     )
-
     count = models.IntegerField(default=0, help_text=_('Number of times this domain has been hit.'))
+
+    objects = RelatedProjectManager()
 
     class Meta:
         ordering = ('-canonical', '-machine', 'url')
