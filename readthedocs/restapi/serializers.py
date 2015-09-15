@@ -52,13 +52,13 @@ class BuildSerializer(serializers.ModelSerializer):
 
     """Readonly version of the build serializer, used for user facing display"""
 
+    commands = BuildCommandSerializer(many=True, read_only=True)
+    state_display = serializers.ReadOnlyField(source='get_state_display')
+
 
 class VersionFullSerializer(VersionSerializer):
 
     '''Serializer for all fields on version model'''
-
-    commands = BuildCommandSerializer(many=True, read_only=True)
-    state_display = serializers.ReadOnlyField(source='get_state_display')
 
     class Meta:
         model = Build
