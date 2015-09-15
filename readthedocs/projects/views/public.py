@@ -174,11 +174,17 @@ def project_download_media(request, project_slug, type_, version_slug):
     Download a specific piece of media.
 
     Perform an auth check if serving in private mode.
+
+    .. warning:: This is linked directly from the HTML pages.
+                 It should only care about the Version permissions,
+                 not the actual Project permissions.
+
     """
-    # Do private project auth checks
-    queryset = Project.objects.protected(request.user).filter(slug=project_slug)
-    if not queryset.exists():
-        raise Http404
+    version = get_object_or_404(
+        Version.objects.public(user=request.user),
+        project__slug=project_slug,
+        slug=version_slug,
+    )
     privacy_level = getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public')
     if privacy_level == 'public' or settings.DEBUG:
         path = os.path.join(settings.MEDIA_URL, type_, project_slug, version_slug,
@@ -186,7 +192,7 @@ def project_download_media(request, project_slug, type_, version_slug):
         return HttpResponseRedirect(path)
     else:
         # Get relative media path
-        path = (queryset[0]
+        path = (version.project
                 .get_production_media_path(
                     type_=type_, version_slug=version_slug)
                 .replace(settings.PRODUCTION_ROOT, '/prod_artifacts'))
