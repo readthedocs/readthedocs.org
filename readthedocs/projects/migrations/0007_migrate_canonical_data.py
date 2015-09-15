@@ -18,7 +18,7 @@ def migrate_canonical(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('projects', '0004_add_cname_modeling'),
+        ('projects', '0006_add_domain_models'),
     ]
 
     operations = [
