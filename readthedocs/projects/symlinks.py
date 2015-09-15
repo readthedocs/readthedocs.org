@@ -25,7 +25,11 @@ def symlink_cnames(version):
     """
     domains = Domain.objects.filter(project=version.project, cname=True)
     for domain in domains:
-        log.debug(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Symlinking CNAME: %s" % domain.clean_host))
+        log.debug(LOG_TEMPLATE.format(
+            project=version.project.slug,
+            version=version.slug,
+            msg="Symlinking CNAME: %s" % domain.clean_host)
+        )
         docs_dir = version.project.rtd_build_path(version.slug)
         # Chop off the version from the end.
         docs_dir = '/'.join(docs_dir.split('/')[:-1])
@@ -35,7 +39,11 @@ def symlink_cnames(version):
         run_on_app_servers('ln -nsf %s %s' % (docs_dir, symlink))
         # New symlink location
         new_docs_dir = version.project.doc_path
-        new_cname_symlink = os.path.join(getattr(settings, 'SITE_ROOT'), 'cnametoproject', domain.clean_host)
+        new_cname_symlink = os.path.join(
+            getattr(settings, 'SITE_ROOT'),
+            'cnametoproject',
+            domain.clean_host,
+        )
         run_on_app_servers('mkdir -p %s' % '/'.join(new_cname_symlink.split('/')[:-1]))
         run_on_app_servers('ln -nsf %s %s' % (new_docs_dir, new_cname_symlink))
 

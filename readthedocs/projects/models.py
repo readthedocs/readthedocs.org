@@ -950,7 +950,8 @@ class Domain(models.Model):
         default=False, help_text=_('This URL is a CNAME for the project')
     )
     canonical = models.BooleanField(
-        default=False, help_text=_('This URL is the primary one where the documentation is served from.')
+        default=False,
+        help_text=_('This URL is the primary one where the documentation is served from.')
     )
     count = models.IntegerField(default=0, help_text=_('Number of times this domain has been hit.'))
 
