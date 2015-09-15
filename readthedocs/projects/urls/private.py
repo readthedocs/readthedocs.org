@@ -1,3 +1,5 @@
+"""Project URLs for authenticated users"""
+
 from django.conf.urls import patterns, url
 
 from readthedocs.projects.views.private import (
@@ -38,7 +40,7 @@ urlpatterns = patterns(
         'readthedocs.projects.views.private.project_manage',
         name='projects_manage'),
 
-    url(r'^(?P<project_slug>[-\w]+)/alias/(?P<id>\d+)/',
+    url(r'^(?P<project_slug>[-\w]+)/alias/(?P<alias_id>\d+)/',
         'readthedocs.projects.views.private.edit_alias',
         name='projects_alias_edit'),
 

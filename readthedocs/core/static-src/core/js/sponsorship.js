@@ -1,7 +1,5 @@
 /* Read the Docs - Documentation promotions */
 
-var $ = window.$;
-
 module.exports = {
     Promo: Promo
 };

@@ -173,7 +173,3 @@ function _show_modal (section) {
         }
     });
 }
-
-if (typeof(window) != 'undefined') {
-    window.tools = module.exports;
-}

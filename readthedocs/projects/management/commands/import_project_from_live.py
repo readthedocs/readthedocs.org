@@ -1,8 +1,4 @@
-"""
-This is a helper to debug issues with projects on the server more easily
-locally. It allows you to import projects based on the data that the public API
-provides.
-"""
+"""Import project command"""
 
 from django.core.management import call_command
 from django.core.management.base import BaseCommand
@@ -14,6 +10,15 @@ from ...models import Project
 
 
 class Command(BaseCommand):
+
+    """
+    Import project from production API
+
+    This is a helper to debug issues with projects on the server more easily
+    locally. It allows you to import projects based on the data that the public
+    API provides.
+    """
+
     help = (
         "Retrieves the data of a project from readthedocs.org's API and puts "
         "it into the local database. This is mostly useful for debugging "
@@ -25,7 +30,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         api = slumber.API(base_url='http://readthedocs.org/api/v1/')
-        user1 = User.objects.order_by('pk').first()
+        user1 = User.objects.filter(pk__gt=0).order_by('pk').first()
 
         for slug in options['project_slug']:
             self.stdout.write('Importing {slug} ...'.format(slug=slug))

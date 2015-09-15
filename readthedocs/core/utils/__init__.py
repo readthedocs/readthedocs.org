@@ -7,7 +7,6 @@ from urlparse import urlparse
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import get_template
-from django.template import Context
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.constants import LATEST_VERBOSE_NAME
@@ -112,7 +111,8 @@ def send_email(recipient, subject, template, template_html, context=None,
         scheme = 'https' if request.is_secure() else 'http'
         context['uri'] = '{scheme}://{host}'.format(scheme=scheme,
                                                     host=request.get_host())
-    ctx = Context(context)
+    ctx = {}
+    ctx.update(context)
     msg = EmailMultiAlternatives(
         subject,
         get_template(template).render(ctx),

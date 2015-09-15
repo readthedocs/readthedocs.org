@@ -1,6 +1,7 @@
 // Donate payment views
 
-var payment = require('../../../../core/static-src/core/js/payment'),
+var jquery = require('jquery'),
+    payment = require('../../../../core/static-src/core/js/payment'),
     ko = require('knockout');
 
 function DonateView (config) {
@@ -13,8 +14,8 @@ function DonateView (config) {
     self.logo_url = ko.observable();
     self.site_url = ko.observable();
     ko.computed(function () {
-        var input_logo = window.$('input#id_logo_url').closest('p'),
-            input_site = window.$('input#id_site_url').closest('p');
+        var input_logo = $('input#id_logo_url').closest('p'),
+            input_site = $('input#id_site_url').closest('p');
         if (self.dollars() < 400) {
             self.logo_url(null);
             self.site_url(null);
@@ -39,7 +40,3 @@ DonateView.init = function (config, obj) {
 }
 
 module.exports.DonateView = DonateView;
-
-if (typeof(window) != 'undefined') {
-    window.donate = module.exports;
-}

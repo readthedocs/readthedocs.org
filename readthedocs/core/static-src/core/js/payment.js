@@ -2,15 +2,8 @@
 
 var ko = require('knockout'),
     payment = require('jquery.payment'),
-    $ = null,
+    $ = require('jquery'),
     stripe = null;
-
-if (typeof(window) == 'undefined') {
-    $ = require('jquery');
-}
-else {
-    $ = window.$;
-}
 
 
 // TODO stripe doesn't support loading locally very well, do they?
@@ -104,8 +97,3 @@ PaymentView.init = function (config, obj) {
 }
 
 module.exports.PaymentView = PaymentView;
-
-
-if (typeof(window) != 'undefined') {
-    window.payment = module.exports;
-}

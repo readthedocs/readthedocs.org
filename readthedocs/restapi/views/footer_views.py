@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404
-from django.template import Context, loader as template_loader
+from django.template import loader as template_loader
 from django.conf import settings
 from django.core.context_processors import csrf
 
@@ -8,6 +8,7 @@ from rest_framework.renderers import JSONPRenderer, JSONRenderer, BrowsableAPIRe
 from rest_framework.response import Response
 
 from readthedocs.builds.constants import LATEST
+from readthedocs.builds.constants import TAG
 from readthedocs.builds.models import Version
 from readthedocs.donate.models import SupporterPromo
 from readthedocs.projects.models import Project
@@ -74,7 +75,7 @@ def footer_html(request):
     else:
         path = ""
 
-    if version.type == 'tag' and version.project.has_pdf(version.slug):
+    if version.type == TAG and version.project.has_pdf(version.slug):
         print_url = (
             'https://keminglabs.com/print-the-docs/quote?project={project}&version={version}'
             .format(
@@ -101,7 +102,7 @@ def footer_html(request):
 
     version_compare_data = get_version_compare_data(project, version)
 
-    context = Context({
+    context = {
         'project': project,
         'path': path,
         'downloads': version.get_downloads(pretty=True),
@@ -118,7 +119,7 @@ def footer_html(request):
         'github_edit_url': version.get_github_url(docroot, page_slug, source_suffix, 'edit'),
         'github_view_url': version.get_github_url(docroot, page_slug, source_suffix, 'view'),
         'bitbucket_url': version.get_bitbucket_url(docroot, page_slug, source_suffix),
-    })
+    }
 
     context.update(csrf(request))
     html = template_loader.get_template('restapi/footer.html').render(context)

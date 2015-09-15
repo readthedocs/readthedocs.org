@@ -9,8 +9,8 @@ mkdocs==0.14.0
 django==1.8.3
 
 git+https://github.com/django-tastypie/django-tastypie.git@1e1aff3dd4dcd21669e9c68bd7681253b286b856#egg=django-tastypie
-django-haystack==2.4.0
-celery-haystack==0.9
+django-haystack==2.1.0
+celery-haystack==0.7.2
 django-guardian==1.3.0
 django-extensions==1.3.8
 djangorestframework==3.0.4

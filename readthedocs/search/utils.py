@@ -17,7 +17,7 @@ def process_mkdocs_json(version, build_dir=True):
         full_path = version.project.full_json_path(version.slug)
     else:
         full_path = version.project.get_production_media_path(
-            type='json', version_slug=version.slug, include_file=False)
+            type_='json', version_slug=version.slug, include_file=False)
 
     html_files = []
     for root, dirs, files in os.walk(full_path):

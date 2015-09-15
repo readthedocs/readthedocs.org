@@ -1,13 +1,12 @@
+"""Project signals"""
+
 import logging
-import json
 
 import django.dispatch
-from django.conf import settings
 from django.contrib import messages
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 
-from readthedocs.builds import utils as build_utils
 from readthedocs.oauth import utils as oauth_utils
 
 before_vcs = django.dispatch.Signal(providing_args=["version"])
@@ -24,10 +23,7 @@ log = logging.getLogger(__name__)
 
 @receiver(project_import)
 def handle_project_import(sender, **kwargs):
-    """
-    Add post-commit hook on project import.
-    """
-
+    """Add post-commit hook on project import"""
     project = sender
     request = kwargs.get('request')
 
@@ -41,6 +37,8 @@ def handle_project_import(sender, **kwargs):
                     resp = oauth_utils.add_github_webhook(session, project)
                     if resp.status_code == 201:
                         messages.success(request, _('GitHub webhook activated'))
+                # pylint: disable=bare-except
+                # TODO this should be audited for exception types
                 except:
                     log.exception('GitHub Hook creation failed', exc_info=True)
             elif provider == 'bitbucket':
@@ -48,5 +46,7 @@ def handle_project_import(sender, **kwargs):
                     resp = oauth_utils.add_bitbucket_webhook(session, project)
                     if resp.status_code == 200:
                         messages.success(request, _('BitBucket webhook activated'))
+                # pylint: disable=bare-except
+                # TODO this should be audited for exception types
                 except:
                     log.exception('BitBucket Hook creation failed', exc_info=True)

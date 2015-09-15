@@ -29,7 +29,7 @@ from .exceptions import (BuildEnvironmentException, BuildEnvironmentError,
                          BuildEnvironmentWarning)
 from .constants import (DOCKER_SOCKET, DOCKER_VERSION, DOCKER_IMAGE,
                         DOCKER_LIMITS, DOCKER_TIMEOUT_EXIT_CODE,
-                        DOCKER_OOM_EXIT_CODE)
+                        DOCKER_OOM_EXIT_CODE, SPHINX_TEMPLATE_DIR)
 
 log = logging.getLogger(__name__)
 
@@ -300,25 +300,31 @@ class BuildEnvironment(object):
                 return False
 
     def run(self, *cmd, **kwargs):
-        '''Run command from environment
+        '''Shortcut to run command from environment'''
+        return self.run_command_class(cls=self.command_class, cmd=cmd, **kwargs)
+
+    def run_command_class(self, cls, cmd, **kwargs):
+        '''Run command from this environment
+
+        Use ``cls`` to instantiate a command
 
         :param warn_only: Don't raise an exception on command failure
         '''
         warn_only = kwargs.pop('warn_only', False)
         kwargs['build_env'] = self
-        cmd = self.command_class(cmd, **kwargs)
-        self.commands.append(cmd)
-        cmd.run()
+        build_cmd = cls(cmd, **kwargs)
+        self.commands.append(build_cmd)
+        build_cmd.run()
 
         # Save to database
         if self.record:
-            cmd.save()
+            build_cmd.save()
 
-        if cmd.failed:
-            msg = u'Command {cmd} failed'.format(cmd=cmd.get_command())
+        if build_cmd.failed:
+            msg = u'Command {cmd} failed'.format(cmd=build_cmd.get_command())
 
-            if cmd.output:
-                msg += u':\n{out}'.format(out=cmd.output)
+            if build_cmd.output:
+                msg += u':\n{out}'.format(out=build_cmd.output)
 
             if warn_only:
                 log.warn(LOG_TEMPLATE
@@ -327,7 +333,7 @@ class BuildEnvironment(object):
                                  msg=msg))
             else:
                 raise BuildEnvironmentWarning(msg)
-        return cmd
+        return build_cmd
 
     @property
     def successful(self):
@@ -457,6 +463,10 @@ class DockerEnvironment(BuildEnvironment):
         except DockerAPIError:
             pass
 
+        # Create the checkout path if it doesn't exist to avoid Docker creation
+        if not os.path.exists(self.project.doc_path):
+            os.makedirs(self.project.doc_path)
+
         try:
             self.create_container()
         except:  # pylint: disable=broad-except
@@ -501,7 +511,8 @@ class DockerEnvironment(BuildEnvironment):
             if self.client is None:
                 self.client = Client(
                     base_url=self.docker_socket,
-                    version=DOCKER_VERSION
+                    version=DOCKER_VERSION,
+                    timeout=None
                 )
             return self.client
         except DockerException as e:
@@ -554,19 +565,26 @@ class DockerEnvironment(BuildEnvironment):
     def create_container(self):
         '''Create docker container'''
         client = self.get_client()
+        image = self.container_image
+        if self.project.container_image is not None:
+            image = self.project.container_image
         try:
             self.container = client.create_container(
-                image=self.container_image,
+                image=image,
                 command=('/bin/sh -c "sleep {time}; exit {exit}"'
                          .format(time=self.container_time_limit,
                                  exit=DOCKER_TIMEOUT_EXIT_CODE)),
                 name=self.container_id,
                 hostname=self.container_id,
                 host_config=create_host_config(binds={
+                    SPHINX_TEMPLATE_DIR: {
+                        'bind': SPHINX_TEMPLATE_DIR,
+                        'mode': 'r'
+                    },
                     self.project.doc_path: {
                         'bind': self.project.doc_path,
                         'mode': 'rw'
-                    }
+                    },
                 }),
                 detach=True,
                 mem_limit=self.container_mem_limit,

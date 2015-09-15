@@ -15,11 +15,13 @@ from readthedocs.privacy.loader import (VersionManager, RelatedProjectManager,
                                         RelatedBuildManager)
 from readthedocs.projects.models import Project
 from readthedocs.projects.constants import (PRIVACY_CHOICES, REPO_TYPE_GIT,
-                                            REPO_TYPE_HG)
+                                            REPO_TYPE_HG, GITHUB_URL,
+                                            GITHUB_REGEXS, BITBUCKET_URL,
+                                            BITBUCKET_REGEXS)
 
 from .constants import (BUILD_STATE, BUILD_TYPES, VERSION_TYPES,
                         LATEST, NON_REPOSITORY_VERSIONS, STABLE,
-                        BUILD_STATE_FINISHED)
+                        BUILD_STATE_FINISHED, BRANCH, TAG)
 from .version_slug import VersionSlugField
 
 
@@ -97,12 +99,46 @@ class Version(models.Model):
 
     @property
     def commit_name(self):
-        """Return the branch name, the tag name or the revision identifier."""
-        if self.type == 'branch':
+        """
+        Return the branch name, the tag name or the revision identifier.
+
+        The result could be used as ref in a git repo, e.g. for linking to
+        GitHub or Bitbucket.
+        """
+
+        # LATEST is special as it is usually a branch but does not contain the
+        # name in verbose_name.
+        if self.slug == LATEST:
+            if self.project.default_branch:
+                return self.project.default_branch
+            else:
+                return self.project.vcs_repo().fallback_branch
+
+        if self.slug == STABLE:
+            if self.type == BRANCH:
+                # Special case, as we do not store the original branch name
+                # that the stable version works on. We can only interpolate the
+                # name from the commit identifier, but it's hacky.
+                # TODO: Refactor ``Version`` to store more actual info about
+                # the underlying commits.
+                if self.identifier.startswith('origin/'):
+                    return self.identifier[len('origin/'):]
             return self.identifier
-        if self.verbose_name in NON_REPOSITORY_VERSIONS:
-            return self.identifier
-        return self.verbose_name
+
+        # By now we must have handled all special versions.
+        assert self.slug not in NON_REPOSITORY_VERSIONS
+
+        if self.type in (BRANCH, TAG):
+            # If this version is a branch or a tag, the verbose_name will
+            # contain the actual name. We cannot use identifier as this might
+            # include the "origin/..." part in the case of a branch. A tag
+            # would contain the hash in identifier, which is not as pretty as
+            # the actual tag name.
+            return self.verbose_name
+
+        # If we came that far it's not a special version nor a branch or tag.
+        # Therefore just return the identifier to make a safe guess.
+        return self.identifier
 
     def get_absolute_url(self):
         if not self.built and not self.uploaded:
@@ -121,16 +157,6 @@ class Version(models.Model):
             assign('view_version', owner, self)
         self.project.sync_supported_versions()
         return obj
-
-    @property
-    def remote_slug(self):
-        if self.slug == LATEST:
-            if self.project.default_branch:
-                return self.project.default_branch
-            else:
-                return self.project.vcs_repo().fallback_branch
-        else:
-            return self.slug
 
     @property
     def identifier_friendly(self):
@@ -182,10 +208,10 @@ class Version(models.Model):
         return data
 
     def get_conf_py_path(self):
-        conf_py_path = self.project.conf_file(self.slug)
-        conf_py_path = conf_py_path.replace(
-            self.project.checkout_path(self.slug), '')
-        return conf_py_path.replace('conf.py', '')
+        conf_py_path = self.project.conf_dir(self.slug)
+        checkout_prefix = self.project.checkout_path(self.slug)
+        conf_py_path = os.path.relpath(conf_py_path, checkout_prefix)
+        return conf_py_path
 
     def get_build_path(self):
         '''Return version build path if path exists, otherwise `None`'''
@@ -209,33 +235,7 @@ class Version(models.Model):
         except OSError:
             log.error('Build path cleanup failed', exc_info=True)
 
-    def get_vcs_slug(self):
-        slug = None
-        if self.slug == LATEST:
-            if self.project.default_branch:
-                slug = self.project.default_branch
-            else:
-                slug = self.project.vcs_repo().fallback_branch
-        elif self.slug == STABLE:
-            return self.identifier
-        else:
-            slug = self.slug
-        # https://github.com/rtfd/readthedocs.org/issues/561
-        # version identifiers with / characters in branch name need to un-slugify
-        # the branch name for remote links to work
-        if slug.replace('-', '/') in self.identifier:
-            slug = slug.replace('-', '/')
-        return slug
-
     def get_github_url(self, docroot, filename, source_suffix='.rst', action='view'):
-        GITHUB_REGEXS = [
-            re.compile('github.com/(.+)/(.+)(?:\.git){1}'),
-            re.compile('github.com/(.+)/(.+)'),
-            re.compile('github.com:(.+)/(.+).git'),
-        ]
-        GITHUB_URL = ('https://github.com/{user}/{repo}/'
-                      '{action}/{version}{docroot}{path}{source_suffix}')
-
         repo_url = self.project.repo
         if 'github' not in repo_url:
             return ''
@@ -265,7 +265,7 @@ class Version(models.Model):
         return GITHUB_URL.format(
             user=user,
             repo=repo,
-            version=self.remote_slug,
+            version=self.commit_name,
             docroot=docroot,
             path=filename,
             source_suffix=source_suffix,
@@ -273,20 +273,13 @@ class Version(models.Model):
         )
 
     def get_bitbucket_url(self, docroot, filename, source_suffix='.rst'):
-        BB_REGEXS = [
-            re.compile('bitbucket.org/(.+)/(.+).git'),
-            re.compile('bitbucket.org/(.+)/(.+)/'),
-            re.compile('bitbucket.org/(.+)/(.+)'),
-        ]
-        BB_URL = 'https://bitbucket.org/{user}/{repo}/src/{version}{docroot}{path}{source_suffix}'
-
         repo_url = self.project.repo
         if 'bitbucket' not in repo_url:
             return ''
         if not docroot:
             return ''
 
-        for regex in BB_REGEXS:
+        for regex in BITBUCKET_REGEXS:
             match = regex.search(repo_url)
             if match:
                 user, repo = match.groups()
@@ -295,10 +288,10 @@ class Version(models.Model):
             return ''
         repo = repo.rstrip('/')
 
-        return BB_URL.format(
+        return BITBUCKET_URL.format(
             user=user,
             repo=repo,
-            version=self.remote_slug,
+            version=self.commit_name,
             docroot=docroot,
             path=filename,
             source_suffix=source_suffix,

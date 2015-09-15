@@ -9,7 +9,7 @@ class ProjectOnboardMixin(object):
     '''Add project onboard context data to project object views'''
 
     def get_context_data(self, **kwargs):
-        '''Add onboard context data'''
+        """Add onboard context data"""
         context = super(ProjectOnboardMixin, self).get_context_data(**kwargs)
         # If more than 1 project, don't show onboarding at all. This could
         # change in the future, to onboard each user maybe?

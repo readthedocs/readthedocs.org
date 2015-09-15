@@ -1,6 +1,4 @@
-"""Django administration interface for `~projects.models.Project`
-and related models.
-"""
+"""Django administration interface for `projects.models`"""
 
 from readthedocs.builds.models import Version
 from django.contrib import admin
@@ -11,16 +9,25 @@ from guardian.admin import GuardedModelAdmin
 
 
 class ProjectRelationshipInline(admin.TabularInline):
+
+    """Project inline relationship view for :py:cls:`ProjectAdmin`"""
+
     model = ProjectRelationship
     fk_name = 'parent'
     raw_id_fields = ('child',)
 
 
 class VersionInline(admin.TabularInline):
+
+    """Version inline relationship view for :py:cls:`ProjectAdmin`"""
+
     model = Version
 
 
 class RedirectInline(admin.TabularInline):
+
+    """Redirect inline relationship view for :py:cls:`ProjectAdmin`"""
+
     model = Redirect
 
 
@@ -29,9 +36,13 @@ class DomainInline(admin.TabularInline):
 
 
 class ProjectAdmin(GuardedModelAdmin):
+
+    """Project model admin view"""
+
     prepopulated_fields = {'slug': ('name',)}
     list_display = ('name', 'repo', 'repo_type', 'allow_comments', 'featured', 'theme')
-    list_filter = ('repo_type', 'allow_comments', 'featured', 'privacy_level', 'documentation_type', 'programming_language')
+    list_filter = ('repo_type', 'allow_comments', 'featured', 'privacy_level',
+                   'documentation_type', 'programming_language')
     list_editable = ('featured',)
     search_fields = ('slug', 'repo')
     inlines = [ProjectRelationshipInline, RedirectInline, VersionInline, DomainInline]
@@ -39,6 +50,9 @@ class ProjectAdmin(GuardedModelAdmin):
 
 
 class ImportedFileAdmin(admin.ModelAdmin):
+
+    """Admin view for :py:cls:`ImportedFile`"""
+
     list_display = ('path', 'name', 'version')
 
 

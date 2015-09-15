@@ -1,3 +1,5 @@
+"""Project symlink creation"""
+
 import os
 import logging
 
@@ -12,7 +14,8 @@ log = logging.getLogger(__name__)
 
 
 def symlink_cnames(version):
-    """
+    """Symlink project CNAME domains
+
     OLD
     Link from HOME/user_builds/cnames/<cname> ->
               HOME/user_builds/<project>/rtd-builds/
@@ -38,13 +41,17 @@ def symlink_cnames(version):
 
 
 def symlink_subprojects(version):
-    """
+    """Symlink project subprojects
+
     Link from HOME/user_builds/project/subprojects/<project> ->
               HOME/user_builds/<project>/rtd-builds/
     """
     # Subprojects
     if getattr(settings, 'DONT_HIT_DB', True):
-        subproject_slugs = [data['slug'] for data in api.project(version.project.pk).subprojects.get()['subprojects']]
+        subproject_slugs = [data['slug']
+                            for data in (api.project(version.project.pk)
+                                         .subprojects
+                                         .get()['subprojects'])]
     else:
         rels = version.project.subprojects.all()
         subproject_slugs = [rel.child.slug for rel in rels]
@@ -53,7 +60,10 @@ def symlink_subprojects(version):
         if '_' in slugs[0]:
             slugs.append(slugs[0].replace('_', '-'))
         for subproject_slug in slugs:
-            log.debug(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug, msg="Symlinking subproject: %s" % subproject_slug))
+            log.debug(LOG_TEMPLATE
+                      .format(project=version.project.slug,
+                              version=version.slug,
+                              msg="Symlinking subproject: %s" % subproject_slug))
 
             # The directory for this specific subproject
             symlink = version.project.subprojects_symlink_path(subproject_slug)
@@ -65,7 +75,8 @@ def symlink_subprojects(version):
 
 
 def symlink_translations(version):
-    """
+    """Symlink project translations
+
     Link from HOME/user_builds/project/translations/<lang> ->
               HOME/user_builds/<project>/rtd-builds/
     """
@@ -83,7 +94,7 @@ def symlink_translations(version):
     # Default language, and pointer for 'en'
     version_slug = version.project.slug.replace('_', '-')
     translations[version.project.language] = version_slug
-    if not translations.has_key('en'):
+    if 'en' not in translations:
         translations['en'] = version_slug
 
     run_on_app_servers(
@@ -104,12 +115,15 @@ def symlink_translations(version):
 
 
 def symlink_single_version(version):
-    """
+    """Symlink project single version
+
     Link from HOME/user_builds/<project>/single_version ->
               HOME/user_builds/<project>/rtd-builds/<default_version>/
     """
     default_version = version.project.get_default_version()
-    log.debug(LOG_TEMPLATE.format(project=version.project.slug, version=default_version, msg="Symlinking single_version"))
+    log.debug(LOG_TEMPLATE
+              .format(project=version.project.slug, version=default_version,
+                      msg="Symlinking single_version"))
 
     # The single_version directory
     symlink = version.project.single_version_symlink_path()
