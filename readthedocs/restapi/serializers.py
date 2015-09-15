@@ -18,14 +18,6 @@ class ProjectSerializer(serializers.ModelSerializer):
         )
 
 
-class ProjectFullSerializer(ProjectSerializer):
-
-    '''Serializer for all fields on project model'''
-
-    class Meta:
-        model = Project
-
-
 class VersionSerializer(serializers.ModelSerializer):
     project = ProjectSerializer()
     downloads = serializers.DictField(source='get_downloads', read_only=True)
