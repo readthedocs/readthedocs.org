@@ -202,10 +202,6 @@ class NotificationViewSet(viewsets.ReadOnlyModelViewSet):
     model = EmailHook
 
     def get_queryset(self):
-        """
-        This view should return a list of all the purchases
-        for the currently authenticated user.
-        """
         return self.model.objects.api(self.request.user)
 
 
@@ -216,8 +212,4 @@ class DomainViewSet(viewsets.ReadOnlyModelViewSet):
     model = Domain
 
     def get_queryset(self):
-        """
-        This view should return a list of all the purchases
-        for the currently authenticated user.
-        """
         return self.model.objects.api(self.request.user)
