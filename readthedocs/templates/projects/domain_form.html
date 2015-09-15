@@ -28,10 +28,11 @@
     {% trans "Choose which project you would like to add as a domain." %}
   </p>
   {% if domain %}
-  <form method="post" action="{% url 'projects_domains_edit' project.slug domain.pk %}">{% csrf_token %}
+    {% url 'projects_domains_create' project.slug as action_url %}
   {% else %}
-  <form method="post" action="{% url 'projects_domains_create' project.slug %}">{% csrf_token %}
+    {% url 'projects_domains_edit' project.slug domain.pk as action_url %}
   {% endif %}
+  <form method="post" action="{{ action_url }}">{% csrf_token %}
     {{ form.as_p }}
     <p>
       <input style="display: inline;" type="submit" value="{% trans "Submit" %}">
