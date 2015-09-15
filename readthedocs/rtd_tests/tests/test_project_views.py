@@ -1,7 +1,8 @@
-import re
-
 from django.contrib.auth.models import User
 from django.contrib.messages import constants as message_const
+from django_dynamic_fixture import get
+from django_dynamic_fixture import new
+from mock import patch
 
 from readthedocs.rtd_tests.base import WizardTestCase, MockBuildTestCase
 from readthedocs.projects.models import Project
@@ -185,19 +186,38 @@ class TestImportDemoView(MockBuildTestCase):
 
 
 class TestPrivateViews(MockBuildTestCase):
-    fixtures = ['test_data', 'eric']
-
     def setUp(self):
+        self.user = new(User, username='eric')
+        self.user.set_password('test')
+        self.user.save()
         self.client.login(username='eric', password='test')
 
     def test_versions_page(self):
+        pip = get(Project, slug='pip', users=[self.user])
+        pip.versions.create(verbose_name='1.0')
+
         response = self.client.get('/projects/pip/versions/')
         self.assertEqual(response.status_code, 200)
 
         # Test if the versions page works with a version that contains a slash.
         # That broke in the past, see issue #1176.
-        pip = Project.objects.get(slug='pip')
         pip.versions.create(verbose_name='1.0/with-slash')
 
         response = self.client.get('/projects/pip/versions/')
         self.assertEqual(response.status_code, 200)
+
+    def test_delete_project(self):
+        project = get(Project, slug='pip', users=[self.user])
+
+        response = self.client.get('/dashboard/pip/delete/')
+        self.assertEqual(response.status_code, 200)
+
+        patcher = patch(
+            'readthedocs.projects.views.private.remove_path_from_web')
+        with patcher as remove_path_from_web:
+            response = self.client.post('/dashboard/pip/delete/')
+            self.assertEqual(response.status_code, 302)
+
+            self.assertFalse(Project.objects.filter(slug='pip').exists())
+            remove_path_from_web.delay.assert_called_with(
+                path=project.doc_path)

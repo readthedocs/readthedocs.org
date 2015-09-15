@@ -40,6 +40,8 @@ and then default to the top-level of your documentation.
 Then Mkdocs will build any files with an ``.md`` extension.
 If you have a ``README.md``,
 it will be transformed into an ``index.md`` automatically.
+As MkDocs doesn't support automatic PDF generation,
+Read the Docs cannot create a PDF version of your documentation with the *Mkdocs* option.
 
 Understanding what's going on
 -----------------------------
@@ -84,6 +86,7 @@ Packages installed in the build environment
 
 The build server does have a select number of C libraries installed, because they are used across a wide array of python projects. We can't install every C library out there, but we try and support the major ones. We currently have the following libraries installed:
 
+    * doxygen
     * LaTeX (texlive-full)
     * libevent (libevent-dev)
     * dvipng

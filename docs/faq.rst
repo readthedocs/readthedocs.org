@@ -189,3 +189,35 @@ are `numpydoc <https://github.com/numpy/numpydoc>`_ and
 ``napoleon`` is able to handle both docstring formats. Its default
 output more closely matches the format of standard Sphinx annotations,
 and as a result, it tends to look a bit better with the default theme.
+
+Can I document a python package that is not at the root of my repository?
+-------------------------------------------------------------------------
+
+Yes. The most convenient way to access a python package for example via
+`Sphinx's autoapi`_ in your documentation is to use the *Install your project
+inside a virtualenv using ``setup.py install``* option in the admin panel of
+your project. However this assumes that your ``setup.py`` is in the root of
+your repository.
+
+If you want to place your package in a different directory or have multiple
+python packages in the same project, then create a pip requirements file. You
+can specify the relative path to your package inside the file.
+For example you want to keep your python package in the ``src/python``
+directory, then create a ``requirements.readthedocs.txt`` file with the
+following contents::
+
+    src/python/
+
+Please note that the path must be relative to the file. So the example path
+above would work if the file is in the root of your repository. If you want to
+put the requirements in a file called ``requirements/readthedocs.txt``, the
+contents would look like::
+
+    ../python/
+
+After adding the file to your repository, go to the *Advanced Settings* in
+your project's admin panel and add the name of the file to the *Requirements
+file* field.
+
+.. _Sphinx's autoapi: http://sphinx-doc.org/ext/autodoc.html
+.. _pip requirements file: https://pip.pypa.io/en/stable/user_guide.html#requirements-files

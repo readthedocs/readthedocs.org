@@ -7,6 +7,8 @@ from rest_framework.decorators import detail_route
 from rest_framework.renderers import JSONPRenderer, JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 
+from readthedocs.builds.constants import BRANCH
+from readthedocs.builds.constants import TAG
 from readthedocs.builds.filters import VersionFilter
 from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.core.utils import trigger_build
@@ -109,11 +111,11 @@ class ProjectViewSet(viewsets.ModelViewSet):
             added_versions = set()
             if 'tags' in data:
                 ret_set = api_utils.sync_versions(
-                    project=project, versions=data['tags'], type='tag')
+                    project=project, versions=data['tags'], type=TAG)
                 added_versions.update(ret_set)
             if 'branches' in data:
                 ret_set = api_utils.sync_versions(
-                    project=project, versions=data['branches'], type='branch')
+                    project=project, versions=data['branches'], type=BRANCH)
                 added_versions.update(ret_set)
             deleted_versions = api_utils.delete_versions(project, data)
         except Exception, e:

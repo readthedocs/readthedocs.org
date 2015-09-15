@@ -10,13 +10,14 @@
   <script type="text/javascript" src="{% static 'vendor/knockout.js' %}"></script>
   <script type="text/javascript" src="{% static 'donate/js/donate.js' %}"></script>
   <script type="text/javascript">
+var donate_views = require('donate/donate');
 $(document).ready(function () {
     var key;
     //<![CDATA[
     key = '{{ publishable }}';
     //]]>
 
-    var view = donate.DonateView.init({
+    var view = donate_views.DonateView.init({
       key: key,
       form: $('form#donate-payment')
     });

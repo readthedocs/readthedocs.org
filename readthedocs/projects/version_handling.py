@@ -1,3 +1,5 @@
+"""Project version handling"""
+
 from collections import defaultdict
 from packaging.version import Version
 from packaging.version import InvalidVersion
@@ -7,10 +9,12 @@ from readthedocs.builds.constants import STABLE_VERBOSE_NAME
 
 
 def get_major(version):
+    # pylint: disable=protected-access
     return version._version.release[0]
 
 
 def get_minor(version):
+    # pylint: disable=protected-access
     try:
         return version._version.release[1]
     except IndexError:
@@ -18,6 +22,9 @@ def get_minor(version):
 
 
 class VersionManager(object):
+
+    """Prune list of versions based on version windows"""
+
     def __init__(self):
         self._state = defaultdict(lambda: defaultdict(list))
 
@@ -27,7 +34,7 @@ class VersionManager(object):
     def prune_major(self, num_latest):
         all_keys = sorted(set(self._state.keys()))
         major_keep = []
-        for to_keep in range(num_latest):
+        for __ in range(num_latest):
             if len(all_keys) > 0:
                 major_keep.append(all_keys.pop(-1))
         for to_remove in all_keys:
@@ -37,7 +44,7 @@ class VersionManager(object):
         for major, minors in self._state.items():
             all_keys = sorted(set(minors.keys()))
             minor_keep = []
-            for to_keep in range(num_latest):
+            for __ in range(num_latest):
                 if len(all_keys) > 0:
                     minor_keep.append(all_keys.pop(-1))
             for to_remove in all_keys:
@@ -47,8 +54,9 @@ class VersionManager(object):
         for major, minors in self._state.items():
             for minor in minors.keys():
                 try:
-                    self._state[major][minor] = sorted(set(self._state[major][minor]))[-num_latest:]
-                except TypeError, e:
+                    self._state[major][minor] = sorted(
+                        set(self._state[major][minor]))[-num_latest:]
+                except TypeError:
                     # Raise these for now.
                     raise
 
@@ -65,6 +73,15 @@ class VersionManager(object):
 
 
 def version_windows(versions, major=1, minor=1, point=1):
+    """Return list of versions that have been pruned to version windows
+
+    Uses :py:cls:`VersionManager` to prune the list of versions
+
+    :param versions: List of version strings
+    :param major: Major version window
+    :param minor: Minor version window
+    :param point: Point version window
+    """
     # TODO: This needs some documentation on how VersionManager etc works and
     # some examples what the expected outcome is.
 
@@ -101,8 +118,8 @@ def comparable_version(version_string):
     The ``LATEST`` version shall always beat other versions in comparision.
     ``STABLE`` should be listed second. If we cannot figure out the version
     number then we still assume it's bigger than all other versions since we
-    cannot predict what it is."""
-
+    cannot predict what it is.
+    """
     comparable = parse_version_failsafe(version_string)
     if not comparable:
         if version_string == LATEST_VERBOSE_NAME:
@@ -135,7 +152,7 @@ def sort_versions(version_list):
         reverse=True))
 
 
-def highest_version(version_list, version_test=None):
+def highest_version(version_list):
     versions = sort_versions(version_list)
     if versions:
         return versions[0]
@@ -144,7 +161,8 @@ def highest_version(version_list, version_test=None):
 
 
 def determine_stable_version(version_list):
-    """
+    """Determine a stable version for version list
+
     Takes a list of ``Version`` model instances and returns the version
     instance which can be considered the most recent stable one. It will return
     ``None`` if there is no stable version in the list.
