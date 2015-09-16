@@ -74,7 +74,7 @@ class BaseSphinx(BaseBuilder):
             raise ProjectImportError('Conf file not found'), None, trace
         try:
             outfile.write("\n")
-            conf_py_path = self.version.get_conf_py_path()
+            conf_py_path = os.path.join(self.version.get_conf_py_path(), '')
             remote_version = self.version.commit_name
 
             github_user, github_repo = version_utils.get_github_username_repo(
