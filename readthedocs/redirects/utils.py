@@ -12,8 +12,7 @@ log = logging.getLogger(__name__)
 
 def redirect_filename(project, filename=None):
     """
-    Return a url for a page. Always use http for now,
-    to avoid content warnings.
+    Return a path for a page. No protocol/domain is returned.
     """
     protocol = "http"
     # Handle explicit http redirects
@@ -24,19 +23,9 @@ def redirect_filename(project, filename=None):
     use_subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
     if use_subdomain:
         if project.single_version:
-            return "%s://%s/%s" % (
-                protocol,
-                project.subdomain,
-                filename,
-            )
+            return "/%s" % (filename,)
         else:
-            return "%s://%s/%s/%s/%s" % (
-                protocol,
-                project.subdomain,
-                lang,
-                version,
-                filename,
-            )
+            return "/%s/%s/%s" % (lang, version, filename,)
     else:
         if project.single_version:
             return reverse('docs_detail', kwargs={
@@ -53,6 +42,10 @@ def redirect_filename(project, filename=None):
 
 
 def get_redirect_url(project, path):
+    """
+    Redirect the given path for the given project. Will always return absolute
+    paths, without domain.
+    """
     for project_redirect in project.redirects.all():
         if project_redirect.redirect_type == 'prefix':
             if path.startswith(project_redirect.from_url):
@@ -108,6 +101,9 @@ def get_redirect_response(request, full_path=None):
 
     if project:
         new_path = get_redirect_url(project, full_path)
-        if not new_path is not None:
+        if new_path is not None:
+            # Re-use the domain and protocol used in the current request.
+            # Redirects shouldn't change the domain, version or language.
+            new_path = request.build_absolute_uri(new_path)
             return HttpResponseRedirect(new_path)
     return None
