@@ -897,20 +897,23 @@ class Project(models.Model):
             "You must add users to the project via the `users` field "
             "on the project instance.")
 
+        def perform_action(set_perm, users, project):
+            for user in users:
+                set_perm('view_project', user, project)
+                for version in project.versions.all():
+                    set_perm('view_version', user, version)
+
         if action == 'post_add':
             users = User.objects.filter(pk__in=pk_set)
-            for user in users:
-                assign_perm('view_project', user, obj=instance)
+            perform_action(assign_perm, users, instance)
 
         if action == 'pre_remove':
             users = User.objects.filter(pk__in=pk_set)
-            for user in users:
-                remove_perm('view_project', user, obj=instance)
+            perform_action(remove_perm, users, instance)
 
         if action == 'pre_clear':
             users = instance.users.all()
-            for user in users:
-                remove_perm('view_project', user, obj=instance)
+            perform_action(remove_perm, users, instance)
 
 
 signals.m2m_changed.connect(

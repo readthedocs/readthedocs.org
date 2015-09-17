@@ -8,7 +8,6 @@ from django.conf import settings
 from django.db import models
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from guardian.shortcuts import assign
 from taggit.managers import TaggableManager
 
 from readthedocs.privacy.loader import (VersionManager, RelatedProjectManager,
@@ -153,8 +152,6 @@ class Version(models.Model):
         Add permissions to the Version for all owners on save.
         """
         obj = super(Version, self).save(*args, **kwargs)
-        for owner in self.project.users.all():
-            assign('view_version', owner, self)
         self.project.sync_supported_versions()
         return obj
 
