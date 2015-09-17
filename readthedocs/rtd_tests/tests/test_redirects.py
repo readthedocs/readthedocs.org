@@ -112,10 +112,6 @@ class RedirectTests(TestCase):
         r = self.client.get('/docs/pip/en/nonexistent_dir/bogus.html')
         self.assertEqual(r.status_code, 404)
 
-    def test_improper_url_dir_subdir_file(self):
-        r = self.client.get('/docs/pip/en/nonexistent_dir/subdir/bogus.html')
-        self.assertEqual(r.status_code, 404)
-
     def test_improper_url_version_dir_file(self):
         r = self.client.get('/docs/pip/latest/nonexistent_dir/bogus.html')
         self.assertEqual(r.status_code, 404)
