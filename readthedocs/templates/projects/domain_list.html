@@ -39,15 +39,3 @@
   </form>
 {% endblock %}
 
-
-{% block footerjs %}
-      $('#id_domain').autocomplete({
-    source: '{% url "search_autocomplete" %}',
-    minLength: 2,
-    open: function(event, ui) {
-      ac_top = $('.ui-autocomplete').css('top');
-      $('.ui-autocomplete').css({'width': '233px', 'top': ac_top + 10 });
-    }
-  });
-
-{% endblock %}
