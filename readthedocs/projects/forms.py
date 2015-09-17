@@ -43,11 +43,11 @@ class ProjectForm(forms.ModelForm):
 
 class ProjectTriggerBuildMixin(object):
 
-    '''Mixin to trigger build on form save
+    """Mixin to trigger build on form save
 
     This should be replaced with signals instead of calling trigger_build
     explicitly.
-    '''
+    """
 
     def save(self, commit=True):
         """Trigger build on commit save"""
@@ -59,14 +59,14 @@ class ProjectTriggerBuildMixin(object):
 
 class ProjectBackendForm(forms.Form):
 
-    '''Get the import backend'''
+    """Get the import backend"""
 
     backend = forms.CharField()
 
 
 class ProjectBasicsForm(ProjectForm):
 
-    '''Form for basic project fields'''
+    """Form for basic project fields"""
 
     class Meta:
         model = Project

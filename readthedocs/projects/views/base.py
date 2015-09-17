@@ -6,7 +6,7 @@ from readthedocs.projects.models import Project
 
 class ProjectOnboardMixin(object):
 
-    '''Add project onboard context data to project object views'''
+    """Add project onboard context data to project object views"""
 
     def get_context_data(self, **kwargs):
         """Add onboard context data"""
@@ -34,14 +34,14 @@ class ProjectOnboardMixin(object):
 # Mixins
 class ProjectAdminMixin(object):
 
-    '''Mixin class that provides project sublevel objects
+    """Mixin class that provides project sublevel objects
 
     This mixin uses several class level variables
 
     project_url_field
         The URL kwarg name for the project slug
 
-    '''
+    """
 
     project_url_field = 'project'
 
@@ -50,7 +50,7 @@ class ProjectAdminMixin(object):
         return self.model.objects.filter(project=self.project)
 
     def get_project(self):
-        '''Return project determined by url kwarg'''
+        """Return project determined by url kwarg"""
         if self.project_url_field not in self.kwargs:
             return None
         return get_object_or_404(
@@ -59,13 +59,13 @@ class ProjectAdminMixin(object):
         )
 
     def get_context_data(self, **kwargs):
-        '''Add project to context data'''
+        """Add project to context data"""
         context = super(ProjectAdminMixin, self).get_context_data(**kwargs)
         context['project'] = self.get_project()
         return context
 
     def get_form(self, data=None, files=None, **kwargs):
-        '''Pass in project to form class instance'''
+        """Pass in project to form class instance"""
         kwargs['project'] = self.get_project()
         return self.form_class(data, files, **kwargs)
 

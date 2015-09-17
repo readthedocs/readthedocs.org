@@ -322,7 +322,7 @@ class ImportView(PrivateViewMixin, TemplateView):
 
 class ImportDemoView(PrivateViewMixin, View):
 
-    '''View to pass request on to import form to import demo project'''
+    """View to pass request on to import form to import demo project"""
 
     form_class = ProjectBasicsForm
     request = None
