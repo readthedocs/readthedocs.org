@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from django.contrib.messages import constants as message_const
 from django_dynamic_fixture import get
 from django_dynamic_fixture import new
+from guardian.shortcuts import get_objects_for_user
 from mock import patch
 
 from readthedocs.rtd_tests.base import WizardTestCase, MockBuildTestCase
@@ -221,3 +222,57 @@ class TestPrivateViews(MockBuildTestCase):
             self.assertFalse(Project.objects.filter(slug='pip').exists())
             remove_path_from_web.delay.assert_called_with(
                 path=project.doc_path)
+
+    def test_add_admin_user(self):
+        project = get(Project, slug='pip', users=[self.user])
+        anthony = get(User, username='anthony')
+
+        response = self.client.get('/dashboard/pip/users/')
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.post('/dashboard/pip/users/', {
+            'user': 'not-anthony',
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context['form'].errors)
+
+        self.assertEqual(project.users.count(), 1)
+
+        response = self.client.post('/dashboard/pip/users/', {
+            'user': 'anthony',
+        })
+        self.assertEqual(response.status_code, 302)
+
+        self.assertEqual(project.users.count(), 2)
+        self.assertTrue(anthony in project.users.all())
+
+        # Permission was assigned correctly.
+        self.assertTrue(project in get_objects_for_user(
+            anthony, 'projects.view_project'))
+
+    def test_remove_admin_user(self):
+        anthony = get(User, username='anthony')
+        project = get(Project, slug='pip', users=[self.user, anthony])
+
+        # Just to be sure that anthony has the correct permissions.
+        self.assertTrue(project in get_objects_for_user(
+            anthony, 'projects.view_project'))
+
+        response = self.client.post('/dashboard/pip/users/delete/', {})
+        self.assertEqual(response.status_code, 404)
+
+        response = self.client.post('/dashboard/pip/users/delete/', {
+            'username': 'not-anthony',
+        })
+        self.assertEqual(response.status_code, 404)
+
+        response = self.client.post('/dashboard/pip/users/delete/', {
+            'username': 'anthony',
+        })
+        self.assertEqual(response.status_code, 302)
+
+        self.assertTrue(anthony not in project.users.all())
+
+        # Permission were removed correctly.
+        self.assertTrue(project not in get_objects_for_user(
+            anthony, 'projects.view_project'))
