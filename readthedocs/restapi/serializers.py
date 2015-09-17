@@ -47,11 +47,6 @@ class BuildSerializer(serializers.ModelSerializer):
     commands = BuildCommandSerializer(many=True, read_only=True)
     state_display = serializers.ReadOnlyField(source='get_state_display')
 
-
-class VersionFullSerializer(VersionSerializer):
-
-    '''Serializer for all fields on version model'''
-
     class Meta:
         model = Build
         exclude = ('builder',)
