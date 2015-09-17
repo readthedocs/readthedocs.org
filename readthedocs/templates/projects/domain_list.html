@@ -16,6 +16,7 @@
     {% trans "This allows you to add domains to your project. This allows them to live in the same namespace in the URLConf for a subdomain or CNAME." %}
   </p>
 
+  {% if object_list %}
   <h3> {% trans "Existing Domains" %} </h3>
   <p>
     <ul>
@@ -30,6 +31,8 @@
     {% endfor %}
     </ul>
   </p>
+  {% endif %}
+  
   <h3> {% trans "Add new Domain" %} </h3>
   <form method="post" action="{% url 'projects_domains_create' project.slug %}">{% csrf_token %}
     {{ form.as_p }}
