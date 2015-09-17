@@ -4,28 +4,36 @@ from django.http import HttpResponseRedirect
 import logging
 import re
 
+from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
 
 
 log = logging.getLogger(__name__)
 
 
-def redirect_filename(project, filename=None):
+def redirect_filename(project, filename, version=None):
     """
     Return a path for a page. No protocol/domain is returned.
     """
+
     protocol = "http"
     # Handle explicit http redirects
     if filename.startswith(protocol):
         return filename
-    version = project.get_default_version()
-    lang = project.language
+
+    if version is None:
+        version_slug = project.get_default_version()
+    else:
+        version_slug = version.slug
+
+    language = project.language
+
     use_subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
     if use_subdomain:
         if project.single_version:
             return "/%s" % (filename,)
         else:
-            return "/%s/%s/%s" % (lang, version, filename,)
+            return "/%s/%s/%s" % (language, version_slug, filename,)
     else:
         if project.single_version:
             return reverse('docs_detail', kwargs={
@@ -35,13 +43,13 @@ def redirect_filename(project, filename=None):
         else:
             return reverse('docs_detail', kwargs={
                 'project_slug': project.slug,
-                'lang_slug': lang,
-                'version_slug': version,
+                'lang_slug': language,
+                'version_slug': version_slug,
                 'filename': filename,
             })
 
 
-def get_redirect_url(project, path):
+def get_redirect_url(project, path, version=None):
     """
     Redirect the given path for the given project. Will always return absolute
     paths, without domain.
@@ -51,14 +59,18 @@ def get_redirect_url(project, path):
             if path.startswith(project_redirect.from_url):
                 log.debug('Redirecting %s' % project_redirect)
                 cut_path = re.sub('^%s' % project_redirect.from_url, '', path)
-                to = redirect_filename(project=project, filename=cut_path)
+                to = redirect_filename(
+                    project=project,
+                    filename=cut_path,
+                    version=version)
                 return to
         elif project_redirect.redirect_type == 'page':
             if path == project_redirect.from_url:
                 log.debug('Redirecting %s' % project_redirect)
                 to = redirect_filename(
                     project=project,
-                    filename=project_redirect.to_url.lstrip('/'))
+                    filename=project_redirect.to_url.lstrip('/'),
+                    version=version)
                 return to
         elif project_redirect.redirect_type == 'exact':
             if path == project_redirect.from_url:
@@ -87,9 +99,12 @@ def get_redirect_response(request, full_path=None):
     if hasattr(request, 'slug'):
         project_slug = request.slug
     elif full_path.startswith('/docs/'):
+        # In this case we use the docs without subdomains. So let's strip the
+        # docs prefix.
         split = full_path.split('/')
         if len(split) > 2:
             project_slug = split[2]
+            full_path = '/'.join(split[3:])
     else:
         return None
 
@@ -100,7 +115,21 @@ def get_redirect_response(request, full_path=None):
             return None
 
     if project:
-        new_path = get_redirect_url(project, full_path)
+        version = None
+        if not project.single_version:
+            match = re.match(
+                r'^/(?P<language>[^/]+)/(?P<version_slug>[^/]+)/.*',
+                full_path)
+            if match:
+                version_slug = match.groupdict()['version_slug']
+                try:
+                    version = project.versions.get(slug=version_slug)
+                except Version.DoesNotExist:
+                    pass
+
+        new_path = get_redirect_url(project=project,
+                                    path=full_path,
+                                    version=version)
         if new_path is not None:
             # Re-use the domain and protocol used in the current request.
             # Redirects shouldn't change the domain, version or language.

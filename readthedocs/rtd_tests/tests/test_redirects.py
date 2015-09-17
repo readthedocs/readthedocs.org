@@ -1,8 +1,10 @@
+from django.http import HttpResponse
 from django.test import TestCase
 from django.test.utils import override_settings
 
 from django_dynamic_fixture import get
 from django_dynamic_fixture import fixture
+from mock import patch
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.projects.models import Project
@@ -212,6 +214,21 @@ class RedirectAppTests(TestCase):
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
             r['Location'], 'http://pip.readthedocs.org/en/latest/tutorial/install.html')
+
+    @override_settings(USE_SUBDOMAIN=True)
+    def test_redirect_keeps_version_number(self):
+        Redirect.objects.create(
+            project=self.pip, redirect_type='page',
+            from_url='/how_to_install.html', to_url='/install.html')
+        with patch('readthedocs.core.views._serve_docs') as _serve_docs:
+            _serve_docs.return_value = HttpResponse()
+            _serve_docs.return_value.status_code = 404
+            r = self.client.get('/en/0.8.1/how_to_install.html',
+                                HTTP_HOST='pip.readthedocs.org')
+            self.assertEqual(r.status_code, 302)
+            self.assertEqual(
+                r['Location'],
+                'http://pip.readthedocs.org/en/0.8.1/install.html')
 
     @override_settings(USE_SUBDOMAIN=True)
     def test_redirect_recognizes_custom_cname(self):
