@@ -9,28 +9,22 @@
 {% block editing-option-edit-proj %}class="active"{% endblock %}
 
 {% block project-domains-active %}active{% endblock %}
-{% block project_edit_content_header %}{% trans "Domains" %}{% endblock %}
+
+{% block project_edit_content_header %}
+
+{% if domain %}
+{% trans "Edit Domain" %}
+{% else %}
+{% trans "Create Domain" %}
+{% endif %}
+
+{% endblock %}
 
 {% block project_edit_content %}
-  <h3> {% trans "Existing Domains" %} </h3>
-  <p>
-    <ul>
-    {% for relationship in domains %}
-        <li>
-        <a href="{{ relationship.get_absolute_url }}">
-        {{ relationship.child }}
-        </a>
-        (<a href="{% url "projects_domains_delete" relationship.parent.slug relationship.child.slug %}">{% trans "Remove" %}</a>)
-        </li>
-    {% endfor %}
-    </ul>
-  <p>
-    {% trans "Choose which project you would like to add as a domain." %}
-  </p>
   {% if domain %}
-    {% url 'projects_domains_create' project.slug as action_url %}
-  {% else %}
     {% url 'projects_domains_edit' project.slug domain.pk as action_url %}
+  {% else %}
+    {% url 'projects_domains_create' project.slug as action_url %}
   {% endif %}
   <form method="post" action="{{ action_url }}">{% csrf_token %}
     {{ form.as_p }}
