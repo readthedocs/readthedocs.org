@@ -4,10 +4,10 @@ import os
 import logging
 
 from django.conf import settings
-import redis
 
 from readthedocs.core.utils import run_on_app_servers
 from readthedocs.projects.constants import LOG_TEMPLATE
+from readthedocs.projects.models import Domain
 from readthedocs.restapi.client import api
 
 log = logging.getLogger(__name__)
@@ -23,29 +23,27 @@ def symlink_cnames(version):
     Link from HOME/user_builds/cnametoproject/<cname> ->
               HOME/user_builds/<project>/
     """
-    try:
-        redis_conn = redis.Redis(**settings.REDIS)
-        cnames = redis_conn.smembers('rtd_slug:v1:%s' % version.project.slug)
-    except redis.ConnectionError:
-        log.error(LOG_TEMPLATE
-                  .format(project=version.project.slug, version=version.slug,
-                          msg='Failed to symlink cnames, Redis error.'),
-                  exc_info=True)
-        return
-    for cname in cnames:
-        log.debug(LOG_TEMPLATE
-                  .format(project=version.project.slug, version=version.slug,
-                          msg="Symlinking CNAME: %s" % cname))
+    domains = Domain.objects.filter(project=version.project, cname=True)
+    for domain in domains:
+        log.debug(LOG_TEMPLATE.format(
+            project=version.project.slug,
+            version=version.slug,
+            msg="Symlinking CNAME: %s" % domain.clean_host)
+        )
         docs_dir = version.project.rtd_build_path(version.slug)
         # Chop off the version from the end.
         docs_dir = '/'.join(docs_dir.split('/')[:-1])
         # Old symlink location -- Keep this here til we change nginx over
-        symlink = version.project.cnames_symlink_path(cname)
+        symlink = version.project.cnames_symlink_path(domain.clean_host)
         run_on_app_servers('mkdir -p %s' % '/'.join(symlink.split('/')[:-1]))
         run_on_app_servers('ln -nsf %s %s' % (docs_dir, symlink))
         # New symlink location
         new_docs_dir = version.project.doc_path
-        new_cname_symlink = os.path.join(getattr(settings, 'SITE_ROOT'), 'cnametoproject', cname)
+        new_cname_symlink = os.path.join(
+            getattr(settings, 'SITE_ROOT'),
+            'cnametoproject',
+            domain.clean_host,
+        )
         run_on_app_servers('mkdir -p %s' % '/'.join(new_cname_symlink.split('/')[:-1]))
         run_on_app_servers('ln -nsf %s %s' % (new_docs_dir, new_cname_symlink))
 

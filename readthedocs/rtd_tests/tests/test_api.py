@@ -67,7 +67,7 @@ class APIBuildTests(TestCase):
         _try_post()
 
         api_user = get(User, staff=False, password='test')
-        assert api_user.is_staff == False
+        assert api_user.is_staff is False
         client.force_authenticate(user=api_user)
         _try_post()
 

@@ -16,7 +16,7 @@ from readthedocs.builds.constants import TAG
 from readthedocs.core.utils import trigger_build
 from readthedocs.redirects.models import Redirect
 from readthedocs.projects import constants
-from readthedocs.projects.models import Project, EmailHook, WebHook
+from readthedocs.projects.models import Project, EmailHook, WebHook, Domain
 from readthedocs.privacy.loader import AdminPermission
 
 
@@ -126,19 +126,8 @@ class ProjectExtraForm(ProjectForm):
             'documentation_type',
             'language', 'programming_language',
             'project_url',
-            'canonical_url',
             'tags',
         )
-
-    def __init__(self, *args, **kwargs):
-        super(ProjectExtraForm, self).__init__(*args, **kwargs)
-        self.fields['canonical_url'].widget.attrs['placeholder'] = self.placehold_canonical_url()
-
-    def placehold_canonical_url(self):
-        return choice([
-            'http://docs.fabfile.org',
-            'http://example.readthedocs.org',
-        ])
 
 
 class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
@@ -198,7 +187,6 @@ class UpdateProjectForm(ProjectTriggerBuildMixin, ProjectBasicsForm,
             'documentation_type',
             'language', 'programming_language',
             'project_url',
-            'canonical_url',
             'tags',
         )
 
@@ -476,3 +464,26 @@ class RedirectForm(forms.ModelForm):
             to_url=self.cleaned_data['to_url'],
         )
         return redirect
+
+
+class DomainForm(forms.ModelForm):
+    project = forms.CharField(widget=forms.HiddenInput(), required=False)
+
+    class Meta:
+        model = Domain
+        exclude = ['machine', 'cname', 'count']
+
+    def __init__(self, *args, **kwargs):
+        self.project = kwargs.pop('project', None)
+        super(DomainForm, self).__init__(*args, **kwargs)
+
+    def clean_project(self):
+        return self.project
+
+    def clean_canonical(self):
+        canonical = self.cleaned_data['canonical']
+        if canonical and Domain.objects.filter(
+            project=self.project, canonical=True
+        ).exclude(url=self.cleaned_data['url']).exists():
+            raise forms.ValidationError(_(u'Only 1 Domain can be canonical at a time.'))
+        return canonical

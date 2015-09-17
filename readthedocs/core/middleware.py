@@ -7,7 +7,7 @@ from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.http import Http404
 
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Project, Domain
 
 import redis
 
@@ -71,6 +71,22 @@ class SubdomainMiddleware(object):
                     log.debug(LOG_TEMPLATE.format(
                         msg='CNAME detetected: %s' % request.slug,
                         **log_kwargs))
+                    try:
+                        proj = Project.objects.get(slug=slug)
+                        domain, created = Domain.objects.get_or_create(
+                            project=proj,
+                            url=host,
+                        )
+                        if created:
+                            domain.machine = True
+                        domain.cname = True
+                        # Track basic domain counts so we know which are heavily used
+                        domain.count = domain.count + 1
+                        domain.save()
+                    except (ObjectDoesNotExist, MultipleObjectsReturned):
+                        log.debug(LOG_TEMPLATE.format(
+                            msg='Project CNAME does not exist: %s' % slug,
+                            **log_kwargs))
                 except:
                     # Some crazy person is CNAMEing to us. 404.
                     log.exception(LOG_TEMPLATE.format(msg='CNAME 404', **log_kwargs))

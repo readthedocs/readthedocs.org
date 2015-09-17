@@ -3,9 +3,8 @@
 from readthedocs.builds.models import Version
 from django.contrib import admin
 from readthedocs.redirects.models import Redirect
-from readthedocs.projects.models import (Project, ImportedFile,
-                                         ProjectRelationship, EmailHook,
-                                         WebHook)
+from .models import (Project, ImportedFile,
+                     ProjectRelationship, EmailHook, WebHook, Domain)
 from guardian.admin import GuardedModelAdmin
 
 
@@ -32,6 +31,10 @@ class RedirectInline(admin.TabularInline):
     model = Redirect
 
 
+class DomainInline(admin.TabularInline):
+    model = Domain
+
+
 class ProjectAdmin(GuardedModelAdmin):
 
     """Project model admin view"""
@@ -42,7 +45,7 @@ class ProjectAdmin(GuardedModelAdmin):
                    'documentation_type', 'programming_language')
     list_editable = ('featured',)
     search_fields = ('slug', 'repo')
-    inlines = [ProjectRelationshipInline, RedirectInline, VersionInline]
+    inlines = [ProjectRelationshipInline, RedirectInline, VersionInline, DomainInline]
     raw_id_fields = ('users', 'main_language_project')
 
 
@@ -53,7 +56,12 @@ class ImportedFileAdmin(admin.ModelAdmin):
     list_display = ('path', 'name', 'version')
 
 
+class DomainAdmin(admin.ModelAdmin):
+    list_display = ('url', 'project')
+    model = Domain
+
 admin.site.register(Project, ProjectAdmin)
 admin.site.register(ImportedFile, ImportedFileAdmin)
+admin.site.register(Domain, DomainAdmin)
 admin.site.register(EmailHook)
 admin.site.register(WebHook)

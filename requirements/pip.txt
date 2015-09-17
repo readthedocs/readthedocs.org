@@ -14,6 +14,7 @@ celery-haystack==0.7.2
 django-guardian==1.3.0
 django-extensions==1.3.8
 djangorestframework==3.0.4
+django-vanilla-views==1.0.4
 pytest-django==2.8.0
 
 requests==2.3.0
