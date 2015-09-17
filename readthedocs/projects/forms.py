@@ -467,14 +467,18 @@ class RedirectForm(forms.ModelForm):
 
 
 class DomainForm(forms.ModelForm):
+    project = forms.CharField(widget=forms.HiddenInput(), required=False)
 
     class Meta:
         model = Domain
-        exclude = ['project', 'machine', 'cname', 'count']
+        exclude = ['machine', 'cname', 'count']
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)
         super(DomainForm, self).__init__(*args, **kwargs)
+
+    def clean_project(self):
+        return self.project
 
     def clean_canonical(self):
         canonical = self.cleaned_data['canonical']
@@ -483,10 +487,3 @@ class DomainForm(forms.ModelForm):
         ).exclude(url=self.cleaned_data['url']).exists():
             raise forms.ValidationError(_(u'Only 1 Domain can be canonical at a time.'))
         return canonical
-
-    def save(self, *args, **kwargs):
-        kwargs['commit'] = False
-        domain = super(DomainForm, self).save(*args, **kwargs)
-        domain.project = self.project
-        domain.save()
-        return domain
