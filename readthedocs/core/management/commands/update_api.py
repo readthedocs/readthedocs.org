@@ -16,12 +16,12 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('--docker', action='store_true', default=False)
+        parser.add_argument('projects', nargs='+', type=str)
 
     def handle(self, *args, **options):
         docker = options.get('docker', False)
-        if len(args):
-            for slug in args:
-                project_data = api.project(slug).get()
-                p = tasks.make_api_project(project_data)
-                log.info("Building %s" % p)
-                tasks.update_docs.run(pk=p.pk, docker=docker)
+        for slug in options['projects']:
+            project_data = api.project(slug).get()
+            p = tasks.make_api_project(project_data)
+            log.info("Building %s" % p)
+            tasks.update_docs.run(pk=p.pk, docker=docker)
