@@ -10,6 +10,14 @@ logger = logging.getLogger(__name__)
 DEFAULT_PRIVACY_LEVEL = getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public')
 
 
+class OAuthRepositoryManager(models.Manager):
+    pass
+
+
+class OAuthOrganizationManager(models.Manager):
+    pass
+
+
 class GithubProjectManager(models.Manager):
     def create_from_api(self, api_json, user, organization=None,
                         privacy=DEFAULT_PRIVACY_LEVEL):
