@@ -61,23 +61,14 @@ function Organization (instance) {
     var self = this;
     self.id = ko.observable(instance.id);
     self.name = ko.observable(instance.name);
-    self.login = ko.observable(instance.login);
+    self.slug = ko.observable(instance.slug);
     self.active = ko.observable(instance.active);
     self.avatar_url = ko.observable(
         append_url_params(instance.avatar_url, {size: 32})
     );
     self.display_name = ko.computed(function () {
-        return self.name() || self.login();
+        return self.name() || self.slug();
     });
-}
-
-function Owner (instance) {
-    var self = this;
-    self.name = ko.observable(instance.name);
-    self.avatar_url = ko.observable(
-        append_url_params(instance.avatar_url, {size: 32})
-    );
-    self.login = ko.observable(instance.login);
 }
 
 function Project (instance) {
@@ -89,10 +80,18 @@ function Project (instance) {
     if (instance.organization) {
         self.organization(new Organization(instance.organization));
     }
-    self.owner = ko.observable(new Owner(instance.owner));
-    self.url = ko.observable(instance.url);
+    self.http_url = ko.observable(instance.http_url);
+    self.clone_url = ko.observable(instance.clone_url);
+    self.ssh_url = ko.observable(instance.ssh_url);
     self.private = ko.observable(instance.private);
     self.active = ko.observable(instance.active);
+    self.avatar_url = ko.observable(
+        append_url_params(instance.avatar_url, {size: 32})
+    );
+
+    self.import_repo = function () {
+        alert('FUCK');
+    };
 }
 
 function ProjectImportView (instance, urls) {
@@ -128,7 +127,7 @@ function ProjectImportView (instance, urls) {
     ko.computed(function () {
         var org = self.filter_org(),
             orgs = self.organizations(),
-            url = self.page_current() || self.urls['githubproject-list'];
+            url = self.page_current() || self.urls['oauthrepository-list'];
 
         if (org) {
             url = append_url_params(url, {org: org});
@@ -153,7 +152,7 @@ function ProjectImportView (instance, urls) {
     });
 
     self.get_organizations = function () {
-        $.getJSON(self.urls['githuborganization-list'])
+        $.getJSON(self.urls['oauthorganization-list'])
             .success(function (organizations) {
                 self.organizations_raw(organizations.results);
             })

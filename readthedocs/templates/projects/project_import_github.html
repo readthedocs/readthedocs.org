@@ -1,62 +1,98 @@
-{% extends "projects/project_import_from_service.html" %}
+{% extends "base.html" %}
+{% load static %}
 {% load i18n %}
 
+{% block title %}{% trans "Import a Remote Repository" %}{% endblock %}
 
-{% block title %}{% trans "Import a GitHub project" %}{% endblock %}
+{% block extra_links %}
+  <link rel="stylesheet" type="text/css" href="{% static "projects/css/import.css" %}" />
+{% endblock %}
 
-{% block content-header %}<h1>{% trans "Import a GitHub project" %}</h1>{% endblock %}
+{% block extra_scripts %}
+  <script type="text/javascript" src="{% static "vendor/knockout.js" %}"></script>
+  <script type="text/javascript" src="{% static "core/js/projectimport.js" %}"></script>
+  <script type="text/javascript">
+var import_views = require('core/projectimport');
+$(document).ready(function() {
+    var urls = {
+            'api_sync_github_repositories': '{% url 'api_sync_github_repositories' %}',
+            'api_sync_bitbucket_repositories': '{% url 'api_sync_bitbucket_repositories' %}',
+            'oauthorganization-list': '{% url 'oauthorganization-list' %}',
+            'oauthrepository-list': '{% url 'oauthrepository-list' %}',
+        },
+        instance = {}, {# projects_json|safe, #}
+        view = import_views.ProjectImportView.init(
+            $('body').get(0),
+            instance,
+            urls
+        );
+});
+  </script>
+{% endblock %}
+
 
 {% block content %}
   {% if github_connected %}
 
-    {% block top_content %}
-      {% url 'api_sync_github_repositories' as sync_url %}
-      <button data-bind="click: function() { sync_projects('{{ sync_url }}') }">
-        {% trans "Sync your GitHub organizations and projects" %}
-      </button>
-    {% endblock top_content %}
-
-    <ul class="notifications">
-      <li class="notification notification-20"
-          data-bind="visible: is_syncing",
-          style="display: none;">
-        {% blocktrans %}Syncing ...{% endblocktrans %}
-      </li>
-
-      <li class="notification notification-40"
-          data-bind="show: error, text: error">
+    <ul
+        class="notifications"
+        style="display: none;"
+        data-bind="visible: error">
+      <li
+          class="notification notification-40"
+          data-bind="text: error">
       </li>
     </ul>
 
     {% block main_content %}
-      <div class="col-major">
+      <div class="col-major project-import-remote">
 
-        <p>
-          <a href="#" data-bind="visible: page_previous, click: previous_page">
-            Previous
-          </a>
-          <a href="#" data-bind="visible: page_next, click: next_page">
-            Next
-          </a>
-        </p>
+        {% url 'api_sync_github_repositories' as sync_url %}
+        <button
+            data-bind="click: function() { sync_projects('{{ sync_url }}') }"
+            class="remote-sync">
+          {% trans "Refresh your accounts" %}
+        </button>
+
+        <!--
+        <li class="notification notification-20"
+            data-bind="visible: is_syncing",
+            style="display: none;">
+          {% blocktrans %}Syncing ...{% endblocktrans %}
+          </li>
+        -->
+
+        <h1>{% trans "Import a Remote Repository" %}</h1>
 
         <div class="module repository-list">
           <div class="module-wrapper">
             <div class="module-list">
               <div class="module-list-wrapper">
 
-                <ul data-bind="foreach: projects">
-                  <li class="module-item">
+                <ul data-bind="foreach: projects" class="remote-repos">
+                  <li class="module-item remote-repo">
 
-                    <span data-bind="with: owner">
-                      <img data-bind="attr: {src: avatar_url}" height=24 />
-                    </span>
+                    <img
+                        data-bind="attr: {src: avatar_url}"
+                        height="24"
+                        class="remote-repo-avatar" />
 
-                    <a data-bind="attr: {href: url}, text: name"></a>
+                    <div class="remote-repo-info">
+                      <a
+                          data-bind="attr: {href: ssh_url}, text: full_name"
+                          class="remote-repo-name">
+                      </a>
+                      <span
+                          data-bind="text: ssh_url"
+                          class="remote-repo-url">
+                      </span>
+                    </div>
 
-                    <ul class="module-item-menu">
-                      <button style="margin: 0px;">
-                        {% trans "Create" %}
+                    <ul class="module-item-menu remote-repo-menu">
+                      <button
+                          data-bind="click: import_repo"
+                          class="remote-repo-import">
+                        +
                       </button>
                     </ul>
 
@@ -68,24 +104,43 @@
           </div>
         </div>
 
-        <p>
-          <a href="#" data-bind="visible: page_previous, click: previous_page">
-            Previous
+        <div class="pagination">
+          <span data-bind="visible: !page_previous()" class="disabled prev">
+            ‹‹ {% trans "previous" %}
+          </span>
+          <a
+              href="#"
+              data-bind="visible: page_previous, click: previous_page"
+              class="prev">
+            ‹‹ {% trans "previous" %}
           </a>
-          <a href="#" data-bind="visible: page_next, click: next_page">
-            Next
+
+          <span data-bind="visible: !page_next()" class="disabled next">
+            {% trans "next" %} ››
+          </span>
+          <a
+              href="#"
+              data-bind="visible: page_next, click: next_page"
+              class="next">
+            {% trans "next" %} ››
           </a>
-        </p>
+        </div>
 
       </div>
     {% endblock main_content %}
 
     {% block sidebar_content %}
-      <div class="col-minor">
-        <ul data-bind="foreach: organizations">
-          <li>
-            <img data-bind="attr: {src: avatar_url}" height=32 />
-            <a href="#" data-bind="text: display_name, click: function () { $root.filter_org(id()); }"></a>
+      <div class="col-minor import-remote-sidebar">
+        <h3>{% trans "Remote Organizations" %}</h3>
+
+        <ul data-bind="foreach: organizations" class="remote-orgs">
+          <li class="remote-org">
+            <img data-bind="attr: {src: avatar_url}" class="remote-org-avatar" />
+            <a
+                href="#"
+                data-bind="text: display_name, click: function () { $root.filter_org(id()); }"
+                class="remote-org-name">
+            </a>
           </li>
         </ul>
       </div>

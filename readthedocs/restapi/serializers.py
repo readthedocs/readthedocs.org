@@ -2,8 +2,7 @@ from rest_framework import serializers
 
 from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.projects.models import Project, Domain
-from readthedocs.oauth.models import (GithubOrganization, GithubProject,
-                                      BitbucketTeam, BitbucketProject)
+from readthedocs.oauth.models import OAuthOrganization, OAuthRepository
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -84,37 +83,19 @@ class DomainSerializer(serializers.ModelSerializer):
         )
 
 
-class GithubOrganizationSerializer(serializers.ModelSerializer):
-
-    avatar_url = serializers.ReadOnlyField()
+class OAuthOrganizationSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = GithubOrganization
+        model = OAuthOrganization
         exclude = ('json', 'email', 'users')
 
 
-class GithubProjectSerializer(serializers.ModelSerializer):
+class OAuthRepositorySerializer(serializers.ModelSerializer):
 
-    """Github project serializer"""
+    """OAuth service repository serializer"""
 
-    private = serializers.ReadOnlyField(source='is_private')
-    owner = serializers.ReadOnlyField()
-    organization = GithubOrganizationSerializer()
+    organization = OAuthOrganizationSerializer()
 
     class Meta:
-        model = GithubProject
+        model = OAuthRepository
         exclude = ('json', 'users')
-
-
-class BitbucketTeamSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = BitbucketTeam
-        exclude = ('json',)
-
-
-class BitbucketProjectSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = BitbucketProject
-        exclude = ('json',)

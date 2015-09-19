@@ -17,10 +17,8 @@ $(document).ready(function() {
     var urls = {
             'api_sync_github_repositories': '{% url 'api_sync_github_repositories' %}',
             'api_sync_bitbucket_repositories': '{% url 'api_sync_bitbucket_repositories' %}',
-            'bitbucketteam-list': '{% url 'bitbucketteam-list' %}',
-            'bitbucketproject-list': '{% url 'bitbucketproject-list' %}',
-            'githuborganization-list': '{% url 'githuborganization-list' %}',
-            'githubproject-list': '{% url 'githubproject-list' %}',
+            'oauthorganization-list': '{% url 'oauthorganization-list' %}',
+            'oauthrepository-list': '{% url 'oauthrepository-list' %}',
         },
         instance = {}, {# projects_json|safe, #}
         view = import_views.ProjectImportView.init(

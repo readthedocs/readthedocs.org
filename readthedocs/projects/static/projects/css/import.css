@@ -1,0 +1,73 @@
+div.project-import-remote h1 {
+  font-size: 1.2em;
+  margin: 0em 0em .5em 0em;
+}
+div.project-import-remote button.remote-sync {
+  float: right;
+  margin: 0em;
+}
+div.project-import-remote li.remote-repo {
+  padding-left: 3em;
+  padding-right: 3em;
+}
+div.project-import-remote li.remote-repo img.remote-repo-avatar {
+  float: left;
+  margin-left: -2.25em;
+  width: 1.5em;
+  height: 1.5em;
+  border-radius: .2em;
+  -moz-border-radius: .2em;
+  -ms-border-radius: .2em;
+  -webkit-border-radius: .2em;
+}
+div.project-import-remote li.remote-repo div.remote-repo-info {
+  height: 2.625em;
+  overflow: hidden;
+}
+div.project-import-remote li.remote-repo div.remote-repo-info a.remote-repo-name {
+  line-height: 1.5em;
+  text-decoration: none;
+}
+div.project-import-remote li.remote-repo div.remote-repo-info span.remote-repo-url {
+  display: block;
+  font-size: .75em;
+  line-height: 1.5em;
+  color: #999;
+}
+div.project-import-remote li.remote-repo ul.remote-repo-menu {
+  top: 10px;
+  right: 10px;
+}
+div.project-import-remote li.remote-repo ul.remote-repo-menu button.remote-repo-import {
+  font-size: 1em;
+  margin: .25em 0em;
+  width: 2.25em;
+  height: 2.125em;
+}
+div.import-remote-sidebar h1,
+div.import-remote-sidebar h2,
+div.import-remote-sidebar h3 {
+  font-size: 1.1em;
+}
+div.import-remote-sidebar li.remote-org {
+  margin: .5em 0em;
+  padding-left: 3em;
+}
+div.import-remote-sidebar li.remote-org img.remote-org-avatar {
+  float: left;
+  margin-left: -2.25em;
+  margin-right: .5em;
+  width: 1.5em;
+  height: 1.5em;
+  border-radius: .2em;
+  -moz-border-radius: .2em;
+  -ms-border-radius: .2em;
+  -webkit-border-radius: .2em;
+  vertical-align: baseline;
+}
+div.import-remote-sidebar li.remote-org a.remote-org-name {
+  font-size: 1em;
+  text-decoration: none;
+  line-height: 1.5em;
+  vertical-align: baseline;
+}

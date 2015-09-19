@@ -40,7 +40,10 @@ var sources = {
         'font/fontawesome-webfont.woff': {src: 'bower_components/font-awesome/fonts/fontawesome-webfont.woff'},
         'font/FontAwesome.otf': {src: 'bower_components/font-awesome/fonts/FontAwesome.otf'}
     },
-    projects: {'js/tools.js': {}},
+    projects: {
+        'js/tools.js': {},
+        'css/import.less': {},
+    },
     gold: {'js/gold.js': {}},
     donate: {'js/donate.js': {}}
 };
