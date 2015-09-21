@@ -52,6 +52,14 @@ div.import-remote-sidebar h3 {
 div.import-remote-sidebar li.remote-org {
   margin: .5em 0em;
   padding-left: 3em;
+  cursor: pointer;
+}
+div.import-remote-sidebar li.remote-org.remote-org-hidden span.remote-org-name {
+  color: #ccc;
+}
+div.import-remote-sidebar li.remote-org.remote-org-hidden img.remote-org-avatar {
+  opacity: .3;
+  filter: alpha(opacity=30);
 }
 div.import-remote-sidebar li.remote-org img.remote-org-avatar {
   float: left;
@@ -66,7 +74,7 @@ div.import-remote-sidebar li.remote-org img.remote-org-avatar {
   vertical-align: baseline;
 }
 div.import-remote-sidebar li.remote-org a.remote-org-name {
-  font-size: 1em;
+  font-size: .9em;
   text-decoration: none;
   line-height: 1.5em;
   vertical-align: baseline;
