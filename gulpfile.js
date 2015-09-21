@@ -22,7 +22,6 @@ var sources = {
     core: {
         'js/readthedocs-doc-embed.js': {expose: false},
         'js/autocomplete.js': {},
-        'js/projectimport.js': {},
         'css/badge_only.css': {src: 'bower_components/sphinx-rtd-theme/sphinx_rtd_theme/static/css/badge_only.css'},
         'css/theme.css': {src: 'bower_components/sphinx-rtd-theme/sphinx_rtd_theme/static/css/theme.css'},
 
@@ -42,6 +41,7 @@ var sources = {
     },
     projects: {
         'js/tools.js': {},
+        'js/import.js': {},
         'css/import.less': {},
     },
     gold: {'js/gold.js': {}},

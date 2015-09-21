@@ -10,9 +10,9 @@
 
 {% block extra_scripts %}
   <script type="text/javascript" src="{% static "vendor/knockout.js" %}"></script>
-  <script type="text/javascript" src="{% static "core/js/projectimport.js" %}"></script>
+  <script type="text/javascript" src="{% static "projects/js/import.js" %}"></script>
   <script type="text/javascript">
-var import_views = require('core/projectimport');
+var import_views = require('projects/import');
 $(document).ready(function() {
     var urls = {
             'api_sync_github_repositories': '{% url 'api_sync_github_repositories' %}',
@@ -21,7 +21,7 @@ $(document).ready(function() {
             'oauthrepository-list': '{% url 'oauthrepository-list' %}',
             'projects_import': '{% url 'projects_import' %}'
         },
-        instance = {}, {# projects_json|safe, #}
+        instance = {},
         view = import_views.ProjectImportView.init(
             $('body').get(0),
             instance,
