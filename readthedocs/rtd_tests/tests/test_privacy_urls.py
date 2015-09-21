@@ -3,7 +3,7 @@ from django.test import TestCase
 from django.core.urlresolvers import reverse
 
 from readthedocs.builds.models import Build, VersionAlias
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Project, Domain
 from readthedocs.rtd_tests.utils import create_user
 
 from django_dynamic_fixture import get
@@ -62,8 +62,13 @@ class AdminAccessTest(URLAccessMixin, TestCase):
         # Private
         '/dashboard/import/manual/demo/': {'status_code': 302},
         '/dashboard/pip/': {'status_code': 302},
+        '/dashboard/pip/subprojects/delete/sub/': {'status_code': 302},
+        '/dashboard/pip/translations/delete/sub/': {'status_code': 302},
         # This depends on an inactive project, we should make it not 404 here, but 400
-        '/dashboard/pip/version/latest/delete_html/': {'status_code': 404},
+        '/dashboard/pip/version/latest/delete_html/': {'status_code': 400},
+        '/dashboard/pip/users/delete/': {'status_code': 405},
+        '/dashboard/pip/notifications/delete/': {'status_code': 405},
+        '/dashboard/pip/redirects/delete/': {'status_code': 405},
     }
 
     def setUp(self):
@@ -71,14 +76,20 @@ class AdminAccessTest(URLAccessMixin, TestCase):
         self.build = get(Build, project=self.pip)
         self.tag = get(Tag, slug='coolness')
         self.alias = get(VersionAlias, slug='that_alias', project=self.pip)
+        self.subproject = get(Project, slug='sub', language='ja', users=[self.owner])
+        self.pip.add_subproject(self.subproject)
+        self.pip.translations.add(self.subproject)
+        self.domain = get(Domain, url='http://docs.foobar.com', project=self.pip)
         self.test_kwargs = {
             'project_slug': self.pip.slug,
             'version_slug': self.pip.versions.all()[0].slug,
             'filename': 'index.html',
-            'pk': self.build.pk,
             'type_': 'pdf',
             'tag': self.tag.slug,
             'alias_id': self.alias.pk,
+            'child_slug': self.subproject.slug,
+            'build_pk': self.build.pk,
+            'domain_pk': self.domain.pk,
         }
 
     def _test_url(self, urlpatterns):
@@ -90,7 +101,7 @@ class AdminAccessTest(URLAccessMixin, TestCase):
                     added_kwargs[kwarg] = self.test_kwargs[kwarg]
             path = reverse(name, kwargs=added_kwargs)
             print "Tested %s (%s)" % (name, path)
-            self.assertResponse(path, status_code=200)
+            self.assertResponse(path)
             print "Passed %s (%s)" % (name, path)
             added_kwargs = {}
 
