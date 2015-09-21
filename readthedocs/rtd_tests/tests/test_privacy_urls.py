@@ -187,6 +187,7 @@ class PrivateProjectUserAccessTest(PrivateProjectMixin, TestCase):
         '/dashboard/pip/redirects/delete/': {'status_code': 405},
     }
 
+    # Filtered out by queryset on projects that we don't own.
     default_status_code = 404
 
     def login(self):
@@ -198,6 +199,7 @@ class PrivateProjectUserAccessTest(PrivateProjectMixin, TestCase):
 
 class PrivateProjectUnauthAccessTest(PrivateProjectMixin, TestCase):
 
+    # Auth protected
     default_status_code = 302
 
     def login(self):

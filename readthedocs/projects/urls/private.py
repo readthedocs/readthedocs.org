@@ -3,7 +3,7 @@
 from django.conf.urls import patterns, url
 
 from readthedocs.projects.views.private import (
-    AliasList, ProjectDashboard, ImportView,
+    ProjectDashboard, ImportView,
     DomainList, DomainCreate, DomainDelete, DomainUpdate)
 from readthedocs.projects.backends.views import ImportWizardView, ImportDemoView
 

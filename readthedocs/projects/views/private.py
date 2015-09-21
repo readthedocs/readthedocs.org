@@ -1,13 +1,12 @@
 """Project views for authenticated users"""
 
 import logging
-import shutil
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.urlresolvers import reverse
-from django.http import (HttpResponseRedirect, HttpResponseNotAllowed, 
+from django.http import (HttpResponseRedirect, HttpResponseNotAllowed,
                          Http404,  HttpResponseBadRequest)
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, render_to_response, render
