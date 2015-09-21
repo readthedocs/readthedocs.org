@@ -50,9 +50,10 @@ class URLAccessMixin(object):
         deconstructed_urls = extract_views_from_urlpatterns(urlpatterns)
         added_kwargs = {}
         for (view, regex, namespace, name) in deconstructed_urls:
-            for kwarg in self.test_kwargs:
-                if kwarg in re.compile(regex).groupindex.keys():
-                    added_kwargs[kwarg] = self.test_kwargs[kwarg]
+            for key in re.compile(regex).groupindex.keys():
+                if key not in self.test_kwargs:
+                    raise Exception('URL argument not in test kwargs. Please add `%s`' % key)
+                added_kwargs[key] = self.test_kwargs[key]
             path = reverse(name, kwargs=added_kwargs)
             print "Tested %s (%s)" % (name, path)
             self.assertResponse(path)
