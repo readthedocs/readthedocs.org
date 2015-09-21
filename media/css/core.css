@@ -52,6 +52,13 @@ pre { margin: 15px 0; white-space: pre; overflow: auto; }
 pre, code, tt { font-family: "inconsolata", "inconsolata-1", "inconsolata-2", 'bitstream vera sans mono', 'andale mono', 'lucida console', monospace; line-height: 20px; }
 textarea, input, select { font-family: "inconsolata", "inconsolata-1", "inconsolata-2", 'bitstream vera sans mono', 'andale mono', 'lucida console', monospace; font-size: 16px; line-height: 20px; }
 
+@font-face {
+  font-family: 'FontAwesome';
+  src: url('../fonts/fontawesome-webfont.eot?v=4.4.0');
+  src: url('../fonts/fontawesome-webfont.eot?#iefix&v=4.4.0') format('embedded-opentype'), url('../fonts/fontawesome-webfont.woff?v=4.4.0') format('woff'), url('../fonts/fontawesome-webfont.ttf?v=4.4.0') format('truetype'), url('../fonts/fontawesome-webfont.svg?v=4.4.0#fontawesomeregular') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
 
 /* tables */
 
@@ -591,6 +598,21 @@ p.build-missing { font-size: .8em; color: #9d9a55; margin: 0 0 3px; }
 
 div.project-version-list span.version-branch {
     font-size: .9em;
+}
+
+/* Project import */
+div.project-import-remote li.remote-repo button.remote-repo-import span,
+div.project-import-remote button.remote-sync span {
+    display: none;
+}
+
+div.project-import-remote li.remote-repo button.remote-repo-import:before {
+    font-family: FontAwesome;
+    content: "\f067";
+}
+div.project-import-remote button.remote-sync:before {
+    font-family: FontAwesome;
+    content: "\f021";
 }
 
 /* Donate */

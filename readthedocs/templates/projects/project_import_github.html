@@ -58,7 +58,7 @@ $(document).ready(function() {
         <button
             data-bind="click: function() { sync_projects('{{ sync_url }}') }"
             class="remote-sync">
-          {% trans "Refresh your accounts" %}
+          <span>{% trans "Refresh your accounts" %}</span>
         </button>
 
         <!--
@@ -99,7 +99,7 @@ $(document).ready(function() {
                       <button
                           data-bind="click: import_repo"
                           class="remote-repo-import">
-                        +
+                        <span>+</span>
                       </button>
                     </ul>
 
