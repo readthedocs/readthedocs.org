@@ -715,9 +715,15 @@ class Project(models.Model):
         return (versions.filter(built=True, active=True) |
                 versions.filter(active=True, uploaded=True))
 
-    def ordered_active_versions(self):
+    def ordered_active_versions(self, user=None):
         from readthedocs.builds.models import Version
-        versions = Version.objects.public(project=self, only_active=True)
+        kwargs = {
+            'project': self,
+            'only_active': True,
+        }
+        if user:
+            kwargs['user'] = user
+        versions = Version.objects.public(**kwargs)
         return sort_version_aware(versions)
 
     def all_active_versions(self):

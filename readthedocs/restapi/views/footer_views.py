@@ -107,7 +107,7 @@ def footer_html(request):
         'path': path,
         'downloads': version.get_downloads(pretty=True),
         'current_version': version.verbose_name,
-        'versions': project.ordered_active_versions(),
+        'versions': project.ordered_active_versions(user=request.user),
         'main_project': main_project,
         'translations': main_project.translations.all(),
         'current_language': project.language,
