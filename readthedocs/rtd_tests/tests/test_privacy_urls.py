@@ -145,13 +145,16 @@ class PublicProjectUnauthAccessTest(PublicProjectMixin, TestCase):
 class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
 
     url_responses = {
-        # Private
+        # Places where we 302 on success -- These delete pages should probably be 405'ing
         '/dashboard/import/manual/demo/': {'status_code': 302},
         '/dashboard/pip/': {'status_code': 302},
         '/dashboard/pip/subprojects/delete/sub/': {'status_code': 302},
         '/dashboard/pip/translations/delete/sub/': {'status_code': 302},
-        # This depends on an inactive project, we should make it not 404 here, but 400
+
+        # This depends on an inactive project
         '/dashboard/pip/version/latest/delete_html/': {'status_code': 400},
+
+        # 405's where we should be POST'ing
         '/dashboard/pip/users/delete/': {'status_code': 405},
         '/dashboard/pip/notifications/delete/': {'status_code': 405},
         '/dashboard/pip/redirects/delete/': {'status_code': 405},
@@ -167,6 +170,7 @@ class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
 class PrivateProjectUserAccessTest(PrivateProjectMixin, TestCase):
 
     url_responses = {
+        # Auth'd users can import projects, have no perms on pip
         '/dashboard/': {'status_code': 200},
         '/dashboard/import/': {'status_code': 200},
         '/dashboard/import/manual/': {'status_code': 200},
@@ -174,10 +178,10 @@ class PrivateProjectUserAccessTest(PrivateProjectMixin, TestCase):
         '/dashboard/import/github/': {'status_code': 200},
         '/dashboard/import/bitbucket/': {'status_code': 200},
 
-        # Unauth access redirect
+        # Unauth access redirect for non-owners
         '/dashboard/pip/': {'status_code': 302},
 
-        # 405's
+        # 405's where we should be POST'ing
         '/dashboard/pip/users/delete/': {'status_code': 405},
         '/dashboard/pip/notifications/delete/': {'status_code': 405},
         '/dashboard/pip/redirects/delete/': {'status_code': 405},
