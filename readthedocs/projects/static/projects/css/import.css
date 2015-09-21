@@ -6,6 +6,7 @@ div.project-import-remote button.remote-sync {
   float: right;
   margin: 0em;
   font-size: 1em;
+  font-weight: normal;
   padding: .25em 1em;
 }
 div.project-import-remote li.remote-repo {
@@ -45,6 +46,7 @@ div.project-import-remote li.remote-repo ul.remote-repo-menu button.remote-repo-
   height: 2.125em;
   padding: .5em .75em;
   font-size: 1em;
+  font-weight: normal;
 }
 div.import-remote-sidebar h1,
 div.import-remote-sidebar h2,
