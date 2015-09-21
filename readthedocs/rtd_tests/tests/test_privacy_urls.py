@@ -1,3 +1,5 @@
+import re
+
 from django.contrib.admindocs.views import extract_views_from_urlpatterns
 from django.test import TestCase
 from django.core.urlresolvers import reverse
@@ -49,7 +51,7 @@ class URLAccessMixin(object):
         added_kwargs = {}
         for (view, regex, namespace, name) in deconstructed_urls:
             for kwarg in self.test_kwargs:
-                if kwarg in regex:
+                if kwarg in re.compile(regex).groupindex.keys():
                     added_kwargs[kwarg] = self.test_kwargs[kwarg]
             path = reverse(name, kwargs=added_kwargs)
             print "Tested %s (%s)" % (name, path)
