@@ -10,6 +10,8 @@ from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
 
+from guardian.shortcuts import assign
+
 from readthedocs.builds.constants import TAG
 from readthedocs.core.utils import trigger_build
 from readthedocs.redirects.models import Redirect
@@ -373,6 +375,8 @@ class UserForm(forms.Form):
 
     def save(self):
         self.project.users.add(self.user)
+        # Force update of permissions
+        assign('view_project', self.user, self.project)
         return self.user
 
 

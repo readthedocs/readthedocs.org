@@ -1,7 +1,5 @@
 import json
-from django.contrib.auth.models import User
 from django.test import TestCase
-from guardian.shortcuts import get_objects_for_user
 from readthedocs.builds.constants import LATEST
 from readthedocs.projects.models import Project
 from rest_framework.reverse import reverse
@@ -85,28 +83,3 @@ class TestProject(TestCase):
         self.pip.enable_epub_build = False
         with fake_paths_by_regex('\.epub$'):
             self.assertFalse(self.pip.has_epub(LATEST))
-
-    def test_users_relations_sets_permissions(self):
-        john = get(User)
-        maggy = get(User)
-
-        project = get(Project)
-
-        def get_projects(user):
-            return get_objects_for_user(user, 'projects.view_project')
-
-        self.assertTrue(project not in get_projects(john))
-
-        project.users.add(john)
-        self.assertTrue(project in get_projects(john))
-
-        project.users.remove(john)
-        self.assertTrue(project not in get_projects(john))
-
-        project.users.add(maggy)
-        self.assertTrue(project not in get_projects(john))
-        self.assertTrue(project in get_projects(maggy))
-
-        project.users = [john]
-        self.assertTrue(project in get_projects(john))
-        self.assertTrue(project not in get_projects(maggy))

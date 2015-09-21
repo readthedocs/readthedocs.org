@@ -10,12 +10,10 @@ from django.contrib.auth.models import User
 from django.core.exceptions import MultipleObjectsReturned
 from django.core.urlresolvers import reverse
 from django.db import models
-from django.db.models import signals
 from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext_lazy as _
 
-from guardian.shortcuts import assign_perm
-from guardian.shortcuts import remove_perm
+from guardian.shortcuts import assign
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.constants import LATEST_VERBOSE_NAME
@@ -69,9 +67,6 @@ class Project(models.Model):
     modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
 
     # Generally from conf.py
-
-    # Notice that adding/removing users is intercepted by set_user_permissions
-    # method.
     users = models.ManyToManyField(User, verbose_name=_('User'),
                                    related_name='projects')
     name = models.CharField(_('Name'), max_length=255)
@@ -288,6 +283,8 @@ class Project(models.Model):
             if self.slug == '':
                 raise Exception(_("Model must have slug"))
         super(Project, self).save(*args, **kwargs)
+        for owner in self.users.all():
+            assign('view_project', owner, self)
         try:
             if self.default_branch:
                 latest = self.versions.get(slug=LATEST)
@@ -889,36 +886,6 @@ class Project(models.Model):
             node = self.nodes.create(version=version, page=page,
                                      hash=content_hash, commit=commit)
         return node.comments.create(user=user, text=text)
-
-    @classmethod
-    def set_user_permissions(cls, sender, instance, action, reverse, pk_set,
-                             **kwargs):
-        assert not reverse, (
-            "You must add users to the project via the `users` field "
-            "on the project instance.")
-
-        def perform_action(set_perm, users, project):
-            for user in users:
-                set_perm('view_project', user, project)
-                for version in project.versions.all():
-                    set_perm('view_version', user, version)
-
-        if action == 'post_add':
-            users = User.objects.filter(pk__in=pk_set)
-            perform_action(assign_perm, users, instance)
-
-        if action == 'pre_remove':
-            users = User.objects.filter(pk__in=pk_set)
-            perform_action(remove_perm, users, instance)
-
-        if action == 'pre_clear':
-            users = instance.users.all()
-            perform_action(remove_perm, users, instance)
-
-
-signals.m2m_changed.connect(
-    Project.set_user_permissions,
-    sender=Project._meta.get_field('users').rel.through)
 
 
 class ImportedFile(models.Model):
