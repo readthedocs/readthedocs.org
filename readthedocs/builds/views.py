@@ -54,6 +54,7 @@ class BuildList(ListView):
 
 class BuildDetail(DetailView):
     model = Build
+    pk_url_kwarg = 'build_pk'
 
     def get_queryset(self):
         self.project_slug = self.kwargs.get('project_slug', None)
