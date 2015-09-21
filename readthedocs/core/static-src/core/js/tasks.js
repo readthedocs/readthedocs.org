@@ -3,7 +3,8 @@
 var jquery = require('jquery');
 
 function poll_task (data) {
-    var defer = jquery.Deferred();
+    var defer = jquery.Deferred(),
+        tries = 5;
 
     function poll_task_loop () {
         jquery
@@ -14,7 +15,7 @@ function poll_task (data) {
                         defer.resolve();
                     }
                     else {
-                        defer.reject(task.error || 'Error');
+                        defer.reject({message: task.error});
                     }
                 }
                 else {
@@ -23,7 +24,14 @@ function poll_task (data) {
             })
             .error(function (error) {
                 console.error('Error polling task:', error);
-                setTimeout(poll_task_loop, 2000);
+                failures -= 1;
+                if (failures > 0) {
+                    setTimeout(poll_task_loop, 2000);
+                }
+                else {
+                    var error_msg = error.responseJSON.detail || error.statusText;
+                    defer.reject({message: error_msg});
+                }
             });
     }
 
@@ -44,11 +52,14 @@ function trigger_task (url) {
                     defer.resolve();
                 })
                 .fail(function (error) {
+                    // The poll_task function defer will only reject with
+                    // normalized error objects
                     defer.reject(error);
                 });
         },
         error: function (error) {
-            defer.reject(error);
+            var error_msg = error.responseJSON.detail || error.statusText;
+            defer.reject({message: error_msg});
         }
     });
 

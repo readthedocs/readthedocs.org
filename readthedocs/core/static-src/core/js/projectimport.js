@@ -1,8 +1,7 @@
 var ko = require('knockout'),
     $ = require('jquery'),
-    tasks = require('./tasks');
-
-require('./django-csrf.js');
+    tasks = require('./tasks'),
+    csrf = require('./django-csrf.js');
 
 
 $(function() {
@@ -37,27 +36,9 @@ $(function() {
 
     repo.val(type);
   });
-
-  $('[data-sync-repositories]').each(function () {
-
-    function onSuccess(url) {
-      $.ajax({
-        method: 'GET',
-        url: window.location.href,
-        success: function (data) {
-          var $newContent = $(data).find(target);
-          $('body').find(target).replaceWith($newContent);
-          $('.sync-repositories').addClass('hide');
-          $('.sync-repositories-progress').addClass('hide');
-          $('.sync-repositories-success').removeClass('hide');
-        },
-        error: onError
-      });
-    }
-  });
 });
 
-function Organization (instance) {
+function Organization (instance, view) {
     var self = this;
     self.id = ko.observable(instance.id);
     self.name = ko.observable(instance.name);
@@ -69,18 +50,21 @@ function Organization (instance) {
     self.display_name = ko.computed(function () {
         return self.name() || self.slug();
     });
+    self.filtered = ko.computed(function () {
+        var id = view.filter_org();
+        return id && id != self.id();
+    });
 }
 
-function Project (instance) {
+function Project (instance, view) {
     var self = this;
     self.id = ko.observable(instance.id);
     self.name = ko.observable(instance.name);
     self.full_name = ko.observable(instance.full_name);
+    self.description = ko.observable(instance.description);
+    self.vcs = ko.observable(instance.vcs);
     self.organization = ko.observable();
-    if (instance.organization) {
-        self.organization(new Organization(instance.organization));
-    }
-    self.http_url = ko.observable(instance.http_url);
+    self.html_url = ko.observable(instance.html_url);
     self.clone_url = ko.observable(instance.clone_url);
     self.ssh_url = ko.observable(instance.ssh_url);
     self.private = ko.observable(instance.private);
@@ -90,7 +74,37 @@ function Project (instance) {
     );
 
     self.import_repo = function () {
-        alert('FUCK');
+        var data = {
+                name: self.name(),
+                repo: self.clone_url(),
+                repo_type: self.vcs(),
+                description: self.description(),
+                project_url: self.html_url(),
+            },
+            form = $('<form />');
+
+        form
+            .attr('action', view.urls.projects_import)
+            .attr('method', 'POST');
+
+        Object.keys(data).map(function (attr) {
+            var field = $('<input>')
+                .attr('type', 'hidden')
+                .attr('name', attr)
+                .attr('value', data[attr]);
+            form.append(field);
+        });
+
+        var token = csrf.get_cookie('csrftoken'),
+            csrf_field = $('<input>');
+
+        csrf_field
+            .attr('type', 'hidden')
+            .attr('name', 'csrfmiddlewaretoken')
+            .attr('value', token);
+        form.append(csrf_field);
+
+        form.submit();
     };
 }
 
@@ -111,18 +125,17 @@ function ProjectImportView (instance, urls) {
     self.page_previous = ko.observable(null);
     self.filter_org = ko.observable(null);
 
-
     self.organizations_raw = ko.observableArray();
     self.organizations = ko.computed(function () {
         var organizations = [],
             organizations_raw = self.organizations_raw();
         for (n in organizations_raw) {
-            var organization = new Organization(organizations_raw[n]);
+            var organization = new Organization(organizations_raw[n], self);
             organizations.push(organization);
         }
         return organizations;
     });
-    self.projects = ko.observableArray()
+    self.projects = ko.observableArray();
 
     ko.computed(function () {
         var org = self.filter_org(),
@@ -141,13 +154,14 @@ function ProjectImportView (instance, urls) {
 
                 for (n in projects_list.results) {
                     // TODO replace org id here
-                    var project = new Project(projects_list.results[n]);
+                    var project = new Project(projects_list.results[n], self);
                     projects.push(project);
                 }
                 self.projects(projects);
             })
             .error(function (error) {
-                self.error(error);
+                var error_msg = error.responseJSON.detail || error.statusText;
+                self.error({message: error_msg});
             });
     });
 
@@ -157,7 +171,8 @@ function ProjectImportView (instance, urls) {
                 self.organizations_raw(organizations.results);
             })
             .error(function (error) {
-                self.error(error);
+                var error_msg = error.responseJSON.detail || error.statusText;
+                self.error({message: error_msg});
             });
     };
 
@@ -172,21 +187,28 @@ function ProjectImportView (instance, urls) {
                 self.get_organizations();
             })
             .fail(function (error) {
-                error = error || 'An error occured';
                 self.error(error);
             })
             .always(function () {
                 self.is_syncing(false);
             })
-    }
+    };
 
     self.next_page = function () {
         self.page_current(self.page_next());
-    }
+    };
 
     self.previous_page = function () {
         self.page_current(self.page_previous());
-    }
+    };
+
+    self.set_filter_org = function (id) {
+        var current_id = self.filter_org();
+        if (current_id == id) {
+            id = null;
+        }
+        self.filter_org(id);
+    };
 }
 
 function append_url_params (url, params) {
