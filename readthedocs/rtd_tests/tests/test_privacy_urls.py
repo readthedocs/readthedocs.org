@@ -13,6 +13,7 @@ from taggit.models import Tag
 class URLAccessMixin(object):
 
     url_responses = {}
+    default_status_code = 200
 
     def login(self):
         raise NotImplementedError
@@ -27,7 +28,7 @@ class URLAccessMixin(object):
         if data is None:
             data = {}
 
-        additional_bits = self.url_responses.get(path, {})
+        additional_bits = self.url_responses.get(path, {}).copy()
         if 'data' in additional_bits:
             data.update(additional_bits['data'])
             del additional_bits['data']
@@ -35,13 +36,26 @@ class URLAccessMixin(object):
         response = method(path, data=data)
 
         response_attrs = {
-            'status_code': kwargs.pop('status_code', 200),
+            'status_code': kwargs.pop('status_code', self.default_status_code),
         }
         response_attrs.update(kwargs)
         response_attrs.update(additional_bits)
         for (key, val) in response_attrs.items():
             self.assertEqual(getattr(response, key), val)
         return response
+
+    def _test_url(self, urlpatterns):
+        deconstructed_urls = extract_views_from_urlpatterns(urlpatterns)
+        added_kwargs = {}
+        for (view, regex, namespace, name) in deconstructed_urls:
+            for kwarg in self.test_kwargs:
+                if kwarg in regex:
+                    added_kwargs[kwarg] = self.test_kwargs[kwarg]
+            path = reverse(name, kwargs=added_kwargs)
+            print "Tested %s (%s)" % (name, path)
+            self.assertResponse(path)
+            print "Passed %s (%s)" % (name, path)
+            added_kwargs = {}
 
     def setUp(self):
         # Previous Fixtures
@@ -50,29 +64,10 @@ class URLAccessMixin(object):
         self.pip = get(Project, slug='pip', users=[self.owner])
 
 
-class AdminAccessTest(URLAccessMixin, TestCase):
-
-    url_responses = {
-        # Public
-        '/projects/search/autocomplete/': {'data': {'term': 'pip'}},
-        '/projects/autocomplete/version/pip/': {'data': {'term': 'pip'}},
-        '/projects/pip/autocomplete/file/': {'data': {'term': 'pip'}},
-        '/projects/pip/downloads/pdf/latest/': {'status_code': 302},
-        '/projects/pip/badge/': {'status_code': 302},
-        # Private
-        '/dashboard/import/manual/demo/': {'status_code': 302},
-        '/dashboard/pip/': {'status_code': 302},
-        '/dashboard/pip/subprojects/delete/sub/': {'status_code': 302},
-        '/dashboard/pip/translations/delete/sub/': {'status_code': 302},
-        # This depends on an inactive project, we should make it not 404 here, but 400
-        '/dashboard/pip/version/latest/delete_html/': {'status_code': 400},
-        '/dashboard/pip/users/delete/': {'status_code': 405},
-        '/dashboard/pip/notifications/delete/': {'status_code': 405},
-        '/dashboard/pip/redirects/delete/': {'status_code': 405},
-    }
+class ProjectMixin(URLAccessMixin):
 
     def setUp(self):
-        super(AdminAccessTest, self).setUp()
+        super(ProjectMixin, self).setUp()
         self.build = get(Build, project=self.pip)
         self.tag = get(Tag, slug='coolness')
         self.alias = get(VersionAlias, slug='that_alias', project=self.pip)
@@ -92,29 +87,117 @@ class AdminAccessTest(URLAccessMixin, TestCase):
             'domain_pk': self.domain.pk,
         }
 
-    def _test_url(self, urlpatterns):
-        deconstructed_urls = extract_views_from_urlpatterns(urlpatterns)
-        added_kwargs = {}
-        for (view, regex, namespace, name) in deconstructed_urls:
-            for kwarg in self.test_kwargs:
-                if kwarg in regex:
-                    added_kwargs[kwarg] = self.test_kwargs[kwarg]
-            path = reverse(name, kwargs=added_kwargs)
-            print "Tested %s (%s)" % (name, path)
-            self.assertResponse(path)
-            print "Passed %s (%s)" % (name, path)
-            added_kwargs = {}
+
+class PublicProjectMixin(ProjectMixin):
+
+    url_responses = {
+        # Public
+        '/projects/search/autocomplete/': {'data': {'term': 'pip'}},
+        '/projects/autocomplete/version/pip/': {'data': {'term': 'pip'}},
+        '/projects/pip/autocomplete/file/': {'data': {'term': 'pip'}},
+        '/projects/pip/downloads/pdf/latest/': {'status_code': 302},
+        '/projects/pip/badge/': {'status_code': 302},
+    }
 
     def test_public_urls(self):
         from readthedocs.projects.urls.public import urlpatterns
         self._test_url(urlpatterns)
 
+
+class PrivateProjectMixin(ProjectMixin):
+
     def test_private_urls(self):
         from readthedocs.projects.urls.private import urlpatterns
         self._test_url(urlpatterns)
+
+# ## Public Project Testing ###
+
+
+class PublicProjectAdminAccessTest(PublicProjectMixin, TestCase):
 
     def login(self):
         return self.client.login(username='owner', password='test')
 
     def is_admin(self):
         return True
+
+
+class PublicProjectUserAccessTest(PublicProjectMixin, TestCase):
+
+    def login(self):
+        return self.client.login(username='tester', password='test')
+
+    def is_admin(self):
+        return False
+
+
+class PublicProjectUnauthAccessTest(PublicProjectMixin, TestCase):
+
+    def login(self):
+        pass
+
+    def is_admin(self):
+        return False
+
+# ## Private Project Testing ###
+
+
+class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
+
+    url_responses = {
+        # Private
+        '/dashboard/import/manual/demo/': {'status_code': 302},
+        '/dashboard/pip/': {'status_code': 302},
+        '/dashboard/pip/subprojects/delete/sub/': {'status_code': 302},
+        '/dashboard/pip/translations/delete/sub/': {'status_code': 302},
+        # This depends on an inactive project, we should make it not 404 here, but 400
+        '/dashboard/pip/version/latest/delete_html/': {'status_code': 400},
+        '/dashboard/pip/users/delete/': {'status_code': 405},
+        '/dashboard/pip/notifications/delete/': {'status_code': 405},
+        '/dashboard/pip/redirects/delete/': {'status_code': 405},
+    }
+
+    def login(self):
+        return self.client.login(username='owner', password='test')
+
+    def is_admin(self):
+        return True
+
+
+class PrivateProjectUserAccessTest(PrivateProjectMixin, TestCase):
+
+    url_responses = {
+        '/dashboard/': {'status_code': 200},
+        '/dashboard/import/': {'status_code': 200},
+        '/dashboard/import/manual/': {'status_code': 200},
+        '/dashboard/import/manual/demo/': {'status_code': 302},
+        '/dashboard/import/github/': {'status_code': 200},
+        '/dashboard/import/bitbucket/': {'status_code': 200},
+
+        # Unauth access redirect
+        '/dashboard/pip/': {'status_code': 302},
+
+        # 405's
+        '/dashboard/pip/users/delete/': {'status_code': 405},
+        '/dashboard/pip/notifications/delete/': {'status_code': 405},
+        '/dashboard/pip/redirects/delete/': {'status_code': 405},
+    }
+
+    default_status_code = 404
+
+    def login(self):
+        return self.client.login(username='tester', password='test')
+
+    def is_admin(self):
+        return False
+
+
+class PrivateProjectUnauthAccessTest(PrivateProjectMixin, TestCase):
+
+    default_status_code = 302
+
+    def login(self):
+        pass
+
+    def is_admin(self):
+        return False
