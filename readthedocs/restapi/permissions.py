@@ -45,7 +45,7 @@ class APIPermission(permissions.IsAuthenticatedOrReadOnly):
         return has_perm or (request.user and request.user.is_staff)
 
 
-class APIRestrictedPermission(permissions.IsAdminUser):
+class APIRestrictedPermission(permissions.IsAuthenticatedOrReadOnly):
     """Allow admin write, authenticated and anonymous read only
 
     This differs from :py:cls:`APIPermission` by not allowing for authenticated

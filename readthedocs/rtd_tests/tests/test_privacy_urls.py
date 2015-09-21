@@ -4,7 +4,7 @@ from django.contrib.admindocs.views import extract_views_from_urlpatterns
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 
-from readthedocs.builds.models import Build, VersionAlias
+from readthedocs.builds.models import Build, VersionAlias, BuildCommandResult
 from readthedocs.projects.models import Project, Domain
 from readthedocs.rtd_tests.utils import create_user
 
@@ -15,6 +15,7 @@ from taggit.models import Tag
 class URLAccessMixin(object):
 
     url_responses = {}
+    url_kwargs = {}
     default_status_code = 200
 
     def login(self):
@@ -50,7 +51,11 @@ class URLAccessMixin(object):
         deconstructed_urls = extract_views_from_urlpatterns(urlpatterns)
         added_kwargs = {}
         for (view, regex, namespace, name) in deconstructed_urls:
+            url_kwargs = self.url_kwargs.get(name, {}).copy()
             for key in re.compile(regex).groupindex.keys():
+                if key in url_kwargs.keys():
+                    added_kwargs[key] = url_kwargs[key]
+                    continue
                 if key not in self.test_kwargs:
                     raise Exception('URL argument not in test kwargs. Please add `%s`' % key)
                 added_kwargs[key] = self.test_kwargs[key]
@@ -204,6 +209,41 @@ class PrivateProjectUnauthAccessTest(PrivateProjectMixin, TestCase):
 
     # Auth protected
     default_status_code = 302
+
+    def login(self):
+        pass
+
+    def is_admin(self):
+        return False
+
+
+class APIMixin(URLAccessMixin):
+
+    def setUp(self):
+        super(APIMixin, self).setUp()
+        self.build = get(Build, project=self.pip)
+        self.build_command_result = get(BuildCommandResult, project=self.pip)
+        self.domain = get(Domain, url='http://docs.foobar.com', project=self.pip)
+        self.test_kwargs = {
+            'project_slug': self.pip.slug,
+            'version_slug': self.pip.versions.all()[0].slug,
+            'format': 'json',
+            'pk': self.pip.pk,
+        }
+        self.url_kwargs = {
+            'build-detail': {'pk': self.build.pk},
+            'buildcommandresult-detail': {'pk': self.build_command_result.pk},
+        }
+        self.url_responses = {
+            '/api/v2/version/downloads/': {'data': {'pk': self.pip.versions.all()[0].pk}},
+        }
+
+
+class APIUnauthAccessTest(APIMixin, TestCase):
+
+    def test_api_urls(self):
+        from readthedocs.restapi.urls import urlpatterns
+        self._test_url(urlpatterns)
 
     def login(self):
         pass
