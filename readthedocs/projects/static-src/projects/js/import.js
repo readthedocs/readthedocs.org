@@ -1,7 +1,7 @@
 var ko = require('knockout'),
     $ = require('jquery'),
-    tasks = require('./tasks'),
-    csrf = require('./django-csrf.js');
+    tasks = require('../../../../core/static-src/core/js/tasks'),
+    csrf = require('../../../../core/static-src/core/js/django-csrf');
 
 
 $(function() {
