@@ -177,7 +177,7 @@ function ProjectImportView (instance, urls) {
     };
 
     self.sync_projects = function () {
-        var url = self.urls.api_sync_github_repositories;
+        var url = self.urls.api_sync_remote_repositories;
 
         self.error(null);
         self.is_syncing(true);

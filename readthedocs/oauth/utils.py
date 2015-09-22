@@ -8,9 +8,11 @@ from django.utils.translation import ugettext_lazy as _
 from requests_oauthlib import OAuth1Session, OAuth2Session
 from allauth.socialaccount.models import SocialToken, SocialAccount
 
-from .models import GithubProject, GithubOrganization, BitbucketProject
 from readthedocs.builds import utils as build_utils
 from readthedocs.restapi.client import api
+
+from .models import OAuthOrganization, OAuthRepository
+
 
 log = logging.getLogger(__name__)
 
@@ -84,7 +86,7 @@ def github_paginate(session, url):
 
 
 def import_github(user, sync):
-    """ Do the actual github import """
+    """Do the actual github import"""
 
     session = get_oauth_session(user, provider='github')
     if sync and session:
@@ -92,7 +94,7 @@ def import_github(user, sync):
         owner_resp = github_paginate(session, 'https://api.github.com/user/repos?per_page=100')
         try:
             for repo in owner_resp:
-                GithubProject.objects.create_from_api(repo, user=user)
+                OAuthRepository.objects.create_from_github_api(repo, user=user)
         except TypeError, e:
             print e
 
@@ -101,7 +103,7 @@ def import_github(user, sync):
             resp = session.get('https://api.github.com/user/orgs')
             for org_json in resp.json():
                 org_resp = session.get('https://api.github.com/orgs/%s' % org_json['login'])
-                org_obj = GithubOrganization.objects.create_from_api(
+                org_obj = OAuthOrganization.objects.create_from_github_api(
                     org_resp.json(), user=user)
                 # Add repos
                 org_repos_resp = github_paginate(
@@ -109,7 +111,7 @@ def import_github(user, sync):
                     'https://api.github.com/orgs/%s/repos?per_page=100' % (
                         org_json['login']))
                 for repo in org_repos_resp:
-                    GithubProject.objects.create_from_api(
+                    OAuthRepository.objects.create_from_github_api(
                         repo, user=user, organization=org_obj)
         except TypeError, e:
             print e
@@ -178,13 +180,14 @@ def process_bitbucket_json(user, json):
     try:
         for page in json:
             for repo in page['values']:
-                BitbucketProject.objects.create_from_api(repo, user=user)
+                OAuthRepository.objects.create_from_bitbucket_api(repo,
+                                                                  user=user)
     except TypeError, e:
         print e
 
 
 def import_bitbucket(user, sync):
-    """ Do the actual github import """
+    """Import from Bitbucket"""
 
     session = get_oauth_session(user, provider='bitbucket')
     try:

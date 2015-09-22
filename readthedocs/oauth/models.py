@@ -8,10 +8,6 @@ from django.core.validators import URLValidator
 from readthedocs.projects.constants import REPO_CHOICES
 
 from .constants import OAUTH_SOURCE
-from .managers import BitbucketTeamManager
-from .managers import BitbucketProjectManager
-from .managers import GithubOrganizationManager
-from .managers import GithubProjectManager
 from .managers import OAuthRepositoryManager, OAuthOrganizationManager
 
 
@@ -136,7 +132,7 @@ class GithubOrganization(models.Model):
     active = models.BooleanField(_('Active'), default=False)
     json = models.TextField('JSON')
 
-    objects = GithubOrganizationManager()
+    #objects = GithubOrganizationManager()
 
     def __unicode__(self):
         return "GitHub Organization: %s" % (self.html_url)
@@ -172,7 +168,7 @@ class GithubProject(models.Model):
     active = models.BooleanField(_('Active'), default=False)
     json = models.TextField('JSON')
 
-    objects = GithubProjectManager()
+    #objects = GithubProjectManager()
 
     class Meta:
         ordering = ['organization__name', 'name']
@@ -217,7 +213,7 @@ class BitbucketTeam(models.Model):
     active = models.BooleanField(_('Active'), default=False)
     json = models.TextField('JSON')
 
-    objects = BitbucketTeamManager()
+    #objects = BitbucketTeamManager()
 
     def __unicode__(self):
         return "Bitbucket Team: %s" % (self.html_url)
@@ -243,7 +239,7 @@ class BitbucketProject(models.Model):
     active = models.BooleanField(_('Active'), default=False)
     json = models.TextField('JSON')
 
-    objects = BitbucketProjectManager()
+    #objects = BitbucketProjectManager()
 
     def __unicode__(self):
         return "Bitbucket Project: %s" % (self.html_url)
