@@ -16,6 +16,6 @@ after_success:
 notifications:
   slack:
     rooms:
-      - readthedocs:y3hjODOi7EIz1JAbD1Zb41sz#general
+      - readthedocs:y3hjODOi7EIz1JAbD1Zb41sz#random
     on_success: change
     on_failure: always

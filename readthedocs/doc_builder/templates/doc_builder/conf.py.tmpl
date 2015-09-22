@@ -49,8 +49,6 @@ if globals().get('source_suffix', False):
 else:
     SUFFIX = '.rst'
 
-
-
 #Add RTD Template Path.
 if 'templates_path' in globals():
     templates_path.insert(0, '{{ template_path }}')
@@ -63,12 +61,6 @@ if 'html_static_path' in globals():
     html_static_path.append('{{ static_path }}')
 else:
     html_static_path = ['_static', '{{ static_path }}']
-
-# Add RTD Theme Path. 
-if 'html_theme_path' in globals():
-    html_theme_path.append('{{ template_path }}')
-else:
-    html_theme_path = ['_themes', '{{ template_path }}']
 
 # Add RTD Theme only if they aren't overriding it already
 using_rtd_theme = False

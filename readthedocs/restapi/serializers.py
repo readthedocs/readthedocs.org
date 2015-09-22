@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from readthedocs.builds.models import Build, BuildCommandResult, Version
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Project, Domain
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -41,6 +41,7 @@ class BuildCommandSerializer(serializers.ModelSerializer):
 
 
 class BuildSerializer(serializers.ModelSerializer):
+
     """Readonly version of the build serializer, used for user facing display"""
 
     commands = BuildCommandSerializer(many=True, read_only=True)
@@ -52,6 +53,7 @@ class BuildSerializer(serializers.ModelSerializer):
 
 
 class BuildSerializerFull(BuildSerializer):
+
     """Writeable Build instance serializer, for admin access by builders"""
 
     class Meta:
@@ -63,3 +65,17 @@ class SearchIndexSerializer(serializers.Serializer):
     project = serializers.CharField(max_length=500, required=False)
     version = serializers.CharField(max_length=500, required=False)
     page = serializers.CharField(max_length=500, required=False)
+
+
+class DomainSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Domain
+        fields = (
+            'id',
+            'project',
+            'url',
+            'canonical',
+            'machine',
+            'cname',
+        )

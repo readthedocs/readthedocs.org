@@ -1,7 +1,6 @@
 import logging
 
 from django.shortcuts import get_object_or_404
-from docutils.utils.math.math2html import Link
 from rest_framework import decorators, permissions, viewsets, status
 from rest_framework.decorators import detail_route
 from rest_framework.renderers import JSONPRenderer, JSONRenderer, BrowsableAPIRenderer
@@ -11,19 +10,18 @@ from readthedocs.builds.constants import BRANCH
 from readthedocs.builds.constants import TAG
 from readthedocs.builds.filters import VersionFilter
 from readthedocs.builds.models import Build, BuildCommandResult, Version
+from readthedocs.restapi import utils as api_utils
 from readthedocs.core.utils import trigger_build
 from readthedocs.oauth import utils as oauth_utils
-from readthedocs.builds.constants import STABLE
 from readthedocs.projects.filters import ProjectFilter
-from readthedocs.projects.models import Project, EmailHook
+from readthedocs.projects.models import Project, EmailHook, Domain
 from readthedocs.projects.version_handling import determine_stable_version
 
 from ..permissions import (APIPermission, APIRestrictedPermission,
                            RelatedProjectIsOwner)
 from ..serializers import (BuildSerializerFull, BuildSerializer,
                            BuildCommandSerializer, ProjectSerializer,
-                           VersionSerializer)
-from .. import utils as api_utils
+                           VersionSerializer, DomainSerializer)
 
 log = logging.getLogger(__name__)
 
@@ -205,8 +203,14 @@ class NotificationViewSet(viewsets.ReadOnlyModelViewSet):
     model = EmailHook
 
     def get_queryset(self):
-        """
-        This view should return a list of all the purchases
-        for the currently authenticated user.
-        """
+        return self.model.objects.api(self.request.user)
+
+
+class DomainViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = (RelatedProjectIsOwner,)
+    renderer_classes = (JSONRenderer, BrowsableAPIRenderer)
+    serializer_class = DomainSerializer
+    model = Domain
+
+    def get_queryset(self):
         return self.model.objects.api(self.request.user)

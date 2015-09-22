@@ -30,7 +30,7 @@ class RedirectFilenameTests(TestCase):
     def test_redirects_with_subdomain(self):
         self.assertEqual(
             redirect_filename(self.proj, 'faq.html'),
-            'http://read-the-docs.rtfd.org/en/latest/faq.html'
+            '/en/latest/faq.html'
         )
 
     @override_settings(
@@ -40,7 +40,7 @@ class RedirectFilenameTests(TestCase):
         self.proj.single_version = True
         self.assertEqual(
             redirect_filename(self.proj, 'faq.html'),
-            'http://read-the-docs.rtfd.org/faq.html'
+            '/faq.html'
         )
 
     def test_single_version_no_subdomain(self):

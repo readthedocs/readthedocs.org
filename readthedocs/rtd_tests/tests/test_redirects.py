@@ -112,10 +112,6 @@ class RedirectTests(TestCase):
         r = self.client.get('/docs/pip/en/nonexistent_dir/bogus.html')
         self.assertEqual(r.status_code, 404)
 
-    def test_improper_url_dir_subdir_file(self):
-        r = self.client.get('/docs/pip/en/nonexistent_dir/subdir/bogus.html')
-        self.assertEqual(r.status_code, 404)
-
     def test_improper_url_version_dir_file(self):
         r = self.client.get('/docs/pip/latest/nonexistent_dir/bogus.html')
         self.assertEqual(r.status_code, 404)
@@ -216,6 +212,19 @@ class RedirectAppTests(TestCase):
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
             r['Location'], 'http://pip.readthedocs.org/en/latest/tutorial/install.html')
+
+    @override_settings(USE_SUBDOMAIN=True)
+    def test_redirect_recognizes_custom_cname(self):
+        Redirect.objects.create(
+            project=self.pip, redirect_type='page', from_url='/install.html',
+            to_url='/tutorial/install.html')
+        r = self.client.get('/install.html',
+                            HTTP_HOST='pip.pypa.io',
+                            HTTP_X_RTD_SLUG='pip')
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'],
+            'http://pip.pypa.io/en/latest/tutorial/install.html')
 
     @override_settings(USE_SUBDOMAIN=True, PYTHON_MEDIA=True)
     def test_redirect_html(self):

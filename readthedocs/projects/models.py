@@ -7,6 +7,7 @@ from urlparse import urlparse
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.exceptions import MultipleObjectsReturned
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.template.defaultfilters import slugify
@@ -436,22 +437,26 @@ class Project(models.Model):
 
     @property
     def clean_canonical_url(self):
-        """Normalize canonical URL field"""
-        if not self.canonical_url:
-            return ""
-        parsed = urlparse(self.canonical_url)
+        try:
+            domain = self.domains.get(canonical=True)
+        except (Domain.DoesNotExist, MultipleObjectsReturned):
+            return ''
+
+        parsed = urlparse(domain.url)
         if parsed.scheme:
             scheme, netloc = parsed.scheme, parsed.netloc
         elif parsed.netloc:
             scheme, netloc = "http", parsed.netloc
         else:
             scheme, netloc = "http", parsed.path
+
         if getattr(settings, 'DONT_HIT_DB', True):
             if parsed.path:
                 netloc = netloc + parsed.path
         else:
             if self.superprojects.count() and parsed.path:
                 netloc = netloc + parsed.path
+
         return "%s://%s/" % (scheme, netloc)
 
     @property
@@ -710,9 +715,15 @@ class Project(models.Model):
         return (versions.filter(built=True, active=True) |
                 versions.filter(active=True, uploaded=True))
 
-    def ordered_active_versions(self):
+    def ordered_active_versions(self, user=None):
         from readthedocs.builds.models import Version
-        versions = Version.objects.public(project=self, only_active=True)
+        kwargs = {
+            'project': self,
+            'only_active': True,
+        }
+        if user:
+            kwargs['user'] = user
+        versions = Version.objects.public(**kwargs)
         return sort_version_aware(versions)
 
     def all_active_versions(self):
@@ -932,3 +943,35 @@ class WebHook(Notification):
 
     def __unicode__(self):
         return self.url
+
+
+class Domain(models.Model):
+    project = models.ForeignKey(Project, related_name='domains')
+    url = models.URLField(_('URL'), unique=True)
+    machine = models.BooleanField(
+        default=False, help_text=_('This URL was auto-created')
+    )
+    cname = models.BooleanField(
+        default=False, help_text=_('This URL is a CNAME for the project')
+    )
+    canonical = models.BooleanField(
+        default=False,
+        help_text=_('This URL is the primary one where the documentation is served from.')
+    )
+    count = models.IntegerField(default=0, help_text=_('Number of times this domain has been hit.'))
+
+    objects = RelatedProjectManager()
+
+    class Meta:
+        ordering = ('-canonical', '-machine', 'url')
+
+    def __unicode__(self):
+        return "{url} pointed at {project}".format(url=self.url, project=self.project.name)
+
+    @property
+    def clean_host(self):
+        parsed = urlparse(self.url)
+        if parsed.scheme or parsed.netloc:
+            return parsed.netloc
+        else:
+            return parsed.path
