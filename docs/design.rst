@@ -1,4 +1,4 @@
-.. _designing-read-the-docs: 
+.. _designing-read-the-docs:
 
 Designing Read the Docs
 =======================
@@ -23,7 +23,7 @@ for a quick overview of the currently available styles.
 This way you can quickly get started writing HTML -- or if you're
 modifying existing styles you can get a quick idea of how things
 will change site-wide.
-   
+
 Typekit Fonts
 -------------
 
@@ -55,7 +55,7 @@ Contributing
 ------------
 
 Contributions should follow the :ref:`contributing-to-read-the-docs` guidelines where applicable -- ideally you'll
-create a pull request against the `Read the Docs Github project`_ from your forked repo and include
+create a pull request against the `Read the Docs GitHub project`_ from your forked repo and include
 a brief description of what you added / removed / changed, as well as an attached image (you can just
 take a screenshot and drop it into the PR creation form) of the effects of your changes.
 
@@ -63,7 +63,7 @@ There's not a hard browser range, but your design changes should work reasonably
 browsers, IE8+ -- that's not to say it needs to be pixel-perfect in older browsers! Just avoid
 making changes that render older browsers utterly unusable (or provide a sane fallback).
 
-.. _Read the Docs Github project: https://github.com/rtfd/readthedocs.org/pulls
+.. _Read the Docs GitHub project: https://github.com/rtfd/readthedocs.org/pulls
 
 
 

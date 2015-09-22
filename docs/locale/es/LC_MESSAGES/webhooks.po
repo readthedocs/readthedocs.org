@@ -1,7 +1,7 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) 2010, Eric Holscher, Charlie Leifer, Bobby Grace
 # This file is distributed under the same license as the Read The Docs package.
-# 
+#
 # Translators:
 msgid ""
 msgstr ""
@@ -35,13 +35,13 @@ msgstr ""
 
 # 76588fbd093344f8ac67707e26a3afc5
 #: ../../webhooks.rst:12
-msgid "Github"
+msgid "GitHub"
 msgstr ""
 
 # 704443454ea64b34982c4750f503d0ee
 #: ../../webhooks.rst:14
 msgid ""
-"If your project is hosted on Github, you can easily add a hook that will "
+"If your project is hosted on GitHub, you can easily add a hook that will "
 "rebuild your docs whenever you push updates:"
 msgstr ""
 

@@ -3,17 +3,17 @@ Read the Docs features
 
 This will serve as a list of all of the features that Read the Docs currently has. Some features are important enough to have their own page in the docs, others will simply be listed here.
 
-Github and Bitbucket Integration
+GitHub and Bitbucket Integration
 --------------------------------
 
-We now support linking by default in the sidebar. It links to the page on your host, which should help people quickly update typos and send pull requests to contribute to project documentation. 
+We now support linking by default in the sidebar. It links to the page on your host, which should help people quickly update typos and send pull requests to contribute to project documentation.
 
 More information can be found in the :doc:`vcs` page.
 
 Auto-updating
 -------------
 
-The :doc:`webhooks` page talks about the different ways you can ping RTD to let us know your project has been updated. We have official support for Github, and anywhere else we have a generic post-commit hook that allows you to POST to a URL to get your documentation built.
+The :doc:`webhooks` page talks about the different ways you can ping RTD to let us know your project has been updated. We have official support for GitHub, and anywhere else we have a generic post-commit hook that allows you to POST to a URL to get your documentation built.
 
 Internationalization
 --------------------
@@ -30,12 +30,12 @@ More information can be found in the :doc:`canonical` page.
 Versions
 --------
 
-We can build multiple versions of your documentation. Look on the "Versions" page 
-of your project's admin (using the nav on the left) to find a list of available versions 
-that we've inferred from the tags and branches in your source control system (according to 
-the support matrix below). On the Versions page you can tell us which versions you'd like us 
-to build docs for, whether each should be public, protected, or private, and what the default 
-version should be (we'll redirect there when someone hits your main project page, e.g., 
+We can build multiple versions of your documentation. Look on the "Versions" page
+of your project's admin (using the nav on the left) to find a list of available versions
+that we've inferred from the tags and branches in your source control system (according to
+the support matrix below). On the Versions page you can tell us which versions you'd like us
+to build docs for, whether each should be public, protected, or private, and what the default
+version should be (we'll redirect there when someone hits your main project page, e.g.,
 http://my-project.rtfd.org/).
 
 Version Control Support Matrix
