@@ -97,7 +97,7 @@ class APIBuildTests(TestCase):
         api_user = get(User, staff=False, password='test')
         client.force_authenticate(user=api_user)
         resp = client.get('/api/v2/build/{0}/'.format(build.pk), format='json')
-        self.assertEqual(resp.status_code, 403)
+        self.assertEqual(resp.status_code, 200)
 
         client.force_authenticate(user=User.objects.get(username='super'))
         resp = client.get('/api/v2/build/{0}/'.format(build.pk), format='json')

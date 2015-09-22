@@ -3,6 +3,7 @@ from readthedocs.privacy.backend import AdminPermission
 
 
 class IsOwner(permissions.BasePermission):
+
     """
     Custom permission to only allow owners of an object to edit it.
     """
@@ -22,9 +23,13 @@ class CommentModeratorOrReadOnly(permissions.BasePermission):
 
 
 class RelatedProjectIsOwner(permissions.BasePermission):
+
     """
     Custom permission to only allow owners of an object to edit it.
     """
+
+    def has_permission(self, request, view):
+        return (request.method in permissions.SAFE_METHODS)
 
     def has_object_permission(self, request, view, obj):
         # Write permissions are only allowed to the owner of the snippet
@@ -35,12 +40,17 @@ class RelatedProjectIsOwner(permissions.BasePermission):
 
 
 class APIPermission(permissions.IsAuthenticatedOrReadOnly):
+
     '''
     This permission should allow authenicated users readonly access to the API,
     and allow admin users write access. This should be used on API resources
     that need to implement write operations to resources that were based on the
     ReadOnlyViewSet
     '''
+
+    def has_permission(self, request, view):
+        has_perm = super(APIPermission, self).has_permission(request, view)
+        return has_perm or (request.user and request.user.is_staff)
 
     def has_object_permission(self, request, view, obj):
         has_perm = super(APIPermission, self).has_object_permission(
@@ -49,6 +59,7 @@ class APIPermission(permissions.IsAuthenticatedOrReadOnly):
 
 
 class APIRestrictedPermission(permissions.IsAdminUser):
+
     """Allow admin write, authenticated and anonymous read only
 
     This differs from :py:cls:`APIPermission` by not allowing for authenticated
@@ -56,6 +67,12 @@ class APIRestrictedPermission(permissions.IsAdminUser):
     by admin users to coordinate build instance creation, but only should be
     readable by end users.
     """
+
+    def has_permission(self, request, view):
+        return (
+            request.method in permissions.SAFE_METHODS or
+            (request.user and request.user.is_staff)
+        )
 
     def has_object_permission(self, request, view, obj):
         return (
