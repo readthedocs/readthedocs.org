@@ -65,7 +65,7 @@ class ProjectFilter(django_filters.FilterSet):
 
 class DomainFilter(django_filters.FilterSet):
     project = django_filters.CharFilter(label=_("Project"), name='project__slug',
-                                     lookup_type='exact')
+                                        lookup_type='exact')
 
     class Meta:
         model = Domain

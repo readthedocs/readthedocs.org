@@ -132,7 +132,11 @@ context = {
     'source_suffix': SUFFIX,
     'user_analytics_code': '{{ project.analytics_code|default_if_none:'' }}',
     'global_analytics_code': '{{ settings.GLOBAL_ANALYTICS_CODE }}',
+    {% if project.repo_type == 'git' %}
+    'commit': '{{ commit|slice:"8" }}',
+    {% else %}
     'commit': '{{ commit }}',
+    {% endif %}
 }
 if 'html_context' in globals():
     html_context.update(context)
