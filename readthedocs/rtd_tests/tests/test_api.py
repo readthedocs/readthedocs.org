@@ -65,7 +65,7 @@ class APIBuildTests(TestCase):
 
         _try_post()
 
-        api_user = get(User, staff=False, password='test')
+        api_user = get(User, is_staff=False, password='test')
         assert api_user.is_staff is False
         client.force_authenticate(user=api_user)
         _try_post()
@@ -73,7 +73,7 @@ class APIBuildTests(TestCase):
     def test_update_build_without_permission(self):
         """Ensure anonymous/non-staff users cannot update build endpoints"""
         client = APIClient()
-        api_user = get(User, staff=False, password='test')
+        api_user = get(User, is_staff=False, password='test')
         client.force_authenticate(user=api_user)
         build = get(Build, project_id=1, version_id=1, state='cloning')
         resp = client.put(
@@ -95,7 +95,7 @@ class APIBuildTests(TestCase):
         build = get(Build, project_id=1, version_id=1, builder='foo')
         client = APIClient()
 
-        api_user = get(User, staff=False, password='test')
+        api_user = get(User, is_staff=False, password='test')
         client.force_authenticate(user=api_user)
         resp = client.get('/api/v2/build/{0}/'.format(build.pk), format='json')
         self.assertEqual(resp.status_code, 403)
