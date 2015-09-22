@@ -7,6 +7,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from requests_oauthlib import OAuth1Session, OAuth2Session
 from allauth.socialaccount.models import SocialToken, SocialAccount
+from allauth.socialaccount.providers.bitbucket.provider import BitbucketProvider
+from allauth.socialaccount.providers.github.provider import GitHubProvider
 
 from readthedocs.builds import utils as build_utils
 from readthedocs.restapi.client import api
@@ -25,7 +27,7 @@ def get_oauth_session(user, provider):
         token = tokens[0]
     else:
         return None
-    if provider == 'github':
+    if provider == GitHubProvider.id:
         session = OAuth2Session(
             client_id=token.app.client_id,
             token={
@@ -33,7 +35,7 @@ def get_oauth_session(user, provider):
                 'token_type': 'bearer'
             }
         )
-    elif provider == 'bitbucket':
+    elif provider == BitbucketProvider.id:
         session = OAuth1Session(
             token.app.client_id,
             client_secret=token.app.secret,
@@ -55,7 +57,7 @@ def get_token_for_project(project, force_local=False):
             for user in project.users.all():
                 tokens = SocialToken.objects.filter(
                     account__user__username=user.username,
-                    app__provider='github')
+                    app__provider=GitHubProvider.id)
                 if tokens.exists():
                     token = tokens[0].token
     except Exception:
@@ -88,7 +90,7 @@ def github_paginate(session, url):
 def import_github(user, sync):
     """Do the actual github import"""
 
-    session = get_oauth_session(user, provider='github')
+    session = get_oauth_session(user, provider=GitHubProvider.id)
     if sync and session:
         # Get user repos
         owner_resp = github_paginate(session, 'https://api.github.com/user/repos?per_page=100')
@@ -189,9 +191,9 @@ def process_bitbucket_json(user, json):
 def import_bitbucket(user, sync):
     """Import from Bitbucket"""
 
-    session = get_oauth_session(user, provider='bitbucket')
+    session = get_oauth_session(user, provider=BitbucketProvider.id)
     try:
-        social_account = user.socialaccount_set.get(provider='bitbucket')
+        social_account = user.socialaccount_set.get(provider=BitbucketProvider.id)
     except SocialAccount.DoesNotExist:
         log.exception('User tried to import from Bitbucket without a Social Account')
     if sync and session:
