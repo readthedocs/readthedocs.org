@@ -25,7 +25,6 @@ from readthedocs.builds.filters import VersionFilter
 from readthedocs.builds.models import VersionAlias
 from readthedocs.core.utils import trigger_build
 from readthedocs.core.mixins import ListViewWithForm
-from readthedocs.oauth.models import GithubProject, BitbucketProject
 from readthedocs.oauth import utils as oauth_utils
 from readthedocs.projects.forms import (
     ProjectBasicsForm, ProjectExtraForm,
@@ -372,6 +371,13 @@ class ImportDemoView(PrivateViewMixin, View):
         return {'user': self.request.user}
 
 
+class ImportRemoteView(PrivateViewMixin, TemplateView):
+    template_name = 'projects/project_import_remote.html'
+
+    def get_context_data(self):
+        pass
+
+
 @login_required
 def edit_alias(request, project_slug, alias_id=None):
     """Edit project alias form view"""
@@ -611,66 +617,6 @@ def project_redirects_delete(request, project_slug):
         raise Http404
     return HttpResponseRedirect(reverse('projects_redirects',
                                         args=[project.slug]))
-
-
-@login_required
-def project_import_github(request):
-    """Show form that prefills import form with data from GitHub"""
-    github_connected = oauth_utils.import_github(
-        user=request.user, sync=False)
-    repos = GithubProject.objects.filter(users__in=[request.user])
-
-    # Find existing projects that match a repo url
-    for repo in repos:
-        ghetto_repo = repo.git_url.replace('git://', '').replace('.git', '')
-        projects = (Project
-                    .objects
-                    .public(request.user)
-                    .filter(Q(repo__endswith=ghetto_repo) |
-                            Q(repo__endswith=ghetto_repo + '.git')))
-        if projects:
-            repo.matches = [project.slug for project in projects]
-        else:
-            repo.matches = []
-
-    return render_to_response(
-        'projects/project_import_github.html',
-        {
-            'repos': repos,
-            'github_connected': github_connected,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@login_required
-def project_import_bitbucket(request):
-    """Show form that prefills import form with data from BitBucket"""
-    bitbucket_connected = oauth_utils.import_bitbucket(
-        user=request.user, sync=False)
-    repos = BitbucketProject.objects.filter(users__in=[request.user])
-
-    # Find existing projects that match a repo url
-    for repo in repos:
-        ghetto_repo = repo.git_url.replace('git://', '').replace('.git', '')
-        projects = (Project
-                    .objects
-                    .public(request.user)
-                    .filter(Q(repo__endswith=ghetto_repo) |
-                            Q(repo__endswith=ghetto_repo + '.git')))
-        if projects:
-            repo.matches = [project.slug for project in projects]
-        else:
-            repo.matches = []
-
-    return render_to_response(
-        'projects/project_import_bitbucket.html',
-        {
-            'repos': repos,
-            'bitbucket_connected': bitbucket_connected,
-        },
-        context_instance=RequestContext(request)
-    )
 
 
 @login_required

@@ -3,7 +3,7 @@
 from django.conf.urls import patterns, url
 
 from readthedocs.projects.views.private import (
-    ProjectDashboard, ImportView,
+    ProjectDashboard, ImportView, ImportRemoteView,
     DomainList, DomainCreate, DomainDelete, DomainUpdate)
 from readthedocs.projects.backends.views import ImportWizardView, ImportDemoView
 
@@ -28,13 +28,9 @@ urlpatterns = patterns(
         ImportDemoView.as_view(),
         name='projects_import_demo'),
 
-    url(r'^import/github/$',
-        'readthedocs.projects.views.private.project_import_github',
-        name='projects_import_github'),
-
-    url(r'^import/bitbucket/$',
-        'readthedocs.projects.views.private.project_import_bitbucket',
-        name='projects_import_bitbucket'),
+    url(r'^import/remote/$',
+        ImportRemoteView.as_view(),
+        name='projects_import_remote'),
 
     url(r'^(?P<project_slug>[-\w]+)/$',
         'readthedocs.projects.views.private.project_manage',

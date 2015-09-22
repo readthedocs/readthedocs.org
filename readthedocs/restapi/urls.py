@@ -54,12 +54,6 @@ task_urls = patterns(
     url(r'jobs/sync-remote-repositories/',
         'readthedocs.restapi.views.task_views.sync_remote_repositories',
         name='api_sync_remote_repositories'),
-    url(r'jobs/sync-github-repositories/',
-        'readthedocs.restapi.views.task_views.sync_github_repositories',
-        name='api_sync_github_repositories'),
-    url(r'jobs/sync-bitbucket-repositories/',
-        'readthedocs.restapi.views.task_views.sync_bitbucket_repositories',
-        name='api_sync_bitbucket_repositories'),
 )
 
 

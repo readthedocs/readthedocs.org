@@ -16,7 +16,7 @@
 
   <div class="row">
     <div class="col col-trisect">
-      <h3>{% trans "From GitHub" %}</h3>
+      <h3>{% trans "Remote Repositories" %}</h3>
 
       {% if accounts.github.0 %}
         <p>
@@ -25,7 +25,7 @@
           {% endblocktrans %}
         </p>
 
-        <form method="get" action="{% url "projects_import_github" %}">
+        <form method="get" action="{% url "projects_import_remote" %}">
           <input type="submit" value="{% trans "Import from GitHub" %}"/>
         </form>
       {% else %}
@@ -49,10 +49,6 @@
             Import one of your public Bitbucket repositories to start using your documentation.
           {% endblocktrans %}
         </p>
-
-        <form method="get" action="{% url "projects_import_bitbucket" %}">
-          <input type="submit" value="{% trans "Import from Bitbucket" %}"/>
-        </form>
       {% else %}
         <p>
           {% blocktrans %}

@@ -56,31 +56,3 @@ def sync_remote_repositories(request):
         'task_id': task_id,
         'url': reverse('api_job_status', kwargs={'task_id': task_id}),
     })
-
-
-@decorators.api_view(['POST'])
-@decorators.permission_classes((permissions.IsAuthenticated,))
-@decorators.renderer_classes(
-    (JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
-def sync_github_repositories(request):
-    result = tasks.sync_github_repositories.delay(
-        user_id=request.user.id)
-    task_id = result.task_id
-    return Response({
-        'task_id': task_id,
-        'url': reverse('api_job_status', kwargs={'task_id': task_id}),
-    })
-
-
-@decorators.api_view(['POST'])
-@decorators.permission_classes((permissions.IsAuthenticated,))
-@decorators.renderer_classes(
-    (JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
-def sync_bitbucket_repositories(request):
-    result = tasks.sync_bitbucket_repositories.delay(
-        user_id=request.user.id)
-    task_id = result.task_id
-    return Response({
-        'task_id': task_id,
-        'url': reverse('api_job_status', kwargs={'task_id': task_id}),
-    })
