@@ -75,7 +75,8 @@ class URLAccessMixin(object):
         # Previous Fixtures
         self.owner = create_user(username='owner', password='test')
         self.tester = create_user(username='tester', password='test')
-        self.pip = get(Project, slug='pip', users=[self.owner])
+        self.pip = get(Project, slug='pip', users=[self.owner], privacy_level='public')
+        self.private = get(Project, slug='private', privacy_level='private')
 
 
 class ProjectMixin(URLAccessMixin):
@@ -257,6 +258,8 @@ class APIMixin(URLAccessMixin):
             'cname': {'status_code': 400},
             'footer_html': {'data': {'project': 'pip', 'version': 'latest', 'page': 'index'}},
             'index_search': {'status_code': 403},
+            'api_search': {'status_code': 400},
+            'api_project_search': {'status_code': 400},
             'api_section_search': {'status_code': 400},
             'api_sync_github_repositories': {'status_code': 403},
             'api_sync_bitbucket_repositories': {'status_code': 403},
@@ -267,13 +270,6 @@ class APIUnauthAccessTest(APIMixin, TestCase):
 
     def test_api_urls(self):
         from readthedocs.restapi.urls import urlpatterns
-        from readthedocs.search.indexes import PageIndex, ProjectIndex
-
-        def fake_search(*args, **kwargs):
-            return ''
-        PageIndex.search = fake_search
-        ProjectIndex.search = fake_search
-
         self._test_url(urlpatterns)
 
     def login(self):

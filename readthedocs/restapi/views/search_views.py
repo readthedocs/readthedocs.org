@@ -42,6 +42,8 @@ def search(request):
     project_slug = request.GET.get('project', None)
     version_slug = request.GET.get('version', LATEST)
     query = request.GET.get('q', None)
+    if project_slug is None or query is None:
+        return Response({'error': 'Need project and q'}, status=status.HTTP_400_BAD_REQUEST)
     log.debug("(API Search) %s" % query)
 
     kwargs = {}
@@ -91,6 +93,8 @@ def search(request):
 @decorators.renderer_classes((JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
 def project_search(request):
     query = request.GET.get('q', None)
+    if query is None:
+        return Response({'error': 'Need project and q'}, status=status.HTTP_400_BAD_REQUEST)
 
     log.debug("(API Project Search) %s" % (query))
     body = {
