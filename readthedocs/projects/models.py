@@ -28,6 +28,7 @@ from readthedocs.projects.version_handling import determine_stable_version
 from readthedocs.projects.version_handling import version_windows
 from taggit.managers import TaggableManager
 from readthedocs.api.client import api
+from readthedocs.restapi.client import api as apiv2
 
 from readthedocs.vcs_support.base import VCSProject
 from readthedocs.vcs_support.backends import backend_cls
@@ -437,12 +438,20 @@ class Project(models.Model):
 
     @property
     def clean_canonical_url(self):
-        try:
-            domain = self.domains.get(canonical=True)
-        except (Domain.DoesNotExist, MultipleObjectsReturned):
-            return ''
+        if getattr(settings, 'DONT_HIT_DB', True):
+            resp = apiv2.domain.get(project=self.slug, canonical=True)
+            if resp['count']:
+                url = resp['results']['url']
+            else:
+                return ''
+        else:
+            try:
+                domain = self.domains.get(canonical=True)
+                url = domain.url
+            except (Domain.DoesNotExist, MultipleObjectsReturned):
+                return ''
 
-        parsed = urlparse(domain.url)
+        parsed = urlparse(url)
         if parsed.scheme:
             scheme, netloc = parsed.scheme, parsed.netloc
         elif parsed.netloc:

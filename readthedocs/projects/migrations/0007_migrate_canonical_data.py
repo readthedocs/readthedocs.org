@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import migrations
+from django.db import transaction
 
 
 def migrate_canonical(apps, schema_editor):
@@ -9,13 +10,17 @@ def migrate_canonical(apps, schema_editor):
     for project in Project.objects.all():
         if project.canonical_url:
             try:
-                domain = project.domains.create(
-                    url=project.canonical_url,
-                    canonical=True,
+                with transaction.atomic():
+                    project.domains.create(
+                        url=project.canonical_url,
+                        canonical=True,
+                    )
+                    print u"Added {url} to {project}".format(url=project.canonical_url, project=project.name)
+            except Exception, e:
+                print e
+                print u"Failed adding {url} to {project}".format(
+                    url=project.canonical_url, project=project.name
                 )
-                print "Added {url} to {project}".format(url=domain.url, project=project.name)
-            except: 
-                print "Failed adding {url} to {project}".format(url=domain.url, project=project.name)
 
 
 class Migration(migrations.Migration):

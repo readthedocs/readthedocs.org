@@ -13,7 +13,7 @@ from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.restapi import utils as api_utils
 from readthedocs.core.utils import trigger_build
 from readthedocs.oauth import utils as oauth_utils
-from readthedocs.projects.filters import ProjectFilter
+from readthedocs.projects.filters import ProjectFilter, DomainFilter
 from readthedocs.projects.models import Project, EmailHook, Domain
 from readthedocs.projects.version_handling import determine_stable_version
 
@@ -210,6 +210,7 @@ class DomainViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = (RelatedProjectIsOwner,)
     renderer_classes = (JSONRenderer, BrowsableAPIRenderer)
     serializer_class = DomainSerializer
+    filter_class = DomainFilter
     model = Domain
 
     def get_queryset(self):
