@@ -8,11 +8,14 @@ def migrate_canonical(apps, schema_editor):
     Project = apps.get_model("projects", "Project")
     for project in Project.objects.all():
         if project.canonical_url:
-            domain = project.domains.create(
-                url=project.canonical_url,
-                canonical=True,
-            )
-            print "Added {url} to {project}".format(url=domain.url, project=project.name)
+            try:
+                domain = project.domains.create(
+                    url=project.canonical_url,
+                    canonical=True,
+                )
+                print "Added {url} to {project}".format(url=domain.url, project=project.name)
+            except: 
+                print "Failed adding {url} to {project}".format(url=domain.url, project=project.name)
 
 
 class Migration(migrations.Migration):
