@@ -197,7 +197,7 @@ class NotificationViewSet(viewsets.ReadOnlyModelViewSet):
         return self.model.objects.api(self.request.user)
 
 
-class DomainViewSet(viewsets.ReadOnlyModelViewSet):
+class DomainViewSet(viewsets.ModelViewSet):
     permission_classes = [APIRestrictedPermission]
     renderer_classes = (JSONRenderer, BrowsableAPIRenderer)
     serializer_class = DomainSerializer
