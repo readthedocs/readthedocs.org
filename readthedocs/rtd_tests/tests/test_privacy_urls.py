@@ -16,8 +16,9 @@ from taggit.models import Tag
 
 class URLAccessMixin(object):
 
-    url_responses = {}
-    url_kwargs = {}
+    default_kwargs = {}
+    response_data = {}
+    request_data = {}
     default_status_code = 200
 
     def login(self):
@@ -33,22 +34,27 @@ class URLAccessMixin(object):
         if data is None:
             data = {}
 
-        # Suport querying on path and name
-        additional_bits = self.url_responses.get(path, {}).copy()
-        if not additional_bits:
-            additional_bits = self.url_responses.get(name, {}).copy()
+        # Get view specific query data
+        request_data = self.request_data.get(path, {}).copy()
+        if not request_data:
+            request_data = self.request_data.get(name, {}).copy()
 
-        if 'data' in additional_bits:
-            data.update(additional_bits['data'])
-            del additional_bits['data']
+        if 'data' in request_data:
+            data.update(request_data['data'])
+            del request_data['data']
 
         response = method(path, data=data)
+
+        # Get response specific test data
+        response_data = self.response_data.get(path, {}).copy()
+        if not response_data:
+            response_data = self.response_data.get(name, {}).copy()
 
         response_attrs = {
             'status_code': kwargs.pop('status_code', self.default_status_code),
         }
         response_attrs.update(kwargs)
-        response_attrs.update(additional_bits)
+        response_attrs.update(response_data)
         for (key, val) in response_attrs.items():
             self.assertEqual(getattr(response, key), val)
         return response
@@ -57,14 +63,14 @@ class URLAccessMixin(object):
         deconstructed_urls = extract_views_from_urlpatterns(urlpatterns)
         added_kwargs = {}
         for (view, regex, namespace, name) in deconstructed_urls:
-            url_kwargs = self.url_kwargs.get(name, {}).copy()
+            request_data = self.request_data.get(name, {}).copy()
             for key in re.compile(regex).groupindex.keys():
-                if key in url_kwargs.keys():
-                    added_kwargs[key] = url_kwargs[key]
+                if key in request_data.keys():
+                    added_kwargs[key] = request_data[key]
                     continue
-                if key not in self.test_kwargs:
+                if key not in self.default_kwargs:
                     raise Exception('URL argument not in test kwargs. Please add `%s`' % key)
-                added_kwargs[key] = self.test_kwargs[key]
+                added_kwargs[key] = self.default_kwargs[key]
             path = reverse(name, kwargs=added_kwargs)
             print "Tested %s (%s)" % (name, path)
             self.assertResponse(path=path, name=name)
@@ -90,7 +96,7 @@ class ProjectMixin(URLAccessMixin):
         self.pip.add_subproject(self.subproject)
         self.pip.translations.add(self.subproject)
         self.domain = get(Domain, url='http://docs.foobar.com', project=self.pip)
-        self.test_kwargs = {
+        self.default_kwargs = {
             'project_slug': self.pip.slug,
             'version_slug': self.pip.versions.all()[0].slug,
             'filename': 'index.html',
@@ -105,11 +111,13 @@ class ProjectMixin(URLAccessMixin):
 
 class PublicProjectMixin(ProjectMixin):
 
-    url_responses = {
-        # Public
+    request_data = {
         '/projects/search/autocomplete/': {'data': {'term': 'pip'}},
         '/projects/autocomplete/version/pip/': {'data': {'term': 'pip'}},
         '/projects/pip/autocomplete/file/': {'data': {'term': 'pip'}},
+    }
+    response_data = {
+        # Public
         '/projects/pip/downloads/pdf/latest/': {'status_code': 302},
         '/projects/pip/badge/': {'status_code': 302},
     }
@@ -159,7 +167,7 @@ class PublicProjectUnauthAccessTest(PublicProjectMixin, TestCase):
 
 class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
 
-    url_responses = {
+    response_data = {
         # Places where we 302 on success -- These delete pages should probably be 405'ing
         '/dashboard/import/manual/demo/': {'status_code': 302},
         '/dashboard/pip/': {'status_code': 302},
@@ -184,7 +192,7 @@ class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
 
 class PrivateProjectUserAccessTest(PrivateProjectMixin, TestCase):
 
-    url_responses = {
+    response_data = {
         # Auth'd users can import projects, have no perms on pip
         '/dashboard/': {'status_code': 200},
         '/dashboard/import/': {'status_code': 200},
@@ -233,21 +241,22 @@ class APIMixin(URLAccessMixin):
         self.domain = get(Domain, url='http://docs.foobar.com', project=self.pip)
         self.comment = get(DocumentComment, node__project=self.pip)
         self.snapshot = get(NodeSnapshot, node=self.comment.node)
-        self.test_kwargs = {
+        self.default_kwargs = {
             'project_slug': self.pip.slug,
             'version_slug': self.pip.versions.all()[0].slug,
             'format': 'json',
             'pk': self.pip.pk,
             'task_id': 'Nope',
         }
-        self.url_kwargs = {
+        self.request_data = {
             'build-detail': {'pk': self.build.pk},
             'buildcommandresult-detail': {'pk': self.build_command_result.pk},
             'version-detail': {'pk': self.pip.versions.all()[0].pk},
             'domain-detail': {'pk': self.domain.pk},
             'comments-detail': {'pk': self.comment.pk},
+            'footer_html': {'data': {'project': 'pip', 'version': 'latest', 'page': 'index'}},
         }
-        self.url_responses = {
+        self.response_data = {
             'project-sync-versions': {'status_code': 403},
             'project-token': {'status_code': 403},
             'emailhook-list': {'status_code': 403},
@@ -256,7 +265,6 @@ class APIMixin(URLAccessMixin):
             'embed': {'status_code': 400},
             'docurl': {'status_code': 400},
             'cname': {'status_code': 400},
-            'footer_html': {'data': {'project': 'pip', 'version': 'latest', 'page': 'index'}},
             'index_search': {'status_code': 403},
             'api_search': {'status_code': 400},
             'api_project_search': {'status_code': 400},
