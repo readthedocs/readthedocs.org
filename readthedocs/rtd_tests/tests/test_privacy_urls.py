@@ -298,9 +298,9 @@ class APIMixin(URLAccessMixin):
 
 class APIUnauthAccessTest(APIMixin, TestCase):
 
-    def test_api_urls(self):
-        from readthedocs.restapi.urls import urlpatterns
-        self._test_url(urlpatterns)
+    # def test_api_urls(self):
+    #     from readthedocs.restapi.urls import urlpatterns
+    #     self._test_url(urlpatterns)
 
     def login(self):
         pass
