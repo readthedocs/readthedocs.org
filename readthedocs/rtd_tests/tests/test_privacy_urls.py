@@ -1,10 +1,12 @@
 import re
+from mock import patch, MagicMock
 
 from django.contrib.admindocs.views import extract_views_from_urlpatterns
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 
 from readthedocs.builds.models import Build, VersionAlias, BuildCommandResult
+from readthedocs.comments.models import DocumentComment, DocumentNode, NodeSnapshot
 from readthedocs.projects.models import Project, Domain
 from readthedocs.rtd_tests.utils import create_user
 
@@ -24,14 +26,18 @@ class URLAccessMixin(object):
     def is_admin(self):
         raise NotImplementedError
 
-    def assertResponse(self, path, method=None, data=None, **kwargs):
+    def assertResponse(self, path, name=None, method=None, data=None, **kwargs):
         self.login()
         if method is None:
             method = self.client.get
         if data is None:
             data = {}
 
+        # Suport querying on path and name
         additional_bits = self.url_responses.get(path, {}).copy()
+        if not additional_bits:
+            additional_bits = self.url_responses.get(name, {}).copy()
+
         if 'data' in additional_bits:
             data.update(additional_bits['data'])
             del additional_bits['data']
@@ -61,7 +67,7 @@ class URLAccessMixin(object):
                 added_kwargs[key] = self.test_kwargs[key]
             path = reverse(name, kwargs=added_kwargs)
             print "Tested %s (%s)" % (name, path)
-            self.assertResponse(path)
+            self.assertResponse(path=path, name=name)
             print "Passed %s (%s)" % (name, path)
             added_kwargs = {}
 
@@ -224,18 +230,36 @@ class APIMixin(URLAccessMixin):
         self.build = get(Build, project=self.pip)
         self.build_command_result = get(BuildCommandResult, project=self.pip)
         self.domain = get(Domain, url='http://docs.foobar.com', project=self.pip)
+        self.comment = get(DocumentComment, node__project=self.pip)
+        self.snapshot = get(NodeSnapshot, node=self.comment.node)
         self.test_kwargs = {
             'project_slug': self.pip.slug,
             'version_slug': self.pip.versions.all()[0].slug,
             'format': 'json',
             'pk': self.pip.pk,
+            'task_id': 'Nope',
         }
         self.url_kwargs = {
             'build-detail': {'pk': self.build.pk},
             'buildcommandresult-detail': {'pk': self.build_command_result.pk},
+            'version-detail': {'pk': self.pip.versions.all()[0].pk},
+            'domain-detail': {'pk': self.domain.pk},
+            'comments-detail': {'pk': self.comment.pk},
         }
         self.url_responses = {
-            '/api/v2/version/downloads/': {'data': {'pk': self.pip.versions.all()[0].pk}},
+            'project-sync-versions': {'status_code': 403},
+            'project-token': {'status_code': 403},
+            'emailhook-list': {'status_code': 403},
+            'emailhook-detail': {'status_code': 403},
+            'comments-moderate': {'status_code': 405},
+            'embed': {'status_code': 400},
+            'docurl': {'status_code': 400},
+            'cname': {'status_code': 400},
+            'footer_html': {'data': {'project': 'pip', 'version': 'latest', 'page': 'index'}},
+            'index_search': {'status_code': 403},
+            'api_section_search': {'status_code': 400},
+            'api_sync_github_repositories': {'status_code': 403},
+            'api_sync_bitbucket_repositories': {'status_code': 403},
         }
 
 
@@ -243,6 +267,13 @@ class APIUnauthAccessTest(APIMixin, TestCase):
 
     def test_api_urls(self):
         from readthedocs.restapi.urls import urlpatterns
+        from readthedocs.search.indexes import PageIndex, ProjectIndex
+
+        def fake_search(*args, **kwargs):
+            return ''
+        PageIndex.search = fake_search
+        ProjectIndex.search = fake_search
+
         self._test_url(urlpatterns)
 
     def login(self):

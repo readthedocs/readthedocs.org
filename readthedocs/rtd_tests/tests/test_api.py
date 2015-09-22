@@ -1,7 +1,6 @@
 import json
 import base64
 import datetime
-import unittest
 
 from django.test import TestCase
 from django.contrib.auth.models import User
