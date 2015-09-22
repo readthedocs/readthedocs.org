@@ -68,6 +68,7 @@ class SearchIndexSerializer(serializers.Serializer):
 
 
 class DomainSerializer(serializers.ModelSerializer):
+    project = ProjectSerializer()
 
     class Meta:
         model = Domain
