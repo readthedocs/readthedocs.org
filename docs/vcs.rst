@@ -8,7 +8,7 @@ If you want to integrate GitHub editing into your own theme, the following varia
 
 * github_user - GitHub username
 * github_repo - GitHub repo name
-* github_version - Github blob
+* github_version - GitHub blob
 * conf_py_path - Path in the checkout to the docs root
 * pagename - Sphinx variable representing the name of the page you're on.
 * display_github
