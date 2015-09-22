@@ -1,12 +1,11 @@
 import re
-from mock import patch, MagicMock
 
 from django.contrib.admindocs.views import extract_views_from_urlpatterns
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 
 from readthedocs.builds.models import Build, VersionAlias, BuildCommandResult
-from readthedocs.comments.models import DocumentComment, DocumentNode, NodeSnapshot
+from readthedocs.comments.models import DocumentComment, NodeSnapshot
 from readthedocs.projects.models import Project, Domain
 from readthedocs.rtd_tests.utils import create_user
 
@@ -19,6 +18,7 @@ class URLAccessMixin(object):
     default_kwargs = {}
     response_data = {}
     request_data = {}
+    context_data = []
     default_status_code = 200
 
     def login(self):
@@ -55,9 +55,31 @@ class URLAccessMixin(object):
         }
         response_attrs.update(kwargs)
         response_attrs.update(response_data)
+        if self.context_data and getattr(response, 'context'):
+            self._test_context(response)
         for (key, val) in response_attrs.items():
             self.assertEqual(getattr(response, key), val)
         return response
+
+    def _test_context(self, response):
+        """
+        Allow for testing the template context rendered to verify no data leakage.
+
+        Usage::
+
+            def setUp(self):
+                self.context_data.append(self.pip)
+        """
+
+        for key in response.context.keys():
+            obj = response.context[key]
+            for not_obj in self.context_data:
+                if isinstance(obj, list) or isinstance(obj, set) or isinstance(obj, tuple):
+                    self.assertNotIn(not_obj, obj)
+                    print "%s not in %s" % (not_obj, obj)
+                else:
+                    self.assertNotEqual(not_obj, obj)
+                    print "%s is not %s" % (not_obj, obj)
 
     def _test_url(self, urlpatterns):
         deconstructed_urls = extract_views_from_urlpatterns(urlpatterns)
