@@ -9,6 +9,15 @@ div.project-import-remote button.remote-sync {
   font-weight: normal;
   padding: .25em 1em;
 }
+div.project-import-remote span.remote-sync-loader {
+  float: right;
+  height: 1.2em;
+  padding: .25em 1em;
+  border: 1px solid #ddd;
+  border-radius: .2em;
+  -webkit-border-radius: .2em;
+  -ms-border-radius: .2em;
+}
 div.project-import-remote li.remote-repo {
   padding-left: 3em;
   padding-right: 3em;

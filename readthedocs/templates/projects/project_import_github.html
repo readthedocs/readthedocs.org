@@ -15,6 +15,7 @@
 var import_views = require('projects/import');
 $(document).ready(function() {
     var urls = {
+            'api_sync_remote_repositories': '{% url 'api_sync_remote_repositories' %}',
             'api_sync_github_repositories': '{% url 'api_sync_github_repositories' %}',
             'api_sync_bitbucket_repositories': '{% url 'api_sync_bitbucket_repositories' %}',
             'oauthorganization-list': '{% url 'oauthorganization-list' %}',
@@ -56,10 +57,16 @@ $(document).ready(function() {
 
         {% url 'api_sync_github_repositories' as sync_url %}
         <button
-            data-bind="click: function() { sync_projects('{{ sync_url }}') }"
+            data-bind="click: function() { sync_projects('{{ sync_url }}') }, visible: !is_syncing()"
             class="remote-sync">
           <span>{% trans "Refresh your accounts" %}</span>
         </button>
+        <span
+            data-bind="visible: is_syncing"
+            class="remote-sync-loader"
+            style="display: none;">
+          <img src="{% static 'core/img/loader.gif' %}"/>
+        </span>
 
         <!--
         <li class="notification notification-20"
