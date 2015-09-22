@@ -614,6 +614,12 @@ div.project-import-remote button.remote-sync:before {
     font-family: FontAwesome;
     content: "\f021";
 }
+div.project-import-remote li.remote-repo span.remote-repo-url:before {
+    padding-right: .5em;
+    font-family: FontAwesome;
+    font-size: 1.2em;
+    content: '\f126';
+}
 
 /* Donate */
 div.donate-stats {
