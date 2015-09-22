@@ -28,7 +28,10 @@ class RelatedProjectIsOwner(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
         # Write permissions are only allowed to the owner of the snippet
-        return request.user in obj.project.users.all()
+        return (
+            request.method in permissions.SAFE_METHODS or
+            (request.user in obj.project.users.all())
+        )
 
 
 class APIPermission(permissions.IsAuthenticatedOrReadOnly):
