@@ -1,5 +1,4 @@
 import logging
-import os
 
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
@@ -8,8 +7,6 @@ from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.http import Http404
 
 from readthedocs.projects.models import Project, Domain
-
-import redis
 
 log = logging.getLogger(__name__)
 
@@ -65,14 +62,12 @@ class SubdomainMiddleware(object):
                 try:
                     slug = cache.get(host)
                     if not slug:
-                        redis_conn = redis.Redis(**settings.REDIS)
                         from dns import resolver
                         answer = [ans for ans in resolver.query(host, 'CNAME')][0]
                         domain = answer.target.to_unicode().lower()
                         slug = domain.split('.')[0]
                         cache.set(host, slug, 60 * 60)
                         # Cache the slug -> host mapping permanently.
-                        redis_conn.sadd("rtd_slug:v1:%s" % slug, host)
                         log.debug(LOG_TEMPLATE.format(
                             msg='CNAME cached: %s->%s' % (slug, host),
                             **log_kwargs))
