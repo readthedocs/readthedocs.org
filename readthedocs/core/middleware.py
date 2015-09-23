@@ -48,6 +48,8 @@ class SubdomainMiddleware(object):
                         request.slug = domain.project.slug
                         request.urlconf = 'core.subdomain_urls'
                         request.domain_object = True
+                        domain.count = domain.count + 1
+                        domain.save()
                         log.debug(LOG_TEMPLATE.format(
                             msg='Domain Object Detected: %s' % domain.url, **log_kwargs))
                         break
@@ -84,8 +86,7 @@ class SubdomainMiddleware(object):
                         )
                         if created:
                             domain.machine = True
-                        domain.cname = True
-                        # Track basic domain counts so we know which are heavily used
+                            domain.cname = True
                         domain.count = domain.count + 1
                         domain.save()
                     except (ObjectDoesNotExist, MultipleObjectsReturned):
