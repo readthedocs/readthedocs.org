@@ -4,7 +4,19 @@ from django.test import TestCase
 from django.test.client import RequestFactory
 from django.test.utils import override_settings
 
+from django_dynamic_fixture import get, new
+
 from readthedocs.core.middleware import SubdomainMiddleware
+from readthedocs.projects.models import Project, Domain
+
+from django.contrib.auth.models import User
+
+
+def create_user(username, password):
+    user = new(User, username=username)
+    user.set_password(password)
+    user.save()
+    return user
 
 
 class MiddlewareTests(TestCase):
@@ -13,6 +25,8 @@ class MiddlewareTests(TestCase):
         self.factory = RequestFactory()
         self.middleware = SubdomainMiddleware()
         self.url = '/'
+        self.owner = create_user(username='owner', password='test')
+        self.pip = get(Project, slug='pip', users=[self.owner], privacy_level='public')
 
     def test_failey_cname(self):
         request = self.factory.get(self.url, HTTP_HOST='my.host.com')
@@ -27,6 +41,21 @@ class MiddlewareTests(TestCase):
         self.assertEqual(request.urlconf, 'core.subdomain_urls')
         self.assertEqual(request.subdomain, True)
         self.assertEqual(request.slug, 'pip')
+
+    def test_domain_object(self):
+        self.domain = get(Domain, url='docs.foobar.com', project=self.pip)
+
+        request = self.factory.get(self.url, HTTP_HOST='docs.foobar.com')
+        self.middleware.process_request(request)
+        self.assertEqual(request.urlconf, 'core.subdomain_urls')
+        self.assertEqual(request.domain_object, True)
+        self.assertEqual(request.slug, 'pip')
+
+    def test_domain_object_missing(self):
+        self.domain = get(Domain, url='docs.foobar2.com', project=self.pip)
+        request = self.factory.get(self.url, HTTP_HOST='docs.foobar.com')
+        with self.assertRaises(Http404):
+            self.middleware.process_request(request)
 
     def test_proper_cname(self):
         cache.get = lambda x: 'my_slug'

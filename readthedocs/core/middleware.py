@@ -58,7 +58,7 @@ class SubdomainMiddleware(object):
                 log.debug(LOG_TEMPLATE.format(
                     msg='X-RTD-Slug header detetected: %s' % request.slug, **log_kwargs))
             # Try header first, then DNS
-            else:
+            elif not hasattr(request, 'domain_object'):
                 try:
                     slug = cache.get(host)
                     if not slug:
