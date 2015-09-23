@@ -27,6 +27,7 @@ def version_from_slug(slug, version):
 
 
 def symlink(project):
+    """This is here to avoid circular imports in models.py"""
     from readthedocs.projects import symlinks
     log.info("Symlinking %s", project)
     symlinks.symlink_cnames(project)
