@@ -304,7 +304,7 @@ class Project(models.Model):
             log.error('failed to sync supported versions', exc_info=True)
         try:
             if not first_save:
-                symlink(project=self.slug)
+                symlink(project=self)
         except Exception:
             log.error('failed to symlink project', exc_info=True)
         try:

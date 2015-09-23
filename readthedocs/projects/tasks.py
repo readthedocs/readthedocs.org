@@ -534,7 +534,7 @@ def finish_build(version_pk, build_pk, hostname=None, html=False,
         epub=epub,
     )
 
-    symlink(project=version.project.slug, version=version.slug)
+    symlink(project=version.project)
 
     # Delayed tasks
     update_static_metadata.delay(version.project.pk)

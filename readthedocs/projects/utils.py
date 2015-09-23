@@ -10,8 +10,6 @@ from httplib2 import Http
 from django.conf import settings
 import redis
 
-from readthedocs.builds.constants import LATEST
-
 
 log = logging.getLogger(__name__)
 
@@ -28,18 +26,16 @@ def version_from_slug(slug, version):
     return v
 
 
-def symlink(project, version=LATEST):
+def symlink(project):
     from readthedocs.projects import symlinks
-    version_obj = version_from_slug(project, version)
-    log.info("Symlinking %s", version_obj)
-    symlinks.symlink_cnames(version_obj)
-    symlinks.symlink_translations(version_obj)
-    symlinks.symlink_subprojects(version_obj)
-    if version_obj.project.single_version:
-        symlinks.symlink_single_version(version_obj)
+    log.info("Symlinking %s", project)
+    symlinks.symlink_cnames(project)
+    symlinks.symlink_translations(project)
+    symlinks.symlink_subprojects(project)
+    if project.project.single_version:
+        symlinks.symlink_single_version(project)
     else:
-        symlinks.remove_symlink_single_version(version_obj)
-
+        symlinks.remove_symlink_single_version(project)
 
 
 def update_static_metadata(project_pk):
@@ -167,6 +163,7 @@ def purge_version(version, mainsite=False, subdomain=False, cname=False):
 
 
 class DictObj(object):
+
     def __getattr__(self, attr):
         return self.__dict__.get(attr)
 
