@@ -324,6 +324,8 @@ class SubprojectForm(forms.Form):
     """Project subproject form"""
 
     subproject = forms.CharField()
+    prefix = forms.CharField(required=False)
+    alias = forms.CharField(required=False)
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user')
@@ -350,7 +352,10 @@ class SubprojectForm(forms.Form):
 
     def save(self):
         relationship = self.parent.add_subproject(
-            self.cleaned_data['subproject'])
+            self.cleaned_data['subproject'],
+            prefix=self.cleaned_data['prefix'],
+            alias=self.cleaned_data['alias'],
+        )
         return relationship
 
 
