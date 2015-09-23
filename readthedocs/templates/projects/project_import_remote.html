@@ -72,17 +72,46 @@ $(document).ready(function() {
           <div class="module-list">
             <div class="module-list-wrapper">
 
-              <ul data-bind="visible: projects().length == 0" style="display: none;">
+              <ul data-bind="visible: is_ready() && !has_projects()" style="display: none;">
                 <li class="module-item">
-                  {% blocktrans with binding='data-bind="click: sync_projects"' trimmed %}
-                    No remote repositories found,
-                    try <a href="#" {{ binding }}>refreshing your accounts</a>.
-                  {% endblocktrans %}
+                  {% if has_connected_accounts %}
+                    {% blocktrans with binding='data-bind="click: sync_projects"' trimmed %}
+                      No remote repositories found,
+                      try <a href="#" {{ binding }}>refreshing your accounts</a>.
+                    {% endblocktrans %}
+                  {% else %}
+                    {% blocktrans trimmed %}
+                      You don't currently have any connected accounts.
+                      Connect your account to be able to easily set up projects.
+                    {% endblocktrans %}
+
+                    <form
+                        method="get"
+                        action="{% provider_login_url "github" process="connect" next="/dashboard/import/" %}"
+                        class="import-connect import-connect-github">
+                      <button>
+                        {% trans "Connect to GitHub" %}
+                      </button>
+                    </form>
+
+                    <form
+                        method="get"
+                        action="{% provider_login_url "bitbucket" process="connect" next="/dashboard/import/" %}"
+                        class="import-connect import-connect-bitbucket">
+                      <button>
+                        {% trans "Connect to Bitbucket" %}
+                      </button>
+                    </form>
+
+                  {% endif %}
                 </li>
               </ul>
 
               <ul data-bind="foreach: projects" class="remote-repos">
-                <li class="module-item remote-repo">
+                <li
+                    class="module-item remote-repo"
+                    data-bind="visible: full_name"
+                    style="display: none;">
 
                   <img
                       data-bind="attr: {src: avatar_url}"

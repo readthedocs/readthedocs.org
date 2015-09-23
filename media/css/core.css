@@ -614,6 +614,17 @@ div.project-import-remote button.remote-sync:before {
     font-family: FontAwesome;
     content: "\f021";
 }
+
+div.project-import-remote form.import-connect-github button:before {
+    font-family: FontAwesome;
+    content: "\f09b";
+}
+
+div.project-import-remote form.import-connect-bitbucket button:before {
+    font-family: FontAwesome;
+    content: "\f171";
+}
+
 div.project-import-remote li.remote-repo span.remote-repo-url:before {
     padding-right: .5em;
     font-family: FontAwesome;

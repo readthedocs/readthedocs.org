@@ -117,6 +117,7 @@ function ProjectImportView (instance, urls) {
     // For task display
     self.error = ko.observable(null);
     self.is_syncing = ko.observable(false);
+    self.is_ready = ko.observable(false);
 
     // For filtering
     self.page_count = ko.observable(null);
@@ -162,6 +163,9 @@ function ProjectImportView (instance, urls) {
             .error(function (error) {
                 var error_msg = error.responseJSON.detail || error.statusText;
                 self.error({message: error_msg});
+            })
+            .always(function () {
+                self.is_ready(true);
             });
     });
 
@@ -193,6 +197,10 @@ function ProjectImportView (instance, urls) {
                 self.is_syncing(false);
             })
     };
+
+    self.has_projects = ko.computed(function () {
+        return self.projects().length > 0;
+    });
 
     self.next_page = function () {
         self.page_current(self.page_next());

@@ -15,6 +15,7 @@ from django.views.generic import View, TemplateView, ListView
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from formtools.wizard.views import SessionWizardView
+from allauth.socialaccount.models import SocialAccount
 
 from vanilla import CreateView, DeleteView, UpdateView
 
@@ -267,6 +268,14 @@ class ImportWizardView(PrivateViewMixin, SessionWizardView):
         """Return template names based on step name"""
         return 'projects/import_{0}.html'.format(self.steps.current)
 
+    def get_context_data(self, **kwargs):
+        context = super(ImportWizardView, self).get_context_data(**kwargs)
+        context['has_connected_accounts'] = (SocialAccount
+                                             .objects
+                                             .filter(user=self.request.user)
+                                             .exists())
+        return context
+
     def done(self, form_list, **kwargs):
         """Save form data as object instance
 
@@ -293,30 +302,6 @@ class ImportWizardView(PrivateViewMixin, SessionWizardView):
         """Determine if the user selected the `show advanced` field"""
         data = self.get_cleaned_data_for_step('basics') or {}
         return data.get('advanced', True)
-
-
-class ImportView(PrivateViewMixin, TemplateView):
-
-    """On GET, show the source select template, on POST, mock out a wizard
-
-    If we are accepting POST data, use the fields to seed the initial data in
-    :py:cls:`ImportWizardView`.  The import templates will redirect the form to
-    `/dashboard/import`
-    """
-
-    template_name = 'projects/project_import.html'
-    wizard_class = ImportWizardView
-
-    def post(self, request, *args, **kwargs):
-        initial_data = {}
-        initial_data['basics'] = {}
-        for key in ['name', 'repo', 'repo_type']:
-            initial_data['basics'][key] = request.POST.get(key)
-        initial_data['extra'] = {}
-        for key in ['description', 'project_url']:
-            initial_data['extra'][key] = request.POST.get(key)
-        request.method = 'GET'
-        return self.wizard_class.as_view(initial_dict=initial_data)(request)
 
 
 class ImportDemoView(PrivateViewMixin, View):
@@ -376,6 +361,33 @@ class ImportRemoteView(PrivateViewMixin, TemplateView):
 
     def get_context_data(self):
         pass
+
+
+class ImportView(PrivateViewMixin, View):
+
+    """On GET, show the source an import view, on POST, mock out a wizard
+
+    If we are accepting POST data, use the fields to seed the initial data in
+    :py:cls:`ImportWizardView`.  The import templates will redirect the form to
+    `/dashboard/import`
+    """
+
+    default_view_class = ImportRemoteView
+    wizard_class = ImportWizardView
+
+    def get(self, request, *args, **kwargs):
+        return self.default_view_class.as_view()(request)
+
+    def post(self, request, *args, **kwargs):
+        initial_data = {}
+        initial_data['basics'] = {}
+        for key in ['name', 'repo', 'repo_type']:
+            initial_data['basics'][key] = request.POST.get(key)
+        initial_data['extra'] = {}
+        for key in ['description', 'project_url']:
+            initial_data['extra'][key] = request.POST.get(key)
+        request.method = 'GET'
+        return self.wizard_class.as_view(initial_dict=initial_data)(request)
 
 
 @login_required

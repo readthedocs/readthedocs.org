@@ -57,6 +57,16 @@ div.project-import-remote li.remote-repo ul.remote-repo-menu button.remote-repo-
   font-size: 1em;
   font-weight: normal;
 }
+div.project-import-remote form.import-connect {
+  overflow: auto;
+  display: inline;
+}
+div.project-import-remote form.import-connect button {
+  display: inline;
+  margin-bottom: .5em;
+  font-size: 1em;
+  font-weight: normal;
+}
 div.import-remote-sidebar h1,
 div.import-remote-sidebar h2,
 div.import-remote-sidebar h3 {
