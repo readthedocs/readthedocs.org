@@ -25,24 +25,37 @@ function init() {
     if (!("builder" in rtd) || "builder" in rtd && rtd["builder"] != "mkdocs") {
         var theme = sphinx_theme.ThemeNav;
 
-        // Because generated HTML will not immediately have the new scroll
-        // element, gracefully handle failover by adding it dynamically.
-        var navBar = jquery('div.wy-side-scroll:first');
-        if (! navBar.length) {
-            var navInner = jquery('nav.wy-nav-side:first'),
-                navScroll = $('<div />')
-                    .addClass('wy-side-scroll');
+        // TODO dont do this, the theme should explicitly check when it has be
+        // already enabled. See:
+        // https://github.com/snide/sphinx_rtd_theme/issues/250
+        $(document).ready(function () {
+            setTimeout(function() {
+                if (!theme.navBar) {
+                    theme.enable();
+                }
+            }, 1000);
+        });
 
-            navInner
-                .children()
-                .detach()
-                .appendTo(navScroll);
-            navScroll.prependTo(navInner);
+        if (rtd.is_rtd_theme()) {
+            // Because generated HTML will not immediately have the new
+            // scroll element, gracefully handle failover by adding it
+            // dynamically.
+            var navBar = jquery('div.wy-side-scroll:first');
+            if (! navBar.length) {
+                var navInner = jquery('nav.wy-nav-side:first'),
+                    navScroll = $('<div />')
+                        .addClass('wy-side-scroll');
 
-            theme.navBar = navScroll;
+                navInner
+                    .children()
+                    .detach()
+                    .appendTo(navScroll);
+                navScroll.prependTo(navInner);
+
+                theme.navBar = navScroll;
+            }
         }
     }
-
 }
 
 
