@@ -54,7 +54,7 @@ class SubdomainMiddleware(object):
                         log.debug(LOG_TEMPLATE.format(
                             msg='Domain Object Detected: %s' % domain.url, **log_kwargs))
                         break
-            if not request.domain_object and 'HTTP_X_RTD_SLUG' in request.META:
+            if not hasattr(request, 'domain_object') and 'HTTP_X_RTD_SLUG' in request.META:
                 request.slug = request.META['HTTP_X_RTD_SLUG'].lower()
                 request.urlconf = 'core.subdomain_urls'
                 request.rtdheader = True
