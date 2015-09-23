@@ -175,16 +175,16 @@ $(document).ready(function() {
 
       {% block manual-import %}
         <div class="import-manual">
-          <form action="{% url "projects_import_manual" %}" method="get">
-            <input type="submit" value="{% trans "Import Manually" %}"/>
-          </form>
-
           <p>
             {% blocktrans trimmed %}
               You can import your project manually if it isn't listed here or
               connected to one of your accounts.
             {% endblocktrans %}
           </p>
+
+          <form action="{% url "projects_import_manual" %}" method="get" class="import-manual">
+            <input type="submit" value="{% trans "Import Manually" %}"/>
+          </form>
         </div>
       {% endblock %}
 

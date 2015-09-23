@@ -632,6 +632,10 @@ div.project-import-remote li.remote-repo span.remote-repo-url:before {
     content: '\f126';
 }
 
+div.import-remote-sidebar form.import-manual input {
+    margin: .5em 0em 1.5em 0em;
+}
+
 /* Donate */
 div.donate-stats {
     padding: 2em;
