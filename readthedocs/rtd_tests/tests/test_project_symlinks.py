@@ -1,5 +1,6 @@
 import os
 from functools import wraps
+import unittest
 
 from mock import patch
 from django.conf import settings
@@ -8,7 +9,7 @@ from django_dynamic_fixture import get
 
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project, Domain
-from readthedocs.projects.symlinks import symlink_translations, symlink_cnames
+from readthedocs.projects.symlinks import symlink_translations, symlink_cnames, symlink_subprojects
 
 
 def patched(fn):
@@ -24,6 +25,64 @@ def patched(fn):
             with patch('readthedocs.projects.symlinks.run_on_app_servers', _collect_commands):
                 return fn(self)
     return wrapper
+
+
+class TestSubprojects(TestCase):
+
+    def setUp(self):
+        self.project = get(Project, slug='kong')
+        self.subproject = get(Project, slug='sub')
+        self.args = {
+            'subproject_root': self.project.subprojects_symlink_path('')[:-1],
+            'build_path': self.subproject.doc_path,
+        }
+        self.commands = []
+
+    @patched
+    def test_subproject_normal(self):
+        self.project.add_subproject(self.subproject)
+        symlink_subprojects(self.project)
+        self.args['subproject'] = self.subproject.slug
+        commands = [
+            'mkdir -p {subproject_root}',
+            'ln -nsf {build_path}/rtd-builds {subproject_root}/{subproject}',
+        ]
+
+        for index, command in enumerate(commands):
+            self.assertEqual(self.commands[index], command.format(**self.args))
+
+    @patched
+    def test_subproject_alias(self):
+        self.project.add_subproject(self.subproject, alias='sweet-alias')
+        symlink_subprojects(self.project)
+        self.args['subproject'] = self.subproject.slug
+        self.args['alias'] = 'sweet-alias'
+        commands = [
+            'mkdir -p {subproject_root}',
+            'ln -nsf {build_path}/rtd-builds {subproject_root}/{subproject}',
+            'mkdir -p {subproject_root}',
+            'ln -nsf {build_path}/rtd-builds {subproject_root}/{alias}',
+        ]
+
+        for index, command in enumerate(commands):
+            self.assertEqual(self.commands[index], command.format(**self.args))
+
+    # Not implemented yet.
+    @unittest.expectedFailure
+    @patched
+    def test_subproject_prefix(self):
+        self.project.add_subproject(self.subproject, prefix='sweet-prefix')
+        symlink_subprojects(self.project)
+        self.args['subproject'] = self.subproject.slug
+        self.args['prefix'] = 'sweet-prefix'
+        self.args['prefix_root'] = os.path.join(self.project.doc_path, 'sweet-prefix')
+        commands = [
+            'mkdir -p {subproject_root}',
+            'ln -nsf {build_path}/rtd-builds {prefix_root}/{subproject}',
+        ]
+
+        for index, command in enumerate(commands):
+            self.assertEqual(self.commands[index], command.format(**self.args))
 
 
 class TestSymlinkCnames(TestCase):

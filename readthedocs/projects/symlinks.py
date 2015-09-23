@@ -2,6 +2,7 @@
 
 import os
 import logging
+from collections import OrderedDict
 
 from django.conf import settings
 
@@ -55,30 +56,27 @@ def symlink_subprojects(project):
               HOME/user_builds/<project>/rtd-builds/
     """
     # Subprojects
-    if getattr(settings, 'DONT_HIT_DB', True):
-        subproject_slugs = [data['slug']
-                            for data in (api.project(project.pk)
-                                         .subprojects
-                                         .get()['subprojects'])]
-    else:
-        rels = project.subprojects.all()
-        subproject_slugs = [rel.child.slug for rel in rels]
-    for slug in subproject_slugs:
-        slugs = [slug]
-        if '_' in slugs[0]:
-            slugs.append(slugs[0].replace('_', '-'))
-        for subproject_slug in slugs:
+    rels = project.subprojects.all()
+    for rel in rels:
+        # A mapping of slugs for the subproject URL to the actual built documentation
+        from_to = OrderedDict({rel.child.slug: rel.child.slug})
+        if rel.alias:
+            from_to[rel.alias] = rel.child.slug
+        # Fix underscore in slugs
+        if '_' in rel.child.slug:
+            from_to[rel.child.slug.replace('_', '-')] = rel.child.slug
+        for from_slug, to_slug in from_to.items():
             log.debug(LOG_TEMPLATE
                       .format(project=project.slug,
                               version=project.get_default_version(),
-                              msg="Symlinking subproject: %s" % subproject_slug))
+                              msg="Symlinking subproject: %s" % from_slug))
 
             # The directory for this specific subproject
-            symlink = project.subprojects_symlink_path(subproject_slug)
+            symlink = project.subprojects_symlink_path(from_slug)
             run_on_app_servers('mkdir -p %s' % '/'.join(symlink.split('/')[:-1]))
 
             # Where the actual docs live
-            docs_dir = os.path.join(settings.DOCROOT, subproject_slug, 'rtd-builds')
+            docs_dir = os.path.join(settings.DOCROOT, to_slug, 'rtd-builds')
             run_on_app_servers('ln -nsf %s %s' % (docs_dir, symlink))
 
 
