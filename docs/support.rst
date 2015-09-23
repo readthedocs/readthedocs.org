@@ -6,10 +6,10 @@ Getting Help
 
 The easiest way to get help with the project is to join the ``#readthedocs``
 channel on Freenode_. We hang out there and you can get real-time help with
-your projects.  The other good way is to open an issue on Github_.
+your projects.  The other good way is to open an issue on GitHub_.
 
 .. _Freenode: irc://freenode.net/
-.. _Github: http://github.com/rtfd/readthedocs.org/issues
+.. _GitHub: http://github.com/rtfd/readthedocs.org/issues
 
 Backwards Incompatible Changes
 ------------------------------

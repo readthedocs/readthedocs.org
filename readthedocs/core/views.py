@@ -207,7 +207,7 @@ def github_build(request):
         url = obj['repository']['url']
         ghetto_url = url.replace('http://', '').replace('https://', '')
         branch = obj['ref'].replace('refs/heads/', '')
-        pc_log.info("(Incoming Github Build) %s [%s]" % (ghetto_url, branch))
+        pc_log.info("(Incoming GitHub Build) %s [%s]" % (ghetto_url, branch))
         try:
             return _build_url(ghetto_url, [branch])
         except NoProjectException:
