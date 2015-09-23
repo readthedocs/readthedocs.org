@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 {% load i18n %}
+{% load socialaccount %}
 
 {% block title %}{% trans "Import a Remote Repository" %}{% endblock %}
 
@@ -52,9 +53,8 @@ $(document).ready(function() {
   {% block main_content %}
     <div class="col-major project-import-remote">
 
-      {% url 'api_sync_github_repositories' as sync_url %}
       <button
-          data-bind="click: function() { sync_projects('{{ sync_url }}') }, visible: !is_syncing()"
+          data-bind="click: sync_projects, visible: !is_syncing()"
           class="remote-sync">
         <span>{% trans "Refresh your accounts" %}</span>
       </button>
@@ -65,12 +65,21 @@ $(document).ready(function() {
         <img src="{% static 'core/img/loader.gif' %}"/>
       </span>
 
-      <h1>{% trans "Import a Remote Repository" %}</h1>
+      <h1>{% trans "Import a Repository" %}</h1>
 
       <div class="module repository-list">
         <div class="module-wrapper">
           <div class="module-list">
             <div class="module-list-wrapper">
+
+              <ul data-bind="visible: projects().length == 0" style="display: none;">
+                <li class="module-item">
+                  {% blocktrans with binding='data-bind="click: sync_projects"' trimmed %}
+                    No remote repositories found,
+                    try <a href="#" {{ binding }}>refreshing your accounts</a>.
+                  {% endblocktrans %}
+                </li>
+              </ul>
 
               <ul data-bind="foreach: projects" class="remote-repos">
                 <li class="module-item remote-repo">
@@ -134,28 +143,37 @@ $(document).ready(function() {
 
   {% block sidebar_content %}
     <div class="col-minor import-remote-sidebar">
-      <h3>{% trans "Remote Organizations" %}</h3>
 
-      <ul data-bind="foreach: organizations" class="remote-orgs">
-        <li
-            class="remote-org"
-            data-bind="css: {'remote-org-hidden': filtered()}, click: function () { $root.set_filter_org(id()); }">
-          <img data-bind="attr: {src: avatar_url}" class="remote-org-avatar" />
-          <span data-bind="text: display_name" class="remote-org-name"></span>
-        </li>
-      </ul>
+      {% block manual-import %}
+        <div class="import-manual">
+          <form action="{% url "projects_import_manual" %}" method="get">
+            <input type="submit" value="{% trans "Import Manually" %}"/>
+          </form>
 
-      {% if not github_connected %}
+          <p>
+            {% blocktrans trimmed %}
+              You can import your project manually if it isn't listed here or
+              connected to one of your accounts.
+            {% endblocktrans %}
+          </p>
+        </div>
+      {% endblock %}
 
-        {% block empty %}
-          {% url 'socialaccount_connections' as social_url %}
-          {% blocktrans %}
-            You don't have any GitHub repositories connected.
-            Go to your <a href="{{ social_url }}">Social Accounts</a> to set one up.
-          {% endblocktrans %}
-        {% endblock empty %}
+      {% block organizations %}
+        <div data-bind="visible: organizations().length > 0">
+          <h3>{% trans "Filter by Organization" %}</h3>
 
-      {% endif %}
+          <ul data-bind="foreach: organizations" class="remote-orgs">
+            <li
+                class="remote-org"
+                data-bind="css: {'remote-org-hidden': filtered()}, click: function () { $root.set_filter_org(id()); }">
+              <img data-bind="attr: {src: avatar_url}" class="remote-org-avatar" />
+              <span data-bind="text: display_name" class="remote-org-name"></span>
+            </li>
+          </ul>
+        </div>
+      {% endblock %}
+
     </div>
   {% endblock %}
 
