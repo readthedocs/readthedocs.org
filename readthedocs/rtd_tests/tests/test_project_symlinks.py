@@ -42,7 +42,7 @@ class TestSymlinkCnames(TestCase):
     @patched
     def test_symlink_cname(self):
         self.cname = get(Domain, project=self.project, url='http://woot.com', cname=True)
-        symlink_cnames(self.project.versions.first())
+        symlink_cnames(self.project)
         self.args['cname'] = self.cname.clean_host
         commands = [
             'mkdir -p {cnames_root}',
@@ -80,7 +80,7 @@ class TestSymlinkTranslations(TestCase):
     @patched
     def test_symlink_basic(self):
         '''Test basic scenario, language english, translation german'''
-        symlink_translations(self.project.versions.first())
+        symlink_translations(self.project)
         commands = [
             'mkdir -p {project}/translations',
             'ln -nsf {translation}/rtd-builds {project}/translations/de',
@@ -104,7 +104,7 @@ class TestSymlinkTranslations(TestCase):
         self.translation.save()
         self.commands = []
 
-        symlink_translations(self.project.versions.first())
+        symlink_translations(self.project)
         commands = [
             'mkdir -p {project}/translations',
             'ln -nsf {project}/rtd-builds {project}/translations/de',
@@ -133,7 +133,7 @@ class TestSymlinkTranslations(TestCase):
         self.assertNotIn(version, self.project.translations.all())
         self.commands = []
 
-        symlink_translations(self.project.versions.first())
+        symlink_translations(self.project)
         commands = [
             'mkdir -p {project}/translations',
             'ln -nsf {project}/rtd-builds {project}/translations/de',
