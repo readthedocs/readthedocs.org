@@ -836,7 +836,7 @@ class Project(models.Model):
         else:
             return self.vcs_repo().fallback_branch
 
-    def add_subproject(self, child, prefix, alias):
+    def add_subproject(self, child, prefix=None, alias=None):
         subproject, __ = ProjectRelationship.objects.get_or_create(
             parent=self, child=child, prefix=prefix, alias=alias,
         )
