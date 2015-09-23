@@ -32,9 +32,14 @@ def symlink(project, version=LATEST):
     from readthedocs.projects import symlinks
     version_obj = version_from_slug(project, version)
     log.info("Symlinking %s", version_obj)
-    symlinks.symlink_subprojects(version_obj)
     symlinks.symlink_cnames(version_obj)
     symlinks.symlink_translations(version_obj)
+    symlinks.symlink_subprojects(version_obj)
+    if version_obj.project.single_version:
+        symlinks.symlink_single_version(version_obj)
+    else:
+        symlinks.remove_symlink_single_version(version_obj)
+
 
 
 def update_static_metadata(project_pk):

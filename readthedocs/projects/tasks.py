@@ -32,7 +32,7 @@ from readthedocs.doc_builder.environments import (LocalEnvironment,
 from readthedocs.doc_builder.exceptions import BuildEnvironmentError
 from readthedocs.projects.exceptions import ProjectImportError
 from readthedocs.projects.models import ImportedFile, Project
-from readthedocs.projects.utils import make_api_version, make_api_project
+from readthedocs.projects.utils import make_api_version, make_api_project, symlink
 from readthedocs.projects.constants import LOG_TEMPLATE
 from readthedocs.builds.constants import STABLE
 from readthedocs.projects import symlinks
@@ -534,13 +534,7 @@ def finish_build(version_pk, build_pk, hostname=None, html=False,
         epub=epub,
     )
 
-    symlinks.symlink_cnames(version)
-    symlinks.symlink_translations(version)
-    symlinks.symlink_subprojects(version)
-    if version.project.single_version:
-        symlinks.symlink_single_version(version)
-    else:
-        symlinks.remove_symlink_single_version(version)
+    symlink(project=version.project.slug, version=version.slug)
 
     # Delayed tasks
     update_static_metadata.delay(version.project.pk)
