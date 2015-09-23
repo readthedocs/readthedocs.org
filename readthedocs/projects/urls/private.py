@@ -3,7 +3,7 @@
 from django.conf.urls import patterns, url
 
 from readthedocs.projects.views.private import (
-    ProjectDashboard, ImportView, ImportRemoteView,
+    ProjectDashboard, ImportView,
     DomainList, DomainCreate, DomainDelete, DomainUpdate)
 from readthedocs.projects.backends.views import ImportWizardView, ImportDemoView
 
@@ -27,10 +27,6 @@ urlpatterns = patterns(
     url(r'^import/manual/demo/$',
         ImportDemoView.as_view(),
         name='projects_import_demo'),
-
-    url(r'^import/remote/$',
-        ImportRemoteView.as_view(),
-        name='projects_import_remote'),
 
     url(r'^(?P<project_slug>[-\w]+)/$',
         'readthedocs.projects.views.private.project_manage',

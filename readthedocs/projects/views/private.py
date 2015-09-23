@@ -356,14 +356,7 @@ class ImportDemoView(PrivateViewMixin, View):
         return {'user': self.request.user}
 
 
-class ImportRemoteView(PrivateViewMixin, TemplateView):
-    template_name = 'projects/project_import_remote.html'
-
-    def get_context_data(self):
-        pass
-
-
-class ImportView(PrivateViewMixin, View):
+class ImportView(PrivateViewMixin, TemplateView):
 
     """On GET, show the source an import view, on POST, mock out a wizard
 
@@ -372,11 +365,8 @@ class ImportView(PrivateViewMixin, View):
     `/dashboard/import`
     """
 
-    default_view_class = ImportRemoteView
+    template_name = 'projects/project_import.html'
     wizard_class = ImportWizardView
-
-    def get(self, request, *args, **kwargs):
-        return self.default_view_class.as_view()(request)
 
     def post(self, request, *args, **kwargs):
         initial_data = {}
