@@ -44,53 +44,62 @@ class SubdomainMiddleware(object):
            'localhost' not in host and \
            'testserver' not in host:
             request.cname = True
-            try:
+            domains = Domain.objects.filter(url=host)
+            if domains.count():
+                for domain in domains:
+                    if domain.clean_host == host:
+                        request.slug = domain.project.slug
+                        request.urlconf = 'core.subdomain_urls'
+                        request.domain_object = True
+                        log.debug(LOG_TEMPLATE.format(
+                            msg='Domain Object Detected: %s' % domain.url, **log_kwargs))
+                        break
+            if not request.domain_object and 'HTTP_X_RTD_SLUG' in request.META:
                 request.slug = request.META['HTTP_X_RTD_SLUG'].lower()
                 request.urlconf = 'core.subdomain_urls'
                 request.rtdheader = True
                 log.debug(LOG_TEMPLATE.format(
                     msg='X-RTD-Slug header detetected: %s' % request.slug, **log_kwargs))
-            except KeyError:
-                # Try header first, then DNS
-                try:
-                    slug = cache.get(host)
-                    if not slug:
-                        redis_conn = redis.Redis(**settings.REDIS)
-                        from dns import resolver
-                        answer = [ans for ans in resolver.query(host, 'CNAME')][0]
-                        domain = answer.target.to_unicode().lower()
-                        slug = domain.split('.')[0]
-                        cache.set(host, slug, 60 * 60)
-                        # Cache the slug -> host mapping permanently.
-                        redis_conn.sadd("rtd_slug:v1:%s" % slug, host)
-                        log.debug(LOG_TEMPLATE.format(
-                            msg='CNAME cached: %s->%s' % (slug, host),
-                            **log_kwargs))
-                    request.slug = slug
-                    request.urlconf = 'core.subdomain_urls'
+            # Try header first, then DNS
+            try:
+                slug = cache.get(host)
+                if not slug:
+                    redis_conn = redis.Redis(**settings.REDIS)
+                    from dns import resolver
+                    answer = [ans for ans in resolver.query(host, 'CNAME')][0]
+                    domain = answer.target.to_unicode().lower()
+                    slug = domain.split('.')[0]
+                    cache.set(host, slug, 60 * 60)
+                    # Cache the slug -> host mapping permanently.
+                    redis_conn.sadd("rtd_slug:v1:%s" % slug, host)
                     log.debug(LOG_TEMPLATE.format(
-                        msg='CNAME detetected: %s' % request.slug,
+                        msg='CNAME cached: %s->%s' % (slug, host),
                         **log_kwargs))
-                    try:
-                        proj = Project.objects.get(slug=slug)
-                        domain, created = Domain.objects.get_or_create(
-                            project=proj,
-                            url=host,
-                        )
-                        if created:
-                            domain.machine = True
-                        domain.cname = True
-                        # Track basic domain counts so we know which are heavily used
-                        domain.count = domain.count + 1
-                        domain.save()
-                    except (ObjectDoesNotExist, MultipleObjectsReturned):
-                        log.debug(LOG_TEMPLATE.format(
-                            msg='Project CNAME does not exist: %s' % slug,
-                            **log_kwargs))
-                except:
-                    # Some crazy person is CNAMEing to us. 404.
-                    log.exception(LOG_TEMPLATE.format(msg='CNAME 404', **log_kwargs))
-                    raise Http404(_('Invalid hostname'))
+                request.slug = slug
+                request.urlconf = 'core.subdomain_urls'
+                log.debug(LOG_TEMPLATE.format(
+                    msg='CNAME detetected: %s' % request.slug,
+                    **log_kwargs))
+                try:
+                    proj = Project.objects.get(slug=slug)
+                    domain, created = Domain.objects.get_or_create(
+                        project=proj,
+                        url=host,
+                    )
+                    if created:
+                        domain.machine = True
+                    domain.cname = True
+                    # Track basic domain counts so we know which are heavily used
+                    domain.count = domain.count + 1
+                    domain.save()
+                except (ObjectDoesNotExist, MultipleObjectsReturned):
+                    log.debug(LOG_TEMPLATE.format(
+                        msg='Project CNAME does not exist: %s' % slug,
+                        **log_kwargs))
+            except:
+                # Some crazy person is CNAMEing to us. 404.
+                log.exception(LOG_TEMPLATE.format(msg='CNAME 404', **log_kwargs))
+                raise Http404(_('Invalid hostname'))
         # Google was finding crazy www.blah.readthedocs.org domains.
         # Block these explicitly after trying CNAME logic.
         if len(domain_parts) > 3:
