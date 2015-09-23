@@ -9,6 +9,8 @@ from django_dynamic_fixture import get, new
 from readthedocs.core.middleware import SubdomainMiddleware
 from readthedocs.projects.models import Project, Domain
 
+# Once this util gets merged remove them here
+# from readthedocs.rtd_tests.utils import create_user
 from django.contrib.auth.models import User
 
 
