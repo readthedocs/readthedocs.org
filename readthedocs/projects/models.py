@@ -56,8 +56,8 @@ class ProjectRelationship(models.Model):
         return "%s -> %s" % (self.parent, self.child)
 
     # HACK
-    def get_absolute_url(self):
-        return ("http://%s.readthedocs.org/projects/%s/%s/latest/"
+    def get_absolute_url(self, version_slug=None, lang_slug=None):
+        return ("http://{slug}.{domain}/projects/%s/%s/latest/"
                 % (self.parent.slug, self.child.slug, self.child.language))
 
 
@@ -332,32 +332,40 @@ class Project(models.Model):
         version = version_slug or self.get_default_version()
         lang = lang_slug or self.language
         use_subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
+        reverse_kwargs = {'filename': ''}
+
         if use_subdomain:
-            if self.single_version:
-                return "%s://%s/" % (
-                    protocol,
-                    self.subdomain,
-                )
-            else:
-                return "%s://%s/%s/%s/" % (
-                    protocol,
-                    self.subdomain,
-                    lang,
-                    version,
-                )
+            urlconf = 'readthedocs.core.subdomain_urls'
         else:
-            if self.single_version:
-                return reverse('docs_detail', kwargs={
-                    'project_slug': self.slug,
-                    'filename': ''
-                })
-            else:
-                return reverse('docs_detail', kwargs={
-                    'project_slug': self.slug,
-                    'lang_slug': lang,
-                    'version_slug': version,
-                    'filename': ''
-                })
+            urlconf = 'readthedocs.urls'
+            reverse_kwargs['project_slug'] = self.slug
+
+        if not self.single_version:
+            reverse_kwargs['version_slug'] = version
+            reverse_kwargs['lang_slug'] = lang
+
+        if self.superprojects.count():
+            reverse_kwargs['subproject_slug'] = self.slug
+            if not use_subdomain:
+                reverse_kwargs['project_slug'] = self.superprojects.first().slug
+
+        if self.superprojects.count() and self.single_version:
+            doc_path = reverse('subproject_single_version_docs_detail', urlconf=urlconf, kwargs=reverse_kwargs)
+        elif self.superprojects.count() and not self.single_version:
+            doc_path = reverse('subproject_docs_detail', urlconf=urlconf, kwargs=reverse_kwargs)
+        elif not self.superprojects.count() and self.single_version:
+            doc_path = reverse('single_version_docs_detail', urlconf=urlconf, kwargs=reverse_kwargs)
+        elif not self.superprojects.count() and not self.single_version:
+            doc_path = reverse('docs_detail', urlconf=urlconf, kwargs=reverse_kwargs)
+
+        if use_subdomain:
+            return "%s://%s%s" % (
+                protocol,
+                self.subdomain,
+                doc_path
+            )
+        else:
+            return doc_path
 
     def get_translation_url(self, version_slug=None, full=False):
         parent = self.main_language_project
