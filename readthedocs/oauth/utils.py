@@ -97,8 +97,9 @@ def import_github(user, sync):
         try:
             for repo in owner_resp:
                 OAuthRepository.objects.create_from_github_api(repo, user=user)
-        except TypeError, e:
-            print e
+        except (TypeError, ValueError) as e:
+            raise Exception('Could not sync your GitHub repositories, '
+                            'try reconnecting your account')
 
         # Get org repos
         try:
@@ -115,8 +116,9 @@ def import_github(user, sync):
                 for repo in org_repos_resp:
                     OAuthRepository.objects.create_from_github_api(
                         repo, user=user, organization=org_obj)
-        except TypeError, e:
-            print e
+        except (TypeError, ValueError) as e:
+            raise Exception('Could not sync your GitHub organizations, '
+                            'try reconnecting your account')
 
     return session is not None
 
@@ -169,12 +171,11 @@ def bitbucket_paginate(session, url):
     result = []
     while url:
         r = session.get(url)
+        url = None
         result.extend([r.json()])
         next_url = r.json().get('next')
         if next_url:
             url = next_url
-        else:
-            url = None
     return result
 
 
@@ -195,7 +196,7 @@ def import_bitbucket(user, sync):
     try:
         social_account = user.socialaccount_set.get(provider=BitbucketProvider.id)
     except SocialAccount.DoesNotExist:
-        log.exception('User tried to import from Bitbucket without a Social Account')
+        pass
     if sync and session:
             # Get user repos
         try:
@@ -204,16 +205,21 @@ def import_bitbucket(user, sync):
                 'https://bitbucket.org/api/2.0/repositories/{owner}'.format(
                     owner=social_account.uid))
             process_bitbucket_json(user, owner_resp)
-        except TypeError, e:
-            print e
+        except (TypeError, ValueError) as e:
+            raise Exception('Could not sync your Bitbucket repositories, '
+                            'try reconnecting your account')
 
         # Get org repos
         resp = session.get('https://bitbucket.org/api/1.0/user/privileges/')
-        for team in resp.json()['teams'].keys():
-            org_resp = bitbucket_paginate(
-                session,
-                'https://bitbucket.org/api/2.0/teams/{team}/repositories'.format(
-                    team=team))
-            process_bitbucket_json(user, org_resp)
+        try:
+            for team in resp.json()['teams'].keys():
+                org_resp = bitbucket_paginate(
+                    session,
+                    'https://bitbucket.org/api/2.0/teams/{team}/repositories'.format(
+                        team=team))
+                process_bitbucket_json(user, org_resp)
+        except ValueError:
+            raise Exception('Could not sync your Bitbucket team repositories, '
+                            'try reconnecting your account')
 
     return session is not None
