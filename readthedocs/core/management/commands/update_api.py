@@ -1,5 +1,4 @@
 import logging
-from optparse import make_option
 
 from django.core.management.base import BaseCommand
 from readthedocs.projects import tasks
@@ -10,8 +9,12 @@ log = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    """Custom management command to rebuild documentation for all projects on
-    the site. Invoked via ``./manage.py update_repos``.
+    """
+    Build documentation using the API and not hitting a database.
+
+    Usage::
+
+        ./manage.py update_api <slug>
     """
 
     def add_arguments(self, parser):
