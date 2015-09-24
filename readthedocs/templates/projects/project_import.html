@@ -133,16 +133,20 @@ $(document).ready(function() {
                     <li
                         data-bind="visible: match, with: match"
                         style="display: none;">
-                      <a data-bind="attr: {href: url}" class="remote-repo-view">
-                        View
+                      <a
+                          data-bind="attr: {href: url}"
+                          class="remote-repo-view"
+                          title="{% trans "This repository has already been imported" %}">
+                        <span>{% trans "View" %}</span>
                       </a>
                     </li>
                     <li data-bind="visible: !match()" style="display: none;">
-                      <button
+                      <a
+                          href="#"
                           data-bind="click: import_repo"
                           class="remote-repo-import">
-                        <span>+</span>
-                      </button>
+                        <span>{% trans "Add" %}</span>
+                      </a>
                     </li>
                   </ul>
 

@@ -601,14 +601,40 @@ div.project-version-list span.version-branch {
 }
 
 /* Project import */
-div.project-import-remote li.remote-repo button.remote-repo-import span,
+div.project-import-remote li.remote-repo a.remote-repo-view {
+    background: none;
+    color: #443;
+    box-shadow: none;
+    -moz-box-shadow: none;
+    -ms-box-shadow: none;
+    -webkit-box-shadow: none;
+    text-shadow: none;
+}
+
+div.project-import-remote li.remote-repo a.remote-repo-import,
+div.project-import-remote li.remote-repo a.remote-repo-view {
+    margin: .25em 0em;
+    height: 1em;
+    padding: .5em .75em;
+    font-size: 1em;
+    font-weight: normal;
+}
+
+div.project-import-remote li.remote-repo a.remote-repo-import span,
+div.project-import-remote li.remote-repo a.remote-repo-view span,
 div.project-import-remote button.remote-sync span {
     display: none;
 }
 
-div.project-import-remote li.remote-repo button.remote-repo-import:before {
+div.project-import-remote li.remote-repo a.remote-repo-import:before {
     font-family: FontAwesome;
+    font-weight: normal;
     content: "\f067";
+}
+div.project-import-remote li.remote-repo a.remote-repo-view:before {
+    font-family: FontAwesome;
+    font-weight: normal;
+    content: "\f08e";
 }
 div.project-import-remote button.remote-sync:before {
     font-family: FontAwesome;
