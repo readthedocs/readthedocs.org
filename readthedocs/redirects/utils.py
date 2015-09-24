@@ -109,10 +109,11 @@ def get_redirect_response(request, path=None):
     elif path.startswith('/docs/'):
         # In this case we use the docs without subdomains. So let's strip the
         # docs prefix.
-        split = path.split('/')
-        if len(split) > 2:
-            project_slug = split[2]
-            path = '/'.join(split[3:])
+        match = re.match(
+            r'^/docs/(?P<project_slug>[^/]+)(?P<path>/.*)$',
+            path)
+        project_slug = match.groupdict()['project_slug']
+        path = match.groupdict()['path']
     else:
         return None
 
