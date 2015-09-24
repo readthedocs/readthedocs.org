@@ -2,6 +2,7 @@ import logging
 from optparse import make_option
 
 from django.core.management.base import BaseCommand
+from django.core.management.base import CommandError
 from django.conf import settings
 
 from readthedocs.builds.constants import LATEST
@@ -27,13 +28,17 @@ class Command(BaseCommand):
         '''
         project = options['project']
 
+        queryset = Version.objects.public()
+
         if project:
-            queryset = Version.objects.public().filter(project__slug=project)
+            queryset = queryset.filter(project__slug=project)
+            if not queryset.exists():
+                raise CommandError(
+                    'No project with slug: {slug}'.format(slug=project))
             log.info("Building all versions for %s" % project)
         elif getattr(settings, 'INDEX_ONLY_LATEST', True):
-            queryset = Version.objects.public().filter(slug=LATEST)
-        else:
-            queryset = Version.objects.public()
+            queryset = queryset.filter(slug=LATEST)
+
         for version in queryset:
             log.info("Reindexing %s" % version)
             try:
@@ -41,6 +46,7 @@ class Command(BaseCommand):
             except:
                 # This will happen on prod
                 commit = None
+
             try:
                 page_list = parse_json.process_all_json_files(version, build_dir=False)
                 index_search_request(
