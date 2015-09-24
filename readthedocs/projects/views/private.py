@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.urlresolvers import reverse
+from django.conf import settings
 from django.http import HttpResponseRedirect, HttpResponseNotAllowed, Http404
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, render_to_response, render
@@ -35,7 +36,7 @@ from readthedocs.projects.forms import (
 from readthedocs.projects.models import Project, EmailHook, WebHook, Domain
 from readthedocs.projects.views.base import ProjectAdminMixin
 from readthedocs.projects import constants, tasks
-from readthedocs.projects.tasks import remove_path_from_web
+from readthedocs.projects.tasks import remove_dir
 
 
 from readthedocs.projects.signals import project_import
@@ -220,8 +221,14 @@ def project_delete(request, project_slug):
                                 slug=project_slug)
 
     if request.method == 'POST':
-        # Remove the repository checkout
-        remove_path_from_web.delay(path=project.doc_path)
+        # Support hacky "broadcast" with MULTIPLE_APP_SERVERS setting,
+        # otherwise put in normal celery queue
+        for server in getattr(settings, "MULTIPLE_APP_SERVERS", ['celery']):
+            log.info('Removing files on %s' % server)
+            remove_dir.apply_async(
+                args=[project.doc_path],
+                queue=server,
+            )
 
         # Delete the project and everything related to it
         project.delete()
