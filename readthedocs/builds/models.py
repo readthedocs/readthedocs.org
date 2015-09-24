@@ -18,7 +18,6 @@ from readthedocs.projects.constants import (PRIVACY_CHOICES, REPO_TYPE_GIT,
                                             REPO_TYPE_HG, GITHUB_URL,
                                             GITHUB_REGEXS, BITBUCKET_URL,
                                             BITBUCKET_REGEXS)
-from readthedocs.projects.tasks import clear_artifacts
 
 from .constants import (BUILD_STATE, BUILD_TYPES, VERSION_TYPES,
                         LATEST, NON_REPOSITORY_VERSIONS, STABLE,
@@ -160,6 +159,7 @@ class Version(models.Model):
         return obj
 
     def delete(self, *args, **kwargs):
+        from readthedocs.projects.tasks import clear_artifacts
         log.info('Removing files for version %s' % self.slug)
         clear_artifacts.delay(version_pk=self.pk)
         super(Version, self).delete(*args, **kwargs)
