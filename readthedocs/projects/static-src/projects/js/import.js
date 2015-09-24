@@ -76,6 +76,10 @@ function Project (instance, view) {
     });
     self.private = ko.observable(instance.private);
     self.active = ko.observable(instance.active);
+    self.admin = ko.observable(instance.admin);
+    self.is_locked = ko.computed(function () {
+        return (self.private() && !self.admin());
+    });
     self.avatar_url = ko.observable(
         append_url_params(instance.avatar_url, {size: 32})
     );

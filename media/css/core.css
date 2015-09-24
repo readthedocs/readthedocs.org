@@ -612,7 +612,9 @@ div.project-import-remote li.remote-repo a.remote-repo-view {
 }
 
 div.project-import-remote li.remote-repo a.remote-repo-import,
-div.project-import-remote li.remote-repo a.remote-repo-view {
+div.project-import-remote li.remote-repo a.remote-repo-view,
+div.project-import-remote li.remote-repo span.remote-repo-locked {
+    display: block;
     margin: .25em 0em;
     height: 1em;
     padding: .5em .75em;
@@ -622,6 +624,7 @@ div.project-import-remote li.remote-repo a.remote-repo-view {
 
 div.project-import-remote li.remote-repo a.remote-repo-import span,
 div.project-import-remote li.remote-repo a.remote-repo-view span,
+div.project-import-remote li.remote-repo span.remote-repo-locked span,
 div.project-import-remote button.remote-sync span {
     display: none;
 }
@@ -635,6 +638,11 @@ div.project-import-remote li.remote-repo a.remote-repo-view:before {
     font-family: FontAwesome;
     font-weight: normal;
     content: "\f08e";
+}
+div.project-import-remote li.remote-repo span.remote-repo-locked:before {
+    font-family: FontAwesome;
+    font-weight: normal;
+    content: "\f023";
 }
 div.project-import-remote button.remote-sync:before {
     font-family: FontAwesome;
@@ -651,11 +659,17 @@ div.project-import-remote form.import-connect-bitbucket button:before {
     content: "\f171";
 }
 
-div.project-import-remote li.remote-repo span.remote-repo-url:before {
+div.project-import-remote li.remote-repo span.remote-repo-extra-url:before {
     padding-right: .5em;
     font-family: FontAwesome;
     font-size: 1.2em;
     content: '\f126';
+}
+div.project-import-remote li.remote-repo span.remote-repo-extra-locked:before {
+    padding-right: .5em;
+    font-family: FontAwesome;
+    font-size: 1.2em;
+    content: '\f071';
 }
 
 div.project-import-sidebar form.import-manual input {

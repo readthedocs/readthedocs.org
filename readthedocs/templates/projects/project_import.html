@@ -124,14 +124,26 @@ $(document).ready(function() {
                         class="remote-repo-name">
                     </a>
                     <span
-                        data-bind="text: clone_url"
-                        class="remote-repo-url">
+                        data-bind="visible: !is_locked(), text: clone_url"
+                        class="remote-repo-extra remote-repo-extra-url">
+                    </span>
+                    <span
+                        data-bind="visible: is_locked()"
+                        class="remote-repo-extra remote-repo-extra-locked">
+                      {% trans "This repository requires admin access to import" %}
                     </span>
                   </div>
 
                   <ul class="module-item-menu remote-repo-menu">
                     <li
-                        data-bind="visible: match, with: match"
+                        data-bind="visible: is_locked()"
+                        style="display: none;">
+                      <span class="remote-repo-locked">
+                        <span>{% trans "Locked" %}</span>
+                      </span>
+                    </li>
+                    <li
+                        data-bind="visible: match() && !is_locked(), with: match"
                         style="display: none;">
                       <a
                           data-bind="attr: {href: url}"
@@ -140,7 +152,7 @@ $(document).ready(function() {
                         <span>{% trans "View" %}</span>
                       </a>
                     </li>
-                    <li data-bind="visible: !match()" style="display: none;">
+                    <li data-bind="visible: !match() && !is_locked()" style="display: none;">
                       <a
                           href="#"
                           data-bind="click: import_repo"

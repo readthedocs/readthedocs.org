@@ -40,7 +40,7 @@ div.project-import-remote li.remote-repo div.remote-repo-info a.remote-repo-name
   line-height: 1.5em;
   text-decoration: none;
 }
-div.project-import-remote li.remote-repo div.remote-repo-info span.remote-repo-url {
+div.project-import-remote li.remote-repo div.remote-repo-info span.remote-repo-extra {
   display: block;
   font-size: .75em;
   line-height: 1.5em;
