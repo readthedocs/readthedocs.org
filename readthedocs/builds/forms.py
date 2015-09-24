@@ -45,5 +45,6 @@ class VersionForm(forms.ModelForm):
         if self.instance.pk is not None:  # new instance only
             if self.instance.active is True and cleaned_data['active'] is False:
                 log.info('Removing files for version %s' % self.instance.slug)
-                clear_artifacts.delay(version_pk=[self.instance.pk])
+                clear_artifacts.delay(version_pk=self.instance.pk)
+                self.instance.built = False
         return cleaned_data
