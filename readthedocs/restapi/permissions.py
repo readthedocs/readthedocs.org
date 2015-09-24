@@ -58,7 +58,7 @@ class APIPermission(permissions.IsAuthenticatedOrReadOnly):
         return has_perm or (request.user and request.user.is_staff)
 
 
-class APIRestrictedPermission(permissions.IsAdminUser):
+class APIRestrictedPermission(permissions.BasePermission):
 
     """Allow admin write, authenticated and anonymous read only
 
