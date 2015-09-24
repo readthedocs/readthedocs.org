@@ -45,7 +45,7 @@ class APIPermission(permissions.IsAuthenticatedOrReadOnly):
         return has_perm or (request.user and request.user.is_staff)
 
 
-class APIRestrictedPermission(permissions.IsAdminUser):
+class APIRestrictedPermission(permissions.BasePermission):
     """Allow admin write, authenticated and anonymous read only
 
     This differs from :py:cls:`APIPermission` by not allowing for authenticated
@@ -53,6 +53,12 @@ class APIRestrictedPermission(permissions.IsAdminUser):
     by admin users to coordinate build instance creation, but only should be
     readable by end users.
     """
+
+    def has_permission(self, request, view):
+        return (
+            request.method in permissions.SAFE_METHODS or
+            (request.user and request.user.is_staff)
+        )
 
     def has_object_permission(self, request, view, obj):
         return (
