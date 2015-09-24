@@ -1,8 +1,17 @@
+from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy as _
+import logging
+import re
 
 from readthedocs.projects.models import Project
+from .managers import RedirectManager
+
+
+log = logging.getLogger(__name__)
+
 
 HTTP_STATUS_CHOICES = (
     (301, _('301 - Permanent Redirect')),
@@ -53,6 +62,8 @@ class Redirect(models.Model):
     create_dt = models.DateTimeField(auto_now_add=True)
     update_dt = models.DateTimeField(auto_now=True)
 
+    objects = RedirectManager()
+
     class Meta:
         verbose_name = _('redirect')
         verbose_name_plural = _('redirects')
@@ -67,3 +78,94 @@ class Redirect(models.Model):
                 self.to_url))
         else:
             return ugettext('Redirect: %s' % self.get_redirect_type_display())
+
+    def get_full_path(self, filename, project, version=None):
+        """
+        Return a full path for a given filename. This will include version and
+        language information. No protocol/domain is returned.
+        """
+
+        # Handle explicit http redirects
+        if re.match('^https?://', filename):
+            return filename
+
+        url_kwargs = {
+            'project_slug': project.slug,
+            'filename': filename,
+        }
+
+        if not project.single_version:
+            language = project.language
+            if version is None:
+                version_slug = project.get_default_version()
+            else:
+                version_slug = version.slug
+            url_kwargs.update({
+                'lang_slug': language,
+                'version_slug': version_slug,
+            })
+
+        use_subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
+        if use_subdomain:
+            if project.single_version:
+                return "/{filename}".format(**url_kwargs)
+            else:
+                return "/{lang_slug}/{version_slug}/{filename}".format(
+                    **url_kwargs)
+
+        return reverse('docs_detail', kwargs=url_kwargs)
+
+    def get_redirect_path(self, path, project, version=None):
+        method = getattr(self, 'redirect_{type}'.format(
+            type=self.redirect_type))
+        return method(path, project, version)
+
+    def redirect_prefix(self, path, project, version=None):
+        if path.startswith(self.from_url):
+            log.debug('Redirecting %s' % self)
+            cut_path = re.sub('^%s' % self.from_url, '', path)
+            to = self.get_full_path(
+                project=project,
+                filename=cut_path,
+                version=version)
+            return to
+
+    def redirect_page(self, path, project, version=None):
+        if path == self.from_url:
+            log.debug('Redirecting %s' % self)
+            to = self.get_full_path(
+                project=project,
+                filename=self.to_url.lstrip('/'),
+                version=version)
+            return to
+
+    def redirect_exact(self, path, project, version=None):
+        if path == self.from_url:
+            log.debug('Redirecting %s' % self)
+            return self.to_url
+        # Handle full sub-level redirects
+        if '$rest' in self.from_url:
+            match = self.from_url.split('$rest')[0]
+            if path.startswith(match):
+                cut_path = re.sub('^%s' % match, self.to_url, path)
+                return cut_path
+
+    def redirect_sphinx_html(self, path, project, version=None):
+        if path.endswith('/'):
+            log.debug('Redirecting %s' % self)
+            path = path[1:]  # Strip leading slash.
+            to = re.sub('/$', '.html', path)
+            return self.get_full_path(
+                project=project,
+                filename=to,
+                version=version)
+
+    def redirect_sphinx_htmldir(self, path, project, version=None):
+        if path.endswith('.html'):
+            log.debug('Redirecting %s' % self)
+            path = path[1:]  # Strip leading slash.
+            to = re.sub('.html$', '/', path)
+            return self.get_full_path(
+                project=project,
+                filename=to,
+                version=version)

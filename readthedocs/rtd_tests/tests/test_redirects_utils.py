@@ -14,8 +14,8 @@ class RedirectFilenameTests(TestCase):
 
     def test_http_filenames_return_themselves(self):
         self.assertEqual(
-            redirect_filename(None, 'http'),
-            'http'
+            redirect_filename(None, 'http://rtfd.org'),
+            'http://rtfd.org'
         )
 
     def test_redirects_no_subdomain(self):
