@@ -79,7 +79,7 @@ class Redirect(models.Model):
         else:
             return ugettext('Redirect: %s' % self.get_redirect_type_display())
 
-    def get_full_path(self, filename, version_slug=None):
+    def get_full_path(self, filename, language=None, version_slug=None):
         """
         Return a full path for a given filename. This will include version and
         language information. No protocol/domain is returned.
@@ -95,7 +95,8 @@ class Redirect(models.Model):
         }
 
         if not self.project.single_version:
-            language = self.project.language
+            if language is None:
+                language = self.project.language
             if version_slug is None:
                 version_slug = self.project.get_default_version()
             else:
@@ -117,29 +118,31 @@ class Redirect(models.Model):
 
         return reverse('docs_detail', kwargs=url_kwargs)
 
-    def get_redirect_path(self, path, version_slug=None):
+    def get_redirect_path(self, path, language=None, version_slug=None):
         method = getattr(self, 'redirect_{type}'.format(
             type=self.redirect_type))
-        return method(path, version_slug=version_slug)
+        return method(path, language=language, version_slug=version_slug)
 
-    def redirect_prefix(self, path, version_slug=None):
+    def redirect_prefix(self, path, language=None, version_slug=None):
         if path.startswith(self.from_url):
             log.debug('Redirecting %s' % self)
             cut_path = re.sub('^%s' % self.from_url, '', path)
             to = self.get_full_path(
                 filename=cut_path,
+                language=language,
                 version_slug=version_slug)
             return to
 
-    def redirect_page(self, path, version_slug=None):
+    def redirect_page(self, path, language=None, version_slug=None):
         if path == self.from_url:
             log.debug('Redirecting %s' % self)
             to = self.get_full_path(
                 filename=self.to_url.lstrip('/'),
+                language=language,
                 version_slug=version_slug)
             return to
 
-    def redirect_exact(self, path, version_slug=None):
+    def redirect_exact(self, path, language=None, version_slug=None):
         if path == self.from_url:
             log.debug('Redirecting %s' % self)
             return self.to_url
@@ -150,20 +153,22 @@ class Redirect(models.Model):
                 cut_path = re.sub('^%s' % match, self.to_url, path)
                 return cut_path
 
-    def redirect_sphinx_html(self, path, version_slug=None):
+    def redirect_sphinx_html(self, path, language=None, version_slug=None):
         if path.endswith('/'):
             log.debug('Redirecting %s' % self)
             path = path[1:]  # Strip leading slash.
             to = re.sub('/$', '.html', path)
             return self.get_full_path(
                 filename=to,
+                language=language,
                 version_slug=version_slug)
 
-    def redirect_sphinx_htmldir(self, path, version_slug=None):
+    def redirect_sphinx_htmldir(self, path, language=None, version_slug=None):
         if path.endswith('.html'):
             log.debug('Redirecting %s' % self)
             path = path[1:]  # Strip leading slash.
             to = re.sub('.html$', '/', path)
             return self.get_full_path(
                 filename=to,
+                language=language,
                 version_slug=version_slug)

@@ -52,7 +52,7 @@ def get_redirect_response(request, path):
         language, version_slug, path = language_and_version_from_path(path)
 
     new_path = project.redirects.get_redirect_path(
-        path=path, version_slug=version_slug)
+        path=path, language=language, version_slug=version_slug)
 
     if new_path is None:
         return None
