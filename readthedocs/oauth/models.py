@@ -1,14 +1,22 @@
 """OAuth service models"""
 
+import json
+
 from django.db import models
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from django.core.validators import URLValidator
+from django.core.urlresolvers import reverse
 
 from readthedocs.projects.constants import REPO_CHOICES
+from readthedocs.projects.models import Project
 
 from .constants import OAUTH_SOURCE
 from .managers import OAuthRepositoryManager, OAuthOrganizationManager
+
+
+DEFAULT_PRIVACY_LEVEL = getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public')
 
 
 class OAuthOrganization(models.Model):
@@ -114,16 +122,22 @@ class OAuthRepository(models.Model):
         except ValueError:
             pass
 
-    def get_usable_url(self):
+    def matches(self, user):
+        """Projects that exist with repository URL already"""
+
         # TODO
         # ghetto_repo = self.clone_url.replace('git://', '').replace('.git', '')
-        #projects = (Project
-        #            .objects
-        #            .public(request.user)
+        projects = (Project
+                    .objects
+                    .public(user)
+                    .filter(repo=self.clone_url))
         #            .filter(Q(repo__endswith=ghetto_repo) |
         #                    Q(repo__endswith=ghetto_repo + '.git')))
-        #if projects:
+        # if projects:
         #    repo.matches = [project.slug for project in projects]
-        #else:
+        # else:
         #    repo.matches = []
-        return self.clone_url
+        return [{'id': project.slug,
+                 'url': reverse('projects_detail',
+                                kwargs={'project_slug': project.slug})}
+                for project in projects]

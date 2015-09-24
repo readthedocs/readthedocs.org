@@ -95,7 +95,12 @@ class OAuthRepositorySerializer(serializers.ModelSerializer):
     """OAuth service repository serializer"""
 
     organization = OAuthOrganizationSerializer()
+    matches = serializers.SerializerMethodField()
 
     class Meta:
         model = OAuthRepository
         exclude = ('json', 'users')
+
+    def get_matches(self, obj):
+        request = self.context['request']
+        return obj.matches(request.user)

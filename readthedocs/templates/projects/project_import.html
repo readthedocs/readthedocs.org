@@ -124,17 +124,26 @@ $(document).ready(function() {
                         class="remote-repo-name">
                     </a>
                     <span
-                        data-bind="text: ssh_url"
+                        data-bind="text: clone_url"
                         class="remote-repo-url">
                     </span>
                   </div>
 
                   <ul class="module-item-menu remote-repo-menu">
-                    <button
-                        data-bind="click: import_repo"
-                        class="remote-repo-import">
-                      <span>+</span>
-                    </button>
+                    <li
+                        data-bind="visible: match, with: match"
+                        style="display: none;">
+                      <a data-bind="attr: {href: url}" class="remote-repo-view">
+                        View
+                      </a>
+                    </li>
+                    <li data-bind="visible: !match()" style="display: none;">
+                      <button
+                          data-bind="click: import_repo"
+                          class="remote-repo-import">
+                        <span>+</span>
+                      </button>
+                    </li>
                   </ul>
 
                 </li>

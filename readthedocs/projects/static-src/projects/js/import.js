@@ -67,6 +67,13 @@ function Project (instance, view) {
     self.html_url = ko.observable(instance.html_url);
     self.clone_url = ko.observable(instance.clone_url);
     self.ssh_url = ko.observable(instance.ssh_url);
+    self.matches = ko.observable(instance.matches);
+    self.match = ko.computed(function () {
+        var matches = self.matches();
+        if (matches && matches.length > 0) {
+            return matches[0];
+        }
+    });
     self.private = ko.observable(instance.private);
     self.active = ko.observable(instance.active);
     self.avatar_url = ko.observable(

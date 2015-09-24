@@ -19,7 +19,7 @@ class OAuthRepositoryManager(models.Manager):
     """Model managers for remote repositories"""
 
     def create_from_github_api(self, api_json, user, organization=None,
-                        privacy=DEFAULT_PRIVACY_LEVEL):
+                               privacy=DEFAULT_PRIVACY_LEVEL):
         logger.info('Trying GitHub: %s' % api_json['full_name'])
         if (
                 (privacy == 'private') or
@@ -37,7 +37,10 @@ class OAuthRepositoryManager(models.Manager):
             project.users.add(user)
             project.name = api_json['name']
             project.description = api_json['description']
-            project.clone_url = api_json['git_url']
+            if DEFAULT_PRIVACY_LEVEL == 'private':
+                project.clone_url = api_json['ssh_url']
+            else:
+                project.clone_url = api_json['clone_url']
             project.ssh_url = api_json['ssh_url']
             project.html_url = api_json['html_url']
             project.private = api_json['private']
