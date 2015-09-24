@@ -72,14 +72,21 @@ if 'html_theme' in globals():
             html_theme = 'sphinx_rtd_theme'
             html_style = None
             html_theme_options = {}
-            html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+            if 'html_theme_path' in globals():
+                html_theme_path.append(sphinx_rtd_theme.get_html_theme_path())
+            else:
+                html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+
             using_rtd_theme = True
 else:
     import sphinx_rtd_theme
     html_theme = 'sphinx_rtd_theme'
     html_style = None
     html_theme_options = {}
-    html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+    if 'html_theme_path' in globals():
+        html_theme_path.append(sphinx_rtd_theme.get_html_theme_path())
+    else:
+        html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
     using_rtd_theme = True
 
 # Force theme on setting
