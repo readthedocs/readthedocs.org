@@ -1,4 +1,4 @@
-from celery import Task
+from celery import Task, states
 from django.conf import settings
 
 from .retrieve import TaskNotFound
@@ -71,6 +71,14 @@ class PublicTask(Task):
         state, info = self.get_task_data()
         return info
 
+    def after_return(self, status, retval, task_id, args, kwargs, einfo):
+        """Add the error to the task data"""
+        _, info = self.get_task_data()
+        if status == states.FAILURE:
+            info['error'] = retval
+        if STATUS_UPDATES_ENABLED:
+            self.update_state(state=status, meta=info)
+
 
 def permission_check(check):
     """
@@ -98,12 +106,14 @@ class TaskNoPermission(Exception):
 
 def get_public_task_data(request, task_id):
     """
-    Return a 3-value tuple with the public name of the task, the current state
-    of the task and the data that can be displayed publicly about this task.
+    Return task details as tuple
 
     Will raise `TaskNoPermission` if `request` has no permission to access info
     of the task with id `task_id`. This is also the case of no task with the
     given id exists.
+
+    :returns: (task name, task state, public data, error message)
+    :rtype: (str, str, dict, str)
     """
     try:
         task, state, info = get_task_data(task_id)
@@ -119,4 +129,4 @@ def get_public_task_data(request, task_id):
     if not task.check_permission(request, state, context):
         raise TaskNoPermission(task_id)
     public_name = task.public_name
-    return public_name, state, info.get('public_data', {})
+    return public_name, state, info.get('public_data', {}), info.get('error', None)

@@ -24,8 +24,8 @@ function poll_task (data) {
             })
             .error(function (error) {
                 console.error('Error polling task:', error);
-                failures -= 1;
-                if (failures > 0) {
+                tries -= 1;
+                if (tries > 0) {
                     setTimeout(poll_task_loop, 2000);
                 }
                 else {
