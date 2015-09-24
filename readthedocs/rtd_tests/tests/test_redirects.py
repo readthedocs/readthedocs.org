@@ -1,4 +1,4 @@
-from django.http import HttpResponse
+from django.http import Http404
 from django.test import TestCase
 from django.test.utils import override_settings
 
@@ -221,8 +221,7 @@ class RedirectAppTests(TestCase):
             project=self.pip, redirect_type='page',
             from_url='/how_to_install.html', to_url='/install.html')
         with patch('readthedocs.core.views._serve_docs') as _serve_docs:
-            _serve_docs.return_value = HttpResponse()
-            _serve_docs.return_value.status_code = 404
+            _serve_docs.side_effect = Http404()
             r = self.client.get('/en/0.8.1/how_to_install.html',
                                 HTTP_HOST='pip.readthedocs.org')
             self.assertEqual(r.status_code, 302)

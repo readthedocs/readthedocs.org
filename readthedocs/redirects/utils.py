@@ -85,13 +85,21 @@ def get_redirect_url(project, path, version=None):
         elif project_redirect.redirect_type == 'sphinx_html':
             if path.endswith('/'):
                 log.debug('Redirecting %s' % project_redirect)
+                path = path[1:]  # Strip leading slash.
                 to = re.sub('/$', '.html', path)
-                return to
+                return redirect_filename(
+                    project=project,
+                    filename=to,
+                    version=version)
         elif project_redirect.redirect_type == 'sphinx_htmldir':
             if path.endswith('.html'):
                 log.debug('Redirecting %s' % project_redirect)
+                path = path[1:]  # Strip leading slash.
                 to = re.sub('.html$', '/', path)
-                return to
+                return redirect_filename(
+                    project=project,
+                    filename=to,
+                    version=version)
 
 
 def get_redirect_response(request, path=None):
@@ -118,7 +126,7 @@ def get_redirect_response(request, path=None):
         version = None
         if not project.single_version:
             match = re.match(
-                r'^/(?P<language>[^/]+)/(?P<version_slug>[^/]+)/.*',
+                r'^/(?P<language>[^/]+)/(?P<version_slug>[^/]+)(?P<path>/.*)$',
                 path)
             if match:
                 version_slug = match.groupdict()['version_slug']
@@ -126,6 +134,7 @@ def get_redirect_response(request, path=None):
                     version = project.versions.get(slug=version_slug)
                 except Version.DoesNotExist:
                     pass
+                path = match.groupdict()['path']
 
         new_path = get_redirect_url(project=project,
                                     path=path,
