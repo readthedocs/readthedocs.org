@@ -94,17 +94,17 @@ def get_redirect_url(project, path, version=None):
                 return to
 
 
-def get_redirect_response(request, full_path=None):
+def get_redirect_response(request, path=None):
     project = project_slug = None
     if hasattr(request, 'slug'):
         project_slug = request.slug
-    elif full_path.startswith('/docs/'):
+    elif path.startswith('/docs/'):
         # In this case we use the docs without subdomains. So let's strip the
         # docs prefix.
-        split = full_path.split('/')
+        split = path.split('/')
         if len(split) > 2:
             project_slug = split[2]
-            full_path = '/'.join(split[3:])
+            path = '/'.join(split[3:])
     else:
         return None
 
@@ -119,7 +119,7 @@ def get_redirect_response(request, full_path=None):
         if not project.single_version:
             match = re.match(
                 r'^/(?P<language>[^/]+)/(?P<version_slug>[^/]+)/.*',
-                full_path)
+                path)
             if match:
                 version_slug = match.groupdict()['version_slug']
                 try:
@@ -128,7 +128,7 @@ def get_redirect_response(request, full_path=None):
                     pass
 
         new_path = get_redirect_url(project=project,
-                                    path=full_path,
+                                    path=path,
                                     version=version)
         if new_path is not None:
             # Re-use the domain and protocol used in the current request.
