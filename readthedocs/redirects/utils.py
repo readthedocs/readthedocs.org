@@ -1,10 +1,7 @@
-from django.conf import settings
-from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 import logging
 import re
 
-from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
 
 
@@ -50,17 +47,12 @@ def get_redirect_response(request, path):
         return None
 
     language = None
-    version = None
+    version_slug = None
     if not project.single_version:
         language, version_slug, path = language_and_version_from_path(path)
-        if version_slug:
-            try:
-                version = project.versions.get(slug=version_slug)
-            except Version.DoesNotExist:
-                pass
 
     new_path = project.redirects.get_redirect_path(
-        path=path, project=project, version=version)
+        path=path, version_slug=version_slug)
 
     if new_path is None:
         return None

@@ -1,3 +1,4 @@
+from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -281,3 +282,54 @@ class RedirectBuildTests(TestCase):
         self.assertEqual(r.status_code, 301)
         self.assertEqual(r['Location'], 'http://testserver/projects/project-1/builds/1337/')
 
+
+class GetFullPathTests(TestCase):
+    fixtures = ["eric", "test_data"]
+
+    def setUp(self):
+        self.proj = Project.objects.get(slug="read-the-docs")
+        self.redirect = get(Redirect, project=self.proj)
+
+    def test_http_filenames_return_themselves(self):
+        self.assertEqual(
+            self.redirect.get_full_path('http://rtfd.org'),
+            'http://rtfd.org'
+        )
+
+    def test_redirects_no_subdomain(self):
+        self.assertEqual(
+            self.redirect.get_full_path('index.html'),
+            '/docs/read-the-docs/en/latest/index.html'
+        )
+
+    @override_settings(
+        USE_SUBDOMAIN=True, PRODUCTION_DOMAIN='rtfd.org'
+    )
+    def test_redirects_with_subdomain(self):
+        self.assertEqual(
+            self.redirect.get_full_path('faq.html'),
+            '/en/latest/faq.html'
+        )
+
+    @override_settings(
+        USE_SUBDOMAIN=True, PRODUCTION_DOMAIN='rtfd.org'
+    )
+    def test_single_version_with_subdomain(self):
+        self.redirect.project.single_version = True
+        self.assertEqual(
+            self.redirect.get_full_path('faq.html'),
+            '/faq.html'
+        )
+
+    def test_single_version_no_subdomain(self):
+        self.redirect.project.single_version = True
+        self.assertEqual(
+            self.redirect.get_full_path('faq.html'),
+            reverse(
+                'docs_detail',
+                kwargs={
+                    'project_slug': self.proj.slug,
+                    'filename': 'faq.html',
+                }
+            )
+        )
