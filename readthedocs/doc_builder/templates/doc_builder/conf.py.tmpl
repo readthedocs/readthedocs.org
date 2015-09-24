@@ -68,14 +68,18 @@ if 'html_theme' in globals():
     if html_theme in ['default']:
         # Allow people to bail with a hack of having an html_style
         if not 'html_style' in globals():
+            import sphinx_rtd_theme
             html_theme = 'sphinx_rtd_theme'
             html_style = None
             html_theme_options = {}
+            html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
             using_rtd_theme = True
 else:
+    import sphinx_rtd_theme
     html_theme = 'sphinx_rtd_theme'
     html_style = None
     html_theme_options = {}
+    html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
     using_rtd_theme = True
 
 # Force theme on setting
