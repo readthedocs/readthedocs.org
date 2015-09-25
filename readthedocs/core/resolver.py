@@ -147,3 +147,11 @@ def smart_resolve(project, protocol='http', filename=''):
         domain=smart_resolve_domain(project),
         path=smart_resolve_path(project, filename=filename),
     )
+
+
+def resolve(project, protocol='http', filename='', **kwargs):
+    return '{protocol}://{domain}{path}'.format(
+        protocol=protocol,
+        domain=smart_resolve_domain(project),
+        path=resolve_path(project, filename=filename, **kwargs),
+    )

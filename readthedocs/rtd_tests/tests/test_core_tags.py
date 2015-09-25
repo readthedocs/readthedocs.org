@@ -1,8 +1,8 @@
 from django.test import TestCase
 from readthedocs.projects.models import Project
 from readthedocs.builds.constants import LATEST
-from readthedocs.builds.models import Version
 from readthedocs.core.templatetags import core_tags
+
 
 class CoreTagsTests(TestCase):
     fixtures = ["eric", "test_data"]
@@ -173,4 +173,3 @@ class CoreTagsTests(TestCase):
         proj.documentation_type = 'mkdocs'
         url = core_tags.make_document_url(proj, LATEST, 'index.html')
         self.assertEqual(url, '/docs/pip/en/latest/')
-

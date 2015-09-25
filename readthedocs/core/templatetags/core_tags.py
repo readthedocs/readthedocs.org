@@ -6,8 +6,8 @@ from django.conf import settings
 from django.utils.safestring import mark_safe
 from django.utils.encoding import force_bytes, force_text
 
-from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
+from readthedocs.core.resolver import resolve_path
 
 register = template.Library()
 
@@ -31,10 +31,6 @@ def gravatar(email, size=48):
 def make_document_url(project, version=None, page=None):
     if not project:
         return ""
-    if project.main_language_project:
-        base_url = project.get_translation_url(version, full=True)
-    else:
-        base_url = project.get_docs_url(version)
     if page and (page != "index") and (page != "index.html"):
         if project.documentation_type == "sphinx_htmldir":
             path = page + "/"
@@ -46,7 +42,7 @@ def make_document_url(project, version=None, page=None):
             path = page + ".html"
     else:
         path = ""
-    return base_url + path
+    return resolve_path(project=project, version_slug=version, filename=path)
 
 
 @register.filter(is_safe=True)
