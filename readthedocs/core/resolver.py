@@ -29,8 +29,8 @@ All possible URL's::
 from django.conf import settings
 
 
-def base_resolve(project_slug, filename, version_slug=None, language=None,
-                 single_version=None, subproject_slug=None,  subdomain=None, cname=None):
+def base_resolve_path(project_slug, filename, version_slug=None, language=None,
+                      single_version=None, subproject_slug=None,  subdomain=None, cname=None):
     """ Resolve a with nothing smart, just filling in the blanks."""
     filename = filename.lstrip('/')
 
@@ -54,8 +54,8 @@ def base_resolve(project_slug, filename, version_slug=None, language=None,
     )
 
 
-def resolve(project, filename='', version_slug=None, language=None,
-            single_version=None, subdomain=None, cname=None):
+def resolve_path(project, filename='', version_slug=None, language=None,
+                 single_version=None, subdomain=None, cname=None):
     """ Resolve a URL with a subset of fields defined."""
     subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
     relation = project.superprojects.first()
@@ -81,13 +81,13 @@ def resolve(project, filename='', version_slug=None, language=None,
     else:
         single_version = False
 
-    return base_resolve(project_slug=project_slug, filename=filename,
-                        version_slug=version_slug, language=language,
-                        single_version=single_version, subproject_slug=subproject_slug,
-                        subdomain=subdomain, cname=cname)
+    return base_resolve_path(project_slug=project_slug, filename=filename,
+                             version_slug=version_slug, language=language,
+                             single_version=single_version, subproject_slug=subproject_slug,
+                             subdomain=subdomain, cname=cname)
 
 
-def smart_resolve(project, filename=''):
+def smart_resolve_path(project, filename=''):
     """ Resolve a URL with all fields automatically filled in from the project."""
     subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
     relation = project.superprojects.first()
@@ -113,7 +113,7 @@ def smart_resolve(project, filename=''):
     else:
         single_version = False
 
-    return base_resolve(project_slug=project_slug, filename=filename,
-                        version_slug=version_slug, language=language,
-                        single_version=single_version, subproject_slug=subproject_slug,
-                        subdomain=subdomain, cname=cname)
+    return base_resolve_path(project_slug=project_slug, filename=filename,
+                             version_slug=version_slug, language=language,
+                             single_version=single_version, subproject_slug=subproject_slug,
+                             subdomain=subdomain, cname=cname)

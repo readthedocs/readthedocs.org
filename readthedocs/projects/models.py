@@ -29,7 +29,7 @@ from readthedocs.projects.utils import (make_api_version, symlink,
 from readthedocs.projects.version_handling import determine_stable_version
 from readthedocs.projects.version_handling import version_windows
 from readthedocs.restapi.client import api as apiv2
-from readthedocs.core.resolver import resolve
+from readthedocs.core.resolver import resolve_path
 
 from readthedocs.vcs_support.base import VCSProject
 from readthedocs.vcs_support.backends import backend_cls
@@ -332,7 +332,7 @@ class Project(models.Model):
         """
         protocol = "http"
         use_subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
-        doc_path = resolve(project=self, filename='')
+        doc_path = resolve_path(project=self, filename='')
 
         if use_subdomain:
             return "%s://%s%s" % (
