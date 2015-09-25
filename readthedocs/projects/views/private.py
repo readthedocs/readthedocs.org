@@ -1,13 +1,13 @@
 """Project views for authenticated users"""
 
 import logging
-import shutil
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect, HttpResponseNotAllowed, Http404
+from django.http import (HttpResponseRedirect, HttpResponseNotAllowed,
+                         Http404,  HttpResponseBadRequest)
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, render_to_response, render
 from django.template import RequestContext
@@ -467,7 +467,7 @@ def project_users(request, project_slug):
 @login_required
 def project_users_delete(request, project_slug):
     if request.method != 'POST':
-        raise Http404
+        return HttpResponseNotAllowed('Only POST is allowed')
     project = get_object_or_404(Project.objects.for_admin_user(request.user), slug=project_slug)
     user = get_object_or_404(User.objects.all(), username=request.POST.get('username'))
     if user == request.user:
@@ -529,7 +529,7 @@ def project_comments_settings(request, project_slug):
 def project_notifications_delete(request, project_slug):
     """Project notifications delete confirmation view"""
     if request.method != 'POST':
-        raise Http404
+        return HttpResponseNotAllowed('Only POST is allowed')
     project = get_object_or_404(Project.objects.for_admin_user(request.user),
                                 slug=project_slug)
     try:
@@ -689,7 +689,7 @@ def project_version_delete_html(request, project_slug, version_slug):
         version.save()
         tasks.clear_artifacts.delay(version.pk)
     else:
-        raise Http404
+        return HttpResponseBadRequest("Can't delete HTML for an active version.")
     return HttpResponseRedirect(
         reverse('project_version_list', kwargs={'project_slug': project_slug}))
 
@@ -697,6 +697,7 @@ def project_version_delete_html(request, project_slug, version_slug):
 class DomainMixin(ProjectAdminMixin, PrivateViewMixin):
     model = Domain
     form_class = DomainForm
+    lookup_url_kwarg = 'domain_pk'
 
 
 class DomainList(DomainMixin, ListViewWithForm):
