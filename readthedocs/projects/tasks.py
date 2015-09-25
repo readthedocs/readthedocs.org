@@ -613,11 +613,12 @@ def move_files(version_pk, hostname, html=False, localmedia=False, search=False,
 
 
 @task(queue='web')
-def update_search(version_pk, commit):
+def update_search(version_pk, commit, delete_non_commit_files=True):
     """Task to update search indexes
 
     :param version_pk: Version id to update
     :param commit: Commit that updated index
+    :param delete_non_commit_files: Delete files not in commit from index
     """
     version = Version.objects.get(pk=version_pk)
 
@@ -642,6 +643,7 @@ def update_search(version_pk, commit):
         # Don't index sections to speed up indexing.
         # They aren't currently exposed anywhere.
         section=False,
+        delete=delete_non_commit_files,
     )
 
 
