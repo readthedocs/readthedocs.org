@@ -184,7 +184,7 @@ def process_bitbucket_json(user, json):
         for page in json:
             for repo in page['values']:
                 RemoteRepository.objects.create_from_bitbucket_api(repo,
-                                                                  user=user)
+                                                                   user=user)
     except TypeError, e:
         print e
 
