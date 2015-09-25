@@ -116,7 +116,9 @@ def forwards_move_repos(apps, schema_editor):
                                     .get(slug=project.organization.login))
         try:
             data = eval(project.json)
-            new_repo.avatar_url = data.get('avatar', {}).get('href', None)
+            new_repo.avatar_url = (data.get('links', {})
+                                   .get('avatar', {})
+                                   .get('href', None))
             new_repo.private = data.get('is_private', False)
             new_repo.json = json.dumps(data)
 
