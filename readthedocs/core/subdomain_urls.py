@@ -13,9 +13,9 @@ urlpatterns = patterns(
         'readthedocs.core.views.subproject_serve_docs',
         name='subproject_docs_detail'),
 
-    url(r'^projects/(?P<project_slug>[\w.-]+)/(?P<filename>.*)$',
-        'readthedocs.core.views.serve_single_version_docs',
-        name='subproject_single_version_docs_detail'),
+    url(r'^projects/(?P<project_slug>[\w.-]+)',
+        'readthedocs.core.views.subproject_serve_docs',
+        name='subproject_docs_detail'),
 
     url(r'^projects/$',
         'readthedocs.core.views.subproject_list',
