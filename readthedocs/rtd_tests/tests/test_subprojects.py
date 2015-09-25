@@ -1,5 +1,3 @@
-import mock
-
 from django.test import TestCase
 from django.contrib.auth.models import User
 
@@ -7,25 +5,6 @@ from readthedocs.projects.forms import SubprojectForm
 from readthedocs.projects.models import Project
 
 from django_dynamic_fixture import get
-from readthedocs.rtd_tests.utils import create_user
-
-
-class SubprojectTests(TestCase):
-
-    def setUp(self):
-        with mock.patch('readthedocs.projects.models.update_static_metadata'):
-            self.owner = create_user(username='owner', password='test')
-            self.pip = get(Project, slug='pip', users=[self.owner], main_language_project=None)
-            self.subproject = get(Project, slug='sub', main_language_project=None)
-            self.pip.add_subproject(self.subproject)
-
-    def test_proper_subproject_url_full_with_filename(self):
-        r = self.client.get('/docs/pip/projects/sub/en/latest/usage.html')
-        self.assertEqual(r.status_code, 200)
-
-    def test_proper_subproject_url_subdomain(self):
-        r = self.client.get('/projects/sub/usage.html', HTTP_HOST='pip.readthedocs.org')
-        self.assertEqual(r.status_code, 200)
 
 
 class SubprojectFormTests(TestCase):
