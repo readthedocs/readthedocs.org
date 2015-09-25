@@ -89,7 +89,7 @@ def forwards_move_repos(apps, schema_editor):
             else:
                 new_repo.clone_url = data.get('clone_url')
             new_repo.json = json.dumps(data)
-        except:
+        except ValueError:
             pass
         new_repo.save()
 
@@ -118,16 +118,16 @@ def forwards_move_repos(apps, schema_editor):
             data = eval(project.json)
             new_repo.avatar_url = data.get('avatar', {}).get('href', None)
             new_repo.private = data.get('is_private', False)
+            new_repo.json = json.dumps(data)
 
-            clone_urls = dict((location.name, location.href)
+            clone_urls = dict((location['name'], location['href'])
                               for location
                               in data.get('links', {}).get('clone', {}))
             if new_repo.private:
                 new_repo.clone_url = clone_urls.get('ssh', project.git_url)
             else:
                 new_repo.clone_url = clone_urls.get('https', project.html_url)
-            new_repo.json = json.dumps(data)
-        except:
+        except ValueError:
             pass
         new_repo.save()
 
