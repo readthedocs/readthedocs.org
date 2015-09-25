@@ -453,32 +453,30 @@ def update_imported_docs(version_pk):
             max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
 
         # Get the actual code on disk
-        vcs_fn = None
-        if version:
-            log.info(
-                LOG_TEMPLATE.format(
-                    project=project.slug,
-                    version=version.slug,
-                    msg='Checking out version {slug}: {identifier}'.format(
-                        slug=version.slug,
-                        identifier=version.identifier
-                    )
-                )
-            )
-            version_slug = version.slug
-            version_repo = project.vcs_repo(version_slug)
-            vcs_fn = lambda: version_repo.checkout(version.identifier)
-        else:
-            # Does this ever get called?
-            log.info(LOG_TEMPLATE.format(
-                project=project.slug, version=version.slug, msg='Updating to latest revision'))
-            version_slug = LATEST
-            version_repo = project.vcs_repo(version_slug)
-            vcs_fn = lambda: version_repo.update()
-
         try:
             before_vcs.send(sender=version)
-            ret_dict['checkout'] = vcs_fn()
+            if version:
+                log.info(
+                    LOG_TEMPLATE.format(
+                        project=project.slug,
+                        version=version.slug,
+                        msg='Checking out version {slug}: {identifier}'.format(
+                            slug=version.slug,
+                            identifier=version.identifier
+                        )
+                    )
+                )
+                version_slug = version.slug
+                version_repo = project.vcs_repo(version_slug)
+
+                ret_dict['checkout'] = version_repo.checkout(version.identifier)
+            else:
+                # Does this ever get called?
+                log.info(LOG_TEMPLATE.format(
+                    project=project.slug, version=version.slug, msg='Updating to latest revision'))
+                version_slug = LATEST
+                version_repo = project.vcs_repo(version_slug)
+                ret_dict['checkout'] = version_repo.update()
         except Exception:
             raise
         finally:
