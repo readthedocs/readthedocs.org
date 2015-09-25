@@ -22,7 +22,7 @@ var sources = {
     core: {
         'js/readthedocs-doc-embed.js': {expose: false},
         'js/autocomplete.js': {},
-        'js/projectimport.js': {},
+        'js/projectimport.js': {expose: false},
         'css/badge_only.css': {src: 'bower_components/sphinx-rtd-theme/sphinx_rtd_theme/static/css/badge_only.css'},
         'css/theme.css': {src: 'bower_components/sphinx-rtd-theme/sphinx_rtd_theme/static/css/theme.css'},
 
