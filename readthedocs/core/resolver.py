@@ -60,11 +60,16 @@ def resolve(project, filename='', version_slug=None, language=None,
     subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
     relation = project.superprojects.first()
     cname = cname or project.domains.first()
+    main_language_project = project.main_language_project
 
     version_slug = version_slug or project.get_default_version()
     language = language or project.language
 
-    if relation:
+    if main_language_project:
+        project_slug = main_language_project.slug
+        language = project.language
+        subproject_slug = None
+    elif relation:
         project_slug = relation.parent.slug
         subproject_slug = relation.child.slug
     else:
@@ -87,11 +92,16 @@ def smart_resolve(project, filename=''):
     subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
     relation = project.superprojects.first()
     cname = project.domains.first()
+    main_language_project = project.main_language_project
 
     version_slug = project.get_default_version()
     language = project.language
 
-    if relation:
+    if main_language_project:
+        project_slug = main_language_project.slug
+        language = project.language
+        subproject_slug = None
+    elif relation:
         project_slug = relation.parent.slug
         subproject_slug = relation.child.slug
     else:
