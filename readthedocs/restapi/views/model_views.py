@@ -19,7 +19,7 @@ from readthedocs.projects.models import Project, EmailHook, Domain
 from readthedocs.projects.version_handling import determine_stable_version
 
 from ..permissions import (APIPermission, APIRestrictedPermission,
-                           RelatedProjectIsOwner)
+                           RelatedProjectIsOwner, IsOwner)
 from ..serializers import (BuildSerializerFull, BuildSerializer,
                            BuildCommandSerializer, ProjectSerializer,
                            VersionSerializer, DomainSerializer,
@@ -212,24 +212,20 @@ class DomainViewSet(viewsets.ModelViewSet):
         return self.model.objects.api(self.request.user)
 
 
-class RemoteServiceMixin(object):
-    def get_queryset(self):
-        # return self.model.objects.api(self.request.user)
-        return self.model.objects.filter(users=self.request.user)
-
-
-class RemoteOrganizationViewSet(RemoteServiceMixin, viewsets.ReadOnlyModelViewSet):
-    permission_classes = [APIPermission]
+class RemoteOrganizationViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [IsOwner]
     renderer_classes = [JSONRenderer, BrowsableAPIRenderer]
     serializer_class = RemoteOrganizationSerializer
     model = RemoteOrganization
+    queryset = RemoteOrganization.objects.all()
 
 
-class RemoteRepositoryViewSet(RemoteServiceMixin, viewsets.ReadOnlyModelViewSet):
-    permission_classes = [APIPermission]
+class RemoteRepositoryViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [IsOwner]
     renderer_classes = [JSONRenderer, BrowsableAPIRenderer]
     serializer_class = RemoteRepositorySerializer
     model = RemoteRepository
+    queryset = RemoteRepository.objects.all()
 
     def get_queryset(self):
         query = super(RemoteRepositoryViewSet, self).get_queryset()

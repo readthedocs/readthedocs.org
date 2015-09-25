@@ -7,6 +7,7 @@ from django.core.urlresolvers import reverse
 from readthedocs.builds.models import Build, VersionAlias, BuildCommandResult
 from readthedocs.comments.models import DocumentComment, NodeSnapshot
 from readthedocs.projects.models import Project, Domain
+from readthedocs.oauth.models import RemoteRepository, RemoteOrganization
 from readthedocs.rtd_tests.utils import create_user
 
 from django_dynamic_fixture import get
@@ -220,8 +221,6 @@ class PrivateProjectUserAccessTest(PrivateProjectMixin, TestCase):
         '/dashboard/import/': {'status_code': 200},
         '/dashboard/import/manual/': {'status_code': 200},
         '/dashboard/import/manual/demo/': {'status_code': 302},
-        '/dashboard/import/github/': {'status_code': 200},
-        '/dashboard/import/bitbucket/': {'status_code': 200},
 
         # Unauth access redirect for non-owners
         '/dashboard/pip/': {'status_code': 302},
@@ -263,6 +262,8 @@ class APIMixin(URLAccessMixin):
         self.domain = get(Domain, url='http://docs.foobar.com', project=self.pip)
         self.comment = get(DocumentComment, node__project=self.pip)
         self.snapshot = get(NodeSnapshot, node=self.comment.node)
+        self.remote_org = get(RemoteOrganization)
+        self.remote_repo = get(RemoteRepository, organization=self.remote_org)
         self.default_kwargs = {
             'project_slug': self.pip.slug,
             'version_slug': self.pip.versions.all()[0].slug,
@@ -277,6 +278,8 @@ class APIMixin(URLAccessMixin):
             'domain-detail': {'pk': self.domain.pk},
             'comments-detail': {'pk': self.comment.pk},
             'footer_html': {'data': {'project': 'pip', 'version': 'latest', 'page': 'index'}},
+            'remoteorganization-detail': {'pk': self.remote_org.pk},
+            'remoterepository-detail': {'pk': self.remote_repo.pk},
         }
         self.response_data = {
             'project-sync-versions': {'status_code': 403},
@@ -291,8 +294,9 @@ class APIMixin(URLAccessMixin):
             'api_search': {'status_code': 400},
             'api_project_search': {'status_code': 400},
             'api_section_search': {'status_code': 400},
-            'api_sync_github_repositories': {'status_code': 403},
-            'api_sync_bitbucket_repositories': {'status_code': 403},
+            'api_sync_remote_repositories': {'status_code': 403},
+            'remoteorganization-detail': {'status_code': 403},
+            'remoterepository-detail': {'status_code': 403},
         }
 
 
