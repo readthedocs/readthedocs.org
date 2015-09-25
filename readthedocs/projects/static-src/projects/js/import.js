@@ -152,7 +152,7 @@ function ProjectImportView (instance, urls) {
     ko.computed(function () {
         var org = self.filter_org(),
             orgs = self.organizations(),
-            url = self.page_current() || self.urls['oauthrepository-list'];
+            url = self.page_current() || self.urls['remoterepository-list'];
 
         if (org) {
             url = append_url_params(url, {org: org});
@@ -181,7 +181,7 @@ function ProjectImportView (instance, urls) {
     });
 
     self.get_organizations = function () {
-        $.getJSON(self.urls['oauthorganization-list'])
+        $.getJSON(self.urls['remoteorganization-list'])
             .success(function (organizations) {
                 self.organizations_raw(organizations.results);
             })
