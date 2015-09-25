@@ -33,7 +33,7 @@ def symlink(project):
     symlinks.symlink_cnames(project)
     symlinks.symlink_translations(project)
     symlinks.symlink_subprojects(project)
-    if project.project.single_version:
+    if project.single_version:
         symlinks.symlink_single_version(project)
     else:
         symlinks.remove_symlink_single_version(project)
