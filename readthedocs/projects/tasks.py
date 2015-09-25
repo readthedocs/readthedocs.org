@@ -452,9 +452,8 @@ def update_imported_docs(version_pk):
             version=version,
             max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
 
-        before_vcs.send(sender=version)
-
         # Get the actual code on disk
+        vcs_fn = None
         if version:
             log.info(
                 LOG_TEMPLATE.format(
@@ -468,18 +467,22 @@ def update_imported_docs(version_pk):
             )
             version_slug = version.slug
             version_repo = project.vcs_repo(version_slug)
-            ret_dict['checkout'] = version_repo.checkout(
-                version.identifier,
-            )
+            vcs_fn = lambda: version_repo.checkout(version.identifier)
         else:
             # Does this ever get called?
             log.info(LOG_TEMPLATE.format(
                 project=project.slug, version=version.slug, msg='Updating to latest revision'))
             version_slug = LATEST
             version_repo = project.vcs_repo(version_slug)
-            ret_dict['checkout'] = version_repo.update()
+            vcs_fn = lambda: version_repo.update()
 
-        after_vcs.send(sender=version)
+        try:
+            before_vcs.send(sender=version)
+            ret_dict['checkout'] = vcs_fn()
+        except Exception:
+            raise
+        finally:
+            after_vcs.send(sender=version)
 
         # Update tags/version
 
