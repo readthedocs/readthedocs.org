@@ -331,32 +331,6 @@ class Project(models.Model):
         """
         return resolve(project=self, version_slug=version_slug, language=lang_slug)
 
-    def get_translation_url(self, version_slug=None, full=False):
-        parent = self.main_language_project
-        lang_slug = self.language
-        protocol = "http"
-        version = version_slug or parent.get_default_version()
-        use_subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
-        if use_subdomain and full:
-            return "%s://%s/%s/%s/" % (
-                protocol,
-                parent.subdomain,
-                lang_slug,
-                version,
-            )
-        elif use_subdomain and not full:
-            return "/%s/%s/" % (
-                lang_slug,
-                version,
-            )
-        else:
-            return reverse('docs_detail', kwargs={
-                'project_slug': parent.slug,
-                'lang_slug': lang_slug,
-                'version_slug': version,
-                'filename': ''
-            })
-
     def get_builds_url(self):
         return reverse('builds_project_list', kwargs={
             'project_slug': self.slug,
