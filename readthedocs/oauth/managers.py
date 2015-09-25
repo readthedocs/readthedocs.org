@@ -37,13 +37,13 @@ class RemoteRepositoryManager(models.Manager):
             project.users.add(user)
             project.name = api_json['name']
             project.description = api_json['description']
-            if DEFAULT_PRIVACY_LEVEL == 'private':
-                project.clone_url = api_json['ssh_url']
-            else:
-                project.clone_url = api_json['clone_url']
             project.ssh_url = api_json['ssh_url']
             project.html_url = api_json['html_url']
             project.private = api_json['private']
+            if project.private:
+                project.clone_url = api_json['ssh_url']
+            else:
+                project.clone_url = api_json['clone_url']
             project.admin = api_json.get('permissions', {}).get('admin', False)
             project.vcs = 'git'
             project.source = OAUTH_SOURCE_GITHUB
