@@ -1,27 +1,23 @@
+import mock
+
 from django.test import TestCase
-
-from readthedocs.projects.models import Project
-
-from django_dynamic_fixture import get, new
-# Once this util gets merged remove them here
-# from readthedocs.rtd_tests.utils import create_user
 from django.contrib.auth.models import User
 
+from readthedocs.projects.forms import SubprojectForm
+from readthedocs.projects.models import Project
 
-def create_user(username, password):
-    user = new(User, username=username)
-    user.set_password(password)
-    user.save()
-    return user
+from django_dynamic_fixture import get
+from readthedocs.rtd_tests.utils import create_user
 
 
 class SubprojectTests(TestCase):
 
     def setUp(self):
-        self.owner = create_user(username='owner', password='test')
-        self.pip = get(Project, slug='pip', users=[self.owner])
-        self.subproject = get(Project, slug='sub')
-        self.pip.add_subproject(self.subproject)
+        with mock.patch('readthedocs.projects.models.update_static_metadata'):
+            self.owner = create_user(username='owner', password='test')
+            self.pip = get(Project, slug='pip', users=[self.owner], main_language_project=None)
+            self.subproject = get(Project, slug='sub', main_language_project=None)
+            self.pip.add_subproject(self.subproject)
 
     def test_proper_subproject_url_full_with_filename(self):
         r = self.client.get('/docs/pip/projects/sub/en/latest/usage.html')
@@ -31,14 +27,53 @@ class SubprojectTests(TestCase):
         r = self.client.get('/projects/sub/usage.html', HTTP_HOST='pip.readthedocs.org')
         self.assertEqual(r.status_code, 200)
 
-    def test_docs_url_generation(self):
 
-        with self.settings(USE_SUBDOMAIN=False):
-            self.assertEqual(self.subproject.get_docs_url(), '/projects/sub/en/latest/')
-        with self.settings(USE_SUBDOMAIN=True):
-            self.assertEqual(self.subproject.get_docs_url(), 'http://pip.readthedocs.org/')
+class SubprojectFormTests(TestCase):
 
-        with self.settings(USE_SUBDOMAIN=False):
-            self.assertEqual(self.pip.get_docs_url(), '/docs/pip/en/latest/')
-        with self.settings(USE_SUBDOMAIN=True):
-            self.assertEqual(self.pip.get_docs_url(), 'http://pip.readthedocs.org/en/latest/')
+    def test_name_validation(self):
+        user = get(User)
+        project = get(Project, slug='mainproject')
+
+        form = SubprojectForm({},
+                              parent=project, user=user)
+        form.full_clean()
+        self.assertTrue('subproject' in form.errors)
+
+        form = SubprojectForm({'name': 'not-existent'},
+                              parent=project, user=user)
+        form.full_clean()
+        self.assertTrue('subproject' in form.errors)
+
+    def test_adding_subproject_fails_when_user_is_not_admin(self):
+        # Make sure that a user cannot add a subproject that he is not the
+        # admin of.
+
+        user = get(User)
+        project = get(Project, slug='mainproject')
+        project.users.add(user)
+        subproject = get(Project, slug='subproject')
+
+        form = SubprojectForm({'subproject': subproject.slug},
+                              parent=project, user=user)
+        # Fails because user does not own subproject.
+        form.full_clean()
+        self.assertTrue('subproject' in form.errors)
+
+    def test_admin_of_subproject_can_add_it(self):
+        user = get(User)
+        project = get(Project, slug='mainproject')
+        project.users.add(user)
+        subproject = get(Project, slug='subproject')
+        subproject.users.add(user)
+
+        # Works now as user is admin of subproject.
+        form = SubprojectForm({'subproject': subproject.slug},
+                              parent=project, user=user)
+        # Fails because user does not own subproject.
+        form.full_clean()
+        self.assertTrue(form.is_valid())
+        form.save()
+
+        self.assertEqual(
+            [r.child for r in project.subprojects.all()],
+            [subproject])
