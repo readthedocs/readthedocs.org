@@ -57,9 +57,8 @@ class ProjectRelationship(models.Model):
         return "%s -> %s" % (self.parent, self.child)
 
     # HACK
-    def get_absolute_url(self, version_slug=None, lang_slug=None):
-        return ("http://%s.{domain}/projects/%s/%s/latest/"
-                % (self.parent.slug, self.child.slug, self.child.language))
+    def get_absolute_url(self):
+        return resolve(self.child)
 
 
 class Project(models.Model):
@@ -323,7 +322,7 @@ class Project(models.Model):
             log.error('Error creating default branches', exc_info=True)
 
     def get_absolute_url(self):
-        return reverse('projects_detail', args=[self.slug])
+        return resolve(project=self)
 
     def get_docs_url(self, version_slug=None, lang_slug=None):
         """Return a url for the docs
