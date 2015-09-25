@@ -3,7 +3,7 @@ from django.test.utils import override_settings
 
 from readthedocs.projects.models import Project, Domain
 from readthedocs.rtd_tests.utils import create_user
-from readthedocs.core.resolver import resolve_path, smart_resolve_path
+from readthedocs.core.resolver import resolve_path, smart_resolve_path, smart_resolve
 
 from django_dynamic_fixture import get
 
@@ -20,7 +20,7 @@ class ResolverBase(TestCase):
         self.pip.translations.add(self.translation)
 
 
-class SmartResolverTests(ResolverBase):
+class SmartResolverPathTests(ResolverBase):
 
     def test_smart_resolver_filename(self):
         with override_settings(USE_SUBDOMAIN=False):
@@ -53,13 +53,22 @@ class SmartResolverTests(ResolverBase):
             self.assertEqual(url, '/en/latest/index.html')
 
     def test_smart_resolver_domain_object(self):
-        self.domain = get(Domain, url='http://docs.foobar.com', project=self.pip)
+        self.domain = get(Domain, url='http://docs.foobar.com', project=self.pip, canonical=True)
         with override_settings(USE_SUBDOMAIN=False):
             url = smart_resolve_path(project=self.pip, filename='index.html')
             self.assertEqual(url, '/en/latest/index.html')
         with override_settings(USE_SUBDOMAIN=True):
             url = smart_resolve_path(project=self.pip, filename='index.html')
             self.assertEqual(url, '/en/latest/index.html')
+
+    def test_smart_resolver_domain_object_not_canonical(self):
+        self.domain = get(Domain, url='http://docs.foobar.com', project=self.pip, canonical=False)
+        with override_settings(USE_SUBDOMAIN=False):
+            url = smart_resolve_path(project=self.pip, filename='')
+            self.assertEqual(url, '/docs/pip/en/latest/')
+        with override_settings(USE_SUBDOMAIN=True):
+            url = smart_resolve_path(project=self.pip, filename='')
+            self.assertEqual(url, '/en/latest/')
 
     def test_smart_resolver_subproject_subdomain(self):
         with override_settings(USE_SUBDOMAIN=False):
@@ -97,7 +106,7 @@ class SmartResolverTests(ResolverBase):
             self.assertEqual(url, '/ja/latest/index.html')
 
 
-class ResolverTests(ResolverBase):
+class ResolverPathTests(ResolverBase):
 
     def test_resolver_force_single_version(self):
         self.pip.single_version = False
@@ -164,3 +173,25 @@ class ResolverTests(ResolverBase):
         with override_settings(USE_SUBDOMAIN=True):
             url = resolve_path(project=self.translation, filename='index.html', language='cz', version_slug='foo')
             self.assertEqual(url, '/ja/foo/index.html')
+
+
+class ResolverTests(ResolverBase):
+
+    @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
+    def test_resolver(self):
+        with override_settings(USE_SUBDOMAIN=False):
+            url = smart_resolve(project=self.pip)
+            self.assertEqual(url, 'http://pip.readthedocs.org/docs/pip/en/latest/')
+        with override_settings(USE_SUBDOMAIN=True):
+            url = smart_resolve(project=self.pip)
+            self.assertEqual(url, 'http://pip.readthedocs.org/en/latest/')
+
+    @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
+    def test_resolver_domain(self):
+        self.domain = get(Domain, url='http://docs.foobar.com', project=self.pip, canonical=True)
+        with override_settings(USE_SUBDOMAIN=False):
+            url = smart_resolve(project=self.pip)
+            self.assertEqual(url, 'http://docs.foobar.com/en/latest/')
+        with override_settings(USE_SUBDOMAIN=True):
+            url = smart_resolve(project=self.pip)
+            self.assertEqual(url, 'http://docs.foobar.com/en/latest/')

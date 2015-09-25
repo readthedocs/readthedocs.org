@@ -59,7 +59,7 @@ def resolve_path(project, filename='', version_slug=None, language=None,
     """ Resolve a URL with a subset of fields defined."""
     subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
     relation = project.superprojects.first()
-    cname = cname or project.domains.first()
+    cname = cname or project.domains.filter(canonical=True).first()
     main_language_project = project.main_language_project
 
     version_slug = version_slug or project.get_default_version()
@@ -91,7 +91,7 @@ def smart_resolve_path(project, filename=''):
     """ Resolve a URL with all fields automatically filled in from the project."""
     subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
     relation = project.superprojects.first()
-    cname = project.domains.first()
+    cname = project.domains.filter(canonical=True).first()
     main_language_project = project.main_language_project
 
     version_slug = project.get_default_version()
@@ -117,3 +117,30 @@ def smart_resolve_path(project, filename=''):
                              version_slug=version_slug, language=language,
                              single_version=single_version, subproject_slug=subproject_slug,
                              subdomain=subdomain, cname=cname)
+
+
+def smart_resolve_domain(project):
+    main_language_project = project.main_language_project
+    relation = project.superprojects.first()
+    if main_language_project:
+        canonical_project = main_language_project
+    elif relation:
+        canonical_project = relation.parent
+    else:
+        canonical_project = project
+
+    domain = canonical_project.domains.filter(canonical=True).first()
+    if domain:
+        return domain.clean_host
+    else:
+        subdomain_slug = canonical_project.slug.replace('_', '-')
+        prod_domain = getattr(settings, 'PRODUCTION_DOMAIN')
+        return "%s.%s" % (subdomain_slug, prod_domain)
+
+
+def smart_resolve(project, protocol='http', filename=''):
+    return '{protocol}://{domain}{path}'.format(
+        protocol=protocol,
+        domain=smart_resolve_domain(project),
+        path=smart_resolve_path(project, filename=filename),
+    )
