@@ -109,9 +109,10 @@ class RemoteRepository(models.Model):
 
     class Meta:
         ordering = ['organization__name', 'name']
+        verbose_name_plural = 'remote repositories'
 
     def __unicode__(self):
-        return "Remote importable repository: %s" % (self.html_url)
+        return "Remote repository: %s" % (self.html_url)
 
     def get_serialized(self, key=None, default=None):
         try:
