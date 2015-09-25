@@ -10,7 +10,6 @@ from readthedocs.builds.constants import BRANCH
 from readthedocs.builds.constants import TAG
 from readthedocs.builds.filters import VersionFilter
 from readthedocs.builds.models import Build, BuildCommandResult, Version
-from readthedocs.restapi import utils as api_utils
 from readthedocs.core.utils import trigger_build
 from readthedocs.oauth import utils as oauth_utils
 from readthedocs.oauth.models import OAuthOrganization, OAuthRepository

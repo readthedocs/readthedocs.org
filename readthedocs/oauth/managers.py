@@ -56,7 +56,7 @@ class OAuthRepositoryManager(models.Manager):
                          api_json['name'])
 
     def create_from_bitbucket_api(self, api_json, user, organization=None,
-                        privacy=DEFAULT_PRIVACY_LEVEL):
+                                  privacy=DEFAULT_PRIVACY_LEVEL):
         logger.info('Trying Bitbucket: %s' % api_json['full_name'])
         if (api_json['is_private'] is True and privacy == 'private' or
                 api_json['is_private'] is False and privacy == 'public'):
