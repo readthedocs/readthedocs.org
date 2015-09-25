@@ -29,10 +29,25 @@ All possible URL's::
 from django.conf import settings
 
 
+def _fix_filename(project, filename):
+    filename = filename.lstrip('/')
+    if filename and (filename != "index") and (filename != "index.html"):
+        if project.documentation_type == "sphinx_htmldir":
+            path = filename + "/"
+        elif project.documentation_type == "sphinx_singlehtml":
+            path = "index.html#document-" + filename
+        elif filename.endswith(".html"):
+            path = filename
+        else:
+            path = filename + ".html"
+    else:
+        path = ""
+    return path
+
+
 def base_resolve_path(project_slug, filename, version_slug=None, language=None,
                       single_version=None, subproject_slug=None,  subdomain=None, cname=None):
     """ Resolve a with nothing smart, just filling in the blanks."""
-    filename = filename.lstrip('/')
 
     if subdomain or cname:
         url = '/'
@@ -65,6 +80,8 @@ def resolve_path(project, filename='', version_slug=None, language=None,
     version_slug = version_slug or project.get_default_version()
     language = language or project.language
 
+    filename = _fix_filename(project, filename)
+
     if main_language_project:
         project_slug = main_language_project.slug
         language = project.language
@@ -96,6 +113,8 @@ def smart_resolve_path(project, filename=''):
 
     version_slug = project.get_default_version()
     language = project.language
+
+    filename = _fix_filename(project, filename)
 
     if main_language_project:
         project_slug = main_language_project.slug

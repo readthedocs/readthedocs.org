@@ -28,21 +28,10 @@ def gravatar(email, size=48):
 
 
 @register.simple_tag(name="doc_url")
-def make_document_url(project, version=None, page=None):
+def make_document_url(project, version=None, page=''):
     if not project:
         return ""
-    if page and (page != "index") and (page != "index.html"):
-        if project.documentation_type == "sphinx_htmldir":
-            path = page + "/"
-        elif project.documentation_type == "sphinx_singlehtml":
-            path = "index.html#document-" + page
-        elif page.endswith(".html"):
-            path = page
-        else:
-            path = page + ".html"
-    else:
-        path = ""
-    return resolve_path(project=project, version_slug=version, filename=path)
+    return resolve_path(project=project, version_slug=version, filename=page)
 
 
 @register.filter(is_safe=True)
