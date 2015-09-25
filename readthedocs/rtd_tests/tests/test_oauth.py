@@ -6,7 +6,7 @@ from allauth.socialaccount.models import SocialToken
 from readthedocs.projects.models import Project
 
 from readthedocs.oauth.utils import import_github
-from readthedocs.oauth.models import OAuthRepository, OAuthOrganization
+from readthedocs.oauth.models import RemoteRepository, RemoteOrganization
 
 
 class RedirectOauth(TestCase):
@@ -17,7 +17,7 @@ class RedirectOauth(TestCase):
         self.client.login(username='eric', password='test')
         self.user = User.objects.get(pk=1)
         self.project = Project.objects.get(slug='pip')
-        self.org = OAuthOrganization.objects.create(slug='rtfd', json='')
+        self.org = RemoteOrganization.objects.create(slug='rtfd', json='')
         self.privacy = self.project.version_privacy_level
 
     def test_make_github_project_pass(self):
@@ -31,10 +31,10 @@ class RedirectOauth(TestCase):
             "html_url": "",
             "clone_url": "",
         }
-        github_project = OAuthRepository.objects.create_from_github_api(
+        github_project = RemoteRepository.objects.create_from_github_api(
             repo_json, user=self.user, organization=self.org,
             privacy=self.privacy)
-        self.assertIsInstance(github_project, OAuthRepository)
+        self.assertIsInstance(github_project, RemoteRepository)
 
     def test_make_github_project_fail(self):
         repo_json = {
@@ -47,7 +47,7 @@ class RedirectOauth(TestCase):
             "html_url": "",
             "clone_url": "",
         }
-        github_project = OAuthRepository.objects.create_from_github_api(
+        github_project = RemoteRepository.objects.create_from_github_api(
             repo_json, user=self.user, organization=self.org,
             privacy=self.privacy)
         self.assertIsNone(github_project)
@@ -59,9 +59,9 @@ class RedirectOauth(TestCase):
             "email": "",
             "login": "",
         }
-        org = OAuthOrganization.objects.create_from_github_api(
+        org = RemoteOrganization.objects.create_from_github_api(
             org_json, user=self.user)
-        self.assertIsInstance(org, OAuthOrganization)
+        self.assertIsInstance(org, RemoteOrganization)
 
     def test_import_github_with_no_token(self):
         github_connected = import_github(self.user, sync=True)
@@ -80,29 +80,29 @@ class RedirectOauth(TestCase):
             "clone_url": "",
         }
 
-        github_project = OAuthRepository.objects.create_from_github_api(
+        github_project = RemoteRepository.objects.create_from_github_api(
             repo_json, user=self.user, organization=self.org,
             privacy=self.privacy)
-        github_project_2 = OAuthRepository.objects.create_from_github_api(
+        github_project_2 = RemoteRepository.objects.create_from_github_api(
             repo_json, user=user2, organization=self.org, privacy=self.privacy)
-        self.assertIsInstance(github_project, OAuthRepository)
-        self.assertIsInstance(github_project_2, OAuthRepository)
+        self.assertIsInstance(github_project, RemoteRepository)
+        self.assertIsInstance(github_project_2, RemoteRepository)
         self.assertNotEqual(github_project_2, github_project)
 
-        github_project_3 = OAuthRepository.objects.create_from_github_api(
+        github_project_3 = RemoteRepository.objects.create_from_github_api(
             repo_json, user=self.user, organization=self.org,
             privacy=self.privacy)
-        github_project_4 = OAuthRepository.objects.create_from_github_api(
+        github_project_4 = RemoteRepository.objects.create_from_github_api(
             repo_json, user=user2, organization=self.org, privacy=self.privacy)
-        self.assertIsInstance(github_project_3, OAuthRepository)
-        self.assertIsInstance(github_project_4, OAuthRepository)
+        self.assertIsInstance(github_project_3, RemoteRepository)
+        self.assertIsInstance(github_project_4, RemoteRepository)
         self.assertEqual(github_project, github_project_3)
         self.assertEqual(github_project_2, github_project_4)
 
-        github_project_5 = OAuthRepository.objects.create_from_github_api(
+        github_project_5 = RemoteRepository.objects.create_from_github_api(
             repo_json, user=self.user, organization=self.org,
             privacy=self.privacy)
-        github_project_6 = OAuthRepository.objects.create_from_github_api(
+        github_project_6 = RemoteRepository.objects.create_from_github_api(
             repo_json, user=user2, organization=self.org, privacy=self.privacy)
 
         self.assertEqual(github_project, github_project_5)

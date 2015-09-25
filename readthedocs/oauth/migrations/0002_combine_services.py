@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='OAuthOrganization',
+            name='RemoteOrganization',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('pub_date', models.DateTimeField(auto_now_add=True, verbose_name='Publication date')),
@@ -32,7 +32,7 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.CreateModel(
-            name='OAuthRepository',
+            name='RemoteRepository',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('pub_date', models.DateTimeField(auto_now_add=True, verbose_name='Publication date')),
@@ -50,7 +50,7 @@ class Migration(migrations.Migration):
                 ('vcs', models.CharField(blank=True, max_length=200, verbose_name='vcs', choices=[(b'git', 'Git'), (b'svn', 'Subversion'), (b'hg', 'Mercurial'), (b'bzr', 'Bazaar')])),
                 ('source', models.CharField(max_length=16, verbose_name='Repository source', choices=[(b'github', 'GitHub'), (b'bitbucket', 'Bitbucket')])),
                 ('json', models.TextField(verbose_name='Serialized API response')),
-                ('organization', models.ForeignKey(related_name='repositories', verbose_name='Organization', blank=True, to='oauth.OAuthOrganization', null=True)),
+                ('organization', models.ForeignKey(related_name='repositories', verbose_name='Organization', blank=True, to='oauth.RemoteOrganization', null=True)),
                 ('users', models.ManyToManyField(related_name='oauth_repositories', verbose_name='Users', to=settings.AUTH_USER_MODEL)),
             ],
             options={

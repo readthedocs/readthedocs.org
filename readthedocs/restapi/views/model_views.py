@@ -12,7 +12,7 @@ from readthedocs.builds.filters import VersionFilter
 from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.core.utils import trigger_build
 from readthedocs.oauth import utils as oauth_utils
-from readthedocs.oauth.models import OAuthOrganization, OAuthRepository
+from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.builds.constants import STABLE
 from readthedocs.projects.filters import ProjectFilter, DomainFilter
 from readthedocs.projects.models import Project, EmailHook, Domain
@@ -23,7 +23,8 @@ from ..permissions import (APIPermission, APIRestrictedPermission,
 from ..serializers import (BuildSerializerFull, BuildSerializer,
                            BuildCommandSerializer, ProjectSerializer,
                            VersionSerializer, DomainSerializer,
-                           OAuthOrganizationSerializer, OAuthRepositorySerializer)
+                           RemoteOrganizationSerializer,
+                           RemoteRepositorySerializer)
 from .. import utils as api_utils
 
 log = logging.getLogger(__name__)
@@ -211,27 +212,27 @@ class DomainViewSet(viewsets.ModelViewSet):
         return self.model.objects.api(self.request.user)
 
 
-class OAuthServiceMixin(object):
+class RemoteServiceMixin(object):
     def get_queryset(self):
         # return self.model.objects.api(self.request.user)
         return self.model.objects.filter(users=self.request.user)
 
 
-class OAuthOrganizationViewSet(OAuthServiceMixin, viewsets.ReadOnlyModelViewSet):
+class RemoteOrganizationViewSet(RemoteServiceMixin, viewsets.ReadOnlyModelViewSet):
     permission_classes = [APIPermission]
     renderer_classes = [JSONRenderer, BrowsableAPIRenderer]
-    serializer_class = OAuthOrganizationSerializer
-    model = OAuthOrganization
+    serializer_class = RemoteOrganizationSerializer
+    model = RemoteOrganization
 
 
-class OAuthRepositoryViewSet(OAuthServiceMixin, viewsets.ReadOnlyModelViewSet):
+class RemoteRepositoryViewSet(RemoteServiceMixin, viewsets.ReadOnlyModelViewSet):
     permission_classes = [APIPermission]
     renderer_classes = [JSONRenderer, BrowsableAPIRenderer]
-    serializer_class = OAuthRepositorySerializer
-    model = OAuthRepository
+    serializer_class = RemoteRepositorySerializer
+    model = RemoteRepository
 
     def get_queryset(self):
-        query = super(OAuthRepositoryViewSet, self).get_queryset()
+        query = super(RemoteRepositoryViewSet, self).get_queryset()
         org = self.request.query_params.get('org', None)
         if org is not None:
             query = query.filter(organization__pk=org)

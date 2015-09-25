@@ -13,9 +13,9 @@ def forwards_move_repos(apps, schema_editor):
     # Organizations
     GithubOrganization = apps.get_model('oauth', 'GithubOrganization')
     BitbucketTeam = apps.get_model('oauth', 'BitbucketTeam')
-    OAuthOrganization = apps.get_model('oauth', 'OAuthOrganization')
+    RemoteOrganization = apps.get_model('oauth', 'RemoteOrganization')
     for org in GithubOrganization.objects.all():
-        new_org = OAuthOrganization.objects.using(db).create(
+        new_org = RemoteOrganization.objects.using(db).create(
             pub_date=org.pub_date,
             modified_date=org.modified_date,
             active=org.active,
@@ -36,7 +36,7 @@ def forwards_move_repos(apps, schema_editor):
         new_org.save()
 
     for org in BitbucketTeam.objects.all():
-        new_org = OAuthOrganization.objects.using(db).create(
+        new_org = RemoteOrganization.objects.using(db).create(
             pub_date=org.pub_date,
             modified_date=org.modified_date,
             active=org.active,
@@ -57,10 +57,10 @@ def forwards_move_repos(apps, schema_editor):
     # Now repositories
     GithubProject = apps.get_model('oauth', 'GithubProject')
     BitbucketProject = apps.get_model('oauth', 'BitbucketProject')
-    OAuthRepository = apps.get_model('oauth', 'OAuthRepository')
+    RemoteRepository = apps.get_model('oauth', 'RemoteRepository')
 
     for project in GithubProject.objects.all():
-        new_repo = OAuthRepository.objects.using(db).create(
+        new_repo = RemoteRepository.objects.using(db).create(
             pub_date=project.pub_date,
             modified_date=project.modified_date,
             active=project.active,
@@ -68,7 +68,6 @@ def forwards_move_repos(apps, schema_editor):
             full_name=project.full_name,
             description=project.description,
             ssh_url=project.ssh_url,
-            clone_url=project.git_url,
             html_url=project.html_url,
             vcs='git',
             source='github',
@@ -76,7 +75,7 @@ def forwards_move_repos(apps, schema_editor):
         for user in project.users.all():
             new_repo.users.add(user)
         if project.organization is not None:
-            new_repo.organization = (OAuthOrganization
+            new_repo.organization = (RemoteOrganization
                                     .objects
                                     .using(db)
                                     .get(slug=project.organization.login))
@@ -91,7 +90,7 @@ def forwards_move_repos(apps, schema_editor):
         new_repo.save()
 
     for project in BitbucketProject.objects.all():
-        new_repo = OAuthRepository.objects.using(db).create(
+        new_repo = RemoteRepository.objects.using(db).create(
             pub_date=project.pub_date,
             modified_date=project.modified_date,
             active=project.active,
@@ -99,7 +98,6 @@ def forwards_move_repos(apps, schema_editor):
             full_name=project.full_name,
             description=project.description,
             ssh_url=project.ssh_url,
-            clone_url=project.git_url,
             html_url=project.html_url,
             admin=False,
             vcs=project.vcs,
@@ -108,7 +106,7 @@ def forwards_move_repos(apps, schema_editor):
         for user in project.users.all():
             new_repo.users.add(user)
         if project.organization is not None:
-            new_repo.organization = (OAuthOrganization
+            new_repo.organization = (RemoteOrganization
                                     .objects
                                     .using(db)
                                     .get(slug=project.organization.login))
@@ -125,10 +123,10 @@ def forwards_move_repos(apps, schema_editor):
 def reverse_move_repos(apps, schema_editor):
     """Drop OAuth repos"""
     db = schema_editor.connection.alias
-    OAuthRepository = apps.get_model('oauth', 'OAuthRepository')
-    OAuthOrganization = apps.get_model('oauth', 'OAuthOrganization')
-    OAuthRepository.objects.using(db).delete()
-    OAuthOrganization.objects.using(db).delete()
+    RemoteRepository = apps.get_model('oauth', 'RemoteRepository')
+    RemoteOrganization = apps.get_model('oauth', 'RemoteOrganization')
+    RemoteRepository.objects.using(db).delete()
+    RemoteOrganization.objects.using(db).delete()
 
 
 class Migration(migrations.Migration):

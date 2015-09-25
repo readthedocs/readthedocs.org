@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.projects.models import Project, Domain
-from readthedocs.oauth.models import OAuthOrganization, OAuthRepository
+from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -83,22 +83,22 @@ class DomainSerializer(serializers.ModelSerializer):
         )
 
 
-class OAuthOrganizationSerializer(serializers.ModelSerializer):
+class RemoteOrganizationSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = OAuthOrganization
+        model = RemoteOrganization
         exclude = ('json', 'email', 'users')
 
 
-class OAuthRepositorySerializer(serializers.ModelSerializer):
+class RemoteRepositorySerializer(serializers.ModelSerializer):
 
-    """OAuth service repository serializer"""
+    """Remote service repository serializer"""
 
-    organization = OAuthOrganizationSerializer()
+    organization = RemoteOrganizationSerializer()
     matches = serializers.SerializerMethodField()
 
     class Meta:
-        model = OAuthRepository
+        model = RemoteRepository
         exclude = ('json', 'users')
 
     def get_matches(self, obj):

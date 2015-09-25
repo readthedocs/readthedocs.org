@@ -13,15 +13,15 @@ from readthedocs.projects.constants import REPO_CHOICES
 from readthedocs.projects.models import Project
 
 from .constants import OAUTH_SOURCE
-from .managers import OAuthRepositoryManager, OAuthOrganizationManager
+from .managers import RemoteRepositoryManager, RemoteOrganizationManager
 
 
 DEFAULT_PRIVACY_LEVEL = getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public')
 
 
-class OAuthOrganization(models.Model):
+class RemoteOrganization(models.Model):
 
-    """Organization from OAuth service
+    """Organization from remote service
 
     This encapsulates both Github and Bitbucket
     """
@@ -45,10 +45,10 @@ class OAuthOrganization(models.Model):
                               choices=OAUTH_SOURCE)
     json = models.TextField(_('Serialized API response'))
 
-    objects = OAuthOrganizationManager()
+    objects = RemoteOrganizationManager()
 
     def __unicode__(self):
-        return "OAuth Organization: %s" % (self.url)
+        return "Remote Organization: %s" % (self.url)
 
     def get_serialized(self, key=None, default=None):
         try:
@@ -60,9 +60,9 @@ class OAuthOrganization(models.Model):
             pass
 
 
-class OAuthRepository(models.Model):
+class RemoteRepository(models.Model):
 
-    """OAuth importable repositories
+    """Remote importable repositories
 
     This models Github and Bitbucket importable repositories
     """
@@ -75,7 +75,7 @@ class OAuthRepository(models.Model):
     users = models.ManyToManyField(User, verbose_name=_('Users'),
                                    related_name='oauth_repositories')
     organization = models.ForeignKey(
-        OAuthOrganization, verbose_name=_('Organization'),
+        RemoteOrganization, verbose_name=_('Organization'),
         related_name='repositories', null=True, blank=True)
     active = models.BooleanField(_('Active'), default=False)
 
@@ -105,13 +105,13 @@ class OAuthRepository(models.Model):
                               choices=OAUTH_SOURCE)
     json = models.TextField(_('Serialized API response'))
 
-    objects = OAuthRepositoryManager()
+    objects = RemoteRepositoryManager()
 
     class Meta:
         ordering = ['organization__name', 'name']
 
     def __unicode__(self):
-        return "OAuth importable repository: %s" % (self.html_url)
+        return "Remote importable repository: %s" % (self.html_url)
 
     def get_serialized(self, key=None, default=None):
         try:

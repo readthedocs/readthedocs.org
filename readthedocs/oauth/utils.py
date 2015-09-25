@@ -13,7 +13,7 @@ from allauth.socialaccount.providers.github.provider import GitHubProvider
 from readthedocs.builds import utils as build_utils
 from readthedocs.restapi.client import api
 
-from .models import OAuthOrganization, OAuthRepository
+from .models import RemoteOrganization, RemoteRepository
 
 
 log = logging.getLogger(__name__)
@@ -96,7 +96,7 @@ def import_github(user, sync):
         owner_resp = github_paginate(session, 'https://api.github.com/user/repos?per_page=100')
         try:
             for repo in owner_resp:
-                OAuthRepository.objects.create_from_github_api(repo, user=user)
+                RemoteRepository.objects.create_from_github_api(repo, user=user)
         except (TypeError, ValueError) as e:
             raise Exception('Could not sync your GitHub repositories, '
                             'try reconnecting your account')
@@ -106,7 +106,7 @@ def import_github(user, sync):
             resp = session.get('https://api.github.com/user/orgs')
             for org_json in resp.json():
                 org_resp = session.get('https://api.github.com/orgs/%s' % org_json['login'])
-                org_obj = OAuthOrganization.objects.create_from_github_api(
+                org_obj = RemoteOrganization.objects.create_from_github_api(
                     org_resp.json(), user=user)
                 # Add repos
                 org_repos_resp = github_paginate(
@@ -114,7 +114,7 @@ def import_github(user, sync):
                     'https://api.github.com/orgs/%s/repos?per_page=100' % (
                         org_json['login']))
                 for repo in org_repos_resp:
-                    OAuthRepository.objects.create_from_github_api(
+                    RemoteRepository.objects.create_from_github_api(
                         repo, user=user, organization=org_obj)
         except (TypeError, ValueError) as e:
             raise Exception('Could not sync your GitHub organizations, '
@@ -183,7 +183,7 @@ def process_bitbucket_json(user, json):
     try:
         for page in json:
             for repo in page['values']:
-                OAuthRepository.objects.create_from_bitbucket_api(repo,
+                RemoteRepository.objects.create_from_bitbucket_api(repo,
                                                                   user=user)
     except TypeError, e:
         print e

@@ -1,15 +1,15 @@
 from django.contrib import admin
 
-from .models import OAuthRepository, OAuthOrganization
+from .models import RemoteRepository, RemoteOrganization
 
 
-class OAuthRepositoryAdmin(admin.ModelAdmin):
+class RemoteRepositoryAdmin(admin.ModelAdmin):
     raw_id_fields = ('users',)
 
 
-class OAuthOrganizationAdmin(admin.ModelAdmin):
+class RemoteOrganizationAdmin(admin.ModelAdmin):
     raw_id_fields = ('users',)
 
 
-admin.site.register(OAuthRepository, OAuthRepositoryAdmin)
-admin.site.register(OAuthOrganization, OAuthOrganizationAdmin)
+admin.site.register(RemoteRepository, RemoteRepositoryAdmin)
+admin.site.register(RemoteOrganization, RemoteOrganizationAdmin)

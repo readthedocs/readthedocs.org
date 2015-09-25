@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 DEFAULT_PRIVACY_LEVEL = getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public')
 
 
-class OAuthRepositoryManager(models.Manager):
+class RemoteRepositoryManager(models.Manager):
 
     """Model managers for remote repositories"""
 
@@ -89,7 +89,7 @@ class OAuthRepositoryManager(models.Manager):
                          api_json['name'])
 
 
-class OAuthOrganizationManager(models.Manager):
+class RemoteOrganizationManager(models.Manager):
 
     def create_from_github_api(self, api_json, user):
         organization, created = self.get_or_create(slug=api_json.get('login'))
