@@ -29,7 +29,7 @@ from readthedocs.projects.utils import (make_api_version, symlink,
 from readthedocs.projects.version_handling import determine_stable_version
 from readthedocs.projects.version_handling import version_windows
 from readthedocs.restapi.client import api as apiv2
-from readthedocs.core.resolver import resolve_path
+from readthedocs.core.resolver import resolve
 
 from readthedocs.vcs_support.base import VCSProject
 from readthedocs.vcs_support.backends import backend_cls
@@ -330,18 +330,7 @@ class Project(models.Model):
 
         Always use http for now, to avoid content warnings.
         """
-        protocol = "http"
-        use_subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
-        doc_path = resolve_path(project=self, filename='')
-
-        if use_subdomain:
-            return "%s://%s%s" % (
-                protocol,
-                self.subdomain,
-                doc_path
-            )
-        else:
-            return doc_path
+        return resolve(project=self, version_slug=version_slug, language=lang_slug)
 
     def get_translation_url(self, version_slug=None, full=False):
         parent = self.main_language_project

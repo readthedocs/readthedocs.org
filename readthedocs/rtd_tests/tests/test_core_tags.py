@@ -1,3 +1,5 @@
+import mock
+
 from django.test import TestCase
 from readthedocs.projects.models import Project
 from readthedocs.builds.constants import LATEST
@@ -8,9 +10,10 @@ class CoreTagsTests(TestCase):
     fixtures = ["eric", "test_data"]
 
     def setUp(self):
-        self.client.login(username='eric', password='test')
-        self.pip = Project.objects.get(slug='pip')
-        self.pip_fr = Project.objects.create(name="PIP-FR", slug='pip-fr', language='fr', main_language_project=self.pip)
+        with mock.patch('readthedocs.projects.models.update_static_metadata'):
+            self.client.login(username='eric', password='test')
+            self.pip = Project.objects.get(slug='pip')
+            self.pip_fr = Project.objects.create(name="PIP-FR", slug='pip-fr', language='fr', main_language_project=self.pip)
 
     def test_project_only(self):
         proj = Project.objects.get(slug='pip')

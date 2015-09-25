@@ -1,10 +1,11 @@
+import mock
+
 from django.test import TestCase
 from django.test.utils import override_settings
 
 from readthedocs.projects.models import Project, Domain
 from readthedocs.rtd_tests.utils import create_user
-from readthedocs.core.resolver import (resolve_path, resolve_path,
-                                       resolve, resolve_domain)
+from readthedocs.core.resolver import resolve_path, resolve, resolve_domain
 
 from django_dynamic_fixture import get
 
@@ -12,13 +13,15 @@ from django_dynamic_fixture import get
 class ResolverBase(TestCase):
 
     def setUp(self):
-        self.owner = create_user(username='owner', password='test')
-        self.tester = create_user(username='tester', password='test')
-        self.pip = get(Project, slug='pip', users=[self.owner], main_language_project=None)
-        self.subproject = get(Project, slug='sub', language='ja', users=[self.owner], main_language_project=None)
-        self.translation = get(Project, slug='trans', language='ja', users=[self.owner], main_language_project=None)
-        self.pip.add_subproject(self.subproject)
-        self.pip.translations.add(self.translation)
+        with mock.patch('readthedocs.projects.models.symlink'):
+            with mock.patch('readthedocs.projects.models.update_static_metadata'):
+                self.owner = create_user(username='owner', password='test')
+                self.tester = create_user(username='tester', password='test')
+                self.pip = get(Project, slug='pip', users=[self.owner], main_language_project=None)
+                self.subproject = get(Project, slug='sub', language='ja', users=[self.owner], main_language_project=None)
+                self.translation = get(Project, slug='trans', language='ja', users=[self.owner], main_language_project=None)
+                self.pip.add_subproject(self.subproject)
+                self.pip.translations.add(self.translation)
 
 
 class SmartResolverPathTests(ResolverBase):
