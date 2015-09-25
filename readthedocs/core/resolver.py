@@ -89,6 +89,7 @@ def resolve_path(project, filename='', version_slug=None, language=None,
     elif relation:
         project_slug = relation.parent.slug
         subproject_slug = relation.child.slug
+        cname = relation.parent.domains.filter(canonical=True).first()
     else:
         project_slug = project.slug
         subproject_slug = None
