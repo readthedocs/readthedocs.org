@@ -28,6 +28,14 @@ class MiddlewareTests(TestCase):
         self.assertEqual(request.subdomain, True)
         self.assertEqual(request.slug, 'pip')
 
+    @override_settings(PRODUCTION_DOMAIN='prod.readthedocs.org')
+    def test_subdomain_different_length(self):
+        request = self.factory.get(self.url, HTTP_HOST='pip.prod.readthedocs.org')
+        self.middleware.process_request(request)
+        self.assertEqual(request.urlconf, 'readthedocs.core.subdomain_urls')
+        self.assertEqual(request.subdomain, True)
+        self.assertEqual(request.slug, 'pip')
+
     def test_proper_cname(self):
         cache.get = lambda x: 'my_slug'
         request = self.factory.get(self.url, HTTP_HOST='my.valid.homename')
