@@ -122,6 +122,8 @@ def smart_resolve_path(project, filename=''):
 def smart_resolve_domain(project):
     main_language_project = project.main_language_project
     relation = project.superprojects.first()
+    subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
+    prod_domain = getattr(settings, 'PRODUCTION_DOMAIN')
     if main_language_project:
         canonical_project = main_language_project
     elif relation:
@@ -132,10 +134,11 @@ def smart_resolve_domain(project):
     domain = canonical_project.domains.filter(canonical=True).first()
     if domain:
         return domain.clean_host
-    else:
+    elif subdomain:
         subdomain_slug = canonical_project.slug.replace('_', '-')
-        prod_domain = getattr(settings, 'PRODUCTION_DOMAIN')
         return "%s.%s" % (subdomain_slug, prod_domain)
+    else:
+        return prod_domain
 
 
 def smart_resolve(project, protocol='http', filename=''):

@@ -3,7 +3,8 @@ from django.test.utils import override_settings
 
 from readthedocs.projects.models import Project, Domain
 from readthedocs.rtd_tests.utils import create_user
-from readthedocs.core.resolver import resolve_path, smart_resolve_path, smart_resolve
+from readthedocs.core.resolver import (resolve_path, smart_resolve_path,
+                                       smart_resolve, smart_resolve_domain)
 
 from django_dynamic_fixture import get
 
@@ -175,13 +176,53 @@ class ResolverPathTests(ResolverBase):
             self.assertEqual(url, '/ja/foo/index.html')
 
 
+class ResolverDomainTests(ResolverBase):
+
+    @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
+    def test_domain_resolver(self):
+        with override_settings(USE_SUBDOMAIN=False):
+            url = smart_resolve_domain(project=self.pip)
+            self.assertEqual(url, 'readthedocs.org')
+        with override_settings(USE_SUBDOMAIN=True):
+            url = smart_resolve_domain(project=self.pip)
+            self.assertEqual(url, 'pip.readthedocs.org')
+
+    @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
+    def test_domain_resolver_with_domain_object(self):
+        self.domain = get(Domain, url='http://docs.foobar.com', project=self.pip, canonical=True)
+        with override_settings(USE_SUBDOMAIN=False):
+            url = smart_resolve_domain(project=self.pip)
+            self.assertEqual(url, 'docs.foobar.com')
+        with override_settings(USE_SUBDOMAIN=True):
+            url = smart_resolve_domain(project=self.pip)
+            self.assertEqual(url, 'docs.foobar.com')
+
+    @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
+    def test_domain_resolver_subproject(self):
+        with override_settings(USE_SUBDOMAIN=False):
+            url = smart_resolve_domain(project=self.subproject)
+            self.assertEqual(url, 'readthedocs.org')
+        with override_settings(USE_SUBDOMAIN=True):
+            url = smart_resolve_domain(project=self.subproject)
+            self.assertEqual(url, 'pip.readthedocs.org')
+
+    @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
+    def test_domain_resolver_translation(self):
+        with override_settings(USE_SUBDOMAIN=False):
+            url = smart_resolve_domain(project=self.translation)
+            self.assertEqual(url, 'readthedocs.org')
+        with override_settings(USE_SUBDOMAIN=True):
+            url = smart_resolve_domain(project=self.translation)
+            self.assertEqual(url, 'pip.readthedocs.org')
+
+
 class ResolverTests(ResolverBase):
 
     @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
     def test_resolver(self):
         with override_settings(USE_SUBDOMAIN=False):
             url = smart_resolve(project=self.pip)
-            self.assertEqual(url, 'http://pip.readthedocs.org/docs/pip/en/latest/')
+            self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/latest/')
         with override_settings(USE_SUBDOMAIN=True):
             url = smart_resolve(project=self.pip)
             self.assertEqual(url, 'http://pip.readthedocs.org/en/latest/')
@@ -195,3 +236,31 @@ class ResolverTests(ResolverBase):
         with override_settings(USE_SUBDOMAIN=True):
             url = smart_resolve(project=self.pip)
             self.assertEqual(url, 'http://docs.foobar.com/en/latest/')
+
+    @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
+    def test_resolver_subproject(self):
+        with override_settings(USE_SUBDOMAIN=False):
+            url = smart_resolve(project=self.subproject)
+            self.assertEqual(url, 'http://readthedocs.org/docs/pip/projects/sub/ja/latest/')
+        with override_settings(USE_SUBDOMAIN=True):
+            url = smart_resolve(project=self.subproject)
+            self.assertEqual(url, 'http://pip.readthedocs.org/projects/sub/ja/latest/')
+
+    @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
+    def test_resolver_translation(self):
+        with override_settings(USE_SUBDOMAIN=False):
+            url = smart_resolve(project=self.translation)
+            self.assertEqual(url, 'http://readthedocs.org/docs/pip/ja/latest/')
+        with override_settings(USE_SUBDOMAIN=True):
+            url = smart_resolve(project=self.translation)
+            self.assertEqual(url, 'http://pip.readthedocs.org/ja/latest/')
+
+    @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
+    def test_resolver_single_version(self):
+        self.pip.single_version = True
+        with override_settings(USE_SUBDOMAIN=False):
+            url = smart_resolve(project=self.pip)
+            self.assertEqual(url, 'http://readthedocs.org/docs/pip/')
+        with override_settings(USE_SUBDOMAIN=True):
+            url = smart_resolve(project=self.pip)
+            self.assertEqual(url, 'http://pip.readthedocs.org/')
