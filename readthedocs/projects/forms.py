@@ -436,16 +436,21 @@ class TranslationForm(forms.Form):
         super(TranslationForm, self).__init__(*args, **kwargs)
 
     def clean_project(self):
-        subproject_name = self.cleaned_data['project']
-        subproject_qs = Project.objects.filter(slug=subproject_name)
-        if not subproject_qs.exists():
+        translation_name = self.cleaned_data['project']
+        translation_qs = Project.objects.filter(slug=translation_name)
+        if not translation_qs.exists():
             raise forms.ValidationError((_("Project %(name)s does not exist")
-                                         % {'name': subproject_name}))
-        self.subproject = subproject_qs[0]
-        return subproject_name
+                                         % {'name': translation_name}))
+        if translation_qs.first().language == self.parent.language:
+            err = ("Both projects have a language of `%s`. "
+                   "Please choose one with another language" % self.parent.language)
+            raise forms.ValidationError(_(err))
+
+        self.translation = translation_qs.first()
+        return translation_name
 
     def save(self):
-        project = self.parent.translations.add(self.subproject)
+        project = self.parent.translations.add(self.translation)
         return project
 
 
