@@ -322,7 +322,7 @@ class Project(models.Model):
             log.error('Error creating default branches', exc_info=True)
 
     def get_absolute_url(self):
-        return resolve(project=self)
+        return reverse('projects_detail', args=[self.slug])
 
     def get_docs_url(self, version_slug=None, lang_slug=None):
         """Return a url for the docs
