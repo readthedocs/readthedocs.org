@@ -39,11 +39,7 @@
         <dt>Versions</dt>
         {% for version in versions %}
         {% if version.verbose_name == current_version %} <strong> {% endif %}
-        {% if subproject %}
-        <dd><a href="{{ version.get_subproject_url }}{{ path }}">{{ version.slug }}</a></dd>
-        {% else %}
-        <dd><a href="{{ version.get_subdomain_url }}{{ path }}">{{ version.slug }}</a></dd>
-        {% endif %}
+        <dd><a href="{{ version.get_subdomain_url }}{{ path|default_if_none:"" }}">{{ version.slug }}</a></dd>
         {% if version.verbose_name == current_version %} </strong> {% endif %}
         {% endfor %}
       </dl>
