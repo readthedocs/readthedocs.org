@@ -8,20 +8,6 @@ from readthedocs.projects.filters import ProjectFilter
 
 docs_urls = patterns(
     '',
-    # Subprojects
-    url((r'^docs/(?P<superproject_slug>{project_slug})/'
-        r'^projects/(?P<subproject_slug>{project_slug})/(?P<lang_slug>{lang_slug})/'
-         r'(?P<version_slug>{version_slug})/'
-         r'(?P<filename>{filename_slug})$'.format(**pattern_opts)),
-        'readthedocs.core.views.serve_docs',
-        name='subproject_docs_detail'),
-
-    url((r'^docs/(?P<superproject_slug>{project_slug})/'
-        r'^projects/(?P<subproject_slug>{project_slug})/'
-         r'(?P<filename>{filename_slug})$'.format(**pattern_opts)),
-        'readthedocs.core.views.serve_docs',
-        name='subproject_single_version_docs_detail'),
-
     # For serving docs locally and when nginx isn't
     url((r'^docs/(?P<project_slug>{project_slug})/(?P<lang_slug>{lang_slug})/'
          r'(?P<version_slug>{version_slug})/'
@@ -57,11 +43,6 @@ docs_urls = patterns(
          r'(?P<filename>{filename_slug})$'.format(**pattern_opts)),
         'readthedocs.core.views.serve_single_version_docs',
         name='docs_detail'),
-
-    url((r'^projects/(?P<project_slug>{project_slug})/'
-         r'(?P<filename>{filename_slug})$'.format(**pattern_opts)),
-        'readthedocs.core.views.serve_single_version_docs',
-        name='subproject_single_version_docs_detail'),
 
     # Handle fallbacks
     url((r'^user_builds/(?P<project_slug>{project_slug})/rtd-builds/'
