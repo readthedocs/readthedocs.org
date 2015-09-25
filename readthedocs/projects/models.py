@@ -58,7 +58,7 @@ class ProjectRelationship(models.Model):
 
     # HACK
     def get_absolute_url(self, version_slug=None, lang_slug=None):
-        return ("http://{slug}.{domain}/projects/%s/%s/latest/"
+        return ("http://%s.{domain}/projects/%s/%s/latest/"
                 % (self.parent.slug, self.child.slug, self.child.language))
 
 
