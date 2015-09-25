@@ -24,7 +24,7 @@
         <a href="{{ relationship.get_absolute_url }}">
         {{ relationship.child }}
         </a>
-        ({% if relationship.prefix %}/{{ relationship.prefix }}{%endif %}{% if relationship.alias %}/{{ relationship.alias }}{% else %}{{ relationship.child.slug }}{%endif %}/)
+        (/projects/{% if relationship.alias %}/{{ relationship.alias }}{% else %}{{ relationship.child.slug }}{%endif %}/)
         (<a href="{% url "projects_subprojects_delete" relationship.parent.slug relationship.child.slug %}">{% trans "Remove" %}</a>)
         </li>
     {% endfor %}

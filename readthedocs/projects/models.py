@@ -51,7 +51,6 @@ class ProjectRelationship(models.Model):
     child = models.ForeignKey('Project', verbose_name=_('Child'),
                               related_name='superprojects')
     alias = models.CharField(_('Alias'), max_length=255, null=True, blank=True)
-    prefix = models.CharField(_('Prefix'), max_length=255, null=True, blank=True)
 
     def __unicode__(self):
         return "%s -> %s" % (self.parent, self.child)
@@ -782,9 +781,9 @@ class Project(models.Model):
         else:
             return self.vcs_repo().fallback_branch
 
-    def add_subproject(self, child, prefix=None, alias=None):
+    def add_subproject(self, child, alias=None):
         subproject, __ = ProjectRelationship.objects.get_or_create(
-            parent=self, child=child, prefix=prefix, alias=alias,
+            parent=self, child=child, alias=alias,
         )
         return subproject
 

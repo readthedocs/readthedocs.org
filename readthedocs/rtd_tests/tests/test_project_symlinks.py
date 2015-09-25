@@ -67,23 +67,6 @@ class TestSubprojects(TestCase):
         for index, command in enumerate(commands):
             self.assertEqual(self.commands[index], command.format(**self.args))
 
-    # Not implemented yet.
-    @unittest.expectedFailure
-    @patched
-    def test_subproject_prefix(self):
-        self.project.add_subproject(self.subproject, prefix='sweet-prefix')
-        symlink_subprojects(self.project)
-        self.args['subproject'] = self.subproject.slug
-        self.args['prefix'] = 'sweet-prefix'
-        self.args['prefix_root'] = os.path.join(self.project.doc_path, 'sweet-prefix')
-        commands = [
-            'mkdir -p {subproject_root}',
-            'ln -nsf {build_path}/rtd-builds {prefix_root}/{subproject}',
-        ]
-
-        for index, command in enumerate(commands):
-            self.assertEqual(self.commands[index], command.format(**self.args))
-
 
 class TestSymlinkCnames(TestCase):
 

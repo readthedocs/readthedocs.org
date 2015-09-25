@@ -16,9 +16,4 @@ class Migration(migrations.Migration):
             name='alias',
             field=models.CharField(max_length=255, null=True, verbose_name='Alias', blank=True),
         ),
-        migrations.AddField(
-            model_name='projectrelationship',
-            name='prefix',
-            field=models.CharField(max_length=255, null=True, verbose_name='Prefix', blank=True),
-        ),
     ]
