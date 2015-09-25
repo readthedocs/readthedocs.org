@@ -1,9 +1,9 @@
+"""OAuth utility functions"""
+
 import logging
 import json
 
 from django.conf import settings
-from django.contrib import messages
-from django.utils.translation import ugettext_lazy as _
 
 from requests_oauthlib import OAuth1Session, OAuth2Session
 from allauth.socialaccount.models import SocialToken, SocialAccount
@@ -20,7 +20,7 @@ log = logging.getLogger(__name__)
 
 
 def get_oauth_session(user, provider):
-
+    """Get OAuth session based on provider"""
     tokens = SocialToken.objects.filter(
         account__user__username=user.username, app__provider=provider)
     if tokens.exists():
@@ -66,9 +66,7 @@ def get_token_for_project(project, force_local=False):
 
 
 def github_paginate(session, url):
-    """
-    Scans trough all github paginates results and returns the concatenated
-    list of results.
+    """Combines return from GitHub pagination
 
     :param session: requests client instance
     :param url: start url to get the data from.
@@ -79,9 +77,9 @@ def github_paginate(session, url):
     while url:
         r = session.get(url)
         result.extend(r.json())
-        next = r.links.get('next')
-        if next:
-            url = next.get('url')
+        next_url = r.links.get('next')
+        if next_url:
+            url = next_url.get('url')
         else:
             url = None
     return result
@@ -89,7 +87,6 @@ def github_paginate(session, url):
 
 def import_github(user, sync):
     """Do the actual github import"""
-
     session = get_oauth_session(user, provider=GitHubProvider.id)
     if sync and session:
         # Get user repos
@@ -97,7 +94,7 @@ def import_github(user, sync):
         try:
             for repo in owner_resp:
                 RemoteRepository.objects.create_from_github_api(repo, user=user)
-        except (TypeError, ValueError) as e:
+        except (TypeError, ValueError):
             raise Exception('Could not sync your GitHub repositories, '
                             'try reconnecting your account')
 
@@ -116,7 +113,7 @@ def import_github(user, sync):
                 for repo in org_repos_resp:
                     RemoteRepository.objects.create_from_github_api(
                         repo, user=user, organization=org_obj)
-        except (TypeError, ValueError) as e:
+        except (TypeError, ValueError):
             raise Exception('Could not sync your GitHub organizations, '
                             'try reconnecting your account')
 
@@ -160,9 +157,7 @@ def add_bitbucket_webhook(session, project):
 
 
 def bitbucket_paginate(session, url):
-    """
-    Scans trough all github paginates results and returns the concatenated
-    list of results.
+    """Combines results from Bitbucket pagination
 
     :param session: requests client instance
     :param url: start url to get the data from.
@@ -191,7 +186,6 @@ def process_bitbucket_json(user, json):
 
 def import_bitbucket(user, sync):
     """Import from Bitbucket"""
-
     session = get_oauth_session(user, provider=BitbucketProvider.id)
     try:
         social_account = user.socialaccount_set.get(provider=BitbucketProvider.id)
@@ -205,7 +199,7 @@ def import_bitbucket(user, sync):
                 'https://bitbucket.org/api/2.0/repositories/{owner}'.format(
                     owner=social_account.uid))
             process_bitbucket_json(user, owner_resp)
-        except (TypeError, ValueError) as e:
+        except (TypeError, ValueError):
             raise Exception('Could not sync your Bitbucket repositories, '
                             'try reconnecting your account')
 
