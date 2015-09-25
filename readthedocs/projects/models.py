@@ -14,7 +14,9 @@ from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext_lazy as _
 
 from guardian.shortcuts import assign
+from taggit.managers import TaggableManager
 
+from readthedocs.api.client import api
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.constants import LATEST_VERBOSE_NAME
 from readthedocs.builds.constants import STABLE
@@ -26,9 +28,8 @@ from readthedocs.projects.utils import (make_api_version, symlink,
                                         update_static_metadata)
 from readthedocs.projects.version_handling import determine_stable_version
 from readthedocs.projects.version_handling import version_windows
-from taggit.managers import TaggableManager
-from readthedocs.api.client import api
 from readthedocs.restapi.client import api as apiv2
+from readthedocs.core.resolver import resolve
 
 from readthedocs.vcs_support.base import VCSProject
 from readthedocs.vcs_support.backends import backend_cls
@@ -262,12 +263,13 @@ class Project(models.Model):
 
     @property
     def subdomain(self):
-        prod_domain = getattr(settings, 'PRODUCTION_DOMAIN')
-        # if self.canonical_domain:
-        #     return self.canonical_domain
-        # else:
-        subdomain_slug = self.slug.replace('_', '-')
-        return "%s.%s" % (subdomain_slug, prod_domain)
+        try:
+            domain = self.domains.get(canonical=True)
+            return domain.clean_host
+        except (Domain.DoesNotExist, MultipleObjectsReturned):
+            subdomain_slug = self.slug.replace('_', '-')
+            prod_domain = getattr(settings, 'PRODUCTION_DOMAIN')
+            return "%s.%s" % (subdomain_slug, prod_domain)
 
     def sync_supported_versions(self):
         supported = self.supported_versions()
@@ -329,34 +331,8 @@ class Project(models.Model):
         Always use http for now, to avoid content warnings.
         """
         protocol = "http"
-        version = version_slug or self.get_default_version()
-        lang = lang_slug or self.language
         use_subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
-        reverse_kwargs = {'filename': ''}
-
-        if use_subdomain:
-            urlconf = 'readthedocs.core.subdomain_urls'
-        else:
-            urlconf = 'readthedocs.urls'
-            reverse_kwargs['project_slug'] = self.slug
-
-        if not self.single_version:
-            reverse_kwargs['version_slug'] = version
-            reverse_kwargs['lang_slug'] = lang
-
-        if self.superprojects.count():
-            reverse_kwargs['subproject_slug'] = self.slug
-            if not use_subdomain:
-                reverse_kwargs['project_slug'] = self.superprojects.first().slug
-
-        if self.superprojects.count() and self.single_version:
-            doc_path = reverse('subproject_single_version_docs_detail', urlconf=urlconf, kwargs=reverse_kwargs)
-        elif self.superprojects.count() and not self.single_version:
-            doc_path = reverse('subproject_docs_detail', urlconf=urlconf, kwargs=reverse_kwargs)
-        elif not self.superprojects.count() and self.single_version:
-            doc_path = reverse('single_version_docs_detail', urlconf=urlconf, kwargs=reverse_kwargs)
-        elif not self.superprojects.count() and not self.single_version:
-            doc_path = reverse('docs_detail', urlconf=urlconf, kwargs=reverse_kwargs)
+        doc_path = resolve(project=self, filename='')
 
         if use_subdomain:
             return "%s://%s%s" % (
