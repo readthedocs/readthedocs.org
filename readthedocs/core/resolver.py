@@ -50,9 +50,6 @@ def _fix_filename(project, filename):
             path = filename + ".html"
     else:
         path = ""
-    path = path.lstrip('/')
-    path = re.sub('index.html$', '', path)
-    path = re.sub('index/$', '', path)
     return path
 
 
