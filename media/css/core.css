@@ -601,6 +601,10 @@ div.project-version-list span.version-branch {
 }
 
 /* Project import */
+div.project-import-remote h1 {
+    margin: 0em 0em .5em 0em;
+}
+
 div.project-import-remote li.remote-repo a.remote-repo-view {
     background: none;
     color: #443;
