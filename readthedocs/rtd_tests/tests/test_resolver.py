@@ -48,6 +48,27 @@ class SmartResolverPathTests(ResolverBase):
             url = resolve_path(project=self.pip, filename='')
             self.assertEqual(url, '/en/latest/')
 
+    def test_resolver_filename_index(self):
+        with override_settings(USE_SUBDOMAIN=False):
+            url = resolve_path(project=self.pip, filename='foo/bar/index.html')
+            self.assertEqual(url, '/docs/pip/en/latest/foo/bar/')
+            url = resolve_path(project=self.pip, filename='foo/index/index.html')
+            self.assertEqual(url, '/docs/pip/en/latest/foo/index/')
+
+    def test_resolver_filename_sphinx(self):
+        self.pip.documentation_type = 'sphinx'
+        with override_settings(USE_SUBDOMAIN=False):
+            url = resolve_path(project=self.pip, filename='foo/bar')
+            self.assertEqual(url, '/docs/pip/en/latest/foo/bar.html')
+            url = resolve_path(project=self.pip, filename='foo/index')
+            self.assertEqual(url, '/docs/pip/en/latest/foo/')
+        self.pip.documentation_type = 'mkdocs'
+        with override_settings(USE_SUBDOMAIN=False):
+            url = resolve_path(project=self.pip, filename='foo/bar')
+            self.assertEqual(url, '/docs/pip/en/latest/foo/bar/')
+            url = resolve_path(project=self.pip, filename='foo/index')
+            self.assertEqual(url, '/docs/pip/en/latest/foo/')
+
     def test_resolver_subdomain(self):
         with override_settings(USE_SUBDOMAIN=False):
             url = resolve_path(project=self.pip, filename='index.html')

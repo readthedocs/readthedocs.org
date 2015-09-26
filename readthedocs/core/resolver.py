@@ -27,21 +27,32 @@ All possible URL's::
 """
 
 from django.conf import settings
+import re
 
 
 def _fix_filename(project, filename):
+    """
+    Force filenames that might be HTML file paths into proper URL's
+
+    This basically means stripping / and .html endings and then re-adding them properly.
+    """
     filename = filename.lstrip('/')
-    if filename and (filename != "index") and (filename != "index.html"):
-        if project.documentation_type == "sphinx_htmldir":
-            path = filename + "/"
+    filename = re.sub('index.html$', '', filename)
+    filename = re.sub('index$', '', filename)
+    if filename:
+        if filename.endswith('/') or filename.endswith('.html'):
+            path = filename
         elif project.documentation_type == "sphinx_singlehtml":
             path = "index.html#document-" + filename
-        elif filename.endswith(".html"):
-            path = filename
+        elif project.documentation_type in ["sphinx_htmldir", "mkdocs"]:
+            path = filename + "/"
         else:
             path = filename + ".html"
     else:
         path = ""
+    path = path.lstrip('/')
+    path = re.sub('index.html$', '', path)
+    path = re.sub('index/$', '', path)
     return path
 
 
