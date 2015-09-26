@@ -34,8 +34,6 @@ from readthedocs.projects.exceptions import ProjectImportError
 from readthedocs.projects.models import ImportedFile, Project
 from readthedocs.projects.utils import make_api_version, make_api_project, symlink
 from readthedocs.projects.constants import LOG_TEMPLATE
-from readthedocs.builds.constants import STABLE
-from readthedocs.projects import symlinks
 from readthedocs.privacy.loader import Syncer
 from readthedocs.search.parse_json import process_all_json_files
 from readthedocs.search.utils import process_mkdocs_json
@@ -44,6 +42,7 @@ from readthedocs.vcs_support import utils as vcs_support_utils
 from readthedocs.api.client import api as api_v1
 from readthedocs.restapi.client import api as api_v2
 from readthedocs.projects.signals import before_vcs, after_vcs, before_build, after_build
+from readthedocs.core.resolver import resolve_path
 
 
 log = logging.getLogger(__name__)
@@ -706,7 +705,11 @@ def _manage_imported_files(version, path, commit):
                                 version=version
                                 ).exclude(commit=commit).delete()
     # Purge Cache
-    purge(changed_files)
+    changed_files = [resolve_path(file) for file in changed_files]
+    CDN_IDS = getattr(settings, 'CDN_IDS')
+    if CDN_IDS:
+        if version.project.slug in CDN_IDS:
+            purge(CDN_IDS[version.project.slug], changed_files)
 
 
 @task(queue='web')
