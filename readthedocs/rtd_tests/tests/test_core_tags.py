@@ -163,7 +163,7 @@ class CoreTagsTests(TestCase):
         proj = Project.objects.get(slug='pip')
         proj.documentation_type = 'mkdocs'
         url = core_tags.make_document_url(proj, LATEST, 'document.html')
-        self.assertEqual(url, '/docs/pip/en/latest/document/')
+        self.assertEqual(url, '/docs/pip/en/latest/document.html')
 
     def test_mkdocs_index(self):
         proj = Project.objects.get(slug='pip')
