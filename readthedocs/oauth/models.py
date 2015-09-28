@@ -123,21 +123,21 @@ class RemoteRepository(models.Model):
         except ValueError:
             pass
 
+    @property
+    def clone_fuzzy_url(self):
+        """Try to match against several premutations of project URL"""
+        pass
+
     def matches(self, user):
         """Projects that exist with repository URL already"""
-
-        # TODO
-        # ghetto_repo = self.clone_url.replace('git://', '').replace('.git', '')
+        # Support Git scheme GitHub url format that may exist in database
+        fuzzy_url = self.clone_url.replace('git://', '').replace('.git', '')
         projects = (Project
                     .objects
                     .public(user)
-                    .filter(repo=self.clone_url))
-        #            .filter(Q(repo__endswith=ghetto_repo) |
-        #                    Q(repo__endswith=ghetto_repo + '.git')))
-        # if projects:
-        #    repo.matches = [project.slug for project in projects]
-        # else:
-        #    repo.matches = []
+                    .filter(Q(repo=self.clone_url) |
+                            Q(repo__endswith=ghetto_repo) |
+                            Q(repo__endswith=ghetto_repo + '.git')))
         return [{'id': project.slug,
                  'url': reverse('projects_detail',
                                 kwargs={'project_slug': project.slug})}
