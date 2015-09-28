@@ -3,7 +3,6 @@
 import fnmatch
 import logging
 import os
-from urlparse import urlparse
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -12,7 +11,6 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.sites.models import _simple_domain_name_validator
 
 from guardian.shortcuts import assign
 from taggit.managers import TaggableManager
@@ -30,6 +28,7 @@ from readthedocs.projects.utils import (make_api_version, symlink,
 from readthedocs.projects.version_handling import determine_stable_version
 from readthedocs.projects.version_handling import version_windows
 from readthedocs.core.resolver import resolve
+from readthedocs.core.validators import validate_domain_name
 
 from readthedocs.vcs_support.base import VCSProject
 from readthedocs.vcs_support.backends import backend_cls
@@ -871,7 +870,7 @@ class WebHook(Notification):
 class Domain(models.Model):
     project = models.ForeignKey(Project, related_name='domains')
     domain = models.CharField(_('Domain'), unique=True, max_length=255,
-                              validators=[_simple_domain_name_validator])
+                              validators=[validate_domain_name])
     machine = models.BooleanField(
         default=False, help_text=_('This Domain was auto-created')
     )
