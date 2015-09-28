@@ -53,7 +53,7 @@ class MiddlewareTests(TestCase):
         self.assertEqual(request.slug, 'pip')
 
     def test_domain_object(self):
-        self.domain = get(Domain, url='docs.foobar.com', project=self.pip)
+        self.domain = get(Domain, domain='docs.foobar.com', project=self.pip)
 
         request = self.factory.get(self.url, HTTP_HOST='docs.foobar.com')
         self.middleware.process_request(request)
@@ -62,7 +62,7 @@ class MiddlewareTests(TestCase):
         self.assertEqual(request.slug, 'pip')
 
     def test_domain_object_missing(self):
-        self.domain = get(Domain, url='docs.foobar2.com', project=self.pip)
+        self.domain = get(Domain, domain='docs.foobar2.com', project=self.pip)
         request = self.factory.get(self.url, HTTP_HOST='docs.foobar.com')
         with self.assertRaises(Http404):
             self.middleware.process_request(request)
