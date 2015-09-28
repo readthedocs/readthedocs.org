@@ -30,7 +30,7 @@ class MiddlewareTests(TestCase):
         request = self.factory.get(self.url, HTTP_HOST='my.valid.hostname')
         self.middleware.process_request(request)
         self.assertEqual(Domain.objects.count(), 1)
-        self.assertEqual(Domain.objects.first().url, 'my.valid.hostname')
+        self.assertEqual(Domain.objects.first().domain, 'my.valid.hostname')
 
     @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
     def test_no_readthedocs_domain(self):
@@ -50,7 +50,7 @@ class MiddlewareTests(TestCase):
 
         self.middleware.process_request(request)
         self.assertEqual(Domain.objects.count(), 1)
-        self.assertEqual(Domain.objects.first().url, 'my.valid.hostname')
+        self.assertEqual(Domain.objects.first().domain, 'my.valid.hostname')
         self.assertEqual(Domain.objects.first().count, 1)
 
         self.middleware.process_request(request)
@@ -58,36 +58,15 @@ class MiddlewareTests(TestCase):
         self.assertEqual(Domain.objects.first().count, 2)
 
 
-class ModelTests(TestCase):
-
-    def setUp(self):
-        self.project = get(Project, slug='kong')
-
-    def test_save_parsing(self):
-        domain = get(Domain, url='http://google.com')
-        self.assertEqual(domain.domain, 'google.com')
-
-        domain.domain = 'google.com'
-        self.assertEqual(domain.domain, 'google.com')
-
-        domain.domain = 'https://google.com'
-        domain.save()
-        self.assertEqual(domain.domain, 'google.com')
-
-        domain.domain = 'www.google.com'
-        domain.save()
-        self.assertEqual(domain.domain, 'www.google.com')
-
-
 class TestAPI(TestCase):
 
     def setUp(self):
         self.project = get(Project)
-        self.domain = self.project.domains.create(url='djangokong.com')
+        self.domain = self.project.domains.create(domain='djangokong.com')
 
     def test_basic_api(self):
         resp = self.client.get('/api/v2/domain/')
         self.assertEqual(resp.status_code, 200)
         obj = json.loads(resp.content)
-        self.assertEqual(obj['results'][0]['url'], 'djangokong.com')
+        self.assertEqual(obj['results'][0]['domain'], 'djangokong.com')
         self.assertEqual(obj['results'][0]['canonical'], False)
