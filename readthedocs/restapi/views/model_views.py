@@ -225,10 +225,9 @@ class RemoteRepositoryViewSet(viewsets.ReadOnlyModelViewSet):
     renderer_classes = [JSONRenderer, BrowsableAPIRenderer]
     serializer_class = RemoteRepositorySerializer
     model = RemoteRepository
-    queryset = RemoteRepository.objects.all()
 
     def get_queryset(self):
-        query = super(RemoteRepositoryViewSet, self).get_queryset()
+        query = RemoteRepository.objects.all()
         org = self.request.query_params.get('org', None)
         if org is not None:
             query = query.filter(organization__pk=org)
