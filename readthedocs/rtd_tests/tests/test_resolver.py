@@ -131,7 +131,8 @@ class SmartResolverPathTests(ResolverBase):
             self.assertEqual(url, '/ja/latest/')
 
 
-class ResolverPathTests(ResolverBase):
+class ResolverPathOverrideTests(ResolverBase):
+    """Tests to make sure we can override resolve_path correctly"""
 
     def test_resolver_force_single_version(self):
         self.pip.single_version = False
@@ -288,3 +289,15 @@ class ResolverTests(ResolverBase):
         with override_settings(USE_SUBDOMAIN=True):
             url = resolve(project=self.pip)
             self.assertEqual(url, 'http://pip.readthedocs.org/')
+
+    @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
+    def test_resolver_subproject_alias(self):
+        relation = self.pip.subprojects.first()
+        relation.alias = 'sub_alias'
+        relation.save()
+        with override_settings(USE_SUBDOMAIN=False):
+            url = resolve(project=self.subproject)
+            self.assertEqual(url, 'http://readthedocs.org/docs/pip/projects/sub_alias/ja/latest/')
+        with override_settings(USE_SUBDOMAIN=True):
+            url = resolve(project=self.subproject)
+            self.assertEqual(url, 'http://pip.readthedocs.org/projects/sub_alias/ja/latest/')
