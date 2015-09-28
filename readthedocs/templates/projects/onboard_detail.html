@@ -43,7 +43,7 @@
           {% comment %}Last build failed{% endcomment %}
           <h2>{% trans "Your documentation failed to build" %}</h2>
 
-          <form method="get" action="{% url "builds_detail" project_slug=project.slug pk=onboard.build.pk %}">
+          <form method="get" action="{% url "builds_detail" project_slug=project.slug build_pk=onboard.build.pk %}">
             <p>
             {% blocktrans %}
               There was a problem building your documentation,

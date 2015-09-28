@@ -33,3 +33,5 @@ prod_artifacts
 wheelhouse
 whoosh_index
 xml_output
+public_cnames
+public_symlinks

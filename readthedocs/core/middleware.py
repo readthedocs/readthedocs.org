@@ -26,15 +26,15 @@ class SubdomainMiddleware(object):
             host = host.split(':')[0]
         domain_parts = host.split('.')
 
-        if len(domain_parts) == 3:
+        # Serve subdomains - but don't depend on the production domain only having 2 parts
+        if len(domain_parts) == len(settings.PRODUCTION_DOMAIN.split('.')) + 1:
             subdomain = domain_parts[0]
-            # Serve subdomains
             is_www = subdomain.lower() == 'www'
             is_ssl = subdomain.lower() == 'ssl'
             if not is_www and not is_ssl and settings.PRODUCTION_DOMAIN in host:
                 request.subdomain = True
                 request.slug = subdomain
-                request.urlconf = 'core.subdomain_urls'
+                request.urlconf = 'readthedocs.core.subdomain_urls'
                 return None
         # Serve CNAMEs
         if settings.PRODUCTION_DOMAIN not in host and \
@@ -55,7 +55,7 @@ class SubdomainMiddleware(object):
                         break
             if not hasattr(request, 'domain_object') and 'HTTP_X_RTD_SLUG' in request.META:
                 request.slug = request.META['HTTP_X_RTD_SLUG'].lower()
-                request.urlconf = 'core.subdomain_urls'
+                request.urlconf = 'readthedocs.core.subdomain_urls'
                 request.rtdheader = True
                 log.debug(LOG_TEMPLATE.format(
                     msg='X-RTD-Slug header detetected: %s' % request.slug, **log_kwargs))
@@ -74,7 +74,7 @@ class SubdomainMiddleware(object):
                             msg='CNAME cached: %s->%s' % (slug, host),
                             **log_kwargs))
                     request.slug = slug
-                    request.urlconf = 'core.subdomain_urls'
+                    request.urlconf = 'readthedocs.core.subdomain_urls'
                     log.debug(LOG_TEMPLATE.format(
                         msg='CNAME detetected: %s' % request.slug,
                         **log_kwargs))
@@ -151,7 +151,7 @@ class SingleVersionMiddleware(object):
                 return None
 
             if getattr(proj, 'single_version', False):
-                request.urlconf = 'core.single_version_urls'
+                request.urlconf = 'readthedocs.core.single_version_urls'
                 # Logging
                 host = request.get_host()
                 path = request.get_full_path()

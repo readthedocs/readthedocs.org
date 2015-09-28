@@ -3,7 +3,7 @@
 from django.conf.urls import patterns, url
 
 from readthedocs.projects.views.private import (
-    AliasList, ProjectDashboard, ImportView,
+    ProjectDashboard, ImportView,
     DomainList, DomainCreate, DomainDelete, DomainUpdate)
 from readthedocs.projects.backends.views import ImportWizardView, ImportDemoView
 
@@ -39,18 +39,6 @@ urlpatterns = patterns(
     url(r'^(?P<project_slug>[-\w]+)/$',
         'readthedocs.projects.views.private.project_manage',
         name='projects_manage'),
-
-    url(r'^(?P<project_slug>[-\w]+)/alias/(?P<alias_id>\d+)/',
-        'readthedocs.projects.views.private.edit_alias',
-        name='projects_alias_edit'),
-
-    url(r'^(?P<project_slug>[-\w]+)/alias/$',
-        'readthedocs.projects.views.private.edit_alias',
-        name='projects_alias_create'),
-
-    url(r'^(?P<project_slug>[-\w]+)/alias/list/$',
-        AliasList.as_view(),
-        name='projects_alias_list'),
 
     url(r'^(?P<project_slug>[-\w]+)/comments_moderation/$',
         'readthedocs.projects.views.private.project_comments_moderation',
@@ -127,16 +115,16 @@ urlpatterns = patterns(
 
 domain_urls = patterns(
     '',
-    url(r'^(?P<project>[-\w]+)/domains/$',
+    url(r'^(?P<project_slug>[-\w]+)/domains/$',
         DomainList.as_view(),
         name='projects_domains'),
-    url(r'^(?P<project>[-\w]+)/domains/create/$',
+    url(r'^(?P<project_slug>[-\w]+)/domains/create/$',
         DomainCreate.as_view(),
         name='projects_domains_create'),
-    url(r'^(?P<project>[-\w]+)/domains/(?P<pk>[-\w]+)/edit/$',
+    url(r'^(?P<project_slug>[-\w]+)/domains/(?P<domain_pk>[-\w]+)/edit/$',
         DomainUpdate.as_view(),
         name='projects_domains_edit'),
-    url(r'^(?P<project>[-\w]+)/domains/(?P<pk>[-\w]+)/delete/$',
+    url(r'^(?P<project_slug>[-\w]+)/domains/(?P<domain_pk>[-\w]+)/delete/$',
         DomainDelete.as_view(),
         name='projects_domains_delete'),
 )

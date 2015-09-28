@@ -1,19 +1,11 @@
-from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
 from django_dynamic_fixture import get
-from django_dynamic_fixture import new
 
 from readthedocs.gold.models import GoldUser, LEVEL_CHOICES
 from readthedocs.projects.models import Project
-
-
-def create_user(username, password):
-    user = new(User, username=username)
-    user.set_password(password)
-    user.save()
-    return user
+from readthedocs.rtd_tests.utils import create_user
 
 
 class GoldViewTests(TestCase):

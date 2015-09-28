@@ -3,12 +3,10 @@ import logging
 from rest_framework import decorators, permissions, status
 from rest_framework.renderers import JSONPRenderer, JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
-import requests
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
 from readthedocs.search.indexes import PageIndex, ProjectIndex, SectionIndex
-from readthedocs.projects.models import Project
 from readthedocs.restapi import utils
 
 
@@ -23,10 +21,8 @@ def index_search(request):
     Add things to the search index.
     """
     data = request.DATA['data']
-    project_pk = data['project_pk']
     version_pk = data['version_pk']
     commit = data.get('commit')
-    project = Project.objects.get(pk=project_pk)
     version = Version.objects.get(pk=version_pk)
 
     project_scale = 1
@@ -46,6 +42,8 @@ def search(request):
     project_slug = request.GET.get('project', None)
     version_slug = request.GET.get('version', LATEST)
     query = request.GET.get('q', None)
+    if project_slug is None or query is None:
+        return Response({'error': 'Need project and q'}, status=status.HTTP_400_BAD_REQUEST)
     log.debug("(API Search) %s" % query)
 
     kwargs = {}
@@ -95,6 +93,8 @@ def search(request):
 @decorators.renderer_classes((JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
 def project_search(request):
     query = request.GET.get('q', None)
+    if query is None:
+        return Response({'error': 'Need project and q'}, status=status.HTTP_400_BAD_REQUEST)
 
     log.debug("(API Project Search) %s" % (query))
     body = {
