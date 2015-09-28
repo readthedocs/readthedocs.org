@@ -1,6 +1,7 @@
 """Project forms"""
 
 from random import choice
+from urlparse import urlparse
 
 from django import forms
 from django.conf import settings
@@ -487,6 +488,14 @@ class DomainForm(forms.ModelForm):
 
     def clean_project(self):
         return self.project
+
+    def clean_domain(self):
+        parsed = urlparse(self.cleaned_data['domain'])
+        if parsed.scheme or parsed.netloc:
+            domain_string = parsed.netloc
+        else:
+            domain_string = parsed.path
+        return domain_string
 
     def clean_canonical(self):
         canonical = self.cleaned_data['canonical']
