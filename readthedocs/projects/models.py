@@ -391,35 +391,7 @@ class Project(models.Model):
 
     @property
     def clean_canonical_url(self):
-        if getattr(settings, 'DONT_HIT_DB', True):
-            resp = apiv2.domain.get(project=self.slug, canonical=True)
-            if resp['count']:
-                url = resp['results']['url']
-            else:
-                return ''
-        else:
-            try:
-                domain = self.domains.get(canonical=True)
-                url = domain.url
-            except (Domain.DoesNotExist, MultipleObjectsReturned):
-                return ''
-
-        parsed = urlparse(url)
-        if parsed.scheme:
-            scheme, netloc = parsed.scheme, parsed.netloc
-        elif parsed.netloc:
-            scheme, netloc = "http", parsed.netloc
-        else:
-            scheme, netloc = "http", parsed.path
-
-        if getattr(settings, 'DONT_HIT_DB', True):
-            if parsed.path:
-                netloc = netloc + parsed.path
-        else:
-            if self.superprojects.count() and parsed.path:
-                netloc = netloc + parsed.path
-
-        return "%s://%s/" % (scheme, netloc)
+        return resolve(self)
 
     @property
     def clean_repo(self):

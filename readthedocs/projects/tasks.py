@@ -451,34 +451,35 @@ def update_imported_docs(version_pk):
             version=version,
             max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
 
-        before_vcs.send(sender=version)
-
         # Get the actual code on disk
-        if version:
-            log.info(
-                LOG_TEMPLATE.format(
-                    project=project.slug,
-                    version=version.slug,
-                    msg='Checking out version {slug}: {identifier}'.format(
-                        slug=version.slug,
-                        identifier=version.identifier
+        try:
+            before_vcs.send(sender=version)
+            if version:
+                log.info(
+                    LOG_TEMPLATE.format(
+                        project=project.slug,
+                        version=version.slug,
+                        msg='Checking out version {slug}: {identifier}'.format(
+                            slug=version.slug,
+                            identifier=version.identifier
+                        )
                     )
                 )
-            )
-            version_slug = version.slug
-            version_repo = project.vcs_repo(version_slug)
-            ret_dict['checkout'] = version_repo.checkout(
-                version.identifier,
-            )
-        else:
-            # Does this ever get called?
-            log.info(LOG_TEMPLATE.format(
-                project=project.slug, version=version.slug, msg='Updating to latest revision'))
-            version_slug = LATEST
-            version_repo = project.vcs_repo(version_slug)
-            ret_dict['checkout'] = version_repo.update()
+                version_slug = version.slug
+                version_repo = project.vcs_repo(version_slug)
 
-        after_vcs.send(sender=version)
+                ret_dict['checkout'] = version_repo.checkout(version.identifier)
+            else:
+                # Does this ever get called?
+                log.info(LOG_TEMPLATE.format(
+                    project=project.slug, version=version.slug, msg='Updating to latest revision'))
+                version_slug = LATEST
+                version_repo = project.vcs_repo(version_slug)
+                ret_dict['checkout'] = version_repo.update()
+        except Exception:
+            raise
+        finally:
+            after_vcs.send(sender=version)
 
         # Update tags/version
 
@@ -606,11 +607,12 @@ def move_files(version_pk, hostname, html=False, localmedia=False, search=False,
 
 
 @task(queue='web')
-def update_search(version_pk, commit):
+def update_search(version_pk, commit, delete_non_commit_files=True):
     """Task to update search indexes
 
     :param version_pk: Version id to update
     :param commit: Commit that updated index
+    :param delete_non_commit_files: Delete files not in commit from index
     """
     version = Version.objects.get(pk=version_pk)
 
@@ -635,6 +637,7 @@ def update_search(version_pk, commit):
         # Don't index sections to speed up indexing.
         # They aren't currently exposed anywhere.
         section=False,
+        delete=delete_non_commit_files,
     )
 
 
