@@ -35,13 +35,6 @@ class SmartResolverPathTests(ResolverBase):
             self.assertEqual(url, '/en/latest/foo/bar/blah.html')
 
         with override_settings(USE_SUBDOMAIN=False):
-            url = resolve_path(project=self.pip, filename='foo/bar/blah.html')
-            self.assertEqual(url, '/docs/pip/en/latest/foo/bar/blah.html')
-        with override_settings(USE_SUBDOMAIN=True):
-            url = resolve_path(project=self.pip, filename='foo/bar/blah.html')
-            self.assertEqual(url, '/en/latest/foo/bar/blah.html')
-
-        with override_settings(USE_SUBDOMAIN=False):
             url = resolve_path(project=self.pip, filename='')
             self.assertEqual(url, '/docs/pip/en/latest/')
         with override_settings(USE_SUBDOMAIN=True):
