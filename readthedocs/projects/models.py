@@ -29,7 +29,6 @@ from readthedocs.projects.utils import (make_api_version, symlink,
                                         update_static_metadata)
 from readthedocs.projects.version_handling import determine_stable_version
 from readthedocs.projects.version_handling import version_windows
-from readthedocs.restapi.client import api as apiv2
 from readthedocs.core.resolver import resolve
 
 from readthedocs.vcs_support.base import VCSProject

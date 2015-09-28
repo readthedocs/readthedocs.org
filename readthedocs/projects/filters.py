@@ -69,4 +69,4 @@ class DomainFilter(django_filters.FilterSet):
 
     class Meta:
         model = Domain
-        fields = ['url', 'project', 'canonical']
+        fields = ['domain', 'project', 'canonical']
