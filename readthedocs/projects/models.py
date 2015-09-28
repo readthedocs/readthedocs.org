@@ -383,16 +383,6 @@ class Project(models.Model):
         return downloads
 
     @property
-    def canonical_domain(self):
-        if not self.clean_canonical_url:
-            return ""
-        return urlparse(self.clean_canonical_url).netloc
-
-    @property
-    def clean_canonical_url(self):
-        return resolve(self)
-
-    @property
     def clean_repo(self):
         if self.repo.startswith('http://github.com'):
             return self.repo.replace('http://github.com', 'https://github.com')
