@@ -85,7 +85,7 @@ class TestSymlinkCnames(TestCase):
     def test_symlink_cname(self):
         self.cname = get(Domain, project=self.project, url='http://woot.com', cname=True)
         symlink_cnames(self.project)
-        self.args['cname'] = self.cname.clean_host
+        self.args['cname'] = self.cname.domain
         commands = [
             'mkdir -p {cnames_root}',
             'ln -nsf {build_path}/rtd-builds {cnames_root}/{cname}',

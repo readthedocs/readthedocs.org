@@ -65,18 +65,18 @@ class ModelTests(TestCase):
 
     def test_save_parsing(self):
         domain = get(Domain, url='http://google.com')
-        self.assertEqual(domain.clean_host, 'google.com')
+        self.assertEqual(domain.domain, 'google.com')
 
-        domain.url = 'google.com'
-        self.assertEqual(domain.clean_host, 'google.com')
+        domain.domain = 'google.com'
+        self.assertEqual(domain.domain, 'google.com')
 
-        domain.url = 'https://google.com'
+        domain.domain = 'https://google.com'
         domain.save()
-        self.assertEqual(domain.clean_host, 'google.com')
+        self.assertEqual(domain.domain, 'google.com')
 
-        domain.url = 'www.google.com'
+        domain.domain = 'www.google.com'
         domain.save()
-        self.assertEqual(domain.clean_host, 'www.google.com')
+        self.assertEqual(domain.domain, 'www.google.com')
 
 
 class TestCanonical(TestCase):
@@ -87,27 +87,27 @@ class TestCanonical(TestCase):
 
     def test_canonical_clean(self):
         # Only a url
-        self.domain.url = "djangokong.com"
+        self.domain.domain = "djangokong.com"
         self.domain.save()
         self.assertEqual(self.project.clean_canonical_url, "http://djangokong.com/")
         # Extra bits in the URL
-        self.domain.url = "http://djangokong.com/en/latest/"
+        self.domain.domain = "http://djangokong.com/en/latest/"
         self.domain.save()
         self.assertEqual(self.project.clean_canonical_url, "http://djangokong.com/")
 
-        self.domain.url = "http://djangokong.com//"
+        self.domain.domain = "http://djangokong.com//"
         self.domain.save()
         self.assertEqual(self.project.clean_canonical_url, "http://djangokong.com/")
         # Subdomain
-        self.domain.url = "foo.djangokong.com"
+        self.domain.domain = "foo.djangokong.com"
         self.domain.save()
         self.assertEqual(self.project.clean_canonical_url, "http://foo.djangokong.com/")
         # Https
-        self.domain.url = "https://djangokong.com//"
+        self.domain.domain = "https://djangokong.com//"
         self.domain.save()
         self.assertEqual(self.project.clean_canonical_url, "https://djangokong.com/")
 
-        self.domain.url = "https://foo.djangokong.com//"
+        self.domain.domain = "https://foo.djangokong.com//"
         self.domain.save()
         self.assertEqual(self.project.clean_canonical_url, "https://foo.djangokong.com/")
 

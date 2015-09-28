@@ -12,6 +12,7 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.sites.models import _simple_domain_name_validator
 
 from guardian.shortcuts import assign
 from taggit.managers import TaggableManager
@@ -268,7 +269,7 @@ class Project(models.Model):
     def subdomain(self):
         try:
             domain = self.domains.get(canonical=True)
-            return domain.clean_host
+            return domain.domain
         except (Domain.DoesNotExist, MultipleObjectsReturned):
             subdomain_slug = self.slug.replace('_', '-')
             prod_domain = getattr(settings, 'PRODUCTION_DOMAIN')
@@ -908,31 +909,24 @@ class WebHook(Notification):
 
 class Domain(models.Model):
     project = models.ForeignKey(Project, related_name='domains')
-    url = models.URLField(_('URL'), unique=True)
+    domain = models.CharField(_('Domain'), unique=True, max_length=255,
+                              validators=[_simple_domain_name_validator])
     machine = models.BooleanField(
-        default=False, help_text=_('This URL was auto-created')
+        default=False, help_text=_('This Domain was auto-created')
     )
     cname = models.BooleanField(
-        default=False, help_text=_('This URL is a CNAME for the project')
+        default=False, help_text=_('This Domain is a CNAME for the project')
     )
     canonical = models.BooleanField(
         default=False,
-        help_text=_('This URL is the primary one where the documentation is served from.')
+        help_text=_('This Domain is the primary one where the documentation is served from.')
     )
     count = models.IntegerField(default=0, help_text=_('Number of times this domain has been hit.'))
 
     objects = RelatedProjectManager()
 
     class Meta:
-        ordering = ('-canonical', '-machine', 'url')
+        ordering = ('-canonical', '-machine', 'domain')
 
     def __unicode__(self):
-        return "{url} pointed at {project}".format(url=self.url, project=self.project.name)
-
-    @property
-    def clean_host(self):
-        parsed = urlparse(self.url)
-        if parsed.scheme or parsed.netloc:
-            return parsed.netloc
-        else:
-            return parsed.path
+        return "{domain} pointed at {project}".format(domain=self.domain, project=self.project.name)

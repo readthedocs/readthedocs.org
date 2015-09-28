@@ -44,14 +44,14 @@ class SubdomainMiddleware(object):
             domains = Domain.objects.filter(url=host)
             if domains.count():
                 for domain in domains:
-                    if domain.clean_host == host:
+                    if domain.domain == host:
                         request.slug = domain.project.slug
                         request.urlconf = 'core.subdomain_urls'
                         request.domain_object = True
                         domain.count = domain.count + 1
                         domain.save()
                         log.debug(LOG_TEMPLATE.format(
-                            msg='Domain Object Detected: %s' % domain.url, **log_kwargs))
+                            msg='Domain Object Detected: %s' % domain.domain, **log_kwargs))
                         break
             if not hasattr(request, 'domain_object') and 'HTTP_X_RTD_SLUG' in request.META:
                 request.slug = request.META['HTTP_X_RTD_SLUG'].lower()

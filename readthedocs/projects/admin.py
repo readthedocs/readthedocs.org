@@ -57,8 +57,8 @@ class ImportedFileAdmin(admin.ModelAdmin):
 
 
 class DomainAdmin(admin.ModelAdmin):
-    list_display = ('url', 'project', 'count')
-    search_fields = ('url', 'project')
+    list_display = ('domain', 'project', 'count')
+    search_fields = ('domain', 'project')
     raw_id_fields = ('project',)
     model = Domain
 
