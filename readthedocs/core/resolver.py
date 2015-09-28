@@ -126,6 +126,7 @@ def resolve_domain(project):
         canonical_project = project
 
     domain = canonical_project.domains.filter(canonical=True).first()
+    # Force domain even if USE_SUBDOMAIN is on
     if domain:
         return domain.domain
     elif subdomain:
