@@ -3,6 +3,7 @@
 import fnmatch
 import logging
 import os
+from urlparse import urlparse
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -890,3 +891,11 @@ class Domain(models.Model):
 
     def __unicode__(self):
         return "{domain} pointed at {project}".format(domain=self.domain, project=self.project.name)
+
+    def save(self, *args, **kwargs):
+        parsed = urlparse(self.domain)
+        if parsed.scheme or parsed.netloc:
+            self.domain = parsed.netloc
+        else:
+            self.domain = parsed.path
+        super(Domain, self).save(*args, **kwargs)

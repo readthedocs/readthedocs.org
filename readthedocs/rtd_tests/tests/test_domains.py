@@ -58,6 +58,27 @@ class MiddlewareTests(TestCase):
         self.assertEqual(Domain.objects.first().count, 2)
 
 
+class ModelTests(TestCase):
+
+    def setUp(self):
+        self.project = get(Project, slug='kong')
+
+    def test_save_parsing(self):
+        domain = get(Domain, domain='google.com')
+        self.assertEqual(domain.domain, 'google.com')
+
+        domain.domain = 'google.com'
+        self.assertEqual(domain.domain, 'google.com')
+
+        domain.domain = 'https://google.com'
+        domain.save()
+        self.assertEqual(domain.domain, 'google.com')
+
+        domain.domain = 'www.google.com'
+        domain.save()
+        self.assertEqual(domain.domain, 'www.google.com')
+
+
 class TestAPI(TestCase):
 
     def setUp(self):
