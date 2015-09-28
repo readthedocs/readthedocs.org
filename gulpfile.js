@@ -132,7 +132,9 @@ function build_app_sources (application, minify) {
 function browserify_stream (file, config, cb_output) {
     bower_resolve.offline = true;
     bower_resolve.init(function () {
-        var bundle_stream = browserify();
+        var bundle_stream = browserify({
+            paths: ['./']
+        });
 
         Object.keys(standalone).map(function (module) {
             bundle_stream = bundle_stream.external(module);
