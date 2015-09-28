@@ -41,7 +41,7 @@ class SubdomainMiddleware(object):
            'localhost' not in host and \
            'testserver' not in host:
             request.cname = True
-            domains = Domain.objects.filter(url=host)
+            domains = Domain.objects.filter(domain=host)
             if domains.count():
                 for domain in domains:
                     if domain.domain == host:
@@ -82,7 +82,7 @@ class SubdomainMiddleware(object):
                         proj = Project.objects.get(slug=slug)
                         domain, created = Domain.objects.get_or_create(
                             project=proj,
-                            url=host,
+                            domain=host,
                         )
                         if created:
                             domain.machine = True
