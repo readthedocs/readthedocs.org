@@ -55,6 +55,11 @@ class ProjectRelationship(models.Model):
     def __unicode__(self):
         return "%s -> %s" % (self.parent, self.child)
 
+    def save(self, *args, **kwargs):
+        if not self.alias:
+            self.alias = self.child.slug
+        super(ProjectRelationship, self).save(*args, **kwargs)
+
     # HACK
     def get_absolute_url(self):
         return resolve(self.child)
