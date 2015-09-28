@@ -165,7 +165,6 @@ function ProjectImportView (instance, urls) {
                 self.page_previous(projects_list.previous);
 
                 for (n in projects_list.results) {
-                    // TODO replace org id here
                     var project = new Project(projects_list.results[n], self);
                     projects.push(project);
                 }
