@@ -1,5 +1,4 @@
 import logging
-import os
 
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
@@ -8,8 +7,6 @@ from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.http import Http404
 
 from readthedocs.projects.models import Project, Domain
-
-import redis
 
 log = logging.getLogger(__name__)
 
@@ -44,25 +41,35 @@ class SubdomainMiddleware(object):
            'localhost' not in host and \
            'testserver' not in host:
             request.cname = True
-            try:
+            domains = Domain.objects.filter(domain=host)
+            if domains.count():
+                for domain in domains:
+                    if domain.domain == host:
+                        request.slug = domain.project.slug
+                        request.urlconf = 'core.subdomain_urls'
+                        request.domain_object = True
+                        domain.count = domain.count + 1
+                        domain.save()
+                        log.debug(LOG_TEMPLATE.format(
+                            msg='Domain Object Detected: %s' % domain.domain, **log_kwargs))
+                        break
+            if not hasattr(request, 'domain_object') and 'HTTP_X_RTD_SLUG' in request.META:
                 request.slug = request.META['HTTP_X_RTD_SLUG'].lower()
                 request.urlconf = 'readthedocs.core.subdomain_urls'
                 request.rtdheader = True
                 log.debug(LOG_TEMPLATE.format(
                     msg='X-RTD-Slug header detetected: %s' % request.slug, **log_kwargs))
-            except KeyError:
-                # Try header first, then DNS
+            # Try header first, then DNS
+            elif not hasattr(request, 'domain_object'):
                 try:
                     slug = cache.get(host)
                     if not slug:
-                        redis_conn = redis.Redis(**settings.REDIS)
                         from dns import resolver
                         answer = [ans for ans in resolver.query(host, 'CNAME')][0]
                         domain = answer.target.to_unicode().lower()
                         slug = domain.split('.')[0]
                         cache.set(host, slug, 60 * 60)
                         # Cache the slug -> host mapping permanently.
-                        redis_conn.sadd("rtd_slug:v1:%s" % slug, host)
                         log.debug(LOG_TEMPLATE.format(
                             msg='CNAME cached: %s->%s' % (slug, host),
                             **log_kwargs))
@@ -75,12 +82,11 @@ class SubdomainMiddleware(object):
                         proj = Project.objects.get(slug=slug)
                         domain, created = Domain.objects.get_or_create(
                             project=proj,
-                            url=host,
+                            domain=host,
                         )
                         if created:
                             domain.machine = True
-                        domain.cname = True
-                        # Track basic domain counts so we know which are heavily used
+                            domain.cname = True
                         domain.count = domain.count + 1
                         domain.save()
                     except (ObjectDoesNotExist, MultipleObjectsReturned):

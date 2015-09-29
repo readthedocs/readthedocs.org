@@ -29,13 +29,13 @@ def symlink_cnames(project):
         log.debug(LOG_TEMPLATE.format(
             project=project.slug,
             version=project.get_default_version(),
-            msg="Symlinking CNAME: %s" % domain.clean_host)
+            msg="Symlinking CNAME: %s" % domain.domain)
         )
         docs_dir = project.rtd_build_path()
         # Chop off the version from the end.
         docs_dir = '/'.join(docs_dir.split('/')[:-1])
         # Old symlink location -- Keep this here til we change nginx over
-        symlink = project.cnames_symlink_path(domain.clean_host)
+        symlink = project.cnames_symlink_path(domain.domain)
         run_on_app_servers('mkdir -p %s' % '/'.join(symlink.split('/')[:-1]))
         run_on_app_servers('ln -nsf %s %s' % (docs_dir, symlink))
         # New symlink location
@@ -43,7 +43,7 @@ def symlink_cnames(project):
         new_cname_symlink = os.path.join(
             getattr(settings, 'SITE_ROOT'),
             'cnametoproject',
-            domain.clean_host,
+            domain.domain,
         )
         run_on_app_servers('mkdir -p %s' % '/'.join(new_cname_symlink.split('/')[:-1]))
         run_on_app_servers('ln -nsf %s %s' % (new_docs_dir, new_cname_symlink))

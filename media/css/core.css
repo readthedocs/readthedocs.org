@@ -913,3 +913,9 @@ select.dropdown { display: none; }
     .chartlist li:hover { 
       background: #EFEFEF; 
     }
+
+
+/* Domain Pages */
+
+.domain-machine { color: #999; }
+.domain-canonical { font-weight: bold; }
