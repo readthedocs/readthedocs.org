@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.db import models, migrations
 from django.db import transaction
-import django.contrib.sites.models
+import readthedocs.core.validators
 
 from urlparse import urlparse
 
@@ -42,6 +42,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='domain',
             name='domain',
-            field=models.CharField(unique=True, max_length=255, verbose_name='Domain', validators=[django.contrib.sites.models._simple_domain_name_validator]),
+            field=models.CharField(unique=True, max_length=255, verbose_name='Domain', validators=[readthedocs.core.validators.DomainNameValidator()]),
+
         ),
     ]
