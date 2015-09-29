@@ -29,7 +29,8 @@ from .exceptions import (BuildEnvironmentException, BuildEnvironmentError,
                          BuildEnvironmentWarning)
 from .constants import (DOCKER_SOCKET, DOCKER_VERSION, DOCKER_IMAGE,
                         DOCKER_LIMITS, DOCKER_TIMEOUT_EXIT_CODE,
-                        DOCKER_OOM_EXIT_CODE, SPHINX_TEMPLATE_DIR)
+                        DOCKER_OOM_EXIT_CODE, SPHINX_TEMPLATE_DIR,
+                        MKDOCS_TEMPLATE_DIR)
 
 log = logging.getLogger(__name__)
 
@@ -579,6 +580,10 @@ class DockerEnvironment(BuildEnvironment):
                 host_config=create_host_config(binds={
                     SPHINX_TEMPLATE_DIR: {
                         'bind': SPHINX_TEMPLATE_DIR,
+                        'mode': 'r'
+                    },
+                    MKDOCS_TEMPLATE_DIR: {
+                        'bind': MKDOCS_TEMPLATE_DIR,
                         'mode': 'r'
                     },
                     self.project.doc_path: {
