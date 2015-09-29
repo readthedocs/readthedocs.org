@@ -39,12 +39,3 @@ class VersionForm(forms.ModelForm):
         obj = super(VersionForm, self).save(*args, **kwargs)
         if obj.active and not obj.built and not obj.uploaded:
             trigger_build(project=obj.project, version=obj)
-
-    def clean(self):
-        cleaned_data = super(VersionForm, self).clean()
-        if self.instance.pk is not None:  # new instance only
-            if self.instance.active is True and cleaned_data['active'] is False:
-                log.info('Removing files for version %s' % self.instance.slug)
-                clear_artifacts.delay(version_pk=self.instance.pk)
-                self.instance.built = False
-        return cleaned_data

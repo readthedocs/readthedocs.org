@@ -36,7 +36,7 @@ from readthedocs.projects.forms import (
 from readthedocs.projects.models import Project, EmailHook, WebHook, Domain
 from readthedocs.projects.views.base import ProjectAdminMixin
 from readthedocs.projects import constants, tasks
-from readthedocs.projects.tasks import remove_dir
+from readthedocs.projects.tasks import remove_dir, clear_artifacts
 
 
 from readthedocs.projects.signals import project_import
@@ -199,7 +199,13 @@ def project_version_detail(request, project_slug, version_slug):
     form = VersionForm(request.POST or None, instance=version)
 
     if request.method == 'POST' and form.is_valid():
-        form.save()
+        version = form.save()
+        if form.has_changed():
+            if 'active' in form.changed_data and version.active is False:
+                log.info('Removing files for version %s' % version.slug)
+                clear_artifacts.delay(version_pk=version.pk)
+                version.built = False
+                version.save()
         url = reverse('project_version_list', args=[project.slug])
         return HttpResponseRedirect(url)
 
