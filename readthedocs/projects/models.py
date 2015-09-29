@@ -17,6 +17,7 @@ from guardian.shortcuts import assign
 from taggit.managers import TaggableManager
 
 from readthedocs.api.client import api
+from readthedocs.restapi.client import api as apiv2
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.constants import LATEST_VERBOSE_NAME
 from readthedocs.builds.constants import STABLE
@@ -339,6 +340,12 @@ class Project(models.Model):
         return reverse('builds_project_list', kwargs={
             'project_slug': self.slug,
         })
+
+    def get_canonical_url(self):
+        if getattr(settings, 'DONT_HIT_DB', True):
+            return apiv2.project(self.pk).canonical_url().get()['url']
+        else:
+            return self.get_docs_url()
 
     def get_production_media_path(self, type_, version_slug, include_file=True):
         """

@@ -85,6 +85,14 @@ class ProjectViewSet(viewsets.ModelViewSet):
             'token': token
         })
 
+    @decorators.detail_route()
+    def canonical_url(self, request, **kwargs):
+        project = get_object_or_404(
+            Project.objects.api(self.request.user), pk=kwargs['pk'])
+        return Response({
+            'url': project.get_docs_url()
+        })
+
     @decorators.detail_route(permission_classes=[permissions.IsAdminUser], methods=['post'])
     def sync_versions(self, request, **kwargs):
         """
