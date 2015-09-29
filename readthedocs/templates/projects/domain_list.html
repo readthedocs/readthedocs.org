@@ -21,10 +21,8 @@
   <p>
     <ul>
     {% for domain in object_list %}
-        <li {% if domain.machine %}class="help_text"{% endif %}>
-        {% if domain.canonical %}<strong>{% endif %}
+        <li class="{% if domain.machine %}domain-machine{% endif %} {% if domain.canonical %}domain-canonical{% endif %}" >
         {{ domain.domain }}
-        {% if domain.canonical %}</strong>{% endif %}
         (<a href="{% url 'projects_domains_edit' project.slug domain.pk %}">{% trans "Edit" %}</a>)
         (<a href="{% url 'projects_domains_delete' project.slug domain.pk %}">{% trans "Remove" %}</a>)
         </li>
