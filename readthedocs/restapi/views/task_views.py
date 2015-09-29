@@ -4,6 +4,7 @@ from django.core.urlresolvers import reverse
 from rest_framework import decorators, permissions
 from rest_framework.renderers import JSONPRenderer, JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
+from redis import ConnectionError
 
 from readthedocs.core.utils.tasks import TaskNoPermission
 from readthedocs.core.utils.tasks import get_public_task_data
@@ -36,7 +37,7 @@ def get_status_data(task_name, state, data):
 def job_status(request, task_id):
     try:
         task_name, state, public_data = get_public_task_data(request, task_id)
-    except TaskNoPermission:
+    except (TaskNoPermission, ConnectionError):
         return Response(
             get_status_data('unknown', 'PENDING', {}))
     return Response(

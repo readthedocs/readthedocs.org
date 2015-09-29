@@ -60,7 +60,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
         })
 
     @detail_route()
-    def translations(self, request, pk):
+    def translations(self, request, pk, **kwargs):
         translations = self.get_object().translations.all()
         return Response({
             'translations': ProjectSerializer(translations, many=True).data
@@ -158,15 +158,6 @@ class VersionViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         return self.model.objects.api(self.request.user)
 
-    @decorators.list_route()
-    def downloads(self, request, **kwargs):
-        version = get_object_or_404(
-            Version.objects.api(self.request.user), pk=kwargs['pk'])
-        downloads = version.get_downloads(pretty=True)
-        return Response({
-            'downloads': downloads
-        })
-
 
 class BuildViewSet(viewsets.ModelViewSet):
     permission_classes = [APIRestrictedPermission]
@@ -206,8 +197,8 @@ class NotificationViewSet(viewsets.ReadOnlyModelViewSet):
         return self.model.objects.api(self.request.user)
 
 
-class DomainViewSet(viewsets.ReadOnlyModelViewSet):
-    permission_classes = (RelatedProjectIsOwner,)
+class DomainViewSet(viewsets.ModelViewSet):
+    permission_classes = [APIRestrictedPermission]
     renderer_classes = (JSONRenderer, BrowsableAPIRenderer)
     serializer_class = DomainSerializer
     filter_class = DomainFilter

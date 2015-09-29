@@ -14,7 +14,9 @@ from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext_lazy as _
 
 from guardian.shortcuts import assign
+from taggit.managers import TaggableManager
 
+from readthedocs.api.client import api
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.constants import LATEST_VERBOSE_NAME
 from readthedocs.builds.constants import STABLE
@@ -26,9 +28,8 @@ from readthedocs.projects.utils import (make_api_version, symlink,
                                         update_static_metadata)
 from readthedocs.projects.version_handling import determine_stable_version
 from readthedocs.projects.version_handling import version_windows
-from taggit.managers import TaggableManager
-from readthedocs.api.client import api
 from readthedocs.restapi.client import api as apiv2
+from readthedocs.core.resolver import resolve
 
 from readthedocs.vcs_support.base import VCSProject
 from readthedocs.vcs_support.backends import backend_cls
@@ -49,14 +50,19 @@ class ProjectRelationship(models.Model):
                                related_name='subprojects')
     child = models.ForeignKey('Project', verbose_name=_('Child'),
                               related_name='superprojects')
+    alias = models.CharField(_('Alias'), max_length=255, null=True, blank=True)
 
     def __unicode__(self):
         return "%s -> %s" % (self.parent, self.child)
 
+    def save(self, *args, **kwargs):
+        if not self.alias:
+            self.alias = self.child.slug
+        super(ProjectRelationship, self).save(*args, **kwargs)
+
     # HACK
     def get_absolute_url(self):
-        return ("http://%s.readthedocs.org/projects/%s/%s/latest/"
-                % (self.parent.slug, self.child.slug, self.child.language))
+        return resolve(self.child)
 
 
 class Project(models.Model):
@@ -260,12 +266,13 @@ class Project(models.Model):
 
     @property
     def subdomain(self):
-        prod_domain = getattr(settings, 'PRODUCTION_DOMAIN')
-        # if self.canonical_domain:
-        #     return self.canonical_domain
-        # else:
-        subdomain_slug = self.slug.replace('_', '-')
-        return "%s.%s" % (subdomain_slug, prod_domain)
+        try:
+            domain = self.domains.get(canonical=True)
+            return domain.clean_host
+        except (Domain.DoesNotExist, MultipleObjectsReturned):
+            subdomain_slug = self.slug.replace('_', '-')
+            prod_domain = getattr(settings, 'PRODUCTION_DOMAIN')
+            return "%s.%s" % (subdomain_slug, prod_domain)
 
     def sync_supported_versions(self):
         supported = self.supported_versions()
@@ -302,7 +309,7 @@ class Project(models.Model):
             log.error('failed to sync supported versions', exc_info=True)
         try:
             if not first_save:
-                symlink(project=self.slug)
+                symlink(project=self)
         except Exception:
             log.error('failed to symlink project', exc_info=True)
         try:
@@ -326,62 +333,7 @@ class Project(models.Model):
 
         Always use http for now, to avoid content warnings.
         """
-        protocol = "http"
-        version = version_slug or self.get_default_version()
-        lang = lang_slug or self.language
-        use_subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
-        if use_subdomain:
-            if self.single_version:
-                return "%s://%s/" % (
-                    protocol,
-                    self.subdomain,
-                )
-            else:
-                return "%s://%s/%s/%s/" % (
-                    protocol,
-                    self.subdomain,
-                    lang,
-                    version,
-                )
-        else:
-            if self.single_version:
-                return reverse('docs_detail', kwargs={
-                    'project_slug': self.slug,
-                    'filename': ''
-                })
-            else:
-                return reverse('docs_detail', kwargs={
-                    'project_slug': self.slug,
-                    'lang_slug': lang,
-                    'version_slug': version,
-                    'filename': ''
-                })
-
-    def get_translation_url(self, version_slug=None, full=False):
-        parent = self.main_language_project
-        lang_slug = self.language
-        protocol = "http"
-        version = version_slug or parent.get_default_version()
-        use_subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
-        if use_subdomain and full:
-            return "%s://%s/%s/%s/" % (
-                protocol,
-                parent.subdomain,
-                lang_slug,
-                version,
-            )
-        elif use_subdomain and not full:
-            return "/%s/%s/" % (
-                lang_slug,
-                version,
-            )
-        else:
-            return reverse('docs_detail', kwargs={
-                'project_slug': parent.slug,
-                'lang_slug': lang_slug,
-                'version_slug': version,
-                'filename': ''
-            })
+        return resolve(project=self, version_slug=version_slug, language=lang_slug)
 
     def get_builds_url(self):
         return reverse('builds_project_list', kwargs={
@@ -441,7 +393,7 @@ class Project(models.Model):
         if getattr(settings, 'DONT_HIT_DB', True):
             resp = apiv2.domain.get(project=self.slug, canonical=True)
             if resp['count']:
-                url = resp['results']['url']
+                url = resp['results'][0]['url']
             else:
                 return ''
         else:
@@ -834,9 +786,9 @@ class Project(models.Model):
         else:
             return self.vcs_repo().fallback_branch
 
-    def add_subproject(self, child):
+    def add_subproject(self, child, alias=None):
         subproject, __ = ProjectRelationship.objects.get_or_create(
-            parent=self, child=child,
+            parent=self, child=child, alias=alias,
         )
         return subproject
 

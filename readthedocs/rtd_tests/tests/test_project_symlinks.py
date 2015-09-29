@@ -1,5 +1,6 @@
 import os
 from functools import wraps
+import unittest
 
 from mock import patch
 from django.conf import settings
@@ -8,7 +9,7 @@ from django_dynamic_fixture import get
 
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project, Domain
-from readthedocs.projects.symlinks import symlink_translations, symlink_cnames
+from readthedocs.projects.symlinks import symlink_translations, symlink_cnames, symlink_subprojects
 
 
 def patched(fn):
@@ -24,6 +25,47 @@ def patched(fn):
             with patch('readthedocs.projects.symlinks.run_on_app_servers', _collect_commands):
                 return fn(self)
     return wrapper
+
+
+class TestSubprojects(TestCase):
+
+    def setUp(self):
+        self.project = get(Project, slug='kong')
+        self.subproject = get(Project, slug='sub')
+        self.args = {
+            'subproject_root': self.project.subprojects_symlink_path('')[:-1],
+            'build_path': self.subproject.doc_path,
+        }
+        self.commands = []
+
+    @patched
+    def test_subproject_normal(self):
+        self.project.add_subproject(self.subproject)
+        symlink_subprojects(self.project)
+        self.args['subproject'] = self.subproject.slug
+        commands = [
+            'mkdir -p {subproject_root}',
+            'ln -nsf {build_path}/rtd-builds {subproject_root}/{subproject}',
+        ]
+
+        for index, command in enumerate(commands):
+            self.assertEqual(self.commands[index], command.format(**self.args))
+
+    @patched
+    def test_subproject_alias(self):
+        self.project.add_subproject(self.subproject, alias='sweet-alias')
+        symlink_subprojects(self.project)
+        self.args['subproject'] = self.subproject.slug
+        self.args['alias'] = 'sweet-alias'
+        commands = [
+            'mkdir -p {subproject_root}',
+            'ln -nsf {build_path}/rtd-builds {subproject_root}/{subproject}',
+            'mkdir -p {subproject_root}',
+            'ln -nsf {build_path}/rtd-builds {subproject_root}/{alias}',
+        ]
+
+        for index, command in enumerate(commands):
+            self.assertEqual(self.commands[index], command.format(**self.args))
 
 
 class TestSymlinkCnames(TestCase):
@@ -42,7 +84,7 @@ class TestSymlinkCnames(TestCase):
     @patched
     def test_symlink_cname(self):
         self.cname = get(Domain, project=self.project, url='http://woot.com', cname=True)
-        symlink_cnames(self.project.versions.first())
+        symlink_cnames(self.project)
         self.args['cname'] = self.cname.clean_host
         commands = [
             'mkdir -p {cnames_root}',
@@ -80,7 +122,7 @@ class TestSymlinkTranslations(TestCase):
     @patched
     def test_symlink_basic(self):
         '''Test basic scenario, language english, translation german'''
-        symlink_translations(self.project.versions.first())
+        symlink_translations(self.project)
         commands = [
             'mkdir -p {project}/translations',
             'ln -nsf {translation}/rtd-builds {project}/translations/de',
@@ -104,7 +146,7 @@ class TestSymlinkTranslations(TestCase):
         self.translation.save()
         self.commands = []
 
-        symlink_translations(self.project.versions.first())
+        symlink_translations(self.project)
         commands = [
             'mkdir -p {project}/translations',
             'ln -nsf {project}/rtd-builds {project}/translations/de',
@@ -133,7 +175,7 @@ class TestSymlinkTranslations(TestCase):
         self.assertNotIn(version, self.project.translations.all())
         self.commands = []
 
-        symlink_translations(self.project.versions.first())
+        symlink_translations(self.project)
         commands = [
             'mkdir -p {project}/translations',
             'ln -nsf {project}/rtd-builds {project}/translations/de',

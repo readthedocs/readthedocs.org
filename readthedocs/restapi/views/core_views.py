@@ -57,6 +57,8 @@ def docurl(request):
     project = request.GET.get('project')
     version = request.GET.get('version', LATEST)
     doc = request.GET.get('doc', 'index')
+    if project is None:
+        return Response({'error': 'Need project and doc'}, status=status.HTTP_400_BAD_REQUEST)
 
     project = get_object_or_404(Project, slug=project)
     version = get_object_or_404(
@@ -93,6 +95,9 @@ def embed(request):
     version = request.GET.get('version', LATEST)
     doc = request.GET.get('doc')
     section = request.GET.get('section')
+
+    if project is None or doc is None:
+        return Response({'error': 'Need project and doc'}, status=status.HTTP_400_BAD_REQUEST)
 
     embed_cache = cache.get('embed:%s' % project)
     if embed_cache:

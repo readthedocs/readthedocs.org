@@ -1,7 +1,6 @@
 import json
 import base64
 import datetime
-import unittest
 
 from django.test import TestCase
 from django.contrib.auth.models import User
@@ -38,10 +37,9 @@ class APIBuildTests(TestCase):
             format='json')
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         build = resp.data
-        self.assertEqual(build['id'], 1)
         self.assertEqual(build['state_display'], 'Cloning')
 
-        resp = client.get('/api/v2/build/1/')
+        resp = client.get('/api/v2/build/%s/' % build['id'])
         self.assertEqual(resp.status_code, 200)
         build = resp.data
         self.assertEqual(build['output'], 'Test Output')
@@ -99,7 +97,7 @@ class APIBuildTests(TestCase):
         api_user = get(User, staff=False, password='test')
         client.force_authenticate(user=api_user)
         resp = client.get('/api/v2/build/{0}/'.format(build.pk), format='json')
-        self.assertEqual(resp.status_code, 403)
+        self.assertEqual(resp.status_code, 200)
 
         client.force_authenticate(user=User.objects.get(username='super'))
         resp = client.get('/api/v2/build/{0}/'.format(build.pk), format='json')
@@ -133,7 +131,7 @@ class APIBuildTests(TestCase):
             },
             format='json')
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
-        resp = client.get('/api/v2/build/1/')
+        resp = client.get('/api/v2/build/%s/' % build['id'])
         self.assertEqual(resp.status_code, 200)
         build = resp.data
         self.assertEqual(len(build['commands']), 1)

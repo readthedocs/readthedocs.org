@@ -1,12 +1,14 @@
-from django.contrib.auth.models import User
 from django.test import TestCase
-from django_dynamic_fixture import get
+from django.contrib.auth.models import User
 
 from readthedocs.projects.forms import SubprojectForm
 from readthedocs.projects.models import Project
 
+from django_dynamic_fixture import get
+
 
 class SubprojectFormTests(TestCase):
+
     def test_name_validation(self):
         user = get(User)
         project = get(Project, slug='mainproject')

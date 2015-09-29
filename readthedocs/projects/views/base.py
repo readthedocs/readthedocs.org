@@ -43,7 +43,7 @@ class ProjectAdminMixin(object):
 
     """
 
-    project_url_field = 'project'
+    project_url_field = 'project_slug'
 
     def get_queryset(self):
         self.project = self.get_project()

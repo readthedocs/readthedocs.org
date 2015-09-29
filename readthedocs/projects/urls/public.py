@@ -49,7 +49,7 @@ urlpatterns = patterns(
         'readthedocs.projects.views.public.elastic_project_search',
         name='elastic_project_search'),
 
-    url((r'^(?P<project_slug>{project_slug})/builds/(?P<pk>\d+)/$'
+    url((r'^(?P<project_slug>{project_slug})/builds/(?P<build_pk>\d+)/$'
          .format(**pattern_opts)),
         build_views.BuildDetail.as_view(),
         name='builds_detail'),

@@ -3,7 +3,8 @@ import logging
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
-from readthedocs.projects import tasks, utils
+from readthedocs.projects import utils
+from readthedocs.projects.models import Project
 
 import redis
 
@@ -21,9 +22,9 @@ class Command(BaseCommand):
                 for slug in slugs:
                     try:
                         log.info("Got slug from redis: %s" % slug)
-                        utils.symlink(project=slug)
+                        utils.symlink(project=Project.objects.get(slug=slug))
                     except Exception, e:
                         print e
             else:
                 for slug in args:
-                    utils.symlink(project=slug)
+                    utils.symlink(project=Project.objects.get(slug=slug))
