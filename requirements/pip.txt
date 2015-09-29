@@ -30,7 +30,6 @@ django-allauth==0.21.0
 dnspython==1.11.0
 
 # VCS
-bzr==2.6
 launchpadlib==1.10.2
 mercurial==2.6.3
 httplib2==0.7.7

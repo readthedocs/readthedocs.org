@@ -18,6 +18,7 @@ from readthedocs.projects.constants import (PRIVACY_CHOICES, REPO_TYPE_GIT,
                                             REPO_TYPE_HG, GITHUB_URL,
                                             GITHUB_REGEXS, BITBUCKET_URL,
                                             BITBUCKET_REGEXS)
+from readthedocs.core.resolver import resolve
 
 from .constants import (BUILD_STATE, BUILD_TYPES, VERSION_TYPES,
                         LATEST, NON_REPOSITORY_VERSIONS, STABLE,
@@ -174,26 +175,7 @@ class Version(models.Model):
         return self.identifier
 
     def get_subdomain_url(self):
-        use_subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
-        if use_subdomain:
-            return "/%s/%s/" % (
-                self.project.language,
-                self.slug,
-            )
-        else:
-            return reverse('docs_detail', kwargs={
-                'project_slug': self.project.slug,
-                'lang_slug': self.project.language,
-                'version_slug': self.slug,
-                'filename': ''
-            })
-
-    def get_subproject_url(self):
-        return "/projects/%s/%s/%s/" % (
-            self.project.slug,
-            self.project.language,
-            self.slug,
-        )
+        return resolve(project=self.project, version_slug=self.slug)
 
     def get_downloads(self, pretty=False):
         project = self.project

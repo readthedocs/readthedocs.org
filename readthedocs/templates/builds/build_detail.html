@@ -11,7 +11,7 @@
   <script type="text/javascript">
 var detail_views = require('builds/detail');
 $(document).ready(function () {
-    var view = detail_views.BuildDetailView.init({{ build_json|safe }});
+    var view = detail_views.BuildDetailView.init({id: '{{ build.pk }}'});
 });
   </script>
 {% endblock %}
