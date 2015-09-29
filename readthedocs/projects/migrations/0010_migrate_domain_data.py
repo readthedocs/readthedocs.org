@@ -12,8 +12,9 @@ def migrate_url(apps, schema_editor):
     Domain = apps.get_model("projects", "Domain")
     for domain in Domain.objects.all():
         if domain.project.subprojects.fist() or domain.project.main_language_project:
-            print "{project} is a subproject or translation. Not setting domain".format(
+            print "{project} is a subproject or translation. Deleting domain.".format(
                 project=domain.project)
+            domain.delete()
             continue
         parsed = urlparse(domain.url)
         if parsed.scheme or parsed.netloc:
