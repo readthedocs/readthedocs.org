@@ -1,3 +1,7 @@
+"""
+A flask app for redirecting documentation from the root / URL.
+"""
+
 import json
 
 from flask import Flask, make_response, redirect, request
