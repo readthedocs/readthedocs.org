@@ -393,7 +393,7 @@ class Project(models.Model):
         if getattr(settings, 'DONT_HIT_DB', True):
             resp = apiv2.domain.get(project=self.slug, canonical=True)
             if resp['count']:
-                url = resp['results']['url']
+                url = resp['results'][0]['url']
             else:
                 return ''
         else:
