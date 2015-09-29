@@ -165,7 +165,6 @@ class Version(models.Model):
         clear_artifacts.delay(version_pk=self.pk)
         super(Version, self).delete(*args, **kwargs)
 
-
     @property
     def identifier_friendly(self):
         '''Return display friendly identifier'''

@@ -212,12 +212,11 @@ class TestPrivateViews(MockBuildTestCase):
         response = self.client.get('/dashboard/pip/delete/')
         self.assertEqual(response.status_code, 200)
 
-        patcher = patch(
-            'readthedocs.projects.views.private.remove_path_from_web')
-        with patcher as remove_path_from_web:
+        patcher = patch('readthedocs.projects.views.private.remove_dir')
+        with patcher as remove_dir:
             response = self.client.post('/dashboard/pip/delete/')
             self.assertEqual(response.status_code, 302)
-
             self.assertFalse(Project.objects.filter(slug='pip').exists())
-            remove_path_from_web.delay.assert_called_with(
-                path=project.doc_path)
+            remove_dir.apply_async.assert_called_with(
+                queue='celery',
+                args=[project.doc_path])
