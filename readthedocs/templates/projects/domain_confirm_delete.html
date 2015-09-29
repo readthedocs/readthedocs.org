@@ -14,7 +14,7 @@
 
 {% block project_edit_content %}
 <form action="" method="post">{% csrf_token %}
-    <p>Are you sure you want to delete <b>{{ object.url }}</b>?</p>
+    <p>Are you sure you want to delete <b>{{ object.domain }}</b>?</p>
     <input type="submit" value="{% trans "Confirm" %}" />
 </form>
 

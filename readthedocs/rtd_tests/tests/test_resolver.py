@@ -71,7 +71,7 @@ class SmartResolverPathTests(ResolverBase):
             self.assertEqual(url, '/en/latest/')
 
     def test_resolver_domain_object(self):
-        self.domain = get(Domain, url='http://docs.foobar.com', project=self.pip, canonical=True)
+        self.domain = get(Domain, domain='http://docs.foobar.com', project=self.pip, canonical=True)
         with override_settings(USE_SUBDOMAIN=False):
             url = resolve_path(project=self.pip, filename='index.html')
             self.assertEqual(url, '/en/latest/')
@@ -80,7 +80,7 @@ class SmartResolverPathTests(ResolverBase):
             self.assertEqual(url, '/en/latest/')
 
     def test_resolver_domain_object_not_canonical(self):
-        self.domain = get(Domain, url='http://docs.foobar.com', project=self.pip, canonical=False)
+        self.domain = get(Domain, domain='http://docs.foobar.com', project=self.pip, canonical=False)
         with override_settings(USE_SUBDOMAIN=False):
             url = resolve_path(project=self.pip, filename='')
             self.assertEqual(url, '/docs/pip/en/latest/')
@@ -207,7 +207,7 @@ class ResolverDomainTests(ResolverBase):
 
     @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
     def test_domain_resolver_with_domain_object(self):
-        self.domain = get(Domain, url='http://docs.foobar.com', project=self.pip, canonical=True)
+        self.domain = get(Domain, domain='docs.foobar.com', project=self.pip, canonical=True)
         with override_settings(USE_SUBDOMAIN=False):
             url = resolve_domain(project=self.pip)
             self.assertEqual(url, 'docs.foobar.com')
@@ -247,7 +247,7 @@ class ResolverTests(ResolverBase):
 
     @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
     def test_resolver_domain(self):
-        self.domain = get(Domain, url='http://docs.foobar.com', project=self.pip, canonical=True)
+        self.domain = get(Domain, domain='docs.foobar.com', project=self.pip, canonical=True)
         with override_settings(USE_SUBDOMAIN=False):
             url = resolve(project=self.pip)
             self.assertEqual(url, 'http://docs.foobar.com/en/latest/')

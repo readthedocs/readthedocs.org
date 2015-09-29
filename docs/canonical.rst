@@ -23,7 +23,7 @@ This means that when Google indexes ``http://fabric-docs.readthedocs.org``, it w
 Enabling
 --------
 
-You can set the canonical URL for your project in the Project Admin page. Check your `dashboard`_ for a list of your projects.
+You can set the canonical URL for your project in the Project Admin page. Check your `Domains` tab for the domains that we know about.
 
 Implementation
 --------------

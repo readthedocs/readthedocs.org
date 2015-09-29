@@ -75,7 +75,7 @@ class DomainSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'project',
-            'url',
+            'domain',
             'canonical',
             'machine',
             'cname',

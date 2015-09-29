@@ -28,8 +28,8 @@ from readthedocs.projects.utils import (make_api_version, symlink,
                                         update_static_metadata)
 from readthedocs.projects.version_handling import determine_stable_version
 from readthedocs.projects.version_handling import version_windows
-from readthedocs.restapi.client import api as apiv2
 from readthedocs.core.resolver import resolve
+from readthedocs.core.validators import validate_domain_name
 
 from readthedocs.vcs_support.base import VCSProject
 from readthedocs.vcs_support.backends import backend_cls
@@ -268,7 +268,7 @@ class Project(models.Model):
     def subdomain(self):
         try:
             domain = self.domains.get(canonical=True)
-            return domain.clean_host
+            return domain.domain
         except (Domain.DoesNotExist, MultipleObjectsReturned):
             subdomain_slug = self.slug.replace('_', '-')
             prod_domain = getattr(settings, 'PRODUCTION_DOMAIN')
@@ -381,44 +381,6 @@ class Project(models.Model):
         downloads['pdf'] = self.get_production_media_url(
             'pdf', self.get_default_version())
         return downloads
-
-    @property
-    def canonical_domain(self):
-        if not self.clean_canonical_url:
-            return ""
-        return urlparse(self.clean_canonical_url).netloc
-
-    @property
-    def clean_canonical_url(self):
-        if getattr(settings, 'DONT_HIT_DB', True):
-            resp = apiv2.domain.get(project=self.slug, canonical=True)
-            if resp['count']:
-                url = resp['results'][0]['url']
-            else:
-                return ''
-        else:
-            try:
-                domain = self.domains.get(canonical=True)
-                url = domain.url
-            except (Domain.DoesNotExist, MultipleObjectsReturned):
-                return ''
-
-        parsed = urlparse(url)
-        if parsed.scheme:
-            scheme, netloc = parsed.scheme, parsed.netloc
-        elif parsed.netloc:
-            scheme, netloc = "http", parsed.netloc
-        else:
-            scheme, netloc = "http", parsed.path
-
-        if getattr(settings, 'DONT_HIT_DB', True):
-            if parsed.path:
-                netloc = netloc + parsed.path
-        else:
-            if self.superprojects.count() and parsed.path:
-                netloc = netloc + parsed.path
-
-        return "%s://%s/" % (scheme, netloc)
 
     @property
     def clean_repo(self):
@@ -908,31 +870,32 @@ class WebHook(Notification):
 
 class Domain(models.Model):
     project = models.ForeignKey(Project, related_name='domains')
-    url = models.URLField(_('URL'), unique=True)
+    domain = models.CharField(_('Domain'), unique=True, max_length=255,
+                              validators=[validate_domain_name])
     machine = models.BooleanField(
-        default=False, help_text=_('This URL was auto-created')
+        default=False, help_text=_('This Domain was auto-created')
     )
     cname = models.BooleanField(
-        default=False, help_text=_('This URL is a CNAME for the project')
+        default=False, help_text=_('This Domain is a CNAME for the project')
     )
     canonical = models.BooleanField(
         default=False,
-        help_text=_('This URL is the primary one where the documentation is served from.')
+        help_text=_('This Domain is the primary one where the documentation is served from.')
     )
     count = models.IntegerField(default=0, help_text=_('Number of times this domain has been hit.'))
 
     objects = RelatedProjectManager()
 
     class Meta:
-        ordering = ('-canonical', '-machine', 'url')
+        ordering = ('-canonical', '-machine', 'domain')
 
     def __unicode__(self):
-        return "{url} pointed at {project}".format(url=self.url, project=self.project.name)
+        return "{domain} pointed at {project}".format(domain=self.domain, project=self.project.name)
 
-    @property
-    def clean_host(self):
-        parsed = urlparse(self.url)
+    def save(self, *args, **kwargs):
+        parsed = urlparse(self.domain)
         if parsed.scheme or parsed.netloc:
-            return parsed.netloc
+            self.domain = parsed.netloc
         else:
-            return parsed.path
+            self.domain = parsed.path
+        super(Domain, self).save(*args, **kwargs)
