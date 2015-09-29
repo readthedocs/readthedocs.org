@@ -1,14 +1,8 @@
-import logging
-
 from django import forms
 
 from readthedocs.builds.models import VersionAlias, Version
-from readthedocs.core.utils import trigger_build
 from readthedocs.projects.models import Project
-from readthedocs.projects.tasks import clear_artifacts
-
-
-log = logging.getLogger(__name__)
+from readthedocs.core.utils import trigger_build
 
 
 class AliasForm(forms.ModelForm):
