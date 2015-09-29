@@ -501,6 +501,6 @@ class DomainForm(forms.ModelForm):
         canonical = self.cleaned_data['canonical']
         if canonical and Domain.objects.filter(
             project=self.project, canonical=True
-        ).exclude(url=self.cleaned_data['url']).exists():
+        ).exclude(domain=self.cleaned_data['domain']).exists():
             raise forms.ValidationError(_(u'Only 1 Domain can be canonical at a time.'))
         return canonical
