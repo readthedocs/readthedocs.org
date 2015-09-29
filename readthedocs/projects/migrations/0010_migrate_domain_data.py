@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
-from django.db import transaction
 import readthedocs.core.validators
 
 from urlparse import urlparse
@@ -10,10 +9,11 @@ from urlparse import urlparse
 
 def migrate_url(apps, schema_editor):
     Domain = apps.get_model("projects", "Domain")
+    Domain.objects.filter(count=0).delete()
     for domain in Domain.objects.all():
-        if domain.project.subprojects.fist() or domain.project.main_language_project:
+        if domain.project.superprojects.count() or domain.project.main_language_project:
             print "{project} is a subproject or translation. Deleting domain.".format(
-                project=domain.project)
+                project=domain.project.slug)
             domain.delete()
             continue
         parsed = urlparse(domain.url)
@@ -22,13 +22,17 @@ def migrate_url(apps, schema_editor):
         else:
             domain_string = parsed.path
         try:
-            with transaction.atomic():
-                domain.domain = domain_string
-                domain.save()
-                print u"Added {domain} from {url}".format(url=domain.url, domain=domain_string)
+            domain.domain = domain_string
+            domain.save()
+            print u"Added {domain} from {url}".format(url=domain.url, domain=domain_string)
         except Exception, e:
             print e
             print u"Failed {domain} from {url}".format(url=domain.url, domain=domain_string)
+
+        dms = Domain.objects.filter(domain=domain_string).order_by('-count')
+        if dms.count() > 1:
+            for dm in list(dms)[1:]:
+                dm.delete()
 
 
 class Migration(migrations.Migration):
