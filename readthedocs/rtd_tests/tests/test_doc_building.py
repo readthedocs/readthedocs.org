@@ -169,7 +169,7 @@ class TestDockerEnvironment(TestCase):
 
         self.mocks.docker_client.exec_create.assert_called_with(
             container='version-foobar-of-pip-20',
-            cmd="/bin/sh -c 'cd /tmp && echo\\ test'",
+            cmd="/bin/sh -c 'cd /tmp && READTHEDOCS=True echo\\ test'",
             stderr=True,
             stdout=True
         )
@@ -344,7 +344,7 @@ class TestDockerBuildCommand(TestCase):
             cmd.get_wrapped_command(),
             ("/bin/sh -c "
              "'cd /tmp/foobar && "
-             "pip install requests'"))
+             "READTHEDOCS=True pip install requests'"))
         cmd = DockerBuildCommand(['python', '/tmp/foo/pip', 'install',
                                   'Django>1.7'],
                                  cwd='/tmp/foobar',
