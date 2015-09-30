@@ -567,7 +567,7 @@ class DockerEnvironment(BuildEnvironment):
         '''Create docker container'''
         client = self.get_client()
         image = self.container_image
-        if self.project.container_image is not None:
+        if self.project.container_image:
             image = self.project.container_image
         try:
             self.container = client.create_container(
