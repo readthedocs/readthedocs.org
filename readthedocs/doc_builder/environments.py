@@ -233,7 +233,7 @@ class DockerBuildCommand(BuildCommand):
                                     r"\[\\\]\^\`\{\|\}\~])")
         prefix = 'READTHEDOCS=True '
         if self.bin_path:
-            prefix = 'PATH={0}:$PATH '.format(self.bin_path)
+            prefix += 'PATH={0}:$PATH '.format(self.bin_path)
         return ("/bin/sh -c 'cd {cwd} && {prefix}{cmd}'"
                 .format(
                     cwd=self.cwd,
