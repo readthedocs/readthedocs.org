@@ -352,7 +352,7 @@ class TestDockerBuildCommand(TestCase):
         self.assertEqual(
             cmd.get_wrapped_command(),
             ("/bin/sh -c "
-             "'cd /tmp/foobar && PATH=/tmp/foo:$PATH "
+             "'cd /tmp/foobar && READTHEDOCS=True PATH=/tmp/foo:$PATH "
              "python /tmp/foo/pip install Django\>1.7'"))
 
     def test_unicode_output(self):

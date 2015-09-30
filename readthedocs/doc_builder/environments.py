@@ -528,9 +528,9 @@ class DockerEnvironment(BuildEnvironment):
     @property
     def container_id(self):
         '''Return id of container if it is valid'''
-        if self.container_name is not None:
+        if self.container_name:
             return self.container_name
-        elif self.container is not None:
+        elif self.container:
             return self.container.get('Id')
 
     def container_state(self):
