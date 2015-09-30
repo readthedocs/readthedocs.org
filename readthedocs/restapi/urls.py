@@ -4,7 +4,7 @@ from rest_framework import routers
 
 from .views.model_views import (BuildViewSet, BuildCommandViewSet,
                                 ProjectViewSet, NotificationViewSet,
-                                VersionViewSet)
+                                VersionViewSet, DomainViewSet)
 from readthedocs.comments.views import CommentViewSet
 
 router = routers.DefaultRouter()
@@ -13,6 +13,7 @@ router.register(r'command', BuildCommandViewSet)
 router.register(r'version', VersionViewSet)
 router.register(r'project', ProjectViewSet)
 router.register(r'notification', NotificationViewSet)
+router.register(r'domain', DomainViewSet)
 router.register(r'comments', CommentViewSet, base_name="comments")
 
 urlpatterns = patterns(

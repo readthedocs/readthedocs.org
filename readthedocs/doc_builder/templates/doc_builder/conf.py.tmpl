@@ -1,5 +1,19 @@
 {% load projects_tags %}
 
+
+###########################################################################
+#          auto-created readthedocs.org specific configuration            #
+###########################################################################
+
+
+#
+# The following code was added during an automated build on readthedocs.org
+# It is auto created and injected for every build. The result is based on the
+# conf.py.tmpl file found in the readthedocs.org codebase:
+# https://github.com/rtfd/readthedocs.org/blob/master/readthedocs/doc_builder/templates/doc_builder/conf.py.tmpl
+#
+
+
 import sys
 from six import string_types
 
@@ -35,8 +49,6 @@ if globals().get('source_suffix', False):
 else:
     SUFFIX = '.rst'
 
-
-
 #Add RTD Template Path.
 if 'templates_path' in globals():
     templates_path.insert(0, '{{ template_path }}')
@@ -50,26 +62,31 @@ if 'html_static_path' in globals():
 else:
     html_static_path = ['_static', '{{ static_path }}']
 
-# Add RTD Theme Path. 
-if 'html_theme_path' in globals():
-    html_theme_path.append('{{ template_path }}')
-else:
-    html_theme_path = ['_themes', '{{ template_path }}']
-
 # Add RTD Theme only if they aren't overriding it already
 using_rtd_theme = False
 if 'html_theme' in globals():
     if html_theme in ['default']:
         # Allow people to bail with a hack of having an html_style
         if not 'html_style' in globals():
+            import sphinx_rtd_theme
             html_theme = 'sphinx_rtd_theme'
             html_style = None
             html_theme_options = {}
+            if 'html_theme_path' in globals():
+                html_theme_path.append(sphinx_rtd_theme.get_html_theme_path())
+            else:
+                html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+
             using_rtd_theme = True
 else:
+    import sphinx_rtd_theme
     html_theme = 'sphinx_rtd_theme'
     html_style = None
     html_theme_options = {}
+    if 'html_theme_path' in globals():
+        html_theme_path.append(sphinx_rtd_theme.get_html_theme_path())
+    else:
+        html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
     using_rtd_theme = True
 
 # Force theme on setting
@@ -107,7 +124,7 @@ context = {
     'slug': '{{ project.slug }}',
     'name': u'{{ project.name }}',
     'rtd_language': u'{{ project.language }}',
-    'canonical_url': '{{ project.clean_canonical_url }}',
+    'canonical_url': '{{ project.get_canonical_url }}',
     'analytics_code': '{{ project.analytics_code }}',
     'single_version': {{ project.single_version }},
     'conf_py_path': '{{ conf_py_path }}',
@@ -126,7 +143,11 @@ context = {
     'source_suffix': SUFFIX,
     'user_analytics_code': '{{ project.analytics_code|default_if_none:'' }}',
     'global_analytics_code': '{{ settings.GLOBAL_ANALYTICS_CODE }}',
+    {% if project.repo_type == 'git' %}
+    'commit': '{{ commit|slice:"8" }}',
+    {% else %}
     'commit': '{{ commit }}',
+    {% endif %}
 }
 if 'html_context' in globals():
     html_context.update(context)

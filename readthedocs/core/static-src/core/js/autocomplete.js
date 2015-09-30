@@ -1,4 +1,7 @@
-function attach_project_autocomplete(selector, url) {
+var $ = require('jquery'),
+    jqueryui = require('jquery-ui');
+
+module.exports = function (selector, url) {
   $(selector).autocomplete({
     source: url,
     minLength: 2,
@@ -8,5 +11,3 @@ function attach_project_autocomplete(selector, url) {
     }
   });
 }
-
-window.attach_project_autocomplete = attach_project_autocomplete

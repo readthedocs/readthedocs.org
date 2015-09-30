@@ -32,10 +32,8 @@ from readthedocs.doc_builder.environments import (LocalEnvironment,
 from readthedocs.doc_builder.exceptions import BuildEnvironmentError
 from readthedocs.projects.exceptions import ProjectImportError
 from readthedocs.projects.models import ImportedFile, Project
-from readthedocs.projects.utils import make_api_version, make_api_project
+from readthedocs.projects.utils import make_api_version, make_api_project, symlink
 from readthedocs.projects.constants import LOG_TEMPLATE
-from readthedocs.builds.constants import STABLE
-from readthedocs.projects import symlinks
 from readthedocs.privacy.loader import Syncer
 from readthedocs.search.parse_json import process_all_json_files
 from readthedocs.search.utils import process_mkdocs_json
@@ -44,6 +42,7 @@ from readthedocs.vcs_support import utils as vcs_support_utils
 from readthedocs.api.client import api as api_v1
 from readthedocs.restapi.client import api as api_v2
 from readthedocs.projects.signals import before_vcs, after_vcs, before_build, after_build
+from readthedocs.core.resolver import resolve_path
 
 
 log = logging.getLogger(__name__)
@@ -252,7 +251,7 @@ class UpdateDocsTask(Task):
             'mock==1.0.1',
             'pillow==2.6.1',
             'readthedocs-sphinx-ext==0.5.4',
-            'sphinx-rtd-theme==0.1.8',
+            'sphinx-rtd-theme==0.1.9',
             'alabaster>=0.7,<0.8,!=0.7.5',
             'recommonmark==0.1.1',
         ]
@@ -451,33 +450,36 @@ def update_imported_docs(version_pk):
     with project.repo_nonblockinglock(
             version=version,
             max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
-        before_vcs.send(sender=version)
+
         # Get the actual code on disk
-        if version:
-            log.info(
-                LOG_TEMPLATE.format(
-                    project=project.slug,
-                    version=version.slug,
-                    msg='Checking out version {slug}: {identifier}'.format(
-                        slug=version.slug,
-                        identifier=version.identifier
+        try:
+            before_vcs.send(sender=version)
+            if version:
+                log.info(
+                    LOG_TEMPLATE.format(
+                        project=project.slug,
+                        version=version.slug,
+                        msg='Checking out version {slug}: {identifier}'.format(
+                            slug=version.slug,
+                            identifier=version.identifier
+                        )
                     )
                 )
-            )
-            version_slug = version.slug
-            version_repo = project.vcs_repo(version_slug)
-            ret_dict['checkout'] = version_repo.checkout(
-                version.identifier,
-            )
-        else:
-            # Does this ever get called?
-            log.info(LOG_TEMPLATE.format(
-                project=project.slug, version=version.slug, msg='Updating to latest revision'))
-            version_slug = LATEST
-            version_repo = project.vcs_repo(version_slug)
-            ret_dict['checkout'] = version_repo.update()
+                version_slug = version.slug
+                version_repo = project.vcs_repo(version_slug)
 
-        after_vcs.send(sender=version)
+                ret_dict['checkout'] = version_repo.checkout(version.identifier)
+            else:
+                # Does this ever get called?
+                log.info(LOG_TEMPLATE.format(
+                    project=project.slug, version=version.slug, msg='Updating to latest revision'))
+                version_slug = LATEST
+                version_repo = project.vcs_repo(version_slug)
+                ret_dict['checkout'] = version_repo.update()
+        except Exception:
+            raise
+        finally:
+            after_vcs.send(sender=version)
 
         # Update tags/version
 
@@ -532,13 +534,7 @@ def finish_build(version_pk, build_pk, hostname=None, html=False,
         epub=epub,
     )
 
-    symlinks.symlink_cnames(version)
-    symlinks.symlink_translations(version)
-    symlinks.symlink_subprojects(version)
-    if version.project.single_version:
-        symlinks.symlink_single_version(version)
-    else:
-        symlinks.remove_symlink_single_version(version)
+    symlink(project=version.project)
 
     # Delayed tasks
     update_static_metadata.delay(version.project.pk)
@@ -611,11 +607,12 @@ def move_files(version_pk, hostname, html=False, localmedia=False, search=False,
 
 
 @task(queue='web')
-def update_search(version_pk, commit):
+def update_search(version_pk, commit, delete_non_commit_files=True):
     """Task to update search indexes
 
     :param version_pk: Version id to update
     :param commit: Commit that updated index
+    :param delete_non_commit_files: Delete files not in commit from index
     """
     version = Version.objects.get(pk=version_pk)
 
@@ -640,6 +637,7 @@ def update_search(version_pk, commit):
         # Don't index sections to speed up indexing.
         # They aren't currently exposed anywhere.
         section=False,
+        delete=delete_non_commit_files,
     )
 
 
@@ -710,7 +708,11 @@ def _manage_imported_files(version, path, commit):
                                 version=version
                                 ).exclude(commit=commit).delete()
     # Purge Cache
-    purge(changed_files)
+    changed_files = [resolve_path(version.project, file) for file in changed_files]
+    cdn_ids = getattr(settings, 'CDN_IDS', None)
+    if cdn_ids:
+        if version.project.slug in cdn_ids:
+            purge(cdn_ids[version.project.slug], changed_files)
 
 
 @task(queue='web')

@@ -1,8 +1,11 @@
+from django.core.urlresolvers import reverse
+from django.http import Http404
 from django.test import TestCase
 from django.test.utils import override_settings
 
 from django_dynamic_fixture import get
 from django_dynamic_fixture import fixture
+from mock import patch
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.projects.models import Project
@@ -112,10 +115,6 @@ class RedirectTests(TestCase):
         r = self.client.get('/docs/pip/en/nonexistent_dir/bogus.html')
         self.assertEqual(r.status_code, 404)
 
-    def test_improper_url_dir_subdir_file(self):
-        r = self.client.get('/docs/pip/en/nonexistent_dir/subdir/bogus.html')
-        self.assertEqual(r.status_code, 404)
-
     def test_improper_url_version_dir_file(self):
         r = self.client.get('/docs/pip/latest/nonexistent_dir/bogus.html')
         self.assertEqual(r.status_code, 404)
@@ -217,6 +216,47 @@ class RedirectAppTests(TestCase):
         self.assertEqual(
             r['Location'], 'http://pip.readthedocs.org/en/latest/tutorial/install.html')
 
+    @override_settings(USE_SUBDOMAIN=True)
+    def test_redirect_keeps_version_number(self):
+        Redirect.objects.create(
+            project=self.pip, redirect_type='page',
+            from_url='/how_to_install.html', to_url='/install.html')
+        with patch('readthedocs.core.views._serve_docs') as _serve_docs:
+            _serve_docs.side_effect = Http404()
+            r = self.client.get('/en/0.8.1/how_to_install.html',
+                                HTTP_HOST='pip.readthedocs.org')
+            self.assertEqual(r.status_code, 302)
+            self.assertEqual(
+                r['Location'],
+                'http://pip.readthedocs.org/en/0.8.1/install.html')
+
+    @override_settings(USE_SUBDOMAIN=True)
+    def test_redirect_keeps_language(self):
+        Redirect.objects.create(
+            project=self.pip, redirect_type='page',
+            from_url='/how_to_install.html', to_url='/install.html')
+        with patch('readthedocs.core.views._serve_docs') as _serve_docs:
+            _serve_docs.side_effect = Http404()
+            r = self.client.get('/de/0.8.1/how_to_install.html',
+                                HTTP_HOST='pip.readthedocs.org')
+            self.assertEqual(r.status_code, 302)
+            self.assertEqual(
+                r['Location'],
+                'http://pip.readthedocs.org/de/0.8.1/install.html')
+
+    @override_settings(USE_SUBDOMAIN=True)
+    def test_redirect_recognizes_custom_cname(self):
+        Redirect.objects.create(
+            project=self.pip, redirect_type='page', from_url='/install.html',
+            to_url='/tutorial/install.html')
+        r = self.client.get('/install.html',
+                            HTTP_HOST='pip.pypa.io',
+                            HTTP_X_RTD_SLUG='pip')
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'],
+            'http://pip.pypa.io/en/latest/tutorial/install.html')
+
     @override_settings(USE_SUBDOMAIN=True, PYTHON_MEDIA=True)
     def test_redirect_html(self):
         Redirect.objects.create(
@@ -256,3 +296,54 @@ class RedirectBuildTests(TestCase):
         self.assertEqual(r.status_code, 301)
         self.assertEqual(r['Location'], 'http://testserver/projects/project-1/builds/1337/')
 
+
+class GetFullPathTests(TestCase):
+    fixtures = ["eric", "test_data"]
+
+    def setUp(self):
+        self.proj = Project.objects.get(slug="read-the-docs")
+        self.redirect = get(Redirect, project=self.proj)
+
+    def test_http_filenames_return_themselves(self):
+        self.assertEqual(
+            self.redirect.get_full_path('http://rtfd.org'),
+            'http://rtfd.org'
+        )
+
+    def test_redirects_no_subdomain(self):
+        self.assertEqual(
+            self.redirect.get_full_path('index.html'),
+            '/docs/read-the-docs/en/latest/index.html'
+        )
+
+    @override_settings(
+        USE_SUBDOMAIN=True, PRODUCTION_DOMAIN='rtfd.org'
+    )
+    def test_redirects_with_subdomain(self):
+        self.assertEqual(
+            self.redirect.get_full_path('faq.html'),
+            '/en/latest/faq.html'
+        )
+
+    @override_settings(
+        USE_SUBDOMAIN=True, PRODUCTION_DOMAIN='rtfd.org'
+    )
+    def test_single_version_with_subdomain(self):
+        self.redirect.project.single_version = True
+        self.assertEqual(
+            self.redirect.get_full_path('faq.html'),
+            '/faq.html'
+        )
+
+    def test_single_version_no_subdomain(self):
+        self.redirect.project.single_version = True
+        self.assertEqual(
+            self.redirect.get_full_path('faq.html'),
+            reverse(
+                'docs_detail',
+                kwargs={
+                    'project_slug': self.proj.slug,
+                    'filename': 'faq.html',
+                }
+            )
+        )

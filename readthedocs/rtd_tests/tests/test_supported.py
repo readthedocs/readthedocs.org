@@ -2,6 +2,7 @@ import json
 
 from django.test import TestCase
 
+from readthedocs.builds.constants import TAG
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
 
@@ -13,11 +14,11 @@ class TestSupportedVersions(TestCase):
         self.pip = Project.objects.create(name='Pip', slug='pip')
         Version.objects.create(project=self.pip, identifier='0.1',
                                verbose_name='0.1', slug='0.1',
-                               type='tag',
+                               type=TAG,
                                active=True)
         Version.objects.create(project=self.pip, identifier='0.2',
                                verbose_name='0.2', slug='0.2',
-                               type='tag',
+                               type=TAG,
                                active=True)
 
     def test_supported_versions(self):
@@ -55,6 +56,6 @@ class TestSupportedVersions(TestCase):
         self.assertEqual(self.pip.versions.get(slug='0.1').supported, False)
         self.assertEqual(self.pip.versions.get(slug='0.2').supported, True)
         Version.objects.create(project=self.pip, identifier='0.1.1',
-                               verbose_name='0.1.1', type='tag', active=True)
+                               verbose_name='0.1.1', type=TAG, active=True)
         # This gets set to False on creation.
         self.assertEqual(self.pip.versions.get(slug='0.1.1').supported, False)

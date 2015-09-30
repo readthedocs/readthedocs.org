@@ -1,6 +1,7 @@
 // Gold payment views
 
-var payment = require('../../../../core/static-src/core/js/payment'),
+var jquery = require('jquery'),
+    payment = require('../../../../core/static-src/core/js/payment'),
     ko = require('knockout');
 
 function GoldView (config) {
@@ -18,8 +19,3 @@ GoldView.init = function (config, obj) {
 }
 
 module.exports.GoldView = GoldView;
-
-
-if (typeof(window) != 'undefined') {
-    window.payment = module.exports;
-}

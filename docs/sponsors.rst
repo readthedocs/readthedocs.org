@@ -9,19 +9,18 @@ supporting us.
 Current sponsors
 ----------------
 
-* `Twilio`_ - Twilio, a user of Read the Docs, is organizing `Signal`_, a
-  developer conference for communications, held May 19-20th.
 * `Rackspace`_ - They cover all of our hosting expenses every month.  This is a pretty large sum of money, and we are really grateful to have them as a sponsor.
 * You? (Email us at hello@readthedocs.com for more info)
 
 Past sponsors
 -------------
 
-* Revsys_
+* `Revsys`_
 * `Python Software Foundation`_
 * `Mozilla Web Dev`_
 * `Django Software Foundation`_
-* Lab305_
+* `Lab305`_
+* `Twilio`_
 
 .. _Revsys: http://www.revsys.com/
 .. _Python Software Foundation: http://python.org/psf/

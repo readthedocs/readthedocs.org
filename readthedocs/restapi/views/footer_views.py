@@ -8,6 +8,7 @@ from rest_framework.renderers import JSONPRenderer, JSONRenderer, BrowsableAPIRe
 from rest_framework.response import Response
 
 from readthedocs.builds.constants import LATEST
+from readthedocs.builds.constants import TAG
 from readthedocs.builds.models import Version
 from readthedocs.donate.models import SupporterPromo
 from readthedocs.projects.models import Project
@@ -74,7 +75,7 @@ def footer_html(request):
     else:
         path = ""
 
-    if version.type == 'tag' and version.project.has_pdf(version.slug):
+    if version.type == TAG and version.project.has_pdf(version.slug):
         print_url = (
             'https://keminglabs.com/print-the-docs/quote?project={project}&version={version}'
             .format(
@@ -106,7 +107,7 @@ def footer_html(request):
         'path': path,
         'downloads': version.get_downloads(pretty=True),
         'current_version': version.verbose_name,
-        'versions': project.ordered_active_versions(),
+        'versions': project.ordered_active_versions(user=request.user),
         'main_project': main_project,
         'translations': main_project.translations.all(),
         'current_language': project.language,

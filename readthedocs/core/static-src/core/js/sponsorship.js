@@ -1,7 +1,5 @@
 /* Read the Docs - Documentation promotions */
 
-var $ = window.$;
-
 module.exports = {
     Promo: Promo
 };
@@ -88,7 +86,11 @@ Promo.prototype.display = function () {
     if (! promo) {
         promo = this.promo = this.create();
     }
-    promo.show();
+
+    // Promo still might not exist yet
+    if (promo) {
+        promo.show();
+    }
 }
 
 Promo.prototype.disable = function () {

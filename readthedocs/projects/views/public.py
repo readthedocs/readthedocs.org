@@ -15,6 +15,7 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
+from django.views.decorators.cache import cache_control
 from django.views.generic import ListView, DetailView
 from django.utils.datastructures import SortedDict
 from django.views.decorators.cache import cache_page
@@ -90,18 +91,17 @@ class ProjectDetailView(ProjectOnboardMixin, DetailView):
         if self.request.is_secure():
             protocol = 'https'
 
+        version_slug = project.get_default_version()
+
         context['badge_url'] = "%s://%s%s?version=%s" % (
             protocol,
             settings.PRODUCTION_DOMAIN,
             reverse('project_badge', args=[project.slug]),
             project.get_default_version(),
         )
-        context['site_url'] = "%s://%s%s?badge=%s" % (
-            protocol,
-            settings.PRODUCTION_DOMAIN,
-            reverse('projects_detail', args=[project.slug]),
-            project.get_default_version(),
-        )
+        context['site_url'] = "{url}?badge={version}".format(
+            url=project.get_docs_url(version_slug),
+            version=version_slug)
 
         return context
 
@@ -118,8 +118,7 @@ def _badge_return(redirect, url):
         return http_response
 
 
-# TODO remove this, it's a temporary fix to heavy database usage
-@cache_page(60 * 30)
+@cache_control(no_cache=True)
 def project_badge(request, project_slug, redirect=True):
     """Return a sweet badge for the project"""
     version_slug = request.GET.get('version', LATEST)
@@ -159,23 +158,12 @@ def project_downloads(request, project_slug):
         if data:
             version_data[version] = data
 
-    # in case the MEDIA_URL is a protocol relative URL we just assume
-    # we want http as the protcol, so that Dash is able to handle the URL
-    if settings.MEDIA_URL.startswith('//'):
-        media_url_prefix = u'http:'
-    # but in case we're in debug mode and the MEDIA_URL is just a path
-    # we prefix it with a hardcoded host name and protocol
-    elif settings.MEDIA_URL.startswith('/') and settings.DEBUG:
-        media_url_prefix = u'http://%s' % request.get_host()
-    else:
-        media_url_prefix = ''
     return render_to_response(
         'projects/project_downloads.html',
         {
             'project': project,
             'version_data': version_data,
             'versions': versions,
-            'media_url_prefix': media_url_prefix,
         },
         context_instance=RequestContext(request),
     )
@@ -186,11 +174,17 @@ def project_download_media(request, project_slug, type_, version_slug):
     Download a specific piece of media.
 
     Perform an auth check if serving in private mode.
+
+    .. warning:: This is linked directly from the HTML pages.
+                 It should only care about the Version permissions,
+                 not the actual Project permissions.
+
     """
-    # Do private project auth checks
-    queryset = Project.objects.protected(request.user).filter(slug=project_slug)
-    if not queryset.exists():
-        raise Http404
+    version = get_object_or_404(
+        Version.objects.public(user=request.user),
+        project__slug=project_slug,
+        slug=version_slug,
+    )
     privacy_level = getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public')
     if privacy_level == 'public' or settings.DEBUG:
         path = os.path.join(settings.MEDIA_URL, type_, project_slug, version_slug,
@@ -198,7 +192,7 @@ def project_download_media(request, project_slug, type_, version_slug):
         return HttpResponseRedirect(path)
     else:
         # Get relative media path
-        path = (queryset[0]
+        path = (version.project
                 .get_production_media_path(
                     type_=type_, version_slug=version_slug)
                 .replace(settings.PRODUCTION_ROOT, '/prod_artifacts'))

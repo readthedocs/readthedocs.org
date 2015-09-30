@@ -1,27 +1,27 @@
 import logging
 
 from django.shortcuts import get_object_or_404
-from docutils.utils.math.math2html import Link
 from rest_framework import decorators, permissions, viewsets, status
 from rest_framework.decorators import detail_route
 from rest_framework.renderers import JSONPRenderer, JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 
+from readthedocs.builds.constants import BRANCH
+from readthedocs.builds.constants import TAG
 from readthedocs.builds.filters import VersionFilter
 from readthedocs.builds.models import Build, BuildCommandResult, Version
+from readthedocs.restapi import utils as api_utils
 from readthedocs.core.utils import trigger_build
 from readthedocs.oauth import utils as oauth_utils
-from readthedocs.builds.constants import STABLE
-from readthedocs.projects.filters import ProjectFilter
-from readthedocs.projects.models import Project, EmailHook
+from readthedocs.projects.filters import ProjectFilter, DomainFilter
+from readthedocs.projects.models import Project, EmailHook, Domain
 from readthedocs.projects.version_handling import determine_stable_version
 
 from ..permissions import (APIPermission, APIRestrictedPermission,
                            RelatedProjectIsOwner)
 from ..serializers import (BuildSerializerFull, BuildSerializer,
                            BuildCommandSerializer, ProjectSerializer,
-                           VersionSerializer)
-from .. import utils as api_utils
+                           VersionSerializer, DomainSerializer)
 
 log = logging.getLogger(__name__)
 
@@ -60,7 +60,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
         })
 
     @detail_route()
-    def translations(self, request, pk):
+    def translations(self, request, pk, **kwargs):
         translations = self.get_object().translations.all()
         return Response({
             'translations': ProjectSerializer(translations, many=True).data
@@ -83,6 +83,14 @@ class ProjectViewSet(viewsets.ModelViewSet):
         token = oauth_utils.get_token_for_project(project, force_local=True)
         return Response({
             'token': token
+        })
+
+    @decorators.detail_route()
+    def canonical_url(self, request, **kwargs):
+        project = get_object_or_404(
+            Project.objects.api(self.request.user), pk=kwargs['pk'])
+        return Response({
+            'url': project.get_docs_url()
         })
 
     @decorators.detail_route(permission_classes=[permissions.IsAdminUser], methods=['post'])
@@ -109,11 +117,11 @@ class ProjectViewSet(viewsets.ModelViewSet):
             added_versions = set()
             if 'tags' in data:
                 ret_set = api_utils.sync_versions(
-                    project=project, versions=data['tags'], type='tag')
+                    project=project, versions=data['tags'], type=TAG)
                 added_versions.update(ret_set)
             if 'branches' in data:
                 ret_set = api_utils.sync_versions(
-                    project=project, versions=data['branches'], type='branch')
+                    project=project, versions=data['branches'], type=BRANCH)
                 added_versions.update(ret_set)
             deleted_versions = api_utils.delete_versions(project, data)
         except Exception, e:
@@ -158,15 +166,6 @@ class VersionViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         return self.model.objects.api(self.request.user)
 
-    @decorators.list_route()
-    def downloads(self, request, **kwargs):
-        version = get_object_or_404(
-            Version.objects.api(self.request.user), pk=kwargs['pk'])
-        downloads = version.get_downloads(pretty=True)
-        return Response({
-            'downloads': downloads
-        })
-
 
 class BuildViewSet(viewsets.ModelViewSet):
     permission_classes = [APIRestrictedPermission]
@@ -203,8 +202,15 @@ class NotificationViewSet(viewsets.ReadOnlyModelViewSet):
     model = EmailHook
 
     def get_queryset(self):
-        """
-        This view should return a list of all the purchases
-        for the currently authenticated user.
-        """
+        return self.model.objects.api(self.request.user)
+
+
+class DomainViewSet(viewsets.ModelViewSet):
+    permission_classes = [APIRestrictedPermission]
+    renderer_classes = (JSONRenderer, BrowsableAPIRenderer)
+    serializer_class = DomainSerializer
+    filter_class = DomainFilter
+    model = Domain
+
+    def get_queryset(self):
         return self.model.objects.api(self.request.user)

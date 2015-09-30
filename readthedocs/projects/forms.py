@@ -1,6 +1,7 @@
 """Project forms"""
 
 from random import choice
+from urlparse import urlparse
 
 from django import forms
 from django.conf import settings
@@ -12,10 +13,11 @@ from django.utils.safestring import mark_safe
 
 from guardian.shortcuts import assign
 
+from readthedocs.builds.constants import TAG
 from readthedocs.core.utils import trigger_build
 from readthedocs.redirects.models import Redirect
 from readthedocs.projects import constants
-from readthedocs.projects.models import Project, EmailHook, WebHook
+from readthedocs.projects.models import Project, EmailHook, WebHook, Domain
 from readthedocs.privacy.loader import AdminPermission
 
 
@@ -125,19 +127,8 @@ class ProjectExtraForm(ProjectForm):
             'documentation_type',
             'language', 'programming_language',
             'project_url',
-            'canonical_url',
             'tags',
         )
-
-    def __init__(self, *args, **kwargs):
-        super(ProjectExtraForm, self).__init__(*args, **kwargs)
-        self.fields['canonical_url'].widget.attrs['placeholder'] = self.placehold_canonical_url()
-
-    def placehold_canonical_url(self):
-        return choice([
-            'http://docs.fabfile.org',
-            'http://example.readthedocs.org',
-        ])
 
 
 class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
@@ -197,7 +188,6 @@ class UpdateProjectForm(ProjectTriggerBuildMixin, ProjectBasicsForm,
             'documentation_type',
             'language', 'programming_language',
             'project_url',
-            'canonical_url',
             'tags',
         )
 
@@ -272,7 +262,7 @@ def build_versions_form(project):
     for version in versions_qs:
         field_name = 'version-%s' % version.slug
         privacy_name = 'privacy-%s' % version.slug
-        if version.type == 'tag':
+        if version.type == TAG:
             label = "%s (%s)" % (version.verbose_name, version.identifier[:8])
         else:
             label = version.verbose_name
@@ -335,6 +325,7 @@ class SubprojectForm(forms.Form):
     """Project subproject form"""
 
     subproject = forms.CharField()
+    alias = forms.CharField(required=False)
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user')
@@ -361,7 +352,9 @@ class SubprojectForm(forms.Form):
 
     def save(self):
         relationship = self.parent.add_subproject(
-            self.cleaned_data['subproject'])
+            self.cleaned_data['subproject'],
+            alias=self.cleaned_data['alias'],
+        )
         return relationship
 
 
@@ -442,16 +435,21 @@ class TranslationForm(forms.Form):
         super(TranslationForm, self).__init__(*args, **kwargs)
 
     def clean_project(self):
-        subproject_name = self.cleaned_data['project']
-        subproject_qs = Project.objects.filter(slug=subproject_name)
-        if not subproject_qs.exists():
+        translation_name = self.cleaned_data['project']
+        translation_qs = Project.objects.filter(slug=translation_name)
+        if not translation_qs.exists():
             raise forms.ValidationError((_("Project %(name)s does not exist")
-                                         % {'name': subproject_name}))
-        self.subproject = subproject_qs[0]
-        return subproject_name
+                                         % {'name': translation_name}))
+        if translation_qs.first().language == self.parent.language:
+            err = ("Both projects have a language of `%s`. "
+                   "Please choose one with another language" % self.parent.language)
+            raise forms.ValidationError(_(err))
+
+        self.translation = translation_qs.first()
+        return translation_name
 
     def save(self):
-        project = self.parent.translations.add(self.subproject)
+        project = self.parent.translations.add(self.translation)
         return project
 
 
@@ -475,3 +473,34 @@ class RedirectForm(forms.ModelForm):
             to_url=self.cleaned_data['to_url'],
         )
         return redirect
+
+
+class DomainForm(forms.ModelForm):
+    project = forms.CharField(widget=forms.HiddenInput(), required=False)
+
+    class Meta:
+        model = Domain
+        exclude = ['machine', 'cname', 'count']
+
+    def __init__(self, *args, **kwargs):
+        self.project = kwargs.pop('project', None)
+        super(DomainForm, self).__init__(*args, **kwargs)
+
+    def clean_project(self):
+        return self.project
+
+    def clean_domain(self):
+        parsed = urlparse(self.cleaned_data['domain'])
+        if parsed.scheme or parsed.netloc:
+            domain_string = parsed.netloc
+        else:
+            domain_string = parsed.path
+        return domain_string
+
+    def clean_canonical(self):
+        canonical = self.cleaned_data['canonical']
+        if canonical and Domain.objects.filter(
+            project=self.project, canonical=True
+        ).exclude(domain=self.cleaned_data['domain']).exists():
+            raise forms.ValidationError(_(u'Only 1 Domain can be canonical at a time.'))
+        return canonical

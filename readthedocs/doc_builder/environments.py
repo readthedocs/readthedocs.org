@@ -29,7 +29,8 @@ from .exceptions import (BuildEnvironmentException, BuildEnvironmentError,
                          BuildEnvironmentWarning)
 from .constants import (DOCKER_SOCKET, DOCKER_VERSION, DOCKER_IMAGE,
                         DOCKER_LIMITS, DOCKER_TIMEOUT_EXIT_CODE,
-                        DOCKER_OOM_EXIT_CODE, SPHINX_TEMPLATE_DIR)
+                        DOCKER_OOM_EXIT_CODE, SPHINX_TEMPLATE_DIR,
+                        MKDOCS_TEMPLATE_DIR)
 
 log = logging.getLogger(__name__)
 
@@ -230,9 +231,9 @@ class DockerBuildCommand(BuildCommand):
         """
         bash_escape_re = re.compile(r"([\t\ \!\"\#\$\&\'\(\)\*\:\;\<\>\?\@"
                                     r"\[\\\]\^\`\{\|\}\~])")
-        prefix = ''
+        prefix = 'READTHEDOCS=True '
         if self.bin_path:
-            prefix = 'PATH={0}:$PATH '.format(self.bin_path)
+            prefix += 'PATH={0}:$PATH '.format(self.bin_path)
         return ("/bin/sh -c 'cd {cwd} && {prefix}{cmd}'"
                 .format(
                     cwd=self.cwd,
@@ -527,9 +528,9 @@ class DockerEnvironment(BuildEnvironment):
     @property
     def container_id(self):
         '''Return id of container if it is valid'''
-        if self.container_name is not None:
+        if self.container_name:
             return self.container_name
-        elif self.container is not None:
+        elif self.container:
             return self.container.get('Id')
 
     def container_state(self):
@@ -566,7 +567,7 @@ class DockerEnvironment(BuildEnvironment):
         '''Create docker container'''
         client = self.get_client()
         image = self.container_image
-        if self.project.container_image is not None:
+        if self.project.container_image:
             image = self.project.container_image
         try:
             self.container = client.create_container(
@@ -579,6 +580,10 @@ class DockerEnvironment(BuildEnvironment):
                 host_config=create_host_config(binds={
                     SPHINX_TEMPLATE_DIR: {
                         'bind': SPHINX_TEMPLATE_DIR,
+                        'mode': 'r'
+                    },
+                    MKDOCS_TEMPLATE_DIR: {
+                        'bind': MKDOCS_TEMPLATE_DIR,
                         'mode': 'r'
                     },
                     self.project.doc_path: {

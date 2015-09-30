@@ -39,13 +39,13 @@ class RedirectSingleVersionTests(TestCase):
 
         self.pip.single_version = True
         with self.settings(USE_SUBDOMAIN=False):
-            self.assertEqual(self.pip.get_docs_url(), '/docs/pip/')
+            self.assertEqual(self.pip.get_docs_url(), 'http://readthedocs.org/docs/pip/')
         with self.settings(USE_SUBDOMAIN=True):
             self.assertEqual(self.pip.get_docs_url(), 'http://pip.readthedocs.org/')
 
         self.pip.single_version = False
         with self.settings(USE_SUBDOMAIN=False):
-            self.assertEqual(self.pip.get_docs_url(), '/docs/pip/en/latest/')
+            self.assertEqual(self.pip.get_docs_url(), 'http://readthedocs.org/docs/pip/en/latest/')
         with self.settings(USE_SUBDOMAIN=True):
             self.assertEqual(self.pip.get_docs_url(), 'http://pip.readthedocs.org/en/latest/')
 

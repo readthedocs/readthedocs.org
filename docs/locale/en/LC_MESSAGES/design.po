@@ -1,7 +1,7 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) 2010, Eric Holscher, Charlie Leifer, Bobby Grace
 # This file is distributed under the same license as the Read The Docs package.
-# 
+#
 # Translators:
 msgid ""
 msgstr ""
@@ -123,11 +123,11 @@ msgstr "Contributing"
 msgid ""
 "Contributions should follow the :ref:`contributing-to-read-the-docs` "
 "guidelines where applicable -- ideally you'll create a pull request against "
-"the `Read the Docs Github project`_ from your forked repo and include a "
+"the `Read the Docs GitHub project`_ from your forked repo and include a "
 "brief description of what you added / removed / changed, as well as an "
 "attached image (you can just take a screenshot and drop it into the PR "
 "creation form) of the effects of your changes."
-msgstr "Contributions should follow the :ref:`contributing-to-read-the-docs` guidelines where applicable -- ideally you'll create a pull request against the `Read the Docs Github project`_ from your forked repo and include a brief description of what you added / removed / changed, as well as an attached image (you can just take a screenshot and drop it into the PR creation form) of the effects of your changes."
+msgstr "Contributions should follow the :ref:`contributing-to-read-the-docs` guidelines where applicable -- ideally you'll create a pull request against the `Read the Docs GitHub project`_ from your forked repo and include a brief description of what you added / removed / changed, as well as an attached image (you can just take a screenshot and drop it into the PR creation form) of the effects of your changes."
 
 # f656ef71dbc64bb8b2c08affac715625
 #: ../../design.rst:62

@@ -26,7 +26,7 @@
         {% for translation in group.list %}
         {% if translation.language != main_project.language %}
         {% if translation.language == current_language %} <strong> {% endif %}
-        <dd><a href="{{ translation.get_translation_url }}{{ path }}">{{ translation.language }}</a></dd>
+        <dd><a href="{{ translation.get_docs_url }}{{ path }}">{{ translation.language }}</a></dd>
         {% if translation.language == current_language %} </strong> {% endif %}
         {% endif %}
         {% endfor %}
@@ -39,11 +39,7 @@
         <dt>Versions</dt>
         {% for version in versions %}
         {% if version.verbose_name == current_version %} <strong> {% endif %}
-        {% if subproject %}
-        <dd><a href="{{ version.get_subproject_url }}{{ path }}">{{ version.slug }}</a></dd>
-        {% else %}
-        <dd><a href="{{ version.get_subdomain_url }}{{ path }}">{{ version.slug }}</a></dd>
-        {% endif %}
+        <dd><a href="{{ version.get_subdomain_url }}{{ path|default_if_none:"" }}">{{ version.slug }}</a></dd>
         {% if version.verbose_name == current_version %} </strong> {% endif %}
         {% endfor %}
       </dl>

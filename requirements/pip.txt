@@ -14,6 +14,7 @@ celery-haystack==0.7.2
 django-guardian==1.3.0
 django-extensions==1.3.8
 djangorestframework==3.0.4
+django-vanilla-views==1.0.4
 pytest-django==2.8.0
 
 requests==2.3.0
@@ -29,7 +30,6 @@ django-allauth==0.21.0
 dnspython==1.11.0
 
 # VCS
-bzr==2.6
 launchpadlib==1.10.2
 mercurial==2.6.3
 httplib2==0.7.7

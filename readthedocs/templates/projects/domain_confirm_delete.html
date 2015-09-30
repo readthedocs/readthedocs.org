@@ -1,0 +1,23 @@
+{% extends "projects/project_edit_base.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans "Edit Domains" %}{% endblock %}
+
+{% block nav-dashboard %} class="active"{% endblock %}
+
+{% block editing-option-edit-proj %}class="active"{% endblock %}
+
+{% block project-domains-active %}active{% endblock %}
+
+{% block project_edit_content_header %}{% trans "Confirm Delete" %}{% endblock %}
+
+{% block project_edit_content %}
+<form action="" method="post">{% csrf_token %}
+    <p>Are you sure you want to delete <b>{{ object.domain }}</b>?</p>
+    <input type="submit" value="{% trans "Confirm" %}" />
+</form>
+
+{% endblock %}
+
+

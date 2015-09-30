@@ -1,5 +1,4 @@
 import logging
-import os
 
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
@@ -7,9 +6,7 @@ from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.http import Http404
 
-from readthedocs.projects.models import Project
-
-import redis
+from readthedocs.projects.models import Project, Domain
 
 log = logging.getLogger(__name__)
 
@@ -29,48 +26,73 @@ class SubdomainMiddleware(object):
             host = host.split(':')[0]
         domain_parts = host.split('.')
 
-        if len(domain_parts) == 3:
+        # Serve subdomains - but don't depend on the production domain only having 2 parts
+        if len(domain_parts) == len(settings.PRODUCTION_DOMAIN.split('.')) + 1:
             subdomain = domain_parts[0]
-            # Serve subdomains
             is_www = subdomain.lower() == 'www'
             is_ssl = subdomain.lower() == 'ssl'
             if not is_www and not is_ssl and settings.PRODUCTION_DOMAIN in host:
                 request.subdomain = True
                 request.slug = subdomain
-                request.urlconf = 'core.subdomain_urls'
+                request.urlconf = 'readthedocs.core.subdomain_urls'
                 return None
         # Serve CNAMEs
         if settings.PRODUCTION_DOMAIN not in host and \
            'localhost' not in host and \
            'testserver' not in host:
             request.cname = True
-            try:
+            domains = Domain.objects.filter(domain=host)
+            if domains.count():
+                for domain in domains:
+                    if domain.domain == host:
+                        request.slug = domain.project.slug
+                        request.urlconf = 'core.subdomain_urls'
+                        request.domain_object = True
+                        domain.count = domain.count + 1
+                        domain.save()
+                        log.debug(LOG_TEMPLATE.format(
+                            msg='Domain Object Detected: %s' % domain.domain, **log_kwargs))
+                        break
+            if not hasattr(request, 'domain_object') and 'HTTP_X_RTD_SLUG' in request.META:
                 request.slug = request.META['HTTP_X_RTD_SLUG'].lower()
-                request.urlconf = 'core.subdomain_urls'
+                request.urlconf = 'readthedocs.core.subdomain_urls'
                 request.rtdheader = True
                 log.debug(LOG_TEMPLATE.format(
                     msg='X-RTD-Slug header detetected: %s' % request.slug, **log_kwargs))
-            except KeyError:
-                # Try header first, then DNS
+            # Try header first, then DNS
+            elif not hasattr(request, 'domain_object'):
                 try:
                     slug = cache.get(host)
                     if not slug:
-                        redis_conn = redis.Redis(**settings.REDIS)
                         from dns import resolver
                         answer = [ans for ans in resolver.query(host, 'CNAME')][0]
                         domain = answer.target.to_unicode().lower()
                         slug = domain.split('.')[0]
                         cache.set(host, slug, 60 * 60)
                         # Cache the slug -> host mapping permanently.
-                        redis_conn.sadd("rtd_slug:v1:%s" % slug, host)
                         log.debug(LOG_TEMPLATE.format(
                             msg='CNAME cached: %s->%s' % (slug, host),
                             **log_kwargs))
                     request.slug = slug
-                    request.urlconf = 'core.subdomain_urls'
+                    request.urlconf = 'readthedocs.core.subdomain_urls'
                     log.debug(LOG_TEMPLATE.format(
                         msg='CNAME detetected: %s' % request.slug,
                         **log_kwargs))
+                    try:
+                        proj = Project.objects.get(slug=slug)
+                        domain, created = Domain.objects.get_or_create(
+                            project=proj,
+                            domain=host,
+                        )
+                        if created:
+                            domain.machine = True
+                            domain.cname = True
+                        domain.count = domain.count + 1
+                        domain.save()
+                    except (ObjectDoesNotExist, MultipleObjectsReturned):
+                        log.debug(LOG_TEMPLATE.format(
+                            msg='Project CNAME does not exist: %s' % slug,
+                            **log_kwargs))
                 except:
                     # Some crazy person is CNAMEing to us. 404.
                     log.exception(LOG_TEMPLATE.format(msg='CNAME 404', **log_kwargs))
@@ -129,7 +151,7 @@ class SingleVersionMiddleware(object):
                 return None
 
             if getattr(proj, 'single_version', False):
-                request.urlconf = 'core.single_version_urls'
+                request.urlconf = 'readthedocs.core.single_version_urls'
                 # Logging
                 host = request.get_host()
                 path = request.get_full_path()
