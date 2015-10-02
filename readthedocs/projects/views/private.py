@@ -268,14 +268,6 @@ class ImportWizardView(PrivateViewMixin, SessionWizardView):
         """Return template names based on step name"""
         return 'projects/import_{0}.html'.format(self.steps.current)
 
-    def get_context_data(self, **kwargs):
-        context = super(ImportWizardView, self).get_context_data(**kwargs)
-        context['has_connected_accounts'] = (SocialAccount
-                                             .objects
-                                             .filter(user=self.request.user)
-                                             .exists())
-        return context
-
     def done(self, form_list, **kwargs):
         """Save form data as object instance
 
@@ -378,6 +370,14 @@ class ImportView(PrivateViewMixin, TemplateView):
             initial_data['extra'][key] = request.POST.get(key)
         request.method = 'GET'
         return self.wizard_class.as_view(initial_dict=initial_data)(request)
+
+    def get_context_data(self, **kwargs):
+        context = super(ImportView, self).get_context_data(**kwargs)
+        context['has_connected_accounts'] = (SocialAccount
+                                             .objects
+                                             .filter(user=self.request.user)
+                                             .exists())
+        return context
 
 
 @login_required
