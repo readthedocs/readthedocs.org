@@ -3,6 +3,7 @@
 import json
 
 from django.db import models
+from django.db.models import Q
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
@@ -136,8 +137,8 @@ class RemoteRepository(models.Model):
                     .objects
                     .public(user)
                     .filter(Q(repo=self.clone_url) |
-                            Q(repo__endswith=ghetto_repo) |
-                            Q(repo__endswith=ghetto_repo + '.git')))
+                            Q(repo__endswith=fuzzy_url) |
+                            Q(repo__endswith=fuzzy_url + '.git')))
         return [{'id': project.slug,
                  'url': reverse('projects_detail',
                                 kwargs={'project_slug': project.slug})}
