@@ -189,4 +189,6 @@ class RelatedUserManager(models.Manager):
 
     def api(self, user=None, *args, **kwargs):
         """Return objects for user"""
+        if not user.is_authenticated():
+            return self.none()
         return self.filter(users=user)
