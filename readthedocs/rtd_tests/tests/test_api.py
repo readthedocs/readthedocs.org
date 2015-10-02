@@ -9,6 +9,7 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from readthedocs.builds.models import Build
+from readthedocs.oauth.models import RemoteRepository, RemoteOrganization
 
 
 super_auth = base64.b64encode('super:test')
@@ -228,3 +229,57 @@ class APITests(TestCase):
         self.assertEqual(resp.status_code, 200)
         obj = json.loads(resp.content)
         self.assertEqual(obj['is_highest'], True)
+
+
+class APIImportTests(TestCase):
+
+    """Import API endpoint tests"""
+
+    fixtures = ['eric.json', 'test_data.json']
+
+    def test_permissions(self):
+        """Ensure user repositories aren't leaked to other users"""
+        client = APIClient()
+
+        user_a = get(User, password='test')
+        user_b = get(User, password='test')
+        user_c = get(User, password='test')
+        org_a = get(RemoteOrganization, users=[user_a])
+        repo_a = get(RemoteRepository, users=[user_a], organization=org_a)
+        repo_b = get(RemoteRepository, users=[user_b], organization=None)
+
+        client.force_authenticate(user=user_a)
+        resp = client.get(
+            '/api/v2/remote/repo/',
+            format='json')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        repos = resp.data['results']
+        self.assertEqual(repos[0]['id'], repo_a.id)
+        self.assertEqual(repos[0]['organization']['id'], org_a.id)
+        self.assertEqual(len(repos), 1)
+
+        resp = client.get(
+            '/api/v2/remote/org/',
+            format='json')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        orgs = resp.data['results']
+        self.assertEqual(orgs[0]['id'], org_a.id)
+        self.assertEqual(len(orgs), 1)
+
+        client.force_authenticate(user=user_b)
+        resp = client.get(
+            '/api/v2/remote/repo/',
+            format='json')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        repos = resp.data['results']
+        self.assertEqual(repos[0]['id'], repo_b.id)
+        self.assertEqual(repos[0]['organization'], None)
+        self.assertEqual(len(repos), 1)
+
+        client.force_authenticate(user=user_c)
+        resp = client.get(
+            '/api/v2/remote/repo/',
+            format='json')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        repos = resp.data['results']
+        self.assertEqual(len(repos), 0)

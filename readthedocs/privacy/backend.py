@@ -181,3 +181,12 @@ class AdminPermission(object):
 
 class AdminNotAuthorized(ValueError):
     pass
+
+
+class RelatedUserManager(models.Manager):
+
+    """For models with relations through :py:cls:`User`"""
+
+    def api(self, user=None, *args, **kwargs):
+        """Return objects for user"""
+        return self.filter(users=user)

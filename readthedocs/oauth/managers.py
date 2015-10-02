@@ -5,6 +5,8 @@ import re
 from django.conf import settings
 from django.db import models
 
+from readthedocs.privacy.loader import RelatedUserManager
+
 from .constants import OAUTH_SOURCE_GITHUB, OAUTH_SOURCE_BITBUCKET
 
 
@@ -14,7 +16,7 @@ logger = logging.getLogger(__name__)
 DEFAULT_PRIVACY_LEVEL = getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public')
 
 
-class RemoteRepositoryManager(models.Manager):
+class RemoteRepositoryManager(RelatedUserManager):
 
     """Model managers for remote repositories"""
 
@@ -89,7 +91,7 @@ class RemoteRepositoryManager(models.Manager):
                          api_json['name'])
 
 
-class RemoteOrganizationManager(models.Manager):
+class RemoteOrganizationManager(RelatedUserManager):
 
     def create_from_github_api(self, api_json, user):
         organization, created = self.get_or_create(slug=api_json.get('login'))
