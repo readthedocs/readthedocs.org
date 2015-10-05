@@ -2,15 +2,16 @@ import re
 import logging
 import csv
 import os
-
 import sys
+
+from readthedocs.projects.exceptions import ProjectImportError
+from readthedocs.vcs_support.base import BaseVCS, VCSVersion
+
 if sys.version_info > (3,):
     from io import StringIO
 else:
     from StringIO import StringIO
 
-from readthedocs.projects.exceptions import ProjectImportError
-from readthedocs.vcs_support.base import BaseVCS, VCSVersion
 
 log = logging.getLogger(__name__)
 
