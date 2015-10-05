@@ -2,14 +2,8 @@
 
 import fnmatch
 import logging
-import os
-
 import sys
-
-if sys.version_info > (3,):
-    from urllib.parse import urlparse
-else:
-    from urlparse import urlparse
+import os
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -41,6 +35,12 @@ from readthedocs.core.validators import validate_domain_name
 from readthedocs.vcs_support.base import VCSProject
 from readthedocs.vcs_support.backends import backend_cls
 from readthedocs.vcs_support.utils import Lock, NonBlockingLock
+
+if sys.version_info > (3,):
+    from urllib.parse import urlparse
+else:
+    from urlparse import urlparse
+
 
 
 log = logging.getLogger(__name__)
