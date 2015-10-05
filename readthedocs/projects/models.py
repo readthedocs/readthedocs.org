@@ -3,7 +3,13 @@
 import fnmatch
 import logging
 import os
-from urlparse import urlparse
+
+import sys
+
+if sys.version_info > (3,):
+    from urllib.parse import urlparse
+else:
+    from urlparse import urlparse
 
 from django.conf import settings
 from django.contrib.auth.models import User

@@ -1,5 +1,11 @@
 import csv
-from StringIO import StringIO
+
+import sys
+if sys.version_info > (3,):
+    from io import StringIO
+else:
+    from StringIO import StringIO
+
 
 from readthedocs.projects.exceptions import ProjectImportError
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
