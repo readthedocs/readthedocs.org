@@ -1,23 +1,24 @@
 import logging
 
+import stripe
 from django import forms
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
-import stripe
+from readthedocs.payments.forms import (StripeSubscriptionModelForm,
+                                        StripeResourceMixin)
 
 from .models import Supporter
 
 log = logging.getLogger(__name__)
 
 
-class SupporterForm(forms.ModelForm):
+class SupporterForm(StripeResourceMixin, StripeSubscriptionModelForm):
 
     class Meta:
         model = Supporter
         fields = (
             'last_4_digits',
-            'stripe_id',
             'name',
             'email',
             'dollars',
@@ -43,38 +44,34 @@ class SupporterForm(forms.ModelForm):
             }),
             'site_url': forms.TextInput(attrs={
                 'data-bind': 'value: site_url, enable: urls_enabled'
-            })
+            }),
+            'last_4_digits': forms.TextInput(attrs={
+                'data-bind': 'valueInit: card_digits, value: card_digits'
+            }),
         }
 
     last_4_digits = forms.CharField(widget=forms.HiddenInput(), required=True)
-    stripe_id = forms.CharField(widget=forms.HiddenInput(), required=True)
+    name = forms.CharField(required=True)
+    email = forms.CharField(required=True)
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user')
         super(SupporterForm, self).__init__(*args, **kwargs)
 
-    def clean(self):
+    def validate_stripe(self):
         '''Call stripe for payment (not ideal here) and clean up logo < $200'''
         dollars = self.cleaned_data['dollars']
         if dollars < 200:
             self.cleaned_data['logo_url'] = None
             self.cleaned_data['site_url'] = None
-        try:
-            stripe.api_key = settings.STRIPE_SECRET
-            stripe.Charge.create(
-                amount=int(self.cleaned_data['dollars']) * 100,
-                currency='usd',
-                source=self.cleaned_data['stripe_id'],
-                description='Read the Docs Sustained Engineering',
-                receipt_email=self.cleaned_data['email']
-            )
-        except stripe.error.CardError, e:
-            stripe_error = e.json_body['error']
-            log.error('Credit card error: %s', stripe_error['message'])
-            raise forms.ValidationError(
-                _('There was a problem processing your card: %(message)s'),
-                params=stripe_error)
-        return self.cleaned_data
+        stripe.api_key = settings.STRIPE_SECRET
+        charge = stripe.Charge.create(
+            amount=int(self.cleaned_data['dollars']) * 100,
+            currency='usd',
+            source=self.cleaned_data['stripe_token'],
+            description='Read the Docs Sustained Engineering',
+            receipt_email=self.cleaned_data['email']
+        )
 
     def save(self, commit=True):
         supporter = super(SupporterForm, self).save(commit)

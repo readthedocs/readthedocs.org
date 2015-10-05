@@ -1,146 +1,90 @@
 import datetime
 
-from django.core.urlresolvers import reverse
+import stripe
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.conf import settings
+from django.contrib.messages.views import SuccessMessageMixin
+from django.contrib import messages
 from django.db import IntegrityError
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
+from django.utils.translation import ugettext_lazy as _
+from vanilla import CreateView, DeleteView, UpdateView, DetailView
 
-import stripe
-
-from .forms import CardForm, GoldProjectForm
-from .models import GoldUser
+from readthedocs.core.mixins import LoginRequiredMixin
 from readthedocs.projects.models import Project
+from readthedocs.payments.mixins import StripeMixin
+
+from .forms import GoldSubscriptionForm, GoldProjectForm
+from .models import GoldUser
 
 stripe.api_key = settings.STRIPE_SECRET
 
 
-def soon():
-    soon = datetime.date.today() + datetime.timedelta(days=30)
-    return {'month': soon.month, 'year': soon.year}
+class GoldSubscriptionView(SuccessMessageMixin, StripeMixin, LoginRequiredMixin):
+
+    model = GoldUser
+    form_class = GoldSubscriptionForm
+
+    def get_object(self):
+        try:
+            return self.get_queryset().get(user=self.request.user)
+        except self.model.DoesNotExist:
+            return None
+
+    def get_context_data(self, **kwargs):
+        context = (super(GoldSubscriptionView, self)
+                   .get_context_data(**kwargs))
+        context['stripe_publishable'] = settings.STRIPE_PUBLISHABLE
+        return context
+
+    def get_form(self, data=None, files=None, **kwargs):
+        """Pass in copy of POST data to avoid read only QueryDicts"""
+        kwargs['customer'] = self.request.user
+        return super(GoldSubscriptionView, self).get_form(data, files, **kwargs)
+
+    def get_success_url(self, **kwargs):
+        return reverse_lazy('gold_detail')
+
+    def get_template_names(self):
+        return ('gold/subscription{0}.html'
+                .format(self.template_name_suffix))
 
 
-@login_required
-def register(request):
-    user = request.user
-    try:
-        gold_user = GoldUser.objects.get(user=request.user)
-    except GoldUser.DoesNotExist:
-        gold_user = None
-    if request.method == 'POST':
-        form = CardForm(request.POST)
-        if form.is_valid():
+# Subscription Views
+class DetailGoldSubscription(GoldSubscriptionView, DetailView):
 
-            customer = stripe.Customer.create(
-                description=user.username,
-                email=user.email,
-                card=form.cleaned_data['stripe_token'],
-                plan=form.cleaned_data['level'],
-            )
-
-            try:
-                user = GoldUser.objects.get(user=user)
-            except GoldUser.DoesNotExist:
-                user = GoldUser(
-                    user=request.user,
-                )
-
-            user.level = form.cleaned_data['level']
-            user.last_4_digits = form.cleaned_data['last_4_digits']
-            user.stripe_id = customer.id
-            user.subscribed = True
-
-            try:
-                user.save()
-            except IntegrityError:
-                form.add_error(None, user.user.username + ' is already a member')
-            else:
-                return HttpResponseRedirect(reverse('gold_thanks'))
-
-    else:
-        form = CardForm()
-
-    return render_to_response(
-        'gold/register.html',
-        {
-            'form': form,
-            'gold_user': gold_user,
-            'publishable': settings.STRIPE_PUBLISHABLE,
-            'soon': soon(),
-            'user': user,
-        },
-        context_instance=RequestContext(request)
-    )
+    def get(self, request, *args, **kwargs):
+        resp = super(DetailGoldSubscription, self).get(request, *args, **kwargs)
+        if self.object is None:
+            return HttpResponseRedirect(reverse('gold_subscription'))
+        return resp
 
 
-@login_required
-def edit(request):
-    user = get_object_or_404(GoldUser, user=request.user)
-    if request.method == 'POST':
-        form = CardForm(request.POST)
-        if form.is_valid():
-
-            customer = stripe.Customer.retrieve(user.stripe_id)
-            customer.card = form.cleaned_data['stripe_token']
-            customer.plan = form.cleaned_data['level']
-            customer.save()
-
-            user.last_4_digits = form.cleaned_data['last_4_digits']
-            user.stripe_id = customer.id
-            user.level = form.cleaned_data['level']
-            user.subscribed = True
-            user.save()
-
-            return HttpResponseRedirect(reverse('gold_thanks'))
-
-    else:
-        form = CardForm(initial={'level': user.level})
-
-    return render_to_response(
-        'gold/edit.html',
-        {
-            'form': form,
-            'publishable': settings.STRIPE_PUBLISHABLE,
-            'soon': soon(),
-        },
-        context_instance=RequestContext(request)
-    )
+class UpdateGoldSubscription(GoldSubscriptionView, UpdateView):
+    success_message = _('Your subscription has been updated')
 
 
-@login_required
-def cancel(request):
-    user = get_object_or_404(GoldUser, user=request.user)
-    if request.method == 'POST':
-        customer = stripe.Customer.retrieve(user.stripe_id)
-        customer.delete()
-        user.subscribed = False
-        user.save()
-        return HttpResponseRedirect(reverse('gold_register'))
-    return render_to_response(
-        'gold/cancel.html',
-        {
-            'publishable': settings.STRIPE_PUBLISHABLE,
-            'soon': soon(),
-            'months': range(1, 13),
-            'years': range(2011, 2036)
-        },
-        context_instance=RequestContext(request)
-    )
+class DeleteGoldSubscription(GoldSubscriptionView, DeleteView):
 
+    """Delete Gold subscription view
 
-def thanks(request):
-    return render_to_response(
-        'gold/thanks.html',
-        {
-            'publishable': settings.STRIPE_PUBLISHABLE,
-            'soon': soon(),
-            'months': range(1, 13),
-            'years': range(2011, 2036)
-        },
-        context_instance=RequestContext(request)
-    )
+    On object deletion, the corresponding Stripe customer is deleted as well.
+    Deletion is triggered on subscription deletion, to ensure the subscription
+    is synced with Stripe.
+    """
+
+    success_message = _('Your subscription has been cancelled')
+
+    def post(self, request, *args, **kwargs):
+        """Add success message to delete post"""
+        resp = super(SuccessMessageMixin, self).post(request, *args, **kwargs)
+        success_message = self.get_success_message({})
+        if success_message:
+            messages.success(self.request, success_message)
+        return resp
 
 
 @login_required

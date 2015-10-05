@@ -12,7 +12,6 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404, render_to_response, render
 from django.template import RequestContext
 from django.views.generic import View, TemplateView, ListView
-from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from formtools.wizard.views import SessionWizardView
 from allauth.socialaccount.models import SocialAccount
@@ -37,17 +36,10 @@ from readthedocs.projects.views.base import ProjectAdminMixin
 from readthedocs.projects import constants, tasks
 from readthedocs.projects.tasks import remove_path_from_web
 
-
+from readthedocs.core.mixins import LoginRequiredMixin
 from readthedocs.projects.signals import project_import
 
 log = logging.getLogger(__name__)
-
-
-class LoginRequiredMixin(object):
-
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super(LoginRequiredMixin, self).dispatch(*args, **kwargs)
 
 
 class PrivateViewMixin(LoginRequiredMixin):
