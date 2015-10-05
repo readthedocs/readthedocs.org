@@ -11,7 +11,6 @@ else:
     from StringIO import StringIO
 
 
-
 class Backend(BaseVCS):
     supports_tags = True
     fallback_branch = ''

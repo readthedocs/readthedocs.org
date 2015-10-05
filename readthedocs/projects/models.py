@@ -41,8 +41,6 @@ if sys.version_info > (3,):
 else:
     from urlparse import urlparse
 
-
-
 log = logging.getLogger(__name__)
 
 
