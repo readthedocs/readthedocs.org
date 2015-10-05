@@ -15,6 +15,7 @@ from django.views.generic import View, TemplateView, ListView
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from formtools.wizard.views import SessionWizardView
+from allauth.socialaccount.models import SocialAccount
 
 from vanilla import CreateView, DeleteView, UpdateView
 
@@ -25,7 +26,6 @@ from readthedocs.builds.filters import VersionFilter
 from readthedocs.builds.models import VersionAlias
 from readthedocs.core.utils import trigger_build
 from readthedocs.core.mixins import ListViewWithForm
-from readthedocs.oauth.models import GithubProject, BitbucketProject
 from readthedocs.oauth import utils as oauth_utils
 from readthedocs.projects.forms import (
     ProjectBasicsForm, ProjectExtraForm,
@@ -296,30 +296,6 @@ class ImportWizardView(PrivateViewMixin, SessionWizardView):
         return data.get('advanced', True)
 
 
-class ImportView(PrivateViewMixin, TemplateView):
-
-    """On GET, show the source select template, on POST, mock out a wizard
-
-    If we are accepting POST data, use the fields to seed the initial data in
-    :py:cls:`ImportWizardView`.  The import templates will redirect the form to
-    `/dashboard/import`
-    """
-
-    template_name = 'projects/project_import.html'
-    wizard_class = ImportWizardView
-
-    def post(self, request, *args, **kwargs):
-        initial_data = {}
-        initial_data['basics'] = {}
-        for key in ['name', 'repo', 'repo_type']:
-            initial_data['basics'][key] = request.POST.get(key)
-        initial_data['extra'] = {}
-        for key in ['description', 'project_url']:
-            initial_data['extra'][key] = request.POST.get(key)
-        request.method = 'GET'
-        return self.wizard_class.as_view(initial_dict=initial_data)(request)
-
-
 class ImportDemoView(PrivateViewMixin, View):
 
     """View to pass request on to import form to import demo project"""
@@ -370,6 +346,38 @@ class ImportDemoView(PrivateViewMixin, View):
     def get_form_kwargs(self):
         """Form kwargs passed in during instantiation"""
         return {'user': self.request.user}
+
+
+class ImportView(PrivateViewMixin, TemplateView):
+
+    """On GET, show the source an import view, on POST, mock out a wizard
+
+    If we are accepting POST data, use the fields to seed the initial data in
+    :py:cls:`ImportWizardView`.  The import templates will redirect the form to
+    `/dashboard/import`
+    """
+
+    template_name = 'projects/project_import.html'
+    wizard_class = ImportWizardView
+
+    def post(self, request, *args, **kwargs):
+        initial_data = {}
+        initial_data['basics'] = {}
+        for key in ['name', 'repo', 'repo_type']:
+            initial_data['basics'][key] = request.POST.get(key)
+        initial_data['extra'] = {}
+        for key in ['description', 'project_url']:
+            initial_data['extra'][key] = request.POST.get(key)
+        request.method = 'GET'
+        return self.wizard_class.as_view(initial_dict=initial_data)(request)
+
+    def get_context_data(self, **kwargs):
+        context = super(ImportView, self).get_context_data(**kwargs)
+        context['has_connected_accounts'] = (SocialAccount
+                                             .objects
+                                             .filter(user=self.request.user)
+                                             .exists())
+        return context
 
 
 @login_required
@@ -611,66 +619,6 @@ def project_redirects_delete(request, project_slug):
         raise Http404
     return HttpResponseRedirect(reverse('projects_redirects',
                                         args=[project.slug]))
-
-
-@login_required
-def project_import_github(request):
-    """Show form that prefills import form with data from GitHub"""
-    github_connected = oauth_utils.import_github(
-        user=request.user, sync=False)
-    repos = GithubProject.objects.filter(users__in=[request.user])
-
-    # Find existing projects that match a repo url
-    for repo in repos:
-        ghetto_repo = repo.git_url.replace('git://', '').replace('.git', '')
-        projects = (Project
-                    .objects
-                    .public(request.user)
-                    .filter(Q(repo__endswith=ghetto_repo) |
-                            Q(repo__endswith=ghetto_repo + '.git')))
-        if projects:
-            repo.matches = [project.slug for project in projects]
-        else:
-            repo.matches = []
-
-    return render_to_response(
-        'projects/project_import_github.html',
-        {
-            'repos': repos,
-            'github_connected': github_connected,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@login_required
-def project_import_bitbucket(request):
-    """Show form that prefills import form with data from BitBucket"""
-    bitbucket_connected = oauth_utils.import_bitbucket(
-        user=request.user, sync=False)
-    repos = BitbucketProject.objects.filter(users__in=[request.user])
-
-    # Find existing projects that match a repo url
-    for repo in repos:
-        ghetto_repo = repo.git_url.replace('git://', '').replace('.git', '')
-        projects = (Project
-                    .objects
-                    .public(request.user)
-                    .filter(Q(repo__endswith=ghetto_repo) |
-                            Q(repo__endswith=ghetto_repo + '.git')))
-        if projects:
-            repo.matches = [project.slug for project in projects]
-        else:
-            repo.matches = []
-
-    return render_to_response(
-        'projects/project_import_bitbucket.html',
-        {
-            'repos': repos,
-            'bitbucket_connected': bitbucket_connected,
-        },
-        context_instance=RequestContext(request)
-    )
 
 
 @login_required
