@@ -146,6 +146,11 @@ CORS_ALLOW_HEADERS = (
     'x-csrftoken'
 )
 
+# set GitHub scope
+SOCIALACCOUNT_PROVIDERS = {
+    'github': {'SCOPE': ['user:email', 'read:org', 'admin:repo_hook', 'repo:status']}
+}
+
 
 ROOT_URLCONF = 'readthedocs.urls'
 
