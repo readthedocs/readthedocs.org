@@ -2,23 +2,22 @@
 from __future__ import unicode_literals
 
 import json
-import logging
 import gc
 
 from django.db import models, migrations
 
-log = logging.getLogger(__name__)
-
 
 def chunks(queryset, chunksize=1000):
     pk = 0
-    last_pk = queryset.order_by('-pk').first().pk
     queryset = queryset.order_by('pk')
-    while pk < last_pk:
-        for row in queryset.filter(pk__gt=pk)[:chunksize]:
-            pk = row.pk
-            yield row
-        gc.collect()
+    last_instance = queryset.last()
+    if last_instance is not None:
+        last_pk = last_instance.pk
+        while pk < last_pk:
+            for row in queryset.filter(pk__gt=pk)[:chunksize]:
+                pk = row.pk
+                yield row
+            gc.collect()
 
 
 def forwards_move_repos(apps, schema_editor):
@@ -49,7 +48,6 @@ def forwards_move_repos(apps, schema_editor):
         except:
             pass
         new_org.save()
-        log.info('Created %s', new_org)
 
     for org in chunks(BitbucketTeam.objects.all()):
         new_org = RemoteOrganization.objects.using(db).create(
