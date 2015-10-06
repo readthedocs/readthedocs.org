@@ -14,7 +14,7 @@ def forwards_move_repos(apps, schema_editor):
     GithubOrganization = apps.get_model('oauth', 'GithubOrganization')
     BitbucketTeam = apps.get_model('oauth', 'BitbucketTeam')
     RemoteOrganization = apps.get_model('oauth', 'RemoteOrganization')
-    for org in GithubOrganization.objects.all().iterator():
+    for org in GithubOrganization.objects.iterator():
         new_org = RemoteOrganization.objects.using(db).create(
             pub_date=org.pub_date,
             modified_date=org.modified_date,
@@ -25,7 +25,7 @@ def forwards_move_repos(apps, schema_editor):
             url=org.html_url,
             source='github',
         )
-        for user in org.users.all():
+        for user in org.users.iterator():
             new_org.users.add(user)
         try:
             data = eval(org.json)
@@ -35,7 +35,7 @@ def forwards_move_repos(apps, schema_editor):
             pass
         new_org.save()
 
-    for org in BitbucketTeam.objects.all().iterator():
+    for org in BitbucketTeam.objects.iterator():
         new_org = RemoteOrganization.objects.using(db).create(
             pub_date=org.pub_date,
             modified_date=org.modified_date,
@@ -46,7 +46,7 @@ def forwards_move_repos(apps, schema_editor):
             url=org.html_url,
             source='bitbucket',
         )
-        for user in org.users.all():
+        for user in org.users.iterator():
             new_org.users.add(user)
         try:
             new_org.json = json.dumps(eval(org.json))
@@ -59,7 +59,7 @@ def forwards_move_repos(apps, schema_editor):
     BitbucketProject = apps.get_model('oauth', 'BitbucketProject')
     RemoteRepository = apps.get_model('oauth', 'RemoteRepository')
 
-    for project in GithubProject.objects.all().iterator():
+    for project in GithubProject.objects.iterator():
         new_repo = RemoteRepository.objects.using(db).create(
             pub_date=project.pub_date,
             modified_date=project.modified_date,
@@ -72,7 +72,7 @@ def forwards_move_repos(apps, schema_editor):
             vcs='git',
             source='github',
         )
-        for user in project.users.all():
+        for user in project.users.iterator():
             new_repo.users.add(user)
         if project.organization is not None:
             new_repo.organization = (RemoteOrganization
@@ -93,7 +93,7 @@ def forwards_move_repos(apps, schema_editor):
             pass
         new_repo.save()
 
-    for project in BitbucketProject.objects.all().iterator():
+    for project in BitbucketProject.objects.iterator():
         new_repo = RemoteRepository.objects.using(db).create(
             pub_date=project.pub_date,
             modified_date=project.modified_date,
@@ -107,7 +107,7 @@ def forwards_move_repos(apps, schema_editor):
             vcs=project.vcs,
             source='bitbucket',
         )
-        for user in project.users.all():
+        for user in project.users.iterator():
             new_repo.users.add(user)
         if project.organization is not None:
             new_repo.organization = (RemoteOrganization
