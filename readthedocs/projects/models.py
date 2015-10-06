@@ -37,7 +37,9 @@ from readthedocs.vcs_support.backends import backend_cls
 from readthedocs.vcs_support.utils import Lock, NonBlockingLock
 
 if sys.version_info > (3,):
+    # pylint: disable=import-error
     from urllib.parse import urlparse
+    # pylint: enable=import-error
 else:
     from urlparse import urlparse
 
