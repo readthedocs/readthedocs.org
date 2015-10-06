@@ -43,7 +43,7 @@ class ProjectManager(models.Manager):
         else:
             return self.none()
 
-    def public(self, user=None, *args, **kwargs):
+    def public(self, user=None):
         queryset = self.filter(privacy_level=constants.PUBLIC)
         if user:
             return self._add_user_repos(queryset, user)
@@ -62,13 +62,13 @@ class ProjectManager(models.Manager):
     def dashboard(self, user=None, *args, **kwargs):
         return self.for_admin_user(user)
 
-    def api(self, user=None, *args, **kwargs):
+    def api(self, user=None):
         return self.public(user)
 
 
 class RelatedProjectManager(models.Manager):
 
-    def _add_user_repos(self, queryset, user=None, *args, **kwargs):
+    def _add_user_repos(self, queryset, user=None):
         # Hack around get_objects_for_user not supporting global perms
         if user.has_perm('projects.view_project'):
             return self.get_queryset().all().distinct()
@@ -79,7 +79,7 @@ class RelatedProjectManager(models.Manager):
             queryset = self.get_queryset().filter(project__pk__in=pks) | queryset
         return queryset.distinct()
 
-    def public(self, user=None, project=None, *args, **kwargs):
+    def public(self, user=None, project=None):
         queryset = self.filter(project__privacy_level=constants.PUBLIC)
         if user:
             queryset = self._add_user_repos(queryset, user)
@@ -87,14 +87,14 @@ class RelatedProjectManager(models.Manager):
             queryset = queryset.filter(project=project)
         return queryset
 
-    def api(self, user=None, *args, **kwargs):
+    def api(self, user=None):
         return self.public(user)
 
 
 class RelatedBuildManager(models.Manager):
     '''For models with association to a project through :py:cls:`Build`'''
 
-    def _add_user_repos(self, queryset, user=None, *args, **kwargs):
+    def _add_user_repos(self, queryset, user=None):
         # Hack around get_objects_for_user not supporting global perms
         if user.has_perm('projects.view_project'):
             return self.get_queryset().all().distinct()
@@ -106,7 +106,7 @@ class RelatedBuildManager(models.Manager):
                         .filter(build__project__pk__in=pks) | queryset)
         return queryset.distinct()
 
-    def public(self, user=None, project=None, *args, **kwargs):
+    def public(self, user=None, project=None):
         queryset = self.filter(build__project__privacy_level=constants.PUBLIC)
         if user:
             queryset = self._add_user_repos(queryset, user)
@@ -114,13 +114,13 @@ class RelatedBuildManager(models.Manager):
             queryset = queryset.filter(build__project=project)
         return queryset
 
-    def api(self, user=None, *args, **kwargs):
+    def api(self, user=None):
         return self.public(user)
 
 
 class VersionManager(RelatedProjectManager):
 
-    def _add_user_repos(self, queryset, user=None, *args, **kwargs):
+    def _add_user_repos(self, queryset, user=None):
         queryset = super(VersionManager, self)._add_user_repos(queryset, user)
         if user and user.is_authenticated():
             # Add in possible user-specific views
@@ -133,7 +133,7 @@ class VersionManager(RelatedProjectManager):
                 queryset = self.get_queryset().all().distinct()
         return queryset.distinct()
 
-    def public(self, user=None, project=None, only_active=True, *args, **kwargs):
+    def public(self, user=None, project=None, only_active=True):
         queryset = self.filter(project__privacy_level=constants.PUBLIC,
                                privacy_level=constants.PUBLIC)
         if user:
@@ -144,7 +144,7 @@ class VersionManager(RelatedProjectManager):
             queryset = queryset.filter(active=True)
         return queryset
 
-    def api(self, user=None, *args, **kwargs):
+    def api(self, user=None):
         return self.public(user, only_active=False)
 
     def create_stable(self, **kwargs):
