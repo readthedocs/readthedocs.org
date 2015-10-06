@@ -123,7 +123,7 @@ class BuildManager(models.Manager):
     """
 
     def _add_user_repos(self, queryset, user=None):
-        if user.has_perm('builds.view_version'):
+        if user.has_perm('projects.view_project'):
             return self.get_queryset().all().distinct()
         if user.is_authenticated():
             user_queryset = get_objects_for_user(user, 'builds.view_version')
