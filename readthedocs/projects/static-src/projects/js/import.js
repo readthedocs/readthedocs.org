@@ -155,8 +155,13 @@ function ProjectImportView (instance, urls) {
             url = self.page_current() || self.urls['remoterepository-list'];
 
         if (org) {
-            url = append_url_params(url, {org: org});
+            url = append_url_params(
+                self.urls['remoterepository-list'],
+                {org: org}
+            );
         }
+
+        self.error(null);
 
         $.getJSON(url)
             .success(function (projects_list) {
