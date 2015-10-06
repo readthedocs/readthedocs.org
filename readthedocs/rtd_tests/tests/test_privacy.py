@@ -55,6 +55,10 @@ class PrivacyTests(TestCase):
         proj.num_point = 2
         proj.save()
 
+        latest = proj.versions.get(slug='latest')
+        latest.privacy_level = version_privacy_level
+        latest.save()
+
         self.assertAlmostEqual(Project.objects.count(), 1)
         r = self.client.get('/projects/django-kong/')
         self.assertEqual(r.status_code, 200)
