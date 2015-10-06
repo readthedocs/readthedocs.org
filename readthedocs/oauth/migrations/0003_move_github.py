@@ -2,8 +2,23 @@
 from __future__ import unicode_literals
 
 import json
+import logging
+import gc
 
 from django.db import models, migrations
+
+log = logging.getLogger(__name__)
+
+
+def chunks(queryset, chunksize=1000):
+    pk = 0
+    last_pk = queryset.order_by('-pk').first().pk
+    queryset = queryset.order_by('pk')
+    while pk < last_pk:
+        for row in queryset.filter(pk__gt=pk)[:chunksize]:
+            pk = row.pk
+            yield row
+        gc.collect()
 
 
 def forwards_move_repos(apps, schema_editor):
@@ -14,7 +29,7 @@ def forwards_move_repos(apps, schema_editor):
     GithubOrganization = apps.get_model('oauth', 'GithubOrganization')
     BitbucketTeam = apps.get_model('oauth', 'BitbucketTeam')
     RemoteOrganization = apps.get_model('oauth', 'RemoteOrganization')
-    for org in GithubOrganization.objects.iterator():
+    for org in chunks(GithubOrganization.objects.all()):
         new_org = RemoteOrganization.objects.using(db).create(
             pub_date=org.pub_date,
             modified_date=org.modified_date,
@@ -34,8 +49,9 @@ def forwards_move_repos(apps, schema_editor):
         except:
             pass
         new_org.save()
+        log.info('Created %s', new_org)
 
-    for org in BitbucketTeam.objects.iterator():
+    for org in chunks(BitbucketTeam.objects.all()):
         new_org = RemoteOrganization.objects.using(db).create(
             pub_date=org.pub_date,
             modified_date=org.modified_date,
@@ -59,7 +75,7 @@ def forwards_move_repos(apps, schema_editor):
     BitbucketProject = apps.get_model('oauth', 'BitbucketProject')
     RemoteRepository = apps.get_model('oauth', 'RemoteRepository')
 
-    for project in GithubProject.objects.iterator():
+    for project in chunks(GithubProject.objects.all()):
         new_repo = RemoteRepository.objects.using(db).create(
             pub_date=project.pub_date,
             modified_date=project.modified_date,
@@ -93,7 +109,7 @@ def forwards_move_repos(apps, schema_editor):
             pass
         new_repo.save()
 
-    for project in BitbucketProject.objects.iterator():
+    for project in chunks(BitbucketProject.objects.all()):
         new_repo = RemoteRepository.objects.using(db).create(
             pub_date=project.pub_date,
             modified_date=project.modified_date,
