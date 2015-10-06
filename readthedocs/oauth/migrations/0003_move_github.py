@@ -14,7 +14,7 @@ def forwards_move_repos(apps, schema_editor):
     GithubOrganization = apps.get_model('oauth', 'GithubOrganization')
     BitbucketTeam = apps.get_model('oauth', 'BitbucketTeam')
     RemoteOrganization = apps.get_model('oauth', 'RemoteOrganization')
-    for org in GithubOrganization.objects.all():
+    for org in GithubOrganization.objects.all().iterator():
         new_org = RemoteOrganization.objects.using(db).create(
             pub_date=org.pub_date,
             modified_date=org.modified_date,
@@ -35,7 +35,7 @@ def forwards_move_repos(apps, schema_editor):
             pass
         new_org.save()
 
-    for org in BitbucketTeam.objects.all():
+    for org in BitbucketTeam.objects.all().iterator():
         new_org = RemoteOrganization.objects.using(db).create(
             pub_date=org.pub_date,
             modified_date=org.modified_date,
@@ -59,7 +59,7 @@ def forwards_move_repos(apps, schema_editor):
     BitbucketProject = apps.get_model('oauth', 'BitbucketProject')
     RemoteRepository = apps.get_model('oauth', 'RemoteRepository')
 
-    for project in GithubProject.objects.all():
+    for project in GithubProject.objects.all().iterator():
         new_repo = RemoteRepository.objects.using(db).create(
             pub_date=project.pub_date,
             modified_date=project.modified_date,
@@ -93,7 +93,7 @@ def forwards_move_repos(apps, schema_editor):
             pass
         new_repo.save()
 
-    for project in BitbucketProject.objects.all():
+    for project in BitbucketProject.objects.all().iterator():
         new_repo = RemoteRepository.objects.using(db).create(
             pub_date=project.pub_date,
             modified_date=project.modified_date,
