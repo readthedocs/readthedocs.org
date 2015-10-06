@@ -76,7 +76,7 @@ $(document).ready(function () {
               style="display: none;">
           {{ build.get_state_display }}
         </span>
-        <img src="{{ MEDIA_URL }}images/loader.gif"
+        <img src="{% static 'core/img/loader.gif' %}"
             data-bind="visible: !finished()"
             style="display: none;" />
       </span>

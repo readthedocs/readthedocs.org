@@ -9,24 +9,13 @@ from .utils import import_github
 
 
 @permission_check(user_id_matches)
-class SyncGitHubRepositories(PublicTask):
-    public_name = 'sync_github_repositories'
+class SyncRemoteRepositories(PublicTask):
+    public_name = 'sync_remote_repositories'
 
     def run_public(self, user_id):
         user = User.objects.get(pk=user_id)
         import_github(user, sync=True)
-
-
-sync_github_repositories = celery_app.tasks[SyncGitHubRepositories.name]
-
-
-@permission_check(user_id_matches)
-class SyncBitBucketRepositories(PublicTask):
-    public_name = 'sync_bitbucket_repositories'
-
-    def run_public(self, user_id):
-        user = User.objects.get(pk=user_id)
         import_bitbucket(user, sync=True)
 
 
-sync_bitbucket_repositories = celery_app.tasks[SyncBitBucketRepositories.name]
+sync_remote_repositories = celery_app.tasks[SyncRemoteRepositories.name]

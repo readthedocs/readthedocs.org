@@ -28,14 +28,6 @@ urlpatterns = patterns(
         ImportDemoView.as_view(),
         name='projects_import_demo'),
 
-    url(r'^import/github/$',
-        'readthedocs.projects.views.private.project_import_github',
-        name='projects_import_github'),
-
-    url(r'^import/bitbucket/$',
-        'readthedocs.projects.views.private.project_import_bitbucket',
-        name='projects_import_bitbucket'),
-
     url(r'^(?P<project_slug>[-\w]+)/$',
         'readthedocs.projects.views.private.project_manage',
         name='projects_manage'),
