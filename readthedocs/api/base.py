@@ -140,7 +140,7 @@ class VersionResource(ModelResource):
     #     return bundle
 
     def get_object_list(self, request):
-        self._meta.queryset = Version.objects.api(user=request.user, only_active=False)
+        self._meta.queryset = Version.objects.api(user=request.user)
         return super(VersionResource, self).get_object_list(request)
 
     def version_compare(self, request, project_slug, base=None, **kwargs):

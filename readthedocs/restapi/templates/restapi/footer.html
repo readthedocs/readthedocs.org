@@ -11,6 +11,7 @@
     <div class="rst-other-versions">
       {% endif %}
 
+      {% block versions %}
       {% if translations %}
       <dl>
         <dt>Languages</dt>
@@ -44,7 +45,9 @@
         {% endfor %}
       </dl>
       {% endif %}
+      {% endblock %}
 
+      {% block downloads %}
       {% if downloads %}
       <dl>
         <dt>Downloads</dt>
@@ -53,7 +56,9 @@
         {% endfor %}
       </dl>
       {% endif %}
+      {% endblock %}
 
+      {% block readthedocs %}
       <dl>
         <!-- These are kept as relative links for internal installs that are http -->
         <dt>On Read the Docs</dt>
@@ -67,6 +72,9 @@
           <a href="//{{ settings.PRODUCTION_DOMAIN }}{% url 'project_downloads' project.slug %}">Downloads</a>
         </dd>
       </dl>
+      {% endblock %}
+
+      {% block vcs %}
 
       {% if github_edit_url %}
       <dl>
@@ -86,7 +94,9 @@
         </dd>
       </dl>
       {% endif %}
+      {% endblock %}
 
+      {% block search %}
       <dl>
         <dt>Search</dt>
         <dd>
@@ -97,6 +107,7 @@
           </div>
         </dd>
       </dl>
+      {% endblock %}
 
 
 

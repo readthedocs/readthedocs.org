@@ -11,11 +11,10 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from guardian.shortcuts import assign
 from taggit.managers import TaggableManager
 
-from readthedocs.privacy.loader import (VersionManager, RelatedProjectManager,
-                                        RelatedBuildManager)
+from readthedocs.privacy.loader import (VersionManager, RelatedBuildManager,
+                                        BuildManager)
 from readthedocs.projects.models import Project
-from readthedocs.projects.constants import (PRIVACY_CHOICES, REPO_TYPE_GIT,
-                                            REPO_TYPE_HG, GITHUB_URL,
+from readthedocs.projects.constants import (PRIVACY_CHOICES, GITHUB_URL,
                                             GITHUB_REGEXS, BITBUCKET_URL,
                                             BITBUCKET_REGEXS, PRIVATE)
 from readthedocs.core.resolver import resolve
@@ -323,7 +322,7 @@ class Build(models.Model):
 
     # Manager
 
-    objects = RelatedProjectManager()
+    objects = BuildManager()
 
     class Meta:
         ordering = ['-date']
@@ -351,6 +350,7 @@ class Build(models.Model):
 
 
 class BuildCommandResultMixin(object):
+
     '''Mixin for common command result methods/properties
 
     Shared methods between the database model :py:cls:`BuildCommandResult` and

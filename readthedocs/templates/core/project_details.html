@@ -24,7 +24,6 @@
   <!-- END onboard -->
   {% endif %}
 
-{% if versions %}
 
   <div class="module-header">
     <h3>{% trans "Versions" %}</h3>
@@ -64,11 +63,17 @@
             </ul>
           {% endif %}
         </li>
+
+      {% empty %}
+      <p>
+      {% trans "No active versions." %}
+      </p>
       {% endfor %}
       </ul>
     </div>
   </div>
 
+{% if versions %}
   <div class="build_a_version">
     <h3>{% trans "Build a version" %}</h3>
     <div class="version_right">
