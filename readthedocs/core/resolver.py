@@ -29,6 +29,7 @@ All possible URL's::
 from django.conf import settings
 import re
 
+from readthedocs.projects.constants import PRIVATE
 
 def _fix_filename(project, filename):
     """
@@ -53,11 +54,11 @@ def _fix_filename(project, filename):
     return path
 
 
-def base_resolve_path(project_slug, filename, version_slug=None, language=None,
+def base_resolve_path(project_slug, filename, version_slug=None, language=None, private=False,
                       single_version=None, subproject_slug=None,  subdomain=None, cname=None):
     """ Resolve a with nothing smart, just filling in the blanks."""
 
-    if subdomain or cname:
+    if (subdomain or cname) and not private:
         url = '/'
     else:
         url = '/docs/{project_slug}/'
@@ -78,12 +79,14 @@ def base_resolve_path(project_slug, filename, version_slug=None, language=None,
 
 
 def resolve_path(project, filename='', version_slug=None, language=None,
-                 single_version=None, subdomain=None, cname=None):
+                 single_version=None, subdomain=None, cname=None, private=None):
     """ Resolve a URL with a subset of fields defined."""
     subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
     relation = project.superprojects.first()
     cname = cname or project.domains.filter(canonical=True).first()
     main_language_project = project.main_language_project
+    if private is None:
+        private = project.privacy_level == PRIVATE
 
     version_slug = version_slug or project.get_default_version()
     language = language or project.language
@@ -110,14 +113,17 @@ def resolve_path(project, filename='', version_slug=None, language=None,
     return base_resolve_path(project_slug=project_slug, filename=filename,
                              version_slug=version_slug, language=language,
                              single_version=single_version, subproject_slug=subproject_slug,
-                             subdomain=subdomain, cname=cname)
+                             subdomain=subdomain, cname=cname, private=private)
 
 
-def resolve_domain(project):
+def resolve_domain(project, private=None):
     main_language_project = project.main_language_project
     relation = project.superprojects.first()
     subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
     prod_domain = getattr(settings, 'PRODUCTION_DOMAIN')
+    if private is None:
+        private = project.privacy_level == PRIVATE
+
     if main_language_project:
         canonical_project = main_language_project
     elif relation:
@@ -127,7 +133,9 @@ def resolve_domain(project):
 
     domain = canonical_project.domains.filter(canonical=True).first()
     # Force domain even if USE_SUBDOMAIN is on
-    if domain:
+    if private:
+        return prod_domain
+    elif domain:
         return domain.domain
     elif subdomain:
         subdomain_slug = canonical_project.slug.replace('_', '-')
@@ -136,9 +144,9 @@ def resolve_domain(project):
         return prod_domain
 
 
-def resolve(project, protocol='http', filename='', **kwargs):
+def resolve(project, protocol='http', filename='', private=None, **kwargs):
     return '{protocol}://{domain}{path}'.format(
         protocol=protocol,
-        domain=resolve_domain(project),
-        path=resolve_path(project, filename=filename, **kwargs),
+        domain=resolve_domain(project, private=private),
+        path=resolve_path(project, filename=filename, private=private, **kwargs),
     )
