@@ -63,7 +63,8 @@ class ProjectRelationship(models.Model):
 
     # HACK
     def get_absolute_url(self):
-        return resolve(self.child)
+        private = self.child.privacy_level == 'private'
+        return resolve(self.child, private=private)
 
 
 class Project(models.Model):
@@ -329,12 +330,14 @@ class Project(models.Model):
     def get_absolute_url(self):
         return reverse('projects_detail', args=[self.slug])
 
-    def get_docs_url(self, version_slug=None, lang_slug=None):
+    def get_docs_url(self, version_slug=None, lang_slug=None, private=None):
         """Return a url for the docs
 
         Always use http for now, to avoid content warnings.
         """
-        return resolve(project=self, version_slug=version_slug, language=lang_slug)
+        if private is None:
+            private = self.privacy_level == 'private'
+        return resolve(project=self, version_slug=version_slug, language=lang_slug, private=private)
 
     def get_builds_url(self):
         return reverse('builds_project_list', kwargs={

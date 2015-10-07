@@ -147,7 +147,8 @@ class Version(models.Model):
                 'project_slug': self.project.slug,
                 'version_slug': self.slug,
             })
-        return self.project.get_docs_url(version_slug=self.slug)
+        private = self.privacy_level == 'private'
+        return self.project.get_docs_url(version_slug=self.slug, private=private)
 
     def save(self, *args, **kwargs):
         """
@@ -168,7 +169,8 @@ class Version(models.Model):
         return self.identifier
 
     def get_subdomain_url(self):
-        return resolve(project=self.project, version_slug=self.slug)
+        private = self.privacy_level == 'private'
+        return resolve(project=self.project, version_slug=self.slug, private=private)
 
     def get_downloads(self, pretty=False):
         project = self.project
