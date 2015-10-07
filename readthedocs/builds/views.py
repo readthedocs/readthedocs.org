@@ -16,7 +16,8 @@ from redis import Redis, ConnectionError
 log = logging.getLogger(__name__)
 
 
-class BaseBuild(object):
+class BuildBase(object):
+    model = Build
 
     def get_queryset(self):
         self.project_slug = self.kwargs.get('project_slug', None)
@@ -29,8 +30,7 @@ class BaseBuild(object):
         return queryset
 
 
-class BuildList(BaseBuild, ListView):
-    model = Build
+class BuildList(BuildBase, ListView):
 
     def get_context_data(self, **kwargs):
         context = super(BuildList, self).get_context_data(**kwargs)
@@ -52,8 +52,7 @@ class BuildList(BaseBuild, ListView):
         return context
 
 
-class BuildDetail(BaseBuild, DetailView):
-    model = Build
+class BuildDetail(BuildBase, DetailView):
     pk_url_kwarg = 'build_pk'
 
     def get_context_data(self, **kwargs):
