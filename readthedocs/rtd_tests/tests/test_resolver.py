@@ -3,6 +3,7 @@ import mock
 from django.test import TestCase
 from django.test.utils import override_settings
 
+from readthedocs.projects.constants import PRIVATE
 from readthedocs.projects.models import Project, Domain
 from readthedocs.rtd_tests.utils import create_user
 from readthedocs.core.resolver import resolve_path, resolve, resolve_domain
@@ -307,7 +308,7 @@ class ResolverTests(ResolverBase):
 
     @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
     def test_resolver_private_project_override(self):
-        self.pip.privacy_level = 'private'
+        self.pip.privacy_level = PRIVATE
         with override_settings(USE_SUBDOMAIN=False):
             url = resolve(project=self.pip)
             self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/latest/')
