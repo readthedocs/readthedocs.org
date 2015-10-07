@@ -7,7 +7,7 @@ from django.test.utils import override_settings
 from django.contrib.auth.models import User
 
 from readthedocs.builds.constants import LATEST
-from readthedocs.builds.models import Version
+from readthedocs.builds.models import Version, Build
 from readthedocs.projects.models import Project
 from readthedocs.projects.forms import UpdateProjectForm
 from readthedocs.projects import tasks
@@ -327,3 +327,23 @@ class PrivacyTests(TestCase):
         r = self.client.get('/projects/django-kong/downloads/htmlzip/latest/')
         self.assertEqual(r.status_code, 302)
         self.assertEqual(r._headers['location'][1], 'http://testserver/media/htmlzip/django-kong/latest/django-kong.zip')
+
+# Build Filtering
+
+    def test_build_filtering(self):
+        kong = self._create_kong('public', 'private')
+
+        self.client.login(username='eric', password='test')
+        ver = Version.objects.create(project=kong, identifier='test id',
+                                     verbose_name='test verbose', privacy_level='private', slug='test-slug', active=True)
+
+        r = self.client.get('/projects/django-kong/builds/')
+        self.assertTrue(r.content.count('test-slug', 1))
+        Build.objects.create(project=kong, version=ver)
+        r = self.client.get('/projects/django-kong/builds/')
+        self.assertTrue(r.content.count('test-slug', 2))
+
+        # Make sure it doesn't show up as tester
+        self.client.login(username='tester', password='test')
+        r = self.client.get('/projects/django-kong/builds/')
+        self.assertTrue('test-slug' not in r.content)
