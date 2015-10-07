@@ -122,10 +122,14 @@ class PrivacyTests(TestCase):
         self.assertEqual(Version.objects.get(slug='test-slug').privacy_level, 'private')
         r = self.client.get('/projects/django-kong/')
         self.assertTrue('test-slug' in r.content)
+        r = self.client.get('/projects/django-kong/builds/')
+        self.assertTrue('test-slug' in r.content)
 
         # Make sure it doesn't show up as tester
         self.client.login(username='tester', password='test')
         r = self.client.get('/projects/django-kong/')
+        self.assertTrue('test-slug' not in r.content)
+        r = self.client.get('/projects/django-kong/builds/')
         self.assertTrue('test-slug' not in r.content)
 
     def test_public_branch(self):
