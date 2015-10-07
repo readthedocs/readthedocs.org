@@ -103,6 +103,7 @@ def footer_html(request):
 
     context = {
         'project': project,
+        'version': version,
         'path': path,
         'downloads': version.get_downloads(pretty=True),
         'current_version': version.verbose_name,
