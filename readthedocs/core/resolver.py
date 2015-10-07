@@ -31,6 +31,7 @@ import re
 
 from readthedocs.projects.constants import PRIVATE
 
+
 def _fix_filename(project, filename):
     """
     Force filenames that might be HTML file paths into proper URL's
