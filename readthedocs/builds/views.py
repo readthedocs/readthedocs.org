@@ -16,19 +16,21 @@ from redis import Redis, ConnectionError
 log = logging.getLogger(__name__)
 
 
-class BuildList(ListView):
+class BuildBase(object):
     model = Build
 
     def get_queryset(self):
         self.project_slug = self.kwargs.get('project_slug', None)
-
         self.project = get_object_or_404(
             Project.objects.protected(self.request.user),
             slug=self.project_slug
         )
-        queryset = Build.objects.filter(project=self.project)
+        queryset = Build.objects.public(user=self.request.user, project=self.project)
 
         return queryset
+
+
+class BuildList(BuildBase, ListView):
 
     def get_context_data(self, **kwargs):
         context = super(BuildList, self).get_context_data(**kwargs)
@@ -50,26 +52,16 @@ class BuildList(ListView):
         return context
 
 
-class BuildDetail(DetailView):
-    model = Build
+class BuildDetail(BuildBase, DetailView):
     pk_url_kwarg = 'build_pk'
-
-    def get_queryset(self):
-        self.project_slug = self.kwargs.get('project_slug', None)
-
-        self.project = get_object_or_404(
-            Project.objects.protected(self.request.user),
-            slug=self.project_slug
-        )
-        queryset = Build.objects.filter(project=self.project)
-
-        return queryset
 
     def get_context_data(self, **kwargs):
         context = super(BuildDetail, self).get_context_data(**kwargs)
         context['project'] = self.project
         return context
 
+
+# Old build view redirects
 
 def builds_redirect_list(request, project_slug):
     return HttpResponsePermanentRedirect(reverse('builds_project_list', args=[project_slug]))

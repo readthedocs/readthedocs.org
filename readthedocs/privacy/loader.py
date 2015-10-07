@@ -8,6 +8,10 @@ ProjectManager = import_by_path(
 VersionManager = import_by_path(
     getattr(settings, 'VERSION_MANAGER',
             'readthedocs.privacy.backend.VersionManager'))
+BuildManager = import_by_path(
+    getattr(settings, 'BUILD_MANAGER',
+            'readthedocs.privacy.backend.BuildManager'))
+
 RelatedProjectManager = import_by_path(
     getattr(settings, 'RELATED_PROJECT_MANAGER',
             'readthedocs.privacy.backend.RelatedProjectManager'))

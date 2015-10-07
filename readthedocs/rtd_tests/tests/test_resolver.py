@@ -3,6 +3,7 @@ import mock
 from django.test import TestCase
 from django.test.utils import override_settings
 
+from readthedocs.projects.constants import PRIVATE
 from readthedocs.projects.models import Project, Domain
 from readthedocs.rtd_tests.utils import create_user
 from readthedocs.core.resolver import resolve_path, resolve, resolve_domain
@@ -125,6 +126,7 @@ class SmartResolverPathTests(ResolverBase):
 
 
 class ResolverPathOverrideTests(ResolverBase):
+
     """Tests to make sure we can override resolve_path correctly"""
 
     def test_resolver_force_single_version(self):
@@ -294,3 +296,26 @@ class ResolverTests(ResolverBase):
         with override_settings(USE_SUBDOMAIN=True):
             url = resolve(project=self.subproject)
             self.assertEqual(url, 'http://pip.readthedocs.org/projects/sub_alias/ja/latest/')
+
+    @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
+    def test_resolver_private_project(self):
+        with override_settings(USE_SUBDOMAIN=False):
+            url = resolve(project=self.pip, private=True)
+            self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/latest/')
+        with override_settings(USE_SUBDOMAIN=True):
+            url = resolve(project=self.pip, private=True)
+            self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/latest/')
+
+    @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
+    def test_resolver_private_project_override(self):
+        self.pip.privacy_level = PRIVATE
+        with override_settings(USE_SUBDOMAIN=False):
+            url = resolve(project=self.pip)
+            self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/latest/')
+            url = resolve(project=self.pip, private=False)
+            self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/latest/')
+        with override_settings(USE_SUBDOMAIN=True):
+            url = resolve(project=self.pip)
+            self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/latest/')
+            url = resolve(project=self.pip, private=False)
+            self.assertEqual(url, 'http://pip.readthedocs.org/en/latest/')
