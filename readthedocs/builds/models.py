@@ -17,7 +17,7 @@ from readthedocs.projects.models import Project
 from readthedocs.projects.constants import (PRIVACY_CHOICES, REPO_TYPE_GIT,
                                             REPO_TYPE_HG, GITHUB_URL,
                                             GITHUB_REGEXS, BITBUCKET_URL,
-                                            BITBUCKET_REGEXS)
+                                            BITBUCKET_REGEXS, PRIVATE)
 from readthedocs.core.resolver import resolve
 
 from .constants import (BUILD_STATE, BUILD_TYPES, VERSION_TYPES,
@@ -147,7 +147,7 @@ class Version(models.Model):
                 'project_slug': self.project.slug,
                 'version_slug': self.slug,
             })
-        private = self.privacy_level == 'private'
+        private = self.privacy_level == PRIVATE
         return self.project.get_docs_url(version_slug=self.slug, private=private)
 
     def save(self, *args, **kwargs):
@@ -169,7 +169,7 @@ class Version(models.Model):
         return self.identifier
 
     def get_subdomain_url(self):
-        private = self.privacy_level == 'private'
+        private = self.privacy_level == PRIVATE
         return resolve(project=self.project, version_slug=self.slug, private=private)
 
     def get_downloads(self, pretty=False):

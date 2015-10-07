@@ -29,6 +29,7 @@ All possible URL's::
 from django.conf import settings
 import re
 
+from readthedocs.projects.constants import PRIVATE
 
 def _fix_filename(project, filename):
     """
@@ -85,7 +86,7 @@ def resolve_path(project, filename='', version_slug=None, language=None,
     cname = cname or project.domains.filter(canonical=True).first()
     main_language_project = project.main_language_project
     if private is None:
-        private = project.privacy_level == 'private'
+        private = project.privacy_level == PRIVATE
 
     version_slug = version_slug or project.get_default_version()
     language = language or project.language
@@ -121,7 +122,7 @@ def resolve_domain(project, private=None):
     subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
     prod_domain = getattr(settings, 'PRODUCTION_DOMAIN')
     if private is None:
-        private = project.privacy_level == 'private'
+        private = project.privacy_level == PRIVATE
 
     if main_language_project:
         canonical_project = main_language_project

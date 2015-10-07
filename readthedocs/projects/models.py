@@ -18,9 +18,7 @@ from taggit.managers import TaggableManager
 
 from readthedocs.api.client import api
 from readthedocs.restapi.client import api as apiv2
-from readthedocs.builds.constants import LATEST
-from readthedocs.builds.constants import LATEST_VERBOSE_NAME
-from readthedocs.builds.constants import STABLE
+from readthedocs.builds.constants import LATEST, LATEST_VERBOSE_NAME, STABLE
 from readthedocs.privacy.loader import RelatedProjectManager, ProjectManager
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectImportError
@@ -63,7 +61,7 @@ class ProjectRelationship(models.Model):
 
     # HACK
     def get_absolute_url(self):
-        private = self.child.privacy_level == 'private'
+        private = self.child.privacy_level == constants.PRIVATE
         return resolve(self.child, private=private)
 
 
@@ -336,7 +334,7 @@ class Project(models.Model):
         Always use http for now, to avoid content warnings.
         """
         if private is None:
-            private = self.privacy_level == 'private'
+            private = self.privacy_level == constants.PRIVATE
         return resolve(project=self, version_slug=version_slug, language=lang_slug, private=private)
 
     def get_builds_url(self):
