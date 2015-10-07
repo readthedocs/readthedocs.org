@@ -90,7 +90,8 @@ class BuildCommand(object):
         environment.update(self.environment)
         environment['READTHEDOCS'] = 'True'
         if self.build_env is not None:
-            environment['RTD_VERSION_SLUG'] = self.build_env.version.slug
+            environment['READTHEDOCS_VERSION'] = self.build_env.version.slug
+            environment['READTHEDOCS_PROJECT'] = self.build_env.project.slug
         if 'DJANGO_SETTINGS_MODULE' in environment:
             del environment['DJANGO_SETTINGS_MODULE']
         if 'PYTHONPATH' in environment:
@@ -541,6 +542,8 @@ class DockerEnvironment(BuildEnvironment):
                     }
                 }),
                 detach=True,
+                environment = {'READTHEDOCS_VERSION' : self.version.slug,
+                               'READTHEDOCS_PROJECT' : self.project.slug},
                 mem_limit=self.container_mem_limit,
             )
             client.start(container=self.container_id)
