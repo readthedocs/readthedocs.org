@@ -59,7 +59,9 @@ def base_resolve_path(project_slug, filename, version_slug=None, language=None, 
                       single_version=None, subproject_slug=None,  subdomain=None, cname=None):
     """ Resolve a with nothing smart, just filling in the blanks."""
 
-    if (subdomain or cname) and not private:
+    if private:
+        url = '/docs/{project_slug}/'
+    elif subdomain or cname:
         url = '/'
     else:
         url = '/docs/{project_slug}/'
@@ -122,6 +124,7 @@ def resolve_domain(project, private=None):
     relation = project.superprojects.first()
     subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
     prod_domain = getattr(settings, 'PRODUCTION_DOMAIN')
+    public_domain = getattr(settings, 'PUBLIC_DOMAIN', prod_domain)
     if private is None:
         private = project.privacy_level == PRIVATE
 
@@ -140,9 +143,9 @@ def resolve_domain(project, private=None):
         return domain.domain
     elif subdomain:
         subdomain_slug = canonical_project.slug.replace('_', '-')
-        return "%s.%s" % (subdomain_slug, prod_domain)
+        return "%s.%s" % (subdomain_slug, public_domain)
     else:
-        return prod_domain
+        return public_domain
 
 
 def resolve(project, protocol='http', filename='', private=None, **kwargs):
