@@ -1,7 +1,6 @@
 from django.shortcuts import get_object_or_404
-from django.template import loader as template_loader
+from django.template import RequestContext, loader as template_loader
 from django.conf import settings
-from django.core.context_processors import csrf
 
 from rest_framework import decorators, permissions
 from rest_framework.renderers import JSONPRenderer, JSONRenderer, BrowsableAPIRenderer
@@ -121,8 +120,8 @@ def footer_html(request):
         'bitbucket_url': version.get_bitbucket_url(docroot, page_slug, source_suffix),
     }
 
-    context.update(csrf(request))
-    html = template_loader.get_template('restapi/footer.html').render(context)
+    request_context = RequestContext(request, context)
+    html = template_loader.get_template('restapi/footer.html').render(request_context)
     resp_data = {
         'html': html,
         'version_active': version.active,
