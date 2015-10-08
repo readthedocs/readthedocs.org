@@ -24,7 +24,7 @@ def symlink_cnames(project):
     Link from HOME/user_builds/cnametoproject/<cname> ->
               HOME/user_builds/<project>/
     """
-    domains = Domain.objects.filter(project=project, cname=True)
+    domains = Domain.objects.filter(project=project)
     for domain in domains:
         log.debug(LOG_TEMPLATE.format(
             project=project.slug,
