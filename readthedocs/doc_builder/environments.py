@@ -542,6 +542,8 @@ class DockerEnvironment(BuildEnvironment):
                     }
                 }),
                 detach=True,
+                environment = {'READTHEDOCS_VERSION' : self.version.slug,
+                               'READTHEDOCS_PROJECT' : self.project.slug},
                 mem_limit=self.container_mem_limit,
             )
             client.start(container=self.container_id)
