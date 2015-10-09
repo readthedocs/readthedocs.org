@@ -11,13 +11,12 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from guardian.shortcuts import assign
 from taggit.managers import TaggableManager
 
-from readthedocs.privacy.loader import (VersionManager, RelatedProjectManager,
-                                        RelatedBuildManager)
+from readthedocs.privacy.loader import (VersionManager, RelatedBuildManager,
+                                        BuildManager)
 from readthedocs.projects.models import Project
-from readthedocs.projects.constants import (PRIVACY_CHOICES, REPO_TYPE_GIT,
-                                            REPO_TYPE_HG, GITHUB_URL,
+from readthedocs.projects.constants import (PRIVACY_CHOICES, GITHUB_URL,
                                             GITHUB_REGEXS, BITBUCKET_URL,
-                                            BITBUCKET_REGEXS)
+                                            BITBUCKET_REGEXS, PRIVATE)
 from readthedocs.core.resolver import resolve
 
 from .constants import (BUILD_STATE, BUILD_TYPES, VERSION_TYPES,
@@ -147,7 +146,8 @@ class Version(models.Model):
                 'project_slug': self.project.slug,
                 'version_slug': self.slug,
             })
-        return self.project.get_docs_url(version_slug=self.slug)
+        private = self.privacy_level == PRIVATE
+        return self.project.get_docs_url(version_slug=self.slug, private=private)
 
     def save(self, *args, **kwargs):
         """
@@ -168,7 +168,8 @@ class Version(models.Model):
         return self.identifier
 
     def get_subdomain_url(self):
-        return resolve(project=self.project, version_slug=self.slug)
+        private = self.privacy_level == PRIVATE
+        return resolve(project=self.project, version_slug=self.slug, private=private)
 
     def get_downloads(self, pretty=False):
         project = self.project
@@ -321,7 +322,7 @@ class Build(models.Model):
 
     # Manager
 
-    objects = RelatedProjectManager()
+    objects = BuildManager()
 
     class Meta:
         ordering = ['-date']
@@ -349,6 +350,7 @@ class Build(models.Model):
 
 
 class BuildCommandResultMixin(object):
+
     '''Mixin for common command result methods/properties
 
     Shared methods between the database model :py:cls:`BuildCommandResult` and

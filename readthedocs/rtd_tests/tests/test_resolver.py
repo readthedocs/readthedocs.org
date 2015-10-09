@@ -3,6 +3,7 @@ import mock
 from django.test import TestCase
 from django.test.utils import override_settings
 
+from readthedocs.projects.constants import PRIVATE
 from readthedocs.projects.models import Project, Domain
 from readthedocs.rtd_tests.utils import create_user
 from readthedocs.core.resolver import resolve_path, resolve, resolve_domain
@@ -125,6 +126,7 @@ class SmartResolverPathTests(ResolverBase):
 
 
 class ResolverPathOverrideTests(ResolverBase):
+
     """Tests to make sure we can override resolve_path correctly"""
 
     def test_resolver_force_single_version(self):
@@ -233,6 +235,22 @@ class ResolverDomainTests(ResolverBase):
             url = resolve_domain(project=self.translation)
             self.assertEqual(url, 'pip.readthedocs.org')
 
+    @override_settings(PRODUCTION_DOMAIN='readthedocs.org', PUBLIC_DOMAIN='public.readthedocs.org')
+    def test_domain_public(self):
+        with override_settings(USE_SUBDOMAIN=False):
+            url = resolve_domain(project=self.translation)
+            self.assertEqual(url, 'public.readthedocs.org')
+        with override_settings(USE_SUBDOMAIN=True):
+            url = resolve_domain(project=self.translation)
+            self.assertEqual(url, 'pip.public.readthedocs.org')
+        # Private overrides domain
+        with override_settings(USE_SUBDOMAIN=False):
+            url = resolve_domain(project=self.translation, private=True)
+            self.assertEqual(url, 'readthedocs.org')
+        with override_settings(USE_SUBDOMAIN=True):
+            url = resolve_domain(project=self.translation, private=True)
+            self.assertEqual(url, 'readthedocs.org')
+
 
 class ResolverTests(ResolverBase):
 
@@ -294,3 +312,52 @@ class ResolverTests(ResolverBase):
         with override_settings(USE_SUBDOMAIN=True):
             url = resolve(project=self.subproject)
             self.assertEqual(url, 'http://pip.readthedocs.org/projects/sub_alias/ja/latest/')
+
+    @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
+    def test_resolver_private_project(self):
+        with override_settings(USE_SUBDOMAIN=False):
+            url = resolve(project=self.pip, private=True)
+            self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/latest/')
+        with override_settings(USE_SUBDOMAIN=True):
+            url = resolve(project=self.pip, private=True)
+            self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/latest/')
+
+    @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
+    def test_resolver_private_project_override(self):
+        self.pip.privacy_level = PRIVATE
+        with override_settings(USE_SUBDOMAIN=False):
+            url = resolve(project=self.pip)
+            self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/latest/')
+            url = resolve(project=self.pip, private=False)
+            self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/latest/')
+        with override_settings(USE_SUBDOMAIN=True):
+            url = resolve(project=self.pip)
+            self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/latest/')
+            url = resolve(project=self.pip, private=False)
+            self.assertEqual(url, 'http://pip.readthedocs.org/en/latest/')
+
+    @override_settings(PRODUCTION_DOMAIN='readthedocs.org', PUBLIC_DOMAIN='public.readthedocs.org')
+    def test_resolver_public_domain_overrides(self):
+        with override_settings(USE_SUBDOMAIN=False):
+            url = resolve(project=self.pip, private=True)
+            self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/latest/')
+            url = resolve(project=self.pip, private=False)
+            self.assertEqual(url, 'http://public.readthedocs.org/docs/pip/en/latest/')
+        with override_settings(USE_SUBDOMAIN=True):
+            url = resolve(project=self.pip, private=True)
+            self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/latest/')
+            url = resolve(project=self.pip, private=False)
+            self.assertEqual(url, 'http://pip.public.readthedocs.org/en/latest/')
+
+        # Domain overrides PUBLIC_DOMAIN
+        self.domain = get(Domain, domain='docs.foobar.com', project=self.pip, canonical=True)
+        with override_settings(USE_SUBDOMAIN=True):
+            url = resolve(project=self.pip, private=True)
+            self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/latest/')
+            url = resolve(project=self.pip, private=False)
+            self.assertEqual(url, 'http://docs.foobar.com/en/latest/')
+        with override_settings(USE_SUBDOMAIN=False):
+            url = resolve(project=self.pip, private=True)
+            self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/latest/')
+            url = resolve(project=self.pip, private=False)
+            self.assertEqual(url, 'http://docs.foobar.com/en/latest/')

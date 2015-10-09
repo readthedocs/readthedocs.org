@@ -67,3 +67,12 @@ USE_PIP_INSTALL
 Default: `False`
 
 Whether to use `pip install .` or `python setup.py install` when installing packages into the Virtualenv. Default is to use `python setup.py install`.
+
+
+PUBLIC_DOMAIN
+-------------
+
+Default: `settings.PRODUCTION_DOMAIN`
+
+A special domain for serving public documentation.
+If set, public docs will be linked here instead of the `PRODUCTION_DOMAIN`.
