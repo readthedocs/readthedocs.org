@@ -240,7 +240,6 @@ class UpdateDocsTask(Task):
         )
 
         # Install requirements
-        wheeldir = os.path.join(settings.SITE_ROOT, 'deploy', 'wheels')
         requirements = [
             'sphinx==1.3.1',
             'Pygments==2.0.2',
@@ -261,7 +260,6 @@ class UpdateDocsTask(Task):
             self.project.venv_bin(version=self.version.slug, filename='pip'),
             'install',
             '--use-wheel',
-            '--find-links={0}'.format(wheeldir),
             '-U',
         ]
         if self.project.use_system_packages:

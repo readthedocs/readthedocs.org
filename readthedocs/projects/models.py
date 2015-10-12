@@ -105,7 +105,7 @@ class Project(models.Model):
         _('Single version'), default=False,
         help_text=_('A single version site has no translations and only your '
                     '"latest" version, served at the root of the domain. Use '
-                    'this with caution, only turn it on if you will <b>never</b>'
+                    'this with caution, only turn it on if you will <b>never</b> '
                     'have multiple versions of your docs.'))
     default_version = models.CharField(
         _('Default version'), max_length=255, default=LATEST,
