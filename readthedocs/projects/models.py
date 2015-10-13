@@ -332,7 +332,6 @@ class Project(models.Model):
 
         Always use http for now, to avoid content warnings.
         """
-        import ipdb; ipdb.set_trace()
         return resolve(project=self, version_slug=version_slug, language=lang_slug, private=private)
 
     def get_builds_url(self):
