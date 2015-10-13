@@ -61,8 +61,7 @@ class ProjectRelationship(models.Model):
 
     # HACK
     def get_absolute_url(self):
-        private = self.child.privacy_level == constants.PRIVATE
-        return resolve(self.child, private=private)
+        return resolve(self.child)
 
 
 class Project(models.Model):
@@ -333,8 +332,7 @@ class Project(models.Model):
 
         Always use http for now, to avoid content warnings.
         """
-        if private is None:
-            private = self.privacy_level == constants.PRIVATE
+        import ipdb; ipdb.set_trace()
         return resolve(project=self, version_slug=version_slug, language=lang_slug, private=private)
 
     def get_builds_url(self):
