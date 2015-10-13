@@ -60,7 +60,7 @@ class DomainAdmin(admin.ModelAdmin):
     list_display = ('domain', 'project', 'count')
     search_fields = ('domain', 'project__slug')
     raw_id_fields = ('project',)
-    list_filter = ('canonical', 'cname')
+    list_filter = ('canonical',)
     model = Domain
 
 admin.site.register(Project, ProjectAdmin)
