@@ -83,7 +83,6 @@ Information about development is also available:
    settings
    i18n
    issue-labels
-   api
 
 .. _business-docs:
 
