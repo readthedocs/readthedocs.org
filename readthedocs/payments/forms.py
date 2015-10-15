@@ -49,7 +49,6 @@ class StripeResourceMixin(object):
         raise NotImplementedError
 
     def get_charge(self):
-        customer = self.get_customer()
         return self.ensure_stripe_resource(resource=Charge,
                                            attrs=self.get_charge_kwargs())
 
@@ -121,7 +120,7 @@ class StripeSubscriptionModelForm(forms.ModelForm):
         method is triggered from the :py:meth:`clean` method. Cleaned form data
         should already exist on the form at this point.
         """
-        raise NotImplemented('Stripe validation is not implemented')
+        raise NotImplementedError
 
     def clean_stripe_token(self):
         data = self.cleaned_data['stripe_token']
@@ -162,9 +161,10 @@ class StripeSubscriptionModelForm(forms.ModelForm):
             )
         except stripe.error.StripeError as e:
             log.error('There was a problem communicating with Stripe: %s',
-                        str(e), exc_info=True)
+                      str(e), exc_info=True)
             raise forms.ValidationError(
                 _('There was a problem communicating with Stripe'))
+        return cleaned_data
 
     def clear_card_data(self):
         """Clear card data on validation errors

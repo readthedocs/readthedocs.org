@@ -1,3 +1,5 @@
+"""Payment view mixin classes"""
+
 from django.conf import settings
 
 

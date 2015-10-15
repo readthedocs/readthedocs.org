@@ -1,3 +1,5 @@
+"""Forms for RTD donations"""
+
 import logging
 
 import stripe
@@ -14,6 +16,13 @@ log = logging.getLogger(__name__)
 
 
 class SupporterForm(StripeResourceMixin, StripeSubscriptionModelForm):
+
+    """Donation support sign up form
+
+    This extends the basic payment form, giving fields for credit card number,
+    expiry, and CVV. The proper Knockout data bindings are established on
+    :py:cls:`StripeSubscriptionModelForm`
+    """
 
     class Meta:
         model = Supporter
@@ -59,13 +68,13 @@ class SupporterForm(StripeResourceMixin, StripeSubscriptionModelForm):
         super(SupporterForm, self).__init__(*args, **kwargs)
 
     def validate_stripe(self):
-        '''Call stripe for payment (not ideal here) and clean up logo < $200'''
+        """Call stripe for payment (not ideal here) and clean up logo < $200"""
         dollars = self.cleaned_data['dollars']
         if dollars < 200:
             self.cleaned_data['logo_url'] = None
             self.cleaned_data['site_url'] = None
         stripe.api_key = settings.STRIPE_SECRET
-        charge = stripe.Charge.create(
+        stripe.Charge.create(
             amount=int(self.cleaned_data['dollars']) * 100,
             currency='usd',
             source=self.cleaned_data['stripe_token'],

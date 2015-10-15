@@ -1,3 +1,5 @@
+"""Gold application config for establishing signals"""
+
 import logging
 
 from django.apps import AppConfig
@@ -13,4 +15,4 @@ class GoldAppConfig(AppConfig):
         if hasattr(self, 'already_run'):
             return
         self.already_run = True
-        import readthedocs.gold.signals
+        import readthedocs.gold.signals  # noqa

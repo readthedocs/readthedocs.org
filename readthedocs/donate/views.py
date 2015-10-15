@@ -1,14 +1,9 @@
-'''
-Donation views
-'''
+"""Donation views"""
 
 import logging
 
 from django.views.generic import TemplateView
 from django.core.urlresolvers import reverse
-from django.conf import settings
-from django.http import HttpResponseRedirect
-from django.contrib.messages.views import SuccessMessageMixin
 from django.utils.translation import ugettext_lazy as _
 from vanilla import CreateView, ListView
 
@@ -22,7 +17,8 @@ log = logging.getLogger(__name__)
 
 
 class DonateCreateView(StripeMixin, CreateView):
-    '''Create a donation locally and in Stripe'''
+
+    """Create a donation locally and in Stripe"""
 
     form_class = SupporterForm
     success_message = _('Your contribution has been received')
@@ -44,7 +40,8 @@ class DonateSuccessView(TemplateView):
 
 
 class DonateListView(DonateProgressMixin, ListView):
-    '''Donation list and detail view'''
+
+    """Donation list and detail view"""
 
     template_name = 'donate/list.html'
     model = Supporter

@@ -26,5 +26,5 @@ def cancel_subscription(customer_id, subscription_id):
         if hasattr(customer, 'subscriptions'):
             subscription = customer.subscriptions.retrieve(subscription_id)
             subscription.delete()
-    except stripe.error.StripeError as e:
+    except stripe.error.StripeError:
         pass
