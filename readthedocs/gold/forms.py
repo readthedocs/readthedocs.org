@@ -3,19 +3,18 @@
 from django import forms
 
 from stripe.error import InvalidRequestError
-from readthedocs.payments.forms import (StripeSubscriptionModelForm,
-                                        StripeResourceMixin)
+from readthedocs.payments.forms import StripeModelForm, StripeResourceMixin
 
 from .models import LEVEL_CHOICES, GoldUser
 
 
-class GoldSubscriptionForm(StripeResourceMixin, StripeSubscriptionModelForm):
+class GoldSubscriptionForm(StripeResourceMixin, StripeModelForm):
 
     """Gold subscription payment form
 
     This extends the common base form for handling Stripe subscriptions. Credit
     card fields for card number, expiry, and CVV are extended from
-    :py:cls:`StripeSubscriptionModelForm`, with additional methods from
+    :py:cls:`StripeModelForm`, with additional methods from
     :py:cls:`StripeResourceMixin` for common operations against the Stripe API.
     """
 

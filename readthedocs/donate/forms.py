@@ -7,21 +7,20 @@ from django import forms
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
-from readthedocs.payments.forms import (StripeSubscriptionModelForm,
-                                        StripeResourceMixin)
+from readthedocs.payments.forms import StripeModelForm, StripeResourceMixin
 
 from .models import Supporter
 
 log = logging.getLogger(__name__)
 
 
-class SupporterForm(StripeResourceMixin, StripeSubscriptionModelForm):
+class SupporterForm(StripeResourceMixin, StripeModelForm):
 
     """Donation support sign up form
 
     This extends the basic payment form, giving fields for credit card number,
     expiry, and CVV. The proper Knockout data bindings are established on
-    :py:cls:`StripeSubscriptionModelForm`
+    :py:cls:`StripeModelForm`
     """
 
     class Meta:

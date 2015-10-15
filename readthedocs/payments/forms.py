@@ -53,7 +53,7 @@ class StripeResourceMixin(object):
                                            attrs=self.get_charge_kwargs())
 
 
-class StripeSubscriptionModelForm(forms.ModelForm):
+class StripeModelForm(forms.ModelForm):
 
     """Payment form base for Stripe interaction
 
@@ -107,7 +107,7 @@ class StripeSubscriptionModelForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.customer = kwargs.pop('customer', None)
-        super(StripeSubscriptionModelForm, self).__init__(*args, **kwargs)
+        super(StripeModelForm, self).__init__(*args, **kwargs)
 
     def validate_stripe(self):
         """Run validation against Stripe
@@ -136,7 +136,7 @@ class StripeSubscriptionModelForm(forms.ModelForm):
         of Stripe's validation happens on the API call to establish a
         subscription.
         """
-        cleaned_data = super(StripeSubscriptionModelForm, self).clean()
+        cleaned_data = super(StripeModelForm, self).clean()
 
         # Form isn't valid, no need to try to associate a card now
         if not self.is_valid():
