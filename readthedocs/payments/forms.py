@@ -19,7 +19,11 @@ class StripeResourceMixin(object):
 
     def ensure_stripe_resource(self, resource, attrs):
         try:
-            return resource.retrieve(attrs['id'])
+            instance = resource.retrieve(attrs['id'])
+            for (key, val) in attrs.items():
+                setattr(instance, key, val)
+            instance.save()
+            return instance
         except (KeyError, InvalidRequestError):
             try:
                 del attrs['id']

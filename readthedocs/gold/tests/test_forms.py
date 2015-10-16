@@ -122,6 +122,7 @@ class GoldSubscriptionFormTests(TestCase):
         }
         self.mock_request([
             (customer_obj, ''),
+            (customer_obj, ''),
             (subscription_list, ''),
             (subscription_obj, ''),
         ])
@@ -147,6 +148,10 @@ class GoldSubscriptionFormTests(TestCase):
             mock.call('get',
                       '/v1/customers/cus_12345',
                       {},
+                      mock.ANY),
+            mock.call('post',
+                      '/v1/customers/cus_12345',
+                      {'description': mock.ANY, 'email': mock.ANY},
                       mock.ANY),
             mock.call('get',
                       '/v1/customers/cus_12345/subscriptions',
