@@ -20,19 +20,17 @@ class StripeResourceMixin(object):
     def ensure_stripe_resource(self, resource, attrs):
         try:
             instance = resource.retrieve(attrs['id'])
-            for (key, val) in attrs.items():
-                setattr(instance, key, val)
-            instance.save()
-            return instance
         except (KeyError, InvalidRequestError):
             try:
                 del attrs['id']
             except KeyError:
                 pass
-            try:
-                return resource.create(**attrs)
-            except InvalidRequestError:
-                return None
+            return resource.create(**attrs)
+        else:
+            for (key, val) in attrs.items():
+                setattr(instance, key, val)
+            instance.save()
+            return instance
 
     def get_customer_kwargs(self):
         raise NotImplementedError
