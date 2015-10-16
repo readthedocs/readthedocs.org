@@ -7,7 +7,7 @@ from django.utils.safestring import mark_safe
 from django.utils.encoding import force_bytes, force_text
 
 from readthedocs.projects.models import Project
-from readthedocs.core.resolver import resolve_path
+from readthedocs.core.resolver import resolve
 
 register = template.Library()
 
@@ -31,7 +31,7 @@ def gravatar(email, size=48):
 def make_document_url(project, version=None, page=''):
     if not project:
         return ""
-    return resolve_path(project=project, version_slug=version, filename=page)
+    return resolve(project=project, version_slug=version, filename=page)
 
 
 @register.filter(is_safe=True)
