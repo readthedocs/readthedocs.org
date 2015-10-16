@@ -29,7 +29,17 @@ All possible URL's::
 from django.conf import settings
 import re
 
-from readthedocs.projects.constants import PRIVATE
+from readthedocs.projects.constants import PRIVATE, PUBLIC
+
+
+def _get_private(project, version_slug):
+    from readthedocs.builds.models import Version
+    try:
+        version = project.versions.get(slug=version_slug)
+        private = version.privacy_level == PRIVATE
+    except Version.DoesNotExist:
+        private = getattr(settings, 'DEFAULT_PRIVACY_LEVEL', PUBLIC) == PRIVATE
+    return private
 
 
 def _fix_filename(project, filename):
@@ -88,11 +98,12 @@ def resolve_path(project, filename='', version_slug=None, language=None,
     relation = project.superprojects.first()
     cname = cname or project.domains.filter(canonical=True).first()
     main_language_project = project.main_language_project
-    if private is None:
-        private = project.privacy_level == PRIVATE
 
     version_slug = version_slug or project.get_default_version()
     language = language or project.language
+
+    if private is None:
+        private = _get_private(project, version_slug)
 
     filename = _fix_filename(project, filename)
 
@@ -149,6 +160,12 @@ def resolve_domain(project, private=None):
 
 
 def resolve(project, protocol='http', filename='', private=None, **kwargs):
+    if private is None:
+        version_slug = kwargs.get('version_slug')
+        if version_slug is None:
+            version_slug = project.get_default_version()
+        private = _get_private(project, version_slug)
+
     return '{protocol}://{domain}{path}'.format(
         protocol=protocol,
         domain=resolve_domain(project, private=private),

@@ -332,6 +332,22 @@ class ResolverTests(ResolverBase):
             self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/latest/')
         with override_settings(USE_SUBDOMAIN=True):
             url = resolve(project=self.pip)
+            self.assertEqual(url, 'http://pip.readthedocs.org/en/latest/')
+            url = resolve(project=self.pip, private=False)
+            self.assertEqual(url, 'http://pip.readthedocs.org/en/latest/')
+
+    @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
+    def test_resolver_private_version_override(self):
+        latest = self.pip.versions.first()
+        latest.privacy_level = PRIVATE
+        latest.save()
+        with override_settings(USE_SUBDOMAIN=False):
+            url = resolve(project=self.pip)
+            self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/latest/')
+            url = resolve(project=self.pip, private=False)
+            self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/latest/')
+        with override_settings(USE_SUBDOMAIN=True):
+            url = resolve(project=self.pip)
             self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/latest/')
             url = resolve(project=self.pip, private=False)
             self.assertEqual(url, 'http://pip.readthedocs.org/en/latest/')

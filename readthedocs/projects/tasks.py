@@ -706,7 +706,9 @@ def _manage_imported_files(version, path, commit):
                                 version=version
                                 ).exclude(commit=commit).delete()
     # Purge Cache
-    changed_files = [resolve_path(version.project, file) for file in changed_files]
+    changed_files = [resolve_path(
+        version.project, filename=file, version_slug=version.slug,
+    ) for file in changed_files]
     cdn_ids = getattr(settings, 'CDN_IDS', None)
     if cdn_ids:
         if version.project.slug in cdn_ids:
