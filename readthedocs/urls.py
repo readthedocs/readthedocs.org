@@ -27,6 +27,7 @@ urlpatterns = patterns(
     '',  # base view, flake8 complains if it is on the previous line.
     url(r'^$', HomepageView.as_view(), name='homepage'),
     url(r'^security/', TemplateView.as_view(template_name='security.html')),
+    url(r'^support/', TemplateView.as_view(template_name='support.html'), name='support'),
 )
 
 rtd_urls = patterns(
