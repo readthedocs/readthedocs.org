@@ -23,8 +23,8 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-SITE_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(
-                os.path.abspath(__file__))))
+SITE_ROOT = os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 TEMPLATE_ROOT = os.path.join(SITE_ROOT, 'readthedocs', 'templates')
 DOCROOT = os.path.join(SITE_ROOT, 'user_builds')
 UPLOAD_ROOT = os.path.join(SITE_ROOT, 'user_uploads')
