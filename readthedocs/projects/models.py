@@ -2,8 +2,8 @@
 
 import fnmatch
 import logging
+import sys
 import os
-from urlparse import urlparse
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -34,6 +34,12 @@ from readthedocs.vcs_support.base import VCSProject
 from readthedocs.vcs_support.backends import backend_cls
 from readthedocs.vcs_support.utils import Lock, NonBlockingLock
 
+if sys.version_info > (3,):
+    # pylint: disable=import-error
+    from urllib.parse import urlparse
+    # pylint: enable=import-error
+else:
+    from urlparse import urlparse
 
 log = logging.getLogger(__name__)
 
