@@ -11,7 +11,7 @@ If you are already using Sphinx or Markdown for your docs, skip ahead to
 Write Your Docs
 ---------------
 
-You have two options for format for your documentation:
+You have two options for formatting your documentation:
 
 * :ref:`in-rst`
 * :ref:`in-markdown`
@@ -38,7 +38,7 @@ Run ``sphinx-quickstart`` in there::
     $ cd docs
     $ sphinx-quickstart
 
-This will walk you through creating the basic configuration; in most cases, you
+This quick start will walk you through creating the basic configuration; in most cases, you
 can just accept the defaults. When it's done, you'll have an ``index.rst``, a
 ``conf.py`` and some other files. Add these to revision control.
 
