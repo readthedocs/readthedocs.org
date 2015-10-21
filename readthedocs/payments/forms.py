@@ -82,7 +82,7 @@ class StripeModelForm(forms.ModelForm):
         label=_('Card number'),
         widget=forms.TextInput(attrs={
             'data-bind': ('valueInit: cc_number, '
-                          'value: cc_number, '
+                          'textInput: cc_number, '
                           '''css: {'field-error': error_cc_number() != null}''')
         }),
         max_length=25,
@@ -91,7 +91,7 @@ class StripeModelForm(forms.ModelForm):
         label=_('Card expiration'),
         widget=forms.TextInput(attrs={
             'data-bind': ('valueInit: cc_expiry, '
-                          'value: cc_expiry, '
+                          'textInput: cc_expiry, '
                           '''css: {'field-error': error_cc_expiry() != null}''')
         }),
         max_length=10,
@@ -100,7 +100,7 @@ class StripeModelForm(forms.ModelForm):
         label=_('Card CVV'),
         widget=forms.TextInput(attrs={
             'data-bind': ('valueInit: cc_cvv, '
-                          'value: cc_cvv, '
+                          'textInput: cc_cvv, '
                           '''css: {'field-error': error_cc_cvv() != null}'''),
             'autocomplete': 'off',
         }),
