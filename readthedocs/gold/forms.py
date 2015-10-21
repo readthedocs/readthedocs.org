@@ -47,7 +47,7 @@ class GoldSubscriptionForm(StripeResourceMixin, StripeModelForm):
 
     def get_customer_kwargs(self):
         return {
-            'description': self.customer.get_full_name(),
+            'description': self.customer.get_full_name() or self.customer.username,
             'email': self.customer.email,
             'id': self.instance.stripe_id or None
         }
