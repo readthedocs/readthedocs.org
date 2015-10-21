@@ -14,7 +14,7 @@ def delete_customer(customer_id):
     """Delete customer from Stripe, cancelling subscriptions"""
     try:
         customer = stripe.Customer.retrieve(customer_id)
-        customer.delete()
+        return customer.delete()
     except stripe.error.InvalidRequestError:
         pass
 
@@ -25,6 +25,6 @@ def cancel_subscription(customer_id, subscription_id):
         customer = stripe.Customer.retrieve(customer_id)
         if hasattr(customer, 'subscriptions'):
             subscription = customer.subscriptions.retrieve(subscription_id)
-            subscription.delete()
+            return subscription.delete()
     except stripe.error.StripeError:
         pass
