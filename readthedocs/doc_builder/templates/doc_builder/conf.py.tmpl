@@ -15,6 +15,7 @@
 
 
 import sys
+import os.path
 from six import string_types
 
 from sphinx import version_info
@@ -57,10 +58,11 @@ else:
                       '.templates']
 
 # Add RTD Static Path. Add to the end because it overwrites previous files.
-if 'html_static_path' in globals():
-    html_static_path.append('{{ static_path }}')
-else:
-    html_static_path = ['{{ static_path }}']
+if not 'html_static_path' in globals():
+    html_static_path = []
+if os.path.exists('_static'):
+    html_static_path.append('_static')
+html_static_path.append('{{ static_path }}')
 
 # Add RTD Theme only if they aren't overriding it already
 using_rtd_theme = False
