@@ -1,6 +1,5 @@
 """Gold suscription views"""
 
-import stripe
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.conf import settings
 from django.contrib.messages.views import SuccessMessageMixin
@@ -19,7 +18,6 @@ from readthedocs.payments.utils import stripe
 
 from .forms import GoldSubscriptionForm, GoldProjectForm
 from .models import GoldUser
-
 
 
 class GoldSubscriptionMixin(SuccessMessageMixin, StripeMixin, LoginRequiredMixin):
