@@ -85,11 +85,28 @@ function PaymentView (config) {
         }
 
         stripe.createToken(card, function(status, response) {
-            if (status === 200) {
-                self.submit_form(response.card.last4, response.id);
+            if (response.error) {
+                if (response.error.type == 'card_error') {
+                    var code_map = {
+                        'invalid_number': self.error_cc_number,
+                        'incorrect_number': self.error_cc_number,
+                        'expired_card': self.error_cc_number,
+                        'card_declined': self.error_cc_number,
+                        'invalid_expiry_month': self.error_cc_expiry,
+                        'invalid_expiry_year': self.error_cc_expiry,
+                        'invalid_cvc': self.error_cc_cvv,
+                        'incorrect_cvc': self.error_cc_cvv,
+                    }
+                    var fn = code_map[response.error.code] ||
+                             self.error_cc_number;
+                    fn(response.error.message);
+                }
+                else {
+                    self.error_cc_number(response.error.message);
+                }
             }
             else {
-                self.error(response.error.message);
+                self.submit_form(response.card.last4, response.id);
             }
         });
     };
