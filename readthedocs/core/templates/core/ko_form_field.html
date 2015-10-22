@@ -1,0 +1,22 @@
+{% if field.is_hidden %}
+  {{ field }}
+{% else %}
+  <!-- Begin: {{ field.name }} -->
+  {{ field.errors }}
+  {% if 'data-bind' in field.field.widget.attrs %}
+    <ul
+        class="errorlist"
+        data-bind="visible: error_{{ field.name }}"
+        style="display: none;">
+      <li data-bind="text: error_{{ field.name }}"></li>
+    </ul>
+  {% endif %}
+  <p>
+    <label for="{{ field.id_for_label }}">{{ field.label }}:</label>
+    {{ field }}
+    {% if field.help_text %}
+      <span class="helptext">{{ field.help_text }}</span>
+    {% endif %}
+  </p>
+  <!-- End: {{ field.name }} -->
+{% endif %}

@@ -1,0 +1,26 @@
+/* Payment form CSS */
+
+form.payment input#id_cc_number {
+    height: 23px;
+    margin: 3px 0px 10px;
+    background: url('/static/donate/img/creditcard.png');
+    background-repeat: no-repeat;
+    background-position: -0px -128px;
+    padding-left: 40px;
+}
+
+form.payment input#id_cc_number.visa {
+    background-position: -40px -96px;
+}
+form.payment input#id_cc_number.mastercard {
+    background-position: -80px -64px;
+}
+form.payment input#id_cc_number.amex {
+    background-position: -120px -32px;
+}
+form.payment input#id_cc_number.discover {
+    background-position: -160px -0px;
+}
+
+form.payment input#id_cc_expiry { width: 150px; }
+form.payment input#id_cc_cvv { width: 100px; }

@@ -35,3 +35,4 @@ whoosh_index
 xml_output
 public_cnames
 public_symlinks
+.rope_project/
