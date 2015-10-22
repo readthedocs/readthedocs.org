@@ -60,7 +60,7 @@ else:
 if 'html_static_path' in globals():
     html_static_path.append('{{ static_path }}')
 else:
-    html_static_path = ['_static', '{{ static_path }}']
+    html_static_path = ['{{ static_path }}']
 
 # Add RTD Theme only if they aren't overriding it already
 using_rtd_theme = False
