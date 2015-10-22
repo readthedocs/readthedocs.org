@@ -2,12 +2,12 @@
 
 import logging
 
-import stripe
 from django import forms
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 from readthedocs.payments.forms import StripeModelForm, StripeResourceMixin
+from readthedocs.payments.utils import stripe
 
 from .models import Supporter
 
@@ -72,7 +72,6 @@ class SupporterForm(StripeResourceMixin, StripeModelForm):
         if dollars < 200:
             self.cleaned_data['logo_url'] = None
             self.cleaned_data['site_url'] = None
-        stripe.api_key = settings.STRIPE_SECRET
         stripe.Charge.create(
             amount=int(self.cleaned_data['dollars']) * 100,
             currency='usd',

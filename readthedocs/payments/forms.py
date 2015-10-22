@@ -2,15 +2,15 @@
 
 import logging
 
-import stripe
 from stripe.resource import Customer, Charge
 from stripe.error import InvalidRequestError
 from django import forms
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
+from .utils import stripe
+
 log = logging.getLogger(__name__)
-stripe.api_key = getattr(settings, 'STRIPE_SECRET')
 
 
 class StripeResourceMixin(object):

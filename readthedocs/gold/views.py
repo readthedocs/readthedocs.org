@@ -15,11 +15,11 @@ from vanilla import DeleteView, UpdateView, DetailView
 from readthedocs.core.mixins import LoginRequiredMixin
 from readthedocs.projects.models import Project
 from readthedocs.payments.mixins import StripeMixin
+from readthedocs.payments.utils import stripe
 
 from .forms import GoldSubscriptionForm, GoldProjectForm
 from .models import GoldUser
 
-stripe.api_key = settings.STRIPE_SECRET
 
 
 class GoldSubscriptionMixin(SuccessMessageMixin, StripeMixin, LoginRequiredMixin):
