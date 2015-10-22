@@ -1,26 +1,78 @@
+"""Gold subscription forms"""
+
 from django import forms
 
-from .models import LEVEL_CHOICES
+from stripe.error import InvalidRequestError
+from readthedocs.payments.forms import StripeModelForm, StripeResourceMixin
+
+from .models import LEVEL_CHOICES, GoldUser
 
 
-class CardForm(forms.Form):
+class GoldSubscriptionForm(StripeResourceMixin, StripeModelForm):
+
+    """Gold subscription payment form
+
+    This extends the common base form for handling Stripe subscriptions. Credit
+    card fields for card number, expiry, and CVV are extended from
+    :py:cls:`StripeModelForm`, with additional methods from
+    :py:cls:`StripeResourceMixin` for common operations against the Stripe API.
+    """
+
+    class Meta:
+        model = GoldUser
+        fields = ['last_4_digits', 'level']
 
     last_4_digits = forms.CharField(
         required=True,
         min_length=4,
         max_length=4,
-        widget=forms.HiddenInput()
-    )
-
-    stripe_token = forms.CharField(
-        required=True,
-        widget=forms.HiddenInput()
+        widget=forms.HiddenInput(attrs={
+            'data-bind': 'valueInit: card_digits, value: card_digits'
+        })
     )
 
     level = forms.ChoiceField(
         required=True,
         choices=LEVEL_CHOICES,
     )
+
+    def clean(self):
+        self.instance.user = self.customer
+        return super(GoldSubscriptionForm, self).clean()
+
+    def validate_stripe(self):
+        subscription = self.get_subscription()
+        self.instance.stripe_id = subscription.customer
+        self.instance.subscribed = True
+
+    def get_customer_kwargs(self):
+        return {
+            'description': self.customer.get_full_name() or self.customer.username,
+            'email': self.customer.email,
+            'id': self.instance.stripe_id or None
+        }
+
+    def get_subscription(self):
+        customer = self.get_customer()
+        try:
+            # TODO get the first sub more intelligently
+            subscriptions = customer.subscriptions.all(limit=5)
+            subscription = subscriptions.data[0]
+            subscription.plan = self.cleaned_data['level']
+            if 'stripe_token' in self.cleaned_data:
+                subscription.source = self.cleaned_data['stripe_token']
+            subscription.save()
+            return subscription
+        except (InvalidRequestError, AttributeError, IndexError):
+            subscription = customer.subscriptions.create(
+                plan=self.cleaned_data['level'],
+                source=self.cleaned_data['stripe_token']
+            )
+            return subscription
+
+    def clear_card_data(self):
+        super(GoldSubscriptionForm, self).clear_card_data()
+        self.data['last_4_digits'] = None
 
 
 class GoldProjectForm(forms.Form):

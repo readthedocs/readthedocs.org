@@ -5,6 +5,10 @@
 
 {% block title %}{% trans "Sustainability" %}{% endblock %}
 
+{% block extra_links %}
+  <link rel="stylesheet" href="{% static 'payments/css/form.css' %}" />
+{% endblock %}
+
 {% block extra_scripts %}
   <script src="https://js.stripe.com/v2/" type="text/javascript"></script>
   <script type="text/javascript" src="{% static 'vendor/knockout.js' %}"></script>
@@ -14,7 +18,7 @@ var donate_views = require('donate/donate');
 $(document).ready(function () {
     var key;
     //<![CDATA[
-    key = '{{ publishable }}';
+    key = '{{ stripe_publishable }}';
     //]]>
 
     var view = donate_views.DonateView.init({
@@ -36,9 +40,24 @@ $(document).ready(function () {
     payment is processed directly through <a href="https://stripe.com">Stripe</a>.
   </p>
 
-  <form accept-charset="UTF-8" action="" method="post" id="donate-payment">
+  <form action="" method="post" id="donate-payment" class="payment">
     {% csrf_token %}
-    {{ form.as_p }}
-    {% include "gold/cardform.html" %}
+
+    {{ form.non_field_errors }}
+
+    {% for field in form.fields_with_cc_group %}
+      {% if field.is_cc_group %}
+        <div class="subscription-card">
+          {% for groupfield in field.fields %}
+            {% include 'core/ko_form_field.html' with field=groupfield %}
+          {% endfor %}
+        </div>
+      {% else %}
+        {% include 'core/ko_form_field.html' with field=field %}
+      {% endif %}
+    {% endfor %}
+
+    {% trans "Donate" as form_submit_text %}
+    <input type="submit" value="{{ form_submit_text }}" data-bind="click: process_form" />
   </form>
 {% endblock %}

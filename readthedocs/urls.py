@@ -1,6 +1,7 @@
 from django.conf.urls import url, patterns, include
 from django.contrib import admin
 from django.conf import settings
+from django.conf.urls.static import static
 from django.views.generic.base import TemplateView
 
 from tastypie.api import Api
@@ -75,7 +76,4 @@ if settings.DEBUG:
         '',  # base view, flake8 complains if it is on the previous line.
         url('style-catalog/$',
             TemplateView.as_view(template_name='style_catalog.html')),
-        url(regex='^%s/(?P<path>.*)$' % settings.MEDIA_URL.strip('/'),
-            view='django.views.static.serve',
-            kwargs={'document_root': settings.MEDIA_ROOT}),
-    )
+    ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
