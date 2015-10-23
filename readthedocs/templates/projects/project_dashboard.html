@@ -1,1 +1,29 @@
 {% extends 'projects/project_dashboard_base.html' %}
+
+{% block dashboard-onboard-extra %}
+    <!-- BEGIN Gold Pitch -->
+    {% if request.user.projects.count > 1 %}
+      <div class="module onboard onboard-accounts">
+        <h3>Support Read the Docs</h3>
+
+        <p>
+            Read the Docs depends on users like you to help us keep the site sustainable.
+            We are adding the concept of <a href="{% url "gold_register" %}">Read the Docs Gold</a> to allow folks to support us.
+        </p>
+
+        <form method="get" action="{% url "gold_register" %}">
+          <input type="submit" value="Sign Up Now" />
+        </form>
+      </div>
+    {% else %}
+      <div class="module onboard onboard-accounts">
+        <h3>Thanks!</h3>
+        <p>
+          Your support of Read the Docs helps make the site better each and every month.
+          It also allows us to provide enhanced support to you,
+          so <a href="{% url "support" %}">let us know</a> if you ever need help.
+        </p>
+
+    {% endif %}
+    <!-- END Gold Pitch -->
+{% endblock %}}
