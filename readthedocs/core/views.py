@@ -67,7 +67,8 @@ class SupportView(TemplateView):
         context = super(SupportView, self).get_context_data(**kwargs)
         support_email = getattr(settings, 'SUPPORT_EMAIL', None)
         if not support_email:
-            support_email = 'support@{domain}'.format(domain=getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'))
+            support_email = 'support@{domain}'.format(
+                domain=getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'))
 
         context['support_email'] = support_email
         return context
