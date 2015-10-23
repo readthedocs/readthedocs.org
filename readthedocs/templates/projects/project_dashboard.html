@@ -2,7 +2,7 @@
 
 {% block dashboard-onboard-extra %}
     <!-- BEGIN Gold Pitch -->
-    {% if request.user.projects.count > 1 %}
+    {% if not request.user.gold.count and request.user.projects.count > 1 %}
       <div class="module onboard onboard-accounts">
         <h3>Support Read the Docs</h3>
 
