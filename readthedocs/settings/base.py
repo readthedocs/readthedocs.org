@@ -23,7 +23,8 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-SITE_ROOT = '/'.join(os.path.dirname(os.path.realpath(__file__)).split('/')[0:-2])
+SITE_ROOT = os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 TEMPLATE_ROOT = os.path.join(SITE_ROOT, 'readthedocs', 'templates')
 DOCROOT = os.path.join(SITE_ROOT, 'user_builds')
 UPLOAD_ROOT = os.path.join(SITE_ROOT, 'user_uploads')
@@ -214,6 +215,7 @@ INSTALLED_APPS = [
     'readthedocs.privacy',
     'readthedocs.gold',
     'readthedocs.donate',
+    'readthedocs.payments',
 
     # allauth
     'allauth',
