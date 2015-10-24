@@ -184,7 +184,7 @@ def _build_url(url, branches):
                 url, ' '.join(not_building))
             pc_log.info(msg)
             return HttpResponse(msg)
-    except Exception, e:
+    except Exception as e:
         if e.__class__ == NoProjectException:
             raise
         msg = "(URL Build) Failed: %s:%s" % (url, e)
