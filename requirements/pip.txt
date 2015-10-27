@@ -18,7 +18,7 @@ django-vanilla-views==1.0.4
 pytest-django==2.8.0
 
 requests==2.3.0
-slumber==0.6.0
+slumber==0.7.1
 lxml==3.3.5
 
 # Basic tools
