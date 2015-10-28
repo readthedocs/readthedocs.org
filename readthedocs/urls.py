@@ -67,7 +67,9 @@ money_urls = patterns(
     url(r'^accounts/gold/', include('readthedocs.gold.urls')),
 )
 
-urlpatterns += docs_urls
+if not getattr(settings, 'USE_SUBDOMAIN', False):
+    urlpatterns += docs_urls
+
 urlpatterns += rtd_urls
 urlpatterns += api_urls
 urlpatterns += core_urls
