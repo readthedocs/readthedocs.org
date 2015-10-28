@@ -17,7 +17,7 @@ from readthedocs.projects.version_handling import parse_version_failsafe
 
 def get_version_compare_data(project, base_version=None):
     highest_version_obj, highest_version_comparable = highest_version(
-        project.versions.filter(active=True))
+        project.versions.public().filter(active=True))
     ret_val = {
         'project': unicode(highest_version_obj),
         'version': unicode(highest_version_comparable),
