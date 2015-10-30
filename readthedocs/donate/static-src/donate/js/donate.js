@@ -10,7 +10,16 @@ function DonateView (config) {
 
     self.constructor.call(self, config);
 
-    self.dollars = ko.observable();
+    self.dollars_select = ko.observable();
+    self.dollars_input = ko.observable();
+    self.dollars = ko.computed(function () {
+        var dollars;
+        dollars = self.dollars_select();
+        if (dollars == 'custom') {
+           dollars = self.dollars_input();
+        }
+        return dollars;
+    });
     self.logo_url = ko.observable();
     self.site_url = ko.observable();
     self.error_dollars = ko.observable();
