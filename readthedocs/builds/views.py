@@ -44,7 +44,7 @@ class BuildList(BuildBase, ListView):
         context['versions'] = Version.objects.public(user=self.request.user, project=self.project)
 
         try:
-            redis = Redis(**settings.REDIS)
+            redis = Redis.from_url(settings.BROKER_URL)
             context['queue_length'] = redis.llen('celery')
         except ConnectionError:
             context['queue_length'] = None
