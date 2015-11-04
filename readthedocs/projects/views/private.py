@@ -13,6 +13,7 @@ from django.shortcuts import get_object_or_404, render_to_response, render
 from django.template import RequestContext
 from django.views.generic import View, TemplateView, ListView
 from django.utils.translation import ugettext_lazy as _
+from django.middleware.csrf import get_token
 from formtools.wizard.views import SessionWizardView
 from allauth.socialaccount.models import SocialAccount
 
@@ -376,6 +377,7 @@ class ImportView(PrivateViewMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(ImportView, self).get_context_data(**kwargs)
+        context['view_csrf_token'] = get_token(self.request)
         context['has_connected_accounts'] = (SocialAccount
                                              .objects
                                              .filter(user=self.request.user)
