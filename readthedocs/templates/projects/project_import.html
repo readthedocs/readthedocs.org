@@ -17,7 +17,7 @@ var import_views = require('projects/import');
 $(document).ready(function() {
     var instance = {},
         config = {
-            'csrf_token': '{{ generated_csrf_token }}',
+            'csrf_token': '{{ view_csrf_token }}',
             'urls': {
                 'api_sync_remote_repositories': '{% url 'api_sync_remote_repositories' %}',
                 'remoteorganization-list': '{% url 'remoteorganization-list' %}',

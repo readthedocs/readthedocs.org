@@ -377,7 +377,7 @@ class ImportView(PrivateViewMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(ImportView, self).get_context_data(**kwargs)
-        context['generated_csrf_token'] = get_token(self.request)
+        context['view_csrf_token'] = get_token(self.request)
         context['has_connected_accounts'] = (SocialAccount
                                              .objects
                                              .filter(user=self.request.user)
