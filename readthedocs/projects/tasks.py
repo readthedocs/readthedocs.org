@@ -261,6 +261,8 @@ class UpdateDocsTask(Task):
             'install',
             '--use-wheel',
             '-U',
+            '--cache-dir',
+            self.project.pip_cache_path,
         ]
         if self.project.use_system_packages:
             # Other code expects sphinx-build to be installed inside the
@@ -294,6 +296,8 @@ class UpdateDocsTask(Task):
                 self.project.venv_bin(version=self.version.slug, filename='pip'),
                 'install',
                 '--exists-action=w',
+                '--cache-dir',
+                self.project.pip_cache_path,
                 '-r{0}'.format(requirements_file_path),
                 cwd=checkout_path,
                 bin_path=self.project.venv_bin(version=self.version.slug)
@@ -309,6 +313,8 @@ class UpdateDocsTask(Task):
                     self.project.venv_bin(version=self.version.slug, filename='pip'),
                     'install',
                     '--ignore-installed',
+                    '--cache-dir',
+                    self.project.pip_cache_path,
                     '.',
                     cwd=checkout_path,
                     bin_path=self.project.venv_bin(version=self.version.slug)
