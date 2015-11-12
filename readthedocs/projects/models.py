@@ -290,16 +290,6 @@ class Project(models.Model):
     def __unicode__(self):
         return self.name
 
-    @property
-    def subdomain(self):
-        try:
-            domain = self.domains.get(canonical=True)
-            return domain.domain
-        except (Domain.DoesNotExist, MultipleObjectsReturned):
-            subdomain_slug = self.slug.replace('_', '-')
-            prod_domain = getattr(settings, 'PRODUCTION_DOMAIN')
-            return "%s.%s" % (subdomain_slug, prod_domain)
-
     def sync_supported_versions(self):
         supported = self.supported_versions()
         if supported:

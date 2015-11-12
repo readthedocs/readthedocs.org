@@ -1,13 +1,20 @@
 import os
 
-from .sqlite import *  # noqa
+from .dev import CommunityDevSettings
 
-SLUMBER_USERNAME = 'test'
-SLUMBER_PASSWORD = 'test'
-SLUMBER_API_HOST = 'http://localhost:8000'
-# A bunch of our tests check this value in a returned URL/Domain
-PRODUCTION_DOMAIN = 'readthedocs.org'
-GROK_API_HOST = 'http://localhost:8888'
+
+class CommunityTestSettings(CommunityDevSettings):
+
+    SLUMBER_USERNAME = 'test'
+    SLUMBER_PASSWORD = 'test'
+    SLUMBER_API_HOST = 'http://localhost:8000'
+
+    # A bunch of our tests check this value in a returned URL/Domain
+    PRODUCTION_DOMAIN = 'readthedocs.org'
+    GROK_API_HOST = 'http://localhost:8888'
+
+
+CommunityTestSettings().load_settings(__name__)
 
 CACHES = {
     'default': {
