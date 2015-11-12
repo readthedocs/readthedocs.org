@@ -29,10 +29,14 @@ All possible URL's::
     /docs/<project_slug>/projects/<subproject_slug>/<filename> # Subproject Single Version
 """
 
-from django.conf import settings
 import re
+import logging
+
+from django.conf import settings
 
 from readthedocs.projects.constants import PRIVATE, PUBLIC
+
+log = logging.getLogger(__name__)
 
 
 def _get_private(project, version_slug):
@@ -154,9 +158,7 @@ def resolve_domain(project, private=None):
 
     domain = canonical_project.domains.filter(canonical=True).first()
     # Force domain even if USE_SUBDOMAIN is on
-    if private:
-        return prod_domain
-    elif domain:
+    if domain:
         return domain.domain
     elif subdomain:
         subdomain_slug = canonical_project.slug.replace('_', '-')
