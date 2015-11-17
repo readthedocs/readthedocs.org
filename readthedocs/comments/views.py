@@ -15,7 +15,7 @@ from rest_framework.decorators import (
 )
 from rest_framework.exceptions import ParseError
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.renderers import JSONRenderer, JSONPRenderer, BrowsableAPIRenderer
+from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.serializers import ModelSerializer, Serializer
 from rest_framework.viewsets import ModelViewSet
@@ -47,7 +47,7 @@ support = WebSupport(
 
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticatedOrReadOnly])
-@renderer_classes((JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
+@renderer_classes((JSONRenderer,))
 def get_options(request):
     base_opts = support.base_comment_opts
     base_opts['addCommentURL'] = '/api/v2/comments/'
@@ -57,7 +57,7 @@ def get_options(request):
 
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticatedOrReadOnly])
-@renderer_classes((JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
+@renderer_classes((JSONRenderer,))
 def get_metadata(request):
     """
     Check for get_metadata
@@ -70,7 +70,7 @@ def get_metadata(request):
 @api_view(['GET', 'POST'])
 @permission_classes([permissions.AllowAny])
 @authentication_classes([UnsafeSessionAuthentication])
-@renderer_classes((JSONRenderer, JSONPRenderer))
+@renderer_classes((JSONRenderer,))
 def attach_comment(request):
     comment_id = request.POST.get('comment', '')
     comment = DocumentComment.objects.get(pk=comment_id)
