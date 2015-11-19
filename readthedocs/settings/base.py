@@ -22,7 +22,7 @@ class CommunityBaseSettings(Settings):
     ROOT_URLCONF = 'readthedocs.urls'
     LOGIN_REDIRECT_URL = '/dashboard/'
     FORCE_WWW = False
-    SECRET_KEY = 'replace-this-please'
+    SECRET_KEY = 'replace-this-please'  # noqa
     ATOMIC_REQUESTS = True
 
     # Debug settings
@@ -297,7 +297,7 @@ class CommunityBaseSettings(Settings):
     GLOBAL_ANALYTICS_CODE = 'UA-17997319-1'
     GRAVATAR_DEFAULT_IMAGE = 'http://media.readthedocs.org/images/silhouette.png'
     COPY_START_YEAR = 2010
-    RESTRICTEDSESSIONS_AUTHED_ONLY=True
+    RESTRICTEDSESSIONS_AUTHED_ONLY = True
     RESTRUCTUREDTEXT_FILTER_SETTINGS = {
         'cloak_email_addresses': True,
         'file_insertion_enabled': False,

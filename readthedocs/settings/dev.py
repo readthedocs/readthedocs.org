@@ -12,7 +12,7 @@ class CommunityDevSettings(CommunityBaseSettings):
     WEBSOCKET_HOST = 'localhost:8088'
 
     @property
-    def DATABASES(self):
+    def DATABASES(self):  # noqa
         return {
             'default': {
                 'ENGINE': 'django.db.backends.sqlite3',
