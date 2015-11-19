@@ -408,6 +408,10 @@ class Project(models.Model):
             path = '//%s%s' % (settings.PRODUCTION_DOMAIN, path)
         return path
 
+    def subdomain(self):
+        """Get project subdomain from resolver"""
+        return resolve_domain(self)
+
     def get_downloads(self):
         downloads = {}
         downloads['htmlzip'] = self.get_production_media_url(
