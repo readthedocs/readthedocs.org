@@ -14,7 +14,7 @@ class CommunityTestSettings(CommunityDevSettings):
     GROK_API_HOST = 'http://localhost:8888'
 
 
-CommunityTestSettings().load_settings(__name__)
+CommunityTestSettings.load_settings(__name__)
 
 CACHES = {
     'default': {

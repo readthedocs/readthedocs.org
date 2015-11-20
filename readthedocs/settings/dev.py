@@ -52,7 +52,7 @@ class CommunityDevSettings(CommunityBaseSettings):
     )
 
 
-CommunityDevSettings().load_settings(__name__)
+CommunityDevSettings.load_settings(__name__)
 
 if not os.environ.get('DJANGO_SETTINGS_SKIP_LOCAL', False):
     try:
