@@ -32,8 +32,9 @@ from readthedocs.projects.forms import (
     build_versions_form, UserForm, EmailHookForm, TranslationForm,
     RedirectForm, WebHookForm, DomainForm)
 from readthedocs.projects.models import Project, EmailHook, WebHook, Domain
-from readthedocs.projects.views.base import ProjectAdminMixin
+from readthedocs.projects.views.base import ProjectAdminMixin, ProjectSpamMixin
 from readthedocs.projects import constants, tasks
+from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.tasks import remove_dir, clear_artifacts
 
 from readthedocs.core.mixins import LoginRequiredMixin
@@ -95,58 +96,37 @@ def project_comments_moderation(request, project_slug):
         {'project': project})
 
 
-@login_required
-def project_edit(request, project_slug):
-    """Project edit view
-
-    Edit an existing project - depending on what type of project is being
-    edited (created or imported) a different form will be displayed
-    """
-    project = get_object_or_404(Project.objects.for_admin_user(request.user),
-                                slug=project_slug)
+class ProjectUpdate(ProjectSpamMixin, PrivateViewMixin, UpdateView):
 
     form_class = UpdateProjectForm
+    model = Project
+    success_message = _('Project settings updated')
+    template_name = 'projects/project_edit.html'
+    lookup_url_kwarg = 'project_slug'
+    lookup_field = 'slug'
 
-    form = form_class(instance=project, data=request.POST or None,
-                      user=request.user)
+    def get_queryset(self):
+        return self.model.objects.for_admin_user(self.request.user)
 
-    if request.method == 'POST' and form.is_valid():
-        form.save()
-        messages.success(request, _('Project settings updated'))
-        project_dashboard = reverse('projects_detail', args=[project.slug])
-        return HttpResponseRedirect(project_dashboard)
-
-    return render_to_response(
-        'projects/project_edit.html',
-        {'form': form, 'project': project},
-        context_instance=RequestContext(request)
-    )
+    def get_success_url(self):
+        return reverse('projects_detail', args=[self.object.slug])
 
 
-@login_required
-def project_advanced(request, project_slug):
-    """Project advanced admin view
+class ProjectAdvancedUpdate(ProjectSpamMixin, PrivateViewMixin, UpdateView):
 
-    Edit an existing project - depending on what type of project is being
-    edited (created or imported) a different form will be displayed
-    """
-    project = get_object_or_404(Project.objects.for_admin_user(request.user),
-                                slug=project_slug)
     form_class = ProjectAdvancedForm
-    form = form_class(instance=project, data=request.POST or None, initial={
-                      'num_minor': 2, 'num_major': 2, 'num_point': 2})
+    model = Project
+    success_message = _('Project settings updated')
+    template_name = 'projects/project_advanced.html'
+    lookup_url_kwarg = 'project_slug'
+    lookup_field = 'slug'
+    initial = {'num_minor': 2, 'num_major': 2, 'num_point': 2}
 
-    if request.method == 'POST' and form.is_valid():
-        form.save()
-        messages.success(request, _('Project settings updated'))
-        project_dashboard = reverse('projects_detail', args=[project.slug])
-        return HttpResponseRedirect(project_dashboard)
+    def get_queryset(self):
+        return self.model.objects.for_admin_user(self.request.user)
 
-    return render_to_response(
-        'projects/project_advanced.html',
-        {'form': form, 'project': project},
-        context_instance=RequestContext(request)
-    )
+    def get_success_url(self):
+        return reverse('projects_detail', args=[self.object.slug])
 
 
 @login_required
@@ -240,7 +220,7 @@ def project_delete(request, project_slug):
     )
 
 
-class ImportWizardView(PrivateViewMixin, SessionWizardView):
+class ImportWizardView(ProjectSpamMixin, PrivateViewMixin, SessionWizardView):
 
     """Project import wizard"""
 

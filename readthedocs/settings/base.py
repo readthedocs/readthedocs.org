@@ -193,6 +193,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'copyright',
+    'textclassifier',
 
     # Celery bits
     'djcelery',

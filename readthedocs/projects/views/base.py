@@ -1,7 +1,17 @@
+import logging
+from datetime import datetime, timedelta
+
+from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect
 
-from readthedocs.projects.models import Project
+from ..models import Project
+from ..exceptions import ProjectSpamError
+
+log = logging.getLogger(__name__)
+
+USER_MATURITY_DAYS = getattr(settings, 'USER_MATURITY_DAYS', 7)
 
 
 class ProjectOnboardMixin(object):
@@ -71,3 +81,29 @@ class ProjectAdminMixin(object):
 
     def get_success_url(self, **kwargs):
         return reverse('projects_domains', args=[self.get_project().slug])
+
+
+class ProjectSpamMixin(object):
+
+    """Protects POST views from spammers"""
+
+    def post(self, request, *args, **kwargs):
+        if request.user.profile.banned:
+            log.error('Rejecting project POST from shadowbanned user %s',
+                      request.user)
+            return HttpResponseRedirect(self.get_failure_url())
+        try:
+            return super(ProjectSpamMixin, self).post(request, *args, **kwargs)
+        except ProjectSpamError:
+            date_maturity = datetime.now() - timedelta(days=USER_MATURITY_DAYS)
+            if request.user.date_joined > date_maturity:
+                request.user.profile.banned = True
+                request.user.profile.save()
+                log.error('Spam detected from new user, shadowbanned user %s',
+                          request.user)
+            else:
+                log.error('Spam detected from user %s', request.user)
+            return HttpResponseRedirect(self.get_failure_url())
+
+    def get_failure_url(self):
+        return reverse('homepage')
