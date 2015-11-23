@@ -4,6 +4,7 @@ from django.conf.urls import patterns, url
 
 from readthedocs.projects.views.private import (
     ProjectDashboard, ImportView,
+    ProjectUpdate, ProjectAdvancedUpdate,
     DomainList, DomainCreate, DomainDelete, DomainUpdate)
 from readthedocs.projects.backends.views import ImportWizardView, ImportDemoView
 
@@ -37,11 +38,11 @@ urlpatterns = patterns(
         name='projects_comments_moderation'),
 
     url(r'^(?P<project_slug>[-\w]+)/edit/$',
-        'readthedocs.projects.views.private.project_edit',
+        ProjectUpdate.as_view(),
         name='projects_edit'),
 
     url(r'^(?P<project_slug>[-\w]+)/advanced/$',
-        'readthedocs.projects.views.private.project_advanced',
+        ProjectAdvancedUpdate.as_view(),
         name='projects_advanced'),
 
     url(r'^(?P<project_slug>[-\w]+)/version/(?P<version_slug>[^/]+)/delete_html/$',
