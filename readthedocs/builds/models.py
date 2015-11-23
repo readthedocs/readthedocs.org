@@ -159,6 +159,12 @@ class Version(models.Model):
         self.project.sync_supported_versions()
         return obj
 
+    def delete(self, *args, **kwargs):
+        from readthedocs.projects.tasks import clear_artifacts
+        log.info('Removing files for version %s' % self.slug)
+        clear_artifacts.delay(version_pk=self.pk)
+        super(Version, self).delete(*args, **kwargs)
+
     @property
     def identifier_friendly(self):
         '''Return display friendly identifier'''

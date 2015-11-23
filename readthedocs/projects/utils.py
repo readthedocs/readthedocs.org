@@ -7,8 +7,9 @@ import traceback
 import logging
 from httplib2 import Http
 
-from django.conf import settings
 import redis
+from django.conf import settings
+from django.core.cache import cache
 
 
 log = logging.getLogger(__name__)
@@ -149,18 +150,21 @@ def purge_version(version, mainsite=False, subdomain=False, cname=False):
                 log.info("Purging %s on readthedocs.org", root_url)
                 h.request(to_purge, method="PURGE", headers=headers)
             if cname:
-                redis_conn = redis.Redis(**settings.REDIS)
-                for cnamed in redis_conn.smembers('rtd_slug:v1:%s'
-                                                  % version.project.slug):
-                    headers = {'Host': cnamed}
-                    url = "/en/%s/*" % version.slug
-                    to_purge = "http://%s%s" % (server, url)
-                    log.info("Purging %s on %s", url, cnamed)
-                    h.request(to_purge, method="PURGE", headers=headers)
-                    root_url = "/"
-                    to_purge = "http://%s%s" % (server, root_url)
-                    log.info("Purging %s on %s", root_url, cnamed)
-                    h.request(to_purge, method="PURGE", headers=headers)
+                try:
+                    redis_client = cache.get_client(None)
+                    for cnamed in redis_client.smembers('rtd_slug:v1:%s'
+                                                        % version.project.slug):
+                        headers = {'Host': cnamed}
+                        url = "/en/%s/*" % version.slug
+                        to_purge = "http://%s%s" % (server, url)
+                        log.info("Purging %s on %s", url, cnamed)
+                        h.request(to_purge, method="PURGE", headers=headers)
+                        root_url = "/"
+                        to_purge = "http://%s%s" % (server, root_url)
+                        log.info("Purging %s on %s", root_url, cnamed)
+                        h.request(to_purge, method="PURGE", headers=headers)
+                except (AttributeError, redis.exceptions.ConnectionError):
+                    pass
 
 
 class DictObj(object):

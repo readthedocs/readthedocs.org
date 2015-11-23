@@ -412,6 +412,11 @@ class Project(models.Model):
     def venv_path(self, version=LATEST):
         return os.path.join(self.doc_path, 'envs', version)
 
+    @property
+    def pip_cache_path(self):
+        """Path to pip cache"""
+        return os.path.join(self.doc_path, '.cache', 'pip')
+
     #
     # Paths for symlinks in project doc_path.
     #

@@ -18,6 +18,7 @@ class UserProfile (models.Model):
     user = models.OneToOneField('auth.User', verbose_name=_('User'),
                                 related_name='profile')
     whitelisted = models.BooleanField(_('Whitelisted'), default=False)
+    banned = models.BooleanField(_('Banned'), default=False)
     homepage = models.CharField(_('Homepage'), max_length=100, blank=True)
     allow_email = models.BooleanField(_('Allow email'),
                                       help_text=_('Show your email on VCS '

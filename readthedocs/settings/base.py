@@ -103,6 +103,7 @@ TEMPLATE_LOADERS = (
 )
 
 MIDDLEWARE_CLASSES = (
+    'readthedocs.core.middleware.ProxyMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -181,6 +182,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django.contrib.staticfiles',
     'django.contrib.messages',
+    'django.contrib.humanize',
 
     # third party apps
     'pagination',
@@ -191,6 +193,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'copyright',
+    'textclassifier',
 
     # Celery bits
     'djcelery',
@@ -256,6 +259,8 @@ CELERY_ROUTES = {
 DEFAULT_FROM_EMAIL = "no-reply@readthedocs.org"
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 SESSION_COOKIE_DOMAIN = 'readthedocs.org'
+SESSION_COOKIE_HTTPONLY = True
+CSRF_COOKIE_HTTPONLY = True
 
 HAYSTACK_CONNECTIONS = {
     'default': {

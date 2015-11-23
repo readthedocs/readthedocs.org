@@ -9,19 +9,12 @@ DATABASES = {
     }
 }
 
-REDIS = {
-    'host': 'localhost',
-    'port': 6379,
-    'db': 0,
-}
-
 BROKER_URL = 'redis://localhost:6379/0'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 # CELERY_ALWAYS_EAGER = False
 
 
 SESSION_COOKIE_DOMAIN = None
-SESSION_COOKIE_HTTPONLY = False
 CACHE_BACKEND = 'dummy://'
 
 SLUMBER_USERNAME = 'test'

@@ -1,11 +1,15 @@
+from datetime import datetime, timedelta
+
+import mock
+from mock import patch
 from django.contrib.auth.models import User
 from django.contrib.messages import constants as message_const
 from django_dynamic_fixture import get
 from django_dynamic_fixture import new
-from mock import patch
 
 from readthedocs.rtd_tests.base import WizardTestCase, MockBuildTestCase
 from readthedocs.projects.models import Project
+from readthedocs.projects.exceptions import ProjectSpamError
 
 
 class TestBasicsForm(WizardTestCase):
@@ -80,6 +84,46 @@ class TestAdvancedForm(TestBasicsForm):
 
         self.assertWizardFailure(resp, 'language')
         self.assertWizardFailure(resp, 'documentation_type')
+
+    @patch('readthedocs.projects.forms.ProjectExtraForm.clean_description',
+           create=True)
+    def test_form_spam(self, mocked_validator):
+        '''Don't add project on a spammy description'''
+        self.eric.date_joined = datetime.now() - timedelta(days=365)
+        self.eric.save()
+        mocked_validator.side_effect=ProjectSpamError
+
+        with self.assertRaises(Project.DoesNotExist):
+            proj = Project.objects.get(name='foobar')
+
+        resp = self.post_step('basics')
+        self.assertWizardResponse(resp, 'extra')
+        resp = self.post_step('extra')
+        self.assertWizardResponse(resp)
+
+        with self.assertRaises(Project.DoesNotExist):
+            proj = Project.objects.get(name='foobar')
+        self.assertFalse(self.eric.profile.banned)
+
+    @patch('readthedocs.projects.forms.ProjectExtraForm.clean_description',
+           create=True)
+    def test_form_spam_ban_user(self, mocked_validator):
+        '''Don't add spam and ban new user'''
+        self.eric.date_joined = datetime.now()
+        self.eric.save()
+        mocked_validator.side_effect=ProjectSpamError
+
+        with self.assertRaises(Project.DoesNotExist):
+            proj = Project.objects.get(name='foobar')
+
+        resp = self.post_step('basics')
+        self.assertWizardResponse(resp, 'extra')
+        resp = self.post_step('extra')
+        self.assertWizardResponse(resp)
+
+        with self.assertRaises(Project.DoesNotExist):
+            proj = Project.objects.get(name='foobar')
+        self.assertTrue(self.eric.profile.banned)
 
 
 class TestImportDemoView(MockBuildTestCase):
@@ -212,12 +256,11 @@ class TestPrivateViews(MockBuildTestCase):
         response = self.client.get('/dashboard/pip/delete/')
         self.assertEqual(response.status_code, 200)
 
-        patcher = patch(
-            'readthedocs.projects.views.private.remove_path_from_web')
-        with patcher as remove_path_from_web:
+        patcher = patch('readthedocs.projects.views.private.remove_dir')
+        with patcher as remove_dir:
             response = self.client.post('/dashboard/pip/delete/')
             self.assertEqual(response.status_code, 302)
-
             self.assertFalse(Project.objects.filter(slug='pip').exists())
-            remove_path_from_web.delay.assert_called_with(
-                path=project.doc_path)
+            remove_dir.apply_async.assert_called_with(
+                queue='celery',
+                args=[project.doc_path])
