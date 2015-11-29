@@ -40,12 +40,16 @@ function poll_task (data) {
     return defer;
 }
 
-function trigger_task (url) {
-    var defer = jquery.Deferred();
+function trigger_task (config) {
+    var defer = jquery.Deferred(),
+        url = config.url,
+        token = config.token,
+        data = {csrfmiddlewaretoken: token};
 
     $.ajax({
         method: 'POST',
         url: url,
+        data: data,
         success: function (data) {
             poll_task(data)
                 .then(function () {
