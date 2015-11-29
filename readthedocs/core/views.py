@@ -49,17 +49,20 @@ class HomepageView(DonateProgressMixin, TemplateView):
     template_name = 'homepage.html'
 
     def get_context_data(self, **kwargs):
-        '''Add latest builds and featured projects'''
+        """Add latest successful builds and featured projects"""
         context = super(HomepageView, self).get_context_data(**kwargs)
-        latest = []
-        latest_builds = Build.objects.order_by('-date')[:100]
-        for build in latest_builds:
-            if (
-                    build.project.privacy_level == constants.PUBLIC and
-                    build.project not in latest and
-                    len(latest) < 10):
-                latest.append(build.project)
-        context['project_list'] = latest
+        context['project_list'] = (
+            Project.objects
+            .annotate(
+                last_build=Max('builds__date')
+            )
+            .filter(
+                privacy_level=constants.PUBLIC,
+                builds__success=True,
+                builds__date=F('last_build'),
+            )
+            .order_by('-last_build')
+        )[:10]
         context['featured_list'] = Project.objects.filter(featured=True)
         return context
 
