@@ -92,7 +92,7 @@ class ProjectSpamMixin(object):
         try:
             if UserProfile.objects.get(user=request.user, banned=True):
                 log.error('Rejecting project POST from shadowbanned user %s',
-                        request.user)
+                          request.user)
                 return HttpResponseRedirect(self.get_failure_url())
         except UserProfile.DoesNotExist:
             pass
@@ -105,7 +105,7 @@ class ProjectSpamMixin(object):
                     profile = UserProfile.objects.get(user=request.user)
                 except UserProfile.DoesNotExist:
                     profile = UserProfile.objects.create(user=request.user)
-                profile.banned=True
+                profile.banned = True
                 profile.save()
                 log.error('Spam detected from new user, shadowbanned user %s',
                           request.user)
