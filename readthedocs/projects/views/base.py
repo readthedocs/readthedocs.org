@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 
+from readthedocs.core.models import UserProfile
 from ..models import Project
 from ..exceptions import ProjectSpamError
 
@@ -88,17 +89,24 @@ class ProjectSpamMixin(object):
     """Protects POST views from spammers"""
 
     def post(self, request, *args, **kwargs):
-        if request.user.profile.banned:
-            log.error('Rejecting project POST from shadowbanned user %s',
-                      request.user)
-            return HttpResponseRedirect(self.get_failure_url())
+        try:
+            if UserProfile.objects.get(user=request.user, banned=True):
+                log.error('Rejecting project POST from shadowbanned user %s',
+                        request.user)
+                return HttpResponseRedirect(self.get_failure_url())
+        except UserProfile.DoesNotExist:
+            pass
         try:
             return super(ProjectSpamMixin, self).post(request, *args, **kwargs)
         except ProjectSpamError:
             date_maturity = datetime.now() - timedelta(days=USER_MATURITY_DAYS)
             if request.user.date_joined > date_maturity:
-                request.user.profile.banned = True
-                request.user.profile.save()
+                try:
+                    profile = UserProfile.objects.get(user=request.user)
+                except UserProfile.DoesNotExist:
+                    profile = UserProfile.objects.create(user=request.user)
+                profile.banned=True
+                profile.save()
                 log.error('Spam detected from new user, shadowbanned user %s',
                           request.user)
             else:
