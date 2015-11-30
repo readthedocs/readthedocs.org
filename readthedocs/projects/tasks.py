@@ -232,12 +232,24 @@ class UpdateDocsTask(Task):
         site_packages = '--no-site-packages'
         if self.project.use_system_packages:
             site_packages = '--system-site-packages'
-        self.build_env.run(
-            self.project.python_interpreter,
-            '-mvirtualenv',
-            site_packages,
-            self.project.venv_path(version=self.version.slug)
-        )
+        env_path = self.project.venv_path(version=self.version.slug)
+        if not os.path.exists(env_path):
+            if self.project.use_conda:
+                self.build_env.run(
+                    'conda',
+                    'create',
+                    '--yes',
+                    '--prefix',
+                    env_path,
+                    'python',
+                )
+            else:
+                self.build_env.run(
+                    self.project.python_interpreter,
+                    '-mvirtualenv',
+                    site_packages,
+                    env_path,
+                )
 
         # Install requirements
         requirements = [
