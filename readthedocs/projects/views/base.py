@@ -6,7 +6,6 @@ from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 
-from readthedocs.core.models import UserProfile
 from ..models import Project
 from ..exceptions import ProjectSpamError
 
@@ -91,7 +90,7 @@ class ProjectSpamMixin(object):
     def post(self, request, *args, **kwargs):
         if request.user.profile.banned:
             log.error('Rejecting project POST from shadowbanned user %s',
-                        request.user)
+                      request.user)
             return HttpResponseRedirect(self.get_failure_url())
         try:
             return super(ProjectSpamMixin, self).post(request, *args, **kwargs)
