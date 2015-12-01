@@ -89,24 +89,17 @@ class ProjectSpamMixin(object):
     """Protects POST views from spammers"""
 
     def post(self, request, *args, **kwargs):
-        try:
-            if UserProfile.objects.get(user=request.user, banned=True):
-                log.error('Rejecting project POST from shadowbanned user %s',
-                          request.user)
-                return HttpResponseRedirect(self.get_failure_url())
-        except UserProfile.DoesNotExist:
-            pass
+        if request.user.profile.banned:
+            log.error('Rejecting project POST from shadowbanned user %s',
+                        request.user)
+            return HttpResponseRedirect(self.get_failure_url())
         try:
             return super(ProjectSpamMixin, self).post(request, *args, **kwargs)
         except ProjectSpamError:
             date_maturity = datetime.now() - timedelta(days=USER_MATURITY_DAYS)
             if request.user.date_joined > date_maturity:
-                try:
-                    profile = UserProfile.objects.get(user=request.user)
-                except UserProfile.DoesNotExist:
-                    profile = UserProfile.objects.create(user=request.user)
-                profile.banned = True
-                profile.save()
+                request.user.profile.banned = True
+                request.user.profile.save()
                 log.error('Spam detected from new user, shadowbanned user %s',
                           request.user)
             else:
