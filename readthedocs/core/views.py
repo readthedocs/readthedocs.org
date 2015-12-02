@@ -52,12 +52,16 @@ class HomepageView(DonateProgressMixin, TemplateView):
         '''Add latest builds and featured projects'''
         context = super(HomepageView, self).get_context_data(**kwargs)
         latest = []
-        latest_builds = Build.objects.order_by('-date')[:100]
+        latest_builds = (
+            Build.objects
+            .filter(
+                project__privacy_level=constants.PUBLIC,
+                success=True,
+            )
+            .order_by('-date')
+        )[:100]
         for build in latest_builds:
-            if (
-                    build.project.privacy_level == constants.PUBLIC and
-                    build.project not in latest and
-                    len(latest) < 10):
+            if (build.project not in latest and len(latest) < 10):
                 latest.append(build.project)
         context['project_list'] = latest
         context['featured_list'] = Project.objects.filter(featured=True)

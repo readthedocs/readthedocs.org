@@ -200,7 +200,7 @@ function ProjectImportView (instance, config) {
         self.error(null);
         self.is_syncing(true);
 
-        tasks.trigger_task(url)
+        tasks.trigger_task({url: url, token: self.csrf_token})
             .then(function (data) {
                 self.get_organizations();
             })
