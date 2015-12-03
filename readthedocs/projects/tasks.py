@@ -304,14 +304,17 @@ class UpdateDocsTask(Task):
 
         if requirements_file_path:
             if self.project.use_conda:
+                conda_env_path = os.path.join(self.project.doc_path, 'conda')
                 self.build_env.run(
                     'conda',
+                    'env',
                     'update',
-                    '--prefix',
-                    env_path,
+                    '--name',
+                    self.version.slug,
                     '--file',
                     requirements_file_path,
                     cwd=checkout_path,
+                    environment={'CONDA_ENVS_PATH': conda_env_path}
                 )
             else:
                 self.build_env.run(
