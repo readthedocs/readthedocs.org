@@ -332,7 +332,7 @@ class UpdateDocsTask(Task):
         # Handle setup.py
         checkout_path = self.project.checkout_path(self.version.slug)
         setup_path = os.path.join(checkout_path, 'setup.py')
-        if os.path.isfile(setup_path) and self.project.use_virtualenv:
+        if os.path.isfile(setup_path) and self.project.install_project:
             if getattr(settings, 'USE_PIP_INSTALL', False):
                 self.build_env.run(
                     'python',
