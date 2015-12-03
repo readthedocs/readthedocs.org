@@ -241,7 +241,7 @@ class UpdateDocsTask(Task):
                     '--yes',
                     '--prefix',
                     env_path,
-                    'python',
+                    'python=3',
                 )
             else:
                 self.build_env.run(
@@ -255,8 +255,8 @@ class UpdateDocsTask(Task):
         requirements = [
             'sphinx==1.3.1',
             'Pygments==2.0.2',
-            'virtualenv==13.1.0',
-            'setuptools==18.0.1',
+            #'virtualenv==13.1.0',
+            #'setuptools==18.0.1',
             'docutils==0.11',
             'mkdocs==0.14.0',
             'mock==1.0.1',
@@ -303,17 +303,28 @@ class UpdateDocsTask(Task):
                         break
 
         if requirements_file_path:
-            self.build_env.run(
-                'python',
-                self.project.venv_bin(version=self.version.slug, filename='pip'),
-                'install',
-                '--exists-action=w',
-                '--cache-dir',
-                self.project.pip_cache_path,
-                '-r{0}'.format(requirements_file_path),
-                cwd=checkout_path,
-                bin_path=self.project.venv_bin(version=self.version.slug)
-            )
+            if self.project.use_conda:
+                self.build_env.run(
+                    'conda',
+                    'update',
+                    '--prefix',
+                    env_path,
+                    '--file',
+                    requirements_file_path,
+                    cwd=checkout_path,
+                )
+            else:
+                self.build_env.run(
+                    'python',
+                    self.project.venv_bin(version=self.version.slug, filename='pip'),
+                    'install',
+                    '--exists-action=w',
+                    '--cache-dir',
+                    self.project.pip_cache_path,
+                    '-r{0}'.format(requirements_file_path),
+                    cwd=checkout_path,
+                    bin_path=self.project.venv_bin(version=self.version.slug)
+                )
 
         # Handle setup.py
         checkout_path = self.project.checkout_path(self.version.slug)
