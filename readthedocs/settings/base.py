@@ -74,6 +74,7 @@ class CommunityBaseSettings(Settings):
             'corsheaders',
             'copyright',
             'textclassifier',
+            'annoying',
 
             # Celery bits
             'djcelery',

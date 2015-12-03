@@ -1,15 +1,75 @@
 from datetime import datetime, timedelta
 
-import mock
 from mock import patch
+from django.test import TestCase
 from django.contrib.auth.models import User
 from django.contrib.messages import constants as message_const
 from django_dynamic_fixture import get
 from django_dynamic_fixture import new
 
-from readthedocs.rtd_tests.base import WizardTestCase, MockBuildTestCase
-from readthedocs.projects.models import Project
+from readthedocs.core.models import UserProfile
+from readthedocs.rtd_tests.base import (WizardTestCase, MockBuildTestCase,
+                                        RequestFactoryTestMixin)
 from readthedocs.projects.exceptions import ProjectSpamError
+from readthedocs.projects.models import Project
+from readthedocs.projects.views.private import ImportWizardView
+
+
+@patch('readthedocs.projects.views.private.trigger_build', lambda x, basic: None)
+class TestProfileMiddleware(RequestFactoryTestMixin, TestCase):
+
+    wizard_class_slug = 'import_wizard_view'
+    url = '/dashboard/import/manual/'
+
+    def setUp(self):
+        super(TestProfileMiddleware, self).setUp()
+        data = {
+            'basics': {
+                'name': 'foobar',
+                'repo': 'http://example.com/foobar',
+                'repo_type': 'git',
+            },
+            'extra': {
+                'description': 'Describe foobar',
+                'language': 'en',
+                'documentation_type': 'sphinx',
+            },
+        }
+        self.data = {}
+        for key in data:
+            self.data.update({('{0}-{1}'.format(key, k), v)
+                              for (k, v) in data[key].items()})
+        self.data['{0}-current_step'.format(self.wizard_class_slug)] = 'extra'
+
+    def test_profile_middleware_no_profile(self):
+        """User without profile and isn't banned"""
+        req = self.request('/projects/import', method='post', data=self.data)
+        req.user = get(User, profile=None)
+        resp = ImportWizardView.as_view()(req)
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp['location'], '/projects/foobar/')
+
+    @patch.object(ImportWizardView, 'done')
+    def test_profile_middleware_spam(self, view):
+        """User will be banned"""
+        view.side_effect = ProjectSpamError
+        req = self.request('/projects/import', method='post', data=self.data)
+        req.user = get(User)
+        resp = ImportWizardView.as_view()(req)
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp['location'], '/')
+        self.assertTrue(req.user.profile.banned)
+
+    def test_profile_middleware_banned(self):
+        """User is banned"""
+        req = self.request('/projects/import', method='post', data=self.data)
+        req.user = get(User)
+        req.user.profile.banned = True
+        req.user.profile.save()
+        self.assertTrue(req.user.profile.banned)
+        resp = ImportWizardView.as_view()(req)
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp['location'], '/')
 
 
 class TestBasicsForm(WizardTestCase):
