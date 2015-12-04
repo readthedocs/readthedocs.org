@@ -181,8 +181,8 @@ class Project(models.Model):
         default=False
     )
     use_conda = models.BooleanField(
-        _('Use Conda for build environment'),
-        help_text=_("Useful for Scientific Python and others with C dependencies."),
+        _('Use Conda'),
+        help_text=_("Use a Conda environment file instead of a virtualenv for dependencies"),
         default=False
     )
 
