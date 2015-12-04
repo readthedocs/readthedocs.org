@@ -255,8 +255,8 @@ class UpdateDocsTask(Task):
         requirements = [
             'sphinx==1.3.1',
             'Pygments==2.0.2',
-            #'virtualenv==13.1.0',
-            #'setuptools==18.0.1',
+            'virtualenv==13.1.0',
+            'setuptools==18.6.1',
             'docutils==0.11',
             'mkdocs==0.14.0',
             'mock==1.0.1',
