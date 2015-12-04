@@ -6,8 +6,8 @@ from datetime import datetime
 
 from django.conf import settings
 
-from requests_oauthlib import OAuth1Session, OAuth2Session
-from allauth.socialaccount.models import SocialToken, SocialAccount
+from requests_oauthlib import OAuth2Session
+from allauth.socialaccount.models import SocialToken
 from allauth.socialaccount.providers.bitbucket_oauth2.views import (
     BitbucketOAuth2Adapter)
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
@@ -43,7 +43,8 @@ def get_oauth_session(user, adapter):
         })
 
     def save_token(data):
-        """
+        """Update token given data from OAuth response
+
         {
             u'token_type': u'bearer',
             u'scopes': u'webhook repository team account',
@@ -83,7 +84,7 @@ def get_token_for_project(project, force_local=False):
             for user in project.users.all():
                 tokens = SocialToken.objects.filter(
                     account__user__username=user.username,
-                    app__provider=GitHubProvider.id)
+                    app__provider=GitHubOAuth2Adapter.provider_id)
                 if tokens.exists():
                     token = tokens[0].token
     except Exception:
@@ -214,11 +215,6 @@ def process_bitbucket_json(user, json):
 def import_bitbucket(user, sync):
     """Import from Bitbucket"""
     session = get_oauth_session(user, adapter=BitbucketOAuth2Adapter)
-    try:
-        social_account = user.socialaccount_set.get(
-            provider=BitbucketOAuth2Adapter.provider_id)
-    except SocialAccount.DoesNotExist:
-        pass
     if sync and session:
         # Get user repos
         try:
