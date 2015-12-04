@@ -225,6 +225,7 @@ class RemoteOrganizationViewSet(viewsets.ReadOnlyModelViewSet):
     renderer_classes = [JSONRenderer, BrowsableAPIRenderer]
     serializer_class = RemoteOrganizationSerializer
     model = RemoteOrganization
+    paginate_by = 25
 
     def get_queryset(self):
         return self.model.objects.api(self.request.user)

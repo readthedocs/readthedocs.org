@@ -2,46 +2,72 @@
 
 import logging
 import json
+from datetime import datetime
 
 from django.conf import settings
 
 from requests_oauthlib import OAuth1Session, OAuth2Session
 from allauth.socialaccount.models import SocialToken, SocialAccount
-from allauth.socialaccount.providers.bitbucket.provider import BitbucketProvider
-from allauth.socialaccount.providers.github.provider import GitHubProvider
+from allauth.socialaccount.providers.bitbucket_oauth2.views import (
+    BitbucketOAuth2Adapter)
+from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 
 from readthedocs.builds import utils as build_utils
 from readthedocs.restapi.client import api
 
 from .models import RemoteOrganization, RemoteRepository
+from .constants import OAUTH_SOURCE_BITBUCKET
 
 
 log = logging.getLogger(__name__)
 
 
-def get_oauth_session(user, provider):
-    """Get OAuth session based on provider"""
+def get_oauth_session(user, adapter):
+    """Get OAuth session based on adapter"""
     tokens = SocialToken.objects.filter(
-        account__user__username=user.username, app__provider=provider)
+        account__user__username=user.username,
+        app__provider=adapter.provider_id)
     if tokens.exists():
         token = tokens[0]
     else:
         return None
-    if provider == GitHubProvider.id:
-        session = OAuth2Session(
-            client_id=token.app.client_id,
-            token={
-                'access_token': str(token.token),
-                'token_type': 'bearer'
-            }
-        )
-    elif provider == BitbucketProvider.id:
-        session = OAuth1Session(
-            token.app.client_id,
-            client_secret=token.app.secret,
-            resource_owner_key=token.token,
-            resource_owner_secret=token.token_secret
-        )
+    token_config = {
+        'access_token': str(token.token),
+        'token_type': 'bearer',
+    }
+    if token.expires_at is not None:
+        token_expires = (token.expires_at - datetime.now()).total_seconds()
+        token_config.update({
+            'refresh_token': str(token.token_secret),
+            'expires_in': token_expires,
+        })
+
+    def save_token(data):
+        """
+        {
+            u'token_type': u'bearer',
+            u'scopes': u'webhook repository team account',
+            u'refresh_token': u'...',
+            u'access_token': u'...',
+            u'expires_in': 3600,
+            u'expires_at': 1449218652.558185
+        }
+        """
+        token.token = data['access_token']
+        token.expires_at = datetime.fromtimestamp(data['expires_at'])
+        token.save()
+        log.info('Updated token %s:', token)
+
+    session = OAuth2Session(
+        client_id=token.app.client_id,
+        token=token_config,
+        auto_refresh_kwargs={
+            'client_id': token.app.client_id,
+            'client_secret': token.app.secret,
+        },
+        auto_refresh_url=adapter.access_token_url,
+        token_updater=save_token
+    )
 
     return session or None
 
@@ -87,7 +113,7 @@ def github_paginate(session, url):
 
 def import_github(user, sync):
     """Do the actual github import"""
-    session = get_oauth_session(user, provider=GitHubProvider.id)
+    session = get_oauth_session(user, adapter=GitHubOAuth2Adapter)
     if sync and session:
         # Get user repos
         owner_resp = github_paginate(session, 'https://api.github.com/user/repos?per_page=100')
@@ -166,9 +192,10 @@ def bitbucket_paginate(session, url):
     result = []
     while url:
         r = session.get(url)
+        data = r.json()
         url = None
-        result.extend([r.json()])
-        next_url = r.json().get('next')
+        result.extend(data.get('values', []))
+        next_url = data.get('next')
         if next_url:
             url = next_url
     return result
@@ -186,32 +213,63 @@ def process_bitbucket_json(user, json):
 
 def import_bitbucket(user, sync):
     """Import from Bitbucket"""
-    session = get_oauth_session(user, provider=BitbucketProvider.id)
+    session = get_oauth_session(user, adapter=BitbucketOAuth2Adapter)
     try:
-        social_account = user.socialaccount_set.get(provider=BitbucketProvider.id)
+        social_account = user.socialaccount_set.get(
+            provider=BitbucketOAuth2Adapter.provider_id)
     except SocialAccount.DoesNotExist:
         pass
     if sync and session:
-            # Get user repos
+        # Get user repos
         try:
-            owner_resp = bitbucket_paginate(
+            repos = bitbucket_paginate(
                 session,
-                'https://bitbucket.org/api/2.0/repositories/{owner}'.format(
-                    owner=social_account.uid))
-            process_bitbucket_json(user, owner_resp)
+                'https://bitbucket.org/api/2.0/repositories/?role=member')
+            for repo in repos:
+                RemoteRepository.objects.create_from_bitbucket_api(
+                    repo,
+                    user=user,
+                )
         except (TypeError, ValueError):
             raise Exception('Could not sync your Bitbucket repositories, '
                             'try reconnecting your account')
 
-        # Get org repos
-        resp = session.get('https://bitbucket.org/api/1.0/user/privileges/')
+        # Because privileges aren't returned with repository data, run query
+        # again for repositories that user has admin role for, and update
+        # existing repositories.
         try:
-            for team in resp.json()['teams'].keys():
-                org_resp = bitbucket_paginate(
+            resp = bitbucket_paginate(
+                session,
+                'https://bitbucket.org/api/2.0/repositories/?role=admin')
+            repos = (
+                RemoteRepository.objects
+                .filter(users=user,
+                        full_name__in=[r['full_name'] for r in resp],
+                        source=OAUTH_SOURCE_BITBUCKET)
+            )
+            for repo in repos:
+                repo.admin = True
+                repo.save()
+        except (TypeError, ValueError):
+            pass
+
+        # Get team repos
+        try:
+            teams = bitbucket_paginate(
+                session,
+                'https://api.bitbucket.org/2.0/teams/?role=member')
+            for team_data in teams:
+                org = RemoteOrganization.objects.create_from_bitbucket_api(
+                    team_data, user=user)
+                repos = bitbucket_paginate(
                     session,
-                    'https://bitbucket.org/api/2.0/teams/{team}/repositories'.format(
-                        team=team))
-                process_bitbucket_json(user, org_resp)
+                    team_data['links']['repositories']['href'])
+                for repo in repos:
+                    RemoteRepository.objects.create_from_bitbucket_api(
+                        repo,
+                        user=user,
+                        organization=org,
+                    )
         except ValueError:
             raise Exception('Could not sync your Bitbucket team repositories, '
                             'try reconnecting your account')

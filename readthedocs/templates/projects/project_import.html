@@ -99,7 +99,7 @@ $(document).ready(function() {
 
                     <form
                         method="get"
-                        action="{% provider_login_url "bitbucket" process="connect" next="/dashboard/import/" %}"
+                        action="{% provider_login_url "bitbucket_oauth2" process="connect" next="/dashboard/import/" %}"
                         class="import-connect import-connect-bitbucket">
                       <button>
                         {% trans "Connect to Bitbucket" %}

@@ -169,9 +169,6 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.request",
     # Read the Docs processor
     "readthedocs.core.context_processors.readthedocs_processor",
-    # allauth specific context processors
-    "allauth.account.context_processors.account",
-    "allauth.socialaccount.context_processors.socialaccount",
 )
 
 INSTALLED_APPS = [
@@ -226,7 +223,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.github',
-    'allauth.socialaccount.providers.bitbucket',
+    'allauth.socialaccount.providers.bitbucket_oauth2',
     # 'allauth.socialaccount.providers.twitter',
 ]
 

@@ -49,7 +49,7 @@ class RemoteOrganization(models.Model):
     objects = RemoteOrganizationManager()
 
     def __unicode__(self):
-        return "Remote Organization: %s" % (self.url)
+        return 'Remote organization: {name}'.format(name=self.slug)
 
     def get_serialized(self, key=None, default=None):
         try:

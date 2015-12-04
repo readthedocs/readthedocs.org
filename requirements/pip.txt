@@ -25,7 +25,7 @@ lxml==3.3.5
 redis==2.10.3
 celery==3.1.18
 django-celery==3.1.16
-django-allauth==0.21.0
+git+https://github.com/agjohnson/django-allauth.git@02be357c#egg=django-allauth
 dnspython==1.11.0
 
 # VCS
