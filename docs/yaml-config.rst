@@ -59,3 +59,17 @@ The file option specified the Conda environment file to use.
 	    file: environment.yml
 
 
+Current Settings
+----------------
+
+* type
+* python
+* conda
+
+Future Settings
+---------------
+
+* install_project
+* requirements_file
+* conf_file
+* system_packages
