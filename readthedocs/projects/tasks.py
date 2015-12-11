@@ -30,6 +30,7 @@ from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.environments import (LocalEnvironment,
                                                   DockerEnvironment)
 from readthedocs.doc_builder.exceptions import BuildEnvironmentError
+from readthedocs.doc_builder.python_environments import Virtualenv, Conda
 from readthedocs.projects.exceptions import ProjectImportError
 from readthedocs.projects.models import ImportedFile, Project
 from readthedocs.projects.utils import make_api_version, make_api_project, symlink
@@ -43,6 +44,8 @@ from readthedocs.api.client import api as api_v1
 from readthedocs.restapi.client import api as api_v2
 from readthedocs.projects.signals import before_vcs, after_vcs, before_build, after_build
 from readthedocs.core.resolver import resolve_path
+from readthedocs_build.config import (ConfigError, BuildConfig,
+                                      load as load_config)
 
 
 log = logging.getLogger(__name__)
@@ -88,6 +91,36 @@ class UpdateDocsTask(Task):
         if project is not None:
             self.project = project
 
+    def _log(self, msg):
+        log.info(LOG_TEMPLATE
+                 .format(project=self.project.slug,
+                         version=self.version.slug,
+                         msg=msg))
+
+    def load_config(self, version):
+        """
+        Load a configuration from `readthedocs.yml` file.
+
+        This uses the configuration logic from `readthedocs-build`,
+        which will keep parsing consistent between projects.
+        """
+
+        checkout_path = version.project.checkout_path(version.slug)
+        try:
+            config = load_config(
+                path=checkout_path,
+                env_config={},
+            )[0]
+        except ConfigError:
+            self._log(msg='No readthedocs.yml file found.')
+            config = BuildConfig(
+                env_config={},
+                raw_config={},
+                source_file='empty',
+                source_position=0,
+            )
+        return config
+
     def run(self, pk, version_pk=None, build_pk=None, record=True, docker=False,
             search=True, force=False, localmedia=True, **kwargs):
         env_cls = LocalEnvironment
@@ -100,6 +133,13 @@ class UpdateDocsTask(Task):
         self.build_search = search
         self.build_localmedia = localmedia
         self.build_force = force
+        self.config = self.load_config(version=self.version)
+
+        python_env_cls = Virtualenv
+        if 'conda' in self.config:
+            python_env_cls = Conda
+
+        self.python_env = python_env_cls(self)
         self.build_env = env_cls(project=self.project, version=self.version,
                                  build=self.build, record=record)
         with self.build_env:
@@ -117,6 +157,7 @@ class UpdateDocsTask(Task):
 
             if self.project.documentation_type == 'auto':
                 self.update_documentation_type()
+
             self.setup_environment()
 
             # TODO the build object should have an idea of these states, extend
@@ -196,10 +237,7 @@ class UpdateDocsTask(Task):
         """
         self.build_env.update_build(state=BUILD_STATE_CLONING)
 
-        log.info(LOG_TEMPLATE
-                 .format(project=self.project.slug,
-                         version=self.version.slug,
-                         msg='Updating docs from VCS'))
+        self._log(msg='Updating docs from VCS')
         try:
             update_imported_docs(self.version.pk)
             commit = self.project.vcs_repo(self.version.slug).commit
@@ -217,143 +255,13 @@ class UpdateDocsTask(Task):
 
         :param build_env: Build environment to pass commands and execution through.
         """
-        build_dir = os.path.join(
-            self.project.venv_path(version=self.version.slug),
-            'build')
-
         self.build_env.update_build(state=BUILD_STATE_INSTALLING)
 
-        if os.path.exists(build_dir):
-            log.info(LOG_TEMPLATE
-                     .format(project=self.project.slug,
-                             version=self.version.slug,
-                             msg='Removing existing build directory'))
-            shutil.rmtree(build_dir)
-        site_packages = '--no-site-packages'
-        if self.project.use_system_packages:
-            site_packages = '--system-site-packages'
-        env_path = self.project.venv_path(version=self.version.slug)
-        if not os.path.exists(env_path):
-            if self.project.use_conda:
-                self.build_env.run(
-                    'conda',
-                    'create',
-                    '--yes',
-                    '--prefix',
-                    env_path,
-                    'python=3',
-                )
-            else:
-                self.build_env.run(
-                    self.project.python_interpreter,
-                    '-mvirtualenv',
-                    site_packages,
-                    env_path,
-                )
-
-        # Install requirements
-        requirements = [
-            'sphinx==1.3.1',
-            'Pygments==2.0.2',
-            'virtualenv==13.1.0',
-            'setuptools==18.6.1',
-            'docutils==0.11',
-            'mkdocs==0.14.0',
-            'mock==1.0.1',
-            'pillow==2.6.1',
-            'readthedocs-sphinx-ext==0.5.4',
-            'sphinx-rtd-theme==0.1.9',
-            'alabaster>=0.7,<0.8,!=0.7.5',
-            'recommonmark==0.1.1',
-        ]
-
-        cmd = [
-            'python',
-            self.project.venv_bin(version=self.version.slug, filename='pip'),
-            'install',
-            '--use-wheel',
-            '-U',
-            '--cache-dir',
-            self.project.pip_cache_path,
-        ]
-        if self.project.use_system_packages:
-            # Other code expects sphinx-build to be installed inside the
-            # virtualenv.  Using the -I option makes sure it gets installed
-            # even if it is already installed system-wide (and
-            # --system-site-packages is used)
-            cmd.append('-I')
-        cmd.extend(requirements)
-        self.build_env.run(
-            *cmd,
-            bin_path=self.project.venv_bin(version=self.version.slug)
-        )
-
-        # Handle requirements
-        requirements_file_path = self.project.requirements_file
-        checkout_path = self.project.checkout_path(self.version.slug)
-        if not requirements_file_path:
-            builder_class = get_builder_class(self.project.documentation_type)
-            docs_dir = (builder_class(self.build_env)
-                        .docs_dir())
-            for path in [docs_dir, '']:
-                for req_file in ['pip_requirements.txt', 'requirements.txt']:
-                    test_path = os.path.join(checkout_path, path, req_file)
-                    if os.path.exists(test_path):
-                        requirements_file_path = test_path
-                        break
-
-        if requirements_file_path:
-            if self.project.use_conda:
-                conda_env_path = os.path.join(self.project.doc_path, 'conda')
-                self.build_env.run(
-                    'conda',
-                    'env',
-                    'update',
-                    '--name',
-                    self.version.slug,
-                    '--file',
-                    requirements_file_path,
-                    cwd=checkout_path,
-                    environment={'CONDA_ENVS_PATH': conda_env_path}
-                )
-            else:
-                self.build_env.run(
-                    'python',
-                    self.project.venv_bin(version=self.version.slug, filename='pip'),
-                    'install',
-                    '--exists-action=w',
-                    '--cache-dir',
-                    self.project.pip_cache_path,
-                    '-r{0}'.format(requirements_file_path),
-                    cwd=checkout_path,
-                    bin_path=self.project.venv_bin(version=self.version.slug)
-                )
-
-        # Handle setup.py
-        checkout_path = self.project.checkout_path(self.version.slug)
-        setup_path = os.path.join(checkout_path, 'setup.py')
-        if os.path.isfile(setup_path) and self.project.install_project:
-            if getattr(settings, 'USE_PIP_INSTALL', False):
-                self.build_env.run(
-                    'python',
-                    self.project.venv_bin(version=self.version.slug, filename='pip'),
-                    'install',
-                    '--ignore-installed',
-                    '--cache-dir',
-                    self.project.pip_cache_path,
-                    '.',
-                    cwd=checkout_path,
-                    bin_path=self.project.venv_bin(version=self.version.slug)
-                )
-            else:
-                self.build_env.run(
-                    'python',
-                    'setup.py',
-                    'install',
-                    '--force',
-                    cwd=checkout_path,
-                    bin_path=self.project.venv_bin(version=self.version.slug)
-                )
+        self.python_env.delete_existing_build_dir()
+        self.python_env.setup_base(self.config)
+        self.python_env.install_core_requirements(self.config)
+        self.python_env.install_user_requirements(self.config)
+        self.python_env.install_package(self.config)
 
     def build_docs(self):
         """Wrapper to all build functions
