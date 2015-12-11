@@ -180,11 +180,6 @@ class Project(models.Model):
                     "install</code>"),
         default=False
     )
-    use_conda = models.BooleanField(
-        _('Use Conda'),
-        help_text=_("Use a Conda environment file instead of a virtualenv for dependencies"),
-        default=False
-    )
 
     # This model attribute holds the python interpreter used to create the
     # virtual environment
@@ -417,8 +412,8 @@ class Project(models.Model):
     def checkout_path(self, version=LATEST):
         return os.path.join(self.doc_path, 'checkouts', version)
 
-    def venv_path(self, version=LATEST):
-        if self.use_conda:
+    def venv_path(self, version=LATEST, conda=False):
+        if conda:
             return os.path.join(self.doc_path, 'conda', version)
         return os.path.join(self.doc_path, 'envs', version)
 

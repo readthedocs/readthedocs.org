@@ -152,7 +152,6 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
         fields = (
             # Standard build edits
             'install_project',
-            'use_conda',
             'requirements_file',
             'single_version',
             'conf_py_file',
