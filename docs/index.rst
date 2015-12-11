@@ -44,6 +44,7 @@ Information about development is also available:
    features
    support
    faq
+   yaml-config
 
 
 .. _feature-docs:

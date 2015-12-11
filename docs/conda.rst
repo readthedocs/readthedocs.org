@@ -9,18 +9,20 @@ and need them installed when building their documentation.
 Activating Conda
 ----------------
 
-Inside your project,
-there is a `Use Conda` option that will turn on Conda support.
-We support Conda Environment files,
-which specify specific packages to install into the environment.
+Conda Support is the first feature enabled with :doc:`yaml-config`.
+You can enable it by creating a `readthedocs.yml` file in the root of your repsitory with the contents:
+
+.. code-block:: yaml
+
+	conda:
+	    file: environment.yml
 
 This Conda environment will also have Sphinx and other build time dependencies installed.
  It will use the same order of operations that we support currently:
 
 * Environment Creation (``conda create``)
-* Dependency Installation (Sphinx, Mkdocs, etc)
+* Dependency Installation (Sphinx)
 * User Package Installation (``conda env update``)
-
 
 Custom Installs
 ---------------
