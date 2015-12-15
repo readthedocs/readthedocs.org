@@ -2,7 +2,7 @@ import logging
 
 from django.core.urlresolvers import reverse
 from rest_framework import decorators, permissions
-from rest_framework.renderers import JSONPRenderer, JSONRenderer, BrowsableAPIRenderer
+from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from redis import ConnectionError
 
@@ -35,8 +35,7 @@ def get_status_data(task_name, state, data, error=None):
 
 @decorators.api_view(['GET'])
 @decorators.permission_classes((permissions.AllowAny,))
-@decorators.renderer_classes(
-    (JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
+@decorators.renderer_classes((JSONRenderer,))
 def job_status(request, task_id):
     try:
         task_name, state, public_data, error = get_public_task_data(request, task_id)
@@ -49,8 +48,7 @@ def job_status(request, task_id):
 
 @decorators.api_view(['POST'])
 @decorators.permission_classes((permissions.IsAuthenticated,))
-@decorators.renderer_classes(
-    (JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
+@decorators.renderer_classes((JSONRenderer,))
 def sync_remote_repositories(request):
     result = tasks.sync_remote_repositories.delay(
         user_id=request.user.id)
