@@ -77,7 +77,7 @@ class PythonEnvironment(object):
 class Virtualenv(PythonEnvironment):
 
     def venv_path(self, version=LATEST):
-        return os.path.join(self.doc_path, 'envs', version)
+        return os.path.join(self.project.doc_path, 'envs', version)
 
     def setup_base(self, config):
         site_packages = '--no-site-packages'
@@ -131,7 +131,7 @@ class Virtualenv(PythonEnvironment):
         requirements_file_path = self.project.requirements_file
         if not requirements_file_path:
             builder_class = get_builder_class(self.project.documentation_type)
-            docs_dir = (builder_class(self.build_env)
+            docs_dir = (builder_class(build_env=self.build_env, python_env=self)
                         .docs_dir())
             for path in [docs_dir, '']:
                 for req_file in ['pip_requirements.txt', 'requirements.txt']:
@@ -157,25 +157,31 @@ class Virtualenv(PythonEnvironment):
 class Conda(PythonEnvironment):
 
     def venv_path(self, version=LATEST):
-        return os.path.join(self.doc_path, 'conda', version)
+        return os.path.join(self.project.doc_path, 'conda', version)
 
     def setup_base(self, config):
-        env_path = self.venv_path(version=self.version.slug)
-        if 'python' in config:
-            python_version = config['python'].get('version', 2)
-        else:
-            python_version = 2
-        if not os.path.exists(env_path):
-            self.build_env.run(
-                'conda',
-                'create',
-                '--yes',
-                '--prefix',
-                env_path,
-                'python={python_version}'.format(python_version=python_version),
-            )
+        conda_env_path = os.path.join(self.project.doc_path, 'conda')
+        version_path = os.path.join(conda_env_path, self.version.slug)
+
+        python_version = config['python'].get('version', 2)
+        if os.path.exists(version_path):
+            # Re-create conda directory each time to keep fresh state
+            self._log('Removing existing conda directory')
+            shutil.rmtree(version_path)
+        self.build_env.run(
+            'conda',
+            'create',
+            '--yes',
+            '--name',
+            self.version.slug,
+            'python={python_version}'.format(python_version=python_version),
+            environment={'CONDA_ENVS_PATH': conda_env_path}
+        )
 
     def install_core_requirements(self, config):
+        conda_env_path = os.path.join(self.project.doc_path, 'conda')
+
+        # Use conda for requirements it packages
         requirements = [
             'sphinx==1.3.1',
             'Pygments==2.0.2',
@@ -192,11 +198,34 @@ class Conda(PythonEnvironment):
         cmd = [
             'conda',
             'install',
-            '-y',
+            '--yes',
+            '--name',
+            self.version.slug,
         ]
         cmd.extend(requirements)
         self.build_env.run(
             *cmd,
+            environment={'CONDA_ENVS_PATH': conda_env_path}
+        )
+
+        # Install pip-only things.
+        pip_requirements = [
+            'mkdocs==0.14.0',
+            'readthedocs-sphinx-ext==0.5.4',
+            'recommonmark==0.1.1',
+        ]
+
+        pip_cmd = [
+            'python',
+            self.venv_bin(version=self.version.slug, filename='pip'),
+            'install',
+            '-U',
+            '--cache-dir',
+            self.project.pip_cache_path,
+        ]
+        pip_cmd.extend(pip_requirements)
+        self.build_env.run(
+            *pip_cmd,
             bin_path=self.venv_bin(version=self.version.slug)
         )
 
@@ -210,6 +239,5 @@ class Conda(PythonEnvironment):
             self.version.slug,
             '--file',
             config['conda']['file'],
-            cwd=self.checkout_path,
             environment={'CONDA_ENVS_PATH': conda_env_path}
         )
