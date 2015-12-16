@@ -75,9 +75,10 @@ class UpdateDocsTask(Task):
     default_retry_delay = (7 * 60)
     name = 'update_docs'
 
-    def __init__(self, build_env=None, force=False, search=True, localmedia=True,
+    def __init__(self, build_env=None, python_env=None, force=False, search=True, localmedia=True,
                  build=None, project=None, version=None):
         self.build_env = build_env
+        self.python_env = python_env
         self.build_force = force
         self.build_search = search
         self.build_localmedia = localmedia

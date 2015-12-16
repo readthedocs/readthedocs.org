@@ -8,6 +8,7 @@ import mock
 
 from readthedocs.projects.models import Project
 from readthedocs.doc_builder.environments import LocalEnvironment
+from readthedocs.doc_builder.python_environments import Virtualenv
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.projects.tasks import UpdateDocsTask
 
@@ -39,9 +40,10 @@ class BuildEnvironmentTests(TestCase):
         self.mocks.patches['html_build'].stop()
 
         build_env = LocalEnvironment(project=project, version=version, build={})
-        task = UpdateDocsTask(build_env=build_env, version=version,
+        python_env = Virtualenv(project=project, version=version, build_env=build_env)
+        task = UpdateDocsTask(build_env=build_env, python_env=python_env, version=version,
                               project=project, search=False, localmedia=False)
-        built_docs = task.build_docs()
+        task.build_docs()
 
         # Get command and check first part of command list is a call to sphinx
         self.assertEqual(self.mocks.popen.call_count, 1)
@@ -61,9 +63,10 @@ class BuildEnvironmentTests(TestCase):
         version = project.versions.all()[0]
 
         build_env = LocalEnvironment(project=project, version=version, build={})
-        task = UpdateDocsTask(build_env=build_env, version=version,
+        python_env = Virtualenv(project=project, version=version, build_env=build_env)
+        task = UpdateDocsTask(build_env=build_env, python_env=python_env, version=version,
                               project=project, search=False, localmedia=False)
-        built_docs = task.build_docs()
+        task.build_docs()
 
         # The HTML and the Epub format were built.
         self.mocks.html_build.assert_called_once_with()
@@ -83,9 +86,10 @@ class BuildEnvironmentTests(TestCase):
         version = project.versions.all()[0]
 
         build_env = LocalEnvironment(project=project, version=version, build={})
-        task = UpdateDocsTask(build_env=build_env, project=project,
-                              version=version, search=False, localmedia=False)
-        built_docs = task.build_docs()
+        python_env = Virtualenv(project=project, version=version, build_env=build_env)
+        task = UpdateDocsTask(build_env=build_env, python_env=python_env, version=version,
+                              project=project, search=False, localmedia=False)
+        task.build_docs()
 
         # The HTML and the Epub format were built.
         self.mocks.html_build.assert_called_once_with()
@@ -101,8 +105,9 @@ class BuildEnvironmentTests(TestCase):
                       versions=[fixture()])
         version = project.versions.all()[0]
         build_env = LocalEnvironment(version=version, project=project, build={})
+        python_env = Virtualenv(project=project, version=version, build_env=build_env)
         builder_class = get_builder_class(project.documentation_type)
-        builder = builder_class(build_env)
+        builder = builder_class(build_env, python_env)
         self.assertEqual(builder.sphinx_builder, 'readthedocs-comments')
 
     def test_builder_no_comments(self):
@@ -113,8 +118,9 @@ class BuildEnvironmentTests(TestCase):
                       versions=[fixture()])
         version = project.versions.all()[0]
         build_env = LocalEnvironment(version=version, project=project, build={})
+        python_env = Virtualenv(project=project, version=version, build_env=build_env)
         builder_class = get_builder_class(project.documentation_type)
-        builder = builder_class(build_env)
+        builder = builder_class(build_env, python_env)
         self.assertEqual(builder.sphinx_builder, 'readthedocs')
 
     def test_build_pdf_latex_failures(self):
@@ -133,7 +139,8 @@ class BuildEnvironmentTests(TestCase):
         assert project.conf_dir() == '/tmp/rtd'
 
         build_env = LocalEnvironment(project=project, version=version, build={})
-        task = UpdateDocsTask(build_env=build_env, project=project,
+        python_env = Virtualenv(project=project, version=version, build_env=build_env)
+        task = UpdateDocsTask(build_env=build_env, project=project, python_env=python_env,
                               version=version, search=False, localmedia=False)
 
         # Mock out the separate calls to Popen using an iterable side_effect
@@ -152,7 +159,7 @@ class BuildEnvironmentTests(TestCase):
         self.mocks.popen.return_value = mock_obj
 
         with build_env:
-            built_docs = task.build_docs()
+            task.build_docs()
         self.assertEqual(self.mocks.popen.call_count, 5)
         self.assertTrue(build_env.failed)
 
@@ -172,7 +179,8 @@ class BuildEnvironmentTests(TestCase):
         assert project.conf_dir() == '/tmp/rtd'
 
         build_env = LocalEnvironment(project=project, version=version, build={})
-        task = UpdateDocsTask(build_env=build_env, project=project,
+        python_env = Virtualenv(project=project, version=version, build_env=build_env)
+        task = UpdateDocsTask(build_env=build_env, project=project, python_env=python_env,
                               version=version, search=False, localmedia=False)
 
         # Mock out the separate calls to Popen using an iterable side_effect
@@ -191,6 +199,6 @@ class BuildEnvironmentTests(TestCase):
         self.mocks.popen.return_value = mock_obj
 
         with build_env:
-            built_docs = task.build_docs()
+            task.build_docs()
         self.assertEqual(self.mocks.popen.call_count, 5)
         self.assertTrue(build_env.successful)
