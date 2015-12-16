@@ -109,7 +109,9 @@ class UpdateDocsTask(Task):
         try:
             config = load_config(
                 path=checkout_path,
-                env_config={},
+                env_config={
+                    'output_base': '',
+                },
             )[0]
         except ConfigError:
             self._log(msg='No readthedocs.yml file found.')
@@ -123,6 +125,7 @@ class UpdateDocsTask(Task):
 
     def run(self, pk, version_pk=None, build_pk=None, record=True, docker=False,
             search=True, force=False, localmedia=True, **kwargs):
+
         self.project = self.get_project(pk)
         self.version = self.get_version(self.project, version_pk)
         self.build = self.get_build(build_pk)
@@ -355,7 +358,7 @@ class UpdateDocsTask(Task):
         only raise a warning exception here. A hard error will halt the build
         process.
         """
-        builder = get_builder_class(builder_class)(self.build_env)
+        builder = get_builder_class(builder_class)(self.build_env, python_env=self.python_env)
         success = builder.build()
         builder.move()
         return success
