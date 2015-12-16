@@ -6,16 +6,14 @@ The file,
 `readthedocs.yml`,
 must be in the root directory of your project.
 
-.. note:: It isn't possible to configure all build settings with
-	      this file currently.
-	      We are working to add support for all configuration options soon.
-
+.. note:: This feature is in a beta state.
+          Please file an :doc:`Issue <support>` if you find anything wrong.
 
 Supported Settings
 ------------------
 
 type
-~~~~~~
+~~~~
 
 Default: `sphinx`
 Options: `[sphinx, mkdocs]`
@@ -25,13 +23,25 @@ The `type` block allows you to configure the build tool used for building your d
 .. code-block:: yaml
 
 	type: sphinx
+	
+conf_file
+~~~~~~~~~
+
+Default: `None`
+Type: Path (specified from the root of the project)
+
+The path to a specific Sphinx `conf.py` file. If none is found, we will choose one.
+
+.. code-block:: yaml
+
+	conf_file: project2/docs/conf.py
 
 python
 ~~~~~~
 
 The `python` block allows you to configure aspects of the Python executable used for building documentation.
 
-* type
+* version
 
 Default: `2`
 Options: `[2, 3]`
@@ -40,6 +50,16 @@ Options: `[2, 3]`
 
 	python:
 	   version: 3
+
+* setup_py_install
+
+Default: `False`
+Type: Boolean
+
+.. code-block:: yaml
+
+	python:
+	   setup_py_install: true
 
 conda
 ~~~~~
@@ -59,17 +79,16 @@ The file option specified the Conda environment file to use.
 	    file: environment.yml
 
 
-Current Settings
-----------------
+requirements_file
+~~~~~~~~~~~~~~~~~
 
-* type
-* python
-* conda
+Default: `None`
+Type: Path (specified from the root of the project)
 
-Future Settings
----------------
+The path to your Pip requirements file.
 
-* install_project
-* requirements_file
-* conf_file
-* system_packages
+
+.. code-block:: yaml
+
+	requirements_file: requirements/docs.txt
+

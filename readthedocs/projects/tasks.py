@@ -123,10 +123,6 @@ class UpdateDocsTask(Task):
 
     def run(self, pk, version_pk=None, build_pk=None, record=True, docker=False,
             search=True, force=False, localmedia=True, **kwargs):
-        env_cls = LocalEnvironment
-        if docker or settings.DOCKER_ENABLE:
-            env_cls = DockerEnvironment
-
         self.project = self.get_project(pk)
         self.version = self.get_version(self.project, version_pk)
         self.build = self.get_build(build_pk)
@@ -135,13 +131,18 @@ class UpdateDocsTask(Task):
         self.build_force = force
         self.config = self.load_config(version=self.version)
 
+        env_cls = LocalEnvironment
+        if docker or settings.DOCKER_ENABLE:
+            env_cls = DockerEnvironment
+        self.build_env = env_cls(project=self.project, version=self.version,
+                                 build=self.build, record=record)
+
         python_env_cls = Virtualenv
         if 'conda' in self.config:
             python_env_cls = Conda
+        self.python_env = python_env_cls(project=self.project, version=self.version,
+                                         build_env=self.build_env)
 
-        self.python_env = python_env_cls(self)
-        self.build_env = env_cls(project=self.project, version=self.version,
-                                 build=self.build, record=record)
         with self.build_env:
             if self.project.skip:
                 raise BuildEnvironmentError(
@@ -292,7 +293,8 @@ class UpdateDocsTask(Task):
     def build_docs_html(self):
         """Build HTML docs"""
         html_builder = get_builder_class(self.project.documentation_type)(
-            self.build_env
+            build_env=self.build_env,
+            python_env=self.python_env,
         )
         if self.build_force:
             html_builder.force()

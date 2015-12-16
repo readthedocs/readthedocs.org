@@ -412,11 +412,6 @@ class Project(models.Model):
     def checkout_path(self, version=LATEST):
         return os.path.join(self.doc_path, 'checkouts', version)
 
-    def venv_path(self, version=LATEST, conda=False):
-        if conda:
-            return os.path.join(self.doc_path, 'conda', version)
-        return os.path.join(self.doc_path, 'envs', version)
-
     @property
     def pip_cache_path(self):
         """Path to pip cache"""
@@ -450,18 +445,6 @@ class Project(models.Model):
     #
     # End symlink paths
     #
-
-    def venv_bin(self, version=LATEST, filename=None):
-        """Return path to the virtualenv bin path, or a specific binary
-
-        :param version: Version slug to use in path name
-        :param filename: If specified, add this filename to the path return
-        :returns: Path to virtualenv bin or filename in virtualenv bin
-        """
-        parts = [self.venv_path(version), 'bin']
-        if filename is not None:
-            parts.append(filename)
-        return os.path.join(*parts)
 
     def full_doc_path(self, version=LATEST):
         """The path to the documentation root in the project"""

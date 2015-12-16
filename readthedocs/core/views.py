@@ -101,8 +101,11 @@ def wipe_version(request, project_slug, version_slug):
         raise Http404("You must own this project to wipe it.")
 
     if request.method == 'POST':
-        del_dirs = [version.project.checkout_path(
-            version.slug), version.project.venv_path(version.slug)]
+        del_dirs = [
+            os.path.join(version.project.doc_path, 'checkouts', version.slug),
+            os.path.join(version.project.doc_path, 'envs', version.slug),
+            os.path.join(version.project.doc_path, 'conda', version.slug),
+        ]
         for del_dir in del_dirs:
             # Support hacky "broadcast" with MULTIPLE_BUILD_SERVERS setting,
             # otherwise put in normal celery queue
