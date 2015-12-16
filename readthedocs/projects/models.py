@@ -127,10 +127,7 @@ class Project(models.Model):
         blank=True, help_text=_(
             'A <a '
             'href="https://pip.pypa.io/en/latest/user_guide.html#requirements-files">'
-            'pip requirements file</a> or '
-            '<a href="http://conda.pydata.org/docs/using/envs.html#export-the-environment-file">'
-            'Conda Environment File</a>'
-            ' needed to build your documentation. '
+            'pip requirements file</a> needed to build your documentation. '
             'Path from the root of your project.'))
     documentation_type = models.CharField(
         _('Documentation type'), max_length=20,
