@@ -90,7 +90,7 @@ class Virtualenv(PythonEnvironment):
             site_packages = '--system-site-packages'
         env_path = self.venv_path(version=self.version.slug)
         self.build_env.run(
-            self.config.python_version,
+            self.config.python_interpreter,
             '-mvirtualenv',
             site_packages,
             env_path,

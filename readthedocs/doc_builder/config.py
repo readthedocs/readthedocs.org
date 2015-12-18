@@ -19,11 +19,26 @@ class ConfigWrapper(object):
             return self._project.install_project
 
     @property
-    def python_version(self):
+    def python_interpreter(self):
         if 'version' in self._yaml_config.get('python', {}):
-            return self._yaml_config['python']['version']
+            ver = self._yaml_config['python']['version']
+            if str(ver).startswith('2'):
+                return 'python'
+            else:
+                return 'python3'
         else:
             return self._project.python_interpreter
+
+    @property
+    def python_version(self):
+        if 'version' in self._yaml_config.get('python', {}):
+            ver = self._yaml_config['python']['version']
+            return ver
+        else:
+            if self._project.python_interpreter == 'python':
+                return 2
+            else:
+                return 3
 
     @property
     def use_system_site_packages(self):
