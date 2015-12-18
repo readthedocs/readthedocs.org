@@ -27,7 +27,7 @@ from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import send_email, run_on_app_servers
 from readthedocs.cdn.purge import purge
 from readthedocs.doc_builder.loader import get_builder_class
-from readthedocs.doc_builder.config import ConfigWrapper
+from readthedocs.doc_builder.config import ConfigWrapper, load_yaml_config
 from readthedocs.doc_builder.environments import (LocalEnvironment,
                                                   DockerEnvironment)
 from readthedocs.doc_builder.exceptions import BuildEnvironmentError
@@ -45,8 +45,6 @@ from readthedocs.api.client import api as api_v1
 from readthedocs.restapi.client import api as api_v2
 from readthedocs.projects.signals import before_vcs, after_vcs, before_build, after_build
 from readthedocs.core.resolver import resolve_path
-from readthedocs_build.config import (ConfigError, BuildConfig,
-                                      load as load_config)
 
 
 log = logging.getLogger(__name__)
@@ -99,32 +97,6 @@ class UpdateDocsTask(Task):
                          version=self.version.slug,
                          msg=msg))
 
-    def load_yaml_config(self, version):
-        """
-        Load a configuration from `readthedocs.yml` file.
-
-        This uses the configuration logic from `readthedocs-build`,
-        which will keep parsing consistent between projects.
-        """
-
-        checkout_path = version.project.checkout_path(version.slug)
-        try:
-            config = load_config(
-                path=checkout_path,
-                env_config={
-                    'output_base': '',
-                },
-            )[0]
-        except ConfigError:
-            self._log(msg='No readthedocs.yml file found.')
-            config = BuildConfig(
-                env_config={},
-                raw_config={},
-                source_file='empty',
-                source_position=0,
-            )
-        return config
-
     def run(self, pk, version_pk=None, build_pk=None, record=True, docker=False,
             search=True, force=False, localmedia=True, **kwargs):
 
@@ -135,8 +107,7 @@ class UpdateDocsTask(Task):
         self.build_localmedia = localmedia
         self.build_force = force
 
-        yaml_config = self.load_yaml_config(version=self.version)
-        self.config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
+        self.config = load_yaml_config(version=self.version)
 
         env_cls = LocalEnvironment
         if docker or settings.DOCKER_ENABLE:

@@ -1,9 +1,19 @@
+
+from readthedocs_build.config import (ConfigError, BuildConfig,
+                                      load as load_config)
+
+
 class ConfigWrapper(object):
 
     """
     A config object that wraps the Project & YAML based configs.
 
     Gives precidence to YAML, falling back to project if it isn't defined.
+
+    We only currently implement a subset of the existing YAML config.
+    This should be the canonical source for our usage of the YAML files,
+    never accessing the config object directly.
+
     """
 
     def __init__(self, version, yaml_config):
@@ -76,3 +86,29 @@ class ConfigWrapper(object):
     #         return self._yaml_config['type']
     #     else:
     #         return self._project.documentation_type
+
+
+def load_yaml_config(version):
+    """
+    Load a configuration from `readthedocs.yml` file.
+
+    This uses the configuration logic from `readthedocs-build`,
+    which will keep parsing consistent between projects.
+    """
+
+    checkout_path = version.project.checkout_path(version.slug)
+    try:
+        config = load_config(
+            path=checkout_path,
+            env_config={
+                'output_base': '',
+            },
+        )[0]
+    except ConfigError:
+        config = BuildConfig(
+            env_config={},
+            raw_config={},
+            source_file='empty',
+            source_position=0,
+        )
+    return ConfigWrapper(version=version, yaml_config=config)
