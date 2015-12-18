@@ -25,7 +25,7 @@ class ConfigWrapperTests(TestCase):
 
     def setUp(self):
         self.project = get(Project, slug='test', python_interpreter='python',
-                           install_project=False, requirements_file='requirements/pip.txt')
+                           install_project=False, requirements_file='urls.py')
         self.version = get(Version, project=self.project, slug='foobar')
 
     def test_python_version(self):
@@ -56,10 +56,11 @@ class ConfigWrapperTests(TestCase):
         self.assertEqual(config.install_project, False)
 
     def test_conda(self):
-        yaml_config = get_build_config({'conda': {'file': '.travis.yml'}})
+        to_find = 'urls.py'
+        yaml_config = get_build_config({'conda': {'file': to_find}})
         config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
         self.assertEqual(config.use_conda, True)
-        self.assertTrue(config.conda_file[-11:] == '.travis.yml')
+        self.assertTrue(config.conda_file[-len(to_find):] == to_find)
 
         yaml_config = get_build_config({})
         config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
@@ -67,10 +68,10 @@ class ConfigWrapperTests(TestCase):
         self.assertEqual(config.conda_file, None)
 
     def test_requirements_file(self):
-        yaml_config = get_build_config({'requirements_file': 'requirements/deploy.txt'})
+        yaml_config = get_build_config({'requirements_file': 'wsgi.py'})
         config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
-        self.assertEqual(config.requirements_file, 'requirements/deploy.txt')
+        self.assertEqual(config.requirements_file, 'wsgi.py')
 
         yaml_config = get_build_config({})
         config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
-        self.assertEqual(config.requirements_file, 'requirements/pip.txt')
+        self.assertEqual(config.requirements_file, 'urls.py')
