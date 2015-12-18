@@ -7,34 +7,29 @@ The file,
 must be in the root directory of your project.
 
 .. note:: This feature is in a beta state.
-          Please file an :doc:`Issue <support>` if you find anything wrong.
+          Please file an Issue if you find anything wrong.
 
 Supported Settings
 ------------------
 
-type
-~~~~
+.. note:: Conda is only supported via the YAML file.
 
-Default: `sphinx`
-Options: `[sphinx, mkdocs]`
+conda
+~~~~~
 
-The `type` block allows you to configure the build tool used for building your documentation.
+The `conda` block supports a `file` option::
 
-.. code-block:: yaml
-
-	type: sphinx
-	
-conf_file
-~~~~~~~~~
+* file
 
 Default: `None`
 Type: Path (specified from the root of the project)
 
-The path to a specific Sphinx `conf.py` file. If none is found, we will choose one.
+The file option specified the Conda environment file to use.
 
 .. code-block:: yaml
 
-	conf_file: project2/docs/conf.py
+	conda:
+	    file: environment.yml
 
 python
 ~~~~~~
@@ -61,24 +56,6 @@ Type: Boolean
 	python:
 	   setup_py_install: true
 
-conda
-~~~~~
-
-The `conda` block supports a `file` option::
-
-* file
-
-Default: `None`
-Type: Path (specified from the root of the project)
-
-The file option specified the Conda environment file to use.
-
-.. code-block:: yaml
-
-	conda:
-	    file: environment.yml
-
-
 requirements_file
 ~~~~~~~~~~~~~~~~~
 
@@ -91,4 +68,31 @@ The path to your Pip requirements file.
 .. code-block:: yaml
 
 	requirements_file: requirements/docs.txt
+
+
+.. To implement..
+
+	type
+	~~~~
+
+	Default: `sphinx`
+	Options: `[sphinx, mkdocs]`
+
+	The `type` block allows you to configure the build tool used for building your documentation.
+
+	.. code-block:: yaml
+
+		type: sphinx
+		
+	conf_file
+	~~~~~~~~~
+
+	Default: `None`
+	Type: Path (specified from the root of the project)
+
+	The path to a specific Sphinx `conf.py` file. If none is found, we will choose one.
+
+	.. code-block:: yaml
+
+		conf_file: project2/docs/conf.py
 
