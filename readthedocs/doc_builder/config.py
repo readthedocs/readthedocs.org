@@ -13,8 +13,8 @@ class ConfigWrapper(object):
 
     @property
     def install_project(self):
-        if 'install_project' in self._yaml_config:
-            return self._yaml_config['install_project']
+        if 'setup_py_install' in self._yaml_config.get('python', {}):
+            return self._yaml_config['python']['setup_py_install']
         else:
             return self._project.install_project
 

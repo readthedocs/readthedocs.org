@@ -6,18 +6,15 @@ The file,
 `readthedocs.yml`,
 must be in the root directory of your project.
 
-.. note:: This feature is in a beta state.
+.. warning:: This feature is in a beta state.
           Please file an Issue if you find anything wrong.
 
 Supported Settings
 ------------------
-
-.. note:: Conda is only supported via the YAML file.
-
 conda
 ~~~~~
 
-The `conda` block supports a `file` option::
+The `conda` block supports a `file` option:
 
 * file
 
@@ -30,6 +27,8 @@ The file option specified the Conda environment file to use.
 
 	conda:
 	    file: environment.yml
+
+.. note:: Conda is only supported via the YAML file.
 
 python
 ~~~~~~
