@@ -6,8 +6,9 @@ class ConfigWrapper(object):
     Gives precidence to YAML, falling back to project if it isn't defined.
     """
 
-    def __init__(self, project, yaml_config):
-        self._project = project
+    def __init__(self, version, yaml_config):
+        self._version = version
+        self._project = version.project
         self._yaml_config = yaml_config
 
     @property
@@ -51,3 +52,12 @@ class ConfigWrapper(object):
             return self._yaml_config['requirements_file']
         else:
             return self._project.requirements_file
+
+    # Not implemented until we figure out how to keep in sync with the webs.
+    # Probably needs to be version-specific as well, not project.
+    # @property
+    # def documentation_type(self):
+    #     if 'type' in self._yaml_config:
+    #         return self._yaml_config['type']
+    #     else:
+    #         return self._project.documentation_type

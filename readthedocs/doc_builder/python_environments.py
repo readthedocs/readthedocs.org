@@ -5,6 +5,7 @@ import shutil
 from django.conf import settings
 
 from readthedocs.builds.constants import LATEST
+from readthedocs.doc_builder.config import ConfigWrapper
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.projects.constants import LOG_TEMPLATE
 
@@ -13,11 +14,14 @@ log = logging.getLogger(__name__)
 
 class PythonEnvironment(object):
 
-    def __init__(self, project, version, build_env, config_wrapper):
-        self.project = project
+    def __init__(self, version, build_env, config=None):
         self.version = version
+        self.project = version.project
         self.build_env = build_env
-        self.config_wrapper = config_wrapper
+        if config:
+            self.config = config
+        else:
+            self.config = ConfigWrapper(version=version, yaml_config={})
         # Compute here, since it's used a lot
         self.checkout_path = self.project.checkout_path(self.version.slug)
 
@@ -39,7 +43,7 @@ class PythonEnvironment(object):
 
     def install_package(self):
         setup_path = os.path.join(self.checkout_path, 'setup.py')
-        if os.path.isfile(setup_path) and self.config_wrapper.install_project:
+        if os.path.isfile(setup_path) and self.config.install_project:
             if getattr(settings, 'USE_PIP_INSTALL', False):
                 self.build_env.run(
                     'python',
@@ -82,11 +86,11 @@ class Virtualenv(PythonEnvironment):
 
     def setup_base(self):
         site_packages = '--no-site-packages'
-        if self.config_wrapper.use_system_site_packages:
+        if self.config.use_system_site_packages:
             site_packages = '--system-site-packages'
         env_path = self.venv_path(version=self.version.slug)
         self.build_env.run(
-            self.config_wrapper.python_version,
+            self.config.python_version,
             '-mvirtualenv',
             site_packages,
             env_path,
@@ -116,7 +120,7 @@ class Virtualenv(PythonEnvironment):
             '--cache-dir',
             self.project.pip_cache_path,
         ]
-        if self.config_wrapper.use_system_site_packages:
+        if self.config.use_system_site_packages:
             # Other code expects sphinx-build to be installed inside the
             # virtualenv.  Using the -I option makes sure it gets installed
             # even if it is already installed system-wide (and
@@ -129,7 +133,7 @@ class Virtualenv(PythonEnvironment):
         )
 
     def install_user_requirements(self):
-        requirements_file_path = self.config_wrapper.requirements_file
+        requirements_file_path = self.config.requirements_file
         if not requirements_file_path:
             builder_class = get_builder_class(self.project.documentation_type)
             docs_dir = (builder_class(build_env=self.build_env, python_env=self)
@@ -174,7 +178,7 @@ class Conda(PythonEnvironment):
             '--yes',
             '--name',
             self.version.slug,
-            'python={python_version}'.format(python_version=self.config_wrapper.python_version),
+            'python={python_version}'.format(python_version=self.config.python_version),
             environment={'CONDA_ENVS_PATH': conda_env_path}
         )
 
@@ -238,6 +242,6 @@ class Conda(PythonEnvironment):
             '--name',
             self.version.slug,
             '--file',
-            self.config_wrapper.conda_file,
+            self.config.conda_file,
             environment={'CONDA_ENVS_PATH': conda_env_path}
         )

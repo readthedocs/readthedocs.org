@@ -1,5 +1,3 @@
-import os
-import subprocess
 
 from django.test import TestCase
 from django_dynamic_fixture import get
@@ -12,7 +10,6 @@ from readthedocs.doc_builder.python_environments import Virtualenv
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.projects.tasks import UpdateDocsTask
 
-from ..mocks.paths import fake_paths_lookup
 from ..mocks.environment import EnvironmentMockGroup
 
 
@@ -40,7 +37,7 @@ class BuildEnvironmentTests(TestCase):
         self.mocks.patches['html_build'].stop()
 
         build_env = LocalEnvironment(project=project, version=version, build={})
-        python_env = Virtualenv(project=project, version=version, build_env=build_env)
+        python_env = Virtualenv(version=version, build_env=build_env)
         task = UpdateDocsTask(build_env=build_env, python_env=python_env, version=version,
                               project=project, search=False, localmedia=False)
         task.build_docs()
@@ -63,7 +60,7 @@ class BuildEnvironmentTests(TestCase):
         version = project.versions.all()[0]
 
         build_env = LocalEnvironment(project=project, version=version, build={})
-        python_env = Virtualenv(project=project, version=version, build_env=build_env)
+        python_env = Virtualenv(version=version, build_env=build_env)
         task = UpdateDocsTask(build_env=build_env, python_env=python_env, version=version,
                               project=project, search=False, localmedia=False)
         task.build_docs()
@@ -86,7 +83,7 @@ class BuildEnvironmentTests(TestCase):
         version = project.versions.all()[0]
 
         build_env = LocalEnvironment(project=project, version=version, build={})
-        python_env = Virtualenv(project=project, version=version, build_env=build_env)
+        python_env = Virtualenv(version=version, build_env=build_env)
         task = UpdateDocsTask(build_env=build_env, python_env=python_env, version=version,
                               project=project, search=False, localmedia=False)
         task.build_docs()
@@ -105,7 +102,7 @@ class BuildEnvironmentTests(TestCase):
                       versions=[fixture()])
         version = project.versions.all()[0]
         build_env = LocalEnvironment(version=version, project=project, build={})
-        python_env = Virtualenv(project=project, version=version, build_env=build_env)
+        python_env = Virtualenv(version=version, build_env=build_env)
         builder_class = get_builder_class(project.documentation_type)
         builder = builder_class(build_env, python_env)
         self.assertEqual(builder.sphinx_builder, 'readthedocs-comments')
@@ -118,7 +115,7 @@ class BuildEnvironmentTests(TestCase):
                       versions=[fixture()])
         version = project.versions.all()[0]
         build_env = LocalEnvironment(version=version, project=project, build={})
-        python_env = Virtualenv(project=project, version=version, build_env=build_env)
+        python_env = Virtualenv(version=version, build_env=build_env)
         builder_class = get_builder_class(project.documentation_type)
         builder = builder_class(build_env, python_env)
         self.assertEqual(builder.sphinx_builder, 'readthedocs')
@@ -139,7 +136,7 @@ class BuildEnvironmentTests(TestCase):
         assert project.conf_dir() == '/tmp/rtd'
 
         build_env = LocalEnvironment(project=project, version=version, build={})
-        python_env = Virtualenv(project=project, version=version, build_env=build_env)
+        python_env = Virtualenv(version=version, build_env=build_env)
         task = UpdateDocsTask(build_env=build_env, project=project, python_env=python_env,
                               version=version, search=False, localmedia=False)
 
@@ -179,7 +176,7 @@ class BuildEnvironmentTests(TestCase):
         assert project.conf_dir() == '/tmp/rtd'
 
         build_env = LocalEnvironment(project=project, version=version, build={})
-        python_env = Virtualenv(project=project, version=version, build_env=build_env)
+        python_env = Virtualenv(version=version, build_env=build_env)
         task = UpdateDocsTask(build_env=build_env, project=project, python_env=python_env,
                               version=version, search=False, localmedia=False)
 

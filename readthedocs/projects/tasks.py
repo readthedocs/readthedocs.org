@@ -99,7 +99,7 @@ class UpdateDocsTask(Task):
                          version=self.version.slug,
                          msg=msg))
 
-    def load_config(self, version):
+    def load_yaml_config(self, version):
         """
         Load a configuration from `readthedocs.yml` file.
 
@@ -135,8 +135,8 @@ class UpdateDocsTask(Task):
         self.build_localmedia = localmedia
         self.build_force = force
 
-        config = self.load_config(version=self.version)
-        self.config_wrapper = ConfigWrapper(project=self.project, yaml_config=config)
+        yaml_config = self.load_yaml_config(version=self.version)
+        self.config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
 
         env_cls = LocalEnvironment
         if docker or settings.DOCKER_ENABLE:
@@ -145,10 +145,11 @@ class UpdateDocsTask(Task):
                                  build=self.build, record=record)
 
         python_env_cls = Virtualenv
-        if 'conda' in self.config_wrapper.use_conda:
+        if 'conda' in self.config.use_conda:
             python_env_cls = Conda
-        self.python_env = python_env_cls(project=self.project, version=self.version,
-                                         build_env=self.build_env, config_wrapper=self.config_wrapper)
+        self.python_env = python_env_cls(version=self.version,
+                                         build_env=self.build_env,
+                                         config=self.config)
 
         with self.build_env:
             if self.project.skip:
