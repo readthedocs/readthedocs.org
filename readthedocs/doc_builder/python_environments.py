@@ -13,10 +13,11 @@ log = logging.getLogger(__name__)
 
 class PythonEnvironment(object):
 
-    def __init__(self, project, version, build_env):
+    def __init__(self, project, version, build_env, config_wrapper):
         self.project = project
         self.version = version
         self.build_env = build_env
+        self.config_wrapper = config_wrapper
         # Compute here, since it's used a lot
         self.checkout_path = self.project.checkout_path(self.version.slug)
 
@@ -36,9 +37,9 @@ class PythonEnvironment(object):
             self._log('Removing existing build directory')
             shutil.rmtree(build_dir)
 
-    def install_package(self, config):
+    def install_package(self):
         setup_path = os.path.join(self.checkout_path, 'setup.py')
-        if os.path.isfile(setup_path) and self.project.install_project:
+        if os.path.isfile(setup_path) and self.config_wrapper.install_project:
             if getattr(settings, 'USE_PIP_INSTALL', False):
                 self.build_env.run(
                     'python',
@@ -79,19 +80,19 @@ class Virtualenv(PythonEnvironment):
     def venv_path(self, version=LATEST):
         return os.path.join(self.project.doc_path, 'envs', version)
 
-    def setup_base(self, config):
+    def setup_base(self):
         site_packages = '--no-site-packages'
-        if self.project.use_system_packages:
+        if self.config_wrapper.use_system_site_packages:
             site_packages = '--system-site-packages'
         env_path = self.venv_path(version=self.version.slug)
         self.build_env.run(
-            self.project.python_interpreter,
+            self.config_wrapper.python_version,
             '-mvirtualenv',
             site_packages,
             env_path,
         )
 
-    def install_core_requirements(self, config):
+    def install_core_requirements(self):
         requirements = [
             'sphinx==1.3.1',
             'Pygments==2.0.2',
@@ -115,7 +116,7 @@ class Virtualenv(PythonEnvironment):
             '--cache-dir',
             self.project.pip_cache_path,
         ]
-        if self.project.use_system_packages:
+        if self.config_wrapper.use_system_site_packages:
             # Other code expects sphinx-build to be installed inside the
             # virtualenv.  Using the -I option makes sure it gets installed
             # even if it is already installed system-wide (and
@@ -127,8 +128,8 @@ class Virtualenv(PythonEnvironment):
             bin_path=self.venv_bin(version=self.version.slug)
         )
 
-    def install_user_requirements(self, config):
-        requirements_file_path = self.project.requirements_file
+    def install_user_requirements(self):
+        requirements_file_path = self.config_wrapper.requirements_file
         if not requirements_file_path:
             builder_class = get_builder_class(self.project.documentation_type)
             docs_dir = (builder_class(build_env=self.build_env, python_env=self)
@@ -159,11 +160,10 @@ class Conda(PythonEnvironment):
     def venv_path(self, version=LATEST):
         return os.path.join(self.project.doc_path, 'conda', version)
 
-    def setup_base(self, config):
+    def setup_base(self):
         conda_env_path = os.path.join(self.project.doc_path, 'conda')
         version_path = os.path.join(conda_env_path, self.version.slug)
 
-        python_version = config['python'].get('version', 2)
         if os.path.exists(version_path):
             # Re-create conda directory each time to keep fresh state
             self._log('Removing existing conda directory')
@@ -174,11 +174,11 @@ class Conda(PythonEnvironment):
             '--yes',
             '--name',
             self.version.slug,
-            'python={python_version}'.format(python_version=python_version),
+            'python={python_version}'.format(python_version=self.config_wrapper.python_version),
             environment={'CONDA_ENVS_PATH': conda_env_path}
         )
 
-    def install_core_requirements(self, config):
+    def install_core_requirements(self):
         conda_env_path = os.path.join(self.project.doc_path, 'conda')
 
         # Use conda for requirements it packages
@@ -229,7 +229,7 @@ class Conda(PythonEnvironment):
             bin_path=self.venv_bin(version=self.version.slug)
         )
 
-    def install_user_requirements(self, config):
+    def install_user_requirements(self):
         conda_env_path = os.path.join(self.project.doc_path, 'conda')
         self.build_env.run(
             'conda',
@@ -238,6 +238,6 @@ class Conda(PythonEnvironment):
             '--name',
             self.version.slug,
             '--file',
-            config['conda']['file'],
+            self.config_wrapper.conda_file,
             environment={'CONDA_ENVS_PATH': conda_env_path}
         )

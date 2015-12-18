@@ -27,6 +27,7 @@ from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import send_email, run_on_app_servers
 from readthedocs.cdn.purge import purge
 from readthedocs.doc_builder.loader import get_builder_class
+from readthedocs.doc_builder.config import ConfigWrapper
 from readthedocs.doc_builder.environments import (LocalEnvironment,
                                                   DockerEnvironment)
 from readthedocs.doc_builder.exceptions import BuildEnvironmentError
@@ -133,7 +134,9 @@ class UpdateDocsTask(Task):
         self.build_search = search
         self.build_localmedia = localmedia
         self.build_force = force
-        self.config = self.load_config(version=self.version)
+
+        config = self.load_config(version=self.version)
+        self.config_wrapper = ConfigWrapper(project=self.project, yaml_config=config)
 
         env_cls = LocalEnvironment
         if docker or settings.DOCKER_ENABLE:
@@ -142,10 +145,10 @@ class UpdateDocsTask(Task):
                                  build=self.build, record=record)
 
         python_env_cls = Virtualenv
-        if 'conda' in self.config:
+        if 'conda' in self.config_wrapper.use_conda:
             python_env_cls = Conda
         self.python_env = python_env_cls(project=self.project, version=self.version,
-                                         build_env=self.build_env)
+                                         build_env=self.build_env, config_wrapper=self.config_wrapper)
 
         with self.build_env:
             if self.project.skip:
