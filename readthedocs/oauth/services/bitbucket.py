@@ -159,12 +159,12 @@ class BitbucketService(Service):
     def setup_webhook(self, project):
         session = self.get_session()
         owner, repo = build_utils.get_bitbucket_username_repo(url=project.repo)
-        data = {
+        data = json.dumps({
             'description': 'Read the Docs ({domain})'.format(domain=settings.PRODUCTION_DOMAIN),
             'url': 'https://{domain}/bitbucket'.format(domain=settings.PRODUCTION_DOMAIN),
             'active': True,
             'events': ['repo:push'],
-        }
+        })
         try:
             resp = session.post(
                 ('https://api.bitbucket.org/2.0/repositories/{owner}/{repo}/hooks'
@@ -172,7 +172,7 @@ class BitbucketService(Service):
                 data=data,
                 headers={'content-type': 'application/json'}
             )
-            if resp.status_code == 200:
+            if resp.status_code == 201:
                 log.info('Bitbucket webhook creation successful for project: %s',
                          project)
                 return True
