@@ -229,8 +229,8 @@ class RemoteOrganizationViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         return (self.model.objects.api(self.request.user)
-                .filter(source__in=[service.adapter.provider_id
-                                    for service in services]))
+                .filter(account__provider__in=[service.adapter.provider_id
+                                               for service in services]))
 
 
 class RemoteRepositoryViewSet(viewsets.ReadOnlyModelViewSet):
@@ -244,8 +244,8 @@ class RemoteRepositoryViewSet(viewsets.ReadOnlyModelViewSet):
         org = self.request.query_params.get('org', None)
         if org is not None:
             query = query.filter(organization__pk=org)
-        query = query.filter(source__in=[service.adapter.provider_id
-                                         for service in services])
+        query = query.filter(account__provider__in=[service.adapter.provider_id
+                                                    for service in services])
         return query
 
     def get_paginate_by(self):

@@ -6,8 +6,8 @@ import re
 from datetime import datetime
 
 from django.conf import settings
-
 from requests_oauthlib import OAuth2Session
+from requests.exceptions import RequestException
 from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.providers.bitbucket_oauth2.views import (
     BitbucketOAuth2Adapter)
@@ -33,6 +33,7 @@ class Service(object):
     """
 
     adapter = None
+    url_pattern = None
 
     def __init__(self, user, account):
         self.session = None
@@ -135,12 +136,29 @@ class Service(object):
     def setup_webhook(self, project):
         raise NotImplementedError
 
+    @classmethod
+    def is_project_service(cls, project):
+        """Determine if this is the service the project is using
+
+        .. note::
+            This should be deprecated in favor of attaching the
+            :py:cls:`RemoteRepository` to the project instance. This is a slight
+            improvement on the legacy check for webhooks
+        """
+        # TODO Replace this check by keying project to remote repos
+        return (
+            cls.url_pattern is not None and
+            cls.url_pattern.search(project.repo) is not None
+        )
+
 
 class GitHubService(Service):
 
     """Provider service for GitHub"""
 
     adapter = GitHubOAuth2Adapter
+    # TODO replace this with a less naive check
+    url_pattern = re.compile(r'^github\.com\/')
 
     def sync(self, sync):
         """Sync repositories and organizations"""
@@ -257,14 +275,22 @@ class GitHubService(Service):
             'active': True,
             'config': {'url': 'https://{domain}/github'.format(domain=settings.PRODUCTION_DOMAIN)}
         })
-        resp = session.post(
-            'https://api.github.com/repos/{owner}/{repo}/hooks'.format(owner=owner, repo=repo),
-            data=data,
-            headers={'content-type': 'application/json'}
-        )
-        log.info("Creating GitHub webhook: response={code}"
-                 .format(code=resp.status_code))
-        return resp
+        resp = None
+        try:
+            resp = session.post(
+                'https://api.github.com/repos/{owner}/{repo}/hooks'.format(owner=owner, repo=repo),
+                data=data,
+                headers={'content-type': 'application/json'}
+            )
+            if resp.status_code == 201:
+                log.info('Created GitHub webhook: project={project}'
+                         .format(project=project))
+                return True
+        except RequestException:
+            pass
+        else:
+            log.exception('GitHub Hook creation failed', exc_info=True)
+            return False
 
     @classmethod
     def get_token_for_project(cls, project, force_local=False):
@@ -293,6 +319,8 @@ class BitbucketService(Service):
     """Provider service for Bitbucket"""
 
     adapter = BitbucketOAuth2Adapter
+    # TODO replace this with a less naive check
+    url_pattern = re.compile(r'bitbucket.org\/')
 
     def sync(self, sync):
         """Import from Bitbucket"""
@@ -429,14 +457,22 @@ class BitbucketService(Service):
             'type': 'POST',
             'url': 'https://{domain}/bitbucket'.format(domain=settings.PRODUCTION_DOMAIN),
         }
-        resp = session.post(
-            'https://api.bitbucket.org/1.0/repositories/{owner}/{repo}/services'.format(
-                owner=owner, repo=repo
-            ),
-            data=data,
-        )
-        log.info("Creating BitBucket webhook response code: {code}".format(code=resp.status_code))
-        return resp
+        try:
+            resp = session.post(
+                'https://api.bitbucket.org/1.0/repositories/{owner}/{repo}/services'.format(
+                    owner=owner, repo=repo
+                ),
+                data=data,
+            )
+            if resp.status_code == 200:
+                log.info('Created Bitbucket webhook: project={project}'
+                         .format(project=project))
+                return True
+        except RequestException:
+            pass
+        else:
+            log.exception('Bitbucket webhook creation failed', exc_info=True)
+            return False
 
 
 services = [GitHubService, BitbucketService]
