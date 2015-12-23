@@ -39,15 +39,12 @@ class RemoteOrganization(models.Model):
         related_name='remote_organizations', null=True, blank=True)
     active = models.BooleanField(_('Active'), default=False)
 
-    slug = models.CharField(_('Slug'), max_length=255, unique=True)
+    slug = models.CharField(_('Slug'), max_length=255)
     name = models.CharField(_('Name'), max_length=255, null=True, blank=True)
     email = models.EmailField(_('Email'), max_length=255, null=True, blank=True)
     avatar_url = models.URLField(_('Avatar image URL'), null=True, blank=True)
     url = models.URLField(_('URL to organization page'), max_length=200,
                           null=True, blank=True)
-
-    source = models.CharField(_('Repository source'), max_length=16,
-                              choices=OAUTH_SOURCE)
 
     json = models.TextField(_('Serialized API response'))
 
@@ -64,20 +61,6 @@ class RemoteOrganization(models.Model):
             return data
         except ValueError:
             pass
-
-    @property
-    def get_account(self):
-        """Return connected account using the foreign key or a lookup
-
-        If an existing account is connected, use the account, otherwise, look up
-        a potential account based on the old ``source`` attribute.
-        """
-        if self.account is None:
-            try:
-                return SocialAccount.objects.get(provider=self.source)
-            except SocialAccount.DoesNotExist:
-                return None
-        return self.account
 
 
 class RemoteRepository(models.Model):
@@ -124,9 +107,6 @@ class RemoteRepository(models.Model):
     vcs = models.CharField(_('vcs'), max_length=200, blank=True,
                            choices=REPO_CHOICES)
 
-    source = models.CharField(_('Repository source'), max_length=16,
-                              choices=OAUTH_SOURCE)
-
     json = models.TextField(_('Serialized API response'))
 
     objects = RemoteRepositoryManager()
@@ -166,17 +146,3 @@ class RemoteRepository(models.Model):
                  'url': reverse('projects_detail',
                                 kwargs={'project_slug': project.slug})}
                 for project in projects]
-
-    @property
-    def get_account(self):
-        """Return connected account using the foreign key or a lookup
-
-        If an existing account is connected, use the account, otherwise, look up
-        a potential account based on the old ``source`` attribute.
-        """
-        if self.account is None:
-            try:
-                return SocialAccount.objects.get(provider=self.source)
-            except SocialAccount.DoesNotExist:
-                return None
-        return self.account

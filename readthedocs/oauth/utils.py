@@ -2,6 +2,7 @@
 
 import logging
 import json
+import re
 from datetime import datetime
 
 from django.conf import settings
@@ -17,6 +18,8 @@ from readthedocs.restapi.client import api
 
 from .models import RemoteOrganization, RemoteRepository
 
+
+DEFAULT_PRIVACY_LEVEL = getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public')
 
 log = logging.getLogger(__name__)
 
@@ -122,6 +125,13 @@ class Service(object):
     def sync(self, sync):
         raise NotImplementedError
 
+    def create_repository(self, fields, privacy=DEFAULT_PRIVACY_LEVEL,
+                          organization=None):
+        raise NotImplementedError
+
+    def create_organization(self, fields):
+        raise NotImplementedError
+
     def setup_webhook(self, project):
         raise NotImplementedError
 
@@ -143,10 +153,7 @@ class GitHubService(Service):
         repos = self.paginate('https://api.github.com/user/repos?per_page=100')
         try:
             for repo in repos:
-                RemoteRepository.objects.create_from_github_api(
-                    repo,
-                    user=self.user
-                )
+                self.create_repository(repo)
         except (TypeError, ValueError) as e:
             log.error('Error syncing GitHub repositories: %s',
                       str(e), exc_info=True)
@@ -159,21 +166,70 @@ class GitHubService(Service):
             orgs = self.paginate('https://api.github.com/user/orgs')
             for org in orgs:
                 org_resp = self.get_session().get(org['url'])
-                org_obj = RemoteOrganization.objects.create_from_github_api(
-                    org_resp.json(), user=self.user)
+                org_obj = self.create_organization(org_resp.json())
                 # Add repos
                 # TODO ?per_page=100
                 org_repos = self.paginate(
                     '{org_url}/repos'.format(org_url=org['url'])
                 )
                 for repo in org_repos:
-                    RemoteRepository.objects.create_from_github_api(
-                        repo, user=self.user, organization=org_obj)
+                    self.create_repository(repo, organization=org_obj)
         except (TypeError, ValueError) as e:
             log.error('Error syncing GitHub organizations: %s',
                       str(e), exc_info=True)
             raise Exception('Could not sync your GitHub organizations, '
                             'try reconnecting your account')
+
+    def create_repository(self, fields, privacy=DEFAULT_PRIVACY_LEVEL,
+                          organization=None):
+        if (
+                (privacy == 'private') or
+                (fields['private'] is False and privacy == 'public')):
+            repo, _ = RemoteRepository.objects.get_or_create(
+                full_name=fields['full_name'],
+                account=self.account,
+            )
+            if repo.organization and repo.organization != organization:
+                log.debug('Not importing %s because mismatched orgs' %
+                          fields['name'])
+                return None
+            else:
+                repo.organization = organization
+            repo.users.add(self.user)
+            repo.name = fields['name']
+            repo.description = fields['description']
+            repo.ssh_url = fields['ssh_url']
+            repo.html_url = fields['html_url']
+            repo.private = fields['private']
+            if repo.private:
+                repo.clone_url = fields['ssh_url']
+            else:
+                repo.clone_url = fields['clone_url']
+            repo.admin = fields.get('permissions', {}).get('admin', False)
+            repo.vcs = 'git'
+            repo.account = self.account
+            repo.avatar_url = fields.get('owner', {}).get('avatar_url')
+            repo.json = json.dumps(fields)
+            repo.save()
+            return repo
+        else:
+            log.debug('Not importing %s because mismatched type' %
+                      fields['name'])
+
+    def create_organization(self, fields):
+        organization, _ = RemoteOrganization.objects.get_or_create(
+            slug=fields.get('login'),
+            account=self.account,
+        )
+        organization.html_url = fields.get('html_url')
+        organization.name = fields.get('name')
+        organization.email = fields.get('email')
+        organization.avatar_url = fields.get('avatar_url')
+        organization.json = json.dumps(fields)
+        organization.account = self.account
+        organization.users.add(self.user)
+        organization.save()
+        return organization
 
     def paginate(self, url):
         """Combines return from GitHub pagination
@@ -250,8 +306,7 @@ class BitbucketService(Service):
             repos = self.paginate(
                 'https://bitbucket.org/api/2.0/repositories/?role=member')
             for repo in repos:
-                RemoteRepository.objects.create_from_bitbucket_api(
-                    repo, user=self.user)
+                self.create_repository(repo)
         except (TypeError, ValueError) as e:
             log.error('Error syncing Bitbucket repositories: %s',
                       str(e), exc_info=True)
@@ -268,7 +323,7 @@ class BitbucketService(Service):
                 RemoteRepository.objects
                 .filter(users=self.user,
                         full_name__in=[r['full_name'] for r in resp],
-                        source=self.adapter.provider_id)
+                        account=self.account)
             )
             for repo in repos:
                 repo.admin = True
@@ -283,20 +338,76 @@ class BitbucketService(Service):
                 'https://api.bitbucket.org/2.0/teams/?role=member'
             )
             for team in teams:
-                org = RemoteOrganization.objects.create_from_bitbucket_api(
-                    team, user=self.user)
+                org = self.create_organization(team)
                 repos = self.paginate(team['links']['repositories']['href'])
                 for repo in repos:
-                    RemoteRepository.objects.create_from_bitbucket_api(
-                        repo,
-                        user=self.user,
-                        organization=org,
-                    )
+                    self.create_repository(repo, organization=org)
         except ValueError as e:
             log.error('Error syncing Bitbucket organizations: %s',
                       str(e), exc_info=True)
             raise Exception('Could not sync your Bitbucket team repositories, '
                             'try reconnecting your account')
+
+    def create_repository(self, fields, privacy=DEFAULT_PRIVACY_LEVEL,
+                          organization=None):
+        """Update or create a repository from Bitbucket
+
+        This looks up existing repositories based on the full repository name,
+        that is the username and repository name.
+
+        .. note::
+            The :py:data:`admin` property is not set during creation, as
+            permissions are not part of the returned repository data from
+            Bitbucket.
+        """
+        if (fields['is_private'] is True and privacy == 'private' or
+                fields['is_private'] is False and privacy == 'public'):
+            repo, _ = RemoteRepository.objects.get_or_create(
+                full_name=fields['full_name'],
+                account=self.account,
+            )
+            if repo.organization and repo.organization != organization:
+                log.debug('Not importing %s because mismatched orgs' %
+                          fields['name'])
+                return None
+            else:
+                repo.organization = organization
+            repo.users.add(self.user)
+            repo.name = fields['name']
+            repo.description = fields['description']
+            repo.private = fields['is_private']
+            repo.clone_url = fields['links']['clone'][0]['href']
+            repo.ssh_url = fields['links']['clone'][1]['href']
+            if repo.private:
+                repo.clone_url = repo.ssh_url
+            repo.html_url = fields['links']['html']['href']
+            repo.vcs = fields['scm']
+            repo.account = self.account
+
+            avatar_url = fields['links']['avatar']['href'] or ''
+            repo.avatar_url = re.sub(r'\/16\/$', r'/32/', avatar_url)
+
+            repo.json = json.dumps(fields)
+            repo.save()
+            return repo
+        else:
+            log.debug('Not importing %s because mismatched type' %
+                      fields['name'])
+
+    def create_organization(self, fields):
+        organization, _ = RemoteOrganization.objects.get_or_create(
+            slug=fields.get('username'),
+            account=self.account,
+        )
+        organization.name = fields.get('display_name')
+        organization.email = fields.get('email')
+        organization.avatar_url = fields['links']['avatar']['href']
+        organization.html_url = fields['links']['html']['href']
+        organization.json = json.dumps(fields)
+        organization.account = self.account
+        organization.users.add(self.user)
+        organization.save()
+        return organization
 
     def paginate(self, url):
         """Combines results from Bitbucket pagination
