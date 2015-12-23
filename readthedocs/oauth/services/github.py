@@ -147,18 +147,22 @@ class GitHubService(Service):
         resp = None
         try:
             resp = session.post(
-                'https://api.github.com/repos/{owner}/{repo}/hooks'.format(owner=owner, repo=repo),
+                ('https://api.github.com/repos/{owner}/{repo}/hooks'
+                 .format(owner=owner, repo=repo)),
                 data=data,
                 headers={'content-type': 'application/json'}
             )
             if resp.status_code == 201:
-                log.info('Created GitHub webhook: project={project}'
-                         .format(project=project))
+                log.info('GitHub webhook creation successful for project: %s',
+                         project)
                 return True
         except RequestException:
+            log.error('GitHub webhook creation failed for project: %s',
+                      project, exc_info=True)
             pass
         else:
-            log.exception('GitHub Hook creation failed', exc_info=True)
+            log.error('GitHub webhook creation failed for project: %s',
+                      project)
             return False
 
     @classmethod

@@ -160,22 +160,26 @@ class BitbucketService(Service):
         session = self.get_session()
         owner, repo = build_utils.get_bitbucket_username_repo(url=project.repo)
         data = {
-            'type': 'POST',
+            'description': 'Read the Docs ({domain})'.format(domain=settings.PRODUCTION_DOMAIN),
             'url': 'https://{domain}/bitbucket'.format(domain=settings.PRODUCTION_DOMAIN),
+            'active': True,
+            'events': ['repo:push'],
         }
         try:
             resp = session.post(
-                'https://api.bitbucket.org/1.0/repositories/{owner}/{repo}/services'.format(
-                    owner=owner, repo=repo
-                ),
+                ('https://api.bitbucket.org/2.0/repositories/{owner}/{repo}/hooks'
+                 .format(owner=owner, repo=repo)),
                 data=data,
+                headers={'content-type': 'application/json'}
             )
             if resp.status_code == 200:
-                log.info('Created Bitbucket webhook: project={project}'
-                         .format(project=project))
+                log.info('Bitbucket webhook creation successful for project: %s',
+                         project)
                 return True
         except RequestException:
-            pass
+            log.error('Bitbucket webhook creation failed for project: %s',
+                      project, exc_info=True)
         else:
-            log.exception('Bitbucket webhook creation failed', exc_info=True)
+            log.error('Bitbucket webhook creation failed for project: %s',
+                      project)
             return False
