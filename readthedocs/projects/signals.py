@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 
-from readthedocs.oauth.utils import services
+from readthedocs.oauth.services import registry
 
 
 before_vcs = django.dispatch.Signal(providing_args=["version"])
@@ -28,7 +28,7 @@ def handle_project_import(sender, **kwargs):
     project = sender
     request = kwargs.get('request')
 
-    for service_cls in services:
+    for service_cls in registry:
         if service_cls.is_project_service(project):
             service = service_cls.for_user(request.user)
             if service.setup_webhook(project):

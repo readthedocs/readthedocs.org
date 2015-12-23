@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 
-from readthedocs.oauth.utils import GitHubService
+from readthedocs.oauth.services import GitHubService
 
 
 class Command(BaseCommand):

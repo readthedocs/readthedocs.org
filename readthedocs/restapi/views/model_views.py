@@ -11,7 +11,7 @@ from readthedocs.builds.constants import TAG
 from readthedocs.builds.filters import VersionFilter
 from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.core.utils import trigger_build
-from readthedocs.oauth.utils import GitHubService, services
+from readthedocs.oauth.services import GitHubService, registry
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.builds.constants import STABLE
 from readthedocs.projects.filters import ProjectFilter, DomainFilter
@@ -230,7 +230,7 @@ class RemoteOrganizationViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         return (self.model.objects.api(self.request.user)
                 .filter(account__provider__in=[service.adapter.provider_id
-                                               for service in services]))
+                                               for service in registry]))
 
 
 class RemoteRepositoryViewSet(viewsets.ReadOnlyModelViewSet):
@@ -245,7 +245,7 @@ class RemoteRepositoryViewSet(viewsets.ReadOnlyModelViewSet):
         if org is not None:
             query = query.filter(organization__pk=org)
         query = query.filter(account__provider__in=[service.adapter.provider_id
-                                                    for service in services])
+                                                    for service in registry])
         return query
 
     def get_paginate_by(self):

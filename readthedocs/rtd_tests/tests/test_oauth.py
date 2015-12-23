@@ -5,7 +5,7 @@ from allauth.socialaccount.models import SocialToken
 
 from readthedocs.projects.models import Project
 
-from readthedocs.oauth.utils import GitHubService
+from readthedocs.oauth.services import GitHubService
 from readthedocs.oauth.models import RemoteRepository, RemoteOrganization
 
 
