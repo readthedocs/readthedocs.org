@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from django.core.validators import URLValidator
 from django.core.urlresolvers import reverse
+from allauth.socialaccount.models import SocialAccount
 
 from readthedocs.projects.constants import REPO_CHOICES
 from readthedocs.projects.models import Project
@@ -33,6 +34,9 @@ class RemoteOrganization(models.Model):
 
     users = models.ManyToManyField(User, verbose_name=_('Users'),
                                    related_name='oauth_organizations')
+    account = models.ForeignKey(
+        SocialAccount, verbose_name=_('Connected account'),
+        related_name='remote_organizations', null=True, blank=True)
     active = models.BooleanField(_('Active'), default=False)
 
     slug = models.CharField(_('Slug'), max_length=255, unique=True)
@@ -44,6 +48,7 @@ class RemoteOrganization(models.Model):
 
     source = models.CharField(_('Repository source'), max_length=16,
                               choices=OAUTH_SOURCE)
+
     json = models.TextField(_('Serialized API response'))
 
     objects = RemoteOrganizationManager()
@@ -60,6 +65,20 @@ class RemoteOrganization(models.Model):
         except ValueError:
             pass
 
+    @property
+    def get_account(self):
+        """Return connected account using the foreign key or a lookup
+
+        If an existing account is connected, use the account, otherwise, look up
+        a potential account based on the old ``source`` attribute.
+        """
+        if self.account is None:
+            try:
+                return SocialAccount.objects.get(provider=self.source)
+            except SocialAccount.DoesNotExist:
+                return None
+        return self.account
+
 
 class RemoteRepository(models.Model):
 
@@ -75,6 +94,9 @@ class RemoteRepository(models.Model):
     # This should now be a OneToOne
     users = models.ManyToManyField(User, verbose_name=_('Users'),
                                    related_name='oauth_repositories')
+    account = models.ForeignKey(
+        SocialAccount, verbose_name=_('Connected account'),
+        related_name='remote_repositories', null=True, blank=True)
     organization = models.ForeignKey(
         RemoteOrganization, verbose_name=_('Organization'),
         related_name='repositories', null=True, blank=True)
@@ -104,6 +126,7 @@ class RemoteRepository(models.Model):
 
     source = models.CharField(_('Repository source'), max_length=16,
                               choices=OAUTH_SOURCE)
+
     json = models.TextField(_('Serialized API response'))
 
     objects = RemoteRepositoryManager()
@@ -143,3 +166,17 @@ class RemoteRepository(models.Model):
                  'url': reverse('projects_detail',
                                 kwargs={'project_slug': project.slug})}
                 for project in projects]
+
+    @property
+    def get_account(self):
+        """Return connected account using the foreign key or a lookup
+
+        If an existing account is connected, use the account, otherwise, look up
+        a potential account based on the old ``source`` attribute.
+        """
+        if self.account is None:
+            try:
+                return SocialAccount.objects.get(provider=self.source)
+            except SocialAccount.DoesNotExist:
+                return None
+        return self.account

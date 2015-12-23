@@ -128,7 +128,6 @@ AUTHENTICATION_BACKENDS = (
 )
 
 # All auth
-
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 ACCOUNT_AUTHENTICATION_METHOD = "username_email"
@@ -200,8 +199,6 @@ INSTALLED_APPS = [
     'haystack',
     'tastypie',
 
-
-
     # our apps
     'readthedocs.bookmarks',
     'readthedocs.projects',
@@ -223,8 +220,8 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.github',
+    'allauth.socialaccount.providers.bitbucket',
     'allauth.socialaccount.providers.bitbucket_oauth2',
-    # 'allauth.socialaccount.providers.twitter',
 ]
 
 REST_FRAMEWORK = {

@@ -5,7 +5,7 @@ from allauth.socialaccount.models import SocialToken
 
 from readthedocs.projects.models import Project
 
-from readthedocs.oauth.utils import import_github
+from readthedocs.oauth.utils import GitHubService
 from readthedocs.oauth.models import RemoteRepository, RemoteOrganization
 
 
@@ -64,8 +64,8 @@ class RedirectOauth(TestCase):
         self.assertIsInstance(org, RemoteOrganization)
 
     def test_import_github_with_no_token(self):
-        github_connected = import_github(self.user, sync=True)
-        self.assertEqual(github_connected, False)
+        service = GitHubService.for_user(self.user)
+        self.assertIsNone(service)
 
     def test_multiple_users_same_repo(self):
         user2 = User.objects.get(pk=2)
