@@ -3,9 +3,12 @@ Read the Docs URL Resolver.
 
 Url Types:
 
-- Subproject
 - Subdomain
 - CNAME
+
+Path Types:
+
+- Subproject
 - Single Version
 - Normal
 
@@ -15,14 +18,14 @@ All possible URL's::
 
     /<lang>/<version>/<filename> # Default
     /<filename> # Single Version
-    /projects/<subproject_slug>/<lang>/<version>/<filename> # Subproject
+    /projects/<subproject_slug>/<lang>/<version>/<filename> # Subproject Default
     /projects/<subproject_slug>/<filename> # Subproject Single Version
 
     Normal Serving:
 
     /docs/<project_slug>/<lang>/<version>/<filename> # Default
     /docs/<project_slug>/<filename> # Single Version
-    /docs/<project_slug>/projects/<subproject_slug>/<lang>/<version>/<filename> # Subproject
+    /docs/<project_slug>/projects/<subproject_slug>/<lang>/<version>/<filename> # Subproject Default
     /docs/<project_slug>/projects/<subproject_slug>/<filename> # Subproject Single Version
 """
 
