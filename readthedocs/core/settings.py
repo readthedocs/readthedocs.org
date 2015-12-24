@@ -13,7 +13,7 @@ class Settings(object):
         """Export class variables and properties to module namespace
 
         This will export and class variable that is all upper case and doesn't
-        begin with ``__``. These members will be set as attributes on the module
+        begin with ``_``. These members will be set as attributes on the module
         ``module_name``.
         """
         self = cls()
