@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from django_dynamic_fixture import get
 from rest_framework import status
 from rest_framework.test import APIClient
+from allauth.socialaccount.models import SocialAccount
 
 from readthedocs.builds.models import Build
 from readthedocs.oauth.models import RemoteRepository, RemoteOrganization
@@ -241,12 +242,17 @@ class APIImportTests(TestCase):
         """Ensure user repositories aren't leaked to other users"""
         client = APIClient()
 
-        user_a = get(User, password='test')
-        user_b = get(User, password='test')
-        user_c = get(User, password='test')
-        org_a = get(RemoteOrganization, users=[user_a])
-        repo_a = get(RemoteRepository, users=[user_a], organization=org_a)
-        repo_b = get(RemoteRepository, users=[user_b], organization=None)
+        account_a = get(SocialAccount, provider='github')
+        account_b = get(SocialAccount, provider='github')
+        account_c = get(SocialAccount, provider='github')
+        user_a = get(User, password='test', socialaccount_set=[account_a])
+        user_b = get(User, password='test', socialaccount_set=[account_b])
+        user_c = get(User, password='test', socialaccount_set=[account_c])
+        org_a = get(RemoteOrganization, users=[user_a], account=account_a)
+        repo_a = get(RemoteRepository, users=[user_a], organization=org_a,
+                     account=account_a)
+        repo_b = get(RemoteRepository, users=[user_b], organization=None,
+                     account=account_b)
 
         client.force_authenticate(user=user_a)
         resp = client.get(
