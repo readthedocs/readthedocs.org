@@ -17,6 +17,7 @@ from guardian.shortcuts import assign
 from taggit.managers import TaggableManager
 
 from readthedocs.api.client import api
+from readthedocs.core.resolver import resolve_domain
 from readthedocs.restapi.client import api as apiv2
 from readthedocs.builds.constants import LATEST, LATEST_VERBOSE_NAME, STABLE
 from readthedocs.privacy.loader import RelatedProjectManager, ProjectManager
@@ -269,16 +270,6 @@ class Project(models.Model):
     def __unicode__(self):
         return self.name
 
-    @property
-    def subdomain(self):
-        try:
-            domain = self.domains.get(canonical=True)
-            return domain.domain
-        except (Domain.DoesNotExist, MultipleObjectsReturned):
-            subdomain_slug = self.slug.replace('_', '-')
-            prod_domain = getattr(settings, 'PRODUCTION_DOMAIN')
-            return "%s.%s" % (subdomain_slug, prod_domain)
-
     def sync_supported_versions(self):
         supported = self.supported_versions()
         if supported:
@@ -382,6 +373,10 @@ class Project(models.Model):
         if full_path:
             path = '//%s%s' % (settings.PRODUCTION_DOMAIN, path)
         return path
+
+    def subdomain(self):
+        """Get project subdomain from resolver"""
+        return resolve_domain(self)
 
     def get_downloads(self):
         downloads = {}
