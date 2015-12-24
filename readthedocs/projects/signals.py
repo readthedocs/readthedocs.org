@@ -36,4 +36,3 @@ def handle_project_import(sender, **kwargs):
                     messages.success(request, _('Webhook activated'))
                 else:
                     messages.error(request, _('Webhook configuration failed'))
-

@@ -356,11 +356,11 @@ class ImportView(PrivateViewMixin, TemplateView):
             messages.error(
                 request,
                 mark_safe(
-                    _('There is a problem with your {service} account, '
-                      'try reconnecting your account on your '
-                      '<a href="{url}">connected services page</a>.')
-                 .format(service=provider_account.get_brand()['name'],
-                         url=reverse('socialaccount_connections')))
+                    (_('There is a problem with your {service} account, '
+                       'try reconnecting your account on your '
+                       '<a href="{url}">connected services page</a>.')
+                     .format(service=provider_account.get_brand()['name'],
+                             url=reverse('socialaccount_connections'))))
             )
         return super(ImportView, self).get(request, *args, **kwargs)
 
