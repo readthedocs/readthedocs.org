@@ -31,8 +31,9 @@ def handle_project_import(sender, **kwargs):
     for service_cls in registry:
         if service_cls.is_project_service(project):
             service = service_cls.for_user(request.user)
-            if service.setup_webhook(project):
-                messages.success(request, _('Webhook activated'))
-            else:
-                messages.error(request, _('Webhook configuration failed'))
+            if service is not None:
+                if service.setup_webhook(project):
+                    messages.success(request, _('Webhook activated'))
+                else:
+                    messages.error(request, _('Webhook configuration failed'))
 

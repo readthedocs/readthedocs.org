@@ -72,17 +72,24 @@ class GitHubService(Service):
         if (
                 (privacy == 'private') or
                 (fields['private'] is False and privacy == 'public')):
-            repo, _ = RemoteRepository.objects.get_or_create(
-                full_name=fields['full_name'],
-                account=self.account,
-            )
+            try:
+                repo = RemoteRepository.objects.get(
+                    full_name=fields['full_name'],
+                    users=self.user,
+                    account=self.account,
+                )
+            except RemoteRepository.DoesNotExist:
+                repo = RemoteRepository.objects.create(
+                    full_name=fields['full_name'],
+                    account=self.account,
+                )
+                repo.users.add(self.user)
             if repo.organization and repo.organization != organization:
                 log.debug('Not importing %s because mismatched orgs' %
                           fields['name'])
                 return None
             else:
                 repo.organization = organization
-            repo.users.add(self.user)
             repo.name = fields['name']
             repo.description = fields['description']
             repo.ssh_url = fields['ssh_url']
@@ -104,17 +111,24 @@ class GitHubService(Service):
                       fields['name'])
 
     def create_organization(self, fields):
-        organization, _ = RemoteOrganization.objects.get_or_create(
-            slug=fields.get('login'),
-            account=self.account,
-        )
+        try:
+            organization = RemoteOrganization.objects.get(
+                slug=fields.get('login'),
+                users=self.user,
+                account=self.account,
+            )
+        except RemoteOrganization.DoesNotExist:
+            organization = RemoteOrganization.objects.create(
+                slug=fields.get('login'),
+                account=self.account,
+            )
+            organization.users.add(self.user)
         organization.html_url = fields.get('html_url')
         organization.name = fields.get('name')
         organization.email = fields.get('email')
         organization.avatar_url = fields.get('avatar_url')
         organization.json = json.dumps(fields)
         organization.account = self.account
-        organization.users.add(self.user)
         organization.save()
         return organization
 
