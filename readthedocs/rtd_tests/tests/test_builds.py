@@ -143,6 +143,7 @@ class BuildEnvironmentTests(TestCase):
             (('', ''), 1),  # latex
             (('', ''), 0),  # makeindex
             (('', ''), 0),  # latex
+            (('', ''), 0),  # latex
         ]
         mock_obj = mock.Mock()
         mock_obj.communicate.side_effect = [output for (output, status)
@@ -153,7 +154,7 @@ class BuildEnvironmentTests(TestCase):
 
         with build_env:
             built_docs = task.build_docs()
-        self.assertEqual(self.mocks.popen.call_count, 5)
+        self.assertEqual(self.mocks.popen.call_count, 6)
         self.assertTrue(build_env.failed)
 
     def test_build_pdf_latex_not_failure(self):
@@ -182,6 +183,7 @@ class BuildEnvironmentTests(TestCase):
             (('Output written on foo.pdf', ''), 1),  # latex
             (('', ''), 0),  # makeindex
             (('', ''), 0),  # latex
+            (('', ''), 0),  # latex
         ]
         mock_obj = mock.Mock()
         mock_obj.communicate.side_effect = [output for (output, status)
@@ -192,5 +194,5 @@ class BuildEnvironmentTests(TestCase):
 
         with build_env:
             built_docs = task.build_docs()
-        self.assertEqual(self.mocks.popen.call_count, 5)
+        self.assertEqual(self.mocks.popen.call_count, 6)
         self.assertTrue(build_env.successful)

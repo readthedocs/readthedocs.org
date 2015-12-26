@@ -301,6 +301,10 @@ class PdfBuilder(BaseSphinx):
         for cmd in pdflatex_cmds:
             cmd_ret = self.build_env.run_command_class(
                 cls=LatexBuildCommand, cmd=cmd, cwd=latex_cwd, warn_only=True)
+            pdf_commands.append(cmd_ret)
+        for cmd in pdflatex_cmds:
+            cmd_ret = self.build_env.run_command_class(
+                cls=LatexBuildCommand, cmd=cmd, cwd=latex_cwd, warn_only=True)
             pdf_match = PDF_RE.search(cmd_ret.output)
             if pdf_match:
                 self.pdf_file_name = pdf_match.group(1).strip()
