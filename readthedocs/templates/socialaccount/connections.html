@@ -36,13 +36,15 @@
                     </span>
                   </span>
 
-                  <span class="right">
-                    <form method="post" action="{% url 'socialaccount_connections' %}">
-                      {% csrf_token %}
-                      <input type="hidden" name="account" value="{{ base_account.id }}" />
-                      <input type="submit" name="submit" value="{% trans 'Disconnect' %}" />
-                    </form>
-                  </span>
+                  <ul class="module-item-menu">
+                    <li>
+                      <form method="post" action="{% url 'socialaccount_connections' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="account" value="{{ base_account.id }}" />
+                        <input type="submit" name="submit" value="{% trans 'Disconnect' %}" />
+                      </form>
+                    </li>
+                  </ul>
 
                   {% if base_account.provider == 'bitbucket' %}
                     <p class="help error">

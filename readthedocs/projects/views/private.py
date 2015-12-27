@@ -37,6 +37,7 @@ from readthedocs.projects.views.base import ProjectAdminMixin, ProjectSpamMixin
 from readthedocs.projects import constants, tasks
 from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.tasks import remove_dir, clear_artifacts
+from readthedocs.oauth.services import registry
 
 from readthedocs.core.mixins import LoginRequiredMixin
 from readthedocs.projects.signals import project_import
@@ -346,10 +347,16 @@ class ImportView(PrivateViewMixin, TemplateView):
     wizard_class = ImportWizardView
 
     def get(self, request, *args, **kwargs):
+        '''Display list of repositories to import
+
+        Adds a warning to the listing if any of the accounts connected for the
+        user are not supported accounts.
+        '''
         deprecated_accounts = (
             SocialAccount.objects
             .filter(user=self.request.user)
-            .exclude(provider__in=['github', 'bitbucket_oauth2'])
+            .exclude(provider__in=[service.adapter.provider_id
+                                   for service in registry])
         )
         for account in deprecated_accounts:
             provider_account = account.get_provider_account()

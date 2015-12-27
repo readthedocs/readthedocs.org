@@ -8,7 +8,7 @@
     {% for brand in provider.get_brands %}
       <li>
         <a title="{{brand.name}}"
-           class="socialaccount_provider {{provider.id}} {{brand.id}}"
+           class="socialaccount-provider {{ provider.id }} {{ brand.id }}"
            href="{% provider_login_url provider.id openid=brand.openid_url process=process %}"
            >
            {% blocktrans with brand_name=brand.name %}
@@ -18,16 +18,16 @@
       </li>
     {% endfor %}
   {% endif %}
-  <li>
-    {% if provider.id != 'bitbucket' %}
+  {% if provider.id != 'bitbucket' %}
+    <li>
       <a title="{{provider.name}}"
-         class="socialaccount_provider {{provider.id}}"
+         class="socialaccount-provider {{ provider.id }} button"
          href="{% provider_login_url provider.id process=process scope=scope auth_params=auth_params %}"
          >
          {% blocktrans with provider_name=provider.name %}
            Connect to {{ provider_name }}
          {% endblocktrans %}
       </a>
-    {% endif %}
-  </li>
+    </li>
+  {% endif %}
 {% endfor %}
