@@ -13,14 +13,14 @@
 
   <div class="module connected-services">
     <div class="module-wrapper">
+      <p>
+        {% blocktrans %}
+          The following services are currently connected to your account:
+        {% endblocktrans %}
+      </p>
+
       <div class="module-list-wrapper">
         {% if form.accounts %}
-          <p>
-          {% blocktrans %}
-            You account is connected to the following accounts:
-          {% endblocktrans %}
-          </p>
-
           <ul>
 
             {% for base_account in form.accounts %}
