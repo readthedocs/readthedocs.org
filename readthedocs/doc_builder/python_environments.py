@@ -190,13 +190,10 @@ class Conda(PythonEnvironment):
             'sphinx==1.3.1',
             'Pygments==2.0.2',
             'docutils==0.11',
-            # 'mkdocs==0.14.0',
             'mock==1.0.1',
             'pillow==3.0.0',
-            # 'readthedocs-sphinx-ext==0.5.4',
             'sphinx_rtd_theme==0.1.7',
             'alabaster>=0.7,<0.8,!=0.7.5',
-            # 'recommonmark==0.1.1',
         ]
 
         cmd = [
