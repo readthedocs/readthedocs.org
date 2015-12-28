@@ -7,7 +7,7 @@ The file,
 must be in the root directory of your project.
 
 .. warning:: This feature is in a beta state.
-             Please file an Issue if you find anything wrong.
+             Please file an :doc:`issue <issue-labels>` if you find anything wrong.
 
 Supported Settings
 ------------------
