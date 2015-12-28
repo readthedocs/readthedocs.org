@@ -143,6 +143,7 @@ def resolve_domain(project, private=None):
     subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
     prod_domain = getattr(settings, 'PRODUCTION_DOMAIN')
     public_domain = getattr(settings, 'PUBLIC_DOMAIN', None)
+
     if public_domain is None:
         public_domain = prod_domain
     if private is None:

@@ -1,4 +1,57 @@
-"""Project symlink creation"""
+"""
+A class that managed the symlinks for nginx to serve public files.
+
+All private serving will be handled by the Python app servers,
+so this only cares about public serving.
+
+The main thing that is created is a *Web Root*,
+which will be the area that is served from nginx as canonical.
+
+Considerations
+--------------
+
+* Single version docs
+
+The web root should be a symlink to the public documentation of that project.
+
+* Subprojects
+
+Subprojects will be nested under the `projects` directory,
+they will be a symlink to that project's public documentation.
+
+Objects
+-------
+
+Here is a list of all the things that the proper nouns point at:
+
+* Single Version Project -> Default Version
+* Language -> Version List
+* Subproject -> Language List
+* Project -> Language List
+
+Example layout
+--------------
+
+.. code-block::
+
+    cname_root/
+        docs.fabfile.org -> /web_root/fabric
+        pip.pypa.io -> /web_root/pip
+
+    web_root/
+        pip/
+            en/
+                latest -> rtd-builds/pip/latest/
+                stable -> rtd-builds/pip/stable/
+            ja -> /web_root/pip-ja/ja/
+            projects/
+                pip-oauth -> /web_root/pip-oauth/
+        pip-ja/
+            ja/
+
+        fabric -> rtd-builds/fabric/en/latest/ # single version
+
+"""
 
 import os
 import logging
@@ -9,7 +62,6 @@ from django.conf import settings
 from readthedocs.core.utils import run_on_app_servers
 from readthedocs.projects.constants import LOG_TEMPLATE
 from readthedocs.projects.models import Domain
-from readthedocs.restapi.client import api
 
 log = logging.getLogger(__name__)
 
@@ -22,56 +74,64 @@ class Symlink(object):
     This will be inherited for private & public symlinking.
     """
 
+    CNAME_ROOT = os.path.join(settings.SITE_ROOT, 'public_cname_root')
+    WEB_ROOT = os.path.join(settings.SITE_ROOT, 'public_web_root')
+
     def __init__(self, project):
         self.project = project
+        self.PROJECT_ROOT = os.path.join(
+            self.WEB_ROOT, project.slug
+        )
+        self.SUBPROJECT_ROOT = os.path.join(
+            self.PROJECT_ROOT, 'projects'
+        )
 
     def _log(self, msg, level='info'):
-        level = getattr(log, level)
-        level(LOG_TEMPLATE
-              .format(project=self.project.slug,
-                      version='',
-                      msg=msg)
-              )
+        logger = getattr(log, level)
+        logger(LOG_TEMPLATE
+               .format(project=self.project.slug,
+                       version='',
+                       msg=msg)
+               )
 
     def symlink_cnames(self):
         """Symlink project CNAME domains
 
         Link from HOME/user_builds/$CNAME_ROOT/<cname> ->
-                  HOME/user_builds/<project>/rtd-builds/
+                  HOME/user_builds/$WEB_ROOT/<project>
         """
         domains = Domain.objects.filter(project=self.project)
         for domain in domains:
             self._log("Symlinking CNAME: %s" % domain.domain)
-            docs_dir = self.project.doc_path
-            # New symlink that properly respects public/private
-            new_symlink = os.path.join(self.CNAME_ROOT, domain.domain)
-            symlink = os.path.join(
-                getattr(settings, 'SITE_ROOT'),
-                'cnametoproject',
-                domain.domain,
-            )
+            docs_dir = self.PROJECT_ROOT
+            symlink = os.path.join(self.CNAME_ROOT, domain.domain)
 
             # Make sure containing directories exist
             run_on_app_servers('mkdir -p %s' %
                                os.path.sep.join(
                                    symlink.split(os.path.sep)[:-1]
                                ))
-            run_on_app_servers('mkdir -p %s' %
-                               os.path.sep.join(
-                                   new_symlink.split(os.path.sep)[:-1]
-                               ))
-
             # Create proper symlinks
             run_on_app_servers('ln -nsf %s %s' %
-                               (docs_dir, new_symlink))
-            run_on_app_servers('ln -nsf %s %s' %
                                (docs_dir, symlink))
+
+            # symlink = os.path.join(
+            #     getattr(settings, 'SITE_ROOT'),
+            #     'cnametoproject',
+            #     domain.domain,
+            # )
+            # run_on_app_servers('mkdir -p %s' %
+            #                    os.path.sep.join(
+            #                        new_symlink.split(os.path.sep)[:-1]
+            #                    ))
+            # run_on_app_servers('ln -nsf %s %s' %
+            #                    (docs_dir, new_symlink))
 
     def symlink_subprojects(self):
         """Symlink project subprojects
 
-        Link from HOME/user_builds/project/subprojects/<project> ->
-                  HOME/user_builds/<project>/rtd-builds/
+        Link from $WEB_ROOT/projects/<project> ->
+                  $WEB_ROOT/<project>
         """
         # Subprojects
         rels = self.project.subprojects.all()
@@ -83,101 +143,75 @@ class Symlink(object):
                 from_to[rel.alias] = rel.child.slug
             for from_slug, to_slug in from_to.items():
                 self._log("Symlinking subproject: %s" % from_slug)
-                # The directory for this specific subproject
-
-                new_symlink = os.path.join(self.SUBPROJECT_ROOT, from_slug)
-                symlink = self.project.subprojects_symlink_path(from_slug)
-
+                symlink = os.path.join(self.SUBPROJECT_ROOT, from_slug)
                 docs_dir = os.path.join(
-                    settings.DOCROOT, to_slug, 'rtd-builds')
-
+                    self.WEB_ROOT, to_slug
+                )
                 run_on_app_servers(
-                    'mkdir -p %s' % '/'.join(symlink.split('/')[:-1]))
-                run_on_app_servers(
-                    'mkdir -p %s' % '/'.join(new_symlink.split('/')[:-1]))
-
-                # Where the actual docs live
+                    'mkdir -p %s' % '/'.join(symlink.split('/')[:-1])
+                )
                 run_on_app_servers('ln -nsf %s %s' % (docs_dir, symlink))
 
-
-class Public(Symlink):
-
-    CNAME_ROOT = os.path.join(settings.SITE_ROOT, 'public_cnames')
-    SUBPROJECT_ROOT = os.path.join(settings.SITE_ROOT, 'public_subprojects')
-
-
-class Private(Symlink):
-
-    CNAME_ROOT = os.path.join(settings.SITE_ROOT, 'private_cnames')
-    SUBPROJECT_ROOT = os.path.join(settings.SITE_ROOT, 'private_subprojects')
-
-    def symlink_translations(self, project):
+    def symlink_translations(self):
         """Symlink project translations
 
-        Link from HOME/user_builds/project/translations/<lang> ->
-                  HOME/user_builds/<project>/rtd-builds/
+        Link from $WEB_ROOT/<project>/<language>/ ->
+                  $WEB_ROOT/<translation>/<language>/
         """
         translations = {}
 
-        if getattr(settings, 'DONT_HIT_DB', True):
-            for trans in (api
-                          .project(project.pk)
-                          .translations.get()['translations']):
-                translations[trans['language']] = trans['slug']
-        else:
-            for trans in project.translations.all():
-                translations[trans.language] = trans.slug
+        for trans in self.project.translations.all():
+            translations[trans.language] = trans.slug
 
-        # Default language, and pointer for 'en'
-        version_slug = project.slug.replace('_', '-')
-        translations[project.language] = version_slug
+        # Set proper language for the project itself
+        translations[self.project.language] = self.project.slug
+
+        # Hack it so /en/ always exists.
         if 'en' not in translations:
-            translations['en'] = version_slug
-
-        run_on_app_servers(
-            'mkdir -p {0}'
-            .format(os.path.join(project.doc_path, 'translations')))
+            translations['en'] = self.project.slug
 
         for (language, slug) in translations.items():
-            log.debug(LOG_TEMPLATE.format(
-                project=project.slug,
-                version=project.get_default_version(),
-                msg="Symlinking translation: %s->%s" % (language, slug)
-            ))
+            self._log("Symlinking translation: %s->%s" % (language, slug))
+            symlink = os.path.join(self.PROJECT_ROOT, language)
+            docs_dir = os.path.join(self.WEB_ROOT, slug, language)
+            run_on_app_servers('ln -nsf {0} {1}'.format(docs_dir, symlink))
 
-            # The directory for this specific translation
-            symlink = project.translations_symlink_path(language)
-            translation_path = os.path.join(
-                settings.DOCROOT, slug, 'rtd-builds')
-            run_on_app_servers(
-                'ln -nsf {0} {1}'.format(translation_path, symlink))
-
-    def symlink_single_version(self, project):
+    def symlink_single_version(self):
         """Symlink project single version
 
-        Link from HOME/user_builds/<project>/single_version ->
-                  HOME/user_builds/<project>/rtd-builds/<default_version>/
+        Link from $WEB_ROOT/<project> ->
+                  HOME/user_builds/<project>/rtd-builds/latest/
         """
-        default_version = project.get_default_version()
-        log.debug(LOG_TEMPLATE
-                  .format(project=project.slug, version=default_version,
-                          msg="Symlinking single_version"))
+        default_version = self.project.get_default_version()
+        self._log("Symlinking single_version")
 
         # The single_version directory
-        symlink = project.single_version_symlink_path()
-        run_on_app_servers('mkdir -p %s' % '/'.join(symlink.split('/')[:-1]))
+        symlink = self.project.single_version_symlink_path()
 
         # Where the actual docs live
         docs_dir = os.path.join(
-            settings.DOCROOT, project.slug, 'rtd-builds', default_version)
+            settings.DOCROOT, self.project.slug, 'rtd-builds', default_version)
         run_on_app_servers('ln -nsf %s %s' % (docs_dir, symlink))
 
-    def remove_symlink_single_version(self, project):
+    def remove_symlink_single_version(self):
         """Remove single_version symlink"""
-        log.debug(LOG_TEMPLATE.format(
-            project=project.slug,
-            version=project.get_default_version(),
-            msg="Removing symlink for single_version")
-        )
-        symlink = project.single_version_symlink_path()
+        self._log("Removing symlink for single_version")
+        symlink = self.project.single_version_symlink_path()
         run_on_app_servers('rm -f %s' % symlink)
+
+    def symlink_versions(self):
+        """Symlink project's versions
+
+        Link from $WEB_ROOT/<project>/<language>/<version>/ ->
+                  HOME/user_builds/<project>/rtd-builds/<version>
+        """
+
+        active_versions = {}
+        for version in self.project.version.public(only_active=True):
+            self._log("Symlinking Version: %s" % version)
+            symlink = os.path.join(
+                self.WEB_ROOT, slug, language, version.slug)
+            docs_dir = os.path.join(
+                settings.DOCROOT, self.project.slug, 'rtd-builds', version.slug)
+            run_on_app_servers(
+                'ln -nsf {0} {1}'.format(docs_dir, symlink))

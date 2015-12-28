@@ -9,7 +9,6 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import get_template
 
 from readthedocs.builds.constants import LATEST
-from readthedocs.builds.constants import LATEST_VERBOSE_NAME
 from readthedocs.builds.models import Build
 
 log = logging.getLogger(__name__)
@@ -32,6 +31,19 @@ def run_on_app_servers(command):
     else:
         ret = os.system(command)
         return ret
+
+
+def broadcast(type, task, args):
+    assert type in ['web', 'app', 'build']
+    if type in ['web', 'app']:
+        servers = getattr(settings, "MULTIPLE_APP_SERVERS", ['celery'])
+    elif type in ['build']:
+        servers = getattr(settings, "MULTIPLE_BUILD_SERVERS", ['celery'])
+    for server in servers:
+        task.apply_async(
+            queue=server,
+            args=args,
+        )
 
 
 def clean_url(url):

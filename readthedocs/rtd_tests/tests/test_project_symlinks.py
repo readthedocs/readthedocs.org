@@ -1,6 +1,5 @@
 import os
 from functools import wraps
-import unittest
 
 from mock import patch
 from django.conf import settings

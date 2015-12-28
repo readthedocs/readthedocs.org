@@ -24,7 +24,7 @@ from readthedocs.builds.models import Version
 from readthedocs.builds.forms import AliasForm, VersionForm
 from readthedocs.builds.filters import VersionFilter
 from readthedocs.builds.models import VersionAlias
-from readthedocs.core.utils import trigger_build
+from readthedocs.core.utils import trigger_build, broadcast
 from readthedocs.core.mixins import ListViewWithForm
 from readthedocs.projects.forms import (
     ProjectBasicsForm, ProjectExtraForm,
@@ -198,16 +198,7 @@ def project_delete(request, project_slug):
                                 slug=project_slug)
 
     if request.method == 'POST':
-        # Support hacky "broadcast" with MULTIPLE_APP_SERVERS setting,
-        # otherwise put in normal celery queue
-        for server in getattr(settings, "MULTIPLE_APP_SERVERS", ['celery']):
-            log.info('Removing files on %s' % server)
-            remove_dir.apply_async(
-                args=[project.doc_path],
-                queue=server,
-            )
-
-        # Delete the project and everything related to it
+        broadcast(type='app', task=remove_dir, args=[project.doc_path])
         project.delete()
         messages.success(request, _('Project deleted'))
         project_dashboard = reverse('projects_dashboard')
