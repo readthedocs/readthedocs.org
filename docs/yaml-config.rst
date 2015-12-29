@@ -7,7 +7,7 @@ The file,
 must be in the root directory of your project.
 
 .. warning:: This feature is in a beta state.
-             Please file an :doc:`issue <issue-labels>` if you find anything wrong.
+             Please file an `issue`_ if you find anything wrong.
 
 Supported Settings
 ------------------
@@ -104,4 +104,5 @@ The path to your Pip requirements file.
 		conf_file: project2/docs/conf.py
 
 		
+.. _issue: https://github.com/rtfd/readthedocs.org/issues
 .. _environment file: http://conda.pydata.org/docs/using/envs.html#share-an-environment
