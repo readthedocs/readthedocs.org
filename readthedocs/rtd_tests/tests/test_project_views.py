@@ -41,12 +41,10 @@ class TestProfileMiddleware(RequestFactoryTestMixin, TestCase):
                               for (k, v) in data[key].items()})
         self.data['{0}-current_step'.format(self.wizard_class_slug)] = 'extra'
 
-    @patch.object(UserProfile, 'objects')
-    def test_profile_middleware_no_profile(self, manager):
+    def test_profile_middleware_no_profile(self):
         """User without profile and isn't banned"""
-        manager.get.side_effect = UserProfile.DoesNotExist
         req = self.request('/projects/import', method='post', data=self.data)
-        req.user = get(User)
+        req.user = get(User, profile=None)
         resp = ImportWizardView.as_view()(req)
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(resp['location'], '/projects/foobar/')

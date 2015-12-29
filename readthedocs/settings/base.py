@@ -194,6 +194,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'copyright',
     'textclassifier',
+    'annoying',
 
     # Celery bits
     'djcelery',

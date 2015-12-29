@@ -3,7 +3,7 @@ import logging
 from django.shortcuts import get_object_or_404
 from rest_framework import decorators, permissions, viewsets, status
 from rest_framework.decorators import detail_route
-from rest_framework.renderers import JSONPRenderer, JSONRenderer, BrowsableAPIRenderer
+from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
 from readthedocs.builds.constants import BRANCH
@@ -32,7 +32,7 @@ log = logging.getLogger(__name__)
 
 class ProjectViewSet(viewsets.ModelViewSet):
     permission_classes = [APIPermission]
-    renderer_classes = (JSONRenderer, JSONPRenderer, BrowsableAPIRenderer)
+    renderer_classes = (JSONRenderer,)
     serializer_class = ProjectSerializer
     filter_class = ProjectFilter
     model = Project
@@ -162,7 +162,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
 class VersionViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    renderer_classes = (JSONRenderer, BrowsableAPIRenderer)
+    renderer_classes = (JSONRenderer,)
     serializer_class = VersionSerializer
     filter_class = VersionFilter
     model = Version
@@ -173,7 +173,7 @@ class VersionViewSet(viewsets.ReadOnlyModelViewSet):
 
 class BuildViewSet(viewsets.ModelViewSet):
     permission_classes = [APIRestrictedPermission]
-    renderer_classes = (JSONRenderer, BrowsableAPIRenderer)
+    renderer_classes = (JSONRenderer,)
     model = Build
 
     def get_queryset(self):
@@ -192,7 +192,7 @@ class BuildViewSet(viewsets.ModelViewSet):
 
 class BuildCommandViewSet(viewsets.ModelViewSet):
     permission_classes = [APIRestrictedPermission]
-    renderer_classes = [JSONRenderer, BrowsableAPIRenderer]
+    renderer_classes = (JSONRenderer,)
     serializer_class = BuildCommandSerializer
     model = BuildCommandResult
 
@@ -202,7 +202,7 @@ class BuildCommandViewSet(viewsets.ModelViewSet):
 
 class NotificationViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = (permissions.IsAuthenticated, RelatedProjectIsOwner)
-    renderer_classes = (JSONRenderer, BrowsableAPIRenderer)
+    renderer_classes = (JSONRenderer,)
     model = EmailHook
 
     def get_queryset(self):
@@ -211,7 +211,7 @@ class NotificationViewSet(viewsets.ReadOnlyModelViewSet):
 
 class DomainViewSet(viewsets.ModelViewSet):
     permission_classes = [APIRestrictedPermission]
-    renderer_classes = (JSONRenderer, BrowsableAPIRenderer)
+    renderer_classes = (JSONRenderer,)
     serializer_class = DomainSerializer
     filter_class = DomainFilter
     model = Domain
@@ -222,7 +222,7 @@ class DomainViewSet(viewsets.ModelViewSet):
 
 class RemoteOrganizationViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsOwner]
-    renderer_classes = [JSONRenderer, BrowsableAPIRenderer]
+    renderer_classes = (JSONRenderer,)
     serializer_class = RemoteOrganizationSerializer
     model = RemoteOrganization
 
@@ -232,7 +232,7 @@ class RemoteOrganizationViewSet(viewsets.ReadOnlyModelViewSet):
 
 class RemoteRepositoryViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsOwner]
-    renderer_classes = [JSONRenderer, BrowsableAPIRenderer]
+    renderer_classes = (JSONRenderer,)
     serializer_class = RemoteRepositorySerializer
     model = RemoteRepository
 
