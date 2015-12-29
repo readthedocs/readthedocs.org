@@ -15,14 +15,16 @@ Supported Settings
 conda
 ~~~~~
 
-The `conda` block supports a `file` option:
+The ``conda`` block allows for configuring our support for Conda.
 
-* file
+conda.file
+``````````
 
-Default: `None`
-Type: Path (specified from the root of the project)
+* Default: ``None``
+* Type: Path (specified from the root of the project)
 
-The file option specified the Conda environment file to use.
+The file option specified the Conda `environment file`_ to use.
+
 
 .. code-block:: yaml
 
@@ -36,10 +38,11 @@ python
 
 The `python` block allows you to configure aspects of the Python executable used for building documentation.
 
-* version
+python.version
+``````````````
 
-Default: `2`
-Options: `[2, 3]`
+* Default: `2`
+* Options: `[2, 3]`
 
 The version of Python to use when building your documentation.
 
@@ -48,10 +51,11 @@ The version of Python to use when building your documentation.
 	python:
 	   version: 3
 
-* setup_py_install
+python.setup_py_install
+```````````````````````
 
-Default: `False`
-Type: Boolean
+* Default: `False`
+* Type: Boolean
 
 When true, install your project into the Virtualenv when building documentation.
 
@@ -63,11 +67,10 @@ When true, install your project into the Virtualenv when building documentation.
 requirements_file
 ~~~~~~~~~~~~~~~~~
 
-Default: `None`
-Type: Path (specified from the root of the project)
+* Default: `None`
+* Type: Path (specified from the root of the project)
 
 The path to your Pip requirements file.
-
 
 .. code-block:: yaml
 
@@ -100,3 +103,5 @@ The path to your Pip requirements file.
 
 		conf_file: project2/docs/conf.py
 
+		
+.. _environment file: http://conda.pydata.org/docs/using/envs.html#share-an-environment
