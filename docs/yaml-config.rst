@@ -41,6 +41,8 @@ The `python` block allows you to configure aspects of the Python executable used
 Default: `2`
 Options: `[2, 3]`
 
+The version of Python to use when building your documentation.
+
 .. code-block:: yaml
 
 	python:
@@ -50,6 +52,8 @@ Options: `[2, 3]`
 
 Default: `False`
 Type: Boolean
+
+When true, install your project into the Virtualenv when building documentation.
 
 .. code-block:: yaml
 
