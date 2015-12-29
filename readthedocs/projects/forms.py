@@ -151,7 +151,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
         model = Project
         fields = (
             # Standard build edits
-            'use_virtualenv',
+            'install_project',
             'requirements_file',
             'single_version',
             'conf_py_file',
