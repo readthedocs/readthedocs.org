@@ -136,7 +136,7 @@ class BitbucketService(Service):
         organization.name = fields.get('display_name')
         organization.email = fields.get('email')
         organization.avatar_url = fields['links']['avatar']['href']
-        organization.html_url = fields['links']['html']['href']
+        organization.url = fields['links']['html']['href']
         organization.json = json.dumps(fields)
         organization.account = self.account
         organization.users.add(self.user)
