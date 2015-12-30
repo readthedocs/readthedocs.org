@@ -123,7 +123,7 @@ class GitHubService(Service):
                 account=self.account,
             )
             organization.users.add(self.user)
-        organization.html_url = fields.get('html_url')
+        organization.url = fields.get('html_url')
         organization.name = fields.get('name')
         organization.email = fields.get('email')
         organization.avatar_url = fields.get('avatar_url')

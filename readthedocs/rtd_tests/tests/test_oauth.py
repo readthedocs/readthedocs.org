@@ -23,18 +23,33 @@ class GitHubOAuthTests(TestCase):
 
     def test_make_project_pass(self):
         repo_json = {
-            "name": "",
-            "full_name": "",
-            "description": "",
-            "git_url": "",
+            "name": "testrepo",
+            "full_name": "testuser/testrepo",
+            "description": "Test Repo",
+            "git_url": "git://github.com/testuser/testrepo.git",
             "private": False,
-            "ssh_url": "",
-            "html_url": "",
-            "clone_url": "",
+            "ssh_url": "ssh://git@github.com:testuser/testrepo.git",
+            "html_url": "https://github.com/testuser/testrepo",
+            "clone_url": "https://github.com/testuser/testrepo.git",
         }
-        github_project = self.service.create_repository(
+        repo = self.service.create_repository(
             repo_json, organization=self.org, privacy=self.privacy)
-        self.assertIsInstance(github_project, RemoteRepository)
+        self.assertIsInstance(repo, RemoteRepository)
+        self.assertEqual(repo.name, 'testrepo')
+        self.assertEqual(repo.full_name, 'testuser/testrepo')
+        self.assertEqual(repo.description, 'Test Repo')
+        self.assertIsNone(repo.avatar_url)
+        self.assertIn(self.user, repo.users.all())
+        self.assertEqual(repo.organization, self.org)
+        self.assertEqual(
+            repo.clone_url,
+            'https://github.com/testuser/testrepo.git')
+        self.assertEqual(
+            repo.ssh_url,
+            'ssh://git@github.com:testuser/testrepo.git')
+        self.assertEqual(
+            repo.html_url,
+            'https://github.com/testuser/testrepo')
 
     def test_make_project_fail(self):
         repo_json = {
@@ -53,13 +68,19 @@ class GitHubOAuthTests(TestCase):
 
     def test_make_organization(self):
         org_json = {
-            "html_url": "",
-            "name": "",
-            "email": "",
-            "login": "",
+            "html_url": "https://github.com/testorg",
+            "name": "Test Org",
+            "email": "test@testorg.org",
+            "login": "testorg",
+            "avatar_url": "https://images.github.com/foobar",
         }
         org = self.service.create_organization(org_json)
         self.assertIsInstance(org, RemoteOrganization)
+        self.assertEqual(org.slug, 'testorg')
+        self.assertEqual(org.name, 'Test Org')
+        self.assertEqual(org.email, 'test@testorg.org')
+        self.assertEqual(org.avatar_url, 'https://images.github.com/foobar')
+        self.assertEqual(org.url, 'https://github.com/testorg')
 
     def test_import_with_no_token(self):
         '''User without a GitHub SocialToken does not return a service'''
@@ -248,7 +269,10 @@ class BitbucketOAuthTests(TestCase):
         self.assertIsInstance(org, RemoteOrganization)
         self.assertEqual(org.slug, 'teamsinspace')
         self.assertEqual(org.name, 'Teams In Space')
-        self.assertEqual(org.avatar_url, 'https://bitbucket-assetroot.s3.amazonaws.com/c/photos/2014/Sep/24/teamsinspace-avatar-3731530358-7_avatar.png')
+        self.assertEqual(
+            org.avatar_url,
+            ('https://bitbucket-assetroot.s3.amazonaws.com/c/photos/2014/Sep/24/'
+             'teamsinspace-avatar-3731530358-7_avatar.png'))
         self.assertEqual(org.url, 'https://bitbucket.org/teamsinspace')
 
     def test_import_with_no_token(self):
