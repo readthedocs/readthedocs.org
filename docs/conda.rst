@@ -30,7 +30,7 @@ Custom Installs
 If you are running a custom installation of Read the Docs,
 you will need the ``conda`` executable installed somewhere on your ``PATH``.
 Because of the way ``conda`` works,
-we can't safely install it as a normal dependency into the normal Python environment.
+we can't safely install it as a normal dependency into the normal Python virtualenv.
 
 .. warning:: Installing conda into a virtualenv will override the ``activate`` script,
              making it so you can't properly activate that virtualenv anymore.
