@@ -88,7 +88,7 @@ class ConfigWrapper(object):
     #         return self._project.documentation_type
 
 
-def load_yaml_config(version, build_env):
+def load_yaml_config(version, build_env=None):
     """
     Load a configuration from `readthedocs.yml` file.
 
@@ -104,10 +104,11 @@ def load_yaml_config(version, build_env):
                 'output_base': '',
             },
         )[0]
-        build_env.run(
-            'cat', 'readthedocs.yml',
-            cwd=checkout_path,
-        )
+        if build_env:
+            build_env.run(
+                'cat', 'readthedocs.yml',
+                cwd=checkout_path,
+            )
     except ConfigError:
         config = BuildConfig(
             env_config={},
