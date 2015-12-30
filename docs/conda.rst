@@ -18,7 +18,7 @@ You can enable it by creating a `readthedocs.yml` file in the root of your repsi
 	    file: environment.yml
 
 This Conda environment will also have Sphinx and other build time dependencies installed.
- It will use the same order of operations that we support currently:
+It will use the same order of operations that we support currently:
 
 * Environment Creation (``conda create``)
 * Dependency Installation (Sphinx)
