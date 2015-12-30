@@ -107,13 +107,13 @@ class UpdateDocsTask(Task):
         self.build_localmedia = localmedia
         self.build_force = force
 
-        self.config = load_yaml_config(version=self.version)
-
         env_cls = LocalEnvironment
         if docker or settings.DOCKER_ENABLE:
             env_cls = DockerEnvironment
         self.build_env = env_cls(project=self.project, version=self.version,
                                  build=self.build, record=record)
+
+        self.config = load_yaml_config(version=self.version, build_env=self.build_env)
 
         python_env_cls = Virtualenv
         if self.config.use_conda:
