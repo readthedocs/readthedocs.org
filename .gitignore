@@ -37,3 +37,6 @@ whoosh_index
 xml_output
 public_cnames
 public_symlinks
+public_web_root
+public_cname_root
+.rope_project/

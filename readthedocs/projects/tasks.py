@@ -24,10 +24,11 @@ from readthedocs.builds.constants import (LATEST,
                                           BUILD_STATE_INSTALLING,
                                           BUILD_STATE_BUILDING)
 from readthedocs.builds.models import Build, Version
-from readthedocs.core.utils import send_email, run_on_app_servers
+from readthedocs.core.utils import send_email, run_on_app_servers, broadcast
+from readthedocs.core.symlink import Symlink
 from readthedocs.cdn.purge import purge
 from readthedocs.doc_builder.loader import get_builder_class
-from readthedocs.doc_builder.config import ConfigWrapper, load_yaml_config
+from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.environments import (LocalEnvironment,
                                                   DockerEnvironment)
 from readthedocs.doc_builder.exceptions import BuildEnvironmentError
@@ -503,7 +504,8 @@ def finish_build(version_pk, build_pk, hostname=None, html=False,
         epub=epub,
     )
 
-    symlink(project=version.project)
+    # Symlink project on every web
+    broadcast(type='app', task=symlink_project, args=[version.project.pk])
 
     # Delayed tasks
     update_static_metadata.delay(version.project.pk)
@@ -608,6 +610,21 @@ def update_search(version_pk, commit, delete_non_commit_files=True):
         section=False,
         delete=delete_non_commit_files,
     )
+
+
+@task(queue='web')
+def symlink_project(project_pk):
+    project = Project.objects.get(pk=project_pk)
+    sym = Symlink(project=project)
+
+    sym.symlink_cnames()
+    sym.symlink_translations()
+    sym.symlink_subprojects()
+    sym.symlink_versions()
+    if project.single_version:
+        sym.symlink_single_version()
+    else:
+        sym.remove_symlink_single_version()
 
 
 @task(queue='web')
