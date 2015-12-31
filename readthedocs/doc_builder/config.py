@@ -102,6 +102,7 @@ def load_yaml_config(version):
             path=checkout_path,
             env_config={
                 'output_base': '',
+                'name': version.slug,
             },
         )[0]
     except ConfigError:
