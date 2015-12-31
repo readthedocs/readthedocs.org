@@ -205,12 +205,10 @@ class Symlink(object):
         Link from $WEB_ROOT/<project>/<language>/<version>/ ->
                   HOME/user_builds/<project>/rtd-builds/<version>
         """
-
-        active_versions = {}
         for version in self.project.version.public(only_active=True):
             self._log("Symlinking Version: %s" % version)
             symlink = os.path.join(
-                self.WEB_ROOT, slug, language, version.slug)
+                self.WEB_ROOT, self.project.slug, self.project.language, version.slug)
             docs_dir = os.path.join(
                 settings.DOCROOT, self.project.slug, 'rtd-builds', version.slug)
             run_on_app_servers(
