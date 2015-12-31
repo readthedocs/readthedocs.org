@@ -85,6 +85,8 @@ class Symlink(object):
         self.SUBPROJECT_ROOT = os.path.join(
             self.PROJECT_ROOT, 'projects'
         )
+        if not os.path.exists(self.PROJECT_ROOT):
+            os.makedirs(self.PROJECT_ROOT)
 
     def _log(self, msg, level='info'):
         logger = getattr(log, level)
@@ -107,25 +109,12 @@ class Symlink(object):
             symlink = os.path.join(self.CNAME_ROOT, domain.domain)
 
             # Make sure containing directories exist
-            run('mkdir -p %s' %
-                os.path.sep.join(
-                    symlink.split(os.path.sep)[:-1]
-                ))
+            symlink_dir = os.sep.join(symlink.split(os.path.sep)[:-1])
+            if not os.path.lexists(symlink_dir):
+                os.makedirs(symlink_dir)
             # Create proper symlinks
-            run('ln -nsf %s %s' %
+            print run('ln -nsf %s %s' %
                 (docs_dir, symlink))
-
-            # symlink = os.path.join(
-            #     getattr(settings, 'SITE_ROOT'),
-            #     'cnametoproject',
-            #     domain.domain,
-            # )
-            # run('mkdir -p %s' %
-            #                    os.path.sep.join(
-            #                        new_symlink.split(os.path.sep)[:-1]
-            #                    ))
-            # run('ln -nsf %s %s' %
-            #                    (docs_dir, new_symlink))
 
     def symlink_subprojects(self):
         """Symlink project subprojects
@@ -135,6 +124,9 @@ class Symlink(object):
         """
         # Subprojects
         rels = self.project.subprojects.all()
+        if rels.count():
+            if not os.path.exists(self.SUBPROJECT_ROOT):
+                os.makedirs(self.SUBPROJECT_ROOT)
         for rel in rels:
             # A mapping of slugs for the subproject URL to the actual built
             # documentation
@@ -147,10 +139,10 @@ class Symlink(object):
                 docs_dir = os.path.join(
                     self.WEB_ROOT, to_slug
                 )
-                run(
-                    'mkdir -p %s' % '/'.join(symlink.split('/')[:-1])
-                )
-                run('ln -nsf %s %s' % (docs_dir, symlink))
+                symlink_dir = os.sep.join(symlink.split(os.path.sep)[:-1])
+                if not os.path.lexists(symlink_dir):
+                    os.makedirs(symlink_dir)
+                print run('ln -nsf %s %s' % (docs_dir, symlink))
 
     def symlink_translations(self):
         """Symlink project translations
@@ -163,18 +155,18 @@ class Symlink(object):
         for trans in self.project.translations.all():
             translations[trans.language] = trans.slug
 
-        # Set proper language for the project itself
-        translations[self.project.language] = self.project.slug
-
-        # Hack it so /en/ always exists.
-        if 'en' not in translations:
-            translations['en'] = self.project.slug
+        # Make sure the language directory is a directory
+        language_dir = os.path.join(self.PROJECT_ROOT, self.project.language)
+        if os.path.islink(language_dir):
+            os.unlink(language_dir)
+        if not os.path.exists(language_dir):
+            os.makedirs(language_dir)
 
         for (language, slug) in translations.items():
             self._log("Symlinking translation: %s->%s" % (language, slug))
             symlink = os.path.join(self.PROJECT_ROOT, language)
             docs_dir = os.path.join(self.WEB_ROOT, slug, language)
-            run('ln -nsf {0} {1}'.format(docs_dir, symlink))
+            print run('ln -nsf {0} {1}'.format(docs_dir, symlink))
 
     def symlink_single_version(self):
         """Symlink project single version
@@ -191,13 +183,13 @@ class Symlink(object):
         # Where the actual docs live
         docs_dir = os.path.join(
             settings.DOCROOT, self.project.slug, 'rtd-builds', default_version)
-        run('ln -nsf %s %s' % (docs_dir, symlink))
+        print run('ln -nsf %s %s' % (docs_dir, symlink))
 
     def remove_symlink_single_version(self):
         """Remove single_version symlink"""
         self._log("Removing symlink for single_version")
         symlink = self.project.single_version_symlink_path()
-        run('rm -f %s' % symlink)
+        print run('rm -f %s' % symlink)
 
     def symlink_versions(self):
         """Symlink project's versions
@@ -205,11 +197,10 @@ class Symlink(object):
         Link from $WEB_ROOT/<project>/<language>/<version>/ ->
                   HOME/user_builds/<project>/rtd-builds/<version>
         """
-        for version in self.project.version.public(only_active=True):
+        for version in self.project.versions.public(only_active=True):
             self._log("Symlinking Version: %s" % version)
             symlink = os.path.join(
                 self.WEB_ROOT, self.project.slug, self.project.language, version.slug)
             docs_dir = os.path.join(
                 settings.DOCROOT, self.project.slug, 'rtd-builds', version.slug)
-            run(
-                'ln -nsf {0} {1}'.format(docs_dir, symlink))
+            print run('ln -nsf {0} {1}'.format(docs_dir, symlink))
