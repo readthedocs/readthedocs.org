@@ -34,7 +34,6 @@ class TestSubprojects(TestCase):
         self.args = {
             'web_root': self.symlink.WEB_ROOT,
             'subproject_root': self.symlink.SUBPROJECT_ROOT,
-            'build_path': self.subproject.doc_path,
         }
         self.commands = []
 
@@ -72,10 +71,7 @@ class TestSymlinkCnames(TestCase):
         self.version = get(Version, verbose_name='latest', active=True, project=self.project)
         self.symlink = Symlink(self.project)
         self.args = {
-            'project': self.project.doc_path,
-            'build_path': self.project.doc_path,
             'cname_root': self.symlink.CNAME_ROOT,
-            'web_root': self.symlink.WEB_ROOT,
             'project_root': self.symlink.PROJECT_ROOT,
         }
         self.commands = []
@@ -109,11 +105,6 @@ class TestSymlinkTranslations(TestCase):
         get(Version, verbose_name='master', active=True, project=self.project)
         get(Version, verbose_name='master', active=True, project=self.translation)
         self.args = {
-            'project': self.project.doc_path,
-            'translation': self.translation.doc_path,
-            'builds': os.path.join(self.project.doc_path, 'rtd-builds'),
-            'cname_root': self.symlink.CNAME_ROOT,
-            'web_root': self.symlink.WEB_ROOT,
             'project_root': self.symlink.PROJECT_ROOT,
             'translation_root': os.path.join(self.symlink.WEB_ROOT, self.translation.slug),
         }
@@ -173,8 +164,7 @@ class TestSymlinkTranslations(TestCase):
         self.commands = []
 
         self.symlink.symlink_translations()
-        commands = [
-        ]
+        commands = []
 
         for command in commands:
             self.assertIsNotNone(
