@@ -9,7 +9,6 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import get_template
 
 from readthedocs.builds.constants import LATEST
-from readthedocs.builds.models import Build
 
 log = logging.getLogger(__name__)
 
@@ -74,6 +73,7 @@ def trigger_build(project, version=None, record=True, force=False, basic=False):
     """
     # Avoid circular import
     from readthedocs.projects.tasks import update_docs
+    from readthedocs.builds.models import Build
 
     if project.skip:
         return None

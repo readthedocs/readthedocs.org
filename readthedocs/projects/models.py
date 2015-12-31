@@ -29,7 +29,6 @@ from readthedocs.projects.utils import (make_api_version, symlink,
                                         update_static_metadata)
 from readthedocs.projects.version_handling import determine_stable_version
 from readthedocs.projects.version_handling import version_windows
-from readthedocs.projects import tasks
 from readthedocs.core.resolver import resolve
 from readthedocs.core.validators import validate_domain_name
 
@@ -905,6 +904,7 @@ class Domain(models.Model):
         return "{domain} pointed at {project}".format(domain=self.domain, project=self.project.name)
 
     def save(self, *args, **kwargs):
+        from readthedocs.projects import tasks
         parsed = urlparse(self.domain)
         if parsed.scheme or parsed.netloc:
             self.domain = parsed.netloc
@@ -914,5 +914,6 @@ class Domain(models.Model):
         broadcast(type='app', task=tasks.symlink_domain, args=[self.project.pk, self.pk])
 
     def delete(self, *args, **kwargs):
+        from readthedocs.projects import tasks
         broadcast(type='app', task=tasks.symlink_domain, args=[self.project.pk, self.pk, True])
         super(Domain, self).delete(*args, **kwargs)
