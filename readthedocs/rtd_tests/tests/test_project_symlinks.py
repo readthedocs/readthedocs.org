@@ -2,7 +2,6 @@ import os
 from functools import wraps
 
 from mock import patch
-from django.conf import settings
 from django.test import TestCase
 from django_dynamic_fixture import get
 
@@ -171,3 +170,74 @@ class TestSymlinkTranslations(TestCase):
                 self.commands.pop(
                     self.commands.index(command.format(**self.args))
                 ))
+
+
+class TestSymlinkSingleVersion(TestCase):
+
+    def setUp(self):
+        self.project = get(Project, slug='kong')
+        self.version = get(Version, verbose_name='latest', active=True, project=self.project)
+        self.symlink = Symlink(self.project)
+        self.args = {
+            'project_root': self.symlink.PROJECT_ROOT,
+            'doc_path': self.project.rtd_build_path(),
+        }
+        self.commands = []
+
+    @patched
+    def test_symlink_single_version(self):
+        self.symlink.symlink_single_version()
+        commands = [
+            'ln -nsf {doc_path}/ {project_root}',
+        ]
+
+        for index, command in enumerate(commands):
+            self.assertEqual(self.commands[index], command.format(**self.args))
+
+
+class TestSymlinkVersions(TestCase):
+
+    def setUp(self):
+        self.project = get(Project, slug='kong')
+        self.stable = get(Version, slug='stable', verbose_name='stable', active=True, project=self.project)
+        self.symlink = Symlink(self.project)
+        self.args = {
+            'project_root': self.symlink.PROJECT_ROOT,
+            'latest_path': self.project.rtd_build_path('latest'),
+            'stable_path': self.project.rtd_build_path('stable'),
+        }
+        self.commands = []
+
+    @patched
+    def test_symlink_versions(self):
+        self.symlink.symlink_versions()
+        commands = [
+            'ln -nsf {stable_path} {project_root}/en/stable',
+            'ln -nsf {latest_path} {project_root}/en/latest',
+        ]
+
+        for index, command in enumerate(commands):
+            self.assertEqual(self.commands[index], command.format(**self.args))
+
+    @patched
+    def test_no_symlink_private_versions(self):
+        self.stable.privacy_level = 'private'
+        self.stable.save()
+        self.symlink.symlink_versions()
+        commands = [
+            'ln -nsf {latest_path} {project_root}/en/latest',
+        ]
+
+        for index, command in enumerate(commands):
+            self.assertEqual(self.commands[index], command.format(**self.args))
+
+    def test_removed_versions(self):
+        version_link = os.path.join(
+            self.symlink.PROJECT_ROOT, 'en', self.stable.slug
+            )
+        self.symlink.symlink_versions()
+        self.assertTrue(os.path.lexists(version_link))
+        self.stable.privacy_level = 'private'
+        self.stable.save()
+        self.symlink.symlink_versions()
+        self.assertTrue(not os.path.lexists(version_link))
