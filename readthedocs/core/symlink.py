@@ -54,6 +54,7 @@ Example layout
 """
 
 import os
+import shutil
 import logging
 from collections import OrderedDict
 
@@ -85,8 +86,7 @@ class Symlink(object):
         self.SUBPROJECT_ROOT = os.path.join(
             self.PROJECT_ROOT, 'projects'
         )
-        if not os.path.exists(self.PROJECT_ROOT):
-            os.makedirs(self.PROJECT_ROOT)
+        self.sanity_check()
 
     def _log(self, msg, level='info'):
         logger = getattr(log, level)
@@ -96,6 +96,21 @@ class Symlink(object):
                        msg=msg)
                )
 
+    def sanity_check(self):
+        """
+        Make sure the PROJECT_ROOT is the proper structure before continuing.
+
+        This will leave it in the proper state for the single_project setting.
+        """
+        if os.path.islink(self.PROJECT_ROOT) and not self.project.single_version:
+            self._log("Removing single version symlink")
+            os.unlink(self.PROJECT_ROOT)
+            os.makedirs(self.PROJECT_ROOT)
+        elif self.project.single_version and not os.path.islink(self.PROJECT_ROOT):
+            shutil.rmtree(self.PROJECT_ROOT)
+        elif not os.path.exists(self.PROJECT_ROOT):
+            os.makedirs(self.PROJECT_ROOT)
+
     def run(self):
         """
         Create proper symlinks in the right order.
@@ -104,14 +119,16 @@ class Symlink(object):
         the ordering of these calls matter,
         so we provide this helper to make life easier.
         """
+        # Outside of the web root
         self.symlink_cnames()
-        self.symlink_translations()
-        self.symlink_subprojects()
-        self.symlink_versions()
+
+        # Build structure inside symlink zone
         if self.project.single_version:
             self.symlink_single_version()
         else:
-            self.remove_symlink_single_version()
+            self.symlink_translations()
+            self.symlink_subprojects()
+            self.symlink_versions()
 
     def symlink_cnames(self, domain=None):
         """Symlink project CNAME domains
@@ -147,7 +164,6 @@ class Symlink(object):
         Link from $WEB_ROOT/projects/<project> ->
                   $WEB_ROOT/<project>
         """
-        # Subprojects
         rels = self.project.subprojects.all()
         if rels.count():
             if not os.path.exists(self.SUBPROJECT_ROOT):
@@ -202,19 +218,15 @@ class Symlink(object):
         default_version = self.project.get_default_version()
         self._log("Symlinking single_version")
 
-        # The single_version directory
-        symlink = self.project.single_version_symlink_path()
+        symlink = self.PROJECT_ROOT
+        if os.path.islink(symlink):
+            os.unlink(symlink)
+        if os.path.exists(symlink):
+            shutil.rmtree(symlink)
 
         # Where the actual docs live
-        docs_dir = os.path.join(
-            settings.DOCROOT, self.project.slug, 'rtd-builds', default_version)
-        print run('ln -nsf %s %s' % (docs_dir, symlink))
-
-    def remove_symlink_single_version(self):
-        """Remove single_version symlink"""
-        self._log("Removing symlink for single_version")
-        symlink = self.project.single_version_symlink_path()
-        os.unlink(symlink)
+        docs_dir = os.path.join(settings.DOCROOT, self.project.slug, 'rtd-builds', default_version)
+        print run('ln -nsf %s/ %s' % (docs_dir, symlink))
 
     def symlink_versions(self):
         """Symlink project's versions
@@ -226,6 +238,5 @@ class Symlink(object):
             self._log("Symlinking Version: %s" % version)
             symlink = os.path.join(
                 self.WEB_ROOT, self.project.slug, self.project.language, version.slug)
-            docs_dir = os.path.join(
-                settings.DOCROOT, self.project.slug, 'rtd-builds', version.slug)
+            docs_dir = os.path.join(settings.DOCROOT, self.project.slug, 'rtd-builds', version.slug)
             print run('ln -nsf {0} {1}'.format(docs_dir, symlink))
