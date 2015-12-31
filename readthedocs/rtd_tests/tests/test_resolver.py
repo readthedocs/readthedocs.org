@@ -14,7 +14,7 @@ from django_dynamic_fixture import get
 class ResolverBase(TestCase):
 
     def setUp(self):
-        with mock.patch('readthedocs.projects.models.symlink'):
+        with mock.patch('readthedocs.projects.models.broadcast'):
             with mock.patch('readthedocs.projects.models.update_static_metadata'):
                 self.owner = create_user(username='owner', password='test')
                 self.tester = create_user(username='tester', password='test')

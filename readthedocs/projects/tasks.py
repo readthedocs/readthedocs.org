@@ -35,7 +35,7 @@ from readthedocs.doc_builder.exceptions import BuildEnvironmentError
 from readthedocs.doc_builder.python_environments import Virtualenv, Conda
 from readthedocs.projects.exceptions import ProjectImportError
 from readthedocs.projects.models import ImportedFile, Project, Domain
-from readthedocs.projects.utils import make_api_version, make_api_project, symlink
+from readthedocs.projects.utils import make_api_version, make_api_project
 from readthedocs.projects.constants import LOG_TEMPLATE
 from readthedocs.privacy.loader import Syncer
 from readthedocs.search.parse_json import process_all_json_files
