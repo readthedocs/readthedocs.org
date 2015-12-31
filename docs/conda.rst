@@ -1,6 +1,10 @@
 Conda Support
 =============
 
+.. warning:: This feature is in a beta state.
+             Please file an `issue`_ if you find anything wrong.
+
+
 Read the Docs supports Conda as an environment management tool,
 along with Virtualenv.
 Conda support is useful for people who depend on C libraries,
@@ -34,3 +38,5 @@ we can't safely install it as a normal dependency into the normal Python virtual
 
 .. warning:: Installing conda into a virtualenv will override the ``activate`` script,
              making it so you can't properly activate that virtualenv anymore.
+
+.. _issue: https://github.com/rtfd/readthedocs.org/issues
