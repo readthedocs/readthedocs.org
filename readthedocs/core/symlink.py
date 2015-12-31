@@ -234,9 +234,21 @@ class Symlink(object):
         Link from $WEB_ROOT/<project>/<language>/<version>/ ->
                   HOME/user_builds/<project>/rtd-builds/<version>
         """
-        for version in self.project.versions.public(only_active=True):
+        versions = set()
+        version_dir = os.path.join(self.WEB_ROOT, self.project.slug, self.project.language)
+        version_queryset = self.project.versions.public(only_active=True)
+        if version_queryset.count():
+            if not os.path.exists(version_dir):
+                os.makedirs(version_dir)
+        for version in version_queryset:
             self._log("Symlinking Version: %s" % version)
-            symlink = os.path.join(
-                self.WEB_ROOT, self.project.slug, self.project.language, version.slug)
+            symlink = os.path.join(version_dir, version.slug)
             docs_dir = os.path.join(settings.DOCROOT, self.project.slug, 'rtd-builds', version.slug)
             print run('ln -nsf {0} {1}'.format(docs_dir, symlink))
+            versions.add(version.slug)
+
+        # Remove old symlinks
+        if os.path.exists(version_dir):
+            for old_ver in os.listdir(version_dir):
+                if old_ver not in versions:
+                    os.unlink(os.path.join(version_dir, old_ver))
