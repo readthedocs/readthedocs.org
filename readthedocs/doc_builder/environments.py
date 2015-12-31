@@ -238,7 +238,7 @@ class DockerBuildCommand(BuildCommand):
         if self.bin_path:
             prefix += 'PATH={0}:$PATH '.format(self.bin_path)
         if 'CONDA_ENVS_PATH' in self.environment:
-            prefix += 'CONDA_ENVS_PATH={0}'.format(self.environment['CONDA_ENVS_PATH'])
+            prefix += 'CONDA_ENVS_PATH={0} '.format(self.environment['CONDA_ENVS_PATH'])
         return ("/bin/sh -c 'cd {cwd} && {prefix}{cmd}'"
                 .format(
                     cwd=self.cwd,
