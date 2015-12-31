@@ -1,6 +1,8 @@
-
-from readthedocs_build.config import (ConfigError, BuildConfig,
+from readthedocs_build.config import (ConfigError, BuildConfig, InvalidConfig,
                                       load as load_config)
+
+
+from readthedocs.projects.exceptions import ProjectImportError
 
 
 class ConfigWrapper(object):
@@ -102,9 +104,12 @@ def load_yaml_config(version):
             path=checkout_path,
             env_config={
                 'output_base': '',
+                'type': 'sphinx',
                 'name': version.slug,
             },
         )[0]
+    except InvalidConfig as e:  # This is a subclass of ConfigError, so has to come first
+        raise ProjectImportError(e.message)
     except ConfigError:
         config = BuildConfig(
             env_config={},

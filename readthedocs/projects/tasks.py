@@ -107,22 +107,23 @@ class UpdateDocsTask(Task):
         self.build_localmedia = localmedia
         self.build_force = force
 
-        self.config = load_yaml_config(version=self.version)
-
         env_cls = LocalEnvironment
         if docker or settings.DOCKER_ENABLE:
             env_cls = DockerEnvironment
         self.build_env = env_cls(project=self.project, version=self.version,
                                  build=self.build, record=record)
 
-        python_env_cls = Virtualenv
-        if self.config.use_conda:
-            python_env_cls = Conda
-        self.python_env = python_env_cls(version=self.version,
-                                         build_env=self.build_env,
-                                         config=self.config)
-
         with self.build_env:
+            # Setup config inside of build environment so we can handle exceptions properly
+            self.config = load_yaml_config(version=self.version)
+
+            python_env_cls = Virtualenv
+            if self.config.use_conda:
+                self._log('Using conda')
+                python_env_cls = Conda
+            self.python_env = python_env_cls(version=self.version,
+                                             build_env=self.build_env,
+                                             config=self.config)
             if self.project.skip:
                 raise BuildEnvironmentError(
                     _('Builds for this project are temporarily disabled'))
