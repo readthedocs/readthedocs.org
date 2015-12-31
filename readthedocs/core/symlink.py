@@ -114,7 +114,7 @@ class Symlink(object):
                 os.makedirs(symlink_dir)
             # Create proper symlinks
             print run('ln -nsf %s %s' %
-                (docs_dir, symlink))
+                      (docs_dir, symlink))
 
     def symlink_subprojects(self):
         """Symlink project subprojects

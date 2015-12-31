@@ -35,11 +35,11 @@ def run_on_app_servers(command):
 
 def broadcast(type, task, args):
     assert type in ['web', 'app', 'build']
-    DEFAULT_QUEUE = getattr(settings, 'CELERY_DEFAULT_QUEUE', 'celery')
+    default_queue = getattr(settings, 'CELERY_DEFAULT_QUEUE', 'celery')
     if type in ['web', 'app']:
-        servers = getattr(settings, "MULTIPLE_APP_SERVERS", [DEFAULT_QUEUE])
+        servers = getattr(settings, "MULTIPLE_APP_SERVERS", [default_queue])
     elif type in ['build']:
-        servers = getattr(settings, "MULTIPLE_BUILD_SERVERS", [DEFAULT_QUEUE])
+        servers = getattr(settings, "MULTIPLE_BUILD_SERVERS", [default_queue])
     for server in servers:
         task.apply_async(
             queue=server,
