@@ -96,15 +96,35 @@ class Symlink(object):
                        msg=msg)
                )
 
-    def symlink_cnames(self):
+    def run(self):
+        """
+        Create proper symlinks in the right order.
+
+        Since we have a small nest of directories and symlinks,
+        the ordering of these calls matter,
+        so we provide this helper to make life easier.
+        """
+        self.symlink_cnames()
+        self.symlink_translations()
+        self.symlink_subprojects()
+        self.symlink_versions()
+        if self.project.single_version:
+            self.symlink_single_version()
+        else:
+            self.remove_symlink_single_version()
+
+    def symlink_cnames(self, domain=None):
         """Symlink project CNAME domains
 
         Link from HOME/user_builds/$CNAME_ROOT/<cname> ->
                   HOME/user_builds/$WEB_ROOT/<project>
         """
-        domains = Domain.objects.filter(project=self.project)
+        if domain:
+            domains = [domain]
+        else:
+            domains = Domain.objects.filter(project=self.project)
         for domain in domains:
-            self._log("Symlinking CNAME: %s" % domain.domain)
+            self._log("Symlinking CNAME: {0} -> {1}".format(domain.domain, self.project.slug))
             docs_dir = self.PROJECT_ROOT
             symlink = os.path.join(self.CNAME_ROOT, domain.domain)
 
@@ -113,8 +133,13 @@ class Symlink(object):
             if not os.path.lexists(symlink_dir):
                 os.makedirs(symlink_dir)
             # Create proper symlinks
-            print run('ln -nsf %s %s' %
-                      (docs_dir, symlink))
+            print run('ln -nsf {0} {1}'.format(docs_dir, symlink))
+
+    def remove_symlink_cname(self, domain):
+        """Remove single_version symlink"""
+        self._log("Removing symlink for CNAME {0}".format(domain.domain))
+        symlink = os.path.join(self.CNAME_ROOT, domain.domain)
+        os.unlink(symlink)
 
     def symlink_subprojects(self):
         """Symlink project subprojects
@@ -134,7 +159,7 @@ class Symlink(object):
             if rel.alias:
                 from_to[rel.alias] = rel.child.slug
             for from_slug, to_slug in from_to.items():
-                self._log("Symlinking subproject: %s" % from_slug)
+                self._log("Symlinking subproject: {0} -> {1}".format(from_slug, to_slug))
                 symlink = os.path.join(self.SUBPROJECT_ROOT, from_slug)
                 docs_dir = os.path.join(
                     self.WEB_ROOT, to_slug
@@ -163,7 +188,7 @@ class Symlink(object):
             os.makedirs(language_dir)
 
         for (language, slug) in translations.items():
-            self._log("Symlinking translation: %s->%s" % (language, slug))
+            self._log("Symlinking translation: {0}->{1}".format(language, slug))
             symlink = os.path.join(self.PROJECT_ROOT, language)
             docs_dir = os.path.join(self.WEB_ROOT, slug, language)
             print run('ln -nsf {0} {1}'.format(docs_dir, symlink))
@@ -189,7 +214,7 @@ class Symlink(object):
         """Remove single_version symlink"""
         self._log("Removing symlink for single_version")
         symlink = self.project.single_version_symlink_path()
-        print run('rm -f %s' % symlink)
+        os.unlink(symlink)
 
     def symlink_versions(self):
         """Symlink project's versions

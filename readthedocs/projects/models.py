@@ -17,6 +17,7 @@ from guardian.shortcuts import assign
 from taggit.managers import TaggableManager
 
 from readthedocs.api.client import api
+from readthedocs.core.utils import broadcast
 from readthedocs.core.resolver import resolve_domain
 from readthedocs.restapi.client import api as apiv2
 from readthedocs.builds.constants import LATEST, LATEST_VERBOSE_NAME, STABLE
@@ -28,6 +29,7 @@ from readthedocs.projects.utils import (make_api_version, symlink,
                                         update_static_metadata)
 from readthedocs.projects.version_handling import determine_stable_version
 from readthedocs.projects.version_handling import version_windows
+from readthedocs.projects import tasks
 from readthedocs.core.resolver import resolve
 from readthedocs.core.validators import validate_domain_name
 
@@ -895,3 +897,8 @@ class Domain(models.Model):
         else:
             self.domain = parsed.path
         super(Domain, self).save(*args, **kwargs)
+        broadcast(type='app', task=tasks.symlink_domain, args=[self.project.pk, self.pk])
+
+    def delete(self, *args, **kwargs):
+        broadcast(type='app', task=tasks.symlink_domain, args=[self.project.pk, self.pk, True])
+        super(Domain, self).delete(*args, **kwargs)
