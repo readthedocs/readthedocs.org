@@ -59,9 +59,9 @@ from collections import OrderedDict
 
 from django.conf import settings
 
-from readthedocs.core.utils import run_on_app_servers
 from readthedocs.projects.constants import LOG_TEMPLATE
 from readthedocs.projects.models import Domain
+from readthedocs.projects.utils import run
 
 log = logging.getLogger(__name__)
 
@@ -107,24 +107,24 @@ class Symlink(object):
             symlink = os.path.join(self.CNAME_ROOT, domain.domain)
 
             # Make sure containing directories exist
-            run_on_app_servers('mkdir -p %s' %
-                               os.path.sep.join(
-                                   symlink.split(os.path.sep)[:-1]
-                               ))
+            run('mkdir -p %s' %
+                os.path.sep.join(
+                    symlink.split(os.path.sep)[:-1]
+                ))
             # Create proper symlinks
-            run_on_app_servers('ln -nsf %s %s' %
-                               (docs_dir, symlink))
+            run('ln -nsf %s %s' %
+                (docs_dir, symlink))
 
             # symlink = os.path.join(
             #     getattr(settings, 'SITE_ROOT'),
             #     'cnametoproject',
             #     domain.domain,
             # )
-            # run_on_app_servers('mkdir -p %s' %
+            # run('mkdir -p %s' %
             #                    os.path.sep.join(
             #                        new_symlink.split(os.path.sep)[:-1]
             #                    ))
-            # run_on_app_servers('ln -nsf %s %s' %
+            # run('ln -nsf %s %s' %
             #                    (docs_dir, new_symlink))
 
     def symlink_subprojects(self):
@@ -147,10 +147,10 @@ class Symlink(object):
                 docs_dir = os.path.join(
                     self.WEB_ROOT, to_slug
                 )
-                run_on_app_servers(
+                run(
                     'mkdir -p %s' % '/'.join(symlink.split('/')[:-1])
                 )
-                run_on_app_servers('ln -nsf %s %s' % (docs_dir, symlink))
+                run('ln -nsf %s %s' % (docs_dir, symlink))
 
     def symlink_translations(self):
         """Symlink project translations
@@ -174,7 +174,7 @@ class Symlink(object):
             self._log("Symlinking translation: %s->%s" % (language, slug))
             symlink = os.path.join(self.PROJECT_ROOT, language)
             docs_dir = os.path.join(self.WEB_ROOT, slug, language)
-            run_on_app_servers('ln -nsf {0} {1}'.format(docs_dir, symlink))
+            run('ln -nsf {0} {1}'.format(docs_dir, symlink))
 
     def symlink_single_version(self):
         """Symlink project single version
@@ -191,13 +191,13 @@ class Symlink(object):
         # Where the actual docs live
         docs_dir = os.path.join(
             settings.DOCROOT, self.project.slug, 'rtd-builds', default_version)
-        run_on_app_servers('ln -nsf %s %s' % (docs_dir, symlink))
+        run('ln -nsf %s %s' % (docs_dir, symlink))
 
     def remove_symlink_single_version(self):
         """Remove single_version symlink"""
         self._log("Removing symlink for single_version")
         symlink = self.project.single_version_symlink_path()
-        run_on_app_servers('rm -f %s' % symlink)
+        run('rm -f %s' % symlink)
 
     def symlink_versions(self):
         """Symlink project's versions
@@ -211,5 +211,5 @@ class Symlink(object):
                 self.WEB_ROOT, self.project.slug, self.project.language, version.slug)
             docs_dir = os.path.join(
                 settings.DOCROOT, self.project.slug, 'rtd-builds', version.slug)
-            run_on_app_servers(
+            run(
                 'ln -nsf {0} {1}'.format(docs_dir, symlink))
