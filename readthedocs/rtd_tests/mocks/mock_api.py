@@ -54,7 +54,7 @@ def mock_version(repo):
                     "slug": "docs",
                     "suffix": ".rst",
                     "theme": "default",
-                    "use_virtualenv": false,
+                    "install_project": false,
                     "users": [
                         "/api/v1/user/1/"
                     ],
