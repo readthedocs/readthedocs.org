@@ -7,7 +7,7 @@
   {% if provider.id == "openid" %}
     {% for brand in provider.get_brands %}
       <li>
-        <a title="{{brand.name}}"
+        <a title="{{ brand.name }}"
            class="socialaccount-provider {{ provider.id }} {{ brand.id }}"
            href="{% provider_login_url provider.id openid=brand.openid_url process=process %}"
            >
@@ -20,7 +20,7 @@
   {% endif %}
   {% if provider.id != 'bitbucket' %}
     <li>
-      <a title="{{provider.name}}"
+      <a title="{{ provider.name }}"
          class="socialaccount-provider {{ provider.id }} button"
          href="{% provider_login_url provider.id process=process scope=scope auth_params=auth_params %}"
          >
