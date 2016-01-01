@@ -12,7 +12,6 @@ def forwards_move_repo_source(apps, schema_editor):
         rows = (RemoteRepository.objects
                 .filter(users=account.user, source=account.provider)
                 .update(account=account))
-        print rows
 
 
 def backwards_move_repo_source(apps, schema_editor):
@@ -21,7 +20,6 @@ def backwards_move_repo_source(apps, schema_editor):
     for account in SocialAccount.objects.all():
         rows = (account.remote_repositories
                 .update(account=None, source=account.provider))
-        print rows
 
 
 def forwards_move_org_source(apps, schema_editor):
@@ -32,7 +30,6 @@ def forwards_move_org_source(apps, schema_editor):
         rows = (RemoteOrganization.objects
                 .filter(users=account.user, source=account.provider)
                 .update(account=account))
-        print rows
 
 
 def backwards_move_org_source(apps, schema_editor):
@@ -42,7 +39,6 @@ def backwards_move_org_source(apps, schema_editor):
     for account in SocialAccount.objects.all():
         rows = (account.remote_organizations
                 .update(account=None, source=account.provider))
-        print rows
 
 
 class Migration(migrations.Migration):
