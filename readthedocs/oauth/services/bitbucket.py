@@ -30,12 +30,13 @@ class BitbucketService(Service):
     https_url_pattern = re.compile(r'^https:\/\/[^@]+@bitbucket.org/')
 
     def sync(self, sync):
-        """Import from Bitbucket"""
+        """Sync repositories and teams from Bitbucket API"""
         if sync:
             self.sync_repositories()
             self.sync_teams()
 
     def sync_repositories(self):
+        """Sync repositories from Bitbucket API"""
         # Get user repos
         try:
             repos = self.paginate(
@@ -67,7 +68,7 @@ class BitbucketService(Service):
             pass
 
     def sync_teams(self):
-        """Sync Bitbucket teams and team repositories for user token"""
+        """Sync Bitbucket teams and team repositories"""
         try:
             teams = self.paginate(
                 'https://api.bitbucket.org/2.0/teams/?role=member'
@@ -85,15 +86,18 @@ class BitbucketService(Service):
 
     def create_repository(self, fields, privacy=DEFAULT_PRIVACY_LEVEL,
                           organization=None):
-        """Update or create a repository from Bitbucket
-
-        This looks up existing repositories based on the full repository name,
-        that is the username and repository name.
+        """Update or create a repository from Bitbucket API response
 
         .. note::
             The :py:data:`admin` property is not set during creation, as
             permissions are not part of the returned repository data from
             Bitbucket.
+
+        :param fields: dictionary of response data from API
+        :param privacy: privacy level to support
+        :param organization: remote organization to associate with
+        :type organization: RemoteOrganization
+        :rtype: RemoteRepository
         """
         if (fields['is_private'] is True and privacy == 'private' or
                 fields['is_private'] is False and privacy == 'public'):
@@ -138,6 +142,11 @@ class BitbucketService(Service):
                       fields['name'])
 
     def create_organization(self, fields):
+        """Update or create remote organization from Bitbucket API response
+
+        :param fields: dictionary response of data from API
+        :rtype: RemoteOrganization
+        """
         organization, _ = RemoteOrganization.objects.get_or_create(
             slug=fields.get('username'),
             account=self.account,
@@ -153,7 +162,7 @@ class BitbucketService(Service):
         return organization
 
     def paginate(self, url):
-        """Combines results from Bitbucket pagination
+        """Recursively combine results from Bitbucket pagination
 
         :param url: start url to get the data from.
         """
@@ -166,6 +175,13 @@ class BitbucketService(Service):
         return results
 
     def setup_webhook(self, project):
+        """Set up Bitbucket project webhook for project
+
+        :param project: project to set up webhook for
+        :type project: Project
+        :returns: boolean based on webhook set up success
+        :rtype: bool
+        """
         session = self.get_session()
         owner, repo = build_utils.get_bitbucket_username_repo(url=project.repo)
         data = json.dumps({

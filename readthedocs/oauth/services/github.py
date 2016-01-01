@@ -36,7 +36,7 @@ class GitHubService(Service):
             self.sync_organizations()
 
     def sync_repositories(self):
-        """Get repositories for GitHub user via OAuth token"""
+        """Sync repositories from GitHub API"""
         repos = self.paginate('https://api.github.com/user/repos?per_page=100')
         try:
             for repo in repos:
@@ -48,7 +48,7 @@ class GitHubService(Service):
                             'try reconnecting your account')
 
     def sync_organizations(self):
-        """Sync GitHub organizations and organization repositories"""
+        """Sync organizations from GitHub API"""
         try:
             orgs = self.paginate('https://api.github.com/user/orgs')
             for org in orgs:
@@ -69,6 +69,14 @@ class GitHubService(Service):
 
     def create_repository(self, fields, privacy=DEFAULT_PRIVACY_LEVEL,
                           organization=None):
+        """Update or create a repository from GitHub API response
+
+        :param fields: dictionary of response data from API
+        :param privacy: privacy level to support
+        :param organization: remote organization to associate with
+        :type organization: RemoteOrganization
+        :rtype: RemoteRepository
+        """
         if (
                 (privacy == 'private') or
                 (fields['private'] is False and privacy == 'public')):
@@ -111,6 +119,11 @@ class GitHubService(Service):
                       fields['name'])
 
     def create_organization(self, fields):
+        """Update or create remote organization from GitHub API response
+
+        :param fields: dictionary response of data from API
+        :rtype: RemoteOrganization
+        """
         try:
             organization = RemoteOrganization.objects.get(
                 slug=fields.get('login'),
@@ -147,9 +160,12 @@ class GitHubService(Service):
         return result
 
     def setup_webhook(self, project):
-        """Set up GitHub webhook for project
+        """Set up GitHub project webhook for project
 
-        :param project: Project instance to set up webhook for
+        :param project: project to set up webhook for
+        :type project: Project
+        :returns: boolean based on webhook set up success
+        :rtype: bool
         """
         session = self.get_session()
         owner, repo = build_utils.get_github_username_repo(url=project.repo)
