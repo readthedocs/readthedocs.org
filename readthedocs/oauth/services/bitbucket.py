@@ -27,6 +27,7 @@ class BitbucketService(Service):
     adapter = BitbucketOAuth2Adapter
     # TODO replace this with a less naive check
     url_pattern = re.compile(r'bitbucket.org\/')
+    https_url_pattern = re.compile(r'^https:\/\/[^@]+@bitbucket.org/')
 
     def sync(self, sync):
         """Import from Bitbucket"""
@@ -110,10 +111,18 @@ class BitbucketService(Service):
             repo.name = fields['name']
             repo.description = fields['description']
             repo.private = fields['is_private']
-            repo.clone_url = fields['links']['clone'][0]['href']
-            repo.ssh_url = fields['links']['clone'][1]['href']
-            if repo.private:
-                repo.clone_url = repo.ssh_url
+            for link in fields['links']['clone']:
+                if link['name'] == 'https':
+                    repo.clone_url = link['href']
+                    # Remove user name from HTTPS clone url
+                    repo.clone_url = self.https_url_pattern.sub(
+                        'https://bitbucket.org/',
+                        repo.clone_url
+                    )
+                elif link['name'] == 'ssh':
+                    repo.ssh_url = link['href']
+                    if repo.private:
+                        repo.clone_url = link['href']
             repo.html_url = fields['links']['html']['href']
             repo.vcs = fields['scm']
             repo.account = self.account

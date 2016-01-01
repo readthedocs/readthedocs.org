@@ -155,7 +155,7 @@ class BitbucketOAuthTests(TestCase):
                 "href": "https://api.bitbucket.org/2.0/repositories/tutorials/tutorials.bitbucket.org/forks"
             },
             "clone": [{
-                "href": "https://bitbucket.org/tutorials/tutorials.bitbucket.org",
+                "href": "https://tutorials@bitbucket.org/tutorials/tutorials.bitbucket.org",
                 "name": "https"
             }, {
                 "href": "ssh://hg@bitbucket.org/tutorials/tutorials.bitbucket.org",
