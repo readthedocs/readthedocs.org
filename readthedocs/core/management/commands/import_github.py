@@ -11,4 +11,4 @@ class Command(BaseCommand):
             for slug in args:
                 service = GitHubService.for_user(User.objects.get(username=slug))
                 if service is not None:
-                    service.sync(sync=True)
+                    service.sync()

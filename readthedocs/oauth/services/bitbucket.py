@@ -29,11 +29,10 @@ class BitbucketService(Service):
     url_pattern = re.compile(r'bitbucket.org\/')
     https_url_pattern = re.compile(r'^https:\/\/[^@]+@bitbucket.org/')
 
-    def sync(self, sync):
+    def sync(self):
         """Sync repositories and teams from Bitbucket API"""
-        if sync:
-            self.sync_repositories()
-            self.sync_teams()
+        self.sync_repositories()
+        self.sync_teams()
 
     def sync_repositories(self):
         """Sync repositories from Bitbucket API"""

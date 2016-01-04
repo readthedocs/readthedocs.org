@@ -29,11 +29,10 @@ class GitHubService(Service):
     # TODO replace this with a less naive check
     url_pattern = re.compile(r'^github\.com\/')
 
-    def sync(self, sync):
+    def sync(self):
         """Sync repositories and organizations"""
-        if sync:
-            self.sync_repositories()
-            self.sync_organizations()
+        self.sync_repositories()
+        self.sync_organizations()
 
     def sync_repositories(self):
         """Sync repositories from GitHub API"""

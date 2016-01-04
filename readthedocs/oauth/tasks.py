@@ -19,7 +19,7 @@ class SyncRemoteRepositories(PublicTask):
         for service_cls in registry:
             service = service_cls.for_user(user)
             if service is not None:
-                service.sync(sync=True)
+                service.sync()
 
 
 sync_remote_repositories = celery_app.tasks[SyncRemoteRepositories.name]

@@ -112,7 +112,7 @@ class Service(object):
 
         return _updater
 
-    def sync(self, sync):
+    def sync(self):
         raise NotImplementedError
 
     def create_repository(self, fields, privacy=DEFAULT_PRIVACY_LEVEL,
