@@ -57,6 +57,7 @@ django-annoying==0.8.4
 
 # Docs
 sphinx-http-domain==0.2
+commonmark==0.5.5
 recommonmark==0.1.1
 
 # Version comparison stuff
