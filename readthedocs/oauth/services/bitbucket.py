@@ -114,18 +114,18 @@ class BitbucketService(Service):
             repo.name = fields['name']
             repo.description = fields['description']
             repo.private = fields['is_private']
-            for link in fields['links']['clone']:
-                if link['name'] == 'https':
-                    repo.clone_url = link['href']
-                    # Remove user name from HTTPS clone url
-                    repo.clone_url = self.https_url_pattern.sub(
-                        'https://bitbucket.org/',
-                        repo.clone_url
-                    )
-                elif link['name'] == 'ssh':
-                    repo.ssh_url = link['href']
-                    if repo.private:
-                        repo.clone_url = link['href']
+
+            # Default to HTTPS, use SSH for private repositories
+            clone_urls = dict((u['name'], u['href'])
+                              for u in fields['links']['clone'])
+            repo.clone_url = self.https_url_pattern.sub(
+                'https://bitbucket.org/',
+                clone_urls.get('https')
+            )
+            repo.ssh_url = clone_urls.get('ssh')
+            if repo.private:
+                repo.clone_url = repo.ssh_url
+
             repo.html_url = fields['links']['html']['href']
             repo.vcs = fields['scm']
             repo.account = self.account
