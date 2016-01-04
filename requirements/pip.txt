@@ -72,4 +72,4 @@ nilsimsa==0.3.7
 git+https://github.com/alex/django-filter.git#egg=django-filter
 git+https://github.com/ericflo/django-pagination.git@e5f669036c#egg=django_pagination-dev
 git+https://github.com/alex/django-taggit.git#egg=django_taggit-dev
-git+https://github.com/rtfd/readthedocs-build.git@additional-options#egg=readthedocs_build
+git+https://github.com/rtfd/readthedocs-build.git@a751769#egg=readthedocs_build
