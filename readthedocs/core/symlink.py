@@ -164,6 +164,8 @@ class Symlink(object):
         Link from $WEB_ROOT/projects/<project> ->
                   $WEB_ROOT/<project>
         """
+        subprojects = set()
+        version_queryset = self.project.versions.public(only_active=True)
         rels = self.project.subprojects.all()
         if rels.count():
             if not os.path.exists(self.SUBPROJECT_ROOT):
@@ -172,8 +174,10 @@ class Symlink(object):
             # A mapping of slugs for the subproject URL to the actual built
             # documentation
             from_to = OrderedDict({rel.child.slug: rel.child.slug})
+            subprojects.add(rel.child.slug)
             if rel.alias:
                 from_to[rel.alias] = rel.child.slug
+                subprojects.add(rel.alias)
             for from_slug, to_slug in from_to.items():
                 self._log("Symlinking subproject: {0} -> {1}".format(from_slug, to_slug))
                 symlink = os.path.join(self.SUBPROJECT_ROOT, from_slug)
@@ -184,6 +188,12 @@ class Symlink(object):
                 if not os.path.lexists(symlink_dir):
                     os.makedirs(symlink_dir)
                 print run('ln -nsf %s %s' % (docs_dir, symlink))
+
+        # Remove old symlinks
+        if os.path.exists(self.SUBPROJECT_ROOT):
+            for subproj in os.listdir(self.SUBPROJECT_ROOT):
+                if subproj not in subprojects:
+                    os.unlink(os.path.join(self.SUBPROJECT_ROOT, subproj))
 
     def symlink_translations(self):
         """Symlink project translations
