@@ -115,16 +115,6 @@ class UpdateDocsTask(Task):
                                  build=self.build, record=record)
 
         with self.build_env:
-            # Setup config inside of build environment so we can handle exceptions properly
-            self.config = load_yaml_config(version=self.version)
-
-            python_env_cls = Virtualenv
-            if self.config.use_conda:
-                self._log('Using conda')
-                python_env_cls = Conda
-            self.python_env = python_env_cls(version=self.version,
-                                             build_env=self.build_env,
-                                             config=self.config)
             if self.project.skip:
                 raise BuildEnvironmentError(
                     _('Builds for this project are temporarily disabled'))
@@ -139,6 +129,17 @@ class UpdateDocsTask(Task):
 
             if self.project.documentation_type == 'auto':
                 self.update_documentation_type()
+
+            # Read YAML config after code checkout has been run
+            self.config = load_yaml_config(version=self.version)
+
+            python_env_cls = Virtualenv
+            if self.config.use_conda:
+                self._log('Using conda')
+                python_env_cls = Conda
+            self.python_env = python_env_cls(version=self.version,
+                                             build_env=self.build_env,
+                                             config=self.config)
 
             self.setup_environment()
 
