@@ -108,7 +108,7 @@ class Virtualenv(PythonEnvironment):
             'readthedocs-sphinx-ext==0.5.4',
             'sphinx-rtd-theme==0.1.9',
             'alabaster>=0.7,<0.8,!=0.7.5',
-            'commonmark==0.5.5',
+            'commonmark==0.5.4',
             'recommonmark==0.1.1',
         ]
 
@@ -214,7 +214,7 @@ class Conda(PythonEnvironment):
         pip_requirements = [
             'mkdocs==0.14.0',
             'readthedocs-sphinx-ext==0.5.4',
-            'commonmark==0.5.5',
+            'commonmark==0.5.4',
             'recommonmark==0.1.1',
         ]
 
