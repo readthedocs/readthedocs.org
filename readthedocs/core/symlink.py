@@ -224,7 +224,7 @@ class Symlink(object):
             if (lang not in translations and
                     lang not in ['projects', self.project.language]):
                 to_delete = os.path.join(self.PROJECT_ROOT, lang)
-                if os.islink(to_delete):
+                if os.path.islink(to_delete):
                     os.unlink(to_delete)
                 else:
                     shutil.rmtree(to_delete)
