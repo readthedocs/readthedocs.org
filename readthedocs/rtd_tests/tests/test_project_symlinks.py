@@ -62,6 +62,17 @@ class TestSubprojects(TestCase):
         for index, command in enumerate(commands):
             self.assertEqual(self.commands[index], command.format(**self.args))
 
+    def test_remove_subprojects(self):
+        self.project.add_subproject(self.subproject)
+        self.symlink.symlink_subprojects()
+        subproject_link = os.path.join(
+            self.symlink.SUBPROJECT_ROOT, self.subproject.slug
+        )
+        self.assertTrue(os.path.lexists(subproject_link))
+        self.project.remove_subproject(self.subproject)
+        self.symlink.symlink_subprojects()
+        self.assertTrue(not os.path.lexists(subproject_link))
+
 
 class TestSymlinkCnames(TestCase):
 
@@ -156,10 +167,10 @@ class TestSymlinkTranslations(TestCase):
         # Change the languages, and then clear commands, as project.save calls
         # the symlinking
         self.project.language = 'de'
-        version = self.project.translations.first()
-        self.project.translations.remove(version)
+        trans = self.project.translations.first()
+        self.project.translations.remove(trans)
         self.project.save()
-        self.assertNotIn(version, self.project.translations.all())
+        self.assertNotIn(trans, self.project.translations.all())
         self.commands = []
 
         self.symlink.symlink_translations()
@@ -171,6 +182,18 @@ class TestSymlinkTranslations(TestCase):
                     self.commands.index(command.format(**self.args))
                 ))
 
+
+    def test_remove_language(self):
+        self.symlink.symlink_translations()
+        trans_link = os.path.join(
+            self.symlink.PROJECT_ROOT, self.translation.language
+        )
+        self.assertTrue(os.path.lexists(trans_link))
+        
+        trans = self.project.translations.first()
+        self.project.translations.remove(trans)
+        self.symlink.symlink_translations()
+        self.assertTrue(not os.path.lexists(trans_link))
 
 class TestSymlinkSingleVersion(TestCase):
 
@@ -234,7 +257,7 @@ class TestSymlinkVersions(TestCase):
     def test_removed_versions(self):
         version_link = os.path.join(
             self.symlink.PROJECT_ROOT, 'en', self.stable.slug
-            )
+        )
         self.symlink.symlink_versions()
         self.assertTrue(os.path.lexists(version_link))
         self.stable.privacy_level = 'private'

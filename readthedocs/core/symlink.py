@@ -219,6 +219,12 @@ class Symlink(object):
             docs_dir = os.path.join(self.WEB_ROOT, slug, language)
             print run('ln -nsf {0} {1}'.format(docs_dir, symlink))
 
+        # Remove old symlinks
+        for lang in os.listdir(self.PROJECT_ROOT):
+            if (lang not in translations and
+                    lang not in ['projects', self.project.language]):
+                shutil.rmtree(os.path.join(self.PROJECT_ROOT, lang))
+
     def symlink_single_version(self):
         """Symlink project single version
 
