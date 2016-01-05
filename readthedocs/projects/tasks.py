@@ -631,6 +631,13 @@ def symlink_domain(project_pk, domain_pk, delete=False):
 
 
 @task(queue='web')
+def symlink_subproject(project_pk):
+    project = Project.objects.get(pk=project_pk)
+    sym = Symlink(project=project)
+    sym.symlink_subprojects()
+
+
+@task(queue='web')
 def fileify(version_pk, commit):
     """
     Create ImportedFile objects for all of a version's files.
