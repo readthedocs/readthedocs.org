@@ -27,19 +27,6 @@ def version_from_slug(slug, version):
     return v
 
 
-def symlink(project):
-    """This is here to avoid circular imports in models.py"""
-    from readthedocs.projects import symlinks
-    log.info("Symlinking %s", project)
-    symlinks.symlink_cnames(project)
-    symlinks.symlink_translations(project)
-    symlinks.symlink_subprojects(project)
-    if project.single_version:
-        symlinks.symlink_single_version(project)
-    else:
-        symlinks.remove_symlink_single_version(project)
-
-
 def update_static_metadata(project_pk):
     """This is here to avoid circular imports in models.py"""
     from readthedocs.projects import tasks

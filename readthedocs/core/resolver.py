@@ -3,9 +3,12 @@ Read the Docs URL Resolver.
 
 Url Types:
 
-- Subproject
 - Subdomain
 - CNAME
+
+Path Types:
+
+- Subproject
 - Single Version
 - Normal
 
@@ -15,21 +18,25 @@ All possible URL's::
 
     /<lang>/<version>/<filename> # Default
     /<filename> # Single Version
-    /projects/<subproject_slug>/<lang>/<version>/<filename> # Subproject
+    /projects/<subproject_slug>/<lang>/<version>/<filename> # Subproject Default
     /projects/<subproject_slug>/<filename> # Subproject Single Version
 
     Normal Serving:
 
     /docs/<project_slug>/<lang>/<version>/<filename> # Default
     /docs/<project_slug>/<filename> # Single Version
-    /docs/<project_slug>/projects/<subproject_slug>/<lang>/<version>/<filename> # Subproject
+    /docs/<project_slug>/projects/<subproject_slug>/<lang>/<version>/<filename> # Subproject Default
     /docs/<project_slug>/projects/<subproject_slug>/<filename> # Subproject Single Version
 """
 
-from django.conf import settings
 import re
+import logging
+
+from django.conf import settings
 
 from readthedocs.projects.constants import PRIVATE, PUBLIC
+
+log = logging.getLogger(__name__)
 
 
 def _get_private(project, version_slug):
@@ -135,7 +142,10 @@ def resolve_domain(project, private=None):
     relation = project.superprojects.first()
     subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
     prod_domain = getattr(settings, 'PRODUCTION_DOMAIN')
-    public_domain = getattr(settings, 'PUBLIC_DOMAIN', prod_domain)
+    public_domain = getattr(settings, 'PUBLIC_DOMAIN', None)
+
+    if public_domain is None:
+        public_domain = prod_domain
     if private is None:
         private = project.privacy_level == PRIVATE
 
@@ -148,9 +158,7 @@ def resolve_domain(project, private=None):
 
     domain = canonical_project.domains.filter(canonical=True).first()
     # Force domain even if USE_SUBDOMAIN is on
-    if private:
-        return prod_domain
-    elif domain:
+    if domain:
         return domain.domain
     elif subdomain:
         subdomain_slug = canonical_project.slug.replace('_', '-')

@@ -17,14 +17,15 @@ from guardian.shortcuts import assign
 from taggit.managers import TaggableManager
 
 from readthedocs.api.client import api
+from readthedocs.core.utils import broadcast
+from readthedocs.core.resolver import resolve_domain
 from readthedocs.restapi.client import api as apiv2
 from readthedocs.builds.constants import LATEST, LATEST_VERBOSE_NAME, STABLE
 from readthedocs.privacy.loader import RelatedProjectManager, ProjectManager
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectImportError
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
-from readthedocs.projects.utils import (make_api_version, symlink,
-                                        update_static_metadata)
+from readthedocs.projects.utils import make_api_version, update_static_metadata
 from readthedocs.projects.version_handling import determine_stable_version
 from readthedocs.projects.version_handling import version_windows
 from readthedocs.core.resolver import resolve
@@ -269,16 +270,6 @@ class Project(models.Model):
     def __unicode__(self):
         return self.name
 
-    @property
-    def subdomain(self):
-        try:
-            domain = self.domains.get(canonical=True)
-            return domain.domain
-        except (Domain.DoesNotExist, MultipleObjectsReturned):
-            subdomain_slug = self.slug.replace('_', '-')
-            prod_domain = getattr(settings, 'PRODUCTION_DOMAIN')
-            return "%s.%s" % (subdomain_slug, prod_domain)
-
     def sync_supported_versions(self):
         supported = self.supported_versions()
         if supported:
@@ -289,6 +280,7 @@ class Project(models.Model):
             self.versions.filter(verbose_name=LATEST_VERBOSE_NAME).update(supported=True)
 
     def save(self, *args, **kwargs):
+        from readthedocs.projects import tasks
         first_save = self.pk is None
         if not self.slug:
             # Subdomains can't have underscores in them.
@@ -314,7 +306,7 @@ class Project(models.Model):
             log.error('failed to sync supported versions', exc_info=True)
         try:
             if not first_save:
-                symlink(project=self)
+                broadcast(type='app', task=tasks.symlink_project, args=[self.project.pk])
         except Exception:
             log.error('failed to symlink project', exc_info=True)
         try:
@@ -325,8 +317,6 @@ class Project(models.Model):
             branch = self.default_branch or self.vcs_repo().fallback_branch
             if not self.versions.filter(slug=LATEST).exists():
                 self.versions.create_latest(identifier=branch)
-            # if not self.versions.filter(slug=STABLE).exists():
-            #     self.versions.create_stable(type=BRANCH, identifier=branch)
         except Exception:
             log.error('Error creating default branches', exc_info=True)
 
@@ -383,6 +373,10 @@ class Project(models.Model):
             path = '//%s%s' % (settings.PRODUCTION_DOMAIN, path)
         return path
 
+    def subdomain(self):
+        """Get project subdomain from resolver"""
+        return resolve_domain(self)
+
     def get_downloads(self):
         downloads = {}
         downloads['htmlzip'] = self.get_production_media_url(
@@ -417,27 +411,11 @@ class Project(models.Model):
     #
     # Paths for symlinks in project doc_path.
     #
-    def cnames_symlink_path(self, domain):
-        """
-        Path in the doc_path that we symlink cnames
-
-        This has to be at the top-level because Nginx doesn't know the projects slug.
-        """
-        return os.path.join(settings.CNAME_ROOT, domain)
-
     def translations_symlink_path(self, language=None):
         """Path in the doc_path that we symlink translations"""
         if not language:
             language = self.language
         return os.path.join(self.doc_path, 'translations', language)
-
-    def subprojects_symlink_path(self, project):
-        """Path in the doc_path that we symlink subprojects"""
-        return os.path.join(self.doc_path, 'subprojects', project)
-
-    def single_version_symlink_path(self):
-        """Path in the doc_path for the single_version symlink"""
-        return os.path.join(self.doc_path, 'single_version')
 
     #
     # End symlink paths
@@ -894,9 +872,16 @@ class Domain(models.Model):
         return "{domain} pointed at {project}".format(domain=self.domain, project=self.project.name)
 
     def save(self, *args, **kwargs):
+        from readthedocs.projects import tasks
         parsed = urlparse(self.domain)
         if parsed.scheme or parsed.netloc:
             self.domain = parsed.netloc
         else:
             self.domain = parsed.path
         super(Domain, self).save(*args, **kwargs)
+        broadcast(type='app', task=tasks.symlink_domain, args=[self.project.pk, self.pk])
+
+    def delete(self, *args, **kwargs):
+        from readthedocs.projects import tasks
+        broadcast(type='app', task=tasks.symlink_domain, args=[self.project.pk, self.pk, True])
+        super(Domain, self).delete(*args, **kwargs)
