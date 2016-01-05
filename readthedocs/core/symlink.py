@@ -223,7 +223,11 @@ class Symlink(object):
         for lang in os.listdir(self.PROJECT_ROOT):
             if (lang not in translations and
                     lang not in ['projects', self.project.language]):
-                shutil.rmtree(os.path.join(self.PROJECT_ROOT, lang))
+                to_delete = os.path.join(self.PROJECT_ROOT, lang)
+                if os.islink(to_delete):
+                    os.unlink(to_delete)
+                else:
+                    shutil.rmtree(to_delete)
 
     def symlink_single_version(self):
         """Symlink project single version
