@@ -25,7 +25,7 @@ lxml==3.3.5
 redis==2.10.3
 celery==3.1.18
 django-celery==3.1.16
-django-allauth==0.21.0
+git+https://github.com/pennersr/django-allauth.git@d869aff9#egg=django-allauth
 dnspython==1.11.0
 
 # VCS
@@ -57,6 +57,7 @@ django-annoying==0.8.4
 
 # Docs
 sphinx-http-domain==0.2
+commonmark==0.5.5
 recommonmark==0.1.1
 
 # Version comparison stuff
@@ -71,4 +72,4 @@ nilsimsa==0.3.7
 git+https://github.com/alex/django-filter.git#egg=django-filter
 git+https://github.com/ericflo/django-pagination.git@e5f669036c#egg=django_pagination-dev
 git+https://github.com/alex/django-taggit.git#egg=django_taggit-dev
-git+https://github.com/rtfd/readthedocs-build.git@additional-options#egg=readthedocs_build
+git+https://github.com/rtfd/readthedocs-build.git@a751769#egg=readthedocs_build

@@ -13,6 +13,7 @@ from django.shortcuts import get_object_or_404, render_to_response, render
 from django.template import RequestContext
 from django.views.generic import View, TemplateView, ListView
 from django.utils.translation import ugettext_lazy as _
+from django.utils.safestring import mark_safe
 from django.middleware.csrf import get_token
 from formtools.wizard.views import SessionWizardView
 from allauth.socialaccount.models import SocialAccount
@@ -36,6 +37,7 @@ from readthedocs.projects.views.base import ProjectAdminMixin, ProjectSpamMixin
 from readthedocs.projects import constants, tasks
 from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.tasks import remove_dir, clear_artifacts
+from readthedocs.oauth.services import registry
 
 from readthedocs.core.mixins import LoginRequiredMixin
 from readthedocs.projects.signals import project_import
@@ -343,6 +345,31 @@ class ImportView(PrivateViewMixin, TemplateView):
 
     template_name = 'projects/project_import.html'
     wizard_class = ImportWizardView
+
+    def get(self, request, *args, **kwargs):
+        '''Display list of repositories to import
+
+        Adds a warning to the listing if any of the accounts connected for the
+        user are not supported accounts.
+        '''
+        deprecated_accounts = (
+            SocialAccount.objects
+            .filter(user=self.request.user)
+            .exclude(provider__in=[service.adapter.provider_id
+                                   for service in registry])
+        )
+        for account in deprecated_accounts:
+            provider_account = account.get_provider_account()
+            messages.error(
+                request,
+                mark_safe(
+                    (_('There is a problem with your {service} account, '
+                       'try reconnecting your account on your '
+                       '<a href="{url}">connected services page</a>.')
+                     .format(service=provider_account.get_brand()['name'],
+                             url=reverse('socialaccount_connections'))))
+            )
+        return super(ImportView, self).get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         initial_data = {}
