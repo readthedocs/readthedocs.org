@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from django.core.validators import URLValidator
 from django.core.urlresolvers import reverse
+from allauth.socialaccount.models import SocialAccount
 
 from readthedocs.projects.constants import REPO_CHOICES
 from readthedocs.projects.models import Project
@@ -33,23 +34,24 @@ class RemoteOrganization(models.Model):
 
     users = models.ManyToManyField(User, verbose_name=_('Users'),
                                    related_name='oauth_organizations')
+    account = models.ForeignKey(
+        SocialAccount, verbose_name=_('Connected account'),
+        related_name='remote_organizations', null=True, blank=True)
     active = models.BooleanField(_('Active'), default=False)
 
-    slug = models.CharField(_('Slug'), max_length=255, unique=True)
+    slug = models.CharField(_('Slug'), max_length=255)
     name = models.CharField(_('Name'), max_length=255, null=True, blank=True)
     email = models.EmailField(_('Email'), max_length=255, null=True, blank=True)
     avatar_url = models.URLField(_('Avatar image URL'), null=True, blank=True)
     url = models.URLField(_('URL to organization page'), max_length=200,
                           null=True, blank=True)
 
-    source = models.CharField(_('Repository source'), max_length=16,
-                              choices=OAUTH_SOURCE)
     json = models.TextField(_('Serialized API response'))
 
     objects = RemoteOrganizationManager()
 
     def __unicode__(self):
-        return "Remote Organization: %s" % (self.url)
+        return 'Remote organization: {name}'.format(name=self.slug)
 
     def get_serialized(self, key=None, default=None):
         try:
@@ -75,6 +77,9 @@ class RemoteRepository(models.Model):
     # This should now be a OneToOne
     users = models.ManyToManyField(User, verbose_name=_('Users'),
                                    related_name='oauth_repositories')
+    account = models.ForeignKey(
+        SocialAccount, verbose_name=_('Connected account'),
+        related_name='remote_repositories', null=True, blank=True)
     organization = models.ForeignKey(
         RemoteOrganization, verbose_name=_('Organization'),
         related_name='repositories', null=True, blank=True)
@@ -102,8 +107,6 @@ class RemoteRepository(models.Model):
     vcs = models.CharField(_('vcs'), max_length=200, blank=True,
                            choices=REPO_CHOICES)
 
-    source = models.CharField(_('Repository source'), max_length=16,
-                              choices=OAUTH_SOURCE)
     json = models.TextField(_('Serialized API response'))
 
     objects = RemoteRepositoryManager()

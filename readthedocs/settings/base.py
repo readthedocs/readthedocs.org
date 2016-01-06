@@ -128,7 +128,6 @@ AUTHENTICATION_BACKENDS = (
 )
 
 # All auth
-
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 ACCOUNT_AUTHENTICATION_METHOD = "username_email"
@@ -169,9 +168,6 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.request",
     # Read the Docs processor
     "readthedocs.core.context_processors.readthedocs_processor",
-    # allauth specific context processors
-    "allauth.account.context_processors.account",
-    "allauth.socialaccount.context_processors.socialaccount",
 )
 
 INSTALLED_APPS = [
@@ -203,8 +199,6 @@ INSTALLED_APPS = [
     'haystack',
     'tastypie',
 
-
-
     # our apps
     'readthedocs.bookmarks',
     'readthedocs.projects',
@@ -227,7 +221,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.github',
     'allauth.socialaccount.providers.bitbucket',
-    # 'allauth.socialaccount.providers.twitter',
+    'allauth.socialaccount.providers.bitbucket_oauth2',
 ]
 
 REST_FRAMEWORK = {

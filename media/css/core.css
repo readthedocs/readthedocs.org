@@ -348,9 +348,21 @@ div.search-sponsored { margin-top: 50px; }
   .module-item .module-item-menu li a:hover { background-color: #697983; box-shadow: 0 1px 0px #465158; -moz-box-shadow: 0 1px 0px #465158; -webkit-box-shadow: 0 1px 0px #465158; }
 
   li.module-item ul.module-item-menu li input[type="submit"] {
-    font-size: 16px;
-    line-height: 16px;
-    margin: 4px;
+      font-size: 16px;
+      line-height: 16px;
+      margin: 4px;
+  }
+
+  li.module-item > img {
+      height: 24px;
+      width: 24px;
+      vertical-align: middle;
+  }
+
+  li.module-item > p.error {
+      padding-top: .75em;
+      font-size: .8em;
+      line-height: 1.5em;
   }
 
   /* for links that span the column */
@@ -653,12 +665,15 @@ div.project-import-remote button.remote-sync:before {
     content: "\f021";
 }
 
-div.project-import-remote form.import-connect-github button:before {
+div.project-import-remote form.import-connect-github button:before,
+a.socialaccount-provider.github:before {
     font-family: FontAwesome;
     content: "\f09b";
 }
 
-div.project-import-remote form.import-connect-bitbucket button:before {
+div.project-import-remote form.import-connect-bitbucket button:before,
+a.socialaccount-provider.bitbucket:before,
+a.socialaccount-provider.bitbucket_oauth2:before {
     font-family: FontAwesome;
     content: "\f171";
 }
