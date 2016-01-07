@@ -60,29 +60,24 @@ class BaseMkdocs(BaseBuilder):
         if not media_url.startswith('http'):
             media_url = 'http://localhost:8000' + media_url
 
-        if 'extra_javascript' in user_config:
-            user_config['extra_javascript'].append('readthedocs-data.js')
-            user_config['extra_javascript'].append(
-                'readthedocs-dynamic-include.js')
-            user_config['extra_javascript'].append(
-                '%sjavascript/readthedocs-doc-embed.js' % media_url)
-        else:
-            user_config['extra_javascript'] = [
-                'readthedocs-data.js',
-                'readthedocs-dynamic-include.js',
-                '%sjavascript/readthedocs-doc-embed.js' % media_url,
-            ]
+        extra_javascript = [
+            'readthedocs-data.js',
+            'readthedocs-dynamic-include.js',
+            '%sjavascript/readthedocs-doc-embed.js' % media_url,
+        ]
 
-        if 'extra_css' in user_config:
-            user_config['extra_css'].append(
-                '%s/css/badge_only.css' % media_url)
-            user_config['extra_css'].append(
-                '%s/css/readthedocs-doc-embed.css' % media_url)
-        else:
-            user_config['extra_css'] = [
-                '%scss/badge_only.css' % media_url,
-                '%scss/readthedocs-doc-embed.css' % media_url,
-            ]
+        user_config['extra_javascript'] = (
+            user_config.get('extra_javascript', []) +
+            extra_javascript)
+
+        extra_css = [
+            '%scss/badge_only.css' % media_url,
+            '%scss/readthedocs-doc-embed.css' % media_url,
+        ]
+
+        user_config['extra_css'] = (
+            user_config.get('extra_css', []) +
+            extra_css)
 
         # Set our custom theme dir for mkdocs
         if 'theme_dir' not in user_config and self.use_theme:
