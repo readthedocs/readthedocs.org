@@ -108,6 +108,7 @@ class CommunityBaseSettings(Settings):
             'allauth.account',
             'allauth.socialaccount',
             'allauth.socialaccount.providers.github',
+            'allauth.socialaccount.providers.gitlab',
             'allauth.socialaccount.providers.bitbucket',
             'allauth.socialaccount.providers.bitbucket_oauth2',
         ]
