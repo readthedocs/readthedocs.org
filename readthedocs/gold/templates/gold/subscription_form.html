@@ -56,6 +56,27 @@ $(document).ready(function () {
     {% endblocktrans %}
   </p>
 
+  {% if domains.count %}
+  <h3>Domains</h2>
+  <p>
+    {% blocktrans %}
+    We ask that folks who use custom Domains give Read the Docs $5 per domain they are using.
+    This is optional, but it really does help us maintain the site going forward.
+    {% endblocktrans %}
+  </p>
+
+  <p>
+    You are currently using {{ domains.count }} domains:
+    
+    <ul class="donate-about">
+    {% for domain in domains %}
+      <li>{{ domain.domain }} ({{ domain.project.name }})</li>
+    {% endfor %}
+    </ul>
+  </p>
+
+  {% endif %}
+
   {% trans "Become a Gold Member" as subscription_title %}
   {% if golduser %}
     {% trans "Update Your Subscription" as subscription_title %}
