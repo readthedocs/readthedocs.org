@@ -10,7 +10,16 @@ function DonateView (config) {
 
     self.constructor.call(self, config);
 
-    self.dollars = ko.observable();
+    self.dollars_select = ko.observable();
+    self.dollars_input = ko.observable();
+    self.dollars = ko.computed(function () {
+        var dollars;
+        dollars = self.dollars_select();
+        if (dollars == 'custom') {
+           dollars = self.dollars_input();
+        }
+        return dollars;
+    });
     self.logo_url = ko.observable();
     self.site_url = ko.observable();
     self.error_dollars = ko.observable();
@@ -44,5 +53,11 @@ DonateView.init = function (config, obj) {
     ko.applyBindings(view, obj);
     return view;
 }
+
+DonateView.prototype.submit_form = function (card_digits, token) {
+    this.form.find('#id_last_4_digits').val(card_digits);
+    this.form.find('#id_stripe_token').val(token);
+    this.form.submit();
+};
 
 module.exports.DonateView = DonateView;

@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 
-from readthedocs.oauth.utils import import_github
+from readthedocs.oauth.services import GitHubService
 
 
 class Command(BaseCommand):
@@ -9,4 +9,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         if len(args):
             for slug in args:
-                import_github(user=User.objects.get(username=slug), sync=True)
+                service = GitHubService.for_user(User.objects.get(username=slug))
+                if service is not None:
+                    service.sync()

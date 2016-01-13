@@ -15,17 +15,20 @@
   <script type="text/javascript">
 var import_views = require('projects/import');
 $(document).ready(function() {
-    var urls = {
-            'api_sync_remote_repositories': '{% url 'api_sync_remote_repositories' %}',
-            'remoteorganization-list': '{% url 'remoteorganization-list' %}',
-            'remoterepository-list': '{% url 'remoterepository-list' %}',
-            'projects_import': '{% url 'projects_import' %}'
+    var instance = {},
+        config = {
+            'csrf_token': '{{ view_csrf_token }}',
+            'urls': {
+                'api_sync_remote_repositories': '{% url 'api_sync_remote_repositories' %}',
+                'remoteorganization-list': '{% url 'remoteorganization-list' %}',
+                'remoterepository-list': '{% url 'remoterepository-list' %}',
+                'projects_import': '{% url 'projects_import' %}'
+            }
         },
-        instance = {},
         view = import_views.ProjectImportView.init(
             $('body').get(0),
             instance,
-            urls
+            config
         );
 });
   </script>
@@ -96,7 +99,7 @@ $(document).ready(function() {
 
                     <form
                         method="get"
-                        action="{% provider_login_url "bitbucket" process="connect" next="/dashboard/import/" %}"
+                        action="{% provider_login_url "bitbucket_oauth2" process="connect" next="/dashboard/import/" %}"
                         class="import-connect import-connect-bitbucket">
                       <button>
                         {% trans "Connect to Bitbucket" %}

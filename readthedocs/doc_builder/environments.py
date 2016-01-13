@@ -237,6 +237,8 @@ class DockerBuildCommand(BuildCommand):
         prefix = 'READTHEDOCS=True '
         if self.bin_path:
             prefix += 'PATH={0}:$PATH '.format(self.bin_path)
+        if 'CONDA_ENVS_PATH' in self.environment:
+            prefix += 'CONDA_ENVS_PATH={0} '.format(self.environment['CONDA_ENVS_PATH'])
         return ("/bin/sh -c 'cd {cwd} && {prefix}{cmd}'"
                 .format(
                     cwd=self.cwd,
@@ -448,7 +450,7 @@ class DockerEnvironment(BuildEnvironment):
             # locking code, so we throw an exception.
             state = self.container_state()
             if state is not None:
-                if state.get('Running') == True:
+                if state.get('Running') is True:
                     exc = BuildEnvironmentError(
                         _('A build environment is currently '
                           'running for this version'))

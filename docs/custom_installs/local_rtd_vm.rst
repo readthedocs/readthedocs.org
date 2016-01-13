@@ -47,7 +47,7 @@ Possible Error and Resolution
 **Resolution**: Run the following commands. ::
 
     $ sudo apt-get update
-    $ sudo apt-get install python2.7-dev tk8.5 tcl8.5 tk8.5-dev tcl8.5-dev
+    $ sudo apt-get install python2.7-dev tk8.5 tcl8.5 tk8.5-dev tcl8.5-dev libxml2-devel libxslt-devel
     $ sudo apt-get build-dep python-imaging --fix-missing 
 
 2. Configure the RTD Server and Superuser.

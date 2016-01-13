@@ -1,7 +1,6 @@
 var ko = require('knockout'),
     $ = require('jquery'),
-    tasks = require('readthedocs/core/static-src/core/js/tasks'),
-    csrf = require('readthedocs/core/static-src/core/js/django-csrf');
+    tasks = require('readthedocs/core/static-src/core/js/tasks');
 
 
 $(function() {
@@ -106,24 +105,24 @@ function Project (instance, view) {
             form.append(field);
         });
 
-        var token = csrf.get_cookie('csrftoken'),
-            csrf_field = $('<input>');
 
-        csrf_field
+        csrf_field = $('<input>')
             .attr('type', 'hidden')
             .attr('name', 'csrfmiddlewaretoken')
-            .attr('value', token);
+            .attr('value', view.csrf_token);
         form.append(csrf_field);
 
         form.submit();
     };
 }
 
-function ProjectImportView (instance, urls) {
+function ProjectImportView (instance, config) {
     var self = this,
         instance = instance || {};
 
-    self.urls = urls || {};
+    self.config = config || {};
+    self.urls = config.urls || {};
+    self.csrf_token = config.csrf_token || '';
 
     // For task display
     self.error = ko.observable(null);
@@ -201,7 +200,7 @@ function ProjectImportView (instance, urls) {
         self.error(null);
         self.is_syncing(true);
 
-        tasks.trigger_task(url)
+        tasks.trigger_task({url: url, token: self.csrf_token})
             .then(function (data) {
                 self.get_organizations();
             })
@@ -246,8 +245,8 @@ function append_url_params (url, params) {
     return link.href;
 }
 
-ProjectImportView.init = function (domobj, instance, urls) {
-    var view = new ProjectImportView(instance, urls);
+ProjectImportView.init = function (domobj, instance, config) {
+    var view = new ProjectImportView(instance, config);
     view.get_organizations();
     ko.applyBindings(view, domobj);
     return view;

@@ -5,7 +5,10 @@ from collections import OrderedDict
 
 from mock import patch
 from django.conf import settings
-from django.test import TestCase
+from django.test import TestCase, RequestFactory
+from django.contrib.auth.models import AnonymousUser
+from django.contrib.messages.storage.fallback import FallbackStorage
+from django.contrib.sessions.middleware import SessionMiddleware
 
 log = logging.getLogger(__name__)
 
@@ -109,3 +112,46 @@ class WizardTestCase(TestCase):
         if match is not None:
             error = response.context['wizard']['form'].errors[field]
             self.assertRegexpMatches(unicode(error), match)
+
+
+class RequestFactoryTestMixin(object):
+
+    """Adds helper methods for testing with :py:cls:`RequestFactory`
+
+    This handles setting up authentication, messages, and session handling
+    """
+
+    def request(self, *args, **kwargs):
+        """Perform request from factory
+
+        :param method: Request method as string
+        :returns: Request instance
+
+        Several additional keywords arguments can be passed in:
+
+        user
+            User instance to use for the request, will default to an
+            :py:cls:`AnonymousUser` instance otherwise.
+
+        session
+            Dictionary to instantiate the session handler with.
+
+        Other keyword arguments are passed into the request method
+        """
+        factory = RequestFactory()
+        method = kwargs.pop('method', 'get')
+        fn = getattr(factory, method)
+        request = fn(*args, **kwargs)
+
+        # Mock user, session, and messages
+        request.user = kwargs.pop('user', AnonymousUser())
+
+        session = kwargs.pop('session', {})
+        middleware = SessionMiddleware()
+        middleware.process_request(request)
+        request.session.update(session)
+
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
+
+        return request

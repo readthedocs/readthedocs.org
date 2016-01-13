@@ -76,3 +76,10 @@ Default: `settings.PRODUCTION_DOMAIN`
 
 A special domain for serving public documentation.
 If set, public docs will be linked here instead of the `PRODUCTION_DOMAIN`.
+
+ALLOW_ADMIN
+-----------
+
+Default: `True`
+
+Whether to include `django.contrib.admin` in the URL's.

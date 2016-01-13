@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.conf import settings
 from django.conf.urls import url
 from django.shortcuts import get_object_or_404
+from django.core.cache import cache
 
 from tastypie import fields
 from tastypie.authorization import DjangoAuthorization
@@ -23,9 +24,6 @@ from readthedocs.restapi.views.footer_views import get_version_compare_data
 from .utils import SearchMixin, PostAuthentication
 
 log = logging.getLogger(__name__)
-
-
-redis_client = redis.Redis(**settings.REDIS)
 
 
 class ProjectResource(ModelResource, SearchMixin):
@@ -223,7 +221,11 @@ class FileResource(ModelResource, SearchMixin):
         self.throttle_check(request)
 
         query = request.GET.get('q', '')
-        redis_data = redis_client.keys("*redirects:v4*%s*" % query)
+        try:
+            redis_client = cache.get_client(None)
+            redis_data = redis_client.keys("*redirects:v4*%s*" % query)
+        except (AttributeError, redis.exceptions.ConnectionError):
+            redis_data = []
         # -2 because http:
         urls = [''.join(data.split(':')[6:]) for data in redis_data
                 if 'http://' in data]

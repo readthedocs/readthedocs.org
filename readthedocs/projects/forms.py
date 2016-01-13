@@ -10,6 +10,7 @@ from django.template.defaultfilters import slugify
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
+from textclassifier.validators import ClassifierValidator
 
 from guardian.shortcuts import assign
 
@@ -17,6 +18,7 @@ from readthedocs.builds.constants import TAG
 from readthedocs.core.utils import trigger_build
 from readthedocs.redirects.models import Redirect
 from readthedocs.projects import constants
+from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.models import Project, EmailHook, WebHook, Domain
 from readthedocs.privacy.loader import AdminPermission
 
@@ -130,6 +132,11 @@ class ProjectExtraForm(ProjectForm):
             'tags',
         )
 
+    description = forms.CharField(
+        validators=[ClassifierValidator(raises=ProjectSpamError)],
+        widget=forms.Textarea
+    )
+
 
 class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 
@@ -144,7 +151,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
         model = Project
         fields = (
             # Standard build edits
-            'use_virtualenv',
+            'install_project',
             'requirements_file',
             'single_version',
             'conf_py_file',
