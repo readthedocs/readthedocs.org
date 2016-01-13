@@ -16,11 +16,6 @@
 
     <!-- BEGIN header nav -->
     {% if request.user.is_authenticated %}
-    <div class="rtfd-header-nav" style="margin-right: 20%">
-      <ul>
-            <!-- <li><a href="{% url 'gold_detail' %}">{% trans "Support Us" %}</a></li> -->
-      </ul>
-    </div>
     <div class="menu menu-user" id="subnav-user-menu">
       <div class="menu-button">
         <a href="{% url 'projects_dashboard' %}">

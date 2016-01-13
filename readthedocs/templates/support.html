@@ -1,47 +1,75 @@
 {% extends "base.html" %}
 
 {% load i18n %}
+{% load core_tags %}
+
 
 {% block title %}Support{% endblock %}
 
 {% block content %}
-{% if request.user.gold.count %}
-<h3>Priority Support</h3>
-<p>
-Gold users have access to priority support for Read the Docs.
-You can contact us at <a href="mailto:{{ support_email }}">{{ support_email }}</a>.
-</p>
-{% else %}
-<h3>Community Support Support</h3>
-<p>
-Since Read the Docs is a community site,
-we aren't able to offer any guarentees in support response time.
-</p>
+<div id="support_page">
+{% filter restructuredtext %}
 
-<p>
-You can file a bug on our <a href="https://github.com/rtfd/readthedocs.org/issues">GitHub Issue Tracker</a>,
+Usage Questions
+~~~~~~~~~~~~~~~~
+
+If you have questions about how to use Read the Docs well,
+`Stack Overflow`_ is the best place to ask. Tag questions with ``read-the-docs`` so other folks can find them easily.
+
+{% if not request.user.gold.count %}
+
+Priority Support
+~~~~~~~~~~~~~~~~
+
+Gold users have access to priority support for Read the Docs.
+You can contact us at {{ support_email }}.
+
+**Thanks for supporting the site.**
+
+{% else %}
+
+Community Support
+~~~~~~~~~~~~~~~~
+
+Read the Docs is a community supported site.
+Currently nobody is paid to handle readthedocs.org support.
+We are hoping to bring in enough money with our `Gold`_ program to change that,
+so please sign up if you are able.
+
+**All people answering your questions are doing it with their own time,
+so please be kind and provide as much infromation as possible.**
+
+Bugs & Support Issues
+~~~~~~~~~~~~~~~~~~~~~
+
+You can file a bug on our `GitHub Issue Tracker`_,
 and it will be taken care of as soon as possible.
-We do offer <strong>priority support</strong> to Gold users.
-You can <a href="{% url "gold_detail" %}">sign up</a> for Gold for access to priority support.
-</p>
+We do offer priority support to Gold users.
+You can `sign up`_ for Gold for access to priority support.
 
 {% endif %}
-<p>
+
+Reporting Issues
+~~~~~~~~~~~~~~~~
+
 When reporting a bug,
 please include as much information as possible that will help us solve this issue.
 This includes:
-</p>
 
-<ul>
-	<li>Project Name</li>
-	<li>URL</li>
-	<li>Action taken</li>
-	<li>Expected Result</li>
-	<li>Actual Result</li>
-</ul>
+* Project Name
+* URL
+* Action taken
+* Expected Result
+* Actual Result
 
-<p>
 Thanks for using Read the Docs!
-</p>
 
+.. _Stack Overflow: http://stackoverflow.com/questions/tagged/read-the-docs
+.. _Github Issue Tracker: https://github.com/rtfd/readthedocs.org/issues
+.. _sign up: {% url "gold_detail" %}
+.. _Gold: {% url "gold_detail" %}
+
+
+{% endfilter %}
+</div>
 {% endblock %}

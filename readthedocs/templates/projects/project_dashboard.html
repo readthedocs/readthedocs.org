@@ -8,7 +8,9 @@
 
         <p>
             Read the Docs depends on users like you to help us keep the site sustainable.
-            We are adding the concept of <a href="{% url "gold_detail" %}">Read the Docs Gold</a> to allow folks to support us.
+        </p>
+        <p>
+            We now have the concept of <a href="{% url "gold_detail" %}">Read the Docs Gold</a> to allow folks to support us. You can pay us a set amount every month, and we'll keep the site running, and improving all the time.
         </p>
 
         <form method="get" action="{% url "gold_detail" %}">
@@ -19,9 +21,7 @@
       <div class="module onboard onboard-accounts">
         <h3>Thanks!</h3>
         <p>
-          Your support of Read the Docs helps make the site better each and every month.
-          It also allows us to provide enhanced support to you,
-          so <a href="{% url "support" %}">let us know</a> if you ever need help.
+          Your <a href="{% url "gold_detail" %}">support</a> of Read the Docs helps make the site better each and every month.
         </p>
 
     {% endif %}
