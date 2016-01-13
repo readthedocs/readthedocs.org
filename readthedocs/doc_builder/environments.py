@@ -450,7 +450,7 @@ class DockerEnvironment(BuildEnvironment):
             # locking code, so we throw an exception.
             state = self.container_state()
             if state is not None:
-                if state.get('Running') == True:
+                if state.get('Running') is True:
                     exc = BuildEnvironmentError(
                         _('A build environment is currently '
                           'running for this version'))
