@@ -51,6 +51,8 @@ class GoldSubscriptionMixin(SuccessMessageMixin, StripeMixin, LoginRequiredMixin
         return context
 
 # Subscription Views
+
+
 class DetailGoldSubscription(GoldSubscriptionMixin, DetailView):
 
     def get(self, request, *args, **kwargs):
