@@ -585,11 +585,11 @@ class DockerEnvironment(BuildEnvironment):
                 host_config=create_host_config(binds={
                     SPHINX_TEMPLATE_DIR: {
                         'bind': SPHINX_TEMPLATE_DIR,
-                        'mode': 'r'
+                        'mode': 'ro'
                     },
                     MKDOCS_TEMPLATE_DIR: {
                         'bind': MKDOCS_TEMPLATE_DIR,
-                        'mode': 'r'
+                        'mode': 'ro'
                     },
                     self.project.doc_path: {
                         'bind': self.project.doc_path,
