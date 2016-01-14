@@ -108,12 +108,11 @@ class UpdateDocsTask(Task):
         self.build_force = force
 
         env_cls = LocalEnvironment
-        if docker or settings.DOCKER_ENABLE:
-            env_cls = DockerEnvironment
-        self.build_env = env_cls(project=self.project, version=self.version,
+        self.setup_env = env_cls(project=self.project, version=self.version,
                                  build=self.build, record=record)
 
-        with self.build_env:
+        # Environment used for code checkout & initial configuration reading
+        with self.setup_env:
             if self.project.skip:
                 raise BuildEnvironmentError(
                     _('Builds for this project are temporarily disabled'))
@@ -126,11 +125,18 @@ class UpdateDocsTask(Task):
                     status_code=423
                 )
 
+            self.config = load_yaml_config(version=self.version)
+
+        if docker or settings.DOCKER_ENABLE:
+            env_cls = DockerEnvironment
+        self.build_env = env_cls(project=self.project, version=self.version,
+                                 build=self.build, record=record, environment=env)
+
+        # Environment used for building code, usually with Docker
+        with self.build_env:
+
             if self.project.documentation_type == 'auto':
                 self.update_documentation_type()
-
-            # Read YAML config after code checkout has been run
-            self.config = load_yaml_config(version=self.version)
 
             python_env_cls = Virtualenv
             if self.config.use_conda:
@@ -217,7 +223,7 @@ class UpdateDocsTask(Task):
 
         :param build_env: Build environment
         """
-        self.build_env.update_build(state=BUILD_STATE_CLONING)
+        self.setup_env.update_build(state=BUILD_STATE_CLONING)
 
         self._log(msg='Updating docs from VCS')
         try:
