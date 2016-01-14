@@ -202,7 +202,7 @@ class UpdateDocsTask(Task):
         return dict((key, val) for (key, val) in build.items()
                     if key not in ['project', 'version', 'resource_uri',
                                    'absolute_uri'])
-        
+
     def setup_vcs(self):
         """
         Update the checkout of the repo to make sure it's the latest.
@@ -237,6 +237,7 @@ class UpdateDocsTask(Task):
             env.update({
                 'CONDA_ENVS_PATH': os.path.join(self.project.doc_path, 'conda'),
                 'CONDA_DEFAULT_ENV': self.version.slug,
+                'PATH': os.path.join(self.project.doc_path, 'conda', self.version.slug, 'bin')
             })
         return env
  

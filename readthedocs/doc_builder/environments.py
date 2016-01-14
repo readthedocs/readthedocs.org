@@ -236,11 +236,9 @@ class DockerBuildCommand(BuildCommand):
         """
         bash_escape_re = re.compile(r"([\t\ \!\"\#\$\&\'\(\)\*\:\;\<\>\?\@"
                                     r"\[\\\]\^\`\{\|\}\~])")
-        prefix = 'READTHEDOCS=True '
+        prefix = ''
         if self.bin_path:
             prefix += 'PATH={0}:$PATH '.format(self.bin_path)
-        if 'CONDA_ENVS_PATH' in self.environment:
-            prefix += 'CONDA_ENVS_PATH={0} '.format(self.environment['CONDA_ENVS_PATH'])
         return ("/bin/sh -c 'cd {cwd} && {prefix}{cmd}'"
                 .format(
                     cwd=self.cwd,
@@ -322,6 +320,12 @@ class BuildEnvironment(object):
         :param warn_only: Don't raise an exception on command failure
         '''
         warn_only = kwargs.pop('warn_only', False)
+        # Remove PATH from env, and set it to bin_path if it isn't passed in
+        env_path = self.environment.pop('PATH', None)
+        if 'bin_path' not in kwargs and env_path:
+            kwargs['bin_path'] = env_path
+        assert 'environment' not in kwargs, "environment can't be passed in via commands."
+        kwargs['environment'] = self.environment
         kwargs['build_env'] = self
         build_cmd = cls(cmd, **kwargs)
         self.commands.append(build_cmd)

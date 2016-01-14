@@ -178,7 +178,6 @@ class Conda(PythonEnvironment):
             '--name',
             self.version.slug,
             'python={python_version}'.format(python_version=self.config.python_version),
-            environment={'CONDA_ENVS_PATH': conda_env_path}
         )
 
     def install_core_requirements(self):
@@ -204,8 +203,7 @@ class Conda(PythonEnvironment):
         ]
         cmd.extend(requirements)
         self.build_env.run(
-            *cmd,
-            environment={'CONDA_ENVS_PATH': conda_env_path}
+            *cmd
         )
 
         # Install pip-only things.
@@ -240,5 +238,4 @@ class Conda(PythonEnvironment):
             self.version.slug,
             '--file',
             self.config.conda_file,
-            environment={'CONDA_ENVS_PATH': conda_env_path}
         )
