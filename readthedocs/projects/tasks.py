@@ -107,7 +107,6 @@ class UpdateDocsTask(Task):
         self.build_localmedia = localmedia
         self.build_force = force
 
-
         env_cls = LocalEnvironment
         self.setup_env = env_cls(project=self.project, version=self.version,
                                  build=self.build, record=record)
@@ -240,7 +239,6 @@ class UpdateDocsTask(Task):
                 'PATH': os.path.join(self.project.doc_path, 'conda', self.version.slug, 'bin')
             })
         return env
- 
 
     def update_documentation_type(self):
         """
