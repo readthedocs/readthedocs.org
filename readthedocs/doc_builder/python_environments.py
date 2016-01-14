@@ -4,6 +4,7 @@ import shutil
 
 from django.conf import settings
 
+from readthedocs.builds.constants import LATEST
 from readthedocs.doc_builder.config import ConfigWrapper
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.projects.constants import LOG_TEMPLATE
@@ -34,7 +35,7 @@ class PythonEnvironment(object):
 
         # Handle deleting old build dir
         build_dir = os.path.join(
-            self.venv_path(),
+            self.venv_path(version=self.version.slug),
             'build')
         if os.path.exists(build_dir):
             self._log('Removing existing build directory')
@@ -46,14 +47,14 @@ class PythonEnvironment(object):
             if getattr(settings, 'USE_PIP_INSTALL', False):
                 self.build_env.run(
                     'python',
-                    self.venv_bin(filename='pip'),
+                    self.venv_bin(version=self.version.slug, filename='pip'),
                     'install',
                     '--ignore-installed',
                     '--cache-dir',
                     self.project.pip_cache_path,
                     '.',
                     cwd=self.checkout_path,
-                    bin_path=self.venv_bin()
+                    bin_path=self.venv_bin(version=self.version.slug)
                 )
             else:
                 self.build_env.run(
@@ -62,16 +63,17 @@ class PythonEnvironment(object):
                     'install',
                     '--force',
                     cwd=self.checkout_path,
-                    bin_path=self.venv_bin()
+                    bin_path=self.venv_bin(version=self.version.slug)
                 )
 
-    def venv_bin(self, filename=None):
+    def venv_bin(self, version=LATEST, filename=None):
         """Return path to the virtualenv bin path, or a specific binary
 
+        :param version: Version slug to use in path name
         :param filename: If specified, add this filename to the path return
         :returns: Path to virtualenv bin or filename in virtualenv bin
         """
-        parts = [self.venv_path(), 'bin']
+        parts = [self.venv_path(version), 'bin']
         if filename is not None:
             parts.append(filename)
         return os.path.join(*parts)
@@ -79,14 +81,14 @@ class PythonEnvironment(object):
 
 class Virtualenv(PythonEnvironment):
 
-    def venv_path(self):
-        return os.path.join(self.project.doc_path, 'envs', self.version.slug)
+    def venv_path(self, version=LATEST):
+        return os.path.join(self.project.doc_path, 'envs', version)
 
     def setup_base(self):
         site_packages = '--no-site-packages'
         if self.config.use_system_site_packages:
             site_packages = '--system-site-packages'
-        env_path = self.venv_path()
+        env_path = self.venv_path(version=self.version.slug)
         self.build_env.run(
             self.config.python_interpreter,
             '-mvirtualenv',
@@ -112,7 +114,7 @@ class Virtualenv(PythonEnvironment):
 
         cmd = [
             'python',
-            self.venv_bin(filename='pip'),
+            self.venv_bin(version=self.version.slug, filename='pip'),
             'install',
             '--use-wheel',
             '-U',
@@ -128,7 +130,7 @@ class Virtualenv(PythonEnvironment):
         cmd.extend(requirements)
         self.build_env.run(
             *cmd,
-            bin_path=self.venv_bin()
+            bin_path=self.venv_bin(version=self.version.slug)
         )
 
     def install_user_requirements(self):
@@ -147,21 +149,21 @@ class Virtualenv(PythonEnvironment):
         if requirements_file_path:
             self.build_env.run(
                 'python',
-                self.venv_bin(filename='pip'),
+                self.venv_bin(version=self.version.slug, filename='pip'),
                 'install',
                 '--exists-action=w',
                 '--cache-dir',
                 self.project.pip_cache_path,
                 '-r{0}'.format(requirements_file_path),
                 cwd=self.checkout_path,
-                bin_path=self.venv_bin()
+                bin_path=self.venv_bin(version=self.version.slug)
             )
 
 
 class Conda(PythonEnvironment):
 
-    def venv_path(self):
-        return os.path.join(self.project.doc_path, 'conda', self.version.slug)
+    def venv_path(self, version=LATEST):
+        return os.path.join(self.project.doc_path, 'conda', version)
 
     def setup_base(self):
         conda_env_path = os.path.join(self.project.doc_path, 'conda')
@@ -216,7 +218,7 @@ class Conda(PythonEnvironment):
 
         pip_cmd = [
             'python',
-            self.venv_bin(filename='pip'),
+            self.venv_bin(version=self.version.slug, filename='pip'),
             'install',
             '-U',
             '--cache-dir',
@@ -225,7 +227,7 @@ class Conda(PythonEnvironment):
         pip_cmd.extend(pip_requirements)
         self.build_env.run(
             *pip_cmd,
-            bin_path=self.venv_bin()
+            bin_path=self.venv_bin(version=self.version.slug)
         )
 
     def install_user_requirements(self):
