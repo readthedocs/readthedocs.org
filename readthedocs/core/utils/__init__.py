@@ -54,8 +54,10 @@ def cname_to_slug(host):
 
 
 def trigger_build(project, version=None, record=True, force=False, basic=False):
-    """
-    An API to wrap the triggering of a build.
+    """Trigger build for project and version
+
+    If project has a ``build_queue``, execute task on this build queue. Queue
+    will be prefixed with ``build-`` to unify build queue names.
     """
     # Avoid circular import
     from readthedocs.projects.tasks import update_docs
@@ -85,10 +87,11 @@ def trigger_build(project, version=None, record=True, force=False, basic=False):
         )
         kwargs['build_pk'] = build.pk
 
-    update_docs.apply_async(
-        kwargs=kwargs,
-        queue=project.build_queue or None,
-    )
+    queue = None
+    if project.build_queue is not None:
+        queue = 'build-{0}'.format(project.build_queue)
+
+    update_docs.apply_async(kwargs=kwargs, queue=queue)
 
     return build
 
