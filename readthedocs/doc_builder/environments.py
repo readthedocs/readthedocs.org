@@ -36,6 +36,7 @@ log = logging.getLogger(__name__)
 
 
 class BuildCommand(BuildCommandResultMixin):
+
     '''Wrap command execution for execution in build environments
 
     This wraps subprocess commands with some logic to handle exceptions,
@@ -177,6 +178,7 @@ class BuildCommand(BuildCommandResultMixin):
 
 
 class DockerBuildCommand(BuildCommand):
+
     '''Create a docker container and run a command inside the container
 
     Build command to execute in docker container
@@ -248,6 +250,7 @@ class DockerBuildCommand(BuildCommand):
 
 
 class BuildEnvironment(object):
+
     '''
     Base build environment
 
@@ -259,11 +262,13 @@ class BuildEnvironment(object):
     :param record: Record status of build object
     '''
 
-    def __init__(self, project=None, version=None, build=None, record=True):
+    def __init__(self, project=None, version=None, build=None, record=True, environment=None):
         self.project = project
         self.version = version
         self.build = build
         self.record = record
+        self.environment = environment or {}
+
         self.commands = []
         self.failure = None
         self.start_time = datetime.utcnow()
@@ -408,11 +413,13 @@ class BuildEnvironment(object):
 
 
 class LocalEnvironment(BuildEnvironment):
+
     '''Local execution environment'''
     command_class = BuildCommand
 
 
 class DockerEnvironment(BuildEnvironment):
+
     '''
     Docker build environment, uses docker to contain builds
 
@@ -597,8 +604,7 @@ class DockerEnvironment(BuildEnvironment):
                     },
                 }),
                 detach=True,
-                environment={'READTHEDOCS_VERSION': self.version.slug,
-                             'READTHEDOCS_PROJECT': self.project.slug},
+                environment=self.environment,
                 mem_limit=self.container_mem_limit,
             )
             client.start(container=self.container_id)

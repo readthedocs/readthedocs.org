@@ -107,6 +107,7 @@ class UpdateDocsTask(Task):
         self.build_localmedia = localmedia
         self.build_force = force
 
+
         env_cls = LocalEnvironment
         self.setup_env = env_cls(project=self.project, version=self.version,
                                  build=self.build, record=record)
@@ -127,10 +128,11 @@ class UpdateDocsTask(Task):
 
             self.config = load_yaml_config(version=self.version)
 
+        bash_env = self.get_bash_env()
         if docker or settings.DOCKER_ENABLE:
             env_cls = DockerEnvironment
         self.build_env = env_cls(project=self.project, version=self.version,
-                                 build=self.build, record=record, environment=env)
+                                 build=self.build, record=record, environment=bash_env)
 
         # Environment used for building code, usually with Docker
         with self.build_env:
@@ -200,21 +202,7 @@ class UpdateDocsTask(Task):
         return dict((key, val) for (key, val) in build.items()
                     if key not in ['project', 'version', 'resource_uri',
                                    'absolute_uri'])
-
-    def update_documentation_type(self):
-        """
-        Force Sphinx for 'auto' documentation type
-
-        This used to determine the type and automatically set the documentation
-        type to Sphinx for rST and Mkdocs for markdown. It now just forces
-        Sphinx, due to markdown support.
-        """
-        ret = 'sphinx'
-        project_data = api_v2.project(self.project.pk).get()
-        project_data['documentation_type'] = ret
-        api_v2.project(self.project.pk).put(project_data)
-        self.project.documentation_type = ret
-
+        
     def setup_vcs(self):
         """
         Update the checkout of the repo to make sure it's the latest.
@@ -234,6 +222,38 @@ class UpdateDocsTask(Task):
         except ProjectImportError:
             raise BuildEnvironmentError('Failed to import project',
                                         status_code=404)
+
+    def get_bash_env(self):
+        """
+        Get bash environment variables used for all builder commands.
+        """
+        env = {
+            'READTHEDOCS': True,
+            'READTHEDOCS_VERSION': self.version.slug,
+            'READTHEDOCS_PROJECT': self.project.slug
+        }
+
+        if self.config.use_conda:
+            env.update({
+                'CONDA_ENVS_PATH': os.path.join(self.project.doc_path, 'conda'),
+                'CONDA_DEFAULT_ENV': self.version.slug,
+            })
+        return env
+ 
+
+    def update_documentation_type(self):
+        """
+        Force Sphinx for 'auto' documentation type
+
+        This used to determine the type and automatically set the documentation
+        type to Sphinx for rST and Mkdocs for markdown. It now just forces
+        Sphinx, due to markdown support.
+        """
+        ret = 'sphinx'
+        project_data = api_v2.project(self.project.pk).get()
+        project_data['documentation_type'] = ret
+        api_v2.project(self.project.pk).put(project_data)
+        self.project.documentation_type = ret
 
     def setup_environment(self):
         """
