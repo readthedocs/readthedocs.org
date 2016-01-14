@@ -66,6 +66,15 @@ def trigger_build(project, version=None, record=True, force=False, basic=False):
     if not version:
         version = project.versions.get(slug=LATEST)
 
+    kwargs = dict(
+        pk=project.pk,
+        version_pk=version.pk,
+        record=record,
+        force=force,
+        basic=basic,
+    )
+
+    build = None
     if record:
         build = Build.objects.create(
             project=project,
@@ -74,12 +83,12 @@ def trigger_build(project, version=None, record=True, force=False, basic=False):
             state='triggered',
             success=True,
         )
-        update_docs.delay(pk=project.pk, version_pk=version.pk, record=record,
-                          force=force, basic=basic, build_pk=build.pk)
-    else:
-        build = None
-        update_docs.delay(pk=project.pk, version_pk=version.pk, record=record,
-                          force=force, basic=basic)
+        kwargs['build_pk'] = build.pk
+
+    update_docs.apply_async(
+        kwargs=kwargs,
+        queue=project.build_queue or None,
+    )
 
     return build
 
