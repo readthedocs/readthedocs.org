@@ -125,7 +125,7 @@ class Project(models.Model):
     requirements_file = models.CharField(
         _('Requirements file'), max_length=255, default=None, null=True,
         blank=True, help_text=_(
-            'Requires Virtualenv. A <a '
+            'A <a '
             'href="https://pip.pypa.io/en/latest/user_guide.html#requirements-files">'
             'pip requirements file</a> needed to build your documentation. '
             'Path from the root of your project.'))
@@ -147,6 +147,14 @@ class Project(models.Model):
                     "This may slow down your page loads."))
     container_image = models.CharField(
         _('Alternative container image'), max_length=64, null=True, blank=True)
+    container_mem_limit = models.CharField(
+        _('Container memory limit'), max_length=10, null=True, blank=True,
+        help_text=_("Memory limit in Docker format "
+                    "-- example: <code>512m</code> or <code>1g</code>"))
+    container_time_limit = models.CharField(
+        _('Container time limit'), max_length=10, null=True, blank=True)
+    build_queue = models.CharField(
+        _('Alternate build queue id'), max_length=32, null=True, blank=True)
 
     # Sphinx specific build options.
     enable_epub_build = models.BooleanField(
@@ -171,7 +179,7 @@ class Project(models.Model):
     featured = models.BooleanField(_('Featured'), default=False)
     skip = models.BooleanField(_('Skip'), default=False)
     mirror = models.BooleanField(_('Mirror'), default=False)
-    use_virtualenv = models.BooleanField(
+    install_project = models.BooleanField(
         _('Install Project'),
         help_text=_("Install your project inside a virtualenv using <code>setup.py "
                     "install</code>"),
@@ -409,8 +417,10 @@ class Project(models.Model):
     def checkout_path(self, version=LATEST):
         return os.path.join(self.doc_path, 'checkouts', version)
 
-    def venv_path(self, version=LATEST):
-        return os.path.join(self.doc_path, 'envs', version)
+    @property
+    def pip_cache_path(self):
+        """Path to pip cache"""
+        return os.path.join(self.doc_path, '.cache', 'pip')
 
     #
     # Paths for symlinks in project doc_path.
@@ -440,18 +450,6 @@ class Project(models.Model):
     #
     # End symlink paths
     #
-
-    def venv_bin(self, version=LATEST, filename=None):
-        """Return path to the virtualenv bin path, or a specific binary
-
-        :param version: Version slug to use in path name
-        :param filename: If specified, add this filename to the path return
-        :returns: Path to virtualenv bin or filename in virtualenv bin
-        """
-        parts = [self.venv_path(version), 'bin']
-        if filename is not None:
-            parts.append(filename)
-        return os.path.join(*parts)
 
     def full_doc_path(self, version=LATEST):
         """The path to the documentation root in the project"""

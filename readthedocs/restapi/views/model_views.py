@@ -3,7 +3,7 @@ import logging
 from django.shortcuts import get_object_or_404
 from rest_framework import decorators, permissions, viewsets, status
 from rest_framework.decorators import detail_route
-from rest_framework.renderers import JSONPRenderer, JSONRenderer, BrowsableAPIRenderer
+from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
 from readthedocs.builds.constants import BRANCH
@@ -11,7 +11,7 @@ from readthedocs.builds.constants import TAG
 from readthedocs.builds.filters import VersionFilter
 from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.core.utils import trigger_build
-from readthedocs.oauth import utils as oauth_utils
+from readthedocs.oauth.services import GitHubService, registry
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.builds.constants import STABLE
 from readthedocs.projects.filters import ProjectFilter, DomainFilter
@@ -32,7 +32,7 @@ log = logging.getLogger(__name__)
 
 class ProjectViewSet(viewsets.ModelViewSet):
     permission_classes = [APIPermission]
-    renderer_classes = (JSONRenderer, JSONPRenderer, BrowsableAPIRenderer)
+    renderer_classes = (JSONRenderer,)
     serializer_class = ProjectSerializer
     filter_class = ProjectFilter
     model = Project
@@ -84,7 +84,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
     def token(self, request, **kwargs):
         project = get_object_or_404(
             Project.objects.api(self.request.user), pk=kwargs['pk'])
-        token = oauth_utils.get_token_for_project(project, force_local=True)
+        token = GitHubService.get_token_for_project(project, force_local=True)
         return Response({
             'token': token
         })
@@ -162,7 +162,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
 class VersionViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    renderer_classes = (JSONRenderer, BrowsableAPIRenderer)
+    renderer_classes = (JSONRenderer,)
     serializer_class = VersionSerializer
     filter_class = VersionFilter
     model = Version
@@ -173,7 +173,7 @@ class VersionViewSet(viewsets.ReadOnlyModelViewSet):
 
 class BuildViewSet(viewsets.ModelViewSet):
     permission_classes = [APIRestrictedPermission]
-    renderer_classes = (JSONRenderer, BrowsableAPIRenderer)
+    renderer_classes = (JSONRenderer,)
     model = Build
 
     def get_queryset(self):
@@ -192,7 +192,7 @@ class BuildViewSet(viewsets.ModelViewSet):
 
 class BuildCommandViewSet(viewsets.ModelViewSet):
     permission_classes = [APIRestrictedPermission]
-    renderer_classes = [JSONRenderer, BrowsableAPIRenderer]
+    renderer_classes = (JSONRenderer,)
     serializer_class = BuildCommandSerializer
     model = BuildCommandResult
 
@@ -202,7 +202,7 @@ class BuildCommandViewSet(viewsets.ModelViewSet):
 
 class NotificationViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = (permissions.IsAuthenticated, RelatedProjectIsOwner)
-    renderer_classes = (JSONRenderer, BrowsableAPIRenderer)
+    renderer_classes = (JSONRenderer,)
     model = EmailHook
 
     def get_queryset(self):
@@ -211,7 +211,7 @@ class NotificationViewSet(viewsets.ReadOnlyModelViewSet):
 
 class DomainViewSet(viewsets.ModelViewSet):
     permission_classes = [APIRestrictedPermission]
-    renderer_classes = (JSONRenderer, BrowsableAPIRenderer)
+    renderer_classes = (JSONRenderer,)
     serializer_class = DomainSerializer
     filter_class = DomainFilter
     model = Domain
@@ -222,17 +222,20 @@ class DomainViewSet(viewsets.ModelViewSet):
 
 class RemoteOrganizationViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsOwner]
-    renderer_classes = [JSONRenderer, BrowsableAPIRenderer]
+    renderer_classes = (JSONRenderer,)
     serializer_class = RemoteOrganizationSerializer
     model = RemoteOrganization
+    paginate_by = 25
 
     def get_queryset(self):
-        return self.model.objects.api(self.request.user)
+        return (self.model.objects.api(self.request.user)
+                .filter(account__provider__in=[service.adapter.provider_id
+                                               for service in registry]))
 
 
 class RemoteRepositoryViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsOwner]
-    renderer_classes = [JSONRenderer, BrowsableAPIRenderer]
+    renderer_classes = (JSONRenderer,)
     serializer_class = RemoteRepositorySerializer
     model = RemoteRepository
 
@@ -241,6 +244,8 @@ class RemoteRepositoryViewSet(viewsets.ReadOnlyModelViewSet):
         org = self.request.query_params.get('org', None)
         if org is not None:
             query = query.filter(organization__pk=org)
+        query = query.filter(account__provider__in=[service.adapter.provider_id
+                                                    for service in registry])
         return query
 
     def get_paginate_by(self):

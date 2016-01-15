@@ -78,7 +78,7 @@ Then please create a superuser account for Django::
 
     ./manage.py createsuperuser
 
-By now, it is the right time to load in a couple users and a test projects::
+By now, it is the right time to load in a couple users and a test project::
 
     ./manage.py loaddata test_data
 

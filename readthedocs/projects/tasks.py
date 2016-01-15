@@ -27,9 +27,11 @@ from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import send_email, run_on_app_servers
 from readthedocs.cdn.purge import purge
 from readthedocs.doc_builder.loader import get_builder_class
+from readthedocs.doc_builder.config import ConfigWrapper, load_yaml_config
 from readthedocs.doc_builder.environments import (LocalEnvironment,
                                                   DockerEnvironment)
 from readthedocs.doc_builder.exceptions import BuildEnvironmentError
+from readthedocs.doc_builder.python_environments import Virtualenv, Conda
 from readthedocs.projects.exceptions import ProjectImportError
 from readthedocs.projects.models import ImportedFile, Project
 from readthedocs.projects.utils import make_api_version, make_api_project, symlink
@@ -72,9 +74,10 @@ class UpdateDocsTask(Task):
     default_retry_delay = (7 * 60)
     name = 'update_docs'
 
-    def __init__(self, build_env=None, force=False, search=True, localmedia=True,
+    def __init__(self, build_env=None, python_env=None, force=False, search=True, localmedia=True,
                  build=None, project=None, version=None):
         self.build_env = build_env
+        self.python_env = python_env
         self.build_force = force
         self.build_search = search
         self.build_localmedia = localmedia
@@ -88,11 +91,14 @@ class UpdateDocsTask(Task):
         if project is not None:
             self.project = project
 
+    def _log(self, msg):
+        log.info(LOG_TEMPLATE
+                 .format(project=self.project.slug,
+                         version=self.version.slug,
+                         msg=msg))
+
     def run(self, pk, version_pk=None, build_pk=None, record=True, docker=False,
             search=True, force=False, localmedia=True, **kwargs):
-        env_cls = LocalEnvironment
-        if docker or settings.DOCKER_ENABLE:
-            env_cls = DockerEnvironment
 
         self.project = self.get_project(pk)
         self.version = self.get_version(self.project, version_pk)
@@ -100,9 +106,13 @@ class UpdateDocsTask(Task):
         self.build_search = search
         self.build_localmedia = localmedia
         self.build_force = force
-        self.build_env = env_cls(project=self.project, version=self.version,
+
+        env_cls = LocalEnvironment
+        self.setup_env = env_cls(project=self.project, version=self.version,
                                  build=self.build, record=record)
-        with self.build_env:
+
+        # Environment used for code checkout & initial configuration reading
+        with self.setup_env:
             if self.project.skip:
                 raise BuildEnvironmentError(
                     _('Builds for this project are temporarily disabled'))
@@ -115,8 +125,28 @@ class UpdateDocsTask(Task):
                     status_code=423
                 )
 
+            self.config = load_yaml_config(version=self.version)
+
+        env_vars = self.get_env_vars()
+        if docker or settings.DOCKER_ENABLE:
+            env_cls = DockerEnvironment
+        self.build_env = env_cls(project=self.project, version=self.version,
+                                 build=self.build, record=record, environment=env_vars)
+
+        # Environment used for building code, usually with Docker
+        with self.build_env:
+
             if self.project.documentation_type == 'auto':
                 self.update_documentation_type()
+
+            python_env_cls = Virtualenv
+            if self.config.use_conda:
+                self._log('Using conda')
+                python_env_cls = Conda
+            self.python_env = python_env_cls(version=self.version,
+                                             build_env=self.build_env,
+                                             config=self.config)
+
             self.setup_environment()
 
             # TODO the build object should have an idea of these states, extend
@@ -172,6 +202,49 @@ class UpdateDocsTask(Task):
                     if key not in ['project', 'version', 'resource_uri',
                                    'absolute_uri'])
 
+    def setup_vcs(self):
+        """
+        Update the checkout of the repo to make sure it's the latest.
+
+        This also syncs versions in the DB.
+
+        :param build_env: Build environment
+        """
+        self.setup_env.update_build(state=BUILD_STATE_CLONING)
+
+        self._log(msg='Updating docs from VCS')
+        try:
+            update_imported_docs(self.version.pk)
+            commit = self.project.vcs_repo(self.version.slug).commit
+            if commit:
+                self.build['commit'] = commit
+        except ProjectImportError:
+            raise BuildEnvironmentError('Failed to import project',
+                                        status_code=404)
+
+    def get_env_vars(self):
+        """
+        Get bash environment variables used for all builder commands.
+        """
+        env = {
+            'READTHEDOCS': True,
+            'READTHEDOCS_VERSION': self.version.slug,
+            'READTHEDOCS_PROJECT': self.project.slug
+        }
+
+        if self.config.use_conda:
+            env.update({
+                'CONDA_ENVS_PATH': os.path.join(self.project.doc_path, 'conda'),
+                'CONDA_DEFAULT_ENV': self.version.slug,
+                'BIN_PATH': os.path.join(self.project.doc_path, 'conda', self.version.slug, 'bin')
+            })
+        else:
+            env.update({
+                'BIN_PATH': os.path.join(self.project.doc_path, 'envs', self.version.slug, 'bin')
+            })
+
+        return env
+
     def update_documentation_type(self):
         """
         Force Sphinx for 'auto' documentation type
@@ -186,29 +259,6 @@ class UpdateDocsTask(Task):
         api_v2.project(self.project.pk).put(project_data)
         self.project.documentation_type = ret
 
-    def setup_vcs(self):
-        """
-        Update the checkout of the repo to make sure it's the latest.
-
-        This also syncs versions in the DB.
-
-        :param build_env: Build environment
-        """
-        self.build_env.update_build(state=BUILD_STATE_CLONING)
-
-        log.info(LOG_TEMPLATE
-                 .format(project=self.project.slug,
-                         version=self.version.slug,
-                         msg='Updating docs from VCS'))
-        try:
-            update_imported_docs(self.version.pk)
-            commit = self.project.vcs_repo(self.version.slug).commit
-            if commit:
-                self.build['commit'] = commit
-        except ProjectImportError:
-            raise BuildEnvironmentError('Failed to import project',
-                                        status_code=404)
-
     def setup_environment(self):
         """
         Build the virtualenv and install the project into it.
@@ -217,111 +267,13 @@ class UpdateDocsTask(Task):
 
         :param build_env: Build environment to pass commands and execution through.
         """
-        build_dir = os.path.join(
-            self.project.venv_path(version=self.version.slug),
-            'build')
-
         self.build_env.update_build(state=BUILD_STATE_INSTALLING)
 
-        if os.path.exists(build_dir):
-            log.info(LOG_TEMPLATE
-                     .format(project=self.project.slug,
-                             version=self.version.slug,
-                             msg='Removing existing build directory'))
-            shutil.rmtree(build_dir)
-        site_packages = '--no-site-packages'
-        if self.project.use_system_packages:
-            site_packages = '--system-site-packages'
-        self.build_env.run(
-            self.project.python_interpreter,
-            '-mvirtualenv',
-            site_packages,
-            self.project.venv_path(version=self.version.slug)
-        )
-
-        # Install requirements
-        requirements = [
-            'sphinx==1.3.1',
-            'Pygments==2.0.2',
-            'virtualenv==13.1.0',
-            'setuptools==18.0.1',
-            'docutils==0.11',
-            'mkdocs==0.14.0',
-            'mock==1.0.1',
-            'pillow==2.6.1',
-            'readthedocs-sphinx-ext==0.5.4',
-            'sphinx-rtd-theme==0.1.9',
-            'alabaster>=0.7,<0.8,!=0.7.5',
-            'recommonmark==0.1.1',
-        ]
-
-        cmd = [
-            'python',
-            self.project.venv_bin(version=self.version.slug, filename='pip'),
-            'install',
-            '--use-wheel',
-            '-U',
-        ]
-        if self.project.use_system_packages:
-            # Other code expects sphinx-build to be installed inside the
-            # virtualenv.  Using the -I option makes sure it gets installed
-            # even if it is already installed system-wide (and
-            # --system-site-packages is used)
-            cmd.append('-I')
-        cmd.extend(requirements)
-        self.build_env.run(
-            *cmd,
-            bin_path=self.project.venv_bin(version=self.version.slug)
-        )
-
-        # Handle requirements
-        requirements_file_path = self.project.requirements_file
-        checkout_path = self.project.checkout_path(self.version.slug)
-        if not requirements_file_path:
-            builder_class = get_builder_class(self.project.documentation_type)
-            docs_dir = (builder_class(self.build_env)
-                        .docs_dir())
-            for path in [docs_dir, '']:
-                for req_file in ['pip_requirements.txt', 'requirements.txt']:
-                    test_path = os.path.join(checkout_path, path, req_file)
-                    if os.path.exists(test_path):
-                        requirements_file_path = test_path
-                        break
-
-        if requirements_file_path:
-            self.build_env.run(
-                'python',
-                self.project.venv_bin(version=self.version.slug, filename='pip'),
-                'install',
-                '--exists-action=w',
-                '-r{0}'.format(requirements_file_path),
-                cwd=checkout_path,
-                bin_path=self.project.venv_bin(version=self.version.slug)
-            )
-
-        # Handle setup.py
-        checkout_path = self.project.checkout_path(self.version.slug)
-        setup_path = os.path.join(checkout_path, 'setup.py')
-        if os.path.isfile(setup_path) and self.project.use_virtualenv:
-            if getattr(settings, 'USE_PIP_INSTALL', False):
-                self.build_env.run(
-                    'python',
-                    self.project.venv_bin(version=self.version.slug, filename='pip'),
-                    'install',
-                    '--ignore-installed',
-                    '.',
-                    cwd=checkout_path,
-                    bin_path=self.project.venv_bin(version=self.version.slug)
-                )
-            else:
-                self.build_env.run(
-                    'python',
-                    'setup.py',
-                    'install',
-                    '--force',
-                    cwd=checkout_path,
-                    bin_path=self.project.venv_bin(version=self.version.slug)
-                )
+        self.python_env.delete_existing_build_dir()
+        self.python_env.setup_base()
+        self.python_env.install_core_requirements()
+        self.python_env.install_user_requirements()
+        self.python_env.install_package()
 
     def build_docs(self):
         """Wrapper to all build functions
@@ -352,7 +304,8 @@ class UpdateDocsTask(Task):
     def build_docs_html(self):
         """Build HTML docs"""
         html_builder = get_builder_class(self.project.documentation_type)(
-            self.build_env
+            build_env=self.build_env,
+            python_env=self.python_env,
         )
         if self.build_force:
             html_builder.force()
@@ -413,7 +366,7 @@ class UpdateDocsTask(Task):
         only raise a warning exception here. A hard error will halt the build
         process.
         """
-        builder = get_builder_class(builder_class)(self.build_env)
+        builder = get_builder_class(builder_class)(self.build_env, python_env=self.python_env)
         success = builder.build()
         builder.move()
         return success

@@ -1,5 +1,5 @@
 from rest_framework import decorators, permissions, status
-from rest_framework.renderers import JSONPRenderer, JSONRenderer, BrowsableAPIRenderer
+from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
 import json
@@ -18,7 +18,7 @@ from readthedocs.core.templatetags.core_tags import make_document_url
 
 @decorators.api_view(['GET'])
 @decorators.permission_classes((permissions.AllowAny,))
-@decorators.renderer_classes((JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
+@decorators.renderer_classes((JSONRenderer,))
 def cname(request):
     """
     Get the slug that a particular hostname resolves to.
@@ -44,7 +44,7 @@ def cname(request):
 
 @decorators.api_view(['GET'])
 @decorators.permission_classes((permissions.AllowAny,))
-@decorators.renderer_classes((JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
+@decorators.renderer_classes((JSONRenderer,))
 def docurl(request):
     """
     Get the url that a slug resolves to.
@@ -71,7 +71,7 @@ def docurl(request):
 
 @decorators.api_view(['GET'])
 @decorators.permission_classes((permissions.AllowAny,))
-@decorators.renderer_classes((JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
+@decorators.renderer_classes((JSONRenderer,))
 def embed(request):
     """
     Embed a section of content from any Read the Docs page.

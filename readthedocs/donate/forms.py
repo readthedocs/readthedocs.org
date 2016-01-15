@@ -44,7 +44,7 @@ class SupporterForm(StripeResourceMixin, StripeModelForm):
             'dollars': _('Companies donating over $400 can specify a logo URL and site link'),
         }
         widgets = {
-            'dollars': forms.Select(attrs={
+            'dollars': forms.HiddenInput(attrs={
                 'data-bind': 'value: dollars'
             }),
             'logo_url': forms.TextInput(attrs={

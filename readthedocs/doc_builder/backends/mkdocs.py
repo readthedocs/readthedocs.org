@@ -143,7 +143,7 @@ class BaseMkdocs(BaseBuilder):
         checkout_path = self.project.checkout_path(self.version.slug)
         build_command = [
             'python',
-            self.project.venv_bin(version=self.version.slug, filename='mkdocs'),
+            self.python_env.venv_bin(filename='mkdocs'),
             self.builder,
             '--clean',
             '--site-dir', self.build_dir,
@@ -153,7 +153,7 @@ class BaseMkdocs(BaseBuilder):
         cmd_ret = self.run(
             *build_command,
             cwd=checkout_path,
-            bin_path=self.project.venv_bin(version=self.version.slug)
+            bin_path=self.python_env.venv_bin()
         )
         return cmd_ret.successful
 

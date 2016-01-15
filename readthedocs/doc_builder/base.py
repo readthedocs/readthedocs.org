@@ -29,8 +29,9 @@ class BaseBuilder(object):
     _force = False
     # old_artifact_path = ..
 
-    def __init__(self, build_env, force=False):
+    def __init__(self, build_env, python_env, force=False):
         self.build_env = build_env
+        self.python_env = python_env
         self.version = build_env.version
         self.project = build_env.project
         self._force = force
