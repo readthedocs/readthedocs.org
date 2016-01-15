@@ -258,7 +258,7 @@ class TestBuildCommand(TestCase):
     def test_command_env(self):
         '''Test build command env vars'''
         env = {'FOOBAR': 'foobar',
-               'PATH': 'foobar'}
+               'BIN_PATH': 'foobar'}
         cmd = BuildCommand('echo', environment=env)
         for key in env.keys():
             self.assertEqual(cmd.environment[key], env[key])
