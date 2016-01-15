@@ -94,6 +94,7 @@ class Virtualenv(PythonEnvironment):
             '-mvirtualenv',
             site_packages,
             env_path,
+            bin_path=None,  # Don't use virtualenv bin that doesn't exist yet
         )
 
     def install_core_requirements(self):
@@ -180,6 +181,7 @@ class Conda(PythonEnvironment):
             '--name',
             self.version.slug,
             'python={python_version}'.format(python_version=self.config.python_version),
+            bin_path=None,  # Don't use conda bin that doesn't exist yet
         )
 
     def install_core_requirements(self):
