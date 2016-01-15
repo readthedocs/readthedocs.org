@@ -88,7 +88,7 @@ def trigger_build(project, version=None, record=True, force=False, basic=False):
         kwargs['build_pk'] = build.pk
 
     options = {}
-    if project.build_queue is not None:
+    if project.build_queue:
         options['queue'] = 'build-{0}'.format(project.build_queue)
 
     update_docs.apply_async(kwargs=kwargs, **options)
