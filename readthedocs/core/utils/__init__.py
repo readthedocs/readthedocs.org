@@ -2,7 +2,7 @@ import getpass
 import logging
 import os
 
-from urlparse import urlparse
+from six.moves import urllib_parse
 
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
@@ -35,7 +35,7 @@ def run_on_app_servers(command):
 
 
 def clean_url(url):
-    parsed = urlparse(url)
+    parsed = urllib_parse.urlparse(url)
     if parsed.scheme:
         scheme, netloc = parsed.scheme, parsed.netloc
     elif parsed.netloc:
