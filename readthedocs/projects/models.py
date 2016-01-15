@@ -147,6 +147,14 @@ class Project(models.Model):
                     "This may slow down your page loads."))
     container_image = models.CharField(
         _('Alternative container image'), max_length=64, null=True, blank=True)
+    container_mem_limit = models.CharField(
+        _('Container memory limit'), max_length=10, null=True, blank=True,
+        help_text=_("Memory limit in Docker format "
+                    "-- example: <code>512m</code> or <code>1g</code>"))
+    container_time_limit = models.CharField(
+        _('Container time limit'), max_length=10, null=True, blank=True)
+    build_queue = models.CharField(
+        _('Alternate build queue id'), max_length=32, null=True, blank=True)
 
     # Sphinx specific build options.
     enable_epub_build = models.BooleanField(

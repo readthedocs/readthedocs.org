@@ -450,6 +450,10 @@ class DockerEnvironment(BuildEnvironment):
         self.container_name = None
         if self.version:
             self.container_name = slugify(unicode(self.version))
+        if self.project.container_mem_limit is not None:
+            self.container_mem_limit = self.project.container_mem_limit
+        if self.project.container_time_limit is not None:
+            self.container_time_limit = self.project.container_time_limit
 
     def __enter__(self):
         '''Start of environment context'''

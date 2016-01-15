@@ -20,7 +20,7 @@ class GitLabWebHookTest(TestCase):
         def mock(*args, **kwargs):
             log.info("Mocking for great profit and speed.")
         tasks.update_docs = mock
-        tasks.update_docs.delay = mock
+        tasks.update_docs.apply_async = mock
 
         self.client.login(username='eric', password='test')
         self.payload = {
@@ -111,7 +111,7 @@ class PostCommitTest(TestCase):
             pass
 
         tasks.UpdateDocsTask.run = mock
-        tasks.UpdateDocsTask.delay = mock
+        tasks.UpdateDocsTask.apply_async = mock
 
         self.client.login(username='eric', password='test')
         self.payload = {
