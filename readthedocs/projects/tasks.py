@@ -108,12 +108,11 @@ class UpdateDocsTask(Task):
         self.build_force = force
 
         env_cls = LocalEnvironment
-        if docker or settings.DOCKER_ENABLE:
-            env_cls = DockerEnvironment
-        self.build_env = env_cls(project=self.project, version=self.version,
+        self.setup_env = env_cls(project=self.project, version=self.version,
                                  build=self.build, record=record)
 
-        with self.build_env:
+        # Environment used for code checkout & initial configuration reading
+        with self.setup_env:
             if self.project.skip:
                 raise BuildEnvironmentError(
                     _('Builds for this project are temporarily disabled'))
@@ -126,11 +125,19 @@ class UpdateDocsTask(Task):
                     status_code=423
                 )
 
+            self.config = load_yaml_config(version=self.version)
+
+        env_vars = self.get_env_vars()
+        if docker or settings.DOCKER_ENABLE:
+            env_cls = DockerEnvironment
+        self.build_env = env_cls(project=self.project, version=self.version,
+                                 build=self.build, record=record, environment=env_vars)
+
+        # Environment used for building code, usually with Docker
+        with self.build_env:
+
             if self.project.documentation_type == 'auto':
                 self.update_documentation_type()
-
-            # Read YAML config after code checkout has been run
-            self.config = load_yaml_config(version=self.version)
 
             python_env_cls = Virtualenv
             if self.config.use_conda:
@@ -195,6 +202,49 @@ class UpdateDocsTask(Task):
                     if key not in ['project', 'version', 'resource_uri',
                                    'absolute_uri'])
 
+    def setup_vcs(self):
+        """
+        Update the checkout of the repo to make sure it's the latest.
+
+        This also syncs versions in the DB.
+
+        :param build_env: Build environment
+        """
+        self.setup_env.update_build(state=BUILD_STATE_CLONING)
+
+        self._log(msg='Updating docs from VCS')
+        try:
+            update_imported_docs(self.version.pk)
+            commit = self.project.vcs_repo(self.version.slug).commit
+            if commit:
+                self.build['commit'] = commit
+        except ProjectImportError:
+            raise BuildEnvironmentError('Failed to import project',
+                                        status_code=404)
+
+    def get_env_vars(self):
+        """
+        Get bash environment variables used for all builder commands.
+        """
+        env = {
+            'READTHEDOCS': True,
+            'READTHEDOCS_VERSION': self.version.slug,
+            'READTHEDOCS_PROJECT': self.project.slug
+        }
+
+        if self.config.use_conda:
+            env.update({
+                'CONDA_ENVS_PATH': os.path.join(self.project.doc_path, 'conda'),
+                'CONDA_DEFAULT_ENV': self.version.slug,
+                'PATH': os.path.join(self.project.doc_path, 'conda', self.version.slug, 'bin')
+            })
+        else:
+            env.update({
+                'PATH': os.path.join(self.project.doc_path, 'envs', self.version.slug, 'bin')
+            })
+
+        return env
+
     def update_documentation_type(self):
         """
         Force Sphinx for 'auto' documentation type
@@ -208,26 +258,6 @@ class UpdateDocsTask(Task):
         project_data['documentation_type'] = ret
         api_v2.project(self.project.pk).put(project_data)
         self.project.documentation_type = ret
-
-    def setup_vcs(self):
-        """
-        Update the checkout of the repo to make sure it's the latest.
-
-        This also syncs versions in the DB.
-
-        :param build_env: Build environment
-        """
-        self.build_env.update_build(state=BUILD_STATE_CLONING)
-
-        self._log(msg='Updating docs from VCS')
-        try:
-            update_imported_docs(self.version.pk)
-            commit = self.project.vcs_repo(self.version.slug).commit
-            if commit:
-                self.build['commit'] = commit
-        except ProjectImportError:
-            raise BuildEnvironmentError('Failed to import project',
-                                        status_code=404)
 
     def setup_environment(self):
         """

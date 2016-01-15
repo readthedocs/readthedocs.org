@@ -21,6 +21,8 @@ your docs whenever you push updates:
 * Check "Active"
 * Click "Add service"
 
+**Note:** The GitHub URL in your Read the Docs project must match the URL on GitHub. The URL is case-sensitive.
+
 Bitbucket
 -----------
 
