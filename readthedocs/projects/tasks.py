@@ -236,11 +236,11 @@ class UpdateDocsTask(Task):
             env.update({
                 'CONDA_ENVS_PATH': os.path.join(self.project.doc_path, 'conda'),
                 'CONDA_DEFAULT_ENV': self.version.slug,
-                'PATH': os.path.join(self.project.doc_path, 'conda', self.version.slug, 'bin')
+                'BIN_PATH': os.path.join(self.project.doc_path, 'conda', self.version.slug, 'bin')
             })
         else:
             env.update({
-                'PATH': os.path.join(self.project.doc_path, 'envs', self.version.slug, 'bin')
+                'BIN_PATH': os.path.join(self.project.doc_path, 'envs', self.version.slug, 'bin')
             })
 
         return env
