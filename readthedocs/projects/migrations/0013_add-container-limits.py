@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='project',
             name='container_mem_limit',
-            field=models.CharField(max_length=10, null=True, verbose_name='Container memory limit in MB', blank=True),
+            field=models.CharField(help_text='Memory limit in Docker format -- example: <code>512m</code> or <code>1g</code>', max_length=10, null=True, verbose_name='Container memory limit', blank=True),
         ),
         migrations.AddField(
             model_name='project',
