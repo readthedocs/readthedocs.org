@@ -127,11 +127,11 @@ class UpdateDocsTask(Task):
 
             self.config = load_yaml_config(version=self.version)
 
-        bash_env = self.get_bash_env()
+        env_vars = self.get_env_vars()
         if docker or settings.DOCKER_ENABLE:
             env_cls = DockerEnvironment
         self.build_env = env_cls(project=self.project, version=self.version,
-                                 build=self.build, record=record, environment=bash_env)
+                                 build=self.build, record=record, environment=env_vars)
 
         # Environment used for building code, usually with Docker
         with self.build_env:
@@ -222,7 +222,7 @@ class UpdateDocsTask(Task):
             raise BuildEnvironmentError('Failed to import project',
                                         status_code=404)
 
-    def get_bash_env(self):
+    def get_env_vars(self):
         """
         Get bash environment variables used for all builder commands.
         """
