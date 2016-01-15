@@ -36,6 +36,7 @@ log = logging.getLogger(__name__)
 
 
 class BuildCommand(BuildCommandResultMixin):
+
     '''Wrap command execution for execution in build environments
 
     This wraps subprocess commands with some logic to handle exceptions,
@@ -177,6 +178,7 @@ class BuildCommand(BuildCommandResultMixin):
 
 
 class DockerBuildCommand(BuildCommand):
+
     '''Create a docker container and run a command inside the container
 
     Build command to execute in docker container
@@ -234,11 +236,9 @@ class DockerBuildCommand(BuildCommand):
         """
         bash_escape_re = re.compile(r"([\t\ \!\"\#\$\&\'\(\)\*\:\;\<\>\?\@"
                                     r"\[\\\]\^\`\{\|\}\~])")
-        prefix = 'READTHEDOCS=True '
+        prefix = ''
         if self.bin_path:
             prefix += 'PATH={0}:$PATH '.format(self.bin_path)
-        if 'CONDA_ENVS_PATH' in self.environment:
-            prefix += 'CONDA_ENVS_PATH={0} '.format(self.environment['CONDA_ENVS_PATH'])
         return ("/bin/sh -c 'cd {cwd} && {prefix}{cmd}'"
                 .format(
                     cwd=self.cwd,
@@ -248,6 +248,7 @@ class DockerBuildCommand(BuildCommand):
 
 
 class BuildEnvironment(object):
+
     '''
     Base build environment
 
@@ -259,11 +260,13 @@ class BuildEnvironment(object):
     :param record: Record status of build object
     '''
 
-    def __init__(self, project=None, version=None, build=None, record=True):
+    def __init__(self, project=None, version=None, build=None, record=True, environment=None):
         self.project = project
         self.version = version
         self.build = build
         self.record = record
+        self.environment = environment or {}
+
         self.commands = []
         self.failure = None
         self.start_time = datetime.utcnow()
@@ -317,6 +320,12 @@ class BuildEnvironment(object):
         :param warn_only: Don't raise an exception on command failure
         '''
         warn_only = kwargs.pop('warn_only', False)
+        # Remove PATH from env, and set it to bin_path if it isn't passed in
+        env_path = self.environment.pop('PATH', None)
+        if 'bin_path' not in kwargs and env_path:
+            kwargs['bin_path'] = env_path
+        assert 'environment' not in kwargs, "environment can't be passed in via commands."
+        kwargs['environment'] = self.environment
         kwargs['build_env'] = self
         build_cmd = cls(cmd, **kwargs)
         self.commands.append(build_cmd)
@@ -408,11 +417,13 @@ class BuildEnvironment(object):
 
 
 class LocalEnvironment(BuildEnvironment):
+
     '''Local execution environment'''
     command_class = BuildCommand
 
 
 class DockerEnvironment(BuildEnvironment):
+
     '''
     Docker build environment, uses docker to contain builds
 
@@ -450,7 +461,7 @@ class DockerEnvironment(BuildEnvironment):
             # locking code, so we throw an exception.
             state = self.container_state()
             if state is not None:
-                if state.get('Running') == True:
+                if state.get('Running') is True:
                     exc = BuildEnvironmentError(
                         _('A build environment is currently '
                           'running for this version'))
@@ -585,11 +596,11 @@ class DockerEnvironment(BuildEnvironment):
                 host_config=create_host_config(binds={
                     SPHINX_TEMPLATE_DIR: {
                         'bind': SPHINX_TEMPLATE_DIR,
-                        'mode': 'r'
+                        'mode': 'ro'
                     },
                     MKDOCS_TEMPLATE_DIR: {
                         'bind': MKDOCS_TEMPLATE_DIR,
-                        'mode': 'r'
+                        'mode': 'ro'
                     },
                     self.project.doc_path: {
                         'bind': self.project.doc_path,
@@ -597,8 +608,7 @@ class DockerEnvironment(BuildEnvironment):
                     },
                 }),
                 detach=True,
-                environment={'READTHEDOCS_VERSION': self.version.slug,
-                             'READTHEDOCS_PROJECT': self.project.slug},
+                environment=self.environment,
                 mem_limit=self.container_mem_limit,
             )
             client.start(container=self.container_id)

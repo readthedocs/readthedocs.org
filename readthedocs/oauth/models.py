@@ -14,7 +14,6 @@ from allauth.socialaccount.models import SocialAccount
 from readthedocs.projects.constants import REPO_CHOICES
 from readthedocs.projects.models import Project
 
-from .constants import OAUTH_SOURCE
 from .managers import RemoteRepositoryManager, RemoteOrganizationManager
 
 

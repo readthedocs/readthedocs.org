@@ -52,7 +52,7 @@ The first step of the process is that we check out your code from the repository
 
 Then we build the proper backend code for the type of documentation you've selected.
 
-If you have the *Use Virtualenv* option enabled, we will run ``setup.py install`` on your package, installing it into a virtual environment. You can also define additional packages to install with the *Requirements File* option.
+If you have the *Install Project* option enabled, we will run ``setup.py install`` on your package, installing it into a virtual environment. You can also define additional packages to install with the *Requirements File* option.
 
 When we build your documentation, we run `sphinx-build -b html . _build/html`, where `html` would be replaced with the correct backend. We also create man pages and pdf's automatically based on your project.
 

@@ -108,8 +108,8 @@ def load_yaml_config(version):
                 'name': version.slug,
             },
         )[0]
-    except InvalidConfig as e:  # This is a subclass of ConfigError, so has to come first
-        raise ProjectImportError(e.message)
+    except InvalidConfig:  # This is a subclass of ConfigError, so has to come first
+        raise
     except ConfigError:
         config = BuildConfig(
             env_config={},
