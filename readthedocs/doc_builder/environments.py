@@ -68,6 +68,7 @@ class BuildCommand(BuildCommandResultMixin):
         self.cwd = cwd
         self.environment = os.environ.copy()
         if environment is not None:
+            assert 'PATH' not in environment, "PATH can't be set"
             self.environment.update(environment)
 
         self.combine_output = combine_output
@@ -120,7 +121,7 @@ class BuildCommand(BuildCommandResultMixin):
         if 'PYTHONPATH' in environment:
             del environment['PYTHONPATH']
         if self.bin_path is not None:
-            env_paths = environment.get('PATH', '').split(':')
+            env_paths = environment.get('BIN_PATH', '').split(':')
             env_paths.insert(0, self.bin_path)
             environment['PATH'] = ':'.join(env_paths)
 
@@ -321,7 +322,7 @@ class BuildEnvironment(object):
         '''
         warn_only = kwargs.pop('warn_only', False)
         # Remove PATH from env, and set it to bin_path if it isn't passed in
-        env_path = self.environment.pop('PATH', None)
+        env_path = self.environment.pop('BIN_PATH', None)
         if 'bin_path' not in kwargs and env_path:
             kwargs['bin_path'] = env_path
         assert 'environment' not in kwargs, "environment can't be passed in via commands."
