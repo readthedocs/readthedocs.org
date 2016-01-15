@@ -2,7 +2,7 @@ import getpass
 import logging
 import os
 
-from six.moves import urllib_parse
+from urlparse import urlparse
 
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
@@ -35,7 +35,7 @@ def run_on_app_servers(command):
 
 
 def clean_url(url):
-    parsed = urllib_parse.urlparse(url)
+    parsed = urlparse(url)
     if parsed.scheme:
         scheme, netloc = parsed.scheme, parsed.netloc
     elif parsed.netloc:
@@ -54,8 +54,10 @@ def cname_to_slug(host):
 
 
 def trigger_build(project, version=None, record=True, force=False, basic=False):
-    """
-    An API to wrap the triggering of a build.
+    """Trigger build for project and version
+
+    If project has a ``build_queue``, execute task on this build queue. Queue
+    will be prefixed with ``build-`` to unify build queue names.
     """
     # Avoid circular import
     from readthedocs.projects.tasks import update_docs
@@ -66,6 +68,15 @@ def trigger_build(project, version=None, record=True, force=False, basic=False):
     if not version:
         version = project.versions.get(slug=LATEST)
 
+    kwargs = dict(
+        pk=project.pk,
+        version_pk=version.pk,
+        record=record,
+        force=force,
+        basic=basic,
+    )
+
+    build = None
     if record:
         build = Build.objects.create(
             project=project,
@@ -74,12 +85,13 @@ def trigger_build(project, version=None, record=True, force=False, basic=False):
             state='triggered',
             success=True,
         )
-        update_docs.delay(pk=project.pk, version_pk=version.pk, record=record,
-                          force=force, basic=basic, build_pk=build.pk)
-    else:
-        build = None
-        update_docs.delay(pk=project.pk, version_pk=version.pk, record=record,
-                          force=force, basic=basic)
+        kwargs['build_pk'] = build.pk
+
+    options = {}
+    if project.build_queue:
+        options['queue'] = 'build-{0}'.format(project.build_queue)
+
+    update_docs.apply_async(kwargs=kwargs, **options)
 
     return build
 
