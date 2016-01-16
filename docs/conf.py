@@ -54,7 +54,7 @@ man_pages = [
 ]
 
 exclude_patterns = [
-    'api' # needed for ``make gettext`` to not die.
+    # 'api' # needed for ``make gettext`` to not die.
 ]
 
 language = 'en'
