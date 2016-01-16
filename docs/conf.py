@@ -18,7 +18,7 @@ sys.path.append(os.path.abspath('_ext'))
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.intersphinx',
-    'sphinx_http_domain',
+    'sphinxcontrib.httpdomain',
     'djangodocs',
 ]
 templates_path = ['_templates']
@@ -54,7 +54,7 @@ man_pages = [
 ]
 
 exclude_patterns = [
-    #'api' # needed for ``make gettext`` to not die.
+    'api' # needed for ``make gettext`` to not die.
 ]
 
 language = 'en'
