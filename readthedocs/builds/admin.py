@@ -14,7 +14,7 @@ class BuildCommandResultInline(admin.TabularInline):
 
 class BuildAdmin(admin.ModelAdmin):
     fields = ('project', 'version', 'type', 'state', 'success', 'length')
-    list_display = ('project', 'success', 'type', 'state')
+    list_display = ('project', 'success', 'type', 'state', 'date')
     raw_id_fields = ('project', 'version')
     inlines = (BuildCommandResultInline,)
 
