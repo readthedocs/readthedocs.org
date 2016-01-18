@@ -69,17 +69,6 @@ else:
         html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
     using_rtd_theme = True
 
-# Force theme on setting
-if globals().get('RTD_NEW_THEME', False):
-    html_theme = 'sphinx_rtd_theme'
-    html_style = None
-    html_theme_options = {}
-    using_rtd_theme = True
-
-if globals().get('RTD_OLD_THEME', False):
-    html_style = 'rtd.css'
-    html_theme = 'default'
-
 if globals().get('websupport2_base_url', False):
     websupport2_base_url = '{{ api_host }}/websupport'
     if 'http' not in settings.MEDIA_URL:
