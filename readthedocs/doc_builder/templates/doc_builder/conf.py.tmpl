@@ -20,6 +20,9 @@ from six import string_types
 
 from sphinx import version_info
 
+# Get suffix for proper linking to GitHub
+# This is deprecated in Sphinx 1.3+,
+# as each page can have its own suffix
 if globals().get('source_suffix', False):
     if isinstance(source_suffix, string_types):
         SUFFIX = source_suffix
@@ -28,7 +31,7 @@ if globals().get('source_suffix', False):
 else:
     SUFFIX = '.rst'
 
-#Add RTD Template Path.
+# Add RTD Template Path.
 if 'templates_path' in globals():
     templates_path.insert(0, '{{ template_path }}')
 else:
