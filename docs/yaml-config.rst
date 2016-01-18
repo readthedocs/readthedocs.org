@@ -15,10 +15,13 @@ Supported Settings
 formats
 ~~~~~~~
 
-* Default: `['html', 'htmlzip', 'pdf', 'epub']`
-* Options: html, json, htmlzip, pdf, epub
+* Default: `['htmlzip', 'pdf', 'epub']`
+* Options: htmlzip, pdf, epub
 
 The formats of your documentation you want to be built.
+
+.. note:: We will always built an HTML & JSON version of your documentation.
+		  These are used for web serving & search indexing, respectively.
 
 .. code-block:: yaml
 
