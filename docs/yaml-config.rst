@@ -12,6 +12,32 @@ must be in the root directory of your project.
 Supported Settings
 ------------------
 
+formats
+~~~~~~~
+
+* Default: `['html', 'htmlzip', 'pdf', 'epub']`
+* Options: html, json, htmlzip, pdf, epub
+
+The formats of your documentation you want to be built.
+
+.. code-block:: yaml
+
+	requirements_file: requirements/docs.txt
+
+requirements_file
+~~~~~~~~~~~~~~~~~
+
+* Default: `None`
+* Type: Path (specified from the root of the project)
+
+The path to your Pip requirements file.
+
+.. code-block:: yaml
+
+	requirements_file: requirements/docs.txt
+
+
+
 conda
 ~~~~~
 
@@ -63,19 +89,6 @@ When true, install your project into the Virtualenv when building documentation.
 
 	python:
 	   setup_py_install: true
-
-requirements_file
-~~~~~~~~~~~~~~~~~
-
-* Default: `None`
-* Type: Path (specified from the root of the project)
-
-The path to your Pip requirements file.
-
-.. code-block:: yaml
-
-	requirements_file: requirements/docs.txt
-
 
 .. To implement..
 

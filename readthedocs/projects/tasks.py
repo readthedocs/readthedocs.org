@@ -338,6 +338,9 @@ class UpdateDocsTask(Task):
 
     def build_docs_localmedia(self):
         """Get local media files with separate build"""
+        if 'htmlzip' not in self.config.formats:
+            return False
+
         if self.build_localmedia:
             if self.project.is_type_sphinx:
                 return self.build_docs_class('sphinx_singlehtmllocalmedia')
@@ -345,6 +348,9 @@ class UpdateDocsTask(Task):
 
     def build_docs_pdf(self):
         """Build PDF docs"""
+        if 'pdf' not in self.config.formats:
+            return False
+
         if (self.project.slug in HTML_ONLY or
                 not self.project.is_type_sphinx or
                 not self.project.enable_pdf_build):
@@ -353,6 +359,9 @@ class UpdateDocsTask(Task):
 
     def build_docs_epub(self):
         """Build ePub docs"""
+        if 'epub' not in self.config.formats:
+            return False
+
         if (self.project.slug in HTML_ONLY or
                 not self.project.is_type_sphinx or
                 not self.project.enable_epub_build):
