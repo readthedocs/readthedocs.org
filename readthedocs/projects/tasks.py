@@ -118,7 +118,7 @@ class UpdateDocsTask(Task):
                     _('Builds for this project are temporarily disabled'))
             try:
                 self.setup_vcs()
-            except vcs_support_utils.LockTimeout, e:
+            except vcs_support_utils.LockTimeout as e:
                 self.retry(exc=e, throw=False)
                 raise BuildEnvironmentError(
                     'Version locked, retrying in 5 minutes.',
@@ -452,7 +452,7 @@ def update_imported_docs(version_pk):
 
         try:
             api_v2.project(project.pk).sync_versions.post(version_post_data)
-        except Exception, e:
+        except Exception as e:
             print "Sync Versions Exception: %s" % e.message
     return ret_dict
 
