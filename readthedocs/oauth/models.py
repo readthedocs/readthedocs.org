@@ -139,8 +139,8 @@ class RemoteRepository(models.Model):
                     .objects
                     .public(user)
                     .filter(Q(repo=self.clone_url) |
-                            Q(repo__endswith=fuzzy_url) |
-                            Q(repo__endswith=fuzzy_url + '.git')))
+                            Q(repo__iendswith=fuzzy_url) |
+                            Q(repo__iendswith=fuzzy_url + '.git')))
         return [{'id': project.slug,
                  'url': reverse('projects_detail',
                                 kwargs={'project_slug': project.slug})}
