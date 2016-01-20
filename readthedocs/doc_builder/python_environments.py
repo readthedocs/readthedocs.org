@@ -174,16 +174,17 @@ class Conda(PythonEnvironment):
             shutil.rmtree(version_path)
         self.build_env.run(
             'conda',
+            'env',
             'create',
             '--yes',
             '--name',
             self.version.slug,
-            'python={python_version}'.format(python_version=self.config.python_version),
+            '--file',
+            self.config.conda_file,
             bin_path=None,  # Don't use conda bin that doesn't exist yet
         )
 
     def install_core_requirements(self):
-        conda_env_path = os.path.join(self.project.doc_path, 'conda')
 
         # Use conda for requirements it packages
         requirements = [
@@ -231,7 +232,6 @@ class Conda(PythonEnvironment):
         )
 
     def install_user_requirements(self):
-        conda_env_path = os.path.join(self.project.doc_path, 'conda')
         self.build_env.run(
             'conda',
             'env',
