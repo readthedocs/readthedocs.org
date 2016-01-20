@@ -100,7 +100,7 @@ class Virtualenv(PythonEnvironment):
             'sphinx==1.3.1',
             'Pygments==2.0.2',
             'setuptools==18.6.1',
-            'docutils==0.11',
+            'docutils==0.12',
             'mkdocs==0.14.0',
             'mock==1.0.1',
             'pillow==2.6.1',
