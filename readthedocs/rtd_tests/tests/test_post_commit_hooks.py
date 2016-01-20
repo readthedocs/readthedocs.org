@@ -178,10 +178,10 @@ class PostCommitTest(TestCase):
         This allows for capitization differences in post-commit hook URL's.
         """
         payload = self.payload.copy()
-        payload['repository']['url'] = payload['repository']['url'].toUpper()
+        payload['repository']['url'] = payload['repository']['url'].upper()
         r = self.client.post('/github/', {'payload': json.dumps(payload)})
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r.content, '(URL Build) Build Started: github.com/rtfd/readthedocs.org [awesome]')
+        self.assertEqual(r.content, '(URL Build) Build Started: HTTPS://GITHUB.COM/RTFD/READTHEDOCS.ORG [awesome]')
         self.payload['ref'] = 'refs/heads/not_ok'
 
     def test_github_post_commit_hook_builds_branch_docs_if_it_should(self):
