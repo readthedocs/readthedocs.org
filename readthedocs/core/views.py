@@ -171,8 +171,8 @@ def _build_branches(project, branch_list):
 def _build_url(url, branches):
     try:
         projects = (
-            Project.objects.filter(repo__endswith=url) |
-            Project.objects.filter(repo__endswith=url + '.git'))
+            Project.objects.filter(repo__iendswith=url) |
+            Project.objects.filter(repo__iendswith=url + '.git'))
         if not projects.count():
             raise NoProjectException()
         for project in projects:
