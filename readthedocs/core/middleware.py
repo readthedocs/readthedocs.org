@@ -2,6 +2,7 @@ import logging
 
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
+from django.contrib.sessions.middleware import SessionMiddleware
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.http import Http404
@@ -189,3 +190,26 @@ class ProxyMiddleware(object):
             # client's IP will be the first one.
             real_ip = real_ip.split(",")[0].strip()
             request.META['REMOTE_ADDR'] = real_ip
+
+
+class FooterNoSessionMiddleware(SessionMiddleware):
+
+    """
+    Middleware that doesn't create a session on logged out doc views.
+
+    This will reduce the size of our session table drastically.
+    """
+
+    def process_request(self, request):
+        if ('api/v2/footer_html' in request.path_info and
+                settings.SESSION_COOKIE_NAME not in request.COOKIES):
+            # Hack request.session otherwise the Authentication middleware complains.
+            request.session = {}
+            return
+        super(FooterNoSessionMiddleware, self).process_request(request)
+
+    def process_response(self, request, response):
+        if ('api/v2/footer_html' in request.path_info and
+                settings.SESSION_COOKIE_NAME not in request.COOKIES):
+            return response
+        return super(FooterNoSessionMiddleware, self).process_response(request, response)
