@@ -171,6 +171,19 @@ class PostCommitTest(TestCase):
             }
         }
 
+    def test_github_upper_case_repo(self):
+        """
+        Test the github post commit hook will build properly with upper case
+        repository.
+        This allows for capitization differences in post-commit hook URL's.
+        """
+        payload = self.payload.copy()
+        payload['repository']['url'] = payload['repository']['url'].toUpper()
+        r = self.client.post('/github/', {'payload': json.dumps(payload)})
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.content, '(URL Build) Build Started: github.com/rtfd/readthedocs.org [awesome]')
+        self.payload['ref'] = 'refs/heads/not_ok'
+
     def test_github_post_commit_hook_builds_branch_docs_if_it_should(self):
         """
         Test the github post commit hook to see if it will only build
