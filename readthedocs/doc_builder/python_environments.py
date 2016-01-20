@@ -97,7 +97,7 @@ class Virtualenv(PythonEnvironment):
 
     def install_core_requirements(self):
         requirements = [
-            'sphinx==1.3.1',
+            'sphinx==1.3.4',
             'Pygments==2.0.2',
             'setuptools==18.6.1',
             'docutils==0.11',
@@ -187,7 +187,7 @@ class Conda(PythonEnvironment):
 
         # Use conda for requirements it packages
         requirements = [
-            'sphinx==1.3.1',
+            'sphinx==1.3.4',
             'Pygments==2.0.2',
             'docutils==0.11',
             'mock==1.0.1',
