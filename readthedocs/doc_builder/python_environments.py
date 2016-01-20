@@ -176,7 +176,6 @@ class Conda(PythonEnvironment):
             'conda',
             'env',
             'create',
-            '--yes',
             '--name',
             self.version.slug,
             '--file',
