@@ -80,6 +80,18 @@ class ConfigWrapper(object):
         else:
             return self._project.requirements_file
 
+    @property
+    def formats(self):
+        if 'formats' in self._yaml_config:
+            return self._yaml_config['formats']
+        else:
+            formats = ['htmlzip']
+            if self._project.enable_epub_build:
+                formats += ['epub']
+            if self._project.enable_pdf_build:
+                formats += ['pdf']
+            return formats
+
     # Not implemented until we figure out how to keep in sync with the webs.
     # Probably needs to be version-specific as well, not project.
     # @property
