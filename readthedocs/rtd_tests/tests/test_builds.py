@@ -103,6 +103,31 @@ class BuildEnvironmentTests(TestCase):
         # PDF however was disabled and therefore not built.
         self.assertFalse(self.mocks.pdf_build.called)
 
+    def test_build_respects_yaml(self):
+        '''Test build with epub enabled'''
+        project = get(Project,
+                      slug='project-1',
+                      documentation_type='sphinx',
+                      conf_py_file='test_conf.py',
+                      enable_pdf_build=False,
+                      enable_epub_build=False,
+                      versions=[fixture()])
+        version = project.versions.all()[0]
+
+        build_env = LocalEnvironment(project=project, version=version, build={})
+        python_env = Virtualenv(version=version, build_env=build_env)
+        yaml_config = get_build_config({'formats': ['epub']})
+        config = ConfigWrapper(version=version, yaml_config=yaml_config)
+        task = UpdateDocsTask(build_env=build_env, project=project, python_env=python_env,
+                              version=version, search=False, localmedia=False, config=config)
+        task.build_docs()
+
+        # The HTML and the Epub format were built.
+        self.mocks.html_build.assert_called_once_with()
+        self.mocks.epub_build.assert_called_once_with()
+        # PDF however was disabled and therefore not built.
+        self.assertFalse(self.mocks.pdf_build.called)
+
     def test_builder_comments(self):
         '''Normal build with comments'''
         project = get(Project,
