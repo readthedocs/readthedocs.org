@@ -165,7 +165,7 @@ class EnhancedModelResource(ModelResource):
 
         try:
             return self.get_object_list(request).filter(**applicable_filters)
-        except ValueError, e:
+        except ValueError as e:
             raise NotFound(ugettext("Invalid resource lookup data provided "
                                     "(mismatched type).: %(error)s")
                            % {'error': e})

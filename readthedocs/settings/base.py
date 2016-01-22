@@ -104,7 +104,7 @@ TEMPLATE_LOADERS = (
 
 MIDDLEWARE_CLASSES = (
     'readthedocs.core.middleware.ProxyMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
+    'readthedocs.core.middleware.FooterNoSessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'djangosecure.middleware.SecurityMiddleware',

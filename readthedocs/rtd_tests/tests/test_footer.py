@@ -2,6 +2,9 @@ import json
 import mock
 
 from django.test import TestCase
+from django.test.client import RequestFactory
+
+from readthedocs.core.middleware import FooterNoSessionMiddleware
 
 from readthedocs.rtd_tests.mocks.paths import fake_paths_by_regex
 from readthedocs.projects.models import Project
@@ -71,3 +74,17 @@ class Testmaker(TestCase):
             response = self.client.get(
                 '/api/v2/footer_html/?project=pip&version=latest&page=index', {})
         self.assertNotContains(response, 'epub')
+
+    def test_no_session_logged_out(self):
+        mid = FooterNoSessionMiddleware()
+        factory = RequestFactory()
+
+        # Null session here
+        request = factory.get('/api/v2/footer_html/')
+        mid.process_request(request)
+        self.assertEqual(request.session, {})
+
+        # Proper session here
+        home_request = factory.get('/')
+        mid.process_request(home_request)
+        self.assertTrue(home_request.session.TEST_COOKIE_NAME, 'testcookie')
