@@ -187,7 +187,7 @@ class Conda(PythonEnvironment):
 
         # Use conda for requirements it packages
         requirements = [
-            'sphinx==1.3.4',
+            'sphinx==1.3.1',
             'Pygments==2.0.2',
             'docutils==0.12',
             'mock==1.0.1',
