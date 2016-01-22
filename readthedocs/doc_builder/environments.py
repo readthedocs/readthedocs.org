@@ -121,7 +121,7 @@ class BuildCommand(BuildCommandResultMixin):
         if 'PYTHONPATH' in environment:
             del environment['PYTHONPATH']
         if self.bin_path is not None:
-            env_paths = environment.get('BIN_PATH', '').split(':')
+            env_paths = environment.get('PATH', '').split(':')
             env_paths.insert(0, self.bin_path)
             environment['PATH'] = ':'.join(env_paths)
 
