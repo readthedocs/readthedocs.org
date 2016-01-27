@@ -9,11 +9,11 @@ from guardian.admin import GuardedModelAdmin
 
 class BuildCommandResultInline(admin.TabularInline):
     model = BuildCommandResult
-    fields = ('command', 'exit_code')
+    fields = ('command', 'exit_code', 'output')
 
 
 class BuildAdmin(admin.ModelAdmin):
-    fields = ('project', 'version', 'type', 'error', 'state', 'success', 'length')
+    fields = ('project', 'version', 'type', 'state', 'error', 'success', 'length')
     list_display = ('project', 'success', 'type', 'state', 'date')
     raw_id_fields = ('project', 'version')
     inlines = (BuildCommandResultInline,)
