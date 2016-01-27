@@ -90,6 +90,7 @@ class UpdateDocsTask(Task):
         self.project = {}
         if project is not None:
             self.project = project
+        self.config = None
 
     def _log(self, msg):
         log.info(LOG_TEMPLATE
@@ -126,6 +127,10 @@ class UpdateDocsTask(Task):
                 )
 
             self.config = load_yaml_config(version=self.version)
+
+        if self.setup_env.failed:
+            self.send_notifications()
+            raise BuildEnvironmentError(_('Build Setup Failed'))
 
         env_vars = self.get_env_vars()
         if docker or settings.DOCKER_ENABLE:
