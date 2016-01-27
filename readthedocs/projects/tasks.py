@@ -106,6 +106,7 @@ class UpdateDocsTask(Task):
         self.build_search = search
         self.build_localmedia = localmedia
         self.build_force = force
+        self.config = None
 
         env_cls = LocalEnvironment
         self.setup_env = env_cls(project=self.project, version=self.version,
@@ -126,6 +127,10 @@ class UpdateDocsTask(Task):
                 )
 
             self.config = load_yaml_config(version=self.version)
+
+        if self.setup_env.failed:
+            self.send_notifications()
+            return None
 
         env_vars = self.get_env_vars()
         if docker or settings.DOCKER_ENABLE:
