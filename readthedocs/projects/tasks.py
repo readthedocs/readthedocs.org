@@ -130,7 +130,7 @@ class UpdateDocsTask(Task):
 
         if self.setup_env.failed:
             self.send_notifications()
-            raise BuildEnvironmentError(_('Build Setup Failed'))
+            return None
 
         env_vars = self.get_env_vars()
         if docker or settings.DOCKER_ENABLE:
