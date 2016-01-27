@@ -90,7 +90,6 @@ class UpdateDocsTask(Task):
         self.project = {}
         if project is not None:
             self.project = project
-        self.config = None
 
     def _log(self, msg):
         log.info(LOG_TEMPLATE
@@ -107,6 +106,7 @@ class UpdateDocsTask(Task):
         self.build_search = search
         self.build_localmedia = localmedia
         self.build_force = force
+        self.config = None
 
         env_cls = LocalEnvironment
         self.setup_env = env_cls(project=self.project, version=self.version,
