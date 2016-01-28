@@ -873,6 +873,13 @@ div.gold-subscription > form button {
     margin: 1em .3em 1.5em 0em;
 }
 
+/* Support Page */
+
+#support_page li {
+    margin-left: 1em;
+    list-style: inside;
+}
+
 /* Form Wizards */
 div.actions.wizard-actions button.action-primary,
 div.actions.wizard-actions input.action-primary {

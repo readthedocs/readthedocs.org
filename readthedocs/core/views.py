@@ -3,12 +3,10 @@ documentation and header rendering, and server errors.
 
 """
 
-from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect, Http404, HttpResponseNotFound
 from django.shortcuts import render_to_response, get_object_or_404, redirect
-from django.db.models import Max, F
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_exempt
 from django.views.static import serve
@@ -16,7 +14,6 @@ from django.views.generic import TemplateView
 
 from haystack.query import EmptySearchQuerySet
 from haystack.query import SearchQuerySet
-import stripe
 
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
@@ -27,7 +24,6 @@ from readthedocs.builds.constants import LATEST
 from readthedocs.projects import constants
 from readthedocs.projects.models import Project, ImportedFile, ProjectRelationship
 from readthedocs.projects.tasks import remove_dir, update_imported_docs
-from readthedocs.redirects.models import Redirect
 from readthedocs.redirects.utils import get_redirect_response
 
 import json
@@ -65,6 +61,20 @@ class HomepageView(DonateProgressMixin, TemplateView):
                 latest.append(build.project)
         context['project_list'] = latest
         context['featured_list'] = Project.objects.filter(featured=True)
+        return context
+
+
+class SupportView(TemplateView):
+    template_name = 'support.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(SupportView, self).get_context_data(**kwargs)
+        support_email = getattr(settings, 'SUPPORT_EMAIL', None)
+        if not support_email:
+            support_email = 'support@{domain}'.format(
+                domain=getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'))
+
+        context['support_email'] = support_email
         return context
 
 
@@ -171,8 +181,8 @@ def _build_branches(project, branch_list):
 def _build_url(url, branches):
     try:
         projects = (
-            Project.objects.filter(repo__endswith=url) |
-            Project.objects.filter(repo__endswith=url + '.git'))
+            Project.objects.filter(repo__iendswith=url) |
+            Project.objects.filter(repo__iendswith=url + '.git'))
         if not projects.count():
             raise NoProjectException()
         for project in projects:
