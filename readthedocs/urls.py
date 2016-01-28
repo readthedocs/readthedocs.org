@@ -8,7 +8,7 @@ from tastypie.api import Api
 
 from readthedocs.api.base import (ProjectResource, UserResource,
                                   VersionResource, FileResource)
-from readthedocs.core.views import HomepageView
+from readthedocs.core.views import HomepageView, SupportView
 
 from readthedocs.core.urls import docs_urls, core_urls, deprecated_urls
 
@@ -27,6 +27,7 @@ handler404 = 'readthedocs.core.views.server_error_404'
 urlpatterns = patterns(
     '',  # base view, flake8 complains if it is on the previous line.
     url(r'^$', HomepageView.as_view(), name='homepage'),
+    url(r'^support/', SupportView.as_view(), name='support'),
     url(r'^security/', TemplateView.as_view(template_name='security.html')),
 )
 

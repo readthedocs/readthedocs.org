@@ -84,20 +84,37 @@ def footer_html(request):
         print_url = None
 
     show_promo = getattr(settings, 'USE_PROMOS', True)
+    gold_user = gold_project = False
     # User is a gold user, no promos for them!
     if request.user.is_authenticated():
         if request.user.gold.count() or request.user.goldonce.count():
             show_promo = False
+            gold_user = True
     # Explicit promo disabling
     if project.slug in getattr(settings, 'DISABLE_PROMO_PROJECTS', []):
         show_promo = False
     # A GoldUser has mapped this project
     if project.gold_owners.count():
         show_promo = False
+        gold_project = True
 
     promo_obj = SupporterPromo.objects.filter(live=True, display_type='doc').order_by('?').first()
     if not promo_obj:
         show_promo = False
+
+    # Support showing a "Thank you" message for gold folks
+    if gold_user:
+        gold_promo = SupporterPromo.objects.filter(name='gold-user')
+        if gold_promo.count():
+            promo_obj = gold_promo.first()
+            show_promo = True
+
+    # Default to showing project-level thanks if it exists
+    if gold_project:
+        gold_promo = SupporterPromo.objects.filter(name='gold-project')
+        if gold_promo.count():
+            promo_obj = gold_promo.first()
+            show_promo = True
 
     version_compare_data = get_version_compare_data(project, version)
 
