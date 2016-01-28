@@ -190,7 +190,7 @@ class Conda(PythonEnvironment):
             'sphinx==1.3.1',
             'Pygments==2.0.2',
             'docutils==0.12',
-            'mock==1.0.1',
+            'mock',
             'pillow==3.0.0',
             'sphinx_rtd_theme==0.1.7',
             'alabaster>=0.7,<0.8,!=0.7.5',
