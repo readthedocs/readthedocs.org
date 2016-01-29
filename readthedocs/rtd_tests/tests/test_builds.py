@@ -104,7 +104,7 @@ class BuildEnvironmentTests(TestCase):
         self.assertFalse(self.mocks.pdf_build.called)
 
     def test_build_respects_yaml(self):
-        '''Test build with epub enabled'''
+        '''Test YAML build options'''
         project = get(Project,
                       slug='project-1',
                       documentation_type='sphinx',

@@ -20,7 +20,7 @@ formats
 
 The formats of your documentation you want to be built.
 
-.. note:: We will always built an HTML & JSON version of your documentation.
+.. note:: We will always build an HTML & JSON version of your documentation.
 		  These are used for web serving & search indexing, respectively.
 
 .. code-block:: yaml
