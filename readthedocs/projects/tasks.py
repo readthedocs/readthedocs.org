@@ -223,7 +223,13 @@ class UpdateDocsTask(Task):
             commit = self.project.vcs_repo(self.version.slug).commit
             if commit:
                 self.build['commit'] = commit
-        except ProjectImportError:
+        except ProjectImportError as e:
+            log.error(
+                LOG_TEMPLATE.format(project=self.project.slug,
+                                    version=self.version.slug,
+                                    msg=str(e)),
+                exc_info=True,
+            )
             raise BuildEnvironmentError('Failed to import project',
                                         status_code=404)
 
