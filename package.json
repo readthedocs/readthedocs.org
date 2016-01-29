@@ -12,6 +12,7 @@
     "event-stream": "^3.3.1",
     "gulp": "*",
     "gulp-less": "^3.0.3",
+    "gulp-rename": "^1.2.2",
     "gulp-run": "^1.6.6",
     "gulp-uglify": "^1.2.0",
     "gulp-util": "^3.0.3",

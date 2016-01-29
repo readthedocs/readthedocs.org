@@ -10,6 +10,7 @@ from django.template.loader import render_to_string
 from django.conf import settings
 
 from readthedocs.builds import utils as version_utils
+from readthedocs.builds.constants import BRANCH
 from readthedocs.projects.utils import safe_write
 from readthedocs.projects.exceptions import ProjectImportError
 from readthedocs.restapi.client import api
@@ -65,66 +66,79 @@ class BaseSphinx(BaseBuilder):
 
         project = self.project
         # Open file for appending.
+        outfile_path = project.conf_file(self.version.slug)
         try:
-            outfile = codecs.open(project.conf_file(self.version.slug), encoding='utf-8', mode='a')
+            outfile = codecs.open(outfile_path, encoding='utf-8', mode='a')
         except IOError:
             trace = sys.exc_info()[2]
             raise ProjectImportError('Conf file not found'), None, trace
-        outfile.write("\n")
-        conf_py_path = self.version.get_conf_py_path()
-        remote_version = self.version.get_vcs_slug()
+        try:
+            outfile.write("\n")
+            # TODO this should be handled better in the theme
+            conf_py_path = os.path.join(os.path.sep,
+                                        self.version.get_conf_py_path(),
+                                        '')
+            remote_version = self.version.commit_name
 
-        github_user, github_repo = version_utils.get_github_username_repo(
-            url=self.project.repo)
-        github_version_is_editable = (self.version.type == 'branch')
-        display_github = github_user is not None
+            github_user, github_repo = version_utils.get_github_username_repo(
+                url=self.project.repo)
+            github_version_is_editable = (self.version.type == 'branch')
+            display_github = github_user is not None
 
-        bitbucket_user, bitbucket_repo = version_utils.get_bitbucket_username_repo(
-            url=self.project.repo)
-        bitbucket_version_is_editable = (self.version.type == 'branch')
-        display_bitbucket = bitbucket_user is not None
+            bitbucket_user, bitbucket_repo = version_utils.get_bitbucket_username_repo(
+                url=self.project.repo)
+            bitbucket_version_is_editable = (self.version.type == 'branch')
+            display_bitbucket = bitbucket_user is not None
 
-        rtd_ctx = {
-            'current_version': self.version.verbose_name,
-            'project': project,
-            'settings': settings,
-            'static_path': SPHINX_STATIC_DIR,
-            'template_path': SPHINX_TEMPLATE_DIR,
-            'conf_py_path': conf_py_path,
-            'api_host': getattr(settings, 'SLUMBER_API_HOST', 'https://readthedocs.org'),
-            # GitHub
-            'github_user': github_user,
-            'github_repo': github_repo,
-            'github_version': remote_version,
-            'github_version_is_editable': github_version_is_editable,
-            'display_github': display_github,
-            # BitBucket
-            'bitbucket_user': bitbucket_user,
-            'bitbucket_repo': bitbucket_repo,
-            'bitbucket_version': remote_version,
-            'bitbucket_version_is_editable': bitbucket_version_is_editable,
-            'display_bitbucket': display_bitbucket,
-            'commit': self.project.vcs_repo(self.version.slug).commit,
-        }
+            rtd_ctx = {
+                'current_version': self.version.verbose_name,
+                'project': project,
+                'settings': settings,
+                'static_path': SPHINX_STATIC_DIR,
+                'template_path': SPHINX_TEMPLATE_DIR,
+                'conf_py_path': conf_py_path,
+                'api_host': getattr(settings, 'SLUMBER_API_HOST', 'https://readthedocs.org'),
+                # GitHub
+                'github_user': github_user,
+                'github_repo': github_repo,
+                'github_version': remote_version,
+                'github_version_is_editable': github_version_is_editable,
+                'display_github': display_github,
+                # BitBucket
+                'bitbucket_user': bitbucket_user,
+                'bitbucket_repo': bitbucket_repo,
+                'bitbucket_version': remote_version,
+                'bitbucket_version_is_editable': bitbucket_version_is_editable,
+                'display_bitbucket': display_bitbucket,
+                'commit': self.project.vcs_repo(self.version.slug).commit,
+            }
 
-        # Avoid hitting database and API if using Docker build environment
-        if getattr(settings, 'DONT_HIT_API', False):
-            rtd_ctx['versions'] = project.active_versions()
-            rtd_ctx['downloads'] = self.version.get_downloads(pretty=True)
-        else:
-            rtd_ctx['versions'] = project.api_versions()
-            rtd_ctx['downloads'] = (api.version(self.version.pk)
-                                    .get()['downloads'])
+            # Avoid hitting database and API if using Docker build environment
+            if getattr(settings, 'DONT_HIT_API', False):
+                rtd_ctx['versions'] = project.active_versions()
+                rtd_ctx['downloads'] = self.version.get_downloads(pretty=True)
+            else:
+                rtd_ctx['versions'] = project.api_versions()
+                rtd_ctx['downloads'] = (api.version(self.version.pk)
+                                        .get()['downloads'])
+            rtd_string = template_loader.get_template('doc_builder/conf.py.tmpl').render(rtd_ctx)
+            outfile.write(rtd_string)
+        finally:
+            outfile.close()
 
-        rtd_string = template_loader.get_template('doc_builder/conf.py.tmpl').render(rtd_ctx)
-        outfile.write(rtd_string)
+        # Print the contents of conf.py in order to make the rendered
+        # configfile visible in the build logs
+        self.run(
+            'cat', os.path.basename(outfile_path),
+            cwd=os.path.dirname(outfile_path),
+        )
 
     def build(self, **kwargs):
         self.clean()
         project = self.project
         build_command = [
             'python',
-            project.venv_bin(version=self.version.slug, filename='sphinx-build'),
+            self.python_env.venv_bin(filename='sphinx-build'),
             '-T'
         ]
         if self._force:
@@ -139,7 +153,7 @@ class BaseSphinx(BaseBuilder):
         cmd_ret = self.run(
             *build_command,
             cwd=project.conf_dir(self.version.slug),
-            bin_path=project.venv_bin(version=self.version.slug)
+            bin_path=self.python_env.venv_bin()
         )
         return cmd_ret.successful
 
@@ -223,6 +237,7 @@ class EpubBuilder(BaseSphinx):
 
 
 class LatexBuildCommand(BuildCommand):
+
     '''Ignore LaTeX exit code if there was file output'''
 
     def run(self):
@@ -245,15 +260,14 @@ class PdfBuilder(BaseSphinx):
         # Default to this so we can return it always.
         self.run(
             'python',
-            self.project.venv_bin(version=self.version.slug,
-                                  filename='sphinx-build'),
+            self.python_env.venv_bin(filename='sphinx-build'),
             '-b', 'latex',
             '-D', 'language={lang}'.format(lang=self.project.language),
             '-d', '_build/doctrees',
             '.',
             '_build/latex',
             cwd=cwd,
-            bin_path=self.project.venv_bin(version=self.version.slug)
+            bin_path=self.python_env.venv_bin()
         )
         latex_cwd = os.path.join(cwd, '_build', 'latex')
         tex_files = glob(os.path.join(latex_cwd, '*.tex'))

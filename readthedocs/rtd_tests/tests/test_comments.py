@@ -15,13 +15,7 @@ from readthedocs.comments.models import NodeSnapshot
 from readthedocs.comments.views import add_node, get_metadata, update_node
 from readthedocs.projects.models import Project
 from readthedocs.projects.views.private import project_comments_moderation
-
-
-def create_user(username, password):
-    user = new(User, username=username)
-    user.set_password(password)
-    user.save()
-    return user
+from readthedocs.rtd_tests.utils import create_user
 
 
 def create_node(hash=None, commit=None, **kwargs):

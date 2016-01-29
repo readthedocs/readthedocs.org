@@ -5,12 +5,10 @@ from django.views.generic import ListView, DetailView
 from django.http import HttpResponsePermanentRedirect
 from django.conf import settings
 from django.core.urlresolvers import reverse
-from rest_framework.renderers import JSONRenderer
 
 from readthedocs.builds.models import Build, Version
 from readthedocs.builds.filters import BuildFilter
 from readthedocs.projects.models import Project
-from readthedocs.restapi.serializers import BuildSerializerFull
 
 from redis import Redis, ConnectionError
 
@@ -18,19 +16,21 @@ from redis import Redis, ConnectionError
 log = logging.getLogger(__name__)
 
 
-class BuildList(ListView):
+class BuildBase(object):
     model = Build
 
     def get_queryset(self):
         self.project_slug = self.kwargs.get('project_slug', None)
-
         self.project = get_object_or_404(
             Project.objects.protected(self.request.user),
             slug=self.project_slug
         )
-        queryset = Build.objects.filter(project=self.project)
+        queryset = Build.objects.public(user=self.request.user, project=self.project)
 
         return queryset
+
+
+class BuildList(BuildBase, ListView):
 
     def get_context_data(self, **kwargs):
         context = super(BuildList, self).get_context_data(**kwargs)
@@ -44,7 +44,7 @@ class BuildList(ListView):
         context['versions'] = Version.objects.public(user=self.request.user, project=self.project)
 
         try:
-            redis = Redis(**settings.REDIS)
+            redis = Redis.from_url(settings.BROKER_URL)
             context['queue_length'] = redis.llen('celery')
         except ConnectionError:
             context['queue_length'] = None
@@ -52,29 +52,16 @@ class BuildList(ListView):
         return context
 
 
-class BuildDetail(DetailView):
-    model = Build
-
-    def get_queryset(self):
-        self.project_slug = self.kwargs.get('project_slug', None)
-
-        self.project = get_object_or_404(
-            Project.objects.protected(self.request.user),
-            slug=self.project_slug
-        )
-        queryset = Build.objects.filter(project=self.project)
-
-        return queryset
+class BuildDetail(BuildBase, DetailView):
+    pk_url_kwarg = 'build_pk'
 
     def get_context_data(self, **kwargs):
         context = super(BuildDetail, self).get_context_data(**kwargs)
         context['project'] = self.project
-        build_serializer = BuildSerializerFull(self.get_object())
-        build_data = build_serializer.data
-        context['build_json'] = (JSONRenderer()
-                                 .render(build_data))
         return context
 
+
+# Old build view redirects
 
 def builds_redirect_list(request, project_slug):
     return HttpResponsePermanentRedirect(reverse('builds_project_list', args=[project_slug]))

@@ -1,5 +1,6 @@
-var rtddata = require('./rtd-data');
-var versionCompare = require('./version-compare');
+var rtddata = require('./rtd-data'),
+    versionCompare = require('./version-compare'),
+    sponsorship = require('../sponsorship');
 
 
 function init() {

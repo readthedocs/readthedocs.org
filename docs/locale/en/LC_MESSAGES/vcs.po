@@ -1,7 +1,7 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) 2010, Eric Holscher, Charlie Leifer, Bobby Grace
 # This file is distributed under the same license as the Read The Docs package.
-# 
+#
 # Translators:
 msgid ""
 msgstr ""
@@ -46,8 +46,8 @@ msgstr "github_repo - GitHub repo name"
 
 # 3fcdaf1da8834156b40f3141d6b225ca
 #: ../../vcs.rst:11
-msgid "github_version - Github blob"
-msgstr "github_version - Github blob"
+msgid "github_version - GitHub blob"
+msgstr "github_version - GitHub blob"
 
 # 435d8b914b93477492459f884785581a
 # bc763750dad94b43b5968659d38d337c

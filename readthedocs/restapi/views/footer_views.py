@@ -1,13 +1,13 @@
 from django.shortcuts import get_object_or_404
-from django.template import loader as template_loader
+from django.template import RequestContext, loader as template_loader
 from django.conf import settings
-from django.core.context_processors import csrf
 
 from rest_framework import decorators, permissions
-from rest_framework.renderers import JSONPRenderer, JSONRenderer, BrowsableAPIRenderer
+from rest_framework.renderers import JSONPRenderer, JSONRenderer
 from rest_framework.response import Response
 
 from readthedocs.builds.constants import LATEST
+from readthedocs.builds.constants import TAG
 from readthedocs.builds.models import Version
 from readthedocs.donate.models import SupporterPromo
 from readthedocs.projects.models import Project
@@ -17,7 +17,7 @@ from readthedocs.projects.version_handling import parse_version_failsafe
 
 def get_version_compare_data(project, base_version=None):
     highest_version_obj, highest_version_comparable = highest_version(
-        project.versions.filter(active=True))
+        project.versions.public().filter(active=True))
     ret_val = {
         'project': unicode(highest_version_obj),
         'version': unicode(highest_version_comparable),
@@ -44,7 +44,7 @@ def get_version_compare_data(project, base_version=None):
 
 @decorators.api_view(['GET'])
 @decorators.permission_classes((permissions.AllowAny,))
-@decorators.renderer_classes((JSONRenderer, JSONPRenderer, BrowsableAPIRenderer))
+@decorators.renderer_classes((JSONRenderer, JSONPRenderer))
 def footer_html(request):
     project_slug = request.GET.get('project', None)
     version_slug = request.GET.get('version', None)
@@ -74,7 +74,7 @@ def footer_html(request):
     else:
         path = ""
 
-    if version.type == 'tag' and version.project.has_pdf(version.slug):
+    if version.type == TAG and version.project.has_pdf(version.slug):
         print_url = (
             'https://keminglabs.com/print-the-docs/quote?project={project}&version={version}'
             .format(
@@ -84,29 +84,47 @@ def footer_html(request):
         print_url = None
 
     show_promo = getattr(settings, 'USE_PROMOS', True)
+    gold_user = gold_project = False
     # User is a gold user, no promos for them!
     if request.user.is_authenticated():
         if request.user.gold.count() or request.user.goldonce.count():
             show_promo = False
+            gold_user = True
     # Explicit promo disabling
     if project.slug in getattr(settings, 'DISABLE_PROMO_PROJECTS', []):
         show_promo = False
     # A GoldUser has mapped this project
     if project.gold_owners.count():
         show_promo = False
+        gold_project = True
 
     promo_obj = SupporterPromo.objects.filter(live=True, display_type='doc').order_by('?').first()
     if not promo_obj:
         show_promo = False
 
+    # Support showing a "Thank you" message for gold folks
+    if gold_user:
+        gold_promo = SupporterPromo.objects.filter(name='gold-user')
+        if gold_promo.count():
+            promo_obj = gold_promo.first()
+            show_promo = True
+
+    # Default to showing project-level thanks if it exists
+    if gold_project:
+        gold_promo = SupporterPromo.objects.filter(name='gold-project')
+        if gold_promo.count():
+            promo_obj = gold_promo.first()
+            show_promo = True
+
     version_compare_data = get_version_compare_data(project, version)
 
     context = {
         'project': project,
+        'version': version,
         'path': path,
         'downloads': version.get_downloads(pretty=True),
         'current_version': version.verbose_name,
-        'versions': project.ordered_active_versions(),
+        'versions': project.ordered_active_versions(user=request.user),
         'main_project': main_project,
         'translations': main_project.translations.all(),
         'current_language': project.language,
@@ -120,8 +138,8 @@ def footer_html(request):
         'bitbucket_url': version.get_bitbucket_url(docroot, page_slug, source_suffix),
     }
 
-    context.update(csrf(request))
-    html = template_loader.get_template('restapi/footer.html').render(context)
+    request_context = RequestContext(request, context)
+    html = template_loader.get_template('restapi/footer.html').render(request_context)
     resp_data = {
         'html': html,
         'version_active': version.active,

@@ -1,7 +1,7 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) 2010, Eric Holscher, Charlie Leifer, Bobby Grace
 # This file is distributed under the same license as the Read The Docs package.
-# 
+#
 # Translators:
 msgid ""
 msgstr ""
@@ -32,7 +32,7 @@ msgstr ""
 
 # b76f9583f25246b88eb15790dbfed33c
 #: ../../features.rst:7
-msgid "Github and Bitbucket Integration"
+msgid "GitHub and Bitbucket Integration"
 msgstr ""
 
 # 8d0f0e8a31304c2e9326610f43e7cd44
@@ -58,7 +58,7 @@ msgstr ""
 msgid ""
 "The :doc:`webhooks` page talks about the different ways you can ping RTD to "
 "let us know your project has been updated. We have official support for "
-"Github, and anywhere else we have a generic post-commit hook that allows you"
+"GitHub, and anywhere else we have a generic post-commit hook that allows you"
 " to POST to a URL to get your documentation built."
 msgstr ""
 

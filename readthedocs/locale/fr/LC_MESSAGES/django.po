@@ -2094,7 +2094,7 @@ msgstr ""
 #: templates/projects/project_dashboard_base.html:135
 msgid ""
 "\n"
-"            Have a Github account? Connect your account and import your "
+"            Have a GitHub account? Connect your account and import your "
 "existing projects automatically.\n"
 "          "
 msgstr ""

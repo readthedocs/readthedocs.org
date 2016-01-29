@@ -1,15 +1,13 @@
 import logging
-import os
 
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
+from django.contrib.sessions.middleware import SessionMiddleware
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.http import Http404
 
-from readthedocs.projects.models import Project
-
-import redis
+from readthedocs.projects.models import Project, Domain
 
 log = logging.getLogger(__name__)
 
@@ -29,48 +27,73 @@ class SubdomainMiddleware(object):
             host = host.split(':')[0]
         domain_parts = host.split('.')
 
-        if len(domain_parts) == 3:
+        # Serve subdomains - but don't depend on the production domain only having 2 parts
+        if len(domain_parts) == len(settings.PRODUCTION_DOMAIN.split('.')) + 1:
             subdomain = domain_parts[0]
-            # Serve subdomains
             is_www = subdomain.lower() == 'www'
             is_ssl = subdomain.lower() == 'ssl'
             if not is_www and not is_ssl and settings.PRODUCTION_DOMAIN in host:
                 request.subdomain = True
                 request.slug = subdomain
-                request.urlconf = 'core.subdomain_urls'
+                request.urlconf = 'readthedocs.core.subdomain_urls'
                 return None
         # Serve CNAMEs
         if settings.PRODUCTION_DOMAIN not in host and \
            'localhost' not in host and \
            'testserver' not in host:
             request.cname = True
-            try:
+            domains = Domain.objects.filter(domain=host)
+            if domains.count():
+                for domain in domains:
+                    if domain.domain == host:
+                        request.slug = domain.project.slug
+                        request.urlconf = 'core.subdomain_urls'
+                        request.domain_object = True
+                        domain.count = domain.count + 1
+                        domain.save()
+                        log.debug(LOG_TEMPLATE.format(
+                            msg='Domain Object Detected: %s' % domain.domain, **log_kwargs))
+                        break
+            if not hasattr(request, 'domain_object') and 'HTTP_X_RTD_SLUG' in request.META:
                 request.slug = request.META['HTTP_X_RTD_SLUG'].lower()
-                request.urlconf = 'core.subdomain_urls'
+                request.urlconf = 'readthedocs.core.subdomain_urls'
                 request.rtdheader = True
                 log.debug(LOG_TEMPLATE.format(
                     msg='X-RTD-Slug header detetected: %s' % request.slug, **log_kwargs))
-            except KeyError:
-                # Try header first, then DNS
+            # Try header first, then DNS
+            elif not hasattr(request, 'domain_object'):
                 try:
                     slug = cache.get(host)
                     if not slug:
-                        redis_conn = redis.Redis(**settings.REDIS)
                         from dns import resolver
                         answer = [ans for ans in resolver.query(host, 'CNAME')][0]
                         domain = answer.target.to_unicode().lower()
                         slug = domain.split('.')[0]
                         cache.set(host, slug, 60 * 60)
                         # Cache the slug -> host mapping permanently.
-                        redis_conn.sadd("rtd_slug:v1:%s" % slug, host)
                         log.debug(LOG_TEMPLATE.format(
                             msg='CNAME cached: %s->%s' % (slug, host),
                             **log_kwargs))
                     request.slug = slug
-                    request.urlconf = 'core.subdomain_urls'
+                    request.urlconf = 'readthedocs.core.subdomain_urls'
                     log.debug(LOG_TEMPLATE.format(
                         msg='CNAME detetected: %s' % request.slug,
                         **log_kwargs))
+                    try:
+                        proj = Project.objects.get(slug=slug)
+                        domain, created = Domain.objects.get_or_create(
+                            project=proj,
+                            domain=host,
+                        )
+                        if created:
+                            domain.machine = True
+                            domain.cname = True
+                        domain.count = domain.count + 1
+                        domain.save()
+                    except (ObjectDoesNotExist, MultipleObjectsReturned):
+                        log.debug(LOG_TEMPLATE.format(
+                            msg='Project CNAME does not exist: %s' % slug,
+                            **log_kwargs))
                 except:
                     # Some crazy person is CNAMEing to us. 404.
                     log.exception(LOG_TEMPLATE.format(msg='CNAME 404', **log_kwargs))
@@ -128,8 +151,9 @@ class SingleVersionMiddleware(object):
                 # Let 404 be handled further up stack.
                 return None
 
-            if getattr(proj, 'single_version', False):
-                request.urlconf = 'core.single_version_urls'
+            if (getattr(proj, 'single_version', False) and
+                    not getattr(settings, 'USE_SUBDOMAIN', False)):
+                request.urlconf = 'readthedocs.core.single_version_urls'
                 # Logging
                 host = request.get_host()
                 path = request.get_full_path()
@@ -139,3 +163,53 @@ class SingleVersionMiddleware(object):
                 )
 
         return None
+
+
+# Forked from old Django
+class ProxyMiddleware(object):
+
+    """
+    Middleware that sets REMOTE_ADDR based on HTTP_X_FORWARDED_FOR, if the
+    latter is set. This is useful if you're sitting behind a reverse proxy that
+    causes each request's REMOTE_ADDR to be set to 127.0.0.1.
+    Note that this does NOT validate HTTP_X_FORWARDED_FOR. If you're not behind
+    a reverse proxy that sets HTTP_X_FORWARDED_FOR automatically, do not use
+    this middleware. Anybody can spoof the value of HTTP_X_FORWARDED_FOR, and
+    because this sets REMOTE_ADDR based on HTTP_X_FORWARDED_FOR, that means
+    anybody can "fake" their IP address. Only use this when you can absolutely
+    trust the value of HTTP_X_FORWARDED_FOR.
+    """
+
+    def process_request(self, request):
+        try:
+            real_ip = request.META['HTTP_X_FORWARDED_FOR']
+        except KeyError:
+            return None
+        else:
+            # HTTP_X_FORWARDED_FOR can be a comma-separated list of IPs. The
+            # client's IP will be the first one.
+            real_ip = real_ip.split(",")[0].strip()
+            request.META['REMOTE_ADDR'] = real_ip
+
+
+class FooterNoSessionMiddleware(SessionMiddleware):
+
+    """
+    Middleware that doesn't create a session on logged out doc views.
+
+    This will reduce the size of our session table drastically.
+    """
+
+    def process_request(self, request):
+        if ('api/v2/footer_html' in request.path_info and
+                settings.SESSION_COOKIE_NAME not in request.COOKIES):
+            # Hack request.session otherwise the Authentication middleware complains.
+            request.session = {}
+            return
+        super(FooterNoSessionMiddleware, self).process_request(request)
+
+    def process_response(self, request, response):
+        if ('api/v2/footer_html' in request.path_info and
+                settings.SESSION_COOKIE_NAME not in request.COOKIES):
+            return response
+        return super(FooterNoSessionMiddleware, self).process_response(request, response)

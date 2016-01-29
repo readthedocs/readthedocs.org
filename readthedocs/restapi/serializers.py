@@ -1,7 +1,8 @@
 from rest_framework import serializers
 
 from readthedocs.builds.models import Build, BuildCommandResult, Version
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Project, Domain
+from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -41,6 +42,7 @@ class BuildCommandSerializer(serializers.ModelSerializer):
 
 
 class BuildSerializer(serializers.ModelSerializer):
+
     """Readonly version of the build serializer, used for user facing display"""
 
     commands = BuildCommandSerializer(many=True, read_only=True)
@@ -52,6 +54,7 @@ class BuildSerializer(serializers.ModelSerializer):
 
 
 class BuildSerializerFull(BuildSerializer):
+
     """Writeable Build instance serializer, for admin access by builders"""
 
     class Meta:
@@ -63,3 +66,42 @@ class SearchIndexSerializer(serializers.Serializer):
     project = serializers.CharField(max_length=500, required=False)
     version = serializers.CharField(max_length=500, required=False)
     page = serializers.CharField(max_length=500, required=False)
+
+
+class DomainSerializer(serializers.ModelSerializer):
+    project = ProjectSerializer()
+
+    class Meta:
+        model = Domain
+        fields = (
+            'id',
+            'project',
+            'domain',
+            'canonical',
+            'machine',
+            'cname',
+        )
+
+
+class RemoteOrganizationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = RemoteOrganization
+        exclude = ('json', 'email', 'users')
+
+
+class RemoteRepositorySerializer(serializers.ModelSerializer):
+
+    """Remote service repository serializer"""
+
+    organization = RemoteOrganizationSerializer()
+    matches = serializers.SerializerMethodField()
+
+    class Meta:
+        model = RemoteRepository
+        exclude = ('json', 'users')
+
+    def get_matches(self, obj):
+        request = self.context['request']
+        if request.user is not None and request.user.is_authenticated():
+            return obj.matches(request.user)

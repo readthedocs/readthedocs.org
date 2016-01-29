@@ -5,7 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 import django_filters
 
 from readthedocs.projects import constants
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Project, Domain
 
 ANY_REPO = (
     ('', _('Any')),
@@ -61,3 +61,12 @@ class ProjectFilter(django_filters.FilterSet):
     class Meta:
         model = Project
         fields = ['name', 'slug', 'pub_date', 'repo', 'repo_type']
+
+
+class DomainFilter(django_filters.FilterSet):
+    project = django_filters.CharFilter(label=_("Project"), name='project__slug',
+                                        lookup_type='exact')
+
+    class Meta:
+        model = Domain
+        fields = ['domain', 'project', 'canonical']

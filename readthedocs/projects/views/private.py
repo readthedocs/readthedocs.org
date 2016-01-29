@@ -1,20 +1,24 @@
 """Project views for authenticated users"""
 
 import logging
-import shutil
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect, HttpResponseNotAllowed, Http404
-from django.db.models import Q
+from django.conf import settings
+from django.http import (HttpResponseRedirect, HttpResponseNotAllowed,
+                         Http404,  HttpResponseBadRequest)
 from django.shortcuts import get_object_or_404, render_to_response, render
 from django.template import RequestContext
-from django.views.generic import View, ListView, TemplateView
-from django.utils.decorators import method_decorator
+from django.views.generic import View, TemplateView, ListView
 from django.utils.translation import ugettext_lazy as _
+from django.utils.safestring import mark_safe
+from django.middleware.csrf import get_token
 from formtools.wizard.views import SessionWizardView
+from allauth.socialaccount.models import SocialAccount
+
+from vanilla import CreateView, DeleteView, UpdateView
 
 from readthedocs.bookmarks.models import Bookmark
 from readthedocs.builds.models import Version
@@ -22,27 +26,23 @@ from readthedocs.builds.forms import AliasForm, VersionForm
 from readthedocs.builds.filters import VersionFilter
 from readthedocs.builds.models import VersionAlias
 from readthedocs.core.utils import trigger_build
-from readthedocs.oauth.models import GithubProject, BitbucketProject
-from readthedocs.oauth import utils as oauth_utils
+from readthedocs.core.mixins import ListViewWithForm
 from readthedocs.projects.forms import (
     ProjectBasicsForm, ProjectExtraForm,
     ProjectAdvancedForm, UpdateProjectForm, SubprojectForm,
     build_versions_form, UserForm, EmailHookForm, TranslationForm,
-    RedirectForm, WebHookForm)
-from readthedocs.projects.models import Project, EmailHook, WebHook
+    RedirectForm, WebHookForm, DomainForm)
+from readthedocs.projects.models import Project, EmailHook, WebHook, Domain
+from readthedocs.projects.views.base import ProjectAdminMixin, ProjectSpamMixin
 from readthedocs.projects import constants, tasks
-from readthedocs.projects.tasks import remove_path_from_web
+from readthedocs.projects.exceptions import ProjectSpamError
+from readthedocs.projects.tasks import remove_dir, clear_artifacts
+from readthedocs.oauth.services import registry
 
-
+from readthedocs.core.mixins import LoginRequiredMixin
 from readthedocs.projects.signals import project_import
 
 log = logging.getLogger(__name__)
-
-
-class LoginRequiredMixin(object):
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super(LoginRequiredMixin, self).dispatch(*args, **kwargs)
 
 
 class PrivateViewMixin(LoginRequiredMixin):
@@ -98,58 +98,37 @@ def project_comments_moderation(request, project_slug):
         {'project': project})
 
 
-@login_required
-def project_edit(request, project_slug):
-    """Project edit view
-
-    Edit an existing project - depending on what type of project is being
-    edited (created or imported) a different form will be displayed
-    """
-    project = get_object_or_404(Project.objects.for_admin_user(request.user),
-                                slug=project_slug)
+class ProjectUpdate(ProjectSpamMixin, PrivateViewMixin, UpdateView):
 
     form_class = UpdateProjectForm
+    model = Project
+    success_message = _('Project settings updated')
+    template_name = 'projects/project_edit.html'
+    lookup_url_kwarg = 'project_slug'
+    lookup_field = 'slug'
 
-    form = form_class(instance=project, data=request.POST or None,
-                      user=request.user)
+    def get_queryset(self):
+        return self.model.objects.for_admin_user(self.request.user)
 
-    if request.method == 'POST' and form.is_valid():
-        form.save()
-        messages.success(request, _('Project settings updated'))
-        project_dashboard = reverse('projects_detail', args=[project.slug])
-        return HttpResponseRedirect(project_dashboard)
-
-    return render_to_response(
-        'projects/project_edit.html',
-        {'form': form, 'project': project},
-        context_instance=RequestContext(request)
-    )
+    def get_success_url(self):
+        return reverse('projects_detail', args=[self.object.slug])
 
 
-@login_required
-def project_advanced(request, project_slug):
-    """Project advanced admin view
+class ProjectAdvancedUpdate(ProjectSpamMixin, PrivateViewMixin, UpdateView):
 
-    Edit an existing project - depending on what type of project is being
-    edited (created or imported) a different form will be displayed
-    """
-    project = get_object_or_404(Project.objects.for_admin_user(request.user),
-                                slug=project_slug)
     form_class = ProjectAdvancedForm
-    form = form_class(instance=project, data=request.POST or None, initial={
-                      'num_minor': 2, 'num_major': 2, 'num_point': 2})
+    model = Project
+    success_message = _('Project settings updated')
+    template_name = 'projects/project_advanced.html'
+    lookup_url_kwarg = 'project_slug'
+    lookup_field = 'slug'
+    initial = {'num_minor': 2, 'num_major': 2, 'num_point': 2}
 
-    if request.method == 'POST' and form.is_valid():
-        form.save()
-        messages.success(request, _('Project settings updated'))
-        project_dashboard = reverse('projects_detail', args=[project.slug])
-        return HttpResponseRedirect(project_dashboard)
+    def get_queryset(self):
+        return self.model.objects.for_admin_user(self.request.user)
 
-    return render_to_response(
-        'projects/project_advanced.html',
-        {'form': form, 'project': project},
-        context_instance=RequestContext(request)
-    )
+    def get_success_url(self):
+        return reverse('projects_detail', args=[self.object.slug])
 
 
 @login_required
@@ -193,7 +172,13 @@ def project_version_detail(request, project_slug, version_slug):
     form = VersionForm(request.POST or None, instance=version)
 
     if request.method == 'POST' and form.is_valid():
-        form.save()
+        version = form.save()
+        if form.has_changed():
+            if 'active' in form.changed_data and version.active is False:
+                log.info('Removing files for version %s' % version.slug)
+                clear_artifacts.delay(version_pk=version.pk)
+                version.built = False
+                version.save()
         url = reverse('project_version_list', args=[project.slug])
         return HttpResponseRedirect(url)
 
@@ -215,8 +200,14 @@ def project_delete(request, project_slug):
                                 slug=project_slug)
 
     if request.method == 'POST':
-        # Remove the repository checkout
-        remove_path_from_web.delay(path=project.doc_path)
+        # Support hacky "broadcast" with MULTIPLE_APP_SERVERS setting,
+        # otherwise put in normal celery queue
+        for server in getattr(settings, "MULTIPLE_APP_SERVERS", ['celery']):
+            log.info('Removing files on %s' % server)
+            remove_dir.apply_async(
+                args=[project.doc_path],
+                queue=server,
+            )
 
         # Delete the project and everything related to it
         project.delete()
@@ -231,7 +222,7 @@ def project_delete(request, project_slug):
     )
 
 
-class ImportWizardView(PrivateViewMixin, SessionWizardView):
+class ImportWizardView(ProjectSpamMixin, PrivateViewMixin, SessionWizardView):
 
     """Project import wizard"""
 
@@ -291,30 +282,6 @@ class ImportWizardView(PrivateViewMixin, SessionWizardView):
         return data.get('advanced', True)
 
 
-class ImportView(PrivateViewMixin, TemplateView):
-
-    """On GET, show the source select template, on POST, mock out a wizard
-
-    If we are accepting POST data, use the fields to seed the initial data in
-    :py:cls:`ImportWizardView`.  The import templates will redirect the form to
-    `/dashboard/import`
-    """
-
-    template_name = 'projects/project_import.html'
-    wizard_class = ImportWizardView
-
-    def post(self, request, *args, **kwargs):
-        initial_data = {}
-        initial_data['basics'] = {}
-        for key in ['name', 'repo', 'repo_type']:
-            initial_data['basics'][key] = request.POST.get(key)
-        initial_data['extra'] = {}
-        for key in ['description', 'project_url']:
-            initial_data['extra'][key] = request.POST.get(key)
-        request.method = 'GET'
-        return self.wizard_class.as_view(initial_dict=initial_data)(request)
-
-
 class ImportDemoView(PrivateViewMixin, View):
 
     """View to pass request on to import form to import demo project"""
@@ -365,6 +332,64 @@ class ImportDemoView(PrivateViewMixin, View):
     def get_form_kwargs(self):
         """Form kwargs passed in during instantiation"""
         return {'user': self.request.user}
+
+
+class ImportView(PrivateViewMixin, TemplateView):
+
+    """On GET, show the source an import view, on POST, mock out a wizard
+
+    If we are accepting POST data, use the fields to seed the initial data in
+    :py:cls:`ImportWizardView`.  The import templates will redirect the form to
+    `/dashboard/import`
+    """
+
+    template_name = 'projects/project_import.html'
+    wizard_class = ImportWizardView
+
+    def get(self, request, *args, **kwargs):
+        '''Display list of repositories to import
+
+        Adds a warning to the listing if any of the accounts connected for the
+        user are not supported accounts.
+        '''
+        deprecated_accounts = (
+            SocialAccount.objects
+            .filter(user=self.request.user)
+            .exclude(provider__in=[service.adapter.provider_id
+                                   for service in registry])
+        )
+        for account in deprecated_accounts:
+            provider_account = account.get_provider_account()
+            messages.error(
+                request,
+                mark_safe(
+                    (_('There is a problem with your {service} account, '
+                       'try reconnecting your account on your '
+                       '<a href="{url}">connected services page</a>.')
+                     .format(service=provider_account.get_brand()['name'],
+                             url=reverse('socialaccount_connections'))))
+            )
+        return super(ImportView, self).get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        initial_data = {}
+        initial_data['basics'] = {}
+        for key in ['name', 'repo', 'repo_type']:
+            initial_data['basics'][key] = request.POST.get(key)
+        initial_data['extra'] = {}
+        for key in ['description', 'project_url']:
+            initial_data['extra'][key] = request.POST.get(key)
+        request.method = 'GET'
+        return self.wizard_class.as_view(initial_dict=initial_data)(request)
+
+    def get_context_data(self, **kwargs):
+        context = super(ImportView, self).get_context_data(**kwargs)
+        context['view_csrf_token'] = get_token(self.request)
+        context['has_connected_accounts'] = (SocialAccount
+                                             .objects
+                                             .filter(user=self.request.user)
+                                             .exists())
+        return context
 
 
 @login_required
@@ -462,7 +487,7 @@ def project_users(request, project_slug):
 @login_required
 def project_users_delete(request, project_slug):
     if request.method != 'POST':
-        raise Http404
+        return HttpResponseNotAllowed('Only POST is allowed')
     project = get_object_or_404(Project.objects.for_admin_user(request.user), slug=project_slug)
     user = get_object_or_404(User.objects.all(), username=request.POST.get('username'))
     if user == request.user:
@@ -524,7 +549,7 @@ def project_comments_settings(request, project_slug):
 def project_notifications_delete(request, project_slug):
     """Project notifications delete confirmation view"""
     if request.method != 'POST':
-        raise Http404
+        return HttpResponseNotAllowed('Only POST is allowed')
     project = get_object_or_404(Project.objects.for_admin_user(request.user),
                                 slug=project_slug)
     try:
@@ -609,66 +634,6 @@ def project_redirects_delete(request, project_slug):
 
 
 @login_required
-def project_import_github(request):
-    """Show form that prefills import form with data from GitHub"""
-    github_connected = oauth_utils.import_github(
-        user=request.user, sync=False)
-    repos = GithubProject.objects.filter(users__in=[request.user])
-
-    # Find existing projects that match a repo url
-    for repo in repos:
-        ghetto_repo = repo.git_url.replace('git://', '').replace('.git', '')
-        projects = (Project
-                    .objects
-                    .public(request.user)
-                    .filter(Q(repo__endswith=ghetto_repo) |
-                            Q(repo__endswith=ghetto_repo + '.git')))
-        if projects:
-            repo.matches = [project.slug for project in projects]
-        else:
-            repo.matches = []
-
-    return render_to_response(
-        'projects/project_import_github.html',
-        {
-            'repos': repos,
-            'github_connected': github_connected,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@login_required
-def project_import_bitbucket(request):
-    """Show form that prefills import form with data from BitBucket"""
-    bitbucket_connected = oauth_utils.import_bitbucket(
-        user=request.user, sync=False)
-    repos = BitbucketProject.objects.filter(users__in=[request.user])
-
-    # Find existing projects that match a repo url
-    for repo in repos:
-        ghetto_repo = repo.git_url.replace('git://', '').replace('.git', '')
-        projects = (Project
-                    .objects
-                    .public(request.user)
-                    .filter(Q(repo__endswith=ghetto_repo) |
-                            Q(repo__endswith=ghetto_repo + '.git')))
-        if projects:
-            repo.matches = [project.slug for project in projects]
-        else:
-            repo.matches = []
-
-    return render_to_response(
-        'projects/project_import_bitbucket.html',
-        {
-            'repos': repos,
-            'bitbucket_connected': bitbucket_connected,
-        },
-        context_instance=RequestContext(request)
-    )
-
-
-@login_required
 def project_version_delete_html(request, project_slug, version_slug):
     """Project version 'delete' HTML
 
@@ -684,6 +649,28 @@ def project_version_delete_html(request, project_slug, version_slug):
         version.save()
         tasks.clear_artifacts.delay(version.pk)
     else:
-        raise Http404
+        return HttpResponseBadRequest("Can't delete HTML for an active version.")
     return HttpResponseRedirect(
         reverse('project_version_list', kwargs={'project_slug': project_slug}))
+
+
+class DomainMixin(ProjectAdminMixin, PrivateViewMixin):
+    model = Domain
+    form_class = DomainForm
+    lookup_url_kwarg = 'domain_pk'
+
+
+class DomainList(DomainMixin, ListViewWithForm):
+    pass
+
+
+class DomainCreate(DomainMixin, CreateView):
+    pass
+
+
+class DomainUpdate(DomainMixin, UpdateView):
+    pass
+
+
+class DomainDelete(DomainMixin, DeleteView):
+    pass

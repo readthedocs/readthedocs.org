@@ -4,7 +4,9 @@ from rest_framework import routers
 
 from .views.model_views import (BuildViewSet, BuildCommandViewSet,
                                 ProjectViewSet, NotificationViewSet,
-                                VersionViewSet)
+                                VersionViewSet, DomainViewSet,
+                                RemoteOrganizationViewSet,
+                                RemoteRepositoryViewSet)
 from readthedocs.comments.views import CommentViewSet
 
 router = routers.DefaultRouter()
@@ -13,6 +15,9 @@ router.register(r'command', BuildCommandViewSet)
 router.register(r'version', VersionViewSet)
 router.register(r'project', ProjectViewSet)
 router.register(r'notification', NotificationViewSet)
+router.register(r'domain', DomainViewSet)
+router.register(r'remote/org', RemoteOrganizationViewSet)
+router.register(r'remote/repo', RemoteRepositoryViewSet)
 router.register(r'comments', CommentViewSet, base_name="comments")
 
 urlpatterns = patterns(
@@ -47,12 +52,9 @@ task_urls = patterns(
     url(r'jobs/status/(?P<task_id>[^/]+)/',
         'readthedocs.restapi.views.task_views.job_status',
         name='api_job_status'),
-    url(r'jobs/sync-github-repositories/',
-        'readthedocs.restapi.views.task_views.sync_github_repositories',
-        name='api_sync_github_repositories'),
-    url(r'jobs/sync-bitbucket-repositories/',
-        'readthedocs.restapi.views.task_views.sync_bitbucket_repositories',
-        name='api_sync_bitbucket_repositories'),
+    url(r'jobs/sync-remote-repositories/',
+        'readthedocs.restapi.views.task_views.sync_remote_repositories',
+        name='api_sync_remote_repositories'),
 )
 
 

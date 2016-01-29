@@ -2,7 +2,10 @@
 
 from django.conf.urls import patterns, url
 
-from readthedocs.projects.views.private import AliasList, ProjectDashboard, ImportView
+from readthedocs.projects.views.private import (
+    ProjectDashboard, ImportView,
+    ProjectUpdate, ProjectAdvancedUpdate,
+    DomainList, DomainCreate, DomainDelete, DomainUpdate)
 from readthedocs.projects.backends.views import ImportWizardView, ImportDemoView
 
 
@@ -26,40 +29,20 @@ urlpatterns = patterns(
         ImportDemoView.as_view(),
         name='projects_import_demo'),
 
-    url(r'^import/github/$',
-        'readthedocs.projects.views.private.project_import_github',
-        name='projects_import_github'),
-
-    url(r'^import/bitbucket/$',
-        'readthedocs.projects.views.private.project_import_bitbucket',
-        name='projects_import_bitbucket'),
-
     url(r'^(?P<project_slug>[-\w]+)/$',
         'readthedocs.projects.views.private.project_manage',
         name='projects_manage'),
-
-    url(r'^(?P<project_slug>[-\w]+)/alias/(?P<alias_id>\d+)/',
-        'readthedocs.projects.views.private.edit_alias',
-        name='projects_alias_edit'),
-
-    url(r'^(?P<project_slug>[-\w]+)/alias/$',
-        'readthedocs.projects.views.private.edit_alias',
-        name='projects_alias_create'),
-
-    url(r'^(?P<project_slug>[-\w]+)/alias/list/$',
-        AliasList.as_view(),
-        name='projects_alias_list'),
 
     url(r'^(?P<project_slug>[-\w]+)/comments_moderation/$',
         'readthedocs.projects.views.private.project_comments_moderation',
         name='projects_comments_moderation'),
 
     url(r'^(?P<project_slug>[-\w]+)/edit/$',
-        'readthedocs.projects.views.private.project_edit',
+        ProjectUpdate.as_view(),
         name='projects_edit'),
 
     url(r'^(?P<project_slug>[-\w]+)/advanced/$',
-        'readthedocs.projects.views.private.project_advanced',
+        ProjectAdvancedUpdate.as_view(),
         name='projects_advanced'),
 
     url(r'^(?P<project_slug>[-\w]+)/version/(?P<version_slug>[^/]+)/delete_html/$',
@@ -122,3 +105,21 @@ urlpatterns = patterns(
         'readthedocs.projects.views.private.project_redirects_delete',
         name='projects_redirects_delete'),
 )
+
+domain_urls = patterns(
+    '',
+    url(r'^(?P<project_slug>[-\w]+)/domains/$',
+        DomainList.as_view(),
+        name='projects_domains'),
+    url(r'^(?P<project_slug>[-\w]+)/domains/create/$',
+        DomainCreate.as_view(),
+        name='projects_domains_create'),
+    url(r'^(?P<project_slug>[-\w]+)/domains/(?P<domain_pk>[-\w]+)/edit/$',
+        DomainUpdate.as_view(),
+        name='projects_domains_edit'),
+    url(r'^(?P<project_slug>[-\w]+)/domains/(?P<domain_pk>[-\w]+)/delete/$',
+        DomainDelete.as_view(),
+        name='projects_domains_delete'),
+)
+
+urlpatterns += domain_urls

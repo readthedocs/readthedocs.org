@@ -64,6 +64,11 @@ Versions
 
               </li>
               {% endblock active-versions %}
+
+            {% empty %}
+            <p>
+            {% trans "No active versions." %}
+            </p>
             {% endfor %}
           </ul>
         </div>

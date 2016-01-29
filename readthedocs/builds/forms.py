@@ -33,3 +33,4 @@ class VersionForm(forms.ModelForm):
         obj = super(VersionForm, self).save(*args, **kwargs)
         if obj.active and not obj.built and not obj.uploaded:
             trigger_build(project=obj.project, version=obj)
+        return obj

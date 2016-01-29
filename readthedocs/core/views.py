@@ -3,12 +3,10 @@ documentation and header rendering, and server errors.
 
 """
 
-from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect, Http404, HttpResponseNotFound
 from django.shortcuts import render_to_response, get_object_or_404, redirect
-from django.db.models import Max, F
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_exempt
 from django.views.static import serve
@@ -16,7 +14,6 @@ from django.views.generic import TemplateView
 
 from haystack.query import EmptySearchQuerySet
 from haystack.query import SearchQuerySet
-import stripe
 
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
@@ -27,8 +24,7 @@ from readthedocs.builds.constants import LATEST
 from readthedocs.projects import constants
 from readthedocs.projects.models import Project, ImportedFile, ProjectRelationship
 from readthedocs.projects.tasks import remove_dir, update_imported_docs
-from readthedocs.redirects.models import Redirect
-from readthedocs.redirects.utils import redirect_filename
+from readthedocs.redirects.utils import get_redirect_response
 
 import json
 import mimetypes
@@ -52,15 +48,33 @@ class HomepageView(DonateProgressMixin, TemplateView):
         '''Add latest builds and featured projects'''
         context = super(HomepageView, self).get_context_data(**kwargs)
         latest = []
-        latest_builds = Build.objects.order_by('-date')[:100]
+        latest_builds = (
+            Build.objects
+            .filter(
+                project__privacy_level=constants.PUBLIC,
+                success=True,
+            )
+            .order_by('-date')
+        )[:100]
         for build in latest_builds:
-            if (
-                    build.project.privacy_level == constants.PUBLIC and
-                    build.project not in latest and
-                    len(latest) < 10):
+            if (build.project not in latest and len(latest) < 10):
                 latest.append(build.project)
         context['project_list'] = latest
         context['featured_list'] = Project.objects.filter(featured=True)
+        return context
+
+
+class SupportView(TemplateView):
+    template_name = 'support.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(SupportView, self).get_context_data(**kwargs)
+        support_email = getattr(settings, 'SUPPORT_EMAIL', None)
+        if not support_email:
+            support_email = 'support@{domain}'.format(
+                domain=getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'))
+
+        context['support_email'] = support_email
         return context
 
 
@@ -97,8 +111,11 @@ def wipe_version(request, project_slug, version_slug):
         raise Http404("You must own this project to wipe it.")
 
     if request.method == 'POST':
-        del_dirs = [version.project.checkout_path(
-            version.slug), version.project.venv_path(version.slug)]
+        del_dirs = [
+            os.path.join(version.project.doc_path, 'checkouts', version.slug),
+            os.path.join(version.project.doc_path, 'envs', version.slug),
+            os.path.join(version.project.doc_path, 'conda', version.slug),
+        ]
         for del_dir in del_dirs:
             # Support hacky "broadcast" with MULTIPLE_BUILD_SERVERS setting,
             # otherwise put in normal celery queue
@@ -164,8 +181,8 @@ def _build_branches(project, branch_list):
 def _build_url(url, branches):
     try:
         projects = (
-            Project.objects.filter(repo__endswith=url) |
-            Project.objects.filter(repo__endswith=url + '.git'))
+            Project.objects.filter(repo__iendswith=url) |
+            Project.objects.filter(repo__iendswith=url + '.git'))
         if not projects.count():
             raise NoProjectException()
         for project in projects:
@@ -184,7 +201,7 @@ def _build_url(url, branches):
                 url, ' '.join(not_building))
             pc_log.info(msg)
             return HttpResponse(msg)
-    except Exception, e:
+    except Exception as e:
         if e.__class__ == NoProjectException:
             raise
         msg = "(URL Build) Failed: %s:%s" % (url, e)
@@ -207,7 +224,7 @@ def github_build(request):
         url = obj['repository']['url']
         ghetto_url = url.replace('http://', '').replace('https://', '')
         branch = obj['ref'].replace('refs/heads/', '')
-        pc_log.info("(Incoming Github Build) %s [%s]" % (ghetto_url, branch))
+        pc_log.info("(Incoming GitHub Build) %s [%s]" % (ghetto_url, branch))
         try:
             return _build_url(ghetto_url, [branch])
         except NoProjectException:
@@ -518,66 +535,11 @@ def server_error(request, template_name='500.html'):
     return r
 
 
-def _try_redirect(request, full_path=None):
-    project = project_slug = None
-    if hasattr(request, 'slug'):
-        project_slug = request.slug
-    elif full_path.startswith('/docs/'):
-        split = full_path.split('/')
-        if len(split) > 2:
-            project_slug = split[2]
-    else:
-        return None
-
-    if project_slug:
-        try:
-            project = Project.objects.get(slug=project_slug)
-        except Project.DoesNotExist:
-            return None
-
-    if project:
-        for project_redirect in project.redirects.all():
-            if project_redirect.redirect_type == 'prefix':
-                if full_path.startswith(project_redirect.from_url):
-                    log.debug('Redirecting %s' % project_redirect)
-                    cut_path = re.sub('^%s' % project_redirect.from_url, '', full_path)
-                    to = redirect_filename(project=project, filename=cut_path)
-                    return HttpResponseRedirect(to)
-            elif project_redirect.redirect_type == 'page':
-                if full_path == project_redirect.from_url:
-                    log.debug('Redirecting %s' % project_redirect)
-                    to = redirect_filename(
-                        project=project,
-                        filename=project_redirect.to_url.lstrip('/'))
-                    return HttpResponseRedirect(to)
-            elif project_redirect.redirect_type == 'exact':
-                if full_path == project_redirect.from_url:
-                    log.debug('Redirecting %s' % project_redirect)
-                    return HttpResponseRedirect(project_redirect.to_url)
-                # Handle full sub-level redirects
-                if '$rest' in project_redirect.from_url:
-                    match = project_redirect.from_url.split('$rest')[0]
-                    if full_path.startswith(match):
-                        cut_path = re.sub('^%s' % match, project_redirect.to_url, full_path)
-                        return HttpResponseRedirect(cut_path)
-            elif project_redirect.redirect_type == 'sphinx_html':
-                if full_path.endswith('/'):
-                    log.debug('Redirecting %s' % project_redirect)
-                    to = re.sub('/$', '.html', full_path)
-                    return HttpResponseRedirect(to)
-            elif project_redirect.redirect_type == 'sphinx_htmldir':
-                if full_path.endswith('.html'):
-                    log.debug('Redirecting %s' % project_redirect)
-                    to = re.sub('.html$', '/', full_path)
-                    return HttpResponseRedirect(to)
-    return None
-
-
 def server_error_404(request, template_name='404.html'):
     """
     A simple 404 handler so we get media
     """
-    response = _try_redirect(request, full_path=request.get_full_path())
+    response = get_redirect_response(request, path=request.get_full_path())
     if response:
         return response
     r = render_to_response(template_name,
@@ -589,7 +551,7 @@ def server_error_404(request, template_name='404.html'):
 def server_helpful_404(
         request, project_slug=None, lang_slug=None, version_slug=None,
         filename=None, template_name='404.html'):
-    response = _try_redirect(request, full_path=filename)
+    response = get_redirect_response(request, path=filename)
     if response:
         return response
     pagename = re.sub(

@@ -1,0 +1,36 @@
+{% extends "projects/project_edit_base.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans "Edit Domains" %}{% endblock %}
+
+{% block nav-dashboard %} class="active"{% endblock %}
+
+{% block editing-option-edit-proj %}class="active"{% endblock %}
+
+{% block project-domains-active %}active{% endblock %}
+
+{% block project_edit_content_header %}
+
+{% if domain %}
+{% trans "Edit Domain" %}
+{% else %}
+{% trans "Create Domain" %}
+{% endif %}
+
+{% endblock %}
+
+{% block project_edit_content %}
+  {% if domain %}
+    {% url 'projects_domains_edit' project.slug domain.pk as action_url %}
+  {% else %}
+    {% url 'projects_domains_create' project.slug as action_url %}
+  {% endif %}
+  <form method="post" action="{{ action_url }}">{% csrf_token %}
+    {{ form.as_p }}
+    <p>
+      <input style="display: inline;" type="submit" value="{% trans "Submit" %}">
+    </p>
+  </form>
+{% endblock %}
+

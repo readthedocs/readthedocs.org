@@ -52,6 +52,13 @@ pre { margin: 15px 0; white-space: pre; overflow: auto; }
 pre, code, tt { font-family: "inconsolata", "inconsolata-1", "inconsolata-2", 'bitstream vera sans mono', 'andale mono', 'lucida console', monospace; line-height: 20px; }
 textarea, input, select { font-family: "inconsolata", "inconsolata-1", "inconsolata-2", 'bitstream vera sans mono', 'andale mono', 'lucida console', monospace; font-size: 16px; line-height: 20px; }
 
+@font-face {
+  font-family: 'FontAwesome';
+  src: url('../fonts/fontawesome-webfont.eot?v=4.4.0');
+  src: url('../fonts/fontawesome-webfont.eot?#iefix&v=4.4.0') format('embedded-opentype'), url('../fonts/fontawesome-webfont.woff?v=4.4.0') format('woff'), url('../fonts/fontawesome-webfont.ttf?v=4.4.0') format('truetype'), url('../fonts/fontawesome-webfont.svg?v=4.4.0#fontawesomeregular') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
 
 /* tables */
 
@@ -341,9 +348,21 @@ div.search-sponsored { margin-top: 50px; }
   .module-item .module-item-menu li a:hover { background-color: #697983; box-shadow: 0 1px 0px #465158; -moz-box-shadow: 0 1px 0px #465158; -webkit-box-shadow: 0 1px 0px #465158; }
 
   li.module-item ul.module-item-menu li input[type="submit"] {
-    font-size: 16px;
-    line-height: 16px;
-    margin: 4px;
+      font-size: 16px;
+      line-height: 16px;
+      margin: 4px;
+  }
+
+  li.module-item > img {
+      height: 24px;
+      width: 24px;
+      vertical-align: middle;
+  }
+
+  li.module-item > p.error {
+      padding-top: .75em;
+      font-size: .8em;
+      line-height: 1.5em;
   }
 
   /* for links that span the column */
@@ -593,6 +612,89 @@ div.project-version-list span.version-branch {
     font-size: .9em;
 }
 
+/* Project import */
+div.project-import-remote h1 {
+    margin: 0em 0em .5em 0em;
+}
+
+div.project-import-remote li.remote-repo a.remote-repo-view {
+    background: none;
+    color: #443;
+    box-shadow: none;
+    -moz-box-shadow: none;
+    -ms-box-shadow: none;
+    -webkit-box-shadow: none;
+    text-shadow: none;
+}
+
+div.project-import-remote li.remote-repo a.remote-repo-import,
+div.project-import-remote li.remote-repo a.remote-repo-view,
+div.project-import-remote li.remote-repo span.remote-repo-locked {
+    display: block;
+    margin: .25em 0em;
+    height: 1em;
+    padding: .5em .75em;
+    font-size: 1em;
+    font-weight: normal;
+}
+
+div.project-import-remote li.remote-repo a.remote-repo-import span,
+div.project-import-remote li.remote-repo a.remote-repo-view span,
+div.project-import-remote li.remote-repo span.remote-repo-locked span,
+div.project-import-remote button.remote-sync span {
+    display: none;
+}
+
+div.project-import-remote li.remote-repo a.remote-repo-import:before {
+    font-family: FontAwesome;
+    font-weight: normal;
+    content: "\f067";
+}
+div.project-import-remote li.remote-repo a.remote-repo-view:before {
+    font-family: FontAwesome;
+    font-weight: normal;
+    content: "\f08e";
+}
+div.project-import-remote li.remote-repo span.remote-repo-locked:before {
+    font-family: FontAwesome;
+    font-weight: normal;
+    content: "\f023";
+}
+div.project-import-remote button.remote-sync:before {
+    font-family: FontAwesome;
+    content: "\f021";
+}
+
+div.project-import-remote form.import-connect-github button:before,
+a.socialaccount-provider.github:before {
+    font-family: FontAwesome;
+    content: "\f09b";
+}
+
+div.project-import-remote form.import-connect-bitbucket button:before,
+a.socialaccount-provider.bitbucket:before,
+a.socialaccount-provider.bitbucket_oauth2:before {
+    font-family: FontAwesome;
+    content: "\f171";
+}
+
+div.project-import-remote li.remote-repo span.remote-repo-extra-url:before {
+    padding-right: .5em;
+    font-family: FontAwesome;
+    font-size: 1.2em;
+    content: '\f126';
+}
+div.project-import-remote li.remote-repo span.remote-repo-extra-locked:before {
+    padding-right: .5em;
+    font-family: FontAwesome;
+    font-size: 1.2em;
+    content: '\f071';
+}
+
+div.project-import-sidebar form.import-manual input {
+    margin: .5em 0em 1.5em 0em;
+}
+
 /* Donate */
 div.donate-stats {
     padding: 2em;
@@ -749,27 +851,34 @@ ul.donate-supporters.donate-supporters-large div.supporter-name {
     font-size: .9em;
 }
 
-div#payment-form div.cc-type {
-    height: 23px;
-    margin: 3px 0px 10px;
-    background: url('/static/donate/img/creditcard.png');
-    background-repeat: no-repeat;
-}
-div#payment-form input#cc-number.visa + div.cc-type {
-    background-position: 0px -23px;
-}
-div#payment-form input#cc-number.mastercard + div.cc-type {
-    background-position: 0px -46px;
-}
-div#payment-form input#cc-number.amex + div.cc-type {
-    background-position: 0px -69px;
-}
-div#payment-form input#cc-number.discover + div.cc-type {
-    background-position: 0px -92px;
+/* Gold */
+div.gold-subscription p.subscription-detail,
+div.gold-subscription p.subscription-projects {
+    margin: 0em;
 }
 
-div#payment-form input#cc-expiry { width: 150px; }
-div#payment-form input#cc-cvv { width: 100px; }
+div.gold-subscription p.subscription-detail label {
+    display: inline-block;
+}
+
+div.gold-subscription p.subscription-detail-card > span {
+    font-family: monospace;
+}
+
+div.gold-subscription > form {
+    display: inline-block;
+}
+
+div.gold-subscription > form button {
+    margin: 1em .3em 1.5em 0em;
+}
+
+/* Support Page */
+
+#support_page li {
+    margin-left: 1em;
+    list-style: inside;
+}
 
 /* Form Wizards */
 div.actions.wizard-actions button.action-primary,
@@ -913,3 +1022,9 @@ select.dropdown { display: none; }
     .chartlist li:hover { 
       background: #EFEFEF; 
     }
+
+
+/* Domain Pages */
+
+.domain-machine { color: #999; }
+.domain-canonical { font-weight: bold; }

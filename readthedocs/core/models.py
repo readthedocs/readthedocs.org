@@ -5,6 +5,7 @@ from django.db.models.signals import post_save
 from django.db.utils import DatabaseError
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _, ugettext
+from annoying.fields import AutoOneToOneField
 
 STANDARD_EMAIL = "anonymous@readthedocs.org"
 
@@ -15,9 +16,10 @@ class UserProfile (models.Model):
 
     """Additional information about a User.
     """
-    user = models.OneToOneField('auth.User', verbose_name=_('User'),
-                                related_name='profile')
+    user = AutoOneToOneField('auth.User', verbose_name=_('User'),
+                             related_name='profile')
     whitelisted = models.BooleanField(_('Whitelisted'), default=False)
+    banned = models.BooleanField(_('Banned'), default=False)
     homepage = models.CharField(_('Homepage'), max_length=100, blank=True)
     allow_email = models.BooleanField(_('Allow email'),
                                       help_text=_('Show your email on VCS '
@@ -49,12 +51,3 @@ class UserProfile (models.Model):
         else:
             email = STANDARD_EMAIL
         return (name, email)
-
-
-@receiver(post_save, sender='auth.User')
-def create_profile(sender, **kwargs):
-    if kwargs['created'] is True:
-        try:
-            UserProfile.objects.create(user_id=kwargs['instance'].id, whitelisted=False)
-        except DatabaseError:
-            log.error('Failed to create user profile', exc_info=True)

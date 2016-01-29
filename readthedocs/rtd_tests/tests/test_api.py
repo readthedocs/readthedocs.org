@@ -1,15 +1,16 @@
 import json
 import base64
 import datetime
-import unittest
 
 from django.test import TestCase
 from django.contrib.auth.models import User
 from django_dynamic_fixture import get
 from rest_framework import status
 from rest_framework.test import APIClient
+from allauth.socialaccount.models import SocialAccount
 
 from readthedocs.builds.models import Build
+from readthedocs.oauth.models import RemoteRepository, RemoteOrganization
 
 
 super_auth = base64.b64encode('super:test')
@@ -38,10 +39,9 @@ class APIBuildTests(TestCase):
             format='json')
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         build = resp.data
-        self.assertEqual(build['id'], 1)
         self.assertEqual(build['state_display'], 'Cloning')
 
-        resp = client.get('/api/v2/build/1/')
+        resp = client.get('/api/v2/build/%s/' % build['id'])
         self.assertEqual(resp.status_code, 200)
         build = resp.data
         self.assertEqual(build['output'], 'Test Output')
@@ -67,7 +67,7 @@ class APIBuildTests(TestCase):
         _try_post()
 
         api_user = get(User, staff=False, password='test')
-        assert api_user.is_staff == False
+        assert api_user.is_staff is False
         client.force_authenticate(user=api_user)
         _try_post()
 
@@ -99,7 +99,7 @@ class APIBuildTests(TestCase):
         api_user = get(User, staff=False, password='test')
         client.force_authenticate(user=api_user)
         resp = client.get('/api/v2/build/{0}/'.format(build.pk), format='json')
-        self.assertEqual(resp.status_code, 403)
+        self.assertEqual(resp.status_code, 200)
 
         client.force_authenticate(user=User.objects.get(username='super'))
         resp = client.get('/api/v2/build/{0}/'.format(build.pk), format='json')
@@ -133,7 +133,7 @@ class APIBuildTests(TestCase):
             },
             format='json')
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
-        resp = client.get('/api/v2/build/1/')
+        resp = client.get('/api/v2/build/%s/' % build['id'])
         self.assertEqual(resp.status_code, 200)
         build = resp.data
         self.assertEqual(len(build['commands']), 1)
@@ -230,3 +230,62 @@ class APITests(TestCase):
         self.assertEqual(resp.status_code, 200)
         obj = json.loads(resp.content)
         self.assertEqual(obj['is_highest'], True)
+
+
+class APIImportTests(TestCase):
+
+    """Import API endpoint tests"""
+
+    fixtures = ['eric.json', 'test_data.json']
+
+    def test_permissions(self):
+        """Ensure user repositories aren't leaked to other users"""
+        client = APIClient()
+
+        account_a = get(SocialAccount, provider='github')
+        account_b = get(SocialAccount, provider='github')
+        account_c = get(SocialAccount, provider='github')
+        user_a = get(User, password='test', socialaccount_set=[account_a])
+        user_b = get(User, password='test', socialaccount_set=[account_b])
+        user_c = get(User, password='test', socialaccount_set=[account_c])
+        org_a = get(RemoteOrganization, users=[user_a], account=account_a)
+        repo_a = get(RemoteRepository, users=[user_a], organization=org_a,
+                     account=account_a)
+        repo_b = get(RemoteRepository, users=[user_b], organization=None,
+                     account=account_b)
+
+        client.force_authenticate(user=user_a)
+        resp = client.get(
+            '/api/v2/remote/repo/',
+            format='json')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        repos = resp.data['results']
+        self.assertEqual(repos[0]['id'], repo_a.id)
+        self.assertEqual(repos[0]['organization']['id'], org_a.id)
+        self.assertEqual(len(repos), 1)
+
+        resp = client.get(
+            '/api/v2/remote/org/',
+            format='json')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        orgs = resp.data['results']
+        self.assertEqual(orgs[0]['id'], org_a.id)
+        self.assertEqual(len(orgs), 1)
+
+        client.force_authenticate(user=user_b)
+        resp = client.get(
+            '/api/v2/remote/repo/',
+            format='json')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        repos = resp.data['results']
+        self.assertEqual(repos[0]['id'], repo_b.id)
+        self.assertEqual(repos[0]['organization'], None)
+        self.assertEqual(len(repos), 1)
+
+        client.force_authenticate(user=user_c)
+        resp = client.get(
+            '/api/v2/remote/repo/',
+            format='json')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        repos = resp.data['results']
+        self.assertEqual(len(repos), 0)

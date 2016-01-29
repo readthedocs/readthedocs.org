@@ -7,7 +7,8 @@ from django.contrib import messages
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 
-from readthedocs.oauth import utils as oauth_utils
+from readthedocs.oauth.services import registry
+
 
 before_vcs = django.dispatch.Signal(providing_args=["version"])
 after_vcs = django.dispatch.Signal(providing_args=["version"])
@@ -27,26 +28,11 @@ def handle_project_import(sender, **kwargs):
     project = sender
     request = kwargs.get('request')
 
-    for provider in ['github', 'bitbucket']:
-        if provider in project.repo:
-            session = oauth_utils.get_oauth_session(user=request.user, provider=provider)
-            if not session:
-                break
-            if provider == 'github':
-                try:
-                    resp = oauth_utils.add_github_webhook(session, project)
-                    if resp.status_code == 201:
-                        messages.success(request, _('GitHub webhook activated'))
-                # pylint: disable=bare-except
-                # TODO this should be audited for exception types
-                except:
-                    log.exception('GitHub Hook creation failed', exc_info=True)
-            elif provider == 'bitbucket':
-                try:
-                    resp = oauth_utils.add_bitbucket_webhook(session, project)
-                    if resp.status_code == 200:
-                        messages.success(request, _('BitBucket webhook activated'))
-                # pylint: disable=bare-except
-                # TODO this should be audited for exception types
-                except:
-                    log.exception('BitBucket Hook creation failed', exc_info=True)
+    for service_cls in registry:
+        if service_cls.is_project_service(project):
+            service = service_cls.for_user(request.user)
+            if service is not None:
+                if service.setup_webhook(project):
+                    messages.success(request, _('Webhook activated'))
+                else:
+                    messages.error(request, _('Webhook configuration failed'))

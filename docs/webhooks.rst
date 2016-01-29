@@ -8,10 +8,10 @@ something has changed, so it is cheap on the server side. As anyone who has
 worked with push knows, pushing a doc update to your repo and watching it get
 updated within seconds is an awesome feeling.
 
-Github
+GitHub
 ---------
 
-If your project is hosted on Github, you can easily add a hook that will rebuild
+If your project is hosted on GitHub, you can easily add a hook that will rebuild
 your docs whenever you push updates:
 
 * Go to the "Settings" page for your project
@@ -20,6 +20,8 @@ your docs whenever you push updates:
 * In the list of available services, click "ReadTheDocs"
 * Check "Active"
 * Click "Add service"
+
+**Note:** The GitHub URL in your Read the Docs project must match the URL on GitHub. The URL is case-sensitive.
 
 Bitbucket
 -----------

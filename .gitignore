@@ -7,6 +7,8 @@
 .idea
 .vagrant
 .tox
+.rope_project/
+.ropeproject/
 _build
 cnames
 bower_components/
@@ -33,3 +35,5 @@ prod_artifacts
 wheelhouse
 whoosh_index
 xml_output
+public_cnames
+public_symlinks

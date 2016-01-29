@@ -99,9 +99,9 @@ Feel free to use cURL and python to look at formatted json examples. You can als
 
 Root
 ----
-.. http:method:: GET /api/v1/
+.. http:get::  /api/v1/
 
-.. http:response:: Retrieve a list of resources.
+    Retrieve a list of resources.
    
    .. sourcecode:: js
   
@@ -128,14 +128,14 @@ Root
           }
       }
       
-   :data string list_endpoint: API endpoint for resource.
-   :data string schema: API endpoint for schema of resource.
+   :>json string list_endpoint: API endpoint for resource.
+   :>json string schema: API endpoint for schema of resource.
 
 Builds
 ------
-.. http:method:: GET /api/v1/build/
+.. http:get::  /api/v1/build/
 
-.. http:response:: Retrieve a list of Builds.
+    Retrieve a list of Builds.
 
    .. sourcecode:: js
 
@@ -150,21 +150,21 @@ Builds
           "objects": [BUILDS]
       }
 
-   :data integer limit: Number of Builds returned.
-   :data string next: URI for next set of Builds.
-   :data integer offset: Current offset used for pagination.
-   :data string previous: URI for previous set of Builds.
-   :data integer total_count: Total number of Builds.
-   :data array objects: Array of `Build`_ objects.
+   :>json integer limit: Number of Builds returned.
+   :>json string next: URI for next set of Builds.
+   :>json integer offset: Current offset used for pagination.
+   :>json string previous: URI for previous set of Builds.
+   :>json integer total_count: Total number of Builds.
+   :>json array objects: Array of `Build`_ objects.
 
 
 Build
 -----
-.. http:method:: GET /api/v1/build/{id}/
+.. http:get::  /api/v1/build/{id}/
 
    :arg id: A Build id.
 
-.. http:response:: Retrieve a single Build.
+    Retrieve a single Build.
 
    .. sourcecode:: js
 
@@ -184,24 +184,24 @@ Build
       }
 
 
-   :data string date: Date of Build.
-   :data string error: Error from Sphinx build process.
-   :data string id: Build id.
-   :data string output: Output from Sphinx build process.
-   :data string project: URI for Project of Build.
-   :data string resource_uri: URI for Build.
-   :data string setup: Setup output from Sphinx build process.
-   :data string setup_error: Setup error from Sphinx build process.
-   :data string state: "triggered", "building", or "finished"
-   :data boolean success: Was build successful?
-   :data string type: Build type ("html", "pdf", "man", or "epub")
-   :data string version: URI for Version of Build.
+   :>json string date: Date of Build.
+   :>json string error: Error from Sphinx build process.
+   :>json string id: Build id.
+   :>json string output: Output from Sphinx build process.
+   :>json string project: URI for Project of Build.
+   :>json string resource_uri: URI for Build.
+   :>json string setup: Setup output from Sphinx build process.
+   :>json string setup_error: Setup error from Sphinx build process.
+   :>json string state: "triggered", "building", or "finished"
+   :>json boolean success: Was build successful?
+   :>json string type: Build type ("html", "pdf", "man", or "epub")
+   :>json string version: URI for Version of Build.
 
 Files
 -----
-.. http:method:: GET /api/v1/file/
+.. http:get::  /api/v1/file/
 
-.. http:response:: Retrieve a list of Files.
+    Retrieve a list of Files.
 
    .. sourcecode:: js
 
@@ -217,20 +217,20 @@ Files
       }
 
 
-   :data integer limit: Number of Files returned.
-   :data string next: URI for next set of Files.
-   :data integer offset: Current offset used for pagination.
-   :data string previous: URI for previous set of Files.
-   :data integer total_count: Total number of Files.
-   :data array objects: Array of `File`_ objects.
+   :>json integer limit: Number of Files returned.
+   :>json string next: URI for next set of Files.
+   :>json integer offset: Current offset used for pagination.
+   :>json string previous: URI for previous set of Files.
+   :>json integer total_count: Total number of Files.
+   :>json array objects: Array of `File`_ objects.
 
 File
 ----
-.. http:method:: GET /api/v1/file/{id}/
+.. http:get::  /api/v1/file/{id}/
 
    :arg id: A File id.
 
-.. http:response:: Retrieve a single File.
+    Retrieve a single File.
 
    .. sourcecode:: js
 
@@ -244,18 +244,18 @@ File
         }
 
 
-   :data string absolute_url: URI for actual file (not the File object from the API.)
-   :data string id: File id.
-   :data string name: Name of File.
-   :data string path: Name of Path.
-   :data object project: A `Project`_ object for the file's project.
-   :data string resource_uri: URI for File object.
+   :>json string absolute_url: URI for actual file (not the File object from the API.)
+   :>json string id: File id.
+   :>json string name: Name of File.
+   :>json string path: Name of Path.
+   :>json object project: A `Project`_ object for the file's project.
+   :>json string resource_uri: URI for File object.
 
 Projects
 --------
-.. http:method:: GET /api/v1/project/
+.. http:get::  /api/v1/project/
 
-.. http:response:: Retrieve a list of Projects.
+    Retrieve a list of Projects.
 
    .. sourcecode:: js
 
@@ -271,21 +271,21 @@ Projects
       }
 
 
-   :data integer limit: Number of Projects returned.
-   :data string next: URI for next set of Projects.
-   :data integer offset: Current offset used for pagination.
-   :data string previous: URI for previous set of Projects.
-   :data integer total_count: Total number of Projects.
-   :data array objects: Array of `Project`_ objects.
+   :>json integer limit: Number of Projects returned.
+   :>json string next: URI for next set of Projects.
+   :>json integer offset: Current offset used for pagination.
+   :>json string previous: URI for previous set of Projects.
+   :>json integer total_count: Total number of Projects.
+   :>json array objects: Array of `Project`_ objects.
 
    
 Project
 -------
-.. http:method:: GET /api/v1/project/{id}
+.. http:get::  /api/v1/project/{id}
 
    :arg id: A Project id.
 
-.. http:response:: Retrieve a single Project.
+    Retrieve a single Project.
 
    .. sourcecode:: js
 
@@ -320,38 +320,38 @@ Project
       }
 
 
-   :data string absolute_url: URI for project (not the Project object from the API.)
-   :data string analytics_code: Analytics tracking code.
-   :data string copyright: Copyright
-   :data string crate_url: Crate.io URI.
-   :data string default_branch: Default branch.
-   :data string default_version: Default version.
-   :data string description: Description of project.
-   :data string django_packages_url: Djangopackages.com URI.
-   :data string documentation_type: Either "sphinx" or "sphinx_html". 
-   :data string id: Project id.
-   :data string modified_date: Last modified date.
-   :data string name: Project name.
-   :data string project_url: Project homepage.
-   :data string pub_date: Last published date.
-   :data string repo: URI for VCS repository.
-   :data string repo_type: Type of VCS repository.
-   :data string requirements_file: Pip requirements file for packages needed for building docs.
-   :data string resource_uri: URI for Project.
-   :data string slug: Slug.
-   :data string subdomain: Subdomain.
-   :data string suffix: File suffix of docfiles. (Usually ".rst".)
-   :data string theme: Sphinx theme.
-   :data boolean use_virtualenv: Build project in a virtualenv? (True or False)
-   :data array users: Array of readthedocs.org user URIs for administrators of Project.
-   :data string version: DEPRECATED. 
+   :>json string absolute_url: URI for project (not the Project object from the API.)
+   :>json string analytics_code: Analytics tracking code.
+   :>json string copyright: Copyright
+   :>json string crate_url: Crate.io URI.
+   :>json string default_branch: Default branch.
+   :>json string default_version: Default version.
+   :>json string description: Description of project.
+   :>json string django_packages_url: Djangopackages.com URI.
+   :>json string documentation_type: Either "sphinx" or "sphinx_html". 
+   :>json string id: Project id.
+   :>json string modified_date: Last modified date.
+   :>json string name: Project name.
+   :>json string project_url: Project homepage.
+   :>json string pub_date: Last published date.
+   :>json string repo: URI for VCS repository.
+   :>json string repo_type: Type of VCS repository.
+   :>json string requirements_file: Pip requirements file for packages needed for building docs.
+   :>json string resource_uri: URI for Project.
+   :>json string slug: Slug.
+   :>json string subdomain: Subdomain.
+   :>json string suffix: File suffix of docfiles. (Usually ".rst".)
+   :>json string theme: Sphinx theme.
+   :>json boolean use_virtualenv: Build project in a virtualenv? (True or False)
+   :>json array users: Array of readthedocs.org user URIs for administrators of Project.
+   :>json string version: DEPRECATED. 
 
 
 Users
 -----
-.. http:method:: GET /api/v1/user/
+.. http:get::  /api/v1/user/
 
-.. http:response:: Retrieve List of Users
+    Retrieve List of Users
 
    .. sourcecode:: js
    
@@ -366,21 +366,21 @@ Users
           "objects": [USERS]
       }
 
-   :data integer limit: Number of Users returned.
-   :data string next: URI for next set of Users.
-   :data integer offset: Current offset used for pagination.
-   :data string previous: URI for previous set of Users.
-   :data integer total_count: Total number of Users.
-   :data array USERS: Array of `User`_ objects.
+   :>json integer limit: Number of Users returned.
+   :>json string next: URI for next set of Users.
+   :>json integer offset: Current offset used for pagination.
+   :>json string previous: URI for previous set of Users.
+   :>json integer total_count: Total number of Users.
+   :>json array USERS: Array of `User`_ objects.
  
  
 User
 ----
-.. http:method:: GET /api/v1/user/{id}/
+.. http:get::  /api/v1/user/{id}/
 
    :arg id: A User id.
    
-.. http:response:: Retrieve a single User
+    Retrieve a single User
 
    .. sourcecode:: js
    
@@ -393,19 +393,19 @@ User
           "username": "testuser"
       }
       
-   :data string first_name: First name.
-   :data string id: User id.
-   :data string last_login: Timestamp of last login.
-   :data string last_name: Last name.
-   :data string resource_uri: URI for this user.
-   :data string username: User name.
+   :>json string first_name: First name.
+   :>json string id: User id.
+   :>json string last_login: Timestamp of last login.
+   :>json string last_name: Last name.
+   :>json string resource_uri: URI for this user.
+   :>json string username: User name.
    
  
 Versions
 --------
-.. http:method:: GET /api/v1/version/
+.. http:get::  /api/v1/version/
 
-.. http:response:: Retrieve a list of Versions.
+    Retrieve a list of Versions.
 
    .. sourcecode:: js
 
@@ -421,21 +421,21 @@ Versions
       }
 
 
-   :data integer limit: Number of Versions returned.
-   :data string next: URI for next set of Versions.
-   :data integer offset: Current offset used for pagination.
-   :data string previous: URI for previous set of Versions.
-   :data integer total_count: Total number of Versions.
-   :data array objects: Array of `Version`_ objects.
+   :>json integer limit: Number of Versions returned.
+   :>json string next: URI for next set of Versions.
+   :>json integer offset: Current offset used for pagination.
+   :>json string previous: URI for previous set of Versions.
+   :>json integer total_count: Total number of Versions.
+   :>json array objects: Array of `Version`_ objects.
 
 
 Version
 -------
-.. http:method:: GET /api/v1/version/{id}
+.. http:get::  /api/v1/version/{id}
 
    :arg id: A Version id.
 
-.. http:response:: Retrieve a single Version.
+    Retrieve a single Version.
 
    .. sourcecode:: js
 
@@ -452,15 +452,15 @@ Version
       }
 
 
-   :data boolean active: Are we continuing to build docs for this version? 
-   :data boolean built: Have docs been built for this version?
-   :data string id: Version id.
-   :data string identifier: Identifier of Version.
-   :data object project: A `Project`_ object for the version's project.
-   :data string resource_uri: URI for Version object.
-   :data string slug: String that uniquely identifies a project
-   :data boolean uploaded: Were docs uploaded? (As opposed to being build by Read the Docs.)
-   :data string verbose_name: Usually the same as Slug.
+   :>json boolean active: Are we continuing to build docs for this version? 
+   :>json boolean built: Have docs been built for this version?
+   :>json string id: Version id.
+   :>json string identifier: Identifier of Version.
+   :>json object project: A `Project`_ object for the version's project.
+   :>json string resource_uri: URI for Version object.
+   :>json string slug: String that uniquely identifies a project
+   :>json boolean uploaded: Were docs uploaded? (As opposed to being build by Read the Docs.)
+   :>json string verbose_name: Usually the same as Slug.
 
 
 Filtering Examples
@@ -472,11 +472,11 @@ Find Highest Version
 
     http://readthedocs.org/api/v1/version/pip/highest/?format=json
     
-.. http:method:: GET /api/v1/version/{id}/highest/
+.. http:get::  /api/v1/version/{id}/highest/
 
    :arg id: A Version id.
 
-.. http:response:: Retrieve highest version.
+    Retrieve highest version.
 
    .. sourcecode:: js
 
@@ -500,12 +500,12 @@ This will allow you to compare whether a certain version is the highest version 
 
     http://readthedocs.org/api/v1/version/pip/highest/0.8/?format=json 
 
-.. http:method:: GET /api/v1/version/{id}/highest/{version}
+.. http:get::  /api/v1/version/{id}/highest/{version}
 
    :arg id: A Version id.
    :arg version: A Version number or string.
 
-.. http:response:: Retrieve highest version.
+    Retrieve highest version.
 
    .. sourcecode:: js
 
@@ -526,11 +526,11 @@ File Search
 
     http://readthedocs.org/api/v1/file/search/?format=json&q=virtualenvwrapper
     
-.. http:method:: GET /api/v1/file/search/?q={search_term}
+.. http:get::  /api/v1/file/search/?q={search_term}
 
    :arg search_term: Perform search with this term.
 
-.. http:response:: Retrieve a list of File objects that contain the search term.
+    Retrieve a list of File objects that contain the search term.
 
    .. sourcecode:: js
    
@@ -583,11 +583,11 @@ Anchor Search
 
     http://readthedocs.org/api/v1/file/anchor/?format=json&q=virtualenv
 
-.. http:method:: GET /api/v1/file/anchor/?q={search_term}
+.. http:get::  /api/v1/file/anchor/?q={search_term}
 
    :arg search_term: Perform search of files containing anchor text with this term.
 
-.. http:response:: Retrieve a list of absolute URIs for files that contain the search term.
+    Retrieve a list of absolute URIs for files that contain the search term.
 
    .. sourcecode:: js
 

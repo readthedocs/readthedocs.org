@@ -1,82 +1,237 @@
-{% extends "projects/import_base.html" %}
+{% extends "base.html" %}
+{% load static %}
 {% load i18n %}
 {% load socialaccount %}
 
+{% block title %}{% trans "Import a Remote Repository" %}{% endblock %}
+
+{% block extra_links %}
+  <link rel="stylesheet" type="text/css" href="{% static "projects/css/import.css" %}" />
+{% endblock %}
+
+{% block extra_scripts %}
+  <script type="text/javascript" src="{% static "vendor/knockout.js" %}"></script>
+  <script type="text/javascript" src="{% static "projects/js/import.js" %}"></script>
+  <script type="text/javascript">
+var import_views = require('projects/import');
+$(document).ready(function() {
+    var instance = {},
+        config = {
+            'csrf_token': '{{ view_csrf_token }}',
+            'urls': {
+                'api_sync_remote_repositories': '{% url 'api_sync_remote_repositories' %}',
+                'remoteorganization-list': '{% url 'remoteorganization-list' %}',
+                'remoterepository-list': '{% url 'remoterepository-list' %}',
+                'projects_import': '{% url 'projects_import' %}'
+            }
+        },
+        view = import_views.ProjectImportView.init(
+            $('body').get(0),
+            instance,
+            config
+        );
+});
+  </script>
+{% endblock %}
+
+
 {% block content %}
-  <h1>{% trans "Import a Project" %}</h1>
 
-  <p class="info">
-    {% blocktrans %}
-      Import a project, using one of the methods below.
-      The project will be added to your dashboard and automatically built for the first time.
-    {% endblocktrans %}
-  </p>
+  <ul
+      class="notifications"
+      style="display: none;"
+      data-bind="visible: error">
+    <li
+        class="notification notification-40"
+        data-bind="with: error">
 
-  {% get_social_accounts request.user as accounts %}
+      <span data-bind="visible: message">
+        {% trans "There was an error with your request:" %}
+        <span data-bind="text: message"></span>
+      </span>
 
-  <div class="row">
-    <div class="col col-trisect">
-      <h3>{% trans "From GitHub" %}</h3>
+    </li>
+  </ul>
 
-      {% if accounts.github.0 %}
-        <p>
-          {% blocktrans %}
-            Import one of your public GitHub repositories to start using your documentation.
-          {% endblocktrans %}
-        </p>
+  {% block main_content %}
+    <div class="col-major project-import-remote">
 
-        <form method="get" action="{% url "projects_import_github" %}">
-          <input type="submit" value="{% trans "Import from GitHub" %}"/>
-        </form>
-      {% else %}
-        <p>
-          {% blocktrans %}
-            Once your account is connected to your GitHub account,
-            you will be able to automatically import and configure your public GitHub repositories.
-          {% endblocktrans %}
-          <a href="{% provider_login_url "github" process="connect" next="/dashboard/import/" %}">Connect to Github</a>
-          {% trans "to import your first repository." %}
-        </p>
-      {% endif %}
+      <button
+          data-bind="click: sync_projects, visible: !is_syncing()"
+          class="remote-sync">
+        <span>{% trans "Refresh your accounts" %}</span>
+      </button>
+      <span
+          data-bind="visible: is_syncing"
+          class="remote-sync-loader"
+          style="display: none;">
+        <img src="{% static 'core/img/loader.gif' %}"/>
+      </span>
+
+      <h1>{% trans "Import a Repository" %}</h1>
+
+      <div class="module repository-list">
+        <div class="module-wrapper">
+          <div class="module-list">
+            <div class="module-list-wrapper">
+
+              <ul data-bind="visible: is_ready() && !has_projects()" style="display: none;">
+                <li class="module-item">
+                  {% if has_connected_accounts %}
+                    {% blocktrans with binding='data-bind="click: sync_projects"' trimmed %}
+                      No remote repositories found,
+                      try <a href="#" {{ binding }}>refreshing your accounts</a>.
+                    {% endblocktrans %}
+                  {% else %}
+                    {% blocktrans trimmed %}
+                      You don't currently have any connected accounts.
+                      Connect your account to be able to easily set up projects.
+                    {% endblocktrans %}
+
+                    <form
+                        method="get"
+                        action="{% provider_login_url "github" process="connect" next="/dashboard/import/" %}"
+                        class="import-connect import-connect-github">
+                      <button>
+                        {% trans "Connect to GitHub" %}
+                      </button>
+                    </form>
+
+                    <form
+                        method="get"
+                        action="{% provider_login_url "bitbucket_oauth2" process="connect" next="/dashboard/import/" %}"
+                        class="import-connect import-connect-bitbucket">
+                      <button>
+                        {% trans "Connect to Bitbucket" %}
+                      </button>
+                    </form>
+
+                  {% endif %}
+                </li>
+              </ul>
+
+              <ul data-bind="foreach: projects" class="remote-repos">
+                <li
+                    class="module-item remote-repo"
+                    data-bind="visible: full_name"
+                    style="display: none;">
+
+                  <img
+                      data-bind="attr: {src: avatar_url}"
+                      height="24"
+                      class="remote-repo-avatar" />
+
+                  <div class="remote-repo-info">
+                    <a
+                        data-bind="attr: {href: html_url}, text: full_name"
+                        class="remote-repo-name">
+                    </a>
+                    <span
+                        data-bind="visible: !is_locked(), text: clone_url"
+                        class="remote-repo-extra remote-repo-extra-url">
+                    </span>
+                    <span
+                        data-bind="visible: is_locked()"
+                        class="remote-repo-extra remote-repo-extra-locked">
+                      {% trans "This repository requires admin access to import" %}
+                    </span>
+                  </div>
+
+                  <ul class="module-item-menu remote-repo-menu">
+                    <li
+                        data-bind="visible: is_locked()"
+                        style="display: none;">
+                      <span class="remote-repo-locked">
+                        <span>{% trans "Locked" %}</span>
+                      </span>
+                    </li>
+                    <li
+                        data-bind="visible: match() && !is_locked(), with: match"
+                        style="display: none;">
+                      <a
+                          data-bind="attr: {href: url}"
+                          class="remote-repo-view"
+                          title="{% trans "This repository has already been imported" %}">
+                        <span>{% trans "View" %}</span>
+                      </a>
+                    </li>
+                    <li data-bind="visible: !match() && !is_locked()" style="display: none;">
+                      <a
+                          href="#"
+                          data-bind="click: import_repo"
+                          class="remote-repo-import">
+                        <span>{% trans "Add" %}</span>
+                      </a>
+                    </li>
+                  </ul>
+
+                </li>
+              </ul>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pagination">
+        <span data-bind="visible: !page_previous()" class="disabled prev">
+          ‹‹ {% trans "previous" %}
+        </span>
+        <a
+            href="#"
+            data-bind="visible: page_previous, click: previous_page"
+            class="prev">
+          ‹‹ {% trans "previous" %}
+        </a>
+
+        <span data-bind="visible: !page_next()" class="disabled next">
+          {% trans "next" %} ››
+        </span>
+        <a
+            href="#"
+            data-bind="visible: page_next, click: next_page"
+            class="next">
+          {% trans "next" %} ››
+        </a>
+      </div>
+
     </div>
+  {% endblock main_content %}
 
-    <div class="col col-trisect">
-      <h3>From Bitbucket</h3>
+  {% block sidebar_content %}
+    <div class="col-minor project-import-sidebar">
 
-      {% if accounts.bitbucket.0 %}
-        <p>
-          {% blocktrans %}
-            Import one of your public Bitbucket repositories to start using your documentation.
-          {% endblocktrans %}
-        </p>
+      {% block manual-import %}
+        <div class="import-manual">
+          <p>
+            {% blocktrans trimmed %}
+              You can import your project manually if it isn't listed here or
+              connected to one of your accounts.
+            {% endblocktrans %}
+          </p>
 
-        <form method="get" action="{% url "projects_import_bitbucket" %}">
-          <input type="submit" value="{% trans "Import from Bitbucket" %}"/>
-        </form>
-      {% else %}
-        <p>
-          {% blocktrans %}
-            Once your account is connected to your Bitbucket account,
-            you will be able to automatically import and configure your <b>public Bitbucket repositories</b>.
-          {% endblocktrans %}
-          <a href="{% provider_login_url "bitbucket" process="connect" next="/dashboard/import/" %}">Connect to Bitbucket</a>
-          {% trans "to import your first repository." %}
-        </p>
-      {% endif %}
+          <form action="{% url "projects_import_manual" %}" method="get" class="import-manual">
+            <input type="submit" value="{% trans "Import Manually" %}"/>
+          </form>
+        </div>
+      {% endblock %}
+
+      {% block organizations %}
+        <div data-bind="visible: organizations().length > 0">
+          <h3>{% trans "Filter by Organization" %}</h3>
+
+          <ul data-bind="foreach: organizations" class="remote-orgs">
+            <li
+                class="remote-org"
+                data-bind="css: {'remote-org-hidden': filtered()}, click: function () { $root.set_filter_org(id()); }">
+              <img data-bind="attr: {src: avatar_url}" class="remote-org-avatar" />
+              <span data-bind="text: display_name" class="remote-org-name"></span>
+            </li>
+          </ul>
+        </div>
+      {% endblock %}
+
     </div>
+  {% endblock %}
 
-    <div class="col col-trisect">
-      <h3>{% trans "Manually Import" %}</h3>
-
-      <p class="info">
-        {% blocktrans %}
-          Public repositories can be imported manually from anywhere.
-        {% endblocktrans %}
-      </p>
-
-      <form action="{% url "projects_import_manual" %}" method="get">
-        <input type="submit" value="{% trans "Manually Import Project" %}"/>
-      </form>
-    </div>
-  </div>
 {% endblock %}

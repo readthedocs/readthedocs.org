@@ -6,20 +6,6 @@ import os
 fabfile_dir = os.path.dirname(__file__)
 
 
-def update_theme():
-    theme_dir = os.path.join(fabfile_dir, 'readthedocs', 'templates', 'sphinx')
-    if not os.path.exists('/tmp/sphinx_rtd_theme'):
-        local('git clone https://github.com/snide/sphinx_rtd_theme.git /tmp/sphinx_rtd_theme')
-    with lcd('/tmp/sphinx_rtd_theme'):
-        local('git remote update')
-        local('git reset --hard origin/master ')
-        local('cp -r /tmp/sphinx_rtd_theme/sphinx_rtd_theme %s' % theme_dir)
-        local('cp -r /tmp/sphinx_rtd_theme/sphinx_rtd_theme/static/fonts/ %s' % os.path.join(fabfile_dir, 'media', 'font'))
-        local('cp /tmp/sphinx_rtd_theme/sphinx_rtd_theme/static/css/badge_only.css %s' % os.path.join(fabfile_dir, 'media', 'css'))
-        local('cp /tmp/sphinx_rtd_theme/sphinx_rtd_theme/static/css/theme.css %s' %
-              os.path.join(fabfile_dir, 'media', 'css', 'sphinx_rtd_theme.css'))
-
-
 def i18n():
     with lcd('readthedocs'):
         local('rm -rf rtd_tests/tests/builds/')

@@ -1,32 +1,28 @@
 {% load projects_tags %}
 
+
+###########################################################################
+#          auto-created readthedocs.org specific configuration            #
+###########################################################################
+
+
+#
+# The following code was added during an automated build on readthedocs.org
+# It is auto created and injected for every build. The result is based on the
+# conf.py.tmpl file found in the readthedocs.org codebase:
+# https://github.com/rtfd/readthedocs.org/blob/master/readthedocs/doc_builder/templates/doc_builder/conf.py.tmpl
+#
+
+
 import sys
+import os.path
 from six import string_types
 
 from sphinx import version_info
 
-from recommonmark.parser import CommonMarkParser
-
-# Only Sphinx 1.3+
-if version_info[0] == 1 and version_info[1] > 2:
-
-    # Markdown Support
-    if 'source_suffix' in globals():
-        if isinstance(source_suffix, string_types) and source_suffix != '.md':
-            source_suffix = [source_suffix, '.md']
-        elif '.md' not in source_suffix:
-            source_suffix.append('.md')
-    else:
-        source_suffix = ['.rst', '.md']
-
-    if 'source_parsers' in globals():
-        if '.md' not in source_parsers:
-            source_parsers['.md'] = CommonMarkParser
-    else:
-        source_parsers = {
-            '.md': CommonMarkParser,
-        }
-
+# Get suffix for proper linking to GitHub
+# This is deprecated in Sphinx 1.3+,
+# as each page can have its own suffix
 if globals().get('source_suffix', False):
     if isinstance(source_suffix, string_types):
         SUFFIX = source_suffix
@@ -35,9 +31,7 @@ if globals().get('source_suffix', False):
 else:
     SUFFIX = '.rst'
 
-
-
-#Add RTD Template Path.
+# Add RTD Template Path.
 if 'templates_path' in globals():
     templates_path.insert(0, '{{ template_path }}')
 else:
@@ -45,16 +39,11 @@ else:
                       '.templates']
 
 # Add RTD Static Path. Add to the end because it overwrites previous files.
-if 'html_static_path' in globals():
-    html_static_path.append('{{ static_path }}')
-else:
-    html_static_path = ['_static', '{{ static_path }}']
-
-# Add RTD Theme Path. 
-if 'html_theme_path' in globals():
-    html_theme_path.append('{{ template_path }}')
-else:
-    html_theme_path = ['_themes', '{{ template_path }}']
+if not 'html_static_path' in globals():
+    html_static_path = []
+if os.path.exists('_static'):
+    html_static_path.append('_static')
+html_static_path.append('{{ static_path }}')
 
 # Add RTD Theme only if they aren't overriding it already
 using_rtd_theme = False
@@ -62,26 +51,26 @@ if 'html_theme' in globals():
     if html_theme in ['default']:
         # Allow people to bail with a hack of having an html_style
         if not 'html_style' in globals():
+            import sphinx_rtd_theme
             html_theme = 'sphinx_rtd_theme'
             html_style = None
             html_theme_options = {}
+            if 'html_theme_path' in globals():
+                html_theme_path.append(sphinx_rtd_theme.get_html_theme_path())
+            else:
+                html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+
             using_rtd_theme = True
 else:
+    import sphinx_rtd_theme
     html_theme = 'sphinx_rtd_theme'
     html_style = None
     html_theme_options = {}
+    if 'html_theme_path' in globals():
+        html_theme_path.append(sphinx_rtd_theme.get_html_theme_path())
+    else:
+        html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
     using_rtd_theme = True
-
-# Force theme on setting
-if globals().get('RTD_NEW_THEME', False):
-    html_theme = 'sphinx_rtd_theme'
-    html_style = None
-    html_theme_options = {}
-    using_rtd_theme = True
-
-if globals().get('RTD_OLD_THEME', False):
-    html_style = 'rtd.css'
-    html_theme = 'default'
 
 if globals().get('websupport2_base_url', False):
     websupport2_base_url = '{{ api_host }}/websupport'
@@ -107,7 +96,7 @@ context = {
     'slug': '{{ project.slug }}',
     'name': u'{{ project.name }}',
     'rtd_language': u'{{ project.language }}',
-    'canonical_url': '{{ project.clean_canonical_url }}',
+    'canonical_url': '{{ project.get_canonical_url }}',
     'analytics_code': '{{ project.analytics_code }}',
     'single_version': {{ project.single_version }},
     'conf_py_path': '{{ conf_py_path }}',
@@ -126,7 +115,11 @@ context = {
     'source_suffix': SUFFIX,
     'user_analytics_code': '{{ project.analytics_code|default_if_none:'' }}',
     'global_analytics_code': '{{ settings.GLOBAL_ANALYTICS_CODE }}',
+    {% if project.repo_type == 'git' %}
+    'commit': '{{ commit|slice:"8" }}',
+    {% else %}
     'commit': '{{ commit }}',
+    {% endif %}
 }
 if 'html_context' in globals():
     html_context.update(context)
