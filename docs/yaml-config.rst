@@ -16,9 +16,10 @@ formats
 ~~~~~~~
 
 * Default: `['htmlzip', 'pdf', 'epub']`
-* Options: htmlzip, pdf, epub
+* Options: htmlzip, pdf, epub, none
 
 The formats of your documentation you want to be built.
+Choose `none` to build none of the formats.
 
 .. note:: We will always build an HTML & JSON version of your documentation.
 		  These are used for web serving & search indexing, respectively.
