@@ -101,7 +101,7 @@ class Virtualenv(PythonEnvironment):
             'Pygments==2.0.2',
             'setuptools==18.6.1',
             'docutils==0.12',
-            'mkdocs==0.14.0',
+            'mkdocs==0.15.0',
             'mock==1.0.1',
             'pillow==2.6.1',
             'readthedocs-sphinx-ext==0.5.4',
@@ -210,7 +210,7 @@ class Conda(PythonEnvironment):
 
         # Install pip-only things.
         pip_requirements = [
-            'mkdocs==0.14.0',
+            'mkdocs==0.15.0',
             'readthedocs-sphinx-ext==0.5.4',
             'commonmark==0.5.4',
             'recommonmark==0.1.1',
