@@ -26,7 +26,14 @@ Choose `none` to build none of the formats.
 
 .. code-block:: yaml
 
-	requirements_file: requirements/docs.txt
+	# Don't build any extra formats
+	formats:
+		- none
+
+	# Build PDF & ePub
+	formats:
+		- epub
+		- pdf
 
 requirements_file
 ~~~~~~~~~~~~~~~~~
@@ -39,7 +46,6 @@ The path to your Pip requirements file.
 .. code-block:: yaml
 
 	requirements_file: requirements/docs.txt
-
 
 
 conda
