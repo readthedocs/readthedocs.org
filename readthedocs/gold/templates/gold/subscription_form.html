@@ -5,7 +5,7 @@
 {% block profile-admin-gold-edit %}active{% endblock %}
 
 {% block title %}
-Gold Status
+Read the Docs Gold
 {% endblock %}
 
 {% block extra_links %}
@@ -34,7 +34,7 @@ $(document).ready(function () {
 
 {% block edit_content %}
 <div>
-  <h2>Gold Status</h2>
+  <h2>Read the Docs Gold</h2>
 
   <p>
     {% blocktrans %}
@@ -43,11 +43,48 @@ $(document).ready(function () {
       product.
     {% endblocktrans %}
   </p>
+    <p>
+    {% blocktrans %}
+      If you are an individual,
+      feel free to give whatever feels right for the value you get out of Read the Docs.
+    {% endblocktrans %}
+    </p>
+    <p>
+    {% blocktrans %}
+      If you are a company using Read the Docs,
+      please consider getting a <a href="https://readthedocs.com/services/#open-source-support">commercial support contract</a>.
+      This will help us cover our costs,
+      and provide you with a better experience on the site.
+      If you aren't able to do that,
+      we suggest giving at least $20/month to help cover our support and operations costs.
+    {% endblocktrans %}
+    </p>
   <p>
     {% blocktrans %}
-      You can make one-time donations on our <a href="https://readthedocs.org/sustainability/">sustainability</a> page.
+      You can also make one-time donations on our <a href="https://readthedocs.org/sustainability/">sustainability</a> page.
     {% endblocktrans %}
   </p>
+
+  {% if domains.count %}
+  <h3>Domains</h2>
+  <p>
+    {% blocktrans %}
+    We ask that folks who use custom Domains give Read the Docs $5 per domain they are using.
+    This is optional, but it really does help us maintain the site going forward.
+    {% endblocktrans %}
+  </p>
+
+  <p>
+    You are currently using {{ domains.count }} domains:
+    
+    <ul class="donate-about">
+    {% for domain in domains %}
+      <li>{{ domain.domain }} ({{ domain.project.name }})</li>
+    {% endfor %}
+    </ul>
+  </p>
+
+  {% endif %}
 
   {% trans "Become a Gold Member" as subscription_title %}
   {% if golduser %}

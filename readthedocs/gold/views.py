@@ -12,9 +12,8 @@ from django.utils.translation import ugettext_lazy as _
 from vanilla import DeleteView, UpdateView, DetailView
 
 from readthedocs.core.mixins import LoginRequiredMixin
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Project, Domain
 from readthedocs.payments.mixins import StripeMixin
-from readthedocs.payments.utils import stripe
 
 from .forms import GoldSubscriptionForm, GoldProjectForm
 from .models import GoldUser
@@ -45,8 +44,15 @@ class GoldSubscriptionMixin(SuccessMessageMixin, StripeMixin, LoginRequiredMixin
         return ('gold/subscription{0}.html'
                 .format(self.template_name_suffix))
 
+    def get_context_data(self, **kwargs):
+        context = super(GoldSubscriptionMixin, self).get_context_data(**kwargs)
+        domains = Domain.objects.filter(project__users=self.request.user)
+        context['domains'] = domains
+        return context
 
 # Subscription Views
+
+
 class DetailGoldSubscription(GoldSubscriptionMixin, DetailView):
 
     def get(self, request, *args, **kwargs):

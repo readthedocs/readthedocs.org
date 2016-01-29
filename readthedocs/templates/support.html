@@ -1,5 +1,14 @@
-Support
-=======
+{% extends "base.html" %}
+
+{% load i18n %}
+{% load core_tags %}
+
+
+{% block title %}Support{% endblock %}
+
+{% block content %}
+<div id="support_page">
+{% filter restructuredtext %}
 
 Usage Questions
 ---------------
@@ -60,3 +69,7 @@ or read more at https://readthedocs.com/services/#open-source-support.
 .. _Github Issue Tracker: https://github.com/rtfd/readthedocs.org/issues
 .. _sign up: https://readthedocs.org/accounts/gold/
 .. _Gold: https://readthedocs.org/accounts/gold/
+
+{% endfilter %}
+</div>
+{% endblock %}

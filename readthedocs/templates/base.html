@@ -93,7 +93,10 @@
         </p>
         <a href="https://github.com/rtfd/readthedocs.org">GitHub</a> | <a href="http://docs.readthedocs.org">{%  trans "Docs" %}</a>.
 
-        {% trans 'Made by <a href="https://github.com/rtfd/readthedocs.org/graphs/contributors">humans</a>. Funded by <a href="https://gratipay.com/readthedocs/">readers like you</a>.' %}
+        {% url "gold_detail" as gold_detail %}
+        {% blocktrans %}
+        Made by <a href="https://github.com/rtfd/readthedocs.org/graphs/contributors">humans</a>. Funded by <a href="{{ gold_detail }}">readers like you</a>.
+        {% endblocktrans %}
         </p>
         {% endblock %}
 

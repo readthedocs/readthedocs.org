@@ -88,26 +88,6 @@ following settings::
     SLUMBER_USERNAME = 'test'
     SLUMBER_PASSWORD = 'test'
 
-Can I make search engines only see one version of my docs?
-----------------------------------------------------------
-
-You can do this for Google at least with a canonical link tag.
-It should look like:
-
-.. code-block:: jinja
-
-        <link rel="canonical" href="http://ericholscher.com/
-        {%- for word in pagename.split('/') -%}
-            {%- if word != 'index' -%}
-                {%- if word != '' -%}
-                    {{ word }}/
-                {%- endif -%}
-            {%- endif -%}
-        {%- endfor -%}
-        {% if builder == "dirhtml" %}/{% else %}.html{% endif %}
-        ">
-
-
 Deleting a stale or broken build environment
 --------------------------------------------
 

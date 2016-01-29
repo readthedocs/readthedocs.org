@@ -9,7 +9,7 @@ log = logging.getLogger(__name__)
 
 class GoldAppConfig(AppConfig):
     name = 'readthedocs.gold'
-    verbose_name = 'Read the Docs Gold'
+    verbose_name = 'Gold'
 
     def ready(self):
         if hasattr(self, 'already_run'):
