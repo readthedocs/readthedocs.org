@@ -21,7 +21,7 @@ we will first look for a ``conf.py`` file in your repository.
 If we don't find one,
 we will generate one for you.
 We will look inside a ``doc`` or ``docs`` directory first,
-and then default to the top-level of your documentation.
+and then look within your entire project.
 
 Then Sphinx will build any files with an ``.rst`` extension.
 If you have a ``README.rst``,
