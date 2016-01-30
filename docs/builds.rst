@@ -6,6 +6,15 @@ Files: `tasks.py`_ - `doc_builder/`_
 .. _tasks.py: https://github.com/rtfd/readthedocs.org/blob/master/readthedocs/projects/tasks.py
 .. _doc_builder/: https://github.com/rtfd/readthedocs.org/tree/master/readthedocs/doc_builder
 
+Every documentation build has limited resources.
+Our current build limits are:
+
+* 15 minutes
+* 1GB of memory
+
+We can increase build limits on a per-project basis,
+if you provide a good reason your documentation needs more resources.
+
 How we build documentation
 --------------------------
 
