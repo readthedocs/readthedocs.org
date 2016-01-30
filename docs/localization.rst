@@ -24,7 +24,7 @@ The language will be represented in the URL for you project.
 For example,
 a project that is in spanish will have a default URL of ``/es/latest/`` instead of ``/en/latest/``.
 
-.. note:: You must commit the ``.mo`` files for Read the Docs to translate your documentation.
+.. note:: You must commit the ``.po`` files for Read the Docs to translate your documentation.
 
 Project with multiple translations
 ----------------------------------
@@ -50,3 +50,6 @@ It also gets included in the Read the Docs flyout:
 
 .. image:: /img/translation_bar.png
 
+
+.. note:: You can include multiple translations in the same repository,
+          but each project must specify the language to build for those docs.
