@@ -52,7 +52,6 @@ WEBSOCKET_HOST = 'websocket.readthedocs.org:8088'
 
 PRODUCTION_DOMAIN = 'readthedocs.org'
 USE_SUBDOMAIN = True
-NGINX_X_ACCEL_REDIRECT = True
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
