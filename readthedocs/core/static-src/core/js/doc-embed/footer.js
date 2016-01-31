@@ -1,5 +1,4 @@
 var rtddata = require('./rtd-data'),
-    versionCompare = require('./version-compare'),
     sponsorship = require('../sponsorship');
 
 
@@ -38,7 +37,6 @@ function init() {
         dataType: "jsonp",
         data: get_data,
         success: function (data) {
-            versionCompare.init(data.version_compare);
             injectFooter(data);
             setupBookmarkCSRFToken();
         },
