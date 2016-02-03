@@ -48,7 +48,7 @@ DOCKER_LIMITS
             An integer representing the total allowed time limit (in
             seconds) of build processes. This time limit affects the parent
             process to the virtual machine and will force a virtual machine
-            to die if a build is still running after the alloted time
+            to die if a build is still running after the allotted time
             expires.
 
         memory
