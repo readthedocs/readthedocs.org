@@ -74,7 +74,8 @@ class UpdateDocsTask(Task):
     default_retry_delay = (7 * 60)
     name = 'update_docs'
 
-    def __init__(self, build_env=None, python_env=None, force=False, search=True, localmedia=True,
+    def __init__(self, build_env=None, python_env=None, config=None,
+                 force=False, search=True, localmedia=True,
                  build=None, project=None, version=None):
         self.build_env = build_env
         self.python_env = python_env
@@ -90,6 +91,8 @@ class UpdateDocsTask(Task):
         self.project = {}
         if project is not None:
             self.project = project
+        if config is not None:
+            self.config = config
 
     def _log(self, msg):
         log.info(LOG_TEMPLATE
@@ -349,6 +352,9 @@ class UpdateDocsTask(Task):
 
     def build_docs_localmedia(self):
         """Get local media files with separate build"""
+        if 'htmlzip' not in self.config.formats:
+            return False
+
         if self.build_localmedia:
             if self.project.is_type_sphinx:
                 return self.build_docs_class('sphinx_singlehtmllocalmedia')
@@ -356,17 +362,17 @@ class UpdateDocsTask(Task):
 
     def build_docs_pdf(self):
         """Build PDF docs"""
-        if (self.project.slug in HTML_ONLY or
-                not self.project.is_type_sphinx or
-                not self.project.enable_pdf_build):
+        if ('pdf' not in self.config.formats or
+            self.project.slug in HTML_ONLY or
+                not self.project.is_type_sphinx):
             return False
         return self.build_docs_class('sphinx_pdf')
 
     def build_docs_epub(self):
         """Build ePub docs"""
-        if (self.project.slug in HTML_ONLY or
-                not self.project.is_type_sphinx or
-                not self.project.enable_epub_build):
+        if ('epub' not in self.config.formats or
+            self.project.slug in HTML_ONLY or
+                not self.project.is_type_sphinx):
             return False
         return self.build_docs_class('sphinx_epub')
 
