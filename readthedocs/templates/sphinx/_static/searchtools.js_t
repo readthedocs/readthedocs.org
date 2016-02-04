@@ -440,6 +440,62 @@ var Search = {
   }
 };
 
+
+// Overrides
+Search.query_fallback = Search.query;
+Search.query = function (query) {
+    var link = document.createElement('a');
+    link.href = '{{ api_host }}';
+    link.pathname = '/api/v2/search';
+    link.search = '?q=' + query + '&project={{ project.slug }}';
+    $.ajax({
+        url: link.href,
+        complete: function(resp, status_code) {
+            var results = resp.responseJSON.results || {},
+                hits = results.hits || {},
+                hit_list = hits.hits || [];
+
+            if (hit_list.length) {
+                for (var n in hit_list) {
+                    var hit = hit_list[n],
+                        fields = hit.fields || {},
+                        list_item = $('<li style="display: none;"></li>'),
+                        item_url = document.createElement('a'),
+                        highlight = hit.highlight;
+
+                    item_url.href = '{{ canonical_url }}';
+                    item_url.pathname = item_url.pathname + fields.path + '.html';
+                    // TODO Add highlight search terms
+
+                    list_item.append(
+                        $('<a />')
+                        .attr('href', item_url)
+                        .html(fields.title)
+                    );
+                    if (highlight.content.length) {
+                        list_item.append(
+                            $('<div class="context">')
+                            .append(
+                                $('<span>')
+                                .html(highlight.content[0])
+                            )
+                        );
+                    }
+
+                    Search.output.append(list_item);
+                    list_item.slideDown(5);
+                    // TODO make this recursive?
+                }
+            }
+        }
+    })
+    // Search API failure, fallback to Sphinx indexes
+    .error(function (resp, status_code, error) {
+        // TODO don't do this, instead display an error?
+        Search.query_fallback(query);
+    });
+};
+
 $(document).ready(function() {
   Search.init();
 });
