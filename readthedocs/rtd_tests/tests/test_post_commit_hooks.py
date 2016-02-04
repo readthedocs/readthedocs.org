@@ -227,3 +227,10 @@ class PostCommitTest(TestCase):
         r = self.client.post('/build/%s' % rtd.pk, {'version_slug': 'master'})
         self.assertEqual(r.status_code, 302)
         self.assertEqual(r._headers['location'][1], 'http://testserver/projects/read-the-docs/builds/')
+
+    def test_hook_state_tracking(self):
+        rtd = Project.objects.get(slug='read-the-docs')
+        self.assertEqual(Project.objects.get(slug='read-the-docs').has_valid_webhook, False)
+        self.client.post('/build/%s' % rtd.pk, {'version_slug': 'latest'})
+        # Need to re-query to get updated DB entry
+        self.assertEqual(Project.objects.get(slug='read-the-docs').has_valid_webhook, True)
