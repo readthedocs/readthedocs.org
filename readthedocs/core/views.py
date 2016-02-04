@@ -163,6 +163,13 @@ def _build_version(project, slug, already_built=()):
 
 
 def _build_branches(project, branch_list):
+    """
+    Build the branches for a specific project.
+
+    Returns:
+        to_build - a list of branches that were built
+        not_building - a list of branches that we won't build
+    """
     for branch in branch_list:
         versions = project.versions_from_branch_name(branch)
         to_build = set()
@@ -179,6 +186,11 @@ def _build_branches(project, branch_list):
 
 
 def _build_url(url, branches):
+    """
+    Map a URL onto specific projects to build that are linked to that URL.
+
+    Check each of the ``branches`` to see if they are active and should be built.
+    """
     try:
         projects = (
             Project.objects.filter(repo__iendswith=url) |
@@ -186,14 +198,17 @@ def _build_url(url, branches):
         if not projects.count():
             raise NoProjectException()
         for project in projects:
-            (to_build, not_building) = _build_branches(project, branches)
-            if not to_build:
+            (built, not_building) = _build_branches(project, branches)
+            if not project.has_valid_webhook:
+                project.has_valid_webhook = True
+                project.save()
+            if not built:
                 update_imported_docs.delay(project.versions.get(slug=LATEST).pk)
                 msg = '(URL Build) Syncing versions for %s' % project.slug
                 pc_log.info(msg)
-        if to_build:
+        if built:
             msg = '(URL Build) Build Started: %s [%s]' % (
-                url, ' '.join(to_build))
+                url, ' '.join(built))
             pc_log.info(msg)
             return HttpResponse(msg)
         else:
