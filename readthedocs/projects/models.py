@@ -262,6 +262,13 @@ class Project(models.Model):
         help_text=_("2 means supporting 2.2.2 and 2.2.1, but not 2.2.0")
     )
 
+    has_valid_webhook = models.BooleanField(
+        default=False, help_text=_('This project has been build with a webhook')
+    )
+    has_valid_clone = models.BooleanField(
+        default=False, help_text=_('This project has been successfully cloned')
+    )
+
     tags = TaggableManager(blank=True)
     objects = ProjectManager()
     all_objects = models.Manager()
