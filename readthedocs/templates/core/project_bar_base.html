@@ -26,6 +26,14 @@
 
     <div class="options">
 
+    {% if not project.has_valid_webhook %}
+      <p class="build-failure">
+        This repository doesn't have a valid webhook set up.
+        You can <a href='{% url "projects_resync_webhook" project.slug %}'>resync your key</a> to fix this.
+      </p>
+      <br>
+    {% endif %}
+
     {% if project.skip %}
       <p class="build-failure">
             Your project is currently disabled for abuse of the system. 

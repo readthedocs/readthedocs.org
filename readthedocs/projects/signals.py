@@ -27,6 +27,7 @@ def handle_project_import(sender, **kwargs):
     """Add post-commit hook on project import"""
     project = sender
     request = kwargs.get('request')
+    _set = False
 
     for service_cls in registry:
         if service_cls.is_project_service(project):
@@ -34,5 +35,8 @@ def handle_project_import(sender, **kwargs):
             if service is not None:
                 if service.setup_webhook(project):
                     messages.success(request, _('Webhook activated'))
+                    _set = True
                 else:
                     messages.error(request, _('Webhook configuration failed'))
+    if not _set:
+        messages.error(request, _('No accounts available to set webhook on'))

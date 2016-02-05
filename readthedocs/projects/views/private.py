@@ -674,3 +674,17 @@ class DomainUpdate(DomainMixin, UpdateView):
 
 class DomainDelete(DomainMixin, DeleteView):
     pass
+
+
+@login_required
+def project_resync_webhook(request, project_slug):
+    """
+    Resync a project webhook.
+
+    The signal will add a success/failure message on the request.
+    """
+    project = get_object_or_404(Project.objects.for_admin_user(request.user),
+                                slug=project_slug)
+    responses = project_import.send(sender=project, request=request)
+    return HttpResponseRedirect(reverse('projects_detail',
+                                        args=[project.slug]))

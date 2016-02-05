@@ -104,6 +104,10 @@ urlpatterns = patterns(
     url(r'^(?P<project_slug>[-\w]+)/redirects/delete/$',
         'readthedocs.projects.views.private.project_redirects_delete',
         name='projects_redirects_delete'),
+
+    url(r'^(?P<project_slug>[-\w]+)/resync_webhook/$',
+        'readthedocs.projects.views.private.project_resync_webhook',
+        name='projects_resync_webhook'),
 )
 
 domain_urls = patterns(
