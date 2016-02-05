@@ -473,13 +473,10 @@ Search.query = function (query) {
                         .html(fields.title)
                     );
                     if (highlight.content.length) {
-                        list_item.append(
-                            $('<div class="context">')
-                            .append(
-                                $('<span>')
-                                .html(highlight.content[0])
-                            )
-                        );
+                        var content = $('<div class="context">')
+                            .html(highlight.content[0]);
+                        content.find('em').addClass('highlighted');
+                        list_item.append(content);
                     }
 
                     Search.output.append(list_item);
@@ -487,6 +484,20 @@ Search.query = function (query) {
                     // TODO make this recursive?
                 }
             }
+
+            Search.stopPulse();
+            Search.title.text(_('Search Results'));
+            if (!hit_list.length) {
+                Search.status.text(
+                    _('Your search did not match any documents. Please make sure that all words are spelled correctly and that you\'ve selected enough categories.')
+                );
+            }
+            else {
+                Search.status.text(
+                    _('Search finished, found %s page(s) matching the search query.').replace('%s', hit_list.length)
+                );
+            }
+            Search.status.fadeIn(500);
         }
     })
     // Search API failure, fallback to Sphinx indexes
