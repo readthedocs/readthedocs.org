@@ -6,6 +6,7 @@ from rest_framework.response import Response
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
+from readthedocs.projects.models import Project
 from readthedocs.search.lib import search_file, search_project, search_section
 from readthedocs.restapi import utils
 
@@ -44,8 +45,8 @@ def search(request):
         return Response({'error': 'Need project and q'},
                         status=status.HTTP_400_BAD_REQUEST)
     log.debug("(API Search) %s", query)
-    results = search_file(request=request, project=project_slug,
-                          version=version_slug, query=query)
+    results = search_file(request=request, project_slug=project_slug,
+                          version_slug=version_slug, query=query)
     return Response({'results': results})
 
 
