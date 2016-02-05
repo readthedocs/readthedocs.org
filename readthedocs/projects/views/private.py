@@ -685,6 +685,13 @@ def project_resync_webhook(request, project_slug):
     """
     project = get_object_or_404(Project.objects.for_admin_user(request.user),
                                 slug=project_slug)
-    responses = project_import.send(sender=project, request=request)
-    return HttpResponseRedirect(reverse('projects_detail',
-                                        args=[project.slug]))
+    if request.method == 'POST':
+        project_import.send(sender=project, request=request)
+        return HttpResponseRedirect(reverse('projects_detail',
+                                            args=[project.slug]))
+
+    return render_to_response(
+        'projects/project_resync_webhook.html',
+        {'project': project},
+        context_instance=RequestContext(request)
+    )
