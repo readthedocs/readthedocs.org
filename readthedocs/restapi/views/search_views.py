@@ -49,19 +49,29 @@ def search(request):
     kwargs = {}
     body = {
         "query": {
-            "function_score": {
-                "field_value_factor": {"field": "weight"},
-                "query": {
-                    "bool": {
-                        "should": [
-                            {"match": {
-                                "title": {"query": query, "boost": 10}}},
-                            {"match": {
-                                "headers": {"query": query, "boost": 5}}},
-                            {"match": {"content": {"query": query}}},
-                        ]
-                    }
-                }
+            "bool": {
+                "should": [
+                    {"match_phrase": {
+                        "title": {
+                            "query": query,
+                            "boost": 10,
+                            "slop": 2,
+                        },
+                    }},
+                    {"match_phrase": {
+                        "headers": {
+                            "query": query,
+                            "boost": 5,
+                            "slop": 3,
+                        },
+                    }},
+                    {"match_phrase": {
+                        "content": {
+                            "query": query,
+                            "slop": 5,
+                        },
+                    }},
+                ]
             }
         },
         "highlight": {
