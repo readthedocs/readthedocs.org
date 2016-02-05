@@ -477,7 +477,7 @@ Search.query = function (query) {
                     if (fields.slug != '{{ slug }}') {
                         list_item.append(
                             $('<span>')
-                            .html(fields.project)
+                            .text("(" + fields.project + ")")
                         );
                     }
                     if (highlight.content.length) {
