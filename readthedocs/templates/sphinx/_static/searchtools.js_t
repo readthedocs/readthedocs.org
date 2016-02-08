@@ -478,7 +478,7 @@ Search.query = function (query) {
                         .attr('href', item_url)
                         .html(fields.title)
                     );
-                    if (fields.slug != '{{ slug }}') {
+                    if (fields.project != '{{ slug }}') {
                         list_item.append(
                             $('<span>')
                             .text(" (" + fields.project + ")")
