@@ -441,7 +441,11 @@ var Search = {
 };
 
 
-// Overrides
+/*
+ * Search query override for hitting our local API instead of the standard
+ * Sphinx indexer. This will fall back to the standard indexer on an API
+ * failure,
+ */
 Search.query_fallback = Search.query;
 Search.query = function (query) {
     var search_def = $.Deferred(),
@@ -477,7 +481,7 @@ Search.query = function (query) {
                     if (fields.slug != '{{ slug }}') {
                         list_item.append(
                             $('<span>')
-                            .text("(" + fields.project + ")")
+                            .text(" (" + fields.project + ")")
                         );
                     }
                     if (highlight.content.length) {
@@ -489,7 +493,6 @@ Search.query = function (query) {
 
                     Search.output.append(list_item);
                     list_item.slideDown(5);
-                    // TODO make this recursive?
                 }
             }
 
@@ -509,6 +512,7 @@ Search.query = function (query) {
             Search.query_fallback(query);
         })
         .always(function () {
+            $('#search-progress').empty();
             Search.stopPulse();
             Search.title.text(_('Search Results'));
             Search.status.fadeIn(500);
