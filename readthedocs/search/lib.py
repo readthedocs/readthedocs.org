@@ -1,3 +1,5 @@
+from django.http import Http404
+
 from .indexes import PageIndex, ProjectIndex, SectionIndex
 
 from readthedocs.builds.constants import LATEST
@@ -117,12 +119,8 @@ def search_file(request, query, project_slug=None, version_slug=LATEST, taxonomy
             project_slugs = [project.slug]
             project_slugs.extend(s.child.slug for s in project.subprojects.all())
             project_slugs.extend(s.parent.slug for s in project.superprojects.all())
-            body['filter'] = {
-                "and": [
-                    {"terms": {"project": project_slugs}},
-                    {"term": {"version": version_slug}},
-                ]
-            }
+            final_filter['and'].append({"terms": {"project": project_slugs}})
+
             # Add routing to optimize search by hitting the right shard.
             kwargs['routing'] = project_slug
 
