@@ -2,7 +2,9 @@ from readthedocs.builds.constants import LATEST
 
 from .indexes import PageIndex, ProjectIndex, SectionIndex
 
-from readthedocs.search.signals import before_project_search, before_file_search
+from readthedocs.search.signals import (before_project_search,
+                                        before_file_search,
+                                        before_section_search)
 
 
 def search_project(request, query, language=None):
@@ -198,5 +200,7 @@ def search_section(request, query, project_slug=None, version_slug=LATEST,
         body['facets']['path'] = {
             "terms": {"field": "path"}
         }
+
+    before_section_search.send(request=request, sender=PageIndex, body=body)
 
     return SectionIndex().search(body, **kwargs)
