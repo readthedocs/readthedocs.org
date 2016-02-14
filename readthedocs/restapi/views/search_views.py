@@ -1,14 +1,11 @@
 import logging
 
-from django.http import Http404
 from rest_framework import decorators, permissions, status
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
-from rest_framework.views import APIView
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
-from readthedocs.search.indexes import PageIndex, ProjectIndex, SectionIndex
 from readthedocs.search.lib import search_file, search_project, search_section
 from readthedocs.restapi import utils
 
@@ -20,9 +17,7 @@ log = logging.getLogger(__name__)
 @decorators.permission_classes((permissions.IsAdminUser,))
 @decorators.renderer_classes((JSONRenderer,))
 def index_search(request):
-    """
-    Add things to the search index.
-    """
+    """Add things to the search index"""
     data = request.DATA['data']
     version_pk = data['version_pk']
     commit = data.get('commit')
@@ -48,7 +43,7 @@ def search(request):
     if project_slug is None or query is None:
         return Response({'error': 'Need project and q'},
                         status=status.HTTP_400_BAD_REQUEST)
-    log.debug("(API Search) %s" % query)
+    log.debug("(API Search) %s", query)
     results = search_file(request=request, project=project_slug,
                           version=version_slug, query=query)
     return Response({'results': results})
@@ -61,7 +56,7 @@ def project_search(request):
     query = request.GET.get('q', None)
     if query is None:
         return Response({'error': 'Need project and q'}, status=status.HTTP_400_BAD_REQUEST)
-    log.debug("(API Project Search) %s" % (query))
+    log.debug("(API Project Search) %s", (query))
     results = search_project(request=request, query=query)
     return Response({'results': results})
 
@@ -109,8 +104,8 @@ def section_search(request):
     project_slug = request.GET.get('project', None)
     version_slug = request.GET.get('version', LATEST)
     path = request.GET.get('path', None)
-    log.debug("(API Section Search) [%s:%s] %s" %
-              (project_slug, version_slug, query))
+    log.debug("(API Section Search) [%s:%s] %s", project_slug, version_slug,
+              query)
     results = search_section(
         request=request,
         query=query,
