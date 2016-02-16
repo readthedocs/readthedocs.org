@@ -30,7 +30,7 @@ from .exceptions import (BuildEnvironmentException, BuildEnvironmentError,
 from .constants import (DOCKER_SOCKET, DOCKER_VERSION, DOCKER_IMAGE,
                         DOCKER_LIMITS, DOCKER_TIMEOUT_EXIT_CODE,
                         DOCKER_OOM_EXIT_CODE, SPHINX_TEMPLATE_DIR,
-                        MKDOCS_TEMPLATE_DIR)
+                        MKDOCS_TEMPLATE_DIR, DOCKER_HOSTNAME_MAX_LEN)
 
 log = logging.getLogger(__name__)
 
@@ -250,23 +250,29 @@ class DockerBuildCommand(BuildCommand):
 
 class BuildEnvironment(object):
 
-    '''
-    Base build environment
+    """Base build environment
 
-    Placeholder for reorganizing command execution.
+    Base class for wrapping command execution for build steps. This provides a
+    context for command execution and reporting, and eventually performs updates
+    on the build object itself, reporting success/failure, as well as top-level
+    failures.
 
     :param project: Project that is being built
     :param version: Project version that is being built
     :param build: Build instance
     :param record: Record status of build object
-    '''
+    :param environment: shell environment variables
+    :param report_build_success: update build if successful
+    """
 
-    def __init__(self, project=None, version=None, build=None, record=True, environment=None):
+    def __init__(self, project=None, version=None, build=None, record=True,
+                 environment=None, report_build_success=True):
         self.project = project
         self.version = version
         self.build = build
         self.record = record
         self.environment = environment or {}
+        self.report_build_success = report_build_success
 
         self.commands = []
         self.failure = None
@@ -377,7 +383,7 @@ class BuildEnvironment(object):
 
         Returns nothing
         """
-        if not self.record:
+        if not self.record or (self.successful and not self.report_build_success):
             return None
 
         self.build['project'] = self.project.pk
@@ -448,9 +454,13 @@ class DockerEnvironment(BuildEnvironment):
         super(DockerEnvironment, self).__init__(*args, **kwargs)
         self.client = None
         self.container = None
-        self.container_name = None
-        if self.version:
-            self.container_name = slugify(unicode(self.version))
+        self.container_name = slugify(
+            'build-{build}-project-{project_id}-{project_name}'.format(
+                build=self.build.get('id'),
+                project_id=self.project.pk,
+                project_name=self.project.slug,
+            )[:DOCKER_HOSTNAME_MAX_LEN]
+        )
         if self.project.container_mem_limit:
             self.container_mem_limit = self.project.container_mem_limit
         if self.project.container_time_limit:
