@@ -378,12 +378,14 @@ class BuildEnvironment(object):
                 self.build['state'] == BUILD_STATE_FINISHED)
 
     def update_build(self, state=None):
-        """
-        Record a build by hitting the API.
+        """Record a build by hitting the API
 
-        Returns nothing
+        This step is skipped if we aren't recording the build, or if we don't
+        want to record successful builds yet (if we are running setup commands
+        for the build)
         """
-        if not self.record or (self.successful and not self.report_build_success):
+        if not self.record or (state == BUILD_STATE_FINISHED and
+                               not self.report_build_success):
             return None
 
         self.build['project'] = self.project.pk
