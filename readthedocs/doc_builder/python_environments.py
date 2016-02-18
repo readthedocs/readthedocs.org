@@ -99,7 +99,7 @@ class Virtualenv(PythonEnvironment):
         requirements = [
             'sphinx==1.3.4',
             'Pygments==2.0.2',
-            'setuptools==18.6.1',
+            'setuptools==20.1.1',
             'docutils==0.12',
             'mkdocs==0.15.0',
             'mock==1.0.1',
