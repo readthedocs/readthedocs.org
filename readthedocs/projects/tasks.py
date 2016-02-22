@@ -113,7 +113,8 @@ class UpdateDocsTask(Task):
 
         env_cls = LocalEnvironment
         self.setup_env = env_cls(project=self.project, version=self.version,
-                                 build=self.build, record=record)
+                                 build=self.build, record=record,
+                                 report_build_success=False)
 
         # Environment used for code checkout & initial configuration reading
         with self.setup_env:

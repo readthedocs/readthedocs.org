@@ -116,9 +116,9 @@ class TestDockerEnvironment(TestCase):
     def test_container_id(self):
         '''Test docker build command'''
         docker = DockerEnvironment(version=self.version, project=self.project,
-                                   build={})
+                                   build={'id': 123})
         self.assertEqual(docker.container_id,
-                         'version-foobar-of-pip-20')
+                         'build-123-project-6-pip')
 
     def test_connection_failure(self):
         '''Connection failure on to docker socket should raise exception'''
@@ -163,12 +163,12 @@ class TestDockerEnvironment(TestCase):
         })
 
         build_env = DockerEnvironment(version=self.version, project=self.project,
-                                      build={})
+                                      build={'id': 123})
         with build_env:
             build_env.run('echo test', cwd='/tmp')
 
         self.mocks.docker_client.exec_create.assert_called_with(
-            container='version-foobar-of-pip-20',
+            container='build-123-project-6-pip',
             cmd="/bin/sh -c 'cd /tmp && echo\\ test'",
             stderr=True,
             stdout=True
@@ -193,12 +193,12 @@ class TestDockerEnvironment(TestCase):
         })
 
         build_env = DockerEnvironment(version=self.version, project=self.project,
-                                      build={})
+                                      build={'id': 123})
         with build_env:
             build_env.run('echo', 'test', cwd='/tmp')
 
         self.mocks.docker_client.kill.assert_called_with(
-            'version-foobar-of-pip-20')
+            'build-123-project-6-pip')
         self.assertTrue(build_env.successful)
 
     def test_container_already_exists(self):
