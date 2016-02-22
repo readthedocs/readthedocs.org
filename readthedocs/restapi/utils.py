@@ -85,14 +85,16 @@ def delete_versions(project, version_data):
 
 def index_search_request(version, page_list, commit, project_scale, page_scale,
                          section=True, delete=True):
-    log_msg = ' '.join([page['path'] for page in page_list])
-    log.info("(Server Search) Indexing Pages: %s [%s]" % (
-        version.project.slug, log_msg))
-    project = version.project
-    page_obj = PageIndex()
-    section_obj = SectionIndex()
+    """Update search indexes with build output JSON
 
-    # tags = [tag.name for tag in project.tags.all()]
+    In order to keep sub-projects all indexed on the same shard, indexes will be
+    updated using the parent project's slug as the routing value.
+    """
+    project = version.project
+
+    log_msg = ' '.join([page['path'] for page in page_list])
+    log.info("Updating search index: project=%s pages=[%s]",
+             project.slug, log_msg)
 
     project_obj = ProjectIndex()
     project_obj.index_document(data={
@@ -107,11 +109,17 @@ def index_search_request(version, page_list, commit, project_scale, page_scale,
         'weight': project_scale,
     })
 
+    page_obj = PageIndex()
+    section_obj = SectionIndex()
     index_list = []
     section_index_list = []
+    routes = [project.slug]
+    routes.extend([p.parent.slug for p in project.superprojects.all()])
     for page in page_list:
-        log.debug("(API Index) %s:%s" % (project.slug, page['path']))
-        page_id = hashlib.md5('%s-%s-%s' % (project.slug, version.slug, page['path'])).hexdigest()
+        log.debug("Indexing page: %s:%s" % (project.slug, page['path']))
+        page_id = (hashlib
+                   .md5('-'.join([project.slug, version.slug, page['path']]))
+                   .hexdigest())
         index_list.append({
             'id': page_id,
             'project': project.slug,
@@ -127,10 +135,10 @@ def index_search_request(version, page_list, commit, project_scale, page_scale,
         if section:
             for section in page['sections']:
                 section_index_list.append({
-                    'id': hashlib.md5(
-                        '%s-%s-%s-%s' % (project.slug, version.slug,
-                                         page['path'], section['id'])
-                    ).hexdigest(),
+                    'id': (hashlib
+                           .md5('-'.join([project.slug, version.slug,
+                                         page['path'], section['id']]))
+                           .hexdigest()),
                     'project': project.slug,
                     'version': version.slug,
                     'path': page['path'],
@@ -139,12 +147,15 @@ def index_search_request(version, page_list, commit, project_scale, page_scale,
                     'content': section['content'],
                     'weight': page_scale,
                 })
-            section_obj.bulk_index(section_index_list, parent=page_id, routing=project.slug)
+            for route in routes:
+                section_obj.bulk_index(section_index_list, parent=page_id,
+                                       routing=route)
 
-    page_obj.bulk_index(index_list, parent=project.slug)
+    for route in routes:
+        page_obj.bulk_index(index_list, parent=project.slug, routing=route)
 
     if delete:
-        log.info("(Server Search) Deleting files not in commit: %s" % commit)
+        log.info("Deleting files not in commit: %s", commit)
         # TODO: AK Make sure this works
         delete_query = {
             "query": {

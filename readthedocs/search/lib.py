@@ -55,13 +55,6 @@ def search_file(request, query, project_slug=None, version_slug=LATEST, taxonomy
     :param version_slug: slug for :py:cls:`Project` version slug
     :param taxonomy: taxonomy for search
     """
-    try:
-        project = (Project.objects
-                   .api(request.user)
-                   .get(slug=project_slug))
-    except Project.DoesNotExist:
-        raise Http404("Project does not exist")
-
     kwargs = {}
     body = {
         "query": {
@@ -115,14 +108,27 @@ def search_file(request, query, project_slug=None, version_slug=LATEST, taxonomy
     if project_slug or version_slug or taxonomy:
         final_filter = {"and": []}
 
-        if project:
-            project_slugs = [project.slug]
-            project_slugs.extend(s.child.slug for s in project.subprojects.all())
-            project_slugs.extend(s.parent.slug for s in project.superprojects.all())
-            final_filter['and'].append({"terms": {"project": project_slugs}})
+        if project_slug:
+            try:
+                project = (Project.objects
+                           .api(request.user)
+                           .get(slug=project_slug))
+                project_slugs = [project.slug]
+                project_slugs.extend(s.child.slug for s
+                                     in project.subprojects.all())
+                final_filter['and'].append({"terms": {"project": project_slugs}})
 
-            # Add routing to optimize search by hitting the right shard.
-            kwargs['routing'] = project_slug
+                # Add routing to optimize search by hitting the right shard.
+                # This purposely doesn't apply routing if the project has more
+                # than one parent project.
+                if project.superprojects.exists():
+                    if project.superprojects.count() == 1:
+                        kwargs['routing'] = (project.superprojects.first()
+                                             .parent.slug)
+                else:
+                    kwargs['routing'] = project_slug
+            except Project.DoesNotExist:
+                return None
 
         if version_slug:
             final_filter['and'].append({'term': {'version': version_slug}})
