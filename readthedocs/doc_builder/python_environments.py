@@ -104,7 +104,7 @@ class Virtualenv(PythonEnvironment):
             'mkdocs==0.15.0',
             'mock==1.0.1',
             'pillow==2.6.1',
-            'readthedocs-sphinx-ext==0.5.4',
+            'git+https://github.com/rtfd/readthedocs-sphinx-ext.git@indoc-search#egg=readthedocs-sphinx-ext',
             'sphinx-rtd-theme==0.1.9',
             'alabaster>=0.7,<0.8,!=0.7.5',
             'commonmark==0.5.4',
