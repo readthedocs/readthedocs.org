@@ -369,8 +369,7 @@ class Project(models.Model):
                     for proj in (
                         apiv2.project(self.pk)
                         .subprojects()
-                        .get()['subprojects']
-                    )]
+                        .get()['subprojects'])]
         else:
             return [(proj.child.slug, proj.child.get_docs_url())
                     for proj in self.subprojects.all()]
