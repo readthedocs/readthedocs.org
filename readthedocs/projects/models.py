@@ -359,6 +359,22 @@ class Project(models.Model):
         else:
             return self.get_docs_url()
 
+    def get_subproject_urls(self):
+        """List subproject URLs
+
+        This is used in search result linking
+        """
+        if getattr(settings, 'DONT_HIT_DB', True):
+            return [(proj['slug'], proj['canonical_url'])
+                    for proj in (
+                        apiv2.project(self.pk)
+                        .subprojects()
+                        .get()['subprojects']
+                    )]
+        else:
+            return [(proj.child.slug, proj.child.get_docs_url())
+                    for proj in self.subprojects.all()]
+
     def get_production_media_path(self, type_, version_slug, include_file=True):
         """
         This is used to see if these files exist so we can offer them for download.
