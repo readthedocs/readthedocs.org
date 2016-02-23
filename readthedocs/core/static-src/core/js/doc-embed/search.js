@@ -19,9 +19,9 @@ function init() {
 function attach_elastic_search_query(data) {
     var project = data.project,
         version = data.version,
-        language = data.language,
+        language = data.language || 'en',
         api_host = data.api_host,
-        docroot = data.docroot;
+        canonical_url = data.canonical_url || "/";
 
     var query_override = function (query) {
         var search_def = $.Deferred(),
@@ -45,16 +45,8 @@ function attach_elastic_search_query(data) {
                             item_url = document.createElement('a'),
                             highlight = hit.highlight;
 
-                        item_url.href = '{{ canonical_url }}';
-                        if (fields.project == project) {
-                            item_url.pathname = item_url.pathname + fields.path +
-                                                DOCUMENTATION_OPTIONS.FILE_SUFFIX;
-                        }
-                        else {
-                            item_url.pathname = item_url.pathname + 'projects/' +
-                                                fields.project + '/' + fields.path +
-                                                DOCUMENTATION_OPTIONS.FILE_SUFFIX;
-                        }
+                        item_url.href = canonical_url;
+                        item_url += fields.path + DOCUMENTATION_OPTIONS.FILE_SUFFIX;
                         item_url.search = '?highlight=' + $.urlencode(query);
 
                         // Result list elements
@@ -121,9 +113,7 @@ function attach_elastic_search_query(data) {
     if (typeof Search !== 'undefined') {
         Search.query_fallback = Search.query;
         Search.query = query_override;
-        console.log('Overide!', Search)
     }
-    console.log('Init!', Search)
     Search.init();
 }
 

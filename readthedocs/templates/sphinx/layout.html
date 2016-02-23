@@ -22,18 +22,19 @@ http://docs.readthedocs.org/en/latest/canonical.html
     project: "{{ slug }}",
     version: "{{ current_version }}",
     language: "{{ rtd_language }}",
+    canonical_url: "{{ canonical_url }}",
     page: "{{ pagename }}",
     builder: "sphinx",
     theme: "{{ html_theme }}",
     docroot: "{{ conf_py_path }}",
-    {% if page_source_suffix %} 
+    {% if page_source_suffix %}
     source_suffix: "{{ page_source_suffix }}",
     {% else %}
     source_suffix: "{{ source_suffix }}",
     {% endif %}
     api_host: "{{ api_host }}",
     commit: "{{ commit }}"
-  }
+  };
   // Old variables
   var doc_version = "{{ current_version }}";
   var doc_slug = "{{ slug }}";
