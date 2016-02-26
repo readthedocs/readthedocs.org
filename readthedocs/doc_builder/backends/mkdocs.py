@@ -98,7 +98,7 @@ class BaseMkdocs(BaseBuilder):
         # Will be available in the JavaScript as READTHEDOCS_DATA.
         readthedocs_data = {
             'project': self.version.project.slug,
-            'version': self.version.verbose_name,
+            'version': self.version.slug,
             'language': self.version.project.language,
             'page': None,
             'theme': "readthedocs",
