@@ -138,7 +138,7 @@ label. The reported issue …
     Examples:
 
     - *Please change my username*
-    - *Please set me as owner of this abondand project*
+    - *Please set me as owner of this abandoned project*
 
 After we finished the initial triaging of new tickets, no ticket should be left
 without a label.
@@ -157,7 +157,7 @@ few more at hand to further categorize issues.
 
 *Community Effort*
     There are many valuable ideas in the issue tracker for future enhancements
-    of Read the Docs. Unfortunately to many for the core developers to handle
+    of Read the Docs. Unfortunately too many for the core developers to handle
     all of them. Therefore we assign the *Community Effort* label on all the
     issues that we see as valid for the project but that we currently do not
     have the resources to work on. We encourage community members to work

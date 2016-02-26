@@ -49,7 +49,7 @@ docs_urls = patterns(
          r'(?P<version_slug>{version_slug})/'
          r'(?P<filename>{filename_slug})$'.format(**pattern_opts)),
         'readthedocs.core.views.server_helpful_404',
-        name='user_buils_fallback'),
+        name='user_builds_fallback'),
     url((r'^user_builds/(?P<project_slug>{project_slug})/translations/'
          r'(?P<lang_slug>{lang_slug})/(?P<version_slug>{version_slug})/'
          r'(?P<filename>{filename_slug})$'.format(**pattern_opts)),
