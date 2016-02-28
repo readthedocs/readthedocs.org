@@ -51,7 +51,8 @@ function attach_elastic_search_query(data) {
                             var subproject_url = subprojects[fields.project];
                             item_url.href = subproject_url;
                         }
-                        item_url += fields.path + DOCUMENTATION_OPTIONS.FILE_SUFFIX;
+                        item_url.href += fields.path +
+                            DOCUMENTATION_OPTIONS.FILE_SUFFIX;
                         item_url.search = '?highlight=' + $.urlencode(query);
 
                         // Result list elements
