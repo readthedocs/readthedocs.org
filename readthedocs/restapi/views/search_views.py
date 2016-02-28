@@ -69,7 +69,7 @@ def search(request):
                     version_slug=search_version
                 )
             except ProjectRelationship.DoesNotExist:
-                next
+                pass
         results['hits']['hits'][n]['fields']['link'] = (
             canonical_url + path
         )
