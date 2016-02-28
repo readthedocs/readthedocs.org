@@ -1,10 +1,13 @@
 from readthedocs.builds.constants import LATEST
-from .indexes import ProjectIndex, PageIndex
 
-from readthedocs.search.signals import before_project_search, before_file_search
+from .indexes import PageIndex, ProjectIndex, SectionIndex
+
+from readthedocs.search.signals import (before_project_search,
+                                        before_file_search,
+                                        before_section_search)
 
 
-def search_project(request, query, language):
+def search_project(request, query, language=None):
 
     body = {
         "query": {
@@ -40,15 +43,31 @@ def search_project(request, query, language):
 
 
 def search_file(request, query, project=None, version=LATEST, taxonomy=None):
-
     kwargs = {}
     body = {
         "query": {
             "bool": {
                 "should": [
-                    {"match": {"title": {"query": query, "boost": 10}}},
-                    {"match": {"headers": {"query": query, "boost": 5}}},
-                    {"match": {"content": {"query": query}}},
+                    {"match_phrase": {
+                        "title": {
+                            "query": query,
+                            "boost": 10,
+                            "slop": 2,
+                        },
+                    }},
+                    {"match_phrase": {
+                        "headers": {
+                            "query": query,
+                            "boost": 5,
+                            "slop": 3,
+                        },
+                    }},
+                    {"match_phrase": {
+                        "content": {
+                            "query": query,
+                            "slop": 5,
+                        },
+                    }},
                 ]
             }
         },
@@ -98,3 +117,90 @@ def search_file(request, query, project=None, version=LATEST, taxonomy=None):
 
     results = PageIndex().search(body, **kwargs)
     return results
+
+
+def search_section(request, query, project_slug=None, version_slug=LATEST,
+                   path=None):
+    """Search for a section of content
+
+    When you search, you will have a ``project`` facet, which includes the
+    number of matching sections per project. When you search inside a project,
+    the ``path`` facet will show the number of matching sections per page.
+
+    :param request: Request instance
+    :param query: string to use in query
+    :param project_slug: :py:cls:`Project` instance
+    :param version_slug: :py:cls:`Project` version instance
+    :param taxonomy: search taxonomy
+    """
+    kwargs = {}
+    body = {
+        "query": {
+            "bool": {
+                "should": [
+                    {"match_phrase": {
+                        "title": {
+                            "query": query,
+                            "boost": 10,
+                            "slop": 2,
+                        },
+                    }},
+                    {"match_phrase": {
+                        "content": {
+                            "query": query,
+                            "slop": 5,
+                        },
+                    }},
+                ]
+            }
+        },
+        "facets": {
+            "project": {
+                "terms": {"field": "project"},
+                "facet_filter": {
+                    "term": {"version": version_slug},
+                }
+            },
+        },
+        "highlight": {
+            "fields": {
+                "title": {},
+                "content": {},
+            }
+        },
+        "fields": ["title", "project", "version", "path", "page_id", "content"],
+        "size": 10  # TODO: Support pagination.
+    }
+
+    if project_slug:
+        body['filter'] = {
+            "and": [
+                {"term": {"project": project_slug}},
+                {"term": {"version": version_slug}},
+            ]
+        }
+        body['facets']['path'] = {
+            "terms": {"field": "path"},
+            "facet_filter": {
+                "term": {"project": project_slug},
+            }
+        },
+        # Add routing to optimize search by hitting the right shard.
+        kwargs['routing'] = project_slug
+
+    if path:
+        body['filter'] = {
+            "and": [
+                {"term": {"path": path}},
+            ]
+        }
+
+    if path and not project_slug:
+        # Show facets when we only have a path
+        body['facets']['path'] = {
+            "terms": {"field": "path"}
+        }
+
+    before_section_search.send(request=request, sender=PageIndex, body=body)
+
+    return SectionIndex().search(body, **kwargs)
