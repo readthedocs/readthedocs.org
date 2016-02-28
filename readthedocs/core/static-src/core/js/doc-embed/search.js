@@ -20,9 +20,7 @@ function attach_elastic_search_query(data) {
     var project = data.project,
         version = data.version,
         language = data.language || 'en',
-        api_host = data.api_host,
-        subprojects = data.subprojects || {},
-        canonical_url = data.canonical_url || "/";
+        api_host = data.api_host;
 
     var query_override = function (query) {
         var search_def = $.Deferred(),
@@ -30,7 +28,7 @@ function attach_elastic_search_query(data) {
 
         search_url.href = api_host;
         search_url.pathname = '/api/v2/search';
-        search_url.search = '?q=' + query + '&project=' + project +
+        search_url.search = '?q=' + $.urlencode(query) + '&project=' + project +
             '&version=' + version + '&language=' + language;
 
         search_def
@@ -46,12 +44,7 @@ function attach_elastic_search_query(data) {
                             item_url = document.createElement('a'),
                             highlight = hit.highlight;
 
-                        item_url.href = canonical_url;
-                        if (fields.project != project) {
-                            var subproject_url = subprojects[fields.project];
-                            item_url.href = subproject_url;
-                        }
-                        item_url.href += fields.path +
+                        item_url.href += fields.link +
                             DOCUMENTATION_OPTIONS.FILE_SUFFIX;
                         item_url.search = '?highlight=' + $.urlencode(query);
 
@@ -80,9 +73,8 @@ function attach_elastic_search_query(data) {
                 }
 
                 if (!hit_list.length) {
-                    Search.status.text(
-                        _('Your search did not match any documents. Please make sure that all words are spelled correctly and that you\'ve selected enough categories.')
-                    );
+                    // Fallback to Sphinx's indexes
+                    Search.query_fallback(query);
                 }
                 else {
                     Search.status.text(
@@ -116,8 +108,9 @@ function attach_elastic_search_query(data) {
         });
     };
 
-    if (typeof Search !== 'undefined') {
-        Search.query_fallback = Search.query;
+    if (typeof Search !== 'undefined' && project && version) {
+        var query_fallback = Search.query;
+        Search.query_fallback = query_fallback;
         Search.query = query_override;
     }
     $(document).ready(function () {
