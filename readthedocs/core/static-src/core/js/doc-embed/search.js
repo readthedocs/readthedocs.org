@@ -21,6 +21,7 @@ function attach_elastic_search_query(data) {
         version = data.version,
         language = data.language || 'en',
         api_host = data.api_host,
+        subprojects = data.subprojects || {},
         canonical_url = data.canonical_url || "/";
 
     var query_override = function (query) {
@@ -46,6 +47,10 @@ function attach_elastic_search_query(data) {
                             highlight = hit.highlight;
 
                         item_url.href = canonical_url;
+                        if (fields.project != project) {
+                            var subproject_url = subprojects[fields.project];
+                            item_url.href = subproject_url;
+                        }
                         item_url += fields.path + DOCUMENTATION_OPTIONS.FILE_SUFFIX;
                         item_url.search = '?highlight=' + $.urlencode(query);
 

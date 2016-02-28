@@ -1,7 +1,9 @@
-from readthedocs.builds.constants import LATEST
+from django.http import Http404
 
 from .indexes import PageIndex, ProjectIndex, SectionIndex
 
+from readthedocs.builds.constants import LATEST
+from readthedocs.projects.models import Project
 from readthedocs.search.signals import (before_project_search,
                                         before_file_search,
                                         before_section_search)
@@ -42,7 +44,17 @@ def search_project(request, query, language=None):
     return ProjectIndex().search(body)
 
 
-def search_file(request, query, project=None, version=LATEST, taxonomy=None):
+def search_file(request, query, project_slug=None, version_slug=LATEST, taxonomy=None):
+    """Search index for files matching query
+
+    Raises a 404 error on missing project
+
+    :param request: request instance
+    :param query: string to query for
+    :param project_slug: :py:cls:`Project` slug
+    :param version_slug: slug for :py:cls:`Project` version slug
+    :param taxonomy: taxonomy for search
+    """
     kwargs = {}
     body = {
         "query": {
@@ -93,17 +105,33 @@ def search_file(request, query, project=None, version=LATEST, taxonomy=None):
         "size": 50  # TODO: Support pagination.
     }
 
-    if project or version or taxonomy:
+    if project_slug or version_slug or taxonomy:
         final_filter = {"and": []}
 
-        if project:
-            final_filter['and'].append({'term': {'project': project}})
+        if project_slug:
+            try:
+                project = (Project.objects
+                           .api(request.user)
+                           .get(slug=project_slug))
+                project_slugs = [project.slug]
+                project_slugs.extend(s.child.slug for s
+                                     in project.subprojects.all())
+                final_filter['and'].append({"terms": {"project": project_slugs}})
 
-            # Add routing to optimize search by hitting the right shard.
-            kwargs['routing'] = project
+                # Add routing to optimize search by hitting the right shard.
+                # This purposely doesn't apply routing if the project has more
+                # than one parent project.
+                if project.superprojects.exists():
+                    if project.superprojects.count() == 1:
+                        kwargs['routing'] = (project.superprojects.first()
+                                             .parent.slug)
+                else:
+                    kwargs['routing'] = project_slug
+            except Project.DoesNotExist:
+                return None
 
-        if version:
-            final_filter['and'].append({'term': {'version': version}})
+        if version_slug:
+            final_filter['and'].append({'term': {'version': version_slug}})
 
         if taxonomy:
             final_filter['and'].append({'term': {'taxonomy': taxonomy}})
@@ -115,8 +143,7 @@ def search_file(request, query, project=None, version=LATEST, taxonomy=None):
 
     before_file_search.send(request=request, sender=PageIndex, body=body)
 
-    results = PageIndex().search(body, **kwargs)
-    return results
+    return PageIndex().search(body, **kwargs)
 
 
 def search_section(request, query, project_slug=None, version_slug=LATEST,

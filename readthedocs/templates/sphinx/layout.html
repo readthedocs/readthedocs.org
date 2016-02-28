@@ -22,6 +22,7 @@ http://docs.readthedocs.org/en/latest/canonical.html
     project: "{{ slug }}",
     version: "{{ current_version }}",
     language: "{{ rtd_language }}",
+    subprojects: {},
     canonical_url: "{{ canonical_url }}",
     page: "{{ pagename }}",
     builder: "sphinx",
@@ -35,6 +36,9 @@ http://docs.readthedocs.org/en/latest/canonical.html
     api_host: "{{ api_host }}",
     commit: "{{ commit }}"
   };
+  {% for slug, url in subprojects %}
+  READTHEDOCS_DATA.subprojects["{{ slug }}"] = "{{ url }}";
+  {% endfor %}
   // Old variables
   var doc_version = "{{ current_version }}";
   var doc_slug = "{{ slug }}";
