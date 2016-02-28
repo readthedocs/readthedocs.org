@@ -114,7 +114,11 @@ function attach_elastic_search_query(data) {
         Search.query_fallback = Search.query;
         Search.query = query_override;
     }
-    Search.init();
+    $(document).ready(function () {
+        if (typeof Search !== 'undefined') {
+            Search.init();
+        }
+    });
 }
 
 module.exports = {
