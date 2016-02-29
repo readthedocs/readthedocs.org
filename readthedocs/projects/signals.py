@@ -42,5 +42,5 @@ def handle_project_import(sender, **kwargs):
         messages.error(
             request,
             _('No accounts available to set webhook on. '
-                'Please connect either a GitHub or BitBucket account.')
+              'Please connect either a GitHub or Bitbucket account.')
         )

@@ -263,7 +263,7 @@ class Project(models.Model):
     )
 
     has_valid_webhook = models.BooleanField(
-        default=False, help_text=_('This project has been build with a webhook')
+        default=False, help_text=_('This project has been built with a webhook')
     )
     has_valid_clone = models.BooleanField(
         default=False, help_text=_('This project has been successfully cloned')

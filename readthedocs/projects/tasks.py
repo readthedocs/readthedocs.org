@@ -262,9 +262,7 @@ class UpdateDocsTask(Task):
         return env
 
     def set_valid_clone(self):
-        """
-        Mark on the project that it has been cloned properly.
-        """
+        """Mark on the project that it has been cloned properly."""
         project_data = api_v2.project(self.project.pk).get()
         project_data['has_valid_clone'] = True
         api_v2.project(self.project.pk).put(project_data)
