@@ -16,32 +16,6 @@ clone the repository.
 .. _virtualenv: http://pypi.python.org/pypi/virtualenv
 .. _Git: http://git-scm.com/
 
-Once you have these, create a virtual environment somewhere on your disk, then
-activate it::
-
-    virtualenv rtd
-    cd rtd
-    source bin/activate
-
-
-You will need to verify that your pip version is higher than 1.5 you can do this as such::
-
-    pip --version
-
-If this is not the case please update your pip version before continuing::
-
-    pip install --upgrade pip
-
-Create a folder in here, and clone the repository::
-
-    mkdir checkouts
-    cd checkouts
-    git clone https://github.com/rtfd/readthedocs.org.git
-
-Next, install the dependencies using ``pip`` (included with virtualenv_)::
-
-    cd readthedocs.org
-    pip install -r requirements.txt
 
 .. note::
 
@@ -61,13 +35,39 @@ Next, install the dependencies using ``pip`` (included with virtualenv_)::
     following packages::
 
         sudo apt-get install build-essential
-        sudo apt-get install python-dev
+        sudo apt-get install python-dev python-pip python-setuptools
         sudo apt-get install libxml2-dev libxslt1-dev zlib1g-dev
 
     Users of other Linux distributions may need to install the equivalent
     packages, depending on their system configuration.
 
 .. _Homebrew: http://brew.sh/
+
+You will need to verify that your pip version is higher than 1.5 you can do this as such::
+
+    pip --version
+
+If this is not the case please update your pip version before continuing::
+
+    pip install --upgrade pip
+
+Once you have these, create a virtual environment somewhere on your disk, then
+activate it::
+
+    virtualenv rtd
+    cd rtd
+    source bin/activate
+
+Create a folder in here, and clone the repository::
+
+    mkdir checkouts
+    cd checkouts
+    git clone https://github.com/rtfd/readthedocs.org.git
+
+Next, install the dependencies using ``pip`` (included inside of virtualenv_)::
+
+    cd readthedocs.org
+    pip install -r requirements.txt
 
 This may take a while, so go grab a beverage. When it's done, build your
 database::
@@ -77,6 +77,10 @@ database::
 Then please create a superuser account for Django::
 
     ./manage.py createsuperuser
+    
+Now let's properly generate the static assets::
+
+    ./manage.py collectstatic
 
 By now, it is the right time to load in a couple users and a test project::
 
@@ -95,6 +99,11 @@ Finally, you're ready to start the webserver::
 Visit http://127.0.0.1:8000/ in your browser to see how it looks; you can use
 the admin interface via http://127.0.0.1:8000/admin (logging in with the
 superuser account you just created).
+
+For builds to properly kick off as expected, it is necessary the port 
+you're serving on (i.e. ``runserver 0.0.0.0:8080``) match the port defined
+in ``PRODUCTION_DOMAIN``. You can utilize ``local_settings.py`` to modify this.
+(By default, it's ``localhost:8000``)
 
 While the webserver is running, you can build documentation for the latest version of
 a project called 'pip' with the ``update_repos`` command.  You can replace 'pip'
