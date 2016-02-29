@@ -43,7 +43,7 @@ class PythonEnvironment(object):
     def install_package(self):
         setup_path = os.path.join(self.checkout_path, 'setup.py')
         if os.path.isfile(setup_path) and self.config.install_project:
-            if getattr(settings, 'USE_PIP_INSTALL', False):
+            if self.config.pip_install or getattr(settings, 'USE_PIP_INSTALL', False):
                 self.build_env.run(
                     'python',
                     self.venv_bin(filename='pip'),
