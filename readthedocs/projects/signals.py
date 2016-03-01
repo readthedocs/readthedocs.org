@@ -43,5 +43,5 @@ def handle_project_import(sender, **kwargs):
         messages.error(
             request,
             _('No accounts available to set webhook on. '
-              'Please connect your %s account.' % service.provider_id.capitalize())
+              'Please connect your %s account.' % _service.provider_id.capitalize())
         )
