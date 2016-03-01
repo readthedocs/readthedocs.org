@@ -25,6 +25,10 @@ pylint:
   disable:
     - logging-format-interpolation
 
+pyflakes:
+  disable:
+    - F999
+
 mccabe:
   run: false
 
