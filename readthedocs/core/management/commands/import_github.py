@@ -9,6 +9,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         if len(args):
             for slug in args:
-                service = GitHubService.for_user(User.objects.get(username=slug))
-                if service is not None:
-                    service.sync()
+                for service in GitHubService.for_user(
+                    User.objects.get(username=slug)
+                ):
+                    if service is not None:
+                        service.sync()

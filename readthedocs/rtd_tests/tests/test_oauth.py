@@ -84,8 +84,8 @@ class GitHubOAuthTests(TestCase):
 
     def test_import_with_no_token(self):
         '''User without a GitHub SocialToken does not return a service'''
-        service = GitHubService.for_user(self.user)
-        self.assertIsNone(service)
+        services = GitHubService.for_user(self.user)
+        self.assertIsNone(services)
 
     def test_multiple_users_same_repo(self):
         repo_json = {
@@ -277,5 +277,5 @@ class BitbucketOAuthTests(TestCase):
 
     def test_import_with_no_token(self):
         '''User without a Bitbucket SocialToken does not return a service'''
-        service = BitbucketService.for_user(self.user)
-        self.assertIsNone(service)
+        services = BitbucketService.for_user(self.user)
+        self.assertIsNone(services)

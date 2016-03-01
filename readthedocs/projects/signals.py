@@ -28,19 +28,21 @@ def handle_project_import(sender, **kwargs):
     project = sender
     request = kwargs.get('request')
     _set = False
+    _service = None
 
     for service_cls in registry:
         if service_cls.is_project_service(project):
-            service = service_cls.for_user(request.user)
-            if service is not None:
-                if service.setup_webhook(project):
-                    messages.success(request, _('Webhook activated'))
-                    _set = True
-                else:
-                    messages.error(request, _('Webhook configuration failed'))
-    if not _set:
+            for service in service_cls.for_user(request.user):
+                _service = service
+                if service is not None:
+                    if service.setup_webhook(project):
+                        messages.success(request, _('Webhook activated'))
+                        _set = True
+                    else:
+                        messages.error(request, _('Webhook configuration failed'))
+    if not _set and _service:
         messages.error(
             request,
             _('No accounts available to set webhook on. '
-              'Please connect either a GitHub or Bitbucket account.')
+              'Please connect your %s account.' % service.provider_id.capitalize())
         )
