@@ -39,7 +39,7 @@ class Service(object):
             )
             return [cls(user=user, account=account) for account in accounts]
         except SocialAccount.DoesNotExist:
-            return None
+            return []
 
     def get_adapter(self):
         return self.adapter

@@ -12,5 +12,4 @@ class Command(BaseCommand):
                 for service in GitHubService.for_user(
                     User.objects.get(username=slug)
                 ):
-                    if service is not None:
-                        service.sync()
+                    service.sync()

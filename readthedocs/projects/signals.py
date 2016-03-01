@@ -34,12 +34,11 @@ def handle_project_import(sender, **kwargs):
         if service_cls.is_project_service(project):
             for service in service_cls.for_user(request.user):
                 _service = service
-                if service is not None:
-                    if service.setup_webhook(project):
-                        messages.success(request, _('Webhook activated'))
-                        _set = True
-                    else:
-                        messages.error(request, _('Webhook configuration failed'))
+                if service.setup_webhook(project):
+                    messages.success(request, _('Webhook activated'))
+                    _set = True
+                else:
+                    messages.error(request, _('Webhook configuration failed'))
     if not _set and _service:
         messages.error(
             request,
