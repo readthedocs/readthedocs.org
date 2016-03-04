@@ -97,7 +97,7 @@ class BaseSphinx(BaseBuilder):
                 'static_path': SPHINX_STATIC_DIR,
                 'template_path': SPHINX_TEMPLATE_DIR,
                 'conf_py_path': conf_py_path,
-                'api_host': getattr(settings, 'SLUMBER_API_HOST', 'https://readthedocs.org'),
+                'api_host': getattr(settings, 'PRODUCTION_DOMAIN', 'https://readthedocs.org'),
                 # GitHub
                 'github_user': github_user,
                 'github_repo': github_repo,

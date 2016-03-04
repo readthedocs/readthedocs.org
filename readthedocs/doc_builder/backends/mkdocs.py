@@ -105,7 +105,7 @@ class BaseMkdocs(BaseBuilder):
             'builder': "mkdocs",
             'docroot': docs_dir,
             'source_suffix': ".md",
-            'api_host': getattr(settings, 'SLUMBER_API_HOST', 'https://readthedocs.org'),
+            'api_host': getattr(settings, 'PRODUCTION_DOMAIN', 'https://readthedocs.org'),
             'commit': self.version.project.vcs_repo(self.version.slug).commit,
         }
         data_json = json.dumps(readthedocs_data, indent=4)
