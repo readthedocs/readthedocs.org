@@ -28,10 +28,11 @@
 
     {% if not project.has_valid_webhook %}
       <p class="build-failure">
-        {% url "projects_resync_webhook" project.slug as resync_url %}'
+        {% url "projects_resync_webhook" project.slug as resync_url %}
         {% blocktrans %}
         This repository doesn't have a valid webhook set up.
         That means it won't be rebuilt on commits to the repository.
+        <br>
         You can <a href='{{ resync_url }}'>resync your webhook</a> to fix this.
         {% endblocktrans %}
       </p>

@@ -30,6 +30,8 @@ def handle_project_import(sender, **kwargs):
     _set = False
     _service = None
 
+    import ipdb; ipdb.set_trace()
+
     for service_cls in registry:
         if service_cls.is_project_service(project):
             for service in service_cls.for_user(request.user):
@@ -43,5 +45,5 @@ def handle_project_import(sender, **kwargs):
         messages.error(
             request,
             _('No accounts available to set webhook on. '
-              'Please connect your %s account.' % _service.get_adapter().get_provider().name)
+              'Please connect your %s account.' % _service.get_adapter()().get_provider().name)
         )
