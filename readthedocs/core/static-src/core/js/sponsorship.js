@@ -14,7 +14,7 @@ function Promo (id, text, link, image) {
 
 Promo.prototype.create = function () {
     var self = this,
-        nav_side = $('nav.wy-nav-side');
+        nav_side = $('nav.wy-nav-side > div.wy-side-scroll');
 
     if (nav_side.length) {
         // Add elements
