@@ -94,6 +94,7 @@ def footer_html(request):
     if project.slug in getattr(settings, 'DISABLE_PROMO_PROJECTS', []):
         show_promo = False
     # A GoldUser has mapped this project
+
     if project.gold_owners.count():
         show_promo = False
         gold_project = True
@@ -104,14 +105,14 @@ def footer_html(request):
 
     # Support showing a "Thank you" message for gold folks
     if gold_user:
-        gold_promo = SupporterPromo.objects.filter(name='gold-user')
+        gold_promo = SupporterPromo.objects.filter(live=True, name='gold-user')
         if gold_promo.count():
             promo_obj = gold_promo.first()
             show_promo = True
 
     # Default to showing project-level thanks if it exists
     if gold_project:
-        gold_promo = SupporterPromo.objects.filter(name='gold-project')
+        gold_promo = SupporterPromo.objects.filter(live=True, name='gold-project')
         if gold_promo.count():
             promo_obj = gold_promo.first()
             show_promo = True

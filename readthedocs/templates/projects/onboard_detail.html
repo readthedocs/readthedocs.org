@@ -27,7 +27,7 @@
           {% comment %}Last build passed{% endcomment %}
           <h2>{% trans "Your documentation is ready to use" %}</h2>
 
-          <form method="get" action="{% url "docs_detail" project_slug=project.slug %}">
+          <form method="get" action="{{ project.get_docs_url }}">
             <p>
             {% blocktrans %}
               Your documentation has been built.
