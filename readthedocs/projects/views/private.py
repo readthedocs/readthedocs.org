@@ -31,7 +31,7 @@ from readthedocs.projects.forms import (
     ProjectBasicsForm, ProjectExtraForm,
     ProjectAdvancedForm, UpdateProjectForm, SubprojectForm,
     build_versions_form, UserForm, EmailHookForm, TranslationForm,
-    RedirectForm, WebHookForm, DomainForm)
+    RedirectForm, WebHookForm, DomainForm, ProjectAdvertisingForm)
 from readthedocs.projects.models import Project, EmailHook, WebHook, Domain
 from readthedocs.projects.views.base import ProjectAdminMixin, ProjectSpamMixin
 from readthedocs.projects import constants, tasks
@@ -674,3 +674,19 @@ class DomainUpdate(DomainMixin, UpdateView):
 
 class DomainDelete(DomainMixin, DeleteView):
     pass
+
+
+class ProjectAdvertisingUpdate(PrivateViewMixin, UpdateView):
+
+    model = Project
+    form_class = ProjectAdvertisingForm
+    success_message = _('Project has been opted out from advertisement support')
+    template_name = 'projects/project_advertising.html'
+    lookup_url_kwarg = 'project_slug'
+    lookup_field = 'slug'
+
+    def get_queryset(self):
+        return self.model.objects.for_admin_user(self.request.user)
+
+    def get_success_url(self):
+        return reverse('projects_advertising', args=[self.object.slug])

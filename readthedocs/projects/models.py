@@ -155,6 +155,9 @@ class Project(models.Model):
         _('Container time limit'), max_length=10, null=True, blank=True)
     build_queue = models.CharField(
         _('Alternate build queue id'), max_length=32, null=True, blank=True)
+    allow_promos = models.BooleanField(
+        _('Sponsor advertisements'), default=True, help_text=_(
+            "Allow sponsor advertisements on my project documentation"))
 
     # Sphinx specific build options.
     enable_epub_build = models.BooleanField(
