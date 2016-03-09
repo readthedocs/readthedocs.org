@@ -155,7 +155,7 @@ class Symlink(object):
         else:
             domains = Domain.objects.filter(project=self.project)
         for domain in domains:
-            self._log("Symlinking CNAME: {0} -> {1}".format(domain.domain, self.project.slug))
+            self._log(u"Symlinking CNAME: {0} -> {1}".format(domain.domain, self.project.slug))
 
             # CNAME to doc root
             symlink = os.path.join(self.CNAME_ROOT, domain.domain)
@@ -167,7 +167,7 @@ class Symlink(object):
 
     def remove_symlink_cname(self, domain):
         """Remove single_version symlink"""
-        self._log("Removing symlink for CNAME {0}".format(domain.domain))
+        self._log(u"Removing symlink for CNAME {0}".format(domain.domain))
         symlink = os.path.join(self.CNAME_ROOT, domain.domain)
         os.unlink(symlink)
 
@@ -191,7 +191,7 @@ class Symlink(object):
                 from_to[rel.alias] = rel.child.slug
                 subprojects.add(rel.alias)
             for from_slug, to_slug in from_to.items():
-                self._log("Symlinking subproject: {0} -> {1}".format(from_slug, to_slug))
+                self._log(u"Symlinking subproject: {0} -> {1}".format(from_slug, to_slug))
                 symlink = os.path.join(self.SUBPROJECT_ROOT, from_slug)
                 docs_dir = os.path.join(
                     self.WEB_ROOT, to_slug
@@ -226,7 +226,7 @@ class Symlink(object):
             os.makedirs(language_dir)
 
         for (language, slug) in translations.items():
-            self._log("Symlinking translation: {0}->{1}".format(language, slug))
+            self._log(u"Symlinking translation: {0}->{1}".format(language, slug))
             symlink = os.path.join(self.PROJECT_ROOT, language)
             docs_dir = os.path.join(self.WEB_ROOT, slug, language)
             print run('ln -nsf {0} {1}'.format(docs_dir, symlink))
@@ -276,7 +276,7 @@ class Symlink(object):
             if not os.path.exists(version_dir):
                 os.makedirs(version_dir)
         for version in version_queryset:
-            self._log("Symlinking Version: %s" % version)
+            self._log(u"Symlinking Version: %s" % version)
             symlink = os.path.join(version_dir, version.slug)
             docs_dir = os.path.join(settings.DOCROOT, self.project.slug, 'rtd-builds', version.slug)
             print run('ln -nsf {0} {1}'.format(docs_dir, symlink))
