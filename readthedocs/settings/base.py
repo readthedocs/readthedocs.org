@@ -85,14 +85,11 @@ LOCALE_PATHS = [
     os.path.join(SITE_ROOT, 'readthedocs', 'locale'),
 ]
 
-
 USE_I18N = True
 USE_L10N = True
 SITE_ID = 1
 
 SECRET_KEY = 'replace-this-please'  # noqa: ignore dodgy check
-
-
 
 ATOMIC_REQUESTS = True
 
