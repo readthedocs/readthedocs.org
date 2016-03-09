@@ -156,7 +156,10 @@ class Version(models.Model):
         obj = super(Version, self).save(*args, **kwargs)
         for owner in self.project.users.all():
             assign('view_version', owner, self)
-        self.project.sync_supported_versions()
+        try:
+            self.project.sync_supported_versions()
+        except Exception:
+            pass
         return obj
 
     def delete(self, *args, **kwargs):

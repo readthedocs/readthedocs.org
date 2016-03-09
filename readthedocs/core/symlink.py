@@ -94,7 +94,7 @@ class Symlink(object):
         logger(LOG_TEMPLATE
                .format(project=self.project.slug,
                        version='',
-                       msg=unicode(msg, 'utf-8'))
+                       msg=msg)
                )
 
     def sanity_check(self):

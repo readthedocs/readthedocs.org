@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import os
 from functools import wraps
 
@@ -264,3 +266,23 @@ class TestSymlinkVersions(TestCase):
         self.stable.save()
         self.symlink.symlink_versions()
         self.assertTrue(not os.path.lexists(version_link))
+
+
+class TestSymlinkUnicode(TestCase):
+
+    def setUp(self):
+        self.project = get(Project, slug='kong', name=u'foo-∫')
+        self.stable = get(Version, slug='stable', verbose_name=u'foo-∂', active=True, project=self.project)
+        self.symlink = Symlink(self.project)
+        self.args = {
+            'project_root': self.symlink.PROJECT_ROOT,
+            'latest_path': self.project.rtd_build_path('latest'),
+            'stable_path': self.project.rtd_build_path('stable'),
+        }
+        self.commands = []
+
+    @patched
+    def test_symlink_no_error(self):
+        # Don't raise an error.
+        self.symlink.run()
+        self.assertTrue(True)
