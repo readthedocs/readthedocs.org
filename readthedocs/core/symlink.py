@@ -111,7 +111,7 @@ class Symlink(object):
               not os.path.islink(self.PROJECT_ROOT) and
               os.path.exists(self.PROJECT_ROOT)):
             shutil.rmtree(self.PROJECT_ROOT)
-        elif not os.path.exists(self.PROJECT_ROOT):
+        elif not os.path.lexists(self.PROJECT_ROOT):
             os.makedirs(self.PROJECT_ROOT)
 
         # CNAME root directories
