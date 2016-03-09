@@ -178,7 +178,6 @@ class Symlink(object):
                   $WEB_ROOT/<project>
         """
         subprojects = set()
-        version_queryset = self.project.versions.public(only_active=True)
         rels = self.project.subprojects.all()
         if rels.count():
             if not os.path.exists(self.SUBPROJECT_ROOT):
@@ -269,7 +268,10 @@ class Symlink(object):
         """
         versions = set()
         version_dir = os.path.join(self.WEB_ROOT, self.project.slug, self.project.language)
-        version_queryset = self.project.versions.public(only_active=True)
+        # Include active public versions,
+        # as well as public verisons that are built but not active, for archived versions
+        version_queryset = (self.project.versions.public(only_active=False).filter(built=True) |
+                            self.project.versions.public(only_active=True))
         if version_queryset.count():
             if not os.path.exists(version_dir):
                 os.makedirs(version_dir)
