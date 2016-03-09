@@ -107,7 +107,9 @@ class Symlink(object):
             self._log("Removing single version symlink")
             os.unlink(self.PROJECT_ROOT)
             os.makedirs(self.PROJECT_ROOT)
-        elif self.project.single_version and not os.path.islink(self.PROJECT_ROOT):
+        elif (self.project.single_version and
+              not os.path.islink(self.PROJECT_ROOT) and
+              os.path.exists(self.PROJECT_ROOT)):
             shutil.rmtree(self.PROJECT_ROOT)
         elif not os.path.exists(self.PROJECT_ROOT):
             os.makedirs(self.PROJECT_ROOT)
