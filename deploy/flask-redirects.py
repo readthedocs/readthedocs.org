@@ -30,7 +30,7 @@ def redirect_front():
         except:
             cname = request.host
         CNAME = True
-        path = "/home/docs/checkouts/readthedocs.org/cnametoproject/{cname}/metadata.json".format(cname=cname)
+        path = "/home/docs/checkouts/readthedocs.org/public_cname_project/{cname}/metadata.json".format(cname=cname)
 
     try:
         json_obj = json.load(file(path))
