@@ -490,6 +490,8 @@ def _serve_docs(request, project, version, filename, lang_slug=None,
     log.info('Serving %s for %s' % (filename, project))
     if not settings.DEBUG and not getattr(settings, 'PYTHON_MEDIA', False):
         fullpath = os.path.join(basepath, filename)
+        if not os.path.exists(fullpath):
+            raise Http404
         content_type, encoding = mimetypes.guess_type(fullpath)
         content_type = content_type or 'application/octet-stream'
         response = HttpResponse(content_type=content_type)
