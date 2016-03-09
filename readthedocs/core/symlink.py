@@ -77,6 +77,7 @@ class Symlink(object):
 
     CNAME_ROOT = os.path.join(settings.SITE_ROOT, 'public_cname_root')
     WEB_ROOT = os.path.join(settings.SITE_ROOT, 'public_web_root')
+    PROJECT_CNAME_ROOT = os.path.join(settings.SITE_ROOT, 'public_cname_project')
 
     def __init__(self, project):
         self.project = project
@@ -111,6 +112,12 @@ class Symlink(object):
         elif not os.path.exists(self.PROJECT_ROOT):
             os.makedirs(self.PROJECT_ROOT)
 
+        # CNAME root directories
+        if not os.path.lexists(self.CNAME_ROOT):
+            os.makedirs(self.CNAME_ROOT)
+        if not os.path.lexists(self.PROJECT_CNAME_ROOT):
+            os.makedirs(self.PROJECT_CNAME_ROOT)
+
     def run(self):
         """
         Create proper symlinks in the right order.
@@ -133,8 +140,13 @@ class Symlink(object):
     def symlink_cnames(self, domain=None):
         """Symlink project CNAME domains
 
-        Link from HOME/user_builds/$CNAME_ROOT/<cname> ->
-                  HOME/user_builds/$WEB_ROOT/<project>
+        Link from HOME/$CNAME_ROOT/<cname> ->
+                  HOME/$WEB_ROOT/<project>
+
+        Also give cname -> project link
+
+        Link from HOME/public_cname_project/<cname> ->
+                  HOME/<project>/
         """
         if domain:
             domains = [domain]
@@ -142,15 +154,14 @@ class Symlink(object):
             domains = Domain.objects.filter(project=self.project)
         for domain in domains:
             self._log("Symlinking CNAME: {0} -> {1}".format(domain.domain, self.project.slug))
-            docs_dir = self.PROJECT_ROOT
-            symlink = os.path.join(self.CNAME_ROOT, domain.domain)
 
-            # Make sure containing directories exist
-            symlink_dir = os.sep.join(symlink.split(os.path.sep)[:-1])
-            if not os.path.lexists(symlink_dir):
-                os.makedirs(symlink_dir)
-            # Create proper symlinks
-            print run('ln -nsf {0} {1}'.format(docs_dir, symlink))
+            # CNAME to doc root
+            symlink = os.path.join(self.CNAME_ROOT, domain.domain)
+            run('ln -nsf {0} {1}'.format(self.PROJECT_ROOT, symlink))
+
+            # Project symlink
+            project_cname_symlink = os.path.join(self.PROJECT_CNAME_ROOT, domain.domain)
+            run('ln -nsf %s %s' % (self.project.doc_path, project_cname_symlink))
 
     def remove_symlink_cname(self, domain):
         """Remove single_version symlink"""
