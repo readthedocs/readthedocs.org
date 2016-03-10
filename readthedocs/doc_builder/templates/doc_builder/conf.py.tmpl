@@ -31,13 +31,6 @@ if globals().get('source_suffix', False):
 else:
     SUFFIX = '.rst'
 
-# Add RTD Template Path.
-if 'templates_path' in globals():
-    templates_path.insert(0, '{{ template_path }}')
-else:
-    templates_path = ['{{ template_path }}', 'templates', '_templates',
-                      '.templates']
-
 # Add RTD Static Path. Add to the end because it overwrites previous files.
 if not 'html_static_path' in globals():
     html_static_path = []
@@ -92,6 +85,9 @@ context = {
     ],
     'downloads': [ {% for key, val in downloads.items %}
     ("{{ key }}", "{{ val }}"),{% endfor %}
+    ],
+    'subprojects': [ {% for slug, url in project.get_subproject_urls %}
+        ("{{ slug }}", "{{ url }}"),{% endfor %}
     ],
     'slug': '{{ project.slug }}',
     'name': u'{{ project.name }}',

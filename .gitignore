@@ -10,11 +10,9 @@
 .rope_project/
 .ropeproject/
 _build
-cnames
 bower_components/
 deploy/.vagrant
 dist/*
-doc_root
 local_settings.py
 locks/*
 logs/*
@@ -35,5 +33,7 @@ prod_artifacts
 wheelhouse
 whoosh_index
 xml_output
-public_cnames
-public_symlinks
+public_web_root
+public_cname_project
+public_cname_root
+.rope_project/

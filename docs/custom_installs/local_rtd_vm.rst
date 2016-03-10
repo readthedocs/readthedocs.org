@@ -56,6 +56,7 @@ Possible Error and Resolution
 1. Run the following commands. ::
 
     $ ./manage.py migrate
+    $ ./manage.py createsuperuser
 
 2. This will prompt you to create a superuser account for Django. Enter appropriate details. For example: ::
 
