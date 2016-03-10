@@ -34,7 +34,7 @@ class TestSubprojects(TestCase):
         self.symlink = Symlink(self.project)
         self.args = {
             'web_root': self.symlink.WEB_ROOT,
-            'subproject_root': self.symlink.SUBPROJECT_ROOT,
+            'subproject_root': self.symlink.subproject_root,
         }
         self.commands = []
 
@@ -68,7 +68,7 @@ class TestSubprojects(TestCase):
         self.project.add_subproject(self.subproject)
         self.symlink.symlink_subprojects()
         subproject_link = os.path.join(
-            self.symlink.SUBPROJECT_ROOT, self.subproject.slug
+            self.symlink.subproject_root, self.subproject.slug
         )
         self.assertTrue(os.path.lexists(subproject_link))
         self.project.remove_subproject(self.subproject)
@@ -84,7 +84,7 @@ class TestSymlinkCnames(TestCase):
         self.symlink = Symlink(self.project)
         self.args = {
             'cname_root': self.symlink.CNAME_ROOT,
-            'project_root': self.symlink.PROJECT_ROOT,
+            'project_root': self.symlink.project_root,
         }
         self.commands = []
 
@@ -117,7 +117,7 @@ class TestSymlinkTranslations(TestCase):
         get(Version, verbose_name='master', active=True, project=self.project)
         get(Version, verbose_name='master', active=True, project=self.translation)
         self.args = {
-            'project_root': self.symlink.PROJECT_ROOT,
+            'project_root': self.symlink.project_root,
             'translation_root': os.path.join(self.symlink.WEB_ROOT, self.translation.slug),
         }
         self.assertIn(self.translation, self.project.translations.all())
@@ -188,7 +188,7 @@ class TestSymlinkTranslations(TestCase):
     def test_remove_language(self):
         self.symlink.symlink_translations()
         trans_link = os.path.join(
-            self.symlink.PROJECT_ROOT, self.translation.language
+            self.symlink.project_root, self.translation.language
         )
         self.assertTrue(os.path.lexists(trans_link))
         
@@ -204,7 +204,7 @@ class TestSymlinkSingleVersion(TestCase):
         self.version = get(Version, verbose_name='latest', active=True, project=self.project)
         self.symlink = Symlink(self.project)
         self.args = {
-            'project_root': self.symlink.PROJECT_ROOT,
+            'project_root': self.symlink.project_root,
             'doc_path': self.project.rtd_build_path(),
         }
         self.commands = []
@@ -227,7 +227,7 @@ class TestSymlinkVersions(TestCase):
         self.stable = get(Version, slug='stable', verbose_name='stable', active=True, project=self.project)
         self.symlink = Symlink(self.project)
         self.args = {
-            'project_root': self.symlink.PROJECT_ROOT,
+            'project_root': self.symlink.project_root,
             'latest_path': self.project.rtd_build_path('latest'),
             'stable_path': self.project.rtd_build_path('stable'),
         }
@@ -258,7 +258,7 @@ class TestSymlinkVersions(TestCase):
 
     def test_removed_versions(self):
         version_link = os.path.join(
-            self.symlink.PROJECT_ROOT, 'en', self.stable.slug
+            self.symlink.project_root, 'en', self.stable.slug
         )
         self.symlink.symlink_versions()
         self.assertTrue(os.path.lexists(version_link))
@@ -275,7 +275,7 @@ class TestSymlinkUnicode(TestCase):
         self.stable = get(Version, slug='stable', verbose_name=u'foo-∂', active=True, project=self.project)
         self.symlink = Symlink(self.project)
         self.args = {
-            'project_root': self.symlink.PROJECT_ROOT,
+            'project_root': self.symlink.project_root,
             'latest_path': self.project.rtd_build_path('latest'),
             'stable_path': self.project.rtd_build_path('stable'),
         }
