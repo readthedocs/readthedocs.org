@@ -511,3 +511,16 @@ class DomainForm(forms.ModelForm):
         ).exclude(domain=self.cleaned_data['domain']).exists():
             raise forms.ValidationError(_(u'Only 1 Domain can be canonical at a time.'))
         return canonical
+
+
+class ProjectAdvertisingForm(forms.ModelForm):
+
+    """Project promotion opt-out form"""
+
+    class Meta:
+        model = Project
+        fields = ['allow_promos']
+
+    def __init__(self, *args, **kwargs):
+        self.project = kwargs.pop('project', None)
+        super(ProjectAdvertisingForm, self).__init__(*args, **kwargs)
