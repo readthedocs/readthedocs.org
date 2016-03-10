@@ -195,7 +195,7 @@ class Symlink(object):
                 symlink_dir = os.sep.join(symlink.split(os.path.sep)[:-1])
                 if not os.path.lexists(symlink_dir):
                     os.makedirs(symlink_dir)
-                print run('ln -nsf %s %s' % (docs_dir, symlink))
+                run('ln -nsf %s %s' % (docs_dir, symlink))
 
         # Remove old symlinks
         if os.path.exists(self.subproject_root):
@@ -225,7 +225,7 @@ class Symlink(object):
             self._log(u"Symlinking translation: {0}->{1}".format(language, slug))
             symlink = os.path.join(self.project_root, language)
             docs_dir = os.path.join(self.WEB_ROOT, slug, language)
-            print run('ln -nsf {0} {1}'.format(docs_dir, symlink))
+            run('ln -nsf {0} {1}'.format(docs_dir, symlink))
 
         # Remove old symlinks
         for lang in os.listdir(self.project_root):
@@ -254,7 +254,7 @@ class Symlink(object):
 
         # Where the actual docs live
         docs_dir = os.path.join(settings.DOCROOT, self.project.slug, 'rtd-builds', default_version)
-        print run('ln -nsf %s/ %s' % (docs_dir, symlink))
+        run('ln -nsf %s/ %s' % (docs_dir, symlink))
 
     def symlink_versions(self):
         """Symlink project's versions
@@ -275,7 +275,7 @@ class Symlink(object):
             self._log(u"Symlinking Version: %s" % version)
             symlink = os.path.join(version_dir, version.slug)
             docs_dir = os.path.join(settings.DOCROOT, self.project.slug, 'rtd-builds', version.slug)
-            print run('ln -nsf {0} {1}'.format(docs_dir, symlink))
+            run('ln -nsf {0} {1}'.format(docs_dir, symlink))
             versions.add(version.slug)
 
         # Remove old symlinks
