@@ -43,7 +43,7 @@ class PythonEnvironment(object):
     def install_package(self):
         setup_path = os.path.join(self.checkout_path, 'setup.py')
         if os.path.isfile(setup_path) and self.config.install_project:
-            if getattr(settings, 'USE_PIP_INSTALL', False):
+            if self.config.pip_install or getattr(settings, 'USE_PIP_INSTALL', False):
                 self.build_env.run(
                     'python',
                     self.venv_bin(filename='pip'),
@@ -98,7 +98,7 @@ class Virtualenv(PythonEnvironment):
     def install_core_requirements(self):
         requirements = [
             'sphinx==1.3.5',
-            'Pygments==2.0.2',
+            'Pygments==2.1.3',
             'setuptools==20.1.1',
             'docutils==0.12',
             'mkdocs==0.15.0',
@@ -189,7 +189,7 @@ class Conda(PythonEnvironment):
         # Use conda for requirements it packages
         requirements = [
             'sphinx==1.3.5',
-            'Pygments==2.0.2',
+            'Pygments==2.1.3',
             'docutils==0.12',
             'mock',
             'pillow==3.0.0',

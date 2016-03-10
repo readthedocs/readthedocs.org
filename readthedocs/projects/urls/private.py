@@ -5,7 +5,8 @@ from django.conf.urls import patterns, url
 from readthedocs.projects.views.private import (
     ProjectDashboard, ImportView,
     ProjectUpdate, ProjectAdvancedUpdate,
-    DomainList, DomainCreate, DomainDelete, DomainUpdate)
+    DomainList, DomainCreate, DomainDelete, DomainUpdate,
+    ProjectAdvertisingUpdate)
 from readthedocs.projects.backends.views import ImportWizardView, ImportDemoView
 
 
@@ -104,6 +105,14 @@ urlpatterns = patterns(
     url(r'^(?P<project_slug>[-\w]+)/redirects/delete/$',
         'readthedocs.projects.views.private.project_redirects_delete',
         name='projects_redirects_delete'),
+
+    url(r'^(?P<project_slug>[-\w]+)/resync_webhook/$',
+        'readthedocs.projects.views.private.project_resync_webhook',
+        name='projects_resync_webhook'),
+
+    url(r'^(?P<project_slug>[-\w]+)/advertising/$',
+        ProjectAdvertisingUpdate.as_view(),
+        name='projects_advertising'),
 )
 
 domain_urls = patterns(
