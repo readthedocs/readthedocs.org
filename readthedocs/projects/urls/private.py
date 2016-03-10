@@ -106,6 +106,10 @@ urlpatterns = patterns(
         'readthedocs.projects.views.private.project_redirects_delete',
         name='projects_redirects_delete'),
 
+    url(r'^(?P<project_slug>[-\w]+)/resync_webhook/$',
+        'readthedocs.projects.views.private.project_resync_webhook',
+        name='projects_resync_webhook'),
+
     url(r'^(?P<project_slug>[-\w]+)/advertising/$',
         ProjectAdvertisingUpdate.as_view(),
         name='projects_advertising'),

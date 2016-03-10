@@ -136,6 +136,8 @@ class UpdateDocsTask(Task):
         if self.setup_env.failed:
             self.send_notifications()
             return None
+        if self.setup_env.successful and not self.project.has_valid_clone:
+            self.set_valid_clone()
 
         env_vars = self.get_env_vars()
         if docker or settings.DOCKER_ENABLE:
@@ -260,6 +262,13 @@ class UpdateDocsTask(Task):
             })
 
         return env
+
+    def set_valid_clone(self):
+        """Mark on the project that it has been cloned properly."""
+        project_data = api_v2.project(self.project.pk).get()
+        project_data['has_valid_clone'] = True
+        api_v2.project(self.project.pk).put(project_data)
+        self.project.has_valid_clone = True
 
     def update_documentation_type(self):
         """

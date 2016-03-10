@@ -8,7 +8,7 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.http import (HttpResponseRedirect, HttpResponseNotAllowed,
-                         Http404,  HttpResponseBadRequest)
+                         Http404, HttpResponseBadRequest)
 from django.shortcuts import get_object_or_404, render_to_response, render
 from django.template import RequestContext
 from django.views.generic import View, TemplateView, ListView
@@ -666,6 +666,27 @@ class DomainUpdate(DomainMixin, UpdateView):
 
 class DomainDelete(DomainMixin, DeleteView):
     pass
+
+
+@login_required
+def project_resync_webhook(request, project_slug):
+    """
+    Resync a project webhook.
+
+    The signal will add a success/failure message on the request.
+    """
+    project = get_object_or_404(Project.objects.for_admin_user(request.user),
+                                slug=project_slug)
+    if request.method == 'POST':
+        project_import.send(sender=project, request=request)
+        return HttpResponseRedirect(reverse('projects_detail',
+                                            args=[project.slug]))
+
+    return render_to_response(
+        'projects/project_resync_webhook.html',
+        {'project': project},
+        context_instance=RequestContext(request)
+    )
 
 
 class ProjectAdvertisingUpdate(PrivateViewMixin, UpdateView):

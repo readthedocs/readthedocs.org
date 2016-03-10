@@ -125,7 +125,15 @@ def wipe_version(request, project_slug, version_slug):
 
 
 def _build_version(project, slug, already_built=()):
+    """
+    Where we actually trigger builds for a project and slug.
+
+    All webhook logic should route here to call ``trigger_build``.
+    """
     default = project.default_branch or (project.vcs_repo().fallback_branch)
+    if not project.has_valid_webhook:
+        project.has_valid_webhook = True
+        project.save()
     if slug == default and slug not in already_built:
         # short circuit versions that are default
         # these will build at "latest", and thus won't be
@@ -156,6 +164,13 @@ def _build_version(project, slug, already_built=()):
 
 
 def _build_branches(project, branch_list):
+    """
+    Build the branches for a specific project.
+
+    Returns:
+        to_build - a list of branches that were built
+        not_building - a list of branches that we won't build
+    """
     for branch in branch_list:
         versions = project.versions_from_branch_name(branch)
         to_build = set()
@@ -172,6 +187,11 @@ def _build_branches(project, branch_list):
 
 
 def _build_url(url, branches):
+    """
+    Map a URL onto specific projects to build that are linked to that URL.
+
+    Check each of the ``branches`` to see if they are active and should be built.
+    """
     try:
         projects = (
             Project.objects.filter(repo__iendswith=url) |
@@ -179,15 +199,15 @@ def _build_url(url, branches):
         if not projects.count():
             raise NoProjectException()
         for project in projects:
-            (to_build, not_building) = _build_branches(project, branches)
-            if not to_build:
+            (built, not_building) = _build_branches(project, branches)
+            if not built:
                 # Call update_imported_docs to update tag/branch info
                 update_imported_docs.delay(project.versions.get(slug=LATEST).pk)
                 msg = '(URL Build) Syncing versions for %s' % project.slug
                 pc_log.info(msg)
-        if to_build:
+        if built:
             msg = '(URL Build) Build Started: %s [%s]' % (
-                url, ' '.join(to_build))
+                url, ' '.join(built))
             pc_log.info(msg)
             return HttpResponse(msg)
         else:
@@ -295,15 +315,10 @@ def generic_build(request, project_id_or_slug=None):
             return HttpResponseNotFound(
                 'Repo not found: %s' % project_id_or_slug)
     if request.method == 'POST':
-        slug = request.POST.get('version_slug', None)
-        if slug:
-            pc_log.info(
-                "(Incoming Generic Build) %s [%s]" % (project.slug, slug))
-            _build_version(project, slug)
-        else:
-            pc_log.info(
-                "(Incoming Generic Build) %s [%s]" % (project.slug, LATEST))
-            trigger_build(project=project, force=True)
+        slug = request.POST.get('version_slug', project.default_version)
+        pc_log.info(
+            "(Incoming Generic Build) %s [%s]" % (project.slug, slug))
+        _build_version(project, slug)
     else:
         return HttpResponse("You must POST to this resource.")
     return redirect('builds_project_list', project.slug)

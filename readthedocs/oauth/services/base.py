@@ -31,15 +31,15 @@ class Service(object):
 
     @classmethod
     def for_user(cls, user):
-        """Create instance if user has an account for the provider"""
+        """Return a list of instances if user has an account for the provider"""
         try:
-            account = SocialAccount.objects.get(
+            accounts = SocialAccount.objects.filter(
                 user=user,
                 provider=cls.adapter.provider_id
             )
-            return cls(user=user, account=account)
+            return [cls(user=user, account=account) for account in accounts]
         except SocialAccount.DoesNotExist:
-            return None
+            return []
 
     def get_adapter(self):
         return self.adapter
