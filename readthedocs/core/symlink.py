@@ -68,12 +68,7 @@ log = logging.getLogger(__name__)
 
 
 class Symlink(object):
-
-    """
-    Base class for Symlinking of projects.
-
-    This will be inherited for private & public symlinking.
-    """
+    """Base class for symlinking of projects."""
 
     CNAME_ROOT = os.path.join(settings.SITE_ROOT, 'public_cname_root')
     WEB_ROOT = os.path.join(settings.SITE_ROOT, 'public_web_root')
@@ -180,6 +175,7 @@ class Symlink(object):
         subprojects = set()
         rels = self.project.subprojects.all()
         if rels.count():
+            # Don't creat the `projects/` directory unless subprojects exist.
             if not os.path.exists(self.subproject_root):
                 os.makedirs(self.subproject_root)
         for rel in rels:
