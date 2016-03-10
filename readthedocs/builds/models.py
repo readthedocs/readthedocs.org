@@ -159,7 +159,7 @@ class Version(models.Model):
         try:
             self.project.sync_supported_versions()
         except Exception:
-            pass
+            log.error('failed to sync supported versions', exc_info=True)
         return obj
 
     def delete(self, *args, **kwargs):
