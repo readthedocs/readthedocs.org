@@ -266,8 +266,8 @@ class Symlink(object):
         version_dir = os.path.join(self.WEB_ROOT, self.project.slug, self.project.language)
         # Include active public versions,
         # as well as public verisons that are built but not active, for archived versions
-        version_queryset = (self.project.versions.public(only_active=False).filter(built=True) |
-                            self.project.versions.public(only_active=True))
+        version_queryset = (self.project.versions.protected(only_active=False).filter(built=True) |
+                            self.project.versions.protected(only_active=True))
         if version_queryset.count():
             if not os.path.exists(version_dir):
                 os.makedirs(version_dir)
