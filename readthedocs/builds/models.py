@@ -12,7 +12,6 @@ from guardian.shortcuts import assign
 from taggit.managers import TaggableManager
 
 from readthedocs.core.utils import broadcast
-from readthedocs.projects import tasks
 from readthedocs.privacy.loader import (VersionManager, RelatedBuildManager,
                                         BuildManager)
 from readthedocs.projects.models import Project
@@ -155,6 +154,7 @@ class Version(models.Model):
         """
         Add permissions to the Version for all owners on save.
         """
+        from readthedocs.projects import tasks
         obj = super(Version, self).save(*args, **kwargs)
         for owner in self.project.users.all():
             assign('view_version', owner, self)
@@ -166,9 +166,9 @@ class Version(models.Model):
         return obj
 
     def delete(self, *args, **kwargs):
-        from readthedocs.projects.tasks import clear_artifacts
+        from readthedocs.projects import tasks
         log.info('Removing files for version %s' % self.slug)
-        clear_artifacts.delay(version_pk=self.pk)
+        tasks.clear_artifacts.delay(version_pk=self.pk)
         broadcast(type='app', task=tasks.symlink_project, args=[self.project.pk])
         super(Version, self).delete(*args, **kwargs)
 
