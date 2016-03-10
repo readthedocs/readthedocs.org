@@ -93,12 +93,25 @@ python.setup_py_install
 * Default: `False`
 * Type: Boolean
 
-When true, install your project into the Virtualenv when building documentation.
+When true, install your project into the Virtualenv with ``python setup.py install`` when building documentation.
 
 .. code-block:: yaml
 
 	python:
 	   setup_py_install: true
+
+python.pip_install
+``````````````````
+
+* Default: `False`
+* Type: Boolean
+
+When true, install your project into the Virtualenv with pip when building documentation.
+
+.. code-block:: yaml
+
+    python:
+       pip_install: true
 
 .. To implement..
 
