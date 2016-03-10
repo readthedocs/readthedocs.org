@@ -27,7 +27,7 @@ class GitHubService(Service):
 
     adapter = GitHubOAuth2Adapter
     # TODO replace this with a less naive check
-    url_pattern = re.compile(r'^github\.com\/')
+    url_pattern = re.compile(r'github\.com')
 
     def sync(self):
         """Sync repositories and organizations"""
