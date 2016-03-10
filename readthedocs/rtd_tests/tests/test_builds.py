@@ -47,7 +47,7 @@ class BuildEnvironmentTests(TestCase):
         task.build_docs()
 
         # Get command and check first part of command list is a call to sphinx
-        self.assertEqual(self.mocks.popen.call_count, 1)
+        self.assertEqual(self.mocks.popen.call_count, 3)
         cmd = self.mocks.popen.call_args_list[0][0]
         self.assertRegexpMatches(cmd[0][0], r'python')
         self.assertRegexpMatches(cmd[0][1], r'sphinx-build')
@@ -193,7 +193,7 @@ class BuildEnvironmentTests(TestCase):
 
         with build_env:
             task.build_docs()
-        self.assertEqual(self.mocks.popen.call_count, 5)
+        self.assertEqual(self.mocks.popen.call_count, 7)
         self.assertTrue(build_env.failed)
 
     def test_build_pdf_latex_not_failure(self):
@@ -235,5 +235,5 @@ class BuildEnvironmentTests(TestCase):
 
         with build_env:
             task.build_docs()
-        self.assertEqual(self.mocks.popen.call_count, 5)
+        self.assertEqual(self.mocks.popen.call_count, 7)
         self.assertTrue(build_env.successful)
