@@ -81,11 +81,11 @@ class Symlink(object):
 
     def __init__(self, project):
         self.project = project
-        self.PROJECT_ROOT = os.path.join(
+        self.project_root = os.path.join(
             self.WEB_ROOT, project.slug
         )
-        self.SUBPROJECT_ROOT = os.path.join(
-            self.PROJECT_ROOT, 'projects'
+        self.subproject_root = os.path.join(
+            self.project_root, 'projects'
         )
         self.sanity_check()
 
@@ -99,20 +99,20 @@ class Symlink(object):
 
     def sanity_check(self):
         """
-        Make sure the PROJECT_ROOT is the proper structure before continuing.
+        Make sure the project_root is the proper structure before continuing.
 
         This will leave it in the proper state for the single_project setting.
         """
-        if os.path.islink(self.PROJECT_ROOT) and not self.project.single_version:
+        if os.path.islink(self.project_root) and not self.project.single_version:
             self._log("Removing single version symlink")
-            os.unlink(self.PROJECT_ROOT)
-            os.makedirs(self.PROJECT_ROOT)
+            os.unlink(self.project_root)
+            os.makedirs(self.project_root)
         elif (self.project.single_version and
-              not os.path.islink(self.PROJECT_ROOT) and
-              os.path.exists(self.PROJECT_ROOT)):
-            shutil.rmtree(self.PROJECT_ROOT)
-        elif not os.path.lexists(self.PROJECT_ROOT):
-            os.makedirs(self.PROJECT_ROOT)
+              not os.path.islink(self.project_root) and
+              os.path.exists(self.project_root)):
+            shutil.rmtree(self.project_root)
+        elif not os.path.lexists(self.project_root):
+            os.makedirs(self.project_root)
 
         # CNAME root directories
         if not os.path.lexists(self.CNAME_ROOT):
@@ -159,7 +159,7 @@ class Symlink(object):
 
             # CNAME to doc root
             symlink = os.path.join(self.CNAME_ROOT, domain.domain)
-            run('ln -nsf {0} {1}'.format(self.PROJECT_ROOT, symlink))
+            run('ln -nsf {0} {1}'.format(self.project_root, symlink))
 
             # Project symlink
             project_cname_symlink = os.path.join(self.PROJECT_CNAME_ROOT, domain.domain)
@@ -180,8 +180,8 @@ class Symlink(object):
         subprojects = set()
         rels = self.project.subprojects.all()
         if rels.count():
-            if not os.path.exists(self.SUBPROJECT_ROOT):
-                os.makedirs(self.SUBPROJECT_ROOT)
+            if not os.path.exists(self.subproject_root):
+                os.makedirs(self.subproject_root)
         for rel in rels:
             # A mapping of slugs for the subproject URL to the actual built
             # documentation
@@ -192,7 +192,7 @@ class Symlink(object):
                 subprojects.add(rel.alias)
             for from_slug, to_slug in from_to.items():
                 self._log(u"Symlinking subproject: {0} -> {1}".format(from_slug, to_slug))
-                symlink = os.path.join(self.SUBPROJECT_ROOT, from_slug)
+                symlink = os.path.join(self.subproject_root, from_slug)
                 docs_dir = os.path.join(
                     self.WEB_ROOT, to_slug
                 )
@@ -202,10 +202,10 @@ class Symlink(object):
                 print run('ln -nsf %s %s' % (docs_dir, symlink))
 
         # Remove old symlinks
-        if os.path.exists(self.SUBPROJECT_ROOT):
-            for subproj in os.listdir(self.SUBPROJECT_ROOT):
+        if os.path.exists(self.subproject_root):
+            for subproj in os.listdir(self.subproject_root):
                 if subproj not in subprojects:
-                    os.unlink(os.path.join(self.SUBPROJECT_ROOT, subproj))
+                    os.unlink(os.path.join(self.subproject_root, subproj))
 
     def symlink_translations(self):
         """Symlink project translations
@@ -219,7 +219,7 @@ class Symlink(object):
             translations[trans.language] = trans.slug
 
         # Make sure the language directory is a directory
-        language_dir = os.path.join(self.PROJECT_ROOT, self.project.language)
+        language_dir = os.path.join(self.project_root, self.project.language)
         if os.path.islink(language_dir):
             os.unlink(language_dir)
         if not os.path.exists(language_dir):
@@ -227,15 +227,15 @@ class Symlink(object):
 
         for (language, slug) in translations.items():
             self._log(u"Symlinking translation: {0}->{1}".format(language, slug))
-            symlink = os.path.join(self.PROJECT_ROOT, language)
+            symlink = os.path.join(self.project_root, language)
             docs_dir = os.path.join(self.WEB_ROOT, slug, language)
             print run('ln -nsf {0} {1}'.format(docs_dir, symlink))
 
         # Remove old symlinks
-        for lang in os.listdir(self.PROJECT_ROOT):
+        for lang in os.listdir(self.project_root):
             if (lang not in translations and
                     lang not in ['projects', self.project.language]):
-                to_delete = os.path.join(self.PROJECT_ROOT, lang)
+                to_delete = os.path.join(self.project_root, lang)
                 if os.path.islink(to_delete):
                     os.unlink(to_delete)
                 else:
@@ -250,7 +250,7 @@ class Symlink(object):
         default_version = self.project.get_default_version()
         self._log("Symlinking single_version")
 
-        symlink = self.PROJECT_ROOT
+        symlink = self.project_root
         if os.path.islink(symlink):
             os.unlink(symlink)
         if os.path.exists(symlink):
