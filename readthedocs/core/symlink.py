@@ -1,5 +1,5 @@
 """
-A class that managed the symlinks for nginx to serve public files.
+A class that manages the symlinks for nginx to serve public files.
 
 All private serving will be handled by the Python app servers,
 so this only cares about public serving.
