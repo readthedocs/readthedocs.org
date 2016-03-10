@@ -26,7 +26,7 @@
 
     <div class="options">
 
-    {% if not project.has_valid_webhook %}
+    {% if not project.has_valid_webhook and request.user|is_admin:project %}
       <p class="build-failure">
         {% url "projects_resync_webhook" project.slug as resync_url %}
         {% blocktrans %}
