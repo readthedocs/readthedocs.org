@@ -23,14 +23,13 @@ class MiddlewareTests(TestCase):
         cache.get = self.old_cache_get
 
     @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
-    def test_cname_creation(self):
+    def test_no_cname_creation(self):
         self.assertEqual(Domain.objects.count(), 0)
         self.project = get(Project, slug='my_slug')
         cache.get = lambda x: 'my_slug'
         request = self.factory.get(self.url, HTTP_HOST='my.valid.hostname')
         self.middleware.process_request(request)
-        self.assertEqual(Domain.objects.count(), 1)
-        self.assertEqual(Domain.objects.first().domain, 'my.valid.hostname')
+        self.assertEqual(Domain.objects.count(), 0)
 
     @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
     def test_no_readthedocs_domain(self):
@@ -40,22 +39,6 @@ class MiddlewareTests(TestCase):
         request = self.factory.get(self.url, HTTP_HOST='pip.readthedocs.org')
         self.middleware.process_request(request)
         self.assertEqual(Domain.objects.count(), 0)
-
-    @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
-    def test_cname_count(self):
-        self.assertEqual(Domain.objects.count(), 0)
-        self.project = get(Project, slug='my_slug')
-        cache.get = lambda x: 'my_slug'
-        request = self.factory.get(self.url, HTTP_HOST='my.valid.hostname')
-
-        self.middleware.process_request(request)
-        self.assertEqual(Domain.objects.count(), 1)
-        self.assertEqual(Domain.objects.first().domain, 'my.valid.hostname')
-        self.assertEqual(Domain.objects.first().count, 1)
-
-        self.middleware.process_request(request)
-        self.assertEqual(Domain.objects.count(), 1)
-        self.assertEqual(Domain.objects.first().count, 2)
 
 
 class ModelTests(TestCase):
