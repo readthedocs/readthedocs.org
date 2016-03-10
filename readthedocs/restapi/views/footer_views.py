@@ -106,14 +106,14 @@ def footer_html(request):
                      .first())
 
         # Support showing a "Thank you" message for gold folks
-        if gold_user and promo_obj is None:
+        if gold_user:
             gold_promo = SupporterPromo.objects.filter(live=True,
                                                        name='gold-user')
             if gold_promo.exists():
                 promo_obj = gold_promo.first()
 
         # Default to showing project-level thanks if it exists
-        if gold_project and promo_obj is None:
+        if gold_project:
             gold_promo = SupporterPromo.objects.filter(live=True,
                                                        name='gold-project')
             if gold_promo.exists():
