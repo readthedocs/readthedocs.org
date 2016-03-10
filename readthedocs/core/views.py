@@ -18,7 +18,7 @@ from haystack.query import SearchQuerySet
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
 from readthedocs.core.forms import FacetedSearchForm
-from readthedocs.core.utils import trigger_build
+from readthedocs.core.utils import trigger_build, broadcast
 from readthedocs.donate.mixins import DonateProgressMixin
 from readthedocs.builds.constants import LATEST
 from readthedocs.projects import constants
@@ -117,14 +117,7 @@ def wipe_version(request, project_slug, version_slug):
             os.path.join(version.project.doc_path, 'conda', version.slug),
         ]
         for del_dir in del_dirs:
-            # Support hacky "broadcast" with MULTIPLE_BUILD_SERVERS setting,
-            # otherwise put in normal celery queue
-            for server in getattr(settings, "MULTIPLE_BUILD_SERVERS", ['celery']):
-                log.info('Removing files on %s' % server)
-                remove_dir.apply_async(
-                    args=[del_dir],
-                    queue=server,
-                )
+            broadcast(type='build', task=remove_dir, args=[del_dir])
         return redirect('project_version_list', project_slug)
     else:
         return render_to_response('wipe_version.html',
@@ -188,6 +181,7 @@ def _build_url(url, branches):
         for project in projects:
             (to_build, not_building) = _build_branches(project, branches)
             if not to_build:
+                # Call update_imported_docs to update tag/branch info
                 update_imported_docs.delay(project.versions.get(slug=LATEST).pk)
                 msg = '(URL Build) Syncing versions for %s' % project.slug
                 pc_log.info(msg)

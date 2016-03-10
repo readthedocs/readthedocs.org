@@ -24,17 +24,18 @@ from readthedocs.builds.constants import (LATEST,
                                           BUILD_STATE_INSTALLING,
                                           BUILD_STATE_BUILDING)
 from readthedocs.builds.models import Build, Version
-from readthedocs.core.utils import send_email, run_on_app_servers
+from readthedocs.core.utils import send_email, run_on_app_servers, broadcast
+from readthedocs.core.symlink import Symlink
 from readthedocs.cdn.purge import purge
 from readthedocs.doc_builder.loader import get_builder_class
-from readthedocs.doc_builder.config import ConfigWrapper, load_yaml_config
+from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.environments import (LocalEnvironment,
                                                   DockerEnvironment)
 from readthedocs.doc_builder.exceptions import BuildEnvironmentError
 from readthedocs.doc_builder.python_environments import Virtualenv, Conda
 from readthedocs.projects.exceptions import ProjectImportError
-from readthedocs.projects.models import ImportedFile, Project
-from readthedocs.projects.utils import make_api_version, make_api_project, symlink
+from readthedocs.projects.models import ImportedFile, Project, Domain
+from readthedocs.projects.utils import make_api_version, make_api_project
 from readthedocs.projects.constants import LOG_TEMPLATE
 from readthedocs.privacy.loader import Syncer
 from readthedocs.search.parse_json import process_all_json_files
@@ -503,7 +504,8 @@ def finish_build(version_pk, build_pk, hostname=None, html=False,
         epub=epub,
     )
 
-    symlink(project=version.project)
+    # Symlink project on every web
+    broadcast(type='app', task=symlink_project, args=[version.project.pk])
 
     # Delayed tasks
     update_static_metadata.delay(version.project.pk)
@@ -608,6 +610,31 @@ def update_search(version_pk, commit, delete_non_commit_files=True):
         section=False,
         delete=delete_non_commit_files,
     )
+
+
+@task(queue='web')
+def symlink_project(project_pk):
+    project = Project.objects.get(pk=project_pk)
+    sym = Symlink(project=project)
+    sym.run()
+
+
+@task(queue='web')
+def symlink_domain(project_pk, domain_pk, delete=False):
+    project = Project.objects.get(pk=project_pk)
+    domain = Domain.objects.get(pk=domain_pk)
+    sym = Symlink(project=project)
+    if delete:
+        sym.remove_symlink_cname(domain)
+    else:
+        sym.symlink_cnames(domain)
+
+
+@task(queue='web')
+def symlink_subproject(project_pk):
+    project = Project.objects.get(pk=project_pk)
+    sym = Symlink(project=project)
+    sym.symlink_subprojects()
 
 
 @task(queue='web')
