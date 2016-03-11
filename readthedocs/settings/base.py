@@ -20,6 +20,7 @@ class CommunityBaseSettings(Settings):
     # Django settings
     SITE_ID = 1
     ROOT_URLCONF = 'readthedocs.urls'
+    SUBDOMAIN_URLCONF = 'readthedocs.core.subdomain_urls'
     LOGIN_REDIRECT_URL = '/dashboard/'
     FORCE_WWW = False
     SECRET_KEY = 'replace-this-please'  # noqa
