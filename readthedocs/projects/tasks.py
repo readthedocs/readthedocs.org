@@ -124,14 +124,13 @@ class UpdateDocsTask(Task):
                     _('Builds for this project are temporarily disabled'))
             try:
                 self.setup_vcs()
+                self.config = load_yaml_config(version=self.version)
             except vcs_support_utils.LockTimeout as e:
                 self.retry(exc=e, throw=False)
                 raise BuildEnvironmentError(
                     'Version locked, retrying in 5 minutes.',
                     status_code=423
                 )
-
-            self.config = load_yaml_config(version=self.version)
 
         if self.setup_env.failed:
             self.send_notifications()
