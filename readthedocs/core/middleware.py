@@ -17,15 +17,16 @@ LOG_TEMPLATE = u"(Middleware) {msg} [{host}{path}]"
 class SubdomainMiddleware(object):
 
     def process_request(self, request):
-        if getattr(settings, 'USE_SUBDOMAIN', False):
+        if not getattr(settings, 'USE_SUBDOMAIN', False):
             return None
 
         host = request.get_host().lower()
         path = request.get_full_path()
         log_kwargs = dict(host=host, path=path)
         public_domain = getattr(settings, 'PUBLIC_DOMAIN', None)
+        production_domain = settings.PRODUCTION_DOMAIN
         if public_domain is None:
-            public_domain = settings.PRODUCTION_DOMAIN
+            public_domain = production_domain
         if ':' in host:
             host = host.split(':')[0]
         domain_parts = host.split('.')
@@ -42,6 +43,7 @@ class SubdomainMiddleware(object):
                 return None
         # Serve CNAMEs
         if (public_domain not in host and
+                production_domain not in host and
                 'localhost' not in host and
                 'testserver' not in host):
             request.cname = True
