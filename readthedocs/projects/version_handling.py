@@ -89,7 +89,7 @@ def version_windows(versions, major=1, minor=1, point=1):
     for version_string in versions:
         try:
             version_identifiers.append(Version(version_string))
-        except InvalidVersion:
+        except (InvalidVersion, UnicodeEncodeError):
             pass
 
     major_version_window = major

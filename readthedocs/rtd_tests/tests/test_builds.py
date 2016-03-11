@@ -1,9 +1,11 @@
+# -*- coding: utf-8 -*-
 
 from django.test import TestCase
 from django_dynamic_fixture import get
 from django_dynamic_fixture import fixture
 import mock
 
+from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
 from readthedocs.doc_builder.config import ConfigWrapper
 from readthedocs.doc_builder.environments import LocalEnvironment
@@ -51,6 +53,31 @@ class BuildEnvironmentTests(TestCase):
         cmd = self.mocks.popen.call_args_list[2][0]
         self.assertRegexpMatches(cmd[0][0], r'python')
         self.assertRegexpMatches(cmd[0][1], r'sphinx-build')
+
+    def test_build_unicode(self):
+        '''Test full build'''
+        project = get(Project,
+                      slug=u'project-ç',
+                      documentation_type='sphinx',
+                      conf_py_file='test_conf.py',
+                      versions=[fixture()])
+        version = get(Version, slug=u'version-ç')
+        self.mocks.configure_mock('api_versions', {'return_value': [version]})
+        self.mocks.configure_mock('api', {
+            'get.return_value': {'downloads': "no_url_here"}
+        })
+        self.mocks.patches['html_build'].stop()
+
+        build_env = LocalEnvironment(project=project, version=version, build={})
+        python_env = Virtualenv(version=version, build_env=build_env)
+        yaml_config = get_build_config({})
+        config = ConfigWrapper(version=version, yaml_config=yaml_config)
+        task = UpdateDocsTask(build_env=build_env, project=project, python_env=python_env,
+                              version=version, search=False, localmedia=False, config=config)
+        task.build_docs()
+
+        # Get command and check first part of command list is a call to sphinx
+        self.assertEqual(self.mocks.popen.call_count, 5)
 
     def test_build_respects_pdf_flag(self):
         '''Build output format control'''
