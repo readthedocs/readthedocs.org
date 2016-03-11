@@ -39,7 +39,7 @@ Sponsorship Information
 As part of increasing sustainability, 
 Read the Docs is testing out several spots for promoting sponsors on documentation pages. 
 
-We have more information about this in our `blog post`<https://blog.readthedocs.com/ads-on-read-the-docs/>`_ about this effort.
+We have more information about this in our `blog post <https://blog.readthedocs.com/ads-on-read-the-docs/>`_ about this effort.
 
 Sponsor Us
 ~~~~~~~~~~
