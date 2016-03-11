@@ -189,7 +189,7 @@ class Conda(PythonEnvironment):
         # Use conda for requirements it packages
         requirements = [
             'sphinx==1.3.5',
-            'Pygments==2.1.3',
+            'Pygments==2.1.1',
             'docutils==0.12',
             'mock',
             'pillow==3.0.0',
