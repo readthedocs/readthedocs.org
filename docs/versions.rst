@@ -25,7 +25,7 @@ This will map to your ``stable`` branch by default.
 .. note::
     We in fact are parsing your tag names against the rules given by
     `PEP 440`_. This spec allows "normal" version numbers like ``1.4.2`` as
-    well as pre-releases. A alpha version or a release candidate are examples
+    well as pre-releases. An alpha version or a release candidate are examples
     of pre-releases and they look like this: ``2.0a1``.
 
     We only consider non pre-releases for the ``stable`` version of your
