@@ -288,7 +288,7 @@ BITBUCKET_REGEXS = [
     re.compile('bitbucket.org/(.+)/(.+)/'),
     re.compile('bitbucket.org/(.+)/(.+)'),
 ]
-GITHUB_URL = ('https://github.com/{user}/{repo}/'
+GITHUB_URL = (u'https://github.com/{user}/{repo}/'
               '{action}/{version}{docroot}{path}{source_suffix}')
-BITBUCKET_URL = ('https://bitbucket.org/{user}/{repo}/'
+BITBUCKET_URL = (u'https://bitbucket.org/{user}/{repo}/'
                  'src/{version}{docroot}{path}{source_suffix}')

@@ -124,7 +124,6 @@ class UpdateDocsTask(Task):
                     _('Builds for this project are temporarily disabled'))
             try:
                 self.setup_vcs()
-                self.config = load_yaml_config(version=self.version)
             except vcs_support_utils.LockTimeout as e:
                 self.retry(exc=e, throw=False)
                 raise BuildEnvironmentError(
@@ -132,7 +131,9 @@ class UpdateDocsTask(Task):
                     status_code=423
                 )
 
-        if self.setup_env.failed:
+            self.config = load_yaml_config(version=self.version)
+
+        if self.setup_env.failed or self.config is None:
             self.send_notifications()
             return None
         if self.setup_env.successful and not self.project.has_valid_clone:
