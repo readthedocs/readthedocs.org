@@ -26,7 +26,7 @@ class BitbucketService(Service):
 
     adapter = BitbucketOAuth2Adapter
     # TODO replace this with a less naive check
-    url_pattern = re.compile(r'bitbucket.org\/')
+    url_pattern = re.compile(r'bitbucket\.org')
     https_url_pattern = re.compile(r'^https:\/\/[^@]+@bitbucket.org/')
 
     def sync(self):
