@@ -46,8 +46,6 @@ class BaseMkdocs(BaseBuilder):
         # Handle custom docs dirs
 
         user_docs_dir = user_config.get('docs_dir')
-        if user_docs_dir:
-            user_docs_dir = os.path.join(self.root_path, user_docs_dir)
         docs_dir = self.docs_dir(docs_dir=user_docs_dir)
         self.create_index(extension='md')
         user_config['docs_dir'] = docs_dir
