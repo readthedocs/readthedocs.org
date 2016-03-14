@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="{{ full_width }}" height="20">
+  <g shape-rendering="crispEdges">
+    <rect width="{{ project_length }}" height="20" fill="{{ fill }}"/>
+    <rect x="{{ project_length }}" width="{{ version_length }}" height="20" fill="{{ fill }}"/>
+  </g>
+  <g fill="#fff" text-anchor="middle" font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="11">
+    <text x="{{ project_fill }}" y="14">{{ project }}</text>
+    <text x="{{ version_fill }}" y="14">{{ version }}</text>
+  </g>
+</svg>

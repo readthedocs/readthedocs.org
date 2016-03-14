@@ -7,6 +7,7 @@ import logging
 import mimetypes
 import md5
 
+from django.template import loader
 from django.core.urlresolvers import reverse
 from django.core.cache import cache
 from django.conf import settings
@@ -106,45 +107,53 @@ class ProjectDetailView(ProjectOnboardMixin, DetailView):
         return context
 
 
-def _badge_return(redirect, url):
-    if redirect:
-        return HttpResponseRedirect(url)
+def _badge_return(version, status):
+    template = loader.get_template('badges/badge.svg')
+    if status == 'passing':
+        fill = '#4c1'
+    elif status == 'failing':
+        fill = '#e05d44'
     else:
-        response = requests.get(url)
-        http_response = HttpResponse(response.content,
-                                     content_type="image/svg+xml")
-        http_response['Cache-Control'] = 'no-cache'
-        http_response['Etag'] = md5.new(url)
-        return http_response
+        fill = '#dfb317'
+    content = template.render({
+        'project': version.project.slug,
+        'project_length': len(version.project.slug) * 5,
+        'project_fill': len(version.project.slug) * 5 / 2 + 1,
+        'version': version.slug,
+        'version_length': len(version.slug) * 5,
+        'version_fill': len(version.slug) * 5 / 2 + 1,
+        'status': status,
+        'fill': fill,
+        'full_width': (len(version.project.slug) + len(version.slug)) * 5,
+    })
+    http_response = HttpResponse(content,
+                                 content_type="image/svg+xml")
+    http_response['Cache-Control'] = 'no-cache'
+    http_response['Etag'] = md5.new(content)
+    return http_response
 
 
 @cache_control(no_cache=True)
 def project_badge(request, project_slug, redirect=True):
     """Return a sweet badge for the project"""
     version_slug = request.GET.get('version', LATEST)
-    style = request.GET.get('style', 'flat')
+
+    status = 'passing'
+
     try:
         version = Version.objects.public(request.user).get(
             project__slug=project_slug, slug=version_slug)
     except Version.DoesNotExist:
-        url = (
-            'https://img.shields.io/badge/docs-unknown%20version-yellow.svg?style={style}'
-            .format(style=style))
-        return _badge_return(redirect, url)
+        status = 'unknown'
     version_builds = version.builds.filter(type='html', state='finished').order_by('-date')
     if not version_builds.exists():
-        url = (
-            'https://img.shields.io/badge/docs-no%20builds-yellow.svg?style={style}'
-            .format(style=style))
-        return _badge_return(redirect, url)
+        status = 'unknown'
     last_build = version_builds[0]
     if last_build.success:
-        color = 'brightgreen'
+        status = 'passing'
     else:
-        color = 'red'
-    url = 'https://img.shields.io/badge/docs-%s-%s.svg?style=%s' % (
-        version.slug.replace('-', '--'), color, style)
-    return _badge_return(redirect, url)
+        color = 'failing'
+    return _badge_return(version, status)
 
 
 def project_downloads(request, project_slug):
