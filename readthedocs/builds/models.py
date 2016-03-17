@@ -182,7 +182,9 @@ class Version(models.Model):
 
     def get_subdomain_url(self):
         private = self.privacy_level == PRIVATE
-        return self.project.get_docs_url(version_slug=self.slug, private=private)
+        return self.project.get_docs_url(version_slug=self.slug,
+                                         lang_slug=self.project.language,
+                                         private=private)
 
     def get_downloads(self, pretty=False):
         project = self.project
