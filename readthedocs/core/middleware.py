@@ -144,8 +144,7 @@ class SingleVersionMiddleware(object):
                 # Let 404 be handled further up stack.
                 return None
 
-            if (getattr(proj, 'single_version', False) and
-                    not getattr(settings, 'USE_SUBDOMAIN', False)):
+            if getattr(proj, 'single_version', False):
                 request.urlconf = 'readthedocs.core.single_version_urls'
                 # Logging
                 host = request.get_host()
