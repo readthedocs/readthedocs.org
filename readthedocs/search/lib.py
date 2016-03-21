@@ -120,7 +120,6 @@ def search_file(request, query, project_slug=None, version_slug=LATEST, taxonomy
                                      in Project.objects.public(
                                         request.user).filter(
                                         superprojects__parent__slug=project.slug))
-                import ipdb; ipdb.set_trace()
                 final_filter['and'].append({"terms": {"project": project_slugs}})
 
                 # Add routing to optimize search by hitting the right shard.
