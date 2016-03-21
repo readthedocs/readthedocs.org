@@ -115,7 +115,7 @@ def search_file(request, query, project_slug=None, version_slug=LATEST, taxonomy
                            .get(slug=project_slug))
                 project_slugs = [project.slug]
                 project_slugs.extend(s.child.slug for s
-                                     in project.subprojects.all())
+                                     in project.subprojects.public(request.user))
                 final_filter['and'].append({"terms": {"project": project_slugs}})
 
                 # Add routing to optimize search by hitting the right shard.
