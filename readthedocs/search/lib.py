@@ -118,8 +118,8 @@ def search_file(request, query, project_slug=None, version_slug=LATEST, taxonomy
                 # doesn't pass along to ProjectRelationships
                 project_slugs.extend(s.slug for s
                                      in Project.objects.public(
-                                        request.user).filter(
-                                        superprojects__parent__slug=project.slug))
+                                         request.user).filter(
+                                         superprojects__parent__slug=project.slug))
                 final_filter['and'].append({"terms": {"project": project_slugs}})
 
                 # Add routing to optimize search by hitting the right shard.
