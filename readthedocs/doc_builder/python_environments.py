@@ -43,7 +43,7 @@ class PythonEnvironment(object):
     def install_package(self):
         setup_path = os.path.join(self.checkout_path, 'setup.py')
         if os.path.isfile(setup_path) and self.config.install_project:
-            if getattr(settings, 'USE_PIP_INSTALL', False):
+            if self.config.pip_install or getattr(settings, 'USE_PIP_INSTALL', False):
                 self.build_env.run(
                     'python',
                     self.venv_bin(filename='pip'),
@@ -97,14 +97,15 @@ class Virtualenv(PythonEnvironment):
 
     def install_core_requirements(self):
         requirements = [
-            'sphinx==1.3.4',
-            'Pygments==2.0.2',
-            'setuptools==18.6.1',
+            'sphinx==1.3.5',
+            'Pygments==2.1.3',
+            'setuptools==20.1.1',
             'docutils==0.12',
             'mkdocs==0.15.0',
             'mock==1.0.1',
             'pillow==2.6.1',
-            'readthedocs-sphinx-ext==0.5.4',
+            ('git+https://github.com/rtfd/readthedocs-sphinx-ext.git'
+             '@0.6-alpha#egg=readthedocs-sphinx-ext'),
             'sphinx-rtd-theme==0.1.9',
             'alabaster>=0.7,<0.8,!=0.7.5',
             'commonmark==0.5.4',
@@ -187,8 +188,8 @@ class Conda(PythonEnvironment):
 
         # Use conda for requirements it packages
         requirements = [
-            'sphinx==1.3.1',
-            'Pygments==2.0.2',
+            'sphinx==1.3.5',
+            'Pygments==2.1.1',
             'docutils==0.12',
             'mock',
             'pillow==3.0.0',
@@ -211,7 +212,8 @@ class Conda(PythonEnvironment):
         # Install pip-only things.
         pip_requirements = [
             'mkdocs==0.15.0',
-            'readthedocs-sphinx-ext==0.5.4',
+            ('git+https://github.com/rtfd/readthedocs-sphinx-ext.git'
+             '@0.6-alpha#egg=readthedocs-sphinx-ext'),
             'commonmark==0.5.4',
             'recommonmark==0.1.1',
         ]

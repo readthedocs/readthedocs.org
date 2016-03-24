@@ -88,6 +88,16 @@ class VersionManager(models.Manager):
             queryset = queryset.filter(active=True)
         return queryset
 
+    def protected(self, user=None, project=None, only_active=True):
+        queryset = self.filter(privacy_level__in=[constants.PUBLIC, constants.PROTECTED])
+        if user:
+            queryset = self._add_user_repos(queryset, user)
+        if project:
+            queryset = queryset.filter(project=project)
+        if only_active:
+            queryset = queryset.filter(active=True)
+        return queryset
+
     def api(self, user=None):
         return self.public(user, only_active=False)
 

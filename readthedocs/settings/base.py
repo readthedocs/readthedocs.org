@@ -85,15 +85,11 @@ LOCALE_PATHS = [
     os.path.join(SITE_ROOT, 'readthedocs', 'locale'),
 ]
 
-
 USE_I18N = True
 USE_L10N = True
 SITE_ID = 1
 
 SECRET_KEY = 'replace-this-please'  # noqa: ignore dodgy check
-
-ACCOUNT_ACTIVATION_DAYS = 7
-
 
 ATOMIC_REQUESTS = True
 
@@ -128,10 +124,12 @@ AUTHENTICATION_BACKENDS = (
 )
 
 # All auth
+ACCOUNT_ACTIVATION_DAYS = 7
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 ACCOUNT_AUTHENTICATION_METHOD = "username_email"
 SOCIALACCOUNT_EMAIL_VERIFICATION = "none"
+SOCIALACCOUNT_AUTO_SIGNUP = False
 
 CORS_ORIGIN_REGEX_WHITELIST = (
     '^http://(.+)\.readthedocs\.org$',

@@ -316,7 +316,7 @@ class TestPrivateViews(MockBuildTestCase):
         response = self.client.get('/dashboard/pip/delete/')
         self.assertEqual(response.status_code, 200)
 
-        patcher = patch('readthedocs.projects.views.private.remove_dir')
+        patcher = patch('readthedocs.projects.tasks.remove_dir')
         with patcher as remove_dir:
             response = self.client.post('/dashboard/pip/delete/')
             self.assertEqual(response.status_code, 302)

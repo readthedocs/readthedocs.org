@@ -1,0 +1,14 @@
+{% extends "projects/base_project.html" %}
+{% load i18n %}
+
+{% block title %}Resync webhook{% endblock title %}
+
+{% block content-header %}<h1>Resync webhook</h1>{% endblock %}
+
+{% block content %}
+  <p>{% trans "You sure?" %} O_o</p>
+
+  <form method="post" action=".">{% csrf_token %}
+    <input type="submit" value="{% trans "Resync" %}">
+  </form>
+{% endblock %}

@@ -6,6 +6,7 @@ from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 
 
 class ProjectSerializer(serializers.ModelSerializer):
+    canonical_url = serializers.ReadOnlyField(source='get_docs_url')
 
     class Meta:
         model = Project
@@ -16,6 +17,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             'default_version', 'default_branch',
             'documentation_type',
             'users',
+            'canonical_url',
         )
 
 

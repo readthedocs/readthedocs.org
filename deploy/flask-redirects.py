@@ -30,7 +30,7 @@ def redirect_front():
         except:
             cname = request.host
         CNAME = True
-        path = "/home/docs/checkouts/readthedocs.org/cnametoproject/{cname}/metadata.json".format(cname=cname)
+        path = "/home/docs/checkouts/readthedocs.org/public_cname_project/{cname}/metadata.json".format(cname=cname)
 
     try:
         json_obj = json.load(file(path))
@@ -44,7 +44,7 @@ def redirect_front():
         if SUBDOMAIN:
             sendfile = "/user_builds/{slug}/translations/{language}/{version}/".format(slug=slug, language=language, version=version)
         elif CNAME:
-            sendfile = "/cnametoproject/{cname}/translations/{language}/{version}/".format(cname=cname, language=language, version=version)
+            sendfile = "/public_cname_root/{cname}/".format(cname=cname, language=language, version=version)
         print "Redirecting {host} to {sendfile}".format(host=request.host, sendfile=sendfile)
         return make_response('', 303, {'X-Accel-Redirect': sendfile})
     else:

@@ -49,8 +49,6 @@ class SubdomainMiddleware(object):
                         request.slug = domain.project.slug
                         request.urlconf = 'core.subdomain_urls'
                         request.domain_object = True
-                        domain.count = domain.count + 1
-                        domain.save()
                         log.debug(LOG_TEMPLATE.format(
                             msg='Domain Object Detected: %s' % domain.domain, **log_kwargs))
                         break
@@ -79,21 +77,6 @@ class SubdomainMiddleware(object):
                     log.debug(LOG_TEMPLATE.format(
                         msg='CNAME detetected: %s' % request.slug,
                         **log_kwargs))
-                    try:
-                        proj = Project.objects.get(slug=slug)
-                        domain, created = Domain.objects.get_or_create(
-                            project=proj,
-                            domain=host,
-                        )
-                        if created:
-                            domain.machine = True
-                            domain.cname = True
-                        domain.count = domain.count + 1
-                        domain.save()
-                    except (ObjectDoesNotExist, MultipleObjectsReturned):
-                        log.debug(LOG_TEMPLATE.format(
-                            msg='Project CNAME does not exist: %s' % slug,
-                            **log_kwargs))
                 except:
                     # Some crazy person is CNAMEing to us. 404.
                     log.exception(LOG_TEMPLATE.format(msg='CNAME 404', **log_kwargs))

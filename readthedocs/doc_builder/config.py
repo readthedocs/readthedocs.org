@@ -24,7 +24,16 @@ class ConfigWrapper(object):
         self._yaml_config = yaml_config
 
     @property
+    def pip_install(self):
+        if 'pip_install' in self._yaml_config.get('python', {}):
+            return self._yaml_config['python']['pip_install']
+        else:
+            return False
+
+    @property
     def install_project(self):
+        if self.pip_install:
+            return True
         if 'setup_py_install' in self._yaml_config.get('python', {}):
             return self._yaml_config['python']['setup_py_install']
         else:
