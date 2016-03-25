@@ -44,7 +44,8 @@ from readthedocs.restapi.utils import index_search_request
 from readthedocs.vcs_support import utils as vcs_support_utils
 from readthedocs.api.client import api as api_v1
 from readthedocs.restapi.client import api as api_v2
-from readthedocs.projects.signals import before_vcs, after_vcs, before_build, after_build
+from readthedocs.projects.signals import (before_vcs, after_vcs, before_build,
+                                          after_build, files_changed)
 from readthedocs.core.resolver import resolve_path
 
 
@@ -712,14 +713,13 @@ def _manage_imported_files(version, path, commit):
     ImportedFile.objects.filter(project=version.project,
                                 version=version
                                 ).exclude(commit=commit).delete()
-    # Purge Cache
-    changed_files = [resolve_path(
-        version.project, filename=file, version_slug=version.slug,
-    ) for file in changed_files]
-    cdn_ids = getattr(settings, 'CDN_IDS', None)
-    if cdn_ids:
-        if version.project.slug in cdn_ids:
-            purge(cdn_ids[version.project.slug], changed_files)
+    changed_files = [
+        resolve_path(
+            version.project, filename=file, version_slug=version.slug,
+        ) for file in changed_files
+    ]
+    files_changed.send(sender=Project, project=version.project,
+                       files=changed_files)
 
 
 @task(queue='web')
