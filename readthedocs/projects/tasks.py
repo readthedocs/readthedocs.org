@@ -26,7 +26,6 @@ from readthedocs.builds.constants import (LATEST,
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import send_email, run_on_app_servers, broadcast
 from readthedocs.core.symlink import Symlink
-from readthedocs.cdn.purge import purge
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.environments import (LocalEnvironment,
