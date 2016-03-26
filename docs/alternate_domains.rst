@@ -14,7 +14,7 @@ Every project has a subdomain that is available to serve its documentation. If y
 CNAME Support
 -------------
 
-If you have your own domain, you can still host with us. 
+If you have your own domain, you can still host with us.
 This requires two steps:
 
 * Add a CNAME record in your DNS that point to our servers `readthedocs.org`
