@@ -56,9 +56,9 @@ An example nginx configuration for pip would look like:
     server {
         server_name docs.pip-installer.org;
         location / {
-            proxy_pass http://pip.readthedocs.org:80;
+            proxy_pass https://pip.readthedocs.org:443;
             proxy_set_header Host $http_host;
-            proxy_set_header X-Forwarded-Proto http;
+            proxy_set_header X-Forwarded-Proto https;
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Scheme $scheme;
             proxy_set_header X-RTD-SLUG pip;
