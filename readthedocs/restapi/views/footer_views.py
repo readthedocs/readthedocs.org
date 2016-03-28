@@ -13,6 +13,7 @@ from readthedocs.donate.models import SupporterPromo
 from readthedocs.projects.models import Project
 from readthedocs.projects.version_handling import highest_version
 from readthedocs.projects.version_handling import parse_version_failsafe
+from readthedocs.restapi.signals import footer_response
 
 
 def get_version_compare_data(project, base_version=None):
@@ -155,4 +156,8 @@ def footer_html(request):
     }
     if show_promo and promo_obj:
         resp_data['promo_data'] = promo_obj.as_dict()
+
+    # Allow folks to hook onto the footer response for various information usage.
+    footer_response.send(sender=None, context=context, resp_data=resp_data)
+
     return Response(resp_data)
