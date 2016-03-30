@@ -60,6 +60,7 @@ from collections import OrderedDict
 
 from django.conf import settings
 
+from readthedocs.builds.models import Version
 from readthedocs.projects import constants
 from readthedocs.projects.models import Domain, Project
 from readthedocs.projects.utils import run
@@ -245,7 +246,14 @@ class Symlink(object):
         if default_version is None:
             return
 
-        self._log("Symlinking single_version")
+        try:
+            versions_qs = ((self.project.versions.protected(only_active=False)
+                            .filter(built=True)) |
+                           self.project.versions.protected(only_active=True))
+            version = versions_qs.get(slug=default_version)
+            self._log("Symlinking single_version: {0}". version.slug)
+        except Version.DoesNotExist:
+            version = None
 
         symlink = self.project_root
         if os.path.islink(symlink):
@@ -254,8 +262,10 @@ class Symlink(object):
             shutil.rmtree(symlink)
 
         # Where the actual docs live
-        docs_dir = os.path.join(settings.DOCROOT, self.project.slug, 'rtd-builds', default_version)
-        run('ln -nsf %s/ %s' % (docs_dir, symlink))
+        if version is not None:
+            docs_dir = os.path.join(settings.DOCROOT, self.project.slug,
+                                    'rtd-builds', version.slug)
+            run('ln -nsf %s/ %s' % (docs_dir, symlink))
 
     def symlink_versions(self):
         """Symlink project's versions
