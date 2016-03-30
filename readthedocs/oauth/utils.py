@@ -13,20 +13,30 @@ def attach_webhook(project, request=None):
 
     for service_cls in registry:
         if service_cls.is_project_service(project):
-            user_accounts = service_cls.for_user(request.user)
-            for account in user_accounts:
-                success, resp = account.setup_webhook(project)
-                if success:
-                    messages.success(request, _('Webhook activated'))
-                    project.has_valid_webhook = True
-                    project.save()
-                    break
-            else:
-                if user_accounts:
-                    messages.error(request, _('Webhook activation failed. Make sure you have permissions to set it.'))
-                else:
-                    messages.error(
-                        request,
-                        _('No accounts available to set webhook on. '
-                          'Please connect your %s account.' % service_cls.adapter().get_provider().name)
-                    )
+            service = service_cls
+            break
+    else:
+        return None
+
+    user_accounts = service.for_user(request.user)
+    for account in user_accounts:
+        success, resp = account.setup_webhook(project)
+        if success:
+            messages.success(request, _('Webhook activated'))
+            project.has_valid_webhook = True
+            project.save()
+            break
+    else:
+        if user_accounts:
+            messages.error(
+                request,
+                _('Webhook activation failed. Make sure you have permissions to set it.')
+            )
+        else:
+            messages.error(
+                request,
+                _('No accounts available to set webhook on. '
+                  'Please connect your {network} account.'.format(
+                      network=service.adapter().get_provider().name
+                  ))
+            )
