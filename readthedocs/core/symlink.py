@@ -62,7 +62,7 @@ from django.conf import settings
 
 from readthedocs.builds.models import Version
 from readthedocs.projects import constants
-from readthedocs.projects.models import Domain, Project
+from readthedocs.projects.models import Domain
 from readthedocs.projects.utils import run
 
 log = logging.getLogger(__name__)
