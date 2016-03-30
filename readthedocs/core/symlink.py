@@ -251,7 +251,7 @@ class Symlink(object):
                             .filter(built=True)) |
                            self.project.versions.protected(only_active=True))
             version = versions_qs.get(slug=default_version)
-            self._log("Symlinking single_version: {0}". version.slug)
+            self._log("Symlinking single_version: {0}", version.slug)
         except Version.DoesNotExist:
             version = None
 
