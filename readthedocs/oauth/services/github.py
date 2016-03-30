@@ -181,10 +181,11 @@ class GitHubService(Service):
                 data=data,
                 headers={'content-type': 'application/json'}
             )
-            if resp.status_code == 201:
+            # GitHub will return 200 if already synced
+            if resp.status_code in [200, 201]:
                 log.info('GitHub webhook creation successful for project: %s',
                          project)
-                return True
+                return (True, resp)
         except RequestException:
             log.error('GitHub webhook creation failed for project: %s',
                       project, exc_info=True)
@@ -192,7 +193,7 @@ class GitHubService(Service):
         else:
             log.error('GitHub webhook creation failed for project: %s',
                       project)
-            return False
+            return (False, resp)
 
     @classmethod
     def get_token_for_project(cls, project, force_local=False):

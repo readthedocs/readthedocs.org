@@ -199,11 +199,11 @@ class BitbucketService(Service):
             if resp.status_code == 201:
                 log.info('Bitbucket webhook creation successful for project: %s',
                          project)
-                return True
+                return (True, resp)
         except RequestException:
             log.error('Bitbucket webhook creation failed for project: %s',
                       project, exc_info=True)
         else:
             log.error('Bitbucket webhook creation failed for project: %s',
                       project)
-            return False
+            return (False, resp)
