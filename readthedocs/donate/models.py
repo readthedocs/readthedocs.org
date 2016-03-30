@@ -1,5 +1,9 @@
+import random
+
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from django.core.urlresolvers import reverse
+
 
 DISPLAY_CHOICES = (
     ('doc', 'Documentation Pages'),
@@ -50,9 +54,26 @@ class SupporterPromo(models.Model):
 
     def as_dict(self):
         "A dict respresentation of this for JSON encoding"
+        image_url = reverse(
+            'donate_view_proxy',
+            kwargs={'promo_id': self.pk, 'hash': random.random()}
+        )
+        link_url = reverse(
+            'donate_click_proxy',
+            kwargs={'promo_id': self.pk}
+        )
         return {
             'id': self.analytics_id,
             'text': self.text,
-            'link': self.link,
-            'image': self.image,
+            'link': link_url,
+            'image': image_url,
         }
+
+
+class SupporterImpressions(models.Model):
+    promo = models.ForeignKey(SupporterPromo, related_name='impressions',
+                              blank=True, null=True)
+    date = models.DateField(_('Date'))
+    offers = models.IntegerField(_('Offer'), default=0)
+    views = models.IntegerField(_('View'), default=0)
+    clicks = models.IntegerField(_('Clicks'), default=0)
