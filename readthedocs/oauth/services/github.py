@@ -163,8 +163,8 @@ class GitHubService(Service):
 
         :param project: project to set up webhook for
         :type project: Project
-        :returns: boolean based on webhook set up success
-        :rtype: bool
+        :returns: boolean based on webhook set up success, and requests Response object
+        :rtype: (Bool, Response)
         """
         session = self.get_session()
         owner, repo = build_utils.get_github_username_repo(url=project.repo)
