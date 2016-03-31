@@ -69,7 +69,7 @@ class NonBlockingLock(object):
     """
 
     def __init__(self, project, version, max_lock_age=None):
-        self.fpath = os.path.join(project.doc_path, '%s__rtdlock' % version.slug)
+        self.fpath = os.path.join(project.doc_path, u'%s__rtdlock' % version.slug)
         self.max_lock_age = max_lock_age
         self.name = project.slug
 
@@ -90,7 +90,7 @@ class NonBlockingLock(object):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         try:
-            log.info("Lock (%s): Releasing" % self.name)
+            log.info(u"Lock (%s): Releasing" % self.name)
             os.remove(self.fpath)
         except (IOError, OSError):
             log.error("Lock (%s): Failed to release, ignoring..." % self.name,
