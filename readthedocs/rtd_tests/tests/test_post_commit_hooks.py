@@ -103,7 +103,7 @@ class GitLabWebHookTest(TestCase):
         rtd.save()
 
 
-class PostCommitTest(TestCase):
+class GitHubPostCommitTest(TestCase):
     fixtures = ["eric", "test_data"]
 
     def setUp(self):
@@ -183,6 +183,17 @@ class PostCommitTest(TestCase):
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r.content, '(URL Build) Build Started: HTTPS://GITHUB.COM/RTFD/READTHEDOCS.ORG [awesome]')
         self.payload['ref'] = 'refs/heads/not_ok'
+
+    def test_400_on_no_ref(self):
+        """
+        GitHub sometimes sends us a post-commit hook without a ref.
+        This means we don't know what branch to build,
+        so return a 400.
+        """
+        payload = self.payload.copy()
+        del payload['ref']
+        r = self.client.post('/github/', {'payload': json.dumps(payload)})
+        self.assertEqual(r.status_code, 400)
 
     def test_github_post_commit_hook_builds_branch_docs_if_it_should(self):
         """
