@@ -70,6 +70,8 @@ class SupporterPromo(models.Model):
         }
 
 
+"""
+
 class SupporterImpressions(models.Model):
     promo = models.ForeignKey(SupporterPromo, related_name='impressions',
                               blank=True, null=True)
@@ -77,3 +79,5 @@ class SupporterImpressions(models.Model):
     offers = models.IntegerField(_('Offer'), default=0)
     views = models.IntegerField(_('View'), default=0)
     clicks = models.IntegerField(_('Clicks'), default=0)
+
+"""
