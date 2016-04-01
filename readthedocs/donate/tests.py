@@ -39,7 +39,7 @@ class PromoTests(TestCase):
             self.promo.incr(OFFERS)
         for x in range(2):
             self.promo.incr(VIEWS)
-        self.assertEqual(self.promo.shown(), 40)
+        self.assertEqual(self.promo.shown(), 0.4)
 
     def test_multiple_hash_usage(self):
         cache.set(self.promo.cache_key(type=VIEWS, hash='random_hash'), 0)
@@ -71,7 +71,7 @@ class FooterTests(TestCase):
             '/api/v2/footer_html/?project=pip&version=latest&page=index'
         )
         resp = json.loads(r.content)
-        self.assertEqual(resp['promo_data']['link'], '/sustainability/click/%s/%s/' % (self.promo.pk, resp['promo_data']['hash']))
+        self.assertEqual(resp['promo_data']['link'], '//readthedocs.org/sustainability/click/%s/%s/' % (self.promo.pk, resp['promo_data']['hash']))
         impression = self.promo.impressions.first()
         self.assertEqual(impression.offers, 1)
 
@@ -83,7 +83,7 @@ class FooterTests(TestCase):
         resp = json.loads(r.content)
         self.assertEqual(
             resp['promo_data']['link'],
-            '/sustainability/click/%s/%s/' % (self.promo.pk, resp['promo_data']['hash'])
+            '//readthedocs.org/sustainability/click/%s/%s/' % (self.promo.pk, resp['promo_data']['hash'])
         )
         impression = self.promo.impressions.first()
         self.assertEqual(impression.offers, 1)

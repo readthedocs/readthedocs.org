@@ -83,5 +83,5 @@ def view_proxy(request, promo_id, hash):
         cache.incr(promo.cache_key(type=VIEWS, hash=hash))
     else:
         log.warning('Duplicate view logged. {count} total clicks tried.'.format(count=count))
-        cache.incr(promo.cache_key(type=CLICKS, hash=hash))
+        cache.incr(promo.cache_key(type=VIEWS, hash=hash))
     return redirect(promo.image)
