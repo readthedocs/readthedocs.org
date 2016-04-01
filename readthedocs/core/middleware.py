@@ -12,6 +12,16 @@ from readthedocs.projects.models import Project, Domain
 log = logging.getLogger(__name__)
 
 LOG_TEMPLATE = u"(Middleware) {msg} [{host}{path}]"
+SUBDOMAIN_URLCONF = getattr(
+    settings,
+    'SUBDOMAIN_URLCONF',
+    'readthedocs.core.subdomain_urls'
+)
+SINGLE_VERSION_URLCONF = getattr(
+    settings,
+    'SINGLE_VERSION_URLCONF',
+    'readthedocs.core.single_version_urls'
+)
 
 
 class SubdomainMiddleware(object):
@@ -25,7 +35,6 @@ class SubdomainMiddleware(object):
         log_kwargs = dict(host=host, path=path)
         public_domain = getattr(settings, 'PUBLIC_DOMAIN', None)
         production_domain = settings.PRODUCTION_DOMAIN
-        subdomain_urlconf = settings.SUBDOMAIN_URLCONF
 
         if public_domain is None:
             public_domain = production_domain
@@ -41,7 +50,7 @@ class SubdomainMiddleware(object):
             if not is_www and not is_ssl and public_domain in host:
                 request.subdomain = True
                 request.slug = subdomain
-                request.urlconf = subdomain_urlconf
+                request.urlconf = SUBDOMAIN_URLCONF
                 return None
         # Serve CNAMEs
         if (public_domain not in host and
@@ -54,7 +63,7 @@ class SubdomainMiddleware(object):
                 for domain in domains:
                     if domain.domain == host:
                         request.slug = domain.project.slug
-                        request.urlconf = subdomain_urlconf
+                        request.urlconf = SUBDOMAIN_URLCONF
                         request.domain_object = True
                         log.debug(LOG_TEMPLATE.format(
                             msg='Domain Object Detected: %s' % domain.domain,
@@ -63,7 +72,7 @@ class SubdomainMiddleware(object):
             if (not hasattr(request, 'domain_object') and
                     'HTTP_X_RTD_SLUG' in request.META):
                 request.slug = request.META['HTTP_X_RTD_SLUG'].lower()
-                request.urlconf = subdomain_urlconf
+                request.urlconf = SUBDOMAIN_URLCONF
                 request.rtdheader = True
                 log.debug(LOG_TEMPLATE.format(
                     msg='X-RTD-Slug header detetected: %s' % request.slug,
@@ -83,7 +92,7 @@ class SubdomainMiddleware(object):
                             msg='CNAME cached: %s->%s' % (slug, host),
                             **log_kwargs))
                     request.slug = slug
-                    request.urlconf = subdomain_urlconf
+                    request.urlconf = SUBDOMAIN_URLCONF
                     log.debug(LOG_TEMPLATE.format(
                         msg='CNAME detetected: %s' % request.slug,
                         **log_kwargs))
@@ -145,7 +154,7 @@ class SingleVersionMiddleware(object):
                 return None
 
             if getattr(proj, 'single_version', False):
-                request.urlconf = 'readthedocs.core.single_version_urls'
+                request.urlconf = SINGLE_VERSION_URLCONF
                 # Logging
                 host = request.get_host()
                 path = request.get_full_path()
