@@ -2,9 +2,6 @@ from django.db import models
 from django.utils.crypto import get_random_string
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
-from django.conf import settings
-
-from redis import Redis
 
 from readthedocs.donate.utils import get_ad_day
 
@@ -81,19 +78,6 @@ class SupporterPromo(models.Model):
         impression, _ = self.impressions.get_or_create(date=day)
         setattr(impression, type, models.F(type) + 1)
         impression.save()
-
-    def incr_redis(self, type):
-        """Add to the number of times this action has been performed, stored in the Redis"""
-        assert type in ['offers', 'views', 'clicks']
-        day = get_ad_day()
-        redis = Redis.from_url(settings.BROKER_URL)
-        redis.incr('{slug}-{year}-{month}-{day}-{type}'.format(
-            slug=self.analytics_id,
-            year=day.year,
-            month=day.month,
-            day=day.day,
-            type=type,
-        ))
 
     def shown(self, day=None):
         """Return the percentage of times this ad was shown when offered."""
