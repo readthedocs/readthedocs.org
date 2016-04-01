@@ -114,8 +114,12 @@ def search_file(request, query, project_slug=None, version_slug=LATEST, taxonomy
                            .api(request.user)
                            .get(slug=project_slug))
                 project_slugs = [project.slug]
-                project_slugs.extend(s.child.slug for s
-                                     in project.subprojects.all())
+                # We need to use the obtuse syntax here because the manager
+                # doesn't pass along to ProjectRelationships
+                project_slugs.extend(s.slug for s
+                                     in Project.objects.public(
+                                         request.user).filter(
+                                         superprojects__parent__slug=project.slug))
                 final_filter['and'].append({"terms": {"project": project_slugs}})
 
                 # Add routing to optimize search by hitting the right shard.

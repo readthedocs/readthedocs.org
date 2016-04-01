@@ -35,8 +35,8 @@ from readthedocs.projects.forms import (
 from readthedocs.projects.models import Project, EmailHook, WebHook, Domain
 from readthedocs.projects.views.base import ProjectAdminMixin, ProjectSpamMixin
 from readthedocs.projects import constants, tasks
-from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.oauth.services import registry
+from readthedocs.oauth.utils import attach_webhook
 
 from readthedocs.core.mixins import LoginRequiredMixin
 from readthedocs.projects.signals import project_import
@@ -678,7 +678,7 @@ def project_resync_webhook(request, project_slug):
     project = get_object_or_404(Project.objects.for_admin_user(request.user),
                                 slug=project_slug)
     if request.method == 'POST':
-        project_import.send(sender=project, request=request)
+        attach_webhook(project=project, request=request)
         return HttpResponseRedirect(reverse('projects_detail',
                                             args=[project.slug]))
 

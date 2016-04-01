@@ -36,9 +36,10 @@ Past sponsors
 Sponsorship Information
 -----------------------
 
-As part of increasing sustainability, Read the Docs is testing out several spots
-for promoting sponsors on documentation pages. We are only seeking sponsors that
-are users of the service or are at least very familiar with the service.
+As part of increasing sustainability, 
+Read the Docs is testing out several spots for promoting sponsors on documentation pages. 
+
+We have more information about this in our `blog post <https://blog.readthedocs.com/ads-on-read-the-docs/>`_ about this effort.
 
 Sponsor Us
 ~~~~~~~~~~
@@ -51,7 +52,7 @@ Doc Page Promotion
 This promotion is our best offering, it will display on the bottom of the
 navigation menu on all built documentation.  This space includes a 120x90 image
 and supporting ad text on every documentation page using the Read the Docs
-theme, which is over 10,000,000 pageviews every month.
+theme, which is over 20,000,000 pageviews every month.
 
 User experience on documentation pages is paramount, and any sponsored ads are
 strictly image and text -- no dynamic components, animations, or tracking pixels
@@ -59,8 +60,6 @@ are allowed. This space will not interfere with the navigation menu, and will
 only show if the menu is short enough, or the reader has scrolled down on the
 page past the end of the menu.  This promotion is not displayed for users with
 gold status, or users that have donated in the past.
-
-Limited to *1* company per month.
 
 `Contact us`_ for more specifications on this promotion spot.
 
@@ -73,3 +72,4 @@ This promotion displays the name of your company in the footer of documentation 
 It is a rotation of all sponsors,
 so will vary in pageviews based on the number of supporting companies.
 We will never have more than *10* companies in this promotion at any time.
+

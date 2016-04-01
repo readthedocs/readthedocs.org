@@ -54,6 +54,10 @@ def search(request):
     results = search_file(request=request, project_slug=project_slug,
                           version_slug=version_slug, query=query)
 
+    if results is None:
+        return Response({'error': 'Project not found'},
+                        status=status.HTTP_404_NOT_FOUND)
+
     # Supplement result paths with domain information on project
     hits = results.get('hits', {}).get('hits', [])
     for (n, hit) in enumerate(hits):

@@ -18,6 +18,8 @@ class ProjectManager(models.Manager):
     Projects take into account their own privacy_level setting.
     """
 
+    use_for_related_fields = True
+
     def _add_user_repos(self, queryset, user):
         if user.has_perm('projects.view_project'):
             return self.get_queryset().all().distinct()
@@ -70,6 +72,8 @@ class VersionManager(models.Manager):
     Versions take into account their own privacy_level setting.
     """
 
+    use_for_related_fields = True
+
     def _add_user_repos(self, queryset, user):
         if user.has_perm('builds.view_version'):
             return self.get_queryset().all().distinct()
@@ -90,6 +94,16 @@ class VersionManager(models.Manager):
 
     def protected(self, user=None, project=None, only_active=True):
         queryset = self.filter(privacy_level__in=[constants.PUBLIC, constants.PROTECTED])
+        if user:
+            queryset = self._add_user_repos(queryset, user)
+        if project:
+            queryset = queryset.filter(project=project)
+        if only_active:
+            queryset = queryset.filter(active=True)
+        return queryset
+
+    def private(self, user=None, project=None, only_active=True):
+        queryset = self.filter(privacy_level__in=[constants.PRIVATE])
         if user:
             queryset = self._add_user_repos(queryset, user)
         if project:
@@ -132,6 +146,8 @@ class BuildManager(models.Manager):
     Build objects take into account the privacy of the Version they relate to.
     """
 
+    use_for_related_fields = True
+
     def _add_user_repos(self, queryset, user=None):
         if user.has_perm('builds.view_version'):
             return self.get_queryset().all().distinct()
@@ -161,6 +177,8 @@ class RelatedProjectManager(models.Manager):
     This shouldn't be used as a subclass.
     """
 
+    use_for_related_fields = True
+
     def _add_user_repos(self, queryset, user=None):
         # Hack around get_objects_for_user not supporting global perms
         if user.has_perm('projects.view_project'):
@@ -187,6 +205,8 @@ class RelatedProjectManager(models.Manager):
 class RelatedBuildManager(models.Manager):
 
     '''For models with association to a project through :py:cls:`Build`'''
+
+    use_for_related_fields = True
 
     def _add_user_repos(self, queryset, user=None):
         if user.has_perm('builds.view_version'):
