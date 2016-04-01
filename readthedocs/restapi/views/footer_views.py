@@ -156,7 +156,7 @@ def footer_html(request, redis=False):
     if show_promo and promo_obj:
         resp_data['promo_data'] = promo_obj.as_dict()
         if redis:
-            promo_obj.incr('offers')
-        else:
             promo_obj.incr_redis('offers')
+        else:
+            promo_obj.incr('offers')
     return Response(resp_data)

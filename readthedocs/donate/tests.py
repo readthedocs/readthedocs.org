@@ -30,6 +30,13 @@ class PromoTests(TestCase):
         impression = promo.impressions.first()
         self.assertEqual(impression.views, 1)
 
+    def test_stats(self):
+        for x in range(5):
+            self.promo.incr('offers')
+        for x in range(2):
+            self.promo.incr('views')
+        self.assertEqual(self.promo.shown(), 2.5)
+
 
 class FooterTests(TestCase):
 

@@ -93,6 +93,12 @@ class SupporterPromo(models.Model):
             type=type,
         ))
 
+    def shown(self, day=None):
+        if not day:
+            day = get_ad_day()
+        impression = self.impressions.get(date=day)
+        return float(impression.offers) / float(impression.views)
+
 
 class SupporterImpressions(models.Model):
     promo = models.ForeignKey(SupporterPromo, related_name='impressions',
@@ -104,3 +110,4 @@ class SupporterImpressions(models.Model):
 
     class Meta:
         ordering = ('-date',)
+        unique_together = ('promo', 'date')
