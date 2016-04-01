@@ -6,12 +6,13 @@ from django.views.generic import TemplateView
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.shortcuts import redirect
+from django.core.cache import cache
 
 from vanilla import CreateView, ListView
 
 from readthedocs.payments.mixins import StripeMixin
 
-from .models import Supporter, SupporterPromo
+from .models import Supporter, SupporterPromo, CLICKS, VIEWS
 from .forms import SupporterForm
 from .mixins import DonateProgressMixin
 
@@ -58,13 +59,23 @@ class DonateListView(DonateProgressMixin, ListView):
         return [self.template_name]
 
 
-def click_proxy(request, promo_id):
+def click_proxy(request, promo_id, hash):
     promo = SupporterPromo.objects.get(pk=promo_id)
-    promo.incr('clicks')
+    count = cache.get(promo.cache_key(type=CLICKS, hash=hash))
+    if count == 0:
+        promo.incr(CLICKS)
+    else:
+        log.warning('Duplicate click logged. {count} total clicks tried.'.format(count=count))
+    cache.incr(promo.cache_key(type=CLICKS, hash=hash))
     return redirect(promo.link)
 
 
 def view_proxy(request, promo_id, hash):
     promo = SupporterPromo.objects.get(pk=promo_id)
-    promo.incr('views')
+    count = cache.get(promo.cache_key(type=VIEWS, hash=hash))
+    if count == 0:
+        promo.incr(VIEWS)
+    else:
+        log.warning('Duplicate view logged. {count} total clicks tried.'.format(count=count))
+    cache.incr(promo.cache_key(type=VIEWS, hash=hash))
     return redirect(promo.image)

@@ -12,6 +12,16 @@ DISPLAY_CHOICES = (
     ('search', 'Search Pages'),
 )
 
+OFFERS = 'offers'
+VIEWS = 'views'
+CLICKS = 'clicks'
+
+IMPRESSION_TYPES = (
+    OFFERS,
+    VIEWS,
+    CLICKS
+)
+
 
 class Supporter(models.Model):
     pub_date = models.DateTimeField(_('Publication date'), auto_now_add=True)
@@ -55,25 +65,31 @@ class SupporterPromo(models.Model):
 
     def as_dict(self):
         "A dict respresentation of this for JSON encoding"
+        hash = get_random_string()
         image_url = reverse(
             'donate_view_proxy',
-            kwargs={'promo_id': self.pk, 'hash': get_random_string()}
+            kwargs={'promo_id': self.pk, 'hash': hash}
         )
         # TODO: Store this hash and confirm that a proper hash was sent later
         link_url = reverse(
             'donate_click_proxy',
-            kwargs={'promo_id': self.pk}
+            kwargs={'promo_id': self.pk, 'hash': hash}
         )
         return {
             'id': self.analytics_id,
             'text': self.text,
             'link': link_url,
             'image': image_url,
+            'hash': hash,
         }
+
+    def cache_key(self, type, hash):
+        assert type in IMPRESSION_TYPES
+        return 'promo:{id}:{hash}:{type}'.format(id=self.analytics_id, hash=hash, type=type)
 
     def incr(self, type):
         """Add to the number of times this action has been performed, stored in the DB"""
-        assert type in ['offers', 'views', 'clicks']
+        assert type in IMPRESSION_TYPES
         day = get_ad_day()
         impression, _ = self.impressions.get_or_create(date=day)
         setattr(impression, type, models.F(type) + 1)
