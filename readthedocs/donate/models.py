@@ -79,6 +79,9 @@ class SupporterPromo(models.Model):
         setattr(impression, type, models.F(type) + 1)
         impression.save()
 
+        # TODO: Support redis, more info on this PR
+        # github.com/rtfd/readthedocs.org/pull/2105/files/1b5f8568ae0a7760f7247149bcff481efc000f32#r58253051
+
     def shown(self, day=None):
         """Return the percentage of times this ad was shown when offered."""
         if not day:
