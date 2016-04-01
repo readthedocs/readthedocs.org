@@ -26,7 +26,6 @@ class ImpressionInline(admin.TabularInline):
 class SupporterPromoAdmin(admin.ModelAdmin):
     model = SupporterPromo
     list_display = ('name', 'display_type', 'text', 'live', 'view_ratio', 'click_ratio')
-    readonly_fields = ('view_ratio', 'click_ratio')
     list_filter = ('live', 'display_type')
     inlines = [ImpressionInline]
 
