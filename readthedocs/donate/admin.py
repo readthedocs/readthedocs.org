@@ -16,6 +16,9 @@ class ImpressionInline(admin.TabularInline):
     can_delete = False
     max_num = 15
 
+    def shown(self, instance):
+        return instance.shown * 100
+
 
 class SupporterPromoAdmin(admin.ModelAdmin):
     model = SupporterPromo
@@ -23,6 +26,9 @@ class SupporterPromoAdmin(admin.ModelAdmin):
     readonly_fields = ('shown',)
     list_filter = ('live', 'display_type')
     inlines = [ImpressionInline]
+
+    def shown(self, instance):
+        return instance.shown() * 100
 
 
 admin.site.register(Supporter, SupporterAdmin)
