@@ -103,7 +103,7 @@ class SupporterPromo(models.Model):
         if not day:
             day = get_ad_day()
         impression = self.impressions.get(date=day)
-        return float(impression.views) / float(impression.offers) * 100.0
+        return impression.shown
 
 
 class SupporterImpressions(models.Model):
@@ -118,3 +118,8 @@ class SupporterImpressions(models.Model):
     class Meta:
         ordering = ('-date',)
         unique_together = ('promo', 'date')
+
+    @property
+    def shown(self):
+        """Return the percentage of times this ad was shown when offered."""
+        return float(self.views) / float(self.offers) * 100.0
