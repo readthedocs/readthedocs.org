@@ -1,6 +1,5 @@
-import random
-
 from django.db import models
+from django.utils.crypto import get_random_string
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
 from django.conf import settings
@@ -61,7 +60,7 @@ class SupporterPromo(models.Model):
         "A dict respresentation of this for JSON encoding"
         image_url = reverse(
             'donate_view_proxy',
-            kwargs={'promo_id': self.pk, 'hash': random.randint(0, 10000000)}
+            kwargs={'promo_id': self.pk, 'hash': get_random_string()}
         )
         link_url = reverse(
             'donate_click_proxy',
