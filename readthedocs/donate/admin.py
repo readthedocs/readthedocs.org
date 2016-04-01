@@ -11,25 +11,29 @@ class SupporterAdmin(admin.ModelAdmin):
 
 class ImpressionInline(admin.TabularInline):
     model = SupporterImpressions
-    readonly_fields = ('date', 'offers', 'views', 'clicks', 'shown')
+    readonly_fields = ('date', 'offers', 'views', 'clicks', 'view_ratio', 'click_ratio')
     extra = 0
     can_delete = False
     max_num = 15
 
-    def shown(self, instance):
-        return instance.shown * 100
+    def view_ratio(self, instance):
+        return instance.view_ratio * 100
+
+    def click_ratio(self, instance):
+        return instance.click_ratio * 100
 
 
 class SupporterPromoAdmin(admin.ModelAdmin):
     model = SupporterPromo
-    list_display = ('name', 'display_type', 'text', 'live', 'shown')
-    readonly_fields = ('shown',)
+    list_display = ('name', 'display_type', 'text', 'live', 'view_ratio', 'click_ratio')
     list_filter = ('live', 'display_type')
     inlines = [ImpressionInline]
 
-    def shown(self, instance):
-        return instance.shown() * 100
+    def view_ratio(self, instance):
+        return instance.view_ratio() * 100
 
+    def click_ratio(self, instance):
+        return instance.click_ratio() * 100
 
 admin.site.register(Supporter, SupporterAdmin)
 admin.site.register(SupporterPromo, SupporterPromoAdmin)
