@@ -30,9 +30,9 @@ If your project is hosted on Bitbucket, you can easily add a hook that will rebu
 your docs whenever you push updates:
 
 * Go to the "admin" page for your project
-* Click "Hooks"
+* Click "Services"
 * In the available service hooks, select "Read the Docs"
-* Click "Add hook"
+* Click "Add service"
 
 Others
 ------

@@ -218,7 +218,7 @@ class Symlink(object):
         language_dir = os.path.join(self.project_root, self.project.language)
         if os.path.islink(language_dir):
             os.unlink(language_dir)
-        if not os.path.exists(language_dir):
+        if not os.path.lexists(language_dir):
             os.makedirs(language_dir)
 
         for (language, slug) in translations.items():
