@@ -11,7 +11,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.shortcuts import redirect
 
 from vanilla import CreateView, ListView
-from redis import Redis, ConnectionError
+from redis import Redis
 import pytz
 
 from readthedocs.payments.mixins import StripeMixin

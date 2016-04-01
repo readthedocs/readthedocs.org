@@ -56,7 +56,7 @@ class SupporterPromo(models.Model):
         "A dict respresentation of this for JSON encoding"
         image_url = reverse(
             'donate_view_proxy',
-            kwargs={'promo_id': self.pk, 'hash': random.random()}
+            kwargs={'promo_id': self.pk, 'hash': random.randint(0, 10000000)}
         )
         link_url = reverse(
             'donate_click_proxy',
