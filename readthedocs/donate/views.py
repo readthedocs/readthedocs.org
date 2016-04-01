@@ -61,7 +61,7 @@ class DonateListView(DonateProgressMixin, ListView):
 def click_proxy(request, promo_id, redis=False):
     promo = SupporterPromo.objects.get(pk=promo_id)
     if redis:
-        promo.incr_redis('views')
+        promo.incr_redis('clicks')
     else:
         promo.incr('clicks')
     return redirect(promo.link)
