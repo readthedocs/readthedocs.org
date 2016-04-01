@@ -104,12 +104,17 @@ class SupporterPromo(models.Model):
         # TODO: Support redis, more info on this PR
         # github.com/rtfd/readthedocs.org/pull/2105/files/1b5f8568ae0a7760f7247149bcff481efc000f32#r58253051
 
-    def shown(self, day=None):
-        """Return the percentage of times this ad was shown when offered."""
+    def view_ratio(self, day=None):
         if not day:
             day = get_ad_day()
         impression = self.impressions.get(date=day)
-        return impression.shown
+        return impression.view_ratio
+
+    def click_ratio(self, day=None):
+        if not day:
+            day = get_ad_day()
+        impression = self.impressions.get(date=day)
+        return impression.click_ratio
 
 
 class SupporterImpressions(models.Model):
@@ -126,8 +131,13 @@ class SupporterImpressions(models.Model):
         unique_together = ('promo', 'date')
 
     @property
-    def shown(self):
-        """Return the percentage of times this ad was shown when offered."""
-        if self.views == 0:
+    def view_ratio(self):
+        if self.offers == 0:
             return 0  # Don't divide by 0
         return float(self.views) / float(self.offers)
+
+    @property
+    def click_ratio(self):
+        if self.views == 0:
+            return 0  # Don't divide by 0
+        return float(self.clicks) / float(self.views)
