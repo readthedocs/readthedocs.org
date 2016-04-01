@@ -35,11 +35,14 @@ class PromoTests(TestCase):
         self.assertEqual(impression.views, 1)
 
     def test_stats(self):
-        for x in range(5):
+        for x in range(50):
             self.promo.incr(OFFERS)
-        for x in range(2):
+        for x in range(20):
             self.promo.incr(VIEWS)
-        self.assertEqual(self.promo.shown(), 0.4)
+        for x in range(3):
+            self.promo.incr(CLICKS)
+        self.assertEqual(self.promo.view_ratio(), 0.4)
+        self.assertEqual(self.promo.click_ratio(), 0.15)
 
     def test_multiple_hash_usage(self):
         cache.set(self.promo.cache_key(type=VIEWS, hash='random_hash'), 0)
