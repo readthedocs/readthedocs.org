@@ -62,6 +62,7 @@ class SupporterPromo(models.Model):
             'donate_view_proxy',
             kwargs={'promo_id': self.pk, 'hash': get_random_string()}
         )
+        # TODO: Store this hash and confirm that a proper hash was used when generating views & clicks.
         link_url = reverse(
             'donate_click_proxy',
             kwargs={'promo_id': self.pk}
