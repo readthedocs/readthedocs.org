@@ -48,3 +48,5 @@ class FooterTests(TestCase):
         )
         resp = json.loads(r.content)
         self.assertEqual(resp['promo_data']['link'], '/sustainability/click/%s/' % self.promo.pk)
+        impression = self.promo.impressions.first()
+        self.assertEqual(impression.offers, 1)

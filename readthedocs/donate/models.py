@@ -3,6 +3,11 @@ import random
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
+from django.conf import settings
+
+from redis import Redis
+
+from readthedocs.donate.utils import get_ad_day
 
 
 DISPLAY_CHOICES = (
@@ -69,6 +74,25 @@ class SupporterPromo(models.Model):
             'image': image_url,
         }
 
+    def incr(self, type):
+        assert type in ['offers', 'views', 'clicks']
+        day = get_ad_day()
+        impression, _ = self.impressions.get_or_create(date=day)
+        setattr(impression, type, models.F(type) + 1)
+        impression.save()
+
+    def incr_redis(self, type):
+        assert type in ['offers', 'views', 'clicks']
+        day = get_ad_day()
+        redis = Redis.from_url(settings.BROKER_URL)
+        redis.incr('{slug}-{year}-{month}-{day}-{type}'.format(
+            slug=self.analytics_id,
+            year=day.year,
+            month=day.month,
+            day=day.day,
+            type=type,
+        ))
+
 
 class SupporterImpressions(models.Model):
     promo = models.ForeignKey(SupporterPromo, related_name='impressions',
@@ -77,3 +101,6 @@ class SupporterImpressions(models.Model):
     offers = models.IntegerField(_('Offer'), default=0)
     views = models.IntegerField(_('View'), default=0)
     clicks = models.IntegerField(_('Clicks'), default=0)
+
+    class Meta:
+        ordering = ('-date',)

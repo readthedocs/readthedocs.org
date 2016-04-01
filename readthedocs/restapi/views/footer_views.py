@@ -155,4 +155,5 @@ def footer_html(request):
     }
     if show_promo and promo_obj:
         resp_data['promo_data'] = promo_obj.as_dict()
+        promo_obj.incr('offers')
     return Response(resp_data)
