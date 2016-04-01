@@ -75,6 +75,7 @@ class SupporterPromo(models.Model):
         }
 
     def incr(self, type):
+        """Add to the number of times this action has been performed, stored in the DB"""
         assert type in ['offers', 'views', 'clicks']
         day = get_ad_day()
         impression, _ = self.impressions.get_or_create(date=day)
@@ -82,6 +83,7 @@ class SupporterPromo(models.Model):
         impression.save()
 
     def incr_redis(self, type):
+        """Add to the number of times this action has been performed, stored in the Redis"""
         assert type in ['offers', 'views', 'clicks']
         day = get_ad_day()
         redis = Redis.from_url(settings.BROKER_URL)
@@ -94,6 +96,7 @@ class SupporterPromo(models.Model):
         ))
 
     def shown(self, day=None):
+        """Return the percentage of times this ad was shown when offered."""
         if not day:
             day = get_ad_day()
         impression = self.impressions.get(date=day)
@@ -101,6 +104,7 @@ class SupporterPromo(models.Model):
 
 
 class SupporterImpressions(models.Model):
+    """Track stats around how successful this promo has been. """
     promo = models.ForeignKey(SupporterPromo, related_name='impressions',
                               blank=True, null=True)
     date = models.DateField(_('Date'))
