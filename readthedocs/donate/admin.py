@@ -12,6 +12,9 @@ class SupporterAdmin(admin.ModelAdmin):
 class ImpressionInline(admin.TabularInline):
     model = SupporterImpressions
     readonly_fields = ('date', 'offers', 'views', 'clicks', 'shown')
+    extra = 0
+    can_delete = False
+    max_num = 15
 
 
 class SupporterPromoAdmin(admin.ModelAdmin):

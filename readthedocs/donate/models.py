@@ -122,4 +122,6 @@ class SupporterImpressions(models.Model):
     @property
     def shown(self):
         """Return the percentage of times this ad was shown when offered."""
+        if self.views == 0:
+            return 0
         return float(self.views) / float(self.offers) * 100.0
