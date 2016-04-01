@@ -2,6 +2,7 @@ from django.db import models
 from django.utils.crypto import get_random_string
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
+from django.conf import settings
 
 from readthedocs.donate.utils import get_ad_day
 
@@ -66,15 +67,19 @@ class SupporterPromo(models.Model):
     def as_dict(self):
         "A dict respresentation of this for JSON encoding"
         hash = get_random_string()
-        image_url = reverse(
-            'donate_view_proxy',
-            kwargs={'promo_id': self.pk, 'hash': hash}
-        )
+        image_url = '//{host}{url}'.format(
+            host=getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'),
+            url=reverse(
+                'donate_view_proxy',
+                kwargs={'promo_id': self.pk, 'hash': hash}
+            ))
         # TODO: Store this hash and confirm that a proper hash was sent later
-        link_url = reverse(
-            'donate_click_proxy',
-            kwargs={'promo_id': self.pk, 'hash': hash}
-        )
+        link_url = '//{host}{url}'.format(
+            host=getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'),
+            url=reverse(
+                'donate_click_proxy',
+                kwargs={'promo_id': self.pk, 'hash': hash}
+            ))
         return {
             'id': self.analytics_id,
             'text': self.text,
