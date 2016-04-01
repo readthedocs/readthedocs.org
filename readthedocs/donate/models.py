@@ -87,7 +87,7 @@ class SupporterPromo(models.Model):
         if not day:
             day = get_ad_day()
         impression = self.impressions.get(date=day)
-        return float(impression.offers) / float(impression.views)
+        return float(impression.views) / float(impression.offers) * 100.0
 
 
 class SupporterImpressions(models.Model):

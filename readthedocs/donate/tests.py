@@ -35,7 +35,7 @@ class PromoTests(TestCase):
             self.promo.incr('offers')
         for x in range(2):
             self.promo.incr('views')
-        self.assertEqual(self.promo.shown(), 2.5)
+        self.assertEqual(self.promo.shown(), 40)
 
 
 class FooterTests(TestCase):
