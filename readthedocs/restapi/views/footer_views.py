@@ -45,7 +45,7 @@ def get_version_compare_data(project, base_version=None):
 @decorators.api_view(['GET'])
 @decorators.permission_classes((permissions.AllowAny,))
 @decorators.renderer_classes((JSONRenderer, JSONPRenderer))
-def footer_html(request):
+def footer_html(request, redis=False):
     project_slug = request.GET.get('project', None)
     version_slug = request.GET.get('version', None)
     page_slug = request.GET.get('page', None)
@@ -155,5 +155,8 @@ def footer_html(request):
     }
     if show_promo and promo_obj:
         resp_data['promo_data'] = promo_obj.as_dict()
-        promo_obj.incr('offers')
+        if redis:
+            promo_obj.incr('offers')
+        else:
+            promo_obj.incr_redis('offers')
     return Response(resp_data)
