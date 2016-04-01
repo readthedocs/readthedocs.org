@@ -21,5 +21,12 @@ class Migration(migrations.Migration):
                 ('clicks', models.IntegerField(default=0, verbose_name='Clicks')),
                 ('promo', models.ForeignKey(related_name='impressions', blank=True, to='donate.SupporterPromo', null=True)),
             ],
+            options={
+                'ordering': ('-date',),
+            },
+        ),
+        migrations.AlterUniqueTogether(
+            name='supporterimpressions',
+            unique_together=set([('promo', 'date')]),
         ),
     ]
