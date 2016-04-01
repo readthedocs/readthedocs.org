@@ -67,15 +67,16 @@ class SupporterPromo(models.Model):
     def as_dict(self):
         "A dict respresentation of this for JSON encoding"
         hash = get_random_string()
+        domain = getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org')
         image_url = '//{host}{url}'.format(
-            host=getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'),
+            host=domain,
             url=reverse(
                 'donate_view_proxy',
                 kwargs={'promo_id': self.pk, 'hash': hash}
             ))
         # TODO: Store this hash and confirm that a proper hash was sent later
         link_url = '//{host}{url}'.format(
-            host=getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'),
+            host=domain,
             url=reverse(
                 'donate_click_proxy',
                 kwargs={'promo_id': self.pk, 'hash': hash}
