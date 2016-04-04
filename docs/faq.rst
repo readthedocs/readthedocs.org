@@ -23,16 +23,19 @@ as it `breaks the internet <http://www.w3.org/Provider/Style/URI.html>`_.
 How do I change behavior for Read the Docs?
 -------------------------------------------
 
-When RTD builds your project, it sets the `READTHEDOCS` environment variable to the string `True`. So within your Sphinx ``conf.py`` file, you can vary the behavior based on this. For example::
+When RTD builds your project, it sets the :envvar:`READTHEDOCS` environment
+variable to the string `True`. So within your Sphinx :file:`conf.py` file, you
+can vary the behavior based on this. For example::
 
     import os
-    on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
+    on_rtd = os.environ.get('READTHEDOCS') == 'True'
     if on_rtd:
         html_theme = 'default'
     else:
         html_theme = 'nature'
 
-The ``READTHEDOCS`` variable is also available in the Sphinx build environment, and will be set to ``True`` when building on RTD::
+The :envvar:`READTHEDOCS` variable is also available in the Sphinx build
+environment, and will be set to ``True`` when building on RTD::
 
     {% if READTHEDOCS %}
     Woo

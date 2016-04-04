@@ -1,6 +1,8 @@
 from django.shortcuts import get_object_or_404
 from django.template import RequestContext, loader as template_loader
 from django.conf import settings
+from django.core.cache import cache
+
 
 from rest_framework import decorators, permissions
 from rest_framework.renderers import JSONPRenderer, JSONRenderer
@@ -9,7 +11,7 @@ from rest_framework.response import Response
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.constants import TAG
 from readthedocs.builds.models import Version
-from readthedocs.donate.models import SupporterPromo
+from readthedocs.donate.models import SupporterPromo, VIEWS, CLICKS
 from readthedocs.projects.models import Project
 from readthedocs.projects.version_handling import highest_version
 from readthedocs.projects.version_handling import parse_version_failsafe
@@ -154,8 +156,18 @@ def footer_html(request):
         'version_supported': version.supported,
         'promo': show_promo,
     }
+
     if show_promo and promo_obj:
-        resp_data['promo_data'] = promo_obj.as_dict()
+        promo_dict = promo_obj.as_dict()
+        resp_data['promo_data'] = promo_dict
+        promo_obj.incr('offers')
+        # Set validation cache
+        for type in [VIEWS, CLICKS]:
+            cache.set(
+                promo_obj.cache_key(type=type, hash=promo_dict['hash']),
+                0,  # Number of times used. Make this an int so we can detect multiple uses
+                60 * 60  # hour
+            )
 
     # Allow folks to hook onto the footer response for various information usage.
     footer_response.send(sender=None, context=context, resp_data=resp_data)

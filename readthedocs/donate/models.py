@@ -1,10 +1,26 @@
 from django.db import models
+from django.utils.crypto import get_random_string
 from django.utils.translation import ugettext_lazy as _
+from django.core.urlresolvers import reverse
+from django.conf import settings
+
+from readthedocs.donate.utils import get_ad_day
+
 
 DISPLAY_CHOICES = (
     ('doc', 'Documentation Pages'),
     ('site-footer', 'Site Footer'),
     ('search', 'Search Pages'),
+)
+
+OFFERS = 'offers'
+VIEWS = 'views'
+CLICKS = 'clicks'
+
+IMPRESSION_TYPES = (
+    OFFERS,
+    VIEWS,
+    CLICKS
 )
 
 
@@ -50,9 +66,78 @@ class SupporterPromo(models.Model):
 
     def as_dict(self):
         "A dict respresentation of this for JSON encoding"
+        hash = get_random_string()
+        domain = getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org')
+        image_url = '//{host}{url}'.format(
+            host=domain,
+            url=reverse(
+                'donate_view_proxy',
+                kwargs={'promo_id': self.pk, 'hash': hash}
+            ))
+        # TODO: Store this hash and confirm that a proper hash was sent later
+        link_url = '//{host}{url}'.format(
+            host=domain,
+            url=reverse(
+                'donate_click_proxy',
+                kwargs={'promo_id': self.pk, 'hash': hash}
+            ))
         return {
             'id': self.analytics_id,
             'text': self.text,
-            'link': self.link,
-            'image': self.image,
+            'link': link_url,
+            'image': image_url,
+            'hash': hash,
         }
+
+    def cache_key(self, type, hash):
+        assert type in IMPRESSION_TYPES
+        return 'promo:{id}:{hash}:{type}'.format(id=self.analytics_id, hash=hash, type=type)
+
+    def incr(self, type):
+        """Add to the number of times this action has been performed, stored in the DB"""
+        assert type in IMPRESSION_TYPES
+        day = get_ad_day()
+        impression, _ = self.impressions.get_or_create(date=day)
+        setattr(impression, type, models.F(type) + 1)
+        impression.save()
+
+        # TODO: Support redis, more info on this PR
+        # github.com/rtfd/readthedocs.org/pull/2105/files/1b5f8568ae0a7760f7247149bcff481efc000f32#r58253051
+
+    def view_ratio(self, day=None):
+        if not day:
+            day = get_ad_day()
+        impression = self.impressions.get(date=day)
+        return impression.view_ratio
+
+    def click_ratio(self, day=None):
+        if not day:
+            day = get_ad_day()
+        impression = self.impressions.get(date=day)
+        return impression.click_ratio
+
+
+class SupporterImpressions(models.Model):
+    """Track stats around how successful this promo has been. """
+    promo = models.ForeignKey(SupporterPromo, related_name='impressions',
+                              blank=True, null=True)
+    date = models.DateField(_('Date'))
+    offers = models.IntegerField(_('Offer'), default=0)
+    views = models.IntegerField(_('View'), default=0)
+    clicks = models.IntegerField(_('Clicks'), default=0)
+
+    class Meta:
+        ordering = ('-date',)
+        unique_together = ('promo', 'date')
+
+    @property
+    def view_ratio(self):
+        if self.offers == 0:
+            return 0  # Don't divide by 0
+        return float(self.views) / float(self.offers)
+
+    @property
+    def click_ratio(self):
+        if self.views == 0:
+            return 0  # Don't divide by 0
+        return float(self.clicks) / float(self.views)
