@@ -1,7 +1,6 @@
 from django.shortcuts import get_object_or_404
 from django.template import RequestContext, loader as template_loader
 from django.conf import settings
-from django.core.cache import cache
 
 
 from rest_framework import decorators, permissions
@@ -11,7 +10,6 @@ from rest_framework.response import Response
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.constants import TAG
 from readthedocs.builds.models import Version
-from readthedocs.donate.models import SupporterPromo, VIEWS, CLICKS
 from readthedocs.projects.models import Project
 from readthedocs.projects.version_handling import highest_version
 from readthedocs.projects.version_handling import parse_version_failsafe
@@ -86,45 +84,6 @@ def footer_html(request):
     else:
         print_url = None
 
-    use_promo = getattr(settings, 'USE_PROMOS', True)
-    show_promo = project.allow_promos
-    gold_user = gold_project = False
-    promo_obj = None
-
-    # User is a gold user, no promos for them!
-    if request.user.is_authenticated():
-        if request.user.gold.count() or request.user.goldonce.count():
-            gold_user = True
-    # A GoldUser has mapped this project
-    if project.gold_owners.count():
-        gold_project = True
-
-    if gold_user or gold_project:
-        show_promo = False
-
-    if use_promo and show_promo:
-        promo_obj = (SupporterPromo.objects
-                     .filter(live=True, display_type='doc')
-                     .order_by('?')
-                     .first())
-
-        # Support showing a "Thank you" message for gold folks
-        if gold_user:
-            gold_promo = SupporterPromo.objects.filter(live=True,
-                                                       name='gold-user')
-            if gold_promo.exists():
-                promo_obj = gold_promo.first()
-
-        # Default to showing project-level thanks if it exists
-        if gold_project:
-            gold_promo = SupporterPromo.objects.filter(live=True,
-                                                       name='gold-project')
-            if gold_promo.exists():
-                promo_obj = gold_promo.first()
-
-        if not promo_obj:
-            show_promo = False
-
     version_compare_data = get_version_compare_data(project, version)
 
     context = {
@@ -154,22 +113,9 @@ def footer_html(request):
         'version_active': version.active,
         'version_compare': version_compare_data,
         'version_supported': version.supported,
-        'promo': show_promo,
     }
 
-    if show_promo and promo_obj:
-        promo_dict = promo_obj.as_dict()
-        resp_data['promo_data'] = promo_dict
-        promo_obj.incr('offers')
-        # Set validation cache
-        for type in [VIEWS, CLICKS]:
-            cache.set(
-                promo_obj.cache_key(type=type, hash=promo_dict['hash']),
-                0,  # Number of times used. Make this an int so we can detect multiple uses
-                60 * 60  # hour
-            )
-
     # Allow folks to hook onto the footer response for various information usage.
-    footer_response.send(sender=None, context=context, resp_data=resp_data)
+    footer_response.send(sender=None, request=request, context=context, resp_data=resp_data)
 
     return Response(resp_data)

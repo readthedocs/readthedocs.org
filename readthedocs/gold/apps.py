@@ -1,4 +1,4 @@
-"""Gold application config for establishing signals"""
+"""Donate application config for establishing signals"""
 
 import logging
 
