@@ -34,7 +34,8 @@ def attach_promo_data(sender, **kwargs):
     if project.gold_owners.count():
         gold_project = True
 
-    # Don't show gold users promos. This will get overridden if we have specific promos for them below.
+    # Don't show gold users promos.
+    # This will get overridden if we have specific promos for them below.
     if gold_user or gold_project:
         show_promo = False
 
