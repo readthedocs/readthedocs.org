@@ -67,7 +67,7 @@ class FooterTests(TestCase):
                          display_type='doc',
                          link='http://example.com',
                          image='http://media.example.com/img.png')
-        self.pip = get(Project, slug='pip')
+        self.pip = get(Project, slug='pip', allow_promos=True)
 
     def test_footer(self):
         r = self.client.get(
@@ -131,6 +131,16 @@ class FooterTests(TestCase):
     def test_footer_no_obj(self):
         """Test that the promo doesn't get set with no SupporterPromo objects"""
         self.promo.delete()
+        r = self.client.get(
+            '/api/v2/footer_html/?project=pip&version=latest&page=index'
+        )
+        resp = json.loads(r.content)
+        self.assertEqual(resp['promo'], False)
+
+    def test_project_disabling(self):
+        """Test that the promo doesn't show when the project has it disabled"""
+        self.pip.allow_promos = False
+        self.pip.save()
         r = self.client.get(
             '/api/v2/footer_html/?project=pip&version=latest&page=index'
         )
