@@ -97,8 +97,12 @@ class FooterTests(TestCase):
             '/api/v2/footer_html/?project=pip&version=latest&page=index'
         )
         resp = json.loads(r.content)
-        self.assertEqual(resp['promo_data'][
-                         'link'], '//readthedocs.org/sustainability/click/%s/%s/' % (self.promo.pk, resp['promo_data']['hash']))
+        self.assertEqual(
+            resp['promo_data']['link'],
+            '//readthedocs.org/sustainability/click/%s/%s/' % (
+                self.promo.pk, resp['promo_data']['hash']
+            )
+        )
         impression = self.promo.impressions.first()
         self.assertEqual(impression.offers, 1)
 

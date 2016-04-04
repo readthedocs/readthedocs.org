@@ -74,7 +74,7 @@ def click_proxy(request, promo_id, hash):
         )
         if project_slug:
             project = Project.objects.get(slug=project_slug)
-            promo.incr_project(CLICKS, project=project)
+            promo.incr(CLICKS, project=project)
     else:
         log.warning('Duplicate click logged. {count} total clicks tried.'.format(count=count))
         cache.incr(promo.cache_key(type=CLICKS, hash=hash))
@@ -95,7 +95,7 @@ def view_proxy(request, promo_id, hash):
         )
         if project_slug:
             project = Project.objects.get(slug=project_slug)
-            promo.incr_project(VIEWS, project=project)
+            promo.incr(VIEWS, project=project)
     else:
         log.warning('Duplicate view logged. {count} total clicks tried.'.format(count=count))
         cache.incr(promo.cache_key(type=VIEWS, hash=hash))

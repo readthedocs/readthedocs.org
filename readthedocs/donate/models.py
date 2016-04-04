@@ -94,24 +94,20 @@ class SupporterPromo(models.Model):
         assert type in IMPRESSION_TYPES + ('project',)
         return 'promo:{id}:{hash}:{type}'.format(id=self.analytics_id, hash=hash, type=type)
 
-    def incr(self, type):
+    def incr(self, type, project=None):
         """Add to the number of times this action has been performed, stored in the DB"""
         assert type in IMPRESSION_TYPES
         day = get_ad_day()
-        impression, _ = self.impressions.get_or_create(date=day)
+        if project:
+            impression, _ = self.impressions.get_or_create(date=day, project=project)
+        else:
+            impression, _ = self.impressions.get_or_create(date=day)
+
         setattr(impression, type, models.F(type) + 1)
         impression.save()
 
         # TODO: Support redis, more info on this PR
         # github.com/rtfd/readthedocs.org/pull/2105/files/1b5f8568ae0a7760f7247149bcff481efc000f32#r58253051
-
-    def incr_project(self, type, project):
-        """Add to the number of times this action has been performed, stored in the DB"""
-        assert type in IMPRESSION_TYPES
-        day = get_ad_day()
-        impression, _ = self.project_impressions.get_or_create(date=day, project=project)
-        setattr(impression, type, models.F(type) + 1)
-        impression.save()
 
     def view_ratio(self, day=None):
         if not day:

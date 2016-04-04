@@ -68,7 +68,7 @@ def attach_promo_data(sender, **kwargs):
         promo_dict = promo_obj.as_dict()
         resp_data['promo_data'] = promo_dict
         promo_obj.incr(OFFERS)
-        promo_obj.incr_project(OFFERS, project)
+        promo_obj.incr(OFFERS, project=project)
         # Set validation cache
         for type in [VIEWS, CLICKS]:
             cache.set(
@@ -76,6 +76,7 @@ def attach_promo_data(sender, **kwargs):
                 0,  # Number of times used. Make this an int so we can detect multiple uses
                 60 * 60  # hour
             )
+            # Set project for hash key, so we can count it later.
             cache.set(
                 promo_obj.cache_key(type='project', hash=promo_dict['hash']),
                 project.slug,
