@@ -91,8 +91,8 @@ class SupporterPromo(models.Model):
         }
 
     def cache_key(self, type, hash):
-        assert type in IMPRESSION_TYPES
-        return 'promo:{id}:{hash}:{type}'.format(id=self.analytics_id, hash=hash, type=type)
+        assert type in IMPRESSION_TYPES + ('project',)
+        return 'promo:{id}:{type}:{hash}'.format(id=self.analytics_id, hash=hash, type=type)
 
     def incr(self, type):
         """Add to the number of times this action has been performed, stored in the DB"""
@@ -104,6 +104,14 @@ class SupporterPromo(models.Model):
 
         # TODO: Support redis, more info on this PR
         # github.com/rtfd/readthedocs.org/pull/2105/files/1b5f8568ae0a7760f7247149bcff481efc000f32#r58253051
+
+    def incr_project(self, type, project):
+        """Add to the number of times this action has been performed, stored in the DB"""
+        assert type in IMPRESSION_TYPES
+        day = get_ad_day()
+        impression, _ = self.project_impressions.get_or_create(date=day, project=project)
+        setattr(impression, type, models.F(type) + 1)
+        impression.save()
 
     def view_ratio(self, day=None):
         if not day:

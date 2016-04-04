@@ -7,8 +7,7 @@ from django.db import models, migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('projects', '0016_rebase-impressions-on-base'),
-        ('donate', '0003_add-impressions'),
+        ('donate', '0003_add-impressions')
     ]
 
     operations = [
