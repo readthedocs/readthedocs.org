@@ -99,7 +99,7 @@ class SupporterPromo(models.Model):
         assert type in IMPRESSION_TYPES
         day = get_ad_day()
         if project:
-            impression, _ = self.impressions.get_or_create(date=day, project=project)
+            impression, _ = self.project_impressions.get_or_create(date=day, project=project)
         else:
             impression, _ = self.impressions.get_or_create(date=day)
 
