@@ -92,7 +92,7 @@ class SupporterPromo(models.Model):
 
     def cache_key(self, type, hash):
         assert type in IMPRESSION_TYPES + ('project',)
-        return 'promo:{id}:{type}:{hash}'.format(id=self.analytics_id, hash=hash, type=type)
+        return 'promo:{id}:{hash}:{type}'.format(id=self.analytics_id, hash=hash, type=type)
 
     def incr(self, type):
         """Add to the number of times this action has been performed, stored in the DB"""
