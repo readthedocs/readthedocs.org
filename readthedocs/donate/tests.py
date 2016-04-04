@@ -118,3 +118,21 @@ class FooterTests(TestCase):
         self.assertEqual(impression.offers, 1)
         self.assertEqual(impression.views, 1)
         self.assertEqual(impression.clicks, 1)
+
+    def test_footer_setting(self):
+        """Test that the promo doesn't show with USE_PROMOS is False"""
+        with self.settings(USE_PROMOS=False):
+            r = self.client.get(
+                '/api/v2/footer_html/?project=pip&version=latest&page=index'
+            )
+            resp = json.loads(r.content)
+            self.assertEqual(resp['promo'], False)
+
+    def test_footer_no_obj(self):
+        """Test that the promo doesn't get set with no SupporterPromo objects"""
+        self.promo.delete()
+        r = self.client.get(
+            '/api/v2/footer_html/?project=pip&version=latest&page=index'
+        )
+        resp = json.loads(r.content)
+        self.assertEqual(resp['promo'], False)
