@@ -17,10 +17,12 @@ class PromoTests(TestCase):
                          slug='promo-slug',
                          link='http://example.com',
                          image='http://media.example.com/img.png')
+        self.pip = get(Project, slug='pip', allow_promos=True)
 
     def test_clicks(self):
         cache.set(self.promo.cache_key(type=CLICKS, hash='random_hash'), 0)
-        resp = self.client.get('http://testserver/sustainability/click/%s/random_hash/' % self.promo.id)
+        resp = self.client.get(
+            'http://testserver/sustainability/click/%s/random_hash/' % self.promo.id)
         self.assertEqual(resp._headers['location'][1], 'http://example.com')
         promo = SupporterPromo.objects.get(pk=self.promo.pk)
         impression = promo.impressions.first()
@@ -28,11 +30,20 @@ class PromoTests(TestCase):
 
     def test_views(self):
         cache.set(self.promo.cache_key(type=VIEWS, hash='random_hash'), 0)
-        resp = self.client.get('http://testserver/sustainability/view/%s/random_hash/' % self.promo.id)
+        resp = self.client.get(
+            'http://testserver/sustainability/view/%s/random_hash/' % self.promo.id)
         self.assertEqual(resp._headers['location'][1], 'http://media.example.com/img.png')
         promo = SupporterPromo.objects.get(pk=self.promo.pk)
         impression = promo.impressions.first()
         self.assertEqual(impression.views, 1)
+
+    def test_project_clicks(self):
+        cache.set(self.promo.cache_key(type=CLICKS, hash='random_hash'), 0)
+        cache.set(self.promo.cache_key(type='project', hash='random_hash'), self.pip.slug)
+        self.client.get('http://testserver/sustainability/click/%s/random_hash/' % self.promo.id)
+        promo = SupporterPromo.objects.get(pk=self.promo.pk)
+        impression = promo.project_impressions.first()
+        self.assertEqual(impression.clicks, 1)
 
     def test_stats(self):
         for x in range(50):
@@ -57,6 +68,18 @@ class PromoTests(TestCase):
         impression = promo.impressions.first()
         self.assertEqual(impression.views, 1)
 
+    def test_invalid_id(self):
+        resp = self.client.get('http://testserver/sustainability/view/invalid/data/')
+        self.assertEqual(resp.status_code, 404)
+
+    def test_invalid_hash(self):
+        cache.set(self.promo.cache_key(type=VIEWS, hash='valid_hash'), 0)
+        resp = self.client.get(
+            'http://testserver/sustainability/view/%s/invalid_hash/' % self.promo.id)
+        promo = SupporterPromo.objects.get(pk=self.promo.pk)
+        self.assertEqual(promo.impressions.count(), 0)
+        self.assertEqual(resp._headers['location'][1], 'http://media.example.com/img.png')
+
 
 class FooterTests(TestCase):
 
@@ -74,7 +97,12 @@ class FooterTests(TestCase):
             '/api/v2/footer_html/?project=pip&version=latest&page=index'
         )
         resp = json.loads(r.content)
-        self.assertEqual(resp['promo_data']['link'], '//readthedocs.org/sustainability/click/%s/%s/' % (self.promo.pk, resp['promo_data']['hash']))
+        self.assertEqual(
+            resp['promo_data']['link'],
+            '//readthedocs.org/sustainability/click/%s/%s/' % (
+                self.promo.pk, resp['promo_data']['hash']
+            )
+        )
         impression = self.promo.impressions.first()
         self.assertEqual(impression.offers, 1)
 
@@ -86,7 +114,8 @@ class FooterTests(TestCase):
         resp = json.loads(r.content)
         self.assertEqual(
             resp['promo_data']['link'],
-            '//readthedocs.org/sustainability/click/%s/%s/' % (self.promo.pk, resp['promo_data']['hash'])
+            '//readthedocs.org/sustainability/click/%s/%s/' % (
+                self.promo.pk, resp['promo_data']['hash'])
         )
         impression = self.promo.impressions.first()
         self.assertEqual(impression.offers, 1)

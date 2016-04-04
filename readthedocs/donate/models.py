@@ -5,6 +5,7 @@ from django.core.urlresolvers import reverse
 from django.conf import settings
 
 from readthedocs.donate.utils import get_ad_day
+from readthedocs.projects.models import Project
 
 
 DISPLAY_CHOICES = (
@@ -90,14 +91,18 @@ class SupporterPromo(models.Model):
         }
 
     def cache_key(self, type, hash):
-        assert type in IMPRESSION_TYPES
+        assert type in IMPRESSION_TYPES + ('project',)
         return 'promo:{id}:{hash}:{type}'.format(id=self.analytics_id, hash=hash, type=type)
 
-    def incr(self, type):
+    def incr(self, type, project=None):
         """Add to the number of times this action has been performed, stored in the DB"""
         assert type in IMPRESSION_TYPES
         day = get_ad_day()
-        impression, _ = self.impressions.get_or_create(date=day)
+        if project:
+            impression, _ = self.impressions.get_or_create(date=day, project=project)
+        else:
+            impression, _ = self.impressions.get_or_create(date=day)
+
         setattr(impression, type, models.F(type) + 1)
         impression.save()
 
@@ -117,10 +122,7 @@ class SupporterPromo(models.Model):
         return impression.click_ratio
 
 
-class SupporterImpressions(models.Model):
-    """Track stats around how successful this promo has been. """
-    promo = models.ForeignKey(SupporterPromo, related_name='impressions',
-                              blank=True, null=True)
+class BaseImpression(models.Model):
     date = models.DateField(_('Date'))
     offers = models.IntegerField(_('Offer'), default=0)
     views = models.IntegerField(_('View'), default=0)
@@ -129,6 +131,7 @@ class SupporterImpressions(models.Model):
     class Meta:
         ordering = ('-date',)
         unique_together = ('promo', 'date')
+        abstract = True
 
     @property
     def view_ratio(self):
@@ -141,3 +144,26 @@ class SupporterImpressions(models.Model):
         if self.views == 0:
             return 0  # Don't divide by 0
         return float(self.clicks) / float(self.views)
+
+
+class PromoImpressions(BaseImpression):
+    """Track stats around how successful this promo has been.
+
+    Indexed one per promo per day."""
+
+    promo = models.ForeignKey(SupporterPromo, related_name='impressions',
+                              blank=True, null=True)
+
+
+class ProjectImpressions(BaseImpression):
+    """Track stats for a specific project and promo.
+
+    Indexed one per project per promo per day"""
+
+    promo = models.ForeignKey(SupporterPromo, related_name='project_impressions',
+                              blank=True, null=True)
+    project = models.ForeignKey(Project, related_name='impressions',
+                                blank=True, null=True)
+
+    class Meta:
+        unique_together = ('project', 'promo', 'date')
