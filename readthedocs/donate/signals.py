@@ -14,13 +14,18 @@ def attach_promo_data(sender, **kwargs):
 
     project = context['project']
 
+    # Bail out early if promo's are disabled.
     use_promo = getattr(settings, 'USE_PROMOS', True)
-    show_promo = project.allow_promos
+    if not use_promo:
+        resp_data['promo'] = False
+        return
 
     gold_user = gold_project = False
     promo_obj = None
 
-    # User is a gold user, no promos for them!
+    show_promo = project.allow_promos
+
+    # The request is by a GoldUser
     if request.user.is_authenticated():
         if request.user.gold.count() or request.user.goldonce.count():
             gold_user = True
@@ -29,8 +34,12 @@ def attach_promo_data(sender, **kwargs):
     if project.gold_owners.count():
         gold_project = True
 
+    # Don't show gold users promos. This will get overridden if we have specific promos for them below.
+    if gold_user or gold_project:
+        show_promo = False
+
     # Try to get a promo if we should be using one.
-    if use_promo and show_promo:
+    if show_promo:
         promo_obj = (SupporterPromo.objects
                      .filter(live=True, display_type='doc')
                      .order_by('?')
@@ -50,11 +59,11 @@ def attach_promo_data(sender, **kwargs):
             if gold_promo.exists():
                 promo_obj = gold_promo.first()
 
-    # All the cases we don't show promos for
-    if gold_user or gold_project or not promo_obj or not use_promo:
+    # If we don't have anything to show, don't show it.
+    if not promo_obj:
         show_promo = False
 
-    if show_promo and promo_obj:
+    if show_promo:
         promo_dict = promo_obj.as_dict()
         resp_data['promo_data'] = promo_dict
         promo_obj.incr('offers')
