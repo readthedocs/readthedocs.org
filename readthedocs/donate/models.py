@@ -142,12 +142,12 @@ class BaseImpression(models.Model):
         return float(self.clicks) / float(self.views)
 
 
-class SupporterImpressions(BaseImpression):
+class PromoImpressions(BaseImpression):
     """Track stats around how successful this promo has been.
 
     Indexed one per promo per day."""
 
-    promo = models.ForeignKey(SupporterPromo, related_name='promo_impressions',
+    promo = models.ForeignKey(SupporterPromo, related_name='impressions',
                               blank=True, null=True)
 
 

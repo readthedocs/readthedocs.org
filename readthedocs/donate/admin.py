@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Supporter, SupporterPromo, SupporterImpressions
+from .models import Supporter, SupporterPromo, PromoImpressions
 
 
 class SupporterAdmin(admin.ModelAdmin):
@@ -10,7 +10,7 @@ class SupporterAdmin(admin.ModelAdmin):
 
 
 class ImpressionInline(admin.TabularInline):
-    model = SupporterImpressions
+    model = PromoImpressions
     readonly_fields = ('date', 'offers', 'views', 'clicks', 'view_ratio', 'click_ratio')
     extra = 0
     can_delete = False
