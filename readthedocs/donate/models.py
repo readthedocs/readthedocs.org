@@ -4,6 +4,8 @@ from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
 from django.conf import settings
 
+from django_countries.fields import CountryField
+
 from readthedocs.donate.utils import get_ad_day
 from readthedocs.projects.models import Project
 
@@ -12,6 +14,11 @@ DISPLAY_CHOICES = (
     ('doc', 'Documentation Pages'),
     ('site-footer', 'Site Footer'),
     ('search', 'Search Pages'),
+)
+
+FILTER_CHOICES = (
+    ('exclude', 'Exclude'),
+    ('include', 'Include'),
 )
 
 OFFERS = 'offers'
@@ -167,3 +174,26 @@ class ProjectImpressions(BaseImpression):
 
     class Meta:
         unique_together = ('project', 'promo', 'date')
+
+
+class Country(models.Model):
+    country = CountryField(unique=True)
+
+    def __unicode__(self):
+        return unicode(self.country.name)
+
+
+class GeoFilter(models.Model):
+    promo = models.ForeignKey(SupporterPromo, related_name='geo_filters',
+                              blank=True, null=True)
+    filter_type = models.CharField(_('Filter Type'), max_length=20,
+                                   choices=FILTER_CHOICES, default='')
+    countries = models.ManyToManyField(Country, related_name='filters',
+                                       blank=True, null=True)
+
+    def __unicode__(self):
+        codes = []
+        for code in self.countries.values_list('country'):
+            codes.append(code[0])
+        return "Filter for {promo} that {type}s: {countries}".format(
+            promo=self.promo.name, type=self.filter_type, countries=','.join(codes))

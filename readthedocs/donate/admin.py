@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Supporter, SupporterPromo, PromoImpressions
+from .models import (Supporter, SupporterPromo,
+                     PromoImpressions, GeoFilter)
 
 
 class SupporterAdmin(admin.ModelAdmin):
@@ -11,7 +12,7 @@ class SupporterAdmin(admin.ModelAdmin):
 
 class ImpressionInline(admin.TabularInline):
     model = PromoImpressions
-    readonly_fields = ('date', 'offers', 'views', 'clicks', 'view_ratio', 'click_ratio')
+    readonly_fields = ('date', 'promo', 'offers', 'views', 'clicks', 'view_ratio', 'click_ratio')
     extra = 0
     can_delete = False
     max_num = 15
@@ -37,3 +38,4 @@ class SupporterPromoAdmin(admin.ModelAdmin):
 
 admin.site.register(Supporter, SupporterAdmin)
 admin.site.register(SupporterPromo, SupporterPromoAdmin)
+admin.site.register(GeoFilter)
