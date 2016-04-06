@@ -78,6 +78,7 @@ def attach_promo_data(sender, **kwargs):
             if country_code:
                 if show_to_geo(obj, country_code):
                     promo_obj = obj
+                    break
         else:
             # TODO: House Ad
             promo_obj = None
