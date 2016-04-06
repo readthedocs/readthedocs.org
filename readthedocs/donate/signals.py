@@ -9,7 +9,7 @@ from readthedocs.donate.models import SupporterPromo, VIEWS, CLICKS, OFFERS, INC
 PROMO_GEO_PATH = getattr(settings, 'PROMO_GEO_PATH', None)
 
 if PROMO_GEO_PATH:
-    import geoip2.database
+    import geoip2.database  # noqa
     geo_reader = geoip2.database.Reader(PROMO_GEO_PATH)
 
 
@@ -29,6 +29,16 @@ def show_to_geo(promo, country_code):
 
 
 def get_promo(country_code, gold_project=False, gold_user=False):
+    """
+    Get a proper promo.
+
+    Takes into account:
+
+    * Gold User status
+    * Gold Project status
+    * Geo
+    """
+
     promo_queryset = SupporterPromo.objects.filter(live=True, display_type='doc').order_by('?')
 
     for obj in promo_queryset:
