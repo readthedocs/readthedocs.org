@@ -4,9 +4,12 @@ from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.core.cache import cache
 
-from django_dynamic_fixture import get
+from django_dynamic_fixture import get, fixture
 
-from .models import SupporterPromo, CLICKS, VIEWS, OFFERS
+from .models import (SupporterPromo, GeoFilter, Country,
+                     CLICKS, VIEWS, OFFERS,
+                     INCLUDE, EXCLUDE)
+from .signals import show_to_geo
 from readthedocs.projects.models import Project
 
 
@@ -175,3 +178,53 @@ class FooterTests(TestCase):
         )
         resp = json.loads(r.content)
         self.assertEqual(resp['promo'], False)
+
+
+class FilterTests(TestCase):
+
+    def setUp(self):
+        us = get(Country, country='US')
+        ca = get(Country, country='CA')
+        mx = get(Country, country='MX')
+        az = get(Country, country='AZ')
+        # Only show in US,CA
+        self.promo = get(SupporterPromo,
+                         slug='promo-slug',
+                         link='http://example.com',
+                         image='http://media.example.com/img.png')
+        self.filter = get(GeoFilter,
+                          promo=self.promo,
+                          countries=[us, ca, mx],
+                          filter_type=INCLUDE,
+                          )
+
+        # Don't show in AZ
+        self.promo2 = get(SupporterPromo,
+                          slug='promo2-slug',
+                          link='http://example.com',
+                          image='http://media.example.com/img.png')
+        self.filter2 = get(GeoFilter,
+                           promo=self.promo2,
+                           countries=[az],
+                           filter_type=EXCLUDE,
+                           )
+
+        self.pip = get(Project, slug='pip', allow_promos=True)
+
+    def test_include(self):
+        # US view
+        ret = show_to_geo(self.promo, 'US')
+        self.assertEqual(ret, True)
+
+    def test_exclude(self):
+        # Az -- don't show AZ ad
+        ret = show_to_geo(self.promo2, 'AZ')
+        self.assertEqual(ret, False)
+
+    def test_failed_filter(self):
+        # Random Country -- don't show "only US" ad
+        ret = show_to_geo(self.promo, 'FO')
+        self.assertEqual(ret, False)
+
+        ret2 = show_to_geo(self.promo2, 'FO')
+        self.assertEqual(ret2, True)

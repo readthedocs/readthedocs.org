@@ -3,6 +3,17 @@ from .models import (Supporter, SupporterPromo,
                      PromoImpressions, GeoFilter)
 
 
+class GeoFilterAdmin(admin.ModelAdmin):
+    model = GeoFilter
+    filter_horizontal = ('countries',)
+
+
+class GeoFilterInline(admin.TabularInline):
+    model = GeoFilter
+    filter_horizontal = ('countries',)
+    extra = 1
+
+
 class SupporterAdmin(admin.ModelAdmin):
     model = Supporter
     raw_id_fields = ('user',)
@@ -28,7 +39,7 @@ class SupporterPromoAdmin(admin.ModelAdmin):
     model = SupporterPromo
     list_display = ('name', 'display_type', 'text', 'live', 'view_ratio', 'click_ratio')
     list_filter = ('live', 'display_type')
-    inlines = [ImpressionInline]
+    inlines = [ImpressionInline, GeoFilterInline]
 
     def view_ratio(self, instance):
         return instance.view_ratio() * 100
@@ -38,4 +49,4 @@ class SupporterPromoAdmin(admin.ModelAdmin):
 
 admin.site.register(Supporter, SupporterAdmin)
 admin.site.register(SupporterPromo, SupporterPromoAdmin)
-admin.site.register(GeoFilter)
+admin.site.register(GeoFilter, GeoFilterAdmin)

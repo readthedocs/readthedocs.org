@@ -16,9 +16,12 @@ DISPLAY_CHOICES = (
     ('search', 'Search Pages'),
 )
 
+INCLUDE = 'include'
+EXCLUDE = 'exclude'
+
 FILTER_CHOICES = (
-    ('exclude', 'Exclude'),
-    ('include', 'Include'),
+    (EXCLUDE, 'Exclude'),
+    (INCLUDE, 'Include'),
 )
 
 OFFERS = 'offers'
@@ -190,6 +193,13 @@ class GeoFilter(models.Model):
                                    choices=FILTER_CHOICES, default='')
     countries = models.ManyToManyField(Country, related_name='filters',
                                        blank=True, null=True)
+
+    @ property
+    def codes(self):
+        ret = []
+        for wrapped_code in self.countries.values_list('country'):
+            ret.append(wrapped_code[0])
+        return ret
 
     def __unicode__(self):
         codes = []
