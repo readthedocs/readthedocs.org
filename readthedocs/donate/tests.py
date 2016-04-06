@@ -187,6 +187,7 @@ class FilterTests(TestCase):
         ca = get(Country, country='CA')
         mx = get(Country, country='MX')
         az = get(Country, country='AZ')
+
         # Only show in US,CA
         self.promo = get(SupporterPromo,
                          slug='promo-slug',
@@ -216,12 +217,18 @@ class FilterTests(TestCase):
         ret = show_to_geo(self.promo, 'US')
         self.assertEqual(ret, True)
 
+        ret = show_to_geo(self.promo2, 'US')
+        self.assertEqual(ret, True)
+
     def test_exclude(self):
         # Az -- don't show AZ ad
+        ret = show_to_geo(self.promo, 'AZ')
+        self.assertEqual(ret, False)
+
         ret = show_to_geo(self.promo2, 'AZ')
         self.assertEqual(ret, False)
 
-    def test_failed_filter(self):
+    def test_non_included_data(self):
         # Random Country -- don't show "only US" ad
         ret = show_to_geo(self.promo, 'FO')
         self.assertEqual(ret, False)
