@@ -28,6 +28,35 @@ def show_to_geo(promo, country_code):
     return True
 
 
+def get_promo(country_code, gold_project=False, gold_user=False):
+    promo_queryset = SupporterPromo.objects.filter(live=True, display_type='doc').order_by('?')
+
+    for obj in promo_queryset:
+        if country_code:
+            if show_to_geo(obj, country_code):
+                promo_obj = obj
+                break
+    else:
+        # TODO: House Ad
+        promo_obj = None
+
+    # Support showing a "Thank you" message for gold folks
+    if gold_user:
+        gold_promo = SupporterPromo.objects.filter(live=True,
+                                                   name='gold-user')
+        if gold_promo.exists():
+            promo_obj = gold_promo.first()
+
+    # Default to showing project-level thanks if it exists
+    if gold_project:
+        gold_promo = SupporterPromo.objects.filter(live=True,
+                                                   name='gold-project')
+        if gold_promo.exists():
+            promo_obj = gold_promo.first()
+
+    return promo_obj
+
+
 @receiver(footer_response)
 def attach_promo_data(sender, **kwargs):
     request = kwargs['request']
@@ -43,7 +72,7 @@ def attach_promo_data(sender, **kwargs):
         return
 
     gold_user = gold_project = False
-    promo_obj = None
+    promo_obj = country_code = None
 
     show_promo = project.allow_promos
 
@@ -61,8 +90,6 @@ def attach_promo_data(sender, **kwargs):
     if gold_user or gold_project:
         show_promo = False
 
-    country_code = None
-
     if PROMO_GEO_PATH:
         # Get geo information from the IP, but don't record it anywhere
         ip = request.META.get('REMOTE_ADDR')
@@ -72,30 +99,11 @@ def attach_promo_data(sender, **kwargs):
 
     # Try to get a promo if we should be using one.
     if show_promo:
-        promo_queryset = SupporterPromo.objects.filter(live=True, display_type='doc').order_by('?')
-
-        for obj in promo_queryset:
-            if country_code:
-                if show_to_geo(obj, country_code):
-                    promo_obj = obj
-                    break
-        else:
-            # TODO: House Ad
-            promo_obj = None
-
-        # Support showing a "Thank you" message for gold folks
-        if gold_user:
-            gold_promo = SupporterPromo.objects.filter(live=True,
-                                                       name='gold-user')
-            if gold_promo.exists():
-                promo_obj = gold_promo.first()
-
-        # Default to showing project-level thanks if it exists
-        if gold_project:
-            gold_promo = SupporterPromo.objects.filter(live=True,
-                                                       name='gold-project')
-            if gold_promo.exists():
-                promo_obj = gold_promo.first()
+        promo_obj = get_promo(
+            country_code=country_code,
+            gold_project=gold_project,
+            gold_user=gold_user,
+        )
 
     # If we don't have anything to show, don't show it.
     if not promo_obj:

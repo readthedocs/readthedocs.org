@@ -4,12 +4,12 @@ from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.core.cache import cache
 
-from django_dynamic_fixture import get, fixture
+from django_dynamic_fixture import get
 
 from .models import (SupporterPromo, GeoFilter, Country,
                      CLICKS, VIEWS, OFFERS,
                      INCLUDE, EXCLUDE)
-from .signals import show_to_geo
+from .signals import show_to_geo, get_promo
 from readthedocs.projects.models import Project
 
 
@@ -192,6 +192,7 @@ class FilterTests(TestCase):
         self.promo = get(SupporterPromo,
                          slug='promo-slug',
                          link='http://example.com',
+                         live=True,
                          image='http://media.example.com/img.png')
         self.filter = get(GeoFilter,
                           promo=self.promo,
@@ -203,6 +204,7 @@ class FilterTests(TestCase):
         self.promo2 = get(SupporterPromo,
                           slug='promo2-slug',
                           link='http://example.com',
+                          live=True,
                           image='http://media.example.com/img.png')
         self.filter2 = get(GeoFilter,
                            promo=self.promo2,
@@ -235,3 +237,19 @@ class FilterTests(TestCase):
 
         ret2 = show_to_geo(self.promo2, 'FO')
         self.assertEqual(ret2, True)
+
+    def test_get_promo(self):
+        ret = get_promo('US')
+        self.assertTrue(ret in [self.promo, self.promo2])
+
+        ret = get_promo('MX')
+        self.assertTrue(ret in [self.promo, self.promo2])
+
+        ret = get_promo('FO')
+        self.assertEqual(ret, self.promo2)
+
+        ret = get_promo('AZ')
+        self.assertEqual(ret, None)
+
+        ret = get_promo('RANDOM')
+        self.assertEqual(ret, self.promo2)
