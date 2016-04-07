@@ -208,7 +208,7 @@ class GeoFilter(models.Model):
     filter_type = models.CharField(_('Filter Type'), max_length=20,
                                    choices=FILTER_CHOICES, default='')
     countries = models.ManyToManyField(Country, related_name='filters',
-                                       blank=True, null=True)
+                                       blank=True)
 
     @ property
     def codes(self):
