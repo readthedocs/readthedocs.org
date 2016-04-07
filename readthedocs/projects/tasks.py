@@ -133,7 +133,7 @@ class UpdateDocsTask(Task):
 
             self.config = load_yaml_config(version=self.version)
 
-        if self.setup_env.failed:
+        if self.setup_env.failed or self.config is None:
             self.send_notifications()
             return None
         if self.setup_env.successful and not self.project.has_valid_clone:

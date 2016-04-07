@@ -237,7 +237,12 @@ def github_build(request):
             obj = json.loads(request.body)
         url = obj['repository']['url']
         ghetto_url = url.replace('http://', '').replace('https://', '')
-        branch = obj['ref'].replace('refs/heads/', '')
+        try:
+            branch = obj['ref'].replace('refs/heads/', '')
+        except KeyError:
+            response = HttpResponse('ref argument required to build branches.')
+            response.status_code = 400
+            return response
         pc_log.info("(Incoming GitHub Build) %s [%s]" % (ghetto_url, branch))
         try:
             return _build_url(ghetto_url, [branch])

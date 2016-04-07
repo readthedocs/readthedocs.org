@@ -18,6 +18,8 @@ class ProjectManager(models.Manager):
     Projects take into account their own privacy_level setting.
     """
 
+    use_for_related_fields = True
+
     def _add_user_repos(self, queryset, user):
         if user.has_perm('projects.view_project'):
             return self.get_queryset().all().distinct()
@@ -69,6 +71,8 @@ class VersionManager(models.Manager):
     """
     Versions take into account their own privacy_level setting.
     """
+
+    use_for_related_fields = True
 
     def _add_user_repos(self, queryset, user):
         if user.has_perm('builds.view_version'):
@@ -142,6 +146,8 @@ class BuildManager(models.Manager):
     Build objects take into account the privacy of the Version they relate to.
     """
 
+    use_for_related_fields = True
+
     def _add_user_repos(self, queryset, user=None):
         if user.has_perm('builds.view_version'):
             return self.get_queryset().all().distinct()
@@ -171,6 +177,8 @@ class RelatedProjectManager(models.Manager):
     This shouldn't be used as a subclass.
     """
 
+    use_for_related_fields = True
+
     def _add_user_repos(self, queryset, user=None):
         # Hack around get_objects_for_user not supporting global perms
         if user.has_perm('projects.view_project'):
@@ -197,6 +205,8 @@ class RelatedProjectManager(models.Manager):
 class RelatedBuildManager(models.Manager):
 
     '''For models with association to a project through :py:cls:`Build`'''
+
+    use_for_related_fields = True
 
     def _add_user_repos(self, queryset, user=None):
         if user.has_perm('builds.view_version'):

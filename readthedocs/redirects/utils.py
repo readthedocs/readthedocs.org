@@ -18,8 +18,11 @@ def project_and_path_from_request(request, path):
         match = re.match(
             r'^/docs/(?P<project_slug>[^/]+)(?P<path>/.*)$',
             path)
-        project_slug = match.groupdict()['project_slug']
-        path = match.groupdict()['path']
+        if match:
+            project_slug = match.groupdict()['project_slug']
+            path = match.groupdict()['path']
+        else:
+            return None, path
     else:
         return None, path
 
