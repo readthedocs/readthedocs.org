@@ -45,6 +45,11 @@ def choose_promo(promo_list):
     * Pick a random number between 1 and that total
     * Choose the ad whose range is in the chosen random number
 
+    In the future,
+    we should take into account the expected views for today
+    (The number of views from this day last week)
+    Then we can scale the "total ads sold" against that "expected views",
+    and that will give us more spread throughout the day.
     """
 
     promo_range = []
