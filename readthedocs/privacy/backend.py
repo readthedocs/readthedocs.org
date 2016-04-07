@@ -57,6 +57,13 @@ class ProjectManager(models.Manager):
         else:
             return queryset
 
+    def private(self, user=None):
+        queryset = self.filter(privacy_level=constants.PRIVATE)
+        if user:
+            return self._add_user_repos(queryset, user)
+        else:
+            return queryset
+
     # Aliases
 
     def dashboard(self, user=None):
