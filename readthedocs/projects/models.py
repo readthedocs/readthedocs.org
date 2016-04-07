@@ -727,13 +727,6 @@ class Project(models.Model):
                     identifier=new_stable.identifier)
                 return new_stable
 
-    def version_from_branch_name(self, branch):
-        versions = self.versions_from_branch_name(branch)
-        try:
-            return versions[0]
-        except IndexError:
-            return None
-
     def versions_from_branch_name(self, branch):
         return (
             self.versions.filter(identifier=branch) |

@@ -11,21 +11,35 @@ from readthedocs.projects import tasks
 log = logging.getLogger(__name__)
 
 
-class GitLabWebHookTest(TestCase):
-    fixtures = ["eric", "test_data"]
+class BasePostCommitTest(TestCase):
+    def _setup(self):
+        self.rtfd = get(
+            Project, repo='https://github.com/rtfd/readthedocs.org', slug='read-the-docs')
+        self.rtfd_not_ok = get(
+            Version, project=self.rtfd, slug='not_ok', identifier='not_ok', active=False)
+        self.rtfd_awesome = get(
+            Version, project=self.rtfd, slug='awesome', identifier='awesome', active=True)
 
-    def tearDown(self):
-        tasks.update_docs = self.old_bd
-
-    def setUp(self):
-        self.old_bd = tasks.update_docs
+        self.pip = get(Project, repo='https://bitbucket.org/pip/pip', repo_type='hg')
+        self.pip_not_ok = get(
+            Version, project=self.pip, slug='not_ok', identifier='not_ok', active=False)
+        self.sphinx = get(Project, repo='https://bitbucket.org/sphinx/sphinx', repo_type='git')
 
         def mock(*args, **kwargs):
             log.info("Mocking for great profit and speed.")
+
         tasks.update_docs = mock
         tasks.update_docs.apply_async = mock
 
         self.client.login(username='eric', password='test')
+
+
+class GitLabWebHookTest(BasePostCommitTest):
+    fixtures = ["eric"]
+
+    def setUp(self):
+        self._setup()
+
         self.payload = {
             "object_kind": "push",
             "before": "95790bf891e76fee5e1747ab589903a6a1f80f22",
@@ -109,17 +123,12 @@ class GitLabWebHookTest(TestCase):
         rtd.save()
 
 
-class GitHubPostCommitTest(TestCase):
-    fixtures = ["eric", "test_data"]
+class GitHubPostCommitTest(BasePostCommitTest):
+    fixtures = ["eric"]
 
     def setUp(self):
-        def mock(*args, **kwargs):
-            pass
+        self._setup()
 
-        tasks.UpdateDocsTask.run = mock
-        tasks.UpdateDocsTask.apply_async = mock
-
-        self.client.login(username='eric', password='test')
         self.payload = {
             "after": "5ad757394b926e5637ffeafe340f952ef48bd270",
             "base_ref": "refs/heads/master",
@@ -188,7 +197,9 @@ class GitHubPostCommitTest(TestCase):
         r = self.client.post('/github/', {'payload': json.dumps(payload)})
         self.assertEqual(r.status_code, 200)
         self.assertEqual(
-            r.content, '(URL Build) Build Started: HTTPS://GITHUB.COM/RTFD/READTHEDOCS.ORG [awesome]')
+            r.content,
+            '(URL Build) Build Started: HTTPS://GITHUB.COM/RTFD/READTHEDOCS.ORG [awesome]'
+        )
         self.payload['ref'] = 'refs/heads/not_ok'
 
     def test_400_on_no_ref(self):
@@ -242,17 +253,11 @@ class GitHubPostCommitTest(TestCase):
         rtd.save()
 
 
-class CorePostCommitTest(TestCase):
-    fixtures = ["eric", "test_data"]
+class CorePostCommitTest(BasePostCommitTest):
+    fixtures = ["eric"]
 
     def setUp(self):
-        def mock(*args, **kwargs):
-            pass
-
-        tasks.UpdateDocsTask.run = mock
-        tasks.UpdateDocsTask.apply_async = mock
-
-        self.client.login(username='eric', password='test')
+        self._setup()
 
     def test_core_commit_hook(self):
         rtd = Project.objects.get(slug='read-the-docs')
@@ -271,20 +276,10 @@ class CorePostCommitTest(TestCase):
         self.assertEqual(Project.objects.get(slug='read-the-docs').has_valid_webhook, True)
 
 
-class BitBucketHookTests(TestCase):
+class BitBucketHookTests(BasePostCommitTest):
 
     def setUp(self):
-        def mock(*args, **kwargs):
-            pass
-
-        self.pip = get(Project, repo='https://bitbucket.org/pip/pip', repo_type='hg')
-        self.not_ok = get(Version, project=self.pip, slug='not_ok', identifier='not_ok')
-        self.sphinx = get(Project, repo='https://bitbucket.org/sphinx/sphinx', repo_type='git')
-
-        tasks.UpdateDocsTask.run = mock
-        tasks.UpdateDocsTask.apply_async = mock
-
-        self.client.login(username='eric', password='test')
+        self._setup()
 
         self.hg_payload = {
             "canon_url": "https://bitbucket.org",
@@ -385,14 +380,14 @@ class BitBucketHookTests(TestCase):
             r.content, '(URL Build) Build Started: bitbucket.org/pip/pip [latest]')
 
         self.hg_payload['commits'] = [{
-                    "branch": "not_ok",
+            "branch": "not_ok",
         }]
         r = self.client.post('/bitbucket/', {'payload': json.dumps(self.hg_payload)})
         self.assertEqual(
             r.content, '(URL Build) Not Building: bitbucket.org/pip/pip [not_ok]')
 
         self.hg_payload['commits'] = [{
-                    "branch": "unknown",
+            "branch": "unknown",
         }]
         r = self.client.post('/bitbucket/', {'payload': json.dumps(self.hg_payload)})
         self.assertEqual(r.status_code, 200)
