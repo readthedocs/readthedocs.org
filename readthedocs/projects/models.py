@@ -22,6 +22,7 @@ from readthedocs.core.resolver import resolve_domain
 from readthedocs.restapi.client import api as apiv2
 from readthedocs.builds.constants import LATEST, LATEST_VERBOSE_NAME, STABLE
 from readthedocs.privacy.loader import RelatedProjectManager, ProjectManager
+from readthedocs.privacy.backend import ChildRelatedProjectManager, ParentRelatedProjectManager
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectImportError
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
@@ -57,6 +58,8 @@ class ProjectRelationship(models.Model):
     child = models.ForeignKey('Project', verbose_name=_('Child'),
                               related_name='superprojects')
     alias = models.CharField(_('Alias'), max_length=255, null=True, blank=True)
+
+    objects = ChildRelatedProjectManager()
 
     def __unicode__(self):
         return "%s -> %s" % (self.parent, self.child)

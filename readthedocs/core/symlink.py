@@ -61,7 +61,7 @@ from collections import OrderedDict
 from django.conf import settings
 
 from readthedocs.projects import constants
-from readthedocs.projects.models import Domain
+from readthedocs.projects.models import Domain, Project
 from readthedocs.projects.utils import run
 
 log = logging.getLogger(__name__)
@@ -169,7 +169,7 @@ class Symlink(object):
                   $WEB_ROOT/<project>
         """
         subprojects = set()
-        rels = self.project.subprojects.all()
+        rels = self.get_subprojects()
         if rels.count():
             # Don't creat the `projects/` directory unless subprojects exist.
             if not os.path.exists(self.subproject_root):
@@ -207,7 +207,7 @@ class Symlink(object):
         """
         translations = {}
 
-        for trans in self.project.translations.all():
+        for trans in self.get_translations():
             translations[trans.language] = trans.slug
 
         # Make sure the language directory is a directory
@@ -239,7 +239,11 @@ class Symlink(object):
         Link from $WEB_ROOT/<project> ->
                   HOME/user_builds/<project>/rtd-builds/latest/
         """
-        default_version = self.project.get_default_version()
+        default_version = self.get_default_version()
+        if default_version is None:
+            self._log("Default version wrong privacy level.")
+            return
+
         self._log("Symlinking single_version")
 
         symlink = self.project_root
@@ -289,6 +293,20 @@ class PublicSymlink(Symlink):
         return (self.project.versions.protected(only_active=False).filter(built=True) |
                 self.project.versions.protected(only_active=True))
 
+    def get_subprojects(self):
+        return self.project.subprojects.protected()
+
+    def get_translations(self):
+        return self.project.translations.protected()
+
+    def get_default_version(self):
+        default_version = self.project.get_default_version()
+        if self.project.versions.protected().filter(
+            slug=default_version
+        ).exists():
+            return default_version
+        return None
+
 
 class PrivateSymlink(Symlink):
     CNAME_ROOT = os.path.join(settings.SITE_ROOT, 'private_cname_root')
@@ -298,3 +316,17 @@ class PrivateSymlink(Symlink):
     def get_version_queryset(self):
         return (self.project.versions.private(only_active=False).filter(built=True) |
                 self.project.versions.private(only_active=True))
+
+    def get_subprojects(self):
+        return self.project.subprojects.private()
+
+    def get_translations(self):
+        return self.project.translations.private()
+
+    def get_default_version(self):
+        default_version = self.project.get_default_version()
+        if self.project.versions.private().filter(
+            slug=default_version
+        ).exists():
+            return default_version
+        return None
