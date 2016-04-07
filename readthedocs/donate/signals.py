@@ -52,10 +52,10 @@ def choose_promo(promo_list):
     for promo in promo_list:
         promo_range.append([
             total_views_needed,
-            total_views_needed + promo.views_needed(),
+            total_views_needed + promo.views_needed_today(),
             promo
         ])
-        total_views_needed += promo.views_needed()
+        total_views_needed += promo.views_needed_today()
     choice = random.randint(0, total_views_needed)
     for range_list in promo_range:
         if range_list[0] <= choice <= range_list[1]:

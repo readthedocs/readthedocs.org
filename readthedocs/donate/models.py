@@ -141,7 +141,7 @@ class SupporterPromo(models.Model):
         impression = self.impressions.get_or_create(date=day)[0]
         return float(impression.views)
 
-    def views_needed(self):
+    def views_needed_today(self):
         ret = self.views_per_day() - self.views_shown_today()
         if ret < 0:
             return 0
