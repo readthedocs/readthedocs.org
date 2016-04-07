@@ -393,3 +393,23 @@ class BitBucketHookTests(BasePostCommitTest):
         self.assertEqual(r.status_code, 200)
         self.assertEqual(
             r.content, '(URL Build) Not Building: bitbucket.org/pip/pip []')
+
+    def test_bitbucket_default_branch(self):
+        self.test_project = get(
+            Project, repo='HTTPS://bitbucket.org/test/project', slug='test-project',
+            default_branch='integration', repo_type='git',
+        )
+
+        self.git_payload['commits'] = [{
+            "branch": "integration",
+        }]
+        self.git_payload['repository'] = {
+            'absolute_url': '/test/project/'
+        }
+
+        r = self.client.post('/bitbucket/', {'payload': json.dumps(self.git_payload)})
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(
+            r.content, '(URL Build) Build Started: bitbucket.org/test/project [latest]')
+
+
