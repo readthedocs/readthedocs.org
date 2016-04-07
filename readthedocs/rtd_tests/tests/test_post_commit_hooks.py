@@ -4,6 +4,7 @@ import logging
 
 from django_dynamic_fixture import get
 
+from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
 from readthedocs.projects import tasks
 
@@ -240,6 +241,19 @@ class GitHubPostCommitTest(TestCase):
         rtd.default_branch = old_default
         rtd.save()
 
+
+class CorePostCommitTest(TestCase):
+    fixtures = ["eric", "test_data"]
+
+    def setUp(self):
+        def mock(*args, **kwargs):
+            pass
+
+        tasks.UpdateDocsTask.run = mock
+        tasks.UpdateDocsTask.apply_async = mock
+
+        self.client.login(username='eric', password='test')
+
     def test_core_commit_hook(self):
         rtd = Project.objects.get(slug='read-the-docs')
         rtd.default_branch = 'master'
@@ -264,6 +278,7 @@ class BitBucketHookTests(TestCase):
             pass
 
         self.pip = get(Project, repo='https://bitbucket.org/pip/pip', repo_type='hg')
+        self.not_ok = get(Version, project=self.pip, slug='not_ok', identifier='not_ok')
         self.sphinx = get(Project, repo='https://bitbucket.org/sphinx/sphinx', repo_type='git')
 
         tasks.UpdateDocsTask.run = mock
@@ -357,3 +372,29 @@ class BitBucketHookTests(TestCase):
         self.assertEqual(r.status_code, 200)
         self.assertEqual(
             r.content, '(URL Build) Build Started: bitbucket.org/sphinx/sphinx [latest]')
+
+    def test_bitbucket_post_commit_hook_builds_branch_docs_if_it_should(self):
+        """
+        Test the github post commit hook to see if it will only build
+        versions that are set to be built if the branch they refer to
+        is updated. Otherwise it is no op.
+        """
+        r = self.client.post('/bitbucket/', {'payload': json.dumps(self.hg_payload)})
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(
+            r.content, '(URL Build) Build Started: bitbucket.org/pip/pip [latest]')
+
+        self.hg_payload['commits'] = [{
+                    "branch": "not_ok",
+        }]
+        r = self.client.post('/bitbucket/', {'payload': json.dumps(self.hg_payload)})
+        self.assertEqual(
+            r.content, '(URL Build) Not Building: bitbucket.org/pip/pip [not_ok]')
+
+        self.hg_payload['commits'] = [{
+                    "branch": "unknown",
+        }]
+        r = self.client.post('/bitbucket/', {'payload': json.dumps(self.hg_payload)})
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(
+            r.content, '(URL Build) Not Building: bitbucket.org/pip/pip []')
