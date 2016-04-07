@@ -1,9 +1,12 @@
+import random
+
 from django.dispatch import receiver
 from django.conf import settings
 from django.core.cache import cache
 
 from readthedocs.restapi.signals import footer_response
 from readthedocs.donate.models import SupporterPromo, VIEWS, CLICKS, OFFERS, INCLUDE, EXCLUDE
+from readthedocs.donate.utils import get_ad_day
 
 
 PROMO_GEO_PATH = getattr(settings, 'PROMO_GEO_PATH', None)
@@ -28,6 +31,38 @@ def show_to_geo(promo, country_code):
     return True
 
 
+def choose_promo(promo_list):
+    """
+    This is the algorithm to pick which promo to show.
+
+    This takes into account how many remaining days this
+    promo has to be shown.
+
+    The algorithm is currently as such:
+
+    * Take the remaining number of views each promo has today
+    * Add them together, with each promo "assigned" to a range
+    * Pick a random number between 1 and that total
+    * Choose the ad whose range is in the chosen random number
+
+    """
+
+    promo_range = []
+    total_views_needed = 0
+    for promo in promo_list:
+        promo_range.append([
+            total_views_needed,
+            total_views_needed + promo.views_needed(),
+            promo
+        ])
+        total_views_needed += promo.views_needed()
+    choice = random.randint(0, total_views_needed)
+    for range_list in promo_range:
+        if range_list[0] <= choice <= range_list[1]:
+            return range_list[2]
+    return None
+
+
 def get_promo(country_code, gold_project=False, gold_user=False):
     """
     Get a proper promo.
@@ -39,16 +74,24 @@ def get_promo(country_code, gold_project=False, gold_user=False):
     * Geo
     """
 
-    promo_queryset = SupporterPromo.objects.filter(live=True, display_type='doc').order_by('?')
+    promo_queryset = SupporterPromo.objects.filter(live=True, display_type='doc')
 
+    filtered_objects = []
     for obj in promo_queryset:
         if country_code:
             if show_to_geo(obj, country_code):
-                promo_obj = obj
-                break
-    else:
-        # TODO: House Ad
-        promo_obj = None
+                filtered_objects.append(obj)
+        else:
+            filtered_objects.append(obj)
+
+    promo_obj = choose_promo(filtered_objects)
+
+    # Show a random house ad if we don't have anything else
+    if not promo_obj:
+        house_promo = SupporterPromo.objects.filter(live=True,
+                                                    name='house').order_by('?')
+        if house_promo.exists():
+            promo_obj = house_promo.first()
 
     # Support showing a "Thank you" message for gold folks
     if gold_user:

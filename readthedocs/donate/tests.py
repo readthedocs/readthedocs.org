@@ -1,4 +1,5 @@
 import json
+import mock
 
 from django.test import TestCase
 from django.core.urlresolvers import reverse
@@ -9,7 +10,7 @@ from django_dynamic_fixture import get
 from .models import (SupporterPromo, GeoFilter, Country,
                      CLICKS, VIEWS, OFFERS,
                      INCLUDE, EXCLUDE)
-from .signals import show_to_geo, get_promo
+from .signals import show_to_geo, get_promo, choose_promo
 from readthedocs.projects.models import Project
 
 
@@ -253,3 +254,67 @@ class FilterTests(TestCase):
 
         ret = get_promo('RANDOM')
         self.assertEqual(ret, self.promo2)
+
+
+class ProbabilityTests(TestCase):
+
+    def setUp(self):
+        # Only show in US,CA
+        self.promo = get(SupporterPromo,
+                         slug='promo-slug',
+                         link='http://example.com',
+                         live=True,
+                         image='http://media.example.com/img.png',
+                         sold_impressions=1000,
+                         )
+
+        # Don't show in AZ
+        self.promo2 = get(SupporterPromo,
+                          slug='promo2-slug',
+                          link='http://example.com',
+                          live=True,
+                          image='http://media.example.com/img.png',
+                          sold_impressions=1000 * 1000,
+                          )
+        self.promo_list = [self.promo, self.promo2]
+
+    def test_choose(self):
+        # US view
+
+        promo_prob = self.promo.views_needed()
+        promo2_prob = self.promo2.views_needed()
+        total = promo_prob + promo2_prob
+
+        with mock.patch('random.randint') as randint:
+
+            randint.return_value = -1
+            ret = choose_promo(self.promo_list)
+            self.assertEqual(ret, None)
+
+            randint.return_value = 5
+            ret = choose_promo(self.promo_list)
+            self.assertEqual(ret, self.promo)
+
+            randint.return_value = promo_prob - 1
+            ret = choose_promo(self.promo_list)
+            self.assertEqual(ret, self.promo)
+
+            randint.return_value = promo_prob
+            ret = choose_promo(self.promo_list)
+            self.assertEqual(ret, self.promo)
+
+            randint.return_value = promo_prob + 1
+            ret = choose_promo(self.promo_list)
+            self.assertEqual(ret, self.promo2)
+
+            randint.return_value = total - 1
+            ret = choose_promo(self.promo_list)
+            self.assertEqual(ret, self.promo2)
+
+            randint.return_value = total
+            ret = choose_promo(self.promo_list)
+            self.assertEqual(ret, self.promo2)
+
+            randint.return_value = total + 1
+            ret = choose_promo(self.promo_list)
+            self.assertEqual(ret, None)

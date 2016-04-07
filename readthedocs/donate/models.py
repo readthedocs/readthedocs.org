@@ -69,7 +69,8 @@ class SupporterPromo(models.Model):
     image = models.URLField(_('Image URL'), max_length=255, blank=True, null=True)
     display_type = models.CharField(_('Display Type'), max_length=200,
                                     choices=DISPLAY_CHOICES, default='doc')
-
+    sold_impressions = models.IntegerField(_('Sold Impressions'), default=1000)
+    sold_days = models.IntegerField(_('Sold Days'), default=30)
     live = models.BooleanField(_('Live'), default=False)
 
     def __str__(self):
@@ -122,14 +123,29 @@ class SupporterPromo(models.Model):
     def view_ratio(self, day=None):
         if not day:
             day = get_ad_day()
-        impression = self.impressions.get(date=day)
+        impression = self.impressions.get_or_create(date=day)[0]
         return impression.view_ratio
 
     def click_ratio(self, day=None):
         if not day:
             day = get_ad_day()
-        impression = self.impressions.get(date=day)
+        impression = self.impressions.get_or_create(date=day)[0]
         return impression.click_ratio
+
+    def views_per_day(self):
+        return int(float(self.sold_impressions) / float(self.sold_days))
+
+    def views_shown_today(self, day=None):
+        if not day:
+            day = get_ad_day()
+        impression = self.impressions.get_or_create(date=day)[0]
+        return float(impression.views)
+
+    def views_needed(self):
+        ret = self.views_per_day() - self.views_shown_today()
+        if ret < 0:
+            return 0
+        return ret
 
 
 class BaseImpression(models.Model):
