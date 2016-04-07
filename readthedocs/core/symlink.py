@@ -70,10 +70,6 @@ log = logging.getLogger(__name__)
 class Symlink(object):
     """Base class for symlinking of projects."""
 
-    CNAME_ROOT = os.path.join(settings.SITE_ROOT, 'public_cname_root')
-    WEB_ROOT = os.path.join(settings.SITE_ROOT, 'public_web_root')
-    PROJECT_CNAME_ROOT = os.path.join(settings.SITE_ROOT, 'public_cname_project')
-
     def __init__(self, project):
         self.project = project
         self.project_root = os.path.join(
@@ -256,10 +252,6 @@ class Symlink(object):
         docs_dir = os.path.join(settings.DOCROOT, self.project.slug, 'rtd-builds', default_version)
         run('ln -nsf %s/ %s' % (docs_dir, symlink))
 
-    def get_version_queryset(self):
-        return (self.project.versions.protected(only_active=False).filter(built=True) |
-                self.project.versions.protected(only_active=True))
-
     def symlink_versions(self):
         """Symlink project's versions
 
@@ -288,9 +280,17 @@ class Symlink(object):
                     os.unlink(os.path.join(version_dir, old_ver))
 
 
-class PrivateSymlink(Symlink):
-    """Base class for symlinking of private projects."""
+class PublicSymlink(Symlink):
+    CNAME_ROOT = os.path.join(settings.SITE_ROOT, 'public_cname_root')
+    WEB_ROOT = os.path.join(settings.SITE_ROOT, 'public_web_root')
+    PROJECT_CNAME_ROOT = os.path.join(settings.SITE_ROOT, 'public_cname_project')
 
+    def get_version_queryset(self):
+        return (self.project.versions.protected(only_active=False).filter(built=True) |
+                self.project.versions.protected(only_active=True))
+
+
+class PrivateSymlink(Symlink):
     CNAME_ROOT = os.path.join(settings.SITE_ROOT, 'private_cname_root')
     WEB_ROOT = os.path.join(settings.SITE_ROOT, 'private_web_root')
     PROJECT_CNAME_ROOT = os.path.join(settings.SITE_ROOT, 'private_cname_project')
@@ -298,10 +298,3 @@ class PrivateSymlink(Symlink):
     def get_version_queryset(self):
         return (self.project.versions.private(only_active=False).filter(built=True) |
                 self.project.versions.private(only_active=True))
-
-
-def get_symlink(project):
-    if project.privacy_level == constants.PRIVATE:
-        return PrivateSymlink(project)
-    else:
-        return Symlink(project)

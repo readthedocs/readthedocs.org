@@ -9,7 +9,7 @@ from django_dynamic_fixture import get
 
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project, Domain
-from readthedocs.core.symlink import Symlink
+from readthedocs.core.symlink import Publicsymlink
 
 
 def patched(fn):
@@ -31,7 +31,7 @@ class TestSubprojects(TestCase):
     def setUp(self):
         self.project = get(Project, slug='kong')
         self.subproject = get(Project, slug='sub')
-        self.symlink = Symlink(self.project)
+        self.symlink = Publicsymlink(self.project)
         self.args = {
             'web_root': self.symlink.WEB_ROOT,
             'subproject_root': self.symlink.subproject_root,
@@ -76,12 +76,12 @@ class TestSubprojects(TestCase):
         self.assertTrue(not os.path.lexists(subproject_link))
 
 
-class TestSymlinkCnames(TestCase):
+class TestPublicsymlinkCnames(TestCase):
 
     def setUp(self):
         self.project = get(Project, slug='kong')
         self.version = get(Version, verbose_name='latest', active=True, project=self.project)
-        self.symlink = Symlink(self.project)
+        self.symlink = Publicsymlink(self.project)
         self.args = {
             'cname_root': self.symlink.CNAME_ROOT,
             'project_root': self.symlink.project_root,
@@ -101,7 +101,7 @@ class TestSymlinkCnames(TestCase):
             self.assertEqual(self.commands[index], command.format(**self.args))
 
 
-class TestSymlinkTranslations(TestCase):
+class TestPublicsymlinkTranslations(TestCase):
 
     commands = []
 
@@ -113,7 +113,7 @@ class TestSymlinkTranslations(TestCase):
         self.project.translations.add(self.translation)
         self.translation.save()
         self.project.save()
-        self.symlink = Symlink(self.project)
+        self.symlink = Publicsymlink(self.project)
         get(Version, verbose_name='master', active=True, project=self.project)
         get(Version, verbose_name='master', active=True, project=self.translation)
         self.args = {
@@ -184,25 +184,25 @@ class TestSymlinkTranslations(TestCase):
                     self.commands.index(command.format(**self.args))
                 ))
 
-
     def test_remove_language(self):
         self.symlink.symlink_translations()
         trans_link = os.path.join(
             self.symlink.project_root, self.translation.language
         )
         self.assertTrue(os.path.lexists(trans_link))
-        
+
         trans = self.project.translations.first()
         self.project.translations.remove(trans)
         self.symlink.symlink_translations()
         self.assertTrue(not os.path.lexists(trans_link))
 
-class TestSymlinkSingleVersion(TestCase):
+
+class TestPublicsymlinkSingleVersion(TestCase):
 
     def setUp(self):
         self.project = get(Project, slug='kong')
         self.version = get(Version, verbose_name='latest', active=True, project=self.project)
-        self.symlink = Symlink(self.project)
+        self.symlink = Publicsymlink(self.project)
         self.args = {
             'project_root': self.symlink.project_root,
             'doc_path': self.project.rtd_build_path(),
@@ -220,12 +220,13 @@ class TestSymlinkSingleVersion(TestCase):
             self.assertEqual(self.commands[index], command.format(**self.args))
 
 
-class TestSymlinkVersions(TestCase):
+class TestPublicsymlinkVersions(TestCase):
 
     def setUp(self):
         self.project = get(Project, slug='kong')
-        self.stable = get(Version, slug='stable', verbose_name='stable', active=True, project=self.project)
-        self.symlink = Symlink(self.project)
+        self.stable = get(
+            Version, slug='stable', verbose_name='stable', active=True, project=self.project)
+        self.symlink = Publicsymlink(self.project)
         self.args = {
             'project_root': self.symlink.project_root,
             'latest_path': self.project.rtd_build_path('latest'),
@@ -268,12 +269,14 @@ class TestSymlinkVersions(TestCase):
         self.assertTrue(not os.path.lexists(version_link))
 
 
-class TestSymlinkUnicode(TestCase):
+class TestPublicsymlinkUnicode(TestCase):
 
     def setUp(self):
         self.project = get(Project, slug='kong', name=u'foo-∫')
-        self.stable = get(Version, slug='stable', verbose_name=u'foo-∂', active=True, project=self.project)
-        self.symlink = Symlink(self.project)
+        self.stable = get(
+            Version, slug='stable', verbose_name=u'foo-∂', active=True, project=self.project
+        )
+        self.symlink = Publicsymlink(self.project)
         self.args = {
             'project_root': self.symlink.project_root,
             'latest_path': self.project.rtd_build_path('latest'),
