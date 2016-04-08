@@ -213,6 +213,19 @@ class GitHubPostCommitTest(BasePostCommitTest):
         r = self.client.post('/github/', {'payload': json.dumps(payload)})
         self.assertEqual(r.status_code, 400)
 
+    def test_private_repo_mapping(self):
+        """
+        GitHub sometimes sends us a post-commit hook without a ref.
+        This means we don't know what branch to build,
+        so return a 400.
+        """
+        payload = self.payload.copy()
+        payload['repository']['url'] = 'git@github.com:rtfd/readthedocs.org'
+        r = self.client.post('/github/', {'payload': json.dumps(payload)})
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(
+            r.content, '(URL Build) Build Started: github.com:rtfd/readthedocs.org [latest]')
+
     def test_github_post_commit_hook_builds_branch_docs_if_it_should(self):
         """
         Test the github post commit hook to see if it will only build
