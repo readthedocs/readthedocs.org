@@ -18,11 +18,10 @@ from taggit.managers import TaggableManager
 
 from readthedocs.api.client import api
 from readthedocs.core.utils import broadcast
-from readthedocs.core.resolver import resolve_domain
 from readthedocs.restapi.client import api as apiv2
 from readthedocs.builds.constants import LATEST, LATEST_VERBOSE_NAME, STABLE
-from readthedocs.privacy.loader import RelatedProjectManager, ProjectManager
-from readthedocs.privacy.backend import ChildRelatedProjectManager, ParentRelatedProjectManager
+from readthedocs.privacy.loader import (RelatedProjectManager, ProjectManager,
+                                        ChildRelatedProjectManager)
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectImportError
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware

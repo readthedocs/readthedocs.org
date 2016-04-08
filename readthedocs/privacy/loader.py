@@ -21,6 +21,9 @@ RelatedBuildManager = import_by_path(
 RelatedUserManager = import_by_path(
     getattr(settings, 'RELATED_USER_MANAGER',
             'readthedocs.privacy.backend.RelatedUserManager'))
+ParentRelatedProjectManager = import_by_path(
+    getattr(settings, 'PARENT_RELATED_PROJECT_MANAGER',
+            'readthedocs.privacy.backend.ParentRelatedProjectManager'))
 
 # Permissions
 AdminPermission = import_by_path(

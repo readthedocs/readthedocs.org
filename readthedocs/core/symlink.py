@@ -319,7 +319,7 @@ class PrivateSymlink(Symlink):
     PROJECT_CNAME_ROOT = os.path.join(settings.SITE_ROOT, 'private_cname_project')
 
     def run_sanity_check(self):
-        return self.project.privacy_level in [constants.PRIVATE]
+        return self.project.privacy_level == constants.PRIVATE
 
     def get_version_queryset(self):
         return (self.project.versions.private(only_active=False).filter(built=True) |
@@ -334,7 +334,7 @@ class PrivateSymlink(Symlink):
     def get_default_version(self):
         default_version = self.project.get_default_version()
         if self.project.versions.private().filter(
-            slug=default_version
-        ).exists():
+                    slug=default_version
+                ).exists():
             return default_version
         return None
