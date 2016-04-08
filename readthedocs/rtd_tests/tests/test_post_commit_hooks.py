@@ -2,27 +2,44 @@ from django.test import TestCase
 import json
 import logging
 
+from django_dynamic_fixture import get
+
+from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
 from readthedocs.projects import tasks
 
 log = logging.getLogger(__name__)
 
 
-class GitLabWebHookTest(TestCase):
-    fixtures = ["eric", "test_data"]
+class BasePostCommitTest(TestCase):
+    def _setup(self):
+        self.rtfd = get(
+            Project, repo='https://github.com/rtfd/readthedocs.org', slug='read-the-docs')
+        self.rtfd_not_ok = get(
+            Version, project=self.rtfd, slug='not_ok', identifier='not_ok', active=False)
+        self.rtfd_awesome = get(
+            Version, project=self.rtfd, slug='awesome', identifier='awesome', active=True)
 
-    def tearDown(self):
-        tasks.update_docs = self.old_bd
-
-    def setUp(self):
-        self.old_bd = tasks.update_docs
+        self.pip = get(Project, repo='https://bitbucket.org/pip/pip', repo_type='hg')
+        self.pip_not_ok = get(
+            Version, project=self.pip, slug='not_ok', identifier='not_ok', active=False)
+        self.sphinx = get(Project, repo='https://bitbucket.org/sphinx/sphinx', repo_type='git')
 
         def mock(*args, **kwargs):
             log.info("Mocking for great profit and speed.")
+
         tasks.update_docs = mock
         tasks.update_docs.apply_async = mock
 
         self.client.login(username='eric', password='test')
+
+
+class GitLabWebHookTest(BasePostCommitTest):
+    fixtures = ["eric"]
+
+    def setUp(self):
+        self._setup()
+
         self.payload = {
             "object_kind": "push",
             "before": "95790bf891e76fee5e1747ab589903a6a1f80f22",
@@ -39,7 +56,7 @@ class GitLabWebHookTest(TestCase):
                 "homepage": "http://github.com/rtfd/readthedocs.org",
                 "git_http_url": "http://github.com/rtfd/readthedocs.org.git",
                 "git_ssh_url": "git@github.com:rtfd/readthedocs.org.git",
-                "visibility_level":0
+                "visibility_level": 0
             },
             "commits": [
                 {
@@ -74,11 +91,13 @@ class GitLabWebHookTest(TestCase):
         """
         r = self.client.post('/gitlab/', {'payload': json.dumps(self.payload)})
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r.content, '(URL Build) Build Started: github.com/rtfd/readthedocs.org [awesome]')
+        self.assertEqual(
+            r.content, '(URL Build) Build Started: github.com/rtfd/readthedocs.org [awesome]')
         self.payload['ref'] = 'refs/heads/not_ok'
         r = self.client.post('/gitlab/', {'payload': json.dumps(self.payload)})
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r.content, '(URL Build) Not Building: github.com/rtfd/readthedocs.org [not_ok]')
+        self.assertEqual(
+            r.content, '(URL Build) Not Building: github.com/rtfd/readthedocs.org [not_ok]')
         self.payload['ref'] = 'refs/heads/unknown'
         r = self.client.post('/gitlab/', {'payload': json.dumps(self.payload)})
         self.assertEqual(r.status_code, 200)
@@ -97,23 +116,19 @@ class GitLabWebHookTest(TestCase):
 
         r = self.client.post('/gitlab/', {'payload': json.dumps(self.payload)})
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r.content, '(URL Build) Build Started: github.com/rtfd/readthedocs.org [latest]')
+        self.assertEqual(
+            r.content, '(URL Build) Build Started: github.com/rtfd/readthedocs.org [latest]')
 
         rtd.default_branch = old_default
         rtd.save()
 
 
-class GitHubPostCommitTest(TestCase):
-    fixtures = ["eric", "test_data"]
+class GitHubPostCommitTest(BasePostCommitTest):
+    fixtures = ["eric"]
 
     def setUp(self):
-        def mock(*args, **kwargs):
-            pass
+        self._setup()
 
-        tasks.UpdateDocsTask.run = mock
-        tasks.UpdateDocsTask.apply_async = mock
-
-        self.client.login(username='eric', password='test')
         self.payload = {
             "after": "5ad757394b926e5637ffeafe340f952ef48bd270",
             "base_ref": "refs/heads/master",
@@ -181,7 +196,10 @@ class GitHubPostCommitTest(TestCase):
         payload['repository']['url'] = payload['repository']['url'].upper()
         r = self.client.post('/github/', {'payload': json.dumps(payload)})
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r.content, '(URL Build) Build Started: HTTPS://GITHUB.COM/RTFD/READTHEDOCS.ORG [awesome]')
+        self.assertEqual(
+            r.content,
+            '(URL Build) Build Started: HTTPS://GITHUB.COM/RTFD/READTHEDOCS.ORG [awesome]'
+        )
         self.payload['ref'] = 'refs/heads/not_ok'
 
     def test_400_on_no_ref(self):
@@ -203,11 +221,13 @@ class GitHubPostCommitTest(TestCase):
         """
         r = self.client.post('/github/', {'payload': json.dumps(self.payload)})
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r.content, '(URL Build) Build Started: github.com/rtfd/readthedocs.org [awesome]')
+        self.assertEqual(
+            r.content, '(URL Build) Build Started: github.com/rtfd/readthedocs.org [awesome]')
         self.payload['ref'] = 'refs/heads/not_ok'
         r = self.client.post('/github/', {'payload': json.dumps(self.payload)})
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r.content, '(URL Build) Not Building: github.com/rtfd/readthedocs.org [not_ok]')
+        self.assertEqual(
+            r.content, '(URL Build) Not Building: github.com/rtfd/readthedocs.org [not_ok]')
         self.payload['ref'] = 'refs/heads/unknown'
         r = self.client.post('/github/', {'payload': json.dumps(self.payload)})
         self.assertEqual(r.status_code, 200)
@@ -226,10 +246,18 @@ class GitHubPostCommitTest(TestCase):
 
         r = self.client.post('/github/', {'payload': json.dumps(self.payload)})
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r.content, '(URL Build) Build Started: github.com/rtfd/readthedocs.org [latest]')
+        self.assertEqual(
+            r.content, '(URL Build) Build Started: github.com/rtfd/readthedocs.org [latest]')
 
         rtd.default_branch = old_default
         rtd.save()
+
+
+class CorePostCommitTest(BasePostCommitTest):
+    fixtures = ["eric"]
+
+    def setUp(self):
+        self._setup()
 
     def test_core_commit_hook(self):
         rtd = Project.objects.get(slug='read-the-docs')
@@ -237,7 +265,8 @@ class GitHubPostCommitTest(TestCase):
         rtd.save()
         r = self.client.post('/build/%s' % rtd.pk, {'version_slug': 'master'})
         self.assertEqual(r.status_code, 302)
-        self.assertEqual(r._headers['location'][1], 'http://testserver/projects/read-the-docs/builds/')
+        self.assertEqual(
+            r._headers['location'][1], 'http://testserver/projects/read-the-docs/builds/')
 
     def test_hook_state_tracking(self):
         rtd = Project.objects.get(slug='read-the-docs')
@@ -245,3 +274,142 @@ class GitHubPostCommitTest(TestCase):
         self.client.post('/build/%s' % rtd.pk, {'version_slug': 'latest'})
         # Need to re-query to get updated DB entry
         self.assertEqual(Project.objects.get(slug='read-the-docs').has_valid_webhook, True)
+
+
+class BitBucketHookTests(BasePostCommitTest):
+
+    def setUp(self):
+        self._setup()
+
+        self.hg_payload = {
+            "canon_url": "https://bitbucket.org",
+            "commits": [
+                {
+                    "author": "marcus",
+                    "branch": "default",
+                    "files": [
+                        {
+                            "file": "somefile.py",
+                            "type": "modified"
+                        }
+                    ],
+                    "message": "Added some featureA things",
+                    "node": "d14d26a93fd2",
+                    "parents": [
+                            "1b458191f31a"
+                    ],
+                    "raw_author": "Marcus Bertrand <marcus@somedomain.com>",
+                    "raw_node": "d14d26a93fd28d3166fa81c0cd3b6f339bb95bfe",
+                    "revision": 3,
+                    "size": -1,
+                    "timestamp": "2012-05-30 06:07:03",
+                    "utctimestamp": "2012-05-30 04:07:03+00:00"
+                }
+            ],
+            "repository": {
+                "absolute_url": "/pip/pip/",
+                "fork": False,
+                "is_private": True,
+                "name": "Project X",
+                "owner": "marcus",
+                "scm": "hg",
+                "slug": "project-x",
+                "website": ""
+            },
+            "user": "marcus"
+        }
+
+        self.git_payload = {
+            "canon_url": "https://bitbucket.org",
+            "commits": [
+                {
+                    "author": "marcus",
+                    "branch": "master",
+                    "files": [
+                        {
+                            "file": "somefile.py",
+                            "type": "modified"
+                        }
+                    ],
+                    "message": "Added some more things to somefile.py\n",
+                    "node": "620ade18607a",
+                    "parents": [
+                            "702c70160afc"
+                    ],
+                    "raw_author": "Marcus Bertrand <marcus@somedomain.com>",
+                    "raw_node": "620ade18607ac42d872b568bb92acaa9a28620e9",
+                    "revision": None,
+                    "size": -1,
+                    "timestamp": "2012-05-30 05:58:56",
+                    "utctimestamp": "2012-05-30 03:58:56+00:00"
+                }
+            ],
+            "repository": {
+                "absolute_url": "/sphinx/sphinx/",
+                "fork": False,
+                "is_private": True,
+                "name": "Project X",
+                "owner": "marcus",
+                "scm": "git",
+                "slug": "project-x",
+                "website": "https://atlassian.com/"
+            },
+            "user": "marcus"
+        }
+
+    def test_bitbucket_post_commit(self):
+        r = self.client.post('/bitbucket/', {'payload': json.dumps(self.hg_payload)})
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(
+            r.content, '(URL Build) Build Started: bitbucket.org/pip/pip [latest]')
+
+        r = self.client.post('/bitbucket/', {'payload': json.dumps(self.git_payload)})
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(
+            r.content, '(URL Build) Build Started: bitbucket.org/sphinx/sphinx [latest]')
+
+    def test_bitbucket_post_commit_hook_builds_branch_docs_if_it_should(self):
+        """
+        Test the bitbucket post commit hook to see if it will only build
+        versions that are set to be built if the branch they refer to
+        is updated. Otherwise it is no op.
+        """
+        r = self.client.post('/bitbucket/', {'payload': json.dumps(self.hg_payload)})
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(
+            r.content, '(URL Build) Build Started: bitbucket.org/pip/pip [latest]')
+
+        self.hg_payload['commits'] = [{
+            "branch": "not_ok",
+        }]
+        r = self.client.post('/bitbucket/', {'payload': json.dumps(self.hg_payload)})
+        self.assertEqual(
+            r.content, '(URL Build) Not Building: bitbucket.org/pip/pip [not_ok]')
+
+        self.hg_payload['commits'] = [{
+            "branch": "unknown",
+        }]
+        r = self.client.post('/bitbucket/', {'payload': json.dumps(self.hg_payload)})
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(
+            r.content, '(URL Build) Not Building: bitbucket.org/pip/pip []')
+
+    def test_bitbucket_default_branch(self):
+        self.test_project = get(
+            Project, repo='HTTPS://bitbucket.org/test/project', slug='test-project',
+            default_branch='integration', repo_type='git',
+        )
+
+        self.git_payload['commits'] = [{
+            "branch": "integration",
+        }]
+        self.git_payload['repository'] = {
+            'absolute_url': '/test/project/'
+        }
+
+        r = self.client.post('/bitbucket/', {'payload': json.dumps(self.git_payload)})
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(
+            r.content, '(URL Build) Build Started: bitbucket.org/test/project [latest]')
+
+
