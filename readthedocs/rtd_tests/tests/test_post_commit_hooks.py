@@ -370,7 +370,7 @@ class BitBucketHookTests(BasePostCommitTest):
 
     def test_bitbucket_post_commit_hook_builds_branch_docs_if_it_should(self):
         """
-        Test the github post commit hook to see if it will only build
+        Test the bitbucket post commit hook to see if it will only build
         versions that are set to be built if the branch they refer to
         is updated. Otherwise it is no op.
         """
