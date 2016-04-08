@@ -333,8 +333,7 @@ class PrivateSymlink(Symlink):
 
     def get_default_version(self):
         default_version = self.project.get_default_version()
-        if self.project.versions.private().filter(
-                    slug=default_version
-                ).exists():
+        version_qs = self.project.versions.private().filter(slug=default_version)
+        if version_qs.exists():
             return default_version
         return None
