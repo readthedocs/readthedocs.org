@@ -182,7 +182,9 @@ class GitHubPostCommitTest(BasePostCommitTest):
                 "pushed_at": "2011/09/12 22:33:34 -0700",
                 "size": 140,
                 "url": "https://github.com/rtfd/readthedocs.org",
+                "ssh_url": "git@github.com:rtfd/readthedocs.org.git",
                 "watchers": 1
+
             }
         }
 
@@ -215,16 +217,20 @@ class GitHubPostCommitTest(BasePostCommitTest):
 
     def test_private_repo_mapping(self):
         """
-        GitHub sometimes sends us a post-commit hook without a ref.
-        This means we don't know what branch to build,
-        so return a 400.
+        Test for private GitHub repo mapping.
+
+        Previously we were missing triggering post-commit hooks because
+        we only compared against the *public* ``github.com/user/repo`` URL.
+        Users can also enter a ``github.com:user/repo`` URL,
+        which we should support.
         """
+        self.rtfd.repo = 'git@github.com:rtfd/readthedocs.org'
+        self.rtfd.save()
         payload = self.payload.copy()
-        payload['repository']['url'] = 'git@github.com:rtfd/readthedocs.org'
         r = self.client.post('/github/', {'payload': json.dumps(payload)})
         self.assertEqual(r.status_code, 200)
         self.assertEqual(
-            r.content, '(URL Build) Build Started: github.com:rtfd/readthedocs.org [latest]')
+            r.content, '(URL Build) Build Started: github.com/rtfd/readthedocs.org [awesome]')
 
     def test_github_post_commit_hook_builds_branch_docs_if_it_should(self):
         """
