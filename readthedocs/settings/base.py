@@ -189,6 +189,7 @@ INSTALLED_APPS = [
     'copyright',
     'textclassifier',
     'annoying',
+    'django_countries',
 
     # Celery bits
     'djcelery',
