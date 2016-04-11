@@ -57,6 +57,13 @@ class ProjectManager(models.Manager):
         else:
             return queryset
 
+    def private(self, user=None):
+        queryset = self.filter(privacy_level=constants.PRIVATE)
+        if user:
+            return self._add_user_repos(queryset, user)
+        else:
+            return queryset
+
     # Aliases
 
     def dashboard(self, user=None):
@@ -176,8 +183,8 @@ class RelatedProjectManager(models.Manager):
 
     This shouldn't be used as a subclass.
     """
-
     use_for_related_fields = True
+    project_field = 'project'
 
     def _add_user_repos(self, queryset, user=None):
         # Hack around get_objects_for_user not supporting global perms
@@ -187,11 +194,35 @@ class RelatedProjectManager(models.Manager):
             # Add in possible user-specific views
             project_qs = get_objects_for_user(user, 'projects.view_project')
             pks = [p.pk for p in project_qs]
-            queryset = self.get_queryset().filter(project__pk__in=pks) | queryset
+            kwargs = {'%s__pk__in' % self.project_field: pks}
+            queryset = self.get_queryset().filter(**kwargs) | queryset
         return queryset.distinct()
 
     def public(self, user=None, project=None):
-        queryset = self.filter(project__privacy_level=constants.PUBLIC)
+        kwargs = {'%s__privacy_level' % self.project_field: constants.PUBLIC}
+        queryset = self.filter(**kwargs)
+        if user:
+            queryset = self._add_user_repos(queryset, user)
+        if project:
+            queryset = queryset.filter(project=project)
+        return queryset
+
+    def protected(self, user=None, project=None):
+        kwargs = {
+            '%s__privacy_level__in' % self.project_field: [constants.PUBLIC, constants.PROTECTED]
+        }
+        queryset = self.filter(**kwargs)
+        if user:
+            queryset = self._add_user_repos(queryset, user)
+        if project:
+            queryset = queryset.filter(project=project)
+        return queryset
+
+    def private(self, user=None, project=None):
+        kwargs = {
+            '%s__privacy_level' % self.project_field: constants.PRIVATE,
+        }
+        queryset = self.filter(**kwargs)
         if user:
             queryset = self._add_user_repos(queryset, user)
         if project:
@@ -200,6 +231,16 @@ class RelatedProjectManager(models.Manager):
 
     def api(self, user=None):
         return self.public(user)
+
+
+class ParentRelatedProjectManager(RelatedProjectManager):
+    project_field = 'parent'
+    use_for_related_fields = True
+
+
+class ChildRelatedProjectManager(RelatedProjectManager):
+    project_field = 'child'
+    use_for_related_fields = True
 
 
 class RelatedBuildManager(models.Manager):
