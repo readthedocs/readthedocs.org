@@ -243,7 +243,6 @@ class Symlink(object):
         """
         default_version = self.get_default_version()
         if default_version is None:
-            self._log("Default version wrong privacy level.")
             return
 
         self._log("Symlinking single_version")
@@ -303,9 +302,7 @@ class PublicSymlink(Symlink):
 
     def get_default_version(self):
         default_version = self.project.get_default_version()
-        if self.project.versions.protected().filter(
-            slug=default_version
-        ).exists():
+        if self.project.versions.protected().filter(slug=default_version).exists():
             return default_version
         return None
 
