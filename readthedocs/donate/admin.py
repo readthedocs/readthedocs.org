@@ -11,7 +11,7 @@ class GeoFilterAdmin(admin.ModelAdmin):
 class GeoFilterInline(admin.TabularInline):
     model = GeoFilter
     filter_horizontal = ('countries',)
-    extra = 1
+    extra = 0
 
 
 class SupporterAdmin(admin.ModelAdmin):
