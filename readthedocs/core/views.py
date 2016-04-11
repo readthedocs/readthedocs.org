@@ -186,18 +186,20 @@ def _build_branches(project, branch_list):
     return (to_build, not_building)
 
 
-def _build_url(url, branches):
+def get_project_from_url(url):
+    projects = (
+        Project.objects.filter(repo__iendswith=url) |
+        Project.objects.filter(repo__iendswith=url + '.git'))
+    return projects
+
+
+def _build_url(url, projects, branches):
     """
     Map a URL onto specific projects to build that are linked to that URL.
 
     Check each of the ``branches`` to see if they are active and should be built.
     """
     try:
-        projects = (
-            Project.objects.filter(repo__iendswith=url) |
-            Project.objects.filter(repo__iendswith=url + '.git'))
-        if not projects.count():
-            raise NoProjectException()
         for project in projects:
             (built, not_building) = _build_branches(project, branches)
             if not built:
@@ -235,21 +237,30 @@ def github_build(request):
         except:
             # Generic post-commit hook
             obj = json.loads(request.body)
-        url = obj['repository']['url']
-        ghetto_url = url.replace('http://', '').replace('https://', '')
+        repo_url = obj['repository']['url']
+        hacked_repo_url = repo_url.replace('http://', '').replace('https://', '')
+        ssh_url = obj['repository']['ssh_url']
+        hacked_ssh_url = ssh_url.replace('git@', '').replace('.git', '')
         try:
             branch = obj['ref'].replace('refs/heads/', '')
         except KeyError:
             response = HttpResponse('ref argument required to build branches.')
             response.status_code = 400
             return response
-        pc_log.info("(Incoming GitHub Build) %s [%s]" % (ghetto_url, branch))
+
         try:
-            return _build_url(ghetto_url, [branch])
+            repo_projects = get_project_from_url(hacked_repo_url)
+            if repo_projects:
+                pc_log.info("(Incoming GitHub Build) %s [%s]" % (hacked_repo_url, branch))
+            ssh_projects = get_project_from_url(hacked_ssh_url)
+            if ssh_projects:
+                pc_log.info("(Incoming GitHub Build) %s [%s]" % (hacked_ssh_url, branch))
+            projects = repo_projects | ssh_projects
+            return _build_url(hacked_repo_url, projects, [branch])
         except NoProjectException:
             pc_log.error(
-                "(Incoming GitHub Build) Repo not found:  %s" % ghetto_url)
-            return HttpResponseNotFound('Repo not found: %s' % ghetto_url)
+                "(Incoming GitHub Build) Repo not found:  %s" % hacked_repo_url)
+            return HttpResponseNotFound('Repo not found: %s' % hacked_repo_url)
     else:
         return HttpResponse("You must POST to this resource.")
 
@@ -270,9 +281,10 @@ def gitlab_build(request):
         ghetto_url = url.replace('http://', '').replace('https://', '')
         branch = obj['ref'].replace('refs/heads/', '')
         pc_log.info("(Incoming GitLab Build) %s [%s]" % (ghetto_url, branch))
-        try:
-            return _build_url(ghetto_url, [branch])
-        except NoProjectException:
+        projects = get_project_from_url(ghetto_url)
+        if projects:
+            return _build_url(ghetto_url, projects, [branch])
+        else:
             pc_log.error(
                 "(Incoming GitLab Build) Repo not found:  %s" % ghetto_url)
             return HttpResponseNotFound('Repo not found: %s' % ghetto_url)
@@ -295,9 +307,10 @@ def bitbucket_build(request):
         pc_log.info("(Incoming Bitbucket Build) %s [%s]" % (
             ghetto_url, ' '.join(branches)))
         pc_log.info("(Incoming Bitbucket Build) JSON: \n\n%s\n\n" % obj)
-        try:
-            return _build_url(ghetto_url, branches)
-        except NoProjectException:
+        projects = get_project_from_url(ghetto_url)
+        if projects:
+            return _build_url(ghetto_url, projects, branches)
+        else:
             pc_log.error(
                 "(Incoming Bitbucket Build) Repo not found:  %s" % ghetto_url)
             return HttpResponseNotFound('Repo not found: %s' % ghetto_url)
