@@ -101,7 +101,7 @@ class GitLabWebHookTest(BasePostCommitTest):
         self.payload['ref'] = 'refs/heads/unknown'
         r = self.client.post('/gitlab/', {'payload': json.dumps(self.payload)})
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r.content, '(URL Build) Not Building: github.com/rtfd/readthedocs.org []')
+        self.assertEqual(r.content, '(URL Build) No known branches were pushed to.')
 
     def test_gitlab_post_commit_knows_default_branches(self):
         """
@@ -250,7 +250,7 @@ class GitHubPostCommitTest(BasePostCommitTest):
         self.payload['ref'] = 'refs/heads/unknown'
         r = self.client.post('/github/', {'payload': json.dumps(self.payload)})
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r.content, '(URL Build) Not Building: github.com/rtfd/readthedocs.org []')
+        self.assertEqual(r.content, '(URL Build) No known branches were pushed to.')
 
     def test_github_post_commit_knows_default_branches(self):
         """
@@ -411,7 +411,7 @@ class BitBucketHookTests(BasePostCommitTest):
         r = self.client.post('/bitbucket/', {'payload': json.dumps(self.hg_payload)})
         self.assertEqual(r.status_code, 200)
         self.assertEqual(
-            r.content, '(URL Build) Not Building: bitbucket.org/pip/pip []')
+            r.content, '(URL Build) No known branches were pushed to.')
 
     def test_bitbucket_default_branch(self):
         self.test_project = get(
