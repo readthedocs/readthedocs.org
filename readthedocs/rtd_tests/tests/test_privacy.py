@@ -347,3 +347,13 @@ class PrivacyTests(TestCase):
         self.client.login(username='tester', password='test')
         r = self.client.get('/projects/django-kong/builds/')
         self.assertTrue('test-slug' not in r.content)
+
+    def test_queryset_chaining(self):
+        """
+        Test that manager methods get set on related querysets.
+        """
+        kong = self._create_kong('public', 'private')
+        self.assertEqual(
+            kong.versions.private().get(slug='latest').slug,
+            'latest'
+        )

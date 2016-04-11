@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import unittest
 
 from readthedocs.projects.version_handling import version_windows
@@ -88,7 +90,10 @@ class TestVersionWindows(unittest.TestCase):
                                          major=1, minor=2, point=3)
         self.assertEqual(final_versions, ['2.2.0', '2.3.1', '2.3.2', '2.3.3'])
 
-
+    def test_unicode(self):
+        version_windows(['release-ç', '1.2.¢'], major=2, minor=2, point=1)
+        version_windows([u'release-ç', u'1.2.¢'], major=2, minor=2, point=1)
+        self.assertTrue(True)
 
 if __name__ == '__main__':
     unittest.main()

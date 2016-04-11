@@ -7,6 +7,8 @@ from .models import (Project, ImportedFile,
                      ProjectRelationship, EmailHook, WebHook, Domain)
 from guardian.admin import GuardedModelAdmin
 
+from readthedocs.donate.models import ProjectImpressions
+
 
 class ProjectRelationshipInline(admin.TabularInline):
 
@@ -35,6 +37,20 @@ class DomainInline(admin.TabularInline):
     model = Domain
 
 
+class ImpressionInline(admin.TabularInline):
+    model = ProjectImpressions
+    readonly_fields = ('date', 'promo', 'offers', 'views', 'clicks', 'view_ratio', 'click_ratio')
+    extra = 0
+    can_delete = False
+    max_num = 15
+
+    def view_ratio(self, instance):
+        return instance.view_ratio * 100
+
+    def click_ratio(self, instance):
+        return instance.click_ratio * 100
+
+
 class ProjectAdmin(GuardedModelAdmin):
 
     """Project model admin view"""
@@ -45,7 +61,8 @@ class ProjectAdmin(GuardedModelAdmin):
                    'documentation_type', 'programming_language')
     list_editable = ('featured',)
     search_fields = ('slug', 'repo')
-    inlines = [ProjectRelationshipInline, RedirectInline, VersionInline, DomainInline]
+    inlines = [ProjectRelationshipInline, RedirectInline,
+               VersionInline, DomainInline, ImpressionInline]
     raw_id_fields = ('users', 'main_language_project')
 
 

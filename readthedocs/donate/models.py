@@ -1,10 +1,37 @@
 from django.db import models
+from django.utils.crypto import get_random_string
 from django.utils.translation import ugettext_lazy as _
+from django.core.urlresolvers import reverse
+from django.conf import settings
+
+from django_countries.fields import CountryField
+
+from readthedocs.donate.utils import get_ad_day
+from readthedocs.projects.models import Project
+
 
 DISPLAY_CHOICES = (
     ('doc', 'Documentation Pages'),
     ('site-footer', 'Site Footer'),
     ('search', 'Search Pages'),
+)
+
+INCLUDE = 'include'
+EXCLUDE = 'exclude'
+
+FILTER_CHOICES = (
+    (EXCLUDE, 'Exclude'),
+    (INCLUDE, 'Include'),
+)
+
+OFFERS = 'offers'
+VIEWS = 'views'
+CLICKS = 'clicks'
+
+IMPRESSION_TYPES = (
+    OFFERS,
+    VIEWS,
+    CLICKS
 )
 
 
@@ -42,7 +69,8 @@ class SupporterPromo(models.Model):
     image = models.URLField(_('Image URL'), max_length=255, blank=True, null=True)
     display_type = models.CharField(_('Display Type'), max_length=200,
                                     choices=DISPLAY_CHOICES, default='doc')
-
+    sold_impressions = models.IntegerField(_('Sold Impressions'), default=1000)
+    sold_days = models.IntegerField(_('Sold Days'), default=30)
     live = models.BooleanField(_('Live'), default=False)
 
     def __str__(self):
@@ -50,9 +78,148 @@ class SupporterPromo(models.Model):
 
     def as_dict(self):
         "A dict respresentation of this for JSON encoding"
+        hash = get_random_string()
+        domain = getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org')
+        image_url = '//{host}{url}'.format(
+            host=domain,
+            url=reverse(
+                'donate_view_proxy',
+                kwargs={'promo_id': self.pk, 'hash': hash}
+            ))
+        # TODO: Store this hash and confirm that a proper hash was sent later
+        link_url = '//{host}{url}'.format(
+            host=domain,
+            url=reverse(
+                'donate_click_proxy',
+                kwargs={'promo_id': self.pk, 'hash': hash}
+            ))
         return {
             'id': self.analytics_id,
             'text': self.text,
-            'link': self.link,
-            'image': self.image,
+            'link': link_url,
+            'image': image_url,
+            'hash': hash,
         }
+
+    def cache_key(self, type, hash):
+        assert type in IMPRESSION_TYPES + ('project',)
+        return 'promo:{id}:{hash}:{type}'.format(id=self.analytics_id, hash=hash, type=type)
+
+    def incr(self, type, project=None):
+        """Add to the number of times this action has been performed, stored in the DB"""
+        assert type in IMPRESSION_TYPES
+        day = get_ad_day()
+        if project:
+            impression, _ = self.project_impressions.get_or_create(date=day, project=project)
+        else:
+            impression, _ = self.impressions.get_or_create(date=day)
+
+        setattr(impression, type, models.F(type) + 1)
+        impression.save()
+
+        # TODO: Support redis, more info on this PR
+        # github.com/rtfd/readthedocs.org/pull/2105/files/1b5f8568ae0a7760f7247149bcff481efc000f32#r58253051
+
+    def view_ratio(self, day=None):
+        if not day:
+            day = get_ad_day()
+        impression = self.impressions.get_or_create(date=day)[0]
+        return impression.view_ratio
+
+    def click_ratio(self, day=None):
+        if not day:
+            day = get_ad_day()
+        impression = self.impressions.get_or_create(date=day)[0]
+        return impression.click_ratio
+
+    def views_per_day(self):
+        return int(float(self.sold_impressions) / float(self.sold_days))
+
+    def views_shown_today(self, day=None):
+        if not day:
+            day = get_ad_day()
+        impression = self.impressions.get_or_create(date=day)[0]
+        return float(impression.views)
+
+    def views_needed_today(self):
+        ret = self.views_per_day() - self.views_shown_today()
+        if ret < 0:
+            return 0
+        return ret
+
+
+class BaseImpression(models.Model):
+    date = models.DateField(_('Date'))
+    offers = models.IntegerField(_('Offer'), default=0)
+    views = models.IntegerField(_('View'), default=0)
+    clicks = models.IntegerField(_('Clicks'), default=0)
+
+    class Meta:
+        ordering = ('-date',)
+        unique_together = ('promo', 'date')
+        abstract = True
+
+    @property
+    def view_ratio(self):
+        if self.offers == 0:
+            return 0  # Don't divide by 0
+        return float(self.views) / float(self.offers)
+
+    @property
+    def click_ratio(self):
+        if self.views == 0:
+            return 0  # Don't divide by 0
+        return float(self.clicks) / float(self.views)
+
+
+class PromoImpressions(BaseImpression):
+    """Track stats around how successful this promo has been.
+
+    Indexed one per promo per day."""
+
+    promo = models.ForeignKey(SupporterPromo, related_name='impressions',
+                              blank=True, null=True)
+
+
+class ProjectImpressions(BaseImpression):
+    """Track stats for a specific project and promo.
+
+    Indexed one per project per promo per day"""
+
+    promo = models.ForeignKey(SupporterPromo, related_name='project_impressions',
+                              blank=True, null=True)
+    project = models.ForeignKey(Project, related_name='impressions',
+                                blank=True, null=True)
+
+    class Meta:
+        unique_together = ('project', 'promo', 'date')
+
+
+class Country(models.Model):
+    country = CountryField(unique=True)
+
+    def __unicode__(self):
+        return unicode(self.country.name)
+
+
+class GeoFilter(models.Model):
+    promo = models.ForeignKey(SupporterPromo, related_name='geo_filters',
+                              blank=True, null=True)
+    filter_type = models.CharField(_('Filter Type'), max_length=20,
+                                   choices=FILTER_CHOICES, default='')
+    countries = models.ManyToManyField(Country, related_name='filters',
+                                       blank=True)
+
+    @property
+    def codes(self):
+        ret = []
+        for wrapped_code in self.countries.values_list('country'):
+            ret.append(wrapped_code[0])
+        return ret
+
+    def __unicode__(self):
+        codes = []
+        for code in self.countries.values_list('country'):
+            codes.append(code[0])
+        return "Filter for {promo} that {type}s: {countries}".format(
+            promo=self.promo.name, type=self.filter_type, countries=','.join(codes))

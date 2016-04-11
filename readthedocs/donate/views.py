@@ -5,11 +5,15 @@ import logging
 from django.views.generic import TemplateView
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
+from django.shortcuts import redirect, get_object_or_404
+from django.core.cache import cache
+
 from vanilla import CreateView, ListView
 
 from readthedocs.payments.mixins import StripeMixin
+from readthedocs.projects.models import Project
 
-from .models import Supporter
+from .models import Supporter, SupporterPromo, CLICKS, VIEWS
 from .forms import SupporterForm
 from .mixins import DonateProgressMixin
 
@@ -54,3 +58,45 @@ class DonateListView(DonateProgressMixin, ListView):
 
     def get_template_names(self):
         return [self.template_name]
+
+
+def click_proxy(request, promo_id, hash):
+    promo = get_object_or_404(SupporterPromo, pk=promo_id)
+    count = cache.get(promo.cache_key(type=CLICKS, hash=hash), None)
+    if count is None:
+        log.warning('Old or nonexistant hash tried on Click.')
+    elif count == 0:
+        promo.incr(CLICKS)
+        cache.incr(promo.cache_key(type=CLICKS, hash=hash))
+        project_slug = cache.get(
+            promo.cache_key(type='project', hash=hash),
+            None
+        )
+        if project_slug:
+            project = Project.objects.get(slug=project_slug)
+            promo.incr(CLICKS, project=project)
+    else:
+        log.warning('Duplicate click logged. {count} total clicks tried.'.format(count=count))
+        cache.incr(promo.cache_key(type=CLICKS, hash=hash))
+    return redirect(promo.link)
+
+
+def view_proxy(request, promo_id, hash):
+    promo = get_object_or_404(SupporterPromo, pk=promo_id)
+    count = cache.get(promo.cache_key(type=VIEWS, hash=hash), None)
+    if count is None:
+        log.warning('Old or nonexistant hash tried on View.')
+    elif count == 0:
+        promo.incr(VIEWS)
+        cache.incr(promo.cache_key(type=VIEWS, hash=hash))
+        project_slug = cache.get(
+            promo.cache_key(type='project', hash=hash),
+            None
+        )
+        if project_slug:
+            project = Project.objects.get(slug=project_slug)
+            promo.incr(VIEWS, project=project)
+    else:
+        log.warning('Duplicate view logged. {count} total clicks tried.'.format(count=count))
+        cache.incr(promo.cache_key(type=VIEWS, hash=hash))
+    return redirect(promo.image)

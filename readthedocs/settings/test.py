@@ -9,6 +9,13 @@ SLUMBER_API_HOST = 'http://localhost:8000'
 PRODUCTION_DOMAIN = 'readthedocs.org'
 GROK_API_HOST = 'http://localhost:8888'
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'PREFIX': 'docs',
+    }
+}
+
 if not os.environ.get('DJANGO_SETTINGS_SKIP_LOCAL', False):
     try:
         from local_settings import *  # noqa
