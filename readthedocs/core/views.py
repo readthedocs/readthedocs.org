@@ -234,6 +234,9 @@ def _build_url(url, projects, branches):
                 pc_log_info(project_slug, msg=msg)
                 ret += msg
 
+        if not ret:
+            ret = '(URL Build) No known branches were pushed to.'
+
         return HttpResponse(ret)
     except Exception as e:
         if e.__class__ == NoProjectException:
