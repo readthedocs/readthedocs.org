@@ -218,26 +218,26 @@ class FilterTests(TestCase):
     def test_include(self):
         # US view
         ret = show_to_geo(self.promo, 'US')
-        self.assertEqual(ret, True)
+        self.assertTrue(ret)
 
         ret = show_to_geo(self.promo2, 'US')
-        self.assertEqual(ret, True)
+        self.assertTrue(ret)
 
     def test_exclude(self):
         # Az -- don't show AZ ad
         ret = show_to_geo(self.promo, 'AZ')
-        self.assertEqual(ret, False)
+        self.assertFalse(ret)
 
         ret = show_to_geo(self.promo2, 'AZ')
-        self.assertEqual(ret, False)
+        self.assertFalse(ret)
 
     def test_non_included_data(self):
         # Random Country -- don't show "only US" ad
         ret = show_to_geo(self.promo, 'FO')
-        self.assertEqual(ret, False)
+        self.assertFalse(ret)
 
         ret2 = show_to_geo(self.promo2, 'FO')
-        self.assertEqual(ret2, True)
+        self.assertFalse(ret2)
 
     def test_get_promo(self):
         ret = get_promo('US')

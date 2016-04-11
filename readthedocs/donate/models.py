@@ -210,7 +210,7 @@ class GeoFilter(models.Model):
     countries = models.ManyToManyField(Country, related_name='filters',
                                        blank=True)
 
-    @ property
+    @property
     def codes(self):
         ret = []
         for wrapped_code in self.countries.values_list('country'):

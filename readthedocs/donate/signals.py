@@ -6,7 +6,6 @@ from django.core.cache import cache
 
 from readthedocs.restapi.signals import footer_response
 from readthedocs.donate.models import SupporterPromo, VIEWS, CLICKS, OFFERS, INCLUDE, EXCLUDE
-from readthedocs.donate.utils import get_ad_day
 
 
 PROMO_GEO_PATH = getattr(settings, 'PROMO_GEO_PATH', None)
