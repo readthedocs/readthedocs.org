@@ -22,7 +22,8 @@ from django.utils.translation import ugettext_lazy as _
 from readthedocs.builds.constants import (LATEST,
                                           BUILD_STATE_CLONING,
                                           BUILD_STATE_INSTALLING,
-                                          BUILD_STATE_BUILDING)
+                                          BUILD_STATE_BUILDING,
+                                          BUILD_STATE_FINISHED)
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import send_email, run_on_app_servers, broadcast
 from readthedocs.core.symlink import Symlink
@@ -135,7 +136,9 @@ class UpdateDocsTask(Task):
 
         if self.setup_env.failed or self.config is None:
             self.send_notifications()
+            self.setup_env.update_build(state=BUILD_STATE_FINISHED)
             return None
+
         if self.setup_env.successful and not self.project.has_valid_clone:
             self.set_valid_clone()
 

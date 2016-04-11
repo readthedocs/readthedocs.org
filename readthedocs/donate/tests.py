@@ -1,4 +1,5 @@
 import json
+import mock
 
 from django.test import TestCase
 from django.core.urlresolvers import reverse
@@ -6,7 +7,10 @@ from django.core.cache import cache
 
 from django_dynamic_fixture import get
 
-from .models import SupporterPromo, CLICKS, VIEWS, OFFERS
+from .models import (SupporterPromo, GeoFilter, Country,
+                     CLICKS, VIEWS, OFFERS,
+                     INCLUDE, EXCLUDE)
+from .signals import show_to_geo, get_promo, choose_promo
 from readthedocs.projects.models import Project
 
 
@@ -175,3 +179,142 @@ class FooterTests(TestCase):
         )
         resp = json.loads(r.content)
         self.assertEqual(resp['promo'], False)
+
+
+class FilterTests(TestCase):
+
+    def setUp(self):
+        us = get(Country, country='US')
+        ca = get(Country, country='CA')
+        mx = get(Country, country='MX')
+        az = get(Country, country='AZ')
+
+        # Only show in US,CA
+        self.promo = get(SupporterPromo,
+                         slug='promo-slug',
+                         link='http://example.com',
+                         live=True,
+                         image='http://media.example.com/img.png')
+        self.filter = get(GeoFilter,
+                          promo=self.promo,
+                          countries=[us, ca, mx],
+                          filter_type=INCLUDE,
+                          )
+
+        # Don't show in AZ
+        self.promo2 = get(SupporterPromo,
+                          slug='promo2-slug',
+                          link='http://example.com',
+                          live=True,
+                          image='http://media.example.com/img.png')
+        self.filter2 = get(GeoFilter,
+                           promo=self.promo2,
+                           countries=[az],
+                           filter_type=EXCLUDE,
+                           )
+
+        self.pip = get(Project, slug='pip', allow_promos=True)
+
+    def test_include(self):
+        # US view
+        ret = show_to_geo(self.promo, 'US')
+        self.assertTrue(ret)
+
+        ret = show_to_geo(self.promo2, 'US')
+        self.assertTrue(ret)
+
+    def test_exclude(self):
+        # Az -- don't show AZ ad
+        ret = show_to_geo(self.promo, 'AZ')
+        self.assertFalse(ret)
+
+        ret = show_to_geo(self.promo2, 'AZ')
+        self.assertFalse(ret)
+
+    def test_non_included_data(self):
+        # Random Country -- don't show "only US" ad
+        ret = show_to_geo(self.promo, 'FO')
+        self.assertFalse(ret)
+
+        ret2 = show_to_geo(self.promo2, 'FO')
+        self.assertFalse(ret2)
+
+    def test_get_promo(self):
+        ret = get_promo('US')
+        self.assertTrue(ret in [self.promo, self.promo2])
+
+        ret = get_promo('MX')
+        self.assertTrue(ret in [self.promo, self.promo2])
+
+        ret = get_promo('FO')
+        self.assertEqual(ret, self.promo2)
+
+        ret = get_promo('AZ')
+        self.assertEqual(ret, None)
+
+        ret = get_promo('RANDOM')
+        self.assertEqual(ret, self.promo2)
+
+
+class ProbabilityTests(TestCase):
+
+    def setUp(self):
+        # Only show in US,CA
+        self.promo = get(SupporterPromo,
+                         slug='promo-slug',
+                         link='http://example.com',
+                         live=True,
+                         image='http://media.example.com/img.png',
+                         sold_impressions=1000,
+                         )
+
+        # Don't show in AZ
+        self.promo2 = get(SupporterPromo,
+                          slug='promo2-slug',
+                          link='http://example.com',
+                          live=True,
+                          image='http://media.example.com/img.png',
+                          sold_impressions=1000 * 1000,
+                          )
+        self.promo_list = [self.promo, self.promo2]
+
+    def test_choose(self):
+        # US view
+
+        promo_prob = self.promo.views_needed()
+        promo2_prob = self.promo2.views_needed()
+        total = promo_prob + promo2_prob
+
+        with mock.patch('random.randint') as randint:
+
+            randint.return_value = -1
+            ret = choose_promo(self.promo_list)
+            self.assertEqual(ret, None)
+
+            randint.return_value = 5
+            ret = choose_promo(self.promo_list)
+            self.assertEqual(ret, self.promo)
+
+            randint.return_value = promo_prob - 1
+            ret = choose_promo(self.promo_list)
+            self.assertEqual(ret, self.promo)
+
+            randint.return_value = promo_prob
+            ret = choose_promo(self.promo_list)
+            self.assertEqual(ret, self.promo)
+
+            randint.return_value = promo_prob + 1
+            ret = choose_promo(self.promo_list)
+            self.assertEqual(ret, self.promo2)
+
+            randint.return_value = total - 1
+            ret = choose_promo(self.promo_list)
+            self.assertEqual(ret, self.promo2)
+
+            randint.return_value = total
+            ret = choose_promo(self.promo_list)
+            self.assertEqual(ret, self.promo2)
+
+            randint.return_value = total + 1
+            ret = choose_promo(self.promo_list)
+            self.assertEqual(ret, None)

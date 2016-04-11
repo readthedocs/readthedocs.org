@@ -21,7 +21,10 @@ your docs whenever you push updates:
 * Check "Active"
 * Click "Add service"
 
-**Note:** The GitHub URL in your Read the Docs project must match the URL on GitHub. The URL is case-sensitive.
+.. note:: The GitHub URL in your Read the Docs project must match the URL on GitHub. The URL is case-sensitive.
+
+If you ever need to manually set the webhook on GitHub,
+you can point it at ``https://readthedocs.org/github``.
 
 Bitbucket
 -----------
@@ -33,6 +36,9 @@ your docs whenever you push updates:
 * Click "Services"
 * In the available service hooks, select "Read the Docs"
 * Click "Add service"
+
+If you ever need to manually set the webhook on Bitbucket,
+you can point it at ``https://readthedocs.org/bitbucket``.
 
 Others
 ------

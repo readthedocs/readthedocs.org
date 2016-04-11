@@ -39,7 +39,7 @@ class DomainInline(admin.TabularInline):
 
 class ImpressionInline(admin.TabularInline):
     model = ProjectImpressions
-    readonly_fields = ('date', 'offers', 'views', 'clicks', 'view_ratio', 'click_ratio')
+    readonly_fields = ('date', 'promo', 'offers', 'views', 'clicks', 'view_ratio', 'click_ratio')
     extra = 0
     can_delete = False
     max_num = 15
