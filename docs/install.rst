@@ -9,7 +9,8 @@ It will get you to a point of having a local running instance.
 First, obtain `Python 2.7`_ and virtualenv_ if you do not already have them. Using a
 virtual environment will make the installation easier, and will help to avoid
 clutter in your system-wide libraries. You will also need Git_ in order to
-clone the repository.
+clone the repository. If you plan to import python3 project to your RTD then you'll
+need to install python3 with virtualenv in your system as well.
 
 
 .. _Python 2.7: http://www.python.org/
