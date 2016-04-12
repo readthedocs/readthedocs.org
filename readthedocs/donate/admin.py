@@ -37,8 +37,10 @@ class ImpressionInline(admin.TabularInline):
 
 class SupporterPromoAdmin(admin.ModelAdmin):
     model = SupporterPromo
-    list_display = ('name', 'display_type', 'text', 'live', 'view_ratio', 'click_ratio')
+    list_display = ('name', 'display_type', 'live',
+                    'click_ratio', 'sold_impressions', 'total_views')
     list_filter = ('live', 'display_type')
+    readonly_fields = ('total_views',)
     inlines = [ImpressionInline, GeoFilterInline]
 
     def view_ratio(self, instance):
@@ -46,6 +48,9 @@ class SupporterPromoAdmin(admin.ModelAdmin):
 
     def click_ratio(self, instance):
         return instance.click_ratio() * 100
+
+    def total_views(self, instance):
+        return sum(imp.views for imp in instance.impressions.all())
 
 admin.site.register(Supporter, SupporterAdmin)
 admin.site.register(SupporterPromo, SupporterPromoAdmin)
