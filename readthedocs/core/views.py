@@ -193,36 +193,50 @@ def get_project_from_url(url):
     return projects
 
 
+def pc_log_info(project, msg):
+    pc_log.info(constants.LOG_TEMPLATE
+                .format(project=project,
+                        version='',
+                        msg=msg))
+
+
 def _build_url(url, projects, branches):
     """
     Map a URL onto specific projects to build that are linked to that URL.
 
     Check each of the ``branches`` to see if they are active and should be built.
     """
-    try:
-        for project in projects:
-            (built, not_building) = _build_branches(project, branches)
-            if not built:
-                # Call update_imported_docs to update tag/branch info
-                update_imported_docs.delay(project.versions.get(slug=LATEST).pk)
-                msg = '(URL Build) Syncing versions for %s' % project.slug
-                pc_log.info(msg)
+    ret = ""
+    all_built = {}
+    all_not_building = {}
+    for project in projects:
+        (built, not_building) = _build_branches(project, branches)
+        if not built:
+            # Call update_imported_docs to update tag/branch info
+            update_imported_docs.delay(project.versions.get(slug=LATEST).pk)
+            msg = '(URL Build) Syncing versions for %s' % project.slug
+            pc_log.info(msg)
+        all_built[project.slug] = built
+        all_not_building[project.slug] = not_building
+
+    for project_slug, built in all_built.items():
         if built:
             msg = '(URL Build) Build Started: %s [%s]' % (
                 url, ' '.join(built))
-            pc_log.info(msg)
-            return HttpResponse(msg)
-        else:
+            pc_log_info(project_slug, msg=msg)
+            ret += msg
+
+    for project_slug, not_building in all_not_building.items():
+        if not_building:
             msg = '(URL Build) Not Building: %s [%s]' % (
                 url, ' '.join(not_building))
-            pc_log.info(msg)
-            return HttpResponse(msg)
-    except Exception as e:
-        if e.__class__ == NoProjectException:
-            raise
-        msg = "(URL Build) Failed: %s:%s" % (url, e)
-        pc_log.error(msg, exc_info=True)
-        return HttpResponse(msg)
+            pc_log_info(project_slug, msg=msg)
+            ret += msg
+
+    if not ret:
+        ret = '(URL Build) No known branches were pushed to.'
+
+    return HttpResponse(ret)
 
 
 @csrf_exempt
@@ -303,7 +317,7 @@ def bitbucket_build(request):
         rep = obj['repository']
         branches = [rec.get('branch', '') for rec in obj['commits']]
         ghetto_url = "%s%s" % (
-            "bitbucket.org",  rep['absolute_url'].rstrip('/'))
+            "bitbucket.org", rep['absolute_url'].rstrip('/'))
         pc_log.info("(Incoming Bitbucket Build) %s [%s]" % (
             ghetto_url, ' '.join(branches)))
         pc_log.info("(Incoming Bitbucket Build) JSON: \n\n%s\n\n" % obj)

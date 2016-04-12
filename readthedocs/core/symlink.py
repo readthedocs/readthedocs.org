@@ -60,8 +60,8 @@ from collections import OrderedDict
 
 from django.conf import settings
 
-from readthedocs.projects.constants import LOG_TEMPLATE
-from readthedocs.projects.models import Domain
+from readthedocs.projects import constants
+from readthedocs.projects.models import Domain, Project
 from readthedocs.projects.utils import run
 
 log = logging.getLogger(__name__)
@@ -69,10 +69,6 @@ log = logging.getLogger(__name__)
 
 class Symlink(object):
     """Base class for symlinking of projects."""
-
-    CNAME_ROOT = os.path.join(settings.SITE_ROOT, 'public_cname_root')
-    WEB_ROOT = os.path.join(settings.SITE_ROOT, 'public_web_root')
-    PROJECT_CNAME_ROOT = os.path.join(settings.SITE_ROOT, 'public_cname_project')
 
     def __init__(self, project):
         self.project = project
@@ -86,7 +82,7 @@ class Symlink(object):
 
     def _log(self, msg, level='info'):
         logger = getattr(log, level)
-        logger(LOG_TEMPLATE
+        logger(constants.LOG_TEMPLATE
                .format(project=self.project.slug,
                        version='',
                        msg=msg)
@@ -98,6 +94,8 @@ class Symlink(object):
 
         This will leave it in the proper state for the single_project setting.
         """
+        if not self.run_sanity_check():
+            return
         if os.path.islink(self.project_root) and not self.project.single_version:
             self._log("Removing single version symlink")
             os.unlink(self.project_root)
@@ -161,7 +159,7 @@ class Symlink(object):
             run('ln -nsf %s %s' % (self.project.doc_path, project_cname_symlink))
 
     def remove_symlink_cname(self, domain):
-        """Remove single_version symlink"""
+        """Remove CNAME symlink"""
         self._log(u"Removing symlink for CNAME {0}".format(domain.domain))
         symlink = os.path.join(self.CNAME_ROOT, domain.domain)
         os.unlink(symlink)
@@ -173,7 +171,7 @@ class Symlink(object):
                   $WEB_ROOT/<project>
         """
         subprojects = set()
-        rels = self.project.subprojects.all()
+        rels = self.get_subprojects()
         if rels.count():
             # Don't creat the `projects/` directory unless subprojects exist.
             if not os.path.exists(self.subproject_root):
@@ -211,7 +209,7 @@ class Symlink(object):
         """
         translations = {}
 
-        for trans in self.project.translations.all():
+        for trans in self.get_translations():
             translations[trans.language] = trans.slug
 
         # Make sure the language directory is a directory
@@ -243,7 +241,10 @@ class Symlink(object):
         Link from $WEB_ROOT/<project> ->
                   HOME/user_builds/<project>/rtd-builds/latest/
         """
-        default_version = self.project.get_default_version()
+        default_version = self.get_default_version()
+        if default_version is None:
+            return
+
         self._log("Symlinking single_version")
 
         symlink = self.project_root
@@ -266,8 +267,7 @@ class Symlink(object):
         version_dir = os.path.join(self.WEB_ROOT, self.project.slug, self.project.language)
         # Include active public versions,
         # as well as public verisons that are built but not active, for archived versions
-        version_queryset = (self.project.versions.protected(only_active=False).filter(built=True) |
-                            self.project.versions.protected(only_active=True))
+        version_queryset = self.get_version_queryset()
         if version_queryset.count():
             if not os.path.exists(version_dir):
                 os.makedirs(version_dir)
@@ -283,3 +283,54 @@ class Symlink(object):
             for old_ver in os.listdir(version_dir):
                 if old_ver not in versions:
                     os.unlink(os.path.join(version_dir, old_ver))
+
+
+class PublicSymlink(Symlink):
+    CNAME_ROOT = os.path.join(settings.SITE_ROOT, 'public_cname_root')
+    WEB_ROOT = os.path.join(settings.SITE_ROOT, 'public_web_root')
+    PROJECT_CNAME_ROOT = os.path.join(settings.SITE_ROOT, 'public_cname_project')
+
+    def get_version_queryset(self):
+        return (self.project.versions.protected(only_active=False).filter(built=True) |
+                self.project.versions.protected(only_active=True))
+
+    def get_subprojects(self):
+        return self.project.subprojects.protected()
+
+    def get_translations(self):
+        return self.project.translations.protected()
+
+    def get_default_version(self):
+        default_version = self.project.get_default_version()
+        if self.project.versions.protected().filter(slug=default_version).exists():
+            return default_version
+        return None
+
+    def run_sanity_check(self):
+        return self.project.privacy_level in [constants.PUBLIC, constants.PROTECTED]
+
+
+class PrivateSymlink(Symlink):
+    CNAME_ROOT = os.path.join(settings.SITE_ROOT, 'private_cname_root')
+    WEB_ROOT = os.path.join(settings.SITE_ROOT, 'private_web_root')
+    PROJECT_CNAME_ROOT = os.path.join(settings.SITE_ROOT, 'private_cname_project')
+
+    def run_sanity_check(self):
+        return self.project.privacy_level == constants.PRIVATE
+
+    def get_version_queryset(self):
+        return (self.project.versions.private(only_active=False).filter(built=True) |
+                self.project.versions.private(only_active=True))
+
+    def get_subprojects(self):
+        return self.project.subprojects.private()
+
+    def get_translations(self):
+        return self.project.translations.private()
+
+    def get_default_version(self):
+        default_version = self.project.get_default_version()
+        version_qs = self.project.versions.private().filter(slug=default_version)
+        if version_qs.exists():
+            return default_version
+        return None

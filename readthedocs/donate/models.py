@@ -73,6 +73,9 @@ class SupporterPromo(models.Model):
     sold_days = models.IntegerField(_('Sold Days'), default=30)
     live = models.BooleanField(_('Live'), default=False)
 
+    class Meta:
+        ordering = ('-live',)
+
     def __str__(self):
         return self.name
 
