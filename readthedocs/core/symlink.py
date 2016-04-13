@@ -289,7 +289,7 @@ class Symlink(object):
         default_version = self.project.get_default_version()
         try:
             return self.get_version_queryset().get(slug=default_version)
-        except Project.DoesNotExist:
+        except Version.DoesNotExist:
             return None
 
 
