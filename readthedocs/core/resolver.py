@@ -69,9 +69,12 @@ def _fix_filename(project, filename):
     return path
 
 
-def base_resolve_path(project_slug, filename, version_slug=None, language=None, private=False,
-                      single_version=None, subproject_slug=None,  subdomain=None, cname=None):
-    """ Resolve a with nothing smart, just filling in the blanks."""
+def base_resolve_path(project_slug, filename, version_slug=None, language=None,
+                      private=False, single_version=None, subproject_slug=None,
+                      subdomain=None, cname=None):
+    """Resolve a with nothing smart, just filling in the blanks"""
+    # Only support `/docs/project' URLs outside our normal environment. Normally
+    # the path should always have a subdomain or CNAME domain
     use_subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
     if subdomain or cname or (private and use_subdomain):
         url = '/'
