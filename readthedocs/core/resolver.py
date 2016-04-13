@@ -34,7 +34,6 @@ import re
 from django.conf import settings
 
 from readthedocs.projects.constants import PRIVATE, PUBLIC
-from readthedocs.core.constants import USE_SUBDOMAIN
 
 
 def _get_private(project, version_slug):
@@ -73,7 +72,8 @@ def _fix_filename(project, filename):
 def base_resolve_path(project_slug, filename, version_slug=None, language=None, private=False,
                       single_version=None, subproject_slug=None,  subdomain=None, cname=None):
     """ Resolve a with nothing smart, just filling in the blanks."""
-    if subdomain or cname or (private and USE_SUBDOMAIN):
+    use_subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
+    if subdomain or cname or (private and use_subdomain):
         url = '/'
     else:
         url = '/docs/{project_slug}/'

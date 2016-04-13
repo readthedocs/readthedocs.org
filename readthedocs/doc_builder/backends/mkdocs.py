@@ -7,7 +7,6 @@ from django.conf import settings
 from django.template import Context, loader as template_loader
 
 from readthedocs.doc_builder.base import BaseBuilder
-from readthedocs.core.constants import PUBLIC_API_URL
 
 log = logging.getLogger(__name__)
 
@@ -106,7 +105,8 @@ class BaseMkdocs(BaseBuilder):
             'builder': "mkdocs",
             'docroot': docs_dir,
             'source_suffix': ".md",
-            'api_host': PUBLIC_API_URL,
+            'api_host': getattr(settings, 'PUBLIC_API_URL',
+                                'https://readthedocs.org'),
             'commit': self.version.project.vcs_repo(self.version.slug).commit,
         }
         data_json = json.dumps(readthedocs_data, indent=4)

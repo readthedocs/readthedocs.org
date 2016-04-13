@@ -36,7 +36,7 @@ class CommunityBaseSettings(Settings):
     PRODUCTION_DOMAIN = 'readthedocs.org'
     PUBLIC_DOMAIN = None
     USE_SUBDOMAIN = False
-    PUBLIC_API_HOST = 'https://{0}'.format(PRODUCTION_DOMAIN)
+    PUBLIC_API_URL = 'https://{0}'.format(PRODUCTION_DOMAIN)
 
     ADMINS = (
         ('Eric Holscher', 'eric@readthedocs.org'),

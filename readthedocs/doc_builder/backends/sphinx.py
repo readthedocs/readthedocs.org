@@ -11,7 +11,6 @@ from django.conf import settings
 
 from readthedocs.builds import utils as version_utils
 from readthedocs.builds.constants import BRANCH
-from readthedocs.core.constants import PUBLIC_API_URL
 from readthedocs.projects.utils import safe_write
 from readthedocs.projects.exceptions import ProjectImportError
 from readthedocs.restapi.client import api
@@ -98,7 +97,8 @@ class BaseSphinx(BaseBuilder):
                 'static_path': SPHINX_STATIC_DIR,
                 'template_path': SPHINX_TEMPLATE_DIR,
                 'conf_py_path': conf_py_path,
-                'api_host': PUBLIC_API_URL,
+                'api_host': getattr(settings, 'PUBLIC_API_URL',
+                                    'https://readthedocs.org'),
                 # GitHub
                 'github_user': github_user,
                 'github_repo': github_repo,

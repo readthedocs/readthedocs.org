@@ -8,28 +8,37 @@ from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.http import Http404
 
 from readthedocs.projects.models import Project, Domain
-from readthedocs.core.constants import (PRODUCTION_DOMAIN, PUBLIC_DOMAIN,
-                                        USE_SUBDOMAIN, SUBDOMAIN_URLCONF,
-                                        SINGLE_VERSION_URLCONF)
 
 log = logging.getLogger(__name__)
 
 LOG_TEMPLATE = u"(Middleware) {msg} [{host}{path}]"
+SUBDOMAIN_URLCONF = getattr(
+    settings,
+    'SUBDOMAIN_URLCONF',
+    'readthedocs.core.subdomain_urls'
+)
+SINGLE_VERSION_URLCONF = getattr(
+    settings,
+    'SINGLE_VERSION_URLCONF',
+    'readthedocs.core.single_version_urls'
+)
 
 
 class SubdomainMiddleware(object):
 
     def process_request(self, request):
-        if not USE_SUBDOMAIN:
+        if not getattr(settings, 'USE_SUBDOMAIN', False):
             return None
 
         host = request.get_host().lower()
         path = request.get_full_path()
         log_kwargs = dict(host=host, path=path)
-        public_domain = PUBLIC_DOMAIN
+        public_domain = getattr(settings, 'PUBLIC_DOMAIN', None)
+        production_domain = getattr(settings, 'PRODUCTION_DOMAIN',
+                                    'readthedocs.org')
 
         if public_domain is None:
-            public_domain = PRODUCTION_DOMAIN
+            public_domain = production_domain
         if ':' in host:
             host = host.split(':')[0]
         domain_parts = host.split('.')
@@ -46,7 +55,7 @@ class SubdomainMiddleware(object):
                 return None
         # Serve CNAMEs
         if (public_domain not in host and
-                PRODUCTION_DOMAIN not in host and
+                production_domain not in host and
                 'localhost' not in host and
                 'testserver' not in host):
             request.cname = True
