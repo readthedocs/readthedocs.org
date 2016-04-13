@@ -242,26 +242,16 @@ class Symlink(object):
         Link from $WEB_ROOT/<project> ->
                   HOME/user_builds/<project>/rtd-builds/latest/
         """
-        default_version = self.get_default_version()
-        if default_version is None:
-            return
+        version = self.get_default_version()
 
-        try:
-            versions_qs = ((self.project.versions.protected(only_active=False)
-                            .filter(built=True)) |
-                           self.project.versions.protected(only_active=True))
-            version = versions_qs.get(slug=default_version)
-            self._log("Symlinking single_version: {0}".format(version.slug))
-        except Version.DoesNotExist:
-            version = None
-
+        # Clean up symlinks
         symlink = self.project_root
         if os.path.islink(symlink):
             os.unlink(symlink)
         if os.path.exists(symlink):
             shutil.rmtree(symlink)
 
-        # Where the actual docs live
+        # Create symlink
         if version is not None:
             docs_dir = os.path.join(settings.DOCROOT, self.project.slug,
                                     'rtd-builds', version.slug)
