@@ -284,6 +284,14 @@ class Symlink(object):
                 if old_ver not in versions:
                     os.unlink(os.path.join(version_dir, old_ver))
 
+    def get_default_version(self):
+        """Look up project default version, return None if not found"""
+        default_version = self.project.get_default_version()
+        try:
+            return self.get_version_queryset().get(slug=default_version)
+        except Project.DoesNotExist:
+            return None
+
 
 class PublicSymlink(Symlink):
     CNAME_ROOT = os.path.join(settings.SITE_ROOT, 'public_cname_root')
@@ -299,12 +307,6 @@ class PublicSymlink(Symlink):
 
     def get_translations(self):
         return self.project.translations.protected()
-
-    def get_default_version(self):
-        default_version = self.project.get_default_version()
-        if self.project.versions.protected().filter(slug=default_version).exists():
-            return default_version
-        return None
 
     def run_sanity_check(self):
         return self.project.privacy_level in [constants.PUBLIC, constants.PROTECTED]
@@ -327,10 +329,3 @@ class PrivateSymlink(Symlink):
 
     def get_translations(self):
         return self.project.translations.private()
-
-    def get_default_version(self):
-        default_version = self.project.get_default_version()
-        version_qs = self.project.versions.private().filter(slug=default_version)
-        if version_qs.exists():
-            return default_version
-        return None
