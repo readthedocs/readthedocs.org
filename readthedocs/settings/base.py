@@ -40,6 +40,7 @@ MEDIA_URL = '/media/'
 ADMIN_MEDIA_PREFIX = '/media/admin/'
 
 GROK_API_HOST = 'https://api.grokthedocs.com'
+SILENCED_SYSTEM_CHECKS = ['fields.W342']
 
 # For 1.4
 STATIC_ROOT = os.path.join(SITE_ROOT, 'media/static/')
