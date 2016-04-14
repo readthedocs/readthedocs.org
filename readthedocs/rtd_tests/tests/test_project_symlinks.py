@@ -255,6 +255,16 @@ class TestPublicSymlinkSingleVersion(TestCase):
         for index, command in enumerate(commands):
             self.assertEqual(self.commands[index], command.format(**self.args))
 
+    @patched
+    def test_symlink_single_version_missing(self):
+        project = get(Project)
+        project.versions.update(privacy_level='private')
+        symlink = PublicSymlink(project)
+        # Set because *something* triggers project symlinking on get(Project)
+        self.commands = []
+        symlink.symlink_single_version()
+        self.assertEqual([], self.commands)
+
 
 class BaseSymlinkVersions(object):
 

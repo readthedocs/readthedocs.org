@@ -60,8 +60,9 @@ from collections import OrderedDict
 
 from django.conf import settings
 
+from readthedocs.builds.models import Version
 from readthedocs.projects import constants
-from readthedocs.projects.models import Domain, Project
+from readthedocs.projects.models import Domain
 from readthedocs.projects.utils import run
 
 log = logging.getLogger(__name__)
@@ -241,21 +242,20 @@ class Symlink(object):
         Link from $WEB_ROOT/<project> ->
                   HOME/user_builds/<project>/rtd-builds/latest/
         """
-        default_version = self.get_default_version()
-        if default_version is None:
-            return
+        version = self.get_default_version()
 
-        self._log("Symlinking single_version")
-
+        # Clean up symlinks
         symlink = self.project_root
         if os.path.islink(symlink):
             os.unlink(symlink)
         if os.path.exists(symlink):
             shutil.rmtree(symlink)
 
-        # Where the actual docs live
-        docs_dir = os.path.join(settings.DOCROOT, self.project.slug, 'rtd-builds', default_version)
-        run('ln -nsf %s/ %s' % (docs_dir, symlink))
+        # Create symlink
+        if version is not None:
+            docs_dir = os.path.join(settings.DOCROOT, self.project.slug,
+                                    'rtd-builds', version.slug)
+            run('ln -nsf %s/ %s' % (docs_dir, symlink))
 
     def symlink_versions(self):
         """Symlink project's versions
@@ -284,6 +284,14 @@ class Symlink(object):
                 if old_ver not in versions:
                     os.unlink(os.path.join(version_dir, old_ver))
 
+    def get_default_version(self):
+        """Look up project default version, return None if not found"""
+        default_version = self.project.get_default_version()
+        try:
+            return self.get_version_queryset().get(slug=default_version)
+        except Version.DoesNotExist:
+            return None
+
 
 class PublicSymlink(Symlink):
     CNAME_ROOT = os.path.join(settings.SITE_ROOT, 'public_cname_root')
@@ -299,12 +307,6 @@ class PublicSymlink(Symlink):
 
     def get_translations(self):
         return self.project.translations.protected()
-
-    def get_default_version(self):
-        default_version = self.project.get_default_version()
-        if self.project.versions.protected().filter(slug=default_version).exists():
-            return default_version
-        return None
 
     def run_sanity_check(self):
         return self.project.privacy_level in [constants.PUBLIC, constants.PROTECTED]
@@ -327,10 +329,3 @@ class PrivateSymlink(Symlink):
 
     def get_translations(self):
         return self.project.translations.private()
-
-    def get_default_version(self):
-        default_version = self.project.get_default_version()
-        version_qs = self.project.versions.private().filter(slug=default_version)
-        if version_qs.exists():
-            return default_version
-        return None
