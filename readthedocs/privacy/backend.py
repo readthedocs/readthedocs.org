@@ -72,9 +72,6 @@ class ProjectManager(models.Manager):
     def api(self, user=None):
         return self.public(user)
 
-    def search(self, user=None):
-        return self.public(user)
-
 
 class VersionManager(models.Manager):
 

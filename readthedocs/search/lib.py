@@ -113,13 +113,13 @@ def search_file(request, query, project_slug=None, version_slug=LATEST, taxonomy
         if project_slug:
             try:
                 project = (Project.objects
-                           .search(request.user)
+                           .api(request.user)
                            .get(slug=project_slug))
                 project_slugs = [project.slug]
                 # We need to use the obtuse syntax here because the manager
                 # doesn't pass along to ProjectRelationships
                 project_slugs.extend(s.slug for s
-                                     in Project.objects.search(
+                                     in Project.objects.public(
                                          request.user).filter(
                                          superprojects__parent__slug=project.slug))
                 final_filter['and'].append({"terms": {"project": project_slugs}})
