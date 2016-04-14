@@ -26,7 +26,7 @@ from readthedocs.builds.constants import (LATEST,
                                           BUILD_STATE_FINISHED)
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import send_email, run_on_app_servers, broadcast
-from readthedocs.core.symlink import Symlink
+from readthedocs.core.symlink import PublicSymlink, PrivateSymlink
 from readthedocs.cdn.purge import purge
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.config import load_yaml_config
@@ -627,26 +627,29 @@ def update_search(version_pk, commit, delete_non_commit_files=True):
 @task(queue='web')
 def symlink_project(project_pk):
     project = Project.objects.get(pk=project_pk)
-    sym = Symlink(project=project)
-    sym.run()
+    for symlink in [PublicSymlink, PrivateSymlink]:
+        sym = symlink(project=project)
+        sym.run()
 
 
 @task(queue='web')
 def symlink_domain(project_pk, domain_pk, delete=False):
     project = Project.objects.get(pk=project_pk)
     domain = Domain.objects.get(pk=domain_pk)
-    sym = Symlink(project=project)
-    if delete:
-        sym.remove_symlink_cname(domain)
-    else:
-        sym.symlink_cnames(domain)
+    for symlink in [PublicSymlink, PrivateSymlink]:
+        sym = symlink(project=project)
+        if delete:
+            sym.remove_symlink_cname(domain)
+        else:
+            sym.symlink_cnames(domain)
 
 
 @task(queue='web')
 def symlink_subproject(project_pk):
     project = Project.objects.get(pk=project_pk)
-    sym = Symlink(project=project)
-    sym.symlink_subprojects()
+    for symlink in [PublicSymlink, PrivateSymlink]:
+        sym = symlink(project=project)
+        sym.symlink_subprojects()
 
 
 @task(queue='web')

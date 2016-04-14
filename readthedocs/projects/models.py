@@ -8,7 +8,7 @@ import os
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import MultipleObjectsReturned
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, NoReverseMatch
 from django.db import models
 from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext_lazy as _
@@ -18,10 +18,10 @@ from taggit.managers import TaggableManager
 
 from readthedocs.api.client import api
 from readthedocs.core.utils import broadcast
-from readthedocs.core.resolver import resolve_domain
 from readthedocs.restapi.client import api as apiv2
 from readthedocs.builds.constants import LATEST, LATEST_VERBOSE_NAME, STABLE
-from readthedocs.privacy.loader import RelatedProjectManager, ProjectManager
+from readthedocs.privacy.loader import (RelatedProjectManager, ProjectManager,
+                                        ChildRelatedProjectManager)
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectImportError
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
@@ -57,6 +57,8 @@ class ProjectRelationship(models.Model):
     child = models.ForeignKey('Project', verbose_name=_('Child'),
                               related_name='superprojects')
     alias = models.CharField(_('Alias'), max_length=255, null=True, blank=True)
+
+    objects = ChildRelatedProjectManager()
 
     def __unicode__(self):
         return "%s -> %s" % (self.parent, self.child)
@@ -407,11 +409,14 @@ class Project(models.Model):
 
     def get_production_media_url(self, type_, version_slug, full_path=True):
         """Get the URL for downloading a specific media file."""
-        path = reverse('project_download_media', kwargs={
-            'project_slug': self.slug,
-            'type_': type_,
-            'version_slug': version_slug,
-        })
+        try:
+            path = reverse('project_download_media', kwargs={
+                'project_slug': self.slug,
+                'type_': type_,
+                'version_slug': version_slug,
+            })
+        except NoReverseMatch:
+            return ''
         if full_path:
             path = '//%s%s' % (settings.PRODUCTION_DOMAIN, path)
         return path

@@ -151,8 +151,11 @@ def attach_promo_data(sender, **kwargs):
         # Get geo information from the IP, but don't record it anywhere
         ip = request.META.get('REMOTE_ADDR')
         if ip:
-            geo_response = geo_reader.city(ip)
-            country_code = geo_response.iso_code
+            try:
+                geo_response = geo_reader.city(ip)
+                country_code = geo_response.iso_code
+            except ValueError:  # Invalid IP
+                country_code = None
 
     # Try to get a promo if we should be using one.
     if show_promo:

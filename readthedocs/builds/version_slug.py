@@ -30,7 +30,7 @@ from django.utils.encoding import force_text
 #   *? -- allow multiple of those, but be not greedy about the matching
 #   (?: ... ) -- wrap everything so that the pattern cannot escape when used in
 #                regexes.
-VERSION_SLUG_REGEX = '(?:[a-z0-9][-._a-z0-9]*?)'
+VERSION_SLUG_REGEX = '(?:[a-z0-9A-Z][-._a-z0-9A-Z]*?)'
 
 
 class VersionSlugField(models.CharField):
