@@ -5,52 +5,53 @@ from django.test import TestCase
 from readthedocs.builds.constants import LATEST
 import readthedocs.core.views
 
+
 class SubdomainUrlTests(TestCase):
 
     def test_sub_index(self):
         url = reverse(readthedocs.core.views.redirect_project_slug,
-            urlconf='readthedocs.core.subdomain_urls')
+                      urlconf='readthedocs.core.subdomain_urls')
         self.assertEqual(url, '/')
 
     def test_sub_lang_version(self):
         url = reverse('docs_detail', urlconf='readthedocs.core.subdomain_urls',
-            kwargs={'lang_slug': 'en', 'version_slug': LATEST})
+                      kwargs={'lang_slug': 'en', 'version_slug': LATEST})
         self.assertEqual(url, '/en/latest/')
 
     def test_sub_lang_version_filename(self):
         url = reverse('docs_detail', urlconf='readthedocs.core.subdomain_urls',
-            args=['en', 'latest', 'index.html'])
+                      args=['en', 'latest', 'index.html'])
         self.assertEqual(url, '/en/latest/index.html')
 
     def test_sub_project_full_path(self):
         url = reverse('subproject_docs_detail',
-            urlconf='readthedocs.core.subdomain_urls',
-            kwargs={'project_slug':'pyramid', 'lang_slug': 'en',
-                    'version_slug': LATEST, 'filename': 'index.html'})
+                      urlconf='readthedocs.core.subdomain_urls',
+                      kwargs={'project_slug': 'pyramid', 'lang_slug': 'en',
+                              'version_slug': LATEST, 'filename': 'index.html'})
         self.assertEqual(url, '/projects/pyramid/en/latest/index.html')
 
     def test_sub_project_slug_only(self):
         url = reverse('subproject_docs_detail',
-            urlconf='readthedocs.core.subdomain_urls',
-            kwargs={'project_slug': 'pyramid'})
+                      urlconf='readthedocs.core.subdomain_urls',
+                      kwargs={'project_slug': 'pyramid'})
         self.assertEqual(url, '/projects/pyramid')
 
     def test_sub_page(self):
         url = reverse('docs_detail',
-            urlconf='readthedocs.core.subdomain_urls',
-            kwargs={'filename': 'install.html'})
+                      urlconf='readthedocs.core.subdomain_urls',
+                      kwargs={'filename': 'install.html'})
         self.assertEqual(url, '/page/install.html')
 
     def test_sub_version(self):
         url = reverse('version_subdomain_handler',
-            urlconf='readthedocs.core.subdomain_urls',
-            kwargs={'version_slug': '1.4.1'})
+                      urlconf='readthedocs.core.subdomain_urls',
+                      kwargs={'version_slug': '1.4.1'})
         self.assertEqual(url, '/1.4.1/')
 
     def test_sub_lang(self):
         url = reverse('lang_subdomain_handler',
-            urlconf='readthedocs.core.subdomain_urls',
-            kwargs={'lang_slug': 'en'})
+                      urlconf='readthedocs.core.subdomain_urls',
+                      kwargs={'lang_slug': 'en'})
         self.assertEqual(url, '/en/')
 
 
@@ -94,3 +95,13 @@ class WipeUrlTests(TestCase):
             reverse('wipe_version', args=[project_slug, version])
         except NoReverseMatch:
             pass
+
+
+class TestVersionURLs(TestCase):
+
+    def test_version_url_with_caps(self):
+        url = reverse(
+            'project_download_media',
+            kwargs={'type_': 'pdf', 'version_slug': u'1.4.X', 'project_slug': u'django'}
+        )
+        self.assertTrue(url)
