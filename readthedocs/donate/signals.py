@@ -153,7 +153,7 @@ def attach_promo_data(sender, **kwargs):
         if ip:
             try:
                 geo_response = geo_reader.city(ip)
-                country_code = geo_response.iso_code
+                country_code = geo_response.country.iso_code
             except ValueError:  # Invalid IP
                 country_code = None
 
