@@ -27,7 +27,7 @@ class Command(BaseCommand):
         '''
         project = options['project']
 
-        queryset = Version.objects.public()
+        queryset = Version.objects.all()
 
         if project:
             queryset = queryset.filter(project__slug=project)

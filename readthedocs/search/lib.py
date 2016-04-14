@@ -1,4 +1,6 @@
-from django.http import Http404
+from pprint import pprint
+
+from django.conf import settings
 
 from .indexes import PageIndex, ProjectIndex, SectionIndex
 
@@ -111,13 +113,13 @@ def search_file(request, query, project_slug=None, version_slug=LATEST, taxonomy
         if project_slug:
             try:
                 project = (Project.objects
-                           .api(request.user)
+                           .search(request.user)
                            .get(slug=project_slug))
                 project_slugs = [project.slug]
                 # We need to use the obtuse syntax here because the manager
                 # doesn't pass along to ProjectRelationships
                 project_slugs.extend(s.slug for s
-                                     in Project.objects.public(
+                                     in Project.objects.search(
                                          request.user).filter(
                                          superprojects__parent__slug=project.slug))
                 final_filter['and'].append({"terms": {"project": project_slugs}})
@@ -145,7 +147,13 @@ def search_file(request, query, project_slug=None, version_slug=LATEST, taxonomy
         body['facets']['version']['facet_filter'] = final_filter
         body['facets']['taxonomy']['facet_filter'] = final_filter
 
+    if settings.DEBUG:
+        print "Before Signal"
+        pprint(body)
     before_file_search.send(request=request, sender=PageIndex, body=body)
+    if settings.DEBUG:
+        print "After Signal"
+        pprint(body)
 
     return PageIndex().search(body, **kwargs)
 
