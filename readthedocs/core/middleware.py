@@ -203,11 +203,13 @@ class FooterNoSessionMiddleware(SessionMiddleware):
     """
 
     def process_request(self, request):
-        if ('api/v2/footer_html' in request.path_info and
-                settings.SESSION_COOKIE_NAME not in request.COOKIES):
-            # Hack request.session otherwise the Authentication middleware complains.
-            request.session = {}
-            return
+        ignore_urls = ['api/v2/footer_html', '/sustainability/view/', '/sustainability/click/']
+        for url in ignore_urls:
+            if (url in request.path_info and
+                    settings.SESSION_COOKIE_NAME not in request.COOKIES):
+                # Hack request.session otherwise the Authentication middleware complains.
+                request.session = {}
+                return
         super(FooterNoSessionMiddleware, self).process_request(request)
 
     def process_response(self, request, response):
