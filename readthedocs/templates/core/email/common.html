@@ -1,1 +1,3 @@
 {% extends 'core/email/base.html' %}
+
+{% block content %}{{ content|safe }}{% endblock %}

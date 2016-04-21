@@ -1,0 +1,41 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+
+  <h3>{% trans 'Send Email' %}</h3>
+
+  <p>
+    {% blocktrans %}
+      An email message will be sent to the following email addresses:
+    {% endblocktrans %}
+  </p>
+
+  <ul>
+    {% for user in users|slice:":20" %}
+      <li>{{ user.email }} ({{ user }})</li>
+    {% endfor %}
+    {% with extra_users=users|slice:"20:" %}
+      {% if extra_users|length > 0 %}
+        <li>
+          {% blocktrans with count=extra_users|length %}
+            And {{ count }} other users...
+          {% endblocktrans %}
+        </li>
+      {% endif %}
+    {% endwith %}
+  </ul>
+
+  <p>
+    {% blocktrans %}
+      Specify the email content you wish to send:
+    {% endblocktrans %}
+  </p>
+
+  <form method="post" action="">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="hidden" name="action" value="send_email" />
+    <input type="submit" name="send" value="{% trans 'Send Messages' %}" />
+  </form>
+{% endblock %}
