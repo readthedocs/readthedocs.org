@@ -99,7 +99,8 @@ def base_resolve_path(project_slug, filename, version_slug=None, language=None,
 def resolve_path(project, filename='', version_slug=None, language=None,
                  single_version=None, subdomain=None, cname=None, private=None):
     """ Resolve a URL with a subset of fields defined."""
-    subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
+    if subdomain is None:
+        subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
     relation = project.superprojects.first()
     cname = cname or project.domains.filter(canonical=True).first()
     main_language_project = project.main_language_project
