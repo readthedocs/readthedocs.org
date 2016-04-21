@@ -2,9 +2,9 @@
 {% load privacy_tags %}
 
 <!-- BEGIN onboard first build -->
-<div class="onboard onboard-detail">
 
-  {% if request.user|is_admin:project %}
+{% if request.user|is_admin:project %}
+  <div class="onboard onboard-detail">
     {% if not onboard.build %}
       <h2>{% trans "Start building your documentation" %}</h2>
       <p>
@@ -69,7 +69,7 @@
       {% endif %}
 
   {% endif %}
+  </div>
   {% endif %}
 
-</div>
 <!-- END onboard import project -->
