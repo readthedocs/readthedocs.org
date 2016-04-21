@@ -48,6 +48,9 @@ class Resolver(object):
         /docs/<project_slug>/projects/<subproject_slug>/<filename>
     """
 
+    PRODUCTION_DOMAIN = getattr(settings, 'PRODUCTION_DOMAIN')
+    PUBLIC_DOMAIN = getattr(settings, 'PUBLIC_DOMAIN', PRODUCTION_DOMAIN)
+
     def base_resolve_path(self, project_slug, filename, version_slug=None,
                           language=None, private=False, single_version=None,
                           subproject_slug=None, subdomain=None, cname=None):
@@ -124,11 +127,7 @@ class Resolver(object):
         main_language_project = project.main_language_project
         relation = project.superprojects.first()
         subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
-        prod_domain = getattr(settings, 'PRODUCTION_DOMAIN')
-        public_domain = getattr(settings, 'PUBLIC_DOMAIN', None)
 
-        if public_domain is None:
-            public_domain = prod_domain
         if private is None:
             private = project.privacy_level == PRIVATE
 
@@ -145,9 +144,9 @@ class Resolver(object):
             return domain.domain
         elif subdomain:
             subdomain_slug = canonical_project.slug.replace('_', '-')
-            return "%s.%s" % (subdomain_slug, public_domain)
+            return "%s.%s" % (subdomain_slug, self.PUBLIC_DOMAIN)
         else:
-            return public_domain
+            return self.PUBLIC_DOMAIN
 
     def resolve(self, project, protocol='http', filename='', private=None,
                 **kwargs):
