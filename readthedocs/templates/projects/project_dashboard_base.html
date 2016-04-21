@@ -48,9 +48,11 @@
         <div class="module-wrapper">
 
           <div class="module-header">
+            {% block project_import_button %}
             <form method="get" action="{{ projects_import_url }}">
               <input type="submit" value="Import a Project" />
             </form>
+            {% endblock %}
             <h3>{% trans "Projects" %}</h3>
           </div>
 
