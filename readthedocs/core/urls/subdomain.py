@@ -11,7 +11,7 @@ urlpatterns = patterns(
         'readthedocs.core.views.redirect_page_with_filename',
         name='docs_detail'),
 
-    url(r'^$', 'readthedocs.core.views.redirect_project_slug', name='homepage'),
+    url(r'^$', 'readthedocs.core.views.redirect_project_slug', name='redirect_project_slug'),
     url(r'', 'readthedocs.core.views.serve_symlink_docs', name='serve_symlink_docs'),
 )
 
