@@ -48,9 +48,6 @@ class Resolver(object):
         /docs/<project_slug>/projects/<subproject_slug>/<filename>
     """
 
-    PRODUCTION_DOMAIN = getattr(settings, 'PRODUCTION_DOMAIN')
-    PUBLIC_DOMAIN = getattr(settings, 'PUBLIC_DOMAIN', PRODUCTION_DOMAIN)
-
     def base_resolve_path(self, project_slug, filename, version_slug=None,
                           language=None, private=False, single_version=None,
                           subproject_slug=None, subdomain=None, cname=None):
@@ -144,9 +141,9 @@ class Resolver(object):
             return domain.domain
         elif subdomain:
             subdomain_slug = canonical_project.slug.replace('_', '-')
-            return "%s.%s" % (subdomain_slug, self.PUBLIC_DOMAIN)
+            return "%s.%s" % (subdomain_slug, self._serve_domain())
         else:
-            return self.PUBLIC_DOMAIN
+            return self._serve_domain()
 
     def resolve(self, project, protocol='http', filename='', private=None,
                 **kwargs):
@@ -193,3 +190,8 @@ class Resolver(object):
         else:
             path = ""
         return path
+
+    def _serve_domain(self):
+        prod = getattr(settings, 'PRODUCTION_DOMAIN')
+        public = getattr(settings, 'PUBLIC_DOMAIN')
+        return public if public is not None else prod
