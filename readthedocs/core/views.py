@@ -25,6 +25,7 @@ from readthedocs.projects import constants
 from readthedocs.projects.models import Project, ImportedFile, ProjectRelationship
 from readthedocs.projects.tasks import remove_dir, update_imported_docs
 from readthedocs.redirects.utils import get_redirect_response
+from readthedocs.core.symlink import PublicSymlink
 
 import json
 import mimetypes
@@ -367,32 +368,6 @@ def subproject_list(request):
     )
 
 
-def subproject_serve_docs(request, project_slug, lang_slug=None,
-                          version_slug=None, filename=''):
-    parent_slug = request.slug
-    proj = get_object_or_404(Project, slug=project_slug)
-    subproject_qs = ProjectRelationship.objects.filter(
-        parent__slug=parent_slug, child__slug=project_slug)
-    if lang_slug is None or version_slug is None:
-        # Handle /
-        version_slug = proj.get_default_version()
-        url = reverse('subproject_docs_detail', kwargs={
-            'project_slug': project_slug,
-            'version_slug': version_slug,
-            'lang_slug': proj.language,
-            'filename': filename
-        })
-        return HttpResponseRedirect(url)
-
-    if subproject_qs.exists():
-        return serve_docs(request, lang_slug, version_slug, filename,
-                          project_slug)
-    else:
-        log.info('Subproject lookup failed: %s:%s' % (project_slug,
-                                                      parent_slug))
-        raise Http404("Subproject does not exist")
-
-
 def default_docs_kwargs(request, project_slug=None):
     """
     Return kwargs used to reverse lookup a project's default docs URL.
@@ -496,45 +471,18 @@ def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
                        project_slug=project_slug)
 
 
-def _serve_docs(request, project, version, filename, lang_slug=None,
-                version_slug=None, project_slug=None):
-    '''Actually serve the built documentation files
 
-    This is not called directly, but is wrapped by :py:func:`serve_docs` so that
-    authentication can be manipulated.
-    '''
-    # Figure out actual file to serve
-    if not filename:
-        filename = "index.html"
-    # This is required because we're forming the filenames outselves instead of
-    # letting the web server do it.
-    elif (
-            (project.documentation_type == 'sphinx_htmldir' or
-             project.documentation_type == 'mkdocs') and
-            "_static" not in filename and
-            ".css" not in filename and
-            ".js" not in filename and
-            ".png" not in filename and
-            ".jpg" not in filename and
-            ".svg" not in filename and
-            "_images" not in filename and
-            ".html" not in filename and
-            "font" not in filename and
-            "inv" not in filename):
-        filename += "index.html"
-    else:
-        filename = filename.rstrip('/')
-    # Use the old paths if we're on our old location.
-    # Otherwise use the new language symlinks.
-    # This can be removed once we have 'en' symlinks for every project.
-    if lang_slug == project.language:
-        basepath = project.rtd_build_path(version_slug)
-    else:
-        basepath = project.translations_symlink_path(lang_slug)
-        basepath = os.path.join(basepath, version_slug)
-
-    # Serve file
+def serve_symlink_docs(request, filename='', project_slug=None):
+    # Handle indexes
+    if filename == '' or filename[-1] == '/':
+        filename += 'index.html'
+    if not project_slug:
+        project_slug = request.slug
+    project = Project.objects.get(slug=project_slug)
+    public_symlink = PublicSymlink(project)
+    basepath = public_symlink.project_root
     log.info('Serving %s for %s' % (filename, project))
+
     if not settings.DEBUG and not getattr(settings, 'PYTHON_MEDIA', False):
         fullpath = os.path.join(basepath, filename)
         content_type, encoding = mimetypes.guess_type(fullpath)
@@ -551,19 +499,6 @@ def _serve_docs(request, project, version, filename, lang_slug=None,
         return response
     else:
         return serve(request, filename, basepath)
-
-
-def serve_single_version_docs(request, filename, project_slug=None):
-    if not project_slug:
-        project_slug = request.slug
-    proj = get_object_or_404(Project, slug=project_slug)
-
-    # This function only handles single version projects
-    if not proj.single_version:
-        raise Http404
-
-    return serve_docs(request, proj.language, proj.default_version,
-                      filename, project_slug)
 
 
 def server_error(request, template_name='500.html'):

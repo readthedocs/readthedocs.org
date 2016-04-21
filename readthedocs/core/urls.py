@@ -8,30 +8,6 @@ from readthedocs.projects.filters import ProjectFilter
 
 docs_urls = patterns(
     '',
-    # For serving docs locally and when nginx isn't
-    url((r'^docs/(?P<project_slug>{project_slug})/(?P<lang_slug>{lang_slug})/'
-         r'(?P<version_slug>{version_slug})/'
-         r'(?P<filename>{filename_slug})$'.format(**pattern_opts)),
-        'readthedocs.core.views.serve_docs',
-        name='docs_detail'),
-
-    # Redirect to default version, if only lang_slug is set.
-    url((r'^docs/(?P<project_slug>{project_slug})/'
-         r'(?P<lang_slug>{lang_slug})/$'.format(**pattern_opts)),
-        'readthedocs.core.views.redirect_lang_slug',
-        name='docs_detail'),
-
-    # Redirect to default version, if only version_slug is set.
-    url((r'^docs/(?P<project_slug>{project_slug})/'
-         r'(?P<version_slug>{version_slug})/$'.format(**pattern_opts)),
-        'readthedocs.core.views.redirect_version_slug',
-        name='docs_detail'),
-
-    # Redirect to default version.
-    url(r'^docs/(?P<project_slug>{project_slug})/$'.format(**pattern_opts),
-        'readthedocs.core.views.redirect_project_slug',
-        name='docs_detail'),
-
     # Handle /page/<path> redirects for explicit "latest" version goodness.
     url((r'^docs/(?P<project_slug>{project_slug})/page/'
          r'(?P<filename>{filename_slug})$'.format(**pattern_opts)),
@@ -41,20 +17,8 @@ docs_urls = patterns(
     # Handle single version URLs
     url((r'^docs/(?P<project_slug>{project_slug})/'
          r'(?P<filename>{filename_slug})$'.format(**pattern_opts)),
-        'readthedocs.core.views.serve_single_version_docs',
+        'readthedocs.core.views.serve_symlink_docs',
         name='docs_detail'),
-
-    # Handle fallbacks
-    url((r'^user_builds/(?P<project_slug>{project_slug})/rtd-builds/'
-         r'(?P<version_slug>{version_slug})/'
-         r'(?P<filename>{filename_slug})$'.format(**pattern_opts)),
-        'readthedocs.core.views.server_helpful_404',
-        name='user_builds_fallback'),
-    url((r'^user_builds/(?P<project_slug>{project_slug})/translations/'
-         r'(?P<lang_slug>{lang_slug})/(?P<version_slug>{version_slug})/'
-         r'(?P<filename>{filename_slug})$'.format(**pattern_opts)),
-        'readthedocs.core.views.server_helpful_404',
-        name='user_builds_fallback_translations'),
 )
 
 

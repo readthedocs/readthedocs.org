@@ -34,8 +34,7 @@ class SubdomainMiddleware(object):
         path = request.get_full_path()
         log_kwargs = dict(host=host, path=path)
         public_domain = getattr(settings, 'PUBLIC_DOMAIN', None)
-        production_domain = getattr(settings, 'PRODUCTION_DOMAIN',
-                                    'readthedocs.org')
+        production_domain = getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org')
 
         if public_domain is None:
             public_domain = production_domain
@@ -47,12 +46,12 @@ class SubdomainMiddleware(object):
         if len(domain_parts) == len(public_domain.split('.')) + 1:
             subdomain = domain_parts[0]
             is_www = subdomain.lower() == 'www'
-            is_ssl = subdomain.lower() == 'ssl'
-            if not is_www and not is_ssl and public_domain in host:
+            if not is_www and public_domain in host:
                 request.subdomain = True
                 request.slug = subdomain
                 request.urlconf = SUBDOMAIN_URLCONF
                 return None
+
         # Serve CNAMEs
         if (public_domain not in host and
                 production_domain not in host and
