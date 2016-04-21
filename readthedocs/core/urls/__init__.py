@@ -8,29 +8,40 @@ from readthedocs.projects.filters import ProjectFilter
 
 docs_urls = patterns(
     '',
+
     # Handle /page/<path> redirects for explicit "latest" version goodness.
     url((r'^docs/(?P<project_slug>{project_slug})/page/'
          r'(?P<filename>{filename_slug})$'.format(**pattern_opts)),
-        'readthedocs.core.views.redirect_page_with_filename',
+        'readthedocs.core.views.serve.redirect_page_with_filename',
         name='docs_detail'),
 
     # Handle single version URLs
     url((r'^docs/(?P<project_slug>{project_slug})/'
          r'(?P<filename>{filename_slug})$'.format(**pattern_opts)),
-        'readthedocs.core.views.serve_symlink_docs',
+        'readthedocs.core.views.serve.serve_symlink_docs',
         name='docs_detail'),
+
+    # Just for reversing URL's for now
+    url((r'^docs/(?P<project_slug>{project_slug})/(?P<lang_slug>{lang_slug})/'
+         r'(?P<version_slug>{version_slug})/'
+         r'(?P<filename>{filename_slug})$'.format(**pattern_opts)),
+        'readthedocs.core.views.serve.serve_symlink_docs',
+        name='docs_detail'),
+
 )
 
 
 core_urls = patterns(
     '',
-    url(r'^github', 'readthedocs.core.views.github_build', name='github_build'),
-    url(r'^gitlab', 'readthedocs.core.views.gitlab_build', name='gitlab_build'),
-    url(r'^bitbucket', 'readthedocs.core.views.bitbucket_build', name='bitbucket_build'),
+    # Hooks
+    url(r'^github', 'readthedocs.core.views.hooks.github_build', name='github_build'),
+    url(r'^gitlab', 'readthedocs.core.views.hooks.gitlab_build', name='gitlab_build'),
+    url(r'^bitbucket', 'readthedocs.core.views.hooks.bitbucket_build', name='bitbucket_build'),
     url((r'^build/'
          r'(?P<project_id_or_slug>{project_slug})'.format(**pattern_opts)),
-        'readthedocs.core.views.generic_build',
+        'readthedocs.core.views.hooks.generic_build',
         name='generic_build'),
+    # Random other stuff
     url(r'^random/(?P<project_slug>{project_slug})'.format(**pattern_opts),
         'readthedocs.core.views.random_page',
         name='random_page'),
@@ -59,8 +70,4 @@ deprecated_urls = patterns(
     url(r'^feeds/latest/$',
         LatestProjectsFeed(),
         name="latest_feed"),
-    url((r'^mlt/(?P<project_slug>{project_slug})/'
-         r'(?P<filename>{filename_slug})$'.format(**pattern_opts)),
-        'readthedocs.core.views.morelikethis',
-        name='morelikethis'),
 )

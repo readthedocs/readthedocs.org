@@ -1,6 +1,5 @@
 from django.conf.urls import url, patterns
 
-from readthedocs.projects.constants import LANGUAGES_REGEX
 from readthedocs.urls import urlpatterns as main_patterns
 
 handler500 = 'readthedocs.core.views.server_error'
