@@ -36,6 +36,7 @@ def send_email_task(recipient, subject, template, template_html, context=None):
         settings.DEFAULT_FROM_EMAIL,
         [recipient]
     )
-    msg.attach_alternative(get_template(template_html).render(context), 'text/html')
+    msg.attach_alternative(get_template(template_html).render(context),
+                           'text/html')
     msg.send()
     log.info('Sent email to recipient: %s', recipient)
