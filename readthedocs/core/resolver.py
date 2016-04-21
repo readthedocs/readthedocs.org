@@ -29,8 +29,9 @@ All possible URL's::
     /docs/<project_slug>/projects/<subproject_slug>/<filename> # Subproject Single Version
 """
 
-from django.conf import settings
 import re
+
+from django.conf import settings
 
 from readthedocs.projects.constants import PRIVATE, PUBLIC
 
@@ -68,13 +69,14 @@ def _fix_filename(project, filename):
     return path
 
 
-def base_resolve_path(project_slug, filename, version_slug=None, language=None, private=False,
-                      single_version=None, subproject_slug=None,  subdomain=None, cname=None):
-    """ Resolve a with nothing smart, just filling in the blanks."""
-
-    if private:
-        url = '/docs/{project_slug}/'
-    elif subdomain or cname:
+def base_resolve_path(project_slug, filename, version_slug=None, language=None,
+                      private=False, single_version=None, subproject_slug=None,
+                      subdomain=None, cname=None):
+    """Resolve a with nothing smart, just filling in the blanks"""
+    # Only support `/docs/project' URLs outside our normal environment. Normally
+    # the path should always have a subdomain or CNAME domain
+    use_subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
+    if subdomain or cname or (private and use_subdomain):
         url = '/'
     else:
         url = '/docs/{project_slug}/'
@@ -154,9 +156,7 @@ def resolve_domain(project, private=None):
 
     domain = canonical_project.domains.filter(canonical=True).first()
     # Force domain even if USE_SUBDOMAIN is on
-    if private:
-        return prod_domain
-    elif domain:
+    if domain:
         return domain.domain
     elif subdomain:
         subdomain_slug = canonical_project.slug.replace('_', '-')

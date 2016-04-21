@@ -120,28 +120,33 @@ class RedirectTests(TestCase):
         self.assertEqual(r.status_code, 404)
 
     # Subdomains
+    @override_settings(USE_SUBDOMAIN=True)
     def test_proper_subdomain(self):
         r = self.client.get('/', HTTP_HOST='pip.readthedocs.org')
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
             r['Location'], 'http://pip.readthedocs.org/en/latest/')
 
+    @override_settings(USE_SUBDOMAIN=True)
     def test_proper_subdomain_with_lang_slug_only(self):
         r = self.client.get('/en/', HTTP_HOST='pip.readthedocs.org')
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
             r['Location'], 'http://pip.readthedocs.org/en/latest/')
 
+    @override_settings(USE_SUBDOMAIN=True)
     def test_proper_subdomain_and_url(self):
         r = self.client.get('/en/latest/', HTTP_HOST='pip.readthedocs.org')
         self.assertEqual(r.status_code, 200)
 
+    @override_settings(USE_SUBDOMAIN=True)
     def test_proper_subdomain_and_url_with_filename(self):
         r = self.client.get(
             '/en/latest/test.html', HTTP_HOST='pip.readthedocs.org')
         self.assertEqual(r.status_code, 200)
 
     # Specific Page Redirects
+    @override_settings(USE_SUBDOMAIN=True)
     def test_proper_page_on_subdomain(self):
         r = self.client.get('/page/test.html', HTTP_HOST='pip.readthedocs.org')
         self.assertEqual(r.status_code, 302)
@@ -149,12 +154,14 @@ class RedirectTests(TestCase):
                          'http://pip.readthedocs.org/en/latest/test.html')
 
     # When there's only a version slug, the redirect prepends the lang slug
+    @override_settings(USE_SUBDOMAIN=True)
     def test_proper_subdomain_with_version_slug_only(self):
         r = self.client.get('/1.4.1/', HTTP_HOST='pip.readthedocs.org')
         self.assertEqual(r.status_code, 302)
         self.assertEqual(r['Location'],
                          'http://pip.readthedocs.org/en/1.4.1/')
 
+    @override_settings(USE_SUBDOMAIN=True)
     def test_improper_subdomain_filename_only(self):
         r = self.client.get('/test.html', HTTP_HOST='pip.readthedocs.org')
         self.assertEqual(r.status_code, 404)
@@ -170,6 +177,7 @@ class RedirectUnderscoreTests(TestCase):
             slug='what_up', name='What Up Underscore')
 
     # Test _ -> - slug lookup
+    @override_settings(USE_SUBDOMAIN=True)
     def test_underscore_redirect(self):
         r = self.client.get('/',
                             HTTP_HOST='what-up.readthedocs.org')

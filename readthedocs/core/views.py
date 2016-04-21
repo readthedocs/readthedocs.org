@@ -862,7 +862,7 @@ class SendEmailView(FormView):
         if count == 0:
             self.message_user("No receipients to send to", level=messages.ERROR)
         else:
-            self.message_user("Messages sent!")
+            self.message_user("Queued {0} messages".format(count))
         return HttpResponseRedirect(self.request.get_full_path())
 
     def get_queryset(self):
