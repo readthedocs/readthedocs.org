@@ -27,49 +27,26 @@ class Resolver(object):
 
         Subdomain or CNAME:
 
-        /<lang>/<version>/<filename> # Default
-        /<filename> # Single Version
-        /projects/<subproject_slug>/<lang>/<version>/<filename> # Subproject Default
-        /projects/<subproject_slug>/<filename> # Subproject Single Version
+        # Default
+        /<lang>/<version>/<filename>
+        # Single Version
+        /<filename>
+        # Subproject Default
+        /projects/<subproject_slug>/<lang>/<version>/<filename>
+        # Subproject Single Version
+        /projects/<subproject_slug>/<filename>
 
         Normal Serving:
 
-        /docs/<project_slug>/<lang>/<version>/<filename> # Default
-        /docs/<project_slug>/<filename> # Single Version
-        /docs/<project_slug>/projects/<subproject_slug>/<lang>/<version>/<filename> # Subproject Default
-        /docs/<project_slug>/projects/<subproject_slug>/<filename> # Subproject Single Version
+        # Default
+        /docs/<project_slug>/<lang>/<version>/<filename>
+        # Single Version
+        /docs/<project_slug>/<filename>
+        # Subproject Default
+        /docs/<project_slug>/projects/<subproject_slug>/<lang>/<version>/<filename>
+        # Subproject Single Version
+        /docs/<project_slug>/projects/<subproject_slug>/<filename>
     """
-
-    def _get_private(self, project, version_slug):
-        from readthedocs.builds.models import Version
-        try:
-            version = project.versions.get(slug=version_slug)
-            private = version.privacy_level == PRIVATE
-        except Version.DoesNotExist:
-            private = getattr(settings, 'DEFAULT_PRIVACY_LEVEL', PUBLIC) == PRIVATE
-        return private
-
-    def _fix_filename(self, project, filename):
-        """
-        Force filenames that might be HTML file paths into proper URL's
-
-        This basically means stripping / and .html endings and then re-adding them properly.
-        """
-        filename = filename.lstrip('/')
-        filename = re.sub('index.html$', '', filename)
-        filename = re.sub('index$', '', filename)
-        if filename:
-            if filename.endswith('/') or filename.endswith('.html'):
-                path = filename
-            elif project.documentation_type == "sphinx_singlehtml":
-                path = "index.html#document-" + filename
-            elif project.documentation_type in ["sphinx_htmldir", "mkdocs"]:
-                path = filename + "/"
-            else:
-                path = filename + ".html"
-        else:
-            path = ""
-        return path
 
     def base_resolve_path(self, project_slug, filename, version_slug=None,
                           language=None, private=False, single_version=None,
@@ -186,3 +163,34 @@ class Resolver(object):
             path=self.resolve_path(project, filename=filename, private=private,
                                    **kwargs),
         )
+
+    def _get_private(self, project, version_slug):
+        from readthedocs.builds.models import Version
+        try:
+            version = project.versions.get(slug=version_slug)
+            private = version.privacy_level == PRIVATE
+        except Version.DoesNotExist:
+            private = getattr(settings, 'DEFAULT_PRIVACY_LEVEL', PUBLIC) == PRIVATE
+        return private
+
+    def _fix_filename(self, project, filename):
+        """
+        Force filenames that might be HTML file paths into proper URL's
+
+        This basically means stripping / and .html endings and then re-adding them properly.
+        """
+        filename = filename.lstrip('/')
+        filename = re.sub('index.html$', '', filename)
+        filename = re.sub('index$', '', filename)
+        if filename:
+            if filename.endswith('/') or filename.endswith('.html'):
+                path = filename
+            elif project.documentation_type == "sphinx_singlehtml":
+                path = "index.html#document-" + filename
+            elif project.documentation_type in ["sphinx_htmldir", "mkdocs"]:
+                path = filename + "/"
+            else:
+                path = filename + ".html"
+        else:
+            path = ""
+        return path
