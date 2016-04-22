@@ -15,12 +15,12 @@ LOG_TEMPLATE = u"(Middleware) {msg} [{host}{path}]"
 SUBDOMAIN_URLCONF = getattr(
     settings,
     'SUBDOMAIN_URLCONF',
-    'readthedocs.core.subdomain_urls'
+    'readthedocs.core.urls.subdomain'
 )
 SINGLE_VERSION_URLCONF = getattr(
     settings,
     'SINGLE_VERSION_URLCONF',
-    'readthedocs.core.single_version_urls'
+    'readthedocs.core.urls.single_version'
 )
 
 
