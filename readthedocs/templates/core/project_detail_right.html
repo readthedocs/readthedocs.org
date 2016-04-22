@@ -121,13 +121,3 @@
 <h3>{% trans "'latest' Version" %}</h3>
 <p> {{ project.get_default_branch }}</p>
 {% endblock %}
-
-{% block post-commit %}
-{% if request.user in project.users.all %}
-  <h3>{% trans "Post Commit Hook" %}</h3>
-    <p class="detail-long">
-        curl -X POST https://{{ PRODUCTION_DOMAIN }}{% url "generic_build" project.slug %}
-    </p>
-{% endif %}
-{% endblock %}
-
