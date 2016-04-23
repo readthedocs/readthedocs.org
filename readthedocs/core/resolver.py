@@ -55,8 +55,7 @@ class ResolverBase(object):
         """Resolve a with nothing smart, just filling in the blanks"""
         # Only support `/docs/project' URLs outside our normal environment. Normally
         # the path should always have a subdomain or CNAME domain
-        use_subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
-        if subdomain or cname or (private and use_subdomain):
+        if subdomain or cname or (self._use_subdomain()):
             url = '/'
         else:
             url = '/docs/{project_slug}/'
@@ -79,7 +78,6 @@ class ResolverBase(object):
                      language=None, single_version=None, subdomain=None,
                      cname=None, private=None):
         """Resolve a URL with a subset of fields defined"""
-        subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
         relation = project.superprojects.first()
         cname = cname or project.domains.filter(canonical=True).first()
         main_language_project = project.main_language_project
@@ -116,26 +114,19 @@ class ResolverBase(object):
             language=language,
             single_version=single_version,
             subproject_slug=subproject_slug,
-            subdomain=subdomain,
             cname=cname,
             private=private
         )
 
     def resolve_domain(self, project, private=None):
-        subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
         canonical_project = self._get_canonical_project(project)
-
-        if private is None:
-            private = project.privacy_level == PRIVATE
-
         domain = canonical_project.domains.filter(canonical=True).first()
-        # Force domain even if USE_SUBDOMAIN is on
         if domain:
             return domain.domain
-        elif subdomain:
+        elif self._use_subdomain():
             return self._get_project_subdomain(canonical_project)
         else:
-            return self._serve_domain()
+            return getattr(settings, 'PRODUCTION_DOMAIN')
 
     def resolve(self, project, protocol='http', filename='', private=None,
                 **kwargs):
@@ -169,9 +160,11 @@ class ResolverBase(object):
 
     def _get_project_subdomain(self, project):
         """Determine canonical project domain as subdomain"""
-        project = self._get_canonical_project(project)
-        subdomain_slug = project.slug.replace('_', '-')
-        return "%s.%s" % (subdomain_slug, self._serve_domain())
+        public_domain = getattr(settings, 'PUBLIC_DOMAIN', None)
+        if self._use_subdomain():
+            project = self._get_canonical_project(project)
+            subdomain_slug = project.slug.replace('_', '-')
+            return "%s.%s" % (subdomain_slug, public_domain)
 
     def _get_private(self, project, version_slug):
         from readthedocs.builds.models import Version
@@ -204,10 +197,12 @@ class ResolverBase(object):
             path = ""
         return path
 
-    def _serve_domain(self):
-        prod = getattr(settings, 'PRODUCTION_DOMAIN')
-        public = getattr(settings, 'PUBLIC_DOMAIN')
-        return public if public is not None else prod
+    def _use_subdomain(self):
+        """Make decision about whether to use a subdomain to serve docs"""
+        use_subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
+        public_domain = getattr(settings, 'PUBLIC_DOMAIN', None)
+        return use_subdomain and public_domain is not None
+
 
 
 class Resolver(SettingsOverrideObject):
