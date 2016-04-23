@@ -11,6 +11,7 @@ from readthedocs.core.resolver import resolve_path, resolve, resolve_domain
 from django_dynamic_fixture import get
 
 
+@override_settings(PUBLIC_DOMAIN='readthedocs.org')
 class ResolverBase(TestCase):
 
     def setUp(self):
