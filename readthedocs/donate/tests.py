@@ -327,11 +327,7 @@ class CookieTests(TestCase):
 
     def setUp(self):
         # Only show in US,CA
-        self.promo = get(SupporterPromo,
-                         slug='promo-slug',
-                         link='http://example.com',
-                         live=True,
-                         )
+        self.promo = get(SupporterPromo, live=True)
 
     def test_no_cookie(self):
         mid = FooterNoSessionMiddleware()
