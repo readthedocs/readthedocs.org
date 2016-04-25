@@ -204,7 +204,6 @@ class ResolverBase(object):
         return use_subdomain and public_domain is not None
 
 
-
 class Resolver(SettingsOverrideObject):
 
     _default_class = ResolverBase
