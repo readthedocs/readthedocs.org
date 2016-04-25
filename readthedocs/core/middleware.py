@@ -201,7 +201,7 @@ class FooterNoSessionMiddleware(SessionMiddleware):
 
     This will reduce the size of our session table drastically.
     """
-    IGNORE_URLS = ['api/v2/footer_html', '/sustainability/view/', '/sustainability/click/']
+    IGNORE_URLS = ['/api/v2/footer_html', '/sustainability/view', '/sustainability/click']
 
     def process_request(self, request):
         for url in self.IGNORE_URLS:
