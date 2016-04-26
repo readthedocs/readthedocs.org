@@ -4,6 +4,7 @@ import django_dynamic_fixture as fixture
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.utils import override_settings
+from django.http import Http404
 
 from readthedocs.rtd_tests.base import RequestFactoryTestMixin
 from readthedocs.projects import constants
@@ -54,6 +55,14 @@ class TestPrivateDocs(BaseDocServing):
                 r._headers['x-accel-redirect'][1], '/private_web_root/private/en/latest/usage.html'
             )
 
+    @override_settings(PYTHON_MEDIA=False)
+    def test_private_files_not_found(self):
+        request = self.request(self.private_url, user=self.eric)
+        with self.assertRaises(Http404) as exc:
+            serve_symlink_docs(request, project=self.private, filename='/en/latest/usage.html')
+        self.assertTrue('private_web_root' in exc.exception.message)
+        self.assertTrue('public_web_root' not in exc.exception.message)
+
 
 @override_settings(SERVE_DOCS=[constants.PRIVATE, constants.PUBLIC])
 class TestPublicDocs(BaseDocServing):
@@ -79,3 +88,11 @@ class TestPublicDocs(BaseDocServing):
             self.assertEqual(
                 r._headers['x-accel-redirect'][1], '/public_web_root/public/en/latest/usage.html'
             )
+
+    @override_settings(PYTHON_MEDIA=False)
+    def test_both_files_not_found(self):
+        request = self.request(self.private_url, user=self.eric)
+        with self.assertRaises(Http404) as exc:
+            serve_symlink_docs(request, project=self.private, filename='/en/latest/usage.html')
+        self.assertTrue('private_web_root' in exc.exception.message)
+        self.assertTrue('public_web_root' in exc.exception.message)
