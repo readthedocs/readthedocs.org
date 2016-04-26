@@ -1,5 +1,7 @@
 """Patterns for extending Read the Docs"""
 
+import inspect
+
 from django.conf import settings
 from django.utils.module_loading import import_by_path
 from django.utils.functional import LazyObject
@@ -39,13 +41,14 @@ class SettingsOverrideObject(LazyObject):
         """
         cls = self._default_class
         cls_path = (getattr(settings, 'CLASS_OVERRIDES', {})
-                    .get(self.get_class_id()))
-        if cls_path is None:
+                    .get(self._get_class_id()))
+        if cls_path is None and self._override_setting is not None:
             cls_path = getattr(settings, self._override_setting, None)
         if cls_path is not None:
             cls = import_by_path(cls_path)
         self._wrapped = cls()
 
-    def get_class_id(self):
+    def _get_class_id(self):
         # type() here, because LazyObject overrides some attribute access
-        return '.'.join([__name__, type(self).__name__])
+        return '.'.join([inspect.getmodule(type(self)).__name__,
+                         type(self).__name__])
