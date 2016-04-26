@@ -120,8 +120,6 @@ def send_email(recipient, subject, template, template_html, context=None,
     """
     if context is None:
         context = {}
-    if request:
-        scheme = 'https' if request.is_secure() else 'http'
-        context['uri'] = '{scheme}://{host}'.format(scheme=scheme,
-                                                    host=request.get_host())
+    context['uri'] = '{scheme}://{host}'.format(
+        scheme='https', host=settings.PRODUCTION_DOMAIN)
     send_email_task.delay(recipient, subject, template, template_html, context)
